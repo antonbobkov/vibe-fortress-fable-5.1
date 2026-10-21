@@ -1,0 +1,2056 @@
+{
+ "base": "bd80aaa",
+ "share": {
+  "before": {
+   "hash": "fff94660405e7377",
+   "shares": {
+    "1": {
+     "idle:no-work": "0.9",
+     "idle:with-want": "0.0",
+     "need:travel": "40.8",
+     "need:use": "19.8",
+     "needx:comfort:travel": "6.0",
+     "needx:comfort:use": "4.7",
+     "needx:hunger:travel": "9.8",
+     "needx:hunger:use": "1.9",
+     "needx:joy:travel": "0.1",
+     "needx:joy:use": "0.1",
+     "needx:rest:travel": "16.7",
+     "needx:rest:use": "9.4",
+     "needx:social:travel": "0.2",
+     "needx:social:use": "1.8",
+     "needx:thirst:travel": "8.0",
+     "needx:thirst:use": "2.0",
+     "other:duty": "0.4",
+     "other:patient": "0.0",
+     "other:retreat": "0.6",
+     "work:haul": "9.6",
+     "work:job": "27.8",
+     "work:unassigned": "0.0",
+     "WORK": "37.4",
+     "NEEDS": "60.6",
+     "dwarfDays": "1140",
+     "MOOD": "54.0"
+    },
+    "2": {
+     "idle:no-work": "0.2",
+     "idle:with-want": "0.0",
+     "need:travel": "41.6",
+     "need:use": "21.2",
+     "needx:comfort:travel": "6.2",
+     "needx:comfort:use": "4.8",
+     "needx:hunger:travel": "9.0",
+     "needx:hunger:use": "1.9",
+     "needx:joy:travel": "0.1",
+     "needx:joy:use": "0.1",
+     "needx:rest:travel": "16.7",
+     "needx:rest:use": "9.9",
+     "needx:social:travel": "0.0",
+     "needx:social:use": "2.6",
+     "needx:thirst:travel": "9.5",
+     "needx:thirst:use": "1.9",
+     "other:flee": "0.1",
+     "work:haul": "20.1",
+     "work:job": "16.9",
+     "work:unassigned": "0.0",
+     "WORK": "37.0",
+     "NEEDS": "62.7",
+     "dwarfDays": "4002",
+     "MOOD": "57.0"
+    },
+    "3": {
+     "idle:no-work": "0.2",
+     "idle:with-want": "0.0",
+     "need:travel": "47.4",
+     "need:use": "22.3",
+     "needx:comfort:travel": "6.9",
+     "needx:comfort:use": "4.8",
+     "needx:hunger:travel": "10.7",
+     "needx:hunger:use": "1.9",
+     "needx:joy:travel": "0.1",
+     "needx:joy:use": "0.1",
+     "needx:rest:travel": "15.9",
+     "needx:rest:use": "11.0",
+     "needx:social:travel": "0.0",
+     "needx:social:use": "2.6",
+     "needx:thirst:travel": "13.8",
+     "needx:thirst:use": "1.9",
+     "other:flee": "0.0",
+     "work:haul": "19.3",
+     "work:job": "10.7",
+     "work:unassigned": "0.0",
+     "WORK": "30.1",
+     "NEEDS": "69.7",
+     "dwarfDays": "6271",
+     "MOOD": "54.5"
+    }
+   },
+   "years": [
+    {
+     "day": 112,
+     "wealth": 23969,
+     "population": 14
+    },
+    {
+     "day": 224,
+     "wealth": 55612,
+     "population": 44
+    },
+    {
+     "day": 336,
+     "wealth": 69125,
+     "population": 56
+    }
+   ]
+  },
+  "walkAwake45": {
+   "hash": "b074aec6e50cc15b",
+   "shares": {
+    "1": {
+     "idle:no-work": "1.6",
+     "idle:with-want": "0.1",
+     "need:travel": "43.8",
+     "need:use": "20.3",
+     "needx:comfort:travel": "6.0",
+     "needx:comfort:use": "4.6",
+     "needx:hunger:travel": "9.9",
+     "needx:hunger:use": "1.8",
+     "needx:joy:travel": "0.2",
+     "needx:joy:use": "0.2",
+     "needx:rest:travel": "18.3",
+     "needx:rest:use": "9.9",
+     "needx:social:travel": "0.3",
+     "needx:social:use": "1.8",
+     "needx:thirst:travel": "9.0",
+     "needx:thirst:use": "1.9",
+     "other:duty": "0.9",
+     "other:flee": "0.0",
+     "other:patient": "0.1",
+     "other:retreat": "1.0",
+     "work:haul": "7.3",
+     "work:job": "25.0",
+     "work:unassigned": "0.1",
+     "WORK": "32.3",
+     "NEEDS": "64.1",
+     "dwarfDays": "1118",
+     "MOOD": "55.2"
+    },
+    "2": {
+     "idle:no-work": "0.0",
+     "idle:with-want": "0.0",
+     "need:travel": "47.9",
+     "need:use": "20.6",
+     "needx:comfort:travel": "7.4",
+     "needx:comfort:use": "4.9",
+     "needx:hunger:travel": "11.6",
+     "needx:hunger:use": "1.8",
+     "needx:rest:travel": "19.5",
+     "needx:rest:use": "10.0",
+     "needx:social:use": "1.9",
+     "needx:thirst:travel": "9.4",
+     "needx:thirst:use": "1.9",
+     "other:duty": "0.0",
+     "other:flee": "0.0",
+     "other:patient": "0.2",
+     "other:retreat": "0.1",
+     "work:haul": "11.7",
+     "work:job": "19.4",
+     "work:unassigned": "0.0",
+     "WORK": "31.2",
+     "NEEDS": "68.5",
+     "dwarfDays": "1881",
+     "MOOD": "55.6"
+    },
+    "3": {
+     "idle:no-work": "0.1",
+     "idle:with-want": "0.0",
+     "need:travel": "46.7",
+     "need:use": "21.0",
+     "needx:comfort:travel": "7.3",
+     "needx:comfort:use": "4.8",
+     "needx:hunger:travel": "11.1",
+     "needx:hunger:use": "1.8",
+     "needx:joy:travel": "0.0",
+     "needx:joy:use": "0.0",
+     "needx:rest:travel": "17.2",
+     "needx:rest:use": "10.1",
+     "needx:social:travel": "0.0",
+     "needx:social:use": "2.4",
+     "needx:thirst:travel": "11.0",
+     "needx:thirst:use": "1.9",
+     "other:flee": "0.3",
+     "work:haul": "17.1",
+     "work:job": "14.7",
+     "work:unassigned": "0.0",
+     "WORK": "31.9",
+     "NEEDS": "67.7",
+     "dwarfDays": "3583",
+     "MOOD": "55.2"
+    }
+   },
+   "years": [
+    {
+     "day": 112,
+     "wealth": 13614,
+     "population": 12
+    },
+    {
+     "day": 224,
+     "wealth": 27577,
+     "population": 21
+    },
+    {
+     "day": 336,
+     "wealth": 42437,
+     "population": 32
+    }
+   ]
+  },
+  "walkHeld45": {
+   "hash": "1950e26050729c1f",
+   "shares": {
+    "1": {
+     "idle:no-work": "2.3",
+     "idle:with-want": "0.1",
+     "need:travel": "41.6",
+     "need:use": "19.0",
+     "needx:comfort:travel": "5.5",
+     "needx:comfort:use": "4.4",
+     "needx:hunger:travel": "9.9",
+     "needx:hunger:use": "1.9",
+     "needx:joy:travel": "0.4",
+     "needx:joy:use": "0.4",
+     "needx:rest:travel": "16.9",
+     "needx:rest:use": "8.3",
+     "needx:social:travel": "0.4",
+     "needx:social:use": "2.0",
+     "needx:thirst:travel": "8.5",
+     "needx:thirst:use": "2.0",
+     "other:duty": "0.4",
+     "other:flee": "0.0",
+     "other:patient": "0.0",
+     "other:retreat": "0.6",
+     "work:haul": "8.8",
+     "work:job": "27.0",
+     "work:unassigned": "0.1",
+     "WORK": "35.9",
+     "NEEDS": "60.7",
+     "dwarfDays": "1230",
+     "MOOD": "58.1"
+    },
+    "2": {
+     "idle:no-work": "1.0",
+     "idle:with-want": "0.0",
+     "need:travel": "45.9",
+     "need:use": "18.9",
+     "needx:comfort:travel": "7.2",
+     "needx:comfort:use": "4.8",
+     "needx:hunger:travel": "9.6",
+     "needx:hunger:use": "1.8",
+     "needx:joy:travel": "0.1",
+     "needx:joy:use": "0.1",
+     "needx:rest:travel": "19.8",
+     "needx:rest:use": "8.1",
+     "needx:social:travel": "0.1",
+     "needx:social:use": "2.1",
+     "needx:thirst:travel": "9.1",
+     "needx:thirst:use": "1.9",
+     "other:duty": "0.0",
+     "other:flee": "0.0",
+     "other:patient": "0.1",
+     "other:retreat": "0.1",
+     "work:haul": "16.7",
+     "work:job": "17.2",
+     "work:unassigned": "0.0",
+     "WORK": "33.9",
+     "NEEDS": "64.8",
+     "dwarfDays": "2239",
+     "MOOD": "58.8"
+    },
+    "3": {
+     "idle:no-work": "0.3",
+     "idle:with-want": "0.0",
+     "need:travel": "47.8",
+     "need:use": "19.4",
+     "needx:comfort:travel": "7.6",
+     "needx:comfort:use": "4.8",
+     "needx:hunger:travel": "10.8",
+     "needx:hunger:use": "1.8",
+     "needx:joy:travel": "0.1",
+     "needx:joy:use": "0.0",
+     "needx:rest:travel": "17.6",
+     "needx:rest:use": "8.4",
+     "needx:social:travel": "0.0",
+     "needx:social:use": "2.4",
+     "needx:thirst:travel": "11.7",
+     "needx:thirst:use": "1.9",
+     "other:flee": "0.2",
+     "work:haul": "16.7",
+     "work:job": "15.6",
+     "work:unassigned": "0.0",
+     "WORK": "32.3",
+     "NEEDS": "67.2",
+     "dwarfDays": "3695",
+     "MOOD": "54.9"
+    }
+   },
+   "years": [
+    {
+     "day": 112,
+     "wealth": 20942,
+     "population": 16
+    },
+    {
+     "day": 224,
+     "wealth": 37670,
+     "population": 24
+    },
+    {
+     "day": 336,
+     "wealth": 60368,
+     "population": 36
+    }
+   ]
+  },
+  "walkHeld40": {
+   "hash": "715f5cd9256c5cb5",
+   "shares": {
+    "1": {
+     "idle:no-work": "2.4",
+     "idle:with-want": "0.1",
+     "need:travel": "42.5",
+     "need:use": "19.5",
+     "needx:comfort:travel": "5.8",
+     "needx:comfort:use": "4.5",
+     "needx:hunger:travel": "10.4",
+     "needx:hunger:use": "1.9",
+     "needx:joy:travel": "0.2",
+     "needx:joy:use": "0.2",
+     "needx:rest:travel": "17.3",
+     "needx:rest:use": "8.8",
+     "needx:social:travel": "0.3",
+     "needx:social:use": "2.1",
+     "needx:thirst:travel": "8.5",
+     "needx:thirst:use": "2.0",
+     "other:duty": "0.1",
+     "other:retreat": "0.2",
+     "work:haul": "8.1",
+     "work:job": "27.1",
+     "work:unassigned": "0.1",
+     "WORK": "35.2",
+     "NEEDS": "61.9",
+     "dwarfDays": "1202",
+     "MOOD": "57.2"
+    },
+    "2": {
+     "idle:no-work": "0.1",
+     "idle:with-want": "0.0",
+     "need:travel": "43.7",
+     "need:use": "20.2",
+     "needx:comfort:travel": "6.8",
+     "needx:comfort:use": "4.8",
+     "needx:hunger:travel": "9.6",
+     "needx:hunger:use": "1.8",
+     "needx:joy:travel": "0.1",
+     "needx:joy:use": "0.1",
+     "needx:rest:travel": "17.6",
+     "needx:rest:use": "9.0",
+     "needx:social:travel": "0.0",
+     "needx:social:use": "2.5",
+     "needx:thirst:travel": "9.6",
+     "needx:thirst:use": "1.9",
+     "other:flee": "0.0",
+     "work:haul": "18.7",
+     "work:job": "17.3",
+     "work:unassigned": "0.0",
+     "WORK": "36.0",
+     "NEEDS": "63.9",
+     "dwarfDays": "3555",
+     "MOOD": "60.4"
+    },
+    "3": {
+     "idle:no-work": "0.1",
+     "idle:with-want": "0.0",
+     "need:travel": "49.9",
+     "need:use": "20.1",
+     "needx:comfort:travel": "7.3",
+     "needx:comfort:use": "4.7",
+     "needx:hunger:travel": "11.6",
+     "needx:hunger:use": "1.8",
+     "needx:joy:travel": "0.0",
+     "needx:joy:use": "0.0",
+     "needx:rest:travel": "16.9",
+     "needx:rest:use": "9.1",
+     "needx:social:travel": "0.0",
+     "needx:social:use": "2.5",
+     "needx:thirst:travel": "13.9",
+     "needx:thirst:use": "1.9",
+     "work:haul": "19.3",
+     "work:job": "10.8",
+     "work:unassigned": "0.0",
+     "WORK": "30.0",
+     "NEEDS": "69.9",
+     "dwarfDays": "5822",
+     "MOOD": "56.6"
+    }
+   },
+   "years": [
+    {
+     "day": 112,
+     "wealth": 24127,
+     "population": 15
+    },
+    {
+     "day": 224,
+     "wealth": 47774,
+     "population": 34
+    },
+    {
+     "day": 336,
+     "wealth": 53353,
+     "population": 58
+    }
+   ]
+  }
+ },
+ "sleep": {
+  "three-years-p0-2": {
+   "initialWealth": 1679,
+   "seasons": [
+    {
+     "day": 112,
+     "wealth": 12196,
+     "population": 13,
+     "renown": 8.7,
+     "marks": {
+      "embark goods": 1353,
+      "blocks": 47,
+      "furniture": 325,
+      "crafts": 0,
+      "meals/drink": 7830,
+      "iron goods": 0,
+      "steel goods": 0,
+      "iron bars": 0,
+      "steel bars": 0,
+      "gems": 0,
+      "smoothing/engraving": 0,
+      "other building value": 174,
+      "trade purchases": 0,
+      "barrels": 198,
+      "other": 2269
+     },
+     "meals": {
+      "drink:dimcap_ale": 201,
+      "lavish_meal:cavewheat": 21,
+      "lavish_meal:bramble_berry": 17,
+      "lavish_meal:dimcap": 78,
+      "drink:cavewheat_beer": 17,
+      "lavish_meal:turnip": 8
+     },
+     "qualities": {
+      "0": 140,
+      "1": 943,
+      "2": 39
+     }
+    }
+   ],
+   "sleep": {
+    "dwarfDays": 1170.9,
+    "errandsPerDwarfDay": 1.24,
+    "shareWalk": 18.5,
+    "shareBed": 7.9,
+    "hoursPerDayWalk": 4.43,
+    "hoursPerDayBed": 1.88,
+    "errands": 1451,
+    "reachedBed": 1451,
+    "slept": 1450,
+    "onFloor": 232,
+    "scheduled": 185,
+    "walkTicksMedian": 181,
+    "bedTicksMedian": 75,
+    "bedTicksMean": 76,
+    "restAtStartMedian": 69,
+    "restAtStartMean": 69.3,
+    "restAtBedMedian": 68.89999999999999,
+    "restAtBedMean": 68.5,
+    "restFallOnWalkMean": 0.8,
+    "restAtEndMedian": 0,
+    "bedTicksMax": 150,
+    "endedAtRestZero": 1451,
+    "endedOnArrival": 0,
+    "walkTicksMedianEndedOnArrival": null,
+    "walkTicksMedianReachedBed": 181,
+    "scheduledRestAtStartMedian": 42.400000000000006,
+    "enduranceMean": 49,
+    "byBedTicks": {
+     "under100": 1285,
+     "100to199": 166,
+     "200to299": 0,
+     "300plus": 0
+    }
+   }
+  },
+  "three-years-p0-3": {
+   "initialWealth": 1679,
+   "seasons": [
+    {
+     "day": 112,
+     "wealth": 24914,
+     "population": 18,
+     "renown": 16.1,
+     "marks": {
+      "embark goods": 1341,
+      "blocks": 45,
+      "furniture": 333,
+      "crafts": 212,
+      "meals/drink": 19470,
+      "iron goods": 0,
+      "steel goods": 0,
+      "iron bars": 540,
+      "steel bars": 0,
+      "gems": 204,
+      "smoothing/engraving": 0,
+      "other building value": 179,
+      "trade purchases": 1,
+      "barrels": 252,
+      "other": 2337
+     },
+     "meals": {
+      "drink:cavewheat_beer": 92,
+      "drink:dimcap_ale": 174,
+      "lavish_meal:dimcap": 141,
+      "lavish_meal:cavewheat": 64,
+      "lavish_meal:bramble_berry": 54,
+      "lavish_meal:nut": 14,
+      "lavish_meal:turnip": 89,
+      "drink:strawberry_wine": 3
+     },
+     "qualities": {
+      "0": 301,
+      "1": 1025,
+      "2": 79
+     }
+    }
+   ],
+   "sleep": {
+    "dwarfDays": 1396.3,
+    "errandsPerDwarfDay": 1.12,
+    "shareWalk": 19.1,
+    "shareBed": 7.6,
+    "hoursPerDayWalk": 4.58,
+    "hoursPerDayBed": 1.82,
+    "errands": 1560,
+    "reachedBed": 1560,
+    "slept": 1557,
+    "onFloor": 193,
+    "scheduled": 159,
+    "walkTicksMedian": 190,
+    "bedTicksMedian": 79,
+    "bedTicksMean": 81.3,
+    "restAtStartMedian": 71.99999999999999,
+    "restAtStartMean": 72.7,
+    "restAtBedMedian": 71.4,
+    "restAtBedMean": 71.8,
+    "restFallOnWalkMean": 0.9,
+    "restAtEndMedian": 0,
+    "bedTicksMax": 150,
+    "endedAtRestZero": 1558,
+    "endedOnArrival": 0,
+    "walkTicksMedianEndedOnArrival": null,
+    "walkTicksMedianReachedBed": 190,
+    "scheduledRestAtStartMedian": 43.45,
+    "enduranceMean": 54.7,
+    "byBedTicks": {
+     "under100": 1263,
+     "100to199": 297,
+     "200to299": 0,
+     "300plus": 0
+    }
+   }
+  },
+  "three-years": {
+   "initialWealth": 1679,
+   "seasons": [
+    {
+     "day": 112,
+     "wealth": 26912,
+     "population": 16,
+     "renown": 16.7,
+     "marks": {
+      "embark goods": 1353,
+      "blocks": 84,
+      "furniture": 388,
+      "crafts": 328,
+      "meals/drink": 21780,
+      "iron goods": 0,
+      "steel goods": 0,
+      "iron bars": 450,
+      "steel bars": 0,
+      "gems": 126,
+      "smoothing/engraving": 0,
+      "other building value": 191,
+      "trade purchases": 0,
+      "barrels": 78,
+      "other": 2134
+     },
+     "meals": {
+      "lavish_meal:dimcap": 95,
+      "lavish_meal:turnip": 35,
+      "lavish_meal:bramble_berry": 64,
+      "lavish_meal:cavewheat": 72,
+      "drink:dimcap_ale": 65,
+      "drink:cavewheat_beer": 35,
+      "lavish_meal:nut": 24,
+      "drink:strawberry_wine": 28
+     },
+     "qualities": {
+      "0": 221,
+      "1": 907,
+      "2": 118
+     }
+    }
+   ],
+   "sleep": {
+    "dwarfDays": 1227,
+    "errandsPerDwarfDay": 1.21,
+    "shareWalk": 15.7,
+    "shareBed": 8.1,
+    "hoursPerDayWalk": 3.77,
+    "hoursPerDayBed": 1.96,
+    "errands": 1490,
+    "reachedBed": 1490,
+    "slept": 1489,
+    "onFloor": 635,
+    "scheduled": 190,
+    "walkTicksMedian": 151,
+    "bedTicksMedian": 79,
+    "bedTicksMean": 80.5,
+    "restAtStartMedian": 70.50000000000001,
+    "restAtStartMean": 71.5,
+    "restAtBedMedian": 70,
+    "restAtBedMean": 70.8,
+    "restFallOnWalkMean": 0.6,
+    "restAtEndMedian": 0,
+    "bedTicksMax": 150,
+    "endedAtRestZero": 1489,
+    "endedOnArrival": 0,
+    "walkTicksMedianEndedOnArrival": null,
+    "walkTicksMedianReachedBed": 151,
+    "scheduledRestAtStartMedian": 47.7,
+    "enduranceMean": 51.7,
+    "byBedTicks": {
+     "under100": 1247,
+     "100to199": 243,
+     "200to299": 0,
+     "300plus": 0
+    }
+   }
+  }
+ },
+ "wildlife": {
+  "before": {
+   "runtimeCommit": "bd80aaaf37da23c116fb6054664b4cf2ade03317",
+   "summary": {
+    "median": 13,
+    "worst": 6,
+    "secondWorst": 9,
+    "living": 144,
+    "wildlifeFree": 8,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0
+   },
+   "regression": {
+    "floors": {
+     "median": 12,
+     "living": 136,
+     "wildlifeFree": 6,
+     "extinct": 1,
+     "hungerThirstDeaths": 1
+    },
+    "worsened": [],
+    "exceeded": [],
+    "allowed": true
+   },
+   "rows": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 12,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 300,
+      "maxHunger": 60.18000000000008,
+      "maxThirst": 73.6,
+      "maxRest": 93.45000000000003
+     },
+     "starving": 0,
+     "harvests": 171,
+     "stocks": {
+      "drink": 102,
+      "meal": 58,
+      "plantFood": 117
+     },
+     "deaths": [
+      {
+       "day": 42,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "badger"
+      }
+     ],
+     "hash": "0e4ed2f7513f4f4e"
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 13,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 157,
+     "stocks": {
+      "drink": 102,
+      "meal": 62,
+      "plantFood": 68
+     },
+     "deaths": [],
+     "hash": "c5690e61ba9b2fe6"
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 13,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 10580,
+      "maxHunger": 99.98999999999985,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 7,
+     "harvests": 147,
+     "stocks": {
+      "drink": 111,
+      "meal": 64,
+      "plantFood": 63
+     },
+     "deaths": [],
+     "hash": "4720dbf3081414e5"
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 9,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 11280,
+      "maxHunger": 100,
+      "maxThirst": 99.1999999999999,
+      "maxRest": 100
+     },
+     "starving": 3,
+     "harvests": 164,
+     "stocks": {
+      "drink": 110,
+      "meal": 59,
+      "plantFood": 89
+     },
+     "deaths": [
+      {
+       "day": 78,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 80,
+       "kind": "dwarf",
+       "cause": "killed",
+       "killer": "wolf"
+      },
+      {
+       "day": 81,
+       "kind": "cat",
+       "cause": "killed",
+       "killer": "wolf"
+      },
+      {
+       "day": 87,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 87,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "0560390603703174"
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 4,
+     "harvests": 107,
+     "stocks": {
+      "drink": 80,
+      "meal": 41,
+      "plantFood": 0
+     },
+     "deaths": [],
+     "hash": "72101581698eb92c"
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 6,
+     "arrivals": 12,
+     "shelter": {
+      "longest": 4280,
+      "maxHunger": 94.93999999999987,
+      "maxThirst": 89.59999999999994,
+      "maxRest": 97.19999999999996
+     },
+     "starving": 3,
+     "harvests": 101,
+     "stocks": {
+      "drink": 101,
+      "meal": 62,
+      "plantFood": 38
+     },
+     "deaths": [
+      {
+       "day": 80,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 83,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 84,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 90,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 97,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 98,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "9030ffbfe5db1ef5"
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 9,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 300,
+      "maxHunger": 74.36999999999998,
+      "maxThirst": 91.19999999999993,
+      "maxRest": 93.5
+     },
+     "starving": 0,
+     "harvests": 109,
+     "stocks": {
+      "drink": 105,
+      "meal": 51,
+      "plantFood": 17
+     },
+     "deaths": [
+      {
+       "day": 69,
+       "kind": "dwarf",
+       "cause": "killed",
+       "killer": "wolf"
+      },
+      {
+       "day": 70,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 83,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 84,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "b41246501fffbbbb"
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 5,
+     "harvests": 109,
+     "stocks": {
+      "drink": 98,
+      "meal": 65,
+      "plantFood": 30
+     },
+     "deaths": [],
+     "hash": "fe71342ce633f125"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 171,
+     "stocks": {
+      "drink": 97,
+      "meal": 61,
+      "plantFood": 90
+     },
+     "deaths": [],
+     "hash": "2276a125cf92c768"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 169,
+     "stocks": {
+      "drink": 110,
+      "meal": 60,
+      "plantFood": 62
+     },
+     "deaths": [],
+     "hash": "b1a3cb451d344137"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 173,
+     "stocks": {
+      "drink": 110,
+      "meal": 57,
+      "plantFood": 73
+     },
+     "deaths": [],
+     "hash": "f80b08baebf550b7"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 163,
+     "stocks": {
+      "drink": 112,
+      "meal": 61,
+      "plantFood": 85
+     },
+     "deaths": [],
+     "hash": "8b1853e704fdf9a5"
+    }
+   ]
+  },
+  "walkHeld45": {
+   "runtimeCommit": "bd80aaaf37da23c116fb6054664b4cf2ade03317",
+   "summary": {
+    "median": 11.5,
+    "worst": 0,
+    "secondWorst": 10,
+    "living": 137,
+    "wildlifeFree": 6,
+    "seeds": 12,
+    "extinct": 1,
+    "hungerThirstDeaths": 10
+   },
+   "regression": {
+    "floors": {
+     "median": 12,
+     "living": 136,
+     "wildlifeFree": 6,
+     "extinct": 1,
+     "hungerThirstDeaths": 1
+    },
+    "worsened": [
+     "median",
+     "living",
+     "wildlifeFree",
+     "extinct",
+     "hungerThirstDeaths"
+    ],
+    "exceeded": [
+     "median",
+     "hungerThirstDeaths"
+    ],
+    "allowed": false
+   },
+   "rows": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 11,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 300,
+      "maxHunger": 67.19999999999992,
+      "maxThirst": 62.400000000000034,
+      "maxRest": 93
+     },
+     "starving": 0,
+     "harvests": 169,
+     "stocks": {
+      "drink": 104,
+      "meal": 59,
+      "plantFood": 124
+     },
+     "deaths": [
+      {
+       "day": 42,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 43,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "758764943a9737f6"
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 11,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 300,
+      "maxHunger": 66.55999999999997,
+      "maxThirst": 68.80000000000001,
+      "maxRest": 93.00000000000003
+     },
+     "starving": 0,
+     "harvests": 162,
+     "stocks": {
+      "drink": 107,
+      "meal": 61,
+      "plantFood": 95
+     },
+     "deaths": [
+      {
+       "day": 25,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "boar"
+      },
+      {
+       "day": 28,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "boar"
+      }
+     ],
+     "hash": "3ead45fdc9cc1c58"
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 12,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 300,
+      "maxHunger": 58.560000000000045,
+      "maxThirst": 89.59999999999994,
+      "maxRest": 91.79999999999998
+     },
+     "starving": 0,
+     "harvests": 172,
+     "stocks": {
+      "drink": 117,
+      "meal": 58,
+      "plantFood": 152
+     },
+     "deaths": [
+      {
+       "day": 105,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "badger"
+      }
+     ],
+     "hash": "9c4144692b7f9659"
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 0,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 52840,
+      "maxHunger": 100,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 176,
+     "harvests": 70,
+     "stocks": {
+      "drink": 0,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "deaths": [
+      {
+       "day": 46,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 47,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 48,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "badger"
+      },
+      {
+       "day": 89,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 90,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 90,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 90,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 91,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 91,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 91,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 92,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 92,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 92,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      }
+     ],
+     "hash": "041aaab2adfc14cf"
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 7,
+     "harvests": 115,
+     "stocks": {
+      "drink": 83,
+      "meal": 61,
+      "plantFood": 23
+     },
+     "deaths": [],
+     "hash": "48a782cadb2c9b40"
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 10,
+     "arrivals": 12,
+     "shelter": {
+      "longest": 4200,
+      "maxHunger": 97.75999999999986,
+      "maxThirst": 99.1999999999999,
+      "maxRest": 100
+     },
+     "starving": 1,
+     "harvests": 101,
+     "stocks": {
+      "drink": 90,
+      "meal": 55,
+      "plantFood": 1
+     },
+     "deaths": [
+      {
+       "day": 91,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 106,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "e6d4ca9c9ddebf58"
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 11,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 5000,
+      "maxHunger": 94.08000000000003,
+      "maxThirst": 97.59999999999991,
+      "maxRest": 100
+     },
+     "starving": 17,
+     "harvests": 109,
+     "stocks": {
+      "drink": 66,
+      "meal": 41,
+      "plantFood": 17
+     },
+     "deaths": [
+      {
+       "day": 44,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 109,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "202b3be94b40c86a"
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 11,
+     "harvests": 109,
+     "stocks": {
+      "drink": 100,
+      "meal": 59,
+      "plantFood": 35
+     },
+     "deaths": [],
+     "hash": "323e13bcbdf00956"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 172,
+     "stocks": {
+      "drink": 99,
+      "meal": 60,
+      "plantFood": 80
+     },
+     "deaths": [],
+     "hash": "ea95106f69779232"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 169,
+     "stocks": {
+      "drink": 109,
+      "meal": 56,
+      "plantFood": 90
+     },
+     "deaths": [],
+     "hash": "d5f6280aa6723c81"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 178,
+     "stocks": {
+      "drink": 99,
+      "meal": 66,
+      "plantFood": 81
+     },
+     "deaths": [],
+     "hash": "5d8e3b378e95f791"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 163,
+     "stocks": {
+      "drink": 102,
+      "meal": 61,
+      "plantFood": 87
+     },
+     "deaths": [],
+     "hash": "9fd1de7cc71d5c37"
+    }
+   ]
+  },
+  "walkHeld40": {
+   "runtimeCommit": "bd80aaaf37da23c116fb6054664b4cf2ade03317",
+   "summary": {
+    "median": 12,
+    "worst": 0,
+    "secondWorst": 0,
+    "living": 104,
+    "wildlifeFree": 5,
+    "seeds": 12,
+    "extinct": 3,
+    "hungerThirstDeaths": 19
+   },
+   "regression": {
+    "floors": {
+     "median": 12,
+     "living": 136,
+     "wildlifeFree": 6,
+     "extinct": 1,
+     "hungerThirstDeaths": 1
+    },
+    "worsened": [
+     "median",
+     "living",
+     "wildlifeFree",
+     "extinct",
+     "hungerThirstDeaths"
+    ],
+    "exceeded": [
+     "living",
+     "wildlifeFree",
+     "extinct",
+     "hungerThirstDeaths"
+    ],
+    "allowed": false
+   },
+   "rows": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 12,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 300,
+      "maxHunger": 57.56999999999997,
+      "maxThirst": 72,
+      "maxRest": 95.20000000000002
+     },
+     "starving": 0,
+     "harvests": 169,
+     "stocks": {
+      "drink": 100,
+      "meal": 56,
+      "plantFood": 109
+     },
+     "deaths": [
+      {
+       "day": 111,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "602f7451f6cced71"
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 0,
+     "arrivals": 7,
+     "shelter": {
+      "longest": 8900,
+      "maxHunger": 98.43999999999978,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 1,
+     "harvests": 0,
+     "stocks": {
+      "drink": 48,
+      "meal": 16,
+      "plantFood": 0
+     },
+     "deaths": [
+      {
+       "day": 19,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 19,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 21,
+       "kind": "dwarf",
+       "cause": "infection",
+       "killer": "wolf"
+      },
+      {
+       "day": 22,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 26,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 27,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 28,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "4311cb31916f4708"
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 6,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 3860,
+      "maxHunger": 90.16000000000001,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 6,
+     "harvests": 164,
+     "stocks": {
+      "drink": 116,
+      "meal": 61,
+      "plantFood": 170
+     },
+     "deaths": [
+      {
+       "day": 44,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 45,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 47,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 65,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "boar"
+      },
+      {
+       "day": 76,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "boar"
+      },
+      {
+       "day": 86,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "boar"
+      }
+     ],
+     "hash": "b87b67a1688f9d48"
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 12,
+     "arrivals": 13,
+     "shelter": {
+      "longest": 13620,
+      "maxHunger": 97.01999999999987,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 1,
+     "harvests": 152,
+     "stocks": {
+      "drink": 29,
+      "meal": 16,
+      "plantFood": 75
+     },
+     "deaths": [
+      {
+       "day": 101,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "boar"
+      }
+     ],
+     "hash": "24b8f8efde3b4eb7"
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 0,
+     "arrivals": 10,
+     "shelter": {
+      "longest": 27680,
+      "maxHunger": 100,
+      "maxThirst": 100,
+      "maxRest": 93.5
+     },
+     "starving": 155,
+     "harvests": 20,
+     "stocks": {
+      "drink": 0,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "deaths": [
+      {
+       "day": 30,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 52,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 52,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 52,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 52,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 52,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 53,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 53,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 53,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 53,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      }
+     ],
+     "hash": "ccd0b700dfbc77c4"
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "arrivals": 12,
+     "shelter": {
+      "longest": 11100,
+      "maxHunger": 95.87999999999987,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 8,
+     "harvests": 101,
+     "stocks": {
+      "drink": 30,
+      "meal": 16,
+      "plantFood": 0
+     },
+     "deaths": [
+      {
+       "day": 69,
+       "kind": "cat",
+       "cause": "killed",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "b0264a79c4d43f2c"
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 0,
+     "arrivals": 11,
+     "shelter": {
+      "longest": 17840,
+      "maxHunger": 100,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 170,
+     "harvests": 30,
+     "stocks": {
+      "drink": 0,
+      "meal": 0,
+      "plantFood": 42
+     },
+     "deaths": [
+      {
+       "day": 29,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 40,
+       "kind": "dog",
+       "cause": "killed",
+       "killer": "wolf"
+      },
+      {
+       "day": 41,
+       "kind": "dog",
+       "cause": "killed",
+       "killer": "wolf"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 49,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      },
+      {
+       "day": 51,
+       "kind": "dwarf",
+       "cause": "starvation",
+       "killer": "none"
+      }
+     ],
+     "hash": "5a409c9d797e687e"
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 4,
+     "arrivals": 11,
+     "shelter": {
+      "longest": 3420,
+      "maxHunger": 100,
+      "maxThirst": 100,
+      "maxRest": 100
+     },
+     "starving": 9,
+     "harvests": 100,
+     "stocks": {
+      "drink": 113,
+      "meal": 62,
+      "plantFood": 108
+     },
+     "deaths": [
+      {
+       "day": 33,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 34,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 37,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 39,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 40,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 51,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      },
+      {
+       "day": 63,
+       "kind": "dwarf",
+       "cause": "bled_out",
+       "killer": "wolf"
+      }
+     ],
+     "hash": "0d26701dfed2e276"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 180,
+     "stocks": {
+      "drink": 97,
+      "meal": 59,
+      "plantFood": 86
+     },
+     "deaths": [],
+     "hash": "5b683741de8073b3"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "shelter": {
+      "longest": 300,
+      "maxHunger": 60.479999999999954,
+      "maxThirst": 59.20000000000003,
+      "maxRest": 90.25
+     },
+     "starving": 0,
+     "harvests": 172,
+     "stocks": {
+      "drink": 111,
+      "meal": 62,
+      "plantFood": 93
+     },
+     "deaths": [],
+     "hash": "dafce94a13fef2dd"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 179,
+     "stocks": {
+      "drink": 101,
+      "meal": 60,
+      "plantFood": 103
+     },
+     "deaths": [],
+     "hash": "d814f6cc9f09f7de"
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "shelter": {
+      "longest": 0,
+      "maxHunger": 0,
+      "maxThirst": 0,
+      "maxRest": 0
+     },
+     "starving": 0,
+     "harvests": 165,
+     "stocks": {
+      "drink": 107,
+      "meal": 64,
+      "plantFood": 81
+     },
+     "deaths": [],
+     "hash": "02ad8c5c58d990af"
+    }
+   ]
+  }
+ },
+ "forest4": {
+  "m45": {
+   "living": 0,
+   "alerts": [
+    {
+     "tick": 53620,
+     "level": "watchful"
+    },
+    {
+     "tick": 54240,
+     "level": "calm"
+    },
+    {
+     "tick": 54580,
+     "level": "hearth"
+    },
+    {
+     "tick": 54880,
+     "level": "watchful"
+    },
+    {
+     "tick": 55260,
+     "level": "calm"
+    },
+    {
+     "tick": 56380,
+     "level": "hearth"
+    }
+   ],
+   "shelter": {
+    "longest": 52840,
+    "maxHunger": 100,
+    "maxThirst": 100,
+    "maxRest": 100
+   }
+  },
+  "m40": {
+   "living": 12,
+   "shelter": {
+    "longest": 13620,
+    "maxHunger": 97.01999999999987,
+    "maxThirst": 100,
+    "maxRest": 100
+   }
+  },
+  "m50": {
+   "living": 10,
+   "shelter": {
+    "longest": 300,
+    "maxHunger": 92.12000000000002,
+    "maxThirst": 94.39999999999992,
+    "maxRest": 94.05000000000003
+   }
+  }
+ }
+}
