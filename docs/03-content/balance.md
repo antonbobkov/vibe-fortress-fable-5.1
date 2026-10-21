@@ -19,7 +19,7 @@ Need rates per hour (10 Dwarves, as revised by this pass):
 |---|---|---|---|
 | hunger | 1 | 50 | a meal about every 50 hours: 0.48 food units per dwarf per day |
 | thirst | 1.6 | 50 | a drink about every 31 hours: 0.77 drinks per dwarf per day |
-| rest | 5 awake, −15 asleep | 60 | 7 hours of sleep per 24 |
+| rest | 5 awake, −15 asleep | 60 | 6 hours asleep per 24 by the rates, each sleep ending when rest reaches 0; measured, 2 in bed (below) |
 | social | 2 | 50 | a chat a day |
 | comfort | 1 | 55 | a sit about every 40 hours in a decent room (20 in the hearth hall) |
 | purpose | +2 idle, −10 working | 60 | dwarves dislike idling for more than a day (*unmeasured*) |
@@ -36,7 +36,7 @@ The intervals above count the need itself, not the walk to serve it. A dwarf at 
 | Talk, sit, hearth visit | 7% | 6% |
 | **All needs** | **20%** | **41%** |
 
-Work takes 37% (28% at jobs, 10% hauling) and almost none of the rest is idle. In a fortress of 40 to 56 dwarves the walk to the food and the drink grows, and needs in travel take 48% by the third year. Social is over its want threshold about half the time, joy two fifths and comfort a fifth. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. [balance-status.md](../balance-status.md) holds the latest measurement.
+Work takes 37% (28% at jobs, 10% hauling) and almost none of the rest is idle. In a fortress of 40 to 56 dwarves the walk to the food and the drink grows, and needs in travel take 48% by the third year. Social is over its want threshold about half the time, joy two fifths and comfort a fifth. Travel is the walk to the bed, the food, the seat or the hall, and for a meal the walk from the food to a table. A meal is 60 ticks of eating after about 300 ticks on the way; a drink is 40 ticks after about 145. The use shares follow from the need rates and do not change with walking speed. Sleep is short in use because the game lowers rest at the sleeping rate from the moment a dwarf sets off for its bed: it walks 4 hours a day to its bed and lies in it 2, the walk takes about 40 off a rest of 70, and a quarter of its sleep errands end the moment it lies down ([sleep](../../reports/audits/2026-10-21-sleep-hours.md)). [balance-status.md](../balance-status.md) holds the latest measurement.
 
 ## Food chain
 
@@ -87,7 +87,7 @@ The food stock is the largest term from the first year: a lavish meal is worth 6
 
 Smoothing and engraving raise room tiers (mood and immigration), not wealth.
 
-Renown follows wealth and population: measured at peril 2, 12.8 → 24.4 → 41.7 at the ends of years 1 to 3 (13 → 29 → 36 at peril 0), a year ahead of the 5 → 15 → 30 this table's wealth would give, because year-1 wealth is ahead of it; 75 in year 5 is *unmeasured*. A raid at peril 2 never comes in winter and is first possible in the spring of year 2, so each year's raid is sized by the renown of its spring and summer: year 2 → 6 + 0.3 × 11–16 = 9–11 (measured 8–11, median 10); year 3 → 6 + 0.3 × 19–38 = 12–16 (measured 12–16, median 14); year 5 → 16 (cap, *unmeasured*). The fortress meets each raid behind its gate, and the raid loots and leaves ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)). Immigration wave at year 3: 2 + 13 (wealth) + 2 (Content) = 12 (cap). Both curves saturate on purpose: the game does not escalate without bound; it plateaus at "large fortress" and the Deep provides the endgame.
+Renown follows wealth and population: measured at peril 2, 12.8 → 24.4 → 41.7 at the ends of years 1 to 3 (13 → 29 → 36 at peril 0), and it follows the food stock: meals and drink are two thirds to four fifths of the wealth in each year, and without them renown would be about 5 → 10 → 15; 75 in year 5 is *unmeasured*. A raid at peril 2 never comes in winter and is first possible in the spring of year 2, so each year's raid is sized by the renown of its spring and summer: year 2 → 6 + 0.3 × 11–16 = 9–11 (measured 8–11, median 10); year 3 → 6 + 0.3 × 19–38 = 12–16 (measured 12–16, median 14); year 5 → 16 (cap, *unmeasured*). The fortress meets each raid behind its gate, and the raid loots and leaves ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)). Immigration wave at year 3: 2 + 13 (wealth) + 2 (Content) = 12 (cap). Both curves saturate on purpose: the game does not escalate without bound; it plateaus at "large fortress" and the Deep provides the endgame.
 
 ## Combat pace
 
