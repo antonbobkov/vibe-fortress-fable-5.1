@@ -1,6 +1,8 @@
 # T-407 — Items left nowhere after a raid leaves (p4-4)
 
-**Source:** T-381, [the raid-size measurement](../../reports/audits/2026-10-21-raid-sizes-and-renown.md) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
+**Closed:** 2026-10-21, in 7dbada9.
+
+**Source:** T-381, [the raid-size measurement](../../../reports/audits/2026-10-21-raid-sizes-and-renown.md) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Why
 

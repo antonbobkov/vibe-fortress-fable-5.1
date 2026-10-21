@@ -126,7 +126,25 @@ function patientBedTile(ctx: TickContext, id: EntityId): TileIndex {
     const bed = buildings.get(bedId);
     if (bed?.state === 'built' && buildings.bedHolder(bedId) === id) return bed.origin;
   }
-  return ctx.world.services.movement?.tileOf(id) ?? -1;
+  return offDoor(ctx, id, ctx.world.services.movement?.tileOf(id) ?? -1);
+}
+
+/**
+ * A dwarf that rests where it stands does not rest on a door's tile, where it would stop every
+ * walker at the door (22): it takes the lowest-index tile beside it on its level that it can stand on,
+ * holds no door and shares its walker label. With none, it stays.
+ */
+function offDoor(ctx: TickContext, id: EntityId, at: TileIndex): TileIndex {
+  if (at < 0 || !ctx.readers.has('14')) return at;
+  const buildings = ctx.readers.of<BuildingsReader>('14');
+  if (!buildings.doorAt(at)) return at;
+  const pathing = ctx.readers.pathing;
+  const label = pathing.labelOf(at, 'walker');
+  const mover = { faction: ctx.world.entities.get(id, C.Creature)?.faction };
+  for (const n of ctx.world.map.neighbors8(at).sort((a, b) => a - b)) {
+    if (!buildings.doorAt(n) && pathing.passable(n, 'walker', mover) && pathing.labelOf(n, 'walker') === label) return n;
+  }
+  return at;
 }
 
 /** A conscious patient goes to its hospital bed under any alert (step 3); an unconscious one is carried. */

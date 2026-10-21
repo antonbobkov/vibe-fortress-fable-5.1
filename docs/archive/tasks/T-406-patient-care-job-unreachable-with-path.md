@@ -1,6 +1,8 @@
 # T-406 — A patient-care job stays blocked with a path (p4-1, p4-2)
 
-**Source:** T-381, [the raid-size measurement](../../reports/audits/2026-10-21-raid-sizes-and-renown.md) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
+**Closed:** 2026-10-21, in 9d83d1a.
+
+**Source:** T-381, [the raid-size measurement](../../../reports/audits/2026-10-21-raid-sizes-and-renown.md) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first)
 
 ## Why
 
