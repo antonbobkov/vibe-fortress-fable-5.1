@@ -1,0 +1,44 @@
+/**
+ * T-408 diagnosis probe (not committed; a copy is filed as reports/data/2026-10-21-t408-forest-4.probe.ts.txt):
+ * plays the annual instrument's wildlife-temperate_forest-4 year and, once a day while the hearth
+ * alert stands, records the aggressive animals within 40 tiles of the wagon (species, state, tile,
+ * distance) and the dwarves' behaviour, activity and hunger, and the food in stock.
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { playWildlifeYear } from './wildlife_year_fixture';
+
+const SEED = process.env['T408_SEED'] ?? 'wildlife-temperate_forest-4';
+const BIOME = process.env['T408_BIOME'] ?? 'temperate_forest';
+const OUT = process.env['T408_OUT'] ?? '.vite/t408-forest4.json';
+
+describe('T-408 forest-4 probe', () => {
+  it('journals the hearth alert', () => {
+    const days: unknown[] = [];
+    let lastDay = -1;
+    const row = playWildlifeYear(SEED, BIOME, {
+      observe: (game, level) => {
+        const day = Math.floor(game.tick / TICKS_PER_DAY);
+        if (day === lastDay) return;
+        lastDay = day;
+        const ent = game.world.entities;
+        const reg = game.registry;
+        const sp = reg.table<{ id: string; temper?: string }>('creatures');
+        const map = game.world.map;
+        const dwarves = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+        const wagon = dwarves.length ? game.movement.tileOf(dwarves[0]!) : -1;
+        const wx = wagon >= 0 ? wagon % map.w : 0, wy = wagon >= 0 ? Math.floor(wagon / map.w) % map.h : 0;
+        const animals = ent.with(C.Creature).filter((id) => ent.get(id, C.Creature)?.faction === 'wild').map((id) => {
+          const c = ent.get(id, C.Creature)!; const row = sp.byIndex(c.species);
+          const at = game.movement.tileOf(id);
+          const x = at % map.w, y = Math.floor(at / map.w) % map.h;
+          return { id, sp: row?.id, temper: row?.temper, d: Math.max(Math.abs(x - wx), Math.abs(y - wy)), x, y, z: map.zOf(at), state: (ent.get(id, C.Brain) as { activity?: string } | undefined)?.activity ?? '' };
+        }).filter((a) => a.temper === 'aggressive' && a.d <= 40);
+        days.push({ day, level, animals, dwarves: dwarves.map((id) => ({ id, b: `${ent.get(id, C.Brain)?.behavior}/${ent.get(id, C.Brain)?.activity}`, h: Math.round(ent.get(id, C.Needs)?.hunger ?? -1), sol: ent.has(id, C.Soldier) })) });
+      },
+    });
+    writeFileSync(OUT, JSON.stringify({ seed: SEED, living: row.living, deaths: row.deaths, alerts: row.alerts, shelter: row.shelter, stocks: row.stocks, days }, null, 1) + '\n');
+  }, 1_200_000);
+});
