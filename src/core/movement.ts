@@ -333,20 +333,19 @@ export class MovementHelper implements MovementApi {
   }
 
   /**
-   * `blockedByCreature(next, id)`: a creature hostile to the mover, or any creature at all when a
-   * door stands on the tile. Two dwarves otherwise share a tile. A creature lying down blocks no one.
+   * `blockedByCreature(next, id)`: any creature when a door stands on the tile (22 § Movement helper).
+   * Creatures otherwise share a tile, a hostile included: combat stops a mover by engaging it. A
+   * creature lying down blocks no one.
    */
   blockedByCreature(next: TileIndex, id: EntityId): boolean {
+    if (!this.pathing.graph.hooks.doorAt(next)) return false;
     const occupants = this.spatial.at(next);
-    if (occupants.length === 0) return false;
-    const door = this.pathing.graph.hooks.doorAt(next);
     for (let k = 0; k < occupants.length; k += 1) {
       const other = occupants[k] as EntityId;
       if (other === id) continue;
       if (this.entities.kind(other) !== 'creature') continue;
       if (liesDown(this.entities, other)) continue;
-      if (door) return true;
-      if (this.pathing.graph.hooks.hostile(id, other)) return true;
+      return true;
     }
     return false;
   }

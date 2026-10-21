@@ -75,13 +75,8 @@ describe('T-409 a creature lying in a doorway', () => {
     expect(movement.blockedByCreature(doorTile, miner)).toBe(true);
     w.game.world.entities.add(lying, C.Motion, { ...motion, pathId: 0 });
     w.game.world.entities.remove(lying, C.Brain);
-    // A hostile stops a walker on any tile while it stands, and not once it lies unconscious.
-    const hooks = w.pathing.graph.hooks;
-    const open = w.index(30, 24, Z);
-    expect(movement.teleport(lying, open)).toBe(true);
-    hooks.hostile = (a, b) => a === miner && b === lying;
-    expect(movement.blockedByCreature(open, miner)).toBe(true);
+    // Lying unconscious in the doorway, it stops no one either.
     knockOut(w, lying);
-    expect(movement.blockedByCreature(open, miner)).toBe(false);
+    expect(movement.blockedByCreature(doorTile, miner)).toBe(false);
   });
 });
