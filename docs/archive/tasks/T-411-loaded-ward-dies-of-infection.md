@@ -1,6 +1,8 @@
 # T-411 — A loaded ward's serious cuts die of infection
 
-**Source:** T-405, [the first bandage](../../reports/audits/2026-10-21-first-bandage.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in ce26a36.
+
+**Source:** T-405, [the first bandage](../../../reports/audits/2026-10-21-first-bandage.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -8,7 +8,7 @@
 - **A grievous cut still kills one patient in five**: **16 of 30 to 6** under the skill-5 medic, below the floor ward's 7 before the change (3 now). It bleeds 6 a health tick and puts a dwarf down in about 300 ticks; the first bandage now comes at a median 309 ticks (380 before).
 - **The first bandage comes sooner everywhere**: a median 286 to 375 ticks under the skill-5 medic (365 to 501 before), and 521 for a serious fracture (633). The floor ward is still faster for a serious fracture (263); this run does not say why.
 - **At skill 0** the same holds: serious cuts 7 to 2 (both of infection), punctures 8 to 0, grievous cuts 18 to 8.
-- **Under load, infection is now the killer.** One wound every 400 ticks: serious-cut deaths 18 to 10, but all ten are infection (9 bled out before, none now); grievous cuts 24 to 15 (bled out 23 to 12). A medic with three new patients a day sutures and cleans late. Filed as [a loaded ward's serious cuts die of infection](../../docs/work/T-411-loaded-ward-dies-of-infection.md).
+- **Under load, infection is now the killer.** One wound every 400 ticks: serious-cut deaths 18 to 10, but all ten are infection (9 bled out before, none now); grievous cuts 24 to 15 (bled out 23 to 12). A medic with three new patients a day sutures and cleans late. Filed as [a loaded ward's serious cuts die of infection](../../docs/archive/tasks/T-411-loaded-ward-dies-of-infection.md).
 - Discharge and healing times barely move, except at skill 0, where a serious fracture leaves the hospital in 1.1 days instead of 3.7 and a serious burn in 4.0 instead of 4.8.
 
 ## What was run
