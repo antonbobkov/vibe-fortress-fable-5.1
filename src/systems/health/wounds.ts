@@ -3,8 +3,11 @@
  * and `04-implementation/algorithms/combat-and-health.md` § Health tick.
  */
 
-import type { Wound } from '@core/components';
-import type { Fixed, Severity, Tick, WoundType } from '@core/types';
+import { C, type Wound } from '@core/components';
+import type { ReaderSetLike } from '@core/system';
+import type { EntityId, Fixed, Severity, Tick, WoundType } from '@core/types';
+import type { JobsReader } from '@systems/jobs';
+import { RESERVE_KEEP_TICKS } from '@systems/jobs/constants';
 import { FRACTURE_PERCENT, HEAL_BASE_TICKS, LIGHT_MAX, SERIOUS_MAX } from './constants';
 
 /** A pending infection cure needs rest, not another cleaning. */
@@ -22,6 +25,21 @@ export function woundTreatmentNeeds(wounds: readonly Wound[]): string[] {
   if (wounds.some(needsCleaning)) needs.push('clean_wound');
   if (wounds.some(w => w.type === 'burn' && !w.dressed)) needs.push('dress_burn');
   return needs;
+}
+
+/**
+ * A bleeding patient is bandaged where it lies (§ Patients and hospitals): while a wound made less
+ * than `RESERVE_KEEP_TICKS` ago bleeds without a bandage, another dwarf has the medicine labor and
+ * the patient's `stop_bleeding` job is not blocked (no cloth, no medic who can reach it), a conscious
+ * patient does not walk to its bed and an unconscious one is not carried.
+ */
+export function awaitsBandage(readers: ReaderSetLike, id: EntityId, tick: Tick): boolean {
+  const body = readers.entities.get(id, C.Body);
+  if (body === undefined || !body.parts.some(p => p.wounds.some(w =>
+    w.bleed > 0 && !w.bandaged && tick - w.createdTick < RESERVE_KEEP_TICKS))) return false;
+  if (!readers.has('11')) return false;
+  const jobs = readers.of<JobsReader>('11');
+  return jobs.byKey(`stop_bleeding:${id}`)?.state !== 'blocked' && jobs.workersWithLabor('medicine').some(w => w !== id);
 }
 
 export const BLEED_TABLE: Readonly<Record<WoundType, Readonly<Record<Severity, Fixed>>>> = {

@@ -38,7 +38,7 @@ select(id):
          jobs.assign(id) unless it holds the job; b.behavior = 'work'; return   // back to 'retreat' when the job ends; a retreating dwarf looks for such a job every tick
        b.behavior = 'retreat'; goal = target; return          // otherwise continue; flee has precedence
                                                                 // shelterArea(target): the hearth hall when target is one of its tiles, else the non-outdoor tiles around target reached along walker edges without passing a door, hatch, floodgate or drawbridge
-  if health.isPatient(id) and (civ or not hostileInSight(id)):  b.behavior = 'patient'; goal = bedTile(id) or stay; return   // a soldier on duty fights on while a hostile is in sight
+  if health.isPatient(id) and (civ or not hostileInSight(id)):  b.behavior = 'patient'; goal = bedTile(id) or stay; return   // a soldier on duty fights on while a hostile is in sight; stay while awaitsBandage(id) (combat-and-health.md: a bleeding patient is bandaged where it lies)
   crit = highest need over its critical threshold
   if crit:                                                      startNeed(id, crit); return                       // interrupts jobs
   if combat.onDuty(id):

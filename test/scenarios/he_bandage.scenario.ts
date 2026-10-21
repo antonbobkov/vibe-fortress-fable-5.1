@@ -69,6 +69,10 @@ const scenario: Scenario = {
     const admissionEvent = w.events('PatientAdmitted').find((e) => e['id'] === patientId);
     expect(admissionEvent).toBeDefined();
     const admissionTick = w.tick;
+    // The cut is kept clean: an uncleaned cut is infected in most fortnights (`he_infection`, 10% a
+    // day), and an infected wound does not heal, so without this the healing day turned on the stream.
+    const cut = w.game.world.entities.get(patientId, C.Body)!.parts.flatMap((p) => p.wounds).find((x) => x.type === 'cut')!;
+    cut.cleaned = true;
 
     // stop_bleeding within 300 ticks of admission
     w.until(
