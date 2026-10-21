@@ -1,6 +1,8 @@
 # T-367 — Measure wound recovery and infection
 
-**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 4) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 07141a5.
+
+**Source:** T-333, [`../../reports/audits/2026-10-17-unmeasured-spec-numbers.md`](../../../reports/audits/2026-10-17-unmeasured-spec-numbers.md) (rank 4) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

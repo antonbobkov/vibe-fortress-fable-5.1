@@ -143,17 +143,17 @@ Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_b
 | Name | Value | Meaning |
 |---|---|---|
 | `BLOOD_PER_SIZE` | 10 | |
-| `LIGHT_MAX` / `SERIOUS_MAX` | 0.2 / 0.5 | Damage ratio thresholds (*unmeasured*) |
-| `HEAL_BASE_TICKS` | 6000 | 5 days for a light wound; serious ×3, grievous ×6 (*unmeasured*) |
+| `LIGHT_MAX` / `SERIOUS_MAX` | 0.2 / 0.5 | Damage ratio thresholds; measured, under a skill-5 medic no dwarf of 30 dies of a light cut, 6 of a serious one and 16 of a grievous one ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
+| `HEAL_BASE_TICKS` | 6000 | 5 days for a light wound; serious ×3, grievous ×6. Measured: light cut 5.0 days, serious fracture 15.9, grievous fracture 30.7 ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `BLOOD_REGEN_PER_TICK` | 1 | Blood units per health tick (*unmeasured*) |
 | `CLOT_TICKS` | 300 | Ticks after which a light wound stops bleeding by itself |
 | `PAIN_UNCONSCIOUS` | 80 | *unmeasured* |
-| `BLOOD_UNCONSCIOUS_PERCENT` | 40 | *unmeasured* |
+| `BLOOD_UNCONSCIOUS_PERCENT` | 40 | Measured: a serious cut (bleed 3) takes a dwarf unconscious about 600 ticks after the wound, a grievous one about 300 ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `BLOOD_DEATH_PERCENT` | 20 | |
 | `UNTREATED_FRACTURE_PERCENT` | 25 | Healing speed (*unmeasured*) |
-| `SUTURED_HEAL_PERCENT` | 150 | *unmeasured* |
-| `INFECTION_PERMILLE` | 100 | Per untreated wound per day (*unmeasured*) |
-| `INFECTION_DEATH_PERMILLE` | 50 | Per day infected (*unmeasured*) |
+| `SUTURED_HEAL_PERCENT` | 150 | Measured: a sutured serious cut heals in 10.3 days, a grievous one in 20.3 ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
+| `INFECTION_PERMILLE` | 100 | Per untreated wound per day; measured, 12 of 30 light cuts with no medic are infected, none with one ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
+| `INFECTION_DEATH_PERMILLE` | 50 | Per day infected; measured, 6 of those 12 die ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `INFECTION_CURE_DAYS` | 3 | *unmeasured* |
 | `DROWN_DAMAGE` | 8 | Per health tick (*unmeasured*) |
 | `FALL_DAMAGE_PER_LEVEL_SQ` | 6 | *unmeasured* |
@@ -161,9 +161,9 @@ Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_b
 | `PRODUCTIVITY_FLOOR` | 30 | Percent (*unmeasured*) |
 | `HOSPITAL_SUPPLY_MAX` | 999 | Maximum count requested by a hospital setting |
 | `TREAT_TICKS` | 200 | |
-| `TREAT_FAIL_PERMILLE` | 200 | At skill 0 (*unmeasured*) |
+| `TREAT_FAIL_PERMILLE` | 200 | At skill 0; measured, 6% to 17% of treatment jobs fail at skills 5 and 0, and a failed first bandage of a serious cut is a death ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `DIAGNOSE_XP` | 20 | *unmeasured* |
-| `PAIN_DISCHARGE` | 30 | *unmeasured* |
+| `PAIN_DISCHARGE` | 30 | Measured: patients leave in 0.3 to 2 days, except a grievous fracture, which stays until healed, 30.6 days ([wound recovery](../../reports/audits/2026-10-21-wound-recovery.md)) |
 | `HOSPITAL_DEFAULT_SUPPLIES` | cloth 10, thread 5, splints 4, crutches 2, brightleaf 6, buckets 2 | *unmeasured* |
 
 Wound bleed and pain values per type and severity are content.
