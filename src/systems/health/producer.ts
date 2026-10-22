@@ -349,16 +349,17 @@ export class HealthProducer implements JobProducer {
     }
 
     // Outside admission a treatment job made earlier ends once no wound needs it, even under way, and
-    // `diagnose` once no wound needs any treatment. A failed request stays a need while its wound
-    // needs it (above); `give_crutch` outlives discharge. Every dwarf is looked at, the healed too.
+    // `diagnose` once no wound remains. A failed request stays a need while its wound needs it
+    // (above); `give_crutch` outlives discharge. Every dwarf is looked at, the healed too.
     if (ctx.tick % HEALTH_CADENCE === 0) {
       for (const id of entities.with(C.Attributes, C.Body).sort((a, b) => a - b)) {
         if (entities.has(id, C.Patient) || !entities.alive(id)) continue;
         const keys = [...WOUND_TREATMENTS, 'diagnose'].filter(kind => sink.exists(`${kind}:${id}`));
         if (keys.length === 0) continue;
-        const needs = woundTreatmentNeeds(entities.get(id, C.Body)?.parts.flatMap(part => part.wounds) ?? []);
+        const wounds = entities.get(id, C.Body)?.parts.flatMap(part => part.wounds) ?? [];
+        const needs = woundTreatmentNeeds(wounds);
         for (const kind of keys) {
-          if (kind === 'diagnose' ? needs.length === 0 : !needs.includes(kind)) sink.cancelKey(`${kind}:${id}`, 'need_cleared');
+          if (kind === 'diagnose' ? wounds.length === 0 : !needs.includes(kind)) sink.cancelKey(`${kind}:${id}`, 'need_cleared');
         }
       }
     }

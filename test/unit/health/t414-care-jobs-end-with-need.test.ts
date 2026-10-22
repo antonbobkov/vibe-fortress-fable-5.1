@@ -1,6 +1,6 @@
 /**
  * T-414: a treatment job ends once no wound of its dwarf needs that treatment, admitted or not, even
- * while it is under way; `diagnose` ends at discharge when no wound needs a treatment.
+ * while it is under way; `diagnose` goes on after discharge while a wound remains and ends once none does.
  */
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z as Z } from '@app/headless';
@@ -47,13 +47,20 @@ describe('T-414 care jobs end with their need', () => {
     expect(a.cut.bandaged).toBe(false);
   });
 
-  it('diagnose ends at discharge when no wound needs a treatment', () => {
+  it('diagnose goes on after discharge while a wound remains, and ends once none does', () => {
     const a = lightCut('t414-diagnose');
-    expect(a.board.byKey(`diagnose:${a.patient}`)).toBeDefined();
+    const key = `diagnose:${a.patient}`;
+    expect(a.board.byKey(key)).toBeDefined();
     a.cut.cleaned = true;
     a.w.until(() => !a.world.entities.has(a.patient, C.Patient), CLOT_TICKS + 20);
     a.w.step(10);
-    expect(a.board.byKey(`diagnose:${a.patient}`)).toBeUndefined();
+    // No wound needs a treatment, but the cut remains.
+    expect(a.board.byKey(key)).toBeDefined();
+    expect(a.w.events('TreatmentDone').filter((e) => e['patientId'] === a.patient && e['kind'] === 'diagnose')).toHaveLength(0);
+    a.cut.healRemaining = 1;
+    a.w.step(10);
+    expect(a.world.entities.get(a.patient, C.Body)!.parts.every((p) => p.wounds.length === 0)).toBe(true);
+    expect(a.board.byKey(key)).toBeUndefined();
     a.w.step(400);
     expect(a.w.events('TreatmentDone').filter((e) => e['patientId'] === a.patient)).toHaveLength(0);
   });
