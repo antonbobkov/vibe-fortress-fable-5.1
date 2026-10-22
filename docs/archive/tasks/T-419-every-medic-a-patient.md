@@ -1,6 +1,8 @@
 # T-419 — A fortress whose medics are all patients gets no care
 
-**Source:** [p4-2 dies in year 1](../../reports/audits/2026-10-22-p4-2-year-one.md) (the T-113 gate on `ab4d40e`) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-22, in b0632db.
+
+**Source:** [p4-2 dies in year 1](../../../reports/audits/2026-10-22-p4-2-year-one.md) (the T-113 gate on `ab4d40e`) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

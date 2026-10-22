@@ -114,7 +114,8 @@ export function updatePatient(
   const allWounds = b.parts.flatMap((p) => p.wounds);
   const anyBleeds = allWounds.some((w) => w.bleed > 0 && !w.bandaged);
   const anyUnsplintedFracture = allWounds.some((w) => w.type === 'fracture' && !w.splinted);
-  const anyUndressedBurn = allWounds.some((w) => w.type === 'burn' && !w.dressed);
+  // A light burn admits no one: its dwarf keeps working, and the producer still dresses it.
+  const anyUndressedBurn = allWounds.some((w) => w.type === 'burn' && w.severity !== 'light' && !w.dressed);
   const anyInfected = allWounds.some((w) => w.infected);
   const unconscious = !b.conscious;
 
