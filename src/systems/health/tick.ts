@@ -27,7 +27,7 @@ import type { TickContext } from '@core/system';
 import type { BodySlot, EntityId, TileIndex } from '@core/types';
 import { BODY_SLOTS } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
-import { createWound, severityFor, woundTreatmentNeeds, woundTypeFor } from './wounds';
+import { createWound, exposed, severityFor, woundTreatmentNeeds, woundTypeFor } from './wounds';
 import { hasCrutchItem } from './reader';
 
 const LIMB_SLOTS: readonly BodySlot[] = ['left_arm', 'right_arm', 'left_leg', 'right_leg'];
@@ -541,14 +541,7 @@ export function handleDailyInfection(
 
     for (const part of b.parts) {
       for (const w of part.wounds) {
-        if (
-          (w.type === 'cut' || w.type === 'puncture' || w.type === 'burn') &&
-          !w.cleaned &&
-          !w.sutured &&
-          !w.bandaged &&
-          !w.infected &&
-          ctx.tick - w.createdTick >= TICKS_PER_DAY
-        ) {
+        if (exposed(w) && !w.infected && ctx.tick - w.createdTick >= TICKS_PER_DAY) {
           const permille = (inMiasma || sleptOnFloor) ? INFECTION_PERMILLE * 2 : INFECTION_PERMILLE;
           if (rng.int(0, 999) < permille) {
             w.infected = true;

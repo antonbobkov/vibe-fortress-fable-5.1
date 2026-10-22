@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
-import { PAIN_DISCHARGE } from '@systems/health';
+import { createWound, PAIN_DISCHARGE } from '@systems/health';
 import type { JobBoard } from '@systems/jobs';
 import { TestWorld } from '../../scenarios/test-world';
 
@@ -59,8 +59,13 @@ describe('T-224 treatment needs reflect the wounds of a patient waiting for disc
 
   it('retains only an unfinished cleaning need and discharges when pain falls below the threshold', () => {
     const { w, patient, body } = treatedPatient(false);
+    // A fracture cannot be infected and asks for no cleaning (T-413); an uncovered cut on an arm does.
+    expect(w.game.world.entities.get(patient, C.Patient)?.needs).toEqual([]);
+    const cut = { ...createWound('cut', 'light', 3, w.tick), bleed: 0 };
+    body.parts[2]!.wounds.push(cut);
+    w.step(5);
     expect(w.game.world.entities.get(patient, C.Patient)?.needs).toEqual(['clean_wound']);
-    body.parts[0]!.wounds[0]!.cleaned = true;
+    cut.cleaned = true;
     body.parts[0]!.wounds[0]!.pain = PAIN_DISCHARGE - 1;
     w.step(5);
     expect(w.game.world.entities.has(patient, C.Patient)).toBe(false);

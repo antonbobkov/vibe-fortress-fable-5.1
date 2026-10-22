@@ -16,7 +16,8 @@ function planned() {
   w.step(2);
   const entities = w.game.world.entities; const body = entities.get(patient, C.Body)!;
   const cut = body.parts.flatMap(p => p.wounds)[0]!;
-  Object.assign(cut, { bandaged: true, bleed: 0, sutured: true }); body.diagnosed = true;
+  // Its bleeding stopped without a bandage: an uncovered cut still asks for cleaning (T-413).
+  Object.assign(cut, { bleed: 0 }); body.diagnosed = true;
   const board = w.game.world.services.jobs as JobBoard;
   const key = `clean_wound:${patient}`; const old = board.jobs.get(board.byKey(key)!.id)!;
   expect(old).toBeDefined(); expect(old.inputs).toEqual([]);

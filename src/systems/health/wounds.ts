@@ -10,9 +10,18 @@ import type { JobsReader } from '@systems/jobs';
 import { RESERVE_KEEP_TICKS } from '@systems/jobs/constants';
 import { FRACTURE_PERCENT, HEAL_BASE_TICKS, LIGHT_MAX, SERIOUS_MAX } from './constants';
 
-/** A pending infection cure needs rest, not another cleaning. */
+/** A cut, puncture or burn left uncovered: not cleaned, sutured or bandaged; it can be infected (§ Infection). */
+export function exposed(wound: Wound): boolean {
+  return (wound.type === 'cut' || wound.type === 'puncture' || wound.type === 'burn') &&
+    !wound.cleaned && !wound.sutured && !wound.bandaged;
+}
+
+/**
+ * Cleaning is asked for a wound that can still be infected, and for an infection whose cure has not
+ * started (a pending cure needs rest, not another cleaning). A covered wound asks for none.
+ */
 export function needsCleaning(wound: Wound): boolean {
-  return wound.infected ? wound.curedAt === undefined : !wound.cleaned;
+  return wound.infected ? wound.curedAt === undefined : exposed(wound);
 }
 
 /** Wound-driven care is independent of whether a dwarf is still admitted. */

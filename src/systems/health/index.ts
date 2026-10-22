@@ -112,6 +112,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
         map: ctx.world.map,
         registry: ctx.registry,
         pendingTreatments: this.pendingTreatments,
+        wounded: this.wounded,
       }),
     );
   }

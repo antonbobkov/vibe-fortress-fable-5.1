@@ -27,6 +27,7 @@ export interface HealthProducerHost {
   readonly map: Map3D;
   readonly registry: Registry;
   readonly pendingTreatments: Map<EntityId, Set<string>>;
+  readonly wounded: ReadonlySet<EntityId>;
 }
 
 export class HealthProducer implements JobProducer {
@@ -342,6 +343,16 @@ export class HealthProducer implements JobProducer {
           if (sink.exists(key)) sink.cancelKey(key, 'need_cleared');
         }
       }
+    }
+
+    // A cleaning made during admission ends once no wound asks for it, admitted or not (a bandage
+    // covers the wound, and a serious cut is discharged when it is bandaged).
+    for (const id of Array.from(this.host.wounded).sort((a, b) => a - b)) {
+      if (targets.has(id)) continue;
+      const key = `clean_wound:${id}`;
+      if (!sink.exists(key)) continue;
+      const wb = entities.get(id, C.Body);
+      if (wb === undefined || !wb.parts.some(p => p.wounds.some(needsCleaning))) sink.cancelKey(key, 'need_cleared');
     }
 
     // Tame animals: bandaging only.
