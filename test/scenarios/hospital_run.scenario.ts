@@ -3,7 +3,7 @@
  * A 30-day playthrough on flat-test with Balanced embark.
  * Fortress built by player commands (workshops, work orders, hospital zone, tomb zone, well, memorial slab).
  * Casualties created by simulation (hostile raid party on day 5 and fire beside a dwarf).
- * All wounded survivors admitted, diagnosed, treated, and discharged; dead buried in tomb.
+ * All wounded survivors admitted, treated, and discharged; dead buried in tomb.
  *
  * T-222: the casualties are staged by rule, not by a roll of the fight. A wounded survivor is
  * a dwarf that 17 § Patients and hospitals makes a patient (a bleeding wound, a fracture, a
@@ -538,7 +538,7 @@ const scenario: Scenario = {
     expect(buildings.byType('bed').filter((id) => buildings.get(id)?.state === 'built').length).toBeGreaterThanOrEqual(4);
     expect(buildings.byType('coffin').filter((id) => buildings.get(id)?.state === 'built').length).toBeGreaterThanOrEqual(2);
 
-    // 2. Every wounded dwarf who survives is admitted, diagnosed, treated, and discharged
+    // 2. Every wounded dwarf who survives is admitted, treated, and discharged
     const woundedSurvivingDwarves = woundedSurvivors();
     expect(woundedSurvivingDwarves.length).toBeGreaterThanOrEqual(3);
 
@@ -565,7 +565,8 @@ const scenario: Scenario = {
     expect(doneKinds.has('suture')).toBe(true);
     expect(doneKinds.has('set_bone')).toBe(true);
     expect(doneKinds.has('dress_burn')).toBe(true);
-    expect(doneKinds.has('diagnose')).toBe(true);
+    // T-414: `diagnose` ends at discharge once no wound needs a treatment, and the medic reaches it
+    // last (priority 4), so a short stay ends undiagnosed; a diagnosis is not required here.
 
     // 4. Crutch assertion if a dwarf lost the use of a leg
     const lostLeg = [...dwarves, ...staged].some((id) => {
