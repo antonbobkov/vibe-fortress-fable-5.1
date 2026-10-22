@@ -106,8 +106,12 @@ export class HealthProducer implements JobProducer {
       }
     }
 
-    // A failed treatment remains a request even if its target has been discharged.
-    const targets = new Set([...entities.with(C.Patient), ...this.host.pendingTreatments.keys()]);
+    // A failed treatment remains a request even if its target has been discharged. A dwarf with an
+    // undressed light burn is not admitted, but the treatments its wounds need are made for it.
+    const burned = new Set(ctx.tick % HEALTH_CADENCE !== 0 ? [] : entities.with(C.Attributes, C.Body).filter(id =>
+      !entities.has(id, C.Patient) && entities.alive(id) &&
+      entities.get(id, C.Body)?.parts.some(p => p.wounds.some(w => w.type === 'burn' && !w.dressed)) === true));
+    const targets = new Set([...entities.with(C.Patient), ...this.host.pendingTreatments.keys(), ...burned]);
     for (const patientId of Array.from(targets).sort((a, b) => a - b)) {
       if (!entities.alive(patientId)) {
         this.host.pendingTreatments.delete(patientId);
@@ -118,7 +122,8 @@ export class HealthProducer implements JobProducer {
       const patient = entities.get(patientId, C.Patient);
       const previousRetries = Array.from(this.host.pendingTreatments.get(patientId) ?? []).sort();
       const retries = this.refreshRetries(patientId);
-      const treatmentNeeds = Array.from(new Set([...(patient?.needs ?? []), ...retries]));
+      const woundNeeds = burned.has(patientId) ? woundTreatmentNeeds(b.parts.flatMap(part => part.wounds)) : [];
+      const treatmentNeeds = Array.from(new Set([...(patient?.needs ?? []), ...retries, ...woundNeeds]));
 
       if (patient !== undefined) {
         let bedTile = -1;
