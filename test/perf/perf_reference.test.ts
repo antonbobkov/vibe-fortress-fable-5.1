@@ -12,10 +12,10 @@ const WORST_TICK_PASSES = 3;
 const SINGLE_PASS_WORST_MS = 80;
 
 const ALLOCATION_MS: Readonly<Record<string, number>> = {
-  '03': 0.10, '04': 1.50, '05': 0.15, '06': 0.02, '07': 0.15,
-  '08': 0.40, '09': 0.05, '10': 0.50, '11': 0.60, '12': 0.10,
+  '03': 0.10, '04': 1.25, '05': 0.15, '06': 0.02, '07': 0.15,
+  '08': 0.80, '09': 0.05, '10': 0.50, '11': 0.60, '12': 0.10,
   '13': 0.30, '14': 0.10, '15': 0.20, '16': 0.20, '17': 0.10,
-  '18': 0.10, '19': 0.05,
+  '18': 0.20, '19': 0.05,
 };
 
 describe('T-M6-18 / T-M8-01 perf: perf_reference', () => {
@@ -25,7 +25,7 @@ describe('T-M6-18 / T-M8-01 perf: perf_reference', () => {
       if (systems[id] === undefined) continue;
       expect(systems[id], `system ${id}: ${systems[id]?.toFixed(3)} ms > ${allocation.toFixed(3)} ms`).toBeLessThanOrEqual(allocation);
     }
-    expect(pathing, 'system 22 pathing').toBeLessThanOrEqual(1.0);
+    expect(pathing, 'system 22 pathing').toBeLessThanOrEqual(0.75);
     expect(core, 'core').toBeLessThanOrEqual(0.30);
     expect(steadyWorstTickMs).toBeLessThanOrEqual(40);
     expect(worstTickMs, 'single-pass worst tick').toBeLessThanOrEqual(SINGLE_PASS_WORST_MS);

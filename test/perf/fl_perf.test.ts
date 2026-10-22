@@ -1,7 +1,7 @@
 /**
  * `fl_perf` of `04-implementation/acceptance-tests.md` § 04 Fluids ("reference fortress with a
- * 40-tile waterfall channel, 2,000 ticks | average fluids tick ≤ 3 ms on CI (2× budget)") with the
- * pathing assertion of `M3-water-fire-sky.md` T-M3-09 (≤ 2 ms average, 2× 22's 1.0 ms budget) and
+ * 40-tile waterfall channel, 2,000 ticks | average fluids tick ≤ 2.5 ms on CI (2× budget)") with the
+ * pathing assertion of `M3-water-fire-sky.md` T-M3-09 (2× 22's budget, now 0.75 ms) and
  * the two rules of `testing-strategy.md` § Performance smoke: "average tick ≤ 2× the budget of
  * the systems present, worst tick ≤ 40 ms".
  */
@@ -12,10 +12,10 @@ import { buildReferenceFortress, runReferenceFortress } from './reference-fortre
 const TICKS = 2000;
 
 /** `performance-budget.md` § Per-system tick budget, the systems M3 has. */
-const BUDGET_MS: Readonly<Record<string, number>> = { '03': 0.1, '04': 1.5, '05': 0.15, '06': 0.02, '10': 0.5, '11': 0.6, '13': 0.3, '14': 0.1 };
-const PATHING_BUDGET_MS = 1.0;
+const BUDGET_MS: Readonly<Record<string, number>> = { '03': 0.1, '04': 1.25, '05': 0.15, '06': 0.02, '10': 0.5, '11': 0.6, '13': 0.3, '14': 0.1 };
+const PATHING_BUDGET_MS = 0.75;
 const CORE_BUDGET_MS = 0.3;
-/** "average tick ≤ 2× the budget", "average fluids tick ≤ 3 ms on CI (2× budget)". */
+/** "average tick ≤ 2× the budget", "average fluids tick ≤ 2.5 ms on CI (2× budget)". */
 const TOLERANCE = 2;
 /** `testing-strategy.md` § Performance smoke. */
 const WORST_TICK_MS = 40;

@@ -14,3 +14,7 @@ The T-113 work file asked for system 08 (wild animals) to be measured on a quiet
 ## Done
 
 - The table holds the new figures with a link to the gate report, and `per-system.test.ts` passes for 08 and 18 within 1× of their allocation on a quiet machine.
+
+## As done
+
+The table's stated total was 5.85 ms, but its rows summed to 5.95 before this change and still do after it (the moves net to zero); the total cell now says 5.95. The allocations that `perf_reference.test.ts` and `fl_perf.test.ts` repeat, and the 2.5 ms fluids line of `acceptance-tests.md`, follow the table.
