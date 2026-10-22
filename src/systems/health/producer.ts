@@ -12,8 +12,10 @@ import type { RngStream } from '@core/rng';
 import type { JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
+import { grantXp } from '@systems/dwarves/skills';
 import type { Job, JobSink } from '@systems/jobs';
 import {
+  DIAGNOSE_XP,
   HEALTH_CADENCE,
   INFECTION_CURE_DAYS,
   TREAT_FAIL_PERMILLE,
@@ -359,7 +361,8 @@ export class HealthProducer implements JobProducer {
         const wounds = entities.get(id, C.Body)?.parts.flatMap(part => part.wounds) ?? [];
         const needs = woundTreatmentNeeds(wounds);
         for (const kind of keys) {
-          if (kind === 'diagnose' ? wounds.length === 0 : !needs.includes(kind)) sink.cancelKey(`${kind}:${id}`, 'need_cleared');
+          const done = kind === 'diagnose' ? wounds.length === 0 || entities.get(id, C.Body)?.diagnosed === true : !needs.includes(kind);
+          if (done) sink.cancelKey(`${kind}:${id}`, 'need_cleared');
         }
       }
     }
@@ -595,8 +598,24 @@ export class HealthProducer implements JobProducer {
       }
     }
 
+    if (WOUND_TREATMENTS.includes(typeStr)) this.diagnoseByTreatment(ctx, patientId, job.workerId);
     updatePatient(ctx, patientId);
     this.refreshRetries(patientId);
+  }
+
+  /**
+   * The medic who diagnoses (the Chief Medic, or any medic when there is none) diagnoses an
+   * undiagnosed dwarf while treating it: the treatment does what `diagnose` does.
+   */
+  private diagnoseByTreatment(ctx: TickContext, patientId: EntityId, medicId: EntityId): void {
+    const entities = ctx.world.entities;
+    const body = entities.get(patientId, C.Body);
+    if (body === undefined || body.diagnosed || !entities.has(patientId, C.Attributes)) return;
+    const chief = entities.with(C.Title).find(id => entities.alive(id) && entities.get(id, C.Title)?.title === 'chief_medic') ?? 0;
+    if (chief !== 0 && chief !== medicId) return;
+    body.diagnosed = true;
+    grantXp(entities, ctx.registry, medicId, 'medicine', DIAGNOSE_XP, (e) => ctx.emit(e));
+    ctx.emit({ type: 'TreatmentDone', patientId, medicId, kind: 'diagnose' });
   }
 
   private refreshRetries(patientId: EntityId): string[] {
