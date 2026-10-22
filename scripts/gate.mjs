@@ -98,13 +98,19 @@ function run(step) {
     cwd: root,
     encoding: 'utf8',
     shell: process.platform === 'win32',
+    // T-113: the performance tier prints more than spawnSync's 1 MiB default buffer, which killed
+    // the step with ENOBUFS and no test failure; 1 GiB holds a five-hour run.
+    maxBuffer: 1024 * 1024 * 1024,
   });
   const ms = Date.now() - started;
-  const raw = `${res.stdout ?? ''}${res.stderr ?? ''}`;
+  // stdout and stderr are both kept; a step the runner could not finish says why (a spawn error,
+  // a signal, or the exit status) at the end of its output, so the report names the failure.
+  const why = res.error ? `spawn error: ${res.error.message}` : res.signal ? `killed by ${res.signal}` : res.status !== 0 ? `exit status ${res.status}` : '';
+  const raw = `${res.stdout ?? ''}${res.stderr ?? ''}${why ? `\ngate: ${step.name}: ${why}\n` : ''}`;
   process.stdout.write(raw);
   // The runners colour their output when the terminal allows it; the report parses plain text.
   const output = stripAnsi(raw);
-  return { name: step.name, ok: res.status === 0, ms, output };
+  return { name: step.name, ok: res.status === 0, ms, output, why };
 }
 
 function coverageFile() {
@@ -173,6 +179,44 @@ function scenarioLines(output) {
   return out;
 }
 
+/**
+ * T-113: the per-system timings of the performance tier. `measure-reference.ts` prints one
+ * `perf_reference:` line per measured fixture; the budget table of `performance-budget.md` is
+ * the allocation, and `per-system.test.ts` enforces each at most twice its budget on the
+ * furniture fixture (the one the budgets were measured on).
+ */
+function perSystemSection(output) {
+  const runs = [];
+  for (const line of output.split(/\r?\n/)) {
+    const at = line.indexOf('perf_reference: ');
+    if (at < 0) continue;
+    try { runs.push(JSON.parse(line.slice(at + 'perf_reference: '.length))); } catch { /* a cut line is skipped */ }
+  }
+  if (runs.length === 0) return 'No per-system timings in the performance output.';
+  const doc = readFileSync(join(root, 'docs/01-architecture/performance-budget.md'), 'utf8');
+  const budgets = [...doc.matchAll(/^\| (\d{2}|core)(?: [^|]*)? \| ([\d.]+) \|/gm)].map((m) => ({ id: m[1], budget: Number(m[2]) }));
+  const name = (r) => String(r.fixture).split(/[\\/]/).pop();
+  const value = (r, id) => (id === 'core' ? r.coreMs : id === '22' ? r.pathingMs : r.systems?.[id]);
+  const ms = (v) => (typeof v === 'number' ? v.toFixed(3) : 'n/a');
+  const furniture = runs.find((r) => /furniture/.test(String(r.fixture))) ?? runs[0];
+  const rows = budgets.map(({ id, budget }) => {
+    const v = value(furniture, id);
+    const verdict = typeof v !== 'number' ? 'n/a' : v <= budget ? 'within' : v <= 2 * budget ? 'over, within 2×' : 'OVER 2×';
+    return `| ${id} | ${budget.toFixed(2)} | ${runs.map((r) => ms(value(r, id))).join(' | ')} | ${verdict} |`;
+  });
+  return [
+    `Average milliseconds per tick by system on each measured fixture; the verdict compares \`${name(furniture)}\` with its allocation (\`per-system.test.ts\` fails above twice it).`,
+    '',
+    `| System | Budget (ms) | ${runs.map(name).join(' | ')} | Verdict |`,
+    `|---|---|${runs.map(() => '---|').join('')}---|`,
+    ...rows,
+    '',
+    '| Fixture | Average tick (ms) | Worst tick (ms) | Steady worst tick (ms) |',
+    '|---|---|---|---|',
+    ...runs.map((r) => `| \`${name(r)}\` | ${ms(r.averageTickMs)} | ${ms(r.worstTickMs)} | ${ms(r.steadyWorstTickMs)} |`),
+  ].join('\n');
+}
+
 function testCounts(output) {
   const files = /Test Files\s+(.*)$/m.exec(output);
   const tests = /\bTests\s+(.*)$/m.exec(output);
@@ -217,7 +261,7 @@ const lines = [
   '',
   '| Step | Result | Duration |',
   '|---|---|---|',
-  ...results.map((r) => `| \`npm run ${r.name}\` | ${r.ok ? 'pass' : 'FAIL'} | ${(r.ms / 1000).toFixed(1)} s |`),
+  ...results.map((r) => `| \`npm run ${r.name}\` | ${r.ok ? 'pass' : `FAIL (${r.why})`} | ${(r.ms / 1000).toFixed(1)} s |`),
   '',
   runPerf ? '' : 'The performance tier was not run (`--no-perf`).',
   '',
@@ -246,6 +290,10 @@ const lines = [
     ...hashes.map((r) => `[three_years_hash] ${JSON.stringify(r)}`),
     '```',
   ].join('\n'),
+  '',
+  '## Per-system timings',
+  '',
+  runPerf ? perSystemSection(results.find((r) => r.name === 'test:perf')?.output ?? '') : 'Not measured (`--no-perf`).',
   '',
   '## Coverage',
   '',
