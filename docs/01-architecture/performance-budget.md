@@ -26,7 +26,7 @@ Every budget in the table below was measured on the furniture fixture, and `per-
 | 07 plants | 0.15 | Growth timers | Per-hour accumulation; crops and saplings in lists |
 | 08 animals | 0.40 | Behavior and movement | Bounded perception radius; wild animals far from dwarves think every 10 ticks |
 | 09 foraging | 0.05 | Target search | Candidate lists cached per species |
-| 10 dwarves | 0.50 | Needs, behavior selection, movement | Behavior selection only when idle or on need threshold; movement is a cheap step |
+| 10 dwarves | 0.50 | Needs, behavior selection, movement | Behavior selection only when idle or on need threshold; movement is a cheap step; the water search reads the fluid bytes of a row four at a time and skips the empty ones |
 | 11 jobs | 0.60 | Assignment | Idle workers only; candidate set bounded to 32 jobs by labor and connectivity; hauling batched |
 | 12 workshops | 0.10 | Timers | Only active workshops |
 | 13 items | 0.30 | Decay, stock counts | Rot only for items with a rot timer, kept in a bucket queue by expiry; stock counts incremental |

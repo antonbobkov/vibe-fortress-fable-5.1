@@ -2,7 +2,7 @@
  * `algorithms/creature-brains.md` § startNeed. Plans are saved by 10. */
 import { C, type Brain, type Needs, type Relationships } from '@core/components';
 import { NEED_MAX, TICKS_PER_HOUR } from '@core/constants';
-import { FluidType, TileFlag, TileKind } from '@core/map3d';
+import { FLUID_FROZEN_BIT, FLUID_LEVEL_MASK, FLUID_TYPE_BIT, TileFlag, TileKind } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
@@ -154,12 +154,26 @@ function bed(ctx: TickContext, id: EntityId, from: TileIndex, wagon: TileIndex, 
   return plan('rest', floor >= 0 ? floor : from);
 }
 
-function water(ctx: TickContext, from: TileIndex, allowed: (tile: TileIndex) => boolean): TileIndex {
+/**
+ * The nearest stand tile beside drinkable water (10 § Eating and drinking): the least
+ * (horizontal Chebyshev distance + vertical distance × `Z_DISTANCE_WEIGHT`, stand tile index)
+ * over the water tiles within `DRINK_SEARCH_RADIUS`. The scan reads the fluid bytes of each row
+ * directly, so a search with no water in reach costs one pass over the bytes (T-416); the
+ * pruning only drops tiles strictly farther than the best found, so the choice is the same in any
+ * scan order. Exported for its unit test.
+ */
+export function water(ctx: TickContext, from: TileIndex, allowed: (tile: TileIndex) => boolean): TileIndex {
   const m = ctx.world.map;
   if (!m.validIndex(from)) return -1;
   const fx = m.xOf(from);
   const fy = m.yOf(from);
   const fz = m.zOf(from);
+  const fluid = m.fluid;
+  // Four fluid bytes at a time: a zero word is four tiles with no fluid at all.
+  const words = (fluid.byteOffset & 3) === 0 ? new Uint32Array(fluid.buffer, fluid.byteOffset, fluid.length >>> 2) : null;
+  const UNDRINKABLE = FLUID_TYPE_BIT | FLUID_FROZEN_BIT;
+  const x0 = Math.max(0, fx - DRINK_SEARCH_RADIUS);
+  const x1 = Math.min(m.w - 1, fx + DRINK_SEARCH_RADIUS);
 
   let best = -1;
   let bestDistance = Number.POSITIVE_INFINITY;
@@ -182,14 +196,17 @@ function water(ctx: TickContext, from: TileIndex, allowed: (tile: TileIndex) => 
       if (Math.abs(dy) - 1 + near * Z_DISTANCE_WEIGHT > bestDistance) continue;
       const wy = fy + dy;
       if (wy < 0 || wy >= m.h) continue;
-      for (let dx = -DRINK_SEARCH_RADIUS; dx <= DRINK_SEARCH_RADIUS; dx += 1) {
+      const row = m.index(0, wy, z);
+      for (let wx = x0; wx <= x1; wx += 1) {
+        const at = row + wx;
+        if (words !== null && (at & 3) === 0 && wx + 3 <= x1 && words[at >>> 2] === 0) { wx += 3; continue; }
+        const f = fluid[at] as number;
+        // Drinkable: level at least 1, water (not magma), not frozen.
+        if ((f & FLUID_LEVEL_MASK) === 0 || (f & UNDRINKABLE) !== 0) continue;
+        const dx = wx - fx;
         // Every standing tile is at most one cell closer than its water tile. Keep equal
         // distances so the original lowest-tile tie remains eligible.
         if (Math.max(Math.abs(dx), Math.abs(dy)) - 1 + near * Z_DISTANCE_WEIGHT > bestDistance) continue;
-        const wx = fx + dx;
-        if (wx < 0 || wx >= m.w) continue;
-        const wTile = m.index(wx, wy, z);
-        if (m.fluidLevelAt(wTile) < 1 || m.fluidTypeAt(wTile) !== FluidType.Water || m.fluidFrozenAt(wTile)) continue;
 
         // The bank one level up reaches the water only through open air over it (as fishing's bank, 09).
         const over = z + 1 < m.d ? m.index(wx, wy, z + 1) : -1;
