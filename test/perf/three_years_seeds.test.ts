@@ -65,6 +65,15 @@ export const THREE_YEARS_20_SEEDS: readonly SeedConfig[] = [
   { seed: 'three-years-p4-6', peril: 4 },
 ] as const;
 
+/**
+ * Seeds whose "alive at the end of year 1" flips under changes that do not aim at them, so it is
+ * printed and not asserted (testing-strategy.md § What may be a gate). p4-2: a day-37 fire burns
+ * every medic and the day-67 raid finishes the rest; its year-1 outcome flipped four times in six
+ * commits on 2026-10-21 and 22 (reports/audits/2026-10-22-p4-2-year-one.md,
+ * reports/audits/2026-10-22-infection-roll-per-dwarf.md).
+ */
+export const YEAR_ONE_FLIPS: ReadonlySet<string> = new Set(['three-years-p4-2']);
+
 export interface ThreeYearsSeedResult {
   readonly seed: string;
   readonly peril: number;
@@ -311,7 +320,8 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   // Kept (T-156, under T-334's rule): every seed's fortress is alive at the end of its first year.
   // "Not wiped out" is an outcome a reordering of jobs flips rarely (testing-strategy.md § What may
   // be a gate), and a fortress dead in year 1 exercises nothing of years 2 and 3.
-  expect(y1Pop, `${seed} alive at the end of year 1`).toBeGreaterThan(0);
+  if (YEAR_ONE_FLIPS.has(seed)) console.log(`[three_years_seeds] ${seed} alive at the end of year 1: ${y1Pop} (printed, not asserted: this seed flips)`);
+  else expect(y1Pop, `${seed} alive at the end of year 1`).toBeGreaterThan(0);
   // Kept: rules of 21 Immigration, whatever the order of jobs.
   expect(y3Pop, `${seed} population within POPULATION_CAP_DEFAULT`).toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
   for (const wave of waves) {

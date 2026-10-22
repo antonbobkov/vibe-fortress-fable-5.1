@@ -1,6 +1,8 @@
 # T-420 — Infection rolls once a day per dwarf, not per wound
 
-**Source:** T-419, [a light burn admits no one](../../reports/audits/2026-10-22-light-burn.md) (step 2 of its decision) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-22, in 521bb91.
+
+**Source:** T-419, [a light burn admits no one](../../../reports/audits/2026-10-22-light-burn.md) (step 2 of its decision) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
