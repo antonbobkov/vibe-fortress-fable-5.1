@@ -8,6 +8,8 @@ const scenario: Scenario = {
   run: (w) => {
     const at = w.index(20, 20, 32);
     const patient = w.spawnDwarf({ at });
+    // The casualty is not a medic: nothing in 17 keeps a dwarf with the labor from treating itself.
+    w.setLabor(patient, 'medicine', false);
     const medic = w.spawnDwarf({ at: w.index(21, 20, 32), skills: { medicine: 20 } });
     w.spawnItem('cloth', 'flax_cloth', at, 10);
     w.spawnItem('thread', 'flax_thread', at, 10);

@@ -9,7 +9,7 @@
 - **Under load the light cut stops dying.** One light cut every 400 ticks: 9 of 30 were infected and 3 died before, because the medic spent half its time on empty bandages and reached the cleaning late. After: none infected, none dead, and the medic's time bandaging falls from 50% to 12%.
 - **Every other case at one wound a day is unchanged.** Deaths, cloth, thread, medic time, discharge and healing are the same as before, to the tick in most cases. The one other change is diagnoses for a serious fracture: 30 → 18 at skill 5, 30 → 19 at skill 0. A dwarf discharged with a splinted leg is diagnosed a median 13.8 days after the wound at skill 5 (15.3 at skill 0), and up to 28 days. Every other wound is diagnosed within a median day of the wound. A diagnosis later than the healing (15.8 days) now ends unfinished.
 - **Under load, diagnoses that come after the healing end unfinished:** light cut 27 → 7, serious cut 27 → 7, serious puncture 26 → 14, grievous cut 16 → 16. A diagnosis changes no treatment. It shows a patient's wounds in full in the inspector and gives the medic `DIAGNOSE_XP`. A dwarf with no wound left has nothing to show.
-- **A splinted leg is diagnosed weeks late.** In the one-a-day ward the medic is idle 5% of the time while those diagnoses are open. This run does not say why. Filed as [a discharged dwarf with a splinted leg is diagnosed weeks late](../../docs/work/T-415-diagnosis-weeks-late.md).
+- **A splinted leg is diagnosed weeks late.** In the one-a-day ward the medic is idle 5% of the time while those diagnoses are open. This run does not say why. Filed as [a discharged dwarf with a splinted leg is diagnosed weeks late](../../docs/archive/tasks/T-415-diagnosis-weeks-late.md).
 
 ## What was run
 

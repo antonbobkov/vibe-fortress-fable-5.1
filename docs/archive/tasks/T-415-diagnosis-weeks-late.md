@@ -1,6 +1,8 @@
 # T-415 — A discharged dwarf with a splinted leg is diagnosed weeks late
 
-**Source:** T-414, [care jobs end with their need](../../reports/audits/2026-10-21-care-jobs-end-with-need.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-22, in b99d6f6.
+
+**Source:** T-414, [care jobs end with their need](../../../reports/audits/2026-10-21-care-jobs-end-with-need.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
