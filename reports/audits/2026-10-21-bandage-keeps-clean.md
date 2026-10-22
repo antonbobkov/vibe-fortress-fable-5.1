@@ -9,7 +9,7 @@
 - **The rule chosen: a bandage keeps the wound it covers clean.** A bandaged wound is not rolled for infection (17 § Infection). Every bleeding wound a medic reaches is bandaged first, so the wait for the suture and the cleaning no longer costs anything. A wound that stopped bleeding before its bandage (a light cut clots in 150 ticks) and every wound in a fortress with no medic roll as before.
 - **The loaded ward, before → after:** serious cuts 10 of 30 dead (all of infection) → **0**; serious punctures 13 (9 of infection) → 5 (all bled out); grievous cuts 15 (3 of infection) → 13 (all bled out). Nobody is infected.
 - **At one wound a day** the serious burn, which bleeds 1 until bandaged, stops dying of infection: 2 → 0 under the skill-5 medic, 3 → 0 at skill 0; the skill-0 serious cut 2 → 0. Light cuts are unchanged (none infected either way), and the other wounds within one death of their before rows.
-- **The medic now cleans wounds that cannot be infected.** A bandaged or sutured wound still asks for `clean_wound`. Filed as [the medic cleans wounds that cannot be infected](../../docs/work/T-413-cleaning-a-covered-wound.md).
+- **The medic now cleans wounds that cannot be infected.** A bandaged or sutured wound still asks for `clean_wound`. Filed as [the medic cleans wounds that cannot be infected](../../docs/archive/tasks/T-413-cleaning-a-covered-wound.md).
 
 ## What was run
 

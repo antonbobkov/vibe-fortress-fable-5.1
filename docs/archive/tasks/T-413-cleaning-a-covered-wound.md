@@ -1,6 +1,8 @@
 # T-413 — The medic cleans wounds that cannot be infected
 
-**Source:** T-411, [a bandage keeps a wound clean](../../reports/audits/2026-10-21-bandage-keeps-clean.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 8ab94f2.
+
+**Source:** T-411, [a bandage keeps a wound clean](../../../reports/audits/2026-10-21-bandage-keeps-clean.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

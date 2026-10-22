@@ -74,8 +74,8 @@ describe('T-137 successful infection cleaning keeps its original cure deadline',
 
   it('cleans an uninfected wound without another brightleaf while a different cure is pending', () => {
     const { w, cuts, stock, treatments } = infectedPatient(2);
-    cuts[1]!.infected = false;
-    cuts[1]!.cleaned = false;
+    // An uncovered wound asks for cleaning (a bandaged or sutured one does not, T-413).
+    Object.assign(cuts[1]!, { infected: false, cleaned: false, bandaged: false, sutured: false });
     w.until(() => treatments().length === 1, 600);
     const first = cuts[0]!.curedAt;
     w.until(() => treatments().length === 2, 600);
