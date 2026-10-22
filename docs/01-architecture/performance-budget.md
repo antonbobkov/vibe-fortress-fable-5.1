@@ -20,11 +20,11 @@ Every budget in the table below was measured on the furniture fixture, and `per-
 | System | Budget (ms) | Dominant cost | Mitigation |
 |---|---|---|---|
 | 03 terrain | 0.10 | Designation scans | Designations kept in a sorted list, not scanned from the grid |
-| 04 fluids | 1.50 | Active tiles | Active set per chunk; settle after `FLUID_SETTLE_STEPS`; water at cadence 2, magma 4; batch `FluidsChanged` per chunk |
+| 04 fluids | 1.25 | Active tiles | Active set per chunk; settle after `FLUID_SETTLE_STEPS`; water at cadence 2, magma 4; batch `FluidsChanged` per chunk |
 | 05 materials | 0.15 | Fire spread, freeze checks | Only burning tiles and outdoor water tiles are visited |
 | 06 weather | 0.02 | Snow cover updates | Only outdoor chunks |
 | 07 plants | 0.15 | Growth timers | Per-hour accumulation; crops and saplings in lists |
-| 08 animals | 0.40 | Behavior and movement | Bounded perception radius; wild animals far from dwarves think every 10 ticks |
+| 08 animals | 0.80 | Behavior and movement | Bounded perception radius; wild animals far from dwarves think every 10 ticks |
 | 09 foraging | 0.05 | Target search | Candidate lists cached per species |
 | 10 dwarves | 0.50 | Needs, behavior selection, movement | Behavior selection only when idle or on need threshold; movement is a cheap step; the water search reads the fluid bytes of a row four at a time and skips the empty ones |
 | 11 jobs | 0.60 | Assignment | Idle workers only; candidate set bounded to 32 jobs by labor and connectivity; hauling batched |
@@ -34,13 +34,13 @@ Every budget in the table below was measured on the furniture fixture, and `per-
 | 15 morale | 0.20 | Thought decay, mood | Per-hour; thoughts as small arrays |
 | 16 combat | 0.20 | Attack resolution | Only creatures with a target |
 | 17 health | 0.10 | Bleeding, healing | Only wounded creatures in a list |
-| 18 threats | 0.10 | Hostile AI | Party-level goals; individuals reuse party paths; one shared fortress-creature snapshot per threat step; loot search bounds bestUnattendedItems to same-z Chebyshev square |
+| 18 threats | 0.20 | Hostile AI | Party-level goals; individuals reuse party paths; one shared fortress-creature snapshot per threat step; loot search bounds bestUnattendedItems to same-z Chebyshev square |
 | 19 defense | 0.05 | Trap checks | Trap tiles indexed; check on entity step events, not per tick scans |
 | 20 trade | 0.02 | Schedule | Per-hour |
 | 21 immigration | 0.01 | Daily | Negligible |
-| 22 pathing | 1.00 | A* | Budget of `PATH_NODES_PER_TICK` expansions; connectivity precheck; route cache; requests queued by urgency |
+| 22 pathing | 0.75 | A* | Budget of `PATH_NODES_PER_TICK` expansions; connectivity precheck; route cache; requests queued by urgency |
 | core | 0.30 | Events, commands, calendar, spatial index | Batched events; bucket updates on movement only |
-| **Total** | **5.85** | | |
+| **Total** | **5.95** | | |
 
 The pathfinding budget is the one that stretches: if the budget is exhausted in a tick, remaining requests wait, and the requester's brain idles for that tick. This degrades gracefully: creatures pause for a few ticks under load instead of the frame stalling.
 

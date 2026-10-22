@@ -48,7 +48,7 @@ Malformed commands for an unknown huntable species, null work order or patch, an
 | `fl_obsidian` | a magma tile at level 7 with water poured on | tile becomes `Wall` `obsidian`; `ObsidianFormed` |
 | `fl_freeze` | outdoor pond, temper 4 region, winter | pond tiles frozen (`ice`) within a day of `surfaceTempC < FREEZE_C`; thawed in spring |
 | `fl_drown` | a dwarf in a 1×1 pit flooded to level 7 | `CreatureSubmerged` each health tick; death by `drowned` within 400 ticks |
-| `fl_perf` | reference fortress with a 40-tile waterfall channel, 2,000 ticks | average fluids tick ≤ 3 ms on CI (2× budget) |
+| `fl_perf` | reference fortress with a 40-tile waterfall channel, 2,000 ticks | average fluids tick ≤ 2.5 ms on CI (2× budget) |
 
 ## 05 Materials
 
