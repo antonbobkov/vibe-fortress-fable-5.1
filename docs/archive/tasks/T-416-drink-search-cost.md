@@ -1,5 +1,7 @@
 # T-416 — System 10 is over twice its budget since the 64-tile drink search
 
+**Closed:** 2026-10-22, in cf2e39d.
+
 **Source:** T-113, the gate of 2026-10-21 (`reports/gates/2026-10-21-gate.md`) and the per-system runs that followed it · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
@@ -19,3 +21,7 @@ The water search in `src/systems/dwarves/activities.ts` scans every tile of a (2
 ## Done
 
 - `per-system.test.ts`, `perf_reference.test.ts` and `fl_perf.test.ts` pass on a quiet machine; before and after timings in the commit body.
+
+## As done
+
+Decision 2 was met more simply than it describes: the search keeps its order and its pruning, and reads the fluid bytes of each row directly, four at a time through a 32-bit view of the same buffer, skipping a zero word (four tiles with no fluid) without looking further. No cache and no per-dwarf memory are needed, so nothing can go stale between a fluid write and a search. The choice is the least (distance, stand tile) over the same candidates, pinned against the old tile-by-tile scan by `test/unit/dwarves/t416-drink-search-scan.test.ts`.
