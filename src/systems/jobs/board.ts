@@ -1069,6 +1069,8 @@ export class JobBoard implements JobsApi, JobSink {
     if (this.nearFire(job, workerId)) return false;
     const assigned = job.data['assignedWorker'];
     if (typeof assigned === 'number' && assigned !== 0 && assigned !== workerId) return false;
+    // A job may name a worker it is not for (a patient's own treatment, 17 § Patients and hospitals).
+    if (job.data['excludeWorker'] === workerId) return false;
     const labor = this.jobLabor(job);
     if (!this.laborEnabled(workerId, labor)) return false;
     const minSkill = job.data['minSkill'];
