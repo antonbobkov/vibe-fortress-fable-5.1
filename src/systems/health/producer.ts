@@ -14,6 +14,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { Job, JobSink } from '@systems/jobs';
 import {
+  HEALTH_CADENCE,
   INFECTION_CURE_DAYS,
   TREAT_FAIL_PERMILLE,
   TREAT_TICKS,
@@ -21,13 +22,15 @@ import {
 import { updatePatient } from './tick';
 import { awaitsBandage, needsCleaning, woundTreatmentNeeds } from './wounds';
 
+/** The treatments a wound asks for (`woundTreatmentNeeds`). */
+const WOUND_TREATMENTS = ['stop_bleeding', 'set_bone', 'suture', 'clean_wound', 'dress_burn'];
+
 export interface HealthProducerHost {
   readonly rng: RngStream;
   readonly entities: EntityStore;
   readonly map: Map3D;
   readonly registry: Registry;
   readonly pendingTreatments: Map<EntityId, Set<string>>;
-  readonly wounded: ReadonlySet<EntityId>;
 }
 
 export class HealthProducer implements JobProducer {
@@ -345,14 +348,20 @@ export class HealthProducer implements JobProducer {
       }
     }
 
-    // A cleaning made during admission ends once no wound asks for it, admitted or not (a bandage
-    // covers the wound, and a serious cut is discharged when it is bandaged).
-    for (const id of Array.from(this.host.wounded).sort((a, b) => a - b)) {
-      if (targets.has(id)) continue;
-      const key = `clean_wound:${id}`;
-      if (!sink.exists(key)) continue;
-      const wb = entities.get(id, C.Body);
-      if (wb === undefined || !wb.parts.some(p => p.wounds.some(needsCleaning))) sink.cancelKey(key, 'need_cleared');
+    // Outside admission a treatment job made earlier ends once no wound needs it, even under way, and
+    // `diagnose` once no wound remains. A failed request stays a need while its wound needs it
+    // (above); `give_crutch` outlives discharge. Every dwarf is looked at, the healed too.
+    if (ctx.tick % HEALTH_CADENCE === 0) {
+      for (const id of entities.with(C.Attributes, C.Body).sort((a, b) => a - b)) {
+        if (entities.has(id, C.Patient) || !entities.alive(id)) continue;
+        const keys = [...WOUND_TREATMENTS, 'diagnose'].filter(kind => sink.exists(`${kind}:${id}`));
+        if (keys.length === 0) continue;
+        const wounds = entities.get(id, C.Body)?.parts.flatMap(part => part.wounds) ?? [];
+        const needs = woundTreatmentNeeds(wounds);
+        for (const kind of keys) {
+          if (kind === 'diagnose' ? wounds.length === 0 : !needs.includes(kind)) sink.cancelKey(`${kind}:${id}`, 'need_cleared');
+        }
+      }
     }
 
     // Tame animals: bandaging only.

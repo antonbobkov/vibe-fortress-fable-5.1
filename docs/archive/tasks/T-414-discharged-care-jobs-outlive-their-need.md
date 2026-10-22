@@ -1,6 +1,8 @@
 # T-414 — A discharged dwarf's care jobs outlive their need
 
-**Source:** T-413, [the medic cleans only wounds that can be infected](../../reports/audits/2026-10-21-clean-exposed-wounds.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-21, in 8950a40 and 7a104fd.
+
+**Source:** T-413, [the medic cleans only wounds that can be infected](../../../reports/audits/2026-10-21-clean-exposed-wounds.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
