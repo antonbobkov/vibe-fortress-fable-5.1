@@ -1,0 +1,64 @@
+/**
+ * Gate p4-2 probe (not committed): the three_years_seeds run of one seed to the end of year 1, with
+ * a health journal: wounds, treatments, infections (with the wound's flags), deaths, and the medics.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['P42_SEED'] ?? 'three-years-p4-2';
+const PERIL = Number(process.env['P42_PERIL'] ?? 4);
+const OUT = process.env['P42_OUT'] ?? '.vite/p42.jsonl';
+const END_DAY = Number(process.env['P42_DAYS'] ?? DAYS_PER_YEAR);
+
+describe('p4-2 probe', () => {
+  it('runs year 1 with a health journal', () => {
+    writeFileSync(OUT, '');
+    const log = (o: Record<string, unknown>): void => appendFileSync(OUT, JSON.stringify(o) + '\n');
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const dwarfSpecies = w.game.registry.table('creatures').index('dwarf');
+    const isDwarf = (id: number): boolean => ent.get(id, C.Creature)?.species === dwarfSpecies && ent.get(id, C.Creature)?.faction === 'fortress';
+    const medics = (): string => w.readers.of<{ workersWithLabor(l: string): number[] }>('11').workersWithLabor('medicine').filter(isDwarf).map((id) => {
+      const p = ent.get(id, C.Position); const b = ent.get(id, C.Brain);
+      return `${id % 10000}@${p?.x},${p?.y},${p?.z} ${b?.behavior}/${b?.activity}`;
+    }).join(' ; ');
+    const woundsOf = (id: number): string => (ent.get(id, C.Body)?.parts ?? []).flatMap((p, i) => p.wounds.map((x) =>
+      `${i}:${x.type}/${x.severity}${x.bandaged ? 'B' : ''}${x.sutured ? 'S' : ''}${x.cleaned ? 'C' : ''}${x.splinted ? 'P' : ''}${x.infected ? 'I' : ''} bleed${x.bleed} age${w.tick - x.createdTick}`)).join(',');
+    w.game.world.onEvents((events) => {
+      const day = +(w.tick / TICKS_PER_DAY).toFixed(2);
+      for (const e of events) {
+        const id = Number(e['id'] ?? e['patientId'] ?? e['defenderId'] ?? 0);
+        if (!['WoundInflicted', 'InfectionStarted', 'InfectionCured', 'CreatureDied', 'TreatmentDone', 'PatientAdmitted', 'PatientDischarged', 'RaidArrived', 'RaidEnded', 'AlertChanged'].includes(e.type)) continue;
+        if (e.type.startsWith('Raid') || e.type === 'AlertChanged') { log({ day, type: e.type, kind: e['kind'], level: e['level'], size: e['size'], outcome: e['outcome'] }); continue; }
+        if (!isDwarf(id) && e.type !== 'CreatureDied') continue;
+        if (e.type === 'CreatureDied' && !(e['species'] === dwarfSpecies || e['faction'] === 'fortress')) continue;
+        const rec: Record<string, unknown> = { day, type: e.type, id: id % 10000 };
+        if (e.type === 'WoundInflicted') Object.assign(rec, { part: e['part'], woundType: e['woundType'], severity: e['severity'] });
+        if (e.type === 'TreatmentDone') Object.assign(rec, { kind: e['kind'], medic: Number(e['medicId']) % 10000 });
+        if (e.type === 'CreatureDied') Object.assign(rec, { cause: e['cause'] });
+        if (e.type === 'InfectionStarted' || e.type === 'CreatureDied' || e.type === 'PatientDischarged') Object.assign(rec, { wounds: woundsOf(id), patient: ent.has(id, C.Patient), medics: medics() });
+        log(rec);
+      }
+    });
+    const bootstrap = 20 * TICKS_PER_DAY;
+    while (w.tick < bootstrap) {
+      playThreeYears(w, state, Math.min(100, bootstrap - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const end = END_DAY * TICKS_PER_DAY;
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(300, end - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+      if (w.tick % (10 * TICKS_PER_DAY) === 0) {
+        const living = ent.with(C.Labors).filter(isDwarf);
+        log({ day: w.tick / TICKS_PER_DAY, type: 'census', living: living.length, medics: medics() });
+      }
+    }
+    const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+    log({ day: END_DAY, type: 'y1', y1Pop: living, hash: w.hash() });
+  }, 3_600_000);
+});
