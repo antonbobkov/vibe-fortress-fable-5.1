@@ -1,6 +1,8 @@
 # T-418 — A dwarf with the medicine labor can treat itself
 
-**Source:** T-415, [diagnosis while treating](../../reports/audits/2026-10-22-diagnosis-while-treating.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-22, in 1d25311.
+
+**Source:** T-415, [diagnosis while treating](../../../reports/audits/2026-10-22-diagnosis-while-treating.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

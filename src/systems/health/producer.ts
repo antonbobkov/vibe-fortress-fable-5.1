@@ -143,7 +143,7 @@ export class HealthProducer implements JobProducer {
               target: { kind: 'entity', ref: patientId },
               workTile: bedTile,
               priority: 1,
-              data: { patient: patientId, bedTile },
+              data: { patient: patientId, bedTile, excludeWorker: patientId },
             });
           }
         } else if (sink.exists(carryKey)) {
@@ -170,7 +170,7 @@ export class HealthProducer implements JobProducer {
                     count: 1,
                   },
                 ],
-                data: { patient: patientId },
+                data: { patient: patientId, excludeWorker: patientId },
               });
             }
           } else if (sink.exists(feedKey)) {
@@ -192,7 +192,7 @@ export class HealthProducer implements JobProducer {
                     count: 1,
                   },
                 ],
-                data: { patient: patientId },
+                data: { patient: patientId, excludeWorker: patientId },
               });
             }
           } else if (sink.exists(waterKey)) {
@@ -226,7 +226,7 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId, inputUnits: true },
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
             });
             break;
           case 'set_bone':
@@ -243,7 +243,7 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId, inputUnits: true },
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
             });
             break;
           case 'suture':
@@ -260,7 +260,7 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId, inputUnits: true },
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
             });
             break;
           case 'clean_wound': {
@@ -281,7 +281,7 @@ export class HealthProducer implements JobProducer {
               workTile: 'adjacent',
               priority: 3,
               inputs,
-              data: { patient: patientId, inputUnits: true },
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
             });
             break;
           }
@@ -299,11 +299,11 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId, inputUnits: true },
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
             });
             break;
           case 'diagnose': {
-            const data: Record<string, unknown> = { patient: patientId };
+            const data: Record<string, unknown> = { patient: patientId, excludeWorker: patientId };
             if (chiefMedicId !== 0) {
               data['assignedWorker'] = chiefMedicId;
             }
