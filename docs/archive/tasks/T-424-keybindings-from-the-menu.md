@@ -31,6 +31,6 @@ The owner asked that key bindings be configurable through the menu. A keybinding
 
 - Fixed keys: `Esc` everywhere, typing in a focused text or number field (the order picker and the breeding cap included), the editor's own keys, the rows that stand for every letter, and the any-key dismissal of a pinned danger line. Everything else is a row of § Keymap.
 - Panel code stays written against its default keys; the screen translates each press (`Keymap.translate`). A panel state that gives a key another meaning has its own context (zone inspector, profession templates).
-- Saved rebindings are keyed by `<context>/<default key>`; the index format of earlier versions is read through the frozen `LEGACY_BINDINGS`.
+- Saved rebindings are keyed by context and action id (`map/z_down`, `map/pan:←`, `#2` for a second key of one action), so a later change of a default cannot retarget a save (review fix, `14c159e`). The `<context>/<default key>` names of `d8108f3` and the index format of earlier versions still load, the latter through the frozen `LEGACY_BINDINGS`.
 - A letter given to an accelerator stays an accelerator. The Units idle filter became one (`[i]`), so a panel letter rebound to `i` no longer hides it.
 - The audit is [2026-10-23-keybindings](../../../reports/audits/2026-10-23-keybindings.md).
