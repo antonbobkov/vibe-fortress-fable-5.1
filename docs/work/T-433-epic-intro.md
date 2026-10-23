@@ -4,11 +4,12 @@
 
 ## Why
 
-The owner found the intro of T-423 too tame. Classic text-mode fortress games opened with intros drawn in huge block art: the shade glyphs `█ ▓ ▒ ░` used as pixels, figures many cells tall, a harsh 16-colour palette (cyan, white, grey and brown on black) and dramatic, slightly unhinged scenes. The owner's references are in [refs/T-433-style-reference.jpg](refs/T-433-style-reference.jpg) and [refs/T-433-style-reference-2.png](refs/T-433-style-reference-2.png). They show:
+The owner found the intro of T-423 too tame. Classic text-mode fortress games opened with intros drawn in huge block art: the shade glyphs `█ ▓ ▒ ░` used as pixels, figures many cells tall, a harsh 16-colour palette (cyan, white, grey and brown on black) and dramatic, slightly unhinged scenes. The owner's references are in [refs/T-433-style-reference.jpg](refs/T-433-style-reference.jpg) [refs/T-433-style-reference-2.png](refs/T-433-style-reference-2.png) and [refs/T-433-style-reference-3.gif](refs/T-433-style-reference-3.gif). They show:
 
 - a small figure dwarfed by a towering cyan torrent;
 - a giant bearded face framed by a ring of churning cyan;
-- an extreme grey-and-white close-up with hollow eyes, ringed by red speckle.
+- an extreme grey-and-white close-up with hollow eyes, ringed by red speckle;
+- a chapter title card: a red banner and a caption bar over a grey dithered field, with a great stone doorway below.
 
 The textures are full blocks, checker dither, horizontal hatching (line glyphs read as scanlines) and scattered noise. Study them for **style only**. Keep the T-423 intro, and add a second one in that spirit.
 
@@ -32,6 +33,7 @@ The textures are full blocks, checker dither, horizontal hatching (line glyphs r
    - Scenes are content: compact bitmaps as rows of palette letters, layers, keyframes and effects, in a new content file beside intro.md, checked by `content:check`.
    - The renderer and animator generalise what T-423 built. They do not fork it.
    - Captions, if any, go through strings and are sparse: the pictures carry it.
+   - Chapter title cards are welcome between scenes: a banner and a caption bar over a dithered field. Their names are our own, such as "Chapter I: The Lantern" and "Chapter II: The Deep Answers"; no other game's chapter titles or wording.
 4. **Both intros stay.**
    - A setting "Intro style" offers the new one ("deep", the default) or the T-423 one ("hall").
    - "Intro at launch" and the main menu's `[i] Intro` play the chosen style.
