@@ -1,4 +1,4 @@
-# Measurement: a dwarf under attack flees whatever its needs (T-425, step 1)
+# Measurement: a dwarf under attack flees whatever its needs (T-425)
 
 **Task:** T-425 · **Date:** 2026-10-23 · **Commits examined:** `2f6b22c` and `4b8d8e7` (T-426), each with the change · **Kind:** fix with before and after rows · **Source:** [boars maul p0-2](2026-10-22-boars-maul-p0-2.md)
 
@@ -37,6 +37,23 @@ The before row is the gate of 2026-10-22c on `d491732`, whose source is that of 
 - on `2f6b22c` with the change;
 - on `4b8d8e7` (T-426, which rebuilds burnt gate walls) with the change, which is the row filed.
 
-## Step 2, not yet measured
+## Step 2, measured and not taken
 
-The second rule, fleeing out of a territorial animal's ground, is measured next against this row.
+The second rule has a civilian flee a territorial animal that defends its ground to the nearest tile out of `TERRITORY_RADIUS` of the defended tile, instead of running for the hall. It was measured on top of step 1 (`aa8de5c`; [patch](../data/2026-10-23-t425-out-of-ground.patch.txt)).
+
+The orchestrator's condition was that the twenty-seed sweep not get worse. It got worse, so the rule is not taken:
+
+| Measure | Step 1 | Step 1 and step 2 |
+|---|---|---|
+| Annual instrument | 13/8/10/150/8/0/0 | 13/8/10/151/9/0/0 (forest-1 keeps the dwarf a badger killed) |
+| `three_years_seeds`, passed | 20 of 20 | 19 of 20: p0-2 fails its T-156 witness "a dining hall" |
+| Dwarf deaths over the 20 seeds | 122 | **145** |
+| Living at year 3 over the 20 seeds | 919 | **865** |
+
+19 of the 20 seeds change. The largest moves are:
+
+- p4-1: deaths from 6 to 24, sixteen of them from infection;
+- p2-3: deaths from 6 to 13;
+- p0-1: living from 57 to 33.
+
+The day-0 variant of T-421 had the same direction (deaths from 123 to 159). Two samples on different bases agree, so the instrument's gain of one dwarf does not outweigh the sweep.

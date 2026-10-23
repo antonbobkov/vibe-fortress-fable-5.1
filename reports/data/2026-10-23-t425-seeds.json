@@ -1,5 +1,5 @@
 {
- "note": "T-425 step 1 (a dwarf under attack flees whatever its needs). three_years_seeds, the whole file alone. before: the gate of 2026-10-22c (d491732, src as 2f6b22c); after: 4b8d8e7 (T-426) with the change.",
+ "note": "T-425 step 1 (a dwarf under attack flees whatever its needs). three_years_seeds, the whole file alone. before: the gate of 2026-10-22c (d491732, src as 2f6b22c); after: 4b8d8e7 (T-426) with the change. out_of_ground: aa8de5c with step 2 (reports/data/2026-10-23-t425-out-of-ground.patch.txt), not taken; p0-2 failed its T-156 witness \"a dining hall\".",
  "before": {
   "three-years-p0-1": {
    "y3Pop": 57,
@@ -296,5 +296,162 @@
     "killed": 1
    }
   }
+ },
+ "out_of_ground": {
+  "three-years-p0-1": {
+   "y3Pop": 33,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 4
+   }
+  },
+  "three-years-p0-2": {
+   "y3Pop": 18,
+   "dwarfDeaths": 5,
+   "byCause": {
+    "bled_out": 5
+   }
+  },
+  "three-years-p0-3": {
+   "y3Pop": 74,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-4": {
+   "y3Pop": 73,
+   "dwarfDeaths": 2,
+   "byCause": {
+    "bled_out": 2
+   }
+  },
+  "three-years-p0-5": {
+   "y3Pop": 80,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-6": {
+   "y3Pop": 68,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 78,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 31,
+   "dwarfDeaths": 9,
+   "byCause": {
+    "bled_out": 5,
+    "killed": 2,
+    "infection": 2
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 39,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 3,
+    "killed": 1
+   }
+  },
+  "three-years-p2-3": {
+   "y3Pop": 38,
+   "dwarfDeaths": 13,
+   "byCause": {
+    "bled_out": 12,
+    "killed": 1
+   }
+  },
+  "three-years-p2-4": {
+   "y3Pop": 67,
+   "dwarfDeaths": 7,
+   "byCause": {
+    "bled_out": 7
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 26,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 3,
+    "killed": 1
+   }
+  },
+  "three-years-p2-6": {
+   "y3Pop": 14,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 8,
+    "infection": 1,
+    "killed": 2,
+    "burnt": 1
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 60,
+   "dwarfDeaths": 9,
+   "byCause": {
+    "killed": 3,
+    "bled_out": 6
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 29,
+   "dwarfDeaths": 24,
+   "byCause": {
+    "killed": 1,
+    "bled_out": 7,
+    "infection": 16
+   }
+  },
+  "three-years-p4-2": {
+   "y3Pop": 0,
+   "dwarfDeaths": 15,
+   "byCause": {
+    "infection": 4,
+    "bled_out": 9,
+    "killed": 2
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 45,
+   "dwarfDeaths": 13,
+   "byCause": {
+    "bled_out": 10,
+    "killed": 3
+   }
+  },
+  "three-years-p4-4": {
+   "y3Pop": 48,
+   "dwarfDeaths": 5,
+   "byCause": {
+    "bled_out": 3,
+    "killed": 2
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 0,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 4,
+    "killed": 7,
+    "starvation": 1
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 44,
+   "dwarfDeaths": 7,
+   "byCause": {
+    "bled_out": 5,
+    "killed": 2
+   }
+  }
+ },
+ "instrument": {
+  "before_T418": "13/4/8/142/8/0/0",
+  "step1": "13/8/10/150/8/0/0",
+  "step1_and_out_of_ground": "13/8/10/151/9/0/0 (forest-1 keeps the dwarf a badger killed)"
  }
 }

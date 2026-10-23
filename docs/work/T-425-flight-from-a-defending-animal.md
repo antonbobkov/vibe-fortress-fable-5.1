@@ -28,3 +28,5 @@ Take P first: it is a plain fault with a unit test (a critically thirsty patient
 ## As done
 
 Step 1 (the orchestrator's decision 1): a dwarf under attack, that is, one whose held hostile within `THREAT_RADIUS` holds it as its combat target, flees or fights whatever its needs, so a patient never rests within that hostile's reach. Instrument 13/4/8/142/8/0/0 → 13/8/10/150/8/0/0; twenty seeds 20 of 20, deaths 123 → 122, living 907 → 919 ([report](../../reports/audits/2026-10-23-flee-under-attack.md)).
+
+Step 2 (decision 2), measured on top of step 1 and not taken: the run out of a territorial animal's ground makes the sweep worse (deaths 122 → 145, living 919 → 865, p0-2 fails its "a dining hall" witness), though the instrument gains one dwarf (13/8/10/151/9/0/0). 10 keeps the run to the hall.
