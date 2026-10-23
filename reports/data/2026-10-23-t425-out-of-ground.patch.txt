@@ -1,0 +1,43 @@
+T-425 step 2, measured and not taken: a civilian flees a territorial animal defending its ground to the nearest tile out of TERRITORY_RADIUS of the defended tile. Applied on aa8de5c.
+
+diff --git a/src/systems/dwarves/brain.ts b/src/systems/dwarves/brain.ts
+index 2dac4b8..8e52f79 100644
+--- a/src/systems/dwarves/brain.ts
++++ b/src/systems/dwarves/brain.ts
+@@ -27,6 +27,7 @@ import { awaitsBandage } from '@systems/health/wounds';
+ import type { JobsReader } from '@systems/jobs';
+ import type { CombatReader } from '@systems/combat/reader';
+ import { PERCEPTION_RADIUS } from '@systems/combat/constants';
++import { TERRITORY_RADIUS } from '@systems/animals/constants';
+ 
+ /** "Idle dwarves are shown as 'No job' in the units panel." */
+ export const NO_JOB = 'No job';
+@@ -251,6 +252,13 @@ export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId,
+     .some((other) => other === threatId || (combat?.isHostile(id, other) ?? false));
+   const safer = (tile: TileIndex): boolean => map.zOf(tile) !== posT.z ||
+     Math.max(Math.abs(map.xOf(tile) - posT.x), Math.abs(map.yOf(tile) - posT.y)) > currentDist;
++  // A territorial animal that defends its ground lets go of a civilian out of its territory radius
++  // from where the attack began (08): the civilian runs to the nearest such tile, not past it to the hall (T-425).
++  const wild = ctx.world.entities.get(threatId, C.Wild);
++  const temper = wild === undefined ? undefined : ctx.registry.table<{ id: string; temper?: string }>('creatures').byIndex(ctx.world.entities.get(threatId, C.Creature)?.species ?? -1)?.temper;
++  const defended = sealed || wild?.state !== 'attack' || wild.defendFrom === undefined || temper !== 'territorial' ? -1 : wild.defendFrom;
++  const outOfReach = (tile: TileIndex): boolean => map.zOf(tile) !== map.zOf(defended) ||
++    Math.max(Math.abs(map.xOf(tile) - map.xOf(defended)), Math.abs(map.yOf(tile) - map.yOf(defended))) > TERRITORY_RADIUS;
+   const hallTiles = !sealed && ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14').hearthHallTiles() : [];
+   const hall = new Set(hallTiles.filter((tile) => tile !== from && safer(tile) && !occupied(tile) &&
+     ctx.readers.pathing.passable(tile, 'walker', mover) && ctx.readers.pathing.reachable(from, tile, 'walker')));
+@@ -277,10 +285,12 @@ export function findFleeTile(ctx: TickContext, id: EntityId, threatId: EntityId,
+         }
+         continue;
+       }
+-      if (hall.has(tile)) return tile;
++      if (defended >= 0) {
++        if (tile !== from && outOfReach(tile)) return tile;
++      } else if (hall.has(tile)) return tile;
+       if (fallback < 0 && tile !== from && safer(tile)) {
+         fallback = tile;
+-        if (hall.size === 0) return tile;
++        if (hall.size === 0 && defended < 0) return tile;
+       }
+       for (const [to] of ctx.readers.pathing.edges(tile, 'walker', mover)) {
+         if (seen.has(to) || occupied(to)) continue;

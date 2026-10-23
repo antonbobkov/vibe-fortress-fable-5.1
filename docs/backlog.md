@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-425 | [Flight from a defending animal: the patient's trap and the run past the animal](work/T-425-flight-from-a-defending-animal.md) | T-421's diagnosis | — | open |
 | T-427 | [Wild animals in `leave` stay for weeks near the map edge](work/T-427-animals-stuck-leaving.md) | T-421's diagnosis | — | open |
 | T-433 | [A second intro: big block art, much wilder](work/T-433-epic-intro.md) | the owner, 2026-10-23 | — | open |
 
