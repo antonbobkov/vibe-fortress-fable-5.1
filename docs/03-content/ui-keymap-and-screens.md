@@ -51,7 +51,11 @@ Animals, Tame tab: `[S-c] cap` or click cap opens its inline number field: digit
 
 Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Enter, or click a choice; Esc cancels. Panel letters still switch panels inside the choice. Help lists this action and `Esc` then `[n] Rename fortress` from the game menu, also available by clicking its row and entering a name in the text input.
 
-## Keymap (defaults; every binding is rebindable)
+## Keymap (defaults)
+
+Every row of the tables below is a binding that Settings › Keybindings can change; the keys of § Fixed keys are the only keys the game reacts to that are not here. Each table is one context: the screen, panel or panel state in which its keys act, named by its heading in the editor and in Help.
+
+Key notation: `Ctrl+S` and `Shift+Tab` are a key with modifiers; `arrows` are the four arrow keys; `1`–`9` binds every digit between its two ends; `[w]` is an accelerator letter, bound to the letter alone while no fortress panel uses that letter and to `Shift`+letter (shown `[S-w]`) while one does; `[S-m]` is an accelerator whose default letter is a panel letter. A key written without `Shift` also takes a shifted press (arrows with `Shift` move ten, `+` with `Shift` changes ten), unless the context binds the shifted key itself (`Shift+Tab`).
 
 ### Global
 
@@ -86,9 +90,11 @@ Animals, Tame tab: `[S-t] train` or its button opens War/Hunting; arrows and Ent
 | `x` | with a building tool: cycle material |
 | `Delete` | with a selection: cancel designations / remove zone / cancel building |
 
-With the map cursor shown (a tool armed, or a panel asking for a tile or a creature), the arrows move the cursor instead of panning, and `Enter` acts at it; in the Build list `Enter` picks the highlighted building and, with a building armed, `Backspace` returns to the list. See `02-systems/24-ui-and-input.md` § Rules (input model).
+With the map cursor shown (a tool armed, or a panel asking for a tile or a creature), the arrows move the cursor instead of panning, and `Enter` acts at it; with a building tool that places many, `Enter` with `Shift` sets a corner. In the Build list `Enter` picks the highlighted building and, with a building armed, `Backspace` returns to the list. See `02-systems/24-ui-and-input.md` § Rules (input model).
 
 ### Panels
+
+The keys every list, menu and chooser shares: the fortress panels and their choosers, the labor manager, the trade session, the game menu, the legend screen and the menus outside the fortress.
 
 | Key | Action |
 |---|---|
@@ -99,60 +105,305 @@ With the map cursor shown (a tool armed, or a panel asking for a tile or a creat
 | `[letter]` | accelerator shown in brackets |
 | `/` | focus the filter field |
 | `Backspace` | back within nested menus |
+| `←` `→` | move across, or change the focused value |
 
-Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it; when a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. Reserved letters are read from the live panel bindings, including rebinds. Fixed accelerator captions show the defaults; zone inspector captions follow the current bindings. With default bindings, the free letters `g h i q r v w x` work with or without `Shift`; `y` works bare only, because `Shift+Y` opens the Calendar from anywhere on the fortress screen. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text. With a map selection, forbid, dump and move to depot are `[S-f]`, `[S-d]` and `[S-t]` for the same reason.
+Panel hotkeys always win. The letters of § Fortress panels always open or close their panel, whatever panel is open; pressing an open panel's own key closes it; when a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). A panel's accelerator may not use one of those letters bare: it is bound to `Shift`+letter and shown `[S-m]`. Reserved letters are read from the live panel bindings, including rebinds. With default bindings, the free letters `g h i q r v w x` work with or without `Shift`; `y` works bare only, because `Shift+Y` opens the Calendar from anywhere on the fortress screen. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text.
+
+A caption that names a key (`[S-t] train`, `[x] cancel`, a hint's `[d]`) shows the key its binding has now. Where a panel letter was rebound and an accelerator only moved between its bare and its `Shift` form, the fixed captions keep their default form and the zone inspector's captions follow the live panel letters.
 
 Every destructive single-key action asks through the confirmation dialog first, default **No** (§ Confirmations): melt, dump, slaughter, suspend, take apart, disband, remove (a zone, a work order), release (a caged creature). Undoing a mark (resume, unmark) does not ask.
 
-The Orders panel's own keys, beside the accelerators it shows (`ui-screens/panels.md` § Orders); they are the panel's, not rows of the rebindable keymap table:
+### Map selection
 
-- `Shift+N`: new order (opens "Add order").
-- `=` or numpad `+` / `-`: the selected order's count ±1, or the quantity in "Add order". Shift changes ten: main-row `+` is Shift+`=` and `_` is Shift+`-`. With no order selected these are speed keys.
-- `r`: repeat the selected order, or the last finished one.
-- `x` or `Delete`: remove the selected order (confirm). With no order selected `x`, `Delete`, `r` and the other order keys say "No order is selected: [S-n] adds one."; `=` and `-` are then the speed keys.
-- `Shift+↑` / `Shift+↓`: move the selected order in its queue.
-- In "Add order": letters and `Backspace` edit the recipe filter, `0`–`9` type the quantity, `Tab` / `Shift+Tab` move between the fields and `←` `→` change the focused one.
-
-The building panel's own keys (`ui-screens/panels.md` § Building), which are the panel's and not rows of the rebindable keymap table. The panel opens with a left click on a building, or `Enter` in Look on its tile:
-
-- `↑` `↓`, `Enter`: move over the lines that act and activate one (a mode, a trigger, a linked target, an owner).
-- `i`: link a lever or a plate; the target is then picked with a left click on the map, or `↑` `↓` `Enter` in the list. `r`: unlink the target under the cursor. `y`: pull the lever.
-- `←` `→`: a pressure plate's smallest creature size or fluid depth.
-- `r`: release a caged creature (confirm). `g`: tame it.
-- `w`: the owner of a bed's bedroom, or whom a coffin is kept for.
-- `1`–`9`: a planned building's build priority. `x`: cancel the plan, or take a built building apart (confirm).
-
-In Designate, `Shift+P` gives the tool's priority to the last batch of designations.
-
-### World map
+The keys of a rectangle dragged with no tool (§ Mouse); `Delete` is the Map context's.
 
 | Key | Action |
 |---|---|
-| arrows | move the cursor (`Shift`: 8) |
-| `f` | filter panel |
-| `Enter` | embark on the region |
-| `?` | biome legend |
+| `[S-f]` | forbid everything on the selected tiles |
+| `[S-d]` | dump everything on the selected tiles (confirm) |
+| `[S-t]` | move the goods on the selected tiles to the depot |
 
-### Embark
-
-| Key | Action |
-|---|---|
-| `1` `2` `3` | Dwarves / Supplies / Animals tabs |
-| `+` `-` | adjust the selected skill or quantity |
-| `r` | reroll the selected dwarf |
-| `n` | rename |
-| `p` | presets menu |
-| `Enter` on the footer | Embark |
-
-### Trade session
+### Designate panel
 
 | Key | Action |
 |---|---|
-| `Tab` | switch column |
-| `+` `-` | quantity |
-| `Enter` | offer |
-| `g` | gift (offer with nothing taken) |
-| `Esc` | close |
+| `[S-d]` | dig |
+| `[S-c]` | channel |
+| `[S-u]` | stairs up |
+| `[S-j]` | stairs down |
+| `[i]` | up/down stairs |
+| `[r]` | ramp |
+| `[w]` | stairwell |
+| `[S-s]` | smooth |
+| `[S-e]` | engrave |
+| `[x]` | remove a construction |
+| `[S-t]` | chop trees |
+| `[g]` | gather plants |
+| `[h]` | harvest |
+| `[S-f]` | traffic (again: the next traffic mode) |
+| `[S-p]` | give the tool's priority to the last batch |
+
+### Build panel
+
+`↑` `↓` and `Enter` choose in a category's list; `Backspace` returns from an armed building to the list.
+
+| Key | Action |
+|---|---|
+| `[S-c]` | constructions |
+| `[S-f]` | furniture |
+| `[w]` | workshops |
+| `[S-m]` | mechanisms |
+| `[S-t]` | traps |
+| `[S-s]` | special |
+
+### Zones panel
+
+The zone types; `Enter` with no tool selects the zone at the map cursor or centre.
+
+| Key | Action |
+|---|---|
+| `[S-s]` | stockpile |
+| `[S-f]` | farm plot |
+| `[S-p]` | pasture |
+| `[S-b]` | bedroom |
+| `[S-d]` | dining hall |
+| `[h]` | hearth hall |
+| `[S-o]` | hospital |
+| `[r]` | barracks |
+| `[S-a]` | archery range |
+| `[S-m]` | meeting area |
+| `[S-t]` | tomb |
+| `[S-u]` | dump |
+| `[i]` | fishing zone |
+| `[g]` | gather zone |
+
+### Zone inspector
+
+The keys of a selected zone, before the zone types; letters that open panels require `Shift`, and the labels follow the current panel bindings. Every action has the mouse path listed here and a Help row.
+
+| Key | Action | Mouse |
+|---|---|---|
+| `[y]` | back to the zone types | zone types button |
+| `[x]` | unlink a source of a stockpile, or remove the zone (confirm) | the `[x]` caption |
+| `Delete` | remove the stockpile zone (confirm) | `[Del] remove zone` |
+| `[S-e]` | resize the zone | the `[S-e] resize` caption |
+| `[i]` | link a source stockpile | `[i] link` |
+| `[S-p]` | open the stockpile preset dropdown | preset header |
+| `[g]` | focus the category tree | tree button or category name |
+| `[q]` | focus numeric settings | settings button or numeric label |
+| `[v]` | open allowed material classes | materials button |
+| `[S-o]` | open the bedroom's owner picker | owner button |
+| `Shift+A` | a farm plot: the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
+| `Space` | toggle the checkbox (category tree, material classes) | the checkbox |
+| `+` `=` `-` | adjust the focused value | minus or plus button |
+
+The list keys of § Panels work in the inspector: with a farm plot, `↑` `↓` highlight a season row (starting on the current season) and `Enter` opens its crop list (`↑` `↓` and `Enter` choose); in the preset dropdown `↑` `↓` and `Enter` highlight and apply a preset and a letter jumps to the next preset starting with it (`Shift` for a panel letter); in the tree `↑` `↓` select, `→` expands, `←` collapses or goes to the parent; in numeric settings `Tab`, `Shift+Tab` and `↑` `↓` choose barrels, bags, bins, priority, min quality or max quality and `←` `→` adjust; in material classes `↑` `↓` select and `Enter` toggles, Any switching all or none; in the owner picker `↑` `↓` and `Enter` choose Nobody or a dwarf. `Esc` in a chooser goes back, and applied settings remain applied; by mouse, choose another zone or panel.
+
+Container counts are non-negative integers, priorities are 1–9 and quality bounds are 0–5 with minimum no greater than maximum. A refused adjustment reports its reason. In the selected stockpile editor, Space toggles a checkbox, +/- adjusts a numeric field and Tab chooses fields before their global pause, speed or sidebar actions. Bare panel letters always retain their panel action in every editor state. Zone removal continues to use the existing default-No confirmations in § Confirmations.
+
+### Units panel
+
+A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[S-t]`). An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. `Shift+L` opens the labor manager on the marked dwarves when any are marked; the bare labors key always opens the labors panel, with its cursor on the dwarf under the units cursor. `Enter` looks at the cursor's dwarf.
+
+| Key | Action |
+|---|---|
+| `Space` | mark the row (does not pause while the list is open) |
+| `*` | mark all / none |
+| `[i]` | show only idle dwarves / all |
+| `Shift+W` | wounded dwarves first / list order |
+| `Shift+T` | give or take away a title |
+| `Shift+N` | rename the dwarf |
+| `Shift+M` | add the marked dwarves to a squad |
+| `[` `]` | sleep an hour earlier / later |
+| `Shift+L` | the labor manager on the marked dwarves |
+| `[S-c]` | center the map on the dwarf |
+
+### Labors panel
+
+`↑` `↓` choose the dwarf, `←` `→` move across the labor columns, and `Enter` opens the labor manager with its cursor on that dwarf.
+
+| Key | Action |
+|---|---|
+| `[S-a]` | whole row on / off |
+
+### Jobs panel
+
+`↑` `↓` move over the jobs (or the waiting orders), `Enter` centres the map on the job or opens Orders on the waiting order, and `/` focuses the filter.
+
+| Key | Action |
+|---|---|
+| `Tab` | move between the jobs and the "Orders waiting" rows |
+| `[S-l]` | cycle the labors that have jobs |
+| `[S-s]` | cycle all / open / claimed / blocked |
+| `[S-p]` | raise the job's priority (1–9, wrapping) |
+| `[x]` | cancel the job |
+
+### Orders panel
+
+The Orders panel's keys, beside the accelerators it shows (`ui-screens/panels.md` § Orders). `↑` `↓` move over the orders.
+
+| Key | Action |
+|---|---|
+| `[S-n]` | new order (opens "Add order") |
+| `+` `=` | the selected order's count +1 (`Shift`: +10) |
+| `-` `_` | the selected order's count −1 (`Shift`: −10) |
+| `[r]` | repeat the selected order, or the last finished one |
+| `[x]` `Delete` | remove the selected order (confirm) |
+| `[S-m]` | the order's mode |
+| `[S-p]` | the order's priority |
+| `[S-f]` | the order's material |
+| `Shift+↑` `Shift+↓` | move the order in its queue |
+
+The count keys take precedence over the speed keys only while an order is selected; with no order selected the order keys say "No order is selected: [S-n] adds one." and the count keys are the speed keys. In "Add order", a text field, letters and `Backspace` edit the recipe filter, `0`–`9` type the quantity, `+` `=` `-` change it, `Tab` / `Shift+Tab` move between the fields, `←` `→` change the focused one, `Enter` adds the order and `Esc` closes it. The material list uses the list keys of § Panels.
+
+### Workshop panel
+
+A click on a workshop opens it; `↑` `↓` choose a recipe and `Enter` adds an order for it.
+
+| Key | Action |
+|---|---|
+| `[S-n]` | new order at this workshop |
+| `[S-o]` | this workshop's orders |
+| `[S-f]` | the material of the orders here |
+| `[w]` | the next worker |
+| `[S-s]` | suspend (confirm) or resume |
+| `[x]` | take the workshop apart (confirm) |
+
+### Building panel
+
+The building panel's keys (`ui-screens/panels.md` § Building). The panel opens with a left click on a building, or `Enter` in Look on its tile. `↑` `↓` and `Enter` move over the lines that act and activate one (a mode, a trigger, a linked target, an owner); `←` `→` change a pressure plate's smallest creature size or fluid depth. A link target is picked with a left click on the map, or `↑` `↓` `Enter` in the list.
+
+| Key | Action |
+|---|---|
+| `1`–`9` | a planned building's build priority |
+| `[i]` | link a lever or a plate |
+| `[r]` | unlink the target under the cursor, or release a caged creature (confirm) |
+| `[y]` | pull the lever |
+| `[g]` | tame the caged creature |
+| `[w]` | the owner of a bed's bedroom, or whom a coffin is kept for |
+| `[x]` | cancel the plan, or take the building apart (confirm) |
+
+### Stocks panel
+
+`↑` `↓` move over the categories, `Enter` expands one, and `/` focuses the filter. In the depot list (`[S-t]`), `↑` `↓` move, `Enter` or `Space` marks goods, `[S-t]` sends them and `Esc` returns to the depot panel.
+
+| Key | Action |
+|---|---|
+| `[S-f]` | forbid the selected items |
+| `[S-d]` | dump the selected items (confirm) |
+| `[S-m]` | melt the selected items (confirm) |
+| `[S-t]` | move goods to the depot |
+| `Space` | in the depot list: mark the goods |
+
+### Depot panel
+
+| Key | Action |
+|---|---|
+| `[S-m]` | move goods to the depot |
+| `[r]` | return the selected goods to stock |
+| `[S-t]` | open the trade session |
+
+### Military panel
+
+| Key | Action |
+|---|---|
+| `Space` | mark the row (does not pause while the list is open) |
+| `*` | mark all / none |
+| `Enter` | add or remove every marked dwarf |
+| `Shift+L` | choose the squad leader |
+| `Shift+B` | assign a barracks zone |
+| `Shift+N` | rename the squad |
+| `[w]` | choose the squad weapon class |
+| `[g]` | choose the squad armor |
+| `1` | alert: calm |
+| `2` | alert: watchful |
+| `3` `[h]` | alert: hearth |
+| `+` | new squad |
+| `[x]` | disband the squad (confirm) |
+| `[S-s]` | set the squad's station |
+| `[S-c]` | clear the squad's station |
+| `[S-p]` | add patrol points |
+| `[y]` | clear the patrol |
+| `[S-k]` | order a kill |
+| `[S-f]` | order to follow a dwarf |
+| `[q]` | cancel the squad's orders |
+| `[S-m]` | the next squad mode |
+| `[S-o]` | squad mode: off |
+| `[S-t]` | squad mode: train |
+| `[v]` | squad mode: active |
+| `[S-a]` | add members |
+| `[r]` | remove members |
+| `[j]` | ranged or melee |
+
+### Animals panel
+
+| Key | Action |
+|---|---|
+| `1` `2` | tame / wild tab |
+| `[S-p]` | pasture the animal |
+| `[S-s]` | mark for slaughter (confirm) |
+| `[S-c]` | edit the breeding cap |
+| `[S-a]` | assign the animal |
+| `[S-n]` | name the animal |
+| `[S-t]` | train the animal |
+| `[h]` | wild tab: hunt toggle |
+
+### Civilizations panel
+
+`↑` `↓` choose the civilization and `←` `→` its request.
+
+| Key | Action |
+|---|---|
+| `[S-d]` | depot panel |
+| `[S-t]` | open the trade session |
+| `+` `[S-a]` | add a request |
+| `[x]` | remove the request |
+| `[S-p]` | the request's priority |
+
+### Population panel
+
+| Key | Action |
+|---|---|
+| `+` `-` | raise / lower the population cap |
+
+### Mood panel
+
+`↑` `↓` choose a dwarf and `Enter` inspects it.
+
+| Key | Action |
+|---|---|
+| `[S-s]` | sort by tier |
+
+### Log panel
+
+| Key | Action |
+|---|---|
+| `1` `2` `3` | log filter tabs |
+
+### Look panel
+
+`Enter` on a building's tile opens its panel.
+
+| Key | Action |
+|---|---|
+| `1` `2` `3` | look tabs |
+| `[x]` | take apart the building here (confirm) |
+
+### Help panel
+
+`↑` `↓` and `PageUp` `PageDown` scroll.
+
+| Key | Action |
+|---|---|
+| `1` `2` `3` | Keys / Legend / Start tabs |
+
+### Debug panel
+
+| Key | Action |
+|---|---|
+| `[S-d]` | dump save |
+| `[r]` | replay season log |
+| `[h]` | hash world |
 
 ### Labor manager
 
@@ -171,60 +422,115 @@ Opened with `Enter` in the labors panel, or from the units panel with dwarves ma
 | `t` | profession templates |
 | letters | jump to the next labor starting with that letter (`Shift` and the letter for `a`, `c`, `t`) |
 | `Esc` | close |
+| `Home` | first dwarf |
+| `End` | last dwarf |
+| `=` | labor priority up / down |
 
-### Units panel
+### Profession templates
 
-A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[S-t]`). An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. `Shift+L` opens the labor manager on the marked dwarves when any are marked; the bare labors key always opens the labors panel, with its cursor on the dwarf under the units cursor.
-
-| Key | Action |
-|---|---|
-| `Space` | mark the row (does not pause while the list is open) |
-| `*` | mark all / none |
-| `i` | show only idle dwarves / all |
-| `Shift+W` | wounded dwarves first / list order |
-| `Shift+T` | give or take away a title |
-| `Shift+N` | rename the dwarf |
-| `Shift+M` | add the marked dwarves to a squad |
-| `[` `]` | sleep an hour earlier / later |
-
-### Military panel
+The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 
 | Key | Action |
 |---|---|
-| `Space` | mark the row (does not pause while the list is open) |
-| `*` | mark all / none |
-| `Enter` | add or remove every marked dwarf |
-| `Shift+L` | choose the squad leader |
-| `Shift+B` | assign a barracks zone |
-| `Shift+N` | rename the squad |
-| `w` | choose the squad weapon class |
-| `g` | choose the squad armor |
+| `1`–`9` | choose that template |
 
-## Zones inspector keys
+### Trade session
 
-These are the Zones panel's own accelerators and widget keys. Letters that open panels require Shift; the labels follow the current panel bindings. Every action has the mouse path listed here and a Help row.
+| Key | Action |
+|---|---|
+| `Tab` | switch column |
+| `+` `-` | quantity |
+| `Enter` | offer |
+| `g` | gift (offer with nothing taken) |
+| `Esc` | close |
+| `Home` | none of the selected goods |
+| `End` | all of the selected goods |
+| `=` | quantity |
 
-| Key | Action | Mouse |
+### Game menu
+
+| Key | Action |
+|---|---|
+| `r` | Resume |
+| `s` | Save |
+| `l` | Load |
+| `o` | Settings |
+| `n` | Rename fortress |
+| `x` | Retire fortress (confirm) |
+| `m` | Main menu |
+
+### Confirmation
+
+The `confirm` dialog, and the embark screen's "Replace your changes" line.
+
+| Key | Action |
+|---|---|
+| `y` | Yes |
+| `n` | No |
+| `Enter` | the default answer |
+
+### Main menu
+
+| Key | Action |
+|---|---|
+| `n` | New world |
+| `c` | Continue |
+| `l` | Load |
+| `g` | Legends |
+| `o` | Settings |
+| `a` | About |
+
+### World generation
+
+| Key | Action |
+|---|---|
+| `g` | Generate |
+| `r` | random seed |
+
+### World map
+
+| Key | Action |
+|---|---|
+| arrows | move the cursor (`Shift`: 8) |
+| `f` | filter panel |
+| `Enter` | embark on the region |
+| `?` | biome legend |
+| `+` `=` `-` | adjust the selected filter |
+
+### Embark
+
+| Key | Action |
+|---|---|
+| `1` `2` `3` | Dwarves / Supplies / Animals tabs |
+| `+` `-` | adjust the selected skill or quantity |
+| `r` | reroll the selected dwarf |
+| `n` | rename |
+| `p` | presets menu |
+| `Enter` on the footer | Embark |
+| `=` | adjust the selected skill or quantity |
+
+### Load
+
+| Key | Action |
+|---|---|
+| `x` | Delete (confirm) |
+| `e` | Export |
+| `i` | Import |
+
+## Fixed keys
+
+These keys act as described and cannot be rebound. The editor lists the `Esc` rows dimmed with "fixed" and refuses them.
+
+| Key | Where | Why |
 |---|---|---|
-| `Enter` with no tool or selection | select the zone at the map cursor or centre | click a zoned map tile |
-| `y` | return from an inspector to zone types | zone types button |
-| `↑↓` with a farm plot selected | highlight a season row (starts on the current season) | click the row |
-| `Enter` with a farm plot selected | open the highlighted season's crop list; `↑↓` and `Enter` choose, `Esc` closes | the crop field |
-| `Shift+A` with a farm plot selected | the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
-| `Shift+P` | open the stockpile preset dropdown | preset header |
-| `↑↓`, `Enter`, accelerator letters | highlight/apply a preset; jump by its first letter, Shift for a panel letter | preset option |
-| `g` | focus the category tree | tree button or category name |
-| `↑↓`, `→`, `←`, `Space` in the tree | select, expand, collapse/parent, toggle subtree | category name or checkbox |
-| `q` | focus numeric settings | settings button or numeric label |
-| `Tab`, `Shift+Tab`, `↑↓` in numeric settings | choose barrels, bags, bins, priority, min quality or max quality | numeric label |
-| `←→`, `+`, `-` in numeric settings | adjust the focused value | minus or plus button |
-| `v` | open allowed material classes | materials button |
-| `↑↓`, `Space` or `Enter` in material classes | select/toggle; Any switches all/none | checklist row |
-| `Shift+O` in a bedroom | open the shared owner picker | owner button |
-| `↑↓`, `Enter` in owner picker | select Nobody or a dwarf and assign | owner row |
-| `Esc` in a chooser | cancel/back; applied settings remain applied | choose another zone or panel |
+| `Esc` | everywhere: cancel, close, back, and the Global, Trade session and Labor manager rows | The one key that always leads back, out of every screen, dialog and chooser, to the game menu and to Settings; a rebound or lost back key could leave the player with no way to the editor. |
+| Letters, digits, `Space`, `Backspace`, `Enter`, `Tab` and `Esc` in a focused text or number field | filters, names, the seed, the order picker, the breeding cap editor, the `text_input` dialog | Typing: every printable key is the character it shows, and the keys that edit or finish the text keep their meaning so that no rebinding can make a name impossible to type. |
+| Every key in Settings › Keybindings | the editor itself | The editor must work whatever the bindings are: `↑` `↓` `PageUp` `PageDown` move, `Enter` or a click captures the next key, `Delete` or `Backspace` restores the row's default, `[d]` restores every default, `Esc` backs out. |
+| `[letter]` and labor manager letters | panel accelerators, the labor manager's jump to a labor, a preset's first letter | They stand for every letter; each accelerator that a panel shows is its own row above. |
+| Any key | a danger line pinned to the log strip | "Dismissed by any key" (`02-systems/24-ui-and-input.md` § Announcements and the log). |
+| `Shift` held with a bound key | arrows, `+` `-`, `Shift+Enter` | A modifier of the key's own action (ten at a time, mark the rows passed, a corner), not a key of its own. |
 
-Container counts are non-negative integers, priorities are 1–9 and quality bounds are 0–5 with minimum no greater than maximum. A refused adjustment reports its reason. In the selected stockpile editor, Space toggles a checkbox, +/- adjusts a numeric field and Tab chooses fields before their global pause, speed or sidebar actions. Bare panel letters always retain their panel action in every editor state. Zone removal continues to use the existing default-No confirmations in § Confirmations.
+The mouse is not rebindable; § Mouse lists its gestures.
 
 ## Mouse
 
@@ -380,7 +686,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 
 ## Strings
 
-Settings rebinding failures use the UI defaults `ui.settings.binding_modifiers` ("Use a key with optional Ctrl or Shift.") and `ui.settings.binding_conflict` ("Conflicts with {context}: {action}"). Context and action use the same headings and wording as Help.
+Settings rebinding failures use the UI defaults `ui.settings.binding_modifiers` ("Use a key with optional Ctrl or Shift."), `ui.settings.binding_conflict` ("Conflicts with {context}: {action}") and `ui.settings.binding_fixed` ("{key} is a fixed key and cannot be rebound."); its resets say `ui.settings.binding_reset` ("{action}: back to {key}.") and `ui.settings.bindings_reset` ("Every key is back to its default."). Context and action use the same headings and wording as Help.
 
 A refused fixed-footprint placement names the building and explains that width and height cannot be changed; its named message and generic rejection text are string-registry defaults.
 

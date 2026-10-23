@@ -23,13 +23,15 @@ describe('T-M7-07 settings and keymap overrides', () => {
     expect(pause).toBeGreaterThanOrEqual(0);
     expect(keymap.rebind(pause, { key: cancel?.spec.key ?? 'Esc', ctrl: false, shift: false })?.id).toBe('cancel');
     expect(keymap.resolve('global', press('Space'))?.id).toBe('pause');
-    expect(keymap.rebind(pause, { key: 'v', ctrl: false, shift: false })).toBeNull();
-    expect(keymap.resolve('global', press('v'))?.id).toBe('pause');
+    // T-424: `v` is a zone inspector and military key, which the global keys act beside.
+    expect(keymap.rebind(pause, { key: 'v', ctrl: false, shift: false })?.context).toBe('zone_inspector');
+    expect(keymap.rebind(pause, { key: 'F8', ctrl: false, shift: false })).toBeNull();
+    expect(keymap.resolve('global', press('F8'))?.id).toBe('pause');
     const saved = keymap.overrides();
     keymap.reset();
-    expect(keymap.resolve('global', press('v'))).toBeNull();
+    expect(keymap.resolve('global', press('F8'))).toBeNull();
     keymap.loadOverrides(saved);
-    expect(keymap.resolve('global', press('v'))?.id).toBe('pause');
+    expect(keymap.resolve('global', press('F8'))?.id).toBe('pause');
   });
 
   it('persists preferences and keybindings outside the save', async () => {
@@ -37,7 +39,7 @@ describe('T-M7-07 settings and keymap overrides', () => {
     const store = new SettingsStore(storage);
     const first = game(store);
     const pause = first.keymap.bindings.findIndex((row) => row.context === 'global' && row.id === 'pause');
-    expect(first.keymap.rebind(pause, { key: 'v', ctrl: false, shift: false })).toBeNull();
+    expect(first.keymap.rebind(pause, { key: 'F8', ctrl: false, shift: false })).toBeNull();
     first.changeSettings({ zoom: 0.75, colorblind: true, autoPauseAlert: true, autosave: false });
     await first.settled();
     expect((await store.load())?.preferences.zoom).toBe(0.75);
@@ -47,7 +49,7 @@ describe('T-M7-07 settings and keymap overrides', () => {
     expect(second.palette.colorblind).toBe(true);
     expect(second.fortress.settings.autoPauseAlert).toBe(true);
     expect(second.userSettings.autosave).toBe(false);
-    expect(second.keymap.resolve('global', press('v'))?.id).toBe('pause');
+    expect(second.keymap.resolve('global', press('F8'))?.id).toBe('pause');
     second.resetSettings();
     await second.settled();
     expect((await store.load())?.preferences).toEqual(DEFAULT_USER_SETTINGS);

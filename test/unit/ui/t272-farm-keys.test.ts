@@ -9,6 +9,7 @@ import { seasonAllows } from '@systems/plants/growth';
 import { drawZonesPanel } from '@ui/panels/zones';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { helpKeyRows } from '@ui/panels/help';
+import { LEGACY_BINDINGS } from '@ui/keymap';
 import { keymap, press, strings, surface } from './ui-fixture';
 
 async function plot(): Promise<{ g: Game; zoneId: number }> {
@@ -116,8 +117,8 @@ describe('T-272 the Calendar key', () => {
     expect(g.ui.panel).toBeNull();
     const binding = keymap.bindings.find((b) => b.id === 'calendar');
     expect(binding?.spec).toEqual({ key: 'Y', ctrl: false, shift: true });
-    // Rebinding indices of older rows did not move: the new row is the last of the table.
-    expect(keymap.bindings[keymap.bindings.length - 1]?.id).toBe('calendar');
+    // A keymap saved by index before the bindings had names finds the row at its old place, the last.
+    expect(LEGACY_BINDINGS[LEGACY_BINDINGS.length - 1]).toBe('global/Shift+Y');
     const help = helpKeyRows(keymap, strings).map((row) => row.text);
     expect(help.some((text) => text.includes('[S-y]') && text.includes('calendar panel'))).toBe(true);
     expect(help.some((text) => text.includes('Farm plot: ↑↓ season') && text.includes('[S-a]'))).toBe(true);

@@ -28,7 +28,7 @@ import type { MoraleReader } from '@systems/morale';
 import { TITLE_IDS } from '../constants';
 import type { Surface } from '../surface';
 import { clampList, label, Marks, separator, table, type ListState } from '../widgets';
-import type { PanelContext } from './context';
+import { accel, type PanelContext } from './context';
 
 type TitleId = (typeof TITLE_IDS)[number];
 
@@ -289,7 +289,7 @@ export class UnitsPanel {
       this.marks.all(this.rows(ctx));
       return true;
     }
-    if (letter === 'i' && !press.shift) {
+    if (accel(ctx, press) === 'i') {
       this.idleOnly = !this.idleOnly;
       this.list.selected = 0;
       this.list.scroll = 0;

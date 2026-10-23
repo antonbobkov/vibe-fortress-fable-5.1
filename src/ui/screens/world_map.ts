@@ -16,7 +16,7 @@ import type { Civ, Edge } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { WorldMapCompositor } from '@render/world-map';
 import { CIVS, matchesFilter, type RegionFilter, type RegionRecord, type WorldMap } from '@systems/worldgen';
-import type { Keymap } from '../keymap';
+import type { KeyContext, Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -92,6 +92,8 @@ function capitalize(text: string): string {
 
 export class WorldMapScreen implements Screen {
   readonly id = 'world_map' as const;
+
+  captionKeys(): readonly KeyContext[] { return ['world_map', 'panel']; }
   cursor: { x: number; y: number };
   camX = 0;
   camY = 0;
@@ -369,8 +371,9 @@ export class WorldMapScreen implements Screen {
         rows[this.filterList.selected]?.toggle();
         return true;
       }
-      if (press.key === '+' || press.key === '=' || press.key === '-') {
-        rows[this.filterList.selected]?.adjust(press.key === '-' ? -1 : 1);
+      const own = this.keymap.resolve('world_map', press);
+      if (own?.id === 'adjust') {
+        rows[this.filterList.selected]?.adjust(Number(own.arg) < 0 ? -1 : 1);
         return true;
       }
       if (press.key === 'Esc') {

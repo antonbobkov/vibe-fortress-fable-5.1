@@ -38,13 +38,39 @@ const CONTEXT_OF: Readonly<Record<string, string>> = {
   Global: 'global',
   Map: 'map',
   Panels: 'panel',
-  'World map': 'world_map',
-  Embark: 'embark',
-  'Trade session': 'trade_session',
+  'Map selection': 'selection',
+  'Designate panel': 'designate_panel',
+  'Build panel': 'build_panel',
+  'Zones panel': 'zones_panel',
+  'Zone inspector': 'zone_inspector',
+  'Units panel': 'units_panel',
+  'Labors panel': 'labors_panel',
+  'Jobs panel': 'jobs_panel',
+  'Orders panel': 'orders_panel',
+  'Workshop panel': 'workshop_panel',
+  'Building panel': 'building_panel',
+  'Stocks panel': 'stocks_panel',
+  'Depot panel': 'depot_panel',
+  'Military panel': 'military_panel',
+  'Animals panel': 'animals_panel',
+  'Civilizations panel': 'civilizations_panel',
+  'Population panel': 'population_panel',
+  'Mood panel': 'mood_panel',
+  'Log panel': 'log_panel',
+  'Look panel': 'look_panel',
+  'Help panel': 'help_panel',
+  'Debug panel': 'debug_panel',
   // U-06: the labor manager and the units and military panels' own keys.
   'Labor manager': 'labor_manager',
-  'Units panel': 'units_panel',
-  'Military panel': 'military_panel',
+  'Profession templates': 'labor_templates',
+  'Trade session': 'trade_session',
+  'Game menu': 'game_menu',
+  Confirmation: 'confirm',
+  'Main menu': 'main_menu',
+  'World generation': 'world_gen',
+  'World map': 'world_map',
+  Embark: 'embark',
+  Load: 'load',
 };
 
 interface DocRow { readonly context: string; readonly keys: string[]; readonly action: string }
@@ -75,7 +101,7 @@ export function keysOf(cell: string): string[] {
 }
 
 function keymapRows(text: string): DocRow[] {
-  const keymap = section(text, '## Keymap (defaults; every binding is rebindable)');
+  const keymap = section(text, '## Keymap (defaults)');
   const out: DocRow[] = [];
   let context: string | null = null;
   for (const line of keymap.split('\n')) {
@@ -154,8 +180,9 @@ const scenario: Scenario = {
       expect(want, `no action id for "${row.action}"`).toBeDefined();
       for (const key of row.keys) {
         for (const spec of parseKeySpec(key)) {
-          const probe = spec.key === 'any-letter' ? 'q' : spec.key;
-          const action = keymap.resolve(row.context as 'global', press(probe, { ctrl: spec.ctrl, shift: spec.shift }));
+          // An accelerator always takes its letter with Shift; `[letter]` any letter.
+          const probe = spec.key === 'any-letter' ? 'q' : spec.accel === true ? spec.key.toUpperCase() : spec.key;
+          const action = keymap.resolve(row.context as 'global', press(probe, { ctrl: spec.ctrl, shift: spec.shift || spec.accel === true }));
           expect(action, `${row.context} ${key} resolves to nothing`).not.toBeNull();
           expect(action?.id, `${row.context} ${key}`).toBe(want);
         }

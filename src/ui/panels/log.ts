@@ -15,6 +15,16 @@ import type { Strings } from '../strings';
 import type { Surface, Theme } from '../surface';
 import { label } from '../widgets';
 import { wrapText } from '../messages';
+import type { KeyContext } from '../keymap';
+
+/** The contexts a hint's keys are read in: the panel letters, the global and map keys, and the building panel's (`hint_gate`). */
+export const HINT_KEY_CONTEXTS: readonly KeyContext[] = ['global', 'fortress_panel', 'map', 'building_panel'];
+
+/** A log line's text, with a hint's keys named as the live keymap binds them. */
+function shownText(s: Surface, line: LogLine): string {
+  const text = lineText(line);
+  return line.category === 'hint' && s.keyNames !== null ? s.keyNames(text, HINT_KEY_CONTEXTS) : text;
+}
 
 /** `0` all, `1` alerts and danger, `2` combat. */
 export type LogFilter = 0 | 1 | 2;
@@ -58,7 +68,7 @@ export function drawLogPanel(
     const line = visible[k] as LogLine;
     const row = rect.row + 2 + k;
     label(s, rect.col + 1, row, dates[k] as string, { fg: s.theme.dim, width: Math.min(dateCols, rect.cols - 2), keys: false });
-    label(s, rect.col + 1 + dateCols, row, lineText(line), { fg: colorOf(s.theme, line.severity), width: Math.max(1, rect.cols - 2 - dateCols), keys: false });
+    label(s, rect.col + 1 + dateCols, row, shownText(s, line), { fg: colorOf(s.theme, line.severity), width: Math.max(1, rect.cols - 2 - dateCols), keys: false });
     if (line.focus !== undefined) s.hit({ col: rect.col, row, cols: rect.cols, rows: 1 }, () => onFocus(line));
   }
 }
@@ -81,7 +91,7 @@ export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], 
     const line = shown[k] as LogLine;
     const hint = line.category === 'hint';
     const color = hint ? s.theme.value : colorOf(s.theme, line.severity);
-    const parts = hint && rect.rows - rows.length >= 2 ? wrapText(lineText(line), width, 2) : [lineText(line)];
+    const parts = hint && rect.rows - rows.length >= 2 ? wrapText(shownText(s, line), width, 2) : [shownText(s, line)];
     for (let p = parts.length - 1; p >= 0; p -= 1) rows.unshift({ text: parts[p] as string, color });
   }
   const offset = rect.rows - rows.length;

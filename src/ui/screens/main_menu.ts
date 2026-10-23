@@ -10,7 +10,7 @@
  */
 
 import type { KeyPress } from '@platform/input';
-import type { Keymap } from '../keymap';
+import type { KeyContext, Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -28,6 +28,9 @@ export interface MainMenuHost {
 
 export class MainMenuScreen implements Screen {
   readonly id = 'main_menu' as const;
+
+  translatedKeys(): readonly KeyContext[] { return ['main_menu']; }
+  captionKeys(): readonly KeyContext[] { return ['main_menu', 'panel']; }
   selected = 'new_world';
   private last: Surface | null = null;
 

@@ -23,7 +23,7 @@ import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, STATUS_HINT_SECONDS } from '../constants';
-import { acceleratorOf, keyLabel, type Keymap } from '../keymap';
+import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
 import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
@@ -71,6 +71,11 @@ export const UI_PANELS: readonly PanelSpec[] = [
   { id: 'help', title: 'Help', hotkey: '?' },
   { id: 'debug', title: 'Debug', hotkey: 'F12' },
 ];
+
+/** A panel's default letter (§ Fortress panels): a caption names it, and shows the key the panel has now. */
+function defaultHotkey(panel: PanelSpec): string {
+  return FORTRESS_PANEL_KEYS.find((p) => p.id === panel.id)?.key ?? panel.hotkey;
+}
 
 /** The speeds `+` and `-` step through ("speed up (1× → 2× → 4×)"). */
 const SPEEDS: readonly Speed[] = [1, 2, 4];
@@ -249,6 +254,27 @@ export class FortressScreen implements Screen {
     // `panels()` gives a registered panel the key it is bound to now, or its own letter when unbound.
     for (const panel of this.panels()) if (/^[a-z]$/.test(panel.hotkey)) out.add(panel.hotkey);
     return out;
+  }
+
+  /**
+   * The contexts of the keys the open panel's code reads as their defaults (`ui-keymap-and-screens.md`
+   * § Keymap), the most specific first: the panel's own (a selected zone's inspector before the zone
+   * types), the map selection's, then the list keys every panel shares.
+   */
+  keyContexts(): KeyContext[] {
+    const out: KeyContext[] = [];
+    const panel = this.ui.panel;
+    if (panel === 'zones' && this.zones.selected !== 0) out.push('zone_inspector');
+    const own = panel === null ? undefined : PANEL_CONTEXTS[panel];
+    if (own !== undefined) out.push(own);
+    if (this.selection !== null) out.push('selection');
+    if (panel !== null) out.push('panel');
+    return out;
+  }
+
+  /** The contexts a caption's keys are read in: the panel's, then the map, global and panel-letter keys. */
+  private labelContexts(): KeyContext[] {
+    return [...this.keyContexts(), 'map', 'global', 'fortress_panel'];
   }
 
   /**
@@ -494,6 +520,17 @@ export class FortressScreen implements Screen {
   // ---------- drawing ----------
 
   draw(surface: Surface): void {
+    // A caption names each key as the live keymap binds it (24 § Settings).
+    const contexts = this.labelContexts();
+    surface.keyNames = (text, only) => this.keymap.relabel(text, only ?? contexts);
+    try {
+      this.drawScreen(surface);
+    } finally {
+      surface.keyNames = null;
+    }
+  }
+
+  private drawScreen(surface: Surface): void {
     this.ensureRegistered();
     this.last = surface;
     this.syncCursor();
@@ -626,7 +663,7 @@ export class FortressScreen implements Screen {
     const key = this.strings.get('ui.panel.close');
     label(surface, inner.col + 1, inner.row, this.panelTitle(panel.id, panel.title), { fg: t.key, width: inner.cols - key.length - 2 });
     const closeAt = inner.col + inner.cols - key.length - 1;
-    label(surface, closeAt, inner.row, key);
+    label(surface, closeAt, inner.row, key, { relabel: false });
     const closeCells = { col: closeAt, row: inner.row, cols: key.length, rows: 1 };
     surface.tooltip(closeCells, this.strings.get('ui.panel.close_tip'));
     surface.hit(closeCells, () => this.openPanel(null));
@@ -634,7 +671,7 @@ export class FortressScreen implements Screen {
     const readers = this.host.readers;
     const ctx = this.ctx;
     if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize(), () => this.undoDesignation(), () => this.clearSelected());
-    else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx, { key: this.ordersKey(), run: () => void this.orderMissing() });
+    else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx, { key: this.ordersCaptionKey(), run: () => void this.orderMissing() });
     else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
     else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
@@ -724,9 +761,11 @@ export class FortressScreen implements Screen {
     // `[Esc] menu` and `[?] help` at the right edge are buttons too.
     const left = ` ${fields.join(' '.repeat(fieldSpacing))}`;
     const right = statusRight(this.strings, Array.from(left).length, rect.cols);
-    const rightStart = rect.col + Math.max(Array.from(left).length + 1, rect.cols - Array.from(right.text).length);
-    surface.hit({ col: rightStart, row: rect.row, cols: Array.from(right.menu).length, rows: 1 }, () => this.host.gameMenu?.());
-    surface.hit({ col: rightStart + Array.from(right.menu).length + 2, row: rect.row, cols: Array.from(right.help).length, rows: 1 }, () => this.togglePanel('help'));
+    // The row is drawn with its keys as they are bound now, so the buttons are measured that way too.
+    const shown = (text: string): number => Array.from(surface.keyNames?.(text) ?? text).length;
+    const rightStart = rect.col + Math.max(Array.from(left).length + 1, rect.cols - shown(right.text));
+    surface.hit({ col: rightStart, row: rect.row, cols: shown(right.menu), rows: 1 }, () => this.host.gameMenu?.());
+    surface.hit({ col: rightStart + shown(right.menu) + 2, row: rect.row, cols: shown(right.help), rows: 1 }, () => this.togglePanel('help'));
 
     if (weather !== null && fields.length > 1) {
       const at = rect.col + 1 + date + fieldSpacing;
@@ -739,22 +778,29 @@ export class FortressScreen implements Screen {
       if (chars.length > rect.cols && rect.cols > 0) {
         surface.tooltip({ col: rect.col, row: rect.row + 1, cols: rect.cols, rows: 1 }, text2);
         const visible = `${chars.slice(0, rect.cols - 1).join('')}…`;
-        labelRow(surface, rect.col, rect.row + 1, rect.cols, visible, { fg: t.text });
+        labelRow(surface, rect.col, rect.row + 1, rect.cols, visible, { fg: t.text, relabel: false });
       } else {
-        labelRow(surface, rect.col, rect.row + 1, rect.cols, full, { fg: t.text });
+        labelRow(surface, rect.col, rect.row + 1, rect.cols, full, { fg: t.text, relabel: false });
       }
       this.hitStrip(surface, rect, chars.length > rect.cols ? `${chars.slice(0, rect.cols - 1).join('')}…` : full);
     }
   }
 
-  /** Each complete `[x] name` entry of the hotkey strip on row 2 does what its key does. */
+  /**
+   * Each complete `[x] name` entry of the hotkey strip on row 2 does what its key does. The strip
+   * names the panel letters' defaults; the row shows, and a click presses, the key each has now.
+   */
   private hitStrip(surface: Surface, rect: Rect, shown: string): void {
-    for (const entry of this.strings.get('ui.status.strip').split('  ')) {
+    const contexts = this.labelContexts();
+    for (const written of this.strings.get('ui.status.strip').split('  ')) {
+      const entry = this.keymap.relabel(written, contexts);
       const at = shown.indexOf(entry);
-      const letter = /^\[(.)\]/.exec(entry)?.[1];
+      const letter = /^\[(.)\]/.exec(written)?.[1];
       if (at < 0 || letter === undefined) continue;
+      const spec = this.keymap.keyNow('fortress_panel', letter);
+      const press = { key: spec?.key ?? letter, repeat: false, shift: spec?.shift ?? false, ctrl: spec?.ctrl ?? false, alt: false, meta: false };
       surface.hit({ col: rect.col + Array.from(shown.slice(0, at)).length, row: rect.row + 1, cols: Array.from(entry).length, rows: 1 },
-        () => void this.key({ key: letter, repeat: false, shift: false, ctrl: false, alt: false, meta: false }));
+        () => void this.key(press));
     }
   }
 
@@ -790,6 +836,11 @@ export class FortressScreen implements Screen {
    * by starting a drag, a new ghost state or a new notice (T-243).
    */
   statusRow2(cols = Infinity): string {
+    // Each key the row names is the key its binding has now (24 § Settings).
+    return this.keymap.relabel(this.statusText2(cols), this.labelContexts());
+  }
+
+  private statusText2(cols: number): string {
     const s = this.strings;
     this.syncCursor();
     if (this.dragging || this.build.anchor !== null || this.zones.anchor !== null || this.tool.anchor !== null || this.selection !== null) {
@@ -1221,16 +1272,22 @@ export class FortressScreen implements Screen {
     return commands;
   }
 
-  /** The key that opens Orders, as the out-of-stock line shows it (`[o] order N`). */
+  /** The key that opens Orders now. */
   private ordersKey(): string {
     return this.panels().find((p) => p.id === 'orders')?.hotkey ?? '';
+  }
+
+  /** The Orders key as the out-of-stock line writes it (`[o] order N`): its default, which a caption shows as the key it has now. */
+  private ordersCaptionKey(): string {
+    const orders = this.panels().find((p) => p.id === 'orders');
+    return orders === undefined ? '' : defaultHotkey(orders);
   }
 
   /** "0 doors in stock: 5 will wait · [o] order 5" with `extra` more about to be placed, or '' (D-U6). */
   private stockText(extra: number): string {
     const offer = this.build.offer(this.ctx, extra);
     if (offer === null) return '';
-    const text = this.build.offerText(this.ctx, offer, this.ordersKey());
+    const text = this.build.offerText(this.ctx, offer, this.ordersCaptionKey());
     return text.action === '' ? text.stock : `${text.stock} · ${text.action}`;
   }
 
@@ -1427,9 +1484,11 @@ export class FortressScreen implements Screen {
 
   private keyPress(press: KeyPress): boolean {
     this.ensureRegistered();
+    // A focused text or number field takes the keys as they are: typing is not rebindable (§ Fixed keys).
     if (this.ui.sidebar && this.ui.panel === 'animals' && this.animals.capKey(this.ctx, press)) return true;
     if (this.textFocused() && press.key === 'Space') press = { ...press, key: ' ' };
     if (this.ui.sidebar && this.ui.panel === 'units' && this.units.editing && this.unitsFilterKey(press)) return true;
+    if (this.ui.sidebar && this.ui.panel === 'animals' && this.animals.name.focused && this.panelKey('animals', press)) return true;
     if (this.ui.sidebar && this.ui.panel === 'jobs' && this.jobs.filter.key(press)) { this.jobs.resetSelection(); return true; }
     if (this.ui.sidebar && this.ui.panel === 'stocks' && this.stocks.filter.key(press)) { this.stocks.tree.selected = 0; this.stocks.tree.scroll = 0; return true; }
     if (this.ui.panel === 'stocks' && this.stocks.depotSelection && (press.key === 'Esc' || press.key === 'Escape')) {
@@ -1437,7 +1496,11 @@ export class FortressScreen implements Screen {
       this.openPanel('depot');
       return true;
     }
-    if (this.ui.panel === 'stocks' && this.stocks.depotSelection && (press.key === 'Space' || press.key === ' ')) {
+    // The panels' own keys are written as their defaults: a rebound key reads as the default it
+    // replaced, and a default key moved away reads as nothing (`null`), so it reaches only the
+    // global, panel-letter and map keys below.
+    const own = this.keymap.translate(this.keyContexts(), press);
+    if (own !== null && this.ui.panel === 'stocks' && this.stocks.depotSelection && (own.key === 'Space' || own.key === ' ')) {
       this.stocks.toggleDepot(this.ctx);
       return true;
     }
@@ -1446,20 +1509,26 @@ export class FortressScreen implements Screen {
       this.pinned = null;
       return true;
     }
-    if ((press.key === ' ' || press.key === 'Space') && !press.ctrl && !press.alt && !press.meta && this.markKey()) return true;
-    // The order picker and the material list are modal: they take every key they use (letters
-    // are the picker's type-ahead filter) and leave the rest (`Space`, `F5`) to the screen.
-    if (this.ui.panel === 'orders' && (this.orders.materialOpen || this.orders.picker.open) && this.orders.key(this.ctx, press)) return true;
-    if (!press.ctrl && !press.alt && !press.meta) {
+    // The order picker is a text field too: letters are its type-ahead filter, digits its quantity.
+    if (this.ui.panel === 'orders' && this.orders.picker.open && !this.orders.materialOpen && this.orders.key(this.ctx, press)) return true;
+    return this.keyOwn(press, own);
+  }
+
+  /** The keys after the text fields: `press` as it was for the global, panel-letter and map keys, `own` for the panels'. */
+  private keyOwn(press: KeyPress, own: KeyPress | null): boolean {
+    if (own !== null && (own.key === ' ' || own.key === 'Space') && !own.ctrl && !own.alt && !own.meta && this.markKey()) return true;
+    // The material list is modal: it takes every key it uses and leaves the rest (`Space`, `F5`) to the screen.
+    if (own !== null && this.ui.panel === 'orders' && this.orders.materialOpen && this.orders.key(this.ctx, own)) return true;
+    if (own !== null && !own.ctrl && !own.alt && !own.meta) {
       // U-07: settings widgets take Space, Tab and +/- before the global pause/speed/sidebar keys.
-      if (this.ui.panel === 'zones' && this.ui.sidebar && ['Space', ' ', 'Tab', '+', '=', '-'].includes(press.key) && this.zones.editorKey(this.ctx, press)) return true;
+      if (this.ui.panel === 'zones' && this.ui.sidebar && ['Space', ' ', 'Tab', '+', '=', '-'].includes(own.key) && this.zones.editorKey(this.ctx, own)) return true;
       // `Tab` in Jobs moves the cursor between the job list and the waiting orders, when there are any.
-      if (this.ui.panel === 'jobs' && this.ui.sidebar && press.key === 'Tab' && !press.shift && this.jobs.toggleWaiting(this.waitingOrders())) return true;
+      if (this.ui.panel === 'jobs' && this.ui.sidebar && own.key === 'Tab' && !own.shift && this.jobs.toggleWaiting(this.waitingOrders())) return true;
       // `+`/`-` change the selected order's count before they are the game-speed keys (Q2); the
       // military, civilizations and population panels keep their own `+` (and `-`).
-      if (this.ui.panel === 'orders' && this.ui.sidebar && countStep(press) !== 0 && this.orders.selectedRow(this.ctx) !== undefined) return this.orders.key(this.ctx, press);
-      if ((this.ui.panel === 'military' || this.ui.panel === 'civilizations') && press.key === '+') return this.panelKey(this.ui.panel, press);
-      if (this.ui.panel === 'population' && (press.key === '+' || press.key === '-')) return this.panelKey(this.ui.panel, press);
+      if (this.ui.panel === 'orders' && this.ui.sidebar && countStep(own) !== 0 && this.orders.selectedRow(this.ctx) !== undefined) return this.orders.key(this.ctx, own);
+      if ((this.ui.panel === 'military' || this.ui.panel === 'civilizations') && own.key === '+') return this.panelKey(this.ui.panel, own);
+      if (this.ui.panel === 'population' && (own.key === '+' || own.key === '-')) return this.panelKey(this.ui.panel, own);
     }
     const global = this.keymap.resolve('global', press);
     if (global !== null) {
@@ -1522,38 +1591,7 @@ export class FortressScreen implements Screen {
     if (this.build.active && this.ui.sidebar && !press.ctrl && !press.alt && !press.meta && !press.shift && press.key === this.ordersKey() && this.orderMissing()) return true;
     if (!this.textFocused() && this.panelHotkey(press)) return true;
     const panel = this.ui.panel;
-    if (this.ui.sidebar && panel !== null && this.panelKey(panel, press)) return true;
-    if (panel === 'designate' && this.ui.sidebar) {
-      const letter = acceleratorOf(press, this.panelLetters());
-      if (letter === 'p') {
-        this.reprioritize();
-        return true;
-      }
-      if (letter !== '' && this.tool.choose(letter)) return true;
-    }
-    if (panel === 'look' && this.ui.sidebar && press.key.toLowerCase() === 'x' && !this.toolActive) {
-      const tile = this.lookTile();
-      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
-      if (building !== 0) {
-        this.deconstruct(building);
-        return true;
-      }
-    }
-    if (panel === 'look' && this.ui.sidebar && press.key === 'Enter' && !this.toolActive && !press.ctrl && !press.alt && !press.meta) {
-      // U-05: the keyboard's way to a building's panel (the mouse's is a click on it).
-      const tile = this.lookTile();
-      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
-      if (building !== 0) {
-        this.openBuilding(building);
-        return true;
-      }
-    }
-    if ((panel === 'look' || panel === 'log') && /^[1-3]$/.test(press.key) && !this.tool.active) {
-      const n = Number(press.key) - 1;
-      if (panel === 'look') this.lookTab = n as LookTab;
-      else this.logFilter = n as LogFilter;
-      return true;
-    }
+    if (own !== null && this.ownPanelKey(panel, own)) return true;
 
     const map = this.keymap.resolve('map', press);
     if (map !== null) {
@@ -1619,6 +1657,7 @@ export class FortressScreen implements Screen {
             this.tool.clearing = true;
             return true;
           }
+          if (this.selection !== null && this.selectionKey({ key: 'Delete', repeat: false, shift: false, ctrl: false, alt: false, meta: false })) return true;
           break;
         default:
           break;
@@ -1627,8 +1666,45 @@ export class FortressScreen implements Screen {
 
     // § Mouse: with a selection, `Delete`, forbid, dump and move to depot act on it (D-200); the
     // keys are the stocks panel's own accelerators and Esc gives the panel hotkeys back.
-    if (this.selection !== null && !press.ctrl && !press.alt && !press.meta && this.selectionKey(press)) return true;
+    if (own !== null && own.key !== 'Delete' && this.selection !== null && !own.ctrl && !own.alt && !own.meta && this.selectionKey(own)) return true;
 
+    return false;
+  }
+
+  /** The open panel's own keys, read as their defaults (`own`), after the panel letters and before the map's. */
+  private ownPanelKey(panel: string | null, own: KeyPress): boolean {
+    if (this.ui.sidebar && panel !== null && this.panelKey(panel, own)) return true;
+    if (panel === 'designate' && this.ui.sidebar) {
+      const letter = acceleratorOf(own, this.panelLetters());
+      if (letter === 'p') {
+        this.reprioritize();
+        return true;
+      }
+      if (letter !== '' && this.tool.choose(letter)) return true;
+    }
+    if (panel === 'look' && this.ui.sidebar && acceleratorOf(own, this.panelLetters()) === 'x' && !this.toolActive) {
+      const tile = this.lookTile();
+      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
+      if (building !== 0) {
+        this.deconstruct(building);
+        return true;
+      }
+    }
+    if (panel === 'look' && this.ui.sidebar && own.key === 'Enter' && !this.toolActive && !own.ctrl && !own.alt && !own.meta) {
+      // U-05: the keyboard's way to a building's panel (the mouse's is a click on it).
+      const tile = this.lookTile();
+      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
+      if (building !== 0) {
+        this.openBuilding(building);
+        return true;
+      }
+    }
+    if ((panel === 'look' || panel === 'log') && /^[1-3]$/.test(own.key) && !own.ctrl && !this.tool.active) {
+      const n = Number(own.key) - 1;
+      if (panel === 'look') this.lookTab = n as LookTab;
+      else this.logFilter = n as LogFilter;
+      return true;
+    }
     return false;
   }
 
@@ -1659,7 +1735,8 @@ export class FortressScreen implements Screen {
         || (opened.id === 'zones' && this.zones.active);
       this.openPanel(null);
       if (wasArmed) {
-        this.notice(this.strings.get('ui.status.panel_closed', { panel: opened.title, key: opened.hotkey }));
+        // The caption names the default letter; the status row shows the key it has now.
+        this.notice(this.strings.get('ui.status.panel_closed', { panel: opened.title, key: defaultHotkey(opened) }));
       }
     } else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
     else {

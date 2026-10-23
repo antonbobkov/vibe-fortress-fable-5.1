@@ -60,6 +60,16 @@ export function invalidBindingModifiers(strings: Strings): string {
   return strings.get('ui.settings.binding_modifiers');
 }
 
+/** A fixed key (`ui-keymap-and-screens.md` § Fixed keys) refuses a rebinding by name. */
+export function fixedBinding(strings: Strings, key: string): string {
+  return strings.get('ui.settings.binding_fixed', { key });
+}
+
+/** One binding back to its default: the Help wording and the key it has again. */
+export function bindingReset(strings: Strings, binding: Binding, key: string): string {
+  return strings.get('ui.settings.binding_reset', { action: actionText(binding), key });
+}
+
 /** Words into at most `maxLines` lines of `width` cells; the last line keeps what is left. */
 export function wrapText(text: string, width: number, maxLines: number): string[] {
   const lines: string[] = [];

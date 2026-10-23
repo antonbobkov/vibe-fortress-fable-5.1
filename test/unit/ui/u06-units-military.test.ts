@@ -14,6 +14,7 @@ import { computeLayout } from '@render/cellbuffer';
 import type { BuildingsReader } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
 import type { DwarvesReader } from '@systems/dwarves';
+import { keyLabel, LEGACY_BINDINGS } from '@ui/keymap';
 import { helpKeyRows } from '@ui/panels/help';
 import { moodGlyph } from '@ui/panels/units';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
@@ -434,7 +435,7 @@ describe('U-06 squads: leader, barracks and name (M11)', () => {
 });
 
 describe('U-06 help and the app', () => {
-  it('help lists the new keys; older bindings keep their index', () => {
+  it('help lists the new keys; a keymap saved by index still finds the older bindings', () => {
     const rows = helpKeyRows(keymap).map((r) => r.text);
     for (const text of [
       'Space  mark the dwarf',
@@ -449,12 +450,11 @@ describe('U-06 help and the app', () => {
       '[S-b]  assign a barracks zone',
       '[S-n]  rename the squad',
     ]) expect(rows).toContain(text);
-    const contexts = keymap.bindings.map((b) => b.context);
-    const firstNew = contexts.findIndex((c) => c === 'labor_manager' || c === 'units_panel' || c === 'military_panel');
-    expect(firstNew).toBeGreaterThan(contexts.lastIndexOf('fortress_panel'));
-    // The calendar key was appended after the later contexts, so no saved rebinding moves.
-    expect(contexts.slice(firstNew, -1).every((c) => c === 'labor_manager' || c === 'units_panel' || c === 'military_panel')).toBe(true);
-    expect(keymap.bindings[keymap.bindings.length - 1]?.id).toBe('calendar');
+    // T-424: a rebinding is saved by the binding's name; one saved by index before that is read
+    // through the order of that version, where these contexts followed the panel hotkeys.
+    const firstNew = LEGACY_BINDINGS.findIndex((name) => /^(labor_manager|units_panel|military_panel)\//.test(name));
+    expect(firstNew).toBeGreaterThan(LEGACY_BINDINGS.map((name) => name.split('/')[0]).lastIndexOf('fortress_panel'));
+    for (const name of LEGACY_BINDINGS) expect(keymap.bindings.some((b) => `${b.context}/${b.spec.key === 'any-letter' ? 'any-letter' : keyLabel(b.spec)}` === name), name).toBe(true);
   });
 
   it('in the app: [l], Enter opens the labor manager and Esc returns; [u], Shift+N renames a dwarf', async () => {

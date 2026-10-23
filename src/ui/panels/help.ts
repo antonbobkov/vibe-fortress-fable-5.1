@@ -30,7 +30,7 @@ import {
   GLYPH_STAIRS_UPDOWN,
   GLYPH_TREE,
 } from '@render/glyphs';
-import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
+import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, contextTitle as keyContextTitle, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
 import { wrapHang } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -57,20 +57,6 @@ const WORDING: Readonly<Record<string, string>> = Object.freeze(
     return out;
   }, {}),
 );
-
-/** The context headings, as the keymap table names its sections. */
-const CONTEXT_TITLES: Readonly<Record<string, string>> = Object.freeze({
-  global: 'Global',
-  map: 'Map',
-  panel: 'Panels',
-  world_map: 'World map',
-  embark: 'Embark',
-  trade_session: 'Trade session',
-  fortress_panel: 'Fortress panels',
-  labor_manager: 'Labor manager',
-  units_panel: 'Units panel',
-  military_panel: 'Military panel',
-});
 
 /** § Terrain, the solid rows: the glyph the compositor draws and the thing it draws. */
 const TERRAIN_LEGEND: readonly { readonly glyph: number; readonly name: string }[] = [
@@ -120,11 +106,28 @@ const BUILD_HELP_KEYS: readonly string[] = ['ui.help.build.drag', 'ui.help.build
 /** The building panel's rows (U-05) and Designate's re-prioritize, which are the panels' own keys. */
 const BUILDING_HELP_KEYS: readonly string[] = ['ui.help.building.rows', 'ui.help.building.link', 'ui.help.building.cage', 'ui.help.building.owner', 'ui.help.building.plan', 'ui.help.designate.priority'];
 
+/** The key contexts each section of Help's notes names keys of, the most specific first. */
+const NOTE_CONTEXTS: Readonly<Record<string, readonly KeyContext[]>> = Object.freeze({
+  orders: ['orders_panel', 'panel', 'global', 'fortress_panel'],
+  build: ['build_panel', 'map', 'fortress_panel', 'panel'],
+  building: ['building_panel', 'designate_panel', 'panel', 'look_panel'],
+  jobs: ['jobs_panel', 'panel'],
+  stocks: ['stocks_panel', 'panel'],
+  animals: ['animals_panel', 'panel'],
+  designate: ['global', 'designate_panel'],
+  game_menu: ['game_menu', 'fortress_panel'],
+  zones: ['zone_inspector', 'zones_panel', 'panel'],
+});
+
 /** Help's context order: the panel hotkeys first (Q14), then the keymap table's order. */
 export const HELP_CONTEXT_ORDER: readonly KeyContext[] = ['fortress_panel', ...KEY_CONTEXTS.filter((c) => c !== 'fortress_panel')];
 
-/** A key as Help writes it: a Shift letter the way the panels do (`[S-n]`), any other as the keymap does. */
-export function helpKeyLabel(spec: KeySpec): string {
+/**
+ * A key as Help writes it: an accelerator or a Shift letter the way the panels do (`[S-n]`, `[w]`),
+ * any other as the keymap does. `reserved` are the panel letters an accelerator takes Shift for.
+ */
+export function helpKeyLabel(spec: KeySpec, reserved?: ReadonlySet<string>): string {
+  if (spec.accel === true) return acceleratorLabel(spec.key, reserved);
   return spec.shift && !spec.ctrl && /^[A-Za-z]$/.test(spec.key) ? `[S-${spec.key.toLowerCase()}]` : keyLabel(spec);
 }
 
@@ -145,52 +148,61 @@ export function keysLabel(labels: readonly string[]): string {
  */
 export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
   const out: HelpRow[] = [];
+  const letters = keymap.panelLetters();
   if (strings !== undefined) out.push({ category: 'shift', text: strings.get('ui.panel.shift_note') });
   for (const context of HELP_CONTEXT_ORDER) {
     const bindings = keymap.of(context);
     if (bindings.length === 0) continue;
-    out.push({ category: context, text: CONTEXT_TITLES[context] ?? context, heading: true });
+    out.push({ category: context, text: keyContextTitle(context), heading: true });
     const groups: { text: string; id: string; keys: string[] }[] = [];
     for (const binding of bindings) {
       const text = actionText(binding);
       const last = groups[groups.length - 1];
-      if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(helpKeyLabel(binding.spec));
-      else groups.push({ text, id: binding.id, keys: [helpKeyLabel(binding.spec)] });
+      if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(helpKeyLabel(binding.spec, letters));
+      else groups.push({ text, id: binding.id, keys: [helpKeyLabel(binding.spec, letters)] });
     }
     for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys)}  ${g.text}`, keys: g.keys });
     // D-U2: an accelerator on a panel letter takes `Shift`; the keymap table has no row to say so.
     if (context === 'panel' && strings !== undefined) out.push({ category: context, text: strings.get('ui.help.accelerators') });
   }
   if (strings !== undefined) {
-    // The order list's and the picker's keys (D-U5), which are the panel's own and not keymap rows.
+    /** The live key of the first binding of `context` with action `id`, as a caption shows it. */
+    const key = (context: KeyContext, id: string): string => {
+      const binding = keymap.of(context).find((b) => b.id === id);
+      return binding === undefined ? '' : helpKeyLabel(binding.spec, letters);
+    };
+    /** A note of a panel's keys, with the mouse's way; each key it names is the one its binding has now. */
+    const note = (category: string, text: string): void => {
+      out.push({ category, text: keymap.relabel(text, NOTE_CONTEXTS[category] ?? [], true) });
+    };
     out.push({ category: 'orders', text: strings.get('ui.help.orders.title'), heading: true });
-    for (const key of ORDER_HELP_KEYS) out.push({ category: 'orders', text: strings.get(key) });
+    for (const k of ORDER_HELP_KEYS) note('orders', strings.get(k));
     out.push({ category: 'build', text: strings.get('ui.help.build.title'), heading: true });
-    for (const key of BUILD_HELP_KEYS) out.push({ category: 'build', text: strings.get(key) });
+    for (const k of BUILD_HELP_KEYS) note('build', strings.get(k));
     out.push({ category: 'building', text: strings.get('ui.help.building.title'), heading: true });
-    for (const key of BUILDING_HELP_KEYS) out.push({ category: 'building', text: strings.get(key) });
+    for (const k of BUILDING_HELP_KEYS) note('building', strings.get(k));
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.title'), heading: true });
-    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.filter') });
-    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.waiting') });
-    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.labor', { key: acceleratorLabel('l', keymap.panelLetters()) }) });
-    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.state', { key: acceleratorLabel('s', keymap.panelLetters()) }) });
+    note('jobs', strings.get('ui.help.jobs.filter'));
+    note('jobs', strings.get('ui.help.jobs.waiting'));
+    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.labor', { key: key('jobs_panel', 'cycle_labor') }) });
+    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.state', { key: key('jobs_panel', 'cycle_state') }) });
     out.push({ category: 'stocks', text: strings.get('ui.help.stocks.title'), heading: true });
-    out.push({ category: 'stocks', text: strings.get('ui.help.stocks.filter') });
+    note('stocks', strings.get('ui.help.stocks.filter'));
     out.push({ category: 'animals', text: strings.get('ui.help.animals.title'), heading: true });
-    out.push({ category: 'animals', text: strings.get('ui.help.animals.train', { key: acceleratorLabel('t', keymap.panelLetters()) }) });
-    out.push({ category: 'animals', text: strings.get('ui.help.animals.cap', { key: acceleratorLabel('c', keymap.panelLetters()) }) });
-    out.push({ category: 'designate', text: strings.get('ui.help.designate.undo') });
+    out.push({ category: 'animals', text: strings.get('ui.help.animals.train', { key: key('animals_panel', 'train') }) });
+    out.push({ category: 'animals', text: strings.get('ui.help.animals.cap', { key: key('animals_panel', 'cap') }) });
+    note('designate', strings.get('ui.help.designate.undo'));
     out.push({ category: 'game_menu', text: strings.get('ui.help.game_menu.title'), heading: true });
-    out.push({ category: 'game_menu', text: strings.get('ui.help.game_menu.rename') });
+    note('game_menu', strings.get('ui.help.game_menu.rename'));
     out.push({ category: 'zones', text: strings.get('ui.help.zones.title'), heading: true });
-    out.push({ category: 'zones', text: strings.get('ui.help.zones.select') });
-    out.push({ category: 'zones', text: strings.get('ui.help.zones.links', { link: acceleratorLabel('i', keymap.panelLetters()), unlink: acceleratorLabel('x', keymap.panelLetters()) }) });
+    note('zones', strings.get('ui.help.zones.select'));
+    out.push({ category: 'zones', text: strings.get('ui.help.zones.links', { link: key('zone_inspector', 'link_source'), unlink: key('zone_inspector', 'unlink_or_remove') }) });
     const rows = [
-      ['p', 'ui.help.zones.preset'], ['g', 'ui.help.zones.tree'], ['q', 'ui.help.zones.numbers'],
-      ['v', 'ui.help.zones.materials'], ['o', 'ui.help.zones.owner'], ['y', 'ui.help.zones.types'],
+      ['preset', 'ui.help.zones.preset'], ['tree', 'ui.help.zones.tree'], ['numbers', 'ui.help.zones.numbers'],
+      ['materials', 'ui.help.zones.materials'], ['owner', 'ui.help.zones.owner'], ['zone_types', 'ui.help.zones.types'],
     ] as const;
-    for (const [letter, text] of rows) out.push({ category: 'zones', text: strings.get(text, { key: acceleratorLabel(letter, keymap.panelLetters()) }) });
-    out.push({ category: 'zones', text: strings.get('ui.help.zones.farm', { key: acceleratorLabel('a', keymap.panelLetters()) }) });
+    for (const [id, text] of rows) out.push({ category: 'zones', text: strings.get(text, { key: key('zone_inspector', id) }) });
+    out.push({ category: 'zones', text: strings.get('ui.help.zones.farm', { key: key('zone_inspector', 'all_seasons') }) });
   }
   return out;
 }
@@ -207,7 +219,7 @@ export function actionText(binding: Binding): string {
 
 /** A key context's heading, as the keymap table names its sections. */
 export function contextTitle(context: string): string {
-  return CONTEXT_TITLES[context] ?? context;
+  return keyContextTitle(context);
 }
 
 /** The six legend categories of § Help, generated from the content tables. */

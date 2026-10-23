@@ -117,16 +117,43 @@ export function exportConfirmations() {
   );
 }
 
+/** The `### <heading>` of each § Keymap table and the context `ui/keymap.ts` gives it, in table order. */
 const KEY_CONTEXTS = [
   ['Global', 'global'],
   ['Map', 'map'],
   ['Panels', 'panel'],
+  ['Map selection', 'selection'],
+  ['Designate panel', 'designate_panel'],
+  ['Build panel', 'build_panel'],
+  ['Zones panel', 'zones_panel'],
+  ['Zone inspector', 'zone_inspector'],
+  ['Units panel', 'units_panel'],
+  ['Labors panel', 'labors_panel'],
+  ['Jobs panel', 'jobs_panel'],
+  ['Orders panel', 'orders_panel'],
+  ['Workshop panel', 'workshop_panel'],
+  ['Building panel', 'building_panel'],
+  ['Stocks panel', 'stocks_panel'],
+  ['Depot panel', 'depot_panel'],
+  ['Military panel', 'military_panel'],
+  ['Animals panel', 'animals_panel'],
+  ['Civilizations panel', 'civilizations_panel'],
+  ['Population panel', 'population_panel'],
+  ['Mood panel', 'mood_panel'],
+  ['Log panel', 'log_panel'],
+  ['Look panel', 'look_panel'],
+  ['Help panel', 'help_panel'],
+  ['Debug panel', 'debug_panel'],
+  ['Labor manager', 'labor_manager'],
+  ['Profession templates', 'labor_templates'],
+  ['Trade session', 'trade_session'],
+  ['Game menu', 'game_menu'],
+  ['Confirmation', 'confirm'],
+  ['Main menu', 'main_menu'],
+  ['World generation', 'world_gen'],
   ['World map', 'world_map'],
   ['Embark', 'embark'],
-  ['Trade session', 'trade_session'],
-  ['Labor manager', 'labor_manager'],
-  ['Units panel', 'units_panel'],
-  ['Military panel', 'military_panel'],
+  ['Load', 'load'],
 ];
 
 export function exportKeymap() {

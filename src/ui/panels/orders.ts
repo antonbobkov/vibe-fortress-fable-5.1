@@ -624,8 +624,10 @@ export class OrdersPanel {
     const building = this.buildings(ctx)?.get(id);
     const rows = this.groupRecipes(ctx, building === undefined ? [] : this.reader(ctx)?.recipesFor(building.typeId) ?? []).flatMap((row) => 'recipe' in row ? [row.recipe] : []);
     const state = this.workshopList(id);
-    if (press.key === 'ArrowUp' || press.key === 'ArrowDown') {
-      state.selected = Math.max(0, Math.min(rows.length - 1, state.selected + (press.key === 'ArrowUp' ? -1 : 1)));
+    // The input layer spells the arrows `↑` `↓` (`platform/input.ts`); a test may send the DOM names.
+    const up = press.key === '↑' || press.key === 'ArrowUp';
+    if ((up || press.key === '↓' || press.key === 'ArrowDown') && !press.shift) {
+      state.selected = Math.max(0, Math.min(rows.length - 1, state.selected + (up ? -1 : 1)));
       return true;
     }
     if (press.key === 'Enter') {

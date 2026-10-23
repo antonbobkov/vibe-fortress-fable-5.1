@@ -15,7 +15,7 @@
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import { CanvasSurface, domCanvasFactory, type CanvasFactory, type CanvasLike } from '@platform/canvas';
-import { InputSource, type EventTargetLike, type KeyPress, type PointerAction, type WheelAction } from '@platform/input';
+import { InputSource, swallowedByDefault, type EventTargetLike, type KeyPress, type PointerAction, type WheelAction } from '@platform/input';
 import {
   FrameLoop,
   browserFrameScheduler,
@@ -1189,6 +1189,9 @@ export class Game {
         const text = this.busy;
         surface.text(Math.max(0, Math.floor((this.cols - text.length) / 2)), Math.floor(this.rows / 2), text, this.theme.text);
       } else if (top !== FORTRESS) {
+        // A caption names each key as the live keymap binds it (24 § Settings).
+        const captions = top.captionKeys?.();
+        if (captions !== undefined) surface.keyNames = (text, only) => this.keymap.relabel(text, only ?? captions);
         top.draw(surface);
       }
       this.lastSurface = surface;
@@ -1231,7 +1234,11 @@ export class Game {
     if (this.busy !== null) return false;
     const screen = this.inputScreen();
     if (screen === null) return false;
-    const used = screen.key(key);
+    // A screen written against its default keys reads a rebound key as the default it replaced;
+    // a default key that was moved away does nothing there.
+    const contexts = screen.translatedKeys?.() ?? [];
+    const press = contexts.length === 0 ? key : this.keymap.translate(contexts, key);
+    const used = press === null ? false : screen.key(press);
     this.render();
     return used;
   }
@@ -1523,7 +1530,12 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
       onPointerUp: (p) => game.pointerUp(p),
       onWheel: (w) => game.wheel(w),
     },
-    { toLocal: local },
+    {
+      toLocal: local,
+      // A function key or a Ctrl key the keymap binds now is the game's, not the browser's (a key
+      // rebound to `F6` or `Ctrl+P`, 24 § Settings).
+      swallow: (key) => swallowedByDefault(key) || ((key.ctrl || /^F\d{1,2}$/.test(key.key)) && game.keymap.binds(key)),
+    },
   );
   input.attach();
   // Right click belongs to the game (24 § Input model), not to the browser's context menu.

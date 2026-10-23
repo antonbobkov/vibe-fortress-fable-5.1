@@ -139,7 +139,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     for (const row of listed.slice(1)) expect(row).toMatch(/^ \S+ \S+ ☺ Idle$/);
     expect(rows[34]).toMatch(/^─+$/);
     expect(rows[35]).toBe('[Enter] inspect  [l] labors');
-    expect(rows[36]).toBe('[c] center  [i] idle  [S-w] hurt');
+    // T-424: `c` is the Civilizations letter; the centre accelerator takes Shift.
+    expect(rows[36]).toBe('[S-c] center [i] idle [S-w] hurt');
     expect(rows[37]).toMatch(/^\[Space\] mark {2}\[\*\] all {2}0 marked$/);
     expect(rows[38]).toBe('[S-t] title  [S-n] rename');
     expect(rows[39]).toMatch(/^\[S-m\] squad {2}sleep \d+h/);

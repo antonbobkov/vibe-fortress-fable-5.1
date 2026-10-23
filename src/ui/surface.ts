@@ -17,6 +17,7 @@ import type { Registry } from '@core/registry';
 import { glyphChars } from '@render/atlas';
 import type { CellBuffer, Rect } from '@render/cellbuffer';
 import type { Palette, Rgb } from '@render/palette';
+import type { KeyContext } from './keymap';
 
 /** The UI colors of `glyphs-and-colors.md` § State and UI colors, resolved once. */
 export interface Theme {
@@ -139,6 +140,12 @@ export class Surface {
   readonly hits: HitRegion[] = [];
   readonly scrollbars: ScrollRegion[] = [];
   readonly tooltips: TooltipRegion[] = [];
+  /**
+   * Names the keys of a caption as the live keymap binds them (24 § Settings: a rebinding shows
+   * wherever a key is named). The screen that draws sets it with the contexts its keys act in;
+   * `contexts` replaces those for one caption. `null` draws captions as they are written.
+   */
+  keyNames: ((text: string, contexts?: readonly KeyContext[]) => string) | null = null;
 
   constructor(
     readonly cells: CellBuffer,

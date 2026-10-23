@@ -10,6 +10,7 @@
  */
 
 import type { KeyPress, Modifiers } from '@platform/input';
+import type { KeyContext } from './keymap';
 import type { Surface } from './surface';
 
 export type ScreenId =
@@ -50,6 +51,13 @@ export interface Screen {
   draw(surface: Surface): void;
   /** Returns whether the key was consumed. */
   key(press: KeyPress): boolean;
+  /**
+   * The key contexts whose keys this screen's code reads as their defaults: the app passes each
+   * press through `Keymap.translate` with them before {@link key} (`ui-keymap-and-screens.md` § Keymap).
+   */
+  translatedKeys?(): readonly KeyContext[];
+  /** The contexts in which its captions' `[k]` keys are named as they are bound now; absent: drawn as written. */
+  captionKeys?(): readonly KeyContext[];
   pointerDown?(p: CellPointer): void;
   pointerMove?(p: CellPointer): void;
   pointerUp?(p: CellPointer): void;

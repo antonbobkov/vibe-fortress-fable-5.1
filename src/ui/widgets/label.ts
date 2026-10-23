@@ -5,6 +5,7 @@
  */
 
 import type { Rgb } from '@render/palette';
+import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 
 export interface LabelOptions {
@@ -13,10 +14,18 @@ export interface LabelOptions {
   readonly width?: number;
   /** Color the `[k]` accelerators; on by default. */
   readonly keys?: boolean;
+  /**
+   * Whether the `[k]` keys are named as the live keymap binds them (the surface's
+   * {@link Surface.keyNames}): `false` never (a `[x]` button), `true` or the contexts to read them
+   * in always, and by default whenever the keys are coloured.
+   */
+  readonly relabel?: boolean | readonly KeyContext[];
 }
 
 /** Draw a label; returns the cells written. */
 export function label(s: Surface, col: number, row: number, text: string, options: LabelOptions = {}): number {
+  const relabel = options.relabel;
+  if (relabel !== false && s.keyNames !== null && (options.keys !== false || relabel !== undefined)) text = s.keyNames(text, relabel === true || relabel === undefined ? undefined : relabel);
   const fg = options.fg ?? s.theme.text;
   const bg = options.bg ?? s.theme.black;
   const width = options.width ?? Infinity;

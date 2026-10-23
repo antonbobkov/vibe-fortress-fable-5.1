@@ -254,7 +254,7 @@ describe('T-271 the build help rows follow the state', () => {
   });
 });
 
-describe('T-271 a saved custom keymap holds indexes and keys, not the wording of a row', () => {
+describe('T-271 a saved custom keymap holds binding names and keys, not the wording of a row', () => {
   it('a rebound pan key survives into a keymap built from the reworded rows', () => {
     const rows = registry.derived<readonly KeymapRow[]>('keymap');
     const first = Keymap.fromRows(rows);
@@ -263,7 +263,7 @@ describe('T-271 a saved custom keymap holds indexes and keys, not the wording of
     expect(first.rebind(index, { key: 'h', ctrl: false, shift: false })).toBeNull();
     const saved = JSON.parse(JSON.stringify(first.overrides())) as KeyOverride[];
     expect(JSON.stringify(saved)).not.toContain('pan by');
-    expect(saved.every((o) => Object.keys(o).sort().join() === 'index,spec')).toBe(true);
+    expect(saved.every((o) => Object.keys(o).sort().join() === 'binding,spec')).toBe(true);
     const second = Keymap.fromRows(rows);
     second.loadOverrides(saved);
     expect(second.resolve('map', press('h'))).toMatchObject({ id: 'pan', arg: '←' });

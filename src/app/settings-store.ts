@@ -5,7 +5,11 @@ import { readSettings, type UserSettings } from '@ui/settings';
 
 export interface StoredSettings {
   readonly preferences: UserSettings;
-  readonly keymapOverrides: readonly KeyOverride[];
+  /**
+   * The rebindings: `{ binding, spec }` entries. An entry written by an earlier version is
+   * `{ index, spec }`; it is kept as it was read, and `Keymap.loadOverrides` reads both.
+   */
+  readonly keymapOverrides: readonly unknown[];
 }
 
 export class SettingsStore {
@@ -21,6 +25,9 @@ export class SettingsStore {
   }
 
   save(preferences: UserSettings, keymapOverrides: readonly KeyOverride[]): Promise<void> {
-    return this.storage.put('settings', 'settings', { preferences: { ...preferences }, keymapOverrides: keymapOverrides.map((entry) => ({ index: entry.index, spec: { ...entry.spec } })) } satisfies StoredSettings);
+    return this.storage.put('settings', 'settings', {
+      preferences: { ...preferences },
+      keymapOverrides: keymapOverrides.map((entry) => ({ binding: entry.binding, spec: { ...entry.spec } })),
+    } satisfies StoredSettings);
   }
 }

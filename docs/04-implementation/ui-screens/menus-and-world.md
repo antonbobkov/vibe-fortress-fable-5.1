@@ -91,7 +91,26 @@ Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings
 
 Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
 
-Keybindings sub-screen: a table of context, action, key; `Enter` on a row then press a key; conflicts are shown in red with the conflicting action's Help wording and the player-facing context heading; `Esc` cancels the rebind. Clicking a binding row also starts capture. Failed rebinding uses the shared registry messages `ui.settings.binding_conflict` and `ui.settings.binding_modifiers` and leaves every binding unchanged.
+Keybindings sub-screen:
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│ Settings · Keybindings                                               │
+│ Action                                        Key                    │
+│ Global                                                               │
+│   cancel tool → close panel → game menu       Esc  fixed             │
+│ ▶ pause / resume                              F8  (default Space)    │
+│   speed up (1× → 2× → 4×)                     +                      │
+│   …                                                                  │
+│ Map                                                                  │
+│   pan or move the map cursor (Shift: 10)      ←                      │
+│   …                                                                  │
+│ [Enter] rebind  [Del] default  [d] all defaults  [Esc] Back          │
+│ Conflicts with Units panel: wounded dwarves first / list order       │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+Every binding is listed under its context's heading (24 § Settings gives the order and the rules); the cursor moves over the bindings and skips the headings, `PageUp` `PageDown` by ten. `Enter` on a row, or a click on it, then a key rebinds it; `Esc` cancels the capture. `Delete` or `Backspace` gives the row its default back ("pause / resume: back to Space."), and `[d]` every binding ("Every key is back to its default."). A refusal is shown on the last line in red, and a conflict also draws the binding that has the key in red. Failed rebinding uses the shared registry messages `ui.settings.binding_conflict`, `ui.settings.binding_modifiers` and `ui.settings.binding_fixed` and leaves every binding unchanged; a reset says `ui.settings.binding_reset` or `ui.settings.bindings_reset`. The sub-screen's own keys are fixed (`03-content/ui-keymap-and-screens.md` § Fixed keys).
 
 ## Load
 
