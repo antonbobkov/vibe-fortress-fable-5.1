@@ -29,7 +29,7 @@
 │                   scheduler · events · commands · rng · calendar │
 │                   spatial index · pathfinding · serialization    │
 ├────────────────────────────────────────────────────────────────┤
-│ L0  Platform      canvas · keyboard & mouse · storage ·          │
+│ L0  Platform      canvas · keyboard & mouse · storage · audio ·  │
 │                   real-time clock · compression · worker bridge  │
 └────────────────────────────────────────────────────────────────┘
 ```
@@ -44,7 +44,7 @@ This is the folder layout the implementation follows. Each folder is a package w
 
 ```
 src/
-  platform/    canvas.ts  input.ts  storage.ts  realtime.ts  compress.ts  worker-bridge.ts
+  platform/    canvas.ts  input.ts  storage.ts  realtime.ts  compress.ts  audio.ts  worker-bridge.ts
   core/        world.ts  map3d.ts  entities.ts  components.ts  registry.ts  scheduler.ts
                events.ts  commands.ts  rng.ts  calendar.ts  spatial.ts  pathfinding.ts
                connectivity.ts  serialize.ts  ids.ts  fixed.ts (fixed-point math)
@@ -56,7 +56,7 @@ src/
                health/  threats/  defense/  trade/  immigration/
                (each: index.ts  state.ts  reader.ts  events.ts  commands.ts  rules/  tick.ts)
   render/      atlas.ts  palette.ts  compositor.ts  renderer.ts  overlays/
-  ui/          screens/  panels/  widgets/  keymap.ts  mouse.ts  viewmodel/  strings/
+  ui/          screens/  panels/  widgets/  keymap.ts  mouse.ts  music.ts  viewmodel/  strings/
   app/         main.ts  game.ts  save-manager.ts  worldgen-flow.ts  headless.ts  sim-host.ts
 ```
 

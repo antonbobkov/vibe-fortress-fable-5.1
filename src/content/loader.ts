@@ -74,6 +74,7 @@ import gemsJson from './gems.json';
 import geologyTemplatesJson from './geologyTemplates.json';
 import glyphsJson from './glyphs.json';
 import hintsJson from './hints.json';
+import instrumentsJson from './instruments.json';
 import itemsJson from './items.json';
 import jobTypesJson from './jobTypes.json';
 import keymapJson from './keymap.json';
@@ -97,6 +98,7 @@ import roomTiersJson from './roomTiers.json';
 import skillsJson from './skills.json';
 import stringsJson from './strings.json';
 import thoughtsJson from './thoughts.json';
+import tunesJson from './tunes.json';
 import threatSchedulesJson from './threatSchedules.json';
 import wealthMultipliersJson from './wealthMultipliers.json';
 import weaponsJson from './weapons.json';
@@ -132,6 +134,7 @@ export function rawTables(): Record<string, unknown> {
     geologyTemplates: geologyTemplatesJson,
     glyphs: glyphsJson,
     hints: hintsJson,
+    instruments: instrumentsJson,
     items: itemsJson,
     jobTypes: jobTypesJson,
     keymap: keymapJson,
@@ -155,6 +158,7 @@ export function rawTables(): Record<string, unknown> {
     skills: skillsJson,
     strings: stringsJson,
     thoughts: thoughtsJson,
+    tunes: tunesJson,
     threatSchedules: threatSchedulesJson,
     wealthMultipliers: wealthMultipliersJson,
     weapons: weaponsJson,

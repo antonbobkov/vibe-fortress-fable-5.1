@@ -130,7 +130,7 @@ describe('T-332 screens: what each outside screen says', () => {
   it('Settings lists each option with its current value, explains the Zoom option, and offers reset and back', () => {
     const r = rows('settings');
     expect(r[1]).toBe('Settings');
-    expect(r.slice(3, 13)).toEqual([
+    expect(r.slice(3, 15)).toEqual([
       '► Auto-pause on danger        [on]',
       'Auto-pause on alert         [off]',
       'Hints                       [on]',
@@ -141,9 +141,11 @@ describe('T-332 screens: what each outside screen says', () => {
       'Snapshots kept              [4]',
       'Combat log                  [hits only]',
       'Keybindings ►',
+      'Music volume                [50%]',
+      'Music                       [on]',
     ]);
-    expect(r[13]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
-    expect(r[15]).toBe('[d] Reset to defaults    [Esc] Back');
+    expect(r[15]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
+    expect(r[17]).toBe('[d] Reset to defaults    [Esc] Back');
   });
 
   it('the keybindings list gives the action and key of every binding under its context heading, in the order of the keymap, and how to rebind and reset', () => {
@@ -156,9 +158,10 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[5]).toMatch(/^pause \/ resume +Space$/);
     expect(r[9]).toMatch(/^quick save +F5$/);
     expect(r[16]).toMatch(/^calendar panel +\[S-y\]$/);
-    expect(r[17]).toBe('Map');
-    expect(r[18]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
-    for (const row of [...r.slice(5, 17), ...r.slice(18, 22)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
+    expect(r[17]).toMatch(/^music on \/ off +Ctrl\+M$/);
+    expect(r[18]).toBe('Map');
+    expect(r[19]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
+    for (const row of [...r.slice(5, 18), ...r.slice(19, 22)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
     expect(r[23]).toBe('[Enter] rebind  [Del] default  [d] all defaults  [Esc] Back');
   });
 

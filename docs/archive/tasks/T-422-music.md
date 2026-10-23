@@ -1,10 +1,12 @@
 # T-422 — Music
 
+**Closed:** 2026-10-23, in c482ee4.
+
 **Source:** the owner, 2026-10-22 · **Size:** L · **Needs:** T-113 · **Status:** open
 
 ## Why
 
-The owner asked for music. Audio is in scope as a presentation-layer listener on the event bus ([scope.md](../00-vision/scope.md), extensions), and the tech stack ships no audio files ([tech-stack.md](../01-architecture/tech-stack.md)).
+The owner asked for music. Audio is in scope as a presentation-layer listener on the event bus ([scope.md](../../00-vision/scope.md), extensions), and the tech stack ships no audio files ([tech-stack.md](../../01-architecture/tech-stack.md)).
 
 ## Decisions
 

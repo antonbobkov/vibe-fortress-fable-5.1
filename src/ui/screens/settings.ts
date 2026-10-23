@@ -14,7 +14,7 @@ import type { Surface } from '../surface';
 import type { Strings } from '../strings';
 import { bindingConflict, bindingReset, browserBinding, fixedBinding, invalidBindingModifiers } from '../messages';
 import { label, type ListState } from '../widgets';
-import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_ZOOM_OPTIONS } from '../constants';
+import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from '../constants';
 
 export interface SettingsHost {
   readonly keymap: Keymap;
@@ -32,7 +32,14 @@ export interface SettingsHost {
 const SETTING_NAMES = [
   'Auto-pause on danger', 'Auto-pause on alert', 'Hints', 'Colorblind palette', 'Zoom',
   'Edge scrolling', 'Autosave each season', 'Snapshots kept', 'Combat log', 'Keybindings ▸',
+  'Music volume', 'Music',
 ] as const;
+
+/** The row of {@link SETTING_NAMES} that opens the keybinding editor, and has no value. */
+const KEYBINDINGS_ROW = 9;
+
+/** The music volumes, 0 to 100. */
+const VOLUME_OPTIONS: readonly number[] = Array.from({ length: 100 / SETTINGS_VOLUME_STEP + 1 }, (_, k) => k * SETTINGS_VOLUME_STEP);
 
 /** Keys that only modify another: a capture waits for the key they go with. */
 const MODIFIER_KEYS: ReadonlySet<string> = new Set(['Shift', 'Control', 'Alt', 'AltGraph', 'Meta', 'OS', 'CapsLock', 'NumLock', 'ScrollLock', 'Fn', 'Dead', 'Process', 'Unidentified']);
@@ -73,6 +80,8 @@ export class SettingsScreen implements Screen {
       case 6: return settings.autosave ? 'on' : 'off';
       case 7: return String(settings.snapshotsKept);
       case 8: return settings.combatLog;
+      case 10: return `${settings.musicVolume}%`;
+      case 11: return settings.music ? 'on' : 'off';
       default: return '';
     }
   }
@@ -91,6 +100,8 @@ export class SettingsScreen implements Screen {
       case 7: this.host.change({ snapshotsKept: cycle(SETTINGS_SNAPSHOT_OPTIONS, current.snapshotsKept) }); break;
       case 8: this.host.change({ combatLog: cycle(SETTINGS_COMBAT_LOG_OPTIONS, current.combatLog) }); break;
       case 9: this.openKeybindings(); break;
+      case 10: this.host.change({ musicVolume: cycle(VOLUME_OPTIONS, current.musicVolume) }); break;
+      case 11: this.host.change({ music: !current.music }); break;
       default: break;
     }
   }
@@ -241,18 +252,19 @@ export class SettingsScreen implements Screen {
         const row = 3 + index;
         const prefix = index === this.selected ? '▶' : ' ';
         label(surface, 2, row, `${prefix} ${SETTING_NAMES[index]}`, { fg: index === this.selected ? t.key : t.text, width: 29 });
-        if (index < 9) label(surface, 32, row, `[${this.value(index)}]`, { fg: t.value, width: 18 });
+        if (index !== KEYBINDINGS_ROW) label(surface, 32, row, `[${this.value(index)}]`, { fg: t.value, width: 18 });
         surface.hit({ col: 2, row, cols: 48, rows: 1 }, () => { this.selected = index; this.change(index); });
       }
-      label(surface, 2, 13, this.host.strings.get('ui.settings.zoom_hint'), { fg: t.dim });
+      const below = 3 + SETTING_NAMES.length;
+      label(surface, 2, below, this.host.strings.get('ui.settings.zoom_hint'), { fg: t.dim });
       const view = this.host.zoomView?.();
       if (view !== undefined && view.shown < view.requested) {
         const zoom = this.host.settings().zoom === 'auto' ? 'Auto' : String(view.requested);
-        label(surface, 2, 14, this.host.strings.get('ui.settings.zoom_shown', { zoom, shown: view.shown }), { fg: t.alert });
+        label(surface, 2, below + 1, this.host.strings.get('ui.settings.zoom_shown', { zoom, shown: view.shown }), { fg: t.alert });
       }
-      label(surface, 2, 15, '[d] Reset to defaults    [Esc] Back', { fg: t.dim });
-      surface.hit({ col: 2, row: 15, cols: 21, rows: 1 }, () => this.host.resetDefaults());
-      surface.hit({ col: 28, row: 15, cols: 10, rows: 1 }, () => this.host.back());
+      label(surface, 2, below + 2, '[d] Reset to defaults    [Esc] Back', { fg: t.dim });
+      surface.hit({ col: 2, row: below + 2, cols: 21, rows: 1 }, () => this.host.resetDefaults());
+      surface.hit({ col: 28, row: below + 2, cols: 10, rows: 1 }, () => this.host.back());
       return;
     }
     this.drawKeybindings(surface);

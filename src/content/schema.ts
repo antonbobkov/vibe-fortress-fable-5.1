@@ -237,6 +237,97 @@ const materialConstraint = oneOf(
   ref('materials', { allowWords: ['flux', 'fuel'] }),
 );
 
+// ---------- music scores (03-content/music.md § Scores) ----------
+
+/** One note of a score: when it starts and how long it lasts, in steps, and its pitches as MIDI numbers (A4 = 69). */
+export interface ScoreNote {
+  readonly start: number;
+  readonly steps: number;
+  readonly pitches: readonly number[];
+}
+
+export interface Score {
+  readonly notes: readonly ScoreNote[];
+  /** The length of the score in steps, rests included. */
+  readonly steps: number;
+}
+
+/** A row of `instruments` (music.md § Instruments). */
+export interface InstrumentDef {
+  readonly id: string;
+  readonly name: string;
+  readonly wave: 'sine' | 'triangle' | 'sawtooth';
+  readonly attackMs: number;
+  readonly decayMs: number;
+  readonly sustainPercent: number;
+  readonly releaseMs: number;
+  readonly levelPercent: number;
+  readonly filterHz: number;
+  readonly detuneCents: number;
+  readonly reverbPercent: number;
+}
+
+/** A row of `tunes` (music.md § Tunes) with its score, one entry per voice. */
+export interface TuneDef {
+  readonly id: string;
+  readonly name: string;
+  readonly role: 'menu' | 'fortress' | 'tense';
+  /** Steps per minute. */
+  readonly tempo: number;
+  readonly mode: string;
+  readonly source: string;
+  readonly voices: readonly { readonly instrument: string; readonly notes: string }[];
+}
+
+const SEMITONES: Readonly<Record<string, number>> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+const PITCH = /^([A-G])(#|b)?([0-8])$/;
+const SCORE_STEPS_MAX = 64;
+
+/**
+ * Parse a score: tokens separated by spaces, each a pitch (`D4`, `F#3`, `Bb2`), pitches joined by
+ * `+`, or the rest `.`, with an optional `*n` of 1 to 64 steps. Returns the notes, or what is wrong.
+ */
+export function parseScore(text: string): Score | string {
+  const notes: ScoreNote[] = [];
+  let step = 0;
+  const tokens = text.trim().split(/\s+/).filter((token) => token.length > 0);
+  if (tokens.length === 0) return 'an empty score';
+  for (const token of tokens) {
+    const [body, count, extra] = token.split('*');
+    if (extra !== undefined || body === undefined || body.length === 0) return `"${token}" is not a note`;
+    const steps = count === undefined ? 1 : /^\d+$/.test(count) ? Number(count) : NaN;
+    if (!(steps >= 1 && steps <= SCORE_STEPS_MAX)) return `"${token}" lasts 1 to ${SCORE_STEPS_MAX} steps`;
+    if (body !== '.') {
+      const pitches: number[] = [];
+      for (const part of body.split('+')) {
+        const m = PITCH.exec(part);
+        if (m === null) return `"${part}" is not a pitch`;
+        const accidental = m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0;
+        pitches.push(12 * (Number(m[3]) + 1) + (SEMITONES[m[1] as string] as number) + accidental);
+      }
+      notes.push({ start: step, steps, pitches });
+    }
+    step += steps;
+  }
+  return { notes, steps: step };
+}
+
+const score: V = (v, c) => {
+  if (typeof v !== 'string') {
+    fail(c, `expected a score, got ${describe(v)}`);
+    return;
+  }
+  const parsed = parseScore(v);
+  if (typeof parsed === 'string') fail(c, parsed);
+};
+
+/** A whole number from `min` to `max`. */
+function intIn(min: number, max: number): V {
+  return (v, c) => {
+    if (typeof v !== 'number' || !Number.isInteger(v) || v < min || v > max) fail(c, `expected an integer from ${min} to ${max}, got ${describe(v)}`);
+  };
+}
+
 // ---------- table schemas ----------
 
 export interface TableSchema {
@@ -799,6 +890,30 @@ export const SCHEMAS: Record<string, TableSchema> = {
 
   keymap: list({ context: nonEmptyStr, key: nonEmptyStr, action: nonEmptyStr }),
 
+  instruments: rows({
+    id: nonEmptyStr,
+    name: nonEmptyStr,
+    wave: enumOf(['sine', 'triangle', 'sawtooth']),
+    attackMs: intIn(0, 10000),
+    decayMs: intIn(0, 10000),
+    sustainPercent: intIn(0, 100),
+    releaseMs: intIn(0, 10000),
+    levelPercent: intIn(1, 100),
+    filterHz: intIn(100, 20000),
+    detuneCents: intIn(0, 100),
+    reverbPercent: intIn(0, 100),
+  }),
+
+  tunes: rows({
+    id: nonEmptyStr,
+    name: nonEmptyStr,
+    role: enumOf(['menu', 'fortress', 'tense']),
+    tempo: intIn(20, 400),
+    mode: str,
+    source: nonEmptyStr,
+    voices: arr(obj({ instrument: ref('instruments'), notes: score }), 1),
+  }),
+
   strings: { shape: 'map', row: record(str) },
 };
 
@@ -947,6 +1062,28 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
         }
       }
     }
+  }
+
+  // music.md: no instrument sounds harsh, every voice of a tune has the same length, and every
+  // role has a tune.
+  for (const row of (data['instruments'] ?? []) as { id: string; wave: string; filterHz: number }[]) {
+    if (row.wave === 'sawtooth' && row.filterHz > 2000) {
+      issues.push({ table: 'instruments', row: row.id, field: 'filterHz', message: 'a sawtooth instrument is filtered at 2000 Hz or below' });
+    }
+  }
+  const roles = new Set<string>();
+  for (const row of (data['tunes'] ?? []) as { id: string; role: string; voices: { notes: string }[] }[]) {
+    roles.add(row.role);
+    const lengths = new Set(row.voices.map((voice) => {
+      const parsed = parseScore(voice.notes);
+      return typeof parsed === 'string' ? -1 : parsed.steps;
+    }));
+    if (lengths.size > 1) {
+      issues.push({ table: 'tunes', row: row.id, field: 'voices', message: `the voices differ in length (${Array.from(lengths).join(', ')} steps)` });
+    }
+  }
+  for (const role of ['menu', 'fortress', 'tense']) {
+    if (!roles.has(role)) issues.push({ table: 'tunes', row: '-', field: 'role', message: `no ${role} tune` });
   }
 
   return issues;

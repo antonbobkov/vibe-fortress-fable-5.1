@@ -147,6 +147,10 @@ interface HintDef { id: string; trigger: string; text: string }
 interface MilestoneDef { id: string; trigger: string; text: string }
 interface ConfirmationDef { id: string; text: string; default: 'yes'|'no' }
 interface KeyBindingDef { context: string; key: string; action: string }
+interface InstrumentDef { id: string; name: string; wave: 'sine'|'triangle'|'sawtooth'; attackMs: number; decayMs: number; sustainPercent: number;
+  releaseMs: number; levelPercent: number; filterHz: number; detuneCents: number; reverbPercent: number }
+interface TuneDef { id: string; name: string; role: 'menu'|'fortress'|'tense'; tempo: number; mode: string; source: string;
+  voices: { instrument: Id<InstrumentDef>; notes: string }[] }   // tempo in steps per minute; notes in the score notation of music.md
 ```
 
 ## Export conventions
@@ -164,4 +168,5 @@ Input `match` accepts an item id or item tag, with alternatives joined by `|`; `
 - `ItemTypeDef.category` has exactly one, two or three segments; every stockpile preset references existing nodes.
 - `MetalDef.alloy.inputs` reference existing bar materials or `flux`/`fuel` pseudo-materials.
 - Every `Id<ColorDef>` used by any row exists.
+- A `sawtooth` instrument has `filterHz` ≤ 2000; every voice of a tune has the same length in steps; every score parses; each of the roles `menu`, `fortress` and `tense` has a tune.
 - Every Deep threshold has a non-empty emergence list; only integer levels are threshold rows. The later wave formula is not a threshold row.

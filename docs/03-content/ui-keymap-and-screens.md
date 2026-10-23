@@ -14,7 +14,7 @@
 | `trade_session` | Modal exchange | fortress (depot panel › Trade) | fortress |
 | `labor_manager` | Every dwarf's labors, the labor priorities, profession templates | fortress (labors panel › `Enter`; units panel with marked dwarves) | fortress |
 | `legend` | A finished fortress's record | fortress end, main_menu › Legends | main_menu |
-| `settings` | Keys, palette, auto-pause, hints, autosave | main_menu, fortress menu | back |
+| `settings` | Keys, palette, auto-pause, hints, autosave, music | main_menu, fortress menu | back |
 | `load` | Saves and autosaves | main_menu, fortress menu | fortress |
 | `confirm` | Yes/No dialog | anywhere | back |
 | `text_input` | A single text field | rename, save name | back |
@@ -73,6 +73,9 @@ Key notation: `Ctrl+S` and `Shift+Tab` are a key with modifiers; `arrows` are th
 | `Tab` | toggle sidebar |
 | `Ctrl+Z` | undo last designation batch |
 | `Shift+Y` | calendar panel |
+| `Ctrl+M` | music on / off |
+
+The music key acts on every screen, not only the fortress: a screen that does not use the key passes it on, and a text field that is typing in or a key being captured in Settings › Keybindings keeps it.
 
 ### Map
 
@@ -683,6 +686,9 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | Snapshots kept | 2 / 4 / 8 | 4 |
 | Combat log verbosity | all / hits only / off | hits only |
 | Keybindings | table | defaults above |
+| Music volume | 0 to 100 in steps of 10 | 50 |
+| Music | on / off (also the `Ctrl+M` key) | on |
+| Sound volume | 0 to 100 in steps of 10; reserved for sound effects, saved and not shown | 50 |
 
 ## Strings
 

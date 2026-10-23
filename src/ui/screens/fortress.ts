@@ -126,6 +126,8 @@ export interface FortressHost {
   /** `F5` quick save and `F9` quick load (24 § Input model), when the app offers saving (T-M2-11). */
   quickSave?(): void;
   quickLoad?(): void;
+  /** The mute key: music on or off (24 § Music). */
+  toggleMusic?(): void;
   gameMenu?(): void;
   /** `Ctrl+S`: the save menu (the game menu with Save chosen). */
   saveMenu?(): void;
@@ -1559,6 +1561,9 @@ export class FortressScreen implements Screen {
           return true;
         case 'quick_load':
           this.host.quickLoad?.();
+          return true;
+        case 'music':
+          this.host.toggleMusic?.();
           return true;
         case 'save_menu':
           // 24 § Input model: "`Ctrl+S` save menu" (Q10).

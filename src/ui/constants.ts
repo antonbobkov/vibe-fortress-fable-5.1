@@ -64,7 +64,33 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   autosave: true,
   snapshotsKept: 4,
   combatLog: 'hits only',
+  music: true,
+  musicVolume: 50,
+  soundVolume: 50,
 });
+
+/** The music and sound volumes run from 0 to 100 in steps of this many (ui-keymap-and-screens.md § Settings). */
+export const SETTINGS_VOLUME_STEP = 10;
+
+/** 24 § Music: the silence between two fortress pieces is drawn between these, in seconds. */
+export const MUSIC_SILENCE_MIN_S = 60;
+export const MUSIC_SILENCE_MAX_S = 180;
+/** 24 § Music: the pause before the main-menu theme plays again. */
+export const MUSIC_MENU_GAP_S = 8;
+/** 24 § Music: the pause before the tense piece plays again while the danger stands. */
+export const MUSIC_TENSE_GAP_S = 3;
+/** 24 § Music: the pause after a change of mood (or music turned on) before the next piece. */
+export const MUSIC_CHANGE_GAP_S = 3;
+/** 24 § Music: how long a stopped piece takes to fade out. */
+export const MUSIC_FADE_S = 2.5;
+/** 24 § Music: how far ahead of the audio clock notes are handed to the synthesizer. */
+export const MUSIC_LOOKAHEAD_S = 1;
+/** 24 § Music: the time a piece's last notes take to die away, added to its length. */
+export const MUSIC_TAIL_S = 2;
+/** 24 § Music: the loudest the music plays, at volume 100. */
+export const MUSIC_MASTER_GAIN = 0.6;
+/** 24 § Music: the length of the cave reverb, in seconds. */
+export const MUSIC_REVERB_S = 2.4;
 
 /** `command-catalog.md` `AddWorkOrder`: "count 1–999 or maintain threshold 1–999" (the picker's bounds, D-U5). */
 export const ORDER_COUNT_MIN = 1;
