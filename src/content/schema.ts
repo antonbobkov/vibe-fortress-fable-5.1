@@ -271,7 +271,7 @@ export interface InstrumentDef {
 export interface TuneDef {
   readonly id: string;
   readonly name: string;
-  readonly role: 'menu' | 'fortress' | 'tense';
+  readonly role: 'intro' | 'menu' | 'fortress' | 'tense';
   /** Steps per minute. */
   readonly tempo: number;
   readonly mode: string;
@@ -951,7 +951,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
   tunes: rows({
     id: nonEmptyStr,
     name: nonEmptyStr,
-    role: enumOf(['menu', 'fortress', 'tense']),
+    role: enumOf(['intro', 'menu', 'fortress', 'tense']),
     tempo: intIn(20, 400),
     mode: str,
     source: nonEmptyStr,
@@ -1152,7 +1152,7 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
       issues.push({ table: 'tunes', row: row.id, field: 'voices', message: `the voices differ in length (${Array.from(lengths).join(', ')} steps)` });
     }
   }
-  for (const role of ['menu', 'fortress', 'tense']) {
+  for (const role of ['intro', 'menu', 'fortress', 'tense']) {
     if (!roles.has(role)) issues.push({ table: 'tunes', row: '-', field: 'role', message: `no ${role} tune` });
   }
 

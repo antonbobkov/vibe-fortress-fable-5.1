@@ -149,7 +149,7 @@ interface ConfirmationDef { id: string; text: string; default: 'yes'|'no' }
 interface KeyBindingDef { context: string; key: string; action: string }
 interface InstrumentDef { id: string; name: string; wave: 'sine'|'triangle'|'sawtooth'; attackMs: number; decayMs: number; sustainPercent: number;
   releaseMs: number; levelPercent: number; filterHz: number; detuneCents: number; reverbPercent: number }
-interface TuneDef { id: string; name: string; role: 'menu'|'fortress'|'tense'; tempo: number; mode: string; source: string;
+interface TuneDef { id: string; name: string; role: 'intro'|'menu'|'fortress'|'tense'; tempo: number; mode: string; source: string;
   voices: { instrument: Id<InstrumentDef>; notes: string }[] }   // tempo in steps per minute; notes in the score notation of music.md
 interface IntroDef {                                          // one object, intro.md; times in ms from a scene's start, cells on the stage
   scenes: { id: string; ms: number; backdrop: string }[];     // backdrop: an art id
@@ -175,6 +175,6 @@ Input `match` accepts an item id or item tag, with alternatives joined by `|`; `
 - `ItemTypeDef.category` has exactly one, two or three segments; every stockpile preset references existing nodes.
 - `MetalDef.alloy.inputs` reference existing bar materials or `flux`/`fuel` pseudo-materials.
 - Every `Id<ColorDef>` used by any row exists.
-- A `sawtooth` instrument has `filterHz` ≤ 2000; every voice of a tune has the same length in steps; every score parses; each of the roles `menu`, `fortress` and `tense` has a tune.
+- A `sawtooth` instrument has `filterHz` ≤ 2000; every voice of a tune has the same length in steps; every score parses; each of the roles `intro`, `menu`, `fortress` and `tense` has a tune.
 - Every intro scene's backdrop and every `rise` sprite name intro art; every cue and caption names an intro scene; a cue's `until` and `arrive` come after its `from`, and an `arrive` has a `to`; every caption has its `intro.<id>` string.
 - Every Deep threshold has a non-empty emergence list; only integer levels are threshold rows. The later wave formula is not a threshold row.

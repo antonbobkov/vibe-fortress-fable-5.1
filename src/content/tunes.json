@@ -1,5 +1,39 @@
 [
   {
+    "id": "out_of_the_hold",
+    "name": "Out of the Hold",
+    "role": "intro",
+    "tempo": 168,
+    "mode": "G major",
+    "source": "original",
+    "voices": [
+      {
+        "instrument": "flute",
+        "notes": ".*8 B4*2 D5*2 G5*3 F#5 E5*2 D5 C5 A4*2 D5*2 G5*2 F#5 G5 B5*2 A5*2 E5*2 G5*2 E5*2 C5*2 A4 B4 C#5 D5 E5 F#5 G5 A5 D5*6 .*2 B4 D5 G5 B5 A5*2 F#5*2 .*8 .*4 A4*2 B4*2 .*8 .*4 D5 F#5 A5 B5 D5*2 G5*2 B5*4 E5*2 G5*2 C6*2 B5 A5 D5*2 B4*2 G5*4"
+      },
+      {
+        "instrument": "harp",
+        "notes": "G3 D4 B3 D4 G3 D4 B3 D4 E3 B3 G3 B3 E3 B3 G3 B3 C3 G3 E3 G3 D3 A3 F#3 A3 . B3+D4 . B3+D4 . B3+D4 . B3+D4 . C4+E4 . C4+E4 . C4+E4 . C4+E4 . F#3+A3 .*6 . G3+B3 .*3 G3+B3 .*2 . D4+F#4 . D4+A4 . D4+F#4 . D4+A4 E3*2 B3*2 G3*2 B3*2 A3 E4 C4 E4 D3 A3 F#3 A3 D3+A3 .*3 D3+A3 .*3 D3 A3 D4 F#4 A4 D5 F#5 A5 G3 D4 G4 B4 D5 B4 G4 D4 C4 G4 E5 G4 D4 A4 F#5 A4 G3 D4 G4 B4 D5*4"
+      },
+      {
+        "instrument": "bass",
+        "notes": ".*8 E2*4 B2*4 C2*4 D2*4 G2*2 D3*2 G2*2 D3*2 C3*2 G2*2 C3*2 G2*2 D2*2 A2*2 .*4 G2*4 .*4 D2*2 A2*2 D3*2 A2*2 E2*8 A2*4 D2*4 D2*2 .*2 D2*2 .*2 D2*2 A2*2 D3*2 A2*2 G2*4 D3*4 C3*4 D3*4 G2*8"
+      },
+      {
+        "instrument": "drum",
+        "notes": ".*24 D2 . D2 . D2 . D2 . D2 . D2 . D2 . D2 . D2 . D2 .*5 D2 .*3 D2 .*3 D2 . D2 . D2 . D2 D2 .*16 E2 .*3 E2 .*3 E2 . E2 . E2 E2 E2 . G2 .*7 .*8 .*8"
+      },
+      {
+        "instrument": "bell",
+        "notes": ".*24 .*16 A6 .*23 .*16 D6 .*3 D6 .*3 .*5 F#6 A6 D7 G4+D5+G5*8 C6 .*3 D6 .*3 G6*8"
+      },
+      {
+        "instrument": "pad",
+        "notes": ".*24 .*40 .*32 G2+D3+G3+B3*8 C3+G3+C4+E4*4 D3+A3+D4+F#4*4 G2+D3+G3+B3*8"
+      }
+    ]
+  },
+  {
     "id": "hall_beneath",
     "name": "The Hall Beneath",
     "role": "menu",
