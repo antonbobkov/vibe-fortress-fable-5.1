@@ -21,3 +21,7 @@ The last full gate was the v1.0.0 release gate ([`../../reports/gates/M8-gate.md
 
 - `reports/gates/<date>-gate.md` exists and every step in it passed.
 - Any failure found is fixed or has a backlog row.
+
+## As done
+
+The gate of 2026-10-22c on `d491732` passed every step ([report](../../reports/gates/2026-10-22c-gate.md)): the six static checks, 369 test files (2,952 tests), 27 e2e tests, the build, and the performance tier (13 files, 72 tests, 4 h 17 min, `three-years-p0-2` printed under T-421). System 10 is over its allocation but within twice it (0.62 ms against 0.50 on the furniture fixture). The earlier reports of 2026-10-21, 2026-10-22 and 2026-10-22b record the failures that T-416 to T-421 fixed or ruled on.
