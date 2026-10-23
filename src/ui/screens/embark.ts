@@ -16,7 +16,7 @@ import type { Registry } from '@core/registry';
 import type { KeyPress } from '@platform/input';
 import { EMBARK_REROLL_COST, EmbarkSession, skillPoints, suppliesTotal, type EmbarkCommand, type EmbarkPresetRow } from '@systems/embark';
 import { EMBARK_DEFAULT_PRESET, EMBARK_HINT_SECONDS, EMBARK_PRESET_SPACING, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
-import type { Keymap } from '../keymap';
+import type { KeyContext, Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -121,6 +121,10 @@ type Focus = 'party' | 'skills' | 'items' | 'name' | 'rename' | 'filter';
 
 export class EmbarkScreen implements Screen {
   readonly id = 'embark' as const;
+
+  /** The confirmation's keys while "Replace your changes" asks, the list keys while the presets dropdown is open. */
+  translatedKeys(): readonly KeyContext[] { return this.pendingPreset !== null ? ['confirm'] : this.presets.open ? ['panel'] : []; }
+  captionKeys(): readonly KeyContext[] { return ['embark', 'panel', 'confirm']; }
   readonly session: EmbarkSession;
   tab = 0;
   /** How many times the tab changed: each change turns the alternating hint line. */
@@ -543,7 +547,7 @@ export class EmbarkScreen implements Screen {
       const r = dropdownKey(this.presets, this.presetOptions(), press);
       if (r !== null && r !== 'handled') this.choosePreset(r);
       if (r !== null) return true;
-      if (press.key === 'p') {
+      if (this.keymap.resolve('embark', press)?.id === 'presets') {
         this.presets.open = false;
         return true;
       }
@@ -592,19 +596,16 @@ export class EmbarkScreen implements Screen {
           break;
       }
     }
-    if (press.key === '=') {
-      this.adjust(1);
-      return true;
-    }
-    if (this.tab === 1 && (press.key === '←' || press.key === '→')) {
-      const d = press.key === '←' ? -1 : 1;
-      this.category = (this.category + d + SUPPLY_CATEGORIES.length) % SUPPLY_CATEGORIES.length;
-      this.items.selected = 0;
-      return true;
-    }
     const panel = this.keymap.resolve('panel', press);
     if (panel === null) return false;
     switch (panel.id) {
+      case 'across': {
+        if (this.tab !== 1) return false;
+        const d = panel.arg === '←' ? -1 : 1;
+        this.category = (this.category + d + SUPPLY_CATEGORIES.length) % SUPPLY_CATEGORIES.length;
+        this.items.selected = 0;
+        return true;
+      }
       case 'select': {
         const d = panel.arg === '↑' ? -1 : 1;
         const list = this.focus === 'party' ? this.party : this.focus === 'skills' ? this.skills : this.items;

@@ -1,10 +1,12 @@
 # T-424 — Every key binding configurable from the menu
 
+**Closed:** 2026-10-23, in d8108f3 and 14c159e.
+
 **Source:** the owner, 2026-10-22 · **Size:** M · **Needs:** T-113 · **Status:** open (audit first)
 
 ## Why
 
-The owner asked that key bindings be configurable through the menu. A keybinding editor already exists (Settings › Keybindings, `src/ui/screens/settings.ts`, `src/ui/keymap.ts`, T-M7-07, [ui-keymap-and-screens.md](../03-content/ui-keymap-and-screens.md)). This task makes sure it covers everything and works end to end.
+The owner asked that key bindings be configurable through the menu. A keybinding editor already exists (Settings › Keybindings, `src/ui/screens/settings.ts`, `src/ui/keymap.ts`, T-M7-07, [ui-keymap-and-screens.md](../../03-content/ui-keymap-and-screens.md)). This task makes sure it covers everything and works end to end.
 
 ## What to do
 
@@ -24,3 +26,11 @@ The owner asked that key bindings be configurable through the menu. A keybinding
 - An e2e test rebinds a map key and a panel key, uses both, reloads, uses them again, then resets to defaults.
 - Unit tests cover conflicts and loading an old keymap.
 - The six static checks, `npm test`, e2e and the build pass.
+
+## Decisions (made in the task)
+
+- Fixed keys: `Esc` everywhere, typing in a focused text or number field (the order picker and the breeding cap included), the editor's own keys, the rows that stand for every letter, and the any-key dismissal of a pinned danger line. Everything else is a row of § Keymap.
+- Panel code stays written against its default keys; the screen translates each press (`Keymap.translate`). A panel state that gives a key another meaning has its own context (zone inspector, profession templates).
+- Saved rebindings are keyed by `<context>/<default key>`; the index format of earlier versions is read through the frozen `LEGACY_BINDINGS`.
+- A letter given to an accelerator stays an accelerator. The Units idle filter became one (`[i]`), so a panel letter rebound to `i` no longer hides it.
+- The audit is [2026-10-23-keybindings](../../../reports/audits/2026-10-23-keybindings.md).

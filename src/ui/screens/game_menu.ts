@@ -6,6 +6,7 @@
  */
 import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type Screen } from '../screen';
+import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { UI_STRINGS, type Strings } from '../strings';
 import { label, menu, moveSelection, type MenuItem } from '../widgets';
@@ -28,6 +29,10 @@ export interface GameMenuHost {
 
 export class GameMenuScreen implements Screen {
   readonly id = 'game_menu' as const;
+
+  /** The entries' letters and the list keys; `Esc` is fixed. */
+  translatedKeys(): readonly KeyContext[] { return ['game_menu', 'panel']; }
+  captionKeys(): readonly KeyContext[] { return ['game_menu', 'panel']; }
   selected = 'resume';
   private last: Surface | null = null;
   private flashed: { text: string; until: number } | null = null;

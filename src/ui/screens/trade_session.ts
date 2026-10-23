@@ -10,6 +10,7 @@ import type { DwarvesReader } from '@systems/dwarves';
 import { requiredValue, type TradeReader } from '@systems/trade';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import { Strings } from '../strings';
+import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { materialItemName } from '../messages';
 import { clampList, label, type ListState } from '../widgets';
@@ -55,6 +56,9 @@ const CIV_NAMES: Readonly<Record<Civ, string>> = {
 
 export class TradeSessionScreen implements Screen {
   readonly id = 'trade_session' as const;
+
+  translatedKeys(): readonly KeyContext[] { return ['trade_session', 'panel']; }
+  captionKeys(): readonly KeyContext[] { return ['trade_session', 'panel']; }
   readonly take = new Map<EntityId, number>();
   readonly give = new Map<EntityId, number>();
   readonly left: ListState = { selected: 0, scroll: 0 };
@@ -257,7 +261,7 @@ export class TradeSessionScreen implements Screen {
     const wood = trade.session()?.woodWarning ?? false;
     if (this.notice !== null) surface.text(2, footer + 1, this.notice, t.alert);
     else surface.text(2, footer + 1, wood ? 'We do not care for wooden things.' : totals.shortfall > 0 ? `Not enough. Add ${totals.shortfall} ☼ of goods.` : 'A fair offer.', totals.shortfall > 0 ? t.bad : t.good);
-    surface.text(2, footer + 2, '[Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close', t.dim);
+    label(surface, 2, footer + 2, '[Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close', { fg: t.dim, keys: false, relabel: ['trade_session', 'panel'] });
   }
 
   pointerDown(p: CellPointer): void { clickHit(this.last, p); }

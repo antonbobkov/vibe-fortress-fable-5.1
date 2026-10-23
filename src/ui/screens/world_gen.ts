@@ -13,7 +13,7 @@ import { WORLD_SIZE_LARGE, WORLD_SIZE_SMALL, WORLD_SIZE_STANDARD } from '@core/c
 import type { KeyPress } from '@platform/input';
 import type { WorldMapCompositor } from '@render/world-map';
 import type { WorldMap } from '@systems/worldgen';
-import type { Keymap } from '../keymap';
+import type { KeyContext, Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -67,6 +67,10 @@ export function worldStats(world: WorldMap): WorldStats {
 
 export class WorldGenScreen implements Screen {
   readonly id = 'world_gen' as const;
+
+  /** Its own keys, except while the seed field takes the keys as typed (§ Fixed keys). */
+  translatedKeys(): readonly KeyContext[] { return this.focus === 'seed' ? [] : ['world_gen']; }
+  captionKeys(): readonly KeyContext[] { return ['world_gen', 'panel']; }
   readonly seed: TextFieldState;
   sizeIndex = 1;
   focus: Field = 'seed';
@@ -192,7 +196,7 @@ export class WorldGenScreen implements Screen {
         return true;
       }
       // Q11: `[g] Generate`, as advertised, while the drawn seed is untouched.
-      if (!this.seedEdited && !press.ctrl && !press.alt && !press.meta && press.key.toLowerCase() === 'g') {
+      if (!this.seedEdited && !press.alt && !press.meta && this.keymap.resolve('world_gen', press)?.id === 'generate') {
         this.generate();
         return true;
       }
@@ -207,14 +211,15 @@ export class WorldGenScreen implements Screen {
       this.host.back();
       return true;
     }
-    if (this.focus === 'size' && (press.key === '←' || press.key === '→')) {
-      const d = press.key === '←' ? -1 : 1;
-      this.sizeIndex = Math.max(0, Math.min(WORLD_SIZES.length - 1, this.sizeIndex + d));
-      return true;
-    }
     const action = this.keymap.resolve('panel', press);
     if (action === null) return false;
     switch (action.id) {
+      case 'across': {
+        if (this.focus !== 'size') return false;
+        const d = action.arg === '←' ? -1 : 1;
+        this.sizeIndex = Math.max(0, Math.min(WORLD_SIZES.length - 1, this.sizeIndex + d));
+        return true;
+      }
       case 'select':
       case 'field': {
         const d = action.id === 'field' ? Number(action.arg) : action.arg === '↑' ? -1 : 1;

@@ -9,6 +9,7 @@ import type { KeyPress } from '@platform/input';
 import type { Registry } from '@core/registry';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import { fill, type Strings } from '../strings';
+import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { button } from '../widgets';
 
@@ -20,6 +21,10 @@ export interface ConfirmRow {
 
 export class ConfirmScreen implements Screen {
   readonly id = 'confirm' as const;
+
+  /** `y`, `n` and `Enter` (§ Confirmation); `Esc` is fixed. */
+  translatedKeys(): readonly KeyContext[] { return ['confirm']; }
+  captionKeys(): readonly KeyContext[] { return ['confirm']; }
   readonly text: string;
   readonly defaultYes: boolean;
   private last: Surface | null = null;

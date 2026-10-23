@@ -113,6 +113,11 @@ export interface InputOptions {
 /** Keys the game owns that the browser would act on: scrolling, focus, and `F5` (reload), `F9`, `F12` (24 § Input model). */
 const DEFAULT_SWALLOW = new Set(['←', '→', '↑', '↓', ' ', 'Tab', 'F5', 'F9', 'F12']);
 
+/** Whether the browser's own use of a key is suppressed whatever the keymap says: the keys of {@link DEFAULT_SWALLOW} and `Ctrl+S`. */
+export function swallowedByDefault(key: KeyPress): boolean {
+  return DEFAULT_SWALLOW.has(key.key) || (key.ctrl && key.key.toLowerCase() === 's');
+}
+
 /**
  * Attaches to a keyboard target and a pointer target and forwards normalised events. `dispose()`
  * removes every listener it added.
@@ -129,7 +134,7 @@ export class InputSource {
     options: InputOptions = {},
   ) {
     this.toLocal = options.toLocal ?? ((x, y) => ({ x, y }));
-    this.swallow = options.swallow ?? ((key) => DEFAULT_SWALLOW.has(key.key) || (key.ctrl && key.key.toLowerCase() === 's'));
+    this.swallow = options.swallow ?? swallowedByDefault;
   }
 
   attach(): void {

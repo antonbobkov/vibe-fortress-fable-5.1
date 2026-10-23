@@ -205,99 +205,834 @@
     "action": "back within nested menus"
   },
   {
-    "context": "world_map",
-    "key": "arrows",
-    "action": "move the cursor (Shift: 8)"
+    "context": "panel",
+    "key": "←",
+    "action": "move across, or change the focused value"
   },
   {
-    "context": "world_map",
-    "key": "f",
-    "action": "filter panel"
+    "context": "panel",
+    "key": "→",
+    "action": "move across, or change the focused value"
   },
   {
-    "context": "world_map",
-    "key": "Enter",
-    "action": "embark on the region"
+    "context": "selection",
+    "key": "[S-f]",
+    "action": "forbid everything on the selected tiles"
   },
   {
-    "context": "world_map",
-    "key": "?",
-    "action": "biome legend"
+    "context": "selection",
+    "key": "[S-d]",
+    "action": "dump everything on the selected tiles (confirm)"
   },
   {
-    "context": "embark",
-    "key": "1",
-    "action": "Dwarves / Supplies / Animals tabs"
+    "context": "selection",
+    "key": "[S-t]",
+    "action": "move the goods on the selected tiles to the depot"
   },
   {
-    "context": "embark",
-    "key": "2",
-    "action": "Dwarves / Supplies / Animals tabs"
+    "context": "designate_panel",
+    "key": "[S-d]",
+    "action": "dig"
   },
   {
-    "context": "embark",
-    "key": "3",
-    "action": "Dwarves / Supplies / Animals tabs"
+    "context": "designate_panel",
+    "key": "[S-c]",
+    "action": "channel"
   },
   {
-    "context": "embark",
+    "context": "designate_panel",
+    "key": "[S-u]",
+    "action": "stairs up"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-j]",
+    "action": "stairs down"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[i]",
+    "action": "up/down stairs"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[r]",
+    "action": "ramp"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[w]",
+    "action": "stairwell"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-s]",
+    "action": "smooth"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-e]",
+    "action": "engrave"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[x]",
+    "action": "remove a construction"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-t]",
+    "action": "chop trees"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[g]",
+    "action": "gather plants"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[h]",
+    "action": "harvest"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-f]",
+    "action": "traffic (again: the next traffic mode)"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-p]",
+    "action": "give the tool's priority to the last batch"
+  },
+  {
+    "context": "build_panel",
+    "key": "[S-c]",
+    "action": "constructions"
+  },
+  {
+    "context": "build_panel",
+    "key": "[S-f]",
+    "action": "furniture"
+  },
+  {
+    "context": "build_panel",
+    "key": "[w]",
+    "action": "workshops"
+  },
+  {
+    "context": "build_panel",
+    "key": "[S-m]",
+    "action": "mechanisms"
+  },
+  {
+    "context": "build_panel",
+    "key": "[S-t]",
+    "action": "traps"
+  },
+  {
+    "context": "build_panel",
+    "key": "[S-s]",
+    "action": "special"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-s]",
+    "action": "stockpile"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-f]",
+    "action": "farm plot"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-p]",
+    "action": "pasture"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-b]",
+    "action": "bedroom"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-d]",
+    "action": "dining hall"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[h]",
+    "action": "hearth hall"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-o]",
+    "action": "hospital"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[r]",
+    "action": "barracks"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-a]",
+    "action": "archery range"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-m]",
+    "action": "meeting area"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-t]",
+    "action": "tomb"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[S-u]",
+    "action": "dump"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[i]",
+    "action": "fishing zone"
+  },
+  {
+    "context": "zones_panel",
+    "key": "[g]",
+    "action": "gather zone"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[y]",
+    "action": "back to the zone types"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[x]",
+    "action": "unlink a source of a stockpile, or remove the zone (confirm)"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "Delete",
+    "action": "remove the stockpile zone (confirm)"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[S-e]",
+    "action": "resize the zone"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[i]",
+    "action": "link a source stockpile"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[S-p]",
+    "action": "open the stockpile preset dropdown"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[g]",
+    "action": "focus the category tree"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[q]",
+    "action": "focus numeric settings"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[v]",
+    "action": "open allowed material classes"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[S-o]",
+    "action": "open the bedroom's owner picker"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "Shift+A",
+    "action": "a farm plot: the highlighted row's crop for every season in which that crop can grow"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "Space",
+    "action": "toggle the checkbox (category tree, material classes)"
+  },
+  {
+    "context": "zone_inspector",
     "key": "+",
-    "action": "adjust the selected skill or quantity"
+    "action": "adjust the focused value"
   },
   {
-    "context": "embark",
+    "context": "zone_inspector",
+    "key": "=",
+    "action": "adjust the focused value"
+  },
+  {
+    "context": "zone_inspector",
     "key": "-",
-    "action": "adjust the selected skill or quantity"
+    "action": "adjust the focused value"
   },
   {
-    "context": "embark",
-    "key": "r",
-    "action": "reroll the selected dwarf"
+    "context": "units_panel",
+    "key": "Space",
+    "action": "mark the row (does not pause while the list is open)"
   },
   {
-    "context": "embark",
-    "key": "n",
-    "action": "rename"
+    "context": "units_panel",
+    "key": "*",
+    "action": "mark all / none"
   },
   {
-    "context": "embark",
-    "key": "p",
-    "action": "presets menu"
+    "context": "units_panel",
+    "key": "[i]",
+    "action": "show only idle dwarves / all"
   },
   {
-    "context": "embark",
-    "key": "Enter",
-    "action": "Embark"
+    "context": "units_panel",
+    "key": "Shift+W",
+    "action": "wounded dwarves first / list order"
   },
   {
-    "context": "trade_session",
+    "context": "units_panel",
+    "key": "Shift+T",
+    "action": "give or take away a title"
+  },
+  {
+    "context": "units_panel",
+    "key": "Shift+N",
+    "action": "rename the dwarf"
+  },
+  {
+    "context": "units_panel",
+    "key": "Shift+M",
+    "action": "add the marked dwarves to a squad"
+  },
+  {
+    "context": "units_panel",
+    "key": "[",
+    "action": "sleep an hour earlier / later"
+  },
+  {
+    "context": "units_panel",
+    "key": "]",
+    "action": "sleep an hour earlier / later"
+  },
+  {
+    "context": "units_panel",
+    "key": "Shift+L",
+    "action": "the labor manager on the marked dwarves"
+  },
+  {
+    "context": "units_panel",
+    "key": "[S-c]",
+    "action": "center the map on the dwarf"
+  },
+  {
+    "context": "labors_panel",
+    "key": "[S-a]",
+    "action": "whole row on / off"
+  },
+  {
+    "context": "jobs_panel",
     "key": "Tab",
-    "action": "switch column"
+    "action": "move between the jobs and the \"Orders waiting\" rows"
   },
   {
-    "context": "trade_session",
+    "context": "jobs_panel",
+    "key": "[S-l]",
+    "action": "cycle the labors that have jobs"
+  },
+  {
+    "context": "jobs_panel",
+    "key": "[S-s]",
+    "action": "cycle all / open / claimed / blocked"
+  },
+  {
+    "context": "jobs_panel",
+    "key": "[S-p]",
+    "action": "raise the job's priority (1–9, wrapping)"
+  },
+  {
+    "context": "jobs_panel",
+    "key": "[x]",
+    "action": "cancel the job"
+  },
+  {
+    "context": "orders_panel",
+    "key": "[S-n]",
+    "action": "new order (opens \"Add order\")"
+  },
+  {
+    "context": "orders_panel",
     "key": "+",
-    "action": "quantity"
+    "action": "the selected order's count +1 (Shift: +10)"
   },
   {
-    "context": "trade_session",
+    "context": "orders_panel",
+    "key": "=",
+    "action": "the selected order's count +1 (Shift: +10)"
+  },
+  {
+    "context": "orders_panel",
     "key": "-",
-    "action": "quantity"
+    "action": "the selected order's count −1 (Shift: −10)"
   },
   {
-    "context": "trade_session",
+    "context": "orders_panel",
+    "key": "_",
+    "action": "the selected order's count −1 (Shift: −10)"
+  },
+  {
+    "context": "orders_panel",
+    "key": "[r]",
+    "action": "repeat the selected order, or the last finished one"
+  },
+  {
+    "context": "orders_panel",
+    "key": "[x]",
+    "action": "remove the selected order (confirm)"
+  },
+  {
+    "context": "orders_panel",
+    "key": "Delete",
+    "action": "remove the selected order (confirm)"
+  },
+  {
+    "context": "orders_panel",
+    "key": "[S-m]",
+    "action": "the order's mode"
+  },
+  {
+    "context": "orders_panel",
+    "key": "[S-p]",
+    "action": "the order's priority"
+  },
+  {
+    "context": "orders_panel",
+    "key": "[S-f]",
+    "action": "the order's material"
+  },
+  {
+    "context": "orders_panel",
+    "key": "Shift+↑",
+    "action": "move the order in its queue"
+  },
+  {
+    "context": "orders_panel",
+    "key": "Shift+↓",
+    "action": "move the order in its queue"
+  },
+  {
+    "context": "workshop_panel",
+    "key": "[S-n]",
+    "action": "new order at this workshop"
+  },
+  {
+    "context": "workshop_panel",
+    "key": "[S-o]",
+    "action": "this workshop's orders"
+  },
+  {
+    "context": "workshop_panel",
+    "key": "[S-f]",
+    "action": "the material of the orders here"
+  },
+  {
+    "context": "workshop_panel",
+    "key": "[w]",
+    "action": "the next worker"
+  },
+  {
+    "context": "workshop_panel",
+    "key": "[S-s]",
+    "action": "suspend (confirm) or resume"
+  },
+  {
+    "context": "workshop_panel",
+    "key": "[x]",
+    "action": "take the workshop apart (confirm)"
+  },
+  {
+    "context": "building_panel",
+    "key": "1",
+    "action": "a planned building's build priority"
+  },
+  {
+    "context": "building_panel",
+    "key": "9",
+    "action": "a planned building's build priority"
+  },
+  {
+    "context": "building_panel",
+    "key": "[i]",
+    "action": "link a lever or a plate"
+  },
+  {
+    "context": "building_panel",
+    "key": "[r]",
+    "action": "unlink the target under the cursor, or release a caged creature (confirm)"
+  },
+  {
+    "context": "building_panel",
+    "key": "[y]",
+    "action": "pull the lever"
+  },
+  {
+    "context": "building_panel",
+    "key": "[g]",
+    "action": "tame the caged creature"
+  },
+  {
+    "context": "building_panel",
+    "key": "[w]",
+    "action": "the owner of a bed's bedroom, or whom a coffin is kept for"
+  },
+  {
+    "context": "building_panel",
+    "key": "[x]",
+    "action": "cancel the plan, or take the building apart (confirm)"
+  },
+  {
+    "context": "stocks_panel",
+    "key": "[S-f]",
+    "action": "forbid the selected items"
+  },
+  {
+    "context": "stocks_panel",
+    "key": "[S-d]",
+    "action": "dump the selected items (confirm)"
+  },
+  {
+    "context": "stocks_panel",
+    "key": "[S-m]",
+    "action": "melt the selected items (confirm)"
+  },
+  {
+    "context": "stocks_panel",
+    "key": "[S-t]",
+    "action": "move goods to the depot"
+  },
+  {
+    "context": "stocks_panel",
+    "key": "Space",
+    "action": "in the depot list: mark the goods"
+  },
+  {
+    "context": "depot_panel",
+    "key": "[S-m]",
+    "action": "move goods to the depot"
+  },
+  {
+    "context": "depot_panel",
+    "key": "[r]",
+    "action": "return the selected goods to stock"
+  },
+  {
+    "context": "depot_panel",
+    "key": "[S-t]",
+    "action": "open the trade session"
+  },
+  {
+    "context": "military_panel",
+    "key": "Space",
+    "action": "mark the row (does not pause while the list is open)"
+  },
+  {
+    "context": "military_panel",
+    "key": "*",
+    "action": "mark all / none"
+  },
+  {
+    "context": "military_panel",
     "key": "Enter",
-    "action": "offer"
+    "action": "add or remove every marked dwarf"
   },
   {
-    "context": "trade_session",
-    "key": "g",
-    "action": "gift (offer with nothing taken)"
+    "context": "military_panel",
+    "key": "Shift+L",
+    "action": "choose the squad leader"
   },
   {
-    "context": "trade_session",
-    "key": "Esc",
-    "action": "close"
+    "context": "military_panel",
+    "key": "Shift+B",
+    "action": "assign a barracks zone"
+  },
+  {
+    "context": "military_panel",
+    "key": "Shift+N",
+    "action": "rename the squad"
+  },
+  {
+    "context": "military_panel",
+    "key": "[w]",
+    "action": "choose the squad weapon class"
+  },
+  {
+    "context": "military_panel",
+    "key": "[g]",
+    "action": "choose the squad armor"
+  },
+  {
+    "context": "military_panel",
+    "key": "1",
+    "action": "alert: calm"
+  },
+  {
+    "context": "military_panel",
+    "key": "2",
+    "action": "alert: watchful"
+  },
+  {
+    "context": "military_panel",
+    "key": "3",
+    "action": "alert: hearth"
+  },
+  {
+    "context": "military_panel",
+    "key": "[h]",
+    "action": "alert: hearth"
+  },
+  {
+    "context": "military_panel",
+    "key": "+",
+    "action": "new squad"
+  },
+  {
+    "context": "military_panel",
+    "key": "[x]",
+    "action": "disband the squad (confirm)"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-s]",
+    "action": "set the squad's station"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-c]",
+    "action": "clear the squad's station"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-p]",
+    "action": "add patrol points"
+  },
+  {
+    "context": "military_panel",
+    "key": "[y]",
+    "action": "clear the patrol"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-k]",
+    "action": "order a kill"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-f]",
+    "action": "order to follow a dwarf"
+  },
+  {
+    "context": "military_panel",
+    "key": "[q]",
+    "action": "cancel the squad's orders"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-m]",
+    "action": "the next squad mode"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-o]",
+    "action": "squad mode: off"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-t]",
+    "action": "squad mode: train"
+  },
+  {
+    "context": "military_panel",
+    "key": "[v]",
+    "action": "squad mode: active"
+  },
+  {
+    "context": "military_panel",
+    "key": "[S-a]",
+    "action": "add members"
+  },
+  {
+    "context": "military_panel",
+    "key": "[r]",
+    "action": "remove members"
+  },
+  {
+    "context": "military_panel",
+    "key": "[j]",
+    "action": "ranged or melee"
+  },
+  {
+    "context": "animals_panel",
+    "key": "1",
+    "action": "tame / wild tab"
+  },
+  {
+    "context": "animals_panel",
+    "key": "2",
+    "action": "tame / wild tab"
+  },
+  {
+    "context": "animals_panel",
+    "key": "[S-p]",
+    "action": "pasture the animal"
+  },
+  {
+    "context": "animals_panel",
+    "key": "[S-s]",
+    "action": "mark for slaughter (confirm)"
+  },
+  {
+    "context": "animals_panel",
+    "key": "[S-c]",
+    "action": "edit the breeding cap"
+  },
+  {
+    "context": "animals_panel",
+    "key": "[S-a]",
+    "action": "assign the animal"
+  },
+  {
+    "context": "animals_panel",
+    "key": "[S-n]",
+    "action": "name the animal"
+  },
+  {
+    "context": "animals_panel",
+    "key": "[S-t]",
+    "action": "train the animal"
+  },
+  {
+    "context": "animals_panel",
+    "key": "[h]",
+    "action": "wild tab: hunt toggle"
+  },
+  {
+    "context": "civilizations_panel",
+    "key": "[S-d]",
+    "action": "depot panel"
+  },
+  {
+    "context": "civilizations_panel",
+    "key": "[S-t]",
+    "action": "open the trade session"
+  },
+  {
+    "context": "civilizations_panel",
+    "key": "+",
+    "action": "add a request"
+  },
+  {
+    "context": "civilizations_panel",
+    "key": "[S-a]",
+    "action": "add a request"
+  },
+  {
+    "context": "civilizations_panel",
+    "key": "[x]",
+    "action": "remove the request"
+  },
+  {
+    "context": "civilizations_panel",
+    "key": "[S-p]",
+    "action": "the request's priority"
+  },
+  {
+    "context": "population_panel",
+    "key": "+",
+    "action": "raise / lower the population cap"
+  },
+  {
+    "context": "population_panel",
+    "key": "-",
+    "action": "raise / lower the population cap"
+  },
+  {
+    "context": "mood_panel",
+    "key": "[S-s]",
+    "action": "sort by tier"
+  },
+  {
+    "context": "log_panel",
+    "key": "1",
+    "action": "log filter tabs"
+  },
+  {
+    "context": "log_panel",
+    "key": "2",
+    "action": "log filter tabs"
+  },
+  {
+    "context": "log_panel",
+    "key": "3",
+    "action": "log filter tabs"
+  },
+  {
+    "context": "look_panel",
+    "key": "1",
+    "action": "look tabs"
+  },
+  {
+    "context": "look_panel",
+    "key": "2",
+    "action": "look tabs"
+  },
+  {
+    "context": "look_panel",
+    "key": "3",
+    "action": "look tabs"
+  },
+  {
+    "context": "look_panel",
+    "key": "[x]",
+    "action": "take apart the building here (confirm)"
+  },
+  {
+    "context": "help_panel",
+    "key": "1",
+    "action": "Keys / Legend / Start tabs"
+  },
+  {
+    "context": "help_panel",
+    "key": "2",
+    "action": "Keys / Legend / Start tabs"
+  },
+  {
+    "context": "help_panel",
+    "key": "3",
+    "action": "Keys / Legend / Start tabs"
+  },
+  {
+    "context": "debug_panel",
+    "key": "[S-d]",
+    "action": "dump save"
+  },
+  {
+    "context": "debug_panel",
+    "key": "[r]",
+    "action": "replay season log"
+  },
+  {
+    "context": "debug_panel",
+    "key": "[h]",
+    "action": "hash world"
   },
   {
     "context": "labor_manager",
@@ -365,88 +1100,263 @@
     "action": "close"
   },
   {
-    "context": "units_panel",
-    "key": "Space",
-    "action": "mark the row (does not pause while the list is open)"
+    "context": "labor_manager",
+    "key": "Home",
+    "action": "first dwarf"
   },
   {
-    "context": "units_panel",
-    "key": "*",
-    "action": "mark all / none"
+    "context": "labor_manager",
+    "key": "End",
+    "action": "last dwarf"
   },
   {
-    "context": "units_panel",
-    "key": "i",
-    "action": "show only idle dwarves / all"
+    "context": "labor_manager",
+    "key": "=",
+    "action": "labor priority up / down"
   },
   {
-    "context": "units_panel",
-    "key": "Shift+W",
-    "action": "wounded dwarves first / list order"
+    "context": "labor_templates",
+    "key": "1",
+    "action": "choose that template"
   },
   {
-    "context": "units_panel",
-    "key": "Shift+T",
-    "action": "give or take away a title"
+    "context": "labor_templates",
+    "key": "9",
+    "action": "choose that template"
   },
   {
-    "context": "units_panel",
-    "key": "Shift+N",
-    "action": "rename the dwarf"
+    "context": "trade_session",
+    "key": "Tab",
+    "action": "switch column"
   },
   {
-    "context": "units_panel",
-    "key": "Shift+M",
-    "action": "add the marked dwarves to a squad"
+    "context": "trade_session",
+    "key": "+",
+    "action": "quantity"
   },
   {
-    "context": "units_panel",
-    "key": "[",
-    "action": "sleep an hour earlier / later"
+    "context": "trade_session",
+    "key": "-",
+    "action": "quantity"
   },
   {
-    "context": "units_panel",
-    "key": "]",
-    "action": "sleep an hour earlier / later"
-  },
-  {
-    "context": "military_panel",
-    "key": "Space",
-    "action": "mark the row (does not pause while the list is open)"
-  },
-  {
-    "context": "military_panel",
-    "key": "*",
-    "action": "mark all / none"
-  },
-  {
-    "context": "military_panel",
+    "context": "trade_session",
     "key": "Enter",
-    "action": "add or remove every marked dwarf"
+    "action": "offer"
   },
   {
-    "context": "military_panel",
-    "key": "Shift+L",
-    "action": "choose the squad leader"
-  },
-  {
-    "context": "military_panel",
-    "key": "Shift+B",
-    "action": "assign a barracks zone"
-  },
-  {
-    "context": "military_panel",
-    "key": "Shift+N",
-    "action": "rename the squad"
-  },
-  {
-    "context": "military_panel",
-    "key": "w",
-    "action": "choose the squad weapon class"
-  },
-  {
-    "context": "military_panel",
+    "context": "trade_session",
     "key": "g",
-    "action": "choose the squad armor"
+    "action": "gift (offer with nothing taken)"
+  },
+  {
+    "context": "trade_session",
+    "key": "Esc",
+    "action": "close"
+  },
+  {
+    "context": "trade_session",
+    "key": "Home",
+    "action": "none of the selected goods"
+  },
+  {
+    "context": "trade_session",
+    "key": "End",
+    "action": "all of the selected goods"
+  },
+  {
+    "context": "trade_session",
+    "key": "=",
+    "action": "quantity"
+  },
+  {
+    "context": "game_menu",
+    "key": "r",
+    "action": "Resume"
+  },
+  {
+    "context": "game_menu",
+    "key": "s",
+    "action": "Save"
+  },
+  {
+    "context": "game_menu",
+    "key": "l",
+    "action": "Load"
+  },
+  {
+    "context": "game_menu",
+    "key": "o",
+    "action": "Settings"
+  },
+  {
+    "context": "game_menu",
+    "key": "n",
+    "action": "Rename fortress"
+  },
+  {
+    "context": "game_menu",
+    "key": "x",
+    "action": "Retire fortress (confirm)"
+  },
+  {
+    "context": "game_menu",
+    "key": "m",
+    "action": "Main menu"
+  },
+  {
+    "context": "confirm",
+    "key": "y",
+    "action": "Yes"
+  },
+  {
+    "context": "confirm",
+    "key": "n",
+    "action": "No"
+  },
+  {
+    "context": "confirm",
+    "key": "Enter",
+    "action": "the default answer"
+  },
+  {
+    "context": "main_menu",
+    "key": "n",
+    "action": "New world"
+  },
+  {
+    "context": "main_menu",
+    "key": "c",
+    "action": "Continue"
+  },
+  {
+    "context": "main_menu",
+    "key": "l",
+    "action": "Load"
+  },
+  {
+    "context": "main_menu",
+    "key": "g",
+    "action": "Legends"
+  },
+  {
+    "context": "main_menu",
+    "key": "o",
+    "action": "Settings"
+  },
+  {
+    "context": "main_menu",
+    "key": "a",
+    "action": "About"
+  },
+  {
+    "context": "world_gen",
+    "key": "g",
+    "action": "Generate"
+  },
+  {
+    "context": "world_gen",
+    "key": "r",
+    "action": "random seed"
+  },
+  {
+    "context": "world_map",
+    "key": "arrows",
+    "action": "move the cursor (Shift: 8)"
+  },
+  {
+    "context": "world_map",
+    "key": "f",
+    "action": "filter panel"
+  },
+  {
+    "context": "world_map",
+    "key": "Enter",
+    "action": "embark on the region"
+  },
+  {
+    "context": "world_map",
+    "key": "?",
+    "action": "biome legend"
+  },
+  {
+    "context": "world_map",
+    "key": "+",
+    "action": "adjust the selected filter"
+  },
+  {
+    "context": "world_map",
+    "key": "=",
+    "action": "adjust the selected filter"
+  },
+  {
+    "context": "world_map",
+    "key": "-",
+    "action": "adjust the selected filter"
+  },
+  {
+    "context": "embark",
+    "key": "1",
+    "action": "Dwarves / Supplies / Animals tabs"
+  },
+  {
+    "context": "embark",
+    "key": "2",
+    "action": "Dwarves / Supplies / Animals tabs"
+  },
+  {
+    "context": "embark",
+    "key": "3",
+    "action": "Dwarves / Supplies / Animals tabs"
+  },
+  {
+    "context": "embark",
+    "key": "+",
+    "action": "adjust the selected skill or quantity"
+  },
+  {
+    "context": "embark",
+    "key": "-",
+    "action": "adjust the selected skill or quantity"
+  },
+  {
+    "context": "embark",
+    "key": "r",
+    "action": "reroll the selected dwarf"
+  },
+  {
+    "context": "embark",
+    "key": "n",
+    "action": "rename"
+  },
+  {
+    "context": "embark",
+    "key": "p",
+    "action": "presets menu"
+  },
+  {
+    "context": "embark",
+    "key": "Enter",
+    "action": "Embark"
+  },
+  {
+    "context": "embark",
+    "key": "=",
+    "action": "adjust the selected skill or quantity"
+  },
+  {
+    "context": "load",
+    "key": "x",
+    "action": "Delete (confirm)"
+  },
+  {
+    "context": "load",
+    "key": "e",
+    "action": "Export"
+  },
+  {
+    "context": "load",
+    "key": "i",
+    "action": "Import"
   }
 ]

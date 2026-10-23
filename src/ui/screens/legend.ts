@@ -3,6 +3,7 @@ import { SEASON_NAMES } from '@core/calendar';
 import { SEASONS_PER_YEAR, TICKS_PER_YEAR } from '@core/constants';
 import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
+import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { button } from '../widgets';
 
@@ -48,6 +49,10 @@ export interface LegendHost { back(): void }
 
 export class LegendScreen implements Screen {
   readonly id = 'legend' as const;
+
+  /** The list keys of § Panels; `Esc` is fixed. */
+  translatedKeys(): readonly KeyContext[] { return ['panel']; }
+  captionKeys(): readonly KeyContext[] { return ['panel']; }
   selected = 0;
   detail = false;
   scroll = 0;

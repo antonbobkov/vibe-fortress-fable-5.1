@@ -146,17 +146,20 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[15]).toBe('[d] Reset to defaults    [Esc] Back');
   });
 
-  it('the keybindings list gives the context, action and key of every binding, in the order of the keymap, and how to rebind', () => {
+  it('the keybindings list gives the action and key of every binding under its context heading, in the order of the keymap, and how to rebind and reset', () => {
     const r = rows('settings_keybindings');
     expect(r[1]).toBe('Settings · Keybindings');
-    expect(r[2]).toMatch(/^Context +Action +Key$/);
-    expect(r[3]).toMatch(/^► Global +cancel tool → close panel → game menu +Esc$/);
-    expect(r[4]).toMatch(/^Global +pause \/ resume +Space$/);
-    expect(r[8]).toMatch(/^Global +quick save +F5$/);
-    expect(r[15]).toMatch(/^Map +pan or move the map cursor \(Shift: 10\) +←$/);
-    expect(r[19]).toMatch(/^Map +z-level down +<$/);
-    for (const row of r.slice(3, 22)) expect(row).toMatch(/^(► )?(Global|Map) +\S.* +\S+$/);
-    expect(r[23]).toBe('[Enter] rebind  [Esc] Back');
+    expect(r[2]).toMatch(/^Action +Key$/);
+    // T-424: the bindings are grouped under the screen or panel they act in; Esc is fixed.
+    expect(r[3]).toBe('Global');
+    expect(r[4]).toMatch(/^► cancel tool → close panel → game menu +Esc {2}fixed$/);
+    expect(r[5]).toMatch(/^pause \/ resume +Space$/);
+    expect(r[9]).toMatch(/^quick save +F5$/);
+    expect(r[16]).toMatch(/^calendar panel +\[S-y\]$/);
+    expect(r[17]).toBe('Map');
+    expect(r[18]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
+    for (const row of [...r.slice(5, 17), ...r.slice(18, 22)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
+    expect(r[23]).toBe('[Enter] rebind  [Del] default  [d] all defaults  [Esc] Back');
   });
 
   it('the Legends screen tells the fortress record: founding, fall, totals, milestones, notable deeds and last words', () => {

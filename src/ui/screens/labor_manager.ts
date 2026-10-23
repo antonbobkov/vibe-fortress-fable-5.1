@@ -40,6 +40,7 @@ import type { PanelContext } from '../panels/context';
 import { nameOf, professionOf } from '../panels/units';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import { Strings } from '../strings';
+import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { button, clampList, drawTooltip, label, Marks, separator } from '../widgets';
 
@@ -86,6 +87,10 @@ const BOTTOM_ROWS = 4;
 
 export class LaborManagerScreen implements Screen {
   readonly id = 'labor_manager' as const;
+
+  /** The labor manager's keys, or the template menu's while it is open, then the list keys; `Esc` is fixed. */
+  translatedKeys(): readonly KeyContext[] { return this.templateMenu === null ? ['labor_manager', 'panel'] : ['labor_templates', 'panel']; }
+  captionKeys(): readonly KeyContext[] { return ['labor_manager', 'labor_templates', 'panel']; }
   readonly marks = new Marks();
   cursorRow = 0;
   cursorCol = 0;

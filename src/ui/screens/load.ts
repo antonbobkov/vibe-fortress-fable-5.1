@@ -11,7 +11,7 @@ import type { KeyPress } from '@platform/input';
 import { formatDate } from '@core/calendar';
 import { base64ToBytes } from '@core/serialize';
 import { clickHit, type CellPointer, type Screen } from '../screen';
-import type { Keymap } from '../keymap';
+import type { KeyContext, Keymap } from '../keymap';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { button, label } from '../widgets';
@@ -60,6 +60,9 @@ export function decodeThumbnail(cells: string): { glyph: number; fg: number; bg:
 
 export class LoadScreen implements Screen {
   readonly id = 'load' as const;
+
+  translatedKeys(): readonly KeyContext[] { return ['load']; }
+  captionKeys(): readonly KeyContext[] { return ['load', 'panel']; }
   selected: string | null = null;
   message: string | null = null;
   private last: Surface | null = null;

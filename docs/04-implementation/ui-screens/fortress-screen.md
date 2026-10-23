@@ -47,7 +47,7 @@ The log strip shows the last three announcements; danger lines are prefixed `!!`
 │                                                                                  │  …                                │
 │                                                                                  │ ─────────────────────────────────│
 │                                                                                  │ [Enter] inspect  [l] labors      │
-│                                                                                  │ [c] center  [i] idle  [S-w] hurt │
+│                                                                                  │ [S-c] center [i] idle [S-w] hurt  │
 │                                                                                  │ [Space] mark  [*] all  1 marked  │
 │                                                                                  │ [S-t] title  [S-n] rename        │
 │                                                                                  │ [S-m] squad  sleep 22h  [[]  []] │

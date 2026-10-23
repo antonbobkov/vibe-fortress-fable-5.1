@@ -25,7 +25,7 @@ import {
 } from '../constants';
 import { buildingName, capitalize, waitingFor, workshopBlockText, wrapText } from '../messages';
 import type { Surface } from '../surface';
-import { label, list, numberField, separator, textField, type ListState } from '../widgets';
+import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 
@@ -624,8 +624,10 @@ export class OrdersPanel {
     const building = this.buildings(ctx)?.get(id);
     const rows = this.groupRecipes(ctx, building === undefined ? [] : this.reader(ctx)?.recipesFor(building.typeId) ?? []).flatMap((row) => 'recipe' in row ? [row.recipe] : []);
     const state = this.workshopList(id);
-    if (press.key === 'ArrowUp' || press.key === 'ArrowDown') {
-      state.selected = Math.max(0, Math.min(rows.length - 1, state.selected + (press.key === 'ArrowUp' ? -1 : 1)));
+    // The input layer spells the arrows `↑` `↓` (`platform/input.ts`); a test may send the DOM names.
+    const up = press.key === '↑' || press.key === 'ArrowUp';
+    if ((up || press.key === '↓' || press.key === 'ArrowDown') && !press.shift) {
+      state.selected = Math.max(0, Math.min(rows.length - 1, state.selected + (up ? -1 : 1)));
       return true;
     }
     if (press.key === 'Enter') {
@@ -834,6 +836,11 @@ function statusColor(s: Surface, kind: OrderStatus['kind']): Rgb {
 
 /** `ui-screens/panels.md` § Add order. */
 function drawPicker(s: Surface, rect: Rect, panel: OrdersPanel, ctx: PanelContext): void {
+  // "Add order" is a text field: its keys, and so its captions, are not rebound.
+  asWritten(s, () => drawPickerFields(s, rect, panel, ctx));
+}
+
+function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: PanelContext): void {
   const t = s.theme;
   const strings = ctx.strings;
   const p = panel.picker;

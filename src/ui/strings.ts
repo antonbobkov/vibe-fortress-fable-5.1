@@ -16,6 +16,10 @@ import type { Registry } from '@core/registry';
 export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.settings.binding_modifiers': 'Use a key with optional Ctrl or Shift.',
   'ui.settings.binding_conflict': 'Conflicts with {context}: {action}',
+  'ui.settings.binding_fixed': '{key} is a fixed key and cannot be rebound.',
+  'ui.settings.binding_browser': '{key} belongs to the browser, which acts on it first.',
+  'ui.settings.binding_reset': '{action}: back to {key}.',
+  'ui.settings.bindings_reset': 'Every key is back to its default.',
   // Main menu (`ui-screens/menus-and-world.md` § Main menu).
   'ui.menu.title': 'D E E P H O L M',
   'ui.menu.subtitle': 'a hall beneath the world',
@@ -436,7 +440,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.units.row_tip': '{name}, {profession}',
   'ui.units.peasant': 'Peasant',
   'ui.units.actions1': '[Enter] inspect  [l] labors',
-  'ui.units.actions2': '[c] center  [i] idle  [S-w] hurt',
+  'ui.units.actions2': '[S-c] center [i] idle [S-w] hurt',
   'ui.units.title_idle': '{title} · idle ({n})',
   'ui.units.title_idle_only': '{title} · idle',
   'ui.units.title_counts': '{title} ({total}, {idle} idle)',

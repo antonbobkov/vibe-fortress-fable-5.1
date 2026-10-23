@@ -28,8 +28,9 @@ test('T-M7-07 save-load-settings', async ({ page }) => {
   expect(await textOf(page)).toContain('Keybindings');
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
-  await page.keyboard.press('v');
-  expect(await textOf(page)).toContain('v');
+  // T-424: `v` is a zone inspector and military key, which the pause key acts beside.
+  await page.keyboard.press('F8');
+  expect(await textOf(page)).toMatch(/pause \/ resume +F8/);
   await page.evaluate(() => (window as unknown as { __deepholm: SettingsHook }).__deepholm.settled());
 
   await page.goto('/?start=flat-test&embark=default');
@@ -37,9 +38,9 @@ test('T-M7-07 save-load-settings', async ({ page }) => {
   await expect.poll(() => screenOf(page)).toBe('fortress');
   expect(await page.evaluate(() => (window as unknown as { __deepholm: SettingsHook }).__deepholm.readers.ui.zoom)).toBe(0.75);
   await page.locator('canvas#screen').click();
-  await page.keyboard.press('v');
+  await page.keyboard.press('F8');
   expect(await page.evaluate(() => (window as unknown as { __deepholm: SettingsHook }).__deepholm.host.speed())).toBe(1);
-  await page.keyboard.press('v');
+  await page.keyboard.press('F8');
   expect(await page.evaluate(() => (window as unknown as { __deepholm: SettingsHook }).__deepholm.host.speed())).toBe(0);
   await page.evaluate(() => (window as unknown as { __deepholm: SettingsHook }).__deepholm.step(40));
   const saved = await page.evaluate(() => (window as unknown as { __deepholm: SettingsHook }).__deepholm.hash());
