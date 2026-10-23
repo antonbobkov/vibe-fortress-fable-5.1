@@ -102,6 +102,8 @@ export const MUSIC_TAIL_S = 2;
 export const MUSIC_MASTER_GAIN = 0.6;
 /** 24 § Music: the length of the cave reverb, in seconds. */
 export const MUSIC_REVERB_S = 2.4;
+/** 24 § Music: how long after music turns off (or the volume reaches 0) the audio context is suspended, so the last piece has faded. */
+export const MUSIC_SUSPEND_DELAY_S = 3;
 
 /** `command-catalog.md` `AddWorkOrder`: "count 1–999 or maintain threshold 1–999" (the picker's bounds, D-U5). */
 export const ORDER_COUNT_MIN = 1;

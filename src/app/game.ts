@@ -66,7 +66,7 @@ import { composeLegend, LegendStore, type EndReason } from '@app/legend';
 import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
 import { Music, type MusicScene } from '@ui/music';
-import { MUSIC_REVERB_S } from '@ui/constants';
+import { MUSIC_REVERB_S, MUSIC_SUSPEND_DELAY_S } from '@ui/constants';
 import { AudioGate, browserAudioContext } from '@platform/audio';
 import type { CombatReader } from '@systems/combat';
 import type { ThreatsReader } from '@systems/threats';
@@ -1589,7 +1589,7 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
   const testBuild = import.meta.env.MODE === 'test';
   // 24 § Music: audio waits for the first key press or click, and a test build makes none.
   if (!testBuild) {
-    const gate = new AudioGate(() => game.userSettings.music && game.userSettings.musicVolume > 0, browserAudioContext, MUSIC_REVERB_S);
+    const gate = new AudioGate(() => game.userSettings.music && game.userSettings.musicVolume > 0, browserAudioContext, MUSIC_REVERB_S, MUSIC_SUSPEND_DELAY_S);
     gate.attach(window as unknown as EventTargetLike);
     game.music.attach(() => gate.output());
   }
@@ -1631,7 +1631,12 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
 
   // Hidden tabs can suspend RAF entirely: visibility events break the rate window even then.
   const now = browserNow();
-  document.addEventListener('visibilitychange', () => game.driver.reset(now()));
+  document.addEventListener('visibilitychange', () => {
+    game.driver.reset(now());
+    // 24 § Music: the music pauses while the document is hidden, and goes on when it is shown.
+    game.music.setHidden(document.hidden === true);
+  });
+  game.music.setHidden(document.hidden === true);
   const loop = new FrameLoop({
     scheduler: options.scheduler ?? browserFrameScheduler(),
     hidden: browserHidden(),
