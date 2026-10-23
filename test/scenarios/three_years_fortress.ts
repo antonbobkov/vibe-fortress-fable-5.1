@@ -18,6 +18,7 @@ import { LOCAL_MAP_Z, TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import { C } from '@core/components';
 import type { Registry } from '@core/registry';
+import type { TileIndex } from '@core/types';
 import { EmbarkSession } from '@systems/embark';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
@@ -183,6 +184,8 @@ export interface FortressState {
   hearthBuildingId: number;
   gateDoorId: number;
   gateDoorPlaced: boolean;
+  /** T-426: the tick a gate wall was first seen missing after the walls stood, or 0. */
+  gateWallLostTick: number;
   gateDoorId2: number;
   gateDoorPlaced2: boolean;
   squadId: number;
@@ -560,6 +563,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     hearthBuildingId: 0,
     gateDoorId: 0,
     gateDoorPlaced: false,
+    gateWallLostTick: 0,
     gateDoorId2: 0,
     gateDoorPlaced2: false,
     squadId: 0,
@@ -921,6 +925,41 @@ export function checkFortressCaveFarm(w: TestWorld, state: FortressState): void 
   }
 }
 
+/** The six gate walls around the entrance stair. */
+export function gateWallTiles(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy'>): TileIndex[] {
+  const { cx, cy } = state;
+  return [
+    w.index(cx + 5, cy + 5, Z), w.index(cx + 7, cy + 5, Z),
+    w.index(cx + 5, cy + 6, Z), w.index(cx + 7, cy + 6, Z),
+    w.index(cx + 5, cy + 7, Z), w.index(cx + 7, cy + 7, Z),
+  ];
+}
+
+/** T-426: how long a burnt gate wall may stand missing before the T-156 witness counts it (five days). */
+export const GATE_WALL_REBUILD_TICKS = 5 * TICKS_PER_DAY;
+
+/**
+ * Place the gate walls, and place again any that is gone (T-426: a wooden wall burns in a
+ * wildfire, 05 § Fire, and a player puts it back). A wall goes where 14's ghost accepts one now
+ * (a dwarf, a fallen log or a sapling on the tile waits for the next look), as a player places
+ * it; the command is sent only for a tile with no building, so standing walls change nothing.
+ */
+export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy' | 'economy' | 'gateWallLostTick'>): void {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const walls = gateWallTiles(w, state);
+  const isWall = (t: TileIndex): boolean => buildings.get(buildings.at(t))?.typeId === 'wall';
+  if (state.economy.phases.has('gate walls')) {
+    if (walls.every((t) => isWall(t) && buildings.get(buildings.at(t))?.state === 'built')) state.gateWallLostTick = 0;
+    else if (state.gateWallLostTick === 0 && walls.some((t) => buildings.at(t) === 0)) state.gateWallLostTick = w.tick;
+  }
+  for (const origin of walls) {
+    if (!buildings.at(origin) && buildings.ghost('wall', origin, 0).reason === null) {
+      command(w, { type: 'PlaceBuilding', buildingType: 'wall', origin, orientation: 0, materialChoice: 0, priority: BUILD });
+    }
+  }
+  if (walls.every(isWall)) state.economy.phases.add('gate walls');
+}
+
 export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const { cx, cy } = state;
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -928,23 +967,9 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
 
   // Open the underground route before enclosing its only surface entrance. Otherwise a
   // civilian can occupy the still-undug stair tile and prevent the miners reaching it.
-  if (!state.economy.phases.has('gate walls') &&
+  if (state.economy.phases.has('gate walls') || (
       w.map.kindAt(w.index(cx + 6, cy + 6, Z)) === TileKind.StairsDown &&
-      w.map.kindAt(w.index(cx + 6, cy + 6, HALL_Z)) === TileKind.StairsUp) {
-    const walls = [
-      w.index(cx + 5, cy + 5, Z), w.index(cx + 7, cy + 5, Z),
-      w.index(cx + 5, cy + 6, Z), w.index(cx + 7, cy + 6, Z),
-      w.index(cx + 5, cy + 7, Z), w.index(cx + 7, cy + 7, Z),
-    ];
-    // A wall goes where 14's ghost accepts one now (a dwarf, a fallen log or a sapling on the
-    // tile waits for the next look), as a player places it.
-    for (const origin of walls) {
-      if (!buildings.at(origin) && buildings.ghost('wall', origin, 0).reason === null) {
-        command(w, { type: 'PlaceBuilding', buildingType: 'wall', origin, orientation: 0, materialChoice: 0, priority: BUILD });
-      }
-    }
-    if (walls.every((t) => buildings.get(buildings.at(t))?.typeId === 'wall')) state.economy.phases.add('gate walls');
-  }
+      w.map.kindAt(w.index(cx + 6, cy + 6, HALL_Z)) === TileKind.StairsUp)) keepGateWalls(w, state);
 
   // 1. Place South door once supporting walls are built
   if (!state.gateDoorPlaced) {
@@ -1185,7 +1210,9 @@ export function fortressWitnesses(w: TestWorld, state: FortressState, peril: num
   const built = (id: number): boolean => buildings.get(id)?.state === 'built';
   const walls = [[cx + 5, cy + 5], [cx + 7, cy + 5], [cx + 5, cy + 6], [cx + 7, cy + 6], [cx + 5, cy + 7], [cx + 7, cy + 7]]
     .map(([x, y]) => buildings.at(w.index(x!, y!, Z)));
-  if (!walls.every((id) => id !== 0 && buildings.get(id)?.typeId === 'wall' && built(id))) missing.push('gate walls built');
+  // T-426: a wall that burnt within GATE_WALL_REBUILD_TICKS of the end may still be going up.
+  const rebuilding = state.gateWallLostTick !== 0 && w.tick - state.gateWallLostTick < GATE_WALL_REBUILD_TICKS;
+  if (!rebuilding && !walls.every((id) => id !== 0 && buildings.get(id)?.typeId === 'wall' && built(id))) missing.push('gate walls built');
   if (!built(state.gateDoorId) || !built(state.gateDoorId2)) missing.push('gate doors built');
   const rooms = (type: string): number => buildings.zonesOfType(type).filter((id) => buildings.roomScore(id)?.requirementsMet === true).length;
   if (rooms('hearth_hall') < 1) missing.push('a hearth hall');
