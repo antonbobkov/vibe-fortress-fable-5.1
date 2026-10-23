@@ -1,6 +1,8 @@
 # T-426 — The three-year script never rebuilds a gate wall that burns
 
-**Source:** T-421, [boars maul p0-2](../../reports/audits/2026-10-22-boars-maul-p0-2.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-23, in 8c8160a.
+
+**Source:** T-421, [boars maul p0-2](../../../reports/audits/2026-10-22-boars-maul-p0-2.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
