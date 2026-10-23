@@ -415,12 +415,13 @@ describe('T-424 a rebound key is named wherever a key is named', () => {
     expect(keys.rebind(at(keys, 'panel', 'activate'), key('F4'))).toBeNull();
     const rows = helpKeyRows(keys, strings).map((r) => r.text);
     expect(rows).toContain('F6  repeat the selected order, or the last finished one');
-    expect(rows).toContain('F6  repeat the selected or last finished order');
+    // T-429: the key is listed once; no second line of the Orders panel repeats it.
+    expect(rows.filter((r) => r.startsWith('F6 ') || r.includes(' F6 '))).toHaveLength(1);
     expect(rows.some((r) => r.startsWith('↑↓ F4  choose a mode'))).toBe(true);
     expect(keys.rebind(at(keys, 'global', 'undo'), key('U', { ctrl: true }))).toBeNull();
     expect(keys.rebind(keys.bindings.findIndex((b) => b.context === 'panel' && b.spec.key === '↑'), key('F2'))).toBeNull();
     const again = helpKeyRows(keys, strings).map((r) => r.text);
-    expect(again.some((r) => r.startsWith('Ctrl+U or click undo'))).toBe(true);
+    expect(again).toContain('Ctrl+U  undo last designation batch');
     expect(again.some((r) => r.startsWith('F2 ↓ F4  choose a mode'))).toBe(true);
   });
 

@@ -229,19 +229,21 @@ describe('U-07 room panel and stockpile announcements (M9, §4.4)', () => {
   });
 
   it('Help covers the editor actions and follows rebound accelerator letters', () => {
-    const rows = helpKeyRows(keymap, strings).filter((r) => r.category === 'zones');
-    expect(rows).toHaveLength(10);
+    // The zone inspector's section: its keymap rows (13), then the notes its rows do not give (7).
+    const rows = helpKeyRows(keymap, strings).filter((r) => r.category === 'zone_inspector' && r.heading !== true);
+    expect(rows.filter((r) => r.keys !== undefined)).toHaveLength(13);
+    expect(rows.filter((r) => r.keys === undefined)).toHaveLength(7);
     expect(rows.some((r) => r.text.startsWith('Farm plot: ↑↓ season'))).toBe(true);
-    expect(rows.some((r) => r.text.startsWith('[i] link:'))).toBe(true);
-    expect(rows.some((r) => r.text.startsWith('[S-p] preset'))).toBe(true);
-    expect(rows.some((r) => r.text.startsWith('[S-o] bedroom owner'))).toBe(true);
+    expect(rows.some((r) => r.text.startsWith('[i]  link a source stockpile'))).toBe(true);
+    expect(rows.some((r) => r.text.startsWith('[S-p]  open the stockpile preset'))).toBe(true);
+    expect(rows.some((r) => r.text.startsWith('[S-o]  open the bedroom'))).toBe(true);
     expect(rows.some((r) => r.text.includes('Space checkbox'))).toBe(true);
     const rebound = new Keymap(keymap.bindings);
     const population = rebound.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'population');
     expect(rebound.rebind(population, { key: 'g', ctrl: false, shift: false })).toBeNull();
-    const newRows = helpKeyRows(rebound, strings).filter((r) => r.category === 'zones');
-    expect(newRows.some((r) => r.text.startsWith('[p] preset'))).toBe(true);
-    expect(newRows.some((r) => r.text.startsWith('[S-g] tree'))).toBe(true);
+    const newRows = helpKeyRows(rebound, strings).filter((r) => r.category === 'zone_inspector');
+    expect(newRows.some((r) => r.text.startsWith('[p]  open the stockpile preset'))).toBe(true);
+    expect(newRows.some((r) => r.text.startsWith('[S-g]  focus the category tree'))).toBe(true);
   });
 
   it('highlights every visible open border tile; Space and numeric controls do not change speed', () => {

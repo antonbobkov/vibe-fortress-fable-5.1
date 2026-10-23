@@ -326,6 +326,9 @@ describe('U-04 drag to place many (D-U6, M6, S9)', () => {
 
   it('Help lists the drag, the keyboard corner and the order key', () => {
     const rows = helpKeyRows(keymap, strings).map((r) => r.text);
+    // They follow the Build panel's rows, under its heading; there is no second "Build" section.
+    expect(rows).not.toContain('Build');
+    expect(rows.indexOf('drag  one per valid tile (1×1 types)')).toBeGreaterThan(rows.indexOf('Build panel'));
     expect(rows).toContain('drag  one per valid tile (1×1 types)');
     expect(rows).toContain('Shift+Enter corner, Enter places many');
     expect(rows).toContain('o  order what is out of stock');

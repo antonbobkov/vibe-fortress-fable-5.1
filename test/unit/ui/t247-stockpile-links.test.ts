@@ -79,7 +79,7 @@ describe('T-247 stockpile source links have keyboard and mouse controls', () => 
     f.screen.openPanel('zones'); f.screen.key(press('I', { shift: true }));
     expect(f.screen.statusRow2()).toContain('Link Stockpile #1:');
     const s = surface(80,42); f.screen.draw(s); expect(s.lines().join('\n')).toContain('[S-i] link');
-    expect(helpKeyRows(keys, strings).some(r => r.text.startsWith('[S-i] link:'))).toBe(true);
+    expect(helpKeyRows(keys, strings).some(r => r.text.startsWith('[S-i]  link a source stockpile'))).toBe(true);
   });
   it.each(['pick', 'unlink'] as const)('x never removes the stockpile from the %s mode', mode => {
     const f = fixture(true); f.screen.key(press(mode === 'pick' ? 'i' : 'x')); f.screen.key(press('x'));

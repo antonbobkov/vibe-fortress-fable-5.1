@@ -121,6 +121,8 @@ describe('T-272 the Calendar key', () => {
     expect(LEGACY_BINDINGS[LEGACY_BINDINGS.length - 1]).toBe('global/Shift+Y');
     const help = helpKeyRows(keymap, strings).map((row) => row.text);
     expect(help.some((text) => text.includes('[S-y]') && text.includes('calendar panel'))).toBe(true);
-    expect(help.some((text) => text.includes('Farm plot: ↑↓ season') && text.includes('[S-a]'))).toBe(true);
+    // The key is a row of the zone inspector; the farm note follows the rows and does not repeat it.
+    expect(help.some((text) => text.startsWith('[S-a]  a farm plot'))).toBe(true);
+    expect(help.some((text) => text.startsWith('Farm plot: ↑↓ season') && !text.includes('[S-a]'))).toBe(true);
   });
 });
