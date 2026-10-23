@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-113 | [A full gate run on the restructured repository](work/T-113-full-gate-run.md) | the owner, 2026-10-06 | — (p0-2 growth printed, 0d8a616) | open; local side (needs a quiet machine) |
 | T-422 | [Music](work/T-422-music.md) | the owner, 2026-10-22 | T-113 | open |
 | T-423 | [An ASCII-art intro sequence](work/T-423-ascii-intro.md) | the owner, 2026-10-22 | T-113 | open |
 | T-424 | [Every key binding configurable from the menu](work/T-424-keybindings-from-the-menu.md) | the owner, 2026-10-22 | T-113 | open |
