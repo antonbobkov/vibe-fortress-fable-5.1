@@ -75,6 +75,7 @@ import geologyTemplatesJson from './geologyTemplates.json';
 import glyphsJson from './glyphs.json';
 import hintsJson from './hints.json';
 import instrumentsJson from './instruments.json';
+import introJson from './intro.json';
 import itemsJson from './items.json';
 import jobTypesJson from './jobTypes.json';
 import keymapJson from './keymap.json';
@@ -135,6 +136,7 @@ export function rawTables(): Record<string, unknown> {
     glyphs: glyphsJson,
     hints: hintsJson,
     instruments: instrumentsJson,
+    intro: introJson,
     items: itemsJson,
     jobTypes: jobTypesJson,
     keymap: keymapJson,
@@ -266,6 +268,7 @@ export function loadContent(options: LoadOptions = {}): Registry {
     ['names', Object.freeze(data['names'])],
     ['strings', Object.freeze(data['strings'])],
     ['keymap', Object.freeze(data['keymap'])],
+    ['intro', Object.freeze(data['intro'])],
     ['biomeLookup', Object.freeze(data['biomeLookup'])],
     ['ratingThresholds', Object.freeze(data['ratingThresholds'])],
     ['damageVsLayer', Object.freeze(data['damageVsLayer'])],

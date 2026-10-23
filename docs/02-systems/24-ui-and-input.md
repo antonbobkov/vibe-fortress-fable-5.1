@@ -8,7 +8,7 @@ Give the player every action by keyboard and by mouse and every fact by inspecti
 
 ## Concepts
 
-- **Screen**: a full-window mode on a stack: `main_menu`, `world_gen`, `world_map`, `embark`, `fortress`, `legend`, `settings`, `load`, `trade_session` (modal over fortress), `labor_manager` (over fortress), `confirm` (modal dialog), `text_input` (modal).
+- **Screen**: a full-window mode on a stack: `intro`, `main_menu`, `world_gen`, `world_map`, `embark`, `fortress`, `legend`, `settings`, `load`, `trade_session` (modal over fortress), `labor_manager` (over fortress), `confirm` (modal dialog), `text_input` (modal).
 - **Panel**: a sidebar view inside the fortress screen, one active at a time, registered with a hotkey.
 - **Tool**: the current map interaction mode: `none` (inspect), a designation kind, a build placement, a zone type, a squad order, a selection for item commands.
 - **Widget**: an immediate-mode element: `List`, `Table`, `Menu`, `Toggle`, `Number`, `Text`, `Button`, `Tabs`, `Bar`, `Tree`, `Dropdown`, `Label`, `Separator`.
@@ -52,7 +52,7 @@ Keyboard:
 - In the Units table and a squad's add/remove list, `Space` marks a row before it pauses; `*` marks all or none. An action uses every marked row when the cursor row is marked, otherwise just that row.
 - In Orders, `=` or numpad `+` adds one, `-` subtracts one, and Shift on either physical key changes ten (main-row `+` is Shift+`=`). These take precedence over speed only while an order is selected.
 - With a building tool that places many, `Shift+Enter` sets a corner; `Enter` or a click sets the other. Plain `Enter` places one. `Esc` clears the corner before leaving the tool.
-- Every key the game reacts to is a binding of the keymap, a data table (`keymap.json`) that Settings › Keybindings edits, except the fixed keys of `ui-keymap-and-screens.md` § Fixed keys: `Esc`, which always leads back; typing in a focused text or number field; the editor's own keys; the rows that stand for every letter; and the key that dismisses a pinned danger line. A panel's own keys are rows of the keymap too, one context per panel and per panel state that gives a key another meaning (the zone inspector, the labor manager's templates). A rebound key does what its binding does wherever that binding acts, and the default key it replaced no longer does; a key moved away from a panel's binding still reaches the global, map and panel-letter bindings that have it.
+- Every key the game reacts to is a binding of the keymap, a data table (`keymap.json`) that Settings › Keybindings edits, except the fixed keys of `ui-keymap-and-screens.md` § Fixed keys: `Esc`, which always leads back; typing in a focused text or number field; the editor's own keys; the rows that stand for every letter; the key that skips the intro; and the key that dismisses a pinned danger line. A panel's own keys are rows of the keymap too, one context per panel and per panel state that gives a key another meaning (the zone inspector, the labor manager's templates). A rebound key does what its binding does wherever that binding acts, and the default key it replaced no longer does; a key moved away from a panel's binding still reaches the global, map and panel-letter bindings that have it.
 
 Mouse:
 
@@ -125,13 +125,14 @@ Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) 
 
 ### Screens outside the fortress
 
-- **Main menu**: `New world`, `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`. Arrow keys and mouse.
+- **Intro**: a short animated scene in the game's glyphs (`ui-screens/menus-and-world.md` § Intro; its scenes are content, `03-content/intro.md`). It plays at launch before the main menu as the Intro at launch setting says (`first time`: only at the first launch; `always`; `off`), and from the main menu's `Intro`. Any key or click skips it; when it ends or is skipped, the main menu opens.
+- **Main menu**: `New world`, `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys and mouse.
 - **World generation** (01): seed text field, size dropdown, `Generate`, progress with the preview, `Continue`.
 - **World map** (01): the map with the cursor; the region panel on the right; the filter panel (`f`); `Embark` (`Enter` on a valid region). Legend of biome glyphs (`?`).
 - **Embark** (02): three tabs, footer with budget and `Embark`; Balanced is applied on opening. Missing pick or food/drink asks the default-No confirmation before embarking.
 - **Trade session** (20): modal two-column table.
 - **Legend**: the record of a fortress (see 24 › Legend record below); `Back`.
-- **Settings**: keybindings (rebind by selecting a row and pressing a key), auto-pause toggles per severity, hints on/off, zoom, colorblind palette, edge scrolling, autosave on/off, music volume, music on/off, `Reset to defaults`.
+- **Settings**: keybindings (rebind by selecting a row and pressing a key), auto-pause toggles per severity, hints on/off, zoom, colorblind palette, edge scrolling, autosave on/off, music volume, music on/off, intro at launch (first time, always, off), `Reset to defaults`.
 - **Load**: manual saves and autosaves with thumbnails; `Load`, `Delete` (confirm), `Export`, `Import`.
 
 ### The legend record
@@ -161,7 +162,7 @@ Unsaved changes are ticks elapsed or commands applied since the last save. A com
 Music is a presentation listener on the event bus. It reads events and readers and nothing else; it never submits a command and never draws on the simulation's random streams, so it cannot change a world or its hash.
 
 - **Synthesized.** Each tune of [`../03-content/music.md`](../03-content/music.md) is note data played by the Web Audio API through the instruments of that file: an oscillator per pitch (two, a few cents apart, for an instrument with detune), a gentle low-pass filter, an attack, decay, sustain and release envelope, and a share sent to a cave reverb `MUSIC_REVERB_S` long. A piece's notes are handed to the synthesizer `MUSIC_LOOKAHEAD_S` ahead of the audio clock; a note whose time passed unplayed (a hidden tab) is skipped.
-- **What plays.** The screens before a fortress (the main menu, world generation, the world map, embark, load, legends and settings from the main menu) play the `menu` tune, again after `MUSIC_MENU_GAP_S`. While a fortress runs, on the fortress screen and every screen over it, the `fortress` tunes play one after another in id order, starting at a random one, with a silence between two pieces drawn from `MUSIC_SILENCE_MIN_S` to `MUSIC_SILENCE_MAX_S` seconds. While the hearth alert or a siege stands, the `tense` tune plays instead, again after `MUSIC_TENSE_GAP_S`. The alert stands from an `AlertChanged` to `hearth` until the next `AlertChanged`; a siege stands from a `RaidArrived` of kind `siege` until the `RaidEnded` of that party. A new or loaded fortress starts from its readers: the combat alert and the threats' active parties whose purpose is a siege.
+- **What plays.** The intro and the screens before a fortress (the main menu, world generation, the world map, embark, load, legends and settings from the main menu) play the `menu` tune, again after `MUSIC_MENU_GAP_S`. The intro is a music scene of its own, `intro`, whose mood is the menu's, so the theme runs on into the main menu; a piece for the intro alone would be chosen for that scene. At launch no audio exists until the first key press or click, which also skips the intro, so the theme is heard with the intro only when it is opened from the main menu. While a fortress runs, on the fortress screen and every screen over it, the `fortress` tunes play one after another in id order, starting at a random one, with a silence between two pieces drawn from `MUSIC_SILENCE_MIN_S` to `MUSIC_SILENCE_MAX_S` seconds. While the hearth alert or a siege stands, the `tense` tune plays instead, again after `MUSIC_TENSE_GAP_S`. The alert stands from an `AlertChanged` to `hearth` until the next `AlertChanged`; a siege stands from a `RaidArrived` of kind `siege` until the `RaidEnded` of that party. A new or loaded fortress starts from its readers: the combat alert and the threats' active parties whose purpose is a siege.
 - **Changes.** When the mood changes (menu, fortress, tense) the playing piece fades out over `MUSIC_FADE_S` and the new mood's piece starts after `MUSIC_CHANGE_GAP_S`; when the danger ends, the fortress pieces come back after a whole silence. A piece lasts its score plus `MUSIC_TAIL_S` for its last notes to die away.
 - **Volume and the mute key.** The Music volume setting (0 to 100, default 50) sets the loudness as `MUSIC_MASTER_GAIN × (volume / 100)²`. The Music setting turns it on and off, and so does the music key (`Ctrl+M` by default, a Global row of the keymap that Settings › Keybindings can rebind). The key acts on every screen: a screen that does not use the key passes it to the app. A key capture keeps it; a text field passes it on, as it passes every Ctrl key (typing never makes one), so the key works while a filter is focused. On the fortress screen the status row says "Music on." or "Music off.". Music off, or volume 0, stops the piece at once; music turned on starts the mood's piece after `MUSIC_CHANGE_GAP_S`. Both settings, and a sound-effect volume that is kept for sound effects to come, are saved in the settings store.
 - **The browser's rules.** No audio context exists before the player's first key press or click, nor while music is off or at volume 0 before one was made; each later gesture resumes a context the browser suspended. Headless runs, the tests and the e2e build create no audio context.
@@ -223,6 +224,10 @@ This entire document.
 | `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport (*unmeasured*) |
 | `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button (*unmeasured*) |
 | `SETTINGS_VOLUME_STEP` | 10 | Step of the music and sound volumes |
+| `INTRO_STAGE_COLS` | 64 | Width of the intro's stage, cells |
+| `INTRO_STAGE_ROWS` | 16 | Height of the intro's stage, cells |
+| `INTRO_FRAME_MS` | 250 | How long an intro cue shows each frame when its row gives no step, ms (*unmeasured*) |
+| `INTRO_RISE_ROWS` | 6 | How far below its place each column of rising intro art starts, rows |
 | `MUSIC_SILENCE_MIN_S` | 60 | Shortest silence between two fortress pieces, seconds (*unmeasured*) |
 | `MUSIC_SILENCE_MAX_S` | 180 | Longest silence between two fortress pieces, seconds (*unmeasured*) |
 | `MUSIC_MENU_GAP_S` | 8 | Pause before the menu theme plays again, seconds (*unmeasured*) |

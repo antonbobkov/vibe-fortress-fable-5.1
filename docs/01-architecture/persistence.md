@@ -52,7 +52,7 @@ Typed arrays are written raw with their element type in the section name (`map.k
 
 - `saves` — key: save id; value: the blob plus a header copy for listing.
 - `legends` — key: fortress id; value: the legend record (see 24 UI).
-- `settings` — key: `settings`; value: player settings (the music's on/off and volume among them) and keymap overrides (`{ binding, spec }`, the binding named by its context and action; an override saved under its context and default key, or as `{ index, spec }`, by an earlier version is still read, `02-systems/24-ui-and-input.md` § Settings).
+- `settings` — key: `settings`; value: player settings (the music's on/off and volume, the Intro at launch setting and whether the intro has played at a launch among them) and keymap overrides (`{ binding, spec }`, the binding named by its context and action; an override saved under its context and default key, or as `{ index, spec }`, by an earlier version is still read, `02-systems/24-ui-and-input.md` § Settings).
 
 Save ids: `manual-<unixMs>`, `auto-<year>-<season>`, `snapshot-<n>`, `final-<fortressSlug>`.
 

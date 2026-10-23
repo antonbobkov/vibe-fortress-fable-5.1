@@ -120,6 +120,9 @@ export function acceleratorLabel(letter: string, reserved: ReadonlySet<string> =
   return reserved.has(letter) ? `[S-${letter}]` : `[${letter}]`;
 }
 
+/** Keys that only modify another: a key capture waits for the key they go with, and they skip no intro. */
+export const MODIFIER_KEYS: ReadonlySet<string> = new Set(['Shift', 'Control', 'Alt', 'AltGraph', 'Meta', 'OS', 'CapsLock', 'NumLock', 'ScrollLock', 'Fn', 'Dead', 'Process', 'Unidentified']);
+
 /** A resolved action; `arg` carries the direction, digit or tab the key stands for. */
 export interface UiAction {
   readonly id: string;
@@ -366,6 +369,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   Continue: 'continue',
   Legends: 'legends',
   About: 'about',
+  Intro: 'intro',
   Generate: 'generate',
   'random seed': 'randomize',
   'Delete (confirm)': 'delete',

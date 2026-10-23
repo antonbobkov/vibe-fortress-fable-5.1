@@ -15,6 +15,7 @@ import {
   readTables,
   ticked,
 } from '../md-tables.mjs';
+import { exportIntroCaptions } from './intro.mjs';
 
 export function exportPalette() {
   const tables = readTables(join(CONTENT_DIR, 'glyphs-and-colors.md'));
@@ -176,7 +177,8 @@ export function exportKeymap() {
 
 /**
  * `content-pipeline.md` § Strings: every player-facing string is a key in `strings.json`. The
- * canonical values are the announcement, hint, milestone, confirmation and thought texts.
+ * canonical values are the announcement, hint, milestone, confirmation and thought texts, and the
+ * intro's captions (`intro.md` § Captions).
  */
 export function exportStrings(thoughts) {
   const strings = {};
@@ -184,6 +186,7 @@ export function exportStrings(thoughts) {
   for (const m of exportMilestones()) strings[`milestone.${m.id}`] = m.text;
   for (const c of exportConfirmations()) strings[`confirm.${c.id}`] = c.text;
   for (const t of thoughts) strings[`thought.${t.id}`] = t.text;
+  for (const c of exportIntroCaptions()) strings[`intro.${c.id}`] = c.text;
   const announcements = findTable(readTables(join(CONTENT_DIR, 'ui-keymap-and-screens.md')), 'Announcement strings', 'Key');
   // Announcement rows retain their source order ahead of the sorted legacy groups.
   const sorted = {};

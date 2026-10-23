@@ -12,17 +12,26 @@ function rows(name: ScreenName): string[] {
 }
 
 describe('T-332 screens: what each outside screen says', () => {
-  it('the main menu names the game, offers the six entries each with its key, and puts the cursor on New world', () => {
+  it('T-423 the intro frame shows the risen title, its subtitle and the skip line', () => {
+    const r = rows('intro');
+    expect(r[4]).toBe('████▄ █████ █████ ████▄ █   █ ▄███▄ █     █▄ ▄█');
+    expect(r[20]).toBe('a hall beneath the world');
+    expect(r[24]).toBe('Any key or click to skip');
+  });
+
+
+  it('the main menu names the game, offers the seven entries each with its key, and puts the cursor on New world', () => {
     const r = rows('main_menu');
     expect(r[4]).toBe('D E E P H O L M');
     expect(r[5]).toBe('a hall beneath the world');
-    expect(r.slice(7, 13)).toEqual([
+    expect(r.slice(7, 14)).toEqual([
       '► [n] New world',
       '[c] Continue   (Emberhall · Year 2)',
       '[l] Load',
       '[g] Legends',
       '[o] Settings',
       '[a] About',
+      '[i] Intro',
     ]);
   });
 
@@ -130,7 +139,7 @@ describe('T-332 screens: what each outside screen says', () => {
   it('Settings lists each option with its current value, explains the Zoom option, and offers reset and back', () => {
     const r = rows('settings');
     expect(r[1]).toBe('Settings');
-    expect(r.slice(3, 15)).toEqual([
+    expect(r.slice(3, 16)).toEqual([
       '► Auto-pause on danger        [on]',
       'Auto-pause on alert         [off]',
       'Hints                       [on]',
@@ -143,9 +152,10 @@ describe('T-332 screens: what each outside screen says', () => {
       'Keybindings ►',
       'Music volume                [50%]',
       'Music                       [on]',
+      'Intro at launch             [first time]',
     ]);
-    expect(r[15]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
-    expect(r[17]).toBe('[d] Reset to defaults    [Esc] Back');
+    expect(r[16]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
+    expect(r[18]).toBe('[d] Reset to defaults    [Esc] Back');
   });
 
   it('the keybindings list gives the action and key of every binding under its context heading, in the order of the keymap, and how to rebind and reset', () => {

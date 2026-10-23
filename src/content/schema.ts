@@ -321,6 +321,50 @@ const score: V = (v, c) => {
   if (typeof parsed === 'string') fail(c, parsed);
 };
 
+/** The intro of `intro.md`: scenes, the cues drawn on them, captions, glyph colours and art. */
+export interface IntroDef {
+  readonly scenes: readonly { readonly id: string; readonly ms: number; readonly backdrop: string }[];
+  readonly cues: readonly IntroCueDef[];
+  readonly captions: readonly { readonly id: string; readonly scene: string; readonly from: number; readonly until: number }[];
+  readonly colors: readonly { readonly glyph: string; readonly color: string }[];
+  readonly art: readonly { readonly id: string; readonly rows: readonly string[] }[];
+}
+
+/** One row of `intro.md` § Cues; times in ms from the scene's start, cells on the stage. */
+export interface IntroCueDef {
+  readonly scene: string;
+  /** Its frames: an art id, or the glyphs as written. */
+  readonly sprite: readonly string[];
+  readonly color?: string;
+  readonly at: readonly [number, number];
+  readonly to?: readonly [number, number];
+  readonly from: number;
+  readonly arrive?: number;
+  readonly until?: number;
+  readonly step?: number;
+  readonly effect?: 'rise';
+}
+
+/** The intro's own references: every scene, backdrop and `rise` sprite names something that exists. */
+const introRefs: V = (v, c) => {
+  const intro = v as IntroDef;
+  const scenes = new Set(intro.scenes.map((scene) => scene.id));
+  const art = new Set(intro.art.map((piece) => piece.id));
+  for (const scene of intro.scenes) if (!art.has(scene.backdrop)) fail(at(c, `scenes.${scene.id}.backdrop`), `no art "${scene.backdrop}"`);
+  intro.cues.forEach((cue, n) => {
+    const field = `cues[${n}]`;
+    if (!scenes.has(cue.scene)) fail(at(c, `${field}.scene`), `no scene "${cue.scene}"`);
+    if (cue.effect === 'rise' && !cue.sprite.every((frame) => art.has(frame))) fail(at(c, `${field}.sprite`), 'a rise draws art');
+    if (cue.effect === 'rise' && cue.until === undefined) fail(at(c, `${field}.until`), 'a rise needs an end');
+    if (cue.until !== undefined && cue.until <= cue.from) fail(at(c, `${field}.until`), 'ends before it starts');
+    if (cue.arrive !== undefined && (cue.arrive <= cue.from || cue.to === undefined)) fail(at(c, `${field}.arrive`), 'an arrival needs a later time and a place to go');
+  });
+  for (const caption of intro.captions) {
+    if (!scenes.has(caption.scene)) fail(at(c, `captions.${caption.id}.scene`), `no scene "${caption.scene}"`);
+    if (caption.until <= caption.from) fail(at(c, `captions.${caption.id}.until`), 'ends before it starts');
+  }
+};
+
 /** A whole number from `min` to `max`. */
 function intIn(min: number, max: number): V {
   return (v, c) => {
@@ -913,6 +957,32 @@ export const SCHEMAS: Record<string, TableSchema> = {
     source: nonEmptyStr,
     voices: arr(obj({ instrument: ref('instruments'), notes: score }), 1),
   }),
+
+  intro: {
+    shape: 'map',
+    row: (v, c) => {
+      const before = c.issues.length;
+      obj({
+        scenes: arr(obj({ id: nonEmptyStr, ms: intIn(1, 120000), backdrop: nonEmptyStr }), 1),
+        cues: arr(obj({
+          scene: nonEmptyStr,
+          sprite: arr(nonEmptyStr, 1),
+          color: opt(colorRef),
+          at: tupleOf(2, int),
+          to: opt(tupleOf(2, int)),
+          from: intIn(0, 120000),
+          arrive: opt(intIn(0, 120000)),
+          until: opt(intIn(0, 120000)),
+          step: opt(intIn(1, 10000)),
+          effect: opt(enumOf(['rise'])),
+        })),
+        captions: arr(obj({ id: nonEmptyStr, scene: nonEmptyStr, from: intIn(0, 120000), until: intIn(0, 120000) })),
+        colors: arr(obj({ glyph: nonEmptyStr, color: colorRef })),
+        art: arr(obj({ id: nonEmptyStr, rows: arr(str, 1) }), 1),
+      })(v, c);
+      if (c.issues.length === before) introRefs(v, c);
+    },
+  },
 
   strings: { shape: 'map', row: record(str) },
 };

@@ -54,6 +54,7 @@ export const HEALTH_PART_BAR_CELLS = 5;
 export const SETTINGS_ZOOM_OPTIONS = ['auto', 0.75, 1, 1.5, 2] as const;
 export const SETTINGS_SNAPSHOT_OPTIONS = [2, 4, 8] as const;
 export const SETTINGS_COMBAT_LOG_OPTIONS = ['all', 'hits only', 'off'] as const;
+export const SETTINGS_INTRO_OPTIONS = ['first time', 'always', 'off'] as const;
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   autoPauseDanger: true,
   autoPauseAlert: false,
@@ -67,7 +68,17 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   music: true,
   musicVolume: 50,
   soundVolume: 50,
+  intro: 'first time',
+  introSeen: false,
 });
+
+/** 24 § Tuning constants: the intro's stage, in cells (`intro.md` § Stage). */
+export const INTRO_STAGE_COLS = 64;
+export const INTRO_STAGE_ROWS = 16;
+/** 24 § Tuning constants: how long an intro cue shows each frame when its row gives no step. */
+export const INTRO_FRAME_MS = 250;
+/** 24 § Tuning constants: how far below its place each column of a rising piece of intro art starts. */
+export const INTRO_RISE_ROWS = 6;
 
 /** The music and sound volumes run from 0 to 100 in steps of this many (ui-keymap-and-screens.md § Settings). */
 export const SETTINGS_VOLUME_STEP = 10;

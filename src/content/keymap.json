@@ -1255,6 +1255,11 @@
     "action": "About"
   },
   {
+    "context": "main_menu",
+    "key": "i",
+    "action": "Intro"
+  },
+  {
     "context": "world_gen",
     "key": "g",
     "action": "Generate"

@@ -29,6 +29,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.menu.legends': 'Legends',
   'ui.menu.settings': 'Settings',
   'ui.menu.about': 'About',
+  'ui.menu.intro': 'Intro',
+  // The intro (`ui-screens/menus-and-world.md` § Intro); its captions are `intro.*` rows of strings.json.
+  'ui.intro.skip': 'Any key or click to skip',
   'ui.menu.rename': 'Rename fortress',
   'ui.menu.rename_title': 'Rename {fortress}',
   // Load (`ui-screens/menus-and-world.md` § Load) and the confirmation dialog (24 § Confirmations).

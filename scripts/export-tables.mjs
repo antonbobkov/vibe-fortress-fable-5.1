@@ -69,6 +69,7 @@ import {
   exportStrings,
 } from './lib/export/ui.mjs';
 import { exportInstruments, exportTunes } from './lib/export/music.mjs';
+import { exportIntro } from './lib/export/intro.mjs';
 
 const OUT_DIR = join(ROOT, 'src/content');
 
@@ -145,6 +146,7 @@ function build() {
     keymap: exportKeymap(),
     instruments: exportInstruments(),
     tunes: exportTunes(),
+    intro: exportIntro(),
     strings: exportStrings(thoughts),
   };
 }

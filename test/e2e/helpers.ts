@@ -21,12 +21,20 @@ export async function textOf(page: Page): Promise<string> {
   return page.evaluate(() => (window as unknown as { __deepholm: Hook }).__deepholm.text().join('\n'));
 }
 
+/**
+ * Give the canvas the keyboard from the main menu: a click in its top-left corner, which no menu
+ * entry covers (a click on the centre lands on an entry, and would choose it).
+ */
+export async function focusMenu(page: Page): Promise<void> {
+  await page.locator('canvas#screen').click({ position: { x: 4, y: 4 } });
+}
+
 /** Main menu → New world → the seed typed into the field → Generate → the world map. */
 export async function generateWorld(page: Page, seed: string): Promise<void> {
   await page.goto('/');
   await page.waitForFunction(() => (window as unknown as { __deepholm?: unknown }).__deepholm !== undefined);
   await expect.poll(() => screenOf(page)).toBe('main_menu');
-  await page.locator('canvas#screen').click();
+  await focusMenu(page);
   await page.keyboard.press('n');
   await expect.poll(() => screenOf(page)).toBe('world_gen');
   for (let k = 0; k < 40; k += 1) await page.keyboard.press('Backspace');

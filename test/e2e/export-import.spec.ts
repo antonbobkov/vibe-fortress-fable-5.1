@@ -4,6 +4,7 @@
  */
 
 import { test, expect, type Page } from '@playwright/test';
+import { focusMenu } from './helpers';
 
 async function call<T>(page: Page, body: string): Promise<T> {
   return page.evaluate(`(async () => { const h = window.__deepholm; ${body} })()`) as Promise<T>;
@@ -28,7 +29,7 @@ test('export-import', async ({ page }) => {
   await page.goto('/');
   await page.waitForFunction(() => (window as unknown as { __deepholm?: unknown }).__deepholm !== undefined);
   await expect.poll(() => call<string>(page, 'return h.screen();')).toBe('main_menu');
-  await page.locator('canvas#screen').click();
+  await focusMenu(page);
   await page.keyboard.press('l');
   await expect.poll(() => call<string>(page, 'return h.screen();')).toBe('load');
 
