@@ -96,8 +96,10 @@ export interface TuneLength {
  */
 export class MusicDirector {
   private mood: MusicMood | null = null;
-  private playing: { readonly tune: string; readonly endsAt: number } | null = null;
+  private playing: { readonly tune: string; endsAt: number } | null = null;
   private quietUntil = 0;
+  /** The clock when the director was paused, or `null`. */
+  private pausedAt: number | null = null;
   private readonly byRole: Readonly<Record<MusicMood, readonly TuneLength[]>>;
   private readonly turns: Record<MusicMood, number>;
 
@@ -119,6 +121,20 @@ export class MusicDirector {
 
   private gapAfter(mood: MusicMood): number {
     return mood === 'fortress' ? this.silence() : mood === 'menu' ? MUSIC_MENU_GAP_S : MUSIC_TENSE_GAP_S;
+  }
+
+  /** Stop the clock at `now` (the document is hidden): the piece and the silence keep what they have left. */
+  pause(now: number): void {
+    this.pausedAt ??= now;
+  }
+
+  /** Start the clock again at `now`: the time paused does not count against the piece or the silence. */
+  resume(now: number): void {
+    if (this.pausedAt === null) return;
+    const away = Math.max(0, now - this.pausedAt);
+    this.pausedAt = null;
+    if (this.playing !== null) this.playing.endsAt += away;
+    this.quietUntil += away;
   }
 
   /** At `now` seconds, with the mood the game is in: what to start or stop, if anything. */
@@ -197,6 +213,8 @@ export function arrange(tune: TuneDef, instrument: (id: string) => InstrumentDef
 /** Plays one piece at a time, handing its notes to the synthesizer {@link MUSIC_LOOKAHEAD_S} ahead. */
 export class MusicPlayer {
   private piece: { readonly notes: readonly SynthNote[]; next: number; readonly start: number; readonly bus: SynthPiece } | null = null;
+  /** The piece set aside while the document is hidden, and how far into it the music had got. */
+  private paused: { readonly notes: readonly SynthNote[]; readonly position: number } | null = null;
 
   get playing(): boolean {
     return this.piece !== null;
@@ -211,6 +229,26 @@ export class MusicPlayer {
   stop(): void {
     this.piece?.bus.fadeOut(MUSIC_FADE_S);
     this.piece = null;
+    this.paused = null;
+  }
+
+  /** Set the piece aside where it is: its sound fades out and it is kept to go on from there. */
+  pause(synth: SynthOut): void {
+    const piece = this.piece;
+    if (piece === null) return;
+    this.paused = { notes: piece.notes, position: Math.max(0, synth.now - piece.start) };
+    piece.bus.fadeOut(MUSIC_FADE_S);
+    this.piece = null;
+  }
+
+  /** Go on with the piece set aside, from the place it had reached. */
+  resume(synth: SynthOut): void {
+    const paused = this.paused;
+    if (paused === null) return;
+    this.paused = null;
+    const next = paused.notes.findIndex((note) => note.at >= paused.position);
+    this.piece = { notes: paused.notes, next: next < 0 ? paused.notes.length : next, start: synth.now + 0.1 - paused.position, bus: synth.begin() };
+    this.pump(synth);
   }
 
   /** Schedule the notes that start within the lookahead; a note whose time went by unplayed (a hidden tab) is skipped. */
@@ -246,6 +284,12 @@ export class Music {
   private readonly tunes: ReadonlyMap<string, TuneDef>;
   private readonly arrangements = new Map<string, Arrangement>();
   private output: (() => SynthOut | null) | null = null;
+  /** The synthesizer the last frame used: where a pause reads the clock. */
+  private synth: SynthOut | null = null;
+  /** Whether the document is hidden. */
+  private hidden = false;
+  /** Whether the director and the player are paused, until the first frame after the document is shown. */
+  private paused = false;
 
   constructor(private readonly registry: Registry, random: () => number) {
     const table = registry.table<TuneDef>('tunes');
@@ -272,6 +316,22 @@ export class Music {
     this.watch.onEvents(events);
   }
 
+  /**
+   * The document was hidden or shown (`visibilitychange`). While it is hidden the piece fades out
+   * and the clock stops; the first frame after it is shown goes on from where the piece was.
+   */
+  setHidden(hidden: boolean): void {
+    if (hidden === this.hidden) return;
+    this.hidden = hidden;
+    if (hidden && this.synth !== null && !this.paused) this.pause(this.synth);
+  }
+
+  private pause(synth: SynthOut): void {
+    this.paused = true;
+    this.director.pause(synth.now);
+    this.player.pause(synth);
+  }
+
   private arrangement(id: string): Arrangement {
     let out = this.arrangements.get(id);
     if (out === undefined) {
@@ -288,10 +348,22 @@ export class Music {
     const on = settings.music && settings.musicVolume > 0;
     const synth = this.output();
     if (synth === null) return;
+    this.synth = synth;
+    synth.setAudible(on);
     synth.setVolume(on ? volumeGain(settings.musicVolume) : 0);
+    if (this.hidden) {
+      if (!this.paused) this.pause(synth);
+      return;
+    }
+    const goOn = this.paused;
+    if (goOn) {
+      this.paused = false;
+      this.director.resume(synth.now);
+    }
     const cue = this.director.update(synth.now, on ? moodOf(scene, this.watch.tense) : null);
     if (cue?.kind === 'stop') this.player.stop();
     else if (cue?.kind === 'play') this.player.start(this.arrangement(cue.tune), synth);
+    else if (goOn) this.player.resume(synth);
     this.player.pump(synth);
   }
 }

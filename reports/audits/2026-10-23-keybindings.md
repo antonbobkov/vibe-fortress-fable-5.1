@@ -322,5 +322,5 @@ These stay out of the editor's reach; `docs/03-content/ui-keymap-and-screens.md`
 
 ## Left open
 
-- A button whose caption names a key is clickable over the width of its default caption; a rebound key with a longer or shorter name moves the caption's end by a few cells. Filed as [T-NEW: caption buttons measured with the rebound key](../../docs/work/T-428-caption-hits-follow-rebound-keys.md).
-- Help's Keys tab lists each panel's keys as keymap rows and again in the older notes at its end. Filed as [T-NEW: Help, fold the panel notes into the key sections](../../docs/work/T-429-help-notes-into-key-sections.md).
+- A button whose caption names a key is clickable over the width of its default caption; a rebound key with a longer or shorter name moves the caption's end by a few cells. Filed as [T-NEW: caption buttons measured with the rebound key](../../docs/archive/tasks/T-428-caption-hits-follow-rebound-keys.md).
+- Help's Keys tab lists each panel's keys as keymap rows and again in the older notes at its end. Filed as [T-NEW: Help, fold the panel notes into the key sections](../../docs/archive/tasks/T-429-help-notes-into-key-sections.md).

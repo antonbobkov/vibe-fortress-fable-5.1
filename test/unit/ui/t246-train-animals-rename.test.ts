@@ -156,8 +156,8 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
 
     it('Help lists the training entry, choice/cancel keys and fortress rename', () => {
       const text = helpKeyRows(keymap, strings).map(row => row.text).join('\n');
-      expect(text).toContain('[S-t]'); expect(text).toContain('War'); expect(text).toContain('Hunting');
-      expect(text).toContain('Esc'); expect(text).toContain('rename the fortress');
+      expect(text).toContain('[S-t]  train the animal'); expect(text).toContain('War'); expect(text).toContain('Hunting');
+      expect(text).toContain('Esc'); expect(text).toContain('n  Rename fortress'); expect(text).toContain('The name is typed in a field');
     });
 
     it('the real game reports a missing kennel through the ordinary rejection path', async () => {

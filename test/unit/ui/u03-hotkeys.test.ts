@@ -323,9 +323,9 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     f.screen.draw(s);
     expect(s.lines().join('\n')).toContain('[p] Preset');
     expect(s.lines().join('\n')).toContain('[S-g]');
-    const help = helpKeyRows(keys, strings).filter((r) => r.category === 'zones').map((r) => r.text).join('\n');
-    expect(help).toContain('[p]');
-    expect(help).toContain('[S-g]');
+    const help = helpKeyRows(keys, strings).filter((r) => r.category === 'zone_inspector').map((r) => r.text).join('\n');
+    expect(help).toContain('[p]  open the stockpile preset dropdown');
+    expect(help).toContain('[S-g]  focus the category tree');
     const military = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'military');
     expect(keys.rebind(military, { key: 'y', ctrl: false, shift: false })).toBeNull();
     f.screen.openPanel('stocks');

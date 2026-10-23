@@ -95,28 +95,33 @@ interface GlyphRow {
   readonly fg?: string;
 }
 
-/** The "Work orders" rows of the keys tab, in order. */
-const ORDER_HELP_KEYS: readonly string[] = [
-  'ui.help.orders.new', 'ui.help.orders.count', 'ui.help.orders.repeat', 'ui.help.orders.remove', 'ui.help.orders.edit', 'ui.help.orders.picker',
-];
+/**
+ * The notes that follow a panel's keymap rows on the Keys tab: what the rows do not say (the
+ * mouse's way, typing in a field, the keys inside a dropdown or a list, ranges and limits), as
+ * string ids in order. A `typing` note names the key that opens a field and then the field's own
+ * words, which the keymap does not rebind; it comes first.
+ */
+interface PanelNotes {
+  readonly typing?: readonly string[];
+  readonly notes?: readonly string[];
+  /** The key contexts the keys a note names are read in, the most specific first. */
+  readonly contexts: readonly KeyContext[];
+}
 
-/** The "Build" rows of the keys tab: placing many and the out-of-stock order (D-U6). */
-const BUILD_HELP_KEYS: readonly string[] = ['ui.help.build.drag', 'ui.help.build.corner', 'ui.help.build.order'];
-
-/** The building panel's rows (U-05) and Designate's re-prioritize, which are the panels' own keys. */
-const BUILDING_HELP_KEYS: readonly string[] = ['ui.help.building.rows', 'ui.help.building.link', 'ui.help.building.cage', 'ui.help.building.owner', 'ui.help.building.plan', 'ui.help.designate.priority'];
-
-/** The key contexts each section of Help's notes names keys of, the most specific first. */
-const NOTE_CONTEXTS: Readonly<Record<string, readonly KeyContext[]>> = Object.freeze({
-  orders: ['orders_panel', 'panel', 'global', 'fortress_panel'],
-  build: ['build_panel', 'map', 'fortress_panel', 'panel'],
-  building: ['building_panel', 'designate_panel', 'panel', 'look_panel'],
-  jobs: ['jobs_panel', 'panel'],
-  stocks: ['stocks_panel', 'panel'],
-  animals: ['animals_panel', 'panel'],
-  designate: ['global', 'designate_panel'],
-  game_menu: ['game_menu', 'fortress_panel'],
-  zones: ['zone_inspector', 'zones_panel', 'panel'],
+const PANEL_NOTES: Readonly<Partial<Record<KeyContext, PanelNotes>>> = Object.freeze({
+  designate_panel: { notes: ['ui.help.designate.undo'], contexts: ['global', 'designate_panel'] },
+  build_panel: { notes: ['ui.help.build.drag', 'ui.help.build.corner', 'ui.help.build.order'], contexts: ['build_panel', 'map', 'fortress_panel', 'panel'] },
+  zones_panel: { notes: ['ui.help.zones.select'], contexts: ['zone_inspector', 'zones_panel', 'panel'] },
+  zone_inspector: {
+    notes: ['ui.help.zones.links', 'ui.help.zones.preset', 'ui.help.zones.tree', 'ui.help.zones.numbers', 'ui.help.zones.materials', 'ui.help.zones.owner', 'ui.help.zones.farm'],
+    contexts: ['zone_inspector', 'zones_panel', 'panel'],
+  },
+  jobs_panel: { typing: ['ui.help.jobs.filter'], notes: ['ui.help.jobs.waiting', 'ui.help.jobs.cycle'], contexts: ['jobs_panel', 'panel'] },
+  orders_panel: { typing: ['ui.help.orders.picker'], contexts: ['orders_panel', 'panel', 'global', 'fortress_panel'] },
+  building_panel: { notes: ['ui.help.building.rows'], contexts: ['building_panel', 'designate_panel', 'panel', 'look_panel'] },
+  stocks_panel: { typing: ['ui.help.stocks.filter'], contexts: ['stocks_panel', 'panel'] },
+  animals_panel: { notes: ['ui.help.animals.train', 'ui.help.animals.cap'], contexts: ['animals_panel', 'panel'] },
+  game_menu: { notes: ['ui.help.game_menu.rename'], contexts: ['game_menu', 'fortress_panel'] },
 });
 
 /** Help's context order: the panel hotkeys first (Q14), then the keymap table's order. */
@@ -164,47 +169,14 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys)}  ${g.text}`, keys: g.keys });
     // D-U2: an accelerator on a panel letter takes `Shift`; the keymap table has no row to say so.
     if (context === 'panel' && strings !== undefined) out.push({ category: context, text: strings.get('ui.help.accelerators') });
-  }
-  if (strings !== undefined) {
-    /** The live key of the first binding of `context` with action `id`, as a caption shows it. */
-    const key = (context: KeyContext, id: string): string => {
-      const binding = keymap.of(context).find((b) => b.id === id);
-      return binding === undefined ? '' : helpKeyLabel(binding.spec, letters);
+    // The panel's notes follow its rows, each key they still name as its binding has it now.
+    const extra = PANEL_NOTES[context];
+    if (extra === undefined || strings === undefined) continue;
+    const note = (id: string, words: boolean): void => {
+      out.push({ category: context, text: keymap.relabel(strings.get(id), extra.contexts, words) });
     };
-    /** A note of a panel's keys, with the mouse's way; each key it names is the one its binding has now. */
-    const note = (category: string, text: string, words = true): void => {
-      out.push({ category, text: keymap.relabel(text, NOTE_CONTEXTS[category] ?? [], words) });
-    };
-    // A note on typing in a field: its bracketed key opens the field, the words name the field's own keys.
-    const typing = (category: string, text: string): void => note(category, text, false);
-    out.push({ category: 'orders', text: strings.get('ui.help.orders.title'), heading: true });
-    for (const k of ORDER_HELP_KEYS) (k === 'ui.help.orders.picker' ? typing : note)('orders', strings.get(k));
-    out.push({ category: 'build', text: strings.get('ui.help.build.title'), heading: true });
-    for (const k of BUILD_HELP_KEYS) note('build', strings.get(k));
-    out.push({ category: 'building', text: strings.get('ui.help.building.title'), heading: true });
-    for (const k of BUILDING_HELP_KEYS) note('building', strings.get(k));
-    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.title'), heading: true });
-    typing('jobs', strings.get('ui.help.jobs.filter'));
-    note('jobs', strings.get('ui.help.jobs.waiting'));
-    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.labor', { key: key('jobs_panel', 'cycle_labor') }) });
-    out.push({ category: 'jobs', text: strings.get('ui.help.jobs.state', { key: key('jobs_panel', 'cycle_state') }) });
-    out.push({ category: 'stocks', text: strings.get('ui.help.stocks.title'), heading: true });
-    typing('stocks', strings.get('ui.help.stocks.filter'));
-    out.push({ category: 'animals', text: strings.get('ui.help.animals.title'), heading: true });
-    out.push({ category: 'animals', text: strings.get('ui.help.animals.train', { key: key('animals_panel', 'train') }) });
-    out.push({ category: 'animals', text: strings.get('ui.help.animals.cap', { key: key('animals_panel', 'cap') }) });
-    note('designate', strings.get('ui.help.designate.undo'));
-    out.push({ category: 'game_menu', text: strings.get('ui.help.game_menu.title'), heading: true });
-    note('game_menu', strings.get('ui.help.game_menu.rename'));
-    out.push({ category: 'zones', text: strings.get('ui.help.zones.title'), heading: true });
-    note('zones', strings.get('ui.help.zones.select'));
-    out.push({ category: 'zones', text: strings.get('ui.help.zones.links', { link: key('zone_inspector', 'link_source'), unlink: key('zone_inspector', 'unlink_or_remove') }) });
-    const rows = [
-      ['preset', 'ui.help.zones.preset'], ['tree', 'ui.help.zones.tree'], ['numbers', 'ui.help.zones.numbers'],
-      ['materials', 'ui.help.zones.materials'], ['owner', 'ui.help.zones.owner'], ['zone_types', 'ui.help.zones.types'],
-    ] as const;
-    for (const [id, text] of rows) out.push({ category: 'zones', text: strings.get(text, { key: key('zone_inspector', id) }) });
-    out.push({ category: 'zones', text: strings.get('ui.help.zones.farm', { key: key('zone_inspector', 'all_seasons') }) });
+    for (const id of extra.typing ?? []) note(id, false);
+    for (const id of extra.notes ?? []) note(id, true);
   }
   return out;
 }

@@ -547,18 +547,24 @@ describe('U-05 the building panel (M4)', () => {
     expect(f.sent).toEqual([{ type: 'LinkMechanism', sourceId: lever, targetId: bridge }, { type: 'PullLever', leverId: lever }]);
   });
 
-  it('U-05 Help lists the building panel\'s keys', () => {
+  it('U-05 Help lists the building panel\'s keys once: its keymap rows, then the one note', () => {
     const rows = helpKeyRows(keymap, strings).map((row) => row.text);
-    const from = rows.indexOf('Building panel (click a building)');
+    const from = rows.indexOf('Building panel');
     expect(from).toBeGreaterThanOrEqual(0);
-    expect(rows.slice(from + 1, from + 7)).toEqual([
+    expect(rows.slice(from + 1, from + 9)).toEqual([
+      '1–9  a planned building\'s build priority',
+      '[i]  link a lever or a plate',
+      '[r]  unlink the target under the cursor, or release a caged creature (confirm)',
+      '[y]  pull the lever',
+      '[g]  tame the caged creature',
+      '[w]  the owner of a bed\'s bedroom, or whom a coffin is kept for',
+      '[x]  cancel the plan, or take the building apart (confirm)',
       '↑↓ Enter  choose a mode, an owner, a link',
-      'i link (pick on the map)  r unlink  y pull',
-      'r release (asks first)  g tame',
-      'w owner of a bed or a coffin',
-      '1-9 build priority  x cancel / take apart',
-      '[S-p]  last designation takes the priority',
     ]);
+    // The older second list is gone, with its duplicate of the designate row.
+    expect(rows).not.toContain('Building panel (click a building)');
+    expect(rows).not.toContain('[S-p]  last designation takes the priority');
+    expect(rows).not.toContain('i link (pick on the map)  r unlink  y pull');
   });
 });
 

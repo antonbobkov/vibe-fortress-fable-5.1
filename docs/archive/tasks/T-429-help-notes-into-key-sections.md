@@ -1,6 +1,8 @@
 # T-429 — Help: fold the panel notes into the key sections
 
-**Source:** T-424, [keybindings audit](../../reports/audits/2026-10-23-keybindings.md) · **Size:** S · **Needs:** T-424 · **Status:** open
+**Closed:** 2026-10-23, in 7fe14c7.
+
+**Source:** T-424, [keybindings audit](../../../reports/audits/2026-10-23-keybindings.md) · **Size:** S · **Needs:** T-424 · **Status:** open
 
 ## Why
 

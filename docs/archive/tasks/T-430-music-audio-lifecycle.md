@@ -1,5 +1,7 @@
 # T-430 — The music's audio context when music is off, interrupted or hidden
 
+**Closed:** 2026-10-23, in 6474ab1.
+
 **Source:** the review of T-422 (`c482ee4`), its nits 2 to 4 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

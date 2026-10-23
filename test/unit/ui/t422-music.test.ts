@@ -50,6 +50,7 @@ class FakeSynth implements SynthOut {
     };
   }
   setVolume(gain: number): void { this.volume = gain; }
+  setAudible(): void {}
 }
 
 /** Count every audio context made while a test runs. */

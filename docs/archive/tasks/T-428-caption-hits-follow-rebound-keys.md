@@ -1,6 +1,8 @@
 # T-428 — Caption buttons measured with the rebound key
 
-**Source:** T-424, [keybindings audit](../../reports/audits/2026-10-23-keybindings.md) § Left open · **Size:** S · **Needs:** T-424 · **Status:** open
+**Closed:** 2026-10-23, in ae65ff1.
+
+**Source:** T-424, [keybindings audit](../../../reports/audits/2026-10-23-keybindings.md) § Left open · **Size:** S · **Needs:** T-424 · **Status:** open
 
 ## Why
 

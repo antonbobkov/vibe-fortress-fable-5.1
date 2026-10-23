@@ -6,7 +6,7 @@ import type { Rect } from '@render/cellbuffer';
 import { REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
 import { itemName } from '../messages';
 import type { Surface } from '../surface';
-import { label } from '../widgets';
+import { captionButtons, label } from '../widgets';
 import { accel, type PanelContext } from './context';
 
 export const TRADE_CIVILIZATIONS: readonly Civ[] = ['mountainhome', 'hillfolk', 'wildwood'];
@@ -85,8 +85,8 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   const civ = panel.civ();
   label(s, col, row++, `── ${CIV_NAMES[civ]} ──`, { fg: s.theme.key, width });
   label(s, col, row++, `Last brought: ${trade.lastBrought(civ).join(', ') || 'none'}`, { width });
-  label(s, col, row++, 'Requests [+]', { fg: s.theme.key, width });
-  s.hit({ col, row: row - 1, cols: 12, rows: 1 }, () => { panel.choosingRequest = true; panel.candidate = 0; });
+  const requestsWidth = label(s, col, row++, 'Requests [+]', { fg: s.theme.key, width });
+  s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => { panel.choosingRequest = true; panel.candidate = 0; });
   const entries = trade.requests(civ);
   for (const [index, entry] of entries.entries()) {
     if (row >= rect.row + rect.rows - 5) break;
@@ -106,7 +106,5 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
     label(s, col, row++, `${entry.delta >= 0 ? '+' : ''}${entry.delta} ${entry.reason} (${formatDate(entry.tick)})`, { width });
   }
   const footer = rect.row + rect.rows - 1;
-  label(s, col, footer, '[S-d] depot  [S-t] trade now', { fg: s.theme.key, width });
-  s.hit({ col, row: footer, cols: 15, rows: 1 }, () => ctx.openPanel('depot'));
-  s.hit({ col: col + 17, row: footer, cols: 13, rows: 1 }, openTrade);
+  captionButtons(s, col, footer, '[S-d] depot  [S-t] trade now', [() => ctx.openPanel('depot'), openTrade], { fg: s.theme.key, width });
 }

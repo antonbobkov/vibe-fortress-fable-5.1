@@ -46,6 +46,26 @@ export interface SynthOut {
   begin(): SynthPiece;
   /** The master gain, from 0. */
   setVolume(gain: number): void;
+  /**
+   * Whether music is wanted at all (on, with some volume). While it is not, the audio context is
+   * suspended once the last piece has faded; wanting it again resumes the context.
+   */
+  setAudible(audible: boolean): void;
+}
+
+/**
+ * Resume an audio context in any state but `running` and `closed`: a browser leaves one `suspended`
+ * until a gesture, and Safari leaves one `interrupted` after a call. A refused resume is ignored;
+ * the next gesture tries again.
+ */
+export function resumeContext(ctx: AudioContext): void {
+  const state = String(ctx.state);
+  if (state === 'running' || state === 'closed') return;
+  try {
+    void Promise.resolve(ctx.resume()).catch(() => undefined);
+  } catch {
+    // A context that cannot resume is left as it is.
+  }
 }
 
 /** A deterministic noise source for the reverb's impulse, so no two loads differ. */
@@ -62,8 +82,10 @@ export class WebAudioSynth implements SynthOut {
   private readonly master: GainNode;
   private readonly reverb: ConvolverNode;
   private volume = -1;
+  private audible = true;
+  private suspendTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private readonly ctx: AudioContext, reverbSeconds: number) {
+  constructor(private readonly ctx: AudioContext, reverbSeconds: number, private readonly suspendDelaySeconds = 0) {
     this.master = ctx.createGain();
     this.master.gain.value = 0;
     this.master.connect(ctx.destination);
@@ -87,6 +109,24 @@ export class WebAudioSynth implements SynthOut {
     if (gain === this.volume) return;
     this.volume = gain;
     this.master.gain.setTargetAtTime(gain, this.ctx.currentTime, 0.05);
+  }
+
+  setAudible(audible: boolean): void {
+    if (audible === this.audible) return;
+    this.audible = audible;
+    if (this.suspendTimer !== null) {
+      clearTimeout(this.suspendTimer);
+      this.suspendTimer = null;
+    }
+    if (audible) {
+      resumeContext(this.ctx);
+      return;
+    }
+    // The piece that was playing fades first; then the clock and the graph stop.
+    this.suspendTimer = setTimeout(() => {
+      this.suspendTimer = null;
+      if (!this.audible && String(this.ctx.state) === 'running') void Promise.resolve(this.ctx.suspend()).catch(() => undefined);
+    }, this.suspendDelaySeconds * 1000);
   }
 
   begin(): SynthPiece {
@@ -172,14 +212,19 @@ export class AudioGate {
     private readonly wanted: () => boolean,
     private readonly create: () => AudioContext | null,
     private readonly reverbSeconds: number,
+    private readonly suspendDelaySeconds = 0,
   ) {}
 
-  /** Listen for the first gesture on `target`; every gesture also resumes a suspended context. */
+  /**
+   * Listen for the first gesture on `target`. While music is wanted, every gesture also resumes a
+   * context the browser suspended or interrupted; while it is not, the context stays suspended.
+   */
   attach(target: EventTargetLike): void {
     const gesture = (): void => {
       this.gestured = true;
-      if (this.wanted()) this.output();
-      if (this.ctx !== null && this.ctx.state === 'suspended') void this.ctx.resume().catch(() => undefined);
+      if (!this.wanted()) return;
+      this.output();
+      if (this.ctx !== null) resumeContext(this.ctx);
     };
     target.addEventListener('keydown', gesture, true);
     target.addEventListener('pointerdown', gesture, true);
@@ -203,7 +248,7 @@ export class AudioGate {
       this.failed = true;
       return null;
     }
-    this.synth = new WebAudioSynth(this.ctx, this.reverbSeconds);
+    this.synth = new WebAudioSynth(this.ctx, this.reverbSeconds, this.suspendDelaySeconds);
     return this.synth;
   }
 }

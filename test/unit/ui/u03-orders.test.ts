@@ -515,10 +515,14 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
 
   it('Help lists the order keys and the Shift rule', () => {
     const rows = helpKeyRows(keymap, strings).map((row) => row.text);
-    expect(rows).toContain('Work orders');
-    expect(rows).toContain('[S-n]  new order (the picker)');
-    expect(rows).toContain('+ = -  count ±1 (Shift: ±10)');
-    expect(rows).toContain('r  repeat the selected or last finished order');
+    // The Orders panel has one section: the keymap rows, then the one note they do not give.
+    expect(rows).not.toContain('Work orders');
+    expect(rows).toContain('Orders panel');
+    expect(rows).toContain('[S-n]  new order (opens "Add order")');
+    expect(rows).toContain('+ =  the selected order\'s count +1 (Shift: +10)');
+    expect(rows).toContain('[r]  repeat the selected order, or the last finished one');
+    expect(rows).not.toContain('[S-n]  new order (the picker)');
+    expect(rows).toContain('letters filter · digits quantity · Tab field · ←→ change');
     expect(rows).toContain('Shift+letter  a panel action on a panel letter: [S-m]');
   });
 

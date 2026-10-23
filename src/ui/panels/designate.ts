@@ -20,7 +20,7 @@ import { acceleratorLabel } from '../keymap';
 import { UNDO_BATCHES_MAX } from '../constants';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
-import { label } from '../widgets';
+import { keyCells, label } from '../widgets';
 
 export type TrafficMode = 'normal' | 'restricted' | 'forbidden';
 
@@ -219,10 +219,10 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
   // `Priority [-] n [+]`: the two brackets are buttons that step the priority within 1-9.
   const priorityText = strings.get('ui.tool.designate.priority', { n: tool.priority });
   label(s, rect.col + 1, row, priorityText);
-  const minus = priorityText.indexOf('[-]');
-  const plus = priorityText.indexOf('[+]');
-  if (minus >= 0) s.hit({ col: rect.col + 1 + minus, row, cols: 3, rows: 1 }, () => tool.setPriority(tool.priority - 1));
-  if (plus >= 0) s.hit({ col: rect.col + 1 + plus, row, cols: 3, rows: 1 }, () => tool.setPriority(tool.priority + 1));
+  for (const cell of keyCells(s, priorityText)) {
+    if (cell.key === '-') s.hit({ col: rect.col + 1 + cell.from, row, cols: cell.cols, rows: 1 }, () => tool.setPriority(tool.priority - 1));
+    if (cell.key === '+') s.hit({ col: rect.col + 1 + cell.from, row, cols: cell.cols, rows: 1 }, () => tool.setPriority(tool.priority + 1));
+  }
   row += 1;
   // `[Ctrl+Z] undo last` and `[Del] clear rect` are two buttons that do what the keys do.
   const undoText = strings.get('ui.tool.designate.undo_only');
