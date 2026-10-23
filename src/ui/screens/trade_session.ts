@@ -13,7 +13,7 @@ import { Strings } from '../strings';
 import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { materialItemName } from '../messages';
-import { clampList, label, type ListState } from '../widgets';
+import { clampList, keyCells, label, type ListState } from '../widgets';
 
 export interface TradeSessionHost {
   readonly readers: ReaderSet;
@@ -244,12 +244,21 @@ export class TradeSessionScreen implements Screen {
         label(surface, col + width - 9, y, String(Math.round(row.value)), { fg: t.value, width: 9 });
         surface.hit({ col, row: y, cols: width, rows: 1 }, () => { this.side = side; state.selected = i; });
         const q = this.quantity(side, row.id);
-        label(surface, col + 2, y + 1, `[-] ${q} [+]`, { fg: t.text, width: width - 2 });
-        surface.hit({ col: col + 2, row: y + 1, cols: 3, rows: 1 }, () => this.setQuantity(side, row.id, q - 1));
-        surface.hit({ col: col + 7 + String(q).length, row: y + 1, cols: 3, rows: 1 }, () => this.setQuantity(side, row.id, q + 1));
-        surface.hit({ col: col + 6, row: y + 1, cols: Math.max(1, String(q).length), rows: 1 }, () => {
-          this.side = side; state.selected = i; this.scrub = { id: row.id, side, col: col + 6, quantity: q };
-        });
+        // The buttons are measured on the caption as drawn: a rebound `-` or `+` has another name.
+        const caption = `[-] ${q} [+]`;
+        const captionOptions = { fg: t.text, width: width - 2 };
+        label(surface, col + 2, y + 1, caption, captionOptions);
+        const cells = keyCells(surface, caption, captionOptions);
+        const minus = cells.find((c) => c.key === '-');
+        const plus = cells.find((c) => c.key === '+');
+        if (minus !== undefined) surface.hit({ col: col + 2 + minus.from, row: y + 1, cols: minus.cols, rows: 1 }, () => this.setQuantity(side, row.id, q - 1));
+        if (plus !== undefined) surface.hit({ col: col + 2 + plus.from, row: y + 1, cols: plus.cols, rows: 1 }, () => this.setQuantity(side, row.id, q + 1));
+        if (minus !== undefined) {
+          const digits = col + 2 + minus.from + minus.cols + 1;
+          surface.hit({ col: digits, row: y + 1, cols: Math.max(1, String(q).length), rows: 1 }, () => {
+            this.side = side; state.selected = i; this.scrub = { id: row.id, side, col: digits, quantity: q };
+          });
+        }
       }
     }
     const totals = this.totals();
