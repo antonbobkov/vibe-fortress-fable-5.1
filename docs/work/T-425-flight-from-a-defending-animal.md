@@ -24,3 +24,7 @@ Take P first: it is a plain fault with a unit test (a critically thirsty patient
 
 - 10 says each rule taken, with a unit test.
 - The instrument by the T-308 rule and `three_years_seeds` across three years, with before and after rows in a dated report.
+
+## As done
+
+Step 1 (the orchestrator's decision 1): a dwarf under attack, that is, one whose held hostile within `THREAT_RADIUS` holds it as its combat target, flees or fights whatever its needs, so a patient never rests within that hostile's reach. Instrument 13/4/8/142/8/0/0 → 13/8/10/150/8/0/0; twenty seeds 20 of 20, deaths 123 → 122, living 907 → 919 ([report](../../reports/audits/2026-10-23-flee-under-attack.md)).

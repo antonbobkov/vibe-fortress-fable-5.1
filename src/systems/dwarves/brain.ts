@@ -151,6 +151,15 @@ function offDoor(ctx: TickContext, id: EntityId, at: TileIndex): TileIndex {
   return at;
 }
 
+/**
+ * Step 1: a hostile attacks the dwarf while it holds the dwarf as its combat target. A dwarf under
+ * attack flees, or fights when cornered, even with a critical need, and so never rests as a patient
+ * within the attacker's reach (T-425).
+ */
+function attackedBy(ctx: TickContext, hostile: EntityId, id: EntityId): boolean {
+  return hostile !== 0 && ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').targetOf(hostile) === id;
+}
+
 /** A conscious patient goes to its hospital bed under any alert (step 3); an unconscious one is carried. */
 function walksToHospital(ctx: TickContext, id: EntityId): boolean {
   if (!ctx.readers.has('17')) return false;
@@ -358,6 +367,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     const myPos = ctx.world.entities.get(id, C.Position);
     const needs = ctx.world.entities.get(id, C.Needs);
     const critical = needs !== undefined && ranked(needs, true).length > 0;
+    const underAttack = attackedBy(ctx, threatId, id);
     const remembered = host.threatTile?.(id) ?? (threatPos === undefined ? -1 : ctx.world.map.index(threatPos.x, threatPos.y, threatPos.z));
     if (
       !ctx.world.entities.alive(threatId) ||
@@ -366,7 +376,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
     ) {
       host.clearThreat(id);
     } else if (myPos.z === threatPos.z && Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) <= THREAT_RADIUS &&
-        !(b.behavior === 'flee' && critical)) {
+        !(b.behavior === 'flee' && critical && !underAttack)) {
       avoidTile = remembered;
       if (host.caught?.(id) === true && !stillHeld(ctx, threatId, id)) host.release?.(id);
       const caught = host.caught?.(id) === true;
@@ -382,7 +392,7 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
         return;
       }
       const expired = b.activity === 'Fighting' && fightExpired(ctx, id, threatId, b);
-      if (!critical && !expired) {
+      if ((!critical || underAttack) && !expired) {
         startFight(host, ctx, id, b, threatId);
         return;
       }
@@ -602,7 +612,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       host.activities.cancel(ctx, id);
       movement?.stopWalking(id);
       reselect = true;
-    } else if (interrupted && host.threatOf(id) !== 0 && !keepCritical) {
+    } else if (interrupted && host.threatOf(id) !== 0 && (!keepCritical || attackedBy(ctx, host.threatOf(id), id))) {
       host.activities.cancel(ctx, id);
       reselect = true;
     } else if (interrupted && critical !== undefined && critical !== currentNeed) {
@@ -722,7 +732,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
             movement?.stopWalking(id);
             b.activity = NO_JOB;
             reselect = true;
-          } else if (critical) {
+          } else if (critical && !attackedBy(ctx, threatId, id)) {
             host.setCombatTarget(id, 0);
             movement?.stopWalking(id);
             reselect = true;
