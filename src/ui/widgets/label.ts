@@ -22,10 +22,16 @@ export interface LabelOptions {
   readonly relabel?: boolean | readonly KeyContext[];
 }
 
+/** The text of a label with its `[k]` keys named as the live keymap binds them. */
+function named(s: Surface, text: string, options: LabelOptions): string {
+  const relabel = options.relabel;
+  if (relabel !== false && s.keyNames !== null && (options.keys !== false || relabel !== undefined)) return s.keyNames(text, relabel === true || relabel === undefined ? undefined : relabel);
+  return text;
+}
+
 /** Draw a label; returns the cells written. */
 export function label(s: Surface, col: number, row: number, text: string, options: LabelOptions = {}): number {
-  const relabel = options.relabel;
-  if (relabel !== false && s.keyNames !== null && (options.keys !== false || relabel !== undefined)) text = s.keyNames(text, relabel === true || relabel === undefined ? undefined : relabel);
+  text = named(s, text, options);
   const fg = options.fg ?? s.theme.text;
   const bg = options.bg ?? s.theme.black;
   const width = options.width ?? Infinity;
@@ -55,6 +61,72 @@ export function label(s: Surface, col: number, row: number, text: string, option
     s.put(col + written, row, s.glyphs.index('»'), fg, bg);
     written += 1;
   }
+  return written;
+}
+
+/** One `[k]` key of a caption: the key as written, and the cells its bracketed name takes as drawn. */
+export interface KeyCell {
+  readonly key: string;
+  readonly from: number;
+  readonly cols: number;
+}
+
+/** Where the `[k]` keys of a text start and end, in characters. */
+function bracketed(chars: readonly string[]): { readonly from: number; readonly close: number }[] {
+  const out: { from: number; close: number }[] = [];
+  for (let k = 0; k < chars.length; k += 1) {
+    if (chars[k] !== '[') continue;
+    const close = chars.indexOf(']', k);
+    if (close <= k || close - k > 20 || /[\s[]/.test(chars.slice(k + 1, close).join(''))) continue;
+    out.push({ from: k, close });
+    k = close;
+  }
+  return out;
+}
+
+/**
+ * The `[k]` keys of a caption as `label` draws it, with the key each was written with: a key the
+ * keymap has rebound takes the cells of its new name, and the keys after it move with it. A click
+ * region over a key is measured here, not on the text as written.
+ */
+export function keyCells(s: Surface, text: string, options: LabelOptions = {}): KeyCell[] {
+  const written = Array.from(text);
+  const drawn = Array.from(named(s, text, options));
+  const was = bracketed(written);
+  const now = bracketed(drawn);
+  if (was.length !== now.length) return [];
+  // Text that does not fit ends with `»`: a key past the cut, or cut through, is not drawn whole.
+  const room = options.width !== undefined && options.width > 0 && drawn.length > options.width ? options.width - 1 : Infinity;
+  return now
+    .map((cell, i) => ({ key: written.slice((was[i] as { from: number }).from + 1, (was[i] as { close: number }).close).join(''), from: cell.from, cols: cell.close - cell.from + 1 }))
+    .filter((cell) => cell.from + cell.cols <= room);
+}
+
+/**
+ * Draw a caption of `[k] words` pieces (`[S-t] train  [x] disband`) and make each piece clickable at
+ * the cells it is drawn in: a piece starts at its `[` and ends before the blanks that precede the
+ * next one, measured on the text as drawn, so a rebound key with a longer or shorter name moves the
+ * pieces after it and their click regions with it. `runs[i]` is what the i-th piece does, or `null`
+ * for a piece that does nothing now. Returns the cells written.
+ */
+export function captionButtons(
+  s: Surface,
+  col: number,
+  row: number,
+  text: string,
+  runs: readonly (null | (() => void))[],
+  options: LabelOptions = {},
+): number {
+  const written = label(s, col, row, text, options);
+  const chars = Array.from(named(s, text, options));
+  const cells = keyCells(s, text, options);
+  cells.forEach((cell, i) => {
+    const run = runs[i];
+    if (run === undefined || run === null) return;
+    let end = Math.min(written, cells[i + 1]?.from ?? chars.length);
+    while (end > cell.from + 1 && /\s/.test(chars[end - 1] as string)) end -= 1;
+    if (end > cell.from) s.hit({ col: col + cell.from, row, cols: end - cell.from, rows: 1 }, run);
+  });
   return written;
 }
 

@@ -27,7 +27,7 @@ import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '
 import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
 import type { Surface } from '../surface';
-import { label, separator, toggleNode, type TreeNode, type ListState } from '../widgets';
+import { keyCells, label, separator, toggleNode, type TreeNode, type ListState } from '../widgets';
 import { acceleratorLabel } from '../keymap';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
@@ -59,11 +59,11 @@ export { PRESET_ORDER } from './stockpile-editor';
 
 const MEETING_OVERLAPS = ['hearth_hall', 'dining_hall'];
 
-/** A `[k]` accelerator inside a drawn action line, made clickable at its own cells. */
-function accelerator(s: Surface, col: number, row: number, text: string, key: string, run: () => void): void {
-  const at = text.indexOf(`[${key}]`);
-  if (at < 0) return;
-  s.hit({ col: col + at, row, cols: key.length + 2, rows: 1 }, run);
+/** A `[k]` accelerator inside a drawn action line, made clickable at its own cells as drawn. */
+function accelerator(s: Surface, col: number, row: number, width: number, text: string, key: string, run: () => void): void {
+  const cell = keyCells(s, text, { width }).find((c) => c.key === key);
+  if (cell === undefined) return;
+  s.hit({ col: col + cell.from, row, cols: cell.cols, rows: 1 }, run);
 }
 
 /**
@@ -381,8 +381,8 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     const text = strings.get(zone.type === 'stockpile' ? 'ui.zone.stockpile_actions' : 'ui.zone.actions');
     label(s, rect.col + 1, bottom, text, { width: rect.cols - 2 });
     // Keyboard and mouse reach the same actions (24 § Input model): the accelerators are clickable.
-    accelerator(s, rect.col + 1, bottom, text, zone.type === 'stockpile' ? 'Del' : 'x', () => onRemove?.());
-    accelerator(s, rect.col + 1, bottom, text, 'S-e', () => { tool.resizing = true; });
+    accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, zone.type === 'stockpile' ? 'Del' : 'x', () => onRemove?.());
+    accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, 'S-e', () => { tool.resizing = true; });
   }
 }
 
@@ -421,7 +421,7 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     if (row >= rect.row + rect.rows) break;
     const text = ctx.strings.get(key);
     label(s, rect.col + 1, row, text, { fg: t.dim, width: rect.cols - 2 });
-    accelerator(s, rect.col + 1, row, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
+    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
     row += 1;
   }
   return row;
@@ -508,15 +508,15 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
     label(s, rect.col + 1, row, lineText, { width: rect.cols - 8 });
     // Minus button [-]
     const minusCol = rect.col + rect.cols - 7;
-    label(s, minusCol, row, '[-]');
-    s.hit({ col: minusCol, row, cols: 3, rows: 1 }, () => {
+    const minusWidth = label(s, minusCol, row, '[-]');
+    s.hit({ col: minusCol, row, cols: minusWidth, rows: 1 }, () => {
       const nextWants = { ...currentWants, [sup.key]: Math.max(0, wanted - 1) };
       ctx.submit({ type: 'SetHospitalSupplies', zoneId: zone.id, wants: nextWants });
     });
     // Plus button [+]
     const plusCol = rect.col + rect.cols - 4;
-    label(s, plusCol, row, '[+]');
-    s.hit({ col: plusCol, row, cols: 3, rows: 1 }, () => {
+    const plusWidth = label(s, plusCol, row, '[+]');
+    s.hit({ col: plusCol, row, cols: plusWidth, rows: 1 }, () => {
       const nextWants = { ...currentWants, [sup.key]: wanted + 1 };
       ctx.submit({ type: 'SetHospitalSupplies', zoneId: zone.id, wants: nextWants });
     });

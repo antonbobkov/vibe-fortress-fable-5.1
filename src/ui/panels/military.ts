@@ -17,7 +17,7 @@ import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { Rect } from '@render/cellbuffer';
 import type { CombatReader, SquadWithId } from '@systems/combat';
 import type { Surface } from '../surface';
-import { clampList, label, Marks, separator, table, type ListState } from '../widgets';
+import { captionButtons, clampList, label, Marks, separator, table, type ListState } from '../widgets';
 import { accel, type PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
@@ -461,12 +461,11 @@ export function drawMilitaryPanel(
   const alertStr = `Alert: ${currentAlert === 'hearth' ? 'Hearth' : currentAlert === 'watchful' ? 'Watchful' : 'Calm'}`;
   label(s, col, row, alertStr, { fg: currentAlert === 'hearth' ? t.danger : currentAlert === 'watchful' ? t.alert : t.good, width });
   row += 1;
-  label(s, col, row, '[1] Calm  [2] Watch  [3] Hearth', { width });
-
-  // Hit tests for alert line:
-  s.hit({ col, row, cols: 8, rows: 1 }, () => ctx.submit({ type: 'SetAlert', level: 'calm' }));
-  s.hit({ col: col + 10, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetAlert', level: 'watchful' }));
-  s.hit({ col: col + 21, row, cols: 10, rows: 1 }, () => ctx.submit({ type: 'SetAlert', level: 'hearth' }));
+  captionButtons(s, col, row, '[1] Calm  [2] Watch  [3] Hearth', [
+    () => ctx.submit({ type: 'SetAlert', level: 'calm' }),
+    () => ctx.submit({ type: 'SetAlert', level: 'watchful' }),
+    () => ctx.submit({ type: 'SetAlert', level: 'hearth' }),
+  ], { width });
   row += 1;
   // One line says what the current alert does.
   for (const line of wrapText(ctx.strings.get(`ui.military.alert_${currentAlert}`), width, 2)) {
@@ -505,15 +504,14 @@ export function drawMilitaryPanel(
   row += listHeight + (squads.length === 0 ? 2 : 0);
 
   // [+] new squad  [x] disband
-  label(s, col, row, '[+] new squad  [x] disband', { width });
-  s.hit({ col, row, cols: 13, rows: 1 }, () => {
-    const cmd = panel.newSquad(ctx);
-    if (cmd) ctx.submit(cmd);
-    else ctx.notice?.(ctx.strings.get('ui.status.squad_limit', { max: SQUAD_MAX_COUNT }));
-  });
-  s.hit({ col: col + 15, row, cols: 12, rows: 1 }, () => {
-    panel.disbandSquad(ctx, host);
-  });
+  captionButtons(s, col, row, '[+] new squad  [x] disband', [
+    () => {
+      const cmd = panel.newSquad(ctx);
+      if (cmd) ctx.submit(cmd);
+      else ctx.notice?.(ctx.strings.get('ui.status.squad_limit', { max: SQUAD_MAX_COUNT }));
+    },
+    () => { panel.disbandSquad(ctx, host); },
+  ], { width });
   row += 1;
 
   const squad = panel.selectedSquad(ctx);
@@ -538,17 +536,16 @@ export function drawMilitaryPanel(
   }
   label(s, col, row, `Leader  ${leaderText}`, { width });
   row += 1;
-  label(s, col, row, ctx.strings.get('ui.military.leader_keys'), { width });
-  s.hit({ col: col + 8, row, cols: 10, rows: 1 }, () => panel.openChoice(ctx, 'leader'));
-  s.hit({ col: col + 20, row, cols: 12, rows: 1 }, () => panel.rename(ctx));
+  captionButtons(s, col, row, ctx.strings.get('ui.military.leader_keys'), [() => panel.openChoice(ctx, 'leader'), () => panel.rename(ctx)], { width });
   row += 1;
 
   label(s, col, row, `Mode: ${squad.mode}`, { width });
   row += 1;
-  label(s, col, row, '[S-o] Off [S-t] Train [v] Active', { width });
-  s.hit({ col, row, cols: 9, rows: 1 }, () => panel.changeMode(ctx, 'off', host));
-  s.hit({ col: col + 10, row, cols: 11, rows: 1 }, () => panel.changeMode(ctx, 'train', host));
-  s.hit({ col: col + 22, row, cols: 10, rows: 1 }, () => panel.changeMode(ctx, 'active', host));
+  captionButtons(s, col, row, '[S-o] Off [S-t] Train [v] Active', [
+    () => panel.changeMode(ctx, 'off', host),
+    () => panel.changeMode(ctx, 'train', host),
+    () => panel.changeMode(ctx, 'active', host),
+  ], { width });
   row += 1;
 
   // Members line: Members Halvar G., Einar R.
@@ -559,9 +556,7 @@ export function drawMilitaryPanel(
   const membersStr = memberNames.length > 0 ? memberNames.join(', ') : 'none';
   label(s, col, row, `Members ${membersStr}`, { width });
   row += 1;
-  label(s, col, row, '        [S-a] add  [r] remove', { width });
-  s.hit({ col: col + 8, row, cols: 9, rows: 1 }, () => panel.openChoice(ctx, 'add'));
-  s.hit({ col: col + 19, row, cols: 10, rows: 1 }, () => panel.openChoice(ctx, 'remove'));
+  captionButtons(s, col, row, '        [S-a] add  [r] remove', [() => panel.openChoice(ctx, 'add'), () => panel.openChoice(ctx, 'remove')], { width });
   row += 1;
 
   // Separate rows keep the dropdown marks and ranged control visible in a narrow sidebar.
@@ -591,32 +586,32 @@ export function drawMilitaryPanel(
   const stText = panel.settingStation ? 'Click tile...' : stationStr;
   label(s, col, row, `Station ${stText}`, { fg: panel.settingStation ? t.value : t.text, width });
   row += 1;
-  label(s, col, row, '        [S-s] set  [S-c] clear', { width });
-  s.hit({ col: col + 8, row, cols: 9, rows: 1 }, () => panel.arm(ctx, 'station'));
-  if (squad.station !== null) {
-    s.hit({ col: col + 19, row, cols: 11, rows: 1 }, () => {
+  captionButtons(s, col, row, '        [S-s] set  [S-c] clear', [
+    () => panel.arm(ctx, 'station'),
+    squad.station === null ? null : () => {
       const cmd = panel.clearStation(ctx);
       if (cmd) ctx.submit(cmd);
-    });
-  }
+    },
+  ], { width });
   row += 1;
 
   // Patrol line
   const patrolStr = squad.patrol && squad.patrol.length > 0 ? `${squad.patrol.length} pts` : 'none';
-  label(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [S-p] add [y] clear`}`, { width });
-  s.hit({ col: col + 8 + patrolStr.length, row, cols: 9, rows: 1 }, () => panel.arm(ctx, 'patrol'));
-  s.hit({ col: col + 18 + patrolStr.length, row, cols: 9, rows: 1 }, () => ctx.submit({ type: 'SetSquadPatrol', squadId: squad.id, tiles: [] }));
+  captionButtons(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [S-p] add [y] clear`}`, [
+    () => panel.arm(ctx, 'patrol'),
+    () => ctx.submit({ type: 'SetSquadPatrol', squadId: squad.id, tiles: [] }),
+  ], { width });
   row += 1;
 
-  label(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : 'Orders [S-k] kill [S-f] follow', { width });
-  s.hit({ col: col + 7, row, cols: 10, rows: 1 }, () => panel.arm(ctx, 'kill'));
-  s.hit({ col: col + 18, row, cols: 12, rows: 1 }, () => panel.arm(ctx, 'follow'));
+  captionButtons(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : 'Orders [S-k] kill [S-f] follow', [
+    () => panel.arm(ctx, 'kill'),
+    () => panel.arm(ctx, 'follow'),
+  ], { width });
   row += 1;
-  label(s, col, row, '       [q] cancel orders', { width });
-  s.hit({ col: col + 7, row, cols: 19, rows: 1 }, () => {
+  captionButtons(s, col, row, '       [q] cancel orders', [() => {
     const cmd = panel.selectedSquad(ctx);
     if (cmd) ctx.submit({ type: 'SquadOrder', squadId: cmd.id, order: { kind: 'cancel' } });
-  });
+  }], { width });
   row += 1;
 
   // Barracks: the zone assigned to the squad (`SetZoneSetting`), and the one it trains at when
@@ -681,11 +676,7 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
   }
   const commit = (): void => { for (const cmd of panel.commitChoice(ctx)) ctx.submit(cmd); };
   if (multi) {
-    label(s, col, foot - 1, strings.get('ui.military.choice_keys_mark'), { width });
-    s.hit({ col, row: foot - 1, cols: 12, rows: 1 }, () => { panel.toggleMark(ctx); });
-    s.hit({ col: col + 14, row: foot - 1, cols: 7, rows: 1 }, () => panel.markAll(ctx));
+    captionButtons(s, col, foot - 1, strings.get('ui.military.choice_keys_mark'), [() => { panel.toggleMark(ctx); }, () => panel.markAll(ctx)], { width });
   }
-  label(s, col, foot, strings.get('ui.military.choice_keys'), { width });
-  s.hit({ col, row: foot, cols: 14, rows: 1 }, commit);
-  s.hit({ col: col + 16, row: foot, cols: 12, rows: 1 }, () => { panel.memberChoice = null; });
+  captionButtons(s, col, foot, strings.get('ui.military.choice_keys'), [commit, () => { panel.memberChoice = null; }], { width });
 }

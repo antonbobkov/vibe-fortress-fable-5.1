@@ -7,7 +7,7 @@ import type { ImmigrationReader } from '@systems/immigration/reader';
 import type { MoraleReader } from '@systems/morale';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { Surface } from '../surface';
-import { label } from '../widgets';
+import { keyCells, label } from '../widgets';
 import type { PanelContext } from './context';
 import { MOOD_TIER_NAMES } from './mood';
 import { dwarvesOf } from './units';
@@ -42,9 +42,11 @@ export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): 
   label(s, col, rect.row, `${ids.length} dwarves (${children} children)`, { width });
   const cap = immigration.cap();
   const capRow = rect.row + 1;
-  label(s, col, capRow, `Cap [-] ${cap} [+]`, { fg: s.theme.value, width });
-  s.hit({ col: col + 4, row: capRow, cols: 3, rows: 1 }, () => changePopulationCap(ctx, -POPULATION_CAP_STEP));
-  s.hit({ col: col + 8 + String(cap).length, row: capRow, cols: 3, rows: 1 }, () => changePopulationCap(ctx, POPULATION_CAP_STEP));
+  const capText = `Cap [-] ${cap} [+]`;
+  label(s, col, capRow, capText, { fg: s.theme.value, width });
+  for (const cell of keyCells(s, capText, { width })) {
+    s.hit({ col: col + cell.from, row: capRow, cols: cell.cols, rows: 1 }, () => changePopulationCap(ctx, cell.key === '-' ? -POPULATION_CAP_STEP : POPULATION_CAP_STEP));
+  }
   if (ctx.readers.has('15')) {
     const morale = ctx.readers.of<MoraleReader>('15');
     label(s, col, rect.row + 2, `Hall spirit: ${MOOD_TIER_NAMES[morale.hallSpiritTier()]} (${morale.hallSpirit()})`, { width });

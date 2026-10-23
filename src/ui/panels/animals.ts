@@ -10,7 +10,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ForagingReader } from '@systems/foraging';
 import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
-import { asWritten, button, label, normalizeName, numberField, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
+import { asWritten, button, captionButtons, label, normalizeName, numberField, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
 import { buildings, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 import { acceleratorLabel } from '../keymap';
@@ -215,8 +215,7 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
     } else {
       // Every letter here opens a panel, so each action takes `Shift` (D-U2).
       label(s, col, row, ctx.strings.get('ui.animals.actions1'), { width }); row += 1;
-      label(s, col, row, ctx.strings.get('ui.animals.actions2'), { width });
-      s.hit({ col, row, cols: 9, rows: 1 }, () => panel.startCap(ctx)); row += 1;
+      captionButtons(s, col, row, ctx.strings.get('ui.animals.actions2'), [() => panel.startCap(ctx)], { width }); row += 1;
       button(s, col, row, acceleratorLabel('t', ctx.panelLetters).slice(1, -1), ctx.strings.get('ui.animals.train'), () => panel.startTrain(ctx)); row += 1;
       const species = ctx.readers.entities.get(panel.selected(ctx), C.Creature)?.species;
       if (species !== undefined) label(s, col, row, panel.name.focused ? 'Name:' : `Breeding cap: ${r.breedingCap(species)}`, { width });
