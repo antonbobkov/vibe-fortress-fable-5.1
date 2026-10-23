@@ -4,7 +4,13 @@
 
 ## Why
 
-The owner found the intro of T-423 too tame. Classic text-mode fortress games opened with intros drawn in huge block art: the shade glyphs `█ ▓ ▒ ░` used as pixels, figures many cells tall, a harsh 16-colour palette (cyan, white, grey and brown on black) and dramatic, slightly unhinged scenes. The owner's reference is a still of a hooded figure under a breaking cyan wave of shaded blocks. Keep the T-423 intro, and add a second one in that spirit.
+The owner found the intro of T-423 too tame. Classic text-mode fortress games opened with intros drawn in huge block art: the shade glyphs `█ ▓ ▒ ░` used as pixels, figures many cells tall, a harsh 16-colour palette (cyan, white, grey and brown on black) and dramatic, slightly unhinged scenes. The owner's references are in [refs/T-433-style-reference.jpg](refs/T-433-style-reference.jpg) and [refs/T-433-style-reference-2.png](refs/T-433-style-reference-2.png). They show:
+
+- a small figure dwarfed by a towering cyan torrent;
+- a giant bearded face framed by a ring of churning cyan;
+- an extreme grey-and-white close-up with hollow eyes, ringed by red speckle.
+
+The textures are full blocks, checker dither, horizontal hatching (line glyphs read as scanlines) and scattered noise. Study them for **style only**. Keep the T-423 intro, and add a second one in that spirit.
 
 ## Decisions
 
@@ -19,6 +25,7 @@ The owner found the intro of T-423 too tame. Classic text-mode fortress games op
 2. **The look.**
    - Each art pixel is one cell, filled with a block or shade glyph in a palette colour. Figures are at least 12 to 20 cells tall.
    - The 16 colours are defined in content.
+   - The texture vocabulary: full block, the three shades, checker dither, horizontal hatching from line glyphs (`≡ ═ ─`) for mid-tones, and sparse noise speckle. Extreme close-ups and giant faces are welcome.
    - Supported effects: palette cycling (water and magma shimmer), camera pans and zooms (2× cell scaling for close-ups), screen shake, white flash frames, dithered fades, and parallax in at least one scene.
    - It fills any window size: the stage scales to the window by whole-cell multiples and the background extends to the edges.
 3. **Data, not code.**
