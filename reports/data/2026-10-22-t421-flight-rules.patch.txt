@@ -1,0 +1,64 @@
+T-421: the two flight rules as measured (uncommitted). Gates: T421_PFLEE_FROM_TICK and T421_FLEE_FROM_TICK start each rule at a tick; T421_NOFLEE turns the second off.
+The full variant from day 0 also had a patient-bed rule (a patient rests where it stands while its bed lies within THREAT_RADIUS of a remembered hostile), which changed neither p0-2 nor p2-6.
+
+--- a/src/systems/dwarves/brain.ts	2026-10-22 21:35:09.684588600 -0700
++++ b/src/systems/dwarves/brain.ts	2026-10-22 21:35:09.920483000 -0700
+@@ -27,6 +27,7 @@
+ import type { JobsReader } from '@systems/jobs';
+ import type { CombatReader } from '@systems/combat/reader';
+ import { PERCEPTION_RADIUS } from '@systems/combat/constants';
++import { TERRITORY_RADIUS } from '@systems/animals/constants';
+ 
+ /** "Idle dwarves are shown as 'No job' in the units panel." */
+ export const NO_JOB = 'No job';
+@@ -242,6 +243,15 @@
+     .some((other) => other === threatId || (combat?.isHostile(id, other) ?? false));
+   const safer = (tile: TileIndex): boolean => map.zOf(tile) !== posT.z ||
+     Math.max(Math.abs(map.xOf(tile) - posT.x), Math.abs(map.yOf(tile) - posT.y)) > currentDist;
++  // A territorial animal that defends its ground lets go of a civilian out of its territory radius
++  // from where the attack began (08): the civilian runs to the nearest such tile, not past it to the hall (T-421).
++  const env421 = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env ?? {};
++  const wild = ctx.world.entities.get(threatId, C.Wild);
++  const temper = wild === undefined ? undefined : ctx.registry.table<{ id: string; temper?: string }>('creatures').byIndex(ctx.world.entities.get(threatId, C.Creature)?.species ?? -1)?.temper;
++  const reach = env421['T421_NOFLEE'] || ctx.tick < Number(env421['T421_FLEE_FROM_TICK'] ?? 0) || sealed || wild?.state !== 'attack' || wild.defendFrom === undefined || temper !== 'territorial' ? -1 : TERRITORY_RADIUS;
++  const defended = reach >= 0 ? wild?.defendFrom ?? -1 : -1;
++  const outOfReach = (tile: TileIndex): boolean => map.zOf(tile) !== map.zOf(defended) ||
++    Math.max(Math.abs(map.xOf(tile) - map.xOf(defended)), Math.abs(map.yOf(tile) - map.yOf(defended))) > reach;
+   const hallTiles = !sealed && ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14').hearthHallTiles() : [];
+   const hall = new Set(hallTiles.filter((tile) => tile !== from && safer(tile) && !occupied(tile) &&
+     ctx.readers.pathing.passable(tile, 'walker', mover) && ctx.readers.pathing.reachable(from, tile, 'walker')));
+@@ -268,10 +278,12 @@
+         }
+         continue;
+       }
+-      if (hall.has(tile)) return tile;
++      if (defended >= 0) {
++        if (tile !== from && outOfReach(tile)) return tile;
++      } else if (hall.has(tile)) return tile;
+       if (fallback < 0 && tile !== from && safer(tile)) {
+         fallback = tile;
+-        if (hall.size === 0) return tile;
++        if (hall.size === 0 && defended < 0) return tile;
+       }
+       for (const [to] of ctx.readers.pathing.edges(tile, 'walker', mover)) {
+         if (seen.has(to) || occupied(to)) continue;
+@@ -358,6 +370,10 @@
+     const myPos = ctx.world.entities.get(id, C.Position);
+     const needs = ctx.world.entities.get(id, C.Needs);
+     const critical = needs !== undefined && ranked(needs, true).length > 0;
++    // A critical need takes a fleeing dwarf back through the danger to serve it; a conscious patient
++    // serves no need of its own (step 3 rests it), so it keeps fleeing (T-421).
++    const env421 = (globalThis as { process?: { env: Record<string, string | undefined> } }).process?.env ?? {};
++    const returnsForNeed = critical && (ctx.tick < Number(env421['T421_PFLEE_FROM_TICK'] ?? 0) || !walksToHospital(ctx, id));
+     const remembered = host.threatTile?.(id) ?? (threatPos === undefined ? -1 : ctx.world.map.index(threatPos.x, threatPos.y, threatPos.z));
+     if (
+       !ctx.world.entities.alive(threatId) ||
+@@ -366,7 +382,7 @@
+     ) {
+       host.clearThreat(id);
+     } else if (myPos.z === threatPos.z && Math.max(Math.abs(myPos.x - threatPos.x), Math.abs(myPos.y - threatPos.y)) <= THREAT_RADIUS &&
+-        !(b.behavior === 'flee' && critical)) {
++        !(b.behavior === 'flee' && returnsForNeed)) {
+       avoidTile = remembered;
+       if (host.caught?.(id) === true && !stillHeld(ctx, threatId, id)) host.release?.(id);
+       const caught = host.caught?.(id) === true;

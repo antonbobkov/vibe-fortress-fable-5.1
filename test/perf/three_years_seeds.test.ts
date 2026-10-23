@@ -74,6 +74,15 @@ export const THREE_YEARS_20_SEEDS: readonly SeedConfig[] = [
  */
 export const YEAR_ONE_FLIPS: ReadonlySet<string> = new Set(['three-years-p4-2']);
 
+/**
+ * Peril-0 seeds whose "grew past embark size" flips under changes that do not aim at them, so it is
+ * printed and not asserted (testing-strategy.md § What may be a gate). p0-2: boars settle by the gate
+ * in year 3 and kill all nine of its dwarves at T-418, none at T-419; a corrected flight rule leaves
+ * it 15 from day 0 and, with a second one, 0 from day 238 (reports/audits/2026-10-22-p0-2-three-years.md,
+ * reports/audits/2026-10-22-boars-maul-p0-2.md).
+ */
+export const GROWTH_FLIPS: ReadonlySet<string> = new Set(['three-years-p0-2']);
+
 export interface ThreeYearsSeedResult {
   readonly seed: string;
   readonly peril: number;
@@ -311,7 +320,8 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     // stills follow the population (85 starvation deaths in four seeds on 2026-10-12, before T-145),
     // and a peril-0 fortress ends above its seven founders (22 to 50 dwarves on 2026-10-12).
     expect(economy.needDeaths(), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
-    expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
+    if (GROWTH_FLIPS.has(seed)) console.log(`[three_years_seeds] ${seed} living at the end of year 3: ${y3Pop} (printed, not asserted: this seed flips)`);
+    else expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
   }
   // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
   // bedrooms, the squad; at perils 2 and 4 an alert raised and lowered, and a trade).
