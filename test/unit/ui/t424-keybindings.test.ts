@@ -314,7 +314,7 @@ describe('T-424 the keybinding editor', () => {
     let saved = 0;
     const screen = new SettingsScreen({ keymap: keys, strings, settings: () => DEFAULT_USER_SETTINGS,
       change: () => {}, bindingsChanged: () => { saved += 1; }, resetDefaults: () => {}, back: () => {} });
-    screen.key(press('↓'));
+    // Keybindings is the tenth row (T-422: the music rows come after it).
     for (let k = 0; k < 9; k += 1) screen.key(press('↓'));
     screen.key(press('Enter'));
     const text = (): string => { const s = surface(90, 42); screen.draw(s); return s.lines().join('\n'); };

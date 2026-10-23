@@ -85,11 +85,13 @@ Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings
 │   Snapshots kept                [4   ]           │
 │   Combat log                    [hits only]      │
 │   Keybindings ▸                                  │
+│   Music volume                  [50%]            │
+│   Music                         [on ]            │
 │   [d] Reset to defaults         [Esc] Back       │
 └──────────────────────────────────────────────────┘
 ```
 
-Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
+Music volume runs from 0% to 100% in steps of 10% (`←` `→`, `Enter` or a click step it round); Music is on or off, as the music key turns it (`02-systems/24-ui-and-input.md` § Music). Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
 
 Keybindings sub-screen:
 

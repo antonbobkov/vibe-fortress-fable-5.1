@@ -45,12 +45,12 @@ Content is authored as JSON files in `src/content/` with a TypeScript schema (`s
 ## Assets
 
 - One font file: the committed public-domain Unscii 8 font with seven original CC0 8×8 symbol additions. Source bitmap patterns and a checksum-verified optional rebuild script are stored in-tree; ordinary builds consume the committed font without external tools. Loaded before boot and passed to the atlas at every zoom level.
-- No images, no audio.
+- No images, no audio files. The music is synthesized while it plays, with the Web Audio API, from the note data of `03-content/music.md` (`02-systems/24-ui-and-input.md` § Music).
 - The glyph atlas is generated at startup into an offscreen canvas per zoom level.
 
 ## Build output
 
-A static site: `index.html`, one JavaScript bundle, one CSS file for the canvas container (in its own bundled stylesheet), the font. Deployable to any static host. No server component.
+A static site: `index.html`, one JavaScript bundle (the music's notes included), one CSS file for the canvas container (in its own bundled stylesheet), the font. Deployable to any static host. No server component.
 
 ## Performance targets
 

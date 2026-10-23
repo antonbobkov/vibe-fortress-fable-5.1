@@ -153,6 +153,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'toggle sidebar': 'toggle_sidebar',
   'undo last designation batch': 'undo',
   'calendar panel': 'calendar',
+  'music on / off': 'music',
   'pan by 1 cell (Shift: 10)': 'pan',
   'pan or move the map cursor (Shift: 10)': 'pan',
   'z-level down': 'z_down',

@@ -65,6 +65,11 @@
     "action": "calendar panel"
   },
   {
+    "context": "global",
+    "key": "Ctrl+M",
+    "action": "music on / off"
+  },
+  {
     "context": "map",
     "key": "←",
     "action": "pan or move the map cursor (Shift: 10)"

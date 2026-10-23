@@ -27,3 +27,4 @@ This folder holds every table of game content. Systems refer to content only by 
 | [caravan-goods.md](caravan-goods.md) | What each civilization brings, valuation preferences, reputation events |
 | [balance.md](balance.md) | The cross-system arithmetic: consumption, production, wealth, raids, combat pace, the mood floor |
 | [ui-keymap-and-screens.md](ui-keymap-and-screens.md) | Screens, panels, keymap, mouse model, overlays, hints, milestones, confirmations, settings |
+| [music.md](music.md) | Instruments and tunes, with their scores, for the synthesized music |

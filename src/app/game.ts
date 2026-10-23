@@ -65,6 +65,11 @@ import { GameMenuScreen } from '@ui/screens/game_menu';
 import { composeLegend, LegendStore, type EndReason } from '@app/legend';
 import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
+import { Music, type MusicScene } from '@ui/music';
+import { MUSIC_REVERB_S } from '@ui/constants';
+import { AudioGate, browserAudioContext } from '@platform/audio';
+import type { CombatReader } from '@systems/combat';
+import type { ThreatsReader } from '@systems/threats';
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '@ui/settings';
 import type { TradeReader } from '@systems/trade';
 import { createStorage, StorageQuotaError } from '@platform/storage';
@@ -108,6 +113,8 @@ export interface GameOptions {
   readonly files?: FileBridge;
   readonly settingsStore?: SettingsStore;
   readonly legends?: LegendStore;
+  /** Where the music's pieces start and its silences come from; `Math.random` by default. */
+  readonly musicRandom?: () => number;
 }
 
 /** `persistence.md` § What is saved: "thumbnail (a 48×27 cell ASCII snapshot of the surface)". */
@@ -153,6 +160,8 @@ export class Game {
   readonly ui: UiState = defaultUiState(START_Z);
   /** The fortress screen's tools, panels, log and status bar (T-M1-14). */
   readonly fortress: FortressScreen;
+  /** The music (24 § Music): it follows the events always, and plays once {@link boot} gives it an output. */
+  readonly music: Music;
   private readonly createCanvas: CanvasFactory;
   private unsubscribe: (() => void) | null = null;
   /** The world of the embark screen, before the game exists. */
@@ -225,6 +234,7 @@ export class Game {
     this.randomSeed = options.randomSeed ?? defaultRandomSeed;
     this.createCanvas = options.createCanvas;
     this.fortress = new FortressScreen(this.fortressHost(), this.keymap, this.strings);
+    this.music = new Music(this.registry, options.musicRandom ?? Math.random);
     this.resize(options.width, options.height, options.devicePixelRatio ?? 1);
   }
 
@@ -260,6 +270,7 @@ export class Game {
       now: () => Date.now(),
       quickSave: () => void this.quickSave(),
       quickLoad: () => void this.quickLoad(),
+      toggleMusic: () => this.toggleMusic(),
       gameMenu: () => this.openGameMenu(),
       saveMenu: () => this.openGameMenu('save'),
       debug: {
@@ -312,8 +323,10 @@ export class Game {
     this.unsubscribe?.();
     this.lastDwarfDeath = null;
     this.finished = false;
+    this.music.watch.reset(this.tenseState());
     this.unsubscribe = this.host.onEvents((events) => {
       this.fortress.onEvents(events);
+      this.music.onEvents(events);
       this.compositor.onEvents(events, Math.floor(Date.now() / FLUID_ANIM_MS));
       // `persistence.md` § Autosave: "On every `SeasonChanged`, the app saves". The world is in the
       // middle of its tick here, so the save waits for the tick to end (D-083).
@@ -324,6 +337,34 @@ export class Game {
         }
       }
     });
+  }
+
+  // ---------- music (24 § Music) ----------
+
+  /** The danger the music follows, as the world has it now: the hearth alert and the sieges on the map. */
+  private tenseState(): { hearth: boolean; sieges: number[] } {
+    const readers = this.host.readers;
+    const hearth = readers.has('16') && readers.of<CombatReader>('16').alert() === 'hearth';
+    const threats = readers.has('18') ? readers.of<ThreatsReader>('18') : null;
+    const sieges = threats === null ? [] : threats.activeParties().filter((id) => threats.party(id)?.purpose === 'siege');
+    return { hearth, sieges: [...sieges] };
+  }
+
+  /** The screens before a fortress, or a fortress and the screens over it. */
+  get musicScene(): MusicScene {
+    return this.stack[0] === FORTRESS && this.host.started ? 'fortress' : 'menu';
+  }
+
+  /** Once a frame: the music chooses and plays (nothing without an audio output). */
+  updateMusic(): void {
+    this.music.update(this.musicScene, this.userSettings);
+  }
+
+  /** The mute key: music on or off, saved with the settings. */
+  toggleMusic(): void {
+    const on = !this.userSettings.music;
+    if (this.top() === FORTRESS && this.host.started) this.fortress.notice(this.strings.get(on ? 'ui.music.on' : 'ui.music.off'));
+    this.changeSettings({ music: on });
   }
 
   // ---------- saving and loading (T-M2-11) ----------
@@ -1239,6 +1280,11 @@ export class Game {
     const contexts = screen.translatedKeys?.() ?? [];
     const press = contexts.length === 0 ? key : this.keymap.translate(contexts, key);
     const used = press === null ? false : screen.key(press);
+    // The music key acts on every screen; a screen that uses the key keeps it (24 § Music).
+    if (!used && this.keymap.resolve('global', key)?.id === 'music') {
+      this.toggleMusic();
+      return true;
+    }
     this.render();
     return used;
   }
@@ -1511,6 +1557,12 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
   });
   await game.loadSettings();
   const testBuild = import.meta.env.MODE === 'test';
+  // 24 § Music: audio waits for the first key press or click, and a test build makes none.
+  if (!testBuild) {
+    const gate = new AudioGate(() => game.userSettings.music && game.userSettings.musicVolume > 0, browserAudioContext, MUSIC_REVERB_S);
+    gate.attach(window as unknown as EventTargetLike);
+    game.music.attach(() => gate.output());
+  }
   const query = testBuild ? new URLSearchParams(window.location.search) : null;
   const start = query?.get('start') ?? null;
   if (start === 'flat-test') await game.start({ seed: options.seed ?? 'deepholm', ...(query?.get('embark') === 'default' ? { embark: 'default' as const } : {}) });
@@ -1552,7 +1604,10 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     scheduler: options.scheduler ?? browserFrameScheduler(),
     hidden: browserHidden(),
   });
-  loop.start((nowMs, hidden) => game.driver.onFrame(nowMs, hidden));
+  loop.start((nowMs, hidden) => {
+    game.driver.onFrame(nowMs, hidden);
+    game.updateMusic();
+  });
 
   if (testBuild) {
     (window as unknown as { __deepholm: TestHook }).__deepholm = testHook(game);

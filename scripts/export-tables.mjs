@@ -68,6 +68,7 @@ import {
   exportPatterns,
   exportStrings,
 } from './lib/export/ui.mjs';
+import { exportInstruments, exportTunes } from './lib/export/music.mjs';
 
 const OUT_DIR = join(ROOT, 'src/content');
 
@@ -142,6 +143,8 @@ function build() {
     milestones: exportMilestones(),
     confirmations: exportConfirmations(),
     keymap: exportKeymap(),
+    instruments: exportInstruments(),
+    tunes: exportTunes(),
     strings: exportStrings(thoughts),
   };
 }

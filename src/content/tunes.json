@@ -1,0 +1,134 @@
+[
+  {
+    "id": "hall_beneath",
+    "name": "The Hall Beneath",
+    "role": "menu",
+    "tempo": 132,
+    "mode": "D dorian",
+    "source": "original",
+    "voices": [
+      {
+        "instrument": "flute",
+        "notes": "D5*3 E5 F5*2 A5*2 G5*4 E5*2 D5*2 C5*3 D5 E5*2 G5*2 F5*6 .*2 A5*3 G5 F5*2 E5*2 D5*2 E5*2 C5*4 D5*2 F5*2 E5*2 C5*2 D5*8 .*2 A4*2 D5*2 E5*2 F5*3 G5 A5*4 C6*2 B5*2 A5*2 G5*2 A5*8 G5*3 F5 E5*2 D5*2 C5*2 E5*2 G5*4 F5*2 E5*2 D5*2 C5*2 D5*8"
+      },
+      {
+        "instrument": "lyre",
+        "notes": "D3 A3 D4 F4 A4 F4 D4 A3 C3 G3 C4 E4 G4 E4 C4 G3 C3 G3 C4 E4 G4 E4 C4 G3 F2 C3 F3 A3 C4 A3 F3 C3 A2 E3 A3 C4 E4 C4 A3 E3 C3 G3 C4 E4 G4 E4 C4 G3 D3 A3 D4 F4 A4 F4 D4 A3 D3 A3 D4 F4 A4 F4 D4 A3 D3 A3 D4 F4 A4 F4 D4 A3 F2 C3 F3 A3 C4 A3 F3 C3 G2 D3 G3 B3 D4 B3 G3 D3 A2 E3 A3 C4 E4 C4 A3 E3 G2 D3 G3 B3 D4 B3 G3 D3 C3 G3 C4 E4 G4 E4 C4 G3 F2 C3 F3 A3 C4 A3 F3 C3 D3+A3+D4*8"
+      },
+      {
+        "instrument": "drone",
+        "notes": "D2+A2*64 D2+A2*64"
+      }
+    ]
+  },
+  {
+    "id": "deep_lantern",
+    "name": "Lantern in the Deep",
+    "role": "fortress",
+    "tempo": 104,
+    "mode": "A minor pentatonic",
+    "source": "original",
+    "voices": [
+      {
+        "instrument": "harp",
+        "notes": "E4*2 G4*2 A4*4 G4*2 E4*2 D4*4 C4*2 D4*2 E4*2 G4*2 A4*8 C5*2 A4*2 G4*2 E4*2 G4*3 A4 G4*2 E4*2 D4*2 C4*2 D4*2 E4*2 E4*8 A4*2 C5*2 D5*4 E5*2 D5*2 C5*4 A4*2 G4*2 A4*2 C5*2 D5*8 E5*3 D5 C5*2 A4*2 G4*2 A4*2 C5*4 D4*2 E4*2 G4*2 E4*2 A3*8"
+      },
+      {
+        "instrument": "pad",
+        "notes": "A2+E3+A3+C4*8 G2+D3+G3+B3*8 C3+G3+C4+E4*8 A2+E3+A3+C4*8 A2+E3+A3+C4*8 E2+B2+E3+G3*8 D3+A3+D4+F4*8 E2+B2+E3+G3*8 A2+E3+A3+C4*8 C3+G3+C4+E4*8 A2+E3+A3+C4*8 D3+A3+D4+F4*8 A2+E3+A3+C4*8 C3+G3+C4+E4*8 G2+D3+G3+B3*8 A2+E3+A3+C4*8"
+      }
+    ]
+  },
+  {
+    "id": "stone_and_water",
+    "name": "Stone and Still Water",
+    "role": "fortress",
+    "tempo": 96,
+    "mode": "G major pentatonic",
+    "source": "original",
+    "voices": [
+      {
+        "instrument": "flute",
+        "notes": ".*4 D5*2 E5*2 G5*4 E5*2 D5*2 B4*6 A4*2 G4*8 .*2 B4*2 D5*2 E5*2 D5*3 B4 A4*4 B4*2 A4*2 G4*2 E4*2 D4*8 .*2 G4*2 A4*2 B4*2 D5*4 E5*2 G5*2 A5*4 G5*2 E5*2 D5*8 E5*2 D5*2 B4*2 A4*2 G4*3 A4 B4*4 A4*2 G4*2 E4*2 D4*2 G4*8"
+      },
+      {
+        "instrument": "lyre",
+        "notes": "G2 D3 G3 B3 D4 B3 G3 D3 E2 B2 E3 G3 B3 G3 E3 B2 G2 D3 G3 B3 D4 B3 G3 D3 C3 G3 C4 E4 G4 E4 C4 G3 G2 D3 G3 B3 D4 B3 G3 D3 D3 A3 D4 F#4 A4 F#4 D4 A3 E2 B2 E3 G3 B3 G3 E3 B2 D3 A3 D4 F#4 A4 F#4 D4 A3 G2 D3 G3 B3 D4 B3 G3 D3 E2 B2 E3 G3 B3 G3 E3 B2 A2 E3 A3 C4 E4 C4 A3 E3 D3 A3 D4 F#4 A4 F#4 D4 A3 E2 B2 E3 G3 B3 G3 E3 B2 C3 G3 C4 E4 G4 E4 C4 G3 D3 A3 D4 F#4 A4 F#4 D4 A3 G2+D3+G3*8"
+      },
+      {
+        "instrument": "drone",
+        "notes": "G2+D3*64 G2+D3*64"
+      }
+    ]
+  },
+  {
+    "id": "forge_at_rest",
+    "name": "The Forge at Rest",
+    "role": "fortress",
+    "tempo": 116,
+    "mode": "D dorian",
+    "source": "original",
+    "voices": [
+      {
+        "instrument": "flute",
+        "notes": ".*8 .*8 A4*3 G4 E4*2 G4*2 A4*6 .*2 B4*3 A4 G4*2 D5*2 A4*6 .*2 G4*2 E4*2 C5*2 B4*2 D4*6 .*2 F4*2 G4*2 A4*2 C5*2 D5*3 C5 B4*2 G4*2 E5*3 D5 C5*2 G4*2 A4*6 .*2 C5*2 A4*2 F4*2 A4*2 B4*3 A4 G4*2 B4*2 C5*2 E5*2 D5*2 C5*2 D5*8"
+      },
+      {
+        "instrument": "bass",
+        "notes": "D2*3 A2 C3*2 A2*2 D2*3 A2 C3*2 A2*2 C2*3 G2 E3*2 G2*2 D2*3 A2 C3*2 A2*2 G2*3 D3 B2*2 D3*2 D2*3 A2 C3*2 A2*2 C2*3 G2 E3*2 G2*2 D2*3 A2 C3*2 A2*2 D2*3 A2 C3*2 A2*2 G2*3 D3 B2*2 D3*2 C2*3 G2 E3*2 G2*2 D2*3 A2 C3*2 A2*2 F2*3 C3 A2*2 C3*2 G2*3 D3 B2*2 D3*2 C2*3 G2 E3*2 G2*2 D2+A2*8"
+      },
+      {
+        "instrument": "bell",
+        "notes": ".*24 D6*8 .*24 A5*8 .*24 D6*8 .*24 D6*8"
+      }
+    ]
+  },
+  {
+    "id": "long_winter",
+    "name": "The Long Winter Hall",
+    "role": "fortress",
+    "tempo": 80,
+    "mode": "E aeolian",
+    "source": "original",
+    "voices": [
+      {
+        "instrument": "bell",
+        "notes": "B4*4 G4*4 E5*6 .*2 E5*4 D5*4 C5*6 .*2 B4*4 D5*4 G4*6 .*2 A4*4 F#4*4 D5*6 .*2 C5*4 E5*4 A4*6 .*2 G4*4 C5*4 E5*6 .*2 D5*4 B4*4 F#4*6 .*2 G4*4 F#4*4 E4*8"
+      },
+      {
+        "instrument": "harp",
+        "notes": "E2*2 B2*2 E3*2 G3*2 B3*2 G3*2 E3*2 B2*2 C2*2 G2*2 C3*2 E3*2 G3*2 E3*2 C3*2 G2*2 G2*2 D3*2 G3*2 B3*2 D4*2 B3*2 G3*2 D3*2 D2*2 A2*2 D3*2 F#3*2 A3*2 F#3*2 D3*2 A2*2 A2*2 E3*2 A3*2 C4*2 E4*2 C4*2 A3*2 E3*2 C2*2 G2*2 C3*2 E3*2 G3*2 E3*2 C3*2 G2*2 B1*2 F#2*2 B2*2 D3*2 F#3*2 D3*2 B2*2 F#2*2 E2*2 B2*2 E3*2 G3*2 B3*8"
+      },
+      {
+        "instrument": "pad",
+        "notes": "E3+G3+B3*16 C3+G3+E4*16 G2+D3+B3*16 D3+F#3+A3*16 A2+E3+C4*16 C3+G3+E4*16 B2+F#3+D4*16 E3+G3+B3*16"
+      }
+    ]
+  },
+  {
+    "id": "hearth_holds",
+    "name": "The Hearth Holds",
+    "role": "tense",
+    "tempo": 168,
+    "mode": "E phrygian",
+    "source": "original",
+    "voices": [
+      {
+        "instrument": "drum",
+        "notes": "E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2 E2 E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2 E2 E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2 E2 E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2*2 E2*3 E2*3 E2 E2"
+      },
+      {
+        "instrument": "bass",
+        "notes": "E3*2 F3*2 E3*2 .*2 E3*2 F3*2 G3*2 F3*2 E3*2 F3*2 E3*2 .*2 E3*2 F3*2 G3*2 F3*2 F2*2 G2*2 F2*2 .*2 F2*2 G2*2 A2*2 G2*2 E3*2 F3*2 E3*2 .*2 E3*2 F3*2 G3*2 F3*2 D3*2 E3*2 D3*2 .*2 D3*2 E3*2 F3*2 E3*2 C3*2 D3*2 C3*2 .*2 C3*2 D3*2 E3*2 D3*2 F2*2 G2*2 F2*2 .*2 F2*2 G2*2 A2*2 G2*2 E3*2 F3*2 E3*2 .*2 E3*8"
+      },
+      {
+        "instrument": "pad",
+        "notes": "E3+B3*16 E3+B3*16 F3+C4*16 E3+B3*16 D3+A3*16 C3+G3*16 F3+C4*16 E3+B3*16"
+      },
+      {
+        "instrument": "flute",
+        "notes": ".*16 .*16 A4*6 G4*2 F4*8 E4*6 F4*2 E4*8 F4*4 A4*4 G4*4 F4*4 E4*6 D4*2 C4*8 F4*4 G4*4 A4*4 C5*4 B4*4 A4*2 F4*2 E4*8"
+      }
+    ]
+  }
+]

@@ -1054,6 +1054,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.no_creatures': 'No one is here.',
   'ui.settings.zoom_hint': 'Auto: a larger cell on a large window. A fixed zoom keeps the old look.',
   'ui.settings.zoom_shown': 'Zoom {zoom} (shown at {shown}: the window is small)',
+  'ui.music.on': 'Music on.',
+  'ui.music.off': 'Music off.',
   'ui.look.care.no_hospital': 'Care: no hospital. Make one in Zones [z] > Hospital.',
   'ui.look.care.no_bed': 'Care: no free hospital bed.',
   'ui.look.care.no_medicine': 'Care: no one has Medicine enabled ([l] Labors).',
