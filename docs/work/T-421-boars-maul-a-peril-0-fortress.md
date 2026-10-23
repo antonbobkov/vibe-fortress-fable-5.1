@@ -27,3 +27,13 @@ A peril-0 fortress of a dozen dwarves with a squad should not be wiped out by bo
 
 - p0-2 grows past its embark size at the end of year 3, or this file records why a fortress at peril 0 may die to boars and what the assertion should then say.
 - The cause and the fix are in a dated report with before and after rows.
+
+## As done
+
+**Why a peril-0 fortress may die to boars.** By day 224, p0-2 has nine dwarves; two deaths take it back to its embark size of seven. On days 225 and 260, boars make their home chunk beside the gate, and three of them stay there for weeks. They sleep, idle and wander a median 18 to 20 tiles from the gate, and as close as 2. A territorial boar goes for any dwarf within `TERRITORY_RADIUS`. It is faster than a dwarf (0.18 against 0.15) and gores for 11. Every walk to the surface work and the brook passes it.
+
+The squad is not armed until about day 246, its first kill order. Under the fixture's T-387 policy it gets no kill order before then, and the hearth alert for wild animals alone is lifted after half a day and not raised again for a day. That is the flapping, and it is the fixture's policy, unchanged. When the soldiers are armed, they kill the boars but lose three of their own.
+
+Two faults in 10 make each meeting worse: a fleeing patient's trap, and a run past the boar to the hall. Corrected from day 238 on master's timeline, they do not save the fortress: the boars still kill every dwarf. Corrected from day 0, the fortress ends with 15 dwarves, because the corrections reroute its year from the first boar on day 21. So no fault in 08, 10 or 16 decides this year. It turns on where three boars settle and whom they meet.
+
+**What the assertion says.** p0-2's "grew past embark size" is printed and not asserted (`GROWTH_FLIPS` in `three_years_seeds.test.ts`), under T-334's rule: it was 12 at `ab4d40e` and T-419, 0 at T-418, 15 and 0 under the measured rules. The other six peril-0 seeds keep the assertion. The two faults, the burnt gate walls the variant exposed, and boars that never finish leaving are new rows. See [the report](../../reports/audits/2026-10-22-boars-maul-p0-2.md).

@@ -1,0 +1,106 @@
+/**
+ * T-421 probe (not committed; a copy is filed as reports/data/2026-10-22-t421-boars.probe.ts.txt):
+ * three-years-p0-2 played as three_years_seeds plays it, journalling from T421_FROM to T421_TO:
+ * every 50 ticks each boar (tile, wild state, target, defended tile, home chunk, blood, distance to
+ * the gate) and each soldier (tile, behaviour, target, blood); every attack that involves a boar,
+ * with both sides; alert changes; squad orders; deaths.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { CombatReader } from '@systems/combat/reader';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld, Z } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T421_SEED'] ?? 'three-years-p0-2';
+const PERIL = Number(process.env['T421_PERIL'] ?? 0);
+const OUT = process.env['T421_OUT'] ?? '.vite/t421.jsonl';
+const FROM = Number(process.env['T421_FROM'] ?? 238) * TICKS_PER_DAY;
+const TO = Number(process.env['T421_TO'] ?? 272) * TICKS_PER_DAY;
+
+describe('T-421 boar probe', () => {
+  it('journals the boars', () => {
+    writeFileSync(OUT, '');
+    const buf: string[] = [];
+    const log = (o: Record<string, unknown>): void => { buf.push(JSON.stringify(o)); if (buf.length > 300) { appendFileSync(OUT, buf.join('\n') + '\n'); buf.length = 0; } };
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const creatures = w.game.registry.table('creatures');
+    const boar = creatures.index('boar');
+    const dwarf = creatures.index('dwarf');
+    const sp = (id: number): string => { const c = ent.get(id, C.Creature); return c ? creatures.idOf(c.species) : '?'; };
+    const at = (id: number): string => { const p = ent.get(id, C.Position); return p ? `${p.x},${p.y},${p.z}` : '-'; };
+    const combat = w.readers.of<CombatReader>('16');
+    let on = false;
+    w.game.world.onEvents((events) => {
+      if (!on) return;
+      const day = +(w.tick / TICKS_PER_DAY).toFixed(3);
+      for (const e of events) {
+        if (e.type === 'AttackResolved') {
+          const a = Number(e['attackerId']), d = Number(e['defenderId']);
+          if (sp(a) !== 'boar' && sp(d) !== 'boar') continue;
+          const db = ent.get(d, C.Brain);
+          log({ day, t: 'atk', a: a % 100000, as: sp(a), d: d % 100000, ds: sp(d), o: e['outcome'], n: e['amount'], p: e['part'], dAct: db ? `${db.behavior}/${db.activity}` : '', dSol: ent.has(d, C.Soldier), aAt: at(a), dAt: at(d) });
+        } else if (e.type === 'CreatureDied') {
+          const id = Number(e['id']);
+          if (e['species'] === boar || e['species'] === dwarf) log({ day, t: 'died', id: id % 100000, sp: e['species'] === boar ? 'boar' : 'dwarf', cause: e['cause'], killer: Number(e['killerId'] ?? 0) % 100000 });
+        } else if (e.type === 'AlertChanged') log({ day, t: 'alert', to: e['to'] });
+        else if (e.type === 'SquadOrderIssued') log({ day, t: 'order', kind: e['kind'] ?? e['order'], target: e['targetId'] });
+        else if (e.type === 'AnimalSpawned' && e['species'] === 'boar') log({ day, t: 'spawn', id: Number(e['id']) % 100000 });
+        else if (e.type === 'AnimalLeft') log({ day, t: 'left', id: Number(e['id']) % 100000 });
+        else if (e.type === 'BuildingRemoved' && (e['buildingType'] === 'wall' || e['buildingType'] === 'door')) log({ day, t: 'removed', id: e['id'], type: e['buildingType'] });
+        else if (e.type === 'FireStarted') log({ day, t: 'fire', at: `${w.map.xOf(Number(e['tile']))},${w.map.yOf(Number(e['tile']))},${w.map.zOf(Number(e['tile']))}` });
+      }
+    });
+    const gate = { x: state.cx + 6, y: state.cy + 6 };
+    const buildings = w.readers.of<{ at(t: number): number; get(id: number): { typeId: string; state: string; material?: number } | undefined }>('14');
+    const wallTiles = [[5, 5], [6, 5], [7, 5], [5, 6], [7, 6], [5, 7], [6, 7], [7, 7]].map(([dx, dy]) => w.index(state.cx + dx!, state.cy + dy!, Z));
+    let lastWalls = '';
+    const snapshot = (): void => {
+      const walls = wallTiles.map((t) => { const b = buildings.get(buildings.at(t)); return b ? `${b.typeId}:${b.state}` : '-'; }).join(' ');
+      if (walls !== lastWalls) { log({ day: +(w.tick / TICKS_PER_DAY).toFixed(3), t: 'walls', walls }); lastWalls = walls; }
+      const day = +(w.tick / TICKS_PER_DAY).toFixed(3);
+      for (const id of ent.with(C.Wild)) {
+        if (ent.get(id, C.Creature)?.species !== boar) continue;
+        const wd = ent.get(id, C.Wild)!; const p = ent.get(id, C.Position); const b = ent.get(id, C.Body);
+        const def = wd.defendFrom !== undefined ? `${w.map.xOf(wd.defendFrom)},${w.map.yOf(wd.defendFrom)},${w.map.zOf(wd.defendFrom)}` : '';
+        log({ day, t: 'boar', id: id % 100000, at: at(id), st: wd.state, target: (combat.targetOf?.(id) ?? 0) % 100000, def, home: wd.homeChunk, arrived: +(wd.arrivedTick / TICKS_PER_DAY).toFixed(1), hungry: wd.hungry, blood: b ? `${b.blood}/${b.maxBlood}` : '', gateD: p ? Math.max(Math.abs(p.x - gate.x), Math.abs(p.y - gate.y)) : -1 });
+      }
+      for (const id of ent.with(C.Soldier)) {
+        const b = ent.get(id, C.Brain); const body = ent.get(id, C.Body);
+        log({ day, t: 'sol', id: id % 100000, at: at(id), act: b ? `${b.behavior}/${b.activity}` : '', target: (combat.targetOf?.(id) ?? 0) % 100000, blood: body ? `${body.blood}/${body.maxBlood}` : '', wounds: body?.parts.reduce((n, pp) => n + pp.wounds.length, 0) });
+      }
+    };
+    const bootstrap = 20 * TICKS_PER_DAY;
+    while (w.tick < bootstrap) {
+      playThreeYears(w, state, Math.min(100, bootstrap - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    // Sample after each world step without changing the fixture's own cadence.
+    const original = w.game.world.step;
+    w.game.world.step = () => {
+      original.call(w.game.world);
+      on = w.tick >= FROM;
+      if (on && w.tick % 50 === 0) snapshot();
+      if (on && process.env['T421_FINE'] && w.tick % 5 === 0) {
+        const boars = ent.with(C.Wild).filter((id) => ent.get(id, C.Creature)?.species === boar);
+        for (const id of ent.with(C.Labors)) {
+          const p = ent.get(id, C.Position); const b = ent.get(id, C.Brain);
+          if (!p || !b) continue;
+          const near = boars.find((bb) => { const q = ent.get(bb, C.Position); return q && q.z === p.z && Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)) <= 9; });
+          if (!near) continue;
+          const tt = b.targetTile;
+          log({ day: +(w.tick / TICKS_PER_DAY).toFixed(4), t: 'fine', id: id % 100000, at: at(id), act: `${b.behavior}/${b.activity}`, target: tt >= 0 ? `${w.map.xOf(tt)},${w.map.yOf(tt)},${w.map.zOf(tt)}` : '', boar: near % 100000, boarAt: at(near), boarSt: ent.get(near, C.Wild)?.state, patient: ent.has(id, C.Patient), sol: ent.has(id, C.Soldier), needs: (() => { const n = ent.get(id, C.Needs); return n ? `h${Math.round(n.hunger)} t${Math.round(n.thirst)} r${Math.round(n.rest)}` : ''; })(), threat: ((w.dwarves as unknown as { threatened: Map<number, { hostileId: number }> }).threatened.get(id)?.hostileId ?? 0) % 100000 });
+        }
+      }
+    };
+    while (w.tick < TO) {
+      playThreeYears(w, state, Math.min(300, TO - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+    log({ day: TO / TICKS_PER_DAY, t: 'end', living, hash: w.hash() });
+    appendFileSync(OUT, buf.join('\n') + '\n');
+  }, 7_200_000);
+});

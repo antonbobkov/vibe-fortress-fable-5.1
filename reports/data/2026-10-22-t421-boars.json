@@ -1,0 +1,1025 @@
+{
+ "note": "T-421. three-years-p0-2 at peril 0 in the three_years_seeds world and cadence. \"master\" is 20f0447 (src as e8b6c8c). The encounter journals cover days 238-272 (probe: 2026-10-22-t421-boars.probe.ts.txt). The rules are those of 2026-10-22-t421-flight-rules.patch.txt, uncommitted: F, a civilian flees a territorial animal defending its ground to the nearest tile out of TERRITORY_RADIUS of the defended tile; P, a fleeing conscious patient keeps fleeing instead of taking the critical-need exception. \"*_from_day_238\" start the rule at tick 285600, on the master timeline. \"full_variant\" is F plus a patient-bed rule from day 0 (a patient rests where it stands while its bed lies within THREAT_RADIUS of a remembered hostile); the bed rule alone left p0-2 and p2-6 hash-identical to master.",
+ "encounter_master": {
+  "boarAttacksOnDwarves": 75,
+  "hits": 49,
+  "victimBehaviourOnHit": {
+   "flee/Fleeing": 29,
+   "patient/Resting in hospital": 4,
+   "need/thirst": 1,
+   "duty/On duty": 15
+  },
+  "dwarfBlowsOnBoars": 42,
+  "dwarfHitsOnBoars": 16,
+  "alertChanges": 49,
+  "firstKillOrderDay": 246.167,
+  "deaths": [
+   {
+    "day": 243.031,
+    "id": 77284,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 66298
+   },
+   {
+    "day": 243.123,
+    "id": 77283,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 66298
+   },
+   {
+    "day": 243.96,
+    "id": 32433,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 75491
+   },
+   {
+    "day": 244.56,
+    "id": 86672,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 75491
+   },
+   {
+    "day": 250.688,
+    "id": 75491,
+    "sp": "boar",
+    "cause": "killed",
+    "killer": 77285
+   },
+   {
+    "day": 250.714,
+    "id": 86597,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 75491
+   },
+   {
+    "day": 250.816,
+    "id": 66298,
+    "sp": "boar",
+    "cause": "killed",
+    "killer": 77285
+   },
+   {
+    "day": 250.918,
+    "id": 77285,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 66298
+   },
+   {
+    "day": 265.718,
+    "id": 40651,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 95622
+   },
+   {
+    "day": 265.827,
+    "id": 32163,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 95622
+   },
+   {
+    "day": 269.673,
+    "id": 77740,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 95622
+   },
+   {
+    "day": 270.106,
+    "id": 95622,
+    "sp": "boar",
+    "cause": "bled_out",
+    "killer": 77740
+   }
+  ],
+  "boars": {
+   "41282": {
+    "arrived": 60,
+    "homeChunk": 294,
+    "states": {
+     "leave": 817
+    },
+    "gateDistance": {
+     "min": 35,
+     "median": 35,
+     "max": 36
+    }
+   },
+   "50070": {
+    "arrived": 213,
+    "homeChunk": 294,
+    "states": {
+     "sleep": 48,
+     "idle": 29,
+     "wander": 20,
+     "leave": 720
+    },
+    "gateDistance": {
+     "min": 26,
+     "median": 37,
+     "max": 39
+    }
+   },
+   "50264": {
+    "arrived": 213,
+    "homeChunk": 294,
+    "states": {
+     "sleep": 49,
+     "idle": 35,
+     "wander": 13,
+     "leave": 1
+    },
+    "gateDistance": {
+     "min": 27,
+     "median": 32,
+     "max": 39
+    }
+   },
+   "66298": {
+    "arrived": 225,
+    "homeChunk": 291,
+    "states": {
+     "sleep": 153,
+     "idle": 71,
+     "wander": 74,
+     "attack": 10
+    },
+    "gateDistance": {
+     "min": 2,
+     "median": 20,
+     "max": 32
+    }
+   },
+   "75491": {
+    "arrived": 225,
+    "homeChunk": 291,
+    "states": {
+     "sleep": 152,
+     "idle": 74,
+     "wander": 68,
+     "attack": 11
+    },
+    "gateDistance": {
+     "min": 4,
+     "median": 18,
+     "max": 29
+    }
+   },
+   "94193": {
+    "arrived": 106,
+    "homeChunk": 294,
+    "states": {
+     "leave": 817
+    },
+    "gateDistance": {
+     "min": 30,
+     "median": 32,
+     "max": 33
+    }
+   },
+   "95622": {
+    "arrived": 260,
+    "homeChunk": 291,
+    "states": {
+     "sleep": 124,
+     "idle": 56,
+     "wander": 50,
+     "attack": 12
+    },
+    "gateDistance": {
+     "min": 11,
+     "median": 20,
+     "max": 31
+    }
+   }
+  },
+  "end": {
+   "day": 272,
+   "t": "end",
+   "living": 0,
+   "hash": "e43c1a787695c086"
+  }
+ },
+ "p0_2_dwarf_deaths": {
+  "master": [
+   {
+    "day": 21,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 23,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 196,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 197,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 245,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 251,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 251,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 266,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 266,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 270,
+    "cause": "bled_out",
+    "killer": "boar"
+   }
+  ],
+  "full_variant_from_day_0": [
+   {
+    "day": 21,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 23,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 62,
+    "cause": "bled_out",
+    "killer": "boar"
+   }
+  ],
+  "F_from_day_238": [
+   {
+    "day": 21,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 23,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 196,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 197,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 247,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 252,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 252,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 262,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 267,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 267,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 268,
+    "cause": "bled_out",
+    "killer": "boar"
+   }
+  ],
+  "P_from_day_238": [
+   {
+    "day": 21,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 23,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 196,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 197,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 245,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 246,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 246,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 247,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 247,
+    "cause": "killed",
+    "killer": "boar"
+   },
+   {
+    "day": 249,
+    "cause": "bled_out",
+    "killer": "boar"
+   }
+  ],
+  "F_and_P_from_day_238": [
+   {
+    "day": 21,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 23,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 196,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 197,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 244,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 246,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 247,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 247,
+    "cause": "bled_out",
+    "killer": null
+   },
+   {
+    "day": 247,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 280,
+    "cause": "bled_out",
+    "killer": "badger"
+   },
+   {
+    "day": 303,
+    "cause": "bled_out",
+    "killer": "boar"
+   },
+   {
+    "day": 306,
+    "cause": "starvation",
+    "killer": null
+   },
+   {
+    "day": 306,
+    "cause": "bled_out",
+    "killer": "boar"
+   }
+  ]
+ },
+ "three_years_seeds": {
+  "master_gate_2026_10_22b": {
+   "three-years-p0-1": {
+    "y3Pop": 57,
+    "dwarfDeaths": 1,
+    "byCause": {
+     "bled_out": 1
+    }
+   },
+   "three-years-p0-2": {
+    "y3Pop": 0,
+    "dwarfDeaths": 13,
+    "byCause": {
+     "bled_out": 13
+    }
+   },
+   "three-years-p0-3": {
+    "y3Pop": 75,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p0-4": {
+    "y3Pop": 60,
+    "dwarfDeaths": 2,
+    "byCause": {
+     "bled_out": 2
+    }
+   },
+   "three-years-p0-5": {
+    "y3Pop": 80,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p0-6": {
+    "y3Pop": 74,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p0-7": {
+    "y3Pop": 78,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p2-1": {
+    "y3Pop": 17,
+    "dwarfDeaths": 11,
+    "byCause": {
+     "bled_out": 10,
+     "killed": 1
+    }
+   },
+   "three-years-p2-2": {
+    "y3Pop": 52,
+    "dwarfDeaths": 5,
+    "byCause": {
+     "bled_out": 4,
+     "infection": 1
+    }
+   },
+   "three-years-p2-3": {
+    "y3Pop": 54,
+    "dwarfDeaths": 6,
+    "byCause": {
+     "bled_out": 5,
+     "killed": 1
+    }
+   },
+   "three-years-p2-4": {
+    "y3Pop": 42,
+    "dwarfDeaths": 3,
+    "byCause": {
+     "bled_out": 3
+    }
+   },
+   "three-years-p2-5": {
+    "y3Pop": 26,
+    "dwarfDeaths": 4,
+    "byCause": {
+     "bled_out": 3,
+     "killed": 1
+    }
+   },
+   "three-years-p2-6": {
+    "y3Pop": 34,
+    "dwarfDeaths": 5,
+    "byCause": {
+     "bled_out": 3,
+     "killed": 2
+    }
+   },
+   "three-years-p2-7": {
+    "y3Pop": 65,
+    "dwarfDeaths": 10,
+    "byCause": {
+     "killed": 3,
+     "bled_out": 7
+    }
+   },
+   "three-years-p4-1": {
+    "y3Pop": 52,
+    "dwarfDeaths": 12,
+    "byCause": {
+     "killed": 1,
+     "bled_out": 11
+    }
+   },
+   "three-years-p4-2": {
+    "y3Pop": 0,
+    "dwarfDeaths": 15,
+    "byCause": {
+     "infection": 3,
+     "killed": 7,
+     "bled_out": 4,
+     "starvation": 1
+    }
+   },
+   "three-years-p4-3": {
+    "y3Pop": 42,
+    "dwarfDeaths": 13,
+    "byCause": {
+     "killed": 4,
+     "bled_out": 9
+    }
+   },
+   "three-years-p4-4": {
+    "y3Pop": 46,
+    "dwarfDeaths": 7,
+    "byCause": {
+     "bled_out": 4,
+     "killed": 3
+    }
+   },
+   "three-years-p4-5": {
+    "y3Pop": 0,
+    "dwarfDeaths": 12,
+    "byCause": {
+     "bled_out": 4,
+     "killed": 5,
+     "starvation": 3
+    }
+   },
+   "three-years-p4-6": {
+    "y3Pop": 53,
+    "dwarfDeaths": 4,
+    "byCause": {
+     "bled_out": 3,
+     "killed": 1
+    }
+   }
+  },
+  "full_variant": {
+   "three-years-p0-1": {
+    "y3Pop": 33,
+    "dwarfDeaths": 4,
+    "byCause": {
+     "bled_out": 4
+    }
+   },
+   "three-years-p0-2": {
+    "y3Pop": 15,
+    "dwarfDeaths": 3,
+    "byCause": {
+     "bled_out": 3
+    }
+   },
+   "three-years-p0-3": {
+    "y3Pop": 75,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p0-4": {
+    "y3Pop": 73,
+    "dwarfDeaths": 2,
+    "byCause": {
+     "bled_out": 2
+    }
+   },
+   "three-years-p0-5": {
+    "y3Pop": 80,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p0-6": {
+    "y3Pop": 68,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p0-7": {
+    "y3Pop": 78,
+    "dwarfDeaths": 0,
+    "byCause": {}
+   },
+   "three-years-p2-1": {
+    "y3Pop": 12,
+    "dwarfDeaths": 21,
+    "byCause": {
+     "bled_out": 6,
+     "killed": 1,
+     "infection": 14
+    }
+   },
+   "three-years-p2-2": {
+    "y3Pop": 56,
+    "dwarfDeaths": 9,
+    "byCause": {
+     "bled_out": 8,
+     "killed": 1
+    }
+   },
+   "three-years-p2-3": {
+    "y3Pop": 52,
+    "dwarfDeaths": 16,
+    "byCause": {
+     "bled_out": 14,
+     "infection": 1,
+     "killed": 1
+    }
+   },
+   "three-years-p2-4": {
+    "y3Pop": 49,
+    "dwarfDeaths": 2,
+    "byCause": {
+     "bled_out": 2
+    }
+   },
+   "three-years-p2-5": {
+    "y3Pop": 26,
+    "dwarfDeaths": 4,
+    "byCause": {
+     "bled_out": 3,
+     "killed": 1
+    }
+   },
+   "three-years-p2-6": {
+    "y3Pop": 7,
+    "dwarfDeaths": 18,
+    "byCause": {
+     "bled_out": 17,
+     "killed": 1
+    }
+   },
+   "three-years-p2-7": {
+    "y3Pop": 57,
+    "dwarfDeaths": 12,
+    "byCause": {
+     "killed": 4,
+     "bled_out": 8
+    }
+   },
+   "three-years-p4-1": {
+    "y3Pop": 5,
+    "dwarfDeaths": 12,
+    "byCause": {
+     "killed": 4,
+     "bled_out": 7,
+     "infection": 1
+    }
+   },
+   "three-years-p4-2": {
+    "y3Pop": 0,
+    "dwarfDeaths": 15,
+    "byCause": {
+     "infection": 3,
+     "killed": 8,
+     "bled_out": 3,
+     "starvation": 1
+    }
+   },
+   "three-years-p4-3": {
+    "y3Pop": 42,
+    "dwarfDeaths": 13,
+    "byCause": {
+     "killed": 4,
+     "bled_out": 9
+    }
+   },
+   "three-years-p4-4": {
+    "y3Pop": 44,
+    "dwarfDeaths": 9,
+    "byCause": {
+     "bled_out": 6,
+     "killed": 3
+    }
+   },
+   "three-years-p4-5": {
+    "y3Pop": 0,
+    "dwarfDeaths": 12,
+    "byCause": {
+     "bled_out": 7,
+     "killed": 5
+    }
+   },
+   "three-years-p4-6": {
+    "y3Pop": 44,
+    "dwarfDeaths": 7,
+    "byCause": {
+     "bled_out": 5,
+     "killed": 2
+    }
+   }
+  },
+  "full_variant_failures": [
+   "three-years-p2-1 T-156 witnesses: gate walls built (six wooden gate walls burnt on days 287.5-288.3)",
+   "three-years-p4-1 T-156 witnesses: gate walls built (one wall burnt on day 249.2)"
+  ]
+ },
+ "wildlife_instrument": {
+  "master_T418_row": "13/4/8/142/8/0/0",
+  "full_variant": "13/4/8/143/9/0/0 (reports/data/2026-10-22-t421-variant-wildlife.json)",
+  "variant_with_aggressive_animals_too": "13/5/5/135/8/0/0, sum below the bound 136",
+  "variant_territorial_with_need_return": "13/0/8/139/9/1/0"
+ },
+ "encounter_F_from_day_238": {
+  "boarAttacksOnDwarves": 49,
+  "hits": 33,
+  "victimBehaviourOnHit": {
+   "flee/Fleeing": 18,
+   "need/thirst": 1,
+   "patient/Resting in hospital": 4,
+   "duty/On duty": 10
+  },
+  "dwarfBlowsOnBoars": 28,
+  "dwarfHitsOnBoars": 11,
+  "alertChanges": 50,
+  "firstKillOrderDay": 246.383,
+  "deaths": [
+   {
+    "day": 243.01,
+    "id": 32163,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 66298
+   },
+   {
+    "day": 243.131,
+    "id": 77740,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 66298
+   },
+   {
+    "day": 246.697,
+    "id": 66298,
+    "sp": "boar",
+    "cause": "killed",
+    "killer": 77285
+   },
+   {
+    "day": 246.76,
+    "id": 77285,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 66298
+   },
+   {
+    "day": 251.91,
+    "id": 77283,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 41557
+   },
+   {
+    "day": 251.947,
+    "id": 86672,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 41557
+   },
+   {
+    "day": 261.864,
+    "id": 40651,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 22590
+   },
+   {
+    "day": 266.197,
+    "id": 77284,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 22590
+   },
+   {
+    "day": 266.468,
+    "id": 32433,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 41557
+   },
+   {
+    "day": 267.272,
+    "id": 86597,
+    "sp": "dwarf",
+    "cause": "bled_out",
+    "killer": 22590
+   }
+  ],
+  "boars": {
+   "22590": {
+    "arrived": 250,
+    "homeChunk": 288,
+    "states": {
+     "sleep": 266,
+     "idle": 123,
+     "wander": 135,
+     "attack": 4
+    },
+    "gateDistance": {
+     "min": 4,
+     "median": 15,
+     "max": 28
+    }
+   },
+   "41282": {
+    "arrived": 60,
+    "homeChunk": 294,
+    "states": {
+     "leave": 817
+    },
+    "gateDistance": {
+     "min": 35,
+     "median": 35,
+     "max": 36
+    }
+   },
+   "41557": {
+    "arrived": 250,
+    "homeChunk": 288,
+    "states": {
+     "sleep": 266,
+     "idle": 129,
+     "wander": 129,
+     "attack": 4
+    },
+    "gateDistance": {
+     "min": 4,
+     "median": 17,
+     "max": 28
+    }
+   },
+   "50070": {
+    "arrived": 213,
+    "homeChunk": 294,
+    "states": {
+     "sleep": 48,
+     "idle": 26,
+     "wander": 23
+    },
+    "gateDistance": {
+     "min": 26,
+     "median": 33,
+     "max": 39
+    }
+   },
+   "50264": {
+    "arrived": 213,
+    "homeChunk": 294,
+    "states": {
+     "sleep": 52,
+     "idle": 31,
+     "wander": 14,
+     "leave": 720
+    },
+    "gateDistance": {
+     "min": 27,
+     "median": 38,
+     "max": 39
+    }
+   },
+   "66298": {
+    "arrived": 225,
+    "homeChunk": 291,
+    "states": {
+     "sleep": 104,
+     "idle": 52,
+     "wander": 41,
+     "attack": 12
+    },
+    "gateDistance": {
+     "min": 7,
+     "median": 18,
+     "max": 27
+    }
+   },
+   "75491": {
+    "arrived": 225,
+    "homeChunk": 291,
+    "states": {
+     "sleep": 192,
+     "idle": 99,
+     "wander": 89,
+     "attack": 5,
+     "leave": 432
+    },
+    "gateDistance": {
+     "min": 4,
+     "median": 20,
+     "max": 31
+    }
+   },
+   "94193": {
+    "arrived": 106,
+    "homeChunk": 294,
+    "states": {
+     "leave": 817
+    },
+    "gateDistance": {
+     "min": 30,
+     "median": 32,
+     "max": 33
+    }
+   }
+  },
+  "end": {
+   "day": 272,
+   "t": "end",
+   "living": 0,
+   "hash": "573905500a6fecaf"
+  }
+ },
+ "p0_2_living_day_336": {
+  "master": 0,
+  "F_from_day_238": 0,
+  "P_from_day_238": 0,
+  "F_and_P_from_day_238": 0,
+  "full_variant_from_day_0": 15,
+  "need_return_from_day_243": "3 (a fleeing patient with a critical need serves the need, not its rest; the timeline matched master until day 243)"
+ }
+}
