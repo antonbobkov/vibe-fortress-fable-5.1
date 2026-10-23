@@ -10,7 +10,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ForagingReader } from '@systems/foraging';
 import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
-import { button, label, normalizeName, numberField, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
+import { asWritten, button, label, normalizeName, numberField, separator, table, textField, type ListState, type TextFieldState } from '../widgets';
 import { buildings, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 import { acceleratorLabel } from '../keymap';
@@ -185,11 +185,15 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
   separator(s, col, row, width); row += 1;
   if (panel.tab === 0) {
     if (panel.capEditor !== null) {
-      label(s, col, row, ctx.strings.get('ui.animals.cap'), { width }); row += 1;
-      numberField(s, col, row, panel.capEditor.value, delta => panel.adjustCap(delta), { min: BREEDING_CAP_MIN, max: BREEDING_CAP_MAX, width: 3 }); row += 1;
-      const n = button(s, col, row, 'Enter', ctx.strings.get('ui.animals.cap_set'), () => { const cmd = panel.finishCap(); if (cmd) ctx.submit(cmd); });
-      button(s, col + n + 1, row, 'Esc', ctx.strings.get('ui.text_input.cancel'), () => { panel.capEditor = null; }); row += 1;
-      label(s, col, row, ctx.strings.get('ui.animals.cap_keys'), { width });
+      const editor = panel.capEditor;
+      // The cap is a number field: its keys, and so its captions, are not rebound.
+      asWritten(s, () => {
+        label(s, col, row, ctx.strings.get('ui.animals.cap'), { width }); row += 1;
+        numberField(s, col, row, editor.value, delta => panel.adjustCap(delta), { min: BREEDING_CAP_MIN, max: BREEDING_CAP_MAX, width: 3 }); row += 1;
+        const n = button(s, col, row, 'Enter', ctx.strings.get('ui.animals.cap_set'), () => { const cmd = panel.finishCap(); if (cmd) ctx.submit(cmd); });
+        button(s, col + n + 1, row, 'Esc', ctx.strings.get('ui.text_input.cancel'), () => { panel.capEditor = null; }); row += 1;
+        label(s, col, row, ctx.strings.get('ui.animals.cap_keys'), { width });
+      });
     } else if (panel.trainChoice !== null) {
       label(s, col, row, ctx.strings.get('ui.animals.train_prompt'), { fg: s.theme.key, width }); row += 1;
       const labels = [ctx.strings.get('ui.animals.war'), ctx.strings.get('ui.animals.hunting')] as const;

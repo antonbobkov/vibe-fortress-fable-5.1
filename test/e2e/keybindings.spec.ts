@@ -70,12 +70,12 @@ async function rebind(page: Page, context: string, action: string, key: string):
   await expect.poll(() => textOf(page)).toContain('[Enter] rebind');
 }
 
-/** `<` (Map: z-level down) and `i` (Units panel: idle only), and their new keys `q` and `h`. */
+/** `<` (Map: z-level down) and `i` (Units panel: idle only), and their new keys `;` and `h`. */
 async function useBoth(page: Page, rebound: boolean): Promise<void> {
   const z = await zOf(page);
-  await page.keyboard.press(rebound ? '<' : 'q');
+  await page.keyboard.press(rebound ? '<' : ';');
   expect(await zOf(page)).toBe(z);
-  await page.keyboard.press(rebound ? 'q' : '<');
+  await page.keyboard.press(rebound ? ';' : '<');
   await expect.poll(() => zOf(page)).toBe(z - 1);
   await page.keyboard.press('>');
   await expect.poll(() => zOf(page)).toBe(z);
@@ -99,8 +99,8 @@ test('T-424 keybindings: rebind a map key and a panel key, use them, reload, res
   await useBoth(page, false);
 
   await openKeybindings(page);
-  await rebind(page, 'Map', 'z-level down', 'q');
-  expect(await textOf(page)).toMatch(/z-level down +q {2}\(default <\)/);
+  await rebind(page, 'Map', 'z-level down', ';');
+  expect(await textOf(page)).toMatch(/z-level down +; {2}\(default <\)/);
   await rebind(page, 'Units panel', 'show only idle dwarves / all', 'h');
   expect(await textOf(page)).toMatch(/show only idle dwarves \/ all +\[h\] {2}\(default \[i\]\)/);
   await page.evaluate(() => (window as unknown as { __deepholm: KeysHook }).__deepholm.settled());

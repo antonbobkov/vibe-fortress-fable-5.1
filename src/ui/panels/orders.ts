@@ -25,7 +25,7 @@ import {
 } from '../constants';
 import { buildingName, capitalize, waitingFor, workshopBlockText, wrapText } from '../messages';
 import type { Surface } from '../surface';
-import { label, list, numberField, separator, textField, type ListState } from '../widgets';
+import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 
@@ -836,6 +836,11 @@ function statusColor(s: Surface, kind: OrderStatus['kind']): Rgb {
 
 /** `ui-screens/panels.md` § Add order. */
 function drawPicker(s: Surface, rect: Rect, panel: OrdersPanel, ctx: PanelContext): void {
+  // "Add order" is a text field: its keys, and so its captions, are not rebound.
+  asWritten(s, () => drawPickerFields(s, rect, panel, ctx));
+}
+
+function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: PanelContext): void {
   const t = s.theme;
   const strings = ctx.strings;
   const p = panel.picker;

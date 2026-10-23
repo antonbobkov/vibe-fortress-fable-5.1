@@ -8,7 +8,10 @@ import { loadContent } from '@content/loader';
 import { Game } from '@app/game';
 import { SettingsStore } from '@app/settings-store';
 import { MemoryStorage } from '@platform/storage';
-import { Keymap, LEGACY_BINDINGS, type Binding, type KeySpec } from '@ui/keymap';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { Keymap, LEGACY_BINDINGS, type Binding, type KeymapRow, type KeySpec } from '@ui/keymap';
+import { LaborManagerScreen } from '@ui/screens/labor_manager';
+import { TestWorld } from '../../scenarios/test-world';
 import { helpKeyRows } from '@ui/panels/help';
 import { HINT_KEY_CONTEXTS } from '@ui/panels/log';
 import { SettingsScreen } from '@ui/screens/settings';
@@ -30,6 +33,10 @@ function at(keys: Keymap, context: string, id: string): number {
 
 function key(k: string, mods: Partial<KeySpec> = {}): KeySpec {
   return { key: k, ctrl: false, shift: false, ...mods };
+}
+
+function keymapIndex(keys: Keymap, context: string, k: string): number {
+  return keys.bindings.findIndex((b) => b.context === context && b.spec.key === k);
 }
 
 function game(storage = new MemoryStorage()): Game {
@@ -73,15 +80,29 @@ describe('T-424 conflicts', () => {
     expect(keys.overrides()).toEqual([]);
   });
 
-  it('lets a panel key share a key with the map, and an accelerator a panel letter (it then takes Shift)', () => {
+  it('refuses a map key that a panel uses and a panel key that the map uses; lets an accelerator take a panel letter (it then takes Shift)', () => {
     const keys = fresh();
-    expect(keys.rebind(at(keys, 'map', 'look'), key('q'))).toBeNull();
+    expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('k'))?.id).toBe('look');
+    expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('<'))?.id).toBe('z_down');
+    expect(keys.rebind(at(keys, 'map', 'look'), key('q'))?.context).toBe('zone_inspector');
+    expect(keys.rebind(at(keys, 'map', 'look'), key('/'))?.id).toBe('filter_focus');
+    expect(keys.rebind(at(keys, 'map', 'look'), key(';'))).toBeNull();
     expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('z'))).toBeNull();
     expect(keys.bindings[at(keys, 'jobs_panel', 'cancel_job')]?.spec).toEqual({ key: 'z', ctrl: false, shift: false, accel: true });
     expect(keys.resolve('jobs_panel', press('Z', { shift: true }))?.id).toBe('cancel_job');
     expect(keys.resolve('jobs_panel', press('z'))).toBeNull();
     // A map selection's keys act beside every panel's.
     expect(keys.rebind(at(keys, 'jobs_panel', 'job_priority'), key('d'))?.id).toBe('dump');
+  });
+
+  it('refuses a browser shortcut that the page cannot keep', () => {
+    const keys = fresh();
+    const pause = at(keys, 'global', 'pause');
+    for (const shortcut of [key('W', { ctrl: true }), key('T', { ctrl: true, shift: true }), key('Tab', { ctrl: true }), key('n', { ctrl: true })]) {
+      expect(keys.rebind(pause, shortcut)?.id).toBe('pause');
+    }
+    expect(keys.overrides()).toEqual([]);
+    expect(keys.rebind(pause, key('P', { ctrl: true }))).toBeNull();
   });
 
   it('gives a binding its default back whatever acts beside it, and refuses a fixed key', () => {
@@ -102,7 +123,7 @@ describe('T-424 saved keymaps', () => {
     const keys = fresh();
     expect(keys.rebind(at(keys, 'units_panel', 'idle_filter'), key('q'))).toBeNull();
     const saved = JSON.parse(JSON.stringify(keys.overrides())) as unknown[];
-    expect(saved).toEqual([{ binding: 'units_panel/i', spec: { key: 'q', ctrl: false, shift: false, accel: true } }]);
+    expect(saved).toEqual([{ binding: 'units_panel/idle_filter', spec: { key: 'q', ctrl: false, shift: false, accel: true } }]);
     const loaded = fresh();
     loaded.loadOverrides(saved);
     expect(loaded.resolve('units_panel', press('q'))?.id).toBe('idle_filter');
@@ -112,7 +133,9 @@ describe('T-424 saved keymaps', () => {
     const keys = fresh();
     keys.loadOverrides([
       { index: LEGACY_BINDINGS.indexOf('global/Space'), spec: key('F8') },
-      { index: LEGACY_BINDINGS.indexOf('map/k'), spec: key('q') },
+      { index: LEGACY_BINDINGS.indexOf('map/k'), spec: key(';') },
+      // Military and the zone inspector use `q`: the map's z-level up does not get it.
+      { index: LEGACY_BINDINGS.indexOf('map/>'), spec: key('q') },
       { index: LEGACY_BINDINGS.indexOf('fortress_panel/p'), spec: key('h') },
       { index: LEGACY_BINDINGS.indexOf('military_panel/w'), spec: key('u') },
       { index: LEGACY_BINDINGS.indexOf('global/Shift+Y'), spec: key('F2') },
@@ -121,13 +144,49 @@ describe('T-424 saved keymaps', () => {
       { index: 3, spec: { key: 7 } },
     ]);
     expect(keys.resolve('global', press('F8'))?.id).toBe('pause');
-    expect(keys.resolve('map', press('q'))?.id).toBe('look');
+    expect(keys.resolve('map', press(';'))?.id).toBe('look');
+    expect(keys.resolve('map', press('>'))?.id).toBe('z_up');
     expect(keys.panelLetters().has('h')).toBe(true);
     expect(keys.resolve('military_panel', press('U', { shift: true }))?.id).toBe('weapon');
     expect(keys.resolve('global', press('F2'))?.id).toBe('calendar');
     // `Esc` is fixed: an old rebinding of it is not loaded.
     expect(keys.resolve('global', press('Esc'))?.id).toBe('cancel');
-    expect(keys.overrides().map((o) => o.binding).sort()).toEqual(['fortress_panel/p', 'global/Shift+Y', 'global/Space', 'map/k', 'military_panel/w']);
+    expect(keys.overrides().map((o) => o.binding).sort()).toEqual(['fortress_panel/population', 'global/calendar', 'global/pause', 'map/look', 'military_panel/weapon']);
+  });
+
+  it('loads the names one version saved under, context and default key', () => {
+    const keys = fresh();
+    keys.loadOverrides([{ binding: 'map/<', spec: key(';') }, { binding: 'units_panel/i', spec: key('h') }]);
+    expect(keys.resolve('map', press(';'))?.id).toBe('z_down');
+    expect(keys.resolve('units_panel', press('h'))?.id).toBe('idle_filter');
+    expect(keys.overrides().map((o) => o.binding).sort()).toEqual(['map/z_down', 'units_panel/idle_filter']);
+  });
+
+  it('a save survives a change of the default key', () => {
+    const keys = fresh();
+    expect(keys.rebind(at(keys, 'map', 'z_down'), key(';'))).toBeNull();
+    const saved = JSON.parse(JSON.stringify(keys.overrides())) as unknown[];
+    expect(saved).toEqual([{ binding: 'map/z_down', spec: { key: ';', ctrl: false, shift: false } }]);
+    // A later table gives z-level down `PageDown` for `<`: the save still finds its binding.
+    const rows = registry.derived<readonly KeymapRow[]>('keymap').map((row) => (row.context === 'map' && row.key === '<' ? { ...row, key: 'PageDown' } : row));
+    const later = Keymap.fromRows(rows);
+    later.loadOverrides(saved);
+    expect(later.resolve('map', press(';'))?.id).toBe('z_down');
+    expect(later.resolve('map', press('PageDown'))).toBeNull();
+    expect(later.resolve('map', press(','))?.id).toBe('z_down');
+  });
+
+  it('drops a saved rebinding that would share a key with a binding acting beside it, the later in table order', () => {
+    const keys = fresh();
+    keys.loadOverrides([
+      { binding: 'map/look', spec: key(';') },
+      { binding: 'units_panel/sleep_hour', spec: key(';') },
+      { binding: 'map/home', spec: key('q') },
+    ]);
+    expect(keys.resolve('map', press(';'))?.id).toBe('look');
+    expect(keys.resolve('units_panel', press('['))?.id).toBe('sleep_hour');
+    expect(keys.resolve('map', press('Home'))?.id).toBe('home');
+    expect(keys.overrides().map((o) => o.binding)).toEqual(['map/look']);
   });
 
   it('drops a saved rebinding that would share a key within its context, and keeps the rest', () => {
@@ -145,14 +204,14 @@ describe('T-424 saved keymaps', () => {
   it('a rebinding and a reset survive a reload of the app', async () => {
     const storage = new MemoryStorage();
     const first = game(storage);
-    expect(first.keymap.rebind(at(first.keymap, 'map', 'z_down'), key('q'))).toBeNull();
+    expect(first.keymap.rebind(at(first.keymap, 'map', 'z_down'), key(';'))).toBeNull();
     first.changeSettings({});
     await first.settled();
     const second = game(storage);
     await second.loadSettings();
     await second.start({ embark: 'default' });
     const z = second.ui.z;
-    second.handleKey(press('q'));
+    second.handleKey(press(';'));
     expect(second.ui.z).toBe(z - 1);
     second.resetSettings();
     await second.settled();
@@ -210,6 +269,30 @@ describe('T-424 a rebound key acts, and its old key does not', () => {
     expect(g.textRows().join('\n')).toContain('rq');
     g.handleKey(press('q'));
     expect(g.textRows().join('\n')).not.toContain('rq');
+  });
+
+  it('the labor manager: a freed letter still jumps to a labor', () => {
+    const keys = fresh();
+    expect(keys.rebind(at(keys, 'labor_manager', 'templates'), key('q'))).toBeNull();
+    const w = new TestWorld({ seed: 't424-labors', world: 'flat-test', embark: 'none' });
+    w.spawnDwarf({ at: w.index(10, 10, FLAT_TEST_SURFACE_Z), name: 'Dwarf Stone', ageYears: 30 });
+    const screen = new LaborManagerScreen({ readers: w.readers, registry, strings, submit: (c) => w.submit(c), back: () => {} });
+    const send = (p: ReturnType<typeof press>): void => { const t = keys.translate(screen.translatedKeys(), p); if (t !== null) screen.key(t); };
+    send(press('t'));
+    expect(screen.cursorLabor()?.name.toLowerCase().startsWith('t')).toBe(true);
+    const at0 = screen.cursorCol;
+    send(press('t'));
+    expect(screen.cursorCol).not.toBe(at0);
+    expect(screen.cursorLabor()?.name.toLowerCase().startsWith('t')).toBe(true);
+    send(press('q'));
+    expect(screen.translatedKeys()).toEqual(['labor_templates', 'panel']);
+  });
+
+  it('a key with Shift reaches a letter binding: the world map cursor moves by eight', () => {
+    const keys = fresh();
+    expect(keys.rebind(keys.bindings.findIndex((b) => b.context === 'world_map' && b.spec.key === '↓'), key('j'))).toBeNull();
+    expect(keys.resolve('world_map', press('J', { shift: true }))).toEqual({ id: 'cursor', arg: '↓', shift: true });
+    expect(keys.resolve('world_map', press('j'))).toEqual({ id: 'cursor', arg: '↓', shift: false });
   });
 
   it('on a screen over the fortress: the confirmation dialog', async () => {
@@ -277,7 +360,7 @@ describe('T-424 the keybinding editor', () => {
     screen.key(press('Backspace'));
     expect(keys.bindings[wounded]?.spec.key).toBe('W');
     expect(saved()).toBe(4);
-    expect(keys.rebind(at(keys, 'map', 'look'), key('q'))).toBeNull();
+    expect(keys.rebind(at(keys, 'map', 'look'), key(';'))).toBeNull();
     expect(keys.rebind(at(keys, 'global', 'pause'), key('F8'))).toBeNull();
     screen.key(press('d'));
     expect(keys.overrides()).toEqual([]);
@@ -300,6 +383,13 @@ describe('T-424 the keybinding editor', () => {
     expect(screen.capturing).toBe(false);
     expect(screen.conflict).toBe('Esc is a fixed key and cannot be rebound.');
     expect(text()).toMatch(/cancel tool → close panel → game menu +Esc {2}fixed/);
+    // A browser shortcut is refused by name.
+    screen.bindingList.selected = at(keys, 'global', 'pause');
+    screen.key(press('Enter'));
+    screen.key(press('w', { ctrl: true }));
+    expect(screen.conflict).toBe('Ctrl+W belongs to the browser, which acts on it first.');
+    expect(screen.capturing).toBe(true);
+    expect(keys.overrides()).toEqual([]);
   });
 });
 
@@ -332,6 +422,23 @@ describe('T-424 a rebound key is named wherever a key is named', () => {
     const again = helpKeyRows(keys, strings).map((r) => r.text);
     expect(again.some((r) => r.startsWith('Ctrl+U or click undo'))).toBe(true);
     expect(again.some((r) => r.startsWith('F2 ↓ F4  choose a mode'))).toBe(true);
+  });
+
+  it('the order picker is a text field: its captions keep the keys it reads', async () => {
+    const g = game();
+    await g.start({ embark: 'default' });
+    expect(g.keymap.rebind(keymapIndex(g.keymap, 'panel', 'Enter'), key('F4'))).toBeNull();
+    expect(g.keymap.rebind(keymapIndex(g.keymap, 'panel', 'Tab'), key('F3'))).toBeNull();
+    g.handleKey(press('o'));
+    g.handleKey(press('N', { shift: true }));
+    expect(g.fortress.orders.picker.open).toBe(true);
+    g.render();
+    const text = g.textRows().join('\n');
+    expect(text).toContain('[Enter] add');
+    expect(text).toContain('[Tab] next');
+    const help = helpKeyRows(g.keymap, strings).map((r) => r.text);
+    expect(help).toContain(strings.get('ui.help.orders.picker'));
+    expect(help).toContain(strings.get('ui.help.jobs.filter'));
   });
 
   it('the fortress status row and the drawn strip name a rebound panel letter, and a click on it presses that key', async () => {

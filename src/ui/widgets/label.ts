@@ -58,6 +58,20 @@ export function label(s: Surface, col: number, row: number, text: string, option
   return written;
 }
 
+/**
+ * Draw what a text or number field shows with its captions as written: the field reads its keys as
+ * they are (`ui-keymap-and-screens.md` § Fixed keys), so a rebinding must not rename them.
+ */
+export function asWritten(s: Surface, draw: () => void): void {
+  const names = s.keyNames;
+  s.keyNames = null;
+  try {
+    draw();
+  } finally {
+    s.keyNames = names;
+  }
+}
+
 /** A label padded with blanks to exactly `width` cells (so a row is fully repainted). */
 export function labelRow(s: Surface, col: number, row: number, width: number, text: string, options: LabelOptions = {}): void {
   const bg = options.bg ?? s.theme.black;

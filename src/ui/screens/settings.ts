@@ -6,13 +6,13 @@
  * screens before it). Its own keys are fixed (§ Fixed keys), so it works whatever the bindings are.
  */
 import type { KeyPress } from '@platform/input';
-import { KEY_CONTEXTS, type Binding, type Keymap, type KeySpec } from '../keymap';
+import { browserReserved, keyLabel, KEY_CONTEXTS, type Binding, type Keymap, type KeySpec } from '../keymap';
 import { actionText, contextTitle } from '../panels/help';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { UserSettings } from '../settings';
 import type { Surface } from '../surface';
 import type { Strings } from '../strings';
-import { bindingConflict, bindingReset, fixedBinding, invalidBindingModifiers } from '../messages';
+import { bindingConflict, bindingReset, browserBinding, fixedBinding, invalidBindingModifiers } from '../messages';
 import { label, type ListState } from '../widgets';
 import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_ZOOM_OPTIONS } from '../constants';
 
@@ -171,6 +171,7 @@ export class SettingsScreen implements Screen {
     if (press.alt || press.meta) { this.refuse(invalidBindingModifiers(this.host.strings)); return; }
     const key = press.key === ' ' ? 'Space' : press.key;
     const spec: KeySpec = { key, ctrl: press.ctrl, shift: press.shift };
+    if (browserReserved(spec)) { this.refuse(browserBinding(this.host.strings, keyLabel({ ...spec, key: key.length === 1 ? key.toUpperCase() : key }))); return; }
     const conflict = this.host.keymap.rebind(this.bindingList.selected, spec);
     if (conflict) { this.refuse(bindingConflict(this.host.strings, conflict), conflict); return; }
     this.capturing = false;

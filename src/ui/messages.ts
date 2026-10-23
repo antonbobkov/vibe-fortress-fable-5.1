@@ -65,6 +65,11 @@ export function fixedBinding(strings: Strings, key: string): string {
   return strings.get('ui.settings.binding_fixed', { key });
 }
 
+/** A browser shortcut a page cannot keep (`Ctrl+W`, `Ctrl+Tab`) refuses a rebinding by name. */
+export function browserBinding(strings: Strings, key: string): string {
+  return strings.get('ui.settings.binding_browser', { key });
+}
+
 /** One binding back to its default: the Help wording and the key it has again. */
 export function bindingReset(strings: Strings, binding: Binding, key: string): string {
   return strings.get('ui.settings.binding_reset', { action: actionText(binding), key });

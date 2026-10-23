@@ -17,6 +17,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.settings.binding_modifiers': 'Use a key with optional Ctrl or Shift.',
   'ui.settings.binding_conflict': 'Conflicts with {context}: {action}',
   'ui.settings.binding_fixed': '{key} is a fixed key and cannot be rebound.',
+  'ui.settings.binding_browser': '{key} belongs to the browser, which acts on it first.',
   'ui.settings.binding_reset': '{action}: back to {key}.',
   'ui.settings.bindings_reset': 'Every key is back to its default.',
   // Main menu (`ui-screens/menus-and-world.md` § Main menu).

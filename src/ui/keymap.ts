@@ -392,7 +392,7 @@ export interface Binding {
   readonly text?: string;
 }
 
-/** A saved change from a content default, keyed by the binding's stable name ({@link bindingName}). */
+/** A saved change from a content default, keyed by the binding's stable name ({@link actionName}). */
 export interface KeyOverride { readonly binding: string; readonly spec: KeySpec }
 
 /** A rebinding as versions before the keyed names saved it: the index of the expanded binding row. */
@@ -403,9 +403,31 @@ export function keyLabel(spec: KeySpec): string {
   return `${spec.ctrl ? 'Ctrl+' : ''}${spec.shift ? 'Shift+' : ''}${spec.key}`;
 }
 
-/** A binding's stable name, `<context>/<default key>`: what a saved rebinding is keyed by. */
+/**
+ * A binding named by its context and default key, `<context>/<default key>`: the names of
+ * {@link LEGACY_BINDINGS}, and the form one version saved rebindings under, which still loads.
+ */
 export function bindingName(context: string, spec: KeySpec): string {
   return `${context}/${keyLabel(spec)}`;
+}
+
+/**
+ * A binding's stable name, what a saved rebinding is keyed by: its context and action id, the
+ * argument its key gives (`map/pan:←`), and `#2`, `#3` … for a further key of the same action
+ * (`global/speed_up#2` is `=`). A later change of a default key does not change it.
+ */
+export function actionName(binding: Pick<Binding, 'context' | 'id' | 'arg'>, ordinal = 1): string {
+  return `${binding.context}/${binding.id}${binding.arg === undefined ? '' : `:${binding.arg}`}${ordinal > 1 ? `#${ordinal}` : ''}`;
+}
+
+/**
+ * Browser shortcuts a page cannot keep from the browser (closing, opening or switching tabs and
+ * windows): a binding may not take one (24 § Settings).
+ */
+export function browserReserved(spec: Pick<KeySpec, 'key' | 'ctrl' | 'shift'>): boolean {
+  if (!spec.ctrl) return false;
+  const key = spec.key.length === 1 ? spec.key.toLowerCase() : spec.key;
+  return ['w', 't', 'n', 'q', 'Tab', 'PageUp', 'PageDown', 'F4'].includes(key);
 }
 
 /**
@@ -526,12 +548,14 @@ function coActive(target: KeyContext, other: KeyContext, spec: KeySpec, held: Ke
   if (target === other) return true;
   if (target === 'global' || other === 'global') return true;
   if ((target === 'map' && other === 'fortress_panel') || (target === 'fortress_panel' && other === 'map')) return true;
+  // The map keys act beside the list keys and every panel's own keys.
+  if ((target === 'map' && (other === 'panel' || FORTRESS_CONTEXTS.has(other))) || (other === 'map' && (target === 'panel' || FORTRESS_CONTEXTS.has(target)))) return true;
   // A panel letter may take a letter that panels use only as accelerators: those then take Shift.
   // A panel's own bare letter would be lost behind it.
   if (target === 'fortress_panel') return FORTRESS_CONTEXTS.has(other) && held.accel !== true;
   // A panel's own bare letter would never be reached past the panel letter that has it.
   if (other === 'fortress_panel') return FORTRESS_CONTEXTS.has(target) && spec.accel !== true && !spec.ctrl && !spec.shift && isLetter(spec.key);
-  if (target === 'panel' || other === 'panel') return target !== 'map' && other !== 'map';
+  if (target === 'panel' || other === 'panel') return true;
   if ((target === 'selection' && FORTRESS_CONTEXTS.has(other)) || (other === 'selection' && FORTRESS_CONTEXTS.has(target))) return true;
   return (target === 'zones_panel' && other === 'zone_inspector') || (target === 'zone_inspector' && other === 'zones_panel');
 }
@@ -562,6 +586,8 @@ export class Keymap {
   private readonly defaults: readonly Binding[];
   private current: Binding[];
   private readonly names: readonly string[];
+  /** The `<context>/<default key>` names ({@link bindingName}), which older saves use. */
+  private readonly keyNames: readonly string[];
   /** Whether any binding is rebound, until the next change ({@link relabel} runs for every caption drawn). */
   private changedCache: boolean | null = null;
 
@@ -570,7 +596,14 @@ export class Keymap {
   constructor(bindings: readonly Binding[]) {
     this.defaults = bindings.map((binding) => ({ ...binding, spec: { ...binding.spec } }));
     this.current = this.defaults.map((binding) => ({ ...binding, spec: { ...binding.spec } }));
-    this.names = this.defaults.map((binding) => bindingName(binding.context, binding.spec));
+    const seen = new Map<string, number>();
+    this.names = this.defaults.map((binding) => {
+      const base = actionName(binding);
+      const ordinal = (seen.get(base) ?? 0) + 1;
+      seen.set(base, ordinal);
+      return actionName(binding, ordinal);
+    });
+    this.keyNames = this.defaults.map((binding) => bindingName(binding.context, binding.spec));
   }
 
   /**
@@ -617,7 +650,7 @@ export class Keymap {
     return this.defaults[index];
   }
 
-  /** The stable name of the binding at `index` (`map/k`). */
+  /** The stable name of the binding at `index` (`map/look`). */
   nameOf(index: number): string {
     return this.names[index] ?? '';
   }
@@ -697,7 +730,7 @@ export class Keymap {
     const target = this.current[index];
     const was = this.defaults[index];
     if (target === undefined || was === undefined) return null;
-    if (this.fixed(index) || !spec.key || pseudo(spec)) return target;
+    if (this.fixed(index) || !spec.key || pseudo(spec) || browserReserved(spec)) return target;
     const next = Keymap.capture(was.spec, spec);
     const restoring = sameSpec(next, was.spec);
     // A binding of the same context is named first, then one that acts beside it.
@@ -717,10 +750,12 @@ export class Keymap {
   }
 
   /**
-   * Load saved rebindings: `{ binding, spec }`, or the `{ index, spec }` of earlier versions, which
-   * {@link LEGACY_BINDINGS} names. An entry for no binding, for a fixed key or with a malformed key
-   * is skipped, and a rebinding that would share a key with another binding of its context is
-   * dropped, so the rest still load.
+   * Load saved rebindings: `{ binding, spec }` named by {@link actionName} (or by
+   * {@link bindingName}, as one version saved them), or the `{ index, spec }` of earlier versions,
+   * which {@link LEGACY_BINDINGS} names. An entry for no binding, for a fixed key, for a browser
+   * shortcut or with a malformed key is skipped. A rebinding that would share a key with a binding
+   * that acts beside it (24 § Settings) is dropped, the later of two rebindings in table order
+   * first, so the rest still load.
    */
   loadOverrides(overrides: readonly unknown[]): void {
     const proposed = this.defaults.map((binding) => ({ ...binding, spec: { ...binding.spec } }));
@@ -729,25 +764,30 @@ export class Keymap {
       if (typeof entry !== 'object' || entry === null) continue;
       const raw = entry as { binding?: unknown; index?: unknown; spec?: unknown };
       const name = typeof raw.binding === 'string' ? raw.binding : typeof raw.index === 'number' && Number.isInteger(raw.index) ? LEGACY_BINDINGS[raw.index] : undefined;
-      const index = name === undefined ? -1 : this.names.indexOf(name);
+      const byName = name === undefined ? -1 : this.names.indexOf(name);
+      const index = byName >= 0 || name === undefined ? byName : this.keyNames.indexOf(name);
       if (index < 0 || this.fixed(index)) continue;
       const spec = raw.spec as Partial<KeySpec> | undefined;
       if (!spec || typeof spec.key !== 'string' || typeof spec.ctrl !== 'boolean' || typeof spec.shift !== 'boolean') continue;
-      if (!spec.key || pseudo(spec as KeySpec)) continue;
+      if (!spec.key || pseudo(spec as KeySpec) || browserReserved(spec as KeySpec)) continue;
       const binding = proposed[index] as Binding;
       proposed[index] = { ...binding, spec: Keymap.capture((this.defaults[index] as Binding).spec, spec as KeySpec) };
       changed.add(index);
     }
-    // Drop each rebinding that shares a key with another binding of its context; defaults never do.
+    // Drop a rebinding that shares a key with a binding acting beside it, as a rebinding is refused;
+    // of two rebindings the later in table order goes. Defaults never clash this way.
     let dropped = true;
     while (dropped) {
       dropped = false;
-      for (const index of changed) {
+      for (const index of Array.from(changed).sort((a, b) => b - a)) {
         const binding = proposed[index] as Binding;
-        if (proposed.some((other, k) => k !== index && other.context === binding.context && collide(other.spec, binding.spec))) {
+        const clash = proposed.some((other, k) => k !== index && (k < index || !changed.has(k)) &&
+          (other.context === binding.context || coActive(binding.context, other.context, binding.spec, other.spec)) && collide(other.spec, binding.spec));
+        if (clash) {
           proposed[index] = { ...binding, spec: { ...(this.defaults[index] as Binding).spec } };
           changed.delete(index);
           dropped = true;
+          break;
         }
       }
     }
@@ -783,7 +823,7 @@ export class Keymap {
       if (s.ctrl !== press.ctrl) continue;
       const exact = s.key === key || ((s.ctrl || s.shift) && sameKey(s.key, key));
       if (exact && s.shift === press.shift) return index;
-      if (loose < 0 && !s.shift && s.key === key) loose = index;
+      if (loose < 0 && !s.shift && sameKey(s.key, key)) loose = index;
     }
     return accel >= 0 ? accel : loose >= 0 ? loose : any;
   }
@@ -826,6 +866,12 @@ export class Keymap {
       const index = this.find(context, press, this.defaults);
       if (index < 0 || pseudo((this.defaults[index] as Binding).spec) || !this.rebound(index)) continue;
       if (others.some((other) => this.find(other, press, this.current) >= 0)) return press;
+      // A context that also reads every letter (the labor manager's jump) still gets the letter, in
+      // the form its letter row reads: with Shift.
+      const was = (this.defaults[index] as Binding).spec;
+      if (isLetter(was.key) && !was.ctrl && this.defaults.some((b) => b.context === context && pseudo(b.spec))) {
+        return { ...press, key: press.key.toUpperCase(), shift: true };
+      }
       return null;
     }
     return press;

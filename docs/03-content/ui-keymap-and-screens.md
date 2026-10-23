@@ -686,7 +686,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 
 ## Strings
 
-Settings rebinding failures use the UI defaults `ui.settings.binding_modifiers` ("Use a key with optional Ctrl or Shift."), `ui.settings.binding_conflict` ("Conflicts with {context}: {action}") and `ui.settings.binding_fixed` ("{key} is a fixed key and cannot be rebound."); its resets say `ui.settings.binding_reset` ("{action}: back to {key}.") and `ui.settings.bindings_reset` ("Every key is back to its default."). Context and action use the same headings and wording as Help.
+Settings rebinding failures use the UI defaults `ui.settings.binding_modifiers` ("Use a key with optional Ctrl or Shift."), `ui.settings.binding_conflict` ("Conflicts with {context}: {action}"), `ui.settings.binding_fixed` ("{key} is a fixed key and cannot be rebound.") and `ui.settings.binding_browser` ("{key} belongs to the browser, which acts on it first."); its resets say `ui.settings.binding_reset` ("{action}: back to {key}.") and `ui.settings.bindings_reset` ("Every key is back to its default."). Context and action use the same headings and wording as Help.
 
 A refused fixed-footprint placement names the building and explains that width and height cannot be changed; its named message and generic rejection text are string-registry defaults.
 

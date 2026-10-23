@@ -172,22 +172,24 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
       return binding === undefined ? '' : helpKeyLabel(binding.spec, letters);
     };
     /** A note of a panel's keys, with the mouse's way; each key it names is the one its binding has now. */
-    const note = (category: string, text: string): void => {
-      out.push({ category, text: keymap.relabel(text, NOTE_CONTEXTS[category] ?? [], true) });
+    const note = (category: string, text: string, words = true): void => {
+      out.push({ category, text: keymap.relabel(text, NOTE_CONTEXTS[category] ?? [], words) });
     };
+    // A note on typing in a field: its bracketed key opens the field, the words name the field's own keys.
+    const typing = (category: string, text: string): void => note(category, text, false);
     out.push({ category: 'orders', text: strings.get('ui.help.orders.title'), heading: true });
-    for (const k of ORDER_HELP_KEYS) note('orders', strings.get(k));
+    for (const k of ORDER_HELP_KEYS) (k === 'ui.help.orders.picker' ? typing : note)('orders', strings.get(k));
     out.push({ category: 'build', text: strings.get('ui.help.build.title'), heading: true });
     for (const k of BUILD_HELP_KEYS) note('build', strings.get(k));
     out.push({ category: 'building', text: strings.get('ui.help.building.title'), heading: true });
     for (const k of BUILDING_HELP_KEYS) note('building', strings.get(k));
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.title'), heading: true });
-    note('jobs', strings.get('ui.help.jobs.filter'));
+    typing('jobs', strings.get('ui.help.jobs.filter'));
     note('jobs', strings.get('ui.help.jobs.waiting'));
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.labor', { key: key('jobs_panel', 'cycle_labor') }) });
     out.push({ category: 'jobs', text: strings.get('ui.help.jobs.state', { key: key('jobs_panel', 'cycle_state') }) });
     out.push({ category: 'stocks', text: strings.get('ui.help.stocks.title'), heading: true });
-    note('stocks', strings.get('ui.help.stocks.filter'));
+    typing('stocks', strings.get('ui.help.stocks.filter'));
     out.push({ category: 'animals', text: strings.get('ui.help.animals.title'), heading: true });
     out.push({ category: 'animals', text: strings.get('ui.help.animals.train', { key: key('animals_panel', 'train') }) });
     out.push({ category: 'animals', text: strings.get('ui.help.animals.cap', { key: key('animals_panel', 'cap') }) });

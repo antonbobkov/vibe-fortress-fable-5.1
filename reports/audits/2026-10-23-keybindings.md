@@ -315,9 +315,9 @@ These stay out of the editor's reach; `docs/03-content/ui-keymap-and-screens.md`
 
 - **Every non-fixed key is a row of the keymap**, in a context per screen, panel or panel state (§ Keymap), 272 rows in 35 tables. The fortress panels and the labor manager are written against their default keys; the screen passes each press through `Keymap.translate`, so a rebound key reads as the default it replaced and a default key that was moved away reads as nothing there. The menus and dialogs read their own context through `Keymap.resolve` or the same translation.
 - **The editor groups the bindings by screen**, one heading per context in the table's order, marks fixed rows, names a rebound row's default, draws a refused key's owner in red, and has `Delete`/`Backspace` (this binding's default) and `[d]` (every default). A lone modifier no longer binds.
-- **Conflicts are checked where keys can act together**: the same context, the global keys, the list keys, the panel letters, the map selection, the zone types beside the inspector (24 § Settings).
+- **Conflicts are checked where keys can act together**: the same context, the global keys, the list keys, the map keys beside every panel, the panel letters, the map selection, the zone types beside the inspector (24 § Settings); browser shortcuts such as `Ctrl+W` are refused.
 - **Captions follow the bindings**: panel captions, the status rows (and the strip's clicks), hints in the log, the screens' footers and Help's notes name each key as it is bound now.
-- **Saved keymaps**: a rebinding is saved under the binding's name (`map/<`); a keymap saved by index at `4b8d8e7` or earlier is read through the frozen order of that version (`LEGACY_BINDINGS`), and a saved rebinding that would clash is dropped without dropping the rest.
+- **Saved keymaps**: a rebinding is saved under the binding's context and action (`map/z_down`), so a changed default does not retarget it; a keymap saved by index at `4b8d8e7` or earlier is read through the frozen order of that version (`LEGACY_BINDINGS`), and a saved rebinding that would clash is dropped without dropping the rest.
 - Also: the Workshop panel's arrows work; the Units idle filter is an accelerator `[i]`; the Units caption reads `[S-c] center`; a bound function key or `Ctrl` key is kept from the browser.
 
 ## Left open
