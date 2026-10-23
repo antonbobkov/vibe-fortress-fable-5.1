@@ -4,7 +4,7 @@
 
 ## Why
 
-The owner found the intro of T-423 too tame. Classic text-mode fortress games opened with intros drawn in huge block art: the shade glyphs `█ ▓ ▒ ░` used as pixels, figures many cells tall, a harsh 16-colour palette (cyan, white, grey and brown on black) and dramatic, slightly unhinged scenes. The owner's references are in [refs/T-433-style-reference.jpg](refs/T-433-style-reference.jpg) [refs/T-433-style-reference-2.png](refs/T-433-style-reference-2.png) and [refs/T-433-style-reference-3.gif](refs/T-433-style-reference-3.gif). They show:
+The owner found the intro of T-423 too tame. Classic text-mode fortress games opened with intros drawn in huge block art: the shade glyphs `█ ▓ ▒ ░` used as pixels, figures many cells tall, a harsh 16-colour palette (cyan, white, grey and brown on black) and dramatic, slightly unhinged scenes. The owner shared stills and an animation of a classic intro as style references. They are not kept in this repository, which is public, because they are another game's art. They show:
 
 - a small figure dwarfed by a towering cyan torrent;
 - a giant bearded face framed by a ring of churning cyan;
