@@ -1,5 +1,7 @@
 # T-423 — An ASCII-art intro sequence
 
+**Closed:** 2026-10-23, in 7f25072.
+
 **Source:** the owner, 2026-10-22 · **Size:** M · **Needs:** T-113 · **Status:** open
 
 ## Why

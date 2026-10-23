@@ -24,15 +24,21 @@ import {
   MUSIC_TENSE_GAP_S,
 } from './constants';
 
-/** Where the player is: the screens before a fortress, or a running fortress and the screens over it. */
-export type MusicScene = 'menu' | 'fortress';
+/**
+ * Where the player is: the intro, the screens before a fortress, or a running fortress and the
+ * screens over it.
+ */
+export type MusicScene = 'intro' | 'menu' | 'fortress';
 
 /** What kind of piece plays: a tune's role in `music.md` § Tunes. */
 export type MusicMood = TuneDef['role'];
 
-/** The mood of a scene: a fortress in danger is tense. */
+/**
+ * The mood of a scene: a fortress in danger is tense. The intro plays the menu theme, so the theme
+ * runs on into the main menu after it; the `intro` scene is where a piece of its own would be chosen.
+ */
 export function moodOf(scene: MusicScene, tense: boolean): MusicMood {
-  if (scene === 'menu') return 'menu';
+  if (scene === 'intro' || scene === 'menu') return 'menu';
   return tense ? 'tense' : 'fortress';
 }
 

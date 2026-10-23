@@ -14,6 +14,7 @@ import type { KeyContext } from './keymap';
 import type { Surface } from './surface';
 
 export type ScreenId =
+  | 'intro'
   | 'main_menu'
   | 'world_gen'
   | 'world_map'

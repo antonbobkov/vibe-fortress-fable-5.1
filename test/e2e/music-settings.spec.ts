@@ -4,7 +4,7 @@
  * whatever keys and clicks the test gives.
  */
 import { expect, test, type Page } from '@playwright/test';
-import { screenOf, textOf } from './helpers';
+import { focusMenu, screenOf, textOf } from './helpers';
 
 interface Hook { settled(): Promise<void> }
 
@@ -34,7 +34,7 @@ async function openSettings(page: Page): Promise<void> {
   await page.goto('/');
   await page.waitForFunction(() => (window as unknown as { __deepholm?: unknown }).__deepholm !== undefined);
   await expect.poll(() => screenOf(page)).toBe('main_menu');
-  await page.locator('canvas#screen').click();
+  await focusMenu(page);
   await page.keyboard.press('o');
   await expect.poll(() => screenOf(page)).toBe('settings');
 }

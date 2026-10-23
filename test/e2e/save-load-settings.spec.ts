@@ -1,6 +1,6 @@
 /** T-M7-07: settings survive page reload and do not disturb save continuity. */
 import { expect, test } from '@playwright/test';
-import { screenOf, textOf } from './helpers';
+import { focusMenu, screenOf, textOf } from './helpers';
 
 interface SettingsHook {
   readers: { ui: { zoom: number } };
@@ -17,7 +17,7 @@ test('T-M7-07 save-load-settings', async ({ page }) => {
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await page.waitForFunction(() => (window as unknown as { __deepholm?: unknown }).__deepholm !== undefined);
-  await page.locator('canvas#screen').click();
+  await focusMenu(page);
   await page.keyboard.press('o');
   await expect.poll(() => screenOf(page)).toBe('settings');
   for (let n = 0; n < 4; n += 1) await page.keyboard.press('ArrowDown');

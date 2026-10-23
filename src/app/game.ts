@@ -83,6 +83,8 @@ import { Strings } from '@ui/strings';
 import { GlyphMap, Surface, themeOf, type Theme } from '@ui/surface';
 import type { CellPointer, Screen, ScreenId } from '@ui/screen';
 import { MainMenuScreen } from '@ui/screens/main_menu';
+import { IntroScreen } from '@ui/screens/intro';
+import type { IntroDef } from '@content/schema';
 import { WorldGenScreen } from '@ui/screens/world_gen';
 import { WorldMapScreen } from '@ui/screens/world_map';
 import { EmbarkScreen } from '@ui/screens/embark';
@@ -350,8 +352,9 @@ export class Game {
     return { hearth, sieges: [...sieges] };
   }
 
-  /** The screens before a fortress, or a fortress and the screens over it. */
+  /** The intro, the screens before a fortress, or a fortress and the screens over it. */
   get musicScene(): MusicScene {
+    if (this.top() instanceof IntroScreen) return 'intro';
     return this.stack[0] === FORTRESS && this.host.started ? 'fortress' : 'menu';
   }
 
@@ -452,7 +455,8 @@ export class Game {
 
   resetSettings(): void {
     this.keymap.reset();
-    this.applySettings({ ...DEFAULT_USER_SETTINGS });
+    // Whether the intro has played is not a preference: a reset does not bring it back at launch.
+    this.applySettings({ ...DEFAULT_USER_SETTINGS, introSeen: this.userSettings.introSeen });
     this.persistSettings();
     this.render();
   }
@@ -1017,6 +1021,30 @@ export class Game {
     this.render();
   }
 
+  /**
+   * Whether the intro plays at this launch (`ui-screens/menus-and-world.md` § Intro): the setting
+   * `always`, or `first time` before it has played at a launch. Playing it at launch is saved.
+   */
+  introAtLaunch(): boolean {
+    const settings = this.userSettings;
+    const play = settings.intro === 'always' || (settings.intro === 'first time' && !settings.introSeen);
+    if (play && !settings.introSeen) {
+      settings.introSeen = true;
+      this.persistSettings();
+    }
+    return play;
+  }
+
+  /** The intro, over nothing; when it ends or is skipped, the main menu. */
+  openIntro(): void {
+    this.resetTo(new IntroScreen(
+      { now: () => Date.now(), done: () => void this.showMainMenu() },
+      this.registry.derived<IntroDef>('intro'),
+      this.strings,
+    ));
+    this.render();
+  }
+
   private async newestSaveSummary(): Promise<string | null> {
     if (this.saves === null) return null;
     try {
@@ -1035,11 +1063,12 @@ export class Game {
         newestSave: () => this.newest,
         newWorld: () => this.openWorldGen(),
         continueGame: () => void this.continueNewest(),
-          available: (entry) => (entry === 'load' && this.saves !== null) || (entry === 'legends' && this.legends !== null) || entry === 'settings',
+          available: (entry) => (entry === 'load' && this.saves !== null) || (entry === 'legends' && this.legends !== null) || entry === 'settings' || entry === 'intro',
           open: (entry) => {
             if (entry === 'load') void this.openLoad();
             if (entry === 'legends') void this.openLegends();
             if (entry === 'settings') this.openSettings();
+            if (entry === 'intro') this.openIntro();
         },
       },
       this.keymap,
@@ -1532,10 +1561,11 @@ export interface BootOptions {
 }
 
 /**
- * Wire the platform to the game and start the frame loop on the main menu. `main.ts` calls this;
- * the e2e harness reads `window.__deepholm`, which exists only when the build mode is `test`
- * (`testing-strategy.md` § E2E harness). In a test build, `?start=flat-test` opens the
- * `flat-test` fortress directly, the M0 start the `boot` test was written against (D-061).
+ * Wire the platform to the game and start the frame loop on the intro or the main menu. `main.ts`
+ * calls this; the e2e harness reads `window.__deepholm`, which exists only when the build mode is
+ * `test` (`testing-strategy.md` § E2E harness). In a test build, `?start=flat-test` opens the
+ * `flat-test` fortress directly, the M0 start the `boot` test was written against (D-061), and the
+ * intro is skipped at launch unless `?intro=on` lets its setting decide.
  */
 export async function boot(options: BootOptions = {}): Promise<Game> {
   const element = document.getElementById(options.canvasId ?? 'screen');
@@ -1566,6 +1596,8 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
   const query = testBuild ? new URLSearchParams(window.location.search) : null;
   const start = query?.get('start') ?? null;
   if (start === 'flat-test') await game.start({ seed: options.seed ?? 'deepholm', ...(query?.get('embark') === 'default' ? { embark: 'default' as const } : {}) });
+  // The intro plays at launch as its setting says; a test build skips it unless `?intro=on`.
+  else if ((!testBuild || query?.get('intro') === 'on') && game.introAtLaunch()) game.openIntro();
   else await game.showMainMenu();
 
   const local = (x: number, y: number): { x: number; y: number } => {

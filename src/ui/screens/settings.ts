@@ -6,7 +6,7 @@
  * screens before it). Its own keys are fixed (§ Fixed keys), so it works whatever the bindings are.
  */
 import type { KeyPress } from '@platform/input';
-import { browserReserved, keyLabel, KEY_CONTEXTS, type Binding, type Keymap, type KeySpec } from '../keymap';
+import { browserReserved, keyLabel, KEY_CONTEXTS, MODIFIER_KEYS, type Binding, type Keymap, type KeySpec } from '../keymap';
 import { actionText, contextTitle } from '../panels/help';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { UserSettings } from '../settings';
@@ -14,7 +14,7 @@ import type { Surface } from '../surface';
 import type { Strings } from '../strings';
 import { bindingConflict, bindingReset, browserBinding, fixedBinding, invalidBindingModifiers } from '../messages';
 import { label, type ListState } from '../widgets';
-import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from '../constants';
+import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from '../constants';
 
 export interface SettingsHost {
   readonly keymap: Keymap;
@@ -32,7 +32,7 @@ export interface SettingsHost {
 const SETTING_NAMES = [
   'Auto-pause on danger', 'Auto-pause on alert', 'Hints', 'Colorblind palette', 'Zoom',
   'Edge scrolling', 'Autosave each season', 'Snapshots kept', 'Combat log', 'Keybindings ▸',
-  'Music volume', 'Music',
+  'Music volume', 'Music', 'Intro at launch',
 ] as const;
 
 /** The row of {@link SETTING_NAMES} that opens the keybinding editor, and has no value. */
@@ -40,9 +40,6 @@ const KEYBINDINGS_ROW = 9;
 
 /** The music volumes, 0 to 100. */
 const VOLUME_OPTIONS: readonly number[] = Array.from({ length: 100 / SETTINGS_VOLUME_STEP + 1 }, (_, k) => k * SETTINGS_VOLUME_STEP);
-
-/** Keys that only modify another: a capture waits for the key they go with. */
-const MODIFIER_KEYS: ReadonlySet<string> = new Set(['Shift', 'Control', 'Alt', 'AltGraph', 'Meta', 'OS', 'CapsLock', 'NumLock', 'ScrollLock', 'Fn', 'Dead', 'Process', 'Unidentified']);
 
 /** The editor's columns: the action from here, the key from {@link KEY_COL}. */
 const ACTION_COL = 4;
@@ -82,6 +79,7 @@ export class SettingsScreen implements Screen {
       case 8: return settings.combatLog;
       case 10: return `${settings.musicVolume}%`;
       case 11: return settings.music ? 'on' : 'off';
+      case 12: return settings.intro;
       default: return '';
     }
   }
@@ -102,6 +100,7 @@ export class SettingsScreen implements Screen {
       case 9: this.openKeybindings(); break;
       case 10: this.host.change({ musicVolume: cycle(VOLUME_OPTIONS, current.musicVolume) }); break;
       case 11: this.host.change({ music: !current.music }); break;
+      case 12: this.host.change({ intro: cycle(SETTINGS_INTRO_OPTIONS, current.intro) }); break;
       default: break;
     }
   }

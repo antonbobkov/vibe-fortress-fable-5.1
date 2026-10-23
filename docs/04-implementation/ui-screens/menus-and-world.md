@@ -1,6 +1,30 @@
-# Wireframes: Main Menu, World Generation, World Map, Settings, Load, Legend
+# Wireframes: Intro, Main Menu, World Generation, World Map, Settings, Load, Legend
 
 **Owner:** `ui/screens/*` · **Depends on:** [`../../02-systems/24-ui-and-input.md`](../../02-systems/24-ui-and-input.md), [`../../02-systems/01-world-generation.md`](../../02-systems/01-world-generation.md)
+
+## Intro
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│   ████▄ █████ █████ ████▄ █   █ ▄███▄ █     █▄ ▄█              │
+│   █   █ █     █     █   █ █   █ █   █ █     █ ▀ █              │
+│   █   █ ████  ████  ████▀ █████ █   █ █     █   █              │
+│   █   █ █     █     █     █   █ █   █ █     █   █              │
+│   ████▀ █████ █████ █     █   █ ▀███▀ █████ █   █              │
+│                        ▲                                       │
+│        ▲              ▲▒▲            ▲                         │
+│▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒│
+│                                                                │
+│                    a hall beneath the world                    │
+│                                                                │
+│                    Any key or click to skip                    │
+└────────────────────────────────────────────────────────────────┘
+```
+
+The intro is a short animated scene, about 45 seconds, drawn on the text grid in the game's glyphs and palette: seven dwarves leave a hold with no room left in it, walk out past their wagon, a rabbit that bolts and a deer that does not, strike the first pick into an empty mountain with a spark, and `DEEPHOLM` rises out of the rock column by column. Its scenes, art, cues, captions and colours are content (`03-content/intro.md`); the screen only plays them. The stage is centred in the window with the caption on the row under it, and its ground, rock and sky run on to the window's edges, so it fits any window size. The last row says "Any key or click to skip" in the dim colour.
+
+It plays at launch, before the main menu, when the Intro at launch setting is `always`, or `first time` and it has not yet played at a launch (whether it has is saved with the settings and kept by Reset to defaults); `off` never plays it at launch. The main menu's `[i] Intro` plays it again whatever the setting. Any key skips it (a fixed key; a modifier pressed alone does not count), and so does a click; when it ends or is skipped the main menu opens. Captions are the strings `intro.<id>`, the skip line `ui.intro.skip`. A test build skips it at launch unless the page is opened with `?intro=on`, which leaves the decision to the setting.
 
 ## Main menu
 
@@ -16,6 +40,7 @@
 │                    [g] Legends                                 │
 │                    [o] Settings                                │
 │                    [a] About                                   │
+│                    [i] Intro                                   │
 │                                                                │
 │   ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒≈≈≈≈▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒   │
 │   (decorative slice of the last save's surface, or a          │
@@ -87,11 +112,12 @@ Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings
 │   Keybindings ▸                                  │
 │   Music volume                  [50%]            │
 │   Music                         [on ]            │
+│   Intro at launch               [first time]     │
 │   [d] Reset to defaults         [Esc] Back       │
 └──────────────────────────────────────────────────┘
 ```
 
-Music volume runs from 0% to 100% in steps of 10% (`←` `→`, `Enter` or a click step it round); Music is on or off, as the music key turns it (`02-systems/24-ui-and-input.md` § Music). Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
+Music volume runs from 0% to 100% in steps of 10% (`←` `→`, `Enter` or a click step it round); Music is on or off, as the music key turns it (`02-systems/24-ui-and-input.md` § Music). Intro at launch steps round `first time`, `always` and `off` (§ Intro). Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
 
 Keybindings sub-screen:
 

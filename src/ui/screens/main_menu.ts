@@ -1,7 +1,7 @@
 /**
  * The main menu: `04-implementation/ui-screens/menus-and-world.md` § Main menu and
  * `02-systems/24-ui-and-input.md` § Screens outside the fortress ("`New world`, `Continue` (loads
- * the newest save), `Load`, `Legends`, `Settings`, `About`. Arrow keys and mouse").
+ * the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys and mouse").
  *
  * "`Continue` loads the newest save of any kind; hidden when none exists." The screens behind
  * `Load`, `Legends`, `Settings` and `About` belong to later milestones (save/load T-M2-11, the rest
@@ -21,7 +21,7 @@ export interface MainMenuHost {
   newestSave(): string | null;
   newWorld(): void;
   continueGame(): void;
-  /** Which of `load`, `legends`, `settings`, `about` the app can open yet. */
+  /** Which of `load`, `legends`, `settings`, `about`, `intro` the app can open yet. */
   available(entry: string): boolean;
   open(entry: string): void;
 }
@@ -60,6 +60,7 @@ export class MainMenuScreen implements Screen {
       entry('legends', 'g'),
       entry('settings', 'o'),
       entry('about', 'a'),
+      entry('intro', 'i'),
     ];
   }
 

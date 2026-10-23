@@ -6,7 +6,8 @@
 
 | id | Purpose | Enter from | Leave to |
 |---|---|---|---|
-| `main_menu` | New world, Continue, Load, Legends, Settings, About | start, fortress menu | any |
+| `intro` | The animated intro ([intro.md](intro.md)) | start (Intro at launch), main_menu › Intro | main_menu |
+| `main_menu` | New world, Continue, Load, Legends, Settings, About, Intro | start, intro, fortress menu | any |
 | `world_gen` | Seed, size, generate, preview | main_menu › New world | world_map |
 | `world_map` | Choose a region | world_gen | embark, main_menu |
 | `embark` | Party, supplies, animals, name | world_map › Embark | fortress |
@@ -482,6 +483,7 @@ The `confirm` dialog, and the embark screen's "Replace your changes" line.
 | `g` | Legends |
 | `o` | Settings |
 | `a` | About |
+| `i` | Intro |
 
 ### World generation
 
@@ -530,6 +532,7 @@ These keys act as described and cannot be rebound. The editor lists the `Esc` ro
 | Letters, digits, `Space`, `Backspace`, `Enter`, `Tab` and `Esc` in a focused text or number field | filters, names, the seed, the order picker, the breeding cap editor, the `text_input` dialog | Typing: every printable key is the character it shows, and the keys that edit or finish the text keep their meaning so that no rebinding can make a name impossible to type. |
 | Every key in Settings › Keybindings | the editor itself | The editor must work whatever the bindings are: `↑` `↓` `PageUp` `PageDown` move, `Enter` or a click captures the next key, `Delete` or `Backspace` restores the row's default, `[d]` restores every default, `Esc` backs out. |
 | `[letter]` and labor manager letters | panel accelerators, the labor manager's jump to a labor, a preset's first letter | They stand for every letter; each accelerator that a panel shows is its own row above. |
+| Any key, or a click | the intro | Whoever did not ask to watch it must be able to leave at once with whatever key the hand finds; a skip that had to be learned or could be rebound away would hold the player in front of a 45-second scene. A modifier pressed alone does not count. |
 | Any key | a danger line pinned to the log strip | "Dismissed by any key" (`02-systems/24-ui-and-input.md` § Announcements and the log). |
 | `Shift` held with a bound key | arrows, `+` `-`, `Shift+Enter` | A modifier of the key's own action (ten at a time, mark the rows passed, a corner), not a key of its own. |
 
@@ -689,6 +692,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | Music volume | 0 to 100 in steps of 10 | 50 |
 | Music | on / off (also the `Ctrl+M` key) | on |
 | Sound volume | 0 to 100 in steps of 10; reserved for sound effects, saved and not shown | 50 |
+| Intro at launch | first time / always / off | first time |
 
 ## Strings
 
