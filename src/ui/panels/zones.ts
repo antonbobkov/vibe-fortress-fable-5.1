@@ -27,7 +27,7 @@ import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '
 import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
 import type { Surface } from '../surface';
-import { keyCells, label, separator, toggleNode, type TreeNode, type ListState } from '../widgets';
+import { drawnCols, keyCells, label, separator, toggleNode, type TreeNode, type ListState } from '../widgets';
 import { acceleratorLabel } from '../keymap';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
@@ -505,16 +505,17 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
     const currentCount = countHospitalSupplies(ctx, zone, sup.item);
     const wanted = currentWants[sup.key] ?? currentWants[sup.item] ?? 0;
     const lineText = `${sup.label}: ${currentCount}/${wanted}`;
-    label(s, rect.col + 1, row, lineText, { width: rect.cols - 8 });
+    // The two buttons end at the right edge and take the cells their names are drawn in.
+    const plusCol = rect.col + rect.cols - 1 - drawnCols(s, '[+]');
+    const minusCol = plusCol - drawnCols(s, '[-]');
+    label(s, rect.col + 1, row, lineText, { width: minusCol - rect.col - 1 });
     // Minus button [-]
-    const minusCol = rect.col + rect.cols - 7;
     const minusWidth = label(s, minusCol, row, '[-]');
     s.hit({ col: minusCol, row, cols: minusWidth, rows: 1 }, () => {
       const nextWants = { ...currentWants, [sup.key]: Math.max(0, wanted - 1) };
       ctx.submit({ type: 'SetHospitalSupplies', zoneId: zone.id, wants: nextWants });
     });
     // Plus button [+]
-    const plusCol = rect.col + rect.cols - 4;
     const plusWidth = label(s, plusCol, row, '[+]');
     s.hit({ col: plusCol, row, cols: plusWidth, rows: 1 }, () => {
       const nextWants = { ...currentWants, [sup.key]: wanted + 1 };

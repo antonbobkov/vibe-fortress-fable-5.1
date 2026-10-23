@@ -67,9 +67,10 @@ afterEach(() => {
 });
 
 describe('T-422 the content: instruments and tunes', () => {
-  it('has a menu, fortress and tense tune, each original or with a named source', () => {
+  it('has an intro, menu, fortress and tense tune, each original or with a named source', () => {
     const tunes = registry.table<TuneDef>('tunes');
     const rows = tunes.ids().map((id) => tunes.byId(id) as TuneDef);
+    expect(rows.filter((t) => t.role === 'intro').length).toBeGreaterThanOrEqual(1);
     expect(rows.filter((t) => t.role === 'menu').length).toBeGreaterThanOrEqual(1);
     expect(rows.filter((t) => t.role === 'fortress').length).toBeGreaterThanOrEqual(3);
     expect(rows.filter((t) => t.role === 'tense').length).toBeGreaterThanOrEqual(1);

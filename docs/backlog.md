@@ -13,7 +13,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-425 | [Flight from a defending animal: the patient's trap and the run past the animal](work/T-425-flight-from-a-defending-animal.md) | T-421's diagnosis | — | open |
 | T-427 | [Wild animals in `leave` stay for weeks near the map edge](work/T-427-animals-stuck-leaving.md) | T-421's diagnosis | — | open |
-| T-431 | [A short piece of music for the intro](work/T-431-intro-music-piece.md) | T-423's intro | — | open |
-| T-432 | [Screen captions and the hospital supply buttons measured with the rebound key](work/T-432-screen-caption-hits-follow-rebound-keys.md) | T-428's follow-up | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

@@ -21,10 +21,11 @@ The music is synthesized while it plays: each instrument is an oscillator shaped
 
 ## Tunes
 
-`Role` says when a tune plays (24 § Music): `menu` on the screens before a fortress, `fortress` in turn while a fortress runs, `tense` while the hearth alert or a siege stands. `Tempo` is steps per minute; a step is the unit of the scores below (an eighth note in all of these).
+`Role` says when a tune plays (24 § Music): `intro` under the intro, once; `menu` on the screens before a fortress, `fortress` in turn while a fortress runs, `tense` while the hearth alert or a siege stands. `Tempo` is steps per minute; a step is the unit of the scores below (an eighth note in all of these).
 
 | id | name | Role | Tempo (steps/min) | Mode | Source |
 |---|---|---|---|---|---|
+| `out_of_the_hold` | Out of the Hold | intro | 168 | G major | original |
 | `hall_beneath` | The Hall Beneath | menu | 132 | D dorian | original |
 | `deep_lantern` | Lantern in the Deep | fortress | 104 | A minor pentatonic | original |
 | `stone_and_water` | Stone and Still Water | fortress | 96 | G major pentatonic | original |
@@ -40,6 +41,37 @@ One table per tune, under its id. Each voice is played by one instrument; a voic
 - pitches joined by `+` sound together (`D3+A3`);
 - `.` is a rest;
 - `*n` after a pitch, a chord or a rest makes it last `n` steps (1 to 64); without it, one step.
+
+### out_of_the_hold
+
+The intro's piece, 120 steps (about 43 seconds and the tail), laid against its four scenes: bars 1 to 3 the hold, bars 4 to 8 the road (footsteps on the drum, the rabbit's scatter of notes in bar 6, the deer's one long note in bar 7), bars 9 to 12 the mountain (the pick strikes on the drum and the bell, then the spark), bars 13 to 15 the title.
+
+| Voice | Instrument | Notes |
+|---|---|---|
+| 1 | flute | `.*8 B4*2 D5*2 G5*3 F#5 E5*2 D5 C5 A4*2 D5*2` |
+| 1 | flute | `G5*2 F#5 G5 B5*2 A5*2 E5*2 G5*2 E5*2 C5*2 A4 B4 C#5 D5 E5 F#5 G5 A5 D5*6 .*2 B4 D5 G5 B5 A5*2 F#5*2` |
+| 1 | flute | `.*8 .*4 A4*2 B4*2 .*8 .*4 D5 F#5 A5 B5` |
+| 1 | flute | `D5*2 G5*2 B5*4 E5*2 G5*2 C6*2 B5 A5 D5*2 B4*2 G5*4` |
+| 2 | harp | `G3 D4 B3 D4 G3 D4 B3 D4 E3 B3 G3 B3 E3 B3 G3 B3 C3 G3 E3 G3 D3 A3 F#3 A3` |
+| 2 | harp | `. B3+D4 . B3+D4 . B3+D4 . B3+D4 . C4+E4 . C4+E4 . C4+E4 . C4+E4 . F#3+A3 .*6 . G3+B3 .*3 G3+B3 .*2 . D4+F#4 . D4+A4 . D4+F#4 . D4+A4` |
+| 2 | harp | `E3*2 B3*2 G3*2 B3*2 A3 E4 C4 E4 D3 A3 F#3 A3 D3+A3 .*3 D3+A3 .*3 D3 A3 D4 F#4 A4 D5 F#5 A5` |
+| 2 | harp | `G3 D4 G4 B4 D5 B4 G4 D4 C4 G4 E5 G4 D4 A4 F#5 A4 G3 D4 G4 B4 D5*4` |
+| 3 | bass | `.*8 E2*4 B2*4 C2*4 D2*4` |
+| 3 | bass | `G2*2 D3*2 G2*2 D3*2 C3*2 G2*2 C3*2 G2*2 D2*2 A2*2 .*4 G2*4 .*4 D2*2 A2*2 D3*2 A2*2` |
+| 3 | bass | `E2*8 A2*4 D2*4 D2*2 .*2 D2*2 .*2 D2*2 A2*2 D3*2 A2*2` |
+| 3 | bass | `G2*4 D3*4 C3*4 D3*4 G2*8` |
+| 4 | drum | `.*24` |
+| 4 | drum | `D2 . D2 . D2 . D2 . D2 . D2 . D2 . D2 . D2 . D2 .*5 D2 .*3 D2 .*3 D2 . D2 . D2 . D2 D2` |
+| 4 | drum | `.*16 E2 .*3 E2 .*3 E2 . E2 . E2 E2 E2 .` |
+| 4 | drum | `G2 .*7 .*8 .*8` |
+| 5 | bell | `.*24` |
+| 5 | bell | `.*16 A6 .*23` |
+| 5 | bell | `.*16 D6 .*3 D6 .*3 .*5 F#6 A6 D7` |
+| 5 | bell | `G4+D5+G5*8 C6 .*3 D6 .*3 G6*8` |
+| 6 | pad | `.*24` |
+| 6 | pad | `.*40` |
+| 6 | pad | `.*32` |
+| 6 | pad | `G2+D3+G3+B3*8 C3+G3+C4+E4*4 D3+A3+D4+F#4*4 G2+D3+G3+B3*8` |
 
 ### hall_beneath
 

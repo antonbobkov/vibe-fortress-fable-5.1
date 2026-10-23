@@ -64,6 +64,11 @@ export function label(s: Surface, col: number, row: number, text: string, option
   return written;
 }
 
+/** The cells a text takes when `label` draws it, its `[k]` keys named as the live keymap binds them. */
+export function drawnCols(s: Surface, text: string, options: LabelOptions = {}): number {
+  return Array.from(named(s, text, options)).length;
+}
+
 /** One `[k]` key of a caption: the key as written, and the cells its bracketed name takes as drawn. */
 export interface KeyCell {
   readonly key: string;

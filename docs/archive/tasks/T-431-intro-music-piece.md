@@ -1,5 +1,7 @@
 # T-431 — A short piece of music for the intro
 
+**Closed:** 2026-10-23, in 8f4cc2f.
+
 **Source:** T-423 (the intro), 2026-10-23 · **Size:** S · **Needs:** T-423 · **Status:** open
 
 ## Why

@@ -1,6 +1,8 @@
 # T-432 — Screen captions and the hospital supply buttons measured with the rebound key
 
-**Source:** T-428, which fixed the sidebar panels' captions ([`T-428`](../archive/tasks/T-428-caption-hits-follow-rebound-keys.md)) · **Size:** S · **Needs:** T-428 · **Status:** open
+**Closed:** 2026-10-23, in 031a558.
+
+**Source:** T-428, which fixed the sidebar panels' captions ([`T-428`](T-428-caption-hits-follow-rebound-keys.md)) · **Size:** S · **Needs:** T-428 · **Status:** open
 
 ## Why
 

@@ -178,7 +178,7 @@ describe('T-423 intro: when it plays', () => {
     g.handleKey(press('i'));
     expect(g.screen).toBe('intro');
     expect(g.musicScene).toBe('intro');
-    expect(moodOf('intro', false)).toBe('menu');
+    expect(moodOf('intro', false)).toBe('intro');
     expect(g.textRows().join('\n')).toContain('Any key or click to skip');
     g.handleKey(press(' '));
     await settle(g);

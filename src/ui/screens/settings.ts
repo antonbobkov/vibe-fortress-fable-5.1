@@ -13,7 +13,7 @@ import type { UserSettings } from '../settings';
 import type { Surface } from '../surface';
 import type { Strings } from '../strings';
 import { bindingConflict, bindingReset, browserBinding, fixedBinding, invalidBindingModifiers } from '../messages';
-import { label, type ListState } from '../widgets';
+import { captionButtons, label, type ListState } from '../widgets';
 import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from '../constants';
 
 export interface SettingsHost {
@@ -261,9 +261,7 @@ export class SettingsScreen implements Screen {
         const zoom = this.host.settings().zoom === 'auto' ? 'Auto' : String(view.requested);
         label(surface, 2, below + 1, this.host.strings.get('ui.settings.zoom_shown', { zoom, shown: view.shown }), { fg: t.alert });
       }
-      label(surface, 2, below + 2, '[d] Reset to defaults    [Esc] Back', { fg: t.dim });
-      surface.hit({ col: 2, row: below + 2, cols: 21, rows: 1 }, () => this.host.resetDefaults());
-      surface.hit({ col: 28, row: below + 2, cols: 10, rows: 1 }, () => this.host.back());
+      captionButtons(surface, 2, below + 2, '[d] Reset to defaults    [Esc] Back', [() => this.host.resetDefaults(), () => this.host.back()], { fg: t.dim });
       return;
     }
     this.drawKeybindings(surface);

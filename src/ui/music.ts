@@ -34,11 +34,12 @@ export type MusicScene = 'intro' | 'menu' | 'fortress';
 export type MusicMood = TuneDef['role'];
 
 /**
- * The mood of a scene: a fortress in danger is tense. The intro plays the menu theme, so the theme
- * runs on into the main menu after it; the `intro` scene is where a piece of its own would be chosen.
+ * The mood of a scene: the intro has a piece of its own, the screens before a fortress the menu
+ * theme, and a fortress in danger is tense.
  */
 export function moodOf(scene: MusicScene, tense: boolean): MusicMood {
-  if (scene === 'intro' || scene === 'menu') return 'menu';
+  if (scene === 'intro') return 'intro';
+  if (scene === 'menu') return 'menu';
   return tense ? 'tense' : 'fortress';
 }
 
@@ -88,11 +89,13 @@ export interface TuneLength {
 }
 
 /**
- * What plays when. A mood's pieces play one after another: the fortress pieces in turn with a
- * silence of {@link MUSIC_SILENCE_MIN_S} to {@link MUSIC_SILENCE_MAX_S} between them, the menu theme
- * and the tense piece again after a short pause. A change of mood fades out the piece that plays
- * and starts the new mood's after {@link MUSIC_CHANGE_GAP_S}, except that the fortress pieces come
- * back after a whole silence when the danger is over. A `null` mood is silence (music off).
+ * What plays when. The intro's piece plays once; when it ends, the menu theme follows after
+ * {@link MUSIC_CHANGE_GAP_S}, as it does when the intro is left. Of the other moods, the fortress
+ * pieces play in turn with a silence of {@link MUSIC_SILENCE_MIN_S} to {@link MUSIC_SILENCE_MAX_S}
+ * seconds between them, the menu theme and the tense piece again after a short pause. A change of
+ * mood fades out the piece that plays and starts the new mood's after {@link MUSIC_CHANGE_GAP_S},
+ * except that the fortress pieces come back after a whole silence when the danger is over. A `null`
+ * mood is silence (music off).
  */
 export class MusicDirector {
   private mood: MusicMood | null = null;
@@ -100,14 +103,16 @@ export class MusicDirector {
   private quietUntil = 0;
   /** The clock when the director was paused, or `null`. */
   private pausedAt: number | null = null;
+  /** Whether the intro's piece has played to its end during this intro. */
+  private introEnded = false;
   private readonly byRole: Readonly<Record<MusicMood, readonly TuneLength[]>>;
   private readonly turns: Record<MusicMood, number>;
 
   constructor(tunes: readonly TuneLength[], private readonly random: () => number) {
     const of = (role: MusicMood): TuneLength[] => tunes.filter((tune) => tune.role === role);
-    this.byRole = { menu: of('menu'), fortress: of('fortress'), tense: of('tense') };
+    this.byRole = { intro: of('intro'), menu: of('menu'), fortress: of('fortress'), tense: of('tense') };
     // The fortress pieces begin at a random one of them; each mood then goes round in table order.
-    this.turns = { menu: 0, fortress: Math.floor(random() * Math.max(1, this.byRole.fortress.length)), tense: 0 };
+    this.turns = { intro: 0, menu: 0, fortress: Math.floor(random() * Math.max(1, this.byRole.fortress.length)), tense: 0 };
   }
 
   /** The tune playing now, if any. */
@@ -120,7 +125,7 @@ export class MusicDirector {
   }
 
   private gapAfter(mood: MusicMood): number {
-    return mood === 'fortress' ? this.silence() : mood === 'menu' ? MUSIC_MENU_GAP_S : MUSIC_TENSE_GAP_S;
+    return mood === 'fortress' ? this.silence() : mood === 'menu' || mood === 'intro' ? MUSIC_MENU_GAP_S : MUSIC_TENSE_GAP_S;
   }
 
   /** Stop the clock at `now` (the document is hidden): the piece and the silence keep what they have left. */
@@ -138,7 +143,11 @@ export class MusicDirector {
   }
 
   /** At `now` seconds, with the mood the game is in: what to start or stop, if anything. */
-  update(now: number, mood: MusicMood | null): MusicCue | null {
+  update(now: number, requested: MusicMood | null): MusicCue | null {
+    // The intro's piece is heard once; with none, or after it, the intro is the menu's mood.
+    let mood = requested;
+    if (mood === 'intro' && (this.byRole.intro.length === 0 || this.introEnded)) mood = 'menu';
+    else if (mood !== null && mood !== 'intro') this.introEnded = false;
     if (mood !== this.mood) {
       const was = this.mood;
       this.mood = mood;
@@ -151,7 +160,12 @@ export class MusicDirector {
     if (mood === null) return null;
     if (this.playing !== null && now >= this.playing.endsAt) {
       this.playing = null;
-      this.quietUntil = now + this.gapAfter(mood);
+      if (mood === 'intro') {
+        this.introEnded = true;
+        mood = 'menu';
+        this.mood = 'menu';
+        this.quietUntil = now + MUSIC_CHANGE_GAP_S;
+      } else this.quietUntil = now + this.gapAfter(mood);
     }
     if (this.playing !== null || now < this.quietUntil) return null;
     const list = this.byRole[mood];
