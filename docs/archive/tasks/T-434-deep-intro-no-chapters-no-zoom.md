@@ -1,5 +1,7 @@
 # T-434 — The deep intro without chapter cards or zooms
 
+**Closed:** 2026-10-23, in 2fe18c0.
+
 **Source:** the owner, 2026-10-23, on T-433 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

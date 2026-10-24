@@ -163,12 +163,12 @@ interface DeepIntroDef {                                      // one object, dee
   cycles: { id: string; colors: string[]; step: number; drift: [number, number] }[];
   inks: { ink: string; glyph: string; fg: string; bg: string; density?: number }[];   // fg, bg: a colour or a cycle
   parts: { part: 'side'|'edge'|'bar'|'static'|'flash'|'fade'; inks: string[] }[];
-  scenes: { id: string; ms: number; fill: string; wide: boolean }[];   // fill: an ink
+  scenes: { id: string; ms: number; fill: string }[];   // fill: an ink
   layers: { scene: string; sprite: string[]; at: [number, number]; to?: [number, number]; from: number;
     arrive?: number; until?: number; step?: number; depth: number; tile?: 'x'|'y'|'xy' }[];   // sprite: frames, each an art id
-  camera: { scene: string; at: number; x: number; y: number; zoom: number; move: 'cut'|'linear'|'ease' }[];
+  camera: { scene: string; at: number; x: number; y: number; move: 'cut'|'linear'|'ease' }[];   // pans only: the art is never scaled
   effects: { scene: string; effect: 'shake'|'flash'|'fade_in'|'fade_out'|'static'; from: number; until: number; value?: number }[];
-  captions: { id: string; scene: string; from: number; until: number; at?: number }[];   // text: strings key deep_intro.<id>
+  captions: { id: string; scene: string; from: number; until: number }[];   // text: strings key deep_intro.<id>
   art: { id: string; rows: string[] }[] }                     // rows of ink letters, a space for nothing
 ```
 

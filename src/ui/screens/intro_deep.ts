@@ -110,9 +110,9 @@ export function stripLayout(cols: number, rows: number): StripLayout {
   return { scale, width, height, left: Math.floor((cols - width) / 2), top: Math.max(0, Math.floor((rows - height - 2) / 2)) };
 }
 
-/** The camera of a scene at `local` ms: the art point at the strip's centre and the zoom. */
-export function cameraAt(keys: readonly DeepIntroCameraDef[], local: number): { x: number; y: number; zoom: number } {
-  const centre = { x: DEEP_INTRO_STAGE_COLS / 2, y: DEEP_INTRO_STAGE_ROWS / 2, zoom: 1 };
+/** The camera of a scene at `local` ms: the art point at the strip's centre. It pans; it never scales the art. */
+export function cameraAt(keys: readonly DeepIntroCameraDef[], local: number): { x: number; y: number } {
+  const centre = { x: DEEP_INTRO_STAGE_COLS / 2, y: DEEP_INTRO_STAGE_ROWS / 2 };
   if (keys.length === 0) return centre;
   let before: DeepIntroCameraDef | null = null;
   for (const key of keys) {
@@ -120,14 +120,14 @@ export function cameraAt(keys: readonly DeepIntroCameraDef[], local: number): { 
       before = key;
       continue;
     }
-    if (before === null) return { x: key.x, y: key.y, zoom: key.zoom };
+    if (before === null) return { x: key.x, y: key.y };
     if (key.move === 'cut') break;
     let p = (local - before.at) / Math.max(1, key.at - before.at);
     if (key.move === 'ease') p = p * p * (3 - 2 * p);
-    return { x: before.x + (key.x - before.x) * p, y: before.y + (key.y - before.y) * p, zoom: before.zoom + (key.zoom - before.zoom) * p };
+    return { x: before.x + (key.x - before.x) * p, y: before.y + (key.y - before.y) * p };
   }
   const last = before ?? (keys[0] as DeepIntroCameraDef);
-  return { x: last.x, y: last.y, zoom: last.zoom };
+  return { x: last.x, y: last.y };
 }
 
 /** How far an effect has run at `local` ms, from 0 to 1, or `null` outside it. */
@@ -203,13 +203,13 @@ export function deepIntroFrame(surface: Surface, deep: DeepIntroDef, strings: St
     surface.put(col, row, surface.glyphs.index(ink.glyph), paint(ink.fg, x, y, local), paint(ink.bg, x, y, local));
   };
 
-  /** The ink of a strip cell, `px` and `py` in art pixels across the strip at zoom 1. */
+  /** The ink of a strip cell, `px` and `py` in art pixels across the strip. */
   const inkAt = (px: number, py: number): Ink | null => {
     for (let n = layers.length - 1; n >= 0; n -= 1) {
       const layer = layers[n] as (typeof layers)[number];
       const depth = layer.def.depth;
-      const wx = sc / 2 + (camera.x - sc / 2) * depth + (px - sc / 2) / camera.zoom;
-      const wy = sr / 2 + (camera.y - sr / 2) * depth + (py - sr / 2) / camera.zoom;
+      const wx = (camera.x - sc / 2) * depth + px;
+      const wy = (camera.y - sr / 2) * depth + py;
       let lx = Math.floor(wx - layer.x);
       let ly = Math.floor(wy - layer.y);
       const tile = layer.def.tile;
@@ -225,13 +225,9 @@ export function deepIntroFrame(surface: Surface, deep: DeepIntroDef, strings: St
     return fill;
   };
 
-  // The strip, or the whole window for a wide scene.
-  const c0 = scene.wide ? 0 : left;
-  const r0 = scene.wide ? 0 : top;
-  const c1 = scene.wide ? surface.cols : left + width;
-  const r1 = scene.wide ? surface.rows : top + height;
-  for (let row = r0; row < r1; row += 1) {
-    for (let col = c0; col < c1; col += 1) {
+  // The strip.
+  for (let row = top; row < top + height; row += 1) {
+    for (let col = left; col < left + width; col += 1) {
       const px = (col - left - shakeX + 0.5) / k;
       const py = (row - top - shakeY + 0.5) / k;
       const x = Math.floor(px);
@@ -251,22 +247,20 @@ export function deepIntroFrame(surface: Surface, deep: DeepIntroDef, strings: St
   }
 
   // Round the strip: stone at the sides, its edge beside the strip, and black above and below.
-  if (!scene.wide) {
-    const side = part('side');
-    const edge = part('edge')[0] ?? null;
-    const bar = part('bar')[0] ?? null;
-    for (let row = 0; row < surface.rows; row += 1) {
-      for (let col = 0; col < surface.cols; col += 1) {
-        const inStrip = col >= left && col < left + width;
-        if (inStrip && row >= top && row < top + height) continue;
-        const x = Math.floor((col - left) / k);
-        const y = Math.floor((row - top) / k);
-        let ink: Ink | null;
-        if (inStrip) ink = bar;
-        else if (x === -1 || x === sc) ink = edge;
-        else ink = masonry(side, x, y);
-        if (ink !== null) put(col, row, ink, x, y);
-      }
+  const side = part('side');
+  const edge = part('edge')[0] ?? null;
+  const bar = part('bar')[0] ?? null;
+  for (let row = 0; row < surface.rows; row += 1) {
+    for (let col = 0; col < surface.cols; col += 1) {
+      const inStrip = col >= left && col < left + width;
+      if (inStrip && row >= top && row < top + height) continue;
+      const x = Math.floor((col - left) / k);
+      const y = Math.floor((row - top) / k);
+      let ink: Ink | null;
+      if (inStrip) ink = bar;
+      else if (x === -1 || x === sc) ink = edge;
+      else ink = masonry(side, x, y);
+      if (ink !== null) put(col, row, ink, x, y);
     }
   }
 
@@ -285,20 +279,12 @@ export function deepIntroFrame(surface: Surface, deep: DeepIntroDef, strings: St
     }
   }
 
-  // Captions: under the strip, or in a bar on it.
+  // Captions, on the row under the strip.
   const captionRow = top + height + 1;
-  const white = surface.theme.text;
-  const black = surface.theme.black;
   for (const caption of deep.captions) {
     if (caption.scene !== scene.id || local < caption.from || local >= caption.until) continue;
     const text = strings.get(`deep_intro.${caption.id}`);
-    if (caption.at === undefined) {
-      if (captionRow < surface.rows - 1) surface.text(Math.max(0, Math.floor((surface.cols - Array.from(text).length) / 2)), captionRow, text, white);
-      continue;
-    }
-    const barText = `  ${text}  `;
-    const row = top + caption.at * k + Math.floor(k / 2);
-    surface.text(Math.max(0, left + Math.floor((width - Array.from(barText).length) / 2)), row, barText, white, black);
+    if (captionRow < surface.rows - 1) surface.text(Math.max(0, Math.floor((surface.cols - Array.from(text).length) / 2)), captionRow, text, surface.theme.text);
   }
   drawSkipLine(surface, strings, captionRow);
 }

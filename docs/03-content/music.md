@@ -161,25 +161,24 @@ The intro's piece, 120 steps (about 43 seconds and the tail), laid against its f
 
 ### the_deep_answers
 
-The deep intro's piece, 188 steps (47 seconds and the tail), laid against the deep intro from the moment it starts, `MUSIC_CHANGE_GAP_S` after the intro opens: a heartbeat on the drum and the lantern's swing on the harp for the descent, with a thump where the dwarf lands; the drone alone and three falling notes on the flute for the drink; a swelling roll for the second chapter card; a clashing drone under the static; a blow on the drum, the bell and the horn as the eye opens, and two quick notes on the flute when it blinks; driving drums, a stamping bass and rolling harp for the torrent; a climb on the bass and the horn as the silhouette rises; and on the strike the whole piece in one hit, which opens into A major for the title.
+The deep intro's piece, 162 steps (40.5 seconds and the tail), laid against the deep intro from the moment it starts, `MUSIC_CHANGE_GAP_S` after the intro opens: a heartbeat on the drum and the lantern's swing on the harp for the descent, with a thump where the dwarf lands; the drone alone and three falling notes on the flute for the drink; a clashing drone under the static; a blow on the drum, the bell and the horn as the eye opens, and two quick notes on the flute when it blinks; driving drums, a stamping bass and rolling harp for the torrent; a climb on the bass and the horn as the silhouette rises; and on the strike the whole piece in one hit, which opens into A major for the title.
 
 | Voice | Instrument | Notes |
 |---|---|---|
-| 1 | drum | `.*8 A1 .*2 A1 .*4 A1 .*2 A1 .*4 A1 .*2 E2+A1 A1 .*3 A1*2 .*20 A1 . A1 . A1 A1 A1 A1 A1 A1 A1 A1 A1` |
-| 1 | drum | `.*7 A1 .*7 A1+E2 .*3 A1 .*3 A1 . A1 .*5 A1 .*3 A1 . A1 . A1 .*3 A1 A1 A1+E2 A1 A1 E2 A1 A1 E2 A1 A1` |
-| 1 | drum | `A1 E2 A1 A1 A1 E2 E2 A1 A1 E2 A1 A1 A1 E2 A1 A1 A1 E2 A1 A1 E2 E2 E2 A1 A1 A1 A1 A1 E2 E2 A1+E2*2` |
-| 1 | drum | `.*2 A1 .*3 A1 .*7 A1 .*7 A1 .*3 A1 .*3 A1+E2*5` |
-| 2 | bass | `.*16 A1*8 Bb1*8 A1*2 A1*8 .*12 .*4 Bb1*8 A1*8 Bb1*8 A1*4 A1 A1 E2 A1 Bb1*4 A1*4 G1*4 A1 A1 E2 A1` |
-| 2 | bass | `Bb1*2 C2*2 Bb1*2 A1 A1 A2 A1 Bb1 Bb1 Bb2 Bb1 A1 A1 A2 A1 G1 G1 G2 G1 A1 A1 A2 A1 Bb1 Bb1 Bb2 Bb1 C2` |
-| 2 | bass | `C2 C3 C2 D2 D2 E2 E2 E2 E2 F2 F2 G2 G#2 G#2 A1*8 E2*8 F2*4 G2*4 A1*13` |
-| 3 | drone | `A1+E2*34 A1+E2*20 Bb1+F2*12 A1+Bb1*16 A1+E2*30 A1+E2*16 Bb1+F2*8 C2+G2*8 E2+B2*7 A1+E2*37` |
-| 4 | harp | `.*8 A4 . E5 . A4 . F5 . A4 . E5 . A4 . F5 . A4 . E5 . A4 . C5 . .*2 .*20 .*12 .*16 .*30 A3 E4 A4 C5` |
-| 4 | harp | `E5 C5 A4 E4 Bb3 F4 Bb4 D5 F5 D5 Bb4 F4 A3 E4 A4 C5 E5 C5 A4 E4 C4 G4 C5 E5 G5 E5 C5 G4 .*7 .*4 A3` |
-| 4 | harp | `C#4 E4 A4 C#5 E5 A5 C#6 E6 .*24` |
-| 5 | flute | `.*34 .*2 E5*2 D5*2 C5*4 .*2 B4*2 .*6 .*12 .*16 .*12 Bb5*6 A5*4 .*2 E6 C6 .*4 .*8 A5*4 G5*2 F5*2 E5*8` |
-| 5 | flute | `F5*4 G5*4 .*7 .*8 E5*4 A5*4 C#6*8 B5*4 A5*9` |
-| 6 | bell | `.*34 .*20 .*12 .*16 A6*4 .*8 E6 .*5 .*6 Bb6 F6 .*4 A5+E6+A6*4 .*28 .*7 A5+E6+A6*8 .*29` |
-| 7 | pad | `.*34 A2+E3+C4*20 Bb2+F3+D4*12 A2+Bb2+E3*16 A2+E3+A3*16 Bb2+F3+Bb3*14 A2+E3+C4*16 F2+C3+A3*8` |
-| 7 | pad | `G2+D3+B3*8 E3+G#3+B3*7 A2+E3+A3+C#4*37` |
-| 8 | horn | `.*34 .*20 .*12 .*16 A2+E3*4 .*26 A2+E3+A3*6 .*10 F2+C3+F3*4 .*4 G2+D3+G3*4 .*4 E3 E3 E3 G#3 G#3 B3` |
-| 8 | horn | `B3 A2+E3+A3+C#4*4 .*4 A3+E4*4 .*4 A3+C#4+E4*8 .*13` |
+| 1 | drum | `A1 .*2 A1 .*4 A1 .*2 A1 .*2 E2+A1 A1 .*2 A1*2 .*20 A1 .*7 A1 .*7 A1+E2 .*3 A1 .*3 A1 . A1 .*5 A1 .*3` |
+| 1 | drum | `A1 . A1 . A1 .*3 A1 A1 A1+E2 A1 A1 E2 A1 A1 E2 A1 A1 A1 E2 A1 A1 A1 E2 E2 A1 A1 E2 A1 A1 A1 E2 A1 A1` |
+| 1 | drum | `A1 E2 A1 A1 E2 E2 E2 A1 A1 A1 A1 A1 E2 E2 A1+E2*2 .*2 A1 .*3 A1 .*7 A1 .*7 A1 .*3 A1 .*3 A1+E2*5` |
+| 2 | bass | `A1*8 Bb1*8 A1*4 A1*8 .*12 A1*8 Bb1*8 A1*4 A1 A1 E2 A1 Bb1*4 A1*4 G1*4 A1 A1 E2 A1 Bb1*2 C2*2 Bb1*2` |
+| 2 | bass | `A1 A1 A2 A1 Bb1 Bb1 Bb2 Bb1 A1 A1 A2 A1 G1 G1 G2 G1 A1 A1 A2 A1 Bb1 Bb1 Bb2 Bb1 C2 C2 C3 C2 D2 D2 E2` |
+| 2 | bass | `E2 E2 E2 F2 F2 G2 G#2 G#2 A1*8 E2*8 F2*4 G2*4 A1*13` |
+| 3 | drone | `A1+E2*20 A1+E2*20 A1+Bb1*16 A1+E2*30 A1+E2*16 Bb1+F2*8 C2+G2*8 E2+B2*7 A1+E2*37` |
+| 4 | harp | `A4 . E5 . A4 . F5 . A4 . E5 . A4 . F5 . A4 . C5 . .*20 .*16 .*30 A3 E4 A4 C5 E5 C5 A4 E4 Bb3 F4 Bb4` |
+| 4 | harp | `D5 F5 D5 Bb4 F4 A3 E4 A4 C5 E5 C5 A4 E4 C4 G4 C5 E5 G5 E5 C5 G4 .*7 .*4 A3 C#4 E4 A4 C#5 E5 A5 C#6` |
+| 4 | harp | `E6 .*24` |
+| 5 | flute | `.*20 .*2 E5*2 D5*2 C5*4 .*2 B4*2 .*6 .*16 .*12 Bb5*6 A5*4 .*2 E6 C6 .*4 .*8 A5*4 G5*2 F5*2 E5*8 F5*4` |
+| 5 | flute | `G5*4 .*7 .*8 E5*4 A5*4 C#6*8 B5*4 A5*9` |
+| 6 | bell | `.*20 .*20 .*16 A6*4 .*8 E6 .*5 .*6 Bb6 F6 .*4 A5+E6+A6*4 .*28 .*7 A5+E6+A6*8 .*29` |
+| 7 | pad | `.*20 A2+E3+C4*20 A2+Bb2+E3*16 A2+E3+A3*16 Bb2+F3+Bb3*14 A2+E3+C4*16 F2+C3+A3*8 G2+D3+B3*8` |
+| 7 | pad | `E3+G#3+B3*7 A2+E3+A3+C#4*37` |
+| 8 | horn | `.*20 .*20 .*16 A2+E3*4 .*26 A2+E3+A3*6 .*10 F2+C3+F3*4 .*4 G2+D3+G3*4 .*4 E3 E3 E3 G#3 G#3 B3 B3` |
+| 8 | horn | `A2+E3+A3+C#4*4 .*4 A3+E4*4 .*4 A3+C#4+E4*8 .*13` |

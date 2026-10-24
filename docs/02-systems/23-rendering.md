@@ -30,8 +30,9 @@ Draw the world and the interface as colored glyphs on one canvas, fast, with rul
 
 ### Atlas
 
-- The font is drawn once per zoom into an offscreen canvas per foreground color on demand (`glyphCount × cellPx²`), cached in an LRU of `ATLAS_COLOR_CACHE` colors. Glyph shapes are identical for every color; colorization happens at atlas build time (draw white, `source-in` fill).
-- Glyphs are centered in their cell; the font size is chosen so the widest glyph (`█`) fills the cell exactly; box-drawing and block glyphs are pixel-aligned at zoom 1 and 1.5 and use the bitmap-style font so they join seamlessly.
+- The font is drawn once per zoom into an offscreen canvas per foreground color on demand (`glyphCount × cellPx²`), cached in an LRU of `ATLAS_COLOR_CACHE` colors. Glyph shapes are identical for every color: they are read from the font once per atlas and each color's sheet is written pixel by pixel from them.
+- Glyphs are crisp: every atlas pixel is the color at full opacity or empty, and each glyph stays inside its own cell of the sheet. The bundled font is a bitmap design `ATLAS_FONT_DESIGN_PX` pixels square. Its shapes are read by drawing each glyph at `ATLAS_FONT_SAMPLE` times that size, where `█` fills its square exactly, and taking a design pixel as on when at least half of its sample square is covered, so no anti-aliased edge survives.
+- A glyph is drawn at the largest whole multiple of the design size that fits the cell, centred at whole-pixel offsets; a cell that is not a whole multiple keeps the rest as an empty margin, and a glyph is never stretched by a fraction. The block elements, the shades and the box-drawing glyphs (U+2500 to U+259F) instead cover the whole cell, each cell pixel taking the design pixel under it, so they join their neighbours edge to edge.
 
 ### Palette
 
@@ -125,6 +126,8 @@ Everything visible. The overlay menu (24) lists overlays with their toggles; the
 |---|---|---|
 | `LOG_ROWS` | 3 | Announcement strip above the status bar (*unmeasured*) |
 | `ATLAS_COLOR_CACHE` | 128 | Colored atlases kept (*unmeasured*) |
+| `ATLAS_FONT_DESIGN_PX` | 8 | The bundled font's design grid, pixels square |
+| `ATLAS_FONT_SAMPLE` | 4 | Times the design size at which the font's shapes are read |
 | `DIM_FACTOR` | 0.55 | Per dimming step (*unmeasured*) |
 | `FLUID_ANIM_MS` | 500 | *unmeasured* |
 | `AUTO_ZOOM_MIN_COLS` | 100 | Columns the `Auto` zoom keeps at least (*unmeasured*) |

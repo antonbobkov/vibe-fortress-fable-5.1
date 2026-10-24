@@ -21,6 +21,12 @@ export const LOG_ROWS = 3;
 /** Colored atlases kept in the LRU. */
 export const ATLAS_COLOR_CACHE = 128;
 
+/** The bundled font's design grid: each glyph is this many pixels square (23 § Atlas). */
+export const ATLAS_FONT_DESIGN_PX = 8;
+
+/** The atlas reads the font's shapes at this many times its design size, one design pixel to a square of samples. */
+export const ATLAS_FONT_SAMPLE = 4;
+
 /** Multiplier applied to every channel per dimming step. */
 export const DIM_FACTOR = 0.55;
 

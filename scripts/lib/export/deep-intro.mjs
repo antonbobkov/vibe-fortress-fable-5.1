@@ -53,7 +53,6 @@ export function exportDeepIntroCaptions() {
   const table = findTable(readTables(FILE()), 'Captions', 'Text');
   return asObjects(table).map((row) => {
     const caption = { id: id(row.id), scene: id(row.Scene), from: int(row.From), until: int(row.Until) };
-    if (!isBlank(row.At)) caption.at = int(row.At);
     caption.text = textOf(row.Text);
     return caption;
   });
@@ -79,7 +78,6 @@ export function exportDeepIntro() {
     id: id(row.id),
     ms: int(row.ms),
     fill: one(row.Fill, `scene ${n + 1}`),
-    wide: plain(row.Wide) === 'yes',
   }));
   const layers = asObjects(findTable(tables, 'Layers', 'Depth')).map((row, n) => {
     const where = `layer ${n + 1}`;
@@ -92,9 +90,9 @@ export function exportDeepIntro() {
     if (!isBlank(row.Tile)) layer.tile = plain(row.Tile);
     return layer;
   });
-  const camera = asObjects(findTable(tables, 'Camera', 'Zoom')).map((row, n) => {
+  const camera = asObjects(findTable(tables, 'Camera', 'Move')).map((row, n) => {
     const where = `camera ${n + 1}`;
-    return { scene: id(row.Scene), at: int(row.At), x: num(row.X, where), y: num(row.Y, where), zoom: num(row.Zoom, where), move: plain(row.Move) };
+    return { scene: id(row.Scene), at: int(row.At), x: num(row.X, where), y: num(row.Y, where), move: plain(row.Move) };
   });
   const effects = asObjects(findTable(tables, 'Effects', 'Effect')).map((row) => {
     const effect = { scene: id(row.Scene), effect: id(row.Effect), from: int(row.From), until: int(row.Until) };

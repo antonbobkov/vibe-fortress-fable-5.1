@@ -60,7 +60,7 @@ export function renderScreen(name: ScreenName): ScreenGolden {
     case 'intro_deep': {
       // The deep intro's eye, open and looking, at the default window of 80 by 45 cells.
       const s = surface(80, 45);
-      deepIntroFrame(s, registry.derived<DeepIntroDef>('deepIntro'), strings, 24000);
+      deepIntroFrame(s, registry.derived<DeepIntroDef>('deepIntro'), strings, 17500);
       return { text: s.lines(), cells: cellRows(s) };
     }
 

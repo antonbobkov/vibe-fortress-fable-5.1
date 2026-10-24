@@ -1,5 +1,7 @@
 # T-435 — Grey fringe lines beside glyphs
 
+**Closed:** 2026-10-23, in 0750ae8.
+
 **Source:** the owner, 2026-10-23 (a screenshot of the main menu) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
