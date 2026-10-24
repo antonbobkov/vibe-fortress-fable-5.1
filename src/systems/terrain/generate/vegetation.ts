@@ -43,11 +43,16 @@ function speciesFor(g: LocalGen, kinds: readonly string[], pick: (p: PlantRow) =
   return out;
 }
 
+/** The surface tree density of a spec: the biome's, or `glasslands`' own. */
+export function surfaceTreeDensity(traits: readonly string[], biome: { readonly treeDensity: Fixed } | undefined): Fixed {
+  return traits.includes('glasslands') ? GLASSLANDS_TREE_DENSITY : (biome?.treeDensity ?? 0);
+}
+
 export function stageVegetation(g: LocalGen): void {
   const st = stageStream(g.s, 'terrain.plants');
   const map = g.map;
   const biome = g.registry.table<BiomeRow>('biomes').byId(g.spec.biome);
-  const treeDensity = hasTrait(g, 'glasslands') ? GLASSLANDS_TREE_DENSITY : (biome?.treeDensity ?? 0);
+  const treeDensity = surfaceTreeDensity(g.spec.traits, biome);
   const shrubDensity = biome?.shrubDensity ?? 0;
   const byBiome = (p: PlantRow): number => p.biomes?.find((b) => b.biome === g.spec.biome)?.weight ?? 0;
   const trees = speciesFor(g, ['tree'], byBiome);

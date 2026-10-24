@@ -10,6 +10,7 @@ import { FLUID_MAX_LEVEL } from '@core/constants';
 import { FluidType, Map3D } from '@core/map3d';
 import type { RngStream } from '@core/rng';
 import type { Edge } from '@core/types';
+import type { LocalMapSpec } from '@systems/embark';
 import { COL_LAKE, COL_RIVER, COL_SINK, COL_SOURCE, stageStream, type LocalGen } from './common';
 
 /** "widen to the class width (brook 1, river 3, major 5)". */
@@ -145,6 +146,16 @@ function carveLake(g: LocalGen, center: Point, radius: number): void {
   }
 }
 
+/** Whether a spec's map has a river: "a region with no inflow edge starts no path". */
+export function carvesRiver(spec: Pick<LocalMapSpec, 'river'>): boolean {
+  return spec.river !== null && spec.river.inflowEdges.length > 0;
+}
+
+/** Whether a spec's map has a lake: the region's own, or the end of a river with no outflow. */
+export function carvesLake(spec: Pick<LocalMapSpec, 'river' | 'lake'>): boolean {
+  return spec.lake || (carvesRiver(spec) && spec.river?.outflowEdge === null);
+}
+
 /**
  * Stage 2. A river's paths run from the midpoint of each inflow edge to the midpoint of the
  * outflow edge, or to the lake centre when it has none; a region with no inflow edge starts no
@@ -153,7 +164,7 @@ function carveLake(g: LocalGen, center: Point, radius: number): void {
 export function stageRivers(g: LocalGen): void {
   const st = stageStream(g.s, 'terrain.rivers');
   const river = g.spec.river;
-  const needsLake = g.spec.lake || (river !== null && river.outflowEdge === null && river.inflowEdges.length > 0);
+  const needsLake = carvesLake(g.spec);
   const center = needsLake ? lakeCenter(st, g.w, g.h) : null;
   if (river !== null) {
     const target = river.outflowEdge !== null ? edgePoint(g.w, g.h, river.outflowEdge) : center;

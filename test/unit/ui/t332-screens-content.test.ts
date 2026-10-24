@@ -49,7 +49,7 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[23]).toBe('[Enter] Continue to the map        [Esc] Back');
   });
 
-  it('the world map shows the world, the region under the cursor with its ratings and trait, the neighbours, and the keys', () => {
+  it('the world map shows the world, the region under the cursor with its missing essentials, site summary and ratings, and the keys', () => {
     const text = renderScreen('world_map').text;
     const map = text.map((line) => line.slice(0, 32)).join('\n');
     expect(map).toContain('☺');
@@ -57,15 +57,23 @@ describe('T-332 screens: what each outside screen says', () => {
     const panel = text.map((line) => line.slice(line.indexOf('│') + 1).trim()).filter((line) => line !== '');
     expect(panel[0]).toBe('Oldfield');
     expect(panel[1]).toBe('Forest');
-    expect(panel[2]).toMatch(/^Wealth +[▓░]{5} \d$/);
-    expect(panel[3]).toMatch(/^Peril +[▓░]{5} \d$/);
-    expect(panel[4]).toBe('Peril counts raiders. Wild beasts');
-    expect(panel[5]).toBe('live everywhere.');
-    expect(panel[6]).toMatch(/^Temper +[▓░]{5} \d$/);
-    expect(panel[7]).toBe('Trait: Beastwood');
-    expect(panel.slice(8, 12)).toEqual(['Mountainhome 17 regions (S)', 'Gloam 45 regions (S)', 'Hillfolk 0 regions (N)', 'Wildwood 2048 regions (S)']);
-    expect(panel[12]).toBe('[f] filter  [?] legend');
-    expect(panel[13]).toBe('[Enter] Embark here');
+    // T-440: the missing essential first, then the site summary rows.
+    expect(panel.slice(2, 5)).toEqual(['No water on the surface: drink', 'what you bring or brew; dig down', 'to a cavern lake.']);
+    expect(panel[5]).toBe('Soil     loam, clay, 3 levels deep');
+    expect(panel[6]).toMatch(/^Trees {4}about [\d,]+: oak, ash and/);
+    expect(panel[11]).toBe('Water    none on the surface');
+    expect(panel[12]).toMatch(/^Stone {4}metamorphic: /);
+    expect(panel[14]).toMatch(/^Ores {5}likely /);
+    expect(panel[17]).toMatch(/^Climate {2}warm, about \d+°C; summer$/);
+    expect(panel[19]).toMatch(/^Wildlife dangerous: /);
+    expect(panel[22]).toMatch(/^Wealth +[▓░]{5} \d$/);
+    expect(panel[23]).toMatch(/^Peril +[▓░]{5} \d$/);
+    expect(panel[24]).toBe('Peril counts raiders. Wild beasts');
+    expect(panel[25]).toBe('live everywhere.');
+    // The trait and the neighbours are below the fold of this 32-row window: the panel scrolls.
+    expect(panel[26]).toMatch(/^Temper +[▓░]{5} \d +▼$/);
+    expect(panel[27]).toBe('[f] filter  [?] legend');
+    expect(panel[28]).toBe('[Enter] Embark here');
   });
 
   it('the Dwarves tab lists the seven dwarves with the cursor on the first, and details that dwarf: name, age, attributes, traits and skills', () => {
