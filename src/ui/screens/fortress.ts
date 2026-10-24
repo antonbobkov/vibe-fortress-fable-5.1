@@ -42,7 +42,7 @@ import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
 import { DepotPanel, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
-import { creaturesAt, creatureSummary, drawLookPanel, tileSummary, type LookTab } from '../panels/look';
+import { drawLookPanel, tileContents, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import { statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
@@ -929,8 +929,7 @@ export class FortressScreen implements Screen {
     }
     const tile = this.hover ?? this.cursorTile();
     if (tile === null) return statusPanelStrip(s, cols);
-    const creatures = creaturesAt(this.host.readers, tile);
-    const summary = creatures.length > 0 ? creatureSummary(this.host.readers, creatures[0] as number) : tileSummary(this.host.readers, s, tile);
+    const summary = tileContents(this.host.readers, this.host.registry, s, tile);
     const prefix = `${summary} · `;
     const strip = statusPanelStrip(s, cols - Array.from(prefix).length);
     return strip.length === 0 ? summary : `${prefix}${strip}`;
