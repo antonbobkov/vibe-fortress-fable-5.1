@@ -1,5 +1,7 @@
 # T-444 — The region panel shows "2048 regions" for a civilization with no land route
 
+**Closed:** 2026-10-24, in 6c55980.
+
 **Source:** T-440 (the region panel, seen while re-recording the `world_map` golden) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

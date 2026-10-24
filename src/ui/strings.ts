@@ -84,6 +84,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.worldmap.temper': 'Temper',
   'ui.worldmap.trait': 'Trait: {traits}',
   'ui.worldmap.civ': '{civ} {n} regions ({edge})',
+  'ui.worldmap.civ_no_route': '{civ}: no land route; arrives from the {edge} edge',
   'ui.worldmap.no_embark': 'No embark here: {biome}.',
   'ui.worldmap.filter': 'filter',
   'ui.worldmap.legend': 'legend',

@@ -31,6 +31,7 @@ export type {
   WorldgenState,
 } from './state';
 export { CIVS, EDGES } from './state';
+export { hasLandRoute } from './stages/civilizations';
 export { matchesFilter, worldReader, type RegionFilter, type WorldgenReader } from './reader';
 
 /** The stage names, in order (`01` § Stage order and rng streams). */

@@ -25,6 +25,11 @@ export function unreachableDistance(size: number): number {
   return size * size * CIV_MOUNTAIN_STEP_COST;
 }
 
+/** True when `distance` is a real route length: not the `unreachableDistance` of a region no land route reaches. */
+export function hasLandRoute(size: number, distance: number): boolean {
+  return distance < unreachableDistance(size);
+}
+
 /** Size of the 4-connected component of `r` among regions whose biome is in `biomes`. */
 function componentSizes(g: GenWorld, biomes: ReadonlySet<string>): Map<number, number> {
   const sizes = new Map<number, number>();
