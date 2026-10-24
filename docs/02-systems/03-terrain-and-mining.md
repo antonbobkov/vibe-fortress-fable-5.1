@@ -122,6 +122,7 @@ The saved state retains the changed and discovered tile batches and the levels a
 - `terrain.spec()` — the `LocalMapSpec`
 - `terrain.isForbidden(i)` — the tile's traffic mode is `forbidden`
 - `terrain.inspect(i)` — the look cursor's data for a tile (the inspector's `tile` section)
+- `terrain.designationWork(i)` — where a designated tile's work stands: `queued` (its job is open, or it has none yet), `assigned` (a worker holds its job), `blocked` (its job is blocked), or null with no designation (the map's blink, 23 § Animation)
 - `terrain.intendedDrops()` — the items mining owes the world while no item system is present to take them (a copy)
 
 ### Terrain API (mutation, called by other systems)

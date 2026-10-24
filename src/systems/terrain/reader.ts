@@ -45,9 +45,19 @@ export interface TerrainReader {
   intendedDrops(): IntendedDrop[];
   /** The look cursor's data for a tile. */
   inspect(i: TileIndex): TileInspection;
+  /** Where a designated tile's work stands (23 § Animation's blink), or null with no designation. */
+  designationWork(i: TileIndex): DesignationWork | null;
 }
 
-export function makeReader(core: TerrainCore, spec: () => LocalMapSpec | null, progressOf: (tile: TileIndex) => number): TerrainReader {
+/** `queued`: its job is open or not made yet; `assigned`: a worker holds it; `blocked`: its job is blocked. */
+export type DesignationWork = 'queued' | 'assigned' | 'blocked';
+
+export function makeReader(
+  core: TerrainCore,
+  spec: () => LocalMapSpec | null,
+  progressOf: (tile: TileIndex) => number,
+  workOf: (tile: TileIndex) => DesignationWork | null = (tile) => (core.host.map.designationAt(tile) === Designation.None ? null : 'queued'),
+): TerrainReader {
   const map = core.host.map;
   const facts = core.host.facts;
   const designationAt = (i: TileIndex): { kind: Designation; priority: Priority } | null => {
@@ -81,6 +91,7 @@ export function makeReader(core: TerrainCore, spec: () => LocalMapSpec | null, p
     spec,
     isForbidden: (i) => core.isForbidden(i),
     intendedDrops: () => core.drops.slice(),
+    designationWork: (i) => workOf(i),
     inspect: (i) => {
       const discovered = map.hasFlag(i, TileFlag.Discovered);
       const kind = map.kindAt(i);

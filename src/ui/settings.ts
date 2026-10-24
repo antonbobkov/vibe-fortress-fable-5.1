@@ -25,6 +25,8 @@ export interface UserSettings {
   introSeen: boolean;
   /** Which intro plays, at launch and from the main menu (`menus-and-world.md` § Intro). */
   introStyle: 'deep' | 'hall';
+  /** The map's designations do not blink (23 § Animation). */
+  reducedMotion: boolean;
 }
 
 /** A stored volume: a step of 0 to 100, or the default. */
@@ -51,6 +53,7 @@ export function readSettings(value: unknown): UserSettings {
     soundVolume: volume(row['soundVolume'], DEFAULT_USER_SETTINGS.soundVolume),
     intro: SETTINGS_INTRO_OPTIONS.includes(row['intro'] as typeof SETTINGS_INTRO_OPTIONS[number]) ? row['intro'] as UserSettings['intro'] : DEFAULT_USER_SETTINGS.intro,
     introSeen: bool('introSeen'),
+    reducedMotion: bool('reducedMotion'),
     introStyle: SETTINGS_INTRO_STYLE_OPTIONS.includes(row['introStyle'] as typeof SETTINGS_INTRO_STYLE_OPTIONS[number]) ? row['introStyle'] as UserSettings['introStyle'] : DEFAULT_USER_SETTINGS.introStyle,
   };
 }

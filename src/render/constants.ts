@@ -33,6 +33,9 @@ export const DIM_FACTOR = 0.55;
 /** Milliseconds per animation phase of an active fluid tile. */
 export const FLUID_ANIM_MS = 500;
 
+/** An assigned designation's tint on its bright phase: every channel times this (23 § Animation). */
+export const DESIGNATION_PULSE_FACTOR = 1.5;
+
 /** Blend factor for zone backgrounds. */
 export const ZONE_TINT_ALPHA = 0.25;
 

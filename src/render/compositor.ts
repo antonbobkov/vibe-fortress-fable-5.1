@@ -58,8 +58,9 @@ import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
 import type { CombatReader } from '@systems/combat';
-import { blend } from './palette';
-import { ZONE_TINT_ALPHA } from './constants';
+import { blend, brighten } from './palette';
+import { DESIGNATION_PULSE_FACTOR, ZONE_TINT_ALPHA } from './constants';
+import type { TerrainReader } from '@systems/terrain';
 
 interface PlantGlyphRow {
   readonly id: string;
@@ -88,6 +89,8 @@ export interface ViewState {
    * parity, fire, blink and the hearth pulse on the 1000 ms clock (`animFrame >> 1`). Omitted is 0.
    */
   readonly animFrame?: number;
+  /** The Reduced motion setting (and every test build): designations do not blink (23 § Animation). */
+  readonly reducedMotion?: boolean;
 }
 
 /** `ui-keymap-and-screens.md` § Overlays: the ones on by default. */
@@ -195,6 +198,7 @@ export class Compositor {
   /** Each stockpile's fullness this frame (the `stockpile usage` overlay). */
   private readonly usage = new Map<EntityId, number>();
   private animFrame = 0;
+  private reducedMotion = false;
   private lastLayout: Layout = computeLayout(0, 0, false);
   /** The look-down of the cell being composed found nothing but sky (step 9 leaves it alone). */
   private skyCell = false;
@@ -288,6 +292,7 @@ export class Compositor {
     this.env.beginFrame(readers, ui.animFrame ?? 0);
     this.debug.beginFrame(readers, this.frameOverlays);
     this.animFrame = ui.animFrame ?? 0;
+    this.reducedMotion = ui.reducedMotion === true;
     this.stations.clear();
     this.patrols.clear();
     this.indexProjectiles(readers);
@@ -692,8 +697,16 @@ export class Compositor {
     const tint = this.tints.get(kind);
     if (tint === undefined) return cell;
     if (undiscovered) return { glyph: GLYPH_DESIGNATION_OUTLINE, fg: tint, bg: cell.bg };
+    // 23 § Animation: on the fast clock's second phase a queued designation shows the bare tile and
+    // an assigned one its tint brightened; a blocked one, and every one with reduced motion, is steady.
+    let bg = tint;
+    if (!this.reducedMotion && (this.animFrame & 1) === 1 && this.frameReaders?.has('03') === true) {
+      const work = this.frameReaders.of<TerrainReader>('03').designationWork(i);
+      if (work === 'queued') return cell;
+      if (work === 'assigned') bg = brighten(tint, DESIGNATION_PULSE_FACTOR);
+    }
     const digits = this.frameOverlays.includes(OVERLAY_PRIORITY_DIGITS) && !creature;
-    return { glyph: digits ? GLYPH_DIGIT_0 + map.designationPriorityAt(i) : cell.glyph, fg: cell.fg, bg: tint };
+    return { glyph: digits ? GLYPH_DIGIT_0 + map.designationPriorityAt(i) : cell.glyph, fg: cell.fg, bg };
   }
 
   /** `zones` (default on): "`bg` tinted by zone type at low alpha" (T-M2-10). */

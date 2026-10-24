@@ -1,5 +1,7 @@
 # T-437 — Dig designations blink while queued or assigned
 
+**Closed:** 2026-10-23, in d5fdef3.
+
 **Source:** the owner, 2026-10-23 (first play session) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

@@ -17,6 +17,7 @@ import type { JobProducer, ReaderSetLike, TickContext } from '@core/system';
 import type { EntityId, Priority, TileIndex } from '@core/types';
 import type { Job, JobSink, JobsReader } from '@systems/jobs';
 import type { TerrainCore } from './api';
+import type { DesignationWork } from './reader';
 import {
   CHANNEL_BASE_TICKS,
   CHOP_BASE_TICKS,
@@ -43,6 +44,9 @@ export const JOB_TYPE_OF: Readonly<Partial<Record<Designation, string>>> = Objec
   [Designation.Chop]: 'chop',
   [Designation.Gather]: 'gather',
 });
+
+/** The job states in which a worker holds the job. */
+const ASSIGNED_STATES: ReadonlySet<string> = new Set(['claimed', 'fetching', 'travelling', 'working', 'completing']);
 
 export function jobKey(kind: Designation, tile: TileIndex): string {
   return `${JOB_TYPE_OF[kind] ?? 'none'}:${tile}`;
@@ -117,6 +121,16 @@ export class TerrainProducer implements JobProducer {
 
   private get map(): TerrainCore['host']['map'] {
     return this.core.host.map;
+  }
+
+  /** Where the work of a tile's designation stands, from its job's state (23 § Animation). */
+  workOf(tile: TileIndex): DesignationWork | null {
+    const kind = this.map.designationAt(tile);
+    if (kind === Designation.None) return null;
+    if (!this.readers.has('11')) return 'queued';
+    const state = this.readers.of<JobsReader>('11').stateByKey(jobKey(kind, tile));
+    if (state === 'blocked') return 'blocked';
+    return state !== null && ASSIGNED_STATES.has(state) ? 'assigned' : 'queued';
   }
 
   /** The progress of the job carrying a tile's designation (for undo and the saved state). */

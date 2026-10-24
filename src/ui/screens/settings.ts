@@ -32,7 +32,7 @@ export interface SettingsHost {
 const SETTING_NAMES = [
   'Auto-pause on danger', 'Auto-pause on alert', 'Hints', 'Colorblind palette', 'Zoom',
   'Edge scrolling', 'Autosave each season', 'Snapshots kept', 'Combat log', 'Keybindings ▸',
-  'Music volume', 'Music', 'Intro at launch', 'Intro style',
+  'Music volume', 'Music', 'Intro at launch', 'Intro style', 'Reduced motion',
 ] as const;
 
 /** The row of {@link SETTING_NAMES} that opens the keybinding editor, and has no value. */
@@ -81,6 +81,7 @@ export class SettingsScreen implements Screen {
       case 11: return settings.music ? 'on' : 'off';
       case 12: return settings.intro;
       case 13: return settings.introStyle;
+      case 14: return settings.reducedMotion ? 'on' : 'off';
       default: return '';
     }
   }
@@ -103,6 +104,7 @@ export class SettingsScreen implements Screen {
       case 11: this.host.change({ music: !current.music }); break;
       case 12: this.host.change({ intro: cycle(SETTINGS_INTRO_OPTIONS, current.intro) }); break;
       case 13: this.host.change({ introStyle: cycle(SETTINGS_INTRO_STYLE_OPTIONS, current.introStyle) }); break;
+      case 14: this.host.change({ reducedMotion: !current.reducedMotion }); break;
       default: break;
     }
   }

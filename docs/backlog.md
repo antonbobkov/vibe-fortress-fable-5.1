@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-427 | [Wild animals in `leave` stay for weeks near the map edge](work/T-427-animals-stuck-leaving.md) | T-421's diagnosis | — | open |
 | T-436 | [Surface visual variety: relief, trees, shrubs, grass, boulders](work/T-436-surface-visual-variety.md) | the owner, 2026-10-23 | T-427 | open |
-| T-437 | [Dig designations blink while queued or assigned](work/T-437-blinking-designations.md) | the owner, 2026-10-23 | — | open |
 | T-439 | [A step-by-step scripted tutorial](work/T-439-tutorial.md) | the owner, 2026-10-23 | T-437, T-441 | open |
 | T-440 | [The embark screen says what a site has and lacks](work/T-440-embark-site-summary.md) | the owner, 2026-10-23 | — | open |
 | T-441 | [Two-click rectangle designation, in 3D, and stair columns](work/T-441-two-click-3d-designation.md) | the owner, 2026-10-23 | — | open |
