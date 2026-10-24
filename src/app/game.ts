@@ -118,6 +118,8 @@ export interface GameOptions {
   readonly legends?: LegendStore;
   /** Where the music's pieces start and its silences come from; `Math.random` by default. */
   readonly musicRandom?: () => number;
+  /** Draw as with Reduced motion whatever the setting says: the test build (e2e and screenshots, 23 § Animation). */
+  readonly reducedMotion?: boolean;
 }
 
 /** `persistence.md` § What is saved: "thumbnail (a 48×27 cell ASCII snapshot of the surface)". */
@@ -154,6 +156,8 @@ export class Game {
   readonly surface: CanvasSurface;
   readonly driver: FrameDriver;
   readonly keymap: Keymap;
+  /** A test build draws as with Reduced motion (23 § Animation). */
+  private readonly forceReducedMotion: boolean;
   readonly strings: Strings;
   readonly glyphs: GlyphMap;
   theme: Theme;
@@ -202,6 +206,7 @@ export class Game {
   private busy: string | null = null;
 
   constructor(options: GameOptions) {
+    this.forceReducedMotion = options.reducedMotion === true;
     this.userSettings.colorblind = options.colorblind === true;
     this.seed = options.seed;
     this.registry = options.registry ?? contentRegistry();
@@ -1281,6 +1286,7 @@ export class Game {
       selectedZone: this.ui.panel === 'zones' ? this.fortress.zones.selected : 0,
       // 23 § Animation: the presentation clock (`algorithms/compositor.md` `animPhase`).
       animFrame: Math.floor(Date.now() / FLUID_ANIM_MS),
+      reducedMotion: this.userSettings.reducedMotion || this.forceReducedMotion,
     };
     const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
     const surface = new Surface(cells, this.glyphs, this.theme, this.palette);
@@ -1584,6 +1590,8 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     legends: new LegendStore(storage),
     settingsStore: new SettingsStore(storage),
     files: browserFiles(document),
+    // 23 § Animation: a test build draws as with Reduced motion (e2e and screenshots).
+    reducedMotion: import.meta.env.MODE === 'test',
   });
   await game.loadSettings();
   const testBuild = import.meta.env.MODE === 'test';

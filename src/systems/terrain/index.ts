@@ -36,7 +36,7 @@ export { TerrainCore, cavernAt, CAVERN_BANDS, type IntendedDrop } from './api';
 export { TerrainFacts } from './facts';
 export { TerrainProducer, JOB_TYPE_OF, jobKey, workTileOf, workCentiTicksFor } from './producer';
 export { rollQuality } from './rules/engrave';
-export { UNKNOWN_ROCK, type TerrainReader, type TileInspection } from './reader';
+export { UNKNOWN_ROCK, type DesignationWork, type TerrainReader, type TileInspection } from './reader';
 export { designationOf, stairwellTiles, type TrafficMode } from './commands';
 export * from './rules/transitions';
 
@@ -131,7 +131,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     this.coreRef = core;
     world.services.terrain = core;
     this.commandHost = { core, fortress: world.fortress, progressOf: (tile) => this.progressOf(tile) };
-    this.readerRef = makeReader(core, () => this.specValue, (tile) => this.progressOf(tile));
+    this.readerRef = makeReader(core, () => this.specValue, (tile) => this.progressOf(tile), (tile) => this.producer?.workOf(tile) ?? null);
     // `03` § Registrations: job producer `terrain` (designation jobs, T-M1-10).
     const producer = new TerrainProducer(core, ctx.readers, ctx.rng);
     this.producer = producer;

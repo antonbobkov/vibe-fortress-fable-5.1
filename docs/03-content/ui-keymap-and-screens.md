@@ -694,6 +694,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | Sound volume | 0 to 100 in steps of 10; reserved for sound effects, saved and not shown | 50 |
 | Intro at launch | first time / always / off | first time |
 | Intro style | deep / hall | deep |
+| Reduced motion | on / off: the map's designations do not blink | off |
 
 ## Strings
 

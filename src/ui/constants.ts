@@ -72,6 +72,7 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   intro: 'first time',
   introSeen: false,
   introStyle: 'deep',
+  reducedMotion: false,
 });
 
 /** 24 § Tuning constants: the intro's stage, in cells (`intro.md` § Stage). */

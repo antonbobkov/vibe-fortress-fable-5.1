@@ -197,7 +197,10 @@ export function contextTitle(context: string): string {
 }
 
 /** The six legend categories of § Help, generated from the content tables. */
-export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => string): HelpRow[] {
+/** The Legend tab's lines on a designation's blink. */
+const DESIGNATION_BLINK_KEYS: readonly string[] = ['ui.help.legend.designation_queued', 'ui.help.legend.designation_assigned', 'ui.help.legend.designation_steady'];
+
+export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => string, strings?: Strings): HelpRow[] {
   const out: HelpRow[] = [];
   const heading = (text: string): void => { out.push({ category: text, text, heading: true }); };
   const fromTable = (category: string, table: string): void => {
@@ -224,6 +227,8 @@ export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => str
   fromTable('Buildings', 'buildings');
   heading('Overlays');
   for (const row of OVERLAY_ROWS) out.push({ category: 'Overlays', text: `∙  ${row.label}` });
+  // 23 § Animation: what a designation's blink says.
+  if (strings !== undefined) for (const key of DESIGNATION_BLINK_KEYS) out.push({ category: 'Overlays', text: `∙  ${strings.get(key)}` });
   return out;
 }
 
@@ -267,7 +272,7 @@ export class HelpPanel {
   rows(charOf: (glyph: number) => string): HelpRow[] {
     if (this.tab === 0) return helpKeyRows(this.keymap, this.strings);
     if (this.tab === 2) return this.strings === undefined ? [] : helpStartRows(this.strings);
-    this.legend ??= helpGlyphRows(this.registry, charOf);
+    this.legend ??= helpGlyphRows(this.registry, charOf, this.strings);
     return this.legend;
   }
 

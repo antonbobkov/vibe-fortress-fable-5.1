@@ -159,6 +159,7 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 ### Reader
 
 - `jobs.list(state?)`, `jobs.get(id)`, `jobs.byKey(key)`, `jobs.forWorker(dwarfId)`
+- `jobs.stateByKey(key)` — the state of the job with that key, or null, without a copy of the job (read each frame by the map)
 - `jobs.blockedReason(id)`, `jobs.counts()` (open, claimed, blocked by reason)
 - `jobs.laborEnabled(dwarfId, labor)`, `jobs.laborPriority(labor)`, `jobs.workersWithLabor(labor)`
 - `jobs.standingOrder(name)`

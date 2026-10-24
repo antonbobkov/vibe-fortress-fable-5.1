@@ -83,6 +83,7 @@ Only presentation state animates; the simulation is discrete:
 - Fire alternates `^`/`‼` and yellow/red.
 - The hearth `bg` pulses.
 - Rain (and storm) draws `'` on a few random outdoor cells per frame; snow draws `*`. The cells are the outdoor `open` cells with no creature, one in `PARTICLE_ONE_IN` chosen by a hash of the cell and the frame, so that a golden stays reproducible.
+- A designated tile whose job is not done blinks on the fast phase (about 2 Hz), as 03's `terrain.designationWork(i)` says: **queued** (no worker has its job yet, or it has no job yet) alternates between the designation tint and the bare tile; **assigned** (a worker holds its job) keeps the tint and alternates between it and the tint brightened by `DESIGNATION_PULSE_FACTOR`; **blocked** keeps the steady tint. An undiscovered designation's outline does not blink. Phase 0 of the fast clock draws the steady tint, so a still frame (`animFrame` 0) shows every designation steady. With `ViewState.reducedMotion` (the Reduced motion setting, and always in a test build: e2e and screenshots) no designation blinks.
 - Unconscious creatures blink; danger-flagged creatures (a dwarf being attacked) get a red `bg` flash for one second on the first attack of an attacker and defender pair; later attacks of the same pair do not flash again (the engagement boundary of 16's combat announcements).
 
 ### Viewport and camera
@@ -133,6 +134,7 @@ Everything visible. The overlay menu (24) lists overlays with their toggles; the
 | `AUTO_ZOOM_MIN_COLS` | 100 | Columns the `Auto` zoom keeps at least (*unmeasured*) |
 | `AUTO_ZOOM_MIN_ROWS` | 56 | Rows the `Auto` zoom keeps at least (*unmeasured*) |
 | `ZONE_TINT_ALPHA` | 0.25 | Blend factor for zone backgrounds (*unmeasured*) |
+| `DESIGNATION_PULSE_FACTOR` | 1.5 | An assigned designation's tint on its bright phase, every channel times this (*unmeasured*) |
 | `ZONE_TINT_MIN_LUMA` | 0.18 | Least relative luminance of a zone's background (*unmeasured*) |
 | `TEMPERATURE_RAMP_COLD_C` | −20 | At or below this the `temperature` overlay is `blue` (*unmeasured*) |
 | `TEMPERATURE_RAMP_HOT_C` | 40 | At or above this the `temperature` overlay is `red` (*unmeasured*) |

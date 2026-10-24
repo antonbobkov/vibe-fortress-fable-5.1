@@ -139,7 +139,7 @@ describe('T-332 screens: what each outside screen says', () => {
   it('Settings lists each option with its current value, explains the Zoom option, and offers reset and back', () => {
     const r = rows('settings');
     expect(r[1]).toBe('Settings');
-    expect(r.slice(3, 17)).toEqual([
+    expect(r.slice(3, 18)).toEqual([
       '► Auto-pause on danger        [on]',
       'Auto-pause on alert         [off]',
       'Hints                       [on]',
@@ -154,9 +154,10 @@ describe('T-332 screens: what each outside screen says', () => {
       'Music                       [on]',
       'Intro at launch             [first time]',
       'Intro style                 [deep]',
+      'Reduced motion              [off]',
     ]);
-    expect(r[17]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
-    expect(r[19]).toBe('[d] Reset to defaults    [Esc] Back');
+    expect(r[18]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
+    expect(r[20]).toBe('[d] Reset to defaults    [Esc] Back');
   });
 
   it('the keybindings list gives the action and key of every binding under its context heading, in the order of the keymap, and how to rebind and reset', () => {

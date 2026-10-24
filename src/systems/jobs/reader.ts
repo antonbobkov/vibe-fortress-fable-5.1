@@ -19,6 +19,8 @@ export interface JobsReader {
   list(state?: JobState): Job[];
   get(id: number): Job | undefined;
   byKey(key: string): Job | undefined;
+  /** The state of the job with that key, or null; no copy of the job (the map reads it each frame). */
+  stateByKey(key: string): JobState | null;
   forWorker(dwarfId: EntityId): Job | undefined;
   blockedReason(id: number): string | null;
   counts(): JobCounts;
@@ -66,6 +68,7 @@ export function makeReader(board: JobBoard): JobsReader {
         .map((j) => copy(j) as Job),
     get: (id) => copy(board.jobs.get(id)),
     byKey: (key) => copy(board.byKey(key) as Job | undefined),
+    stateByKey: (key) => board.byKey(key)?.state ?? null,
     forWorker: (dwarfId) => {
       const jobId = board.workerOf(dwarfId).jobId;
       return jobId === 0 ? undefined : copy(board.jobs.get(jobId));
