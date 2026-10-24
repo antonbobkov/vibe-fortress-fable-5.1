@@ -2,7 +2,7 @@
 
 **Owner:** content (`intro`) · **Depends on:** [`../04-implementation/ui-screens/menus-and-world.md`](../04-implementation/ui-screens/menus-and-world.md) § Intro, [glyphs-and-colors.md](glyphs-and-colors.md)
 
-The intro is a short animated scene drawn in the game's own glyphs and palette, written for Deepholm. Seven dwarves leave a hold that has run out of room, cross the surface past their wagon and some unimpressed wildlife, strike the first pick into an empty mountain, and the name of the game rises out of the rock. The screen that plays it is described in `menus-and-world.md` § Intro; this file holds its scenes, art, cues and captions.
+The hall intro (the Intro style setting `hall`; [deep-intro.md](deep-intro.md) is the default style, `deep`) is a short animated scene drawn in the game's own glyphs and palette, written for Deepholm. Seven dwarves leave a hold that has run out of room, cross the surface past their wagon and some unimpressed wildlife, strike the first pick into an empty mountain, and the name of the game rises out of the rock. The screen that plays it is described in `menus-and-world.md` § Intro; this file holds its scenes, art, cues and captions.
 
 ## Stage
 

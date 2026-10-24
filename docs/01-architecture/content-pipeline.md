@@ -44,6 +44,7 @@ Content is data. The Markdown tables in `03-content/` are the source of truth; t
 | `instruments` | `InstrumentDef` | ui (music) |
 | `tunes` | `TuneDef` | ui (music) |
 | `intro` | `IntroDef` | ui (the intro screen) |
+| `deepIntro` | `DeepIntroDef` | ui (the intro screen) |
 
 ## Row conventions
 

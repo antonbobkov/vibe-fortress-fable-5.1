@@ -55,6 +55,7 @@ export const SETTINGS_ZOOM_OPTIONS = ['auto', 0.75, 1, 1.5, 2] as const;
 export const SETTINGS_SNAPSHOT_OPTIONS = [2, 4, 8] as const;
 export const SETTINGS_COMBAT_LOG_OPTIONS = ['all', 'hits only', 'off'] as const;
 export const SETTINGS_INTRO_OPTIONS = ['first time', 'always', 'off'] as const;
+export const SETTINGS_INTRO_STYLE_OPTIONS = ['deep', 'hall'] as const;
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   autoPauseDanger: true,
   autoPauseAlert: false,
@@ -70,6 +71,7 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   soundVolume: 50,
   intro: 'first time',
   introSeen: false,
+  introStyle: 'deep',
 });
 
 /** 24 § Tuning constants: the intro's stage, in cells (`intro.md` § Stage). */
@@ -79,6 +81,16 @@ export const INTRO_STAGE_ROWS = 16;
 export const INTRO_FRAME_MS = 250;
 /** 24 § Tuning constants: how far below its place each column of a rising piece of intro art starts. */
 export const INTRO_RISE_ROWS = 6;
+/** 24 § Tuning constants: the deep intro's strip, in art pixels (`deep-intro.md` § Stage). */
+export const DEEP_INTRO_STAGE_COLS = 80;
+export const DEEP_INTRO_STAGE_ROWS = 30;
+/** 24 § Tuning constants: how often the deep intro's static and speckle are drawn anew, ms. */
+export const DEEP_INTRO_NOISE_MS = 80;
+/** 24 § Tuning constants: how often a shake of the deep intro moves the strip, ms. */
+export const DEEP_INTRO_SHAKE_MS = 40;
+/** 24 § Tuning constants: the stone blocks of the pillars beside the deep intro's strip, art pixels. */
+export const DEEP_INTRO_BLOCK_COLS = 8;
+export const DEEP_INTRO_COURSE_ROWS = 4;
 
 /** The music and sound volumes run from 0 to 100 in steps of this many (ui-keymap-and-screens.md § Settings). */
 export const SETTINGS_VOLUME_STEP = 10;

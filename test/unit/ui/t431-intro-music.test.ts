@@ -64,8 +64,8 @@ describe('T-431 the director\'s choice for the intro scene', () => {
   ];
 
   it('the intro scene has the intro mood', () => {
-    expect(moodOf('intro', false)).toBe('intro');
-    expect(moodOf('intro', true)).toBe('intro');
+    expect(moodOf('intro', false, 'hall')).toBe('intro');
+    expect(moodOf('intro', true, 'hall')).toBe('intro');
     expect(moodOf('menu', false)).toBe('menu');
   });
 
@@ -122,16 +122,17 @@ describe('T-431 the app plays the intro piece under the intro scene', () => {
     const music = new Music(registry, () => 0);
     const synth = new FakeSynth();
     music.attach(() => synth);
-    music.update('intro', DEFAULT_USER_SETTINGS);
+    const hall = { ...DEFAULT_USER_SETTINGS, introStyle: 'hall' as const };
+    music.update('intro', hall);
     synth.now = MUSIC_CHANGE_GAP_S;
-    music.update('intro', DEFAULT_USER_SETTINGS);
+    music.update('intro', hall);
     expect(music.current).toBe('out_of_the_hold');
     expect(synth.played.length).toBeGreaterThan(0);
     synth.now += 5;
-    music.update('menu', DEFAULT_USER_SETTINGS);
+    music.update('menu', hall);
     expect(synth.fades).toBe(1);
     synth.now += MUSIC_CHANGE_GAP_S;
-    music.update('menu', DEFAULT_USER_SETTINGS);
+    music.update('menu', hall);
     expect(tunes.byId(music.current ?? '')?.role).toBe('menu');
   });
 });

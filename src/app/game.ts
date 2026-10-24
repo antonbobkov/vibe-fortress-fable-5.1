@@ -83,8 +83,9 @@ import { Strings } from '@ui/strings';
 import { GlyphMap, Surface, themeOf, type Theme } from '@ui/surface';
 import type { CellPointer, Screen, ScreenId } from '@ui/screen';
 import { MainMenuScreen } from '@ui/screens/main_menu';
-import { IntroScreen } from '@ui/screens/intro';
-import type { IntroDef } from '@content/schema';
+import { IntroScreen, hallFilm } from '@ui/screens/intro';
+import { deepFilm } from '@ui/screens/intro_deep';
+import type { DeepIntroDef, IntroDef } from '@content/schema';
 import { WorldGenScreen } from '@ui/screens/world_gen';
 import { WorldMapScreen } from '@ui/screens/world_map';
 import { EmbarkScreen } from '@ui/screens/embark';
@@ -1035,13 +1036,12 @@ export class Game {
     return play;
   }
 
-  /** The intro, over nothing; when it ends or is skipped, the main menu. */
+  /** The intro of the chosen style, over nothing; when it ends or is skipped, the main menu. */
   openIntro(): void {
-    this.resetTo(new IntroScreen(
-      { now: () => Date.now(), done: () => void this.showMainMenu() },
-      this.registry.derived<IntroDef>('intro'),
-      this.strings,
-    ));
+    const film = this.userSettings.introStyle === 'deep'
+      ? deepFilm(this.registry.derived<DeepIntroDef>('deepIntro'), this.strings)
+      : hallFilm(this.registry.derived<IntroDef>('intro'), this.strings);
+    this.resetTo(new IntroScreen({ now: () => Date.now(), done: () => void this.showMainMenu() }, film));
     this.render();
   }
 

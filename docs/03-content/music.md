@@ -18,10 +18,11 @@ The music is synthesized while it plays: each instrument is an oscillator shaped
 | `bell` | anvil bell | sine | 2 | 2200 | 0 | 900 | 24 | 6000 | 0 | 45 |
 | `bass` | low string | triangle | 10 | 900 | 30 | 400 | 40 | 900 | 0 | 15 |
 | `drum` | deep drum | sine | 3 | 380 | 0 | 200 | 55 | 400 | 0 | 20 |
+| `horn` | deep horn | sawtooth | 40 | 300 | 60 | 350 | 20 | 1600 | 8 | 30 |
 
 ## Tunes
 
-`Role` says when a tune plays (24 § Music): `intro` under the intro, once; `menu` on the screens before a fortress, `fortress` in turn while a fortress runs, `tense` while the hearth alert or a siege stands. `Tempo` is steps per minute; a step is the unit of the scores below (an eighth note in all of these).
+`Role` says when a tune plays (24 § Music): `deep_intro` under the deep intro and `intro` under the hall intro (the Intro style setting), once; `menu` on the screens before a fortress, `fortress` in turn while a fortress runs, `tense` while the hearth alert or a siege stands. `Tempo` is steps per minute; a step is the unit of the scores below (an eighth note in all of these).
 
 | id | name | Role | Tempo (steps/min) | Mode | Source |
 |---|---|---|---|---|---|
@@ -32,6 +33,7 @@ The music is synthesized while it plays: each instrument is an oscillator shaped
 | `forge_at_rest` | The Forge at Rest | fortress | 116 | D dorian | original |
 | `long_winter` | The Long Winter Hall | fortress | 80 | E aeolian | original |
 | `hearth_holds` | The Hearth Holds | tense | 168 | E phrygian | original |
+| `the_deep_answers` | The Deep Answers | deep_intro | 240 | A phrygian | original |
 
 ## Scores
 
@@ -156,3 +158,28 @@ The intro's piece, 120 steps (about 43 seconds and the tail), laid against its f
 | 3 | pad | `E3+B3*16 E3+B3*16 F3+C4*16 E3+B3*16 D3+A3*16 C3+G3*16 F3+C4*16 E3+B3*16` |
 | 4 | flute | `.*16 .*16 A4*6 G4*2 F4*8 E4*6 F4*2 E4*8` |
 | 4 | flute | `F4*4 A4*4 G4*4 F4*4 E4*6 D4*2 C4*8 F4*4 G4*4 A4*4 C5*4 B4*4 A4*2 F4*2 E4*8` |
+
+### the_deep_answers
+
+The deep intro's piece, 188 steps (47 seconds and the tail), laid against the deep intro from the moment it starts, `MUSIC_CHANGE_GAP_S` after the intro opens: a heartbeat on the drum and the lantern's swing on the harp for the descent, with a thump where the dwarf lands; the drone alone and three falling notes on the flute for the drink; a swelling roll for the second chapter card; a clashing drone under the static; a blow on the drum, the bell and the horn as the eye opens, and two quick notes on the flute when it blinks; driving drums, a stamping bass and rolling harp for the torrent; a climb on the bass and the horn as the silhouette rises; and on the strike the whole piece in one hit, which opens into A major for the title.
+
+| Voice | Instrument | Notes |
+|---|---|---|
+| 1 | drum | `.*8 A1 .*2 A1 .*4 A1 .*2 A1 .*4 A1 .*2 E2+A1 A1 .*3 A1*2 .*20 A1 . A1 . A1 A1 A1 A1 A1 A1 A1 A1 A1` |
+| 1 | drum | `.*7 A1 .*7 A1+E2 .*3 A1 .*3 A1 . A1 .*5 A1 .*3 A1 . A1 . A1 .*3 A1 A1 A1+E2 A1 A1 E2 A1 A1 E2 A1 A1` |
+| 1 | drum | `A1 E2 A1 A1 A1 E2 E2 A1 A1 E2 A1 A1 A1 E2 A1 A1 A1 E2 A1 A1 E2 E2 E2 A1 A1 A1 A1 A1 E2 E2 A1+E2*2` |
+| 1 | drum | `.*2 A1 .*3 A1 .*7 A1 .*7 A1 .*3 A1 .*3 A1+E2*5` |
+| 2 | bass | `.*16 A1*8 Bb1*8 A1*2 A1*8 .*12 .*4 Bb1*8 A1*8 Bb1*8 A1*4 A1 A1 E2 A1 Bb1*4 A1*4 G1*4 A1 A1 E2 A1` |
+| 2 | bass | `Bb1*2 C2*2 Bb1*2 A1 A1 A2 A1 Bb1 Bb1 Bb2 Bb1 A1 A1 A2 A1 G1 G1 G2 G1 A1 A1 A2 A1 Bb1 Bb1 Bb2 Bb1 C2` |
+| 2 | bass | `C2 C3 C2 D2 D2 E2 E2 E2 E2 F2 F2 G2 G#2 G#2 A1*8 E2*8 F2*4 G2*4 A1*13` |
+| 3 | drone | `A1+E2*34 A1+E2*20 Bb1+F2*12 A1+Bb1*16 A1+E2*30 A1+E2*16 Bb1+F2*8 C2+G2*8 E2+B2*7 A1+E2*37` |
+| 4 | harp | `.*8 A4 . E5 . A4 . F5 . A4 . E5 . A4 . F5 . A4 . E5 . A4 . C5 . .*2 .*20 .*12 .*16 .*30 A3 E4 A4 C5` |
+| 4 | harp | `E5 C5 A4 E4 Bb3 F4 Bb4 D5 F5 D5 Bb4 F4 A3 E4 A4 C5 E5 C5 A4 E4 C4 G4 C5 E5 G5 E5 C5 G4 .*7 .*4 A3` |
+| 4 | harp | `C#4 E4 A4 C#5 E5 A5 C#6 E6 .*24` |
+| 5 | flute | `.*34 .*2 E5*2 D5*2 C5*4 .*2 B4*2 .*6 .*12 .*16 .*12 Bb5*6 A5*4 .*2 E6 C6 .*4 .*8 A5*4 G5*2 F5*2 E5*8` |
+| 5 | flute | `F5*4 G5*4 .*7 .*8 E5*4 A5*4 C#6*8 B5*4 A5*9` |
+| 6 | bell | `.*34 .*20 .*12 .*16 A6*4 .*8 E6 .*5 .*6 Bb6 F6 .*4 A5+E6+A6*4 .*28 .*7 A5+E6+A6*8 .*29` |
+| 7 | pad | `.*34 A2+E3+C4*20 Bb2+F3+D4*12 A2+Bb2+E3*16 A2+E3+A3*16 Bb2+F3+Bb3*14 A2+E3+C4*16 F2+C3+A3*8` |
+| 7 | pad | `G2+D3+B3*8 E3+G#3+B3*7 A2+E3+A3+C#4*37` |
+| 8 | horn | `.*34 .*20 .*12 .*16 A2+E3*4 .*26 A2+E3+A3*6 .*10 F2+C3+F3*4 .*4 G2+D3+G3*4 .*4 E3 E3 E3 G#3 G#3 B3` |
+| 8 | horn | `B3 A2+E3+A3+C#4*4 .*4 A3+E4*4 .*4 A3+C#4+E4*8 .*13` |

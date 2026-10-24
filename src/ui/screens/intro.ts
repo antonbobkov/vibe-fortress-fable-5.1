@@ -1,13 +1,15 @@
 /**
- * The intro (`04-implementation/ui-screens/menus-and-world.md` § Intro): a short animated scene in
- * the game's own glyphs and palette, played from the content of `03-content/intro.md`. The scenes,
- * art, cues and captions are data; this module only plays them on the text grid.
+ * The intros (`04-implementation/ui-screens/menus-and-world.md` § Intro): short animated films on
+ * the text grid, played from content. Both styles share what is here: the timeline of scenes, the
+ * motion of a cue or layer, and the screen that plays a film and skips it. The hall intro
+ * (`03-content/intro.md`) is drawn by {@link introFrame}; the deep intro
+ * (`03-content/deep-intro.md`) by `intro_deep.ts`.
  *
- * Time is the host's clock in ms since the screen opened. {@link introFrame} draws any moment of
- * it, so the tests and the golden can draw a fixed one.
+ * Time is the host's clock in ms since the screen opened. A film draws any moment of itself, so
+ * the tests and the golden can draw a fixed one.
  */
 
-import type { IntroCueDef, IntroDef } from '@content/schema';
+import type { IntroDef, IntroMotion } from '@content/schema';
 import type { KeyPress } from '@platform/input';
 import type { Rgb } from '@render/palette';
 import { INTRO_FRAME_MS, INTRO_RISE_ROWS, INTRO_STAGE_COLS, INTRO_STAGE_ROWS } from '../constants';
@@ -16,27 +18,28 @@ import type { Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 
-/** A scene placed on the intro's timeline. */
-export interface TimedScene {
+/** What a scene of either intro has: an id and a length. */
+export interface IntroScene {
   readonly id: string;
-  readonly start: number;
   readonly ms: number;
-  readonly backdrop: string;
 }
 
+/** A scene placed on the intro's timeline. */
+export type TimedScene<S extends IntroScene = IntroDef['scenes'][number]> = S & { readonly start: number };
+
 /** The scenes one after another, and the length of the whole intro. */
-export function introTimeline(intro: IntroDef): { scenes: TimedScene[]; total: number } {
-  const scenes: TimedScene[] = [];
+export function introTimeline<S extends IntroScene>(intro: { readonly scenes: readonly S[] }): { scenes: TimedScene<S>[]; total: number } {
+  const scenes: TimedScene<S>[] = [];
   let start = 0;
   for (const scene of intro.scenes) {
-    scenes.push({ id: scene.id, start, ms: scene.ms, backdrop: scene.backdrop });
+    scenes.push({ ...scene, start });
     start += scene.ms;
   }
   return { scenes, total: start };
 }
 
 /** The scene playing `ms` after the intro began and the time within it; `null` once it is over. */
-export function sceneAt(intro: IntroDef, ms: number): { scene: TimedScene; local: number } | null {
+export function sceneAt<S extends IntroScene>(intro: { readonly scenes: readonly S[] }, ms: number): { scene: TimedScene<S>; local: number } | null {
   if (ms < 0) return null;
   for (const scene of introTimeline(intro).scenes) {
     if (ms < scene.start + scene.ms) return { scene, local: ms - scene.start };
@@ -44,8 +47,12 @@ export function sceneAt(intro: IntroDef, ms: number): { scene: TimedScene; local
   return null;
 }
 
-/** Where a cue stands and which frame it shows at `local` ms, or `null` while it is not drawn. */
-export function cueState(cue: IntroCueDef, local: number, sceneMs: number): { x: number; y: number; frame: number } | null {
+/**
+ * Where a cue or layer stands and which frame it shows at `local` ms, or `null` while it is not
+ * drawn. It goes from `at` to `to` at an even pace from `from` to `arrive` (or `until`, or the
+ * scene's end); a moving one changes frames only while it moves, a still one all the time.
+ */
+export function cueState(cue: IntroMotion, local: number, sceneMs: number): { x: number; y: number; frame: number } | null {
   const rise = cue.effect === 'rise';
   if (local < cue.from || (!rise && cue.until !== undefined && local >= cue.until)) return null;
   const [ax, ay] = cue.at;
@@ -149,9 +156,25 @@ export function introFrame(surface: Surface, intro: IntroDef, strings: Strings, 
     const text = strings.get(`intro.${caption.id}`);
     surface.text(Math.max(0, Math.floor((surface.cols - Array.from(text).length) / 2)), captionRow, text, surface.theme.text);
   }
+  drawSkipLine(surface, strings, captionRow);
+}
+
+/** The skip line, centred on the window's last row when that row is below `above`. */
+export function drawSkipLine(surface: Surface, strings: Strings, above: number): void {
   const skip = strings.get('ui.intro.skip');
   const skipRow = surface.rows - 1;
-  if (skipRow > captionRow) surface.text(Math.max(0, Math.floor((surface.cols - Array.from(skip).length) / 2)), skipRow, skip, surface.theme.dim);
+  if (skipRow > above) surface.text(Math.max(0, Math.floor((surface.cols - Array.from(skip).length) / 2)), skipRow, skip, surface.theme.dim);
+}
+
+/** An intro ready to play: how long it lasts, and how it looks at any moment of it. */
+export interface IntroFilm {
+  readonly total: number;
+  frame(surface: Surface, ms: number): void;
+}
+
+/** The hall intro of `intro.md` as a film. */
+export function hallFilm(intro: IntroDef, strings: Strings): IntroFilm {
+  return { total: introTimeline(intro).total, frame: (surface, ms) => introFrame(surface, intro, strings, ms) };
 }
 
 /** What the intro asks of the app: the clock, and the way on when it ends or is skipped. */
@@ -160,6 +183,7 @@ export interface IntroHost {
   done(): void;
 }
 
+/** The screen that plays an intro of either style. */
 export class IntroScreen implements Screen {
   readonly id = 'intro' as const;
   private readonly start: number;
@@ -168,11 +192,10 @@ export class IntroScreen implements Screen {
 
   constructor(
     private readonly host: IntroHost,
-    private readonly intro: IntroDef,
-    private readonly strings: Strings,
+    private readonly film: IntroFilm,
   ) {
     this.start = host.now();
-    this.total = introTimeline(intro).total;
+    this.total = film.total;
   }
 
   /** Milliseconds since the intro began. */
@@ -194,7 +217,7 @@ export class IntroScreen implements Screen {
   draw(surface: Surface): void {
     const ms = this.elapsed();
     if (ms >= this.total) this.finish();
-    introFrame(surface, this.intro, this.strings, Math.max(0, Math.min(ms, this.total - 1)));
+    this.film.frame(surface, Math.max(0, Math.min(ms, this.total - 1)));
   }
 
   /** Any key skips (a fixed key, `ui-keymap-and-screens.md` § Fixed keys); a modifier alone does not. */

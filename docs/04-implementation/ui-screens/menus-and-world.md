@@ -4,6 +4,10 @@
 
 ## Intro
 
+The intro comes in two styles, chosen by the Intro style setting: `deep` (the default) and `hall`. Both are played by the same screen, from content, and both end the same way.
+
+The hall intro:
+
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │                                                                │
@@ -22,9 +26,31 @@
 └────────────────────────────────────────────────────────────────┘
 ```
 
-The intro is a short animated scene, about 45 seconds, drawn on the text grid in the game's glyphs and palette: seven dwarves leave a hold with no room left in it, walk out past their wagon, a rabbit that bolts and a deer that does not, strike the first pick into an empty mountain with a spark, and `DEEPHOLM` rises out of the rock column by column. Its scenes, art, cues, captions and colours are content (`03-content/intro.md`); the screen only plays them. The stage is centred in the window with the caption on the row under it, and its ground, rock and sky run on to the window's edges, so it fits any window size. The last row says "Any key or click to skip" in the dim colour.
+The hall intro is a short animated scene, about 45 seconds, drawn on the text grid in the game's glyphs and palette: seven dwarves leave a hold with no room left in it, walk out past their wagon, a rabbit that bolts and a deer that does not, strike the first pick into an empty mountain with a spark, and `DEEPHOLM` rises out of the rock column by column. Its scenes, art, cues, captions and colours are content (`03-content/intro.md`); the screen only plays them. The stage is centred in the window with the caption on the row under it, and its ground, rock and sky run on to the window's edges, so it fits any window size. The last row says "Any key or click to skip" in the dim colour.
 
-It plays at launch, before the main menu, when the Intro at launch setting is `always`, or `first time` and it has not yet played at a launch (whether it has is saved with the settings and kept by Reset to defaults); `off` never plays it at launch. The main menu's `[i] Intro` plays it again whatever the setting. Any key skips it (a fixed key; a modifier pressed alone does not count), and so does a click; when it ends or is skipped the main menu opens. The intro has a short piece of music of its own (`02-systems/24-ui-and-input.md` § Music), heard when the intro is opened from the main menu. Captions are the strings `intro.<id>`, the skip line `ui.intro.skip`. A test build skips it at launch unless the page is opened with `?intro=on`, which leaves the decision to the setting.
+The deep intro:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│████████████████████████████████████████████████████████████████│
+│▒▒▒▒▒▒▒▒▒▒░░░░          ▄▄▓▓▓▓▓▓▄▄            ░░░░▒▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒░░        ▄▓▓██████████████▓▓▄          ░░▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒░░     ▄▓████▓▓▒▒░░████░░▒▒▓▓████▓▄       ░░▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒░░     ▀▓████▓▓▒▒░░████░░▒▒▓▓████▓▀       ░░▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒░░        ▀▓▓██████████████▓▓▀          ░░▒▒▒▒▒▒▒▒▒▒▒│
+│▒▒▒▒▒▒▒▒▒▒░░░░          ▀▀▓▓▓▓▓▓▀▀            ░░░░▒▒▒▒▒▒▒▒▒▒▒▒│
+│████████████████████████████████████████████████████████████████│
+│                                                                │
+│                    The deep blinked first.                     │
+│                                                                │
+│                    Any key or click to skip                    │
+└────────────────────────────────────────────────────────────────┘
+```
+
+The deep intro is a film of about 50 seconds in big block art: every art pixel is a cell, or a square of cells, filled with a block or shade glyph in two colours of its own sixteen-colour palette, with checker dither, scanline hatching and speckle for texture. Two chapter cards (a red banner across a dithered grey field, the chapter's name in a black bar on it) open its two halves: a dwarf goes down a shaft on a rope, his lantern swinging, and stops at the bottom for a drink; an eye the size of the rock condenses out of static, opens, looks about and blinks; the wall behind him cracks and a torrent of glowing water bursts out all round him, and he finishes his drink; his silhouette rises against the water's light, raises a pick and strikes; and the rock shatters into `DEEPHOLM`. Its palette, inks, scenes, layers, camera keys, effects (palette cycling, pans with parallax, zooms and cuts, shakes, flashes, dithered fades and static) and captions are content (`03-content/deep-intro.md`); the screen only plays them. The pictures fill a letterboxed strip, drawn at the largest whole scale that fits the window and centred, with black above and below it and stone pillars at its sides when the window is wider; a chapter card fills the whole window. Its captions are few, on the row under the strip, and the last row is the skip line.
+
+It plays at launch, before the main menu, when the Intro at launch setting is `always`, or `first time` and it has not yet played at a launch (whether it has is saved with the settings and kept by Reset to defaults); `off` never plays it at launch. The main menu's `[i] Intro` plays it again whatever the setting. Both play the style the Intro style setting names. Any key skips it (a fixed key; a modifier pressed alone does not count), and so does a click; when it ends or is skipped the main menu opens. Each style has a short piece of music of its own (`02-systems/24-ui-and-input.md` § Music), heard when the intro is opened from the main menu. Captions are the strings `intro.<id>` (hall) and `deep_intro.<id>` (deep), the skip line `ui.intro.skip`. A test build skips it at launch unless the page is opened with `?intro=on`, which leaves the decision to the setting.
 
 ## Main menu
 
@@ -113,11 +139,12 @@ Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings
 │   Music volume                  [50%]            │
 │   Music                         [on ]            │
 │   Intro at launch               [first time]     │
+│   Intro style                   [deep]           │
 │   [d] Reset to defaults         [Esc] Back       │
 └──────────────────────────────────────────────────┘
 ```
 
-Music volume runs from 0% to 100% in steps of 10% (`←` `→`, `Enter` or a click step it round); Music is on or off, as the music key turns it (`02-systems/24-ui-and-input.md` § Music). Intro at launch steps round `first time`, `always` and `off` (§ Intro). Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
+Music volume runs from 0% to 100% in steps of 10% (`←` `→`, `Enter` or a click step it round); Music is on or off, as the music key turns it (`02-systems/24-ui-and-input.md` § Music). Intro at launch steps round `first time`, `always` and `off`, and Intro style between `deep` and `hall` (§ Intro). Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
 
 Keybindings sub-screen:
 

@@ -102,5 +102,18 @@
     "filterHz": 400,
     "detuneCents": 0,
     "reverbPercent": 20
+  },
+  {
+    "id": "horn",
+    "name": "deep horn",
+    "wave": "sawtooth",
+    "attackMs": 40,
+    "decayMs": 300,
+    "sustainPercent": 60,
+    "releaseMs": 350,
+    "levelPercent": 20,
+    "filterHz": 1600,
+    "detuneCents": 8,
+    "reverbPercent": 30
   }
 ]

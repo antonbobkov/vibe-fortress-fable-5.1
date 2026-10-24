@@ -1,11 +1,12 @@
 /**
- * E2E `intro` (T-423, `ui-screens/menus-and-world.md` § Intro): a first launch with the test
- * build's skip turned off (`?intro=on`) shows the intro; a key skips it to the main menu; the
- * menu's Intro plays it again and a click skips it; a later launch does not play it again.
+ * E2E `intro` (T-423, `ui-screens/menus-and-world.md` § Intro): with the Intro style set to hall,
+ * a first launch with the test build's skip turned off (`?intro=on`) shows the intro; a key skips
+ * it to the main menu; the menu's Intro plays it again and a click skips it; a later launch does
+ * not play it again.
  */
 
 import { expect, test } from '@playwright/test';
-import { screenOf, textOf } from './helpers';
+import { focusMenu, screenOf, textOf } from './helpers';
 
 interface IntroHook {
   screenshotName(name: string): string;
@@ -21,6 +22,15 @@ test('intro', async ({ page }) => {
   await page.goto('/');
   await ready();
   await expect.poll(() => screenOf(page)).toBe('main_menu');
+
+  // This intro is the Intro style `hall` (T-433 made `deep` the default): choose it in Settings.
+  await focusMenu(page);
+  await page.keyboard.press('o');
+  await expect.poll(() => screenOf(page)).toBe('settings');
+  for (let k = 0; k < 13; k += 1) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect.poll(() => textOf(page)).toMatch(/Intro style +\[hall\]/);
+  await page.evaluate(() => (window as unknown as { __deepholm: IntroHook }).__deepholm.settled());
 
   // With the skip turned off, a first launch plays it.
   await page.goto('/?intro=on');

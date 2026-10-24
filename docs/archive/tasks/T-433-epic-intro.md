@@ -1,5 +1,7 @@
 # T-433 — A second intro: big block art, much wilder
 
+**Closed:** 2026-10-23, in a8b3348.
+
 **Source:** the owner, 2026-10-23 · **Size:** L · **Needs:** — · **Status:** open
 
 ## Why

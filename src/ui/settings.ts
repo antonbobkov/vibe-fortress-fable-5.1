@@ -1,5 +1,5 @@
 /** Presentation preferences stored outside fortress saves (24 § State, T-M7-07). */
-import { DEFAULT_USER_SETTINGS, SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from './constants';
+import { DEFAULT_USER_SETTINGS, SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_INTRO_STYLE_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from './constants';
 
 export { DEFAULT_USER_SETTINGS } from './constants';
 export interface UserSettings {
@@ -23,6 +23,8 @@ export interface UserSettings {
   intro: 'first time' | 'always' | 'off';
   /** Whether the intro has played at a launch; saved, not shown, and kept by Reset to defaults. */
   introSeen: boolean;
+  /** Which intro plays, at launch and from the main menu (`menus-and-world.md` § Intro). */
+  introStyle: 'deep' | 'hall';
 }
 
 /** A stored volume: a step of 0 to 100, or the default. */
@@ -49,5 +51,6 @@ export function readSettings(value: unknown): UserSettings {
     soundVolume: volume(row['soundVolume'], DEFAULT_USER_SETTINGS.soundVolume),
     intro: SETTINGS_INTRO_OPTIONS.includes(row['intro'] as typeof SETTINGS_INTRO_OPTIONS[number]) ? row['intro'] as UserSettings['intro'] : DEFAULT_USER_SETTINGS.intro,
     introSeen: bool('introSeen'),
+    introStyle: SETTINGS_INTRO_STYLE_OPTIONS.includes(row['introStyle'] as typeof SETTINGS_INTRO_STYLE_OPTIONS[number]) ? row['introStyle'] as UserSettings['introStyle'] : DEFAULT_USER_SETTINGS.introStyle,
   };
 }
