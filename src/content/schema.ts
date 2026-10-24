@@ -359,12 +359,12 @@ export interface DeepIntroDef {
   readonly cycles: readonly DeepIntroCycleDef[];
   readonly inks: readonly DeepIntroInkDef[];
   readonly parts: readonly { readonly part: 'side' | 'edge' | 'bar' | 'static' | 'flash' | 'fade'; readonly inks: readonly string[] }[];
-  readonly scenes: readonly { readonly id: string; readonly ms: number; readonly fill: string; readonly wide: boolean }[];
+  readonly scenes: readonly { readonly id: string; readonly ms: number; readonly fill: string }[];
   readonly layers: readonly DeepIntroLayerDef[];
   readonly camera: readonly DeepIntroCameraDef[];
   readonly effects: readonly DeepIntroEffectDef[];
-  /** `at`: the art row of a caption bar on the strip; without it the caption is under the strip. */
-  readonly captions: readonly { readonly id: string; readonly scene: string; readonly from: number; readonly until: number; readonly at?: number }[];
+  /** Each drawn on the row under the strip. */
+  readonly captions: readonly { readonly id: string; readonly scene: string; readonly from: number; readonly until: number }[];
   readonly art: readonly { readonly id: string; readonly rows: readonly string[] }[];
 }
 
@@ -393,13 +393,12 @@ export interface DeepIntroLayerDef extends IntroMotion {
   readonly tile?: 'x' | 'y' | 'xy';
 }
 
-/** `deep-intro.md` § Camera: the art point at the strip's centre, and the zoom, at a time. */
+/** `deep-intro.md` § Camera: the art point at the strip's centre at a time. The art is never scaled. */
 export interface DeepIntroCameraDef {
   readonly scene: string;
   readonly at: number;
   readonly x: number;
   readonly y: number;
-  readonly zoom: number;
   readonly move: 'cut' | 'linear' | 'ease';
 }
 
@@ -1123,7 +1122,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
         cycles: arr(obj({ id: nonEmptyStr, colors: arr(nonEmptyStr, 2), step: intIn(1, 10000), drift: tupleOf(2, int) })),
         inks: arr(obj({ ink: nonEmptyStr, glyph: nonEmptyStr, fg: nonEmptyStr, bg: nonEmptyStr, density: opt(intIn(1, 100)) }), 1),
         parts: arr(obj({ part: enumOf(DEEP_INTRO_PARTS), inks: arr(nonEmptyStr, 1) })),
-        scenes: arr(obj({ id: nonEmptyStr, ms: intIn(1, 120000), fill: nonEmptyStr, wide: bool }), 1),
+        scenes: arr(obj({ id: nonEmptyStr, ms: intIn(1, 120000), fill: nonEmptyStr }), 1),
         layers: arr(obj({
           scene: nonEmptyStr,
           sprite: arr(nonEmptyStr, 1),
@@ -1136,9 +1135,9 @@ export const SCHEMAS: Record<string, TableSchema> = {
           depth: numIn(-4, 4),
           tile: opt(enumOf(['x', 'y', 'xy'])),
         })),
-        camera: arr(obj({ scene: nonEmptyStr, at: time, x: numIn(-1000, 1000), y: numIn(-1000, 1000), zoom: numIn(0.5, 8), move: enumOf(['cut', 'linear', 'ease']) })),
+        camera: arr(obj({ scene: nonEmptyStr, at: time, x: numIn(-1000, 1000), y: numIn(-1000, 1000), move: enumOf(['cut', 'linear', 'ease']) })),
         effects: arr(obj({ scene: nonEmptyStr, effect: enumOf(['shake', 'flash', 'fade_in', 'fade_out', 'static']), from: time, until: time, value: opt(intIn(0, 100)) })),
-        captions: arr(obj({ id: nonEmptyStr, scene: nonEmptyStr, from: time, until: time, at: opt(intIn(0, 1000)) })),
+        captions: arr(obj({ id: nonEmptyStr, scene: nonEmptyStr, from: time, until: time })),
         art: arr(obj({ id: nonEmptyStr, rows: arr(str, 1) }), 1),
       })(v, c);
       if (c.issues.length === before) deepIntroRefs(v, c);

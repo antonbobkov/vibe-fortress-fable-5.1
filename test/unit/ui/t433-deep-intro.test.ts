@@ -45,7 +45,7 @@ function fixture(patch: Partial<DeepIntroDef> = {}): DeepIntroDef {
       { part: 'side', inks: ['R', '.'] }, { part: 'edge', inks: ['W'] }, { part: 'bar', inks: ['.'] },
       { part: 'static', inks: ['W', 'R'] }, { part: 'flash', inks: ['W'] }, { part: 'fade', inks: ['.'] },
     ],
-    scenes: [{ id: 'a', ms: 1000, fill: '.', wide: false }, { id: 'b', ms: 1000, fill: 'R', wide: true }],
+    scenes: [{ id: 'a', ms: 1000, fill: '.' }, { id: 'b', ms: 1000, fill: 'R' }],
     layers: [],
     camera: [],
     effects: [],
@@ -74,11 +74,10 @@ function frame(def: DeepIntroDef, ms: number, cols = 80, rows = 45): Surface {
 const TOP = stripLayout(80, 45).top;
 
 describe('T-433 deep intro: content', () => {
-  it('plays eight scenes, between 40 and 60 seconds in all, the chapter cards filling the window', () => {
+  it('plays six scenes, cut straight one to the next, between 40 and 60 seconds in all', () => {
     const { scenes, total } = introTimeline(deep);
-    expect(scenes.map((s) => s.id)).toEqual(['chapter_one', 'descent', 'bottom', 'chapter_two', 'eye', 'torrent', 'strike', 'title']);
-    expect(total).toBe(50000);
-    expect(deep.scenes.filter((s) => s.wide).map((s) => s.id)).toEqual(['chapter_one', 'chapter_two']);
+    expect(scenes.map((s) => s.id)).toEqual(['descent', 'bottom', 'eye', 'torrent', 'strike', 'title']);
+    expect(total).toBe(43500);
   });
 
   it('defines sixteen colours, draws only glyphs of the glyph set, and gives every caption its string', () => {
@@ -86,15 +85,12 @@ describe('T-433 deep intro: content', () => {
     const unknown = glyphs.index('\u0001');
     for (const ink of deep.inks) expect(glyphs.index(ink.glyph), ink.ink).not.toBe(unknown);
     for (const caption of deep.captions) expect(strings.has(`deep_intro.${caption.id}`), caption.id).toBe(true);
-    expect(strings.get('deep_intro.chapter_one')).toBe('Chapter I: The Lantern');
-    expect(strings.get('deep_intro.chapter_two')).toBe('Chapter II: The Deep Answers');
   });
 
-  it('uses every effect, palette cycling, a 2× zoom and parallax', () => {
+  it('uses every effect, palette cycling and parallax', () => {
     expect(new Set(deep.effects.map((e) => e.effect))).toEqual(new Set(['shake', 'flash', 'fade_in', 'fade_out', 'static']));
     const cycles = new Set(deep.cycles.map((c) => c.id));
     expect(deep.inks.some((ink) => cycles.has(ink.fg) || cycles.has(ink.bg))).toBe(true);
-    expect(Math.max(...deep.camera.map((key) => key.zoom))).toBe(2);
     const descent = new Set(deep.layers.filter((l) => l.scene === 'descent').map((l) => l.depth));
     expect(descent.size).toBeGreaterThanOrEqual(3);
     expect(deep.camera.some((key) => key.scene === 'descent' && key.y !== DEEP_INTRO_STAGE_ROWS / 2)).toBe(true);
@@ -110,15 +106,15 @@ describe('T-433 deep intro: content', () => {
     expect(() => loadContent()).not.toThrow();
   });
 
-  it('draws the chapter card, the title and the skip line, at any window size', () => {
+  it('draws the captions, the title and the skip line, at any window size', () => {
     const at = (ms: number, cols = 80, rows = 45): string => frame(deep, ms, cols, rows).lines().join('\n');
-    expect(at(1000)).toContain('Chapter I: The Lantern');
-    expect(at(16500 + 1000)).toContain('Chapter II: The Deep Answers');
-    const end = at(49000);
+    expect(at(2000)).toContain('Somebody always has to go down first.');
+    expect(at(13000 + 8000)).toContain('The deep blinked first.');
+    const end = at(42500);
     expect(end).toContain('a hall beneath the world');
     expect(end).toContain('Any key or click to skip');
-    expect(() => at(30000, 30, 8)).not.toThrow();
-    expect(() => at(45000, 203, 61)).not.toThrow();
+    expect(() => at(25000, 30, 8)).not.toThrow();
+    expect(() => at(40000, 203, 61)).not.toThrow();
   });
 });
 
@@ -142,10 +138,6 @@ describe('T-433 deep intro: the strip and its effects', () => {
     expect(toHex(s.cells.get(left - 1, 10).fg)).toBe(WHITE);
     const mortar = Array.from({ length: 12 }, (_, r) => s.cells.get(left - 3, TOP + r).glyph === 32);
     expect(mortar.filter(Boolean).length).toBe(12 / DEEP_INTRO_COURSE_ROWS);
-    // a wide scene fills the whole window with its fill
-    const wide = frame(def, 1500, 100, 45);
-    expect(toHex(wide.cells.get(0, 0).fg)).toBe(RED);
-    expect(toHex(wide.cells.get(99, 44).fg)).toBe(RED);
   });
 
   it('cycles a colour in turn and drifts it across the strip', () => {
@@ -164,29 +156,24 @@ describe('T-433 deep intro: the strip and its effects', () => {
         { scene: 'a', sprite: ['dot'], at: [40, 15], from: 0, depth: 0.5 },
         { scene: 'a', sprite: ['dot'], at: [40, 20], from: 0, depth: 0 },
       ],
-      camera: [{ scene: 'a', at: 0, x: 40, y: 15, zoom: 1, move: 'cut' }, { scene: 'a', at: 1000, x: 50, y: 15, zoom: 1, move: 'linear' }],
+      camera: [{ scene: 'a', at: 0, x: 40, y: 15, move: 'cut' }, { scene: 'a', at: 1000, x: 50, y: 15, move: 'linear' }],
     });
     expect(cellsOf(frame(def, 0), WHITE)).toEqual([`40,${TOP + 10}`, `40,${TOP + 15}`, `40,${TOP + 20}`]);
     expect(cellsOf(frame(def, 500), WHITE)).toEqual([`35,${TOP + 10}`, `37,${TOP + 15}`, `40,${TOP + 20}`]);
   });
 
-  it('zooms about the strip\'s centre, cuts, and eases', () => {
-    const def = fixture({
-      layers: [{ scene: 'a', sprite: ['dot'], at: [40, 15], from: 0, depth: 1 }],
-      camera: [{ scene: 'a', at: 0, x: 40, y: 15, zoom: 2, move: 'cut' }],
-    });
-    expect(cellsOf(frame(def, 0), WHITE)).toEqual([`40,${TOP + 15}`, `41,${TOP + 15}`, `40,${TOP + 16}`, `41,${TOP + 16}`]);
+  it('pans by cuts, even steps and eases', () => {
     const keys = [
-      { scene: 'a', at: 0, x: 40, y: 15, zoom: 1, move: 'cut' as const },
-      { scene: 'a', at: 600, x: 60, y: 15, zoom: 1, move: 'cut' as const },
-      { scene: 'a', at: 1000, x: 80, y: 15, zoom: 2, move: 'ease' as const },
+      { scene: 'a', at: 0, x: 40, y: 15, move: 'cut' as const },
+      { scene: 'a', at: 600, x: 60, y: 15, move: 'cut' as const },
+      { scene: 'a', at: 1000, x: 80, y: 25, move: 'ease' as const },
     ];
     expect(cameraAt(keys, 599).x).toBe(40);
     expect(cameraAt(keys, 600).x).toBe(60);
-    expect(cameraAt(keys, 800)).toEqual({ x: 70, y: 15, zoom: 1.5 });
+    expect(cameraAt(keys, 800)).toEqual({ x: 70, y: 20 });
     expect(cameraAt(keys, 700).x).toBeLessThan(65);
-    expect(cameraAt(keys, 5000)).toEqual({ x: 80, y: 15, zoom: 2 });
-    expect(cameraAt([], 100)).toEqual({ x: DEEP_INTRO_STAGE_COLS / 2, y: DEEP_INTRO_STAGE_ROWS / 2, zoom: 1 });
+    expect(cameraAt(keys, 5000)).toEqual({ x: 80, y: 25 });
+    expect(cameraAt([], 100)).toEqual({ x: DEEP_INTRO_STAGE_COLS / 2, y: DEEP_INTRO_STAGE_ROWS / 2 });
   });
 
   it('shakes the picture by at most its size, and not after it ends', () => {
@@ -219,11 +206,11 @@ describe('T-433 deep intro: the strip and its effects', () => {
     const fade = fixture({ effects: [{ scene: 'b', effect: 'fade_in', from: 0, until: 400 }] });
     const reds = (ms: number): number => cellsOf(frame(fade, 1000 + ms), RED).length;
     expect(reds(0)).toBe(0);
-    expect(reds(200)).toBeGreaterThan(80 * 45 * 0.4);
-    expect(reds(200)).toBeLessThan(80 * 45 * 0.6);
-    expect(reds(400)).toBe(WINDOW);
+    expect(reds(200)).toBeGreaterThan(80 * 30 * 0.4);
+    expect(reds(200)).toBeLessThan(80 * 30 * 0.6);
+    expect(reds(400)).toBe(80 * 30);
     const out = fixture({ effects: [{ scene: 'b', effect: 'fade_out', from: 0, until: 400 }] });
-    expect(cellsOf(frame(out, 1000 + 399), RED).length).toBeLessThan(80 * 45 * 0.1);
+    expect(cellsOf(frame(out, 1000 + 399), RED).length).toBeLessThan(80 * 30 * 0.1);
     for (let y = 0; y < 4; y += 1) for (let x = 0; x < 4; x += 1) expect(bayer(x, y)).toBeGreaterThan(0);
     expect(new Set(Array.from({ length: 16 }, (_, k) => bayer(k % 4, k >> 2))).size).toBe(16);
 
@@ -258,12 +245,26 @@ describe('T-433 deep intro: the strip and its effects', () => {
     }
   });
 
-  it('puts a caption under the strip, or in a bar across a row of it', () => {
-    const def = fixture({ captions: [{ id: 'chapter_one', scene: 'a', from: 0, until: 500, at: 5 }, { id: 'descent', scene: 'a', from: 0, until: 500 }] });
-    const lines = frame(def, 0).lines();
-    expect(lines[TOP + 5]).toContain('Chapter I: The Lantern');
-    expect(lines[TOP + DEEP_INTRO_STAGE_ROWS + 1]).toContain('Somebody always has to go down first.');
-    expect(frame(def, 600).lines().join('\n')).not.toContain('Chapter I');
+  it('puts a caption on the row under the strip while it lasts', () => {
+    const def = fixture({ captions: [{ id: 'descent', scene: 'a', from: 0, until: 500 }] });
+    expect(frame(def, 0).lines()[TOP + DEEP_INTRO_STAGE_ROWS + 1]).toContain('Somebody always has to go down first.');
+    expect(frame(def, 600).lines().join('\n')).not.toContain('Somebody');
+  });
+});
+
+describe('T-434 deep intro: no chapter cards and no zooms', () => {
+  it('has no chapter card, and its camera only pans', () => {
+    expect(deep.scenes.some((s) => s.id.startsWith('chapter'))).toBe(false);
+    expect(Object.keys(registry.derived<Record<string, string>>('strings')).some((key) => key.startsWith('deep_intro.chapter'))).toBe(false);
+    for (const key of deep.camera) expect(Object.keys(key).sort()).toEqual(['at', 'move', 'scene', 'x', 'y']);
+  });
+
+  it('draws an art pixel as one cell at every moment of the film, in a window of 80 by 45 cells', () => {
+    // A one-pixel layer in each scene, fixed to the strip: wherever the film is, it covers one cell.
+    const marked = { ...deep, inks: [...deep.inks, { ink: '#', glyph: '█', fg: 'light_magenta', bg: 'light_magenta' }],
+      art: [...deep.art, { id: 'mark', rows: ['#'] }], effects: deep.effects.filter((e) => e.effect !== 'flash' && e.effect !== 'static' && e.effect !== 'fade_in' && e.effect !== 'fade_out'),
+      layers: [...deep.layers, ...deep.scenes.map((s) => ({ scene: s.id, sprite: ['mark'], at: [3, 3] as const, from: 0, depth: 0 }))] };
+    for (let ms = 0; ms < introTimeline(deep).total; ms += 250) expect(cellsOf(frame(marked, ms), '#ff55ff'), `${ms} ms`).toHaveLength(1);
   });
 });
 
@@ -300,9 +301,9 @@ describe('T-433 deep intro: the Intro style setting', () => {
     const g = game();
     await g.showMainMenu();
     g.handleKey(press('i'));
-    vi.setSystemTime(1_001_000);
+    vi.setSystemTime(1_002_000);
     g.render();
-    expect(g.textRows().join('\n')).toContain('Chapter I: The Lantern');
+    expect(g.textRows().join('\n')).toContain('Somebody always has to go down first.');
     g.handleKey(press(' '));
     g.changeSettings({ introStyle: 'hall' });
     await g.showMainMenu();
@@ -317,10 +318,10 @@ describe('T-433 deep intro: the Intro style setting', () => {
     const c = { at: 0 };
     const screen = new IntroScreen({ now: () => c.at, done: () => { done += 1; } }, deepFilm(deep, strings));
     screen.draw(surface(80, 45));
-    c.at = 49999;
+    c.at = 43499;
     screen.draw(surface(80, 45));
     expect(done).toBe(0);
-    c.at = 50000;
+    c.at = 43500;
     screen.draw(surface(80, 45));
     expect(done).toBe(1);
     const skipped = new IntroScreen({ now: () => 0, done: () => { done += 1; } }, deepFilm(deep, strings));
@@ -334,16 +335,16 @@ describe('T-433 deep intro: its music', () => {
   const tunes = registry.table<TuneDef>('tunes');
   const instruments = registry.table<InstrumentDef>('instruments');
 
-  it('is one original piece of about 47 seconds, its voices of one length, its sawtooths gently filtered', () => {
+  it('is one original piece of about 42 seconds, its voices of one length, its sawtooths gently filtered', () => {
     const rows = tunes.ids().map((id) => tunes.byId(id) as TuneDef).filter((t) => t.role === 'deep_intro');
     expect(rows.map((t) => t.id)).toEqual(['the_deep_answers']);
     const tune = rows[0] as TuneDef;
     expect(tune.source).toBe('original');
     const lengths = new Set(tune.voices.map((v) => { const s = parseScore(v.notes); return typeof s === 'string' ? -1 : s.steps; }));
-    expect(lengths).toEqual(new Set([188]));
+    expect(lengths).toEqual(new Set([162]));
     const seconds = arrange(tune, (id) => instruments.byId(id)).seconds;
-    expect(seconds).toBeGreaterThan(45);
-    expect(seconds).toBeLessThan(52);
+    expect(seconds).toBeGreaterThan(40);
+    expect(seconds).toBeLessThan(45);
     for (const v of tune.voices) {
       const row = instruments.byId(v.instrument) as InstrumentDef;
       if (row.wave === 'sawtooth') expect(row.filterHz).toBeLessThanOrEqual(2000);

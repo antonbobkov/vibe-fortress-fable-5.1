@@ -2,11 +2,11 @@
 
 **Owner:** content (`deepIntro`) · **Depends on:** [`../04-implementation/ui-screens/menus-and-world.md`](../04-implementation/ui-screens/menus-and-world.md) § Intro, [intro.md](intro.md)
 
-The deep intro is the default style of the intro (the Intro style setting `deep`; [intro.md](intro.md) is the `hall` style). It is drawn in big block art: every art pixel is a cell filled with a block or shade glyph in two colours of a sixteen-colour palette of its own, figures stand a whole strip tall, and the camera pushes, cuts, pans and shakes. Its story, "The Deep Answers", was written for Deepholm. A dwarf goes down a shaft on a rope with a swinging lantern and sits at the bottom for a drink; an eye the size of the rock wall opens out of the static, looks about, and blinks; the wall behind him cracks and a torrent of glowing water bursts out of it all round him, and he finishes his drink first; his silhouette rises against the water's light, raises a pick and strikes; and the rock shatters into the name of the game. The screen that plays it is described in `menus-and-world.md` § Intro; this file holds its palette, inks, scenes, layers, camera, effects, captions and art.
+The deep intro is the default style of the intro (the Intro style setting `deep`; [intro.md](intro.md) is the `hall` style). It is drawn in big block art: every art pixel is a cell filled with a block or shade glyph in two colours of a sixteen-colour palette of its own, figures stand a whole strip tall, and the film cuts, pans and shakes; the art is always drawn at its own scale, and a close shot is an image of its own, reached by a cut. Its story, "The Deep Answers", was written for Deepholm. A dwarf goes down a shaft on a rope with a swinging lantern and sits at the bottom for a drink; an eye the size of the rock wall opens out of the static, looks about, and blinks; the wall behind him cracks and a torrent of glowing water bursts out of it all round him, and he finishes his drink first; his silhouette rises against the water's light, raises a pick and strikes; and the rock shatters into the name of the game. The screen that plays it is described in `menus-and-world.md` § Intro; this file holds its palette, inks, scenes, layers, camera, effects, captions and art.
 
 ## Stage
 
-The pictures are drawn on a strip `DEEP_INTRO_STAGE_COLS` art pixels wide and `DEEP_INTRO_STAGE_ROWS` tall (`02-systems/24-ui-and-input.md` § Tuning constants). The strip is drawn at the largest whole scale that fits the window, each art pixel a square of that many cells on a side, with a row left under it for the caption and one for the skip line; it is centred. Around a strip that does not fill the window, a letterbox: black above and below it, stone pillars at its sides with a pale edge beside it (§ Parts). A wide scene (a chapter card) fills the whole window with its own fill, and its layers are not clipped to the strip. A flash covers the whole window.
+The pictures are drawn on a strip `DEEP_INTRO_STAGE_COLS` art pixels wide and `DEEP_INTRO_STAGE_ROWS` tall (`02-systems/24-ui-and-input.md` § Tuning constants). The strip is drawn at the largest whole scale that fits the window, each art pixel a square of that many cells on a side, with a row left under it for the caption and one for the skip line; it is centred. Around a strip that does not fill the window, a letterbox: black above and below it, stone pillars at its sides with a pale edge beside it (§ Parts). A flash covers the whole window.
 
 An art pixel draws the ink of its letter (§ Inks). A space draws nothing: the layer under it shows, and under every layer the scene's fill. Art coordinates are in art pixels from the strip's top-left; `At` and `To` may lie outside the strip.
 
@@ -104,18 +104,16 @@ The inks of what the screen draws itself: the stone `side` pillars beside the st
 
 ## Scenes
 
-The scenes play in table order; `ms` is how long each one lasts. `Fill` is the ink under every layer. A `Wide` scene fills the whole window (§ Stage).
+The scenes play in table order; `ms` is how long each one lasts. `Fill` is the ink under every layer.
 
-| id | ms | Fill | Wide |
-|---|---|---|---|
-| `chapter_one` | 3500 | `l` | yes |
-| `descent` | 8000 | `.` | no |
-| `bottom` | 5000 | `.` | no |
-| `chapter_two` | 3000 | `l` | yes |
-| `eye` | 9000 | `.` | no |
-| `torrent` | 7500 | `.` | no |
-| `strike` | 6000 | `.` | no |
-| `title` | 8000 | `.` | no |
+| id | ms | Fill |
+|---|---|---|
+| `descent` | 8000 | `.` |
+| `bottom` | 5000 | `.` |
+| `eye` | 9000 | `.` |
+| `torrent` | 7500 | `.` |
+| `strike` | 6000 | `.` |
+| `title` | 8000 | `.` |
 
 ## Layers
 
@@ -123,10 +121,6 @@ A layer draws art on its scene, later rows over earlier ones. `Art` lists its fr
 
 | Scene | Art | At | To | From | Arrive | Until | Step | Depth | Tile |
 |---|---|---|---|---|---|---|---|---|---|
-| `chapter_one` | `card_rope` | 40,0 | | 0 | | | | 0 | |
-| `chapter_one` | `pit` | 15,11 | | 0 | | | | 0 | |
-| `chapter_one` | `lantern_tiny` | 39,0 | 39,14 | 400 | 3200 | | | 0 | |
-| `chapter_one` | `banner` | 5,21 | | 0 | | | | 0 | |
 | `descent` | `shaft_back` | 0,0 | | 0 | | | | 0.35 | y |
 | `descent` | `wall_left` | 0,0 | | 0 | | | | 1 | y |
 | `descent` | `wall_right` | 54,0 | | 0 | | | | 1 | y |
@@ -143,8 +137,6 @@ A layer draws art on its scene, later rows over earlier ones. `Art` lists its fr
 | `bottom` | `sit_low` | 22,0 | | 0 | | 1400 | | 1 | |
 | `bottom` | `sit_sip` | 22,0 | | 1400 | | 3000 | | 1 | |
 | `bottom` | `sit_look` | 22,0 | | 3000 | | | | 1 | |
-| `chapter_two` | `crack` | 0,1 | | 0 | | | | 0 | |
-| `chapter_two` | `banner` | 5,21 | | 0 | | | | 0 | |
 | `eye` | `eye_rock` | 0,0 | | 0 | | | | 1 | |
 | `eye` | `eye_ring` | 0,0 | | 3600 | | | | 1 | |
 | `eye` | `eye_closed` | 0,0 | | 0 | | 3600 | | 1 | |
@@ -193,25 +185,12 @@ A layer draws art on its scene, later rows over earlier ones. `Art` lists its fr
 
 ## Camera
 
-The camera of a scene is the art point at the strip's centre and the zoom (2 draws each art pixel twice as large). Each key is where the camera stands at `At` ms; it comes there from the key before it by `Move`: `linear`, `ease` (slow at both ends) or `cut` (it stays at the key before until `At`, then jumps). Before its first key a scene's camera stands at the first key, and after its last key at the last; a scene without keys looks at the strip's centre, 40,15, at zoom 1. A layer of depth `d` is seen from `40 + (x − 40)·d`, `15 + (y − 15)·d`, so a far layer moves less than the camera and a near one more.
+The camera of a scene is the art point at the strip's centre; it pans and never scales the art. Each key is where the camera stands at `At` ms; it comes there from the key before it by `Move`: `linear`, `ease` (slow at both ends) or `cut` (it stays at the key before until `At`, then jumps). Before its first key a scene's camera stands at the first key, and after its last key at the last; a scene without keys looks at the strip's centre, 40,15. A layer of depth `d` is seen as if the camera stood at `40 + (x − 40)·d`, `15 + (y − 15)·d`, so a far layer moves less than the camera and a near one more.
 
-| Scene | At | X | Y | Zoom | Move |
-|---|---|---|---|---|---|
-| `descent` | 0 | 40 | 15 | 1 | cut |
-| `descent` | 6400 | 40 | 95 | 1 | ease |
-| `bottom` | 0 | 40 | 15 | 1 | cut |
-| `bottom` | 3800 | 40 | 9 | 1.6 | ease |
-| `eye` | 0 | 40 | 15 | 1 | cut |
-| `eye` | 4100 | 40 | 15 | 1 | linear |
-| `eye` | 6900 | 40 | 15 | 2 | ease |
-| `eye` | 8200 | 40 | 15 | 1 | cut |
-| `torrent` | 0 | 40 | 15 | 1 | cut |
-| `torrent` | 2600 | 40 | 13 | 1.4 | cut |
-| `torrent` | 4800 | 40 | 15 | 1 | ease |
-| `strike` | 0 | 40 | 15 | 1 | cut |
-| `strike` | 2000 | 40 | 15 | 1 | cut |
-| `strike` | 3700 | 40 | 14 | 1.3 | linear |
-| `strike` | 3800 | 40 | 15 | 1 | cut |
+| Scene | At | X | Y | Move |
+|---|---|---|---|---|
+| `descent` | 0 | 40 | 15 | cut |
+| `descent` | 6400 | 40 | 95 | ease |
 
 ## Effects
 
@@ -224,13 +203,9 @@ Each effect runs from `From` to `Until` ms of its scene.
 
 | Scene | Effect | From | Until | Value |
 |---|---|---|---|---|
-| `chapter_one` | `fade_in` | 0 | 600 | |
-| `chapter_one` | `fade_out` | 3000 | 3500 | |
 | `descent` | `fade_in` | 0 | 700 | |
 | `descent` | `shake` | 6400 | 7000 | 1 |
 | `bottom` | `shake` | 4000 | 5000 | 1 |
-| `chapter_two` | `fade_in` | 0 | 400 | |
-| `chapter_two` | `fade_out` | 2600 | 3000 | |
 | `eye` | `static` | 0 | 3400 | |
 | `eye` | `shake` | 3600 | 4300 | 1 |
 | `torrent` | `flash` | 2600 | 2850 | |
@@ -243,103 +218,19 @@ Each effect runs from `From` to `Until` ms of its scene.
 
 ## Captions
 
-A caption is drawn from `From` to `Until`: centred on the row under the strip, or, when `At` is given, in a black bar across that art row of the strip (a chapter card's title). Its text is the strings key `deep_intro.<id>`.
+A caption is drawn from `From` to `Until`, centred on the row under the strip. Its text is the strings key `deep_intro.<id>`.
 
-| id | Scene | From | Until | At | Text |
-|---|---|---|---|---|---|
-| `chapter_one` | `chapter_one` | 500 | 3200 | 23 | "Chapter I: The Lantern" |
-| `descent` | `descent` | 1200 | 5600 | | "Somebody always has to go down first." |
-| `drink` | `bottom` | 600 | 3800 | | "Nine hundred feet down, he stopped for a drink." |
-| `chapter_two` | `chapter_two` | 300 | 2800 | 23 | "Chapter II: The Deep Answers" |
-| `blinked` | `eye` | 7700 | 9000 | | "The deep blinked first." |
-| `finish` | `torrent` | 5000 | 7400 | | "He finished his drink first." |
-| `subtitle` | `title` | 2200 | 8000 | | "a hall beneath the world" |
+| id | Scene | From | Until | Text |
+|---|---|---|---|---|
+| `descent` | `descent` | 1200 | 5600 | "Somebody always has to go down first." |
+| `drink` | `bottom` | 600 | 3800 | "Nine hundred feet down, he stopped for a drink." |
+| `blinked` | `eye` | 7700 | 9000 | "The deep blinked first." |
+| `finish` | `torrent` | 5000 | 7400 | "He finished his drink first." |
+| `subtitle` | `title` | 2200 | 8000 | "a hall beneath the world" |
 
 ## Art
 
 Each piece is a fenced block under its id: rows of ink letters, read as written, a space for nothing.
-
-### `banner`
-
-```
-   RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
-rRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr
-rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-rrr DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD rrr
-rD                                                                  Dr
-```
-
-### `card_rope`
-
-```
-N
-y
-N
-y
-N
-y
-N
-y
-N
-y
-N
-y
-N
-y
-N
-y
-N
-```
-
-### `pit`
-
-```
-                    LLLWLLWLLL
-         LLWLLLLLLLLWWLLLLLLLLLLLLLLLLLLW
-    DDDDDDDDDllllllllllllllllllllllllDDDDDDDDD
-  DDDDDlllll..........................lllllDDDDD
- DDDDDD....................................DDDDDD
- DDDD........................................DDDD
-  DDDD......................................DDDD
-    DDDD..................................DDDD
-         hhhhhh....................hhhhhh
-                    hhhhhhhhhh
-```
-
-### `lantern_tiny`
-
-```
- q 
-qOq
- O 
- q 
-```
-
-### `crack`
-
-```
-s    s  x
-ccc    s
-CCCs cc
-xxxccCC     ss    s
-cccCCxxcc      ss  ss s
-   xxccCCccccc   scc c                 s
-   ccs ~~CCCCCcc cCCcCc   s        s s    x
-       xx~~~~~CCcC~~C~Cc       x  s c    x
-       ccxxxxx~~C~xx~x~Ccc   sxs s cCc css     s     x
-    s    cccccxx~xccxc~~CCcs cccc cC~CcC csc        x
-             sccxc  c x~~~CccCCCCcC~~~C~cCcCc      c            x
-                c     cx~~~CC~~~~C~~x~~~C~C~Cccccccc         ssx
-              s        cxx~~~~~~~~~xcx~x~~~~~CCCCCCCc   s s   cs s
-                      s ccx~~xxxx~xc cxc~x~x~~~~~~~~Cccs s ccc c c     s   x
-                        s cxxccccxc s c xcxcx~~~~~~~~CCccccCCCcCcC  ss  s x
-                           cc  s cs     csc cxxxxxxx~~~CCCC~~~C~C~c      css   s
-                          s     s       s    cccccccx~~~~~~xxx~x~xCc  ccc
-                           s  s                 s   cxx~~~~cccxcxc~CccCCcc    c
-                                              s   s  ccxxxx s c c x~CC~~CCccccCc
-                                               s     sscccc       cx~~xx~~CCCCxC
-```
 
 ### `shaft_back`
 

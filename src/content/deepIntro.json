@@ -411,108 +411,37 @@
   ],
   "scenes": [
     {
-      "id": "chapter_one",
-      "ms": 3500,
-      "fill": "l",
-      "wide": true
-    },
-    {
       "id": "descent",
       "ms": 8000,
-      "fill": ".",
-      "wide": false
+      "fill": "."
     },
     {
       "id": "bottom",
       "ms": 5000,
-      "fill": ".",
-      "wide": false
-    },
-    {
-      "id": "chapter_two",
-      "ms": 3000,
-      "fill": "l",
-      "wide": true
+      "fill": "."
     },
     {
       "id": "eye",
       "ms": 9000,
-      "fill": ".",
-      "wide": false
+      "fill": "."
     },
     {
       "id": "torrent",
       "ms": 7500,
-      "fill": ".",
-      "wide": false
+      "fill": "."
     },
     {
       "id": "strike",
       "ms": 6000,
-      "fill": ".",
-      "wide": false
+      "fill": "."
     },
     {
       "id": "title",
       "ms": 8000,
-      "fill": ".",
-      "wide": false
+      "fill": "."
     }
   ],
   "layers": [
-    {
-      "scene": "chapter_one",
-      "sprite": [
-        "card_rope"
-      ],
-      "at": [
-        40,
-        0
-      ],
-      "from": 0,
-      "depth": 0
-    },
-    {
-      "scene": "chapter_one",
-      "sprite": [
-        "pit"
-      ],
-      "at": [
-        15,
-        11
-      ],
-      "from": 0,
-      "depth": 0
-    },
-    {
-      "scene": "chapter_one",
-      "sprite": [
-        "lantern_tiny"
-      ],
-      "at": [
-        39,
-        0
-      ],
-      "from": 400,
-      "to": [
-        39,
-        14
-      ],
-      "arrive": 3200,
-      "depth": 0
-    },
-    {
-      "scene": "chapter_one",
-      "sprite": [
-        "banner"
-      ],
-      "at": [
-        5,
-        21
-      ],
-      "from": 0,
-      "depth": 0
-    },
     {
       "scene": "descent",
       "sprite": [
@@ -718,30 +647,6 @@
       ],
       "from": 3000,
       "depth": 1
-    },
-    {
-      "scene": "chapter_two",
-      "sprite": [
-        "crack"
-      ],
-      "at": [
-        0,
-        1
-      ],
-      "from": 0,
-      "depth": 0
-    },
-    {
-      "scene": "chapter_two",
-      "sprite": [
-        "banner"
-      ],
-      "at": [
-        5,
-        21
-      ],
-      "from": 0,
-      "depth": 0
     },
     {
       "scene": "eye",
@@ -1369,7 +1274,6 @@
       "at": 0,
       "x": 40,
       "y": 15,
-      "zoom": 1,
       "move": "cut"
     },
     {
@@ -1377,127 +1281,10 @@
       "at": 6400,
       "x": 40,
       "y": 95,
-      "zoom": 1,
       "move": "ease"
-    },
-    {
-      "scene": "bottom",
-      "at": 0,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "cut"
-    },
-    {
-      "scene": "bottom",
-      "at": 3800,
-      "x": 40,
-      "y": 9,
-      "zoom": 1.6,
-      "move": "ease"
-    },
-    {
-      "scene": "eye",
-      "at": 0,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "cut"
-    },
-    {
-      "scene": "eye",
-      "at": 4100,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "linear"
-    },
-    {
-      "scene": "eye",
-      "at": 6900,
-      "x": 40,
-      "y": 15,
-      "zoom": 2,
-      "move": "ease"
-    },
-    {
-      "scene": "eye",
-      "at": 8200,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "cut"
-    },
-    {
-      "scene": "torrent",
-      "at": 0,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "cut"
-    },
-    {
-      "scene": "torrent",
-      "at": 2600,
-      "x": 40,
-      "y": 13,
-      "zoom": 1.4,
-      "move": "cut"
-    },
-    {
-      "scene": "torrent",
-      "at": 4800,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "ease"
-    },
-    {
-      "scene": "strike",
-      "at": 0,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "cut"
-    },
-    {
-      "scene": "strike",
-      "at": 2000,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "cut"
-    },
-    {
-      "scene": "strike",
-      "at": 3700,
-      "x": 40,
-      "y": 14,
-      "zoom": 1.3,
-      "move": "linear"
-    },
-    {
-      "scene": "strike",
-      "at": 3800,
-      "x": 40,
-      "y": 15,
-      "zoom": 1,
-      "move": "cut"
     }
   ],
   "effects": [
-    {
-      "scene": "chapter_one",
-      "effect": "fade_in",
-      "from": 0,
-      "until": 600
-    },
-    {
-      "scene": "chapter_one",
-      "effect": "fade_out",
-      "from": 3000,
-      "until": 3500
-    },
     {
       "scene": "descent",
       "effect": "fade_in",
@@ -1517,18 +1304,6 @@
       "from": 4000,
       "until": 5000,
       "value": 1
-    },
-    {
-      "scene": "chapter_two",
-      "effect": "fade_in",
-      "from": 0,
-      "until": 400
-    },
-    {
-      "scene": "chapter_two",
-      "effect": "fade_out",
-      "from": 2600,
-      "until": 3000
     },
     {
       "scene": "eye",
@@ -1591,13 +1366,6 @@
   ],
   "captions": [
     {
-      "id": "chapter_one",
-      "scene": "chapter_one",
-      "from": 500,
-      "until": 3200,
-      "at": 23
-    },
-    {
       "id": "descent",
       "scene": "descent",
       "from": 1200,
@@ -1608,13 +1376,6 @@
       "scene": "bottom",
       "from": 600,
       "until": 3800
-    },
-    {
-      "id": "chapter_two",
-      "scene": "chapter_two",
-      "from": 300,
-      "until": 2800,
-      "at": 23
     },
     {
       "id": "blinked",
@@ -1636,88 +1397,6 @@
     }
   ],
   "art": [
-    {
-      "id": "banner",
-      "rows": [
-        "   RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
-        "rRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRr",
-        "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-        "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-        "rrr DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD rrr",
-        "rD                                                                  Dr"
-      ]
-    },
-    {
-      "id": "card_rope",
-      "rows": [
-        "N",
-        "y",
-        "N",
-        "y",
-        "N",
-        "y",
-        "N",
-        "y",
-        "N",
-        "y",
-        "N",
-        "y",
-        "N",
-        "y",
-        "N",
-        "y",
-        "N"
-      ]
-    },
-    {
-      "id": "pit",
-      "rows": [
-        "                    LLLWLLWLLL",
-        "         LLWLLLLLLLLWWLLLLLLLLLLLLLLLLLLW",
-        "    DDDDDDDDDllllllllllllllllllllllllDDDDDDDDD",
-        "  DDDDDlllll..........................lllllDDDDD",
-        " DDDDDD....................................DDDDDD",
-        " DDDD........................................DDDD",
-        "  DDDD......................................DDDD",
-        "    DDDD..................................DDDD",
-        "         hhhhhh....................hhhhhh",
-        "                    hhhhhhhhhh"
-      ]
-    },
-    {
-      "id": "lantern_tiny",
-      "rows": [
-        " q",
-        "qOq",
-        " O",
-        " q"
-      ]
-    },
-    {
-      "id": "crack",
-      "rows": [
-        "s    s  x",
-        "ccc    s",
-        "CCCs cc",
-        "xxxccCC     ss    s",
-        "cccCCxxcc      ss  ss s",
-        "   xxccCCccccc   scc c                 s",
-        "   ccs ~~CCCCCcc cCCcCc   s        s s    x",
-        "       xx~~~~~CCcC~~C~Cc       x  s c    x",
-        "       ccxxxxx~~C~xx~x~Ccc   sxs s cCc css     s     x",
-        "    s    cccccxx~xccxc~~CCcs cccc cC~CcC csc        x",
-        "             sccxc  c x~~~CccCCCCcC~~~C~cCcCc      c            x",
-        "                c     cx~~~CC~~~~C~~x~~~C~C~Cccccccc         ssx",
-        "              s        cxx~~~~~~~~~xcx~x~~~~~CCCCCCCc   s s   cs s",
-        "                      s ccx~~xxxx~xc cxc~x~x~~~~~~~~Cccs s ccc c c     s   x",
-        "                        s cxxccccxc s c xcxcx~~~~~~~~CCccccCCCcCcC  ss  s x",
-        "                           cc  s cs     csc cxxxxxxx~~~CCCC~~~C~C~c      css   s",
-        "                          s     s       s    cccccccx~~~~~~xxx~x~xCc  ccc",
-        "                           s  s                 s   cxx~~~~cccxcxc~CccCCcc    c",
-        "                                              s   s  ccxxxx s c c x~CC~~CCccccCc",
-        "                                               s     sscccc       cx~~xx~~CCCCxC"
-      ]
-    },
     {
       "id": "shaft_back",
       "rows": [

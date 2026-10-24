@@ -35,8 +35,6 @@
   "confirm.c_slaughter_animal": "Slaughter {animal}? It will be butchered for meat, hide and bone.",
   "confirm.c_suspend_workshop": "Suspend {workshop}? Its current job stops and its orders wait until you resume it.",
   "deep_intro.blinked": "The deep blinked first.",
-  "deep_intro.chapter_one": "Chapter I: The Lantern",
-  "deep_intro.chapter_two": "Chapter II: The Deep Answers",
   "deep_intro.descent": "Somebody always has to go down first.",
   "deep_intro.drink": "Nine hundred feet down, he stopped for a drink.",
   "deep_intro.finish": "He finished his drink first.",
