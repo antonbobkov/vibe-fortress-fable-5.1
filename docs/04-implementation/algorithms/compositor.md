@@ -36,7 +36,7 @@ overlays(c, i): for ov in activeOverlays (fixed order): c = ov.apply(c, i)    //
 lighting(c, i): if outdoor(i): if not daylight: c = dim(c, storm ? 2 : 1); if fog: c = dim(c, 1); return c
 dim(c, k): { c.glyph, dimColor(c.fg, k), dimColor(c.bg, k) }   // cached per (color, k)
 draw(cells): ctx.clearRect; for each run of equal bg in a row: fillRect; for each cell with glyph != ' ': ctx.drawImage(atlas(fg).canvas, sx, sy, cell, cell, dx, dy, cell, cell)
-atlas(fg): LRU get or build: offscreen canvas glyphCount × cell; for each glyph: fillText in white centered; then globalCompositeOperation 'source-in' fillRect with fg
+atlas(fg): LRU get or build: offscreen canvas glyphCount × cell, written pixel by pixel in fg from the glyph masks (read from the font once; 23 § Atlas)
 ```
 
 Animation phase: `animPhase(now) = floor(now / FLUID_ANIM_MS) & 1`; blink and pulse use the same clock at 1000 ms. `active(i)` for fluids reads the settled bit (settled → no animation).

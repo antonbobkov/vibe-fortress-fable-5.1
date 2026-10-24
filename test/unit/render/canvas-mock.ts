@@ -6,7 +6,7 @@
  * interfaces exactly so that this mock can stand in for one.
  */
 
-import type { CanvasFactory, CanvasLike, Ctx2D } from '@platform/canvas';
+import type { CanvasFactory, CanvasLike, Ctx2D, ImageDataLike } from '@platform/canvas';
 
 export interface DrawCall {
   readonly op: string;
@@ -47,6 +47,45 @@ export class MockCtx implements Ctx2D {
 
   measureText(text: string): { width: number } {
     return { width: text.length * this.charWidth };
+  }
+
+  /**
+   * The pixels the recorded `fillText` calls would have made, as a stand-in font: each call fills
+   * a square of the font size centred on its point. A full block covers it all; a space nothing;
+   * any other character a pattern of its own in partial alphas, so the atlas's threshold has
+   * work to do.
+   */
+  getImageData(sx: number, sy: number, sw: number, sh: number): ImageDataLike {
+    const data = new Uint8ClampedArray(sw * sh * 4);
+    const size = Number(/(\d+)px/.exec(this.font)?.[1] ?? 16);
+    for (const call of this.of('fillText')) {
+      const [text, cx, cy] = call.args as [string, number, number];
+      const code = text.codePointAt(0) ?? 32;
+      const x0 = Math.round(cx - size / 2);
+      const y0 = Math.round(cy - size / 2);
+      for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+          const px = x0 + x - sx;
+          const py = y0 + y - sy;
+          if (px < 0 || py < 0 || px >= sw || py >= sh) continue;
+          const alpha = text === '█' ? 255 : text === ' ' ? 0 : (code * 37 + Math.floor(x / 4) * 53 + Math.floor(y / 4) * 91 + x + y) % 256;
+          data[(py * sw + px) * 4 + 3] = alpha;
+        }
+      }
+    }
+    return { width: sw, height: sh, data };
+  }
+
+  createImageData(sw: number, sh: number): ImageDataLike {
+    return { width: sw, height: sh, data: new Uint8ClampedArray(sw * sh * 4) };
+  }
+
+  /** The last image written, for the tests to read. */
+  image: ImageDataLike | null = null;
+
+  putImageData(image: ImageDataLike, dx: number, dy: number): void {
+    this.image = image;
+    this.record('putImageData', [dx, dy, image.width, image.height]);
   }
 
   drawImage(

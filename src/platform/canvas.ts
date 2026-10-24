@@ -10,6 +10,13 @@
  * of `render/` run in jsdom, which has no 2D context).
  */
 
+/** The subset of `ImageData` the atlas uses: RGBA bytes, row by row. */
+export interface ImageDataLike {
+  readonly width: number;
+  readonly height: number;
+  readonly data: Uint8ClampedArray;
+}
+
 /** The subset of `CanvasRenderingContext2D` the renderer and the atlas use. */
 export interface Ctx2D {
   fillStyle: string | CanvasGradient | CanvasPattern;
@@ -22,6 +29,10 @@ export interface Ctx2D {
   fillRect(x: number, y: number, w: number, h: number): void;
   fillText(text: string, x: number, y: number): void;
   measureText(text: string): { width: number };
+  /** The atlas reads the font's shapes back and writes its sheets pixel by pixel. */
+  getImageData(sx: number, sy: number, sw: number, sh: number): ImageDataLike;
+  createImageData(sw: number, sh: number): ImageDataLike;
+  putImageData(image: ImageDataLike, dx: number, dy: number): void;
   /** `image` is a {@link CanvasLike} sheet; it is typed loosely so a mock canvas fits too. */
   drawImage(
     image: unknown,
