@@ -16,7 +16,7 @@ import type { Civ, Edge } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { WorldMapCompositor } from '@render/world-map';
 import { localMapSpec, siteSummary, type SiteSummary } from '@systems/embark';
-import { CIVS, matchesFilter, type RegionFilter, type RegionRecord, type WorldMap } from '@systems/worldgen';
+import { CIVS, hasLandRoute, matchesFilter, type RegionFilter, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { SITE_LABEL_COLS, SITE_LIST_NAMES } from '../constants';
 import type { KeyContext, Keymap } from '../keymap';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
@@ -327,13 +327,14 @@ export class WorldMapScreen implements Screen {
     }
     out.push({ text: '', fg: 'text' });
     for (const civ of CIVS as readonly Civ[]) {
-      text(
-        s.get('ui.worldmap.civ', {
-          civ: capitalize(this.civNames.get(civ) ?? civ),
-          n: r.civDistance[civ],
-          edge: s.get(`ui.edge_short.${r.nearestEdgeTo[civ]}`),
-        }),
-      );
+      const params = {
+        civ: capitalize(this.civNames.get(civ) ?? civ),
+        n: r.civDistance[civ],
+        edge: s.get(`ui.edge_short.${r.nearestEdgeTo[civ]}`),
+      };
+      // A civilization no land route reaches still sends its caravans and raiders in from that edge (18, 20).
+      if (hasLandRoute(this.world.size, r.civDistance[civ])) text(s.get('ui.worldmap.civ', params));
+      else for (const t of wrapHang(s.get('ui.worldmap.civ_no_route', params), width, 2)) text(t);
     }
     return out;
   }

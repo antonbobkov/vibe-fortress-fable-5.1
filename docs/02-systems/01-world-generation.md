@@ -99,7 +99,7 @@ Homes are placed in order with a preference score over regions and a minimum sep
 
 The Gloam's distance score uses Chebyshev distance, as does home separation. Placement consumes no draws from `worldgen.civs`: scores and id ties determine it.
 
-Then compute shortest `civDistance` over land with cost 1 per step (2 into mountain or alpine regions). A region with no land route has distance `size² × 2`, beyond every possible route, and contributes zero proximity peril. `nearestEdgeTo[civ]` follows the dominant axis toward the home, with horizontal ties; the home region itself faces `n`.
+Then compute shortest `civDistance` over land with cost 1 per step (2 into mountain or alpine regions). A region with no land route has distance `size² × 2`, beyond every possible route, and contributes zero proximity peril. `nearestEdgeTo[civ]` follows the dominant axis toward the home, with horizontal ties; the home region itself faces `n`. The distance does not decide whether a civilization's caravans, raiders and immigrants arrive: they come in at `nearestEdgeTo[civ]` of the embark region whether or not a land route exists, and only the Gloam's distance bears on the region's peril.
 
 ### Ratings
 
@@ -159,7 +159,7 @@ None. Generation is invoked by the app: `worldgen.generate(seed, size, onProgres
 ## Player-facing behavior
 
 - **World generation screen**: seed field (text; a random seed by default), size selector, a Generate button, the completed preview after Generate returns, with the final stage at 100%, and Continue.
-- **World map screen**: biome glyphs and colors, river regions as blue `~`, civilization home glyphs and colors over both. The cursor starts at the centre and moves by keyboard or mouse, inverting its cell. Matching regions retain full color; others dim one step. The side panel lists name, biome, volcano, the missing essentials and the site summary of 02 § Site summary (soil, trees, shrubs and grazing, water, stone and likely ores, climate and winter, wildlife), the three ratings as five-cell bars, traits with what each does, and each civilization's `civDistance` and `nearestEdgeTo`; it omits relief. Embark opens 02.
+- **World map screen**: biome glyphs and colors, river regions as blue `~`, civilization home glyphs and colors over both. The cursor starts at the centre and moves by keyboard or mouse, inverting its cell. Matching regions retain full color; others dim one step. The side panel lists name, biome, volcano, the missing essentials and the site summary of 02 § Site summary (soil, trees, shrubs and grazing, water, stone and likely ores, climate and winter, wildlife), the three ratings as five-cell bars, traits with what each does, and each civilization's `civDistance` and `nearestEdgeTo` (a civilization with no land route reads "no land route; arrives from the S edge" in place of its distance); it omits relief. Embark opens 02.
 - Regions that cannot be embarked on (ocean, glacier) say so.
 
 ## Tuning constants
