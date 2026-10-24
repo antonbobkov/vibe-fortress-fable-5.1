@@ -53,6 +53,9 @@ describe('T-M1-12 main menu', () => {
   it('moves the selection with the arrows over the entries it can open, activates with Enter, and clicks', () => {
     const host = menuHost('Emberhall · Year 2');
     const screen = new MainMenuScreen(host, keymap, strings);
+    // T-439: the Tutorial entry, always there, follows New world.
+    screen.key(press('↓'));
+    expect(screen.selected).toBe('tutorial');
     screen.key(press('↓'));
     expect(screen.selected).toBe('continue');
     screen.key(press('↓'));
@@ -68,6 +71,8 @@ describe('T-M1-12 main menu', () => {
     const col = (s.lines()[row] as string).indexOf('[n]');
     screen.pointerDown({ col, row, button: 0, shift: false, ctrl: false, alt: false, meta: false });
     expect(host.calls).toEqual(['new', 'new']);
+    screen.key(press('t'));
+    expect(host.calls).toEqual(['new', 'new', 'open:tutorial']);
   });
 });
 

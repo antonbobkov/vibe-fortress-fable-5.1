@@ -25,7 +25,7 @@ import {
 } from '@platform/realtime';
 import { contentRegistry } from '@content/loader';
 import { formatDate, SEASON_NAMES, seasonOf } from '@core/calendar';
-import { FORTRESS_NAME_MAX_CHARS, LOCAL_MAP_Z, ZOOM_LEVELS } from '@core/constants';
+import { FORTRESS_NAME_MAX_CHARS, LOCAL_MAP_Z, WORLD_SIZE_STANDARD, ZOOM_LEVELS } from '@core/constants';
 import { Compositor, type ViewState } from '@render/compositor';
 import { GlyphAtlas, glyphChars } from '@render/atlas';
 import { Palette } from '@render/palette';
@@ -66,7 +66,8 @@ import { composeLegend, LegendStore, type EndReason } from '@app/legend';
 import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
 import { Music, type MusicScene } from '@ui/music';
-import { MUSIC_REVERB_S, MUSIC_SUSPEND_DELAY_S } from '@ui/constants';
+import { MUSIC_REVERB_S, MUSIC_SUSPEND_DELAY_S, TUTORIAL_CHECK_MS, TUTORIAL_WORLD_SEED } from '@ui/constants';
+import { readTutorialFacts, Tutorial, tutorialRegion, type TutorialStep } from '@ui/tutorial';
 import { AudioGate, browserAudioContext } from '@platform/audio';
 import type { CombatReader } from '@systems/combat';
 import type { ThreatsReader } from '@systems/threats';
@@ -120,6 +121,11 @@ export interface GameOptions {
   readonly musicRandom?: () => number;
   /** Draw as with Reduced motion whatever the setting says: the test build (e2e and screenshots, 23 § Animation). */
   readonly reducedMotion?: boolean;
+  /**
+   * Offer the tutorial on the first `New world` (`ui-screens/menus-and-world.md` § Main menu): the
+   * app does; a test build only with `?tutorial=offer`, and the unit tests when they ask.
+   */
+  readonly offerTutorial?: boolean;
 }
 
 /** `persistence.md` § What is saved: "thumbnail (a 48×27 cell ASCII snapshot of the surface)". */
@@ -204,9 +210,18 @@ export class Game {
   private newest: string | null = null;
   /** A message drawn over a blank screen while the app works synchronously. */
   private busy: string | null = null;
+  /** The running tutorial (`ui-screens/menus-and-world.md` § Tutorial); presentation only, never saved. */
+  private tutorial: Tutorial | null = null;
+  /** The wall-clock time of the tutorial's last check, and whether a key or click has come since. */
+  private tutorialCheckedAt = -Infinity;
+  private tutorialInput = false;
+  /** Manual and quick saves written in this session, for the tutorial's `saved` check. */
+  private manualSaves = 0;
+  private readonly offerTutorial: boolean;
 
   constructor(options: GameOptions) {
     this.forceReducedMotion = options.reducedMotion === true;
+    this.offerTutorial = options.offerTutorial === true;
     this.userSettings.colorblind = options.colorblind === true;
     this.seed = options.seed;
     this.registry = options.registry ?? contentRegistry();
@@ -461,8 +476,8 @@ export class Game {
 
   resetSettings(): void {
     this.keymap.reset();
-    // Whether the intro has played is not a preference: a reset does not bring it back at launch.
-    this.applySettings({ ...DEFAULT_USER_SETTINGS, introSeen: this.userSettings.introSeen });
+    // Whether the intro has played, or the tutorial been offered, is not a preference: a reset keeps it.
+    this.applySettings({ ...DEFAULT_USER_SETTINGS, introSeen: this.userSettings.introSeen, tutorialOffered: this.userSettings.tutorialOffered });
     this.persistSettings();
     this.render();
   }
@@ -706,6 +721,10 @@ export class Game {
           throw error;
         }
         if (kind === 'auto') await rollAutosaves(saves);
+        if (kind === 'manual') {
+          this.manualSaves += 1;
+          this.tutorialInput = true;
+        }
         this.lastSaveId = id;
         this.lastSaveTick = savedAt;
         this.lastSaveCommands = savedCommands;
@@ -996,6 +1015,8 @@ export class Game {
   /** Replace the whole stack with one screen. */
   resetTo(screen: Screen | 'fortress'): void {
     if (screen !== FORTRESS) this.fortress.tool.clearHistory();
+    // Leaving the fortress, a load or a new game ends the tutorial (§ Tutorial, The end).
+    this.tutorial = null;
     this.stack.length = 0;
     this.stack.push(screen);
   }
@@ -1066,7 +1087,7 @@ export class Game {
     return new MainMenuScreen(
       {
         newestSave: () => this.newest,
-        newWorld: () => this.openWorldGen(),
+        newWorld: () => this.newWorld(),
         continueGame: () => void this.continueNewest(),
           available: (entry) => (entry === 'load' && this.saves !== null) || (entry === 'legends' && this.legends !== null) || entry === 'settings' || entry === 'intro',
           open: (entry) => {
@@ -1074,11 +1095,93 @@ export class Game {
             if (entry === 'legends') void this.openLegends();
             if (entry === 'settings') this.openSettings();
             if (entry === 'intro') this.openIntro();
+            if (entry === 'tutorial') void this.startTutorial();
         },
       },
       this.keymap,
       this.strings,
     );
+  }
+
+  /**
+   * `New world`: world generation, after the tutorial has been offered once (`c_tutorial`, default
+   * No) when this app offers it (`ui-screens/menus-and-world.md` § Main menu).
+   */
+  newWorld(): void {
+    if (!this.offerTutorial || this.userSettings.tutorialOffered) {
+      this.openWorldGen();
+      return;
+    }
+    this.userSettings.tutorialOffered = true;
+    this.persistSettings();
+    this.confirm('c_tutorial', {}, (yes) => {
+      if (yes) void this.startTutorial();
+      else this.openWorldGen();
+    });
+  }
+
+  /**
+   * The tutorial (`ui-screens/menus-and-world.md` § Tutorial): the standard world of
+   * `TUTORIAL_WORLD_SEED`, an embark with the default preset on the region the rule ranks first,
+   * and the tutorial's box over the fortress screen.
+   */
+  async startTutorial(): Promise<void> {
+    await this.working(this.strings.get('ui.busy.tutorial'));
+    let world: WorldMap;
+    let regionId: number;
+    try {
+      world = generate(TUTORIAL_WORLD_SEED, WORLD_SIZE_STANDARD, this.registry);
+      this.appEvents.deliver([worldGeneratedEvent(world)]);
+      regionId = tutorialRegion(world, this.registry);
+    } finally {
+      this.busy = null;
+    }
+    await this.embarkRegion(world, regionId);
+    this.tutorial = new Tutorial(this.registry.derived<readonly TutorialStep[]>('tutorial'), this.strings, this.keymap);
+    this.tutorialInput = true;
+    this.render();
+  }
+
+  /** The tutorial's step for the tests and the e2e hook, or null when none runs. */
+  tutorialState(): { step: string | null; index: number; total: number } | null {
+    const t = this.tutorial;
+    return t === null ? null : { step: t.step?.id ?? null, index: t.index, total: t.steps.length };
+  }
+
+  /** Check the tutorial's step after a key or a click, and every `TUTORIAL_CHECK_MS` otherwise. */
+  private checkTutorial(): void {
+    const tutorial = this.tutorial;
+    if (tutorial === null || !this.host.started) return;
+    const now = Date.now();
+    if (!this.tutorialInput && now - this.tutorialCheckedAt < TUTORIAL_CHECK_MS) return;
+    this.tutorialInput = false;
+    this.tutorialCheckedAt = now;
+    tutorial.update(readTutorialFacts({
+      readers: this.host.readers,
+      registry: this.registry,
+      camX: this.ui.camX,
+      camY: this.ui.camY,
+      z: this.ui.z,
+      viewCols: this.mapCols(),
+      viewRows: this.mapRows(),
+      lookTile: this.ui.panel === 'look' && this.ui.sidebar ? this.fortress.lookTile() : null,
+      speed: this.host.speed(),
+      saves: this.manualSaves,
+    }));
+  }
+
+  /** The tutorial's keys, before the screen's (`F1` skip, `Shift+F1` end). Returns whether the key was one. */
+  private tutorialKey(key: KeyPress): boolean {
+    const tutorial = this.tutorial;
+    if (tutorial === null || this.top() !== FORTRESS || !this.host.started) return false;
+    const id = this.keymap.resolve('global', key)?.id;
+    if (id === 'tutorial_skip') tutorial.skip();
+    else if (id === 'tutorial_end') tutorial.end();
+    else return false;
+    if (tutorial.ended) this.tutorial = null;
+    this.tutorialInput = true;
+    this.render();
+    return true;
   }
 
   openWorldGen(): void {
@@ -1291,6 +1394,8 @@ export class Game {
     const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
     const surface = new Surface(cells, this.glyphs, this.theme, this.palette);
     this.fortress.draw(surface);
+    this.checkTutorial();
+    this.tutorial?.draw(surface, this.compositor.layout.map, (name) => this.fortress.landmarks.get(name) ?? null);
     this.cells = cells;
     this.lastSurface = surface;
     this.renderer.draw(cells);
@@ -1308,8 +1413,10 @@ export class Game {
   /** A key press, routed to the screen on top. Returns whether the key was consumed. */
   handleKey(key: KeyPress): boolean {
     if (this.busy !== null) return false;
+    if (this.tutorialKey(key)) return true;
     const screen = this.inputScreen();
     if (screen === null) return false;
+    this.tutorialInput = true;
     // A screen written against its default keys reads a rebound key as the default it replaced;
     // a default key that was moved away does nothing there.
     const contexts = screen.translatedKeys?.() ?? [];
@@ -1352,7 +1459,15 @@ export class Game {
 
   pointerDown(action: PointerAction): void {
     if (this.busy !== null) return;
-    this.inputScreen()?.pointerDown?.(this.cellPointer(action));
+    const p = this.cellPointer(action);
+    this.tutorialInput = true;
+    // A press on the tutorial's box is the box's: its buttons act, and the map under it is not touched.
+    if (this.tutorial !== null && this.top() === FORTRESS && this.tutorial.press(p.col, p.row, p.button)) {
+      if (this.tutorial.ended) this.tutorial = null;
+      this.render();
+      return;
+    }
+    this.inputScreen()?.pointerDown?.(p);
     this.render();
   }
 
@@ -1367,6 +1482,7 @@ export class Game {
   pointerUp(action: PointerAction): void {
     if (this.busy !== null) return;
     const screen = this.inputScreen();
+    this.tutorialInput = true;
     if (screen?.pointerUp === undefined) return;
     screen.pointerUp(this.cellPointer(action));
     this.render();
@@ -1375,6 +1491,7 @@ export class Game {
   wheel(action: WheelAction): void {
     if (this.busy !== null) return;
     const screen = this.inputScreen();
+    this.tutorialInput = true;
     if (screen?.wheel === undefined) return;
     const at = this.cellAt(action.x, action.y);
     screen.wheel({ ...at, dy: action.dy, shift: action.shift, ctrl: action.ctrl, alt: action.alt, meta: action.meta });
@@ -1463,6 +1580,8 @@ export interface TestHook {
   lastSaveId(): string | null;
   /** Resolves when the app's pending saves are stored. */
   settled(): Promise<void>;
+  /** The running tutorial's step (`ui-screens/menus-and-world.md` § Tutorial), or null. */
+  tutorial(): { step: string | null; index: number; total: number } | null;
 }
 
 /**
@@ -1557,6 +1676,7 @@ export function testHook(game: Game): TestHook {
     hash: () => (game.host.started ? game.host.headless.hash() : ''),
     lastSaveId: () => game.lastSaveId,
     settled: () => game.settled(),
+    tutorial: () => game.tutorialState(),
   };
 }
 
@@ -1579,6 +1699,8 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
   const canvas = element as unknown as CanvasLike;
   const dpr = window.devicePixelRatio > 0 ? window.devicePixelRatio : 1;
   const storage = createStorage();
+  const testBuild = import.meta.env.MODE === 'test';
+  const query = testBuild ? new URLSearchParams(window.location.search) : null;
   const game = new Game({
     canvas,
     seed: options.seed ?? 'deepholm',
@@ -1592,16 +1714,16 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     files: browserFiles(document),
     // 23 § Animation: a test build draws as with Reduced motion (e2e and screenshots).
     reducedMotion: import.meta.env.MODE === 'test',
+    // The tutorial is offered on the first New world; a test build offers it only with `?tutorial=offer`.
+    offerTutorial: !testBuild || query?.get('tutorial') === 'offer',
   });
   await game.loadSettings();
-  const testBuild = import.meta.env.MODE === 'test';
   // 24 § Music: audio waits for the first key press or click, and a test build makes none.
   if (!testBuild) {
     const gate = new AudioGate(() => game.userSettings.music && game.userSettings.musicVolume > 0, browserAudioContext, MUSIC_REVERB_S, MUSIC_SUSPEND_DELAY_S);
     gate.attach(window as unknown as EventTargetLike);
     game.music.attach(() => gate.output());
   }
-  const query = testBuild ? new URLSearchParams(window.location.search) : null;
   const start = query?.get('start') ?? null;
   if (start === 'flat-test') await game.start({ seed: options.seed ?? 'deepholm', ...(query?.get('embark') === 'default' ? { embark: 'default' as const } : {}) });
   // The intro plays at launch as its setting says; a test build skips it unless `?intro=on`.

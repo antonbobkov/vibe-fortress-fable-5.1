@@ -20,12 +20,13 @@ describe('T-332 screens: what each outside screen says', () => {
   });
 
 
-  it('the main menu names the game, offers the seven entries each with its key, and puts the cursor on New world', () => {
+  it('the main menu names the game, offers the eight entries each with its key, and puts the cursor on New world', () => {
     const r = rows('main_menu');
     expect(r[4]).toBe('D E E P H O L M');
     expect(r[5]).toBe('a hall beneath the world');
-    expect(r.slice(7, 14)).toEqual([
+    expect(r.slice(7, 15)).toEqual([
       '► [n] New world',
+      '[t] Tutorial',
       '[c] Continue   (Emberhall · Year 2)',
       '[l] Load',
       '[g] Legends',
@@ -179,9 +180,12 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[9]).toMatch(/^quick save +F5$/);
     expect(r[16]).toMatch(/^calendar panel +\[S-y\]$/);
     expect(r[17]).toMatch(/^music on \/ off +Ctrl\+M$/);
-    expect(r[18]).toBe('Map');
-    expect(r[19]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
-    for (const row of [...r.slice(5, 18), ...r.slice(19, 22)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
+    // T-439: the tutorial's two keys.
+    expect(r[18]).toMatch(/^skip the tutorial step +F1$/);
+    expect(r[19]).toMatch(/^end the tutorial +Shift\+F1$/);
+    expect(r[20]).toBe('Map');
+    expect(r[21]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
+    for (const row of [...r.slice(5, 20), ...r.slice(21, 22)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
     expect(r[23]).toBe('[Enter] rebind  [Del] default  [d] all defaults  [Esc] Back');
   });
 

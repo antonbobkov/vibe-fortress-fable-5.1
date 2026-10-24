@@ -202,6 +202,12 @@ export class FortressScreen implements Screen {
   private last: Surface | null = null;
   pointer: { col: number; row: number } | null = null;
   private registered = false;
+  /**
+   * Where the last frame drew the parts of the screen a tutorial step can highlight
+   * (`ui-screens/menus-and-world.md` § Tutorial): `z`, `speed` and `menu` on status row 1,
+   * `strip:<panel>` for an entry of the hotkey strip, `panel:<panel>` for an open panel's title row.
+   */
+  readonly landmarks = new Map<string, Rect>();
 
   constructor(
     private readonly host: FortressHost,
@@ -535,6 +541,7 @@ export class FortressScreen implements Screen {
   private drawScreen(surface: Surface): void {
     this.ensureRegistered();
     this.last = surface;
+    this.landmarks.clear();
     this.syncCursor();
     const layout = this.host.layout();
     this.drawSelection(surface, layout.map);
@@ -663,6 +670,7 @@ export class FortressScreen implements Screen {
         : this.ui.panel === 'building' ? { id: 'building', title: this.strings.get('ui.panel.building.title'), hotkey: '' } : undefined);
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };
+    this.landmarks.set(`panel:${panel.id}`, { col: inner.col, row: inner.row, cols: inner.cols, rows: 1 });
     // The title row ends with `[x]`, a button that closes the panel as `Esc` does with no tool armed.
     const key = this.strings.get('ui.panel.close');
     label(surface, inner.col + 1, inner.row, this.panelTitle(panel.id, panel.title), { fg: t.key, width: inner.cols - key.length - 2 });
@@ -748,9 +756,11 @@ export class FortressScreen implements Screen {
       const width = Array.from(field).length;
       const cells = { col: hitCol, row: rect.row, cols: width, rows: 1 };
       hitCol += width + fieldSpacing;
+      if (k === fields.length - 2) this.landmarks.set('z', cells);
       if (k === 0 || (k === 1 && weather !== null)) surface.hit(cells, () => this.openPanel('calendar'));
       else if (k === fields.length - 1) {
         this.speedRegion = cells;
+        this.landmarks.set('speed', cells);
         surface.hit(cells, () => this.togglePause());
       } else if (field.startsWith('☺')) surface.hit(cells, () => this.openPanel('units'));
       else if (field.startsWith('♥')) surface.hit(cells, () => this.openPanel('mood'));
@@ -768,7 +778,9 @@ export class FortressScreen implements Screen {
     // The row is drawn with its keys as they are bound now, so the buttons are measured that way too.
     const shown = (text: string): number => Array.from(surface.keyNames?.(text) ?? text).length;
     const rightStart = rect.col + Math.max(Array.from(left).length + 1, rect.cols - shown(right.text));
-    surface.hit({ col: rightStart, row: rect.row, cols: shown(right.menu), rows: 1 }, () => this.host.gameMenu?.());
+    const menuCells = { col: rightStart, row: rect.row, cols: shown(right.menu), rows: 1 };
+    this.landmarks.set('menu', menuCells);
+    surface.hit(menuCells, () => this.host.gameMenu?.());
     surface.hit({ col: rightStart + shown(right.menu) + 2, row: rect.row, cols: shown(right.help), rows: 1 }, () => this.togglePanel('help'));
 
     if (weather !== null && fields.length > 1) {
@@ -803,8 +815,10 @@ export class FortressScreen implements Screen {
       if (at < 0 || letter === undefined) continue;
       const spec = this.keymap.keyNow('fortress_panel', letter);
       const press = { key: spec?.key ?? letter, repeat: false, shift: spec?.shift ?? false, ctrl: spec?.ctrl ?? false, alt: false, meta: false };
-      surface.hit({ col: rect.col + Array.from(shown.slice(0, at)).length, row: rect.row + 1, cols: Array.from(entry).length, rows: 1 },
-        () => void this.key(press));
+      const cells = { col: rect.col + Array.from(shown.slice(0, at)).length, row: rect.row + 1, cols: Array.from(entry).length, rows: 1 };
+      const panel = FORTRESS_PANEL_KEYS.find((p) => p.key === letter)?.id;
+      if (panel !== undefined) this.landmarks.set(`strip:${panel}`, cells);
+      surface.hit(cells, () => void this.key(press));
     }
   }
 

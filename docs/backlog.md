@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-427 | [Wild animals in `leave` stay for weeks near the map edge](work/T-427-animals-stuck-leaving.md) | T-421's diagnosis | — | open |
 | T-436 | [Surface visual variety: relief, trees, shrubs, grass, boulders](work/T-436-surface-visual-variety.md) | the owner, 2026-10-23 | T-427 | open |
-| T-439 | [A step-by-step scripted tutorial](work/T-439-tutorial.md) | the owner, 2026-10-23 | T-437, T-441 | open |
 | T-443 | [A river's source region has no river on its local map](work/T-443-river-source-carves-no-river.md) | T-440's checks | — | open |
 | T-444 | [The region panel shows "2048 regions" for a civilization with no land route](work/T-444-civ-distance-no-route.md) | T-440's checks | — | open |
 | T-445 | [Frostmarrow's wildlife hook is not implemented](work/T-445-frostmarrow-wildlife-hook.md) | T-440's checks | — | open |

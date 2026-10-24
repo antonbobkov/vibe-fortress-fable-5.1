@@ -71,9 +71,17 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   soundVolume: 50,
   intro: 'first time',
   introSeen: false,
+  tutorialOffered: false,
   introStyle: 'deep',
   reducedMotion: false,
 });
+
+/** 24 § Tuning constants: the seed of the tutorial's world, generated at the standard size (`menus-and-world.md` § Tutorial). */
+export const TUTORIAL_WORLD_SEED = 'tutorial-vale';
+/** Width of the tutorial's box, cells. */
+export const TUTORIAL_BOX_COLS = 44;
+/** Longest time between two checks of the tutorial's step while no key or click comes, ms. */
+export const TUTORIAL_CHECK_MS = 250;
 
 /** 24 § Tuning constants: the intro's stage, in cells (`intro.md` § Stage). */
 export const INTRO_STAGE_COLS = 64;

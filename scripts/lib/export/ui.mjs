@@ -1,5 +1,5 @@
 // docs/03-content/glyphs-and-colors.md and ui-keymap-and-screens.md -> palette, glyphs, patterns,
-// hints, milestones, confirmations, keymap, strings.
+// hints, tutorial, milestones, confirmations, keymap, strings.
 
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
@@ -99,6 +99,15 @@ export function exportHints() {
   );
 }
 
+/** The tutorial's steps, in table order (`ui-keymap-and-screens.md` § Tutorial). */
+export function exportTutorial() {
+  const tables = readTables(join(CONTENT_DIR, 'ui-keymap-and-screens.md'));
+  const table = findTable(tables, 'Tutorial', 'Check');
+  return asObjects(table).map((row) =>
+    compact({ id: id(row.id), check: plain(row.Check), highlight: plain(row.Highlight), text: textOf(row.Text) }),
+  );
+}
+
 export function exportMilestones() {
   const tables = readTables(join(CONTENT_DIR, 'ui-keymap-and-screens.md'));
   const table = findTable(tables, 'Milestones (legend record)', 'Trigger');
@@ -184,6 +193,7 @@ export function exportKeymap() {
 export function exportStrings(thoughts) {
   const strings = {};
   for (const h of exportHints()) strings[`hint.${h.id}`] = h.text;
+  for (const t of exportTutorial()) strings[`tutorial.${t.id}`] = t.text;
   for (const m of exportMilestones()) strings[`milestone.${m.id}`] = m.text;
   for (const c of exportConfirmations()) strings[`confirm.${c.id}`] = c.text;
   for (const t of thoughts) strings[`thought.${t.id}`] = t.text;

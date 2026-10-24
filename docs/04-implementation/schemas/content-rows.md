@@ -144,6 +144,7 @@ interface CaravanGoodsDef { civ: Civ; entries: { item: Id<ItemTypeDef> | Id<Item
   count: [number, number]; weight: number; container?: Id<ItemTypeDef>; rare?: boolean; rareAdds?: Id<ItemTypeDef>[] }[] }
 interface PreferenceDef { civ: Civ; key: string; percent: number; reputationPenalty?: number }
 interface HintDef { id: string; trigger: string; text: string }
+interface TutorialStepDef { id: string; check: string; highlight: string; text: string }
 interface MilestoneDef { id: string; trigger: string; text: string }
 interface ConfirmationDef { id: string; text: string; default: 'yes'|'no' }
 interface KeyBindingDef { context: string; key: string; action: string }

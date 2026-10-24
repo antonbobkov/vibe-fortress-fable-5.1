@@ -15,6 +15,7 @@ Give the player every action by keyboard and by mouse and every fact by inspecti
 - **Action**: a named UI action produced by the keymap or by a mouse gesture; panels handle actions and submit commands.
 - **Announcement**: a log line with a severity produced from an event by the announcement registry.
 - **Hint**: a one-time tip triggered by state.
+- **Tutorial**: a scripted sequence of steps over the fortress screen of a new fortress, each with a text, a highlight of the UI and a check that reads state; it only reads and draws (`ui-screens/menus-and-world.md` § Tutorial).
 
 ## Rules
 
@@ -123,12 +124,13 @@ Shown and pending hints belong to `UiState`, not fortress simulation state. The 
 
 ### Confirmations
 
-Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) use the shared `confirmThen` helper for destructive panel actions. Every default is No. They ask for: mining deepsilver (once per fortress), retiring, quick load, removing any zone or work order, disbanding, taking apart any built building, suspending a workshop, marking items for melt or dump, marking an animal for slaughter, releasing a caged creature, loading a snapshot, deleting a save, and embarking without a pick or without food or drink. Crop and occupied-stockpile removals show their specific counts. Clearing marks or resuming does not ask; neither do forbidding, returning depot goods to stock, removing a trade request, opening the squad member removal chooser, cancelling a job or cancelling a building plan. Dialog rows and texts are in the content table.
+Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) use the shared `confirmThen` helper for destructive panel actions. Every default is No. They ask for: mining deepsilver (once per fortress), retiring, quick load, removing any zone or work order, disbanding, taking apart any built building, suspending a workshop, marking items for melt or dump, marking an animal for slaughter, releasing a caged creature, loading a snapshot, deleting a save, and embarking without a pick or without food or drink; the first `New world` also asks whether to play the tutorial. Crop and occupied-stockpile removals show their specific counts. Clearing marks or resuming does not ask; neither do forbidding, returning depot goods to stock, removing a trade request, opening the squad member removal chooser, cancelling a job or cancelling a building plan. Dialog rows and texts are in the content table.
 
 ### Screens outside the fortress
 
 - **Intro**: a short animated film in one of two styles, chosen by the Intro style setting (`ui-screens/menus-and-world.md` § Intro): `deep`, the default, in big block art (its scenes are content, `03-content/deep-intro.md`), or `hall`, in the game's glyphs (`03-content/intro.md`). It plays at launch before the main menu as the Intro at launch setting says (`first time`: only at the first launch; `always`; `off`), and from the main menu's `Intro`. Any key or click skips it; when it ends or is skipped, the main menu opens.
-- **Main menu**: `New world`, `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys and mouse.
+- **Main menu**: `New world`, `Tutorial`, `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys and mouse. The first `New world` ever chosen offers the tutorial first.
+- **Tutorial**: a fortress on a friendly site of a fixed world, with a box over the map view that gives one step at a time, highlights the part of the UI the step uses, and goes on when the step's check holds; any step can be skipped and the tutorial ended at any time (`ui-screens/menus-and-world.md` § Tutorial; the steps are content, `03-content/ui-keymap-and-screens.md` § Tutorial).
 - **World generation** (01): seed text field, size dropdown, `Generate`, progress with the preview, `Continue`.
 - **World map** (01): the map with the cursor; the region panel on the right, with the site summary of 02 and its missing essentials in the alert colour, scrolled by `PageUp` `PageDown` and the wheel when it is longer than the window; the filter panel (`f`); `Embark` (`Enter` on a valid region). Legend of biome glyphs (`?`).
 - **Embark** (02): three tabs, footer with budget and `Embark`; Balanced is applied on opening. Missing pick or food/drink asks the default-No confirmation before embarking.
@@ -179,7 +181,7 @@ Music is a presentation listener on the event bus. It reads events and readers a
 
 ## State
 
-Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, settings, keymap overrides. Camera, z, zoom, overlays, hints shown and pending, bare-bedroom observation ticks, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories are saved in the `ui` section; settings and keymap in the settings store.
+Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, the tutorial and its step, settings, keymap overrides. The tutorial is not saved; whether it has been offered is kept in the settings store. Camera, z, zoom, overlays, hints shown and pending, bare-bedroom observation ticks, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories are saved in the `ui` section; settings and keymap in the settings store.
 
 ## Interfaces
 
@@ -229,6 +231,9 @@ This entire document.
 | `SITE_LIST_NAMES` | 2 | Names a row of the world map's site summary lists before "and N more" (*unmeasured*) |
 | `SITE_LABEL_COLS` | 9 | Width of the site summary's row labels, cells |
 | `SETTINGS_VOLUME_STEP` | 10 | Step of the music and sound volumes |
+| `TUTORIAL_WORLD_SEED` | tutorial-vale | The seed of the tutorial's world (standard size) |
+| `TUTORIAL_BOX_COLS` | 44 | Width of the tutorial's box, cells (*unmeasured*) |
+| `TUTORIAL_CHECK_MS` | 250 | Longest time between two checks of the tutorial's step while no key or click comes, ms (*unmeasured*) |
 | `INTRO_STAGE_COLS` | 64 | Width of the intro's stage, cells |
 | `INTRO_STAGE_ROWS` | 16 | Height of the intro's stage, cells |
 | `INTRO_FRAME_MS` | 250 | How long an intro cue shows each frame when its row gives no step, ms (*unmeasured*) |
@@ -253,7 +258,7 @@ This entire document.
 
 ## Keymap, screens, hints and milestones
 
-The complete default keymap, the screen and panel lists with hotkeys, the mouse model table, the overlay list, the hint table with triggers and texts, the milestone table, the confirmation dialogs and the settings list are in [`../03-content/ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md). That file is the source of `keymap.json`, `hints.json` and `milestones.json`.
+The complete default keymap, the screen and panel lists with hotkeys, the mouse model table, the overlay list, the hint table with triggers and texts, the tutorial's steps, the milestone table, the confirmation dialogs and the settings list are in [`../03-content/ui-keymap-and-screens.md`](../03-content/ui-keymap-and-screens.md). That file is the source of `keymap.json`, `hints.json`, `tutorial.json` and `milestones.json`.
 
 ## Extension points
 

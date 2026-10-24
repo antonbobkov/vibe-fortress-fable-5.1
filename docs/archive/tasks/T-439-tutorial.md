@@ -1,5 +1,7 @@
 # T-439 — A step-by-step scripted tutorial
 
+**Closed:** 2026-10-24, in e0b811a.
+
 **Source:** the owner, 2026-10-23 (first play session) · **Size:** L · **Needs:** T-437, T-441 · **Status:** open
 
 ## Why

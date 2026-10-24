@@ -40,6 +40,7 @@ Content is data. The Markdown tables in `03-content/` are the source of truth; t
 | `weatherTables` | `WeatherTransitionDef` | weather |
 | `strings` | `Record<StringKey, string>` | ui, announcements |
 | `hints` | `HintDef` | ui |
+| `tutorial` | `TutorialStepDef` | ui (the tutorial) |
 | `milestones` | `MilestoneDef` | legend |
 | `instruments` | `InstrumentDef` | ui (music) |
 | `tunes` | `TuneDef` | ui (music) |

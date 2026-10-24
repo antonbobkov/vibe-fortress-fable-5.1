@@ -1,13 +1,13 @@
 # UI: Keymap, Screens, Panels, Hints
 
-**Owner:** content (`keymap`, `hints`, `milestones`, `strings` index) · **Depends on:** [`../02-systems/24-ui-and-input.md`](../02-systems/24-ui-and-input.md), [`../02-systems/23-rendering.md`](../02-systems/23-rendering.md)
+**Owner:** content (`keymap`, `hints`, `tutorial`, `milestones`, `strings` index) · **Depends on:** [`../02-systems/24-ui-and-input.md`](../02-systems/24-ui-and-input.md), [`../02-systems/23-rendering.md`](../02-systems/23-rendering.md)
 
 ## Screens
 
 | id | Purpose | Enter from | Leave to |
 |---|---|---|---|
 | `intro` | The animated intro, in the style the Intro style setting names ([deep-intro.md](deep-intro.md), [intro.md](intro.md)) | start (Intro at launch), main_menu › Intro | main_menu |
-| `main_menu` | New world, Continue, Load, Legends, Settings, About, Intro | start, intro, fortress menu | any |
+| `main_menu` | New world, Tutorial, Continue, Load, Legends, Settings, About, Intro | start, intro, fortress menu | any |
 | `world_gen` | Seed, size, generate, preview | main_menu › New world | world_map |
 | `world_map` | Choose a region | world_gen | embark, main_menu |
 | `embark` | Party, supplies, animals, name | world_map › Embark | fortress |
@@ -75,6 +75,8 @@ Key notation: `Ctrl+S` and `Shift+Tab` are a key with modifiers; `arrows` are th
 | `Ctrl+Z` | undo last designation batch |
 | `Shift+Y` | calendar panel |
 | `Ctrl+M` | music on / off |
+| `F1` | skip the tutorial step |
+| `Shift+F1` | end the tutorial |
 
 The music key acts on every screen, not only the fortress: a screen that does not use the key passes it on, and a text field that is typing in or a key being captured in Settings › Keybindings keeps it.
 
@@ -478,6 +480,7 @@ The `confirm` dialog, and the embark screen's "Replace your changes" line.
 | Key | Action |
 |---|---|
 | `n` | New world |
+| `t` | Tutorial |
 | `c` | Continue |
 | `l` | Load |
 | `g` | Legends |
@@ -627,6 +630,24 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_food` | edible items in stock fall below `HINT_FOOD_DAYS` days for the population, hourly | "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]." |
 | `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
 
+## Tutorial
+
+The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world.md` § Tutorial). `Check` names one of the fixed checks of that section; `Highlight` is a fortress panel id, or `z`, `speed` or `menu`, a field of status row 1. The text is the string `tutorial.<id>`; each `[k]` key in it, and each key word, is shown as its binding has it now.
+
+| id | Check | Highlight | Text |
+|---|---|---|---|
+| `view` | `view_moved` | `z` | "Welcome to your hall. Move the view with ←→ ↑↓ (or drag with the middle button), and change the level with [<] and [>] (or the wheel). Do both: the z field below shows the level." |
+| `look` | `looked` | `look` | "Look at things with [k], or a click on the map. The look panel's Tile tab lists all that lies on the tile, and the status row names what is under the pointer. Look at a tile, then at one of your dwarves." |
+| `dig` | `dig_designated` | `designate` | "Open Designate with [d]: Dig is chosen. Go down a level with [<] into the rock, click one corner of a box, then the opposite corner (or Enter twice). The marked tiles blink while the work waits for a miner." |
+| `stairs` | `stairs_designated` | `designate` | "Stairs lead down. In Designate, [S-j] chooses down stairs: click a floor tile twice. Change the level between the two clicks and the box makes a stair column, down stairs on top and up stairs below." |
+| `stockpile` | `stockpile_made` | `zones` | "Hauled goods need a place. Open Zones with [z], choose a stockpile with [S-s], and drag a rectangle over open floor (or Enter at two corners)." |
+| `workshop` | `workshop_placed` | `build` | "Open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs." |
+| `order` | `order_queued` | `orders` | "Workshops make what is ordered. Open Orders with [o]: [S-n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it." |
+| `farm` | `farm_plot_made` | `zones` | "Food grows on soil. In Zones ([z]), [S-f] chooses a farm plot: drag it over soil or grass. Click the plot to choose its crop for each season." |
+| `labors` | `labors_changed` | `labors` | "A dwarf works only at the labors that are on. Open Labors with [l]: ↑↓ choose a dwarf, a click on a cell turns that labor on or off, and [S-a] turns the whole row." |
+| `speed` | `paused_and_sped` | `speed` | "Time stands still while the game is paused. [Space] pauses and resumes, and [+] and [-] change the speed. Run the fortress at 2× or 4×, then pause it again." |
+| `save` | `saved` | `menu` | "Save your fortress: [F5] makes a quick save, and Esc opens the game menu, which has Save. Saves are kept in this browser." |
+
 ## Milestones (legend record)
 
 | id | Trigger | Text |
@@ -673,6 +694,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `c_deconstruct_building` | "Take apart {building}? Its materials are left where it stood." | No |
 | `c_remove_zone` | "Remove {zone}? Its settings are lost." | No |
 | `c_remove_order` | "Remove the order for {recipe}? Work in progress on it stops." | No |
+| `c_tutorial` | "Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?" | No |
 | `c_release_cage` | "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was." | No |
 
 ## Settings
