@@ -28,4 +28,5 @@ This folder holds every table of game content. Systems refer to content only by 
 | [balance.md](balance.md) | The cross-system arithmetic: consumption, production, wealth, raids, combat pace, the mood floor |
 | [ui-keymap-and-screens.md](ui-keymap-and-screens.md) | Screens, panels, keymap, mouse model, overlays, hints, milestones, confirmations, settings |
 | [music.md](music.md) | Instruments and tunes, with their scores, for the synthesized music |
-| [intro.md](intro.md) | The intro's scenes, cues, captions, glyph colours and art |
+| [intro.md](intro.md) | The hall intro's scenes, cues, captions, glyph colours and art |
+| [deep-intro.md](deep-intro.md) | The deep intro's palette, inks, scenes, layers, camera, effects, captions and art |

@@ -22,6 +22,7 @@ import {
   MUSIC_SILENCE_MIN_S,
   MUSIC_TAIL_S,
   MUSIC_TENSE_GAP_S,
+  DEFAULT_USER_SETTINGS,
 } from './constants';
 
 /**
@@ -33,12 +34,19 @@ export type MusicScene = 'intro' | 'menu' | 'fortress';
 /** What kind of piece plays: a tune's role in `music.md` § Tunes. */
 export type MusicMood = TuneDef['role'];
 
+/** Which intro plays (the Intro style setting); each style has a piece of its own. */
+export type IntroStyle = 'deep' | 'hall';
+
+/** The moods of the intros' pieces: each plays once, and the menu theme follows it. */
+const INTRO_MOODS: ReadonlySet<MusicMood> = new Set<MusicMood>(['intro', 'deep_intro']);
+
 /**
- * The mood of a scene: the intro has a piece of its own, the screens before a fortress the menu
- * theme, and a fortress in danger is tense.
+ * The mood of a scene: the intro has a piece of its own for each style (`deep_intro` for the deep
+ * intro, `intro` for the hall), the screens before a fortress the menu theme, and a fortress in
+ * danger is tense.
  */
-export function moodOf(scene: MusicScene, tense: boolean): MusicMood {
-  if (scene === 'intro') return 'intro';
+export function moodOf(scene: MusicScene, tense: boolean, introStyle: IntroStyle = DEFAULT_USER_SETTINGS.introStyle): MusicMood {
+  if (scene === 'intro') return introStyle === 'deep' ? 'deep_intro' : 'intro';
   if (scene === 'menu') return 'menu';
   return tense ? 'tense' : 'fortress';
 }
@@ -110,9 +118,9 @@ export class MusicDirector {
 
   constructor(tunes: readonly TuneLength[], private readonly random: () => number) {
     const of = (role: MusicMood): TuneLength[] => tunes.filter((tune) => tune.role === role);
-    this.byRole = { intro: of('intro'), menu: of('menu'), fortress: of('fortress'), tense: of('tense') };
+    this.byRole = { intro: of('intro'), deep_intro: of('deep_intro'), menu: of('menu'), fortress: of('fortress'), tense: of('tense') };
     // The fortress pieces begin at a random one of them; each mood then goes round in table order.
-    this.turns = { intro: 0, menu: 0, fortress: Math.floor(random() * Math.max(1, this.byRole.fortress.length)), tense: 0 };
+    this.turns = { intro: 0, deep_intro: 0, menu: 0, fortress: Math.floor(random() * Math.max(1, this.byRole.fortress.length)), tense: 0 };
   }
 
   /** The tune playing now, if any. */
@@ -125,7 +133,7 @@ export class MusicDirector {
   }
 
   private gapAfter(mood: MusicMood): number {
-    return mood === 'fortress' ? this.silence() : mood === 'menu' || mood === 'intro' ? MUSIC_MENU_GAP_S : MUSIC_TENSE_GAP_S;
+    return mood === 'fortress' ? this.silence() : mood === 'menu' || INTRO_MOODS.has(mood) ? MUSIC_MENU_GAP_S : MUSIC_TENSE_GAP_S;
   }
 
   /** Stop the clock at `now` (the document is hidden): the piece and the silence keep what they have left. */
@@ -146,8 +154,8 @@ export class MusicDirector {
   update(now: number, requested: MusicMood | null): MusicCue | null {
     // The intro's piece is heard once; with none, or after it, the intro is the menu's mood.
     let mood = requested;
-    if (mood === 'intro' && (this.byRole.intro.length === 0 || this.introEnded)) mood = 'menu';
-    else if (mood !== null && mood !== 'intro') this.introEnded = false;
+    if (mood !== null && INTRO_MOODS.has(mood) && (this.byRole[mood].length === 0 || this.introEnded)) mood = 'menu';
+    else if (mood !== null && !INTRO_MOODS.has(mood)) this.introEnded = false;
     if (mood !== this.mood) {
       const was = this.mood;
       this.mood = mood;
@@ -160,7 +168,7 @@ export class MusicDirector {
     if (mood === null) return null;
     if (this.playing !== null && now >= this.playing.endsAt) {
       this.playing = null;
-      if (mood === 'intro') {
+      if (INTRO_MOODS.has(mood)) {
         this.introEnded = true;
         mood = 'menu';
         this.mood = 'menu';
@@ -284,6 +292,8 @@ export class MusicPlayer {
 export interface MusicSettings {
   readonly music: boolean;
   readonly musicVolume: number;
+  /** The intro's piece is the one of the chosen intro style (the setting's default when absent). */
+  readonly introStyle?: IntroStyle;
 }
 
 /**
@@ -374,7 +384,7 @@ export class Music {
       this.paused = false;
       this.director.resume(synth.now);
     }
-    const cue = this.director.update(synth.now, on ? moodOf(scene, this.watch.tense) : null);
+    const cue = this.director.update(synth.now, on ? moodOf(scene, this.watch.tense, settings.introStyle) : null);
     if (cue?.kind === 'stop') this.player.stop();
     else if (cue?.kind === 'play') this.player.start(this.arrangement(cue.tune), synth);
     else if (goOn) this.player.resume(synth);

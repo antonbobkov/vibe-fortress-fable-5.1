@@ -271,7 +271,7 @@ export interface InstrumentDef {
 export interface TuneDef {
   readonly id: string;
   readonly name: string;
-  readonly role: 'intro' | 'menu' | 'fortress' | 'tense';
+  readonly role: 'intro' | 'deep_intro' | 'menu' | 'fortress' | 'tense';
   /** Steps per minute. */
   readonly tempo: number;
   readonly mode: string;
@@ -330,19 +330,148 @@ export interface IntroDef {
   readonly art: readonly { readonly id: string; readonly rows: readonly string[] }[];
 }
 
-/** One row of `intro.md` § Cues; times in ms from the scene's start, cells on the stage. */
-export interface IntroCueDef {
+/**
+ * What every intro's animated rows share: frames, a place and a way to go, and a time span. Times
+ * in ms from the scene's start.
+ */
+export interface IntroMotion {
   readonly scene: string;
-  /** Its frames: an art id, or the glyphs as written. */
+  /** Its frames: an art id, or (in the hall intro) the glyphs as written. */
   readonly sprite: readonly string[];
-  readonly color?: string;
   readonly at: readonly [number, number];
   readonly to?: readonly [number, number];
   readonly from: number;
   readonly arrive?: number;
   readonly until?: number;
   readonly step?: number;
+  readonly effect?: string;
+}
+
+/** One row of `intro.md` § Cues; times in ms from the scene's start, cells on the stage. */
+export interface IntroCueDef extends IntroMotion {
+  readonly color?: string;
   readonly effect?: 'rise';
+}
+
+/** The deep intro of `deep-intro.md`: block art drawn as pixels, with its palette, inks and effects. */
+export interface DeepIntroDef {
+  readonly colors: readonly { readonly id: string; readonly hex: string }[];
+  readonly cycles: readonly DeepIntroCycleDef[];
+  readonly inks: readonly DeepIntroInkDef[];
+  readonly parts: readonly { readonly part: 'side' | 'edge' | 'bar' | 'static' | 'flash' | 'fade'; readonly inks: readonly string[] }[];
+  readonly scenes: readonly { readonly id: string; readonly ms: number; readonly fill: string; readonly wide: boolean }[];
+  readonly layers: readonly DeepIntroLayerDef[];
+  readonly camera: readonly DeepIntroCameraDef[];
+  readonly effects: readonly DeepIntroEffectDef[];
+  /** `at`: the art row of a caption bar on the strip; without it the caption is under the strip. */
+  readonly captions: readonly { readonly id: string; readonly scene: string; readonly from: number; readonly until: number; readonly at?: number }[];
+  readonly art: readonly { readonly id: string; readonly rows: readonly string[] }[];
+}
+
+/** `deep-intro.md` § Cycles: colours that take turns, moving across the strip by `drift`. */
+export interface DeepIntroCycleDef {
+  readonly id: string;
+  readonly colors: readonly string[];
+  readonly step: number;
+  readonly drift: readonly [number, number];
+}
+
+/** `deep-intro.md` § Inks: what one letter of the art draws. `fg` and `bg` name a colour or a cycle. */
+export interface DeepIntroInkDef {
+  readonly ink: string;
+  readonly glyph: string;
+  readonly fg: string;
+  readonly bg: string;
+  /** Percent of its cells drawn at a time (speckle); all of them when absent. */
+  readonly density?: number;
+}
+
+/** `deep-intro.md` § Layers: a piece of art placed, moved and animated like a hall cue. */
+export interface DeepIntroLayerDef extends IntroMotion {
+  /** How the layer follows the camera: 0 is fixed to the strip, 1 moves with the scene. */
+  readonly depth: number;
+  readonly tile?: 'x' | 'y' | 'xy';
+}
+
+/** `deep-intro.md` § Camera: the art point at the strip's centre, and the zoom, at a time. */
+export interface DeepIntroCameraDef {
+  readonly scene: string;
+  readonly at: number;
+  readonly x: number;
+  readonly y: number;
+  readonly zoom: number;
+  readonly move: 'cut' | 'linear' | 'ease';
+}
+
+/** `deep-intro.md` § Effects. */
+export interface DeepIntroEffectDef {
+  readonly scene: string;
+  readonly effect: 'shake' | 'flash' | 'fade_in' | 'fade_out' | 'static';
+  readonly from: number;
+  readonly until: number;
+  readonly value?: number;
+}
+
+export const DEEP_INTRO_PARTS = ['side', 'edge', 'bar', 'static', 'flash', 'fade'] as const;
+
+/** The deep intro's own references: inks, colours, cycles, art and scenes all name something that exists. */
+const deepIntroRefs: V = (v, c) => {
+  const deep = v as DeepIntroDef;
+  const colors = new Set(deep.colors.map((row) => row.id));
+  const cycles = new Set(deep.cycles.map((row) => row.id));
+  const inks = new Set(deep.inks.map((row) => row.ink));
+  const scenes = new Set(deep.scenes.map((row) => row.id));
+  const art = new Map(deep.art.map((piece) => [piece.id, piece.rows]));
+  for (const row of deep.colors) if (!/^#[0-9a-f]{6}$/i.test(row.hex)) fail(at(c, `colors.${row.id}.hex`), `"${row.hex}" is not a colour`);
+  for (const row of deep.cycles) {
+    for (const color of row.colors) if (!colors.has(color)) fail(at(c, `cycles.${row.id}.colors`), `no colour "${color}"`);
+  }
+  for (const row of deep.inks) {
+    if (Array.from(row.ink).length !== 1 || row.ink === ' ') fail(at(c, `inks.${row.ink}`), 'an ink is one letter, not a space');
+    if (Array.from(row.glyph).length !== 1) fail(at(c, `inks.${row.ink}.glyph`), 'a glyph is one character');
+    for (const side of ['fg', 'bg'] as const) {
+      if (!colors.has(row[side]) && !cycles.has(row[side])) fail(at(c, `inks.${row.ink}.${side}`), `no colour or cycle "${row[side]}"`);
+    }
+  }
+  for (const part of DEEP_INTRO_PARTS) {
+    const row = deep.parts.find((p) => p.part === part);
+    if (row === undefined) fail(at(c, 'parts'), `no ${part} part`);
+    else for (const ink of row.inks) if (!inks.has(ink)) fail(at(c, `parts.${part}`), `no ink "${ink}"`);
+  }
+  for (const scene of deep.scenes) if (!inks.has(scene.fill)) fail(at(c, `scenes.${scene.id}.fill`), `no ink "${scene.fill}"`);
+  for (const piece of deep.art) {
+    piece.rows.forEach((row, y) => {
+      for (const ch of Array.from(row)) if (ch !== ' ' && !inks.has(ch)) fail(at(c, `art.${piece.id}[${y}]`), `no ink "${ch}"`);
+    });
+  }
+  deep.layers.forEach((layer, n) => {
+    const field = `layers[${n}]`;
+    if (!scenes.has(layer.scene)) fail(at(c, `${field}.scene`), `no scene "${layer.scene}"`);
+    for (const frame of layer.sprite) if (!art.has(frame)) fail(at(c, `${field}.sprite`), `no art "${frame}"`);
+    if (layer.until !== undefined && layer.until <= layer.from) fail(at(c, `${field}.until`), 'ends before it starts');
+    if (layer.arrive !== undefined && (layer.arrive <= layer.from || layer.to === undefined)) fail(at(c, `${field}.arrive`), 'an arrival needs a later time and a place to go');
+  });
+  deep.camera.forEach((key, n) => {
+    if (!scenes.has(key.scene)) fail(at(c, `camera[${n}].scene`), `no scene "${key.scene}"`);
+    const before = deep.camera[n - 1];
+    if (before !== undefined && before.scene === key.scene && before.at > key.at) fail(at(c, `camera[${n}].at`), 'keys of a scene go in time order');
+  });
+  deep.effects.forEach((effect, n) => {
+    if (!scenes.has(effect.scene)) fail(at(c, `effects[${n}].scene`), `no scene "${effect.scene}"`);
+    if (effect.until <= effect.from) fail(at(c, `effects[${n}].until`), 'ends before it starts');
+    if (effect.effect === 'shake' && effect.value === undefined) fail(at(c, `effects[${n}].value`), 'a shake needs its size');
+  });
+  for (const caption of deep.captions) {
+    if (!scenes.has(caption.scene)) fail(at(c, `captions.${caption.id}.scene`), `no scene "${caption.scene}"`);
+    if (caption.until <= caption.from) fail(at(c, `captions.${caption.id}.until`), 'ends before it starts');
+  }
+};
+
+/** A number, whole or not, from `min` to `max`. */
+function numIn(min: number, max: number): V {
+  return (v, c) => {
+    if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) fail(c, `expected a number from ${min} to ${max}, got ${describe(v)}`);
+  };
 }
 
 /** The intro's own references: every scene, backdrop and `rise` sprite names something that exists. */
@@ -951,7 +1080,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
   tunes: rows({
     id: nonEmptyStr,
     name: nonEmptyStr,
-    role: enumOf(['intro', 'menu', 'fortress', 'tense']),
+    role: enumOf(['intro', 'deep_intro', 'menu', 'fortress', 'tense']),
     tempo: intIn(20, 400),
     mode: str,
     source: nonEmptyStr,
@@ -981,6 +1110,38 @@ export const SCHEMAS: Record<string, TableSchema> = {
         art: arr(obj({ id: nonEmptyStr, rows: arr(str, 1) }), 1),
       })(v, c);
       if (c.issues.length === before) introRefs(v, c);
+    },
+  },
+
+  deepIntro: {
+    shape: 'map',
+    row: (v, c) => {
+      const before = c.issues.length;
+      const time = intIn(0, 120000);
+      obj({
+        colors: arr(obj({ id: nonEmptyStr, hex: nonEmptyStr }), 1),
+        cycles: arr(obj({ id: nonEmptyStr, colors: arr(nonEmptyStr, 2), step: intIn(1, 10000), drift: tupleOf(2, int) })),
+        inks: arr(obj({ ink: nonEmptyStr, glyph: nonEmptyStr, fg: nonEmptyStr, bg: nonEmptyStr, density: opt(intIn(1, 100)) }), 1),
+        parts: arr(obj({ part: enumOf(DEEP_INTRO_PARTS), inks: arr(nonEmptyStr, 1) })),
+        scenes: arr(obj({ id: nonEmptyStr, ms: intIn(1, 120000), fill: nonEmptyStr, wide: bool }), 1),
+        layers: arr(obj({
+          scene: nonEmptyStr,
+          sprite: arr(nonEmptyStr, 1),
+          at: tupleOf(2, int),
+          to: opt(tupleOf(2, int)),
+          from: time,
+          arrive: opt(time),
+          until: opt(time),
+          step: opt(intIn(1, 10000)),
+          depth: numIn(-4, 4),
+          tile: opt(enumOf(['x', 'y', 'xy'])),
+        })),
+        camera: arr(obj({ scene: nonEmptyStr, at: time, x: numIn(-1000, 1000), y: numIn(-1000, 1000), zoom: numIn(0.5, 8), move: enumOf(['cut', 'linear', 'ease']) })),
+        effects: arr(obj({ scene: nonEmptyStr, effect: enumOf(['shake', 'flash', 'fade_in', 'fade_out', 'static']), from: time, until: time, value: opt(intIn(0, 100)) })),
+        captions: arr(obj({ id: nonEmptyStr, scene: nonEmptyStr, from: time, until: time, at: opt(intIn(0, 1000)) })),
+        art: arr(obj({ id: nonEmptyStr, rows: arr(str, 1) }), 1),
+      })(v, c);
+      if (c.issues.length === before) deepIntroRefs(v, c);
     },
   },
 
@@ -1152,7 +1313,7 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
       issues.push({ table: 'tunes', row: row.id, field: 'voices', message: `the voices differ in length (${Array.from(lengths).join(', ')} steps)` });
     }
   }
-  for (const role of ['intro', 'menu', 'fortress', 'tense']) {
+  for (const role of ['intro', 'deep_intro', 'menu', 'fortress', 'tense']) {
     if (!roles.has(role)) issues.push({ table: 'tunes', row: '-', field: 'role', message: `no ${role} tune` });
   }
 

@@ -149,7 +149,7 @@ interface ConfirmationDef { id: string; text: string; default: 'yes'|'no' }
 interface KeyBindingDef { context: string; key: string; action: string }
 interface InstrumentDef { id: string; name: string; wave: 'sine'|'triangle'|'sawtooth'; attackMs: number; decayMs: number; sustainPercent: number;
   releaseMs: number; levelPercent: number; filterHz: number; detuneCents: number; reverbPercent: number }
-interface TuneDef { id: string; name: string; role: 'intro'|'menu'|'fortress'|'tense'; tempo: number; mode: string; source: string;
+interface TuneDef { id: string; name: string; role: 'intro'|'deep_intro'|'menu'|'fortress'|'tense'; tempo: number; mode: string; source: string;
   voices: { instrument: Id<InstrumentDef>; notes: string }[] }   // tempo in steps per minute; notes in the score notation of music.md
 interface IntroDef {                                          // one object, intro.md; times in ms from a scene's start, cells on the stage
   scenes: { id: string; ms: number; backdrop: string }[];     // backdrop: an art id
@@ -158,6 +158,18 @@ interface IntroDef {                                          // one object, int
   captions: { id: string; scene: string; from: number; until: number }[];   // text: strings key intro.<id>
   colors: { glyph: string; color: Id<ColorDef> }[];
   art: { id: string; rows: string[] }[] }
+interface DeepIntroDef {                                      // one object, deep-intro.md; times in ms from a scene's start, art pixels on the strip
+  colors: { id: string; hex: string }[];                      // the sixteen colours, #rrggbb
+  cycles: { id: string; colors: string[]; step: number; drift: [number, number] }[];
+  inks: { ink: string; glyph: string; fg: string; bg: string; density?: number }[];   // fg, bg: a colour or a cycle
+  parts: { part: 'side'|'edge'|'bar'|'static'|'flash'|'fade'; inks: string[] }[];
+  scenes: { id: string; ms: number; fill: string; wide: boolean }[];   // fill: an ink
+  layers: { scene: string; sprite: string[]; at: [number, number]; to?: [number, number]; from: number;
+    arrive?: number; until?: number; step?: number; depth: number; tile?: 'x'|'y'|'xy' }[];   // sprite: frames, each an art id
+  camera: { scene: string; at: number; x: number; y: number; zoom: number; move: 'cut'|'linear'|'ease' }[];
+  effects: { scene: string; effect: 'shake'|'flash'|'fade_in'|'fade_out'|'static'; from: number; until: number; value?: number }[];
+  captions: { id: string; scene: string; from: number; until: number; at?: number }[];   // text: strings key deep_intro.<id>
+  art: { id: string; rows: string[] }[] }                     // rows of ink letters, a space for nothing
 ```
 
 ## Export conventions
@@ -175,6 +187,7 @@ Input `match` accepts an item id or item tag, with alternatives joined by `|`; `
 - `ItemTypeDef.category` has exactly one, two or three segments; every stockpile preset references existing nodes.
 - `MetalDef.alloy.inputs` reference existing bar materials or `flux`/`fuel` pseudo-materials.
 - Every `Id<ColorDef>` used by any row exists.
-- A `sawtooth` instrument has `filterHz` ≤ 2000; every voice of a tune has the same length in steps; every score parses; each of the roles `intro`, `menu`, `fortress` and `tense` has a tune.
+- A `sawtooth` instrument has `filterHz` ≤ 2000; every voice of a tune has the same length in steps; every score parses; each of the roles `intro`, `deep_intro`, `menu`, `fortress` and `tense` has a tune.
 - Every intro scene's backdrop and every `rise` sprite name intro art; every cue and caption names an intro scene; a cue's `until` and `arrive` come after its `from`, and an `arrive` has a `to`; every caption has its `intro.<id>` string.
+- Every deep intro colour is `#rrggbb`; every cycle's colours, and every ink's `fg` and `bg`, name a colour or a cycle; an ink is one letter other than a space and draws one glyph; every part exists and names inks; every scene's fill, and every letter of the art other than a space, is an ink; every layer, camera key, effect and caption names a scene; every layer's frames are art; a layer's `until` and `arrive` come after its `from`, and an `arrive` has a `to`; a scene's camera keys go in time order; an effect ends after it starts, and a shake has a size; every caption has its `deep_intro.<id>` string.
 - Every Deep threshold has a non-empty emergence list; only integer levels are threshold rows. The later wave formula is not a threshold row.

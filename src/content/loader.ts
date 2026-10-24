@@ -65,6 +65,7 @@ import civilizationsJson from './civilizations.json';
 import confirmationsJson from './confirmations.json';
 import creaturesJson from './creatures.json';
 import damageVsLayerJson from './damageVsLayer.json';
+import deepIntroJson from './deepIntro.json';
 import deepThresholdsJson from './deepThresholds.json';
 import embarkCatalogJson from './embarkCatalog.json';
 import embarkPresetsJson from './embarkPresets.json';
@@ -126,6 +127,7 @@ export function rawTables(): Record<string, unknown> {
     confirmations: confirmationsJson,
     creatures: creaturesJson,
     damageVsLayer: damageVsLayerJson,
+    deepIntro: deepIntroJson,
     deepThresholds: deepThresholdsJson,
     embarkCatalog: embarkCatalogJson,
     embarkPresets: embarkPresetsJson,
@@ -269,6 +271,7 @@ export function loadContent(options: LoadOptions = {}): Registry {
     ['strings', Object.freeze(data['strings'])],
     ['keymap', Object.freeze(data['keymap'])],
     ['intro', Object.freeze(data['intro'])],
+    ['deepIntro', Object.freeze(data['deepIntro'])],
     ['biomeLookup', Object.freeze(data['biomeLookup'])],
     ['ratingThresholds', Object.freeze(data['ratingThresholds'])],
     ['damageVsLayer', Object.freeze(data['damageVsLayer'])],

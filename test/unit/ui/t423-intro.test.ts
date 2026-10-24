@@ -9,7 +9,7 @@ import { Game } from '@app/game';
 import { SettingsStore } from '@app/settings-store';
 import { MemoryStorage } from '@platform/storage';
 import { DEFAULT_USER_SETTINGS, readSettings } from '@ui/settings';
-import { IntroScreen, cueState, introFrame, introTimeline, sceneAt } from '@ui/screens/intro';
+import { IntroScreen, cueState, hallFilm, introFrame, introTimeline, sceneAt } from '@ui/screens/intro';
 import { moodOf } from '@ui/music';
 import { INTRO_STAGE_COLS, INTRO_STAGE_ROWS } from '@ui/constants';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
@@ -109,7 +109,7 @@ describe('T-423 intro: the screen and the skip', () => {
   it('ends once by itself when its time is up', () => {
     const c = clock();
     let done = 0;
-    const screen = new IntroScreen({ now: c.now, done: () => { done += 1; } }, intro, strings);
+    const screen = new IntroScreen({ now: c.now, done: () => { done += 1; } }, hallFilm(intro, strings));
     screen.draw(surface(80, 25));
     c.at += 44999;
     screen.draw(surface(80, 25));
@@ -123,7 +123,7 @@ describe('T-423 intro: the screen and the skip', () => {
 
   it('skips on any key or a click, but not on a modifier alone', () => {
     let done = 0;
-    const screen = new IntroScreen({ now: () => 0, done: () => { done += 1; } }, intro, strings);
+    const screen = new IntroScreen({ now: () => 0, done: () => { done += 1; } }, hallFilm(intro, strings));
     expect(screen.key(press('Shift', { shift: true }))).toBe(false);
     expect(screen.key(press('Control', { ctrl: true }))).toBe(false);
     expect(done).toBe(0);
@@ -131,7 +131,7 @@ describe('T-423 intro: the screen and the skip', () => {
     expect(done).toBe(1);
     expect(screen.key(press('Escape'))).toBe(true);
     expect(done).toBe(1);
-    const clicked = new IntroScreen({ now: () => 0, done: () => { done += 1; } }, intro, strings);
+    const clicked = new IntroScreen({ now: () => 0, done: () => { done += 1; } }, hallFilm(intro, strings));
     clicked.pointerDown();
     expect(done).toBe(2);
   });
@@ -178,7 +178,7 @@ describe('T-423 intro: when it plays', () => {
     g.handleKey(press('i'));
     expect(g.screen).toBe('intro');
     expect(g.musicScene).toBe('intro');
-    expect(moodOf('intro', false)).toBe('intro');
+    expect(moodOf('intro', false, 'hall')).toBe('intro');
     expect(g.textRows().join('\n')).toContain('Any key or click to skip');
     g.handleKey(press(' '));
     await settle(g);

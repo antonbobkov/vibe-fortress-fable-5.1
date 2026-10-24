@@ -17,7 +17,8 @@ import { LegendScreen, type LegendRecord } from '@ui/screens/legend';
 import { GameMenuScreen, type GameMenuHost } from '@ui/screens/game_menu';
 import { ConfirmScreen } from '@ui/screens/confirm';
 import { introFrame } from '@ui/screens/intro';
-import type { IntroDef } from '@content/schema';
+import { deepIntroFrame } from '@ui/screens/intro_deep';
+import type { DeepIntroDef, IntroDef } from '@content/schema';
 import { DEFAULT_USER_SETTINGS, type UserSettings } from '@ui/settings';
 import { cellRows, keymap, palette, registry, strings, surface } from './ui-fixture';
 
@@ -28,6 +29,7 @@ export interface ScreenGolden {
 
 export const SCREENS = [
   'intro',
+  'intro_deep',
   'main_menu',
   'world_gen',
   'world_map',
@@ -52,6 +54,13 @@ export function renderScreen(name: ScreenName): ScreenGolden {
       // The title risen out of the rock, its subtitle under it.
       const s = surface(80, 25);
       introFrame(s, registry.derived<IntroDef>('intro'), strings, 43500);
+      return { text: s.lines(), cells: cellRows(s) };
+    }
+
+    case 'intro_deep': {
+      // The deep intro's eye, open and looking, at the default window of 80 by 45 cells.
+      const s = surface(80, 45);
+      deepIntroFrame(s, registry.derived<DeepIntroDef>('deepIntro'), strings, 24000);
       return { text: s.lines(), cells: cellRows(s) };
     }
 

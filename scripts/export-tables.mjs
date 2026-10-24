@@ -70,6 +70,7 @@ import {
 } from './lib/export/ui.mjs';
 import { exportInstruments, exportTunes } from './lib/export/music.mjs';
 import { exportIntro } from './lib/export/intro.mjs';
+import { exportDeepIntro } from './lib/export/deep-intro.mjs';
 
 const OUT_DIR = join(ROOT, 'src/content');
 
@@ -147,6 +148,7 @@ function build() {
     instruments: exportInstruments(),
     tunes: exportTunes(),
     intro: exportIntro(),
+    deepIntro: exportDeepIntro(),
     strings: exportStrings(thoughts),
   };
 }
