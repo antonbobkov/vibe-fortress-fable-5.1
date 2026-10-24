@@ -1,0 +1,38 @@
+/**
+ * T-427 probe (not committed; filed as reports/data/2026-10-23-t427-scan.probe.ts.txt): three-years-p0-2
+ * at fixture cadence over three years; every 100 ticks, each wild animal in `leave` and since when.
+ * Prints the longest leaves, and the animals still leaving at the end.
+ */
+import { describe, it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T427_SEED'] ?? 'three-years-p0-2';
+const PERIL = Number(process.env['T427_PERIL'] ?? 0);
+
+describe('T-427 leave scan', () => {
+  it('measures how long animals leave', () => {
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const e = w.game.world.entities;
+    const creatures = w.game.registry.table('creatures');
+    const since = new Map<number, number>();
+    const done: { id: number; sp: string; from: number; days: number; ended: string }[] = [];
+    const end = 336 * TICKS_PER_DAY;
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(100, end - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+      const now = new Set<number>();
+      for (const id of e.with(C.Wild)) if (e.get(id, C.Wild)?.state === 'leave') { now.add(id); if (!since.has(id)) since.set(id, w.tick); }
+      for (const [id, from] of [...since]) {
+        if (now.has(id)) continue;
+        done.push({ id, sp: '', from: +(from / TICKS_PER_DAY).toFixed(1), days: +((w.tick - from) / TICKS_PER_DAY).toFixed(2), ended: e.alive(id) ? 'stopped' : 'gone' });
+        since.delete(id);
+      }
+    }
+    const open = [...since].map(([id, from]) => ({ id, sp: creatures.idOf(e.get(id, C.Creature)!.species), from: +(from / TICKS_PER_DAY).toFixed(1), days: +((w.tick - from) / TICKS_PER_DAY).toFixed(2), ended: 'still leaving' }));
+    const all = [...done, ...open].sort((a, b) => b.days - a.days);
+    console.log(`[t427-scan] ${SEED} leaves ${all.length}, over 1 day ${all.filter((r) => r.days > 1).length}, still leaving ${open.length}, longest ${JSON.stringify(all.slice(0, 8))}`);
+  }, 7_200_000);
+});

@@ -20,7 +20,7 @@ export const PREDATOR_HUNGER_DAYS = 3;
 export const EAT_CORPSE_TICKS = 300;
 /** Consecutive unseen ticks before a held wild attack ends. */
 export const ATTACK_PERCEPTION_GRACE_TICKS = 50;
-export const WILD_LIFETIME_DAYS = 28;
+export const WILD_LIFETIME_DAYS = 42;
 /** Per species per day when below cap. */
 export const SPAWN_PERMILLE = 150;
 /** Tiles from any dwarf. */

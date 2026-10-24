@@ -1,0 +1,53 @@
+/**
+ * T-427 probe (not committed; filed as reports/data/2026-10-23-t427-leave.probe.ts.txt): three-years-p0-2
+ * at fixture cadence to T427_FROM (day), then each wild animal in `leave`: its tile, the edge tile 08
+ * picks, the walker labels of both, whether the edge is passable, and its walk over the next ticks.
+ */
+import { describe, it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { edgeTile } from '@systems/animals/brain';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T427_SEED'] ?? 'three-years-p0-2';
+const PERIL = Number(process.env['T427_PERIL'] ?? 0);
+const FROM = Number(process.env['T427_FROM'] ?? 243) * TICKS_PER_DAY;
+
+describe('T-427 leave probe', () => {
+  it('journals the leaving animals', () => {
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    while (w.tick < FROM) {
+      playThreeYears(w, state, Math.min(300, FROM - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const e = w.game.world.entities; const map = w.map;
+    const creatures = w.game.registry.table('creatures');
+    const animals = w.game.world.scheduler.byId('08') as unknown as { brain: Parameters<typeof edgeTile>[0] };
+    const xyz = (t: number): string => t < 0 ? '-' : `${map.xOf(t)},${map.yOf(t)},${map.zOf(t)}`;
+    const host = animals.brain;
+    console.log('[t427] map', map.w, map.h);
+    const leaving = e.with(C.Wild).filter((id) => e.get(id, C.Wild)?.state === 'leave');
+    for (const id of leaving) {
+      const at = w.game.movement.tileOf(id);
+      const cls = 'walker';
+      const x = map.xOf(at); const y = map.yOf(at); const z = map.zOf(at);
+      const cands = [map.index(0, y, z), map.index(map.w - 1, y, z), map.index(x, 0, z), map.index(x, map.h - 1, z)];
+      const edge = edgeTile(host, id);
+      console.log('[t427] leaving', id, creatures.idOf(e.get(id, C.Creature)!.species), 'at', xyz(at), 'label', w.readers.pathing.labelOf(at, cls),
+        'edge', xyz(edge), 'cands', cands.map((c) => `${xyz(c)} pass=${w.readers.pathing.passable(c, cls)} label=${w.readers.pathing.labelOf(c, cls)} kind=${map.kindAt(c)}`).join(' | '),
+        'wild', JSON.stringify(e.get(id, C.Wild)));
+    }
+    const track: Record<number, string[]> = {};
+    for (let t = 0; t < 400; t += 1) {
+      w.step(1);
+      for (const id of leaving) {
+        if (!e.alive(id)) continue;
+        const s = `${xyz(w.game.movement.tileOf(id))}:${e.get(id, C.Wild)?.state}:${xyz(w.game.movement.walkTarget(id))}`;
+        const arr = (track[id] ??= []);
+        if (arr[arr.length - 1] !== s) arr.push(`${w.tick}@${s}`);
+      }
+    }
+    for (const [id, arr] of Object.entries(track)) console.log('[t427] track', id, arr.slice(0, 40).join(' '));
+  }, 3_600_000);
+});

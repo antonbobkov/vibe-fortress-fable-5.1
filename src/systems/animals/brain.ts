@@ -298,7 +298,7 @@ export function isEdgeTile(map: Map3D, i: TileIndex): boolean {
   return x === 0 || y === 0 || x === map.w - 1 || y === map.h - 1;
 }
 
-/** The nearest walkable map-edge tile on the animal's level, or -1. */
+/** The nearest map-edge tile on the animal's level, in a straight line, that it can reach (T-427), or -1. */
 export function edgeTile(host: BrainHost, id: EntityId): TileIndex {
   const map = host.map;
   const at = tileOf(host, id);
@@ -313,7 +313,7 @@ export function edgeTile(host: BrainHost, id: EntityId): TileIndex {
   for (const c of candidates) {
     if (!host.readers.pathing.passable(c, cls)) continue;
     const d = Math.max(Math.abs(map.xOf(c) - x), Math.abs(map.yOf(c) - y));
-    if (d >= bestD) continue;
+    if (d >= bestD || !host.readers.pathing.reachable(at, c, cls)) continue;
     bestD = d;
     best = c;
   }
@@ -609,7 +609,11 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       break;
     }
     case 'leave': {
-      const edge = edgeTile(host, id);
+      // The edge tile chosen for this leave is kept while the walk to it lasts (T-427): picked again
+      // from each tile, the nearest edge changed with the animal's row, and where the way winds the
+      // animal walked to and fro between two edge tiles.
+      const walking = host.movement?.walkTarget(id) ?? -1;
+      const edge = walking >= 0 && isEdgeTile(host.map, walking) ? walking : edgeTile(host, id);
       if (edge < 0 || walk(host, ctx, id, edge) === 'arrived' || isEdgeTile(host.map, at)) host.despawn(id);
       break;
     }
