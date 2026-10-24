@@ -17,5 +17,7 @@ export default defineConfig({
   base: './',
   resolve: { alias: aliases },
   build: { target: 'es2022', outDir: 'dist', sourcemap: true, assetsInlineLimit: 0 },
-  server: { port: 5173 },
+  // Agent worktrees live under .claude/; watching them reloads the page on every agent build and
+  // can crash the watcher on a file a test holds open (EBUSY).
+  server: { port: 5173, watch: { ignored: ['**/.claude/**', '**/dist/**', '**/coverage/**'] } },
 });
