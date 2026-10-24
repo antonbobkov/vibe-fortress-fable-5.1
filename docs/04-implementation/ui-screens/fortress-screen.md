@@ -89,6 +89,16 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 │ Labors   [l] edit                         │
 ```
 
+On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes first, then the designation, traffic, building and zone lines, then `Here:` and one line for each item (`1 granite stone · 3 ☼`) and each creature (`Ketil Ironvein, Digging`) on the tile:
+
+```
+│ Look · (21, 20, z32)                 [x] │
+│ Tabs: [1]Tile [2]Items(1) [3]Creatures(0) │
+│ Granite floor                             │
+│ Here:                                     │
+│   1 granite stone · 3 ☼                   │
+```
+
 The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do.
 
 A dwarf who is a patient has a `Care:` line under the Health line, on top of the health details (an undiagnosed patient keeps `Health: Wounded, bleeding` and still has the line). It is the first of these that applies, and it is drawn in the alert color when the player must act (the first three, and a missing supply) and in the normal color otherwise:

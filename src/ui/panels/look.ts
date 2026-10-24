@@ -94,6 +94,21 @@ export function creatureSummary(readers: ReaderSet, id: EntityId): string {
   return activity.length > 0 ? `${name}, ${activity}` : name;
 }
 
+/**
+ * The status row's hover summary (24 § Inspection): the first creature on the tile, or the terrain,
+ * then what else is there: the one other thing by name, or how many.
+ */
+export function tileContents(readers: ReaderSet, registry: Registry, strings: Strings, i: TileIndex): string {
+  const creatures = creaturesAt(readers, i);
+  const items = itemsAt(readers, i);
+  const summary = creatures.length > 0 ? creatureSummary(readers, creatures[0] as EntityId) : tileSummary(readers, strings, i);
+  const others = creatures.length - (creatures.length > 0 ? 1 : 0) + items.length;
+  if (others === 0) return summary;
+  if (others > 1) return strings.get('ui.status.here_more', { summary, n: others });
+  const thing = items.length === 1 ? itemName(readers, registry, items[0] as EntityId) : readers.entities.get(creatures[1] as EntityId, C.Creature)?.name ?? '';
+  return strings.get('ui.status.here_one', { summary, thing });
+}
+
 /** A patient's Care line: what happens next, and whether the player must act (17 § Patients and hospitals). */
 export interface CareLine {
   readonly text: string;
@@ -217,6 +232,12 @@ export function drawLookPanel(
       else if (info.restricted) line(strings.get('ui.look.restricted'));
     }
     for (const text of buildingLines(readers, registry, strings, tile)) line(text);
+    // Everything else on the tile, so nothing here is seen only on another tab (24 § Inspection).
+    if (itemIds.length + creatures.length > 0) {
+      line(strings.get('ui.look.here'), t.key);
+      for (const id of itemIds) line(`  ${itemLine(readers, registry, id)}`);
+      for (const id of creatures) line(`  ${creatureSummary(readers, id)}`);
+    }
     if (has(readers, '14')) {
       const b = readers.of<BuildingsReader>('14');
       const id = b.at(tile);
@@ -363,15 +384,24 @@ const FLAG_WORDS: [number, string][] = [
   [16, 'owned'],
 ];
 
-/** 13's `item` section on one line: "5 oak log (common) · 15 ☼ · forbidden". */
-function itemLine(readers: ReaderSet, registry: Registry, id: EntityId): string {
+/** An item as a count and a name: "5 oak logs" is written "5 oak log", as the item section does. */
+function itemName(readers: ReaderSet, registry: Registry, id: EntityId): string {
   const it = readers.of<ItemsReaderLike>('13');
   const rec = it.get(id);
   if (rec === undefined) return '';
   const def = it.def(rec.type);
   const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
   const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
-  const parts = [`${rec.count} ${meal ?? materialItemName(material, { name: def?.name ?? '' })}`.trim()];
+  return `${rec.count} ${meal ?? materialItemName(material, { name: def?.name ?? '' })}`.trim();
+}
+
+/** 13's `item` section on one line: "5 oak log (common) · 15 ☼ · forbidden". */
+function itemLine(readers: ReaderSet, registry: Registry, id: EntityId): string {
+  const it = readers.of<ItemsReaderLike>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return '';
+  const def = it.def(rec.type);
+  const parts = [itemName(readers, registry, id)];
   if (def?.quality === true) parts[0] += ` (${QUALITY_WORDS[rec.quality] ?? ''})`;
   parts.push(`${it.value(id)} ☼`);
   for (const [flag, word] of FLAG_WORDS) if ((rec.flags & flag) !== 0) parts.push(word);
