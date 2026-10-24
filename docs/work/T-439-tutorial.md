@@ -1,6 +1,6 @@
 # T-439 — A step-by-step scripted tutorial
 
-**Source:** the owner, 2026-10-23 (first play session) · **Size:** L · **Needs:** T-437, T-438, T-441 · **Status:** open
+**Source:** the owner, 2026-10-23 (first play session) · **Size:** L · **Needs:** T-437, T-441 · **Status:** open
 
 ## Why
 
@@ -11,7 +11,7 @@ The owner wants new players walked through the basics at the start of a game.
 1. **When.** A "Tutorial" choice on the main menu (and offered on the first ever New world) starts a tutorial fortress on a fixed, friendly seed: temperate forest, peril 0, a river, soil and trees.
 2. **Steps.** A sequence, each with a short instruction, a highlight of the relevant UI or map area, and a completion check read from the simulation or the UI:
    1. Move the view and change z-level.
-   2. Look at a tile and a dwarf (T-438).
+   2. Look at a tile and a dwarf, with the look panel.
    3. Designate a dig with a two-click rectangle (T-441), and watch it blink while queued (T-437).
    4. Dig stairs down.
    5. Make a stockpile.

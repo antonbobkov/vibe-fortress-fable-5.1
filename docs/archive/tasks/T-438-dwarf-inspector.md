@@ -1,6 +1,8 @@
 # T-438 — A dwarf sheet: status, needs, mood, job, orders, health, gear
 
-**Source:** the owner, 2026-10-23 (first play session) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-23, in nothing (dropped by the owner).
+
+**Source:** the owner, 2026-10-23 (first play session) · **Size:** M · **Needs:** — · **Status:** dropped by the owner, 2026-10-23 (the look panel already shows dwarves; the owner found it)
 
 ## Why
 
