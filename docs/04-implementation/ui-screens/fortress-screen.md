@@ -130,17 +130,17 @@ Sections come from the inspector registry in this order: identity, activity, nee
 │ Priority [-] 5 [+]   (1–9)              │
 │ [Ctrl+Z] undo  [Del] clear              │
 │ [S-p] last batch to priority 5          │
-│ Drag, or click/Enter two corners.       │
+│ Click 2 corners; [<] [>] levels.        │
 │ S- is Shift                             │
 ```
 
-The captions are short so that none is cut at the 36-column sidebar; the tool's full name stays in the status row ("Remove construction · priority 5", "Gather plants", "Traffic (restricted)"). The footer is two whole lines ("[Ctrl+Z] undo  [Del] clear" and "Drag, or click/Enter two corners.").
+The captions are short so that none is cut at the 36-column sidebar; the tool's full name stays in the status row ("Remove construction · priority 5", "Gather plants", "Traffic (restricted)"). The footer is two whole lines ("[Ctrl+Z] undo  [Del] clear" and "Click 2 corners; [<] [>] levels.", the z-level keys named as they are bound; `Enter` sets a corner too).
 
 `d` opens the panel with Dig chosen (`d` again closes it). The letters that open panels take `Shift` here (`panels.md`).
 
 `[S-p]` (or a click on its row) gives the tool's priority to the tiles of the last batch that are still designated (`SetDesignationPriority`); with no batch, or no remaining designation in it, it says so.
 
-While dragging: the rectangle is inverted on the map and the status bar reads `Dig 12×4 (48 tiles), priority 5`.
+After the first corner, or while dragging, the box's slice on the current level is inverted on the map and the status bar reads `Dig 12×4 (48 tiles), priority 5`, or `Dig 12×4×3 levels (144 tiles), priority 5` once the level differs from the first corner's (24 § Input model).
 
 ## Build tool
 

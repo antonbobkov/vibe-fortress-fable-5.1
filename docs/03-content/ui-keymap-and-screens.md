@@ -542,8 +542,8 @@ The mouse is not rebindable; § Mouse lists its gestures.
 
 | Gesture | With no tool | With a tool |
 |---|---|---|
-| Left click | inspect the tile (look panel); on a building, open its panel | apply to one tile / place building |
-| Left drag | select a rectangle (then `Delete`, `[S-f]` forbid, `[S-d]` dump, `[S-t]` move to depot) | designate / draw zone rectangle |
+| Left click | inspect the tile (look panel); on a building, open its panel | a designation tool: the first corner of its box, then the opposite corner, which designates (the box may span the levels between) / a zone: one tile / place building |
+| Left drag | select a rectangle (then `Delete`, `[S-f]` forbid, `[S-d]` dump, `[S-t]` move to depot) | designate a box on one level / draw zone rectangle |
 | Right click | inspect with the entity list | cancel the tool |
 | Wheel | z-level on the map; over the sidebar, scrolls the list under the pointer three rows a notch and never changes the level | same |
 | `Ctrl` + wheel | zoom | zoom |

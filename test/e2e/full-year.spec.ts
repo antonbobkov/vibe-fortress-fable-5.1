@@ -687,7 +687,9 @@ test('full-year', async ({ page }) => {
   // 6. Surface trees chop: d, Shift+T, designate 10 nearby trees for carpentry and construction
   await page.keyboard.press('d');
   await page.keyboard.press('Shift+T');
+  // T-441: one tile is two clicks on it (the first is the corner of a box).
   for (const t of site.trees.slice(0, 10)) {
+    await dragTiles(page, { x: t.x, y: t.y }, { x: t.x, y: t.y });
     await dragTiles(page, { x: t.x, y: t.y }, { x: t.x, y: t.y });
   }
   // Clear tree barrier at x: 0..3, y: 16..20 so caravan edge path is open
@@ -723,6 +725,7 @@ test('full-year', async ({ page }) => {
   }, undoTile);
   await page.keyboard.press('d');
   await page.keyboard.press('Shift+C');
+  await dragTiles(page, undoTile, undoTile);
   await dragTiles(page, undoTile, undoTile);
   await closePanels(page);
   expect(await designated(), 'the channel designation is on the patch').toBe(true);

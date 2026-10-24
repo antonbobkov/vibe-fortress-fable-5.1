@@ -77,6 +77,30 @@ export function rectTiles(map: MapReader, a: TilePoint, b: TilePoint): TileIndex
   return out;
 }
 
+/**
+ * The tiles of the box spanned by two corners: the rectangle on every level from the first
+ * corner's to the second's, level by level from the top, each level in index order (24 § Input
+ * model).
+ */
+export function boxTiles(map: MapReader, a: TilePoint, b: TilePoint): TileIndex[] {
+  const out: TileIndex[] = [];
+  for (let z = Math.max(a.z, b.z); z >= Math.min(a.z, b.z); z -= 1) out.push(...rectTiles(map, { x: a.x, y: a.y, z }, { x: b.x, y: b.y, z }));
+  return out;
+}
+
+/** The levels a box spans. */
+export function boxLevels(a: TilePoint, b: TilePoint): number {
+  return Math.abs(a.z - b.z) + 1;
+}
+
+/** The stair designations that a box over several levels makes into stair columns. */
+const STAIR_KINDS: ReadonlySet<string> = new Set(['stairs_up', 'stairs_down', 'stairs_updown', 'stairwell']);
+
+/** A stair column's designation on each level: down stairs on top, up/down between, up stairs at the bottom (03 `DesignateStairwell`). */
+function columnKind(z: number, zTop: number, zBottom: number): Designation {
+  return z === zTop ? Designation.StairsDown : z === zBottom ? Designation.StairsUp : Designation.StairsUpDown;
+}
+
 export interface DesignateContext {
   readonly map: MapReader;
   /** 03's transition precondition for a tile and kind (`precondition()` of `@systems/terrain`). */
@@ -136,29 +160,40 @@ export class DesignateTool {
   }
 
   /**
-   * The commands a finished rectangle submits. A designation keeps the tiles that pass 03's
-   * precondition or are undiscovered; traffic takes every tile; clearing takes the designated
-   * tiles; a stairwell is the column between the two corners' levels at the first corner.
+   * The commands a finished box submits (24 § Input model). A designation keeps the tiles that pass
+   * 03's precondition or are undiscovered; traffic takes every tile; clearing takes the designated
+   * tiles; a stair tool over more than one level makes a stair column on each tile of the
+   * rectangle, leaving out a column with a discovered tile that cannot take its stairs.
    */
   commands(ctx: DesignateContext, a: TilePoint, b: TilePoint): Command[] {
     const map = ctx.map;
+    const passes = (i: TileIndex, d: Designation): boolean => (map.flagsAt(i) & TileFlag.Discovered) === 0 || ctx.precondition(i, d);
     if (this.clearing) {
-      const tiles = rectTiles(map, a, b).filter((i) => map.designationAt(i) !== Designation.None);
+      const tiles = boxTiles(map, a, b).filter((i) => map.designationAt(i) !== Designation.None);
       return tiles.length === 0 ? [] : [{ type: 'UndoDesignation', tiles }];
     }
     const kind = this.current();
     if (kind === undefined) return [];
-    if (kind.special === 'traffic') return [{ type: 'SetTraffic', tiles: rectTiles(map, a, b), mode: this.traffic }];
-    if (kind.special === 'stairwell') {
-      if (a.z === b.z) return [];
-      return [{ type: 'DesignateStairwell', x: a.x, y: a.y, zTop: Math.max(a.z, b.z), zBottom: Math.min(a.z, b.z), priority: this.priority }];
+    if (kind.special === 'traffic') return [{ type: 'SetTraffic', tiles: boxTiles(map, a, b), mode: this.traffic }];
+    if (STAIR_KINDS.has(kind.id) && a.z !== b.z) {
+      const zTop = Math.max(a.z, b.z);
+      const zBottom = Math.min(a.z, b.z);
+      const out: Command[] = [];
+      for (const top of rectTiles(map, { x: a.x, y: a.y, z: zTop }, { x: b.x, y: b.y, z: zTop })) {
+        const x = top % map.w;
+        const y = Math.floor(top / map.w) % map.h;
+        let ok = true;
+        for (let z = zTop; z >= zBottom && ok; z -= 1) ok = passes(map.index(x, y, z), columnKind(z, zTop, zBottom));
+        if (ok) out.push({ type: 'DesignateStairwell', x, y, zTop, zBottom, priority: this.priority });
+      }
+      return out;
     }
+    // A stairwell needs two levels.
+    if (kind.special === 'stairwell') return [];
     // `command-catalog.md`: `DesignateHarvest { tiles[] }` is 07's, which marks the ripe crops.
-    if (kind.designation === Designation.Harvest) return [{ type: 'DesignateHarvest', tiles: rectTiles(map, a, b) }];
+    if (kind.designation === Designation.Harvest) return [{ type: 'DesignateHarvest', tiles: boxTiles(map, a, b) }];
     const designation = kind.designation as Designation;
-    const tiles = rectTiles(map, a, b).filter(
-      (i) => (map.flagsAt(i) & TileFlag.Discovered) === 0 || ctx.precondition(i, designation),
-    );
+    const tiles = boxTiles(map, a, b).filter((i) => passes(i, designation));
     if (tiles.length === 0) return [];
     return [{ type: 'Designate', tiles, kind: kind.id, priority: this.priority }];
   }

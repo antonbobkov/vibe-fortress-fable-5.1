@@ -255,10 +255,14 @@ const scenario: Scenario = {
         screen.pointerDown(pointer(20, 20));
         expect(ui.panel).toBe('look');
         expect(ui.cursor).toEqual({ x: 20, y: 20 });
-        // With a tool: the press applies to the one tile under it.
+        // With a tool (T-441 two-click box): the first click is a corner, the second designates.
         screen.openPanel('designate');
         screen.tool.choose('d');
         submitted.length = 0;
+        screen.pointerDown(pointer(21, 21));
+        screen.pointerUp(pointer(21, 21));
+        expect(submitted, 'the first click only sets the corner').toEqual([]);
+        expect(screen.tool.anchor).toEqual({ x: 21, y: 21, z: Z });
         screen.pointerDown(pointer(21, 21));
         screen.pointerUp(pointer(21, 21));
         const one = submitted.find((c) => c.type === 'Designate');
