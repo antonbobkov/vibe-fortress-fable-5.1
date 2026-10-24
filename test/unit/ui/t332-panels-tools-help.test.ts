@@ -56,7 +56,7 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[7]).toBe('Priority [-] 5 [+]   (1-9)');
     expect(rows[8]).toBe('[Ctrl+Z] undo  [Del] clear');
     expect(rows[9]).toBe('[S-p] last batch to priority 5');
-    expect(rows[10]).toBe('Drag, or click/Enter two corners.');
+    expect(rows[10]).toBe('Click 2 corners; [<] [>] levels.');
   });
 
   it('Overlays lists the map layers with a tick for the two that are on, and the debug layers apart', () => {

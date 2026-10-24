@@ -1,5 +1,7 @@
 # T-441 — Two-click rectangle designation, in 3D, and stair columns
 
+**Closed:** 2026-10-23, in 1a48590.
+
 **Source:** the owner, 2026-10-23 (first play session) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

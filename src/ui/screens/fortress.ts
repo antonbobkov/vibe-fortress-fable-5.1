@@ -24,7 +24,7 @@ import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
-import { drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
+import { boxLevels, drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
 import { buildings, confirmThen, type PanelContext } from '../panels/context';
@@ -555,7 +555,9 @@ export class FortressScreen implements Screen {
     if (tool === null) return;
     const a = tool.anchor;
     const b = tool.end ?? this.aimPoint();
-    if (a === null || b === null || a.z !== this.ui.z) return;
+    if (a === null || b === null) return;
+    // A designation box shows its slice on the current level; a zone rectangle lies on its first corner's.
+    if (tool === this.zones ? a.z !== this.ui.z : this.ui.z < Math.min(a.z, b.z) || this.ui.z > Math.max(a.z, b.z)) return;
     if (tool === this.zones) {
       this.drawZoneRect(surface, map, a, b);
       return;
@@ -912,10 +914,12 @@ export class FortressScreen implements Screen {
       const name = this.tool.name(s);
       const a = this.tool.anchor;
       const b = this.tool.end ?? this.aimPoint();
-      if (this.tool.kind === 'stairwell' && a !== null) return s.get('ui.status.stairwell_top', { z: a.z });
+      if (this.tool.kind === 'stairwell' && a !== null && (b === null || b.z === a.z)) return s.get('ui.status.stairwell_top', { z: a.z });
       if (a !== null && b !== null) {
         const w = Math.abs(a.x - b.x) + 1;
         const h = Math.abs(a.y - b.y) + 1;
+        const d = boxLevels(a, b);
+        if (d > 1) return s.get('ui.status.drag_box', { tool: name, w, h, d, n: w * h * d, priority: this.tool.priority });
         return s.get('ui.status.drag', { tool: name, w, h, n: w * h, priority: this.tool.priority });
       }
       if (this.tool.kind === 'traffic') return s.get('ui.status.tool_mode', { tool: name, mode: s.get(`ui.tool.traffic.${this.tool.traffic}`) });
@@ -1396,9 +1400,8 @@ export class FortressScreen implements Screen {
       this.clearNotice();
       return;
     }
-    const a = this.tool.anchor;
-    // A stairwell's two points differ in level; a rectangle's lie on the first point's level.
-    this.commit(a, this.tool.kind === 'stairwell' ? p : { x: p.x, y: p.y, z: a.z });
+    // The second corner is on the current level: the box spans every level between (24 § Input model).
+    this.commit(this.tool.anchor, p);
   }
 
   /** "`Esc` cancels the current tool, then closes the panel, then opens the game menu." */
@@ -2100,7 +2103,8 @@ export class FortressScreen implements Screen {
       const tile = this.tileOf(at);
       if (tile !== null && this.zones.select(this.ctx, tile)) return;
     }
-    if (this.tool.kind === 'stairwell' && this.tool.anchor !== null && this.tool.anchor.z !== at.z) {
+    // The second click sets the opposite corner and designates the box.
+    if (this.tool.active && this.tool.anchor !== null) {
       this.commit(this.tool.anchor, at);
       return;
     }
@@ -2186,13 +2190,11 @@ export class FortressScreen implements Screen {
     const at = this.pointOfCell(p.col, p.row);
     const b = at === null ? this.tool.end : { x: at.x, y: at.y, z: a?.z ?? this.ui.z };
     if (a === null || b === null) return;
-    if (this.tool.kind === 'stairwell') {
-      // A stairwell spans levels: the click marks the top; the bottom is the next point (Enter
-      // or click) after changing level.
-      if (a.x === b.x && a.y === b.y) {
-        this.tool.end = null;
-        return;
-      }
+    // A click that stays on its tile is the first corner: the box follows the cursor until the
+    // second click. A drag to another tile is the box on this level at once.
+    if (a.x === b.x && a.y === b.y) {
+      this.tool.end = null;
+      return;
     }
     this.commit(a, b);
   }

@@ -86,6 +86,10 @@ describe('T-M1-14 designate tool: drag rectangle → Designate', () => {
     expect(spy).not.toHaveBeenCalled();
     // A channel is allowed on floor.
     key(game, 'c', { shift: true });
+    // T-441: a click is the first corner; a second click on the same tile designates it.
+    game.pointerDown(cell(game, 2, 2));
+    game.pointerUp(cell(game, 2, 2));
+    expect(spy).not.toHaveBeenCalled();
     game.pointerDown(cell(game, 2, 2));
     game.pointerUp(cell(game, 2, 2));
     expect((spy.mock.calls[0]?.[0] as Command)['kind']).toBe('channel');
