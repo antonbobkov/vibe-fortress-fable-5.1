@@ -12,5 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-427 | [Wild animals in `leave` stay for weeks near the map edge](work/T-427-animals-stuck-leaving.md) | T-421's diagnosis | — | open |
+| T-434 | [The deep intro without chapter cards or zooms](work/T-434-deep-intro-no-chapters-no-zoom.md) | the owner, 2026-10-23 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
