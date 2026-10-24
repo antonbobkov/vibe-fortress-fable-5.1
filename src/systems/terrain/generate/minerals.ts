@@ -172,6 +172,23 @@ export function paintDeepsilver(g: LocalGen, st: RngStream, start: TileIndex, ne
   paintVein(map, st, start, DEEPSILVER_VEIN_LENGTH, () => DEEPSILVER_VEIN_RADIUS, ore, ok);
 }
 
+/**
+ * The expected number of veins or clusters of one ore row (`Fixed`): its count × the wealth
+ * multiplier, with the `ironheart` and `glasslands` adjustments.
+ */
+export function expectedOreCount(
+  m: { readonly id: string; readonly count: number; readonly tags?: readonly string[] },
+  oreMultiplier: Fixed,
+  traits: readonly string[],
+): Fixed {
+  let expected = Math.floor((m.count * oreMultiplier) / 100); // count is ×100; mult is Fixed
+  if (traits.includes('ironheart') && m.id === 'hematite') expected = IRONHEART_HEMATITE * FIXED_SCALE;
+  if (traits.includes('ironheart') && m.id === 'magnetite') expected = IRONHEART_MAGNETITE * FIXED_SCALE;
+  if (traits.includes('glasslands') && m.id === 'native_copper') expected += FIXED_SCALE;
+  if (traits.includes('glasslands') && (m.tags ?? []).includes('fuel')) expected = Math.floor(expected / 2);
+  return expected;
+}
+
 export function stageMinerals(g: LocalGen): void {
   const st = stageStream(g.s, 'terrain.minerals');
   const map = g.map;
@@ -189,11 +206,7 @@ export function stageMinerals(g: LocalGen): void {
   for (const id of minerals.ids()) {
     const m = minerals.byId(id) as MineralRow;
     if (m.deepsilver === true) continue;
-    let expected = Math.floor((m.count * mult.ore) / 100); // count is ×100; mult is Fixed
-    if (hasTrait(g, 'ironheart') && id === 'hematite') expected = IRONHEART_HEMATITE * FIXED_SCALE;
-    if (hasTrait(g, 'ironheart') && id === 'magnetite') expected = IRONHEART_MAGNETITE * FIXED_SCALE;
-    if (hasTrait(g, 'glasslands') && id === 'native_copper') expected += FIXED_SCALE;
-    if (hasTrait(g, 'glasslands') && (m.tags ?? []).includes('fuel')) expected = Math.floor(expected / 2);
+    const expected = expectedOreCount(m, mult.ore, g.spec.traits);
     const record = { mineral: id, expected, placed: 0 };
     g.veins.push(record);
     const hosts = new Set(m.hosts.map((h) => materials.index(h)));

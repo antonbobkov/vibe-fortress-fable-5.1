@@ -10,6 +10,7 @@ import { TileKind } from '@core/map3d';
 import { noise2 } from '@core/noise';
 import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
+import type { LocalMapSpec } from '@systems/embark';
 import { COL_LAKE, COL_RIVER, clamp, hasTrait, materialIndex, stageStream, type LocalGen, type StackLayer } from './common';
 
 interface TemplateRow {
@@ -77,9 +78,14 @@ export function layerAt(stack: readonly StackLayer[], depth: number): string {
   return (stack[layerIndexAt(stack, depth)] as StackLayer).material;
 }
 
+/** The soil depth a spec gives: the biome's, `+2` on `serene_vale`. */
+export function specSoilDepth(spec: Pick<LocalMapSpec, 'soilDepth' | 'traits'>): number {
+  return spec.soilDepth + (spec.traits.includes('serene_vale') ? SERENE_VALE_SOIL_BONUS : 0);
+}
+
 /** The soil depth of the map: the biome's, `+2` on `serene_vale`. */
 export function soilDepthOf(g: LocalGen): number {
-  return g.spec.soilDepth + (hasTrait(g, 'serene_vale') ? SERENE_VALE_SOIL_BONUS : 0);
+  return specSoilDepth(g.spec);
 }
 
 /**

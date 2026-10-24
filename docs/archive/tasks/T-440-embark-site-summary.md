@@ -1,5 +1,7 @@
 # T-440 — The embark screen says what a site has and lacks
 
+**Closed:** 2026-10-24, in acaf429.
+
 **Source:** the owner, 2026-10-23 (first play session) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

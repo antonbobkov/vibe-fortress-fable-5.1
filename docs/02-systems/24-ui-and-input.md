@@ -130,7 +130,7 @@ Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) 
 - **Intro**: a short animated film in one of two styles, chosen by the Intro style setting (`ui-screens/menus-and-world.md` § Intro): `deep`, the default, in big block art (its scenes are content, `03-content/deep-intro.md`), or `hall`, in the game's glyphs (`03-content/intro.md`). It plays at launch before the main menu as the Intro at launch setting says (`first time`: only at the first launch; `always`; `off`), and from the main menu's `Intro`. Any key or click skips it; when it ends or is skipped, the main menu opens.
 - **Main menu**: `New world`, `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys and mouse.
 - **World generation** (01): seed text field, size dropdown, `Generate`, progress with the preview, `Continue`.
-- **World map** (01): the map with the cursor; the region panel on the right; the filter panel (`f`); `Embark` (`Enter` on a valid region). Legend of biome glyphs (`?`).
+- **World map** (01): the map with the cursor; the region panel on the right, with the site summary of 02 and its missing essentials in the alert colour, scrolled by `PageUp` `PageDown` and the wheel when it is longer than the window; the filter panel (`f`); `Embark` (`Enter` on a valid region). Legend of biome glyphs (`?`).
 - **Embark** (02): three tabs, footer with budget and `Embark`; Balanced is applied on opening. Missing pick or food/drink asks the default-No confirmation before embarking.
 - **Trade session** (20): modal two-column table.
 - **Legend**: the record of a fortress (see 24 › Legend record below); `Back`.
@@ -226,6 +226,8 @@ This entire document.
 | `UI_NORMAL_SPACING` | 3 | Normal gap between tabs and status fields (*unmeasured*) |
 | `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport (*unmeasured*) |
 | `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button (*unmeasured*) |
+| `SITE_LIST_NAMES` | 2 | Names a row of the world map's site summary lists before "and N more" (*unmeasured*) |
+| `SITE_LABEL_COLS` | 9 | Width of the site summary's row labels, cells |
 | `SETTINGS_VOLUME_STEP` | 10 | Step of the music and sound volumes |
 | `INTRO_STAGE_COLS` | 64 | Width of the intro's stage, cells |
 | `INTRO_STAGE_ROWS` | 16 | Height of the intro's stage, cells |

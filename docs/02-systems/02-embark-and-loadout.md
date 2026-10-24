@@ -1,6 +1,6 @@
 # 02 Embark & Loadout
 
-**Owner:** `systems/embark` · **Depends on:** [01-world-generation.md](01-world-generation.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [10-dwarves.md](10-dwarves.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
+**Owner:** `systems/embark` · **Depends on:** [01-world-generation.md](01-world-generation.md), [03-terrain-and-mining.md](03-terrain-and-mining.md), [06-weather-and-seasons.md](06-weather-and-seasons.md), [08-animals-and-domestication.md](08-animals-and-domestication.md), [10-dwarves.md](10-dwarves.md), [`../01-architecture/constants.md`](../01-architecture/constants.md)
 
 ## Purpose
 
@@ -66,6 +66,23 @@ LocalMapSpec {
 
 03 generates the map from this and nothing else, so a region always generates the same local map.
 
+### Site summary
+
+Before the player chooses a site, the world map's region panel summarises what its local map will have (`04-implementation/ui-screens/menus-and-world.md` § World map). The summary is computed from the region's `LocalMapSpec` and the content tables 03 reads, by the rules of 03 § Local map generation, so it never says what the map will not have. What generation rolls is given as an estimate and says so ("about", "likely").
+
+| Row | What it says | Rule |
+|---|---|---|
+| Soil | the soil materials, most common first, and the depth in levels; or none, on bare rock or obsidian | 03 stage 3: `soilDepth` of the biome (+2 and `loam` only on `serene_vale`); none where it is 0 (`alpine`) and on `glasslands`, whose surface is obsidian |
+| Trees | about `treeDensity × LOCAL_MAP_W × LOCAL_MAP_H` trees, and the species by weight (willows too when a river is carved); or none | 03 stage 9: trees grow only on soil; `glasslands` density |
+| Shrubs | about `(1 − treeDensity) × shrubDensity × LOCAL_MAP_W × LOCAL_MAP_H` shrubs and their species, or none; grass to graze, or no grass and cave moss below | 03 stage 9: shrubs and grass only on soil; cave loam floors carry grass (07 § Grass) |
+| Water | the river carved (its class, inflow and outflow edges, or a lake at its end), the region's lake, `gemsprings`' warm springs; "likely frozen in winter" when the winter value below is under `FREEZE_C`; or none on the surface | 03 stage 2: a river with no inflow edge carves no path, so a river's source region has none; the springs need dry surface soil (stage 10) |
+| Stone | the geology class and its layers, top down (basalt first on `glasslands`) | 03 stage 4 and the layer templates |
+| Ores | likely: every ore whose expected count (03 stage 7, with the `ironheart` and `glasslands` changes) is at least one and whose host is a layer the map must reach, most expected first; deepsilver when the wealth gives deepsilver veins | a layer is reached when its deepest possible top (the maximum thicknesses above it) lies above the lowest rock level under the lowest possible surface (stage 1's base minus the relief amplitude, less the soil) |
+| Climate | the temperature band of the region's `tempC`, the mean, and summer and winter as `seasonBase + temperSpread`; under `frostmarrow`, spring and autumn as cold | 01 § Biomes bands; 06 § Surface temperature |
+| Wildlife | the biome's surface species by weight: the aggressive and territorial ones as dangerous, then the rest; `serene_vale` removes its banned species | 08 § Wild spawning |
+
+The missing essentials come first, in the alert colour, each with its consequence and workaround: no surface soil (farm in a cavern or on mud, graze in a cavern), no trees (wood only from the wagon, logs brought, caravans and cavern fungus), no water on the surface (drink only what is brought or brewed; dig to a cavern lake). Water is missing when there is no carved river, no lake and no spring.
+
 ### Arrival
 
 1. Generate the local map (03).
@@ -99,7 +116,7 @@ Not applicable: there is no embark reader. The app constructs the embark session
 
 ## Player-facing behavior
 
-The embark screen has three tabs and a footer:
+The site is chosen on the world map, whose region panel carries the site summary (§ Site summary). The embark screen has three tabs and a footer:
 
 - **Dwarves**: list of seven; selecting one shows name (editable), age, attributes as bars, personality words, and the skill list with +/− controls and remaining points. Reroll button.
 - **Supplies**: catalog grouped by category with quantity fields, unit price, line total.

@@ -15,13 +15,15 @@ import type { Registry } from '@core/registry';
 import type { Civ, Edge } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { WorldMapCompositor } from '@render/world-map';
+import { localMapSpec, siteSummary, type SiteSummary } from '@systems/embark';
 import { CIVS, matchesFilter, type RegionFilter, type RegionRecord, type WorldMap } from '@systems/worldgen';
+import { SITE_LABEL_COLS, SITE_LIST_NAMES } from '../constants';
 import type { KeyContext, Keymap } from '../keymap';
-import { clickHit, type CellPointer, type Screen } from '../screen';
+import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { bar, button, label, list, separator, type ListState } from '../widgets';
-import { wrapText } from '../messages';
+import { wrapHang, wrapText } from '../messages';
 
 /** `01` § Region record: ratings are integers 0–`RATING_MAX`; the wireframe draws five cells. */
 export const RATING_BAR_CELLS = 5;
@@ -29,6 +31,9 @@ const RATING_TOP = 4;
 
 /** `world_map` › arrows: "move the cursor (`Shift`: 8)". */
 export const WORLD_CURSOR_SHIFT_STEP = 8;
+
+/** `ui-keymap-and-screens.md` § Mouse: the wheel over the sidebar "scrolls … three rows a notch". */
+const WHEEL_ROWS = 3;
 
 export interface WorldMapHost {
   embark(world: WorldMap, regionId: number): void;
@@ -48,6 +53,12 @@ interface NamedRow {
 }
 
 type TriState = 'any' | 'yes' | 'no';
+
+/** The colour of a region panel line: the name, plain text, a note, a missing essential. */
+export type PanelTone = 'key' | 'text' | 'dim' | 'alert';
+
+/** One line of the region panel: words in a tone, or a rating with its bar. */
+export type PanelLine = { readonly text: string; readonly fg: PanelTone } | { readonly rating: string; readonly value: number };
 
 /** The filter panel's state; everything open by default. */
 export interface FilterState {
@@ -106,6 +117,13 @@ export class WorldMapScreen implements Screen {
   private readonly biomes: BiomeRow[];
   private readonly traitNames: Map<string, string>;
   private readonly civNames: Map<string, string>;
+  private readonly materialNames: Map<string, string>;
+  private readonly plantNames: Map<string, string>;
+  private readonly creatureNames: Map<string, string>;
+  private siteCache: { regionId: number; summary: SiteSummary } | null = null;
+  /** The first region panel line shown; the panel scrolls when its text is longer than it. */
+  regionScroll = 0;
+  private panelCols = SIDEBAR_COLS;
 
   constructor(
     readonly world: WorldMap,
@@ -113,12 +131,18 @@ export class WorldMapScreen implements Screen {
     private readonly keymap: Keymap,
     private readonly strings: Strings,
     private readonly compositor: WorldMapCompositor,
-    registry: Registry,
+    private readonly registry: Registry,
   ) {
     const biomes = registry.table<BiomeRow>('biomes');
     this.biomes = biomes.ids().map((id) => biomes.byId(id) as BiomeRow);
-    const traits = registry.table<NamedRow>('regionTraits');
-    this.traitNames = new Map(traits.ids().map((id) => [id, (traits.byId(id) as NamedRow).name]));
+    const names = (table: string): Map<string, string> => {
+      const t = registry.table<NamedRow>(table);
+      return new Map(t.ids().map((id) => [id, (t.byId(id) as NamedRow).name]));
+    };
+    this.traitNames = names('regionTraits');
+    this.materialNames = names('materials');
+    this.plantNames = names('plants');
+    this.creatureNames = names('creatures');
     const civs = registry.table<NamedRow>('civilizations');
     this.civNames = new Map(civs.ids().map((id) => [id, (civs.byId(id) as NamedRow).name.replace(/^the /, '')]));
     const mid = Math.floor(world.size / 2);
@@ -161,6 +185,7 @@ export class WorldMapScreen implements Screen {
       x: Math.max(0, Math.min(size - 1, this.cursor.x + dx)),
       y: Math.max(0, Math.min(size - 1, this.cursor.y + dy)),
     };
+    this.regionScroll = 0;
     this.follow();
   }
 
@@ -179,6 +204,7 @@ export class WorldMapScreen implements Screen {
   draw(surface: Surface): void {
     this.last = surface;
     const side = Math.min(SIDEBAR_COLS, Math.max(0, surface.cols - 20));
+    this.panelCols = side;
     this.mapCols = surface.cols - side - 1;
     this.mapRows = surface.rows;
     this.follow();
@@ -198,61 +224,110 @@ export class WorldMapScreen implements Screen {
     else this.drawRegion(surface, panel);
   }
 
-  /** The region panel's lines, in words (`01` § Player-facing behavior). */
-  regionLines(): string[] {
+  /** The site summary of the region under the cursor (`02` § Site summary), or null at sea. */
+  site(): SiteSummary | null {
+    const r = this.region();
+    if (r === undefined || !this.embarkable(r)) return null;
+    if (this.siteCache?.regionId !== r.id) {
+      this.siteCache = { regionId: r.id, summary: siteSummary(localMapSpec(this.world, r.id, this.registry), this.registry) };
+    }
+    return this.siteCache.summary;
+  }
+
+  /** Names joined, at most `SITE_LIST_NAMES` of them and then "and N more". */
+  private listOf(names: readonly string[]): string {
+    if (names.length <= SITE_LIST_NAMES) return names.join(', ');
+    return this.strings.get('ui.site.more', { list: names.slice(0, SITE_LIST_NAMES).join(', '), n: names.length - SITE_LIST_NAMES });
+  }
+
+  /** The rows of the site summary: a label and its value, in words. */
+  siteRows(site: SiteSummary): [string, string][] {
+    const s = this.strings;
+    const material = (id: string): string => this.materialNames.get(id) ?? id;
+    const plant = (id: string): string => this.plantNames.get(id) ?? id;
+    const creature = (id: string): string => this.creatureNames.get(id) ?? id;
+    const count = (c: { estimate: number; species: readonly string[] } | null): string =>
+      c === null ? s.get('ui.site.none') : s.get('ui.site.count', { n: c.estimate.toLocaleString('en-US'), species: this.listOf(c.species.map(plant)) });
+
+    const soil = site.soil !== null
+      ? s.get('ui.site.soil_value', { materials: site.soil.materials.map(material).join(', '), n: site.soil.depth })
+      : s.get(site.ground === 'obsidian' ? 'ui.site.soil_obsidian' : 'ui.site.soil_rock');
+
+    const edge = (e: Edge): string => s.get(`ui.edge.${e}`);
+    const water: string[] = [];
+    const w = site.water;
+    if (w.river !== null) {
+      const params = { class: s.get(`ui.site.river_class.${w.river.class}`), from: w.river.inflow.map(edge).join(' and ') };
+      water.push(w.river.outflow === null ? s.get('ui.site.river_lake', params) : s.get('ui.site.river', { ...params, to: edge(w.river.outflow) }));
+    }
+    if (w.lake && (w.river === null || w.river.outflow !== null)) water.push(s.get('ui.site.lake'));
+    if ((w.river !== null || w.lake) && w.freezes) water.push(s.get('ui.site.freezes'));
+    if (w.springs) water.push(s.get('ui.site.springs'));
+
+    const ores = site.ores.length > 0 ? s.get('ui.site.ores_value', { ores: this.listOf(site.ores.map(material)) }) : s.get('ui.site.ores_none');
+    const c = site.climate;
+    const wild = site.wildlife;
+    const wildlife = [
+      wild.dangerous.length > 0 ? s.get('ui.site.dangerous', { list: this.listOf(wild.dangerous.map(creature)) }) : s.get('ui.site.harmless'),
+      ...(wild.other.length > 0 ? [s.get('ui.site.also', { list: this.listOf(wild.other.map(creature)) })] : []),
+    ];
+    return [
+      [s.get('ui.site.soil'), soil],
+      [s.get('ui.site.trees'), count(site.trees)],
+      [s.get('ui.site.shrubs'), `${count(site.shrubs)}; ${s.get(site.grass ? 'ui.site.grass' : 'ui.site.no_grass')}`],
+      [s.get('ui.site.water'), water.length > 0 ? water.join('; ') : s.get('ui.site.water_none')],
+      [s.get('ui.site.stone'), s.get('ui.site.stone_value', { geology: s.get(`ui.site.geology.${site.stone.geology}`), layers: this.listOf(site.stone.layers.map(material)) })],
+      [s.get('ui.site.ores'), site.deepsilver ? `${ores}; ${s.get('ui.site.deepsilver')}` : ores],
+      [
+        s.get('ui.site.climate'),
+        s.get('ui.site.climate_value', { band: s.get(`ui.site.band.${c.band}`), mean: c.meanC, summer: c.summerC, winter: c.winterC }) +
+          (c.longWinter ? s.get('ui.site.long_winter') : ''),
+      ],
+      [s.get('ui.site.wildlife'), wildlife.join('; ')],
+    ];
+  }
+
+  /**
+   * The region panel's lines, in words (`01` § Player-facing behavior; menus-and-world.md § World
+   * map): the name and biome, the missing essentials in the alert colour, the site summary, the
+   * ratings and traits, and each civilization's distance.
+   */
+  panelLines(width: number): PanelLine[] {
     const s = this.strings;
     const r = this.region();
     if (r === undefined) return [];
     const biome = this.biomes.find((b) => b.id === r.biome);
-    const out: string[] = [];
-    if (r.name.length > 0) out.push(r.name);
-    out.push(capitalize(biome?.name ?? r.biome));
-    if (!this.embarkable(r)) {
-      out.push(s.get('ui.worldmap.no_embark', { biome: biome?.name ?? r.biome }));
+    const out: PanelLine[] = [];
+    const text = (t: string, fg: PanelTone = 'text'): void => {
+      out.push({ text: t, fg });
+    };
+    if (r.name.length > 0) text(r.name, 'key');
+    text(capitalize(biome?.name ?? r.biome));
+    const site = this.site();
+    if (site === null) {
+      text(s.get('ui.worldmap.no_embark', { biome: biome?.name ?? r.biome }));
       return out;
     }
-    if (r.river !== null) {
-      const edge = (e: Edge): string => s.get(`ui.edge.${e}`);
-      const from = r.river.inflow.map(edge).join(' and ');
-      if (r.river.inflow.length === 0 && r.river.outflow !== null) out.push(s.get('ui.worldmap.river_source', { to: edge(r.river.outflow) }));
-      else if (r.river.outflow === null) out.push(s.get('ui.worldmap.river_mouth', { from }));
-      else out.push(s.get('ui.worldmap.river', { from, to: edge(r.river.outflow) }));
+    if (r.volcano) text(s.get('ui.worldmap.volcano'));
+    for (const lack of site.lacks) for (const t of wrapHang(s.get(`ui.site.lack.${lack}`), width, 2)) text(t, 'alert');
+    out.push({ text: '', fg: 'text' });
+    for (const [name, value] of this.siteRows(site)) {
+      for (const t of wrapHang(`${name.padEnd(SITE_LABEL_COLS - 1)} ${value}`, width, SITE_LABEL_COLS)) text(t);
     }
-    if (r.lake) out.push(s.get('ui.worldmap.lake'));
-    if (r.volcano) out.push(s.get('ui.worldmap.volcano'));
-    return out;
-  }
-
-  private drawRegion(surface: Surface, panel: { col: number; row: number; cols: number; rows: number }): void {
-    const s = this.strings;
-    const t = surface.theme;
-    const r = this.region();
-    let row = panel.row;
-    const line = (text: string, fg = t.text): void => {
-      label(surface, panel.col + 1, row, text, { fg, width: panel.cols - 2 });
-      row += 1;
-    };
-    const lines = this.regionLines();
-    lines.forEach((text, k) => line(text, k === 0 ? t.key : t.text));
-    if (r === undefined || !this.embarkable(r)) return;
-    row += 1;
-    const rating = (key: string, value: number): void => {
-      const name = s.get(key);
-      label(surface, panel.col + 1, row, name);
-      bar(surface, panel.col + 9, row, value, RATING_BAR_CELLS, RATING_BAR_CELLS);
-      label(surface, panel.col + 9 + RATING_BAR_CELLS + 1, row, String(value), { fg: t.value });
-      row += 1;
-    };
-    rating('ui.worldmap.wealth', r.wealth);
-    rating('ui.worldmap.peril', r.peril);
-    for (const text of wrapText(s.get('ui.worldmap.peril_note'), panel.cols - 2, 3)) line(text, t.dim);
-    rating('ui.worldmap.temper', r.temper);
-    if (r.traits.length > 0) {
-      line(s.get('ui.worldmap.trait', { traits: r.traits.map((id) => this.traitNames.get(id) ?? id).join(', ') }));
+    out.push({ text: '', fg: 'text' });
+    out.push({ rating: 'ui.worldmap.wealth', value: r.wealth });
+    out.push({ rating: 'ui.worldmap.peril', value: r.peril });
+    for (const t of wrapText(s.get('ui.worldmap.peril_note'), width, 3)) text(t, 'dim');
+    out.push({ rating: 'ui.worldmap.temper', value: r.temper });
+    // Each trait on its own line, and under it what the trait does.
+    for (const id of r.traits) {
+      text(s.get('ui.worldmap.trait', { traits: this.traitNames.get(id) ?? id }));
+      const key = id === 'gemsprings' && !site.water.springs ? 'ui.site.trait.gemsprings_dry' : `ui.site.trait.${id}`;
+      if (s.has(key)) for (const t of wrapHang(capitalize(s.get(key)), width, 2)) text(t, 'dim');
     }
-    row += 1;
+    out.push({ text: '', fg: 'text' });
     for (const civ of CIVS as readonly Civ[]) {
-      line(
+      text(
         s.get('ui.worldmap.civ', {
           civ: capitalize(this.civNames.get(civ) ?? civ),
           n: r.civDistance[civ],
@@ -260,7 +335,51 @@ export class WorldMapScreen implements Screen {
         }),
       );
     }
-    row += 1;
+    return out;
+  }
+
+  /** The region panel's lines as text, a rating as its name and value. */
+  regionLines(width = SIDEBAR_COLS - 2): string[] {
+    return this.panelLines(width).map((l) => ('rating' in l ? `${this.strings.get(l.rating)} ${l.value}` : l.text));
+  }
+
+  /** The rows the region panel's text may use above its two button rows and the gap before them. */
+  private regionHeight(panel: { rows: number }): number {
+    return Math.max(1, panel.rows - 3);
+  }
+
+  /** Scroll the region panel by `delta` rows, inside its text. */
+  scrollRegion(delta: number): void {
+    const panel = this.last === null ? { rows: 0, cols: SIDEBAR_COLS } : { rows: this.last.rows, cols: this.panelCols };
+    const total = this.panelLines(Math.max(1, panel.cols - 2)).length;
+    const max = Math.max(0, total - this.regionHeight(panel));
+    this.regionScroll = Math.max(0, Math.min(max, this.regionScroll + delta));
+  }
+
+  private drawRegion(surface: Surface, panel: { col: number; row: number; cols: number; rows: number }): void {
+    const s = this.strings;
+    const t = surface.theme;
+    const tone: Record<PanelTone, typeof t.text> = { key: t.key, text: t.text, dim: t.dim, alert: t.alert };
+    const lines = this.panelLines(Math.max(1, panel.cols - 2));
+    const height = this.regionHeight(panel);
+    this.regionScroll = Math.max(0, Math.min(Math.max(0, lines.length - height), this.regionScroll));
+    const shown = lines.slice(this.regionScroll, this.regionScroll + height);
+    shown.forEach((l, k) => {
+      const row = panel.row + k;
+      if ('rating' in l) {
+        label(surface, panel.col + 1, row, s.get(l.rating));
+        bar(surface, panel.col + 9, row, l.value, RATING_BAR_CELLS, RATING_BAR_CELLS);
+        label(surface, panel.col + 9 + RATING_BAR_CELLS + 1, row, String(l.value), { fg: t.value });
+      } else {
+        label(surface, panel.col + 1, row, l.text, { fg: tone[l.fg], width: panel.cols - 2 });
+      }
+    });
+    // The text scrolls (PageUp, PageDown, the wheel); arrows at the right edge say there is more.
+    const edge = panel.col + panel.cols - 1;
+    if (this.regionScroll > 0) label(surface, edge, panel.row, '▲', { fg: t.dim });
+    if (this.regionScroll + height < lines.length) label(surface, edge, panel.row + height - 1, '▼', { fg: t.dim });
+    if (this.site() === null) return;
+    let row = panel.row + panel.rows - 2;
     let c = panel.col + 1;
     c += button(surface, c, row, 'f', s.get('ui.worldmap.filter'), () => this.toggle('filter')) + 2;
     button(surface, c, row, '?', s.get('ui.worldmap.legend'), () => this.toggle('legend'));
@@ -387,7 +506,14 @@ export class WorldMapScreen implements Screen {
       return true;
     }
     const action = this.keymap.resolve('world_map', press);
-    if (action === null) return false;
+    if (action === null) {
+      // `panel` › PageUp / PageDown: scroll the region panel's text by a page.
+      const p = this.mode === 'region' ? this.keymap.resolve('panel', press) : null;
+      if (p?.id !== 'scroll') return false;
+      const page = Math.max(1, this.regionHeight({ rows: this.last?.rows ?? 0 }) - 1);
+      this.scrollRegion(Number(p.arg) * page);
+      return true;
+    }
     switch (action.id) {
       case 'cursor': {
         const step = action.shift ? WORLD_CURSOR_SHIFT_STEP : 1;
@@ -415,5 +541,11 @@ export class WorldMapScreen implements Screen {
       return;
     }
     clickHit(this.last, p);
+  }
+
+  /** The wheel over the region panel scrolls its text three rows a notch. */
+  wheel(w: CellWheel): void {
+    if (this.mode !== 'region' || w.col <= this.mapCols) return;
+    this.scrollRegion(Math.sign(w.dy) * WHEEL_ROWS);
   }
 }

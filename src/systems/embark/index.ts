@@ -29,6 +29,7 @@ export * from './constants';
 export * from './spec';
 export * from './party';
 export * from './arrival';
+export * from './site';
 
 /** The embark-session commands (`02` § Interfaces § Commands). */
 export type EmbarkCommand =

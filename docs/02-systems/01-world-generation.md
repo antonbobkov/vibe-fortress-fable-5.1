@@ -159,7 +159,7 @@ None. Generation is invoked by the app: `worldgen.generate(seed, size, onProgres
 ## Player-facing behavior
 
 - **World generation screen**: seed field (text; a random seed by default), size selector, a Generate button, the completed preview after Generate returns, with the final stage at 100%, and Continue.
-- **World map screen**: biome glyphs and colors, river regions as blue `~`, civilization home glyphs and colors over both. The cursor starts at the centre and moves by keyboard or mouse, inverting its cell. Matching regions retain full color; others dim one step. The side panel lists name, biome, river, lake, volcano, the three ratings as five-cell bars, traits, and each civilization's `civDistance` and `nearestEdgeTo`; it omits relief. Embark opens 02.
+- **World map screen**: biome glyphs and colors, river regions as blue `~`, civilization home glyphs and colors over both. The cursor starts at the centre and moves by keyboard or mouse, inverting its cell. Matching regions retain full color; others dim one step. The side panel lists name, biome, volcano, the missing essentials and the site summary of 02 § Site summary (soil, trees, shrubs and grazing, water, stone and likely ores, climate and winter, wildlife), the three ratings as five-cell bars, traits with what each does, and each civilization's `civDistance` and `nearestEdgeTo`; it omits relief. Embark opens 02.
 - Regions that cannot be embarked on (ocean, glacier) say so.
 
 ## Tuning constants

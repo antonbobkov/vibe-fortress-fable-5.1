@@ -100,26 +100,57 @@ Generate runs synchronously. On return, the screen shows the completed preview a
 ## World map
 
 ```
-┌────────────────────────────────────────────────────────────┬─────────────────────────────────┐
-│≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Greenhollow                     │
-│≈≈≈≈""""""♣♣♣♣♣∩∩∩▲▲▲▲∩∩♣♣♣♣""""≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Temperate forest                │
-│≈≈"""""♣♣♣♣♣[♣]∩∩▲▲▲▲▲▲∩∩♣♣♣♣"""".≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ A river runs east to south.     │
-│≈"""""""♣♣♣♣♣∩∩∩▲▲▲▲▲∩∩♣♣♣♣♣""""..≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│                                 │
-│≈""""""♣♣♣♣☺♣∩∩∩▲▲▲▲∩∩∩♣♣♣♣""""...≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Wealth  ▓▓▓░░ 3                 │
-│≈"""""""♣♣♣♣♣♣∩∩∩▲▲▲∩∩∩♣♣♣""""....≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Peril   ▓░░░░ 1                 │
-│≈≈""""""""♣♣♣♣∩∩∩∩∩∩∩∩♣♣♣"""".....≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Temper  ▓░░░░ 1                 │
-│≈≈≈"""""""""♣♣♣♣∩∩∩∩♣♣♣♣""""......≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Trait: Gemsprings               │
-│≈≈≈≈"""""""""""♣♣♣♣♣♣♣""""".......≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│                                 │
-│≈≈≈≈≈"""""""""""""""""""".........≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Mountainhome 9 regions (E)      │
-│≈≈≈≈≈≈"""""""""""""""""..........G.≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈│ Hillfolk 5 (S) · Wildwood 3 (W) │
-│  (cursor [♣] · civ homes ☺ G · rivers drawn in blue)      │ Gloam 22 (E)                    │
-│                                                            │                                 │
-│                                                            │ [f] filter  [?] legend          │
-│                                                            │ [Enter] Embark here             │
-└────────────────────────────────────────────────────────────┴─────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┬───────────────────────────────────┐
+│≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈  │ Coldmere                          │
+│≈≈≈≈""""""♣♣♣♣♣∩∩∩▲▲▲▲∩∩♣♣♣♣""""≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │ Alpine                            │
+│≈≈"""""♣♣♣♣♣∩∩∩▲▲[▲]▲▲▲∩∩♣♣♣♣"""".≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │ No surface soil: no farms or grass│
+│≈"""""""♣♣♣♣♣∩∩∩▲▲▲▲▲∩∩♣♣♣♣♣""""..≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │   up here. Farm in a cavern or on │
+│≈""""""♣♣♣♣☺♣∩∩∩▲▲▲▲∩∩∩♣♣♣♣""""...≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │   mud; graze in a cavern.         │
+│≈"""""""♣♣♣♣♣♣∩∩∩▲▲▲∩∩∩♣♣♣""""....≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │ No trees: wood only from the      │
+│≈≈""""""""♣♣♣♣∩∩∩∩∩∩∩∩♣♣♣"""".....≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │   wagon, logs you bring, caravans │
+│≈≈≈"""""""""♣♣♣♣∩∩∩∩♣♣♣♣""""......≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │   and cavern fungus.              │
+│≈≈≈≈"""""""""""♣♣♣♣♣♣♣""""".......≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │ No water on the surface: drink    │
+│≈≈≈≈≈"""""""""""""""""""".........≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │   what you bring or brew; dig down│
+│≈≈≈≈≈≈"""""""""""""""""..........G.≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ │   to a cavern lake.               │
+│  (cursor [▲] · civ homes ☺ G · rivers drawn in blue)       │                                   │
+│                                                            │ Soil     none: bare rock          │
+│                                                            │ Trees    none                     │
+│                                                            │ Shrubs   none; no grass; cave moss│
+│                                                            │          below                    │
+│                                                            │ Water    none on the surface      │
+│                                                            │ Stone    igneous: rhyolite,       │
+│                                                            │          andesite and 4 more      │
+│                                                            │ Ores     likely cassiterite,      │
+│                                                            │          magnetite and 5 more;    │
+│                                                            │          deepsilver deep down     │
+│                                                            │ Climate  cold, about 2°C; summer  │
+│                                                            │          17°C, winter -13°C; spring│
+│                                                            │          and autumn as cold       │
+│                                                            │ Wildlife dangerous: snow leopard; │
+│                                                            │          also mountain goat       │
+│                                                            │                                   │
+│                                                            │ Wealth  ▓▓▓░░ 3                   │
+│                                                            │ Peril   ▓░░░░ 1                   │
+│                                                            │ Peril counts raiders. Wild beasts │
+│                                                            │ live everywhere.                  │
+│                                                            │ Temper  ▓▓▓░░ 3                   │
+│                                                            │ Trait: Frostmarrow                │
+│                                                            │ Winter cold in spring and autumn; │
+│                                                            │   snow instead of rain.           │
+│                                                            │                                   │
+│                                                            │ Mountainhome 9 regions (E)        │
+│                                                            │ Hillfolk 5 regions (S)            │
+│                                                            │ Wildwood 3 regions (W)            │
+│                                                            │ Gloam 22 regions (E)              │
+│                                                            │                                   │
+│                                                            │ [f] filter  [?] legend            │
+│                                                            │ [Enter] Embark here               │
+└────────────────────────────────────────────────────────────┴───────────────────────────────────┘
 ```
 
-Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings (`+`/`-` on the focused row), river / volcano toggles, trait list; matching regions keep full color, others dim one step (`dim(c, 1)`). The cursor starts at the centre and inverts its cell. River regions draw blue `~`; civilization home glyphs and colors replace rivers and biomes. The region panel lists name, biome, river, lake, volcano, five-cell rating bars (a dim line under the Peril bar reads "Peril counts raiders. Wild beasts live everywhere."), traits and every civilization's distance and cardinal arrival edge; there is no relief field.
+Filter panel (`f`): checkboxes for biomes, min/max sliders for the three ratings (`+`/`-` on the focused row), river / volcano toggles, trait list; matching regions keep full color, others dim one step (`dim(c, 1)`). The cursor starts at the centre and inverts its cell. River regions draw blue `~`; civilization home glyphs and colors replace rivers and biomes. The region panel lists name, biome, volcano, the site's missing essentials, the site summary, five-cell rating bars (a dim line under the Peril bar reads "Peril counts raiders. Wild beasts live everywhere."), traits and every civilization's distance and cardinal arrival edge; there is no relief field.
+
+The site summary is `02-systems/02-embark-and-loadout.md` § Site summary, one row per subject with its label in a `SITE_LABEL_COLS` column and its value wrapped under it: Soil, Trees, Shrubs (with grazing), Water, Stone, Ores, Climate (with summer, winter and `frostmarrow`'s long winter), Wildlife. A row names at most `SITE_LIST_NAMES` species, layers or ores and then "and N more". Counts read "about"; ores read "likely". Above it, each missing essential is a line in the alert color with its consequence and workaround, wrapped with a two-cell indent (`ui.site.lack.soil` "No surface soil: no farms or grass up here. Farm in a cavern or on mud; graze in a cavern.", `ui.site.lack.trees` "No trees: wood only from the wagon, logs you bring, caravans and cavern fungus.", `ui.site.lack.water` "No water on the surface: drink what you bring or brew; dig down to a cavern lake."). Each trait has its own "Trait:" line and under it dim lines saying what it does (`ui.site.trait.<id>`; for `gemsprings` on a site with no soil, `ui.site.trait.gemsprings_dry`, since its springs need soil). The Filter and Embark buttons keep the panel's last two rows; when the text above them is longer than the window, `PageUp` `PageDown` (Panels) scroll it a page and the wheel over the panel three rows a notch, a dim `▲` or `▼` at the panel's right edge shows there is more, and moving the cursor starts the next region at the top.
 
 ## Settings
 
