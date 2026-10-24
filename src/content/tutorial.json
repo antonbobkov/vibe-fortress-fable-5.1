@@ -1,0 +1,68 @@
+[
+  {
+    "id": "view",
+    "check": "view_moved",
+    "highlight": "z",
+    "text": "Welcome to your hall. Move the view with ←→ ↑↓ (or drag with the middle button), and change the level with [<] and [>] (or the wheel). Do both: the z field below shows the level."
+  },
+  {
+    "id": "look",
+    "check": "looked",
+    "highlight": "look",
+    "text": "Look at things with [k], or a click on the map. The look panel's Tile tab lists all that lies on the tile, and the status row names what is under the pointer. Look at a tile, then at one of your dwarves."
+  },
+  {
+    "id": "dig",
+    "check": "dig_designated",
+    "highlight": "designate",
+    "text": "Open Designate with [d]: Dig is chosen. Go down a level with [<] into the rock, click one corner of a box, then the opposite corner (or Enter twice). The marked tiles blink while the work waits for a miner."
+  },
+  {
+    "id": "stairs",
+    "check": "stairs_designated",
+    "highlight": "designate",
+    "text": "Stairs lead down. In Designate, [S-j] chooses down stairs: click a floor tile twice. Change the level between the two clicks and the box makes a stair column, down stairs on top and up stairs below."
+  },
+  {
+    "id": "stockpile",
+    "check": "stockpile_made",
+    "highlight": "zones",
+    "text": "Hauled goods need a place. Open Zones with [z], choose a stockpile with [S-s], and drag a rectangle over open floor (or Enter at two corners)."
+  },
+  {
+    "id": "workshop",
+    "check": "workshop_placed",
+    "highlight": "build",
+    "text": "Open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
+  },
+  {
+    "id": "order",
+    "check": "order_queued",
+    "highlight": "orders",
+    "text": "Workshops make what is ordered. Open Orders with [o]: [S-n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it."
+  },
+  {
+    "id": "farm",
+    "check": "farm_plot_made",
+    "highlight": "zones",
+    "text": "Food grows on soil. In Zones ([z]), [S-f] chooses a farm plot: drag it over soil or grass. Click the plot to choose its crop for each season."
+  },
+  {
+    "id": "labors",
+    "check": "labors_changed",
+    "highlight": "labors",
+    "text": "A dwarf works only at the labors that are on. Open Labors with [l]: ↑↓ choose a dwarf, a click on a cell turns that labor on or off, and [S-a] turns the whole row."
+  },
+  {
+    "id": "speed",
+    "check": "paused_and_sped",
+    "highlight": "speed",
+    "text": "Time stands still while the game is paused. [Space] pauses and resumes, and [+] and [-] change the speed. Run the fortress at 2× or 4×, then pause it again."
+  },
+  {
+    "id": "save",
+    "check": "saved",
+    "highlight": "menu",
+    "text": "Save your fortress: [F5] makes a quick save, and Esc opens the game menu, which has Save. Saves are kept in this browser."
+  }
+]

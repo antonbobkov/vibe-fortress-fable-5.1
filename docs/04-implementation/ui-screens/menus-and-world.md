@@ -61,20 +61,66 @@ It plays at launch, before the main menu, when the Intro at launch setting is `a
 │                 a hall beneath the world                       │
 │                                                                │
 │                  ▶ [n] New world                               │
+│                    [t] Tutorial                                │
 │                    [c] Continue   (Emberhall · Year 2)         │
 │                    [l] Load                                    │
 │                    [g] Legends                                 │
 │                    [o] Settings                                │
 │                    [a] About                                   │
 │                    [i] Intro                                   │
-│                                                                │
 │   ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒≈≈≈≈▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒   │
 │   (decorative slice of the last save's surface, or a          │
 │    generated demo slice when no save exists)                   │
 └────────────────────────────────────────────────────────────────┘
 ```
 
-`Continue` loads the newest save of any kind; hidden when none exists.
+`Continue` loads the newest save of any kind; hidden when none exists. `Tutorial` starts the tutorial (§ Tutorial). The first time `New world` is chosen, before any tutorial has been offered, it asks first with the `c_tutorial` confirmation ("Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?"): `Yes` starts the tutorial, `No` (the default) opens world generation. That it was offered is saved with the settings, as whether the intro has played is, and Reset to defaults keeps it. A test build makes no offer unless the page is opened with `?tutorial=offer`.
+
+## Tutorial
+
+The tutorial walks a new player through the basics of a fortress, one step at a time, over the ordinary fortress screen of an ordinary game.
+
+**The site.** It generates the standard-size world of the seed `TUTORIAL_WORLD_SEED` and embarks on one of its regions with the `balanced` preset, as `Embark` would; the fortress is a normal fortress, saved and loaded like any other. The region is the one that ranks first by, in turn: the fewest missing essentials of its site summary (soil, trees, water: `02-systems/02-embark-and-loadout.md` § Site summary), the lowest peril, a river or brook, the `temperate_forest` biome, the fewest traits, a temperate climate, and the lowest id. Oceans and other biomes no one can embark on are not ranked. The rule, not a region id, is fixed, so the tutorial keeps a friendly site when world generation changes.
+
+**The box.** While the tutorial runs, a box is drawn over the top left corner of the map view, `TUTORIAL_BOX_COLS` wide (narrower when the map view is): its title names the step and the count, the step's text follows, wrapped, and its last row holds two buttons.
+
+```
+┌─ Tutorial · step 3 of 11 ────────────────┐
+│ Open Designate with [d]: Dig is chosen.  │
+│ Go down a level with [<] into the rock,  │
+│ click one corner of a box, then the      │
+│ opposite corner (or Enter twice). The    │
+│ marked tiles blink while the work waits  │
+│ for a miner.                             │
+│ [F1] skip step  [Shift+F1] end tutorial  │
+└──────────────────────────────────────────┘
+```
+
+Every key a step's text or a button names is the key its binding has now (24 § Settings): the text is read as a hint's is, in the global, panel-letter, map and list contexts and then the step's panel, and a panel letter in it puts that panel's keys first for the keys after it (`[z]`, then `[S-s]`), so a rebound key shows as rebound. `F1` (Global, "skip the tutorial step") goes on to the next step, and `Shift+F1` ("end the tutorial") ends the tutorial at once; a click on a button does the same. A click elsewhere on the box does nothing, and the map under it is reached by panning. The box is drawn only while the fortress screen is on top; a screen or dialog over the fortress hides it, and the tutorial goes on.
+
+**The steps.** The steps are content (`03-content/ui-keymap-and-screens.md` § Tutorial): each row names its text (the string `tutorial.<id>`), its highlight and its check. A step waits for the player: it is done when its check holds, and the next step then begins. The checks are a fixed set, each read from the simulation's readers or the presentation state; a check that compares against the step's start takes that start when the step begins, and a check with two parts holds when each part has held at some time during the step:
+
+| Check | Done when |
+|---|---|
+| `view_moved` | the camera has moved (or the whole map fits the view) and the level has changed, since the step began |
+| `looked` | the look panel has shown a tile with no dwarf of the fortress on it, and one with a dwarf of the fortress |
+| `dig_designated` | a tile is designated for digging |
+| `stairs_designated` | a tile is designated for down stairs or up/down stairs, or more tiles are down or up/down stairs than when the step began |
+| `stockpile_made` | a stockpile zone exists |
+| `workshop_placed` | a workshop exists, planned, under construction or built |
+| `order_queued` | a work order exists, at a workshop or for the fortress |
+| `farm_plot_made` | a farm plot zone exists |
+| `labors_changed` | any dwarf's labors differ from what they were when the step began |
+| `paused_and_sped` | the game has run at 2× or 4×, and has been paused while it ran, since the step began |
+| `saved` | a manual or quick save of the fortress has been written since the step began |
+
+The checks are made after every key and click, after a save is written, and otherwise every `TUTORIAL_CHECK_MS`. A check never acts: the tutorial changes no simulation rule, gives no command and draws on no random stream, so a fortress played with it is the fortress played without it.
+
+**Highlights.** A step's highlight draws over the UI in the key colour, without any glyph changed: a panel id highlights that panel's title row while the panel is open, and otherwise its entry in the hotkey strip of status row 2; `z`, `speed` and `menu` highlight the level, the speed and the `[Esc] menu` fields of status row 1. A highlight that is not on screen (a strip entry a narrow window drops) is not drawn. Highlights never block input: they take no click and no key.
+
+**The end.** After the last step, the box says `ui.tutorial.done` ("That is the tutorial. The fortress is yours: keep digging, feed and house your dwarves, and [?] lists every key.") with one button, `[F1] close`. The tutorial ends when it is closed or ended, and when the fortress is left: a load, a new game or the main menu. It is presentation state and is not saved: a saved tutorial fortress loads as a plain fortress.
+
+Strings: `ui.menu.tutorial` "Tutorial", `ui.busy.tutorial` "Making the tutorial world...", `ui.tutorial.title` "Tutorial · step {n} of {total}", `ui.tutorial.done_title` "Tutorial · done", `ui.tutorial.skip` "[F1] skip step", `ui.tutorial.end` "[Shift+F1] end tutorial", `ui.tutorial.close` "[F1] close", `ui.tutorial.done`.
 
 ## World generation
 

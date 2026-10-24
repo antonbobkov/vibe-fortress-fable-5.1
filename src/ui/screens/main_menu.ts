@@ -1,7 +1,8 @@
 /**
  * The main menu: `04-implementation/ui-screens/menus-and-world.md` § Main menu and
- * `02-systems/24-ui-and-input.md` § Screens outside the fortress ("`New world`, `Continue` (loads
- * the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys and mouse").
+ * `02-systems/24-ui-and-input.md` § Screens outside the fortress ("`New world`, `Tutorial`,
+ * `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys
+ * and mouse").
  *
  * "`Continue` loads the newest save of any kind; hidden when none exists." The screens behind
  * `Load`, `Legends`, `Settings` and `About` belong to later milestones (save/load T-M2-11, the rest
@@ -23,6 +24,7 @@ export interface MainMenuHost {
   continueGame(): void;
   /** Which of `load`, `legends`, `settings`, `about`, `intro` the app can open yet. */
   available(entry: string): boolean;
+  /** Open an entry: one of those, or `tutorial`, which is always offered. */
   open(entry: string): void;
 }
 
@@ -55,6 +57,8 @@ export class MainMenuScreen implements Screen {
         : { id: 'continue', key: 'c', label: s.get('ui.menu.continue'), detail: `(${save})` };
     return [
       { id: 'new_world', key: 'n', label: s.get('ui.menu.new_world') },
+      // `ui-screens/menus-and-world.md` § Tutorial: the host starts it through `open('tutorial')`.
+      { id: 'tutorial', key: 't', label: s.get('ui.menu.tutorial') },
       cont,
       entry('load', 'l'),
       entry('legends', 'g'),

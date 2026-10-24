@@ -101,6 +101,7 @@ import skillsJson from './skills.json';
 import stringsJson from './strings.json';
 import thoughtsJson from './thoughts.json';
 import tunesJson from './tunes.json';
+import tutorialJson from './tutorial.json';
 import threatSchedulesJson from './threatSchedules.json';
 import wealthMultipliersJson from './wealthMultipliers.json';
 import weaponsJson from './weapons.json';
@@ -163,6 +164,7 @@ export function rawTables(): Record<string, unknown> {
     strings: stringsJson,
     thoughts: thoughtsJson,
     tunes: tunesJson,
+    tutorial: tutorialJson,
     threatSchedules: threatSchedulesJson,
     wealthMultipliers: wealthMultipliersJson,
     weapons: weaponsJson,
@@ -270,6 +272,7 @@ export function loadContent(options: LoadOptions = {}): Registry {
     ['names', Object.freeze(data['names'])],
     ['strings', Object.freeze(data['strings'])],
     ['keymap', Object.freeze(data['keymap'])],
+    ['tutorial', Object.freeze(data['tutorial'])],
     ['intro', Object.freeze(data['intro'])],
     ['deepIntro', Object.freeze(data['deepIntro'])],
     ['biomeLookup', Object.freeze(data['biomeLookup'])],

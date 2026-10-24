@@ -4,6 +4,8 @@
 
 Wireframes are at 120×45 cells for illustration; the layout scales with the window. Text in `[brackets]` is an accelerator key. `{braces}` are dynamic values.
 
+While the tutorial runs, its box covers the top left corner of the map view and its step highlights a panel title, a hotkey strip entry or a field of status row 1 ([menus-and-world.md](menus-and-world.md) § Tutorial).
+
 ## Sidebar closed
 
 ```

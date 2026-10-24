@@ -30,6 +30,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.menu.settings': 'Settings',
   'ui.menu.about': 'About',
   'ui.menu.intro': 'Intro',
+  'ui.menu.tutorial': 'Tutorial',
   // The intro (`ui-screens/menus-and-world.md` § Intro); its captions are `intro.*` rows of strings.json.
   'ui.intro.skip': 'Any key or click to skip',
   'ui.menu.rename': 'Rename fortress',
@@ -170,6 +171,14 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.edge_short.s': 'S',
   'ui.edge_short.w': 'W',
   'ui.busy.site': 'Preparing the site...',
+  // The tutorial (`ui-screens/menus-and-world.md` § Tutorial).
+  'ui.busy.tutorial': 'Making the tutorial world...',
+  'ui.tutorial.title': 'Tutorial · step {n} of {total}',
+  'ui.tutorial.done_title': 'Tutorial · done',
+  'ui.tutorial.skip': '[F1] skip step',
+  'ui.tutorial.end': '[Shift+F1] end tutorial',
+  'ui.tutorial.close': '[F1] close',
+  'ui.tutorial.done': 'That is the tutorial. The fortress is yours: keep digging, feed and house your dwarves, and [?] lists every key.',
   // Embark (`ui-screens/embark.md`; `02` § Player-facing behavior).
   'ui.embark.title': 'Embark at {region}',
   'ui.embark.tab.dwarves': 'Dwarves',

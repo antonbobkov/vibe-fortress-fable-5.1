@@ -110,6 +110,11 @@
     "default": "no"
   },
   {
+    "id": "c_tutorial",
+    "text": "Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?",
+    "default": "no"
+  },
+  {
     "id": "c_release_cage",
     "text": "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was.",
     "default": "no"

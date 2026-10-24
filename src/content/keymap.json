@@ -70,6 +70,16 @@
     "action": "music on / off"
   },
   {
+    "context": "global",
+    "key": "F1",
+    "action": "skip the tutorial step"
+  },
+  {
+    "context": "global",
+    "key": "Shift+F1",
+    "action": "end the tutorial"
+  },
+  {
     "context": "map",
     "key": "←",
     "action": "pan or move the map cursor (Shift: 10)"
@@ -1228,6 +1238,11 @@
     "context": "main_menu",
     "key": "n",
     "action": "New world"
+  },
+  {
+    "context": "main_menu",
+    "key": "t",
+    "action": "Tutorial"
   },
   {
     "context": "main_menu",

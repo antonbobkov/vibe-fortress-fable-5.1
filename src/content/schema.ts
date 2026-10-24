@@ -1056,6 +1056,9 @@ export const SCHEMAS: Record<string, TableSchema> = {
 
   hints: rows({ id: nonEmptyStr, trigger: str, text: nonEmptyStr }),
 
+  // In table order: the tutorial's steps run in the order the table lists them.
+  tutorial: list({ id: nonEmptyStr, check: nonEmptyStr, highlight: nonEmptyStr, text: nonEmptyStr }),
+
   milestones: rows({ id: nonEmptyStr, trigger: str, text: nonEmptyStr }),
 
   confirmations: rows({ id: nonEmptyStr, text: nonEmptyStr, default: enumOf(['yes', 'no']) }),

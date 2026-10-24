@@ -15,7 +15,7 @@
 // A reference is a literal in a strings namespace (`strings.get('ui.load.title')`, or a key chosen
 // in code), a template prefix (`ui.zone.type.${id}` reaches every `ui.zone.type.*` key), or an
 // announcement's `stringKey`, which reaches the key itself and, with a `keyField`, the keys under
-// it. The `confirm`, `hint`, `milestone` and `thought` namespaces are the canonical values of
+// it. The `confirm`, `hint`, `tutorial`, `milestone` and `thought` namespaces are the canonical values of
 // content rows (`ui-keymap-and-screens.md` § Strings), so each of their keys is reached by its row,
 // and the script also checks the two copies against each other in both directions.
 //
@@ -86,6 +86,7 @@ export function referencesIn(text, namespaces) {
 export const MIRRORED = [
   { ns: 'confirm', table: 'confirmations' },
   { ns: 'hint', table: 'hints' },
+  { ns: 'tutorial', table: 'tutorial' },
   { ns: 'milestone', table: 'milestones' },
   { ns: 'thought', table: 'thoughts' },
 ];

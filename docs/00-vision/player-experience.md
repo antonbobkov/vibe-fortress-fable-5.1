@@ -17,7 +17,7 @@ This document describes the game as the player lives it, from the main menu to t
 
 The wagon stands at the map edge on the surface. Seven dwarves and their animals unload. The player sees a hillside with trees, a brook, a rock face. The map is at the surface z-level; the sky above is not shown, the soil below shows dimly through open ground.
 
-The tutorial is not a separate mode. Five *hints* appear as notes in the log, once each, triggered by state: "Designate a place to dig (D)", "Dwarves need drink: build a still", "Set up a stockpile so hauled goods have somewhere to go", "Winter is in 60 days; farms need soil or mud", "A hearth makes a hall a home". Hints can be dismissed forever in settings.
+A new player can take the tutorial, from the main menu or when the first world is made: an ordinary fortress on a friendly site, with a box over the map that gives one step at a time (look around, dig, stairs, a stockpile, a workshop, an order, a farm, labors, the speed, a save) and goes on as each is done; any step can be skipped and the tutorial ended at once. Whether or not it is taken, five *hints* appear as notes in the log, once each, triggered by state: "Designate a place to dig (D)", "Dwarves need drink: build a still", "Set up a stockpile so hauled goods have somewhere to go", "Winter is in 60 days; farms need soil or mud", "A hearth makes a hall a home". Hints can be dismissed forever in settings.
 
 Within ten minutes a player who knows the genre has: designated an entrance tunnel into the rock face, placed a stockpile for food and a stockpile for everything else, ordered a carpenter's workshop and a still, and set two dwarves to dig while the others haul.
 
