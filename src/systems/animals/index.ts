@@ -39,9 +39,10 @@ import {
   TAME_THINK_TICKS,
   WILD_THINK_TICKS,
   WILD_LOAD_SHEDDING_THINK_TICKS,
+  TERRITORY_AVOID_RADIUS,
 } from './constants';
 import { AnimalFacts } from './facts';
-import { packOf, tickAnimal, type BrainHost } from './brain';
+import { chunkCentre, packOf, tickAnimal, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
@@ -246,7 +247,55 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         this.claimGraze(tile);
       },
       despawn: (id) => this.despawnQueue.push(id),
+      homeAwayFromFortress: (chunk) => this.homeAwayFromFortress(chunk),
     };
+  }
+
+  /** T-446: per chunk column (`chunk % per level`), 1 when its centre lies within `TERRITORY_AVOID_RADIUS` of the fortress; rebuilt when null. */
+  private fortressNear: Uint8Array | null = null;
+
+  /** The column flags of `fortressNear`: the wagon, built buildings' footprints and zone tiles, horizontally, any level. */
+  private fortressColumns(): Uint8Array {
+    if (this.fortressNear !== null) return this.fortressNear;
+    const world = this.world as WorldLike;
+    const map = world.map;
+    const per = map.chunksPerRow * map.chunksPerCol;
+    const near = new Uint8Array(per);
+    const xs: number[] = []; const ys: number[] = [];
+    const add = (t: TileIndex): void => { xs.push(map.xOf(t)); ys.push(map.yOf(t)); };
+    for (const id of world.entities.with(C.Building)) {
+      const b = world.entities.get(id, C.Building);
+      if (b !== undefined && b.state === 'built') for (const t of b.footprint) add(t);
+    }
+    for (const id of world.entities.with(C.Zone)) for (const t of world.entities.get(id, C.Zone)?.tiles ?? []) add(t);
+    for (let c = 0; c < per; c += 1) {
+      const centre = chunkCentre(map, c);
+      const cx = map.xOf(centre); const cy = map.yOf(centre);
+      for (let k = 0; k < xs.length; k += 1) {
+        if (Math.max(Math.abs((xs[k] as number) - cx), Math.abs((ys[k] as number) - cy)) <= TERRITORY_AVOID_RADIUS) { near[c] = 1; break; }
+      }
+    }
+    this.fortressNear = near;
+    return near;
+  }
+
+  /** `BrainHost.homeAwayFromFortress` (T-446): nearest free chunk on the level by chunk distance, ties by index. */
+  private homeAwayFromFortress(chunk: number): number {
+    const map = (this.world as WorldLike).map;
+    const per = map.chunksPerRow * map.chunksPerCol;
+    if (chunk < 0) return chunk;
+    const near = this.fortressColumns();
+    const rest = chunk % per;
+    if (near[rest] === 0) return chunk;
+    const level = chunk - rest;
+    const rx = rest % map.chunksPerRow; const ry = Math.floor(rest / map.chunksPerRow);
+    let best = -1; let bestD = Number.MAX_SAFE_INTEGER;
+    for (let c = 0; c < per; c += 1) {
+      if (near[c] !== 0) continue;
+      const d = Math.max(Math.abs((c % map.chunksPerRow) - rx), Math.abs(Math.floor(c / map.chunksPerRow) - ry));
+      if (d < bestD) { bestD = d; best = c; }
+    }
+    return best < 0 ? -1 : level + best;
   }
 
   /** `combat.setTarget(id, targetId)` as 08 calls it; 16 takes it over in M6. */
@@ -830,6 +879,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   // ---------- events and commands ----------
 
   override handle(event: GameEvent, ctx: TickContext): void {
+    // T-446: the fortress's extent changes with its buildings and zones.
+    if (event.type === 'BuildingCompleted' || event.type === 'BuildingRemoved' || event.type === 'ZoneChanged') this.fortressNear = null;
     if (event.type === 'TilesChanged') {
       // 07 has written its change to these tiles (a grazed tile cleared, or later regrown): their claims end.
       if (this.grazeEmitted.length > 0) {
@@ -1213,6 +1264,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
   deserialize(state: AnimalsStateV1, ctx: InitContext): void {
     if (this.world === null) this.init(ctx);
+    this.fortressNear = null;
     this.initializedCaverns.clear();
     for (const tier of state.initializedCaverns ?? []) this.initializedCaverns.add(tier);
     this.breedingCaps.clear();

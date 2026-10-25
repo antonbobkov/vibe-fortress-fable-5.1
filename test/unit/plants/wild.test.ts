@@ -205,7 +205,9 @@ describe('T-M4-02 wild plants: grass and ash', () => {
   });
 
   it('a sapling becomes a tree after its species saplingYears', () => {
-    const w = newWorld('sapling');
+    // No wild animals: a sapling waits while a creature stands on it, and which animal stands where
+    // two years on follows the wildlife's own timeline (T-427 moved it).
+    const w = new TestWorld({ seed: 'sapling', registry, map: buildFlatTestMap(registry, 24, 24), embark: 'none', surfaceWildlife: 'none' });
     const z = FLAT_TEST_SURFACE_Z;
     const tile = w.index(15, 15, z);
     const pine = facts.indexOf('pine');

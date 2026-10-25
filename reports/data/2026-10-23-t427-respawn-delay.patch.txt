@@ -1,0 +1,105 @@
+T-427, tried and not taken: WILD_RESPAWN_DELAY_DAYS (a wild animal that leaves by the edge holds a slot of its species' cap for N days). Measured at N = 7, 14, 21, 28 on the annual instrument; none passed.
+
+diff --git a/src/systems/animals/constants.ts b/src/systems/animals/constants.ts
+index b47ada1..39baf18 100644
+--- a/src/systems/animals/constants.ts
++++ b/src/systems/animals/constants.ts
+@@ -21,6 +21,11 @@ export const EAT_CORPSE_TICKS = 300;
+ /** Consecutive unseen ticks before a held wild attack ends. */
+ export const ATTACK_PERCEPTION_GRACE_TICKS = 50;
+ export const WILD_LIFETIME_DAYS = 28;
++/**
++ * T-427: a wild animal that leaves by the map edge holds a slot of its species' cap for this many
++ * days, so a species that has just left is slow to return.
++ */
++export const WILD_RESPAWN_DELAY_DAYS = 28;
+ /** Per species per day when below cap. */
+ export const SPAWN_PERMILLE = 150;
+ /** Tiles from any dwarf. */
+diff --git a/src/systems/animals/index.ts b/src/systems/animals/index.ts
+index 086f3c9..3c4459a 100644
+--- a/src/systems/animals/index.ts
++++ b/src/systems/animals/index.ts
+@@ -39,6 +39,7 @@ import {
+   TAME_THINK_TICKS,
+   WILD_THINK_TICKS,
+   WILD_LOAD_SHEDDING_THINK_TICKS,
++  WILD_RESPAWN_DELAY_DAYS,
+ } from './constants';
+ import { AnimalFacts } from './facts';
+ import { packOf, tickAnimal, type BrainHost } from './brain';
+@@ -125,6 +126,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+   readonly grazeEmitted: TileIndex[] = [];
+   /** The grass tile each grazer passes over until the tick, after its walk there came back unreachable (08 § Pastures and feeding). */
+   readonly grazeSkips = new Map<EntityId, { tile: TileIndex; until: number }>();
++  /** T-427: one held cap slot per wild animal that left by the edge, as `[species, until tick]`, oldest first. */
++  readonly heldSlots: [number, number][] = [];
++  /** The tick of 08's latest tick, for the spawn host's count of held slots. */
++  private nowTick = 0;
+   /** Eggs waiting in a nest box: item → the box, the tick it was laid and the species. */
+   readonly eggs = new Map<EntityId, EggRecord>();
+   /** Products waiting for their job, `<animalId>:<kind>`. */
+@@ -353,7 +358,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+       biome: this.options.spec.biome,
+       wildlifeDensity: this.wildlifeDensity,
+       traits: [...this.options.spec.traits],
+-      countWild: (species) => this.countOf(species, true),
++      countWild: (species) => this.countOf(species, true) + this.heldSlots.filter(([s, until]) => s === species && until > this.nowTick).length,
+       creatureCount: () => world.entities.with(C.Creature).length,
+       dwarfTiles: () => this.dwarfTiles(),
+       breachedCaverns: () => this.breachedCaverns(),
+@@ -365,6 +370,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+   // ---------- the per-tick brain pass ----------
+ 
+   override tick(ctx: TickContext): void {
++    this.nowTick = ctx.tick;
+     this.flushGrazed(ctx);
+     if (this.initialTiers.some((tier) => !this.initializedCaverns.has(tier))) {
+       const breached = this.spawner.breachedCaverns();
+@@ -513,6 +519,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+   /** `creature-brains.md`: "Daily: spawning per 08 …, lifetime and cap checks (`leave`)." */
+   private daily(ctx: TickContext): void {
+     const season = ctx.readers.calendar.season;
++    for (let i = this.heldSlots.length - 1; i >= 0; i -= 1) if ((this.heldSlots[i] as [number, number])[1] <= ctx.tick) this.heldSlots.splice(i, 1);
+     this.cavernTileCache = [null, null, null, null];
+     for (const group of dailySpawn(this.spawner, season)) {
+       for (const id of group.ids) ctx.emit({ type: 'AnimalSpawned', id, species: this.facts.idOf(group.species) });
+@@ -725,6 +732,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+     const creature = ctx.world.entities.get(id, C.Creature);
+     if (creature === undefined) return;
+     ctx.emit({ type: 'AnimalLeft', id, species: this.facts.idOf(creature.species) });
++    // A species that has just left is slow to return (T-427).
++    this.heldSlots.push([creature.species, ctx.tick + WILD_RESPAWN_DELAY_DAYS * TICKS_PER_DAY]);
+     this.targets.delete(id);
+     this.provoked.delete(id);
+     ctx.world.entities.destroy(id);
+@@ -1190,6 +1199,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+           .sort((a, b) => a - b)
+           .map((id): [EntityId, number, number] => [id, (this.grazeSkips.get(id) as { tile: number }).tile, (this.grazeSkips.get(id) as { until: number }).until]),
+       }),
++      ...(this.heldSlots.length === 0 ? {} : { heldSlots: this.heldSlots.map((h): [number, number] => [h[0], h[1]]) }),
+       hourlyDue: this.hourlyDue,
+       seasonDue: this.seasonDue,
+       eggs: Array.from(this.eggs.keys())
+@@ -1229,6 +1239,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
+     for (const [cageId, crId] of state.pendingTame ?? []) this.pendingTame.set(cageId, crId);
+     this.grazeSkips.clear();
+     for (const [id, tile, until] of state.grazeSkips ?? []) this.grazeSkips.set(id, { tile, until });
++    this.heldSlots.length = 0;
++    for (const [species, until] of state.heldSlots ?? []) this.heldSlots.push([species, until]);
+     this.rng.setState(state.rng);
+     this.dailyDue = state.dailyDue;
+     this.provoked.clear();
+diff --git a/src/systems/animals/state.ts b/src/systems/animals/state.ts
+index 6d10e0b..fbc9815 100644
+--- a/src/systems/animals/state.ts
++++ b/src/systems/animals/state.ts
+@@ -37,6 +37,8 @@ export interface AnimalsStateV1 {
+   grazeEmitted?: number[];
+   /** Grazer, grass tile and the tick until which the grazer passes over it; omitted in older saves means none. */
+   grazeSkips?: [EntityId, number, number][];
++  /** T-427: the cap slots held by wild animals that left by the edge, `[species, until tick]`; omitted when none and in older saves. */
++  heldSlots?: [number, number][];
+   hourlyDue: boolean;
+   seasonDue: boolean;
+   eggs: [EntityId, EggRecord][];

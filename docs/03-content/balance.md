@@ -183,14 +183,14 @@ The standard-size, command-driven wildlife-year instrument uses twelve distinct 
 | Measure | Target | Latest accepted | Best measured | Regression bound |
 |---|---|---:|---:|---|
 | Median living dwarves | At least 11 of the nominal twelve | 13 | 13 | At least 12 |
-| Minimum living dwarves | At least 8 | 8 | 9 | Reported; not guarded as a single sample |
-| Second-worst living dwarves | At least 8 | 10 | 10 | Reported; not guarded as a single sample |
-| Sum of the living over the twelve seeds | — | 150 | 150 | At least 138 |
+| Minimum living dwarves | At least 8 | 6 | 9 | Reported; not guarded as a single sample |
+| Second-worst living dwarves | At least 8 | 7 | 10 | Reported; not guarded as a single sample |
+| Sum of the living over the twelve seeds | — | 142 | 150 | At least 138 |
 | Years without a wildlife dwarf death | All | 8 of 12 | 8 of 12 | At least 6 of 12 |
 | Extinct fortresses | None | 0 | 0 | At most 1 |
 | Dwarf deaths from hunger or thirst | None | 0 | 0 | At most 1 across the cohort |
 
-The latest accepted row is the [measurement with a dwarf under attack fleeing whatever its needs](../../reports/data/2026-10-23-t425-wildlife.json): forest median 12.5, taiga 11.5, grassland 14.5; the worst seed is taiga seed 2 with 8 (four wolf deaths), taiga seed 3 has 12 (one wolf death, nine before), and the sum of the living is 150, also the best measured. The other best measured figures, from which the bounds are computed, come from an earlier row ([rows](../../reports/data/2026-10-16-t354-wildlife.json)): minimum 9, second-worst 10. [balance-status.md](../balance-status.md) holds the latest figures with their fixture qualification; the reports hold the history.
+The latest accepted row is the [measurement with leaving animals reaching the edge and `WILD_LIFETIME_DAYS` 42](../../reports/data/2026-10-24-t427-wildlife.json) (T-427); the worst seeds are taiga seed 1 with 6 and taiga seed 4 with 7, and the sum of the living is 142. The best measured sum, 150, is [T-425's row](../../reports/data/2026-10-23-t425-wildlife.json). The other best measured figures, from which the bounds are computed, come from an earlier row ([rows](../../reports/data/2026-10-16-t354-wildlife.json)): minimum 9, second-worst 10. [balance-status.md](../balance-status.md) holds the latest figures with their fixture qualification; the reports hold the history.
 
 The guarded figures are the median, the sum of the living over the twelve years, wildlife-free years, extinctions and hunger/thirst deaths. Their bounds are computed from the best measured figures: median minus one dwarf, sum of the living minus twelve dwarves, wildlife-free minus two seeds, extinction count plus one fortress, and hunger/thirst deaths plus one. Always report the worst and the second-worst seed, but do not guard a single seed: one fortress's year turns on which dwarf an animal reaches first, and changes that only move the job timeline shift single seeds by five or more living in both directions while the sum moves by less than ten. Block a change when any bound fails or when three or more of the five guarded figures worsen together, even within their tolerances. Compare simultaneous worsening against the latest accepted before row, so an earlier tolerated drop is not counted again on a later change. Keep that latest actual row alongside the best figures used for the bounds; update the row and every improved measured figure in the same commit, retaining earlier better bounds when a tolerant figure falls. Always record the actual before and after rows. The survival targets remain unchanged.
 

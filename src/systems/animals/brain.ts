@@ -104,6 +104,12 @@ export interface BrainHost {
   grazed(tile: TileIndex): void;
   /** `AnimalLeft` and the entity's removal. */
   despawn(id: EntityId): void;
+  /**
+   * T-446: the home chunk a territorial surface animal keeps: `chunk` itself when its centre lies
+   * farther than `TERRITORY_AVOID_RADIUS` from the fortress, else the nearest chunk on its level
+   * that does, or -1 when none does.
+   */
+  homeAwayFromFortress?(chunk: number): number;
 }
 
 export function tileOf(host: BrainHost, id: EntityId): TileIndex {
@@ -298,7 +304,7 @@ export function isEdgeTile(map: Map3D, i: TileIndex): boolean {
   return x === 0 || y === 0 || x === map.w - 1 || y === map.h - 1;
 }
 
-/** The nearest walkable map-edge tile on the animal's level, or -1. */
+/** The nearest map-edge tile on the animal's level, in a straight line, that it can reach (T-427), or -1. */
 export function edgeTile(host: BrainHost, id: EntityId): TileIndex {
   const map = host.map;
   const at = tileOf(host, id);
@@ -313,7 +319,7 @@ export function edgeTile(host: BrainHost, id: EntityId): TileIndex {
   for (const c of candidates) {
     if (!host.readers.pathing.passable(c, cls)) continue;
     const d = Math.max(Math.abs(map.xOf(c) - x), Math.abs(map.yOf(c) - y));
-    if (d >= bestD) continue;
+    if (d >= bestD || !host.readers.pathing.reachable(at, c, cls)) continue;
     bestD = d;
     best = c;
   }
@@ -414,6 +420,28 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
   if (next.mealId !== undefined && ['idle', 'wander', 'hunt'].includes(next.state)) {
     next.state = 'eat'; next.stateUntil = 0;
     host.setTarget(id, 0); host.movement?.stopWalking(id);
+  }
+
+  // Ground away from the fortress (T-446): a territorial animal moves its home off the fortress, or leaves.
+  if (temper === 'territorial' && host.homeAwayFromFortress !== undefined && host.facts.row(species)?.cavern === undefined &&
+      (next.state === 'idle' || next.state === 'graze' || next.state === 'wander' || next.state === 'sleep')) {
+    const home = host.homeAwayFromFortress(next.homeChunk);
+    if (home < 0) {
+      delete next.defendFrom; delete next.unseenSince;
+      next.state = 'leave';
+      host.movement?.stopWalking(id);
+      walk(host, ctx, id, edgeTile(host, id));
+      return next;
+    }
+    if (home !== next.homeChunk) {
+      next.homeChunk = home;
+      delete next.defendFrom; delete next.unseenSince;
+      next.state = 'wander';
+      next.stateUntil = ctx.tick + WANDER_TIMEOUT_TICKS;
+      host.movement?.stopWalking(id);
+      walk(host, ctx, id, wanderTile(host, id, home));
+      return next;
+    }
   }
 
   switch (next.state as WildState) {
@@ -609,7 +637,11 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       break;
     }
     case 'leave': {
-      const edge = edgeTile(host, id);
+      // The edge tile chosen for this leave is kept while the walk to it lasts (T-427): picked again
+      // from each tile, the nearest edge changed with the animal's row, and where the way winds the
+      // animal walked to and fro between two edge tiles.
+      const walking = host.movement?.walkTarget(id) ?? -1;
+      const edge = walking >= 0 && isEdgeTile(host.map, walking) ? walking : edgeTile(host, id);
       if (edge < 0 || walk(host, ctx, id, edge) === 'arrived' || isEdgeTile(host.map, at)) host.despawn(id);
       break;
     }

@@ -1,6 +1,8 @@
 # T-427 — Wild animals in `leave` stay for weeks near the map edge
 
-**Source:** T-421, [boars maul p0-2](../../reports/audits/2026-10-22-boars-maul-p0-2.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-10-24, in bff3bc9.
+
+**Source:** T-421, [boars maul p0-2](../../../reports/audits/2026-10-22-boars-maul-p0-2.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -22,3 +24,7 @@ Find why `leave` does not end for them. Likely candidates are an edge tile that 
 
 - A unit test of an animal leaving from a tile next to the edge, through the case found.
 - The annual instrument by the T-308 rule.
+
+## As done
+
+The orchestrator's decisions (b) and then the lifetime lever: the fix (keep the chosen edge; only reachable edges) and `WILD_LIFETIME_DAYS` 28 → 42 with the original weights, because stuck leavers had held cap slots and kept fresh packs rare. Present-population matching, spawn-weight cuts (pp_defence starved), a respawn delay (7 to 28 days) and stays of 56 and 84 days were measured and not taken ([report](../../../reports/audits/2026-10-24-animals-stuck-leaving.md)).

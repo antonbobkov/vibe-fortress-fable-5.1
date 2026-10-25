@@ -1,5 +1,7 @@
 # T-446 — Territorial animals make their home by the fortress
 
+**Closed:** 2026-10-24, in 3d42cb5.
+
 **Source:** T-427's sweep and T-421's diagnosis · **Size:** M · **Needs:** — · **Status:** open (measured together with T-427)
 
 ## Why
@@ -30,3 +32,7 @@ A wild animal that defends its ground should not choose ground the dwarves alrea
   - pp_defence passes 4 of 4;
   - the whole twenty-seed three_years_seeds file passes.
 - **The target:** the sweep's dwarf deaths at or below about 140, and the living at year 3 at or above about 850, near the T-425 row of 122 and 919. Report the totals by cause.
+
+## As done
+
+`TERRITORY_AVOID_RADIUS` is 16, not 24: at 24 no chunk of a 48 × 48 map qualifies, every territorial animal leaves, and pp_defence fails 2 of 4. With T-427 the sweep passes 20 of 20 with wildlife deaths 6 (T-425 8) and living 867; deaths are 158, the miss carried by three-years-p4-6's raids (5 → 51), which the orchestrator accepted ([report](../../../reports/audits/2026-10-24-territorial-animals-away.md)).
