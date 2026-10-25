@@ -1,6 +1,6 @@
 # T-436 — Surface visual variety: relief, trees, shrubs, grass, boulders
 
-**Source:** the owner, 2026-10-23 (first play session) · **Size:** L · **Needs:** T-427 · **Status:** open
+**Source:** the owner, 2026-10-23 (first play session) · **Size:** L · **Needs:** — · **Status:** open
 
 ## Why
 
