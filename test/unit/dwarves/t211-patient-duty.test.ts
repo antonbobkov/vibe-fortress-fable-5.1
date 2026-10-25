@@ -23,6 +23,10 @@ function woundedSoldier(mode: 'train' | 'active' | 'off', alert: 'calm' | 'watch
   expect(combat.onDuty(id)).toBe(true); expect(world.entities.get(id, C.Brain)?.behavior).toBe('duty');
   // Stage the audit's post-fight boundary through the real damage and death event paths.
   const badger = w.spawnCreature('badger', w.index(20, 21, Z), 'wild');
+  // The badger defends its ground against the soldier, as its blow below says; an idle territorial
+  // animal would move its home off the fortress's zones (T-446) and out of sight.
+  world.entities.add(badger, C.Wild, { ...world.entities.get(badger, C.Wild)!, state: 'attack', defendFrom: w.index(20, 21, Z) });
+  w.animals.brain.setTarget(badger, id);
   expect(world.applyCommand({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: badger } }).ok).toBe(true);
   if (hunger > 0) { w.spawnItem('easy_meal', 'meal', station, 5); w.setNeed(id, 'hunger', hunger); }
   world.emit({ type: 'DamageDealt', defenderId: id, attackerId: badger, part: 'torso', damageType: 'edge', amount: 15 });

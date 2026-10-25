@@ -104,6 +104,12 @@ export interface BrainHost {
   grazed(tile: TileIndex): void;
   /** `AnimalLeft` and the entity's removal. */
   despawn(id: EntityId): void;
+  /**
+   * T-446: the home chunk a territorial surface animal keeps: `chunk` itself when its centre lies
+   * farther than `TERRITORY_AVOID_RADIUS` from the fortress, else the nearest chunk on its level
+   * that does, or -1 when none does.
+   */
+  homeAwayFromFortress?(chunk: number): number;
 }
 
 export function tileOf(host: BrainHost, id: EntityId): TileIndex {
@@ -414,6 +420,28 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
   if (next.mealId !== undefined && ['idle', 'wander', 'hunt'].includes(next.state)) {
     next.state = 'eat'; next.stateUntil = 0;
     host.setTarget(id, 0); host.movement?.stopWalking(id);
+  }
+
+  // Ground away from the fortress (T-446): a territorial animal moves its home off the fortress, or leaves.
+  if (temper === 'territorial' && host.homeAwayFromFortress !== undefined && host.facts.row(species)?.cavern === undefined &&
+      (next.state === 'idle' || next.state === 'graze' || next.state === 'wander' || next.state === 'sleep')) {
+    const home = host.homeAwayFromFortress(next.homeChunk);
+    if (home < 0) {
+      delete next.defendFrom; delete next.unseenSince;
+      next.state = 'leave';
+      host.movement?.stopWalking(id);
+      walk(host, ctx, id, edgeTile(host, id));
+      return next;
+    }
+    if (home !== next.homeChunk) {
+      next.homeChunk = home;
+      delete next.defendFrom; delete next.unseenSince;
+      next.state = 'wander';
+      next.stateUntil = ctx.tick + WANDER_TIMEOUT_TICKS;
+      host.movement?.stopWalking(id);
+      walk(host, ctx, id, wanderTile(host, id, home));
+      return next;
+    }
   }
 
   switch (next.state as WildState) {

@@ -13,6 +13,8 @@ export const NEAR_DWARF_RADIUS = 20;
 export const WANDER_RADIUS = 16;
 export const GRAZE_TICKS = 60;
 export const TERRITORY_RADIUS = 5;
+/** T-446: tiles from the fortress within which a territorial animal keeps no home chunk (*unmeasured*). */
+export const TERRITORY_AVOID_RADIUS = 16;
 export const FLEE_TICKS = 200;
 /** Default flee threshold; defined in 16; species override it with their `flee` column. */
 export const FLEE_BLOOD_PERCENT = 50;
