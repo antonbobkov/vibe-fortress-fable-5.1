@@ -27,3 +27,13 @@ In the twenty-seed sweep of T-446 (master c18fd4c), `three-years-p4-6` (peril 4)
 
 - The cause is in a dated report with the journal.
 - A fix (if a fault) passes the instrument by the T-308 rule, pp_defence, and the twenty-seed file, with p4-6's deaths reported.
+
+## Diagnosed (2026-10-24)
+
+Not a fault: the captain leads the year's first siege (35 on day 186: 24 warriors, 11 archers, 5 trollkin, 2 captains, per the peril-4 schedule). The siege broke the north gate door, killed the five soldiers at the gate in 50 ticks, and went down into the hearth hall, where it cut down 46 sheltering civilians over 1.6 days; no dwarf ever struck the captain, which ended at full blood ([report](../../reports/audits/2026-10-24-one-raider-kills-28.md)).
+
+**Decision needed (orchestrator):**
+- (a) the schedule: a smaller or later first peril-4 siege, or one scaled by the fortress's military as well as renown;
+- (b) 10: a civilian in a shelter that a party has entered fights back when attacked and no exit leads out, instead of fleeing within it;
+- (c) the fixture: the player answers a siege warning by arming every adult with a weapon or fighting at the gate;
+- (d) accept: a peril-4 siege can wipe out an unprepared fortress.
