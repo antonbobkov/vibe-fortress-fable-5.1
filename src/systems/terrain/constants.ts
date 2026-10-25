@@ -88,3 +88,5 @@ export const HALL_FURNITURE_COUNT = 12;
 export const WARM_SPRING_COUNT = 3;
 /** `wyrm_roost`: "a 9×9 chamber in cavern 3". */
 export const WYRM_CHAMBER_SIZE = 9;
+/** A river's spring: "a point drawn by the stream at least 16 tiles from every edge". */
+export const SPRING_EDGE_MARGIN = 16;

@@ -79,7 +79,7 @@ The table itself is content (`regions-biomes-and-traits.md`). The biome list, fi
 - Sources: choose `RIVER_COUNT = size / 8` regions at random among those with `elevation ≥ RIVER_SOURCE_ELEVATION` and `rain ≥ RIVER_SOURCE_RAIN`, at least 4 regions apart.
 - Trace: from a source, repeatedly move to the lowest cardinal neighbor with lower elevation (ties broken by the stream), stopping at ocean or at an existing river (a confluence) or when no lower neighbor exists (a lake is created there and the river ends).
 - Class: the first `BROOK_LENGTH` regions of a river are `brook`; then `river`; after a confluence or beyond `MAJOR_LENGTH`, `major`.
-- Each region on a river records its inflow edges and outflow edge.
+- Each region on a river records its inflow edges and outflow edge. A river's first region has no inflow edge: the river rises there, and its local map carves it from a spring (03 stage 2), so every region with a river record has a river on its local map.
 - A source already on a river starts no new river. Shared regions retain the higher of their existing class and the new path's class; a confluence and everything downstream become `major`. Read each river record's class from its last region after all rivers have been traced.
 
 ### Geology, volcanoes, deepness

@@ -258,7 +258,10 @@ export class WorldMapScreen implements Screen {
     const w = site.water;
     if (w.river !== null) {
       const params = { class: s.get(`ui.site.river_class.${w.river.class}`), from: w.river.inflow.map(edge).join(' and ') };
-      water.push(w.river.outflow === null ? s.get('ui.site.river_lake', params) : s.get('ui.site.river', { ...params, to: edge(w.river.outflow) }));
+      const spring = w.river.inflow.length === 0;
+      water.push(w.river.outflow === null
+        ? s.get(spring ? 'ui.site.river_spring_lake' : 'ui.site.river_lake', params)
+        : s.get(spring ? 'ui.site.river_spring' : 'ui.site.river', { ...params, to: edge(w.river.outflow) }));
     }
     if (w.lake && (w.river === null || w.river.outflow !== null)) water.push(s.get('ui.site.lake'));
     if ((w.river !== null || w.lake) && w.freezes) water.push(s.get('ui.site.freezes'));

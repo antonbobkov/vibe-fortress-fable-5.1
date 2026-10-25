@@ -121,6 +121,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.no_grass': 'no grass; cave moss below',
   'ui.site.river': '{class} from the {from} to the {to}',
   'ui.site.river_lake': '{class} from the {from} into a lake',
+  'ui.site.river_spring': '{class} rising from a spring, running to the {to}',
+  'ui.site.river_spring_lake': '{class} rising from a spring into a lake',
   'ui.site.river_class.brook': 'a brook',
   'ui.site.river_class.river': 'a river',
   'ui.site.river_class.major': 'a great river',
