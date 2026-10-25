@@ -162,9 +162,33 @@ describe('T-M1-05 local map: stage 2 rivers and lakes', () => {
     }
   });
 
-  it('D-045: a region with no inflow edge carves no river', () => {
-    const { result } = gen(spec({ seed: 'spring', river: { inflowEdges: [], outflowEdge: 'e', class: 'brook' } }));
-    expect(result.columns.every((f) => f === 0)).toBe(true);
+  it('T-443: a region with no inflow edge carves its brook from a spring in the half away from the outflow', () => {
+    for (const [outflow, inHalf] of [
+      ['e', (x: number, y: number) => x >= 16 && x <= 47 && y >= 16 && y <= 79],
+      ['w', (x: number, y: number) => x >= 48 && x <= 79 && y >= 16 && y <= 79],
+      ['n', (x: number, y: number) => y >= 48 && y <= 79 && x >= 16 && x <= 79],
+      ['s', (x: number, y: number) => y >= 16 && y <= 47 && x >= 16 && x <= 79],
+    ] as const) {
+      const { result } = gen(spec({ seed: `spring-${outflow}`, river: { inflowEdges: [], outflowEdge: outflow, class: 'brook' } }));
+      const sources: number[] = [];
+      result.columns.forEach((f, c) => { if ((f & COL_SOURCE) !== 0) sources.push(c); });
+      expect(sources, outflow).toHaveLength(1);
+      const c = sources[0] as number;
+      expect(inHalf(c % 96, Math.floor(c / 96)), outflow).toBe(true);
+      expect(result.columns.filter((f) => (f & COL_RIVER) !== 0).length, outflow).toBeGreaterThanOrEqual(32);
+      expect(result.waterSources.length, outflow).toBeGreaterThan(0);
+      expect(result.sinks.length, outflow).toBeGreaterThan(0);
+      result.columns.forEach((f, k) => {
+        const x = k % 96;
+        const y = Math.floor(k / 96);
+        if ((f & COL_SINK) !== 0) expect(outflow === 'e' ? x : outflow === 'w' ? 95 - x : outflow === 's' ? y : 95 - y).toBe(95);
+      });
+    }
+    // A river that rises and ends in the same region runs from its spring into its lake.
+    const lake = gen(spec({ seed: 'spring-lake', river: { inflowEdges: [], outflowEdge: null, class: 'brook' } }));
+    expect(lake.result.columns.some((f) => (f & COL_LAKE) !== 0)).toBe(true);
+    expect(lake.result.columns.some((f) => (f & COL_SOURCE) !== 0)).toBe(true);
+    expect(lake.result.sinks).toHaveLength(0);
     expect(edgePoint(96, 96, 'n')).toEqual({ x: 48, y: 0 });
     expect(edgePoint(96, 96, 'e')).toEqual({ x: 95, y: 48 });
   });

@@ -12,7 +12,7 @@ Move water and magma through the map in a way that is cheap at scale and rich en
 - **Passable for fluid**: a tile fluid can enter: `open`, `floor`, `ramp`, `stairs_*`, `sapling`, `shrub`, `fortification`, and any of these with a building that does not block fluid. Blocking buildings: closed floodgate, raised bridge, closed hatch (for vertical movement only). Walls, trees and boulders are not passable.
 - **Active tile**: a tile whose fluid may still move. Only active tiles are simulated. A new game starts with none active; generated fluid stays as generated until disturbed. There is no first-tick activation pass or saved `started` flag. River sinks drain on the first step and start river flow.
 - **Settled**: a tile that has not changed for `FLUID_SETTLE_STEPS` steps; removed from the active set until a neighbor changes.
-- **Source**: a tile that refills to full at every step (river inflow, the Sea of Fire, a volcano pipe). **Sink**: a tile at the map edge that destroys fluid entering it (river outflow).
+- **Source**: a tile that refills to full at every step (river inflow, a river's spring, the Sea of Fire, a volcano pipe). **Sink**: a tile at the map edge that destroys fluid entering it (river outflow).
 - **Step**: one run of the fluid rules over the active set. Water steps every `FLUID_TICK_CADENCE_WATER` ticks, magma every `FLUID_TICK_CADENCE_MAGMA`.
 - **Body**: a set of full tiles connected through full tiles. Used only by the pressure rule.
 
@@ -88,7 +88,7 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 
 ### Sources and sinks in play
 
-- River inflow tiles refill each step; outflow tiles drain. A river dammed by constructions floods its banks until the water finds another way or the player opens a channel.
+- River inflow tiles and a river's spring refill each step; outflow tiles drain. A river dammed by constructions floods its banks until the water finds another way or the player opens a channel.
 - The Sea of Fire is all sources. A channel from it upward carries magma by pressure to the level of the sea's surface (`MAGMA_SEA_TOP_Z`); magma cannot rise higher on its own, which is why magma forges must be built near the bottom or a pump is needed (pumps are not in version 1; players bring the forge to the magma).
 - Volcano pipes are source columns up to the surface, so magma at the surface is at the pipe's level and can be channeled sideways.
 

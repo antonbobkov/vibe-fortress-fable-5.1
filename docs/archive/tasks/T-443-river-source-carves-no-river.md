@@ -1,5 +1,7 @@
 # T-443 — A river's source region has no river on its local map
 
+**Closed:** 2026-10-24, in e55704e.
+
 **Source:** T-440 (the site summary) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

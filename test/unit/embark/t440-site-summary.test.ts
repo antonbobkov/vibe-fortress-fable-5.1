@@ -131,7 +131,7 @@ describe('T-440 site summary: the summary matches the generated local map', () =
     ['glasslands', (r) => r.traits.includes('glasslands')],
     ['a river site', (r) => r.river !== null && r.river.inflow.length > 0 && r.river.outflow !== null],
     ['a river that ends in a lake', (r) => r.river !== null && r.river.inflow.length > 0 && r.river.outflow === null],
-    ['a river source, which carves no river', (r) => r.river !== null && r.river.inflow.length === 0],
+    ['a river source, which carves its brook from a spring',(r) => r.river !== null && r.river.inflow.length === 0],
     ['gemsprings', (r) => r.traits.includes('gemsprings')],
   ];
   for (const [name, pick] of kinds) {

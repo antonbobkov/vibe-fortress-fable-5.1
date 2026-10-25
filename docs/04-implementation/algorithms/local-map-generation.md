@@ -19,7 +19,8 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
        for each path tile p and its width-band tiles q: riverTiles.add(q); h[q] = min over band of h - depth (bed level); sourceEdge/sinkEdge marks kept
   if spec.lake or lake created: center = lakeCenter; radius = st.int(6,12); for tiles within radius (plain disc, no edge jitter): lakeTiles.add; h[q] = h - 2
   lakeCenter(st): uniform centre where radius 12 fits inside the map
-  // A river with no inflow edge creates no path.
+  if spec.river and no inflow edge: spring = st point SPRING_EDGE_MARGIN from every edge, in the half away from the outflow edge (if any)
+       path = wander(st, spring, outflow midpoint or lakeCenter); carved as above; the spring's band columns → SOURCE
   wander(st, from, to): walk with steps toward `to` 70% / perpendicular 30%, never leaving the map, until reaching `to`
   // 3. columns: soil, rock layers, magma sea
   st = stream(S, 'terrain.layers')
@@ -36,7 +37,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
       else if z > top: kind=Open
       else if z > top - soilDepth: kind=Wall, material = soilMaterial or pick(biome.soil by weight, stream 'terrain.soil')
       else: kind=Wall, material = layerAt(stack, top - soilDepth - z + undulation)
-    surface tile (x,y,top): if in riverTiles or lakeTiles: kind of bed tile = Floor of the stone below; fill z from the bed tile through waterTop-1 with water 7 (waterTop is the band's lowest original surface, or the lake column's original surface); edge tiles of inflow → SOURCE; outflow → sink list
+    surface tile (x,y,top): if in riverTiles or lakeTiles: kind of bed tile = Floor of the stone below; fill z from the bed tile through waterTop-1 with water 7 (waterTop is the band's lowest original surface, or the lake column's original surface); edge tiles of inflow and the spring's band → SOURCE; outflow → sink list
     else: kind(x,y,top) = Floor (the column's top solid becomes the walkable surface: i.e. set tile at z=top to Floor with its material; tiles above Open)
   progress('layers')
   // 4. caverns

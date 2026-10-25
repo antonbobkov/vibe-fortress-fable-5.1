@@ -11,6 +11,7 @@ import { FluidType, Map3D } from '@core/map3d';
 import type { RngStream } from '@core/rng';
 import type { Edge } from '@core/types';
 import type { LocalMapSpec } from '@systems/embark';
+import { SPRING_EDGE_MARGIN } from '../constants';
 import { COL_LAKE, COL_RIVER, COL_SINK, COL_SOURCE, stageStream, type LocalGen } from './common';
 
 /** "widen to the class width (brook 1, river 3, major 5)". */
@@ -74,6 +75,23 @@ export function lakeCenter(st: RngStream, w: number, h: number): Point {
   return { x: st.int(LAKE_RADIUS_MAX, w - 1 - LAKE_RADIUS_MAX), y: st.int(LAKE_RADIUS_MAX, h - 1 - LAKE_RADIUS_MAX) };
 }
 
+/**
+ * A river's spring, for a region with no inflow edge: a point drawn by the stream at least
+ * `SPRING_EDGE_MARGIN` tiles from every edge and, when the river has an outflow edge, in the half
+ * of the map away from it, so the brook crosses at least half the map.
+ */
+export function springPoint(st: RngStream, w: number, h: number, outflow: Edge | null): Point {
+  let x0 = SPRING_EDGE_MARGIN;
+  let x1 = w - 1 - SPRING_EDGE_MARGIN;
+  let y0 = SPRING_EDGE_MARGIN;
+  let y1 = h - 1 - SPRING_EDGE_MARGIN;
+  if (outflow === 'e') x1 = Math.floor(w / 2) - 1;
+  else if (outflow === 'w') x0 = Math.ceil(w / 2);
+  else if (outflow === 's') y1 = Math.floor(h / 2) - 1;
+  else if (outflow === 'n') y0 = Math.ceil(h / 2);
+  return { x: st.int(x0, x1), y: st.int(y0, y1) };
+}
+
 function onEdge(g: LocalGen, x: number, y: number, edge: Edge): boolean {
   return edge === 'n' ? y === 0 : edge === 's' ? y === g.h - 1 : edge === 'w' ? x === 0 : x === g.w - 1;
 }
@@ -83,7 +101,7 @@ function onEdge(g: LocalGen, x: number, y: number, edge: Edge): boolean {
  * the bed of a band is the lowest surface in it minus the depth, and the water rises to one level
  * below that lowest surface. Where bands overlap the lower bed wins.
  */
-function carvePath(g: LocalGen, path: readonly Point[], cls: string, inflow: Edge | null, outflow: Edge | null): void {
+function carvePath(g: LocalGen, path: readonly Point[], cls: string, inflow: Edge | null, outflow: Edge | null, spring: Point | null = null): void {
   const half = Math.floor((RIVER_WIDTH[cls] ?? 1) / 2);
   const depth = RIVER_DEPTH[cls] ?? 1;
   const original = Int16Array.from(g.heights);
@@ -122,6 +140,7 @@ function carvePath(g: LocalGen, path: readonly Point[], cls: string, inflow: Edg
     g.waterTop[c] = top[c] as number;
     g.colFlags[c] = (g.colFlags[c] as number) | COL_RIVER;
     if (inflow !== null && onEdge(g, x, y, inflow)) g.colFlags[c] = (g.colFlags[c] as number) | COL_SOURCE;
+    if (spring !== null && Math.abs(x - spring.x) <= half && Math.abs(y - spring.y) <= half) g.colFlags[c] = (g.colFlags[c] as number) | COL_SOURCE;
     if (outflow !== null && onEdge(g, x, y, outflow)) g.colFlags[c] = (g.colFlags[c] as number) | COL_SINK;
   }
 }
@@ -146,9 +165,9 @@ function carveLake(g: LocalGen, center: Point, radius: number): void {
   }
 }
 
-/** Whether a spec's map has a river: "a region with no inflow edge starts no path". */
+/** Whether a spec's map has a river: every river region carves one, a source region from its spring. */
 export function carvesRiver(spec: Pick<LocalMapSpec, 'river'>): boolean {
-  return spec.river !== null && spec.river.inflowEdges.length > 0;
+  return spec.river !== null;
 }
 
 /** Whether a spec's map has a lake: the region's own, or the end of a river with no outflow. */
@@ -158,8 +177,9 @@ export function carvesLake(spec: Pick<LocalMapSpec, 'river' | 'lake'>): boolean 
 
 /**
  * Stage 2. A river's paths run from the midpoint of each inflow edge to the midpoint of the
- * outflow edge, or to the lake centre when it has none; a region with no inflow edge starts no
- * path (docs/04-implementation/algorithms/local-map-generation.md). A lake (the region's own, or the end of a river) is carved last.
+ * outflow edge, or to the lake centre when it has none; a region with no inflow edge (the river's
+ * source) has one path, from a spring drawn by the stream, whose tiles are the river's sources
+ * (docs/04-implementation/algorithms/local-map-generation.md). A lake (the region's own, or the end of a river) is carved last.
  */
 export function stageRivers(g: LocalGen): void {
   const st = stageStream(g.s, 'terrain.rivers');
@@ -172,6 +192,10 @@ export function stageRivers(g: LocalGen): void {
       if (target === null) break;
       const path = wander(st, edgePoint(g.w, g.h, inflow), target, g.w, g.h);
       carvePath(g, path, river.class, inflow, river.outflowEdge);
+    }
+    if (river.inflowEdges.length === 0 && target !== null) {
+      const spring = springPoint(st, g.w, g.h, river.outflowEdge);
+      carvePath(g, wander(st, spring, target, g.w, g.h), river.class, null, river.outflowEdge, spring);
     }
   }
   if (center !== null) carveLake(g, center, st.int(LAKE_RADIUS_MIN, LAKE_RADIUS_MAX));

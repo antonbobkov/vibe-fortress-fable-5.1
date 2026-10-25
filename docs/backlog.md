@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-436 | [Surface visual variety: relief, trees, shrubs, grass, boulders](work/T-436-surface-visual-variety.md) | the owner, 2026-10-23 | — | open |
-| T-443 | [A river's source region has no river on its local map](work/T-443-river-source-carves-no-river.md) | T-440's checks | — | open |
 | T-445 | [Frostmarrow's wildlife hook is not implemented](work/T-445-frostmarrow-wildlife-hook.md) | T-440's checks | — | open |
 | T-447 | [One Gloam captain kills 28 dwarves in one fortress](work/T-447-one-raider-kills-28.md) | T-446's sweep | — | open |
 
