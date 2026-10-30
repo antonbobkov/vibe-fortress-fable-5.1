@@ -1,0 +1,1657 @@
+{
+ "note": "T-448 three_years_seeds whole file. relief0: 659a0f8. relief1: the same with THREE_YEARS_RELIEF 1; four seeds stopped on T-176 and have no row. The journal is p2-4 and p2-6 to their findings and p0-2 to day 300 at the sweep cadence.",
+ "relief0": {
+  "three-years-p0-1": {
+   "y3Pop": 59,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-2": {
+   "y3Pop": 40,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-3": {
+   "y3Pop": 47,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-4": {
+   "y3Pop": 73,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-5": {
+   "y3Pop": 54,
+   "dwarfDeaths": 1,
+   "byCause": {
+    "bled_out": 1
+   }
+  },
+  "three-years-p0-6": {
+   "y3Pop": 32,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 80,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 51,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 4
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 36,
+   "dwarfDeaths": 16,
+   "byCause": {
+    "killed": 5,
+    "bled_out": 11
+   }
+  },
+  "three-years-p2-3": {
+   "y3Pop": 43,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "killed": 1,
+    "bled_out": 3
+   }
+  },
+  "three-years-p2-4": {
+   "y3Pop": 48,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 3,
+    "killed": 1
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 65,
+   "dwarfDeaths": 1,
+   "byCause": {
+    "killed": 1
+   }
+  },
+  "three-years-p2-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 13,
+   "byCause": {
+    "bled_out": 10,
+    "killed": 3
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 65,
+   "dwarfDeaths": 8,
+   "byCause": {
+    "bled_out": 8
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 57,
+   "dwarfDeaths": 3,
+   "byCause": {
+    "bled_out": 2,
+    "killed": 1
+   }
+  },
+  "three-years-p4-2": {
+   "y3Pop": 28,
+   "dwarfDeaths": 25,
+   "byCause": {
+    "infection": 1,
+    "killed": 8,
+    "bled_out": 16
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 15,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 4
+   }
+  },
+  "three-years-p4-4": {
+   "y3Pop": 53,
+   "dwarfDeaths": 6,
+   "byCause": {
+    "killed": 2,
+    "bled_out": 4
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 21,
+   "dwarfDeaths": 6,
+   "byCause": {
+    "bled_out": 2,
+    "killed": 4
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 51,
+   "byCause": {
+    "killed": 20,
+    "infection": 2,
+    "bled_out": 29
+   }
+  }
+ },
+ "relief1": {
+  "three-years-p0-1": {
+   "y3Pop": 14,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-2": {
+   "y3Pop": 12,
+   "dwarfDeaths": 33,
+   "byCause": {
+    "drowned": 33
+   }
+  },
+  "three-years-p0-3": {
+   "y3Pop": 68,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-4": {
+   "y3Pop": 1,
+   "dwarfDeaths": 11,
+   "byCause": {
+    "bled_out": 4,
+    "drowned": 6,
+    "starvation": 1
+   }
+  },
+  "three-years-p0-5": {
+   "y3Pop": 66,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-6": {
+   "y3Pop": 55,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 76,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 48,
+   "dwarfDeaths": 21,
+   "byCause": {
+    "bled_out": 16,
+    "killed": 4,
+    "starvation": 1
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 0,
+   "dwarfDeaths": 19,
+   "byCause": {
+    "killed": 5,
+    "bled_out": 14
+   }
+  },
+  "three-years-p2-3": {
+   "y3Pop": 23,
+   "dwarfDeaths": 16,
+   "byCause": {
+    "bled_out": 13,
+    "killed": 3
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 8,
+    "killed": 6
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 17,
+   "dwarfDeaths": 7,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 1
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 8,
+    "killed": 3,
+    "starvation": 3
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 0,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 8,
+    "killed": 4
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 39,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 9,
+    "killed": 3
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 23,
+   "byCause": {
+    "bled_out": 18,
+    "killed": 5
+   }
+  }
+ },
+ "journal": [
+  {
+   "seed": "three-years-p2-4",
+   "t": "map",
+   "wagon": [
+    15,
+    2,
+    33
+   ],
+   "gate": [
+    16,
+    8,
+    33
+   ],
+   "reach": 1553,
+   "total": 2304,
+   "levels": {
+    "30": 7,
+    "31": 540,
+    "32": 1416,
+    "33": 341
+   }
+  },
+  {
+   "seed": "three-years-p2-4",
+   "t": "cutoff",
+   "type": "haul_to_stockpile",
+   "at": [
+    14,
+    8,
+    33
+   ],
+   "wagonLabel": 100,
+   "here": 100,
+   "around": [
+    "0,0,-1:k1l0",
+    "0,0,0:k2l100",
+    "0,0,1:k0l0",
+    "1,0,-1:k1l0",
+    "1,0,0:k1l0",
+    "1,0,1:k0l0",
+    "-1,0,-1:k3l100",
+    "-1,0,0:k0l0",
+    "-1,0,1:k0l0",
+    "0,1,-1:k1l0",
+    "0,1,0:k2l100",
+    "0,1,1:k0l0",
+    "0,-1,-1:k1l0",
+    "0,-1,0:k2l100",
+    "0,-1,1:k0l0"
+   ]
+  },
+  {
+   "seed": "three-years-p2-4",
+   "t": "end",
+   "day": 4,
+   "living": 7,
+   "gateKinds": [
+    5,
+    6,
+    6,
+    6,
+    6,
+    6,
+    4
+   ],
+   "hall": 0,
+   "built": 8,
+   "buildings": 12,
+   "blocked": [
+    {
+     "id": 37,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":37,\"key\":\"dig:62272\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62272},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 38,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":38,\"key\":\"dig:62320\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62320},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 39,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":39,\"key\":\"dig:62368\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62368},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 40,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":40,\"key\":\"dig:62416\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62416},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 41,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":41,\"key\":\"dig:62450\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62450},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 42,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":42,\"key\":\"dig:62451\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62451},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 43,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":43,\"key\":\"dig:62452\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62452},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 44,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":44,\"key\":\"dig:62453\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62453},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 45,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":45,\"key\":\"dig:62454\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62454},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 47,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":47,\"key\":\"dig:62498\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62498},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 48,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":48,\"key\":\"dig:62499\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62499},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    },
+    {
+     "id": 49,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":49,\"key\":\"dig:62500\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":62500},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":4852"
+    }
+   ]
+  },
+  {
+   "seed": "three-years-p2-6",
+   "t": "map",
+   "wagon": [
+    21,
+    6,
+    31
+   ],
+   "gate": [
+    28,
+    9,
+    31
+   ],
+   "reach": 1535,
+   "total": 2304,
+   "levels": {
+    "31": 457,
+    "32": 1626,
+    "33": 221
+   }
+  },
+  {
+   "seed": "three-years-p2-6",
+   "t": "cutoff",
+   "type": "haul_to_stockpile",
+   "at": [
+    19,
+    3,
+    31
+   ],
+   "wagonLabel": 182,
+   "here": 183,
+   "around": [
+    "0,0,-1:k1l0",
+    "0,0,0:k2l183",
+    "0,0,1:k0l0",
+    "1,0,-1:k1l0",
+    "1,0,0:k2l183",
+    "1,0,1:k0l0",
+    "-1,0,-1:k1l0",
+    "-1,0,0:k2l183",
+    "-1,0,1:k0l0",
+    "0,1,-1:k1l0",
+    "0,1,0:k2l183",
+    "0,1,1:k0l0",
+    "0,-1,-1:k1l0",
+    "0,-1,0:k2l183",
+    "0,-1,1:k0l0"
+   ]
+  },
+  {
+   "seed": "three-years-p2-6",
+   "t": "end",
+   "day": 8,
+   "living": 7,
+   "gateKinds": [
+    5,
+    6,
+    6,
+    6,
+    6,
+    6,
+    4
+   ],
+   "hall": 0,
+   "built": 13,
+   "buildings": 19,
+   "blocked": [
+    {
+     "id": 38,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":38,\"key\":\"dig:57676\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57676},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 39,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":39,\"key\":\"dig:57724\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57724},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 40,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":40,\"key\":\"dig:57772\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57772},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 41,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":41,\"key\":\"dig:57820\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57820},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 42,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":42,\"key\":\"dig:57868\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57868},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 43,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":43,\"key\":\"dig:57902\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57902},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 44,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":44,\"key\":\"dig:57903\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57903},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 45,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":45,\"key\":\"dig:57904\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57904},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 46,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":46,\"key\":\"dig:57905\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57905},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 47,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":47,\"key\":\"dig:57906\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57906},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 48,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":48,\"key\":\"dig:57916\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57916},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    },
+    {
+     "id": 49,
+     "type": "dig",
+     "reason": "unreachable",
+     "job": "{\"id\":49,\"key\":\"dig:57950\",\"type\":16,\"producer\":\"terrain\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":57950},\"workTile\":\"adjacent\",\"inputs\":[],\"tool\":\"pick\",\"state\":\"blocked\",\"blockedReason\":\"unreachable\",\"retryTick\":9693"
+    }
+   ]
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "map",
+   "wagon": [
+    22,
+    2,
+    32
+   ],
+   "gate": [
+    28,
+    8,
+    32
+   ],
+   "reach": 1573,
+   "total": 2304,
+   "levels": {
+    "30": 33,
+    "31": 271,
+    "32": 1810,
+    "33": 190
+   }
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 276.67,
+   "id": 419430823,
+   "last": "27,15,32 need/thirst",
+   "tile": [
+    16,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 276.96,
+   "id": 285213447,
+   "last": "27,15,32 need/thirst",
+   "tile": [
+    14,
+    30,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 277.44,
+   "id": 83887451,
+   "last": "21,22,32 need/thirst",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 277.44,
+   "id": 318767930,
+   "last": "27,16,32 need/thirst",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 277.5,
+   "id": 16777284,
+   "last": "28,8,26 need/thirst",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 278.48,
+   "id": 285213183,
+   "last": "28,8,31 need/thirst",
+   "tile": [
+    14,
+    30,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 278.51,
+   "id": 150996038,
+   "last": "28,8,28 need/thirst",
+   "tile": [
+    14,
+    30,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 284.25,
+   "id": 385876852,
+   "last": "30,10,26 need/thirst",
+   "tile": [
+    14,
+    29,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 285.27,
+   "id": 83886598,
+   "last": "33,8,26 need/comfort",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 285.74,
+   "id": 83887330,
+   "last": "10,23,32 work/Plant seed",
+   "tile": [
+    13,
+    29,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 285.89,
+   "id": 285213387,
+   "last": "16,29,32 need/thirst",
+   "tile": [
+    14,
+    30,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 286.37,
+   "id": 352322443,
+   "last": "17,29,32 need/thirst",
+   "tile": [
+    16,
+    31,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 288.21,
+   "id": 587203073,
+   "last": "28,8,27 need/thirst",
+   "tile": [
+    13,
+    29,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 292.46,
+   "id": 117441732,
+   "last": "17,27,32 need/thirst",
+   "tile": [
+    14,
+    32,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 293.02,
+   "id": 16777281,
+   "last": "31,8,26 need/social",
+   "tile": [
+    14,
+    29,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 293.07,
+   "id": 553648773,
+   "last": "14,29,31 need/thirst",
+   "tile": [
+    14,
+    29,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 293.29,
+   "id": 184550730,
+   "last": "15,30,31 work/Gather plant",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 293.42,
+   "id": 218104896,
+   "last": "26,13,32 need/thirst",
+   "tile": [
+    13,
+    29,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 293.63,
+   "id": 50332302,
+   "last": "25,18,32 need/thirst",
+   "tile": [
+    16,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 294.21,
+   "id": 251659409,
+   "last": "28,8,31 need/thirst",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 294.22,
+   "id": 50332992,
+   "last": "27,12,32 need/thirst",
+   "tile": [
+    16,
+    31,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 296.4,
+   "id": 352322232,
+   "last": "27,14,32 need/thirst",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 297.48,
+   "id": 150995647,
+   "last": "28,8,29 need/thirst",
+   "tile": [
+    16,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 297.48,
+   "id": 16777279,
+   "last": "28,8,28 need/thirst",
+   "tile": [
+    16,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 297.68,
+   "id": 50331831,
+   "last": "27,13,32 need/thirst",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 298.96,
+   "id": 184550282,
+   "last": "28,8,29 need/thirst",
+   "tile": [
+    15,
+    30,
+    31
+   ],
+   "kind": 3
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "drowned",
+   "day": 299.1,
+   "id": 50331809,
+   "last": "14,30,31 need/thirst",
+   "tile": [
+    14,
+    30,
+    31
+   ],
+   "kind": 2
+  },
+  {
+   "seed": "three-years-p0-2",
+   "t": "end",
+   "day": 300,
+   "living": 21,
+   "gateKinds": [
+    5,
+    6,
+    6,
+    6,
+    6,
+    6,
+    4
+   ],
+   "hall": 30,
+   "built": 54,
+   "buildings": 54,
+   "blocked": [
+    {
+     "id": 752,
+     "type": "haul_to_depot",
+     "reason": "missing_input",
+     "job": "{\"id\":752,\"key\":\"depot:16777497\",\"type\":24,\"producer\":\"trade\",\"priority\":4,\"target\":{\"kind\":\"entity\",\"ref\":16777497},\"workTile\":73934,\"inputs\":[{\"filter\":{\"itemId\":16777497},\"count\":1,\"wholeItem\":true,\"reserved\":[],\"deli"
+    },
+    {
+     "id": 849,
+     "type": "haul_to_stockpile",
+     "reason": "missing_input",
+     "job": "{\"id\":849,\"key\":\"haul:16777497\",\"type\":26,\"producer\":\"items\",\"priority\":6,\"target\":{\"kind\":\"entity\",\"ref\":16777497},\"workTile\":74087,\"inputs\":[{\"filter\":{\"itemId\":16777497},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"tool\""
+    },
+    {
+     "id": 1341,
+     "type": "haul_to_stockpile",
+     "reason": "missing_input",
+     "job": "{\"id\":1341,\"key\":\"haul:16777530\",\"type\":26,\"producer\":\"items\",\"priority\":6,\"target\":{\"kind\":\"entity\",\"ref\":16777530},\"workTile\":74088,\"inputs\":[{\"filter\":{\"itemId\":16777530},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"tool"
+    },
+    {
+     "id": 1741,
+     "type": "plant",
+     "reason": "unreachable",
+     "job": "{\"id\":1741,\"key\":\"plant:75271\",\"type\":30,\"producer\":\"plants\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":75271},\"workTile\":\"at\",\"inputs\":[{\"filter\":{\"type\":85,\"materialId\":178},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"to"
+    },
+    {
+     "id": 2137,
+     "type": "haul_to_depot",
+     "reason": "missing_input",
+     "job": "{\"id\":2137,\"key\":\"depot:16777530\",\"type\":24,\"producer\":\"trade\",\"priority\":5,\"target\":{\"kind\":\"entity\",\"ref\":16777530},\"workTile\":73934,\"inputs\":[{\"filter\":{\"itemId\":16777530},\"count\":1,\"wholeItem\":true,\"reserved\":[],\"del"
+    },
+    {
+     "id": 2807,
+     "type": "plant",
+     "reason": "unreachable",
+     "job": "{\"id\":2807,\"key\":\"plant:75272\",\"type\":30,\"producer\":\"plants\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":75272},\"workTile\":\"at\",\"inputs\":[{\"filter\":{\"type\":85,\"materialId\":8},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"tool"
+    },
+    {
+     "id": 3180,
+     "type": "haul_to_depot",
+     "reason": "missing_input",
+     "job": "{\"id\":3180,\"key\":\"depot:16777531\",\"type\":24,\"producer\":\"trade\",\"priority\":4,\"target\":{\"kind\":\"entity\",\"ref\":16777531},\"workTile\":73934,\"inputs\":[{\"filter\":{\"itemId\":16777531},\"count\":1,\"wholeItem\":true,\"reserved\":[],\"del"
+    },
+    {
+     "id": 3728,
+     "type": "plant",
+     "reason": "unreachable",
+     "job": "{\"id\":3728,\"key\":\"plant:75266\",\"type\":30,\"producer\":\"plants\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":75266},\"workTile\":\"at\",\"inputs\":[{\"filter\":{\"type\":85,\"materialId\":178},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"to"
+    },
+    {
+     "id": 3729,
+     "type": "plant",
+     "reason": "unreachable",
+     "job": "{\"id\":3729,\"key\":\"plant:75267\",\"type\":30,\"producer\":\"plants\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":75267},\"workTile\":\"at\",\"inputs\":[{\"filter\":{\"type\":85,\"materialId\":178},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"to"
+    },
+    {
+     "id": 3730,
+     "type": "plant",
+     "reason": "unreachable",
+     "job": "{\"id\":3730,\"key\":\"plant:75269\",\"type\":30,\"producer\":\"plants\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":75269},\"workTile\":\"at\",\"inputs\":[{\"filter\":{\"type\":85,\"materialId\":178},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"to"
+    },
+    {
+     "id": 3731,
+     "type": "plant",
+     "reason": "unreachable",
+     "job": "{\"id\":3731,\"key\":\"plant:75314\",\"type\":30,\"producer\":\"plants\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":75314},\"workTile\":\"at\",\"inputs\":[{\"filter\":{\"type\":85,\"materialId\":178},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"to"
+    },
+    {
+     "id": 3732,
+     "type": "plant",
+     "reason": "unreachable",
+     "job": "{\"id\":3732,\"key\":\"plant:75316\",\"type\":30,\"producer\":\"plants\",\"priority\":5,\"target\":{\"kind\":\"tile\",\"ref\":75316},\"workTile\":\"at\",\"inputs\":[{\"filter\":{\"type\":85,\"materialId\":178},\"count\":1,\"reserved\":[],\"delivered\":[]}],\"to"
+    }
+   ]
+  }
+ ],
+ "reach": [
+  {
+   "relief": 0,
+   "seed": "three-years-p0-1",
+   "wagonZ": 32,
+   "wagonLabel": 1488,
+   "others": [
+    237,
+    3,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 6,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p0-2",
+   "wagonZ": 32,
+   "wagonLabel": 1555,
+   "others": [
+    212,
+    3,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p0-3",
+   "wagonZ": 32,
+   "wagonLabel": 1523,
+   "others": [
+    230,
+    5,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 16,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p0-4",
+   "wagonZ": 32,
+   "wagonLabel": 1554,
+   "others": [
+    232,
+    5,
+    4,
+    3,
+    2,
+    1
+   ],
+   "nOthers": 14,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p0-5",
+   "wagonZ": 32,
+   "wagonLabel": 1530,
+   "others": [
+    228,
+    5,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 12,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p0-6",
+   "wagonZ": 32,
+   "wagonLabel": 1521,
+   "others": [
+    232,
+    11,
+    2,
+    2,
+    2,
+    1
+   ],
+   "nOthers": 14,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p0-7",
+   "wagonZ": 32,
+   "wagonLabel": 1523,
+   "others": [
+    223,
+    2,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 9,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p2-1",
+   "wagonZ": 32,
+   "wagonLabel": 1525,
+   "others": [
+    210,
+    4,
+    2,
+    2,
+    2,
+    2
+   ],
+   "nOthers": 13,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p2-2",
+   "wagonZ": 32,
+   "wagonLabel": 1509,
+   "others": [
+    217,
+    4,
+    3,
+    2,
+    2,
+    2
+   ],
+   "nOthers": 12,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p2-3",
+   "wagonZ": 32,
+   "wagonLabel": 1515,
+   "others": [
+    220,
+    4,
+    3,
+    2,
+    1,
+    1
+   ],
+   "nOthers": 15,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p2-4",
+   "wagonZ": 32,
+   "wagonLabel": 1512,
+   "others": [
+    232,
+    4,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 11,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p2-5",
+   "wagonZ": 32,
+   "wagonLabel": 1500,
+   "others": [
+    217,
+    7,
+    2,
+    2,
+    2,
+    1
+   ],
+   "nOthers": 13,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p2-6",
+   "wagonZ": 32,
+   "wagonLabel": 1496,
+   "others": [
+    223,
+    9,
+    4,
+    3,
+    1,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p2-7",
+   "wagonZ": 32,
+   "wagonLabel": 1485,
+   "others": [
+    238,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p4-1",
+   "wagonZ": 32,
+   "wagonLabel": 1519,
+   "others": [
+    242,
+    2,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p4-2",
+   "wagonZ": 32,
+   "wagonLabel": 1487,
+   "others": [
+    222,
+    14,
+    9,
+    2,
+    2,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p4-3",
+   "wagonZ": 32,
+   "wagonLabel": 1506,
+   "others": [
+    196,
+    36,
+    3,
+    2,
+    1,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p4-4",
+   "wagonZ": 32,
+   "wagonLabel": 1510,
+   "others": [
+    242,
+    4,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 12,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p4-5",
+   "wagonZ": 32,
+   "wagonLabel": 1526,
+   "others": [
+    215,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 9,
+   "dwarves": 7
+  },
+  {
+   "relief": 0,
+   "seed": "three-years-p4-6",
+   "wagonZ": 32,
+   "wagonLabel": 1562,
+   "others": [
+    220,
+    5,
+    2,
+    2,
+    1,
+    1
+   ],
+   "nOthers": 9,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p0-1",
+   "wagonZ": 34,
+   "wagonLabel": 1524,
+   "others": [
+    231,
+    2,
+    2,
+    2,
+    2,
+    1
+   ],
+   "nOthers": 12,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p0-2",
+   "wagonZ": 32,
+   "wagonLabel": 1573,
+   "others": [
+    217,
+    10,
+    3,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 7,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p0-3",
+   "wagonZ": 32,
+   "wagonLabel": 1550,
+   "others": [
+    229,
+    4,
+    2,
+    2,
+    1,
+    1
+   ],
+   "nOthers": 13,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p0-4",
+   "wagonZ": 31,
+   "wagonLabel": 1609,
+   "others": [
+    233,
+    6,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p0-5",
+   "wagonZ": 32,
+   "wagonLabel": 1557,
+   "others": [
+    231,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p0-6",
+   "wagonZ": 32,
+   "wagonLabel": 1578,
+   "others": [
+    244,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 9,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p0-7",
+   "wagonZ": 32,
+   "wagonLabel": 1548,
+   "others": [
+    233,
+    3,
+    3,
+    2,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p2-1",
+   "wagonZ": 32,
+   "wagonLabel": 1535,
+   "others": [
+    226,
+    6,
+    2,
+    2,
+    2,
+    2
+   ],
+   "nOthers": 16,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p2-2",
+   "wagonZ": 32,
+   "wagonLabel": 1560,
+   "others": [
+    202,
+    7,
+    4,
+    2,
+    2,
+    1
+   ],
+   "nOthers": 6,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p2-3",
+   "wagonZ": 32,
+   "wagonLabel": 1519,
+   "others": [
+    247,
+    7,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p2-4",
+   "wagonZ": 33,
+   "wagonLabel": 1553,
+   "others": [
+    238,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p2-5",
+   "wagonZ": 33,
+   "wagonLabel": 1529,
+   "others": [
+    219,
+    4,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p2-6",
+   "wagonZ": 31,
+   "wagonLabel": 1535,
+   "others": [
+    226,
+    2,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 9,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p2-7",
+   "wagonZ": 32,
+   "wagonLabel": 1531,
+   "others": [
+    205,
+    13,
+    4,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p4-1",
+   "wagonZ": 32,
+   "wagonLabel": 1574,
+   "others": [
+    229,
+    5,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p4-2",
+   "wagonZ": 32,
+   "wagonLabel": 1525,
+   "others": [
+    221,
+    4,
+    1,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 14,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p4-3",
+   "wagonZ": 33,
+   "wagonLabel": 1540,
+   "others": [
+    216,
+    4,
+    2,
+    2,
+    1,
+    1
+   ],
+   "nOthers": 17,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p4-4",
+   "wagonZ": 32,
+   "wagonLabel": 1553,
+   "others": [
+    220,
+    7,
+    6,
+    2,
+    1,
+    1
+   ],
+   "nOthers": 7,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p4-5",
+   "wagonZ": 32,
+   "wagonLabel": 1553,
+   "others": [
+    211,
+    2,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 10,
+   "dwarves": 7
+  },
+  {
+   "relief": 1,
+   "seed": "three-years-p4-6",
+   "wagonZ": 32,
+   "wagonLabel": 1549,
+   "others": [
+    234,
+    14,
+    2,
+    1,
+    1,
+    1
+   ],
+   "nOthers": 8,
+   "dwarves": 7
+  }
+ ]
+}

@@ -66,7 +66,13 @@ const MILITIA: readonly number[] = [2, 3, 6, 0, 1];
 const FIRST_BARRELS = 6;
 
 /** D-225: ordinary wealth-2 generation, compact dimensions for the long-running tests. */
-export function threeYearsWorld(seed: string, peril = 0, surfaceWildlife?: 'none', relief: 0 | 1 | 2 | 3 = 0): TestWorld {
+/**
+ * T-448: the relief of the three-year regions. The median of temperate forest over twelve standard
+ * worlds is 1, but the script does not yet play there (reports/audits/2026-10-30-instrument-relief.md).
+ */
+export const THREE_YEARS_RELIEF = 0;
+
+export function threeYearsWorld(seed: string, peril = 0, surfaceWildlife?: 'none', relief: 0 | 1 | 2 | 3 = THREE_YEARS_RELIEF): TestWorld {
   const registry = contentRegistry();
   const spec = regionSpec(seed, { peril, wealth: 2, biome: 'temperate_forest', geology: 'mixed', traits: peril === 0 ? ['serene_vale'] : [], relief,
     river: { class: 'brook', inflow: ['w'], outflow: 's' } }, registry);

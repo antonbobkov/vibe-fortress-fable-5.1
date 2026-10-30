@@ -1,0 +1,29 @@
+/**
+ * T-448 probe (not committed): the three-year fixture's setup and its first days on every seed of
+ * three_years_seeds at a given relief (T448_RELIEF), reporting the first error of each.
+ */
+import { describe, it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const THREE_YEARS_20_SEEDS = [...[1, 2, 3, 4, 5, 6, 7].map((k) => ({ seed: `three-years-p0-${k}`, peril: 0 })), ...[1, 2, 3, 4, 5, 6, 7].map((k) => ({ seed: `three-years-p2-${k}`, peril: 2 })), ...[1, 2, 3, 4, 5, 6].map((k) => ({ seed: `three-years-p4-${k}`, peril: 4 }))];
+const RELIEF = Number(process.env['T448_RELIEF'] ?? 1) as 0 | 1 | 2 | 3;
+const DAYS = Number(process.env['T448_DAYS'] ?? 5);
+
+describe('T-448 setup on relief', () => {
+  it('sets up every seed', () => {
+    for (const { seed, peril } of THREE_YEARS_20_SEEDS) {
+      try {
+        const w = threeYearsWorld(seed, peril, undefined, RELIEF);
+        const state = setupThreeYearsFortress(w);
+        while (w.tick < DAYS * TICKS_PER_DAY) {
+          playThreeYears(w, state, 100);
+          checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+        }
+        console.log(`[t448-setup] ${seed} ok z=${state.z} hall=${state.hallZ} gate=${state.cx + 6},${state.cy + 6}`);
+      } catch (e) {
+        console.log(`[t448-setup] ${seed} FAIL ${(e as Error).message.slice(0, 200)}`);
+      }
+    }
+  }, 3_600_000);
+});
