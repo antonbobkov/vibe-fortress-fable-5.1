@@ -77,7 +77,8 @@ async function face(page: Page): Promise<Point | null> {
         let edge = 0;
         for (let dy = 0; dy < 3; dy += 1) for (const xx of [x - 1, x + 4]) {
           const i = m.index(xx, y + dy, z);
-          if (m.kindAt(i) === 2 && path.labelOf(i, 'walker') === home) edge += 1;
+          // A floor or, at a slope, a ramp (both walkable) beside the face.
+          if ((m.kindAt(i) === 2 || m.kindAt(i) === 3) && path.labelOf(i, 'walker') === home) edge += 1;
         }
         if (edge < 3) continue;
         const dist = Math.abs(x - d.x) + Math.abs(y - d.y) + 4 * Math.abs(z - d.z);

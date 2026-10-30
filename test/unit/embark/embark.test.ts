@@ -46,7 +46,7 @@ const registry = contentRegistry();
 describe('T-M1-04 embark: tuning constants', () => {
   it('every numeric row of 02 § Tuning constants is in constants.ts with its value', () => {
     const rows = tuningConstants('02-systems/02-embark-and-loadout.md');
-    expect(rows.length).toBe(6);
+    expect(rows.length).toBe(7);
     const code = E as unknown as Record<string, number>;
     for (const row of rows) expect([row.name, code[row.name]]).toEqual([row.name, row.value]);
   });
@@ -139,7 +139,7 @@ describe('T-M1-04 embark: LocalMapSpec', () => {
     expect(() => localMapSpec(world, -1, registry)).toThrow(RangeError);
   });
 
-  it('D-044: relief is the largest neighbour elevation difference over 64', () => {
+  it('T-436: relief is 0 for level ground, else 1 plus the largest neighbour elevation difference over 96', () => {
     for (const r of world.regions) {
       const relief = reliefOf(world, r.id);
       expect(relief).toBeGreaterThanOrEqual(0);

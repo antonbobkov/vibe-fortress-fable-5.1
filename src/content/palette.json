@@ -21,6 +21,10 @@
     "hex": "#7A7A7A"
   },
   {
+    "id": "ash_leaf",
+    "hex": "#7A9A5A"
+  },
+  {
     "id": "ash_pale",
     "hex": "#D8D0B8"
   },
@@ -333,6 +337,26 @@
     "hex": "#F4F0E8"
   },
   {
+    "id": "flower_blue",
+    "hex": "#6890E8"
+  },
+  {
+    "id": "flower_red",
+    "hex": "#D84858"
+  },
+  {
+    "id": "flower_violet",
+    "hex": "#A878D8"
+  },
+  {
+    "id": "flower_white",
+    "hex": "#ECECE0"
+  },
+  {
+    "id": "flower_yellow",
+    "hex": "#F0D040"
+  },
+  {
     "id": "forest_green",
     "hex": "#2E6B2E"
   },
@@ -387,6 +411,10 @@
     "hex": "#8C8C8C"
   },
   {
+    "id": "grass_deep",
+    "hex": "#1E6E2A"
+  },
+  {
     "id": "grass_dry",
     "hex": "#A8A040"
   },
@@ -394,6 +422,18 @@
     "id": "grass_green",
     "hex": "#2E8B2E",
     "alt": "#3A7A9C"
+  },
+  {
+    "id": "grass_light",
+    "hex": "#5AA83E"
+  },
+  {
+    "id": "grass_olive",
+    "hex": "#6E8A2E"
+  },
+  {
+    "id": "grass_pale",
+    "hex": "#8FA070"
   },
   {
     "id": "gray",
@@ -476,6 +516,18 @@
   {
     "id": "lever_gray",
     "hex": "#C0C0C0"
+  },
+  {
+    "id": "lichen_gray",
+    "hex": "#8E9C84"
+  },
+  {
+    "id": "lichen_orange",
+    "hex": "#C08448"
+  },
+  {
+    "id": "lichen_yellow",
+    "hex": "#B8B464"
   },
   {
     "id": "lignite_brown",
@@ -570,6 +622,10 @@
     "hex": "#1C3A44"
   },
   {
+    "id": "moss_green",
+    "hex": "#3E6E3A"
+  },
+  {
     "id": "moss_teal",
     "hex": "#2E7A6E"
   },
@@ -592,6 +648,10 @@
   {
     "id": "oak_brown",
     "hex": "#8B5A2B"
+  },
+  {
+    "id": "oak_leaf",
+    "hex": "#3E7A2A"
   },
   {
     "id": "obsidian_black",

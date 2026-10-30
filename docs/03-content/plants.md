@@ -52,12 +52,12 @@ Columns: `logs` per chop `[min, max]`; `saplingYears`; `biomes (weight)`.
 
 | id | name | logs | saplingYears | biomes (weight) | glyph | fg |
 |---|---|---|---|---|---|---|
-| `oak` | oak | 2–4 | 3 | temperate_forest 35, temperate_hills 25, temperate_grassland 10, wetland 10, dark_forest 20 | `♣` | `oak_brown` |
+| `oak` | oak | 2–4 | 3 | temperate_forest 35, temperate_hills 25, temperate_grassland 10, wetland 10, dark_forest 20 | `♣` | `oak_leaf` |
 | `pine` | pine | 2–3 | 2 | taiga 45, alpine 30, mountain 30, temperate_hills 20, cold_steppe 10, dark_forest 25 | `♠` | `pine_green` |
 | `birch` | birch | 1–3 | 2 | taiga 30, temperate_forest 20, tundra 15, cold_steppe 15 | `↑` | `birch_pale` |
 | `willow` | willow | 2–3 | 2 | wetland 40, riverbank (any biome, within 2 of a river) 30 | `♣` | `willow_green` |
 | `yew` | yew | 1–2 | 4 | temperate_forest 8, temperate_hills 8, dark_forest 12 | `♠` | `yew_red` |
-| `ash` | ash | 2–3 | 3 | temperate_forest 20, temperate_grassland 10, wetland 10 | `↑` | `ash_pale` |
+| `ash` | ash | 2–3 | 3 | temperate_forest 20, temperate_grassland 10, wetland 10 | `↑` | `ash_leaf` |
 | `maple` | maple | 2–3 | 3 | temperate_forest 15, temperate_hills 15 | `♣` | `maple_amber` |
 | `tower_shroom` | tower shroom | 1–3 | 2 | cavern 1 (60), cavern 2 (40), cavern 3 (20) | `♠` | `shroom_gray` |
 | `stalk_fern` | stalk fern | 1–2 | 1 | cavern 1 (30), cavern 2 (50), cavern 3 (40) | `↑` | `fern_teal` |
@@ -66,7 +66,7 @@ Tropical forest and savanna use `oak` (as "broadleaf") with weight 40 and `ash` 
 
 ## Grass
 
-One `grass` flag species per surface; drawn `grass_green` outdoors and `moss_teal` in caverns. `cold_steppe`, `tundra` and `savanna` draw grass in `grass_dry` colors.
+One `grass` flag species per surface; drawn `grass_green` outdoors and `moss_teal` in caverns. `cold_steppe`, `tundra`, `savanna`, `desert` and `badlands` draw grass in `grass_dry` colors.
 
 ## Brewing summary
 

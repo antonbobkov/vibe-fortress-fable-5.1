@@ -9,9 +9,15 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   // 1. heightmap
   st = stream(S, 'terrain.height')
   base = SURFACE_Z_MIN + (spec.elevation - SEA_LEVEL) * (SURFACE_Z_MAX - SURFACE_Z_MIN) / (255 - SEA_LEVEL)
-  amp = [1, 2, 4, 6][spec.relief]
-  h[x][y] = clamp(SURFACE_Z_MIN, SURFACE_Z_MAX, base + roundTiesTowardZero(noise(st, x, y, [32, 12], [amp*0.7, amp*0.3]) - amp/2))
+  amp = [0, 3, 5, 8][spec.relief]; ridges = [0, 1, 2, 3][spec.relief]; salt = st.u32(); ridgeSalt = st.u32()
+  r = noise(ridgeSalt, x, y, [40], [1]); near = 1 - |2r - 1|; ridge = near > 0.8 ? round((near - 0.8) / 0.2 * ridges) : 0
+  h[x][y] = clamp(SURFACE_Z_MIN, SURFACE_Z_MAX, base + roundTiesTowardZero(noise(salt, x, y, [32, 12], [amp*0.7, amp*0.3]) - amp/2) + ridge)
   h = median3x3(h)
+  st = stream(S, 'terrain.relief'); rocky = set(); scree = set(); if relief == 0: skip outcrops and crags
+  repeat round((biome.surface.outcrops + 3*(relief-1)) * W*H/9216): c = st point 3..W-4 x 3..H-4; r = st.int(1, 2 + (relief == 3)); rise = relief == 3 ? st.int(1,2) : 1
+       disc d² <= r(r+1): h[q] = max(h[q], h[c] + rise); rocky.add(q)
+  if biome.surface.crags > 0: repeat round((crags + 2*(relief-1)) * W*H/9216): c; r = st.int(2,4); peak = st.int(2,4) + relief - 1
+       disc: h[q] = max(h[q], h[c] + max(1, round(peak * (1 - d/(r+1))))); rocky.add(q); ring r+1..r+2: scree.add
   // 2. rivers and lakes (carve before layers so beds get stone)
   riverTiles = set(); st = stream(S, 'terrain.rivers')
   if spec.river: for each inflow edge: path = wander(st, midpoint(inflow), spec.river.outflowEdge ? midpoint(outflow) : lakeCenter(st))
@@ -25,7 +31,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   // 3. columns: soil, rock layers, magma sea
   st = stream(S, 'terrain.layers')
   stack = rollStack(spec.geology, st)                      // [{material, thickness}], repeats until it covers D
-  soilDepth = (spec.biome.soilDepth) ; if 'glasslands' in traits: soilMaterial = obsidian; soilDepth = spec.biome.soilDepth
+  soilDepth = (spec.biome.soilDepth), 0 on rocky columns ; if 'glasslands' in traits: soilMaterial = obsidian; soilDepth = spec.biome.soilDepth
   for x, y:
     top = h[x][y]; undulation = round(noise(stream(S,'terrain.undulation'), x, y, [24], [2]) - 1)
     for z in 0..D-1:
@@ -67,13 +73,19 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   // 6. volcano
   if spec.volcano: c = randomSurfacePoint(st) at chebyshev >= 20 from arrivalEdge midpoint; r = glasslands ? 3 : st.int(1,2)
     for z in 0..h[c]: tiles within r of c: kind=Open, fluid = 7|MAGMA|SOURCE; ring r+1..r+2: Wall obsidian below each column’s surface, Floor obsidian at its surface; surface within 6: soil replaced by obsidian, no vegetation
-  // 7. vegetation
+  // 7. slopes, boulders, vegetation, snow
+  for dry surface Floor (x,y,z) with Open above: if a cardinal neighbour has Wall at z and a dry Floor at z+1: kind = Ramp
+  st = stream(S, 'terrain.boulders'); if relief == 0: no boulders
+  for dry surface Floor not bare: p = rocky ? 3*biome.surface.boulders : biome.surface.boulders; if scree: p = max(p, 250‰)
+    if st.fixed() < p: kind = Boulder, material = first non-soil material down the column
   st = stream(S, 'terrain.plants')
   for surface floor tiles with soil material (not river/lake, not within 2 of river unless willow):
     if st.fixed() < biome.treeDensity: kind=Tree, material = pick(tree species by biome weight)
     else if st.fixed() < biome.shrubDensity: kind=Shrub, material = pick(shrub species)
     else flags |= Grass
   cavern floors (cave_loam): fungus trees with density 0.12 by cavern weights; cavern shrubs 0.08
+  if biome.surface.snow > 0: salt = stream(S, 'terrain.snow').u32()
+    for dry surface Floor or Ramp: if noise(salt, x, y, [14, 5], [0.7, 0.3]) + 0.1 * max(0, z - base) >= 1 - snow: flags |= Snow
   // 8. traits
   if old_battlefield: scatter BATTLEFIELD_ITEM_COUNT items on surface tiles in band 15..40 from arrival edge (spawned after entities exist: recorded as a spawn list applied by 02 arrival)
   if sunken_halls: site = highest dry floor in far half where the hall fits, ties by inward distance descending then column order; carve the layout in 03; record furniture and vault spawn list

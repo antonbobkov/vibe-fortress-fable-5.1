@@ -363,6 +363,21 @@ async function tradeThroughUi(page: Page, clock: ReturnType<typeof playClock>): 
   await clock.sync();
 }
 
+/**
+ * Click the first tile of a dragged rectangle that the zone took: on generated ground with slopes,
+ * the corner itself may be a ramp the zone left out.
+ */
+async function clickZoneIn(page: Page, x0: number, y0: number, x1: number, y1: number): Promise<void> {
+  const tile = await page.evaluate(([ax, ay, bx, by]) => {
+    const h = (window as unknown as { __deepholm: { readers: { ui: { z: number }; map: { index(x: number, y: number, z: number): number }; buildings: { zoneAt(i: number): number } } } }).__deepholm;
+    for (let y = ay as number; y <= (by as number); y += 1) {
+      for (let x = ax as number; x <= (bx as number); x += 1) if (h.readers.buildings.zoneAt(h.readers.map.index(x, y, h.readers.ui.z)) !== 0) return { x, y };
+    }
+    return { x: ax as number, y: ay as number };
+  }, [x0, y0, x1, y1]);
+  await clickTile(page, tile.x, tile.y);
+}
+
 test('full-year', async ({ page }) => {
   test.setTimeout(600_000);
   const errors: string[] = [];
@@ -622,7 +637,7 @@ test('full-year', async ({ page }) => {
   await dragTiles(page, { x: site.wx + 3, y: site.wy + 2 }, { x: site.wx + 6, y: site.wy + 5 });
   await page.keyboard.press('Escape');
   await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
-  await clickTile(page, site.wx + 3, site.wy + 2);
+  await clickZoneIn(page, site.wx + 3, site.wy + 2, site.wx + 6, site.wy + 5);
   await expect.poll(() => textOf(page)).toContain('[S-p] Preset');
   await page.keyboard.press('Shift+P');
   await expect.poll(() => textOf(page)).toContain('Everything');
@@ -636,7 +651,7 @@ test('full-year', async ({ page }) => {
   await dragTiles(page, { x: site.wx + 2, y: site.wy - 5 }, { x: site.wx + 5, y: site.wy - 3 });
   await page.keyboard.press('Escape');
   await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
-  await clickTile(page, site.wx + 2, site.wy - 5);
+  await clickZoneIn(page, site.wx + 2, site.wy - 5, site.wx + 5, site.wy - 3);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer', 'Autumn']) {
     const row = await textCell(page, season, 9);
@@ -652,7 +667,7 @@ test('full-year', async ({ page }) => {
   await dragTiles(page, { x: site.wx + 6, y: site.wy - 5 }, { x: site.wx + 9, y: site.wy - 3 });
   await page.keyboard.press('Escape');
   await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
-  await clickTile(page, site.wx + 6, site.wy - 5);
+  await clickZoneIn(page, site.wx + 6, site.wy - 5, site.wx + 9, site.wy - 3);
   await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
   for (const season of ['Spring', 'Summer']) {
     const row = await textCell(page, season, 9);
@@ -809,8 +824,26 @@ test('full-year', async ({ page }) => {
   await closePanels(page);
   for (let i = 0; i < 2; i += 1) await page.keyboard.press('>');
 
-  // 2. Trade depot (3x3)
-  await placeBuilding(page, 'Shift+S', 'Trade depot', site.patches[5]!.x + 1, site.patches[5]!.y + 1);
+  // 2. Trade depot (3x3), at the origin nearest the sixth patch where its ghost is valid (generated
+  //    ground has slopes, and the depot must stand on floor); the click is the footprint's centre.
+  const depotAt = await page.evaluate(([px, py, z]) => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const map = h.readers.map;
+    let best = { x: px as number, y: py as number };
+    let bestD = Infinity;
+    for (let dy = -6; dy <= 6; dy += 1) {
+      for (let dx = -6; dx <= 6; dx += 1) {
+        const x = (px as number) + dx;
+        const y = (py as number) + dy;
+        if (x < 1 || y < 1 || x >= map.w - 1 || y >= map.h - 1) continue;
+        if (h.readers.buildings.ghost('trade_depot', map.index(x, y, z as number), 0).reason !== null) continue;
+        const d = dx * dx + dy * dy;
+        if (d < bestD) { bestD = d; best = { x, y }; }
+      }
+    }
+    return best;
+  }, [site.patches[5]!.x, site.patches[5]!.y, site.wz]);
+  await placeBuilding(page, 'Shift+S', 'Trade depot', depotAt.x + 1, depotAt.y + 1);
 
   // 3. Request anvil from Mountainhome
   await page.keyboard.press('c');

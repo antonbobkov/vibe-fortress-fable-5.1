@@ -45,5 +45,32 @@ export const ZONE_TINT_MIN_LUMA = 0.18;
 /** The selected zone's tiles blend at this many times `ZONE_TINT_ALPHA`. */
 export const ZONE_SELECTED_ALPHA_FACTOR = 2;
 
+/** Surface variety (23 § Compositor step 2): the period, in tiles, of the patch field that groups tints. */
+export const SURFACE_PATCH_PERIOD = 7;
+
+/** How far a grass tile leans toward its patch's tint, at most. */
+export const GRASS_TINT_ALPHA = 0.55;
+
+/** How far a bare rock floor in a lichen or moss patch leans toward its tint. */
+export const ROCK_TINT_ALPHA = 0.5;
+
+/** The share (`Fixed`) of the patch field above which a bare rock floor carries lichen or moss. */
+export const ROCK_TINT_FROM = 450;
+
+/** A tree's or shrub's lighter shade: every channel times this. */
+export const PLANT_SHADE_LIGHT = 1.25;
+
+/** A tree's or shrub's darker shade: blended this far toward black. */
+export const PLANT_SHADE_DARK = 0.3;
+
+/** Higher ground one level up: its background leans this far from the surface's own toward the ground's tone; a quarter as much again per further level. */
+export const HILL_BG_ALPHA = 0.3;
+
+/** Walls are drawn as the ground above them up to this many levels below it. */
+export const HILL_LEVELS_ABOVE = 3;
+
+/** The tone of higher soil ground in a biome with no soil row. */
+export const HILL_SOIL_TONE = 'loam_brown';
+
 /** The bundled square bitmap font, loaded before the browser builds any atlas. */
 export const BUNDLED_FONT_FAMILY = 'DeepholmMono';

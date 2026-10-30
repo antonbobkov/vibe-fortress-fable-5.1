@@ -126,7 +126,7 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 
 - Zones menu › Farm plot: drag a rectangle; qualifying tiles highlight green, others red; confirm. The plot panel shows four season slots with species drop-downs filtered by light, a seed count per species, and the crops on the plot by stage.
 - Crops draw as the species glyph with foreground `grass_green` dimmed by 3, 2, 1, 0 for stages 0–3. Once ready, the foreground is `green` for one 500 ms frame per four-frame (two-second) cycle until harvested.
-- Trees `♣`, `♠` and `↑` by species; saplings `τ`; shrubs `"` in species color; grass as a `grass_green` foreground on the floor glyph; cave moss uses `moss_teal`. Grass in `cold_steppe`, `tundra` and `savanna` uses `grass_dry` foreground.
+- Trees `♣`, `♠` and `↑` by species; saplings `τ`; shrubs `"` in species color; grass as a `grass_green` foreground on the floor glyph; cave moss uses `moss_teal`. Grass in `cold_steppe`, `tundra`, `savanna`, `desert` and `badlands` uses `grass_dry` foreground; outdoors its glyph, tint and flowers vary by tile (23 § Compositor step 2).
 - Hints: "Farms need soil or mud", "Cave crops grow in the dark all year", "Harvest returns one seed; brewing does not".
 
 ## Tuning constants

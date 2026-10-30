@@ -113,6 +113,8 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
       if (d.z !== ui.z) continue;
       for (const dx of [2, -2, 3, -3]) {
         const x = d.x + dx;
+        // A tile on the map, and on the camera's side of the dwarf (the camera is clamped at the edge).
+        if (x < Math.max(0, ui.camX) || x >= map.w) continue;
         if (entities.at(map.index(x, d.y, d.z)).length === 0 && entities.at(map.index(d.x + Math.sign(dx), d.y, d.z)).length === 0) return { dwarf: d, empty: { x, y: d.y } };
       }
     }

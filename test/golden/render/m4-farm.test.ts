@@ -4,11 +4,11 @@ import { C } from '@core/components';
 import { STATUS_ROWS } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
-import { LOG_ROWS } from '@render/constants';
+import { LOG_ROWS, PLANT_SHADE_DARK, PLANT_SHADE_LIGHT } from '@render/constants';
 import { Compositor } from '@render/compositor';
 import { Palette } from '@render/palette';
 import { HEARTH_PULSE_HEX } from '@render/things';
-import { parseHex } from '@render/palette';
+import { blend, brighten, parseHex } from '@render/palette';
 import { stageLength } from '@systems/plants';
 import { TestWorld } from '../../scenarios/test-world';
 import { asRows, readGolden, updating, writeGolden } from './render-fixtures';
@@ -58,8 +58,11 @@ describe('T-M4-18 golden: m4-farm', () => {
     expect(view(w, 1).get(5, 2).fg).toBe(palette.color('grass_green'));
     expect(view(w, 4).get(5, 2).fg).toBe(palette.color('green'));
     expect(cells.get(6, 2)).toMatchObject({ glyph: 6, fg: palette.color('pine_green') });
-    expect(cells.get(7, 2)).toMatchObject({ glyph: 274, fg: palette.color('oak_brown') });
-    expect(cells.get(8, 2)).toMatchObject({ glyph: 5, fg: palette.color('bright_green') });
+    expect(cells.get(7, 2)).toMatchObject({ glyph: 274, fg: palette.color('oak_leaf') });
+    // T-436: a wild shrub takes its species colour or one of its two shades (23 § Compositor step 2).
+    const leaf = palette.color('bright_green');
+    expect(cells.get(8, 2).glyph).toBe(5);
+    expect([leaf, brighten(leaf, PLANT_SHADE_LIGHT), blend(leaf, palette.color('black'), PLANT_SHADE_DARK)]).toContain(cells.get(8, 2).fg);
     expect(cells.get(10, 2)).toMatchObject({ glyph: 115, fg: palette.color('sheep_cream') });
     expect(cells.get(11, 2)).toMatchObject({ glyph: 100, fg: palette.color('deer_tan') });
   });

@@ -873,6 +873,16 @@ export const SCHEMAS: Record<string, TableSchema> = {
     wildlifeDensity: fixed,
     embarkable: bool,
     color: colorRef,
+    surface: obj({
+      boulders: fixed,
+      outcrops: int,
+      crags: int,
+      snow: fixed,
+      grassTints: arr(colorRef),
+      flowers: fixed,
+      flowerColors: arr(colorRef),
+      rockTints: arr(colorRef),
+    }),
   }),
 
   biomeLookup: list({ temp: nonEmptyStr, rain: nonEmptyStr, biome: biomeRef }),

@@ -118,7 +118,8 @@ export function stageColumns(g: LocalGen): void {
       const c = y * g.w + x;
       const top = g.heights[c] as number;
       const wet = ((g.colFlags[c] as number) & (COL_RIVER | COL_LAKE)) !== 0;
-      const soil = soilDepth;
+      // Outcrops and crags are bare rock: no soil over them (on glasslands the obsidian caps them too).
+      const soil = g.rocky[c] === 1 && !glass ? 0 : soilDepth;
       const n = noise2(undulationSalt, x, y, [UNDULATION_PERIOD], [UNDULATION_AMP]);
       const undulation = clamp(-1, 1, Math.round(n / FIXED_SCALE) - 1);
       for (let z = lowest; z < g.d; z += 1) {

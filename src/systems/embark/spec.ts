@@ -10,6 +10,7 @@ import { hash64 } from '@core/noise';
 import type { Registry } from '@core/registry';
 import type { Civ, Edge } from '@core/types';
 import type { RegionRecord, WorldMap } from '@systems/worldgen';
+import { RELIEF_DIFF_STEP } from './constants';
 
 export interface LocalMapSpec {
   readonly seed: string;
@@ -48,9 +49,10 @@ interface BiomeRow {
 }
 
 /**
- * `relief (0–3 from neighbor elevation differences)`: the largest elevation difference to any of
- * the eight neighbouring regions, mapped linearly from the 0 … 255 elevation range onto the four
- * relief levels (`floor(diff × 4 / 256)`, so 64 per level). docs/02-systems/02-embark-and-loadout.md § Local map specification.
+ * `relief (0–3 from neighbor elevation differences)`: 0 (level) when every neighbour shares the
+ * region's elevation, otherwise `1 + floor(diff / RELIEF_DIFF_STEP)` up to 3, where `diff` is the
+ * largest elevation difference to any of the eight neighbouring regions.
+ * docs/02-systems/02-embark-and-loadout.md § Local map specification.
  */
 export function reliefOf(world: WorldMap, regionId: number): 0 | 1 | 2 | 3 {
   const size = world.size;
@@ -65,7 +67,7 @@ export function reliefOf(world: WorldMap, regionId: number): 0 | 1 | 2 | 3 {
       diff = Math.max(diff, Math.abs(e - here));
     }
   }
-  return Math.min(3, Math.floor((diff * 4) / 256)) as 0 | 1 | 2 | 3;
+  return (diff === 0 ? 0 : Math.min(3, 1 + Math.floor(diff / RELIEF_DIFF_STEP))) as 0 | 1 | 2 | 3;
 }
 
 /** Build the spec of one region: `seed: hash(worldSeed, regionId)` and the region's fields. */

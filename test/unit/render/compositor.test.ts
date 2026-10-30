@@ -1,15 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { STATUS_ROWS, SIDEBAR_COLS } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
-import { LOG_ROWS } from '@render/constants';
+import { LOG_ROWS, PLANT_SHADE_DARK, PLANT_SHADE_LIGHT } from '@render/constants';
 import { Compositor } from '@render/compositor';
-import { Palette } from '@render/palette';
+import { blend, brighten, Palette } from '@render/palette';
 import { GLYPH_WATER_HIGH } from '@render/environment';
 import {
   GLYPH_BOULDER,
   GLYPH_ENGRAVED,
   GLYPH_FORTIFICATION,
   GLYPH_GRASS,
+  GLYPH_GRASS_SHORT,
+  GLYPH_GRASS_TUFT,
   GLYPH_NONE,
   GLYPH_PAVED_FLOOR,
   GLYPH_RAMP,
@@ -71,16 +73,20 @@ describe('T-M0-13 compositor: step 2, the terrain base', () => {
   it('draws the other tile kinds', () => {
     const { cellAt, palette } = scene();
     const granite = palette.color('granite_gray');
-    const oak = palette.color('oak_brown');
+    const oak = palette.color('oak_leaf');
+    // T-436: a wild tree or shrub takes its species colour or one of its two shades; a sapling does not vary.
+    const shades = (c: number): number[] => [c, brighten(c, PLANT_SHADE_LIGHT), blend(c, palette.color('black'), PLANT_SHADE_DARK)];
     expect(cellAt(5, 0).glyph).toBe(GLYPH_FORTIFICATION);
     expect(cellAt(5, 0).fg).toBe(granite);
-    expect(cellAt(6, 0)).toMatchObject({ glyph: GLYPH_TREE, fg: oak });
+    expect(cellAt(6, 0).glyph).toBe(GLYPH_TREE);
+    expect(shades(oak)).toContain(cellAt(6, 0).fg);
     expect(cellAt(7, 0)).toMatchObject({ glyph: GLYPH_SAPLING, fg: oak });
     expect(cellAt(1, 2)).toMatchObject({ glyph: GLYPH_RAMP, fg: granite });
     expect(cellAt(2, 2).glyph).toBe(GLYPH_STAIRS_UP);
     expect(cellAt(3, 2).glyph).toBe(GLYPH_STAIRS_DOWN);
     expect(cellAt(4, 2).glyph).toBe(GLYPH_STAIRS_UPDOWN);
-    expect(cellAt(5, 2)).toMatchObject({ glyph: GLYPH_GRASS, fg: palette.color('berry_red') });
+    expect(cellAt(5, 2).glyph).toBe(GLYPH_GRASS);
+    expect(shades(palette.color('berry_red'))).toContain(cellAt(5, 2).fg);
     expect(cellAt(6, 2)).toMatchObject({ glyph: GLYPH_BOULDER, fg: granite });
   });
 
@@ -93,7 +99,9 @@ describe('T-M0-13 compositor: step 2, the terrain base', () => {
     // "engraved floor: ☼, material (dimmed)".
     expect(cellAt(2, 1)).toMatchObject({ glyph: GLYPH_ENGRAVED, fg: palette.dim(marble, 1) });
     expect(cellAt(3, 1)).toMatchObject({ glyph: GLYPH_PAVED_FLOOR, fg: marble });
-    expect(cellAt(4, 1)).toMatchObject({ glyph: GLYPH_GRASS, fg: palette.color('grass_green') });
+    // T-436: outdoor grass draws `"`, `'` or `` ` `` (no biome in this scene, so no tint).
+    expect([GLYPH_GRASS, GLYPH_GRASS_SHORT, GLYPH_GRASS_TUFT]).toContain(cellAt(4, 1).glyph);
+    expect(cellAt(4, 1).fg).toBe(palette.color('grass_green'));
     expect(cellAt(5, 1)).toMatchObject({ glyph: GLYPH_GRASS, fg: palette.color('moss_teal') });
     expect(cellAt(6, 1)).toMatchObject({ glyph: GLYPH_ROUGH_FLOOR, fg: palette.color('mud_brown') });
     expect(cellAt(7, 1)).toEqual({

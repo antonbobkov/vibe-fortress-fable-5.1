@@ -46,6 +46,7 @@ import {
 } from './glyphs';
 import type { Palette, Rgb } from './palette';
 import { ThingLayers } from './things';
+import { SurfaceVariety } from './surface';
 import { EnvironmentLayers, OVERLAY_FLUID_LEVELS, OVERLAY_TEMPERATURE } from './environment';
 import {
   DebugOverlayLayers,
@@ -59,7 +60,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
 import type { CombatReader } from '@systems/combat';
 import { blend, brighten } from './palette';
-import { DESIGNATION_PULSE_FACTOR, ZONE_TINT_ALPHA } from './constants';
+import { DESIGNATION_PULSE_FACTOR, HILL_LEVELS_ABOVE, ZONE_TINT_ALPHA } from './constants';
 import type { TerrainReader } from '@systems/terrain';
 
 interface PlantGlyphRow {
@@ -195,6 +196,12 @@ export class Compositor {
   private readonly env: EnvironmentLayers;
   /** The `jobs` overlay and the three debug overlays of step 8 (T-M7-08). */
   private readonly debug: DebugOverlayLayers;
+  /** Step 2's variety of natural outdoor surfaces and plants (T-436). */
+  private readonly surface: SurfaceVariety;
+  /** The level in view has open sky, so walls under the surface draw as the higher ground they are. */
+  private hillView = false;
+  /** Per material index: 1 natural rock (stone, obsidian), 0 otherwise. */
+  private readonly rockMaterial: Uint8Array;
   /** Each stockpile's fullness this frame (the `stockpile usage` overlay). */
   private readonly usage = new Map<EntityId, number>();
   private animFrame = 0;
@@ -269,6 +276,18 @@ export class Compositor {
     this.things = new ThingLayers(options.registry, palette, indexOf);
     this.env = new EnvironmentLayers(palette, indexOf);
     this.debug = new DebugOverlayLayers(palette);
+    this.surface = new SurfaceVariety(options.registry, palette);
+    this.rockMaterial = new Uint8Array(ids.length + 1);
+    for (const id of ids) {
+      const cls = (materials.byId(id) as MaterialColorRow & { class?: string }).class;
+      if (cls === 'stone' || cls === 'obsidian') this.rockMaterial[materials.index(id)] = 1;
+    }
+  }
+
+  /** The biome of the map in view, for step 2's surface variety. */
+  private setFrameBiome(readers: ReaderSet): void {
+    const spec = readers.has('03') ? readers.of<TerrainReader>('03').spec() : null;
+    this.surface.setBiome(spec?.biome ?? null);
   }
 
   /** The layout of the last {@link compose}; the app maps mouse cells through it. */
@@ -291,6 +310,7 @@ export class Compositor {
     this.usage.clear();
     this.env.beginFrame(readers, ui.animFrame ?? 0);
     this.debug.beginFrame(readers, this.frameOverlays);
+    this.setFrameBiome(readers);
     this.animFrame = ui.animFrame ?? 0;
     this.reducedMotion = ui.reducedMotion === true;
     this.stations.clear();
@@ -307,6 +327,7 @@ export class Compositor {
     const map = readers.map;
     const daylight = readers.calendar.isDaylight;
     const rect = layout.map;
+    this.hillView = this.viewHasSky(map, ui, rect.cols, rect.rows);
     for (let row = 0; row < rect.rows; row += 1) {
       const y = ui.camY + row;
       for (let col = 0; col < rect.cols; col += 1) {
@@ -339,11 +360,15 @@ export class Compositor {
       this.frameReaders = readers;
       this.env.beginFrame(readers, 0);
       this.debug.beginFrame(readers, this.frameOverlays);
+      this.setFrameBiome(readers);
+      this.hillView = false;
       this.animFrame = 0;
       this.indexProjectiles(readers);
     }
     // Step 1: undiscovered tiles show nothing but the overlays the player placed.
     if ((map.flagsAt(i) & TileFlag.Discovered) === 0) {
+      const hill = map.kindAt(i) === TileKind.Wall ? this.hillCell(map, i) : null;
+      if (hill !== null) return this.overlays(hill, i, x, y, true, false);
       return this.overlays({ glyph: GLYPH_NONE, fg: this.undiscovered, bg: this.undiscovered }, i, x, y, true, false);
     }
 
@@ -426,7 +451,7 @@ export class Compositor {
         if ((flags & TileFlag.Smoothed) !== 0) {
           return { glyph: GLYPH_SOLID_WALL, fg: material, bg: this.black };
         }
-        return { glyph: GLYPH_ROUGH_WALL, fg: material, bg: this.black };
+        return this.hillCell(map, i) ?? { glyph: GLYPH_ROUGH_WALL, fg: material, bg: this.black };
       case TileKind.Floor:
         return this.floorCell(map, i, flags, material);
       case TileKind.Ramp:
@@ -440,11 +465,11 @@ export class Compositor {
       case TileKind.Fortification:
         return { glyph: GLYPH_FORTIFICATION, fg: material, bg: this.black };
       case TileKind.Tree:
-        return this.wildPlantCell(map, i, GLYPH_TREE, material);
+        return this.shaded(map, i, this.wildPlantCell(map, i, GLYPH_TREE, material));
       case TileKind.Sapling:
         return this.wildPlantCell(map, i, GLYPH_SAPLING, material, true);
       case TileKind.Shrub:
-        return this.wildPlantCell(map, i, GLYPH_GRASS, material);
+        return this.shaded(map, i, this.wildPlantCell(map, i, GLYPH_GRASS, material));
       case TileKind.Boulder:
         return { glyph: GLYPH_BOULDER, fg: material, bg: this.black };
       case TileKind.Open:
@@ -454,6 +479,59 @@ export class Compositor {
       default:
         return { glyph: GLYPH_NONE, fg: this.black, bg: this.black };
     }
+  }
+
+  /**
+   * Step 2, higher ground: while the level in view has open sky, a natural wall whose column rises
+   * through natural wall to an outdoor surface (floor, ramp, plant or boulder) at most
+   * `HILL_LEVELS_ABOVE` levels up is the body of that higher ground. It is drawn as that surface,
+   * on its background leaning toward the ground's tone, more for each level up (step 1 draws an
+   * undiscovered one so as well: the ground above it is in plain sight).
+   */
+  private hillCell(map: MapReader, i: TileIndex): Cell | null {
+    if (!this.hillView) return null;
+    const plane = map.w * map.h;
+    const end = plane * map.d;
+    let up = i;
+    for (let k = 1; k <= HILL_LEVELS_ABOVE; k += 1) {
+      up += plane;
+      if (up >= end) return null;
+      const kind = map.kindAt(up);
+      if (kind === TileKind.Wall) {
+        if ((map.flagsAt(up) & TileFlag.Constructed) !== 0) return null;
+        continue;
+      }
+      if (!map.isOutdoor(up)) return null;
+      if (kind !== TileKind.Floor && kind !== TileKind.Ramp && kind !== TileKind.Tree && kind !== TileKind.Shrub
+        && kind !== TileKind.Sapling && kind !== TileKind.Boulder) return null;
+      const top = this.cropOver(this.terrainCell(map, up), up);
+      const material = map.materialAt(up - plane);
+      const tone = this.rockMaterial[material] === 1 ? this.materialColor(material) : this.surface.soilTone;
+      const cell = { glyph: top.glyph, fg: top.fg, bg: this.surface.hillBg(top.bg, tone, k) };
+      // Step 9 for the ground it shows: the wall itself is not outdoor, the surface above is.
+      const night = this.env.dimSteps(up);
+      return night > 0 ? this.dim(cell, night) : cell;
+    }
+    return null;
+  }
+
+  /** Whether the level in view has open sky: an outdoor tile that is not a wall. */
+  private viewHasSky(map: MapReader, ui: ViewState, cols: number, rows: number): boolean {
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        const x = ui.camX + col;
+        const y = ui.camY + row;
+        if (!map.inBounds(x, y, ui.z)) continue;
+        const i = map.index(x, y, ui.z);
+        if (map.kindAt(i) !== TileKind.Wall && map.isOutdoor(i)) return true;
+      }
+    }
+    return false;
+  }
+
+  /** Step 2: a tree or shrub in its species colour, or a lighter or darker shade of it, by tile. */
+  private shaded(map: MapReader, i: TileIndex, cell: Cell): Cell {
+    return { glyph: cell.glyph, fg: this.surface.plantShade(cell.fg, i % map.w, Math.floor(i / map.w) % map.h, Math.floor(i / (map.w * map.h))), bg: cell.bg };
   }
 
   /** 07 § Player-facing behavior: wild plants take their species' authored glyph and color. */
@@ -495,10 +573,15 @@ export class Compositor {
       fg = this.palette.dim(material, 1);
     } else if ((flags & TileFlag.Smoothed) !== 0) glyph = GLYPH_SMOOTH_FLOOR;
 
+    const natural = (flags & (TileFlag.Constructed | TileFlag.Engraved | TileFlag.Smoothed)) === 0;
+    const plain = natural && (flags & (TileFlag.Mud | TileFlag.Snow | TileFlag.Ash)) === 0 && map.isOutdoor(i);
     if ((flags & TileFlag.Grass) !== 0) {
       glyph = GLYPH_GRASS;
       const plants = this.frameReaders?.has('07') === true ? this.frameReaders.of<PlantsReader>('07') : null;
       fg = map.isOutdoor(i) ? (plants?.grassIsDry() === true ? this.grassDry : this.grass) : this.moss;
+      if (plain) return this.surface.grass(fg, i % map.w, Math.floor(i / map.w) % map.h, Math.floor(i / (map.w * map.h)));
+    } else if (plain) {
+      return this.surface.bareFloor(material, this.rockMaterial[map.materialAt(i)] === 1, i % map.w, Math.floor(i / map.w) % map.h, Math.floor(i / (map.w * map.h)));
     }
     if ((flags & TileFlag.Mud) !== 0) fg = this.mud;
     if ((flags & TileFlag.Snow) !== 0) {
