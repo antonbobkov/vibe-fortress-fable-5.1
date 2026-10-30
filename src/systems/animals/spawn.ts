@@ -23,6 +23,11 @@ import {
   BEASTWOOD_ALL_FACTOR_PERCENT,
   BEASTWOOD_SPECIES,
   BEASTWOOD_SPECIES_FACTOR_PERCENT,
+  FROSTMARROW_SNOW_LEOPARD,
+  FROSTMARROW_SNOW_LEOPARD_CAP_BONUS,
+  FROSTMARROW_YAK,
+  FROSTMARROW_YAK_GROUP,
+  FROSTMARROW_YAK_WEIGHT,
   FUNGAL_DEPTHS_CAVERN_FACTOR_PERCENT,
   SERENE_VALE_BANNED,
   SERENE_VALE_HERBIVORE_FACTOR_PERCENT,
@@ -77,7 +82,20 @@ export function surfaceCap(host: SpawnHost, species: number, weight: number): nu
   if (host.traits.includes('serene_vale') && host.facts.dietOf(species) === 'grazer') {
     cap = scale(cap, SERENE_VALE_HERBIVORE_FACTOR_PERCENT);
   }
+  if (host.traits.includes('frostmarrow') && id === FROSTMARROW_SNOW_LEOPARD && cap > 0) cap += FROSTMARROW_SNOW_LEOPARD_CAP_BONUS;
   return cap;
+}
+
+/**
+ * The wild surface species of the region in a season, `[species, weight]`, ascending species: the
+ * biome's list, and on a `frostmarrow` map the wild yak (T-445).
+ */
+export function regionSurfaceSpecies(host: Pick<SpawnHost, 'facts' | 'biome' | 'traits'>, season: number): (readonly [number, number])[] {
+  const list = host.facts.surfaceSpecies(host.biome, season);
+  if (!host.traits.includes('frostmarrow')) return list;
+  const yak = host.facts.indexOf(FROSTMARROW_YAK);
+  if (yak <= 0 || list.some(([s]) => s === yak)) return list;
+  return [...list, [yak, FROSTMARROW_YAK_WEIGHT] as const].sort((a, b) => a[0] - b[0]);
 }
 
 /** The cavern fauna cap of a species: the row's own `cap`, ×1.5 with `fungal_depths`. */
@@ -90,7 +108,8 @@ export function cavernCap(host: SpawnHost, species: number): number {
 /** The group size of a spawn; `beastwood` doubles the wolf's and the bear's. */
 export function groupSize(host: SpawnHost, species: number): number {
   const row = host.facts.row(species);
-  const [lo, hi] = row?.group ?? [1, 1];
+  const frostYak = host.traits.includes('frostmarrow') && host.facts.idOf(species) === FROSTMARROW_YAK;
+  const [lo, hi] = frostYak ? FROSTMARROW_YAK_GROUP : row?.group ?? [1, 1];
   const n = host.rng.int(lo, hi);
   const doubled = host.traits.includes('beastwood') && BEASTWOOD_SPECIES.includes(host.facts.idOf(species));
   return doubled ? n * BEASTWOOD_SPECIES_FACTOR_PERCENT / 100 : n;
@@ -178,7 +197,7 @@ export function initialCavernSpawn(host: SpawnHost, tier: number): SpawnedGroup[
 /** One day's wild spawning, surface and breached caverns. */
 export function dailySpawn(host: SpawnHost, season: number): SpawnedGroup[] {
   const out: SpawnedGroup[] = [];
-  const surface = host.facts.surfaceSpecies(host.biome, season);
+  const surface = regionSurfaceSpecies(host, season);
   let edges: TileIndex[] | null = null;
   for (const [species, weight] of surface) {
     const cap = surfaceCap(host, species, weight);
@@ -225,7 +244,7 @@ function spawnGroup(host: SpawnHost, species: number, anchor: TileIndex, cls: Mo
  */
 export function leavers(host: SpawnHost, season: number, tick: number, wild: readonly EntityId[], entities: { get(id: EntityId): { species: number; arrivedTick: number } | undefined }): EntityId[] {
   const caps = new Map<number, number>();
-  for (const [species, weight] of host.facts.surfaceSpecies(host.biome, season)) caps.set(species, surfaceCap(host, species, weight));
+  for (const [species, weight] of regionSurfaceSpecies(host, season)) caps.set(species, surfaceCap(host, species, weight));
   const over = new Map<number, number>();
   const out: EntityId[] = [];
   const lifetime = WILD_LIFETIME_DAYS * TICKS_PER_DAY;

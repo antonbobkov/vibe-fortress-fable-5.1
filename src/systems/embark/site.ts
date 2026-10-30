@@ -11,7 +11,7 @@ import { LOCAL_MAP_H, LOCAL_MAP_W, MAGMA_SEA_TOP_Z } from '@core/constants';
 import { FIXED_SCALE, type Fixed } from '@core/fixed';
 import type { Registry } from '@core/registry';
 import type { Edge } from '@core/types';
-import { SERENE_VALE_BANNED } from '@systems/animals/constants';
+import { FROSTMARROW_YAK, FROSTMARROW_YAK_WEIGHT, SERENE_VALE_BANNED } from '@systems/animals/constants';
 import { FREEZE_C } from '@systems/fluids/constants';
 import { baseSurfaceZ, RELIEF_AMPLITUDE } from '@systems/terrain/generate/height';
 import { BASEMENT, GLASSLANDS_FIRST_LAYER, specSoilDepth } from '@systems/terrain/generate/layers';
@@ -229,6 +229,8 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
     if (w <= 0 || (serene && SERENE_VALE_BANNED.includes(id))) continue;
     (c.temper === 'aggressive' || c.temper === 'territorial' ? dangerous : other).push([id, w]);
   }
+  // `frostmarrow` brings wild yaks (08 § Wild spawning, T-445).
+  if (spec.traits.includes('frostmarrow') && creatures.byId(FROSTMARROW_YAK) !== undefined && !other.some(([id]) => id === FROSTMARROW_YAK)) other.push([FROSTMARROW_YAK, FROSTMARROW_YAK_WEIGHT]);
 
   const lacks: ('soil' | 'trees' | 'water')[] = [];
   if (soil === null) lacks.push('soil');
