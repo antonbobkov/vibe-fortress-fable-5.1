@@ -46,7 +46,7 @@ import { chunkCentre, packOf, tickAnimal, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
-import { initialCavernSpawn, dailySpawn, leavers, surfaceCap, cavernCap, type SpawnHost } from './spawn';
+import { initialCavernSpawn, dailySpawn, leavers, regionSurfaceSpecies, surfaceCap, cavernCap, type SpawnHost } from './spawn';
 import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
 
 export * from './constants';
@@ -54,7 +54,7 @@ export * from './brain';
 export * from './tame';
 export { AnimalsProducer, trainKey, type AnimalsProducerHost } from './producer';
 export { AnimalFacts, type SpeciesRow, type Diet, type Temperament } from './facts';
-export { cavernCap, dailySpawn, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, leavers, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
+export { cavernCap, dailySpawn, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, leavers, regionSurfaceSpecies, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
 export type { AnimalsReader } from './reader';
 
 /** The id 08 registers its reader under. */
@@ -1204,7 +1204,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         const row = facts.row(species);
         if (row === undefined) return 0;
         if (row.cavern !== undefined) return cavernCap(this.spawner, species);
-        const weight = row.biomes?.reduce((acc, b) => (b.biome === this.options.spec.biome ? acc + b.weight : acc), 0) ?? 0;
+        const biomeWeight = row.biomes?.reduce((acc, b) => (b.biome === this.options.spec.biome ? acc + b.weight : acc), 0) ?? 0;
+        const weight = biomeWeight > 0 ? biomeWeight : regionSurfaceSpecies(this.spawner, 0).find(([sp]) => sp === species)?.[1] ?? 0;
         return weight <= 0 ? 0 : surfaceCap(this.spawner, species, weight);
       },
       breedingCap: (s) => this.breedingCaps.get(asSpecies(s)) ?? BREEDING_CAP_DEFAULT,

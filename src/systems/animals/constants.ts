@@ -93,6 +93,13 @@ export const BEASTWOOD_ALL_FACTOR_PERCENT = 150;
 /** `serene_vale`: "herbivore caps ×2, no wolves, bears, snow leopards". */
 export const SERENE_VALE_BANNED: readonly string[] = Object.freeze(['wolf', 'bear', 'snow_leopard']);
 export const SERENE_VALE_HERBIVORE_FACTOR_PERCENT = 200;
+/** `frostmarrow`: "adds `yak` (wild, tameable, group 2–4) and `snow_leopard` cap +2" (T-445). */
+export const FROSTMARROW_YAK = 'yak';
+/** The wild yak's spawn weight on a `frostmarrow` map, a percentage of the base rate (*unmeasured*). */
+export const FROSTMARROW_YAK_WEIGHT = 20;
+export const FROSTMARROW_YAK_GROUP: readonly [number, number] = Object.freeze([2, 4]) as readonly [number, number];
+export const FROSTMARROW_SNOW_LEOPARD = 'snow_leopard';
+export const FROSTMARROW_SNOW_LEOPARD_CAP_BONUS = 2;
 /** `fungal_depths`: "08 and 18: cavern caps ×1.5". */
 export const FUNGAL_DEPTHS_CAVERN_FACTOR_PERCENT = 150;
 

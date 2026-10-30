@@ -79,7 +79,7 @@ Before the player chooses a site, the world map's region panel summarises what i
 | Stone | the geology class and its layers, top down (basalt first on `glasslands`) | 03 stage 4 and the layer templates |
 | Ores | likely: every ore whose expected count (03 stage 7, with the `ironheart` and `glasslands` changes) is at least one and whose host is a layer the map must reach, most expected first; deepsilver when the wealth gives deepsilver veins | a layer is reached when its deepest possible top (the maximum thicknesses above it) lies above the lowest rock level under the lowest possible surface (stage 1's base minus the relief amplitude, less the soil) |
 | Climate | the temperature band of the region's `tempC`, the mean, and summer and winter as `seasonBase + temperSpread`; under `frostmarrow`, spring and autumn as cold | 01 § Biomes bands; 06 § Surface temperature |
-| Wildlife | the biome's surface species by weight: the aggressive and territorial ones as dangerous, then the rest; `serene_vale` removes its banned species | 08 § Wild spawning |
+| Wildlife | the biome's surface species by weight: the aggressive and territorial ones as dangerous, then the rest; `serene_vale` removes its banned species; `frostmarrow` adds the wild yak | 08 § Wild spawning |
 
 The missing essentials come first, in the alert colour, each with its consequence and workaround: no surface soil (farm in a cavern or on mud, graze in a cavern), no trees (wood only from the wagon, logs brought, caravans and cavern fungus), no water on the surface (drink only what is brought or brewed; dig to a cavern lake). Water is missing when there is no carved river, no lake and no spring.
 
