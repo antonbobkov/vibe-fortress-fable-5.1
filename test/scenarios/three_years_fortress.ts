@@ -34,6 +34,10 @@ import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears,
 export const Z = FLAT_TEST_SURFACE_Z;
 // Six levels below the surface puts rooms below Serene Vale's deeper soil.
 export const HALL_Z = 26;
+/** T-448: the halls lie this many levels below the surface level of the gate's column. */
+export const SURFACE_TO_HALL = Z - HALL_Z;
+/** T-448: how far the script looks for another site for a zone whose designed one has no tile at the fortress's level. */
+const SITE_SEARCH = 12;
 
 /**
  * F-17g: the labors given one step: the food chain. Hauling keeps the default: everybody but the
@@ -62,9 +66,9 @@ const MILITIA: readonly number[] = [2, 3, 6, 0, 1];
 const FIRST_BARRELS = 6;
 
 /** D-225: ordinary wealth-2 generation, compact dimensions for the long-running tests. */
-export function threeYearsWorld(seed: string, peril = 0, surfaceWildlife?: 'none'): TestWorld {
+export function threeYearsWorld(seed: string, peril = 0, surfaceWildlife?: 'none', relief: 0 | 1 | 2 | 3 = 0): TestWorld {
   const registry = contentRegistry();
-  const spec = regionSpec(seed, { peril, wealth: 2, biome: 'temperate_forest', geology: 'mixed', traits: peril === 0 ? ['serene_vale'] : [],
+  const spec = regionSpec(seed, { peril, wealth: 2, biome: 'temperate_forest', geology: 'mixed', traits: peril === 0 ? ['serene_vale'] : [], relief,
     river: { class: 'brook', inflow: ['w'], outflow: 's' } }, registry);
   const map = new Map3D(48, 48, LOCAL_MAP_Z);
   const local = generateLocal(spec, map, registry);
@@ -169,6 +173,9 @@ export interface FortressState {
   readonly economy: EconomyState;
   readonly cx: number;
   readonly cy: number;
+  /** T-448: the surface level of the fortress (the wagon's) and the level of its halls below the gate. */
+  readonly z: number;
+  readonly hallZ: number;
   readonly placedIds: Record<string, number>;
   readonly orderedWorkshops: Set<string>;
   readonly bedroomPlans: BedroomPlan[];
@@ -263,25 +270,89 @@ export function buildBedroomPlans(cx: number, cy: number, mapW: number, mapH: nu
   return plans.filter((p) => p.x1 >= 1 && p.x2 < mapW - 1 && p.y1 >= 1 && p.y2 < mapH - 1 && p.doorX >= 1 && p.doorX < mapW - 1 && p.doorY >= 1 && p.doorY < mapH - 1);
 }
 
+/**
+ * T-448: a tile a dig designation accepts (03's precondition: natural wall or boulder; an
+ * undiscovered tile is accepted blind). On a map with relief a designed rectangle may cross the
+ * surface or open ground; the script digs only what it can.
+ */
+function diggable(w: TestWorld, t: number): boolean {
+  if (!w.map.hasFlag(t, TileFlag.Discovered)) return true;
+  const k = w.map.kindAt(t);
+  return (k === TileKind.Wall || k === TileKind.Boulder) && !w.map.hasFlag(t, TileFlag.Constructed);
+}
+
+/** T-448: designate the diggable tiles of `tiles`; nothing when none is. */
+function designateDig(w: TestWorld, tiles: readonly number[], priority: number): void {
+  const ok = tiles.filter((t) => diggable(w, t));
+  if (ok.length > 0) command(w, { type: 'Designate', kind: 'dig', priority, tiles: ok });
+}
+
+/**
+ * T-448: the qualifying, unzoned tiles of a `width` × `height` rectangle at level `z`; when the one
+ * at (`x`, `y`) has none (on relief it may lie on another level), the nearest rectangle of that
+ * size within `SITE_SEARCH` tiles that has the most.
+ */
+function siteTiles(w: TestWorld, zoneType: string, x: number, y: number, width: number, height: number, z: number): number[] {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const at = (x0: number, y0: number): number[] => {
+    const out: number[] = [];
+    for (let yy = y0; yy < y0 + height; yy += 1) for (let xx = x0; xx < x0 + width; xx += 1) {
+      if (xx < 1 || yy < 1 || xx >= w.map.w - 1 || yy >= w.map.h - 1) continue;
+      const t = w.index(xx, yy, z);
+      if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies(zoneType, t)) out.push(t);
+    }
+    return out;
+  };
+  const here = at(x, y);
+  if (here.length > 0) return here;
+  let best: number[] = [];
+  let bestD = Number.MAX_SAFE_INTEGER;
+  for (let dy = -SITE_SEARCH; dy <= SITE_SEARCH; dy += 1) for (let dx = -SITE_SEARCH; dx <= SITE_SEARCH; dx += 1) {
+    const d = Math.abs(dx) + Math.abs(dy);
+    const tiles = at(x + dx, y + dy);
+    if (tiles.length > best.length || (tiles.length === best.length && tiles.length > 0 && d < bestD)) { best = tiles; bestD = d; }
+  }
+  return best;
+}
+
 export function setupThreeYearsFortress(w: TestWorld): FortressState {
   const arrival = w.game.arrival;
   if (!arrival) throw new Error('three_years: no arrival');
   let { x: cx, y: cy } = arrival.wagon;
+  // T-448: the fortress's levels come from the map: the surface is the wagon's level, and the
+  // gate site is chosen among tiles of that level, so the hall lies SURFACE_TO_HALL below its column.
+  const z = arrival.wagon.z;
+  const hallZ = z - SURFACE_TO_HALL;
   const map = w.map;
   // Choose a gate site without shrubs/saplings, which a player cannot chop as mature trees.
   const sites: { x: number; y: number; distance: number }[] = [];
   for (let y = 8; y <= 13; y += 1) for (let x = 28; x <= 35; x += 1) {
     let usable = true;
     for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
-      const kind = map.kindAt(w.index(x + dx, y + dy, Z));
+      const kind = map.kindAt(w.index(x + dx, y + dy, z));
       if (kind !== TileKind.Floor && kind !== TileKind.Tree) usable = false;
     }
     // Both tiles outside the future doors must also be clearable before enclosing the stair.
     for (const dy of [-2, 2]) {
-      const kind = map.kindAt(w.index(x, y + dy, Z));
+      const kind = map.kindAt(w.index(x, y + dy, z));
       if (kind !== TileKind.Floor && kind !== TileKind.Tree) usable = false;
     }
     if (usable) sites.push({ x, y, distance: Math.abs(x - cx - 6) + Math.abs(y - cy - 6) });
+  }
+  // T-448: on a map with relief the window may hold no site at the wagon's level; then any on the map.
+  if (sites.length === 0) {
+    for (let y = 3; y <= map.h - 4; y += 1) for (let x = 2; x <= map.w - 3; x += 1) {
+      let usable = true;
+      for (let dy = -1; dy <= 1 && usable; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+        const kind = map.kindAt(w.index(x + dx, y + dy, z));
+        if (kind !== TileKind.Floor && kind !== TileKind.Tree) usable = false;
+      }
+      for (const dy of [-2, 2]) {
+        const kind = map.kindAt(w.index(x, y + dy, z));
+        if (kind !== TileKind.Floor && kind !== TileKind.Tree) usable = false;
+      }
+      if (usable) sites.push({ x, y, distance: Math.abs(x - cx - 6) + Math.abs(y - cy - 6) });
+    }
   }
   sites.sort((a, b) => a.distance - b.distance || a.y - b.y || a.x - b.x);
   if (!sites[0]) throw new Error('three_years: no usable gate site');
@@ -310,14 +381,14 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   for (let y = cy; y <= cy + 29; y += 1) {
     for (let x = cx - 22; x <= cx + 15; x += 1) {
       if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) {
-        const t = w.index(x, y, Z);
+        const t = w.index(x, y, z);
         if (map.kindAt(t) === TileKind.Tree) treeTiles.push(t);
       }
     }
   }
   const roadTrees: number[] = [];
   for (let y = 0; y <= cy + 3; y += 1) for (let x = 0; x < map.w; x += 1) {
-    const t = w.index(x, y, Z);
+    const t = w.index(x, y, z);
     if (map.kindAt(t) === TileKind.Tree) roadTrees.push(t);
   }
 
@@ -330,11 +401,12 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   for (let y = cy + 4; y <= cy + 9; y += 1) {
     for (let x = cx - 5; x <= cx + 2; x += 1) {
       if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) {
-        const t = w.index(x, y, Z);
+        const t = w.index(x, y, z);
         if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t)) spTiles.push(t);
       }
     }
   }
+  if (spTiles.length === 0) spTiles.push(...siteTiles(w, 'stockpile', cx - 5, cy + 4, 8, 6, z));
   const rSp = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
   if (!rSp.ok) throw new Error(`Stockpile CreateZone failed: ${rSp.reason}`);
   const spId = bSystem.lastCreatedZone;
@@ -344,11 +416,12 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   const drinkSpSurfaceTiles: number[] = [];
   for (let y = cy + 13; y <= cy + 14; y += 1) {
     for (let x = cx; x <= cx + 2; x += 1) {
-      const t = w.index(x, y, Z);
+      const t = w.index(x, y, z);
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t)) drinkSpSurfaceTiles.push(t);
     }
   }
-  const rDrinkSp = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: drinkSpSurfaceTiles });
+  if (drinkSpSurfaceTiles.length === 0) drinkSpSurfaceTiles.push(...siteTiles(w, 'stockpile', cx, cy + 13, 3, 2, z));
+  const rDrinkSp = drinkSpSurfaceTiles.length > 0 ? command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: drinkSpSurfaceTiles }) : { ok: false };
   if (rDrinkSp.ok) {
     const dSpId = bSystem.lastCreatedZone;
     command(w, { type: 'SetStockpileFilter', zoneId: dSpId, filter: 'drink' });
@@ -366,7 +439,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     command(w, { type: 'SetLaborPriority', labor: row.id, priority: STEP_LABORS.includes(row.id) ? ROUTINE - 1 : ROUTINE });
   }
 
-  // 4. Stairwell to rock layer (z = HALL_Z). The gate site is cleared first by sequence, not by
+  // 4. Stairwell to rock layer (z = hallZ). The gate site is cleared first by sequence, not by
   // urgency: its trees are the only ones designated until they are down.
   const gateTrees = treeTiles.filter((t) => Math.abs(map.xOf(t) - cx - 6) <= 2 && Math.abs(map.yOf(t) - cy - 6) <= 2);
   if (gateTrees.length) {
@@ -374,7 +447,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     const end = w.tick + 6 * TICKS_PER_DAY;
     while (w.tick < end && !gateTrees.every((t) => map.kindAt(t) === TileKind.Floor)) stepThreeYears(w, 1);
   }
-  const rStairs = command(w, { type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: 32, zBottom: HALL_Z, priority: ROUTINE });
+  const rStairs = command(w, { type: 'DesignateStairwell', x: cx + 6, y: cy + 6, zTop: z, zBottom: hallZ, priority: ROUTINE });
   if (!rStairs.ok) throw new Error(`DesignateStairwell failed: ${rStairs.reason}`);
   // The caravan road is cleared outright; the rest of the wood is felled in batches as the
   // log stock runs down (checkEconomy), so the haulers are not buried under a clear-cut forest.
@@ -388,58 +461,56 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     // Twenty tiles for the twenty dimcap seeds, twelve for the ten cavewheat seeds: every cave
     // seed in the wagon is in the ground (07: one harvest returns one seed, so seeds cap the farm).
     for (let x = cx + 7; x <= cx + 11; x += 1) {
-      if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) caveTiles1.push(w.index(x, y, Z - 1));
+      if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) caveTiles1.push(w.index(x, y, z - 1));
     }
     for (let x = cx + 12; x <= cx + 14; x += 1) {
-      if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) caveTiles2.push(w.index(x, y, Z - 1));
+      if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) caveTiles2.push(w.index(x, y, z - 1));
     }
   }
-  const rCaveDig = command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: [...caveTiles1, ...caveTiles2] });
-  if (!rCaveDig.ok) throw new Error(`Designate cave farm dig failed: ${rCaveDig.reason}`);
+  designateDig(w, [...caveTiles1, ...caveTiles2], ROUTINE);
 
-  // 6. Underground designations at z = HALL_Z
+  // 6. Underground designations at z = hallZ
   // Corridors
   const corridorTiles: number[] = [];
   // Central cross
-  corridorTiles.push(w.index(cx + 5, cy + 6, HALL_Z)); // to dining hall
-  corridorTiles.push(w.index(cx + 7, cy + 6, HALL_Z)); // to hearth hall
+  corridorTiles.push(w.index(cx + 5, cy + 6, hallZ)); // to dining hall
+  corridorTiles.push(w.index(cx + 7, cy + 6, hallZ)); // to hearth hall
   // South corridor (y = cy + 7 .. cy + 45)
-  for (let y = cy + 7; y <= Math.min(map.h - 3, cy + 45); y += 1) corridorTiles.push(w.index(cx + 6, y, HALL_Z));
+  for (let y = cy + 7; y <= Math.min(map.h - 3, cy + 45); y += 1) corridorTiles.push(w.index(cx + 6, y, hallZ));
   // North corridor (y = cy - 15 .. cy + 5)
-  for (let y = Math.max(1, cy - 15); y <= cy + 5; y += 1) corridorTiles.push(w.index(cx + 6, y, HALL_Z));
+  for (let y = Math.max(1, cy - 15); y <= cy + 5; y += 1) corridorTiles.push(w.index(cx + 6, y, hallZ));
   // West corridor (x = cx - 13 .. cx + 4, y = cy + 6)
-  for (let x = Math.max(1, cx - 13); x <= cx + 4; x += 1) corridorTiles.push(w.index(x, cy + 6, HALL_Z));
+  for (let x = Math.max(1, cx - 13); x <= cx + 4; x += 1) corridorTiles.push(w.index(x, cy + 6, hallZ));
 
   // Hearth Hall (6x5): x: cx + 8..cx + 13, y: cy + 4..cy + 8
   const hearthHallTiles: number[] = [];
   for (let y = cy + 4; y <= cy + 8; y += 1) {
-    for (let x = cx + 8; x <= cx + 13; x += 1) hearthHallTiles.push(w.index(x, y, HALL_Z));
+    for (let x = cx + 8; x <= cx + 13; x += 1) hearthHallTiles.push(w.index(x, y, hallZ));
   }
 
   // Dining Hall (5x5): x: cx..cx + 4, y: cy + 4..cy + 8
   const diningHallTiles: number[] = [];
   for (let y = cy + 4; y <= cy + 8; y += 1) {
-    for (let x = cx; x <= cx + 4; x += 1) diningHallTiles.push(w.index(x, y, HALL_Z));
+    for (let x = cx; x <= cx + 4; x += 1) diningHallTiles.push(w.index(x, y, hallZ));
   }
 
   // Underground drink stockpile annex (3x2) beside dining hall
   const drinkSpUndergroundTiles: number[] = [];
   for (let y = cy + 4; y <= cy + 5; y += 1) {
     for (let x = cx - 3; x <= cx - 1; x += 1) {
-      if (x >= 1 && y >= 1) drinkSpUndergroundTiles.push(w.index(x, y, HALL_Z));
+      if (x >= 1 && y >= 1) drinkSpUndergroundTiles.push(w.index(x, y, hallZ));
     }
   }
 
   const pantryTiles: number[] = [];
-  for (let y = cy + 3; y <= cy + 5; y += 1) for (let x = cx - 8; x <= cx - 4; x += 1) pantryTiles.push(w.index(x, y, HALL_Z));
+  for (let y = cy + 3; y <= cy + 5; y += 1) for (let x = cx - 8; x <= cx - 4; x += 1) pantryTiles.push(w.index(x, y, hallZ));
   const hallDigTiles: number[] = [...corridorTiles, ...hearthHallTiles, ...diningHallTiles, ...drinkSpUndergroundTiles, ...pantryTiles];
   // F-17h: with the anvil in the wagon the trunk corridor to the mine shaft goes a step ahead of
   // the halls, so ore for the squad's kit is reached first.
   const arming = w.readers.of<ItemsReader>('13').count('anvil') > 0;
   const trunk = corridorTiles.filter((t) => map.xOf(t) === cx + 6 && map.yOf(t) >= cy + 7 && map.yOf(t) <= Math.min(map.h - 3, cy + 15));
   if (arming) {
-    const rTrunk = command(w, { type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: trunk });
-    if (!rTrunk.ok) throw new Error(`Designate trunk dig failed: ${rTrunk.reason}`);
+    designateDig(w, trunk, KIT_FIRST);
   }
   // Bedroom plans
   const bedroomPlans = buildBedroomPlans(cx, cy, map.w, map.h);
@@ -454,22 +525,20 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     const corridor = corridorTiles.filter((t) => map.xOf(t) === cx + 6 && map.yOf(t) > cy + 15 && map.yOf(t) <= lastDoorY);
     shelterTiles.push(...corridor);
     for (const bp of initialRooms) {
-      shelterTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
-      for (let y = bp.y1; y <= bp.y2; y += 1) for (let x = bp.x1; x <= bp.x2; x += 1) shelterTiles.push(w.index(x, y, HALL_Z));
+      shelterTiles.push(w.index(bp.doorX, bp.doorY, hallZ));
+      for (let y = bp.y1; y <= bp.y2; y += 1) for (let x = bp.x1; x <= bp.x2; x += 1) shelterTiles.push(w.index(x, y, hallZ));
     }
-    const rShelter = command(w, { type: 'Designate', kind: 'dig', priority: KIT_FIRST, tiles: shelterTiles });
-    if (!rShelter.ok) throw new Error(`Designate shelter dig failed: ${rShelter.reason}`);
+    designateDig(w, shelterTiles, KIT_FIRST);
   }
   const ahead = new Set([...(arming ? trunk : []), ...shelterTiles]);
-  const rDigHalls = command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: hallDigTiles.filter((t) => !ahead.has(t)) });
-  if (!rDigHalls.ok) throw new Error(`Designate hall dig failed: ${rDigHalls.reason}`);
+  designateDig(w, hallDigTiles.filter((t) => !ahead.has(t)), ROUTINE);
 
   // Fill in tile indices for all bedroom plans
   for (const bp of bedroomPlans) {
     bp.tiles = [];
     for (let y = bp.y1; y <= bp.y2; y += 1) {
       for (let x = bp.x1; x <= bp.x2; x += 1) {
-        bp.tiles.push(w.index(x, y, HALL_Z));
+        bp.tiles.push(w.index(x, y, hallZ));
       }
     }
   }
@@ -479,11 +548,10 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   for (let i = 0; i < arrival.dwarves.length + 2 && i < bedroomPlans.length; i += 1) {
     const bp = bedroomPlans[i]!;
     bp.designated = true;
-    initialDigTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
+    initialDigTiles.push(w.index(bp.doorX, bp.doorY, hallZ));
     initialDigTiles.push(...bp.tiles);
   }
-  const rDigBedrooms = command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: initialDigTiles.filter((t) => !ahead.has(t)) });
-  if (!rDigBedrooms.ok) throw new Error(`Designate bedroom dig failed: ${rDigBedrooms.reason}`);
+  designateDig(w, initialDigTiles.filter((t) => !ahead.has(t)), ROUTINE);
 
   // 7. Surface workshops
   const placedIds: Record<string, number> = {};
@@ -492,21 +560,22 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   // are: a dwarf who wants company finds it beside the benches instead of waiting in a far field.
   const meetTiles: number[] = [];
   for (let y = cy + 10; y <= cy + 13; y += 1) {
-    const t = w.index(cx + 3, y, Z);
+    const t = w.index(cx + 3, y, z);
     if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('meeting_area', t)) meetTiles.push(t);
   }
-  command(w, { type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
+  if (meetTiles.length > 0) command(w, { type: 'CreateZone', zoneType: 'meeting_area', tiles: meetTiles });
 
   // 9. Surface barley and turnip farm
   stepThreeYears(w, 5);
   const farmTiles: number[] = [];
   for (let y = cy + 16; y <= cy + 19; y += 1) {
     for (let x = cx - 8; x <= cx - 5; x += 1) {
-      const t = w.index(x, y, Z);
+      const t = w.index(x, y, z);
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) farmTiles.push(t);
     }
   }
-  const rFarm = command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles });
+  if (farmTiles.length === 0) farmTiles.push(...siteTiles(w, 'farm_plot', cx - 8, cy + 16, 4, 4, z));
+  const rFarm = farmTiles.length > 0 ? command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles }) : { ok: false };
   if (rFarm.ok) {
     const farmId = bSystem.lastCreatedZone;
     command(w, { type: 'SetPlotCrop', zoneId: farmId, season: 0, speciesId: 'barley' });
@@ -518,11 +587,12 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   const pastureTiles: number[] = [];
   for (let y = cy + 16; y <= cy + 19; y += 1) {
     for (let x = cx + 2; x <= cx + 6; x += 1) {
-      const t = w.index(x, y, Z);
+      const t = w.index(x, y, z);
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('pasture', t)) pastureTiles.push(t);
     }
   }
-  const rPasture = command(w, { type: 'CreateZone', zoneType: 'pasture', tiles: pastureTiles });
+  if (pastureTiles.length === 0) pastureTiles.push(...siteTiles(w, 'pasture', cx + 2, cy + 16, 5, 4, z));
+  const rPasture = pastureTiles.length > 0 ? command(w, { type: 'CreateZone', zoneType: 'pasture', tiles: pastureTiles }) : { ok: false };
   if (rPasture.ok) {
     const pastureId = bSystem.lastCreatedZone;
     // Only a tame grazer goes to pasture (08 § Pastures): the dogs and cats stay at home.
@@ -538,7 +608,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   const gatherTiles: number[] = [];
   for (let y = Math.max(1, cy - 6); y <= Math.min(map.h - 2, cy + 26); y += 1) {
     for (let x = Math.max(1, cx - 16); x <= Math.min(map.w - 2, cx + 18); x += 1) {
-      const t = w.index(x, y, Z);
+      const t = w.index(x, y, z);
       if (map.kindAt(t) === TileKind.Shrub && buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('gather', t)) gatherTiles.push(t);
     }
   }
@@ -548,6 +618,8 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     economy: { lastDay: -1, phases: new Set(), traded: new Set(), mined: new Set(), workings: new Set(), specialists: {}, farmPlans: [], cavePlans: [] },
     cx,
     cy,
+    z,
+    hallZ,
     placedIds,
     orderedWorkshops: new Set<string>(),
     bedroomPlans,
@@ -748,19 +820,19 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 
   // 1. Hearth Hall setup: reaches Tier 2 Decent (score >= 60)
   if (!state.hearthHallSetup && state.hearthHallTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
-    const doorOrigin = w.index(cx + 7, cy + 6, HALL_Z);
+    const doorOrigin = w.index(cx + 7, cy + 6, state.hallZ);
     if (w.map.kindAt(doorOrigin) === TileKind.Floor) {
       state.hearthHallSetup = true;
       // Hearth in center
-      const hearthOrigin = w.index(cx + 10, cy + 6, HALL_Z);
+      const hearthOrigin = w.index(cx + 10, cy + 6, state.hallZ);
       const rHearth = command(w, { type: 'PlaceBuilding', buildingType: 'hearth', origin: hearthOrigin, orientation: 0, materialChoice: 0, priority: BUILD - 1 });
       if (rHearth.ok) state.hearthBuildingId = bSystem.lastPlacedBuilding;
 
       // Chairs for hearth-side sitting (all passable)
-      const c1 = w.index(cx + 9, cy + 6, HALL_Z);
-      const c2 = w.index(cx + 11, cy + 6, HALL_Z);
-      const c3 = w.index(cx + 10, cy + 5, HALL_Z);
-      const c4 = w.index(cx + 10, cy + 7, HALL_Z);
+      const c1 = w.index(cx + 9, cy + 6, state.hallZ);
+      const c2 = w.index(cx + 11, cy + 6, state.hallZ);
+      const c3 = w.index(cx + 10, cy + 5, state.hallZ);
+      const c4 = w.index(cx + 10, cy + 7, state.hallZ);
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c1, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c2, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c3, orientation: 0, materialChoice: 0, priority: BUILD });
@@ -778,16 +850,16 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
   // 2. Dining Hall setup
   const kitchenBuilt = buildings.get(state.placedIds['kitchen']!)?.state === 'built';
   if (!state.diningHallSetup && kitchenBuilt && state.diningHallTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
-    const doorOrigin = w.index(cx + 5, cy + 6, HALL_Z);
+    const doorOrigin = w.index(cx + 5, cy + 6, state.hallZ);
     if (w.map.kindAt(doorOrigin) === TileKind.Floor) {
       state.diningHallSetup = true;
       // Tables and chairs
-      const t1 = w.index(cx + 2, cy + 5, HALL_Z);
-      const c1 = w.index(cx + 1, cy + 5, HALL_Z);
-      const c2 = w.index(cx + 3, cy + 5, HALL_Z);
-      const t2 = w.index(cx + 2, cy + 7, HALL_Z);
-      const c3 = w.index(cx + 1, cy + 7, HALL_Z);
-      const c4 = w.index(cx + 3, cy + 7, HALL_Z);
+      const t1 = w.index(cx + 2, cy + 5, state.hallZ);
+      const c1 = w.index(cx + 1, cy + 5, state.hallZ);
+      const c2 = w.index(cx + 3, cy + 5, state.hallZ);
+      const t2 = w.index(cx + 2, cy + 7, state.hallZ);
+      const c3 = w.index(cx + 1, cy + 7, state.hallZ);
+      const c4 = w.index(cx + 3, cy + 7, state.hallZ);
       command(w, { type: 'PlaceBuilding', buildingType: 'table', origin: t1, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c1, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c2, orientation: 0, materialChoice: 0, priority: BUILD });
@@ -802,7 +874,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       const ugDrinkTiles: number[] = [];
       for (let y = cy + 4; y <= cy + 5; y += 1) {
         for (let x = cx - 3; x <= cx - 1; x += 1) {
-          const t = w.index(x, y, HALL_Z);
+          const t = w.index(x, y, state.hallZ);
           if (w.map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t)) {
             ugDrinkTiles.push(t);
           }
@@ -835,22 +907,22 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
   // 3. Bedrooms setup
   for (const bp of state.bedroomPlans) {
     if (bp.designated && !bp.setup && bp.tiles.length > 0 && bp.tiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
-      const doorOrigin = w.index(bp.doorX, bp.doorY, HALL_Z);
+      const doorOrigin = w.index(bp.doorX, bp.doorY, state.hallZ);
       if (w.map.kindAt(doorOrigin) !== TileKind.Floor) continue;
       bp.setup = true;
       bp.setupDay = Math.floor(w.tick / TICKS_PER_DAY);
 
       // Bed
-      const bedOrigin = w.index(bp.bedX, bp.bedY, HALL_Z);
+      const bedOrigin = w.index(bp.bedX, bp.bedY, state.hallZ);
       command(w, { type: 'PlaceBuilding', buildingType: 'bed', origin: bedOrigin, orientation: 0, materialChoice: 0, priority: BUILD });
 
       // Thane's suite fine furniture (table, chair)
       if (bp.isThane) {
         if (bp.tableX !== undefined && bp.tableY !== undefined) {
-          command(w, { type: 'PlaceBuilding', buildingType: 'table', origin: w.index(bp.tableX, bp.tableY, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
+          command(w, { type: 'PlaceBuilding', buildingType: 'table', origin: w.index(bp.tableX, bp.tableY, state.hallZ), orientation: 0, materialChoice: 0, priority: BUILD });
         }
         if (bp.chairX !== undefined && bp.chairY !== undefined) {
-          command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: w.index(bp.chairX, bp.chairY, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
+          command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: w.index(bp.chairX, bp.chairY, state.hallZ), orientation: 0, materialChoice: 0, priority: BUILD });
         }
       }
 
@@ -859,7 +931,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 
       // Zone: the room across the corridor from the Thane's suite is the hospital, with its chest.
       if (bp.id === HOSPITAL_ROOM) {
-        command(w, { type: 'PlaceBuilding', buildingType: 'chest', origin: w.index(bp.bedX, bp.bedY + 1, HALL_Z), orientation: 0, materialChoice: 0, priority: BUILD });
+        command(w, { type: 'PlaceBuilding', buildingType: 'chest', origin: w.index(bp.bedX, bp.bedY + 1, state.hallZ), orientation: 0, materialChoice: 0, priority: BUILD });
         state.hospitalSetup = command(w, { type: 'CreateZone', zoneType: 'hospital', tiles: bp.tiles }).ok;
       } else command(w, { type: 'CreateZone', zoneType: 'bedroom', tiles: bp.tiles });
 
@@ -870,7 +942,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 
   if (foundationReady && !state.economy.phases.has('room finishing')) {
     state.economy.phases.add('room finishing');
-    smooth(state.hearthHallTiles.filter(t => t !== w.index(cx + 10, cy + 6, HALL_Z)));
+    smooth(state.hearthHallTiles.filter(t => t !== w.index(cx + 10, cy + 6, state.hallZ)));
     smooth(state.diningHallTiles);
     for (const bp of state.bedroomPlans) if (bp.setup) smooth(bp.tiles);
   }
@@ -884,7 +956,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       const digTiles: number[] = [];
       for (const bp of nextToDesignate) {
         bp.designated = true;
-        digTiles.push(w.index(bp.doorX, bp.doorY, HALL_Z));
+        digTiles.push(w.index(bp.doorX, bp.doorY, state.hallZ));
         digTiles.push(...bp.tiles);
       }
       // T-156: only rock is designated. A tile of the plan already open (a mine drift or a corridor
@@ -926,12 +998,13 @@ export function checkFortressCaveFarm(w: TestWorld, state: FortressState): void 
 }
 
 /** The six gate walls around the entrance stair. */
-export function gateWallTiles(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy'>): TileIndex[] {
+export function gateWallTiles(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy'> & { z?: number }): TileIndex[] {
   const { cx, cy } = state;
+  const z = state.z ?? Z;
   return [
-    w.index(cx + 5, cy + 5, Z), w.index(cx + 7, cy + 5, Z),
-    w.index(cx + 5, cy + 6, Z), w.index(cx + 7, cy + 6, Z),
-    w.index(cx + 5, cy + 7, Z), w.index(cx + 7, cy + 7, Z),
+    w.index(cx + 5, cy + 5, z), w.index(cx + 7, cy + 5, z),
+    w.index(cx + 5, cy + 6, z), w.index(cx + 7, cy + 6, z),
+    w.index(cx + 5, cy + 7, z), w.index(cx + 7, cy + 7, z),
   ];
 }
 
@@ -944,7 +1017,7 @@ export const GATE_WALL_REBUILD_TICKS = 5 * TICKS_PER_DAY;
  * (a dwarf, a fallen log or a sapling on the tile waits for the next look), as a player places
  * it; the command is sent only for a tile with no building, so standing walls change nothing.
  */
-export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy' | 'economy' | 'gateWallLostTick'>): void {
+export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy' | 'economy' | 'gateWallLostTick'> & { z?: number }): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const walls = gateWallTiles(w, state);
   const isWall = (t: TileIndex): boolean => buildings.get(buildings.at(t))?.typeId === 'wall';
@@ -968,15 +1041,15 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // Open the underground route before enclosing its only surface entrance. Otherwise a
   // civilian can occupy the still-undug stair tile and prevent the miners reaching it.
   if (state.economy.phases.has('gate walls') || (
-      w.map.kindAt(w.index(cx + 6, cy + 6, Z)) === TileKind.StairsDown &&
-      w.map.kindAt(w.index(cx + 6, cy + 6, HALL_Z)) === TileKind.StairsUp)) keepGateWalls(w, state);
+      w.map.kindAt(w.index(cx + 6, cy + 6, state.z)) === TileKind.StairsDown &&
+      w.map.kindAt(w.index(cx + 6, cy + 6, state.hallZ)) === TileKind.StairsUp)) keepGateWalls(w, state);
 
   // 1. Place South door once supporting walls are built
   if (!state.gateDoorPlaced) {
-    const w1 = buildings.at(w.index(cx + 5, cy + 7, Z));
-    const w2 = buildings.at(w.index(cx + 7, cy + 7, Z));
+    const w1 = buildings.at(w.index(cx + 5, cy + 7, state.z));
+    const w2 = buildings.at(w.index(cx + 7, cy + 7, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
-      const doorTile = w.index(cx + 6, cy + 7, Z);
+      const doorTile = w.index(cx + 6, cy + 7, state.z);
       const rDoor = command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
@@ -994,10 +1067,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
 
   // 1b. Place North door once supporting walls are built
   if (!state.gateDoorPlaced2) {
-    const w1 = buildings.at(w.index(cx + 5, cy + 5, Z));
-    const w2 = buildings.at(w.index(cx + 7, cy + 5, Z));
+    const w1 = buildings.at(w.index(cx + 5, cy + 5, state.z));
+    const w2 = buildings.at(w.index(cx + 7, cy + 5, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
-      const doorTile2 = w.index(cx + 6, cy + 5, Z);
+      const doorTile2 = w.index(cx + 6, cy + 5, state.z);
       const rDoor2 = command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
@@ -1067,7 +1140,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
 
   // 4. Danger: a raid, a spotted thief, or a dangerous wild animal near the gate or a dwarf.
   // Each raises the hearth alert (civilians go in, the gate locks) and sends the squad.
-  const gatehouseStairsTile = w.index(cx + 6, cy + 6, Z);
+  const gatehouseStairsTile = w.index(cx + 6, cy + 6, state.z);
   const hostilePurposes = new Set(['thief', 'bandits', 'ambush', 'raid', 'siege', 'restless']);
   const intruders: number[] = [];
   let raid = false;
@@ -1100,7 +1173,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // raises it again for a danger only once a dwarf has gone below ground.
   const positions = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress')
     .map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined);
-  const hallLabel = w.readers.pathing.labelOf(w.index(cx + 6, cy + 6, HALL_Z), 'walker');
+  const hallLabel = w.readers.pathing.labelOf(w.index(cx + 6, cy + 6, state.hallZ), 'walker');
   if (curAlert === 'hearth' && state.gateDoorPlaced && hallLabel !== 0 && positions.length > 0 &&
       !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === hallLabel)) {
     state.shutOut = true;
@@ -1110,7 +1183,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
     return;
   }
-  if (state.shutOut && positions.some((p) => p.z < Z)) state.shutOut = false;
+  if (state.shutOut && positions.some((p) => p.z < state.z)) state.shutOut = false;
   // T-387: an alert kept up by wild animals alone, which a squad without its weapons does not
   // hunt, only keeps the fortress from the brook and its surface work. On seed p2-3 one boar by
   // the gate held it for 27 days and all fourteen dwarves died of thirst inside. The player lifts
@@ -1138,7 +1211,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       // squad whose every member holds a weapon; an unarmed squad waits below with everybody else.
       const hunted = raid ? [] : squadArmed(w, state) ? targets : [];
       for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
-      const below = w.index(cx + 6, cy + 6, HALL_Z);
+      const below = w.index(cx + 6, cy + 6, state.hallZ);
       const post = raid || hunted.length > 0 || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
     }
@@ -1170,10 +1243,10 @@ function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: readonly
   const animals = w.readers.of<AnimalsReader>('08');
   const wild = animals.wildList();
   if (wild.length === 0) return [];
-  const gate = { x: state.cx + 6, y: state.cy + 6, z: Z };
+  const gate = { x: state.cx + 6, y: state.cy + 6, z: state.z };
   // Dwarves below ground are behind the gate already: only those on the surface count.
-  const places = [gate, ...dwarves.map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined && p.z >= Z)];
-  const gateLabel = w.readers.pathing.labelOf(w.index(gate.x, gate.y + 2, Z), 'walker');
+  const places = [gate, ...dwarves.map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined && p.z >= state.z)];
+  const gateLabel = w.readers.pathing.labelOf(w.index(gate.x, gate.y + 2, state.z), 'walker');
   const found: { id: number; d: number }[] = [];
   for (const id of wild) {
     const temper = animals.def(ent.get(id, C.Creature)?.species ?? -1)?.temper;
@@ -1209,7 +1282,7 @@ export function fortressWitnesses(w: TestWorld, state: FortressState, peril: num
   const missing: string[] = [];
   const built = (id: number): boolean => buildings.get(id)?.state === 'built';
   const walls = [[cx + 5, cy + 5], [cx + 7, cy + 5], [cx + 5, cy + 6], [cx + 7, cy + 6], [cx + 5, cy + 7], [cx + 7, cy + 7]]
-    .map(([x, y]) => buildings.at(w.index(x!, y!, Z)));
+    .map(([x, y]) => buildings.at(w.index(x!, y!, state.z)));
   // T-426: a wall that burnt within GATE_WALL_REBUILD_TICKS of the end may still be going up.
   const rebuilding = state.gateWallLostTick !== 0 && w.tick - state.gateWallLostTick < GATE_WALL_REBUILD_TICKS;
   if (!rebuilding && !walls.every((id) => id !== 0 && buildings.get(id)?.typeId === 'wall' && built(id))) missing.push('gate walls built');

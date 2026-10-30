@@ -44,7 +44,7 @@ describe('T-363 the three-year script lifts an alert that locks every dwarf out'
     w.spawnCreature('wolf', w.index(sx, sy + 14, Z), 'wild');
     w.step(1);
     const state = {
-      cx, cy, placedIds: {}, economy: { phases: new Set(['gate walls']), specialists: {} },
+      cx, cy, z: Z, hallZ: HALL_Z, placedIds: {}, economy: { phases: new Set(['gate walls']), specialists: {} },
       gateDoorId: south, gateDoorPlaced: true, gateDoorId2: north, gateDoorPlaced2: true,
       squadId: 0, answered: '', lastDangerTick: w.tick, shutOut: false,
     } as unknown as FortressState;
