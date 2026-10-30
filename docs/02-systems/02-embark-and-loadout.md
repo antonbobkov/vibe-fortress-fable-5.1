@@ -62,7 +62,7 @@ LocalMapSpec {
 }
 ```
 
-`relief = maxDiff = 0 ? 0 : min(3, 1 + floor(maxDiff / RELIEF_DIFF_STEP))`, where `maxDiff` is the largest absolute elevation difference to the eight neighbouring regions that exist. Relief 0, nearly level ground with a few low rises and dips away from the arrival edge, is what a region has when every neighbour shares its elevation; every other site has at least the gentle relief 1 (03 stage 1).
+`relief = maxDiff = 0 ? 0 : min(3, 1 + floor(maxDiff / RELIEF_DIFF_STEP))`, where `maxDiff` is the largest absolute elevation difference to the eight neighbouring regions that exist. Relief 0 is level ground, which a region has only when every neighbour shares its elevation; every other site has at least the gentle relief 1 (03 stage 1).
 
 03 generates the map from this and nothing else, so a region always generates the same local map.
 

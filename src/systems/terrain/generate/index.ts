@@ -13,7 +13,7 @@ import type { Registry } from '@core/registry';
 import type { TileIndex } from '@core/types';
 import type { LocalMapSpec } from '@systems/embark';
 import type { LocalGen, SpawnEntry, StackLayer, VeinRecord } from './common';
-import { stageHeight, stageLevelSwells } from './height';
+import { stageHeight } from './height';
 import { fillWater, stageRivers } from './rivers';
 import { stageColumns } from './layers';
 import { stageSea } from './sea';
@@ -134,7 +134,6 @@ export function generateLocal(
     minerals: () => stageMinerals(g),
     volcano: () => stageVolcano(g),
     vegetation: () => {
-      stageLevelSwells(g);
       stageRamps(g);
       stageBoulders(g);
       stageVegetation(g);

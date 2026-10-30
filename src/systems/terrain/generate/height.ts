@@ -9,7 +9,6 @@
 
 import { SURFACE_Z_MAX, SURFACE_Z_MIN } from '@core/constants';
 import { FIXED_SCALE } from '@core/fixed';
-import { TileKind } from '@core/map3d';
 import { noise2 } from '@core/noise';
 import type { RngStream } from '@core/rng';
 import { SEA_LEVEL } from '@systems/worldgen/constants';
@@ -19,11 +18,6 @@ import {
   CRAG_RADIUS_MAX,
   CRAG_RADIUS_MIN,
   CRAGS_PER_RELIEF,
-  LEVEL_SWELL_EDGE_MARGIN,
-  LEVEL_SWELL_INWARD,
-  LEVEL_SWELL_RADIUS_MAX,
-  LEVEL_SWELL_RADIUS_MIN,
-  LEVEL_SWELLS,
   OUTCROP_EDGE_MARGIN,
   OUTCROP_RADIUS_MAX,
   OUTCROP_RADIUS_MIN,
@@ -32,8 +26,7 @@ import {
   RIDGE_THRESHOLD,
   SCREE_RING,
 } from '../constants';
-import { clamp, COL_LAKE, COL_RIVER, stageStream, type LocalGen } from './common';
-import { soilDepthOf } from './layers';
+import { clamp, stageStream, type LocalGen } from './common';
 
 /** `amp = [0, 3, 5, 8][spec.relief]`: relief 0 is level; relief 1 swells a level up and down. */
 export const RELIEF_AMPLITUDE: readonly number[] = [0, 3, 5, 8];
@@ -165,70 +158,6 @@ export function stageRelief(g: LocalGen): void {
     const peak = st.int(CRAG_HEIGHT_MIN, CRAG_HEIGHT_MAX) + relief - 1;
     raiseDisc(g, x, y, radius, (d2) => Math.max(1, Math.round(peak * (1 - Math.sqrt(d2) / (radius + 1)))));
     markScree(g, x, y, radius);
-  }
-}
-
-/**
- * Relief 0's gentle undulation, laid on the finished surface at the start of stage 9 so that the
- * water, the rock, the ores and the caverns under it are those of level ground: `LEVEL_SWELLS` low
- * rises and dips per 96 × 96 tiles, each a disc of radius 2–4 one level above or below the base,
- * centred at least `LEVEL_SWELL_INWARD` tiles in from the arrival edge (so the wagon site and the
- * arrival edge stay level) and 4 from the other edges. A rise lays one more tile of the column's top
- * material on it; a dip takes the top tile away. A column within 2 of a river or lake column, or on
- * the volcano's bare ground, keeps its height.
- */
-export function stageLevelSwells(g: LocalGen): void {
-  if (g.spec.relief !== 0) return;
-  const st = stageStream(g.s, 'terrain.swells');
-  const base = baseSurfaceZ(g.spec.elevation);
-  const edge = g.spec.arrivalEdge;
-  const inward = (x: number, y: number): number => (edge === 'n' ? y : edge === 's' ? g.h - 1 - y : edge === 'w' ? x : g.w - 1 - x);
-  const nearWater = (x: number, y: number): boolean => {
-    for (let dy = -2; dy <= 2; dy += 1) {
-      for (let dx = -2; dx <= 2; dx += 1) {
-        const xx = x + dx;
-        const yy = y + dy;
-        if (xx < 0 || yy < 0 || xx >= g.w || yy >= g.h) continue;
-        if (((g.colFlags[yy * g.w + xx] as number) & (COL_RIVER | COL_LAKE)) !== 0) return true;
-      }
-    }
-    return false;
-  };
-  const soil = soilDepthOf(g);
-  const count = perMap(g, LEVEL_SWELLS);
-  for (let k = 0; k < count; k += 1) {
-    const cx = st.int(LEVEL_SWELL_EDGE_MARGIN, g.w - 1 - LEVEL_SWELL_EDGE_MARGIN);
-    const cy = st.int(LEVEL_SWELL_EDGE_MARGIN, g.h - 1 - LEVEL_SWELL_EDGE_MARGIN);
-    const radius = st.int(LEVEL_SWELL_RADIUS_MIN, LEVEL_SWELL_RADIUS_MAX);
-    const z = clamp(SURFACE_Z_MIN, SURFACE_Z_MAX, base + (st.int(0, 1) === 0 ? -1 : 1));
-    if (inward(cx, cy) < LEVEL_SWELL_INWARD) continue;
-    for (let y = cy - radius; y <= cy + radius; y += 1) {
-      for (let x = cx - radius; x <= cx + radius; x += 1) {
-        if (x < 0 || y < 0 || x >= g.w || y >= g.h) continue;
-        if ((x - cx) * (x - cx) + (y - cy) * (y - cy) > radius * (radius + 1)) continue;
-        const c = y * g.w + x;
-        if (nearWater(x, y) || g.bare[c] === 1) continue;
-        const top = g.heights[c] as number;
-        if (top !== base || z === top) continue;
-        const i = g.map.index(x, y, top);
-        if (g.map.kindAt(i) !== TileKind.Floor || g.map.fluidLevelAt(i) > 0) continue;
-        // The soil keeps its depth: it moves up or down a level with the surface.
-        const at = (zz: number): number => g.map.index(x, y, zz);
-        if (z > top) {
-          for (let zz = top + 1; zz > top + 1 - soil; zz -= 1) g.map.material[at(zz)] = g.map.material[at(zz - 1)] as number;
-          if (soil > 0) g.map.material[at(top + 1 - soil)] = g.map.material[at(top - soil)] as number;
-          else g.map.material[at(top + 1)] = g.map.material[i] as number;
-          g.map.kind[at(top + 1)] = TileKind.Floor;
-          g.map.kind[i] = TileKind.Wall;
-        } else {
-          for (let zz = top - soil; zz < top; zz += 1) g.map.material[at(zz)] = g.map.material[at(zz + 1)] as number;
-          g.map.kind[i] = TileKind.Open;
-          g.map.material[i] = 0;
-          g.map.kind[at(top - 1)] = TileKind.Floor;
-        }
-        g.heights[c] = z;
-      }
-    }
   }
 }
 

@@ -90,12 +90,6 @@ export const WARM_SPRING_COUNT = 3;
 export const WYRM_CHAMBER_SIZE = 9;
 /** A river's spring: "a point drawn by the stream at least 16 tiles from every edge". */
 export const SPRING_EDGE_MARGIN = 16;
-/** Relief 0's swells (after stage 2): "6 low rises and dips per 96 × 96 tiles, radius 2–4, at least 52 tiles in from the arrival edge and 4 from the others". */
-export const LEVEL_SWELLS = 6;
-export const LEVEL_SWELL_RADIUS_MIN = 2;
-export const LEVEL_SWELL_RADIUS_MAX = 4;
-export const LEVEL_SWELL_INWARD = 52;
-export const LEVEL_SWELL_EDGE_MARGIN = 4;
 /** Stage 1 ridges: "one octave of period 40 … where the field lies within a fifth of its middle". */
 export const RIDGE_PERIOD = 40;
 /** Closeness to the field's middle (`Fixed`) above which a ridge rises. */

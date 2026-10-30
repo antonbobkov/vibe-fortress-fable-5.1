@@ -73,9 +73,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   // 6. volcano
   if spec.volcano: c = randomSurfacePoint(st) at chebyshev >= 20 from arrivalEdge midpoint; r = glasslands ? 3 : st.int(1,2)
     for z in 0..h[c]: tiles within r of c: kind=Open, fluid = 7|MAGMA|SOURCE; ring r+1..r+2: Wall obsidian below each column’s surface, Floor obsidian at its surface; surface within 6: soil replaced by obsidian, no vegetation
-  // 7. relief-0 swells, slopes, boulders, vegetation, snow
-  if relief == 0: st = stream(S, 'terrain.swells'); repeat round(6 * W*H/9216): c = st point 4..W-5 x 4..H-5; r = st.int(2,4); dz = st.int(0,1) ? +1 : -1
-       if inward(c) >= 52: disc d² <= r(r+1), dry base-level floor columns not within 2 of river/lake nor bare: move the surface (and its soil) by dz
+  // 7. slopes, boulders, vegetation, snow
   for dry surface Floor (x,y,z) with Open above: if a cardinal neighbour has Wall at z and a dry Floor at z+1: kind = Ramp
   st = stream(S, 'terrain.boulders'); if relief == 0: no boulders
   for dry surface Floor not bare: p = rocky ? 3*biome.surface.boulders : biome.surface.boulders; if scree: p = max(p, 250‰)

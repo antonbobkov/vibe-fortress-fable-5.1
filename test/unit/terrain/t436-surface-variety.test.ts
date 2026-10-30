@@ -96,34 +96,14 @@ describe('T-436 relief, slopes and cover on the local map', () => {
     }
   });
 
-  it('relief 0 is nearly level: a few rises and dips of one level, away from the arrival edge and the water', () => {
-    for (const [biome, river] of [['mountain', null], ['temperate_forest', { inflow: ['n' as const], outflow: 's' as const, class: 'brook' as const }]] as const) {
-      const s = { ...regionSpec(`t436-level-${biome}`, { biome, peril: 2, traits: [], ...(river === null ? {} : { river }) }, registry), relief: 0 as const };
-      const { map, result } = generateLocalMap(s, registry);
-      const base = baseSurfaceZ(s.elevation);
-      const level = survey(map, result);
-      expect(level.levels.size, biome).toBeGreaterThanOrEqual(2);
-      for (const z of level.levels) expect([base - 1, base, base + 1], biome).toContain(z);
-      expect(level.ramps, biome).toBeGreaterThan(0);
-      expect(level.rockTops, biome).toBe(0);
-      expect(level.boulders, biome).toBe(0);
-      for (let y = 0; y < map.h; y += 1) {
-        for (let x = 0; x < map.w; x += 1) {
-          const c = y * map.w + x;
-          if (((result.columns[c] as number) & (COL_RIVER | COL_LAKE)) !== 0) continue;
-          const z = result.surface[c] as number;
-          // The arrival edge stays level for 48 tiles in.
-          const inward = s.arrivalEdge === 'n' ? y : s.arrivalEdge === 's' ? map.h - 1 - y : s.arrivalEdge === 'w' ? x : map.w - 1 - x;
-          if (inward < 48) expect(z, `${biome} (${x}, ${y})`).toBe(base);
-          let wetNear = false;
-          for (let dy = -2; dy <= 2; dy += 1) for (let dx = -2; dx <= 2; dx += 1) {
-            const xx = x + dx; const yy = y + dy;
-            if (xx >= 0 && yy >= 0 && xx < map.w && yy < map.h && ((result.columns[yy * map.w + xx] as number) & (COL_RIVER | COL_LAKE)) !== 0) wetNear = true;
-          }
-          if (wetNear) expect(z, `${biome} by the brook (${x}, ${y})`).toBe(base);
-        }
-      }
-    }
+  it('relief 0 is level ground: no swell, ridge, outcrop, slope or boulder', () => {
+    const s = spec('mountain', 0);
+    const { map, result } = generateLocalMap(s, registry);
+    const level = survey(map, result);
+    expect([...level.levels]).toEqual([baseSurfaceZ(s.elevation)]);
+    expect(level.ramps).toBe(0);
+    expect(level.rockTops).toBe(0);
+    expect(level.boulders).toBe(0);
   });
 
   it('outcrops are bare rock; mountains and alpine have more boulders and crags; alpine lies under snow', () => {
