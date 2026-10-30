@@ -1,0 +1,111 @@
+/**
+ * T-447 probe (not committed; filed as reports/data/2026-10-24-t447-raid.probe.ts.txt): three-years-p4-6
+ * played as three_years_seeds plays it, journalling from T447_FROM to T447_TO (days): every attack
+ * that a party member makes or takes, with both sides' kit, skill, blood and behaviour; every 50
+ * ticks each party member and each soldier; raids, alerts, squad orders, gate doors, dwarf deaths.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { watchInvariants } from '../scenarios/invariants';
+import { shelterArea } from '@systems/dwarves/shelter';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T447_SEED'] ?? 'three-years-p4-6';
+const PERIL = Number(process.env['T447_PERIL'] ?? 4);
+const OUT = process.env['T447_OUT'] ?? '.vite/t447.jsonl';
+const FROM = Number(process.env['T447_FROM'] ?? 140) * TICKS_PER_DAY;
+const TO = Number(process.env['T447_TO'] ?? 190) * TICKS_PER_DAY;
+
+describe('T-447 raid probe', () => {
+  it('journals the raids', () => {
+    writeFileSync(OUT, '');
+    const buf: string[] = [];
+    const log = (o: Record<string, unknown>): void => { buf.push(JSON.stringify(o)); if (buf.length > 300) { appendFileSync(OUT, buf.join('\n') + '\n'); buf.length = 0; } };
+    const w = threeYearsWorld(SEED, PERIL);
+    // As three_years_seeds: the invariant watch is on at perils 2 and 4 (and the timeline follows it).
+    if (PERIL === 2 || PERIL === 4) watchInvariants(w.game, () => {});
+    const state = setupThreeYearsFortress(w);
+    const ent = w.game.world.entities;
+    const creatures = w.game.registry.table('creatures');
+    const items = w.game.registry.table('items');
+    const skills = w.game.registry.table('skills');
+    const sp = (id: number): string => { const c = ent.get(id, C.Creature); return c ? creatures.idOf(c.species) : '?'; };
+    const at = (id: number): string => { const p = ent.get(id, C.Position); return p ? `${p.x},${p.y},${p.z}` : '-'; };
+    const itemName = (id: number): string => { if (!id || !ent.alive(id)) return ''; const it = ent.get(id, C.Item); return it ? items.idOf(it.type) : '?'; };
+    const kit = (id: number): Record<string, unknown> => {
+      const eq = ent.get(id, C.Equipment);
+      if (!eq) return {};
+      return { weapon: itemName(eq.weapon), shield: itemName(eq.shield), armor: Object.entries(eq.armor).filter(([, v]) => v).map(([k, v]) => `${k}:${itemName(v)}`).join(' ') };
+    };
+    const skill = (id: number): Record<string, number> => {
+      const s = ent.get(id, C.Skills); if (!s) return {};
+      const out: Record<string, number> = {};
+      for (let k = 0; k < s.level.length; k += 1) if ((s.level[k] ?? 0) > 0) out[skills.idOf(k)] = s.level[k] as number;
+      return out;
+    };
+    const body = (id: number): string => { const b = ent.get(id, C.Body); return b ? `${b.blood}/${b.maxBlood} w${b.parts.reduce((n, p) => n + p.wounds.length, 0)} ${b.conscious ? 'c' : 'UNC'}` : ''; };
+    let on = false;
+    const seenHostile = new Set<number>();
+    w.game.world.onEvents((events) => {
+      if (!on) return;
+      const day = +(w.tick / TICKS_PER_DAY).toFixed(3);
+      for (const e of events) {
+        if (e.type === 'AttackResolved') {
+          const a = Number(e['attackerId']), d = Number(e['defenderId']);
+          if (!ent.has(a, C.Hostile) && !ent.has(d, C.Hostile)) continue;
+          const db = ent.get(d, C.Brain); const ab = ent.get(a, C.Brain);
+          if (process.env['T447_DBG'] && ent.has(a, C.Hostile) && ent.get(d, C.Creature)?.faction === 'fortress') {
+            const shelter = w.readers.of<{ retreatTile(id: number): number }>('19').retreatTile(d);
+            const inside = shelter >= 0 ? shelterArea(w.map, w.readers, shelter) : null;
+            const pa = ent.get(a, C.Position); const pd = ent.get(d, C.Position);
+            const thr = (w.game.world.scheduler.byId('10') as unknown as { threatened: Map<number, { hostileId: number }> }).threatened.get(d)?.hostileId ?? 0;
+            log({ day, t: 'dbg', d, a, alert: w.game.world.fortress.alert, shelter, inMine: inside && pd ? inside(w.map.index(pd.x, pd.y, pd.z)) : null, inTheirs: inside && pa ? inside(w.map.index(pa.x, pa.y, pa.z)) : null, target: w.game.world.services.combat?.targetOf(a) === d, held: thr, heldIsA: thr === a, act: db ? `${db.behavior}/${db.activity}` : '', sh: shelter >= 0 ? `${w.map.xOf(shelter)},${w.map.yOf(shelter)},${w.map.zOf(shelter)}` : '', hallHas: new Set(w.readers.of<{ hearthHallTiles(): number[] }>('14').hearthHallTiles()).has(shelter), hallN: w.readers.of<{ hearthHallTiles(): number[] }>('14').hearthHallTiles().length, dAt: at(d), aAt: at(a) });
+          }
+          log({ day, t: 'atk', a, as: sp(a), d, ds: sp(d), o: e['outcome'], n: e['amount'], p: e['part'], wt: e['woundType'], aKit: kit(a).weapon, dKit: kit(d), dAct: db ? `${db.behavior}/${db.activity}` : '', aAct: ab ? `${ab.behavior}/${ab.activity}` : (ent.get(a, C.Hostile)?.behaviorState ?? ''), dSol: ent.get(d, C.Soldier)?.onDuty ?? null, aBody: body(a), dBody: body(d), aAt: at(a), dAt: at(d) });
+        } else if (e.type === 'CreatureDied') {
+          const id = Number(e['id']);
+          log({ day, t: 'died', id, sp: sp(id) || e['species'], cause: e['cause'], killer: e['killerId'], ks: sp(Number(e['killerId'] ?? 0)) });
+        } else if (e.type === 'AlertChanged') log({ day, t: 'alert', to: e['to'] });
+        else if (e.type === 'SquadOrderIssued') log({ day, t: 'order', order: e['order'] ?? e['kind'] });
+        else if (e.type === 'RaidArrived' || e.type === 'RaidEnded' || e.type === 'ThreatWarning') log({ day, t: e.type, e });
+        else if (e.type === 'DoorBroken') log({ day, t: 'doorBroken', id: e['id'] });
+        else if (e.type === 'BuildingStateChanged') log({ day, t: 'bstate', e });
+      }
+    });
+    const snapshot = (): void => {
+      const day = +(w.tick / TICKS_PER_DAY).toFixed(3);
+      for (const id of ent.with(C.Hostile)) {
+        const h = ent.get(id, C.Hostile)!;
+        if (!seenHostile.has(id)) { seenHostile.add(id); log({ day, t: 'hostileNew', id, sp: sp(id), role: h.role, party: h.partyId, kit: kit(id), skill: skill(id), body: body(id) }); }
+        log({ day, t: 'hostile', id, sp: sp(id), role: h.role, st: h.behaviorState, at: at(id), body: body(id), weapon: kit(id).weapon });
+      }
+      for (const id of ent.with(C.Soldier)) {
+        const b = ent.get(id, C.Brain); const s = ent.get(id, C.Soldier)!;
+        log({ day, t: 'sol', id, at: at(id), onDuty: s.onDuty, act: b ? `${b.behavior}/${b.activity}` : '', kit: kit(id), body: body(id) });
+      }
+      const doors = [state.gateDoorId, state.gateDoorId2].map((d) => { const v = w.readers.of<{ get(id: number): { mode: string; state: string } | undefined; doorOpen(id: number): boolean }>('14'); const b = v.get(d); return b ? `${b.state}/${b.mode}/${v.doorOpen(d) ? 'open' : 'shut'}` : '-'; });
+      const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+      const outside = living.filter((id) => (ent.get(id, C.Position)?.z ?? 0) >= 32).length;
+      log({ day, t: 'fort', alert: w.game.world.fortress.alert, doors, living: living.length, onSurface: outside });
+    };
+    const bootstrap = 20 * TICKS_PER_DAY;
+    while (w.tick < bootstrap) {
+      playThreeYears(w, state, Math.min(100, bootstrap - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    const original = w.game.world.step;
+    w.game.world.step = () => {
+      original.call(w.game.world);
+      on = w.tick >= FROM;
+      if (on && w.tick % 50 === 0) snapshot();
+    };
+    while (w.tick < TO) {
+      playThreeYears(w, state, Math.min(300, TO - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+    }
+    log({ day: TO / TICKS_PER_DAY, t: 'end', hash: w.hash() });
+    appendFileSync(OUT, buf.join('\n') + '\n');
+  }, 7_200_000);
+});

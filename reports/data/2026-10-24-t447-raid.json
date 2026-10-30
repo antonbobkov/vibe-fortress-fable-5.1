@@ -1,0 +1,2702 @@
+{
+ "note": "T-447: three-years-p4-6 at peril 4 on 836bad7, days 140-190, as three_years_seeds plays it (probe 2026-10-24-t447-raid.probe.ts.txt). Hash at day 190 a7382e3517a7ee0c; the runner of three_years_seeds reproduces 51 dwarf deaths and extinction on day 189 (hash at day 336 899922e2d9b2b6be).",
+ "raids": [
+  {
+   "day": 143.001,
+   "kind": "raid",
+   "edge": "the northern edge"
+  },
+  {
+   "day": 143.001,
+   "kind": "thief",
+   "partyId": 184550241,
+   "size": 1,
+   "edge": "n"
+  },
+  {
+   "day": 143.067,
+   "kind": "RaidEnded",
+   "partyId": 184550241,
+   "outcome": "looted"
+  },
+  {
+   "day": 144.001,
+   "kind": "raid",
+   "partyId": 150995797,
+   "size": 18,
+   "edge": "n"
+  },
+  {
+   "day": 146.213,
+   "kind": "RaidEnded",
+   "partyId": 150995797,
+   "outcome": "looted"
+  },
+  {
+   "day": 151.721,
+   "kind": "RaidEnded",
+   "partyId": 251658725,
+   "outcome": "looted"
+  },
+  {
+   "day": 163.001,
+   "kind": "thief",
+   "partyId": 83887013,
+   "size": 1,
+   "edge": "n"
+  },
+  {
+   "day": 163.114,
+   "kind": "RaidEnded",
+   "partyId": 83887013,
+   "outcome": "withdrew"
+  },
+  {
+   "day": 184.001,
+   "kind": "thief",
+   "partyId": 83887240,
+   "size": 1,
+   "edge": "n"
+  },
+  {
+   "day": 184.107,
+   "kind": "RaidEnded",
+   "partyId": 83887240,
+   "outcome": "withdrew"
+  },
+  {
+   "day": 185.001,
+   "kind": "siege",
+   "edge": "the northern edge"
+  },
+  {
+   "day": 186.001,
+   "kind": "siege",
+   "partyId": 385877188,
+   "size": 35,
+   "edge": "n"
+  }
+ ],
+ "siegeComposition": {
+  "trollkin": 5,
+  "gloam_archer": 11,
+  "gloam_captain": 2,
+  "gloam_warrior": 24
+ },
+ "captains": [
+  {
+   "day": 144.042,
+   "id": 150995796,
+   "kit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt arms:gauntlets legs:greaves"
+   },
+   "body": "600/600 w0 c",
+   "skillAxe": 12,
+   "skillShield": 12,
+   "skillArmor": 12,
+   "skillDodge": 12
+  },
+  {
+   "day": 186.042,
+   "id": 50332797,
+   "kit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt arms:gauntlets legs:greaves"
+   },
+   "body": "600/600 w0 c",
+   "skillAxe": 12,
+   "skillShield": 12,
+   "skillArmor": 12,
+   "skillDodge": 12
+  },
+  {
+   "day": 186.042,
+   "id": 117441887,
+   "kit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt arms:gauntlets legs:greaves"
+   },
+   "body": "600/600 w0 c",
+   "skillAxe": 12,
+   "skillShield": 12,
+   "skillArmor": 12,
+   "skillDodge": 12
+  }
+ ],
+ "soldiers": [
+  {
+   "id": 520093736,
+   "kit": {
+    "weapon": "short_sword",
+    "shield": "shield",
+    "armor": "body:mail_shirt"
+   },
+   "body": "660/660 w0 c"
+  },
+  {
+   "id": 16777279,
+   "kit": {
+    "weapon": "short_sword",
+    "shield": "shield",
+    "armor": "body:mail_shirt"
+   },
+   "body": "528/528 w0 c"
+  },
+  {
+   "id": 16777280,
+   "kit": {
+    "weapon": "short_sword",
+    "shield": "shield",
+    "armor": "body:mail_shirt"
+   },
+   "body": "636/636 w0 c"
+  },
+  {
+   "id": 16777282,
+   "kit": {
+    "weapon": "short_sword",
+    "shield": "shield",
+    "armor": "body:mail_shirt"
+   },
+   "body": "552/552 w0 c"
+  },
+  {
+   "id": 16777285,
+   "kit": {
+    "weapon": "spear",
+    "shield": "shield",
+    "armor": "body:mail_shirt"
+   },
+   "body": "606/606 w0 c"
+  }
+ ],
+ "events": [
+  {
+   "day": 185.017,
+   "t": "alert",
+   "to": "hearth"
+  },
+  {
+   "day": 185.017,
+   "t": "order",
+   "order": {
+    "kind": "cancel"
+   }
+  },
+  {
+   "day": 185.017,
+   "t": "order",
+   "order": {
+    "kind": "station",
+    "tile": 74285
+   }
+  },
+  {
+   "day": 186.652,
+   "t": "doorBroken",
+   "id": 50331744
+  },
+  {
+   "day": 186.7,
+   "t": "order",
+   "order": {
+    "kind": "cancel"
+   }
+  },
+  {
+   "day": 186.7,
+   "t": "order",
+   "order": {
+    "kind": "station",
+    "tile": 74285
+   }
+  }
+ ],
+ "fort": [
+  {
+   "day": 185.5,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "built/lock_on_alert/shut"
+   ],
+   "living": 48,
+   "onSurface": 8
+  },
+  {
+   "day": 185.75,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "built/lock_on_alert/shut"
+   ],
+   "living": 48,
+   "onSurface": 6
+  },
+  {
+   "day": 186,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "built/lock_on_alert/shut"
+   ],
+   "living": 48,
+   "onSurface": 3
+  },
+  {
+   "day": 186.25,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "built/lock_on_alert/shut"
+   ],
+   "living": 48,
+   "onSurface": 7
+  },
+  {
+   "day": 186.5,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "built/lock_on_alert/shut"
+   ],
+   "living": 47,
+   "onSurface": 5
+  },
+  {
+   "day": 186.75,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 40,
+   "onSurface": 1
+  },
+  {
+   "day": 187,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 33,
+   "onSurface": 0
+  },
+  {
+   "day": 187.25,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 30,
+   "onSurface": 0
+  },
+  {
+   "day": 187.5,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 25,
+   "onSurface": 0
+  },
+  {
+   "day": 187.75,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 18,
+   "onSurface": 0
+  },
+  {
+   "day": 188,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 13,
+   "onSurface": 0
+  },
+  {
+   "day": 188.25,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 5,
+   "onSurface": 0
+  },
+  {
+   "day": 188.5,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 0,
+   "onSurface": 0
+  },
+  {
+   "day": 188.75,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 0,
+   "onSurface": 0
+  },
+  {
+   "day": 189,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 0,
+   "onSurface": 0
+  },
+  {
+   "day": 189.25,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 0,
+   "onSurface": 0
+  },
+  {
+   "day": 189.5,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 0,
+   "onSurface": 0
+  },
+  {
+   "day": 189.75,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 0,
+   "onSurface": 0
+  },
+  {
+   "day": 190,
+   "t": "fort",
+   "alert": "hearth",
+   "doors": [
+    "built/lock_on_alert/shut",
+    "-"
+   ],
+   "living": 0,
+   "onSurface": 0
+  }
+ ],
+ "deaths": [
+  {
+   "day": 149.246,
+   "t": "died",
+   "id": 117441259,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 150995725,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 149.361,
+   "t": "died",
+   "id": 16777281,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 83887154,
+   "ks": "gloam_archer"
+  },
+  {
+   "day": 178.001,
+   "t": "died",
+   "id": 1358955465,
+   "sp": "?",
+   "cause": "infection",
+   "killer": 0,
+   "ks": "?"
+  },
+  {
+   "day": 178.001,
+   "t": "died",
+   "id": 117441157,
+   "sp": "?",
+   "cause": "infection",
+   "killer": 0,
+   "ks": "?"
+  },
+  {
+   "day": 186.251,
+   "t": "died",
+   "id": 117441258,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 452985574,
+   "ks": "gloam_archer"
+  },
+  {
+   "day": 186.551,
+   "t": "died",
+   "id": 16777284,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778781,
+   "ks": "gloam_archer"
+  },
+  {
+   "day": 186.678,
+   "t": "died",
+   "id": 520093736,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778890,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 186.683,
+   "t": "died",
+   "id": 16777279,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778822,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 186.697,
+   "t": "died",
+   "id": 16777280,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778911,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 186.702,
+   "t": "died",
+   "id": 16777282,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 117441887,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 186.716,
+   "t": "died",
+   "id": 16777285,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 218104318,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 186.748,
+   "t": "died",
+   "id": 285212959,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 452985793,
+   "ks": "gloam_archer"
+  },
+  {
+   "day": 186.754,
+   "t": "died",
+   "id": 117441244,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778787,
+   "ks": "gloam_archer"
+  },
+  {
+   "day": 186.803,
+   "t": "died",
+   "id": 251658458,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332784,
+   "ks": "trollkin"
+  },
+  {
+   "day": 186.817,
+   "t": "died",
+   "id": 184550129,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778830,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 186.831,
+   "t": "died",
+   "id": 83886536,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 486539369,
+   "ks": "trollkin"
+  },
+  {
+   "day": 186.843,
+   "t": "died",
+   "id": 50332261,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778951,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 186.911,
+   "t": "died",
+   "id": 16777799,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332776,
+   "ks": "trollkin"
+  },
+  {
+   "day": 186.976,
+   "t": "died",
+   "id": 117441156,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332776,
+   "ks": "trollkin"
+  },
+  {
+   "day": 187.014,
+   "t": "died",
+   "id": 117440857,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332784,
+   "ks": "trollkin"
+  },
+  {
+   "day": 187.028,
+   "t": "died",
+   "id": 150995548,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.1,
+   "t": "died",
+   "id": 150995142,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778860,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 187.11,
+   "t": "died",
+   "id": 83886654,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 16778769,
+   "ks": "gloam_archer"
+  },
+  {
+   "day": 187.264,
+   "t": "died",
+   "id": 251658386,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.306,
+   "t": "died",
+   "id": 184550379,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.417,
+   "t": "died",
+   "id": 16777795,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778855,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 187.485,
+   "t": "died",
+   "id": 184549608,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.493,
+   "t": "died",
+   "id": 117441075,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.581,
+   "t": "died",
+   "id": 16777283,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.581,
+   "t": "died",
+   "id": 117441253,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.61,
+   "t": "died",
+   "id": 150995509,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.618,
+   "t": "died",
+   "id": 150995522,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.627,
+   "t": "died",
+   "id": 452985040,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.664,
+   "t": "died",
+   "id": 16777807,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.718,
+   "t": "died",
+   "id": 251658999,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.768,
+   "t": "died",
+   "id": 50333038,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.818,
+   "t": "died",
+   "id": 385876303,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.947,
+   "t": "died",
+   "id": 285213616,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.985,
+   "t": "died",
+   "id": 184549948,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 187.993,
+   "t": "died",
+   "id": 218104147,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.018,
+   "t": "died",
+   "id": 721421205,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.035,
+   "t": "died",
+   "id": 50333046,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.048,
+   "t": "died",
+   "id": 251659217,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.052,
+   "t": "died",
+   "id": 318767892,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.156,
+   "t": "died",
+   "id": 50333042,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.197,
+   "t": "died",
+   "id": 520094773,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.227,
+   "t": "died",
+   "id": 822084019,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.248,
+   "t": "died",
+   "id": 117441544,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778793,
+   "ks": "gloam_warrior"
+  },
+  {
+   "day": 188.256,
+   "t": "died",
+   "id": 83886678,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.273,
+   "t": "died",
+   "id": 117441263,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.273,
+   "t": "died",
+   "id": 285213604,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.281,
+   "t": "died",
+   "id": 318768111,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 16778769,
+   "ks": "gloam_archer"
+  },
+  {
+   "day": 188.368,
+   "t": "died",
+   "id": 184550276,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.377,
+   "t": "died",
+   "id": 16777276,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.416,
+   "t": "died",
+   "id": 16777277,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.435,
+   "t": "died",
+   "id": 16777278,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.454,
+   "t": "died",
+   "id": 83886305,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.512,
+   "t": "died",
+   "id": 16777710,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.531,
+   "t": "died",
+   "id": 16777711,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.55,
+   "t": "died",
+   "id": 83886604,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.569,
+   "t": "died",
+   "id": 150995629,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.607,
+   "t": "died",
+   "id": 50332354,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.627,
+   "t": "died",
+   "id": 50332355,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.646,
+   "t": "died",
+   "id": 50332356,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.702,
+   "t": "died",
+   "id": 385876762,
+   "sp": "?",
+   "cause": "bled_out",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.703,
+   "t": "died",
+   "id": 83887108,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.742,
+   "t": "died",
+   "id": 83887109,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.761,
+   "t": "died",
+   "id": 150996135,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.78,
+   "t": "died",
+   "id": 285213890,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  },
+  {
+   "day": 188.818,
+   "t": "died",
+   "id": 50332951,
+   "sp": "?",
+   "cause": "killed",
+   "killer": 50332797,
+   "ks": "gloam_captain"
+  }
+ ],
+ "captainAttacks": [
+  {
+   "day": 186.677,
+   "a": 50332797,
+   "d": 520093736,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 20,
+   "p": "right_arm",
+   "dAct": "duty/On duty",
+   "dSol": true,
+   "dAt": "29,10,32",
+   "dWeapon": "short_sword"
+  },
+  {
+   "day": 186.683,
+   "a": 117441887,
+   "d": 16777279,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "duty/On duty",
+   "dSol": true,
+   "dAt": "29,10,32",
+   "dWeapon": "short_sword"
+  },
+  {
+   "day": 186.696,
+   "a": 50332797,
+   "d": 16777280,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 20,
+   "p": "right_arm",
+   "dAct": "duty/On duty",
+   "dSol": true,
+   "dAt": "29,10,32",
+   "dWeapon": "short_sword"
+  },
+  {
+   "day": 186.702,
+   "a": 117441887,
+   "d": 16777282,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "duty/On duty",
+   "dSol": true,
+   "dAt": "29,10,32",
+   "dWeapon": "short_sword"
+  },
+  {
+   "day": 186.715,
+   "a": 50332797,
+   "d": 16777285,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 14,
+   "p": "torso",
+   "dAct": "duty/On duty",
+   "dSol": true,
+   "dAt": "29,10,32",
+   "dWeapon": "spear"
+  },
+  {
+   "day": 186.817,
+   "a": 50332797,
+   "d": 184550129,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,32",
+   "dWeapon": ""
+  },
+  {
+   "day": 186.817,
+   "a": 117441887,
+   "d": 184550129,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "left_arm",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,32",
+   "dWeapon": ""
+  },
+  {
+   "day": 186.842,
+   "a": 50332797,
+   "d": 50332261,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,32",
+   "dWeapon": ""
+  },
+  {
+   "day": 186.842,
+   "a": 117441887,
+   "d": 50332261,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,32",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.028,
+   "a": 50332797,
+   "d": 150995548,
+   "ds": "cat",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.047,
+   "a": 50332797,
+   "d": 251658386,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.066,
+   "a": 50332797,
+   "d": 251658386,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.085,
+   "a": 50332797,
+   "d": 117441075,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 27,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.099,
+   "a": 117441887,
+   "d": 150995142,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "need/hunger",
+   "dSol": null,
+   "dAt": "29,11,28",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.104,
+   "a": 50332797,
+   "d": 184550379,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.123,
+   "a": 50332797,
+   "d": 184550379,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.167,
+   "a": 50332797,
+   "d": 452985040,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "need/thirst",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.186,
+   "a": 50332797,
+   "d": 16777283,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.205,
+   "a": 50332797,
+   "d": 251658386,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.224,
+   "a": 50332797,
+   "d": 251658386,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_arm",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.243,
+   "a": 50332797,
+   "d": 117441253,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.262,
+   "a": 50332797,
+   "d": 150995509,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.282,
+   "a": 50332797,
+   "d": 184549608,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.301,
+   "a": 50332797,
+   "d": 184549608,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.32,
+   "a": 50332797,
+   "d": 16777807,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_arm",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.339,
+   "a": 50332797,
+   "d": 50333038,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.358,
+   "a": 50332797,
+   "d": 117441075,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 27,
+   "p": "torso",
+   "dAct": "patient/Resting in hospital",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.377,
+   "a": 50332797,
+   "d": 150995522,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.397,
+   "a": 50332797,
+   "d": 117441075,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_arm",
+   "dAct": "patient/Resting in hospital",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.416,
+   "a": 50332797,
+   "d": 150995522,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.417,
+   "a": 117441887,
+   "d": 16777795,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "need/hunger",
+   "dSol": null,
+   "dAt": "29,11,27",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.435,
+   "a": 50332797,
+   "d": 218104147,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.454,
+   "a": 50332797,
+   "d": 117441075,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 27,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.473,
+   "a": 50332797,
+   "d": 251658999,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.493,
+   "a": 50332797,
+   "d": 251658999,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.512,
+   "a": 50332797,
+   "d": 16777283,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "right_leg",
+   "dAct": "patient/Resting in hospital",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.531,
+   "a": 50332797,
+   "d": 16777283,
+   "ds": "dwarf",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "dAct": "patient/Resting in hospital",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.55,
+   "a": 50332797,
+   "d": 452985040,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_arm",
+   "dAct": "patient/Resting in hospital",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.569,
+   "a": 50332797,
+   "d": 520094773,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.588,
+   "a": 50332797,
+   "d": 452985040,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_arm",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.607,
+   "a": 50332797,
+   "d": 285213616,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "need/sleep",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.627,
+   "a": 50332797,
+   "d": 822084019,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.646,
+   "a": 50332797,
+   "d": 385876303,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "need/sleep",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.665,
+   "a": 50332797,
+   "d": 385876303,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "right_arm",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.684,
+   "a": 50332797,
+   "d": 50333038,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "patient/Resting in hospital",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.703,
+   "a": 50332797,
+   "d": 721421205,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.722,
+   "a": 50332797,
+   "d": 50333046,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "need/sleep",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.742,
+   "a": 50332797,
+   "d": 318767892,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.761,
+   "a": 50332797,
+   "d": 184550276,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.78,
+   "a": 50332797,
+   "d": 184549948,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.799,
+   "a": 50332797,
+   "d": 184549948,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.822,
+   "a": 50332797,
+   "d": 251659217,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "need/sleep",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.841,
+   "a": 50332797,
+   "d": 251659217,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.86,
+   "a": 50332797,
+   "d": 721421205,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "31,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.879,
+   "a": 50332797,
+   "d": 218104147,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "patient/Resting in hospital",
+   "dSol": null,
+   "dAt": "31,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.898,
+   "a": 50332797,
+   "d": 83886678,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.922,
+   "a": 50332797,
+   "d": 117441263,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "need/sleep",
+   "dSol": null,
+   "dAt": "28,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.941,
+   "a": 50332797,
+   "d": 83886678,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.96,
+   "a": 50332797,
+   "d": 50333042,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.979,
+   "a": 50332797,
+   "d": 50333042,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 187.998,
+   "a": 50332797,
+   "d": 50333042,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.018,
+   "a": 50332797,
+   "d": 50333042,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "28,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.037,
+   "a": 50332797,
+   "d": 318768111,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.056,
+   "a": 50332797,
+   "d": 318768111,
+   "ds": "dwarf",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.077,
+   "a": 50332797,
+   "d": 117441544,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "need/sleep",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.097,
+   "a": 50332797,
+   "d": 285213604,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.116,
+   "a": 50332797,
+   "d": 285213604,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "right_arm",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,12,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.136,
+   "a": 50332797,
+   "d": 117441544,
+   "ds": "dwarf",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.155,
+   "a": 50332797,
+   "d": 822084019,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.181,
+   "a": 50332797,
+   "d": 117441263,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "left_leg",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.2,
+   "a": 50332797,
+   "d": 117441263,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "29,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.248,
+   "a": 117441887,
+   "d": 117441544,
+   "ds": "dwarf",
+   "o": "hit",
+   "n": 28,
+   "p": "torso",
+   "dAct": "flee/Fleeing",
+   "dSol": null,
+   "dAt": "30,11,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.338,
+   "a": 50332797,
+   "d": 16777276,
+   "ds": "dog",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.357,
+   "a": 50332797,
+   "d": 16777276,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "left_arm",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.377,
+   "a": 50332797,
+   "d": 16777276,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.396,
+   "a": 50332797,
+   "d": 16777277,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "right_arm",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.415,
+   "a": 50332797,
+   "d": 16777277,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.434,
+   "a": 50332797,
+   "d": 16777278,
+   "ds": "cat",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.453,
+   "a": 50332797,
+   "d": 83886305,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.472,
+   "a": 50332797,
+   "d": 16777710,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "left_leg",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.492,
+   "a": 50332797,
+   "d": 16777710,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "right_arm",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.511,
+   "a": 50332797,
+   "d": 16777710,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.53,
+   "a": 50332797,
+   "d": 16777711,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.549,
+   "a": 50332797,
+   "d": 83886604,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.568,
+   "a": 50332797,
+   "d": 150995629,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.588,
+   "a": 50332797,
+   "d": 50332354,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "right_arm",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.607,
+   "a": 50332797,
+   "d": 50332354,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.626,
+   "a": 50332797,
+   "d": 50332355,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.645,
+   "a": 50332797,
+   "d": 50332356,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.664,
+   "a": 50332797,
+   "d": 385876762,
+   "ds": "cat",
+   "o": "hit",
+   "n": 29,
+   "p": "left_arm",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.683,
+   "a": 50332797,
+   "d": 385876762,
+   "ds": "cat",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.702,
+   "a": 50332797,
+   "d": 83887108,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.722,
+   "a": 50332797,
+   "d": 83887109,
+   "ds": "dog",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.741,
+   "a": 50332797,
+   "d": 83887109,
+   "ds": "dog",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.76,
+   "a": 50332797,
+   "d": 150996135,
+   "ds": "cat",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.779,
+   "a": 50332797,
+   "d": 285213890,
+   "ds": "cat",
+   "o": "hit",
+   "n": 29,
+   "p": "head",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.798,
+   "a": 50332797,
+   "d": 50332951,
+   "ds": "cat",
+   "o": "hit",
+   "n": 29,
+   "p": "left_arm",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  },
+  {
+   "day": 188.817,
+   "a": 50332797,
+   "d": 50332951,
+   "ds": "cat",
+   "o": "hit",
+   "n": 29,
+   "p": "torso",
+   "dAct": "",
+   "dSol": null,
+   "dAt": "31,9,26",
+   "dWeapon": ""
+  }
+ ],
+ "blowsOnCaptains": [
+  {
+   "day": 188.278,
+   "t": "atk",
+   "a": 16778775,
+   "as": "gloam_archer",
+   "d": 50332797,
+   "ds": "gloam_captain",
+   "o": "blocked",
+   "n": 0,
+   "p": null,
+   "aKit": "bow",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt arms:gauntlets legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "attack",
+   "dSol": null,
+   "aBody": "500/500 w0 c",
+   "dBody": "600/600 w0 c",
+   "aAt": "29,11,26",
+   "dAt": "30,11,26"
+  },
+  {
+   "day": 188.278,
+   "t": "atk",
+   "a": 16778757,
+   "as": "gloam_archer",
+   "d": 50332797,
+   "ds": "gloam_captain",
+   "o": "blocked",
+   "n": 0,
+   "p": null,
+   "aKit": "bow",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt arms:gauntlets legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "attack",
+   "dSol": null,
+   "aBody": "500/500 w0 c",
+   "dBody": "600/600 w0 c",
+   "aAt": "29,11,26",
+   "dAt": "30,11,26"
+  }
+ ],
+ "dwarfBlowsOnRaiders": [
+  {
+   "day": 186.66,
+   "t": "atk",
+   "a": 16777280,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "636/636 w0 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.66,
+   "t": "atk",
+   "a": 16777282,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "552/552 w0 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.66,
+   "t": "atk",
+   "a": 520093736,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "parried",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "636/660 w3 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.661,
+   "t": "atk",
+   "a": 16777279,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "528/528 w0 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.661,
+   "t": "atk",
+   "a": 16777285,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "hit",
+   "n": 0,
+   "p": "left_leg",
+   "aKit": "spear",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "606/606 w0 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.675,
+   "t": "atk",
+   "a": 16777282,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "552/552 w0 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.676,
+   "t": "atk",
+   "a": 16777280,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "636/636 w0 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.676,
+   "t": "atk",
+   "a": 520093736,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "559/660 w7 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.678,
+   "t": "atk",
+   "a": 16777279,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "528/528 w0 c",
+   "dBody": "1500/1500 w0 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.68,
+   "t": "atk",
+   "a": 16777285,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "hit",
+   "n": 6,
+   "p": "left_arm",
+   "aKit": "spear",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "606/606 w0 c",
+   "dBody": "1500/1500 w1 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.69,
+   "t": "atk",
+   "a": 16777282,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "552/552 w0 c",
+   "dBody": "1494/1500 w1 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.692,
+   "t": "atk",
+   "a": 16777280,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "short_sword",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "628/636 w1 c",
+   "dBody": "1494/1500 w1 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  },
+  {
+   "day": 186.699,
+   "t": "atk",
+   "a": 16777285,
+   "as": "dwarf",
+   "d": 50332757,
+   "ds": "trollkin",
+   "o": "miss",
+   "n": 0,
+   "p": null,
+   "aKit": "spear",
+   "dKit": {
+    "weapon": "axe",
+    "shield": "shield",
+    "armor": "head:helm body:mail_shirt legs:greaves"
+   },
+   "dAct": "",
+   "aAct": "duty/On duty",
+   "dSol": null,
+   "aBody": "606/606 w0 c",
+   "dBody": "1490/1500 w1 c",
+   "aAt": "29,10,32",
+   "dAt": "29,9,32"
+  }
+ ]
+}

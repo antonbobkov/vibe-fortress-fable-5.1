@@ -160,6 +160,24 @@ function attackedBy(ctx: TickContext, hostile: EntityId, id: EntityId): boolean 
   return hostile !== 0 && ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').targetOf(hostile) === id;
 }
 
+/**
+ * Steps 1 and 2 (T-447): a civilian sheltering under the hearth alert whose shelter a hostile party
+ * member has entered, and who that hostile attacks, fights back as if cornered instead of backing
+ * away inside the shelter. Both stand inside the shelter area of step 2.
+ */
+function holdsShelter(ctx: TickContext, id: EntityId, hostile: EntityId): boolean {
+  if (!ctx.world.entities.has(hostile, C.Hostile) || !attackedBy(ctx, hostile, id)) return false;
+  const alert = ctx.readers.has('16') ? ctx.readers.of<{ alert(): string }>('16').alert() : ctx.world.fortress.alert;
+  if (alert !== 'hearth' || !ctx.readers.has('19')) return false;
+  const shelter = ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id);
+  if (shelter < 0) return false;
+  const mine = ctx.world.services.movement?.tileOf(id) ?? -1;
+  const theirs = ctx.world.entities.get(hostile, C.Position);
+  if (mine < 0 || theirs === undefined) return false;
+  const inside = shelterAreaOf(ctx, shelter);
+  return inside(mine) && inside(ctx.world.map.index(theirs.x, theirs.y, theirs.z));
+}
+
 /** A conscious patient goes to its hospital bed under any alert (step 3); an unconscious one is carried. */
 function walksToHospital(ctx: TickContext, id: EntityId): boolean {
   if (!ctx.readers.has('17')) return false;
@@ -381,6 +399,11 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
       if (host.caught?.(id) === true && !stillHeld(ctx, threatId, id)) host.release?.(id);
       const caught = host.caught?.(id) === true;
       // A caught civilian runs only by a route its attacker cannot follow.
+      // A sheltering civilian whose shelter a party hostile has entered fights it there (T-447).
+      if (holdsShelter(ctx, id, threatId)) {
+        startFight(host, ctx, id, b, threatId);
+        return;
+      }
       const fleeGoal = findFleeTile(ctx, id, threatId, caught);
       if (fleeGoal >= 0) {
         if (caught) host.release?.(id);
@@ -715,7 +738,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
         reselect = true;
       } else {
         const caught = host.caught?.(id) === true;
-        const escapeTile = findFleeTile(ctx, id, threatId, caught);
+        const escapeTile = holdsShelter(ctx, id, threatId) ? -1 : findFleeTile(ctx, id, threatId, caught);
         if (escapeTile >= 0) {
           if (caught) host.release?.(id);
           host.setCombatTarget(id, 0);
