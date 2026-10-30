@@ -66,6 +66,14 @@ test('military-and-alert', async ({ page }) => {
   await page.keyboard.press('Shift+S');
   const clickAt = await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: MilitaryHook }).__deepholm;
+    // The first open floor of the view from cell (12, 10): a station is set on a tile one can stand on
+    // (generated ground has slopes and higher ground).
+    const r = h.readers as unknown as { map: { kindAt(i: number): number; index(x: number, y: number, z: number): number }; ui: { camX: number; camY: number; z: number } };
+    for (let row = 10; row < 30; row += 1) {
+      for (let col = 12; col < 40; col += 1) {
+        if (r.map.kindAt(r.map.index(r.ui.camX + col, r.ui.camY + row, r.ui.z)) === 2) return h.cellCenter(col, row);
+      }
+    }
     return h.cellCenter(12, 10);
   });
   const box = await page.locator('canvas#screen').boundingBox();

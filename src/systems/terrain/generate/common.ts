@@ -72,6 +72,10 @@ export interface LocalGen {
   readonly cavernOpen: number[];
   /** Columns that grow no vegetation (volcano obsidian). */
   readonly bare: Uint8Array;
+  /** Columns of bare rock with no soil (outcrops and crags, stage 1). */
+  readonly rocky: Uint8Array;
+  /** Columns of scree around a crag, where boulders lie thick (stage 9). */
+  readonly scree: Uint8Array;
   readonly veins: VeinRecord[];
   readonly spawns: SpawnEntry[];
   readonly warmSprings: TileIndex[];

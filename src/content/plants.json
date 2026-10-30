@@ -39,7 +39,7 @@
       }
     ],
     "glyph": "↑",
-    "fg": "ash_pale"
+    "fg": "ash_leaf"
   },
   {
     "id": "barley",
@@ -530,7 +530,7 @@
       }
     ],
     "glyph": "♣",
-    "fg": "oak_brown"
+    "fg": "oak_leaf"
   },
   {
     "id": "pale_bell",

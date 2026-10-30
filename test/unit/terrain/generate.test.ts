@@ -42,9 +42,11 @@ describe('T-M1-05 local map: stage 1 heightmap', () => {
     expect([roundOffset(-500), roundOffset(500), roundOffset(501), roundOffset(-1501), roundOffset(1499)]).toEqual([0, 0, 1, -2, 1]);
   });
 
-  it('relief 0 is flat at the base; every relief stays within the surface bounds', () => {
+  it('T-436: relief 0 is level but for a few one-level swells 40 in from the arrival edge; every relief stays within the surface bounds', () => {
     const { result } = gen(spec({ relief: 0, elevation: 158 }));
-    expect(result.surface.every((z) => z === 32)).toBe(true);
+    expect(result.surface.every((z) => z >= 31 && z <= 33)).toBe(true);
+    // The arrival edge is north: the first 36 rows are level.
+    expect(result.surface.slice(0, 36 * 96).every((z) => z === 32)).toBe(true);
     for (const relief of [1, 2, 3] as const) {
       for (const elevation of [100, 200, 255]) {
         const { result: r } = gen(spec({ relief, elevation, seed: `relief-${relief}-${elevation}` }));
@@ -314,6 +316,8 @@ describe('T-M1-05 local map: stage 5 the Sea of Fire', () => {
     expect([s.biome, s.peril, s.wealth, s.temper, s.elevation]).toEqual(['taiga', 3, 2, 0, 158]);
     expect(s.soilDepth).toBe(2);
     const { result } = gen(s);
-    expect(result.surface.every((z) => z === 32)).toBe(true);
+    // T-436: level near its arrival edge (north), swells of a level at most farther in.
+    expect(result.surface.slice(0, 36 * 96).every((z) => z === 32)).toBe(true);
+    expect(result.surface.every((z) => z >= 31 && z <= 33)).toBe(true);
   });
 });

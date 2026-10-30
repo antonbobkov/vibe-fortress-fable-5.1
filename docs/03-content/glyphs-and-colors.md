@@ -229,7 +229,14 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `forest_green` | #2E6B2E |  |  | `badlands_red` | #A05030 |  |
 | `wetland_teal` | #3A7A6A |  |  | `jungle_green` | #1E7A3E |  |
 | `hill_olive` | #7A8A3A |  |  | `dark_forest_green` | #1E3A1E |  |
-| `alpine_white` | #E8ECF0 |  |  |  |  |  |
+| `alpine_white` | #E8ECF0 |  |  | `oak_leaf` | #3E7A2A |  |
+| `ash_leaf` | #7A9A5A |  |  | `grass_deep` | #1E6E2A |  |
+| `grass_light` | #5AA83E |  |  | `grass_olive` | #6E8A2E |  |
+| `grass_pale` | #8FA070 |  |  | `moss_green` | #3E6E3A |  |
+| `flower_white` | #ECECE0 |  |  | `flower_yellow` | #F0D040 |  |
+| `flower_violet` | #A878D8 |  |  | `flower_red` | #D84858 |  |
+| `flower_blue` | #6890E8 |  |  | `lichen_gray` | #8E9C84 |  |
+| `lichen_orange` | #C08448 |  |  | `lichen_yellow` | #B8B464 |  |
 
 ## Glyphs by thing
 
@@ -243,11 +250,12 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | engraved wall | `☼` | material | `black` |
 | constructed wall (block) | `█` | material | `black` |
 | constructed wall (log, raw stone) | `▒` | material | `black` |
-| rough floor | `.` | material | `black` |
+| rough floor | `.` (outdoors also pebbles `·` and a stone `∙`) | material; outdoor bare rock leans toward the biome's rock tints in patches | `black` |
 | smoothed floor | `+` | material | `black` |
 | engraved floor | `☼` | material (dimmed) | `black` |
 | paved floor | `≡` | material | `black` |
-| grass floor | `"` | `grass_green` / `grass_dry` / `moss_teal` | `black` |
+| grass floor | `"` (outdoors also `'` and `` ` ``) | `grass_green` / `grass_dry` / `moss_teal`, outdoors leaning toward the biome's grass tints | `black` |
+| flower on outdoor grass | `*` | the biome's flower colors | `black` |
 | mud | `.` | `mud_brown` | `black` |
 | snow-covered | floor glyph | `gray` | `snow_white` |
 | ash | `.` | `ash_gray` | `black` |
@@ -258,6 +266,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | sapling | `τ` | species color | `black` |
 | shrub | `"` (species may override) | species color | `black` |
 | boulder | `○` | material | `black` |
+| higher ground (a natural wall under the outdoor surface, 1–3 levels up) | the surface's glyph | the surface's | the surface's, blended toward the ground's tone (23 § Compositor step 2) |
 | open, floor visible below | below's glyph | dimmed | dimmed |
 | open sky | ` ` | — | `sky_day` / `sky_night` |
 | open abyss | ` ` | — | `abyss` |

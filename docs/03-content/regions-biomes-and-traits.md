@@ -43,6 +43,29 @@ Region `tempC` shifts every seasonal value by `tempC − referenceTempC`.
 
 Daylight hours per season and temper are in 06.
 
+## Biome surface
+
+How the local map's surface looks and lies, beyond its soil and plants. Columns: `boulders`, the probability per dry surface floor of a loose boulder at generation from relief 1 (03 stage 9; three times as likely on bare rock); `outcrops` and `crags`, the counts per 96 × 96 map at relief 1 (03 stage 1 adds more with relief; level ground, relief 0, has none); `snow`, the share of the exposed dry surface under snow when the map is generated; `grass tints`, the colours grass leans toward in patches; `flowers`, the share of grass tiles drawn as flowers, and their colours; `rock tints`, the lichen and moss colours of bare rock floors (23 § Compositor step 2).
+
+| id | boulders | outcrops | crags | snow | grass tints | flowers | flower colors | rock tints |
+|---|---|---|---|---|---|---|---|---|
+| `ocean` | 0 | 0 | 0 | 0 | — | 0 | — | — |
+| `glacier` | 0.01 | 2 | 2 | 0.9 | — | 0 | — | `lichen_gray` |
+| `tundra` | 0.006 | 4 | 0 | 0 | `grass_pale`, `moss_green` | 0.01 | `flower_white`, `flower_violet` | `lichen_gray`, `lichen_orange` |
+| `taiga` | 0.004 | 3 | 0 | 0 | `grass_deep`, `moss_green` | 0.006 | `flower_white`, `flower_blue` | `lichen_gray`, `moss_green` |
+| `cold_steppe` | 0.004 | 4 | 0 | 0 | `grass_pale`, `grass_olive` | 0.01 | `flower_violet`, `flower_yellow` | `lichen_gray`, `lichen_orange` |
+| `temperate_grassland` | 0.002 | 3 | 0 | 0 | `grass_light`, `grass_deep`, `grass_olive` | 0.03 | `flower_yellow`, `flower_white`, `flower_violet`, `flower_red` | `lichen_gray`, `moss_green` |
+| `temperate_forest` | 0.003 | 3 | 0 | 0 | `grass_deep`, `moss_green`, `grass_light` | 0.012 | `flower_white`, `flower_blue`, `flower_yellow` | `moss_green`, `lichen_gray` |
+| `wetland` | 0.001 | 1 | 0 | 0 | `moss_green`, `grass_deep` | 0.015 | `flower_yellow`, `flower_white` | `moss_green` |
+| `temperate_hills` | 0.006 | 6 | 0 | 0 | `grass_olive`, `grass_light`, `grass_deep` | 0.02 | `flower_violet`, `flower_yellow`, `flower_white` | `lichen_gray`, `lichen_orange`, `moss_green` |
+| `mountain` | 0.012 | 8 | 3 | 0 | `grass_olive`, `grass_pale` | 0.01 | `flower_blue`, `flower_white` | `lichen_gray`, `lichen_orange`, `lichen_yellow` |
+| `alpine` | 0.012 | 8 | 4 | 0.55 | — | 0 | — | `lichen_gray`, `lichen_orange`, `lichen_yellow` |
+| `savanna` | 0.003 | 3 | 0 | 0 | `grass_olive`, `grass_pale` | 0.01 | `flower_red`, `flower_yellow` | `lichen_orange` |
+| `desert` | 0.005 | 5 | 0 | 0 | — | 0 | — | `lichen_orange` |
+| `badlands` | 0.012 | 8 | 2 | 0 | `grass_olive` | 0.004 | `flower_red` | `lichen_orange`, `lichen_yellow` |
+| `tropical_forest` | 0.002 | 2 | 0 | 0 | `grass_deep`, `moss_green` | 0.02 | `flower_red`, `flower_violet`, `flower_yellow` | `moss_green` |
+| `dark_forest` | 0.003 | 3 | 0 | 0 | `moss_green`, `grass_deep` | 0.004 | `flower_white` | `moss_green`, `lichen_gray` |
+
 ## Rating thresholds
 
 | Rating | 0 | 1 | 2 | 3 | 4 |

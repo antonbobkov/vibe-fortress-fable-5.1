@@ -13,7 +13,7 @@ import type { Registry } from '@core/registry';
 import type { TileIndex } from '@core/types';
 import type { LocalMapSpec } from '@systems/embark';
 import type { LocalGen, SpawnEntry, StackLayer, VeinRecord } from './common';
-import { stageHeight } from './height';
+import { stageHeight, stageLevelSwells } from './height';
 import { fillWater, stageRivers } from './rivers';
 import { stageColumns } from './layers';
 import { stageSea } from './sea';
@@ -21,6 +21,7 @@ import { stageCaverns } from './caverns';
 import { stageMinerals } from './minerals';
 import { stageVolcano } from './volcano';
 import { stageVegetation } from './vegetation';
+import { stageBoulders, stageRamps, stageSnow } from './surface';
 import { stageTraits } from './traits';
 import { stageLight } from './light';
 
@@ -90,6 +91,8 @@ export function newLocalGen(spec: LocalMapSpec, map: Map3D, registry: Registry):
     cavernFloors: [[], [], [], []],
     cavernOpen: [0, 0, 0, 0],
     bare: new Uint8Array(map.w * map.h),
+    rocky: new Uint8Array(map.w * map.h),
+    scree: new Uint8Array(map.w * map.h),
     veins: [],
     spawns: [],
     warmSprings: [],
@@ -130,7 +133,13 @@ export function generateLocal(
     caverns: () => stageCaverns(g),
     minerals: () => stageMinerals(g),
     volcano: () => stageVolcano(g),
-    vegetation: () => stageVegetation(g),
+    vegetation: () => {
+      stageLevelSwells(g);
+      stageRamps(g);
+      stageBoulders(g);
+      stageVegetation(g);
+      stageSnow(g);
+    },
     traits: () => stageTraits(g),
     light: () => stageLight(map),
   };

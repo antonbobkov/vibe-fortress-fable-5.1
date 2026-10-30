@@ -134,6 +134,11 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
     for (let at = 0; at < this.exposedSurface.length; at += 1) {
       this.exposedSurface[at] = this.findOutdoorSurface(at);
     }
+    // Snow lying on the map from generation (03 stage 9) is snow cover like fallen snow: it melts.
+    for (let at = 0; at < this.exposedSurface.length; at += 1) {
+      const i = this.exposedSurface[at] as number;
+      if (i >= 0 && this.map.hasFlag(i, TileFlag.Snow)) this.snowCovered.add(this.map.chunkOf(i));
+    }
     this.rng = ctx.rng;
     this.calendar = ctx.world.calendar as CalendarLike;
     this.hourNow = () => ctx.readers.calendar.hour;

@@ -70,7 +70,11 @@ test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
               let ok = true;
               for (let a = 0; a < 3 && ok; a += 1) for (let c = 0; c < 3 && ok; c += 1) ok = free(x + c, y + a);
               if (ok) pile = { x, y };
-            } else if (wall === null && free(x, y) && (x < pile.x - 1 || x > pile.x + 3 || y < pile.y - 1 || y > pile.y + 3)) {
+            } else if (wall === null && (x < pile.x - 3 || x > pile.x + 5 || y < pile.y - 3 || y > pile.y + 5)) {
+              // Free floor all round, so the carpenter's ghost over it fits too (generated ground has slopes).
+              let ok = true;
+              for (let a = -2; a <= 2 && ok; a += 1) for (let c = -2; c <= 2 && ok; c += 1) ok = free(x + c, y + a);
+              if (!ok) continue;
               wall = { x, y };
             }
           }

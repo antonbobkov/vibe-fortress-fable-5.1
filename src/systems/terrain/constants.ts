@@ -90,3 +90,31 @@ export const WARM_SPRING_COUNT = 3;
 export const WYRM_CHAMBER_SIZE = 9;
 /** A river's spring: "a point drawn by the stream at least 16 tiles from every edge". */
 export const SPRING_EDGE_MARGIN = 16;
+/** Relief 0's swells (after stage 2): "6 low rises and dips per 96 × 96 tiles, radius 2–4, at least 52 tiles in from the arrival edge and 4 from the others". */
+export const LEVEL_SWELLS = 6;
+export const LEVEL_SWELL_RADIUS_MIN = 2;
+export const LEVEL_SWELL_RADIUS_MAX = 4;
+export const LEVEL_SWELL_INWARD = 52;
+export const LEVEL_SWELL_EDGE_MARGIN = 4;
+/** Stage 1 ridges: "one octave of period 40 … where the field lies within a fifth of its middle". */
+export const RIDGE_PERIOD = 40;
+/** Closeness to the field's middle (`Fixed`) above which a ridge rises. */
+export const RIDGE_THRESHOLD = 800;
+/** Stage 1 outcrops: "radius 1–2 (3 from relief 2)", centres at least 3 tiles from the edge; 3 more per relief level. */
+export const OUTCROP_RADIUS_MIN = 1;
+export const OUTCROP_RADIUS_MAX = 2;
+export const OUTCROP_EDGE_MARGIN = 3;
+export const OUTCROPS_PER_RELIEF = 3;
+/** Stage 1 crags: "radius 2–4, peak 2–4 levels plus the relief"; 2 more per relief level. */
+export const CRAG_RADIUS_MIN = 2;
+export const CRAG_RADIUS_MAX = 4;
+export const CRAG_HEIGHT_MIN = 2;
+export const CRAG_HEIGHT_MAX = 4;
+export const CRAGS_PER_RELIEF = 2;
+/** Scree: "the ring of 2 columns outside a crag", where a boulder is `SCREE_BOULDER_PERMILLE` likely. */
+export const SCREE_RING = 2;
+export const SCREE_BOULDER_PERMILLE = 250;
+/** Stage 9 boulders: "three times as likely on bare rock". */
+export const ROCK_BOULDER_FACTOR = 3;
+/** Stage 9 snow: the patch field's two octaves (periods 14 and 5). */
+export const SNOW_PERIODS: readonly number[] = [14, 5];

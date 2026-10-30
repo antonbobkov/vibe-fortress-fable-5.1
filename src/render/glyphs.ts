@@ -27,6 +27,14 @@ export const GLYPH_SMOOTH_FLOOR = 43;
 export const GLYPH_PAVED_FLOOR = 240;
 /** `"` grass, cave moss and shrubs. */
 export const GLYPH_GRASS = 34;
+/** Grass variants outdoors (23 § Compositor step 2): `'` short grass and `` ` `` a tuft. */
+export const GLYPH_GRASS_SHORT = 39;
+export const GLYPH_GRASS_TUFT = 96;
+/** `*` a flower on outdoor grass. */
+export const GLYPH_FLOWER = 42;
+/** `·` pebbles and `∙` a loose stone on an outdoor bare floor. */
+export const GLYPH_PEBBLE = 250;
+export const GLYPH_STONE = 249;
 /** `▲` ramp. */
 export const GLYPH_RAMP = 30;
 /** `<` stairs up. */

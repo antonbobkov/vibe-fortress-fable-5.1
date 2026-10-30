@@ -97,6 +97,23 @@ export interface HallLayout {
  * opening onto the corridor; at the corridor's end a stairwell down two levels; at the bottom, a
  * 5×5 vault two tiles east of the stair, sealed by the rock between them.
  */
+/**
+ * "where the footprint fits": every column of the hall's footprint (the entrance's column and
+ * `HALL_LENGTH` columns east, `HALL_HALF_WIDTH` rows each side) is dry and stands at least one
+ * level above the hall level, so the hall lies in rock under the ground and not in open air.
+ */
+function hallFits(g: LocalGen, x: number, y: number): boolean {
+  const hallZ = (g.heights[y * g.w + x] as number) - 2;
+  for (let yy = y - HALL_HALF_WIDTH; yy <= y + HALL_HALF_WIDTH; yy += 1) {
+    for (let xx = x - 1; xx < x + HALL_LENGTH; xx += 1) {
+      if (xx < 0 || yy < 0 || xx >= g.w || yy >= g.h) return false;
+      const c = yy * g.w + xx;
+      if (((g.colFlags[c] as number) & (COL_RIVER | COL_LAKE)) !== 0 || (g.heights[c] as number) <= hallZ) return false;
+    }
+  }
+  return true;
+}
+
 export function carveHall(g: LocalGen, st: RngStream): HallLayout | null {
   const map = g.map;
   let best = -1;
@@ -106,6 +123,7 @@ export function carveHall(g: LocalGen, st: RngStream): HallLayout | null {
       const c = y * g.w + x;
       if (inward(g, x, y) * 2 < Math.max(g.w, g.h)) continue;
       if (dryFloor(g, c) < 0) continue;
+      if (!hallFits(g, x, y)) continue;
       const score = (g.heights[c] as number) * 1000 + inward(g, x, y);
       if (score > bestScore) {
         best = c;

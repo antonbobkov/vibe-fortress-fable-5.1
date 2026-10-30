@@ -55,14 +55,14 @@ On Embark, produce:
 ```
 LocalMapSpec {
   seed: hash(worldSeed, regionId),
-  biome, elevation, relief (0–3 from neighbor elevation differences), soilDepth (from biome),
+  biome, elevation, relief (0–3 from neighbor elevation differences; 0 is level), soilDepth (from biome),
   geology, wealth, peril, temper, deepness, traits, volcano,
   river: { inflowEdges, outflowEdge, class } | null, lake,
   civEdges: nearestEdgeTo, arrivalEdge: nearestEdgeTo.mountainhome
 }
 ```
 
-`relief = min(3, floor(maxDiff × 4 / 256))`, where `maxDiff` is the largest absolute elevation difference to the eight neighbouring regions that exist.
+`relief = maxDiff = 0 ? 0 : min(3, 1 + floor(maxDiff / RELIEF_DIFF_STEP))`, where `maxDiff` is the largest absolute elevation difference to the eight neighbouring regions that exist. Relief 0, nearly level ground with a few low rises and dips away from the arrival edge, is what a region has when every neighbour shares its elevation; every other site has at least the gentle relief 1 (03 stage 1).
 
 03 generates the map from this and nothing else, so a region always generates the same local map.
 
@@ -134,6 +134,7 @@ Nothing chosen here is irreversible in the fortress: skills grow, items are cons
 | `EMBARK_MARKUP_PERCENT` | 20 | Added to item value for catalog price (*unmeasured*) |
 | `ARRIVAL_SEARCH_DEPTH` | 20 | Tiles inward from the edge to search for a wagon site (*unmeasured*) |
 | `WAGON_LOGS` | 3 | Logs from deconstructing the wagon (*unmeasured*) |
+| `RELIEF_DIFF_STEP` | 96 | Elevation difference to a neighbour per relief level above 1 (*unmeasured*) |
 
 ## Extension points
 

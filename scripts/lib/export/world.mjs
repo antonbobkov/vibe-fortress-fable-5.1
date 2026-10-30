@@ -11,6 +11,7 @@ import {
   findTable,
   glyph,
   id,
+  idList,
   int,
   isBlank,
   plain,
@@ -24,7 +25,23 @@ import {
 const DOC = () => readTables(join(CONTENT_DIR, 'regions-biomes-and-traits.md'));
 
 export function exportBiomes() {
-  const table = findTable(DOC(), 'Biomes', 'referenceTempC');
+  const doc = DOC();
+  const table = findTable(doc, 'Biomes', 'referenceTempC');
+  const surfaces = new Map(
+    asObjects(findTable(doc, 'Biome surface', 'boulders')).map((row) => [
+      plain(row.id),
+      {
+        boulders: fixed(row.boulders),
+        outcrops: int(row.outcrops),
+        crags: int(row.crags),
+        snow: fixed(row.snow),
+        grassTints: idList(row['grass tints']),
+        flowers: fixed(row.flowers),
+        flowerColors: idList(row['flower colors']),
+        rockTints: idList(row['rock tints']),
+      },
+    ]),
+  );
   return byId(
     asObjects(table).map((row) => {
       const temps = plain(row.seasonTemp)
@@ -45,6 +62,9 @@ export function exportBiomes() {
         embarkable: /yes/i.test(plain(row.embark)),
         color: id(row.color),
         glyph: glyph(row.glyph),
+        surface: surfaces.get(plain(row.id)) ?? {
+          boulders: 0, outcrops: 0, crags: 0, snow: 0, grassTints: [], flowers: 0, flowerColors: [], rockTints: [],
+        },
       };
     }),
   );

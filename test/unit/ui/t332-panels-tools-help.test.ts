@@ -200,7 +200,8 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     const dwarves = game.host.readers.of<{ list(): number[] }>('10').list().length;
     expect(rows).toHaveLength(50);
     // The map fills the screen above the log, and no panel is open beside it.
-    expect(rows[0]).toMatch(/^[.]{80}$/);
+    // T-436: its bare outdoor floor draws `.`, pebbles `·` and stones `∙`.
+    expect(rows[0]).toMatch(/^[.·∙]{80}$/);
     // The hint does not fit one line, so it takes two of the strip's lines and none of it is cut.
     expect(rows[46]).toMatch(/^ ☼ Designate a place to dig with \[d\]\. Dwarves dig into rock faces from the {2}/);
     expect(rows[47]?.trim()).toBe('side.');

@@ -70,6 +70,7 @@ Weather visits exposed tiles in ascending chunk index, then ascending tile index
 ### Snow cover
 
 - While `snow`, each weather tick sets `snow` on all outdoor tiles in `SNOW_CHUNKS_PER_HOUR` randomly chosen uncovered chunk columns (so cover builds over a few hours), marking every chunk of each selected column that has an exposed tile until all such columns are covered.
+- Snow lying on the map when it is generated (03 stage 9) is snow cover: at start, every chunk with an exposed tile that has `snow` is a covered chunk.
 - Each weather tick, if `surfaceTempC > MELT_C`, clear `snow` in `SNOW_CHUNKS_PER_HOUR` randomly chosen covered chunk columns. Melting snow sets `mud` on soil floors.
 - Emit `SnowCoverChanged { chunks[] }` for 05 (overrides) and 23 (redraw).
 

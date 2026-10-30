@@ -41,7 +41,9 @@ async function pourChannel(page: Page): Promise<{ x: number; y: number; z: numbe
         const y = dwarf.y + dy;
         if (y < 1 || y >= map.h - 1) continue;
         let ok = true;
-        for (let k = 0; k < 7 && ok; k += 1) ok = map.kindAt(map.index(x0 + k, y, dwarf.z)) === FLOOR;
+        // Floor with no dwarf on it: a creature is drawn over the overlay's digit.
+        const standing = hook.dwarves().filter((d) => d.z === dwarf.z && d.y === y).map((d) => d.x);
+        for (let k = 0; k < 7 && ok; k += 1) ok = map.kindAt(map.index(x0 + k, y, dwarf.z)) === FLOOR && !standing.includes(x0 + k);
         if (!ok) continue;
         const tiles: { x: number; y: number; z: number }[] = [];
         for (let k = 0; k < 7; k += 1) {

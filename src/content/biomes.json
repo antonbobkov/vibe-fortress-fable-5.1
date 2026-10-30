@@ -16,7 +16,21 @@
     "wildlifeDensity": 500,
     "embarkable": true,
     "color": "alpine_white",
-    "glyph": "▲"
+    "glyph": "▲",
+    "surface": {
+      "boulders": 12,
+      "outcrops": 8,
+      "crags": 4,
+      "snow": 550,
+      "grassTints": [],
+      "flowers": 0,
+      "flowerColors": [],
+      "rockTints": [
+        "lichen_gray",
+        "lichen_orange",
+        "lichen_yellow"
+      ]
+    }
   },
   {
     "id": "badlands",
@@ -44,7 +58,24 @@
     "wildlifeDensity": 500,
     "embarkable": true,
     "color": "badlands_red",
-    "glyph": "≡"
+    "glyph": "≡",
+    "surface": {
+      "boulders": 12,
+      "outcrops": 8,
+      "crags": 2,
+      "snow": 0,
+      "grassTints": [
+        "grass_olive"
+      ],
+      "flowers": 4,
+      "flowerColors": [
+        "flower_red"
+      ],
+      "rockTints": [
+        "lichen_orange",
+        "lichen_yellow"
+      ]
+    }
   },
   {
     "id": "cold_steppe",
@@ -76,7 +107,26 @@
     "wildlifeDensity": 800,
     "embarkable": true,
     "color": "grass_dry",
-    "glyph": "\""
+    "glyph": "\"",
+    "surface": {
+      "boulders": 4,
+      "outcrops": 4,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_pale",
+        "grass_olive"
+      ],
+      "flowers": 10,
+      "flowerColors": [
+        "flower_violet",
+        "flower_yellow"
+      ],
+      "rockTints": [
+        "lichen_gray",
+        "lichen_orange"
+      ]
+    }
   },
   {
     "id": "dark_forest",
@@ -108,7 +158,25 @@
     "wildlifeDensity": 1000,
     "embarkable": true,
     "color": "dark_forest_green",
-    "glyph": "♣"
+    "glyph": "♣",
+    "surface": {
+      "boulders": 3,
+      "outcrops": 3,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "moss_green",
+        "grass_deep"
+      ],
+      "flowers": 4,
+      "flowerColors": [
+        "flower_white"
+      ],
+      "rockTints": [
+        "moss_green",
+        "lichen_gray"
+      ]
+    }
   },
   {
     "id": "desert",
@@ -136,7 +204,19 @@
     "wildlifeDensity": 400,
     "embarkable": true,
     "color": "sand_yellow",
-    "glyph": "∙"
+    "glyph": "∙",
+    "surface": {
+      "boulders": 5,
+      "outcrops": 5,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [],
+      "flowers": 0,
+      "flowerColors": [],
+      "rockTints": [
+        "lichen_orange"
+      ]
+    }
   },
   {
     "id": "glacier",
@@ -155,7 +235,19 @@
     "wildlifeDensity": 200,
     "embarkable": false,
     "color": "ice_blue",
-    "glyph": "▒"
+    "glyph": "▒",
+    "surface": {
+      "boulders": 10,
+      "outcrops": 2,
+      "crags": 2,
+      "snow": 900,
+      "grassTints": [],
+      "flowers": 0,
+      "flowerColors": [],
+      "rockTints": [
+        "lichen_gray"
+      ]
+    }
   },
   {
     "id": "mountain",
@@ -183,7 +275,27 @@
     "wildlifeDensity": 700,
     "embarkable": true,
     "color": "granite_gray",
-    "glyph": "▲"
+    "glyph": "▲",
+    "surface": {
+      "boulders": 12,
+      "outcrops": 8,
+      "crags": 3,
+      "snow": 0,
+      "grassTints": [
+        "grass_olive",
+        "grass_pale"
+      ],
+      "flowers": 10,
+      "flowerColors": [
+        "flower_blue",
+        "flower_white"
+      ],
+      "rockTints": [
+        "lichen_gray",
+        "lichen_orange",
+        "lichen_yellow"
+      ]
+    }
   },
   {
     "id": "ocean",
@@ -202,7 +314,17 @@
     "wildlifeDensity": 0,
     "embarkable": false,
     "color": "dark_blue",
-    "glyph": "≈"
+    "glyph": "≈",
+    "surface": {
+      "boulders": 0,
+      "outcrops": 0,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [],
+      "flowers": 0,
+      "flowerColors": [],
+      "rockTints": []
+    }
   },
   {
     "id": "savanna",
@@ -234,7 +356,25 @@
     "wildlifeDensity": 1100,
     "embarkable": true,
     "color": "savanna_gold",
-    "glyph": "\""
+    "glyph": "\"",
+    "surface": {
+      "boulders": 3,
+      "outcrops": 3,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_olive",
+        "grass_pale"
+      ],
+      "flowers": 10,
+      "flowerColors": [
+        "flower_red",
+        "flower_yellow"
+      ],
+      "rockTints": [
+        "lichen_orange"
+      ]
+    }
   },
   {
     "id": "taiga",
@@ -266,7 +406,26 @@
     "wildlifeDensity": 1000,
     "embarkable": true,
     "color": "pine_green",
-    "glyph": "♠"
+    "glyph": "♠",
+    "surface": {
+      "boulders": 4,
+      "outcrops": 3,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_deep",
+        "moss_green"
+      ],
+      "flowers": 6,
+      "flowerColors": [
+        "flower_white",
+        "flower_blue"
+      ],
+      "rockTints": [
+        "lichen_gray",
+        "moss_green"
+      ]
+    }
   },
   {
     "id": "temperate_forest",
@@ -294,7 +453,28 @@
     "wildlifeDensity": 1200,
     "embarkable": true,
     "color": "forest_green",
-    "glyph": "♣"
+    "glyph": "♣",
+    "surface": {
+      "boulders": 3,
+      "outcrops": 3,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_deep",
+        "moss_green",
+        "grass_light"
+      ],
+      "flowers": 12,
+      "flowerColors": [
+        "flower_white",
+        "flower_blue",
+        "flower_yellow"
+      ],
+      "rockTints": [
+        "moss_green",
+        "lichen_gray"
+      ]
+    }
   },
   {
     "id": "temperate_grassland",
@@ -322,7 +502,29 @@
     "wildlifeDensity": 1000,
     "embarkable": true,
     "color": "grass_green",
-    "glyph": "\""
+    "glyph": "\"",
+    "surface": {
+      "boulders": 2,
+      "outcrops": 3,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_light",
+        "grass_deep",
+        "grass_olive"
+      ],
+      "flowers": 30,
+      "flowerColors": [
+        "flower_yellow",
+        "flower_white",
+        "flower_violet",
+        "flower_red"
+      ],
+      "rockTints": [
+        "lichen_gray",
+        "moss_green"
+      ]
+    }
   },
   {
     "id": "temperate_hills",
@@ -354,7 +556,29 @@
     "wildlifeDensity": 1000,
     "embarkable": true,
     "color": "hill_olive",
-    "glyph": "∩"
+    "glyph": "∩",
+    "surface": {
+      "boulders": 6,
+      "outcrops": 6,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_olive",
+        "grass_light",
+        "grass_deep"
+      ],
+      "flowers": 20,
+      "flowerColors": [
+        "flower_violet",
+        "flower_yellow",
+        "flower_white"
+      ],
+      "rockTints": [
+        "lichen_gray",
+        "lichen_orange",
+        "moss_green"
+      ]
+    }
   },
   {
     "id": "tropical_forest",
@@ -382,7 +606,26 @@
     "wildlifeDensity": 1400,
     "embarkable": true,
     "color": "jungle_green",
-    "glyph": "♣"
+    "glyph": "♣",
+    "surface": {
+      "boulders": 2,
+      "outcrops": 2,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_deep",
+        "moss_green"
+      ],
+      "flowers": 20,
+      "flowerColors": [
+        "flower_red",
+        "flower_violet",
+        "flower_yellow"
+      ],
+      "rockTints": [
+        "moss_green"
+      ]
+    }
   },
   {
     "id": "tundra",
@@ -410,7 +653,26 @@
     "wildlifeDensity": 600,
     "embarkable": true,
     "color": "tundra_gray",
-    "glyph": "."
+    "glyph": ".",
+    "surface": {
+      "boulders": 6,
+      "outcrops": 4,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "grass_pale",
+        "moss_green"
+      ],
+      "flowers": 10,
+      "flowerColors": [
+        "flower_white",
+        "flower_violet"
+      ],
+      "rockTints": [
+        "lichen_gray",
+        "lichen_orange"
+      ]
+    }
   },
   {
     "id": "wetland",
@@ -442,6 +704,24 @@
     "wildlifeDensity": 1100,
     "embarkable": true,
     "color": "wetland_teal",
-    "glyph": "~"
+    "glyph": "~",
+    "surface": {
+      "boulders": 1,
+      "outcrops": 1,
+      "crags": 0,
+      "snow": 0,
+      "grassTints": [
+        "moss_green",
+        "grass_deep"
+      ],
+      "flowers": 15,
+      "flowerColors": [
+        "flower_yellow",
+        "flower_white"
+      ],
+      "rockTints": [
+        "moss_green"
+      ]
+    }
   }
 ]

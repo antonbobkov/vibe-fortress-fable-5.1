@@ -21,14 +21,16 @@ function hall(candidates: readonly [number, number, number][]): { x: number; y: 
   const map = buildFlatTestMap(registry, 48, 48);
   const heights = new Int16Array(map.w * map.h).fill(32);
   for (const [x, y, z] of candidates) {
-    heights[y * map.w + x] = z;
+    // T-436: the hall's footprint must fit under the ground, so each candidate stands on a rise
+    // that covers its footprint (only the candidate column has a floor at that height).
+    for (let yy = y - 4; yy <= y + 4; yy += 1) for (let xx = x - 1; xx < x + 17; xx += 1) heights[yy * map.w + xx] = Math.max(heights[yy * map.w + xx] as number, z);
     map.setKind(map.index(x, y, z), TileKind.Floor, registry.table('materials').index('loam'));
   }
   const g: LocalGen = {
     spec: FLAT_TEST_SPEC, map, registry, s: 't119-hall', w: map.w, h: map.h, d: map.d,
     heights, waterTop: new Int16Array(heights.length), colFlags: new Uint8Array(heights.length),
     stack: [], waterSources: [], sinks: [], cavernFloors: [[], [], [], []], cavernOpen: [],
-    bare: new Uint8Array(heights.length), veins: [], spawns: [], warmSprings: [], volcano: -1,
+    bare: new Uint8Array(heights.length), rocky: new Uint8Array(heights.length), scree: new Uint8Array(heights.length), veins: [], spawns: [], warmSprings: [], volcano: -1,
   };
   return carveHall(g, new RngStream(119));
 }
