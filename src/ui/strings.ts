@@ -153,7 +153,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.trait.wyrm_roost': 'a magma wyrm sleeps in the third cavern.',
   'ui.site.trait.fungal_depths': 'larger caverns, more cave shrubs and cave beasts.',
   'ui.site.trait.glasslands': 'obsidian ground with no soil or trees; magma pools in the first cavern.',
-  'ui.site.trait.frostmarrow': 'winter cold in spring and autumn; snow instead of rain.',
+  'ui.site.trait.frostmarrow': 'winter cold in spring and autumn; snow instead of rain; wild yaks and more snow leopards.',
   'ui.site.trait.old_battlefield': 'old weapons and bones lie about; the dead rise on autumn nights.',
   'ui.site.trait.sunken_halls': 'an abandoned hall below, with a sealed vault and its guard.',
   'ui.site.trait.ironheart': 'a great iron deposit of hematite and magnetite.',
