@@ -11,7 +11,7 @@ import type { PlantsReader } from '@systems/plants';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { TradeReader } from '@systems/trade/reader';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
-import { HALL_Z, type FortressState } from './three_years_fortress';
+import { type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
 import { command } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
@@ -199,7 +199,7 @@ interface MineBand { readonly x: number; readonly y: number; readonly zMin: numb
 
 /** The upper-rock mine, above the cavern bands, off its own shaft south of the entrance. */
 export function upperBand(w: TestWorld, state: FortressState): MineBand {
-  return { x: state.cx + 6, y: Math.min(w.map.h - 3, state.cy + 15), zMin: UPPER_MINE_BOTTOM, zMax: HALL_Z, deep: false };
+  return { x: state.cx + 6, y: Math.min(w.map.h - 3, state.cy + 15), zMin: UPPER_MINE_BOTTOM, zMax: state.hallZ, deep: false };
 }
 
 /** Every tile of the 3x3x3 block around `t` is dry rock or the fortress's own workings. */
@@ -360,7 +360,7 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
   const buildings = w.readers.of<BuildingsReader>('14');
   const candidates: number[] = [];
   for (let y = Math.max(2, state.cy + dy - 12); y <= Math.min(w.map.h - 4, state.cy + dy + 12); y += 1) {
-    for (let x = Math.max(2, state.cx + dx - 12); x <= Math.min(w.map.w - 4, state.cx + dx + 12); x += 1) candidates.push(w.index(x, y, 32));
+    for (let x = Math.max(2, state.cx + dx - 12); x <= Math.min(w.map.w - 4, state.cx + dx + 12); x += 1) candidates.push(w.index(x, y, state.z));
   }
   candidates.sort((a, b) => {
     const distance = (t: number): number => Math.abs(w.map.xOf(t) - state.cx - dx) + Math.abs(w.map.yOf(t) - state.cy - dy);
@@ -847,7 +847,7 @@ function checkLarder(w: TestWorld, state: FortressState): number {
   if (economy.larder === undefined && w.tick >= 28 * TICKS_PER_DAY) {
     const tiles: number[] = [];
     for (const [x0, x1, y0, y1] of LARDER) for (let y = state.cy + y0; y <= state.cy + y1; y += 1) for (let x = state.cx + x0; x <= state.cx + x1; x += 1) {
-      if (x >= 2 && y >= 2 && x < w.map.w - 2 && y < w.map.h - 2) tiles.push(w.index(x, y, HALL_Z));
+      if (x >= 2 && y >= 2 && x < w.map.w - 2 && y < w.map.h - 2) tiles.push(w.index(x, y, state.hallZ));
     }
     // The part beside the west corridor keeps drink, so that the cellar holds more than a week.
     const drinkTiles = tiles.filter((t) => w.map.yOf(t) > state.cy + 2);
@@ -1002,8 +1002,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const shaft = (priority: number): boolean => {
     if (phases.has('shaft')) return true;
     // The shaft starts from the dug trunk corridor, so nothing is designated into unreached rock.
-    if (w.map.kindAt(w.index(upper.x, upper.y, HALL_Z)) !== TileKind.Floor) return false;
-    const result = command(w, { type: 'DesignateStairwell', x: upper.x, y: upper.y, zTop: HALL_Z, zBottom: upper.zMin, priority });
+    if (w.map.kindAt(w.index(upper.x, upper.y, state.hallZ)) !== TileKind.Floor) return false;
+    const result = command(w, { type: 'DesignateStairwell', x: upper.x, y: upper.y, zTop: state.hallZ, zBottom: upper.zMin, priority });
     if (result.ok) phases.add('shaft');
     return result.ok;
   };

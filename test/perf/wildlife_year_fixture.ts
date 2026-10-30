@@ -43,11 +43,19 @@ export interface BrookRecord {
   wagon: { x: number; y: number; z: number };
 }
 
+/**
+ * T-448: the relief of the instrument's regions. In twelve standard worlds (`world-0` to `world-11`)
+ * the median relief of every embarkable biome is 1, temperate forest, taiga and grassland included.
+ */
+export const WILDLIFE_RELIEF = 1;
+
 /** The variants of the opening. `dry`: the embark drink is destroyed and no still is built, so every drink is the brook's. */
 export interface WildlifeOptions {
   dry?: boolean;
   /** A brook crosses the map: from the west edge (where the wagon stands) to the south edge, or from the north edge to the south edge. */
   brook?: 'west' | 'north';
+  /** The region's relief (T-448); `WILDLIFE_RELIEF` when absent. */
+  relief?: 0 | 1 | 2 | 3;
   /** Called after every look (20 ticks) of the year with the alert level; a probe's hook, absent in the instrument. */
   observe?: (game: HeadlessGame, level: string) => void;
 }
@@ -85,7 +93,7 @@ const HEARTH_HOLD_MAX = 3600;
 export function playWildlifeYear(seed: string, biome: string, options: WildlifeOptions = {}): WildlifeYear {
   // Standard-sized generated map, west embark like the browser sample. No serene_vale
   // wildlife suppression; biome, soil, plants, weather and all natural arrivals are real.
-  const spec = regionSpec(seed, { biome, peril: 0, wealth: 2, temper: 0, traits: [],
+  const spec = regionSpec(seed, { biome, peril: 0, wealth: 2, temper: 0, traits: [], relief: options.relief ?? WILDLIFE_RELIEF,
     ...(options.brook === undefined ? {} : { river: { class: 'brook' as const, inflow: [options.brook === 'west' ? 'w' as const : 'n' as const], outflow: 's' as const } }),
     nearestEdgeTo: { mountainhome: 'w', hillfolk: 'w', wildwood: 'w', gloam: 'w' } });
   const game = new HeadlessGame({ seed, world: 'local', spec, embark: 'default' });
@@ -190,7 +198,25 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   };
   const zone = (zoneType: string, tiles: number[]): number => {
     // The UI's green-tile selection: keep only qualifying, unzoned tiles.
-    const selected = tiles.filter((at) => buildings.zoneTileQualifies(zoneType, at) && buildings.zoneAt(at) === 0);
+    const qualifying = (list: number[]): number[] => list.filter((at) => buildings.zoneTileQualifies(zoneType, at) && buildings.zoneAt(at) === 0);
+    let selected = qualifying(tiles);
+    // T-448: on relief the designed rectangle may lie on another level; the player draws the same
+    // rectangle at the nearest place within 12 tiles where most of it qualifies.
+    if (selected.length === 0 && tiles.length > 0) {
+      const xs = tiles.map((t) => map.xOf(t)); const ys = tiles.map((t) => map.yOf(t));
+      const x0 = Math.min(...xs); const y0 = Math.min(...ys); const tz = map.zOf(tiles[0]!);
+      const width = Math.max(...xs) - x0 + 1; const height = Math.max(...ys) - y0 + 1;
+      for (const level of [tz, tz - 1, tz + 1, tz - 2, tz + 2]) {
+        if (selected.length > 0) break;
+        let bestD = Number.MAX_SAFE_INTEGER;
+        for (let dy = -12; dy <= 12; dy += 1) for (let dx = -12; dx <= 12; dx += 1) {
+          if (x0 + dx < 1 || y0 + dy < 1 || x0 + dx + width >= map.w || y0 + dy + height >= map.h) continue;
+          const here = qualifying(rect(x0 + dx, y0 + dy, width, height, level));
+          const d = Math.abs(dx) + Math.abs(dy);
+          if (here.length > selected.length || (here.length === selected.length && here.length > 0 && d < bestD)) { selected = here; bestD = d; }
+        }
+      }
+    }
     command({ type: 'CreateZone', zoneType, tiles: selected });
     return buildingSystem.lastCreatedZone;
   };
@@ -242,13 +268,30 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     }
   };
 
-  const patches: { x: number; y: number }[] = [];
+  const patches: { x: number; y: number; z: number }[] = [];
   const camY = Math.max(0, wy - 21);
   for (let y = camY + 2; y <= camY + 36 && patches.length < 8; y += 1) {
     for (let x = 2; x <= 38 && patches.length < 8; x += 1) {
       if (x <= 14 && y >= wy - 7 && y <= wy + 7) continue;
       if (patches.some((p) => Math.abs(p.x - x) < 4 && Math.abs(p.y - y) < 4)) continue;
-      if (rect(x, y, 3, 3).every((at) => map.kindAt(at) === TileKind.Floor && buildings.zoneAt(at) === 0)) patches.push({ x, y });
+      if (rect(x, y, 3, 3).every((at) => map.kindAt(at) === TileKind.Floor && buildings.zoneAt(at) === 0)) patches.push({ x, y, z });
+    }
+  }
+  // T-448: on a map with relief the camp window may hold fewer than eight level patches at the
+  // wagon's level; the rest are the nearest ones elsewhere on the map, each on one level: the
+  // wagon's first, then one and two levels down and up.
+  for (const level of [z, z - 1, z + 1, z - 2, z + 2]) {
+    if (patches.length >= 8) break;
+    const more: { x: number; y: number; d: number }[] = [];
+    for (let y = 2; y <= map.h - 5; y += 1) for (let x = 2; x <= map.w - 5; x += 1) {
+      if (x <= wx + 12 && x >= wx - 2 && y >= wy - 7 && y <= wy + 7) continue;
+      if (rect(x, y, 3, 3, level).every((at) => map.kindAt(at) === TileKind.Floor && buildings.zoneAt(at) === 0)) more.push({ x, y, d: Math.abs(x - wx) + Math.abs(y - wy) });
+    }
+    more.sort((a, b) => a.d - b.d || a.y - b.y || a.x - b.x);
+    for (const m of more) {
+      if (patches.length >= 8) break;
+      if (patches.some((p) => Math.abs(p.x - m.x) < 4 && Math.abs(p.y - m.y) < 4)) continue;
+      patches.push({ x: m.x, y: m.y, z: level });
     }
   }
   if (patches.length < 8) throw new Error(`${seed}: opening needs eight 3x3 floor patches`);
@@ -259,19 +302,54 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   result.setup.surfacePlots.push(plot(rect(wx + 6, wy - 5, 4, 3), 'barley', [0, 1]));
   let sx = wx + 4;
   let sy = wy - 1;
+  let found = false;
   findEntrance: for (let dy = -2; dy <= 5; dy += 1) for (let dx = 2; dx <= 6; dx += 1) {
     const x = wx + dx; const y = wy + dy;
     if (x <= wx + 2 && y >= wy && y <= wy + 2) continue;
     if (x >= wx + 3 && x <= wx + 6 && y >= wy + 2 && y <= wy + 5) continue;
     if (x >= wx + 2 && x <= wx + 9 && y >= wy - 5 && y <= wy - 3) continue;
-    if (map.kindAt(map.index(x, y, z)) === TileKind.Floor && buildings.zoneAt(map.index(x, y, z)) === 0) { sx = x; sy = y; break findEntrance; }
+    if (map.kindAt(map.index(x, y, z)) === TileKind.Floor && buildings.zoneAt(map.index(x, y, z)) === 0) { sx = x; sy = y; found = true; break findEntrance; }
+  }
+  // T-448: on relief the stair's usual spot may be another level; the nearest floor of the wagon's
+  // level within 10 tiles, outside the camp's rectangles, with rock to dig below it.
+  if (!found) {
+    let bestD = Number.MAX_SAFE_INTEGER;
+    for (let dy = -10; dy <= 10; dy += 1) for (let dx = -10; dx <= 10; dx += 1) {
+      const x = wx + dx; const y = wy + dy;
+      if (x < 2 || y < 2 || x >= map.w - 10 || y >= map.h - 6) continue;
+      if (x >= wx - 1 && x <= wx + 9 && y >= wy - 5 && y <= wy + 5) continue;
+      const at = map.index(x, y, z);
+      if (map.kindAt(at) !== TileKind.Floor || buildings.zoneAt(at) !== 0 || map.kindAt(map.index(x, y, z - 1)) !== TileKind.Wall) continue;
+      const d = Math.abs(dx) + Math.abs(dy);
+      if (d < bestD) { bestD = d; sx = x; sy = y; }
+    }
   }
   command({ type: 'DesignateStairwell', x: sx, y: sy, zTop: z, zBottom: z - 6, priority: PRIORITY_DEFAULT });
   // Taiga has only two soil layers: its same-sized dimcap plot must be one level down.
   // This is a new instrument's explicit site rule, not extra farm capacity or a fixture repair.
-  const cave = rect(sx + 1, sy, 8, 4, z - result.setup.caveDepth);
-  command({ type: 'Designate', kind: 'dig', tiles: cave, priority: PRIORITY_DEFAULT });
-  command({ type: 'Designate', kind: 'dig', tiles: rect(sx + 1, sy, 5, 5, z - 3), priority: PRIORITY_DEFAULT });
+  // T-448: on relief the ground beside the stair may fall away and leave the cave under open sky.
+  // The cave goes on the side of the stair, and at the first level down the stair, with soil and
+  // roof for at least half of it, else wherever most of it has (east and the shallowest when tied).
+  const materialsTable = game.registry.table<{ id: string; class: string }>('materials');
+  const coverable = (tiles: number[]): number => tiles.filter((at) => !map.hasFlag(at, TileFlag.Outdoor) && map.kindAt(at) === TileKind.Wall &&
+    materialsTable.byIndex(map.materialAt(at))?.class === 'soil').length;
+  const caveOrigins = ([[sx + 1, sy], [sx - 8, sy], [sx - 3, sy + 1], [sx - 4, sy - 4]] as const)
+    .filter(([x, y]) => x >= 1 && y >= 1 && x + 8 < map.w - 1 && y + 4 < map.h - 1);
+  let cave = rect(sx + 1, sy, 8, 4, z - result.setup.caveDepth);
+  let caveScore = -1;
+  for (let level = z - result.setup.caveDepth; level >= z - 5 && caveScore < 16; level -= 1) {
+    for (const [x, y] of caveOrigins) {
+      const tiles = rect(x, y, 8, 4, level);
+      if (coverable(tiles) > caveScore) { cave = tiles; caveScore = coverable(tiles); }
+    }
+  }
+  // T-448: on relief a designed rectangle may cross open ground; only what can be dug is designated.
+  const diggable = (at: number): boolean => !map.hasFlag(at, TileFlag.Discovered) ||
+    ((map.kindAt(at) === TileKind.Wall || map.kindAt(at) === TileKind.Boulder) && !map.hasFlag(at, TileFlag.Constructed));
+  const caveDig = cave.filter(diggable);
+  if (caveDig.length > 0) command({ type: 'Designate', kind: 'dig', tiles: caveDig, priority: PRIORITY_DEFAULT });
+  const lowerDig = rect(sx + 1, sy, 5, 5, z - 3).filter(diggable);
+  if (lowerDig.length > 0) command({ type: 'Designate', kind: 'dig', tiles: lowerDig, priority: PRIORITY_DEFAULT });
   const trees: number[] = [];
   for (let dy = -12; dy <= 12; dy += 1) for (let dx = 1; dx <= 30; dx += 1) {
     const at = map.index(wx + dx, wy + dy, z);
@@ -281,26 +359,27 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     return (map.xOf(a) - wx) ** 2 + (map.yOf(a) - wy) ** 2 - ((map.xOf(b) - wx) ** 2 + (map.yOf(b) - wy) ** 2);
   });
   const depot = patches[5]!;
-  const chopped = new Set([...trees.slice(0, 10), ...rect(0, 16, 4, 5), ...rect(depot.x - 2, depot.y - 2, 7, 7)]);
+  const chopped = new Set([...trees.slice(0, 10), ...rect(0, 16, 4, 5), ...rect(depot.x - 2, depot.y - 2, 7, 7, depot.z)]);
   const actualTrees = [...chopped].filter((at) => map.kindAt(at) === TileKind.Tree);
   if (actualTrees.length > 0) command({ type: 'Designate', kind: 'chop', tiles: actualTrees, priority: PRIORITY_DEFAULT });
-  for (const [i, type] of ['carpenter', 'mason', 'still'].entries()) if (options.dry !== true || type !== 'still') build(type, map.index(patches[i]!.x, patches[i]!.y, z));
+  for (const [i, type] of ['carpenter', 'mason', 'still'].entries()) if (options.dry !== true || type !== 'still') build(type, map.index(patches[i]!.x, patches[i]!.y, patches[i]!.z));
   order('make_barrel', 'maintain', 20);
   order('make_stone_block', 'once', 4);
   if (options.dry !== true) order('brew', 'maintain', 100);
   advance(3 * TICKS_PER_DAY);
-  build('hearth', map.index(patches[3]!.x, patches[3]!.y, z));
-  build('kitchen', map.index(patches[4]!.x, patches[4]!.y, z));
+  build('hearth', map.index(patches[3]!.x, patches[3]!.y, patches[3]!.z));
+  build('kitchen', map.index(patches[4]!.x, patches[4]!.y, patches[4]!.z));
   order('cook_easy_meal', 'maintain', 60);
-  zone('meeting_area', rect(patches[6]!.x, patches[6]!.y, 3, 3));
-  zone('bedroom', rect(patches[7]!.x, patches[7]!.y, 3, 3));
+  zone('meeting_area', rect(patches[6]!.x, patches[6]!.y, 3, 3, patches[6]!.z));
+  zone('bedroom', rect(patches[7]!.x, patches[7]!.y, 3, 3, patches[7]!.z));
   command({ type: 'CreateSquad', name: 'Wildlife guard' });
   game.step(1);
   command({ type: 'SetSquadMembers', squadId: combat.squads()[0]!.id, members: living().slice(0, 3) });
   game.step(1);
   advance(10 * TICKS_PER_DAY);
-  result.setup.caveTiles = plot(cave, 'dimcap', [0, 1, 2, 3]);
-  build('trade_depot', map.index(depot.x, depot.y, z));
+  // T-448: on relief part of the designed cave may lie under open sky; the dimcap plot is the dug part.
+  result.setup.caveTiles = plot(cave.filter((at) => !map.hasFlag(at, TileFlag.Outdoor)), 'dimcap', [0, 1, 2, 3]);
+  build('trade_depot', map.index(depot.x, depot.y, depot.z));
   command({ type: 'SetRequests', civ: 'mountainhome', entries: [{ itemType: 'anvil', priority: 1 }] });
   advance(20 * TICKS_PER_DAY);
   advance(DAYS_PER_YEAR * TICKS_PER_DAY, true);

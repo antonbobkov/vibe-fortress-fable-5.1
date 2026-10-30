@@ -204,7 +204,7 @@ export const REGION_SPEC_ELEVATION = 158;
  * region of `acceptance-tests.md` ("a `serene_vale`-like region (peril 0, wealth 2, temper 0)
  * unless the test says otherwise"), seeded from the scenario seed (D-046).
  */
-export function regionSpec(seed: string, region: Partial<RegionRecord>, registry: Registry = contentRegistry()): LocalMapSpec {
+export function regionSpec(seed: string, region: Partial<RegionRecord> & { readonly relief?: 0 | 1 | 2 | 3 }, registry: Registry = contentRegistry()): LocalMapSpec {
   const biome = region.biome ?? FLAT_TEST_SPEC.biome;
   const biomeRow = registry.table<{ id: string; soilDepth: number }>('biomes').byId(biome);
   if (biomeRow === undefined) throw new RangeError(`regionSpec: unknown biome ${biome}`);
@@ -215,7 +215,8 @@ export function regionSpec(seed: string, region: Partial<RegionRecord>, registry
     regionId: region.id ?? 0,
     biome,
     elevation: region.elevation ?? REGION_SPEC_ELEVATION,
-    relief: 0,
+    // T-448: a test may give the region's relief; level (0) otherwise.
+    relief: region.relief ?? 0,
     soilDepth: biomeRow.soilDepth,
     geology: region.geology ?? FLAT_TEST_SPEC.geology,
     wealth: region.wealth ?? FLAT_TEST_SPEC.wealth,

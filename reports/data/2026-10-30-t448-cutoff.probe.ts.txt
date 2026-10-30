@@ -1,0 +1,33 @@
+/**
+ * T-448 probe (not committed; filed as reports/data/2026-10-30-t448-cutoff.probe.ts.txt): on each three-year
+ * map at relief 0 and 1 and each instrument map, the walkable surface columns the wagon's walker label
+ * reaches, the other labels' sizes, and how deep the water beside the wagon's label runs.
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEEDS = [...[1, 2, 3, 4, 5, 6, 7].map((k) => ['three-years-p0-' + k, 0]), ...[1, 2, 3, 4, 5, 6, 7].map((k) => ['three-years-p2-' + k, 2]), ...[1, 2, 3, 4, 5, 6].map((k) => ['three-years-p4-' + k, 4])] as [string, number][];
+
+describe('T-448 cut-off ground', () => {
+  it('counts', () => {
+    const rows: unknown[] = [];
+    for (const relief of [0, 1] as const) for (const [seed, peril] of SEEDS) {
+      const w = threeYearsWorld(seed, peril, undefined, relief);
+      const map = w.map; const wagon = w.game.arrival!.wagon;
+      w.step(1);
+      const label = w.readers.pathing.labelOf(map.index(wagon.x, wagon.y, wagon.z), 'walker');
+      const sizes = new Map<number, number>();
+      for (let y = 0; y < map.h; y += 1) for (let x = 0; x < map.w; x += 1) {
+        for (let z = map.d - 1; z >= 25; z -= 1) {
+          const l = w.readers.pathing.labelOf(map.index(x, y, z), 'walker');
+          if (l !== 0) { sizes.set(l, (sizes.get(l) ?? 0) + 1); break; }
+        }
+      }
+      const others = [...sizes].filter(([l]) => l !== label).map(([, n]) => n).sort((a, b) => b - a);
+      rows.push({ relief, seed, wagonZ: wagon.z, wagonLabel: sizes.get(label) ?? 0, others: others.slice(0, 6), nOthers: others.length, dwarves: w.game.world.entities.with(C.Labors).length });
+    }
+    writeFileSync('.vite/t448-cutoff.json', JSON.stringify(rows, null, 1));
+  }, 3_600_000);
+});
