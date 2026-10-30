@@ -42,3 +42,22 @@ Options, for the orchestrator:
 - `2026-10-24-t447-raid.probe.ts.txt`: three-years-p4-6 at peril 4 as three_years_seeds plays it, days 140 to 190. It journals every attack a raider makes or takes, with both sides' kit, skill, blood and behaviour; every 50 ticks each raider and each soldier; raids, alerts, squad orders, gate doors and deaths.
 - The runner of three_years_seeds on `836bad7` reproduces the run: 51 dwarf deaths, extinct on day 189.
 - The journal summary is in [`2026-10-24-t447-raid.json`](../data/2026-10-24-t447-raid.json).
+
+## The rule taken (decision b) and what it measured (2026-10-29)
+
+The orchestrator chose (b). 10 § Behavior selection now has a civilian sheltering under the `hearth` alert, attacked by a hostile party member inside its shelter, fight back as a cornered civilian. Both must stand inside the shelter area of step 2, which is the hearth hall when the dwarf shelters there.
+
+| Measure (on `836bad7`'s simulation) | T-446 row | With the rule |
+|---|---|---|
+| Annual instrument | 13/6/7/142/8/0/0 | 13/6/7/142/8/0/0, all twelve hashes identical |
+| pp_defence | 4 of 4 | 4 of 4 |
+| `three_years_seeds` | 20 of 20; deaths 158, living 867 | 20 of 20; deaths **158**, living **867**, all twenty hashes identical |
+| Deaths by cause | wildlife 6, parties 133, bled out unattributed 14, infection 3, another dwarf 2 | the same |
+| p4-6 | 51 deaths, extinct on day 189 | 51 deaths, extinct on day 189 |
+
+**The rule never fires in the sweep, and p4-6 is unchanged.** A journal of p4-6's attacks on day 186 and 187 shows why:
+
+- p4-6's hearth hall is 30 tiles. The 46 sheltering dwarves do not fit in it, and the ones the captain strikes stand on the stair landing and the corridor next to it, at (29–30, 11–12, 26), or at the stair top on the surface, at (29, 11, 32).
+- None of those tiles is in the shelter area as step 2 defines it, so these dwarves are not "inside the shelter" and still flee.
+
+A wider area was tried and not taken: the indoor tiles around the retreat tile reached without passing a door, the hall included. With it p4-6 still loses 51 dwarves, extinct on day 190 instead of 189. Unarmed Novices who fight back do not hurt a skill-12 captain in iron.

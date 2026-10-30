@@ -9,6 +9,7 @@ import { appendFileSync, writeFileSync } from 'node:fs';
 import { TICKS_PER_DAY } from '@core/constants';
 import { C } from '@core/components';
 import { watchInvariants } from '../scenarios/invariants';
+import { shelterArea } from '@systems/dwarves/shelter';
 import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
 
 const SEED = process.env['T447_SEED'] ?? 'three-years-p4-6';
@@ -55,6 +56,13 @@ describe('T-447 raid probe', () => {
           const a = Number(e['attackerId']), d = Number(e['defenderId']);
           if (!ent.has(a, C.Hostile) && !ent.has(d, C.Hostile)) continue;
           const db = ent.get(d, C.Brain); const ab = ent.get(a, C.Brain);
+          if (process.env['T447_DBG'] && ent.has(a, C.Hostile) && ent.get(d, C.Creature)?.faction === 'fortress') {
+            const shelter = w.readers.of<{ retreatTile(id: number): number }>('19').retreatTile(d);
+            const inside = shelter >= 0 ? shelterArea(w.map, w.readers, shelter) : null;
+            const pa = ent.get(a, C.Position); const pd = ent.get(d, C.Position);
+            const thr = (w.game.world.scheduler.byId('10') as unknown as { threatened: Map<number, { hostileId: number }> }).threatened.get(d)?.hostileId ?? 0;
+            log({ day, t: 'dbg', d, a, alert: w.game.world.fortress.alert, shelter, inMine: inside && pd ? inside(w.map.index(pd.x, pd.y, pd.z)) : null, inTheirs: inside && pa ? inside(w.map.index(pa.x, pa.y, pa.z)) : null, target: w.game.world.services.combat?.targetOf(a) === d, held: thr, heldIsA: thr === a, act: db ? `${db.behavior}/${db.activity}` : '', sh: shelter >= 0 ? `${w.map.xOf(shelter)},${w.map.yOf(shelter)},${w.map.zOf(shelter)}` : '', hallHas: new Set(w.readers.of<{ hearthHallTiles(): number[] }>('14').hearthHallTiles()).has(shelter), hallN: w.readers.of<{ hearthHallTiles(): number[] }>('14').hearthHallTiles().length, dAt: at(d), aAt: at(a) });
+          }
           log({ day, t: 'atk', a, as: sp(a), d, ds: sp(d), o: e['outcome'], n: e['amount'], p: e['part'], wt: e['woundType'], aKit: kit(a).weapon, dKit: kit(d), dAct: db ? `${db.behavior}/${db.activity}` : '', aAct: ab ? `${ab.behavior}/${ab.activity}` : (ent.get(a, C.Hostile)?.behaviorState ?? ''), dSol: ent.get(d, C.Soldier)?.onDuty ?? null, aBody: body(a), dBody: body(d), aAt: at(a), dAt: at(d) });
         } else if (e.type === 'CreatureDied') {
           const id = Number(e['id']);

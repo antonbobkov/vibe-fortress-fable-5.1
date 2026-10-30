@@ -37,3 +37,7 @@ Not a fault: the captain leads the year's first siege (35 on day 186: 24 warrior
 - (b) 10: a civilian in a shelter that a party has entered fights back when attacked and no exit leads out, instead of fleeing within it;
 - (c) the fixture: the player answers a siege warning by arming every adult with a weapon or fighting at the gate;
 - (d) accept: a peril-4 siege can wipe out an unprepared fortress.
+
+## As done
+
+Decision (b): a civilian sheltering under the hearth alert whom a hostile party member attacks inside its shelter area (step 2) fights back as if cornered. Instrument, pp_defence and the sweep are all unchanged (deaths 158, living 867, every hash identical): p4-6's victims stand on the stair landing outside its 30-tile hall, so the rule never fires; a wider indoor area still loses all 51 ([report](../../reports/audits/2026-10-24-one-raider-kills-28.md)).
