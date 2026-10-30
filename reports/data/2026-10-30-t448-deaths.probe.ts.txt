@@ -1,0 +1,27 @@
+/**
+ * T-448 probe (not committed; filed as reports/data/2026-10-30-t448-deaths.probe.ts.txt): the instrument's
+ * twelve years at relief 0 and relief 1, with each dwarf death's distance from the wagon, level offset and
+ * tile kind, the camp's spread of buildings, and the first wild attack.
+ */
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import type { HeadlessGame } from '@app/headless';
+import { playWildlifeYear, WILDLIFE_CASES } from './wildlife_year_fixture';
+
+describe('T-448 deaths by relief', () => {
+  it('journals', () => {
+    const rows: unknown[] = [];
+    for (const relief of [0, 1] as const) for (const { seed, biome } of WILDLIFE_CASES) {
+      let g: HeadlessGame | null = null;
+      const row = playWildlifeYear(seed, biome, { relief, observe: (game) => { g = game; } });
+      const game = g as unknown as HeadlessGame;
+      const map = game.map; const e = game.world.entities;
+      const wagon = game.arrival!.wagon;
+      const spread = e.with(C.Building).map((id) => { const o = e.get(id, C.Building)!.origin; return { d: Math.max(Math.abs(map.xOf(o) - wagon.x), Math.abs(map.yOf(o) - wagon.y)), z: map.zOf(o) - wagon.z }; });
+      const deaths = row.deaths.filter((d) => d.kind === 'dwarf').map((d) => ({ day: d.day, by: d.killerSpecies, cause: d.cause, dist: d.tile < 0 ? -1 : Math.max(Math.abs(map.xOf(d.tile) - wagon.x), Math.abs(map.yOf(d.tile) - wagon.y)), dz: d.tile < 0 ? 0 : map.zOf(d.tile) - wagon.z, kind: d.tile < 0 ? -1 : map.kindAt(d.tile) }));
+      rows.push({ relief, seed, living: row.living, wagon: [wagon.x, wagon.y, wagon.z], maxBuilding: Math.max(0, ...spread.map((s) => s.d)), meanBuilding: +(spread.reduce((a, s) => a + s.d, 0) / Math.max(1, spread.length)).toFixed(1), buildingLevels: [...new Set(spread.map((s) => s.z))].sort(), firstAlert: row.alerts[0]?.tick ?? null, spawns: row.spawns, deaths, cave: row.setup.caveTiles, plots: row.setup.surfacePlots });
+    }
+    writeFileSync('.vite/t448-deaths.json', JSON.stringify(rows, null, 1));
+  }, 7_200_000);
+});

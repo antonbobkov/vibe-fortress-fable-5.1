@@ -1,0 +1,29 @@
+/**
+ * T-448 probe (not committed; filed as reports/data/2026-10-30-t448-relief.probe.ts.txt): the relief of
+ * every embarkable region of twelve standard worlds, by biome, and its median.
+ */
+import { describe, it } from 'vitest';
+import { contentRegistry } from '@content/loader';
+import { WORLD_SIZE_STANDARD } from '@core/constants';
+import { generate } from '@systems/worldgen';
+import { reliefOf } from '@systems/embark/spec';
+
+describe('T-448 relief by biome', () => {
+  it('prints the median relief of each biome', () => {
+    const registry = contentRegistry();
+    const biomes = registry.table<{ id: string; embarkable: boolean }>('biomes');
+    const by = new Map<string, number[]>();
+    for (let k = 0; k < 12; k += 1) {
+      const world = generate(`world-${k}`, WORLD_SIZE_STANDARD, registry);
+      for (const r of world.regions) {
+        if (biomes.byId(r.biome)?.embarkable !== true) continue;
+        const list = by.get(r.biome) ?? []; list.push(reliefOf(world, r.id)); by.set(r.biome, list);
+      }
+    }
+    for (const [biome, list] of [...by].sort()) {
+      const s = [...list].sort((a, b) => a - b);
+      const hist = [0, 1, 2, 3].map((v) => s.filter((x) => x === v).length);
+      console.log(`[t448] ${biome} n=${s.length} median=${s[Math.floor((s.length - 1) / 2)]}/${s[Math.floor(s.length / 2)]} hist=${hist.join(',')}`);
+    }
+  }, 600_000);
+});
