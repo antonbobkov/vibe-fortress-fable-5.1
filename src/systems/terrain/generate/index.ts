@@ -91,6 +91,7 @@ export function newLocalGen(spec: LocalMapSpec, map: Map3D, registry: Registry):
     cavernFloors: [[], [], [], []],
     cavernOpen: [0, 0, 0, 0],
     bare: new Uint8Array(map.w * map.h),
+    drinkStep: new Uint8Array(map.w * map.h),
     rocky: new Uint8Array(map.w * map.h),
     scree: new Uint8Array(map.w * map.h),
     veins: [],

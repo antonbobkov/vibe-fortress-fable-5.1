@@ -90,6 +90,8 @@ export const WARM_SPRING_COUNT = 3;
 export const WYRM_CHAMBER_SIZE = 9;
 /** A river's spring: "a point drawn by the stream at least 16 tiles from every edge". */
 export const SPRING_EDGE_MARGIN = 16;
+/** Stage 2: tiles of a river's path between its drinking steps. */
+export const DRINK_STEP_SPACING = 12;
 /** Stage 1 ridges: "one octave of period 40 … where the field lies within a fifth of its middle". */
 export const RIDGE_PERIOD = 40;
 /** Closeness to the field's middle (`Fixed`) above which a ridge rises. */

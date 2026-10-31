@@ -45,7 +45,10 @@ export function stageRamps(g: LocalGen): void {
         if (nx < 0 || ny < 0 || nx >= g.w || ny >= g.h) continue;
         const side = map.index(nx, ny, z);
         const top = map.index(nx, ny, z + 1);
-        if (map.kindAt(side) !== TileKind.Wall || map.kindAt(top) !== TileKind.Floor || map.fluidLevelAt(top) > 0) continue;
+        // On a drinking step the neighbour may already be a ramp: the step is walked its whole length.
+        const topKind = map.kindAt(top);
+        const leansOn = topKind === TileKind.Floor || (topKind === TileKind.Ramp && g.drinkStep[c] === 1);
+        if (map.kindAt(side) !== TileKind.Wall || !leansOn || map.fluidLevelAt(top) > 0) continue;
         map.kind[i] = TileKind.Ramp;
         map.flags[i] = (map.flags[i] as number) & ~TileFlag.Grass;
         break;
