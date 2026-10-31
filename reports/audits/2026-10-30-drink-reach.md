@@ -54,7 +54,7 @@ Multi-level lanes need every rise to be a ramp, and `stageRamps` skipped a floor
 | Reference | 11.5/5/5/130/5/0/0 | 45 / 27 / 58 |
 | Ramps fixed on all ground | 12.5/0/8/135/7/1/12 | 42 / 35 / 58 |
 
-`wildlife-taiga-1` starved out, and the golden `test-1|603` moved. Natural ground has nothing to do with this task, so the rule now applies only to the columns of a drinking step. The natural fault is real and its starvation is untraced: filed as [slopes of several steps](../../docs/work/T-454-slopes-of-several-steps.md).
+`wildlife-taiga-1` starved out, and the golden `test-1|603` moved. Natural ground has nothing to do with this task, so the rule now applies only to the columns of a drinking step. The natural fault is real and its starvation is untraced: filed as [slopes of several steps](../../docs/archive/tasks/T-454-slopes-of-several-steps.md).
 
 ## Gates
 

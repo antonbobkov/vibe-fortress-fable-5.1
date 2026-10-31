@@ -1,6 +1,8 @@
 # T-454 — A natural slope of several steps loses ramps by scan order
 
-**Source:** T-449, [the drink reach](../../reports/audits/2026-10-30-drink-reach.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-30, in e38316b.
+
+**Source:** T-449, [the drink reach](../../../reports/audits/2026-10-30-drink-reach.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

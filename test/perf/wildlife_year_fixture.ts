@@ -196,18 +196,19 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     for (let dy = 0; dy < height; dy += 1) for (let dx = 0; dx < width; dx += 1) tiles.push(map.index(x + dx, y + dy, atZ));
     return tiles;
   };
-  const zone = (zoneType: string, tiles: number[]): number => {
+  const zone = (zoneType: string, tiles: number[], need = 1): number => {
     // The UI's green-tile selection: keep only qualifying, unzoned tiles.
     const qualifying = (list: number[]): number[] => list.filter((at) => buildings.zoneTileQualifies(zoneType, at) && buildings.zoneAt(at) === 0);
     let selected = qualifying(tiles);
     // T-448: on relief the designed rectangle may lie on another level; the player draws the same
-    // rectangle at the nearest place within 12 tiles where most of it qualifies.
-    if (selected.length === 0 && tiles.length > 0) {
+    // rectangle at the nearest place within 12 tiles where most of it qualifies. `need` is how little
+    // of the rectangle the player settles for where it was drawn.
+    if (selected.length < need && tiles.length > 0) {
       const xs = tiles.map((t) => map.xOf(t)); const ys = tiles.map((t) => map.yOf(t));
       const x0 = Math.min(...xs); const y0 = Math.min(...ys); const tz = map.zOf(tiles[0]!);
       const width = Math.max(...xs) - x0 + 1; const height = Math.max(...ys) - y0 + 1;
       for (const level of [tz, tz - 1, tz + 1, tz - 2, tz + 2]) {
-        if (selected.length > 0) break;
+        if (selected.length >= need) break;
         let bestD = Number.MAX_SAFE_INTEGER;
         for (let dy = -12; dy <= 12; dy += 1) for (let dx = -12; dx <= 12; dx += 1) {
           if (x0 + dx < 1 || y0 + dy < 1 || x0 + dx + width >= map.w || y0 + dy + height >= map.h) continue;
@@ -220,8 +221,8 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     command({ type: 'CreateZone', zoneType, tiles: selected });
     return buildingSystem.lastCreatedZone;
   };
-  const plot = (tiles: number[], crop: string, seasons: number[]): number => {
-    const id = zone('farm_plot', tiles);
+  const plot = (tiles: number[], crop: string, seasons: number[], need = 1): number => {
+    const id = zone('farm_plot', tiles, need);
     game.step(1); // Same editor handshake as the browser opening.
     for (const season of seasons) command({ type: 'SetPlotCrop', zoneId: id, season, speciesId: crop });
     return buildings.zone(id)!.tiles.length;
@@ -298,8 +299,10 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   const pile = zone('stockpile', rect(wx + 3, wy + 2, 4, 4));
   game.step(1);
   command({ type: 'SetStockpileFilter', zoneId: pile, filter: 'everything' });
-  result.setup.surfacePlots.push(plot(rect(wx + 2, wy - 5, 4, 3), 'turnip', [0, 1, 2]));
-  result.setup.surfacePlots.push(plot(rect(wx + 6, wy - 5, 4, 3), 'barley', [0, 1]));
+  // T-454: a slope may leave little of a plot's rectangle farmable (ramps qualify for no plot); no
+  // player farms the one tile left, so a plot with under half its tiles moves as an empty one does.
+  result.setup.surfacePlots.push(plot(rect(wx + 2, wy - 5, 4, 3), 'turnip', [0, 1, 2], 6));
+  result.setup.surfacePlots.push(plot(rect(wx + 6, wy - 5, 4, 3), 'barley', [0, 1], 6));
   let sx = wx + 4;
   let sy = wy - 1;
   let found = false;

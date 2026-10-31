@@ -211,7 +211,6 @@ function cutDrinkingStep(g: LocalGen, from: Point, dx: number, dy: number, surfa
   for (let k = 0; k <= end; k += 1) {
     const c = lane[k] as number;
     g.heights[c] = floors[k] as number;
-    g.drinkStep[c] = 1;
     if (g.spec.relief > 0) g.bare[c] = 1;
   }
 }
