@@ -1,0 +1,49 @@
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { contentRegistry } from '@content/loader';
+import { LOCAL_MAP_Z } from '@core/constants';
+import { Map3D, TileFlag } from '@core/map3d';
+import { RngStream } from '@core/rng';
+import type { TerrainApi } from '@core/system';
+import { regionSpec } from '@app/headless';
+import { generateLocal } from '@systems/terrain/generate';
+import { COL_LAKE, COL_RIVER } from '@systems/terrain/generate/common';
+import { FluidSim } from '@systems/fluids';
+
+const OUT = '.vite/t449-settle.txt';
+const STEPS = Number(process.env['T449_STEPS'] ?? 20000);
+const RELIEF = Number(process.env['T449_RELIEF'] ?? 1) as 0 | 1 | 2 | 3;
+const SIZE = Number(process.env['T449_SIZE'] ?? 48);
+const SEEDS = (process.env['T449_SEEDS'] ?? 'three-years-p0-1,three-years-p0-2,three-years-p0-3,three-years-p0-4,three-years-p2-1,three-years-p2-2,three-years-p4-1,three-years-p4-2').split(',');
+
+describe('settle', () => { it('settle', () => {
+  writeFileSync(OUT, '');
+  const registry = contentRegistry();
+  for (const seed of SEEDS) {
+    const spec = regionSpec(seed, { peril: 0, wealth: 2, biome: 'temperate_forest', geology: 'mixed', traits: [], relief: RELIEF, river: { class: process.env['T449_CLASS'] ?? 'brook', inflow: ['w'], outflow: 's' } }, registry);
+    const map = new Map3D(SIZE, SIZE, LOCAL_MAP_Z);
+    const local = generateLocal(spec, map, registry);
+    const terrain: TerrainApi = { setKind: (i, k, m) => map.setKind(i, k, m), setFlag: (i, f: TileFlag, v) => map.setFlag(i, f, v), setDesignation: () => {} };
+    const sim = new FluidSim({ map, rng: RngStream.forStream(seed, '04'), terrain: () => terrain, blocksFluidAt: () => false, blocksFallAt: () => false, mudMaterial: () => true, obsidian: 0, entitiesAt: () => [], creatureSize: () => -1, emit: () => {} });
+    sim.scanSources(); sim.rescanDrained();
+    for (const s of [...local.sinks].sort((a, b) => a - b)) sim.sinks.push(s);
+    let wetTiles = 0;
+    for (let i = 0; i < map.tileCount; i += 1) if (map.fluidLevelAt(i) > 0 && map.zOf(i) > 22 ) { sim.touch(i); wetTiles += 1; }
+    const count = (): { dry1: number; dry4: number; river1: number; maxOver: number } => {
+      let dry1 = 0; let dry4 = 0; let river1 = 0; let maxOver = 0;
+      for (let y = 0; y < SIZE; y += 1) for (let x = 0; x < SIZE; x += 1) {
+        const c = y * SIZE + x; const wet = ((local.columns[c] as number) & (COL_RIVER | COL_LAKE)) !== 0;
+        const s = local.surface[c] as number;
+        for (let z = s; z < map.d; z += 1) { const l = map.fluidLevelAt(map.index(x, y, z)); if (l === 0) continue;
+          if (!wet) { dry1 += 1; if (l >= 4) dry4 += 1; maxOver = Math.max(maxOver, z); } else river1 += 1; }
+      }
+      return { dry1, dry4, river1, maxOver };
+    };
+    const lines = [`${seed} wet=${wetTiles} sources=${local.waterSources.length} sinks=${local.sinks.length}`];
+    for (let s = 1; s <= STEPS; s += 1) { sim.step(false); if (s === 100 || s === 1000 || s === 5000 || s === STEPS) lines.push(`  step ${s}: ${JSON.stringify(count())} active=${sim.activeCount()}`); }
+    if (process.env['T449_DUMP']) {
+      for (let y = 0; y < SIZE; y += 1) { let r = ''; for (let x = 0; x < SIZE; x += 1) { const c = y * SIZE + x; let top = 0; let lv = 0; for (let z = map.d - 1; z > 22; z -= 1) { const l = map.fluidLevelAt(map.index(x, y, z)); if (l > 0) { top = z; lv = l; break; } } r += (top ? `${top}.${lv}` : `${local.surface[c]}  `).padStart(5); } lines.push(r); }
+    }
+    appendFileSync(OUT, lines.join('\n') + '\n');
+  }
+}, 3_600_000); });

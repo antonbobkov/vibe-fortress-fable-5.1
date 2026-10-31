@@ -96,48 +96,63 @@ function onEdge(g: LocalGen, x: number, y: number, edge: Edge): boolean {
   return edge === 'n' ? y === 0 : edge === 's' ? y === g.h - 1 : edge === 'w' ? x === 0 : x === g.w - 1;
 }
 
-/**
- * Carve one path: every path tile and its width band (a square of side `width`) joins the river;
- * the bed of a band is the lowest surface in it minus the depth, and the water rises to one level
- * below that lowest surface. Where bands overlap the lower bed wins.
- */
-function carvePath(g: LocalGen, path: readonly Point[], cls: string, inflow: Edge | null, outflow: Edge | null, spring: Point | null = null): void {
+/** The columns of a path's width band (a square of side `width` around each path tile). */
+function bandColumns(g: LocalGen, path: readonly Point[], cls: string): Set<number> {
   const half = Math.floor((RIVER_WIDTH[cls] ?? 1) / 2);
-  const depth = RIVER_DEPTH[cls] ?? 1;
-  const original = Int16Array.from(g.heights);
-  const bed = new Int16Array(g.w * g.h).fill(0x7fff);
-  const top = new Int16Array(g.w * g.h);
+  const band = new Set<number>();
   for (const p of path) {
-    let low = 0x7fff;
     for (let dy = -half; dy <= half; dy += 1) {
       for (let dx = -half; dx <= half; dx += 1) {
         const x = p.x + dx;
         const y = p.y + dy;
-        if (x < 0 || y < 0 || x >= g.w || y >= g.h) continue;
-        low = Math.min(low, original[y * g.w + x] as number);
-      }
-    }
-    for (let dy = -half; dy <= half; dy += 1) {
-      for (let dx = -half; dx <= half; dx += 1) {
-        const x = p.x + dx;
-        const y = p.y + dy;
-        if (x < 0 || y < 0 || x >= g.w || y >= g.h) continue;
-        const c = y * g.w + x;
-        if (low - depth < (bed[c] as number)) {
-          bed[c] = low - depth;
-          top[c] = low;
-        }
+        if (x >= 0 && y >= 0 && x < g.w && y < g.h) band.add(y * g.w + x);
       }
     }
   }
-  for (let c = 0; c < bed.length; c += 1) {
-    const b = bed[c] as number;
-    if (b === 0x7fff) continue;
+  return band;
+}
+
+/** The columns of a lake's disc. */
+function discColumns(g: LocalGen, center: Point, radius: number): Set<number> {
+  const disc = new Set<number>();
+  for (let y = center.y - radius; y <= center.y + radius; y += 1) {
+    for (let x = center.x - radius; x <= center.x + radius; x += 1) {
+      if (x < 0 || y < 0 || x >= g.w || y >= g.h) continue;
+      if ((x - center.x) * (x - center.x) + (y - center.y) * (y - center.y) <= radius * radius) disc.add(y * g.w + x);
+    }
+  }
+  return disc;
+}
+
+/**
+ * The surface a map's water is held below: the lowest ground among the wet columns and the columns
+ * cardinally beside them, before any carving. All the map's water tops out one level under it, so
+ * every bank is a wall at the water's top and no step in the water lets a source feed a flood.
+ */
+function waterSurface(g: LocalGen, wet: Iterable<number>): number {
+  let low = 0x7fff;
+  for (const c of wet) {
     const x = c % g.w;
     const y = Math.floor(c / g.w);
-    if ((g.colFlags[c] as number) & (COL_RIVER | COL_LAKE) && (g.heights[c] as number) <= b) continue;
-    g.heights[c] = b;
-    g.waterTop[c] = top[c] as number;
+    low = Math.min(low, g.heights[c] as number);
+    if (x > 0) low = Math.min(low, g.heights[c - 1] as number);
+    if (x < g.w - 1) low = Math.min(low, g.heights[c + 1] as number);
+    if (y > 0) low = Math.min(low, g.heights[c - g.w] as number);
+    if (y < g.h - 1) low = Math.min(low, g.heights[c + g.w] as number);
+  }
+  return low;
+}
+
+/** Carve one path's band to `surface` minus the class depth; where bands overlap the lower bed wins. */
+function carvePath(g: LocalGen, band: ReadonlySet<number>, cls: string, surface: number, inflow: Edge | null, outflow: Edge | null, spring: Point | null = null): void {
+  const half = Math.floor((RIVER_WIDTH[cls] ?? 1) / 2);
+  const bed = surface - (RIVER_DEPTH[cls] ?? 1);
+  for (const c of band) {
+    const x = c % g.w;
+    const y = Math.floor(c / g.w);
+    if ((g.colFlags[c] as number) & (COL_RIVER | COL_LAKE) && (g.heights[c] as number) <= bed) continue;
+    g.heights[c] = bed;
+    g.waterTop[c] = surface;
     g.colFlags[c] = (g.colFlags[c] as number) | COL_RIVER;
     if (inflow !== null && onEdge(g, x, y, inflow)) g.colFlags[c] = (g.colFlags[c] as number) | COL_SOURCE;
     if (spring !== null && Math.abs(x - spring.x) <= half && Math.abs(y - spring.y) <= half) g.colFlags[c] = (g.colFlags[c] as number) | COL_SOURCE;
@@ -145,23 +160,13 @@ function carvePath(g: LocalGen, path: readonly Point[], cls: string, inflow: Edg
   }
 }
 
-/** A disc of radius r around the centre, carved two levels below each column's own surface. */
-function carveLake(g: LocalGen, center: Point, radius: number): void {
-  for (let y = center.y - radius; y <= center.y + radius; y += 1) {
-    for (let x = center.x - radius; x <= center.x + radius; x += 1) {
-      if (x < 0 || y < 0 || x >= g.w || y >= g.h) continue;
-      if ((x - center.x) * (x - center.x) + (y - center.y) * (y - center.y) > radius * radius) continue;
-      const c = y * g.w + x;
-      const surface = (g.colFlags[c] as number) & COL_RIVER ? (g.waterTop[c] as number) : (g.heights[c] as number);
-      const b = surface - LAKE_DEPTH;
-      if ((g.colFlags[c] as number) & COL_RIVER && (g.heights[c] as number) <= b) {
-        g.colFlags[c] = (g.colFlags[c] as number) | COL_LAKE;
-        continue;
-      }
-      g.heights[c] = b;
-      g.waterTop[c] = surface;
-      g.colFlags[c] = (g.colFlags[c] as number) | COL_LAKE;
-    }
+/** A disc carved two levels below `surface`. */
+function carveLake(g: LocalGen, disc: ReadonlySet<number>, surface: number): void {
+  const bed = surface - LAKE_DEPTH;
+  for (const c of disc) {
+    g.waterTop[c] = surface;
+    g.colFlags[c] = (g.colFlags[c] as number) | COL_LAKE;
+    if ((g.heights[c] as number) > bed) g.heights[c] = bed;
   }
 }
 
@@ -179,26 +184,33 @@ export function carvesLake(spec: Pick<LocalMapSpec, 'river' | 'lake'>): boolean 
  * Stage 2. A river's paths run from the midpoint of each inflow edge to the midpoint of the
  * outflow edge, or to the lake centre when it has none; a region with no inflow edge (the river's
  * source) has one path, from a spring drawn by the stream, whose tiles are the river's sources
- * (docs/04-implementation/algorithms/local-map-generation.md). A lake (the region's own, or the end of a river) is carved last.
+ * (docs/04-implementation/algorithms/local-map-generation.md). A lake (the region's own, or the end
+ * of a river) is carved last. The paths and the lake are drawn first, since together they set the
+ * one level all the water stands at.
  */
 export function stageRivers(g: LocalGen): void {
   const st = stageStream(g.s, 'terrain.rivers');
   const river = g.spec.river;
   const needsLake = carvesLake(g.spec);
   const center = needsLake ? lakeCenter(st, g.w, g.h) : null;
+  const carves: { band: Set<number>; inflow: Edge | null; spring: Point | null }[] = [];
   if (river !== null) {
     const target = river.outflowEdge !== null ? edgePoint(g.w, g.h, river.outflowEdge) : center;
     for (const inflow of river.inflowEdges) {
       if (target === null) break;
-      const path = wander(st, edgePoint(g.w, g.h, inflow), target, g.w, g.h);
-      carvePath(g, path, river.class, inflow, river.outflowEdge);
+      carves.push({ band: bandColumns(g, wander(st, edgePoint(g.w, g.h, inflow), target, g.w, g.h), river.class), inflow, spring: null });
     }
     if (river.inflowEdges.length === 0 && target !== null) {
       const spring = springPoint(st, g.w, g.h, river.outflowEdge);
-      carvePath(g, wander(st, spring, target, g.w, g.h), river.class, null, river.outflowEdge, spring);
+      carves.push({ band: bandColumns(g, wander(st, spring, target, g.w, g.h), river.class), inflow: null, spring });
     }
   }
-  if (center !== null) carveLake(g, center, st.int(LAKE_RADIUS_MIN, LAKE_RADIUS_MAX));
+  const disc = center !== null ? discColumns(g, center, st.int(LAKE_RADIUS_MIN, LAKE_RADIUS_MAX)) : null;
+  const wet = [...carves.flatMap((carve) => [...carve.band]), ...(disc ?? [])];
+  if (wet.length === 0) return;
+  const surface = waterSurface(g, wet);
+  for (const carve of carves) carvePath(g, carve.band, river?.class ?? '', surface, carve.inflow, river?.outflowEdge ?? null, carve.spring);
+  if (disc !== null) carveLake(g, disc, surface);
 }
 
 /**

@@ -1,0 +1,124 @@
+{
+ "note": "T-449 three_years_seeds at relief 1 with the river fix; each peril group run in its own process; a seed with no row stopped early.",
+ "relief1": {
+  "three-years-p0-1": {
+   "y3Pop": 14,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-2": {
+   "y3Pop": 66,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-3": {
+   "y3Pop": 69,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-4": {
+   "y3Pop": 0,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 8,
+    "starvation": 4
+   }
+  },
+  "three-years-p0-5": {
+   "y3Pop": 74,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-6": {
+   "y3Pop": 55,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 52,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 47,
+   "dwarfDeaths": 9,
+   "byCause": {
+    "bled_out": 5,
+    "killed": 3,
+    "infection": 1
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 0,
+   "dwarfDeaths": 17,
+   "byCause": {
+    "bled_out": 13,
+    "killed": 4
+   }
+  },
+  "three-years-p2-3": {
+   "y3Pop": 43,
+   "dwarfDeaths": 20,
+   "byCause": {
+    "bled_out": 15,
+    "killed": 5
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 10,
+    "killed": 4
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 10,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 7,
+    "killed": 3
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 11,
+    "killed": 3
+   }
+  },
+  "three-years-p4-2": {
+   "y3Pop": 49,
+   "dwarfDeaths": 21,
+   "byCause": {
+    "bled_out": 13,
+    "killed": 8
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 0,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 8,
+    "killed": 4
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 6,
+   "dwarfDeaths": 18,
+   "byCause": {
+    "bled_out": 12,
+    "killed": 6
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 45,
+   "byCause": {
+    "killed": 29,
+    "bled_out": 16
+   }
+  }
+ }
+}
