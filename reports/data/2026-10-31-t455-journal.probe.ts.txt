@@ -1,0 +1,141 @@
+/**
+ * T-455 probe (not committed; filed as reports/data/2026-10-31-t455-journal.probe.ts.txt). For the seeds of
+ * T455_SEEDS (seed:peril) at T455_RELIEF: whether a raider's walker can get from a map edge to the hall, with
+ * the gate's doors as they are and as if locked; when and where hostiles first come indoors; where each dwarf
+ * dies; the opening's milestones and supplies. Read-only: nothing here commands the game.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY, DAYS_PER_YEAR } from '@core/constants';
+import { TileFlag, TileKind } from '@core/map3d';
+import type { BuildingsReader } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const RELIEF = Number(process.env['T455_RELIEF'] ?? 1) as 0 | 1;
+const OUT = process.env['T455_OUT'] ?? `.vite/t455-r${RELIEF}.jsonl`;
+const SEEDS = (process.env['T455_SEEDS'] ?? 'three-years-p2-4:2').split(',').map((s) => s.split(':'));
+
+describe('T-455', () => {
+  it('journals', () => {
+    writeFileSync(OUT, '');
+    const log = (o: unknown): void => appendFileSync(OUT, JSON.stringify(o) + '\n');
+    for (const [seed, peril] of SEEDS) {
+      const w = threeYearsWorld(seed!, Number(peril), undefined, RELIEF);
+      const map = w.map; const ent = w.game.world.entities; const pathing = w.readers.pathing;
+      const state = setupThreeYearsFortress(w);
+      const species = w.game.registry.table<{ id: string }>('creatures');
+      const day = (): number => +(w.tick / TICKS_PER_DAY).toFixed(2);
+      const doors = [w.index(state.cx + 6, state.cy + 5, state.z), w.index(state.cx + 6, state.cy + 7, state.z)];
+      const gateStair = w.index(state.cx + 6, state.cy + 6, state.z);
+      const at = (t: number): number[] => [map.xOf(t), map.yOf(t), map.zOf(t)];
+      log({ seed, relief: RELIEF, t: 'setup', wagon: w.game.arrival!.wagon, gate: at(gateStair), hallZ: state.hallZ });
+
+      /** From the bottom of the stair outward: can a raider's walker reach a map edge, and through where? */
+      const seal = (lockDoors: boolean): unknown => {
+        const start = w.index(state.cx + 6, state.cy + 6, state.hallZ);
+        if (map.kindAt(start) === TileKind.Wall) return { dug: false };
+        const mover = { faction: 'hostile:t455' };
+        const parent = new Map<number, number>([[start, -1]]);
+        let frontier = [start];
+        let reached = -1;
+        let visited = 0;
+        while (frontier.length > 0 && reached < 0) {
+          const next: number[] = [];
+          for (const t of frontier) {
+            visited += 1;
+            const x = map.xOf(t); const y = map.yOf(t);
+            if (x === 0 || y === 0 || x === map.w - 1 || y === map.h - 1) { reached = t; break; }
+            for (const [to] of pathing.edges(t, 'walker', mover)) {
+              if (parent.has(to) || (lockDoors && doors.includes(to))) continue;
+              parent.set(to, t);
+              next.push(to);
+            }
+          }
+          frontier = next.sort((a, b) => a - b);
+        }
+        if (reached < 0) return { sealed: true, visited };
+        const path: number[] = [];
+        for (let t = reached; t >= 0; t = parent.get(t) ?? -1) path.push(t);
+        path.reverse();
+        const exit = path.find((t) => map.hasFlag(t, TileFlag.Outdoor));
+        const exitAt = exit === undefined ? -1 : path.indexOf(exit);
+        const before = exitAt > 0 ? path[exitAt - 1]! : -1;
+        return { sealed: false, viaGate: path.some((t) => doors.includes(t) || t === gateStair), steps: path.length, lastIndoor: before >= 0 ? { at: at(before), kind: map.kindAt(before) } : null, firstOutdoor: exit === undefined ? null : { at: at(exit), kind: map.kindAt(exit) }, edge: at(reached) };
+      };
+
+      const lastSeen = new Map<number, { at: number[]; indoor: boolean; beh: string; act: string }>();
+      const hostileIn = new Set<number>();
+      let hostilesLive = 0;
+      let alert = 'calm';
+      const sample = (): void => {
+        for (const id of ent.with(C.Labors)) {
+          const p = ent.get(id, C.Position); const b = ent.get(id, C.Brain);
+          if (p && b) { const t = map.index(p.x, p.y, p.z); lastSeen.set(id, { at: [p.x, p.y, p.z], indoor: !map.hasFlag(t, TileFlag.Outdoor), beh: b.behavior, act: b.activity }); }
+        }
+        hostilesLive = 0;
+        for (const id of ent.with(C.Creature)) {
+          const c = ent.get(id, C.Creature)!;
+          if (!String(c.faction).startsWith('hostile')) continue;
+          hostilesLive += 1;
+          const p = ent.get(id, C.Position);
+          if (!p || hostileIn.has(id)) continue;
+          const t = map.index(p.x, p.y, p.z);
+          if (p.z >= state.hallZ && !map.hasFlag(t, TileFlag.Outdoor) && map.kindAt(t) !== TileKind.Open) {
+            hostileIn.add(id);
+            log({ seed, t: 'hostile-in', day: day(), sp: species.byIndex(c.species)?.id, at: [p.x, p.y, p.z], kind: map.kindAt(t), alert, door: w.readers.of<BuildingsReader>('14').at(t) !== 0 });
+          }
+        }
+      };
+      w.game.world.onEvents((events) => {
+        sample();
+        for (const e of events) {
+          if (e.type === 'RaidArrived') log({ seed, t: 'raid', day: day(), kind: e['kind'], size: e['size'], pop: ent.with(C.Labors).length, armed: state.economy.armedDay ?? null, alert, seal: seal(false), sealLocked: seal(true) });
+          if (e.type === 'AlertChanged') { alert = String(e['to']); log({ seed, t: 'alert', day: day(), to: alert }); }
+          if (e.type === 'CreatureDied') {
+            const id = Number(e['id']);
+            const seen = lastSeen.get(id);
+            if (seen === undefined) continue;
+            const killer = ent.get(Number(e['killerId']), C.Creature);
+            log({ seed, t: 'death', day: day(), cause: e['cause'], killer: killer ? species.byIndex(killer.species)?.id : null, killerFaction: killer?.faction ?? null, ...seen, surface: seen.at[2]! >= state.z, alert, hostiles: hostilesLive });
+            lastSeen.delete(id);
+          }
+        }
+      });
+
+      const seen = new Set<string>();
+      const firsts: Record<string, number> = {};
+      const stock = ['ore', 'bar', 'anvil', 'log', 'raw_stone', 'stone_block', 'mail_shirt', 'short_sword', 'helm', 'shield', 'easy_meal'];
+      const end = 3 * DAYS_PER_YEAR * TICKS_PER_DAY;
+      let nextDay = 0;
+      let nextSeal = 0;
+      let extinct = false;
+      const step = (n: number): void => {
+        playThreeYears(w, state, n);
+        checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+        const d = day();
+        for (const p of state.economy.phases) if (!seen.has(p)) { seen.add(p); log({ seed, t: 'phase', day: d, phase: p }); }
+        const items = w.readers.of<ItemsReader>('13');
+        for (const name of stock) if (firsts[name] === undefined && items.count(name) > 0) { firsts[name] = d; log({ seed, t: 'first', day: d, item: name }); }
+        const b = w.readers.of<BuildingsReader>('14');
+        for (const [k, id] of Object.entries(state.placedIds)) { const key = `built:${k}`; if (!seen.has(key) && b.get(id)?.state === 'built') { seen.add(key); log({ seed, t: 'built', day: d, what: k }); } }
+        if (w.tick >= nextDay) {
+          nextDay = w.tick + 5 * TICKS_PER_DAY;
+          const movement = w.game.world.services.movement!;
+          const pop = ent.with(C.Labors);
+          const walking = pop.filter((id) => movement.walkTarget(id) >= 0).length;
+          const doorStates = [state.gateDoorId, state.gateDoorId2].map((id) => { const dd = b.get(id ?? 0) as unknown as { state?: string; locked?: boolean } | undefined; return dd ? `${dd.state}${dd.locked ? ':locked' : ''}` : 'none'; });
+          log({ seed, t: 'day', day: d, pop: pop.length, walking, logs: items.count('log'), ore: items.count('ore'), bars: items.count('bar'), stone: items.count('raw_stone'), blocks: items.count('stone_block'), food: items.count('plant_food') + items.count('easy_meal'), drink: items.count('drink'), doorStates, armed: state.economy.armedDay ?? null });
+        }
+        if (w.tick >= nextSeal) { nextSeal = w.tick + 28 * TICKS_PER_DAY; log({ seed, t: 'seal', day: d, seal: seal(false), sealLocked: seal(true) }); }
+      };
+      while (w.tick < 20 * TICKS_PER_DAY) step(Math.min(100, 20 * TICKS_PER_DAY - w.tick));
+      while (w.tick < end) {
+        if (ent.with(C.Labors).length === 0) { extinct = true; break; }
+        step(Math.min(300, end - w.tick));
+      }
+      log({ seed, t: 'end', day: day(), pop: ent.with(C.Labors).length, extinct, armed: state.economy.armedDay ?? null });
+    }
+  }, 14_400_000);
+});
