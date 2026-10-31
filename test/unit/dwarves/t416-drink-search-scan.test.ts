@@ -1,5 +1,6 @@
 /** T-416: the drink search reads the fluid bytes row by row and chooses exactly what the tile-by-tile scan chose. */
 import { describe, expect, it } from 'vitest';
+import { FLUID_WADE_LEVEL } from '@core/constants';
 import type { TickContext } from '@core/system';
 import { FLUID_FROZEN_BIT, FluidType, TileFlag, TileKind } from '@core/map3d';
 import type { TileIndex } from '@core/types';
@@ -42,7 +43,7 @@ function reference(ctx: TickContext, from: TileIndex, allowed: (t: TileIndex) =>
               if (sx < 0 || sx >= m.w || (sx === wx && sy === wy)) continue;
               const st = m.index(sx, sy, sz);
               const d = Math.max(Math.abs(sx - fx), Math.abs(sy - fy)) + Math.abs(sz - fz) * Z_DISTANCE_WEIGHT;
-              if (!reachable(from, st) || !allowed(st)) continue;
+              if (m.fluidLevelAt(st) >= FLUID_WADE_LEVEL || !reachable(from, st) || !allowed(st)) continue;
               if (d < bestDistance || (d === bestDistance && (best < 0 || st < best))) { best = st; bestDistance = d; }
             }
           }

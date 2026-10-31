@@ -19,7 +19,7 @@ import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
-import { avoidsFire, burnsNear, FIRE_FLEE_ACTIVITY, findFireRefuge, fireDanger } from './fire';
+import { avoidsFire, burnsNear, FIRE_FLEE_ACTIVITY, findFireRefuge, findWaterRefuge, fireDanger, WATER_FLEE_ACTIVITY, waterDanger } from './fire';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { HealthReader } from '@systems/health/reader';
@@ -558,17 +558,21 @@ function ranked(n: Needs, critical: boolean): NeedName[] {
 /**
  * `10` § Behavior selection step 1, fire: a dwarf that stands on a burning tile, or on burnable
  * ground beside one, drops what it is doing and walks to the nearest ground that cannot burn; it
- * selects again there. Returns whether the dwarf spent this tick on the flight.
+ * selects again there. Water that could drown it is the same flight, to the nearest dry tile.
+ * Returns whether the dwarf spent this tick on the flight.
  */
 function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): boolean {
   const movement = ctx.world.services.movement;
-  if (!ctx.readers.has('05') || movement === null) return false;
+  if (movement === null) return false;
   const here = movement.tileOf(id);
   if (here < 0) return false;
-  // A `flee` with no threat held is a flight from fire: a flight from a hostile ends when its threat does.
+  // A `flee` with no threat held is a flight from fire or water: a flight from a hostile ends when its threat does.
   const fleeing = b.behavior === 'flee' && host.threatOf(id) === 0;
-  const danger = fireDanger(ctx, here);
-  if (danger || fleeing) b.fireFlight = ctx.tick;
+  const burning = fireDanger(ctx, here);
+  const drowning = !burning && waterDanger(ctx.world.map, here, movement.walkTarget(id) >= 0);
+  const danger = burning || drowning;
+  const fromWater = drowning || (fleeing && !burning && b.activity === WATER_FLEE_ACTIVITY);
+  if (burning || (fleeing && b.activity === FIRE_FLEE_ACTIVITY)) b.fireFlight = ctx.tick;
   if (fleeing) {
     if (!danger && (b.targetTile < 0 || here === b.targetTile)) {
       b.behavior = 'idle';
@@ -577,9 +581,11 @@ function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): bo
       b.targetTile = here;
       return false;
     }
-    if (b.targetTile >= 0 && movement.walkTo(id, b.targetTile, 'flee', ctx) !== 'unreachable') return true;
+    // Water may have reached the refuge: then it searches again rather than stand there.
+    const reachedWet = fromWater && here === b.targetTile;
+    if (!reachedWet && b.targetTile >= 0 && movement.walkTo(id, b.targetTile, 'flee', ctx) !== 'unreachable') return true;
   } else if (!danger) return false;
-  const refuge = findFireRefuge(ctx, id, here);
+  const refuge = fromWater ? findWaterRefuge(ctx, id, here) : ctx.readers.has('05') ? findFireRefuge(ctx, id, here) : -1;
   if (refuge < 0) {
     if (!fleeing) return false;
     b.behavior = 'idle';
@@ -595,7 +601,7 @@ function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): bo
   }
   movement.stopWalking(id);
   b.behavior = 'flee';
-  b.activity = FIRE_FLEE_ACTIVITY;
+  b.activity = fromWater ? WATER_FLEE_ACTIVITY : FIRE_FLEE_ACTIVITY;
   b.targetTile = refuge;
   movement.walkTo(id, refuge, 'flee', ctx);
   return true;

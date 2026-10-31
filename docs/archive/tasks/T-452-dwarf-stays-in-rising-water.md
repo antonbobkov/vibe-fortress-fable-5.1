@@ -1,6 +1,8 @@
 # T-452 — A dwarf stays put while water rises around it
 
-**Source:** T-449, [the bank journal](../../reports/audits/2026-10-30-drowning-at-the-bank.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-10-30, in 3b3906d.
+
+**Source:** T-449, [the bank journal](../../../reports/audits/2026-10-30-drowning-at-the-bank.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

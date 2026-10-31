@@ -119,4 +119,4 @@ A staircase of channels was considered and rejected from the fluid rules; it was
 
 ## Left open
 
-The flood is gone, but a dwarf in water that rises around it still does not leave. A player's dam or channel can cause the same deaths. Filed as [a dwarf stays put in rising water](../../docs/work/T-452-dwarf-stays-in-rising-water.md).
+The flood is gone, but a dwarf in water that rises around it still does not leave. A player's dam or channel can cause the same deaths. Filed as [a dwarf stays put in rising water](../../docs/archive/tasks/T-452-dwarf-stays-in-rising-water.md).

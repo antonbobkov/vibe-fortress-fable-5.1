@@ -29,6 +29,8 @@ export const IDLE_TICKS = 50;
 export const DINING_SEARCH_RADIUS = 40;
 /** Tiles, horizontal Chebyshev from the dwarf: how far the drink search looks for water. */
 export const DRINK_SEARCH_RADIUS = 64;
+/** Tiles a dwarf leaving rising water searches for a dry one. */
+export const WATER_FLEE_NODE_LIMIT = 2048;
 /** A job at priority 1–2 is done before a want-level need. */
 export const NEED_DEFER_PRIORITY = 2;
 export const NEED_RETRY_TICKS = 50;
