@@ -69,10 +69,10 @@ const FIRST_BARRELS = 6;
 
 /** D-225: ordinary wealth-2 generation, compact dimensions for the long-running tests. */
 /**
- * T-448: the relief of the three-year regions. The median of temperate forest over twelve standard
- * worlds is 1, but the script does not yet play there (reports/audits/2026-10-30-instrument-relief.md).
+ * T-448: the relief of the three-year regions, the median of temperate forest over twelve standard
+ * worlds (reports/audits/2026-10-30-instrument-relief.md, reports/audits/2026-10-31-three-year-script-on-relief.md).
  */
-export const THREE_YEARS_RELIEF = 0;
+export const THREE_YEARS_RELIEF = 1;
 
 export function threeYearsWorld(seed: string, peril = 0, surfaceWildlife?: 'none', relief: 0 | 1 | 2 | 3 = THREE_YEARS_RELIEF): TestWorld {
   const registry = contentRegistry();

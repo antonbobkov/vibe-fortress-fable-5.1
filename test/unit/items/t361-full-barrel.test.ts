@@ -82,7 +82,8 @@ describe('T-361 drink in a barrel off any stockpile reaches a drink stockpile', 
   });
 
   it('on the three-year map, thirsty dwarves drink the brew from the stockpile and not the brook', () => {
-    const w = threeYearsWorld('three-years');
+    // Level ground: the test lays its pile and barrel out by hand at one level beside the wagon.
+    const w = threeYearsWorld('three-years', 0, undefined, 0);
     const ent = w.game.world.entities;
     const drink = w.game.registry.table('items').index('drink');
     for (const id of ent.with(C.Item).filter((i) => ent.get(i, C.Item)?.type === drink)) w.game.world.services.items?.destroy(id, 'consumed');

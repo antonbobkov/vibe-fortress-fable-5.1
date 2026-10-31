@@ -52,7 +52,8 @@ const scenario: Scenario = {
   world: { region: { wealth: 2, peril: 0, biome: 'temperate_forest', geology: 'mixed', traits: ['serene_vale'], river: { class: 'brook', inflow: ['w'], outflow: 's' } } },
   embark: 'default',
   run: () => {
-    const w = threeYearsWorld('three-years');
+    // T-451: level ground; this seed does not yet play on relief (reports/audits/2026-10-31-three-year-script-on-relief.md).
+    const w = threeYearsWorld('three-years', 0, undefined, 0);
     const state = setupThreeYearsFortress(w);
     // T-141: observe every tick without changing the fixture, its commands or world state.
     const fleeSince = new Map<number, number>();

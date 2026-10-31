@@ -66,22 +66,15 @@ export const THREE_YEARS_20_SEEDS: readonly SeedConfig[] = [
 ] as const;
 
 /**
- * Seeds whose "alive at the end of year 1" flips under changes that do not aim at them, so it is
- * printed and not asserted (testing-strategy.md § What may be a gate). p4-2: a day-37 fire burns
- * every medic and the day-67 raid finishes the rest; its year-1 outcome flipped four times in six
- * commits on 2026-10-21 and 22 (reports/audits/2026-10-22-p4-2-year-one.md,
- * reports/audits/2026-10-22-infection-roll-per-dwarf.md).
+ * The set rule (testing-strategy.md § What may be a gate): one seed's survival flips under changes
+ * that do not aim at it, so the file asserts survival over the whole set and each seed prints its own.
  */
-export const YEAR_ONE_FLIPS: ReadonlySet<string> = new Set(['three-years-p4-2']);
+export const SET_ALIVE_AT_YEAR_ONE = 18;
+export const SET_PERIL_ZERO_GROWN = 6;
+/** Founders: a peril-0 fortress has grown when it ends year 3 above this. */
+const EMBARK_SIZE = 7;
 
-/**
- * Peril-0 seeds whose "grew past embark size" flips under changes that do not aim at them, so it is
- * printed and not asserted (testing-strategy.md § What may be a gate). p0-2: boars settle by the gate
- * in year 3 and kill all nine of its dwarves at T-418, none at T-419; a corrected flight rule leaves
- * it 15 from day 0 and, with a second one, 0 from day 238 (reports/audits/2026-10-22-p0-2-three-years.md,
- * reports/audits/2026-10-22-boars-maul-p0-2.md).
- */
-export const GROWTH_FLIPS: ReadonlySet<string> = new Set(['three-years-p0-2']);
+const survival: { seed: string; peril: number; y1Pop: number; y3Pop: number }[] = [];
 
 export interface ThreeYearsSeedResult {
   readonly seed: string;
@@ -320,18 +313,15 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     // stills follow the population (85 starvation deaths in four seeds on 2026-10-12, before T-145),
     // and a peril-0 fortress ends above its seven founders (22 to 50 dwarves on 2026-10-12).
     expect(economy.needDeaths(), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
-    if (GROWTH_FLIPS.has(seed)) console.log(`[three_years_seeds] ${seed} living at the end of year 3: ${y3Pop} (printed, not asserted: this seed flips)`);
-    else expect(y3Pop, `${seed} (peril 0) grew past embark size`).toBeGreaterThan(7);
   }
+  // The file's set rule reads these. They come before the seed's assertions, so a seed that fails one
+  // is still counted as what it was.
+  survival.push({ seed, peril, y1Pop, y3Pop });
+  console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE })}`);
   // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
   // bedrooms, the squad; at perils 2 and 4 an alert raised and lowered, and a trade).
   console.log(`[three_years_seeds_script] ${JSON.stringify({ seed, accepted: Object.fromEntries(scriptRecord(w).accepted), rejected: Object.fromEntries(scriptRecord(w).rejected) })}`);
   if (y3Pop > 0) expect(fortressWitnesses(w, state, peril), `${seed} T-156 witnesses`).toEqual([]);
-  // Kept (T-156, under T-334's rule): every seed's fortress is alive at the end of its first year.
-  // "Not wiped out" is an outcome a reordering of jobs flips rarely (testing-strategy.md § What may
-  // be a gate), and a fortress dead in year 1 exercises nothing of years 2 and 3.
-  if (YEAR_ONE_FLIPS.has(seed)) console.log(`[three_years_seeds] ${seed} alive at the end of year 1: ${y1Pop} (printed, not asserted: this seed flips)`);
-  else expect(y1Pop, `${seed} alive at the end of year 1`).toBeGreaterThan(0);
   // Kept: rules of 21 Immigration, whatever the order of jobs.
   expect(y3Pop, `${seed} population within POPULATION_CAP_DEFAULT`).toBeLessThanOrEqual(POPULATION_CAP_DEFAULT);
   for (const wave of waves) {
@@ -346,5 +336,18 @@ describe('T-M8-06 perf: three_years_seeds', () => {
     const res = runThreeYearsSeed(seed, peril);
     const line = `[three_years_seeds] ${res.seed} (peril ${res.peril}): pop=${res.y3Pop} (Y1:${res.y1Pop}, Y2:${res.y2Pop}), wealth=${res.y3Wealth} (Y1:${res.y1Wealth}, Y2:${res.y2Wealth}), deaths(dwarf=${res.dwarfDeaths}, tame=${res.tameDeaths}), waves=${res.wavesCount} (+${res.totalImmigrants} dw), raids=${res.raidsCount}, meals=${res.mealsEaten}, drinks=${res.drinksDrunk}, moodAvg=${res.avgMood}, extinct=${res.extinctDay ?? 'none'}`;
     console.log(line);
+  });
+
+  // Runs last, over the seeds that reached their end of the file. A seed stopped early by an invariant
+  // fails on its own and counts here as neither alive nor grown.
+  it('as a set: nearly every fortress is alive at year 1, and nearly every peril-0 fortress grows', () => {
+    const alive = survival.filter((row) => row.y1Pop > 0);
+    const peril0 = survival.filter((row) => row.peril === 0);
+    const grown = peril0.filter((row) => row.y3Pop > EMBARK_SIZE);
+    const dead = survival.filter((row) => row.y1Pop <= 0).map((row) => row.seed);
+    const small = peril0.filter((row) => row.y3Pop <= EMBARK_SIZE).map((row) => row.seed);
+    console.log(`[three_years_seeds_set] ${JSON.stringify({ seeds: survival.length, alive: alive.length, grown: grown.length, dead, small })}`);
+    expect(alive.length, `alive at the end of year 1; dead: ${dead.join(', ')}`).toBeGreaterThanOrEqual(SET_ALIVE_AT_YEAR_ONE);
+    expect(grown.length, `peril 0 past embark size at year 3; not: ${small.join(', ')}`).toBeGreaterThanOrEqual(SET_PERIL_ZERO_GROWN);
   });
 });

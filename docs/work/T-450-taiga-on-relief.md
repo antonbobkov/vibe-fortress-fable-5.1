@@ -16,9 +16,9 @@ Journal taiga-2 and taiga-4 on relief: where the wolves come from, what the vict
 
 - The cause is in a dated report, with a fix or the decision it needs.
 
-## Re-read against the T-454 row
+## As done
 
-Closed without a separate journal: the figures that opened this task no longer hold.
+Closed on the figures, without a separate journal: those that opened this task no longer hold. The cause was not named, and the row is one run.
 
 | Taiga | Level maps | T-448, relief 1 | T-454, relief 1 |
 |---|---:|---:|---:|
