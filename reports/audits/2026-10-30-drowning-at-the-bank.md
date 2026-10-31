@@ -111,7 +111,7 @@ A staircase of channels was considered and rejected from the fluid rules; it was
   - p0-4: hunger, now 4 starved of 12 deaths, with the wagon's stall already in T-451;
   - p2-4, p2-6 and p4-4: T-176 unreachable jobs;
   - p4-3: extinct in year 1.
-- These belong to [the three-year script on relief](../../docs/work/T-451-three-year-script-on-relief.md) and [taiga on relief](../../docs/work/T-450-taiga-on-relief.md). None of them is a drowning.
+- These belong to [the three-year script on relief](../../docs/archive/tasks/T-451-three-year-script-on-relief.md) and [taiga on relief](../../docs/archive/tasks/T-450-taiga-on-relief.md). None of them is a drowning.
 
 **The annual instrument:** 11.5/5/5/130/5/0/0, identical to the reference, and allowed by the T-308 rule. Its twelve maps have no river, so this fix cannot reach them. It says nothing about the fix.
 

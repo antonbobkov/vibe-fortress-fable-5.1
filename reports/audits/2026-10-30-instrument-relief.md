@@ -41,7 +41,7 @@ From the twelve years at each relief ([probe](../data/2026-10-30-t448-deaths.pro
 
 - Pressure at the map's edge did not rise; the deaths come earlier and closer. In taiga-2, four dwarves die on days 4 to 13, about 30 tiles from the wagon, before the fixture's response starts on day 20. In taiga-4, six die 6 to 12 tiles from it on days 30 to 60.
 - The cave plots shrink in taiga, where the ground falls away from the stair: 18, 22, 30 and 26 tiles against 32. No dwarf starves (need deaths 0).
-- The journal does not say why the wolves get there sooner. Ramps, crags and flight paths remain candidates. Filed as T-NEW, [taiga on relief](../../docs/work/T-450-taiga-on-relief.md).
+- The journal does not say why the wolves get there sooner. Ramps, crags and flight paths remain candidates. Filed as T-NEW, [taiga on relief](../../docs/archive/tasks/T-450-taiga-on-relief.md).
 
 ## What changed in the fixtures
 
@@ -98,4 +98,4 @@ Wildlife does not cause this fall: 2 wildlife deaths against 6. Parties killed 1
 
 How much ground the wagon's walker label reaches does not change with relief (about 1,520 columns of 2,304 on level maps, 1,550 on relief 1, with about 230 in another label on both), so crags do not cut the map off.
 
-New rows: [drowning at the bank](../../docs/archive/tasks/T-449-drowning-at-the-bank.md), [the three-year script on relief](../../docs/work/T-451-three-year-script-on-relief.md), [taiga on relief](../../docs/work/T-450-taiga-on-relief.md). Data: [`2026-10-30-t448-sweep.json`](../data/2026-10-30-t448-sweep.json), probes `2026-10-30-t448-journal.probe.ts.txt`, `2026-10-30-t448-cutoff.probe.ts.txt` and `2026-10-30-t448-setup.probe.ts.txt`.
+New rows: [drowning at the bank](../../docs/archive/tasks/T-449-drowning-at-the-bank.md), [the three-year script on relief](../../docs/archive/tasks/T-451-three-year-script-on-relief.md), [taiga on relief](../../docs/archive/tasks/T-450-taiga-on-relief.md). Data: [`2026-10-30-t448-sweep.json`](../data/2026-10-30-t448-sweep.json), probes `2026-10-30-t448-journal.probe.ts.txt`, `2026-10-30-t448-cutoff.probe.ts.txt` and `2026-10-30-t448-setup.probe.ts.txt`.

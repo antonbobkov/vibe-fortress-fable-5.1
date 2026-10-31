@@ -1,5 +1,7 @@
 # T-448 — The annual instrument's maps are relief 0, which no real map is
 
+**Closed:** 2026-10-31, in 07f36b9.
+
 **Source:** T-436 · **Size:** M · **Needs:** T-436 · **Status:** open
 
 ## Why

@@ -11,7 +11,7 @@ import type { PlantsReader } from '@systems/plants';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { TradeReader } from '@systems/trade/reader';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
-import { type FortressState } from './three_years_fortress';
+import { onWagonSide, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
 import { command } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
@@ -376,14 +376,29 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
   const others = type === 'trade_depot' ? Object.values(state.placedIds).flatMap((id) => buildings.get(id)?.footprint ?? []) : [];
   const crowdsDepot = (tile: number): boolean => others.some((o) =>
     Math.max(Math.abs(w.map.xOf(o) - w.map.xOf(tile)), Math.abs(w.map.yOf(o) - w.map.yOf(tile))) <= DEPOT_CLEARANCE);
-  const origin = candidates.find((t) => {
+  const fits = (t: number): boolean => {
     const ghost = buildings.ghost(type, t, 0);
     return ghost.reason === null && ghost.tiles.every((tile) => buildings.zoneAt(tile) === 0 && !nearDepot(tile) && !crowdsDepot(tile) && !keptClear(w, state, tile) &&
       !w.game.world.entities.with(C.Creature).some((id) => {
         const p = w.game.world.entities.get(id, C.Position);
         return p && w.index(p.x, p.y, p.z) === tile;
       }));
-  });
+  };
+  let origin = candidates.find(fits);
+  // T-451: a small plateau has no room at the fortress's level; the next surface level the dwarves
+  // can walk to takes the workshop. On level ground no column's surface lies on another level.
+  if (origin === undefined) {
+    const elsewhere: number[] = [];
+    for (let y = 2; y <= w.map.h - 4; y += 1) for (let x = 2; x <= w.map.w - 4; x += 1) {
+      const top = w.map.columnSurfaceZ(x, y);
+      if (top !== state.z && onWagonSide(w, w.index(x, y, top))) elsewhere.push(w.index(x, y, top));
+    }
+    elsewhere.sort((a, b) => {
+      const distance = (t: number): number => Math.abs(w.map.xOf(t) - state.cx - dx) + Math.abs(w.map.yOf(t) - state.cy - dy) + 4 * Math.abs(w.map.zOf(t) - state.z);
+      return distance(a) - distance(b) || a - b;
+    });
+    origin = elsewhere.find(fits);
+  }
   if (origin === undefined) return;
   const result = command(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority });
   if (result.ok) {
@@ -399,6 +414,22 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
       if (trees.size) command(w, { type: 'Designate', kind: 'chop', tiles: [...trees], priority: ROUTINE });
     }
     if (b.footprint.length === 9 && type !== 'trade_depot') {
+      // T-451: with its corners forbidden a site is entered by its four sides; where trees close
+      // them all, the builder and anything lying on the site are shut out, so the ring is felled.
+      const edge = [1, 3, 5, 7].map((i) => b.footprint[i]!);
+      const outward = [[0, -1], [-1, 0], [1, 0], [0, 1]] as const;
+      const open = edge.some((tile, k) => {
+        const out = w.map.offset(tile, outward[k]![0], outward[k]![1], 0);
+        return out >= 0 && w.readers.pathing.passable(out, 'walker');
+      });
+      if (!open) {
+        const ring = new Set<number>();
+        for (const tile of b.footprint) for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+          const t = w.map.offset(tile, dx, dy, 0);
+          if (t >= 0 && w.map.kindAt(t) === TileKind.Tree) ring.add(t);
+        }
+        if (ring.size) command(w, { type: 'Designate', kind: 'chop', tiles: [...ring], priority: ROUTINE });
+      }
       command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
       state.economy.phases.add(`traffic:${key}`);
     }

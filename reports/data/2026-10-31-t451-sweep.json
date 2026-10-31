@@ -1,0 +1,290 @@
+{
+ "note": "T-451 three_years_seeds on the changed script; each peril group in its own process. relief1: THREE_YEARS_RELIEF 1. relief0: the committed value.",
+ "relief1": {
+  "three-years-p0-1": {
+   "y3Pop": 26,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-2": {
+   "y3Pop": 71,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-3": {
+   "y3Pop": 46,
+   "dwarfDeaths": 1,
+   "byCause": {
+    "bled_out": 1
+   }
+  },
+  "three-years-p0-4": {
+   "y3Pop": 53,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-5": {
+   "y3Pop": 65,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-6": {
+   "y3Pop": 57,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 52,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 44,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 8,
+    "killed": 2
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 7,
+    "killed": 7
+   }
+  },
+  "three-years-p2-3": {
+   "y3Pop": 0,
+   "dwarfDeaths": 27,
+   "byCause": {
+    "bled_out": 23,
+    "killed": 4
+   }
+  },
+  "three-years-p2-4": {
+   "y3Pop": 0,
+   "dwarfDeaths": 20,
+   "byCause": {
+    "bled_out": 16,
+    "killed": 4
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "killed": 2,
+    "bled_out": 12
+   }
+  },
+  "three-years-p2-6": {
+   "y3Pop": 12,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 11,
+    "killed": 1
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 27,
+   "dwarfDeaths": 17,
+   "byCause": {
+    "killed": 5,
+    "bled_out": 10,
+    "starvation": 2
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 0,
+   "dwarfDeaths": 22,
+   "byCause": {
+    "bled_out": 16,
+    "killed": 6
+   }
+  },
+  "three-years-p4-2": {
+   "y3Pop": 38,
+   "dwarfDeaths": 20,
+   "byCause": {
+    "bled_out": 19,
+    "killed": 1
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 0,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 8,
+    "killed": 4
+   }
+  },
+  "three-years-p4-4": {
+   "y3Pop": 0,
+   "dwarfDeaths": 22,
+   "byCause": {
+    "bled_out": 7,
+    "killed": 15
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 40,
+   "dwarfDeaths": 6,
+   "byCause": {
+    "bled_out": 4,
+    "killed": 2
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 29,
+   "byCause": {
+    "bled_out": 10,
+    "killed": 19
+   }
+  }
+ },
+ "relief0": {
+  "three-years-p0-1": {
+   "y3Pop": 59,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-2": {
+   "y3Pop": 40,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-3": {
+   "y3Pop": 47,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-4": {
+   "y3Pop": 73,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-5": {
+   "y3Pop": 54,
+   "dwarfDeaths": 1,
+   "byCause": {
+    "bled_out": 1
+   }
+  },
+  "three-years-p0-6": {
+   "y3Pop": 32,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 80,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 51,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 4
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 36,
+   "dwarfDeaths": 16,
+   "byCause": {
+    "killed": 5,
+    "bled_out": 11
+   }
+  },
+  "three-years-p2-3": {
+   "y3Pop": 43,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "killed": 1,
+    "bled_out": 3
+   }
+  },
+  "three-years-p2-4": {
+   "y3Pop": 48,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 3,
+    "killed": 1
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 65,
+   "dwarfDeaths": 1,
+   "byCause": {
+    "killed": 1
+   }
+  },
+  "three-years-p2-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 13,
+   "byCause": {
+    "bled_out": 10,
+    "killed": 3
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 65,
+   "dwarfDeaths": 8,
+   "byCause": {
+    "bled_out": 8
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 57,
+   "dwarfDeaths": 3,
+   "byCause": {
+    "bled_out": 2,
+    "killed": 1
+   }
+  },
+  "three-years-p4-2": {
+   "y3Pop": 28,
+   "dwarfDeaths": 25,
+   "byCause": {
+    "infection": 1,
+    "killed": 8,
+    "bled_out": 16
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 15,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 4
+   }
+  },
+  "three-years-p4-4": {
+   "y3Pop": 53,
+   "dwarfDeaths": 6,
+   "byCause": {
+    "killed": 2,
+    "bled_out": 4
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 21,
+   "dwarfDeaths": 6,
+   "byCause": {
+    "bled_out": 2,
+    "killed": 4
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 51,
+   "byCause": {
+    "killed": 20,
+    "infection": 2,
+    "bled_out": 29
+   }
+  }
+ }
+}

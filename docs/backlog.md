@@ -11,9 +11,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-448 | [The annual instrument's maps are relief 0, which no real map is](work/T-448-instrument-relief.md) | T-436 | T-449, T-451 | open |
-| T-450 | [Taiga loses most on relief: wolves reach the camp earlier](work/T-450-taiga-on-relief.md) | T-448's measurements | — | open |
-| T-451 | [The three-year script does not yet play on relief](work/T-451-three-year-script-on-relief.md) | T-448's measurements | T-449 | open |
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
+| T-455 | [Perils 2 and 4 are far harder on relief](work/T-455-peril-two-on-relief.md) | T-451's sweep | — | open |
+| T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

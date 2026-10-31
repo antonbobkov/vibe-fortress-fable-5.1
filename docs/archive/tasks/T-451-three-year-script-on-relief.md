@@ -1,6 +1,8 @@
 # T-451 — The three-year script does not yet play on relief
 
-**Source:** T-448, [the sweep on relief 1](../../reports/audits/2026-10-30-instrument-relief.md) · **Size:** M · **Needs:** the drowning row · **Status:** open
+**Closed:** 2026-10-31, in 07f36b9.
+
+**Source:** T-448, [the sweep on relief 1](../../../reports/audits/2026-10-30-instrument-relief.md) · **Size:** M · **Needs:** the drowning row · **Status:** open
 
 ## Why
 
@@ -17,3 +19,7 @@ Fell trees on every surface level the dwarves reach and keep moved zones on the 
 ## Done
 
 - The twenty-seed file plays at relief 1, with its rows in a dated report.
+
+## As done
+
+The script's faults are fixed ([report](../../../reports/audits/2026-10-31-three-year-script-on-relief.md)). `THREE_YEARS_RELIEF` is 1, and the reference row is 226 deaths and 531 living, against 158 and 867 on level maps. `three-years-p4-3` still dies out on day 78: by the owner's decision the named exemptions are replaced by one rule over the set (testing-strategy.md § What may be a gate), and p4-3 spends its allowance.

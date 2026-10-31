@@ -375,7 +375,8 @@ export function playDefenceYear(options: DefenceYearOptions = {}): { w: TestWorl
   const { ticks = DEFENCE_YEAR_TICKS, observe, until, watch } = options;
   // The defences are tested against the parties that 18 sends. Natural surface arrivals are left
   // out, as in `hospital_run`: which dwarf a boar kills is not what the assertions are about.
-  const w = threeYearsWorld('defence-year', 2, 'none');
+  // T-451: level ground; its corridor and walls are laid out by hand at fixed tiles.
+  const w = threeYearsWorld('defence-year', 2, 'none', 0);
   const fortress = setupThreeYearsFortress(w);
   const state = createDefenceYear(w, fortress);
   observe?.(w, state);
