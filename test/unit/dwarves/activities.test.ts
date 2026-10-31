@@ -84,7 +84,7 @@ describe('T-M4-06 activities', () => {
     const bare = new TestWorld({ seed: 'm4-water', world: 'flat-test', embark: 'none' });
     const start = bare.index(12, 12, Z);
     const b = bare.spawnDwarf({ at: start });
-    bare.setFluid(bare.index(13, 12, Z), 1, 'water', true);
+    bare.setFluid(bare.index(13, 12, Z), 1, 'water');
     bare.setNeed(b, 'thirst', 55);
     bare.step(1);
     expect(bare.dwarves.activities.plans.get(b)?.target).toBe(start);

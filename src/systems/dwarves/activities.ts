@@ -1,7 +1,7 @@
 /** `10-dwarves.md` §§ Eating and drinking, Sleeping, Social, comfort, joy;
  * `algorithms/creature-brains.md` § startNeed. Plans are saved by 10. */
 import { C, type Brain, type Needs, type Relationships } from '@core/components';
-import { NEED_MAX, TICKS_PER_HOUR } from '@core/constants';
+import { FLUID_WADE_LEVEL, NEED_MAX, TICKS_PER_HOUR } from '@core/constants';
 import { FLUID_FROZEN_BIT, FLUID_LEVEL_MASK, FLUID_TYPE_BIT, TileFlag, TileKind } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
@@ -220,7 +220,8 @@ export function water(ctx: TickContext, from: TileIndex, allowed: (tile: TileInd
               const sTile = m.index(sx, sy, sz);
               const d = Math.max(Math.abs(sx - fx), Math.abs(sy - fy)) + Math.abs(sz - fz) * Z_DISTANCE_WEIGHT;
               if (d > bestDistance || (d === bestDistance && best >= 0 && sTile >= best)) continue;
-              if (!reachable(ctx, from, sTile) || !allowed(sTile)) continue;
+              // A dwarf does not stay in water it would leave (§ Behavior selection, step 1).
+              if (m.fluidLevelAt(sTile) >= FLUID_WADE_LEVEL || !reachable(ctx, from, sTile) || !allowed(sTile)) continue;
               if (d < bestDistance || (d === bestDistance && (best < 0 || sTile < best))) {
                 best = sTile;
                 bestDistance = d;

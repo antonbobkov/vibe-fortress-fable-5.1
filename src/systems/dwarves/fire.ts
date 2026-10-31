@@ -1,17 +1,67 @@
 /**
- * Fire and the dwarf brain (`10` § Behavior selection, step 1): a dwarf that stands on a burning
- * tile, or on burnable ground beside one, leaves for the nearest ground that cannot burn.
+ * Fire, rising water and the dwarf brain (`10` § Behavior selection, step 1): a dwarf that stands on
+ * a burning tile, or on burnable ground beside one, leaves for the nearest ground that cannot burn;
+ * one in water that could drown it leaves for the nearest dry tile.
  */
 import { C } from '@core/components';
-import { TileFlag } from '@core/map3d';
+import { FLUID_DEEP_LEVEL, FLUID_WADE_LEVEL } from '@core/constants';
+import { FluidType, TileFlag } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { MaterialsReader } from '@systems/materials/reader';
 import type { Map3D } from '@core/map3d';
-import { FIRE_AVOID_RADIUS, FIRE_AVOID_TICKS, FIRE_FLEE_NODE_LIMIT } from './constants';
+import { FIRE_AVOID_RADIUS, FIRE_AVOID_TICKS, FIRE_FLEE_NODE_LIMIT, WATER_FLEE_NODE_LIMIT } from './constants';
 
 /** The activity text of a dwarf running from a fire (its `flee` behaviour with no threat held). */
 export const FIRE_FLEE_ACTIVITY = 'Fleeing the fire';
+
+/** The activity text of a dwarf walking out of rising water. */
+export const WATER_FLEE_ACTIVITY = 'Leaving the water';
+
+/**
+ * Whether a dwarf at `tile` must leave the water it stands in (`10` § Behavior selection): deep water
+ * always; water at wading depth when it has stopped there, since the next rise would drown it. A
+ * dwarf walking through wading water is on its way out of it already.
+ */
+export function waterDanger(map: Map3D, tile: TileIndex, walking: boolean): boolean {
+  if (map.fluidFrozenAt(tile) || map.fluidTypeAt(tile) !== FluidType.Water) return false;
+  const level = map.fluidLevelAt(tile);
+  return level >= FLUID_DEEP_LEVEL || (level >= FLUID_WADE_LEVEL && !walking);
+}
+
+/**
+ * The nearest tile the dwarf reaches with no water on it, by legal steps, breadth first within
+ * `WATER_FLEE_NODE_LIMIT` tiles, ties by tile index. With none in reach, the nearest tile below
+ * wading depth; -1 when the search finds neither.
+ */
+export function findWaterRefuge(ctx: TickContext, id: EntityId, from: TileIndex): TileIndex {
+  const map = ctx.world.map;
+  const creature = ctx.world.entities.get(id, C.Creature);
+  const mover = { faction: creature?.faction, size: creature?.sizeClass };
+  let frontier = [from];
+  const seen = new Set([from]);
+  let visited = 0;
+  let fallback = -1;
+  while (frontier.length > 0 && visited < WATER_FLEE_NODE_LIMIT) {
+    const next: TileIndex[] = [];
+    for (const tile of frontier) {
+      if (visited >= WATER_FLEE_NODE_LIMIT) break;
+      visited += 1;
+      if (tile !== from) {
+        const level = map.fluidLevelAt(tile);
+        if (level === 0) return tile;
+        if (fallback < 0 && level < FLUID_WADE_LEVEL) fallback = tile;
+      }
+      for (const [to] of ctx.readers.pathing.edges(tile, 'walker', mover)) {
+        if (seen.has(to)) continue;
+        seen.add(to);
+        next.push(to);
+      }
+    }
+    frontier = next.sort((a, b) => a - b);
+  }
+  return fallback;
+}
 
 /**
  * Whether a dwarf standing at `tile` is in danger from fire: the tile burns, or it can burn and a
