@@ -15,3 +15,24 @@ Journal taiga-2 and taiga-4 on relief: where the wolves come from, what the vict
 ## Done
 
 - The cause is in a dated report, with a fix or the decision it needs.
+
+## Re-read against the T-454 row
+
+Closed without a separate journal: the figures that opened this task no longer hold.
+
+| Taiga | Level maps | T-448, relief 1 | T-454, relief 1 |
+|---|---:|---:|---:|
+| Median | 9.5 | 6 | 12 |
+| Sum of the living | 38 | 27 | 48 |
+| Worst seed | 6 | 5 | 11 |
+| Years free of wildlife deaths | 2 | 0 | 3 |
+| Dwarf deaths | 11 | 22 | 1 |
+| First dwarf death, by day | 56 | 4 | 89 |
+| Wolf spawns | 38 | 49 | 42 |
+| Cave tiles, least | 32 | 18 | 26 |
+
+Wolves still come in the same numbers, and they no longer reach the camp early enough to matter: taiga has one death in the year, on day 89. Its median, sum, worst seed and wildlife-free years are now above level maps, and its cave is still smaller.
+
+Two things remain unknown or uneasy. The cause was never named: the gain came only with T-454's slopes and its plot rule together, and this does not say how a walkable slope changes wolf deaths. And this is one deterministic run, so the next change to the timeline may move it. The instrument's guards will show that (median 12, sum 136). Food is the tighter figure now: `wildlife-taiga-1` logs 71 `Starving` events, though none die.
+
+Rows: [T-454](../../reports/data/2026-10-30-t454-wildlife.json), [T-448](../../reports/data/2026-10-30-t448-wildlife.json), [level maps](../../reports/data/2026-10-24-t446-wildlife.json).
