@@ -20,13 +20,19 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
        disc: h[q] = max(h[q], h[c] + max(1, round(peak * (1 - d/(r+1))))); rocky.add(q); ring r+1..r+2: scree.add
   // 2. rivers and lakes (carve before layers so beds get stone)
   riverTiles = set(); st = stream(S, 'terrain.rivers')
+  // draw every path and the lake first; carve once all of them are known, since they share one water surface
   if spec.river: for each inflow edge: path = wander(st, midpoint(inflow), spec.river.outflowEdge ? midpoint(outflow) : lakeCenter(st))
        width = {brook:1, river:3, major:5}[class]; depth = {brook:1, river:2, major:2}[class]
-       for each path tile p and its width-band tiles q: riverTiles.add(q); h[q] = min over band of h - depth (bed level); sourceEdge/sinkEdge marks kept
-  if spec.lake or lake created: center = lakeCenter; radius = st.int(6,12); for tiles within radius (plain disc, no edge jitter): lakeTiles.add; h[q] = h - 2
+       for each path tile p and its width-band tiles q: riverTiles.add(q); sourceEdge/sinkEdge marks kept
+  if spec.lake or lake created: center = lakeCenter; radius = st.int(6,12); for tiles within radius (plain disc, no edge jitter): lakeTiles.add
   lakeCenter(st): uniform centre where radius 12 fits inside the map
   if spec.river and no inflow edge: spring = st point SPRING_EDGE_MARGIN from every edge, in the half away from the outflow edge (if any)
        path = wander(st, spring, outflow midpoint or lakeCenter); carved as above; the spring's band columns → SOURCE
+  waterSurface = min of h over the dry tiles cardinally beside riverTiles and lakeTiles
+  for q in riverTiles: h[q] = waterSurface - depth; for q in lakeTiles: h[q] = min(h[q], waterSurface - 2); waterTop[q] = waterSurface
+  for each path, at i = floor(DRINK_STEP_SPACING/2), then every DRINK_STEP_SPACING: step(path[i], each way across the path); for a lake: step(center, each cardinal way)
+  step(p, d): from p along d to the first dry tile, then k = 0, 1, ...: rise = waterSurface + k; stop at the tile with h <= rise; off the map or at water: no step
+       h[lane k] = min(rise, h[end] + end - k); from relief 1 lane tiles and the end grow nothing and hold no boulder
   wander(st, from, to): walk with steps toward `to` 70% / perpendicular 30%, never leaving the map, until reaching `to`
   // 3. columns: soil, rock layers, magma sea
   st = stream(S, 'terrain.layers')
@@ -43,7 +49,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
       else if z > top: kind=Open
       else if z > top - soilDepth: kind=Wall, material = soilMaterial or pick(biome.soil by weight, stream 'terrain.soil')
       else: kind=Wall, material = layerAt(stack, top - soilDepth - z + undulation)
-    surface tile (x,y,top): if in riverTiles or lakeTiles: kind of bed tile = Floor of the stone below; fill z from the bed tile through waterTop-1 with water 7 (waterTop is the band's lowest original surface, or the lake column's original surface); edge tiles of inflow and the spring's band → SOURCE; outflow → sink list
+    surface tile (x,y,top): if in riverTiles or lakeTiles: kind of bed tile = Floor of the stone below; fill z from the bed tile through waterTop-1 with water 7 (waterTop is the map's waterSurface); edge tiles of inflow and the spring's band → SOURCE; outflow → sink list
     else: kind(x,y,top) = Floor (the column's top solid becomes the walkable surface: i.e. set tile at z=top to Floor with its material; tiles above Open)
   progress('layers')
   // 4. caverns

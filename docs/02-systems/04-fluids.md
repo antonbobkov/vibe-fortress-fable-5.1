@@ -88,7 +88,7 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 
 ### Sources and sinks in play
 
-- River inflow tiles and a river's spring refill each step; outflow tiles drain. A river dammed by constructions floods its banks until the water finds another way or the player opens a channel.
+- River inflow tiles and a river's spring refill each step; outflow tiles drain. Generation holds all of a map's water at one level below its banks (03 § Local map generation), so a running river stays in its bed. A river dammed by constructions floods its banks until the water finds another way or the player opens a channel.
 - The Sea of Fire is all sources. A channel from it upward carries magma by pressure to the level of the sea's surface (`MAGMA_SEA_TOP_Z`); magma cannot rise higher on its own, which is why magma forges must be built near the bottom or a pump is needed (pumps are not in version 1; players bring the forge to the magma).
 - Volcano pipes are source columns up to the surface, so magma at the surface is at the pipe's level and can be channeled sideways.
 

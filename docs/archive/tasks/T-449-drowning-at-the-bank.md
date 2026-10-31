@@ -1,6 +1,8 @@
 # T-449 — Dwarves drown at the bank on maps with relief
 
-**Source:** T-448, [the sweep on relief 1](../../reports/audits/2026-10-30-instrument-relief.md) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first; comes first of T-448's rows)
+**Closed:** 2026-10-30, in 9495380 and 183d294.
+
+**Source:** T-448, [the sweep on relief 1](../../../reports/audits/2026-10-30-instrument-relief.md) · **Size:** M · **Needs:** — · **Status:** open (diagnosis first; comes first of T-448's rows)
 
 ## Why
 

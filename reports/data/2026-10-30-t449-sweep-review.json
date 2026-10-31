@@ -1,0 +1,117 @@
+{
+ "note": "T-449 three_years_seeds at relief 1 with the review fixes: one bank at drinking height and drinking steps; each peril group in its own process; a seed with no row stopped early.",
+ "relief1": {
+  "three-years-p0-1": {
+   "y3Pop": 14,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-2": {
+   "y3Pop": 71,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-3": {
+   "y3Pop": 63,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-4": {
+   "y3Pop": 8,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "infection": 1,
+    "bled_out": 3
+   }
+  },
+  "three-years-p0-5": {
+   "y3Pop": 72,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-6": {
+   "y3Pop": 75,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 80,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 44,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 8,
+    "killed": 2
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 11,
+    "killed": 3
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 0,
+   "dwarfDeaths": 14,
+   "byCause": {
+    "bled_out": 12,
+    "killed": 2
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 33,
+   "dwarfDeaths": 6,
+   "byCause": {
+    "bled_out": 4,
+    "killed": 2
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 0,
+   "dwarfDeaths": 20,
+   "byCause": {
+    "killed": 7,
+    "bled_out": 13
+   }
+  },
+  "three-years-p4-2": {
+   "y3Pop": 0,
+   "dwarfDeaths": 42,
+   "byCause": {
+    "killed": 4,
+    "bled_out": 35,
+    "infection": 2,
+    "starvation": 1
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 0,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "killed": 6,
+    "bled_out": 6
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 48,
+   "dwarfDeaths": 19,
+   "byCause": {
+    "bled_out": 14,
+    "killed": 5
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 0,
+   "dwarfDeaths": 41,
+   "byCause": {
+    "killed": 21,
+    "bled_out": 20
+   }
+  }
+ }
+}

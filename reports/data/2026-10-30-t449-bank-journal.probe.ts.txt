@@ -1,0 +1,78 @@
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileKind } from '@core/map3d';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const OUT = process.env['T449_OUT'] ?? '.vite/t449-bank.jsonl';
+const SEED = process.env['T449_SEED'] ?? 'three-years-p0-2';
+const PERIL = Number(process.env['T449_PERIL'] ?? 0);
+const DAYS = Number(process.env['T449_DAYS'] ?? 340);
+const X0 = 8, X1 = 22, Y0 = 26, Y1 = 36, Z0 = 30, Z1 = 32;
+
+describe('T-449 bank', () => {
+  it('journals', () => {
+    writeFileSync(OUT, '');
+    const log = (o: unknown): void => appendFileSync(OUT, JSON.stringify(o) + '\n');
+    const w = threeYearsWorld(SEED, PERIL, undefined, 1);
+    const map = w.map; const ent = w.game.world.entities;
+    // The T-448 survey, kept so the run takes the same timeline as that journal.
+    const wagon = w.game.arrival!.wagon;
+    const label = w.readers.pathing.labelOf(map.index(wagon.x, wagon.y, wagon.z), 'walker');
+    const surface = (x: number, y: number): number => { for (let z = map.d - 1; z >= 0; z -= 1) { const k = map.kindAt(map.index(x, y, z)); if (k !== TileKind.Open) return z; } return -1; };
+    let reach = 0;
+    for (let y = 0; y < map.h; y += 1) for (let x = 0; x < map.w; x += 1) { const z = surface(x, y); for (const dz of [0, 1]) if (w.readers.pathing.labelOf(map.index(x, y, z + dz), 'walker') === label) { reach += 1; break; } }
+    const dump = (): string[] => {
+      const rows: string[] = [];
+      for (let z = Z0; z <= Z1; z += 1) for (let y = Y0; y <= Y1; y += 1) {
+        let r = ''; for (let x = X0; x <= X1; x += 1) { const i = map.index(x, y, z); r += `${map.kindAt(i).toString(36)}${map.fluidLevelAt(i)}${map.fluidFrozenAt(i) ? '*' : ''} `; }
+        rows.push(`z${z} y${y} ${r}`);
+      }
+      return rows;
+    };
+    /** Water on the z31 floors and ramps of the dip beside the brook: tiles by level. */
+    const dip = (): number[] => {
+      const n = [0, 0, 0, 0, 0, 0, 0, 0];
+      for (let y = 29; y <= 42; y += 1) for (let x = 10; x <= 18; x += 1) { const i = map.index(x, y, 31); const k = map.kindAt(i); if (k === TileKind.Floor || k === TileKind.Ramp) n[map.fluidLevelAt(i)]! += 1; }
+      return n;
+    };
+    log({ t: 'init', reach, wagon, dip: dip(), dump: dump() });
+    const state = setupThreeYearsFortress(w);
+    log({ t: 'setup', cx: state.cx, cy: state.cy, z: state.z });
+    const trail = new Map<number, string[]>();
+    const seenDeep = new Map<number, number>();
+    const sample = (): void => {
+      for (const id of ent.with(C.Labors)) {
+        const b = ent.get(id, C.Brain); const pos = ent.get(id, C.Position); if (!b || !pos) continue;
+        const i = map.index(pos.x, pos.y, pos.z);
+        const lv = map.fluidLevelAt(i);
+        const t = b.targetTile;
+        const tt = t >= 0 && map.validIndex(t) ? `${map.xOf(t)},${map.yOf(t)},${map.zOf(t)}l${map.fluidLevelAt(t)}` : '-';
+        const s = `${pos.x},${pos.y},${pos.z} k${map.kindAt(i)} l${lv} ${b.behavior}/${b.activity} ->${tt}`;
+        const tr = trail.get(id) ?? [];
+        if ((tr[tr.length - 1] ?? '').split('|')[1] !== s) { tr.push(`${w.tick}|${s}`); if (tr.length > 60) tr.shift(); trail.set(id, tr); }
+        if (lv >= 4 && !seenDeep.has(id)) seenDeep.set(id, w.tick);
+        if (lv < 4) seenDeep.delete(id);
+      }
+    };
+    w.game.world.onEvents((events) => {
+      sample();
+      for (const e of events) if (e.type === 'CreatureDied' && e['cause'] === 'drowned' && trail.has(Number(e['id']))) {
+        const id = Number(e['id']);
+        log({ t: 'drowned', tick: w.tick, day: +(w.tick / TICKS_PER_DAY).toFixed(2), id, inDeepSince: seenDeep.get(id), dip: dip(), trail: (trail.get(id) ?? []).slice(-30) });
+      }
+    });
+    const end = DAYS * TICKS_PER_DAY;
+    let lastDump = -1;
+    let lastDip = '';
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(w.tick < 20 * TICKS_PER_DAY ? 100 : 300, end - w.tick));
+      checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+      const d = JSON.stringify(dip());
+      if (d !== lastDip) { lastDip = d; log({ t: 'dip', day: +(w.tick / TICKS_PER_DAY).toFixed(2), dip: JSON.parse(d) }); }
+      const day = Math.floor(w.tick / (TICKS_PER_DAY * 20));
+      if (day !== lastDump) { lastDump = day; log({ t: 'dump', day: day * 20, living: ent.with(C.Labors).length, dump: dump() }); }
+    }
+  }, 14_400_000);
+});

@@ -30,7 +30,7 @@ function hall(candidates: readonly [number, number, number][]): { x: number; y: 
     spec: FLAT_TEST_SPEC, map, registry, s: 't119-hall', w: map.w, h: map.h, d: map.d,
     heights, waterTop: new Int16Array(heights.length), colFlags: new Uint8Array(heights.length),
     stack: [], waterSources: [], sinks: [], cavernFloors: [[], [], [], []], cavernOpen: [],
-    bare: new Uint8Array(heights.length), rocky: new Uint8Array(heights.length), scree: new Uint8Array(heights.length), veins: [], spawns: [], warmSprings: [], volcano: -1,
+    bare: new Uint8Array(heights.length), drinkStep: new Uint8Array(heights.length), rocky: new Uint8Array(heights.length), scree: new Uint8Array(heights.length), veins: [], spawns: [], warmSprings: [], volcano: -1,
   };
   return carveHall(g, new RngStream(119));
 }

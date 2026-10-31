@@ -98,4 +98,4 @@ Wildlife does not cause this fall: 2 wildlife deaths against 6. Parties killed 1
 
 How much ground the wagon's walker label reaches does not change with relief (about 1,520 columns of 2,304 on level maps, 1,550 on relief 1, with about 230 in another label on both), so crags do not cut the map off.
 
-New rows: [drowning at the bank](../../docs/work/T-449-drowning-at-the-bank.md), [the three-year script on relief](../../docs/work/T-451-three-year-script-on-relief.md), [taiga on relief](../../docs/work/T-450-taiga-on-relief.md). Data: [`2026-10-30-t448-sweep.json`](../data/2026-10-30-t448-sweep.json), probes `2026-10-30-t448-journal.probe.ts.txt`, `2026-10-30-t448-cutoff.probe.ts.txt` and `2026-10-30-t448-setup.probe.ts.txt`.
+New rows: [drowning at the bank](../../docs/archive/tasks/T-449-drowning-at-the-bank.md), [the three-year script on relief](../../docs/work/T-451-three-year-script-on-relief.md), [taiga on relief](../../docs/work/T-450-taiga-on-relief.md). Data: [`2026-10-30-t448-sweep.json`](../data/2026-10-30-t448-sweep.json), probes `2026-10-30-t448-journal.probe.ts.txt`, `2026-10-30-t448-cutoff.probe.ts.txt` and `2026-10-30-t448-setup.probe.ts.txt`.

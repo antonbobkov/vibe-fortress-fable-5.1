@@ -1,0 +1,46 @@
+import { describe, it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { contentRegistry } from '@content/loader';
+import { WORLD_SIZE_STANDARD } from '@core/constants';
+import { localMapSpec } from '@systems/embark';
+import { generateLocalMap } from '@systems/terrain/generate';
+import { COL_LAKE, COL_RIVER } from '@systems/terrain/generate/common';
+import { generate } from '@systems/worldgen';
+
+describe('reach', () => { it('reach', () => {
+  const registry = contentRegistry();
+  const rows: Record<string, number>[] = [];
+  const lines: string[] = [];
+  for (const seed of ['world-0', 'world-1', 'world-2']) {
+    const world = generate(seed, WORLD_SIZE_STANDARD, registry);
+    const homes = new Set(Object.values(world.civHomes));
+    const land = world.regions.filter((r) => r.biome !== 'ocean' && r.biome !== 'glacier' && !homes.has(r.id) && (r.river !== null));
+    const step = Math.max(1, Math.floor(land.length / 40));
+    for (let i = 0; i < land.length; i += step) {
+      const spec = localMapSpec(world, land[i]!.id, registry);
+      const { map, result } = generateLocalMap(spec, registry, { until: 'sea' });
+      const W = map.w; const H = map.h; const s = result.surface; const f = result.columns;
+      const wet = (c: number): boolean => ((f[c] as number) & (COL_RIVER | COL_LAKE)) !== 0;
+      let top = -1; for (let c = 0; c < W * H; c += 1) if (wet(c)) { top = (s[c] as number); break; }
+      let waterTop = -1; for (let c = 0; c < W * H; c += 1) if (wet(c)) { for (let z = s[c] as number; z < map.d; z += 1) if (map.fluidLevelAt(map.index(c % W, Math.floor(c / W), z)) > 0) waterTop = Math.max(waterTop, z); }
+      void top;
+      // Largest walkable area of dry columns (one-level steps), and how many drink banks it holds.
+      const label = new Int32Array(W * H).fill(-1); const sizes: number[] = []; const banks: number[] = [];
+      const isBank = (c: number): boolean => { const x = c % W; const y = Math.floor(c / W); for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) { const nx = x + dx; const ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue; if (wet(ny * W + nx)) return true; } return false; };
+      let high = 0; let wetBanks = 0; let drinkBanks = 0;
+      for (let c = 0; c < W * H; c += 1) if (!wet(c) && isBank(c)) { wetBanks += 1; high = Math.max(high, (s[c] as number) - waterTop); if ((s[c] as number) === waterTop + 1) drinkBanks += 1; }
+      for (let c0 = 0; c0 < W * H; c0 += 1) {
+        if (wet(c0) || label[c0] !== -1) continue;
+        const id = sizes.length; sizes.push(0); banks.push(0); const q = [c0]; label[c0] = id;
+        while (q.length > 0) { const c = q.pop()!; sizes[id]! += 1; if (isBank(c) && (s[c] as number) === waterTop + 1) banks[id]! += 1; const x = c % W; const y = Math.floor(c / W);
+          for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) { const nx = x + dx; const ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue; const n = ny * W + nx; if (wet(n) || label[n] !== -1 || Math.abs((s[n] as number) - (s[c] as number)) > 1) continue; label[n] = id; q.push(n); } }
+      }
+      let big = 0; for (let k = 0; k < sizes.length; k += 1) if ((sizes[k] as number) > (sizes[big] as number)) big = k;
+      rows.push({ relief: spec.relief, high, wetBanks, drinkBanks, bigShare: Math.round((sizes[big] as number) * 100 / (W * H)), bigBanks: banks[big] as number });
+      lines.push(`${seed} r${land[i]!.id} ${spec.river?.class} ${spec.biome} relief=${spec.relief} waterZ=${waterTop} deepestCut=${high} banks=${wetBanks} drinkBanks=${drinkBanks} mainAreaPct=${rows[rows.length - 1]!['bigShare']} drinkBanksInMain=${banks[big]}`);
+    }
+  }
+  const n0 = rows.filter((r) => r['bigBanks'] === 0).length;
+  lines.push(`maps=${rows.length} noDrinkBankInMainArea=${n0}`);
+  writeFileSync('.vite/t449-reach.txt', lines.join('\n') + '\n');
+}, 3_000_000); });
