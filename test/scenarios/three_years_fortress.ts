@@ -36,6 +36,8 @@ export const Z = FLAT_TEST_SURFACE_Z;
 export const HALL_Z = 26;
 /** T-448: the halls lie this many levels below the surface level of the gate's column. */
 export const SURFACE_TO_HALL = Z - HALL_Z;
+/** T-451: tiles around the gate's stair a moved zone keeps off: its walls, doors and the tiles outside them. */
+const GATE_CLEARANCE = 2;
 /** T-448: how far the script looks for another site for a zone whose designed one has no tile at the fortress's level. */
 const SITE_SEARCH = 12;
 
@@ -293,19 +295,52 @@ function designateDig(w: TestWorld, tiles: readonly number[], priority: number):
   if (ok.length > 0) command(w, { type: 'Designate', kind: 'dig', priority, tiles: ok });
 }
 
+/** T-451: whether the dwarves at the wagon can walk to a tile. */
+export function onWagonSide(w: TestWorld, t: number): boolean {
+  const wagon = w.game.arrival!.wagon;
+  return w.readers.pathing.labelOf(t, 'walker') === w.readers.pathing.labelOf(w.index(wagon.x, wagon.y, wagon.z), 'walker');
+}
+
+/** T-451: whether the dwarves at the wagon can reach a tree, on a tile beside it. */
+function treeInReach(w: TestWorld, t: number): boolean {
+  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]] as const) {
+    for (const dz of [0, 1, -1]) {
+      const at = w.map.offset(t, dx, dy, dz);
+      if (at >= 0 && onWagonSide(w, at)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * T-451: the tree on a column's surface: at the fortress's level as ever, and on any other surface
+ * level the dwarves can reach. -1 when the column has none.
+ */
+function surfaceTree(w: TestWorld, x: number, y: number, z: number): number {
+  const level = w.index(x, y, z);
+  if (w.map.kindAt(level) === TileKind.Tree) return level;
+  const top = w.map.columnSurfaceZ(x, y);
+  if (top < 0 || top === z) return -1;
+  const t = w.index(x, y, top);
+  return w.map.kindAt(t) === TileKind.Tree && treeInReach(w, t) ? t : -1;
+}
+
 /**
  * T-448: the qualifying, unzoned tiles of a `width` × `height` rectangle at level `z`; when the one
  * at (`x`, `y`) has none (on relief it may lie on another level), the nearest rectangle of that
- * size within `SITE_SEARCH` tiles that has the most.
+ * size within `SITE_SEARCH` tiles that has the most. T-451: only tiles the dwarves at the wagon can
+ * walk to; a brook may cut a site in two.
  */
-function siteTiles(w: TestWorld, zoneType: string, x: number, y: number, width: number, height: number, z: number): number[] {
+function siteTiles(w: TestWorld, zoneType: string, x: number, y: number, width: number, height: number, z: number, gate: { x: number; y: number }): number[] {
   const buildings = w.readers.of<BuildingsReader>('14');
   const at = (x0: number, y0: number): number[] => {
     const out: number[] = [];
     for (let yy = y0; yy < y0 + height; yy += 1) for (let xx = x0; xx < x0 + width; xx += 1) {
       if (xx < 1 || yy < 1 || xx >= w.map.w - 1 || yy >= w.map.h - 1) continue;
+      // The gate's walls and doors will stand here: a zone under them would strand what is hauled to it.
+      if (Math.abs(xx - gate.x) <= GATE_CLEARANCE && Math.abs(yy - gate.y) <= GATE_CLEARANCE) continue;
       const t = w.index(xx, yy, z);
-      if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies(zoneType, t)) out.push(t);
+      if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies(zoneType, t) && onWagonSide(w, t)) out.push(t);
     }
     return out;
   };
@@ -387,15 +422,15 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   for (let y = cy; y <= cy + 29; y += 1) {
     for (let x = cx - 22; x <= cx + 15; x += 1) {
       if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) {
-        const t = w.index(x, y, z);
-        if (map.kindAt(t) === TileKind.Tree) treeTiles.push(t);
+        const t = surfaceTree(w, x, y, z);
+        if (t >= 0) treeTiles.push(t);
       }
     }
   }
   const roadTrees: number[] = [];
   for (let y = 0; y <= cy + 3; y += 1) for (let x = 0; x < map.w; x += 1) {
-    const t = w.index(x, y, z);
-    if (map.kindAt(t) === TileKind.Tree) roadTrees.push(t);
+    const t = surfaceTree(w, x, y, z);
+    if (t >= 0) roadTrees.push(t);
   }
 
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -412,7 +447,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       }
     }
   }
-  if (spTiles.length === 0) spTiles.push(...siteTiles(w, 'stockpile', cx - 5, cy + 4, 8, 6, z));
+  if (spTiles.length === 0) spTiles.push(...siteTiles(w, 'stockpile', cx - 5, cy + 4, 8, 6, z, { x: cx + 6, y: cy + 6 }));
   const rSp = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: spTiles });
   if (!rSp.ok) throw new Error(`Stockpile CreateZone failed: ${rSp.reason}`);
   const spId = bSystem.lastCreatedZone;
@@ -426,7 +461,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('stockpile', t)) drinkSpSurfaceTiles.push(t);
     }
   }
-  if (drinkSpSurfaceTiles.length === 0) drinkSpSurfaceTiles.push(...siteTiles(w, 'stockpile', cx, cy + 13, 3, 2, z));
+  if (drinkSpSurfaceTiles.length === 0) drinkSpSurfaceTiles.push(...siteTiles(w, 'stockpile', cx, cy + 13, 3, 2, z, { x: cx + 6, y: cy + 6 }));
   const rDrinkSp = drinkSpSurfaceTiles.length > 0 ? command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: drinkSpSurfaceTiles }) : { ok: false };
   if (rDrinkSp.ok) {
     const dSpId = bSystem.lastCreatedZone;
@@ -580,7 +615,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) farmTiles.push(t);
     }
   }
-  if (farmTiles.length === 0) farmTiles.push(...siteTiles(w, 'farm_plot', cx - 8, cy + 16, 4, 4, z));
+  if (farmTiles.length === 0) farmTiles.push(...siteTiles(w, 'farm_plot', cx - 8, cy + 16, 4, 4, z, { x: cx + 6, y: cy + 6 }));
   const rFarm = farmTiles.length > 0 ? command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: farmTiles }) : { ok: false };
   if (rFarm.ok) {
     const farmId = bSystem.lastCreatedZone;
@@ -597,7 +632,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
       if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('pasture', t)) pastureTiles.push(t);
     }
   }
-  if (pastureTiles.length === 0) pastureTiles.push(...siteTiles(w, 'pasture', cx + 2, cy + 16, 5, 4, z));
+  if (pastureTiles.length === 0) pastureTiles.push(...siteTiles(w, 'pasture', cx + 2, cy + 16, 5, 4, z, { x: cx + 6, y: cy + 6 }));
   const rPasture = pastureTiles.length > 0 ? command(w, { type: 'CreateZone', zoneType: 'pasture', tiles: pastureTiles }) : { ok: false };
   if (rPasture.ok) {
     const pastureId = bSystem.lastCreatedZone;
@@ -1039,6 +1074,16 @@ export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'c
   if (walls.every(isWall)) state.economy.phases.add('gate walls');
 }
 
+/**
+ * T-451: whether a gate door can go on its tile yet. A sapling may have taken root there since the
+ * site was cleared (07); no one can fell it until it is a tree, so the door waits for that.
+ */
+function gateDoorTileClear(w: TestWorld, tile: TileIndex): boolean {
+  const kind = w.map.kindAt(tile);
+  if (kind === TileKind.Tree) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: [tile] });
+  return kind !== TileKind.Tree && kind !== TileKind.Sapling;
+}
+
 export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const { cx, cy } = state;
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -1056,7 +1101,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w2 = buildings.at(w.index(cx + 7, cy + 7, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
       const doorTile = w.index(cx + 6, cy + 7, state.z);
-      const rDoor = command(w, {
+      const rDoor = !gateDoorTileClear(w, doorTile) ? { ok: false } : command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
         origin: doorTile,
@@ -1077,7 +1122,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w2 = buildings.at(w.index(cx + 7, cy + 5, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
       const doorTile2 = w.index(cx + 6, cy + 5, state.z);
-      const rDoor2 = command(w, {
+      const rDoor2 = !gateDoorTileClear(w, doorTile2) ? { ok: false } : command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
         origin: doorTile2,

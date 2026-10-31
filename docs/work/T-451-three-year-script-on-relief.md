@@ -17,3 +17,7 @@ Fell trees on every surface level the dwarves reach and keep moved zones on the 
 ## Done
 
 - The twenty-seed file plays at relief 1, with its rows in a dated report.
+
+## Progress
+
+The script's faults are fixed: 19 of 20 seeds pass at relief 1, and relief 0 is unchanged. `three-years-p4-3` still dies out on day 78, so `THREE_YEARS_RELIEF` stays 0. Waiting on the owner's decision: [report](../../reports/audits/2026-10-31-three-year-script-on-relief.md).

@@ -1,0 +1,66 @@
+/** T-451 probe: for seeds in T451_SEEDS (seed:peril:days) the state of the camp and each blocked job, every few days. */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileKind } from '@core/map3d';
+import type { BuildingsReader } from '@systems/buildings';
+import type { JobsReader } from '@systems/jobs';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+import type { ItemsReader } from '@systems/items';
+
+const OUT = process.env['T451_OUT'] ?? '.vite/t451-probe.jsonl';
+const SEEDS = (process.env['T451_SEEDS'] ?? '').split(',').map((s) => s.split(':'));
+const EVERY = Number(process.env['T451_EVERY'] ?? 5);
+
+describe('T-451 probe', () => {
+  it('journals', () => {
+    writeFileSync(OUT, '');
+    const log = (o: unknown): void => appendFileSync(OUT, JSON.stringify(o) + '\n');
+    for (const [seed, peril, days] of SEEDS) {
+      const w = threeYearsWorld(seed!, Number(peril));
+      const map = w.map; const ent = w.game.world.entities;
+      const wagon = w.game.arrival!.wagon;
+      const wagonLabel = w.readers.pathing.labelOf(map.index(wagon.x, wagon.y, wagon.z), 'walker');
+      let trees = 0; let treesAtWagon = 0;
+      for (let y = 0; y < map.h; y += 1) for (let x = 0; x < map.w; x += 1) { const z = map.columnSurfaceZ(x, y); if (map.kindAt(map.index(x, y, z)) === TileKind.Tree) { trees += 1; if (z === wagon.z) treesAtWagon += 1; } }
+      let state;
+      try { state = setupThreeYearsFortress(w); } catch (e) { log({ seed, t: 'setup-threw', msg: String(e), tick: w.tick, wagon, }); continue; }
+      log({ seed, t: 'setup', wagon, gate: [state.cx + 6, state.cy + 6, state.z], trees, treesAtWagon, timber: state.timberTiles.length, wagonLabel });
+      const end = Number(days) * TICKS_PER_DAY;
+      let next = 0;
+      const report = (): void => {
+        const b = w.readers.of<BuildingsReader>('14');
+        const items = w.readers.of<ItemsReader>('13');
+        const jr = w.readers.of<JobsReader>('11');
+        const blocked = jr.list('blocked').filter((j) => jr.typeOf(j.id) !== 'dig' && jr.blockedReason(j.id) !== 'missing_input' && jr.blockedReason(j.id) !== 'no_worker').map((j) => {
+          const target = j.target as { kind: string; ref?: number; tile?: number };
+          let where: unknown = null;
+          if (target.kind === 'entity' && target.ref !== undefined) { const p = ent.get(target.ref, C.Position); if (p) { const t = map.index(p.x, p.y, p.z); where = { at: [p.x, p.y, p.z], kind: map.kindAt(t), label: w.readers.pathing.labelOf(t, 'walker'), passable: w.readers.pathing.passable(t, 'walker') }; } }
+          return { id: j.id, type: jr.typeOf(j.id), reason: jr.blockedReason(j.id), target: j.target, where };
+        });
+        const built = ent.with(C.Building).filter((id) => ent.get(id, C.Building)?.state === 'built').length;
+        const all = ent.with(C.Building).length;
+        const byType: Record<string, number> = {};
+        const itemTable = w.game.registry.table<{ id: string }>('items');
+        for (const id of ent.with(C.Item)) { const it = ent.get(id, C.Item) as unknown as { type: number }; const k = itemTable.byIndex(it.type)?.id ?? String(it.type); byType[k] = (byType[k] ?? 0) + 1; }
+        const blockedTypes: Record<string, number> = {};
+        for (const j of jr.list('blocked')) { const k = `${jr.typeOf(j.id)}:${jr.blockedReason(j.id)}`; blockedTypes[k] = (blockedTypes[k] ?? 0) + 1; }
+        const names: Record<string, string> = {};
+        const bt = w.game.registry.table<{ id: string }>('buildings');
+        for (const id of ent.with(C.Building)) { const bb = b.get(id)!; const o = bb.origin; const raw = bb as unknown as { type: number; defId?: number }; const n = bt.byIndex(raw.type ?? raw.defId ?? 0)?.id ?? String(raw.type); names[`${n}#${id}`] = `${bb.state}@${map.xOf(o)},${map.yOf(o)},${map.zOf(o)}`; }
+        const gx = state!.cx + 6; const gy = state!.cy + 6;
+        log({ seed, t: 'x', day: w.tick / TICKS_PER_DAY, byType, blockedTypes, names, gateCol: [0, 1, 2, 3, 4, 5, 6].map((d) => map.kindAt(map.index(gx, gy, state!.z - d))), phases: [...state!.economy.phases] });
+        log({ seed, t: 'day', day: +(w.tick / TICKS_PER_DAY).toFixed(1), pop: ent.with(C.Labors).length, built, all, logs: items.count('log'), blocks: items.count('stone_block'), standing: state!.timberTiles.filter((t) => map.kindAt(t) === TileKind.Tree).length, hall: b.hearthHallTiles().length, blocked: blocked.slice(0, 8), nBlocked: blocked.length });
+      };
+      try {
+        while (w.tick < end) {
+          playThreeYears(w, state, Math.min(w.tick < 20 * TICKS_PER_DAY ? 100 : 300, end - w.tick));
+          checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+          if (w.tick >= next) { report(); next = w.tick + EVERY * TICKS_PER_DAY; }
+        }
+      } catch (e) { const m = /origin":(\d+)/.exec(String(e)); const o = m ? Number(m[1]) : -1; const around = o >= 0 ? [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => { const t = map.offset(o, dx!, dy!, 0); return `${dx},${dy}:k${map.kindAt(t)}f${map.fluidLevelAt(t)}b${w.readers.of<BuildingsReader>('14').at(t)}`; }) : null; log({ seed, t: 'threw', msg: String(e).slice(0, 300), tick: w.tick, around, wagon, gate: [state.cx + 6, state.cy + 6, state.z] }); }
+      report();
+    }
+  }, 7_200_000);
+});
