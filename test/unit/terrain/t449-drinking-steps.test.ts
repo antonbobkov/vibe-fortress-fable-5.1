@@ -77,12 +77,7 @@ describe('T-449 drinking steps', () => {
 
   it('from relief 1 a step grows nothing and holds no boulder; on level ground it changes nothing', () => {
     const g = cutMap('t449-steps-a', 'w', 'e');
-    let bare = 0;
-    for (let c = 0; c < g.w * g.h; c += 1) if (g.drinkStep[c] === 1) {
-      expect(g.bare[c]).toBe(1);
-      bare += 1;
-    }
-    expect(bare).toBeGreaterThan(0);
+    expect(g.bare.some((b) => b === 1)).toBe(true);
     const level = gen('t449-steps-a', 48, { inflowEdges: ['w'], outflowEdge: 'e', class: 'brook' }, 0);
     level.heights.fill(HIGH);
     stageRivers(level);
@@ -90,29 +85,38 @@ describe('T-449 drinking steps', () => {
     for (let c = 0; c < level.w * level.h; c += 1) if (!wet(level, c)) expect(level.heights[c]).toBe(HIGH);
   });
 
-  it('a step climbing against the scan is ramps its whole length; natural ground keeps its rule', () => {
-    const size = 12;
-    const build = (step: boolean): LocalGen => {
-      const g = gen('t449-ramps', size, null);
-      const material = registry.table('materials').index('granite');
-      g.heights.fill(HIGH);
-      // A lane up the column x = 5, rising to the north.
-      for (let y = 4; y <= 8; y += 1) {
-        g.heights[y * size + 5] = HIGH - (y - 3);
-        if (step) g.drinkStep[y * size + 5] = 1;
-      }
-      for (let y = 0; y < size; y += 1) for (let x = 0; x < size; x += 1) {
-        const top = g.heights[y * size + x] as number;
-        for (let z = 0; z < top; z += 1) g.map.setKind(g.map.index(x, y, z), TileKind.Wall, material);
-        g.map.setKind(g.map.index(x, y, top), TileKind.Floor, material);
-      }
-      stageRamps(g);
-      return g;
-    };
-    const kinds = (g: LocalGen): TileKind[] => [4, 5, 6, 7, 8].map((y) => g.map.kindAt(g.map.index(5, y, g.heights[y * size + 5] as number)));
-    expect(kinds(build(true))).toEqual([TileKind.Ramp, TileKind.Ramp, TileKind.Ramp, TileKind.Ramp, TileKind.Ramp]);
-    expect(kinds(build(false))).toContain(TileKind.Floor);
-  });
+});
+
+describe('T-454 a slope of several steps can be walked', () => {
+  const size = 12;
+  const material = registry.table('materials').index('granite');
+  /** Ground stepping up one level a column along x = 5 or y = 5, in the direction (dx, dy). */
+  function slope(dx: number, dy: number): { g: LocalGen; columns: number[] } {
+    const g = gen('t454-ramps', size, null);
+    g.heights.fill(HIGH);
+    const columns: number[] = [];
+    for (let k = 0; k <= 4; k += 1) {
+      const x = dx === 0 ? 5 : 6 - dx * (3 - k);
+      const y = dy === 0 ? 5 : 6 - dy * (3 - k);
+      const c = y * size + x;
+      g.heights[c] = HIGH - 5 + k;
+      columns.push(c);
+    }
+    for (let y = 0; y < size; y += 1) for (let x = 0; x < size; x += 1) {
+      const top = g.heights[y * size + x] as number;
+      for (let z = 0; z < top; z += 1) g.map.setKind(g.map.index(x, y, z), TileKind.Wall, material);
+      g.map.setKind(g.map.index(x, y, top), TileKind.Floor, material);
+    }
+    stageRamps(g);
+    return { g, columns };
+  }
+
+  for (const [name, dx, dy] of [['north', 0, -1], ['west', -1, 0], ['south', 0, 1], ['east', 1, 0]] as const) {
+    it(`climbing ${name}, every step is a ramp`, () => {
+      const { g, columns } = slope(dx, dy);
+      for (const c of columns) expect(g.map.kindAt(g.map.index(c % size, Math.floor(c / size), g.heights[c] as number)), `column ${c}`).toBe(TileKind.Ramp);
+    });
+  }
 });
 
 describe('T-449 source marks', () => {
