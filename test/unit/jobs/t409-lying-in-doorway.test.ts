@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
-import type { JobBoard } from '@systems/jobs';
 import { TestWorld } from '../../scenarios/test-world';
 
 const Z = 32;
@@ -47,36 +46,5 @@ describe('T-409 a creature lying in a doorway', () => {
     // Nobody moved the patient: the miner passed it where it lies.
     expect(w.game.movement.tileOf(lying)).toBe(doorTile);
     expect(w.game.world.entities.get(lying, C.Body)?.conscious).toBe(false);
-  });
-
-  it('reopens a job held up by a creature standing in the doorway once that creature lies there', () => {
-    const { w, doorTile, lying, target } = doorway('t409-falls-in-door', true);
-    expect(w.game.world.applyCommand({ type: 'Designate', kind: 'dig', tiles: [target] }).ok).toBe(true);
-    const board = w.game.world.services.jobs as JobBoard;
-    w.until(() => [...board.jobs.values()].some((j) => j.target.ref === target && j.data['crowdedTile'] === doorTile), 600);
-    knockOut(w, lying);
-    // `until` throws when the job is not worked within the day.
-    w.until((v) => v.map.kindAt(target) === TileKind.Floor, TICKS_PER_DAY);
-    expect(w.game.movement.tileOf(lying)).toBe(doorTile);
-  });
-
-  it('stops no walker when it sleeps on the door tile or lies unconscious, hostile or not; a standing one still does', () => {
-    const { w, doorTile, lying, miner } = doorway('t409-asleep', true);
-    const movement = w.game.movement;
-    expect(movement.blockedByCreature(doorTile, miner)).toBe(true);
-    w.game.world.entities.add(lying, C.Brain, {
-      behavior: 'need', behaviorUntil: 0, targetTile: doorTile, activity: 'sleep',
-      lastMistTick: 0, lastOutdoorThoughtHour: 0, daysUnderground: 0,
-    });
-    expect(movement.blockedByCreature(doorTile, miner)).toBe(false);
-    // Walking to its bed is not lying down.
-    const motion = w.game.world.entities.get(lying, C.Motion)!;
-    w.game.world.entities.add(lying, C.Motion, { ...motion, pathId: 1 });
-    expect(movement.blockedByCreature(doorTile, miner)).toBe(true);
-    w.game.world.entities.add(lying, C.Motion, { ...motion, pathId: 0 });
-    w.game.world.entities.remove(lying, C.Brain);
-    // Lying unconscious in the doorway, it stops no one either.
-    knockOut(w, lying);
-    expect(movement.blockedByCreature(doorTile, miner)).toBe(false);
   });
 });

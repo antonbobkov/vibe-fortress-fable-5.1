@@ -12,8 +12,9 @@
  */
 
 import { C, type ComponentType, type Motion, type Position } from './components';
+import { crowdEffort, crowdPercent } from './crowding';
 import { isSolidBottomed, Map3D, TileKind } from './map3d';
-import { FLUID_MAX_LEVEL, REPATH_LIMIT, REPATH_WAIT_TICKS, STEP_COST } from './path-constants';
+import { CROWD_FREE, FLUID_MAX_LEVEL, REPATH_LIMIT, STEP_COST } from './path-constants';
 import type { EntityStore } from './entities';
 import type { MovementApi } from './system';
 import type { GameEvent } from './events';
@@ -22,8 +23,8 @@ import type { SpatialIndex } from './spatial';
 import type { EntityId, TileIndex } from './types';
 
 /**
- * A creature lying down (22 § Movement helper): unconscious (17), or asleep (10: resting, with no
- * path to walk). It blocks no walker, at a door or anywhere else.
+ * A creature lying down (22 § Crowding): unconscious (17), or asleep (10: resting, with no path to
+ * walk). It adds nothing to a tile's crowd.
  */
 export function liesDown(entities: { get<T>(id: EntityId, type: ComponentType<T>): T | undefined }, id: EntityId): boolean {
   if (entities.get(id, C.Body)?.conscious === false) return true;
@@ -70,8 +71,6 @@ export class MovementHelper implements MovementApi {
    * The walks in progress, by mover. Saved with 22's requests (D-081).
    */
   private readonly walks = new Map<EntityId, Walk>();
-  /** Movers whose last step was refused because creatures stood on the next tile for more than `REPATH_LIMIT` waits (derived, never saved). */
-  private readonly crowded = new Map<EntityId, TileIndex>();
 
   constructor(map: Map3D, entities: EntityStore, spatial: SpatialIndex, pathing: PathingCore) {
     this.map = map;
@@ -181,10 +180,7 @@ export class MovementHelper implements MovementApi {
    */
   walkTo(id: EntityId, target: TileIndex, urgency: PathUrgency, ctx: MovementContext): WalkOutcome {
     const at = this.tileOf(id);
-    if (at < 0) {
-      this.crowded.delete(id);
-      return 'unreachable';
-    }
+    if (at < 0) return 'unreachable';
     if (at === target) {
       this.stopWalking(id);
       return 'arrived';
@@ -192,7 +188,6 @@ export class MovementHelper implements MovementApi {
     let walk = this.walks.get(id);
     if (walk === undefined || walk.target !== target) {
       this.stopWalking(id);
-      this.crowded.delete(id);
       walk = { target, request: this.request(id, at, target, urgency), following: false, attempts: 0 };
       this.walks.set(id, walk);
       return 'pending';
@@ -202,7 +197,6 @@ export class MovementHelper implements MovementApi {
       if (result.state === 'pending') return 'pending';
       if (result.state === 'failed') {
         this.stopWalking(id);
-        this.crowded.delete(id);
         return 'unreachable';
       }
       this.follow(id, walk.request);
@@ -233,10 +227,6 @@ export class MovementHelper implements MovementApi {
     this.pathing.pathfinder.release(walk.request);
     this.walks.delete(id);
     this.clearPath(id);
-  }
-
-  walkBlockedTile(id: EntityId): TileIndex {
-    return this.crowded.get(id) ?? -1;
   }
 
   /** The target of a mover's current walk, or -1. */
@@ -272,7 +262,6 @@ export class MovementHelper implements MovementApi {
     if (motion === undefined) return 'idle';
     const m: Motion = { ...motion };
     if (m.pathId === 0) return 'idle';
-    if (this.crowded.size > 0) this.crowded.delete(id);
     const path = this.pathing.pathfinder.path(m.pathId);
     if (path === null) {
       this.write(id, { ...m, pathId: 0, stepIndex: 0, progress: 0 });
@@ -287,22 +276,12 @@ export class MovementHelper implements MovementApi {
     const mover = this.moverOf(id);
     let next = path[m.stepIndex] as TileIndex;
     // `progress += speed * 1000 / cost(next)`; costs are in the same 1000-per-step scale.
-    m.progress += Math.trunc((m.speed * STEP_COST) / this.pathing.graph.cost(next, m.movementClass, mover));
+    m.progress += crowdEffort(Math.trunc((m.speed * STEP_COST) / this.pathing.graph.cost(next, m.movementClass, mover)), this.crowdPercentAt(next, 1));
 
     while (m.progress >= STEP_COST) {
       if (!this.pathing.graph.passable(next, m.movementClass, mover)) {
         m.repathCount += 1;
         return this.blocked(id, m);
-      }
-      if (this.blockedByCreature(next, id)) {
-        m.repathCount += 1;
-        m.waitUntil = ctx.tick + REPATH_WAIT_TICKS;
-        if (m.repathCount > REPATH_LIMIT) {
-          this.crowded.set(id, next);
-          return this.blocked(id, m);
-        }
-        this.write(id, m);
-        return 'moving';
       }
       const prev = this.tileOf(id);
       this.place(id, prev, next);
@@ -333,22 +312,16 @@ export class MovementHelper implements MovementApi {
   }
 
   /**
-   * `blockedByCreature(next, id)`: any creature when a door stands on the tile (22 § Movement helper).
-   * Creatures otherwise share a tile, a hostile included: combat stops a mover by engaging it. A
-   * creature lying down blocks no one.
+   * `crowdPercentAt(tile, joining)`: the percent of its time anything takes on a tile (22 § Crowding).
+   * `joining` counts a mover not on the tile yet. A tile that holds too few entities to crowd is
+   * answered without looking at them.
    */
-  blockedByCreature(next: TileIndex, id: EntityId): boolean {
-    if (!this.pathing.graph.hooks.doorAt(next)) return false;
-    const occupants = this.spatial.at(next);
-    for (let k = 0; k < occupants.length; k += 1) {
-      const other = occupants[k] as EntityId;
-      if (other === id) continue;
-      if (this.entities.kind(other) !== 'creature') continue;
-      if (liesDown(this.entities, other)) continue;
-      return true;
-    }
-    return false;
+  crowdPercentAt(tile: TileIndex, joining = 0): number {
+    if (this.spatial.bucketSize(tile) + joining <= CROWD_FREE) return 100;
+    return crowdPercent(joining + this.spatial.countAt(tile, this.standing));
   }
+
+  private readonly standing = (id: EntityId): boolean => this.entities.kind(id) === 'creature' && !liesDown(this.entities, id);
 
   /**
    * `fall(id)`: drop to the first solid-bottomed tile below (or the surface of a full fluid),

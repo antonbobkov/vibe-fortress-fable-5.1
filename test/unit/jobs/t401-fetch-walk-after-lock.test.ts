@@ -59,7 +59,7 @@ describe('T-401 a fetch walk that the labels explain does not wait for a trigger
     const job = board.jobs.get(id)!;
     // A walk that failed with connected labels (T-187's forbidden traffic): the worker and the drink share a label.
     expect(w.pathing.reader().reachable(w.game.movement.tileOf(worker), w.index(40, 10, Z), 'walker')).toBe(true);
-    board.unclaim(job, 'unreachable', -1, w.index(40, 10, Z));
+    board.unclaim(job, 'unreachable', w.index(40, 10, Z));
     expect(job.failedWalk).toBe(true);
     expect(w.game.world.entities.get(worker, C.Worker)?.jobId).toBe(0);
   });

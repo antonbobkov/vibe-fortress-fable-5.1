@@ -4,6 +4,7 @@
  */
 
 import { C, type Attributes, type Body } from '@core/components';
+import { crowdTicks } from '@core/crowding';
 import { BODY_SLOTS } from '@core/types';
 import type { BodySlot, DamageType, EntityId, Quality } from '@core/types';
 import type { EntityStore } from '@core/entities';
@@ -446,7 +447,10 @@ export function resolveMelee(
   hit = Math.max(5, Math.min(95, hit));
 
   // Cooldown
-  const cooldownTicks = Math.max(MIN_ATTACK_COOLDOWN, Math.floor(atkSize * 3 + 10 - agiA / 10));
+  // 22 § Crowding: a crowd on the attacker's tile slows its attacks.
+  const movement = ctx.world.services.movement;
+  const crowd = movement === null ? 100 : movement.crowdPercentAt(movement.tileOf(attackerId));
+  const cooldownTicks = crowdTicks(Math.max(MIN_ATTACK_COOLDOWN, Math.floor(atkSize * 3 + 10 - agiA / 10)), crowd);
   cooldownUntilMap.set(attackerId, tick + cooldownTicks);
 
   // Roll hit

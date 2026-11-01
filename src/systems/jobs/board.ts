@@ -9,7 +9,6 @@
 import { C, ItemFlag, type Worker } from '@core/components';
 import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
-import { liesDown } from '@core/movement';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
@@ -490,20 +489,16 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * `unclaim(job, reason)`: release undelivered inputs, free the worker, block. A walk that found no route
-   * (`reason` unreachable) waits for a reachability trigger; one that creatures kept blocking (`crowdedTile` is the
-   * tile they stood on, or -1) does not, and its retry waits until no creature stands on that tile. A walk
-   * that failed to reach `walkedTo` while the labels no longer connect the worker to it did not fail
-   * despite connected labels (a door locked on its way): it retries on the timer.
+   * (`reason` unreachable) waits for a reachability trigger. A walk that failed to reach `walkedTo` while
+   * the labels no longer connect the worker to it did not fail despite connected labels (a door locked
+   * on its way): it retries on the timer.
    */
-  unclaim(job: Job, reason: string, crowdedTile: TileIndex = -1, walkedTo: TileIndex = -1): void {
+  unclaim(job: Job, reason: string, walkedTo: TileIndex = -1): void {
     const worker = job.workerId;
     this.releaseReservations(job, true);
     this.freeWorker(job, true);
-    if (reason === 'unreachable' && crowdedTile < 0 && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
+    if (reason === 'unreachable' && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
     else delete job.failedWalk;
-    delete job.data['crowdedBy'];
-    if (reason === 'unreachable' && crowdedTile >= 0) job.data['crowdedTile'] = crowdedTile;
-    else delete job.data['crowdedTile'];
     this.block(job, reason);
   }
 
@@ -562,11 +557,6 @@ export class JobBoard implements JobsApi, JobSink {
         job.retryTick = this.now + BLOCKED_RETRY_TICKS;
         continue;
       }
-      const crowded = job.data['crowdedTile'];
-      if (reason === 'unreachable' && typeof crowded === 'number' && this.heldBySameCreature(job, crowded)) {
-        job.retryTick = this.now + BLOCKED_RETRY_TICKS;
-        continue;
-      }
       if (reason === 'no_worker' || reason === 'unreachable') {
         const still = this.openProblem(job);
         if (still !== null) {
@@ -582,27 +572,10 @@ export class JobBoard implements JobsApi, JobSink {
         }
       }
       job.state = 'open';
-      delete job.data['crowdedTile'];
-      delete job.data['crowdedBy'];
       this.invalidateWorkAvailability();
       job.blockedReason = null;
       this.notify(job, { type: 'JobUnblocked', jobId: job.id, jobType: this.typeId(job), target: job.target.ref });
     }
-  }
-
-  /**
-   * Whether a creature holds the tile that held a worker's walk up (a doorway): one stands there that
-   * stood there at the last look. One lying down does not block (22), and one only passing through,
-   * on a door in steady use, does not hold it: the job retries, or the traffic would keep it blocked.
-   */
-  private heldBySameCreature(job: Job, tile: TileIndex): boolean {
-    const entities = this.readers.entities;
-    const standing = entities.at(tile).filter((id) => entities.kind(id) === 'creature' && !liesDown(entities, id));
-    if (standing.length === 0) return false;
-    const before = job.data['crowdedBy'];
-    if (before !== undefined && !standing.includes(before as EntityId)) return false;
-    if (before === undefined) job.data['crowdedBy'] = Math.min(...standing);
-    return true;
   }
 
   private inputsAvailable(job: Job): boolean {

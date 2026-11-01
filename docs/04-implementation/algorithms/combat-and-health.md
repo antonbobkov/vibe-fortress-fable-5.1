@@ -27,7 +27,7 @@ melee(a, d):
   skillA = w ? skill(a, atk.skill) : speciesAttackSkill(a); dodge = skill(d, 'dodge')
   hit = 50 + (skillA - dodge)*3 + (agi(a) - agi(d))/4 + (unconsciousOrAsleep(d) ? 40 : 0) + (fleeing(d) ? 10 : 0) + (inDeepWater(d) ? 20 : 0)
   hit = clamp(5, 95, hit)
-  cooldownUntil[a] = tick + max(MIN_ATTACK_COOLDOWN, atk.size*3 + 10 - agi(a)/10)
+  cooldownUntil[a] = tick + crowdTicks(max(MIN_ATTACK_COOLDOWN, atk.size*3 + 10 - agi(a)/10), crowdPercentAt(tile(a)))
   if rng.int(0,99) >= hit: emit AttackResolved{miss}; xp(d,'dodge',2); xp(a, skill, 1); return
   if canAct(d):
     if wd = Equipment[d].weapon and weaponDef(wd).damageType != null: if rng.int(0,99) < min(30, skill(d, weaponDef(wd).skill)*2): emit AttackResolved{parried}; xp(d, wskill, 2); return
@@ -53,7 +53,7 @@ shoot(s, t):
   L = launcherDef(Equipment[s].weapon); ammoItem = quiverTake(s, L.ammo) (split 1 from the stack)
   dist = chebyshev(s,t) + |dz|*2
   hit = clamp(3, 95, 40 + skill(s, L.skill)*3 - dist*2 + (size(t) - 60)/4 - skill(t,'dodge')*2 + (unconscious(t) ? 40 : 0))
-  cooldownUntil[s] = tick + max(MIN_ATTACK_COOLDOWN, L.size*3 + 10 - agi(s)/10)
+  cooldownUntil[s] = tick + crowdTicks(max(MIN_ATTACK_COOLDOWN, L.size*3 + 10 - agi(s)/10), crowdPercentAt(tile(s)))
   spawn Projectile { itemId: ammoItem, from: pos(s), to: pos(t), line: bresenham(pos(s), extend(pos(s), pos(t), L.range)), progress: 0, shooterId: s, targetId: t, hitRoll: rng.int(0,99) < hit, damage: ammoDef.damage * L.power * (metalCrossbow ? 1.083 : 1) * metal(ammo).weaponMult, damageType: ammoDef.damageType }
   emit ProjectileFired; xp(s, L.skill, 1)
 advanceProjectiles(): for p in projectiles (ascending id):

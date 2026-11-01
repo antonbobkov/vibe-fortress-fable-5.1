@@ -186,7 +186,7 @@ interface MovementApi {
   walkTo(id: EntityId, target: TileIndex, urgency: Urgency, ctx): WalkResult  // request, follow, re-request
   stopWalking(id: EntityId): void                  // cancel walk and drop path
   walkTarget(id: EntityId): TileIndex              // target of current walk, or -1
-  walkBlockedTile(id: EntityId): TileIndex         // the tile creatures kept blocking when the last walk gave up (unreachable), or -1 for want of a route
+  crowdPercentAt(tile: TileIndex, joining?: number): number  // 22 § Crowding: the percent of its time anything on the tile takes
 }
 ```
 

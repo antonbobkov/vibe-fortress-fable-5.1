@@ -1,6 +1,7 @@
 /** `10-dwarves.md` §§ Eating and drinking, Sleeping, Social, comfort, joy;
  * `algorithms/creature-brains.md` § startNeed. Plans are saved by 10. */
 import { C, type Brain, type Needs, type Relationships } from '@core/components';
+import { crowdTicks } from '@core/crowding';
 import { FLUID_WADE_LEVEL, NEED_MAX, TICKS_PER_HOUR } from '@core/constants';
 import { FLUID_FROZEN_BIT, FLUID_LEVEL_MASK, FLUID_TYPE_BIT, TileFlag, TileKind } from '@core/map3d';
 import type { TickContext } from '@core/system';
@@ -616,7 +617,9 @@ export class Activities {
         if (s !== null) { p.target = s.tile; p.roomTier = s.tier; p.phase = 'seat'; p.atTable = true; b.targetTile = s.tile; return false; }
       }
       p.phase = 'use';
-      p.until = ctx.tick + (p.need === 'hunger' ? EAT_TICKS : p.need === 'thirst' ? DRINK_TICKS
+      // 22 § Crowding: eating and drinking take longer on a crowded tile.
+      const slowed = (ticks: number): number => crowdTicks(ticks, ctx.world.services.movement?.crowdPercentAt(at) ?? 100);
+      p.until = ctx.tick + (p.need === 'hunger' ? slowed(EAT_TICKS) : p.need === 'thirst' ? slowed(DRINK_TICKS)
         : p.need === 'comfort' ? SIT_TICKS
         : p.need === 'joy' ? HEARTH_VISIT_TICKS : SLEEP_HOURS * TICKS_PER_HOUR);
       p.startedRest = ctx.world.entities.get(id, C.Needs)?.rest ?? 0;

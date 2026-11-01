@@ -26,8 +26,14 @@ export const PATH_CONCURRENT = 16;
 /** `22` § Path cache: number of cached routes, evicted least-recently-used first. */
 export const PATH_CACHE_SIZE = 512;
 
-/** `22` § Movement helper: ticks a mover waits when another creature blocks its next tile. */
-export const REPATH_WAIT_TICKS = 5;
+/** `22` § Crowding: creatures a tile holds at no cost. */
+export const CROWD_FREE = 2;
+
+/** `22` § Crowding: added time for each creature beyond `CROWD_FREE`. */
+export const CROWD_STEP_PERCENT = 25;
+
+/** `22` § Crowding: the most a crowd adds. */
+export const CROWD_MAX_PERCENT = 100;
 
 /** `22` § Movement helper: attempts before the brain gives up the goal. */
 export const REPATH_LIMIT = 3;

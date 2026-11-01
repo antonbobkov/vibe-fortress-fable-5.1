@@ -1,7 +1,6 @@
 /**
- * T-406: a patient with no bed rests where it stands, but never on a door's tile. Any creature on a
- * door stops every walker at it (22), so a patient resting in a doorway held a care job's walk up for
- * good: the job waited for the doorway to clear, and it never did.
+ * T-406: a patient with no bed rests where it stands, but never on a door's tile, where the door will
+ * not lock on it (14): a patient in a gate's doorway would hold the gate open under the alert.
  */
 import { describe, expect, it } from 'vitest';
 import { roundTrip } from '@app/game-save';
@@ -38,7 +37,7 @@ function doorway(seed: string) {
 }
 
 describe('T-406 a patient with no bed does not rest in a doorway', () => {
-  it('steps off the door, so a care job\'s walk through it goes on', () => {
+  it('steps off the door, and a care job\'s walk through it goes on', () => {
     const { w, world, board, id, doorTile, worker, hurt } = doorway('t406-doorway');
     expect(board.claim(worker, board.jobs.get(id)!)).toBe(true);
     w.until((v) => v.events('JobCompleted').some((e) => e['jobId'] === id), 1200);

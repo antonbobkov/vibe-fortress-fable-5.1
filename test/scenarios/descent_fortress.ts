@@ -51,8 +51,8 @@ export function setupDescentSurface(w: TestWorld): void {
     w.setLabor(d, 'hauling', true);
   }
 
-  // 2 soldiers
-  for (let i = 0; i < 2; i++) {
+  // 4 soldiers: three beasts of the Deep beat two who arrive one by one, as the job timeline may have them
+  for (let i = 0; i < 4; i++) {
     const sTile = map.index(21, 51 + i, hz);
     const sId = w.spawnDwarf({
       at: sTile,
@@ -359,7 +359,7 @@ export function runDescent(w: TestWorld): void {
       soldierIds.push(id);
     }
   }
-  expect(soldierIds.length).toBe(2);
+  expect(soldierIds.length).toBe(4);
 
   const rSquad = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Deep Guard' });
   expect(rSquad.ok).toBe(true);
@@ -466,15 +466,18 @@ export function runDescent(w: TestWorld): void {
 
   // 15. Mine 4 more deepsilver tiles to stir the Deep
   console.log('--- Step 15: Mine 4 more deepsilver tiles ---');
-  const moreDeepsilver = [
-    map.index(22, 48, 4),
-    map.index(23, 48, 4),
-    map.index(24, 48, 4),
-    map.index(22, 49, 4),
-  ];
+  // The Deep cracks the walls around the tile mined last (18), so that tile is fixed: the east end of the
+  // row, whose walls leave the workshop hall of step 18 whole.
   w.game.world.applyCommand({
     type: 'Designate',
-    tiles: moreDeepsilver,
+    tiles: [map.index(22, 48, 4), map.index(23, 48, 4), map.index(22, 49, 4)],
+    kind: 'dig',
+    priority: 5,
+  });
+  w.until(() => w.events('DeepsilverMined').length >= 4, 4000);
+  w.game.world.applyCommand({
+    type: 'Designate',
+    tiles: [map.index(24, 48, 4)],
     kind: 'dig',
     priority: 5,
   });

@@ -26,7 +26,7 @@ Soldiers on duty with no order pick the nearest hostile within perception. An on
 
 ### Attack cooldown
 
-`cooldownTicks = weapon.size × 3 + 10 − Agility / 10`, minimum `MIN_ATTACK_COOLDOWN`. Natural attacks use the species' attack size.
+`cooldownTicks = weapon.size × 3 + 10 − Agility / 10`, minimum `MIN_ATTACK_COOLDOWN`. Natural attacks use the species' attack size. On a crowded tile the attacker's cooldown takes longer (22 § Crowding).
 
 ### Melee resolution
 

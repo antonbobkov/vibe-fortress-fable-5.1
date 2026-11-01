@@ -33,6 +33,7 @@ import {
   fortressWitnesses,
 } from '../scenarios/three_years_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
+import { CrowdWatch, type CrowdFigures } from '../scenarios/crowd-watch';
 
 export interface SeedConfig {
   readonly seed: string;
@@ -108,6 +109,7 @@ export interface ThreeYearsSeedResult {
   readonly renown: { y1: number; y2: number; y3: number };
   readonly mealsPerDwarfDay: string;
   readonly drinksPerDwarfDay: string;
+  readonly crowds: { readonly doors: CrowdFigures; readonly hall: CrowdFigures };
 }
 
 export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedResult {
@@ -165,6 +167,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     }
   });
 
+  const crowdWatch = new CrowdWatch(w);
   const totalTicks = 3 * DAYS_PER_YEAR * TICKS_PER_DAY;
   const year1Tick = DAYS_PER_YEAR * TICKS_PER_DAY;
   const year2Tick = 2 * DAYS_PER_YEAR * TICKS_PER_DAY;
@@ -193,7 +196,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
       extinctDay = Math.floor(w.tick / TICKS_PER_DAY) + 1;
     }
 
-    playThreeYears(w, state, Math.min(300, totalTicks - w.tick));
+    playThreeYears(w, state, Math.min(300, totalTicks - w.tick), () => crowdWatch.sample());
     checkFortressWorkOrders(w, state);
     checkFortressRooms(w, state);
     checkFortressCaveFarm(w, state);
@@ -297,6 +300,7 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
     renown: { y1: y1Renown, y2: y2Renown, y3: y3Renown },
     mealsPerDwarfDay,
     drinksPerDwarfDay,
+    crowds: { doors: crowdWatch.doors, hall: crowdWatch.hall },
   };
   // Preserve the measurement even when a deterministic guarantee fails.
   console.log(`[three_years_seeds_detail] ${JSON.stringify(result)}`);

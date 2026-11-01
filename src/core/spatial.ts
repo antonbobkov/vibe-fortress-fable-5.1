@@ -117,6 +117,23 @@ export class SpatialIndex {
     return Array.from(this.tiles.get(i) ?? []).filter((id) => this.tileOf(id) === i).sort((a, b) => a - b);
   }
 
+  /** How many entities this tile's bucket holds: at least as many as stand on the tile. */
+  bucketSize(i: TileIndex): number {
+    return this.tiles.get(i)?.size ?? 0;
+  }
+
+  /**
+   * How many of this tile's entities pass `test`, stopping at nothing and allocating nothing: the mover
+   * asks on every tick of every walk (22 § Crowding). The count does not depend on the bucket's order.
+   */
+  countAt(i: TileIndex, test: (id: EntityId) => boolean): number {
+    const bucket = this.tiles.get(i);
+    if (bucket === undefined || bucket.size === 0) return 0;
+    let n = 0;
+    for (const id of bucket) if (this.tileOf(id) === i && test(id)) n += 1;
+    return n;
+  }
+
   /** Every chunk index whose tiles intersect the given inclusive tile box. */
   private chunksIn(x0: number, y0: number, z0: number, x1: number, y1: number, z1: number): ChunkIndex[] {
     const out: ChunkIndex[] = [];

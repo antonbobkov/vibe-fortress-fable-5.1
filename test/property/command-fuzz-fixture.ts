@@ -416,6 +416,16 @@ function buildWorld(): TestWorld {
     }),
   ).toEqual({ ok: true });
   w.step(1);
+  // One more, placed with no tick to spare: a builder may have claimed the first.
+  expect(
+    w.game.world.applyCommand({
+      type: 'PlaceBuilding',
+      buildingType: 'wall',
+      origin: w.index(92, 90, Z),
+      orientation: 0,
+      materialChoice: 0,
+    }),
+  ).toEqual({ ok: true });
   // T-223: stage the harvest command's same ready crop after setup waits; ordinary farmers may harvest it during TradeOpen.
   const crop = w.plantCrop(w.index(20, 70, Z), 'barley', 3);
   const data = w.game.world.entities.get(crop, C.Crop)!;
