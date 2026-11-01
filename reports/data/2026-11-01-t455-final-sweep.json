@@ -1,0 +1,149 @@
+{
+ "note": "T-455 three_years_seeds at relief 1, commit 61d9647, whole file in one process.",
+ "relief1": {
+  "three-years-p0-1": {
+   "y3Pop": 61,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-2": {
+   "y3Pop": 58,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-3": {
+   "y3Pop": 48,
+   "dwarfDeaths": 17,
+   "byCause": {
+    "starvation": 17
+   }
+  },
+  "three-years-p0-4": {
+   "y3Pop": 63,
+   "dwarfDeaths": 1,
+   "byCause": {
+    "bled_out": 1
+   }
+  },
+  "three-years-p0-5": {
+   "y3Pop": 67,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-6": {
+   "y3Pop": 61,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p0-7": {
+   "y3Pop": 77,
+   "dwarfDeaths": 0,
+   "byCause": {}
+  },
+  "three-years-p2-1": {
+   "y3Pop": 45,
+   "dwarfDeaths": 15,
+   "byCause": {
+    "bled_out": 13,
+    "killed": 2
+   }
+  },
+  "three-years-p2-2": {
+   "y3Pop": 18,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 9,
+    "killed": 2,
+    "infection": 1
+   }
+  },
+  "three-years-p2-3": {
+   "y3Pop": 0,
+   "dwarfDeaths": 27,
+   "byCause": {
+    "killed": 9,
+    "bled_out": 18
+   }
+  },
+  "three-years-p2-4": {
+   "y3Pop": 11,
+   "dwarfDeaths": 16,
+   "byCause": {
+    "bled_out": 11,
+    "killed": 5
+   }
+  },
+  "three-years-p2-5": {
+   "y3Pop": 28,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 4
+   }
+  },
+  "three-years-p2-6": {
+   "y3Pop": 26,
+   "dwarfDeaths": 15,
+   "byCause": {
+    "bled_out": 13,
+    "killed": 2
+   }
+  },
+  "three-years-p2-7": {
+   "y3Pop": 20,
+   "dwarfDeaths": 16,
+   "byCause": {
+    "bled_out": 13,
+    "killed": 3
+   }
+  },
+  "three-years-p4-1": {
+   "y3Pop": 52,
+   "dwarfDeaths": 2,
+   "byCause": {
+    "killed": 1,
+    "bled_out": 1
+   }
+  },
+  "three-years-p4-2": {
+   "y3Pop": 48,
+   "dwarfDeaths": 10,
+   "byCause": {
+    "bled_out": 4,
+    "infection": 2,
+    "killed": 4
+   }
+  },
+  "three-years-p4-3": {
+   "y3Pop": 0,
+   "dwarfDeaths": 35,
+   "byCause": {
+    "bled_out": 28,
+    "killed": 7
+   }
+  },
+  "three-years-p4-4": {
+   "y3Pop": 17,
+   "dwarfDeaths": 29,
+   "byCause": {
+    "killed": 10,
+    "bled_out": 19
+   }
+  },
+  "three-years-p4-5": {
+   "y3Pop": 42,
+   "dwarfDeaths": 4,
+   "byCause": {
+    "bled_out": 2,
+    "killed": 2
+   }
+  },
+  "three-years-p4-6": {
+   "y3Pop": 48,
+   "dwarfDeaths": 12,
+   "byCause": {
+    "bled_out": 6,
+    "killed": 6
+   }
+  }
+ }
+}
