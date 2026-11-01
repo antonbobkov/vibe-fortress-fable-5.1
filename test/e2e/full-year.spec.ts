@@ -354,6 +354,9 @@ async function tradeThroughUi(page: Page, clock: ReturnType<typeof playClock>): 
 
   await page.keyboard.press('+');
   await page.keyboard.press('Tab');
+  // All of the first two stacks marked: which goods those are turns on the year, and one may not cover the meal.
+  await page.keyboard.press('End');
+  await page.keyboard.press('ArrowDown');
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await expect.poll(() => page.evaluate(() => (window as unknown as { __tracker: YearTracker }).__tracker.tradesDone), { message: 'one offer was completed' }).toBeGreaterThanOrEqual(1);
@@ -860,8 +863,12 @@ test('full-year', async ({ page }) => {
   const shot2 = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.screenshotName('full-year-summer'));
   await page.screenshot({ path: shot2 });
 
-  // The stocks panel counts the drink the reader counts
-  await page.keyboard.press('s');
+  // The stocks panel counts the drink the reader counts. A death by now pins a danger line, which takes the first key (24).
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await page.keyboard.press('s');
+    const panel = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.ui.panel);
+    if (panel === 'stocks') break;
+  }
   await expect.poll(() => textOf(page)).toContain('Stocks');
   const drinkStock = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.items.count('drink'));
   const stocksText = await textOf(page);

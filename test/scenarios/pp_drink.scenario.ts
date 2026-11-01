@@ -37,7 +37,8 @@ const scenario: Scenario = {
     const wagonUnits = units();
     for (const itemId of wagonDrink) cmd(w, { type: 'ForbidItem', itemId, on: true });
 
-    const stockpile = zoneRect(w, 'stockpile', cx - 4, cy + 3, surfaceZ(w, cx, cy), 6, 4);
+    // Room for the wagon's goods and the logs, with slots left for the brew: on a full pile it stays at the still.
+    const stockpile = zoneRect(w, 'stockpile', cx - 4, cy + 3, surfaceZ(w, cx, cy), 10, 6);
     cmd(w, { type: 'SetStockpileFilter', zoneId: stockpile, filter: 'everything' });
     // Drink keeps in a barrel on a stockpile (13 § Stockpiles), where 10's drink search looks first.
     cmd(w, { type: 'SetStockpileContainers', zoneId: stockpile, wants: { barrel: 2 } });

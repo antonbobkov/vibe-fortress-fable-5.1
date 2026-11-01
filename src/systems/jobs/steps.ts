@@ -11,6 +11,7 @@
  */
 
 import { C } from '@core/components';
+import { crowdEffort } from '@core/crowding';
 import type { TickContext } from '@core/system';
 import type { BuildingsReader } from '@systems/buildings';
 import { grantXp } from '@systems/dwarves';
@@ -87,7 +88,7 @@ export function chooseStand(board: JobBoard, job: Job, workerId: EntityId): Tile
  * on its way), so the job is unclaimed as a walk bound for a stand tile the labels keep it from.
  */
 function unclaimNoStand(board: JobBoard, job: Job): void {
-  board.unclaim(job, 'unreachable', -1, board.standTiles(job)[0] ?? board.anchorTile(job));
+  board.unclaim(job, 'unreachable', board.standTiles(job)[0] ?? board.anchorTile(job));
 }
 
 /** `jobs.stepWorker(id, ctx)`. */
@@ -141,7 +142,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
             board.setWorker(workerId, { carrying: target });
           }
         } else if (movement === null || movement.walkTo(workerId, at, 'job', ctx) === 'unreachable') {
-          board.unclaim(job, 'unreachable', movement?.walkBlockedTile(workerId) ?? -1, at);
+          board.unclaim(job, 'unreachable', at);
         }
       } else {
         const dest = deliveryTile(board, job, workerId);
@@ -152,7 +153,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
           for (const input of job.inputs) if (input.reserved.includes(carrying)) input.delivered.push(carrying);
           board.setWorker(workerId, { carrying: 0 });
         } else if (movement === null || movement.walkTo(workerId, dest, 'job', ctx) === 'unreachable') {
-          board.unclaim(job, 'unreachable', movement?.walkBlockedTile(workerId) ?? -1, dest);
+          board.unclaim(job, 'unreachable', dest);
         }
       }
       if (job.state === 'fetching' && !pendingWork(job) && board.workerOf(workerId).carrying === 0) job.state = 'travelling';
@@ -171,14 +172,16 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
         return;
       }
       if (movement === null || movement.walkTo(workerId, stand, 'job', ctx) === 'unreachable') {
-        board.unclaim(job, 'unreachable', movement?.walkBlockedTile(workerId) ?? -1, stand);
+        board.unclaim(job, 'unreachable', stand);
       }
       return;
     }
     case 'working': {
       const required = effortRequired(workCentiTicks(board, job));
+      // 22 § Crowding: the crowd on the worker's tile slows the tick's work.
       const done = (typeof job.data['effort'] === 'number' ? (job.data['effort'] as number) : 0) +
-        effortPerTick(SKILL_TIME_BONUS_PERCENT, board.skillFor(workerId, job), board.productivity(workerId));
+        crowdEffort(effortPerTick(SKILL_TIME_BONUS_PERCENT, board.skillFor(workerId, job), board.productivity(workerId)),
+          movement?.crowdPercentAt(board.workerTile(workerId)) ?? 100);
       if (done >= required) {
         // F-17b: before the producer consumes, every delivered input must still be this job's.
         if (!board.revalidateDelivered(job)) {

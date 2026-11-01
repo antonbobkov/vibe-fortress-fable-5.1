@@ -671,6 +671,25 @@ export class Compositor {
   }
 
   /**
+   * The creature step 6 shows on a tile this second: the topmost, or with several and motion on, each
+   * in turn from the topmost on the 1000 ms clock (23 step 6). Frame 0 shows the topmost.
+   */
+  private shownCreature(i: TileIndex): EntityId | null {
+    const top = this.topCreature(i);
+    const turn = this.animFrame >> 1;
+    const readers = this.frameReaders;
+    if (top === null || turn === 0 || this.reducedMotion || readers === null) return top;
+    const here = readers.entities.at(i).filter((id) => {
+      if (!readers.entities.has(id, C.Creature)) return false;
+      const hostile = readers.entities.get(id, C.Hostile);
+      return !(hostile?.stealthed === true && hostile.spotted !== true);
+    });
+    if (here.length < 2) return top;
+    here.sort((a, b) => this.rankOf(readers, a) - this.rankOf(readers, b) || a - b);
+    return here[turn % here.length] as EntityId;
+  }
+
+  /**
    * A dwarf's state color (23 § Palette › State colors): `dwarf_child` for a child, `dwarf_need`
    * while a need drives it (behavior `need`), else `dwarf_normal`. Wounded, asleep and soldier
    * colors need 17, 10's sleep and 16 (docs/archive/decisions-archive.md D-067).
@@ -688,7 +707,7 @@ export class Compositor {
   /** Step 6, creatures (10, 08, 18): "species glyph, color by state". */
   private creatureOver(cell: Cell, i: TileIndex): Cell {
     const readers = this.frameReaders;
-    const id = this.topCreature(i);
+    const id = this.shownCreature(i);
     if (readers === null || id === null) return cell;
     const c = readers.entities.get(id, C.Creature);
     if (c === undefined) return cell;

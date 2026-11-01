@@ -1362,10 +1362,11 @@ function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: readonly
  * Advance the fortress while watching for danger: the defence is looked at every WATCH_EVERY
  * ticks, the rest of the management at the caller's own pace.
  */
-export function playThreeYears(w: TestWorld, state: FortressState, ticks: number): void {
+export function playThreeYears(w: TestWorld, state: FortressState, ticks: number, watch?: () => void): void {
   const end = w.tick + ticks;
   while (w.tick < end) {
     stepThreeYears(w, Math.min(WATCH_EVERY, end - w.tick));
+    watch?.();
     checkFortressDefense(w, state);
   }
 }

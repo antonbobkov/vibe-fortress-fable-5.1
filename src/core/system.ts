@@ -101,11 +101,8 @@ export interface MovementApi {
   stopWalking(id: EntityId): void;
   /** The target of a mover's current walk, or -1. */
   walkTarget(id: EntityId): TileIndex;
-  /**
-   * The tile creatures kept standing on when the walk that last returned `unreachable` for this mover gave up (a
-   * doorway), or -1 when it gave up for want of a route.
-   */
-  walkBlockedTile(id: EntityId): TileIndex;
+  /** 22 § Crowding: the percent of its time anything takes on a tile; `joining` counts a mover not on it yet. */
+  crowdPercentAt(tile: TileIndex, joining?: number): number;
 }
 
 /**

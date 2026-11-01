@@ -5,6 +5,7 @@
  */
 
 import { C, type Body } from '@core/components';
+import { crowdTicks } from '@core/crowding';
 import type { EntityStore } from '@core/entities';
 import { TileKind, type Map3D } from '@core/map3d';
 import type { Registry } from '@core/registry';
@@ -596,10 +597,13 @@ export function fireRanged(
 
   // Set cooldown
   const agiS = getAttribute(entities, shooterId, 'agi');
-  const cooldownTicks = Math.max(
+  // 22 § Crowding: a crowd on the shooter's tile slows its shots.
+  const movement = ctx.world.services.movement;
+  const crowd = movement === null ? 100 : movement.crowdPercentAt(movement.tileOf(shooterId));
+  const cooldownTicks = crowdTicks(Math.max(
     MIN_ATTACK_COOLDOWN,
     Math.floor(weaponSize * 3 + 10 - agiS / 10),
-  );
+  ), crowd);
   cooldownUntilMap.set(shooterId, ctx.tick + cooldownTicks);
 
   // Spawn projectile entity

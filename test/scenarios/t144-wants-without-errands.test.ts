@@ -131,8 +131,8 @@ describe('T-144 wants without errands', () => {
     expect(p.working / (p.samples * p.dwarves.length)).toBeGreaterThan(0.25);
     expect(p.errands.length).toBeGreaterThan(0);
     expect(p.errands.filter((e) => e.workOpen)).toEqual([]);
-    // Nobody reaches the high mark at this workload, so nobody takes the hall errand before work.
-    expect(p.hallErrands).toEqual([]);
+    // Whoever reaches the high mark at this workload takes the hall errand only with no work open.
+    expect(p.hallErrands.filter((e) => e.workOpen)).toEqual([]);
     for (const id of p.dwarves) {
       const row = p.under.get(id) as Record<Want, number>;
       for (const want of WANTS) {

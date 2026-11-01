@@ -1,5 +1,7 @@
 # T-457 — Crowding slows creatures; a door no longer blocks
 
+**Closed:** 2026-11-01, in 0aab244 and 79593c4.
+
 **Source:** the owner, 2026-10-31 · **Size:** M · **Needs:** T-455 · **Status:** open
 
 ## Why

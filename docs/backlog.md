@@ -13,7 +13,9 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
-| T-457 | [Crowding slows creatures; a door no longer blocks](work/T-457-crowding-instead-of-door-blocking.md) | the owner, 2026-10-31 | T-455 | open |
-| T-460 | [Combat rules the spec states and the code does not follow](work/T-460-combat-spec-vs-code.md) | the summaries of 2026-11-01 | T-457 | open |
+| T-460 | [Combat rules the spec states and the code does not follow](work/T-460-combat-spec-vs-code.md) | the summaries of 2026-11-01 | — | open |
+| T-461 | [Cave crawlers kill a whole fortress under a calm alert](work/T-461-crawlers-in-the-halls.md) | T-457's sweep | — | open |
+| T-462 | [A full stockpile leaves the brew at the still, and no one drinks it](work/T-462-brew-site-and-the-brook.md) | T-457's sweep | — | open |
+| T-463 | [Tame animals all stand on one hall tile](work/T-463-dogs-on-one-hall-tile.md) | T-457's sweep | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

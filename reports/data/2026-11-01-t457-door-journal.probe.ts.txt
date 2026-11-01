@@ -1,0 +1,82 @@
+/**
+ * T-457 probe (not committed; filed as reports/data/2026-11-01-t457-door-journal.probe.ts.txt). For T457_SEED
+ * (seed:peril) up to T457_DAYS: every hostile step onto a door tile with who else stood there, and every dwarf death
+ * with its place and killer, from T457_FROM on in full and as counts before. Read-only: nothing here commands the game.
+ */
+import { it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { liesDown } from '@core/movement';
+import type { EntityId, TileIndex } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings';
+import { checkFortressCaveFarm, checkFortressDefense, checkFortressRooms, checkFortressWorkOrders, playThreeYears, setupThreeYearsFortress, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const [SEED, PERIL] = (process.env['T457_SEED'] ?? 'three-years-p4-2:4').split(':');
+const DAYS = Number(process.env['T457_DAYS'] ?? 241);
+const FROM = Number(process.env['T457_FROM'] ?? 230);
+const OUT = process.env['T457_OUT'] ?? '.vite/t457-journal.jsonl';
+
+it('journals doors and deaths', () => {
+  writeFileSync(OUT, '');
+  const log = (o: unknown): void => appendFileSync(OUT, JSON.stringify(o) + '\n');
+  const w = threeYearsWorld(SEED!, Number(PERIL));
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const b = w.readers.of<BuildingsReader>('14');
+  const day = (): number => +(w.tick / TICKS_PER_DAY).toFixed(2);
+  const gate = new Set([w.index(state.cx + 6, state.cy + 5, state.z), w.index(state.cx + 6, state.cy + 7, state.z)]);
+  const who = (id: EntityId): string => {
+    const c = ent.get(id, C.Creature);
+    return `${species.byIndex(c?.species ?? 0)?.id ?? '?'}:${c?.faction ?? '?'}${ent.has(id, C.Soldier) ? ':soldier' : ''}`;
+  };
+  const tally: Record<string, number> = {};
+  const add = (k: string): void => { tally[k] = (tally[k] ?? 0) + 1; };
+  const hostile = (id: EntityId): boolean => { const f = ent.get(id, C.Creature)?.faction ?? ''; return f.startsWith('hostile') || f === 'deep'; };
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      if (e.type === 'EntitiesMoved') {
+        add('move batches');
+        for (const [id, , to] of e['moves'] as [EntityId, TileIndex, TileIndex][]) {
+          if (!ent.alive(id) || !hostile(id) || !b.doorAt(to)) continue;
+          const others = w.readers.entities.at(to).filter((o) => o !== id && ent.kind(o) === 'creature' && !liesDown(ent, o));
+          const fortress = others.filter((o) => ent.get(o, C.Creature)?.faction === 'fortress');
+          const soldiers = fortress.filter((o) => ent.has(o, C.Soldier));
+          add('hostile steps onto a door');
+          if (others.length > 0) add('with a creature standing in it');
+          if (fortress.length > 0) add('with a fortress creature standing in it');
+          if (soldiers.length > 0) add('with a soldier standing in it');
+          if (day() >= FROM && fortress.length > 0) log({ d: day(), t: 'pass', who: who(id), gate: gate.has(to), door: to, mode: b.get(b.at(to))?.mode, standing: fortress.map(who) });
+          if (day() >= FROM) add(`from day ${FROM}: hostile steps onto a door`);
+        }
+      } else if (e.type === 'CreatureDied' && ent.alive(Number(e['id'])) !== undefined && e['faction'] === 'fortress' && species.byIndex(Number(e['species']))?.id === 'dwarf') {
+        const tile = Number(e['tile']);
+        const killer = Number(e['killerId'] ?? 0);
+        add(`dwarf ${String(e['cause'])}`);
+        log({ d: day(), t: 'death', cause: e['cause'], at: [w.map.xOf(tile), w.map.yOf(tile), w.map.zOf(tile)], outdoor: w.map.zOf(tile) >= state.z, killer: killer !== 0 && ent.alive(killer) ? who(killer) : killer, name: e['name'], alert: w.game.world.fortress.alert });
+      } else if (e.type === 'CreatureDied' && hostile(Number(e['id']))) add('hostile died');
+      else if (['AlertChanged', 'RaidArrived', 'RaidEnded', 'DoorBroken', 'FortressShutOut', 'BuildingStateChanged'].includes(e.type) && day() >= FROM - 5) log({ d: day(), t: e.type, ...e });
+    }
+  });
+  // The seeds file's own loop, so that the journal plays its timeline.
+  const bootstrap = 20 * TICKS_PER_DAY;
+  while (w.tick < bootstrap) {
+    playThreeYears(w, state, Math.min(100, bootstrap - w.tick));
+    checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+  }
+  const end = DAYS * TICKS_PER_DAY;
+  let lastLook = 0;
+  while (w.tick < end) {
+    playThreeYears(w, state, 300, () => {
+      if (day() < FROM || w.tick - lastLook < 100) return;
+      lastLook = w.tick;
+      const hs = ent.with(C.Hostile).filter((id) => ent.has(id, C.Position)).map((id) => ent.get(id, C.Position)!);
+      const dwarves = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+      const doors = [...gate].map((t) => ({ mode: b.get(b.at(t))?.mode, kind: b.get(b.at(t))?.state, here: w.readers.entities.at(t).filter((o) => ent.kind(o) === 'creature').map(who) }));
+      log({ d: day(), t: 'look', alert: w.game.world.fortress.alert, hostiles: hs.length, hostilesIndoors: hs.filter((p) => p.z < state.z).length, dwarves: dwarves.length, soldiers: dwarves.filter((id) => ent.has(id, C.Soldier)).length, doors });
+    });
+    checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+  }
+  log({ t: 'tally', tally });
+}, 900_000);

@@ -97,10 +97,9 @@ moveAlongPath(id, ctx):
   p = paths[m.pathId]; if m.stepIndex >= p.length: clear; return 'arrived'
   if m.waitUntil > tick: return 'moving'
   next = p[m.stepIndex]
-  m.progress += m.speed * 1000 / cost(next, m.cls, faction(id))
+  m.progress += (m.speed * 1000 / cost(next, m.cls, faction(id))) * 100 / crowdPercentAt(next, 1)
   while m.progress >= 1000:
     if not passable(next, cls, faction) : return repath(id, 'blocked')
-    if blockedByCreature(next, id): m.waitUntil = tick + REPATH_WAIT_TICKS; m.repathCount++; if m.repathCount > REPATH_LIMIT: return repath(id,'blocked'); return 'moving'
     prev = position(id); setPosition(id, next); spatial.move(id, prev, next); movesThisTick.push([id, prev, next])
     if kind[next] == Open: return fall(id)
     m.progress -= 1000; m.stepIndex++; m.repathCount = 0
@@ -108,7 +107,7 @@ moveAlongPath(id, ctx):
     next = p[m.stepIndex]
   return 'moving'
 fall(id): z0 = z(pos); descend while kind(below) == Open or (below has fluid and no solid bottom); land on first solid-bottomed tile (or fluid surface at level 7); levels = z0 - z(landed); setPosition; emit Fell{id, levels, landedOn}; clear path; return 'fell'
-blockedByCreature(next, id): any creature on `next` not lying down (unconscious, or asleep with no path), if buildingAt(next) is a door; on any other tile nothing blocks, a hostile included
+crowdPercentAt(t, joining): crowdPercent(joining + standing creatures on t, leaving out those lying down: unconscious, or asleep with no path); 22 § Crowding
 ```
 
 `EntitiesMoved { moves: movesThisTick }` is emitted once per tick by the core after the last brain ran. Spatial index: `spatial.move(id, a, b)` removes from `chunks[chunk(a)].entities` and inserts sorted into `chunks[chunk(b)].entities` when the chunk differs.

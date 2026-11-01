@@ -134,8 +134,8 @@ function patientBedTile(ctx: TickContext, id: EntityId): TileIndex {
 }
 
 /**
- * A dwarf that rests where it stands does not rest on a door's tile, where it would stop every
- * walker at the door (22): it takes the lowest-index tile beside it on its level that it can stand on,
+ * A dwarf that rests where it stands does not rest on a door's tile, where the door will not lock on
+ * it (14): it takes the lowest-index tile beside it on its level that it can stand on,
  * holds no door and shares its walker label. With none, it stays.
  */
 function offDoor(ctx: TickContext, id: EntityId, at: TileIndex): TileIndex {

@@ -1361,7 +1361,7 @@ export class BuildingStore {
     return row.impassableTiles !== undefined && row.impassableTiles.includes(k);
   }
 
-  /** 22's `doorAt(i)`: a built door stands on the tile (+`DOOR_COST_PENALTY`; creatures block there). */
+  /** 22's `doorAt(i)`: a built door stands on the tile (+`DOOR_COST_PENALTY`). */
   doorAt(i: TileIndex): boolean {
     return this.builtAt(i)?.row.tags.includes('door') === true;
   }

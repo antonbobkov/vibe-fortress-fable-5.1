@@ -3,7 +3,7 @@ import { C, createEntityStore, type Creature, type Motion, type Position } from 
 import type { GameEvent } from '@core/events';
 import { Map3D, TileKind } from '@core/map3d';
 import { MovementHelper, type MovementContext } from '@core/movement';
-import { REPATH_LIMIT, REPATH_WAIT_TICKS, STEP_COST } from '@core/path-constants';
+import { STEP_COST } from '@core/path-constants';
 import { PathingCore, type TerrainHooks } from '@core/pathfinding';
 import { SpatialIndex } from '@core/spatial';
 import type { EntityId, TileIndex } from '@core/types';
@@ -182,12 +182,11 @@ describe('T-M0-09 movement: blocking', () => {
     spawnWalker(h, map.index(2, 2, 0), STEP_COST, 'hostile:gloam');
     givePath(h, id, map.index(4, 2, 0));
     h.setTick(0);
-    expect(h.movement.blockedByCreature(map.index(2, 2, 0), id)).toBe(false);
     expect(h.movement.moveAlongPath(id, h.ctx)).toBe('moving');
     expect(h.movement.tileOf(id)).toBe(map.index(2, 2, 0));
   });
 
-  it('T-412 a standing hostile on a door tile stops the walker', () => {
+  it('T-457 a standing hostile on a door tile does not stop a walker', () => {
     const map = corridor();
     const door = map.index(2, 2, 0);
     const h = harness(map, { doorAt: (t) => t === door });
@@ -195,30 +194,10 @@ describe('T-M0-09 movement: blocking', () => {
     spawnWalker(h, door, STEP_COST, 'hostile:gloam');
     givePath(h, id, map.index(4, 2, 0));
     h.setTick(0);
-    expect(h.movement.blockedByCreature(door, id)).toBe(true);
-    expect(h.movement.moveAlongPath(id, h.ctx)).toBe('moving');
-    expect(h.movement.tileOf(id)).toBe(map.index(1, 2, 0));
-  });
-
-  it('T-412 a creature standing on a door tile makes a fast mover wait, then gives up', () => {
-    const map = corridor();
-    const door = map.index(2, 2, 0);
-    const h = harness(map, { doorAt: (t) => t === door });
-    const id = spawnWalker(h, map.index(1, 2, 0), STEP_COST * 100);
-    spawnWalker(h, door, STEP_COST, 'hostile:gloam');
-    givePath(h, id, map.index(6, 2, 0));
-    let tick = 0;
-    for (let attempt = 1; attempt <= REPATH_LIMIT; attempt += 1) {
-      h.setTick(tick);
-      expect(h.movement.moveAlongPath(id, h.ctx)).toBe('moving');
-      const m = h.entities.get<Motion>(id, C.Motion) as Motion;
-      expect(m.repathCount).toBe(attempt);
-      expect(m.waitUntil).toBe(tick + REPATH_WAIT_TICKS);
-      tick = m.waitUntil;
-    }
-    h.setTick(tick);
-    expect(h.movement.moveAlongPath(id, h.ctx)).toBe('blocked');
-    expect((h.entities.get<Motion>(id, C.Motion) as Motion).pathId).toBe(0);
+    h.movement.moveAlongPath(id, h.ctx);
+    h.setTick(1);
+    h.movement.moveAlongPath(id, h.ctx);
+    expect(h.movement.tileOf(id)).toBe(door);
   });
 
   it('two friendly creatures share a tile', () => {
@@ -230,18 +209,6 @@ describe('T-M0-09 movement: blocking', () => {
     h.setTick(0);
     expect(h.movement.moveAlongPath(id, h.ctx)).toBe('moving');
     expect(h.movement.tileOf(id)).toBe(map.index(2, 2, 0));
-  });
-
-  it('any creature blocks the tile a door stands on', () => {
-    const map = corridor();
-    const door = map.index(2, 2, 0);
-    const h = harness(map, { doorAt: (t) => t === door });
-    const id = spawnWalker(h, map.index(1, 2, 0));
-    spawnWalker(h, door);
-    givePath(h, id, map.index(4, 2, 0));
-    h.setTick(0);
-    expect(h.movement.moveAlongPath(id, h.ctx)).toBe('moving');
-    expect(h.movement.tileOf(id)).toBe(map.index(1, 2, 0));
   });
 });
 
