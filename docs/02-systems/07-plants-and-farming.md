@@ -64,7 +64,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 ### Trees
 
 - A `tree` tile is one tile; it blocks movement and fluids; `chop` (03) turns it into `floor` and drops `logs` logs of the species (material `wood` with the species as the material row: each tree species is also a wood material with its own value and color).
-- A `sapling` tile grows into a `tree` after `saplingYears` (from `saplings: Map<tile, plantedTick>`), checked daily. While any creature occupies the tile, keep the mature sapling and its planted tick; retry growth on the next daily pass after the tile clears. A sapling is walkable and is trampled (removed) if a building is placed on it.
+- A `sapling` tile grows into a `tree` after `saplingYears` (from `saplings: Map<tile, plantedTick>`), checked daily. While any creature occupies the tile, or a building is planned on it, keep the mature sapling and its planted tick; retry growth on the next daily pass after the tile clears. A sapling is walkable. A building may be placed on it (14 § Placement): the builder uproots it, and it leaves nothing. The chop tool also takes a sapling (03).
 - Regrowth: each `DayPassed`, for `REGROWTH_TRIES_PER_DAY` random outdoor soil floor tiles with `grass` and no tree or sapling within 2 tiles, plant a sapling of a species drawn from the biome's tree weights with probability `biome.treeDensity × REGROWTH_PERMILLE`. Cavern floors do the same for fungus trees within the cavern band.
 - Trees never spread onto farm plots, roads or constructed floors.
 
@@ -72,6 +72,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 - Wild shrubs are gatherable when `mature`. `gather` (03) yields `yieldCount` of `yieldItem` and, with `wildSeedPermille`, one seed; the shrub enters `regrowing` for `regrowDays` (tracked in `shrubTimers`), then returns to `mature`. Regrowing shrubs are drawn dimmer.
 - Shrubs on burning tiles are destroyed (05).
+- A building may be placed on a shrub (14 § Placement): the builder uproots it, and the shrub leaves what `gather` would leave if it is `mature`, and nothing if it is `regrowing`.
 - A `gather` zone (09) auto-designates mature shrubs inside it.
 
 ### Grass
@@ -141,6 +142,7 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 | `REGROWTH_PERMILLE` | 200 | Multiplied by biome tree density (0–1) (*unmeasured*) |
 | `GRASS_REGROW_PERMILLE` | 120 | Per bare tile per day with a grass neighbor |
 | `SAPLING_YEARS` | 2 | Default; species may override (*unmeasured*) |
+| `CLEAR_PLANT_TICKS` | 20 | Work added to a build job per sapling or shrub on its footprint (*unmeasured*) |
 
 Species stage lengths, yields, seasons, temperatures and biome weights are content.
 

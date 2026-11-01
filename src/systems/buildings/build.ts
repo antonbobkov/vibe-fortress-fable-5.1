@@ -36,7 +36,8 @@ import type { MoverOptions } from '@core/pathfinding';
 import type { CoreServices, JobProducer, TickContext } from '@core/system';
 import { BODY_SLOTS, type EntityId, type Idx, type MovementClass, type TileIndex } from '@core/types';
 import { killCreature } from '@systems/health/tick';
-import { CONSTRUCTION_KIND, constructionFlags, onRuleHolds, onRuleOf, standsAt, type OnRule } from './constructions';
+import { CLEAR_PLANT_TICKS } from '@systems/plants/constants';
+import { CONSTRUCTION_KIND, constructionFlags, isClearablePlant, onRuleHolds, onRuleOf, standsAt, treeRefuses, type OnRule } from './constructions';
 import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, WAGON_CAPACITY, WELL_DEPTH } from './constants';
 import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 
@@ -77,6 +78,17 @@ function magmaAt(map: Map3D, i: TileIndex): boolean {
 /** "By material" labor: wood → carpentry, stone → masonry, metal → smithing (`buildings-and-furniture.md`). */
 const LABOR_BY_CLASS: Readonly<Record<string, string>> = Object.freeze({ wood: 'carpentry', stone: 'masonry', metal: 'smithing' });
 
+/** The build tool's ghost at an origin: what `PlaceBuilding` would do there. */
+export interface BuildGhost {
+  readonly tiles: TileIndex[];
+  readonly bad: TileIndex[];
+  /** The saplings and shrubs the builder will clear (14 § Placement). */
+  readonly clears: TileIndex[];
+  readonly reason: string | null;
+  /** The failing rule; `chop_first` when a grown tree stands on a failing tile. */
+  readonly rule: OnRule | 'chop_first';
+}
+
 export interface BuildHost {
   readonly map: Map3D;
   readonly entities: EntityStore;
@@ -88,6 +100,8 @@ export interface BuildHost {
   /** Loose items with their own ground position. */
   itemsAt(i: TileIndex): readonly EntityId[];
   walkable(i: TileIndex): boolean;
+  /** 07: whether a shrub is `mature`, so uprooting it leaves what `gather` would. */
+  shrubReady(i: TileIndex): boolean;
   /** Whether a fortress creature is alive (the hearth cannot be deconstructed while dwarves live). */
   dwarvesAlive(): boolean;
   /** 11's job id for a key, or 0. */
@@ -220,7 +234,7 @@ export class BuildingStore {
     const map = this.map;
     const coord = (tile: TileIndex): number => orientation % 2 === 0 ? map.xOf(tile) : map.yOf(tile);
     const edge = orientation === 0 || orientation === 1 ? Math.min(...tiles.map(coord)) : Math.max(...tiles.map(coord));
-    return tiles.some((tile) => coord(tile) === edge && map.kindAt(tile) === TileKind.Floor);
+    return tiles.some((tile) => coord(tile) === edge && (map.kindAt(tile) === TileKind.Floor || isClearablePlant(map.kindAt(tile))));
   }
 
   /** The tile a building's jobs anchor to: the centre of its footprint. */
@@ -330,18 +344,18 @@ export class BuildingStore {
    * reason): the footprint at an origin, the tiles that fail, and the first reason `PlaceBuilding`
    * would give, or null when it would be accepted.
    */
-  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number): { tiles: TileIndex[]; bad: TileIndex[]; reason: string | null; rule: OnRule } {
+  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number): BuildGhost {
     const map = this.map;
     const type = this.typeOf(typeId);
     const rule = onRuleOf(typeId);
-    if (type === 0 || !map.validIndex(origin)) return { tiles: [], bad: [], reason: 'not_found', rule };
+    if (type === 0 || !map.validIndex(origin)) return { tiles: [], bad: [], clears: [], reason: 'not_found', rule };
     const row = this.row(type);
     if (row.tags.includes('bridge') && (width !== undefined || height !== undefined) &&
       (!Number.isInteger(width) || !Number.isInteger(height) || (width ?? 0) < 1 || (height ?? 0) < 1 || (width ?? 0) > BRIDGE_MAX || (height ?? 0) > BRIDGE_MAX)) {
-      return { tiles: [], bad: [], reason: 'out_of_range', rule };
+      return { tiles: [], bad: [], clears: [], reason: 'out_of_range', rule };
     }
     const tiles = this.footprint(row, origin, orientation, width, height);
-    if (tiles === null) return { tiles: [], bad: [], reason: 'out_of_bounds', rule };
+    if (tiles === null) return { tiles: [], bad: [], clears: [], reason: 'out_of_bounds', rule };
     const bad: TileIndex[] = [];
     let reason: string | null = null;
     const note = (r: string): void => {
@@ -362,7 +376,8 @@ export class BuildingStore {
     if (reason === null && row.tags.includes('bridge') && !this.bridgeHinge(tiles, orientation)) reason = 'bad_placement';
     if (reason === null && row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) reason = 'hearth_exists';
     if (reason === null && row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) reason = 'bad_placement';
-    return { tiles, bad, reason, rule };
+    const clears = tiles.filter((t) => isClearablePlant(map.kindAt(t)));
+    return { tiles, bad, clears, reason, rule: bad.some((t) => treeRefuses(map, rule, t)) ? 'chop_first' : rule };
   }
 
   /** `PlaceBuilding { buildingType, origin, orientation, materialChoice, priority }`; the new id through `placed`. */
@@ -543,8 +558,11 @@ export class BuildingStore {
       canComplete: (job) => this.canComplete(job as JobLike),
       workCentiTicks: (job) => {
         const t = (job as JobLike).data['buildTicks'];
-        return typeof t === 'number' ? t * 100 : undefined;
+        if (typeof t !== 'number') return undefined;
+        const clear = (job as JobLike).data['clearTicks'];
+        return (t + (typeof clear === 'number' ? clear : 0)) * 100;
       },
+      onWorkTick: (job, done, required) => this.onWorkTick(job as JobLike, done, required),
       onJobEvent: (event) => {
         if (event.type === 'JobClaimed' && event['jobType'] === 'build') {
           const id = event['target'] as EntityId;
@@ -574,6 +592,7 @@ export class BuildingStore {
       if (b.state !== 'built') {
         if (jobs.exists(buildKey(id))) continue;
         const inputs = this.inputsFor(row, b.footprint.length, material);
+        const plants = b.footprint.filter((t) => isClearablePlant(this.map.kindAt(t))).length;
         jobs.create(buildKey(id), {
           type: 'build',
           target: { kind: 'building', ref: id },
@@ -586,6 +605,7 @@ export class BuildingStore {
             labor: this.laborFor(row, material),
             buildTicks: row.buildTicks * (row.tags.includes('bridge') ? b.footprint.length : 1),
             inputUnits: inputs.some((i) => i.count > 1),
+            ...(plants > 0 ? { clearTicks: plants * CLEAR_PLANT_TICKS } : {}),
           },
         });
       } else if (b.settings['deconstruct'] === true) {
@@ -636,6 +656,23 @@ export class BuildingStore {
       }
     }
     return { delivered, take };
+  }
+
+  /** 14 § Placement step 4: the first of a build's work uproots the plants on its footprint. */
+  private onWorkTick(job: JobLike, done: number, required: number): void {
+    const id = job.data['building'];
+    const clear = job.data['clearTicks'];
+    const build = job.data['buildTicks'];
+    if (typeof id !== 'number' || typeof clear !== 'number' || typeof build !== 'number') return;
+    if (done * (clear + build) < required * clear) return;
+    const b = this.get(id);
+    if (b !== undefined) this.clearPlants(b);
+  }
+
+  private clearPlants(b: Building): void {
+    for (const t of b.footprint) {
+      if (isClearablePlant(this.map.kindAt(t))) this.host.services.terrain.clearPlant?.(t, this.host.shrubReady(t));
+    }
   }
 
   /** A wall waits for creatures and for space to clear leftover items. */
@@ -700,6 +737,7 @@ export class BuildingStore {
   complete(id: EntityId, delivered: readonly EntityId[], material: number, linked: EntityId = 0, take?: ReadonlyMap<EntityId, number>): void {
     const b = this.get(id) as Building;
     const row = this.row(b.type);
+    this.clearPlants(b);
     const moves = this.wallItemMoves(b, delivered, take);
     if (moves === null) return;
     const items = this.host.services.items;

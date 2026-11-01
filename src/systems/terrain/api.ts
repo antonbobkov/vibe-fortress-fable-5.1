@@ -110,6 +110,14 @@ export class TerrainCore implements TerrainApi {
     this.settle();
   }
 
+  /** Installed by 03's job producer, whose stream rolls a shrub's product. */
+  plantClearer: ((i: TileIndex, ripe: boolean) => void) | null = null;
+
+  clearPlant(i: TileIndex, ripe: boolean): void {
+    this.check(i);
+    this.plantClearer?.(i, ripe);
+  }
+
   setFlag(i: TileIndex, flag: TileFlag, value: boolean): void {
     this.check(i);
     if (this.map.hasFlag(i, flag) === value) return;

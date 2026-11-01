@@ -27,7 +27,7 @@ import {
   MINING_STONE_DROP_PERMILLE,
   SMOOTH_BASE_TICKS,
 } from './constants';
-import { precondition, transition, type TransitionRolls } from './rules/transitions';
+import { clearPlantTransition, precondition, transition, type TransitionRolls } from './rules/transitions';
 import { rollQuality } from './rules/engrave';
 
 /** `03` § Digging as a job: the job type of each designation. */
@@ -263,6 +263,7 @@ export class TerrainProducer implements JobProducer {
       core.clearDesignation(tile);
       return;
     }
+    const wasTree = map.kindAt(tile) === TileKind.Tree;
     const material = map.materialAt(tile);
     const materialId = facts.materialId(material);
     const cls = facts.classOf(material);
@@ -299,13 +300,24 @@ export class TerrainProducer implements JobProducer {
       if (core.findVein(tile)) ctx.emit({ type: 'VeinFound', material: materialId, tile, finderId: worker });
     }
     if (mines && facts.isDeepsilver(material)) ctx.emit({ type: 'DeepsilverMined', tile, minerId: worker });
-    if (kind === Designation.Chop) ctx.emit({ type: 'TreeFelled', tile, species: facts.plant(material)?.id ?? '' });
+    if (kind === Designation.Chop && wasTree) ctx.emit({ type: 'TreeFelled', tile, species: facts.plant(material)?.id ?? '' });
 
     // Items land on the tile, or below it when the tile is now open.
     for (const d of result.drops) {
       const at = isSolidBottomed(map.kindAt(d.tile)) ? d.tile : core.landingTile(d.tile);
       core.drop(d.type, d.material, d.count, at, JOB_TYPE_OF[kind] ?? 'terrain');
     }
+  }
+
+  /** 14 § Placement step 4 through the terrain API: uproot a sapling or shrub, dropping a ripe shrub's product. */
+  clearPlant(tile: TileIndex, ripe: boolean): void {
+    const core = this.core;
+    const kind = this.map.kindAt(tile);
+    if (kind !== TileKind.Sapling && kind !== TileKind.Shrub) return;
+    const result = clearPlantTransition(this.map, tile, core.host.facts, this.rolls(), ripe);
+    core.writeMany(result.changes);
+    core.clearDesignation(tile);
+    for (const d of result.drops) core.drop(d.type, d.material, d.count, d.tile, 'clear_plant');
   }
 
   private skillIndex(ctx: TickContext, id: string): number {

@@ -1,5 +1,7 @@
 # T-458 — A sapling or shrub on a building site cannot be cleared
 
+**Closed:** 2026-11-01, in be16f7d.
+
 **Source:** T-455 (`three-years-p2-3`) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

@@ -308,13 +308,13 @@ export class BuildTool {
   }
 
   /** The ghost at a point: the footprint, the failing tiles and the reason. */
-  ghost(ctx: PanelContext, p: TilePoint): { tiles: TileIndex[]; bad: TileIndex[]; reason: string | null; rule: string } | null {
+  ghost(ctx: PanelContext, p: TilePoint): { tiles: TileIndex[]; bad: TileIndex[]; clears: TileIndex[]; reason: string | null; rule: string } | null {
     if (this.placementContains(ctx, p)) return null;
     const row = this.current(ctx);
     const b = buildings(ctx);
     const origin = this.origin(ctx, p);
     if (row === undefined || b === null) return null;
-    if (origin === null) return { tiles: [], bad: [], reason: 'out_of_bounds', rule: '' };
+    if (origin === null) return { tiles: [], bad: [], clears: [], reason: 'out_of_bounds', rule: '' };
     return b.ghost(row.id, origin, this.orientation, row.footprint.variable === undefined ? undefined : this.width,
       row.footprint.variable === undefined ? undefined : this.height);
   }

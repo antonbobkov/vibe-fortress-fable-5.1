@@ -121,7 +121,7 @@ export function growSaplings(host: WildHost, saplings: Map<TileIndex, number>): 
     const plant = host.facts.plantOfMaterial(material);
     const years = host.facts.saplingYearsOf(plant);
     if (host.tick - (saplings.get(tile) as number) < years * TICKS_PER_YEAR) continue;
-    if (host.isOccupied(tile)) continue;
+    if (host.isOccupied(tile) || host.map.buildingAtTile(tile) !== 0) continue;
     saplings.delete(tile);
     host.terrain.setKind(tile, TileKind.Tree, material);
     grown.push({ tile, species: host.facts.row(plant)?.id ?? '' });

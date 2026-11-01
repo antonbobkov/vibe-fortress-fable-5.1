@@ -197,6 +197,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
       }
       job.data['effort'] = done;
       job.progress = progressOf(done, required);
+      if (job.data['clearTicks'] !== undefined) board.producers.find((p) => p.id === job.producer)?.onWorkTick?.(job, done, required);
       if (done < required) return;
       job.state = 'completing';
       complete(board, job, workerId, ctx);

@@ -420,7 +420,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   const z = arrival.wagon.z;
   const hallZ = z - SURFACE_TO_HALL;
   const map = w.map;
-  // Choose a gate site without shrubs/saplings, which a player cannot chop as mature trees.
+  // Choose a gate site clear of shrubs and saplings, as a player picks open ground first.
   const sites: { x: number; y: number; distance: number }[] = [];
   for (let y = 8; y <= 13; y += 1) for (let x = 28; x <= 35; x += 1) {
     let usable = true;
@@ -1099,7 +1099,7 @@ export const GATE_WALL_REBUILD_TICKS = 5 * TICKS_PER_DAY;
 /**
  * Place the gate walls, and place again any that is gone (T-426: a wooden wall burns in a
  * wildfire, 05 § Fire, and a player puts it back). A wall goes where 14's ghost accepts one now
- * (a dwarf, a fallen log or a sapling on the tile waits for the next look), as a player places
+ * (a dwarf or a fallen log on the tile waits for the next look; a sapling or shrub the builder clears), as a player places
  * it; the command is sent only for a tile with no building, so standing walls change nothing.
  */
 export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy' | 'economy' | 'gateWallLostTick'> & { z?: number }): void {
@@ -1119,25 +1119,15 @@ export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'c
 }
 
 /**
- * T-451, T-455: where a gate door can go now, on its row `y` or -1. A sapling may have taken root on
- * its tile since the site was cleared (07), and no one can fell or build on one for its years of
- * growth, which would leave the gate open. So the ring grows a row outward, `out` from the stair,
- * around the sapling: two more walls, and the door beyond them once they stand.
+ * T-451, T-458: a tree grown on a gate door's tile since the site was cleared is felled first (a
+ * sapling or shrub the door's builder clears itself); whether the door can go on row `y` now.
  */
-function gateDoorSite(w: TestWorld, state: FortressState, y: number, out: number): number {
-  const buildings = w.readers.of<BuildingsReader>('14');
+function gateDoorSite(w: TestWorld, state: FortressState, y: number): number {
   const { cx } = state;
   const here = w.index(cx + 6, y, state.z);
-  if (w.map.kindAt(here) === TileKind.Tree) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: [here] });
-  if (w.map.kindAt(here) === TileKind.Tree) return -1;
-  if (w.map.kindAt(here) !== TileKind.Sapling) return y;
-  const next = y + out;
-  for (const x of [cx + 5, cx + 7]) {
-    const wall = w.index(x, next, state.z);
-    if (!buildings.at(wall) && buildings.ghost('wall', wall, 0).reason === null) command(w, { type: 'PlaceBuilding', buildingType: 'wall', origin: wall, orientation: 0, materialChoice: 0, priority: BUILD });
-  }
-  const stand = [cx + 5, cx + 7].every((x) => buildings.get(buildings.at(w.index(x, next, state.z)))?.state === 'built');
-  return stand && w.map.kindAt(w.index(cx + 6, next, state.z)) !== TileKind.Sapling ? next : -1;
+  if (w.map.kindAt(here) !== TileKind.Tree) return y;
+  command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: [here] });
+  return -1;
 }
 
 export function checkFortressDefense(w: TestWorld, state: FortressState): void {
@@ -1156,7 +1146,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w1 = buildings.at(w.index(cx + 5, cy + 7, state.z));
     const w2 = buildings.at(w.index(cx + 7, cy + 7, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
-      const doorRow = gateDoorSite(w, state, cy + 7, 1);
+      const doorRow = gateDoorSite(w, state, cy + 7);
       const doorTile = w.index(cx + 6, doorRow, state.z);
       const rDoor = doorRow < 0 ? { ok: false } : command(w, {
         type: 'PlaceBuilding',
@@ -1178,7 +1168,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w1 = buildings.at(w.index(cx + 5, cy + 5, state.z));
     const w2 = buildings.at(w.index(cx + 7, cy + 5, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
-      const doorRow2 = gateDoorSite(w, state, cy + 5, -1);
+      const doorRow2 = gateDoorSite(w, state, cy + 5);
       const doorTile2 = w.index(cx + 6, doorRow2, state.z);
       const rDoor2 = doorRow2 < 0 ? { ok: false } : command(w, {
         type: 'PlaceBuilding',

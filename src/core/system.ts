@@ -37,6 +37,11 @@ export interface TerrainApi {
    */
   setConstructionItemSource?(source: ((tile: TileIndex) => string | null) | null): void;
   /**
+   * 14 § Placement step 4: uproot a sapling or shrub. The tile becomes floor (grass if soil); a shrub
+   * that is `ripe` drops what `gather` would (`07` § Shrubs). Optional as the M0 core has no plants.
+   */
+  clearPlant?(i: TileIndex, ripe: boolean): void;
+  /**
    * Emit the tick's batched events (`TilesChanged`, and 03's `TilesDiscovered`). The world calls
    * this once after step 2 of the tick (`tick-order.md`), so tiles changed by any system through
    * the API land in the same tick's batch.
@@ -214,6 +219,8 @@ export interface JobProducer {
   onComplete?(job: unknown, ctx: TickContext): void;
   /** The work time of a job in hundredths of a tick, when the producer computes it (`jobs.md`). */
   workCentiTicks?(job: unknown): number | undefined;
+  /** Called on each work tick of a job whose data holds `clearTicks`, with its effort so far and the effort required. */
+  onWorkTick?(job: unknown, done: number, required: number): void;
   /** Stand tiles a job allows besides the `adjacent` 8-neighbours (D-058). */
   extraStandTiles?(job: unknown): readonly TileIndex[];
   /**

@@ -143,7 +143,7 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
     case Designation.Remove:
       return constructed(map, i) && isStructuralKind(k);
     case Designation.Chop:
-      return k === TileKind.Tree;
+      return k === TileKind.Tree || k === TileKind.Sapling;
     case Designation.Gather:
       return k === TileKind.Shrub;
     case Designation.None:
@@ -281,7 +281,7 @@ export function transition(
       const below = map.below(i);
       const ground = below >= 0 ? map.materialAt(below) : 0;
       const soil = facts.classOf(ground) === 'soil';
-      const count = rolls.logs(material);
+      const count = map.kindAt(i) === TileKind.Tree ? rolls.logs(material) : 0;
       if (count > 0) drops.push({ type: 'log', material: rolls.logMaterial(material), count, tile: i });
       changes.push({ tile: i, kind: TileKind.Floor, material: ground, ...(soil ? { set: TileFlag.Grass } : {}) });
       break;
@@ -302,4 +302,21 @@ export function transition(
       break;
   }
   return { changes, drops };
+}
+
+/**
+ * 14 § Placement step 4: a builder uproots a sapling or shrub. The tile becomes what felling a tree
+ * leaves; a sapling drops nothing, and a shrub drops its `gather` product if it is `ripe` (07 § Shrubs).
+ */
+export function clearPlantTransition(map: Map3D, i: TileIndex, facts: MaterialFacts, rolls: TransitionRolls, ripe: boolean): TransitionResult {
+  const below = map.below(i);
+  const ground = below >= 0 ? map.materialAt(below) : 0;
+  const soil = facts.classOf(ground) === 'soil';
+  const drops: DropSpec[] = [];
+  if (map.kindAt(i) === TileKind.Shrub && ripe) {
+    const product = rolls.gather(map.materialAt(i));
+    if (product !== null && product.count > 0) drops.push({ type: product.type, material: product.material, count: product.count, tile: i });
+    if (product?.seed !== undefined) drops.push({ type: 'seed', material: product.seed, count: 1, tile: i });
+  }
+  return { changes: [{ tile: i, kind: TileKind.Floor, material: ground, ...(soil ? { set: TileFlag.Grass } : {}) }], drops };
 }
