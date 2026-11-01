@@ -746,7 +746,10 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const plans = state.economy.farmPlans;
   const tilled = state.caveTiles1.length + state.caveTiles2.length + FIRST_FIELD_TILES + plans.reduce((sum, p) => sum + p.tiles.length, 0);
-  if (plans.length >= FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
+  // T-455: the cap is on the land, not the strips: on a slope a strip may hold few tiles or none. The
+  // strips' places repeat through the rows, so the tries stop at twice the cap as well.
+  const stripTiles = plans.reduce((sum, p) => sum + p.tiles.length, 0);
+  if (stripTiles >= FARM_STRIP.max * FARM_STRIP.width * FARM_STRIP.rows || plans.length >= 2 * FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
   // T-455: the fortress's level, since a cave on a slope may lie more than one level below it.
   const z = state.z;
   // Strips run west of the first field, then in a second row south of it.
@@ -761,7 +764,11 @@ function checkFarm(w: TestWorld, state: FortressState): void {
     if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) tiles.push(t);
   }
   // T-455: a slope may leave too little of the strip: as a player would, sow the same strip nearby.
-  if (tiles.length < FARM_STRIP.width) tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, z, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width));
+  // When that level is full, the next surface level the dwarves can walk to.
+  for (const level of [z, z - 1, z + 1, z - 2, z + 2]) {
+    if (tiles.length >= FARM_STRIP.width) break;
+    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width));
+  }
   const plan = { tiles, zoneId: -1 };
   plans.push(plan);
   if (tiles.length < FARM_STRIP.width || !command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) { plan.tiles = []; return; }

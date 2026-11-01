@@ -308,16 +308,16 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   const out = process.env['THREE_YEARS_SEEDS_OUT'] ?? '.vite/three-years-seeds';
   mkdirSync(out, { recursive: true });
   writeFileSync(`${out}/${seed}.json`, JSON.stringify({ figures, result }, null, 2) + '\n');
+  // The file's set rule reads these. They come before the seed's assertions, so a seed that fails one
+  // is still counted as what it was.
+  survival.push({ seed, peril, y1Pop, y3Pop });
+  console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE })}`);
   if (peril === 0) {
     // Kept: the food chain. Nobody dies of hunger or thirst where the farm, the kitchens and the
     // stills follow the population (85 starvation deaths in four seeds on 2026-10-12, before T-145),
     // and a peril-0 fortress ends above its seven founders (22 to 50 dwarves on 2026-10-12).
     expect(economy.needDeaths(), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
   }
-  // The file's set rule reads these. They come before the seed's assertions, so a seed that fails one
-  // is still counted as what it was.
-  survival.push({ seed, peril, y1Pop, y3Pop });
-  console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE })}`);
   // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
   // bedrooms, the squad; at perils 2 and 4 an alert raised and lowered, and a trade).
   console.log(`[three_years_seeds_script] ${JSON.stringify({ seed, accepted: Object.fromEntries(scriptRecord(w).accepted), rejected: Object.fromEntries(scriptRecord(w).rejected) })}`);
