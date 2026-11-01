@@ -17,7 +17,8 @@ export function crowdTicks(ticks: number, percent: number): number {
   return percent === 100 ? ticks : Math.floor((ticks * percent + 99) / 100);
 }
 
-/** A tick's work or a step's progress at that percent, rounded down. */
+/** A tick's work or a step's progress at that percent, rounded down; any gain stays at least 1, so nothing stalls. */
 export function crowdEffort(effort: number, percent: number): number {
-  return percent === 100 ? effort : Math.floor((effort * 100) / percent);
+  if (percent === 100 || effort <= 0) return effort;
+  return Math.max(1, Math.floor((effort * 100) / percent));
 }

@@ -8,7 +8,7 @@ import { SQUAD_MAX_COUNT, SQUAD_MAX_SIZE, TICKS_PER_YEAR } from '@core/constants
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { GameEvent } from '@core/events';
-import type { Map3D } from '@core/map3d';
+import { isSolidBottomed, type Map3D } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { Alert, EntityId, TileIndex } from '@core/types';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
@@ -349,6 +349,33 @@ export function renameSquad(entities: EntityStore, cmd: Command): CommandResult 
   return OK;
 }
 
+/**
+ * 16 § Squads: the posts around a station: the point, then outward on its level through tiles a walker can
+ * stand on, nearest first and ties by index, without passing through a door. As many as `count`, if there are.
+ */
+function stationPosts(ctx: TickContext, point: TileIndex, count: number): TileIndex[] {
+  const map = ctx.world.map;
+  const pathing = ctx.readers.pathing;
+  const doorAt = (t: TileIndex): boolean => ctx.readers.has('14') && ctx.readers.of<{ doorAt(i: TileIndex): boolean }>('14').doorAt(t);
+  const posts = [point];
+  const seen = new Set<TileIndex>(posts);
+  let ring = posts;
+  while (posts.length < count && ring.length > 0) {
+    const next: TileIndex[] = [];
+    for (const t of ring) {
+      for (const n of map.neighbors8(t)) {
+        if (seen.has(n)) continue;
+        seen.add(n);
+        if (isSolidBottomed(map.kindAt(n)) && pathing.passable(n, 'walker', { faction: 'fortress' }) && !doorAt(n)) next.push(n);
+      }
+    }
+    next.sort((a, b) => a - b);
+    posts.push(...next);
+    ring = next;
+  }
+  return posts.slice(0, count);
+}
+
 function advancePatrol(
   entityId: EntityId,
   tiles: readonly TileIndex[],
@@ -488,9 +515,14 @@ export function stepSquads(
       // No hostile in perception: execute squad positioning
 
       let destTile: TileIndex | null = null;
+      const memberIndex = Math.max(0, squad.members.slice().sort((a, b) => a - b).indexOf(m));
+      const postOf = (point: TileIndex): TileIndex => {
+        const posts = stationPosts(ctx, point, squad.members.length);
+        return posts[memberIndex % posts.length] as TileIndex;
+      };
       if (currentOrder) {
         if (currentOrder.kind === 'station') {
-          destTile = currentOrder.tile;
+          destTile = postOf(currentOrder.tile);
         } else if (currentOrder.kind === 'patrol') {
           destTile = advancePatrol(m, currentOrder.tiles, tileM, patrolIndices);
         } else if (currentOrder.kind === 'follow') {
@@ -502,8 +534,8 @@ export function stepSquads(
       } else if (squad.mode === 'train' && alert === 'calm') {
         const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
         const onStation = squad.station !== null && isOnStationShift(squad, m, ctx.tick);
-        if (onStation) {
-          destTile = squad.station;
+        if (onStation && squad.station !== null) {
+          destTile = postOf(squad.station);
         } else if (barracks && barracks.tiles.length > 0) {
           if (barracks.tiles.includes(tileM)) {
             destTile = tileM;
@@ -514,13 +546,13 @@ export function stepSquads(
           }
         }
       } else if (squad.station !== null) {
-        destTile = squad.station;
+        destTile = postOf(squad.station);
       } else if (squad.patrol !== null && squad.patrol.length > 0) {
         destTile = advancePatrol(m, squad.patrol, tileM, patrolIndices);
       } else if (ctx.readers.has('14')) {
         const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
         if (barracks && barracks.tiles.length > 0) {
-          destTile = barracks.tiles[0] ?? null;
+          destTile = barracks.tiles[memberIndex % barracks.tiles.length] ?? null;
         }
       }
 

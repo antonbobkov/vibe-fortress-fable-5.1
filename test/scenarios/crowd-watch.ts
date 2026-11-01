@@ -4,7 +4,9 @@
  */
 import type { TileIndex } from '@core/types';
 import { CROWD_FREE } from '@core/path-constants';
+import { C } from '@core/components';
 import type { BuildingsReader } from '@systems/buildings';
+import type { CombatReader } from '@systems/combat/reader';
 import type { TestWorld } from './test-world';
 
 /** For one kind of place: the samples of its tiles, those over `CROWD_FREE`, and the worst and longest. */
@@ -26,6 +28,10 @@ const blank = (): CrowdFigures => ({ samples: 0, slowed: 0, worst: 0, longestTic
 export class CrowdWatch {
   readonly doors = blank();
   readonly hall = blank();
+  /** Every squad's station tile and the tiles a station order names. */
+  readonly stations = blank();
+  /** The tiles of soldiers with a target, whoever else stands there. */
+  readonly fighting = blank();
   private readonly since = new Map<TileIndex, number>();
 
   constructor(private readonly w: TestWorld) {}
@@ -36,6 +42,17 @@ export class CrowdWatch {
     const doors = buildings.byType('door').flatMap((id) => buildings.get(id)?.state === 'built' ? (buildings.get(id)?.footprint ?? []) : []);
     this.look(doors, this.doors);
     this.look(buildings.hearthHallTiles(), this.hall);
+    const combat = this.w.readers.of<CombatReader>('16');
+    const posts = new Set<TileIndex>();
+    for (const squad of combat.squads()) {
+      if (squad.station !== null) posts.add(squad.station);
+      for (const order of squad.orders) if (order.kind === 'station') posts.add(order.tile);
+    }
+    this.look([...posts], this.stations);
+    const ent = this.w.game.world.entities;
+    const fighting = new Set<TileIndex>();
+    for (const id of ent.with(C.Soldier)) if (combat.targetOf(id) !== 0) fighting.add(this.w.game.movement.tileOf(id));
+    this.look([...fighting].filter((t) => t >= 0), this.fighting);
   }
 
   private look(tiles: readonly TileIndex[], into: CrowdFigures): void {

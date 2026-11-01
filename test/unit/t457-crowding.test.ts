@@ -1,5 +1,6 @@
 /** T-457: any number of creatures share a tile, a door included; a crowded tile slows movement and actions. */
 import { describe, expect, it } from 'vitest';
+import { roundTrip } from '@app/game-save';
 import { C } from '@core/components';
 import { crowdEffort, crowdPercent, crowdTicks } from '@core/crowding';
 import { TileKind } from '@core/map3d';
@@ -9,6 +10,8 @@ import { Compositor } from '@render/compositor';
 import { Palette } from '@render/palette';
 import type { BuildingsReader } from '@systems/buildings';
 import { resolveMelee } from '@systems/combat';
+import type { CombatReader } from '@systems/combat/reader';
+import { fireRanged } from '@systems/combat/ranged';
 import { EAT_TICKS } from '@systems/dwarves/constants';
 import { TestWorld } from '../scenarios/test-world';
 
@@ -70,6 +73,8 @@ describe('T-457 the crowding rule', () => {
     expect(crowdTicks(61, 125)).toBe(77);
     expect(crowdEffort(1000, 100)).toBe(1000);
     expect(crowdEffort(1000, 200)).toBe(500);
+    expect(crowdEffort(1, 200)).toBe(1);
+    expect(crowdEffort(0, 200)).toBe(0);
   });
 });
 
@@ -146,6 +151,44 @@ describe('T-457 how crowded a tile is', () => {
     expect(movement.crowdPercentAt(tile)).toBe(100);
     standing(w, tile);
     expect(movement.crowdPercentAt(tile)).toBe(125);
+  });
+
+  it('leaves out a sleeper; a dwarf walking to its bed counts', () => {
+    const w = world('t457-sleeper');
+    const tile = w.index(30, 30, Z);
+    const movement = w.game.movement;
+    const ids = [standing(w, tile), standing(w, tile), standing(w, tile)];
+    const sleeper = ids[0] as EntityId;
+    expect(movement.crowdPercentAt(tile)).toBe(125);
+    w.game.world.entities.add(sleeper, C.Brain, { behavior: 'need', behaviorUntil: 0, targetTile: tile, activity: 'sleep', lastMistTick: 0, lastOutdoorThoughtHour: 0, daysUnderground: 0 });
+    expect(movement.crowdPercentAt(tile)).toBe(100);
+    const motion = w.game.world.entities.get(sleeper, C.Motion)!;
+    w.game.world.entities.add(sleeper, C.Motion, { ...motion, pathId: 1 });
+    expect(movement.crowdPercentAt(tile)).toBe(125);
+  });
+
+  it('a save in the middle of a step onto a crowded tile plays on with the same hashes', () => {
+    const w = world('t457-save');
+    const a = w.index(30, 30, Z);
+    const b = w.index(31, 30, Z);
+    for (let k = 0; k < 5; k += 1) standing(w, b);
+    const walker = w.spawnDwarf({ at: a });
+    w.game.world.entities.remove(walker, C.Brain);
+    const movement = w.game.movement;
+    const ctx = { tick: w.tick, emit: (): void => {} };
+    movement.walkTo(walker, w.index(33, 30, Z), 'job', ctx);
+    w.step(1);
+    movement.walkTo(walker, w.index(33, 30, Z), 'job', ctx);
+    const progress = w.game.world.entities.get(walker, C.Motion)!.progress;
+    expect(progress).toBeGreaterThan(0);
+    expect(movement.tileOf(walker)).toBe(a);
+    const loaded = roundTrip(w.game).game;
+    expect(loaded.hash()).toBe(w.game.hash());
+    for (let tick = 0; tick < 50; tick += 1) {
+      w.game.step(1);
+      loaded.step(1);
+      expect(loaded.hash(), `tick ${tick}`).toBe(w.game.hash());
+    }
   });
 
   it('a step takes longer at each crowd size, up to the cap, and lying creatures add nothing', () => {
@@ -248,5 +291,88 @@ describe('T-457 drawing a crowd', () => {
     expect(glyphAt(1)).toBe(top);
     expect(glyphAt(4)).toBe(top);
     expect(glyphAt(2, true)).toBe(top);
+  });
+});
+
+describe('T-457 a stationed squad', () => {
+  /** Six crossbow soldiers on one station. */
+  function stationed(seed: string) {
+    const w = world(seed);
+    const station = w.index(30, 30, Z);
+    const world_ = w.game.world;
+    const ids: EntityId[] = [];
+    for (let k = 0; k < 6; k += 1) {
+      const at = w.index(24 + k, 36, Z);
+      const id = w.spawnDwarf({ at, skills: { crossbow: 10 } });
+      const xbow = w.spawnItem('crossbow', 'iron', at);
+      const bolts = w.spawnItem('bolt', 'iron', at, 50, 1);
+      world_.entities.add(id, C.Equipment, { weapon: xbow, shield: 0, armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 }, clothing: { body: 0, legs: 0, feet: 0, over: 0 }, quiver: 0 });
+      const bolt = world_.entities.get(bolts, C.Item)!;
+      bolt.carriedBy = id;
+      ids.push(id);
+    }
+    expect(world_.applyCommand({ type: 'CreateSquad', name: 'Guard', leaderId: ids[0] }).ok).toBe(true);
+    const squadId = w.readers.of<CombatReader>('16').squads()[0]!.id;
+    expect(world_.applyCommand({ type: 'SetSquadMembers', squadId, members: ids }).ok).toBe(true);
+    expect(world_.applyCommand({ type: 'SetSquadMode', squadId, mode: 'active' }).ok).toBe(true);
+    expect(world_.applyCommand({ type: 'SetSquadStation', squadId, tile: station }).ok).toBe(true);
+    return { w, ids, station };
+  }
+  const sortedIds = (ids: readonly EntityId[]): EntityId[] => ids.slice().sort((a, b) => a - b);
+
+  it('spreads over the nearest tiles, nearest first and ties by index, and six archers keep their base cooldown', () => {
+    const { w, ids, station } = stationed('t457-squad');
+    const movement = w.game.movement;
+    const near = [station, ...w.map.neighbors8(station).slice().sort((a, b) => a - b).slice(0, 5)];
+    w.until(() => sortedIds(ids).every((id, k) => movement.tileOf(id) === near[k]), 400);
+    for (const id of ids) expect(movement.crowdPercentAt(movement.tileOf(id))).toBe(100);
+    const target = w.spawnCreature('wolf', w.index(30, 24, Z), 'wild');
+    const fire = (shooter: EntityId, map: Map<number, number>): number => {
+      const ctx = { world: w.game.world, registry: w.game.registry, rng: w.game.world.rngFor('16'), readers: w.readers, tick: 0, emit: () => {} };
+      expect(fireRanged(ctx as never, shooter, target, map, { skipXp: true })).toBe(true);
+      return map.get(shooter) as number;
+    };
+    for (const id of ids) {
+      const posted = fire(id, new Map());
+      const crowdedAt = movement.tileOf(id);
+      // The same soldier's base: a tile to itself, away from the squad.
+      movement.teleport(id, w.index(30, 28, Z));
+      const alone = fire(id, new Map());
+      movement.teleport(id, crowdedAt);
+      expect(posted).toBe(alone);
+    }
+  });
+
+  it('with no spreading the same archer would take twice the time, so the test can see it', () => {
+    const { w, ids, station } = stationed('t457-squad-piled');
+    const movement = w.game.movement;
+    const shooter = ids[0] as EntityId;
+    const target = w.spawnCreature('wolf', w.index(30, 24, Z), 'wild');
+    for (const id of ids) movement.teleport(id, station);
+    const ctx = { world: w.game.world, registry: w.game.registry, rng: w.game.world.rngFor('16'), readers: w.readers, tick: 0, emit: () => {} };
+    const piled = new Map<number, number>();
+    expect(fireRanged(ctx as never, shooter, target, piled, { skipXp: true })).toBe(true);
+    movement.teleport(shooter, w.index(30, 28, Z));
+    const alone = new Map<number, number>();
+    expect(fireRanged(ctx as never, shooter, target, alone, { skipXp: true })).toBe(true);
+    expect(piled.get(shooter)).toBe((alone.get(shooter) as number) * 2);
+  });
+
+  it('does not take a post through a door', () => {
+    const w = world('t457-squad-door');
+    const door = doorway(w);
+    const b = w.readers.of<BuildingsReader>('14');
+    expect(b.doorAt(door)).toBe(true);
+    // A corridor along the wall: the door is nearer to the station than the corridor's far end.
+    const granite = w.game.registry.table('materials').index('granite');
+    for (let x = 30; x <= 50; x += 1) w.game.world.services.terrain.setKind(w.index(x, 22, Z), TileKind.Wall, granite);
+    const ids = [0, 1, 2, 3, 4, 5].map((k) => w.spawnDwarf({ at: w.index(37 + k, 21, Z) }));
+    expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate', leaderId: ids[0] }).ok).toBe(true);
+    const squadId = w.readers.of<CombatReader>('16').squads()[0]!.id;
+    expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: ids }).ok).toBe(true);
+    expect(w.game.world.applyCommand({ type: 'SetSquadMode', squadId, mode: 'active' }).ok).toBe(true);
+    expect(w.game.world.applyCommand({ type: 'SetSquadStation', squadId, tile: w.index(40, 21, Z) }).ok).toBe(true);
+    w.step(300);
+    for (const id of ids) expect(w.map.yOf(w.game.movement.tileOf(id)), `member ${id} stays south of the door`).toBeGreaterThan(20);
   });
 });

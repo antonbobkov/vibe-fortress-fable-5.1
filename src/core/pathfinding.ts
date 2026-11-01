@@ -46,7 +46,7 @@ export interface TerrainHooks {
    * (`opensDoors`, `tame`) ride along for the door rules of T-M2-06 (D-074).
    */
   blocksMovementAt(i: TileIndex, cls: MovementClass, faction: string | undefined, mover?: MoverOptions): boolean;
-  /** A door building stands on the tile: +`DOOR_COST_PENALTY`, and creatures block there. T-M2-06. */
+  /** A door building stands on the tile: +`DOOR_COST_PENALTY`. T-M2-06. */
   doorAt(i: TileIndex): boolean;
   /** A locked hatch removes the stairs edge through its tile, and the ramp edge through a ramp top (D-074). T-M2-06. */
   lockedHatchAt(i: TileIndex): boolean;

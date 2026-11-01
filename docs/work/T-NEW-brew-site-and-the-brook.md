@@ -13,5 +13,5 @@
 
 ## Done
 
-- **Scenario:** `pp_drink`'s old stockpile (6 × 4) passes.
+- **Scenario:** `pp_drink`'s old stockpile (6 × 4) passes, and so does `pp_drink` with the still on its other site (a shrub on the site, as T-458 first placed it).
 - The six static checks, `npm test`, e2e, and the instrument by the T-308 rule pass.

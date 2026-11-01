@@ -51,8 +51,8 @@ export function setupDescentSurface(w: TestWorld): void {
     w.setLabor(d, 'hauling', true);
   }
 
-  // 4 soldiers: three beasts of the Deep beat two who arrive one by one, as the job timeline may have them
-  for (let i = 0; i < 4; i++) {
+  // 2 soldiers
+  for (let i = 0; i < 2; i++) {
     const sTile = map.index(21, 51 + i, hz);
     const sId = w.spawnDwarf({
       at: sTile,
@@ -359,7 +359,7 @@ export function runDescent(w: TestWorld): void {
       soldierIds.push(id);
     }
   }
-  expect(soldierIds.length).toBe(4);
+  expect(soldierIds.length).toBe(2);
 
   const rSquad = w.game.world.applyCommand({ type: 'CreateSquad', name: 'Deep Guard' });
   expect(rSquad.ok).toBe(true);
