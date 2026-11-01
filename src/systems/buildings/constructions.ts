@@ -73,9 +73,20 @@ function sameLevelNeighbours4(map: Map3D, i: TileIndex): TileIndex[] {
   return out;
 }
 
+/** 14 § Placement: a sapling or shrub counts as the floor it stands on; the builder clears it. */
+export function isClearablePlant(kind: TileKind): boolean {
+  return kind === TileKind.Sapling || kind === TileKind.Shrub;
+}
+
+/** Whether a grown tree is what keeps this rule from a tile: 14 § Placement refuses and says to chop it. */
+export function treeRefuses(map: Map3D, rule: OnRule, i: TileIndex): boolean {
+  return map.kindAt(i) === TileKind.Tree && rule !== 'stairs_down_or_ramp_top' && rule !== 'open_water_below' && rule !== 'never';
+}
+
 /** Whether one footprint tile satisfies the type's `on` rule. */
 export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex): boolean {
-  const kind = map.kindAt(i);
+  const raw = map.kindAt(i);
+  const kind = isClearablePlant(raw) ? TileKind.Floor : raw;
   switch (rule) {
     case 'floor':
       return kind === TileKind.Floor;

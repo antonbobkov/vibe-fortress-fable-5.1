@@ -135,6 +135,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     // `03` § Registrations: job producer `terrain` (designation jobs, T-M1-10).
     const producer = new TerrainProducer(core, ctx.readers, ctx.rng);
     this.producer = producer;
+    core.plantClearer = (tile, ripe) => producer.clearPlant(tile, ripe);
     this.progressOf = (tile) => producer.progressOf(tile);
     ctx.register.jobProducer(producer);
     ctx.register.inspector('tile', { id: 'tile', order: 0 });

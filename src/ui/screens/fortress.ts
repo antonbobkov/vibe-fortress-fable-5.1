@@ -12,7 +12,7 @@ import type { BuildingsReader } from '@systems/buildings';
 
 import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
-import { TileFlag, type Designation } from '@core/map3d';
+import { TileFlag, TileKind, type Designation } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EventType } from '@core/event-types';
@@ -419,6 +419,14 @@ export class FortressScreen implements Screen {
     this.build.clearPlacementNotice();
     this.message = null;
     this.noticeGhost = null;
+  }
+
+  /** What the builder will clear from a footprint, in the status bar's words; '' for nothing. */
+  private clearsText(tiles: readonly TileIndex[]): string {
+    const first = tiles[0];
+    if (first === undefined) return '';
+    if (tiles.length > 1) return this.strings.get('ui.build.clears.many', { n: tiles.length });
+    return this.strings.get(this.host.readers.map.kindAt(first) === TileKind.Sapling ? 'ui.build.clears.sapling' : 'ui.build.clears.shrub');
   }
 
   private ghostKey(): string {
@@ -899,14 +907,19 @@ export class FortressScreen implements Screen {
         const count = plan.blocked === 0 ? s.get('ui.status.build_drag', { tool: name, n: plan.ok.length })
           : s.get(plan.blocked === 1 ? 'ui.status.build_drag_blocked_one' : 'ui.status.build_drag_blocked', { tool: name, n: plan.ok.length, blocked: plan.blocked });
         const stock = this.stockText(plan.ok.length);
-        return stock === '' ? count : `${count} · ${stock}`;
+        const clears = this.clearsText(plan.ok.filter((i) => { const kind = this.host.readers.map.kindAt(i); return kind === TileKind.Sapling || kind === TileKind.Shrub; }));
+        const counted = clears === '' ? count : `${count} · ${clears}`;
+        return stock === '' ? counted : `${counted} · ${stock}`;
       }
       const ghost = this.build.ghost(this.ctx, p);
       const blocked = ghost === null || row === undefined ? null : blockedText(this.ctx, row.id, ghost);
       const stock = this.stockText(0);
       if (blocked !== null) return stock === '' ? s.get('ui.status.build_blocked', { tool: name, reason: blocked }) : s.get('ui.status.build_blocked_stock', { tool: name, reason: blocked, stock });
-      if (stock !== '') return s.get('ui.status.build_stock', { tool: name, stock });
-      return s.get(this.build.multi(this.ctx) ? 'ui.status.build_many' : 'ui.status.build', { tool: name });
+      // 14 § Placement: the placement shows what the builder will clear.
+      const clears = ghost === null ? '' : this.clearsText(ghost.clears);
+      const tool = clears === '' ? name : `${name} · ${clears}`;
+      if (stock !== '') return s.get('ui.status.build_stock', { tool, stock });
+      return s.get(this.build.multi(this.ctx) ? 'ui.status.build_many' : 'ui.status.build', { tool });
     }
     if (this.zones.selected !== 0 && this.ui.panel === 'zones' && this.zones.anchor === null) {
       return s.get('ui.zone.selected', { name: zoneName(this.ctx, this.zones.selected), n: this.host.readers.has('14') ? (this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').zone(this.zones.selected)?.tiles.length ?? 0) : 0 });

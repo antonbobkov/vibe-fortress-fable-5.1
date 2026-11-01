@@ -14,6 +14,8 @@ export const BASE_GROWTH = 100;
 export const PLANT_TICKS = 40;
 export const HARVEST_TICKS = 40;
 export const SEEDS_PER_HARVEST = 1;
+/** Work added to a build job per sapling or shrub on its footprint (14 § Placement). */
+export const CLEAR_PLANT_TICKS = 20;
 /** Candidate tiles per day for saplings. */
 export const REGROWTH_TRIES_PER_DAY = 40;
 /** Multiplied by biome tree density (0–1). */

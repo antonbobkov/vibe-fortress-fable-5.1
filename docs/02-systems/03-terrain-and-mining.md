@@ -50,7 +50,7 @@ The generator runs synchronously with progress callbacks after each stage; budge
 | `smooth` | natural `wall` or `floor` of stone | sets `smoothed` | None |
 | `engrave` | `smoothed` tile | sets `engraved`; quality from the economy `rollQuality(engraving skill)` using 03's stream, with motif 0, is stored in a side table | None |
 | `remove` | `constructed` tile | the construction's material returns as an item; `wall` or `floor` becomes `open`, except a constructed floor over natural rock becomes the natural floor; stairs and ramps become `open` | The block, log or bar used |
-| `chop` | `tree` | `floor` (grass if soil); logs by species size | 1–4 logs |
+| `chop` | `tree` or `sapling` | `floor` (grass if soil); logs by species size for a tree | A tree: 1–4 logs; a sapling: none |
 | `gather` | `shrub` | shrub stays; regrowth timer set (07) | The shrub's product |
 
 Digging a `wall` that has a `floor` above it (which is every underground wall) never affects the tile above. Digging removes the last support of nothing, because natural rock is never subject to support.
