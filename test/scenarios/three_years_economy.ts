@@ -11,7 +11,7 @@ import type { PlantsReader } from '@systems/plants';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { TradeReader } from '@systems/trade/reader';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
-import { onWagonSide, type FortressState } from './three_years_fortress';
+import { onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
 import { command } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
@@ -589,7 +589,8 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (offered >= requiredValue(cost, reader.marginPercent(caravan.civ))) break;
   }
   const foreign = new Set(w.game.world.entities.with(C.Item).filter((id) => (w.game.world.entities.get(id, C.Item)!.flags & ItemFlag.Merchant) !== 0));
-  const result = command(w, { type: 'TradeOffer', give: selected, take });
+  // T-455: a good may be claimed for a haul or a guard between the script's look and its offer; it offers again next look.
+  const result = command(w, { type: 'TradeOffer', give: selected, take }, ['not_at_depot']);
   note('three_years_trade', { day, civ: caravan.civ, ok: result.ok, reason: result.ok ? null : result.reason, budget: Math.floor(budget), cost: Math.floor(cost),
     take: take.map((t) => `${types.byIndex(ent.get(t.itemId, C.Item)?.type ?? -1)?.id ?? 'gone'}x${t.count}`) });
   const acquired = w.game.world.entities.with(C.Item).filter((id) => (foreign.has(id) && (ent.get(id, C.Item)!.flags & ItemFlag.Merchant) === 0) ||
@@ -745,8 +746,12 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const plans = state.economy.farmPlans;
   const tilled = state.caveTiles1.length + state.caveTiles2.length + FIRST_FIELD_TILES + plans.reduce((sum, p) => sum + p.tiles.length, 0);
-  if (plans.length >= FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
-  const z = map.zOf(state.caveTiles1[0]!) + 1;
+  // T-455: the cap is on the land, not the strips: on a slope a strip may hold few tiles or none. The
+  // strips' places repeat through the rows, so the tries stop at twice the cap as well.
+  const stripTiles = plans.reduce((sum, p) => sum + p.tiles.length, 0);
+  if (stripTiles >= FARM_STRIP.max * FARM_STRIP.width * FARM_STRIP.rows || plans.length >= 2 * FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
+  // T-455: the fortress's level, since a cave on a slope may lie more than one level below it.
+  const z = state.z;
   // Strips run west of the first field, then in a second row south of it.
   const column = (plans.length % FARM_STRIP.columns) + 1;
   const row = Math.floor(plans.length / FARM_STRIP.columns);
@@ -757,6 +762,12 @@ function checkFarm(w: TestWorld, state: FortressState): void {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
     if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) tiles.push(t);
+  }
+  // T-455: a slope may leave too little of the strip: as a player would, sow the same strip nearby.
+  // When that level is full, the next surface level the dwarves can walk to.
+  for (const level of [z, z - 1, z + 1, z - 2, z + 2]) {
+    if (tiles.length >= FARM_STRIP.width) break;
+    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width));
   }
   const plan = { tiles, zoneId: -1 };
   plans.push(plan);
@@ -854,7 +865,7 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
   for (let y = state.cy + y0; y <= state.cy + y1; y += 1) for (let x = state.cx + x0; x <= state.cx + x1; x += 1) {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
-    if (map.kindAt(t) === TileKind.Wall && map.fluidLevelAt(t) === 0 && !terrain.designationAt(t)) tiles.push(t);
+    if (map.kindAt(t) === TileKind.Wall && map.fluidLevelAt(t) === 0 && !terrain.designationAt(t) && !opensToHillside(w, t)) tiles.push(t);
   }
   plans.push({ tiles, zoneId: tiles.length === 0 ? 0 : -1 });
   if (tiles.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
@@ -883,7 +894,7 @@ function checkLarder(w: TestWorld, state: FortressState): number {
     // The part beside the west corridor keeps drink, so that the cellar holds more than a week.
     const drinkTiles = tiles.filter((t) => w.map.yOf(t) > state.cy + 2);
     economy.larder = { tiles: tiles.filter((t) => !drinkTiles.includes(t)), zoneId: -1, drinkTiles, drinkZoneId: -1 };
-    const dig = tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall);
+    const dig = tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall && !opensToHillside(w, t));
     if (dig.length) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: dig });
   }
   const larder = economy.larder;

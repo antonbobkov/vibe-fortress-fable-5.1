@@ -289,9 +289,64 @@ function diggable(w: TestWorld, t: number): boolean {
   return (k === TileKind.Wall || k === TileKind.Boulder) && !w.map.hasFlag(t, TileFlag.Constructed);
 }
 
+/**
+ * T-455: whether digging a tile would open the fortress to the hillside: an outdoor tile, dry, lies
+ * beside it on its level. The gate seals the stair; a room that breaks out of the slope lets a raid
+ * walk round it. On level ground nothing below the surface has an outdoor neighbour but the brook.
+ */
+export function opensToHillside(w: TestWorld, t: number): boolean {
+  return w.map.neighbors8(t).some((n) => w.map.hasFlag(n, TileFlag.Outdoor) && w.map.kindAt(n) !== TileKind.Wall && w.map.fluidLevelAt(n) === 0);
+}
+
+/**
+ * T-455: the cave farm: twenty tiles beside the stair and twelve beyond them, one level below the
+ * surface, east of the stair. Where a slope would open that plot to the hillside, it takes the side
+ * of the stair and the level, down to three below the surface, with the most soil that can be dug
+ * shut and joined to the stair; only those tiles are planned, so the plot can be finished.
+ */
+function caveSite(w: TestWorld, cx: number, cy: number, z: number): { near: number[]; far: number[] } {
+  const map = w.map;
+  const inMap = (x: number, y: number): boolean => x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1;
+  const plan = (side: 'east' | 'west', level: number): { near: number[]; far: number[]; door: number } => {
+    const near: number[] = [];
+    const far: number[] = [];
+    // Twenty tiles for the twenty dimcap seeds, twelve for the ten cavewheat seeds: every cave
+    // seed in the wagon is in the ground (07: one harvest returns one seed, so seeds cap the farm).
+    const [nearX0, nearX1, farX0, farX1] = side === 'east' ? [cx + 7, cx + 11, cx + 12, cx + 14] : [cx + 1, cx + 5, cx - 2, cx];
+    for (let y = cy + 4; y <= cy + 7; y += 1) {
+      for (let x = nearX0; x <= nearX1; x += 1) if (inMap(x, y)) near.push(w.index(x, y, level));
+      for (let x = farX0; x <= farX1; x += 1) if (inMap(x, y)) far.push(w.index(x, y, level));
+    }
+    return { near, far, door: w.index(side === 'east' ? cx + 7 : cx + 5, cy + 6, level) };
+  };
+  const first = plan('east', z - 1);
+  if (![...first.near, ...first.far].some((t) => opensToHillside(w, t))) return first;
+  const soil = w.game.registry.table<{ id: string; class: string }>('materials');
+  let best = { near: [] as number[], far: [] as number[] };
+  let bestScore = -1;
+  for (const level of [z - 1, z - 2, z - 3]) for (const side of ['east', 'west'] as const) {
+    const site = plan(side, level);
+    const open = new Set([...site.near, ...site.far].filter((t) => map.kindAt(t) === TileKind.Wall && !opensToHillside(w, t)));
+    const joined = new Set<number>();
+    const todo = open.has(site.door) ? [site.door] : [];
+    while (todo.length > 0) {
+      const t = todo.pop()!;
+      if (joined.has(t)) continue;
+      joined.add(t);
+      for (const n of map.neighbors8(t)) if (open.has(n) && !joined.has(n)) todo.push(n);
+    }
+    const score = [...joined].filter((t) => soil.byIndex(map.materialAt(t))?.class === 'soil').length;
+    if (score > bestScore) {
+      bestScore = score;
+      best = { near: site.near.filter((t) => joined.has(t)), far: site.far.filter((t) => joined.has(t)) };
+    }
+  }
+  return best.near.length > 0 ? best : first;
+}
+
 /** T-448: designate the diggable tiles of `tiles`; nothing when none is. */
 function designateDig(w: TestWorld, tiles: readonly number[], priority: number): void {
-  const ok = tiles.filter((t) => diggable(w, t));
+  const ok = tiles.filter((t) => diggable(w, t) && !opensToHillside(w, t));
   if (ok.length > 0) command(w, { type: 'Designate', kind: 'dig', priority, tiles: ok });
 }
 
@@ -331,7 +386,7 @@ function surfaceTree(w: TestWorld, x: number, y: number, z: number): number {
  * size within `SITE_SEARCH` tiles that has the most. T-451: only tiles the dwarves at the wagon can
  * walk to; a brook may cut a site in two.
  */
-function siteTiles(w: TestWorld, zoneType: string, x: number, y: number, width: number, height: number, z: number, gate: { x: number; y: number }): number[] {
+export function siteTiles(w: TestWorld, zoneType: string, x: number, y: number, width: number, height: number, z: number, gate: { x: number; y: number }, enough = 1): number[] {
   const buildings = w.readers.of<BuildingsReader>('14');
   const at = (x0: number, y0: number): number[] => {
     const out: number[] = [];
@@ -345,7 +400,7 @@ function siteTiles(w: TestWorld, zoneType: string, x: number, y: number, width: 
     return out;
   };
   const here = at(x, y);
-  if (here.length > 0) return here;
+  if (here.length >= enough) return here;
   let best: number[] = [];
   let bestD = Number.MAX_SAFE_INTEGER;
   for (let dy = -SITE_SEARCH; dy <= SITE_SEARCH; dy += 1) for (let dx = -SITE_SEARCH; dx <= SITE_SEARCH; dx += 1) {
@@ -496,18 +551,7 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
   if (road.length) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: road });
 
   // 5. Cave farm at z = 31
-  const caveTiles1: number[] = [];
-  const caveTiles2: number[] = [];
-  for (let y = cy + 4; y <= cy + 7; y += 1) {
-    // Twenty tiles for the twenty dimcap seeds, twelve for the ten cavewheat seeds: every cave
-    // seed in the wagon is in the ground (07: one harvest returns one seed, so seeds cap the farm).
-    for (let x = cx + 7; x <= cx + 11; x += 1) {
-      if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) caveTiles1.push(w.index(x, y, z - 1));
-    }
-    for (let x = cx + 12; x <= cx + 14; x += 1) {
-      if (x >= 1 && x < map.w - 1 && y >= 1 && y < map.h - 1) caveTiles2.push(w.index(x, y, z - 1));
-    }
-  }
+  const { near: caveTiles1, far: caveTiles2 } = caveSite(w, cx, cy, z);
   designateDig(w, [...caveTiles1, ...caveTiles2], ROUTINE);
 
   // 6. Underground designations at z = hallZ
@@ -1002,7 +1046,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       }
       // T-156: only rock is designated. A tile of the plan already open (a mine drift or a corridor
       // through it) fails 03's dig precondition, and with it the whole designation.
-      const rock = digTiles.filter((t) => w.map.kindAt(t) === TileKind.Wall);
+      const rock = digTiles.filter((t) => w.map.kindAt(t) === TileKind.Wall && !opensToHillside(w, t));
       if (rock.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: rock });
     }
   }
@@ -1075,13 +1119,25 @@ export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'c
 }
 
 /**
- * T-451: whether a gate door can go on its tile yet. A sapling may have taken root there since the
- * site was cleared (07); no one can fell it until it is a tree, so the door waits for that.
+ * T-451, T-455: where a gate door can go now, on its row `y` or -1. A sapling may have taken root on
+ * its tile since the site was cleared (07), and no one can fell or build on one for its years of
+ * growth, which would leave the gate open. So the ring grows a row outward, `out` from the stair,
+ * around the sapling: two more walls, and the door beyond them once they stand.
  */
-function gateDoorTileClear(w: TestWorld, tile: TileIndex): boolean {
-  const kind = w.map.kindAt(tile);
-  if (kind === TileKind.Tree) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: [tile] });
-  return kind !== TileKind.Tree && kind !== TileKind.Sapling;
+function gateDoorSite(w: TestWorld, state: FortressState, y: number, out: number): number {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const { cx } = state;
+  const here = w.index(cx + 6, y, state.z);
+  if (w.map.kindAt(here) === TileKind.Tree) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: [here] });
+  if (w.map.kindAt(here) === TileKind.Tree) return -1;
+  if (w.map.kindAt(here) !== TileKind.Sapling) return y;
+  const next = y + out;
+  for (const x of [cx + 5, cx + 7]) {
+    const wall = w.index(x, next, state.z);
+    if (!buildings.at(wall) && buildings.ghost('wall', wall, 0).reason === null) command(w, { type: 'PlaceBuilding', buildingType: 'wall', origin: wall, orientation: 0, materialChoice: 0, priority: BUILD });
+  }
+  const stand = [cx + 5, cx + 7].every((x) => buildings.get(buildings.at(w.index(x, next, state.z)))?.state === 'built');
+  return stand && w.map.kindAt(w.index(cx + 6, next, state.z)) !== TileKind.Sapling ? next : -1;
 }
 
 export function checkFortressDefense(w: TestWorld, state: FortressState): void {
@@ -1100,8 +1156,9 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w1 = buildings.at(w.index(cx + 5, cy + 7, state.z));
     const w2 = buildings.at(w.index(cx + 7, cy + 7, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
-      const doorTile = w.index(cx + 6, cy + 7, state.z);
-      const rDoor = !gateDoorTileClear(w, doorTile) ? { ok: false } : command(w, {
+      const doorRow = gateDoorSite(w, state, cy + 7, 1);
+      const doorTile = w.index(cx + 6, doorRow, state.z);
+      const rDoor = doorRow < 0 ? { ok: false } : command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
         origin: doorTile,
@@ -1121,8 +1178,9 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const w1 = buildings.at(w.index(cx + 5, cy + 5, state.z));
     const w2 = buildings.at(w.index(cx + 7, cy + 5, state.z));
     if (buildings.get(w1)?.state === 'built' && buildings.get(w2)?.state === 'built') {
-      const doorTile2 = w.index(cx + 6, cy + 5, state.z);
-      const rDoor2 = !gateDoorTileClear(w, doorTile2) ? { ok: false } : command(w, {
+      const doorRow2 = gateDoorSite(w, state, cy + 5, -1);
+      const doorTile2 = w.index(cx + 6, doorRow2, state.z);
+      const rDoor2 = doorRow2 < 0 ? { ok: false } : command(w, {
         type: 'PlaceBuilding',
         buildingType: 'door',
         origin: doorTile2,

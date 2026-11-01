@@ -1,6 +1,8 @@
 # T-455 — Perils 2 and 4 are far harder on relief
 
-**Source:** T-451, [the script on relief](../../reports/audits/2026-10-31-three-year-script-on-relief.md) · **Size:** M · **Needs:** — · **Status:** open (measurement first; not started)
+**Closed:** 2026-11-01, in 967bd25.
+
+**Source:** T-451, [the script on relief](../../../reports/audits/2026-10-31-three-year-script-on-relief.md) · **Size:** M · **Needs:** — · **Status:** open (measurement first; not started)
 
 ## Why
 
@@ -27,3 +29,7 @@ Measure first, with a journal and a dated report. Do not tune before the cause i
 
 - Both questions are answered in a dated report, with the fix or the decision each needs.
 - Where this moves the sweep, the row (226 deaths, 531 living) is re-measured and what the set rule's allowance covers is re-stated in testing-strategy.md.
+
+## As done
+
+The gate leaked on relief because the script dug rooms out of the hillside; that is fixed in the fixture. Arming is not later on relief. Deaths outdoors, twice those on level maps, were not measured further, by the owner's decision. p2-3 stays extinct until the game gap on plants on a building site is dealt with. Reports: [the measurement](../../../reports/audits/2026-10-31-perils-on-relief.md), [the final row](../../../reports/audits/2026-11-01-perils-on-relief-final.md).

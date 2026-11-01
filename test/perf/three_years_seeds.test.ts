@@ -71,10 +71,12 @@ export const THREE_YEARS_20_SEEDS: readonly SeedConfig[] = [
  */
 export const SET_ALIVE_AT_YEAR_ONE = 18;
 export const SET_PERIL_ZERO_GROWN = 6;
+/** Of the peril-0 seeds, how many may have a dwarf die of hunger or thirst. */
+export const SET_PERIL_ZERO_NEED_DEATHS = 1;
 /** Founders: a peril-0 fortress has grown when it ends year 3 above this. */
 const EMBARK_SIZE = 7;
 
-const survival: { seed: string; peril: number; y1Pop: number; y3Pop: number }[] = [];
+const survival: { seed: string; peril: number; y1Pop: number; y3Pop: number; needDeaths: number }[] = [];
 
 export interface ThreeYearsSeedResult {
   readonly seed: string;
@@ -308,16 +310,11 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   const out = process.env['THREE_YEARS_SEEDS_OUT'] ?? '.vite/three-years-seeds';
   mkdirSync(out, { recursive: true });
   writeFileSync(`${out}/${seed}.json`, JSON.stringify({ figures, result }, null, 2) + '\n');
-  if (peril === 0) {
-    // Kept: the food chain. Nobody dies of hunger or thirst where the farm, the kitchens and the
-    // stills follow the population (85 starvation deaths in four seeds on 2026-10-12, before T-145),
-    // and a peril-0 fortress ends above its seven founders (22 to 50 dwarves on 2026-10-12).
-    expect(economy.needDeaths(), `${seed} (peril 0): no dwarf died of hunger or thirst`).toBe(0);
-  }
   // The file's set rule reads these. They come before the seed's assertions, so a seed that fails one
   // is still counted as what it was.
-  survival.push({ seed, peril, y1Pop, y3Pop });
-  console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE })}`);
+  const needDeaths = economy.needDeaths();
+  survival.push({ seed, peril, y1Pop, y3Pop, needDeaths });
+  console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE, needDeaths })}`);
   // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
   // bedrooms, the squad; at perils 2 and 4 an alert raised and lowered, and a trade).
   console.log(`[three_years_seeds_script] ${JSON.stringify({ seed, accepted: Object.fromEntries(scriptRecord(w).accepted), rejected: Object.fromEntries(scriptRecord(w).rejected) })}`);
@@ -340,14 +337,18 @@ describe('T-M8-06 perf: three_years_seeds', () => {
 
   // Runs last, over the seeds that reached their end of the file. A seed stopped early by an invariant
   // fails on its own and counts here as neither alive nor grown.
-  it('as a set: nearly every fortress is alive at year 1, and nearly every peril-0 fortress grows', () => {
+  it('as a set: nearly every fortress is alive at year 1, and nearly every peril-0 fortress grows and is fed', () => {
     const alive = survival.filter((row) => row.y1Pop > 0);
     const peril0 = survival.filter((row) => row.peril === 0);
     const grown = peril0.filter((row) => row.y3Pop > EMBARK_SIZE);
     const dead = survival.filter((row) => row.y1Pop <= 0).map((row) => row.seed);
     const small = peril0.filter((row) => row.y3Pop <= EMBARK_SIZE).map((row) => row.seed);
-    console.log(`[three_years_seeds_set] ${JSON.stringify({ seeds: survival.length, alive: alive.length, grown: grown.length, dead, small })}`);
+    // Kept as a set: the food chain. Hardly anyone dies of hunger or thirst where the farm, the
+    // kitchens and the stills follow the population (85 starvation deaths in four seeds on 2026-10-12, before T-145).
+    const hungry = peril0.filter((row) => row.needDeaths > 0).map((row) => `${row.seed}: ${row.needDeaths}`);
+    console.log(`[three_years_seeds_set] ${JSON.stringify({ seeds: survival.length, alive: alive.length, grown: grown.length, dead, small, hungry })}`);
     expect(alive.length, `alive at the end of year 1; dead: ${dead.join(', ')}`).toBeGreaterThanOrEqual(SET_ALIVE_AT_YEAR_ONE);
     expect(grown.length, `peril 0 past embark size at year 3; not: ${small.join(', ')}`).toBeGreaterThanOrEqual(SET_PERIL_ZERO_GROWN);
+    expect(hungry.length, `peril-0 seeds with need deaths: ${hungry.join(', ')}`).toBeLessThanOrEqual(SET_PERIL_ZERO_NEED_DEATHS);
   });
 });

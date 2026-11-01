@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
-| T-455 | [Perils 2 and 4 are far harder on relief](work/T-455-peril-two-on-relief.md) | T-451's sweep | — | open |
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
 | T-457 | [Crowding slows creatures; a door no longer blocks](work/T-457-crowding-instead-of-door-blocking.md) | the owner, 2026-10-31 | T-455 | open |
 | T-458 | [A sapling or shrub on a building site cannot be cleared](work/T-458-plants-on-a-building-site.md) | T-455's diagnosis | — | open |

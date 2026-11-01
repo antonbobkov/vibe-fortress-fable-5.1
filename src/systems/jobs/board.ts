@@ -501,6 +501,7 @@ export class JobBoard implements JobsApi, JobSink {
     this.freeWorker(job, true);
     if (reason === 'unreachable' && crowdedTile < 0 && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
     else delete job.failedWalk;
+    delete job.data['crowdedBy'];
     if (reason === 'unreachable' && crowdedTile >= 0) job.data['crowdedTile'] = crowdedTile;
     else delete job.data['crowdedTile'];
     this.block(job, reason);
@@ -562,7 +563,7 @@ export class JobBoard implements JobsApi, JobSink {
         continue;
       }
       const crowded = job.data['crowdedTile'];
-      if (reason === 'unreachable' && typeof crowded === 'number' && this.crowdedAt(crowded)) {
+      if (reason === 'unreachable' && typeof crowded === 'number' && this.heldBySameCreature(job, crowded)) {
         job.retryTick = this.now + BLOCKED_RETRY_TICKS;
         continue;
       }
@@ -582,17 +583,26 @@ export class JobBoard implements JobsApi, JobSink {
       }
       job.state = 'open';
       delete job.data['crowdedTile'];
+      delete job.data['crowdedBy'];
       this.invalidateWorkAvailability();
       job.blockedReason = null;
       this.notify(job, { type: 'JobUnblocked', jobId: job.id, jobType: this.typeId(job), target: job.target.ref });
     }
   }
 
-  /** Whether a creature stands on the tile (a doorway that held a worker's walk up); one lying down does not (22). */
-  private crowdedAt(tile: TileIndex): boolean {
+  /**
+   * Whether a creature holds the tile that held a worker's walk up (a doorway): one stands there that
+   * stood there at the last look. One lying down does not block (22), and one only passing through,
+   * on a door in steady use, does not hold it: the job retries, or the traffic would keep it blocked.
+   */
+  private heldBySameCreature(job: Job, tile: TileIndex): boolean {
     const entities = this.readers.entities;
-    for (const id of entities.at(tile)) if (entities.kind(id) === 'creature' && !liesDown(entities, id)) return true;
-    return false;
+    const standing = entities.at(tile).filter((id) => entities.kind(id) === 'creature' && !liesDown(entities, id));
+    if (standing.length === 0) return false;
+    const before = job.data['crowdedBy'];
+    if (before !== undefined && !standing.includes(before as EntityId)) return false;
+    if (before === undefined) job.data['crowdedBy'] = Math.min(...standing);
+    return true;
   }
 
   private inputsAvailable(job: Job): boolean {
