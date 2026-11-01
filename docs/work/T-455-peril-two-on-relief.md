@@ -27,3 +27,7 @@ Measure first, with a journal and a dated report. Do not tune before the cause i
 
 - Both questions are answered in a dated report, with the fix or the decision each needs.
 - Where this moves the sweep, the row (226 deaths, 531 living) is re-measured and what the set rule's allowance covers is re-stated in testing-strategy.md.
+
+## Progress
+
+Measured: [report](../../reports/audits/2026-10-31-perils-on-relief.md). The script's faults are fixed in the fixture; the file is red on `three-years-p0-3`'s hunger check. Waiting on the owner's decisions listed in the report.

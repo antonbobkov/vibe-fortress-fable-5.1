@@ -11,6 +11,7 @@ import { TICKS_PER_DAY, DAYS_PER_YEAR } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import type { PlantsReader } from '@systems/plants';
 import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
 
 const RELIEF = Number(process.env['T455_RELIEF'] ?? 1) as 0 | 1;
@@ -126,6 +127,9 @@ describe('T-455', () => {
           const pop = ent.with(C.Labors);
           const walking = pop.filter((id) => movement.walkTarget(id) >= 0).length;
           const doorStates = [state.gateDoorId, state.gateDoorId2].map((id) => { const dd = b.get(id ?? 0) as unknown as { state?: string; locked?: boolean } | undefined; return dd ? `${dd.state}${dd.locked ? ':locked' : ''}` : 'none'; });
+          const plantsReader = w.readers.of<PlantsReader>('07');
+          const plots = plantsReader.plots().map((zz) => { const zone = b.zone(zz); return { kind: plantsReader.plotKind(zz), tiles: zone?.tiles.length ?? 0, sown: zone?.tiles.filter((tt) => plantsReader.cropAt(tt) !== 0).length ?? 0 }; });
+          log({ seed, t: 'farm', day: d, pop: pop.length, surface: plots.filter((q) => q.kind !== 'cave').reduce((n, q) => n + q.tiles, 0), cave: plots.filter((q) => q.kind === 'cave').reduce((n, q) => n + q.tiles, 0), sown: plots.reduce((n, q) => n + q.sown, 0), plans: state.economy.farmPlans.map((q) => q.tiles.length), meals: items.count('easy_meal') + items.count('fine_meal') + items.count('lavish_meal'), plant: items.count('plant_food') });
           log({ seed, t: 'day', day: d, pop: pop.length, walking, logs: items.count('log'), ore: items.count('ore'), bars: items.count('bar'), stone: items.count('raw_stone'), blocks: items.count('stone_block'), food: items.count('plant_food') + items.count('easy_meal'), drink: items.count('drink'), doorStates, armed: state.economy.armedDay ?? null });
         }
         if (w.tick >= nextSeal) { nextSeal = w.tick + 28 * TICKS_PER_DAY; log({ seed, t: 'seal', day: d, seal: seal(false), sealLocked: seal(true) }); }
