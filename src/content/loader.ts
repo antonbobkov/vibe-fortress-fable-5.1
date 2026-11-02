@@ -2,7 +2,7 @@
  * The content loader.
  *
  * Implements `01-architecture/content-pipeline.md` § Loading, in order: parse, validate, resolve
- * references, assign indices (sorted by id, numbered from 1), build the derived structures,
+ * references, assign indices (older rows sorted by id, then `rowOrder`), build the derived structures,
  * generate the smelting, alloy and melt recipes of `03-content/minerals-and-metals.md`
  * § Generated recipes and the per-species and per-plant materials of `03-content/materials.md`
  * § Generated per species, compute the content hash, freeze.
@@ -97,6 +97,7 @@ import recipesJson from './recipes.json';
 import regionTraitsJson from './regionTraits.json';
 import reputationEventsJson from './reputationEvents.json';
 import roomTiersJson from './roomTiers.json';
+import rowOrderJson from './rowOrder.json';
 import skillsJson from './skills.json';
 import stringsJson from './strings.json';
 import thoughtsJson from './thoughts.json';
@@ -112,6 +113,12 @@ import zoneTypesJson from './zoneTypes.json';
 // ---------- loading ----------
 
 type Json = Record<string, unknown>;
+
+/** One row of `03-content/row-order.md`. */
+interface RowOrderEntry {
+  readonly table: string;
+  readonly id: string;
+}
 
 /** The raw tables exactly as they sit in `src/content/*.json`. */
 export function rawTables(): Record<string, unknown> {
@@ -160,6 +167,7 @@ export function rawTables(): Record<string, unknown> {
     regionTraits: regionTraitsJson,
     reputationEvents: reputationEventsJson,
     roomTiers: roomTiersJson,
+    rowOrder: rowOrderJson,
     skills: skillsJson,
     strings: stringsJson,
     thoughts: thoughtsJson,
@@ -218,11 +226,13 @@ export function loadContent(options: LoadOptions = {}): Registry {
   const issues = validateAll(data);
   if (issues.length > 0) throw new ContentError(issues);
 
-  // Step 4: indices, sorted by id and numbered from 1.
+  // Step 4: indices numbered from 1, the rows of `rowOrder` after all the others.
+  const appended = new Map<string, string[]>();
+  for (const { table, id } of data['rowOrder'] as RowOrderEntry[]) push(appended, table, id);
   const tables = new Map<string, RegistryTable<Row>>();
   for (const [name, schema] of Object.entries(SCHEMAS)) {
     if (schema.shape !== 'rows') continue;
-    tables.set(name, makeTable(name, data[name] as Row[]));
+    tables.set(name, makeTable(name, data[name] as Row[], appended.get(name)));
   }
 
   // Step 5: derived structures.
@@ -291,9 +301,11 @@ export function loadContent(options: LoadOptions = {}): Registry {
   ]);
 
   // Steps 6 and 7: "a stable hash over the sorted JSON", so the row order in the files does not
-  // change it. Row-shaped tables are hashed in index order; the rest as they are.
+  // change it. Row-shaped tables are hashed in index order; the rest as they are. `rowOrder` is
+  // not hashed: its only effect is that index order, which is already in the hash.
   const hashable: Record<string, unknown> = {};
   for (const name of Object.keys(data)) {
+    if (name === 'rowOrder') continue;
     const table = tables.get(name);
     hashable[name] = table === undefined ? data[name] : table.ids().map((id) => table.byId(id));
   }

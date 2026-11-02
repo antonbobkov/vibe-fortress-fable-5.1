@@ -517,6 +517,8 @@ function list(fields: Record<string, V>): TableSchema {
 }
 
 export const SCHEMAS: Record<string, TableSchema> = {
+  rowOrder: list({ table: nonEmptyStr, id: nonEmptyStr }),
+
   palette: rows({ id: nonEmptyStr, hex: nonEmptyStr, alt: opt(str) }),
 
   glyphs: { shape: 'list', row: obj({ index: int, char: nonEmptyStr, codePoint: int }) },
@@ -1255,6 +1257,20 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
         });
       }
     }
+  }
+
+  // `content-pipeline.md` § Loading step 4: every listed row exists, once.
+  const listed = new Set<string>();
+  for (const { table, id } of (data['rowOrder'] ?? []) as { table: string; id: string }[]) {
+    const known = ids.get(table);
+    if (known === undefined) {
+      issues.push({ table: 'rowOrder', row: id, field: 'table', message: `"${table}" is not a table of rows` });
+    } else if (!known.has(id)) {
+      issues.push({ table: 'rowOrder', row: id, field: 'id', message: `"${id}" is not an id in ${table}` });
+    }
+    const key = `${table}/${id}`;
+    if (listed.has(key)) issues.push({ table: 'rowOrder', row: id, field: 'id', message: `listed twice for ${table}` });
+    listed.add(key);
   }
 
   // F-07: at least one item type carries the tag fuel.

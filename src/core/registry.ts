@@ -14,7 +14,7 @@ export interface Row {
 
 /**
  * One table. Indices run from 1; 0 is reserved for "none" everywhere
- * (`content-pipeline.md` § Loading step 4).
+ * (`content-pipeline.md` § Loading step 4). `rows`, `ids()` and `where()` all run in index order.
  */
 export interface RegistryTable<T extends Row> {
   readonly name: string;
@@ -38,15 +38,15 @@ class Table<T extends Row> implements RegistryTable<T> {
   private readonly byIdMap: ReadonlyMap<string, T>;
   private readonly indexMap: ReadonlyMap<string, number>;
   private readonly cache = new Map<string, readonly T[]>();
-  private readonly sortedIds: readonly string[];
+  private readonly orderedIds: readonly string[];
 
-  constructor(name: string, sortedRows: readonly T[]) {
+  constructor(name: string, orderedRows: readonly T[]) {
     this.name = name;
     // Index 0 is "none": the row array is 1-based, with a hole at 0.
-    const rows: T[] = new Array<T>(sortedRows.length + 1);
+    const rows: T[] = new Array<T>(orderedRows.length + 1);
     const byId = new Map<string, T>();
     const indices = new Map<string, number>();
-    sortedRows.forEach((row, i) => {
+    orderedRows.forEach((row, i) => {
       const index = i + 1;
       rows[index] = row;
       byId.set(row.id, row);
@@ -55,7 +55,7 @@ class Table<T extends Row> implements RegistryTable<T> {
     this.rows = rows;
     this.byIdMap = byId;
     this.indexMap = indices;
-    this.sortedIds = sortedRows.map((r) => r.id);
+    this.orderedIds = orderedRows.map((r) => r.id);
   }
 
   get size(): number {
@@ -89,25 +89,42 @@ class Table<T extends Row> implements RegistryTable<T> {
   where(key: string, predicate: (row: T) => boolean): readonly T[] {
     const cached = this.cache.get(key);
     if (cached !== undefined) return cached;
-    const out = Object.freeze(this.sortedIds.map((id) => this.byIdMap.get(id) as T).filter(predicate));
+    const out = Object.freeze(this.orderedIds.map((id) => this.byIdMap.get(id) as T).filter(predicate));
     this.cache.set(key, out);
     return out;
   }
 
   ids(): readonly string[] {
-    return this.sortedIds;
+    return this.orderedIds;
   }
 }
 
-/** Build a table, sorting rows by id as `content-pipeline.md` § Loading step 4 requires. */
-export function makeTable<T extends Row>(name: string, rows: readonly T[]): RegistryTable<T> {
-  const sorted = rows.slice().sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+/**
+ * Rows in index order (`content-pipeline.md` § Loading step 4): the rows not named in `appended`
+ * sorted by id, then the named ones in the order listed.
+ */
+export function orderRows<T extends Row>(name: string, rows: readonly T[], appended: readonly string[] = []): readonly T[] {
+  const named = new Set(appended);
+  if (named.size !== appended.length) throw new Error(`${name}: an appended id is listed twice`);
+  const sorted = rows.filter((r) => !named.has(r.id)).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   for (let i = 1; i < sorted.length; i += 1) {
     if (sorted[i]?.id === sorted[i - 1]?.id) {
       throw new Error(`${name}: duplicate id "${sorted[i]?.id}"`);
     }
   }
-  return new Table(name, Object.freeze(sorted.map((r) => Object.freeze(r))));
+  const tail: T[] = [];
+  for (const id of appended) {
+    const matches = rows.filter((r) => r.id === id);
+    if (matches.length === 0) throw new Error(`${name}: appended id "${id}" is not a row`);
+    if (matches.length > 1) throw new Error(`${name}: duplicate id "${id}"`);
+    tail.push(matches[0] as T);
+  }
+  return [...sorted, ...tail];
+}
+
+/** Build a table, numbered as {@link orderRows} orders it. */
+export function makeTable<T extends Row>(name: string, rows: readonly T[], appended: readonly string[] = []): RegistryTable<T> {
+  return new Table(name, Object.freeze(orderRows(name, rows, appended).map((r) => Object.freeze(r))));
 }
 
 /**

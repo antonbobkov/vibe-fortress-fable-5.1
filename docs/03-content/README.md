@@ -30,3 +30,4 @@ This folder holds every table of game content. Systems refer to content only by 
 | [music.md](music.md) | Instruments and tunes, with their scores, for the synthesized music |
 | [intro.md](intro.md) | The hall intro's scenes, cues, captions, glyph colours and art |
 | [deep-intro.md](deep-intro.md) | The deep intro's palette, inks, scenes, layers, camera, effects, captions and art |
+| [row-order.md](row-order.md) | The rows added after version 1, which number after every older row of their table |

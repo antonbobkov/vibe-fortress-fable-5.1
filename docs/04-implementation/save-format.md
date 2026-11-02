@@ -87,10 +87,10 @@ Entity ids are written as numbers with generation. Content references are writte
 3. Inflate the body; parse sections into a map by name.
 4. Construct `Map3D` from `world.mapSize`; restore the six grids, `map.buildingAt`, and `map.chunkFluidCounts`.
 5. Construct `HeadlessGame` / `World` with the seed, map, and spec, with deferred labels (`deferLabels: true`) and load bootstrap (`loading: true`). Initialize readers, services and registrations without embark arrival or initial populations and their map side effects. Cavern monsters and spider webs come from the saved entities, grids and system state, not another initial spawn pass.
-6. Restore entities (`EntityStore` slots, generations, `free` list, component tables).
+6. Restore entities (`EntityStore` slots, generations, `free` list, component tables). A positional array shorter than its table grows with zeros: `Skills.level` and `xp`, and `Labors.enabled`, so a skill added since the save stands at 0 and a labor added since the save is off for that save's dwarves.
 7. Restore `fortress` state and `calendar` (`tick` and `isDaylight`).
 8. Restore RNG stream states.
-9. For each system in order, call `deserialize(state)` with migration from `stateVersion` to current. (System 03 restores `pendingMoves` and `producerCurrent`; 11 restores `ticked` and reconnects producers and 13 if set). Restore `game.arrival`.
+9. For each system in order, call `deserialize(state)` with migration from `stateVersion` to current. (System 03 restores `pendingMoves` and `producerCurrent`; 11 restores `ticked` and reconnects producers and 13 if set, and overwrites only the saved part of `laborPriorities`, so a labor added since the save stands at the default priority). Restore `game.arrival`.
 10. Rebuild-on-load:
     - During 13's deserialization, recount stock totals, available units, material classes and quality tiers once from restored items, preserving the saved dirty-type queue. Valid counts are unchanged; stale counts in older saves are repaired.
     - Rebuild spatial buckets (`game.spatial.rebuild()`) from restored entity positions.
@@ -99,6 +99,10 @@ Entity ids are written as numbers with generation. Content references are writte
     - Restore 22's pathfinder requests, searches, and walks (`pathfinder.loadState`, `movement.loadState`).
     - Restore `commandLog` and pending `queues` (`events` and `commands`).
 11. Restore `UiState`; start paused.
+
+## Optional fields
+
+`formatVersion` stays 1 and every `stateVersion` stays 1 while content and systems grow. A new component field or state field is optional, and absent means none, as `threatThrottles` and `Hostile.retreat` do. A system with no saved entry keeps its initial state (`World.deserializeSystems` skips it). Components are saved by table, so a new component needs no code. New rows keep old numbers valid ([content-pipeline.md](../01-architecture/content-pipeline.md) § Saves and content), so they need no migration. A change that adds a field to a saved component or state adds an old-save test.
 
 ## Migration
 

@@ -61,11 +61,11 @@ The loader numbers rows sorted by id (`content-pipeline.md` § Loading step 4, `
 
 The rule: **rows added after version 1 number after every older row.**
 
-- New table `rowOrder` in new file `03-content/row-order.md`: columns `table`, `id`. Rows named there number after all unnamed rows of their table, in the order listed. Unnamed rows keep sorted order, numbered from 1.
+- New table `rowOrder` in new file `03-content/row-order.md`: columns `table`, `id`. Rows named there number after all unnamed rows of their table, in the order listed. Unnamed rows keep sorted order, numbered from 1. The rows of a new table are listed too, so a later row of it cannot shift them.
 - `src/content/loader.ts` step 4 passes each table's list to `makeTable(name, rows, appended)`. `ids()`, `where()` and `rows` follow the same order, so a pick from an old list stays as it was.
 - Schema: `list({ table: nonEmptyStr, id: nonEmptyStr })`; a listed id must exist in its table after `applyGenerated`, so a generated plant material (`glowcap`) is listed in `materials` too. New `exportRowOrder` in `scripts/lib/export/`.
-- `test/fixtures/content-row-baseline.json` holds every table's ids at this commit. A test asserts that each keeps its index for good. A new row not in `rowOrder` fails it.
-- On load, positional arrays shorter than the table are grown with zeros: `Skills.level` and `xp` in `restoreEntities` (`app/game-save.ts`), `Labors.enabled` likewise, `laborPriorities` in `JobsSystem.deserialize` with the default priority. `combat/melee.ts` `getSkill` otherwise reads `undefined` and returns `CREATURE_BASE_SKILL`.
+- `test/fixtures/content-row-baseline.json` holds every table's ids at this commit, and is never edited. A test asserts that each keeps its index for good. A new row not in `rowOrder` fails it, and fails `content:check` (`scripts/lib/row-baseline.mjs`), with the line to add. `rowOrder` is not in the content hash, because the index order already is.
+- On load, positional arrays shorter than the table are grown with zeros: `Skills.level` and `xp` in `restoreEntities` (`app/game-save.ts`), `Labors.enabled` likewise. `combat/melee.ts` `getSkill` otherwise reads `undefined` and returns `CREATURE_BASE_SKILL`. `laborPriorities` needs no growing: `JobBoard` starts every labor at the default priority and its `deserialize` overwrites only the saved length.
 - New labors stay off for the dwarves of an older save, except as § The sanctum says. New dwarves get them on (`CoreSpawn.labors`).
 
 **Save format, for all tasks.** `formatVersion` stays 1 and every `stateVersion` stays 1. New component fields and new state fields are optional; absent means none, as `threatThrottles` and `Hostile.retreat` do. System 25 with no saved entry keeps its initial state (`World.deserializeSystems` already skips it). Components are saved by table, so they need no code. No task needs a migration. A task that adds a field to `Item` or `Rune` adds an old-save test.

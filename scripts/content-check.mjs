@@ -14,6 +14,7 @@ import { dirname, join } from 'node:path';
 import { validateAll } from '../src/content/schema.ts';
 import { applyGenerated } from '../src/content/generate.ts';
 import { checkExport } from './content-export-check.mjs';
+import { readRowBaseline, rowBaselineIssues } from './lib/row-baseline.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const contentDir = join(root, 'src/content');
@@ -68,6 +69,13 @@ if (issues.length > 0) {
     console.error(`  ${issue.table}[${issue.row}].${issue.field}: ${issue.message}`);
   }
   if (issues.length > 50) console.error(`  ... and ${issues.length - 50} more`);
+  process.exit(1);
+}
+
+const rowIssues = rowBaselineIssues(data, readRowBaseline());
+if (rowIssues.length > 0) {
+  console.error(`content:check: ${rowIssues.length} row numbering issue(s)`);
+  for (const issue of rowIssues) console.error(`  ${issue}`);
   process.exit(1);
 }
 
