@@ -65,8 +65,8 @@ export class ItemFacts {
   readonly typeCount: number;
   private readonly materialValues: number[] = [];
   private readonly materialClasses: string[] = [];
-  /** Per `enchants` index: what the enchantment adds to an item's value, and the units it was set in. */
-  private readonly enchantValues: { readonly value: number; readonly units: number }[] = [];
+  /** Per `enchants` index: what the enchantment adds to the value of one unit, in whole marks. */
+  private readonly enchantUnitValues: number[] = [];
   readonly typeIndex: (id: string) => number;
   readonly materialIndex: (id: string) => number;
   readonly materialIdOf: (index: number) => string;
@@ -88,7 +88,10 @@ export class ItemFacts {
         if (row === undefined) continue;
         // A gem stone is valued as its material; an item stone as its row's material value.
         const stone = materials.has(row.stone) ? materials.byId(row.stone)?.value ?? 0 : 0;
-        this.enchantValues[e] = { value: stone * ENCHANT_STONE_VALUE_MULT + row.vials * ENCHANT_VIAL_VALUE, units: row.slot === 'ammo' ? AMMO_SET : 1 };
+        // A set of ammunition shares it out per unit, rounded to whole marks, so value is linear in the
+        // count: a split or a merge never changes wealth.
+        const value = stone * ENCHANT_STONE_VALUE_MULT + row.vials * ENCHANT_VIAL_VALUE;
+        this.enchantUnitValues[e] = Math.round(value / (row.slot === 'ammo' ? AMMO_SET : 1));
       }
     }
     this.typeIndex = (id) => (items.has(id) ? items.index(id) : 0);
@@ -111,12 +114,11 @@ export class ItemFacts {
   }
 
   /**
-   * 13 § Value: what an enchantment adds to a stack of `count`, in whole marks. A set of ammunition
-   * carries it in proportion to its units out of the set.
+   * 13 § Value: what an enchantment adds to a stack of `count`, in whole marks: its per-unit share
+   * times the count. A piece's share is the whole value; a set of ammunition's is `round(value / 25)`.
    */
   enchantValue(enchant: number, count: number): number {
-    const e = this.enchantValues[enchant];
-    return e === undefined ? 0 : Math.floor((e.value * count) / e.units);
+    return (this.enchantUnitValues[enchant] ?? 0) * count;
   }
 
   materialClass(material: number): string {

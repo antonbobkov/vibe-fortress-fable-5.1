@@ -246,13 +246,27 @@ describe('T-471 an enchanted item keeps its stone; value, wealth and names', () 
     w.game.world.services.items!.setEnchant!(plate, enchantOf('adamant', 5));
     expect(items(w).value(plate)).toBe(4450);
     expect(items(w).wealth() - wealth).toBe(450);
-    // A set of 25 bolts carries garnet 12 × 3 + 4 × 15 = 96; a stack carries its share of the set.
+    // A set of 25 bolts: garnet 12 × 3 + 4 × 15 = 96, carried as round(96 / 25) = 4 a unit, so 100.
+    const api = w.game.world.services.items!;
     const bolts = w.spawnItem('bolt', 'iron', w.index(31, 30, Z), 25);
     const plainValue = items(w).value(bolts);
-    w.game.world.services.items!.setEnchant!(bolts, enchantOf('ember_ammo'));
-    expect(items(w).value(bolts) - plainValue).toBe(96);
-    const part = w.game.world.services.items!.split(bolts, 10);
-    expect(items(w).value(part) - Math.floor(plainValue * 10 / 25)).toBeLessThanOrEqual(Math.floor(96 * 10 / 25) + 1);
+    api.setEnchant!(bolts, enchantOf('ember_ammo'));
+    const setValue = items(w).value(bolts);
+    expect(setValue - plainValue).toBe(100);
+    // A split and a merge leave wealth exactly as it was.
+    const before = items(w).wealth();
+    const part = api.split(bolts, 10);
+    expect(items(w).wealth()).toBe(before);
+    expect(items(w).value(part) + items(w).value(bolts)).toBe(setValue);
+    expect(api.merge(bolts, part)).toBe(true);
+    expect(items(w).wealth()).toBe(before);
+    expect(items(w).value(bolts)).toBe(setValue);
+    // Fired one by one, 25 single bolts are worth the set.
+    const singles: EntityId[] = [];
+    for (let n = 0; n < 24; n += 1) singles.push(api.split(bolts, 1));
+    singles.push(bolts);
+    expect(singles.reduce((sum, id) => sum + items(w).value(id), 0)).toBe(setValue);
+    expect(items(w).wealth()).toBe(before);
   });
 
   it('names: a suffix with "of" follows, any other goes first; the look line gives the effect at the tier', () => {
