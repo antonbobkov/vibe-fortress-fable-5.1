@@ -980,7 +980,9 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
   }
 
   if (!state.economy.phases.has('pantry') && state.pantryTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
-    const result = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: state.pantryTiles });
+    // Whatever the fortress has zoned there meanwhile keeps its tiles: the pantry takes the rest.
+    const free = state.pantryTiles.filter((t) => buildings.zoneAt(t) === 0);
+    const result = command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: free });
     if (result.ok) {
       const id = bSystem.lastCreatedZone;
       command(w, { type: 'SetStockpileFilter', zoneId: id, filter: 'food' });

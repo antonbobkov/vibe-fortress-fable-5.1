@@ -882,8 +882,9 @@ function checkLarder(w: TestWorld, state: FortressState): number {
   const { economy } = state;
   if (!economy.phases.has('pantry')) return 0;
   if (!economy.phases.has('pantry barrels')) {
-    const pantry = buildings.zoneAt(state.pantryTiles[0]!);
-    if (pantry !== 0 && command(w, { type: 'SetStockpileContainers', zoneId: pantry, wants: { barrel: state.pantryTiles.length } }).ok) economy.phases.add('pantry barrels');
+    const pantry = state.pantryTiles.map((t) => buildings.zoneAt(t)).find((id) => id !== 0 && buildings.zone(id)?.type === 'stockpile') ?? 0;
+    const tiles = pantry === 0 ? 0 : buildings.zone(pantry)?.tiles.length ?? 0;
+    if (pantry !== 0 && command(w, { type: 'SetStockpileContainers', zoneId: pantry, wants: { barrel: tiles } }).ok) economy.phases.add('pantry barrels');
   }
   // The larder is dug once the first season's halls are done.
   if (economy.larder === undefined && w.tick >= 28 * TICKS_PER_DAY) {

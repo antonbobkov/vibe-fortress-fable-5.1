@@ -61,6 +61,8 @@ export interface SearchOptions {
   readonly reservable?: boolean;
   /** Require an item in a container of this class, located in a stockpile. */
   readonly stockpiledContainerClass?: string;
+  /** With `stockpiledContainerClass`: the container may stand anywhere, on a stockpile or off one. */
+  readonly anywhere?: boolean;
   /** Reject candidate locations, including container tiles, without changing search order. */
   readonly allowedTile?: (tile: TileIndex) => boolean;
 }
@@ -138,7 +140,7 @@ export class ItemSearch {
     if (opts.stockpiledContainerClass !== undefined && core.container(it.containerId)?.classId !== opts.stockpiledContainerClass) return -1;
     const t = core.tileOf(id);
     if (t < 0) return -1;
-    if (opts.stockpiledContainerClass !== undefined && this.host.stockpileAt(t) === 0) return -1;
+    if (opts.stockpiledContainerClass !== undefined && opts.anywhere !== true && this.host.stockpileAt(t) === 0) return -1;
     const pathing = this.host.pathing();
     if (pathing !== null && (fromLabel === 0 || !this.reached(pathing, it, t, cls, fromLabel))) return -1;
     if (!matches(core, id, it, filter)) return -1;

@@ -1,0 +1,53 @@
+/**
+ * Noise of defence_year (T-462, orchestrator's decision): the scenario's script on several seeds, one process, in
+ * sequence. Read-only: records parties, outcomes, raiders dead and soldier kills, and asserts nothing.
+ * Needs playDefenceYear's world seed from DEFENCE_SEED.
+ */
+import { it } from 'vitest';
+import { appendFileSync } from 'node:fs';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { CombatReader } from '@systems/combat/reader';
+import { playDefenceYear } from '../scenarios/defence_year_fortress';
+import { scriptRecord } from '../scenarios/script-commands';
+
+const OUT = process.env['DEFENCE_OUT'] ?? '.vite/defence-noise.jsonl';
+const STATE = process.env['DEFENCE_STATE'] ?? '?';
+
+for (const seed of ['defence-year', 'defence-year-2', 'defence-year-4', 'defence-year-5', 'defence-year-6']) {
+  it(`defence_year on ${seed}`, () => {
+    process.env['DEFENCE_SEED'] = seed;
+    const soldiers = new Set<number>();
+    let soldierKills = 0;
+    let raidersDead = 0;
+    const { w, state } = playDefenceYear({
+      observe: (tw) => {
+        tw.game.world.onEvents((batch) => {
+          for (const e of batch) {
+            if (e.type === 'KillRecorded' && e['hostile'] === true && soldiers.has(e['killerId'] as number)) soldierKills += 1;
+            if (e.type === 'CreatureDied' && String(e['faction'] ?? '').startsWith('hostile') && !String(e['faction']).includes('cavern')) raidersDead += 1;
+          }
+        });
+      },
+      watch: (tw, st) => {
+        const squad = tw.readers.of<CombatReader>('16').squads().find((s) => s.id === st.fortress.squadId);
+        soldiers.clear();
+        for (const id of squad?.members ?? []) soldiers.add(id);
+      },
+    });
+    const dwarf = w.game.registry.table('creatures').index('dwarf');
+    const outcomes: Record<string, number> = {};
+    for (const e of w.events('RaidEnded')) outcomes[String(e['outcome'])] = (outcomes[String(e['outcome'])] ?? 0) + 1;
+    appendFileSync(OUT, JSON.stringify({
+      state: STATE, seed, day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
+      parties: w.events('RaidArrived').length, sizes: w.events('RaidArrived').map((e) => Number(e['size'] ?? 0)), outcomes, raidersDead, soldierKills,
+      dwarfDeaths: w.events('CreatureDied').filter((e) => e['species'] === dwarf).length,
+      byParty: w.events('RaidArrived').map((e) => {
+        const ended = w.events('RaidEnded').find((x) => x['partyId'] === e['partyId']);
+        return `${String(e['kind'])}:${Number(e['size'] ?? 0)}:${String(ended?.['outcome'] ?? 'active')}`;
+      }),
+      otherEnded: w.events('RaidEnded').filter((x) => !w.events('RaidArrived').some((e) => e['partyId'] === x['partyId'])).map((x) => String(x['outcome'])),
+      trapTriggers: w.events('TrapTriggered').length, caged: w.events('CreatureCaged').length,
+      trial: state.trial, rejected: [...scriptRecord(w).rejected],
+    }) + '\n');
+  }, 1_800_000);
+}

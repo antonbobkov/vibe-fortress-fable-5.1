@@ -479,8 +479,10 @@ export class Activities {
       }
     } else if (need === 'thirst') {
       if (its !== null && ctx.world.services.items !== null) {
-        const drink = its.findItem({ drinkable: true }, from, 'walker',
-          { ...searchOptions, stockpiledContainerClass: 'barrel' });
+        // A barrel on a stockpile, else one standing anywhere else (10 § Eating and drinking).
+        const barrelled = { ...searchOptions, stockpiledContainerClass: 'barrel' };
+        const drink = its.findItem({ drinkable: true }, from, 'walker', barrelled)
+          || its.findItem({ drinkable: true }, from, 'walker', { ...barrelled, anywhere: true });
         if (drink !== 0) {
           const record = its.get(drink);
           const one = record !== undefined && record.count > 1 ? ctx.world.services.items.split(drink, 1) : drink;
@@ -501,7 +503,7 @@ export class Activities {
           if (w >= 0) p = plan(need, w);
         }
       }
-      // D-120: loose alcohol is still drinkable when no barrel, well or water exists.
+      // D-120: alcohol out of any barrel is still drinkable when no barrel, well or water exists.
       if (p === null && its !== null && ctx.world.services.items !== null) {
         const drink = its.findItem({ drinkable: true }, from, 'walker', searchOptions);
         if (drink !== 0) {
