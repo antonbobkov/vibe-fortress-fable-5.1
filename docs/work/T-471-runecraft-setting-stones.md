@@ -24,3 +24,7 @@ Effects do not act in combat yet, except the rune figures of robe and circlet.
 - Value and suffix read as § Setting stones says, wealth follows, and a stack of 25 enchanted bolts does not merge with plain ones.
 - Robe and circlet change the rune figures (34 hours in a robe).
 - A rune vial bought from the Mountainhome stays outside the ordinary pool.
+
+## Note from T-468's review
+
+A player request finds an `extra` caravan entry through `entries.find` in `trade/goods.ts`, but never checks `extra.minReputation`. The rune-vial row (reputation ≥ 50) needs that check in the request loop.
