@@ -1263,7 +1263,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // T-387: once the alert for wild animals alone has been lifted (below), the fortress works for
   // a while before it shelters from them again.
   const wild = !raid && intruders.length === 0 && w.tick < (state.wildQuietUntil ?? -1) ? [] : dangerousWildlife(w, state, adults);
-  const targets = [...intruders, ...wild];
+  // T-461: a cavern monster or a Hollow-born that can walk to a dwarf: the breach, the attack and the
+  // death are all announced, and the alert and the squad are how a player answers them.
+  const indoors = hostilesIndoors(w, adults);
+  const targets = [...indoors, ...intruders, ...wild];
   const danger = raid || targets.length > 0;
   if (danger) state.lastDangerTick = w.tick;
   const curAlert = w.game.world.fortress.alert;
@@ -1287,7 +1290,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // hunt, only keeps the fortress from the brook and its surface work. On seed p2-3 one boar by
   // the gate held it for 27 days and all fourteen dwarves died of thirst inside. The player lifts
   // it after half a day and does not shelter from the animals again for a day.
-  if (curAlert === 'hearth' && !raid && intruders.length === 0 && targets.length > 0 && !squadArmed(w, state) &&
+  if (curAlert === 'hearth' && !raid && intruders.length === 0 && indoors.length === 0 && targets.length > 0 && !squadArmed(w, state) &&
       w.tick - (state.alertSince ?? w.tick) >= WILD_ALERT_TICKS) {
     state.wildQuietUntil = w.tick + WILD_QUIET_TICKS;
     command(w, { type: 'SetAlert', level: 'calm' });
@@ -1308,10 +1311,12 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
       // A raid is met at the gate. A thief or a beast is hunted down, the nearest first, by a
       // squad whose every member holds a weapon; an unarmed squad waits below with everybody else.
-      const hunted = raid ? [] : squadArmed(w, state) ? targets : [];
+      // A hostile indoors is hunted first and by any squad: below is where it is.
+      const hunted = raid ? indoors : squadArmed(w, state) ? targets : indoors;
       for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
       const below = w.index(cx + 6, cy + 6, state.hallZ);
-      const post = raid || hunted.length > 0 || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
+      const outdoors = raid || hunted.length > indoors.length;
+      const post = outdoors || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
     }
   } else if (curAlert === 'hearth' && w.tick - state.lastDangerTick >= ALL_CLEAR_TICKS) {
@@ -1354,6 +1359,31 @@ function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: readonly
     if (w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') !== gateLabel) continue;
     if (!places.some((q) => q !== undefined && Math.abs(q.z - p.z) <= 2 && Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)) <= WILD_NEAR)) continue;
     found.push({ id, d: Math.max(Math.abs(gate.x - p.x), Math.abs(gate.y - p.y)) });
+  }
+  return found.sort((a, b) => a.d - b.d || a.id - b.id).map((f) => f.id);
+}
+
+/**
+ * T-461: the hostiles of no party a player answers: each one awake and in sight that can walk to a
+ * dwarf within WILD_NEAR of it, the nearest first. Monsters in a cavern the fortress has no way into
+ * do not count.
+ */
+function hostilesIndoors(w: TestWorld, dwarves: readonly number[]): number[] {
+  const ent = w.game.world.entities;
+  const label = (p: { x: number; y: number; z: number }): number => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker');
+  const places = dwarves.map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined);
+  const found: { id: number; d: number }[] = [];
+  for (const id of ent.with(C.Hostile)) {
+    const h = ent.get(id, C.Hostile);
+    const p = ent.get(id, C.Position);
+    if (!h || !p || h.partyId !== 0 || h.behaviorState === 'asleep' || h.stealthed === true) continue;
+    const own = label(p);
+    let d = Infinity;
+    for (const q of places) {
+      if (Math.abs(q.z - p.z) > 2 || label(q) !== own) continue;
+      d = Math.min(d, Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)));
+    }
+    if (d <= WILD_NEAR) found.push({ id, d });
   }
   return found.sort((a, b) => a.d - b.d || a.id - b.id).map((f) => f.id);
 }
