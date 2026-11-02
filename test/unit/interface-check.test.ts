@@ -76,7 +76,7 @@ describe('T-M8-08 interface audit', () => {
 
   it('audits every system document without differences', () => {
     const results = api.audit();
-    expect(results.map((r) => r.id)).toEqual(Array.from({ length: 24 }, (_, n) => String(n + 1).padStart(2, '0')));
+    expect(results.map((r) => r.id)).toEqual(Array.from({ length: 25 }, (_, n) => String(n + 1).padStart(2, '0')));
     expect(results.flatMap((r) => r.differences.map((d) => `${r.id}: ${d}`))).toEqual([]);
   });
 });
