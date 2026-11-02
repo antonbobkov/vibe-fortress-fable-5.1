@@ -1,6 +1,6 @@
 # T-479 — Runecraft 9b: Gloam hexers in raids and sieges
 
-**Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md), through T-467 · **Size:** M · **Needs:** T-473 · **Status:** open
+**Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md), through T-467 · **Size:** M · **Needs:** — · **Status:** open
 
 The specification is [25 Runecraft](../02-systems/25-runecraft.md) § Hexers. Split from T-476 because the measuring needs its own runs.
 
