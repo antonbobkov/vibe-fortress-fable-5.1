@@ -127,11 +127,11 @@ What a runecaster's Call brings ([25-runecraft.md](../02-systems/25-runecraft.md
 
 | id | name | plan | size | speed | temper | class | attacks | armor | flee | flags | glyph | fg |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `wisp` | wisp | crawler | 10 | 0.24 | timid | walker | touch ember 4 size 2 | 0 | — | summoned | `*` | `rune_cyan` |
+| `wisp` | wisp | crawler | 10 | 0.24 | neutral | walker | touch ember 4 size 2 | 0 | — | summoned | `*` | `rune_cyan` |
 | `stone_warden` | stone warden | humanoid | 90 | 0.105 | aggressive | walker | slam blunt 15 size 8 | 7 | — | summoned | `Φ` | `granite_gray` |
 | `deep_shade` | deep shade | humanoid | 60 | 0.21 | aggressive | walker | claw edge 12 size 3 | 1 | — | summoned turns | `δ` | `hollow_violet` |
 
-A wisp is `timid`: called, it fights as any war animal does, and below `FLEE_BLOOD_PERCENT` of its blood it runs; loose from a mishap, 08's wild brain wanders it. A warden and a shade are `aggressive`, so they never run.
+A wisp is `neutral`: called, it fights as any war animal does, and below `FLEE_BLOOD_PERCENT` of its blood it runs; loose from a mishap, 08's wild brain wanders it, and it turns only on what strikes it. (A `timid` wisp would run from the apprentice beside it and, in a sanctum with no way to the map's edge, leave the map at once.) A warden and a shade are `aggressive`, so they never run.
 
 ## Fish pools
 

@@ -625,7 +625,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         ctx.world.entities.add(id, C.Wild, { ...w, hungry: true });
       }
     }
-    const going = leavers(this.spawner, season, ctx.tick, wild, {
+    // A loose summon keeps to its own day: no cap or lifetime sends it off (25 § Summons).
+    const going = leavers(this.spawner, season, ctx.tick, this.unsummoned(wild), {
       get: (id) => {
         const creature = ctx.world.entities.get(id, C.Creature);
         const w = ctx.world.entities.get(id, C.Wild);

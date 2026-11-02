@@ -19,7 +19,7 @@ describe('T-M7-06 milestone registry and fortress legend', () => {
     const registrations = new Registrations();
     const system = new LegendSystem();
     system.init({ registry, register: registrations, world: { map: { d: 64 } } } as unknown as InitContext);
-    expect(registrations.milestones.map((row) => row.id).sort()).toEqual(registry.table('milestones').ids());
+    expect(registrations.milestones.map((row) => row.id).sort()).toEqual(registry.table('milestones').ids().slice().sort());
     const milestones: { id: string; tick: number }[] = [];
     const item = { type: registry.table('items').index('bar'), material: registry.table('materials').index('steel') };
     const dwarf = { faction: 'fortress', name: 'Solveig Deephand' };

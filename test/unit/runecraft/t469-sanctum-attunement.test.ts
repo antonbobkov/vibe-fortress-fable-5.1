@@ -129,7 +129,7 @@ describe('T-469 constants and arithmetic', () => {
     const doc = tuningConstants('02-systems/25-runecraft.md');
     const landed = magicConstants as unknown as Record<string, number>;
     const names = Object.keys(landed);
-    expect(names.length).toBe(23);
+    expect(names.length).toBe(26);
     for (const name of names) expect(doc.find((row) => row.name === name)?.value, name).toBe(landed[name]);
   });
 
@@ -311,7 +311,7 @@ describe('T-469 mishaps', () => {
     }
     expect(mishaps / 20000).toBeGreaterThan(0.05);
     expect(mishaps / 20000).toBeLessThan(0.07);
-    expect(Object.keys(kinds).sort()).toEqual(['blackout', 'fire', 'scorched_circle', 'singed', 'surge']);
+    expect(Object.keys(kinds).sort()).toEqual(['blackout', 'fire', 'scorched_circle', 'singed', 'surge', 'wisp_loose']);
   });
 
   it('1,000 level-0 sessions in a bare sanctum: 60 ± 15 mishaps, none kills, takes a limb or destroys a stockpile item', () => {
@@ -335,7 +335,11 @@ describe('T-469 mishaps', () => {
     expect(mishaps).toBeGreaterThanOrEqual(45);
     expect(mishaps).toBeLessThanOrEqual(75);
     expect(w.events('AttuneSession')).toHaveLength(1000);
-    expect(w.events('CreatureDied')).toHaveLength(0);
+    // A loose wisp is no one's death: each fades, or dies as any creature does, and none is a dwarf (25 § Summons).
+    const wisp = registry.table('creatures').index('wisp');
+    expect(w.events('CreatureDied').filter((e) => e['species'] !== wisp)).toHaveLength(0);
+    expect(w.events('CreatureDied')).toHaveLength(kinds['wisp_loose'] ?? 0);
+    expect(w.events('CorpseCreated')).toHaveLength(0);
     expect(w.events('LimbLost')).toHaveLength(0);
     expect(w.events('ItemDestroyed')).toHaveLength(0);
     expect(w.events('FireStarted')).toHaveLength(0);
@@ -349,7 +353,9 @@ describe('T-469 mishaps', () => {
     expect(w.events('CreatureStunned')).toHaveLength(kinds['blackout'] ?? 0);
     expect(w.events('BuildingRemoved').length).toBe(kinds['scorched_circle'] ?? 0);
     expect(w.events('DamageDealt').every((e) => e['damageType'] === 'burn' && e['amount'] === 1 && e['attackerId'] === 0)).toBe(true);
-    expect(w.events('WoundInflicted').filter((e) => e['woundType'] === 'burn').every((e) => (e['part'] === 'left_arm' || e['part'] === 'right_arm') && e['severity'] === 'light')).toBe(true);
+    // A surge burns a loose wisp as it burns anyone; on so small a body the burn is no light wound.
+    const wisps = new Set(w.events('CreatureDied').map((e) => e['id']));
+    expect(w.events('WoundInflicted').filter((e) => e['woundType'] === 'burn' && !wisps.has(e['id'])).every((e) => (e['part'] === 'left_arm' || e['part'] === 'right_arm') && e['severity'] === 'light')).toBe(true);
   });
 
   it('a fire mishap lights a burnable tile beside the circle; a blackout knocks the dwarf down and admits no one', () => {

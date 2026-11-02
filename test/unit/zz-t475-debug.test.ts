@@ -1,0 +1,38 @@
+import { it } from 'vitest';
+import { roundTrip } from '@app/game-save';
+import { C, type Equipment } from '@core/components';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { TileKind } from '@core/map3d';
+import type { CombatReader, SquadWithId } from '@systems/combat';
+import { contentRegistry } from '@content/loader';
+import { TestWorld } from '../scenarios/test-world';
+
+const registry = contentRegistry();
+const Z = FLAT_TEST_SURFACE_Z;
+it('debug save', () => {
+  const w = new TestWorld({ seed: 't475-save', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+  const mage = w.spawnDwarf({ at: w.index(30, 30, Z), skills: { runecraft: 10 } });
+  w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard' });
+  const s = w.readers.of<CombatReader>('16').squads().at(-1) as SquadWithId;
+  w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: s.id, members: [mage] });
+  w.game.world.applyCommand({ type: 'SetSquadStation', squadId: s.id, tile: w.index(30, 30, Z) });
+  w.game.world.applyCommand({ type: 'SetSquadMode', squadId: s.id, mode: 'active' });
+  w.step(1);
+  w.game.world.entities.add(mage, C.Rune, { current: 50_000 });
+  const staff = w.spawnItem('staff', 'steel', w.index(30, 30, Z), 1, 1);
+  w.game.world.entities.add(staff, C.Item, { ...w.game.world.entities.get(staff, C.Item)!, stone: registry.table('materials').index('glowstone') });
+  w.game.world.services.items!.attachToCarrier(staff, mage);
+  w.game.world.services.items!.setOwner(staff, mage);
+  w.game.world.entities.add(mage, C.Equipment, { ...(w.game.world.entities.get(mage, C.Equipment) as Equipment), weapon: staff });
+  for (let dx = -1; dx <= 1; dx += 1) for (let dy = -1; dy <= 1; dy += 1) if (dx !== 0 || dy !== 0) w.carve(w.index(30 + dx, 22 + dy, Z), TileKind.Fortification);
+  w.spawnCreature('gloam_warrior', w.index(30, 22, Z), 'hostile:gloam');
+  w.until(() => w.events('SummonCalled').length > 0, 400);
+  const id = w.events('SummonCalled')[0]!['id'] as number;
+  console.log('called', id, w.tick, JSON.stringify(w.game.world.entities.get(id, C.Summoned)));
+  const { game } = roundTrip(w.game);
+  w.replaceGame(game);
+  const e = w.game.world.entities;
+  console.log('after load', e.alive(id), JSON.stringify(e.get(id, C.Summoned)), e.with(C.Summoned));
+  w.step(1300);
+  console.log('after', e.alive(id), w.events('SummonFaded').map((x) => x['id']), w.events('CreatureDied').map((x) => [x['id'], x['cause']]), w.tick, e.with(C.Summoned).map((x) => JSON.stringify(e.get(x, C.Summoned))));
+});
