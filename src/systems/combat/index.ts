@@ -52,7 +52,9 @@ import { threatScan } from './threats';
 import { kitingTile } from './kiting';
 import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
-import { allyOnLine, canCastBolt, otherBoltTarget } from '@systems/magic/cast';
+import { allyOnLine, canCastBolt, castSupport, drinkVial, heldSpellKind, otherBoltTarget, runeCovers, type CastHost } from '@systems/magic/cast';
+import { CASTER_HOLD_DISTANCE } from '@systems/magic/constants';
+import { stepFled } from './fled';
 
 export type { CombatReader, SquadWithId } from './reader';
 export * from './constants';
@@ -213,8 +215,21 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     return fireRanged(ctx, shooterId, targetId, this.targets.cooldownUntil, options);
   }
 
-  /** The target a channel's bolt goes to this tick: the held one with a clear line, another, or 0. */
+  /** What 25's casting rules read from 16. */
+  private castHost(ctx: TickContext): CastHost {
+    return {
+      cooldownUntil: this.targets.cooldownUntil,
+      isHostile: (a, b) => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e)),
+      lineOfSight: (from, to) => this.lineOfSight(from, to),
+    };
+  }
+
+  /**
+   * The target a channel's cast goes to this tick: the held one with a clear line, another, or 0.
+   * Only a bolt has a line to keep clear; a burst or a single goes to the held target.
+   */
   private clearBoltTarget(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, target: EntityId, from: TileIndex): EntityId {
+    if (heldSpellKind(ctx, w) !== 'bolt') return target;
     const map = ctx.world.map;
     const range = w?.weaponDef.launcher?.range ?? 0;
     const rayTo = (other: EntityId): { tile: TileIndex; ray: readonly TileIndex[] } | null => {
@@ -227,6 +242,34 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     const held = rayTo(target);
     if (held !== null && !allyOnLine(ctx, id, held.tile, held.ray)) return target;
     return otherBoltTarget(ctx, id, w, target, (a, b) => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e)), rayTo);
+  }
+
+  /**
+   * 25 § Casting, for a channel whose spell is no bolt, where the creature would walk to its target:
+   * a burst or a single that cannot take the held target throws at another it can; and a caster
+   * with the rune for its spell stops `CASTER_HOLD_DISTANCE` from its target rather than closing to
+   * club it. True when the creature cast or stood.
+   */
+  private castInstead(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, target: EntityId, from: TileIndex, dist: number): boolean {
+    const kind = heldSpellKind(ctx, w);
+    if (kind === undefined || kind === 'bolt') return false;
+    if ((kind === 'burst' || kind === 'single') && (this.targets.cooldownUntil.get(id) ?? 0) <= ctx.tick) {
+      const map = ctx.world.map;
+      const other = otherBoltTarget(ctx, id, w, target, (a, b) => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e)), (o) => {
+        const p = ctx.world.entities.get(o, C.Position);
+        if (p === undefined) return null;
+        const tile = map.index(p.x, p.y, p.z);
+        return this.lineOfSight(from, tile) ? { tile, ray: [] } : null;
+      });
+      if (other !== 0) {
+        this.targets.engagements.set(id, ctx.tick);
+        this.fireAt(id, other);
+        return true;
+      }
+    }
+    if (dist > CASTER_HOLD_DISTANCE || !runeCovers(ctx, id, w)) return false;
+    ctx.world.services.movement?.stopWalking(id);
+    return true;
   }
 
   override tick(ctx: TickContext): void {
@@ -270,6 +313,9 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
 
       const bodyA = entities.get(id, C.Body);
       if (bodyA !== undefined && !bodyA.conscious) continue;
+
+      // 25 § Effects: under a `flee` effect the creature keeps its target, does not attack, and runs.
+      if (stepFled(ctx, id, target)) continue;
 
       if (bodyA !== undefined && bodyA.maxBlood > 0) {
         const soldier = entities.get(id, C.Soldier);
@@ -329,6 +375,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const launcher = w?.weaponDef.launcher;
       // 25 § Casting: a channel's ammunition is its holder's rune. With none, a channel is a club.
       const channel = launcher !== undefined && launcher.ammo === undefined;
+      // 25 § Vials: below cost, with a hostile held, the caster drinks before anything else.
+      if (channel && (this.targets.cooldownUntil.get(id) ?? 0) <= tick && drinkVial(ctx, id, w, this.targets.cooldownUntil)) continue;
       const hasAmmo = channel
         ? canCastBolt(ctx, id, w, target)
         : launcher?.ammo !== undefined && findAmmoForShooter(entities, ctx.registry, id, launcher.ammo,
@@ -345,6 +393,12 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
           ctx.world.services.movement?.walkTo(id, kite, 'combat', ctx);
           continue;
         }
+      }
+
+      // 25 § Casting: a ward, mend or dread staff casts for its held target when its row's rule holds.
+      if (channel && (this.targets.cooldownUntil.get(id) ?? 0) <= tick && castSupport(ctx, id, w, target, this.castHost(ctx))) {
+        this.targets.engagements.set(id, tick);
+        continue;
       }
 
       if (isAdjacent) {
@@ -376,6 +430,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       } else {
         // A civilian who fights back (10) strikes only what is in reach; it does not chase.
         if (entities.has(id, C.Brain) && creatureA?.faction === 'fortress' && entities.get(id, C.Soldier)?.onDuty !== true) continue;
+        if (channel && this.castInstead(ctx, id, w, target, tileA, dist)) continue;
         // Approach toward target
         const soldier = entities.get(id, C.Soldier);
         if (soldier?.stance !== 'hold') {

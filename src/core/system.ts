@@ -14,7 +14,7 @@ import type { EventType } from './event-types';
 import type { GameEvent } from './events';
 import type { Registry } from './registry';
 import type { RngStream } from './rng';
-import type { EntityId, MovementClass, TileIndex } from './types';
+import type { EntityId, MovementClass, Tick, TileIndex } from './types';
 import type { Designation, Map3D, TileFlag, TileKind } from './map3d';
 import type { EntityStore } from './entities';
 import type { CalendarReader, EntityReader, FortressReader, MapReader, PathingReader, SpatialReader } from './readers';
@@ -123,6 +123,13 @@ export interface CoreServices {
   /** The write side of the spatial index, installed by the host (T-M2-01, D-068). */
   spatial: SpatialWriter | null;
   combat: CombatApi | null;
+  /** 25's casting API, installed by 25 at `init`; null without a magic system. */
+  magic: MagicApi | null;
+}
+
+/** `25-runecraft.md` § Spells: a Firebloom cast in 16's loop queues its bloom with 25. */
+export interface MagicApi {
+  addBloom(bloom: { tile: TileIndex; at: Tick; casterId: EntityId; raw: number }): void;
 }
 
 /**

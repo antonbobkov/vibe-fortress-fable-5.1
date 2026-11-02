@@ -51,6 +51,7 @@ Each health tick (every 5 ticks) for each creature in the `wounded` list or stil
 - `blood −= Σ wound.bleed` for wounds not `bandaged` (bandaging sets `bleed = 0`; suturing keeps it 0 and heals faster). A `light` wound stops bleeding by itself `CLOT_TICKS` after it was made (its `bleed` becomes 0); a `serious` or `grievous` wound bleeds until it is bandaged. Blood regenerates `BLOOD_REGEN_PER_TICK` per health tick when no wound bleeds.
 - `pain = Σ wound.pain × (100 − Willpower / 2) / 100` (dwarves; other creatures use 100).
 - `conscious = pain < PAIN_UNCONSCIOUS and blood ≥ maxBlood × BLOOD_UNCONSCIOUS_PERCENT / 100 and tick ≥ stunnedUntil`. An unconscious creature does nothing, is hit at +40, and is carried as a patient if a dwarf.
+- **Mend.** On `Mended { id, casterId }` (25's Mend) a living creature with a body has every bleeding wound `bandaged` (its bleed 0), every light wound removed with its damage back to the part's hp, and every other wound `cleaned`. An infected wound keeps its infection and its cleaning request until a medic cures it. Mend is not a treatment job and gives no xp.
 - **Stun.** On `CreatureStunned { id, until }` (25's daze and blackout) a living creature with a body is held unconscious until `until`: `stunnedUntil` keeps the later of two stuns, the creature joins `wounded` and stays there while the stun lasts, and a conscious body becomes unconscious at once with `CreatureUnconscious`. The first health tick at or after `until` drops the entry and wakes it by the line above, with `CreatureConscious`. A stun is not a wound: it admits no patient and does not keep one from discharge.
 - Death: `blood < maxBlood × BLOOD_DEATH_PERCENT / 100` → `CreatureDied { cause: bled_out }`.
 - Healing: `healRemaining −= 5` for each wound whose healing is not blocked: fractures heal only at `UNTREATED_FRACTURE_PERCENT` speed unless `splinted`; infected wounds do not heal; `wasting` does not heal while starving. At 0 the wound is removed, `part.hp` regains the wound's damage, and for an unsplinted fracture that healed, a `permanent: badly_healed_<part>` is added.
@@ -124,7 +125,7 @@ Tame animals get bandaging only: the health producer creates `bandage_animal` (l
 
 ### Events consumed
 
-`DamageDealt` (one with `clean: true`, 25's mishap burn, makes its wound already `cleaned`, so it cannot take infection), `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `CreatureStunned` (25), `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
+`DamageDealt` (one with `clean: true`, 25's mishap burn, makes its wound already `cleaned`, so it cannot take infection), `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `CreatureStunned` (25), `Mended` (25), `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
 
 ### Events emitted
 

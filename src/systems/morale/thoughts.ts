@@ -127,6 +127,8 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'hoarded': return s(event, 'kind') === 'hoard' && n(event, 'itemId') !== 0;
     case 'attuned': return s(event, 'mishap') === '';
     case 'singed': return s(event, 'kind') === 'singed';
+    case 'warded': return true;
+    case 'mended_by_rune': return true;
     default: return true;
   }
 }

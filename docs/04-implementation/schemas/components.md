@@ -125,7 +125,9 @@ interface Projectile { itemId: EntityId; from: TileIndex; to: TileIndex; progres
                        spellPower?: number /* the casting channel's power in thousandths */ }
 interface Crop { plotZoneId: EntityId; plant: Idx<PlantDef>; stage: 0|1|2|3; growth: number; tile: TileIndex }
 interface Merchant { partyId: EntityId; goods: EntityId[] }
-interface Rune { current: number /* milli-rune; max and regen are derived, never stored */ }
+interface Rune { current: number /* milli-rune; max and regen are derived, never stored */;
+                 vialsToday?: number /* vials drunk today, cleared on DayPassed */; nextDreadTick?: Tick /* Dread waits until this tick */;
+                 outAnnounced?: boolean /* RuneSpent announced until regen lifts the rune over its spell's cost */ }   // each absent in older saves means none
 interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: EntityId }
 interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */ }
 ```

@@ -5,6 +5,7 @@
 
 import { C, type Attributes, type Body } from '@core/components';
 import { crowdTicks } from '@core/crowding';
+import { effectValue } from '@core/effects';
 import { BODY_SLOTS } from '@core/types';
 import type { BodySlot, DamageType, EntityId, Quality } from '@core/types';
 import type { EntityStore } from '@core/entities';
@@ -160,7 +161,12 @@ export function isAsleep(entities: EntityStore, id: EntityId): boolean {
   return brain?.activity === 'sleep';
 }
 
-export function isFleeing(entities: EntityStore, id: EntityId): boolean {
+/**
+ * Fleeing (16 § Fleeing and morale in combat): a brain or a wild animal in flight, or a creature
+ * under an unexpired `flee` effect (25 § Effects), which is hit at +10 and does not parry or block.
+ */
+export function isFleeing(entities: EntityStore, id: EntityId, tick: number): boolean {
+  if (effectValue(entities, id, 'flee', tick) > 0) return true;
   const brain = entities.get(id, C.Brain);
   if (brain?.behavior === 'flee') return true;
   const wild = entities.get(id, C.Wild);
@@ -347,8 +353,8 @@ export function armorCovering(
  * resolution). Every piece covering the part, outer layer first,
  * `armor × armorMult × coverage / 100 × qualityArmorMult × damageTypeVsLayer(type, layer)`, then a
  * creature's natural armour (+1 when war-trained) as a plate layer. One function for the blow, the
- * missile and the inspector, so the three cannot drift apart. `tick` is for the timed effects that
- * will read it (`25-runecraft.md` § Effects).
+ * missile and the inspector, so the three cannot drift apart. A `ward` effect (`25-runecraft.md`
+ * § Effects) adds `ward × damageTypeVsLayer(type, ward)` on every part while it lasts at `tick`.
  */
 export function armorReduction(
   entities: EntityStore,
@@ -356,7 +362,7 @@ export function armorReduction(
   defenderId: EntityId,
   part: BodySlot,
   type: DamageType | string,
-  _tick: number,
+  tick: number,
 ): number {
   let red = 0;
   for (const piece of armorCovering(entities, registry, defenderId, part)) {
@@ -370,6 +376,9 @@ export function armorReduction(
     const naturalArmor = (sp?.naturalArmor ?? 0) + (isWarTrained(entities, defenderId) ? 1 : 0);
     red += naturalArmor * getDamageVsLayer(type, 'plate');
   }
+  // 25 § Effects: a ward covers every part. With no `Spellbound` this adds nothing.
+  const ward = effectValue(entities, defenderId, 'ward', tick);
+  if (ward > 0) red += ward * getDamageVsLayer(type, 'ward');
   return red;
 }
 
@@ -485,7 +494,7 @@ export function resolveMelee(
   const agiD = getAttribute(entities, defenderId, 'agi');
 
   const unconOrAsleep = !isConscious(entities, defenderId) || isAsleep(entities, defenderId);
-  const fleeing = isFleeing(entities, defenderId);
+  const fleeing = isFleeing(entities, defenderId, tick);
   const posD = entities.get(defenderId, C.Position);
   const inDeepWater = posD !== undefined &&
     ctx.world.map.fluidLevelAt(ctx.world.map.index(posD.x, posD.y, posD.z)) >= 4 &&

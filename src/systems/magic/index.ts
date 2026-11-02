@@ -2,21 +2,25 @@
  * Runecraft: `02-systems/25-runecraft.md`. This system holds the rune of one's own (§ Rune of one's
  * own), the sanctum and its apprentices, the `attune` job and its mishaps (§ The sanctum).
  *
- * Order 25, last, and nearly idle: its tick does nothing yet; rune and sessions move on `HourPassed`
- * and `DayPassed`. Every draw is on stream `25` (`ctx.rng` is `world.rngFor('25')`), which 20's
- * caravan extras share, so the stream is saved in the `rng` section and not in this state.
+ * Casting rides in 16's creature loop (`cast.ts`). Order 25, last, and nearly idle: its tick only
+ * blooms the Fireblooms that are due, and returns at once when none is queued; rune, vials and
+ * sessions move on `HourPassed` and `DayPassed`. Every draw is on stream `25` (`ctx.rng` is
+ * `world.rngFor('25')`), which 20's caravan extras share, so the stream is saved in the `rng`
+ * section and not in this state.
  */
 
-import { C } from '@core/components';
+import { C, type Rune } from '@core/components';
 import type { CommandType } from '@core/command-types';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
-import { BaseSystem, type InitContext, type TickContext, type WorldLike } from '@core/system';
+import { BaseSystem, type InitContext, type MagicApi, type TickContext, type WorldLike } from '@core/system';
 import type { EntityId } from '@core/types';
+import { resolveProjectileHit, type WieldedWeapon } from '@systems/combat';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { DwarvesReader } from '@systems/dwarves';
+import type { ItemsReader } from '@systems/items';
 import { SANCTUM_APPRENTICES } from './constants';
 import { MagicProducer, type MagicHost } from './producer';
 import type { MagicReader, RuneView, SpellView } from './reader';
@@ -31,7 +35,7 @@ import {
   runeRegenMilli,
   skillLevel,
 } from './rune';
-import type { MagicStateV1, MishapRecord } from './state';
+import type { Bloom, MagicStateV1, MishapRecord } from './state';
 
 export type { MagicReader, RuneView, SpellView } from './reader';
 export type { MagicStateV1, MishapRecord } from './state';
@@ -44,7 +48,7 @@ const RUNECRAFT = 'runecraft';
 /** `runecraft` level of the first runecaster announcement. */
 const FIRST_RUNECASTER_LEVEL = 10;
 
-export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
+export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, MagicApi {
   readonly id = '25';
   readonly order = 25;
   override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SkillLevelUp', 'CreatureDied', 'ZoneChanged'];
@@ -55,6 +59,10 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
   /** The last mishap of each sanctum zone. */
   readonly lastMishaps = new Map<EntityId, MishapRecord>();
   firstRunecasterDone = false;
+  /** Fireblooms cast and not yet bloomed, in the order they were cast. */
+  readonly pendingBlooms: Bloom[] = [];
+  /** Casters whose firebloom has caught a fortress creature today: announced once a day each. */
+  readonly bloomAlertsToday = new Set<EntityId>();
   /** The producer looks over every `attune` job for one that lost its reason. */
   sweepDue = true;
   /** Sanctum zones, from `ZoneChanged`; null until first read from 14 (a new game or a load). */
@@ -74,6 +82,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
     this.readersRef = ctx.readers;
     this.registryRef = ctx.registry;
     this.rngRef = ctx.rng;
+    ctx.world.services.magic = this;
     ctx.register.jobProducer(new MagicProducer(this));
     ctx.register.inspector('creature', { id: 'rune', order: 13 });
     ctx.register.inspector('zone', { id: SANCTUM, order: 40 });
@@ -84,6 +93,62 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
       ctx.register.announcement('Mishap', { severity, stringKey: `announce.mishap_${kind}`, oneOf: { field: 'kind', values: [kind] } });
     }
     ctx.register.announcement('FirstRunecaster', { severity: 'note', stringKey: 'announce.first_runecaster' });
+    ctx.register.announcement('RuneSpent', { severity: 'note', stringKey: 'announce.rune_spent' });
+    ctx.register.announcement('SpellCast', { severity: 'alert', stringKey: 'announce.firebloom_burned', oneOf: { field: 'burned', values: [true] } });
+  }
+
+  // ---------- the casting API 16's ranged branch writes through ----------
+
+  addBloom(bloom: Bloom): void {
+    this.pendingBlooms.push({ ...bloom });
+  }
+
+  /**
+   * § Spells, Firebloom: at its tick a bloom strikes every creature in the 3×3 around its tile, on
+   * its level, whatever its faction, as a missile of `raw` `ember` with no hit roll: a shield may
+   * block it and armour counts. Draws on stream 25. A bloom that catches a creature of the caster's
+   * faction emits `SpellCast { burned: true }`, once a day per caster.
+   */
+  override tick(ctx: TickContext): void {
+    if (this.pendingBlooms.length === 0) return;
+    const due = this.pendingBlooms.filter((b) => b.at <= ctx.tick);
+    if (due.length === 0) return;
+    const rest = this.pendingBlooms.filter((b) => b.at > ctx.tick);
+    this.pendingBlooms.length = 0;
+    this.pendingBlooms.push(...rest);
+    for (const bloom of due) this.bloom(ctx, bloom);
+  }
+
+  private bloom(ctx: TickContext, bloom: Bloom): void {
+    const entities = ctx.world.entities;
+    const map = ctx.world.map;
+    if (!map.validIndex(bloom.tile)) return;
+    const cx = map.xOf(bloom.tile);
+    const cy = map.yOf(bloom.tile);
+    const z = map.zOf(bloom.tile);
+    const struck: EntityId[] = [];
+    for (let dy = -1; dy <= 1; dy += 1) {
+      for (let dx = -1; dx <= 1; dx += 1) {
+        if (!map.inBounds(cx + dx, cy + dy, z)) continue;
+        for (const id of ctx.readers.spatial.at(map.index(cx + dx, cy + dy, z))) {
+          if (entities.alive(id) && entities.has(id, C.Creature) && entities.has(id, C.Body)) struck.push(id);
+        }
+      }
+    }
+    struck.sort((a, b) => a - b);
+    const faction = entities.get(bloom.casterId, C.Creature)?.faction ?? 'fortress';
+    const firebloom = ctx.registry.table<{ id: string; kind: string }>('spells').rows.find((r) => r?.kind === 'burst')?.id ?? 'firebloom';
+    const weaponDef = { skill: RUNECRAFT, size: 0 } as unknown as WieldedWeapon['weaponDef'];
+    let burned = 0;
+    for (const id of struck) {
+      if (!entities.alive(id)) continue;
+      if (burned === 0 && entities.get(id, C.Creature)?.faction === faction) burned = id;
+      resolveProjectileHit(ctx, entities, ctx.registry, ctx.rng, bloom.casterId, id, bloom.raw, 'ember', weaponDef);
+    }
+    if (burned !== 0 && !this.bloomAlertsToday.has(bloom.casterId)) {
+      this.bloomAlertsToday.add(bloom.casterId);
+      ctx.emit({ type: 'SpellCast', casterId: bloom.casterId, spellId: firebloom, targetId: burned, tile: bloom.tile, burned: true });
+    }
   }
 
   // ---------- the host the producer reads ----------
@@ -169,6 +234,8 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
       this.sweepDue = true;
     } else if (event.type === 'DayPassed') {
       this.sessions.clear();
+      this.bloomAlertsToday.clear();
+      clearVialsToday(ctx);
     } else if (event.type === 'SkillLevelUp') {
       this.levelUp(event, ctx);
     } else if (event.type === 'CreatureDied') {
@@ -207,9 +274,16 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
       if (!entities.alive(id) || entities.has(id, C.Hostile)) continue;
       const view = this.runeOf(id);
       const rune = entities.get(id, C.Rune);
-      if (view === undefined || rune === undefined || rune.current >= view.max) continue;
-      const next = Math.min(view.max, rune.current + view.regen);
-      if (next !== rune.current) entities.add(id, C.Rune, { ...rune, current: next });
+      if (view === undefined || rune === undefined || (rune.current >= view.max && rune.outAnnounced !== true)) continue;
+      const next = Math.max(rune.current, Math.min(view.max, rune.current + view.regen));
+      // § Spells: regen that lifts the rune over its spell's cost ends the `RuneSpent` silence.
+      const lifted = rune.outAnnounced === true && next >= (this.heldSpellCost(id) ?? 0);
+      if (lifted) {
+        const { outAnnounced: _out, ...rest } = rune;
+        entities.add<Rune>(id, C.Rune, { ...rest, current: next });
+      } else if (next !== rune.current) {
+        entities.add<Rune>(id, C.Rune, { ...rune, current: next });
+      }
     }
   }
 
@@ -224,7 +298,25 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
     const metal = metalPercent(pieces.length);
     const max = runeMaxMilli(level);
     const regen = runeRegenMilli(level, metal);
-    return { current: rune.current, max, regen, metalPercent: metal, metalPieces: pieces, hoursToFull: hoursToFull(rune.current, max, regen) };
+    return {
+      current: rune.current, max, regen, metalPercent: metal, metalPieces: pieces, hoursToFull: hoursToFull(rune.current, max, regen),
+      vials: this.vialsCarried(id), vialsToday: rune.vialsToday ?? 0,
+    };
+  }
+
+  /** Rune vials (tag `rune_fuel`) the creature carries. */
+  private vialsCarried(id: EntityId): number {
+    const world = this.worldRef;
+    const registry = this.registryRef;
+    const readers = this.readersRef;
+    if (world === null || registry === null || readers === null || !readers.has('13')) return 0;
+    const items = registry.table<{ id: string; tags?: readonly string[] }>('items');
+    let n = 0;
+    for (const itemId of readers.of<ItemsReader>('13').carriedItems(id)) {
+      const item = world.entities.get(itemId, C.Item);
+      if (item !== undefined && items.byIndex(item.type)?.tags?.includes('rune_fuel') === true) n += item.count;
+    }
+    return n;
   }
 
   override reader(): MagicReader {
@@ -274,6 +366,13 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
     };
   }
 
+  /** The milli-rune cost of the spell in the creature's held channel, or undefined. */
+  private heldSpellCost(id: EntityId): number | undefined {
+    const weapon = this.worldRef?.entities.get(id, C.Equipment)?.weapon ?? 0;
+    const spell = weapon === 0 ? undefined : this.spellOf(weapon);
+    return spell === undefined ? undefined : spell.cost * MILLI;
+  }
+
   /** The creature's held weapon is a channel whose spell its rune covers now. */
   private canCast(id: EntityId): boolean {
     const world = this.worldRef;
@@ -293,6 +392,8 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
       ...(sessions.length === 0 ? {} : { sessionsToday: sessions }),
       ...(this.firstRunecasterDone ? { firstRunecasterDone: true } : {}),
       ...(mishaps.length === 0 ? {} : { lastMishaps: mishaps }),
+      ...(this.pendingBlooms.length === 0 ? {} : { pendingBlooms: this.pendingBlooms.map((b) => ({ ...b })) }),
+      ...(this.bloomAlertsToday.size === 0 ? {} : { bloomAlertsToday: Array.from(this.bloomAlertsToday).sort((a, b) => a - b) }),
     };
   }
 
@@ -303,7 +404,22 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
     this.firstRunecasterDone = state.firstRunecasterDone === true;
     this.lastMishaps.clear();
     for (const [id, r] of state.lastMishaps ?? []) this.lastMishaps.set(id, { ...r });
+    this.pendingBlooms.length = 0;
+    for (const b of state.pendingBlooms ?? []) this.pendingBlooms.push({ ...b });
+    this.bloomAlertsToday.clear();
+    for (const id of state.bloomAlertsToday ?? []) this.bloomAlertsToday.add(id);
     this.sanctumSet = null;
     this.sweepDue = true;
+  }
+}
+
+/** `DayPassed` (§ Vials): every caster may drink again. */
+function clearVialsToday(ctx: TickContext): void {
+  const entities = ctx.world.entities;
+  for (const id of entities.with(C.Rune)) {
+    const rune = entities.get(id, C.Rune);
+    if (rune?.vialsToday === undefined) continue;
+    const { vialsToday: _drunk, ...rest } = rune;
+    entities.add<Rune>(id, C.Rune, rest);
   }
 }

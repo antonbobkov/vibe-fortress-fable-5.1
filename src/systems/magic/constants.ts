@@ -26,3 +26,21 @@ export const MISHAP_BLACKOUT_TICKS = 200;
 export const MISHAP_SURGE_RADIUS = 3;
 /** A Frostbind hit slows its target by this percent. */
 export const FROSTBIND_SLOW_PERCENT = 50;
+/** A support caster with rune stands this far from its target. */
+export const CASTER_HOLD_DISTANCE = 4;
+/** Rune vials a caster carries. */
+export const CASTER_VIALS = 3;
+/** Rune a drunk vial gives back, whole rune. */
+export const VIAL_RUNE = 5;
+/** Vials a caster drinks in a day at most. */
+export const VIALS_PER_DAY = 3;
+/** A drink holds the caster's next attack this long. */
+export const DRINK_TICKS = 30;
+/** Ticks between a Firebloom's cast and its bloom. */
+export const FIREBLOOM_DELAY_TICKS = 20;
+/** Creatures one Dread sends running at most. */
+export const DREAD_MAX_TARGETS = 4;
+/** The resist chance of a creature with no attributes, in percent. */
+export const RESIST_NO_ATTRIBUTES_PERCENT = 25;
+/** Creatures of at least this size are immune to Dread and Daze. */
+export const MENTAL_IMMUNE_SIZE = 180;

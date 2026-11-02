@@ -16,7 +16,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-466 | [The hand-laid defence of `defence_year` does not repel a raid](work/T-466-defence-never-repels-a-raid.md) | T-462's defence_year seeds | — | open |
 | T-471 | [Runecraft 4: setting stones, enchanted items and their value](work/T-471-runecraft-setting-stones.md) | Runecraft design | — | open |
 | T-472 | [Runecraft 5: enchantments act in combat](work/T-472-runecraft-enchants-in-combat.md) | Runecraft design | T-471, T-473 | blocked (needs T-471, T-473) |
-| T-473 | [Runecraft 6: ward, mend, dread, daze, firebloom and vials](work/T-473-runecraft-remaining-spells.md) | Runecraft design | — | open |
 | T-474 | [Runecraft 7: draughts](work/T-474-runecraft-draughts.md) | Runecraft design | T-473 | blocked (needs T-473) |
 | T-475 | [Runecraft 8: Call and the three summons](work/T-475-runecraft-summons.md) | Runecraft design | T-473 | blocked (needs T-473) |
 | T-476 | [Runecraft 9: rare materials, deepsilver pressure and the legend](work/T-476-runecraft-deep-materials-hexers.md) | Runecraft design | T-472, T-474 | blocked (needs T-472, T-474) |
