@@ -1,6 +1,8 @@
 # T-481 — The annual instrument's taiga seed 1 has no food or drink by day 100
 
-**Source:** the annual instrument in T-463's follow-up ([rows](../../reports/data/2026-11-02-t463-stale-walk-wildlife.json), [accepted T-464 rows](../../reports/data/2026-11-01-t464-wildlife.json)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
+**Closed:** 2026-11-02, in 98ca6dfc,7dc83730,6c927531.
+
+**Source:** the annual instrument in T-463's follow-up ([rows](../../../reports/data/2026-11-02-t463-stale-walk-wildlife.json), [accepted T-464 rows](../../../reports/data/2026-11-01-t464-wildlife.json)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
 
 ## Why
 
