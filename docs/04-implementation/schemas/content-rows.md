@@ -20,7 +20,7 @@ interface MineralDef extends MaterialDef {
   deepsilver?: boolean;
 }
 interface MetalDef extends MaterialDef {
-  tier: 0|1|2|3|4|5; weaponMult: Fixed; armorMult: Fixed; bluntBonus: Percent;
+  tier: 0|1|2|3|4|5; weaponMult: Fixed; armorMult: Fixed; bluntBonus: Percent; runeMult: Fixed /* a staff's power (25) */;
   alloy?: { inputs: { material: Id<MaterialDef>; count: number; kind: 'bar'|'stone'|'fuel' }[]; output: number };
   armorWeightMult?: Fixed;   // deepsilver 0.5
 }
@@ -35,14 +35,18 @@ interface ItemTypeDef extends RowBase {
 }
 interface WeaponDef extends ItemTypeDef {
   weaponClass: string; skill: Id<SkillDef>; damageType: DamageType | null; damage: number; size: number; hands: 1|2;
-  bars: number; logs?: number; training?: boolean; launcher?: { range: number; power: Fixed; ammo: Id<ItemTypeDef>; metalPower?: Fixed; yewPower?: Fixed };
+  bars: number; logs?: number; training?: boolean;
+  launcher?: { range: number; power: Fixed; ammo?: Id<ItemTypeDef> /* absent: a channel, 25 */; metalPower?: Fixed; yewPower?: Fixed };
 }
 interface AmmoDef extends ItemTypeDef { damageType: DamageType; damage: number; perBar: number; perLog: number; perBone: number }
 interface ArmorDef extends ItemTypeDef {
   armorSlot: 'head'|'body'|'arms'|'legs'|'feet'|'shield'; covers: { part: BodySlot; coverage: Percent }[];
   layer: 'padding'|'leather'|'mail'|'plate'|'none'; armor: number; weight: number; bars?: number; leather?: number; cloth?: number;
 }
-interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; mail: Fixed; plate: Fixed }
+interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; mail: Fixed; plate: Fixed; ward: Fixed }
+interface SpellDef { id: string; name: string; stone: Id<MaterialDef>; kind: 'bolt'|'burst'|'single'|'ward'|'mend'|'dread'|'call';
+                     cost: number /* whole rune */; range?: number /* absent: the channel's */; base?: number; type?: DamageType;
+                     ticks?: number; suffix: string }
 
 interface BodyPlanDef extends RowBase {
   parts: Record<BodySlot, { name: string; hit: number; hpFactor: Fixed; functions: ('see'|'wield'|'walk')[] }>;
@@ -92,7 +96,8 @@ interface RecipeDef extends RowBase {
   inputs: { match: Id<ItemTypeDef> | string /* tag, class, 'a|b', or 'any' */; material?: MaterialClass | Id<MaterialDef> | 'any' | 'fuel' | 'flux';
             materials?: Id<MaterialDef>[]; materialProperty?: 'magma_safe' | 'brewable'; sameMaterial?: true; flagged?: 'melt';
             count: number; distinct?: boolean }[];
-  outputs: { item: Id<ItemTypeDef> | string /* item tag */; count: number; material: { from: 'input'; index: number; stage?: 'next' } | { fixed: Id<MaterialDef> } | { alloy: Id<MetalDef> } | { plantDrink: true } }[];
+  outputs: { item: Id<ItemTypeDef> | string /* item tag */; count: number; material: { from: 'input'; index: number; stage?: 'next' } | { fixed: Id<MaterialDef> } | { alloy: Id<MetalDef> } | { plantDrink: true };
+             stone?: { from: 'input'; index: number } /* Item.stone from that input's material (25) */ }[];
   baseTicks: number; fuel: boolean; quality: boolean; container?: 'barrel'|'bag'; xp: number; generated?: boolean;
 }
 

@@ -8,7 +8,7 @@ import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { Alert, BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
 import { isCreatureHostile } from './factions';
-import { armorCovering, getDamageVsLayer, isWarTrained } from './melee';
+import { armorReduction } from './melee';
 import type { TargetManager } from './targets';
 import { armorSpeedModifier } from './equipment';
 
@@ -38,6 +38,7 @@ export function makeCombatReader(
   targets: TargetManager,
   getAlert: () => Alert,
   losFn?: (from: TileIndex, to: TileIndex) => boolean,
+  getTick: () => number = () => 0,
 ): CombatReader {
   return {
     isHostile: (a: EntityId, b: EntityId): boolean => {
@@ -104,22 +105,8 @@ export function makeCombatReader(
       return { head: 0, body: 0, arms: 0, legs: 0, feet: 0 };
     },
 
-    armorValue: (id: EntityId, part: BodySlot, damageType: DamageType): number => {
-      const pieces = armorCovering(entities, registry, id, part);
-      let red = 0;
-      for (const piece of pieces) {
-        const layerMult = getDamageVsLayer(damageType, piece.layer);
-        red += piece.armor * piece.armorMult * (piece.coverage / 100) * piece.qualityArmorMult * layerMult;
-      }
-      const creature = entities.get(id, C.Creature);
-      if (creature) {
-        const speciesTable = registry.table<{ id: string; naturalArmor: number }>('creatures');
-        const sp = speciesTable.byIndex(creature.species);
-        const naturalArmor = (sp?.naturalArmor ?? 0) + (isWarTrained(entities, id) ? 1 : 0);
-        red += naturalArmor * getDamageVsLayer(damageType, 'plate');
-      }
-      return red;
-    },
+    armorValue: (id: EntityId, part: BodySlot, damageType: DamageType): number =>
+      armorReduction(entities, registry, id, part, damageType, getTick()),
 
     armorSpeedModifier: (id: EntityId): number => {
       return armorSpeedModifier(entities, registry, id);

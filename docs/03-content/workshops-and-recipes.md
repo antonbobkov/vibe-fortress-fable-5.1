@@ -27,6 +27,7 @@ All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel 
 | `kennel` | kennel | 2 `log` + 1 `chain` or `rope` | carpentry | 200 | no | no | `kennel` |
 | `bowyer` | bowyer's workshop | 2 `log` | carpentry | 200 | no | no | `bowyer` | |
 | `alchemist` | laboratory | 1 `table` + 2 `stone_block` + 1 `bucket` | construction | 250 | no | no | `alchemist` | `rune_work` |
+| `runeforge` | runeforge | 1 `anvil` + 3 `stone_block` + 1 `cut_gem` | masonry | 300 | no | no | `runeforge` | `rune_work` |
 
 Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one footprint tile at build time and at every job start, and every input must be magma-safe (the anvil is iron or steel; blocks must be magma-safe stone or obsidian).
 
@@ -206,6 +207,10 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 
 One lamp over eight tiles grows 0.83 glowcap a day, which is 0.42 vials a day (*unmeasured*). A year is 112 days, so four lamps give 1.7 vials a day and 190 a year.
 
+## Runeforge (`runesmithing`)
+
+Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § Spells), with no fuel: `make_wand_<stone>` is 1 log + 1 cut_gem (the stone) → 1 wand of the log's wood, 200 ticks, `Q` yes, xp 10; `make_staff_<stone>` is 1 log + 1 cut_gem (the stone) + 1 bar → 1 staff of the bar's metal, 300 ticks, `Q` yes, xp 12. The output's stone is the gem's material. A work order's material filter picks the wand's wood and the staff's metal.
+
 ## Tannery (`tanning`)
 
 | id | name | inputs | outputs | ticks | Q | xp |
@@ -277,7 +282,7 @@ One lamp over eight tiles grows 0.83 glowcap a day, which is 0.42 vials a day (*
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 2. Total 153.
+Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 2, runeforge (generated: 2 per spell = 4). Total 157.
 
 ## Time arithmetic
 

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "emberbolt",
+    "name": "Emberbolt",
+    "stone": "garnet",
+    "kind": "bolt",
+    "cost": 1,
+    "base": 18,
+    "type": "ember",
+    "suffix": "of embers"
+  },
+  {
+    "id": "frostbind",
+    "name": "Frostbind",
+    "stone": "amethyst",
+    "kind": "bolt",
+    "cost": 1,
+    "base": 8,
+    "type": "frost",
+    "ticks": 300,
+    "suffix": "of frost"
+  }
+]

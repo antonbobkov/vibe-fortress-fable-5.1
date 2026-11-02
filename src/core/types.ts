@@ -37,7 +37,7 @@ export type MovementClass = 'walker' | 'small' | 'large' | 'aquatic' | 'amphibio
 
 export type BodySlot = 'head' | 'torso' | 'left_arm' | 'right_arm' | 'left_leg' | 'right_leg';
 
-export type DamageType = 'edge' | 'blunt' | 'pierce';
+export type DamageType = 'edge' | 'blunt' | 'pierce' | 'ember' | 'frost';
 
 export type WoundType = 'cut' | 'puncture' | 'bruise' | 'fracture' | 'burn' | 'frost' | 'wasting';
 

@@ -221,6 +221,26 @@
     ]
   },
   {
+    "id": "staff",
+    "name": "staff",
+    "weaponClass": "staff",
+    "skill": "runecraft",
+    "damageType": null,
+    "damage": 0,
+    "size": 7,
+    "hands": 2,
+    "bars": 1,
+    "logs": 1,
+    "mult": 14000,
+    "materials": [
+      "metal"
+    ],
+    "launcher": {
+      "range": 12,
+      "power": 1200
+    }
+  },
+  {
     "id": "training_axe",
     "name": "training axe",
     "weaponClass": "axe",
@@ -270,6 +290,26 @@
       "wood"
     ],
     "training": true
+  },
+  {
+    "id": "wand",
+    "name": "wand",
+    "weaponClass": "staff",
+    "skill": "runecraft",
+    "damageType": null,
+    "damage": 0,
+    "size": 3,
+    "hands": 1,
+    "bars": 0,
+    "logs": 1,
+    "mult": 10000,
+    "materials": [
+      "wood"
+    ],
+    "launcher": {
+      "range": 8,
+      "power": 700
+    }
   },
   {
     "id": "warhammer",

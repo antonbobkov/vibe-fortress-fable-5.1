@@ -83,6 +83,7 @@ Frequently repeated routes (workshop ↔ stockpile, bed ↔ dining hall) are cac
 moveAlongPath(id, ctx):
   m = Motion(id); if no path: return idle
   m.progress += (m.speed × 1000 / cost(nextTile)) × 100 / crowdPercentAt(nextTile, 1)   // Fixed math; speed in tiles per tick × 1000
+                 × (100 − slow + haste) / 100      // 25 § Effects; only when some creature has a Spellbound
   while m.progress ≥ 1000 and path remains:
     next = path[m.stepIndex + 1]
     if not passable(next, class):

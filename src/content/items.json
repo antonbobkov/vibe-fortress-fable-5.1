@@ -1620,6 +1620,23 @@
     "quality": false
   },
   {
+    "id": "staff",
+    "name": "staff",
+    "category": "weapon/ranged",
+    "mult": 14000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "⌠",
+    "fg": "rune_cyan",
+    "quality": true,
+    "slot": "weapon"
+  },
+  {
     "id": "statue",
     "name": "statue",
     "category": "furniture/statue",
@@ -1799,6 +1816,23 @@
     "glyph": "[",
     "quality": true,
     "slot": "body"
+  },
+  {
+    "id": "wand",
+    "name": "wand",
+    "category": "weapon/ranged",
+    "mult": 10000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": "'",
+    "fg": "rune_cyan",
+    "quality": true,
+    "slot": "weapon"
   },
   {
     "id": "warhammer",

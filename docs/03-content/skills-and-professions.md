@@ -92,6 +92,7 @@ Columns: `labor`; `profession` title when this is the highest skill; `military` 
 | `brewing` | Brewing | brewing | Brewer | — | Wits | still | |
 | `alchemy` | Alchemy | alchemy | Alchemist | — | Wits, Agility | laboratory | no |
 | `runecraft` | Runecraft | attunement | Runecaster | Runecaster | Willpower, Wits | attune; rune of one's own | no |
+| `runesmithing` | Runesmithing | smithing | Runesmith | — | Agility, Wits | runeforge recipes | no |
 | `smelting` | Smelting | smelting | Smelter | — | Endurance, Strength | smelter, wood furnace |
 | `weaponsmithing` | Weaponsmithing | smithing | Weaponsmith | — | Strength, Agility | forge: weapons, ammunition, picks, axes |
 | `armorsmithing` | Armorsmithing | smithing | Armorsmith | — | Strength, Endurance | forge: armor, shields |
@@ -125,7 +126,7 @@ Combat skills have no labor; they are used when a creature fights. Weapon skills
 | Field | farming, herbalism, animal_care, animal_training, hunting, fishing, butchery | `prof_green` |
 | Cloth | tanning, leatherworking, weaving, clothesmaking | `prof_violet` |
 | Hearth | cooking, brewing, alchemy | `prof_orange` |
-| Metal | smelting, weaponsmithing, armorsmithing, metalcrafting, runecraft | `prof_steel` |
+| Metal | smelting, weaponsmithing, armorsmithing, metalcrafting, runecraft, runesmithing | `prof_steel` |
 | Care | medicine, trading | `prof_white` |
 | Arms | all combat skills | `prof_red` |
 | None | Settler, Child | `prof_dim` |

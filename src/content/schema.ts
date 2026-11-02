@@ -198,7 +198,7 @@ export const MATERIAL_CLASSES = [
   'glass', 'ice', 'meat', 'liquid', 'obsidian',
 ] as const;
 
-const DAMAGE_TYPES = ['edge', 'blunt', 'pierce'] as const;
+const DAMAGE_TYPES = ['edge', 'blunt', 'pierce', 'ember', 'frost'] as const;
 const BODY_SLOTS = ['head', 'torso', 'left_arm', 'right_arm', 'left_leg', 'right_leg'] as const;
 const WEIGHT_CLASSES = ['light', 'medium', 'heavy', 'density'] as const;
 const CONTAINER_CLASSES = ['barrel', 'bag', 'bin', 'chest', 'none'] as const;
@@ -574,6 +574,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     weaponMult: fixed,
     armorMult: fixed,
     bluntBonus: int,
+    runeMult: fixed,
     meltsAtC: int,
     color: colorRef,
     alloy: opt(
@@ -637,7 +638,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
       obj({
         range: int,
         power: fixed,
-        ammo: itemRef,
+        ammo: opt(itemRef),
         metalPower: opt(fixed),
         yewPower: opt(fixed),
       }),
@@ -678,6 +679,20 @@ export const SCHEMAS: Record<string, TableSchema> = {
     leather: fixed,
     mail: fixed,
     plate: fixed,
+    ward: fixed,
+  }),
+
+  spells: rows({
+    id: nonEmptyStr,
+    name: str,
+    stone: materialRef,
+    kind: enumOf(['bolt', 'burst', 'single', 'ward', 'mend', 'dread', 'call']),
+    cost: int,
+    range: opt(int),
+    base: opt(int),
+    type: opt(enumOf(DAMAGE_TYPES)),
+    ticks: opt(int),
+    suffix: str,
   }),
 
   bodyPlans: rows({
@@ -855,6 +870,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
           obj({ alloy: ref('metals') }),
           obj({ plantDrink: bool }),
         ),
+        stone: opt(obj({ from: enumOf(['input']), index: int })),
       }),
       1,
     ),

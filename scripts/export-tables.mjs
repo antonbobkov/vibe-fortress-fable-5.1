@@ -23,6 +23,7 @@ import {
   exportArmor,
   exportDamageVsLayer,
   exportItems,
+  exportSpells,
   exportWeapons,
 } from './lib/export/items.mjs';
 import { exportBodyPlans, exportCreatures } from './lib/export/creatures.mjs';
@@ -114,6 +115,7 @@ function build() {
     ammo: exportAmmo(),
     armor: exportArmor(),
     damageVsLayer: exportDamageVsLayer(),
+    spells: exportSpells(),
     bodyPlans: exportBodyPlans(),
     creatures: exportCreatures(),
     plants: exportPlants(),

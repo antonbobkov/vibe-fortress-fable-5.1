@@ -55,7 +55,8 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
     const equip = entities.get(workerId, C.Equipment);
     const worker = entities.get(workerId, C.Worker);
     const weaponId = equip && equip.weapon !== 0 ? equip.weapon : worker && worker.toolId !== 0 ? worker.toolId : 0;
-    return weaponId !== 0 && matchesTool(weaponId, 'ranged') ? weaponId : 0;
+    // A channel (25) is a launcher with no ammunition: it hunts nothing.
+    return weaponId !== 0 && matchesTool(weaponId, 'ranged') && (registry === undefined || ammoOf(weaponId) !== null) ? weaponId : 0;
   };
   /** Ammunition in the quiver or carried; of the item id `kind`, or of any kind when it is null. */
   const holdsAmmo = (workerId: EntityId, kind: string | null): boolean => {

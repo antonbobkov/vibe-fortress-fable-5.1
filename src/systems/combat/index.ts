@@ -52,6 +52,7 @@ import { threatScan } from './threats';
 import { kitingTile } from './kiting';
 import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
+import { canCastBolt } from '@systems/magic/cast';
 
 export type { CombatReader, SquadWithId } from './reader';
 export * from './constants';
@@ -141,6 +142,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       this.targetManager,
       () => this.alertState,
       (from, to) => this.lineOfSight(from, to),
+      () => this.world?.calendar.tick ?? 0,
     );
 
     // Registrations
@@ -309,8 +311,12 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const naturalRanged = spRow?.attacks?.find((a) => typeof a.range === 'number' && a.range > 0);
 
       const launcher = w?.weaponDef.launcher;
-      const hasAmmo = launcher !== undefined && findAmmoForShooter(entities, ctx.registry, id, launcher.ammo,
-        ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13').carriedItems(id) : undefined) !== 0;
+      // 25 § Casting: a channel's ammunition is its holder's rune. With none, a channel is a club.
+      const channel = launcher !== undefined && launcher.ammo === undefined;
+      const hasAmmo = channel
+        ? canCastBolt(ctx, id, w, target)
+        : launcher?.ammo !== undefined && findAmmoForShooter(entities, ctx.registry, id, launcher.ammo,
+          ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13').carriedItems(id) : undefined) !== 0;
       const isRanged = hasAmmo || naturalRanged !== undefined;
       const maxRangedDist = w?.weaponDef.launcher?.range ?? naturalRanged?.range ?? 12;
       const tileA = map.index(xA, yA, zA);

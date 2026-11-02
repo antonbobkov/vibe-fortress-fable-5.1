@@ -32,12 +32,14 @@ export const ID_FIELDS: readonly IdField[] = Object.freeze([
   { component: 'Mood', path: 'thoughts[].thought', table: 'thoughts', orString: false },
   { component: 'Item', path: 'type', table: 'items', orString: false },
   { component: 'Item', path: 'material', table: 'materials', orString: false },
+  { component: 'Item', path: 'stone', table: 'materials', orString: false },
   { component: 'Corpse', path: 'species', table: 'creatures', orString: false },
   { component: 'Building', path: 'type', table: 'buildings', orString: false },
   { component: 'Building', path: 'material', table: 'materials', orString: false },
   { component: 'Workshop', path: 'orders[].recipe', table: 'recipes', orString: false },
   { component: 'Workshop', path: 'orders[].materialFilter', table: 'materials', orString: true },
   { component: 'Zone', path: 'type', table: 'zoneTypes', orString: false },
+  { component: 'Projectile', path: 'spell', table: 'spells', orString: false },
   { component: 'Crop', path: 'plant', table: 'plants', orString: false },
 ]);
 

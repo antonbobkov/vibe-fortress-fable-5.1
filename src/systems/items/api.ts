@@ -630,7 +630,7 @@ export class ItemCore implements ItemsApi {
     return id;
   }
 
-  /** Two stacks that may merge: same type, material, quality, flags and owner, within the stack size. */
+  /** Two stacks that may merge: same type, material, quality, stone, flags and owner, within the stack size. */
   canMerge(a: EntityId, b: EntityId): boolean {
     if (a === b) return false;
     const x = this.get(a);
@@ -642,6 +642,7 @@ export class ItemCore implements ItemsApi {
       x.type === y.type &&
       x.material === y.material &&
       x.quality === y.quality &&
+      x.stone === y.stone &&
       x.flags === y.flags &&
       x.ownerId === y.ownerId &&
       x.reservedBy === y.reservedBy &&

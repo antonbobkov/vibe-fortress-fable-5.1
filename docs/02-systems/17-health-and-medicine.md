@@ -27,7 +27,7 @@ On `DamageDealt { defender, part, damageType, amount }`:
 
 1. `ratio = amount / maxHp(part)`. `severity`: `light` if `ratio < LIGHT_MAX`, `serious` if `< SERIOUS_MAX`, else `grievous`.
 2. `part.hp −= amount`. If `part.hp ≤ 0`: the part is **destroyed**: for `head` or `torso` the creature dies (`CreatureDied { cause: killed, killerId }`); for a limb the limb is lost (`permanent: lost_<part>`, `LimbLost` event, the `lost_limb` thought), its wounds are removed, and a grievous `cut` remains at the stump with heavy bleeding.
-3. Otherwise add a wound with type from `damageType` (16's mapping), `bleed` and `pain` from the wound table (type × severity; content), `healRemaining = HEAL_BASE_TICKS × severityMultiplier`.
+3. Otherwise add a wound with type from `damageType` (16's mapping; rune's `ember` is a `burn`), `bleed` and `pain` from the wound table (type × severity; content), `healRemaining = HEAL_BASE_TICKS × severityMultiplier`.
 4. Toughness reduces combat hits in 16's resolution (`min(10, Toughness / 10)` percent). Environmental damage is not reduced.
 
 Environmental sources create wounds through the same path with synthetic damage:

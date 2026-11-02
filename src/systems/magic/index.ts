@@ -19,8 +19,10 @@ import type { BuildingsReader } from '@systems/buildings/reader';
 import type { DwarvesReader } from '@systems/dwarves';
 import { SANCTUM_APPRENTICES } from './constants';
 import { MagicProducer, type MagicHost } from './producer';
-import type { MagicReader, RuneView } from './reader';
+import type { MagicReader, RuneView, SpellView } from './reader';
+import { dropExpiredEffects, spellOfItem } from './cast';
 import {
+  MILLI,
   hoursToFull,
   metalPercent,
   metalPieces,
@@ -31,7 +33,7 @@ import {
 } from './rune';
 import type { MagicStateV1, MishapRecord } from './state';
 
-export type { MagicReader, RuneView } from './reader';
+export type { MagicReader, RuneView, SpellView } from './reader';
 export type { MagicStateV1, MishapRecord } from './state';
 export * from './constants';
 export { mishapPermille, rollMishap, sessionXp, runeMaxMilli, runeRegenMilli, metalPercent, MISHAP_WEIGHTS } from './rune';
@@ -75,6 +77,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
     ctx.register.jobProducer(new MagicProducer(this));
     ctx.register.inspector('creature', { id: 'rune', order: 13 });
     ctx.register.inspector('zone', { id: SANCTUM, order: 40 });
+    ctx.register.inspector('item', { id: 'stone', order: 20 });
     // One line per kind; a scorched circle and a fire are alerts.
     for (const kind of ['singed', 'blackout', 'surge', 'scorched_circle', 'fire']) {
       const severity = kind === 'scorched_circle' || kind === 'fire' ? 'alert' : 'note';
@@ -162,6 +165,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'HourPassed') {
       this.regenerate(ctx);
+      dropExpiredEffects(ctx.world.entities, ctx.tick);
       this.sweepDue = true;
     } else if (event.type === 'DayPassed') {
       this.sessions.clear();
@@ -239,7 +243,46 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost {
         const record = this.lastMishaps.get(zoneId);
         return record === undefined ? undefined : { ...record };
       },
+      canCast: (id) => this.canCast(id),
+      spellOf: (itemId) => this.spellOf(itemId),
+      effects: (id) => {
+        const world = this.worldRef;
+        const bound = world === null ? undefined : world.entities.get(id, C.Spellbound);
+        const tick = world === null ? 0 : world.calendar.tick;
+        return bound === undefined ? [] : bound.effects.filter((e) => e.until > tick).map((e) => ({ ...e }));
+      },
     };
+  }
+
+  private spellOf(itemId: EntityId): SpellView | undefined {
+    const world = this.worldRef;
+    const registry = this.registryRef;
+    if (world === null || registry === null) return undefined;
+    const cs = spellOfItem(world.entities, registry, itemId);
+    if (cs === undefined) return undefined;
+    return {
+      id: cs.spell.id,
+      name: cs.spell.name,
+      kind: cs.spell.kind,
+      cost: cs.spell.cost,
+      range: cs.range,
+      damage: cs.damage,
+      type: cs.spell.type ?? '',
+      ticks: cs.ticks,
+      power: cs.power,
+      suffix: cs.spell.suffix,
+    };
+  }
+
+  /** The creature's held weapon is a channel whose spell its rune covers now. */
+  private canCast(id: EntityId): boolean {
+    const world = this.worldRef;
+    if (world === null) return false;
+    const rune = world.entities.get(id, C.Rune);
+    const weapon = world.entities.get(id, C.Equipment)?.weapon ?? 0;
+    if (rune === undefined || weapon === 0) return false;
+    const spell = this.spellOf(weapon);
+    return spell !== undefined && rune.current >= spell.cost * MILLI;
   }
 
   serialize(): MagicStateV1 {

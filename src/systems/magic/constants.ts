@@ -24,3 +24,5 @@ export const MISHAP_FLOOR = 10;
 export const MISHAP_BLACKOUT_TICKS = 200;
 /** A surge burns every creature this close to the circle (Chebyshev, on its level). */
 export const MISHAP_SURGE_RADIUS = 3;
+/** A Frostbind hit slows its target by this percent. */
+export const FROSTBIND_SLOW_PERCENT = 50;

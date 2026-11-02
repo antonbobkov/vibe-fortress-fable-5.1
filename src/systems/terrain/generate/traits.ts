@@ -6,6 +6,7 @@
 
 import { CAVERN_3_Z_MIN, DEEPSILVER_Z_MAX, FLUID_MAX_LEVEL } from '@core/constants';
 import { FluidType, Map3D, TileKind } from '@core/map3d';
+import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
 import type { TileIndex } from '@core/types';
 import {
@@ -27,6 +28,8 @@ import { SEA_RIM } from './sea';
 interface ArmsRow {
   readonly id: string;
   readonly materials?: readonly string[];
+  readonly launcher?: { readonly ammo?: string };
+  readonly rune?: unknown;
 }
 
 /** Inward distance of a column from an edge. */
@@ -43,9 +46,26 @@ function dryFloor(g: LocalGen, c: number): TileIndex {
 }
 
 /**
+ * The item types an `old_battlefield` scatters, in pick order: the metal-made rows of `weapons`
+ * and `armor` (D-048), leaving out the runecraft rows (a launcher with no ammunition, a piece with
+ * a `rune` property), so the old rows keep their picks.
+ */
+export function battlefieldArms(registry: Registry): string[] {
+  const metal = (rows: string): string[] => {
+    const t = registry.table<ArmsRow>(rows);
+    return t.ids().filter((id) => {
+      const row = t.byId(id);
+      if (row === undefined || !(row.materials ?? []).includes('metal')) return false;
+      return !(row.launcher !== undefined && row.launcher.ammo === undefined) && row.rune === undefined;
+    });
+  };
+  return [...metal('weapons'), ...metal('armor')];
+}
+
+/**
  * `old_battlefield`: `BATTLEFIELD_ITEM_COUNT` rusted (poor quality) iron weapons and armor, 40
  * `bone_pile` and 6 `skull`, on dry surface floors 15–40 tiles from the arrival edge. The weapon
- * or armor type is uniform over the metal-made rows of `weapons` and `armor` (D-048).
+ * or armor type is uniform over {@link battlefieldArms}.
  */
 function battlefield(g: LocalGen, st: RngStream): void {
   const band: TileIndex[] = [];
@@ -56,11 +76,7 @@ function battlefield(g: LocalGen, st: RngStream): void {
     if (i >= 0) band.push(i);
   }
   if (band.length === 0) return;
-  const metal = (rows: string): string[] => {
-    const t = g.registry.table<ArmsRow>(rows);
-    return t.ids().filter((id) => (t.byId(id)?.materials ?? []).includes('metal'));
-  };
-  const arms = [...metal('weapons'), ...metal('armor')];
+  const arms = battlefieldArms(g.registry);
   for (let k = 0; k < BATTLEFIELD_ITEM_COUNT; k += 1) {
     g.spawns.push({ kind: 'item', type: st.pick(arms), material: 'iron', quality: 0, tile: st.pick(band), source: 'old_battlefield' });
   }

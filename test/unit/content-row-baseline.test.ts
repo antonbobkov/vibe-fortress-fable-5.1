@@ -113,9 +113,15 @@ describe('T-478 every row keeps its number for good', () => {
     expect(contentHashOf(baseline)).toBe(PINNED_BASELINE_HASH);
   });
 
-  it('holds every table of rows', () => {
+  it('holds every table of rows, but a table born after it, whose every row is in rowOrder', () => {
     const registry = loadContent();
-    for (const name of registry.tableNames()) expect(Object.keys(baseline)).toContain(name);
+    const listed = realOrder();
+    for (const name of registry.tableNames()) {
+      if (Object.keys(baseline).includes(name)) continue;
+      const ids = registry.table(name).ids();
+      expect(ids.length, name).toBeGreaterThan(0);
+      expect(listed.filter((r) => r.table === name).map((r) => r.id), `${name} is newer than the baseline: every row of it is in rowOrder`).toEqual(ids);
+    }
   });
 
   it('every id in it keeps its index in the real tables', () => {

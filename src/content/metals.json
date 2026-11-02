@@ -9,6 +9,7 @@
     "weaponMult": 300,
     "armorMult": 300,
     "bluntBonus": 0,
+    "runeMult": 700,
     "meltsAtC": 271,
     "color": "bismuth_pink",
     "tags": [
@@ -25,6 +26,7 @@
     "weaponMult": 920,
     "armorMult": 920,
     "bluntBonus": 0,
+    "runeMult": 700,
     "meltsAtC": 900,
     "color": "bronze_pale",
     "alloy": {
@@ -58,6 +60,7 @@
     "weaponMult": 750,
     "armorMult": 750,
     "bluntBonus": 0,
+    "runeMult": 700,
     "meltsAtC": 930,
     "color": "brass_gold",
     "alloy": {
@@ -86,6 +89,7 @@
     "weaponMult": 900,
     "armorMult": 900,
     "bluntBonus": 0,
+    "runeMult": 900,
     "meltsAtC": 950,
     "color": "bronze_gold",
     "alloy": {
@@ -114,6 +118,7 @@
     "weaponMult": 800,
     "armorMult": 800,
     "bluntBonus": 0,
+    "runeMult": 800,
     "meltsAtC": 1085,
     "color": "copper_orange"
   },
@@ -127,6 +132,7 @@
     "weaponMult": 1600,
     "armorMult": 1600,
     "bluntBonus": 0,
+    "runeMult": 1600,
     "meltsAtC": 2400,
     "color": "deepsilver_blue",
     "armorWeightMult": 500,
@@ -144,6 +150,7 @@
     "weaponMult": 450,
     "armorMult": 450,
     "bluntBonus": 0,
+    "runeMult": 700,
     "meltsAtC": 1000,
     "color": "electrum_pale",
     "alloy": {
@@ -172,6 +179,7 @@
     "weaponMult": 400,
     "armorMult": 400,
     "bluntBonus": 10,
+    "runeMult": 700,
     "meltsAtC": 1064,
     "color": "gold_yellow"
   },
@@ -185,6 +193,7 @@
     "weaponMult": 1000,
     "armorMult": 1000,
     "bluntBonus": 0,
+    "runeMult": 1000,
     "meltsAtC": 1538,
     "color": "iron_gray",
     "tags": [
@@ -201,6 +210,7 @@
     "weaponMult": 400,
     "armorMult": 400,
     "bluntBonus": 0,
+    "runeMult": 700,
     "meltsAtC": 327,
     "color": "lead_gray"
   },
@@ -214,6 +224,7 @@
     "weaponMult": 500,
     "armorMult": 600,
     "bluntBonus": 10,
+    "runeMult": 700,
     "meltsAtC": 1768,
     "color": "platinum_white",
     "tags": [
@@ -230,6 +241,7 @@
     "weaponMult": 700,
     "armorMult": 600,
     "bluntBonus": 30,
+    "runeMult": 1300,
     "meltsAtC": 962,
     "color": "silver_white"
   },
@@ -243,6 +255,7 @@
     "weaponMult": 1250,
     "armorMult": 1250,
     "bluntBonus": 0,
+    "runeMult": 1100,
     "meltsAtC": 1500,
     "color": "steel_bright",
     "alloy": {
@@ -279,6 +292,7 @@
     "weaponMult": 500,
     "armorMult": 500,
     "bluntBonus": 0,
+    "runeMult": 700,
     "meltsAtC": 232,
     "color": "tin_gray",
     "tags": [
@@ -295,6 +309,7 @@
     "weaponMult": 500,
     "armorMult": 500,
     "bluntBonus": 0,
+    "runeMult": 700,
     "meltsAtC": 420,
     "color": "zinc_gray",
     "tags": [

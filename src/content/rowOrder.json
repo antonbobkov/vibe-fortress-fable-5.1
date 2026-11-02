@@ -90,5 +90,57 @@
   {
     "table": "thoughts",
     "id": "first_runecaster"
+  },
+  {
+    "table": "skills",
+    "id": "runesmithing"
+  },
+  {
+    "table": "patterns",
+    "id": "runeforge"
+  },
+  {
+    "table": "buildings",
+    "id": "runeforge"
+  },
+  {
+    "table": "spells",
+    "id": "emberbolt"
+  },
+  {
+    "table": "spells",
+    "id": "frostbind"
+  },
+  {
+    "table": "weapons",
+    "id": "wand"
+  },
+  {
+    "table": "weapons",
+    "id": "staff"
+  },
+  {
+    "table": "items",
+    "id": "wand"
+  },
+  {
+    "table": "items",
+    "id": "staff"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_garnet"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_garnet"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_amethyst"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_amethyst"
   }
 ]

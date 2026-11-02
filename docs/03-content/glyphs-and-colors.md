@@ -308,13 +308,13 @@ loom         clothier     farmers      butcher      kennel       bowyer
 ≈ ┼ ≈        ≈ ┼ ≈        ╥ ┼ ╥        ╥ ┼ ╥        ▒ ┼ ▒        ≡ ┼ ≡
 ~ ≈ ~        [ ≈ [        u ╥ u        % ╥ %        § ▒ §        ) ≡ )
 
-depot        wagon        alchemist
-▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡
-═ ┼ ═        ═ ▄ ═        ╥ ┼ ╥
-▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡
+depot        wagon        alchemist    runeforge
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ
+═ ┼ ═        ═ ▄ ═        ╥ ┼ ╥        ♦ ┼ ♦
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ
 ```
 
-The center `┼` is the work tile; the south-center tile is the output tile. Impassable corner tiles (smelter, forge, furnace and magma variants) are the `▒`, `Ξ` glyphs. Magma variants draw the pattern in `magma_2` instead of the material color.
+The center `┼` is the work tile; the south-center tile is the output tile. Impassable corner tiles (smelter, forge, furnace, runeforge and magma variants) are the `▒`, `Ξ` glyphs. Magma variants draw the pattern in `magma_2` instead of the material color.
 
 ### Status bar glyphs
 

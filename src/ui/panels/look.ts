@@ -23,7 +23,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { MagicReader } from '@systems/magic';
-import { METAL_RUNE_PENALTY_PERCENT } from '@systems/magic/constants';
+import { FROSTBIND_SLOW_PERCENT, METAL_RUNE_PENALTY_PERCENT } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -237,7 +237,11 @@ export function drawLookPanel(
     // Everything else on the tile, so nothing here is seen only on another tab (24 § Inspection).
     if (itemIds.length + creatures.length > 0) {
       line(strings.get('ui.look.here'), t.key);
-      for (const id of itemIds) line(`  ${itemLine(readers, registry, id)}`);
+      for (const id of itemIds) {
+        line(`  ${itemLine(readers, registry, id)}`);
+        const spell = spellLine(readers, strings, id, true);
+        if (spell !== null) line(`    ${spell}`, t.dim);
+      }
       for (const id of creatures) line(`  ${creatureSummary(readers, id)}`);
     }
     if (has(readers, '14')) {
@@ -273,7 +277,11 @@ export function drawLookPanel(
       line(strings.get('ui.look.no_items'), t.dim);
       return;
     }
-    for (const id of itemIds) line(itemLine(readers, registry, id));
+    for (const id of itemIds) {
+      line(itemLine(readers, registry, id));
+      const spell = spellLine(readers, strings, id, true);
+      if (spell !== null) line(`  ${spell}`, t.dim);
+    }
     return;
   }
   if (creatures.length === 0) {
@@ -312,6 +320,8 @@ export function drawLookPanel(
     }
     const rune = runeLine(readers, registry, strings, id);
     if (rune !== null) line(rune, t.value);
+    const channel = channelLine(readers, registry, strings, id);
+    if (channel !== null) line(channel, t.value);
     if (has(readers, '17') && readers.entities.has(id, C.Body)) {
       const body = readers.entities.get(id, C.Body);
       if (body !== undefined) {
@@ -396,6 +406,47 @@ export function runeLine(readers: ReaderSet, registry: Registry, strings: String
   });
 }
 
+/**
+ * The numbers of the spell set in a channel item: "Emberbolt: 24 ember, range 12. Needs a
+ * runecaster." Null for anything else. `needs` adds the last sentence, for an item on the ground.
+ */
+export function spellLine(readers: ReaderSet, strings: Strings, itemId: EntityId, needs: boolean): string | null {
+  if (!has(readers, '25')) return null;
+  const spell = readers.of<MagicReader>('25').spellOf(itemId);
+  if (spell === undefined) return null;
+  const effect = spell.type === 'frost' && spell.ticks > 0
+    ? strings.get('ui.look.spell_slow', { percent: FROSTBIND_SLOW_PERCENT, ticks: spell.ticks }) : '';
+  const text = strings.get('ui.look.spell', { name: spell.name, damage: spell.damage, type: spell.type, range: spell.range, effect });
+  return needs ? `${text} ${strings.get('ui.look.spell_needs')}` : text;
+}
+
+/**
+ * 25's staff line under the rune line: "Channel: iron staff of embers (fine). Emberbolt: 24
+ * ember, range 12." Null for a creature that holds no channel with a spell.
+ */
+export function channelLine(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string | null {
+  if (!has(readers, '13') || !has(readers, '25')) return null;
+  const weapon = readers.entities.get(id, C.Equipment)?.weapon ?? 0;
+  if (weapon === 0) return null;
+  const spell = spellLine(readers, strings, weapon, false);
+  if (spell === null) return null;
+  const it = readers.of<ItemsReaderLike>('13');
+  const rec = it.get(weapon);
+  const quality = rec !== undefined && it.def(rec.type)?.quality === true ? ` (${QUALITY_WORDS[rec.quality] ?? ''})` : '';
+  return strings.get('ui.look.channel', { item: `${channelName(readers, registry, weapon)}${quality}`, spell });
+}
+
+/** A channel's name with its spell's suffix: "iron staff of embers". */
+function channelName(readers: ReaderSet, registry: Registry, id: EntityId): string {
+  const it = readers.of<ItemsReaderLike>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return '';
+  const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
+  const name = materialItemName(material, { name: it.def(rec.type)?.name ?? '' });
+  const suffix = has(readers, '25') ? readers.of<MagicReader>('25').spellOf(id)?.suffix : undefined;
+  return suffix === undefined ? name : `${name} ${suffix}`;
+}
+
 interface ItemsReaderLike {
   get(id: EntityId): { type: number; material: number; quality: number; count: number; flags: number; containerId: EntityId } | undefined;
   value(id: EntityId): number;
@@ -433,7 +484,9 @@ function itemName(readers: ReaderSet, registry: Registry, id: EntityId): string 
   const def = it.def(rec.type);
   const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
   const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
-  return `${rec.count} ${meal ?? materialItemName(material, { name: def?.name ?? '' })}`.trim();
+  const suffix = has(readers, '25') ? readers.of<MagicReader>('25').spellOf(id)?.suffix : undefined;
+  const name = meal ?? materialItemName(material, { name: def?.name ?? '' });
+  return `${rec.count} ${suffix === undefined ? name : `${name} ${suffix}`}`.trim();
 }
 
 /** 13's `item` section on one line: "5 oak log (common) · 15 ☼ · forbidden". */

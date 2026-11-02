@@ -13,6 +13,7 @@
 
 import { C, type ComponentType, type Motion, type Position } from './components';
 import { crowdEffort, crowdPercent } from './crowding';
+import { effortUnderEffects } from './effects';
 import { isSolidBottomed, Map3D, TileKind } from './map3d';
 import { CROWD_FREE, FLUID_MAX_LEVEL, REPATH_LIMIT, STEP_COST } from './path-constants';
 import type { EntityStore } from './entities';
@@ -276,7 +277,10 @@ export class MovementHelper implements MovementApi {
     const mover = this.moverOf(id);
     let next = path[m.stepIndex] as TileIndex;
     // `progress += speed * 1000 / cost(next)`; costs are in the same 1000-per-step scale.
-    m.progress += crowdEffort(Math.trunc((m.speed * STEP_COST) / this.pathing.graph.cost(next, m.movementClass, mover)), this.crowdPercentAt(next, 1));
+    let effort = crowdEffort(Math.trunc((m.speed * STEP_COST) / this.pathing.graph.cost(next, m.movementClass, mover)), this.crowdPercentAt(next, 1));
+    // 25 § Effects: a slowed (or hastened) mover. A game with no `Spellbound` looks nothing up.
+    if (this.entities.store(C.Spellbound).size > 0) effort = effortUnderEffects(this.entities, id, effort, ctx.tick);
+    m.progress += effort;
 
     while (m.progress >= STEP_COST) {
       if (!this.pathing.graph.passable(next, m.movementClass, mover)) {
