@@ -96,7 +96,7 @@ interface TradeState { stateVersion: 1; schedule: Record<Civ, { nextArrivalTick:
   session: { depotId: EntityId; traderId: EntityId; merchantId: EntityId; give: [EntityId, number][]; take: [EntityId, number][] } | null;
   lastBrought: Record<Civ, Idx<ItemTypeDef>[]>; reputationLog: { civ: Civ; delta: number; reason: string; tick: Tick }[]; rng: RngState }
 
-interface MagicState { stateVersion: 1; sessionsToday?: [EntityId, number][]; firstRunecasterDone?: boolean; lastMishaps?: [EntityId, { kind: string; dwarfId: EntityId; tick: Tick }][] }   // 25: attune sessions today by dwarf, sorted by id; the last mishap of each sanctum zone, sorted by zone id; each omitted when empty or false, absent in older saves means none. Stream `25` is saved in the `rng` section only, since 20's caravan extras draw on it too
+interface MagicState { stateVersion: 1; sessionsToday?: [EntityId, number][]; firstRunecasterDone?: boolean; lastMishaps?: [EntityId, { kind: string; dwarfId: EntityId; tick: Tick }][]; pendingBlooms?: { tile: TileIndex; at: Tick; casterId: EntityId; raw: number }[]; bloomAlertsToday?: EntityId[] }   // 25: attune sessions today by dwarf, sorted by id; the last mishap of each sanctum zone, sorted by zone id; the Fireblooms cast and not yet bloomed, in cast order; the casters whose bloom caught one of their own today, sorted; each omitted when empty or false, absent in older saves means none. Stream `25` is saved in the `rng` section only, since 20's caravan extras draw on it too
 
 interface ImmigrationState { stateVersion: 1; wavesSoFar: number; guaranteedDone: [boolean, boolean]; lastWave: { tick: Tick; count: number } | null;
   deferredUntilTick: Tick; lastSkipReason: string | null; rng: RngState }

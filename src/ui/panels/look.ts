@@ -22,8 +22,8 @@ import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
-import type { MagicReader } from '@systems/magic';
-import { FROSTBIND_SLOW_PERCENT, METAL_RUNE_PENALTY_PERCENT } from '@systems/magic/constants';
+import type { MagicReader, SpellView } from '@systems/magic';
+import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -326,6 +326,10 @@ export function drawLookPanel(
     if (rune !== null) line(rune, t.value);
     const channel = channelLine(readers, registry, strings, id);
     if (channel !== null) line(channel, t.value);
+    const vials = vialsLine(readers, strings, id);
+    if (vials !== null) line(vials, t.dim);
+    const effects = effectsLine(readers, strings, id);
+    if (effects !== null) line(effects, t.dim);
     if (has(readers, '17') && readers.entities.has(id, C.Body)) {
       const body = readers.entities.get(id, C.Body);
       if (body !== undefined) {
@@ -411,6 +415,30 @@ export function runeLine(readers: ReaderSet, registry: Registry, strings: String
 }
 
 /**
+ * 25's vial line under the channel line: "Vials: 2 carried, 1 of 3 drunk today." Null for a
+ * creature with no `Rune`, or one that carries no vial and has drunk none today.
+ */
+export function vialsLine(readers: ReaderSet, strings: Strings, id: EntityId): string | null {
+  if (!has(readers, '25')) return null;
+  const rune = readers.of<MagicReader>('25').rune(id);
+  if (rune === undefined || (rune.vials === 0 && rune.vialsToday === 0)) return null;
+  return strings.get('ui.look.rune_vials', { n: rune.vials, drunk: rune.vialsToday, max: VIALS_PER_DAY });
+}
+
+/**
+ * The creature's timed effects (25 § Effects): "Under: ward 7 (340 ticks), slowed 50% (120
+ * ticks)." Null with none.
+ */
+export function effectsLine(readers: ReaderSet, strings: Strings, id: EntityId): string | null {
+  if (!has(readers, '25')) return null;
+  const effects = readers.of<MagicReader>('25').effects(id);
+  if (effects.length === 0) return null;
+  const tick = readers.calendar.tick;
+  const parts = effects.map((e) => strings.get(`ui.look.effect.${e.kind}`, { value: e.value, ticks: e.until - tick }));
+  return strings.get('ui.look.effects', { list: parts.join(', ') });
+}
+
+/**
  * The numbers of the spell set in a channel item: "Emberbolt: 24 ember, range 12. Needs a
  * runecaster." Null for anything else. `needs` adds the last sentence, for an item on the ground.
  */
@@ -418,10 +446,25 @@ export function spellLine(readers: ReaderSet, strings: Strings, itemId: EntityId
   if (!has(readers, '25')) return null;
   const spell = readers.of<MagicReader>('25').spellOf(itemId);
   if (spell === undefined) return null;
-  const effect = spell.type === 'frost' && spell.ticks > 0
-    ? strings.get('ui.look.spell_slow', { percent: FROSTBIND_SLOW_PERCENT, ticks: spell.ticks }) : '';
-  const text = strings.get('ui.look.spell', { name: spell.name, damage: spell.damage, type: spell.type, range: spell.range, effect });
+  const text = spellText(strings, spell);
   return needs ? `${text} ${strings.get('ui.look.spell_needs')}` : text;
+}
+
+/** One spell's numbers in words, by its kind (25 § Spells). */
+function spellText(strings: Strings, spell: SpellView): string {
+  const base = { name: spell.name, damage: spell.damage, type: spell.type, range: spell.range, ticks: spell.ticks };
+  switch (spell.kind) {
+    case 'ward': return strings.get('ui.look.spell_ward', base);
+    case 'mend': return strings.get('ui.look.spell_mend', base);
+    case 'dread': return strings.get('ui.look.spell_dread', { ...base, n: DREAD_MAX_TARGETS });
+    case 'burst': return strings.get('ui.look.spell_burst', { ...base, delay: FIREBLOOM_DELAY_TICKS });
+    case 'single': return strings.get('ui.look.spell_single', base);
+    default: {
+      const effect = spell.type === 'frost' && spell.ticks > 0
+        ? strings.get('ui.look.spell_slow', { percent: FROSTBIND_SLOW_PERCENT, ticks: spell.ticks }) : '';
+      return strings.get('ui.look.spell', { ...base, effect });
+    }
+  }
 }
 
 /**

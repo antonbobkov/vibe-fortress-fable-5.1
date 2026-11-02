@@ -79,7 +79,7 @@ The rule: **rows added after version 1 number after every older row.**
 
 The layer table, with its `ember` and `frost` rows and its `ward` column, is in [weapons-and-armor.md](../03-content/weapons-and-armor.md) § Damage type versus layer; the `DAMAGE_VS_LAYER` constant in `combat/melee.ts` holds the same numbers, and a test compares the two. Mail is a poor answer to rune, plate a fair one, a ward the best. A burn bleeds little (`BLEED_TABLE`), so an ember bolt wins by pain and by part damage, not by blood.
 
-**`armorReduction(entities, registry, defenderId, part, type, tick)`** in `combat/melee.ts` is the one place the armour sum is written (16 § Melee resolution): `resolveMelee`, `resolveProjectileHit` and `combat/reader.ts` `armorValue` all call it. Natural armour belongs to a species, so a defender with no `Creature` has none. T-472 and T-473 extend only this function.
+**`armorReduction(entities, registry, defenderId, part, type, tick)`** in `combat/melee.ts` is the one place the armour sum is written (16 § Melee resolution): `resolveMelee`, `resolveProjectileHit` and `combat/reader.ts` `armorValue` all call it. Natural armour belongs to a species, so a defender with no `Creature` has none. A `ward` effect is added there, on every part (§ Effects). T-472 extends only this function.
 
 ### Glowcap
 
@@ -177,74 +177,73 @@ Wand 0.7. Iron staff 1.2. Silver fine staff `1.2 × 1.3 × 1.1 = 1.716`. Deepsil
 
 ### Casting
 
-The frame and bolts are built; T-473 brings the rest (marked).
-
 `src/systems/magic/cast.ts`, imported by `combat/index.ts` and `combat/ranged.ts`. Casting rides in 16's creature loop. 25 has no casting loop of its own.
 
 In `CombatSystem.tick`, after `w`, `launcher` and the distances are known:
 
 ```
 channel  = launcher !== undefined && launcher.ammo === undefined
+if channel and cooldown elapsed and drinkVial(ctx, id, w): continue      // § Vials; the drink sets the cooldown
 hasAmmo  = channel ? canCastBolt(ctx, id, w, target) : (as today)
 // kiting as today, with hasAmmo as above: a caster with rune keeps its distance
-if channel and cooldown elapsed and castSupport(ctx, id, target, w):
-    engagements.set(id, tick); continue                         // T-473; castSupport sets the cooldown by 16's rule
+if channel and cooldown elapsed and castSupport(ctx, id, w, target):
+    engagements.set(id, tick); continue                         // castSupport sets the cooldown by 16's rule
 if isAdjacent: melee as today                                   // the club
-else if isRanged in range with line of sight: fireAt as today   // the bolt (held while an ally is on its line, below), or T-473's burst and daze
-else if channel and support staff and rune ≥ cost and dist ≤ CASTER_HOLD_DISTANCE: stop walking; continue   // T-473
-else approach as today
+else if isRanged in range with line of sight: fireAt as today   // the bolt (held while an ally is on its line, below), the burst or the single
+else:
+    a civilian does not chase, as today
+    if channel and the spell is a burst or a single and cooldown elapsed and another target qualifies: fireAt it; continue
+    if channel and the spell is no bolt and rune ≥ cost and dist ≤ CASTER_HOLD_DISTANCE: stop walking; continue
+    approach as today
 ```
 
-`canCastBolt`: the holder has a `Rune`, the staff's spell is of kind `bolt`, `burst` or `single`, `current ≥ cost`, and the target is within the spell's range. `fireRanged` passes a `burst` or `single` to `magic/cast.ts` before it spawns anything (T-473). For a `bolt` it has a third branch beside `naturalRanged` and the ammunition branch, `castBolt`: `projectileItemId = 0`, `rawDamage = round(spell.base × power(item))`, `damageType = spell.type`, `weaponSkill = 'runecraft'`, `weaponSize = launcher size`; it spends the rune and emits `SpellCast { casterId, spellId, targetId, tile }`. Everything after that line is the shared path. So the hit roll, cooldown, crowding (`crowdTicks`), projectile, bystander half chance and xp (+3 a hit, +1 a miss, through `grantXp` on `weaponDef.skill`) all come from 16, and the hit roll draws on 16's stream. A bystander can be an ally: friendly fire is real by construction.
+`canCastBolt`: the holder has a `Rune`, the staff's spell is of kind `bolt`, `burst` or `single`, `current ≥ cost`, and the target is within the spell's range; a burst and a single have their own conditions besides (§ Spells). `fireRanged` passes a `burst` or a `single` to `castAtTarget` in `magic/cast.ts` before it spawns anything: no hit roll, no projectile. For a `bolt` it has a third branch beside `naturalRanged` and the ammunition branch, `castBolt`: `projectileItemId = 0`, `rawDamage = round(spell.base × power(item))`, `damageType = spell.type`, `weaponSkill = 'runecraft'`, `weaponSize = launcher size`; it spends the rune and emits `SpellCast { casterId, spellId, targetId, tile, burned: false }`. Everything after that line is the shared path. So the hit roll, cooldown, crowding (`crowdTicks`), projectile, bystander half chance and xp (+3 a hit, +1 a miss, through `grantXp` on `weaponDef.skill`) all come from 16, and the hit roll draws on 16's stream. A bystander can be an ally: friendly fire is real by construction.
 
-**Cast when** (a bolt, as Firebloom has its own): the caster holds the bolt while a creature of its own faction (for a fortress caster, any fortress creature) stands on a tile the bolt would cross before its target, the tiles of 16's projectile ray. It then throws at another target: the nearest creature hostile to it (distance, then id) that `canCastBolt` allows, in line of sight, with no ally on the line (`otherBoltTarget` in `magic/cast.ts`). With none, it waits where it stands and spends nothing. The check is made at the cast and draws nothing, so friendly fire stays real: an ally can step into the bolt's path after the cast, and a missed bolt flies on and can land on someone beyond its target.
+**Cast when** (a bolt, as Firebloom has its own): the caster holds the bolt while a creature of its own faction (for a fortress caster, any fortress creature) stands on a tile the bolt would cross before its target, the tiles of 16's projectile ray. It then throws at another target: the nearest creature hostile to it (distance, then id) that `canCastBolt` allows, in line of sight, with no ally on the line (`otherBoltTarget` in `magic/cast.ts`). With none, it waits where it stands and spends nothing. The check is made at the cast and draws nothing, so friendly fire stays real: an ally can step into the bolt's path after the cast, and a missed bolt flies on and can land on someone beyond its target. A burst or a single whose held target does not qualify throws, by the same search without the line, at the nearest other hostile that qualifies.
 
-Cooldown is 16's rule: `size × 3 + 10 − Agility / 10`. At Agility 50 a staff is 26 ticks, a wand 14.
+**Where a caster stands.** A caster whose spell is no bolt, with the rune for it, stops `CASTER_HOLD_DISTANCE` from its target instead of closing to club it. It still clubs a target that reaches it.
+
+Cooldown is 16's rule for every cast: `size × 3 + 10 − Agility / 10`, at least `MIN_ATTACK_COOLDOWN`, slowed by a crowd. At Agility 50 a staff is 26 ticks, a wand 14.
 
 A bolt's `Projectile` carries `spell?: Idx<'SpellDef'>` and `spellPower?` (the channel's power in thousandths at the cast, so the hit does not depend on what the caster holds by then). `resolveProjectileHit` returns the damage it dealt. In `advanceSingleProjectile`, a hit with damage above 0, on the target or on a bystander, calls `applySpellOnHit` in `magic/cast.ts` (Frostbind's slow).
 
-Below cost the channel is a club. T-473 adds the vial first (§ Vials).
+Below cost the caster drinks a vial if it can (§ Vials); otherwise the channel is a club.
 
-The rune is spent at the cast, in every spell.
+The rune is spent at the cast, in every spell. Every cast emits `SpellCast`: for a bolt, a burst or a single its `targetId` is the target; for a ward the caster; for a mend the patient; for a dread the held target.
 
 ### Spells
 
-**Task:** as the row says. Content table `spells` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Spells, `SCHEMAS` entry, `exportSpells`), which holds `emberbolt` (garnet) and `frostbind` (amethyst). A blank `range` there is the channel's own. These rows arrive with their tasks:
+Content table `spells` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Spells, `SCHEMAS` entry, `exportSpells`), which holds `emberbolt` (garnet), `frostbind` (amethyst), `ward` (quartz), `mend` (emerald), `dread` (sapphire), `firebloom` (ruby) and `daze` (diamond). A blank `range` there is the channel's own. This row arrives with its task:
 
 | stone | id | name | kind | cost | range | base | type | ticks | suffix | Task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| quartz | `ward` | Ward | ward | 2 | 3 | 6 | — | 600 | of warding | T-473 |
-| emerald | `mend` | Mend | mend | 2 | 4 | — | — | — | of mending | T-473 |
-| sapphire | `dread` | Dread | dread | 2 | 4 | — | — | 400 | of dread | T-473 |
-| ruby | `firebloom` | Firebloom | burst | 3 | 8 | 14 | ember | — | of blooms | T-473 |
-| diamond | `daze` | Daze | single | 3 | 6 | — | — | 150 | of stillness | T-473 |
 | glowstone | `call` | Call | call | 3 | self | — | — | — | of calling | T-475 |
 
-Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. Until T-473 and T-475 land, a stone with no row makes no recipe, so no such staff can exist.
+Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. Until T-475 lands, glowstone has no row and so makes no recipe, so no such staff can exist.
 
 Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. T-472 adds the `slow_immune` check (a worn piece's enchantment, `rimeward`) in `addEffect` for `slow`, so spells and enchantments both respect it.
 
-When each casts (`castSupport` evaluates these for a held target, in this order; a bolt, burst or single goes by 16's ranged branch):
+When each support spell casts (`castSupport` evaluates these for a held target with the cooldown elapsed; a bolt, burst or single goes by 16's ranged branch). Distance is the casting distance (Chebyshev, each level between counting two) and line of sight is 16's:
 
 | Spell | Cast when | Does |
 |---|---|---|
-| Ward | caster has no unexpired `ward` effect | `ward` effect with `round(6 × power)` for `round(600 × power)` ticks on every fortress creature within 3 on its level, the caster too. One `Warded { id }` each |
-| Mend | a fortress creature within 4, in line of sight, has a bleeding unbandaged wound or is unconscious from wounds. Nearest, then lowest id | `Mended { id, casterId }`. 17 handles it: every bleeding wound `bandaged`, light wounds removed with their hp back, the rest `cleaned` |
-| Dread | two or more hostile creatures within 4 in line of sight, and `tick ≥ Rune.nextDreadTick` | up to `DREAD_MAX_TARGETS`, nearest first, each after the resist roll: a `flee` effect for `round(400 × power)` ticks, `sourceId` the caster. Sets `nextDreadTick` |
-| Call | fewer than `MAX_SUMMONS_PER_CASTER` summons alive and the creature count under `MAX_CREATURES` | § Summons |
+| Ward | caster has no unexpired `ward` effect | `ward` effect with `round(6 × power)` for `round(600 × power)` ticks on every creature of the caster's faction within 3 on its level, the caster too, `sourceId` the caster. One `Warded { id }` each. A wand's ward is 4 for 420 ticks, an iron staff's 7 for 720 |
+| Mend | a creature of the caster's faction within 4, in line of sight, has a bleeding unbandaged wound, or is unconscious from wounds (pain or blood, not a stun) with a light wound to close. Nearest, then lowest id | `Mended { id, casterId }`. 17 handles it: every bleeding wound `bandaged`, light wounds removed with their hp back, the rest `cleaned` |
+| Dread | two or more creatures hostile to the caster within 4 in line of sight, conscious, not immune and not already under a `flee` effect, and `tick ≥ Rune.nextDreadTick` | up to `DREAD_MAX_TARGETS` of them, nearest first then id, each after the resist roll: a `flee` effect for `round(400 × power)` ticks, `sourceId` the caster. Sets `nextDreadTick` to the tick the effect ends |
+| Call | fewer than `MAX_SUMMONS_PER_CASTER` summons alive and the creature count under `MAX_CREATURES` | § Summons (T-475) |
 
 By 16's ranged branch, with `canCastBolt` also true only when:
 
 | Spell | Condition | Does |
 |---|---|---|
-| Firebloom | no fortress creature stands in the 3×3 around the target at the cast | adds `{ tile, at: tick + FIREBLOOM_DELAY_TICKS, casterId, raw }` to `pendingBlooms`, through `ctx.world.services.magic` (a new `CoreServices` entry installed by 25, like `combat`). At `at`, 25's tick calls `resolveProjectileHit` with `raw` and `ember` for every creature in the 3×3, whatever its faction. So shields block and armor counts. No hit roll. The delay is what makes friendly fire real: soldiers walk in while it blooms |
-| Daze | target has `Hostile.role` `captain`, or species size ≥ 100, and is not already stunned | after the resist roll, `CreatureStunned { id, until: tick + round(150 × power) }`. No hit roll, no projectile |
+| Firebloom | no creature of the caster's faction (for a fortress caster, no fortress creature) stands in the 3×3 around the target, on its level, at the cast | adds `{ tile, at: tick + FIREBLOOM_DELAY_TICKS, casterId, raw }` to `pendingBlooms`, through `ctx.world.services.magic` (the `CoreServices` entry `MagicApi`, installed by 25, like `combat`). At `at`, 25's tick calls `resolveProjectileHit` with `raw` and `ember` for every creature with a body in the 3×3 on that level, in id order, whatever its faction, with skill `runecraft`, drawing on stream 25. So shields block and armor counts. No hit roll. The delay is what makes friendly fire real: soldiers walk in while it blooms |
+| Daze | target has `Hostile.role` `captain`, or species size ≥ 100, is conscious (a stunned creature is not) and is not immune | after the resist roll, `CreatureStunned { id, until: tick + round(150 × power) }`. No hit roll, no projectile |
 
-**Resist** (Dread, Daze): `Willpower / 2` percent, `RESIST_NO_ATTRIBUTES_PERCENT` without attributes, drawn on stream 25. Creatures of size at least `MENTAL_IMMUNE_SIZE` and every `deep` creature are immune: such a target does not qualify. Only fortress casters hold these two stones (§ Hexers), so no dwarf is ever mind-struck.
+**Resist** (Dread, Daze): `Willpower / 2` percent, `RESIST_NO_ATTRIBUTES_PERCENT` without attributes, drawn on stream 25 (`ctx.world.rngFor('25')`). Creatures of size at least `MENTAL_IMMUNE_SIZE` and every `deep` creature are immune: such a target does not qualify. Only fortress casters hold these two stones (§ Hexers), so no dwarf is ever mind-struck.
 
-Announcements: `RuneSpent` once a caster falls below cost, until regen lifts them over it (`Rune.outAnnounced`). A firebloom that hits a fortress creature: `SpellCast`, alert, once per caster per day.
+Announcements: `RuneSpent { id }` once a caster falls below its spell's cost, at the cast, until regen lifts it over the cost again (`Rune.outAnnounced`; a vial does not lift it). A bloom that catches a creature of the caster's faction emits `SpellCast { casterId, spellId, targetId: the lowest such id, tile, burned: true }`, announced as an alert, once per caster per day (`bloomAlertsToday`).
 
-Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row but the ward's is pinned by a test (`test/unit/runecraft/t470-runeforge-channels.test.ts`).
+Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinned by a test (`test/unit/runecraft/t470-runeforge-channels.test.ts`; the ward's by `t473-remaining-spells.test.ts`).
 
 | Attack | raw | Target | damage |
 |---|---|---|---|
@@ -261,30 +260,28 @@ Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row but the 
 
 ### Effects
 
-**Task:** `slow` is built; T-473 (the rest of the spells), T-474 (draughts).
+**Task:** `slow`, `ward` and `flee` are built; T-474 (draughts).
 
 `Spellbound` component (§ State). `src/core/effects.ts`: `effectValue(entities, id, kind, tick)`, the largest value among unexpired entries of a kind, 0 if none, and `effortUnderEffects`, the step's effort below. 25 adds entries through `addEffect` in `magic/cast.ts` and, on `HourPassed`, drops expired entries and the component with them. Readers compare `until` with the tick, so expiry needs no tick of its own.
 
 | kind | value | read at | Task |
 |---|---|---|---|
 | `slow` | percent | `core/movement.ts` `moveAlongPath`, on the step's effort after crowding: `× (100 − slow + haste) / 100`, truncated, at least 1; a game with no `Spellbound` (the store is empty) does no lookup per mover. Every creature, one place. 17's `speedModifier` is not touched | T-470 |
-| `ward` | armor | `armorReduction`: `+ ward × wardMult(type)` on every part | T-473 |
-| `flee` | 1 | `CombatSystem.tick`, after the conscious check: while it lasts the creature keeps its target, does not attack, and walks to a tile 12 away from `sourceId` (clamped to the map; the party's edge tile if no path). `isFleeing` counts it (+10 to hit, no parry) and gains a tick argument. 18's member step needs no change: it holds a target and returns. Nothing leaves the map, so the party's retreat count does not move | T-473 |
+| `ward` | armor | `armorReduction`: `+ ward × damageTypeVsLayer(type, ward)` on every part, while it lasts at the tick of the hit | T-473 |
+| `flee` | 1 | `CombatSystem.tick`, after the conscious check (`stepFled` in `combat/fled.ts`): while it lasts the creature keeps its target, does not attack, and walks to the tile `FLEE_EFFECT_TILES` from the source of its latest `flee` entry, through itself, clamped to the map and stepped back toward it to a tile a walker can stand on; with no such tile or no path, to the nearest tile of its party's arrival edge (`getNearestEdgeTile`); a creature of no party then stands. A source with no position counts as the held target. `isFleeing(entities, id, tick)` counts it (+10 to hit, no parry, no block). 18's member step needs no change: it holds a target and returns. Nothing leaves the map, so the party's losses and retreat do not move, and when the effect ends the creature still holds its target and comes back | T-473 |
 | `heal_rate` | percent | `health/tick.ts` healing: `healRemaining −= 5 × value / 100` when set | T-474 |
 | `pain_half` | 1 | `health/tick.ts` pain sum | T-474 |
 | `haste` | percent | the step above, and cooldowns in `resolveMelee` and `fireRanged`: `× 100 / (100 + value)` | T-474 |
 | `fire_immune` | 1 | `armorReduction`'s caller: a hit whose wound type is `burn` does 0 | T-474 |
 | `spot_radius` | tiles | `threats/ai.ts` where targets get `spotRadius` (line "spotRadius: entities.has(id, C.Attributes)"): the larger of the two | T-474 |
 
-**Stun** is not an effect. Daze and `blackout` emit `CreatureStunned { id, until }`. 17 handles it (17 § Bleeding, pain, consciousness): it adds the creature to `wounded`, where it stays until the stun ends, saves `stunnedUntil` (a map in `HealthState`, optional), knocks a conscious body down at once with `CreatureUnconscious`, and its consciousness line becomes `conscious = pain < PAIN_UNCONSCIOUS && blood ≥ threshold && tick ≥ stunnedUntil`. So everything that respects `Body.conscious` holds: 16 skips the creature and hits it at +40, brains stop, and `CreatureUnconscious` and `CreatureConscious` fire. The patient check in `health/tick.ts` counts only unconsciousness from pain or blood, so a blackout admits no one. A stunned raider counts toward 18's retreat losses while it lies there. That is accepted: it is 150 ticks.
+**Stun** is not an effect. Daze and `blackout` emit `CreatureStunned { id, until }`. 17 handles it (17 § Bleeding, pain, consciousness): it adds the creature to `wounded`, where it stays until the stun ends, saves `stunnedUntil` (a map in `HealthState`, optional), knocks a conscious body down at once with `CreatureUnconscious`, and its consciousness line becomes `conscious = pain < PAIN_UNCONSCIOUS && blood ≥ threshold && tick ≥ stunnedUntil`. So everything that respects `Body.conscious` holds: 16 skips the creature and hits it at +40, brains stop, and `CreatureUnconscious` and `CreatureConscious` fire. The patient check in `health/tick.ts` counts only unconsciousness from pain or blood, so a blackout admits no one. A stunned raider counts toward 18's retreat losses while it lies there. That is accepted: it is 150 ticks. A Daze caster may daze the same creature again once it wakes.
 
 ### Vials
 
-**Task:** T-473.
+A caster carries `CASTER_VIALS`. In `reequipSoldier`, after the weapon: a member holding a channel tops up by the ammunition logic, through `claimItemForSoldier`, taking available stacks with tag `rune_fuel` in the kit pool's order and splitting a larger stack so that only the missing vials are taken. `kitTypes` adds items with tag `rune_fuel`. `findAmmoForShooter` finds a carried vial by its item id, the item row with that tag.
 
-A caster carries `CASTER_VIALS`. In `reequipSoldier`, after the weapon: a member holding a channel tops up by the ammunition logic, through `claimItemForSoldier`. `kitTypes` adds items with tag `rune_fuel`. `findAmmoForShooter` finds a carried vial by item id, from the tag.
-
-In `canCastBolt` and `castSupport`, when `current < cost`, a hostile target is held, a vial is carried and `vialsToday < VIALS_PER_DAY`: consume one, add `VIAL_RUNE` capped at `max`, emit `VialDrunk`, set the cooldown to `tick + DRINK_TICKS`. `DayPassed` clears `vialsToday`. A Proficient runecaster has 50 rune and 15 more in the pouch for a day.
+`drinkVial` in `magic/cast.ts`, called by 16's loop for a channel holder with its cooldown elapsed and a hostile target held (every target the loop keeps is hostile), before `castSupport` and `canCastBolt`: when `current < cost`, a vial is carried and `vialsToday < VIALS_PER_DAY`, it consumes one, adds `VIAL_RUNE` capped at `max` (never lowering the rune), counts `vialsToday`, emits `VialDrunk { id }` and sets the cooldown to `tick + DRINK_TICKS`. `DayPassed` clears `vialsToday`. There is no fourth vial in a day. A Proficient runecaster has 50 rune and 15 more in the pouch for a day.
 
 ### Setting stones
 
@@ -437,12 +434,10 @@ Built. The Mountainhome's extra goods (`caravan-goods.md`) include rune vials, 5
 
 ### Morale
 
-**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed` and `first_runecaster` are there (Work and skill; Pride and relief): `attuned` matches an `AttuneSession` whose `mishap` is empty, and `first_runecaster` goes to everyone; the event has its own announcement.
+**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded` and `mended_by_rune` are there (Work and skill; Pride and relief; Social and comfort): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` goes to everyone (the event has its own announcement), and `warded` and `mended_by_rune` go to the dwarf the event names.
 
 | id | text | value | hours | decay | cap | group | trigger | Task |
 |---|---|---|---|---|---|---|---|---|
-| `warded` | "Felt the ward settle on me." | +1 | 12 | linear | 1 | comfort | `Warded` | T-473 |
-| `mended_by_rune` | "The rune closed my wound." | +3 | 48 | linear | 1 | none | `Mended` | T-473 |
 | `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | a calming draught | T-474 |
 | `dosed_again` | "Another draught. I am tired of draughts." | −4 | 72 | halflife | 1 | none | a calming draught within the rest | T-474 |
 | `summon_turned` | "Something came through that was not called." | −4 | 48 | halflife | 1 | fear | `SummonTurned` (everyone) | T-475 |
@@ -451,14 +446,14 @@ Every value sits inside the caps. Nothing here can take a fed, rested dwarf belo
 
 ## State
 
-Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune` (with `current` only), `Spellbound` (with `effects`), `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel) and `HealthState.stunnedUntil` are there.
+Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune`, `Spellbound` (with `effects`), `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel, `pendingBlooms` and `bloomAlertsToday`) and `HealthState.stunnedUntil` are there.
 
 ```ts
 interface Rune {                 // owner 25; also written by 18 for hexers
   current: number;               // milli-rune
-  vialsToday?: number;           // T-473
-  nextDreadTick?: Tick;          // T-473
-  outAnnounced?: boolean;        // T-473
+  vialsToday?: number;           // vials drunk today; DayPassed clears it
+  nextDreadTick?: Tick;          // Dread waits until this tick
+  outAnnounced?: boolean;        // RuneSpent given; regen over the cost clears it
 }
 interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: EntityId }
 interface Spellbound {           // owner 25
@@ -481,12 +476,13 @@ interface MagicState {           // system 25's serialize(); schemas/system-stat
   sessionsToday?: [EntityId, number][];
   firstRunecasterDone?: boolean;
   lastMishaps?: [EntityId, { kind: string; dwarfId: EntityId; tick: Tick }][];
-  pendingBlooms?: { tile: TileIndex; at: Tick; casterId: EntityId; raw: number }[];  // T-473
+  pendingBlooms?: { tile: TileIndex; at: Tick; casterId: EntityId; raw: number }[];  // in cast order
+  bloomAlertsToday?: EntityId[];  // casters whose bloom caught one of their own today, ascending
 }
 HealthState.stunnedUntil?: [EntityId, Tick][]
 ```
 
-The system: `MagicSystem` in `src/systems/magic/index.ts`, `id '25'`, `order 25`, cadence 1, phase 0, added to `HeadlessGame.standardSystems` last. Its tick does nothing unless `pendingBlooms` is due, and returns at once when it is empty. Rng: `ctx.rng` is `world.rngFor('25')` in its own hooks; `magic/cast.ts`, called from 16's tick, uses `ctx.world.rngFor('25')` by name. The stream is saved in the `rng` section, not in `MagicState`, since 20 draws on it too.
+The system: `MagicSystem` in `src/systems/magic/index.ts`, `id '25'`, `order 25`, cadence 1, phase 0, added to `HeadlessGame.standardSystems` last. It implements `MagicApi` (`addBloom`) and installs itself as `world.services.magic` at `init`. Its tick does nothing unless a bloom of `pendingBlooms` is due, and returns at once when it is empty; due blooms bloom in cast order. Rng: `ctx.rng` is `world.rngFor('25')` in its own hooks; `magic/cast.ts`, called from 16's tick, uses `ctx.world.rngFor('25')` by name. The stream is saved in the `rng` section, not in `MagicState`, since 20 draws on it too.
 
 ## Interfaces
 
@@ -494,7 +490,7 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Reader
 
-- `magic.rune(id)` — current, max and regen in milli-rune, the metal percent and the pieces that lower it, the robe percent and the circlet bonus, and whole hours to full (0 full, −1 never); undefined without a `Rune`
+- `magic.rune(id)` — current, max and regen in milli-rune, the metal percent and the pieces that lower it, the robe percent and the circlet bonus, whole hours to full (0 full, −1 never), the vials carried and the vials drunk today; undefined without a `Rune`
 - `magic.sanctums()` — sanctum zones, ascending; `magic.apprentices(zoneId)` — its living adult apprentices, ascending; `magic.sessionsToday(id)`
 - `magic.mishapPermille(zoneId, id)` — the mishap chance of this dwarf's next session there; `magic.lastMishap(zoneId)` — kind, dwarf and tick of the sanctum's last mishap, or undefined
 - `magic.canCast(id)` — the creature holds a channel whose spell its rune pays for now; `magic.spellOf(itemId)` — the spell in a channel and its numbers (cost, range, damage, type, ticks, power, suffix), or undefined
@@ -507,37 +503,35 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Events consumed
 
-`HourPassed` (regen; the producer's hourly look), `DayPassed` (sessions), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied`, `ZoneChanged` (sanctums).
+`HourPassed` (regen, which also ends a caster's `RuneSpent` silence; expired effects; the producer's hourly look), `DayPassed` (sessions, `vialsToday`, the day's bloom alerts), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied`, `ZoneChanged` (sanctums).
 
 ### Events emitted
 
-`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }`, `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile }` (from 16's ranged branch, through `castBolt`), and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0).
+`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }` (a blackout; a Daze), `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile, burned }` (every cast, from 16's loop through `cast.ts`, with `burned: false`; a bloom that caught one of the caster's own, with `burned: true`), `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }`, and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0; a bloom, through `resolveProjectileHit`).
 
 ### Registrations
 
-Job producer `magic` (`attune`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `StoneSet` (note, a masterwork setting only; 12 emits it).
+Job producer `magic` (`attune`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
 
 ## Planned interfaces
 
 | Kind | Name | Task |
 |---|---|---|
 | Reader | `magic.summonsOf(id)` | T-475 |
-| Event | `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` | T-473 |
 | Event | `DraughtDrunk { id, draughtId }` | T-474 |
 | Event | `SummonCalled { id, casterId }`, `SummonTurned { id }`, `SummonFaded { id }` | T-475 |
 | Event | `DeepsilverWorked { amount, tile }` (12 emits it) | T-476 |
 | Consumes | `RaidArrived`, `AmbushSprung`, `AttackResolved`, `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-474, T-476 |
 | Registration | job producer `magic`: `give_draught` | T-474 |
-| Registration | announcements: `RuneSpent` (note), `SpellCast` of a firebloom that burns a fortress creature (alert) | T-473 |
 | Registration | announcements: `SummonTurned` (danger) | T-475 |
 
 Other systems' documents gain their parts in the same commits: 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`), 14 (`sanctum`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 22 (`moveAlongPath`).
 
 ## Player-facing behavior
 
-- **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (T-473, `render/compositor.ts`; palette row in the same task).
+- **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (`render/compositor.ts`, step 6), unless the attack flash is showing.
 - **Sanctum panel**: the selected sanctum's inspector in the zones panel (zone type key `[S-c]`, `ui-screens/panels.md` § Zones). The room's tier, score and missing circle; the glowcap in stock; the mishap chance in words for a new apprentice ("one session in 17"); each apprentice with level, rune and sessions left today, and its own chance; the last mishap. `[S-o]` opens the apprentice picker, which adds or removes one adult dwarf at a time through `SetSanctumApprentices`.
-- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks". From T-473 vials and effects; from T-474 "Can take a draught again in 2 days"; from T-475 summons.
+- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks"; the other spells read by their kind ("Ward: 7 armour on every part for 720 ticks, range 3."). Under them, for a caster with vials or one that drank today, "Vials: 2 carried, 1 of 3 drunk today.", and for any creature under timed effects, "Under: ward 7 (340 ticks), slowed 50% (120 ticks)." From T-474 "Can take a draught again in 2 days"; from T-475 summons.
 - **Look cursor**: a channel is named with its spell's suffix, "1 iron staff of embers (fine)", then its value, and the line under it reads "Emberbolt: 24 ember, range 12. Needs a runecaster." An enchanted item carries its suffix, "1 steel axe of embers (fine)", and a dim line gives its effects at its tier: "+9 ember on a hit."
 - **Squad panel** (T-474): the ordered draught checklist, with each trigger in words. A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
 - **Orders panel**: a transform recipe offers the target type (`set in: any`, stepped by a click) and the material, and is `once` only.
@@ -558,7 +552,7 @@ All *unmeasured* unless the row says what was measured. Rows move to `src/system
 | `MISHAP_BASE` / `MISHAP_FLOOR` | 60 / 10 | Per mille a session, less 2 per level and 1 per tier; measured: 61 mishaps in 1,000 level-0 sessions in a bare sanctum | T-469 |
 | `MISHAP_BLACKOUT_TICKS` / `MISHAP_SURGE_RADIUS` | 200 / 3 | | T-469 |
 | `FROSTBIND_SLOW_PERCENT` | 50 | | T-470 |
-| `CASTER_HOLD_DISTANCE` | 4 | A support caster with rune stands this far from its target | T-473 |
+| `CASTER_HOLD_DISTANCE` | 4 | A caster whose spell is no bolt, with the rune for it, stands this far from its target | T-473 |
 | `CASTER_VIALS` / `VIAL_RUNE` / `VIALS_PER_DAY` / `DRINK_TICKS` | 3 / 5 / 3 / 30 | | T-473 |
 | `FIREBLOOM_DELAY_TICKS` | 20 | Between the cast and the bloom | T-473 |
 | `DREAD_MAX_TARGETS` | 4 | | T-473 |

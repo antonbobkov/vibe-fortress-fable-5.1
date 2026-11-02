@@ -1,6 +1,6 @@
 # T-474 — Runecraft 7: draughts
 
-**Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md) · **Size:** M · **Needs:** T-473 · **Status:** open
+**Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md) · **Size:** M · **Needs:** — · **Status:** open
 
 The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, and this task needs only its sections named below. Everything marked for this task lands here and nothing else. Move this task's rows from 25 to the tables and schemas it names, and into its § Interfaces. Every number stays *unmeasured* unless this task measures it.
 
@@ -22,3 +22,7 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 - A soldier who drank stoutness drinks nothing else for 3 days whatever triggers, and a medic gives them nothing. A second calming draught within seven days gives `dosed_again`. The mood floor holds.
 - With nothing listed in the squad panel (the default), no draught is drunk.
 - Spoiled batches fall as the formula says; only a `spoilable` recipe draws.
+
+## Also in this task (from T-473's review)
+
+`SpellCast.burned` is set for a fortress creature in the firebloom's square even when its shield blocked the bloom; 25 says "hits". Set `burned` only when `resolveProjectileHit` returns more than 0, with a test.

@@ -101,6 +101,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `saw_masterwork` | "Saw a masterwork." | +4 | 48 | linear | 3 | craft | `SawMasterwork` |
 | `felt_mist` | "Felt the mist of a waterfall." | +5 | 24 | linear | 1 | comfort | `DwarfFeltMist` |
 | `warm_spring` | "Warmed my feet in a spring." | +3 | 24 | linear | 1 | comfort | `DwarfNearSpring` |
+| `warded` | "Felt the ward settle on me." | +1 | 12 | linear | 1 | comfort | `Warded` |
 
 ### Work and skill
 
@@ -163,6 +164,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `came_of_age` | "The child has grown." | +3 | 72 | linear | 1 | social | `DwarfBecameAdult` family |
 | `hoarded` | "Got something nice for my room." | +3 | 48 | linear | 1 | none | sulk hoard |
 | `first_runecaster` | "We have a runecaster in the hall." | +4 | 72 | linear | 1 | pride | `FirstRunecaster` (everyone) |
+| `mended_by_rune` | "The rune closed my wound." | +3 | 48 | linear | 1 | none | `Mended` |
 
 ## Announcement flags
 

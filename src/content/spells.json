@@ -1,5 +1,25 @@
 [
   {
+    "id": "daze",
+    "name": "Daze",
+    "stone": "diamond",
+    "kind": "single",
+    "cost": 3,
+    "range": 6,
+    "ticks": 150,
+    "suffix": "of stillness"
+  },
+  {
+    "id": "dread",
+    "name": "Dread",
+    "stone": "sapphire",
+    "kind": "dread",
+    "cost": 2,
+    "range": 4,
+    "ticks": 400,
+    "suffix": "of dread"
+  },
+  {
     "id": "emberbolt",
     "name": "Emberbolt",
     "stone": "garnet",
@@ -8,6 +28,17 @@
     "base": 18,
     "type": "ember",
     "suffix": "of embers"
+  },
+  {
+    "id": "firebloom",
+    "name": "Firebloom",
+    "stone": "ruby",
+    "kind": "burst",
+    "cost": 3,
+    "range": 8,
+    "base": 14,
+    "type": "ember",
+    "suffix": "of blooms"
   },
   {
     "id": "frostbind",
@@ -19,5 +50,25 @@
     "type": "frost",
     "ticks": 300,
     "suffix": "of frost"
+  },
+  {
+    "id": "mend",
+    "name": "Mend",
+    "stone": "emerald",
+    "kind": "mend",
+    "cost": 2,
+    "range": 4,
+    "suffix": "of mending"
+  },
+  {
+    "id": "ward",
+    "name": "Ward",
+    "stone": "quartz",
+    "kind": "ward",
+    "cost": 2,
+    "range": 3,
+    "base": 6,
+    "ticks": 600,
+    "suffix": "of warding"
   }
 ]

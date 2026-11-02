@@ -144,7 +144,11 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `Mishap` | `id, kind, buildingId, tile` | 25 | 05 (`fire`), 14 (`scorched_circle`), 15, ui |
 | `CreatureStunned` | `id, until` | 25 | 17 |
 | `FirstRunecaster` | `id` | 25 | 15, ui |
-| `SpellCast` | `casterId, spellId, targetId, tile` | 25 | ui (none) |
+| `SpellCast` | `casterId, spellId, targetId, tile, burned` | 25 (casts ride 16's loop; a firebloom's bloom) | ui (a bloom that burned a fortress creature) |
+| `RuneSpent` | `id` | 25 | ui |
+| `VialDrunk` | `id` | 25 | ui (none) |
+| `Warded` | `id` | 25 | 15 |
+| `Mended` | `id, casterId` | 25 | 15, 17 |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 

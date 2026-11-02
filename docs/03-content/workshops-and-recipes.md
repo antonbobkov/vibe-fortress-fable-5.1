@@ -299,7 +299,7 @@ A stone that is an item id rather than a gem is 1 of that item in place of the c
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 2, runeforge 2 (and generated: 2 per spell = 4, and 1 per enchantment = 15). Total 174.
+Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 2, runeforge 2 (and generated: 2 per spell = 14, and 1 per enchantment = 15). Total 184.
 
 ## Time arithmetic
 

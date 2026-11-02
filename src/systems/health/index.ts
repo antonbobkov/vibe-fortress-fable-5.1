@@ -60,6 +60,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     'CreatureDied',
     'Slept',
     'CreatureStunned',
+    'Mended',
   ];
 
   override readonly ownsCommands: readonly CommandType[] = ['SetHospitalSupplies'];
@@ -172,6 +173,30 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       if (b.conscious) {
         b.conscious = false;
         ctx.emit({ type: 'CreatureUnconscious', id });
+      }
+      return;
+    }
+
+    if (event.type === 'Mended') {
+      // 25's Mend: every bleeding wound bandaged, light wounds closed with their hp back, the rest cleaned.
+      const id = event['id'] as EntityId;
+      const b = ctx.world.entities.get(id, C.Body);
+      if (!ctx.world.entities.alive(id) || b === undefined) return;
+      for (const part of b.parts) {
+        const kept = [];
+        for (const w of part.wounds) {
+          if (w.severity === 'light') {
+            part.hp = Math.min(part.maxHp, part.hp + w.damage);
+            continue;
+          }
+          if (w.bleed > 0 && !w.bandaged) {
+            w.bandaged = true;
+            w.bleed = 0;
+          }
+          w.cleaned = true;
+          kept.push(w);
+        }
+        part.wounds = kept;
       }
       return;
     }

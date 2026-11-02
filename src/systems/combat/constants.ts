@@ -36,3 +36,6 @@ export const HOSTILE_SKILL_PER_TIER = 2;
  * poor 0.8, common 1.0, fine 1.1, superior 1.2, exceptional 1.35, masterwork 1.5.
  */
 export const QUALITY_COMBAT_MULT: readonly number[] = [0.8, 1.0, 1.1, 1.2, 1.35, 1.5];
+
+/** A creature under a `flee` effect walks to a tile this far from the effect's source (25 § Effects). */
+export const FLEE_EFFECT_TILES = 12;

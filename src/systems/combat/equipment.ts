@@ -18,7 +18,7 @@ import {
 } from './constants';
 import { getSkill } from './melee';
 import { channelPower, isChannelRow } from '@systems/magic/cast';
-import { ENCHANT_CLAIM_BONUS } from '@systems/magic/constants';
+import { CASTER_VIALS, ENCHANT_CLAIM_BONUS } from '@systems/magic/constants';
 
 export interface WeaponDefRow {
   readonly id: string;
@@ -61,7 +61,11 @@ export interface MaterialDefRow {
 export interface ItemDefRow {
   readonly id: string;
   readonly category: string;
+  readonly tags?: readonly string[];
 }
+
+/** 25 § Vials: the tag that makes an item a caster's fuel. */
+const RUNE_FUEL = 'rune_fuel';
 
 /** A piece's weight scale for its material, in thousandths: deepsilver 500, all else 1000. */
 function armorWeightMult(registry: Registry, materialIndex: number): number {
@@ -373,7 +377,10 @@ export interface KitPool {
 
 const kitTypeFlags = new WeakMap<Registry, readonly boolean[]>();
 
-/** Per item type index: whether a soldier's kit can name an item of the type. */
+/**
+ * Per item type index: whether a soldier's kit can name an item of the type. A rune vial (tag
+ * `rune_fuel`) is a caster's ammunition (25 § Vials).
+ */
 function kitTypes(registry: Registry): readonly boolean[] {
   const known = kitTypeFlags.get(registry);
   if (known !== undefined) return known;
@@ -385,7 +392,7 @@ function kitTypes(registry: Registry): readonly boolean[] {
   registry.table<ItemDefRow>('items').rows.forEach((row, index) => {
     flags[index] = row !== undefined &&
       (weapons.byId(row.id) !== undefined || armor.byId(row.id) !== undefined || row.id === 'quiver' ||
-        row.category === 'container/quiver' || ammo.has(row.id));
+        row.category === 'container/quiver' || ammo.has(row.id) || row.tags?.includes(RUNE_FUEL) === true);
   });
   kitTypeFlags.set(registry, flags);
   return flags;
@@ -465,6 +472,9 @@ export function reequipSoldier(
     claimItemForSoldier(entities, bestWeaponId, soldierId, ctx.world.services.items);
     equip.weapon = bestWeaponId;
   }
+
+  // 25 § Vials: a member holding a channel tops up to CASTER_VIALS rune vials.
+  if (holdsChannel) claimVials(ctx, soldierId, pool);
 
   // 2. Shield selection (two-handed/shield exclusion)
   const itemsTable = registry.table<ItemDefRow>('items');
@@ -612,6 +622,35 @@ export function reequipSoldier(
         }
       }
     }
+  }
+}
+
+/**
+ * 25 § Vials: a channel holder carries `CASTER_VIALS` rune vials, claimed by the ammunition logic
+ * from available stock in the kit pool's order; a larger stack is split so that only the missing
+ * vials are taken.
+ */
+function claimVials(ctx: TickContext, soldierId: EntityId, pool: () => readonly EntityId[]): void {
+  const entities = ctx.world.entities;
+  const items = ctx.world.services.items;
+  if (items === null) return;
+  const table = ctx.registry.table<ItemDefRow>('items');
+  const isVial = (type: number): boolean => table.byIndex(type)?.tags?.includes(RUNE_FUEL) === true;
+  let carried = 0;
+  for (const itemId of pool()) {
+    const it = entities.get(itemId, C.Item);
+    if (it !== undefined && it.carriedBy === soldierId && it.count > 0 && isVial(it.type)) carried += it.count;
+  }
+  let toClaim = CASTER_VIALS - carried;
+  for (const itemId of toClaim > 0 ? pool().slice() : []) {
+    if (toClaim <= 0) break;
+    if (!isAvailableItem(entities, itemId)) continue;
+    const it = entities.get(itemId, C.Item);
+    if (it === undefined || it.count <= 0 || !isVial(it.type)) continue;
+    const take = it.count > toClaim ? items.split(itemId, toClaim) : itemId;
+    if (take === 0) continue;
+    claimItemForSoldier(entities, take, soldierId, items);
+    toClaim -= entities.get(take, C.Item)?.count ?? 0;
   }
 }
 

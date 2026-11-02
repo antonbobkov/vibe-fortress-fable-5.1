@@ -132,7 +132,7 @@ export class World {
     this.now = options.now ?? ((): number => 0);
     this.scheduler = new Scheduler(this.now);
     this.readers = new ReaderSet(this.map, this.entities, this.calendar, this.fortress);
-    this.services = { terrain: new CoreTerrainApi(this.map), jobs: NO_JOBS_API, spawn: NO_SPAWN_API, movement: null, items: null, spatial: null, combat: null };
+    this.services = { terrain: new CoreTerrainApi(this.map), jobs: NO_JOBS_API, spawn: NO_SPAWN_API, movement: null, items: null, spatial: null, combat: null, magic: null };
     // `data-model.md` § Store API: destroy has no core event; owning systems emit
     // `ItemDestroyed` / `CreatureDied` as listed in `04-implementation/event-catalog.md`.
   }

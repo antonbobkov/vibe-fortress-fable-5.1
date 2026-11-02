@@ -15,7 +15,7 @@ import type { BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
 import { grantXp } from '@systems/dwarves';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
-import { applySpellOnHit, castBolt } from '@systems/magic/cast';
+import { applySpellOnHit, castAtTarget, castBolt } from '@systems/magic/cast';
 import {
   AMMO_BREAK_PERMILLE,
   BLUNT_THROUGH_PERCENT,
@@ -414,7 +414,7 @@ export function resolveProjectileHit(
   // Shield block check
   const shieldId = shieldOf(entities, defenderId);
   const defConscious = isConscious(entities, defenderId);
-  const defFleeing = isFleeing(entities, defenderId);
+  const defFleeing = isFleeing(entities, defenderId, ctx.tick);
 
   if (shieldId !== 0 && defConscious && !defFleeing) {
     const isBuckler = shieldIsBuckler(registry, entities, shieldId);
@@ -554,7 +554,9 @@ export function fireRanged(
     weaponSkill = 'unarmed';
     weaponSize = naturalRanged.size;
   } else if (launcher && w && launcher.ammo === undefined) {
-    // A channel (`25` § Casting): a bolt of the stone's spell, paid for in rune at the cast.
+    // A channel (`25` § Casting): a burst or a single is cast by 25 before anything is spawned;
+    // a bolt of the stone's spell is paid for in rune at the cast and flies as a missile.
+    if (castAtTarget(ctx, shooterId, w, targetId, cooldownUntilMap)) return true;
     const bolt = castBolt(ctx, shooterId, w, targetId);
     if (bolt === null) return false;
     projectileItemId = 0;
