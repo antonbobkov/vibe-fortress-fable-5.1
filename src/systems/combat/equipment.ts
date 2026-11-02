@@ -9,6 +9,7 @@ import type { Registry } from '@core/registry';
 import type { ItemsApi, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
+import type { HealthReader } from '@systems/health/reader';
 import type { JobsReader } from '@systems/jobs/reader';
 import {
   ARMOR_MIN_SPEED_PERCENT,
@@ -57,6 +58,42 @@ export interface ItemDefRow {
   readonly category: string;
 }
 
+/** A piece's weight scale for its material, in thousandths: deepsilver 500, all else 1000. */
+function armorWeightMult(registry: Registry, materialIndex: number): number {
+  const id = registry.table<{ id: string }>('materials').byIndex(materialIndex)?.id;
+  const metals = registry.table<{ id: string; armorWeightMult?: number }>('metals');
+  return (id !== undefined && metals.has(id) ? metals.byId(id)?.armorWeightMult : undefined) ?? 1000;
+}
+
+/** Whether the creature's arms can hold this: 17's `health.canWield`, by the weapon's `hands`. */
+function canWield(ctx: TickContext, id: EntityId, hands: 1 | 2): boolean {
+  return !ctx.readers.has('17') || ctx.readers.of<HealthReader>('17').canWield(id, hands);
+}
+
+function canWieldWeapon(ctx: TickContext, id: EntityId, weaponItem: EntityId): boolean {
+  const item = ctx.world.entities.get(weaponItem, C.Item);
+  const row = item && ctx.registry.table<ItemDefRow>('items').byIndex(item.type);
+  const weapon = row ? ctx.registry.table<WeaponDefRow>('weapons').byId(row.id) : undefined;
+  return weapon === undefined || canWield(ctx, id, weapon.hands === 2 ? 2 : 1);
+}
+
+/**
+ * The arms a creature has left decide what it holds (17 § Permanent injuries): what they cannot
+ * hold falls where it stands.
+ */
+export function dropWhatArmsCannotHold(ctx: TickContext, id: EntityId): void {
+  const equip = ctx.world.entities.get(id, C.Equipment);
+  if (!equip) return;
+  if (equip.weapon !== 0 && ctx.world.entities.alive(equip.weapon) && !canWieldWeapon(ctx, id, equip.weapon)) {
+    dropItemAtBarracks(ctx, equip.weapon, 0, id);
+    equip.weapon = 0;
+  }
+  if (equip.shield !== 0 && ctx.world.entities.alive(equip.shield) && !canWield(ctx, id, 2)) {
+    dropItemAtBarracks(ctx, equip.shield, 0, id);
+    equip.shield = 0;
+  }
+}
+
 /**
  * Calculates armor movement speed modifier:
  * Armor slows: movement * (100 - sum(armor.weight) / 4)% minimum ARMOR_MIN_SPEED_PERCENT,
@@ -82,7 +119,7 @@ export function armorSpeedModifier(
         const itemRow = itemsTable.byIndex(item.type);
         const row = itemRow ? armorTable.byId(itemRow.id) : undefined;
         if (row && typeof row.weight === 'number') {
-          totalWeight += row.weight;
+          totalWeight += row.weight * armorWeightMult(registry, item.material) / 1000;
         }
       }
     }
@@ -94,7 +131,7 @@ export function armorSpeedModifier(
       const itemRow = itemsTable.byIndex(item.type);
       const row = itemRow ? armorTable.byId(itemRow.id) : undefined;
       if (row && typeof row.weight === 'number') {
-        totalWeight += row.weight;
+        totalWeight += row.weight * armorWeightMult(registry, item.material) / 1000;
       }
     }
   }
@@ -383,6 +420,9 @@ export function reequipSoldier(
   const preferredWeaponClass = squad.equipment.weaponClass;
   const armorPreference = squad.equipment.armor;
 
+  // A soldier hurt before this look, in an older save, has gear its arms cannot hold.
+  dropWhatArmsCannotHold(ctx, soldierId);
+
   // 1. Weapon selection
   const currentWeaponScore = equip.weapon !== 0 && entities.alive(equip.weapon)
     ? scoreWeapon(registry, entities, equip.weapon, preferredWeaponClass, isRanged)
@@ -391,7 +431,7 @@ export function reequipSoldier(
   let bestWeaponScore = currentWeaponScore;
 
   for (const itemId of pool()) {
-    if (!isAvailableItem(entities, itemId) || neededCivilianTool(ctx, itemId)) continue;
+    if (!isAvailableItem(entities, itemId) || neededCivilianTool(ctx, itemId) || !canWieldWeapon(ctx, soldierId, itemId)) continue;
     const sc = scoreWeapon(registry, entities, itemId, preferredWeaponClass, isRanged);
     if (sc > bestWeaponScore) {
       bestWeaponScore = sc;
@@ -422,7 +462,7 @@ export function reequipSoldier(
     }
   }
 
-  if (isTwoHanded) {
+  if (isTwoHanded || !canWield(ctx, soldierId, 2)) {
     if (equip.shield !== 0 && entities.alive(equip.shield)) {
       dropItemAtBarracks(ctx, equip.shield, squad.barracksZoneId, soldierId);
       equip.shield = 0;

@@ -1,6 +1,8 @@
 # T-460 — Combat rules the spec states and the code does not follow
 
-**Source:** the summaries of 2026-11-01 ([combat](../../reports/summaries/combat.md), [materials](../../reports/summaries/materials-and-metals.md)) · **Size:** M · **Needs:** T-457 · **Status:** open
+**Closed:** 2026-11-01, in 44d0462.
+
+**Source:** the summaries of 2026-11-01 ([combat](../../../reports/summaries/combat.md), [materials](../../../reports/summaries/materials-and-metals.md)) · **Size:** M · **Needs:** T-457 · **Status:** open
 
 ## Why
 

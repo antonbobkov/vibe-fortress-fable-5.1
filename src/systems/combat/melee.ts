@@ -235,6 +235,11 @@ export function shieldOf(entities: EntityStore, id: EntityId): EntityId {
   return 0;
 }
 
+/** The chance in 100 that a held shield stops a hit, blow or missile (`weapons-and-armor.md` § Shields). */
+export function blockChance(isBuckler: boolean, shieldSkill: number): number {
+  return isBuckler ? Math.min(30, 5 + shieldSkill * 2) : Math.min(40, 10 + shieldSkill * 2);
+}
+
 export function shieldIsBuckler(registry: Registry, entities: EntityStore, shieldId: EntityId): boolean {
   if (shieldId === 0 || !entities.alive(shieldId)) return false;
   const item = entities.get(shieldId, C.Item);
@@ -504,8 +509,7 @@ export function resolveMelee(
     if (defShield !== 0) {
       const isBuckler = shieldIsBuckler(registry, entities, defShield);
       const shieldSkill = getSkill(entities, registry, defenderId, 'shield');
-      const blockChance = isBuckler ? Math.min(30, 5 + shieldSkill * 2) : Math.min(40, 10 + shieldSkill * 2);
-      if (rng.int(0, 99) < blockChance) {
+      if (rng.int(0, 99) < blockChance(isBuckler, shieldSkill)) {
         ctx.emit({
           type: 'AttackResolved',
           attackerId,

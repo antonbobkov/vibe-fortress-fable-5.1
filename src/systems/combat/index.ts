@@ -50,7 +50,7 @@ import type { JobsReader } from '@systems/jobs/reader';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
 import { kitingTile } from './kiting';
-import { clearDestroyedEquipment, reequipAllSquads, reequipSquad } from './equipment';
+import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
 
 export type { CombatReader, SquadWithId } from './reader';
@@ -92,6 +92,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     'DayPassed',
     'ItemCreated',
     'ItemDestroyed',
+    'LimbLost',
     'ZoneChanged',
   ];
 
@@ -407,6 +408,16 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'ItemDestroyed') {
       clearDestroyedEquipment(ctx.world.entities, event['id'] as EntityId);
+      return;
+    }
+    if (event.type === 'LimbLost') {
+      const id = event['id'] as EntityId;
+      if (ctx.world.entities.alive(id)) {
+        dropWhatArmsCannotHold(ctx, id);
+        const squadId = ctx.world.entities.get(id, C.Soldier)?.squadId ?? 0;
+        const squad = squadId !== 0 ? ctx.world.entities.get(squadId, C.Squad) : undefined;
+        if (squad) reequipSoldier(ctx, squad, id);
+      }
       return;
     }
     if (event.type === 'ZoneChanged' && event['zoneType'] === 'barracks' && event['change'] === 'settings') {

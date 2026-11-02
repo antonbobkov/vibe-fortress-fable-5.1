@@ -123,7 +123,7 @@ Columns: `tier` for weapons and armor (0 wood and bone, 1 copper, 2 bronze, 3 ir
 | `bismuth` | bismuth | 0 | 10 | 980 | 0.30 | 0.30 | 0 | 271 | `bismuth_pink` | — | alloy input |
 | `deepsilver` | deepsilver | 5 | 250 | 600 | 1.60 | 1.60 | 0 | 2400 | `deepsilver_blue` | — | magma-safe; light: armor weight halved |
 
-Metal tier for weapon and armor purposes: `wood` and `bone` items are tier 0 with `weaponMult` 0.40 and 0.50; `obsidian` short swords are tier 0 with `weaponMult` 0.70 (edge only).
+Metal tier for weapon and armor purposes: `wood` and `bone` items are tier 0 with `weaponMult` 0.40 and 0.50.
 
 ## Fuel
 

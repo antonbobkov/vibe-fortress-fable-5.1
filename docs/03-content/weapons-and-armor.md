@@ -10,8 +10,8 @@ Columns: `skill` is the combat skill used; `type` the damage type; `damage` the 
 
 | id | name | class | skill | type | damage | size | hands | bars | mult | materials | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `dagger` | dagger | dagger | `dagger` | edge | 12 | 3 | 1 | 1 | 4 | metal, obsidian, bone (0.5) | fast: cooldown 19 at Agility 50 |
-| `short_sword` | short sword | sword | `sword` | edge | 18 | 5 | 1 | 2 | 8 | metal, obsidian | |
+| `dagger` | dagger | dagger | `dagger` | edge | 12 | 3 | 1 | 1 | 4 | metal | fast: cooldown 19 at Agility 50 |
+| `short_sword` | short sword | sword | `sword` | edge | 18 | 5 | 1 | 2 | 8 | metal | |
 | `battle_axe` | battle axe | axe | `axe` | edge | 22 | 6 | 1 | 2 | 8 | metal | the same item as the woodcutting `axe`; `axe` in items.md is this |
 | `great_axe` | great axe | axe | `axe` | edge | 30 | 9 | 2 | 3 | 12 | metal | |
 | `mace` | mace | mace | `mace` | blunt | 20 | 6 | 1 | 2 | 7 | metal (silver +30%) | |
