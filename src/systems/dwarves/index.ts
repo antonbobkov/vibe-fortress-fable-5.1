@@ -115,24 +115,30 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   /**
-   * `10` § Behavior selection: a fleeing civilian hit in melee by a wild animal that is hunting it,
-   * at least as fast as itself, is caught; from then on it fights that attacker instead of fleeing.
-   * An animal defending its ground (`defendFrom` set, `08` § Wild behavior) and a hostile of a
-   * party do not catch it.
+   * `10` § Behavior selection: a fleeing civilian hit in melee by a wild animal or a cavern monster
+   * that is hunting it, at least as fast as itself, is caught; from then on it fights that attacker
+   * instead of fleeing. An animal defending its ground (`defendFrom` set, `08` § Wild behavior) and a
+   * hostile of a party do not catch it. A soldier off duty is caught by any hit in melee, flight or
+   * no flight, and fights with the gear it carries.
    */
   private caughtFleeing(ctx: TickContext, attacker: EntityId, id: EntityId, outcome: unknown): void {
     const entities = ctx.world.entities;
     if (outcome !== 'hit' || !entities.alive(attacker) || !entities.alive(id)) return;
-    if (entities.get(id, C.Brain)?.behavior !== 'flee' || entities.get(id, C.Soldier)?.onDuty === true) return;
+    const soldier = entities.get(id, C.Soldier);
+    if (soldier?.onDuty === true) return;
+    if (soldier === undefined && entities.get(id, C.Brain)?.behavior !== 'flee') return;
     if (entities.get(id, C.Creature)?.faction !== 'fortress') return;
     const mine = entities.get(id, C.Position);
     const theirs = entities.get(attacker, C.Position);
     if (mine === undefined || theirs === undefined || mine.z !== theirs.z ||
       Math.max(Math.abs(mine.x - theirs.x), Math.abs(mine.y - theirs.y)) > 1) return;
-    if ((entities.get(attacker, C.Motion)?.speed ?? 0) < (entities.get(id, C.Motion)?.speed ?? 0)) return;
-    // A hunt, or the attack a hunt led to; a defence keeps `defendFrom` (creature-brains.md).
-    const wild = entities.get(attacker, C.Wild);
-    if (wild === undefined || !(wild.state === 'hunt' || (wild.state === 'attack' && wild.defendFrom === undefined))) return;
+    if (soldier === undefined) {
+      if ((entities.get(attacker, C.Motion)?.speed ?? 0) < (entities.get(id, C.Motion)?.speed ?? 0)) return;
+      // A hunt, or the attack a hunt led to; a defence keeps `defendFrom` (creature-brains.md).
+      const wild = entities.get(attacker, C.Wild);
+      const hunting = wild !== undefined && (wild.state === 'hunt' || (wild.state === 'attack' && wild.defendFrom === undefined));
+      if (!hunting && entities.get(attacker, C.Hostile)?.role !== 'cavern_monster') return;
+    }
     this.threatened.set(id, { hostileId: attacker, tick: ctx.tick, tile: ctx.world.map.index(theirs.x, theirs.y, theirs.z), caught: true });
     this.interruptFlags.add(id);
   }
