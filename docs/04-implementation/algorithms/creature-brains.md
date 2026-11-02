@@ -194,7 +194,7 @@ memberThink(m): P = party(m); H = Hostile[m]
                            after RETREAT_STUCK_TICKS without improvement: choose nearest reachable passable tile on any edge by own movement class, distance, then tile index
                            if at any edge: despawn (loot goes with them: ThiefEscaped per item); otherwise walk to the selected exit; return
   if blood(m) < fleeBlood(species) and P.purpose != 'restless' and faction != 'deep': flee to edge; emit HostileFled; return
-  target = nearest fortress creature within perception (archers prefer soldiers; reachability by m's own movement class); if target: combat.setTarget(m, target); return
+  target = nearest fortress creature within perception (archers prefer soldiers; reachability by m's own movement class); keep combat.targetOf(m) instead while it is still a valid choice no farther than target (an archer still trades a non-soldier for a soldier); if target: combat.setTarget(m, target); return
   if combat.targetOf(m) != 0: return        // a held target survives losing sight of it; 16 drops it
   if P.state in {engage, loiter}: if breaksDoors(m) and adjacent locked door on the way to the goal: emit DoorBreakAttempt each tick (14 counts DOOR_BREAK_TICKS); return
                                   if item within LOOT_RADIUS unattended and m carries nothing: pick up (P.loot.push); return
