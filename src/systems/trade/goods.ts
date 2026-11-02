@@ -139,7 +139,9 @@ export function generateGoods(registry: Registry, civ: Civ, renown: number, repu
   let requestRemaining = Math.floor(budget * REQUEST_SHARE / 100);
   const priorities = [...requests].sort((a, b) => b.priority - a.priority);
   for (const request of priorities) {
-    const entry = entries.find((e) => (Array.isArray(e.item) ? e.item : [e.item]).includes(request.itemType));
+    // An extra good below its reputation is not on offer, to a request either.
+    const entry = entries.find((e) => (Array.isArray(e.item) ? e.item : [e.item]).includes(request.itemType)
+      && (e.extra === undefined || reputation >= (e.extra.minReputation ?? reputation)));
     if (!entry) continue;
     let attempts = 0;
     while (requestRemaining > 0 && attempts < 20) {

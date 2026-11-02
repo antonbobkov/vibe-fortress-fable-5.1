@@ -2102,6 +2102,47 @@
     "xp": 6
   },
   {
+    "id": "make_circlet",
+    "name": "Circlet",
+    "workshop": "runeforge",
+    "skill": "runesmithing",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1,
+        "materials": [
+          "silver",
+          "gold",
+          "electrum",
+          "platinum",
+          "deepsilver"
+        ]
+      },
+      {
+        "match": "cut_gem",
+        "count": 1
+      },
+      {
+        "match": "rune_vial",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "circlet",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
     "id": "make_cloak",
     "name": "Cloak",
     "workshop": "clothier",
@@ -2756,6 +2797,37 @@
     "fuel": false,
     "quality": false,
     "xp": 4
+  },
+  {
+    "id": "make_rune_robe",
+    "name": "Runed robe",
+    "workshop": "runeforge",
+    "skill": "runesmithing",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 3,
+        "material": "sporecloth_cloth"
+      },
+      {
+        "match": "rune_vial",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rune_robe",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": false,
+    "quality": true,
+    "xp": 12
   },
   {
     "id": "make_shield_wood",

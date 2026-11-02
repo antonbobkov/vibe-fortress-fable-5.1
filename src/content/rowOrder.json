@@ -142,5 +142,149 @@
   {
     "table": "recipes",
     "id": "make_staff_amethyst"
+  },
+  {
+    "table": "armor",
+    "id": "rune_robe"
+  },
+  {
+    "table": "armor",
+    "id": "circlet"
+  },
+  {
+    "table": "items",
+    "id": "rune_robe"
+  },
+  {
+    "table": "items",
+    "id": "circlet"
+  },
+  {
+    "table": "recipes",
+    "id": "make_rune_robe"
+  },
+  {
+    "table": "recipes",
+    "id": "make_circlet"
+  },
+  {
+    "table": "enchants",
+    "id": "keen"
+  },
+  {
+    "table": "enchants",
+    "id": "ember"
+  },
+  {
+    "table": "enchants",
+    "id": "rime"
+  },
+  {
+    "table": "enchants",
+    "id": "sure"
+  },
+  {
+    "table": "enchants",
+    "id": "fearsome"
+  },
+  {
+    "table": "enchants",
+    "id": "blaze"
+  },
+  {
+    "table": "enchants",
+    "id": "sunder"
+  },
+  {
+    "table": "enchants",
+    "id": "stout"
+  },
+  {
+    "table": "enchants",
+    "id": "emberward"
+  },
+  {
+    "table": "enchants",
+    "id": "rimeward"
+  },
+  {
+    "table": "enchants",
+    "id": "adamant"
+  },
+  {
+    "table": "enchants",
+    "id": "glowing"
+  },
+  {
+    "table": "enchants",
+    "id": "ember_ammo"
+  },
+  {
+    "table": "enchants",
+    "id": "rime_ammo"
+  },
+  {
+    "table": "enchants",
+    "id": "seeking"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_keen"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_ember"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_rime"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_sure"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_fearsome"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_blaze"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_sunder"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_stout"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_emberward"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_rimeward"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_adamant"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_glowing"
+  },
+  {
+    "table": "recipes",
+    "id": "set_ammo_ember_ammo"
+  },
+  {
+    "table": "recipes",
+    "id": "set_ammo_rime_ammo"
+  },
+  {
+    "table": "recipes",
+    "id": "set_ammo_seeking"
   }
 ]

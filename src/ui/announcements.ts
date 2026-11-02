@@ -20,7 +20,7 @@ import type { AnnouncementSpec } from '@core/system';
 import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { LOG_DEDUP_TICKS, LOG_MAX_LINES } from './constants';
-import { itemName, stockpileName, buildingName, zoneName } from './messages';
+import { enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -151,10 +151,18 @@ export class AnnouncementLog {
     if (event.type === 'WorkshopBlocked' && typeof e['container'] === 'string') out['container'] = itemName(this.registry, e['container']);
     const crafter = e['crafterId'];
     if (typeof crafter === 'number') out['crafter'] = readers.entities.get(crafter, C.Creature)?.name ?? '';
+    const smith = e['smithId'];
+    if (typeof smith === 'number') out['smith'] = readers.entities.get(smith, C.Creature)?.name ?? '';
     const itemId = e['itemId'];
     if (typeof itemId === 'number') {
       const item = readers.entities.get(itemId, C.Item);
       if (item !== undefined) out['item'] = this.registry.table<NamedRow>('items').byIndex(item.type)?.name ?? '';
+      // A set stone names the whole item with its suffix: "steel axe of embers".
+      if (item !== undefined && event.type === 'StoneSet') {
+        const material = this.registry.table<NamedRow>('materials').byIndex(item.material)?.name ?? '';
+        const type = this.registry.table<NamedRow>('items').byIndex(item.type);
+        out['item'] = enchantedName(readers, itemId, materialItemName(material, { name: type?.name ?? '' }));
+      }
     }
     const tier = e['tier'];
     if (typeof tier === 'number' && this.registry.hasTable('roomTiers')) {

@@ -1,0 +1,224 @@
+[
+  {
+    "id": "adamant",
+    "slot": "armor",
+    "stone": "diamond",
+    "vials": 12,
+    "suffix": "adamant",
+    "effects": [
+      {
+        "kind": "armor",
+        "value": 4,
+        "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "blaze",
+    "slot": "weapon",
+    "stone": "ruby",
+    "vials": 10,
+    "suffix": "of blaze",
+    "effects": [
+      {
+        "kind": "extra_damage",
+        "value": 14,
+        "type": "ember",
+        "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "ember",
+    "slot": "weapon",
+    "stone": "garnet",
+    "vials": 6,
+    "suffix": "of embers",
+    "effects": [
+      {
+        "kind": "extra_damage",
+        "value": 8,
+        "type": "ember",
+        "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "ember_ammo",
+    "slot": "ammo",
+    "stone": "garnet",
+    "vials": 4,
+    "suffix": "of embers",
+    "effects": [
+      {
+        "kind": "extra_damage",
+        "value": 6,
+        "type": "ember",
+        "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "emberward",
+    "slot": "armor",
+    "stone": "garnet",
+    "vials": 6,
+    "suffix": "of embers warded",
+    "effects": [
+      {
+        "kind": "fire_percent",
+        "value": 50,
+        "scales": "none"
+      }
+    ]
+  },
+  {
+    "id": "fearsome",
+    "slot": "weapon",
+    "stone": "sapphire",
+    "vials": 8,
+    "suffix": "fearsome",
+    "effects": [
+      {
+        "kind": "flee",
+        "value": 1,
+        "chance": 25,
+        "ticks": 200,
+        "scales": "none"
+      }
+    ]
+  },
+  {
+    "id": "glowing",
+    "slot": "armor",
+    "stone": "glowstone",
+    "vials": 6,
+    "suffix": "glowing",
+    "effects": [
+      {
+        "kind": "spot_radius",
+        "value": 2,
+        "scales": "none"
+      }
+    ]
+  },
+  {
+    "id": "keen",
+    "slot": "weapon",
+    "stone": "quartz",
+    "vials": 4,
+    "suffix": "keen",
+    "effects": [
+      {
+        "kind": "damage_percent",
+        "value": 10,
+        "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "rime",
+    "slot": "weapon",
+    "stone": "amethyst",
+    "vials": 6,
+    "suffix": "of rime",
+    "effects": [
+      {
+        "kind": "slow",
+        "value": 30,
+        "ticks": 200,
+        "scales": "ticks"
+      }
+    ]
+  },
+  {
+    "id": "rime_ammo",
+    "slot": "ammo",
+    "stone": "amethyst",
+    "vials": 4,
+    "suffix": "of rime",
+    "effects": [
+      {
+        "kind": "slow",
+        "value": 30,
+        "ticks": 200,
+        "scales": "ticks"
+      }
+    ]
+  },
+  {
+    "id": "rimeward",
+    "slot": "armor",
+    "stone": "amethyst",
+    "vials": 6,
+    "suffix": "of rime warded",
+    "effects": [
+      {
+        "kind": "frost_percent",
+        "value": 50,
+        "scales": "none"
+      },
+      {
+        "kind": "slow_immune",
+        "value": 1,
+        "scales": "none"
+      }
+    ]
+  },
+  {
+    "id": "seeking",
+    "slot": "ammo",
+    "stone": "emerald",
+    "vials": 4,
+    "suffix": "seeking",
+    "effects": [
+      {
+        "kind": "to_hit",
+        "value": 10,
+        "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "stout",
+    "slot": "armor",
+    "stone": "quartz",
+    "vials": 4,
+    "suffix": "stout",
+    "effects": [
+      {
+        "kind": "armor",
+        "value": 2,
+        "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "sunder",
+    "slot": "weapon",
+    "stone": "diamond",
+    "vials": 12,
+    "suffix": "sundering",
+    "effects": [
+      {
+        "kind": "armor_percent",
+        "value": 50,
+        "scales": "none"
+      }
+    ]
+  },
+  {
+    "id": "sure",
+    "slot": "weapon",
+    "stone": "emerald",
+    "vials": 6,
+    "suffix": "sure",
+    "effects": [
+      {
+        "kind": "to_hit",
+        "value": 10,
+        "scales": "value"
+      }
+    ]
+  }
+]

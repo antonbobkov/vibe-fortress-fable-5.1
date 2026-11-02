@@ -339,6 +339,8 @@ describe('T-M1-14 announcements', () => {
       // T-469: 25 § Registrations (a mishap's line per kind, the last an alert; the first runecaster).
       Mishap: 'alert',
       FirstRunecaster: 'note',
+      // T-471: a masterwork setting.
+      StoneSet: 'note',
     });
   });
 

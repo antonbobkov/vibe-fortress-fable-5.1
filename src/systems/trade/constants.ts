@@ -47,5 +47,5 @@ export const REP_BANDIT_CAGED = 3;
 export const CARAVAN_BUNDLE_UNITS: Readonly<Record<string, number>> = {
   easy_meal: 10, fine_meal: 10, raw_meat: 10, cheese: 5, flour: 10,
   seed: 10, plant_food: 20, drink: 20, arrow: 25, brightleaf: 5,
-  bandage: 4, splint: 4, chicken: 4,
+  bandage: 4, splint: 4, chicken: 4, rune_vial: 5,
 };

@@ -374,6 +374,24 @@
         "extra": {
           "permille": 500
         }
+      },
+      {
+        "item": "rune_vial",
+        "materials": [
+          {
+            "material": "rune",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          1
+        ],
+        "weight": 0,
+        "extra": {
+          "permille": 400,
+          "minReputation": 50
+        }
       }
     ]
   },

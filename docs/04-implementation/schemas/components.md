@@ -87,7 +87,9 @@ const enum ItemFlag { Forbidden=1, Dump=2, Melt=4, Reserved=8, Owned=16, AtDepot
 interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Quality; wear: number; count: number;
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
                  rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId or eating/drinking dwarfId */; carriedBy: EntityId;
-                 stone?: Idx<MaterialDef> /* the gem set in a channel (25); absent: none */ }
+                 stone?: Idx<MaterialDef> /* the gem set in a channel (25); absent: none */;
+                 enchant?: ItemEnchant /* the stone set in a weapon, armor piece or ammunition (25); absent: none */ }
+interface ItemEnchant { id: Idx<EnchantDef>; tier: Quality /* the setting's quality roll; scales the row's numbers */ }
 interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage'|'wagon' }
 interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null; juvenile?: boolean }
 interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 'planned'|'constructing'|'built';
@@ -95,7 +97,8 @@ interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;
                      settings: Record<string, unknown>; toggled: boolean /* bridge raised, floodgate open, lever on */ }
 interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
-                      priority: Priority; materialFilter: Idx<MaterialDef> | string | null }
+                      priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
+                      targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }
 interface Workshop { orders: WorkOrder[]; currentJobId: number; suspended: boolean; assignedWorker: EntityId;
                      magmaPowered: boolean; lastBlockedReason: string | null }
 interface Zone { type: Idx<ZoneTypeDef>; tiles: TileIndex[] /* sorted */; settings: Record<string, unknown> }

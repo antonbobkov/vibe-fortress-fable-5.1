@@ -95,9 +95,31 @@ function parseOrder(op: WorkshopOperator, raw: Record<string, unknown>, recipeId
   const named = raw['memorialDwarfId'];
   if (named !== undefined && (recipeId !== 'make_memorial_slab' || typeof named !== 'number' ||
     !op.ctx.readers.of<BuildingsReader>('14').memorialEligible(named))) return null;
+  // 12 § Work orders: a transform recipe makes nothing to count, so its order is `once` only; its
+  // target type is one of input 0's alternatives.
+  const recipe = op.recipe(recipeId);
+  const transform = recipe?.transform === true;
+  if (transform && mode !== 'once') return null;
+  const target = targetTypeOf(op, raw['targetType'], transform ? recipe?.inputs[0]?.match ?? '' : null);
+  if (target === 'bad_setting') return 'bad_setting';
   return { recipe: op.recipeIndex(recipeId), remaining: remaining as number, mode, threshold: threshold as number,
     priority: priority as WorkOrder['priority'], materialFilter: filter as WorkOrder['materialFilter'],
-    ...(named === undefined ? {} : { memorialDwarfId: named as EntityId }) };
+    ...(named === undefined ? {} : { memorialDwarfId: named as EntityId }),
+    ...(target === undefined ? {} : { targetType: target }) };
+}
+
+/**
+ * An order's target type, normalised to its item index: absent or null is none; an item id or index
+ * must be one of the transform recipe's input 0 alternatives (`match`), and any other recipe takes none.
+ */
+function targetTypeOf(op: WorkshopOperator, raw: unknown, match: string | null): number | undefined | 'bad_setting' {
+  if (raw === undefined || raw === null) return undefined;
+  if (match === null) return 'bad_setting';
+  const items = op.ctx.registry.table('items');
+  const index = typeof raw === 'string' && items.has(raw) ? items.index(raw)
+    : typeof raw === 'number' && Number.isInteger(raw) && items.byIndex(raw) !== undefined ? raw : 0;
+  if (index <= 0 || !match.split('|').includes(items.idOf(index))) return 'bad_setting';
+  return index;
 }
 
 export function applyWorkerCommand(op: WorkshopOperator, cmd: Command): CommandResult {

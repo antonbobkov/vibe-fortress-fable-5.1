@@ -48,6 +48,10 @@ export interface RecipeRow {
   readonly quality: boolean;
   readonly container?: string;
   readonly xp: number;
+  /** Input 0 is kept and gains the enchantment; no outputs (`12` § Work orders, `25` § Setting stones). */
+  readonly transform?: boolean;
+  /** A transform recipe's `enchants` row. */
+  readonly enchant?: string;
 }
 
 interface BuildingRow { readonly id: string; readonly category: string; readonly tags: readonly string[]; readonly magmaVariantOf?: string; readonly workTile?: number; readonly outputTile?: number }
@@ -305,6 +309,16 @@ export class WorkshopOperator {
     const inputIndex = recipe.inputs.indexOf(input);
     const filterOrder = inputIndex === targetIndex ? order : { ...order, materialFilter: null };
     const filter = recipeInputFilter(registry, input, filterOrder);
+    // A transform recipe's kept input takes only an item with no enchantment, of the order's target
+    // type when it names one of the alternatives.
+    if (recipe.transform === true && inputIndex === 0) {
+      filter.noEnchant = true;
+      const target = order.targetType;
+      if (target !== undefined && filter.types !== undefined && filter.types.includes(target)) {
+        delete filter.types;
+        filter.type = target;
+      }
+    }
 
     if (input.sameMaterial === true) {
       const materials = registry.table<MaterialRow>('materials');
@@ -541,6 +555,10 @@ export class WorkshopOperator {
     const ws = this.workshop(id);
     const recipe = this.recipe(job.data['recipe'] as string);
     if (b === undefined || ws === undefined || recipe === undefined) return;
+    if (recipe.transform === true) {
+      this.completeTransform(job, ctx, recipe, b);
+      return;
+    }
     const isMelt = recipe.inputs.some((input) => input.flagged === 'melt');
     const melted = isMelt ? this.items.get(job.inputs[0]?.delivered[0] ?? 0) : undefined;
     const meltCost = melted === undefined ? { bars: 0, units: 1 } : this.barCost(melted.type);
@@ -599,6 +617,47 @@ export class WorkshopOperator {
       ctx.emit({ type: 'ItemCrafted', itemId, quality, crafterId: job.workerId, workshopId: id, recipeId: recipe.id });
       if (quality === 5) ctx.emit({ type: 'MasterworkCreated', itemId, crafterId: job.workerId });
     }
+    this.finishOrder(job, ctx, recipe, id, ws);
+  }
+
+  /**
+   * `25` § Setting stones: a transform recipe consumes every input but the first; the delivered items
+   * of input 0 gain the enchantment at the quality roll's tier and are left at the output tile. No
+   * `ItemCrafted`; one `StoneSet` per item.
+   */
+  private completeTransform(job: Job, ctx: TickContext, recipe: RecipeRow, b: Building): void {
+    const id = job.target.ref;
+    const ws = this.workshop(id) as Workshop;
+    if (!this.holdsInputs(job, recipe, -1, 0)) return;
+    const enchants = ctx.registry.hasTable('enchants') ? ctx.registry.table<{ id: string }>('enchants') : null;
+    const enchantId = recipe.enchant ?? '';
+    if (enchants === null || !enchants.has(enchantId)) return;
+    const itemsApi = ctx.world.services.items;
+    for (let k = 1; k < recipe.inputs.length; k += 1) {
+      let remaining = recipe.inputs[k]?.count ?? 0;
+      for (const item of job.inputs[k]?.delivered ?? []) {
+        if (remaining <= 0) break;
+        const take = Math.min(remaining, this.items.get(item)?.count ?? 0);
+        if (take > 0) itemsApi?.consume(item, take);
+        remaining -= take;
+      }
+    }
+    const skills = ctx.world.entities.get(job.workerId, C.Skills);
+    const skill = skills?.level[ctx.registry.table('skills').index(recipe.skill)] ?? 0;
+    const tier = recipe.quality ? rollQuality(skill, this.ctx.rng) : 1;
+    const outAt = this.outputTile(b);
+    const enchant = { id: enchants.index(enchantId), tier };
+    for (const itemId of job.inputs[0]?.delivered ?? []) {
+      if (this.items.get(itemId) === undefined) continue;
+      itemsApi?.setEnchant?.(itemId, enchant);
+      itemsApi?.dropAt(itemId, outAt);
+      ctx.emit({ type: 'StoneSet', itemId, enchantId, tier, smithId: job.workerId });
+    }
+    this.finishOrder(job, ctx, recipe, id, ws);
+  }
+
+  /** Experience for the work, and the order counted down (removed when a `once` order is done). */
+  private finishOrder(job: Job, ctx: TickContext, recipe: RecipeRow, id: EntityId, ws: Workshop): void {
     const attrs = ctx.world.entities.get(job.workerId, C.Attributes);
     grantXp(ctx.world.entities, ctx.registry, job.workerId, recipe.skill, jobXp(recipe.xp, attrs?.wit ?? 0), (e) => ctx.emit(e));
     const global = job.data['globalOrder'] === true;

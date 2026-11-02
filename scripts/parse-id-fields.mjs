@@ -32,6 +32,7 @@ export const DEF_TABLES = Object.freeze({
   ZoneTypeDef: 'zoneTypes',
   PlantDef: 'plants',
   SpellDef: 'spells',
+  EnchantDef: 'enchants',
 });
 
 /** Every `interface Name { … }` of the entities block, as `[name, body]`. */
@@ -116,6 +117,11 @@ export function parseIdFields(docPath = COMPONENTS_DOC) {
       const element = /^(\w+)\[\]$/.exec(f.type);
       if (element && all.has(element[1]) && !owners.has(element[1])) {
         walk(element[1], `${prefix}${f.name}[].`, rows, component);
+      }
+      // A field typed as a named record (`enchant?: ItemEnchant`) is walked with a `.` step.
+      const record = /^(\w+)$/.exec(f.type);
+      if (record && all.has(record[1]) && !owners.has(record[1])) {
+        walk(record[1], `${prefix}${f.name}.`, rows, component);
       }
     }
   }

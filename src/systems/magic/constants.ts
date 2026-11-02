@@ -26,3 +26,5 @@ export const MISHAP_BLACKOUT_TICKS = 200;
 export const MISHAP_SURGE_RADIUS = 3;
 /** A Frostbind hit slows its target by this percent. */
 export const FROSTBIND_SLOW_PERCENT = 50;
+/** A soldier's claim score for an enchanted weapon or armor piece adds this. */
+export const ENCHANT_CLAIM_BONUS = 0.5;

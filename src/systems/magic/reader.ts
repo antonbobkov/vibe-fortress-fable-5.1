@@ -3,6 +3,7 @@
 import type { ActiveEffect } from '@core/components';
 import type { EntityId } from '@core/types';
 import type { MishapRecord } from './state';
+import type { EnchantView } from './enchant';
 
 /** The spell in a channel item, with the numbers its power gives it. */
 export interface SpellView {
@@ -36,6 +37,10 @@ export interface RuneView {
   readonly metalPercent: number;
   /** The worn pieces that lower it, each by `METAL_RUNE_PENALTY_PERCENT`. */
   readonly metalPieces: readonly EntityId[];
+  /** The regen percent of the worn pieces with a `rune` property (a robe's 150; 100 with none). */
+  readonly robePercent: number;
+  /** Whole rune the worn pieces add to the maximum (a circlet's 10). */
+  readonly maxBonus: number;
   /** Whole hours to full; 0 when full, -1 when it never fills. */
   readonly hoursToFull: number;
 }
@@ -57,6 +62,8 @@ export interface MagicReader {
   canCast(id: EntityId): boolean;
   /** `magic.spellOf(itemId)`: the spell set in a channel and its numbers; undefined for anything else. */
   spellOf(itemId: EntityId): SpellView | undefined;
+  /** `magic.enchantOf(itemId)`: the item's enchantment row, its suffix and its effects at the item's tier; undefined for none. */
+  enchantOf(itemId: EntityId): EnchantView | undefined;
   /** `magic.effects(id)`: the creature's unexpired timed effects, in the order they were added. */
   effects(id: EntityId): readonly ActiveEffect[];
 }

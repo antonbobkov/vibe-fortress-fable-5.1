@@ -10,7 +10,7 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 
 - **Item type**: a row of `items.md` with a three-level category path (`food/meat/raw`), a value multiplier, stacking rules, the container class it wants in a stockpile, a rot time, tags, and a glyph.
 - **Item**: an entity with `Item { type, material, quality, wear, count, containerId, ownerId, flags }` and a `Position` when it lies on the ground. Items in a container have no `Position`; items carried have `Item.carriedBy` naming their creature, corpse or in-flight projectile, and no `Position`.
-- **Stack**: one entity with `count > 1` for stackable types (ammunition, seeds, meals, bars, blocks, coins). Stacks split when part of one is taken and merge when identical stacks meet in a stockpile slot: same type, material, quality, stone (a channel's gem, 25), flags and owner. A split keeps the stone.
+- **Stack**: one entity with `count > 1` for stackable types (ammunition, seeds, meals, bars, blocks, coins). Stacks split when part of one is taken and merge when identical stacks meet in a stockpile slot: same type, material, quality, stone (a channel's gem, 25), enchantment (25 § Setting stones: the same row at the same tier), flags and owner. A split keeps the stone and the enchantment.
 - **Container**: an item with `Container { contents, capacity }`. Classes: `barrel` (drink, liquids, food), `bag` (seeds, flour, powders), `bin` (crafts, cloth, leather, bars, ammunition), `chest` (personal items, hospital supplies), `bucket` (one unit of water or milk). A cage is not a container: it holds one creature, named by the cage item's `occupantId` (0 when it is empty).
 - **Stockpile**: a zone with a filter, container wants, a priority, and optional source links.
 - **Slot**: a stockpile tile, or a container in a stockpile tile. A tile holds one item or stack, or one container.
@@ -48,9 +48,9 @@ Stockpile filters select any node; selecting a node selects its subtree. Materia
 
 An item that does not come from the fortress (a hostile's gear, its corpse, what it drops) carries the `foreign` flag (`ItemFlag.Foreign`). The flag survives splitting, dropping and rot, and a creature whose death is still queued when the game is saved keeps the origin of what it holds. A foreign item is in no stock count and adds nothing to wealth. The flag is cleared, and the item counted, when a fortress dwarf picks it up (a container's contents with it) or when the `strip_corpse` job that recovers it completes.
 
-`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
+`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. An enchanted item (25 § Setting stones) adds `stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, from its `enchants` row; a gem stone's value is its material's. A stack of enchanted ammunition carries that in proportion to its units out of the set of 25 (`floor(enchant value × count / 25)`), so a split moves value and never makes it. A masterwork steel breastplate is 4,000; set adamant, 4,000 + 90 × 3 + 12 × 15 = 4,450. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
 
-Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress faction), `−value` on `ItemDestroyed`, `±` on quality change (none in version 1), `+` when a hostile's loot is recovered, `−` when a thief escapes, plus building values from 14 (`BuildingCompleted` adds its material value plus a per-type bonus; `BuildingRemoved` subtracts). `WealthChanged` is emitted at the items cadence when the cached value differs from the last emitted by more than `WEALTH_EVENT_STEP`.
+Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress faction), `−value` on `ItemDestroyed`, `±` on quality change (none in version 1) and on a set stone (`items.setEnchant`), `+` when a hostile's loot is recovered, `−` when a thief escapes, plus building values from 14 (`BuildingCompleted` adds its material value plus a per-type bonus; `BuildingRemoved` subtracts). `WealthChanged` is emitted at the items cadence when the cached value differs from the last emitted by more than `WEALTH_EVENT_STEP`.
 
 ### Placement and pickup
 
@@ -141,7 +141,7 @@ A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wo
 - `items.findItems(filter, count, fromTile, movementClass)` for job inputs.
 - `items.countAvailable(filter)` from `counts`.
 
-Filters: `{ type | types (any of several types) | category | tag, materialClass | materialId, minQuality, edible, drinkable, emptyContainer(class), unoccupied }`. `unoccupied` matches an item with no occupant, which is how a search asks for an empty cage; every search that takes a cage as material (the `rearm_trap` input, the build inputs of a building) sets it, and an occupied cage is never counted by `countAvailable`.
+Filters: `{ type | types (any of several types) | category | tag, materialClass | materialId, minQuality, edible, drinkable, emptyContainer(class), unoccupied, noEnchant }`. `noEnchant` matches only an item with no enchantment: 12 sets it on a transform recipe's input 0. `unoccupied` matches an item with no occupant, which is how a search asks for an empty cage; every search that takes a cage as material (the `rearm_trap` input, the build inputs of a building) sets it, and an occupied cage is never counted by `countAvailable`.
 
 ### Items and hazards
 
@@ -177,7 +177,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Item API (mutation, called by 11, 12, 10, 14, 16, 20)
 
-`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `setOccupant(itemId, creatureId)` (the creature a cage holds, 0 when released), `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation).
+`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `setEnchant(itemId, { id, tier })` (12's setting of a stone; value and wealth are re-accounted), `setOccupant(itemId, creatureId)` (the creature a cage holds, 0 when released), `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation).
 
 ### Commands
 
@@ -224,6 +224,8 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 | `FIND_RADIUS_MAX` | 48 | Tiles (*unmeasured*) |
 | `WEALTH_EVENT_STEP` | 250 | Marks (*unmeasured*) |
 | `CORPSE_ROT_DAYS` | 14 | Default; species may override (*unmeasured*) |
+| `ENCHANT_STONE_VALUE_MULT` | 3 | An enchanted item's value adds its stone's value times this (*unmeasured*) |
+| `ENCHANT_VIAL_VALUE` | 15 | An enchanted item's value adds this per rune vial of its setting (*unmeasured*) |
 
 Rot days per type, stack sizes and value multipliers are content.
 

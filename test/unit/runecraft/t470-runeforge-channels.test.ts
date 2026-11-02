@@ -149,7 +149,9 @@ describe('T-470 content: channels, spells, the runeforge', () => {
     const recipes = registry.table<RecipeDef>('recipes');
     const made = recipes.ids().filter((id) => id.startsWith('make_wand_') || id.startsWith('make_staff_'));
     expect(made).toEqual(['make_wand_garnet', 'make_staff_garnet', 'make_wand_amethyst', 'make_staff_amethyst']);
-    expect(recipes.ids().slice(-4)).toEqual(made);
+    const at = recipes.ids().indexOf('make_wand_garnet');
+    expect(recipes.ids().slice(at, at + 4)).toEqual(made);
+    expect(at).toBeGreaterThan(recipes.ids().indexOf('grind_glowstone'));
     const staff = recipes.byId('make_staff_amethyst')!;
     expect(staff).toMatchObject({ workshop: 'runeforge', skill: 'runesmithing', baseTicks: 300, fuel: false, quality: true, xp: 12, generated: true });
     expect(staff.inputs).toEqual([{ match: 'log', count: 1 }, { match: 'cut_gem', count: 1, material: 'amethyst' }, { match: 'bar', count: 1 }]);

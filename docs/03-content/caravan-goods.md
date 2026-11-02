@@ -39,6 +39,7 @@ Extra goods sit outside the draw by weight. After the budget is spent, each roll
 |---|---|---|---|---|---|
 | Glowcap seeds | `seed` ×10 in `bag` | glowcap | 2–4 bags | 700 | — |
 | Glowstone | `rough_gem` | glowstone | 1–2 | 500 | — |
+| Rune vials | `rune_vial` ×5 | rune | 1 | 400 | ≥ 50 |
 
 ## Hillfolk (summer, from year 1)
 
@@ -97,6 +98,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | `textile/cloth`, `clothing/*` | 100 | 100 | 120 |
 | `textile/leather`, `armor/*` (leather) | 100 | 110 | 60 |
 | `medical/brightleaf` | 100 | 100 | 130 |
+| `medical/vial`, `medical/draught` | 150 | 100 | 100 |
 | creatures (caged) | 120 (exotic cave beasts 200) | 100 | 150 |
 | any item with material class `wood` | 100 | 100 | 20 (and −2 reputation per item offered) |
 | `bar` deepsilver, deepsilver items | 300 | 200 | 150 |

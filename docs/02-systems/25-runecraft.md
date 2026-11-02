@@ -65,7 +65,7 @@ The loader numbers rows sorted by id (`content-pipeline.md` § Loading step 4, `
 The rule: **rows added after version 1 number after every older row.**
 
 - New table `rowOrder` in new file `03-content/row-order.md`: columns `table`, `id`. Rows named there number after all unnamed rows of their table, in the order listed. Unnamed rows keep sorted order, numbered from 1. The rows of a new table are listed too, so a later row of it cannot shift them.
-- `src/content/loader.ts` step 4 passes each table's list to `makeTable(name, rows, appended)`. `ids()`, `where()` and `rows` follow the same order, so a pick from an old list stays as it was, as long as the new row stays out of that list. `metal()` in `terrain/generate/traits.ts` picks from every weapon and armor row whose materials include `metal`; T-470 and T-471 make it skip rows with a launcher and no `ammo`, and rows with `rune`, so `old_battlefield` maps keep their arms.
+- `src/content/loader.ts` step 4 passes each table's list to `makeTable(name, rows, appended)`. `ids()`, `where()` and `rows` follow the same order, so a pick from an old list stays as it was, as long as the new row stays out of that list. `metal()` in `terrain/generate/traits.ts` picks from every weapon and armor row whose materials include `metal`; it skips rows with a launcher and no `ammo`, and rows with a `rune` property, so `old_battlefield` maps keep their arms.
 - Schema: `list({ table: nonEmptyStr, id: nonEmptyStr })`; a listed id must exist in its table after `applyGenerated`, so a generated plant material (`glowcap`) is listed in `materials` too. New `exportRowOrder` in `scripts/lib/export/`.
 - `test/fixtures/content-row-baseline.json` holds every table's ids at this commit, and is never edited. A test asserts that each keeps its index for good. A new row not in `rowOrder` fails it, and fails `content:check` (`scripts/lib/row-baseline.mjs`), with the line to add. `rowOrder` is not in the content hash, because the index order already is.
 - On load, positional arrays shorter than the table are grown with zeros: `Skills.level` and `xp` in `restoreEntities` (`app/game-save.ts`), `Labors.enabled` likewise. `combat/melee.ts` `getSkill` otherwise reads `undefined` and returns `CREATURE_BASE_SKILL`. `laborPriorities` needs no growing: `JobBoard` starts every labor at the default priority and its `deserialize` overwrites only the saved length.
@@ -91,7 +91,7 @@ Glowcap is built. Its rows are in `plants.md` (the crop, and `glowcap_patch` und
 
 A workshop needs a row in `workshops-and-recipes.md` § Workshops (the export makes its `buildings` row, category `workshop`; the `tags` column holds `rune_work`), a block in `glyphs-and-colors.md` § Workshop patterns, and for authored recipes a `RECIPE_SECTIONS` line in `scripts/lib/export/rules.mjs`. Labor comes from the recipe's skill.
 
-The runeforge is built: its row is in `workshops-and-recipes.md` (1 `anvil` + 3 `stone_block` + 1 `cut_gem`, masonry, 300 ticks, no fuel, tag `rune_work`, corners impassable like a forge), with its § Runeforge, and its skill `runesmithing` (labor `smithing`, profession Runesmith) in `skills-and-professions.md`. Its recipes so far are all generated (§ Channels), so it has no `RECIPE_SECTIONS` line; T-471's robe and circlet, which are authored, add it.
+The runeforge is built: its row is in `workshops-and-recipes.md` (1 `anvil` + 3 `stone_block` + 1 `cut_gem`, masonry, 300 ticks, no fuel, tag `rune_work`, corners impassable like a forge), with its § Runeforge, and its skill `runesmithing` (labor `smithing`, profession Runesmith) in `skills-and-professions.md`. Its authored recipes, the runed robe and the circlet, are in its table there, with the `RECIPE_SECTIONS` line `['Runeforge', 'runeforge', 'runesmithing', false, true]` in `scripts/lib/export/rules.mjs`; the wands, staffs and settings are generated (§ Channels, § Setting stones).
 
 `runecraft` and its labor `attunement` (default on, not for children) are in `skills-and-professions.md`. These skills and `runesmithing`, like `alchemy`, have `no` in the `embark` column there, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
 
@@ -110,15 +110,15 @@ One apprentice eats 2 glowcap a day, which is 2.4 lamps while attuning (one lamp
 
 ```
 level    = skill(id, 'runecraft')
-max      = level × RUNE_PER_LEVEL + circlet bonus                    // level 10: 50; level 20: 100
-regen    = level × RUNE_REGEN_PER_LEVEL × robe percent × metal percent   // per hour; level 10: 1 an hour
+max      = level × RUNE_PER_LEVEL + circlet bonus                    // level 10: 50; level 20: 100; with a circlet, +10
+regen    = level × RUNE_REGEN_PER_LEVEL × robe percent × metal percent   // per hour; level 10: 1 an hour; in a robe, 1.5
 metal percent = max(METAL_RUNE_FLOOR_PERCENT, 100 − METAL_RUNE_PENALTY_PERCENT × n)
                 // n = worn pieces of layer mail or plate whose material is class metal, except a piece with a rune property
 ```
 
-Until T-471 brings the robe and the circlet, the robe percent is 100 and the circlet bonus 0. The pieces counted are the `Equipment.armor` slots; clothing is padding and never counts.
+The robe percent and the circlet bonus come from the worn armor's `rune` property ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Armor): the runed robe's `regen ×1.5` makes the robe percent 150, the circlet's `max +10` adds 10 rune; with neither they are 100 and 0, and several multiply and add. The pieces counted are the `Equipment.armor` slots; clothing is padding and never counts, and a piece with a `rune` property never counts toward the metal penalty, so a silver circlet costs no regen. Only a soldier wears armor, so a robe and a circlet serve a runecaster in a squad (16 § Equipment).
 
-Integers: `current` is in milli-rune; `regen` truncates to milli-rune. On `HourPassed`, 25 adds `regen` to every `Rune` on a creature without `Hostile`, capped at `max`; a hostile creature's rune never comes back. A Proficient runecaster fills from 0 in 50 hours in a tunic (measured), 34 in a robe, 84 in an iron helm and mail (measured: 600 milli-rune an hour).
+Integers: `current` is in milli-rune; `regen` truncates to milli-rune. On `HourPassed`, 25 adds `regen` to every `Rune` on a creature without `Hostile`, capped at `max`; a hostile creature's rune never comes back. A Proficient runecaster fills from 0 in 50 hours in a tunic (measured), 34 in a robe (measured: 1,500 milli-rune an hour), 84 in an iron helm and mail (measured: 600 milli-rune an hour).
 
 ### The sanctum
 
@@ -157,7 +157,7 @@ A channel's row has `launcher: { range, power }` with **no `ammo`**: `ammo` is o
 
 `runeMult` is a metals column ([minerals-and-metals.md](../03-content/minerals-and-metals.md) § Metals): silver 1.3, deepsilver 1.6, steel 1.1, iron 1.0, bronze 0.9, copper 0.8, every other metal 0.7. A wooden item counts 1.0.
 
-**`Item.stone`** (`Idx<'MaterialDef'>`, optional; absent is none) names the gem on a channel. `items/api.ts` `canMerge` compares it (and `Item.enchant`, from T-471), and `split` keeps it. A channel whose stone carries no spell row casts nothing.
+**`Item.stone`** (`Idx<'MaterialDef'>`, optional; absent is none) names the gem on a channel. `items/api.ts` `canMerge` compares it (and `Item.enchant`), and `split` keeps both. A channel whose stone carries no spell row casts nothing.
 
 ```
 power(item) = launcher.power × runeMult(item.material) × QUALITY_COMBAT_MULT[item.quality]
@@ -222,7 +222,7 @@ The rune is spent at the cast, in every spell.
 
 Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. Until T-473 and T-475 land, a stone with no row makes no recipe, so no such staff can exist.
 
-Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. T-472 adds the `rimeward` check in `addEffect` for `slow`, so spells and enchantments both respect it.
+Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. T-472 adds the `slow_immune` check (a worn piece's enchantment, `rimeward`) in `addEffect` for `slow`, so spells and enchantments both respect it.
 
 When each casts (`castSupport` evaluates these for a held target, in this order; a bolt, burst or single goes by 16's ranged branch):
 
@@ -288,56 +288,32 @@ In `canCastBolt` and `castSupport`, when `current < cost`, a hostile target is h
 
 ### Setting stones
 
-**Task:** T-471.
+Built. The enchantments are rows of `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments), the settings are generated runeforge recipes ([workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Runeforge), and the runed robe and the circlet are armor rows with a `rune` property (weapons-and-armor.md § Armor), made at the runeforge.
 
-`Item.enchant { id: Idx<'EnchantDef'>, tier: Quality }`, optional. One per item, permanent. `tier` is the runesmith's quality roll, and `QUALITY_COMBAT_MULT[tier]` scales the number where the table says so.
+`Item.enchant { id: Idx<'EnchantDef'>, tier: Quality }`, optional; absent is none. One per item, permanent. `tier` is the runesmith's quality roll, and `QUALITY_COMBAT_MULT[tier]`, rounded, scales what the row's `scales` names: its `value` or its `ticks`.
 
-Recipes generated by `applyGenerated`, one per row of `enchants`, id `set_<slot>_<enchant>`:
+**Settings.** `applyGenerated` (`settingRecipes` in `content/generate.ts`) makes one recipe `set_<slot>_<enchant>` per row of `enchants`: input 0, kept, is 1 of every melee weapon type (`weapons` rows with no launcher and no `training`), 1 of every `armor` row with a layer (of the row's `only` slot when it has one) or 25 units of `bolt|arrow`, as one alternation; then the stone (a gem stone is 1 `cut_gem` of its material, another stone 1 of its item) and the row's vials in `rune_vial`. Weapon and armor 300 ticks, xp 15; ammunition 200 ticks, xp 10; quality yes, no fuel. A set of ammunition is exactly 25 units: the job search splits a larger stack.
 
-| slot | input 0, kept | stone input | vials | ticks | Q | xp |
-|---|---|---|---|---|---|---|
-| weapon | 1 of every melee weapon type (the alternatives form `a\|b\|…`, from `weapons` with no launcher and no `training`) | the row's stone | the row's | 300 | yes | 15 |
-| armor | 1 of every `armor` row with a layer, or the row's `only` slot | the row's stone | the row's | 300 | yes | 15 |
-| ammo | 25 of `bolt\|arrow` (units) | the row's stone | the row's | 200 | yes | 10 |
+`RecipeDef` has `transform: true` and `enchant` (the row it sets), and such a recipe has no outputs (content check: a transform recipe has none and names its row; every other recipe has at least one output). 12 runs it (12 § Operation, § Work orders): input 0 is not consumed; its delivered items get `enchant` through 13's `items.setEnchant(id, enchant)`, which re-accounts value as every mutation does; they are left at the output tile and released with the job; `StoneSet { itemId, enchantId, tier, smithId }` is emitted per item, and `ItemCrafted` is not. An order for it is `once` only, since there is no output to count.
 
-A gem stone is `cut_gem` with its material; another stone is its item id.
+Filters: `ItemFilter.noEnchant` (`items/search.ts` `matches`, `jobs/state.ts`), set by `WorkshopOperator.inputFilter` on a transform recipe's input 0, so an enchanted item is never set again. The order's material filter applies to input 0, since there is no first output. `WorkOrder.targetType?: Idx<'ItemTypeDef'>` narrows input 0's alternatives to one type; the orders panel offers it for a transform recipe, as it offers a material. There is no "this exact item" order: the search takes the nearest match.
 
-`RecipeDef` gains `transform: true`, and such a recipe has no outputs (the schema's minimum of 1 becomes 0 when `transform` is set). An order for one is `once` only, because `outputFilter` has nothing to count. In `WorkshopOperator.complete`: input 0 is not consumed; the delivered items of input 0 get `enchant` through new `items.setEnchant(id, enchant)`, which re-accounts value as `mutate` does; they are left at the output tile with their reservation released; `StoneSet` is emitted. `ItemCrafted` is not.
+A soldier's gear is owned and so is never a target. The runesmith sets stones in stock, and the squad's next re-equip takes the better item: `scoreWeapon` and `scoreArmorPiece` add `ENCHANT_CLAIM_BONUS` for an enchanted item (16 § Equipment). A member holding a channel claims a piece with a `rune` property for its slot first, past the squad's armor preference. Melting and `destroy` are unchanged, so an enchanted item melts to bars only and the stone is lost.
 
-Filters: `ItemFilter` gains `noEnchant: true` (`items/search.ts` `matches`, and `jobs/state.ts`), set by `recipeInputFilter` on input 0 when `transform`. `candidateTypes` needs no change, since it filters by type first. The order's material filter applies to input 0, since `inputFilter` already takes index 0 as the target when there is no first output. `WorkOrder` gains optional `targetType?: Idx<'ItemTypeDef'>`, which narrows input 0's alternatives to one type; the orders panel offers it for a transform recipe, as it offers a material. There is no "this exact item" order. The search takes the nearest match.
+**Value.** 13 § Value: `+ stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, added in `ItemCore.value`; a gem stone's value is its material's; a stack of enchanted ammunition carries its share of the set of 25. Wealth follows through `account`. A masterwork steel breastplate of adamant is 4,000 + 90 × 3 + 12 × 15 = 4,450; an iron axe of embers gains 12 × 3 + 6 × 15 = 126.
 
-A soldier's gear is owned and so is never a target. The runesmith sets stones in stock, and the squad's next re-equip takes the better item: `scoreWeapon` and `scoreArmorPiece` add `ENCHANT_CLAIM_BONUS` for an enchanted item. Melting and `destroy` are unchanged, so an enchanted item melts to bars only.
-
-**Value.** `items/value.ts`: `+ stone value × 3 + vials × 15`, added in `ItemCore.value`. A stone item's value is its material's or its item row's material value. Wealth follows through `account`. A masterwork steel breastplate of adamant is 4,000 + 90 × 3 + 12 × 15 = 4,450.
-
-**Names.** The stocks panel and look cursor read `magic.enchantOf(itemId)` and add the row's suffix: "iron battle axe of embers (fine)". `ui/messages.ts` holds the item naming helpers.
-
-**Mage armor** (`weapons-and-armor.md`, T-471). A new optional armor column `rune: { regenPercent?, maxBonus? }`. A piece with it does not count toward the metal penalty.
-
-| id | name | slot | covers | layer | armor | weight | inputs | rune | Task |
-|---|---|---|---|---|---|---|---|---|---|
-| `rune_robe` | runed robe | body | torso 100, arms 60, legs 40 | padding | 3 | 2 | 3 `cloth` (sporecloth_cloth) + 2 `rune_vial` | regen ×1.5 | T-471 |
-| `circlet` | circlet | head | head 100 | plate | 2 | 1 | 1 `bar` (silver, gold, electrum, platinum or deepsilver) + 1 `cut_gem` + 2 `rune_vial` | max +10 | T-471 |
-
-Both are runeforge recipes, quality true, 250 and 220 ticks, xp 12 and 10. `reequipSoldier`: a member with a channel claims a piece with a `rune` property for its slot first, past the squad's armor preference.
+**Names.** `magic.enchantOf(itemId)` gives the row, its suffix and its effects at the item's tier. The stocks panel, the look cursor and the `StoneSet` announcement name the item with the suffix (`enchantedName` in `ui/messages.ts`): a suffix that begins with "of" follows the name, "iron battle axe of embers (fine)"; any other goes before it, "keen iron short sword". The look cursor adds a dim line with the effects at the tier: "+9 ember on a hit."
 
 ### Enchantments in combat
 
-**Task:** T-472 (effects); rows arrive per the table. Content table `enchants` (new; in T-471).
+**Task:** T-472 (effects); the rows below arrive with T-476. Content table `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments) holds the rest: `keen`, `ember`, `rime`, `sure`, `fearsome`, `blaze`, `sunder`; `stout`, `emberward`, `rimeward`, `adamant`, `glowing`; `ember_ammo`, `rime_ammo`, `seeking`.
 
-The resolution reads rows, never ids. A row: `{ id, slot, stone, vials, suffix, effects: { kind, value, ticks?, chance?, scales }[] }`. A row's `Task` column says when its stone is available.
+The resolution reads rows, never ids. A row: `{ id, slot, stone, vials, suffix, effects: { kind, value, type?, chance?, ticks?, scales }[], only? }`; `scales` is `value`, `ticks` or `none`. `magic/enchant.ts` `effectAtTier` gives an effect's numbers at a tier, and `enchantOfItem` an item's. Until T-472 no kind is read in combat.
 
 Weapons:
 
 | stone | id | vials | suffix | effect at common tier | scales | Task |
 |---|---|---|---|---|---|---|
-| quartz | `keen` | 4 | keen | `damage_percent` +10 | yes | T-471 |
-| garnet | `ember` | 6 | of embers | `extra_damage` +8 `ember` | yes | T-471 |
-| amethyst | `rime` | 6 | of rime | `slow` 30% for 200 ticks | yes (ticks) | T-471 |
-| emerald | `sure` | 6 | sure | `to_hit` +10 | yes | T-471 |
-| sapphire | `fearsome` | 8 | fearsome | 25% `flee` for 200 ticks | no | T-471 |
-| ruby | `blaze` | 10 | of blaze | `extra_damage` +14 `ember` | yes | T-471 |
-| diamond | `sunder` | 12 | sundering | `armor_percent` 50: the target's armor counts at half | no | T-471 |
 | deepsilver bar | `deep` | 12 | of the deep | `damage_percent` +25, `vs_deep_percent` +50 | no | T-476 |
 | `hollow_ichor` | `hollowbane` | 8 | hollowbane | `vs_deep_percent` +100 | no | T-476 |
 
@@ -345,21 +321,8 @@ Armor:
 
 | stone | id | vials | suffix | effect at common tier | scales | Task |
 |---|---|---|---|---|---|---|
-| quartz | `stout` | 4 | stout | `armor` +2 on the piece | yes | T-471 |
-| garnet | `emberward` | 6 | of embers warded | `fire_percent` 50 on covered parts | no | T-471 |
-| amethyst | `rimeward` | 6 | of rime warded | `frost_percent` 50 on covered parts; wearer never slowed | no | T-471 |
-| diamond | `adamant` | 12 | adamant | `armor` +4 on the piece | yes | T-471 |
-| glowstone | `glowing` | 6 | glowing | `spot_radius` +2 | no | T-471 |
 | `wyrmscale` | `wyrmhide` | 8 | wyrmhide | `fire_percent` 0 on covered parts | no | T-476 |
 | `hollow_ichor` | `hollowsight` | 8 | of hollow sight | `spot_radius` 10; head slot only | no | T-476 |
-
-Ammunition (a set of 25):
-
-| stone | id | vials | suffix | effect | Task |
-|---|---|---|---|---|---|
-| garnet | `ember` (ammo row `ember_ammo`) | 4 | of embers | `extra_damage` +6 `ember` | T-471 |
-| amethyst | `rime` (ammo row `rime_ammo`) | 4 | of rime | `slow` 30% for 200 ticks | T-471 |
-| emerald | `seeking` | 4 | seeking | `to_hit` +10 | T-471 |
 
 Where each kind is read. All of them guard on the item having `enchant`, so an unenchanted fight does the same arithmetic and draws the same numbers.
 
@@ -371,7 +334,8 @@ Where each kind is read. All of them guard on the item having `enchant`, so an u
 | `armor` | `armorCovering`: `piece.armor + value` where the piece has it |
 | `fire_percent`, `frost_percent` | after `armorReduction`, on the damage, from the pieces covering the part. Fire is a hit whose wound type is `burn`, so it covers the wyrm's breath. Frost likewise |
 | `extra_damage` | after a hit with damage above 0: `applyEnchantOnHit` in `magic/cast.ts`, called from `resolveMelee` and `advanceSingleProjectile`. It emits a second `DamageDealt` on the same part, with its own `armorReduction` and Toughness, and no `AttackResolved` |
-| `slow` | `applyEnchantOnHit`: `addEffect`, unless the target wears `rimeward` |
+| `slow` | `applyEnchantOnHit`: `addEffect`, unless a piece the target wears has `slow_immune` |
+| `slow_immune` | `addEffect` for `slow`, from the pieces worn |
 | `flee` | `applyEnchantOnHit`: roll `chance` on stream 25, then the resist rule. Never on `deep` |
 | `spot_radius` | the same line as the draught's effect, from the head and body pieces |
 
@@ -469,15 +433,7 @@ Casting is the ordinary loop: `canCastBolt` holds for any holder of a `Rune`. Tw
 
 ### Trade and value
 
-**Task:** T-471.
-
-Extra goods are built: 20 § Caravans says how they are drawn, and `caravan-goods.md` lists them. An extra good adds no pack animal, so a caravan's party is what it would be without it. T-471 adds a row to the extra table of `caravan-goods.md`, whose `Reputation` column takes `≥ 50`.
-
-| civ | entry | item | count | permille | reputation | Task |
-|---|---|---|---|---|---|---|
-| mountainhome | Rune vials | `rune_vial` ×5 | 1 | 400 | ≥ 50 | T-471 |
-
-Preferences (`caravan-goods.md`, T-471): Mountainhome `medical/vial` and `medical/draught` 150. Wildwood's wood rule already reaches a wand. No civilization values "enchanted" separately: `preferencePercent` reads category and material, and an enchanted item's value is already higher.
+Built. The Mountainhome's extra goods (`caravan-goods.md`) include rune vials, 5 to a good, permille 400 (*unmeasured*), at reputation ≥ 50; the extra goods are drawn outside the weighted pool on stream 25 (20 § Caravans), so the ordinary goods do not change, and a request finds the row only at the reputation it needs. The Mountainhome values `medical/vial` and `medical/draught` at 150 (`caravan-goods.md` § Preferences). Wildwood's wood rule already reaches a wand. No civilization values "enchanted" separately: `preferencePercent` reads category and material, and an enchanted item's value is already higher.
 
 ### Morale
 
@@ -495,7 +451,7 @@ Every value sits inside the caps. Nothing here can take a fed, rested dwarf belo
 
 ## State
 
-Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune` (with `current` only), `Spellbound` (with `effects`), `Item.stone`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel) and `HealthState.stunnedUntil` are there.
+Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune` (with `current` only), `Spellbound` (with `effects`), `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel) and `HealthState.stunnedUntil` are there.
 
 ```ts
 interface Rune {                 // owner 25; also written by 18 for hexers
@@ -514,10 +470,10 @@ interface Summoned { summonerId: EntityId; fadesAt: Tick }   // owner 25. T-475
 
 // additions to existing components
 Item.stone?: Idx<'MaterialDef'>
-Item.enchant?: { id: Idx<'EnchantDef'>; tier: Quality }       // T-471
+Item.enchant?: { id: Idx<'EnchantDef'>; tier: Quality }
 Projectile.spell?: Idx<'SpellDef'>
 Projectile.spellPower?: number                                // the channel's power in thousandths
-WorkOrder.targetType?: Idx<'ItemTypeDef'>                     // T-471
+WorkOrder.targetType?: Idx<'ItemTypeDef'>
 Squad.equipment.draughts?: Idx<'ItemTypeDef'>[]               // T-474
 
 interface MagicState {           // system 25's serialize(); schemas/system-state.md
@@ -538,11 +494,12 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Reader
 
-- `magic.rune(id)` — current, max and regen in milli-rune, the metal percent and the pieces that lower it, and whole hours to full (0 full, −1 never); undefined without a `Rune`
+- `magic.rune(id)` — current, max and regen in milli-rune, the metal percent and the pieces that lower it, the robe percent and the circlet bonus, and whole hours to full (0 full, −1 never); undefined without a `Rune`
 - `magic.sanctums()` — sanctum zones, ascending; `magic.apprentices(zoneId)` — its living adult apprentices, ascending; `magic.sessionsToday(id)`
 - `magic.mishapPermille(zoneId, id)` — the mishap chance of this dwarf's next session there; `magic.lastMishap(zoneId)` — kind, dwarf and tick of the sanctum's last mishap, or undefined
 - `magic.canCast(id)` — the creature holds a channel whose spell its rune pays for now; `magic.spellOf(itemId)` — the spell in a channel and its numbers (cost, range, damage, type, ticks, power, suffix), or undefined
 - `magic.effects(id)` — the creature's unexpired timed effects
+- `magic.enchantOf(itemId)` — an item's enchantment: its row, suffix, tier and effects at the tier; undefined for none
 
 ### Commands
 
@@ -558,22 +515,19 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Registrations
 
-Job producer `magic` (`attune`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note).
+Job producer `magic` (`attune`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `StoneSet` (note, a masterwork setting only; 12 emits it).
 
 ## Planned interfaces
 
 | Kind | Name | Task |
 |---|---|---|
-| Reader | `magic.enchantOf(itemId)`: a text line and the row | T-471 |
 | Reader | `magic.summonsOf(id)` | T-475 |
-| Event | `StoneSet { itemId, enchantId, tier, smithId }` (12 emits it) | T-471 |
 | Event | `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` | T-473 |
 | Event | `DraughtDrunk { id, draughtId }` | T-474 |
 | Event | `SummonCalled { id, casterId }`, `SummonTurned { id }`, `SummonFaded { id }` | T-475 |
 | Event | `DeepsilverWorked { amount, tile }` (12 emits it) | T-476 |
 | Consumes | `RaidArrived`, `AmbushSprung`, `AttackResolved`, `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-474, T-476 |
 | Registration | job producer `magic`: `give_draught` | T-474 |
-| Registration | announcement `StoneSet` at masterwork (note) | T-471 |
 | Registration | announcements: `RuneSpent` (note), `SpellCast` of a firebloom that burns a fortress creature (alert) | T-473 |
 | Registration | announcements: `SummonTurned` (danger) | T-475 |
 
@@ -584,9 +538,9 @@ Other systems' documents gain their parts in the same commits: 12 (`transform`, 
 - **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (T-473, `render/compositor.ts`; palette row in the same task).
 - **Sanctum panel**: the selected sanctum's inspector in the zones panel (zone type key `[S-c]`, `ui-screens/panels.md` § Zones). The room's tier, score and missing circle; the glowcap in stock; the mishap chance in words for a new apprentice ("one session in 17"); each apprentice with level, rune and sessions left today, and its own chance; the last mishap. `[S-o]` opens the apprentice picker, which adds or removes one adult dwarf at a time through `SetSanctumApprentices`.
 - **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks". From T-473 vials and effects; from T-474 "Can take a draught again in 2 days"; from T-475 summons.
-- **Look cursor**: a channel is named with its spell's suffix, "1 iron staff of embers (fine)", then its value, and the line under it reads "Emberbolt: 24 ember, range 12. Needs a runecaster." (T-471): "steel battle axe of embers (fine). +9 ember on a hit."
+- **Look cursor**: a channel is named with its spell's suffix, "1 iron staff of embers (fine)", then its value, and the line under it reads "Emberbolt: 24 ember, range 12. Needs a runecaster." An enchanted item carries its suffix, "1 steel axe of embers (fine)", and a dim line gives its effects at its tier: "+9 ember on a hit."
 - **Squad panel** (T-474): the ordered draught checklist, with each trigger in words. A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
-- **Orders panel** (T-471): a transform recipe offers the target type and the material.
+- **Orders panel**: a transform recipe offers the target type (`set in: any`, stepped by a click) and the material, and is `once` only.
 - **Hints** (`hints` rows, T-477, each with a trigger on stock or buildings): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
 - **Legend milestones** (`milestones` rows and `legend/index.ts`): first stone set and first runecaster (T-476), first summoning answered (T-475).
 

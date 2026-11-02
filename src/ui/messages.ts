@@ -27,6 +27,8 @@ import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { ItemsReader } from '@systems/items';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import type { TradeReader } from '@systems/trade';
+import type { MagicReader } from '@systems/magic';
+import { withSuffix } from '@content/generate';
 import type { Strings } from './strings';
 import type { Binding } from './keymap';
 import { actionText, contextTitle } from './panels/help';
@@ -217,6 +219,16 @@ export function materialItemName(material: string, type: { readonly name: string
     if (m.slice(m.length - k).join(' ') === t.slice(0, k).join(' ')) return [...m.slice(0, m.length - k), typeName].join(' ');
   }
   return `${material} ${typeName}`;
+}
+
+/**
+ * An item's name with its enchantment's suffix (`25` § Setting stones): a suffix that begins with
+ * "of" follows the name ("iron axe of embers"), any other goes before it ("keen iron axe").
+ */
+export function enchantedName(readers: ReaderSet, itemId: EntityId, name: string): string {
+  if (!readers.has('25')) return name;
+  const enchant = readers.of<MagicReader>('25').enchantOf(itemId);
+  return enchant === undefined ? name : withSuffix(name, enchant.suffix);
 }
 
 /** A building input or recipe match ("block|log") as words: "block or log". */
