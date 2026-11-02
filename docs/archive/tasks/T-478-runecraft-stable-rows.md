@@ -1,8 +1,10 @@
 # T-478 — Runecraft 0: new content rows number after old rows
 
-**Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md), through T-467 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-01, in 0b6ce31a.
 
-The specification is [25 Runecraft](../02-systems/25-runecraft.md) § Row numbering. Every later runecraft task depends on this.
+**Source:** runecraft [design](../../../reports/designs/2026-11-01-runecraft-magic-system.md), through T-467 · **Size:** M · **Needs:** — · **Status:** open
+
+The specification is [25 Runecraft](../../02-systems/25-runecraft.md) § Row numbering. Every later runecraft task depends on this.
 
 ## Why
 

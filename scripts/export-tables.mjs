@@ -72,6 +72,7 @@ import {
 import { exportInstruments, exportTunes } from './lib/export/music.mjs';
 import { exportIntro } from './lib/export/intro.mjs';
 import { exportDeepIntro } from './lib/export/deep-intro.mjs';
+import { exportRowOrder } from './lib/export/row-order.mjs';
 
 const OUT_DIR = join(ROOT, 'src/content');
 
@@ -97,6 +98,7 @@ function build() {
   }
 
   return {
+    rowOrder: exportRowOrder(),
     palette: exportPalette(),
     glyphs: exportGlyphs(),
     patterns: exportPatterns(),

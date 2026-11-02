@@ -24,7 +24,7 @@ import type { Command, CommandLogEntry } from '@core/commands';
 import type { GameEvent } from '@core/events';
 import type { RngState } from '@core/rng';
 import type { Registry } from '@core/registry';
-import type { FortressState } from '@core/components';
+import type { FortressState, Labors, Skills } from '@core/components';
 import type { ArrivalResult, LocalMapSpec } from '@systems/embark';
 import type { WorldMap } from '@systems/worldgen';
 import { HeadlessGame, FLAT_TEST_SPEC } from './headless';
@@ -290,9 +290,35 @@ function restoreEntities(game: HeadlessGame, state: EntityStoreState): void {
     if (rows === undefined) continue;
     for (let k = 0; k < rows.length; k += 1) {
       const [index, value] = rows[k] as [number, unknown];
-      table.set(index, stringsToIds(type.name, value, registry));
+      table.set(index, grownToTables(type, stringsToIds(type.name, value, registry), registry));
     }
   }
+}
+
+/**
+ * `save-format.md` § Load procedure step 6: a row added since the save has no slot in the
+ * positional arrays of a component. It gets one, zero: no skill, and the labor off.
+ */
+function grownToTables(type: ComponentType<unknown>, value: unknown, registry: Registry): unknown {
+  if (type === C.Skills) {
+    const skills = value as Skills;
+    const slots = registry.table('skills').size + 1;
+    if (skills.level.length >= slots && skills.xp.length >= slots) return skills;
+    const level = new Uint8Array(slots);
+    level.set(skills.level);
+    const xp = new Uint16Array(slots);
+    xp.set(skills.xp);
+    return { ...skills, level, xp };
+  }
+  if (type === C.Labors) {
+    const labors = value as Labors;
+    const bytes = (registry.table('labors').size >> 3) + 1;
+    if (labors.enabled.length >= bytes) return labors;
+    const enabled = new Uint8Array(bytes);
+    enabled.set(labors.enabled);
+    return { ...labors, enabled };
+  }
+  return value;
 }
 
 /**

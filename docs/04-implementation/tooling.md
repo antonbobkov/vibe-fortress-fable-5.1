@@ -58,7 +58,7 @@ On every push: `lint`, `typecheck`, `content:check`, `strings:check`, `interface
 
 1. Edit the Markdown table in `docs/03-content`.
 2. Run `export-tables.mjs` (or edit the JSON by hand, keeping field names identical).
-3. Run `content:check`; fix any dangling id.
+3. Run `content:check`; fix any dangling id, and add the line it asks for in `03-content/row-order.md` for a new row.
 4. Run the scenario tests touched by the table (the runner maps table names to scenario ids).
 
 ## Debug and replay

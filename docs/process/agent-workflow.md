@@ -41,6 +41,7 @@ After a task closes, the specification alone says how the game behaves. Nobody s
 - **Spec text is plain spec text.** Write the rule as the document would have said it from the start, in that document's style and section order. No task id, no decision id, no date, no "changed from", no `Implementation note:`. History is git's job.
 - **One definition.** A constant is defined once, in the document that owns it; change it there and nowhere else. Copy constant names from the spec verbatim. Every constant lives in `src/core/constants.ts` (global) or `src/systems/<id>/constants.ts` (system), never inline. The three owners that are not system directories have `src/core/path-constants.ts` (22), `src/render/constants.ts` (23) and `src/ui/constants.ts` (24); see [tooling.md](tooling.md).
 - **Content is data.** Content ids appear in code only in tests and in the content-driven paths the spec names. A system that needs to know "is this a bed" reads the building's `sleep` tag, never the id `bed`. The tables in `docs/03-content/` are the source: `npm run content:export` writes `src/content/*.json` from them.
+- **A new content row numbers last.** Every new row, generated rows too, gets a line at the end of [`row-order.md`](../03-content/row-order.md); `content:check` fails without it and gives the line. Saves hold row numbers raw ([content-pipeline.md](../01-architecture/content-pipeline.md) § Saves and content). `test/fixtures/content-row-baseline.json` is never edited.
 - **Keep the layer rule.** ESLint enforces it. Do not add exceptions.
 - **Tests with the change.** Every task adds or extends tests in the same commit as the code ([testing-strategy.md](testing-strategy.md)). A behaviour change without a test change is not done. A documentation-only task needs no new test, but every check must still pass.
 - **Determinism always.** No `Math.random`, `Date.now` or `performance.now` in `src/core`, `src/systems` or `src/content`.
@@ -62,7 +63,7 @@ The full `npm test` runs once, on `master`, after the merge and before the push;
 |---|---|
 | `npm run lint` | ESLint over `src`, `test` and `scripts`, with the layer boundaries and the determinism bans |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run content:check` | `src/content/*.json` against schemas, id cross-references and a byte-for-byte temporary export of the source tables |
+| `npm run content:check` | `src/content/*.json` against schemas, id cross-references, the row numbering baseline and a byte-for-byte temporary export of the source tables |
 | `npm run strings:check` | every string key that is used exists, and every key that exists is used |
 | `npm run interface:check` | each system document's Interfaces section against the readers, events and commands in the code; it also fails on any line of the specification that starts with `Implementation note:` |
 | `npm run docs:check` | no relative link in `docs/`, `reports/`, `agents/` or the root `README.md` points at a file that does not exist |

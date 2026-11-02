@@ -46,6 +46,7 @@ Content is data. The Markdown tables in `03-content/` are the source of truth; t
 | `tunes` | `TuneDef` | ui (music) |
 | `intro` | `IntroDef` | ui (the intro screen) |
 | `deepIntro` | `DeepIntroDef` | ui (the intro screen) |
+| `rowOrder` | `{ table, id }` | the loader's numbering of every other table |
 
 ## Row conventions
 
@@ -68,7 +69,7 @@ Numbers in Markdown tables are written in the unit named in the column header. T
 1. Parse every JSON table.
 2. Validate each row against its schema (`schema.ts`, hand-written validators matching the type definitions). A failure reports table, row id, field and expected type, and stops the game with a visible error.
 3. Resolve references: every `Id<Table>` must exist. A dangling reference is a validation failure.
-4. Assign indices: rows are sorted by id and numbered from 1 (0 is reserved for "none" everywhere).
+4. Assign indices, numbered from 1 (0 is reserved for "none" everywhere). Rows not named in `rowOrder` ([row-order.md](../03-content/row-order.md)) come first, sorted by id; rows named there follow, in the order listed. `ids()`, `where()` and `rows` run in this order. A listed id must exist in its table after the generated rows are added, and be listed once.
 5. Build derived structures: per-class material lists, recipes by workshop, thoughts by trigger event, species by biome and season, item types by category path.
 6. Compute the content hash (a stable hash over the sorted JSON) and store it in the registry for save compatibility checks.
 7. Freeze everything.
@@ -104,11 +105,14 @@ Player-facing text uses `strings.json` and the `UI_STRINGS` defaults in `ui/stri
 
 A save records the content hash. On load with a different hash, the loader attempts a *soft match*: if every content id referenced by the save (gathered from the component id fields generated from `schemas/components.md` per `save-format.md`) exists in the current tables, the load proceeds with a warning; if any id is missing, the load fails with a list of missing ids (`checkContent(header, content, referencedIds)` returns `exact`, `soft` or `failed` with the sorted missing list). There is no content migration in version 1.
 
+Saves hold row numbers raw where the id conversion does not reach: the `map.material` grid, `Skills.level` and `xp` (positional), `Labors.enabled` (bit position), `JobsState.laborPriorities`, job input filters, zone settings and other system states. So **a row keeps its number for good**. Rows added after version 1 number after every older row: each new row, of any table, generated or authored, gets a line at the end of `rowOrder`, the rows of a new table too. A row is never removed. `test/fixtures/content-row-baseline.json` holds every table's ids in index order as they stood when this rule began; it is never edited. `content:check` and `test/unit/content-row-baseline.test.ts` fail on a row that moved, a row that is gone, and a new row not in `rowOrder`, and the message gives the line to add. `rowOrder` itself is not in the content hash: its one effect is the index order, which is.
+
 The content check exports every Markdown table into an isolated temporary directory and compares its bytes with committed JSON. Missing, unexpected or differing tables fail the check; validation and source parity must both pass. Checking never writes committed content.
 
 ## Authoring rules for content tables
 
 - One table per Markdown file; columns in the schema order; id first, name second.
+- A new row gets a line at the end of [row-order.md](../03-content/row-order.md) (§ Saves and content).
 - Every row that a system document names must exist. The consistency checks compare every backticked `snake_case` token in `02-systems/` against the union of table ids and constants.
 - Numbers are integers or decimals with at most three decimal places.
 - Glyphs are written as the character itself with its code point in a comment column when it is not printable ASCII.
