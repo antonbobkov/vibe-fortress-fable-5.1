@@ -95,6 +95,8 @@ export function exportMaterials() {
     out.push(material(row, { meltsAtC: 1600 }));
   }
 
+  for (const row of asObjects(findTable(tables, 'Rune'))) out.push(material(row, {}));
+
   // Prose rows of materials.md § Ores and metals, § Meal, drink and plant materials.
   const fuels = [
     { id: 'coal', name: 'coal', value: 5, density: 130, color: 'coal_black' },

@@ -268,6 +268,31 @@
     "xp": 12
   },
   {
+    "id": "distill_rune",
+    "name": "Distill rune",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "glowcap",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rune_vial",
+        "count": 1,
+        "material": {
+          "fixed": "rune"
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": false,
+    "xp": 6
+  },
+  {
     "id": "forge_anvil",
     "name": "Anvil",
     "workshop": "forge",
@@ -1322,6 +1347,32 @@
     "fuel": true,
     "quality": true,
     "xp": 10
+  },
+  {
+    "id": "grind_glowstone",
+    "name": "Grind glowstone",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "rough_gem",
+        "count": 1,
+        "material": "glowstone"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rune_vial",
+        "count": 4,
+        "material": {
+          "fixed": "rune"
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": false,
+    "xp": 8
   },
   {
     "id": "make_archery_target",

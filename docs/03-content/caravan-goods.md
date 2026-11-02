@@ -33,6 +33,13 @@ Merchants: dwarves. Guards: dwarves with iron axes, helms, mail shirts, shields 
 | Cloth | `cloth` | sporecloth_cloth | 2–4 | 5 | |
 | Deepsilver | `bar` | deepsilver | 1 | 1 | only at reputation ≥ 75, weight 4 |
 
+Extra goods sit outside the draw by weight. After the budget is spent, each rolls once with its permille and adds one good on top of the budget, on the runecraft stream. They add no pack animal. A request can still name one. The permilles are *unmeasured*.
+
+| Entry | Item | Material pool | Count | Permille | Reputation |
+|---|---|---|---|---|---|
+| Glowcap seeds | `seed` ×10 in `bag` | glowcap | 2–4 bags | 700 | — |
+| Glowstone | `rough_gem` | glowstone | 1–2 | 500 | — |
+
 ## Hillfolk (summer, from year 1)
 
 Merchants: humans. Guards: humans with iron spears, caps, leather jerkins, bucklers. Pack animals: mules.

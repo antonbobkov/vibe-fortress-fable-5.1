@@ -13,6 +13,8 @@ export interface GoodsEntry {
   count: [number, number];
   weight: number;
   rare?: boolean;
+  /** Drawn outside the weighted pool, past the budget, on system 25's stream. */
+  extra?: { permille: number; minReputation?: number };
 }
 interface CivGoods { civ: Civ; entries: GoodsEntry[] }
 interface ItemRow { id: string; mult: number; quality: boolean; tags?: string[] }
@@ -23,6 +25,8 @@ export interface PlannedGood {
   type: number; material: number; count: number; value: number; species?: number;
   container?: number;
   companion?: { type: number; material: number; count: number };
+  /** An `extra` good: it comes on top of the budget and adds no pack animal. */
+  extra?: true;
 }
 
 export function caravanBudget(renown: number, reputation: number): number {
@@ -123,8 +127,12 @@ function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng
   return { type, material, count, value, ...(container ? { container } : {}), ...(companion ? { companion } : {}) };
 }
 
-/** Requests spend their separate share first; ordinary weighted draws spend the remainder. */
-export function generateGoods(registry: Registry, civ: Civ, renown: number, reputation: number, requests: readonly TradeRequest[], rng: RngStream): PlannedGood[] {
+/**
+ * Requests spend their separate share first; ordinary weighted draws spend the remainder. Each
+ * `extra` entry then rolls once on `extraRng` and adds one good past the budget, so the budget and
+ * the ordinary draws are what they would be without it.
+ */
+export function generateGoods(registry: Registry, civ: Civ, renown: number, reputation: number, requests: readonly TradeRequest[], rng: RngStream, extraRng: RngStream): PlannedGood[] {
   const entries = eligibleGoodsEntries(registry, civ, reputation);
   const result: PlannedGood[] = [];
   const budget = caravanBudget(renown, reputation);
@@ -146,16 +154,21 @@ export function generateGoods(registry: Registry, civ: Civ, renown: number, repu
   let remaining = budget - result.reduce((sum, good) => sum + good.value, 0);
   // A `rare` flag on a base row denotes the extra variant in its W3 prose. The base
   // entry remains in the draw pool; the deepsilver row itself is rare (D-184).
-  const pool = entries;
-  if (pool.length === 0) return result;
+  const pool = entries.filter((e) => e.extra === undefined);
   let misses = 0;
-  while (remaining > 0 && misses < 20) {
+  while (pool.length > 0 && remaining > 0 && misses < 20) {
     const entry = rng.weighted(pool.map((e): readonly [GoodsEntry, number] => [e, e.weight]));
     const good = drawGood(registry, entry, reputation, rng);
     if (!good || good.value <= 0 || good.value > remaining * 1.2) { misses += 1; continue; }
     result.push(good);
     remaining -= good.value;
     misses = 0;
+  }
+  for (const entry of entries) {
+    if (entry.extra === undefined || reputation < (entry.extra.minReputation ?? reputation)) continue;
+    if (!extraRng.chance(entry.extra.permille)) continue;
+    const good = drawGood(registry, entry, reputation, extraRng);
+    if (good) result.push({ ...good, extra: true });
   }
   return result;
 }

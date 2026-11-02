@@ -90,7 +90,8 @@ export class EmbarkSession {
       case 'SetSkill': {
         const d = this.party[cmd.dwarf];
         if (d === undefined) return { ok: false, reason: 'not_found' };
-        if (!this.registry.table('skills').has(cmd.skill)) return { ok: false, reason: 'not_found' };
+        const skills = this.registry.table<{ id: string; embark?: boolean }>('skills');
+        if (!skills.has(cmd.skill) || skills.byId(cmd.skill)?.embark === false) return { ok: false, reason: 'not_found' };
         if (!Number.isInteger(cmd.level) || cmd.level < 0 || cmd.level > EMBARK_SKILL_MAX_PER_SKILL) {
           return { ok: false, reason: 'invalid' };
         }

@@ -13,6 +13,7 @@ import {
   int,
   isBlank,
   plain,
+  ticked,
   readTables,
   words,
 } from '../md-tables.mjs';
@@ -65,6 +66,7 @@ function itemRow(row) {
   if (CRAFT_ITEMS.has(iid)) tags.push('craft');
   if (BLOCK_ITEMS.has(iid)) tags.push('block');
   if (FUEL_ITEMS.has(iid)) tags.push('fuel');
+  tags.push(...ticked(row.tags ?? ''));
   const notes = plain(row.notes ?? '');
   const capacityCell = row.capacity ?? '';
   let capacity = isBlank(capacityCell) ? undefined : int(capacityCell);

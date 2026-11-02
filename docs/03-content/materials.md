@@ -133,6 +133,12 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 - `flour` — class `plant`, value 2 (from barley or cavewheat at the farmer's workshop).
 - Each plant species is a material of class `plant` with the value in [plants.md](plants.md).
 
+## Rune
+
+| id | name | class | value | color |
+|---|---|---|---|---|
+| `rune` | rune | liquid | 15 | `rune_cyan` |
+
 ## Generated per species
 
 For every species with `butcherable: true` in [creatures.md](creatures.md), the loader creates:

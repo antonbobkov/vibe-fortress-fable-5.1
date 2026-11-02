@@ -62,7 +62,7 @@ interface SpeciesDef extends RowBase {
 
 interface PlantDef extends RowBase {
   kind: 'tree'|'fungus_tree'|'shrub'|'crop'|'cave_crop';
-  stageDays?: number; seasons?: Season[]; light: 'sun'|'dark'|'any'; minC: number; maxC: number;
+  stageDays?: number; seasons?: Season[]; light: 'sun'|'dark'|'any'|'glow'; rarePermille?: [number, number, number]; minC: number; maxC: number;
   yield?: [number, number]; yieldItem?: Id<ItemTypeDef>; yieldMaterial?: Id<MaterialDef>; value: number;
   edible: boolean; cookable: boolean; brew?: Id<MaterialDef>; secondary?: { item: Id<ItemTypeDef>; material?: Id<MaterialDef>; count: number };
   regrowDays?: number; wildSeedPermille?: Permille; seedOf?: Id<PlantDef>;
@@ -70,7 +70,7 @@ interface PlantDef extends RowBase {
   biomes?: { biome: Id<BiomeDef> | 'riverbank'; weight: number }[]; caverns?: { tier: 1|2|3; weight: number }[];
 }
 
-interface SkillDef extends RowBase { labor: Id<LaborDef> | null; profession: string | null; military: string | null; attributes: (keyof Attributes)[] }
+interface SkillDef extends RowBase { labor: Id<LaborDef> | null; profession: string | null; military: string | null; attributes: (keyof Attributes)[]; embark?: boolean }
 interface LaborDef extends RowBase { defaultOn: boolean; children: boolean }
 interface JobTypeDef extends RowBase {
   labor: Id<LaborDef> | 'recipe' | 'category'; skill: Id<SkillDef> | null; target: 'tile'|'entity'|'building'|'zone'|'pair';
@@ -141,7 +141,7 @@ interface GearTierDef { tier: number; metal: Id<MetalDef> | null; kits: Record<s
 interface CavernSpawnDef { tier: 1|2|3; species: Id<SpeciesDef>; initial: string; cap: number; respawnPermille: Permille }
 interface DeepThresholdDef { level: number; pressure: number; emergence: { species: Id<SpeciesDef>; count: number }[]; text: string }
 interface CaravanGoodsDef { civ: Civ; entries: { item: Id<ItemTypeDef> | Id<ItemTypeDef>[] | Id<SpeciesDef>[]; materials: { material: Id<MaterialDef>; weight: number }[];
-  count: [number, number]; weight: number; container?: Id<ItemTypeDef>; rare?: boolean; rareAdds?: Id<ItemTypeDef>[] }[] }
+  count: [number, number]; weight: number; container?: Id<ItemTypeDef>; rare?: boolean; rareAdds?: Id<ItemTypeDef>[]; extra?: { permille: number; minReputation?: number } }[] }
 interface PreferenceDef { civ: Civ; key: string; percent: number; reputationPenalty?: number }
 interface HintDef { id: string; trigger: string; text: string }
 interface TutorialStepDef { id: string; check: string; highlight: string; text: string }

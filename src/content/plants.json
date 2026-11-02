@@ -391,6 +391,52 @@
     "fg": "frost_blue"
   },
   {
+    "id": "glowcap",
+    "name": "glowcap",
+    "kind": "cave_crop",
+    "stageDays": 6,
+    "light": "glow",
+    "minC": 2,
+    "maxC": 40,
+    "yield": [
+      2,
+      3
+    ],
+    "yieldItem": "glowcap",
+    "value": 6,
+    "edible": false,
+    "cookable": false,
+    "glyph": "♠",
+    "fg": "rune_cyan"
+  },
+  {
+    "id": "glowcap_patch",
+    "name": "glowcap patch",
+    "kind": "shrub",
+    "light": "dark",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "glowcap",
+    "yieldMaterial": "glowcap",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 30,
+    "wildSeedPermille": 400,
+    "seedOf": "glowcap",
+    "rarePermille": [
+      100,
+      130,
+      250
+    ],
+    "glyph": "♠",
+    "fg": "rune_cyan"
+  },
+  {
     "id": "hops",
     "name": "hops",
     "kind": "crop",

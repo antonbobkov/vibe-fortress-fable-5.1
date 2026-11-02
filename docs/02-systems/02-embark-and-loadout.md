@@ -23,7 +23,7 @@ For each of `EMBARK_DWARF_COUNT` dwarves, from the `embark.party` rng stream:
 - Name: given name and hall-name from the names table; sex random; age uniform in `EMBARK_AGE_MIN..EMBARK_AGE_MAX` years.
 - Attributes: each of the seven rolled as `ATTRIBUTE_BASELINE + sum of three rolls in −8..8` (a bell shape from 26 to 74), then clamped.
 - Personality: three distinct traits from the personality table, weighted by their frequency.
-- Skills: all zero. The player distributes `EMBARK_SKILL_POINTS_PER_DWARF` points, at most `EMBARK_SKILL_MAX_PER_SKILL` in any skill. Unspent points are lost; the screen warns.
+- Skills: all zero. The player distributes `EMBARK_SKILL_POINTS_PER_DWARF` points, at most `EMBARK_SKILL_MAX_PER_SKILL` in any skill. Unspent points are lost; the screen warns. A skill with `embark: no` in `skills-and-professions.md` is not offered, and `SetSkill` refuses it with `not_found`.
 - A dwarf can be re-rolled (new name, attributes, personality; skills kept) for `EMBARK_REROLL_COST` marks.
 - Names are editable.
 

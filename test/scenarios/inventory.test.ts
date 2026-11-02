@@ -61,6 +61,7 @@ const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', 
     train_animal: { test: 'test/unit/animals/taming.test.ts', reason: 'A trainer completes the commanded dog training job at a kennel.' },
   },
   buildings: {
+    alchemist: { test: 'test/unit/runecraft/t468-glowcap-laboratory.test.ts', reason: 'A built laboratory turns two glowcap into a rune vial through a work order and a dwarf; recipe-smoke runs both recipes.' },
     archery_target: { test: 'test/unit/combat/squads.test.ts', reason: 'A built target is used by a ranged soldier during stepped barracks training.' },
     bowyer: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built bowyer completes each authored recipe through work orders and jobs.' },
     chain_post: { test: 'test/unit/defense/defense.test.ts', reason: 'A chained animal guards and detects through the actual defense tick.' },

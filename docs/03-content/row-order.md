@@ -8,3 +8,17 @@ Every new row of every table goes at the end of this table, including generated 
 
 | table | id |
 |---|---|
+| palette | rune_cyan |
+| labors | alchemy |
+| skills | alchemy |
+| plants | glowcap |
+| plants | glowcap_patch |
+| materials | rune |
+| materials | glowcap |
+| materials | glowcap_patch |
+| items | glowcap |
+| items | rune_vial |
+| patterns | alchemist |
+| buildings | alchemist |
+| recipes | distill_rune |
+| recipes | grind_glowstone |

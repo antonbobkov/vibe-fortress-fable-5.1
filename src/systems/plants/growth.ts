@@ -20,6 +20,8 @@ import type { PlantRow } from './facts';
 export interface GrowthConditions {
   readonly season: number;
   readonly lit: boolean;
+  /** The tile lies under a glowstone lamp (`buildings.lampCoveredAt`). */
+  readonly lamped: boolean;
   readonly tempC: number;
   /** `weather.growthModifier()`; ignored by cave crops. */
   readonly growthModifier: number;
@@ -32,10 +34,11 @@ export function seasonAllows(row: PlantRow, cave: boolean, season: number): bool
   return seasons === undefined || seasons.includes(season);
 }
 
-/** "`sun` needs the `lit` flag; `dark` needs it clear; `any` ignores it." */
-export function lightOk(row: PlantRow, lit: boolean): boolean {
+/** "`sun` needs crop light; `dark` needs it clear; `glow` needs it clear under a lamp; `any` ignores both." */
+export function lightOk(row: PlantRow, lit: boolean, lamped: boolean): boolean {
   if (row.light === 'sun') return lit;
   if (row.light === 'dark') return !lit;
+  if (row.light === 'glow') return !lit && lamped;
   return true;
 }
 
@@ -47,7 +50,7 @@ export function tempOk(row: PlantRow, tempC: number): boolean {
 /** The growth units a crop gains this hour, 0 when any condition blocks it. */
 export function growthPerHour(row: PlantRow, cave: boolean, c: GrowthConditions): number {
   if (!seasonAllows(row, cave, c.season)) return 0;
-  if (!lightOk(row, c.lit)) return 0;
+  if (!lightOk(row, c.lit, c.lamped)) return 0;
   if (!tempOk(row, c.tempC)) return 0;
   const modifier = cave ? 100 : c.growthModifier;
   return Math.floor((BASE_GROWTH * modifier) / 100);

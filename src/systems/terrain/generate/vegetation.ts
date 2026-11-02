@@ -18,6 +18,7 @@ interface PlantRow {
   readonly kind: string;
   readonly biomes?: readonly { readonly biome: string; readonly weight: number }[];
   readonly caverns?: readonly { readonly tier: number; readonly weight: number }[];
+  readonly rarePermille?: readonly [number, number, number];
 }
 
 interface BiomeRow {
@@ -122,6 +123,28 @@ export function stageVegetation(g: LocalGen): void {
       }
       // `07` § Grass ("cavern `cave_loam` floors start with `grass`") is already done by stage 6:
       // every cave loam floor is laid with the flag (see `caverns.ts`).
+    }
+  }
+}
+
+/**
+ * `03-content/plants.md` § Rare cave patches: each rare species takes over its permille of the cave
+ * shrubs already placed, tier by tier, on its own stream, so the main stream draws the same numbers.
+ */
+export function stageRarePatches(g: LocalGen): void {
+  const plants = g.registry.table<PlantRow>('plants');
+  const rare = plants.ids().map((id) => plants.byId(id) as PlantRow).filter((p) => p.rarePermille !== undefined);
+  if (rare.length === 0) return;
+  const st = stageStream(g.s, 'terrain.rare_patches');
+  const map = g.map;
+  for (let tier = 1; tier <= 3; tier += 1) {
+    for (const i of g.cavernFloors[tier] ?? []) {
+      if (map.kindAt(i) !== TileKind.Shrub) continue;
+      for (const p of rare) {
+        if (!st.chance(p.rarePermille?.[tier - 1] ?? 0)) continue;
+        map.material[i] = materialIndex(g, p.id);
+        break;
+      }
     }
   }
 }

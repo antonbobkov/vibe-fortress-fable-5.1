@@ -39,7 +39,7 @@ export interface PlantRow {
   readonly stageDays?: number;
   /** Seasons a surface crop grows in; absent means every season. */
   readonly seasons?: readonly number[];
-  readonly light: 'sun' | 'dark' | 'any';
+  readonly light: 'sun' | 'dark' | 'any' | 'glow';
   readonly minC: number;
   readonly maxC: number;
   readonly yield?: readonly [number, number];
@@ -54,6 +54,8 @@ export interface PlantRow {
   readonly seedOf?: string;
   readonly biomes?: readonly PlantBiomeWeight[];
   readonly caverns?: readonly PlantCavernWeight[];
+  /** Permille of cave shrubs a rare patch takes over, by cavern tier. */
+  readonly rarePermille?: readonly [number, number, number];
   readonly glyph: string;
   readonly fg: string;
 }

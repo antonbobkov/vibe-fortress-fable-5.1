@@ -40,7 +40,7 @@ function row(id: string): PlantRow {
   return r;
 }
 
-const ok = { season: 0, lit: true, tempC: 20, growthModifier: 100 };
+const ok = { season: 0, lit: true, lamped: false, tempC: 20, growthModifier: 100 };
 
 describe('T-M4-01 plants: tuning constants', () => {
   it('every row of 07 § Tuning constants is in src/systems/plants/constants.ts', () => {
@@ -66,7 +66,7 @@ describe('T-M4-01 plants: the species table', () => {
   it('the surface and cave crops of 07 § Species table are the farmed species', () => {
     const farmed = facts.farmedPlants().map((p) => (facts.row(p) as PlantRow).id);
     expect(farmed).toEqual(
-      ['barley', 'cabbage', 'cavewheat', 'dimcap', 'flax', 'hops', 'pale_bell', 'pumpkin', 'sporecloth', 'strawberry', 'sweetroot', 'turnip'].sort(),
+      ['barley', 'cabbage', 'cavewheat', 'dimcap', 'flax', 'hops', 'pale_bell', 'pumpkin', 'sporecloth', 'strawberry', 'sweetroot', 'turnip'].sort().concat('glowcap'),
     );
   });
 });
@@ -84,7 +84,7 @@ describe('T-M4-01 plants: growth per hour', () => {
     expect(seasonAllows(barley, false, 0)).toBe(true);
     expect(seasonAllows(barley, false, 2)).toBe(false);
     expect(growthPerHour(barley, false, { ...ok, season: 3 })).toBe(0);
-    expect(lightOk(barley, false)).toBe(false);
+    expect(lightOk(barley, false, false)).toBe(false);
     expect(growthPerHour(barley, false, { ...ok, lit: false })).toBe(0);
     expect(tempOk(barley, 2)).toBe(false);
     expect(tempOk(barley, 31)).toBe(false);

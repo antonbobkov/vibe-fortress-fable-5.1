@@ -105,7 +105,8 @@ describe('U-06 labor manager: rows and heads (M5)', () => {
     screen.draw(s);
     expect(screen.cursorCol).toBe(laborIds.length - 1);
     expect(screen.firstCol).toBeGreaterThan(0);
-    expect(s.lines()[1]).toContain('Woodcutting');
+    // The last column is the last labor in table order: rows added later number after the rest.
+    expect(s.lines()[1]).toContain(registry.table<{ id: string; name: string }>('labors').byId(laborIds.at(-1) as string)?.name as string);
   });
 });
 

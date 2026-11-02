@@ -1,5 +1,17 @@
 [
   {
+    "id": "alchemy",
+    "name": "Alchemy",
+    "labor": "alchemy",
+    "profession": "Alchemist",
+    "military": null,
+    "attributes": [
+      "wit",
+      "agi"
+    ],
+    "embark": false
+  },
+  {
     "id": "animal_care",
     "name": "Animal care",
     "labor": "animal_care",

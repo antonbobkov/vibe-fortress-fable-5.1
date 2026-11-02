@@ -25,7 +25,7 @@ describe('T-M7-01 caravan schedule and cargo', () => {
   });
 
   it('spends the request share before weighted cargo', () => {
-    const goods = generateGoods(registry, 'mountainhome', 0, 0, [{ itemType: 'bar', material: 'iron', priority: 3 }], new RngStream(14));
+    const goods = generateGoods(registry, 'mountainhome', 0, 0, [{ itemType: 'bar', material: 'iron', priority: 3 }], new RngStream(14), new RngStream(15));
     const bars = goods.filter((good) => registry.table('items').idOf(good.type) === 'bar' && registry.table('materials').idOf(good.material) === 'iron');
     expect(bars.length).toBeGreaterThan(0);
     expect(goods[0]).toEqual(bars[0]);
@@ -60,7 +60,7 @@ describe('T-M7-01 caravan schedule and cargo', () => {
   });
 
   it('D-186: caged livestock spends its authored species value from the request share', () => {
-    const goods = generateGoods(registry, 'hillfolk', 0, 0, [{ itemType: 'cow', priority: 3 }], new RngStream(12));
+    const goods = generateGoods(registry, 'hillfolk', 0, 0, [{ itemType: 'cow', priority: 3 }], new RngStream(12), new RngStream(13));
     expect(goods[0]?.species).toBe(registry.table('creatures').index('cow'));
     expect(goods[0]?.type).toBe(registry.table('items').index('cage'));
     expect(goods[0]?.value).toBeGreaterThan(0);

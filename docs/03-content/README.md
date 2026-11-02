@@ -13,7 +13,7 @@ This folder holds every table of game content. Systems refer to content only by 
 | [items.md](items.md) | Every item type: category path, value multiplier, stack, container, rot, glyph |
 | [weapons-and-armor.md](weapons-and-armor.md) | Weapons, launchers, ammunition, armor with coverage and layers, the damage-type table, worked examples |
 | [creatures.md](creatures.md) | Body plans; every species with size, speed, temperament, products, attacks, spawn rules, gear |
-| [plants.md](plants.md) | Crops, cave crops, wild shrubs, trees, brewing, growth arithmetic |
+| [plants.md](plants.md) | Crops, cave crops, wild shrubs, rare cave patches, trees, brewing, growth arithmetic |
 | [skills-and-professions.md](skills-and-professions.md) | Skill ladder, labors, every skill with its profession and attributes |
 | [jobs.md](jobs.md) | Every job type with labor, skill, target, work tile, time, tool, xp |
 | [buildings-and-furniture.md](buildings-and-furniture.md) | Constructions, furniture, mechanisms, traps, special buildings, zone types, room tier examples |

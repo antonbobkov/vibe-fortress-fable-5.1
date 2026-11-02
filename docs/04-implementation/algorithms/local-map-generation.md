@@ -90,6 +90,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
     else if st.fixed() < biome.shrubDensity: kind=Shrub, material = pick(shrub species)
     else flags |= Grass
   cavern floors (cave_loam): fungus trees with density 0.12 by cavern weights; cavern shrubs 0.08
+  rare patches: rare = stream(S, 'terrain.rare_patches'); each cavern floor shrub, by tier in floor order: for each rare species, if rare.chance(its rarePermille[tier]): material = that species, next shrub
   if biome.surface.snow > 0: salt = stream(S, 'terrain.snow').u32()
     for dry surface Floor or Ramp: if noise(salt, x, y, [14, 5], [0.7, 0.3]) + 0.1 * max(0, z - base) >= 1 - snow: flags |= Snow
   // 8. traits

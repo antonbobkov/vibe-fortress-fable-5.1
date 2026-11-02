@@ -1,5 +1,42 @@
 [
   {
+    "id": "alchemist",
+    "name": "laboratory",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "table",
+        "count": 1
+      },
+      {
+        "match": "stone_block",
+        "count": 2
+      },
+      {
+        "match": "bucket",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 250,
+    "tags": [
+      "rune_work"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "alchemist",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
     "id": "archery_target",
     "name": "archery target",
     "category": "furniture",

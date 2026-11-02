@@ -337,6 +337,43 @@
         ],
         "weight": 1,
         "rare": true
+      },
+      {
+        "item": [
+          "seed",
+          "bag"
+        ],
+        "materials": [
+          {
+            "material": "glowcap",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 0,
+        "extra": {
+          "permille": 700
+        }
+      },
+      {
+        "item": "rough_gem",
+        "materials": [
+          {
+            "material": "glowstone",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 0,
+        "extra": {
+          "permille": 500
+        }
       }
     ]
   },

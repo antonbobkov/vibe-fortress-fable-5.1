@@ -875,6 +875,20 @@
     ]
   },
   {
+    "id": "glowcap",
+    "name": "glowcap",
+    "category": "medical/glowcap",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bag",
+    "rotDays": 40,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "♠",
+    "fg": "rune_cyan",
+    "quality": false
+  },
+  {
     "id": "great_axe",
     "name": "great axe",
     "category": "weapon/axe",
@@ -1405,6 +1419,23 @@
     "materials": "any",
     "glyph": "*",
     "quality": false
+  },
+  {
+    "id": "rune_vial",
+    "name": "rune vial",
+    "category": "medical/vial",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "¡",
+    "fg": "rune_cyan",
+    "quality": false,
+    "tags": [
+      "rune_fuel"
+    ]
   },
   {
     "id": "seed",

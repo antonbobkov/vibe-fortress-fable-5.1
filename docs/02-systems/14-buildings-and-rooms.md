@@ -68,7 +68,7 @@ A built construction keeps its building entity on its tile and remembers the ite
 
 ### Special buildings
 
-A lamp is a placed glowstone statue. It lights the 3×3 around it for comfort. The first lamp records each tile's original crop-light bit, overlapping lamps increment a coverage count, and removing the last lamp restores the original bit. Plants use that recorded crop light, so lamps do not make dark crops sunlit. Coverage and original bits are saved.
+A lamp is a placed glowstone statue. It lights the 3×3 around it for comfort. The first lamp records each tile's original crop-light bit, overlapping lamps increment a coverage count, and removing the last lamp restores the original bit. Plants use that recorded crop light, so lamps do not make dark crops sunlit. A `glow` crop grows on a dark tile under a lamp (07). Coverage and original bits are saved.
 
 - `hearth`: 1×1, one per fortress; inputs 3 stone blocks and 1 log; on completion emits `HearthLit` (15 gives everyone `hearth_lit`); provides `light` and warmth over the 5×5 around it (`HEARTH_HALL_SIDE`): that square is lit for the purpose of comfort, not crops (`buildings.hearthLightAt`; the map's `lit` flag and `cropLitAt` are unchanged), and 05's `temperatureAt` adds `HEARTH_WARMTH_C` to a tile in it (the 5 °C override grid is unchanged). Cannot be deconstructed while dwarves live (the command is rejected with `hearth_is_home`). If no `hearth_hall` zone exists, the 5×5 around the hearth is treated as the hearth hall for behavior and quality.
 - `trade_depot`: 3×3; inputs 3 logs or 3 blocks; must be reachable from a map edge by a 1-wide walkable path (checked when a caravan arrives, 20). One or more.
@@ -165,7 +165,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.roomDiagnostics(zoneId)` — current missing furniture requirements and sorted, unique open border tiles; a read-only query, undefined for a non-room zone
 - `buildings.wellWorking(id)` — the well has water within `WELL_DEPTH` below; `buildings.cageOccupant(id)` — the creature held in a cage building, or 0; `buildings.memorialEligible(id)` — the dead dwarf has no intact body and can be named on a memorial slab
 - `buildings.wagon()` — the wagon, or 0; `buildings.holderTile(id)` — the tile a building's container contents lie on (the wagon), or −1
-- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light
+- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp
 - `buildings.value(id)` — a building's contribution to wealth when built (material value plus the per-type bonus)
 
 ### Commands

@@ -1,1 +1,58 @@
-[]
+[
+  {
+    "table": "palette",
+    "id": "rune_cyan"
+  },
+  {
+    "table": "labors",
+    "id": "alchemy"
+  },
+  {
+    "table": "skills",
+    "id": "alchemy"
+  },
+  {
+    "table": "plants",
+    "id": "glowcap"
+  },
+  {
+    "table": "plants",
+    "id": "glowcap_patch"
+  },
+  {
+    "table": "materials",
+    "id": "rune"
+  },
+  {
+    "table": "materials",
+    "id": "glowcap"
+  },
+  {
+    "table": "materials",
+    "id": "glowcap_patch"
+  },
+  {
+    "table": "items",
+    "id": "glowcap"
+  },
+  {
+    "table": "items",
+    "id": "rune_vial"
+  },
+  {
+    "table": "patterns",
+    "id": "alchemist"
+  },
+  {
+    "table": "buildings",
+    "id": "alchemist"
+  },
+  {
+    "table": "recipes",
+    "id": "distill_rune"
+  },
+  {
+    "table": "recipes",
+    "id": "grind_glowstone"
+  }
+]

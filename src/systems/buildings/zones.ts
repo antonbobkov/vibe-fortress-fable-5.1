@@ -57,6 +57,7 @@ export interface ZoneHost {
   pathing(): PathingReader | null;
   assignRoom?(zoneId: EntityId, dwarfId: EntityId): CommandResult;
   cropLitAt?(tile: TileIndex): boolean;
+  lampCoveredAt?(tile: TileIndex): boolean;
   emit(event: GameEvent): void;
 }
 
@@ -276,7 +277,8 @@ export class ZoneStore {
     } else if (key === 'crop_per_season') {
       if (!Array.isArray(value) || value.length !== SEASONS_PER_YEAR) return reject('bad_setting');
       const crops: number[] = [];
-      const kind = plotKindOf(this.host.map, zone.tiles, (tile) => this.host.cropLitAt?.(tile) ?? this.host.map.hasFlag(tile, TileFlag.Lit));
+      const kind = plotKindOf(this.host.map, zone.tiles, (tile) => this.host.cropLitAt?.(tile) ?? this.host.map.hasFlag(tile, TileFlag.Lit),
+        (tile) => this.host.lampCoveredAt?.(tile) ?? false);
       for (const raw of value as unknown[]) {
         const choice = cropChoice(raw, this.host.registry.table<PlantRow>('plants'), kind);
         if (!choice.ok) return reject('bad_setting');

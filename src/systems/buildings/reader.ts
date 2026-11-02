@@ -98,6 +98,7 @@ export interface BuildingsReader {
     hearthLightAt(i: TileIndex): boolean;
     /** Crop light before glowstone lamps add comfort illumination. */
     cropLitAt(i: TileIndex): boolean;
+    lampCoveredAt(i: TileIndex): boolean;
   /** The living patient or walking/sleeping dwarf holding a built bed, or 0. */
   bedHolder(bedId: EntityId): EntityId;
   /** Unassigned built beds with no hold by another dwarf. */
@@ -194,6 +195,7 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     hearthHallTiles: () => rooms.hearthHallTiles(),
       hearthLightAt: (i) => rooms.hearthLightAt(i),
       cropLitAt: (i) => buildings.lampLight.get(i)?.baseLit ?? buildings.host.map.hasFlag(i, TileFlag.Lit),
+      lampCoveredAt: (i) => buildings.lampLight.has(i),
     bedHolder: (id) => rooms.bedHolder(id),
     freeBeds: (id) => rooms.freeBeds(id),
     diningSeats: () => rooms.seatsAmong(buildings.all().filter((id) => buildings.get(id)?.state === 'built')),

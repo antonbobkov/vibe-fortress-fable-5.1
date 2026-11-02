@@ -28,6 +28,7 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `mechanic` | mechanics | mechanisms from stone; assembles traps and levers (14 consumes mechanisms as build materials) |
 | `wood_furnace` | smelting | charcoal from logs |
 | `smelter` | smelting | bars from ore; alloys; melts marked metal items to bars |
+| `alchemist` | alchemy | the laboratory: rune vials from glowcap and glowstone |
 | `forge` | smithing | weapons, armor, picks, axes, anvils, chains, metal cages, bolts, metal blocks, metal furniture |
 | `kitchen` | cooking | meals (easy 2 ingredients, fine 3, lavish 4), tallow from fat |
 | `still` | brewing | drinks from brewable plants (needs an empty barrel) |
