@@ -355,23 +355,6 @@
     "announce": false
   },
   {
-    "id": "dosed_again",
-    "name": "dosed again",
-    "text": "Another draught. I am tired of draughts.",
-    "value": {
-      "formula": "−4"
-    },
-    "hours": 72,
-    "decay": "halflife",
-    "cap": 1,
-    "group": "none",
-    "trigger": {
-      "event": "DraughtDrunk",
-      "target": "calming, within CALM_REST_DAYS of the last"
-    },
-    "announce": false
-  },
-  {
     "id": "drank_ale",
     "name": "drank ale",
     "text": "Had a drink.",
@@ -463,7 +446,7 @@
     "group": "none",
     "trigger": {
       "event": "DraughtDrunk",
-      "target": "calming, not within CALM_REST_DAYS of the last"
+      "target": "of a calming draught"
     },
     "announce": false
   },

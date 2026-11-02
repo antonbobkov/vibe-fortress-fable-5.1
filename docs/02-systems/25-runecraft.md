@@ -383,7 +383,7 @@ The draught items are in [items.md](../03-content/items.md) § Medical and herbs
 | `hollowsight_draught` | draught of hollowsight | 1 `rune_vial` + 1 `hollow_ichor` | `spot_radius` 10 | `MonsterEmerged` or `DeepStirred` with Deep level ≥ 2: every soldier on duty | T-476 |
 | `wyrmblood_draught` | draught of wyrmblood | 1 `rune_vial` + 1 `wyrmscale` | `fire_immune` | `ThreatNearby` from a creature with a ranged `burn` attack | T-476 |
 
-**Effects.** A kind with a number is a timed effect (§ Effects) on the drinker, `sourceId` the drinker. `mend` emits `Mended { id, casterId }` (the medic who gave it, or 0), which 17 handles as the spell's. `ease` gives the thought `eased`, or `dosed_again` when the drinker's last calming draught is within `CALM_REST_DAYS`.
+**Effects.** A kind with a number is a timed effect (§ Effects) on the drinker, `sourceId` the drinker. `mend` emits `Mended { id, casterId }` (the medic who gave it, or 0), which 17 handles as the spell's. `ease` gives the thought `eased`. A medic gives a calming draught only once `CALM_REST_DAYS` have passed since the dwarf's last (§ `give_draught`), so a dwarf is never dosed twice within them.
 
 **Triggers.** The `trigger` column: `wounded`, a soldier on duty is hit (`AttackResolved` with outcome `hit`) while its blood is below half its maximum, or `give_draught` for a patient; `raid`, `RaidArrived` (any kind) or `AmbushSprung`, every soldier on duty; `miserable`, `give_draught` to a Miserable dwarf; `never`, the spoiled batch, never drunk.
 
@@ -391,7 +391,7 @@ The draught items are in [items.md](../03-content/items.md) § Medical and herbs
 
 **Who carries.** `Squad.equipment.draughts` (item ids, ordered, absent by default) is set through 16's `SetSquadEquipment`: distinct ids of draughts whose trigger is `wounded` or `raid` (a soldier's triggers), else `bad_setting`; an empty list clears it. `reequipSoldier` gives every member one of each listed draught by the ammunition logic, splitting a stack so that only one is taken. `kitTypes` adds tag `draught`.
 
-**Triggers are events, not scans.** 25 subscribes to `RaidArrived`, `AmbushSprung` and `AttackResolved`. For a raid it walks the squads in id order and their members on duty; for a hit, the struck soldier. Each, if its rest allows, drinks the first draught of its squad's list whose trigger fired and which it carries (`soldierDrinks` in `magic/draughts.ts`): one unit is consumed through `items.consume`, the effects land, the rests start and `DraughtDrunk { id, draughtId, calm, again }` is emitted (`calm`: the draught eases; `again`: within the calming rest). There is no drinking time. With nothing listed, no draught is drunk.
+**Triggers are events, not scans.** 25 subscribes to `RaidArrived`, `AmbushSprung` and `AttackResolved`. For a raid it walks the squads in id order and their members on duty; for a hit, the struck soldier. Each, if its rest allows, drinks the first draught of its squad's list whose trigger fired and which it carries (`soldierDrinks` in `magic/draughts.ts`): one unit is consumed through `items.consume`, the effects land, the rests start and `DraughtDrunk { id, draughtId, calm }` is emitted (`calm`: the draught eases). There is no drinking time. With nothing listed, no draught is drunk.
 
 **`give_draught`.** Job type row in [jobs.md](../03-content/jobs.md) § Magic: labor and skill `medicine`, target entity (the patient's tile is a stand tile too), baseTicks 30, priority 2, producer `magic`, key `give_draught:<patientId>`, one input of the draught's item type, `excludeWorker` the patient. Produced on each pass of the job board for an admitted patient (17's `Patient`) with a serious or grievous wound, while an available draught with trigger `wounded` is in stock (each job counts one off) and the rest allows; and once on each `DayPassed` for each Miserable dwarf (15's tier) while an available draught with trigger `miserable` is in stock and both rests allow. A job whose patient died or no longer qualifies, or whose rest no longer allows, is cancelled with `target_invalid`. At completion the patient drinks the delivered draught as above, the medic named in `Mended`; if the rest no longer allows, nothing is drunk and the draught stays where it was brought.
 
@@ -475,7 +475,7 @@ Preferences (`caravan-goods.md`, T-471): Mountainhome `medical/vial` and `medica
 
 ### Morale
 
-**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune`, `eased` and `dosed_again` are there (Work and skill; Pride and relief; Social and comfort; Loss and fear): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` goes to everyone (the event has its own announcement), `eased` and `dosed_again` match a `DraughtDrunk` with `calm` and without or with `again`, and `warded`, `mended_by_rune`, `eased` and `dosed_again` go to the dwarf the event names.
+**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune` and `eased` are there (Work and skill; Pride and relief; Social and comfort): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` goes to everyone (the event has its own announcement), `eased` matches a `DraughtDrunk` with `calm`, and `warded`, `mended_by_rune` and `eased` go to the dwarf the event names.
 
 | id | text | value | hours | decay | cap | group | trigger | Task |
 |---|---|---|---|---|---|---|---|---|
@@ -546,7 +546,7 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Events emitted
 
-`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }` (a blackout; a Daze), `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile, burned }` (every cast, from 16's loop through `cast.ts`, with `burned: false`; a bloom that caught one of the caster's own, with `burned: true`), `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` (a Mend; a draught of mending, its giver or 0), `DraughtDrunk { id, draughtId, calm, again }`, and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0; a bloom, through `resolveProjectileHit`).
+`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }` (a blackout; a Daze), `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile, burned }` (every cast, from 16's loop through `cast.ts`, with `burned: false`; a bloom that caught one of the caster's own, with `burned: true`), `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` (a Mend; a draught of mending, its giver or 0), `DraughtDrunk { id, draughtId, calm }`, and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0; a bloom, through `resolveProjectileHit`).
 
 ### Registrations
 

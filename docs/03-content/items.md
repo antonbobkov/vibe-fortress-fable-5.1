@@ -162,7 +162,7 @@ A draught holds the material `rune` of its vial, so a draught is worth 30 at com
 
 ## Draughts
 
-What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draughts). An effect with a number is a timed effect of that value on the drinker, for `DRAUGHT_TICKS` times the draught's quality multiplier; `mend` bandages and closes wounds at once, as the Mend spell does; `ease` gives the thought `eased`, or `dosed_again` within `CALM_REST_DAYS` of the drinker's last calming draught. The trigger says when it is drunk: `wounded` by a soldier on duty whose blood is below half when a hit lands, or given by a medic to a patient with a serious or grievous wound; `raid` by every soldier on duty when a raid, siege or ambush arrives; `miserable` given by a medic to a Miserable dwarf; `never` is the spoiled batch.
+What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draughts). An effect with a number is a timed effect of that value on the drinker, for `DRAUGHT_TICKS` times the draught's quality multiplier; `mend` bandages and closes wounds at once, as the Mend spell does; `ease` gives the thought `eased`. The trigger says when it is drunk: `wounded` by a soldier on duty whose blood is below half when a hit lands, or given by a medic to a patient with a serious or grievous wound; `raid` by every soldier on duty when a raid, siege or ambush arrives; `miserable` given by a medic to a Miserable dwarf; `never` is the spoiled batch.
 
 | id | effects | trigger |
 |---|---|---|

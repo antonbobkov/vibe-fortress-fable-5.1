@@ -81,14 +81,11 @@ export function drinkDraught(ctx: TickContext, drinkerId: EntityId, itemId: Enti
   const bound: Spellbound | undefined = entities.get(drinkerId, C.Spellbound);
   const effects: ActiveEffect[] = bound === undefined ? [] : bound.effects.slice();
   let calm = false;
-  let again = false;
   let mend = false;
   for (const effect of row.effects) {
     if (effect.kind === 'mend') mend = true;
-    else if (effect.kind === 'ease') {
-      calm = true;
-      again = !calmRestAllows(entities, drinkerId, ctx.tick);
-    } else effects.push({ kind: effect.kind, value: effect.value, until, sourceId: drinkerId });
+    else if (effect.kind === 'ease') calm = true;
+    else effects.push({ kind: effect.kind, value: effect.value, until, sourceId: drinkerId });
   }
   items.consume(itemId, 1);
   entities.add<Spellbound>(drinkerId, C.Spellbound, {
@@ -98,7 +95,7 @@ export function drinkDraught(ctx: TickContext, drinkerId: EntityId, itemId: Enti
     ...(calm ? { lastCalmTick: ctx.tick } : {}),
   });
   if (mend) ctx.emit({ type: 'Mended', id: drinkerId, casterId: giverId });
-  ctx.emit({ type: 'DraughtDrunk', id: drinkerId, draughtId: row.id, calm, again });
+  ctx.emit({ type: 'DraughtDrunk', id: drinkerId, draughtId: row.id, calm });
   return true;
 }
 

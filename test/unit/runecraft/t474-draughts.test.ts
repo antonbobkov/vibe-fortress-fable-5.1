@@ -27,7 +27,6 @@ import {
 import { addEffect, drinkVial } from '@systems/magic/cast';
 import { drinkDraught } from '@systems/magic/draughts';
 import type { MoraleReader } from '@systems/morale/reader';
-import { baseValue, type ThoughtDef } from '@systems/morale/thoughts';
 import { MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
 import { draughtRestLine, effectsLine } from '@ui/panels/look';
 import { Strings } from '@ui/strings';
@@ -124,8 +123,6 @@ describe('T-474 content', () => {
       .toMatchObject({ labor: 'medicine', baseTicks: 30, producer: 'magic' });
     const thoughts = registry.table<{ id: string; value: number; hours: number; decay: string }>('thoughts');
     expect(thoughts.byId('eased')).toMatchObject({ value: 8, hours: 72, decay: 'linear' });
-    expect(thoughts.byId('dosed_again')).toMatchObject({ hours: 72, decay: 'halflife' });
-    expect(baseValue(thoughts.byId('dosed_again') as unknown as ThoughtDef)).toBe(-4);
     expect([DRAUGHT_TICKS, DRAUGHT_REST_DAYS, CALM_REST_DAYS, ALCHEMY_MISHAP_PERMILLE]).toEqual([1200, 3, 7, 100]);
   });
 
@@ -262,28 +259,27 @@ describe('T-474 one draught, then rest', () => {
 });
 
 describe('T-474 calming draughts', () => {
-  it('a calming draught gives eased; a second within seven days gives dosed_again; the mood floor holds', () => {
+  it('a calming draught gives eased and starts the rests; the mood floor holds', () => {
     const w = arena('t474-calm');
     const id = w.spawnDwarf({ at: w.index(10, 10, Z) });
     const calm = (): EntityId => w.spawnItem('calm_draught', 'rune', w.index(10, 10, Z), 1, 1);
     const thoughts = (): string[] => w.readers.of<MoraleReader>('15').thoughts(id).map((t) => t.id);
     expect(drinkDraught(ctxOf(w), id, calm())).toBe(true);
     stepRested(w, TICKS_PER_HOUR);
-    expect(w.events('DraughtDrunk')).toMatchObject([{ id, draughtId: 'calm_draught', calm: true, again: false }]);
+    expect(w.events('DraughtDrunk')).toMatchObject([{ id, draughtId: 'calm_draught', calm: true }]);
     expect(thoughts()).toContain('eased');
+    expect(w.readers.of<MoraleReader>('15').mood(id)).toBeGreaterThanOrEqual(MOOD_NEEDS_MET_FLOOR);
+    const bound = w.game.world.entities.get(id, C.Spellbound)!;
+    expect(bound.lastCalmTick).toBe(bound.lastDraughtTick);
     // Within the three-day rest, nothing.
     expect(drinkDraught(ctxOf(w), id, calm())).toBe(false);
-    stepRested(w, DRAUGHT_REST_DAYS * TICKS_PER_DAY);
-    expect(drinkDraught(ctxOf(w), id, calm())).toBe(true);
-    stepRested(w, TICKS_PER_HOUR);
-    expect(w.events('DraughtDrunk')[1]).toMatchObject({ calm: true, again: true });
-    expect(thoughts()).toContain('dosed_again');
-    expect(w.readers.of<MoraleReader>('15').mood(id)).toBeGreaterThanOrEqual(MOOD_NEEDS_MET_FLOOR);
-    // Seven days after the last, a calming draught eases again.
-    stepRested(w, CALM_REST_DAYS * TICKS_PER_DAY);
-    expect(drinkDraught(ctxOf(w), id, calm())).toBe(true);
-    w.step(1);
-    expect(w.events('DraughtDrunk')[2]).toMatchObject({ calm: true, again: false });
+    // The calming rest outlasts the draught rest, and the component with it; then both are gone.
+    stepRested(w, DRAUGHT_REST_DAYS * TICKS_PER_DAY + TICKS_PER_HOUR);
+    expect(w.game.world.entities.get(id, C.Spellbound)).toMatchObject({ lastCalmTick: bound.lastCalmTick });
+    expect(w.game.world.entities.get(id, C.Spellbound)?.lastDraughtTick).toBeUndefined();
+    stepRested(w, (CALM_REST_DAYS - DRAUGHT_REST_DAYS) * TICKS_PER_DAY);
+    expect(w.game.world.entities.has(id, C.Spellbound)).toBe(false);
+    expect(registry.table('thoughts').has('dosed_again')).toBe(false);
   });
 
   it('a medic gives a calming draught to a Miserable dwarf on the day, only once the longer rest allows', () => {
@@ -304,7 +300,7 @@ describe('T-474 calming draughts', () => {
     while (w.tick < next + 2) { misery(); rest(w); w.step(1); }
     expect(w.readers.of<JobsReader>('11').byKey(`give_draught:${sad}`)).toBeDefined();
     for (let k = 0; k < 2000 && w.events('DraughtDrunk').length === 0; k += 1) { misery(); rest(w); w.step(1); }
-    expect(w.events('DraughtDrunk')).toMatchObject([{ id: sad, draughtId: 'calm_draught', calm: true, again: false }]);
+    expect(w.events('DraughtDrunk')).toMatchObject([{ id: sad, draughtId: 'calm_draught', calm: true }]);
     // Still Miserable at the next days' turns, within the seven days: none is given.
     const drank = w.tick;
     while (w.tick < drank + 5 * TICKS_PER_DAY) { misery(); rest(w); w.step(1); }

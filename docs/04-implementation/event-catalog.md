@@ -148,7 +148,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `VialDrunk` | `id` | 25 | ui (none) |
 | `Warded` | `id` | 25 | 15 |
 | `Mended` | `id, casterId` | 25 | 15, 17 |
-| `DraughtDrunk` | `id, draughtId, calm, again` | 25 | 15, ui (none) |
+| `DraughtDrunk` | `id, draughtId, calm` | 25 | 15, ui (none) |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 

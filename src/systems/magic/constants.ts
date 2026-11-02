@@ -48,7 +48,7 @@ export const MENTAL_IMMUNE_SIZE = 180;
 export const DRAUGHT_TICKS = 1200;
 /** Days after any draught before the dwarf takes another. */
 export const DRAUGHT_REST_DAYS = 3;
-/** Days after a calming draught within which another gives `dosed_again`, and before a medic gives one. */
+/** Days after a calming draught before a medic gives another. */
 export const CALM_REST_DAYS = 7;
 /** A spoilable batch spoils at this per mille, less 10 per level of the worker's skill. */
 export const ALCHEMY_MISHAP_PERMILLE = 100;

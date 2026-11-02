@@ -78,4 +78,3 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | brew_calm_draught |
 | jobTypes | give_draught |
 | thoughts | eased |
-| thoughts | dosed_again |
