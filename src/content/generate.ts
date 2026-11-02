@@ -112,6 +112,10 @@ export interface RecipeDef {
   container?: string;
   xp: number;
   generated?: boolean;
+  /** Input 0 is kept and gains the enchantment; no outputs (`12` § Work orders, `25` § Setting stones). */
+  transform?: boolean;
+  /** A transform recipe's `enchants` row. */
+  enchant?: string;
 }
 
 /** `03-content/weapons-and-armor.md` § Spells: the spell a stone sets in a channel. */
@@ -130,6 +134,88 @@ export interface SpellDef {
   ticks?: number;
   /** The channel's name suffix ("of embers"). */
   suffix: string;
+}
+
+/** One effect of an enchantment, at the common tier (`03-content/weapons-and-armor.md` § Enchantments). */
+export interface EnchantEffect {
+  kind: string;
+  value: number;
+  /** A damage type, for `extra_damage`. */
+  type?: string;
+  /** Percent, rolled per hit. */
+  chance?: number;
+  ticks?: number;
+  /** What the item's tier scales by `QUALITY_COMBAT_MULT[tier]`. */
+  scales: 'value' | 'ticks' | 'none';
+}
+
+/** `03-content/weapons-and-armor.md` § Enchantments: a stone set in a weapon, an armor piece or a set of ammunition. */
+export interface EnchantDef {
+  id: string;
+  slot: 'weapon' | 'armor' | 'ammo';
+  /** A gem material (set as a `cut_gem` of it) or an item id. */
+  stone: string;
+  vials: number;
+  /** The item's name with it: "of embers" follows the name, any other goes before it. */
+  suffix: string;
+  effects: EnchantEffect[];
+  /** An armor row of this slot only. */
+  only?: string;
+}
+
+/** The rows of `weapons` and `armor` the setting recipes read. */
+export interface WeaponGenRow { id: string; launcher?: unknown; training?: boolean }
+export interface ArmorGenRow { id: string; armorSlot: string; layer: string }
+
+/** Rune vials, the fuel of a setting. */
+const RUNE_VIAL = 'rune_vial';
+/** A set of ammunition is exactly this many units (`25` § Setting stones). */
+export const ENCHANT_AMMO_SET = 25;
+
+/** "of embers" follows a name; any other suffix goes before it (`weapons-and-armor.md` § Enchantments). */
+export function withSuffix(name: string, suffix: string): string {
+  if (suffix === '') return name;
+  return /^of\b/.test(suffix) ? `${name} ${suffix}` : `${suffix} ${name}`;
+}
+
+const SLOT_WORDS: Readonly<Record<EnchantDef['slot'], string>> = { weapon: 'weapon', armor: 'armor', ammo: 'ammunition' };
+
+/** `workshops-and-recipes.md` § Runeforge: one `set_<slot>_<enchant>` per row of `enchants`. */
+export function settingRecipes(
+  enchants: readonly EnchantDef[],
+  weapons: readonly WeaponGenRow[],
+  armor: readonly ArmorGenRow[],
+  isMaterial: (id: string) => boolean,
+): RecipeDef[] {
+  const melee = weapons.filter((w) => w.launcher === undefined && w.training !== true).map((w) => w.id);
+  const out: RecipeDef[] = [];
+  for (const e of enchants) {
+    const targets = e.slot === 'weapon' ? melee
+      : e.slot === 'armor' ? armor.filter((a) => a.layer !== 'none' && (e.only === undefined || a.armorSlot === e.only)).map((a) => a.id)
+        : ['bolt', 'arrow'];
+    if (targets.length === 0) continue;
+    const name = withSuffix(SLOT_WORDS[e.slot], e.suffix);
+    out.push({
+      id: `set_${e.slot}_${e.id}`,
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      workshop: 'runeforge',
+      skill: 'runesmithing',
+      inputs: [
+        { match: targets.join('|'), count: e.slot === 'ammo' ? ENCHANT_AMMO_SET : 1 },
+        isMaterial(e.stone) ? { match: 'cut_gem', count: 1, material: e.stone } : { match: e.stone, count: 1 },
+        { match: RUNE_VIAL, count: e.vials },
+      ],
+      outputs: [],
+      baseTicks: e.slot === 'ammo' ? 200 : 300,
+      fuel: false,
+      quality: true,
+      xp: e.slot === 'ammo' ? 10 : 15,
+      generated: true,
+      transform: true,
+      enchant: e.id,
+    });
+  }
+  return out;
 }
 
 export interface SpeciesDef extends RowBase {
@@ -340,7 +426,12 @@ export function applyGenerated(data: Record<string, unknown>): void {
   const metals = (data['metals'] ?? []) as MetalDef[];
   const recipes = (data['recipes'] ?? []) as RecipeDef[];
   const spells = (data['spells'] ?? []) as SpellDef[];
-  data['recipes'] = [...recipes, ...generatedRecipes(minerals, metals, spells)];
+  const enchants = (data['enchants'] ?? []) as EnchantDef[];
+  const weapons = (data['weapons'] ?? []) as WeaponGenRow[];
+  const armor = (data['armor'] ?? []) as ArmorGenRow[];
+  const materialIds = new Set((data['materials'] as MaterialDef[]).map((m) => m.id));
+  data['recipes'] = [...recipes, ...generatedRecipes(minerals, metals, spells),
+    ...settingRecipes(enchants, weapons, armor, (id) => materialIds.has(id))];
 
   for (const m of data['materials'] as MaterialDef[]) m.magmaSafe = m.meltsAtC > MAGMA_C;
 }

@@ -29,7 +29,7 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `wood_furnace` | smelting | charcoal from logs |
 | `smelter` | smelting | bars from ore; alloys; melts marked metal items to bars |
 | `alchemist` | alchemy | the laboratory: rune vials from glowcap and glowstone |
-| `runeforge` | smithing | wands and staffs, one recipe of each per stone that carries a spell ([25](25-runecraft.md) § Channels) |
+| `runeforge` | smithing | wands and staffs, one recipe of each per stone that carries a spell ([25](25-runecraft.md) § Channels); the runed robe and the circlet; a setting recipe per enchantment (25 § Setting stones) |
 | `forge` | smithing | weapons, armor, picks, axes, anvils, chains, metal cages, bolts, metal blocks, metal furniture |
 | `kitchen` | cooking | meals (easy 2 ingredients, fine 3, lavish 4), tallow from fat |
 | `still` | brewing | drinks from brewable plants (needs an empty barrel) |
@@ -72,6 +72,7 @@ Job execution (producer `workshops`):
 - `onStart`: nothing.
 - Work: `baseTicks` skill-scaled by 11's work rate.
 - `onComplete`: validate that every delivered input still exists, is unconsumed and is reserved to this job before consuming; a missing or foreign-held input goes back to fetching or blocks rather than producing output. Consume inputs (destroy items; the container input becomes the output's container); consume fuel if applicable; roll quality if `quality`; spawn outputs at the workshop's output tile (into the container if any), each with the stone its recipe names (`stone: { from: 'input', index }`: that delivered input's material, read before the inputs are consumed; 25 § Channels); emit `ItemCrafted { itemId, quality, crafterId, workshopId, recipeId }`; decrement the order; if `remaining == 0` and not `maintain`, remove the order and emit `WorkOrderCompleted`.
+- A **transform** recipe (`transform: true`, with the `enchants` row it sets in `enchant`) has no outputs. Its `onComplete` consumes every input but input 0, rolls quality, gives each delivered item of input 0 the enchantment at that tier through 13's `items.setEnchant`, drops it at the output tile and emits `StoneSet { itemId, enchantId, tier, smithId }` for it; the job's release then frees its reservation. It emits no `ItemCrafted` and no `MasterworkCreated`; experience and the order count down as for any recipe.
 
 Delivered inputs stay reserved to the craft job while its order stands, through a need/threat interruption, a block or a reservation timeout. Only undelivered reservations use `RESERVE_KEEP_TICKS`; completed or cancelled jobs release all remaining reservations, and removing the order cancels the job. Haulers cannot remove delivered reserved inputs.
 
@@ -82,7 +83,7 @@ Suspending a workshop cancels its current job; the order waits until it is resum
 ### Work orders
 
 ```
-WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintain, threshold (for maintain: keep at least N in stock), priority, materialFilter?: materialClass | materialId }
+WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintain, threshold (for maintain: keep at least N in stock), priority, materialFilter?: materialClass | materialId, targetType?: itemTypeIndex }
 ```
 
 - `maintain` orders are runnable when `stock(outputItemType, materialFilter) < threshold`; they never complete.
@@ -90,7 +91,8 @@ WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintai
 - Orders on the workshop are executed in list order (the player reorders). A `WorkOrder` panel lists all orders in the fortress by workshop.
 - Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; a global order goes to the first idle workshop of the type, in entity order).
 - Applying AddWorkOrder or EditWorkOrder normalises materialFilter: a known material id becomes its registry index; another string must be a material class; null means no filter. Numeric filters must be valid integer material indices. Invalid filters reject with bad_setting before changing orders or cancelling work. The same form is held by local and global orders and survives save/load. A brewing maintain order counts the selected plant's drink output for either id or index input.
-- `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`.
+- `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`, or the recipe has no outputs.
+- A transform recipe's order is `once` only, since there is no output to count: AddWorkOrder or EditWorkOrder with `maintain` rejects with `precondition_failed`. Its input 0 takes only an item with no enchantment (the filter's `noEnchant`), so an enchanted item is never set again. `targetType` (an item id, normalised to its index, or null) narrows input 0 to one of its alternatives; any other value, or a target on a recipe that is not a transform, rejects with `bad_setting`. There is no order for one exact item: the search takes the nearest match.
 
 ### Quality
 
@@ -150,7 +152,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Events emitted
 
-`ItemCrafted`, `MasterworkCreated { itemId, crafterId }`, `WorkOrderCompleted { workshopId, recipeId }`, `WorkshopBlocked { workshopId, reason[, container, input] }`, `WorkshopIdle { workshopId }`.
+`ItemCrafted`, `MasterworkCreated { itemId, crafterId }`, `StoneSet { itemId, enchantId, tier, smithId }` (a transform recipe), `WorkOrderCompleted { workshopId, recipeId }`, `WorkshopBlocked { workshopId, reason[, container, input] }`, `WorkshopIdle { workshopId }`.
 
 ### Registrations
 
@@ -164,7 +166,8 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 - An order is accepted even when no workshop can make it yet; the status line names what is missing at once (no workshop of the type, or the input a built workshop waits for), and the Jobs panel lists the orders no job serves.
 - Adding an order opens a picker: a type-ahead filter over the recipes grouped by output category with the recent ones first, the quantity (1–999), the mode `once N` / `keep ≥ N`, the material filter and, for a global order, the workshop (any of the type, or one). One order makes N items: "5 doors" is one order with `remaining` 5.
 - Opening the material picker selects the current filter, resolving an in-memory material index to its content id.
-- Material filters list relevant input material classes and their materials, falling back to output classes when inputs provide none; brewing lists brewable plants.
+- Material filters list relevant input material classes and their materials, falling back to output classes when inputs provide none; brewing lists brewable plants; a transform recipe lists the classes of input 0's alternatives.
+- A selected transform order (setting a stone) has a `set in: any` action beside its material: each click steps the target type through input 0's alternatives and back to any. Its mode cannot become `keep ≥ N` ("Setting a stone is a once order: there is nothing to keep in stock."), and the picker adds it as `once`.
 - Hints: "Smelters and forges need fuel: a wood furnace makes charcoal", "Build a forge next to magma to skip fuel".
 
 ## Tuning constants

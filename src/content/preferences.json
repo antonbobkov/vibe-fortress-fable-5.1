@@ -166,6 +166,21 @@
   },
   {
     "civ": "mountainhome",
+    "key": "medical/vial, medical/draught",
+    "percent": 150
+  },
+  {
+    "civ": "hillfolk",
+    "key": "medical/vial, medical/draught",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "medical/vial, medical/draught",
+    "percent": 100
+  },
+  {
+    "civ": "mountainhome",
     "key": "creatures (caged)",
     "percent": 120
   },

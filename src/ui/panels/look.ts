@@ -16,7 +16,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { buildingName, filterText, materialItemName, zoneName } from '../messages';
+import { buildingName, enchantedName, filterText, materialItemName, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
@@ -241,6 +241,8 @@ export function drawLookPanel(
         line(`  ${itemLine(readers, registry, id)}`);
         const spell = spellLine(readers, strings, id, true);
         if (spell !== null) line(`    ${spell}`, t.dim);
+        const enchant = enchantLine(readers, strings, id);
+        if (enchant !== null) line(`    ${enchant}`, t.dim);
       }
       for (const id of creatures) line(`  ${creatureSummary(readers, id)}`);
     }
@@ -281,6 +283,8 @@ export function drawLookPanel(
       line(itemLine(readers, registry, id));
       const spell = spellLine(readers, strings, id, true);
       if (spell !== null) line(`  ${spell}`, t.dim);
+      const enchant = enchantLine(readers, strings, id);
+      if (enchant !== null) line(`  ${enchant}`, t.dim);
     }
     return;
   }
@@ -464,6 +468,20 @@ function spellText(strings: Strings, spell: SpellView): string {
 }
 
 /**
+ * What an enchanted item does, at its tier: "+9 ember on a hit." Null for an item with no
+ * enchantment. A kind with no words is left out.
+ */
+export function enchantLine(readers: ReaderSet, strings: Strings, itemId: EntityId): string | null {
+  if (!has(readers, '25')) return null;
+  const enchant = readers.of<MagicReader>('25').enchantOf(itemId);
+  if (enchant === undefined) return null;
+  const parts = enchant.effects.map((e) => strings.has(`ui.look.enchant.${e.kind}`)
+    ? strings.get(`ui.look.enchant.${e.kind}`, { value: e.value, type: e.type, chance: e.chance, ticks: e.ticks }) : '')
+    .filter((text) => text !== '');
+  return parts.length === 0 ? null : parts.join(' ');
+}
+
+/**
  * 25's staff line under the rune line: "Channel: iron staff of embers (fine). Emberbolt: 24
  * ember, range 12." Null for a creature that holds no channel with a spell.
  */
@@ -528,7 +546,7 @@ function itemName(readers: ReaderSet, registry: Registry, id: EntityId): string 
   const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
   const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
   const suffix = has(readers, '25') ? readers.of<MagicReader>('25').spellOf(id)?.suffix : undefined;
-  const name = meal ?? materialItemName(material, { name: def?.name ?? '' });
+  const name = enchantedName(readers, id, meal ?? materialItemName(material, { name: def?.name ?? '' }));
   return `${rec.count} ${suffix === undefined ? name : `${name} ${suffix}`}`.trim();
 }
 

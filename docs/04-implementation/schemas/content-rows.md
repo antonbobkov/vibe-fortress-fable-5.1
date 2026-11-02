@@ -42,11 +42,16 @@ interface AmmoDef extends ItemTypeDef { damageType: DamageType; damage: number; 
 interface ArmorDef extends ItemTypeDef {
   armorSlot: 'head'|'body'|'arms'|'legs'|'feet'|'shield'; covers: { part: BodySlot; coverage: Percent }[];
   layer: 'padding'|'leather'|'mail'|'plate'|'none'; armor: number; weight: number; bars?: number; leather?: number; cloth?: number;
+  rune?: { regenPercent?: Percent; maxBonus?: number } /* a runed robe, a circlet (25); never counts toward the metal penalty */;
 }
 interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; mail: Fixed; plate: Fixed; ward: Fixed }
 interface SpellDef { id: string; name: string; stone: Id<MaterialDef>; kind: 'bolt'|'burst'|'single'|'ward'|'mend'|'dread'|'call';
                      cost: number /* whole rune */; range?: number /* absent: the channel's */; base?: number; type?: DamageType;
                      ticks?: number; suffix: string }
+interface EnchantDef { id: string; slot: 'weapon'|'armor'|'ammo'; stone: Id<MaterialDef> | Id<ItemTypeDef> /* a gem, set as a cut_gem of it, or an item */;
+                       vials: number; suffix: string /* "of …" follows the name, any other goes before it */;
+                       effects: { kind: string; value: number; type?: DamageType; chance?: Percent; ticks?: number; scales: 'value'|'ticks'|'none' }[] /* at least 1 */;
+                       only?: 'head'|'body'|'arms'|'legs'|'feet' }
 
 interface BodyPlanDef extends RowBase {
   parts: Record<BodySlot, { name: string; hit: number; hpFactor: Fixed; functions: ('see'|'wield'|'walk')[] }>;
@@ -99,6 +104,7 @@ interface RecipeDef extends RowBase {
   outputs: { item: Id<ItemTypeDef> | string /* item tag */; count: number; material: { from: 'input'; index: number; stage?: 'next' } | { fixed: Id<MaterialDef> } | { alloy: Id<MetalDef> } | { plantDrink: true };
              stone?: { from: 'input'; index: number } /* Item.stone from that input's material (25) */ }[];
   baseTicks: number; fuel: boolean; quality: boolean; container?: 'barrel'|'bag'; xp: number; generated?: boolean;
+  transform?: true; enchant?: Id<EnchantDef> /* a setting (25): no outputs, input 0 kept and enchanted; every other recipe has at least one output */;
 }
 
 // Validation rules:

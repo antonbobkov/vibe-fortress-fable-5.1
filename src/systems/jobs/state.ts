@@ -39,6 +39,8 @@ export interface ItemFilter {
   excludeIds?: EntityId[];
   /** Marked item flag required by a workshop input (T-M5-06). */
   requiredFlags?: number;
+  /** Only an item with no enchantment: a transform recipe's input 0 (`12` § Work orders). */
+  noEnchant?: boolean;
 }
 
 export interface JobInput {

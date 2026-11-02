@@ -4,7 +4,7 @@
  */
 
 import type { Registry } from '@core/registry';
-import { BAG_CAPACITY, BARREL_CAPACITY, BIN_CAPACITY, CHEST_CAPACITY } from './constants';
+import { BAG_CAPACITY, BARREL_CAPACITY, BIN_CAPACITY, CHEST_CAPACITY, ENCHANT_STONE_VALUE_MULT, ENCHANT_VIAL_VALUE } from './constants';
 
 export interface ItemTypeRow {
   readonly id: string;
@@ -34,6 +34,16 @@ interface MaterialRow {
   readonly value: number;
 }
 
+interface EnchantRow {
+  readonly id: string;
+  readonly slot: string;
+  readonly stone: string;
+  readonly vials: number;
+}
+
+/** A set of enchanted ammunition is this many units (`25` § Setting stones). */
+const AMMO_SET = 25;
+
 /** Container classes and their capacity when a row gives none (13 § Tuning constants). */
 const CLASS_CAPACITY: Readonly<Record<string, number>> = Object.freeze({
   barrel: BARREL_CAPACITY,
@@ -55,6 +65,8 @@ export class ItemFacts {
   readonly typeCount: number;
   private readonly materialValues: number[] = [];
   private readonly materialClasses: string[] = [];
+  /** Per `enchants` index: what the enchantment adds to the value of one unit, in whole marks. */
+  private readonly enchantUnitValues: number[] = [];
   readonly typeIndex: (id: string) => number;
   readonly materialIndex: (id: string) => number;
   readonly materialIdOf: (index: number) => string;
@@ -68,6 +80,19 @@ export class ItemFacts {
       const row = materials.byIndex(m);
       this.materialValues[m] = row?.value ?? 0;
       this.materialClasses[m] = row?.class ?? '';
+    }
+    if (registry.hasTable('enchants')) {
+      const enchants = registry.table<EnchantRow>('enchants');
+      for (let e = 1; e <= enchants.size; e += 1) {
+        const row = enchants.byIndex(e);
+        if (row === undefined) continue;
+        // A gem stone is valued as its material; an item stone as its row's material value.
+        const stone = materials.has(row.stone) ? materials.byId(row.stone)?.value ?? 0 : 0;
+        // A set of ammunition shares it out per unit, rounded to whole marks, so value is linear in the
+        // count: a split or a merge never changes wealth.
+        const value = stone * ENCHANT_STONE_VALUE_MULT + row.vials * ENCHANT_VIAL_VALUE;
+        this.enchantUnitValues[e] = Math.round(value / (row.slot === 'ammo' ? AMMO_SET : 1));
+      }
     }
     this.typeIndex = (id) => (items.has(id) ? items.index(id) : 0);
     this.materialIndex = (id) => (materials.has(id) ? materials.index(id) : 0);
@@ -86,6 +111,14 @@ export class ItemFacts {
 
   materialValue(material: number): number {
     return this.materialValues[material] ?? 0;
+  }
+
+  /**
+   * 13 § Value: what an enchantment adds to a stack of `count`, in whole marks: its per-unit share
+   * times the count. A piece's share is the whole value; a set of ammunition's is `round(value / 25)`.
+   */
+  enchantValue(enchant: number, count: number): number {
+    return (this.enchantUnitValues[enchant] ?? 0) * count;
   }
 
   materialClass(material: number): string {

@@ -671,6 +671,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     cloth: opt(int),
     mult: fixed,
     materials: materialsAllowed,
+    rune: opt(obj({ regenPercent: opt(int), maxBonus: opt(int) })),
   }),
 
   damageVsLayer: list({
@@ -693,6 +694,26 @@ export const SCHEMAS: Record<string, TableSchema> = {
     type: opt(enumOf(DAMAGE_TYPES)),
     ticks: opt(int),
     suffix: str,
+  }),
+
+  enchants: rows({
+    id: nonEmptyStr,
+    slot: enumOf(['weapon', 'armor', 'ammo']),
+    stone: ref(['materials', 'items']),
+    vials: int,
+    suffix: str,
+    effects: arr(
+      obj({
+        kind: nonEmptyStr,
+        value: int,
+        type: opt(enumOf(DAMAGE_TYPES)),
+        chance: opt(int),
+        ticks: opt(int),
+        scales: enumOf(['value', 'ticks', 'none']),
+      }),
+      1,
+    ),
+    only: opt(enumOf(['head', 'body', 'arms', 'legs', 'feet'])),
   }),
 
   bodyPlans: rows({
@@ -872,7 +893,6 @@ export const SCHEMAS: Record<string, TableSchema> = {
         ),
         stone: opt(obj({ from: enumOf(['input']), index: int })),
       }),
-      1,
     ),
     baseTicks: int,
     fuel: bool,
@@ -880,6 +900,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
     container: opt(str),
     xp: int,
     generated: opt(bool),
+    transform: opt(bool),
+    enchant: opt(ref('enchants')),
   }),
 
   biomes: rows({
@@ -1290,6 +1312,14 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
     const key = `${table}/${id}`;
     if (listed.has(key)) issues.push({ table: 'rowOrder', row: id, field: 'id', message: `listed twice for ${table}` });
     listed.add(key);
+  }
+
+  // 12 § Work orders: a transform recipe has no outputs; every other recipe has at least one.
+  for (const r of (data['recipes'] ?? []) as { id: string; outputs?: unknown[]; transform?: boolean; enchant?: string }[]) {
+    const outputs = r.outputs?.length ?? 0;
+    if ((r.transform === true) !== (r.enchant !== undefined)) issues.push({ table: 'recipes', row: r.id, field: 'enchant', message: 'a transform recipe names its enchantment, and only a transform recipe does' });
+    if (r.transform === true && outputs > 0) issues.push({ table: 'recipes', row: r.id, field: 'outputs', message: 'a transform recipe has no outputs' });
+    if (r.transform !== true && outputs === 0) issues.push({ table: 'recipes', row: r.id, field: 'outputs', message: 'expected at least 1 entries, got 0' });
   }
 
   // F-07: at least one item type carries the tag fuel.

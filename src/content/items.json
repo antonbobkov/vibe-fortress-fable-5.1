@@ -496,6 +496,25 @@
     "containerClass": "chest"
   },
   {
+    "id": "circlet",
+    "name": "circlet",
+    "category": "armor/head",
+    "mult": 10000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "metal"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "head",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
     "id": "cloak",
     "name": "cloak",
     "category": "clothing/body",
@@ -1419,6 +1438,25 @@
     "materials": "any",
     "glyph": "*",
     "quality": false
+  },
+  {
+    "id": "rune_robe",
+    "name": "runed robe",
+    "category": "armor/body",
+    "mult": 8000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "cloth"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body",
+    "tags": [
+      "armor"
+    ]
   },
   {
     "id": "rune_vial",

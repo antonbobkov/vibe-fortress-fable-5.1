@@ -24,6 +24,10 @@ export const FIND_RADIUS_MAX = 48;
 export const WEALTH_EVENT_STEP = 250;
 /** Default; species may override. */
 export const CORPSE_ROT_DAYS = 14;
+/** An enchanted item's value adds its stone's value times this. */
+export const ENCHANT_STONE_VALUE_MULT = 3;
+/** An enchanted item's value adds this for each rune vial its setting burned. */
+export const ENCHANT_VIAL_VALUE = 15;
 
 /**
  * `12-workshops-and-professions.md` § Quality, "Value multiplier" column, in permille, by quality

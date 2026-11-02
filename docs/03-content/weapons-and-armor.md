@@ -58,24 +58,28 @@ Ammunition damage: `ammo.damage × launcher.power × metalMult(ammo)`.
 
 ## Armor
 
-Columns: `slot`; `covers` lists body parts with coverage percent; `layer`; `armor` is the base armor value; `weight` for the speed penalty (`speed × (100 − Σ weight / 4)%`); `bars`/`materials`; `mult` the value multiplier.
+Columns: `slot`; `covers` lists body parts with coverage percent; `layer`; `armor` is the base armor value; `weight` for the speed penalty (`speed × (100 − Σ weight / 4)%`); `bars`/`materials`; `mult` the value multiplier; `rune` what the piece does for its wearer's rune ([25-runecraft.md](../02-systems/25-runecraft.md) § Rune of one's own): `regen ×n` multiplies the regen, `max +n` adds to the maximum. A piece with a `rune` property never counts toward the metal penalty.
 
-| id | name | slot | covers | layer | armor | weight | bars | materials | mult |
-|---|---|---|---|---|---|---|---|---|---|
-| `cap` | cap | head | head 100 | leather | 4 | 2 | 1 leather | leather | 3 |
-| `helm` | helm | head | head 100 | plate | 8 | 6 | 1 | metal | 6 |
-| `gambeson` | gambeson | body | torso 100, arms 40 | padding | 3 | 3 | 3 cloth | cloth | 4 |
-| `leather_jerkin` | leather jerkin | body | torso 100, arms 30 | leather | 5 | 4 | 3 leather | leather | 6 |
-| `mail_shirt` | mail shirt | body | torso 100, arms 60 | mail | 12 | 12 | 3 | metal | 15 |
-| `breastplate` | breastplate | body | torso 100 | plate | 18 | 16 | 4 | metal | 20 |
-| `bracers` | bracers | arms | arms 80 | leather | 3 | 2 | 1 leather | leather | 3 |
-| `gauntlets` | gauntlets | arms | arms 60 | plate | 6 | 4 | 1 | metal | 5 |
-| `leggings` | leather leggings | legs | legs 100 | leather | 4 | 3 | 2 leather | leather | 4 |
-| `greaves` | greaves | legs | legs 100 | plate | 10 | 10 | 2 | metal | 10 |
-| `leather_boots` | leather boots | feet | legs 20 | leather | 2 | 1 | 1 leather | leather | 2 |
-| `metal_boots` | metal boots | feet | legs 30 | plate | 4 | 4 | 1 | metal | 5 |
-| `buckler` | buckler | shield | — | — | block only | 3 | 1 log or 1 bar | wood, metal | 4 |
-| `shield` | shield | shield | — | — | block only | 6 | 1 log + 1 bar, or 2 bars | wood, metal | 6 |
+| id | name | slot | covers | layer | armor | weight | bars | materials | mult | rune |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `cap` | cap | head | head 100 | leather | 4 | 2 | 1 leather | leather | 3 | |
+| `helm` | helm | head | head 100 | plate | 8 | 6 | 1 | metal | 6 | |
+| `gambeson` | gambeson | body | torso 100, arms 40 | padding | 3 | 3 | 3 cloth | cloth | 4 | |
+| `leather_jerkin` | leather jerkin | body | torso 100, arms 30 | leather | 5 | 4 | 3 leather | leather | 6 | |
+| `mail_shirt` | mail shirt | body | torso 100, arms 60 | mail | 12 | 12 | 3 | metal | 15 | |
+| `breastplate` | breastplate | body | torso 100 | plate | 18 | 16 | 4 | metal | 20 | |
+| `bracers` | bracers | arms | arms 80 | leather | 3 | 2 | 1 leather | leather | 3 | |
+| `gauntlets` | gauntlets | arms | arms 60 | plate | 6 | 4 | 1 | metal | 5 | |
+| `leggings` | leather leggings | legs | legs 100 | leather | 4 | 3 | 2 leather | leather | 4 | |
+| `greaves` | greaves | legs | legs 100 | plate | 10 | 10 | 2 | metal | 10 | |
+| `leather_boots` | leather boots | feet | legs 20 | leather | 2 | 1 | 1 leather | leather | 2 | |
+| `metal_boots` | metal boots | feet | legs 30 | plate | 4 | 4 | 1 | metal | 5 | |
+| `buckler` | buckler | shield | — | — | block only | 3 | 1 log or 1 bar | wood, metal | 4 | |
+| `shield` | shield | shield | — | — | block only | 6 | 1 log + 1 bar, or 2 bars | wood, metal | 6 | |
+| `rune_robe` | runed robe | body | torso 100, arms 60, legs 40 | padding | 3 | 2 | 3 cloth | cloth | 8 | regen ×1.5 |
+| `circlet` | circlet | head | head 100 | plate | 2 | 1 | 1 | metal | 10 | max +10 |
+
+The runed robe and the circlet are made at the runeforge ([workshops-and-recipes.md](workshops-and-recipes.md) § Runeforge). A soldier who holds a channel claims a piece with a `rune` property for its slot first ([16-combat.md](../02-systems/16-combat.md) § Equipment).
 
 Clothing (`tunic`, `trousers`, `boots`, `cloak`) counts as a `padding` layer with armor 1 for the parts it covers (tunic: torso 100, arms 50; trousers: legs 100; boots: legs 10; cloak: torso 50).
 
@@ -110,6 +114,30 @@ The stone set in a channel fixes its spell ([25-runecraft.md](../02-systems/25-r
 | `diamond` | `daze` | Daze | single | 3 | 6 | — | — | 150 | of stillness |
 
 A `bolt` flies as a missile. A `burst` blooms on the 3×3 around its target after a delay, a `single` strikes its target with no missile; both are cast by 16's ranged branch. `ward`, `mend` and `dread` are support spells, cast for the fortress creatures or against the hostiles around the caster. What each does, and when it is cast, is in 25 § Spells. A Frostbind hit that does damage slows the target by `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. A ward of a power-1.0 channel is 6 armour on every part for 600 ticks: 4 for 420 ticks from a wand, 7 for 720 from an iron staff.
+
+## Enchantments
+
+A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arrows at the runeforge ([25-runecraft.md](../02-systems/25-runecraft.md) § Setting stones). One row per enchantment. `slot` is what it is set in; `stone` is a gem material (set as a `cut_gem` of it) or an item id; `vials` the rune vials the setting burns; `suffix` the name it gives the item: a suffix that begins with "of" follows the name ("iron battle axe of embers"), any other goes before it ("keen iron battle axe"); `only` limits an armor row to one slot. `effects` are what it does, at the common tier: `kind value`, with a damage type, a chance and a duration where the kind has them. `scales` says what the item's tier scales by `QUALITY_COMBAT_MULT[tier]`, rounded: `value`, `ticks` or `none`. The kinds are read in combat as 25 § Enchantments in combat says; a kind none reads does nothing. Every number is *unmeasured*.
+
+| stone | id | slot | vials | suffix | effects | scales | only |
+|---|---|---|---|---|---|---|---|
+| `quartz` | `keen` | weapon | 4 | keen | `damage_percent` 10 | value | |
+| `garnet` | `ember` | weapon | 6 | of embers | `extra_damage` 8 ember | value | |
+| `amethyst` | `rime` | weapon | 6 | of rime | `slow` 30 for 200 ticks | ticks | |
+| `emerald` | `sure` | weapon | 6 | sure | `to_hit` 10 | value | |
+| `sapphire` | `fearsome` | weapon | 8 | fearsome | `flee` 1, 25% for 200 ticks | none | |
+| `ruby` | `blaze` | weapon | 10 | of blaze | `extra_damage` 14 ember | value | |
+| `diamond` | `sunder` | weapon | 12 | sundering | `armor_percent` 50 | none | |
+| `quartz` | `stout` | armor | 4 | stout | `armor` 2 | value | |
+| `garnet` | `emberward` | armor | 6 | of embers warded | `fire_percent` 50 | none | |
+| `amethyst` | `rimeward` | armor | 6 | of rime warded | `frost_percent` 50; `slow_immune` 1 | none | |
+| `diamond` | `adamant` | armor | 12 | adamant | `armor` 4 | value | |
+| `glowstone` | `glowing` | armor | 6 | glowing | `spot_radius` 2 | none | |
+| `garnet` | `ember_ammo` | ammo | 4 | of embers | `extra_damage` 6 ember | value | |
+| `amethyst` | `rime_ammo` | ammo | 4 | of rime | `slow` 30 for 200 ticks | ticks | |
+| `emerald` | `seeking` | ammo | 4 | seeking | `to_hit` 10 | value | |
+
+What each kind means: `damage_percent` adds to the blow's damage before armor; `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `spot_radius` adds tiles to how far the wearer spots a hidden creature.
 
 ## Shields
 
