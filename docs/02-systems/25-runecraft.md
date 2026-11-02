@@ -79,7 +79,7 @@ The rule: **rows added after version 1 number after every older row.**
 
 The layer table, with its `ember` and `frost` rows and its `ward` column, is in [weapons-and-armor.md](../03-content/weapons-and-armor.md) § Damage type versus layer; the `DAMAGE_VS_LAYER` constant in `combat/melee.ts` holds the same numbers, and a test compares the two. Mail is a poor answer to rune, plate a fair one, a ward the best. A burn bleeds little (`BLEED_TABLE`), so an ember bolt wins by pain and by part damage, not by blood.
 
-**`armorReduction(entities, registry, defenderId, part, type, tick)`** in `combat/melee.ts` is the one place the armour sum is written (16 § Melee resolution): `resolveMelee`, `resolveProjectileHit` and `combat/reader.ts` `armorValue` all call it. Natural armour belongs to a species, so a defender with no `Creature` has none. A `ward` effect is added there, on every part (§ Effects). T-472 extends only this function.
+**`armorReduction(entities, registry, defenderId, part, type, tick, armorPercent?)`** in `combat/melee.ts` is the one place the armour sum is written (16 § Melee resolution): `resolveMelee`, `resolveProjectileHit`, `applyEnchantOnHit` and `combat/reader.ts` `armorValue` all call it. Natural armour belongs to a species, so a defender with no `Creature` has none. A `ward` effect is added there, on every part (§ Effects). `armorPercent`, a sundering weapon's share (§ Enchantments in combat), multiplies the whole sum, the ward and natural armour included; absent, all of it counts.
 
 ### Glowcap
 
@@ -217,7 +217,7 @@ Content table `spells` ([weapons-and-armor.md](../03-content/weapons-and-armor.m
 
 Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. A Call's summon does not scale with power.
 
-Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. T-472 adds the `slow_immune` check (a worn piece's enchantment, `rimeward`) in `addEffect` for `slow`, so spells and enchantments both respect it.
+Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. A creature that wears a piece with `slow_immune` (`rimeward`) is not slowed: `addEffect` refuses a `slow` for it, so spells and enchantments both respect it (§ Enchantments in combat).
 
 When each support spell casts (`castSupport` evaluates these for a held target with the cooldown elapsed; a bolt, burst or single goes by 16's ranged branch). Distance is the casting distance (Chebyshev, each level between counting two) and line of sight is 16's:
 
@@ -239,7 +239,7 @@ By 16's ranged branch, with `canCastBolt` also true only when:
 
 Announcements: `RuneSpent { id }` once a caster falls below its spell's cost, at the cast, until regen lifts it over the cost again (`Rune.outAnnounced`; a vial does not lift it). A bloom that catches a creature of the caster's faction emits `SpellCast { casterId, spellId, targetId: the lowest such id, tile, burned: true }`, announced as an alert, once per caster per day (`bloomAlertsToday`).
 
-Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinned by a test (`test/unit/runecraft/t470-runeforge-channels.test.ts`; the ward's by `t473-remaining-spells.test.ts`).
+Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinned by a test (`test/unit/runecraft/t470-runeforge-channels.test.ts`; the ward's by `t473-remaining-spells.test.ts`; the enchanted weapons' by `t472-enchants-in-combat.test.ts`). Steel keeps the top of the table: a stone is set in a weapon, never in a channel, so an enchanted axe only widens its lead over the best staff.
 
 | Attack | raw | Target | damage |
 |---|---|---|---|
@@ -253,6 +253,9 @@ Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinne
 | Emberbolt, silver fine staff | 31 | bare part | 29 |
 | Emberbolt, deepsilver masterwork staff | 52 | bare part | 49 |
 | Deepsilver masterwork great axe, for comparison | 72 | bare part | 68 |
+| Iron battle axe of embers, common | 22 + 8 ember | bare part | 21 + 8 |
+| Keen deepsilver masterwork great axe (+15%) | 82.8 | bare part | 79 |
+| Deepsilver masterwork great axe of blaze | 72 + 21 ember | bare part | 68 + 20 |
 
 ### Effects
 
@@ -299,9 +302,11 @@ A soldier's gear is owned and so is never a target. The runesmith sets stones in
 
 ### Enchantments in combat
 
-**Task:** T-472 (effects); the rows below arrive with T-476. Content table `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments) holds the rest: `keen`, `ember`, `rime`, `sure`, `fearsome`, `blaze`, `sunder`; `stout`, `emberward`, `rimeward`, `adamant`, `glowing`; `ember_ammo`, `rime_ammo`, `seeking`.
+**`fearsome` is a trade-off, by decision (T-485).** A fled raider is out of the fight for a while, but soldiers who chase it swing less: in the T-472 arena six soldiers with fearsome axes held a raid of ten in 16 of 24 fights against 20 with plain axes. The owner chose to keep it; not every enchantment is a strict improvement. The look line says so: "A fleeing foe is hard to catch."
 
-The resolution reads rows, never ids. A row: `{ id, slot, stone, vials, suffix, effects: { kind, value, type?, chance?, ticks?, scales }[], only? }`; `scales` is `value`, `ticks` or `none`. `magic/enchant.ts` `effectAtTier` gives an effect's numbers at a tier, and `enchantOfItem` an item's. Until T-472 no kind is read in combat.
+**Task:** the rows below arrive with T-476. Content table `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments) holds the rest: `keen`, `ember`, `rime`, `sure`, `fearsome`, `blaze`, `sunder`; `stout`, `emberward`, `rimeward`, `adamant`, `glowing`; `ember_ammo`, `rime_ammo`, `seeking`.
+
+The resolution reads rows, never ids. A row: `{ id, slot, stone, vials, suffix, effects: { kind, value, type?, chance?, ticks?, scales }[], only? }`; `scales` is `value`, `ticks` or `none`. `magic/enchant.ts` `effectAtTier` gives an effect's numbers at a tier, `enchantOfItem` an item's, and for combat `itemEnchantEffects` (an item's effects at its tier, empty for none) and `wornEnchantEffects` (those of the pieces in a creature's five armor slots, head to feet). Effects of one kind on one item add up.
 
 Weapons:
 
@@ -317,22 +322,22 @@ Armor:
 | `wyrmscale` | `wyrmhide` | 8 | wyrmhide | `fire_percent` 0 on covered parts | no | T-476 |
 | `hollow_ichor` | `hollowsight` | 8 | of hollow sight | `spot_radius` 10; head slot only | no | T-476 |
 
-Where each kind is read. All of them guard on the item having `enchant`, so an unenchanted fight does the same arithmetic and draws the same numbers.
+Where each kind is read. Every seam reads `Item.enchant` first, so an unenchanted fight does the same arithmetic, in the same order, and draws the same numbers. Only `flee` draws, and only for an item that carries it.
 
 | kind | seam |
 |---|---|
-| `to_hit` | `resolveMelee`, the `hit` sum, from the weapon. `fireRanged`, the `hit` before the roll, from the ammunition |
-| `damage_percent`, `vs_deep_percent` | `resolveMelee`, on `raw`, before armor. The target counts as deep by `Creature.faction === 'deep'` |
-| `armor_percent` | `armorReduction` gains an optional percent argument. `resolveMelee` passes it |
-| `armor` | `armorCovering`: `piece.armor + value` where the piece has it |
-| `fire_percent`, `frost_percent` | after `armorReduction`, on the damage, from the pieces covering the part. Fire is a hit whose wound type is `burn`, so it covers the wyrm's breath. Frost likewise |
-| `extra_damage` | after a hit with damage above 0: `applyEnchantOnHit` in `magic/cast.ts`, called from `resolveMelee` and `advanceSingleProjectile`. It emits a second `DamageDealt` on the same part, with its own `armorReduction` and Toughness, and no `AttackResolved` |
-| `slow` | `applyEnchantOnHit`: `addEffect`, unless a piece the target wears has `slow_immune` |
-| `slow_immune` | `addEffect` for `slow`, from the pieces worn |
-| `flee` | `applyEnchantOnHit`: roll `chance` on stream 25, then the resist rule. Never on `deep` |
-| `spot_radius` | the same line as the draught's effect, from the head and body pieces |
+| `to_hit` | `resolveMelee`, the `hit` sum before the clamp, from the weapon. `fireRanged`, the `hit` before the clamp and the roll, from the unit of ammunition taken (`calculateRangedHit`'s `bonus`); a bystander's half chance has none |
+| `damage_percent`, `vs_deep_percent` | `resolveMelee`, on `raw`, before armor: `raw × (100 + damage_percent + vs_deep_percent) / 100`, the second only when the target's `Creature.faction` is `deep` |
+| `armor_percent` | `resolveMelee` passes it to `armorReduction` as `armorPercent`: that share of the target's whole armour sum counts. Several on one item: the smallest |
+| `armor` | `armorCovering`: `piece.armor + value` where the piece has it, before the piece's metal, coverage, quality and layer multipliers, so the inspector's armour value follows |
+| `fire_percent`, `frost_percent` | `throughEnchantedArmor` in `combat/melee.ts`, after the blunt-through rule and before Toughness, in `resolveMelee`, `resolveProjectileHit` (missiles, breath and blooms) and the extra hit below: each piece covering the part that has the kind lets that percent of the damage through, so two such pieces on a part multiply. Fire is a hit whose wound type is `burn` (`woundTypeFor`: `ember`, and the wyrm's `burn` breath); frost one whose wound type is `frost` |
+| `extra_damage` | after a hit with damage above 0: `applyEnchantOnHit` in `magic/cast.ts`, called from `resolveMelee` and `advanceSingleProjectile` (on the target and on a bystander alike). A second hit of the effect's `type` on the same part: `value` less its own `armorReduction`, through `throughEnchantedArmor`, then Toughness. It emits one more `DamageDealt` (the same `attackerId` and `weaponId`) when that is above 0, no `AttackResolved` and no xp |
+| `slow` | `applyEnchantOnHit`: `addEffect` of a `slow` of `value` for `ticks`, `sourceId` the attacker |
+| `slow_immune` | `addEffect`: a `slow` is not added to a creature that wears a piece with it, whether a spell or an enchantment brings it. `addEffect` takes the registry for this; every caller adding a `slow` passes it |
+| `flee` | `applyEnchantOnHit`: a creature Dread cannot take (`mentallyImmune`: the `deep` faction, size `MENTAL_IMMUNE_SIZE` or more) is never sent running, and nothing is drawn for it. Otherwise roll `chance` on stream 25 (a `chance` of 0 always applies), then the resist roll (§ Spells), and add a `flee` effect for `ticks`, `sourceId` the attacker, which 16's `stepFled` reads as Dread's |
+| `spot_radius` | `threats/ai.ts`, where fortress targets get `spotRadius`: a dwarf's `SPOT_RADIUS` plus the largest `spot_radius` among the pieces it wears (`wornSpotRadius`); pieces do not add to each other |
 
-Enchanted ammunition stays enchanted through `split`, and `canMerge` keeps it apart. A bolt that breaks is gone with its stone. Its effect is read from `proj.itemId` at the hit.
+Enchanted ammunition stays enchanted through `split`, and `canMerge` keeps it apart. The unit split off for a shot carries the stone in flight; its effects are read from `proj.itemId` at the hit, before the unit drops or breaks. A bolt that drops keeps its stone; one that breaks is gone with it.
 
 ### Draughts
 

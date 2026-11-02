@@ -60,3 +60,48 @@ export function enchantOfItem(entities: EntityStore, registry: Registry, itemId:
     effects: row.effects.map((effect) => effectAtTier(effect, enchant.tier)),
   };
 }
+
+const NO_EFFECTS: readonly EnchantEffectView[] = Object.freeze([]);
+
+/**
+ * The effects of an item's enchantment at its tier, for combat (§ Enchantments in combat); empty
+ * for item 0 and for an item with none. That is decided by `Item.enchant` alone, so an unenchanted
+ * fight looks nothing more up.
+ */
+export function itemEnchantEffects(entities: EntityStore, registry: Registry, itemId: EntityId): readonly EnchantEffectView[] {
+  if (itemId === 0 || entities.get(itemId, C.Item)?.enchant === undefined) return NO_EFFECTS;
+  return enchantOfItem(entities, registry, itemId)?.effects ?? NO_EFFECTS;
+}
+
+/** The sum of the values of every effect of `kind`; 0 for none. */
+export function effectSum(effects: readonly EnchantEffectView[], kind: string): number {
+  let sum = 0;
+  for (const e of effects) if (e.kind === kind) sum += e.value;
+  return sum;
+}
+
+const WORN_SLOTS = ['head', 'body', 'arms', 'legs', 'feet'] as const;
+
+/** The effects of every enchanted piece in the creature's armor slots, head to feet; empty with none. */
+export function wornEnchantEffects(entities: EntityStore, registry: Registry, id: EntityId): readonly EnchantEffectView[] {
+  const equip = entities.get(id, C.Equipment);
+  if (equip === undefined) return NO_EFFECTS;
+  let out: EnchantEffectView[] | undefined;
+  for (const slot of WORN_SLOTS) {
+    const effects = itemEnchantEffects(entities, registry, equip.armor[slot]);
+    if (effects.length > 0) (out ??= []).push(...effects);
+  }
+  return out ?? NO_EFFECTS;
+}
+
+/** A worn piece keeps its wearer from being slowed (`slow_immune`). */
+export function wearsSlowImmune(entities: EntityStore, registry: Registry, id: EntityId): boolean {
+  return wornEnchantEffects(entities, registry, id).some((e) => e.kind === 'slow_immune' && e.value > 0);
+}
+
+/** Tiles worn pieces add to how far the wearer spots a hidden creature: the largest `spot_radius`, 0 for none. */
+export function wornSpotRadius(entities: EntityStore, registry: Registry, id: EntityId): number {
+  let best = 0;
+  for (const e of wornEnchantEffects(entities, registry, id)) if (e.kind === 'spot_radius' && e.value > best) best = e.value;
+  return best;
+}

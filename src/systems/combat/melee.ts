@@ -13,6 +13,9 @@ import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
 import type { TickContext } from '@core/system';
 import { grantXp } from '@systems/dwarves';
+import { woundTypeFor } from '@systems/health/wounds';
+import { applyEnchantOnHit } from '@systems/magic/cast';
+import { effectSum, itemEnchantEffects } from '@systems/magic/enchant';
 import {
   BLUNT_THROUGH_PERCENT,
   CREATURE_ATTRIBUTE_DEFAULT,
@@ -301,7 +304,8 @@ export function armorCovering(
       pieces.push({
         id: itemId,
         layer: armorRow.layer,
-        armor: armorRow.armor,
+        // 25 § Enchantments in combat: an `armor` enchantment adds to the piece's own armor.
+        armor: item.enchant === undefined ? armorRow.armor : armorRow.armor + effectSum(itemEnchantEffects(entities, registry, itemId), 'armor'),
         armorMult: getMetalArmorMult(registry, item.material),
         coverage: cover.coverage,
         qualityArmorMult: QUALITY_COMBAT_MULT[item.quality] ?? 1.0,
@@ -355,6 +359,8 @@ export function armorCovering(
  * creature's natural armour (+1 when war-trained) as a plate layer. One function for the blow, the
  * missile and the inspector, so the three cannot drift apart. A `ward` effect (`25-runecraft.md`
  * § Effects) adds `ward × damageTypeVsLayer(type, ward)` on every part while it lasts at `tick`.
+ * `armorPercent`, a sundering weapon's `armor_percent` (25 § Enchantments in combat), is the share
+ * of the whole sum that counts; absent, all of it.
  */
 export function armorReduction(
   entities: EntityStore,
@@ -363,6 +369,7 @@ export function armorReduction(
   part: BodySlot,
   type: DamageType | string,
   tick: number,
+  armorPercent?: number,
 ): number {
   let red = 0;
   for (const piece of armorCovering(entities, registry, defenderId, part)) {
@@ -379,7 +386,43 @@ export function armorReduction(
   // 25 § Effects: a ward covers every part. With no `Spellbound` this adds nothing.
   const ward = effectValue(entities, defenderId, 'ward', tick);
   if (ward > 0) red += ward * getDamageVsLayer(type, 'ward');
-  return red;
+  return armorPercent === undefined ? red : (red * armorPercent) / 100;
+}
+
+/**
+ * 25 § Enchantments in combat: the damage of a fire or frost hit that gets through the enchanted
+ * pieces covering `part`. Fire is a hit whose wound is a `burn` (rune's `ember`, the wyrm's
+ * `burn`), frost one whose wound is `frost`. Each covering piece with `fire_percent` or
+ * `frost_percent` lets that share through, so two such pieces on a part multiply. Any other hit,
+ * and a part with no such piece, keeps its damage.
+ */
+export function throughEnchantedArmor(
+  entities: EntityStore,
+  registry: Registry,
+  defenderId: EntityId,
+  part: BodySlot,
+  type: DamageType | string,
+  damage: number,
+): number {
+  const wound = woundTypeFor(type, 0, 1);
+  const kind = wound === 'burn' ? 'fire_percent' : wound === 'frost' ? 'frost_percent' : '';
+  if (kind === '' || damage <= 0) return damage;
+  const equip = entities.get(defenderId, C.Equipment);
+  if (equip === undefined) return damage;
+  const armorTable = registry.table<ArmorRow>('armor');
+  const itemsTable = registry.table<ItemRow>('items');
+  let out = damage;
+  for (const slot of ['head', 'body', 'arms', 'legs', 'feet'] as const) {
+    const itemId = equip.armor[slot];
+    const item = itemId === 0 ? undefined : entities.get(itemId, C.Item);
+    if (item?.enchant === undefined) continue;
+    const covers = armorTable.byId(itemsTable.byIndex(item.type)?.id ?? '')?.covers.some((c) => c.part === part && c.coverage > 0) === true;
+    if (!covers) continue;
+    for (const e of itemEnchantEffects(entities, registry, itemId)) {
+      if (e.kind === kind) out = (out * e.value) / 100;
+    }
+  }
+  return out;
 }
 
 export function weightedPickPart(
@@ -441,6 +484,9 @@ export function resolveMelee(
   const tick = ctx.tick;
 
   const w = options?.weaponId === undefined ? weaponOf(entities, registry, attackerId) : getWeaponDef(entities, registry, options.weaponId);
+  // 25 § Enchantments in combat: the weapon's enchantment. Empty for none, and then every sum
+  // below adds 0 and nothing more is drawn.
+  const enchant = itemEnchantEffects(entities, registry, w?.item ?? 0);
   const creatureA = entities.get(attackerId, C.Creature);
   const creatureD = entities.get(defenderId, C.Creature);
   const speciesTable = registry.table<SpeciesRow>('creatures');
@@ -502,7 +548,7 @@ export function resolveMelee(
     !ctx.world.map.fluidFrozenAt(ctx.world.map.index(posD.x, posD.y, posD.z));
 
   let hit = 50 + (skillA - dodgeSkill) * 3 + Math.floor((agiA - agiD) / 4) +
-    (unconOrAsleep ? 40 : 0) + (fleeing ? 10 : 0) + (inDeepWater ? 20 : 0);
+    (unconOrAsleep ? 40 : 0) + (fleeing ? 10 : 0) + (inDeepWater ? 20 : 0) + effectSum(enchant, 'to_hit');
   hit = Math.max(5, Math.min(95, hit));
 
   // Cooldown
@@ -615,13 +661,23 @@ export function resolveMelee(
     raw = atkDamage * strengthFactor * warBonus;
   }
 
+  // 25 § Enchantments in combat: `damage_percent`, and `vs_deep_percent` against the deep, add to
+  // the blow before armor; `armor_percent` is the share of the target's armor that counts.
+  let armorPercent: number | undefined;
+  if (enchant.length > 0) {
+    const percent = effectSum(enchant, 'damage_percent') + (creatureD?.faction === 'deep' ? effectSum(enchant, 'vs_deep_percent') : 0);
+    if (percent !== 0) raw = (raw * (100 + percent)) / 100;
+    for (const e of enchant) if (e.kind === 'armor_percent') armorPercent = Math.min(armorPercent ?? 100, e.value);
+  }
+
   // Armor reduction
-  const red = armorReduction(entities, registry, defenderId, part, atkType, tick);
+  const red = armorReduction(entities, registry, defenderId, part, atkType, tick, armorPercent);
 
   let damage = Math.max(0, raw - red);
   if (atkType === 'blunt' && red > 0) {
     damage = Math.max(damage, (raw * BLUNT_THROUGH_PERCENT) / 100);
   }
+  damage = throughEnchantedArmor(entities, registry, defenderId, part, atkType, damage);
 
   // Toughness reduction
   const touD = getAttribute(entities, defenderId, 'tou');
@@ -656,6 +712,9 @@ export function resolveMelee(
       grantXp(entities, registry, defenderId, 'armor_use', 1, (e) => ctx.emit(e));
     }
   }
+
+  // 25 § Enchantments in combat: a hit that did damage carries the weapon's extra damage, slow or fear.
+  if (damage > 0 && enchant.length > 0) applyEnchantOnHit(ctx, enchant, attackerId, defenderId, part, w?.item ?? 0);
 
   return { outcome: 'hit', damage, part, damageType: atkType };
 }

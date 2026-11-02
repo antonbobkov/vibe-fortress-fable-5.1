@@ -36,6 +36,7 @@ dodgeSkill   = skill(defender, 'dodge')
 hit = 50 + (attackSkill − dodgeSkill) × 3 + (Agility(att) − Agility(def)) / 4
     + (defender unconscious or asleep ? 40 : 0) + (defender fleeing ? 10 : 0) + (defender in deep water ? 20 : 0)
     // fleeing: a brain or wild animal in flight, or a creature under a `flee` effect (25 § Effects)
+    + to_hit of the weapon's enchantment                 // 25 § Enchantments in combat; 0 with none, as every enchantment term below
 hit = clamp(5, 95, hit)
 if rng.int(0, 99) ≥ hit: miss → AttackResolved { outcome: miss }; return
 
@@ -47,17 +48,21 @@ if rng < blockChance: outcome blocked; return
 part = weighted pick from defender.bodyPlan hit weights (attacks from unconscious targets: head weight doubled)
 raw  = weapon.baseDamage × metalTierMultiplier(weapon.material) × qualityMultiplier(weapon) × (50 + Strength(att)) / 100
        // natural attacks: species attack damage × (50 + Strength)/100; war-trained animals +50% (08)
+raw  = raw × (100 + damage_percent + (defender of the deep faction ? vs_deep_percent : 0)) / 100    // the weapon's enchantment
 armorReduction = Σ over armor pieces covering `part` (outer layer first): piece.armorValue × metalTierArmor(piece.material) × coverage / 100 × qualityArmorMultiplier
                  × damageTypeVsLayer(damageType, piece.layer)
                  // clothing counts as a padding layer of armor value 1 (weapons-and-armor.md)
                  // natural armor: (naturalArmor + (war-trained ? 1 : 0)) × damageTypeVsLayer(damageType, plate) (08); a defender with no species has none
                  // a ward: + ward × damageTypeVsLayer(damageType, ward) on every part while its effect lasts at the hit's tick (25 § Effects)
+                 // an enchanted piece's `armor` adds to its armorValue; a sundering weapon's armor_percent is the share of the whole sum that counts
                  // one function, `armorReduction` in combat/melee.ts, for the blow, the missile and the inspector's `armorValue`
 damage = max(0, raw − armorReduction)
 if damageType == blunt and armorReduction > 0: damage = max(damage, raw × BLUNT_THROUGH_PERCENT / 100)    // blunt bruises through armor
+damage = damage × fire_percent / 100 per covering piece that has it, for a hit whose wound is a burn; frost_percent likewise for frost (25)
 damage = round(damage × (100 − min(10, Toughness(def) / 10)) / 100)    // Toughness reduction (17)
 emit DamageDealt { defender, part, damageType, amount: damage, attackerId, weaponId }
 emit AttackResolved { attacker, defender, part, damageType, amount, outcome: hit }
+if damage > 0: the weapon's extra_damage, slow and flee (25 § Enchantments in combat: applyEnchantOnHit)
 grant xp: attacker weapon skill; defender dodge (on miss), weapon skill (on parry), shield (on block), armor_use (on hit reduced by armor)
 ```
 
@@ -77,13 +82,14 @@ Creatures without `Attributes` use `CREATURE_ATTRIBUTE_DEFAULT` (50) for every a
 if not lineOfSight(shooter, target): cannot fire (the brain moves instead)
 distance = Chebyshev(shooter, target) + z difference × 2
 hit = 40 + skill(shooter, launcherSkill) × 3 − distance × 2 + (size(target) − 60) / 4 − skill(target, 'dodge') × 2 + (target unconscious ? 40 : 0)
+    + to_hit of the ammunition's enchantment            // 25 § Enchantments in combat
 hit = clamp(3, 95, hit)
 spawn Projectile { itemId: one unit of ammunition (13 split), from, to, speed: PROJECTILE_SPEED, shooterId, hitRoll }
 ```
 
 The ammunition unit is attached to the projectile through the item API while in flight, so it is not unattended stock on the shooter's tile. A channel fires a bolt instead (25 § Casting): no ammunition item, `raw = round(spell.base × power(channel))` of the spell's damage type, the holder's rune spent at the cast; skill `runecraft`, the channel's size for the cooldown, and everything after it as for a missile. A bolt that hits with damage above 0 may leave an effect (Frostbind's slow). A caster does not cast while one of its own faction stands on the bolt's ray before the target: it throws at the nearest other hostile it can reach with a clear line, or waits (25 § Casting). Launchers with ammunition have no such rule.
 
-The projectile advances along a Bresenham line each tick by `PROJECTILE_SPEED` tiles. On entering the target's tile: if `hitRoll` succeeds, resolve as a melee hit with `raw = ammo.baseDamage × launcher.powerMultiplier × metalTier(ammo)`, no parry, block allowed, then the ammunition item drops on the tile with `AMMO_BREAK_PERMILLE` chance to be destroyed. On a miss the projectile continues to `launcher.range` and drops. A projectile entering a tile with a wall, closed door, raised bridge or (from the far side) a fortification stops and drops. A creature other than the target in the path is hit with half the hit chance.
+The projectile advances along a Bresenham line each tick by `PROJECTILE_SPEED` tiles. On entering the target's tile: if `hitRoll` succeeds, resolve as a melee hit with `raw = ammo.baseDamage × launcher.powerMultiplier × metalTier(ammo)`, no parry, block allowed, then the ammunition item drops on the tile with `AMMO_BREAK_PERMILLE` chance to be destroyed. A hit with damage above 0 from enchanted ammunition carries its effects first (25 § Enchantments in combat), read from the unit in flight, which keeps its stone when it drops. On a miss the projectile continues to `launcher.range` and drops. A projectile entering a tile with a wall, closed door, raised bridge or (from the far side) a fortification stops and drops. A creature other than the target in the path is hit with half the hit chance.
 
 Line of sight (22): a Bresenham line on the same z-level with no wall, door, tree, raised bridge or closed floodgate in between; fortifications pass projectiles only if the shooter is adjacent to the fortification (a defender at the wall) or the target is adjacent to it (shooting in). Ranged creatures cannot shoot across z-levels except from a fortification one level up (an overlook) to a target on the level below within range.
 

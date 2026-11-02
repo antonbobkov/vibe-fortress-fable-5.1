@@ -15,7 +15,8 @@ import type { BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
 import { grantXp } from '@systems/dwarves';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
-import { applySpellOnHit, castAtTarget, castBolt } from '@systems/magic/cast';
+import { applyEnchantOnHit, applySpellOnHit, castAtTarget, castBolt } from '@systems/magic/cast';
+import { effectSum, itemEnchantEffects } from '@systems/magic/enchant';
 import {
   AMMO_BREAK_PERMILLE,
   BLUNT_THROUGH_PERCENT,
@@ -31,6 +32,7 @@ import {
   isFleeing,
   shieldIsBuckler,
   shieldOf,
+  throughEnchantedArmor,
   weaponOf,
   weightedPickPart,
   type WieldedWeapon,
@@ -322,6 +324,8 @@ export function calculateRangedHit(
   targetId: EntityId,
   weaponSkill: string,
   distance: number,
+  /** Added before the clamp: enchanted ammunition's `to_hit` (25 § Enchantments in combat). */
+  bonus = 0,
 ): number {
   const launcherSkill = getSkill(entities, registry, shooterId, weaponSkill);
   const dodgeSkill = getSkill(entities, registry, targetId, 'dodge');
@@ -334,7 +338,8 @@ export function calculateRangedHit(
     distance * 2 +
     Math.floor((targetSize - 60) / 4) -
     dodgeSkill * 2 +
-    (targetUnconscious ? 40 : 0);
+    (targetUnconscious ? 40 : 0) +
+    bonus;
 
   return Math.max(3, Math.min(95, hit));
 }
@@ -409,8 +414,9 @@ export function resolveProjectileHit(
   rawDamage: number,
   damageType: DamageType,
   weaponDef: WieldedWeapon['weaponDef'],
-  options?: { skipXp?: boolean | undefined },
+  options?: { skipXp?: boolean | undefined; out?: { part: BodySlot | null } | undefined },
 ): number {
+  if (options?.out !== undefined) options.out.part = null;
   // Shield block check
   const shieldId = shieldOf(entities, defenderId);
   const defConscious = isConscious(entities, defenderId);
@@ -455,11 +461,14 @@ export function resolveProjectileHit(
   if (damageType === 'blunt' && red > 0) {
     damage = Math.max(damage, (rawDamage * BLUNT_THROUGH_PERCENT) / 100);
   }
+  // 25 § Enchantments in combat: a fire or frost hit through an enchanted piece's share.
+  damage = throughEnchantedArmor(entities, registry, defenderId, part, damageType, damage);
 
   // Toughness reduction
   const touD = getAttribute(entities, defenderId, 'tou');
   const touReduction = Math.min(10, touD / 10);
   damage = Math.round((damage * (100 - touReduction)) / 100);
+  if (options?.out !== undefined) options.out.part = part;
 
   ctx.emit({
     type: 'DamageDealt',
@@ -593,8 +602,9 @@ export function fireRanged(
     weaponSize = w.weaponDef.size;
   }
 
-  // Compute hit chance and roll
-  const hit = calculateRangedHit(entities, registry, shooterId, targetId, weaponSkill, distance);
+  // Compute hit chance and roll; enchanted ammunition adds its `to_hit` (25 § Enchantments in combat).
+  const toHit = effectSum(itemEnchantEffects(entities, registry, projectileItemId), 'to_hit');
+  const hit = calculateRangedHit(entities, registry, shooterId, targetId, weaponSkill, distance, toHit);
   const roll = rng.int(0, 99);
   const hitSucceeded = roll < hit;
 
@@ -667,6 +677,16 @@ export function advanceProjectiles(
 }
 
 /**
+ * 25 § Enchantments in combat: a missile that did damage carries its ammunition's enchantment,
+ * read from the unit in flight before it drops or breaks. Plain ammunition does nothing here.
+ */
+function ammoOnHit(ctx: TickContext, itemId: EntityId, shooterId: EntityId, defenderId: EntityId, part: BodySlot | null, dealt: number): void {
+  if (dealt <= 0 || part === null || itemId === 0) return;
+  const effects = itemEnchantEffects(ctx.world.entities, ctx.registry, itemId);
+  if (effects.length > 0) applyEnchantOnHit(ctx, effects, shooterId, defenderId, part, itemId);
+}
+
+/**
  * Advances a single projectile by up to PROJECTILE_SPEED tiles.
  */
 function advanceSingleProjectile(
@@ -728,6 +748,7 @@ function advanceSingleProjectile(
         // Hit target!
         const w = weaponOf(entities, registry, proj.shooterId);
         const wDef = w?.weaponDef ?? ({ skill: 'unarmed', size: 6 } as unknown as WieldedWeapon['weaponDef']);
+        const out: { part: BodySlot | null } = { part: null };
         const dealt = resolveProjectileHit(
           ctx,
           entities,
@@ -738,9 +759,10 @@ function advanceSingleProjectile(
           proj.damage,
           proj.damageType,
           wDef,
-          proj.skipXp ? { skipXp: true } : undefined,
+          proj.skipXp ? { skipXp: true, out } : { out },
         );
         if (proj.spell !== undefined && dealt > 0) applySpellOnHit(ctx, proj.spell, proj.spellPower ?? 1000, proj.shooterId, proj.targetId, dealt);
+        ammoOnHit(ctx, proj.itemId, proj.shooterId, proj.targetId, out.part, dealt);
         if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
         entities.destroy(projId);
         return;
@@ -787,6 +809,7 @@ function advanceSingleProjectile(
       const bystanderHitChance = Math.floor(hit / 2);
       if (rng.int(0, 99) < bystanderHitChance) {
         // Hit bystander! A bolt hits an ally in the way as surely as a bolt from a crossbow.
+        const out: { part: BodySlot | null } = { part: null };
         const dealt = resolveProjectileHit(
           ctx,
           entities,
@@ -797,9 +820,10 @@ function advanceSingleProjectile(
           proj.damage,
           proj.damageType,
           wDef,
-          proj.skipXp ? { skipXp: true } : undefined,
+          proj.skipXp ? { skipXp: true, out } : { out },
         );
         if (proj.spell !== undefined && dealt > 0) applySpellOnHit(ctx, proj.spell, proj.spellPower ?? 1000, proj.shooterId, bystander, dealt);
+        ammoOnHit(ctx, proj.itemId, proj.shooterId, bystander, out.part, dealt);
         if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
         entities.destroy(projId);
         return;
