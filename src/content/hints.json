@@ -41,7 +41,7 @@
   },
   {
     "id": "hint_hunter",
-    "trigger": "hunting labor enabled and no crossbow or bow exists",
+    "trigger": "a living fortress dwarf has hunting enabled and no crossbow or bow exists",
     "text": "Hunters need a crossbow and bolts, or a bow and arrows."
   },
   {
