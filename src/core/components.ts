@@ -250,6 +250,8 @@ export interface Item {
   occupantId?: EntityId;
   /** The named dead dwarf engraved on a memorial slab. */
   memorialDwarfId?: EntityId;
+  /** The gem set in a channel (`25` § Channels); absent: none. */
+  stone?: Idx<'MaterialDef'>;
 }
 
 export interface Container {
@@ -441,6 +443,10 @@ export interface Projectile {
   damageType: DamageType;
   line: TileIndex[];
   skipXp?: boolean | undefined;
+  /** A bolt's spell (`25` § Casting); absent: a missile. */
+  spell?: Idx<'SpellDef'>;
+  /** The casting channel's power in thousandths, for what the bolt's hit leaves. */
+  spellPower?: number;
 }
 
 export interface Crop {
@@ -459,6 +465,19 @@ export interface Merchant {
 /** A runecaster's own rune (`25` § Rune of one's own): milli-rune; max and regen are derived. */
 export interface Rune {
   current: number;
+}
+
+/** One timed effect on a creature (`25` § Effects): the largest unexpired value of a kind counts. */
+export interface ActiveEffect {
+  kind: string;
+  value: number;
+  until: Tick;
+  sourceId: EntityId;
+}
+
+/** The timed effects on a creature (`25` § Effects). Expired entries are dropped hourly by 25. */
+export interface Spellbound {
+  effects: ActiveEffect[];
 }
 
 /**
@@ -670,6 +689,7 @@ const SPECS: Spec[] = [
   { name: 'Crop', owner: '07' },
   { name: 'Merchant', owner: '20' },
   { name: 'Rune', owner: '25' },
+  { name: 'Spellbound', owner: '25' },
 ];
 
 function define<T>(spec: Spec, id: number): ComponentType<T> {
@@ -733,6 +753,7 @@ export const C = {
   Crop: typed<Crop>('Crop'),
   Merchant: typed<Merchant>('Merchant'),
   Rune: typed<Rune>('Rune'),
+  Spellbound: typed<Spellbound>('Spellbound'),
 } as const;
 
 /** An entity store that knows every component type. `entities.ts` stays free of this module. */

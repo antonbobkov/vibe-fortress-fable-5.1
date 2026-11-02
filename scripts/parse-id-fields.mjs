@@ -31,6 +31,7 @@ export const DEF_TABLES = Object.freeze({
   RecipeDef: 'recipes',
   ZoneTypeDef: 'zoneTypes',
   PlantDef: 'plants',
+  SpellDef: 'spells',
 });
 
 /** Every `interface Name { … }` of the entities block, as `[name, body]`. */
@@ -70,7 +71,8 @@ function fields(body) {
     .filter((f) => f.includes(':'))
     .map((f) => {
       const at = f.indexOf(':');
-      return { name: f.slice(0, at).trim(), type: f.slice(at + 1).trim() };
+      // An optional field (`stone?`) is named without its mark: absent means none.
+      return { name: f.slice(0, at).trim().replace(/\?$/, ''), type: f.slice(at + 1).trim() };
     });
 }
 

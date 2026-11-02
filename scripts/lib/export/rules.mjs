@@ -187,7 +187,7 @@ function parseLabor(cell) {
 }
 
 const IMPASSABLE_CORNER_WORKSHOPS = new Set([
-  'smelter', 'forge', 'wood_furnace', 'magma_smelter', 'magma_forge', 'magma_kiln',
+  'smelter', 'forge', 'wood_furnace', 'runeforge', 'magma_smelter', 'magma_forge', 'magma_kiln',
 ]);
 
 function buildingRow(row, category, extra = {}) {

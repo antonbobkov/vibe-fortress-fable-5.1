@@ -73,7 +73,7 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 
 ## Workshops
 
-See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes. All workshops are 3×3 with the work tile at the center and the output tile at the south-center; the pattern glyphs are in [glyphs-and-colors.md](glyphs-and-colors.md). Impassable workshop tiles are the four corners for `smelter`, `forge`, `wood_furnace` and their magma variants; every other workshop is fully passable.
+See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes. All workshops are 3×3 with the work tile at the center and the output tile at the south-center; the pattern glyphs are in [glyphs-and-colors.md](glyphs-and-colors.md). Impassable workshop tiles are the four corners for `smelter`, `forge`, `wood_furnace`, `runeforge` and the magma variants; every other workshop is fully passable.
 
 ## Zone types
 

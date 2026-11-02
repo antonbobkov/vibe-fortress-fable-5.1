@@ -1227,6 +1227,49 @@
     "glyph": "○"
   },
   {
+    "id": "runeforge",
+    "name": "runeforge",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "anvil",
+        "count": 1
+      },
+      {
+        "match": "stone_block",
+        "count": 3
+      },
+      {
+        "match": "cut_gem",
+        "count": 1
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 300,
+    "tags": [
+      "rune_work"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "runeforge",
+    "impassableTiles": [
+      0,
+      2,
+      6,
+      8
+    ],
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
     "id": "smelter",
     "name": "smelter",
     "category": "workshop",

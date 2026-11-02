@@ -75,21 +75,11 @@ The rule: **rows added after version 1 number after every older row.**
 
 ### Damage types
 
-**Task:** T-470. `DamageType` in `core/types.ts`, `DAMAGE_TYPES` in `content/schema.ts` and the separate `DAMAGE_TYPES` in `scripts/lib/export/creatures.mjs` gain `ember` and `frost`. The last matters: `parseAttacks` silently drops an attack it cannot parse, and `content:check` still passes. `ember` is rune fire; its wound is a `burn`. `frost` already exists as a wound type. `health/wounds.ts` `woundTypeFor` maps `ember` to `burn`. Natural melee attacks in `resolveMelee` accept `ember` and `frost` alongside the three steel types (other strings still fall to `blunt`, as the wyrm's adjacent breath does today).
+`DamageType` in `core/types.ts`, `DAMAGE_TYPES` in `content/schema.ts` and the separate `DAMAGE_TYPES` in `scripts/lib/export/creatures.mjs` hold `ember` and `frost` beside the three steel types. The last matters: `parseAttacks` silently drops an attack it cannot parse, and `content:check` still passes. `ember` is rune fire; its wound is a `burn` (`health/wounds.ts` `woundTypeFor`). `frost` is a wound type of its own. Natural melee attacks in `resolveMelee` accept `ember` and `frost` alongside the three steel types (other strings still fall to `blunt`, as the wyrm's adjacent breath does).
 
-The layer table gains two rows and a column. It moves to `03-content/weapons-and-armor.md`; `exportDamageVsLayer` and the schema gain `ward`; the `DAMAGE_VS_LAYER` constant in `combat/melee.ts` holds the same numbers, and a new test compares it with the JSON.
+The layer table, with its `ember` and `frost` rows and its `ward` column, is in [weapons-and-armor.md](../03-content/weapons-and-armor.md) § Damage type versus layer; the `DAMAGE_VS_LAYER` constant in `combat/melee.ts` holds the same numbers, and a test compares the two. Mail is a poor answer to rune, plate a fair one, a ward the best. A burn bleeds little (`BLEED_TABLE`), so an ember bolt wins by pain and by part damage, not by blood.
 
-| Type \ Layer | padding | leather | mail | plate | ward |
-|---|---|---|---|---|---|
-| edge | 0.6 | 0.8 | 1.2 | 1.1 | 1.0 |
-| pierce | 0.4 | 0.6 | 0.8 | 1.2 | 1.0 |
-| blunt | 1.2 | 1.0 | 0.5 | 0.9 | 1.0 |
-| ember | 0.3 | 0.6 | 0.4 | 0.8 | 2.0 |
-| frost | 1.0 | 0.8 | 0.3 | 0.5 | 2.0 |
-
-Mail is a poor answer to rune, plate a fair one, a ward the best. A burn bleeds little (`BLEED_TABLE`), so an ember bolt wins by pain and by part damage, not by blood.
-
-**`armorReduction`.** The sum is written out three times today: `resolveMelee`, `resolveProjectileHit` and `combat/reader.ts` `armorValue`. T-470 extracts one function, `armorReduction(entities, registry, defenderId, part, type, tick)` in `combat/melee.ts`, with no change of result, and all three call it. T-472 and T-473 extend only that function.
+**`armorReduction(entities, registry, defenderId, part, type, tick)`** in `combat/melee.ts` is the one place the armour sum is written (16 § Melee resolution): `resolveMelee`, `resolveProjectileHit` and `combat/reader.ts` `armorValue` all call it. Natural armour belongs to a species, so a defender with no `Creature` has none. T-472 and T-473 extend only this function.
 
 ### Glowcap
 
@@ -99,17 +89,11 @@ Glowcap is built. Its rows are in `plants.md` (the crop, and `glowcap_patch` und
 
 ### Workshops
 
-A workshop needs a row in `workshops-and-recipes.md` § Workshops (the export makes its `buildings` row, category `workshop`; the `tags` column holds `rune_work`), a block in `glyphs-and-colors.md` § Workshop patterns, and for its recipes a `RECIPE_SECTIONS` line in `scripts/lib/export/rules.mjs`. Labor comes from the recipe's skill.
+A workshop needs a row in `workshops-and-recipes.md` § Workshops (the export makes its `buildings` row, category `workshop`; the `tags` column holds `rune_work`), a block in `glyphs-and-colors.md` § Workshop patterns, and for authored recipes a `RECIPE_SECTIONS` line in `scripts/lib/export/rules.mjs`. Labor comes from the recipe's skill.
 
-| Workshop | Build inputs | Build labor, ticks | Shape | Task |
-|---|---|---|---|---|
-| `runeforge` | 1 `anvil` + 3 `stone_block` + 1 `cut_gem` | masonry, 300 | 3×3, corners impassable like a forge; tag `rune_work`; no fuel | T-470 |
+The runeforge is built: its row is in `workshops-and-recipes.md` (1 `anvil` + 3 `stone_block` + 1 `cut_gem`, masonry, 300 ticks, no fuel, tag `rune_work`, corners impassable like a forge), with its § Runeforge, and its skill `runesmithing` (labor `smithing`, profession Runesmith) in `skills-and-professions.md`. Its recipes so far are all generated (§ Channels), so it has no `RECIPE_SECTIONS` line; T-471's robe and circlet, which are authored, add it.
 
-| id | name | labor | profession | military | attributes | Task |
-|---|---|---|---|---|---|---|
-| `runesmithing` (skill) | Runesmithing | `smithing` | Runesmith | — | Agility, Wits | T-470 |
-
-`runecraft` and its labor `attunement` (default on, not for children) are in `skills-and-professions.md`. These skills, like `alchemy`, have `no` in the `embark` column there, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
+`runecraft` and its labor `attunement` (default on, not for children) are in `skills-and-professions.md`. These skills and `runesmithing`, like `alchemy`, have `no` in the `embark` column there, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
 
 More laboratory recipes (`workshops-and-recipes.md` § Laboratory holds the rest; the draughts are in § Draughts):
 
@@ -165,24 +149,15 @@ The thought `attuned` ends a session with no mishap. The first dwarf to reach `r
 
 ### Channels
 
-**Task:** T-470.
+The wand and the staff are in [weapons-and-armor.md](../03-content/weapons-and-armor.md) § Channels, with their item rows (`category: weapon/ranged`, stack 1, quality-bearing, slot weapon, no `weapon` tag; wand `'`, staff `⌠`, both `rune_cyan`).
 
-| id | name | class | skill | range | power | size | hands | bars | logs | materials | mult | Task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `wand` | wand | staff | `runecraft` | 8 | 0.70 | 3 | 1 | 0 | 1 | wood | 10 | T-470 |
-| `staff` | staff | staff | `runecraft` | 12 | 1.20 | 7 | 2 | 1 | 1 | metal | 14 | T-470 |
-
-Item rows: `category: weapon/ranged`, stack 1, quality true, slot weapon, no `weapon` tag. Glyphs: wand `'`, staff `⌠`, both `rune_cyan`.
-
-Launcher rows have `launcher: { range, power }` with **no `ammo`**. `ammo` becomes optional in the schema and in the `WeaponRow`, `WeaponDefRow` and `LauncherDef` types. "A launcher with no ammo" is what a channel is, and code tests that, never an id.
-
-`scripts/lib/export/items.mjs` always writes `ammo`; change it with the schema so a staff row exports correctly.
+A channel's row has `launcher: { range, power }` with **no `ammo`**: `ammo` is optional in the schema and in the `WeaponRow`, `WeaponDefRow` and `LauncherDef` types, and the export writes it only for a launcher that has one. "A launcher with no ammo" is what a channel is, and code tests that (`isChannelRow` in `magic/cast.ts`), never an id. A hunter's launcher is never a channel: 11's ranged kit takes only a launcher with ammunition.
 
 **A staff's material is its shoe.** `Item.material` is the metal of the bar. There is no `Item.shoe`. So the ordinary material filter on a work order picks the shoe, value and melting work as for any metal item. A staff holds one bar, so like a dagger it melts to nothing: `workshops/operate.ts` computes `floor(1 × 60 / 100) = 0`. Do not change the melt formula. A wand's material is its wood.
 
-`runeMult` is a new metals column (fixed): silver 1.3, deepsilver 1.6, steel 1.1, iron 1.0, bronze 0.9, copper 0.8, every other metal 0.7. A wooden item counts 1.0.
+`runeMult` is a metals column ([minerals-and-metals.md](../03-content/minerals-and-metals.md) § Metals): silver 1.3, deepsilver 1.6, steel 1.1, iron 1.0, bronze 0.9, copper 0.8, every other metal 0.7. A wooden item counts 1.0.
 
-**`Item.stone`** (`Idx<'MaterialDef'>`, optional) names the gem on a channel. `items/api.ts` `canMerge` compares it and `Item.enchant`.
+**`Item.stone`** (`Idx<'MaterialDef'>`, optional; absent is none) names the gem on a channel. `items/api.ts` `canMerge` compares it (and `Item.enchant`, from T-471), and `split` keeps it. A channel whose stone carries no spell row casts nothing.
 
 ```
 power(item) = launcher.power × runeMult(item.material) × QUALITY_COMBAT_MULT[item.quality]
@@ -190,28 +165,21 @@ power(item) = launcher.power × runeMult(item.material) × QUALITY_COMBAT_MULT[i
 
 Wand 0.7. Iron staff 1.2. Silver fine staff `1.2 × 1.3 × 1.1 = 1.716`. Deepsilver masterwork staff `1.2 × 1.6 × 1.5 = 2.88`.
 
-**Recipes.** Generated by `applyGenerated` in `content/generate.ts`, one per row of `spells`, like `forge_*`. `applyGenerated` also appends their ids to `data.rowOrder`, as it does for every generated row after this point:
+**Recipes.** One wand and one staff recipe per row of `spells`, generated in `generatedRecipes` (`content/generate.ts`) as `smelt_`, `alloy_` and `melt_metal_item` are (`forge_*` are authored rows, not generated); [workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Runeforge gives `make_wand_<stone>` and `make_staff_<stone>`. Every generated row names workshop `runeforge` and skill `runesmithing`, here and for the `set_*` rows. A generated row numbers last like any other: its id is a line of `row-order.md`.
 
-Generated in `generatedRecipes`, as `smelt_`, `alloy_` and `melt_metal_item` are (`forge_*` are authored rows, not generated). Every generated row names workshop `runeforge` and skill `runesmithing`, here and for the `set_*` rows.
+`RecipeOutput` has `stone?: { from: 'input'; index: number }`. `WorkshopOperator.complete` in `workshops/operate.ts` reads that input's material before the inputs are consumed and writes it after `spawn.item`, as it writes `memorialDwarfId`. `inputFilter` already points the order's material filter at the input the first output's material comes from, so the player picks the metal of a staff and the wood of a wand. No new order field.
 
-| id | inputs | outputs | ticks | Q | xp |
-|---|---|---|---|---|---|
-| `make_wand_<stone>` | 1 `log` + 1 `cut_gem` (material the stone) | 1 `wand`, material from input 0, stone from input 1 | 200 | yes | 10 |
-| `make_staff_<stone>` | 1 `log` + 1 `cut_gem` (the stone) + 1 `bar` | 1 `staff`, material from input 2, stone from input 1 | 300 | yes | 12 |
+**Who claims.** In `combat/equipment.ts` `reequipSoldier`, before the weapon loop: a member with `runecraft ≥ 1` claims the available channel with the highest `power(item)`, whatever the squad's preference, and drops the weapon it held at the barracks. Holding a channel, the weapon loop is skipped for them. With none held or in stock they fall through to the ordinary rule. `scoreWeapon` returns −1 for a channel, so no one else ever holds one. A two-handed staff takes the shield rule of any two-handed weapon; a one-handed wand keeps a shield. `kitTypes` already includes weapons. A channel's class is no squad preference: `SetSquadEquipment` refuses it (`bad_setting`) and the military panel does not offer it.
 
-`RecipeOutput` gains `stone?: { from: 'input'; index: number }`. `WorkshopOperator.complete` in `workshops/operate.ts` writes it after `spawn.item`, as it writes `memorialDwarfId`. `inputFilter` already points the order's material filter at the input the first output's material comes from, so the player picks the metal of a staff and the wood of a wand. No new order field.
-
-**Who claims.** In `combat/equipment.ts` `reequipSoldier`, before the weapon loop: a member with `runecraft ≥ 1` claims the available channel with the highest `power(item)`, whatever the squad's preference. With a channel held and none better, the weapon loop is skipped for them, as `scoreWeapon` gives a launcher −1 in a melee squad. With none in stock they fall through to the ordinary rule. `scoreWeapon` returns −1 for a channel for everyone else, so no one else ever holds one. A one-handed wand keeps the shield rule. `kitTypes` already includes weapons.
-
-**Training.** `combat/training.ts` sends launcher holders to the archery path, which reads `launcher.ammo`. A channel holder takes the solo drill instead: half `TRAIN_XP` to `runecraft`, no rune spent.
+**Training.** `combat/training.ts` sends launcher holders with ammunition to the archery path. A channel holder takes the solo drill instead, never a sparring pair: half `TRAIN_XP` to its weapon skill, `runecraft`, with the solo drill's dodge, shield and armour xp, and no rune spent.
 
 **In melee** a channel is a club at half damage with `hammer`. `resolveMelee` already does this for `damageType === null` launchers.
 
 ### Casting
 
-**Task:** T-470 for the frame and bolts; T-473 for the rest.
+The frame and bolts are built; T-473 brings the rest (marked).
 
-New module `src/systems/magic/cast.ts`, imported by `combat/index.ts`. Casting rides in 16's creature loop. 25 has no casting loop of its own.
+`src/systems/magic/cast.ts`, imported by `combat/index.ts` and `combat/ranged.ts`. Casting rides in 16's creature loop. 25 has no casting loop of its own.
 
 In `CombatSystem.tick`, after `w`, `launcher` and the distances are known:
 
@@ -222,16 +190,18 @@ hasAmmo  = channel ? canCastBolt(ctx, id, w, target) : (as today)
 if channel and cooldown elapsed and castSupport(ctx, id, target, w):
     engagements.set(id, tick); continue                         // T-473; castSupport sets the cooldown by 16's rule
 if isAdjacent: melee as today                                   // the club
-else if isRanged in range with line of sight: fireAt as today   // the bolt, or T-473's burst and daze
+else if isRanged in range with line of sight: fireAt as today   // the bolt (held while an ally is on its line, below), or T-473's burst and daze
 else if channel and support staff and rune ≥ cost and dist ≤ CASTER_HOLD_DISTANCE: stop walking; continue   // T-473
 else approach as today
 ```
 
-`canCastBolt`: the holder has a `Rune`, the staff's spell is of kind `bolt`, `burst` or `single`, `current ≥ cost`, and the target is within the spell's range. `fireRanged` passes a `burst` or `single` to `magic/cast.ts` before it spawns anything (T-473). For a `bolt` it gains a third branch beside `naturalRanged` and the ammunition branch: `projectileItemId = 0`, `rawDamage = round(spell.base × power(item))`, `damageType = spell.type`, `weaponSkill = 'runecraft'`, `weaponSize = launcher size`, and it spends the rune. Everything after that line is the shared path. So the hit roll, cooldown, crowding (`crowdTicks`), projectile, bystander half chance and xp (+3 a hit, +1 a miss, through `grantXp` on `weaponDef.skill`) all come from 16. A bystander can be an ally: friendly fire is real by construction.
+`canCastBolt`: the holder has a `Rune`, the staff's spell is of kind `bolt`, `burst` or `single`, `current ≥ cost`, and the target is within the spell's range. `fireRanged` passes a `burst` or `single` to `magic/cast.ts` before it spawns anything (T-473). For a `bolt` it has a third branch beside `naturalRanged` and the ammunition branch, `castBolt`: `projectileItemId = 0`, `rawDamage = round(spell.base × power(item))`, `damageType = spell.type`, `weaponSkill = 'runecraft'`, `weaponSize = launcher size`; it spends the rune and emits `SpellCast { casterId, spellId, targetId, tile }`. Everything after that line is the shared path. So the hit roll, cooldown, crowding (`crowdTicks`), projectile, bystander half chance and xp (+3 a hit, +1 a miss, through `grantXp` on `weaponDef.skill`) all come from 16, and the hit roll draws on 16's stream. A bystander can be an ally: friendly fire is real by construction.
+
+**Cast when** (a bolt, as Firebloom has its own): the caster holds the bolt while a creature of its own faction (for a fortress caster, any fortress creature) stands on a tile the bolt would cross before its target, the tiles of 16's projectile ray. It then throws at another target: the nearest creature hostile to it (distance, then id) that `canCastBolt` allows, in line of sight, with no ally on the line (`otherBoltTarget` in `magic/cast.ts`). With none, it waits where it stands and spends nothing. The check is made at the cast and draws nothing, so friendly fire stays real: an ally can step into the bolt's path after the cast, and a missed bolt flies on and can land on someone beyond its target.
 
 Cooldown is 16's rule: `size × 3 + 10 − Agility / 10`. At Agility 50 a staff is 26 ticks, a wand 14.
 
-`Projectile` gains optional `spell?: Idx<'SpellDef'>`. `resolveProjectileHit` returns the damage it dealt. In `advanceSingleProjectile`, a hit with damage above 0 calls `applySpellOnHit` in `magic/cast.ts` (Frostbind's slow).
+A bolt's `Projectile` carries `spell?: Idx<'SpellDef'>` and `spellPower?` (the channel's power in thousandths at the cast, so the hit does not depend on what the caster holds by then). `resolveProjectileHit` returns the damage it dealt. In `advanceSingleProjectile`, a hit with damage above 0, on the target or on a bystander, calls `applySpellOnHit` in `magic/cast.ts` (Frostbind's slow).
 
 Below cost the channel is a club. T-473 adds the vial first (§ Vials).
 
@@ -239,12 +209,10 @@ The rune is spent at the cast, in every spell.
 
 ### Spells
 
-**Task:** as the row says. Content table `spells` (new, in `03-content/weapons-and-armor.md`, new `SCHEMAS` entry and `exportSpells`).
+**Task:** as the row says. Content table `spells` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Spells, `SCHEMAS` entry, `exportSpells`), which holds `emberbolt` (garnet) and `frostbind` (amethyst). A blank `range` there is the channel's own. These rows arrive with their tasks:
 
 | stone | id | name | kind | cost | range | base | type | ticks | suffix | Task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| garnet | `emberbolt` | Emberbolt | bolt | 1 | launcher | 18 | ember | — | of embers | T-470 |
-| amethyst | `frostbind` | Frostbind | bolt | 1 | launcher | 8 | frost | 300 | of frost | T-470 |
 | quartz | `ward` | Ward | ward | 2 | 3 | 6 | — | 600 | of warding | T-473 |
 | emerald | `mend` | Mend | mend | 2 | 4 | — | — | — | of mending | T-473 |
 | sapphire | `dread` | Dread | dread | 2 | 4 | — | — | 400 | of dread | T-473 |
@@ -254,7 +222,7 @@ The rune is spent at the cast, in every spell.
 
 Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. Until T-473 and T-475 land, a stone with no row makes no recipe, so no such staff can exist.
 
-Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. T-472 adds the `rimeward` check in `addEffect` for `slow`, so spells and enchantments both respect it; T-470 has no such row to read.
+Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. T-472 adds the `rimeward` check in `addEffect` for `slow`, so spells and enchantments both respect it.
 
 When each casts (`castSupport` evaluates these for a held target, in this order; a bolt, burst or single goes by 16's ranged branch):
 
@@ -276,7 +244,7 @@ By 16's ranged branch, with `canCastBolt` also true only when:
 
 Announcements: `RuneSpent` once a caster falls below cost, until regen lifts them over it (`Rune.outAnnounced`). A firebloom that hits a fortress creature: `SpellCast`, alert, once per caster per day.
 
-Worked numbers, at Toughness 50 (5%). All round as 16 rounds.
+Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row but the ward's is pinned by a test (`test/unit/runecraft/t470-runeforge-channels.test.ts`).
 
 | Attack | raw | Target | damage |
 |---|---|---|---|
@@ -293,13 +261,13 @@ Worked numbers, at Toughness 50 (5%). All round as 16 rounds.
 
 ### Effects
 
-**Task:** T-470 (`slow`), T-473 (the rest of the spells), T-474 (draughts).
+**Task:** `slow` is built; T-473 (the rest of the spells), T-474 (draughts).
 
-`Spellbound` component (§ State). New `src/core/effects.ts`: `effectValue(entities, id, kind, tick)`, the largest value among unexpired entries of a kind, 0 if none. 25 adds entries through `addEffect` in `magic/cast.ts` and, on `HourPassed`, drops expired entries and the component with them. Readers compare `until` with the tick, so expiry needs no tick of its own.
+`Spellbound` component (§ State). `src/core/effects.ts`: `effectValue(entities, id, kind, tick)`, the largest value among unexpired entries of a kind, 0 if none, and `effortUnderEffects`, the step's effort below. 25 adds entries through `addEffect` in `magic/cast.ts` and, on `HourPassed`, drops expired entries and the component with them. Readers compare `until` with the tick, so expiry needs no tick of its own.
 
 | kind | value | read at | Task |
 |---|---|---|---|
-| `slow` | percent | `core/movement.ts` `moveAlongPath`, on the step's effort: `× (100 − slow + haste) / 100`, with a guard so a game with no `Spellbound` does no lookup per mover. Every creature, one place. 17's `speedModifier` is not touched | T-470 |
+| `slow` | percent | `core/movement.ts` `moveAlongPath`, on the step's effort after crowding: `× (100 − slow + haste) / 100`, truncated, at least 1; a game with no `Spellbound` (the store is empty) does no lookup per mover. Every creature, one place. 17's `speedModifier` is not touched | T-470 |
 | `ward` | armor | `armorReduction`: `+ ward × wardMult(type)` on every part | T-473 |
 | `flee` | 1 | `CombatSystem.tick`, after the conscious check: while it lasts the creature keeps its target, does not attack, and walks to a tile 12 away from `sourceId` (clamped to the map; the party's edge tile if no path). `isFleeing` counts it (+10 to hit, no parry) and gains a tick argument. 18's member step needs no change: it holds a target and returns. Nothing leaves the map, so the party's retreat count does not move | T-473 |
 | `heal_rate` | percent | `health/tick.ts` healing: `healRemaining −= 5 × value / 100` when set | T-474 |
@@ -527,7 +495,7 @@ Every value sits inside the caps. Nothing here can take a fed, rested dwarf belo
 
 ## State
 
-Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates. `Rune` (with `current` only), `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel) and `HealthState.stunnedUntil` are there.
+Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune` (with `current` only), `Spellbound` (with `effects`), `Item.stone`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel) and `HealthState.stunnedUntil` are there.
 
 ```ts
 interface Rune {                 // owner 25; also written by 18 for hexers
@@ -537,7 +505,7 @@ interface Rune {                 // owner 25; also written by 18 for hexers
   outAnnounced?: boolean;        // T-473
 }
 interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: EntityId }
-interface Spellbound {           // owner 25. T-470
+interface Spellbound {           // owner 25
   effects: ActiveEffect[];
   lastDraughtTick?: Tick;        // T-474
   lastCalmTick?: Tick;           // T-474
@@ -545,9 +513,10 @@ interface Spellbound {           // owner 25. T-470
 interface Summoned { summonerId: EntityId; fadesAt: Tick }   // owner 25. T-475
 
 // additions to existing components
-Item.stone?: Idx<'MaterialDef'>                               // T-470
+Item.stone?: Idx<'MaterialDef'>
 Item.enchant?: { id: Idx<'EnchantDef'>; tier: Quality }       // T-471
-Projectile.spell?: Idx<'SpellDef'>                            // T-470
+Projectile.spell?: Idx<'SpellDef'>
+Projectile.spellPower?: number                                // the channel's power in thousandths
 WorkOrder.targetType?: Idx<'ItemTypeDef'>                     // T-471
 Squad.equipment.draughts?: Idx<'ItemTypeDef'>[]               // T-474
 
@@ -572,6 +541,8 @@ The `interface:check` script compares this section with the code. It holds only 
 - `magic.rune(id)` — current, max and regen in milli-rune, the metal percent and the pieces that lower it, and whole hours to full (0 full, −1 never); undefined without a `Rune`
 - `magic.sanctums()` — sanctum zones, ascending; `magic.apprentices(zoneId)` — its living adult apprentices, ascending; `magic.sessionsToday(id)`
 - `magic.mishapPermille(zoneId, id)` — the mishap chance of this dwarf's next session there; `magic.lastMishap(zoneId)` — kind, dwarf and tick of the sanctum's last mishap, or undefined
+- `magic.canCast(id)` — the creature holds a channel whose spell its rune pays for now; `magic.spellOf(itemId)` — the spell in a channel and its numbers (cost, range, damage, type, ticks, power, suffix), or undefined
+- `magic.effects(id)` — the creature's unexpired timed effects
 
 ### Commands
 
@@ -583,21 +554,18 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Events emitted
 
-`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }`, `FirstRunecaster { id }`, and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0).
+`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }`, `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile }` (from 16's ranged branch, through `castBolt`), and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0).
 
 ### Registrations
 
-Job producer `magic` (`attune`); inspector sections `creature › rune` and `zone › sanctum` (the sanctum panel, in 14's zones panel); announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note).
+Job producer `magic` (`attune`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note).
 
 ## Planned interfaces
 
 | Kind | Name | Task |
 |---|---|---|
-| Reader | `magic.canCast(id)`, `magic.spellOf(itemId)`: the spell and its numbers in that item | T-470 |
-| Reader | `magic.effects(id)` | T-470 |
 | Reader | `magic.enchantOf(itemId)`: a text line and the row | T-471 |
 | Reader | `magic.summonsOf(id)` | T-475 |
-| Event | `SpellCast { casterId, spellId, targetId, tile }` | T-470 |
 | Event | `StoneSet { itemId, enchantId, tier, smithId }` (12 emits it) | T-471 |
 | Event | `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` | T-473 |
 | Event | `DraughtDrunk { id, draughtId }` | T-474 |
@@ -605,7 +573,7 @@ Job producer `magic` (`attune`); inspector sections `creature › rune` and `zon
 | Event | `DeepsilverWorked { amount, tile }` (12 emits it) | T-476 |
 | Consumes | `RaidArrived`, `AmbushSprung`, `AttackResolved`, `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-474, T-476 |
 | Registration | job producer `magic`: `give_draught` | T-474 |
-| Registration | inspector section `item › stone`; announcement `StoneSet` at masterwork (note) | T-470, T-471 |
+| Registration | announcement `StoneSet` at masterwork (note) | T-471 |
 | Registration | announcements: `RuneSpent` (note), `SpellCast` of a firebloom that burns a fortress creature (alert) | T-473 |
 | Registration | announcements: `SummonTurned` (danger) | T-475 |
 
@@ -615,9 +583,9 @@ Other systems' documents gain their parts in the same commits: 12 (`transform`, 
 
 - **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (T-473, `render/compositor.ts`; palette row in the same task).
 - **Sanctum panel**: the selected sanctum's inspector in the zones panel (zone type key `[S-c]`, `ui-screens/panels.md` § Zones). The room's tier, score and missing circle; the glowcap in stock; the mishap chance in words for a new apprentice ("one session in 17"); each apprentice with level, rune and sessions left today, and its own chance; the last mishap. `[S-o]` opens the apprentice picker, which adds or removes one adult dwarf at a time through `SetSanctumApprentices`.
-- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow". From T-470 the staff and its spell's numbers; from T-473 vials and effects; from T-474 "Can take a draught again in 2 days"; from T-475 summons.
-- **Look cursor** (T-470): "iron staff of embers (fine). Emberbolt: 24 ember, range 12. Needs a runecaster." (T-471): "steel battle axe of embers (fine). +9 ember on a hit."
-- **Squad panel** (T-474): the ordered draught checklist, with each trigger in words. (T-470): a channel shows beside a member only if they can use it.
+- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks". From T-473 vials and effects; from T-474 "Can take a draught again in 2 days"; from T-475 summons.
+- **Look cursor**: a channel is named with its spell's suffix, "1 iron staff of embers (fine)", then its value, and the line under it reads "Emberbolt: 24 ember, range 12. Needs a runecaster." (T-471): "steel battle axe of embers (fine). +9 ember on a hit."
+- **Squad panel** (T-474): the ordered draught checklist, with each trigger in words. A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
 - **Orders panel** (T-471): a transform recipe offers the target type and the material.
 - **Hints** (`hints` rows, T-477, each with a trigger on stock or buildings): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
 - **Legend milestones** (`milestones` rows and `legend/index.ts`): first stone set and first runecaster (T-476), first summoning answered (T-475).

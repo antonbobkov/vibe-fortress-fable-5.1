@@ -50,6 +50,8 @@ export interface MetalDef extends MaterialDef {
   weaponMult: number;
   armorMult: number;
   bluntBonus: number;
+  /** A staff shod in this metal casts with this much power (`25-runecraft.md` § Channels). */
+  runeMult: number;
   alloy?: {
     inputs: { material: string; count: number; kind: 'bar' | 'stone' | 'fuel' }[];
     output: number;
@@ -93,6 +95,8 @@ export interface RecipeOutput {
     | { fixed: string }
     | { alloy: string }
     | { plantDrink: boolean };
+  /** The output's set stone: the material of a delivered input (`Item.stone`). */
+  stone?: { from: 'input'; index: number };
 }
 
 export interface RecipeDef {
@@ -108,6 +112,24 @@ export interface RecipeDef {
   container?: string;
   xp: number;
   generated?: boolean;
+}
+
+/** `03-content/weapons-and-armor.md` § Spells: the spell a stone sets in a channel. */
+export interface SpellDef {
+  id: string;
+  name: string;
+  /** The gem material that carries the spell. */
+  stone: string;
+  kind: 'bolt' | 'burst' | 'single' | 'ward' | 'mend' | 'dread' | 'call';
+  /** Whole rune spent at the cast. */
+  cost: number;
+  /** Tiles; absent: the channel's own range. */
+  range?: number;
+  base?: number;
+  type?: string;
+  ticks?: number;
+  /** The channel's name suffix ("of embers"). */
+  suffix: string;
 }
 
 export interface SpeciesDef extends RowBase {
@@ -209,6 +231,7 @@ export function generatedMaterials(
 export function generatedRecipes(
   minerals: readonly MineralDef[],
   metals: readonly MetalDef[],
+  spells: readonly SpellDef[] = [],
 ): RecipeDef[] {
   const out: RecipeDef[] = [];
   for (const ore of minerals) {
@@ -267,6 +290,37 @@ export function generatedRecipes(
     xp: 3,
     generated: true,
   });
+  // `25-runecraft.md` § Channels: one wand and one staff recipe per stone that carries a spell. The
+  // wand takes the wood of its log, the staff the metal of its bar; the gem is the stone.
+  for (const spell of spells) {
+    const suffix = spell.suffix;
+    out.push({
+      id: `make_wand_${spell.stone}`,
+      name: `Wand ${suffix}`,
+      workshop: 'runeforge',
+      skill: 'runesmithing',
+      inputs: [{ match: 'log', count: 1 }, { match: 'cut_gem', count: 1, material: spell.stone }],
+      outputs: [{ item: 'wand', count: 1, material: { from: 'input', index: 0 }, stone: { from: 'input', index: 1 } }],
+      baseTicks: 200,
+      fuel: false,
+      quality: true,
+      xp: 10,
+      generated: true,
+    });
+    out.push({
+      id: `make_staff_${spell.stone}`,
+      name: `Staff ${suffix}`,
+      workshop: 'runeforge',
+      skill: 'runesmithing',
+      inputs: [{ match: 'log', count: 1 }, { match: 'cut_gem', count: 1, material: spell.stone }, { match: 'bar', count: 1 }],
+      outputs: [{ item: 'staff', count: 1, material: { from: 'input', index: 2 }, stone: { from: 'input', index: 1 } }],
+      baseTicks: 300,
+      fuel: false,
+      quality: true,
+      xp: 12,
+      generated: true,
+    });
+  }
   return out;
 }
 
@@ -285,7 +339,8 @@ export function applyGenerated(data: Record<string, unknown>): void {
   const minerals = (data['minerals'] ?? []) as MineralDef[];
   const metals = (data['metals'] ?? []) as MetalDef[];
   const recipes = (data['recipes'] ?? []) as RecipeDef[];
-  data['recipes'] = [...recipes, ...generatedRecipes(minerals, metals)];
+  const spells = (data['spells'] ?? []) as SpellDef[];
+  data['recipes'] = [...recipes, ...generatedRecipes(minerals, metals, spells)];
 
   for (const m of data['materials'] as MaterialDef[]) m.magmaSafe = m.meltsAtC > MAGMA_C;
 }

@@ -26,6 +26,28 @@ import { militaryNoSquad, wrapText, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
+import type { MagicReader } from '@systems/magic';
+
+interface WeaponClassRow {
+  readonly id: string;
+  readonly weaponClass?: string;
+  readonly launcher?: { readonly ammo?: string };
+}
+
+/**
+ * The glyph of the channel a member holds, when the member can cast with it (a runecaster: 25
+ * § Channels); '' otherwise. A channel is a launcher with no ammunition.
+ */
+export function channelMark(ctx: PanelContext, memberId: EntityId): string {
+  if (!ctx.readers.has('25')) return '';
+  const weapon = ctx.readers.entities.get(memberId, C.Equipment)?.weapon ?? 0;
+  const runecraft = ctx.registry.table('skills').index('runecraft');
+  const level = runecraft < 0 ? 0 : ctx.readers.entities.get(memberId, C.Skills)?.level[runecraft] ?? 0;
+  if (weapon === 0 || level < 1) return '';
+  if (ctx.readers.of<MagicReader>('25').spellOf(weapon) === undefined) return '';
+  const item = ctx.readers.entities.get(weapon, C.Item);
+  return item === undefined ? '' : ctx.registry.table<{ id: string; glyph?: string }>('items').byIndex(item.type)?.glyph ?? '';
+}
 
 export const SQUAD_PRESET_NAMES = [
   'The Hearthguard',
@@ -166,7 +188,9 @@ export class MilitaryPanel {
 
   /** The exact choices accepted by SetSquadEquipment; weapon classes come from content. */
   gearOptions(ctx: PanelContext, kind: 'weapon' | 'armor'): string[] {
-    return kind === 'armor' ? ['any', 'metal', 'leather'] : ['any', ...new Set(ctx.registry.table<{ id: string; weaponClass?: string }>('weapons').rows.flatMap((weapon) => typeof weapon.weaponClass === 'string' ? [weapon.weaponClass] : []))];
+    // A channel's class is not offered: a runecaster takes a channel whatever the squad prefers (25 § Channels).
+    return kind === 'armor' ? ['any', 'metal', 'leather'] : ['any', ...new Set(ctx.registry.table<WeaponClassRow>('weapons').rows.flatMap((weapon) =>
+      typeof weapon.weaponClass === 'string' && !(weapon.launcher !== undefined && weapon.launcher.ammo === undefined) ? [weapon.weaponClass] : []))];
   }
 
   toggleRanged(ctx: PanelContext): Command | null {
@@ -551,7 +575,8 @@ export function drawMilitaryPanel(
   // Members line: Members Halvar G., Einar R.
   const memberNames = squad.members.map((mid) => {
     const c = ctx.readers.entities.get(mid, C.Creature);
-    return c ? shortDwarfName(c.name) : '?';
+    const mark = channelMark(ctx, mid);
+    return c ? `${shortDwarfName(c.name)}${mark === '' ? '' : ` ${mark}`}` : '?';
   });
   const membersStr = memberNames.length > 0 ? memberNames.join(', ') : 'none';
   label(s, col, row, `Members ${membersStr}`, { width });

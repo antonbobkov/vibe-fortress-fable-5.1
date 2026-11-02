@@ -113,13 +113,15 @@ describe('T-175 command validation is atomic and keeps its rejection reason', ()
       expect(w.game.world.entities.get(squadId, C.Squad)!.equipment).toEqual(before);
     },
   );
-  it('accepts each authored weapon class and the three armor options', () => {
+  it('accepts each authored weapon class but a channel\'s, and the three armor options', () => {
     const { w, apply, squadId } = squad();
-    const weapons = w.game.registry.table<{ id: string; weaponClass: string }>('weapons');
+    const weapons = w.game.registry.table<{ id: string; weaponClass: string; launcher?: { ammo?: string } }>('weapons');
+    // A channel (25) is a launcher with no ammunition; its class is no squad preference.
+    const channel = (row: { launcher?: { ammo?: string } }): boolean => row.launcher !== undefined && row.launcher.ammo === undefined;
     for (const row of weapons.rows.slice(1))
       expect(
         apply({ type: 'SetSquadEquipment', squadId, equipment: { weaponClass: row.weaponClass } }),
-      ).toEqual({ ok: true });
+      ).toEqual(channel(row) ? { ok: false, reason: 'bad_setting' } : { ok: true });
     for (const armor of ['metal', 'leather', 'any'])
       expect(
         apply({ type: 'SetSquadEquipment', squadId, equipment: { armor, ranged: true } }),

@@ -10,7 +10,7 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 
 - **Item type**: a row of `items.md` with a three-level category path (`food/meat/raw`), a value multiplier, stacking rules, the container class it wants in a stockpile, a rot time, tags, and a glyph.
 - **Item**: an entity with `Item { type, material, quality, wear, count, containerId, ownerId, flags }` and a `Position` when it lies on the ground. Items in a container have no `Position`; items carried have `Item.carriedBy` naming their creature, corpse or in-flight projectile, and no `Position`.
-- **Stack**: one entity with `count > 1` for stackable types (ammunition, seeds, meals, bars, blocks, coins). Stacks split when part of one is taken and merge when identical stacks meet in a stockpile slot.
+- **Stack**: one entity with `count > 1` for stackable types (ammunition, seeds, meals, bars, blocks, coins). Stacks split when part of one is taken and merge when identical stacks meet in a stockpile slot: same type, material, quality, stone (a channel's gem, 25), flags and owner. A split keeps the stone.
 - **Container**: an item with `Container { contents, capacity }`. Classes: `barrel` (drink, liquids, food), `bag` (seeds, flour, powders), `bin` (crafts, cloth, leather, bars, ammunition), `chest` (personal items, hospital supplies), `bucket` (one unit of water or milk). A cage is not a container: it holds one creature, named by the cage item's `occupantId` (0 when it is empty).
 - **Stockpile**: a zone with a filter, container wants, a priority, and optional source links.
 - **Slot**: a stockpile tile, or a container in a stockpile tile. A tile holds one item or stack, or one container.

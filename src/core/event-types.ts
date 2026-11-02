@@ -176,6 +176,7 @@ export const EVENT_TYPES = [
   'Mishap',
   'CreatureStunned',
   'FirstRunecaster',
+  'SpellCast',
 ] as const;
 
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -354,6 +355,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   Mishap: "id, kind, buildingId, tile",
   CreatureStunned: "id, until",
   FirstRunecaster: "id",
+  SpellCast: "casterId, spellId, targetId, tile",
 });
 
 const EVENT_TYPE_SET: ReadonlySet<string> = new Set<string>(EVENT_TYPES);

@@ -97,6 +97,8 @@ export function severityFor(amount: number, maxHp: number): Severity {
 export function woundTypeFor(damageType: string, amount: number, maxHp: number): WoundType {
   if (damageType === 'edge') return 'cut';
   if (damageType === 'pierce') return 'puncture';
+  // `ember` is rune fire: its wound is a burn (25 § Damage types).
+  if (damageType === 'ember') return 'burn';
   if (damageType === 'blunt') {
     return amount >= (maxHp * FRACTURE_PERCENT) / 100 ? 'fracture' : 'bruise';
   }

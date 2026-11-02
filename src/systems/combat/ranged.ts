@@ -15,6 +15,7 @@ import type { BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
 import { grantXp } from '@systems/dwarves';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import { applySpellOnHit, castBolt } from '@systems/magic/cast';
 import {
   AMMO_BREAK_PERMILLE,
   BLUNT_THROUGH_PERCENT,
@@ -22,14 +23,12 @@ import {
   PROJECTILE_SPEED,
 } from './constants';
 import {
-  armorCovering,
+  armorReduction,
   blockChance,
   getAttribute,
-  getDamageVsLayer,
   getSkill,
   isConscious,
   isFleeing,
-  isWarTrained,
   shieldIsBuckler,
   shieldOf,
   weaponOf,
@@ -58,7 +57,8 @@ interface BodyPlanRow {
 interface LauncherDef {
   readonly range: number;
   readonly power: number;
-  readonly ammo: string;
+  /** Absent: a channel (`25` § Channels). */
+  readonly ammo?: string;
   readonly metalPower?: number;
   readonly yewPower?: number;
 }
@@ -396,7 +396,8 @@ export function dropOrBreakAmmo(
 }
 
 /**
- * Resolves a projectile hit against a defender (target or bystander).
+ * Resolves a projectile hit against a defender (target or bystander). Returns the damage dealt: 0
+ * when a shield blocked it or the armour took it all.
  */
 export function resolveProjectileHit(
   ctx: TickContext,
@@ -409,7 +410,7 @@ export function resolveProjectileHit(
   damageType: DamageType,
   weaponDef: WieldedWeapon['weaponDef'],
   options?: { skipXp?: boolean | undefined },
-): void {
+): number {
   // Shield block check
   const shieldId = shieldOf(entities, defenderId);
   const defConscious = isConscious(entities, defenderId);
@@ -431,7 +432,7 @@ export function resolveProjectileHit(
       if (!options?.skipXp) {
         grantXp(entities, registry, defenderId, 'shield', 2, (e) => ctx.emit(e));
       }
-      return;
+      return 0;
     }
   }
 
@@ -448,17 +449,7 @@ export function resolveProjectileHit(
   }
 
   // Armor reduction
-  const armorPieces = armorCovering(entities, registry, defenderId, part);
-  let red = 0;
-  for (const piece of armorPieces) {
-    const layerMult = getDamageVsLayer(damageType, piece.layer);
-    red += piece.armor * piece.armorMult * (piece.coverage / 100) * piece.qualityArmorMult * layerMult;
-  }
-  const creature = entities.get(defenderId, C.Creature);
-  if (creature) {
-    const naturalArmor = (spD?.naturalArmor ?? 0) + (isWarTrained(entities, defenderId) ? 1 : 0);
-    red += naturalArmor * getDamageVsLayer(damageType, 'plate');
-  }
+  const red = armorReduction(entities, registry, defenderId, part, damageType, ctx.tick);
 
   let damage = Math.max(0, rawDamage - red);
   if (damageType === 'blunt' && red > 0) {
@@ -497,6 +488,7 @@ export function resolveProjectileHit(
       grantXp(entities, registry, defenderId, 'armor_use', 1, (e) => ctx.emit(e));
     }
   }
+  return damage;
 }
 
 /**
@@ -552,6 +544,8 @@ export function fireRanged(
   let ammoDamageType: DamageType = 'pierce';
   let weaponSkill = 'unarmed';
   let weaponSize = 6;
+  let spell: number | undefined;
+  let spellPower: number | undefined;
 
   if (naturalRanged) {
     projectileItemId = 0;
@@ -559,7 +553,18 @@ export function fireRanged(
     ammoDamageType = (naturalRanged.type as DamageType) ?? 'burn';
     weaponSkill = 'unarmed';
     weaponSize = naturalRanged.size;
-  } else if (launcher && w) {
+  } else if (launcher && w && launcher.ammo === undefined) {
+    // A channel (`25` § Casting): a bolt of the stone's spell, paid for in rune at the cast.
+    const bolt = castBolt(ctx, shooterId, w, targetId);
+    if (bolt === null) return false;
+    projectileItemId = 0;
+    rawDamage = bolt.rawDamage;
+    ammoDamageType = bolt.damageType;
+    weaponSkill = w.weaponDef.skill;
+    weaponSize = w.weaponDef.size;
+    spell = bolt.spell;
+    spellPower = bolt.powerMilli;
+  } else if (launcher && w && launcher.ammo !== undefined) {
     // Find ammo
     const carriedItems = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13').carriedItems(shooterId) : undefined;
     const ammoId = findAmmoForShooter(entities, registry, shooterId, launcher.ammo, carriedItems);
@@ -619,6 +624,7 @@ export function fireRanged(
     damageType: ammoDamageType,
     line,
     skipXp: options?.skipXp,
+    ...(spell === undefined ? {} : { spell, spellPower: spellPower ?? 1000 }),
   });
   if (projectileItemId !== 0) ctx.world.services.items?.attachToCarrier(projectileItemId, projId);
   entities.add(projId, C.Position, {
@@ -720,7 +726,7 @@ function advanceSingleProjectile(
         // Hit target!
         const w = weaponOf(entities, registry, proj.shooterId);
         const wDef = w?.weaponDef ?? ({ skill: 'unarmed', size: 6 } as unknown as WieldedWeapon['weaponDef']);
-        resolveProjectileHit(
+        const dealt = resolveProjectileHit(
           ctx,
           entities,
           registry,
@@ -732,6 +738,7 @@ function advanceSingleProjectile(
           wDef,
           proj.skipXp ? { skipXp: true } : undefined,
         );
+        if (proj.spell !== undefined && dealt > 0) applySpellOnHit(ctx, proj.spell, proj.spellPower ?? 1000, proj.shooterId, proj.targetId, dealt);
         if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
         entities.destroy(projId);
         return;
@@ -777,8 +784,8 @@ function advanceSingleProjectile(
       );
       const bystanderHitChance = Math.floor(hit / 2);
       if (rng.int(0, 99) < bystanderHitChance) {
-        // Hit bystander!
-        resolveProjectileHit(
+        // Hit bystander! A bolt hits an ally in the way as surely as a bolt from a crossbow.
+        const dealt = resolveProjectileHit(
           ctx,
           entities,
           registry,
@@ -790,6 +797,7 @@ function advanceSingleProjectile(
           wDef,
           proj.skipXp ? { skipXp: true } : undefined,
         );
+        if (proj.spell !== undefined && dealt > 0) applySpellOnHit(ctx, proj.spell, proj.spellPower ?? 1000, proj.shooterId, bystander, dealt);
         if (proj.itemId !== 0) dropOrBreakAmmo(ctx, rng, proj.itemId, nextTile);
         entities.destroy(projId);
         return;

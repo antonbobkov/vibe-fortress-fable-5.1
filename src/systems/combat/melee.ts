@@ -50,7 +50,8 @@ interface WeaponRow {
   readonly launcher?: {
     range: number;
     power: number;
-    ammo: string;
+    /** Absent: a channel (`25` § Channels). */
+    ammo?: string;
   };
 }
 
@@ -108,14 +109,27 @@ const LAYER_RANK: Record<string, number> = {
   padding: 1,
 };
 
-const DAMAGE_VS_LAYER: Record<DamageType, Record<'padding' | 'leather' | 'mail' | 'plate', number>> = {
-  edge: { padding: 0.6, leather: 0.8, mail: 1.2, plate: 1.1 },
-  pierce: { padding: 0.4, leather: 0.6, mail: 0.8, plate: 1.2 },
-  blunt: { padding: 1.2, leather: 1.0, mail: 0.5, plate: 0.9 },
+export type ArmorLayer = 'padding' | 'leather' | 'mail' | 'plate' | 'ward';
+
+/**
+ * `03-content/weapons-and-armor.md` § Damage type versus layer; a test compares it with
+ * `damageVsLayer.json`. A type with no row (the wyrm's `burn`) multiplies by 1.0.
+ */
+export const DAMAGE_VS_LAYER: Readonly<Record<DamageType, Readonly<Record<ArmorLayer, number>>>> = {
+  edge: { padding: 0.6, leather: 0.8, mail: 1.2, plate: 1.1, ward: 1.0 },
+  pierce: { padding: 0.4, leather: 0.6, mail: 0.8, plate: 1.2, ward: 1.0 },
+  blunt: { padding: 1.2, leather: 1.0, mail: 0.5, plate: 0.9, ward: 1.0 },
+  ember: { padding: 0.3, leather: 0.6, mail: 0.4, plate: 0.8, ward: 2.0 },
+  frost: { padding: 1.0, leather: 0.8, mail: 0.3, plate: 0.5, ward: 2.0 },
 };
 
-export function getDamageVsLayer(type: DamageType, layer: 'padding' | 'leather' | 'mail' | 'plate'): number {
-  return DAMAGE_VS_LAYER[type]?.[layer] ?? 1.0;
+export function getDamageVsLayer(type: DamageType | string, layer: ArmorLayer): number {
+  return DAMAGE_VS_LAYER[type as DamageType]?.[layer] ?? 1.0;
+}
+
+/** The damage types a natural or weapon attack may carry (`25-runecraft.md` § Damage types). */
+export function isDamageType(type: string): type is DamageType {
+  return type === 'edge' || type === 'pierce' || type === 'blunt' || type === 'ember' || type === 'frost';
 }
 
 export function getSkill(entities: EntityStore, registry: Registry, id: EntityId, skillId: string): number {
@@ -328,6 +342,37 @@ export function armorCovering(
   return pieces;
 }
 
+/**
+ * `armorReduction`: what the armour covering `part` takes off a hit of `type` (16 § Melee
+ * resolution). Every piece covering the part, outer layer first,
+ * `armor × armorMult × coverage / 100 × qualityArmorMult × damageTypeVsLayer(type, layer)`, then a
+ * creature's natural armour (+1 when war-trained) as a plate layer. One function for the blow, the
+ * missile and the inspector, so the three cannot drift apart. `tick` is for the timed effects that
+ * will read it (`25-runecraft.md` § Effects).
+ */
+export function armorReduction(
+  entities: EntityStore,
+  registry: Registry,
+  defenderId: EntityId,
+  part: BodySlot,
+  type: DamageType | string,
+  _tick: number,
+): number {
+  let red = 0;
+  for (const piece of armorCovering(entities, registry, defenderId, part)) {
+    const layerMult = getDamageVsLayer(type, piece.layer);
+    red += piece.armor * piece.armorMult * (piece.coverage / 100) * piece.qualityArmorMult * layerMult;
+  }
+  // Natural armour belongs to a species: a defender with no `Creature` has none.
+  const creature = entities.get(defenderId, C.Creature);
+  if (creature !== undefined) {
+    const sp = registry.table<SpeciesRow>('creatures').byIndex(creature.species);
+    const naturalArmor = (sp?.naturalArmor ?? 0) + (isWarTrained(entities, defenderId) ? 1 : 0);
+    red += naturalArmor * getDamageVsLayer(type, 'plate');
+  }
+  return red;
+}
+
 export function weightedPickPart(
   rng: RngStream,
   plan: BodyPlanRow,
@@ -421,7 +466,7 @@ export function resolveMelee(
       const attack = sp.attacks[idx] as AttackDef;
       atkDamage = attack.damage;
       atkSize = attack.size;
-      atkType = (attack.type === 'edge' || attack.type === 'pierce' || attack.type === 'blunt') ? attack.type : 'blunt';
+      atkType = isDamageType(attack.type) ? attack.type : 'blunt';
       atkSkill = 'unarmed';
     } else {
       atkDamage = 4;
@@ -562,15 +607,7 @@ export function resolveMelee(
   }
 
   // Armor reduction
-  let red = 0;
-  const pieces = armorCovering(entities, registry, defenderId, part);
-  for (const piece of pieces) {
-    const layerMult = getDamageVsLayer(atkType, piece.layer);
-    red += piece.armor * piece.armorMult * (piece.coverage / 100) * piece.qualityArmorMult * layerMult;
-  }
-  const spD = creatureD ? speciesTable.byIndex(creatureD.species) : undefined;
-  const naturalArmor = (spD?.naturalArmor ?? 0) + (isWarTrained(entities, defenderId) ? 1 : 0);
-  red += naturalArmor * getDamageVsLayer(atkType, 'plate');
+  const red = armorReduction(entities, registry, defenderId, part, atkType, tick);
 
   let damage = Math.max(0, raw - red);
   if (atkType === 'blunt' && red > 0) {

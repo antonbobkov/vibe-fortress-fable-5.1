@@ -40,6 +40,8 @@ export interface RecipeRow {
       | { readonly fixed: string }
       | { readonly alloy: string }
       | { readonly plantDrink: true };
+    /** The output's set stone: the material of a delivered input (`25` § Channels). */
+    readonly stone?: { readonly from: 'input'; readonly index: number };
   }[];
   readonly baseTicks: number;
   readonly fuel: boolean;
@@ -545,6 +547,9 @@ export class WorkshopOperator {
     const meltCount = melted === undefined ? 0 : Math.floor(melted.count * meltCost.bars * MELT_RETURN_PERCENT /
       (meltCost.units * 100));
     const materials = recipe.outputs.map((out) => this.materialOf(out, job));
+    // Read before the inputs are consumed, as the materials are.
+    const stones = recipe.outputs.map((out) => out.stone === undefined ? undefined
+      : this.items.get(job.inputs[out.stone.index]?.delivered[0] ?? 0)?.material);
     const container = recipe.container ? (job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0) : 0;
     const fuelIndex = recipe.fuel && !this.isMagmaPowered(id) ? recipe.inputs.length : -1;
     const itemsApi = ctx.world.services.items;
@@ -584,6 +589,11 @@ export class WorkshopOperator {
       if (typeof job.data['memorialDwarfId'] === 'number') {
         const item = ctx.world.entities.get(itemId, C.Item);
         if (item !== undefined) ctx.world.entities.add(itemId, C.Item, { ...item, memorialDwarfId: job.data['memorialDwarfId'] as EntityId });
+      }
+      const stone = stones[k];
+      if (stone !== undefined) {
+        const item = ctx.world.entities.get(itemId, C.Item);
+        if (item !== undefined) ctx.world.entities.add(itemId, C.Item, { ...item, stone });
       }
       itemsApi?.setCrafter?.(itemId, job.workerId);
       ctx.emit({ type: 'ItemCrafted', itemId, quality, crafterId: job.workerId, workshopId: id, recipeId: recipe.id });

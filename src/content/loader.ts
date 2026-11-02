@@ -99,6 +99,7 @@ import reputationEventsJson from './reputationEvents.json';
 import roomTiersJson from './roomTiers.json';
 import rowOrderJson from './rowOrder.json';
 import skillsJson from './skills.json';
+import spellsJson from './spells.json';
 import stringsJson from './strings.json';
 import thoughtsJson from './thoughts.json';
 import tunesJson from './tunes.json';
@@ -169,6 +170,7 @@ export function rawTables(): Record<string, unknown> {
     roomTiers: roomTiersJson,
     rowOrder: rowOrderJson,
     skills: skillsJson,
+    spells: spellsJson,
     strings: stringsJson,
     thoughts: thoughtsJson,
     tunes: tunesJson,

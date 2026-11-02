@@ -17,6 +17,7 @@ import {
   SOLDIER_AMMO,
 } from './constants';
 import { getSkill } from './melee';
+import { channelPower, isChannelRow } from '@systems/magic/cast';
 
 export interface WeaponDefRow {
   readonly id: string;
@@ -27,7 +28,8 @@ export interface WeaponDefRow {
   readonly launcher?: {
     range: number;
     power: number;
-    ammo: string;
+    /** Absent: a channel (`25` § Channels). */
+    ammo?: string;
   };
   readonly training?: boolean;
 }
@@ -177,6 +179,8 @@ export function scoreWeapon(
   const weaponsTable = registry.table<WeaponDefRow>('weapons');
   const wRow = weaponsTable.byId(itemRow.id);
   if (!wRow) return -1;
+  // A channel (25) is claimed only by a runecaster, before this score is asked for.
+  if (isChannelRow(wRow)) return -1;
 
   if (isRanged) {
     if (!wRow.launcher) return -1;
@@ -423,14 +427,16 @@ export function reequipSoldier(
   // A soldier hurt before this look, in an older save, has gear its arms cannot hold.
   dropWhatArmsCannotHold(ctx, soldierId);
 
-  // 1. Weapon selection
+  // 1. Weapon selection. A runecaster first claims the strongest channel, whatever the squad
+  // prefers (25 § Channels); holding one, it looks for no other weapon.
+  const holdsChannel = runecasterClaimsChannel(ctx, squad, soldierId, equip, pool);
   const currentWeaponScore = equip.weapon !== 0 && entities.alive(equip.weapon)
     ? scoreWeapon(registry, entities, equip.weapon, preferredWeaponClass, isRanged)
     : -1;
   let bestWeaponId = equip.weapon;
   let bestWeaponScore = currentWeaponScore;
 
-  for (const itemId of pool()) {
+  for (const itemId of holdsChannel ? [] : pool()) {
     if (!isAvailableItem(entities, itemId) || neededCivilianTool(ctx, itemId) || !canWieldWeapon(ctx, soldierId, itemId)) continue;
     const sc = scoreWeapon(registry, entities, itemId, preferredWeaponClass, isRanged);
     if (sc > bestWeaponScore) {
@@ -581,6 +587,51 @@ export function reequipSoldier(
       }
     }
   }
+}
+
+/** A channel item's power, or -1 for anything else. */
+function channelScore(ctx: TickContext, itemId: EntityId): number {
+  const item = ctx.world.entities.get(itemId, C.Item);
+  const row = item && ctx.registry.table<ItemDefRow>('items').byIndex(item.type);
+  const weapon = row ? ctx.registry.table<WeaponDefRow>('weapons').byId(row.id) : undefined;
+  if (item === undefined || weapon === undefined || !isChannelRow(weapon)) return -1;
+  return channelPower(ctx.registry, weapon, item.material, item.quality);
+}
+
+/**
+ * 25 § Channels: a member with `runecraft` 1 or more claims the available channel with the highest
+ * power, whatever the squad prefers. Returns whether the member now holds a channel. A member with
+ * no `runecraft` never claims one.
+ */
+function runecasterClaimsChannel(
+  ctx: TickContext,
+  squad: Squad,
+  soldierId: EntityId,
+  equip: { weapon: EntityId },
+  pool: () => readonly EntityId[],
+): boolean {
+  const entities = ctx.world.entities;
+  const runecraft = ctx.registry.table('skills').index('runecraft');
+  const level = runecraft < 0 ? 0 : entities.get(soldierId, C.Skills)?.level[runecraft] ?? 0;
+  if (level < 1) return false;
+  const held = equip.weapon !== 0 && entities.alive(equip.weapon) ? channelScore(ctx, equip.weapon) : -1;
+  let best = equip.weapon;
+  let bestScore = held;
+  for (const itemId of pool()) {
+    if (!isAvailableItem(entities, itemId) || !canWieldWeapon(ctx, soldierId, itemId)) continue;
+    const sc = channelScore(ctx, itemId);
+    if (sc > bestScore) {
+      bestScore = sc;
+      best = itemId;
+    }
+  }
+  if (bestScore < 0) return false;
+  if (best !== equip.weapon) {
+    if (equip.weapon !== 0 && entities.alive(equip.weapon)) dropItemAtBarracks(ctx, equip.weapon, squad.barracksZoneId, soldierId);
+    claimItemForSoldier(entities, best, soldierId, ctx.world.services.items);
+    equip.weapon = best;
+  }
+  return true;
 }
 
 /**

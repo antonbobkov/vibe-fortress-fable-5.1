@@ -4,20 +4,39 @@
     "padding": 600,
     "leather": 800,
     "mail": 1200,
-    "plate": 1100
+    "plate": 1100,
+    "ward": 1000
   },
   {
     "type": "pierce",
     "padding": 400,
     "leather": 600,
     "mail": 800,
-    "plate": 1200
+    "plate": 1200,
+    "ward": 1000
   },
   {
     "type": "blunt",
     "padding": 1200,
     "leather": 1000,
     "mail": 500,
-    "plate": 900
+    "plate": 900,
+    "ward": 1000
+  },
+  {
+    "type": "ember",
+    "padding": 300,
+    "leather": 600,
+    "mail": 400,
+    "plate": 800,
+    "ward": 2000
+  },
+  {
+    "type": "frost",
+    "padding": 1000,
+    "leather": 800,
+    "mail": 300,
+    "plate": 500,
+    "ward": 2000
   }
 ]

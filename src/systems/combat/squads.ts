@@ -223,7 +223,9 @@ export function setSquadEquipment(entities: EntityStore, cmd: Command, registry:
   if (typeof rawEquipment !== 'object' || rawEquipment === null || Array.isArray(rawEquipment)) return reject('bad_setting');
   const equipment = rawEquipment as Record<string, unknown>;
   const weaponClass = equipment['weaponClass'];
-  if (weaponClass !== undefined && weaponClass !== 'any' && !registry.table<{ id: string; weaponClass: string }>('weapons').rows.some((row) => row.weaponClass === weaponClass)) return reject('bad_setting');
+  // A channel's class is no preference: a runecaster takes a channel whatever the squad prefers (25 § Channels).
+  if (weaponClass !== undefined && weaponClass !== 'any' && !registry.table<{ id: string; weaponClass: string; launcher?: { ammo?: string } }>('weapons').rows
+    .some((row) => row.weaponClass === weaponClass && !(row.launcher !== undefined && row.launcher.ammo === undefined))) return reject('bad_setting');
   const armor = equipment['armor'];
   if (armor !== undefined && armor !== 'metal' && armor !== 'leather' && armor !== 'any') return reject('bad_setting');
   if (equipment['ranged'] !== undefined && typeof equipment['ranged'] !== 'boolean') return reject('bad_setting');

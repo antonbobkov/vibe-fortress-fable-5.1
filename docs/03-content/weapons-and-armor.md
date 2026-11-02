@@ -35,6 +35,17 @@ Columns: `skill` is the combat skill used; `type` the damage type; `damage` the 
 
 Launchers used in melee (no ammunition) attack as a `club` at half damage with the `hammer` skill.
 
+### Channels
+
+A channel is a launcher with no ammunition: a wand or a staff, which casts the spell of the stone set in it (§ Spells, [25-runecraft.md](../02-systems/25-runecraft.md) § Channels). `materials` is what the item is made of: a wand is its wood, a staff the metal of its shoe; `bars` and `logs` are the stock it is made from. Item rows: category `weapon/ranged`, stack 1, quality-bearing, slot weapon, no `weapon` tag; the glyph and color are the item's.
+
+| id | name | class | skill | range | power | size | hands | bars | logs | materials | mult | glyph | fg |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `wand` | wand | staff | `runecraft` | 8 | 0.70 | 3 | 1 | 0 | 1 | wood | 10 | `'` | `rune_cyan` |
+| `staff` | staff | staff | `runecraft` | 12 | 1.20 | 7 | 2 | 1 | 1 | metal | 14 | `⌠` | `rune_cyan` |
+
+`power(item) = power × runeMult(material) × qualityMultiplier`, with the metal's `runeMult` ([minerals-and-metals.md](minerals-and-metals.md) § Metals); a wooden item counts 1.0. A wand is 0.70, an iron staff 1.20, a fine silver staff 1.716, a masterwork deepsilver staff 2.88. In melee a channel is a launcher: a `club` at half damage with the `hammer` skill.
+
 ### Ammunition
 
 | id | name | type | damage | stack | per craft | materials | mult | notes |
@@ -74,11 +85,26 @@ Clothing (`tunic`, `trousers`, `boots`, `cloak`) counts as a `padding` layer wit
 
 Multiplier applied to a layer's armor value when reducing damage of the given type:
 
-| Type \ Layer | padding | leather | mail | plate |
-|---|---|---|---|---|
-| edge | 0.6 | 0.8 | 1.2 | 1.1 |
-| pierce | 0.4 | 0.6 | 0.8 | 1.2 |
-| blunt | 1.2 | 1.0 | 0.5 | 0.9 |
+| Type \ Layer | padding | leather | mail | plate | ward |
+|---|---|---|---|---|---|
+| edge | 0.6 | 0.8 | 1.2 | 1.1 | 1.0 |
+| pierce | 0.4 | 0.6 | 0.8 | 1.2 | 1.0 |
+| blunt | 1.2 | 1.0 | 0.5 | 0.9 | 1.0 |
+| ember | 0.3 | 0.6 | 0.4 | 0.8 | 2.0 |
+| frost | 1.0 | 0.8 | 0.3 | 0.5 | 2.0 |
+
+`ember` is rune fire and its wound is a `burn`; `frost` makes a `frost` wound. Mail is a poor answer to rune, plate a fair one, a ward the best. A type with no row multiplies by 1.0: the magma wyrm's breath is `burn`, which has none. The `ward` column is read by a ward's armor ([25-runecraft.md](../02-systems/25-runecraft.md) § Effects).
+
+## Spells
+
+The stone set in a channel fixes its spell ([25-runecraft.md](../02-systems/25-runecraft.md) § Spells). `cost` is whole rune, spent at the cast and never scaled; `range` is blank where the spell flies as far as the channel reaches; `base` and `ticks` are scaled by the channel's power, `round(base × power)` and `round(ticks × power)`; `suffix` is the channel's name ("iron staff of embers"). The runeforge makes one wand and one staff recipe per row.
+
+| stone | id | name | kind | cost | range | base | type | ticks | suffix |
+|---|---|---|---|---|---|---|---|---|---|
+| `garnet` | `emberbolt` | Emberbolt | bolt | 1 | — | 18 | ember | — | of embers |
+| `amethyst` | `frostbind` | Frostbind | bolt | 1 | — | 8 | frost | 300 | of frost |
+
+A Frostbind hit that does damage slows the target by `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks.
 
 ## Shields
 

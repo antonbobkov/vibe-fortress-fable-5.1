@@ -355,6 +355,18 @@
     "embark": false
   },
   {
+    "id": "runesmithing",
+    "name": "Runesmithing",
+    "labor": "smithing",
+    "profession": "Runesmith",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ],
+    "embark": false
+  },
+  {
     "id": "shield",
     "name": "Shield",
     "labor": null,

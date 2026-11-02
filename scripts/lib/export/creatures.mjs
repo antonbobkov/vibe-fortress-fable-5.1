@@ -49,7 +49,7 @@ export function exportBodyPlans() {
   );
 }
 
-const DAMAGE_TYPES = ['edge', 'blunt', 'pierce', 'burn'];
+const DAMAGE_TYPES = ['edge', 'blunt', 'pierce', 'ember', 'frost', 'burn'];
 
 /** "claw edge 18 size 6; bite edge 16 size 5" -> AttackDef[]. */
 export function parseAttacks(cell) {

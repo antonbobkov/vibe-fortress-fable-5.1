@@ -1,4 +1,4 @@
-// docs/03-content/items.md and weapons-and-armor.md -> items, weapons, ammo, armor, damageVsLayer.
+// docs/03-content/items.md and weapons-and-armor.md -> items, weapons, ammo, armor, damageVsLayer, spells.
 
 import { join } from 'node:path';
 import {
@@ -122,6 +122,10 @@ export function exportItems() {
 }
 
 function weaponItemType(w) {
+  // weapons-and-armor.md § Channels: a launcher with no ammunition is a channel, quality-bearing,
+  // with its own glyph and color and no `weapon` tag.
+  const channel = w.launcher !== undefined && w.launcher.ammo === undefined;
+  const look = CHANNEL_LOOK.get(w.id);
   return compact({
     id: w.id,
     name: w.name,
@@ -132,12 +136,16 @@ function weaponItemType(w) {
     rotDays: 0,
     weight: 'medium',
     materials: w.materials,
-    glyph: w.launcher === undefined ? '/' : ')',
-    quality: false,
+    glyph: look?.glyph ?? (w.launcher === undefined ? '/' : ')'),
+    fg: look?.fg,
+    quality: channel,
     slot: 'weapon',
-    tags: ['weapon'],
+    tags: channel ? undefined : ['weapon'],
   });
 }
+
+/** weapons-and-armor.md § Channels: each channel's glyph and color, by id. */
+const CHANNEL_LOOK = new Map();
 
 function ammoItemType(a) {
   return compact({
@@ -236,7 +244,45 @@ export function exportWeapons() {
       }),
     });
   });
-  return byId([...melee, ...launchers]);
+  const channels = asObjects(findTable(tables, 'Channels', 'logs')).map((row) => {
+    CHANNEL_LOOK.set(plain(row.id), { glyph: glyph(row.glyph), fg: id(row.fg) });
+    return compact({
+      id: plain(row.id),
+      name: plain(row.name),
+      weaponClass: plain(row.class),
+      skill: id(row.skill),
+      damageType: null,
+      damage: 0,
+      size: int(row.size),
+      hands: int(row.hands, 1),
+      bars: int(row.bars),
+      logs: isBlank(row.logs) || int(row.logs) === 0 ? undefined : int(row.logs),
+      mult: fixed(row.mult, 1000),
+      materials: materials(row.materials),
+      launcher: { range: int(row.range), power: fixed(row.power, 1000) },
+    });
+  });
+  return byId([...melee, ...launchers, ...channels]);
+}
+
+/** weapons-and-armor.md § Spells. */
+export function exportSpells() {
+  const tables = readTables(join(CONTENT_DIR, 'weapons-and-armor.md'));
+  const cell = (c) => (isBlank(c) || plain(c) === '—' ? undefined : c);
+  return byId(
+    asObjects(findTable(tables, 'Spells', 'kind')).map((row) => compact({
+      id: id(row.id),
+      name: plain(row.name),
+      stone: id(row.stone),
+      kind: plain(row.kind),
+      cost: int(row.cost),
+      range: cell(row.range) === undefined ? undefined : int(row.range),
+      base: cell(row.base) === undefined ? undefined : int(row.base),
+      type: cell(row.type) === undefined ? undefined : plain(row.type),
+      ticks: cell(row.ticks) === undefined ? undefined : int(row.ticks),
+      suffix: plain(row.suffix),
+    })),
+  );
 }
 
 export function exportAmmo() {
@@ -329,6 +375,7 @@ export function exportDamageVsLayer() {
     leather: fixed(row.leather),
     mail: fixed(row.mail),
     plate: fixed(row.plate),
+    ward: fixed(row.ward),
   }));
 }
 

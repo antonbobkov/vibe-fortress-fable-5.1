@@ -86,7 +86,8 @@ interface Patient { hospitalZoneId: EntityId; bedId: EntityId; needs: string[] /
 const enum ItemFlag { Forbidden=1, Dump=2, Melt=4, Reserved=8, Owned=16, AtDepot=32, Merchant=64, Installed=128 }
 interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Quality; wear: number; count: number;
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
-                 rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId or eating/drinking dwarfId */; carriedBy: EntityId }
+                 rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId or eating/drinking dwarfId */; carriedBy: EntityId;
+                 stone?: Idx<MaterialDef> /* the gem set in a channel (25); absent: none */ }
 interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage'|'wagon' }
 interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null; juvenile?: boolean }
 interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 'planned'|'constructing'|'built';
@@ -119,10 +120,14 @@ interface Tame { pastureId: EntityId; condition: number; trained: 'none'|'war'|'
                  petOf: EntityId; noBreed: boolean }
 interface Wild { state: string; homeChunk: ChunkIndex; stateUntil: Tick; hungry: boolean; lastThinkTick: Tick; arrivedTick: Tick; defendFrom?: TileIndex; unseenSince?: Tick; pendingMeal?: EntityId; mealId?: EntityId } // unseenSince: first observed perception loss; pendingMeal: dead creature awaiting CorpseCreated; mealId: corpse being approached/eaten, stateUntil 0 while approaching, then the eating deadline; omitted fields in older saves mean no grace or meal
 interface Projectile { itemId: EntityId; from: TileIndex; to: TileIndex; progress: Fixed; shooterId: EntityId;
-                       targetId: EntityId; hitRoll: number; damage: number; damageType: DamageType; line: TileIndex[] }
+                       targetId: EntityId; hitRoll: number; damage: number; damageType: DamageType; line: TileIndex[];
+                       spell?: Idx<SpellDef> /* a bolt's spell (25); absent: a missile */;
+                       spellPower?: number /* the casting channel's power in thousandths */ }
 interface Crop { plotZoneId: EntityId; plant: Idx<PlantDef>; stage: 0|1|2|3; growth: number; tile: TileIndex }
 interface Merchant { partyId: EntityId; goods: EntityId[] }
 interface Rune { current: number /* milli-rune; max and regen are derived, never stored */ }
+interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: EntityId }
+interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */ }
 ```
 
 ## Component ownership table
@@ -144,7 +149,7 @@ interface Rune { current: number /* milli-rune; max and regen are derived, never
 | `Tame`, `Wild` | 08 | — |
 | `Crop` | 07 | — |
 | `Merchant` | 20 | — |
-| `Rune` | 25 | — |
+| `Rune`, `Spellbound` | 25 | — |
 
 ## Fortress state
 

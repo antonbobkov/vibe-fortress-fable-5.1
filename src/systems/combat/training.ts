@@ -23,6 +23,7 @@ import {
 } from './constants';
 import { weaponOf } from './melee';
 import { findAmmoForShooter } from './ranged';
+import { isChannelRow } from '@systems/magic/cast';
 
 export interface BarracksInfo {
   readonly zoneId: EntityId;
@@ -167,12 +168,14 @@ export function stepTraining(
     }
 
     const rangedPracticing: EntityId[] = [];
+    // 25 § Channels: a channel holder drills alone, for runecraft, and spends no rune.
+    const channelHolders = present.filter((m) => isChannelRow(weaponOf(entities, registry, m)?.weaponDef));
 
     // Archery range practice for ranged members if target building exists
     if (archeryTargetTile >= 0) {
       for (const m of present) {
         const w = weaponOf(entities, registry, m);
-        if (w?.weaponDef.launcher) {
+        if (w?.weaponDef.launcher?.ammo !== undefined) {
           rangedPracticing.push(m);
           const nextTick = sessionEnds.get(m) ?? 0;
           if (ctx.tick >= nextTick) {
@@ -212,7 +215,7 @@ export function stepTraining(
     }
 
     // Melee sparring / solo drills for remaining present members
-    const meleeMembers = present.filter((m) => !rangedPracticing.includes(m));
+    const meleeMembers = present.filter((m) => !rangedPracticing.includes(m) && !channelHolders.includes(m));
     meleeMembers.sort((a, b) => a - b);
 
     // Form consecutive pairs
@@ -283,29 +286,31 @@ export function stepTraining(
       }
     }
 
-    // Process solo
-    if (solo !== undefined) {
-      const nextTick = sessionEnds.get(solo) ?? 0;
+    // Process solo: the odd one out, then every channel holder (its weapon skill is runecraft).
+    const soloDrill = (m: EntityId): void => {
+      const nextTick = sessionEnds.get(m) ?? 0;
       if (ctx.tick >= nextTick) {
-        sessionEnds.set(solo, ctx.tick + SPAR_TICKS);
+        sessionEnds.set(m, ctx.tick + SPAR_TICKS);
         const soloXp = Math.floor(wardenBonus / 2);
 
-        const w = weaponOf(entities, registry, solo);
+        const w = weaponOf(entities, registry, m);
         if (w) {
-          grantXp(entities, registry, solo, w.weaponDef.skill, soloXp, (e) => ctx.emit(e));
+          grantXp(entities, registry, m, w.weaponDef.skill, soloXp, (e) => ctx.emit(e));
         }
-        grantXp(entities, registry, solo, 'dodge', soloXp, (e) => ctx.emit(e));
+        grantXp(entities, registry, m, 'dodge', soloXp, (e) => ctx.emit(e));
 
-        const equip = entities.get(solo, C.Equipment);
+        const equip = entities.get(m, C.Equipment);
         if (equip && equip.shield !== 0) {
-          grantXp(entities, registry, solo, 'shield', soloXp, (e) => ctx.emit(e));
+          grantXp(entities, registry, m, 'shield', soloXp, (e) => ctx.emit(e));
         }
         if (equip && Object.values(equip.armor).some((id) => id !== 0)) {
-          grantXp(entities, registry, solo, 'armor_use', soloXp, (e) => ctx.emit(e));
+          grantXp(entities, registry, m, 'armor_use', soloXp, (e) => ctx.emit(e));
         }
 
-        ctx.emit({ type: 'TrainingSession', squadId, members: [solo] });
+        ctx.emit({ type: 'TrainingSession', squadId, members: [m] });
       }
-    }
+    };
+    if (solo !== undefined) soloDrill(solo);
+    for (const m of channelHolders.slice().sort((a, b) => a - b)) soloDrill(m);
   }
 }

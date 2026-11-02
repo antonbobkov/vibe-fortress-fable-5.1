@@ -215,7 +215,7 @@ describe('T-M0-07 catalogs: the type unions contain every catalog name', () => {
 
   it('every event of the catalog is an EventType, in document order', () => {
     expect([...EVENT_TYPES]).toEqual(events.map((e) => e.name));
-    expect(EVENT_TYPES.length).toBe(172);
+    expect(EVENT_TYPES.length).toBe(173);
   });
 
   it('every event keeps its documented field list', () => {

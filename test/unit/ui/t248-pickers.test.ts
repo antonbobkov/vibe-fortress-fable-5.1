@@ -52,7 +52,9 @@ describe('T-248 grouped recipes and single-choice gear', () => {
     const g = await squad(); g.fortress.key(press('w'));
     const s = surface(36, 45); drawMilitaryPanel(s, { col: 0, row: 0, cols: 36, rows: 45 }, g.fortress.military, g.fortress.ctx);
     const text = s.lines().join('\n'); expect(text).toContain('any (current)');
-    for (const value of new Set(registry.table<{ id: string; weaponClass?: string }>('weapons').rows.flatMap(r => r.weaponClass === undefined ? [] : [r.weaponClass]))) expect(text).toContain(value);
+    // A channel's class (25) is not a squad preference and is not offered.
+    for (const value of new Set(registry.table<{ id: string; weaponClass?: string; launcher?: { ammo?: string } }>('weapons').rows
+      .flatMap(r => r.weaponClass === undefined || (r.launcher !== undefined && r.launcher.ammo === undefined) ? [] : [r.weaponClass]))) expect(text).toContain(value);
   });
   it('Enter commits the selected armor; a mouse row commits the selected weapon', async () => {
     const g = await squad(), spy = vi.spyOn(g.host, 'submit'); g.fortress.key(press('g')); g.fortress.key(press('ArrowDown')); g.fortress.key(press('Enter'));

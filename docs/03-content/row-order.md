@@ -31,3 +31,16 @@ Every new row of every table goes at the end of this table, including generated 
 | thoughts | attuned |
 | thoughts | singed |
 | thoughts | first_runecaster |
+| skills | runesmithing |
+| patterns | runeforge |
+| buildings | runeforge |
+| spells | emberbolt |
+| spells | frostbind |
+| weapons | wand |
+| weapons | staff |
+| items | wand |
+| items | staff |
+| recipes | make_wand_garnet |
+| recipes | make_staff_garnet |
+| recipes | make_wand_amethyst |
+| recipes | make_staff_amethyst |
