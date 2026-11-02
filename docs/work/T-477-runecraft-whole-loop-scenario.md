@@ -17,3 +17,7 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 - The scripted fortress throws a spell from a staff it made itself, and a soldier drinks a draught, on the set seeds.
 - 25 holds no task id, and every row it names is in a table or schema.
 - A new report notes that the spec now governs. The design file itself is not edited, since reports are frozen.
+
+## Balance item from T-473 (orchestrator, 2026-11-02)
+
+The ward is strong in the arena: a warded soldier took 0.57 damage a hit against 4.8 unwarded; in the ambush of four, soldiers dead a day later fell from 0.63 to 0.04, and the peril-2 raid of ten was driven off 24 of 24 against 14 of 24 ([report](../../reports/audits/2026-11-02-t473-ward-arena.md), on master once T-473 merges). The design wanted the ward to be the spell that changes outcomes most, but "magic trails steel". Measure it here against a squad with one more marksdwarf or one more axedwarf instead of the caster, and lower `WARD_ARMOR` or `WARD_TICKS` if one caster is worth more than two soldiers. Daze re-stunning a captain every 180 ticks for 3 rune is measured in the same pass.
