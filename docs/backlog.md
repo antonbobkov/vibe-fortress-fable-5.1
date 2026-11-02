@@ -13,9 +13,9 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
-| T-462 | [A full stockpile leaves the brew at the still, and no one drinks it](work/T-462-brew-site-and-the-brook.md) | T-457's sweep | — | open |
 | T-463 | [Tame animals all stand on one hall tile](work/T-463-dogs-on-one-hall-tile.md) | T-457's sweep | — | open |
 | T-464 | [A whole fortress dies to one cave crawler without striking it](work/T-464-fortress-never-strikes-a-monster.md) | T-461's journal | — | open |
 | T-465 | [A seeking cavern monster stands still until a dwarf comes near](work/T-465-cavern-seek-stands-still.md) | T-461's journal | — | open |
+| T-466 | [The hand-laid defence of `defence_year` does not repel a raid](work/T-466-defence-never-repels-a-raid.md) | T-462's defence_year seeds | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

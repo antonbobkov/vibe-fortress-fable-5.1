@@ -94,7 +94,7 @@ function creatureTiles(w: TestWorld): Set<TileIndex> {
  * Place a building on the nearest surface site to (x, y) that the ghost accepts, outside every
  * zone and the tiles in `avoid`, as a player picks a free spot. Returns the building's id.
  */
-export function placeNear(w: TestWorld, type: string, x: number, y: number, avoid: Set<TileIndex> = new Set()): EntityId {
+export function placeNear(w: TestWorld, type: string, x: number, y: number, avoid: Set<TileIndex> = new Set(), clearsPlants = false): EntityId {
   const b = buildings(w);
   const sites: TileIndex[] = [];
   for (let yy = 2; yy < w.map.h - 4; yy += 1) for (let xx = 2; xx < w.map.w - 4; xx += 1) sites.push(w.index(xx, yy, surfaceZ(w, xx, yy)));
@@ -104,7 +104,7 @@ export function placeNear(w: TestWorld, type: string, x: number, y: number, avoi
   for (const origin of sites) {
     const ghost = b.ghost(type, origin, 0);
     // Open ground first, as a player picks a site; a sapling or shrub is cleared only where the script asks.
-    if (ghost.reason !== null || ghost.clears.length > 0) continue;
+    if (ghost.reason !== null || (ghost.clears.length > 0 && !clearsPlants)) continue;
     if (!ghost.tiles.every((t) => b.zoneAt(t) === 0 && !avoid.has(t) && !occupied.has(t))) continue;
     cmd(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0 });
     const id = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
