@@ -36,11 +36,11 @@ From the [probe](../data/2026-11-01-t461-journal.probe.ts.txt), read-only, repla
 - **Civilians.** They flee, and fight only when cornered or when caught by a wild animal hunting them (16 § Fleeing and morale in combat). A cavern monster is not a wild animal, so a bite does not catch anyone.
 - **Dogs and cats.** 13 dogs and 2 cats were killed with no blow struck. Only war-trained animals attack hostiles (08), and hunting dogs attack only the hunter's target.
 
-Each of these follows the spec. Whether a whole fortress should be able to die this way when the player does nothing is a question for [its own task](../../docs/work/T-464-fortress-never-strikes-a-monster.md).
+Each of these follows the spec. Whether a whole fortress should be able to die this way when the player does nothing is a question for [its own task](../../docs/archive/tasks/T-464-fortress-never-strikes-a-monster.md).
 
 ## A second finding: `seek` does not walk
 
-18 says aggressive monsters "will follow a breach corridor into the fortress". In the code the monster takes a target anywhere on its label, and 16 drops any target more than `PERCEPTION_RADIUS` away or more than two levels off, on the same tick. So the monster stands still in `seek` until a dwarf walks near. That is why this crawler waited 10.4 days. It has [its own task](../../docs/work/T-465-cavern-seek-stands-still.md); the fix would bring monsters to the halls sooner.
+18 says aggressive monsters "will follow a breach corridor into the fortress". In the code the monster takes a target anywhere on its label, and 16 drops any target more than `PERCEPTION_RADIUS` away or more than two levels off, on the same tick. So the monster stands still in `seek` until a dwarf walks near. That is why this crawler waited 10.4 days. It has [its own task](../../docs/archive/tasks/T-465-cavern-seek-stands-still.md); the fix would bring monsters to the halls sooner.
 
 The nine crawlers at z 21 stayed there for the whole journal, in state `wander`, on a different label from the fortress.
 
