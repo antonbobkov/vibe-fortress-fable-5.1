@@ -14,11 +14,11 @@ Every command, its fields, its owning system, its validation and the events its 
 | `DesignateHarvest` | `tiles[]` | 07 | crops at stage 3 | `JobCreated` |
 | `ConfirmDeepsilver` | — | 03 | — | — (sets `deepsilverConfirmed`) |
 | `SetPlotCrop` | `zoneId, season, speciesId \| 0` | 07 | zone is a farm plot; species is 0 or a known farmed plant id/integer index (`not_found` otherwise); light matches the plot kind (`light_mismatch`) | — |
-| `AssignPasture` | `animalId, zoneId \| 0` | 08 | tame grazer; zone is a pasture | — |
-| `MarkSlaughter` / `UnmarkSlaughter` | `animalId` | 08 | tame; not assigned as war or hunting animal (`assigned`) | `JobCreated` |
-| `TrainAnimal` | `animalId, kind` | 08 | species trainable for kind; a kennel exists (`no_kennel`) | `JobCreated` |
-| `TameCaged` | `cageId` | 08 | cage holds a tameable creature; kennel exists | `JobCreated` |
-| `AssignAnimal` | `animalId, dwarfId \| chainId \| squadId \| 0` | 08 | trained or pet-able; target exists | — |
+| `AssignPasture` | `animalId, zoneId \| 0` | 08 | tame grazer, not a summon (`not_found`); zone is a pasture | — |
+| `MarkSlaughter` / `UnmarkSlaughter` | `animalId` | 08 | tame, not a summon (`not_found`); not assigned as war or hunting animal (`assigned`) | `JobCreated` |
+| `TrainAnimal` | `animalId, kind` | 08 | not a summon (`not_found`); species trainable for kind; a kennel exists (`no_kennel`) | `JobCreated` |
+| `TameCaged` | `cageId` | 08 | cage holds a tameable creature, not a summon (`not_found`); kennel exists | `JobCreated` |
+| `AssignAnimal` | `animalId, dwarfId \| chainId \| squadId \| 0` | 08 | not a summon (`not_found`); trained or pet-able; target exists | — |
 | `SetBreedingCap` | `species, cap` | 08 | 0–100 | — |
 | `ReleaseCaged` | `cageId` | 08 | cage occupied | `CreatureCaged`-reverse via 19 `ReleaseCage` |
 | `SetHuntable` | `species, on` | 09 | known wild species (`not_found` for unknown species); boolean `on` | — |
@@ -64,7 +64,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `TradeCancel` | — | 20 | session open | — |
 | `SetRequests` | `civ, entries[]` | 20 | at most `REQUEST_MAX` | — |
 | `SetPopulationCap` | `n` | 21 | integer 20–200; outside range rejects out_of_range without changing the cap | — |
-| `NameAnimal` | `animalId, name` | 08 | tame; name 1–24 characters | — |
+| `NameAnimal` | `animalId, name` | 08 | tame, not a summon (`not_found`); name 1–24 characters | — |
 | `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
 | `RenameFortress` | `name` | core | 1–`FORTRESS_NAME_MAX_CHARS` characters | — |
 | `SetSanctumApprentices` | `zoneId, dwarfIds[]` | 25 | sanctum zone (`not_found`); each id a living dwarf of the fortress (`not_found`) and an adult (`not_adult`); no id twice and at most `SANCTUM_APPRENTICES` (`member_limit`); turns their `attunement` labor on | — |

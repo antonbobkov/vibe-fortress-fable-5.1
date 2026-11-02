@@ -382,7 +382,7 @@ describe('T-475 turning', () => {
     expect(died['cause']).not.toBe('faded');
     expect(three.some((id) => died['killerId'] === id)).toBe(true);
     expect(three.every((id) => entities.alive(id))).toBe(true);
-    expect(entities.with(C.Corpse).filter((c) => entities.get(c, C.Corpse)?.creatureId === shade)).toHaveLength(0);
+    expect(entities.with(C.Corpse).filter((c) => entities.get(c, C.Corpse)?.species === species('deep_shade'))).toHaveLength(0);
   });
 });
 
