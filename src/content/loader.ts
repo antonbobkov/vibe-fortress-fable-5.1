@@ -70,6 +70,7 @@ import deepThresholdsJson from './deepThresholds.json';
 import draughtsJson from './draughts.json';
 import embarkCatalogJson from './embarkCatalog.json';
 import embarkPresetsJson from './embarkPresets.json';
+import enchantsJson from './enchants.json';
 import fluxStonesJson from './fluxStones.json';
 import gearTiersJson from './gearTiers.json';
 import gemsJson from './gems.json';
@@ -142,6 +143,7 @@ export function rawTables(): Record<string, unknown> {
     draughts: draughtsJson,
     embarkCatalog: embarkCatalogJson,
     embarkPresets: embarkPresetsJson,
+    enchants: enchantsJson,
     fluxStones: fluxStonesJson,
     gearTiers: gearTiersJson,
     gems: gemsJson,

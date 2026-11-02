@@ -133,8 +133,10 @@ describe('T-473 content and constants', () => {
     expect(spells.byId('daze')).toMatchObject({ stone: 'diamond', kind: 'single', cost: 3, range: 6, ticks: 150 });
     expect(spells.ids().slice(-5)).toEqual(['ward', 'mend', 'dread', 'firebloom', 'daze']);
     const recipes = registry.table<{ id: string }>('recipes').ids();
-    // T-474's four draught recipes and its thought number after these.
-    expect(recipes.slice(-14, -4)).toEqual(['quartz', 'emerald', 'sapphire', 'ruby', 'diamond'].flatMap((s) => [`make_wand_${s}`, `make_staff_${s}`]));
+    // T-471's rows number after these ten.
+    const at = recipes.indexOf('make_wand_quartz');
+    expect(recipes.slice(at, at + 10)).toEqual(['quartz', 'emerald', 'sapphire', 'ruby', 'diamond'].flatMap((s) => [`make_wand_${s}`, `make_staff_${s}`]));
+    expect(at).toBeGreaterThan(recipes.indexOf('make_staff_amethyst'));
     const thoughts = registry.table<{ id: string; value: number; hours: number; group: string; trigger: { event?: string } }>('thoughts');
     expect(thoughts.byId('warded')).toMatchObject({ value: 1, hours: 12, group: 'comfort', trigger: { event: 'Warded' } });
     expect(thoughts.byId('mended_by_rune')).toMatchObject({ value: 3, hours: 48, group: 'none', trigger: { event: 'Mended' } });

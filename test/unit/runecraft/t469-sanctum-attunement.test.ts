@@ -129,7 +129,7 @@ describe('T-469 constants and arithmetic', () => {
     const doc = tuningConstants('02-systems/25-runecraft.md');
     const landed = magicConstants as unknown as Record<string, number>;
     const names = Object.keys(landed);
-    expect(names.length).toBe(26);
+    expect(names.length).toBe(27);
     for (const name of names) expect(doc.find((row) => row.name === name)?.value, name).toBe(landed[name]);
   });
 

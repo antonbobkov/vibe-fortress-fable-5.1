@@ -54,6 +54,8 @@ export interface ItemFilter {
   excludeIds?: readonly EntityId[];
   /** Item flags that must all be present (12's marked-for-melting input). */
   requiredFlags?: number;
+  /** Only an item with no enchantment: a transform recipe's input 0 (`12` § Work orders). */
+  noEnchant?: boolean;
 }
 
 export interface SearchOptions {
@@ -104,6 +106,7 @@ export function matches(core: ItemCore, id: EntityId, it: Item, filter: ItemFilt
     if (c === undefined || c.classId !== filter.emptyContainer || c.contents.length > 0) return false;
   }
   if (filter.unoccupied === true && (it.occupantId ?? 0) !== 0) return false;
+  if (filter.noEnchant === true && it.enchant !== undefined) return false;
   return true;
 }
 

@@ -1,4 +1,4 @@
-// docs/03-content/items.md and weapons-and-armor.md -> items, weapons, ammo, armor, damageVsLayer, spells, draughts.
+// docs/03-content/items.md and weapons-and-armor.md -> items, weapons, ammo, armor, damageVsLayer, spells, enchants, draughts.
 
 import { join } from 'node:path';
 import {
@@ -376,6 +376,68 @@ export function exportArmor() {
         cloth: cloth === null ? undefined : Number(cloth[1]),
         mult: fixed(row.mult, 1000),
         materials: materials(row.materials),
+        rune: runeProperty(row.rune),
+      });
+    }),
+  );
+}
+
+/** weapons-and-armor.md § Armor `rune`: "regen ×1.5" -> { regenPercent: 150 }; "max +10" -> { maxBonus: 10 }. */
+function runeProperty(cell) {
+  if (isBlank(cell)) return undefined;
+  const text = plain(cell);
+  const regen = /regen\s*[×x]\s*([\d.]+)/.exec(text);
+  const max = /max\s*\+\s*(\d+)/.exec(text);
+  if (regen === null && max === null) throw new Error(`weapons-and-armor.md: unreadable rune property "${text}"`);
+  return compact({
+    regenPercent: regen === null ? undefined : Math.round(Number(regen[1]) * 100),
+    maxBonus: max === null ? undefined : Number(max[1]),
+  });
+}
+
+const ENCHANT_SLOTS = new Set(['weapon', 'armor', 'ammo']);
+const ENCHANT_SCALES = new Set(['value', 'ticks', 'none']);
+
+/**
+ * weapons-and-armor.md § Enchantments `effects`: "`slow` 30 for 200 ticks; `flee` 1, 25% for 200 ticks"
+ * -> [{ kind, value, type?, chance?, ticks?, scales }].
+ */
+function enchantEffects(cell, scales) {
+  const out = [];
+  for (const part of String(cell ?? '').split(';')) {
+    const text = part.trim();
+    if (text.length === 0) continue;
+    const m = /^`([a-z_]+)`\s+([+−-]?\d+)(?:\s+([a-z]+))?(?:,\s*(\d+)%)?(?:\s+for\s+(\d+)\s+ticks)?$/.exec(text);
+    if (m === null) throw new Error(`weapons-and-armor.md: unreadable enchantment effect "${text}"`);
+    out.push(compact({
+      kind: m[1],
+      value: Number(m[2].replace('−', '-')),
+      type: m[3],
+      chance: m[4] === undefined ? undefined : Number(m[4]),
+      ticks: m[5] === undefined ? undefined : Number(m[5]),
+      scales,
+    }));
+  }
+  return out;
+}
+
+/** weapons-and-armor.md § Enchantments. */
+export function exportEnchants() {
+  const tables = readTables(join(CONTENT_DIR, 'weapons-and-armor.md'));
+  return byId(
+    asObjects(findTable(tables, 'Enchantments', 'vials')).map((row) => {
+      const slot = plain(row.slot);
+      const scales = plain(row.scales);
+      if (!ENCHANT_SLOTS.has(slot)) throw new Error(`weapons-and-armor.md: enchantment slot "${slot}"`);
+      if (!ENCHANT_SCALES.has(scales)) throw new Error(`weapons-and-armor.md: enchantment scales "${scales}"`);
+      return compact({
+        id: id(row.id),
+        slot,
+        stone: id(row.stone),
+        vials: int(row.vials),
+        suffix: plain(row.suffix),
+        effects: enchantEffects(row.effects, scales),
+        only: isBlank(row.only) ? undefined : plain(row.only),
       });
     }),
   );

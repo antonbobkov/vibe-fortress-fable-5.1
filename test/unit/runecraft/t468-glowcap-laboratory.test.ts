@@ -258,7 +258,7 @@ describe('T-468 caravan extras', () => {
     }));
     const gated = loadContent({ overrides: { caravanGoods } });
     expect(generateGoods(gated, 'mountainhome', 0, 49, [], new RngStream(7), new RngStream(8)).some((g) => g.extra)).toBe(false);
-    expect(generateGoods(gated, 'mountainhome', 0, 50, [], new RngStream(7), new RngStream(8)).filter((g) => g.extra)).toHaveLength(2);
+    expect(generateGoods(gated, 'mountainhome', 0, 50, [], new RngStream(7), new RngStream(8)).filter((g) => g.extra)).toHaveLength(3);
   });
 
   it('extra goods add no pack animal', () => {

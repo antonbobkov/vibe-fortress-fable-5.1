@@ -14,15 +14,14 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
 | T-466 | [The hand-laid defence of `defence_year` does not repel a raid](work/T-466-defence-never-repels-a-raid.md) | T-462's defence_year seeds | — | open |
-| T-471 | [Runecraft 4: setting stones, enchanted items and their value](work/T-471-runecraft-setting-stones.md) | Runecraft design | — | open |
-| T-472 | [Runecraft 5: enchantments act in combat](work/T-472-runecraft-enchants-in-combat.md) | Runecraft design | T-471 | blocked (needs T-471) |
 | T-474 | [Runecraft 7: draughts](work/T-474-runecraft-draughts.md) | Runecraft design | — | open |
 | T-475 | [Runecraft 8: Call and the three summons](work/T-475-runecraft-summons.md) | Runecraft design | — | open |
-| T-476 | [Runecraft 9: rare materials, deepsilver pressure and the legend](work/T-476-runecraft-deep-materials-hexers.md) | Runecraft design | T-472, T-474 | blocked (needs T-472, T-474) |
+| T-476 | [Runecraft 9: rare materials, deepsilver pressure and the legend](work/T-476-runecraft-deep-materials-hexers.md) | Runecraft design | T-474 | blocked (needs T-474) |
 | T-477 | [Runecraft 10: the whole loop played, and the docs that tell it](work/T-477-runecraft-whole-loop-scenario.md) | Runecraft design | T-475, T-476, T-479 | blocked (needs T-475, T-476, T-479) |
 | T-479 | [Runecraft 9b: Gloam hexers in raids and sieges](work/T-479-runecraft-hexers.md) | Runecraft design | — | open |
 | T-482 | [Idle tame animals keep a walk that has arrived, and crowd one hall tile](work/T-482-tame-animal-stale-walk.md) | T-463's follow-up | — | open |
 | T-483 | [Marksdwarves shoot their own squad](work/T-483-marksdwarf-friendly-fire.md) | T-470's arena | — | open |
 | T-484 | [A cave plot one level down freezes through a taiga winter](work/T-484-cave-plot-freezes-in-taiga-winter.md) | T-481's journal | — | open |
+| T-485 | [A fearsome axe makes a squad worse in the open](work/T-485-fearsome-weakens-squad.md) | T-472's arena | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

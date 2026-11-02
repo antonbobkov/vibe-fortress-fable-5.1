@@ -220,7 +220,24 @@ Each brews two draughts ([items.md](items.md) § Draughts). `spoilable`: an alch
 
 ## Runeforge (`runesmithing`)
 
-Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § Spells), with no fuel: `make_wand_<stone>` is 1 log + 1 cut_gem (the stone) → 1 wand of the log's wood, 200 ticks, `Q` yes, xp 10; `make_staff_<stone>` is 1 log + 1 cut_gem (the stone) + 1 bar → 1 staff of the bar's metal, 300 ticks, `Q` yes, xp 12. The output's stone is the gem's material. A work order's material filter picks the wand's wood and the staff's metal.
+No fuel. Authored:
+
+| id | name | inputs | outputs | ticks | Q | xp |
+|---|---|---|---|---|---|---|
+| `make_rune_robe` | Runed robe | 3 cloth (sporecloth_cloth) + 2 rune_vial | 1 rune_robe (from_input) | 250 | yes | 12 |
+| `make_circlet` | Circlet | 1 bar (silver, gold, electrum, platinum or deepsilver) + 1 cut_gem + 2 rune_vial | 1 circlet (from_input) | 220 | yes | 10 |
+
+Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § Spells): `make_wand_<stone>` is 1 log + 1 cut_gem (the stone) → 1 wand of the log's wood, 200 ticks, `Q` yes, xp 10; `make_staff_<stone>` is 1 log + 1 cut_gem (the stone) + 1 bar → 1 staff of the bar's metal, 300 ticks, `Q` yes, xp 12. The output's stone is the gem's material. A work order's material filter picks the wand's wood and the staff's metal.
+
+Generated per row of `enchants` ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments): `set_<slot>_<enchant>` sets the row's stone in an item, `Q` yes. It is a transform recipe: it has no outputs, input 0 is kept and gains the enchantment, and an order for it is `once` only ([12-workshops-and-professions.md](../02-systems/12-workshops-and-professions.md) § Work orders). Its name is the slot's word with the row's suffix ("Keen weapon", "Ammunition of rime").
+
+| slot | input 0, kept | then | ticks | xp |
+|---|---|---|---|---|
+| weapon | 1 of every melee weapon type (`weapons` rows with no launcher that are not for training), as alternatives | 1 cut_gem (the stone) + the row's vials in rune_vial | 300 | 15 |
+| armor | 1 of every `armor` row with a layer (of the row's `only` slot when it has one), as alternatives | the same | 300 | 15 |
+| ammo | 25 of bolt or arrow (units) | the same | 200 | 10 |
+
+A stone that is an item id rather than a gem is 1 of that item in place of the cut gem.
 
 ## Tannery (`tanning`)
 
@@ -293,7 +310,7 @@ Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § S
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 6 (4 of them draughts), runeforge (generated: 2 per spell = 14). Total 171.
+Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 6 (4 of them draughts), runeforge 2 (and generated: 2 per spell = 14, and 1 per enchantment = 15). Total 188.
 
 ## Time arithmetic
 

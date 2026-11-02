@@ -18,7 +18,7 @@ import type { EntityId, MovementClass, Tick, TileIndex } from './types';
 import type { Designation, Map3D, TileFlag, TileKind } from './map3d';
 import type { EntityStore } from './entities';
 import type { CalendarReader, EntityReader, FortressReader, MapReader, PathingReader, SpatialReader } from './readers';
-import type { FortressState } from './components';
+import type { FortressState, ItemEnchant } from './components';
 
 /** A system number from `02-systems/README.md` (`'03'`, `'21'`), or `'core'`. */
 export type SystemId = string;
@@ -171,6 +171,8 @@ export interface ItemsApi {
   consume(itemId: EntityId, count: number): void;
   /** 12 records the maker for masterwork loss and provenance. */
   setCrafter?(itemId: EntityId, crafterId: EntityId): void;
+  /** 12 sets a runesmith's stone (`25` § Setting stones); the value and wealth follow. */
+  setEnchant?(itemId: EntityId, enchant: ItemEnchant): void;
   destroy(itemId: EntityId, reason: string): void;
   setFlag(itemId: EntityId, flag: number, on: boolean): void;
   setOwner(itemId: EntityId, dwarfId: EntityId): void;

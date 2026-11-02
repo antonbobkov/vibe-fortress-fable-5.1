@@ -76,6 +76,28 @@
     ]
   },
   {
+    "id": "circlet",
+    "name": "circlet",
+    "armorSlot": "head",
+    "covers": [
+      {
+        "part": "head",
+        "coverage": 100
+      }
+    ],
+    "layer": "plate",
+    "armor": 2,
+    "weight": 1,
+    "bars": 1,
+    "mult": 10000,
+    "materials": [
+      "metal"
+    ],
+    "rune": {
+      "maxBonus": 10
+    }
+  },
+  {
     "id": "gambeson",
     "name": "gambeson",
     "armorSlot": "body",
@@ -289,6 +311,44 @@
     "materials": [
       "metal"
     ]
+  },
+  {
+    "id": "rune_robe",
+    "name": "runed robe",
+    "armorSlot": "body",
+    "covers": [
+      {
+        "part": "torso",
+        "coverage": 100
+      },
+      {
+        "part": "left_arm",
+        "coverage": 60
+      },
+      {
+        "part": "right_arm",
+        "coverage": 60
+      },
+      {
+        "part": "left_leg",
+        "coverage": 40
+      },
+      {
+        "part": "right_leg",
+        "coverage": 40
+      }
+    ],
+    "layer": "padding",
+    "armor": 3,
+    "weight": 2,
+    "cloth": 3,
+    "mult": 8000,
+    "materials": [
+      "cloth"
+    ],
+    "rune": {
+      "regenPercent": 150
+    }
   },
   {
     "id": "shield",

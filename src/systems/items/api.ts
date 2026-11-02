@@ -8,7 +8,7 @@
  * equal a recount (property `item accounting`).
  */
 
-import { C, ItemFlag, type Container, type Item, type Position } from '@core/components';
+import { C, ItemFlag, type Container, type Item, type ItemEnchant, type Position } from '@core/components';
 import { FLUID_MAX_LEVEL } from '@core/path-constants';
 import { CHUNK_SIZE } from '@core/constants';
 import { TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
@@ -359,7 +359,8 @@ export class ItemCore implements ItemsApi {
 
   valueOf(it: Item): number {
     const row = this.host.facts.row(it.type);
-    return itemValue(this.host.facts.materialValue(it.material), row.mult, it.quality, row.quality, it.count);
+    const base = itemValue(this.host.facts.materialValue(it.material), row.mult, it.quality, row.quality, it.count);
+    return it.enchant === undefined ? base : base + this.host.facts.enchantValue(it.enchant.id, it.count);
   }
 
   /** 13 § Value: fortress possessions, excluding merchants' goods and unrecovered foreign items. */
@@ -630,7 +631,7 @@ export class ItemCore implements ItemsApi {
     return id;
   }
 
-  /** Two stacks that may merge: same type, material, quality, stone, flags and owner, within the stack size. */
+  /** Two stacks that may merge: same type, material, quality, stone, enchantment, flags and owner, within the stack size. */
   canMerge(a: EntityId, b: EntityId): boolean {
     if (a === b) return false;
     const x = this.get(a);
@@ -643,6 +644,8 @@ export class ItemCore implements ItemsApi {
       x.material === y.material &&
       x.quality === y.quality &&
       x.stone === y.stone &&
+      x.enchant?.id === y.enchant?.id &&
+      x.enchant?.tier === y.enchant?.tier &&
       x.flags === y.flags &&
       x.ownerId === y.ownerId &&
       x.reservedBy === y.reservedBy &&
@@ -787,6 +790,16 @@ export class ItemCore implements ItemsApi {
   /** A cage holds the creature (0: it holds none); the stock counts follow. */
   setOccupant(itemId: EntityId, creatureId: EntityId): void {
     if (this.isItem(itemId)) this.mutate(itemId, { occupantId: creatureId });
+  }
+
+  /**
+   * `items.setEnchant(itemId, enchant)`: the stone a runesmith set (`25` § Setting stones). The value
+   * and the wealth are re-accounted, as every mutation is.
+   */
+  setEnchant(itemId: EntityId, enchant: ItemEnchant): void {
+    if (!this.isItem(itemId)) return;
+    this.mutate(itemId, { enchant: { id: enchant.id, tier: enchant.tier } });
+    this.notify(itemId, 'flags');
   }
 
   /** Set the crafter (12 writes it after `spawn.item`; 13's `ItemDestroyed` carries it). */

@@ -24,7 +24,7 @@ import {
   DRAUGHT_TICKS,
   DRINK_TICKS,
 } from '@systems/magic/constants';
-import { addEffect, drinkVial } from '@systems/magic/cast';
+import { addEffect, applyEnchantOnHit, drinkVial } from '@systems/magic/cast';
 import { drinkDraught } from '@systems/magic/draughts';
 import type { MoraleReader } from '@systems/morale/reader';
 import { MOOD_NEEDS_MET_FLOOR } from '@systems/morale/mood';
@@ -366,6 +366,23 @@ describe('T-474 effects', () => {
     addEffect(w.game.world.entities, a, { kind: 'spot_radius', value: 10, until: w.tick + 1000, sourceId: a });
     expect(checkSpotted(g, far, ctxOf(w))).toBe(true);
     expect(effectsLine(w.readers, strings, a)).toContain('spots within 10 tiles');
+  });
+});
+
+describe('T-474 fire_immune and an enchanted ember', () => {
+  it('the second hit of an `extra_damage` ember does nothing under fire_immune, and lands without it', () => {
+    const w = arena('t474-ember-enchant');
+    const attacker = w.spawnDwarf({ at: w.index(10, 10, Z) });
+    const plain = w.spawnCreature('gloam_warrior', w.index(11, 10, Z), 'hostile:gloam');
+    const proof = w.spawnCreature('gloam_warrior', w.index(11, 11, Z), 'hostile:gloam');
+    addEffect(w.game.world.entities, proof, { kind: 'fire_immune', value: 1, until: w.tick + 1000, sourceId: proof });
+    const ember = [{ kind: 'extra_damage', value: 14, type: 'ember', chance: 0, ticks: 0 }];
+    const dealt = (id: EntityId): number => w.events('DamageDealt').filter((e) => e['defenderId'] === id && e['damageType'] === 'ember').length;
+    applyEnchantOnHit(ctxOf(w), ember, attacker, plain, 'torso', 0);
+    applyEnchantOnHit(ctxOf(w), ember, attacker, proof, 'torso', 0);
+    w.step(1);
+    expect(dealt(plain)).toBe(1);
+    expect(dealt(proof)).toBe(0);
   });
 });
 

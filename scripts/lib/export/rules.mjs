@@ -325,6 +325,7 @@ const RECIPE_SECTIONS = [
   ["Farmer's workshop", 'farmers_workshop', 'farming', false, false],
   ['Bowyer', 'bowyer', 'carpentry', false, false],
   ['Laboratory', 'alchemist', 'alchemy', false, false],
+  ['Runeforge', 'runeforge', 'runesmithing', false, true],
 ];
 
 /** Material classes; an output note naming one is a class hint, not a fixed material. */

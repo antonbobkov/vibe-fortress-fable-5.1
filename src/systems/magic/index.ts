@@ -25,6 +25,7 @@ import { SANCTUM_APPRENTICES } from './constants';
 import { MagicProducer, type MagicHost } from './producer';
 import type { MagicReader, RuneView, SpellView } from './reader';
 import { dropExpiredEffects, spellOfItem } from './cast';
+import { enchantOfItem } from './enchant';
 import { draughtRestLeft, soldierDrinks, soldiersOnDuty } from './draughts';
 import {
   MILLI,
@@ -32,6 +33,7 @@ import {
   metalPercent,
   metalPieces,
   mishapPermille,
+  runeGear,
   runeMaxMilli,
   runeRegenMilli,
   skillLevel,
@@ -39,6 +41,8 @@ import {
 import type { Bloom, MagicStateV1, MishapRecord } from './state';
 
 export type { MagicReader, RuneView, SpellView } from './reader';
+export type { EnchantView, EnchantEffectView } from './enchant';
+export { effectAtTier } from './enchant';
 export type { MagicStateV1, MishapRecord } from './state';
 export * from './constants';
 export { mishapPermille, rollMishap, sessionXp, runeMaxMilli, runeRegenMilli, metalPercent, MISHAP_WEIGHTS } from './rune';
@@ -98,6 +102,8 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
       ctx.register.announcement('Mishap', { severity, stringKey: `announce.mishap_${kind}`, oneOf: { field: 'kind', values: [kind] } });
     }
     ctx.register.announcement('FirstRunecaster', { severity: 'note', stringKey: 'announce.first_runecaster' });
+    // 12 emits a setting; only a masterwork one is told.
+    ctx.register.announcement('StoneSet', { severity: 'note', stringKey: 'announce.stone_set', oneOf: { field: 'tier', values: [5] } });
     ctx.register.announcement('RuneSpent', { severity: 'note', stringKey: 'announce.rune_spent' });
     ctx.register.announcement('SpellCast', { severity: 'alert', stringKey: 'announce.firebloom_burned', oneOf: { field: 'burned', values: [true] } });
   }
@@ -326,10 +332,12 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     const level = skillLevel(world.entities, registry, id, RUNECRAFT);
     const pieces = metalPieces(world.entities, registry, id);
     const metal = metalPercent(pieces.length);
-    const max = runeMaxMilli(level);
-    const regen = runeRegenMilli(level, metal);
+    const gear = runeGear(world.entities, registry, id);
+    const max = runeMaxMilli(level, gear.maxBonus);
+    const regen = runeRegenMilli(level, metal, gear.regenPercent);
     return {
-      current: rune.current, max, regen, metalPercent: metal, metalPieces: pieces, hoursToFull: hoursToFull(rune.current, max, regen),
+      current: rune.current, max, regen, metalPercent: metal, metalPieces: pieces, robePercent: gear.regenPercent,
+      maxBonus: gear.maxBonus, hoursToFull: hoursToFull(rune.current, max, regen),
       vials: this.vialsCarried(id), vialsToday: rune.vialsToday ?? 0,
     };
   }
@@ -366,6 +374,11 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
         return record === undefined ? undefined : { ...record };
       },
       canCast: (id) => this.canCast(id),
+      enchantOf: (itemId) => {
+        const world = this.worldRef;
+        const registry = this.registryRef;
+        return world === null || registry === null ? undefined : enchantOfItem(world.entities, registry, itemId);
+      },
       spellOf: (itemId) => this.spellOf(itemId),
       effects: (id) => {
         const world = this.worldRef;

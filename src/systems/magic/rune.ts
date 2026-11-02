@@ -3,10 +3,12 @@
  * own and § The sanctum. Integers throughout: rune is held in milli-rune.
  *
  * ```
- * max   = level × RUNE_PER_LEVEL
- * regen = level × RUNE_REGEN_PER_LEVEL × metal percent           // per hour
+ * max   = level × RUNE_PER_LEVEL + circlet bonus
+ * regen = level × RUNE_REGEN_PER_LEVEL × robe percent × metal percent   // per hour
  * metal percent = max(METAL_RUNE_FLOOR_PERCENT, 100 − METAL_RUNE_PENALTY_PERCENT × n)
  * ```
+ *
+ * The robe percent and the circlet bonus come from the worn armor's `rune` property.
  */
 
 import { C } from '@core/components';
@@ -31,6 +33,40 @@ export const MILLI = 1000;
 interface ArmorRow {
   readonly id: string;
   readonly layer: string;
+  /** What the piece does for its wearer's rune (`weapons-and-armor.md` § Armor). */
+  readonly rune?: { readonly regenPercent?: number; readonly maxBonus?: number };
+}
+
+const ARMOR_SLOTS = ['head', 'body', 'arms', 'legs', 'feet'] as const;
+
+/** The worn armor rows of a creature, with the piece's id, in slot order. */
+function wornArmor(entities: EntityStore, registry: Registry, id: EntityId): { itemId: EntityId; material: number; row: ArmorRow }[] {
+  const equip = entities.get(id, C.Equipment);
+  if (equip === undefined) return [];
+  const items = registry.table<{ id: string }>('items');
+  const armor = registry.table<ArmorRow>('armor');
+  const out: { itemId: EntityId; material: number; row: ArmorRow }[] = [];
+  for (const slot of ARMOR_SLOTS) {
+    const itemId = equip.armor[slot];
+    if (itemId === 0 || !entities.alive(itemId)) continue;
+    const item = entities.get(itemId, C.Item);
+    if (item === undefined) continue;
+    const row = armor.byId(items.byIndex(item.type)?.id ?? '');
+    if (row !== undefined) out.push({ itemId, material: item.material, row });
+  }
+  return out;
+}
+
+/** What the worn pieces with a `rune` property give: the regen percent (100 with none) and the max bonus in whole rune. */
+export function runeGear(entities: EntityStore, registry: Registry, id: EntityId): { regenPercent: number; maxBonus: number } {
+  let regenPercent = 100;
+  let maxBonus = 0;
+  for (const { row } of wornArmor(entities, registry, id)) {
+    if (row.rune === undefined) continue;
+    regenPercent = Math.floor((regenPercent * (row.rune.regenPercent ?? 100)) / 100);
+    maxBonus += row.rune.maxBonus ?? 0;
+  }
+  return { regenPercent, maxBonus };
 }
 
 interface MaterialRow {
@@ -45,22 +81,16 @@ export function skillLevel(entities: EntityStore, registry: Registry, id: Entity
   return (entities.get(id, C.Skills)?.level[s] ?? 0) as number;
 }
 
-/** The worn pieces that drink the rune: layer mail or plate, of a metal. Ascending slot order. */
+/**
+ * The worn pieces that drink the rune: layer mail or plate, of a metal, without a `rune` property.
+ * Ascending slot order.
+ */
 export function metalPieces(entities: EntityStore, registry: Registry, id: EntityId): EntityId[] {
-  const equip = entities.get(id, C.Equipment);
-  if (equip === undefined) return [];
-  const items = registry.table<{ id: string }>('items');
-  const armor = registry.table<ArmorRow>('armor');
   const materials = registry.table<MaterialRow>('materials');
   const out: EntityId[] = [];
-  for (const slot of ['head', 'body', 'arms', 'legs', 'feet'] as const) {
-    const itemId = equip.armor[slot];
-    if (itemId === 0 || !entities.alive(itemId)) continue;
-    const item = entities.get(itemId, C.Item);
-    if (item === undefined) continue;
-    const row = armor.byId(items.byIndex(item.type)?.id ?? '');
-    if (row === undefined || (row.layer !== 'mail' && row.layer !== 'plate')) continue;
-    if (materials.byIndex(item.material)?.class !== 'metal') continue;
+  for (const { itemId, material, row } of wornArmor(entities, registry, id)) {
+    if (row.rune !== undefined || (row.layer !== 'mail' && row.layer !== 'plate')) continue;
+    if (materials.byIndex(material)?.class !== 'metal') continue;
     out.push(itemId);
   }
   return out;
@@ -71,14 +101,14 @@ export function metalPercent(pieces: number): number {
   return Math.max(METAL_RUNE_FLOOR_PERCENT, 100 - METAL_RUNE_PENALTY_PERCENT * pieces);
 }
 
-/** The rune maximum at a level, in milli-rune. */
-export function runeMaxMilli(level: number): number {
-  return level * RUNE_PER_LEVEL * MILLI;
+/** The rune maximum at a level, with a circlet's bonus in whole rune, in milli-rune. */
+export function runeMaxMilli(level: number, bonus = 0): number {
+  return (level * RUNE_PER_LEVEL + bonus) * MILLI;
 }
 
-/** Milli-rune regained per hour at a level with a metal percent, truncated. */
-export function runeRegenMilli(level: number, metal: number): number {
-  return Math.floor((level * Math.round(RUNE_REGEN_PER_LEVEL * MILLI) * metal) / 100);
+/** Milli-rune regained per hour at a level with a metal percent and a robe percent, truncated. */
+export function runeRegenMilli(level: number, metal: number, robe = 100): number {
+  return Math.floor((level * Math.round(RUNE_REGEN_PER_LEVEL * MILLI) * metal * robe) / 10_000);
 }
 
 /** Whole hours from `current` to `max` at `regen` a hour; 0 when full, -1 when it never fills. */

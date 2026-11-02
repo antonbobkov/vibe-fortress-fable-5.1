@@ -18,7 +18,7 @@ import {
 } from './constants';
 import { getSkill } from './melee';
 import { channelPower, isChannelRow } from '@systems/magic/cast';
-import { CASTER_VIALS } from '@systems/magic/constants';
+import { CASTER_VIALS, ENCHANT_CLAIM_BONUS } from '@systems/magic/constants';
 
 export interface WeaponDefRow {
   readonly id: string;
@@ -42,6 +42,8 @@ export interface ArmorDefRow {
   readonly armor: number;
   readonly weight: number;
   readonly layer: string;
+  /** What the piece does for its wearer's rune (`25` § Rune of one's own); absent: nothing. */
+  readonly rune?: unknown;
 }
 
 export interface MetalDefRow {
@@ -213,6 +215,8 @@ export function scoreWeapon(
   if (preferredClass !== 'any' && wRow.weaponClass === preferredClass) {
     baseScore += 1000;
   }
+  // 25 § Setting stones: of two otherwise equal weapons, the enchanted one is taken.
+  if (item.enchant !== undefined) baseScore += ENCHANT_CLAIM_BONUS;
 
   return baseScore;
 }
@@ -285,7 +289,15 @@ export function scoreArmorPiece(
   }
   const qualityMult = QUALITY_COMBAT_MULT[item.quality] ?? 1.0;
 
-  return aRow.armor * armorMult * qualityMult;
+  return aRow.armor * armorMult * qualityMult + (item.enchant !== undefined ? ENCHANT_CLAIM_BONUS : 0);
+}
+
+/** An armor piece of the slot with a `rune` property, scored past the squad's armor preference; -1 for anything else. */
+function runePieceScore(registry: Registry, entities: EntityStore, itemId: EntityId, slot: 'head' | 'body' | 'arms' | 'legs' | 'feet'): number {
+  const item = entities.get(itemId, C.Item);
+  const row = item === undefined ? undefined : registry.table<ArmorDefRow>('armor').byId(registry.table<ItemDefRow>('items').byIndex(item.type)?.id ?? '');
+  if (row === undefined || row.rune === undefined) return -1;
+  return scoreArmorPiece(registry, entities, itemId, slot, 'any');
 }
 
 /**
@@ -526,13 +538,26 @@ export function reequipSoldier(
 
   for (const slot of slots) {
     const currentPieceId = equip.armor[slot];
-    const currentScore = currentPieceId !== 0 && entities.alive(currentPieceId)
+    const held = currentPieceId !== 0 && entities.alive(currentPieceId);
+    // 25 § Setting stones: a member holding a channel claims a piece with a `rune` property for the
+    // slot first, past the squad's armor preference; with none held or free, the ordinary rule.
+    let runeBest = holdsChannel && held ? runePieceScore(registry, entities, currentPieceId, slot) : -1;
+    let runeBestId = runeBest >= 0 ? currentPieceId : 0;
+    for (const itemId of holdsChannel ? pool() : []) {
+      if (!isAvailableItem(entities, itemId)) continue;
+      const sc = runePieceScore(registry, entities, itemId, slot);
+      if (sc > runeBest) {
+        runeBest = sc;
+        runeBestId = itemId;
+      }
+    }
+    const currentScore = held
       ? scoreArmorPiece(registry, entities, currentPieceId, slot, armorPreference)
       : -1;
-    let bestPieceId = currentPieceId;
+    let bestPieceId = runeBestId !== 0 ? runeBestId : currentPieceId;
     let bestScore = currentScore;
 
-    for (const itemId of pool()) {
+    for (const itemId of runeBestId !== 0 ? [] : pool()) {
       if (!isAvailableItem(entities, itemId)) continue;
       const sc = scoreArmorPiece(registry, entities, itemId, slot, armorPreference);
       if (sc > bestScore) {

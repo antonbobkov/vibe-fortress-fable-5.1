@@ -381,10 +381,11 @@ export class OrdersPanel {
       ctx.notice?.(ctx.strings.get('ui.orders.choose_first'));
       return null;
     }
-    const maintain = p.mode === 'maintain';
+    // A transform recipe's order is `once` only (12 § Work orders).
+    const maintain = p.mode === 'maintain' && recipe.transform !== true;
     const materialFilter = p.material === '' ? null : p.material;
     const cmd: Command = { type: 'AddWorkOrder', workshopId: p.workshopId, order: {
-      recipeId: recipe.id, mode: p.mode, remaining: maintain ? 1 : p.quantity, threshold: maintain ? p.quantity : 0, priority: PRIORITY_DEFAULT, materialFilter,
+      recipeId: recipe.id, mode: maintain ? 'maintain' : 'once', remaining: maintain ? 1 : p.quantity, threshold: maintain ? p.quantity : 0, priority: PRIORITY_DEFAULT, materialFilter,
     } };
     ctx.submit(cmd);
     this.recent = [recipe.id, ...this.recent.filter((id) => id !== recipe.id)].slice(0, ORDER_RECENT_MAX);
@@ -538,7 +539,30 @@ export class OrdersPanel {
   toggleMode(ctx: PanelContext): void {
     const order = this.selected(ctx)?.order;
     if (order === undefined) { ctx.notice?.(ctx.strings.get('ui.orders.no_selection')); return; }
+    // A transform recipe makes nothing to keep in stock: its order is `once` only (12 § Work orders).
+    if (this.reader(ctx)?.recipe(order.recipe)?.transform === true) { ctx.notice?.(ctx.strings.get('ui.orders.once_only')); return; }
     this.patch(ctx, order.mode === 'once' ? { mode: 'maintain', threshold: Math.max(ORDER_COUNT_MIN, order.threshold || ORDER_KEEP_DEFAULT) } : { mode: 'once', threshold: 0 });
+  }
+  /** The target types a transform recipe's order can name: '' (any), then input 0's alternatives. */
+  targetOptions(recipe: RecipeRow | undefined): string[] {
+    if (recipe?.transform !== true) return [];
+    return ['', ...(recipe.inputs[0]?.match.split('|') ?? [])];
+  }
+  /** A target type as the panel names it: "any" or the item's name. */
+  targetName(ctx: PanelContext, target: number | undefined): string {
+    if (target === undefined) return ctx.strings.get('ui.orders.any_target');
+    return ctx.registry.table<{ id: string; name: string }>('items').byIndex(target)?.name ?? ctx.strings.get('ui.orders.any_target');
+  }
+  /** Step the selected transform order's target type to the next of input 0's alternatives, then back to any. */
+  nextTarget(ctx: PanelContext): void {
+    const order = this.selected(ctx)?.order;
+    if (order === undefined) { ctx.notice?.(ctx.strings.get('ui.orders.no_selection')); return; }
+    const options = this.targetOptions(this.reader(ctx)?.recipe(order.recipe));
+    if (options.length === 0) return;
+    const items = ctx.registry.table('items');
+    const current = order.targetType === undefined ? '' : items.byIndex(order.targetType) === undefined ? '' : items.idOf(order.targetType);
+    const next = options[(options.indexOf(current) + 1) % options.length] ?? '';
+    this.patch(ctx, { targetType: next === '' ? null : next });
   }
   nextPriority(ctx: PanelContext): void {
     const order = this.selected(ctx)?.order;
@@ -658,7 +682,12 @@ export class OrdersPanel {
     if (brew) return [any, ...ctx.registry.table<{ id: string; name: string; brew?: string }>('plants').rows.filter((plant) => plant.brew !== undefined).map((plant) => ({ id: plant.id, name: plant.name }))];
     const itemTypes = ctx.registry.table<{ id: string; materials: string[] | 'any' }>('items');
     const classes = new Set<string>();
-    for (const input of recipe.inputs) {
+    // A transform recipe's filter picks the material of the item it is set in: input 0's alternatives.
+    if (recipe.transform === true) for (const id of recipe.inputs[0]?.match.split('|') ?? []) {
+      const item = itemTypes.byId(id);
+      if (item !== undefined && item.materials !== 'any') for (const materialClass of item.materials) classes.add(materialClass);
+    }
+    for (const input of recipe.transform === true ? [] : recipe.inputs) {
       if (input.material === 'fuel' || input.material === 'flux') continue;
       const item = itemTypes.byId(input.match);
       if (item !== undefined && item.materials !== 'any') for (const materialClass of item.materials) classes.add(materialClass);
@@ -965,8 +994,11 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
         { text: strings.get('ui.orders.mode_action', { mode: strings.get(`ui.orders.mode.${order.mode}`) }), run: () => panel.toggleMode(ctx) },
         { text: strings.get('ui.orders.priority', { n: order.priority }), run: () => panel.nextPriority(ctx) },
       ]);
+      const transform = reader.recipe(order.recipe)?.transform === true;
       actionRow(s, col, row + 4, width, [
         { text: strings.get('ui.orders.material', { material: panel.materialName(ctx, order.materialFilter, reader.recipe(order.recipe)) }), run: () => panel.openMaterials(ctx) },
+        // A transform recipe offers its target type too (12 § Work orders).
+        ...(transform ? [{ text: strings.get('ui.orders.target', { target: panel.targetName(ctx, order.targetType) }), run: () => panel.nextTarget(ctx) }] : []),
       ]);
       actionRow(s, col, row + 5, width, [
         { text: strings.get('ui.orders.actions.remove'), run: () => panel.remove(ctx) },

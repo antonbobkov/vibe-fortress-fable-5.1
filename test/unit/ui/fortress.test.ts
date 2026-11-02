@@ -342,6 +342,8 @@ describe('T-M1-14 announcements', () => {
       // T-473: 25 § Registrations (out of rune; a firebloom that caught one of the caster's own).
       RuneSpent: 'note',
       SpellCast: 'alert',
+      // T-471: a masterwork setting.
+      StoneSet: 'note',
     });
   });
 

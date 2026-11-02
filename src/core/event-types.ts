@@ -91,6 +91,7 @@ export const EVENT_TYPES = [
   'ItemCrafted',
   'MasterworkCreated',
   'WorkOrderCompleted',
+  'StoneSet',
   'WorkshopBlocked',
   'WorkshopIdle',
   'ItemCreated',
@@ -275,6 +276,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   ItemCrafted: "itemId, quality, crafterId, workshopId, recipeId",
   MasterworkCreated: "itemId, crafterId",
   WorkOrderCompleted: "workshopId, recipeId",
+  StoneSet: "itemId, enchantId, tier, smithId",
   WorkshopBlocked: "workshopId, reason[, container, input] / workshopId",
   WorkshopIdle: "workshopId, reason[, container, input] / workshopId",
   ItemCreated: "id, itemType, material, count",
@@ -365,7 +367,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   VialDrunk: "id",
   Warded: "id",
   Mended: "id, casterId",
-  DraughtDrunk: "id, draughtId, calm, again",
+  DraughtDrunk: "id, draughtId, calm",
 });
 
 const EVENT_TYPE_SET: ReadonlySet<string> = new Set<string>(EVENT_TYPES);

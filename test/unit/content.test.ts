@@ -103,12 +103,12 @@ describe('T-M0-06 content: every table loads', () => {
       farmers_workshop: 4,
       bowyer: 3,
       alchemist: 6,
-      runeforge: 14,
+      runeforge: 31,
     };
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(171);
+    expect(registry.table('recipes').size).toBe(188);
   });
 
   it('the content hash is a stable hex string', () => {
@@ -212,9 +212,9 @@ describe('T-M0-06 content: generated recipes', () => {
     expect(recipe?.xp).toBe(3);
   });
 
-  it('16 ores + 5 alloys + 1 melt = 22 generated recipes at the smelter; 2 per spell at the runeforge', () => {
+  it('16 ores + 5 alloys + 1 melt = 22 generated recipes at the smelter; 2 per spell and 1 per enchantment at the runeforge', () => {
     expect(recipes.where('generated:smelter', (r) => r.generated === true && r.workshop === 'smelter').length).toBe(22);
-    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(36);
+    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(51);
   });
 });
 

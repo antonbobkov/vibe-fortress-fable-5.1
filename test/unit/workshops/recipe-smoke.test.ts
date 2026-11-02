@@ -32,6 +32,11 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   wool_raw: 'wool',
   glowcap: 'glowcap',
   rune_vial: 'rune',
+  cut_gem: 'quartz',
+  // The first alternative of a setting's kept input (25 § Setting stones).
+  axe: 'iron',
+  bracers: 'leather',
+  bolt: 'iron',
   brightleaf: 'oak',
 });
 
@@ -96,6 +101,8 @@ function runRecipe(workshopType: string, recipe: RecipeRow): { ok: boolean; erro
           material = 'barley';
         } else if (input.material !== undefined && registry.table('materials').has(input.material)) {
           material = input.material;
+        } else if (input.materials !== undefined && !input.materials.includes(DEFAULT_MATERIALS[item] ?? '')) {
+          material = input.materials[0]!;
         } else if (DEFAULT_MATERIALS[item] !== undefined) {
           material = DEFAULT_MATERIALS[item]!;
         } else if (item === 'ore' && input.material !== undefined) {
@@ -134,7 +141,9 @@ function runRecipe(workshopType: string, recipe: RecipeRow): { ok: boolean; erro
   let crafted = false;
   for (let ticks = 0; ticks < 1000; ticks += 50) {
     w.step(50);
-    if (w.events('ItemCrafted').some((e) => e['recipeId'] === recipe.id)) {
+    // A transform recipe crafts nothing: it sets a stone (25 § Setting stones).
+    if (w.events('ItemCrafted').some((e) => e['recipeId'] === recipe.id) ||
+      (recipe.transform === true && w.events('StoneSet').length > 0)) {
       crafted = true;
       break;
     }
@@ -161,12 +170,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 171', () => {
+  it('the recipe count over all types is 188', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(171);
+    expect(total).toBe(188);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

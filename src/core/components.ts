@@ -252,6 +252,14 @@ export interface Item {
   memorialDwarfId?: EntityId;
   /** The gem set in a channel (`25` § Channels); absent: none. */
   stone?: Idx<'MaterialDef'>;
+  /** The stone set in a weapon, armor piece or ammunition (`25` § Setting stones); absent: none. */
+  enchant?: ItemEnchant;
+}
+
+/** An item's enchantment: the `enchants` row and the runesmith's quality roll, which scales its numbers. */
+export interface ItemEnchant {
+  id: Idx<'EnchantDef'>;
+  tier: Quality;
 }
 
 export interface Container {
@@ -302,6 +310,8 @@ export interface WorkOrder {
   materialFilter: Idx<'MaterialDef'> | string | null;
   /** Named dead dwarf for `make_memorial_slab`. */
   memorialDwarfId?: EntityId;
+  /** A transform recipe's target: one of input 0's item types (`12` § Work orders); absent: any of them. */
+  targetType?: Idx<'ItemTypeDef'>;
 }
 
 export interface Workshop {
