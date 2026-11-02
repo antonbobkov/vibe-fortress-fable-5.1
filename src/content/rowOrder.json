@@ -142,5 +142,77 @@
   {
     "table": "recipes",
     "id": "make_staff_amethyst"
+  },
+  {
+    "table": "spells",
+    "id": "ward"
+  },
+  {
+    "table": "spells",
+    "id": "mend"
+  },
+  {
+    "table": "spells",
+    "id": "dread"
+  },
+  {
+    "table": "spells",
+    "id": "firebloom"
+  },
+  {
+    "table": "spells",
+    "id": "daze"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_quartz"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_quartz"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_emerald"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_emerald"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_sapphire"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_sapphire"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_ruby"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_ruby"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_diamond"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_diamond"
+  },
+  {
+    "table": "thoughts",
+    "id": "warded"
+  },
+  {
+    "table": "thoughts",
+    "id": "mended_by_rune"
+  },
+  {
+    "table": "palette",
+    "id": "ward_cyan"
   }
 ]

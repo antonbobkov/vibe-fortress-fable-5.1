@@ -15,6 +15,7 @@
  * projectiles M6 (T-M6-17).
  */
 
+import { effectValue } from '@core/effects';
 import { C } from '@core/components';
 import { LEVELS_VISIBLE_BELOW } from '@core/constants';
 import { Designation, TileFlag, TileKind } from '@core/map3d';
@@ -177,7 +178,7 @@ export class Compositor {
   private readonly grassDry: Rgb;
   private readonly dwarfSpecies: number;
   private readonly stateColors: Readonly<Record<'normal' | 'need' | 'child', Rgb>>;
-  private readonly combatColors: Readonly<Record<'wounded' | 'asleep' | 'soldier' | 'hostile' | 'flash' | 'web' | 'station' | 'patrol' | 'projectile', Rgb>>;
+  private readonly combatColors: Readonly<Record<'wounded' | 'asleep' | 'soldier' | 'hostile' | 'flash' | 'web' | 'station' | 'patrol' | 'projectile' | 'ward', Rgb>>;
   private readonly glyphOf: (ch: string) => number;
   private readonly attackedPairs = new Set<string>();
   private readonly flashUntil = new Map<EntityId, number>();
@@ -270,7 +271,7 @@ export class Compositor {
       soldier: palette.color('dwarf_soldier'), hostile: palette.color('hostile'),
       flash: palette.color('red'), web: palette.color('silk_white'),
       station: palette.color('zone_barracks'), patrol: palette.color('zone_range'),
-      projectile: palette.color('white'),
+      projectile: palette.color('white'), ward: palette.color('ward_cyan'),
     };
     for (const [kind, id] of Object.entries(DESIGNATION_TINTS)) this.tints.set(Number(kind) as Designation, palette.color(id as string));
     this.things = new ThingLayers(options.registry, palette, indexOf);
@@ -716,7 +717,10 @@ export class Compositor {
     const glyph = unconscious && ((this.animFrame >> 1) & 1) === 1 ? this.glyphOf('_') : (this.speciesGlyph[c.species] ?? GLYPH_NONE);
     const hostile = this.rankOf(readers, id) === CreatureRank.Hostile;
     const fg = dwarf ? this.stateColor(readers, id) : hostile ? this.combatColors.hostile : (this.speciesFg[c.species] ?? this.noMaterial);
-    return { glyph, fg, bg: (this.flashUntil.get(id) ?? -1) > this.animFrame ? this.combatColors.flash : cell.bg };
+    // 25 § Player-facing behavior: a warded creature stands on a dimmed `ward_cyan` background.
+    const warded = effectValue(readers.entities, id, 'ward', readers.calendar.tick) > 0;
+    const bg = (this.flashUntil.get(id) ?? -1) > this.animFrame ? this.combatColors.flash : warded ? this.combatColors.ward : cell.bg;
+    return { glyph, fg, bg };
   }
 
   /** Step 7: a projectile's current tile and direction from the last ray segment. */

@@ -791,6 +791,21 @@
     "announce": false
   },
   {
+    "id": "mended_by_rune",
+    "name": "mended by rune",
+    "text": "The rune closed my wound.",
+    "value": 3,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "Mended",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
     "id": "new_hearth_hall_tier",
     "name": "new hearth hall tier",
     "text": "The hall has never looked better.",
@@ -1336,6 +1351,21 @@
     "group": "need",
     "trigger": {
       "condition": "comfort ≥ 55"
+    },
+    "announce": false
+  },
+  {
+    "id": "warded",
+    "name": "warded",
+    "text": "Felt the ward settle on me.",
+    "value": 1,
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "Warded",
+      "target": "self"
     },
     "announce": false
   },

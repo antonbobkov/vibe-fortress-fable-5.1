@@ -926,6 +926,10 @@
     "hex": "#0A0A0A"
   },
   {
+    "id": "ward_cyan",
+    "hex": "#1A4448"
+  },
+  {
     "id": "water_1",
     "hex": "#60C0FF",
     "alt": "#68D0FF"

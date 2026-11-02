@@ -238,7 +238,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `flower_violet` | #A878D8 |  |  | `flower_red` | #D84858 |  |
 | `flower_blue` | #6890E8 |  |  | `lichen_gray` | #8E9C84 |  |
 | `lichen_orange` | #C08448 |  |  | `lichen_yellow` | #B8B464 |  |
-| `rune_cyan` | #5AD8E0 |  |  |  |  |  |
+| `rune_cyan` | #5AD8E0 |  |  | `ward_cyan` | #1A4448 |  |
 
 ## Glyphs by thing
 

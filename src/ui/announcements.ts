@@ -117,6 +117,15 @@ export class AnnouncementLog {
         }
       }
     }
+    // A spell names its caster and its target (25 § Spells, a firebloom that caught a fortress creature).
+    const caster = e['casterId'];
+    if (typeof caster === 'number' && caster !== 0) {
+      const who = readers.entities.get(caster, C.Creature);
+      out['caster'] = this.formatCreatureName(who?.name, who?.species);
+      const target = e['targetId'];
+      const whom = typeof target === 'number' ? readers.entities.get(target, C.Creature) : undefined;
+      out['target'] = this.formatCreatureName(whom?.name, whom?.species);
+    }
     // A hunt names its hunter and its prey (09 § Registrations, T-M7-10).
     const hunter = e['hunterId'];
     if (typeof hunter === 'number' && hunter !== 0) {

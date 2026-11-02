@@ -38,6 +38,10 @@ export interface RuneView {
   readonly metalPieces: readonly EntityId[];
   /** Whole hours to full; 0 when full, -1 when it never fills. */
   readonly hoursToFull: number;
+  /** Rune vials carried (§ Vials). */
+  readonly vials: number;
+  /** Vials drunk today. */
+  readonly vialsToday: number;
 }
 
 export interface MagicReader {

@@ -465,6 +465,12 @@ export interface Merchant {
 /** A runecaster's own rune (`25` § Rune of one's own): milli-rune; max and regen are derived. */
 export interface Rune {
   current: number;
+  /** Rune vials drunk today (`25` § Vials); absent is none. Cleared on `DayPassed`. */
+  vialsToday?: number;
+  /** The tick from which the caster may cast Dread again; absent is now. */
+  nextDreadTick?: Tick;
+  /** `RuneSpent` has been announced since regen last lifted the rune over its spell's cost. */
+  outAnnounced?: boolean;
 }
 
 /** One timed effect on a creature (`25` § Effects): the largest unexpired value of a kind counts. */

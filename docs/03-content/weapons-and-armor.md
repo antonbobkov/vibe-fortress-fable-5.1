@@ -103,8 +103,13 @@ The stone set in a channel fixes its spell ([25-runecraft.md](../02-systems/25-r
 |---|---|---|---|---|---|---|---|---|---|
 | `garnet` | `emberbolt` | Emberbolt | bolt | 1 | — | 18 | ember | — | of embers |
 | `amethyst` | `frostbind` | Frostbind | bolt | 1 | — | 8 | frost | 300 | of frost |
+| `quartz` | `ward` | Ward | ward | 2 | 3 | 6 | — | 600 | of warding |
+| `emerald` | `mend` | Mend | mend | 2 | 4 | — | — | — | of mending |
+| `sapphire` | `dread` | Dread | dread | 2 | 4 | — | — | 400 | of dread |
+| `ruby` | `firebloom` | Firebloom | burst | 3 | 8 | 14 | ember | — | of blooms |
+| `diamond` | `daze` | Daze | single | 3 | 6 | — | — | 150 | of stillness |
 
-A Frostbind hit that does damage slows the target by `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks.
+A `bolt` flies as a missile. A `burst` blooms on the 3×3 around its target after a delay, a `single` strikes its target with no missile; both are cast by 16's ranged branch. `ward`, `mend` and `dread` are support spells, cast for the fortress creatures or against the hostiles around the caster. What each does, and when it is cast, is in 25 § Spells. A Frostbind hit that does damage slows the target by `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. A ward of a power-1.0 channel is 6 armour on every part for 600 ticks: 4 for 420 ticks from a wand, 7 for 720 from an iron staff.
 
 ## Shields
 
