@@ -1,0 +1,154 @@
+/**
+ * T-472 probe (not committed as a test; a copy is filed as
+ * reports/data/2026-11-02-t472-enchant-arena.probe.ts.txt; run from test/perf). The combat-pace
+ * squad arenas of T-366, T-404, T-470 and T-473 on the flat test map, through the real tick loop,
+ * with a squad of six Novice soldiers in full kit (iron helm, mail shirt, greaves, axe, shield).
+ *  - `-plain`: no enchantment (the T-473 `-six` arena, so its figures must come back exactly);
+ *  - `-ember`, `-keen`, `-rime`, `-fearsome`, `-sunder`: every axe of that enchantment, common;
+ *  - `-stout`: plain axes, and a stout helm, mail shirt and greaves.
+ *  - open: a peril-2 raid of ten in the open; ambush: a peril-2 ambush of four.
+ * Each trial runs until one side is down or the party leaves (at most 4,800 ticks), then a day with
+ * no medic. Writes T472_OUT (JSON lines). Observation only.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { C, type Equipment } from '@core/components';
+import type { EntityId } from '@core/types';
+import type { CombatReader, SquadWithId } from '@systems/combat/reader';
+import { arriveParty, spawnHostileMember } from '@systems/threats/parties';
+import { TestWorld } from '../scenarios/test-world';
+
+const OUT = process.env['T472_OUT'] ?? '.vite/t472-enchant.jsonl';
+const NSQUAD = Number(process.env['T472_N'] ?? 24);
+const ONLY = process.env['T472_ONLY'] ?? '';
+const Z = FLAT_TEST_SURFACE_Z;
+
+function arena(seed: string): TestWorld {
+  return new TestWorld({ seed, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+}
+
+interface Kit { weapon: [string, string]; shield?: [string, string]; body?: [string, string]; head?: [string, string]; legs?: [string, string] }
+
+function equip(w: TestWorld, id: EntityId, at: number, kit: Kit, weaponEnchant: string, armorEnchant: string): void {
+  const items = w.game.registry.table('items');
+  const mats = w.game.registry.table('materials');
+  const enchants = w.game.registry.table('enchants');
+  const ent = w.game.world.entities;
+  const make = (k: [string, string] | undefined, enchant: string): EntityId => {
+    if (!k) return 0;
+    const id = w.spawnItem(items.index(k[0]), mats.index(k[1]), at, 1, 1);
+    if (enchant !== '') ent.add(id, C.Item, { ...ent.get(id, C.Item)!, enchant: { id: enchants.index(enchant), tier: 1 } });
+    return id;
+  };
+  const old = ent.get(id, C.Equipment);
+  const eq: Equipment = {
+    weapon: make(kit.weapon, weaponEnchant), shield: make(kit.shield, ''),
+    armor: { head: make(kit.head, armorEnchant), body: make(kit.body, armorEnchant), arms: 0, legs: make(kit.legs, armorEnchant), feet: 0 },
+    clothing: old?.clothing ?? { body: 0, legs: 0, feet: 0, over: 0 }, quiver: 0,
+  };
+  ent.add(id, C.Equipment, eq);
+}
+
+const FULL_KIT: Kit = { weapon: ['axe', 'iron'], shield: ['shield', 'iron'], body: ['mail_shirt', 'iron'], head: ['helm', 'iron'], legs: ['greaves', 'iron'] };
+const NOVICE = { axe: 2, shield: 2, dodge: 2, armor_use: 2, hammer: 2 };
+
+function squad(w: TestWorld, members: EntityId[], station: number): void {
+  w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard' });
+  const s = w.readers.of<CombatReader>('16').squads()[0] as SquadWithId;
+  w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: s.id, members });
+  w.game.world.applyCommand({ type: 'SetSquadStation', squadId: s.id, tile: station });
+  w.game.world.applyCommand({ type: 'SetSquadMode', squadId: s.id, mode: 'active' });
+}
+
+function standing(w: TestWorld, id: EntityId): boolean {
+  const ent = w.game.world.entities;
+  if (!ent.alive(id) || !ent.get(id, C.Position)) return false;
+  return ent.get(id, C.Body)?.conscious !== false;
+}
+
+function bloodLost(w: TestWorld, id: EntityId, max: number): number {
+  const b = w.game.world.entities.get(id, C.Body);
+  return b ? b.maxBlood - b.blood : max;
+}
+
+function trial(kind: string, i: number): Record<string, unknown> {
+  const base = kind.split('-')[0] as 'ambush' | 'open';
+  const variant = kind.split('-')[1] as string;
+  const w = arena(`t366-squad-${base}-${i}`);
+  const reg = w.game.registry;
+  const ent = w.game.world.entities;
+  const sx = 46, sy = 60;
+  const ids: EntityId[] = [];
+  for (let k = 0; k < 6; k += 1) ids.push(w.spawnDwarf({ at: w.index(sx + k, sy, Z), skills: NOVICE }));
+  squad(w, ids, w.index(sx, sy, Z));
+  w.step(1);
+  const weaponEnchant = variant === 'plain' || variant === 'stout' ? '' : variant === 'ember' ? 'ember' : variant;
+  const armorEnchant = variant === 'stout' ? 'stout' : '';
+  ids.forEach((id, k) => equip(w, id, w.index(sx + k, sy, Z), FULL_KIT, weaponEnchant, armorEnchant));
+  const maxBlood = ent.get(ids[0]!, C.Body)!.maxBlood;
+  const civ: EntityId[] = [];
+  for (let k = 0; k < 3; k += 1) civ.push(w.spawnDwarf({ at: w.index(sx + k, sy + 8, Z) }));
+  const rng = w.game.world.rngFor('t366');
+  const ambush = base === 'ambush';
+  const { partyId, pendingSpawns } = arriveParty(w.game.world as never, reg, rng, ambush ? 'ambush' : 'raid', 'gloam', ambush ? 4 : 10, 'n', w.tick, 15, 2, false);
+  for (const s of pendingSpawns) spawnHostileMember(w.game.world as never, reg, rng, s.partyId, s.species, s.role, s.tile, s.gearTier, s.isCaptain);
+  const members = [...ent.get(partyId, C.Party)!.members];
+  const tally = {
+    soldierSwings: 0, soldierHits: 0, soldierDamage: 0, extraHits: 0, extraDamage: 0, slowed: 0, feared: 0,
+    soldierHitsTaken: 0, soldierDamageTaken: 0,
+  };
+  let ended = '';
+  const flagged = new Set<string>();
+  w.game.world.onEvents((ev) => {
+    for (const e of ev) {
+      if (e.type === 'RaidEnded' && Number(e['partyId']) === partyId) ended = String(e['outcome']);
+      else if (e.type === 'AttackResolved') {
+        const a = Number(e['attackerId']), d = Number(e['defenderId']), out = String(e['outcome']), amount = Number(e['amount']);
+        if (ids.includes(a) && members.includes(d)) {
+          tally.soldierSwings += 1;
+          if (out === 'hit') { tally.soldierHits += 1; tally.soldierDamage += amount; }
+        } else if (members.includes(a) && ids.includes(d) && out === 'hit') { tally.soldierHitsTaken += 1; tally.soldierDamageTaken += amount; }
+      } else if (e.type === 'DamageDealt' && String(e['damageType']) === 'ember' && ids.includes(Number(e['attackerId']))) {
+        tally.extraHits += 1; tally.extraDamage += Number(e['amount']);
+      }
+    }
+  });
+  let endTick = 0;
+  for (let t = 0; t < 4800; t += 1) {
+    w.step(1);
+    // Count each new slow and flee effect a soldier put on a raider.
+    for (const m of members) {
+      for (const x of ent.get(m, C.Spellbound)?.effects ?? []) {
+        const key = `${m}:${x.kind}:${x.until}`;
+        if (flagged.has(key) || !ids.includes(x.sourceId)) continue;
+        flagged.add(key);
+        if (x.kind === 'slow') tally.slowed += 1;
+        if (x.kind === 'flee') tally.feared += 1;
+      }
+    }
+    if (ended !== '' || members.every((m) => !standing(w, m)) || ids.every((d) => !standing(w, d))) { endTick = w.tick; break; }
+  }
+  const after = (): Record<string, unknown> => ({
+    soldiersDead: ids.filter((d) => !ent.alive(d)).length, soldiersDown: ids.filter((d) => ent.alive(d) && !standing(w, d)).length,
+    civDead: civ.filter((d) => !ent.alive(d)).length,
+    hostilesDead: members.filter((m) => !ent.alive(m)).length,
+    soldierBlood: ids.reduce((s, d) => s + bloodLost(w, d, maxBlood), 0),
+  });
+  const atEnd = after();
+  w.step(1200);
+  return {
+    kind, i, members: members.length, maxBlood,
+    outcome: ended || (ids.every((d) => !standing(w, d)) ? 'squad_down' : members.every((m) => !standing(w, m)) ? 'raid_down' : 'timeout'),
+    endTick, ...atEnd, dayAfter: after(), ...tally,
+  };
+}
+
+describe('T-472 enchanted squad arena probe', () => {
+  it('runs the arenas', () => {
+    if (!ONLY) writeFileSync(OUT, '');
+    const put = (r: Record<string, unknown>): void => appendFileSync(OUT, JSON.stringify(r) + '\n');
+    const kinds = (ONLY || 'open-plain,open-ember,open-keen,open-rime,open-fearsome,open-sunder,open-stout,ambush-plain,ambush-ember').split(',');
+    for (const k of kinds) for (let i = 0; i < NSQUAD; i += 1) put(trial(k, i));
+  }, 14_400_000);
+});

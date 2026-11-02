@@ -17,10 +17,10 @@ import { effectValue } from '@core/effects';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { TickContext } from '@core/system';
-import type { DamageType, EntityId, TileIndex } from '@core/types';
+import type { BodySlot, DamageType, EntityId, TileIndex } from '@core/types';
 import type { SpellDef } from '@content/generate';
 import { MIN_ATTACK_COOLDOWN, QUALITY_COMBAT_MULT } from '@systems/combat/constants';
-import { getAttribute } from '@systems/combat/melee';
+import { armorReduction, getAttribute, throughEnchantedArmor } from '@systems/combat/melee';
 import { findAmmoForShooter } from '@systems/combat/ranged';
 import { BLOOD_UNCONSCIOUS_PERCENT, PAIN_UNCONSCIOUS } from '@systems/health/constants';
 import type { ItemsReader } from '@systems/items';
@@ -34,6 +34,7 @@ import {
   VIAL_RUNE,
   VIALS_PER_DAY,
 } from './constants';
+import { wearsSlowImmune, type EnchantEffectView } from './enchant';
 import { MILLI, runeMaxMilli, skillLevel } from './rune';
 
 /** The slice of a weapon row casting reads. */
@@ -543,15 +544,59 @@ export function applySpellOnHit(
   const spell = ctx.registry.table<SpellDef>('spells').byIndex(spellIndex);
   if (spell === undefined || spell.kind !== 'bolt' || spell.type !== 'frost' || spell.ticks === undefined) return;
   const ticks = Math.round((spell.ticks * powerMilli) / 1000);
-  addEffect(ctx.world.entities, defenderId, { kind: 'slow', value: FROSTBIND_SLOW_PERCENT, until: ctx.tick + ticks, sourceId: shooterId });
+  addEffect(ctx.world.entities, defenderId, { kind: 'slow', value: FROSTBIND_SLOW_PERCENT, until: ctx.tick + ticks, sourceId: shooterId }, ctx.registry);
 }
 
-/** `addEffect`: one more timed entry on the creature's `Spellbound`. */
-export function addEffect(entities: EntityStore, id: EntityId, effect: ActiveEffect): void {
+/**
+ * `applyEnchantOnHit` (§ Enchantments in combat): a blow or a missile that did damage, from an
+ * enchanted weapon or ammunition, on `part`. `extra_damage` is a second hit of its type on the same
+ * part, with its own `armorReduction` and Toughness: one more `DamageDealt` when it does damage, and
+ * no `AttackResolved`. `slow` adds its effect (§ Effects). `flee` takes no creature that Dread
+ * cannot take (`mentallyImmune`: the deep, and the very large); for any other it rolls `chance` on
+ * stream 25, then the resist roll, and adds a `flee` effect for `ticks`. Only an item that carries
+ * such an effect gets here, so an unenchanted fight draws nothing more.
+ */
+export function applyEnchantOnHit(
+  ctx: TickContext,
+  effects: readonly EnchantEffectView[],
+  attackerId: EntityId,
+  defenderId: EntityId,
+  part: BodySlot,
+  weaponId: EntityId,
+): void {
+  const entities = ctx.world.entities;
+  for (const e of effects) {
+    if (!entities.alive(defenderId)) return;
+    if (e.kind === 'extra_damage') {
+      const type = e.type === '' ? 'ember' : e.type;
+      const red = armorReduction(entities, ctx.registry, defenderId, part, type, ctx.tick);
+      let damage = throughEnchantedArmor(entities, ctx.registry, defenderId, part, type, Math.max(0, e.value - red));
+      damage = Math.round((damage * (100 - Math.min(10, getAttribute(entities, defenderId, 'tou') / 10))) / 100);
+      if (damage > 0) ctx.emit({ type: 'DamageDealt', defenderId, part, damageType: type, amount: damage, attackerId, weaponId });
+    } else if (e.kind === 'slow') {
+      addEffect(entities, defenderId, { kind: 'slow', value: e.value, until: ctx.tick + e.ticks, sourceId: attackerId }, ctx.registry);
+    } else if (e.kind === 'flee') {
+      if (mentallyImmune(ctx, defenderId)) continue;
+      if (e.chance > 0 && ctx.world.rngFor('25').int(0, 99) >= e.chance) continue;
+      if (resists(ctx, defenderId)) continue;
+      addEffect(entities, defenderId, { kind: 'flee', value: 1, until: ctx.tick + e.ticks, sourceId: attackerId }, ctx.registry);
+    }
+  }
+}
+
+/**
+ * `addEffect`: one more timed entry on the creature's `Spellbound`. A `slow` does not take a
+ * creature that wears a piece with `slow_immune` (§ Enchantments in combat), whether a spell or an
+ * enchantment brings it; the check needs the registry, which every caller adding a `slow` passes.
+ * False when nothing was added.
+ */
+export function addEffect(entities: EntityStore, id: EntityId, effect: ActiveEffect, registry?: Registry): boolean {
+  if (effect.kind === 'slow' && registry !== undefined && wearsSlowImmune(entities, registry, id)) return false;
   const bound = entities.get(id, C.Spellbound);
   const effects = bound === undefined ? [] : bound.effects.slice();
   effects.push({ ...effect });
   entities.add<Spellbound>(id, C.Spellbound, { ...(bound ?? {}), effects });
+  return true;
 }
 
 /** `HourPassed`: drop expired entries, and the component with them. */

@@ -25,7 +25,8 @@ A kiting step considers the nearest visible, conscious same-level melee threat w
 melee(a, d):
   w = Equipment[a].weapon; atk = w ? weaponDef(w) : naturalAttack(a) (rng.pick over species attacks)
   skillA = w ? skill(a, atk.skill) : speciesAttackSkill(a); dodge = skill(d, 'dodge')
-  hit = 50 + (skillA - dodge)*3 + (agi(a) - agi(d))/4 + (unconsciousOrAsleep(d) ? 40 : 0) + (fleeing(d) ? 10 : 0) + (inDeepWater(d) ? 20 : 0)
+  E = itemEnchantEffects(w)   // 25 § Enchantments in combat; empty for none, and every term of it below is then 0
+  hit = 50 + (skillA - dodge)*3 + (agi(a) - agi(d))/4 + (unconsciousOrAsleep(d) ? 40 : 0) + (fleeing(d) ? 10 : 0) + (inDeepWater(d) ? 20 : 0) + sum(E.to_hit)
   hit = clamp(5, 95, hit)
   cooldownUntil[a] = tick + crowdTicks(max(MIN_ATTACK_COOLDOWN, atk.size*3 + 10 - agi(a)/10), crowdPercentAt(tile(a)))
   if rng.int(0,99) >= hit: emit AttackResolved{miss}; xp(d,'dodge',2); xp(a, skill, 1); return
@@ -35,14 +36,18 @@ melee(a, d):
   part = weightedPick(plan(d).parts.hit, headDoubledIf(unconscious(d)))
   raw = w ? atk.damage * metal(w).weaponMult * qualityMult(w) * (50 + str(a)) / 100 : atk.damage * (50 + str(a)) / 100 * (warTrained(a) ? 1.5 : 1)
   if atk.type == 'blunt' and metal(w).bluntBonus: raw *= (100 + bluntBonus)/100
-  red = 0
-  for piece in armorCovering(d, part) (outer first): red += pieceDef.armor * armorMult(pieceMat) * coverage/100 * qualityArmorMult(piece) * dmgVsLayer[atk.type][pieceDef.layer]
-  red += naturalArmor(d) * dmgVsLayer[atk.type]['plate']
+  if E: raw *= (100 + sum(E.damage_percent) + (faction(d) == 'deep' ? sum(E.vs_deep_percent) : 0)) / 100
+  red = armorReduction(d, part, atk.type, tick, min(E.armor_percent) or none):
+    for piece in armorCovering(d, part) (outer first): red += (pieceDef.armor + sum(piece.E.armor)) * armorMult(pieceMat) * coverage/100 * qualityArmorMult(piece) * dmgVsLayer[atk.type][pieceDef.layer]
+    red += naturalArmor(d) * dmgVsLayer[atk.type]['plate'] + ward(d) * dmgVsLayer[atk.type]['ward']
+    red *= armorPercent / 100 when given
   dmg = max(0, raw - red)
   if atk.type == 'blunt' and red > 0: dmg = max(dmg, raw * BLUNT_THROUGH_PERCENT / 100)
+  dmg = throughEnchantedArmor(d, part, atk.type, dmg)   // × fire_percent (burn) or frost_percent (frost) / 100 per covering piece that has it
   dmg = round(dmg * (100 - min(10, tou(d)/10)) / 100)
   emit DamageDealt{d, part, atk.type, dmg, a, w}; emit AttackResolved{hit, part, dmg}
   xp(a, skill, 3); if red > 0: xp(d, 'armor_use', 1)
+  if dmg > 0 and E: applyEnchantOnHit(E, a, d, part, w)   // extra_damage: one more DamageDealt; slow; flee (rng stream 25)
 armorCovering(d, part): pieces = [Equipment.armor[slot] for slots] + clothing; keep those whose def.covers includes part; order by layer plate > mail > leather > padding
 ```
 
@@ -52,7 +57,7 @@ armorCovering(d, part): pieces = [Equipment.armor[slot] for slots] + clothing; k
 shoot(s, t):
   L = launcherDef(Equipment[s].weapon); ammoItem = quiverTake(s, L.ammo) (split 1 from the stack)
   dist = chebyshev(s,t) + |dz|*2
-  hit = clamp(3, 95, 40 + skill(s, L.skill)*3 - dist*2 + (size(t) - 60)/4 - skill(t,'dodge')*2 + (unconscious(t) ? 40 : 0))
+  hit = clamp(3, 95, 40 + skill(s, L.skill)*3 - dist*2 + (size(t) - 60)/4 - skill(t,'dodge')*2 + (unconscious(t) ? 40 : 0) + sum(itemEnchantEffects(ammoItem).to_hit))
   cooldownUntil[s] = tick + crowdTicks(max(MIN_ATTACK_COOLDOWN, L.size*3 + 10 - agi(s)/10), crowdPercentAt(tile(s)))
   spawn Projectile { itemId: ammoItem, from: pos(s), to: pos(t), line: bresenham(pos(s), extend(pos(s), pos(t), L.range)), progress: 0, shooterId: s, targetId: t, hitRoll: rng.int(0,99) < hit, damage: ammoDef.damage * L.power * (metalCrossbow ? 1.083 : 1) * metal(ammo).weaponMult, damageType: ammoDef.damageType }
   emit ProjectileFired; xp(s, L.skill, 1)
@@ -62,11 +67,12 @@ advanceProjectiles(): for p in projectiles (ascending id):
     p.progress -= 1000; cell = p.line.shift(); setPosition(p, cell)
     if blocksProjectile(cell, p): drop(p, previousCell); break
     creatures = spatial.at(cell).creatures
-    if p.targetId in creatures: if p.hitRoll: resolveProjectileHit(p, targetId) ; drop(p, cell); break
+    if p.targetId in creatures: if p.hitRoll: resolveProjectileHit(p, targetId); ammoOnHit(p) ; drop(p, cell); break
                                  else continue (missed: flies on)
-    else for c in creatures (not shooter): if rng.int(0,99) < hitChanceHalf: resolveProjectileHit(p, c); drop(p, cell); break
+    else for c in creatures (not shooter): if rng.int(0,99) < hitChanceHalf: resolveProjectileHit(p, c); ammoOnHit(p); drop(p, cell); break
   if p.line empty: drop(p, cell)
 resolveProjectileHit(p, d): like melee from `part` selection on, with raw = p.damage, no parry, block allowed, attacker skill xp +3 on hit
+ammoOnHit(p): if the hit did damage and p.itemId is enchanted: applyEnchantOnHit(itemEnchantEffects(p.itemId), shooter, d, part, p.itemId)
 drop(p, cell): if rng.chance(AMMO_BREAK_PERMILLE): destroy item else items.dropAt(p.itemId, cell); destroy projectile
 blocksProjectile(cell, p): kind in {Wall, Tree, Boulder} or closed door/raised bridge/closed floodgate, or (Fortification and not (adjacent(cell, p.from) or adjacent(cell, p.to)))
 ```

@@ -14,6 +14,7 @@ import type { BuildingsReader } from '@systems/buildings/reader';
 import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import { PERCEPTION_RADIUS } from '@systems/combat/constants';
+import { wornSpotRadius } from '@systems/magic/enchant';
 import {
   ENGAGE_IDLE_TICKS,
   FOLLOW_RADIUS,
@@ -60,7 +61,8 @@ function fortressTargets(ctx: TickContext): FortressTarget[] {
     const guard = trained !== undefined && trained !== 'none' && (trainable === 'both' || trainable === trained);
     out.push({ id, x: p.x, y: p.y, z: p.z, tile: map.index(p.x, p.y, p.z),
       soldier: entities.has(id, C.Soldier),
-      spotRadius: entities.has(id, C.Attributes) ? SPOT_RADIUS : guard ? SPOT_RADIUS_DOG : 0 });
+      // 25 § Enchantments in combat: an enchanted piece worn adds its `spot_radius`.
+      spotRadius: entities.has(id, C.Attributes) ? SPOT_RADIUS + wornSpotRadius(entities, ctx.registry, id) : guard ? SPOT_RADIUS_DOG : 0 });
   }
   return out;
 }
