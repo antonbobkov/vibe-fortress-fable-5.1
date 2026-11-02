@@ -496,6 +496,13 @@ export interface Spellbound {
   effects: ActiveEffect[];
 }
 
+/** A summon (`25` § Summons): it fades on the first `HourPassed` at or after `fadesAt`. */
+export interface Summoned {
+  /** The caster it answered; 0 for a wisp loose from a mishap or a shade that came through turned. */
+  summonerId: EntityId;
+  fadesAt: Tick;
+}
+
 /**
  * `Kind` is a component in the ownership table; the store keeps it in its own slot table
  * (`EntityStore.create(kind)` / `EntityStore.kind(id)`), so its component value is just the tag.
@@ -700,12 +707,13 @@ const SPECS: Spec[] = [
   { name: 'Workshop', owner: '12' },
   { name: 'Party', owner: '18', ownerNote: 'caravan parties: 20' },
   { name: 'Hostile', owner: '18', ownerNote: 'caravan parties: 20' },
-  { name: 'Tame', owner: '08' },
+  { name: 'Tame', owner: '08', alsoWrittenBy: ["25 at a call (a summon's `Tame`)"] },
   { name: 'Wild', owner: '08' },
   { name: 'Crop', owner: '07' },
   { name: 'Merchant', owner: '20' },
   { name: 'Rune', owner: '25' },
   { name: 'Spellbound', owner: '25' },
+  { name: 'Summoned', owner: '25' },
 ];
 
 function define<T>(spec: Spec, id: number): ComponentType<T> {
@@ -770,6 +778,7 @@ export const C = {
   Merchant: typed<Merchant>('Merchant'),
   Rune: typed<Rune>('Rune'),
   Spellbound: typed<Spellbound>('Spellbound'),
+  Summoned: typed<Summoned>('Summoned'),
 } as const;
 
 /** An entity store that knows every component type. `entities.ts` stays free of this module. */

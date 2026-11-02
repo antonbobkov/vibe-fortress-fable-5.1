@@ -25,6 +25,8 @@ export interface SpellView {
   readonly power: number;
   /** The channel's name suffix ("of embers"). */
   readonly suffix: string;
+  /** A Call's summon, by its species name ("stone warden"); '' for any other spell. */
+  readonly summon: string;
 }
 
 /** A runecaster's rune, in milli-rune, with what its regen is made of. */
@@ -68,6 +70,8 @@ export interface MagicReader {
   spellOf(itemId: EntityId): SpellView | undefined;
   /** `magic.enchantOf(itemId)`: the item's enchantment row, its suffix and its effects at the item's tier; undefined for none. */
   enchantOf(itemId: EntityId): EnchantView | undefined;
+  /** `magic.summonsOf(id)`: the living summons this caster has called, ascending. */
+  summonsOf(id: EntityId): EntityId[];
   /** `magic.effects(id)`: the creature's unexpired timed effects, in the order they were added. */
   effects(id: EntityId): readonly ActiveEffect[];
 }

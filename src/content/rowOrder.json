@@ -358,5 +358,37 @@
   {
     "table": "recipes",
     "id": "set_ammo_seeking"
+  },
+  {
+    "table": "creatures",
+    "id": "wisp"
+  },
+  {
+    "table": "creatures",
+    "id": "stone_warden"
+  },
+  {
+    "table": "creatures",
+    "id": "deep_shade"
+  },
+  {
+    "table": "spells",
+    "id": "call"
+  },
+  {
+    "table": "recipes",
+    "id": "make_wand_glowstone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_staff_glowstone"
+  },
+  {
+    "table": "thoughts",
+    "id": "summon_turned"
+  },
+  {
+    "table": "milestones",
+    "id": "m_summon"
   }
 ]

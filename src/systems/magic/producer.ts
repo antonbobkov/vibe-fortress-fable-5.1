@@ -25,6 +25,7 @@ import {
 } from './constants';
 import { rollMishap, sessionXp, skillLevel, type MishapKind } from './rune';
 import type { MishapRecord } from './state';
+import { looseWisp } from './summon';
 
 const KEY_PREFIX = 'attune:';
 const CIRCLE_TAG = 'rune_circle';
@@ -192,6 +193,11 @@ export class MagicProducer implements JobProducer {
         ctx.emit({ type: 'Mishap', id: dwarf, kind });
         return;
       }
+      case 'wisp_loose':
+        // § Summons: a wild light beside the circle that fades in a day; the apprentice gets no thought.
+        looseWisp(ctx, origin);
+        ctx.emit({ type: 'Mishap', id: dwarf, kind });
+        return;
       default:
         return;
     }

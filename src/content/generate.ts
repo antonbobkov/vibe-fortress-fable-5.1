@@ -134,6 +134,8 @@ export interface SpellDef {
   ticks?: number;
   /** The channel's name suffix ("of embers"). */
   suffix: string;
+  /** A `call` row's species for a wand or a metal with no `summon` of its own. */
+  summon?: string;
 }
 
 /** One effect of an enchantment, at the common tier (`03-content/weapons-and-armor.md` § Enchantments). */

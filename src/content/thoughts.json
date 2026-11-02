@@ -1180,6 +1180,23 @@
     "announce": false
   },
   {
+    "id": "summon_turned",
+    "name": "summon turned",
+    "text": "Something came through that was not called.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 48,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "fear",
+    "trigger": {
+      "event": "SummonTurned",
+      "target": "(everyone)"
+    },
+    "announce": false
+  },
+  {
     "id": "sweltering",
     "name": "sweltering",
     "text": "It is sweltering.",

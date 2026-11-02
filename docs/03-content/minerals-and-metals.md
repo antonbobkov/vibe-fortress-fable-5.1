@@ -103,25 +103,25 @@ Clusters of radius 1–2, count per standard map at wealth 2:
 
 ## Metals
 
-Columns: `tier` for weapons and armor (0 wood and bone, 1 copper, 2 bronze, 3 iron, 4 steel, 5 deepsilver); `weaponMult` scales weapon damage; `armorMult` scales armor value; `bluntBonus` applies to blunt weapons of this metal; `runeMult` scales the power of a staff shod in this metal ([weapons-and-armor.md](weapons-and-armor.md) § Channels); `magmaSafe` if `meltsAtC > 1200`.
+Columns: `tier` for weapons and armor (0 wood and bone, 1 copper, 2 bronze, 3 iron, 4 steel, 5 deepsilver); `weaponMult` scales weapon damage; `armorMult` scales armor value; `bluntBonus` applies to blunt weapons of this metal; `runeMult` scales the power of a staff shod in this metal ([weapons-and-armor.md](weapons-and-armor.md) § Channels); `summon` is the species a Call staff shod in this metal brings; a metal with none brings the `call` spell's own ([creatures.md](creatures.md) § Summons); `magmaSafe` if `meltsAtC > 1200`.
 
-| id | name | tier | value (bar) | density | weaponMult | armorMult | bluntBonus | runeMult | meltsAtC | color | alloy inputs (→ output) | notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `copper` | copper | 1 | 10 | 890 | 0.80 | 0.80 | 0 | 0.8 | 1085 | `copper_orange` | — | |
-| `tin` | tin | 0 | 12 | 730 | 0.50 | 0.50 | 0 | 0.7 | 232 | `tin_gray` | — | alloy input only |
-| `bronze` | bronze | 2 | 18 | 880 | 0.90 | 0.90 | 0 | 0.9 | 950 | `bronze_gold` | 1 `copper` + 1 `tin` → 2 | |
-| `bismuth_bronze` | bismuth bronze | 2 | 20 | 870 | 0.92 | 0.92 | 0 | 0.7 | 900 | `bronze_pale` | 2 `copper` + 1 `tin` + 1 `bismuth` → 4 | |
-| `iron` | iron | 3 | 15 | 790 | 1.00 | 1.00 | 0 | 1.0 | 1538 | `iron_gray` | — | magma-safe |
-| `steel` | steel | 4 | 40 | 790 | 1.25 | 1.25 | 0 | 1.1 | 1500 | `steel_bright` | 1 `iron` + 1 flux stone + 1 fuel → 1 | magma-safe |
-| `silver` | silver | 1 | 25 | 1050 | 0.70 | 0.60 | +30% | 1.3 | 962 | `silver_white` | — | maces and hammers of silver |
-| `gold` | gold | 0 | 60 | 1930 | 0.40 | 0.40 | +10% | 0.7 | 1064 | `gold_yellow` | — | crafts and statues |
-| `lead` | lead | 0 | 6 | 1130 | 0.40 | 0.40 | 0 | 0.7 | 327 | `lead_gray` | — | weights, crafts |
-| `zinc` | zinc | 0 | 8 | 710 | 0.50 | 0.50 | 0 | 0.7 | 420 | `zinc_gray` | — | alloy input |
-| `brass` | brass | 1 | 16 | 850 | 0.75 | 0.75 | 0 | 0.7 | 930 | `brass_gold` | 1 `copper` + 1 `zinc` → 2 | furniture, crafts |
-| `platinum` | platinum | 0 | 90 | 2140 | 0.50 | 0.60 | +10% | 0.7 | 1768 | `platinum_white` | — | magma-safe; crafts |
-| `electrum` | electrum | 0 | 45 | 1500 | 0.45 | 0.45 | 0 | 0.7 | 1000 | `electrum_pale` | 1 `gold` + 1 `silver` → 2 | crafts |
-| `bismuth` | bismuth | 0 | 10 | 980 | 0.30 | 0.30 | 0 | 0.7 | 271 | `bismuth_pink` | — | alloy input |
-| `deepsilver` | deepsilver | 5 | 250 | 600 | 1.60 | 1.60 | 0 | 1.6 | 2400 | `deepsilver_blue` | — | magma-safe; light: armor weight halved |
+| id | name | tier | value (bar) | density | weaponMult | armorMult | bluntBonus | runeMult | summon | meltsAtC | color | alloy inputs (→ output) | notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `copper` | copper | 1 | 10 | 890 | 0.80 | 0.80 | 0 | 0.8 | — | 1085 | `copper_orange` | — | |
+| `tin` | tin | 0 | 12 | 730 | 0.50 | 0.50 | 0 | 0.7 | — | 232 | `tin_gray` | — | alloy input only |
+| `bronze` | bronze | 2 | 18 | 880 | 0.90 | 0.90 | 0 | 0.9 | — | 950 | `bronze_gold` | 1 `copper` + 1 `tin` → 2 | |
+| `bismuth_bronze` | bismuth bronze | 2 | 20 | 870 | 0.92 | 0.92 | 0 | 0.7 | — | 900 | `bronze_pale` | 2 `copper` + 1 `tin` + 1 `bismuth` → 4 | |
+| `iron` | iron | 3 | 15 | 790 | 1.00 | 1.00 | 0 | 1.0 | — | 1538 | `iron_gray` | — | magma-safe |
+| `steel` | steel | 4 | 40 | 790 | 1.25 | 1.25 | 0 | 1.1 | `stone_warden` | 1500 | `steel_bright` | 1 `iron` + 1 flux stone + 1 fuel → 1 | magma-safe |
+| `silver` | silver | 1 | 25 | 1050 | 0.70 | 0.60 | +30% | 1.3 | `stone_warden` | 962 | `silver_white` | — | maces and hammers of silver |
+| `gold` | gold | 0 | 60 | 1930 | 0.40 | 0.40 | +10% | 0.7 | — | 1064 | `gold_yellow` | — | crafts and statues |
+| `lead` | lead | 0 | 6 | 1130 | 0.40 | 0.40 | 0 | 0.7 | — | 327 | `lead_gray` | — | weights, crafts |
+| `zinc` | zinc | 0 | 8 | 710 | 0.50 | 0.50 | 0 | 0.7 | — | 420 | `zinc_gray` | — | alloy input |
+| `brass` | brass | 1 | 16 | 850 | 0.75 | 0.75 | 0 | 0.7 | — | 930 | `brass_gold` | 1 `copper` + 1 `zinc` → 2 | furniture, crafts |
+| `platinum` | platinum | 0 | 90 | 2140 | 0.50 | 0.60 | +10% | 0.7 | — | 1768 | `platinum_white` | — | magma-safe; crafts |
+| `electrum` | electrum | 0 | 45 | 1500 | 0.45 | 0.45 | 0 | 0.7 | — | 1000 | `electrum_pale` | 1 `gold` + 1 `silver` → 2 | crafts |
+| `bismuth` | bismuth | 0 | 10 | 980 | 0.30 | 0.30 | 0 | 0.7 | — | 271 | `bismuth_pink` | — | alloy input |
+| `deepsilver` | deepsilver | 5 | 250 | 600 | 1.60 | 1.60 | 0 | 1.6 | `deep_shade` | 2400 | `deepsilver_blue` | — | magma-safe; light: armor weight halved |
 
 Metal tier for weapon and armor purposes: `wood` and `bone` items are tier 0 with `weaponMult` 0.40 and 0.50.
 

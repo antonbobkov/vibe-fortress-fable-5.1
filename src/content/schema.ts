@@ -575,6 +575,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     armorMult: fixed,
     bluntBonus: int,
     runeMult: fixed,
+    summon: opt(ref('creatures')),
     meltsAtC: int,
     color: colorRef,
     alloy: opt(
@@ -694,6 +695,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     type: opt(enumOf(DAMAGE_TYPES)),
     ticks: opt(int),
     suffix: str,
+    summon: opt(ref('creatures')),
   }),
 
   enchants: rows({
@@ -766,6 +768,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
       butcherable: opt(bool),
       tameable: opt(bool),
       trainable: enumOf(['none', 'war', 'hunting', 'both']),
+      summoned: opt(bool),
+      turns: opt(bool),
     }),
     breeding: opt(
       obj({ gestationDays: int, litter: tupleOf(2, int), growDays: int, hatch: opt(bool) }),

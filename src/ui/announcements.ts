@@ -279,7 +279,8 @@ export class AnnouncementLog {
     // §4.5: "drop the clause when 0" children came.
     if (event.type === 'ImmigrantsArrived' && fields['children'] === 0) key = 'announce.immigrants_arrived_adults';
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
-      key = readers.entities.get(creatureId, C.Tame)?.petOf ? 'announce.pet_died' : 'announce.creature_died';
+      key = fields['cause'] === 'faded' ? 'announce.summon_faded'
+        : readers.entities.get(creatureId, C.Tame)?.petOf ? 'announce.pet_died' : 'announce.creature_died';
     }
     const text = this.strings.get(key, this.params(event, readers));
     const focus = focusOf(event, readers) ?? (event.type === 'StockpileFull' ? zoneFocus(readers, fields['id']) : undefined);

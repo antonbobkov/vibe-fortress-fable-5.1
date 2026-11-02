@@ -281,6 +281,7 @@ export function exportSpells() {
       type: cell(row.type) === undefined ? undefined : plain(row.type),
       ticks: cell(row.ticks) === undefined ? undefined : int(row.ticks),
       suffix: plain(row.suffix),
+      summon: cell(row.summon) === undefined ? undefined : id(row.summon),
     })),
   );
 }

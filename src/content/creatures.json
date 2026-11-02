@@ -602,6 +602,43 @@
     "fg": "croc_green"
   },
   {
+    "id": "deep_shade",
+    "name": "deep shade",
+    "plan": "humanoid",
+    "size": 60,
+    "speed": 210,
+    "diet": "none",
+    "temper": "aggressive",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "claw",
+        "type": "edge",
+        "damage": 12,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 1,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "summoned": true,
+      "turns": true,
+      "trainable": "none"
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "δ",
+    "fg": "hollow_violet"
+  },
+  {
     "id": "deer",
     "name": "deer",
     "plan": "quadruped",
@@ -2077,6 +2114,42 @@
     "fg": "leopard_pale"
   },
   {
+    "id": "stone_warden",
+    "name": "stone warden",
+    "plan": "humanoid",
+    "size": 90,
+    "speed": 105,
+    "diet": "none",
+    "temper": "aggressive",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "slam",
+        "type": "blunt",
+        "damage": 15,
+        "size": 8
+      }
+    ],
+    "naturalArmor": 7,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "summoned": true,
+      "trainable": "none"
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "Φ",
+    "fg": "granite_gray"
+  },
+  {
     "id": "troll",
     "name": "troll",
     "plan": "humanoid",
@@ -2255,6 +2328,42 @@
     "perception": 12,
     "glyph": "☺",
     "fg": "trader_wildwood"
+  },
+  {
+    "id": "wisp",
+    "name": "wisp",
+    "plan": "crawler",
+    "size": 10,
+    "speed": 240,
+    "diet": "none",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "touch",
+        "type": "ember",
+        "damage": 4,
+        "size": 2
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": null,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "summoned": true,
+      "trainable": "none"
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "glyph": "*",
+    "fg": "rune_cyan"
   },
   {
     "id": "wolf",

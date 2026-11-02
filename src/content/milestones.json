@@ -73,5 +73,10 @@
     "id": "m_legend",
     "trigger": "first LegendaryReached",
     "text": "A legend walked the halls."
+  },
+  {
+    "id": "m_summon",
+    "trigger": "first SummonCalled",
+    "text": "A summoning was answered."
   }
 ]

@@ -149,6 +149,9 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `VialDrunk` | `id` | 25 | ui (none) |
 | `Warded` | `id` | 25 | 15 |
 | `Mended` | `id, casterId` | 25 | 15, 17 |
+| `SummonCalled` | `id, casterId` | 25 | 24 (milestone) |
+| `SummonTurned` | `id` | 25 | 15, 18, ui |
+| `SummonFaded` | `id` | 25 | 17 |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 

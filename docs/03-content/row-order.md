@@ -98,3 +98,11 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | set_ammo_ember_ammo |
 | recipes | set_ammo_rime_ammo |
 | recipes | set_ammo_seeking |
+| creatures | wisp |
+| creatures | stone_warden |
+| creatures | deep_shade |
+| spells | call |
+| recipes | make_wand_glowstone |
+| recipes | make_staff_glowstone |
+| thoughts | summon_turned |
+| milestones | m_summon |
