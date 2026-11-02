@@ -2,7 +2,7 @@
 
 **Owner:** content (`plants`) · **Depends on:** [`../02-systems/07-plants-and-farming.md`](../02-systems/07-plants-and-farming.md), [materials.md](materials.md), [regions-biomes-and-traits.md](regions-biomes-and-traits.md)
 
-Columns: `stageDays` are days per stage at 100% growth (crops have four stages; the total is the cycle); `seasons` where surface species grow (cave species: all); `light` `sun` / `dark` / `any`; `minC`/`maxC` growth range; `yield` items per harvest `[min, max]` of `yieldItem` with the species as material unless stated; `seed` is always 1 per harvest; `value` is the plant material value per unit; `edible` raw; `cookable`; `brew` gives the drink material and the units per 4 plants at the still (always 20); `biomes` with spawn weights for wild shrubs and trees.
+Columns: `stageDays` are days per stage at 100% growth (crops have four stages; the total is the cycle); `seasons` where surface species grow (cave species: all); `light` `sun` / `dark` / `any` / `glow` (dark, under a glowstone lamp); `minC`/`maxC` growth range; `yield` items per harvest `[min, max]` of `yieldItem` with the species as material unless stated; `seed` is always 1 per harvest; `value` is the plant material value per unit; `edible` raw; `cookable`; `brew` gives the drink material and the units per 4 plants at the still (always 20); `biomes` with spawn weights for wild shrubs and trees.
 
 ## Surface crops
 
@@ -25,6 +25,7 @@ Columns: `stageDays` are days per stage at 100% growth (crops have four stages; 
 | `pale_bell` | pale bell | 6 (24) | dark | 2 | 40 | 2–4 | `plant_food` | 3 | yes | yes | `bellwine` | — | `♣` | `bell_white` |
 | `sweetroot` | sweetroot | 5 (20) | dark | 2 | 40 | 3–5 | `plant_food` | 2 | yes | yes | `rootwine` | — | `"` | `root_amber` |
 | `sporecloth` | sporecloth | 6 (24) | dark | 2 | 40 | 2–4 | `fiber` (`sporecloth_fiber`) | 3 | no | no | — | — | `"` | `spore_violet` |
+| `glowcap` | glowcap | 6 (24) | glow | 2 | 40 | 2–3 | `glowcap` | 6 | no | no | — | — | `♠` | `rune_cyan` |
 
 ## Wild shrubs (gatherable; regrow)
 
@@ -45,6 +46,14 @@ Columns: `stageDays` are days per stage at 100% growth (crops have four stages; 
 | `sporecloth_patch` | sporecloth patch | `fiber` (`sporecloth_fiber`) | 1–2 | 30 | 400 | `sporecloth` | cavern 2 (20), cavern 3 (30) | `"` | `spore_violet` |
 
 Wild shrub density per biome is in [regions-biomes-and-traits.md](regions-biomes-and-traits.md) (`shrubDensity`); the weights above choose the species.
+
+## Rare cave patches
+
+Columns as the wild shrubs, with `rarePermille` for cavern tiers 1, 2 and 3 in place of the weights. These species take no share of the cave shrub weights. After the cave shrubs are placed, each one takes over that permille of the shrubs of each tier (`rarePermille` *unmeasured*).
+
+| id | name | product | count | regrowDays | wildSeedPermille | seed of | rarePermille | glyph | fg |
+|---|---|---|---|---|---|---|---|---|---|
+| `glowcap_patch` | glowcap patch | `glowcap` (`glowcap`) | 1–2 | 30 | 400 | `glowcap` | 100, 130, 250 | `♠` | `rune_cyan` |
 
 ## Trees
 

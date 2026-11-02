@@ -986,6 +986,18 @@
     "burnTicks": 0
   },
   {
+    "id": "rune",
+    "name": "rune",
+    "class": "liquid",
+    "value": 15,
+    "density": 100,
+    "hardness": 100,
+    "color": "rune_cyan",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
     "id": "sand",
     "name": "sand",
     "class": "soil",

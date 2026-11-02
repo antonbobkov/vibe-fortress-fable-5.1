@@ -50,7 +50,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'craft', 'craft/figurine', 'craft/ring', 'craft/amulet', 'craft/mug', 'craft/totem',
   'textile', 'textile/fiber', 'textile/thread', 'textile/cloth', 'textile/wool', 'textile/hide', 'textile/leather',
   'textile/bone', 'textile/shell', 'textile/skull',
-  'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf',
+  'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf', 'medical/glowcap', 'medical/vial',
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
 ];
 

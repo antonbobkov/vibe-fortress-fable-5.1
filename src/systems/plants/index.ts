@@ -307,6 +307,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       const gained = growthPerHour(row, cave, {
         season,
         lit: this.buildings()?.cropLitAt(tile) ?? map.hasFlag(tile, TileFlag.Lit),
+        lamped: this.buildings()?.lampCoveredAt(tile) ?? false,
         tempC,
         growthModifier: modifier,
       });
@@ -427,10 +428,15 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     this.needsSeedsAnnounced.delete(id);
   }
 
+  private kindOfTiles(tiles: readonly TileIndex[]): PlotKind {
+    return plotKindOf(this.map, tiles, (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit),
+      (tile) => this.buildings()?.lampCoveredAt(tile) ?? false);
+  }
+
   plotKind(zoneId: EntityId): PlotKind | 'none' {
     const zone = this.buildings()?.zone(zoneId);
     if (zone === undefined || zone.type !== FARM_PLOT) return 'none';
-    return plotKindOf(this.map, zone.tiles, (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit));
+    return this.kindOfTiles(zone.tiles);
   }
 
   // ---------- events ----------
@@ -513,7 +519,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     const view = this.buildings()?.zone(zoneId);
     if (zone === undefined || view === undefined || view.type !== FARM_PLOT) return reject('not_found');
     const choice = cropChoice(cmd['speciesId'], ctx.registry.table<PlantRow>('plants'),
-      plotKindOf(this.map, view.tiles, (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit)));
+      this.kindOfTiles(view.tiles));
     if (!choice.ok) return choice;
     const plant = choice.plant;
     entities.add(zoneId, C.Zone, { ...zone, settings: withCrop(zone.settings, season, plant) });

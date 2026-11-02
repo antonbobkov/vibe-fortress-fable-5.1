@@ -55,6 +55,7 @@ export interface CatalogRow {
 interface SkillRow {
   readonly id: string;
   readonly name: string;
+  readonly embark?: boolean;
 }
 
 interface TraitRow {
@@ -164,6 +165,7 @@ export class EmbarkScreen implements Screen {
     this.skillRows = skills
       .ids()
       .map((id) => skills.byId(id) as SkillRow)
+      .filter((row) => row.embark !== false)
       .sort((a, b) => a.name.localeCompare(b.name));
     const traits = registry.table<TraitRow>('personality');
     this.traitNames = new Map(traits.ids().map((id) => [id, (traits.byId(id) as TraitRow).name]));

@@ -22,6 +22,9 @@ const { readRowBaseline, rowBaselineIssues } = await import(new URL('../../scrip
 
 type Rows = (Row & Record<string, unknown>)[];
 
+/** The real table of rows added since the baseline. */
+const realOrder = (): { table: string; id: string }[] => rawTables()['rowOrder'] as { table: string; id: string }[];
+
 const baseline = readRowBaseline();
 
 /** The hash of the baseline as it was written. It does not change: a new row goes in rowOrder. */
@@ -66,15 +69,17 @@ describe('T-478 makeTable numbers appended rows last', () => {
 });
 
 describe('T-478 the rowOrder table', () => {
-  it('is empty in version 1 and leaves the numbering and the content hash alone', () => {
-    expect(rawTables()['rowOrder']).toEqual([]);
+  it('numbers its rows after the baseline, in the order listed', () => {
     const plain = loadContent();
-    for (const name of Object.keys(baseline)) expect(plain.table(name).ids()).toEqual(baseline[name]);
+    for (const name of Object.keys(baseline)) {
+      const listed = realOrder().filter((line) => line.table === name).map((line) => line.id);
+      expect(plain.table(name).ids()).toEqual([...(baseline[name] as string[]), ...listed]);
+    }
   });
 
   it('is not hashed: naming a row that already numbers last changes nothing', () => {
-    const last = (baseline['materials'] as string[]).at(-1) as string;
-    const listed = loadContent({ overrides: { rowOrder: [{ table: 'materials', id: last }] } });
+    const last = (baseline['biomes'] as string[]).at(-1) as string;
+    const listed = loadContent({ overrides: { rowOrder: [...realOrder(), { table: 'biomes', id: last }] } });
     expect(listed.contentHash).toBe(loadContent().contentHash);
   });
 
@@ -173,7 +178,7 @@ describe('T-478 forgetting rowOrder fails clearly', () => {
   it('a row listed in rowOrder passes', () => {
     const data = tables({
       skills: withRows('skills', 'aaa_new_skill'),
-      rowOrder: [{ table: 'skills', id: 'aaa_new_skill' }],
+      rowOrder: [...realOrder(), { table: 'skills', id: 'aaa_new_skill' }],
     });
     expect(rowBaselineIssues(data, baseline)).toEqual([]);
   });
@@ -189,15 +194,16 @@ describe('T-478 forgetting rowOrder fails clearly', () => {
 
 describe('T-478 an older save under appended rows', () => {
   const fixture = new Uint8Array(readFileSync(fileURLToPath(new URL('../fixtures/played-fortress.deepholm', import.meta.url))));
-  // Seven labors take the table from 25 to 32, across a byte of the bitset; all of them, the
+  // These labors take the table up to 32, across a byte of the bitset; all of them, the
   // material and the skill sort first, so without the rule they would shift everything.
-  const newLabors = ['1', '2', '3', '4', '5', '6', '7'].map((n) => `aaa_new_labor_${n}`);
+  const newLabors = Array.from({ length: 32 - (rawTables()['labors'] as Rows).length }, (_, n) => `aaa_new_labor_${n + 1}`);
   const appended = (): Registry => loadContent({
     overrides: {
       materials: withRows('materials', 'aaa_new_material'),
       skills: withRows('skills', 'aaa_new_skill'),
       labors: withRows('labors', ...newLabors),
       rowOrder: [
+        ...realOrder(),
         { table: 'materials', id: 'aaa_new_material' },
         { table: 'skills', id: 'aaa_new_skill' },
         ...newLabors.map((id) => ({ table: 'labors', id })),
@@ -284,7 +290,7 @@ describe('T-478 an older save under appended rows', () => {
   it('keeps playing, and a new labor can be switched on', async () => {
     const { game } = await loadGame(fixture, { registry: appended() });
     const dwarf = game.world.entities.with(C.Labors)[0] as number;
-    const labor = game.registry.table('labors').index('aaa_new_labor_7');
+    const labor = game.registry.table('labors').index(newLabors.at(-1) as string);
     expect(labor).toBe(32);
     expect(game.world.applyCommand({ type: 'SetLabor', dwarfId: dwarf, labor, on: true }).ok).toBe(true);
     const enabled = game.world.entities.get(dwarf, C.Labors)?.enabled as Uint8Array;

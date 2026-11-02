@@ -142,12 +142,16 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 
 ## Medical and herbs
 
-| id | name | category | mult | stack | container | rotDays | glyph | fg |
-|---|---|---|---|---|---|---|---|---|
-| `brightleaf` | brightleaf | medical/brightleaf | 4 | 20 | bag | 60 | `♣` | `bright_green` |
-| `bandage` | bandage | medical/bandage | 1 | 20 | bin | 0 | `~` | `linen_cream` |
+| id | name | category | mult | stack | container | rotDays | glyph | fg | tags |
+|---|---|---|---|---|---|---|---|---|---|
+| `brightleaf` | brightleaf | medical/brightleaf | 4 | 20 | bag | 60 | `♣` | `bright_green` | |
+| `bandage` | bandage | medical/bandage | 1 | 20 | bin | 0 | `~` | `linen_cream` | |
+| `glowcap` | glowcap | medical/glowcap | 1 | 20 | bag | 40 | `♠` | `rune_cyan` | |
+| `rune_vial` | rune vial | medical/vial | 1 | 20 | bag | 0 | `¡` | `rune_cyan` | `rune_fuel` |
 
 Bandages are cloth cut at the clothier (1 cloth → 4 bandages); `stop_bleeding` and `dress_burn` accept a bandage or a cloth.
+
+Glowcap is its own item and not `plant_food`, because `plant_food` of any material is eaten and is an ingredient. So no dwarf eats a glowcap and no kitchen takes one. A rune vial holds the material `rune`.
 
 ## Refuse
 

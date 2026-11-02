@@ -744,7 +744,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     kind: enumOf(['tree', 'fungus_tree', 'shrub', 'crop', 'cave_crop']),
     stageDays: opt(int),
     seasons: opt(arr(int)),
-    light: enumOf(['sun', 'dark', 'any']),
+    light: enumOf(['sun', 'dark', 'any', 'glow']),
     minC: int,
     maxC: int,
     yield: opt(tupleOf(2, int)),
@@ -762,6 +762,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     saplingYears: opt(int),
     biomes: opt(arr(obj({ biome: ref('biomes', { allowWords: ['riverbank'] }), weight: int }))),
     caverns: opt(arr(obj({ tier: int, weight: int }))),
+    rarePermille: opt(tupleOf(3, int)),
   }),
 
   skills: rows({
@@ -771,6 +772,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     profession: nullable(str),
     military: nullable(str),
     attributes: arr(enumOf(['str', 'agi', 'tou', 'end', 'wil', 'wit', 'cha'])),
+    embark: opt(bool),
   }),
 
   labors: rows({ id: nonEmptyStr, name: str, defaultOn: bool, children: bool }),
@@ -1053,6 +1055,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
         container: opt(itemRef),
         rare: opt(bool),
         rareAdds: opt(arr(str)),
+        extra: opt(obj({ permille: int, minReputation: opt(int) })),
       }),
     ),
   }),

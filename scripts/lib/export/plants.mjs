@@ -75,18 +75,23 @@ export function exportPlants() {
     out.push({ ...cropRow(row, 'cave_crop'), glyph: glyph(row.glyph), fg: id(row.fg) });
   }
 
-  for (const row of asObjects(findTable(tables, 'Wild shrubs', 'regrowDays'))) {
+  const shrubRows = [
+    ...asObjects(findTable(tables, 'Wild shrubs', 'regrowDays')),
+    ...asObjects(findTable(tables, 'Rare cave patches', 'regrowDays')),
+  ];
+  for (const row of shrubRows) {
     const product = plain(row.product);
     const marks = ticked(row.product);
     const valueMatch = /value\s+(\d+)/.exec(product);
     const brewMatch = /brew\s+`([a-z_]+)`/.exec(product);
     const caverns = parseCaverns(row['biomes (weight)']);
+    const rarePermille = isBlank(row.rarePermille) ? undefined : plain(row.rarePermille).split(/,\s*/).map(Number);
     out.push(
       compact({
         id: plain(row.id),
         name: plain(row.name),
         kind: 'shrub',
-        light: caverns === undefined ? 'sun' : 'dark',
+        light: caverns === undefined && rarePermille === undefined ? 'sun' : 'dark',
         minC: NO_TEMPERATURE_LIMIT[0],
         maxC: NO_TEMPERATURE_LIMIT[1],
         yield: range(row.count) ?? undefined,
@@ -101,6 +106,7 @@ export function exportPlants() {
         seedOf: id(row['seed of']) ?? undefined,
         biomes: parseBiomes(row['biomes (weight)']),
         caverns,
+        rarePermille,
         glyph: glyph(row.glyph),
         fg: id(row.fg),
       }),

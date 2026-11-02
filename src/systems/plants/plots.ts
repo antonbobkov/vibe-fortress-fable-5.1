@@ -21,15 +21,18 @@ export const FARM_PLOT = 'farm_plot';
 /** The zone setting key, `settingKey('crop per season')`. */
 export const CROP_SETTING = 'crop_per_season';
 
-/** `07` § Farm plots: "a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is a cave plot". */
-export type PlotKind = 'surface' | 'cave' | 'mixed';
+/**
+ * `07` § Farm plots: "a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is a cave plot";
+ * a cave plot with every tile under a lamp is a glow plot.
+ */
+export type PlotKind = 'surface' | 'cave' | 'glow' | 'mixed';
 
-/** Surface when every tile is lit, cave when none is, mixed otherwise ("mixed plots are refused"). */
+/** Surface when every tile is lit, cave or glow when none is, mixed otherwise ("mixed plots are refused"). */
 export function plotKindOf(map: Map3D, tiles: readonly TileIndex[], cropLitAt: (tile: TileIndex) => boolean =
-  (tile) => map.hasFlag(tile, TileFlag.Lit)): PlotKind {
+  (tile) => map.hasFlag(tile, TileFlag.Lit), lampCoveredAt: (tile: TileIndex) => boolean = () => false): PlotKind {
   let lit = 0;
   for (const t of tiles) if (map.validIndex(t) && cropLitAt(t)) lit += 1;
-  if (lit === 0) return 'cave';
+  if (lit === 0) return tiles.length > 0 && tiles.every(lampCoveredAt) ? 'glow' : 'cave';
   if (lit === tiles.length) return 'surface';
   return 'mixed';
 }
@@ -37,7 +40,8 @@ export function plotKindOf(map: Map3D, tiles: readonly TileIndex[], cropLitAt: (
 /** "each `none` or a species whose light requirement matches the plot". */
 export function lightMatches(row: PlantRow, kind: PlotKind): boolean {
   if (row.light === 'sun') return kind === 'surface';
-  if (row.light === 'dark') return kind === 'cave';
+  if (row.light === 'dark') return kind === 'cave' || kind === 'glow';
+  if (row.light === 'glow') return kind === 'glow';
   return kind !== 'mixed';
 }
 

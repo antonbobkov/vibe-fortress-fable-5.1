@@ -21,6 +21,7 @@ import type { AnimalsReader } from '@systems/animals';
 import { GRASS_PER_GRAZER } from '@systems/animals/constants';
 import type { PlantRow } from '@systems/plants';
 import { seasonAllows } from '@systems/plants/growth';
+import { lightMatches } from '@systems/plants/plots';
 import type { ItemsReader } from '@systems/items';
 import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
 import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '../widgets';
@@ -200,7 +201,7 @@ export class ZoneTool {
     const kind = plants?.plotKind(this.selected);
     if (kind === undefined || kind === 'none' || kind === 'mixed') return [];
     return [{ id: '0', label: 'none' }, ...ctx.registry.table<PlantRow>('plants').rows
-      .filter((p) => (p.kind === 'crop' || p.kind === 'cave_crop') && (p.light === 'any' || (kind === 'surface' ? p.light === 'sun' : p.light === 'dark')))
+      .filter((p) => (p.kind === 'crop' || p.kind === 'cave_crop') && lightMatches(p, kind))
       .map((p) => ({ id: p.id, label: this.seedsOf(ctx, p) === 0 ? ctx.strings.get('ui.zone.farm_no_seeds', { name: p.name }) : p.name }))];
   }
 

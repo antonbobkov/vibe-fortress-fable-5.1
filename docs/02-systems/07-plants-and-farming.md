@@ -13,20 +13,21 @@ Grow things. Trees for wood, shrubs for gathering, grass for grazing, crops on f
 - **Crop**: an entity on a farm plot tile with a species, a stage and growth progress.
 - **Stage**: crops have four stages `0 sprout, 1 growing, 2 ripening, 3 mature`; saplings have one long stage; shrubs are `mature` or `regrowing`.
 - **Farm plot**: a zone whose tiles are farmable; each tile holds at most one crop; the plot has a crop choice per season.
-- **Light rule**: surface species need `lit` tiles; cave species need dark tiles. This is the whole reason underground farming works in winter and surface farming does not.
+- **Light rule**: surface species need `lit` tiles; cave species need dark tiles. This is the whole reason underground farming works in winter and surface farming does not. Glowcap also needs a glowstone lamp over its dark tile.
 
 ## Rules
 
 ### Species table (content) and the properties used here
 
-`kind`, `growSeasons` (surface species; cave species grow in all seasons), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any`, `yieldItem`, `yieldCount: [min, max]`, `seedItem` (always the `seed` item type with the species as material), `secondaryYield` (for example `flax` → `flax_fiber` plus a seed-cake food unit), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `glyph`, `fg`.
+`kind`, `growSeasons` (surface species; cave species grow in all seasons), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any | glow`, `yieldItem`, `yieldCount: [min, max]`, `seedItem` (always the `seed` item type with the species as material), `secondaryYield` (for example `flax` → `flax_fiber` plus a seed-cake food unit), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `glyph`, `fg`.
 
 The species fixed by this design (properties in `plants.md`):
 
 - Trees: `oak`, `pine`, `birch`, `willow`, `yew`, `ash`, `maple`; fungus trees: `tower_shroom`, `stalk_fern`.
+- A rare cavern shrub: `glowcap_patch`.
 - Shrubs: `bramble` (berries), `brightleaf` (medicine herb), `nutbush` (nuts), `wild_barley`, `wild_strawberry`, `wild_flax`, `sunfruit` (savanna), `frostberry` (tundra and taiga); cavern shrubs: `dimcap_patch`, `pale_bell_patch`, `sweetroot_patch`, `cavewheat_patch`, `sporecloth_patch`.
 - Surface crops: `barley` (ale, flour), `turnip`, `cabbage`, `strawberry` (food and wine), `flax` (fiber and seed oil), `pumpkin` (autumn), `hops` (improves ale).
-- Cave crops: `dimcap` (food and dimcap ale), `cavewheat` (flour and cavewheat beer), `pale_bell` (bellwine), `sweetroot` (food and rootwine), `sporecloth` (thread).
+- Cave crops: `dimcap` (food and dimcap ale), `cavewheat` (flour and cavewheat beer), `pale_bell` (bellwine), `sweetroot` (food and rootwine), `sporecloth` (thread), `glowcap` (rune, by way of the laboratory).
 
 ### Growth
 
@@ -41,7 +42,7 @@ growthPerHour(plant, tile) =
 A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accumulator crosses it the stage advances and the accumulator keeps the remainder. Stage 3 begins after three stage lengths, but its accumulator continues through the fourth. A crop is ready only once the mature stage has completed, after four stage lengths at normal growth; `plants.cropReady(tile)` is the readiness query used by harvest jobs, harvest designation and the mature-crop blink. Cave crops use a growth modifier of 100 in every season and ignore weather.
 
 - `seasonAllows`: surface crops grow only in their `growSeasons`; outside them they are dormant (not dead). Outside their growing seasons, `temperatureAt(tile) < FROST_KILL_C` kills surface crops (`CropDied { reason: frost }`), which clears the tile for spring.
-- `lightOk`: `sun` needs crop light; `dark` needs it clear; `any` ignores it. `buildings.cropLitAt` reads the original light bit recorded under lamp coverage, otherwise the `lit` flag; lamp comfort light does not alter crop eligibility.
+- `lightOk`: `sun` needs crop light; `dark` needs it clear; `glow` needs it clear and the tile under a lamp (`buildings.lampCoveredAt`); `any` ignores both. `buildings.cropLitAt` reads the original light bit recorded under lamp coverage, otherwise the `lit` flag; lamp comfort light does not alter crop eligibility. A crop whose light is wrong, such as a glowcap that loses its lamp, stops growing and does not die.
 - `tempOk`: `minC ≤ temperatureAt(tile) ≤ maxC`.
 - Heatwave wilting (06): each heatwave hour a surface crop at stage ≥ 1 loses one stage with `WILT_PERMILLE`.
 
@@ -49,7 +50,7 @@ A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accu
 
 - A `farm_plot` zone can be drawn over tiles that are `floor` with material class `soil`, or with the `mud` flag, or cavern `cave_loam`. Tiles that do not qualify are excluded from the zone and shown in red during placement.
 - `SetPlotCrop` accepts 0 for none, or a known farmed plant id or nonnegative integer index; malformed or unknown choices reject as `not_found`, and a mismatched light requirement rejects as `light_mismatch`. The four-slot zone setting uses this same validation for every slot before storing the normalized indices.
-- Settings: one crop per season (four plant indices under `Zone.settings.crop_per_season`, 0 = none), each `none` or a species whose light requirement matches the plot (the UI filters: a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is a cave plot; mixed plots are refused).
+- Settings: one crop per season (four plant indices under `Zone.settings.crop_per_season`, 0 = none), each `none` or a species whose light requirement matches the plot (the UI filters: a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is a cave plot, and a glow plot when every one of its tiles is under a lamp; mixed plots are refused). `dark` species grow on cave and glow plots, `glow` species only on glow plots, `any` species on all three. One lamp in the middle of a 3×3 plot gives eight planted tiles, since the lamp stands on the ninth.
 - A plot tile that a built building covers is not plantable: the producer creates no `plant` job for it and cancels one it made.
 - Each hour, for each plantable plot tile without a crop, if the season's species is set and a seed exists in a stockpile or on the ground (13 `findItem(seedItem)`), the plants job producer creates `plant { tile, species }` (labor `farming`, skill `farming`); if no seed exists, the plot is marked `needsSeeds` once per season with a note.
 - `plant` job: fetch the seed, walk to the tile, work `PLANT_TICKS` (skill-scaled), consume the seed, create the `Crop` entity at stage 0.
@@ -97,7 +98,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 ### Reader
 
 - `plants.cropAt(i)`, `plants.cropInfo(id)` (species, stage, progress percent)
-- `plants.plotAt(i)`, `plants.plotSettings(zoneId)`, `plants.plotKind(zoneId)` (`surface | cave`)
+- `plants.plotAt(i)`, `plants.plotSettings(zoneId)`, `plants.plotKind(zoneId)` (`surface | cave | glow | mixed`)
 - `plants.speciesAt(i)` for tree, sapling, shrub tiles; `plants.shrubReady(i)`
 - `plants.hasGrass(i)`
 - `plants.def(speciesId)`

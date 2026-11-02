@@ -45,6 +45,7 @@ export function exportSkills() {
       attributes: words(row.attributes)
         .map((w) => ATTRIBUTE_KEYS[w.toLowerCase()])
         .filter((a) => a !== undefined),
+      ...(/^no$/i.test(plain(row.embark ?? '')) ? { embark: false } : {}),
     })),
   );
 }
@@ -321,6 +322,7 @@ const RECIPE_SECTIONS = [
   ['Clothier', 'clothier', 'clothesmaking', false, false],
   ["Farmer's workshop", 'farmers_workshop', 'farming', false, false],
   ['Bowyer', 'bowyer', 'carpentry', false, false],
+  ['Laboratory', 'alchemist', 'alchemy', false, false],
 ];
 
 /** Material classes; an output note naming one is a class hint, not a fixed material. */

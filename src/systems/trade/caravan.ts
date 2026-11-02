@@ -64,11 +64,16 @@ export function caravanGuardCount(peril: number, twilightPass: boolean): number 
   return GUARDS_BASE + peril * GUARDS_PER_PERIL + (twilightPass ? 1 : 0);
 }
 
+/** One pack animal per `PACK_VALUE` marks of goods; extra goods ride on those. */
+export function packAnimalsFor(planned: readonly PlannedGood[]): number {
+  const value = planned.reduce((sum, good) => sum + (good.extra ? 0 : good.value), 0);
+  return Math.max(1, Math.ceil(value / PACK_VALUE));
+}
+
 export function spawnCaravan(ctx: TickContext, civ: Civ, edge: Edge, peril: number, twilightPass: boolean, reputation: number, planned: readonly PlannedGood[], rng: RngStream): ActiveCaravan {
   const merchants = rng.int(MERCHANTS_MIN, MERCHANTS_MAX);
   const guards = caravanGuardCount(peril, twilightPass);
-  const value = planned.reduce((sum, good) => sum + good.value, 0);
-  const animals = Math.max(1, Math.ceil(value / PACK_VALUE));
+  const animals = packAnimalsFor(planned);
   const tiles = findEdgeTiles(ctx.world.map, edge, merchants + guards + animals);
   const edgeTile = tiles[0] as TileIndex;
   const partyId = ctx.world.entities.create('party');

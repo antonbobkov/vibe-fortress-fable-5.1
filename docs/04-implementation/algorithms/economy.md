@@ -68,7 +68,8 @@ acceptOffer(give, take): G = Σ valuation(civ, it)*qty for give; T = Σ price(ci
   wood penalty: for it in give with class wood (or wooden furniture) and civ == wildwood: reputation -= 2 (once per item per session; applied before the accept check, so a refused offer pays it too)
 goodsGeneration(civ): budget = CARAVAN_VALUE_BASE + renown*CARAVAN_VALUE_PER_RENOWN + rep*CARAVAN_VALUE_PER_REP
   reqBudget = budget * REQUEST_SHARE/100; for req in requests[civ] sorted by priority desc: if civ list contains req.item: spend up to reqBudget on it (count = min(entry max, floor(reqBudget/value)))
-  remaining: loop: e = rng.weighted(entries; the rare variants added at reputation >= 50, the deepsilver entry only at >= 75); n = rng.int(e.count); mat = rng.weighted(e.materials); v = value*n; if v > remaining*1.2: continue (max 20 skips then stop); spawn into pack animals; remaining -= v
+  remaining: loop: e = rng.weighted(the entries that are not extra; the rare variants added at reputation >= 50, the deepsilver entry only at >= 75); n = rng.int(e.count); mat = rng.weighted(e.materials); v = value*n; if v > remaining*1.2: continue (max 20 skips then stop); spawn into pack animals; remaining -= v
+  extras: for e in the extra entries the reputation allows: if streamOf(25).chance(e.permille): one good from e, drawn on stream 25, added to the cargo; not in remaining, and it adds no pack animal
 ```
 
 ## Immigration wave (21, on SeasonChanged)

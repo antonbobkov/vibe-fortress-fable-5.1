@@ -9,7 +9,7 @@ const registry = contentRegistry();
 const WORKSHOP_TYPES = [
   'carpenter', 'mason', 'craftdwarf', 'jeweler', 'mechanic',
   'wood_furnace', 'smelter', 'forge', 'kitchen', 'still',
-  'tannery', 'leatherworks', 'loom', 'clothier', 'farmers_workshop', 'bowyer',
+  'tannery', 'leatherworks', 'loom', 'clothier', 'farmers_workshop', 'bowyer', 'alchemist',
 ] as const;
 
 const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
@@ -30,6 +30,7 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   plant_food: 'dimcap',
   raw_hide: 'cow_hide',
   wool_raw: 'wool',
+  glowcap: 'glowcap',
 });
 
 const INGREDIENTS = [
@@ -158,12 +159,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 151', () => {
+  it('the recipe count over all types is 153', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(151);
+    expect(total).toBe(153);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

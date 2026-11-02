@@ -53,6 +53,7 @@
 | `textiles` | Textiles | yes | no |
 | `cooking` | Cooking | yes | no |
 | `brewing` | Brewing | yes | no |
+| `alchemy` | Alchemy | yes | no |
 | `smelting` | Smelting | yes | no |
 | `smithing` | Smithing | yes | no |
 | `medicine` | Medicine | yes | no |
@@ -64,8 +65,8 @@
 
 Columns: `labor`; `profession` title when this is the highest skill; `military` title (weapon skills only, shown while in a squad); `attributes` raised on level-up; `used by` the jobs or systems.
 
-| id | name | labor | profession | military | attributes | used by |
-|---|---|---|---|---|---|---|
+| id | name | labor | profession | military | attributes | used by | embark |
+|---|---|---|---|---|---|---|---|
 | `mining` | Mining | mining | Miner | — | Strength, Endurance | dig, channel, carve, remove construction |
 | `woodcutting` | Woodcutting | woodcutting | Woodcutter | — | Strength, Agility | chop |
 | `carpentry` | Carpentry | carpentry | Carpenter | — | Agility, Wits | carpenter and bowyer recipes |
@@ -87,7 +88,8 @@ Columns: `labor`; `profession` title when this is the highest skill; `military` 
 | `weaving` | Weaving | textiles | Weaver | — | Agility | loom |
 | `clothesmaking` | Clothesmaking | textiles | Clothier | — | Agility | clothier |
 | `cooking` | Cooking | cooking | Cook | — | Agility, Wits | kitchen |
-| `brewing` | Brewing | brewing | Brewer | — | Wits | still |
+| `brewing` | Brewing | brewing | Brewer | — | Wits | still | |
+| `alchemy` | Alchemy | alchemy | Alchemist | — | Wits, Agility | laboratory | no |
 | `smelting` | Smelting | smelting | Smelter | — | Endurance, Strength | smelter, wood furnace |
 | `weaponsmithing` | Weaponsmithing | smithing | Weaponsmith | — | Strength, Agility | forge: weapons, ammunition, picks, axes |
 | `armorsmithing` | Armorsmithing | smithing | Armorsmith | — | Strength, Endurance | forge: armor, shields |
@@ -120,7 +122,7 @@ Combat skills have no labor; they are used when a creature fights. Weapon skills
 | Craft | crafting, mechanics, building | `prof_tan` |
 | Field | farming, herbalism, animal_care, animal_training, hunting, fishing, butchery | `prof_green` |
 | Cloth | tanning, leatherworking, weaving, clothesmaking | `prof_violet` |
-| Hearth | cooking, brewing | `prof_orange` |
+| Hearth | cooking, brewing, alchemy | `prof_orange` |
 | Metal | smelting, weaponsmithing, armorsmithing, metalcrafting | `prof_steel` |
 | Care | medicine, trading | `prof_white` |
 | Arms | all combat skills | `prof_red` |

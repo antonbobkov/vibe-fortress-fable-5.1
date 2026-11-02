@@ -20,7 +20,7 @@ import { stageSea } from './sea';
 import { stageCaverns } from './caverns';
 import { stageMinerals } from './minerals';
 import { stageVolcano } from './volcano';
-import { stageVegetation } from './vegetation';
+import { stageRarePatches, stageVegetation } from './vegetation';
 import { stageBoulders, stageRamps, stageSnow } from './surface';
 import { stageTraits } from './traits';
 import { stageLight } from './light';
@@ -137,6 +137,7 @@ export function generateLocal(
       stageRamps(g);
       stageBoulders(g);
       stageVegetation(g);
+      stageRarePatches(g);
       stageSnow(g);
     },
     traits: () => stageTraits(g),

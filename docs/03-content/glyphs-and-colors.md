@@ -237,6 +237,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `flower_violet` | #A878D8 |  |  | `flower_red` | #D84858 |  |
 | `flower_blue` | #6890E8 |  |  | `lichen_gray` | #8E9C84 |  |
 | `lichen_orange` | #C08448 |  |  | `lichen_yellow` | #B8B464 |  |
+| `rune_cyan` | #5AD8E0 |  |  |  |  |  |
 
 ## Glyphs by thing
 
@@ -282,7 +283,7 @@ Dwarves `☺` with state colors; traders `☺` in civ colors; animals by species
 
 ### Items
 
-By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
+By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage) `♠` (glowcap) `¡` (rune vial), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
 
 ### Buildings
 
@@ -306,10 +307,10 @@ loom         clothier     farmers      butcher      kennel       bowyer
 ≈ ┼ ≈        ≈ ┼ ≈        ╥ ┼ ╥        ╥ ┼ ╥        ▒ ┼ ▒        ≡ ┼ ≡
 ~ ≈ ~        [ ≈ [        u ╥ u        % ╥ %        § ▒ §        ) ≡ )
 
-depot        wagon
-▄ ═ ▄        ○ ═ ○
-═ ┼ ═        ═ ▄ ═
-▄ ═ ▄        ○ ═ ○
+depot        wagon        alchemist
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡
+═ ┼ ═        ═ ▄ ═        ╥ ┼ ╥
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡
 ```
 
 The center `┼` is the work tile; the south-center tile is the output tile. Impassable corner tiles (smelter, forge, furnace and magma variants) are the `▒`, `Ξ` glyphs. Magma variants draw the pattern in `magma_2` instead of the material color.

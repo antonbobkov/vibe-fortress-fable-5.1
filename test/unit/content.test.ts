@@ -55,10 +55,13 @@ describe('T-M0-06 content: every table loads', () => {
     expect(() => materials.index('no_such_material')).toThrow(RangeError);
   });
 
-  it('rows are numbered in id order', () => {
+  it('rows are numbered in id order, and rows added later after them', () => {
     const items = registry.table<ItemTypeDef>('items');
     const ids = items.ids();
-    expect([...ids].sort()).toEqual([...ids]);
+    const later = (rawTables()['rowOrder'] as { table: string; id: string }[]).filter((line) => line.table === 'items').map((line) => line.id);
+    const older = [...ids].filter((id) => !later.includes(id));
+    expect([...older].sort()).toEqual(older);
+    expect([...ids]).toEqual([...older, ...later]);
     ids.forEach((id, i) => expect(items.index(id)).toBe(i + 1));
   });
 
@@ -99,11 +102,12 @@ describe('T-M0-06 content: every table loads', () => {
       clothier: 8,
       farmers_workshop: 4,
       bowyer: 3,
+      alchemist: 2,
     };
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(151);
+    expect(registry.table('recipes').size).toBe(153);
   });
 
   it('the content hash is a stable hex string', () => {

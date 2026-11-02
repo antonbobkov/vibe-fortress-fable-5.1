@@ -51,7 +51,7 @@ These hold for all tasks, and each task's review checks them.
 - **Wild patches.** A separate pass with its own stream converts some cave shrubs (§ Glowcap). The main terrain stream draws the same numbers. The local-map golden moves once, in T-468. Only a tile that was already a cave shrub changes.
 - **Deliberate moves.** Three changes do move numbers with no runecraft in play, and each task runs the annual instrument and explains the move:
   - **Hexers** move raid outcomes at peril 3 and 4 (T-479, which measures it). Peril 2 and below see none.
-  - **Converted shrubs** take 10–25% of cave shrubs from their forage (T-468).
+  - **Converted shrubs** take 10–25% of cave shrubs from their forage (T-468). The annual instrument gathers no cave shrub and plays one year, before the first Mountainhome caravan, so it shows neither this nor the extra goods: its row stayed 12.5/7/11/149/7/0/0.
   - **`remains`** give a dead wyrm or stalker worn items, so a `strip_corpse` job appears and recovered items add wealth and renown (T-476, which names a `golden:` line).
 
 ## Rules
@@ -93,61 +93,33 @@ Mail is a poor answer to rune, plate a fair one, a ward the best. A burn bleeds 
 
 ### Glowcap
 
-**Task:** T-468.
-
-`light: glow` is a fourth light value: the tile has no crop light and lies under a lamp. A lamp is a built `statue` of material `glowstone`, as today (14 § Special buildings).
-
-| Seam | Change |
-|---|---|
-| `content/schema.ts` `plants.light`, `plants/facts.ts` | enum gains `glow` |
-| `buildings/reader.ts` | new `buildings.lampCoveredAt(i)`: `lampLight.has(i)`. `cropLitAt` is unchanged |
-| `plants/growth.ts` `lightOk(row, lit, lamped)` | `glow` is `!lit && lamped`. `GrowthConditions` gains `lamped`; `plants/index.ts` line "lit: …cropLitAt" fills it |
-| `plants/plots.ts` `plotKindOf` | gains a `lampCoveredAt` argument and a kind `glow`: a cave plot with every tile covered. `lightMatches`: `dark` accepts `cave` and `glow`; `glow` accepts only `glow`. Callers: `plants/index.ts` (two), `buildings/zones.ts` |
-
-A crop on a tile that loses its lamp stops growing and does not die, as any crop whose light is wrong. A lamp's own tile is under a built building, so no crop grows there (`underBuilding`). One lamp in the middle of a 3×3 plot gives eight tiles. The plot still needs soil or mud (07).
-
-| id | name | kind | stageDays | light | minC | maxC | yield | yieldItem | value | edible | cookable | brew | glyph | fg | Task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `glowcap` | glowcap | cave_crop | 6 (24) | glow | 2 | 40 | 2–3 | `glowcap` | 6 | no | no | — | `♠` | `rune_cyan` | T-468 |
+Glowcap is built. Its rows are in `plants.md` (the crop, and `glowcap_patch` under § Rare cave patches), `items.md` § Medical and herbs (`glowcap`, `rune_vial`), `materials.md` § Rune and `glyphs-and-colors.md` (`rune_cyan`). The light rule and the `glow` plot are in 07 § Growth and § Farm plots, and the lamp is in 14 § Special buildings.
 
 **Glowcap is its own item**, not `plant_food`. The `edible` and `cookable` columns of a plant are not read: `plant_food` is edible by its item row and is an `ingredient` by its tag, of any material. A glowcap in `plant_food` would be eaten and cooked. A separate item follows `fiber` and `brightleaf`.
 
-| id | name | category | mult | stack | container | rotDays | weight | materials | glyph | fg | tags | Task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `glowcap` | glowcap | `medical/glowcap` | 1 | 20 | bag | 40 | light | any | `♠` | `rune_cyan` | — | T-468 |
-| `rune_vial` | rune vial | `medical/vial` | 1 | 20 | bag | 0 | light | any | `¡` | `rune_cyan` | `rune_fuel` | T-468 |
-
-Material row (T-468, `materials.md`): `rune`, class liquid, value 15, color `rune_cyan`. Palette rows (T-468): `rune_cyan`.
-
-**Wild patches.** `glowcap_patch` is a `shrub` row, product `glowcap`, count 1–2, regrow 30 days, `wildSeedPermille` 400, seed of `glowcap`, with a new optional field `rarePermille: [100, 130, 250]` by cavern tier and no `caverns` field. `speciesFor` gives it weight 0, so the weights of `stageVegetation` in `terrain/generate/vegetation.ts` do not change. After the cave-shrub loop, a new `stageRarePatches(g)` walks each tier's `cavernFloors` in order, and each existing `TileKind.Shrub` turns into the rare species with its permille, on its own stream `stageStream(g.s, 'terrain.rare_patches')`. The export puts these rows in a new table "Rare cave patches" in `plants.md`.
-
 ### Workshops
 
-Workshop rows need a `buildings` row (category `workshop`, tag `workshop`) and a `patterns` row. Labor comes from the recipe's skill.
+A workshop needs a row in `workshops-and-recipes.md` § Workshops (the export makes its `buildings` row, category `workshop`; the `tags` column holds `rune_work`), a block in `glyphs-and-colors.md` § Workshop patterns, and for its recipes a `RECIPE_SECTIONS` line in `scripts/lib/export/rules.mjs`. Labor comes from the recipe's skill.
 
 | Workshop | Build inputs | Build labor, ticks | Shape | Task |
 |---|---|---|---|---|
-| `alchemist` | 1 `table` + 2 `stone_block` + 1 `bucket` | construction, 250 | 3×3, passable; tag `rune_work` | T-468 |
 | `runeforge` | 1 `anvil` + 3 `stone_block` + 1 `cut_gem` | masonry, 300 | 3×3, corners impassable like a forge; tag `rune_work`; no fuel | T-470 |
 
 | id | name | labor | profession | military | attributes | Task |
 |---|---|---|---|---|---|---|
-| `alchemy` (skill) | Alchemy | `alchemy` | Alchemist | — | Wits, Agility | T-468 |
 | `runecraft` (skill) | Runecraft | `attunement` | Runecaster | Runecaster | Willpower, Wits | T-469 |
 | `runesmithing` (skill) | Runesmithing | `smithing` | Runesmith | — | Agility, Wits | T-470 |
 
-New labors: `alchemy` (T-468), `attunement` (T-469), default on, not for children. All three skills get a new optional skills column `embark: false` and the embark screen hides such skills (`ui/screens/embark.ts`), with `not_found` in `embark/index.ts`. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`), alchemy with Hearth (`prof_orange`).
+New labor: `attunement` (T-469), default on, not for children. These skills, like `alchemy`, have `no` in the `embark` column of `skills-and-professions.md`, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
 
-Laboratory recipes (the draughts are in § Draughts):
+More laboratory recipes (`workshops-and-recipes.md` § Laboratory holds the rest; the draughts are in § Draughts):
 
 | id | name | inputs | outputs | ticks | Q | xp | Task |
 |---|---|---|---|---|---|---|---|
-| `distill_rune` | Distill rune | 2 `glowcap` | 1 `rune_vial` (rune) | 150 | no | 6 | T-468 |
-| `grind_glowstone` | Grind glowstone | 1 `rough_gem` (glowstone) | 4 `rune_vial` (rune) | 200 | no | 8 | T-468 |
 | `quench_deepsilver` | Quench deepsilver | 1 `bar` (deepsilver) | 12 `rune_vial` (rune) | 250 | no | 12 | T-476 |
 | `render_ichor` | Render ichor | 1 `hollow_ichor` | 6 `rune_vial` (rune) | 200 | no | 10 | T-476 |
 
-Arithmetic: one lamp is `8 × 2.5 / 24 = 0.83` glowcap a day and `0.42` vials a day. A year is 112 days. Four lamps give 1.7 vials a day, 190 a year. One apprentice eats 2 glowcap a day, which is 2.4 lamps while attuning.
+One apprentice eats 2 glowcap a day, which is 2.4 lamps while attuning (one lamp grows 0.83 a day).
 
 ### Rune of one's own
 
@@ -530,14 +502,12 @@ Casting is the ordinary loop: `canCastBolt` holds for any holder of a `Rune`. Tw
 
 ### Trade and value
 
-**Task:** T-468 (the frame, seeds and glowstone); T-471 (vials, preferences).
+**Task:** T-471.
 
-`caravanGoods` entries gain an optional `extra: { permille, minReputation? }`. `eligibleGoodsEntries` is unchanged, but `generateGoods` leaves `extra` entries out of `pool` (a request still finds them, as requests use `entries`). After the ordinary loop, each `extra` entry rolls once and adds one good, past the budget. Both the roll and `drawGood` use `world.rngFor('25')`, passed in as a second stream. The budget and the ordinary draws do not change.
+Extra goods are built: 20 § Caravans says how they are drawn, and `caravan-goods.md` lists them. An extra good adds no pack animal, so a caravan's party is what it would be without it. T-471 adds a row to the extra table of `caravan-goods.md`, whose `Reputation` column takes `≥ 50`.
 
 | civ | entry | item | count | permille | reputation | Task |
 |---|---|---|---|---|---|---|
-| mountainhome | Glowcap seeds | `seed` ×10 in `bag` (glowcap) | 2–4 bags | 700 | — | T-468 |
-| mountainhome | Glowstone | `rough_gem` (glowstone) | 1–2 | 500 | — | T-468 |
 | mountainhome | Rune vials | `rune_vial` ×5 | 1 | 400 | ≥ 50 | T-471 |
 
 Preferences (`caravan-goods.md`, T-471): Mountainhome `medical/vial` and `medical/draught` 150. Wildwood's wood rule already reaches a wand. No civilization values "enchanted" separately: `preferencePercent` reads category and material, and an enchanted item's value is already higher.
@@ -647,7 +617,7 @@ None yet.
 | Registration | announcements: `RuneSpent` (note), `SpellCast` of a firebloom that burns a fortress creature (alert) | T-473 |
 | Registration | announcements: `SummonTurned` (danger) | T-475 |
 
-Other systems' documents gain their parts in the same commits: 07 (`glow`), 12 (`transform`, `spoilable`, `stone`, `rune_work`), 13 (`setEnchant`, `noEnchant`, value, `remains`), 14 (`lampCoveredAt`, `sanctum`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 20 (`extra`), 22 (`moveAlongPath`).
+Other systems' documents gain their parts in the same commits: 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`), 14 (`sanctum`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 22 (`moveAlongPath`).
 
 ## Player-facing behavior
 

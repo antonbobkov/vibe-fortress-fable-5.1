@@ -1,5 +1,11 @@
 [
   {
+    "id": "alchemy",
+    "name": "Alchemy",
+    "defaultOn": true,
+    "children": false
+  },
+  {
     "id": "animal_care",
     "name": "Animal care",
     "defaultOn": true,

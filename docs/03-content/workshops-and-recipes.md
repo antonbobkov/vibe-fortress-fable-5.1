@@ -4,10 +4,10 @@
 
 ## Workshops
 
-All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel bar; `magma` whether a magma variant exists.
+All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel bar; `magma` whether a magma variant exists; `tags` any function tags.
 
-| id | name | inputs | labor | ticks | fuel | magma | glyph pattern |
-|---|---|---|---|---|---|---|---|
+| id | name | inputs | labor | ticks | fuel | magma | glyph pattern | tags |
+|---|---|---|---|---|---|---|---|---|
 | `carpenter` | carpenter's workshop | 2 `log` | carpentry | 200 | no | no | `carpenter` |
 | `mason` | mason's workshop | 2 `raw_stone` or `stone_block` | masonry | 200 | no | no | `mason` |
 | `craftdwarf` | craftsdwarf's workshop | 1 `raw_stone` + 1 `log` | construction | 200 | no | no | `craftdwarf` |
@@ -25,7 +25,8 @@ All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel 
 | `farmers_workshop` | farmer's workshop | 1 `table` + 1 `bucket` | carpentry | 150 | no | no | `farmers` |
 | `butcher` | butcher's shop | 1 `table` + 1 `raw_stone` | construction | 150 | no | no | `butcher` |
 | `kennel` | kennel | 2 `log` + 1 `chain` or `rope` | carpentry | 200 | no | no | `kennel` |
-| `bowyer` | bowyer's workshop | 2 `log` | carpentry | 200 | no | no | `bowyer` |
+| `bowyer` | bowyer's workshop | 2 `log` | carpentry | 200 | no | no | `bowyer` | |
+| `alchemist` | laboratory | 1 `table` + 2 `stone_block` + 1 `bucket` | construction | 250 | no | no | `alchemist` | `rune_work` |
 
 Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one footprint tile at build time and at every job start, and every input must be magma-safe (the anvil is iron or steel; blocks must be magma-safe stone or obsidian).
 
@@ -196,6 +197,15 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 | `brew` | Brew drink | 4 plant_food (brewable species) + container barrel | 20 drink (species' drink material) in the barrel | 200 | no | 8 |
 | `brew_hopped` | Brew hopped ale | 4 plant_food (barley) + 1 plant_food (hops) + container barrel | 20 drink (hopped_ale) | 220 | no | 10 |
 
+## Laboratory (`alchemy`)
+
+| id | name | inputs | outputs | ticks | Q | xp |
+|---|---|---|---|---|---|---|
+| `distill_rune` | Distill rune | 2 glowcap | 1 rune_vial (rune) | 150 | no | 6 |
+| `grind_glowstone` | Grind glowstone | 1 rough_gem (glowstone) | 4 rune_vial (rune) | 200 | no | 8 |
+
+One lamp over eight tiles grows 0.83 glowcap a day, which is 0.42 vials a day (*unmeasured*). A year is 112 days, so four lamps give 1.7 vials a day and 190 a year.
+
 ## Tannery (`tanning`)
 
 | id | name | inputs | outputs | ticks | Q | xp |
@@ -267,7 +277,7 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3. Total 151.
+Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 2. Total 153.
 
 ## Time arithmetic
 

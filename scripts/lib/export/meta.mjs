@@ -437,6 +437,23 @@ export function exportCaravanGoods() {
         rareAdds: rareAdds.length > 0 ? rareAdds : undefined,
       });
     });
+    const extraTable = tables.find(
+      (t) => (t.headings[t.headings.length - 1] ?? '').toLowerCase().startsWith(civ) &&
+        t.header.map(plain).includes('Permille'),
+    );
+    for (const row of extraTable === undefined ? [] : asObjects(extraTable)) {
+      const marks = ticked(String(row.Item ?? ''));
+      const inContainer = /in `([a-z_]+)`/.exec(plain(row.Item));
+      const items = inContainer === null ? marks : marks.slice(0, -1);
+      entries.push(compact({
+        item: items.length === 1 ? items[0] : items,
+        materials: weighted(row['Material pool']).map((w) => ({ material: w.key, weight: w.weight })),
+        count: range(row.Count) ?? [1, 1],
+        weight: 0,
+        container: inContainer?.[1],
+        extra: compact({ permille: int(row.Permille), minReputation: isBlank(row.Reputation) ? undefined : int(plain(row.Reputation).replace(/\D/g, '')) }),
+      }));
+    }
     return { civ, entries };
   });
 }
