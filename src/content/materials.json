@@ -867,8 +867,7 @@
     "color": "obsidian_black",
     "meltsAtC": 1500,
     "burnable": false,
-    "burnTicks": 0,
-    "sharpness": 700
+    "burnTicks": 0
   },
   {
     "id": "peat",

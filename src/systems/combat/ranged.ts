@@ -23,6 +23,7 @@ import {
 } from './constants';
 import {
   armorCovering,
+  blockChance,
   getAttribute,
   getDamageVsLayer,
   getSkill,
@@ -416,9 +417,7 @@ export function resolveProjectileHit(
 
   if (shieldId !== 0 && defConscious && !defFleeing) {
     const isBuckler = shieldIsBuckler(registry, entities, shieldId);
-    let blockChance = Math.min(40, 10 + getSkill(entities, registry, defenderId, 'shield') * 2);
-    if (isBuckler) blockChance = Math.floor(blockChance * 0.7);
-    if (rng.int(0, 99) < blockChance) {
+    if (rng.int(0, 99) < blockChance(isBuckler, getSkill(entities, registry, defenderId, 'shield'))) {
       ctx.emit({
         type: 'AttackResolved',
         attackerId: shooterId,

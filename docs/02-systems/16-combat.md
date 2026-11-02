@@ -64,7 +64,7 @@ Wound type from damage type (17): edge → `cut`; pierce → `puncture`; blunt �
 
 The hit, parry, block, damage and Toughness formulas above are measured in stepped arenas ([combat pace](../../reports/audits/2026-10-21-combat-pace.md)): a Novice dwarf hits two skill-2 goblins 57% of its swings, they hit it 46% and its iron shield blocks one in eight of the rest; a hit lands on the part the body plan's weights pick, so a mail shirt leaves the head and legs bare. The terms of the ranged hit below are *unmeasured*.
 
-Two-handed weapons (`hands: 2`) cannot be used with a shield; the squad equipment logic respects this.
+Two-handed weapons (`hands: 2`) cannot be used with a shield; the squad equipment logic respects this. A shield blocks a missile by the same chance as a blow.
 
 Creatures without `Attributes` use `CREATURE_ATTRIBUTE_DEFAULT` (50) for every attribute, so natural attacks deal their listed damage. Creatures without `Skills` use `CREATURE_BASE_SKILL` (2) for every combat skill (natural attacks, weapon skills, `dodge`, `shield`). Hostile party members spawned by 18 receive `Skills` with every combat skill at `2 + HOSTILE_SKILL_PER_TIER × gearTier` (`HOSTILE_SKILL_PER_TIER` = 2), plus 2 for captains.
 
@@ -86,9 +86,9 @@ Line of sight (22): a Bresenham line on the same z-level with no wall, door, tre
 
 ### Fleeing and morale in combat
 
-- Civilians flee from any hostile within `THREAT_RADIUS` (10), including escape through stairs and ramps. A cornered civilian (no flee tile) fights until a critical need or the civilian combat timeout in 10 interrupts it. A fleeing civilian hit in melee by a wild animal that is hunting it and is at least as fast as itself is caught and fights that animal in the same way (a hit from a defending animal or a hostile of a party does not catch it), until the attacker breaks off, flees or dies, or a route opens that the attacker cannot follow (10 § Behavior selection).
+- Civilians flee from any hostile within `THREAT_RADIUS` (8), including escape through stairs and ramps. A cornered civilian (no flee tile) fights until a critical need or the civilian combat timeout in 10 interrupts it. A fleeing civilian hit in melee by a wild animal that is hunting it and is at least as fast as itself is caught and fights that animal in the same way (a hit from a defending animal or a hostile of a party does not catch it), until the attacker breaks off, flees or dies, or a route opens that the attacker cannot follow (10 § Behavior selection).
 - Squad members on duty do not flee.
-- Animals and hostiles flee at `FLEE_BLOOD_PERCENT` of blood (species value; `aggressive` species and `deep` faction never flee) or when 18 orders a retreat.
+- Animals and hostiles flee at their species' `fleeBloodPercent` of blood, or at `FLEE_BLOOD_PERCENT` when the species has none, or when 18 orders a retreat. An `aggressive` species with no value of its own and the `deep` faction never flee.
 - Fleeing creatures move away from all visible enemies; hostiles fleeing head for their arrival edge.
 
 ### Threat detection
@@ -125,9 +125,10 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 ### Equipment
 
 - On joining a squad, and every `REEQUIP_CHECK_DAYS`, each member claims from stockpiles the best available items matching the squad's preferences: weapon (highest `metalTier × qualityMultiplier` of the preferred class, then any melee class), shield (if the weapon is one-handed and `armor != none`), one armor piece per slot (highest armor value matching the material preference), and, for ranged members, a launcher, a quiver and `SOLDIER_AMMO` ammunition. Available gear is fortress stock under 13's availability rules: items flagged `merchant`, `at_depot`, `foreign` or `forbidden` cannot be claimed. Claimed items are `owned` (13). Better items replace worse ones, which are dropped at the barracks. All squads are refreshed once on a dispatch tick that carries `ItemCreated`, however many items the tick created. A refresh looks only at items whose type a kit can name (weapons, armor pieces and shields, quivers, and the ammunition of a launcher), in ascending id order, so that its cost does not grow with the stone, food and cloth of the fortress.
+- What a creature holds follows `health.canWield` (17). With one arm it holds no two-handed weapon and no shield; with none, no weapon. On `LimbLost` what it can no longer hold falls where it stands, and a soldier then claims what it can hold. A two-handed launcher counts as a two-handed weapon. A fracture does not change what a creature holds.
 - Claiming and dropping equipment, including ammunition, use 13's item API. Take contained gear out before attaching it to the soldier and setting ownership; clear ownership before dropping replaced gear or recovered practice ammunition. Practice consumes units through the item API; the last unit is destroyed or dropped through it. Ammunition is carried separately from the quiver item, with no fabricated container link.
 - When an item is destroyed, immediately clear every equipment slot naming it (weapon, shield, armor, clothing and quiver) to 0, preserving other gear. Destruction cleanup runs before a subsequent command or save can observe stale references; `ItemDestroyed` notification repeats that cleanup safely.
-- Soldiers wear their armor at all times (no armor-off in version 1). Armor slows: movement × `(100 − Σ armor.weight / 4)%` minimum `ARMOR_MIN_SPEED_PERCENT`, reduced by `armor_use` skill (each level restores 1%).
+- Soldiers wear their armor at all times (no armor-off in version 1). Armor slows: movement × `(100 − Σ armor.weight / 4)%`, each piece's weight scaled by its metal's `armorWeightMult`, minimum `ARMOR_MIN_SPEED_PERCENT`, reduced by `armor_use` skill (each level restores 1%).
 - Civilian tools (picks, axes) are weapons of their class; a miner attacked fights with the pick. A squad member does not claim a pick or axe as a weapon while any dwarf has mining or woodcutting labor enabled, respectively, and lacks a held tool of that kind. A tool held through `Worker.toolId` or `Equipment.weapon` satisfies that need; a different kind does not. Once every enabled worker holds that kind, or the labor is disabled, a spare can be claimed normally.
 
 ### Alerts
@@ -170,7 +171,7 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ### Events consumed
 
-`CreatureDied`, `CreatureUnconscious`, `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear; every squad once per tick), `ItemDestroyed` (clear equipment slots), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
+`CreatureDied`, `CreatureUnconscious`, `LimbLost` (what the arms left cannot hold), `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear; every squad once per tick), `ItemDestroyed` (clear equipment slots), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
 
 ### Events emitted
 

@@ -33,7 +33,7 @@ In words:
 - **Silver and platinum maces** get a blunt bonus, but 0.7 x 1.3 = 0.91 still trails iron. Silver is no better than iron for fighting.
 - **Value** is for trade and for the fortress's wealth score. Gold, platinum and silver are for selling and crafts, not for fighting.
 - **Melting point** only matters near magma, fire and the forge: iron, steel, platinum and deepsilver survive magma.
-- **Density and hardness** appear in the data (metal hardness is 100 for every metal) but the combat code does not read them. Armour weight comes from the armour piece, not its metal.
+- **Density and hardness** appear in the data (metal hardness is 100 for every metal) but the combat code does not read them. Armour weight comes from the armour piece; deepsilver alone halves it.
 - **Forging rule.** Any bar can be forged into a weapon, armour piece or furniture. Only the anvil (iron or steel) and the metal mechanism (iron, steel, platinum or deepsilver) limit the metal.
 
 ## How to make each metal
@@ -113,7 +113,5 @@ A masterwork iron axe (1.5) out-damages a common steel axe (1.25). A legendary s
 
 ## Spec vs code
 
-- **Deepsilver armour weight.** The spec says deepsilver armour weighs half as much, and the data holds `armorWeightMult: 500`. No code reads it, so deepsilver armour is as heavy as any other.
-- **Obsidian and bone weapons.** `weapons.json` and the spec list obsidian and bone as weapon materials (daggers, short swords). No recipe produces them. Only bone arrows and bolts exist.
-- The metal numbers in `metals.json` match `docs/03-content/minerals-and-metals.md`. The weapon-material table (wood 0.4, bone 0.5, obsidian 0.7) matches `materials.json`.
+- The metal numbers in `metals.json` match `docs/03-content/minerals-and-metals.md`. The weapon-material table (wood 0.4, bone 0.5) matches `materials.json`.
 - The spec marks metal tiers 0 to 5, but combat damage uses the multipliers directly. The tier only ranks gear for squads and sets raider kits.

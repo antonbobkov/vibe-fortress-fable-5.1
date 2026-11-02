@@ -647,9 +647,7 @@
     "rotDays": 0,
     "weight": "medium",
     "materials": [
-      "metal",
-      "obsidian",
-      "bone"
+      "metal"
     ],
     "glyph": "/",
     "quality": true,
@@ -1465,8 +1463,7 @@
     "rotDays": 0,
     "weight": "medium",
     "materials": [
-      "metal",
-      "obsidian"
+      "metal"
     ],
     "glyph": "/",
     "quality": true,

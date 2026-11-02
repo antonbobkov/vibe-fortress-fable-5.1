@@ -187,7 +187,7 @@ Wooden crossbows, bows and shields are made at the bowyer and carpenter. Leather
 | `cook_lavish_meal` | Lavish meal | 4 ingredient | 8 lavish_meal | 250 | yes | 15 |
 | `render_fat` | Render fat | 1 fat | 1 tallow | 80 | no | 3 |
 
-Ingredients: anything in `food/*` except meals and tallow. Each recipe consumes one unit from each input stack.
+Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack.
 
 ## Still (`brewing`)
 

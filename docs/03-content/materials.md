@@ -23,7 +23,7 @@ Columns: `value` is marks per unit; `density` is relative (water 100; used for c
 | `basalt` | basalt | stone | 2 | 290 | 140 | `basalt_black` | 1300 | igneous extrusive; Sea of Fire pillars and roof |
 | `rhyolite` | rhyolite | stone | 2 | 250 | 120 | `rose_gray` | 1300 | igneous extrusive |
 | `andesite` | andesite | stone | 2 | 260 | 130 | `ash_gray` | 1300 | igneous extrusive |
-| `obsidian` | obsidian | obsidian | 3 | 240 | 110 | `obsidian_black` | 1500 | magma-safe; sharp: obsidian short swords allowed (tier 0.7 edge) |
+| `obsidian` | obsidian | obsidian | 3 | 240 | 110 | `obsidian_black` | 1500 | magma-safe |
 | `marble` | marble | stone | 3 | 270 | 130 | `marble_white` | 1400 | metamorphic; `flux` |
 | `slate` | slate | stone | 2 | 270 | 100 | `slate_blue` | 1300 | metamorphic |
 | `gneiss` | gneiss | stone | 2 | 280 | 150 | `banded_gray` | 1300 | metamorphic |
