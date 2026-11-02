@@ -20,3 +20,9 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 - A quench and a deepsilver staff raise pressure by 10 a bar, and the thresholds act. A forge does not raise it. A fortress that bought its bar and mined no tile still gets an emergence with a base.
 - The confirmation has its sentence. Milestones fire once.
 - `remains` is a deliberate move: a `golden:` line names it, and the annual instrument is run and any move explained.
+
+## Decisions from T-472 (orchestrator, 2026-11-02)
+
+- **Item stones get their value.** Wyrmscale (80) and hollow ichor (60) are items, and `items/facts.ts` values only material stones, so they count 0 today. Use the item row's value.
+- **Deepsilver as a stone** needs a branch in the setting-recipe generator, which knows only a cut gem or an item.
+- **Hollowsight:** one rule for the enchantment and the draught, "spots stealthed creatures within 10". Make the enchantment row's `spot_radius` 4, so 6 + 4 = 10, matching the draught's "larger of the two" of 10. No 16-tile spotting.
