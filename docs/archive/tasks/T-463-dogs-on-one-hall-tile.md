@@ -1,6 +1,8 @@
 # T-463 — Tame animals all stand on one hall tile
 
-**Source:** T-457 ([measurement](../../reports/audits/2026-11-01-crowding.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-01, in 86522bca.
+
+**Source:** T-457 ([measurement](../../../reports/audits/2026-11-01-crowding.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
