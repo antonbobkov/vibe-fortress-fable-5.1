@@ -94,9 +94,9 @@ Cavern spawn tables (content) per cavern tier:
 
 ### The Deep
 
-- `DeepsilverMined` adds `DEEP_PRESSURE_PER_TILE` to `fortress.deepPressure`. Pressure never decays.
-- Thresholds (content; fixed shape): at each threshold crossing emit `DeepStirred { level }` (danger; the log line for level 1 is "The Deep stirs. Something has noticed the pale metal being taken.") and an **emergence**: at the most recently mined deepsilver tile still adjacent to rock, the `EMERGENCE_TILES` nearest wall tiles are turned to `open` by the terrain API ("the rock cracks") and Hollow-born spawn in them: level 1 `hollow_crawler` ×3; level 2 `hollow_stalker` ×2 + crawlers; level 3 a `magma_wyrm` if none lives, else stalkers; level 4 the `hollow_maw` (a very large, slow, door-breaking creature) plus a wave; beyond level 4, a wave every `HOLLOW_WAVE_DAYS` with size growing by one per wave.
-- Hollow-born have faction `deep`, never flee, never loot, and seek the nearest fortress creature anywhere on the map (they know where the dwarves are). Their emergence point is always a mined deepsilver location, so the player can fortify it.
+- `DeepsilverMined` adds `DEEP_PRESSURE_PER_TILE` to `fortress.deepPressure`, and its tile becomes an emergence base. `DeepsilverWorked { amount, tile }` (12: a deepsilver bar worked at the runeforge or the laboratory; 25 § Deepsilver) adds `amount`; with no base yet, because no deepsilver tile has been mined, its tile (the workshop's) becomes the base. Both go through `addDeepPressure` in `threats/deep.ts`, which holds the pressure, the thresholds and `DeepStirred`. Pressure never decays.
+- Thresholds (content; fixed shape): at each threshold crossing emit `DeepStirred { level }` (danger; the log line for level 1 is "The Deep stirs. Something has noticed the pale metal being taken.") and an **emergence**: at the most recent base still adjacent to rock (else the most recent base; with none, no emergence), the `EMERGENCE_TILES` nearest wall tiles are turned to `open` by the terrain API ("the rock cracks") and Hollow-born spawn in them: level 1 `hollow_crawler` ×3; level 2 `hollow_stalker` ×2 + crawlers; level 3 a `magma_wyrm` if none lives, else stalkers; level 4 the `hollow_maw` (a very large, slow, door-breaking creature) plus a wave; beyond level 4, a wave every `HOLLOW_WAVE_DAYS` with size growing by one per wave.
+- Hollow-born have faction `deep`, never flee, never loot, and seek the nearest fortress creature anywhere on the map (they know where the dwarves are). Their emergence point is always a mined deepsilver location, or the workshop that worked the first bar when none was mined, so the player can fortify it.
 - The gauge is shown in the threats panel as a bar with the next threshold marked; the first deepsilver designation prompts a confirmation explaining this (24).
 
 ### Wild predators
@@ -111,7 +111,7 @@ Hostile parties target caravan members like fortress creatures (traders are `tra
 
 - `Party` entities: `civ, purpose, members[], leaderId, state, goalTile, goalEntity, arrivedTick, stateSince, loot[], edge`, and the saved `escapedLootCount` (missing in older saves means zero), plus optional `animalCarriers` mapping stolen animal ids to their individual member ids (absent when no animals are held), `goalIdleSince` while waiting at an arrived goal and `ambushSprung` for the one-time party reveal.
 - `Hostile` components on members: `partyId, role, behaviorState, stealthed, spotted, breakingDoorId`, plus optional `retreat { stateSince, goalTile, bestDistance, progressSince }`. Missing progress fields in older saves begin tracking on the next member step; the party's saved `stateSince` still governs its retreat deadline.
-- `schedule: Map<kind, { nextTick, earliestTick }>`, `renown`, `deepLevel`, `deepsilverTiles: TileIndex[]` (mined), `cavernSpawns: per cavern counts`, `webs: Map<TileIndex, ownerId>`.
+- `schedule: Map<kind, { nextTick, earliestTick }>`, `renown`, `deepLevel`, `deepsilverTiles: TileIndex[]` (the emergence bases: mined deepsilver tiles, or the tile of the workshop that worked a bar before any was mined), `cavernSpawns: per cavern counts`, `webs: Map<TileIndex, ownerId>`.
 - Rng stream.
 
 ## Interfaces
@@ -129,7 +129,7 @@ None. (Alerts and squads are 16; the deepsilver confirmation is a UI gate on 03'
 
 ### Events consumed
 
-`DayPassed`, `HourPassed` (restless dead dusk and dawn), `WealthChanged`, `ImmigrantsArrived` (population for renown), `CavernBreached`, `DeepsilverMined`, `CreatureDied` (dwarf population for renown, and party/monster cleanup), `CreatureUnconscious`, `TrapTriggered`, `DoorBroken`, `WeatherChanged` (fog), `EntitiesMoved` (spotting; batched), `TilesChanged` (goal re-evaluation).
+`DayPassed`, `HourPassed` (restless dead dusk and dawn), `WealthChanged`, `ImmigrantsArrived` (population for renown), `CavernBreached`, `DeepsilverMined`, `DeepsilverWorked` (12: pressure from a worked bar), `CreatureDied` (dwarf population for renown, and party/monster cleanup), `CreatureUnconscious`, `TrapTriggered`, `DoorBroken`, `WeatherChanged` (fog), `EntitiesMoved` (spotting; batched), `TilesChanged` (goal re-evaluation).
 
 ### Events emitted
 
