@@ -16,7 +16,6 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 - The dwarf stops at three vials a day. There is no fourth and no `rune_sick`.
 - Off-duty `mend_wounds` is cut. Mend is a fight spell.
 
-Whichever of T-472 and T-473 lands second rebases on the other's change to `armorReduction`.
 
 ## Done
 

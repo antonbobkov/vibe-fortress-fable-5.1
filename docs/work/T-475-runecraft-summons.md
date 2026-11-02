@@ -18,4 +18,5 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 ## Done
 
 - 50 ± 15 turned in 1,000 castings of the deep shade. A turned shade is `deep`, and a squad of three in iron kills it.
+- The first summoning answered gives its legend milestone, once.
 - Summons fade at the day's end, at 0 hp and when the caster dies, with no corpse. They count toward `MAX_CREATURES`, and do not count as dwarves for morale, grief, the legend or burial. The animals panel does not list them.

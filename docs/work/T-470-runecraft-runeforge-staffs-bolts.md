@@ -22,6 +22,6 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 - The worked-numbers table of § Spells holds for the Emberbolt rows, except the ward row (T-473).
 - A Dabbling apprentice with 5 rune and a wand casts five bolts, then clubs. A dwarf with no `runecraft` never claims a channel and casts nothing.
 - A bolt can hit an ally in the way.
-- `Item.stone` survives drop, haul, claim and save. Melting a staff returns its bar.
+- `Item.stone` survives drop, haul, claim and save. A staff melts by the ordinary formula, which gives nothing for one bar. `old_battlefield` arms are unchanged, because `metal()` in `traits.ts` skips the new rows.
 - `pp_defence` on one seed gives the same result and the same draws as before.
 - A probe in the combat-pace arena with a caster in a squad. The figures go in a dated report and the balance doc.

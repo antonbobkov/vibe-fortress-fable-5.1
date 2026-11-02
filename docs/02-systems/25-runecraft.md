@@ -46,10 +46,13 @@ These hold for all tasks, and each task's review checks them.
 
 - **No new rng draw on any existing stream** unless a channel, an enchanted item, a draught or a hexer is in play. All casting rolls that are not 16's ordinary hit, block and part rolls draw on system 25's stream, `world.rngFor('25')`. That stream is the design's `magic` stream. Streams are named by system id, and the save's `rng` section gains the key `25`.
 - **No existing number moves.** The wyrm's breath keeps today's damage type `burn`, which has no row in the layer table and so multiplies by 1.0. Spells and enchantments use the new types `ember` and `frost` (§ Damage types).
-- **New rows do not renumber old rows** (§ Row numbering). A world hash may move because `Skills.level` grew by a byte. It does not move because anything played differently. A task whose content rows move a golden names this in its `golden:` line and shows the annual instrument row unchanged.
+- **New rows do not renumber old rows** (§ Row numbering). A world hash may move because `Skills.level` grew by a byte. It does not move because anything played differently. A task whose content rows move a golden names this in its `golden:` line and shows the annual instrument row unchanged, apart from the deliberate moves below.
 - **Caravans.** Runecraft goods are drawn outside the weighted pool (§ Trade and value), so the ordinary goods of a caravan do not change.
 - **Wild patches.** A separate pass with its own stream converts some cave shrubs (§ Glowcap). The main terrain stream draws the same numbers. The local-map golden moves once, in T-468. Only a tile that was already a cave shrub changes.
-- **Hexers** do move raid outcomes at peril 3 and 4. That is the one deliberate change, and T-479 measures it. Peril 2 and below see none.
+- **Deliberate moves.** Three changes do move numbers with no runecraft in play, and each task runs the annual instrument and explains the move:
+  - **Hexers** move raid outcomes at peril 3 and 4 (T-479, which measures it). Peril 2 and below see none.
+  - **Converted shrubs** take 10–25% of cave shrubs from their forage (T-468).
+  - **`remains`** give a dead wyrm or stalker worn items, so a `strip_corpse` job appears and recovered items add wealth and renown (T-476, which names a `golden:` line).
 
 ## Rules
 
@@ -62,7 +65,7 @@ The loader numbers rows sorted by id (`content-pipeline.md` § Loading step 4, `
 The rule: **rows added after version 1 number after every older row.**
 
 - New table `rowOrder` in new file `03-content/row-order.md`: columns `table`, `id`. Rows named there number after all unnamed rows of their table, in the order listed. Unnamed rows keep sorted order, numbered from 1.
-- `src/content/loader.ts` step 4 passes each table's list to `makeTable(name, rows, appended)`. `ids()`, `where()` and `rows` follow the same order, so a pick from an old list stays as it was.
+- `src/content/loader.ts` step 4 passes each table's list to `makeTable(name, rows, appended)`. `ids()`, `where()` and `rows` follow the same order, so a pick from an old list stays as it was, as long as the new row stays out of that list. `metal()` in `terrain/generate/traits.ts` picks from every weapon and armor row whose materials include `metal`; T-470 and T-471 make it skip rows with a launcher and no `ammo`, and rows with `rune`, so `old_battlefield` maps keep their arms.
 - Schema: `list({ table: nonEmptyStr, id: nonEmptyStr })`; a listed id must exist in its table after `applyGenerated`, so a generated plant material (`glowcap`) is listed in `materials` too. New `exportRowOrder` in `scripts/lib/export/`.
 - `test/fixtures/content-row-baseline.json` holds every table's ids at this commit. A test asserts that each keeps its index for good. A new row not in `rowOrder` fails it.
 - On load, positional arrays shorter than the table are grown with zeros: `Skills.level` and `xp` in `restoreEntities` (`app/game-save.ts`), `Labors.enabled` likewise, `laborPriorities` in `JobsSystem.deserialize` with the default priority. `combat/melee.ts` `getSkill` otherwise reads `undefined` and returns `CREATURE_BASE_SKILL`.
@@ -72,7 +75,7 @@ The rule: **rows added after version 1 number after every older row.**
 
 ### Damage types
 
-**Task:** T-470. `DamageType` in `core/types.ts` and `DAMAGE_TYPES` in `content/schema.ts` gain `ember` and `frost`. `ember` is rune fire; its wound is a `burn`. `frost` already exists as a wound type. `health/wounds.ts` `woundTypeFor` maps `ember` to `burn`. Natural melee attacks in `resolveMelee` accept `ember` and `frost` alongside the three steel types (other strings still fall to `blunt`, as the wyrm's adjacent breath does today).
+**Task:** T-470. `DamageType` in `core/types.ts`, `DAMAGE_TYPES` in `content/schema.ts` and the separate `DAMAGE_TYPES` in `scripts/lib/export/creatures.mjs` gain `ember` and `frost`. The last matters: `parseAttacks` silently drops an attack it cannot parse, and `content:check` still passes. `ember` is rune fire; its wound is a `burn`. `frost` already exists as a wound type. `health/wounds.ts` `woundTypeFor` maps `ember` to `burn`. Natural melee attacks in `resolveMelee` accept `ember` and `frost` alongside the three steel types (other strings still fall to `blunt`, as the wyrm's adjacent breath does today).
 
 The layer table gains two rows and a column. It moves to `03-content/weapons-and-armor.md`; `exportDamageVsLayer` and the schema gain `ward`; the `DAMAGE_VS_LAYER` constant in `combat/melee.ts` holds the same numbers, and a new test compares it with the JSON.
 
@@ -158,7 +161,7 @@ metal percent = max(METAL_RUNE_FLOOR_PERCENT, 100 − METAL_RUNE_PENALTY_PERCENT
                 // n = worn pieces of layer mail or plate whose material is class metal, except a piece with a rune property
 ```
 
-Integers: `current` is in milli-rune; `regen` truncates to milli-rune. On `HourPassed`, 25 adds `regen` to every `Rune`, capped at `max`. A Proficient runecaster fills from 0 in 50 hours in a tunic, 34 in a robe, 84 in an iron helm and mail.
+Integers: `current` is in milli-rune; `regen` truncates to milli-rune. On `HourPassed`, 25 adds `regen` to every `Rune` on a creature without `Hostile`, capped at `max`. A Proficient runecaster fills from 0 in 50 hours in a tunic, 34 in a robe, 84 in an iron helm and mail.
 
 ### The sanctum
 
@@ -170,9 +173,9 @@ Integers: `current` is in milli-rune; `regen` truncates to milli-rune. On `HourP
 - There is no sanctum chest. An `attune` job's input is found like any job input, in any stockpile.
 - Room tier: 14's ordinary tier (0 to 5), from `buildings.room(zoneId)`.
 
-**The `attune` job.** Job type row: labor `attunement`, skill `runecraft`, target building, workTile `adjacent`, baseTicks `ATTUNE_TICKS`, tool none, xp `ATTUNE_XP`, producer `magic`, interruptible yes. New producer `src/systems/magic/producer.ts`, registered with `ctx.register.jobProducer`.
+**The `attune` job.** Job type row: labor `attunement`, skill `runecraft`, target building, workTile `adjacent`, baseTicks `ATTUNE_TICKS`, tool none, xp 0, producer `magic`, interruptible yes. New producer `src/systems/magic/producer.ts`, registered with `ctx.register.jobProducer`.
 
-For each sanctum with a built circle, each apprentice with `runecraft` below 20 and `sessionsToday < ATTUNE_SESSIONS_PER_DAY`, with a glowcap available and no job under the key: `sink.create('attune:<dwarfId>', { type: 'attune', target: { kind: 'building', ref: circle }, workTile: 'adjacent', priority: 5, inputs: [{ filter: { type: glowcap }, count: 1 }], data: { assignedWorker: dwarfId, labor: 'attunement', skill: 'runecraft', inputUnits: true, anchorTile } })`. `assignedWorker` is the field that restricts a job to one worker (`jobs/board.ts`). `onComplete` consumes the glowcap, grants `jobXp(ATTUNE_XP × (100 + 5 × tier) / 100, wits)`, counts the session and rolls the mishap. `DayPassed` clears the counts.
+For each sanctum with a built circle, each apprentice with `runecraft` below 20 and `sessionsToday < ATTUNE_SESSIONS_PER_DAY`, with a glowcap available and no job under the key: `sink.create('attune:<dwarfId>', { type: 'attune', target: { kind: 'building', ref: circle }, workTile: 'adjacent', priority: 5, inputs: [{ filter: { type: glowcap }, count: 1 }], data: { assignedWorker: dwarfId, labor: 'attunement', skill: 'runecraft', inputUnits: true, anchorTile } })`. `assignedWorker` is the field that restricts a job to one worker (`jobs/board.ts`). `onComplete` consumes the glowcap, grants `jobXp(ATTUNE_XP × (100 + 5 × tier) / 100, wits)` (the row's xp is 0, because `dwarves/index.ts` already grants a row's xp on every `JobCompleted`), counts the session and rolls the mishap. `DayPassed` clears the counts.
 
 At Wits 50 and two sessions a day: Dabbling in 2 days, Novice in 6, Proficient (3,700 xp) in 74 days and 148 glowcap, Legendary in 268 days and 536 glowcap.
 
@@ -202,7 +205,9 @@ Item rows: `category: weapon/ranged`, stack 1, quality true, slot weapon, no `we
 
 Launcher rows have `launcher: { range, power }` with **no `ammo`**. `ammo` becomes optional in the schema and in the `WeaponRow`, `WeaponDefRow` and `LauncherDef` types. "A launcher with no ammo" is what a channel is, and code tests that, never an id.
 
-**A staff's material is its shoe.** `Item.material` is the metal of the bar. There is no `Item.shoe`. So the ordinary material filter on a work order picks the shoe, value and melting work as for any metal item, and melting returns that bar. A wand's material is its wood.
+`scripts/lib/export/items.mjs` always writes `ammo`; change it with the schema so a staff row exports correctly.
+
+**A staff's material is its shoe.** `Item.material` is the metal of the bar. There is no `Item.shoe`. So the ordinary material filter on a work order picks the shoe, value and melting work as for any metal item. A staff holds one bar, so like a dagger it melts to nothing: `workshops/operate.ts` computes `floor(1 × 60 / 100) = 0`. Do not change the melt formula. A wand's material is its wood.
 
 `runeMult` is a new metals column (fixed): silver 1.3, deepsilver 1.6, steel 1.1, iron 1.0, bronze 0.9, copper 0.8, every other metal 0.7. A wooden item counts 1.0.
 
@@ -215,6 +220,8 @@ power(item) = launcher.power × runeMult(item.material) × QUALITY_COMBAT_MULT[i
 Wand 0.7. Iron staff 1.2. Silver fine staff `1.2 × 1.3 × 1.1 = 1.716`. Deepsilver masterwork staff `1.2 × 1.6 × 1.5 = 2.88`.
 
 **Recipes.** Generated by `applyGenerated` in `content/generate.ts`, one per row of `spells`, like `forge_*`. `applyGenerated` also appends their ids to `data.rowOrder`, as it does for every generated row after this point:
+
+Generated in `generatedRecipes`, as `smelt_`, `alloy_` and `melt_metal_item` are (`forge_*` are authored rows, not generated). Every generated row names workshop `runeforge` and skill `runesmithing`, here and for the `set_*` rows.
 
 | id | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|
@@ -242,7 +249,7 @@ channel  = launcher !== undefined && launcher.ammo === undefined
 hasAmmo  = channel ? canCastBolt(ctx, id, w, target) : (as today)
 // kiting as today, with hasAmmo as above: a caster with rune keeps its distance
 if channel and cooldown elapsed and castSupport(ctx, id, target, w):
-    engagements.set(id, tick); continue                         // T-473
+    engagements.set(id, tick); continue                         // T-473; castSupport sets the cooldown by 16's rule
 if isAdjacent: melee as today                                   // the club
 else if isRanged in range with line of sight: fireAt as today   // the bolt, or T-473's burst and daze
 else if channel and support staff and rune ≥ cost and dist ≤ CASTER_HOLD_DISTANCE: stop walking; continue   // T-473
@@ -276,7 +283,7 @@ The rune is spent at the cast, in every spell.
 
 Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. Until T-473 and T-475 land, a stone with no row makes no recipe, so no such staff can exist.
 
-Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks, unless the target wears `rimeward`.
+Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. T-472 adds the `rimeward` check in `addEffect` for `slow`, so spells and enchantments both respect it; T-470 has no such row to read.
 
 When each casts (`castSupport` evaluates these for a held target, in this order; a bolt, burst or single goes by 16's ranged branch):
 
@@ -516,7 +523,7 @@ The deepsilver confirmation row `c_deepsilver` gains: "Working it at the runefor
 
 - `threats/parties.ts` `calculatePartyComposition` gains a `year` argument. On top of size, like the captain: one `hexer` in a raid at peril 3 from year 3 and peril 4 from year 2; two in a siege.
 - `threats/gear.ts` `equipHostileCreature`: `gearTiers.kits` gains `hexer`: `wand` with `stone: amethyst`, `dagger`, `cap`, `leather_jerkin`. A kit row may have `stone`, written after spawn. The wand's material is wood, by the branch that bows use.
-- `threats/parties.ts`, after equipment: `entities.add(id, C.Rune, { current: HEXER_RUNE × 1000, … })`. It carries no vials and never regenerates above its level's `max`.
+- `threats/parties.ts`, after equipment: `entities.add(id, C.Rune, { current: HEXER_RUNE × 1000, … })`. It carries no vials and does not regenerate (§ Rune).
 - `threats/ai.ts`: where `isArcher` is computed (two sites), the `hexer` role counts as an archer.
 
 Casting is the ordinary loop: `canCastBolt` holds for any holder of a `Rune`. Twenty frost bolts, and then a club. Hexers hold only `amethyst`. The design's dread wand is cut, so no dwarf is ever mind-struck, and the `calm` armor enchantment goes with it. The wand is `foreign` as all hostile kit is, and it becomes fortress stock through `strip_corpse`. Only a member with `runecraft` claims it.
@@ -651,7 +658,7 @@ Other systems' documents gain their parts in the same commits: 07 (`glow`), 12 (
 - **Squad panel** (T-474): the ordered draught checklist, with each trigger in words. (T-470): a channel shows beside a member only if they can use it.
 - **Orders panel** (T-471): a transform recipe offers the target type and the material.
 - **Hints** (`hints` rows, T-477, each with a trigger on stock or buildings): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
-- **Legend milestones** (T-476, `milestones` rows and `legend/index.ts`): first stone set, first runecaster, first summoning answered.
+- **Legend milestones** (`milestones` rows and `legend/index.ts`): first stone set and first runecaster (T-476), first summoning answered (T-475).
 
 ## Tuning constants
 
@@ -695,7 +702,7 @@ Each task's work file lists its own. Together:
 - Dread sends at most four running and they come back. The party's retreat counter does not move.
 - Firebloom is never thrown while a fortress creature stands in the square.
 - A soldier who drank stoutness drinks nothing else for 3 days, and a medic gives them none.
-- An enchanted axe keeps its stone through drop, haul, claim and save. A staff keeps its stone through the same. Melting returns bars only.
+- An enchanted axe keeps its stone through drop, haul, claim and save. A staff keeps its stone through the same. Melting follows the ordinary formula and returns bars or nothing, never a stone.
 - 50 ± 15 shades turn in 1,000 castings.
 - A hexer casts until its rune is gone, then closes to melee.
 - The same seed and command log give the same mishaps, resistances and shades. An older save loads with no rune, no enchantments and no sanctums, and every skill and material it had is still right.

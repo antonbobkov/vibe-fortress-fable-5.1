@@ -19,3 +19,4 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 - A dead wyrm's corpse gives 4 wyrmscale by `strip_corpse`; a dead stalker or maw gives 1 ichor. A hollow crawler gives none.
 - A quench and a deepsilver staff raise pressure by 10 a bar, and the thresholds act. A forge does not raise it. A fortress that bought its bar and mined no tile still gets an emergence with a base.
 - The confirmation has its sentence. Milestones fire once.
+- `remains` is a deliberate move: a `golden:` line names it, and the annual instrument is run and any move explained.

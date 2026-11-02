@@ -20,7 +20,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-469 | [Runecraft 2: the rune tank, the sanctum, attunement and mishaps](work/T-469-runecraft-sanctum-attunement.md) | Runecraft design | T-468 | blocked (needs T-468) |
 | T-470 | [Runecraft 3: the runeforge, wands and staffs, emberbolt and frostbind](work/T-470-runecraft-runeforge-staffs-bolts.md) | Runecraft design | T-469 | blocked (needs T-469) |
 | T-471 | [Runecraft 4: setting stones, enchanted items and their value](work/T-471-runecraft-setting-stones.md) | Runecraft design | T-470 | blocked (needs T-470) |
-| T-472 | [Runecraft 5: enchantments act in combat](work/T-472-runecraft-enchants-in-combat.md) | Runecraft design | T-471 | blocked (needs T-471) |
+| T-472 | [Runecraft 5: enchantments act in combat](work/T-472-runecraft-enchants-in-combat.md) | Runecraft design | T-471, T-473 | blocked (needs T-471, T-473) |
 | T-473 | [Runecraft 6: ward, mend, dread, daze, firebloom and vials](work/T-473-runecraft-remaining-spells.md) | Runecraft design | T-470 | blocked (needs T-470) |
 | T-474 | [Runecraft 7: draughts](work/T-474-runecraft-draughts.md) | Runecraft design | T-473 | blocked (needs T-473) |
 | T-475 | [Runecraft 8: Call and the three summons](work/T-475-runecraft-summons.md) | Runecraft design | T-473 | blocked (needs T-473) |
