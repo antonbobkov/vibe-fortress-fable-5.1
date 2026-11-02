@@ -14,7 +14,7 @@ import { C, type ActiveEffect, type Item, type Spellbound } from '@core/componen
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { TickContext } from '@core/system';
-import type { DamageType, EntityId } from '@core/types';
+import type { DamageType, EntityId, TileIndex } from '@core/types';
 import type { SpellDef } from '@content/generate';
 import { QUALITY_COMBAT_MULT } from '@systems/combat/constants';
 import { FROSTBIND_SLOW_PERCENT } from './constants';
@@ -142,6 +142,59 @@ export function canCastBolt(ctx: TickContext, casterId: EntityId, held: Held | n
   if (a === undefined || b === undefined) return false;
   const distance = Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)) + Math.abs(a.z - b.z) * 2;
   return distance <= cs.range;
+}
+
+/**
+ * The cast-when rule of a bolt: a caster holds it while a creature of its own faction (for a
+ * fortress caster, any fortress creature) stands on a tile the bolt would cross before it reaches
+ * its target. `ray` is 16's projectile ray from the caster toward the target.
+ */
+export function allyOnLine(ctx: TickContext, casterId: EntityId, targetTile: TileIndex, ray: readonly TileIndex[]): boolean {
+  const entities = ctx.world.entities;
+  const faction = entities.get(casterId, C.Creature)?.faction;
+  if (faction === undefined) return false;
+  for (const tile of ray) {
+    if (tile === targetTile) return false;
+    for (const id of ctx.readers.spatial.at(tile)) {
+      if (id === casterId) continue;
+      if (entities.get(id, C.Creature)?.faction === faction) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * A held bolt's other target: the nearest creature hostile to the caster (distance, then id) that
+ * the bolt can reach (`canCastBolt`), in line of sight, with no ally on its line. 0 when there is none.
+ */
+export function otherBoltTarget(
+  ctx: TickContext,
+  casterId: EntityId,
+  held: Held | null,
+  heldTarget: EntityId,
+  isHostile: (a: EntityId, b: EntityId) => boolean,
+  rayTo: (target: EntityId) => { tile: TileIndex; ray: readonly TileIndex[] } | null,
+): EntityId {
+  const entities = ctx.world.entities;
+  const pos = entities.get(casterId, C.Position);
+  const cs = heldSpell(entities, ctx.registry, held);
+  if (pos === undefined || cs === undefined) return 0;
+  const from = ctx.world.map.index(pos.x, pos.y, pos.z);
+  let best = 0;
+  let bestDist = Infinity;
+  for (const id of ctx.readers.spatial.inRadius(from, cs.range, 'creature')) {
+    if (id === casterId || id === heldTarget || !entities.alive(id) || !isHostile(casterId, id)) continue;
+    const p = entities.get(id, C.Position);
+    if (p === undefined) continue;
+    const dist = Math.max(Math.abs(p.x - pos.x), Math.abs(p.y - pos.y)) + Math.abs(p.z - pos.z) * 2;
+    if (dist > bestDist || (dist === bestDist && id > best)) continue;
+    if (!canCastBolt(ctx, casterId, held, id)) continue;
+    const line = rayTo(id);
+    if (line === null || allyOnLine(ctx, casterId, line.tile, line.ray)) continue;
+    best = id;
+    bestDist = dist;
+  }
+  return best;
 }
 
 /** What 16's ranged branch fires for a bolt. */

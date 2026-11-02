@@ -71,11 +71,12 @@ function setRune(w: TestWorld, id: EntityId, milli: number): void {
 }
 
 /** A goblin shut in a stone cell whose north side is a fortification: it can be shot, not reached. */
-function cellGoblin(w: TestWorld, x: number, y: number): EntityId {
+function cellGoblin(w: TestWorld, x: number, y: number, ring = false): EntityId {
   for (let dx = -1; dx <= 1; dx += 1) {
     for (let dy = -1; dy <= 1; dy += 1) {
       if (dx === 0 && dy === 0) continue;
-      w.carve(w.index(x + dx, y + dy, Z), dx === 0 && dy === -1 ? TileKind.Fortification : TileKind.Wall);
+      // `ring`: fortifications all round, so it can be shot at from any side.
+      w.carve(w.index(x + dx, y + dy, Z), ring || (dx === 0 && dy === -1) ? TileKind.Fortification : TileKind.Wall);
     }
   }
   const g = w.spawnCreature('gloam_warrior', w.index(x, y, Z), 'hostile:gloam');
@@ -284,23 +285,54 @@ describe('T-470 casting', () => {
     expect(panel.gearOptions(ctx, 'weapon')).not.toContain('staff');
   });
 
-  it('a bolt can hit an ally in the way', () => {
-    const w = arena('t470-friendly');
-    // The caster and an ally each hold a post of their own squad, the ally in the line of fire.
+  /** A caster and an ally, each holding a post of a squad of its own. */
+  function line(seed: string, allyAt: [number, number]): { w: TestWorld; caster: EntityId; ally: EntityId } {
+    const w = arena(seed);
     const caster = w.spawnDwarf({ at: w.index(30, 30, Z), skills: { runecraft: 10 } });
-    const ally = w.spawnDwarf({ at: w.index(30, 33, Z), skills: { dodge: 0 } });
+    const ally = w.spawnDwarf({ at: w.index(allyAt[0], allyAt[1], Z), skills: { dodge: 0 } });
     squad(w, [caster], w.index(30, 30, Z));
-    squad(w, [ally], w.index(30, 33, Z));
+    squad(w, [ally], w.index(allyAt[0], allyAt[1], Z));
     w.step(1);
     for (const id of [caster, ally]) w.game.world.entities.add(id, C.Soldier, { ...w.game.world.entities.get(id, C.Soldier)!, stance: 'hold' });
     setRune(w, caster, 1_000_000);
     hold(w, caster, channel(w, 'staff', 'iron', 'garnet', w.index(30, 30, Z)));
+    return { w, caster, ally };
+  }
+
+  it('a caster holds its bolt while an ally stands on the line, and waits when no other target is clear', () => {
+    const { w, caster } = line('t470-hold', [30, 33]);
+    cellGoblin(w, 30, 38);
+    w.step(400);
+    expect(w.events('SpellCast')).toHaveLength(0);
+    expect(w.events('ProjectileFired')).toHaveLength(0);
+    const p = w.game.world.entities.get(caster, C.Position)!;
+    expect([p.x, p.y]).toEqual([30, 30]);
+  });
+
+  it('a caster whose line is held throws at another target with a clear line', () => {
+    const { w } = line('t470-other', [30, 33]);
+    const near = cellGoblin(w, 30, 36);
+    const other = cellGoblin(w, 37, 37, true);
+    w.until(() => w.events('SpellCast').length >= 3, 1000);
+    expect(w.events('SpellCast').every((e) => e['targetId'] === other)).toBe(true);
+    expect(w.events('SpellCast').some((e) => e['targetId'] === near)).toBe(false);
+  });
+
+  it('a bolt can still hit an ally who steps into its path after the cast', () => {
+    const { w, caster, ally } = line('t470-friendly', [33, 33]);
     const goblin = cellGoblin(w, 30, 38);
-    w.until(() => w.events('DamageDealt').some((e) => e['defenderId'] === ally && e['damageType'] === 'ember'), 6000);
-    expect(w.events('SpellCast').length).toBeGreaterThan(0);
+    const movement = w.game.world.services.movement!;
+    const burned = (): boolean => w.events('DamageDealt').some((e) => e['defenderId'] === ally && e['damageType'] === 'ember');
+    for (let k = 0; k < 200 && !burned(); k += 1) {
+      const casts = w.events('SpellCast').length;
+      w.until(() => w.events('SpellCast').length > casts, 200);
+      // The bolt has just left the staff: the ally steps onto its line, then back to its post.
+      movement.teleport(ally, w.index(30, 33, Z));
+      w.step(4);
+      movement.teleport(ally, w.index(33, 33, Z));
+    }
+    expect(burned()).toBe(true);
     expect(w.events('SpellCast').every((e) => e['targetId'] === goblin)).toBe(true);
-    const burned = w.events('DamageDealt').filter((e) => e['defenderId'] === ally && e['damageType'] === 'ember');
-    expect(burned.length).toBeGreaterThan(0);
     expect(w.events('AttackResolved').some((e) => e['attackerId'] === caster && e['defenderId'] === ally && e['outcome'] === 'hit')).toBe(true);
   });
 

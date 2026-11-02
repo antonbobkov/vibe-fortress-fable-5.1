@@ -190,12 +190,14 @@ hasAmmo  = channel ? canCastBolt(ctx, id, w, target) : (as today)
 if channel and cooldown elapsed and castSupport(ctx, id, target, w):
     engagements.set(id, tick); continue                         // T-473; castSupport sets the cooldown by 16's rule
 if isAdjacent: melee as today                                   // the club
-else if isRanged in range with line of sight: fireAt as today   // the bolt, or T-473's burst and daze
+else if isRanged in range with line of sight: fireAt as today   // the bolt (held while an ally is on its line, below), or T-473's burst and daze
 else if channel and support staff and rune ≥ cost and dist ≤ CASTER_HOLD_DISTANCE: stop walking; continue   // T-473
 else approach as today
 ```
 
 `canCastBolt`: the holder has a `Rune`, the staff's spell is of kind `bolt`, `burst` or `single`, `current ≥ cost`, and the target is within the spell's range. `fireRanged` passes a `burst` or `single` to `magic/cast.ts` before it spawns anything (T-473). For a `bolt` it has a third branch beside `naturalRanged` and the ammunition branch, `castBolt`: `projectileItemId = 0`, `rawDamage = round(spell.base × power(item))`, `damageType = spell.type`, `weaponSkill = 'runecraft'`, `weaponSize = launcher size`; it spends the rune and emits `SpellCast { casterId, spellId, targetId, tile }`. Everything after that line is the shared path. So the hit roll, cooldown, crowding (`crowdTicks`), projectile, bystander half chance and xp (+3 a hit, +1 a miss, through `grantXp` on `weaponDef.skill`) all come from 16, and the hit roll draws on 16's stream. A bystander can be an ally: friendly fire is real by construction.
+
+**Cast when** (a bolt, as Firebloom has its own): the caster holds the bolt while a creature of its own faction (for a fortress caster, any fortress creature) stands on a tile the bolt would cross before its target, the tiles of 16's projectile ray. It then throws at another target: the nearest creature hostile to it (distance, then id) that `canCastBolt` allows, in line of sight, with no ally on the line (`otherBoltTarget` in `magic/cast.ts`). With none, it waits where it stands and spends nothing. The check is made at the cast and draws nothing, so friendly fire stays real: an ally can step into the bolt's path after the cast, and a missed bolt flies on and can land on someone beyond its target.
 
 Cooldown is 16's rule: `size × 3 + 10 − Agility / 10`. At Agility 50 a staff is 26 ticks, a wand 14.
 

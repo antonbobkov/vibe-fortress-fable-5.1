@@ -28,7 +28,7 @@ import {
 } from './constants';
 import { isCreatureHostile, isFactionHostile } from './factions';
 import { resolveMelee, weaponOf } from './melee';
-import { advanceProjectiles, findAmmoForShooter, fireRanged, lineOfSightRanged } from './ranged';
+import { advanceProjectiles, bresenhamRay, findAmmoForShooter, fireRanged, lineOfSightRanged } from './ranged';
 import { makeCombatReader, type CombatReader } from './reader';
 import {
   createSquad,
@@ -52,7 +52,7 @@ import { threatScan } from './threats';
 import { kitingTile } from './kiting';
 import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
-import { canCastBolt } from '@systems/magic/cast';
+import { allyOnLine, canCastBolt, otherBoltTarget } from '@systems/magic/cast';
 
 export type { CombatReader, SquadWithId } from './reader';
 export * from './constants';
@@ -213,6 +213,22 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     return fireRanged(ctx, shooterId, targetId, this.targets.cooldownUntil, options);
   }
 
+  /** The target a channel's bolt goes to this tick: the held one with a clear line, another, or 0. */
+  private clearBoltTarget(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, target: EntityId, from: TileIndex): EntityId {
+    const map = ctx.world.map;
+    const range = w?.weaponDef.launcher?.range ?? 0;
+    const rayTo = (other: EntityId): { tile: TileIndex; ray: readonly TileIndex[] } | null => {
+      const p = ctx.world.entities.get(other, C.Position);
+      if (p === undefined) return null;
+      const tile = map.index(p.x, p.y, p.z);
+      if (!this.lineOfSight(from, tile)) return null;
+      return { tile, ray: bresenhamRay(map, from, tile, range) };
+    };
+    const held = rayTo(target);
+    if (held !== null && !allyOnLine(ctx, id, held.tile, held.ray)) return target;
+    return otherBoltTarget(ctx, id, w, target, (a, b) => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e)), rayTo);
+  }
+
   override tick(ctx: TickContext): void {
     this.currentCtx = ctx;
     const entities = ctx.world.entities;
@@ -345,7 +361,15 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       ) {
         this.targets.unreachableSince.delete(id);
         const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
-        if (cooldown <= tick) {
+        if (cooldown <= tick && channel) {
+          // 25 § Casting: a caster holds its bolt while one of its own stands on the line, and
+          // throws it at another target with a clear line, or waits.
+          const bolt = this.clearBoltTarget(ctx, id, w, target, tileA);
+          if (bolt !== 0) {
+            this.targets.engagements.set(id, tick);
+            this.fireAt(id, bolt);
+          }
+        } else if (cooldown <= tick) {
           this.targets.engagements.set(id, tick);
           this.fireAt(id, target);
         }
