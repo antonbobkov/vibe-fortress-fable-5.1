@@ -25,6 +25,10 @@ import {
 } from './constants';
 import { rollMishap, sessionXp, skillLevel, type MishapKind } from './rune';
 import type { MishapRecord } from './state';
+import type { EntityStore } from '@core/entities';
+import type { DwarvesReader } from '@systems/dwarves';
+import type { MoraleReader } from '@systems/morale/reader';
+import { calmRestAllows, draughtRestAllows, draughtsWith, drinkDraught, type DraughtDef, type DraughtTrigger } from './draughts';
 
 const KEY_PREFIX = 'attune:';
 const CIRCLE_TAG = 'rune_circle';
@@ -36,11 +40,15 @@ const ARMS: readonly number[] = [BODY_SLOTS.indexOf('left_arm'), BODY_SLOTS.inde
 export interface MagicHost {
   readonly rng: RngStream;
   sweepDue: boolean;
+  /** Set on `DayPassed`: look for Miserable dwarves to give a calming draught. */
+  calmDue: boolean;
   sanctumZones(): EntityId[];
   apprenticesOf(zoneId: EntityId): EntityId[];
   sessionsOf(id: EntityId): number;
   countSession(id: EntityId): void;
   noteMishap(zoneId: EntityId, record: MishapRecord): void;
+  /** The tile a creature stands on, or -1. */
+  tileOf(id: EntityId): TileIndex;
 }
 
 interface Wanted {
@@ -55,8 +63,17 @@ export class MagicProducer implements JobProducer {
 
   constructor(private readonly host: MagicHost) {}
 
-  workCentiTicks(): number {
-    return ATTUNE_TICKS * 100;
+  /** An `attune` job's work time; a `give_draught` job takes its row's `baseTicks`. */
+  workCentiTicks(jobIn: unknown): number | undefined {
+    return isGiveDraught(jobIn as Job) ? undefined : ATTUNE_TICKS * 100;
+  }
+
+  /** A `give_draught` job may be done from the patient's own tile too. */
+  extraStandTiles(jobIn: unknown): readonly TileIndex[] {
+    const job = jobIn as Job;
+    if (!isGiveDraught(job)) return [];
+    const tile = this.host.tileOf(job.target.ref);
+    return tile < 0 ? [] : [tile];
   }
 
   /** The built rune circle of a sanctum with the lowest id, or 0. */
@@ -71,6 +88,7 @@ export class MagicProducer implements JobProducer {
 
   produce(ctx: TickContext, sinkIn: unknown): void {
     const sink = sinkIn as JobSink;
+    produceDraughts(ctx, sink, this.host);
     const zones = this.host.sanctumZones();
     if (zones.length === 0 && !this.host.sweepDue) return;
     if (!ctx.readers.has('14')) return;
@@ -121,6 +139,12 @@ export class MagicProducer implements JobProducer {
 
   onComplete(jobIn: unknown, ctx: TickContext): void {
     const job = jobIn as Job;
+    if (isGiveDraught(job)) {
+      // § Draughts: the patient drinks the draught brought, if its rest still allows.
+      const draught = job.inputs[0]?.delivered[0] ?? 0;
+      if (draught !== 0) drinkDraught(ctx, job.target.ref, draught, job.workerId);
+      return;
+    }
     const items = ctx.world.services.items;
     for (const input of job.inputs) for (const it of input.delivered) {
       if (items !== null) items.consume(it, 1);
@@ -209,6 +233,84 @@ export class MagicProducer implements JobProducer {
       // `clean`: 17 makes the burn already cleaned, so it heals with or without a medic and never infects.
       ctx.emit({ type: 'DamageDealt', defenderId: id, part: BODY_SLOTS[slot], damageType: 'burn', amount: 1, attackerId: 0, weaponId: 0, clean: true });
       return;
+    }
+  }
+}
+
+// ---------- give_draught (§ Draughts) ----------
+
+const GIVE_PREFIX = 'give_draught:';
+const GIVE_PRIORITY = 2;
+
+function isGiveDraught(job: Job): boolean {
+  return typeof job.data['draught'] === 'string';
+}
+
+/** A wound a draught of mending is given for. */
+function badlyWounded(entities: EntityStore, id: EntityId): boolean {
+  return entities.get(id, C.Body)?.parts.some((p) => p.wounds.some((w) => w.severity === 'serious' || w.severity === 'grievous')) === true;
+}
+
+function miserable(ctx: TickContext, id: EntityId): boolean {
+  return ctx.readers.has('15') && ctx.readers.of<MoraleReader>('15').tier(id) === 0;
+}
+
+/** The patient still wants the draught the job brings: alive, the rest allows, and its reason holds. */
+function stillWanted(ctx: TickContext, id: EntityId, trigger: DraughtTrigger): boolean {
+  const entities = ctx.world.entities;
+  if (!entities.alive(id) || !draughtRestAllows(entities, id, ctx.tick)) return false;
+  if (trigger === 'wounded') return entities.has(id, C.Patient) && badlyWounded(entities, id);
+  return trigger === 'miserable' && calmRestAllows(entities, id, ctx.tick) && miserable(ctx, id);
+}
+
+/**
+ * `give_draught`: for an admitted patient with a serious or grievous wound when a draught of
+ * mending is in stock, and on `DayPassed` for a Miserable dwarf when a calming draught is in stock,
+ * while the rests allow. A job whose patient no longer wants it goes.
+ */
+function produceDraughts(ctx: TickContext, sink: JobSink, host: MagicHost): void {
+  const entities = ctx.world.entities;
+  const registry = ctx.registry;
+  for (const key of sink.keysWithPrefix?.(GIVE_PREFIX) ?? []) {
+    const job = sink.byKey(key);
+    const row = job === undefined ? undefined : registry.table<DraughtDef>('draughts').byId(job.data['draught'] as string);
+    if (job !== undefined && (row === undefined || !stillWanted(ctx, job.target.ref, row.trigger))) sink.cancelKey(key, 'target_invalid');
+  }
+  if (!ctx.readers.has('13')) return;
+  const stock = ctx.readers.of<ItemsReader>('13');
+  const give = (patient: EntityId, draught: DraughtDef): void => {
+    sink.create(`${GIVE_PREFIX}${patient}`, {
+      type: 'give_draught',
+      target: { kind: 'entity', ref: patient },
+      workTile: 'adjacent',
+      priority: GIVE_PRIORITY,
+      inputs: [{ filter: { type: registry.table('items').index(draught.id) }, count: 1 }],
+      data: { draught: draught.id, patient, excludeWorker: patient },
+    });
+  };
+  // Draughts of mending, for admitted patients badly hurt.
+  for (const draught of draughtsWith(registry, 'wounded')) {
+    let left = stock.available(draught.id);
+    if (left <= 0) continue;
+    for (const id of entities.with(C.Patient).slice().sort((a, b) => a - b)) {
+      if (left <= 0) break;
+      if (sink.exists(`${GIVE_PREFIX}${id}`) || !stillWanted(ctx, id, 'wounded')) continue;
+      give(id, draught);
+      left -= 1;
+    }
+  }
+  // Calming draughts, once a day, for Miserable dwarves.
+  if (!host.calmDue) return;
+  host.calmDue = false;
+  if (!ctx.readers.has('10')) return;
+  for (const draught of draughtsWith(registry, 'miserable')) {
+    let left = stock.available(draught.id);
+    if (left <= 0) continue;
+    for (const id of ctx.readers.of<DwarvesReader>('10').list().slice().sort((a, b) => a - b)) {
+      if (left <= 0) break;
+      if (sink.exists(`${GIVE_PREFIX}${id}`) || !stillWanted(ctx, id, 'miserable')) continue;
+      give(id, draught);
+      left -= 1;
     }
   }
 }

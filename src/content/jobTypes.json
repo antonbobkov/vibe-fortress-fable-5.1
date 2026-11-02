@@ -300,6 +300,19 @@
     "interruptible": false
   },
   {
+    "id": "give_draught",
+    "name": "Give draught",
+    "labor": "medicine",
+    "skill": "medicine",
+    "target": "entity",
+    "workTile": "entity",
+    "baseTicks": 30,
+    "tool": null,
+    "xp": 4,
+    "producer": "magic",
+    "interruptible": false
+  },
+  {
     "id": "harvest",
     "name": "Harvest",
     "labor": "farming",

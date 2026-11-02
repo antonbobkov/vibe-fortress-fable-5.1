@@ -64,6 +64,8 @@ export interface ItemDefRow {
 
 /** 25 § Vials: the tag that makes an item a caster's fuel. */
 const RUNE_FUEL = 'rune_fuel';
+/** 25 § Draughts: the tag of a draught a squad may carry. */
+const DRAUGHT = 'draught';
 
 /** A piece's weight scale for its material, in thousandths: deepsilver 500, all else 1000. */
 function armorWeightMult(registry: Registry, materialIndex: number): number {
@@ -367,7 +369,8 @@ const kitTypeFlags = new WeakMap<Registry, readonly boolean[]>();
 
 /**
  * Per item type index: whether a soldier's kit can name an item of the type. A rune vial (tag
- * `rune_fuel`) is a caster's ammunition (25 § Vials).
+ * `rune_fuel`) is a caster's ammunition (25 § Vials); a draught (tag `draught`) is carried like one
+ * (25 § Draughts).
  */
 function kitTypes(registry: Registry): readonly boolean[] {
   const known = kitTypeFlags.get(registry);
@@ -380,7 +383,8 @@ function kitTypes(registry: Registry): readonly boolean[] {
   registry.table<ItemDefRow>('items').rows.forEach((row, index) => {
     flags[index] = row !== undefined &&
       (weapons.byId(row.id) !== undefined || armor.byId(row.id) !== undefined || row.id === 'quiver' ||
-        row.category === 'container/quiver' || ammo.has(row.id) || row.tags?.includes(RUNE_FUEL) === true);
+        row.category === 'container/quiver' || ammo.has(row.id) || row.tags?.includes(RUNE_FUEL) === true ||
+        row.tags?.includes(DRAUGHT) === true);
   });
   kitTypeFlags.set(registry, flags);
   return flags;
@@ -463,6 +467,8 @@ export function reequipSoldier(
 
   // 25 § Vials: a member holding a channel tops up to CASTER_VIALS rune vials.
   if (holdsChannel) claimVials(ctx, soldierId, pool);
+  // 25 § Draughts: every member carries one of each draught the squad lists.
+  if ((squad.equipment.draughts?.length ?? 0) > 0) claimDraughts(ctx, squad.equipment.draughts ?? [], soldierId, pool);
 
   // 2. Shield selection (two-handed/shield exclusion)
   const itemsTable = registry.table<ItemDefRow>('items');
@@ -626,6 +632,35 @@ function claimVials(ctx: TickContext, soldierId: EntityId, pool: () => readonly 
     if (take === 0) continue;
     claimItemForSoldier(entities, take, soldierId, items);
     toClaim -= entities.get(take, C.Item)?.count ?? 0;
+  }
+}
+
+/**
+ * 25 § Draughts: one of each listed draught, claimed by the ammunition logic from available stock
+ * in the kit pool's order; a larger stack is split so that only one is taken.
+ */
+function claimDraughts(ctx: TickContext, list: readonly string[], soldierId: EntityId, pool: () => readonly EntityId[]): void {
+  const entities = ctx.world.entities;
+  const items = ctx.world.services.items;
+  if (items === null) return;
+  const table = ctx.registry.table<ItemDefRow>('items');
+  for (const draughtId of list) {
+    if (!table.has(draughtId)) continue;
+    const type = table.index(draughtId);
+    const carried = pool().some((itemId) => {
+      const it = entities.get(itemId, C.Item);
+      return it !== undefined && it.carriedBy === soldierId && it.type === type && it.count > 0;
+    });
+    if (carried) continue;
+    for (const itemId of pool().slice()) {
+      if (!isAvailableItem(entities, itemId)) continue;
+      const it = entities.get(itemId, C.Item);
+      if (it === undefined || it.type !== type || it.count <= 0) continue;
+      const take = it.count > 1 ? items.split(itemId, 1) : itemId;
+      if (take === 0) continue;
+      claimItemForSoldier(entities, take, soldierId, items);
+      break;
+    }
   }
 }
 

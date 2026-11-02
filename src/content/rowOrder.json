@@ -214,5 +214,73 @@
   {
     "table": "palette",
     "id": "ward_cyan"
+  },
+  {
+    "table": "items",
+    "id": "mending_draught"
+  },
+  {
+    "table": "items",
+    "id": "stout_draught"
+  },
+  {
+    "table": "items",
+    "id": "quick_draught"
+  },
+  {
+    "table": "items",
+    "id": "calm_draught"
+  },
+  {
+    "table": "items",
+    "id": "murky_draught"
+  },
+  {
+    "table": "draughts",
+    "id": "mending_draught"
+  },
+  {
+    "table": "draughts",
+    "id": "stout_draught"
+  },
+  {
+    "table": "draughts",
+    "id": "quick_draught"
+  },
+  {
+    "table": "draughts",
+    "id": "calm_draught"
+  },
+  {
+    "table": "draughts",
+    "id": "murky_draught"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_mending_draught"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_stout_draught"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_quick_draught"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_calm_draught"
+  },
+  {
+    "table": "jobTypes",
+    "id": "give_draught"
+  },
+  {
+    "table": "thoughts",
+    "id": "eased"
+  },
+  {
+    "table": "thoughts",
+    "id": "dosed_again"
   }
 ]

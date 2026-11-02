@@ -5,7 +5,7 @@
 
 import { C, type Attributes, type Body } from '@core/components';
 import { crowdTicks } from '@core/crowding';
-import { effectValue } from '@core/effects';
+import { effectValue, hastedTicks, immuneToBurn } from '@core/effects';
 import { BODY_SLOTS } from '@core/types';
 import type { BodySlot, DamageType, EntityId, Quality } from '@core/types';
 import type { EntityStore } from '@core/entities';
@@ -509,7 +509,8 @@ export function resolveMelee(
   // 22 § Crowding: a crowd on the attacker's tile slows its attacks.
   const movement = ctx.world.services.movement;
   const crowd = movement === null ? 100 : movement.crowdPercentAt(movement.tileOf(attackerId));
-  const cooldownTicks = crowdTicks(Math.max(MIN_ATTACK_COOLDOWN, Math.floor(atkSize * 3 + 10 - agiA / 10)), crowd);
+  // 25 § Effects: `haste` shortens the wait.
+  const cooldownTicks = hastedTicks(entities, attackerId, crowdTicks(Math.max(MIN_ATTACK_COOLDOWN, Math.floor(atkSize * 3 + 10 - agiA / 10)), crowd), tick);
   cooldownUntilMap.set(attackerId, tick + cooldownTicks);
 
   // Roll hit
@@ -627,6 +628,8 @@ export function resolveMelee(
   const touD = getAttribute(entities, defenderId, 'tou');
   const touReduction = Math.min(10, touD / 10);
   damage = Math.round((damage * (100 - touReduction)) / 100);
+  // 25 § Effects: under `fire_immune` a burn does nothing.
+  if (immuneToBurn(entities, defenderId, atkType, tick)) damage = 0;
 
   // Emit DamageDealt and AttackResolved
   ctx.emit({

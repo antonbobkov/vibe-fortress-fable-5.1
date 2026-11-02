@@ -16,6 +16,7 @@ import type { PathingReader } from '@core/readers';
 import { PERCEPTION_RADIUS } from './constants';
 import { isCreatureHostile } from './factions';
 import type { TargetManager } from './targets';
+import { soldierTrigger } from '@systems/magic/draughts';
 import { getBarracksForSquad, isOnStationShift } from './training';
 
 /**
@@ -229,9 +230,21 @@ export function setSquadEquipment(entities: EntityStore, cmd: Command, registry:
   const armor = equipment['armor'];
   if (armor !== undefined && armor !== 'metal' && armor !== 'leather' && armor !== 'any') return reject('bad_setting');
   if (equipment['ranged'] !== undefined && typeof equipment['ranged'] !== 'boolean') return reject('bad_setting');
+  // 25 § Draughts: an ordered list of draught item ids, each one a soldier drinks, none twice.
+  const draughts = equipment['draughts'];
+  if (draughts !== undefined) {
+    if (!Array.isArray(draughts) || new Set(draughts).size !== draughts.length) return reject('bad_setting');
+    const rows = registry.table<{ id: string; trigger: string }>('draughts');
+    if (draughts.some((d) => typeof d !== 'string' || !rows.has(d) || !soldierTrigger(rows.byId(d)?.trigger))) return reject('bad_setting');
+  }
+  const { draughts: listed, ...rest } = rawEquipment as Partial<Squad['equipment']>;
+  const { draughts: _old, ...kept } = squad.equipment;
+  const next = listed ?? squad.equipment.draughts;
   squad.equipment = {
-    ...squad.equipment,
-    ...(rawEquipment as Partial<Squad['equipment']>),
+    ...kept,
+    ...rest,
+    // An empty list is no list, so a squad that never had one saves as before.
+    ...(next !== undefined && next.length > 0 ? { draughts: next.slice() } : {}),
   };
   return OK;
 }

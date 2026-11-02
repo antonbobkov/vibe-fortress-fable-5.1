@@ -316,6 +316,8 @@ const RECIPE_SECTIONS = [
   ['Forge', 'forge', 'metalcrafting', true, true],
   ['Kitchen', 'kitchen', 'cooking', false, false],
   ['Still', 'still', 'brewing', false, false],
+  // 25 § Draughts: the laboratory's draughts, a table of their own under § Laboratory.
+  ['Draughts', 'alchemist', 'alchemy', false, true],
   ['Tannery', 'tannery', 'tanning', false, false],
   ['Leatherworks', 'leatherworks', 'leatherworking', false, false],
   ['Loom', 'loom', 'weaving', false, false],
@@ -460,6 +462,7 @@ export function exportRecipes() {
           baseTicks: int(ticksCell),
           fuel,
           quality: isBlank(row.Q) ? defaultQuality : /^yes/i.test(plain(row.Q)),
+          spoilable: /^yes/i.test(plain(row.spoilable ?? '')) ? true : undefined,
           container: container ?? outContainer?.[1],
           xp: int(row.xp),
         }),

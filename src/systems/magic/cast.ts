@@ -12,8 +12,9 @@
  */
 
 import { C, type ActiveEffect, type Item, type Position, type Rune, type Spellbound } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
 import { crowdTicks } from '@core/crowding';
-import { effectValue } from '@core/effects';
+import { effectValue, hastedTicks } from '@core/effects';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import type { TickContext } from '@core/system';
@@ -25,6 +26,8 @@ import { findAmmoForShooter } from '@systems/combat/ranged';
 import { BLOOD_UNCONSCIOUS_PERCENT, PAIN_UNCONSCIOUS } from '@systems/health/constants';
 import type { ItemsReader } from '@systems/items';
 import {
+  CALM_REST_DAYS,
+  DRAUGHT_REST_DAYS,
   DRINK_TICKS,
   DREAD_MAX_TARGETS,
   FIREBLOOM_DELAY_TICKS,
@@ -299,12 +302,16 @@ export function otherBoltTarget(
   return best;
 }
 
-/** 16's cooldown for a cast: `size × 3 + 10 − Agility / 10`, at least `MIN_ATTACK_COOLDOWN`, slowed by a crowd. */
+/**
+ * 16's cooldown for a cast: `size × 3 + 10 − Agility / 10`, at least `MIN_ATTACK_COOLDOWN`, slowed
+ * by a crowd and shortened by `haste` (§ Effects).
+ */
 function setCastCooldown(ctx: TickContext, casterId: EntityId, size: number, cooldownUntil: Map<EntityId, number>): void {
   const agility = getAttribute(ctx.world.entities, casterId, 'agi');
   const movement = ctx.world.services.movement;
   const crowd = movement === null ? 100 : movement.crowdPercentAt(movement.tileOf(casterId));
-  cooldownUntil.set(casterId, ctx.tick + crowdTicks(Math.max(MIN_ATTACK_COOLDOWN, Math.floor(size * 3 + 10 - agility / 10)), crowd));
+  const ticks = crowdTicks(Math.max(MIN_ATTACK_COOLDOWN, Math.floor(size * 3 + 10 - agility / 10)), crowd);
+  cooldownUntil.set(casterId, ctx.tick + hastedTicks(ctx.world.entities, casterId, ticks, ctx.tick));
 }
 
 /**
@@ -506,7 +513,7 @@ function vialItemId(registry: Registry): string | undefined {
 /**
  * § Vials: a channel holder below its spell's cost, holding a hostile target, with a vial carried
  * and fewer than `VIALS_PER_DAY` drunk today, drinks one: `VIAL_RUNE` back, capped at its maximum,
- * `VialDrunk`, and its next attack waits `DRINK_TICKS`. True when it drank.
+ * `VialDrunk`, and its next attack waits `DRINK_TICKS` (shortened by `haste`). True when it drank.
  */
 export function drinkVial(ctx: TickContext, casterId: EntityId, held: Held | null, cooldownUntil: Map<EntityId, number>): boolean {
   const entities = ctx.world.entities;
@@ -523,7 +530,7 @@ export function drinkVial(ctx: TickContext, casterId: EntityId, held: Held | nul
   const max = runeMaxMilli(skillLevel(entities, ctx.registry, casterId, 'runecraft'));
   entities.add<Rune>(casterId, C.Rune, { ...rune, current: Math.max(rune.current, Math.min(max, rune.current + VIAL_RUNE * MILLI)), vialsToday: (rune.vialsToday ?? 0) + 1 });
   ctx.emit({ type: 'VialDrunk', id: casterId });
-  cooldownUntil.set(casterId, ctx.tick + DRINK_TICKS);
+  cooldownUntil.set(casterId, ctx.tick + hastedTicks(entities, casterId, DRINK_TICKS, ctx.tick));
   return true;
 }
 
@@ -554,14 +561,36 @@ export function addEffect(entities: EntityStore, id: EntityId, effect: ActiveEff
   entities.add<Spellbound>(id, C.Spellbound, { ...(bound ?? {}), effects });
 }
 
-/** `HourPassed`: drop expired entries, and the component with them. */
+/**
+ * `HourPassed`: drop expired entries, and the draught rests that have run out (§ Draughts); the
+ * component goes when nothing is left.
+ */
 export function dropExpiredEffects(entities: EntityStore, tick: number): void {
   for (const id of entities.with(C.Spellbound)) {
     const bound = entities.get(id, C.Spellbound);
     if (bound === undefined) continue;
     const live = bound.effects.filter((e) => e.until > tick);
-    if (live.length === bound.effects.length) continue;
-    if (live.length === 0) entities.remove(id, C.Spellbound);
-    else entities.add<Spellbound>(id, C.Spellbound, { ...bound, effects: live });
+    const draught = bound.lastDraughtTick !== undefined && draughtRestLasts(bound.lastDraughtTick, tick) ? bound.lastDraughtTick : undefined;
+    const calm = bound.lastCalmTick !== undefined && calmRestLasts(bound.lastCalmTick, tick) ? bound.lastCalmTick : undefined;
+    if (live.length === bound.effects.length && draught === bound.lastDraughtTick && calm === bound.lastCalmTick) continue;
+    if (live.length === 0 && draught === undefined && calm === undefined) {
+      entities.remove(id, C.Spellbound);
+      continue;
+    }
+    entities.add<Spellbound>(id, C.Spellbound, {
+      effects: live,
+      ...(draught === undefined ? {} : { lastDraughtTick: draught }),
+      ...(calm === undefined ? {} : { lastCalmTick: calm }),
+    });
   }
+}
+
+/** A draught drunk at `at` still keeps its drinker from another at `tick` (`DRAUGHT_REST_DAYS`). */
+export function draughtRestLasts(at: number, tick: number): boolean {
+  return tick < at + DRAUGHT_REST_DAYS * TICKS_PER_DAY;
+}
+
+/** A calming draught drunk at `at` still counts at `tick` (`CALM_REST_DAYS`). */
+export function calmRestLasts(at: number, tick: number): boolean {
+  return tick < at + CALM_REST_DAYS * TICKS_PER_DAY;
 }

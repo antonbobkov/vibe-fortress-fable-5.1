@@ -129,6 +129,8 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'singed': return s(event, 'kind') === 'singed';
     case 'warded': return true;
     case 'mended_by_rune': return true;
+    case 'eased': return event['calm'] === true && event['again'] !== true;
+    case 'dosed_again': return event['calm'] === true && event['again'] === true;
     default: return true;
   }
 }

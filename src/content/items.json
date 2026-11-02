@@ -392,6 +392,23 @@
     "quality": true
   },
   {
+    "id": "calm_draught",
+    "name": "calming draught",
+    "category": "medical/draught",
+    "mult": 2000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "!",
+    "fg": "hops_green",
+    "quality": true,
+    "tags": [
+      "draught"
+    ]
+  },
+  {
     "id": "cap",
     "name": "cap",
     "category": "armor/head",
@@ -1150,6 +1167,23 @@
     "quality": true
   },
   {
+    "id": "mending_draught",
+    "name": "draught of mending",
+    "category": "medical/draught",
+    "mult": 2000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "!",
+    "fg": "bright_green",
+    "quality": true,
+    "tags": [
+      "draught"
+    ]
+  },
+  {
     "id": "metal_boots",
     "name": "metal boots",
     "category": "armor/feet",
@@ -1199,6 +1233,23 @@
     ],
     "glyph": "∂",
     "quality": true
+  },
+  {
+    "id": "murky_draught",
+    "name": "murky draught",
+    "category": "medical/draught",
+    "mult": 70,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "!",
+    "fg": "cave_umber",
+    "quality": false,
+    "tags": [
+      "draught"
+    ]
   },
   {
     "id": "nest_box",
@@ -1278,6 +1329,23 @@
     "quality": false,
     "tags": [
       "ingredient"
+    ]
+  },
+  {
+    "id": "quick_draught",
+    "name": "draught of quickness",
+    "category": "medical/draught",
+    "mult": 2000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "!",
+    "fg": "root_amber",
+    "quality": true,
+    "tags": [
+      "draught"
     ]
   },
   {
@@ -1666,6 +1734,23 @@
     "quality": true,
     "tags": [
       "block"
+    ]
+  },
+  {
+    "id": "stout_draught",
+    "name": "draught of stoutness",
+    "category": "medical/draught",
+    "mult": 2000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "!",
+    "fg": "bell_white",
+    "quality": true,
+    "tags": [
+      "draught"
     ]
   },
   {

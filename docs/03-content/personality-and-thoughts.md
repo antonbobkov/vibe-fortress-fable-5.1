@@ -147,6 +147,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `lost_limb` | "I lost a limb." | −12 | 336 | halflife | 1 | none | `LimbLost` |
 | `deep_stirred_dread` | "Something below has noticed us." | −4 | 48 | halflife | 1 | fear | `DeepStirred` (everyone) |
 | `argued` | "Had an argument." | −5 | 48 | halflife | 1 | social | sulk argument, both |
+| `dosed_again` | "Another draught. I am tired of draughts." | −4 | 72 | halflife | 1 | none | `DraughtDrunk` calming, within `CALM_REST_DAYS` of the last |
 
 ### Pride and relief
 
@@ -165,6 +166,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `hoarded` | "Got something nice for my room." | +3 | 48 | linear | 1 | none | sulk hoard |
 | `first_runecaster` | "We have a runecaster in the hall." | +4 | 72 | linear | 1 | pride | `FirstRunecaster` (everyone) |
 | `mended_by_rune` | "The rune closed my wound." | +3 | 48 | linear | 1 | none | `Mended` |
+| `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | `DraughtDrunk` calming, not within `CALM_REST_DAYS` of the last |
 
 ## Announcement flags
 

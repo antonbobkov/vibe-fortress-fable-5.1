@@ -41,7 +41,7 @@ A workshop that no recipe names and no job is worked at (`jobs.md`: the butcher'
 
 ## Recipe columns
 
-`inputs` as `count × (item | tag | class)` with material constraints in parentheses; `outputs` as `count × item (material source)`; `skill`; `ticks` base; `fuel`; `Q` quality-bearing; `xp`. `from_input` means the output takes the material of the first input; `container` means an empty container of that class is an input and holds the output. Parenthesised constraints are data: "(a or b)" and "(a, b)" list the allowed materials; "(brewable species)" and "(magma-safe metal)" name a material property; "(same material)" makes every unit of the input share one material; "(matching thread material)" and "(matching cloth material)" take the next stage of the input's material (`materials.md` § Cloth and fiber); a work order's material filter constrains only the input the first output takes its material from.
+`inputs` as `count × (item | tag | class)` with material constraints in parentheses; `outputs` as `count × item (material source)`; `skill`; `ticks` base; `fuel`; `Q` quality-bearing; `xp`; `spoilable`, in a table that has the column, a batch a low-skill worker can spoil. `from_input` means the output takes the material of the first input; `container` means an empty container of that class is an input and holds the output. Parenthesised constraints are data: "(a or b)" and "(a, b)" list the allowed materials; "(brewable species)" and "(magma-safe metal)" name a material property; "(same material)" makes every unit of the input share one material; "(matching thread material)" and "(matching cloth material)" take the next stage of the input's material (`materials.md` § Cloth and fiber); a work order's material filter constrains only the input the first output takes its material from.
 
 ## Carpenter (`carpentry`)
 
@@ -207,6 +207,17 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 
 One lamp over eight tiles grows 0.83 glowcap a day, which is 0.42 vials a day (*unmeasured*). A year is 112 days, so four lamps give 1.7 vials a day and 190 a year.
 
+### Draughts
+
+Each brews two draughts ([items.md](items.md) § Draughts). `spoilable`: an alchemist below level 10 can spoil the batch, and every output is then a murky draught ([12](../02-systems/12-workshops-and-professions.md) § Operation).
+
+| id | name | inputs | outputs | ticks | Q | xp | spoilable |
+|---|---|---|---|---|---|---|---|
+| `brew_mending_draught` | Brew draught of mending | 1 rune_vial + 2 brightleaf | 2 mending_draught | 150 | yes | 8 | yes |
+| `brew_stout_draught` | Brew draught of stoutness | 1 rune_vial + 2 plant_food (pale_bell) | 2 stout_draught | 150 | yes | 8 | yes |
+| `brew_quick_draught` | Brew draught of quickness | 1 rune_vial + 2 plant_food (sweetroot) | 2 quick_draught | 150 | yes | 8 | yes |
+| `brew_calm_draught` | Brew calming draught | 1 rune_vial + 2 plant_food (hops) | 2 calm_draught | 150 | yes | 8 | yes |
+
 ## Runeforge (`runesmithing`)
 
 Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § Spells), with no fuel: `make_wand_<stone>` is 1 log + 1 cut_gem (the stone) → 1 wand of the log's wood, 200 ticks, `Q` yes, xp 10; `make_staff_<stone>` is 1 log + 1 cut_gem (the stone) + 1 bar → 1 staff of the bar's metal, 300 ticks, `Q` yes, xp 12. The output's stone is the gem's material. A work order's material filter picks the wand's wood and the staff's metal.
@@ -282,7 +293,7 @@ Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § S
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 2, runeforge (generated: 2 per spell = 14). Total 167.
+Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 6 (4 of them draughts), runeforge (generated: 2 per spell = 14). Total 171.
 
 ## Time arithmetic
 

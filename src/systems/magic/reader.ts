@@ -63,4 +63,6 @@ export interface MagicReader {
   spellOf(itemId: EntityId): SpellView | undefined;
   /** `magic.effects(id)`: the creature's unexpired timed effects, in the order they were added. */
   effects(id: EntityId): readonly ActiveEffect[];
+  /** `magic.draughtRest(id)`: ticks until the creature may take a draught again (§ Draughts); 0 when it may now. */
+  draughtRest(id: EntityId): number;
 }

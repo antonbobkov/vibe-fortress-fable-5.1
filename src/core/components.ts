@@ -357,7 +357,11 @@ export interface Squad {
   mode: 'off' | 'train' | 'active';
   station: TileIndex | null;
   patrol: TileIndex[] | null;
-  equipment: { weaponClass: string | 'any'; armor: 'metal' | 'leather' | 'any'; ranged: boolean };
+  equipment: {
+    weaponClass: string | 'any'; armor: 'metal' | 'leather' | 'any'; ranged: boolean;
+    /** The draughts each member carries, by item id, in the order they are drunk (`25` § Draughts); absent is none. */
+    draughts?: string[];
+  };
   orders: SquadOrder[];
   barracksZoneId: EntityId;
 }
@@ -484,6 +488,10 @@ export interface ActiveEffect {
 /** The timed effects on a creature (`25` § Effects). Expired entries are dropped hourly by 25. */
 export interface Spellbound {
   effects: ActiveEffect[];
+  /** The tick of the last draught, kept while its rest lasts (`25` § Draughts); absent is none. */
+  lastDraughtTick?: Tick;
+  /** The tick of the last calming draught, kept while its longer rest lasts; absent is none. */
+  lastCalmTick?: Tick;
 }
 
 /**

@@ -15,6 +15,7 @@ import { MAGMA_C } from '@systems/fluids/constants';
 import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
 import { jobXp } from '@systems/dwarves/rules/skills';
+import { ALCHEMY_MISHAP_PERMILLE } from '@systems/magic/constants';
 
 export interface RecipeRow {
   readonly id: string;
@@ -48,6 +49,8 @@ export interface RecipeRow {
   readonly quality: boolean;
   readonly container?: string;
   readonly xp: number;
+  /** A batch a low-skill worker can spoil (`25` § Draughts). */
+  readonly spoilable?: boolean;
 }
 
 interface BuildingRow { readonly id: string; readonly category: string; readonly tags: readonly string[]; readonly magmaVariantOf?: string; readonly workTile?: number; readonly outputTile?: number }
@@ -577,11 +580,17 @@ export class WorkshopOperator {
     const quality = recipe.quality ? rollQuality(skill, this.ctx.rng) : 1;
     const outAt = this.outputTile(b);
     const itemTable = ctx.registry.table<ItemRow>('items');
+    // 25 § Draughts: a spoilable batch spoils at `ALCHEMY_MISHAP_PERMILLE − 10 × skill` per mille, and
+    // every output is then the spoiled draught (its draught row is never drunk). Only such a recipe draws.
+    const spoiledAs = recipe.spoilable === true && this.ctx.rng.chance(Math.max(0, ALCHEMY_MISHAP_PERMILLE - 10 * skill))
+      ? ctx.registry.table<{ id: string; trigger: string }>('draughts').rows.find((row) => row?.trigger === 'never')?.id
+      : undefined;
     for (let k = 0; k < recipe.outputs.length; k += 1) {
       const out = recipe.outputs[k] as RecipeRow['outputs'][number];
       if (out.permille !== undefined && !this.ctx.rng.chance(out.permille)) continue;
       const options = itemTable.where(`tag:${out.item}`, (row) => row.tags?.includes(out.item) === true);
-      const type = itemTable.has(out.item) ? out.item : options.length > 0 ? options[this.ctx.rng.int(0, options.length - 1)]?.id : undefined;
+      const made = itemTable.has(out.item) ? out.item : options.length > 0 ? options[this.ctx.rng.int(0, options.length - 1)]?.id : undefined;
+      const type = made === undefined ? undefined : spoiledAs ?? made;
       if (type === undefined) continue;
       const count = isMelt ? meltCount : out.count;
       if (count <= 0) continue;

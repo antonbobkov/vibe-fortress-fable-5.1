@@ -6,6 +6,7 @@
 
 import { C, type Body } from '@core/components';
 import { crowdTicks } from '@core/crowding';
+import { hastedTicks, immuneToBurn } from '@core/effects';
 import type { EntityStore } from '@core/entities';
 import { TileKind, type Map3D } from '@core/map3d';
 import type { Registry } from '@core/registry';
@@ -460,6 +461,8 @@ export function resolveProjectileHit(
   const touD = getAttribute(entities, defenderId, 'tou');
   const touReduction = Math.min(10, touD / 10);
   damage = Math.round((damage * (100 - touReduction)) / 100);
+  // 25 § Effects: under `fire_immune` a burn does nothing.
+  if (immuneToBurn(entities, defenderId, damageType, ctx.tick)) damage = 0;
 
   ctx.emit({
     type: 'DamageDealt',
@@ -606,10 +609,11 @@ export function fireRanged(
   // 22 § Crowding: a crowd on the shooter's tile slows its shots.
   const movement = ctx.world.services.movement;
   const crowd = movement === null ? 100 : movement.crowdPercentAt(movement.tileOf(shooterId));
-  const cooldownTicks = crowdTicks(Math.max(
+  // 25 § Effects: `haste` shortens the wait.
+  const cooldownTicks = hastedTicks(entities, shooterId, crowdTicks(Math.max(
     MIN_ATTACK_COOLDOWN,
     Math.floor(weaponSize * 3 + 10 - agiS / 10),
-  ), crowd);
+  ), crowd), ctx.tick);
   cooldownUntilMap.set(shooterId, ctx.tick + cooldownTicks);
 
   // Spawn projectile entity

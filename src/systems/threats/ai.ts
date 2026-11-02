@@ -5,6 +5,7 @@
  */
 
 import { C, type Hostile, type Party } from '@core/components';
+import { effectValue } from '@core/effects';
 import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { Edge, EntityId, TileIndex } from '@core/types';
 import type { TickContext } from '@core/system';
@@ -60,7 +61,8 @@ function fortressTargets(ctx: TickContext): FortressTarget[] {
     const guard = trained !== undefined && trained !== 'none' && (trainable === 'both' || trainable === trained);
     out.push({ id, x: p.x, y: p.y, z: p.z, tile: map.index(p.x, p.y, p.z),
       soldier: entities.has(id, C.Soldier),
-      spotRadius: entities.has(id, C.Attributes) ? SPOT_RADIUS : guard ? SPOT_RADIUS_DOG : 0 });
+      // 25 § Effects: a `spot_radius` effect sees as far as the larger of the two.
+      spotRadius: Math.max(entities.has(id, C.Attributes) ? SPOT_RADIUS : guard ? SPOT_RADIUS_DOG : 0, effectValue(entities, id, 'spot_radius', ctx.tick)) });
   }
   return out;
 }

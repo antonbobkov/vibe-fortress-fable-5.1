@@ -148,10 +148,29 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 | `bandage` | bandage | medical/bandage | 1 | 20 | bin | 0 | `~` | `linen_cream` | |
 | `glowcap` | glowcap | medical/glowcap | 1 | 20 | bag | 40 | `♠` | `rune_cyan` | |
 | `rune_vial` | rune vial | medical/vial | 1 | 20 | bag | 0 | `¡` | `rune_cyan` | `rune_fuel` |
+| `mending_draught` | draught of mending | medical/draught | 2 | 5 | bag | 0 | `!` | `bright_green` | `draught` |
+| `stout_draught` | draught of stoutness | medical/draught | 2 | 5 | bag | 0 | `!` | `bell_white` | `draught` |
+| `quick_draught` | draught of quickness | medical/draught | 2 | 5 | bag | 0 | `!` | `root_amber` | `draught` |
+| `calm_draught` | calming draught | medical/draught | 2 | 5 | bag | 0 | `!` | `hops_green` | `draught` |
+| `murky_draught` | murky draught | medical/draught | 0.07 | 5 | bag | 0 | `!` | `cave_umber` | `draught` |
 
 Bandages are cloth cut at the clothier (1 cloth → 4 bandages); `stop_bleeding` and `dress_burn` accept a bandage or a cloth.
 
 Glowcap is its own item and not `plant_food`, because `plant_food` of any material is eaten and is an ingredient. So no dwarf eats a glowcap and no kitchen takes one. A rune vial holds the material `rune`.
+
+A draught holds the material `rune` of its vial, so a draught is worth 30 at common quality and a murky draught 1 (*unmeasured*). The four brewed draughts bear quality, which scales how long they last; a murky draught bears none. A draught is not `drinkable`: no thirsty dwarf takes one.
+
+## Draughts
+
+What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draughts). An effect with a number is a timed effect of that value on the drinker, for `DRAUGHT_TICKS` times the draught's quality multiplier; `mend` bandages and closes wounds at once, as the Mend spell does; `ease` gives the thought `eased`, or `dosed_again` within `CALM_REST_DAYS` of the drinker's last calming draught. The trigger says when it is drunk: `wounded` by a soldier on duty whose blood is below half when a hit lands, or given by a medic to a patient with a serious or grievous wound; `raid` by every soldier on duty when a raid, siege or ambush arrives; `miserable` given by a medic to a Miserable dwarf; `never` is the spoiled batch.
+
+| id | effects | trigger |
+|---|---|---|
+| `mending_draught` | `mend`, `heal_rate` 200 | `wounded` |
+| `stout_draught` | `pain_half` 1 | `raid` |
+| `quick_draught` | `haste` 25 | `raid` |
+| `calm_draught` | `ease` | `miserable` |
+| `murky_draught` | — | `never` |
 
 ## Refuse
 

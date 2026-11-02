@@ -105,7 +105,8 @@ interface Stockpile { filter: StockpileFilter; containersWanted: { barrel: numbe
 interface Room { zoneId: EntityId; score: number; tier: RoomTier; ownerId: EntityId; enclosed: boolean; requirementsMet: boolean }
 interface Squad { name: string; leaderId: EntityId; members: EntityId[]; mode: 'off'|'train'|'active';
                   station: TileIndex | null; patrol: TileIndex[] | null;
-                  equipment: { weaponClass: string | 'any'; armor: 'metal'|'leather'|'any'; ranged: boolean };
+                  equipment: { weaponClass: string | 'any'; armor: 'metal'|'leather'|'any'; ranged: boolean;
+                               draughts?: string[] /* draught item ids in the order they are drunk (25); absent: none */ };
                   orders: SquadOrder[]; barracksZoneId: EntityId }
 type SquadOrder = { kind: 'kill'; targetId: EntityId } | { kind: 'station'; tile: TileIndex }
                 | { kind: 'patrol'; tiles: TileIndex[] } | { kind: 'follow'; dwarfId: EntityId };
@@ -129,7 +130,8 @@ interface Rune { current: number /* milli-rune; max and regen are derived, never
                  vialsToday?: number /* vials drunk today, cleared on DayPassed */; nextDreadTick?: Tick /* Dread waits until this tick */;
                  outAnnounced?: boolean /* RuneSpent announced until regen lifts the rune over its spell's cost */ }   // each absent in older saves means none
 interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: EntityId }
-interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */ }
+interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */;
+                       lastDraughtTick?: Tick; lastCalmTick?: Tick /* the last draught and calming draught, kept while their rests last (25 § Draughts) */ }
 ```
 
 ## Component ownership table

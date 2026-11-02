@@ -27,6 +27,7 @@ import {
   exportWeapons,
 } from './lib/export/items.mjs';
 import { exportBodyPlans, exportCreatures } from './lib/export/creatures.mjs';
+import { exportDraughts } from './lib/export/items.mjs';
 import { exportPlants } from './lib/export/plants.mjs';
 import {
   exportBuildings,
@@ -126,6 +127,7 @@ function build() {
     zoneTypes: exportZoneTypes(),
     roomTiers: exportRoomTiers(),
     recipes,
+    draughts: exportDraughts(),
     biomes: exportBiomes(),
     biomeLookup: exportBiomeLookup(),
     ratingThresholds: exportRatingThresholds(),

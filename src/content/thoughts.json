@@ -355,6 +355,23 @@
     "announce": false
   },
   {
+    "id": "dosed_again",
+    "name": "dosed again",
+    "text": "Another draught. I am tired of draughts.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 72,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "DraughtDrunk",
+      "target": "calming, within CALM_REST_DAYS of the last"
+    },
+    "announce": false
+  },
+  {
     "id": "drank_ale",
     "name": "drank ale",
     "text": "Had a drink.",
@@ -432,6 +449,21 @@
     "trigger": {
       "event": "CreatureDied",
       "target": "(everyone)"
+    },
+    "announce": false
+  },
+  {
+    "id": "eased",
+    "name": "eased",
+    "text": "The draught quieted me.",
+    "value": 8,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "DraughtDrunk",
+      "target": "calming, not within CALM_REST_DAYS of the last"
     },
     "announce": false
   },
