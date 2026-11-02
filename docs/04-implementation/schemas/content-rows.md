@@ -52,6 +52,8 @@ interface EnchantDef { id: string; slot: 'weapon'|'armor'|'ammo'; stone: Id<Mate
                        vials: number; suffix: string /* "of …" follows the name, any other goes before it */;
                        effects: { kind: string; value: number; type?: DamageType; chance?: Percent; ticks?: number; scales: 'value'|'ticks'|'none' }[] /* at least 1 */;
                        only?: 'head'|'body'|'arms'|'legs'|'feet' }
+interface DraughtDef { id: Id<ItemTypeDef> /* the draught's item */; effects: { kind: 'mend'|'ease'|'heal_rate'|'pain_half'|'haste'|'fire_immune'|'spot_radius'; value: number }[];
+                       trigger: 'wounded'|'raid'|'miserable'|'never' }   // items.md § Draughts; 25 § Draughts
 
 interface BodyPlanDef extends RowBase {
   parts: Record<BodySlot, { name: string; hit: number; hpFactor: Fixed; functions: ('see'|'wield'|'walk')[] }>;
@@ -105,6 +107,7 @@ interface RecipeDef extends RowBase {
              stone?: { from: 'input'; index: number } /* Item.stone from that input's material (25) */ }[];
   baseTicks: number; fuel: boolean; quality: boolean; container?: 'barrel'|'bag'; xp: number; generated?: boolean;
   transform?: true; enchant?: Id<EnchantDef> /* a setting (25): no outputs, input 0 kept and enchanted; every other recipe has at least one output */;
+  spoilable?: true; // a low-skill batch can spoil into the `never` draught (25 § Draughts)
 }
 
 // Validation rules:

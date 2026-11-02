@@ -1,4 +1,4 @@
-// docs/03-content/items.md and weapons-and-armor.md -> items, weapons, ammo, armor, damageVsLayer, spells, enchants.
+// docs/03-content/items.md and weapons-and-armor.md -> items, weapons, ammo, armor, damageVsLayer, spells, enchants, draughts.
 
 import { join } from 'node:path';
 import {
@@ -282,6 +282,21 @@ export function exportSpells() {
       ticks: cell(row.ticks) === undefined ? undefined : int(row.ticks),
       suffix: plain(row.suffix),
       summon: cell(row.summon) === undefined ? undefined : id(row.summon),
+    })),
+  );
+}
+
+/**
+ * items.md § Draughts: what a draught does when drunk (25 § Draughts). "`mend`, `heal_rate` 200"
+ * -> [{ kind: 'mend', value: 1 }, { kind: 'heal_rate', value: 200 }]; "—" -> [].
+ */
+export function exportDraughts() {
+  const tables = readTables(join(CONTENT_DIR, 'items.md'));
+  return byId(
+    asObjects(findTable(tables, 'Draughts', 'trigger')).map((row) => ({
+      id: id(row.id),
+      effects: Array.from(String(row.effects ?? '').matchAll(/`([a-z_]+)`\s*(\d+)?/g), (m) => ({ kind: m[1], value: m[2] === undefined ? 1 : Number(m[2]) })),
+      trigger: id(row.trigger),
     })),
   );
 }

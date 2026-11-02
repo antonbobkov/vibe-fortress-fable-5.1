@@ -436,6 +436,21 @@
     "announce": false
   },
   {
+    "id": "eased",
+    "name": "eased",
+    "text": "The draught quieted me.",
+    "value": 8,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "DraughtDrunk",
+      "target": "of a calming draught"
+    },
+    "announce": false
+  },
+  {
     "id": "felt_mist",
     "name": "felt mist",
     "text": "Felt the mist of a waterfall.",

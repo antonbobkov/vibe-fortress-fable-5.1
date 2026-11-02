@@ -166,6 +166,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `hoarded` | "Got something nice for my room." | +3 | 48 | linear | 1 | none | sulk hoard |
 | `first_runecaster` | "We have a runecaster in the hall." | +4 | 72 | linear | 1 | pride | `FirstRunecaster` (everyone) |
 | `mended_by_rune` | "The rune closed my wound." | +3 | 48 | linear | 1 | none | `Mended` |
+| `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | `DraughtDrunk` of a calming draught |
 
 ## Announcement flags
 

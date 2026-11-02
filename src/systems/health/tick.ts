@@ -4,6 +4,7 @@
  */
 
 import { C, type Wound } from '@core/components';
+import { effectValue } from '@core/effects';
 import {
   BLOOD_DEATH_PERCENT,
   BLOOD_REGEN_PER_TICK,
@@ -348,6 +349,8 @@ export function tickHealth(
       rawPain += w.pain;
     }
     if (anyInfected) rawPain += 10;
+    // 25 § Effects: a draught of stoutness halves the pain.
+    if (effectValue(entities, id, 'pain_half', ctx.tick) > 0) rawPain = Math.floor(rawPain / 2);
 
     const attrs = entities.get(id, C.Attributes);
     if (attrs !== undefined) {
@@ -380,7 +383,8 @@ export function tickHealth(
       continue;
     }
 
-    // Healing
+    // Healing; 25 § Effects: `heal_rate` (a draught of mending) scales it, in percent.
+    const healRate = effectValue(entities, id, 'heal_rate', ctx.tick);
     for (let partIdx = 0; partIdx < b.parts.length; partIdx += 1) {
       const part = b.parts[partIdx];
       if (!part || part.destroyed) continue;
@@ -408,7 +412,7 @@ export function tickHealth(
 
         if (rate > 0) {
           const sutureMult = w.sutured ? SUTURED_HEAL_PERCENT / 100 : 1;
-          w.healRemaining -= 5 * (rate / 100) * sutureMult;
+          w.healRemaining -= healRate > 0 ? 5 * (rate / 100) * sutureMult * (healRate / 100) : 5 * (rate / 100) * sutureMult;
         }
 
         if (w.healRemaining <= 0) {

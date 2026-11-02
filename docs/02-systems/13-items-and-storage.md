@@ -38,7 +38,7 @@ clothing/  body  legs  feet
 tool/      pick  axe  fishing_rod  crutch
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull
-medical/   splint  bandage  brightleaf  glowcap  vial
+medical/   splint  bandage  brightleaf  glowcap  vial  draught
 refuse/    corpse  skeleton  rotten  part
 ```
 

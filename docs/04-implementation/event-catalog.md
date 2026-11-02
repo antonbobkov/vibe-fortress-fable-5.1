@@ -102,7 +102,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ThoughtGained` | `id, thoughtId, value` | 15 | ui |
 | `SulkHappened` | `id, kind` | 15 | 10, 13 (hoard), 14 (broken furniture), ui |
 | `HallSpiritChanged` | `value, tier` | 15 | 21, ui |
-| `AttackResolved` | `attackerId, defenderId, part, damageType, amount, outcome` | 16 | 08, 18, 20, ui (combat log) |
+| `AttackResolved` | `attackerId, defenderId, part, damageType, amount, outcome` | 16 | 08, 18, 20, 25, ui (combat log) |
 | `DamageDealt` | `defenderId, part, damageType, amount, attackerId, weaponId` | 16, 19, 25 | 17 |
 | `ProjectileFired` | `shooterId, targetId, itemId` | 16 | 09 |
 | `CreatureFled` | `id, from` | 16 | 18 |
@@ -119,10 +119,10 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
 | `TreatmentDone` | `patientId, medicId, kind` | 17 | 10 (xp) |
 | `ThreatWarning` | `kind, civ, sizeBand, edge` | 18 | 24 (hint), ui |
-| `RaidArrived` | `partyId, kind, size` | 18 | 15, 16, 20, 21, ui |
+| `RaidArrived` | `partyId, kind, size` | 18 | 15, 16, 20, 21, 25, ui |
 | `RaidEnded` | `partyId, outcome` | 18 | 15, 21, 24 (milestone), ui |
 | `ThiefSpotted` / `ThiefEscaped` | `id` / `id, itemId, animalId` | 18 | 13 (wealth), 15, ui |
-| `AmbushSprung` | `partyId` | 18 | ui |
+| `AmbushSprung` | `partyId` | 18 | 25, ui |
 | `HostileSpawned` | `id, partyId` | 18 | 16 |
 | `MonsterSpawned` / `MonsterEmerged` | `id, cavern` / `ids[], tile` | 18 | ui |
 | `DeepStirred` | `level` | 18 | 15, ui |
@@ -149,6 +149,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `VialDrunk` | `id` | 25 | ui (none) |
 | `Warded` | `id` | 25 | 15 |
 | `Mended` | `id, casterId` | 25 | 15, 17 |
+| `DraughtDrunk` | `id, draughtId, calm` | 25 | 15, ui (none) |
 | `SummonCalled` | `id, casterId` | 25 | 24 (milestone) |
 | `SummonTurned` | `id` | 25 | 15, 18, ui |
 | `SummonFaded` | `id` | 25 | 17 |

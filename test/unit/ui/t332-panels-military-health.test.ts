@@ -127,12 +127,13 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[14]).toBe('Gear [w] weapon [any ▼]');
     expect(rows[15]?.trim()).toBe('[g] armor [any ▼]');
     expect(rows[16]?.trim()).toBe('[S-j] ranged');
-    expect(rows[17]).toBe('Station none');
-    expect(rows[18]?.trim()).toBe('[S-s] set  [S-c] clear');
-    expect(rows[19]).toBe('Patrol none [S-p] add [y] clear');
-    expect(rows[20]).toBe('Orders [S-k] kill [S-f] follow');
-    expect(rows[21]?.trim()).toBe('[q] cancel orders');
-    expect(rows[22]).toBe('No barracks  [S-b] assign');
+    expect(rows[17]?.trim()).toBe('[S-d] draughts: none');
+    expect(rows[18]).toBe('Station none');
+    expect(rows[19]?.trim()).toBe('[S-s] set  [S-c] clear');
+    expect(rows[20]).toBe('Patrol none [S-p] add [y] clear');
+    expect(rows[21]).toBe('Orders [S-k] kill [S-f] follow');
+    expect(rows[22]?.trim()).toBe('[q] cancel orders');
+    expect(rows[23]).toBe('No barracks  [S-b] assign');
   });
 
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {

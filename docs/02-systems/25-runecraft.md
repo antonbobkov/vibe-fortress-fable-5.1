@@ -95,7 +95,7 @@ The runeforge is built: its row is in `workshops-and-recipes.md` (1 `anvil` + 3 
 
 `runecraft` and its labor `attunement` (default on, not for children) are in `skills-and-professions.md`. These skills and `runesmithing`, like `alchemy`, have `no` in the `embark` column there, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
 
-More laboratory recipes (`workshops-and-recipes.md` § Laboratory holds the rest; the draughts are in § Draughts):
+More laboratory recipes (`workshops-and-recipes.md` § Laboratory holds the rest, the draughts in its § Draughts):
 
 | id | name | inputs | outputs | ticks | Q | xp | Task |
 |---|---|---|---|---|---|---|---|
@@ -259,20 +259,20 @@ Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinne
 
 ### Effects
 
-**Task:** `slow`, `ward` and `flee` are built; T-474 (draughts).
+Every kind is read where the table says. No draught gives `fire_immune` or `spot_radius` until T-476 brings the two draughts that do.
 
-`Spellbound` component (§ State). `src/core/effects.ts`: `effectValue(entities, id, kind, tick)`, the largest value among unexpired entries of a kind, 0 if none, and `effortUnderEffects`, the step's effort below. 25 adds entries through `addEffect` in `magic/cast.ts` and, on `HourPassed`, drops expired entries and the component with them. Readers compare `until` with the tick, so expiry needs no tick of its own.
+`Spellbound` component (§ State). `src/core/effects.ts`: `effectValue(entities, id, kind, tick)`, the largest value among unexpired entries of a kind, 0 if none; `effortUnderEffects`, the step's effort below; `hastedTicks`, a wait under `haste`; and `immuneToBurn`. 25 adds entries through `addEffect` in `magic/cast.ts` (and a draught through `drinkDraught`, § Draughts) and, on `HourPassed`, drops expired entries and the draught rests that have run out, and the component when nothing is left. Readers compare `until` with the tick, so expiry needs no tick of its own.
 
 | kind | value | read at | Task |
 |---|---|---|---|
 | `slow` | percent | `core/movement.ts` `moveAlongPath`, on the step's effort after crowding: `× (100 − slow + haste) / 100`, truncated, at least 1; a game with no `Spellbound` (the store is empty) does no lookup per mover. Every creature, one place. 17's `speedModifier` is not touched | T-470 |
 | `ward` | armor | `armorReduction`: `+ ward × damageTypeVsLayer(type, ward)` on every part, while it lasts at the tick of the hit | T-473 |
 | `flee` | 1 | `CombatSystem.tick`, after the conscious check (`stepFled` in `combat/fled.ts`): while it lasts the creature keeps its target, does not attack, and walks to the tile `FLEE_EFFECT_TILES` from the source of its latest `flee` entry, through itself, clamped to the map and stepped back toward it to a tile a walker can stand on; with no such tile or no path, to the nearest tile of its party's arrival edge (`getNearestEdgeTile`); a creature of no party then stands. A source with no position counts as the held target. `isFleeing(entities, id, tick)` counts it (+10 to hit, no parry, no block). 18's member step needs no change: it holds a target and returns. Nothing leaves the map, so the party's losses and retreat do not move, and when the effect ends the creature still holds its target and comes back | T-473 |
-| `heal_rate` | percent | `health/tick.ts` healing: `healRemaining −= 5 × value / 100` when set | T-474 |
-| `pain_half` | 1 | `health/tick.ts` pain sum | T-474 |
-| `haste` | percent | the step above, and cooldowns in `resolveMelee` and `fireRanged`: `× 100 / (100 + value)` | T-474 |
-| `fire_immune` | 1 | `armorReduction`'s caller: a hit whose wound type is `burn` does 0 | T-474 |
-| `spot_radius` | tiles | `threats/ai.ts` where targets get `spotRadius` (line "spotRadius: entities.has(id, C.Attributes)"): the larger of the two | T-474 |
+| `heal_rate` | percent | `health/tick.ts` healing: each wound's `healRemaining` decrement (after its own rate and suture) `× value / 100` while it lasts | T-474 |
+| `pain_half` | 1 | `health/tick.ts` pain sum: the raw sum halved, rounded down, before Willpower | T-474 |
+| `haste` | percent | the step above; and every wait of an attack, after crowding: `resolveMelee`, `fireRanged`, a cast's cooldown (`setCastCooldown` in `magic/cast.ts`) and a vial's `DRINK_TICKS`: `× 100 / (100 + value)`, rounded down, at least 1 (`hastedTicks`) | T-474 |
+| `fire_immune` | 1 | `resolveMelee`, `resolveProjectileHit` and the second hit of `extra_damage` (`applyEnchantOnHit`), after Toughness: a hit whose wound type is `burn` (`ember`, or the wyrm's `burn`) does 0 (`immuneToBurn`) | T-474 |
+| `spot_radius` | tiles | `threats/ai.ts` `fortressTargets`, where a fortress creature's `spotRadius` is set: the larger of its own and the effect's | T-474 |
 
 **Stun** is not an effect. Daze and `blackout` emit `CreatureStunned { id, until }`. 17 handles it (17 § Bleeding, pain, consciousness): it adds the creature to `wounded`, where it stays until the stun ends, saves `stunnedUntil` (a map in `HealthState`, optional), knocks a conscious body down at once with `CreatureUnconscious`, and its consciousness line becomes `conscious = pain < PAIN_UNCONSCIOUS && blood ≥ threshold && tick ≥ stunnedUntil`. So everything that respects `Body.conscious` holds: 16 skips the creature and hits it at +40, brains stop, and `CreatureUnconscious` and `CreatureConscious` fire. The patient check in `health/tick.ts` counts only unconsciousness from pain or blood, so a blackout admits no one. A stunned raider counts toward 18's retreat losses while it lies there. That is accepted: it is 150 ticks. A Daze caster may daze the same creature again once it wakes.
 
@@ -280,7 +280,7 @@ Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinne
 
 A caster carries `CASTER_VIALS`. In `reequipSoldier`, after the weapon: a member holding a channel tops up by the ammunition logic, through `claimItemForSoldier`, taking available stacks with tag `rune_fuel` in the kit pool's order and splitting a larger stack so that only the missing vials are taken. `kitTypes` adds items with tag `rune_fuel`. `findAmmoForShooter` finds a carried vial by its item id, the item row with that tag.
 
-`drinkVial` in `magic/cast.ts`, called by 16's loop for a channel holder with its cooldown elapsed and a hostile target held (every target the loop keeps is hostile), before `castSupport` and `canCastBolt`: when `current < cost`, a vial is carried and `vialsToday < VIALS_PER_DAY`, it consumes one, adds `VIAL_RUNE` capped at `max` (never lowering the rune), counts `vialsToday`, emits `VialDrunk { id }` and sets the cooldown to `tick + DRINK_TICKS`. `DayPassed` clears `vialsToday`. There is no fourth vial in a day. A Proficient runecaster has 50 rune and 15 more in the pouch for a day.
+`drinkVial` in `magic/cast.ts`, called by 16's loop for a channel holder with its cooldown elapsed and a hostile target held (every target the loop keeps is hostile), before `castSupport` and `canCastBolt`: when `current < cost`, a vial is carried and `vialsToday < VIALS_PER_DAY`, it consumes one, adds `VIAL_RUNE` capped at `max` (never lowering the rune), counts `vialsToday`, emits `VialDrunk { id }` and sets the cooldown to `tick + DRINK_TICKS` (shortened by `haste`, § Effects). `DayPassed` clears `vialsToday`. There is no fourth vial in a day. A Proficient runecaster has 50 rune and 15 more in the pouch for a day.
 
 ### Setting stones
 
@@ -331,7 +331,7 @@ Where each kind is read. Every seam reads `Item.enchant` first, so an unenchante
 | `armor_percent` | `resolveMelee` passes it to `armorReduction` as `armorPercent`: that share of the target's whole armour sum counts. Several on one item: the smallest |
 | `armor` | `armorCovering`: `piece.armor + value` where the piece has it, before the piece's metal, coverage, quality and layer multipliers, so the inspector's armour value follows |
 | `fire_percent`, `frost_percent` | `throughEnchantedArmor` in `combat/melee.ts`, after the blunt-through rule and before Toughness, in `resolveMelee`, `resolveProjectileHit` (missiles, breath and blooms) and the extra hit below: each piece covering the part that has the kind lets that percent of the damage through, so two such pieces on a part multiply. Fire is a hit whose wound type is `burn` (`woundTypeFor`: `ember`, and the wyrm's `burn` breath); frost one whose wound type is `frost` |
-| `extra_damage` | after a hit with damage above 0: `applyEnchantOnHit` in `magic/cast.ts`, called from `resolveMelee` and `advanceSingleProjectile` (on the target and on a bystander alike). A second hit of the effect's `type` on the same part: `value` less its own `armorReduction`, through `throughEnchantedArmor`, then Toughness. It emits one more `DamageDealt` (the same `attackerId` and `weaponId`) when that is above 0, no `AttackResolved` and no xp |
+| `extra_damage` | after a hit with damage above 0: `applyEnchantOnHit` in `magic/cast.ts`, called from `resolveMelee` and `advanceSingleProjectile` (on the target and on a bystander alike). A second hit of the effect's `type` on the same part: `value` less its own `armorReduction`, through `throughEnchantedArmor`, then Toughness, and 0 under `fire_immune` for an `ember` (§ Effects). It emits one more `DamageDealt` (the same `attackerId` and `weaponId`) when that is above 0, no `AttackResolved` and no xp |
 | `slow` | `applyEnchantOnHit`: `addEffect` of a `slow` of `value` for `ticks`, `sourceId` the attacker |
 | `slow_immune` | `addEffect`: a `slow` is not added to a creature that wears a piece with it, whether a spell or an enchantment brings it. `addEffect` takes the registry for this; every caller adding a `slow` passes it |
 | `flee` | `applyEnchantOnHit`: a creature Dread cannot take (`mentallyImmune`: the `deep` faction, size `MENTAL_IMMUNE_SIZE` or more) is never sent running, and nothing is drawn for it. Otherwise roll `chance` on stream 25 (a `chance` of 0 always applies), then the resist roll (§ Spells), and add a `flee` effect for `ticks`, `sourceId` the attacker, which 16's `stepFled` reads as Dread's |
@@ -341,29 +341,26 @@ Enchanted ammunition stays enchanted through `split`, and `canMerge` keeps it ap
 
 ### Draughts
 
-**Task:** T-474.
-
-Item rows, one per draught: category `medical/draught`, stack 5, bag, quality true, glyph `!`, tag `draught`, not `drinkable`. Laboratory recipes: 150 ticks, xp 8, quality yes, new recipe flag `spoilable: true`, two draughts from the inputs. Content table `draughts` (new): `{ id, effects, trigger, days? }`. `Duration = DRAUGHT_TICKS × QUALITY_COMBAT_MULT[item.quality]`.
+The draught items are in [items.md](../03-content/items.md) § Medical and herbs (category `medical/draught`, stack 5, bag, glyph `!` in the color of the row, tag `draught`, not `drinkable`), what each does in its § Draughts, and the laboratory recipes in [workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Laboratory › Draughts (150 ticks, xp 8, quality, `spoilable`, two draughts from the inputs). Content table `draughts`: `{ id, effects: { kind, value }[], trigger }`, its id the draught's item id. A brewed draught bears quality, and its timed effects last `round(DRAUGHT_TICKS × QUALITY_COMBAT_MULT[item.quality])` ticks. These two arrive with their materials:
 
 | id | name | inputs | effect | drunk when | Task |
 |---|---|---|---|---|---|
-| `mending_draught` | draught of mending | 1 `rune_vial` + 2 `brightleaf` | `Mended` at once; `heal_rate` 200 | `AttackResolved` hit on a soldier on duty whose blood falls below 50%; or `give_draught` | T-474 |
-| `stout_draught` | draught of stoutness | 1 `rune_vial` + 2 `plant_food` (pale_bell) | `pain_half` | `RaidArrived`, `AmbushSprung`: every soldier on duty | T-474 |
-| `quick_draught` | draught of quickness | 1 `rune_vial` + 2 `plant_food` (sweetroot) | `haste` 25 | as stoutness | T-474 |
-| `calm_draught` | calming draught | 1 `rune_vial` + 2 `plant_food` (hops) | thought `eased`; a second within `CALM_REST_DAYS` gives `dosed_again` instead | `give_draught` to a Miserable dwarf | T-474 |
 | `hollowsight_draught` | draught of hollowsight | 1 `rune_vial` + 1 `hollow_ichor` | `spot_radius` 10 | `MonsterEmerged` or `DeepStirred` with Deep level ≥ 2: every soldier on duty | T-476 |
 | `wyrmblood_draught` | draught of wyrmblood | 1 `rune_vial` + 1 `wyrmscale` | `fire_immune` | `ThreatNearby` from a creature with a ranged `burn` attack | T-476 |
-| `murky_draught` | murky draught | spoiled batch | none; value 1 | never | T-474 |
 
-**One draught, then rest.** The rest lives on `Spellbound` (`lastDraughtTick`, `lastCalmTick`), since most soldiers have no `Rune`. The component stays while either is within its rest. A dwarf who drank anything drinks nothing for `DRAUGHT_REST_DAYS`. A plain vial is not a draught.
+**Effects.** A kind with a number is a timed effect (§ Effects) on the drinker, `sourceId` the drinker. `mend` emits `Mended { id, casterId }` (the medic who gave it, or 0), which 17 handles as the spell's. `ease` gives the thought `eased`. A medic gives a calming draught only once `CALM_REST_DAYS` have passed since the dwarf's last (§ `give_draught`), so a dwarf is never dosed twice within them.
 
-**Who carries.** `Squad.equipment` gains `draughts: Idx<'ItemTypeDef'>[]`, ordered, empty by default, set through 16's existing `SetSquadEquipment`. `reequipSoldier` claims one of each listed draught, by the ammunition logic. `kitTypes` adds tag `draught`.
+**Triggers.** The `trigger` column: `wounded`, a soldier on duty is hit (`AttackResolved` with outcome `hit`) while its blood is below half its maximum, or `give_draught` for a patient; `raid`, `RaidArrived` (any kind) or `AmbushSprung`, every soldier on duty; `miserable`, `give_draught` to a Miserable dwarf; `never`, the spoiled batch, never drunk.
 
-**Triggers are events, not scans.** 25 subscribes to the events in the table, walks the squad members on duty, and for each picks the first listed draught whose trigger fired and which is carried. It consumes it through `items.consume` and emits `DraughtDrunk`. There is no drinking time.
+**One draught, then rest.** The rest lives on `Spellbound` (`lastDraughtTick`, `lastCalmTick`), since most soldiers have no `Rune`. A creature that drank any draught drinks none for `DRAUGHT_REST_DAYS`: no trigger makes it drink and no medic gives it one. `lastCalmTick` is its last calming draught. `HourPassed` drops a rest that has run out, and the component stays while either lasts. A plain vial is not a draught and starts no rest.
 
-**`give_draught`.** Job type: labor and skill `medicine`, target entity, workTile entity, baseTicks 30, priority 2, producer `magic`. Produced for a patient with a serious or grievous wound, when an unowned `mending_draught` is in stock and the rest allows; and on `DayPassed` for a Miserable dwarf when a `calm_draught` is in stock and the longer rest allows. `excludeWorker` is the patient.
+**Who carries.** `Squad.equipment.draughts` (item ids, ordered, absent by default) is set through 16's `SetSquadEquipment`: distinct ids of draughts whose trigger is `wounded` or `raid` (a soldier's triggers), else `bad_setting`; an empty list clears it. `reequipSoldier` gives every member one of each listed draught by the ammunition logic, splitting a stack so that only one is taken. `kitTypes` adds tag `draught`.
 
-**Spoiled batch.** In `WorkshopOperator.complete`, for a `spoilable` recipe: with `max(0, ALCHEMY_MISHAP_PERMILLE − 10 × skill)` per mille, on 12's stream, every output becomes `murky_draught`. Only a spoilable recipe draws.
+**Triggers are events, not scans.** 25 subscribes to `RaidArrived`, `AmbushSprung` and `AttackResolved`. For a raid it walks the squads in id order and their members on duty; for a hit, the struck soldier. Each, if its rest allows, drinks the first draught of its squad's list whose trigger fired and which it carries (`soldierDrinks` in `magic/draughts.ts`): one unit is consumed through `items.consume`, the effects land, the rests start and `DraughtDrunk { id, draughtId, calm }` is emitted (`calm`: the draught eases). There is no drinking time. With nothing listed, no draught is drunk.
+
+**`give_draught`.** Job type row in [jobs.md](../03-content/jobs.md) § Magic: labor and skill `medicine`, target entity (the patient's tile is a stand tile too), baseTicks 30, priority 2, producer `magic`, key `give_draught:<patientId>`, one input of the draught's item type, `excludeWorker` the patient. Produced on each pass of the job board for an admitted patient (17's `Patient`) with a serious or grievous wound, while an available draught with trigger `wounded` is in stock (each job counts one off) and the rest allows; and once on each `DayPassed` for each Miserable dwarf (15's tier) while an available draught with trigger `miserable` is in stock and both rests allow. A job whose patient died or no longer qualifies, or whose rest no longer allows, is cancelled with `target_invalid`. At completion the patient drinks the delivered draught as above, the medic named in `Mended`; if the rest no longer allows, nothing is drunk and the draught stays where it was brought.
+
+**Spoiled batch.** In `WorkshopOperator.complete`, for a recipe with `spoilable: true`, after the quality roll: one draw on 12's stream, `chance(max(0, ALCHEMY_MISHAP_PERMILLE − 10 × skill))`, and when it lands every output is the draught whose trigger is `never` (`murky_draught`: no effect, worth 1, bears no quality). Only a spoilable recipe draws. There is no miasma.
 
 ### Summons
 
@@ -433,18 +430,13 @@ Built. The Mountainhome's extra goods (`caravan-goods.md`) include rune vials, 5
 
 ### Morale
 
-**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune` and `summon_turned` are there (Work and skill; Pride and relief; Social and comfort; Loss and fear): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` and `summon_turned` go to everyone (each event has its own announcement), and `warded` and `mended_by_rune` go to the dwarf the event names.
-
-| id | text | value | hours | decay | cap | group | trigger | Task |
-|---|---|---|---|---|---|---|---|---|
-| `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | a calming draught | T-474 |
-| `dosed_again` | "Another draught. I am tired of draughts." | −4 | 72 | halflife | 1 | none | a calming draught within the rest | T-474 |
+**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune`, `eased` and `summon_turned` are there (Work and skill; Pride and relief; Social and comfort; Loss and fear): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` and `summon_turned` go to everyone (each event has its own announcement), `eased` matches a `DraughtDrunk` with `calm`, and `warded`, `mended_by_rune` and `eased` go to the dwarf the event names.
 
 Every value sits inside the caps. Nothing here can take a fed, rested dwarf below 20.
 
 ## State
 
-Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune`, `Spellbound` (with `effects`), `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel, `pendingBlooms` and `bloomAlertsToday`) and `HealthState.stunnedUntil` and `Summoned` are there.
+Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune`, `Spellbound` (with `effects` and the draught rests), `Squad.equipment.draughts`, `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel, `pendingBlooms` and `bloomAlertsToday`), `HealthState.stunnedUntil` and `Summoned` are there.
 
 ```ts
 interface Rune {                 // owner 25; also written by 18 for hexers
@@ -456,8 +448,8 @@ interface Rune {                 // owner 25; also written by 18 for hexers
 interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: EntityId }
 interface Spellbound {           // owner 25
   effects: ActiveEffect[];
-  lastDraughtTick?: Tick;        // T-474
-  lastCalmTick?: Tick;           // T-474
+  lastDraughtTick?: Tick;        // the last draught, kept while DRAUGHT_REST_DAYS last
+  lastCalmTick?: Tick;           // the last calming draught, kept while CALM_REST_DAYS last
 }
 interface Summoned { summonerId: EntityId; fadesAt: Tick }   // owner 25; summonerId 0 for a loose wisp or a turned shade
 
@@ -467,7 +459,7 @@ Item.enchant?: { id: Idx<'EnchantDef'>; tier: Quality }
 Projectile.spell?: Idx<'SpellDef'>
 Projectile.spellPower?: number                                // the channel's power in thousandths
 WorkOrder.targetType?: Idx<'ItemTypeDef'>
-Squad.equipment.draughts?: Idx<'ItemTypeDef'>[]               // T-474
+Squad.equipment.draughts?: string[]                           // draught item ids, in the order drunk
 
 interface MagicState {           // system 25's serialize(); schemas/system-state.md
   stateVersion: 1;
@@ -495,6 +487,7 @@ The `interface:check` script compares this section with the code. It holds only 
 - `magic.effects(id)` — the creature's unexpired timed effects
 - `magic.summonsOf(id)` — the living summons this caster called, ascending
 - `magic.enchantOf(itemId)` — an item's enchantment: its row, suffix, tier and effects at the tier; undefined for none
+- `magic.draughtRest(id)` — ticks until the creature may take a draught again, 0 when it may now
 
 ### Commands
 
@@ -502,24 +495,22 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Events consumed
 
-`HourPassed` (regen, which also ends a caster's `RuneSpent` silence; expired effects; fading summons; the producer's hourly look), `DayPassed` (sessions, `vialsToday`, the day's bloom alerts), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied` (a caster's summons fade), `ZoneChanged` (sanctums).
+`HourPassed` (regen, which also ends a caster's `RuneSpent` silence; expired effects and draught rests; fading summons; the producer's hourly look), `DayPassed` (sessions, `vialsToday`, the day's bloom alerts, the calming draughts' look), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied` (a caster's summons fade), `ZoneChanged` (sanctums), `RaidArrived` and `AmbushSprung` (the `raid` draughts), `AttackResolved` (the `wounded` draughts).
 
 ### Events emitted
 
-`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }` (a blackout; a Daze), `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile, burned }` (every cast, from 16's loop through `cast.ts`, with `burned: false`; a bloom that caught one of the caster's own, with `burned: true`), `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }`, `SummonCalled { id, casterId }` (24's milestone), `SummonTurned { id }` (18, 15), `SummonFaded { id }` (17), and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0; a bloom, through `resolveProjectileHit`).
+`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }` (a blackout; a Daze), `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile, burned }` (every cast, from 16's loop through `cast.ts`, with `burned: false`; a bloom that caught one of the caster's own, with `burned: true`), `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` (a Mend; a draught of mending, its giver or 0), `DraughtDrunk { id, draughtId, calm }`, `SummonCalled { id, casterId }` (24's milestone), `SummonTurned { id }` (18, 15), `SummonFaded { id }` (17), and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0; a bloom, through `resolveProjectileHit`).
 
 ### Registrations
 
-Job producer `magic` (`attune`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`, `wisp_loose`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `SummonTurned` (danger), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
+Job producer `magic` (`attune`, `give_draught`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`, `wisp_loose`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `SummonTurned` (danger), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
 
 ## Planned interfaces
 
 | Kind | Name | Task |
 |---|---|---|
-| Event | `DraughtDrunk { id, draughtId }` | T-474 |
 | Event | `DeepsilverWorked { amount, tile }` (12 emits it) | T-476 |
-| Consumes | `RaidArrived`, `AmbushSprung`, `AttackResolved`, `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-474, T-476 |
-| Registration | job producer `magic`: `give_draught` | T-474 |
+| Consumes | `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-476 |
 
 Other systems' documents gain their parts in the same commits: 08 (summons), 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`, no corpse for a summon), 14 (`sanctum`), 15 (`saw_death`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`, `SummonFaded`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 19 (no cage for a summon), 22 (`moveAlongPath`), 24 (the kill tally).
 
@@ -527,9 +518,9 @@ Other systems' documents gain their parts in the same commits: 08 (summons), 12 
 
 - **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (`render/compositor.ts`, step 6), unless the attack flash is showing.
 - **Sanctum panel**: the selected sanctum's inspector in the zones panel (zone type key `[S-c]`, `ui-screens/panels.md` § Zones). The room's tier, score and missing circle; the glowcap in stock; the mishap chance in words for a new apprentice ("one session in 17"); each apprentice with level, rune and sessions left today, and its own chance; the last mishap. `[S-o]` opens the apprentice picker, which adds or removes one adult dwarf at a time through `SetSanctumApprentices`.
-- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks"; the other spells read by their kind ("Ward: 7 armour on every part for 720 ticks, range 3."). Under them, for a caster with vials or one that drank today, "Vials: 2 carried, 1 of 3 drunk today.", and for any creature under timed effects, "Under: ward 7 (340 ticks), slowed 50% (120 ticks)." From T-474 "Can take a draught again in 2 days". A caster's summons and a summon's caster are named under them (§ Summons, Inspector).
+- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks"; the other spells read by their kind ("Ward: 7 armour on every part for 720 ticks, range 3."). Under them, for a caster with vials or one that drank today, "Vials: 2 carried, 1 of 3 drunk today.", and for any creature under timed effects, "Under: ward 7 (340 ticks), slowed 50% (120 ticks)." (each kind has a key `ui.look.effect.<kind>`), and while a draught rest lasts "Can take a draught again in 2 days." (whole days begun; "tomorrow" for the last). A caster's summons and a summon's caster are named under them (§ Summons, Inspector).
 - **Look cursor**: a channel is named with its spell's suffix, "1 iron staff of embers (fine)", then its value, and the line under it reads "Emberbolt: 24 ember, range 12. Needs a runecaster." An enchanted item carries its suffix, "1 steel axe of embers (fine)", and a dim line gives its effects at its tier: "+9 ember on a hit."
-- **Squad panel** (T-474): the ordered draught checklist, with each trigger in words. A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
+- **Squad panel**: under the gear, "[S-d] draughts: draught of stoutness, draught of quickness"; `[S-d]` opens the checklist of every draught a soldier drinks, each with its place in the list and its trigger in words ("a raid or an ambush arrives", "hit while below half blood"), and `Enter` adds the row at the end of the list or takes it out (`SetSquadEquipment`). A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
 - **Orders panel**: a transform recipe offers the target type (`set in: any`, stepped by a click) and the material, and is `once` only.
 - **Hints** (`hints` rows, T-477, each with a trigger on stock or buildings): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
 - **Legend milestones** (`milestones` rows and `legend/index.ts`): first stone set and first runecaster (T-476). `m_summon`, "A summoning was answered.", is awarded once, on the first `SummonCalled` ([ui-keymap-and-screens.md](../03-content/ui-keymap-and-screens.md) § Milestones); a shade that comes through turned answers nothing.

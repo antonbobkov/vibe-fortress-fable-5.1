@@ -141,7 +141,7 @@ describe('T-473 content and constants', () => {
     const thoughts = registry.table<{ id: string; value: number; hours: number; group: string; trigger: { event?: string } }>('thoughts');
     expect(thoughts.byId('warded')).toMatchObject({ value: 1, hours: 12, group: 'comfort', trigger: { event: 'Warded' } });
     expect(thoughts.byId('mended_by_rune')).toMatchObject({ value: 3, hours: 48, group: 'none', trigger: { event: 'Mended' } });
-    expect(thoughts.ids().slice(-3, -1)).toEqual(['warded', 'mended_by_rune']);
+    expect(thoughts.ids().slice(-4, -2)).toEqual(['warded', 'mended_by_rune']);
     expect(registry.table<{ id: string }>('palette').byId('ward_cyan')).toBeDefined();
     expect([CASTER_HOLD_DISTANCE, CASTER_VIALS, VIAL_RUNE, VIALS_PER_DAY, FIREBLOOM_DELAY_TICKS, DREAD_MAX_TARGETS, MENTAL_IMMUNE_SIZE]).toEqual([4, 3, 5, 3, 20, 4, 180]);
   });

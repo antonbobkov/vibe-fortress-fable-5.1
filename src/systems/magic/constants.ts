@@ -46,6 +46,14 @@ export const RESIST_NO_ATTRIBUTES_PERCENT = 25;
 export const MENTAL_IMMUNE_SIZE = 180;
 /** A soldier's claim score for an enchanted weapon or armor piece adds this. */
 export const ENCHANT_CLAIM_BONUS = 0.5;
+/** A draught's effects last this long at common quality, times the quality multiplier: one day. */
+export const DRAUGHT_TICKS = 1200;
+/** Days after any draught before the dwarf takes another. */
+export const DRAUGHT_REST_DAYS = 3;
+/** Days after a calming draught before a medic gives another. */
+export const CALM_REST_DAYS = 7;
+/** A spoilable batch spoils at this per mille, less 10 per level of the worker's skill. */
+export const ALCHEMY_MISHAP_PERMILLE = 100;
 /** A summon fades this long after its call: one day. */
 export const SUMMON_TICKS = 1200;
 /** Summons one caster has alive at most; a Call is not cast at this many. */

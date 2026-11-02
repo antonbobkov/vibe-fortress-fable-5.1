@@ -106,8 +106,9 @@ For up or up/down stairs, the terrain producer's `extraStandTiles` also permits 
 | id | name | labor | skill | target | workTile | baseTicks | tool | xp | interruptible |
 |---|---|---|---|---|---|---|---|---|---|
 | `attune` | Attune | attunement | runecraft | building (rune circle) | adjacent | `ATTUNE_TICKS` | — | 0 | yes |
+| `give_draught` | Give draught | medicine | medicine | entity | entity | 30 | — | 4 | no |
 
-An `attune` job's xp is granted by the producer at completion, scaled by the sanctum's tier ([25](../02-systems/25-runecraft.md) § The sanctum), so its row holds 0.
+An `attune` job's xp is granted by the producer at completion, scaled by the sanctum's tier ([25](../02-systems/25-runecraft.md) § The sanctum), so its row holds 0. A `give_draught` job brings one draught to its patient, who drinks it at completion (25 § Draughts).
 
 ## Notes
 

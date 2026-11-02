@@ -23,6 +23,24 @@ export function effectValue(entities: EffectStore, id: EntityId, kind: string, t
 }
 
 /**
+ * An attack's or a drink's wait under `haste` (25 § Effects): `× 100 / (100 + haste)`, rounded
+ * down, at least 1. With no haste the ticks are returned as they are.
+ */
+export function hastedTicks(entities: EffectStore, id: EntityId, ticks: number, tick: Tick): number {
+  const haste = effectValue(entities, id, 'haste', tick);
+  if (haste <= 0) return ticks;
+  return Math.max(1, Math.floor((ticks * 100) / (100 + haste)));
+}
+
+/**
+ * Under `fire_immune` (25 § Effects) a hit whose wound would be a burn (`ember`, or the wyrm's
+ * `burn`) does nothing.
+ */
+export function immuneToBurn(entities: EffectStore, id: EntityId, damageType: string, tick: Tick): boolean {
+  return (damageType === 'ember' || damageType === 'burn') && effectValue(entities, id, 'fire_immune', tick) > 0;
+}
+
+/**
  * A step's effort under `slow` and `haste` (25 § Effects): `× (100 − slow + haste) / 100`, never
  * below 1 when there was effort to scale.
  */
