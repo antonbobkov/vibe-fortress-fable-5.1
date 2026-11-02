@@ -1,5 +1,7 @@
 # T-480 — The hunter hint reads the labor bitset as if it were bytes per labor
 
+**Closed:** 2026-11-01, in 48a1ab52.
+
 **Source:** found while doing T-478 · **Size:** S · **Needs:** — · **Status:** open
 
 `src/ui/hints.ts`, where `hunterLabor` is computed, reads `Labors.enabled[hunting]`. `enabled` is a bitset: labor `k` is bit `k & 7` of byte `k >> 3`, as `noMiners` in the same file and `JobBoard.laborEnabled` read it. With 25 labors the array has 4 bytes, and `hunting` is number 15, past its end. So the read gives `undefined ?? 0`, and `hunterLabor` is false however the labors stand.
