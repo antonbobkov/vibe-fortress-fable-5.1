@@ -77,7 +77,8 @@ export interface WildlifeYear {
   harvests: number;
   hunts: number;
   hash: string;
-  setup: { caveDepth: number; surfacePlots: number[]; caveTiles: number; buildings: number[]; commands: number };
+  /** `siteSteps` (T-481): walker steps from the camp's stockpile to the middle of each building site, -1 when none reach it. */
+  setup: { caveDepth: number; surfacePlots: number[]; caveTiles: number; buildings: number[]; commands: number; siteSteps: number[] };
   brook?: BrookRecord;
 }
 
@@ -116,7 +117,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   const result: WildlifeYear = { seed, biome, tick: 0, living: 0, arrivals: living().length,
     deaths: [], starving: 0, shelter: { longest: 0, maxHunger: 0, maxThirst: 0, maxRest: 0 }, sleepAttacks: [], livestockLost: 0, spawns: {}, alerts: [],
     stocks: { drink: 0, meal: 0, plantFood: 0 }, harvests: 0, hunts: 0, hash: '',
-    setup: { caveDepth: Math.min(2, spec.soilDepth - 1), surfacePlots: [], caveTiles: 0, buildings: [], commands: 0 } };
+    setup: { caveDepth: Math.min(2, spec.soilDepth - 1), surfacePlots: [], caveTiles: 0, buildings: [], commands: 0, siteSteps: [] } };
   if (options.dry === true) {
     // T-360: no drink in the fortress and no still; the first thirst walks to the brook. The barrels stay.
     const drinkType = game.registry.table<{ id: string }>('items').index('drink');
@@ -196,9 +197,13 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     for (let dy = 0; dy < height; dy += 1) for (let dx = 0; dx < width; dx += 1) tiles.push(map.index(x + dx, y + dy, atZ));
     return tiles;
   };
+  /** The tiles of the six building sites the opening has chosen (T-481). */
+  const sites = new Set<number>();
   const zone = (zoneType: string, tiles: number[], need = 1): number => {
-    // The UI's green-tile selection: keep only qualifying, unzoned tiles.
-    const qualifying = (list: number[]): number[] => list.filter((at) => buildings.zoneTileQualifies(zoneType, at) && buildings.zoneAt(at) === 0);
+    // The UI's green-tile selection: keep only qualifying, unzoned tiles. T-481: the player does not
+    // draw a zone over the wagon or another building, nor over a site chosen for a workshop.
+    const qualifying = (list: number[]): number[] => list.filter((at) => buildings.zoneTileQualifies(zoneType, at) && buildings.zoneAt(at) === 0 &&
+      buildings.at(at) === 0 && !sites.has(at));
     let selected = qualifying(tiles);
     // T-448: on relief the designed rectangle may lie on another level; the player draws the same
     // rectangle at the nearest place within 12 tiles where most of it qualifies. `need` is how little
@@ -279,23 +284,43 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     }
   }
   // T-448: on a map with relief the camp window may hold fewer than eight level patches at the
-  // wagon's level; the rest are the nearest ones elsewhere on the map, each on one level: the
-  // wagon's first, then one and two levels down and up.
-  for (const level of [z, z - 1, z + 1, z - 2, z + 2]) {
-    if (patches.length >= 8) break;
-    const more: { x: number; y: number; d: number }[] = [];
-    for (let y = 2; y <= map.h - 5; y += 1) for (let x = 2; x <= map.w - 5; x += 1) {
+  // wagon's level; the rest are elsewhere on the wagon's level or one or two levels down or up.
+  // T-481: they are the nearest by walk from the camp's stockpile, whatever their level (ties: the
+  // wagon's level first, then one and two levels down and up), as a player builds beside the camp.
+  const levels = [z, z - 1, z + 1, z - 2, z + 2];
+  const steps = new Map<number, number>();
+  const walk: number[] = [];
+  for (const at of rect(wx + 3, wy + 2, 4, 4)) if (game.pathing.graph.passable(at, 'walker')) { steps.set(at, 0); walk.push(at); }
+  for (let head = 0; head < walk.length; head += 1) {
+    const at = walk[head]!;
+    const next = steps.get(at)! + 1;
+    const visit = (to: number): void => {
+      if (steps.has(to) || !levels.includes(map.zOf(to))) return;
+      steps.set(to, next);
+      walk.push(to);
+    };
+    game.pathing.graph.forEachHorizontalEdge(at, 'walker', visit);
+    game.pathing.graph.forEachVerticalEdge(at, 'walker', visit);
+  }
+  if (patches.length < 8) {
+    const more: { x: number; y: number; z: number; d: number; level: number }[] = [];
+    for (const [li, level] of levels.entries()) for (let y = 2; y <= map.h - 5; y += 1) for (let x = 2; x <= map.w - 5; x += 1) {
       if (x <= wx + 12 && x >= wx - 2 && y >= wy - 7 && y <= wy + 7) continue;
-      if (rect(x, y, 3, 3, level).every((at) => map.kindAt(at) === TileKind.Floor && buildings.zoneAt(at) === 0)) more.push({ x, y, d: Math.abs(x - wx) + Math.abs(y - wy) });
+      if (!rect(x, y, 3, 3, level).every((at) => map.kindAt(at) === TileKind.Floor && buildings.zoneAt(at) === 0 && buildings.at(at) === 0)) continue;
+      // An unreachable patch comes after every reachable one, nearest first as the crow flies.
+      const d = steps.get(map.index(x + 1, y + 1, level)) ?? map.w * map.h + Math.abs(x - wx) + Math.abs(y - wy);
+      more.push({ x, y, z: level, d, level: li });
     }
-    more.sort((a, b) => a.d - b.d || a.y - b.y || a.x - b.x);
+    more.sort((a, b) => a.d - b.d || a.level - b.level || a.y - b.y || a.x - b.x);
     for (const m of more) {
       if (patches.length >= 8) break;
       if (patches.some((p) => Math.abs(p.x - m.x) < 4 && Math.abs(p.y - m.y) < 4)) continue;
-      patches.push({ x: m.x, y: m.y, z: level });
+      patches.push({ x: m.x, y: m.y, z: m.z });
     }
   }
   if (patches.length < 8) throw new Error(`${seed}: opening needs eight 3x3 floor patches`);
+  for (const p of patches.slice(0, 6)) for (const at of rect(p.x, p.y, 3, 3, p.z)) sites.add(at);
+  result.setup.siteSteps = patches.slice(0, 6).map((p) => steps.get(map.index(p.x + 1, p.y + 1, p.z)) ?? -1);
   const pile = zone('stockpile', rect(wx + 3, wy + 2, 4, 4));
   game.step(1);
   command({ type: 'SetStockpileFilter', zoneId: pile, filter: 'everything' });
@@ -400,6 +425,11 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
       death.wagonDistance = Math.max(Math.abs(map.xOf(death.tile) - wx), Math.abs(map.yOf(death.tile) - wy));
       death.bankDistance = brook.tiles.length === 0 ? -1 : Math.min(...brook.tiles.map((b) => Math.max(Math.abs(b.x - map.xOf(death.tile)), Math.abs(b.y - map.yOf(death.tile)))));
     }
+  }
+  // T-481: no plot tile lies under a building, where nothing can be sown.
+  for (const id of buildings.zonesOfType('farm_plot')) {
+    const covered = (buildings.zone(id)?.tiles ?? []).filter((at) => buildings.at(at) !== 0).length;
+    if (covered > 0) throw new Error(`${seed}: ${covered} farm plot tiles under a building`);
   }
   // Confirm this instrument did not reveal crops being planted in open air.
   if (buildings.zoneAt(cave[0]!) !== 0 && map.hasFlag(cave[0]!, TileFlag.Lit)) throw new Error(`${seed}: cave plot is lit`);
