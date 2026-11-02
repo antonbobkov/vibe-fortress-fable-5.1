@@ -67,7 +67,7 @@ docs/
   01-architecture/          architecture-overview, tech-stack, constants, simulation-core, data-model,
                             module-interfaces, content-pipeline, persistence, performance-budget,
                             extension-guide
-  02-systems/               README (index and summaries), 01-world-generation … 24-ui-and-input
+  02-systems/               README (index and summaries), 01-world-generation … 25-runecraft
   03-content/               materials, minerals-and-metals, items, weapons-and-armor, creatures, plants,
                             skills-and-professions, jobs, buildings-and-furniture, workshops-and-recipes,
                             regions-biomes-and-traits, personality-and-thoughts, names, glyphs-and-colors,

@@ -29,6 +29,7 @@ Every feature in the original brief maps to at least one document in `02-systems
 | Periodic trader caravans | 20 Trade & Caravans | items, creatures | Three civilizations, one season each |
 | Browser, PC controls, mouse | 24 UI & Input, 23 Rendering | glyphs-and-colors | Full keyboard and mouse parity |
 | Colored ASCII graphics | 23 Rendering | glyphs-and-colors | Canvas glyph atlas |
+| Magic, as runecraft (an owner request after version 1) | 25 Runecraft | rows named in 25, moved to their tables as they are built | A substance grown, distilled and spent. The player never casts; nothing is necromancy; magic trails steel |
 
 ## In scope for version 1
 
@@ -55,7 +56,7 @@ These are deliberately excluded. Where a hook is cheap it is noted so that later
 | World history and legends simulation | Cost far exceeds value for a fortress game | Civilizations have fixed personalities in content tables |
 | Multiplayer | A different architecture | Deterministic simulation with a command log makes lockstep possible later |
 | Nobles, mandates, justice | Source of unforgiving spirals | Positions exist; adding demands is a morale-system extension |
-| Magic, necromancy, vampires, werebeasts | Tone | None |
+| Necromancy, vampires, werebeasts | Tone | None |
 | Procedurally generated creature anatomy | Cost; legibility | Body plans are content tables; new plans are rows |
 | Blood vessels, organs, nerves | Legibility | Six body parts with wound types |
 | Flying creatures and flight pathfinding | Pathfinding complexity | Movement flags include a `fly` bit reserved but unused |
@@ -89,7 +90,7 @@ These are the foundations of the system designs and must not change silently:
 
 - The four rating axes and the named region traits as the difficulty model.
 - Seven-level fluids with an active set; water and magma share the same rules with different parameters.
-- Six body parts; three damage types; wounds with bleeding; infection as the only disease.
+- Six body parts; three damage types for steel and two for rune; wounds with bleeding; infection as the only disease.
 - Mood 0–100 with five tiers; sulks as the ceiling of misbehavior.
 - Seven starting dwarves; a budget in marks that grows with peril.
 - Three trading civilizations on fixed seasons; the Gloam as the only raider civilization; the Hollow as the endgame.
