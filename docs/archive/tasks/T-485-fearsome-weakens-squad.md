@@ -1,6 +1,8 @@
 # T-485 — A fearsome axe makes a squad worse in the open
 
-**Source:** [enchant arena](../../reports/audits/2026-11-02-t472-enchant-arena.md) (T-472) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-02, in HEAD.
+
+**Source:** [enchant arena](../../../reports/audits/2026-11-02-t472-enchant-arena.md) (T-472) · **Size:** S · **Needs:** — · **Status:** open
 
 ## What was found
 
@@ -16,3 +18,7 @@ Six Novice soldiers in full iron kit hold a peril-2 raid of ten in the open in 2
 
 - The cause is named in the report, with the fight followed.
 - A fearsome squad does no worse than a plain one in the open arena, or the spec says why it should.
+
+## Closed by decision (2026-11-02)
+
+The owner: "That seems like a fun game mechanic, keep it. Not all the enchantments have to be a strict improvement." No rule change. 25 records the trade-off, and the look line now ends "A fleeing foe is hard to catch."

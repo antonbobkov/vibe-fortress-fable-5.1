@@ -22,6 +22,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-482 | [Idle tame animals keep a walk that has arrived, and crowd one hall tile](work/T-482-tame-animal-stale-walk.md) | T-463's follow-up | — | open |
 | T-483 | [Marksdwarves shoot their own squad](work/T-483-marksdwarf-friendly-fire.md) | T-470's arena | — | open |
 | T-484 | [A cave plot one level down freezes through a taiga winter](work/T-484-cave-plot-freezes-in-taiga-winter.md) | T-481's journal | — | open |
-| T-485 | [A fearsome axe makes a squad worse in the open](work/T-485-fearsome-weakens-squad.md) | T-472's arena | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

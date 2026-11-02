@@ -306,6 +306,8 @@ A soldier's gear is owned and so is never a target. The runesmith sets stones in
 
 ### Enchantments in combat
 
+**`fearsome` is a trade-off, by decision (T-485).** A fled raider is out of the fight for a while, but soldiers who chase it swing less: in the T-472 arena six soldiers with fearsome axes held a raid of ten in 16 of 24 fights against 20 with plain axes. The owner chose to keep it; not every enchantment is a strict improvement. The look line says so: "A fleeing foe is hard to catch."
+
 **Task:** the rows below arrive with T-476. Content table `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments) holds the rest: `keen`, `ember`, `rime`, `sure`, `fearsome`, `blaze`, `sunder`; `stout`, `emberward`, `rimeward`, `adamant`, `glowing`; `ember_ammo`, `rime_ammo`, `seeking`.
 
 The resolution reads rows, never ids. A row: `{ id, slot, stone, vials, suffix, effects: { kind, value, type?, chance?, ticks?, scales }[], only? }`; `scales` is `value`, `ticks` or `none`. `magic/enchant.ts` `effectAtTier` gives an effect's numbers at a tier, `enchantOfItem` an item's, and for combat `itemEnchantEffects` (an item's effects at its tier, empty for none) and `wornEnchantEffects` (those of the pieces in a creature's five armor slots, head to feet). Effects of one kind on one item add up.

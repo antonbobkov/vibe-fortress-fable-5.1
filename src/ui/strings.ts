@@ -1157,7 +1157,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.enchant.extra_damage': '+{value} {type} on a hit.',
   'ui.look.enchant.slow': 'A hit slows by {value}% for {ticks} ticks.',
   'ui.look.enchant.to_hit': '+{value} to hit.',
-  'ui.look.enchant.flee': '{chance}% of hits put the target to flight for {ticks} ticks.',
+  'ui.look.enchant.flee': '{chance}% of hits put the target to flight for {ticks} ticks. A fleeing foe is hard to catch.',
   'ui.look.enchant.armor_percent': 'The target\'s armor counts at {value}%.',
   'ui.look.enchant.armor': '+{value} armor.',
   'ui.look.enchant.fire_percent': 'Lets {value}% of fire through.',
