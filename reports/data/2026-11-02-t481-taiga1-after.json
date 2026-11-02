@@ -1,0 +1,6822 @@
+{
+ "row": {
+  "seed": "wildlife-taiga-1",
+  "biome": "taiga",
+  "tick": 134400,
+  "living": 12,
+  "arrivals": 13,
+  "deaths": [
+   {
+    "tick": 124877,
+    "day": 105,
+    "id": 16777433,
+    "kind": "dwarf",
+    "name": "Kettil Grimsong",
+    "cause": "bled_out",
+    "killerId": 620757169,
+    "killerSpecies": "wolf",
+    "wildlife": true,
+    "tile": 287846
+   }
+  ],
+  "starving": 26,
+  "shelter": {
+   "longest": 3660,
+   "maxHunger": 100,
+   "maxThirst": 100,
+   "maxRest": 100
+  },
+  "sleepAttacks": 0,
+  "livestockLost": 0,
+  "spawns": {
+   "deer": 7,
+   "wolf": 13,
+   "bear": 2,
+   "elk": 8
+  },
+  "alerts": [
+   {
+    "tick": 27180,
+    "level": "watchful"
+   },
+   {
+    "tick": 27840,
+    "level": "calm"
+   },
+   {
+    "tick": 28080,
+    "level": "watchful"
+   },
+   {
+    "tick": 30440,
+    "level": "calm"
+   },
+   {
+    "tick": 30680,
+    "level": "watchful"
+   },
+   {
+    "tick": 35220,
+    "level": "calm"
+   },
+   {
+    "tick": 35520,
+    "level": "watchful"
+   },
+   {
+    "tick": 36420,
+    "level": "calm"
+   },
+   {
+    "tick": 36800,
+    "level": "watchful"
+   },
+   {
+    "tick": 37600,
+    "level": "calm"
+   },
+   {
+    "tick": 37800,
+    "level": "watchful"
+   },
+   {
+    "tick": 43560,
+    "level": "calm"
+   },
+   {
+    "tick": 43840,
+    "level": "watchful"
+   },
+   {
+    "tick": 44640,
+    "level": "calm"
+   },
+   {
+    "tick": 44980,
+    "level": "watchful"
+   },
+   {
+    "tick": 47360,
+    "level": "calm"
+   },
+   {
+    "tick": 47620,
+    "level": "watchful"
+   },
+   {
+    "tick": 48420,
+    "level": "calm"
+   },
+   {
+    "tick": 48640,
+    "level": "watchful"
+   },
+   {
+    "tick": 50840,
+    "level": "calm"
+   },
+   {
+    "tick": 51120,
+    "level": "watchful"
+   },
+   {
+    "tick": 53180,
+    "level": "calm"
+   },
+   {
+    "tick": 53420,
+    "level": "watchful"
+   },
+   {
+    "tick": 54300,
+    "level": "calm"
+   },
+   {
+    "tick": 54640,
+    "level": "watchful"
+   },
+   {
+    "tick": 55680,
+    "level": "calm"
+   },
+   {
+    "tick": 55860,
+    "level": "watchful"
+   },
+   {
+    "tick": 60400,
+    "level": "calm"
+   },
+   {
+    "tick": 60580,
+    "level": "watchful"
+   },
+   {
+    "tick": 61560,
+    "level": "calm"
+   },
+   {
+    "tick": 61820,
+    "level": "watchful"
+   },
+   {
+    "tick": 62940,
+    "level": "calm"
+   },
+   {
+    "tick": 63100,
+    "level": "watchful"
+   },
+   {
+    "tick": 65120,
+    "level": "calm"
+   },
+   {
+    "tick": 65440,
+    "level": "watchful"
+   },
+   {
+    "tick": 66420,
+    "level": "calm"
+   },
+   {
+    "tick": 66600,
+    "level": "watchful"
+   },
+   {
+    "tick": 67600,
+    "level": "calm"
+   },
+   {
+    "tick": 67840,
+    "level": "watchful"
+   },
+   {
+    "tick": 73440,
+    "level": "calm"
+   },
+   {
+    "tick": 73720,
+    "level": "watchful"
+   },
+   {
+    "tick": 78780,
+    "level": "calm"
+   },
+   {
+    "tick": 119500,
+    "level": "watchful"
+   },
+   {
+    "tick": 124600,
+    "level": "hearth"
+   },
+   {
+    "tick": 128260,
+    "level": "watchful"
+   },
+   {
+    "tick": 129760,
+    "level": "hearth"
+   },
+   {
+    "tick": 133360,
+    "level": "watchful"
+   }
+  ],
+  "stocks": {
+   "drink": 78,
+   "meal": 36,
+   "plantFood": 22
+  },
+  "harvests": 119,
+  "hunts": 3,
+  "hash": "26c1c0010a40f1df",
+  "setup": {
+   "caveDepth": 1,
+   "surfacePlots": [
+    12,
+    12
+   ],
+   "caveTiles": 27,
+   "buildings": [
+    16777322,
+    16777323,
+    16777324,
+    117440624,
+    83886237,
+    184549399
+   ],
+   "commands": 80,
+   "siteSteps": [
+    6,
+    7,
+    11,
+    11,
+    12,
+    13
+   ]
+  },
+  "brook": {
+   "drinks": 0,
+   "alcohol": 762,
+   "firstDrinkDay": null,
+   "drinkers": 0,
+   "distances": [],
+   "tiles": [],
+   "outdoors": 0,
+   "wagon": {
+    "x": 0,
+    "y": 47,
+    "z": 33
+   }
+  }
+ },
+ "days": [
+  {
+   "day": 0,
+   "living": 7,
+   "surfaceC": 8,
+   "weather": "clear",
+   "plotTemps": [
+    8,
+    8
+   ],
+   "stock": {
+    "easy_meal": 10,
+    "plant_food:turnip": 20,
+    "plant_food:dimcap": 20,
+    "raw_meat:boar_meat": 10,
+    "barrel:pine": 5,
+    "drink": 60,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:barley": 8,
+    "seed:turnip": 7,
+    "seed:strawberry": 10,
+    "seed:flax": 10
+   },
+   "crops": {
+    "turnip:s0": 3,
+    "barley:s0": 2
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 30,
+   "events": {},
+   "acts": {
+    "work:Plant seed:plant": 2,
+    "work:Dig:dig": 2,
+    "work:Chop tree:chop": 1,
+    "work:Build:build": 1,
+    "idle:No job": 1
+   },
+   "alerts": {
+    "calm": 1
+   }
+  },
+  {
+   "day": 1,
+   "living": 7,
+   "surfaceC": 1,
+   "weather": "clear",
+   "plotTemps": [
+    1,
+    1
+   ],
+   "stock": {
+    "easy_meal": 10,
+    "plant_food:turnip": 20,
+    "plant_food:dimcap": 20,
+    "raw_meat:boar_meat": 10,
+    "barrel:pine": 7,
+    "drink": 60,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:barley": 4,
+    "seed:turnip": 2,
+    "seed:strawberry": 10,
+    "seed:flax": 10
+   },
+   "crops": {
+    "turnip:s0": 8,
+    "barley:s0": 6
+   },
+   "ready": 0,
+   "hunger": 39,
+   "thirst": 49,
+   "events": {
+    "made:log:birch": 3,
+    "JobCompleted:chop": 4,
+    "JobCompleted:dig": 18,
+    "CropPlanted:turnip": 5,
+    "JobCompleted:plant": 9,
+    "made:log:pine": 9,
+    "gone:log:consumed": 4,
+    "JobCompleted:build": 1,
+    "CropPlanted:barley": 4,
+    "made:barrel:pine": 2,
+    "JobCompleted:craft": 2
+   },
+   "acts": {
+    "need:sleep": 6,
+    "work:Craft (recipe):craft": 2,
+    "work:Plant seed:plant": 2,
+    "work:Dig:dig": 1,
+    "work:Chop tree:chop": 1,
+    "idle:No job": 2
+   },
+   "alerts": {
+    "calm": 2
+   }
+  },
+  {
+   "day": 2,
+   "living": 7,
+   "surfaceC": -2,
+   "weather": "rain",
+   "plotTemps": [
+    -2,
+    -2
+   ],
+   "stock": {
+    "easy_meal": 3,
+    "plant_food:turnip": 20,
+    "plant_food:dimcap": 20,
+    "raw_meat:boar_meat": 10,
+    "barrel:pine": 9,
+    "drink": 53,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 3
+   },
+   "crops": {
+    "turnip:s0": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 10,
+   "thirst": 31,
+   "events": {
+    "JobCompleted:dig": 13,
+    "made:log:pine": 8,
+    "JobCompleted:chop": 7,
+    "CropPlanted:turnip": 2,
+    "JobCompleted:plant": 6,
+    "made:log:birch": 10,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "CropPlanted:barley": 4,
+    "gone:seed:consumed": 2,
+    "gone:log:consumed": 5,
+    "made:barrel:birch": 3,
+    "JobCompleted:craft": 5,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "made:barrel:pine": 2,
+    "JobCompleted:carve_stairs": 1
+   },
+   "acts": {
+    "work:Craft (recipe):craft": 4,
+    "need:social": 2,
+    "work:Chop tree:chop": 2,
+    "need:thirst": 2,
+    "work:Plant seed:plant": 1,
+    "need:sleep": 6,
+    "need:hunger": 4,
+    "idle:No job": 4,
+    "work:Carve stairs:carve_stairs": 1,
+    "work:No job": 1,
+    "work:Dig:dig": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 3,
+   "living": 7,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0
+   ],
+   "stock": {
+    "easy_meal": 3,
+    "plant_food:turnip": 20,
+    "plant_food:dimcap": 20,
+    "raw_meat:boar_meat": 10,
+    "barrel:pine": 12,
+    "drink": 47,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 3
+   },
+   "crops": {
+    "turnip:s0": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 32,
+   "thirst": 13,
+   "events": {
+    "JobCompleted:dig": 14,
+    "made:raw_stone:rhyolite": 2,
+    "gone:log:consumed": 4,
+    "made:barrel:pine": 4,
+    "JobCompleted:craft": 4,
+    "NeedCritical": 1,
+    "gone:barrel:consumed": 1,
+    "gone:raw_stone:consumed": 1,
+    "JobCompleted:build": 1,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6
+   },
+   "acts": {
+    "work:Craft (recipe):craft": 5,
+    "work:Dig:dig": 5,
+    "idle:No job": 5,
+    "need:sleep": 7,
+    "work:Build:build": 2,
+    "need:thirst": 4
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 4,
+   "living": 7,
+   "surfaceC": -1,
+   "weather": "storm",
+   "plotTemps": [
+    -1,
+    -1
+   ],
+   "stock": {
+    "plant_food:turnip": 17,
+    "plant_food:dimcap": 12,
+    "raw_meat:boar_meat": 10,
+    "barrel:pine": 15,
+    "drink": 86,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "easy_meal": 4,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s0": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 45,
+   "events": {
+    "JobCompleted:dig": 9,
+    "gone:drink:consumed": 1,
+    "DrankAlcohol": 1,
+    "made:raw_stone:rhyolite": 4,
+    "gone:log:consumed": 5,
+    "made:barrel:pine": 3,
+    "JobCompleted:craft": 8,
+    "gone:plant_food:consumed": 4,
+    "made:drink:dimcap_ale": 40,
+    "made:barrel:birch": 2,
+    "NeedCritical": 3,
+    "JobCompleted:carve_stairs": 1,
+    "gone:table:consumed": 1,
+    "gone:raw_stone:consumed": 3,
+    "JobCompleted:build": 2,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 4,
+    "made:easy_meal:turnip": 4
+   },
+   "acts": {
+    "work:Craft (recipe):craft": 9,
+    "work:Dig:dig": 2,
+    "work:Build:build": 5,
+    "idle:No job": 2,
+    "need:sleep": 5,
+    "need:social": 1,
+    "work:sleep:craft": 1,
+    "need:hunger": 3
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 5,
+   "living": 7,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1
+   ],
+   "stock": {
+    "easy_meal": 14,
+    "plant_food:turnip": 10,
+    "plant_food:dimcap": 8,
+    "raw_meat:boar_meat": 10,
+    "barrel:pine": 16,
+    "drink": 99,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s0": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 19,
+   "events": {
+    "FireStarted": 2,
+    "gone:plant_food:consumed": 5,
+    "MealEaten": 3,
+    "gone:log:consumed": 1,
+    "made:barrel:pine": 1,
+    "JobCompleted:craft": 7,
+    "made:easy_meal:turnip": 12,
+    "gone:easy_meal:consumed": 2,
+    "gone:raw_stone:consumed": 2,
+    "made:stone_block:rhyolite": 4,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "NeedCritical": 2,
+    "JobCompleted:haul_to_stockpile": 3,
+    "WorkshopBlocked:missing_input": 1,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:carve_stairs": 2
+   },
+   "acts": {
+    "work:Craft (recipe):craft": 7,
+    "need:sleep": 8,
+    "need:hunger": 1,
+    "need:thirst": 7,
+    "work:Haul:haul_to_stockpile": 1,
+    "work:Build:build": 1,
+    "need:social": 3
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 6,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3
+   ],
+   "stock": {
+    "easy_meal": 22,
+    "plant_food:turnip": 6,
+    "plant_food:dimcap": 4,
+    "raw_meat:boar_meat": 8,
+    "barrel:pine": 16,
+    "drink": 116,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s0": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 21,
+   "thirst": 32,
+   "events": {
+    "gone:plant_food:consumed": 3,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 4,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:haul_to_stockpile": 2,
+    "NeedCritical": 1,
+    "gone:raw_meat:consumed": 1,
+    "made:easy_meal:boar_meat": 4,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:stone_block:consumed": 1,
+    "gone:log:consumed": 1,
+    "JobCompleted:build": 1,
+    "gone:drink:consumed": 3,
+    "DrankAlcohol": 3
+   },
+   "acts": {
+    "work:Haul:haul_to_stockpile": 2,
+    "need:sleep": 6,
+    "need:social": 4,
+    "work:sleep": 2,
+    "work:Craft (recipe):craft": 4,
+    "work:Build:build": 3,
+    "idle:No job": 2,
+    "need:thirst": 1,
+    "need:comfort": 4
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 7,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3
+   ],
+   "stock": {
+    "easy_meal": 35,
+    "plant_food:turnip": 2,
+    "plant_food:dimcap": 4,
+    "raw_meat:boar_meat": 4,
+    "barrel:pine": 16,
+    "drink": 112,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s0": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 24,
+   "thirst": 33,
+   "events": {
+    "gone:raw_meat:consumed": 2,
+    "made:easy_meal:boar_meat": 8,
+    "JobCompleted:craft": 4,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "gone:drink:consumed": 4,
+    "DrankAlcohol": 4,
+    "JobCompleted:haul_to_stockpile": 4,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:turnip": 8
+   },
+   "acts": {
+    "need:sleep": 10,
+    "need:thirst": 1,
+    "work:Craft (recipe):craft": 4,
+    "need:comfort": 8,
+    "work:Haul:haul_to_stockpile": 4,
+    "need:social": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 8,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3
+   ],
+   "stock": {
+    "easy_meal": 49,
+    "raw_meat:boar_meat": 2,
+    "barrel:pine": 16,
+    "drink": 106,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s0": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 34,
+   "thirst": 23,
+   "events": {
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 4,
+    "gone:raw_meat:consumed": 1,
+    "made:easy_meal:boar_meat": 4,
+    "made:easy_meal:turnip": 4,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "WorkshopBlocked:missing_input": 1,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "work:Craft (recipe):craft": 3,
+    "idle:No job": 6,
+    "need:thirst": 4,
+    "need:sleep": 10,
+    "need:comfort": 2,
+    "work:No job": 1,
+    "need:hunger": 1,
+    "need:social": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 9,
+   "living": 7,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0
+   ],
+   "stock": {
+    "easy_meal": 45,
+    "raw_meat:boar_meat": 2,
+    "barrel:pine": 16,
+    "drink": 102,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 5,
+    "barley:s0": 10,
+    "turnip:s0": 5
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 28,
+   "events": {
+    "gone:drink:consumed": 4,
+    "DrankAlcohol": 4,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4
+   },
+   "acts": {
+    "need:comfort": 4,
+    "work:No job": 1,
+    "need:sleep": 10,
+    "idle:No job": 6,
+    "need:social": 2,
+    "need:hunger": 2,
+    "work:sleep": 1,
+    "need:thirst": 2
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 10,
+   "living": 7,
+   "surfaceC": 2,
+   "weather": "fog",
+   "plotTemps": [
+    2,
+    2
+   ],
+   "stock": {
+    "easy_meal": 42,
+    "raw_meat:boar_meat": 2,
+    "barrel:pine": 16,
+    "drink": 98,
+    "seed:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 33,
+   "events": {
+    "gone:drink:consumed": 4,
+    "DrankAlcohol": 4,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "WorkshopBlocked:missing_input": 1
+   },
+   "acts": {
+    "need:comfort": 4,
+    "need:thirst": 2,
+    "idle:No job": 7,
+    "need:social": 3,
+    "work:No job": 1,
+    "need:sleep": 8,
+    "need:hunger": 2,
+    "work:sleep": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 11,
+   "living": 7,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "easy_meal": 38,
+    "raw_meat:boar_meat": 2,
+    "barrel:pine": 16,
+    "drink": 92,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 23,
+   "thirst": 23,
+   "events": {
+    "PlotNeedsSeeds:dimcap": 1,
+    "CropPlanted:dimcap": 20,
+    "JobCompleted:plant": 20,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:stone_block:consumed": 1,
+    "gone:log:consumed": 2,
+    "JobCompleted:build": 1,
+    "gone:seed:consumed": 2
+   },
+   "acts": {
+    "need:hunger": 1,
+    "need:sleep": 6,
+    "need:comfort": 7,
+    "work:Plant seed:plant": 6,
+    "work:Build:build": 1,
+    "need:thirst": 5,
+    "idle:No job": 1,
+    "need:social": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 12,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "easy_meal": 35,
+    "raw_meat:boar_meat": 2,
+    "barrel:pine": 16,
+    "drink": 89,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 37,
+   "events": {
+    "gone:drink:consumed": 3,
+    "DrankAlcohol": 3,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3
+   },
+   "acts": {
+    "need:sleep": 12,
+    "need:comfort": 4,
+    "idle:No job": 7,
+    "need:thirst": 2,
+    "need:hunger": 3
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 13,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "easy_meal": 32,
+    "barrel:pine": 16,
+    "drink": 83,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 27,
+   "events": {
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "ItemRotted": 1
+   },
+   "acts": {
+    "idle:No job": 12,
+    "need:comfort": 4,
+    "need:sleep": 9,
+    "need:social": 1,
+    "need:hunger": 2
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 14,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "easy_meal": 29,
+    "barrel:pine": 16,
+    "drink": 77,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 29,
+   "thirst": 19,
+   "events": {
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6
+   },
+   "acts": {
+    "idle:No job": 6,
+    "need:social": 3,
+    "need:thirst": 3,
+    "need:sleep": 11,
+    "need:comfort": 4,
+    "need:hunger": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 15,
+   "living": 7,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "easy_meal": 25,
+    "barrel:pine": 16,
+    "drink": 74,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 10,
+    "barley:s0": 10,
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 24,
+   "thirst": 33,
+   "events": {
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:drink:consumed": 3,
+    "DrankAlcohol": 3
+   },
+   "acts": {
+    "need:comfort": 3,
+    "idle:No job": 13,
+    "need:social": 2,
+    "need:sleep": 6,
+    "need:hunger": 2,
+    "need:thirst": 2
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 16,
+   "living": 7,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "easy_meal": 22,
+    "barrel:pine": 16,
+    "drink": 69,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s1": 10,
+    "barley:s0": 10,
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 28,
+   "events": {
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "HuntStarted": 1,
+    "JobCompleted:haul_to_stockpile": 7,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "work:Hunt:hunt": 1,
+    "need:comfort": 6,
+    "work:Haul:haul_to_stockpile": 5,
+    "need:sleep": 10,
+    "need:social": 2,
+    "need:thirst": 1,
+    "idle:No job": 3
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 17,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "easy_meal": 20,
+    "barrel:pine": 16,
+    "drink": 64,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s2": 3,
+    "barley:s1": 10,
+    "turnip:s1": 7,
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 36,
+   "thirst": 27,
+   "events": {
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "work:Hunt:hunt": 2,
+    "idle:No job": 11,
+    "need:sleep": 9,
+    "need:comfort": 3,
+    "need:social": 1,
+    "need:hunger": 2
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 18,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "easy_meal": 16,
+    "drink": 58,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s2": 10,
+    "barley:s1": 10,
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 19,
+   "events": {
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "need:thirst": 4,
+    "idle:No job": 11,
+    "work:Hunt:hunt": 2,
+    "need:sleep": 8,
+    "need:hunger": 1,
+    "need:comfort": 2
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 19,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "drink": 55,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5,
+    "easy_meal": 13
+   },
+   "crops": {
+    "turnip:s2": 10,
+    "barley:s1": 10,
+    "dimcap:s2": 15,
+    "dimcap:s1": 5
+   },
+   "ready": 0,
+   "hunger": 32,
+   "thirst": 34,
+   "events": {
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "HuntKill": 2,
+    "JobCompleted:hunt": 2,
+    "HuntStarted": 1,
+    "gone:drink:consumed": 3,
+    "DrankAlcohol": 3,
+    "gone:bolt:projectile_break": 1
+   },
+   "acts": {
+    "work:Hunt:hunt": 1,
+    "idle:No job": 7,
+    "need:sleep": 12,
+    "need:comfort": 4,
+    "need:social": 1,
+    "need:hunger": 2,
+    "need:thirst": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 20,
+   "living": 7,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 50,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5,
+    "easy_meal": 9
+   },
+   "crops": {
+    "turnip:s2": 10,
+    "barley:s1": 10,
+    "dimcap:s2": 20
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 29,
+   "events": {
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4
+   },
+   "acts": {
+    "need:comfort": 4,
+    "need:thirst": 2,
+    "need:social": 3,
+    "idle:No job": 9,
+    "need:sleep": 9,
+    "need:hunger": 1
+   },
+   "alerts": {
+    "calm": 4
+   }
+  },
+  {
+   "day": 21,
+   "living": 7,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 44,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5,
+    "easy_meal": 7
+   },
+   "crops": {
+    "turnip:s2": 10,
+    "barley:s1": 10,
+    "dimcap:s2": 20
+   },
+   "ready": 0,
+   "hunger": 36,
+   "thirst": 19,
+   "events": {
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6
+   },
+   "acts": {
+    "idle:No job": 147,
+    "need:hunger": 9,
+    "need:sleep": 112,
+    "need:comfort": 73,
+    "need:thirst": 47,
+    "need:social": 32
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 22,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 41,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5,
+    "easy_meal": 2
+   },
+   "crops": {
+    "turnip:s2": 10,
+    "barley:s1": 10,
+    "dimcap:s2": 20
+   },
+   "ready": 0,
+   "hunger": 23,
+   "thirst": 34,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 3,
+    "DrankAlcohol": 3
+   },
+   "acts": {
+    "idle:No job": 155,
+    "need:sleep": 119,
+    "need:social": 45,
+    "need:comfort": 38,
+    "need:hunger": 42,
+    "need:thirst": 21
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 23,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 36,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s2": 10,
+    "barley:s1": 10,
+    "dimcap:s3": 8,
+    "dimcap:s2": 12
+   },
+   "ready": 0,
+   "hunger": 33,
+   "thirst": 32,
+   "events": {
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5
+   },
+   "acts": {
+    "need:thirst": 35,
+    "need:hunger": 10,
+    "need:comfort": 62,
+    "need:sleep": 131,
+    "idle:No job": 116,
+    "need:social": 30,
+    "work:No job": 2,
+    "duty:On duty": 34
+   },
+   "alerts": {
+    "calm": 39,
+    "watchful": 21
+   }
+  },
+  {
+   "day": 24,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 30,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s2": 10,
+    "barley:s1": 10,
+    "dimcap:s3": 20
+   },
+   "ready": 0,
+   "hunger": 59,
+   "thirst": 22,
+   "events": {
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6
+   },
+   "acts": {
+    "duty:On duty": 54,
+    "need:sleep": 121,
+    "idle:No job": 111,
+    "need:thirst": 41,
+    "need:social": 37,
+    "need:comfort": 56
+   },
+   "alerts": {
+    "watchful": 48,
+    "calm": 12
+   }
+  },
+  {
+   "day": 25,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 26,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s3": 5,
+    "barley:s1": 10,
+    "turnip:s2": 5,
+    "dimcap:s3": 20
+   },
+   "ready": 0,
+   "hunger": 84,
+   "thirst": 27,
+   "events": {
+    "gone:drink:consumed": 4,
+    "DrankAlcohol": 4,
+    "NeedCritical": 4
+   },
+   "acts": {
+    "duty:On duty": 97,
+    "need:sleep": 122,
+    "need:social": 55,
+    "idle:No job": 73,
+    "need:comfort": 40,
+    "need:thirst": 32,
+    "work:No job": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 26,
+   "living": 7,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 22,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s1": 10,
+    "dimcap:s3": 20
+   },
+   "ready": 0,
+   "hunger": 99,
+   "thirst": 33,
+   "events": {
+    "NeedCritical": 3,
+    "Starving": 6,
+    "gone:drink:consumed": 4,
+    "DrankAlcohol": 4,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "need:thirst": 26,
+    "need:sleep": 128,
+    "need:comfort": 70,
+    "work:Haul:haul_to_stockpile": 12,
+    "idle:No job": 75,
+    "need:social": 76,
+    "duty:On duty": 33
+   },
+   "alerts": {
+    "watchful": 48,
+    "calm": 12
+   }
+  },
+  {
+   "day": 27,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "seed:dimcap": 3,
+    "barrel:pine": 16,
+    "drink": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5,
+    "plant_food:dimcap": 11
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s1": 10,
+    "dimcap:s3": 17
+   },
+   "ready": 5,
+   "hunger": 100,
+   "thirst": 23,
+   "events": {
+    "Starving": 7,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "made:plant_food:dimcap": 11,
+    "made:seed:dimcap": 3,
+    "harvest:dimcap": 11,
+    "JobCompleted:harvest": 3
+   },
+   "acts": {
+    "duty:On duty": 64,
+    "need:sleep": 117,
+    "idle:No job": 96,
+    "need:comfort": 44,
+    "need:thirst": 39,
+    "need:social": 37,
+    "work:No job": 2,
+    "work:Harvest:harvest": 14,
+    "need:hunger": 7
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 28,
+   "living": 7,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 31,
+    "plant_food:dimcap": 65,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5,
+    "easy_meal": 4,
+    "seed:dimcap": 3
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s1": 10,
+    "dimcap:s3": 1,
+    "dimcap:s0": 16
+   },
+   "ready": 1,
+   "hunger": 50,
+   "thirst": 20,
+   "events": {
+    "Starving": 7,
+    "gone:plant_food:consumed": 9,
+    "MealEaten": 7,
+    "gone:seed:consumed": 16,
+    "CropPlanted:dimcap": 16,
+    "JobCompleted:plant": 16,
+    "made:plant_food:dimcap": 67,
+    "made:seed:dimcap": 16,
+    "harvest:dimcap": 67,
+    "JobCompleted:harvest": 16,
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 2,
+    "made:easy_meal:dimcap": 4
+   },
+   "acts": {
+    "duty:On duty": 57,
+    "need:sleep": 106,
+    "need:hunger": 37,
+    "work:Plant seed:plant": 37,
+    "work:Harvest:harvest": 52,
+    "need:thirst": 39,
+    "need:social": 15,
+    "work:Craft (recipe):craft": 51,
+    "need:comfort": 25,
+    "work:Harvest:plant": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 29,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "barrel:pine": 16,
+    "drink": 65,
+    "plant_food:dimcap": 55,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5,
+    "easy_meal": 4
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s1": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 23,
+   "thirst": 25,
+   "events": {
+    "made:tunic:flax_cloth": 3,
+    "made:trousers:flax_cloth": 3,
+    "made:boots:flax_cloth": 3,
+    "PlotNeedsSeeds:turnip": 1,
+    "PlotNeedsSeeds:barley": 1,
+    "PlotNeedsSeeds:dimcap": 1,
+    "ImmigrantsArrived": 1,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 8,
+    "gone:plant_food:consumed": 7,
+    "made:drink:dimcap_ale": 40,
+    "JobCompleted:craft": 3,
+    "made:plant_food:dimcap": 4,
+    "made:seed:dimcap": 1,
+    "harvest:dimcap": 4,
+    "JobCompleted:harvest": 1,
+    "gone:seed:consumed": 4,
+    "CropPlanted:dimcap": 4,
+    "JobCompleted:plant": 4,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "JobCancelled:haul_to_stockpile:target_invalid": 1,
+    "JobCompleted:haul_to_stockpile": 2,
+    "made:easy_meal:dimcap": 4
+   },
+   "acts": {
+    "duty:On duty": 73,
+    "need:sleep": 162,
+    "need:hunger": 66,
+    "work:Craft (recipe):craft": 54,
+    "work:Harvest:harvest": 17,
+    "work:Plant seed:plant": 47,
+    "need:social": 19,
+    "need:thirst": 48,
+    "need:comfort": 72,
+    "work:Haul:haul_to_stockpile": 39
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 30,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 18,
+    "barrel:pine": 16,
+    "drink": 80,
+    "plant_food:dimcap": 43,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 5
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s2": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 37,
+   "thirst": 36,
+   "events": {
+    "JobCompleted:haul_to_stockpile": 14,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "gone:plant_food:consumed": 5,
+    "made:easy_meal:dimcap": 16,
+    "JobCompleted:craft": 5,
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "NeedCritical": 1,
+    "made:drink:dimcap_ale": 20,
+    "gone:rotten:rotted": 1,
+    "FireStarted": 1
+   },
+   "acts": {
+    "duty:On duty": 49,
+    "need:sleep": 167,
+    "work:Craft (recipe):craft": 110,
+    "work:Haul:haul_to_stockpile": 140,
+    "need:hunger": 18,
+    "need:social": 9,
+    "need:comfort": 73,
+    "need:thirst": 34
+   },
+   "alerts": {
+    "watchful": 45,
+    "calm": 15
+   }
+  },
+  {
+   "day": 31,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 19,
+    "barrel:pine": 16,
+    "drink": 111,
+    "plant_food:dimcap": 31,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 31,
+    "barrel:birch": 6,
+    "seed:turnip": 3
+   },
+   "crops": {
+    "barley:s2": 10,
+    "turnip:s3": 3,
+    "dimcap:s0": 20,
+    "turnip:s0": 4
+   },
+   "ready": 3,
+   "hunger": 21,
+   "thirst": 22,
+   "events": {
+    "gone:plant_food:consumed": 5,
+    "made:drink:dimcap_ale": 40,
+    "JobCompleted:craft": 5,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:log:consumed": 1,
+    "made:barrel:birch": 1,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "NeedCritical": 2,
+    "made:easy_meal:dimcap": 8,
+    "made:plant_food:turnip": 31,
+    "made:seed:turnip": 7,
+    "harvest:turnip": 31,
+    "JobCompleted:harvest": 7,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:seed:consumed": 4,
+    "CropPlanted:turnip": 4,
+    "JobCompleted:plant": 4
+   },
+   "acts": {
+    "duty:On duty": 41,
+    "need:hunger": 47,
+    "work:Craft (recipe):craft": 102,
+    "need:comfort": 92,
+    "need:sleep": 160,
+    "work:comfort:craft": 1,
+    "need:thirst": 56,
+    "work:comfort": 1,
+    "need:social": 27,
+    "work:Haul:haul_to_stockpile": 33,
+    "work:Harvest:harvest": 28,
+    "work:hunger:harvest": 1,
+    "work:Plant seed:plant": 11
+   },
+   "alerts": {
+    "watchful": 41,
+    "calm": 19
+   }
+  },
+  {
+   "day": 32,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 36,
+    "barrel:pine": 16,
+    "drink": 105,
+    "plant_food:dimcap": 29,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 36,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s1": 16,
+    "dimcap:s0": 4,
+    "turnip:s0": 10
+   },
+   "ready": 0,
+   "hunger": 29,
+   "thirst": 24,
+   "events": {
+    "gone:plant_food:consumed": 5,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 5,
+    "JobCompleted:haul_to_stockpile": 4,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "gone:seed:consumed": 6,
+    "CropPlanted:turnip": 6,
+    "JobCompleted:plant": 6,
+    "made:plant_food:turnip": 13,
+    "made:seed:turnip": 3,
+    "harvest:turnip": 13,
+    "JobCompleted:harvest": 3,
+    "made:easy_meal:turnip": 16,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "HuntStarted": 1,
+    "JobCancelled:hunt:target_gone": 1
+   },
+   "acts": {
+    "need:comfort": 97,
+    "need:sleep": 170,
+    "need:social": 73,
+    "work:Haul:haul_to_stockpile": 38,
+    "work:Plant seed:plant": 29,
+    "need:hunger": 15,
+    "work:Craft (recipe):craft": 56,
+    "duty:On duty": 55,
+    "work:Harvest:harvest": 10,
+    "need:thirst": 44,
+    "work:Hunt:hunt": 10,
+    "idle:No job": 3
+   },
+   "alerts": {
+    "watchful": 50,
+    "calm": 10
+   }
+  },
+  {
+   "day": 33,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 139,
+    "barrel:pine": 34,
+    "drink": 381,
+    "plant_food:dimcap": 29,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 92,
+    "barrel:birch": 6,
+    "raw_meat:pig_meat": 30,
+    "flour:flour": 30,
+    "raw_meat:sheep_meat": 40,
+    "plant_food:pumpkin": 60,
+    "seed:turnip": 40
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s1": 20,
+    "turnip:s0": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 40,
+   "events": {
+    "made:spear:iron": 2,
+    "made:cap:leather": 2,
+    "made:leather_jerkin:leather": 2,
+    "made:buckler:oak": 2,
+    "made:easy_meal:meal": 100,
+    "made:raw_meat:pig_meat": 30,
+    "made:cloth:flax_cloth": 11,
+    "made:cheese:cheese": 45,
+    "made:barrel:pine": 18,
+    "made:drink:ale": 240,
+    "made:bag:pine": 7,
+    "made:flour:flour": 30,
+    "made:raw_meat:sheep_meat": 40,
+    "made:boots:wool_cloth": 3,
+    "made:plant_food:turnip": 60,
+    "made:bed:pine": 4,
+    "made:plant_food:pumpkin": 60,
+    "made:drink:strawberry_wine": 40,
+    "made:seed:turnip": 40,
+    "made:bin:oak": 2,
+    "made:cage:pine": 2,
+    "made:tunic:leather": 6,
+    "made:thread:flax_thread": 5,
+    "CaravanArrived": 1,
+    "JobCompleted:haul_to_stockpile": 3,
+    "gone:drink:consumed": 4,
+    "DrankAlcohol": 4,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 2,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "JobCancelled:hunt:target_gone": 1,
+    "NeedCritical": 2
+   },
+   "acts": {
+    "duty:On duty": 40,
+    "need:sleep": 166,
+    "work:Haul:haul_to_stockpile": 27,
+    "work:Craft (recipe):craft": 60,
+    "need:comfort": 81,
+    "need:thirst": 30,
+    "need:social": 59,
+    "idle:No job": 92,
+    "work:comfort": 1,
+    "need:hunger": 44
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 34,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 155,
+    "barrel:pine": 34,
+    "drink": 392,
+    "plant_food:dimcap": 25,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 82,
+    "barrel:birch": 6,
+    "raw_meat:pig_meat": 30,
+    "flour:flour": 30,
+    "raw_meat:sheep_meat": 40,
+    "plant_food:pumpkin": 60,
+    "seed:turnip": 40
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s1": 20,
+    "turnip:s0": 10
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 21,
+   "events": {
+    "gone:plant_food:consumed": 7,
+    "made:easy_meal:turnip": 20,
+    "JobCompleted:craft": 6,
+    "NeedCritical": 2,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "JobCompleted:haul_to_stockpile": 3,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "duty:On duty": 66,
+    "need:sleep": 159,
+    "need:comfort": 100,
+    "idle:No job": 41,
+    "work:Craft (recipe):craft": 87,
+    "need:hunger": 26,
+    "need:social": 21,
+    "work:Haul:haul_to_stockpile": 35,
+    "need:thirst": 64,
+    "work:comfort": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 35,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 162,
+    "barrel:pine": 34,
+    "drink": 387,
+    "plant_food:dimcap": 25,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 76,
+    "barrel:birch": 6,
+    "raw_meat:pig_meat": 30,
+    "flour:flour": 30,
+    "raw_meat:sheep_meat": 40,
+    "plant_food:pumpkin": 60,
+    "seed:turnip": 40
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s1": 20,
+    "turnip:s1": 2,
+    "turnip:s0": 8
+   },
+   "ready": 0,
+   "hunger": 25,
+   "thirst": 30,
+   "events": {
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:turnip": 12,
+    "JobCompleted:craft": 3,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "JobCompleted:haul_to_stockpile": 1,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "duty:On duty": 75,
+    "need:sleep": 153,
+    "work:Craft (recipe):craft": 59,
+    "idle:No job": 99,
+    "need:comfort": 84,
+    "need:social": 37,
+    "need:hunger": 35,
+    "need:thirst": 44,
+    "work:Haul:haul_to_stockpile": 14
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 36,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 62,
+    "barrel:pine": 16,
+    "drink": 100,
+    "plant_food:dimcap": 23,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 16,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "barley:s3": 10,
+    "dimcap:s2": 16,
+    "dimcap:s1": 4,
+    "turnip:s1": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 28,
+   "events": {
+    "gone:easy_meal:caravan_departed": 10,
+    "gone:raw_meat:caravan_departed": 7,
+    "gone:cloth:caravan_departed": 3,
+    "gone:cheese:caravan_departed": 5,
+    "gone:barrel:caravan_departed": 18,
+    "gone:drink:caravan_departed": 14,
+    "gone:bag:caravan_departed": 7,
+    "gone:flour:caravan_departed": 3,
+    "gone:boots:caravan_departed": 3,
+    "gone:plant_food:caravan_departed": 6,
+    "gone:bed:caravan_departed": 4,
+    "gone:seed:caravan_departed": 4,
+    "gone:bin:caravan_departed": 2,
+    "gone:cage:caravan_departed": 2,
+    "gone:tunic:caravan_departed": 6,
+    "gone:thread:caravan_departed": 1,
+    "gone:cap:left_map": 2,
+    "gone:spear:left_map": 2,
+    "gone:leather_jerkin:left_map": 2,
+    "gone:buckler:left_map": 2,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4
+   },
+   "acts": {
+    "need:thirst": 41,
+    "need:sleep": 178,
+    "work:Haul:haul_to_stockpile": 20,
+    "work:Craft (recipe):craft": 10,
+    "need:comfort": 116,
+    "need:social": 77,
+    "need:hunger": 27,
+    "idle:No job": 62,
+    "duty:On duty": 68,
+    "work:No job": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 37,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 58,
+    "barrel:pine": 16,
+    "drink": 113,
+    "plant_food:dimcap": 19,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 16,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "barley:s3": 10,
+    "dimcap:s2": 20,
+    "turnip:s1": 10
+   },
+   "ready": 0,
+   "hunger": 31,
+   "thirst": 26,
+   "events": {
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:plant_food:consumed": 2,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "duty:On duty": 51,
+    "need:sleep": 150,
+    "need:social": 67,
+    "need:comfort": 81,
+    "idle:No job": 122,
+    "need:thirst": 49,
+    "need:hunger": 30,
+    "work:Craft (recipe):craft": 46,
+    "work:No job": 3,
+    "work:thirst": 1
+   },
+   "alerts": {
+    "watchful": 46,
+    "calm": 14
+   }
+  },
+  {
+   "day": 38,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 69,
+    "barrel:pine": 16,
+    "drink": 106,
+    "plant_food:dimcap": 19,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "barley:s3": 10,
+    "dimcap:s2": 20,
+    "turnip:s1": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 25,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:turnip": 16,
+    "JobCompleted:craft": 4,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "JobCompleted:haul_to_stockpile": 3
+   },
+   "acts": {
+    "duty:On duty": 41,
+    "need:sleep": 182,
+    "need:comfort": 61,
+    "need:hunger": 26,
+    "work:Craft (recipe):craft": 53,
+    "idle:No job": 98,
+    "need:thirst": 53,
+    "need:social": 42,
+    "work:Haul:haul_to_stockpile": 44
+   },
+   "alerts": {
+    "watchful": 43,
+    "calm": 17
+   }
+  },
+  {
+   "day": 39,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 65,
+    "barrel:pine": 16,
+    "drink": 100,
+    "plant_food:dimcap": 19,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "barley:s3": 10,
+    "dimcap:s2": 20,
+    "turnip:s1": 10
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 28,
+   "events": {
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4
+   },
+   "acts": {
+    "need:sleep": 161,
+    "need:thirst": 41,
+    "need:comfort": 76,
+    "need:social": 43,
+    "work:Haul:haul_to_stockpile": 12,
+    "idle:No job": 155,
+    "duty:On duty": 77,
+    "work:No job": 2,
+    "need:hunger": 32,
+    "work:Haul": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 40,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 60,
+    "barrel:pine": 16,
+    "drink": 113,
+    "plant_food:dimcap": 15,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "barley:s3": 10,
+    "dimcap:s3": 16,
+    "dimcap:s2": 4,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 27,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:plant_food:consumed": 2,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "duty:On duty": 62,
+    "need:sleep": 182,
+    "idle:No job": 118,
+    "need:hunger": 38,
+    "need:social": 31,
+    "need:comfort": 87,
+    "work:Craft (recipe):craft": 31,
+    "need:thirst": 49,
+    "work:comfort": 1,
+    "work:No job": 1
+   },
+   "alerts": {
+    "watchful": 47,
+    "calm": 13
+   }
+  },
+  {
+   "day": 41,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 64,
+    "barrel:pine": 16,
+    "drink": 106,
+    "plant_food:dimcap": 13,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "barley:s3": 10,
+    "dimcap:s3": 20,
+    "turnip:s2": 10
+   },
+   "ready": 2,
+   "hunger": 30,
+   "thirst": 27,
+   "events": {
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 2,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "JobCompleted:haul_to_stockpile": 2,
+    "made:easy_meal:turnip": 4
+   },
+   "acts": {
+    "duty:On duty": 50,
+    "need:sleep": 154,
+    "need:hunger": 19,
+    "need:comfort": 111,
+    "idle:No job": 105,
+    "work:Craft (recipe):craft": 27,
+    "need:thirst": 54,
+    "need:social": 44,
+    "work:Haul:haul_to_stockpile": 29,
+    "work:Harvest:harvest": 7
+   },
+   "alerts": {
+    "watchful": 49,
+    "calm": 11
+   }
+  },
+  {
+   "day": 42,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 60,
+    "barrel:pine": 16,
+    "drink": 101,
+    "plant_food:dimcap": 13,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 35,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "dimcap:s3": 20,
+    "turnip:s2": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 33,
+   "thirst": 35,
+   "events": {
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "made:plant_food:barley": 35,
+    "made:seed:barley": 10,
+    "harvest:barley": 35,
+    "JobCompleted:harvest": 10,
+    "gone:seed:consumed": 10,
+    "CropPlanted:barley": 10,
+    "JobCompleted:plant": 10,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "JobCompleted:haul_to_stockpile": 5,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "need:comfort": 72,
+    "need:sleep": 155,
+    "need:social": 81,
+    "work:Harvest:harvest": 54,
+    "need:hunger": 39,
+    "idle:No job": 14,
+    "need:thirst": 23,
+    "work:Plant seed:plant": 45,
+    "work:Haul:haul_to_stockpile": 62,
+    "duty:On duty": 46,
+    "work:hunger": 1,
+    "work:Craft (recipe):craft": 8
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 43,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "easy_meal": 64,
+    "barrel:pine": 16,
+    "drink": 113,
+    "plant_food:dimcap": 13,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 27,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "barrel:birch": 6
+   },
+   "crops": {
+    "dimcap:s3": 20,
+    "turnip:s2": 10,
+    "barley:s0": 10
+   },
+   "ready": 0,
+   "hunger": 33,
+   "thirst": 24,
+   "events": {
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:barley": 8,
+    "JobCompleted:craft": 3,
+    "made:drink:ale": 20,
+    "JobCompleted:haul_to_stockpile": 1,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "duty:On duty": 45,
+    "need:sleep": 176,
+    "need:comfort": 114,
+    "idle:No job": 97,
+    "work:Craft (recipe):craft": 49,
+    "need:thirst": 62,
+    "need:hunger": 21,
+    "need:social": 22,
+    "work:Haul:haul_to_stockpile": 13,
+    "work:comfort": 1
+   },
+   "alerts": {
+    "watchful": 46,
+    "calm": 14
+   }
+  },
+  {
+   "day": 44,
+   "living": 10,
+   "surfaceC": 11,
+   "weather": "overcast",
+   "plotTemps": [
+    11,
+    11,
+    11
+   ],
+   "stock": {
+    "plant_food:dimcap": 77,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 27,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "barrel:birch": 6,
+    "easy_meal": 55,
+    "drink": 106
+   },
+   "crops": {
+    "dimcap:s3": 4,
+    "turnip:s3": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 16
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 22,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "made:plant_food:dimcap": 66,
+    "made:seed:dimcap": 16,
+    "harvest:dimcap": 66,
+    "JobCompleted:harvest": 16,
+    "gone:seed:consumed": 16,
+    "CropPlanted:dimcap": 16,
+    "JobCompleted:plant": 16,
+    "JobCompleted:haul_to_stockpile": 2,
+    "ItemRotted": 2,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "duty:On duty": 87,
+    "need:comfort": 72,
+    "need:sleep": 139,
+    "need:social": 32,
+    "idle:No job": 27,
+    "need:thirst": 47,
+    "need:hunger": 42,
+    "work:Harvest:harvest": 68,
+    "work:Plant seed:plant": 50,
+    "work:Haul:haul_to_stockpile": 16,
+    "work:Craft (recipe):craft": 20
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 45,
+   "living": 10,
+   "surfaceC": 11,
+   "weather": "overcast",
+   "plotTemps": [
+    11,
+    11,
+    11
+   ],
+   "stock": {
+    "plant_food:dimcap": 84,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 27,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "barrel:birch": 6,
+    "easy_meal": 62,
+    "drink": 101
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 32,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:dimcap": 12,
+    "JobCompleted:craft": 3,
+    "made:plant_food:dimcap": 13,
+    "made:seed:dimcap": 4,
+    "harvest:dimcap": 13,
+    "JobCompleted:harvest": 4,
+    "gone:seed:consumed": 4,
+    "CropPlanted:dimcap": 4,
+    "JobCompleted:plant": 4,
+    "JobCompleted:haul_to_stockpile": 2
+   },
+   "acts": {
+    "duty:On duty": 29,
+    "need:sleep": 183,
+    "work:comfort": 1,
+    "need:comfort": 89,
+    "idle:No job": 63,
+    "need:hunger": 31,
+    "work:Craft (recipe):craft": 53,
+    "need:social": 51,
+    "need:thirst": 38,
+    "work:Harvest:harvest": 26,
+    "work:Plant seed:plant": 10,
+    "work:Haul:haul_to_stockpile": 25,
+    "work:Plant seed": 1
+   },
+   "alerts": {
+    "watchful": 48,
+    "calm": 12
+   }
+  },
+  {
+   "day": 46,
+   "living": 10,
+   "surfaceC": 11,
+   "weather": "overcast",
+   "plotTemps": [
+    11,
+    11,
+    11
+   ],
+   "stock": {
+    "plant_food:dimcap": 74,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 27,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "barrel:birch": 6,
+    "easy_meal": 59,
+    "drink": 114
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 30,
+   "events": {
+    "ItemRotted": 3,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:dimcap": 12,
+    "JobCompleted:craft": 4,
+    "made:drink:dimcap_ale": 20,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "need:social": 49,
+    "duty:On duty": 45,
+    "need:sleep": 157,
+    "need:comfort": 73,
+    "idle:No job": 107,
+    "need:thirst": 57,
+    "work:Craft (recipe):craft": 79,
+    "need:hunger": 33
+   },
+   "alerts": {
+    "watchful": 43,
+    "calm": 17
+   }
+  },
+  {
+   "day": 47,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "plant_food:dimcap": 68,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 27,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "barrel:birch": 6,
+    "drink": 107,
+    "easy_meal": 62
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "barley:s0": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 29,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:dimcap": 12,
+    "JobCompleted:craft": 3,
+    "JobCompleted:haul_to_stockpile": 2,
+    "ItemRotted": 1
+   },
+   "acts": {
+    "need:comfort": 105,
+    "need:sleep": 157,
+    "work:Craft (recipe):craft": 58,
+    "need:social": 70,
+    "need:hunger": 32,
+    "need:thirst": 43,
+    "idle:No job": 74,
+    "duty:On duty": 27,
+    "work:Haul:haul_to_stockpile": 34
+   },
+   "alerts": {
+    "watchful": 51,
+    "calm": 9
+   }
+  },
+  {
+   "day": 48,
+   "living": 10,
+   "surfaceC": 10,
+   "weather": "rain",
+   "plotTemps": [
+    10,
+    10,
+    10
+   ],
+   "stock": {
+    "plant_food:dimcap": 67,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 25,
+    "easy_meal": 55,
+    "barrel:birch": 6,
+    "drink": 100
+   },
+   "crops": {
+    "turnip:s3": 6,
+    "barley:s1": 10,
+    "dimcap:s1": 16,
+    "turnip:s0": 4,
+    "dimcap:s0": 4
+   },
+   "ready": 0,
+   "hunger": 35,
+   "thirst": 26,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:barley": 4,
+    "JobCompleted:craft": 1,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "FireStarted": 3,
+    "ItemRotted": 3,
+    "made:plant_food:turnip": 19,
+    "made:seed:turnip": 4,
+    "harvest:turnip": 19,
+    "JobCompleted:harvest": 4,
+    "gone:seed:consumed": 4,
+    "CropPlanted:turnip": 4,
+    "JobCompleted:plant": 4,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "need:comfort": 87,
+    "duty:On duty": 82,
+    "idle:No job": 90,
+    "need:sleep": 160,
+    "need:thirst": 46,
+    "work:Craft (recipe):craft": 27,
+    "need:social": 39,
+    "need:hunger": 31,
+    "work:No job": 1,
+    "work:Harvest:harvest": 17,
+    "work:Plant seed:plant": 11,
+    "work:Haul:haul_to_stockpile": 7,
+    "work:Plant seed:harvest": 2
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 49,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "plant_food:dimcap": 61,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 42,
+    "barrel:birch": 6,
+    "easy_meal": 57,
+    "drink": 114
+   },
+   "crops": {
+    "barley:s1": 10,
+    "dimcap:s1": 20,
+    "turnip:s0": 10
+   },
+   "ready": 0,
+   "hunger": 25,
+   "thirst": 27,
+   "events": {
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 4,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "made:plant_food:turnip": 21,
+    "made:seed:turnip": 6,
+    "harvest:turnip": 21,
+    "JobCompleted:harvest": 6,
+    "gone:seed:consumed": 6,
+    "CropPlanted:turnip": 6,
+    "JobCompleted:plant": 6,
+    "ItemRotted": 1,
+    "NeedCritical": 2,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "JobCompleted:haul_to_stockpile": 1,
+    "made:easy_meal:turnip": 8,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "duty:On duty": 41,
+    "need:sleep": 155,
+    "need:social": 48,
+    "need:hunger": 35,
+    "work:Harvest:harvest": 24,
+    "work:Craft (recipe):craft": 67,
+    "need:comfort": 116,
+    "work:Plant seed:plant": 17,
+    "need:thirst": 44,
+    "work:Haul:haul_to_stockpile": 7,
+    "idle:No job": 45,
+    "work:No job": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 50,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "plant_food:dimcap": 59,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 40,
+    "barrel:birch": 6,
+    "easy_meal": 62,
+    "drink": 108
+   },
+   "crops": {
+    "barley:s1": 10,
+    "dimcap:s1": 20,
+    "turnip:s0": 10
+   },
+   "ready": 0,
+   "hunger": 34,
+   "thirst": 30,
+   "events": {
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 2,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "NeedCritical": 1,
+    "made:easy_meal:turnip": 4,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "duty:On duty": 71,
+    "need:sleep": 179,
+    "need:social": 66,
+    "need:hunger": 18,
+    "work:Craft (recipe):craft": 18,
+    "need:comfort": 83,
+    "idle:No job": 98,
+    "need:thirst": 47,
+    "work:Haul:haul_to_stockpile": 20
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 51,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "plant_food:dimcap": 59,
+    "plant_food:turnip": 34,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "easy_meal": 64,
+    "drink": 101
+   },
+   "crops": {
+    "barley:s1": 10,
+    "dimcap:s1": 20,
+    "turnip:s0": 10
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 29,
+   "events": {
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 2,
+    "gone:rotten:rotted": 2,
+    "ItemRotted": 2,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "need:hunger": 44,
+    "need:social": 73,
+    "duty:On duty": 19,
+    "idle:No job": 111,
+    "need:sleep": 156,
+    "need:comfort": 97,
+    "need:thirst": 50,
+    "work:Craft (recipe):craft": 31,
+    "work:Haul:haul_to_stockpile": 19
+   },
+   "alerts": {
+    "watchful": 51,
+    "calm": 9
+   }
+  },
+  {
+   "day": 52,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "plant_food:dimcap": 55,
+    "easy_meal": 65,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 31,
+    "barrel:birch": 6,
+    "drink": 115
+   },
+   "crops": {
+    "barley:s1": 10,
+    "dimcap:s2": 16,
+    "turnip:s0": 9,
+    "turnip:s1": 1,
+    "dimcap:s1": 4
+   },
+   "ready": 0,
+   "hunger": 31,
+   "thirst": 33,
+   "events": {
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "ItemRotted": 1,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:turnip": 4,
+    "JobCompleted:craft": 2,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "NeedCritical": 1,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "duty:On duty": 30,
+    "need:sleep": 182,
+    "need:comfort": 102,
+    "need:thirst": 42,
+    "work:Craft (recipe):craft": 51,
+    "work:Haul:haul_to_stockpile": 7,
+    "idle:No job": 121,
+    "need:social": 40,
+    "work:Haul": 1,
+    "work:No job": 1,
+    "need:hunger": 23
+   },
+   "alerts": {
+    "watchful": 47,
+    "calm": 13
+   }
+  },
+  {
+   "day": 53,
+   "living": 10,
+   "surfaceC": 11,
+   "weather": "overcast",
+   "plotTemps": [
+    11,
+    11,
+    11
+   ],
+   "stock": {
+    "plant_food:dimcap": 55,
+    "easy_meal": 59,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 31,
+    "barrel:birch": 6,
+    "drink": 108
+   },
+   "crops": {
+    "barley:s1": 9,
+    "dimcap:s2": 20,
+    "turnip:s1": 10,
+    "barley:s2": 1
+   },
+   "ready": 0,
+   "hunger": 23,
+   "thirst": 29,
+   "events": {
+    "NeedCritical": 1,
+    "gone:rotten:rotted": 3,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6
+   },
+   "acts": {
+    "duty:On duty": 58,
+    "need:thirst": 47,
+    "need:comfort": 96,
+    "need:sleep": 154,
+    "idle:No job": 147,
+    "need:social": 34,
+    "need:hunger": 53,
+    "work:No job": 1,
+    "work:Craft (recipe):craft": 10
+   },
+   "alerts": {
+    "watchful": 52,
+    "calm": 8
+   }
+  },
+  {
+   "day": 54,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "plant_food:dimcap": 53,
+    "easy_meal": 67,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 27,
+    "barrel:birch": 6,
+    "drink": 102
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s2": 20,
+    "turnip:s1": 10
+   },
+   "ready": 0,
+   "hunger": 25,
+   "thirst": 33,
+   "events": {
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 3,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:rotten:rotted": 1,
+    "NeedCritical": 1,
+    "made:easy_meal:dimcap": 4
+   },
+   "acts": {
+    "duty:On duty": 81,
+    "need:sleep": 167,
+    "work:Craft (recipe):craft": 38,
+    "need:social": 55,
+    "idle:No job": 47,
+    "need:hunger": 26,
+    "need:thirst": 51,
+    "need:comfort": 94,
+    "work:Haul:haul_to_stockpile": 39,
+    "work:No job": 1,
+    "work:social": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 55,
+   "living": 10,
+   "surfaceC": 10,
+   "weather": "rain",
+   "plotTemps": [
+    10,
+    10,
+    10
+   ],
+   "stock": {
+    "plant_food:dimcap": 49,
+    "easy_meal": 65,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 27,
+    "barrel:birch": 6,
+    "drink": 115
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s2": 20,
+    "turnip:s1": 10
+   },
+   "ready": 0,
+   "hunger": 39,
+   "thirst": 30,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "HuntStarted": 1,
+    "JobCancelled:hunt:target_gone": 1,
+    "NeedCritical": 2,
+    "gone:plant_food:consumed": 2,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 1,
+    "gone:rotten:rotted": 2
+   },
+   "acts": {
+    "need:sleep": 160,
+    "duty:On duty": 47,
+    "idle:No job": 135,
+    "need:comfort": 82,
+    "need:social": 50,
+    "work:Haul:haul_to_stockpile": 11,
+    "need:thirst": 46,
+    "work:Craft (recipe):craft": 35,
+    "need:hunger": 17,
+    "work:Hunt:hunt": 16,
+    "work:No job": 1
+   },
+   "alerts": {
+    "watchful": 44,
+    "calm": 16
+   }
+  },
+  {
+   "day": 56,
+   "living": 10,
+   "surfaceC": 13,
+   "weather": "clear",
+   "plotTemps": [
+    13,
+    13,
+    12
+   ],
+   "stock": {
+    "plant_food:dimcap": 47,
+    "easy_meal": 61,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 25,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 27,
+    "barrel:birch": 6,
+    "drink": 108
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s3": 16,
+    "turnip:s1": 10,
+    "dimcap:s2": 4
+   },
+   "ready": 0,
+   "hunger": 18,
+   "thirst": 28,
+   "events": {
+    "gone:easy_meal:consumed": 8,
+    "MealEaten": 8,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:rotten:rotted": 1,
+    "JobCancelled:hunt:target_gone": 1,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "need:sleep": 160,
+    "need:comfort": 123,
+    "idle:No job": 96,
+    "need:social": 52,
+    "need:hunger": 55,
+    "need:thirst": 44,
+    "work:No job": 2,
+    "duty:On duty": 22,
+    "work:Hunt:hunt": 6,
+    "work:Craft (recipe):craft": 27,
+    "work:Haul:haul_to_stockpile": 12,
+    "work:hunger": 1
+   },
+   "alerts": {
+    "watchful": 51,
+    "calm": 9
+   }
+  },
+  {
+   "day": 57,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 45,
+    "easy_meal": 66,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 19,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 27,
+    "barrel:birch": 6,
+    "drink": 119
+   },
+   "crops": {
+    "barley:s2": 10,
+    "dimcap:s3": 20,
+    "turnip:s1": 8,
+    "turnip:s2": 2
+   },
+   "ready": 0,
+   "hunger": 32,
+   "thirst": 26,
+   "events": {
+    "made:tunic:flax_cloth": 3,
+    "made:trousers:flax_cloth": 3,
+    "made:boots:flax_cloth": 3,
+    "PlotNeedsSeeds:turnip": 1,
+    "PlotNeedsSeeds:dimcap": 1,
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:barley": 4,
+    "JobCompleted:craft": 3,
+    "ImmigrantsArrived": 1,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "made:easy_meal:dimcap": 4,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "made:drink:ale": 20
+   },
+   "acts": {
+    "duty:On duty": 50,
+    "need:sleep": 225,
+    "need:comfort": 90,
+    "work:Craft (recipe):craft": 40,
+    "idle:No job": 207,
+    "work:Haul:haul_to_stockpile": 22,
+    "need:social": 38,
+    "need:thirst": 74,
+    "work:No job": 5,
+    "need:hunger": 26
+   },
+   "alerts": {
+    "watchful": 48,
+    "calm": 12
+   }
+  },
+  {
+   "day": 58,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 45,
+    "easy_meal": 64,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 19,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 21,
+    "barrel:birch": 6,
+    "drink": 112
+   },
+   "crops": {
+    "dimcap:s3": 20,
+    "turnip:s1": 4,
+    "turnip:s2": 6
+   },
+   "ready": 0,
+   "hunger": 15,
+   "thirst": 33,
+   "events": {
+    "gone:easy_meal:consumed": 10,
+    "MealEaten": 10,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "died:barley:frost": 10,
+    "ItemRotted": 1,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:turnip": 12,
+    "JobCompleted:craft": 3,
+    "JobCompleted:haul_to_stockpile": 2
+   },
+   "acts": {
+    "need:thirst": 49,
+    "need:sleep": 231,
+    "idle:No job": 138,
+    "need:hunger": 74,
+    "work:No job": 1,
+    "need:social": 49,
+    "duty:On duty": 59,
+    "need:comfort": 106,
+    "work:Craft (recipe):craft": 37,
+    "work:Haul:haul_to_stockpile": 36
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 59,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 45,
+    "easy_meal": 62,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 19,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 21,
+    "barrel:birch": 6,
+    "drink": 103
+   },
+   "crops": {
+    "dimcap:s3": 20,
+    "turnip:s2": 9,
+    "turnip:s1": 1
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 32,
+   "events": {
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "NeedCritical": 1,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2
+   },
+   "acts": {
+    "need:social": 80,
+    "need:sleep": 213,
+    "need:comfort": 125,
+    "need:thirst": 68,
+    "work:Haul:haul_to_stockpile": 4,
+    "duty:On duty": 54,
+    "idle:No job": 219,
+    "work:comfort": 1,
+    "work:No job": 3,
+    "need:hunger": 13
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 60,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 76,
+    "easy_meal": 56,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 21,
+    "barrel:birch": 6,
+    "drink": 113,
+    "seed:dimcap": 5
+   },
+   "crops": {
+    "dimcap:s3": 11,
+    "turnip:s2": 10,
+    "dimcap:s0": 4
+   },
+   "ready": 1,
+   "hunger": 30,
+   "thirst": 24,
+   "events": {
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "NeedCritical": 3,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "made:plant_food:dimcap": 34,
+    "made:seed:dimcap": 9,
+    "harvest:dimcap": 34,
+    "JobCompleted:harvest": 9,
+    "gone:plant_food:consumed": 3,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 2,
+    "gone:seed:consumed": 4,
+    "CropPlanted:dimcap": 4,
+    "JobCompleted:plant": 4,
+    "gone:rotten:rotted": 1,
+    "made:easy_meal:barley": 4,
+    "JobCompleted:haul_to_stockpile": 1,
+    "ItemRotted": 1
+   },
+   "acts": {
+    "need:social": 45,
+    "need:sleep": 207,
+    "idle:No job": 144,
+    "need:thirst": 69,
+    "duty:On duty": 55,
+    "need:comfort": 73,
+    "work:No job": 1,
+    "need:hunger": 64,
+    "work:Craft (recipe):craft": 45,
+    "work:Harvest:harvest": 44,
+    "work:Plant seed:plant": 17,
+    "work:Plant seed:haul_to_stockpile": 1,
+    "work:Haul:haul_to_stockpile": 14,
+    "work:Haul:plant": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 61,
+   "living": 13,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "plant_food:dimcap": 107,
+    "easy_meal": 58,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 21,
+    "barrel:birch": 6,
+    "drink": 106,
+    "seed:dimcap": 2
+   },
+   "crops": {
+    "dimcap:s0": 16,
+    "turnip:s2": 10,
+    "dimcap:s3": 2
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 32,
+   "events": {
+    "gone:seed:consumed": 12,
+    "CropPlanted:dimcap": 12,
+    "JobCompleted:plant": 12,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "JobCompleted:haul_to_stockpile": 5,
+    "made:plant_food:dimcap": 37,
+    "made:seed:dimcap": 9,
+    "harvest:dimcap": 37,
+    "JobCompleted:harvest": 9,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:dimcap": 12,
+    "JobCompleted:craft": 3,
+    "NeedCritical": 1,
+    "ItemRotted": 1
+   },
+   "acts": {
+    "need:hunger": 40,
+    "need:comfort": 163,
+    "need:sleep": 206,
+    "need:thirst": 54,
+    "work:Haul:haul_to_stockpile": 50,
+    "work:Craft (recipe):craft": 59,
+    "work:Harvest:harvest": 41,
+    "work:Plant seed:plant": 40,
+    "need:social": 55,
+    "duty:On duty": 43,
+    "work:Haul": 1,
+    "idle:No job": 28
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 62,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 104,
+    "easy_meal": 58,
+    "barrel:pine": 35,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 21,
+    "barrel:birch": 6,
+    "drink": 498,
+    "seed:pumpkin": 40,
+    "plant_food:sunfruit": 60,
+    "plant_food:strawberry": 60,
+    "plant_food:bramble_berry": 40
+   },
+   "crops": {
+    "dimcap:s0": 20,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 33,
+   "thirst": 34,
+   "events": {
+    "made:bow:yew": 8,
+    "made:arrow:oak": 60,
+    "made:dagger:iron": 2,
+    "made:leather_jerkin:leather": 2,
+    "made:barrel:pine": 19,
+    "made:drink:bellwine": 100,
+    "made:plant_food:sunfruit": 60,
+    "made:cloth:flax_cloth": 21,
+    "made:arrow:yew": 150,
+    "made:log:yew": 7,
+    "made:drink:strawberry_wine": 280,
+    "made:arrow:pine": 75,
+    "made:bag:flax_cloth": 3,
+    "made:arrow:bone": 75,
+    "made:arrow:birch": 75,
+    "made:cage:pine": 3,
+    "made:amulet:shell": 5,
+    "made:arrow:willow": 75,
+    "made:bag:pine": 4,
+    "made:seed:pumpkin": 40,
+    "made:bow:ash": 4,
+    "made:plant_food:strawberry": 60,
+    "made:figurine:shell": 3,
+    "made:ring:bone": 4,
+    "made:plant_food:bramble_berry": 40,
+    "CaravanArrived": 1,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:seed:consumed": 4,
+    "CropPlanted:dimcap": 4,
+    "JobCompleted:plant": 4,
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:dimcap": 12,
+    "JobCompleted:craft": 4,
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "made:plant_food:dimcap": 7,
+    "made:seed:dimcap": 2,
+    "harvest:dimcap": 7,
+    "JobCompleted:harvest": 2,
+    "ItemRotted": 2,
+    "HuntStarted": 1,
+    "NeedCritical": 1,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "need:comfort": 141,
+    "idle:No job": 122,
+    "work:Plant seed:plant": 9,
+    "work:Craft (recipe):craft": 64,
+    "need:hunger": 27,
+    "need:thirst": 66,
+    "need:sleep": 205,
+    "work:Haul:haul_to_stockpile": 12,
+    "need:social": 84,
+    "duty:On duty": 28,
+    "work:Harvest:harvest": 12,
+    "work:Hunt:hunt": 10
+   },
+   "alerts": {
+    "watchful": 46,
+    "calm": 14
+   }
+  },
+  {
+   "day": 63,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 100,
+    "easy_meal": 59,
+    "barrel:pine": 35,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 21,
+    "barrel:birch": 6,
+    "drink": 487,
+    "seed:pumpkin": 40,
+    "plant_food:sunfruit": 60,
+    "plant_food:strawberry": 60,
+    "plant_food:bramble_berry": 40
+   },
+   "crops": {
+    "dimcap:s0": 20,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 22,
+   "events": {
+    "gone:drink:consumed": 11,
+    "DrankAlcohol": 11,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "NeedCritical": 1,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "duty:On duty": 52,
+    "need:sleep": 204,
+    "need:comfort": 134,
+    "need:thirst": 75,
+    "work:Craft (recipe):craft": 60,
+    "idle:No job": 116,
+    "need:hunger": 73,
+    "need:social": 52,
+    "work:Haul:haul_to_stockpile": 14
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 64,
+   "living": 13,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "plant_food:dimcap": 96,
+    "easy_meal": 54,
+    "barrel:pine": 35,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 21,
+    "barrel:birch": 6,
+    "drink": 480,
+    "seed:pumpkin": 40,
+    "plant_food:sunfruit": 60,
+    "plant_food:strawberry": 60,
+    "plant_food:bramble_berry": 40
+   },
+   "crops": {
+    "dimcap:s0": 20,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 29,
+   "events": {
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "ItemRotted": 2
+   },
+   "acts": {
+    "need:social": 35,
+    "duty:On duty": 78,
+    "need:thirst": 53,
+    "need:sleep": 214,
+    "need:comfort": 112,
+    "idle:No job": 207,
+    "need:hunger": 33,
+    "work:No job": 2,
+    "work:Craft (recipe):craft": 32,
+    "work:Haul:haul_to_stockpile": 14
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 65,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 88,
+    "easy_meal": 58,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 19,
+    "barrel:birch": 6,
+    "drink": 112
+   },
+   "crops": {
+    "dimcap:s0": 5,
+    "dimcap:s1": 15,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 21,
+   "thirst": 32,
+   "events": {
+    "gone:barrel:caravan_departed": 19,
+    "gone:drink:caravan_departed": 19,
+    "gone:plant_food:caravan_departed": 8,
+    "gone:cloth:caravan_departed": 6,
+    "gone:arrow:caravan_departed": 11,
+    "gone:log:caravan_departed": 7,
+    "gone:bag:caravan_departed": 7,
+    "gone:cage:caravan_departed": 3,
+    "gone:amulet:caravan_departed": 1,
+    "gone:bow:caravan_departed": 10,
+    "gone:seed:caravan_departed": 4,
+    "gone:figurine:caravan_departed": 1,
+    "gone:ring:caravan_departed": 1,
+    "gone:leather_jerkin:left_map": 2,
+    "gone:dagger:left_map": 2,
+    "gone:arrow:left_map": 2,
+    "gone:bow:left_map": 2,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:plant_food:consumed": 5,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 4,
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "gone:easy_meal:consumed": 8,
+    "MealEaten": 8,
+    "made:easy_meal:turnip": 4,
+    "made:drink:dimcap_ale": 20,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "duty:On duty": 70,
+    "need:sleep": 212,
+    "work:Craft (recipe):craft": 91,
+    "idle:No job": 144,
+    "need:thirst": 52,
+    "need:hunger": 56,
+    "need:comfort": 79,
+    "need:social": 57,
+    "work:Haul:haul_to_stockpile": 19
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 66,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 82,
+    "easy_meal": 62,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 19,
+    "barrel:birch": 6,
+    "drink": 101
+   },
+   "crops": {
+    "dimcap:s1": 20,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 29,
+   "thirst": 23,
+   "events": {
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:drink:consumed": 11,
+    "DrankAlcohol": 11,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:dimcap": 12,
+    "JobCompleted:craft": 3,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:rotten:rotted": 2,
+    "ItemRotted": 1,
+    "NeedCritical": 1,
+    "gone:bolt:projectile_break": 5
+   },
+   "acts": {
+    "duty:On duty": 47,
+    "need:thirst": 85,
+    "need:sleep": 199,
+    "work:Craft (recipe):craft": 43,
+    "idle:No job": 139,
+    "work:Haul:haul_to_stockpile": 19,
+    "need:social": 74,
+    "need:comfort": 121,
+    "need:hunger": 29,
+    "work:No job": 2,
+    "work:Hunt:hunt": 21,
+    "work:thirst": 1
+   },
+   "alerts": {
+    "watchful": 39,
+    "calm": 21
+   }
+  },
+  {
+   "day": 67,
+   "living": 13,
+   "surfaceC": 2,
+   "weather": "fog",
+   "plotTemps": [
+    2,
+    2,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 74,
+    "easy_meal": 59,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "plant_food:barley": 16,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 19,
+    "barrel:birch": 6,
+    "drink": 115
+   },
+   "crops": {
+    "dimcap:s1": 20,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 23,
+   "thirst": 35,
+   "events": {
+    "HuntAbandoned": 1,
+    "JobCancelled:hunt:target_gone": 1,
+    "made:corpse:deer_meat": 1,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "NeedCritical": 3,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:rotten:rotted": 1,
+    "ItemRotted": 1,
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 3,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "need:sleep": 233,
+    "need:comfort": 135,
+    "need:thirst": 50,
+    "work:Craft (recipe):craft": 93,
+    "need:social": 64,
+    "work:Haul:haul_to_stockpile": 17,
+    "idle:No job": 132,
+    "need:hunger": 56
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 68,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 74,
+    "easy_meal": 62,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 19,
+    "barrel:birch": 6,
+    "plant_food:barley": 5,
+    "drink": 105
+   },
+   "crops": {
+    "dimcap:s1": 20,
+    "turnip:s2": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 29,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "ItemRotted": 4,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:barley": 8,
+    "JobCompleted:craft": 2,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:rotten:rotted": 1
+   },
+   "acts": {
+    "need:sleep": 225,
+    "idle:No job": 245,
+    "need:thirst": 68,
+    "need:social": 46,
+    "need:hunger": 30,
+    "work:Craft (recipe):craft": 23,
+    "need:comfort": 130,
+    "work:Haul:haul_to_stockpile": 13
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 69,
+   "living": 13,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "plant_food:dimcap": 70,
+    "easy_meal": 60,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 19,
+    "barrel:birch": 6,
+    "plant_food:barley": 5,
+    "drink": 97
+   },
+   "crops": {
+    "dimcap:s1": 12,
+    "dimcap:s2": 8,
+    "turnip:s2": 6,
+    "turnip:s3": 4
+   },
+   "ready": 0,
+   "hunger": 31,
+   "thirst": 33,
+   "events": {
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "ItemRotted": 2,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "JobCompleted:haul_to_stockpile": 2,
+    "NeedCritical": 2
+   },
+   "acts": {
+    "need:social": 29,
+    "need:sleep": 190,
+    "idle:No job": 255,
+    "need:comfort": 91,
+    "work:Craft (recipe):craft": 88,
+    "need:thirst": 53,
+    "need:hunger": 45,
+    "work:No job": 1,
+    "work:Haul:haul_to_stockpile": 26,
+    "work:comfort": 2
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 70,
+   "living": 13,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "plant_food:dimcap": 58,
+    "easy_meal": 66,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 16,
+    "drink": 107,
+    "barrel:birch": 6,
+    "plant_food:barley": 5
+   },
+   "crops": {
+    "dimcap:s1": 2,
+    "dimcap:s2": 18,
+    "turnip:s3": 9,
+    "turnip:s2": 1
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 27,
+   "events": {
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:plant_food:consumed": 6,
+    "made:easy_meal:dimcap": 16,
+    "JobCompleted:craft": 5,
+    "made:drink:dimcap_ale": 20,
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "JobCompleted:haul_to_stockpile": 3,
+    "ItemRotted": 3,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "need:sleep": 217,
+    "need:thirst": 71,
+    "idle:No job": 154,
+    "work:Craft (recipe):craft": 57,
+    "need:hunger": 33,
+    "need:comfort": 139,
+    "need:social": 76,
+    "work:Haul:haul_to_stockpile": 31,
+    "work:No job": 2
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 71,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "easy_meal": 65,
+    "barrel:pine": 16,
+    "plant_food:dimcap": 51,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 16,
+    "drink": 100,
+    "barrel:birch": 6,
+    "plant_food:barley": 5
+   },
+   "crops": {
+    "dimcap:s2": 20,
+    "turnip:s3": 10
+   },
+   "ready": 0,
+   "hunger": 33,
+   "thirst": 35,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "JobCompleted:haul_to_stockpile": 2,
+    "NeedCritical": 2,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1,
+    "ItemRotted": 3,
+    "gone:rotten:rotted": 2
+   },
+   "acts": {
+    "need:thirst": 52,
+    "idle:No job": 188,
+    "need:sleep": 229,
+    "need:social": 93,
+    "work:Haul:haul_to_stockpile": 29,
+    "need:comfort": 126,
+    "need:hunger": 38,
+    "work:No job": 3,
+    "work:Craft (recipe):craft": 22
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 72,
+   "living": 13,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "easy_meal": 62,
+    "barrel:pine": 16,
+    "plant_food:dimcap": 39,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 16,
+    "drink": 110,
+    "barrel:birch": 6,
+    "plant_food:barley": 5
+   },
+   "crops": {
+    "dimcap:s2": 20,
+    "turnip:s3": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 28,
+   "events": {
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "ItemRotted": 5,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:plant_food:consumed": 2,
+    "gone:rotten:consumed": 1,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 2,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "work:Craft (recipe):craft": 54,
+    "need:comfort": 117,
+    "need:thirst": 58,
+    "idle:No job": 230,
+    "need:sleep": 206,
+    "need:social": 42,
+    "need:hunger": 58,
+    "work:No job": 3,
+    "work:Haul:haul_to_stockpile": 12
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 73,
+   "living": 13,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "easy_meal": 61,
+    "barrel:pine": 16,
+    "plant_food:dimcap": 35,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 16,
+    "drink": 100,
+    "barrel:birch": 6,
+    "plant_food:barley": 5
+   },
+   "crops": {
+    "dimcap:s2": 17,
+    "turnip:s3": 10,
+    "dimcap:s3": 3
+   },
+   "ready": 0,
+   "hunger": 31,
+   "thirst": 23,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1,
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:rotten:rotted": 1,
+    "ItemRotted": 1
+   },
+   "acts": {
+    "idle:No job": 292,
+    "work:Craft (recipe):craft": 6,
+    "need:comfort": 100,
+    "need:sleep": 222,
+    "need:thirst": 70,
+    "need:social": 46,
+    "work:Haul:haul_to_stockpile": 13,
+    "need:hunger": 29,
+    "work:No job": 2
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 74,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "easy_meal": 63,
+    "barrel:pine": 16,
+    "plant_food:dimcap": 30,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 12,
+    "drink": 113,
+    "barrel:birch": 6,
+    "plant_food:barley": 5
+   },
+   "crops": {
+    "dimcap:s2": 4,
+    "dimcap:s3": 16,
+    "turnip:s3": 10
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 31,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 3,
+    "ItemRotted": 1,
+    "JobCompleted:haul_to_stockpile": 2,
+    "made:drink:dimcap_ale": 20,
+    "NeedCritical": 1,
+    "gone:rotten:rotted": 1
+   },
+   "acts": {
+    "need:sleep": 204,
+    "idle:No job": 233,
+    "need:social": 49,
+    "work:Craft (recipe):craft": 87,
+    "need:comfort": 85,
+    "need:thirst": 51,
+    "need:hunger": 46,
+    "work:No job": 1,
+    "work:Haul:haul_to_stockpile": 24
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 75,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "easy_meal": 66,
+    "barrel:pine": 16,
+    "plant_food:dimcap": 28,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "drink": 104,
+    "barrel:birch": 6,
+    "plant_food:barley": 5
+   },
+   "crops": {
+    "dimcap:s3": 20,
+    "turnip:s3": 10
+   },
+   "ready": 0,
+   "hunger": 32,
+   "thirst": 31,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 3,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "JobCompleted:haul_to_stockpile": 2,
+    "ItemRotted": 1,
+    "made:easy_meal:dimcap": 4
+   },
+   "acts": {
+    "idle:No job": 231,
+    "need:comfort": 128,
+    "need:sleep": 203,
+    "need:hunger": 41,
+    "work:Craft (recipe):craft": 32,
+    "work:Haul:haul_to_stockpile": 25,
+    "need:thirst": 65,
+    "need:social": 53,
+    "work:No job": 2
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 76,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "easy_meal": 63,
+    "barrel:pine": 16,
+    "plant_food:dimcap": 24,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "drink": 114,
+    "barrel:birch": 6,
+    "plant_food:barley": 3
+   },
+   "crops": {
+    "dimcap:s3": 20,
+    "turnip:s3": 10
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 24,
+   "events": {
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:barley": 4,
+    "JobCompleted:craft": 2,
+    "gone:rotten:rotted": 2,
+    "NeedCritical": 1,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "work:Haul:haul_to_stockpile": 24,
+    "need:sleep": 208,
+    "need:social": 36,
+    "need:thirst": 86,
+    "need:comfort": 107,
+    "idle:No job": 232,
+    "need:hunger": 40,
+    "work:Craft (recipe):craft": 47
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 77,
+   "living": 13,
+   "surfaceC": -1,
+   "weather": "storm",
+   "plotTemps": [
+    -1,
+    -1,
+    2
+   ],
+   "stock": {
+    "drink": 107,
+    "barrel:pine": 16,
+    "plant_food:dimcap": 20,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "easy_meal": 61,
+    "barrel:birch": 6,
+    "plant_food:barley": 3
+   },
+   "crops": {
+    "dimcap:s3": 20,
+    "turnip:s3": 10
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 32,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "HuntStarted": 1,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:bolt:projectile_break": 2,
+    "HuntKill": 1,
+    "JobCompleted:hunt": 1,
+    "gone:rotten:rotted": 1,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "ItemRotted": 1,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "idle:No job": 221,
+    "need:comfort": 129,
+    "need:social": 35,
+    "need:sleep": 222,
+    "need:thirst": 39,
+    "need:hunger": 40,
+    "work:Hunt:hunt": 21,
+    "work:comfort": 1,
+    "work:Craft (recipe):craft": 40,
+    "work:Hunt": 1,
+    "work:No job": 6,
+    "work:Haul:haul_to_stockpile": 25
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 78,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    -4,
+    -4,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 56,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "seed:dimcap": 4,
+    "easy_meal": 64,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 98
+   },
+   "crops": {
+    "dimcap:s3": 11,
+    "turnip:s3": 10,
+    "dimcap:s0": 5
+   },
+   "ready": 4,
+   "hunger": 30,
+   "thirst": 31,
+   "events": {
+    "JobCompleted:haul_to_stockpile": 4,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:turnip": 4,
+    "JobCompleted:craft": 2,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "made:plant_food:dimcap": 38,
+    "made:seed:dimcap": 9,
+    "harvest:dimcap": 38,
+    "JobCompleted:harvest": 9,
+    "gone:seed:consumed": 5,
+    "CropPlanted:dimcap": 5,
+    "JobCompleted:plant": 5,
+    "made:easy_meal:dimcap": 4,
+    "NeedCritical": 2
+   },
+   "acts": {
+    "need:social": 27,
+    "need:sleep": 215,
+    "need:thirst": 85,
+    "idle:No job": 115,
+    "work:Haul:haul_to_stockpile": 70,
+    "work:Craft (recipe):craft": 53,
+    "need:comfort": 75,
+    "need:hunger": 40,
+    "work:Harvest:harvest": 67,
+    "work:Plant seed:plant": 33
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 79,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    1,
+    1,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 92,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "easy_meal": 61,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 107,
+    "seed:dimcap": 1
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "dimcap:s3": 1,
+    "dimcap:s0": 18
+   },
+   "ready": 0,
+   "hunger": 23,
+   "thirst": 18,
+   "events": {
+    "made:plant_food:dimcap": 42,
+    "made:seed:dimcap": 10,
+    "harvest:dimcap": 42,
+    "JobCompleted:harvest": 10,
+    "gone:seed:consumed": 13,
+    "CropPlanted:dimcap": 13,
+    "JobCompleted:plant": 13,
+    "JobCompleted:haul_to_stockpile": 5,
+    "gone:drink:consumed": 11,
+    "DrankAlcohol": 11,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:plant_food:consumed": 3,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 2,
+    "made:easy_meal:dimcap": 4,
+    "HuntStarted": 1,
+    "HuntAbandoned": 1,
+    "JobCancelled:hunt:target_gone": 1,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "work:Harvest:harvest": 39,
+    "need:sleep": 189,
+    "work:Craft (recipe):craft": 26,
+    "need:thirst": 77,
+    "work:Plant seed:plant": 39,
+    "work:Haul:haul_to_stockpile": 67,
+    "work:Hunt:hunt": 26,
+    "work:thirst:haul_to_stockpile": 1,
+    "need:hunger": 49,
+    "need:social": 55,
+    "need:comfort": 180,
+    "idle:No job": 31,
+    "work:Plant seed": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 80,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 94,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 6,
+    "easy_meal": 60,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 102
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 34,
+   "events": {
+    "gone:seed:consumed": 2,
+    "CropPlanted:dimcap": 2,
+    "JobCompleted:plant": 2,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "JobCompleted:haul_to_stockpile": 2,
+    "made:plant_food:dimcap": 4,
+    "made:seed:dimcap": 1,
+    "harvest:dimcap": 4,
+    "JobCompleted:harvest": 1,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1,
+    "gone:rotten:rotted": 2,
+    "HuntStarted": 1,
+    "HuntAbandoned": 1,
+    "JobCancelled:hunt:target_gone": 1
+   },
+   "acts": {
+    "need:comfort": 145,
+    "work:Haul:haul_to_stockpile": 18,
+    "need:sleep": 202,
+    "need:hunger": 31,
+    "idle:No job": 205,
+    "need:social": 84,
+    "need:thirst": 37,
+    "work:Harvest:harvest": 6,
+    "work:Craft (recipe):craft": 18,
+    "work:No job": 2,
+    "work:Plant seed:plant": 5,
+    "work:Hunt:hunt": 26,
+    "work:thirst": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 81,
+   "living": 13,
+   "surfaceC": 1,
+   "weather": "overcast",
+   "plotTemps": [
+    -4,
+    -4,
+    4
+   ],
+   "stock": {
+    "plant_food:dimcap": 85,
+    "barrel:pine": 16,
+    "easy_meal": 64,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 5,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 112
+   },
+   "crops": {
+    "turnip:s3": 10,
+    "dimcap:s0": 20
+   },
+   "ready": 0,
+   "hunger": 33,
+   "thirst": 29,
+   "events": {
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "gone:rotten:rotted": 4,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "ItemRotted": 2,
+    "gone:plant_food:consumed": 3,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 3,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "need:sleep": 232,
+    "idle:No job": 205,
+    "need:thirst": 83,
+    "need:comfort": 101,
+    "work:No job": 1,
+    "work:Craft (recipe):craft": 66,
+    "need:social": 38,
+    "need:hunger": 46,
+    "work:Haul:haul_to_stockpile": 8
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 82,
+   "living": 13,
+   "surfaceC": 3,
+   "weather": "clear",
+   "plotTemps": [
+    3,
+    3,
+    5
+   ],
+   "stock": {
+    "plant_food:dimcap": 81,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 12,
+    "easy_meal": 61,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 102
+   },
+   "crops": {
+    "turnip:s3": 8,
+    "dimcap:s0": 20,
+    "turnip:s0": 2
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 23,
+   "events": {
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "ItemRotted": 2,
+    "HuntStarted": 1,
+    "HuntAbandoned": 1,
+    "gone:bolt:projectile_break": 1,
+    "JobCancelled:hunt:target_gone": 1,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "gone:rotten:rotted": 2,
+    "NeedCritical": 1,
+    "JobCompleted:haul_to_stockpile": 1,
+    "made:plant_food:turnip": 8,
+    "made:seed:turnip": 2,
+    "harvest:turnip": 8,
+    "JobCompleted:harvest": 2,
+    "gone:seed:consumed": 2,
+    "CropPlanted:turnip": 2,
+    "JobCompleted:plant": 2
+   },
+   "acts": {
+    "need:comfort": 138,
+    "need:hunger": 47,
+    "need:sleep": 214,
+    "need:thirst": 70,
+    "idle:No job": 174,
+    "need:social": 34,
+    "work:Hunt:hunt": 17,
+    "work:Craft (recipe):craft": 48,
+    "work:No job": 2,
+    "work:Haul:haul_to_stockpile": 22,
+    "work:Harvest:harvest": 9,
+    "work:Plant seed:plant": 5
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 83,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 75,
+    "plant_food:turnip": 40,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "easy_meal": 61,
+    "drink": 115,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "seed:turnip": 1
+   },
+   "crops": {
+    "turnip:s3": 1,
+    "dimcap:s0": 4,
+    "turnip:s0": 8,
+    "dimcap:s1": 16
+   },
+   "ready": 0,
+   "hunger": 34,
+   "thirst": 31,
+   "events": {
+    "gone:rotten:rotted": 2,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "made:plant_food:turnip": 28,
+    "made:seed:turnip": 7,
+    "harvest:turnip": 28,
+    "JobCompleted:harvest": 7,
+    "gone:seed:consumed": 6,
+    "CropPlanted:turnip": 6,
+    "JobCompleted:plant": 6,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 2,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "need:sleep": 202,
+    "need:comfort": 163,
+    "need:social": 46,
+    "work:Craft (recipe):craft": 32,
+    "work:Haul:haul_to_stockpile": 7,
+    "need:thirst": 46,
+    "work:Harvest:harvest": 44,
+    "idle:No job": 190,
+    "need:hunger": 29,
+    "work:Harvest:plant": 1,
+    "work:Plant seed:plant": 20
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 84,
+   "living": 13,
+   "surfaceC": 0,
+   "weather": "rain",
+   "plotTemps": [
+    0,
+    0,
+    3
+   ],
+   "stock": {
+    "plant_food:dimcap": 75,
+    "plant_food:turnip": 36,
+    "barrel:pine": 16,
+    "easy_meal": 61,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "drink": 107,
+    "barrel:birch": 6,
+    "plant_food:barley": 3
+   },
+   "crops": {
+    "turnip:s3": 1,
+    "turnip:s0": 9,
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 25,
+   "thirst": 33,
+   "events": {
+    "gone:seed:consumed": 1,
+    "CropPlanted:turnip": 1,
+    "JobCompleted:plant": 1,
+    "gone:easy_meal:consumed": 8,
+    "MealEaten": 8,
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 2,
+    "gone:rotten:rotted": 1
+   },
+   "acts": {
+    "idle:No job": 180,
+    "need:comfort": 117,
+    "need:sleep": 217,
+    "need:thirst": 57,
+    "need:hunger": 62,
+    "work:Craft (recipe):craft": 34,
+    "work:Haul:haul_to_stockpile": 26,
+    "work:No job": 1,
+    "need:social": 84,
+    "work:hunger": 1,
+    "work:thirst": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 85,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 67,
+    "plant_food:turnip": 36,
+    "barrel:pine": 16,
+    "easy_meal": 64,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 116
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 22,
+   "events": {
+    "PlotNeedsSeeds:dimcap": 1,
+    "died:turnip:frost": 10,
+    "gone:drink:consumed": 11,
+    "DrankAlcohol": 11,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 3,
+    "JobCompleted:haul_to_stockpile": 1,
+    "made:drink:dimcap_ale": 20
+   },
+   "acts": {
+    "need:comfort": 98,
+    "need:sleep": 197,
+    "idle:No job": 190,
+    "need:thirst": 84,
+    "need:social": 78,
+    "need:hunger": 43,
+    "work:Craft (recipe):craft": 61,
+    "work:thirst": 1,
+    "work:No job": 1,
+    "work:Haul:haul_to_stockpile": 27
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 86,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 63,
+    "plant_food:turnip": 36,
+    "barrel:pine": 16,
+    "easy_meal": 65,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 110
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 23,
+   "thirst": 32,
+   "events": {
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "NeedCritical": 2
+   },
+   "acts": {
+    "need:comfort": 115,
+    "need:sleep": 209,
+    "need:social": 59,
+    "work:Craft (recipe):craft": 41,
+    "need:hunger": 61,
+    "idle:No job": 138,
+    "work:Haul:haul_to_stockpile": 24,
+    "work:Hunt:hunt": 54,
+    "need:thirst": 78,
+    "work:hunger": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 87,
+   "living": 13,
+   "surfaceC": -13,
+   "weather": "clear",
+   "plotTemps": [
+    -18,
+    -18,
+    -6
+   ],
+   "stock": {
+    "plant_food:dimcap": 61,
+    "plant_food:turnip": 36,
+    "barrel:pine": 16,
+    "easy_meal": 66,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 103
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 35,
+   "thirst": 35,
+   "events": {
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "NeedCritical": 2,
+    "JobCompleted:haul_to_stockpile": 1,
+    "HuntAbandoned": 1,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "need:thirst": 49,
+    "need:comfort": 184,
+    "need:sleep": 235,
+    "work:Hunt:hunt": 64,
+    "work:Haul:haul_to_stockpile": 38,
+    "need:hunger": 21,
+    "idle:No job": 104,
+    "need:social": 63,
+    "work:Craft (recipe):craft": 22
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 88,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 57,
+    "plant_food:turnip": 36,
+    "barrel:pine": 16,
+    "easy_meal": 60,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 111
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 32,
+   "thirst": 18,
+   "events": {
+    "HuntStarted": 1,
+    "JobCompleted:haul_to_stockpile": 1,
+    "HuntAbandoned": 1,
+    "JobCancelled:hunt:target_gone": 1,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:drink:consumed": 12,
+    "DrankAlcohol": 12,
+    "gone:plant_food:consumed": 1,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 1,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "work:Hunt:hunt": 9,
+    "work:Haul:haul_to_stockpile": 2,
+    "need:sleep": 237,
+    "need:hunger": 87,
+    "need:social": 23,
+    "idle:No job": 108,
+    "need:comfort": 168,
+    "work:No job": 2,
+    "need:thirst": 119,
+    "work:Craft (recipe):craft": 24,
+    "work:thirst": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 89,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 57,
+    "plant_food:turnip": 30,
+    "barrel:pine": 16,
+    "easy_meal": 66,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 105
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 30,
+   "events": {
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:turnip": 12,
+    "JobCompleted:craft": 3,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "JobCompleted:haul_to_stockpile": 2,
+    "HuntStarted": 1,
+    "HuntAbandoned": 1,
+    "JobCancelled:hunt:target_gone": 1
+   },
+   "acts": {
+    "need:sleep": 183,
+    "work:Craft (recipe):craft": 49,
+    "need:hunger": 36,
+    "idle:No job": 187,
+    "need:comfort": 137,
+    "need:social": 54,
+    "need:thirst": 71,
+    "work:Haul:haul_to_stockpile": 41,
+    "work:comfort": 2,
+    "work:Hunt:hunt": 20
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 90,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 53,
+    "plant_food:turnip": 30,
+    "barrel:pine": 16,
+    "easy_meal": 60,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 118
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 36,
+   "events": {
+    "NeedCritical": 2,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "HuntStarted": 1,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:plant_food:consumed": 1,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "work:Hunt:hunt": 35,
+    "need:thirst": 55,
+    "work:Haul:haul_to_stockpile": 15,
+    "need:comfort": 188,
+    "need:social": 45,
+    "idle:No job": 126,
+    "need:sleep": 234,
+    "work:thirst": 1,
+    "work:No job": 2,
+    "need:hunger": 56,
+    "work:Craft (recipe):craft": 22,
+    "work:social": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 91,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 53,
+    "plant_food:turnip": 26,
+    "barrel:pine": 16,
+    "easy_meal": 64,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 109
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 34,
+   "thirst": 31,
+   "events": {
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 2,
+    "HuntStarted": 1,
+    "NeedCritical": 1,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "need:thirst": 92,
+    "need:social": 67,
+    "need:sleep": 199,
+    "need:comfort": 111,
+    "idle:No job": 161,
+    "need:hunger": 42,
+    "work:Craft (recipe):craft": 54,
+    "work:No job": 2,
+    "work:Haul:haul_to_stockpile": 26,
+    "work:thirst": 1,
+    "work:Hunt:hunt": 25
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 92,
+   "living": 13,
+   "surfaceC": -13,
+   "weather": "clear",
+   "plotTemps": [
+    -18,
+    -18,
+    -6
+   ],
+   "stock": {
+    "plant_food:dimcap": 51,
+    "plant_food:turnip": 26,
+    "barrel:pine": 16,
+    "easy_meal": 61,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 100
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 26,
+   "thirst": 28,
+   "events": {
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "work:Hunt:hunt": 20,
+    "need:comfort": 135,
+    "work:Haul:haul_to_stockpile": 27,
+    "idle:No job": 173,
+    "need:thirst": 88,
+    "work:Craft (recipe):craft": 20,
+    "need:sleep": 213,
+    "need:hunger": 54,
+    "work:No job": 2,
+    "need:social": 47,
+    "work:social": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 93,
+   "living": 13,
+   "surfaceC": -13,
+   "weather": "clear",
+   "plotTemps": [
+    -18,
+    -18,
+    -6
+   ],
+   "stock": {
+    "plant_food:dimcap": 45,
+    "plant_food:turnip": 26,
+    "barrel:pine": 16,
+    "easy_meal": 59,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 112
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 24,
+   "thirst": 26,
+   "events": {
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "NeedCritical": 2,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 2,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "need:thirst": 73,
+    "need:sleep": 214,
+    "need:social": 59,
+    "work:Craft (recipe):craft": 82,
+    "need:comfort": 129,
+    "idle:No job": 132,
+    "need:hunger": 57,
+    "work:Haul:haul_to_stockpile": 19,
+    "work:Hunt:hunt": 15
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 94,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 45,
+    "plant_food:turnip": 20,
+    "easy_meal": 66,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 104
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 27,
+   "thirst": 27,
+   "events": {
+    "gone:plant_food:consumed": 3,
+    "made:easy_meal:turnip": 12,
+    "JobCompleted:craft": 3,
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "HuntAbandoned": 1,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "JobCancelled:hunt:target_gone": 1,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "work:Hunt:hunt": 16,
+    "need:comfort": 139,
+    "need:sleep": 227,
+    "idle:No job": 140,
+    "work:Haul:haul_to_stockpile": 42,
+    "work:Craft (recipe):craft": 39,
+    "need:thirst": 74,
+    "need:social": 50,
+    "need:hunger": 53
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 95,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 45,
+    "plant_food:turnip": 20,
+    "drink": 96,
+    "barrel:pine": 16,
+    "easy_meal": 61,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 29,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 8,
+    "DrankAlcohol": 8,
+    "JobCompleted:haul_to_stockpile": 1,
+    "NeedCritical": 1
+   },
+   "acts": {
+    "need:comfort": 138,
+    "work:Haul:haul_to_stockpile": 11,
+    "need:sleep": 221,
+    "need:thirst": 83,
+    "need:hunger": 37,
+    "idle:No job": 187,
+    "need:social": 61,
+    "work:Craft (recipe):craft": 39,
+    "work:No job": 3
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 96,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 39,
+    "plant_food:turnip": 18,
+    "barrel:pine": 16,
+    "easy_meal": 63,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 107
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 26,
+   "events": {
+    "gone:plant_food:consumed": 4,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 3,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "made:easy_meal:turnip": 4,
+    "NeedCritical": 3,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "need:comfort": 155,
+    "need:sleep": 198,
+    "idle:No job": 102,
+    "need:thirst": 79,
+    "work:Craft (recipe):craft": 51,
+    "need:hunger": 49,
+    "work:No job:hunt": 1,
+    "work:No job": 2,
+    "work:Hunt:hunt": 57,
+    "need:social": 46,
+    "work:Haul:haul_to_stockpile": 40
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 97,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 35,
+    "plant_food:turnip": 18,
+    "easy_meal": 66,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 100
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 28,
+   "events": {
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "NeedCritical": 4,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7
+   },
+   "acts": {
+    "need:sleep": 241,
+    "work:Hunt:hunt": 60,
+    "need:comfort": 135,
+    "need:hunger": 47,
+    "work:Craft (recipe):craft": 27,
+    "work:Haul:haul_to_stockpile": 45,
+    "idle:No job": 80,
+    "work:Haul": 1,
+    "need:social": 73,
+    "need:thirst": 70,
+    "work:comfort:craft": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 98,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 31,
+    "plant_food:turnip": 18,
+    "easy_meal": 60,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 115
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 42,
+   "events": {
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:drink:consumed": 5,
+    "DrankAlcohol": 5,
+    "NeedCritical": 4,
+    "gone:plant_food:consumed": 2,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "need:hunger": 48,
+    "need:comfort": 132,
+    "need:sleep": 244,
+    "work:Haul:haul_to_stockpile": 1,
+    "need:social": 47,
+    "work:Hunt:hunt": 60,
+    "idle:No job": 131,
+    "work:Craft (recipe):craft": 48,
+    "need:thirst": 68,
+    "work:No job": 1
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 99,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 27,
+    "plant_food:turnip": 18,
+    "easy_meal": 61,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 106
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 21,
+   "thirst": 34,
+   "events": {
+    "NeedCritical": 5,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "gone:plant_food:consumed": 2,
+    "made:easy_meal:dimcap": 8,
+    "JobCompleted:craft": 2,
+    "JobCompleted:haul_to_stockpile": 1
+   },
+   "acts": {
+    "idle:No job": 88,
+    "need:sleep": 211,
+    "need:hunger": 66,
+    "work:Craft (recipe):craft": 59,
+    "need:thirst": 97,
+    "work:Hunt:hunt": 60,
+    "need:comfort": 119,
+    "need:social": 54,
+    "work:Haul:haul_to_stockpile": 26
+   },
+   "alerts": {
+    "calm": 60
+   }
+  },
+  {
+   "day": 100,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 25,
+    "plant_food:turnip": 18,
+    "easy_meal": 63,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 96
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 37,
+   "thirst": 26,
+   "events": {
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "JobCompleted:haul_to_stockpile": 2,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 1,
+    "NeedCritical": 3
+   },
+   "acts": {
+    "need:sleep": 199,
+    "need:thirst": 95,
+    "work:Hunt:hunt": 60,
+    "need:comfort": 168,
+    "work:Haul:haul_to_stockpile": 52,
+    "work:Craft (recipe):craft": 51,
+    "idle:No job": 79,
+    "need:hunger": 16,
+    "work:comfort": 1,
+    "need:social": 53,
+    "duty:On duty": 6
+   },
+   "alerts": {
+    "calm": 35,
+    "watchful": 25
+   }
+  },
+  {
+   "day": 101,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 19,
+    "plant_food:turnip": 16,
+    "easy_meal": 65,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 109
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 34,
+   "thirst": 28,
+   "events": {
+    "gone:plant_food:consumed": 4,
+    "made:easy_meal:dimcap": 4,
+    "JobCompleted:craft": 3,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "NeedCritical": 4,
+    "JobCompleted:haul_to_stockpile": 2,
+    "made:drink:dimcap_ale": 20,
+    "made:easy_meal:turnip": 4
+   },
+   "acts": {
+    "need:comfort": 170,
+    "need:hunger": 71,
+    "work:Craft (recipe):craft": 57,
+    "need:sleep": 210,
+    "need:thirst": 64,
+    "work:Hunt:hunt": 60,
+    "duty:On duty": 49,
+    "work:Haul:haul_to_stockpile": 38,
+    "idle:No job": 23,
+    "need:social": 37,
+    "work:social": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 102,
+   "living": 13,
+   "surfaceC": -13,
+   "weather": "clear",
+   "plotTemps": [
+    -18,
+    -18,
+    -6
+   ],
+   "stock": {
+    "plant_food:dimcap": 19,
+    "plant_food:turnip": 14,
+    "easy_meal": 63,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 102
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 33,
+   "events": {
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:turnip": 4,
+    "JobCompleted:craft": 1,
+    "NeedCritical": 2,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:drink:consumed": 7,
+    "DrankAlcohol": 7
+   },
+   "acts": {
+    "need:sleep": 248,
+    "need:comfort": 185,
+    "work:Craft (recipe):craft": 8,
+    "need:hunger": 38,
+    "work:Hunt:hunt": 60,
+    "duty:On duty": 65,
+    "need:thirst": 64,
+    "work:Haul:haul_to_stockpile": 8,
+    "need:social": 38,
+    "idle:No job": 66
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 103,
+   "living": 13,
+   "surfaceC": -13,
+   "weather": "clear",
+   "plotTemps": [
+    -18,
+    -18,
+    -6
+   ],
+   "stock": {
+    "plant_food:dimcap": 19,
+    "plant_food:turnip": 14,
+    "easy_meal": 59,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 93
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 35,
+   "thirst": 26,
+   "events": {
+    "NeedCritical": 4,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4
+   },
+   "acts": {
+    "duty:On duty": 46,
+    "need:sleep": 240,
+    "work:Hunt:hunt": 58,
+    "need:comfort": 113,
+    "idle:No job": 84,
+    "need:social": 43,
+    "need:thirst": 95,
+    "work:Craft (recipe):craft": 63,
+    "need:hunger": 37,
+    "work:No job": 1
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 104,
+   "living": 13,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "plant_food:turnip": 10,
+    "easy_meal": 62,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 107
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 36,
+   "thirst": 35,
+   "events": {
+    "gone:plant_food:consumed": 5,
+    "made:easy_meal:turnip": 8,
+    "JobCompleted:craft": 3,
+    "gone:easy_meal:consumed": 5,
+    "MealEaten": 5,
+    "gone:drink:consumed": 6,
+    "DrankAlcohol": 6,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:haul_to_stockpile": 1,
+    "NeedCritical": 2
+   },
+   "acts": {
+    "duty:On duty": 91,
+    "need:comfort": 153,
+    "work:Craft (recipe):craft": 42,
+    "need:sleep": 182,
+    "work:Hunt:hunt": 49,
+    "need:thirst": 58,
+    "need:hunger": 43,
+    "work:Haul:haul_to_stockpile": 26,
+    "idle:No job": 17,
+    "need:social": 15,
+    "flee:Fleeing": 1,
+    "work:Bandage:stop_bleeding": 11,
+    "idle:Fighting": 11,
+    "work:Feed patient:feed_patient": 11,
+    "work:Suture:suture": 10,
+    "work:Clean wound:clean_wound": 10,
+    "work:Diagnose:diagnose": 10,
+    "retreat:Retreating": 37,
+    "work:Water patient:water_patient": 3
+   },
+   "alerts": {
+    "watchful": 50,
+    "hearth": 10
+   }
+  },
+  {
+   "day": 105,
+   "living": 12,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "plant_food:turnip": 10,
+    "easy_meal": 60,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 106
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 48,
+   "thirst": 67,
+   "events": {
+    "NeedCritical": 16,
+    "made:corpse:wolf_meat": 1,
+    "death:bled_out": 1,
+    "JobCancelled:feed_patient:target_gone": 1,
+    "JobCancelled:stop_bleeding:target_gone": 1,
+    "JobCancelled:suture:target_gone": 1,
+    "JobCancelled:clean_wound:target_gone": 1,
+    "JobCancelled:diagnose:target_gone": 1,
+    "JobCancelled:water_patient:target_gone": 1,
+    "made:corpse:skull_bone": 1,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "gone:drink:consumed": 1,
+    "DrankAlcohol": 1,
+    "Starving": 1
+   },
+   "acts": {
+    "duty:On duty": 54,
+    "need:sleep": 208,
+    "need:sleep:stop_bleeding": 2,
+    "work:Suture:suture": 3,
+    "work:Clean wound:clean_wound": 3,
+    "work:Diagnose:diagnose": 3,
+    "retreat:Retreating": 351,
+    "work:Water patient:water_patient": 3,
+    "idle:Fighting": 3,
+    "work:Feed patient:feed_patient": 3,
+    "need:comfort": 35,
+    "work:Bandage:stop_bleeding": 1,
+    "need:social": 8,
+    "need:thirst": 33,
+    "need:hunger": 13
+   },
+   "alerts": {
+    "hearth": 60
+   }
+  },
+  {
+   "day": 106,
+   "living": 12,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "plant_food:turnip": 10,
+    "drink": 94,
+    "barrel:pine": 16,
+    "easy_meal": 56,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 45,
+   "thirst": 19,
+   "events": {
+    "Starving": 2,
+    "gone:drink:consumed": 12,
+    "DrankAlcohol": 12,
+    "NeedCritical": 21,
+    "JobCancelled:haul_to_stockpile:target_invalid": 2,
+    "gone:easy_meal:consumed": 4,
+    "MealEaten": 4
+   },
+   "acts": {
+    "need:comfort": 26,
+    "duty:On duty": 69,
+    "need:thirst": 120,
+    "retreat:Retreating": 279,
+    "need:sleep": 175,
+    "need:hunger": 37,
+    "need:social": 14
+   },
+   "alerts": {
+    "hearth": 60
+   }
+  },
+  {
+   "day": 107,
+   "living": 12,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "plant_food:turnip": 10,
+    "drink": 92,
+    "barrel:pine": 16,
+    "easy_meal": 50,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "barrel:birch": 6,
+    "plant_food:barley": 3
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 28,
+   "thirst": 47,
+   "events": {
+    "NeedCritical": 12,
+    "gone:easy_meal:consumed": 6,
+    "MealEaten": 6,
+    "JobCancelled:haul_to_stockpile:target_invalid": 3,
+    "gone:drink:consumed": 2,
+    "DrankAlcohol": 2
+   },
+   "acts": {
+    "duty:On duty": 37,
+    "need:comfort": 36,
+    "need:sleep": 197,
+    "retreat:Retreating": 303,
+    "need:hunger": 101,
+    "need:social": 2,
+    "need:thirst": 44
+   },
+   "alerts": {
+    "hearth": 53,
+    "watchful": 7
+   }
+  },
+  {
+   "day": 108,
+   "living": 12,
+   "surfaceC": -15,
+   "weather": "overcast",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "easy_meal": 51,
+    "drink": 83,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6,
+    "plant_food:barley": 3
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 33,
+   "thirst": 33,
+   "events": {
+    "NeedCritical": 4,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "JobCancelled:haul_to_stockpile:target_invalid": 1,
+    "JobCompleted:haul_to_stockpile": 6,
+    "gone:plant_food:consumed": 1,
+    "made:easy_meal:turnip": 4,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "need:sleep": 222,
+    "need:comfort": 152,
+    "need:thirst": 62,
+    "need:hunger": 49,
+    "duty:On duty": 53,
+    "need:social": 15,
+    "work:Craft (recipe):craft": 77,
+    "work:Haul:haul_to_stockpile": 90
+   },
+   "alerts": {
+    "watchful": 60
+   }
+  },
+  {
+   "day": 109,
+   "living": 12,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "easy_meal": 48,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 79
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 44,
+   "thirst": 50,
+   "events": {
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "NeedCritical": 13,
+    "gone:drink:consumed": 4,
+    "DrankAlcohol": 4
+   },
+   "acts": {
+    "need:hunger": 20,
+    "duty:On duty": 62,
+    "need:sleep": 157,
+    "work:Craft (recipe):craft": 16,
+    "need:comfort": 34,
+    "need:thirst": 39,
+    "need:social": 4,
+    "retreat:Retreating": 388
+   },
+   "alerts": {
+    "watchful": 8,
+    "hearth": 52
+   }
+  },
+  {
+   "day": 110,
+   "living": 12,
+   "surfaceC": -15,
+   "weather": "snow",
+   "plotTemps": [
+    -20,
+    -20,
+    -7
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "easy_meal": 46,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 70
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 52,
+   "thirst": 24,
+   "events": {
+    "NeedCritical": 20,
+    "gone:easy_meal:consumed": 2,
+    "MealEaten": 2,
+    "gone:drink:consumed": 9,
+    "DrankAlcohol": 9,
+    "JobCancelled:haul_to_stockpile:target_invalid": 1
+   },
+   "acts": {
+    "duty:On duty": 71,
+    "need:sleep": 190,
+    "retreat:Retreating": 272,
+    "need:comfort": 28,
+    "need:hunger": 43,
+    "need:social": 13,
+    "need:thirst": 103
+   },
+   "alerts": {
+    "hearth": 60
+   }
+  },
+  {
+   "day": 111,
+   "living": 12,
+   "surfaceC": -13,
+   "weather": "clear",
+   "plotTemps": [
+    -18,
+    -18,
+    -6
+   ],
+   "stock": {
+    "plant_food:dimcap": 15,
+    "easy_meal": 39,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 68
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 30,
+   "thirst": 49,
+   "events": {
+    "NeedCritical": 17,
+    "gone:easy_meal:consumed": 7,
+    "MealEaten": 7,
+    "JobCancelled:haul_to_stockpile:target_invalid": 2,
+    "Starving": 2,
+    "gone:drink:consumed": 2,
+    "DrankAlcohol": 2
+   },
+   "acts": {
+    "need:comfort": 24,
+    "duty:On duty": 39,
+    "need:sleep": 205,
+    "retreat:Retreating": 257,
+    "need:hunger": 153,
+    "need:thirst": 32,
+    "need:social": 10
+   },
+   "alerts": {
+    "hearth": 60
+   }
+  },
+  {
+   "day": 112,
+   "living": 12,
+   "surfaceC": -13,
+   "weather": "clear",
+   "plotTemps": [
+    -18,
+    -18,
+    -6
+   ],
+   "stock": {
+    "plant_food:dimcap": 11,
+    "easy_meal": 36,
+    "barrel:pine": 16,
+    "seed:cavewheat": 10,
+    "seed:strawberry": 10,
+    "seed:flax": 10,
+    "plant_food:turnip": 8,
+    "barrel:birch": 6,
+    "plant_food:barley": 3,
+    "drink": 78
+   },
+   "crops": {
+    "dimcap:s1": 20
+   },
+   "ready": 0,
+   "hunger": 34,
+   "thirst": 27,
+   "events": {
+    "Starving": 1,
+    "gone:drink:consumed": 10,
+    "DrankAlcohol": 10,
+    "NeedCritical": 4,
+    "JobCancelled:haul_to_stockpile:target_invalid": 7,
+    "gone:easy_meal:consumed": 3,
+    "MealEaten": 3,
+    "JobCompleted:haul_to_stockpile": 1,
+    "gone:plant_food:consumed": 4,
+    "made:drink:dimcap_ale": 20,
+    "JobCompleted:craft": 1
+   },
+   "acts": {
+    "duty:On duty": 57,
+    "need:sleep": 195,
+    "retreat:Retreating": 55,
+    "need:thirst": 116,
+    "need:hunger": 61,
+    "need:comfort": 119,
+    "need:social": 25,
+    "work:Craft (recipe):craft": 50,
+    "work:Haul:haul_to_stockpile": 42
+   },
+   "alerts": {
+    "hearth": 8,
+    "watchful": 52
+   }
+  }
+ ]
+}

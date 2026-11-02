@@ -6,12 +6,13 @@ export const WILDLIFE_TARGET = { median: 11, worst: 8, hungerThirstDeaths: 0 };
 // T-448: the instrument moved to relief 1, a new fixture; the guards restart from its first row.
 // T-454: every slope can be walked, and a surface plot no longer settles for under half its tiles.
 // T-457: second-worst and wildlife-free improve under the crowding rule; the worst keeps its best.
+// T-481: the opening's workshop sites are the nearest by walk from its camp; taiga seed 1 stops starving.
 export const WILDLIFE_MEASURED: WildlifeFigures = {
   median: 13, worst: 8, secondWorst: 11, living: 149, wildlifeFree: 9, extinct: 0, hungerThirstDeaths: 0,
 };
 // Latest accepted distribution: simultaneous regressions compare an actual before/after pair.
 export const WILDLIFE_REFERENCE: WildlifeFigures = {
-  median: 12.5, worst: 7, secondWorst: 11, living: 148, wildlifeFree: 7, extinct: 0, hungerThirstDeaths: 0,
+  median: 13, worst: 7, secondWorst: 10, living: 149, wildlifeFree: 7, extinct: 0, hungerThirstDeaths: 0,
 };
 export const MEDIAN_REGRESSION_TOLERANCE = 1;
 export const WILDLIFE_FREE_REGRESSION_TOLERANCE = 2;
