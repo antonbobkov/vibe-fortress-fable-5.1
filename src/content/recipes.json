@@ -27,6 +27,38 @@
     "xp": 8
   },
   {
+    "id": "brew_calm_draught",
+    "name": "Brew calming draught",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "rune_vial",
+        "count": 1
+      },
+      {
+        "match": "plant_food",
+        "count": 2,
+        "material": "hops"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "calm_draught",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "spoilable": true,
+    "xp": 8
+  },
+  {
     "id": "brew_hopped",
     "name": "Brew hopped ale",
     "workshop": "still",
@@ -57,6 +89,101 @@
     "quality": false,
     "container": "barrel",
     "xp": 10
+  },
+  {
+    "id": "brew_mending_draught",
+    "name": "Brew draught of mending",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "rune_vial",
+        "count": 1
+      },
+      {
+        "match": "brightleaf",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mending_draught",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "spoilable": true,
+    "xp": 8
+  },
+  {
+    "id": "brew_quick_draught",
+    "name": "Brew draught of quickness",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "rune_vial",
+        "count": 1
+      },
+      {
+        "match": "plant_food",
+        "count": 2,
+        "material": "sweetroot"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "quick_draught",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "spoilable": true,
+    "xp": 8
+  },
+  {
+    "id": "brew_stout_draught",
+    "name": "Brew draught of stoutness",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "rune_vial",
+        "count": 1
+      },
+      {
+        "match": "plant_food",
+        "count": 2,
+        "material": "pale_bell"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stout_draught",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "spoilable": true,
+    "xp": 8
   },
   {
     "id": "cook_easy_meal",

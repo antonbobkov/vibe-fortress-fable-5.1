@@ -11,6 +11,7 @@
  */
 
 import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
@@ -330,6 +331,8 @@ export function drawLookPanel(
     if (vials !== null) line(vials, t.dim);
     const effects = effectsLine(readers, strings, id);
     if (effects !== null) line(effects, t.dim);
+    const rest = draughtRestLine(readers, strings, id);
+    if (rest !== null) line(rest, t.dim);
     if (has(readers, '17') && readers.entities.has(id, C.Body)) {
       const body = readers.entities.get(id, C.Body);
       if (body !== undefined) {
@@ -436,6 +439,18 @@ export function effectsLine(readers: ReaderSet, strings: Strings, id: EntityId):
   const tick = readers.calendar.tick;
   const parts = effects.map((e) => strings.get(`ui.look.effect.${e.kind}`, { value: e.value, ticks: e.until - tick }));
   return strings.get('ui.look.effects', { list: parts.join(', ') });
+}
+
+/**
+ * 25 § Draughts: "Can take a draught again in 2 days." while the creature's rest lasts, counted in
+ * whole days begun; null when it may take one now.
+ */
+export function draughtRestLine(readers: ReaderSet, strings: Strings, id: EntityId): string | null {
+  if (!has(readers, '25')) return null;
+  const left = readers.of<MagicReader>('25').draughtRest(id);
+  if (left <= 0) return null;
+  const days = Math.ceil(left / TICKS_PER_DAY);
+  return days <= 1 ? strings.get('ui.look.draught_rest_one') : strings.get('ui.look.draught_rest', { n: days });
 }
 
 /**

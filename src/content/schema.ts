@@ -902,6 +902,13 @@ export const SCHEMAS: Record<string, TableSchema> = {
     generated: opt(bool),
     transform: opt(bool),
     enchant: opt(ref('enchants')),
+    spoilable: opt(bool),
+  }),
+
+  draughts: rows({
+    id: itemRef,
+    effects: arr(obj({ kind: enumOf(['mend', 'ease', 'heal_rate', 'pain_half', 'haste', 'fire_immune', 'spot_radius']), value: int })),
+    trigger: enumOf(['wounded', 'raid', 'miserable', 'never']),
   }),
 
   biomes: rows({

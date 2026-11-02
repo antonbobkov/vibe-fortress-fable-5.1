@@ -49,12 +49,12 @@ Environmental sources create wounds through the same path with synthetic damage:
 Each health tick (every 5 ticks) for each creature in the `wounded` list or still admitted as a `Patient`, once in ascending entity-id order:
 
 - `blood −= Σ wound.bleed` for wounds not `bandaged` (bandaging sets `bleed = 0`; suturing keeps it 0 and heals faster). A `light` wound stops bleeding by itself `CLOT_TICKS` after it was made (its `bleed` becomes 0); a `serious` or `grievous` wound bleeds until it is bandaged. Blood regenerates `BLOOD_REGEN_PER_TICK` per health tick when no wound bleeds.
-- `pain = Σ wound.pain × (100 − Willpower / 2) / 100` (dwarves; other creatures use 100).
+- `pain = Σ wound.pain × (100 − Willpower / 2) / 100` (dwarves; other creatures use 100). Under a `pain_half` effect (25's draught of stoutness) the sum is halved, rounded down, before Willpower.
 - `conscious = pain < PAIN_UNCONSCIOUS and blood ≥ maxBlood × BLOOD_UNCONSCIOUS_PERCENT / 100 and tick ≥ stunnedUntil`. An unconscious creature does nothing, is hit at +40, and is carried as a patient if a dwarf.
 - **Mend.** On `Mended { id, casterId }` (25's Mend) a living creature with a body has every bleeding wound `bandaged` (its bleed 0), every light wound removed with its damage back to the part's hp, and every other wound `cleaned`. An infected wound keeps its infection and its cleaning request until a medic cures it. Mend is not a treatment job and gives no xp.
 - **Stun.** On `CreatureStunned { id, until }` (25's daze and blackout) a living creature with a body is held unconscious until `until`: `stunnedUntil` keeps the later of two stuns, the creature joins `wounded` and stays there while the stun lasts, and a conscious body becomes unconscious at once with `CreatureUnconscious`. The first health tick at or after `until` drops the entry and wakes it by the line above, with `CreatureConscious`. A stun is not a wound: it admits no patient and does not keep one from discharge.
 - Death: `blood < maxBlood × BLOOD_DEATH_PERCENT / 100` → `CreatureDied { cause: bled_out }`.
-- Healing: `healRemaining −= 5` for each wound whose healing is not blocked: fractures heal only at `UNTREATED_FRACTURE_PERCENT` speed unless `splinted`; infected wounds do not heal; `wasting` does not heal while starving. At 0 the wound is removed, `part.hp` regains the wound's damage, and for an unsplinted fracture that healed, a `permanent: badly_healed_<part>` is added.
+- Healing: `healRemaining −= 5` for each wound whose healing is not blocked, `× heal_rate / 100` under a `heal_rate` effect (25's draught of mending): fractures heal only at `UNTREATED_FRACTURE_PERCENT` speed unless `splinted`; infected wounds do not heal; `wasting` does not heal while starving. At 0 the wound is removed, `part.hp` regains the wound's damage, and for an unsplinted fracture that healed, a `permanent: badly_healed_<part>` is added.
 
 ### Infection
 

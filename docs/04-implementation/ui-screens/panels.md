@@ -384,6 +384,7 @@ The selected built depot keeps its goods list and action row (`[S-m] move`, `[r]
 │ Gear [w] weapon [axe ▾]             │
 │   [g] armor [metal ▾]               │
 │   [S-j] ranged □                   │
+│   [S-d] draughts: draught of mending│
 │ Station (60,28,z31)                 │
 │         [S-s] set  [S-c] clear      │
 │ Patrol none [S-p] add [y] clear     │
@@ -409,9 +410,10 @@ The line under the alert row says what the current alert does: "Calm: everyone w
 - `Space` or a click marks a row (`•`), `*` marks all (as many as the squad has room for) or none, and `Enter` adds or removes every marked dwarf in one `SetSquadMembers`; with none marked, `Enter` takes the cursor's row. An add list takes no more marks than the squad has free places, and a full squad, an empty squad or no free adult says so on the status row instead of opening an empty list.
 - A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: `Tova E. ⌠`.
 - `[w] weapon` and `[g] armor` (or their dropdown captions) replace the squad details with a single-choice list. The weapon list offers `any` and every weapon class in content but a channel's (25); armor offers `any`, `metal`, `leather`. The current value is marked `(current)` and selected initially. `↑↓` moves, `Enter` or a clicked row sends `SetSquadEquipment`, preserving the other preferences; `Esc` or the cancel caption leaves them unchanged.
+- `[S-d] draughts` (or its caption) opens the squad's draught checklist (25 § Draughts): every draught a soldier drinks, in content order, each `■` with its place in the list or `□`, and its trigger in words ("draught of quickness (2): a raid or an ambush arrives", "draught of mending: hit while below half blood"). `Enter` or a clicked row adds the draught at the end of the list or takes it out, through `SetSquadEquipment`; `Esc` leaves the list unchanged. The line reads `none` while nothing is listed.
 - The leader list sends `SetSquadLeader`; `[S-n]` opens the text input and sends `RenameSquad`.
 - The barracks list sends `SetZoneSetting { key: squad }`: the zone the squad had lets go and the chosen one takes it; "None" clears it. Without a barracks zone the status row says to make one in Zones. Changing the assignment moves training to that barracks, including for a squad that has already trained. The barracks row shows the assigned zone; "(default)" marks a zone the squad uses without being assigned.
-- The new keys are on `Shift` because `l`, `b` and `n` are panel hotkeys.
+- The new keys are on `Shift` because `l`, `b`, `n` and `d` are panel hotkeys.
 - A key of the squad panel with no squad does nothing but say "No squad yet: [+] makes one." in the status row. A mode of work (`train` or `active`) set on a squad with no members is set, and the status row says "The Hearthguard has no members: [S-a] adds them."
 - While a station, a patrol point, a kill order or a follow order waits for the map, the status row says what to do ("Station: click or press Enter on a floor tile · [Esc] cancel", "Patrol point: click or press Enter on a floor tile · [Esc] cancel", "Kill order: click or press Enter on a creature · [Esc] cancel", "Follow order: click or press Enter on a dwarf · [Esc] cancel") and drops any older line. A tile the squad cannot stand on sends nothing, says "The squad cannot stand there: pick a floor tile." and keeps the pick armed; the prompt returns when the pointer moves.
 

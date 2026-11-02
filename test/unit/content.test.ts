@@ -102,13 +102,13 @@ describe('T-M0-06 content: every table loads', () => {
       clothier: 8,
       farmers_workshop: 4,
       bowyer: 3,
-      alchemist: 2,
+      alchemist: 6,
       runeforge: 31,
     };
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(184);
+    expect(registry.table('recipes').size).toBe(188);
   });
 
   it('the content hash is a stable hex string', () => {

@@ -26,6 +26,7 @@ import { MagicProducer, type MagicHost } from './producer';
 import type { MagicReader, RuneView, SpellView } from './reader';
 import { dropExpiredEffects, spellOfItem } from './cast';
 import { enchantOfItem } from './enchant';
+import { draughtRestLeft, soldierDrinks, soldiersOnDuty } from './draughts';
 import {
   MILLI,
   hoursToFull,
@@ -55,7 +56,9 @@ const FIRST_RUNECASTER_LEVEL = 10;
 export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, MagicApi {
   readonly id = '25';
   readonly order = 25;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'SkillLevelUp', 'CreatureDied', 'ZoneChanged'];
+  override readonly subscribes: readonly EventType[] = [
+    'HourPassed', 'DayPassed', 'SkillLevelUp', 'CreatureDied', 'ZoneChanged', 'RaidArrived', 'AmbushSprung', 'AttackResolved',
+  ];
   override readonly ownsCommands: readonly CommandType[] = ['SetSanctumApprentices'];
 
   /** Attune sessions today, by dwarf. */
@@ -69,6 +72,8 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
   readonly bloomAlertsToday = new Set<EntityId>();
   /** The producer looks over every `attune` job for one that lost its reason. */
   sweepDue = true;
+  /** `DayPassed`: the producer looks for Miserable dwarves to give a calming draught (§ Draughts). */
+  calmDue = false;
   /** Sanctum zones, from `ZoneChanged`; null until first read from 14 (a new game or a load). */
   private sanctumSet: Set<EntityId> | null = null;
   private worldRef: WorldLike | null = null;
@@ -148,8 +153,10 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     let burned = 0;
     for (const id of struck) {
       if (!entities.alive(id)) continue;
-      if (burned === 0 && entities.get(id, C.Creature)?.faction === faction) burned = id;
-      resolveProjectileHit(ctx, entities, ctx.registry, ctx.rng, bloom.casterId, id, bloom.raw, 'ember', weaponDef);
+      const own = entities.get(id, C.Creature)?.faction === faction;
+      // Only a hit counts as burning one of its own: a shield's block or armour that takes it all does not.
+      const dealt = resolveProjectileHit(ctx, entities, ctx.registry, ctx.rng, bloom.casterId, id, bloom.raw, 'ember', weaponDef);
+      if (burned === 0 && own && dealt > 0) burned = id;
     }
     if (burned !== 0 && !this.bloomAlertsToday.has(bloom.casterId)) {
       this.bloomAlertsToday.add(bloom.casterId);
@@ -203,6 +210,12 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     this.sessions.set(id, this.sessionsOf(id) + 1);
   }
 
+  tileOf(id: EntityId): number {
+    const world = this.worldRef;
+    const p = world?.entities.get(id, C.Position);
+    return world === null || p === undefined ? -1 : world.map.index(p.x, p.y, p.z);
+  }
+
   noteMishap(zoneId: EntityId, record: MishapRecord): void {
     this.lastMishaps.set(zoneId, record);
     if (record.kind === 'scorched_circle') this.sweepDue = true;
@@ -239,9 +252,15 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
       dropExpiredEffects(ctx.world.entities, ctx.tick);
       this.sweepDue = true;
     } else if (event.type === 'DayPassed') {
+      this.calmDue = true;
       this.sessions.clear();
       this.bloomAlertsToday.clear();
       clearVialsToday(ctx);
+    } else if (event.type === 'RaidArrived' || event.type === 'AmbushSprung') {
+      // § Draughts: every soldier on duty drinks its first listed `raid` draught.
+      for (const id of soldiersOnDuty(ctx.world.entities)) soldierDrinks(ctx, id, 'raid');
+    } else if (event.type === 'AttackResolved') {
+      this.hitTaken(event, ctx);
     } else if (event.type === 'SkillLevelUp') {
       this.levelUp(event, ctx);
     } else if (event.type === 'CreatureDied') {
@@ -257,6 +276,17 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
       }
       this.sweepDue = true;
     }
+  }
+
+  /** § Draughts: a hit on a soldier on duty whose blood is below half, who may drink a `wounded` draught. */
+  private hitTaken(event: GameEvent, ctx: TickContext): void {
+    if (event['outcome'] !== 'hit') return;
+    const id = event['defenderId'] as EntityId;
+    const entities = ctx.world.entities;
+    if (entities.get(id, C.Soldier)?.onDuty !== true) return;
+    const body = entities.get(id, C.Body);
+    if (body === undefined || body.blood * 2 >= body.maxBlood) return;
+    soldierDrinks(ctx, id, 'wounded');
   }
 
   /** `SkillLevelUp` of `runecraft`: a first level gives the `Rune`; level 10 may be the first runecaster. */
@@ -355,6 +385,10 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
         const bound = world === null ? undefined : world.entities.get(id, C.Spellbound);
         const tick = world === null ? 0 : world.calendar.tick;
         return bound === undefined ? [] : bound.effects.filter((e) => e.until > tick).map((e) => ({ ...e }));
+      },
+      draughtRest: (id) => {
+        const world = this.worldRef;
+        return world === null ? 0 : draughtRestLeft(world.entities, id, world.calendar.tick);
       },
     };
   }

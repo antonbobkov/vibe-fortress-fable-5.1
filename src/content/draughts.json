@@ -1,0 +1,51 @@
+[
+  {
+    "id": "calm_draught",
+    "effects": [
+      {
+        "kind": "ease",
+        "value": 1
+      }
+    ],
+    "trigger": "miserable"
+  },
+  {
+    "id": "mending_draught",
+    "effects": [
+      {
+        "kind": "mend",
+        "value": 1
+      },
+      {
+        "kind": "heal_rate",
+        "value": 200
+      }
+    ],
+    "trigger": "wounded"
+  },
+  {
+    "id": "murky_draught",
+    "effects": [],
+    "trigger": "never"
+  },
+  {
+    "id": "quick_draught",
+    "effects": [
+      {
+        "kind": "haste",
+        "value": 25
+      }
+    ],
+    "trigger": "raid"
+  },
+  {
+    "id": "stout_draught",
+    "effects": [
+      {
+        "kind": "pain_half",
+        "value": 1
+      }
+    ],
+    "trigger": "raid"
+  }
+]

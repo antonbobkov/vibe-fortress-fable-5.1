@@ -27,6 +27,7 @@ import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
 import type { MagicReader } from '@systems/magic';
+import { soldierTrigger } from '@systems/magic/draughts';
 
 interface WeaponClassRow {
   readonly id: string;
@@ -66,7 +67,7 @@ export function shortDwarfName(fullName: string): string {
   return `${parts[0]} ${parts[1].charAt(0)}.`;
 }
 
-type ChoiceKind = 'add' | 'remove' | 'leader' | 'barracks' | 'weapon' | 'armor';
+type ChoiceKind = 'add' | 'remove' | 'leader' | 'barracks' | 'weapon' | 'armor' | 'draughts';
 
 export class MilitaryPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
@@ -193,6 +194,21 @@ export class MilitaryPanel {
       typeof weapon.weaponClass === 'string' && !(weapon.launcher !== undefined && weapon.launcher.ammo === undefined) ? [weapon.weaponClass] : []))];
   }
 
+  /** 25 § Draughts: every draught a soldier drinks, in table order, for the squad's checklist. */
+  draughtOptions(ctx: PanelContext): string[] {
+    return ctx.registry.table<{ id: string; trigger: string }>('draughts').rows
+      .filter((row) => row !== undefined && soldierTrigger(row.trigger)).map((row) => row.id);
+  }
+
+  /** The squad's list with one draught added at its end, or taken out. */
+  toggleDraught(ctx: PanelContext, draughtId: string): Command | null {
+    const squad = this.selectedSquad(ctx);
+    if (!squad) return null;
+    const list = squad.equipment.draughts ?? [];
+    const next = list.includes(draughtId) ? list.filter((d) => d !== draughtId) : [...list, draughtId];
+    return { type: 'SetSquadEquipment', squadId: squad.id, equipment: { ...squad.equipment, draughts: next } };
+  }
+
   toggleRanged(ctx: PanelContext): Command | null {
     const squad = this.selectedSquad(ctx);
     if (!squad) return null;
@@ -232,6 +248,7 @@ export class MilitaryPanel {
     let why: string | null = null;
     if (kind === 'add' && squad.members.length >= SQUAD_MAX_SIZE) why = strings.get('ui.military.squad_full', { squad: squad.name, max: SQUAD_MAX_SIZE });
     else if (kind === 'barracks' && this.barracksZones(ctx).length === 0) why = strings.get('ui.military.no_barracks');
+    else if (kind === 'draughts' && this.draughtOptions(ctx).length === 0) why = strings.get('ui.military.no_draughts');
     else if (this.memberCandidates(ctx).length === 0) why = strings.get(kind === 'add' ? 'ui.military.no_candidates' : 'ui.military.no_members', { squad: squad.name });
     if (why !== null) {
       this.memberChoice = null;
@@ -301,6 +318,11 @@ export class MilitaryPanel {
       if (value === undefined) return [];
       return [{ type: 'SetSquadEquipment', squadId: squad.id, equipment: { ...squad.equipment, ...(choice.kind === 'weapon' ? { weaponClass: value } : { armor: value as 'any' | 'metal' | 'leather' }) } }];
     }
+    if (choice.kind === 'draughts') {
+      const draught = at === undefined ? undefined : this.draughtOptions(ctx)[at];
+      const cmd = draught === undefined ? null : this.toggleDraught(ctx, draught);
+      return cmd === null ? [] : [cmd];
+    }
     if (choice.kind === 'leader') return at === undefined ? [] : [{ type: 'SetSquadLeader', squadId: squad.id, leaderId: at }];
     if (choice.kind === 'barracks') {
       if (at === undefined) return [];
@@ -336,6 +358,7 @@ export class MilitaryPanel {
     if (!squad || !this.memberChoice) return [];
     if (this.memberChoice.kind === 'remove' || this.memberChoice.kind === 'leader') return [...squad.members];
     if (this.memberChoice.kind === 'weapon' || this.memberChoice.kind === 'armor') return this.gearOptions(ctx, this.memberChoice.kind).map((_value, index) => index);
+    if (this.memberChoice.kind === 'draughts') return this.draughtOptions(ctx).map((_value, index) => index);
     if (this.memberChoice.kind === 'barracks') return [0, ...this.barracksZones(ctx)];
     const assigned = new Set(this.squads(ctx).flatMap((s) => s.members));
     return dwarvesOf(ctx).filter((id) => {
@@ -408,7 +431,7 @@ export class MilitaryPanel {
     }
 
     // Every key of the squad below needs one: with none, the key says so and does nothing else.
-    if (letter !== '' && 'scblnypkfqmotvarwgjx'.includes(letter) && this.selectedSquad(ctx) === undefined) {
+    if (letter !== '' && 'scblnypkfqmotvarwgjxd'.includes(letter) && this.selectedSquad(ctx) === undefined) {
       ctx.notice?.(militaryNoSquad(ctx));
       return true;
     }
@@ -462,6 +485,7 @@ export class MilitaryPanel {
     if (letter === 'w') { this.openChoice(ctx, 'weapon'); return true; }
     if (letter === 'g') { this.openChoice(ctx, 'armor'); return true; }
     if (letter === 'j') return submit(this.toggleRanged(ctx));
+    if (letter === 'd' && press.shift) { this.openChoice(ctx, 'draughts'); return true; }
 
     return false;
   }
@@ -598,6 +622,11 @@ export function drawMilitaryPanel(
     if (cmd) ctx.submit(cmd);
   });
   row += 1;
+  // 25 § Draughts: the squad's ordered list; each member carries one of each.
+  const listed = (squad.equipment.draughts ?? []).map((d) => ctx.registry.table<{ id: string; name: string }>('items').byId(d)?.name ?? d);
+  label(s, col, row, ctx.strings.get('ui.military.draughts', { list: listed.length === 0 ? ctx.strings.get('ui.military.draughts_none') : listed.join(', ') }), { width });
+  s.hit({ col: col + 2, row, cols: width - 2, rows: 1 }, () => panel.openChoice(ctx, 'draughts'));
+  row += 1;
 
   // Station line: Station (60,28,z31) [s] set [c]lear
   const map = ctx.readers.map;
@@ -675,7 +704,18 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
     const k = state.scroll + r;
     const id = ids[k] as number;
     let text: string;
-    if (choice.kind === 'weapon' || choice.kind === 'armor') {
+    if (choice.kind === 'draughts') {
+      const draught = panel.draughtOptions(ctx)[id] ?? '';
+      const list = squad.equipment.draughts ?? [];
+      const at = list.indexOf(draught);
+      const trigger = ctx.registry.table<{ id: string; trigger: string }>('draughts').byId(draught)?.trigger ?? '';
+      text = strings.get('ui.military.draught_row', {
+        mark: at < 0 ? '□' : '■',
+        name: ctx.registry.table<{ id: string; name: string }>('items').byId(draught)?.name ?? draught,
+        when: strings.get(`ui.military.draught_when.${trigger}`),
+        order: at < 0 ? '' : ` (${at + 1})`,
+      });
+    } else if (choice.kind === 'weapon' || choice.kind === 'armor') {
       const value = panel.gearOptions(ctx, choice.kind)[id] ?? '';
       const current = choice.kind === 'weapon' ? squad.equipment.weaponClass : squad.equipment.armor;
       text = value === current ? strings.get('ui.military.gear_current', { value }) : value;
