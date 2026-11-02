@@ -988,6 +988,27 @@ export function springAmbush(partyId: EntityId, P: Party, ctx: TickContext): voi
   ctx.emit({ type: 'AmbushSprung', partyId });
 }
 
+/**
+ * 18 § Engage: a member keeps the target it holds while that one is no farther than the nearest
+ * (and, for an archer, while it is a soldier or the nearest is not). Retargeting on a tie, between
+ * two creatures on two tiles, restarted the member's path every think and it never moved.
+ */
+function keepHeldTarget(m: EntityId, pos: TileIndex, found: EntityId, isArcher: boolean, requireReachable: boolean, ctx: TickContext): EntityId {
+  const entities = ctx.world.entities;
+  const held = ctx.world.services.combat?.targetOf(m) ?? 0;
+  if (held === 0 || held === found || !entities.alive(held) || entities.get(held, C.Creature)?.faction !== 'fortress') return found;
+  const map = ctx.world.map;
+  const heldPos = positionOf(held, ctx);
+  const foundPos = positionOf(found, ctx);
+  if (heldPos < 0 || foundPos < 0) return found;
+  const distance = (t: TileIndex): number => Math.max(Math.abs(map.xOf(t) - map.xOf(pos)), Math.abs(map.yOf(t) - map.yOf(pos)));
+  if (Math.abs(map.zOf(heldPos) - map.zOf(pos)) > 2 || distance(heldPos) > PERCEPTION_RADIUS || distance(heldPos) > distance(foundPos)) return found;
+  if (isArcher && entities.has(found, C.Soldier) && !entities.has(held, C.Soldier)) return found;
+  if (!ctx.readers.pathing.lineOfSight(pos, heldPos)) return found;
+  if (requireReachable && !ctx.readers.pathing.reachable(pos, heldPos, entities.get(m, C.Motion)?.movementClass ?? 'walker')) return found;
+  return held;
+}
+
 export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (!entities.alive(m)) return;
@@ -1052,7 +1073,8 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
     const isLoitering = P?.state === 'loiter';
     const isArcher = H.role === 'archers';
     const allowUnreachable = isLoitering && isArcher;
-    const target = findCombatTarget(m, pos, H.role, ctx, targets, !allowUnreachable);
+    const found = findCombatTarget(m, pos, H.role, ctx, targets, !allowUnreachable);
+    const target = found === 0 ? 0 : keepHeldTarget(m, pos, found, H.role === 'archers', !allowUnreachable, ctx);
     if (target !== 0) {
       ctx.world.services.combat?.setTarget(m, target);
       H.behaviorState = 'attack';

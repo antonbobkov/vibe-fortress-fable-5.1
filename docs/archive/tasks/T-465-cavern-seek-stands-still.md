@@ -1,6 +1,8 @@
 # T-465 — A seeking cavern monster stands still until a dwarf comes near
 
-**Source:** T-461 ([journal](../../reports/audits/2026-11-01-crawlers-in-the-halls.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-02, in fb31cc11.
+
+**Source:** T-461 ([journal](../../../reports/audits/2026-11-01-crawlers-in-the-halls.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

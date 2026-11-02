@@ -13,8 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
-| T-464 | [A whole fortress dies to one cave crawler without striking it](work/T-464-fortress-never-strikes-a-monster.md) | T-461's journal | — | open |
-| T-465 | [A seeking cavern monster stands still until a dwarf comes near](work/T-465-cavern-seek-stands-still.md) | T-461's journal | — | open |
 | T-466 | [The hand-laid defence of `defence_year` does not repel a raid](work/T-466-defence-never-repels-a-raid.md) | T-462's defence_year seeds | — | open |
 | T-470 | [Runecraft 3: the runeforge, wands and staffs, emberbolt and frostbind](work/T-470-runecraft-runeforge-staffs-bolts.md) | Runecraft design | — | open |
 | T-471 | [Runecraft 4: setting stones, enchanted items and their value](work/T-471-runecraft-setting-stones.md) | Runecraft design | T-470 | blocked (needs T-470) |
@@ -25,5 +23,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-476 | [Runecraft 9: rare materials, deepsilver pressure and the legend](work/T-476-runecraft-deep-materials-hexers.md) | Runecraft design | T-472, T-474 | blocked (needs T-472, T-474) |
 | T-477 | [Runecraft 10: the whole loop played, and the docs that tell it](work/T-477-runecraft-whole-loop-scenario.md) | Runecraft design | T-475, T-476, T-479 | blocked (needs T-475, T-476, T-479) |
 | T-479 | [Runecraft 9b: Gloam hexers in raids and sieges](work/T-479-runecraft-hexers.md) | Runecraft design | T-473 | blocked (needs T-473) |
+| T-481 | [The annual instrument's taiga seed 1 has no food or drink by day 100](work/T-481-taiga-1-food-margin.md) | T-463's follow-up | — | open |
+| T-482 | [Idle tame animals keep a walk that has arrived, and crowd one hall tile](work/T-482-tame-animal-stale-walk.md) | T-463's follow-up | T-481 | blocked (needs T-481) |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

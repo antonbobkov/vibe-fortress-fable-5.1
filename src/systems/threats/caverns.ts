@@ -10,6 +10,7 @@ import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
 import type { TickContext, WorldLike } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
+import { PERCEPTION_RADIUS } from '@systems/combat/constants';
 import { CAVERN_BANDS } from '@systems/terrain/api';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { PathingReader } from '@core/readers';
@@ -756,9 +757,19 @@ export function stepCavernMonsters(
       }
 
       if (bestTarget !== 0) {
-        ctx.world.services.combat?.setTarget(m, bestTarget);
-        H.behaviorState = 'seek';
         info.noTargetTicks = 0;
+        const to = entities.get(bestTarget, C.Position);
+        const near = to !== undefined && Math.max(Math.abs(to.x - pos.x), Math.abs(to.y - pos.y)) <= PERCEPTION_RADIUS && Math.abs(to.z - pos.z) <= 2;
+        if (near || to === undefined) {
+          ctx.world.services.combat?.setTarget(m, bestTarget);
+        } else {
+          // 16 keeps no target out of perception: until it is in reach of one, the monster walks.
+          const movement = ctx.world.services.movement;
+          if (H.behaviorState !== 'seek') movement?.stopWalking(m);
+          const walking = movement?.walkTarget(m) ?? -1;
+          movement?.walkTo(m, walking >= 0 ? walking : map.index(to.x, to.y, to.z), 'wander', ctx);
+        }
+        H.behaviorState = 'seek';
         continue;
       }
     }

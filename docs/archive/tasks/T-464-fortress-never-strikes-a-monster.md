@@ -1,6 +1,8 @@
 # T-464 — A whole fortress dies to one cave crawler without striking it
 
-**Source:** T-461 ([journal](../../reports/audits/2026-11-01-crawlers-in-the-halls.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-02, in 66d81b16.
+
+**Source:** T-461 ([journal](../../../reports/audits/2026-11-01-crawlers-in-the-halls.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
