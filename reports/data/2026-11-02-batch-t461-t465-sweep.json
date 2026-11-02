@@ -1,0 +1,4414 @@
+{
+ "commit": "3ea1517e",
+ "file": "test/perf/three_years_seeds.test.ts",
+ "seeds": [
+  {
+   "figures": {
+    "seed": "three-years-p0-1",
+    "peril": 0,
+    "dwarfDeaths": 0,
+    "byCause": {},
+    "y3Pop": 75
+   },
+   "result": {
+    "seed": "three-years-p0-1",
+    "peril": 0,
+    "y1Pop": 14,
+    "y2Pop": 34,
+    "y3Pop": 75,
+    "y1Wealth": 14542,
+    "y2Wealth": 44020,
+    "y3Wealth": 38372,
+    "dwarfDeaths": 0,
+    "tameDeaths": 0,
+    "wavesCount": 9,
+    "totalImmigrants": 68,
+    "nonGuaranteedWaves": 7,
+    "raidsCount": 3,
+    "mealsEaten": 4224,
+    "drinksDrunk": 6330,
+    "drinksAlcohol": 6330,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "59.1",
+    "minMood": 31.500500000000017,
+    "maxMood": 79.97708333333334,
+    "moodBreakdown": {
+     "Fine": 38,
+     "Content": 31,
+     "Happy": 4,
+     "Unhappy": 2,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [],
+    "raidsList": [
+     {
+      "day": 115,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117441064,
+      "outcome": "looted"
+     },
+     {
+      "day": 209,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117441958,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 272,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 553648947,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 60,
+     "y2": 61,
+     "y3": 60
+    },
+    "renown": {
+     "y1": 10,
+     "y2": 29,
+     "y3": 34
+    },
+    "mealsPerDwarfDay": "0.38",
+    "drinksPerDwarfDay": "0.58",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 267,
+      "worst": 6,
+      "longestTicks": 40,
+      "capped": 3
+     },
+     "hall": {
+      "samples": 568800,
+      "slowed": 25184,
+      "worst": 6,
+      "longestTicks": 379180,
+      "capped": 1023
+     },
+     "stations": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {},
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p0-2",
+    "peril": 0,
+    "dwarfDeaths": 0,
+    "byCause": {},
+    "y3Pop": 45
+   },
+   "result": {
+    "seed": "three-years-p0-2",
+    "peril": 0,
+    "y1Pop": 13,
+    "y2Pop": 27,
+    "y3Pop": 45,
+    "y1Wealth": 16803,
+    "y2Wealth": 33417,
+    "y3Wealth": 74316,
+    "dwarfDeaths": 0,
+    "tameDeaths": 0,
+    "wavesCount": 6,
+    "totalImmigrants": 38,
+    "nonGuaranteedWaves": 4,
+    "raidsCount": 3,
+    "mealsEaten": 2788,
+    "drinksDrunk": 4335,
+    "drinksAlcohol": 4335,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "62.4",
+    "minMood": 32.59508333333332,
+    "maxMood": 80.77250000000001,
+    "moodBreakdown": {
+     "Fine": 18,
+     "Content": 21,
+     "Happy": 5,
+     "Unhappy": 1,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [],
+    "raidsList": [
+     {
+      "day": 126,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184549897,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 218,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767123,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 291,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 654311970,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 63,
+     "y2": 63,
+     "y3": 63
+    },
+    "renown": {
+     "y1": 11,
+     "y2": 22,
+     "y3": 46
+    },
+    "mealsPerDwarfDay": "0.37",
+    "drinksPerDwarfDay": "0.58",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 42,
+      "worst": 4,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 568800,
+      "slowed": 21165,
+      "worst": 6,
+      "longestTicks": 379180,
+      "capped": 49
+     },
+     "stations": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {},
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p0-3",
+    "peril": 0,
+    "dwarfDeaths": 0,
+    "byCause": {},
+    "y3Pop": 48
+   },
+   "result": {
+    "seed": "three-years-p0-3",
+    "peril": 0,
+    "y1Pop": 18,
+    "y2Pop": 18,
+    "y3Pop": 48,
+    "y1Wealth": 26582,
+    "y2Wealth": 31772,
+    "y3Wealth": 32319,
+    "dwarfDeaths": 0,
+    "tameDeaths": 0,
+    "wavesCount": 6,
+    "totalImmigrants": 41,
+    "nonGuaranteedWaves": 4,
+    "raidsCount": 3,
+    "mealsEaten": 2804,
+    "drinksDrunk": 4396,
+    "drinksAlcohol": 4323,
+    "drinksWater": 73,
+    "extinctDay": null,
+    "avgMood": "62.2",
+    "minMood": 36.75749999999999,
+    "maxMood": 83.37791666666666,
+    "moodBreakdown": {
+     "Fine": 20,
+     "Content": 20,
+     "Happy": 7,
+     "Unhappy": 1,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [],
+    "raidsList": [
+     {
+      "day": 117,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332525,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 206,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 721420923,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 266,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 520094190,
+      "outcome": "looted"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 65,
+     "y2": 64,
+     "y3": 62
+    },
+    "renown": {
+     "y1": 17,
+     "y2": 19,
+     "y3": 26
+    },
+    "mealsPerDwarfDay": "0.37",
+    "drinksPerDwarfDay": "0.58",
+    "crowds": {
+     "doors": {
+      "samples": 37917,
+      "slowed": 35,
+      "worst": 4,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 568800,
+      "slowed": 21615,
+      "worst": 6,
+      "longestTicks": 356380,
+      "capped": 183
+     },
+     "stations": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {},
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p0-4",
+    "peril": 0,
+    "dwarfDeaths": 3,
+    "byCause": {
+     "bled_out": 3
+    },
+    "y3Pop": 69
+   },
+   "result": {
+    "seed": "three-years-p0-4",
+    "peril": 0,
+    "y1Pop": 9,
+    "y2Pop": 27,
+    "y3Pop": 69,
+    "y1Wealth": 15501,
+    "y2Wealth": 33481,
+    "y3Wealth": 59429,
+    "dwarfDeaths": 3,
+    "tameDeaths": 0,
+    "wavesCount": 9,
+    "totalImmigrants": 65,
+    "nonGuaranteedWaves": 7,
+    "raidsCount": 3,
+    "mealsEaten": 3664,
+    "drinksDrunk": 5685,
+    "drinksAlcohol": 5685,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "57.9",
+    "minMood": 31.139983333333333,
+    "maxMood": 74.1725,
+    "moodBreakdown": {
+     "Fine": 35,
+     "Content": 31,
+     "Happy": 0,
+     "Unhappy": 3,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 46,
+      "cause": "bled_out",
+      "killerId": 16778048
+     },
+     {
+      "day": 46,
+      "cause": "bled_out",
+      "killerId": 16778049
+     },
+     {
+      "day": 98,
+      "cause": "bled_out",
+      "killerId": 352322397
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 123,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285212693,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 187,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218105122,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 247,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117441910,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 55,
+     "y2": 60,
+     "y3": 57
+    },
+    "renown": {
+     "y1": 9,
+     "y2": 22,
+     "y3": 44
+    },
+    "mealsPerDwarfDay": "0.38",
+    "drinksPerDwarfDay": "0.59",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 273,
+      "worst": 5,
+      "longestTicks": 60,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 568800,
+      "slowed": 17401,
+      "worst": 6,
+      "longestTicks": 9820,
+      "capped": 3120
+     },
+     "stations": {
+      "samples": 144,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 86,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {
+      "none or gone": 1,
+      "wild": 2
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p0-5",
+    "peril": 0,
+    "dwarfDeaths": 0,
+    "byCause": {},
+    "y3Pop": 75
+   },
+   "result": {
+    "seed": "three-years-p0-5",
+    "peril": 0,
+    "y1Pop": 16,
+    "y2Pop": 45,
+    "y3Pop": 75,
+    "y1Wealth": 13690,
+    "y2Wealth": 61411,
+    "y3Wealth": 20527,
+    "dwarfDeaths": 0,
+    "tameDeaths": 0,
+    "wavesCount": 9,
+    "totalImmigrants": 68,
+    "nonGuaranteedWaves": 7,
+    "raidsCount": 3,
+    "mealsEaten": 4709,
+    "drinksDrunk": 7141,
+    "drinksAlcohol": 6989,
+    "drinksWater": 152,
+    "extinctDay": null,
+    "avgMood": "61.6",
+    "minMood": 37.91281172693763,
+    "maxMood": 83.09083333333334,
+    "moodBreakdown": {
+     "Fine": 29,
+     "Content": 39,
+     "Happy": 4,
+     "Unhappy": 3,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [],
+    "raidsList": [
+     {
+      "day": 116,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83887074,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 227,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218105371,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 303,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 486541300,
+      "outcome": "looted"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 59,
+     "y2": 61,
+     "y3": 62
+    },
+    "renown": {
+     "y1": 10,
+     "y2": 40,
+     "y3": 25
+    },
+    "mealsPerDwarfDay": "0.39",
+    "drinksPerDwarfDay": "0.58",
+    "crowds": {
+     "doors": {
+      "samples": 36581,
+      "slowed": 293,
+      "worst": 5,
+      "longestTicks": 60,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 568800,
+      "slowed": 27267,
+      "worst": 6,
+      "longestTicks": 379180,
+      "capped": 3889
+     },
+     "stations": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {},
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p0-6",
+    "peril": 0,
+    "dwarfDeaths": 0,
+    "byCause": {},
+    "y3Pop": 30
+   },
+   "result": {
+    "seed": "three-years-p0-6",
+    "peril": 0,
+    "y1Pop": 14,
+    "y2Pop": 30,
+    "y3Pop": 30,
+    "y1Wealth": 15858,
+    "y2Wealth": 23804,
+    "y3Wealth": 43971,
+    "dwarfDeaths": 0,
+    "tameDeaths": 0,
+    "wavesCount": 6,
+    "totalImmigrants": 23,
+    "nonGuaranteedWaves": 4,
+    "raidsCount": 3,
+    "mealsEaten": 2702,
+    "drinksDrunk": 4156,
+    "drinksAlcohol": 4156,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "65.0",
+    "minMood": 44.56075000000002,
+    "maxMood": 89.87666666666667,
+    "moodBreakdown": {
+     "Fine": 6,
+     "Content": 19,
+     "Happy": 5,
+     "Unhappy": 0,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [],
+    "raidsList": [
+     {
+      "day": 126,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767748,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 204,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 721420872,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 317,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 1157629143,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 58,
+     "y2": 63,
+     "y3": 65
+    },
+    "renown": {
+     "y1": 11,
+     "y2": 18,
+     "y3": 28
+    },
+    "mealsPerDwarfDay": "0.38",
+    "drinksPerDwarfDay": "0.59",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 8,
+      "worst": 3,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 568800,
+      "slowed": 20537,
+      "worst": 6,
+      "longestTicks": 379180,
+      "capped": 185
+     },
+     "stations": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {},
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p0-7",
+    "peril": 0,
+    "dwarfDeaths": 0,
+    "byCause": {},
+    "y3Pop": 52
+   },
+   "result": {
+    "seed": "three-years-p0-7",
+    "peril": 0,
+    "y1Pop": 18,
+    "y2Pop": 34,
+    "y3Pop": 52,
+    "y1Wealth": 24515,
+    "y2Wealth": 46347,
+    "y3Wealth": 38778,
+    "dwarfDeaths": 0,
+    "tameDeaths": 0,
+    "wavesCount": 7,
+    "totalImmigrants": 45,
+    "nonGuaranteedWaves": 5,
+    "raidsCount": 3,
+    "mealsEaten": 3541,
+    "drinksDrunk": 5376,
+    "drinksAlcohol": 4480,
+    "drinksWater": 896,
+    "extinctDay": null,
+    "avgMood": "64.4",
+    "minMood": 27.400166666666664,
+    "maxMood": 88.74666666666667,
+    "moodBreakdown": {
+     "Fine": 16,
+     "Content": 26,
+     "Happy": 9,
+     "Unhappy": 1,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [],
+    "raidsList": [
+     {
+      "day": 131,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767722,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 209,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 956302081,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 295,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 419432408,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 59,
+     "y2": 58,
+     "y3": 64
+    },
+    "renown": {
+     "y1": 16,
+     "y2": 30,
+     "y3": 30
+    },
+    "mealsPerDwarfDay": "0.38",
+    "drinksPerDwarfDay": "0.58",
+    "crowds": {
+     "doors": {
+      "samples": 37908,
+      "slowed": 127,
+      "worst": 5,
+      "longestTicks": 20,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 568800,
+      "slowed": 21988,
+      "worst": 6,
+      "longestTicks": 285580,
+      "capped": 126
+     },
+     "stations": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 0,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {},
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p2-1",
+    "peril": 2,
+    "dwarfDeaths": 3,
+    "byCause": {
+     "killed": 3
+    },
+    "y3Pop": 76
+   },
+   "result": {
+    "seed": "three-years-p2-1",
+    "peril": 2,
+    "y1Pop": 15,
+    "y2Pop": 40,
+    "y3Pop": 76,
+    "y1Wealth": 19029,
+    "y2Wealth": 46753,
+    "y3Wealth": 38243,
+    "dwarfDeaths": 3,
+    "tameDeaths": 7,
+    "wavesCount": 10,
+    "totalImmigrants": 72,
+    "nonGuaranteedWaves": 8,
+    "raidsCount": 11,
+    "mealsEaten": 4417,
+    "drinksDrunk": 6909,
+    "drinksAlcohol": 6909,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "58.1",
+    "minMood": 28.458799999999997,
+    "maxMood": 74.76389566522901,
+    "moodBreakdown": {
+     "Fine": 42,
+     "Content": 31,
+     "Happy": 0,
+     "Unhappy": 3,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 68,
+      "cause": "killed",
+      "killerId": 16778226
+     },
+     {
+      "day": 239,
+      "cause": "killed",
+      "killerId": 452986101
+     },
+     {
+      "day": 323,
+      "cause": "killed",
+      "killerId": 419431663
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 42,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886665,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 62,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 419430830,
+      "outcome": "looted"
+     },
+     {
+      "day": 95,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995947,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 126,
+      "kind": "raid",
+      "size": 11,
+      "partyId": 184550050,
+      "outcome": "looted"
+     },
+     {
+      "day": 132,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117440781,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 176,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 251659159,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 222,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 452984864,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 236,
+      "kind": "bandits",
+      "size": 5,
+      "partyId": 16778790,
+      "outcome": "looted"
+     },
+     {
+      "day": 248,
+      "kind": "raid",
+      "size": 15,
+      "partyId": 184549528,
+      "outcome": "looted"
+     },
+     {
+      "day": 275,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213401,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 308,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117442154,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 57,
+     "y2": 56,
+     "y3": 57
+    },
+    "renown": {
+     "y1": 13,
+     "y2": 31,
+     "y3": 34
+    },
+    "mealsPerDwarfDay": "0.37",
+    "drinksPerDwarfDay": "0.57",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 320,
+      "worst": 6,
+      "longestTicks": 40,
+      "capped": 1
+     },
+     "hall": {
+      "samples": 534030,
+      "slowed": 25858,
+      "worst": 6,
+      "longestTicks": 356000,
+      "capped": 4151
+     },
+     "stations": {
+      "samples": 995,
+      "slowed": 353,
+      "worst": 5,
+      "longestTicks": 580,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 18,
+      "slowed": 3,
+      "worst": 3,
+      "longestTicks": 40,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 5
+     },
+     "dwarvesKilledBy": {
+      "raiders": 3
+     },
+     "doorSteps": 1,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p2-2",
+    "peril": 2,
+    "dwarfDeaths": 9,
+    "byCause": {
+     "bled_out": 7,
+     "killed": 1,
+     "infection": 1
+    },
+    "y3Pop": 5
+   },
+   "result": {
+    "seed": "three-years-p2-2",
+    "peril": 2,
+    "y1Pop": 10,
+    "y2Pop": 6,
+    "y3Pop": 5,
+    "y1Wealth": 17424,
+    "y2Wealth": 13882,
+    "y3Wealth": 14967,
+    "dwarfDeaths": 9,
+    "tameDeaths": 0,
+    "wavesCount": 3,
+    "totalImmigrants": 7,
+    "nonGuaranteedWaves": 1,
+    "raidsCount": 12,
+    "mealsEaten": 873,
+    "drinksDrunk": 1367,
+    "drinksAlcohol": 1366,
+    "drinksWater": 1,
+    "extinctDay": null,
+    "avgMood": "52.1",
+    "minMood": 42.23333333333334,
+    "maxMood": 60.492999999999995,
+    "moodBreakdown": {
+     "Fine": 4,
+     "Content": 1,
+     "Happy": 0,
+     "Unhappy": 0,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 63,
+      "cause": "bled_out",
+      "killerId": 50332562
+     },
+     {
+      "day": 68,
+      "cause": "bled_out",
+      "killerId": 83886987
+     },
+     {
+      "day": 103,
+      "cause": "bled_out",
+      "killerId": 150995587
+     },
+     {
+      "day": 105,
+      "cause": "bled_out",
+      "killerId": 352321576
+     },
+     {
+      "day": 124,
+      "cause": "killed",
+      "killerId": 83886819
+     },
+     {
+      "day": 161,
+      "cause": "bled_out",
+      "killerId": 83886415
+     },
+     {
+      "day": 172,
+      "cause": "infection",
+      "killerId": 83886414
+     },
+     {
+      "day": 182,
+      "cause": "bled_out",
+      "killerId": 184550125
+     },
+     {
+      "day": 228,
+      "cause": "bled_out",
+      "killerId": 385876214
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 33,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50331858,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 68,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 50331679,
+      "outcome": "repelled"
+     },
+     {
+      "day": 70,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995108,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 117,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104293,
+      "outcome": "looted"
+     },
+     {
+      "day": 124,
+      "kind": "raid",
+      "size": 9,
+      "partyId": 318767983,
+      "outcome": "looted"
+     },
+     {
+      "day": 162,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184549903,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 213,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 352322277,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 253,
+      "kind": "raid",
+      "size": 9,
+      "partyId": 553649060,
+      "outcome": "looted"
+     },
+     {
+      "day": 264,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 385876782,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 280,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 620758179,
+      "outcome": "looted"
+     },
+     {
+      "day": 298,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 553648803,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 330,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767839,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 51,
+     "y2": 54,
+     "y3": 52
+    },
+    "renown": {
+     "y1": 11,
+     "y2": 8,
+     "y3": 8
+    },
+    "mealsPerDwarfDay": "0.35",
+    "drinksPerDwarfDay": "0.56",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 2,
+      "worst": 3,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 531150,
+      "slowed": 17966,
+      "worst": 6,
+      "longestTicks": 354080,
+      "capped": 11057
+     },
+     "stations": {
+      "samples": 3622,
+      "slowed": 237,
+      "worst": 5,
+      "longestTicks": 700,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 209,
+      "slowed": 30,
+      "worst": 4,
+      "longestTicks": 260,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 2
+     },
+     "dwarvesKilledBy": {
+      "raiders": 3,
+      "none or gone": 6
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p2-3",
+    "peril": 2,
+    "dwarfDeaths": 8,
+    "byCause": {
+     "bled_out": 7,
+     "killed": 1
+    },
+    "y3Pop": 62
+   },
+   "result": {
+    "seed": "three-years-p2-3",
+    "peril": 2,
+    "y1Pop": 19,
+    "y2Pop": 33,
+    "y3Pop": 62,
+    "y1Wealth": 29311,
+    "y2Wealth": 41491,
+    "y3Wealth": 65062,
+    "dwarfDeaths": 8,
+    "tameDeaths": 9,
+    "wavesCount": 8,
+    "totalImmigrants": 63,
+    "nonGuaranteedWaves": 6,
+    "raidsCount": 12,
+    "mealsEaten": 3716,
+    "drinksDrunk": 5986,
+    "drinksAlcohol": 5986,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "59.1",
+    "minMood": 29.736427804092372,
+    "maxMood": 81.0325,
+    "moodBreakdown": {
+     "Fine": 30,
+     "Content": 25,
+     "Happy": 4,
+     "Unhappy": 3,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 136,
+      "cause": "bled_out",
+      "killerId": 285213600
+     },
+     {
+      "day": 136,
+      "cause": "killed",
+      "killerId": 83887034
+     },
+     {
+      "day": 136,
+      "cause": "bled_out",
+      "killerId": 318768003
+     },
+     {
+      "day": 136,
+      "cause": "bled_out",
+      "killerId": 285213600
+     },
+     {
+      "day": 136,
+      "cause": "bled_out",
+      "killerId": 318768003
+     },
+     {
+      "day": 215,
+      "cause": "bled_out",
+      "killerId": 285213220
+     },
+     {
+      "day": 215,
+      "cause": "bled_out",
+      "killerId": 285213220
+     },
+     {
+      "day": 331,
+      "cause": "bled_out",
+      "killerId": 620757679
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 40,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117440605,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 59,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 50332558,
+      "outcome": "looted"
+     },
+     {
+      "day": 90,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995899,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 120,
+      "kind": "raid",
+      "size": 13,
+      "partyId": 452985955,
+      "outcome": "looted"
+     },
+     {
+      "day": 130,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 419430671,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 160,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995976,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 203,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 184550932,
+      "outcome": "looted"
+     },
+     {
+      "day": 212,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 754975262,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 241,
+      "kind": "raid",
+      "size": 16,
+      "partyId": 16779093,
+      "outcome": "looted"
+     },
+     {
+      "day": 250,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184551030,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 280,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117442744,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 332,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117440971,
+      "outcome": "looted"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 64,
+     "y2": 54,
+     "y3": 59
+    },
+    "renown": {
+     "y1": 18,
+     "y2": 27,
+     "y3": 45
+    },
+    "mealsPerDwarfDay": "0.36",
+    "drinksPerDwarfDay": "0.57",
+    "crowds": {
+     "doors": {
+      "samples": 37719,
+      "slowed": 78,
+      "worst": 4,
+      "longestTicks": 20,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 550650,
+      "slowed": 26281,
+      "worst": 6,
+      "longestTicks": 367080,
+      "capped": 1022
+     },
+     "stations": {
+      "samples": 1000,
+      "slowed": 442,
+      "worst": 6,
+      "longestTicks": 740,
+      "capped": 6
+     },
+     "fighting": {
+      "samples": 42,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 3
+     },
+     "dwarvesKilledBy": {
+      "raiders": 8
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p2-4",
+    "peril": 2,
+    "dwarfDeaths": 16,
+    "byCause": {
+     "bled_out": 15,
+     "killed": 1
+    },
+    "y3Pop": 22
+   },
+   "result": {
+    "seed": "three-years-p2-4",
+    "peril": 2,
+    "y1Pop": 9,
+    "y2Pop": 13,
+    "y3Pop": 22,
+    "y1Wealth": 16965,
+    "y2Wealth": 17951,
+    "y3Wealth": 19546,
+    "dwarfDeaths": 16,
+    "tameDeaths": 0,
+    "wavesCount": 6,
+    "totalImmigrants": 31,
+    "nonGuaranteedWaves": 4,
+    "raidsCount": 11,
+    "mealsEaten": 1678,
+    "drinksDrunk": 2634,
+    "drinksAlcohol": 2634,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "50.3",
+    "minMood": 13.048566666666705,
+    "maxMood": 70.62916666666666,
+    "moodBreakdown": {
+     "Fine": 10,
+     "Content": 6,
+     "Happy": 0,
+     "Unhappy": 4,
+     "Miserable": 2,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 63,
+      "cause": "bled_out",
+      "killerId": 83886878
+     },
+     {
+      "day": 93,
+      "cause": "bled_out",
+      "killerId": 251659069
+     },
+     {
+      "day": 94,
+      "cause": "bled_out",
+      "killerId": 620757597
+     },
+     {
+      "day": 102,
+      "cause": "bled_out",
+      "killerId": 285213287
+     },
+     {
+      "day": 135,
+      "cause": "bled_out",
+      "killerId": 150995628
+     },
+     {
+      "day": 137,
+      "cause": "bled_out",
+      "killerId": 150995622
+     },
+     {
+      "day": 171,
+      "cause": "bled_out",
+      "killerId": 50332812
+     },
+     {
+      "day": 289,
+      "cause": "bled_out",
+      "killerId": 352322881
+     },
+     {
+      "day": 289,
+      "cause": "bled_out",
+      "killerId": 452985077
+     },
+     {
+      "day": 289,
+      "cause": "bled_out",
+      "killerId": 352322881
+     },
+     {
+      "day": 289,
+      "cause": "killed",
+      "killerId": 50332870
+     },
+     {
+      "day": 289,
+      "cause": "bled_out",
+      "killerId": 452985077
+     },
+     {
+      "day": 289,
+      "cause": "bled_out",
+      "killerId": 352322881
+     },
+     {
+      "day": 300,
+      "cause": "bled_out",
+      "killerId": 184550472
+     },
+     {
+      "day": 300,
+      "cause": "bled_out",
+      "killerId": 117441606
+     },
+     {
+      "day": 304,
+      "cause": "bled_out",
+      "killerId": 218104933
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 36,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184549628,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 74,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218103972,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 76,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 150995726,
+      "outcome": "repelled"
+     },
+     {
+      "day": 122,
+      "kind": "raid",
+      "size": 9,
+      "partyId": 620757605,
+      "outcome": "looted"
+     },
+     {
+      "day": 134,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184549935,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 171,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104974,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 217,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104669,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 225,
+      "kind": "raid",
+      "size": 9,
+      "partyId": 184549809,
+      "outcome": "looted"
+     },
+     {
+      "day": 226,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 486540099,
+      "outcome": "looted"
+     },
+     {
+      "day": 269,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767751,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 323,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 754975522,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 57,
+     "y2": 51,
+     "y3": 49
+    },
+    "renown": {
+     "y1": 10,
+     "y2": 12,
+     "y3": 14
+    },
+    "mealsPerDwarfDay": "0.35",
+    "drinksPerDwarfDay": "0.54",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 11,
+      "worst": 3,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 543510,
+      "slowed": 19541,
+      "worst": 6,
+      "longestTicks": 362320,
+      "capped": 1525
+     },
+     "stations": {
+      "samples": 2522,
+      "slowed": 391,
+      "worst": 5,
+      "longestTicks": 980,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 848,
+      "slowed": 34,
+      "worst": 4,
+      "longestTicks": 440,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 5,
+      "cavern": 1
+     },
+     "dwarvesKilledBy": {
+      "raiders": 7,
+      "none or gone": 7,
+      "wild": 2
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p2-5",
+    "peril": 2,
+    "dwarfDeaths": 6,
+    "byCause": {
+     "bled_out": 6
+    },
+    "y3Pop": 37
+   },
+   "result": {
+    "seed": "three-years-p2-5",
+    "peril": 2,
+    "y1Pop": 10,
+    "y2Pop": 21,
+    "y3Pop": 37,
+    "y1Wealth": 16827,
+    "y2Wealth": 31384,
+    "y3Wealth": 43434,
+    "dwarfDeaths": 6,
+    "tameDeaths": 1,
+    "wavesCount": 6,
+    "totalImmigrants": 36,
+    "nonGuaranteedWaves": 4,
+    "raidsCount": 11,
+    "mealsEaten": 2097,
+    "drinksDrunk": 3338,
+    "drinksAlcohol": 3338,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "45.4",
+    "minMood": 5.308583333333331,
+    "maxMood": 70.08916666666667,
+    "moodBreakdown": {
+     "Fine": 20,
+     "Content": 6,
+     "Happy": 0,
+     "Unhappy": 9,
+     "Miserable": 2,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 47,
+      "cause": "bled_out",
+      "killerId": 16778142
+     },
+     {
+      "day": 49,
+      "cause": "bled_out",
+      "killerId": 184549852
+     },
+     {
+      "day": 58,
+      "cause": "bled_out",
+      "killerId": 285212993
+     },
+     {
+      "day": 58,
+      "cause": "bled_out",
+      "killerId": 285212993
+     },
+     {
+      "day": 248,
+      "cause": "bled_out",
+      "killerId": 654311869
+     },
+     {
+      "day": 248,
+      "cause": "bled_out",
+      "killerId": 419431171
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 36,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332221,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 67,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767549,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 72,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 184549954,
+      "outcome": "looted"
+     },
+     {
+      "day": 122,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 520094630,
+      "outcome": "looted"
+     },
+     {
+      "day": 122,
+      "kind": "raid",
+      "size": 9,
+      "partyId": 50331838,
+      "outcome": "looted"
+     },
+     {
+      "day": 170,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 352321806,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 225,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 419431528,
+      "outcome": "looted"
+     },
+     {
+      "day": 225,
+      "kind": "raid",
+      "size": 12,
+      "partyId": 687866397,
+      "outcome": "looted"
+     },
+     {
+      "day": 240,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 486539487,
+      "outcome": "looted"
+     },
+     {
+      "day": 267,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83887528,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 306,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 654312167,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 63,
+     "y2": 51,
+     "y3": 45
+    },
+    "renown": {
+     "y1": 10,
+     "y2": 20,
+     "y3": 29
+    },
+    "mealsPerDwarfDay": "0.35",
+    "drinksPerDwarfDay": "0.56",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 23,
+      "worst": 4,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 533580,
+      "slowed": 19928,
+      "worst": 6,
+      "longestTicks": 355700,
+      "capped": 192
+     },
+     "stations": {
+      "samples": 1195,
+      "slowed": 313,
+      "worst": 5,
+      "longestTicks": 740,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 155,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 5
+     },
+     "dwarvesKilledBy": {
+      "none or gone": 3,
+      "wild": 1,
+      "raiders": 2
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p2-6",
+    "peril": 2,
+    "dwarfDeaths": 6,
+    "byCause": {
+     "bled_out": 3,
+     "killed": 3
+    },
+    "y3Pop": 71
+   },
+   "result": {
+    "seed": "three-years-p2-6",
+    "peril": 2,
+    "y1Pop": 13,
+    "y2Pop": 31,
+    "y3Pop": 71,
+    "y1Wealth": 10188,
+    "y2Wealth": 38512,
+    "y3Wealth": 37254,
+    "dwarfDeaths": 6,
+    "tameDeaths": 2,
+    "wavesCount": 11,
+    "totalImmigrants": 70,
+    "nonGuaranteedWaves": 9,
+    "raidsCount": 12,
+    "mealsEaten": 3858,
+    "drinksDrunk": 5881,
+    "drinksAlcohol": 5881,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "57.2",
+    "minMood": 22.240033333333315,
+    "maxMood": 84.75500000000001,
+    "moodBreakdown": {
+     "Fine": 31,
+     "Content": 29,
+     "Happy": 4,
+     "Unhappy": 7,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 61,
+      "cause": "bled_out",
+      "killerId": 83886909
+     },
+     {
+      "day": 61,
+      "cause": "bled_out",
+      "killerId": 50332488
+     },
+     {
+      "day": 133,
+      "cause": "killed",
+      "killerId": 16778143
+     },
+     {
+      "day": 181,
+      "cause": "bled_out",
+      "killerId": 16778435
+     },
+     {
+      "day": 289,
+      "cause": "killed",
+      "killerId": 50333612
+     },
+     {
+      "day": 289,
+      "cause": "killed",
+      "killerId": 50333615
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 39,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50331955,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 68,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 150995776,
+      "outcome": "looted"
+     },
+     {
+      "day": 80,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104613,
+      "outcome": "looted"
+     },
+     {
+      "day": 110,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 452985625,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 133,
+      "kind": "raid",
+      "size": 9,
+      "partyId": 16778142,
+      "outcome": "looted"
+     },
+     {
+      "day": 147,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 553648314,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 203,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767836,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 245,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 553648570,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 266,
+      "kind": "raid",
+      "size": 16,
+      "partyId": 50333185,
+      "outcome": "looted"
+     },
+     {
+      "day": 287,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 352323576,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 289,
+      "kind": "bandits",
+      "size": 5,
+      "partyId": 50333621,
+      "outcome": "looted"
+     },
+     {
+      "day": 326,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 922747889,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 60,
+     "y2": 57,
+     "y3": 57
+    },
+    "renown": {
+     "y1": 8,
+     "y2": 25,
+     "y3": 33
+    },
+    "mealsPerDwarfDay": "0.37",
+    "drinksPerDwarfDay": "0.56",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 121,
+      "worst": 5,
+      "longestTicks": 20,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 553200,
+      "slowed": 23934,
+      "worst": 6,
+      "longestTicks": 368780,
+      "capped": 18764
+     },
+     "stations": {
+      "samples": 1015,
+      "slowed": 462,
+      "worst": 5,
+      "longestTicks": 640,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 14,
+      "slowed": 5,
+      "worst": 5,
+      "longestTicks": 80,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 1
+     },
+     "dwarvesKilledBy": {
+      "raiders": 6
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p2-7",
+    "peril": 2,
+    "dwarfDeaths": 2,
+    "byCause": {
+     "bled_out": 1,
+     "killed": 1
+    },
+    "y3Pop": 60
+   },
+   "result": {
+    "seed": "three-years-p2-7",
+    "peril": 2,
+    "y1Pop": 16,
+    "y2Pop": 49,
+    "y3Pop": 60,
+    "y1Wealth": 18074,
+    "y2Wealth": 41226,
+    "y3Wealth": 12868,
+    "dwarfDeaths": 2,
+    "tameDeaths": 3,
+    "wavesCount": 8,
+    "totalImmigrants": 55,
+    "nonGuaranteedWaves": 6,
+    "raidsCount": 11,
+    "mealsEaten": 4021,
+    "drinksDrunk": 6627,
+    "drinksAlcohol": 5620,
+    "drinksWater": 1007,
+    "extinctDay": null,
+    "avgMood": "32.5",
+    "minMood": 4.044083333333333,
+    "maxMood": 75.10233333333335,
+    "moodBreakdown": {
+     "Fine": 14,
+     "Content": 4,
+     "Happy": 1,
+     "Unhappy": 23,
+     "Miserable": 18,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 61,
+      "cause": "bled_out",
+      "killerId": 83886780
+     },
+     {
+      "day": 247,
+      "cause": "killed",
+      "killerId": 855638847
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 49,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332433,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 60,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 285213218,
+      "outcome": "looted"
+     },
+     {
+      "day": 87,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 553648805,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 131,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995681,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 133,
+      "kind": "raid",
+      "size": 10,
+      "partyId": 486539285,
+      "outcome": "looted"
+     },
+     {
+      "day": 191,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 520094116,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 234,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 654312658,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 247,
+      "kind": "raid",
+      "size": 13,
+      "partyId": 318768008,
+      "outcome": "looted"
+     },
+     {
+      "day": 254,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 1660944882,
+      "outcome": "looted"
+     },
+     {
+      "day": 273,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 587203012,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 310,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 1392510502,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 59,
+     "y2": 60,
+     "y3": 34
+    },
+    "renown": {
+     "y1": 12,
+     "y2": 30,
+     "y3": 18
+    },
+    "mealsPerDwarfDay": "0.33",
+    "drinksPerDwarfDay": "0.55",
+    "crowds": {
+     "doors": {
+      "samples": 37899,
+      "slowed": 149,
+      "worst": 5,
+      "longestTicks": 60,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 550050,
+      "slowed": 31717,
+      "worst": 6,
+      "longestTicks": 366680,
+      "capped": 9498
+     },
+     "stations": {
+      "samples": 1036,
+      "slowed": 477,
+      "worst": 5,
+      "longestTicks": 760,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 80,
+      "slowed": 4,
+      "worst": 3,
+      "longestTicks": 40,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 3
+     },
+     "dwarvesKilledBy": {
+      "raiders": 2
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p4-1",
+    "peril": 4,
+    "dwarfDeaths": 14,
+    "byCause": {
+     "bled_out": 7,
+     "killed": 7
+    },
+    "y3Pop": 57
+   },
+   "result": {
+    "seed": "three-years-p4-1",
+    "peril": 4,
+    "y1Pop": 18,
+    "y2Pop": 29,
+    "y3Pop": 57,
+    "y1Wealth": 23715,
+    "y2Wealth": 29136,
+    "y3Wealth": 53850,
+    "dwarfDeaths": 14,
+    "tameDeaths": 1,
+    "wavesCount": 9,
+    "totalImmigrants": 64,
+    "nonGuaranteedWaves": 7,
+    "raidsCount": 24,
+    "mealsEaten": 3612,
+    "drinksDrunk": 5533,
+    "drinksAlcohol": 5533,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "60.1",
+    "minMood": 31.60364434293964,
+    "maxMood": 81.4275,
+    "moodBreakdown": {
+     "Fine": 21,
+     "Content": 29,
+     "Happy": 4,
+     "Unhappy": 3,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 127,
+      "cause": "bled_out",
+      "killerId": 419431107
+     },
+     {
+      "day": 127,
+      "cause": "killed",
+      "killerId": 184549812
+     },
+     {
+      "day": 127,
+      "cause": "killed",
+      "killerId": 50331996
+     },
+     {
+      "day": 169,
+      "cause": "killed",
+      "killerId": 83887187
+     },
+     {
+      "day": 169,
+      "cause": "bled_out",
+      "killerId": 150995940
+     },
+     {
+      "day": 169,
+      "cause": "killed",
+      "killerId": 184550534
+     },
+     {
+      "day": 169,
+      "cause": "killed",
+      "killerId": 83887172
+     },
+     {
+      "day": 169,
+      "cause": "bled_out",
+      "killerId": 50332767
+     },
+     {
+      "day": 169,
+      "cause": "bled_out",
+      "killerId": 83887187
+     },
+     {
+      "day": 169,
+      "cause": "bled_out",
+      "killerId": 50332767
+     },
+     {
+      "day": 169,
+      "cause": "killed",
+      "killerId": 184550534
+     },
+     {
+      "day": 198,
+      "cause": "killed",
+      "killerId": 184550369
+     },
+     {
+      "day": 208,
+      "cause": "bled_out",
+      "killerId": 83886217
+     },
+     {
+      "day": 234,
+      "cause": "bled_out",
+      "killerId": 620757348
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 22,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50331829,
+      "outcome": "looted"
+     },
+     {
+      "day": 45,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886562,
+      "outcome": "looted"
+     },
+     {
+      "day": 58,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 50332558,
+      "outcome": "looted"
+     },
+     {
+      "day": 62,
+      "kind": "raid",
+      "size": 13,
+      "partyId": 385876632,
+      "outcome": "looted"
+     },
+     {
+      "day": 65,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184550262,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 80,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104356,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 98,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 520094360,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 116,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886826,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 129,
+      "kind": "raid",
+      "size": 17,
+      "partyId": 150995313,
+      "outcome": "looted"
+     },
+     {
+      "day": 134,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213122,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 151,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184550171,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 179,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 587203157,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 190,
+      "kind": "siege",
+      "size": 28,
+      "partyId": 50333068,
+      "outcome": "looted"
+     },
+     {
+      "day": 199,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213476,
+      "outcome": "looted"
+     },
+     {
+      "day": 211,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 285213955,
+      "outcome": "looted"
+     },
+     {
+      "day": 213,
+      "kind": "raid",
+      "size": 18,
+      "partyId": 285213191,
+      "outcome": "looted"
+     },
+     {
+      "day": 224,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 352322694,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 241,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218105383,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 261,
+      "kind": "raid",
+      "size": 22,
+      "partyId": 251658876,
+      "outcome": "looted"
+     },
+     {
+      "day": 266,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 721420657,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 288,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184550561,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 304,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 654311845,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 321,
+      "kind": "raid",
+      "size": 24,
+      "partyId": 150996253,
+      "outcome": "looted"
+     },
+     {
+      "day": 328,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318769108,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 61,
+     "y2": 61,
+     "y3": 60
+    },
+    "renown": {
+     "y1": 16,
+     "y2": 20,
+     "y3": 38
+    },
+    "mealsPerDwarfDay": "0.36",
+    "drinksPerDwarfDay": "0.56",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 87,
+      "worst": 4,
+      "longestTicks": 200,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 539520,
+      "slowed": 23937,
+      "worst": 6,
+      "longestTicks": 359660,
+      "capped": 17824
+     },
+     "stations": {
+      "samples": 2639,
+      "slowed": 963,
+      "worst": 6,
+      "longestTicks": 720,
+      "capped": 11
+     },
+     "fighting": {
+      "samples": 125,
+      "slowed": 25,
+      "worst": 4,
+      "longestTicks": 240,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 8
+     },
+     "dwarvesKilledBy": {
+      "raiders": 12,
+      "none or gone": 2
+     },
+     "doorSteps": 4,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p4-2",
+    "peril": 4,
+    "dwarfDeaths": 9,
+    "byCause": {
+     "killed": 5,
+     "bled_out": 4
+    },
+    "y3Pop": 41
+   },
+   "result": {
+    "seed": "three-years-p4-2",
+    "peril": 4,
+    "y1Pop": 15,
+    "y2Pop": 17,
+    "y3Pop": 41,
+    "y1Wealth": 17390,
+    "y2Wealth": 34649,
+    "y3Wealth": 40949,
+    "dwarfDeaths": 9,
+    "tameDeaths": 1,
+    "wavesCount": 6,
+    "totalImmigrants": 43,
+    "nonGuaranteedWaves": 4,
+    "raidsCount": 21,
+    "mealsEaten": 2739,
+    "drinksDrunk": 4316,
+    "drinksAlcohol": 4316,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "60.5",
+    "minMood": 34.99327777777777,
+    "maxMood": 79.12055555555555,
+    "moodBreakdown": {
+     "Fine": 15,
+     "Content": 22,
+     "Happy": 2,
+     "Unhappy": 2,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 140,
+      "cause": "killed",
+      "killerId": 184550386
+     },
+     {
+      "day": 171,
+      "cause": "killed",
+      "killerId": 318767371
+     },
+     {
+      "day": 174,
+      "cause": "killed",
+      "killerId": 117441549
+     },
+     {
+      "day": 174,
+      "cause": "bled_out",
+      "killerId": 117441669
+     },
+     {
+      "day": 174,
+      "cause": "killed",
+      "killerId": 117441369
+     },
+     {
+      "day": 174,
+      "cause": "bled_out",
+      "killerId": 83887128
+     },
+     {
+      "day": 210,
+      "cause": "bled_out",
+      "killerId": 117441888
+     },
+     {
+      "day": 210,
+      "cause": "bled_out",
+      "killerId": 285213478
+     },
+     {
+      "day": 210,
+      "cause": "killed",
+      "killerId": 117441888
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 23,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886294,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 45,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 16778212,
+      "outcome": "looted"
+     },
+     {
+      "day": 68,
+      "kind": "raid",
+      "size": 14,
+      "partyId": 318767316,
+      "outcome": "looted"
+     },
+     {
+      "day": 69,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 251658746,
+      "outcome": "looted"
+     },
+     {
+      "day": 69,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 16778373,
+      "outcome": "looted"
+     },
+     {
+      "day": 91,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184549938,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 114,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332687,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 136,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213604,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 140,
+      "kind": "raid",
+      "size": 16,
+      "partyId": 318768010,
+      "outcome": "looted"
+     },
+     {
+      "day": 159,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767347,
+      "outcome": "looted"
+     },
+     {
+      "day": 174,
+      "kind": "siege",
+      "size": 26,
+      "partyId": 117441692,
+      "outcome": "looted"
+     },
+     {
+      "day": 180,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104884,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 201,
+      "kind": "raid",
+      "size": 16,
+      "partyId": 184550554,
+      "outcome": "looted"
+     },
+     {
+      "day": 207,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 620757467,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 223,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 452986215,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 249,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 486540148,
+      "outcome": "looted"
+     },
+     {
+      "day": 259,
+      "kind": "raid",
+      "size": 20,
+      "partyId": 721420649,
+      "outcome": "looted"
+     },
+     {
+      "day": 268,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184550652,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 295,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 452986575,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 306,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 150996584,
+      "outcome": "looted"
+     },
+     {
+      "day": 322,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150996647,
+      "outcome": "looted"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 65,
+     "y2": 57,
+     "y3": 61
+    },
+    "renown": {
+     "y1": 12,
+     "y2": 21,
+     "y3": 29
+    },
+    "mealsPerDwarfDay": "0.35",
+    "drinksPerDwarfDay": "0.55",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 32,
+      "worst": 3,
+      "longestTicks": 20,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 537810,
+      "slowed": 21650,
+      "worst": 6,
+      "longestTicks": 358520,
+      "capped": 737
+     },
+     "stations": {
+      "samples": 2288,
+      "slowed": 484,
+      "worst": 5,
+      "longestTicks": 560,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 84,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 6
+     },
+     "dwarvesKilledBy": {
+      "raiders": 9
+     },
+     "doorSteps": 1,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p4-3",
+    "peril": 4,
+    "dwarfDeaths": 32,
+    "byCause": {
+     "killed": 18,
+     "bled_out": 14
+    },
+    "y3Pop": 0
+   },
+   "result": {
+    "seed": "three-years-p4-3",
+    "peril": 4,
+    "y1Pop": 8,
+    "y2Pop": 0,
+    "y3Pop": 0,
+    "y1Wealth": 14506,
+    "y2Wealth": 9714,
+    "y3Wealth": 7901,
+    "dwarfDeaths": 32,
+    "tameDeaths": 15,
+    "wavesCount": 5,
+    "totalImmigrants": 25,
+    "nonGuaranteedWaves": 3,
+    "raidsCount": 22,
+    "mealsEaten": 888,
+    "drinksDrunk": 1399,
+    "drinksAlcohol": 1399,
+    "drinksWater": 0,
+    "extinctDay": 188,
+    "avgMood": "extinct",
+    "minMood": 0,
+    "maxMood": 0,
+    "moodBreakdown": {
+     "Fine": 0,
+     "Content": 0,
+     "Happy": 0,
+     "Unhappy": 0,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 77,
+      "cause": "killed",
+      "killerId": 83886979
+     },
+     {
+      "day": 77,
+      "cause": "killed",
+      "killerId": 50331900
+     },
+     {
+      "day": 77,
+      "cause": "bled_out",
+      "killerId": 83886844
+     },
+     {
+      "day": 77,
+      "cause": "killed",
+      "killerId": 50332543
+     },
+     {
+      "day": 157,
+      "cause": "killed",
+      "killerId": 50332619
+     },
+     {
+      "day": 157,
+      "cause": "killed",
+      "killerId": 150995933
+     },
+     {
+      "day": 186,
+      "cause": "killed",
+      "killerId": 16778890
+     },
+     {
+      "day": 186,
+      "cause": "bled_out",
+      "killerId": 83887569
+     },
+     {
+      "day": 186,
+      "cause": "killed",
+      "killerId": 16778890
+     },
+     {
+      "day": 186,
+      "cause": "killed",
+      "killerId": 218104203
+     },
+     {
+      "day": 186,
+      "cause": "killed",
+      "killerId": 16778858
+     },
+     {
+      "day": 186,
+      "cause": "killed",
+      "killerId": 16778847
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778852
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778840
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778852
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778817
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778840
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778826
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778833
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "killed",
+      "killerId": 16778890
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     },
+     {
+      "day": 187,
+      "cause": "bled_out",
+      "killerId": 16778719
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 40,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 16777790,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 64,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117440757,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 71,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 16778151,
+      "outcome": "looted"
+     },
+     {
+      "day": 77,
+      "kind": "raid",
+      "size": 14,
+      "partyId": 83886827,
+      "outcome": "looted"
+     },
+     {
+      "day": 89,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184549962,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 108,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318768015,
+      "outcome": "looted"
+     },
+     {
+      "day": 130,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104552,
+      "outcome": "looted"
+     },
+     {
+      "day": 147,
+      "kind": "raid",
+      "size": 15,
+      "partyId": 251658290,
+      "outcome": "looted"
+     },
+     {
+      "day": 157,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995949,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 180,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767814,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 186,
+      "kind": "siege",
+      "size": 26,
+      "partyId": 620757752,
+      "outcome": "looted"
+     },
+     {
+      "day": 195,
+      "kind": "raid",
+      "size": 13,
+      "partyId": 218104446,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 207,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213046,
+      "outcome": "looted"
+     },
+     {
+      "day": 234,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 352322540,
+      "outcome": "looted"
+     },
+     {
+      "day": 234,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 318767325,
+      "outcome": "looted"
+     },
+     {
+      "day": 249,
+      "kind": "raid",
+      "size": 12,
+      "partyId": 218104645,
+      "outcome": "looted"
+     },
+     {
+      "day": 253,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 251659024,
+      "outcome": "looted"
+     },
+     {
+      "day": 273,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104491,
+      "outcome": "looted"
+     },
+     {
+      "day": 294,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 452985837,
+      "outcome": "looted"
+     },
+     {
+      "day": 308,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767649,
+      "outcome": "looted"
+     },
+     {
+      "day": 319,
+      "kind": "raid",
+      "size": 12,
+      "partyId": 587203007,
+      "outcome": "looted"
+     },
+     {
+      "day": 334,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117442025,
+      "outcome": "looted"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 65,
+     "y2": 55,
+     "y3": 55
+    },
+    "renown": {
+     "y1": 9,
+     "y2": 5,
+     "y3": 4
+    },
+    "mealsPerDwarfDay": "0.36",
+    "drinksPerDwarfDay": "0.56",
+    "crowds": {
+     "doors": {
+      "samples": 28903,
+      "slowed": 10,
+      "worst": 4,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 553740,
+      "slowed": 10186,
+      "worst": 6,
+      "longestTicks": 194140,
+      "capped": 193
+     },
+     "stations": {
+      "samples": 2692,
+      "slowed": 394,
+      "worst": 6,
+      "longestTicks": 680,
+      "capped": 1
+     },
+     "fighting": {
+      "samples": 130,
+      "slowed": 8,
+      "worst": 6,
+      "longestTicks": 140,
+      "capped": 7
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 4
+     },
+     "dwarvesKilledBy": {
+      "raiders": 32
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p4-4",
+    "peril": 4,
+    "dwarfDeaths": 9,
+    "byCause": {
+     "bled_out": 3,
+     "killed": 6
+    },
+    "y3Pop": 34
+   },
+   "result": {
+    "seed": "three-years-p4-4",
+    "peril": 4,
+    "y1Pop": 16,
+    "y2Pop": 17,
+    "y3Pop": 34,
+    "y1Wealth": 8244,
+    "y2Wealth": 19184,
+    "y3Wealth": 28279,
+    "dwarfDeaths": 9,
+    "tameDeaths": 2,
+    "wavesCount": 8,
+    "totalImmigrants": 36,
+    "nonGuaranteedWaves": 6,
+    "raidsCount": 21,
+    "mealsEaten": 2139,
+    "drinksDrunk": 3280,
+    "drinksAlcohol": 3161,
+    "drinksWater": 119,
+    "extinctDay": null,
+    "avgMood": "59.5",
+    "minMood": 7.956999999999994,
+    "maxMood": 86.83666666666667,
+    "moodBreakdown": {
+     "Fine": 14,
+     "Content": 13,
+     "Happy": 5,
+     "Unhappy": 1,
+     "Miserable": 1,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 104,
+      "cause": "bled_out",
+      "killerId": 754975298
+     },
+     {
+      "day": 145,
+      "cause": "killed",
+      "killerId": 117440793
+     },
+     {
+      "day": 149,
+      "cause": "bled_out",
+      "killerId": 150995603
+     },
+     {
+      "day": 150,
+      "cause": "killed",
+      "killerId": 385876483
+     },
+     {
+      "day": 150,
+      "cause": "killed",
+      "killerId": 150995603
+     },
+     {
+      "day": 184,
+      "cause": "killed",
+      "killerId": 50332718
+     },
+     {
+      "day": 221,
+      "cause": "killed",
+      "killerId": 50332769
+     },
+     {
+      "day": 221,
+      "cause": "killed",
+      "killerId": 385876320
+     },
+     {
+      "day": 238,
+      "cause": "bled_out",
+      "killerId": 50332785
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 34,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886481,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 58,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332489,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 65,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 218104628,
+      "outcome": "looted"
+     },
+     {
+      "day": 73,
+      "kind": "raid",
+      "size": 12,
+      "partyId": 184549998,
+      "outcome": "looted"
+     },
+     {
+      "day": 79,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104052,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 102,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 385876853,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 127,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213574,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 145,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 486540148,
+      "outcome": "looted"
+     },
+     {
+      "day": 145,
+      "kind": "raid",
+      "size": 14,
+      "partyId": 83886451,
+      "outcome": "looted"
+     },
+     {
+      "day": 172,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 553648370,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 184,
+      "kind": "siege",
+      "size": 23,
+      "partyId": 218104090,
+      "outcome": "looted"
+     },
+     {
+      "day": 200,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 419431229,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 221,
+      "kind": "raid",
+      "size": 16,
+      "partyId": 385876650,
+      "outcome": "looted"
+     },
+     {
+      "day": 224,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 184550463,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 226,
+      "kind": "bandits",
+      "size": 4,
+      "partyId": 117441721,
+      "outcome": "looted"
+     },
+     {
+      "day": 250,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 754974742,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 270,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 553648350,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 287,
+      "kind": "raid",
+      "size": 18,
+      "partyId": 1090519160,
+      "outcome": "looted"
+     },
+     {
+      "day": 294,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 520094534,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 309,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767804,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 334,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767882,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 55,
+     "y2": 52,
+     "y3": 60
+    },
+    "renown": {
+     "y1": 7,
+     "y2": 13,
+     "y3": 21
+    },
+    "mealsPerDwarfDay": "0.34",
+    "drinksPerDwarfDay": "0.53",
+    "crowds": {
+     "doors": {
+      "samples": 37920,
+      "slowed": 25,
+      "worst": 4,
+      "longestTicks": 20,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 540840,
+      "slowed": 19982,
+      "worst": 6,
+      "longestTicks": 360540,
+      "capped": 235
+     },
+     "stations": {
+      "samples": 2087,
+      "slowed": 549,
+      "worst": 5,
+      "longestTicks": 700,
+      "capped": 0
+     },
+     "fighting": {
+      "samples": 23,
+      "slowed": 6,
+      "worst": 4,
+      "longestTicks": 240,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 2
+     },
+     "dwarvesKilledBy": {
+      "raiders": 9
+     },
+     "doorSteps": 1,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p4-5",
+    "peril": 4,
+    "dwarfDeaths": 21,
+    "byCause": {
+     "killed": 13,
+     "bled_out": 8
+    },
+    "y3Pop": 0
+   },
+   "result": {
+    "seed": "three-years-p4-5",
+    "peril": 4,
+    "y1Pop": 13,
+    "y2Pop": 0,
+    "y3Pop": 0,
+    "y1Wealth": 21083,
+    "y2Wealth": 7017,
+    "y3Wealth": 3855,
+    "dwarfDeaths": 21,
+    "tameDeaths": 13,
+    "wavesCount": 4,
+    "totalImmigrants": 14,
+    "nonGuaranteedWaves": 2,
+    "raidsCount": 25,
+    "mealsEaten": 705,
+    "drinksDrunk": 1117,
+    "drinksAlcohol": 1117,
+    "drinksWater": 0,
+    "extinctDay": 177,
+    "avgMood": "extinct",
+    "minMood": 0,
+    "maxMood": 0,
+    "moodBreakdown": {
+     "Fine": 0,
+     "Content": 0,
+     "Happy": 0,
+     "Unhappy": 0,
+     "Miserable": 0,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 60,
+      "cause": "killed",
+      "killerId": 50332350
+     },
+     {
+      "day": 175,
+      "cause": "killed",
+      "killerId": 50332558
+     },
+     {
+      "day": 175,
+      "cause": "killed",
+      "killerId": 385876514
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 83887034
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 50332558
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 553648831
+     },
+     {
+      "day": 176,
+      "cause": "bled_out",
+      "killerId": 83887053
+     },
+     {
+      "day": 176,
+      "cause": "bled_out",
+      "killerId": 83887053
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 83887053
+     },
+     {
+      "day": 176,
+      "cause": "bled_out",
+      "killerId": 83887053
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 318767979
+     },
+     {
+      "day": 176,
+      "cause": "bled_out",
+      "killerId": 83887053
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 50332558
+     },
+     {
+      "day": 176,
+      "cause": "bled_out",
+      "killerId": 83887053
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 218104357
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 50332552
+     },
+     {
+      "day": 176,
+      "cause": "bled_out",
+      "killerId": 117441563
+     },
+     {
+      "day": 176,
+      "cause": "killed",
+      "killerId": 50332558
+     },
+     {
+      "day": 176,
+      "cause": "bled_out",
+      "killerId": 83887053
+     },
+     {
+      "day": 177,
+      "cause": "killed",
+      "killerId": 83887105
+     },
+     {
+      "day": 177,
+      "cause": "bled_out",
+      "killerId": 83887053
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 27,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 16777664,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 51,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117441312,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 60,
+      "kind": "raid",
+      "size": 13,
+      "partyId": 50332129,
+      "outcome": "looted"
+     },
+     {
+      "day": 75,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 184549828,
+      "outcome": "looted"
+     },
+     {
+      "day": 78,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767566,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 94,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767605,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 115,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117441078,
+      "outcome": "looted"
+     },
+     {
+      "day": 122,
+      "kind": "raid",
+      "size": 15,
+      "partyId": 318767836,
+      "outcome": "looted"
+     },
+     {
+      "day": 132,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 419431196,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 149,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332679,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 168,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 620757686,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 171,
+      "kind": "raid",
+      "size": 15,
+      "partyId": 117440723,
+      "outcome": "looted"
+     },
+     {
+      "day": 175,
+      "kind": "siege",
+      "size": 23,
+      "partyId": 218104052,
+      "outcome": "looted"
+     },
+     {
+      "day": 191,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767594,
+      "outcome": "looted"
+     },
+     {
+      "day": 207,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767685,
+      "outcome": "looted"
+     },
+     {
+      "day": 226,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995710,
+      "outcome": "looted"
+     },
+     {
+      "day": 228,
+      "kind": "raid",
+      "size": 11,
+      "partyId": 150995218,
+      "outcome": "looted"
+     },
+     {
+      "day": 242,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 318767703,
+      "outcome": "looted"
+     },
+     {
+      "day": 267,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104867,
+      "outcome": "looted"
+     },
+     {
+      "day": 279,
+      "kind": "raid",
+      "size": 11,
+      "partyId": 587203624,
+      "outcome": "looted"
+     },
+     {
+      "day": 283,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 620758056,
+      "outcome": "looted"
+     },
+     {
+      "day": 299,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117440893,
+      "outcome": "looted"
+     },
+     {
+      "day": 315,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 117440653,
+      "outcome": "looted"
+     },
+     {
+      "day": 321,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 150995308,
+      "outcome": "looted"
+     },
+     {
+      "day": 323,
+      "kind": "raid",
+      "size": 11,
+      "partyId": 50331733,
+      "outcome": "looted"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 60,
+     "y2": 55,
+     "y3": 55
+    },
+    "renown": {
+     "y1": 13,
+     "y2": 4,
+     "y3": 2
+    },
+    "mealsPerDwarfDay": "0.35",
+    "drinksPerDwarfDay": "0.56",
+    "crowds": {
+     "doors": {
+      "samples": 28253,
+      "slowed": 1,
+      "worst": 3,
+      "longestTicks": 0,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 517680,
+      "slowed": 8391,
+      "worst": 6,
+      "longestTicks": 153260,
+      "capped": 7667
+     },
+     "stations": {
+      "samples": 4508,
+      "slowed": 525,
+      "worst": 6,
+      "longestTicks": 820,
+      "capped": 6
+     },
+     "fighting": {
+      "samples": 41,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {},
+     "dwarvesKilledBy": {
+      "raiders": 20,
+      "fortress": 1
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  },
+  {
+   "figures": {
+    "seed": "three-years-p4-6",
+    "peril": 4,
+    "dwarfDeaths": 18,
+    "byCause": {
+     "killed": 10,
+     "bled_out": 8
+    },
+    "y3Pop": 59
+   },
+   "result": {
+    "seed": "three-years-p4-6",
+    "peril": 4,
+    "y1Pop": 16,
+    "y2Pop": 39,
+    "y3Pop": 59,
+    "y1Wealth": 20194,
+    "y2Wealth": 50637,
+    "y3Wealth": 73337,
+    "dwarfDeaths": 18,
+    "tameDeaths": 4,
+    "wavesCount": 9,
+    "totalImmigrants": 70,
+    "nonGuaranteedWaves": 7,
+    "raidsCount": 22,
+    "mealsEaten": 4031,
+    "drinksDrunk": 6277,
+    "drinksAlcohol": 6277,
+    "drinksWater": 0,
+    "extinctDay": null,
+    "avgMood": "60.7",
+    "minMood": 15.385499999999993,
+    "maxMood": 88.62916666666666,
+    "moodBreakdown": {
+     "Fine": 25,
+     "Content": 23,
+     "Happy": 8,
+     "Unhappy": 2,
+     "Miserable": 1,
+     "Ecstatic": 0
+    },
+    "deathsList": [
+     {
+      "day": 71,
+      "cause": "killed",
+      "killerId": 50332009
+     },
+     {
+      "day": 178,
+      "cause": "killed",
+      "killerId": 50333295
+     },
+     {
+      "day": 226,
+      "cause": "killed",
+      "killerId": 117441840
+     },
+     {
+      "day": 226,
+      "cause": "killed",
+      "killerId": 83887580
+     },
+     {
+      "day": 229,
+      "cause": "bled_out",
+      "killerId": 184550862
+     },
+     {
+      "day": 229,
+      "cause": "killed",
+      "killerId": 184550151
+     },
+     {
+      "day": 229,
+      "cause": "bled_out",
+      "killerId": 553648894
+     },
+     {
+      "day": 265,
+      "cause": "bled_out",
+      "killerId": 16779537
+     },
+     {
+      "day": 265,
+      "cause": "bled_out",
+      "killerId": 654312270
+     },
+     {
+      "day": 265,
+      "cause": "bled_out",
+      "killerId": 654312270
+     },
+     {
+      "day": 265,
+      "cause": "bled_out",
+      "killerId": 654312270
+     },
+     {
+      "day": 265,
+      "cause": "killed",
+      "killerId": 16779537
+     },
+     {
+      "day": 277,
+      "cause": "killed",
+      "killerId": 251660488
+     },
+     {
+      "day": 298,
+      "cause": "killed",
+      "killerId": 83888119
+     },
+     {
+      "day": 298,
+      "cause": "killed",
+      "killerId": 50333576
+     },
+     {
+      "day": 298,
+      "cause": "killed",
+      "killerId": 83888102
+     },
+     {
+      "day": 318,
+      "cause": "bled_out",
+      "killerId": 218105455
+     },
+     {
+      "day": 318,
+      "cause": "bled_out",
+      "killerId": 184551358
+     }
+    ],
+    "raidsList": [
+     {
+      "day": 24,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 16777639,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 47,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332345,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 71,
+      "kind": "raid",
+      "size": 13,
+      "partyId": 251658400,
+      "outcome": "looted"
+     },
+     {
+      "day": 73,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 83886764,
+      "outcome": "looted"
+     },
+     {
+      "day": 73,
+      "kind": "bandits",
+      "size": 3,
+      "partyId": 50332746,
+      "outcome": "looted"
+     },
+     {
+      "day": 99,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 385876694,
+      "outcome": "looted"
+     },
+     {
+      "day": 115,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 117440934,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 142,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213751,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 153,
+      "kind": "raid",
+      "size": 19,
+      "partyId": 452985669,
+      "outcome": "looted"
+     },
+     {
+      "day": 157,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 50332874,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 172,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 218104990,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 187,
+      "kind": "siege",
+      "size": 31,
+      "partyId": 285213684,
+      "outcome": "looted"
+     },
+     {
+      "day": 188,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 654312258,
+      "outcome": "looted"
+     },
+     {
+      "day": 216,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 452986003,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 226,
+      "kind": "raid",
+      "size": 23,
+      "partyId": 184550302,
+      "outcome": "looted"
+     },
+     {
+      "day": 242,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 654312553,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 264,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213691,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 277,
+      "kind": "bandits",
+      "size": 5,
+      "partyId": 822085163,
+      "outcome": "looted"
+     },
+     {
+      "day": 290,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285213956,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 298,
+      "kind": "raid",
+      "size": 24,
+      "partyId": 251660500,
+      "outcome": "looted"
+     },
+     {
+      "day": 309,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 251660154,
+      "outcome": "withdrew"
+     },
+     {
+      "day": 329,
+      "kind": "thief",
+      "size": 1,
+      "partyId": 285214673,
+      "outcome": "withdrew"
+     }
+    ],
+    "hallSpirit": {
+     "y1": 58,
+     "y2": 61,
+     "y3": 62
+    },
+    "renown": {
+     "y1": 13,
+     "y2": 33,
+     "y3": 48
+    },
+    "mealsPerDwarfDay": "0.36",
+    "drinksPerDwarfDay": "0.56",
+    "crowds": {
+     "doors": {
+      "samples": 37851,
+      "slowed": 194,
+      "worst": 5,
+      "longestTicks": 40,
+      "capped": 0
+     },
+     "hall": {
+      "samples": 530340,
+      "slowed": 24925,
+      "worst": 6,
+      "longestTicks": 353540,
+      "capped": 18286
+     },
+     "stations": {
+      "samples": 2304,
+      "slowed": 967,
+      "worst": 6,
+      "longestTicks": 1000,
+      "capped": 3
+     },
+     "fighting": {
+      "samples": 75,
+      "slowed": 0,
+      "worst": 0,
+      "longestTicks": 0,
+      "capped": 0
+     }
+    },
+    "parties": {
+     "hostilesDied": {
+      "raiders": 11
+     },
+     "dwarvesKilledBy": {
+      "raiders": 17,
+      "none or gone": 1
+     },
+     "doorSteps": 0,
+     "doorStepsPastFortress": 0,
+     "doorStepsPastSoldier": 0
+    }
+   }
+  }
+ ]
+}
