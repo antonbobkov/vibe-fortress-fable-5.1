@@ -52,7 +52,7 @@ These hold for all tasks, and each task's review checks them.
 - **Deliberate moves.** Three changes do move numbers with no runecraft in play, and each task runs the annual instrument and explains the move:
   - **Hexers** move raid outcomes at peril 3 and 4 (T-479, which measures it). Peril 2 and below see none.
   - **Converted shrubs** take 10–25% of cave shrubs from their forage (T-468). The annual instrument gathers no cave shrub and plays one year, before the first Mountainhome caravan, so it shows neither this nor the extra goods: its row stayed 12.5/7/11/149/7/0/0.
-  - **`remains`** give a dead wyrm or stalker worn items, so a `strip_corpse` job appears and recovered items add wealth and renown (T-476, which names a `golden:` line).
+  - **Remains** put wyrmscale and ichor on a dead wyrm's, stalker's or Maw's corpse, so a `strip_corpse` job appears and the recovered items add wealth and renown (§ Rare materials). No wyrm or Hollow-born dies in the annual instrument's year, so its row stayed 13/7/10/149/7/0/0, every figure of every seed the same; `pp_defence` draws the same numbers and emits the same events. No golden moved.
 
 ## Rules
 
