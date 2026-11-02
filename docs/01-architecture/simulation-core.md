@@ -112,6 +112,7 @@ The scheduler holds the systems in their fixed order with their cadence and phas
 | 19 | defense | 1 | 0 | Traps and mechanisms |
 | 20 | trade | 50 | 41 | Caravan schedule; caravan movement runs every tick through the movement helper |
 | 21 | immigration | 1200 | 600 | Once per game day |
+| 25 | magic | 1 | 0 | Due firebloom bursts; casting runs inside 16's loop |
 
 Systems 01 and 02 do not tick; they run on demand from the app's screen flow.
 

@@ -4,7 +4,7 @@
 
 This page fixes the list of systems, their numbering, their tick order and cadence, and for each one its purpose, what state it owns, its key rules, what it reads, what it emits, and where the player meets it. Each system has a full design document at the file name below.
 
-Documents 22–24 describe a core service (pathfinding) and the presentation layer (rendering, UI). They are not L3 systems and do not tick in the order below, but they are specified with the same rigor and are listed here so that every part of the game has one home.
+Documents 22–24 describe a core service (pathfinding) and the presentation layer (rendering, UI). They are not L3 systems and do not tick in the order below, but they are specified with the same rigor and are listed here so that every part of the game has one home. Document 25 is an ordinary system that ticks after 21; its number follows the others because it came later.
 
 ## Order, cadence and ownership
 
@@ -36,6 +36,7 @@ The tick order is also the dependency order for readers that are needed *within 
 | 22 | Pathfinding & Spatial | core service | 1 | Path requests and budget; connectivity labels; spatial index; line of sight |
 | 23 | Rendering | presentation | per frame | Glyph atlas; palette; compositor; overlays; z-level view |
 | 24 | UI & Input | presentation | per frame | Screens; panels; widgets; keymap; mouse; announcements and log |
+| 25 | Runecraft | `magic` | 1 | Rune; sanctums and attunement; spells; enchantment rows; draughts; summons; timed effects |
 
 Creature behavior is split by owner: dwarves are driven by 10 (which defers to 11 for work and to 16 for military duty), animals by 08, hostiles by 18. Movement along a path is a core helper used by all three.
 
@@ -440,3 +441,19 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 **Reads.** All readers. **Emits.** commands.
 
 **Player touchpoints.** All of them.
+
+## 25 Runecraft — [`25-runecraft.md`](25-runecraft.md)
+
+**Purpose.** Magic as a substance: grown, distilled, carried and spent. The player never casts.
+
+**Owns.** `Rune`, `Spellbound` and `Summoned` components; sanctums, attunement and mishaps; the `spells`, `enchants` and `draughts` tables.
+
+**Key rules.**
+- The stone on a channel is the spell. Only a dwarf's own rune is spent.
+- Casting rides in 16's creature loop. Bolts are 16's projectiles.
+- A fortress with no channel, enchanted item or draught draws nothing new and no number moves.
+- New content rows number after old rows, so older saves stay right.
+
+**Reads.** 07, 12, 13, 14, 16, 17, 18. **Emits.** See the document.
+
+**Player touchpoints.** Sanctum panel; rune in the creature inspector; stones in the item inspector and stocks; draught list in the squad panel.

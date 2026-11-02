@@ -27,6 +27,7 @@ The exact sequence of one `World.step()`. Cadence and phase are from the schedul
    19 defense      every tick        trap and plate detection from last tick's EntitiesMoved; lever job completions
    20 trade        (tick − 41) % 50  schedule and caravan party think; member movement every tick (same pattern as 18)
    21 immigration  (tick − 600) % 1200   deferred checks; the seasonal evaluation is on SeasonChanged
+   25 magic        every tick        due firebloom bursts only; casting happens inside 16's creature loop, and rune, sessions and effects move on HourPassed and DayPassed in step 4
    core pathing    every tick        serve path requests within budget (after all brains have requested), then movement helper has already run inside brains; EntitiesMoved batch assembled
 3. connectivity rebuild for dirty chunks (core)
 4. events: dispatch queued events FIFO to subscribers in system order, then to presentation listeners

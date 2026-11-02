@@ -2,17 +2,25 @@
 
 **Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md) · **Size:** L · **Needs:** T-470 · **Status:** open
 
+The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, and this task needs only its sections named below. Everything marked for this task lands here and nothing else. Move this task's rows from 25 to the tables and schemas it names, and into its § Interfaces. Every number stays *unmeasured* unless this task measures it.
+
 ## What to do
 
-Phase 2, the item side.
+25 §§ Setting stones, Enchantments in combat (the rows, without their effects), Trade and value (vials, preferences). Also `rune_robe`, `circlet` and their rune figures.
 
-- Recipe shape `transform: true`: the first input is kept and changed. Work order item filter.
-- `Item.enchant { id, tier }`, the name suffix, value, melting returns bars only. The three enchantment tables as content rows with a trigger and an effect record.
-- `set_weapon`, `set_armor`, `set_ammo`. Robe and circlet with their rune effects. Trade preferences from design § 9. Stocks panel.
+## Decisions
 
-Effects do not yet act in combat, except what the item's own stats give.
+- `transform: true` recipes have no outputs and are `once` only.
+- The order picks a target type and a material. There is no "this exact item".
+- A soldier's gear is owned, so only stock is set. Re-equip then takes the better item through `ENCHANT_CLAIM_BONUS`.
+- A set of ammunition is exactly 25 units.
+- Rows for `venomed`, `calm` and `mending` are cut. See the list at the end of 25.
+
+Effects do not act in combat yet, except the rune figures of robe and circlet.
 
 ## Done
 
-- An enchanted axe keeps its stone through drop, haul, claim and save. Melting returns bars and nothing else. A second setting on the same item is refused.
-- Value and suffix read as the spec says. Robe and circlet change the rune figures.
+- An enchanted axe keeps its stone through drop, haul, claim and save. Melting returns bars only. A second setting on the item is refused by `noEnchant`.
+- Value and suffix read as § Setting stones says, wealth follows, and a stack of 25 enchanted bolts does not merge with plain ones.
+- Robe and circlet change the rune figures (34 hours in a robe).
+- A rune vial bought from the Mountainhome stays outside the ordinary pool.

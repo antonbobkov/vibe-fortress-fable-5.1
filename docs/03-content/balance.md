@@ -197,3 +197,16 @@ The guarded figures are the median, the sum of the living over the twelve years,
 When a seed changes outcome class (extinct or surviving), or changes by five or more living, under a change that only moves the job timeline, name it as unstable in the commit body and retain the seed in the living balance status. The cohort stays at twelve seeds, which is what a behaviour change can afford to run; the sum of the living is the guard that unstable seeds cannot flip alone. The seed records, the worst and the second-worst outcome remain in every measurement.
 
 Re-measure the distribution before and after a change to wildlife, fleeing, alerts or treatment. The instrument records its target beside the measured bounds. The browser year's single sample asserts that the fortress survives and nobody dies of hunger or thirst, and prints its remaining end state.
+
+## Runecraft
+
+Every figure here is *unmeasured*. The rules and the rest of the arithmetic are in [25 Runecraft](../02-systems/25-runecraft.md), and each task that builds on a figure measures it and replaces the mark.
+
+| Figure | Value | Note |
+|---|---|---|
+| One lamp, eight tiles | 0.83 glowcap, 0.42 vials a day | *unmeasured* |
+| Four lamps | 1.7 vials a day, 190 a year | *unmeasured* |
+| One apprentice attuning | 2 glowcap a day, 2.4 lamps | *unmeasured* |
+| Dabbling, Novice, Proficient, Legendary | 2, 6, 74, 268 days of attunement | *unmeasured* |
+| Proficient runecaster | 50 rune, 15 more from vials in a day, 50 hours to refill | *unmeasured* |
+| Emberbolt from an iron staff against a Gloam warrior in a jerkin | 18 a hit | *unmeasured* |

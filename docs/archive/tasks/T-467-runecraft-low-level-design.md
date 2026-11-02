@@ -1,6 +1,8 @@
 # T-467 — Runecraft: the low-level design
 
-**Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md) · **Size:** L · **Needs:** — · **Status:** open
+**Closed:** 2026-11-01, in 630a95e8.
+
+**Source:** runecraft [design](../../../reports/designs/2026-11-01-runecraft-magic-system.md) · **Size:** L · **Needs:** — · **Status:** open
 
 ## Why
 
