@@ -20,7 +20,7 @@ import { DRAUGHT_REST_DAYS, DRAUGHT_TICKS } from './constants';
 import { calmRestLasts, draughtRestLasts } from './cast';
 
 /** When a draught is drunk (`items.md` § Draughts). */
-export type DraughtTrigger = 'wounded' | 'raid' | 'miserable' | 'never';
+export type DraughtTrigger = 'wounded' | 'raid' | 'deep' | 'fire' | 'miserable' | 'never';
 
 /** A row of the `draughts` table: its id is the draught's item id. */
 export interface DraughtDef {
@@ -29,9 +29,23 @@ export interface DraughtDef {
   readonly trigger: DraughtTrigger;
 }
 
-/** A trigger a soldier drinks on, so a squad may list its draught; the others are a medic's or never. */
+/** The triggers a soldier drinks on, so a squad may list their draughts; the others are a medic's or never. */
+const SOLDIER_TRIGGERS: ReadonlySet<string> = new Set(['wounded', 'raid', 'deep', 'fire']);
+
+/** A trigger a soldier drinks on, so a squad may list its draught. */
 export function soldierTrigger(trigger: string | undefined): boolean {
-  return trigger !== undefined && trigger !== 'never' && trigger !== 'miserable';
+  return trigger !== undefined && SOLDIER_TRIGGERS.has(trigger);
+}
+
+/**
+ * The `fire` trigger's creature: its species has a ranged natural attack whose wound is a burn
+ * (`burn`, the magma wyrm's breath, or `ember`).
+ */
+export function breathesFire(ctx: TickContext, id: EntityId): boolean {
+  const species = ctx.world.entities.get(id, C.Creature)?.species;
+  if (species === undefined) return false;
+  const row = ctx.registry.table<{ id: string; attacks?: readonly { type: string; range?: number }[] }>('creatures').byIndex(species);
+  return row?.attacks?.some((a) => a.range !== undefined && (a.type === 'burn' || a.type === 'ember')) === true;
 }
 
 /** The draught row of an item type, or undefined for an item that is no draught. */

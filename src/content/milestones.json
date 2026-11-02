@@ -73,5 +73,15 @@
     "id": "m_legend",
     "trigger": "first LegendaryReached",
     "text": "A legend walked the halls."
+  },
+  {
+    "id": "m_stone_set",
+    "trigger": "first StoneSet",
+    "text": "A stone was first set at the runeforge."
+  },
+  {
+    "id": "m_runecaster",
+    "trigger": "FirstRunecaster",
+    "text": "A dwarf first held the rune."
   }
 ]

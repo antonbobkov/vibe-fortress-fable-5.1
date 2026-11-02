@@ -422,5 +422,93 @@
   {
     "table": "thoughts",
     "id": "eased"
+  },
+  {
+    "table": "materials",
+    "id": "wyrmscale"
+  },
+  {
+    "table": "materials",
+    "id": "hollow_ichor"
+  },
+  {
+    "table": "items",
+    "id": "wyrmscale"
+  },
+  {
+    "table": "items",
+    "id": "hollow_ichor"
+  },
+  {
+    "table": "items",
+    "id": "hollowsight_draught"
+  },
+  {
+    "table": "items",
+    "id": "wyrmblood_draught"
+  },
+  {
+    "table": "draughts",
+    "id": "hollowsight_draught"
+  },
+  {
+    "table": "draughts",
+    "id": "wyrmblood_draught"
+  },
+  {
+    "table": "enchants",
+    "id": "deep"
+  },
+  {
+    "table": "enchants",
+    "id": "hollowbane"
+  },
+  {
+    "table": "enchants",
+    "id": "wyrmhide"
+  },
+  {
+    "table": "enchants",
+    "id": "hollowsight"
+  },
+  {
+    "table": "recipes",
+    "id": "quench_deepsilver"
+  },
+  {
+    "table": "recipes",
+    "id": "render_ichor"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_hollowsight_draught"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_wyrmblood_draught"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_deep"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_hollowbane"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_wyrmhide"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_hollowsight"
+  },
+  {
+    "table": "milestones",
+    "id": "m_stone_set"
+  },
+  {
+    "table": "milestones",
+    "id": "m_runecaster"
   }
 ]

@@ -351,6 +351,7 @@ export function exportMetals() {
         armorMult: fixed(row.armorMult),
         bluntBonus: percent(row.bluntBonus),
         runeMult: fixed(row.runeMult),
+        runePressure: isBlank(row.runePressure) ? undefined : int(row.runePressure),
         meltsAtC: int(row.meltsAtC),
         color: id(row.color),
         alloy: parseAlloy(row['alloy inputs (→ output)']),

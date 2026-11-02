@@ -204,8 +204,12 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 |---|---|---|---|---|---|---|
 | `distill_rune` | Distill rune | 2 glowcap | 1 rune_vial (rune) | 150 | no | 6 |
 | `grind_glowstone` | Grind glowstone | 1 rough_gem (glowstone) | 4 rune_vial (rune) | 200 | no | 8 |
+| `quench_deepsilver` | Quench deepsilver | 1 bar (deepsilver) | 12 rune_vial (rune) | 250 | no | 12 |
+| `render_ichor` | Render ichor | 1 hollow_ichor | 6 rune_vial (rune) | 200 | no | 10 |
 
 One lamp over eight tiles grows 0.83 glowcap a day, which is 0.42 vials a day (*unmeasured*). A year is 112 days, so four lamps give 1.7 vials a day and 190 a year.
+
+Quenching a deepsilver bar wakes the Hollow as mining a tile of it does ([25](../02-systems/25-runecraft.md) § Deepsilver).
 
 ### Draughts
 
@@ -217,6 +221,8 @@ Each brews two draughts ([items.md](items.md) § Draughts). `spoilable`: an alch
 | `brew_stout_draught` | Brew draught of stoutness | 1 rune_vial + 2 plant_food (pale_bell) | 2 stout_draught | 150 | yes | 8 | yes |
 | `brew_quick_draught` | Brew draught of quickness | 1 rune_vial + 2 plant_food (sweetroot) | 2 quick_draught | 150 | yes | 8 | yes |
 | `brew_calm_draught` | Brew calming draught | 1 rune_vial + 2 plant_food (hops) | 2 calm_draught | 150 | yes | 8 | yes |
+| `brew_hollowsight_draught` | Brew draught of hollowsight | 1 rune_vial + 1 hollow_ichor | 2 hollowsight_draught | 150 | yes | 8 | yes |
+| `brew_wyrmblood_draught` | Brew draught of wyrmblood | 1 rune_vial + 1 wyrmscale | 2 wyrmblood_draught | 150 | yes | 8 | yes |
 
 ## Runeforge (`runesmithing`)
 
@@ -233,11 +239,11 @@ Generated per row of `enchants` ([weapons-and-armor.md](weapons-and-armor.md) §
 
 | slot | input 0, kept | then | ticks | xp |
 |---|---|---|---|---|
-| weapon | 1 of every melee weapon type (`weapons` rows with no launcher that are not for training), as alternatives | 1 cut_gem (the stone) + the row's vials in rune_vial | 300 | 15 |
+| weapon | 1 of every melee weapon type (`weapons` rows with no launcher that are not for training), as alternatives | the stone + the row's vials in rune_vial | 300 | 15 |
 | armor | 1 of every `armor` row with a layer (of the row's `only` slot when it has one), as alternatives | the same | 300 | 15 |
 | ammo | 25 of bolt or arrow (units) | the same | 200 | 10 |
 
-A stone that is an item id rather than a gem is 1 of that item in place of the cut gem.
+The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver bar) and 1 of the item for an item id (`wyrmscale`, `hollow_ichor`).
 
 ## Tannery (`tanning`)
 
@@ -310,7 +316,7 @@ A stone that is an item id rather than a gem is 1 of that item in place of the c
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 6 (4 of them draughts), runeforge 2 (and generated: 2 per spell = 14, and 1 per enchantment = 15). Total 188.
+Carpenter 27, mason 13, craftsdwarf 9, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 14, and 1 per enchantment = 19). Total 196.
 
 ## Time arithmetic
 

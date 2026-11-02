@@ -668,12 +668,14 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `m_royal` | first royal room | "A royal hall was made." |
 | `m_decade` | year 11 | "Ten years in the deep." |
 | `m_legend` | first `LegendaryReached` | "A legend walked the halls." |
+| `m_stone_set` | first `StoneSet` | "A stone was first set at the runeforge." |
+| `m_runecaster` | `FirstRunecaster` | "A dwarf first held the rune." |
 
 ## Confirmations
 
 | id | Text | Default |
 |---|---|---|
-| `c_deepsilver` | "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Mine it?" | No |
+| `c_deepsilver` | "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?" | No |
 | `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed." | No |
 | `c_quickload` | "Load the quick save? Unsaved progress will be lost." | No |
 | `c_remove_zone_crops` | "This plot has {n} growing crops. Remove it?" | No |

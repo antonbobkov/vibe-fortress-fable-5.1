@@ -162,6 +162,37 @@ export function resolveOutputMaterial(registry: Registry, output: RecipeRow['out
   return source;
 }
 
+/**
+ * `25` § Deepsilver: a building tagged `rune_work` that consumes a metal with a positive
+ * `runePressure` wakes the Hollow. Each consumed input of such a metal emits
+ * `DeepsilverWorked { amount: units × runePressure, tile }`, the tile the building's origin. Any other
+ * building, a forge among them, raises nothing. Reads the material before the input is consumed.
+ */
+class RunePressure {
+  private readonly perInput = new Map<number, number>();
+  private readonly runeWork: boolean;
+
+  constructor(private readonly op: WorkshopOperator, private readonly building: Building) {
+    this.runeWork = op.row(building).tags.includes('rune_work');
+  }
+
+  add(input: number, itemId: EntityId, units: number): void {
+    if (!this.runeWork) return;
+    const material = this.op.items.get(itemId)?.material;
+    if (material === undefined) return;
+    const registry = this.op.ctx.registry;
+    const id = registry.table<{ id: string }>('materials').byIndex(material)?.id;
+    const per = id === undefined ? 0 : registry.table<{ id: string; runePressure?: number }>('metals').byId(id)?.runePressure ?? 0;
+    if (per > 0) this.perInput.set(input, (this.perInput.get(input) ?? 0) + units * per);
+  }
+
+  emit(ctx: TickContext): void {
+    for (const input of Array.from(this.perInput.keys()).sort((a, b) => a - b)) {
+      ctx.emit({ type: 'DeepsilverWorked', amount: this.perInput.get(input) as number, tile: this.building.origin });
+    }
+  }
+}
+
 export class WorkshopOperator {
   readonly ctx: InitContext;
   readonly recipes = new Map<string, RecipeRow>();
@@ -578,6 +609,7 @@ export class WorkshopOperator {
     // delivered inputs no longer cover the recipe makes nothing. 11 revalidates before it gets
     // here, so this is the last line: no output is ever spawned from inputs that are not consumed.
     if (!this.holdsInputs(job, recipe, fuelIndex, container)) return;
+    const pressure = new RunePressure(this, b);
     for (let k = 0; k < job.inputs.length; k += 1) {
       if (recipe.container && k === job.inputs.length - 1) continue;
       if (k === fuelIndex || k < recipe.inputs.length) {
@@ -586,6 +618,7 @@ export class WorkshopOperator {
           if (remaining <= 0) break;
           const take = Math.min(remaining, this.items.get(item)?.count ?? 0);
           if (take > 0) {
+            if (k !== fuelIndex) pressure.add(k, item, take);
             if (recipe.inputs[k]?.flagged === 'melt') itemsApi?.destroy(item, 'melted');
             else itemsApi?.consume(item, take);
           }
@@ -593,6 +626,7 @@ export class WorkshopOperator {
         }
       }
     }
+    pressure.emit(ctx);
     const skills = ctx.world.entities.get(job.workerId, C.Skills);
     const skill = skills?.level[ctx.registry.table('skills').index(recipe.skill)] ?? 0;
     const quality = recipe.quality ? rollQuality(skill, this.ctx.rng) : 1;
@@ -642,15 +676,20 @@ export class WorkshopOperator {
     const enchantId = recipe.enchant ?? '';
     if (enchants === null || !enchants.has(enchantId)) return;
     const itemsApi = ctx.world.services.items;
+    const pressure = new RunePressure(this, b);
     for (let k = 1; k < recipe.inputs.length; k += 1) {
       let remaining = recipe.inputs[k]?.count ?? 0;
       for (const item of job.inputs[k]?.delivered ?? []) {
         if (remaining <= 0) break;
         const take = Math.min(remaining, this.items.get(item)?.count ?? 0);
-        if (take > 0) itemsApi?.consume(item, take);
+        if (take > 0) {
+          pressure.add(k, item, take);
+          itemsApi?.consume(item, take);
+        }
         remaining -= take;
       }
     }
+    pressure.emit(ctx);
     const skills = ctx.world.entities.get(job.workerId, C.Skills);
     const skill = skills?.level[ctx.registry.table('skills').index(recipe.skill)] ?? 0;
     const tier = recipe.quality ? rollQuality(skill, this.ctx.rng) : 1;

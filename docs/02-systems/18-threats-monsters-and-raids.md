@@ -143,7 +143,7 @@ Panel `threats` (active parties with size and state, renown, schedule preview, c
 
 - Hostiles are uppercase letters in red (`G` goblin, `T` trollkin, `S` stalker, `W` wyrm, `H` Hollow-born, `Z` restless dead); stealthed creatures are invisible until spotted.
 - Threats panel as above. The Deep gauge is visible from the first deepsilver vein found (`VeinFound { deepsilver }` unlocks it). The unlock is saved with the UI state, so the gauge stays after a load; a positive pressure or level also shows it.
-- The deepsilver confirmation dialog: "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Mine it?" with Yes and No; asked once per fortress.
+- The deepsilver confirmation dialog: "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?" with Yes and No; asked once per fortress.
 
 ## Tuning constants
 

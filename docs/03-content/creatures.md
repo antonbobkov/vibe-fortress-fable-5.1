@@ -121,6 +121,16 @@ The fauna cavern cell accepts an optional `initial N` after its weight and cap. 
 
 Gear tiers: `hostile gear tier = min(peril, 3)` metal tier (1 copper, 2 bronze, 3 iron), sieges +1 (steel at peril 4). Captains +1.
 
+## Remains
+
+What a dead creature leaves on its corpse besides its gear: items made of the material that shares their id, which the `strip_corpse` job recovers like worn gear ([13](../02-systems/13-items-and-storage.md) § Corpses). A species not listed leaves none.
+
+| species | remains |
+|---|---|
+| `magma_wyrm` | 4 `wyrmscale` |
+| `hollow_stalker` | 1 `hollow_ichor` |
+| `hollow_maw` | 1 `hollow_ichor` |
+
 ## Fish pools
 
 Water body kinds and their fish material: river → `trout`, lake → `perch`, cavern lake → `blindfish`. These are not creatures; the `blind_fish` creature above is the visible schooling animal in cavern lakes and is separate from the pool.

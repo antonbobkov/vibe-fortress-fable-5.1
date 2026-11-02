@@ -21,14 +21,14 @@ export interface LegendReader {
 
 interface MilestoneRow { readonly id: string; readonly trigger: string; readonly text: string }
 
-/** The fifteen content rows are the registry; each id is awarded once. */
+/** The `milestones` content rows are the registry; each id is awarded once. */
 export class LegendSystem extends BaseSystem<LegendStateV1> {
   readonly id = '24';
   readonly order = 24;
   override readonly subscribes: readonly EventType[] = [
     'HearthLit', 'ItemCrafted', 'CavernBreached', 'DeepsilverMined', 'CreatureDied',
     'RaidEnded', 'BuildingCompleted', 'RoomQualityChanged', 'YearPassed',
-    'LegendaryReached', 'ImmigrantsArrived', 'EntitiesMoved',
+    'LegendaryReached', 'ImmigrantsArrived', 'EntitiesMoved', 'StoneSet', 'FirstRunecaster',
   ];
   private peak = 0;
   private seeded = false;
@@ -104,6 +104,8 @@ export class LegendSystem extends BaseSystem<LegendStateV1> {
       }
       case 'YearPassed': if (Number(event['year']) >= LEGEND_DECADE_YEAR) this.award('m_decade', ctx); break;
       case 'LegendaryReached': this.award('m_legend', ctx); break;
+      case 'StoneSet': this.award('m_stone_set', ctx); break;
+      case 'FirstRunecaster': this.award('m_runecaster', ctx); break;
       case 'RaidEnded': {
         if (event['outcome'] === 'repelled' || event['outcome'] === 'wiped') this.award('m_raid', ctx);
         break;

@@ -133,6 +133,7 @@
     "armorMult": 1600,
     "bluntBonus": 0,
     "runeMult": 1600,
+    "runePressure": 10,
     "meltsAtC": 2400,
     "color": "deepsilver_blue",
     "armorWeightMult": 500,

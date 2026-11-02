@@ -996,6 +996,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.military.draught_row': '{mark} {name}{order}: {when}',
   'ui.military.draught_when.wounded': 'hit while below half blood',
   'ui.military.draught_when.raid': 'a raid or an ambush arrives',
+  'ui.military.draught_when.deep': 'the Deep stirs at level 2 or more',
+  'ui.military.draught_when.fire': 'a fire-breathing creature comes near',
   'ui.military.no_draughts': 'No draught is brewed in this world.',
   'ui.military.choice_keys_mark': '[Space] mark  [*] all',
   'ui.military.choice_keys': '[Enter] choose  [Esc] cancel',
@@ -1161,6 +1163,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.effect.flee': 'dread ({ticks} ticks)',
   // 25 § Setting stones: what an enchanted item does, one sentence per effect kind, at its tier.
   'ui.look.enchant.damage_percent': '+{value}% damage.',
+  'ui.look.enchant.vs_deep_percent': '+{value}% damage against the Hollow-born.',
   'ui.look.enchant.extra_damage': '+{value} {type} on a hit.',
   'ui.look.enchant.slow': 'A hit slows by {value}% for {ticks} ticks.',
   'ui.look.enchant.to_hit': '+{value} to hit.',

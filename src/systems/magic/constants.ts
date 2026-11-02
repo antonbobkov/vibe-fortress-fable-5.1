@@ -54,3 +54,5 @@ export const DRAUGHT_REST_DAYS = 3;
 export const CALM_REST_DAYS = 7;
 /** A spoilable batch spoils at this per mille, less 10 per level of the worker's skill. */
 export const ALCHEMY_MISHAP_PERMILLE = 100;
+/** The `deep` draughts are drunk when the Deep stirs or emerges at this level or above. */
+export const DEEP_DRAUGHT_LEVEL = 2;

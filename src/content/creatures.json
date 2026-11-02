@@ -1390,6 +1390,12 @@
     },
     "factionDefault": "deep",
     "perception": 12,
+    "remains": [
+      {
+        "item": "hollow_ichor",
+        "count": 1
+      }
+    ],
     "glyph": "H",
     "fg": "hollow_violet"
   },
@@ -1434,6 +1440,12 @@
     },
     "factionDefault": "deep",
     "perception": 12,
+    "remains": [
+      {
+        "item": "hollow_ichor",
+        "count": 1
+      }
+    ],
     "glyph": "H",
     "fg": "hollow_violet"
   },
@@ -1628,6 +1640,12 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "remains": [
+      {
+        "item": "wyrmscale",
+        "count": 4
+      }
+    ],
     "glyph": "W",
     "fg": "wyrm_red"
   },
