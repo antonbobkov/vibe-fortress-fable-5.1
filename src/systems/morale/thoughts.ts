@@ -116,7 +116,9 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'sweltering': return s(event, 'weather') === 'heatwave';
     case 'child_died': case 'dwarf_died': case 'friend_died':
       return n(event, 'species') === registry.table('creatures').index('dwarf');
-    case 'saw_death': return s(event, 'faction') === 'fortress';
+    // A summon's death or fading is no death to see (25 § Summons).
+    case 'saw_death': return s(event, 'faction') === 'fortress' &&
+      registry.table<{ id: string; flags?: { summoned?: boolean } }>('creatures').byIndex(n(event, 'species'))?.flags?.summoned !== true;
     case 'masterwork_lost': return n(event, 'quality') === 5 && n(event, 'crafterId') !== 0;
     case 'was_wounded': return ['serious', 'severe', 'critical'].includes(s(event, 'severity'));
     case 'raid_repelled': return ['repelled', 'wiped'].includes(s(event, 'outcome'));
@@ -141,7 +143,7 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   const dead = n(event, 'id') || n(event, 'dwarfId');
   if (def.id === 'dwarf_died' || def.id === 'child_died') return all.filter((id) => id !== dead);
   if (['hearth_lit', 'new_hearth_hall_tier', 'raid_arrived', 'raid_repelled', 'caravan_arrived',
-    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster'].includes(def.id)) return all;
+    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster', 'summon_turned'].includes(def.id)) return all;
   if (def.id === 'saw_death') return all.filter((id) => id !== dead);
   if (['friend_died', 'buried_friend', 'memorial_placed'].includes(def.id)) return all.filter((id) => dwarves.isFriend(id, dead));
   if (def.id === 'pet_died') return all.filter((id) => ctx.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true);

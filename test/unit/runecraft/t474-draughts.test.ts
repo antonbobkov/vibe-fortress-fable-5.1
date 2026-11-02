@@ -118,7 +118,8 @@ describe('T-474 content', () => {
       expect(recipes.byId(`brew_${d}_draught`)?.outputs).toMatchObject([{ item: `${d}_draught`, count: 2 }]);
     }
     expect(recipes.byId('distill_rune')?.spoilable).toBeUndefined();
-    expect(registry.table<{ id: string }>('recipes').ids().slice(-4)).toEqual(['brew_mending_draught', 'brew_stout_draught', 'brew_quick_draught', 'brew_calm_draught']);
+    // T-475's glowstone wand and staff number after them.
+    expect(registry.table<{ id: string }>('recipes').ids().slice(-6, -2)).toEqual(['brew_mending_draught', 'brew_stout_draught', 'brew_quick_draught', 'brew_calm_draught']);
     expect(registry.table<{ id: string; labor: string; baseTicks: number; producer: string }>('jobTypes').byId('give_draught'))
       .toMatchObject({ labor: 'medicine', baseTicks: 30, producer: 'magic' });
     const thoughts = registry.table<{ id: string; value: number; hours: number; decay: string }>('thoughts');

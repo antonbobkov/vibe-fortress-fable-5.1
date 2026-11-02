@@ -44,7 +44,7 @@ The rules here are the whole design. A later task needs nothing else.
 
 These hold for all tasks, and each task's review checks them.
 
-- **No new rng draw on any existing stream** unless a channel, an enchanted item, a draught or a hexer is in play. All casting rolls that are not 16's ordinary hit, block and part rolls draw on system 25's stream, `world.rngFor('25')`. That stream is the design's `magic` stream. Streams are named by system id. 25 takes its stream at init, so the save's `rng` section always holds the key `25`; an older save without it starts the stream from the seed. With no sanctum session, nothing but 20's caravan extras draws on it.
+- **No new rng draw on any existing stream** unless a channel, an enchanted item, a draught or a hexer is in play. All casting rolls that are not 16's ordinary hit, block and part rolls draw on system 25's stream, `world.rngFor('25')`. That stream is the design's `magic` stream. Streams are named by system id. 25 takes its stream at init, so the save's `rng` section always holds the key `25`; an older save without it starts the stream from the seed. With no sanctum session, nothing but 20's caravan extras draws on it; a Call draws only for a species that `turns`.
 - **No existing number moves.** The wyrm's breath keeps today's damage type `burn`, which has no row in the layer table and so multiplies by 1.0. Spells and enchantments use the new types `ember` and `frost` (§ Damage types).
 - **New rows do not renumber old rows** (§ Row numbering). A world hash may move because `Skills.level` grew by a byte. It does not move because anything played differently. A task whose content rows move a golden names this in its `golden:` line and shows the annual instrument row unchanged, apart from the deliberate moves below.
 - **Caravans.** Runecraft goods are drawn outside the weighted pool (§ Trade and value), so the ordinary goods of a caravan do not change.
@@ -136,7 +136,7 @@ At Wits 50 and two sessions a day: Dabbling in 2 days, Novice in 6, Proficient (
 
 The thought `attuned` ends a session with no mishap. The first dwarf to reach `runecraft` 10 emits `FirstRunecaster` (`firstRunecasterDone` is saved).
 
-**Mishaps.** One roll per session on stream 25, at the dwarf's level before the session's xp: `max(MISHAP_FLOOR, MISHAP_BASE − 2 × level − tier)` per mille, then a second draw picks the kind by weight among the rows that have landed. Measured over 1,000 level-0 sessions in a bare sanctum: 61 (30 singed, 14 blackouts, 11 scorched circles, 5 fires with nothing to burn, 1 surge). None kills, takes a limb or touches a stockpile. A light burn is 1 point on a random arm (a draw on stream 25); an arm at 1 hp or lost is spared for the other arm, and with neither the burn does nothing. Its `DamageDealt` carries `clean: true`, so 17 makes the burn already `cleaned`: it cannot take infection, and it heals on its own with or without a medic (one may still dress it). So no mishap kills, now or later; the worst is the price of a chair. The last mishap of each sanctum is kept for its panel.
+**Mishaps.** One roll per session on stream 25, at the dwarf's level before the session's xp: `max(MISHAP_FLOOR, MISHAP_BASE − 2 × level − tier)` per mille, then a second draw picks the kind by weight among the rows that have landed. Measured over 1,000 level-0 sessions in a bare sanctum: 62 (25 singed, 11 blackouts, 10 scorched circles, 6 fires with nothing to burn, 3 surges, 7 loose wisps). None kills a dwarf, takes a limb or touches a stockpile. A light burn is 1 point on a random arm (a draw on stream 25); an arm at 1 hp or lost is spared for the other arm, and with neither the burn does nothing. Its `DamageDealt` carries `clean: true`, so 17 makes the burn already `cleaned`: it cannot take infection, and it heals on its own with or without a medic (one may still dress it). So no mishap kills a dwarf, now or later; the worst is the price of a chair. (A surge burns a loose wisp as it burns anyone, and so small a body can bleed out of it.) The last mishap of each sanctum is kept for its panel.
 
 | kind | weight | what happens | how | severity | Task |
 |---|---|---|---|---|---|
@@ -145,7 +145,7 @@ The thought `attuned` ends a session with no mishap. The first dwarf to reach `r
 | `scorched_circle` | 15 | the circle is destroyed, no item back | `Mishap` carries `buildingId`; 14 handles it and removes the building with no yield | alert | T-469 |
 | `fire` | 7 | the first tile cardinal to the circle, north, east, south then west, that can burn (05's `burnableTile`) ignites; else nothing | `Mishap` carries `tile`; 05 queues it for its next tick, as lightning | alert | T-469 |
 | `surge` | 3 | every creature with a body within `MISHAP_SURGE_RADIUS` of the circle on its level (the larger of the two axis distances), in id order, takes a light burn; the session's xp is granted twice | as `singed` | note | T-469 |
-| `wisp_loose` | 10 | a wild timid `wisp` appears beside the circle and fades in a day | § Summons | note | T-475 |
+| `wisp_loose` | 10 | the `call` spell's own summon, a wisp, appears wild beside the circle and fades in a day; the apprentice gets no thought | `looseWisp` in `magic/summon.ts` (§ Summons) | note | T-475 |
 
 ### Channels
 
@@ -209,17 +209,13 @@ A bolt's `Projectile` carries `spell?: Idx<'SpellDef'>` and `spellPower?` (the c
 
 Below cost the caster drinks a vial if it can (§ Vials); otherwise the channel is a club.
 
-The rune is spent at the cast, in every spell. Every cast emits `SpellCast`: for a bolt, a burst or a single its `targetId` is the target; for a ward the caster; for a mend the patient; for a dread the held target.
+The rune is spent at the cast, in every spell. Every cast emits `SpellCast`: for a bolt, a burst or a single its `targetId` is the target; for a ward and a call the caster; for a mend the patient; for a dread the held target.
 
 ### Spells
 
-Content table `spells` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Spells, `SCHEMAS` entry, `exportSpells`), which holds `emberbolt` (garnet), `frostbind` (amethyst), `ward` (quartz), `mend` (emerald), `dread` (sapphire), `firebloom` (ruby) and `daze` (diamond). A blank `range` there is the channel's own. This row arrives with its task:
+Content table `spells` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Spells, `SCHEMAS` entry, `exportSpells`), which holds `emberbolt` (garnet), `frostbind` (amethyst), `ward` (quartz), `mend` (emerald), `dread` (sapphire), `firebloom` (ruby), `daze` (diamond) and `call` (glowstone, cost 3). A blank `range` there is the channel's own; `call` reaches no one, and its `summon` column names the species a wand or an unlisted metal brings (§ Summons).
 
-| stone | id | name | kind | cost | range | base | type | ticks | suffix | Task |
-|---|---|---|---|---|---|---|---|---|---|---|
-| glowstone | `call` | Call | call | 3 | self | — | — | — | of calling | T-475 |
-
-Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. Until T-475 lands, glowstone has no row and so makes no recipe, so no such staff can exist.
+Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`. Rune cost does not scale. A Call's summon does not scale with power.
 
 Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. A creature that wears a piece with `slow_immune` (`rimeward`) is not slowed: `addEffect` refuses a `slow` for it, so spells and enchantments both respect it (§ Enchantments in combat).
 
@@ -230,7 +226,7 @@ When each support spell casts (`castSupport` evaluates these for a held target w
 | Ward | caster has no unexpired `ward` effect | `ward` effect with `round(6 × power)` for `round(600 × power)` ticks on every creature of the caster's faction within 3 on its level, the caster too, `sourceId` the caster. One `Warded { id }` each. A wand's ward is 4 for 420 ticks, an iron staff's 7 for 720 |
 | Mend | a creature of the caster's faction within 4, in line of sight, has a bleeding unbandaged wound, or is unconscious from wounds (pain or blood, not a stun) with a light wound to close. Nearest, then lowest id | `Mended { id, casterId }`. 17 handles it: every bleeding wound `bandaged`, light wounds removed with their hp back, the rest `cleaned` |
 | Dread | two or more creatures hostile to the caster within 4 in line of sight, conscious, not immune and not already under a `flee` effect, and `tick ≥ Rune.nextDreadTick` | up to `DREAD_MAX_TARGETS` of them, nearest first then id, each after the resist roll: a `flee` effect for `round(400 × power)` ticks, `sourceId` the caster. Sets `nextDreadTick` to the tick the effect ends |
-| Call | fewer than `MAX_SUMMONS_PER_CASTER` summons alive and the creature count under `MAX_CREATURES` | § Summons (T-475) |
+| Call | the caster has fewer than `MAX_SUMMONS_PER_CASTER` summons alive, the creature count is under `MAX_CREATURES`, and a tile beside the caster is free | the summon stands on that tile (§ Summons); `SpellCast`'s `targetId` is the caster |
 
 By 16's ranged branch, with `canCastBolt` also true only when:
 
@@ -368,33 +364,31 @@ The draught items are in [items.md](../03-content/items.md) § Medical and herbs
 
 ### Summons
 
-**Task:** T-475.
+A summon is a **war-trained tame animal assigned to its caster**. 08's tame brain does the rest (08 § Summons): it takes targets within `WAR_ANIMAL_RADIUS` of its dwarf, follows within 1 tile, and 16's targeting fights. 25 adds no brain. The code is `magic/summon.ts`.
 
-A summon is a **war-trained tame animal assigned to its caster**. 08's tame brain already does the rest: it takes targets within `WAR_ANIMAL_RADIUS` of its dwarf, follows within 1 tile, and 16's targeting fights. `Call` does `spawn.creature(species, tile, 'fortress')`, then adds `Tame { trained: 'war', assignedTo: casterId, noBreed: true, condition: 100, pastureId: 0, … }` and `Summoned { summonerId, fadesAt: tick + SUMMON_TICKS }`. The tile is the nearest free passable neighbour of the caster.
+**The call.** `castSupport`'s `call` branch (§ Spells) plans the call (`planCall`) and, once the rune is spent, answers it (`answerCall`): `spawn.creature(species, tile, 'fortress')`, then `Tame { trained: 'war', assignedTo: casterId, noBreed: true, condition: 0, pastureId: 0, petOf: 0, slaughter: false, juvenileUntil: 0, pregnantUntil: 0, lastProductTick: {} }` and `Summoned { summonerId: casterId, fadesAt: tick + SUMMON_TICKS }`, and `SummonCalled { id, casterId }`. The tile is the first free tile beside the caster on its level, in the order north, east, south, west, then north-east, south-east, south-west, north-west: one a creature of the species can stand on and no living creature holds. With none free the Call is not cast. Summons count toward `MAX_CREATURES` like any creature, and a summon is of the fortress faction, so a ward and a mend reach it.
 
 War training adds +50% damage and +1 natural armor (`isWarTrained`), so the rows hold the lower numbers.
 
-The staff's material picks the row, through a new optional metals column `summon` (species id): steel and silver `stone_warden`, deepsilver `deep_shade`. A wand, or any other metal, gets the `call` spell row's default, `wisp`.
+**The species.** The staff's metal picks the row, through the metals column `summon` ([minerals-and-metals.md](../03-content/minerals-and-metals.md) § Metals): steel and silver `stone_warden`, deepsilver `deep_shade`. A wand, or any metal with no `summon`, gets the `call` spell row's own `summon`, `wisp`. The three rows are in [creatures.md](../03-content/creatures.md) § Summons: a wisp is 6 `ember` as fought, a warden 22 `blunt` with armor 8, a shade 18 `edge` with armor 2. A summon has no stealth.
 
-| id | plan | size | speed | movement | attacks | armor | flags | glyph | fg | as fought | Task |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| `wisp` | crawler | 10 | 240 | walker | touch `ember` 4 size 2 | 0 | `summoned`, `trainable: none` | `*` | `rune_cyan` | 6 `ember` | T-475 |
-| `stone_warden` | humanoid | 90 | 105 | walker | slam `blunt` 15 size 8 | 7 | `summoned`, `trainable: none` | `Φ` | `granite_gray` | 22 `blunt`, armor 8 | T-475 |
-| `deep_shade` | humanoid | 60 | 210 | walker | claw `edge` 12 size 3 | 1 | `summoned`, `trainable: none` | `δ` | `hollow_violet` | 18 `edge`, armor 2 | T-475 |
-
-Rows carry `flags.summoned: true`, and code reads the flag. A summoned species:
+Rows carry `flags.summoned: true` (the word `summoned` in the flags column), and code reads the flag, never an id. A summoned species:
 
 - leaves no corpse: `items/index.ts`, the `CreatureDied` branch, skips `createCorpse` when the species has the flag;
-- is never slaughtered, named, assigned or trained: the animal commands reject `not_found`, and the animals panel leaves it out;
-- gives no grief: no `petOf`, and 15's thoughts on death read dwarves and pets only;
+- is never slaughtered, named, assigned, pastured or trained: 08's animal commands reject it `not_found`, and 08's `tameList`, `wildList` and `bySpecies` leave it out, so the animals panel and the hunters do not see it;
+- gives no grief: it is no one's pet, and 15's `saw_death` passes over its death (15's other death thoughts read dwarves and pets only);
 - is never butchered: no `butcherable` flag;
-- has no `Hostile`, so no party counts it.
+- is never bandaged by a medic (17's `bandage_animal` passes over a creature with `Summoned`), never carried off by a thief (18), and never caught by a cage trap (19), since it would fade in the cage;
+- is no name in the legend: 24's kill tally leaves out a killer with `Summoned`, though a summon's kill still awards its milestone;
+- has no `Hostile` while it is the fortress's, so no party counts it. It is no dwarf: it has no `Brain` or `Labors`, so the population, immigration, burial and the end of the fortress never count it, and it carries nothing, so it adds no wealth.
 
-**Fading.** On `HourPassed`, 25 kills every `Summoned` with `fadesAt ≤ tick` through 17's `killCreature` with cause `faded`, by emitting `SummonFaded { id }`, which 17 handles. On a summoner's `CreatureDied`, its summons get `fadesAt = tick`. Death at 0 hp is ordinary and leaves nothing.
+**Fading.** On `HourPassed`, 25 emits `SummonFaded { id }` for every living `Summoned` with `fadesAt ≤ tick`, ascending, and 17 kills it with cause `faded` (17 § Bleeding, pain, consciousness). The log reads "A stone warden fades." On a creature's `CreatureDied`, every summon it called gets `fadesAt = tick`, so it fades on the next `HourPassed`. Death at 0 hp is ordinary and leaves nothing.
 
-**Turning.** A `deep_shade` turns with `SHADE_TURN_PERMILLE`, on stream 25. It spawns with faction `deep` and no `Tame`, and 25 emits `SummonTurned { id }`. 18 handles that: it adds `Hostile { role: 'hollow', behaviorState: 'attack', … }`, puts it in `hollowBorn`, and sets the nearest fortress target, as `triggerDeepEmergence` does. T-475 extracts that part of the loop into `spawnedHollowBorn(ctx, id, tile, hollowBorn)`. Announcement `SummonTurned`, danger. Thought `summon_turned`, everyone.
+**Turning.** A species whose row has `flags.turns` (the deep shade; the word `turns` in the flags column) comes through turned with `SHADE_TURN_PERMILLE`, one draw on stream 25 at each Call of it; no other species draws. A turned summon spawns with faction `deep`, no `Tame` and `Summoned { summonerId: 0, fadesAt: tick + SUMMON_TICKS }`, so it does not count toward its caster's summons, does not fade when its caster dies, and fades at its day's end like any summon; 25 emits `SummonTurned { id }` and no `SummonCalled`. 18 handles `SummonTurned` (18 § The Deep): `spawnedHollowBorn(ctx, id, tile, hollowBorn)`, the same function the emergence uses, adds `Hostile { role: 'hollow', behaviorState: 'attack', … }`, puts it in `hollowBorn`, and sets the nearest fortress target. Announcement `SummonTurned`, danger: "Something came through the call that was not called: a deep shade turns on the fortress." Thought `summon_turned`, everyone. Measured: 50 turned in 1,000 castings of a deepsilver staff (`t475-summons.test.ts`); a squad of three in iron axes, shields, helms and mail killed a turned shade in 87 ticks, taking no wound.
 
-**Wisp mishap.** `wisp_loose` spawns `wisp` with faction `wild` and `Summoned { summonerId: 0, fadesAt: tick + SUMMON_TICKS }`. Its temper is `timid`, so 08's wild brain wanders it. The apprentice gets no thought.
+**Wisp mishap.** `wisp_loose` (§ The sanctum) spawns the `call` row's `summon` beside the circle (the same free-tile order, around the circle's tile) with faction `wild` and `Summoned { summonerId: 0, fadesAt: tick + SUMMON_TICKS }`, so 08's wild brain wanders it; nothing spawns with no tile free or at `MAX_CREATURES`. The wisp is `neutral`: a `timid` one would run from the apprentice and, from a sanctum with no way to the map's edge, leave the map at once. 08's daily lifetime and cap check passes over it. The apprentice gets no thought.
+
+**Inspector.** In the creature tab, under the effects line: a caster's "Summons: stone warden (fades in 9 hours), wisp (fades in 3 hours)."; a summon's "Called by Urist Ironvein; fades in 9 hours.", or "Fades in 9 hours." for one with no caster. A Call channel's line reads "Call: brings a stone warden for a day, 2 at a time."
 
 ### Rare materials
 
@@ -436,17 +430,13 @@ Built. The Mountainhome's extra goods (`caravan-goods.md`) include rune vials, 5
 
 ### Morale
 
-**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune` and `eased` are there (Work and skill; Pride and relief; Social and comfort): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` goes to everyone (the event has its own announcement), `eased` matches a `DraughtDrunk` with `calm`, and `warded`, `mended_by_rune` and `eased` go to the dwarf the event names.
-
-| id | text | value | hours | decay | cap | group | trigger | Task |
-|---|---|---|---|---|---|---|---|---|
-| `summon_turned` | "Something came through that was not called." | −4 | 48 | halflife | 1 | fear | `SummonTurned` (everyone) | T-475 |
+**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune`, `eased` and `summon_turned` are there (Work and skill; Pride and relief; Social and comfort; Loss and fear): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` and `summon_turned` go to everyone (each event has its own announcement), `eased` matches a `DraughtDrunk` with `calm`, and `warded`, `mended_by_rune` and `eased` go to the dwarf the event names.
 
 Every value sits inside the caps. Nothing here can take a fed, rested dwarf below 20.
 
 ## State
 
-Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune`, `Spellbound` (with `effects` and the draught rests), `Squad.equipment.draughts`, `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel, `pendingBlooms` and `bloomAlertsToday`) and `HealthState.stunnedUntil` are there.
+Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune`, `Spellbound` (with `effects` and the draught rests), `Squad.equipment.draughts`, `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel, `pendingBlooms` and `bloomAlertsToday`), `HealthState.stunnedUntil` and `Summoned` are there.
 
 ```ts
 interface Rune {                 // owner 25; also written by 18 for hexers
@@ -461,7 +451,7 @@ interface Spellbound {           // owner 25
   lastDraughtTick?: Tick;        // the last draught, kept while DRAUGHT_REST_DAYS last
   lastCalmTick?: Tick;           // the last calming draught, kept while CALM_REST_DAYS last
 }
-interface Summoned { summonerId: EntityId; fadesAt: Tick }   // owner 25. T-475
+interface Summoned { summonerId: EntityId; fadesAt: Tick }   // owner 25; summonerId 0 for a loose wisp or a turned shade
 
 // additions to existing components
 Item.stone?: Idx<'MaterialDef'>
@@ -495,6 +485,7 @@ The `interface:check` script compares this section with the code. It holds only 
 - `magic.mishapPermille(zoneId, id)` — the mishap chance of this dwarf's next session there; `magic.lastMishap(zoneId)` — kind, dwarf and tick of the sanctum's last mishap, or undefined
 - `magic.canCast(id)` — the creature holds a channel whose spell its rune pays for now; `magic.spellOf(itemId)` — the spell in a channel and its numbers (cost, range, damage, type, ticks, power, suffix), or undefined
 - `magic.effects(id)` — the creature's unexpired timed effects
+- `magic.summonsOf(id)` — the living summons this caster called, ascending
 - `magic.enchantOf(itemId)` — an item's enchantment: its row, suffix, tier and effects at the tier; undefined for none
 - `magic.draughtRest(id)` — ticks until the creature may take a draught again, 0 when it may now
 
@@ -504,38 +495,35 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Events consumed
 
-`HourPassed` (regen, which also ends a caster's `RuneSpent` silence; expired effects and draught rests; the producer's hourly look), `DayPassed` (sessions, `vialsToday`, the day's bloom alerts, the calming draughts' look), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied`, `ZoneChanged` (sanctums), `RaidArrived` and `AmbushSprung` (the `raid` draughts), `AttackResolved` (the `wounded` draughts).
+`HourPassed` (regen, which also ends a caster's `RuneSpent` silence; expired effects and draught rests; fading summons; the producer's hourly look), `DayPassed` (sessions, `vialsToday`, the day's bloom alerts, the calming draughts' look), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied` (a caster's summons fade), `ZoneChanged` (sanctums), `RaidArrived` and `AmbushSprung` (the `raid` draughts), `AttackResolved` (the `wounded` draughts).
 
 ### Events emitted
 
-`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }` (a blackout; a Daze), `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile, burned }` (every cast, from 16's loop through `cast.ts`, with `burned: false`; a bloom that caught one of the caster's own, with `burned: true`), `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` (a Mend; a draught of mending, its giver or 0), `DraughtDrunk { id, draughtId, calm }`, and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0; a bloom, through `resolveProjectileHit`).
+`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }` (a blackout; a Daze), `FirstRunecaster { id }`, `SpellCast { casterId, spellId, targetId, tile, burned }` (every cast, from 16's loop through `cast.ts`, with `burned: false`; a bloom that caught one of the caster's own, with `burned: true`), `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` (a Mend; a draught of mending, its giver or 0), `DraughtDrunk { id, draughtId, calm }`, `SummonCalled { id, casterId }` (24's milestone), `SummonTurned { id }` (18, 15), `SummonFaded { id }` (17), and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0; a bloom, through `resolveProjectileHit`).
 
 ### Registrations
 
-Job producer `magic` (`attune`, `give_draught`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
+Job producer `magic` (`attune`, `give_draught`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`, `wisp_loose`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `SummonTurned` (danger), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
 
 ## Planned interfaces
 
 | Kind | Name | Task |
 |---|---|---|
-| Reader | `magic.summonsOf(id)` | T-475 |
-| Event | `SummonCalled { id, casterId }`, `SummonTurned { id }`, `SummonFaded { id }` | T-475 |
 | Event | `DeepsilverWorked { amount, tile }` (12 emits it) | T-476 |
 | Consumes | `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-476 |
-| Registration | announcements: `SummonTurned` (danger) | T-475 |
 
-Other systems' documents gain their parts in the same commits: 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`), 14 (`sanctum`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 22 (`moveAlongPath`).
+Other systems' documents gain their parts in the same commits: 08 (summons), 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`, no corpse for a summon), 14 (`sanctum`), 15 (`saw_death`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`, `SummonFaded`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 19 (no cage for a summon), 22 (`moveAlongPath`), 24 (the kill tally).
 
 ## Player-facing behavior
 
 - **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (`render/compositor.ts`, step 6), unless the attack flash is showing.
 - **Sanctum panel**: the selected sanctum's inspector in the zones panel (zone type key `[S-c]`, `ui-screens/panels.md` § Zones). The room's tier, score and missing circle; the glowcap in stock; the mishap chance in words for a new apprentice ("one session in 17"); each apprentice with level, rune and sessions left today, and its own chance; the last mishap. `[S-o]` opens the apprentice picker, which adds or removes one adult dwarf at a time through `SetSanctumApprentices`.
-- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks"; the other spells read by their kind ("Ward: 7 armour on every part for 720 ticks, range 3."). Under them, for a caster with vials or one that drank today, "Vials: 2 carried, 1 of 3 drunk today.", and for any creature under timed effects, "Under: ward 7 (340 ticks), slowed 50% (120 ticks)." (each kind has a key `ui.look.effect.<kind>`), and while a draught rest lasts "Can take a draught again in 2 days." (whole days begun; "tomorrow" for the last). From T-475 summons.
+- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks"; the other spells read by their kind ("Ward: 7 armour on every part for 720 ticks, range 3."). Under them, for a caster with vials or one that drank today, "Vials: 2 carried, 1 of 3 drunk today.", and for any creature under timed effects, "Under: ward 7 (340 ticks), slowed 50% (120 ticks)." (each kind has a key `ui.look.effect.<kind>`), and while a draught rest lasts "Can take a draught again in 2 days." (whole days begun; "tomorrow" for the last). A caster's summons and a summon's caster are named under them (§ Summons, Inspector).
 - **Look cursor**: a channel is named with its spell's suffix, "1 iron staff of embers (fine)", then its value, and the line under it reads "Emberbolt: 24 ember, range 12. Needs a runecaster." An enchanted item carries its suffix, "1 steel axe of embers (fine)", and a dim line gives its effects at its tier: "+9 ember on a hit."
 - **Squad panel**: under the gear, "[S-d] draughts: draught of stoutness, draught of quickness"; `[S-d]` opens the checklist of every draught a soldier drinks, each with its place in the list and its trigger in words ("a raid or an ambush arrives", "hit while below half blood"), and `Enter` adds the row at the end of the list or takes it out (`SetSquadEquipment`). A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
 - **Orders panel**: a transform recipe offers the target type (`set in: any`, stepped by a click) and the material, and is `once` only.
 - **Hints** (`hints` rows, T-477, each with a trigger on stock or buildings): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
-- **Legend milestones** (`milestones` rows and `legend/index.ts`): first stone set and first runecaster (T-476), first summoning answered (T-475).
+- **Legend milestones** (`milestones` rows and `legend/index.ts`): first stone set and first runecaster (T-476). `m_summon`, "A summoning was answered.", is awarded once, on the first `SummonCalled` ([ui-keymap-and-screens.md](../03-content/ui-keymap-and-screens.md) § Milestones); a shade that comes through turned answers nothing.
 
 ## Tuning constants
 
@@ -561,7 +549,7 @@ All *unmeasured* unless the row says what was measured. Rows move to `src/system
 | `DRAUGHT_TICKS` | 1200 | One day, times the quality multiplier | T-474 |
 | `DRAUGHT_REST_DAYS` / `CALM_REST_DAYS` | 3 / 7 | | T-474 |
 | `ALCHEMY_MISHAP_PERMILLE` | 100 | Per job, less 10 per level | T-474 |
-| `SUMMON_TICKS` / `MAX_SUMMONS_PER_CASTER` / `SHADE_TURN_PERMILLE` | 1200 / 2 / 50 | | T-475 |
+| `SUMMON_TICKS` / `MAX_SUMMONS_PER_CASTER` / `SHADE_TURN_PERMILLE` | 1200 / 2 / 50 | A summon's day; summons a caster holds; turning per mille. Measured: 50 turned in 1,000 castings of a deepsilver staff | T-475 |
 | `DEEP_PRESSURE_PER_RUNE_BAR` | 10 | The same as one mined tile (`DEEP_PRESSURE_PER_TILE`) | T-476 |
 | `HEXER_RUNE` | 20 | | T-479 |
 

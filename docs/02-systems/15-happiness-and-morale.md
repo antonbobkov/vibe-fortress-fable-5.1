@@ -88,7 +88,7 @@ Sulks never involve violence, never target other dwarves' bodies, never destroy 
 
 ### Grief and burial
 
-`dwarf_died` for everyone (small), `friend_died` for friends, `pet_died` for the owner, `child_died` for everyone (stronger). `unburied_dead` is standing for everyone while any dwarf corpse is unburied for more than 3 days. `buried_friend` and `memorial_placed` are positive and, on `Buried`, remove `unburied_dead` if it was the last corpse. The death thoughts are triggered by 17's `CreatureDied` when the dead creature's species is a dwarf, and read the event's `faction` and `ageTicks` for their conditions. `memorial_placed` is given only for a `Buried` with `coffinId: 0` (a memorial slab); a burial in a coffin outside a tomb does not give it.
+`dwarf_died` for everyone (small), `friend_died` for friends, `pet_died` for the owner, `child_died` for everyone (stronger). `unburied_dead` is standing for everyone while any dwarf corpse is unburied for more than 3 days. `buried_friend` and `memorial_placed` are positive and, on `Buried`, remove `unburied_dead` if it was the last corpse. The death thoughts are triggered by 17's `CreatureDied` when the dead creature's species is a dwarf, and read the event's `faction` and `ageTicks` for their conditions. `saw_death` takes a fortress creature of any species but a summoned one (25 § Summons): a summon's fading or fall is no death to see. `memorial_placed` is given only for a `Buried` with `coffinId: 0` (a memorial slab); a burial in a coffin outside a tomb does not give it.
 
 A corpse consumed by a predator is lost for burial. It no longer counts as present unburied remains, but its loss emits no `Buried` event or burial relief; existing death thoughts keep their normal duration.
 

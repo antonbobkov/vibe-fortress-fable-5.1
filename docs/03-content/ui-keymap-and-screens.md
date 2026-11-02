@@ -668,6 +668,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `m_royal` | first royal room | "A royal hall was made." |
 | `m_decade` | year 11 | "Ten years in the deep." |
 | `m_legend` | first `LegendaryReached` | "A legend walked the halls." |
+| `m_summon` | first `SummonCalled` | "A summoning was answered." |
 
 ## Confirmations
 

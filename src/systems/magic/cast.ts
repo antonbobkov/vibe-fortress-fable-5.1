@@ -39,6 +39,7 @@ import {
 } from './constants';
 import { wearsSlowImmune, type EnchantEffectView } from './enchant';
 import { MILLI, runeMaxMilli, skillLevel } from './rune';
+import { answerCall, planCall } from './summon';
 
 /** The slice of a weapon row casting reads. */
 interface ChannelRow {
@@ -387,7 +388,7 @@ export function castAtTarget(ctx: TickContext, casterId: EntityId, held: Held | 
 }
 
 /**
- * `castSupport` (§ Spells): a ward, mend or dread staff, for a held target and with the cooldown
+ * `castSupport` (§ Spells): a ward, mend, dread or call staff, for a held target and with the cooldown
  * elapsed, casts when its row's condition holds. It spends the rune, emits `SpellCast` and sets the
  * cooldown by 16's rule. False when the spell is no support spell or its condition does not hold.
  */
@@ -428,6 +429,12 @@ export function castSupport(ctx: TickContext, casterId: EntityId, held: Held | n
         addEffect(entities, id, { kind: 'flee', value: 1, until: ctx.tick + cs.ticks, sourceId: casterId });
       }
     };
+  } else if (kind === 'call') {
+    // § Summons: the summon stands beside its caster.
+    const plan = planCall(ctx, casterId, cs.spell, held.material);
+    if (plan === null) return false;
+    castAt = casterId;
+    after = () => void answerCall(ctx, casterId, plan);
   } else {
     return false;
   }

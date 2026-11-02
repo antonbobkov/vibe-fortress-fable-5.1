@@ -25,6 +25,7 @@ import {
 } from './constants';
 import { rollMishap, sessionXp, skillLevel, type MishapKind } from './rune';
 import type { MishapRecord } from './state';
+import { looseWisp } from './summon';
 import type { EntityStore } from '@core/entities';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale/reader';
@@ -216,6 +217,11 @@ export class MagicProducer implements JobProducer {
         ctx.emit({ type: 'Mishap', id: dwarf, kind });
         return;
       }
+      case 'wisp_loose':
+        // § Summons: a wild light beside the circle that fades in a day; the apprentice gets no thought.
+        looseWisp(ctx, origin);
+        ctx.emit({ type: 'Mishap', id: dwarf, kind });
+        return;
       default:
         return;
     }

@@ -114,3 +114,11 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | brew_calm_draught |
 | jobTypes | give_draught |
 | thoughts | eased |
+| creatures | wisp |
+| creatures | stone_warden |
+| creatures | deep_shade |
+| spells | call |
+| recipes | make_wand_glowstone |
+| recipes | make_staff_glowstone |
+| thoughts | summon_turned |
+| milestones | m_summon |

@@ -54,6 +54,7 @@ Each health tick (every 5 ticks) for each creature in the `wounded` list or stil
 - **Mend.** On `Mended { id, casterId }` (25's Mend) a living creature with a body has every bleeding wound `bandaged` (its bleed 0), every light wound removed with its damage back to the part's hp, and every other wound `cleaned`. An infected wound keeps its infection and its cleaning request until a medic cures it. Mend is not a treatment job and gives no xp.
 - **Stun.** On `CreatureStunned { id, until }` (25's daze and blackout) a living creature with a body is held unconscious until `until`: `stunnedUntil` keeps the later of two stuns, the creature joins `wounded` and stays there while the stun lasts, and a conscious body becomes unconscious at once with `CreatureUnconscious`. The first health tick at or after `until` drops the entry and wakes it by the line above, with `CreatureConscious`. A stun is not a wound: it admits no patient and does not keep one from discharge.
 - Death: `blood < maxBlood × BLOOD_DEATH_PERCENT / 100` → `CreatureDied { cause: bled_out }`.
+- **Fading.** On `SummonFaded { id }` (25's summon at the end of its day, or after its caster's death) a living creature dies with `CreatureDied { cause: faded, killerId: 0 }`, so every system's cleanup runs as for any death.
 - Healing: `healRemaining −= 5` for each wound whose healing is not blocked, `× heal_rate / 100` under a `heal_rate` effect (25's draught of mending): fractures heal only at `UNTREATED_FRACTURE_PERCENT` speed unless `splinted`; infected wounds do not heal; `wasting` does not heal while starving. At 0 the wound is removed, `part.hp` regains the wound's damage, and for an unsplinted fracture that healed, a `permanent: badly_healed_<part>` is added.
 
 ### Infection
@@ -98,11 +99,11 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned`, no
 
 ### Animals
 
-Tame animals get bandaging only: the health producer creates `bandage_animal` (labor and skill `animal_care`) when any wound bleeds without a bandage. The job consumes one cloth at priority 1, uses the base duration in the job catalogue (skill-scaled), and bandages every bleeding wound, setting its bleed to 0. It has the same treatment-failure rule, using the worker's animal-care skill; a failed treatment consumes the cloth and can be produced again. Completion emits `TreatmentDone { kind: 'bandage_animal' }`. Animals never get surgery; wild and hostile creatures get nothing.
+Tame animals get bandaging only, and a summon (a creature with `Summoned`) gets none: the health producer creates `bandage_animal` (labor and skill `animal_care`) when any wound bleeds without a bandage. The job consumes one cloth at priority 1, uses the base duration in the job catalogue (skill-scaled), and bandages every bleeding wound, setting its bleed to 0. It has the same treatment-failure rule, using the worker's animal-care skill; a failed treatment consumes the cloth and can be produced again. Completion emits `TreatmentDone { kind: 'bandage_animal' }`. Animals never get surgery; wild and hostile creatures get nothing.
 
 ### Death and corpses
 
-`CreatureDied { id, cause, killerId }` is emitted here for every creature. 13 creates the corpse; 10 handles dwarves; 15 grief; 08 animals; 18 hostiles; 16 kills. When that event is dispatched, 13 creates the live corpse and hands off all worn and extra carried items before the removal is observable to presentation listeners. A hungry wild predator may consume the corpse under 08's eating rule; those remains are then unavailable for burial. Death leaves no carried clothing referencing its destroyed creature; corpse disposition and departure use the ordinary item API.
+`CreatureDied { id, cause, killerId }` is emitted here for every creature. 13 creates the corpse, except for a summoned species (25 § Summons), which leaves none; 10 handles dwarves; 15 grief; 08 animals; 18 hostiles; 16 kills. When that event is dispatched, 13 creates the live corpse and hands off all worn and extra carried items before the removal is observable to presentation listeners. A hungry wild predator may consume the corpse under 08's eating rule; those remains are then unavailable for burial. Death leaves no carried clothing referencing its destroyed creature; corpse disposition and departure use the ordinary item API.
 
 ## State
 
@@ -125,7 +126,7 @@ Tame animals get bandaging only: the health producer creates `bandage_animal` (l
 
 ### Events consumed
 
-`DamageDealt` (one with `clean: true`, 25's mishap burn, makes its wound already `cleaned`, so it cannot take infection), `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `CreatureStunned` (25), `Mended` (25), `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
+`DamageDealt` (one with `clean: true`, 25's mishap burn, makes its wound already `cleaned`, so it cannot take infection), `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `CreatureStunned` (25), `Mended` (25), `SummonFaded` (25), `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
 
 ### Events emitted
 

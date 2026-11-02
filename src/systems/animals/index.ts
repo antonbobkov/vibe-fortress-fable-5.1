@@ -625,7 +625,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         ctx.world.entities.add(id, C.Wild, { ...w, hungry: true });
       }
     }
-    const going = leavers(this.spawner, season, ctx.tick, wild, {
+    // A loose summon keeps to its own day: no cap or lifetime sends it off (25 § Summons).
+    const going = leavers(this.spawner, season, ctx.tick, this.unsummoned(wild), {
       get: (id) => {
         const creature = ctx.world.entities.get(id, C.Creature);
         const w = ctx.world.entities.get(id, C.Wild);
@@ -1073,6 +1074,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   }
 
   override applyCommand(cmd: Command, ctx: TickContext): CommandResult {
+    // 25 § Summons: a summon is never slaughtered, named, assigned, pastured or trained.
+    const subject = cmd['animalId'];
+    if (typeof subject === 'number' && ctx.world.entities.has(subject, C.Summoned)) return reject('not_found');
     if (cmd.type === 'SetBreedingCap') {
       const raw = cmd['species'];
       const species = typeof raw === 'string' ? this.facts.indexOf(raw) : typeof raw === 'number' ? raw : 0;
@@ -1100,7 +1104,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       const occupantId = this.findOccupant(cageId);
       if (occupantId === 0 || !ctx.world.entities.alive(occupantId)) return reject('not_found');
       const creature = ctx.world.entities.get(occupantId, C.Creature);
-      if (creature === undefined) return reject('not_found');
+      if (creature === undefined || ctx.world.entities.has(occupantId, C.Summoned)) return reject('not_found');
       if (!this.facts.isTameable(creature.species)) return reject('precondition_failed');
       if (!this.hasKennel()) return reject('no_kennel');
       this.pendingTame.set(cageId, occupantId);
@@ -1221,6 +1225,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
   // ---------- the reader ----------
 
+  /** The ids that are no summon; the list itself when the game has none. */
+  private unsummoned(ids: EntityId[]): EntityId[] {
+    if (this.entities.store(C.Summoned).size === 0) return ids;
+    return ids.filter((id) => !this.entities.has(id, C.Summoned));
+  }
+
   private makeReader(): AnimalsReader {
     const facts = this.facts;
     const asSpecies = (s: number | string): number => (typeof s === 'number' ? s : facts.indexOf(s));
@@ -1228,11 +1238,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       isWild: (id) => this.entities.has(id, C.Wild),
       isTame: (id) => this.entities.has(id, C.Tame),
       state: (id) => this.entities.get(id, C.Wild)?.state ?? '',
-      tameList: () => this.entities.with(C.Tame),
-      wildList: () => this.entities.with(C.Wild),
+      // 25 § Summons: the lists the panels show leave summons out.
+      tameList: () => this.unsummoned(this.entities.with(C.Tame)),
+      wildList: () => this.unsummoned(this.entities.with(C.Wild)),
       bySpecies: (s, wild) => {
         const species = asSpecies(s);
-        return this.entities.with(C.Creature).filter((id) => {
+        return this.unsummoned(this.entities.with(C.Creature)).filter((id) => {
           if (this.entities.get(id, C.Creature)?.species !== species) return false;
           if (wild === undefined) return this.entities.has(id, C.Wild) || this.entities.has(id, C.Tame);
           return wild ? this.entities.has(id, C.Wild) : this.entities.has(id, C.Tame);

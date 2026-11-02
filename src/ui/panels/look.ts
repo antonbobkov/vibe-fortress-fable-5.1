@@ -11,7 +11,7 @@
  */
 
 import { C } from '@core/components';
-import { TICKS_PER_DAY } from '@core/constants';
+import { TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
@@ -24,7 +24,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { MagicReader, SpellView } from '@systems/magic';
-import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
+import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -333,6 +333,8 @@ export function drawLookPanel(
     if (effects !== null) line(effects, t.dim);
     const rest = draughtRestLine(readers, strings, id);
     if (rest !== null) line(rest, t.dim);
+    const summons = summonsLine(readers, registry, strings, id);
+    if (summons !== null) line(summons, t.dim);
     if (has(readers, '17') && readers.entities.has(id, C.Body)) {
       const body = readers.entities.get(id, C.Body);
       if (body !== undefined) {
@@ -454,6 +456,32 @@ export function draughtRestLine(readers: ReaderSet, strings: Strings, id: Entity
 }
 
 /**
+ * 25 § Summons, in the creature tab. A caster: "Summons: a stone warden (fades in 9 hours)." A
+ * summon: "Called by Urist Ironvein; fades in 9 hours.", or "Fades in 9 hours." for one with no
+ * caster. Null for any other creature.
+ */
+export function summonsLine(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string | null {
+  if (!has(readers, '25')) return null;
+  const tick = readers.calendar.tick;
+  const hours = (fadesAt: number): number => Math.max(0, Math.ceil((fadesAt - tick) / TICKS_PER_HOUR));
+  const own = readers.entities.get(id, C.Summoned);
+  if (own !== undefined) {
+    const caster = own.summonerId === 0 ? undefined : readers.entities.get(own.summonerId, C.Creature);
+    return caster === undefined
+      ? strings.get('ui.look.summoned_loose', { hours: hours(own.fadesAt) })
+      : strings.get('ui.look.summoned', { caster: caster.name, hours: hours(own.fadesAt) });
+  }
+  const called = readers.of<MagicReader>('25').summonsOf(id);
+  if (called.length === 0) return null;
+  const creatures = registry.table<{ id: string; name: string }>('creatures');
+  const list = called.map((s) => strings.get('ui.look.summon_entry', {
+    name: creatures.byIndex(readers.entities.get(s, C.Creature)?.species ?? 0)?.name ?? '',
+    hours: hours(readers.entities.get(s, C.Summoned)?.fadesAt ?? tick),
+  }));
+  return strings.get('ui.look.summons', { list: list.join(', ') });
+}
+
+/**
  * The numbers of the spell set in a channel item: "Emberbolt: 24 ember, range 12. Needs a
  * runecaster." Null for anything else. `needs` adds the last sentence, for an item on the ground.
  */
@@ -474,6 +502,7 @@ function spellText(strings: Strings, spell: SpellView): string {
     case 'dread': return strings.get('ui.look.spell_dread', { ...base, n: DREAD_MAX_TARGETS });
     case 'burst': return strings.get('ui.look.spell_burst', { ...base, delay: FIREBLOOM_DELAY_TICKS });
     case 'single': return strings.get('ui.look.spell_single', base);
+    case 'call': return strings.get('ui.look.spell_call', { ...base, summon: spell.summon, n: MAX_SUMMONS_PER_CASTER });
     default: {
       const effect = spell.type === 'frost' && spell.ticks > 0
         ? strings.get('ui.look.spell_slow', { percent: FROSTBIND_SLOW_PERCENT, ticks: spell.ticks }) : '';

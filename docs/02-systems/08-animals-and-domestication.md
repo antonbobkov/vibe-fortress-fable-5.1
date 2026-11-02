@@ -97,7 +97,11 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 
 ### Death
 
-Animals die through 17 like every creature. A dead animal leaves a corpse item (13). Slaughter completion creates its own corpse, and `CorpseCreated` removes the pending general death-to-corpse transition so no second corpse is created. Tame deaths are announced as notes; pet deaths as alerts.
+Animals die through 17 like every creature. A dead animal leaves a corpse item (13), except a summon (§ Summons). Slaughter completion creates its own corpse, and `CorpseCreated` removes the pending general death-to-corpse transition so no second corpse is created. Tame deaths are announced as notes; pet deaths as alerts.
+
+### Summons
+
+25's summons (25 § Summons) are creatures of a species whose row has `flags.summoned`; each carries `Summoned`. A called summon is a tame animal of the fortress, war-trained and assigned to its caster, so the tame brain drives it as it drives any war animal: it attacks hostiles within `WAR_ANIMAL_RADIUS` of its caster and otherwise follows it within 1 tile. A wisp loose from a sanctum mishap is wild, and the wild brain wanders it; the daily lifetime and cap check (`leave`) passes over a summon, which keeps to its own day. The reader's `tameList`, `wildList` and `bySpecies` leave summons out, so the animals panel, the hunters' quarry and the threats panel never list one. Every command that names a summon (`AssignPasture`, `MarkSlaughter`, `UnmarkSlaughter`, `TrainAnimal`, `AssignAnimal`, `NameAnimal`, and `TameCaged` for a caged one) is refused with `not_found`. A summon leaves no corpse, and its death gives no grief: it is no one's pet.
 
 ## State
 
@@ -112,7 +116,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 ### Reader
 
 - `animals.isWild(id)`, `animals.isTame(id)`, `animals.state(id)`
-- `animals.tameList()`, `animals.wildList()`, `animals.bySpecies(species, wild?)`
+- `animals.tameList()`, `animals.wildList()`, `animals.bySpecies(species, wild?)` — none lists a summon (§ Summons)
 - `animals.pastureOf(id)`, `animals.condition(id)`, `animals.assignedTo(id)`
 - `animals.threatTo(id)` — whether the animal currently treats the fortress as a threat (used by 16 for hostility)
 - `animals.def(species)`

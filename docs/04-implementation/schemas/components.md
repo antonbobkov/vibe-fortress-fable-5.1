@@ -135,6 +135,8 @@ interface Rune { current: number /* milli-rune; max and regen are derived, never
 interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: EntityId }
 interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */;
                        lastDraughtTick?: Tick; lastCalmTick?: Tick /* the last draught and calming draught, kept while their rests last (25 § Draughts) */ }
+interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */ }
+interface Summoned { summonerId: EntityId /* the caster; 0 for one that came loose or turned */; fadesAt: Tick /* 25 kills it on the first HourPassed at or after this tick */ }
 ```
 
 ## Component ownership table
@@ -153,10 +155,11 @@ interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects);
 | `Building`, `Zone`, `Room` | 14 | `toggled` and `mode` through 14's commands and `MechanismTriggered` |
 | `Workshop` | 12 | — |
 | `Party`, `Hostile` | 18 (caravan parties: 20) | — |
-| `Tame`, `Wild` | 08 | — |
+| `Tame` | 08 | 25 at a call (a summon's `Tame`) |
+| `Wild` | 08 | — |
 | `Crop` | 07 | — |
 | `Merchant` | 20 | — |
-| `Rune`, `Spellbound` | 25 | — |
+| `Rune`, `Spellbound`, `Summoned` | 25 | — |
 
 ## Fortress state
 

@@ -661,7 +661,8 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
 
     const spTable = ctx.registry.table<{ id: string; size: number }>('creatures');
     for (const aId of entities.with(C.Tame)) {
-      if (!entities.alive(aId)) continue;
+      // A summon cannot be carried off (25 § Summons).
+      if (!entities.alive(aId) || entities.has(aId, C.Summoned)) continue;
       const c = entities.get(aId, C.Creature);
       if (!c || c.faction !== 'fortress') continue;
       const sp = spTable.byIndex(c.species);
