@@ -24,6 +24,8 @@ import {
 } from '@systems/magic';
 import * as magicConstants from '@systems/magic/constants';
 import type { MoraleReader } from '@systems/morale';
+import { killCreature } from '@systems/health/tick';
+import type { JobsReader } from '@systems/jobs';
 import { runeLine } from '@ui/panels/look';
 import { sanctumLines } from '@ui/panels/zones';
 import { Strings } from '@ui/strings';
@@ -210,6 +212,22 @@ describe('T-469 the sanctum', () => {
     if (sessions.some((e) => e['mishap'] === '')) {
       expect(w.readers.of<MoraleReader>('15').thoughts(s.dwarf).some((t) => t.text === 'Felt the rune answer.')).toBe(true);
     }
+  });
+
+  it('an apprentice who dies mid-session leaves no job behind', () => {
+    const s = sanctum('t469-death');
+    const w = s.w;
+    const key = `attune:${s.dwarf}`;
+    const jobs = w.readers.of<JobsReader>('11');
+    w.until(() => jobs.stateByKey(key) === 'working', TICKS_PER_DAY);
+    killCreature(context(w), s.dwarf, 'killed');
+    w.step(2);
+    expect(w.game.world.entities.alive(s.dwarf)).toBe(false);
+    // The death and the next hour each start a sweep of the board's own attune keys.
+    w.step(TICKS_PER_HOUR + 5);
+    expect(jobs.stateByKey(key)).toBeNull();
+    expect(w.events('JobCancelled').filter((e) => e['jobType'] === 'attune').length).toBeGreaterThanOrEqual(1);
+    expect(w.events('AttuneSession')).toHaveLength(0);
   });
 
   it('a removed apprentice\'s job goes; a sanctum with no glowcap makes none', () => {

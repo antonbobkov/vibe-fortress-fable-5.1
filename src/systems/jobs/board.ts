@@ -384,6 +384,10 @@ export class JobBoard implements JobsApi, JobSink {
     return this.byKeyMap.has(key);
   }
 
+  keysWithPrefix(prefix: string): string[] {
+    return Array.from(this.byKeyMap.keys()).filter((key) => key.startsWith(prefix)).sort();
+  }
+
   byKey(key: string): Readonly<Job> | undefined {
     const id = this.byKeyMap.get(key);
     return id === undefined ? undefined : this.jobs.get(id);

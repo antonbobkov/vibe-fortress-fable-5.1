@@ -34,6 +34,8 @@ export interface JobSink {
   cancel(jobId: number, reason: string): void;
   byKey(key: string): Readonly<Job> | undefined;
   setPriority(jobId: number, priority: Priority): void;
+  /** The keys of the live jobs that start with `prefix`, sorted (a producer's sweep of its own jobs). */
+  keysWithPrefix?(prefix: string): string[];
 }
 
 /** 13's item search and item handling, as 11 uses them. */

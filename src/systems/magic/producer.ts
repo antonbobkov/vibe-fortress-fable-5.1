@@ -91,9 +91,10 @@ export class MagicProducer implements JobProducer {
     }
     if (this.host.sweepDue) {
       this.host.sweepDue = false;
-      // A job whose dwarf, circle or sanctum went away, or whose dwarf is done for the day, goes.
-      for (const id of ctx.world.entities.with(C.Labors)) {
-        const key = `${KEY_PREFIX}${id}`;
+      // A job whose dwarf, circle or sanctum went away, or whose dwarf is done for the day, goes. The
+      // board's own keys are walked, so a dwarf whose entity is already gone (10 destroys the dead) is
+      // covered too.
+      for (const key of sink.keysWithPrefix?.(KEY_PREFIX) ?? []) {
         const job = sink.byKey(key);
         if (job === undefined) continue;
         const want = wanted.get(key);
