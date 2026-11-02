@@ -323,9 +323,9 @@ describe('T-469 mishaps', () => {
     expect(w.events('FireStarted')).toHaveLength(0);
     expect(w.game.world.entities.alive(s.dwarf) && w.game.world.entities.alive(watcher)).toBe(true);
     expect(w.game.world.entities.alive(crate) && w.game.world.entities.alive(stock)).toBe(true);
-    // No medic dresses the burns here, so a burn may take infection and admit its dwarf; a blackout never does.
-    const infected = new Set(w.events('InfectionStarted').map((e) => e['id']));
-    expect(w.events('PatientAdmitted').every((e) => infected.has(e['id']))).toBe(true);
+    // No medic here: a mishap burn is made cleaned, so none takes infection. (A thousand sessions in a
+    // few days stack enough burns to knock the dwarf down from pain; real sessions are two a day.)
+    expect(w.events('InfectionStarted')).toHaveLength(0);
     // Each kind does what its row says.
     // A thousand sessions in a few days pile up burns no medic dresses; real sessions are two a day.
     expect(w.events('CreatureStunned')).toHaveLength(kinds['blackout'] ?? 0);
@@ -358,6 +358,31 @@ describe('T-469 mishaps', () => {
     expect(w.events('PatientAdmitted').filter((e) => e['id'] === s.dwarf)).toHaveLength(0);
   });
 
+  it('a singed apprentice with no medic heals on its own and takes no infection', () => {
+    const s = sanctum('t469-singe-heals', { apprentice: false });
+    const w = s.w;
+    const world = w.game.world;
+    // Nobody can treat: the apprentice is the only dwarf, and its labors are all off.
+    for (const labor of registry.table<{ id: string }>('labors').ids()) w.setLabor(s.dwarf, labor, false);
+    const producer = world.registrations.jobProducers.find((p) => p.id === 'magic');
+    (producer as unknown as { mishap(kind: string, d: EntityId, c: EntityId, z: EntityId, ctx: TickContext): void }).mishap('singed', s.dwarf, s.circle, s.zone, context(w));
+    w.step(5);
+    const burns = (): { cleaned: boolean; infected: boolean }[] =>
+      (world.entities.get(s.dwarf, C.Body)?.parts ?? []).flatMap((p) => p.wounds.filter((wd) => wd.type === 'burn'));
+    expect(burns()).toHaveLength(1);
+    expect(burns()[0]?.cleaned).toBe(true);
+    for (let day = 0; day < 20 && burns().length > 0; day += 1) {
+      w.step(TICKS_PER_DAY);
+      w.setNeed(s.dwarf, 'hunger', 0);
+      w.setNeed(s.dwarf, 'thirst', 0);
+      expect(burns().some((b) => b.infected)).toBe(false);
+    }
+    expect(burns()).toHaveLength(0);
+    expect(w.events('InfectionStarted')).toHaveLength(0);
+    expect(w.events('CreatureDied')).toHaveLength(0);
+    expect(w.events('TreatmentDone')).toHaveLength(0);
+  });
+
   it('the same seed and command log give the same mishaps', () => {
     const run = (): string => {
       const s = sanctum('t469-replay', { apprentice: false });
@@ -379,21 +404,15 @@ describe('T-469 Proficient through the job', () => {
     const w = s.w;
     const start = w.tick;
     const items = w.readers.of<{ available(t: string): number }>('13');
-    // A medic dresses the burns a singe leaves; an undressed burn can take infection, as any can.
-    const medic = w.spawnDwarf({ at: w.index(X + 4, Y + 4, Z) });
-    for (const labor of registry.table<{ id: string }>('labors').ids()) w.setLabor(medic, labor, labor === 'medicine' || labor === 'hauling');
-    w.spawnItem('cloth', 'wool_cloth', w.index(X + 4, Y + 3, Z), 20);
     let spawned = 20;
     let day = -1;
     while (level(w, s.dwarf) < 10 && w.tick - start < TICKS_PER_DAY * 90) {
       // Glowcap rots in the open; the stock is kept topped up, and every session takes one.
       if (items.available('glowcap') < 5) { w.spawnItem('glowcap', 'glowcap', w.index(X + 5, Y, Z), 10); spawned += 10; }
       w.step(TICKS_PER_HOUR);
-      for (const id of [s.dwarf, medic]) {
-        w.setNeed(id, 'hunger', 0);
-        w.setNeed(id, 'thirst', 0);
-        w.setNeed(id, 'rest', 0);
-      }
+      w.setNeed(s.dwarf, 'hunger', 0);
+      w.setNeed(s.dwarf, 'thirst', 0);
+      w.setNeed(s.dwarf, 'rest', 0);
       rebuildCircle(s);
       if (level(w, s.dwarf) >= 10 && day < 0) day = Math.ceil((w.tick - start) / TICKS_PER_DAY);
     }

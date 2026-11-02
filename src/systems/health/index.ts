@@ -182,7 +182,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       const part = event['part'] as BodySlot;
       const damageType = (event['damageType'] ?? 'blunt') as string;
       const amount = (event['amount'] as number) ?? 0;
-      applyDamage(ctx, defender, part, damageType, amount, attacker, this.wounded, this.lastAttacker, 'killed', this.lastHospitalTier);
+      // A `clean` hit (25's mishap burn) makes a wound that cannot take infection.
+      applyDamage(ctx, defender, part, damageType, amount, attacker, this.wounded, this.lastAttacker, 'killed', this.lastHospitalTier, event['clean'] === true);
       return;
     }
 

@@ -205,7 +205,8 @@ export class MagicProducer implements JobProducer {
       const slot = ARMS[k] as number;
       const part = body.parts[slot];
       if (part === undefined || part.destroyed || part.hp <= 1) continue;
-      ctx.emit({ type: 'DamageDealt', defenderId: id, part: BODY_SLOTS[slot], damageType: 'burn', amount: 1, attackerId: 0, weaponId: 0 });
+      // `clean`: 17 makes the burn already cleaned, so it heals with or without a medic and never infects.
+      ctx.emit({ type: 'DamageDealt', defenderId: id, part: BODY_SLOTS[slot], damageType: 'burn', amount: 1, attackerId: 0, weaponId: 0, clean: true });
       return;
     }
   }

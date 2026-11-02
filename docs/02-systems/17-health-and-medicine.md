@@ -124,7 +124,7 @@ Tame animals get bandaging only: the health producer creates `bandage_animal` (l
 
 ### Events consumed
 
-`DamageDealt`, `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `CreatureStunned` (25), `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
+`DamageDealt` (one with `clean: true`, 25's mishap burn, makes its wound already `cleaned`, so it cannot take infection), `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `CreatureStunned` (25), `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
 
 ### Events emitted
 

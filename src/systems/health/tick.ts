@@ -194,6 +194,8 @@ export function applyDamage(
   lastAttacker: Map<EntityId, EntityId>,
   lethalCause = 'killed',
   lastHospitalTier?: Map<EntityId, number>,
+  /** The wound is made `cleaned`, so it cannot take infection (25's mishap burns). */
+  clean = false,
 ): void {
   if (amount <= 0) return;
   const entities = ctx.world.entities;
@@ -243,6 +245,7 @@ export function applyDamage(
   // Non-destroyed part: create wound
   const wType = woundTypeFor(damageType, amount, maxHp);
   const wound = createWound(wType, sev, amount, ctx.tick);
+  if (clean) wound.cleaned = true;
   part.wounds.push(wound);
   woundedSet.add(id);
 
