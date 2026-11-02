@@ -15,7 +15,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
 | T-466 | [The hand-laid defence of `defence_year` does not repel a raid](work/T-466-defence-never-repels-a-raid.md) | T-462's defence_year seeds | — | open |
 | T-475 | [Runecraft 8: Call and the three summons](work/T-475-runecraft-summons.md) | Runecraft design | — | open |
-| T-476 | [Runecraft 9: rare materials, deepsilver pressure and the legend](work/T-476-runecraft-deep-materials-hexers.md) | Runecraft design | T-474 | blocked (needs T-474) |
+| T-476 | [Runecraft 9: rare materials, deepsilver pressure and the legend](work/T-476-runecraft-deep-materials-hexers.md) | Runecraft design | — | open |
 | T-477 | [Runecraft 10: the whole loop played, and the docs that tell it](work/T-477-runecraft-whole-loop-scenario.md) | Runecraft design | T-475, T-476, T-479 | blocked (needs T-475, T-476, T-479) |
 | T-479 | [Runecraft 9b: Gloam hexers in raids and sieges](work/T-479-runecraft-hexers.md) | Runecraft design | — | open |
 | T-482 | [Idle tame animals keep a walk that has arrived, and crowd one hall tile](work/T-482-tame-animal-stale-walk.md) | T-463's follow-up | — | open |
