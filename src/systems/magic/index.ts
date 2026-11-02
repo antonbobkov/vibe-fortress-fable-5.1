@@ -93,7 +93,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     ctx.register.inspector('zone', { id: SANCTUM, order: 40 });
     ctx.register.inspector('item', { id: 'stone', order: 20 });
     // One line per kind; a scorched circle and a fire are alerts.
-    for (const kind of ['singed', 'blackout', 'surge', 'scorched_circle', 'fire', 'wisp_loose']) {
+    for (const kind of ['singed', 'blackout', 'surge', 'wisp_loose', 'scorched_circle', 'fire']) {
       const severity = kind === 'scorched_circle' || kind === 'fire' ? 'alert' : 'note';
       ctx.register.announcement('Mishap', { severity, stringKey: `announce.mishap_${kind}`, oneOf: { field: 'kind', values: [kind] } });
     }

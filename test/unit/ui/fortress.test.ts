@@ -344,6 +344,8 @@ describe('T-M1-14 announcements', () => {
       SpellCast: 'alert',
       // T-471: a masterwork setting.
       StoneSet: 'note',
+      // T-475: a shade that came through the call turned.
+      SummonTurned: 'danger',
     });
   });
 
