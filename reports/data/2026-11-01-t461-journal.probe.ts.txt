@@ -1,0 +1,93 @@
+/**
+ * T-461 probe (not committed as a test). For T461_SEED up to T461_DAYS: every announcement the player would read
+ * (note lines listed apart), the cavern breach, where every cavern monster is by the quarter day from T461_LOOK on,
+ * what it does, and every fortress-creature death with its place and killer. Read-only: nothing here commands the
+ * game. It replays the seeds file's loop, so that it plays its timeline.
+ */
+import { it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { checkFortressCaveFarm, checkFortressDefense, checkFortressRooms, checkFortressWorkOrders, playThreeYears, setupThreeYearsFortress, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const [SEED, PERIL] = (process.env['T461_SEED'] ?? 'three-years-p4-2:4').split(':');
+const DAYS = Number(process.env['T461_DAYS'] ?? 241);
+const OUT = process.env['T461_OUT'] ?? '.vite/t461-journal.jsonl';
+const LOOK = Number(process.env['T461_LOOK'] ?? 150);
+
+it('journals the breach', () => {
+  writeFileSync(OUT, '');
+  const log = (o: unknown): void => appendFileSync(OUT, JSON.stringify(o) + '\n');
+  const w = threeYearsWorld(SEED!, Number(PERIL));
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const day = (): number => +(w.tick / TICKS_PER_DAY).toFixed(3);
+  const severity = new Map<string, { severity: string; stringKey?: string }>();
+  for (const a of w.game.world.registrations.announcements) severity.set(a.type, a.spec as unknown as { severity: string; stringKey?: string });
+  const name = (id: number): string => species.byIndex(ent.get(id, C.Creature)?.species ?? -1)?.id ?? '?';
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      const s = severity.get(e.type);
+      if (e.type === 'CavernBreached') log({ d: day(), t: 'BREACH', ...e, at: [w.map.xOf(Number(e['tile'])), w.map.yOf(Number(e['tile'])), w.map.zOf(Number(e['tile']))] });
+      if (s && s.severity !== 'note') log({ d: day(), t: 'announce', sev: s.severity, key: s.stringKey, type: e.type, ...(e.type === 'CreatureDied' ? { cause: e['cause'], sp: species.byIndex(Number(e['species']))?.id, faction: e['faction'] } : {}) });
+      if (e.type === 'MonsterSpawned') log({ d: day(), t: 'monsterNote', id: e['id'], cavern: e['cavern'], sp: Number(e['id']) && ent.alive(Number(e['id'])) ? name(Number(e['id'])) : '?' });
+      if (e.type === 'AlertChanged') log({ d: day(), t: 'alert', from: e['from'], to: e['to'] });
+      if (e.type === 'CreatureDied' && e['faction'] === 'fortress') {
+        const tile = Number(e['tile']);
+        const k = Number(e['killerId'] ?? 0);
+        log({ d: day(), t: 'death', sp: species.byIndex(Number(e['species']))?.id, cause: e['cause'], at: [w.map.xOf(tile), w.map.yOf(tile), w.map.zOf(tile)], killer: k && ent.alive(k) ? name(k) : k, alert: w.game.world.fortress.alert });
+      }
+    }
+  });
+  const FINE = Number(process.env['T461_FINE'] ?? 233.4);
+  const tally: Record<string, number> = {};
+  w.game.world.onEvents((events) => {
+    if (w.tick / TICKS_PER_DAY < FINE) return;
+    for (const e of events) {
+      if (e.type !== 'AttackResolved') continue;
+      const a = Number(e['attackerId'] ?? e['attacker'] ?? e['id'] ?? 0);
+      const t = Number(e['targetId'] ?? e['target'] ?? 0);
+      const side = (id: number): string => (id && ent.alive(id) ? `${name(id)}${ent.has(id, C.Soldier) ? ':soldier' : ''}` : '?');
+      const key = `${side(a)}>${side(t)}:${e['hit'] === false || e['result'] === 'miss' ? 'miss' : 'hit'}`;
+      tally[key] = (tally[key] ?? 0) + 1;
+    }
+  });
+  let lastFine = 0;
+  const fine = (): void => {
+    if (w.tick / TICKS_PER_DAY < FINE || w.tick / TICKS_PER_DAY > FINE + 3 || w.tick - lastFine < 60) return;
+    lastFine = w.tick;
+    const hallLabel = w.readers.pathing.labelOf(w.index(state.cx + 6, state.cy + 6, state.hallZ), 'walker');
+    const crawlers = ent.with(C.Hostile).filter((id) => ent.has(id, C.Position) && ent.get(id, C.Hostile)?.role === 'cavern_monster').filter((id) => {
+      const p = ent.get(id, C.Position)!;
+      return w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === hallLabel;
+    });
+    const sol = ent.with(C.Soldier).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').map((id) => {
+      const p = ent.get(id, C.Position);
+      return [p?.x, p?.y, p?.z, w.game.world.services.combat?.targetOf(id) ?? 0];
+    });
+    log({ d: day(), t: 'fine', onHallLabel: crawlers.map((id) => { const p = ent.get(id, C.Position)!; return { id, sp: name(id), at: [p.x, p.y, p.z], st: ent.get(id, C.Hostile)?.behaviorState, target: w.game.world.services.combat?.targetOf(id) ?? 0, blood: w.readers.of<{ bloodPercent(id: number): number }>('17').bloodPercent(id) }; }), soldiers: sol, tally });
+  };
+  const bootstrap = 20 * TICKS_PER_DAY;
+  while (w.tick < bootstrap) {
+    playThreeYears(w, state, Math.min(100, bootstrap - w.tick));
+    checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+  }
+  const end = DAYS * TICKS_PER_DAY;
+  let last = 0;
+  while (w.tick < end) {
+    playThreeYears(w, state, 300, () => {
+      fine();
+      if (w.tick / TICKS_PER_DAY < LOOK || w.tick - last < TICKS_PER_DAY / 4) return;
+      last = w.tick;
+      const ms = ent.with(C.Hostile).filter((id) => ent.has(id, C.Position) && ent.get(id, C.Hostile)?.role === 'cavern_monster');
+      const dw = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+      const zs: Record<string, number> = {};
+      for (const m of ms) { const p = ent.get(m, C.Position)!; const k = `${name(m)}@${p.z}:${ent.get(m, C.Hostile)?.behaviorState}`; zs[k] = (zs[k] ?? 0) + 1; }
+      const dz: Record<number, number> = {};
+      for (const d of dw) { const p = ent.get(d, C.Position); if (p) dz[p.z] = (dz[p.z] ?? 0) + 1; }
+      log({ d: day(), t: 'look', alert: w.game.world.fortress.alert, monsters: zs, dwarves: dw.length, soldiers: dw.filter((id) => ent.has(id, C.Soldier)).length, dwarfZ: dz });
+    });
+    checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
+  }
+}, 1_800_000);
