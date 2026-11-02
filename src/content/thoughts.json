@@ -180,6 +180,21 @@
     "announce": false
   },
   {
+    "id": "attuned",
+    "name": "attuned",
+    "text": "Felt the rune answer.",
+    "value": 2,
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "AttuneSession",
+      "target": "with no mishap"
+    },
+    "announce": false
+  },
+  {
     "id": "bedridden",
     "name": "bedridden",
     "text": "I cannot leave my bed.",
@@ -446,6 +461,21 @@
     "group": "pride",
     "trigger": {
       "condition": "a dig designation batch of 50+ tiles completes (all miners)"
+    },
+    "announce": false
+  },
+  {
+    "id": "first_runecaster",
+    "name": "first runecaster",
+    "text": "We have a runecaster in the hall.",
+    "value": 4,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "FirstRunecaster",
+      "target": "(everyone)"
     },
     "announce": false
   },
@@ -931,6 +961,23 @@
     "group": "comfort",
     "trigger": {
       "condition": "first outdoor tile after 7+ days underground"
+    },
+    "announce": false
+  },
+  {
+    "id": "singed",
+    "name": "singed",
+    "text": "Singed my beard in the sanctum.",
+    "value": {
+      "formula": "−3"
+    },
+    "hours": 24,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "Mishap",
+      "target": "singed"
     },
     "announce": false
   },

@@ -103,6 +103,8 @@ On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes fir
 
 The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do.
 
+A runecaster (a creature with a `Rune`) has its rune line after the mood, in the value colour: `Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow`. The regen drops trailing zeros; each worn metal piece that lowers it is named with `-METAL_RUNE_PENALTY_PERCENT%` (an ASCII minus, which the glyph set has); the end reads `full`, `full in 5 hours` (later today), `full tomorrow`, `full in 3 days`, or `never full`.
+
 A dwarf who is a patient has a `Care:` line under the Health line, on top of the health details (an undiagnosed patient keeps `Health: Wounded, bleeding` and still has the line). It is the first of these that applies, and it is drawn in the alert color when the player must act (the first three, and a missing supply) and in the normal color otherwise:
 
 1. no hospital zone exists: `Care: no hospital. Make one in Zones [z] > Hospital.`

@@ -176,6 +176,8 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 `SetLabor { dwarfId, labor, on }`, `SetLaborPriority { labor, priority }`, `CancelJob { jobId }`, `SetJobPriority { jobId, priority }`, `SetStandingOrder { name, on }`.
 
+A producer's sink also lists the keys of its live jobs, `keysWithPrefix(prefix)`, sorted, for a sweep of its own jobs (25 cancels an `attune` job whose dwarf is gone). The jobs API (`ctx.jobs`) also has `setLabor(dwarfId, labor, on)`, which applies `SetLabor`'s rule for another system's command and returns whether it took (25's apprentice command turns `attunement` on with it).
+
 ### Events consumed
 
 `TilesChanged`, `BuildingStateChanged`, `FluidsChanged`, `ItemCreated`, `ItemDestroyed`, `ItemReleased`, `StocksChanged`, `CreatureDied`, `CorpseCreated` (a hunt job takes the corpse of the creature it hunted), `ImmigrantsArrived`, `NeedCritical` (interrupt), `AlertChanged` (interrupt civilians), `ThreatNearby` (interrupt).

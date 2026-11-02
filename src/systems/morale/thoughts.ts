@@ -125,6 +125,8 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'argued': return s(event, 'kind') === 'argue' && n(event, 'partnerId') !== 0;
     case 'wept': return s(event, 'kind') === 'weep' && n(event, 'targetTile') > 0;
     case 'hoarded': return s(event, 'kind') === 'hoard' && n(event, 'itemId') !== 0;
+    case 'attuned': return s(event, 'mishap') === '';
+    case 'singed': return s(event, 'kind') === 'singed';
     default: return true;
   }
 }
@@ -136,7 +138,7 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   const dead = n(event, 'id') || n(event, 'dwarfId');
   if (def.id === 'dwarf_died' || def.id === 'child_died') return all.filter((id) => id !== dead);
   if (['hearth_lit', 'new_hearth_hall_tier', 'raid_arrived', 'raid_repelled', 'caravan_arrived',
-    'immigrants_arrived', 'deep_stirred_dread'].includes(def.id)) return all;
+    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster'].includes(def.id)) return all;
   if (def.id === 'saw_death') return all.filter((id) => id !== dead);
   if (['friend_died', 'buried_friend', 'memorial_placed'].includes(def.id)) return all.filter((id) => dwarves.isFriend(id, dead));
   if (def.id === 'pet_died') return all.filter((id) => ctx.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true);

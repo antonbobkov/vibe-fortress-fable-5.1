@@ -98,6 +98,16 @@ function validTarget(game: HeadlessGame, type: string): Command | null {
           ),
         wants: { cloth: 1 },
       };
+    case 'SetSanctumApprentices':
+      return {
+        type,
+        zoneId: e
+          .with(C.Zone)
+          .find(
+            (id) => e.get(id, C.Zone)?.type === game.registry.table('zoneTypes').index('sanctum'),
+          ),
+        dwarfIds: e.with(C.Labors).slice(0, 1),
+      };
     case 'TradeCancel':
       return { type };
     case 'TradeOffer':
@@ -285,6 +295,7 @@ const OWN: Record<string, string[]> = {
   SquadOrder: ['squadId', 'order'],
   SetAlert: ['level'],
   SetHospitalSupplies: ['zoneId', 'wants'],
+  SetSanctumApprentices: ['zoneId', 'dwarfIds'],
   SetTrapMode: ['trapId', 'mode'],
   PullLever: ['leverId'],
   MoveToDepot: ['itemIds'],
@@ -346,6 +357,7 @@ function buildWorld(): TestWorld {
   w.zone('hospital', [w.index(70, 70, Z)]);
   w.zone('dump', [w.index(72, 70, Z)]);
   w.zone('barracks', [w.index(74, 70, Z), w.index(75, 70, Z)]);
+  w.zone('sanctum', [w.index(77, 70, Z)]);
   w.spawnItem('axe', 'iron', w.index(18, 17, Z));
   w.spawnItem('bar', 'iron', w.index(19, 17, Z), 10);
   w.spawnItem('mechanism', 'granite', w.index(20, 17, Z), 4);

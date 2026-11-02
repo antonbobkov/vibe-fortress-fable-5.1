@@ -101,6 +101,14 @@ For up or up/down stairs, the terrain producer's `extraStandTiles` also permits 
 | `haul_to_depot` | Haul to depot | hauling | — | entity (item) | depot tile | 5 | — | 0 | yes |
 | `trade` | Trade | trading | trading | building (depot) | inside depot | session | — | per session | yes (closes the session) |
 
+## Magic (producer `magic`)
+
+| id | name | labor | skill | target | workTile | baseTicks | tool | xp | interruptible |
+|---|---|---|---|---|---|---|---|---|---|
+| `attune` | Attune | attunement | runecraft | building (rune circle) | adjacent | `ATTUNE_TICKS` | — | 0 | yes |
+
+An `attune` job's xp is granted by the producer at completion, scaled by the sanctum's tier ([25](../02-systems/25-runecraft.md) § The sanctum), so its row holds 0.
+
 ## Notes
 
 - Jobs with `baseTicks` given as a constant name use that system's tuning constant.

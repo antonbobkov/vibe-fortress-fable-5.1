@@ -70,6 +70,7 @@ export const ZONE_TINTS: Readonly<Record<string, string>> = Object.freeze({
   dump: 'zone_dump',
   fishing: 'zone_fishing',
   gather: 'zone_gather',
+  sanctum: 'zone_sanctum',
 });
 
 /**

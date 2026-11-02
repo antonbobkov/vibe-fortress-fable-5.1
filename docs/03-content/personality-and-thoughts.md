@@ -113,6 +113,8 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `finished_big_job` | "We finished a great digging." | +3 | 48 | linear | 1 | pride | a dig designation batch of 50+ tiles completes (all miners) |
 | `harvest_in` | "The harvest is in." | +3 | 48 | linear | 1 | pride | `CropHarvested` (the farmer, once per day) |
 | `first_vein` | "I struck ore." | +5 | 72 | linear | 1 | pride | `VeinFound` finder |
+| `attuned` | "Felt the rune answer." | +2 | 12 | linear | 1 | pride | `AttuneSession` with no mishap |
+| `singed` | "Singed my beard in the sanctum." | −3 | 24 | halflife | 1 | none | `Mishap` `singed` |
 
 ### Weather
 
@@ -160,6 +162,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `healed` | "Back on my feet." | +5 (+2 per hospital tier above bare) | 96 | linear | 1 | none | `PatientHealed` |
 | `came_of_age` | "The child has grown." | +3 | 72 | linear | 1 | social | `DwarfBecameAdult` family |
 | `hoarded` | "Got something nice for my room." | +3 | 48 | linear | 1 | none | sulk hoard |
+| `first_runecaster` | "We have a runecaster in the hall." | +4 | 72 | linear | 1 | pride | `FirstRunecaster` (everyone) |
 
 ## Announcement flags
 

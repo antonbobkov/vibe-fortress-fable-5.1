@@ -14,7 +14,7 @@
  *   score += min(tiles.length, ROOM_SIZE_CAP)
  *   if enclosed: score = score * ENCLOSED_PERCENT / 100
  *   tier = score < 20 ? 0 : < 60 ? 1 : < 150 ? 2 : < 400 ? 3 : < 1000 ? 4 : 5
- *   requirementsMet per zone type (bed; table+adjacent chair; hearth inside; bed+chest; coffin)
+ *   requirementsMet per zone type (bed; table+adjacent chair; hearth inside; bed+chest; coffin; rune circle)
  *   if tier changed: emit RoomQualityChanged
  * ```
  *
@@ -36,7 +36,7 @@ import { lowerBound, sortedInsert } from './state';
 import type { ZoneStore } from './zones';
 
 /** The room types of 14 § Concepts (the zone types whose `room` column is yes). */
-export const ROOM_TYPES: readonly string[] = Object.freeze(['bedroom', 'dining_hall', 'hearth_hall', 'hospital', 'barracks', 'tomb']);
+export const ROOM_TYPES: readonly string[] = Object.freeze(['bedroom', 'dining_hall', 'hearth_hall', 'hospital', 'barracks', 'tomb', 'sanctum']);
 
 /** 14 § Ownership: "titled dwarves first (Thane, then Warden, Broker, Chief Medic)". */
 const TITLE_ORDER: readonly string[] = Object.freeze(['thane', 'warden', 'broker', 'chief_medic']);
@@ -87,7 +87,7 @@ export interface RoomScore {
 /** Read-only facts for the room inspector; never stored in a Room component. */
 export interface RoomDiagnostics {
   readonly openBorder: readonly TileIndex[];
-  readonly missing: readonly ('bed' | 'table_chair' | 'hearth' | 'chest' | 'coffin')[];
+  readonly missing: readonly ('bed' | 'table_chair' | 'hearth' | 'chest' | 'coffin' | 'rune_circle')[];
 }
 
 export class RoomStore {
@@ -227,6 +227,7 @@ export class RoomStore {
     if (typeId === 'hearth_hall' && this.tagged(within, 'hearth').length === 0) missing.push('hearth');
     if (typeId === 'hospital' && !within.some((id) => this.host.buildings.typeIdOf(id) === 'chest')) missing.push('chest');
     if (typeId === 'tomb' && this.tagged(within, 'coffin').length === 0) missing.push('coffin');
+    if (typeId === 'sanctum' && this.tagged(within, 'rune_circle').length === 0) missing.push('rune_circle');
     return { openBorder, missing };
   }
 
@@ -312,7 +313,7 @@ export class RoomStore {
     return ids.filter((id) => b.row((b.get(id) as Building).type).tags.includes(tag));
   }
 
-  /** "bed; table+adjacent chair; hearth inside; bed+chest; coffin"; barracks needs nothing. */
+  /** "bed; table+adjacent chair; hearth inside; bed+chest; coffin; rune circle"; barracks needs nothing. */
   requirementsMet(typeId: string, within: readonly EntityId[]): boolean {
     switch (typeId) {
       case 'bedroom':
@@ -327,6 +328,8 @@ export class RoomStore {
         return true;
       case 'tomb':
         return this.tagged(within, 'coffin').length > 0;
+      case 'sanctum':
+        return this.tagged(within, 'rune_circle').length > 0;
       default:
         return false;
     }

@@ -1,5 +1,18 @@
 [
   {
+    "id": "attune",
+    "name": "Attune",
+    "labor": "attunement",
+    "skill": "runecraft",
+    "target": "building",
+    "workTile": "adjacent",
+    "baseTicks": "ATTUNE_TICKS",
+    "tool": null,
+    "xp": 0,
+    "producer": "magic",
+    "interruptible": true
+  },
+  {
     "id": "bandage_animal",
     "name": "Bandage animal",
     "labor": "animal_care",

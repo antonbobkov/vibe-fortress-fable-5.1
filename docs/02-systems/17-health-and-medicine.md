@@ -50,7 +50,8 @@ Each health tick (every 5 ticks) for each creature in the `wounded` list or stil
 
 - `blood −= Σ wound.bleed` for wounds not `bandaged` (bandaging sets `bleed = 0`; suturing keeps it 0 and heals faster). A `light` wound stops bleeding by itself `CLOT_TICKS` after it was made (its `bleed` becomes 0); a `serious` or `grievous` wound bleeds until it is bandaged. Blood regenerates `BLOOD_REGEN_PER_TICK` per health tick when no wound bleeds.
 - `pain = Σ wound.pain × (100 − Willpower / 2) / 100` (dwarves; other creatures use 100).
-- `conscious = pain < PAIN_UNCONSCIOUS and blood ≥ maxBlood × BLOOD_UNCONSCIOUS_PERCENT / 100`. An unconscious creature does nothing, is hit at +40, and is carried as a patient if a dwarf.
+- `conscious = pain < PAIN_UNCONSCIOUS and blood ≥ maxBlood × BLOOD_UNCONSCIOUS_PERCENT / 100 and tick ≥ stunnedUntil`. An unconscious creature does nothing, is hit at +40, and is carried as a patient if a dwarf.
+- **Stun.** On `CreatureStunned { id, until }` (25's daze and blackout) a living creature with a body is held unconscious until `until`: `stunnedUntil` keeps the later of two stuns, the creature joins `wounded` and stays there while the stun lasts, and a conscious body becomes unconscious at once with `CreatureUnconscious`. The first health tick at or after `until` drops the entry and wakes it by the line above, with `CreatureConscious`. A stun is not a wound: it admits no patient and does not keep one from discharge.
 - Death: `blood < maxBlood × BLOOD_DEATH_PERCENT / 100` → `CreatureDied { cause: bled_out }`.
 - Healing: `healRemaining −= 5` for each wound whose healing is not blocked: fractures heal only at `UNTREATED_FRACTURE_PERCENT` speed unless `splinted`; infected wounds do not heal; `wasting` does not heal while starving. At 0 the wound is removed, `part.hp` regains the wound's damage, and for an unsplinted fracture that healed, a `permanent: badly_healed_<part>` is added.
 
@@ -72,7 +73,7 @@ Each `DayPassed`, for each `cut`, `puncture` or `burn` that is not `cleaned`, no
 
 ### Patients and hospitals
 
-- A dwarf becomes a `Patient` when: any wound bleeds, any fracture is unsplinted, any serious or grievous burn is undressed, any wound is infected, or the dwarf is unconscious from wounds. `PatientAdmitted { id }`. A light burn admits no one, as a light bruise does not: its dwarf keeps working, and the treatments its wounds need (`dress_burn`, `clean_wound` and any other) are made for it where it is, as for a patient, while a burn of it is undressed. So a fire that burns every dwarf with the `medicine` labor leaves them free to dress each other.
+- A dwarf becomes a `Patient` when: any wound bleeds, any fracture is unsplinted, any serious or grievous burn is undressed, any wound is infected, or the dwarf is unconscious from wounds (pain at `PAIN_UNCONSCIOUS` or blood below the threshold, so a stun does not count). `PatientAdmitted { id }`. A light burn admits no one, as a light bruise does not: its dwarf keeps working, and the treatments its wounds need (`dress_burn`, `clean_wound` and any other) are made for it where it is, as for a patient, while a burn of it is undressed. So a fire that burns every dwarf with the `medicine` labor leaves them free to dress each other.
 - Hospital zone settings: desired supplies `{ cloth, thread, splints, crutches, brightleaf, buckets }` (defaults `HOSPITAL_DEFAULT_SUPPLIES`). Both `SetHospitalSupplies` and the zone setting require a non-null record containing only these supply kinds, with integer counts from 0 to `HOSPITAL_SUPPLY_MAX`; otherwise `bad_setting`, with no mutation. Store a copy of the validated record; 13 treats the hospital's chests as a stockpile that wants those counts: haulers bring the supplies into a built chest from a tile beside it, and medics take them out the same way (13 § Containers in play). A hospital needs at least one bed and one chest.
 - Behavior (10 `patient`): a conscious patient walks to a free hospital bed (any bed if none); an unconscious one gets a `carry_patient` job (labor `hauling`; the carrier picks them up like an item and puts them in the bed). Patients in bed rest; `Needs` still rise; `feed_patient` and `water_patient` jobs (labor `hauling`, no skill) bring a meal or a drink when hunger or thirst pass 60.
 - A bleeding patient is bandaged where it lies. While one of its wounds bleeds without a bandage and was made less than `RESERVE_KEEP_TICKS` (11) ago, a dwarf other than the patient has the `medicine` labor enabled, and the patient's `stop_bleeding` job is not blocked (no cloth to fetch, no medic who can reach it; 11 § Blocking and retry), a conscious patient stays on its tile (off a door's tile, by 10's rule for a patient without a bed) and does not start the walk to its bed, and an unconscious one gets no `carry_patient` job. When that no longer holds (the bandage is on, the time has passed, or the job is blocked), it walks or is carried to its bed as above; a `carry_patient` job already made goes on. A patient in danger flees first, by 10's rules.
@@ -104,7 +105,7 @@ Tame animals get bandaging only: the health producer creates `bandage_animal` (l
 
 ## State
 
-- `Body` components; `Patient` components; `wounded: SortedSet<EntityId>`; `hospitals: zoneId[]`; per-patient job keys; saved failed-treatment requests, keyed by dwarf and treatment kind independently of `Patient`.
+- `Body` components; `Patient` components; `wounded: SortedSet<EntityId>`; `hospitals: zoneId[]`; per-patient job keys; saved failed-treatment requests, keyed by dwarf and treatment kind independently of `Patient`; `stunnedUntil`, the creatures a stun holds and the tick it ends (optional in the save; absent means none).
 - Rng stream.
 
 ## Interfaces
@@ -123,7 +124,7 @@ Tame animals get bandaging only: the health producer creates `bandage_animal` (l
 
 ### Events consumed
 
-`DamageDealt`, `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
+`DamageDealt` (one with `clean: true`, 25's mishap burn, makes its wound already `cleaned`, so it cannot take infection), `BurnDamage`, `MagmaContact`, `CreatureSubmerged`, `Fell`, `LightningStrike`, `Starvation`, `CreatureStunned` (25), `HourPassed` (heat and cold), `DayPassed` (infection), `ZoneChanged` (hospitals), `JobCompleted`, `ItemCreated` (supplies for blocked jobs).
 
 ### Events emitted
 

@@ -82,6 +82,7 @@ export const COMMAND_TYPES = [
   'NameAnimal',
   'RenameSquad',
   'RenameFortress',
+  'SetSanctumApprentices',
 ] as const;
 
 export type CommandType = (typeof COMMAND_TYPES)[number];
@@ -184,6 +185,7 @@ export const COMMAND_OWNERS: Readonly<Record<CommandType, string>> = Object.free
   NameAnimal: '08',
   RenameSquad: '16',
   RenameFortress: 'core',
+  SetSanctumApprentices: '25',
 });
 
 /** The documented field list of each command. */
@@ -266,6 +268,7 @@ export const COMMAND_FIELDS: Readonly<Record<CommandType, string>> = Object.free
   NameAnimal: "animalId, name",
   RenameSquad: "squadId, name",
   RenameFortress: "name",
+  SetSanctumApprentices: "zoneId, dwarfIds[]",
 });
 
 /** The fixed rejection reasons of command-catalog.md § Rejection reasons. */

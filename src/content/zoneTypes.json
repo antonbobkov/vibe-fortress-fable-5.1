@@ -155,6 +155,20 @@
     ]
   },
   {
+    "id": "sanctum",
+    "name": "sanctum",
+    "room": true,
+    "requirements": [
+      "a rune circle"
+    ],
+    "settings": [
+      "apprentices"
+    ],
+    "consumers": [
+      "25"
+    ]
+  },
+  {
     "id": "stockpile",
     "name": "stockpile",
     "room": false,

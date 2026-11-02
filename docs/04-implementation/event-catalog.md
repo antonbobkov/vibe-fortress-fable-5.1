@@ -102,7 +102,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `SulkHappened` | `id, kind` | 15 | 10, 13 (hoard), 14 (broken furniture), ui |
 | `HallSpiritChanged` | `value, tier` | 15 | 21, ui |
 | `AttackResolved` | `attackerId, defenderId, part, damageType, amount, outcome` | 16 | 08, 18, 20, ui (combat log) |
-| `DamageDealt` | `defenderId, part, damageType, amount, attackerId, weaponId` | 16, 19 | 17 |
+| `DamageDealt` | `defenderId, part, damageType, amount, attackerId, weaponId` | 16, 19, 25 | 17 |
 | `ProjectileFired` | `shooterId, targetId, itemId` | 16 | 09 |
 | `CreatureFled` | `id, from` | 16 | 18 |
 | `ThreatNearby` | `id, hostileId` | 16 | 10, 11, 15 |
@@ -139,6 +139,10 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ImmigrationSkipped` | `reason` | 21 | ui |
 | `EntitiesMoved` | `moves: [id, from, to][]` | core movement helper | 03, 04, 18, 19 |
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
+| `AttuneSession` | `id, xp, mishap` | 25 | 15 |
+| `Mishap` | `id, kind, buildingId, tile` | 25 | 05 (`fire`), 14 (`scorched_circle`), 15, ui |
+| `CreatureStunned` | `id, until` | 25 | 17 |
+| `FirstRunecaster` | `id` | 25 | 15, ui |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 
@@ -148,6 +152,6 @@ For `WorkshopBlocked`, `input` names the missing recipe input match when reason 
 
 - Subscribers listed as "ui (none)" exist for the log's optional verbose filter and the debug panel; they need no announcement row.
 - Events carrying `ids` of destroyed entities are still delivered; handlers check `alive`.
-- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `wildState` (a wild victim's behavior state, absent for others), `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `KillRecorded` carries the names and species of both creatures because the victim is gone when a line is drawn; `hostile` is whether the victim was an enemy of the killer, and `hunted` is true when the victim was the quarry of a claimed hunt job, which `HuntKill` announces; a trap's kill names the trap building as `killerName`. `HuntKill` also carries `targetSpecies`, the quarry's species index, for the same reason. `MealEaten` also carries `mealType` and `ItemDestroyed` also carries `quality`. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
+- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `wildState` (a wild victim's behavior state, absent for others), `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `KillRecorded` carries the names and species of both creatures because the victim is gone when a line is drawn; `hostile` is whether the victim was an enemy of the killer, and `hunted` is true when the victim was the quarry of a claimed hunt job, which `HuntKill` announces; a trap's kill names the trap building as `killerName`. `HuntKill` also carries `targetSpecies`, the quarry's species index, for the same reason. `MealEaten` also carries `mealType` and `ItemDestroyed` also carries `quality`. `DamageDealt` from 25 also carries `clean: true`: 17 makes that wound already cleaned. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
 - `TilesChanged` is emitted by 03 only. When 04, 05 or 14 change tiles through the terrain API, 03 batches them into the same tick's event.
 - The announcement registry (24) has one row per event marked `ui` with a severity from the system document that emits it.

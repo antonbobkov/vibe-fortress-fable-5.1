@@ -420,6 +420,11 @@
     "action": "gather zone"
   },
   {
+    "context": "zones_panel",
+    "key": "[S-c]",
+    "action": "sanctum"
+  },
+  {
     "context": "zone_inspector",
     "key": "[y]",
     "action": "back to the zone types"
@@ -467,7 +472,7 @@
   {
     "context": "zone_inspector",
     "key": "[S-o]",
-    "action": "open the bedroom's owner picker"
+    "action": "open the bedroom's owner picker, or the sanctum's apprentice picker"
   },
   {
     "context": "zone_inspector",

@@ -59,6 +59,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     'DayPassed',
     'CreatureDied',
     'Slept',
+    'CreatureStunned',
   ];
 
   override readonly ownsCommands: readonly CommandType[] = ['SetHospitalSupplies'];
@@ -72,6 +73,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   private readonly lastDrownTick: Map<EntityId, number> = new Map();
   private readonly floorSleepers: Set<EntityId> = new Set();
   private readonly lastHospitalTier: Map<EntityId, number> = new Map();
+  /** `CreatureStunned`: the tick each stun ends (§ Consciousness). */
+  private readonly stunnedUntil: Map<EntityId, number> = new Map();
 
   get rng(): RngStream {
     if (this.rngRef === null) throw new Error('17 health: used before init');
@@ -143,7 +146,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   }
 
   override tick(ctx: TickContext): void {
-    tickHealth(ctx, this.wounded, this.lastAttacker, this.lastHospitalTier);
+    tickHealth(ctx, this.wounded, this.lastAttacker, this.lastHospitalTier, this.stunnedUntil);
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
@@ -154,6 +157,22 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       this.lastDrownTick.delete(id);
       this.lastHospitalTier.delete(id);
       this.pendingTreatments.delete(id);
+      this.stunnedUntil.delete(id);
+      return;
+    }
+
+    if (event.type === 'CreatureStunned') {
+      // The creature lies unconscious until `until`, kept in `wounded` so the health tick wakes it.
+      const id = event['id'] as EntityId;
+      const until = event['until'] as number;
+      const b = ctx.world.entities.get(id, C.Body);
+      if (!ctx.world.entities.alive(id) || b === undefined || typeof until !== 'number' || until <= ctx.tick) return;
+      this.stunnedUntil.set(id, Math.max(until, this.stunnedUntil.get(id) ?? 0));
+      this.wounded.add(id);
+      if (b.conscious) {
+        b.conscious = false;
+        ctx.emit({ type: 'CreatureUnconscious', id });
+      }
       return;
     }
 
@@ -163,7 +182,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       const part = event['part'] as BodySlot;
       const damageType = (event['damageType'] ?? 'blunt') as string;
       const amount = (event['amount'] as number) ?? 0;
-      applyDamage(ctx, defender, part, damageType, amount, attacker, this.wounded, this.lastAttacker, 'killed', this.lastHospitalTier);
+      // A `clean` hit (25's mishap burn) makes a wound that cannot take infection.
+      applyDamage(ctx, defender, part, damageType, amount, attacker, this.wounded, this.lastAttacker, 'killed', this.lastHospitalTier, event['clean'] === true);
       return;
     }
 
@@ -278,6 +298,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   }
 
   serialize(): HealthStateV1 {
+    const stuns = Array.from(this.stunnedUntil).sort(([a], [b]) => a - b);
     const pending = Array.from(this.pendingTreatments).sort(([a], [b]) => a - b)
       .map(([id, kinds]): [EntityId, string[]] => [id, Array.from(kinds).sort()]);
     return {
@@ -286,6 +307,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       hospitals: this.hospitals.slice(),
       patientJobs: [],
       ...(pending.length === 0 ? {} : { pendingTreatments: pending }),
+      ...(stuns.length === 0 ? {} : { stunnedUntil: stuns }),
       rng: this.rng.state(),
     };
   }
@@ -298,6 +320,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     this.hospitals.push(...state.hospitals);
     this.pendingTreatments.clear();
     for (const [id, kinds] of state.pendingTreatments ?? []) this.pendingTreatments.set(id, new Set(kinds));
+    this.stunnedUntil.clear();
+    for (const [id, until] of state.stunnedUntil ?? []) this.stunnedUntil.set(id, until);
     this.rng.setState(state.rng);
   }
 }

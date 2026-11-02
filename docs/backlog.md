@@ -16,7 +16,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-464 | [A whole fortress dies to one cave crawler without striking it](work/T-464-fortress-never-strikes-a-monster.md) | T-461's journal | — | open |
 | T-465 | [A seeking cavern monster stands still until a dwarf comes near](work/T-465-cavern-seek-stands-still.md) | T-461's journal | — | open |
 | T-466 | [The hand-laid defence of `defence_year` does not repel a raid](work/T-466-defence-never-repels-a-raid.md) | T-462's defence_year seeds | — | open |
-| T-469 | [Runecraft 2: the rune tank, the sanctum, attunement and mishaps](work/T-469-runecraft-sanctum-attunement.md) | Runecraft design | — | open |
 | T-470 | [Runecraft 3: the runeforge, wands and staffs, emberbolt and frostbind](work/T-470-runecraft-runeforge-staffs-bolts.md) | Runecraft design | T-469 | blocked (needs T-469) |
 | T-471 | [Runecraft 4: setting stones, enchanted items and their value](work/T-471-runecraft-setting-stones.md) | Runecraft design | T-470 | blocked (needs T-470) |
 | T-472 | [Runecraft 5: enchantments act in combat](work/T-472-runecraft-enchants-in-combat.md) | Runecraft design | T-471, T-473 | blocked (needs T-471, T-473) |

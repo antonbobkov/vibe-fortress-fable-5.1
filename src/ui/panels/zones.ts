@@ -24,6 +24,9 @@ import { seasonAllows } from '@systems/plants/growth';
 import { lightMatches } from '@systems/plants/plots';
 import type { ItemsReader } from '@systems/items';
 import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
+import type { MagicReader } from '@systems/magic';
+import { ATTUNE_SESSIONS_PER_DAY, SANCTUM_APPRENTICES } from '@systems/magic/constants';
+import { TICKS_PER_DAY } from '@core/constants';
 import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '../widgets';
 import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
@@ -53,6 +56,7 @@ export const ZONE_KINDS: readonly { readonly key: string; readonly id: string }[
   { key: 'u', id: 'dump' },
   { key: 'i', id: 'fishing' },
   { key: 'g', id: 'gather' },
+  { key: 'c', id: 'sanctum' },
 ];
 
 /** The presets in the order 13 lists them. */
@@ -127,6 +131,12 @@ export class ZoneTool {
 
   startOwner(ctx: PanelContext): void {
     const b = buildings(ctx);
+    if (b?.zone(this.selected)?.type === 'sanctum') {
+      this.ownerOpen = true;
+      this.ownerPick.selected = 0;
+      this.ownerPick.scroll = 0;
+      return;
+    }
     if (b?.zone(this.selected)?.type !== 'bedroom') { ctx.notice?.(zoneEditorMessage(ctx, 'unavailable')); return; }
     if (b.roomDiagnostics(this.selected)?.missing.includes('bed')) { ctx.notice?.(zoneEditorMessage(ctx, 'no_bed')); return; }
     if (b.room(this.selected) === undefined) { ctx.notice?.(zoneEditorMessage(ctx, 'pending_room')); return; }
@@ -141,6 +151,7 @@ export class ZoneTool {
     const zone = b?.zone(this.selected);
     if (b === null || zone === undefined) return [];
     const name = zoneName(ctx, zone);
+    if (zone.type === 'sanctum') return this.apprenticeLines(ctx, name);
     return ownerPickLines(ctx, name, b.ownerOf(this.selected), (id) => {
       if (b.zone(this.selected) === undefined) { ctx.notice?.(zoneEditorMessage(ctx, 'unavailable')); return; }
       if (b.roomDiagnostics(this.selected)?.missing.includes('bed')) { ctx.notice?.(zoneEditorMessage(ctx, 'no_bed')); return; }
@@ -148,6 +159,32 @@ export class ZoneTool {
       this.ownerOpen = false;
       ctx.notice?.(ctx.strings.get(id === 0 ? 'ui.building.owner_cleared' : 'ui.building.owner_set', { building: name, dwarf: nameOf(ctx, id) }));
     });
+  }
+
+  /**
+   * The sanctum's apprentice picker: every adult dwarf, marked when an apprentice; `Enter` or a click
+   * adds or removes one through `SetSanctumApprentices`, and the picker stays open.
+   */
+  private apprenticeLines(ctx: PanelContext, name: string): BuildingLine[] {
+    if (!ctx.readers.has('25')) return [];
+    const magic = ctx.readers.of<MagicReader>('25');
+    const current = magic.apprentices(this.selected);
+    const adults = dwarvesOf(ctx).filter((id) => !(ctx.readers.has('10') && ctx.readers.of<{ isChild(id: EntityId): boolean }>('10').isChild(id)));
+    const help = ctx.strings.get('ui.zone.apprentices_help', { n: SANCTUM_APPRENTICES });
+    return [
+      { id: 'title', text: ctx.strings.get('ui.zone.apprentices_title', { zone: name, n: current.length, max: SANCTUM_APPRENTICES }), tone: 'value' },
+      ...adults.map((id) => ({
+        id: `apprentice:${id}`,
+        text: `${current.includes(id) ? '● ' : '○ '}${nameOf(ctx, id)}`,
+        help,
+        run: (): void => {
+          const now = magic.apprentices(this.selected);
+          const next = now.includes(id) ? now.filter((d) => d !== id) : [...now, id];
+          if (next.length > SANCTUM_APPRENTICES) { ctx.notice?.(ctx.strings.get('ui.zone.apprentices_full', { n: SANCTUM_APPRENTICES })); return; }
+          ctx.submit({ type: 'SetSanctumApprentices', zoneId: this.selected, dwarfIds: next });
+        },
+      })),
+    ];
   }
 
   /** Only presentation state changes until an existing setting command is submitted. */
@@ -164,7 +201,7 @@ export class ZoneTool {
       return false;
     }
     if (zone.type === 'stockpile' && this.stockpile.key(ctx, zone.id, key)) return true;
-    if (zone.type === 'bedroom' && accel(ctx, key) === 'o') { this.startOwner(ctx); return true; }
+    if ((zone.type === 'bedroom' || zone.type === 'sanctum') && accel(ctx, key) === 'o') { this.startOwner(ctx); return true; }
     if (accel(ctx, key) === 'y') { this.selected = 0; this.cancel(); return true; }
     return false;
   }
@@ -375,6 +412,8 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     row += 1;
   } else if (zone.type === 'hospital') {
     row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
+  } else if (zone.type === 'sanctum') {
+    row = drawSanctumSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   } else {
     row = drawRoomSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   }
@@ -451,6 +490,66 @@ function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     const owner = ownerId === 0 ? strings.get('ui.zone.nobody') : nameOf(ctx, ownerId);
     label(s, col, row++, strings.get('ui.zone.owner', { name: owner }), { width });
     const caption = `${acceleratorLabel('o', ctx.panelLetters)} ${strings.get('ui.building.owner_caption')}`;
+    label(s, col, row, caption, { width });
+    s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
+  }
+  return row;
+}
+
+/** "one session in 17": a per-mille chance in words. */
+function oneIn(ctx: PanelContext, permille: number): string {
+  return ctx.strings.get('ui.zone.one_in', { n: Math.max(1, Math.round(1000 / Math.max(1, permille))) });
+}
+
+export interface SanctumLine {
+  readonly text: string;
+  readonly tone: 'text' | 'dim' | 'value' | 'bad';
+}
+
+/**
+ * 25's sanctum panel (`ui-screens/panels.md` § Zones): the glowcap in stock, the chance of a
+ * mishap here, each apprentice's level, rune and sessions left today with its own chance, and the
+ * last mishap. The room's tier and requirements come first, as in every room.
+ */
+export function sanctumLines(ctx: PanelContext, zone: ZoneView): SanctumLine[] {
+  if (!ctx.readers.has('25')) return [];
+  const magic = ctx.readers.of<MagicReader>('25');
+  const strings = ctx.strings;
+  const out: SanctumLine[] = [];
+  const stock = items(ctx)?.available('glowcap') ?? 0;
+  out.push({ text: strings.get('ui.zone.sanctum_glowcap', { n: stock }), tone: stock === 0 ? 'bad' : 'text' });
+  out.push({ text: strings.get('ui.zone.sanctum_chance', { chance: oneIn(ctx, magic.mishapPermille(zone.id, 0)) }), tone: 'dim' });
+  const apprentices = magic.apprentices(zone.id);
+  if (apprentices.length === 0) out.push({ text: strings.get('ui.zone.no_apprentices'), tone: 'dim' });
+  const skill = ctx.registry.table('skills').index('runecraft');
+  for (const id of apprentices) {
+    const level = (ctx.readers.entities.get(id, C.Skills)?.level[skill] ?? 0) as number;
+    const rune = magic.rune(id);
+    out.push({ text: strings.get('ui.zone.apprentice', { name: nameOf(ctx, id), level, current: Math.floor((rune?.current ?? 0) / 1000), max: Math.floor((rune?.max ?? 0) / 1000) }), tone: 'value' });
+    out.push({ text: strings.get('ui.zone.apprentice_sessions', { n: Math.max(0, ATTUNE_SESSIONS_PER_DAY - magic.sessionsToday(id)), chance: oneIn(ctx, magic.mishapPermille(zone.id, id)) }), tone: 'dim' });
+  }
+  const last = magic.lastMishap(zone.id);
+  if (last === undefined) out.push({ text: strings.get('ui.zone.no_mishap'), tone: 'dim' });
+  else {
+    const days = Math.floor((ctx.readers.calendar.tick - last.tick) / TICKS_PER_DAY);
+    const when = days === 0 ? strings.get('ui.zone.today') : strings.get('ui.zone.days_ago', { n: days });
+    out.push({ text: strings.get('ui.zone.last_mishap', { kind: strings.get(`ui.zone.mishap.${last.kind}`), name: nameOf(ctx, last.dwarfId), when }), tone: 'text' });
+  }
+  return out;
+}
+
+function drawSanctumSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
+  let row = drawRoomSettings(s, rect, tool, ctx, zone);
+  const bottom = rect.row + rect.rows;
+  const col = rect.col + 1;
+  const width = rect.cols - 2;
+  const tones = { text: s.theme.text, dim: s.theme.dim, value: s.theme.value, bad: s.theme.bad };
+  for (const line of sanctumLines(ctx, zone)) {
+    if (row >= bottom) return row;
+    label(s, col, row++, line.text, { width, fg: tones[line.tone] });
+  }
+  if (row < bottom) {
+    const caption = `${acceleratorLabel('o', ctx.panelLetters)} ${ctx.strings.get('ui.zone.apprentices_caption')}`;
     label(s, col, row, caption, { width });
     s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
   }

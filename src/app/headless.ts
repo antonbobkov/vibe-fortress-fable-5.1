@@ -54,6 +54,7 @@ import { DefenseSystem } from '@systems/defense';
 import { TradeSystem } from '@systems/trade';
 import { ImmigrationSystem } from '@systems/immigration';
 import { LegendSystem } from '@systems/legend';
+import { MagicSystem } from '@systems/magic';
 import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
@@ -456,6 +457,7 @@ export class HeadlessGame {
         new TradeSystem(spec),
         new ImmigrationSystem(spec),
       new LegendSystem(),
+      new MagicSystem(),
     ];
   }
 

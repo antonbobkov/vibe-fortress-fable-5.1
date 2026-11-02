@@ -343,6 +343,18 @@
     ]
   },
   {
+    "id": "runecraft",
+    "name": "Runecraft",
+    "labor": "attunement",
+    "profession": "Runecaster",
+    "military": "Runecaster",
+    "attributes": [
+      "wil",
+      "wit"
+    ],
+    "embark": false
+  },
+  {
     "id": "shield",
     "name": "Shield",
     "labor": null,

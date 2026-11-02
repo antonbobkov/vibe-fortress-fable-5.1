@@ -22,3 +22,12 @@ Every new row of every table goes at the end of this table, including generated 
 | buildings | alchemist |
 | recipes | distill_rune |
 | recipes | grind_glowstone |
+| palette | zone_sanctum |
+| labors | attunement |
+| skills | runecraft |
+| buildings | rune_circle |
+| zoneTypes | sanctum |
+| jobTypes | attune |
+| thoughts | attuned |
+| thoughts | singed |
+| thoughts | first_runecaster |

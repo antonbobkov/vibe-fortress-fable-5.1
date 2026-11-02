@@ -1196,6 +1196,37 @@
     "glyph": "▲"
   },
   {
+    "id": "rune_circle",
+    "name": "rune circle",
+    "category": "special",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 3
+      },
+      {
+        "match": "rune_vial",
+        "count": 1
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 200,
+    "tags": [
+      "rune_circle"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 20,
+    "glyph": "○"
+  },
+  {
     "id": "smelter",
     "name": "smelter",
     "category": "workshop",

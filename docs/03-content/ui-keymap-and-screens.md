@@ -182,6 +182,7 @@ The zone types; `Enter` with no tool selects the zone at the map cursor or centr
 | `[S-u]` | dump |
 | `[i]` | fishing zone |
 | `[g]` | gather zone |
+| `[S-c]` | sanctum |
 
 ### Zone inspector
 
@@ -198,12 +199,12 @@ The keys of a selected zone, before the zone types; letters that open panels req
 | `[g]` | focus the category tree | tree button or category name |
 | `[q]` | focus numeric settings | settings button or numeric label |
 | `[v]` | open allowed material classes | materials button |
-| `[S-o]` | open the bedroom's owner picker | owner button |
+| `[S-o]` | open the bedroom's owner picker, or the sanctum's apprentice picker | owner or apprentices button |
 | `Shift+A` | a farm plot: the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
 | `Space` | toggle the checkbox (category tree, material classes) | the checkbox |
 | `+` `=` `-` | adjust the focused value | minus or plus button |
 
-The list keys of § Panels work in the inspector: with a farm plot, `↑` `↓` highlight a season row (starting on the current season) and `Enter` opens its crop list (`↑` `↓` and `Enter` choose); in the preset dropdown `↑` `↓` and `Enter` highlight and apply a preset and a letter jumps to the next preset starting with it (`Shift` for a panel letter); in the tree `↑` `↓` select, `→` expands, `←` collapses or goes to the parent; in numeric settings `Tab`, `Shift+Tab` and `↑` `↓` choose barrels, bags, bins, priority, min quality or max quality and `←` `→` adjust; in material classes `↑` `↓` select and `Enter` toggles, Any switching all or none; in the owner picker `↑` `↓` and `Enter` choose Nobody or a dwarf. `Esc` in a chooser goes back, and applied settings remain applied; by mouse, choose another zone or panel.
+The list keys of § Panels work in the inspector: with a farm plot, `↑` `↓` highlight a season row (starting on the current season) and `Enter` opens its crop list (`↑` `↓` and `Enter` choose); in the preset dropdown `↑` `↓` and `Enter` highlight and apply a preset and a letter jumps to the next preset starting with it (`Shift` for a panel letter); in the tree `↑` `↓` select, `→` expands, `←` collapses or goes to the parent; in numeric settings `Tab`, `Shift+Tab` and `↑` `↓` choose barrels, bags, bins, priority, min quality or max quality and `←` `→` adjust; in material classes `↑` `↓` select and `Enter` toggles, Any switching all or none; in the owner picker `↑` `↓` and `Enter` choose Nobody or a dwarf; in the apprentice picker `↑` `↓` and `Enter` add or remove an adult dwarf, and the picker stays open. `Esc` in a chooser goes back, and applied settings remain applied; by mouse, choose another zone or panel.
 
 Container counts are non-negative integers, priorities are 1–9 and quality bounds are 0–5 with minimum no greater than maximum. A refused adjustment reports its reason. In the selected stockpile editor, Space toggles a checkbox, +/- adjusts a numeric field and Tab chooses fields before their global pause, speed or sidebar actions. Bare panel letters always retain their panel action in every editor state. Zone removal continues to use the existing default-No confirmations in § Confirmations.
 

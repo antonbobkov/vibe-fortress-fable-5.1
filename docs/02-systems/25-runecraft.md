@@ -44,7 +44,7 @@ The rules here are the whole design. A later task needs nothing else.
 
 These hold for all tasks, and each task's review checks them.
 
-- **No new rng draw on any existing stream** unless a channel, an enchanted item, a draught or a hexer is in play. All casting rolls that are not 16's ordinary hit, block and part rolls draw on system 25's stream, `world.rngFor('25')`. That stream is the design's `magic` stream. Streams are named by system id, and the save's `rng` section gains the key `25`.
+- **No new rng draw on any existing stream** unless a channel, an enchanted item, a draught or a hexer is in play. All casting rolls that are not 16's ordinary hit, block and part rolls draw on system 25's stream, `world.rngFor('25')`. That stream is the design's `magic` stream. Streams are named by system id. 25 takes its stream at init, so the save's `rng` section always holds the key `25`; an older save without it starts the stream from the seed. With no sanctum session, nothing but 20's caravan extras draws on it.
 - **No existing number moves.** The wyrm's breath keeps today's damage type `burn`, which has no row in the layer table and so multiplies by 1.0. Spells and enchantments use the new types `ember` and `frost` (§ Damage types).
 - **New rows do not renumber old rows** (§ Row numbering). A world hash may move because `Skills.level` grew by a byte. It does not move because anything played differently. A task whose content rows move a golden names this in its `golden:` line and shows the annual instrument row unchanged, apart from the deliberate moves below.
 - **Caravans.** Runecraft goods are drawn outside the weighted pool (§ Trade and value), so the ordinary goods of a caravan do not change.
@@ -107,10 +107,9 @@ A workshop needs a row in `workshops-and-recipes.md` § Workshops (the export ma
 
 | id | name | labor | profession | military | attributes | Task |
 |---|---|---|---|---|---|---|
-| `runecraft` (skill) | Runecraft | `attunement` | Runecaster | Runecaster | Willpower, Wits | T-469 |
 | `runesmithing` (skill) | Runesmithing | `smithing` | Runesmith | — | Agility, Wits | T-470 |
 
-New labor: `attunement` (T-469), default on, not for children. These skills, like `alchemy`, have `no` in the `embark` column of `skills-and-professions.md`, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
+`runecraft` and its labor `attunement` (default on, not for children) are in `skills-and-professions.md`. These skills, like `alchemy`, have `no` in the `embark` column there, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
 
 More laboratory recipes (`workshops-and-recipes.md` § Laboratory holds the rest; the draughts are in § Draughts):
 
@@ -123,7 +122,7 @@ One apprentice eats 2 glowcap a day, which is 2.4 lamps while attuning (one lamp
 
 ### Rune of one's own
 
-**Task:** T-469. `Rune` component (§ State). A dwarf gets it when `runecraft` first reaches 1 (`SkillLevelUp`), with `current` 0. `max` and `regen` are never stored.
+`Rune` component (§ State). A dwarf gets it when `runecraft` first reaches 1 (`SkillLevelUp`), with `current` 0. `max` and `regen` are never stored.
 
 ```
 level    = skill(id, 'runecraft')
@@ -133,35 +132,35 @@ metal percent = max(METAL_RUNE_FLOOR_PERCENT, 100 − METAL_RUNE_PENALTY_PERCENT
                 // n = worn pieces of layer mail or plate whose material is class metal, except a piece with a rune property
 ```
 
-Integers: `current` is in milli-rune; `regen` truncates to milli-rune. On `HourPassed`, 25 adds `regen` to every `Rune` on a creature without `Hostile`, capped at `max`. A Proficient runecaster fills from 0 in 50 hours in a tunic, 34 in a robe, 84 in an iron helm and mail.
+Until T-471 brings the robe and the circlet, the robe percent is 100 and the circlet bonus 0. The pieces counted are the `Equipment.armor` slots; clothing is padding and never counts.
+
+Integers: `current` is in milli-rune; `regen` truncates to milli-rune. On `HourPassed`, 25 adds `regen` to every `Rune` on a creature without `Hostile`, capped at `max`; a hostile creature's rune never comes back. A Proficient runecaster fills from 0 in 50 hours in a tunic (measured), 34 in a robe, 84 in an iron helm and mail (measured: 600 milli-rune an hour).
 
 ### The sanctum
 
-**Task:** T-469.
-
-- Zone type `sanctum` (`zoneTypes`, room true, settings `apprentices`, consumers `25`; add to `ROOM_TYPES` and the requirement check in `buildings/rooms.ts`). Requirement: a built building with tag `rune_circle` inside.
-- Building `rune_circle`: 1×1 on floor; 3 `stone_block` + 1 `rune_vial`; masonry; 200 ticks; tag `rune_circle`; value 20; impassable; glyph `○`, `rune_cyan`.
-- `SetSanctumApprentices { zoneId, dwarfIds }`, owned by 25. At most `SANCTUM_APPRENTICES` living adult dwarves. Stores `settings.apprentices`, as `SetHospitalSupplies` stores its setting in `health/index.ts`. It turns the `attunement` labor on for them. A dead dwarf is filtered at use.
+- Zone type `sanctum` ([buildings-and-furniture.md](../03-content/buildings-and-furniture.md) § Zone types: a room, setting `apprentices`, consumer 25). 14 counts it as a room when a built building tagged `rune_circle` lies inside, and its inspector names a missing circle.
+- Building `rune_circle` (§ Special of the same file): 1×1 on a floor, 3 `stone_block` + 1 `rune_vial`, masonry, 200 ticks, impassable, value 20, `○` in `rune_cyan`. A sanctum with several circles uses the built one with the lowest id.
+- `SetSanctumApprentices { zoneId, dwarfIds }`, owned by 25. At most `SANCTUM_APPRENTICES` living adult dwarves of the fortress, none twice (`not_found` for a zone that is not a sanctum or an id that is no living fortress dwarf, `not_adult`, `member_limit`). It stores the ids, ascending, as `settings.apprentices` on 14's zone, as `SetHospitalSupplies` stores its setting in `health/index.ts`, and turns the `attunement` labor on for each through 11's `jobs.setLabor`. A dead dwarf, or one no longer an adult of the fortress, is filtered at use. A dwarf named in two sanctums sits in the one with the lower zone id.
 - There is no sanctum chest. An `attune` job's input is found like any job input, in any stockpile.
 - Room tier: 14's ordinary tier (0 to 5), from `buildings.room(zoneId)`.
 
-**The `attune` job.** Job type row: labor `attunement`, skill `runecraft`, target building, workTile `adjacent`, baseTicks `ATTUNE_TICKS`, tool none, xp 0, producer `magic`, interruptible yes. New producer `src/systems/magic/producer.ts`, registered with `ctx.register.jobProducer`.
+**The `attune` job.** Job type row in [jobs.md](../03-content/jobs.md) § Magic: labor `attunement`, skill `runecraft`, target building, workTile `adjacent`, baseTicks `ATTUNE_TICKS`, tool none, xp 0, producer `magic`, interruptible yes. Producer `src/systems/magic/producer.ts`, registered with `ctx.register.jobProducer`.
 
-For each sanctum with a built circle, each apprentice with `runecraft` below 20 and `sessionsToday < ATTUNE_SESSIONS_PER_DAY`, with a glowcap available and no job under the key: `sink.create('attune:<dwarfId>', { type: 'attune', target: { kind: 'building', ref: circle }, workTile: 'adjacent', priority: 5, inputs: [{ filter: { type: glowcap }, count: 1 }], data: { assignedWorker: dwarfId, labor: 'attunement', skill: 'runecraft', inputUnits: true, anchorTile } })`. `assignedWorker` is the field that restricts a job to one worker (`jobs/board.ts`). `onComplete` consumes the glowcap, grants `jobXp(ATTUNE_XP × (100 + 5 × tier) / 100, wits)` (the row's xp is 0, because `dwarves/index.ts` already grants a row's xp on every `JobCompleted`), counts the session and rolls the mishap. `DayPassed` clears the counts.
+For each sanctum with a built circle, in zone order, each apprentice with `runecraft` below 20 and `sessionsToday < ATTUNE_SESSIONS_PER_DAY`, while a glowcap is available (each new job counts one off the available stock) and no job is under the key: `sink.create('attune:<dwarfId>', { type: 'attune', target: { kind: 'building', ref: circle }, workTile: 'adjacent', priority: 5, inputs: [{ filter: { type: glowcap }, count: 1 }], data: { assignedWorker: dwarfId, labor: 'attunement', skill: 'runecraft', inputUnits: true, anchorTile, zoneId } })`. `assignedWorker` is the field that restricts a job to one worker (`jobs/board.ts`). A job whose dwarf is no longer wanted there (removed, dead, done for the day, at 20) or whose circle changed or went is cancelled with `target_invalid`; the producer looks over the board's own `attune:` keys (11's `keysWithPrefix`), so a dwarf whose entity is already gone is covered, every hour and after each apprentice change, zone change, death and scorched circle. `onComplete` consumes the glowcap, grants `jobXp(ATTUNE_XP × (100 + 5 × tier) / 100, wits)` (the row's xp is 0, because `dwarves/index.ts` already grants a row's xp on every `JobCompleted`), counts the session, rolls the mishap and emits `AttuneSession { id, xp, mishap }` (`mishap` is the kind, or `''`). `DayPassed` clears the counts.
 
-At Wits 50 and two sessions a day: Dabbling in 2 days, Novice in 6, Proficient (3,700 xp) in 74 days and 148 glowcap, Legendary in 268 days and 536 glowcap.
+At Wits 50 and two sessions a day: Dabbling in 2 days, Novice in 6, Proficient (3,700 xp) in 74 days and 148 glowcap, Legendary in 268 days and 536 glowcap. Measured through the job in a bare sanctum (tier 0) from Wits 50: Proficient on day 73 after 145 sessions and 145 glowcap, one day early because each level-up adds `ATTRIBUTE_DRIFT` to Wits and a session gives 26 xp from Wits 56.
 
 The thought `attuned` ends a session with no mishap. The first dwarf to reach `runecraft` 10 emits `FirstRunecaster` (`firstRunecasterDone` is saved).
 
-**Mishaps.** One roll per session on stream 25: `max(MISHAP_FLOOR, MISHAP_BASE − 2 × level − tier)` per mille, then a pick by weight. None kills, takes a limb or touches a stockpile.
+**Mishaps.** One roll per session on stream 25, at the dwarf's level before the session's xp: `max(MISHAP_FLOOR, MISHAP_BASE − 2 × level − tier)` per mille, then a second draw picks the kind by weight among the rows that have landed. Measured over 1,000 level-0 sessions in a bare sanctum: 61 (30 singed, 14 blackouts, 11 scorched circles, 5 fires with nothing to burn, 1 surge). None kills, takes a limb or touches a stockpile. A light burn is 1 point on a random arm (a draw on stream 25); an arm at 1 hp or lost is spared for the other arm, and with neither the burn does nothing. Its `DamageDealt` carries `clean: true`, so 17 makes the burn already `cleaned`: it cannot take infection, and it heals on its own with or without a medic (one may still dress it). So no mishap kills, now or later; the worst is the price of a chair. The last mishap of each sanctum is kept for its panel.
 
 | kind | weight | what happens | how | severity | Task |
 |---|---|---|---|---|---|
-| `singed` | 40 | a light burn on a random arm; thought `singed` | `DamageDealt { damageType: 'burn', amount: 1, attackerId: 0 }` | note | T-469 |
+| `singed` | 40 | a light burn on a random arm, already cleaned; thought `singed` | `DamageDealt { damageType: 'burn', amount: 1, attackerId: 0, clean: true }` | note | T-469 |
 | `blackout` | 25 | unconscious for `MISHAP_BLACKOUT_TICKS` | `CreatureStunned` (§ Effects) | note | T-469 |
 | `scorched_circle` | 15 | the circle is destroyed, no item back | `Mishap` carries `buildingId`; 14 handles it and removes the building with no yield | alert | T-469 |
-| `fire` | 7 | if a tile cardinal to the circle can burn (`burnableTile`), it ignites; else nothing | `Mishap` carries `tile`; 05 handles it and calls `fire.ignite` | the fire's alert | T-469 |
-| `surge` | 3 | every creature within `MISHAP_SURGE_RADIUS` takes a light burn; the session's xp is granted twice | as `singed` | note | T-469 |
+| `fire` | 7 | the first tile cardinal to the circle, north, east, south then west, that can burn (05's `burnableTile`) ignites; else nothing | `Mishap` carries `tile`; 05 queues it for its next tick, as lightning | alert | T-469 |
+| `surge` | 3 | every creature with a body within `MISHAP_SURGE_RADIUS` of the circle on its level (the larger of the two axis distances), in id order, takes a light burn; the session's xp is granted twice | as `singed` | note | T-469 |
 | `wisp_loose` | 10 | a wild timid `wisp` appears beside the circle and fades in a day | § Summons | note | T-475 |
 
 ### Channels
@@ -309,7 +308,7 @@ Worked numbers, at Toughness 50 (5%). All round as 16 rounds.
 | `fire_immune` | 1 | `armorReduction`'s caller: a hit whose wound type is `burn` does 0 | T-474 |
 | `spot_radius` | tiles | `threats/ai.ts` where targets get `spotRadius` (line "spotRadius: entities.has(id, C.Attributes)"): the larger of the two | T-474 |
 
-**Stun** is not an effect. Daze and `blackout` emit `CreatureStunned { id, until }`. 17 handles it: it adds the creature to `wounded`, where it stays until the stun ends, and saves `stunnedUntil` (a map in `HealthState`, optional), and its consciousness line becomes `conscious = pain < PAIN_UNCONSCIOUS && blood ≥ threshold && tick ≥ stunnedUntil`. So everything that respects `Body.conscious` holds: 16 skips the creature and hits it at +40, brains stop, and `CreatureUnconscious` and `CreatureConscious` fire. The patient check in `health/tick.ts` ("unconscious") ignores a stun, so a blackout admits no one. A stunned raider counts toward 18's retreat losses while it lies there. That is accepted: it is 150 ticks.
+**Stun** is not an effect. Daze and `blackout` emit `CreatureStunned { id, until }`. 17 handles it (17 § Bleeding, pain, consciousness): it adds the creature to `wounded`, where it stays until the stun ends, saves `stunnedUntil` (a map in `HealthState`, optional), knocks a conscious body down at once with `CreatureUnconscious`, and its consciousness line becomes `conscious = pain < PAIN_UNCONSCIOUS && blood ≥ threshold && tick ≥ stunnedUntil`. So everything that respects `Body.conscious` holds: 16 skips the creature and hits it at +40, brains stop, and `CreatureUnconscious` and `CreatureConscious` fire. The patient check in `health/tick.ts` counts only unconsciousness from pain or blood, so a blackout admits no one. A stunned raider counts toward 18's retreat losses while it lies there. That is accepted: it is 150 ticks.
 
 ### Vials
 
@@ -514,13 +513,10 @@ Preferences (`caravan-goods.md`, T-471): Mountainhome `medical/vial` and `medica
 
 ### Morale
 
-**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`.
+**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed` and `first_runecaster` are there (Work and skill; Pride and relief): `attuned` matches an `AttuneSession` whose `mishap` is empty, and `first_runecaster` goes to everyone; the event has its own announcement.
 
 | id | text | value | hours | decay | cap | group | trigger | Task |
 |---|---|---|---|---|---|---|---|---|
-| `attuned` | "Felt the rune answer." | +2 | 12 | linear | 1 | pride | `AttuneSession` with no mishap | T-469 |
-| `singed` | "Singed my beard in the sanctum." | −3 | 24 | halflife | 1 | none | `Mishap` `singed` | T-469 |
-| `first_runecaster` | "We have a runecaster in the hall." | +4 | 72 | linear | 1 | pride | `FirstRunecaster` (everyone; announced) | T-469 |
 | `warded` | "Felt the ward settle on me." | +1 | 12 | linear | 1 | comfort | `Warded` | T-473 |
 | `mended_by_rune` | "The rune closed my wound." | +3 | 48 | linear | 1 | none | `Mended` | T-473 |
 | `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | a calming draught | T-474 |
@@ -531,10 +527,10 @@ Every value sits inside the caps. Nothing here can take a fed, rested dwarf belo
 
 ## State
 
-Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates.
+Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates. `Rune` (with `current` only), `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel) and `HealthState.stunnedUntil` are there.
 
 ```ts
-interface Rune {                 // owner 25; also written by 18 for hexers. T-469
+interface Rune {                 // owner 25; also written by 18 for hexers
   current: number;               // milli-rune
   vialsToday?: number;           // T-473
   nextDreadTick?: Tick;          // T-473
@@ -555,16 +551,17 @@ Projectile.spell?: Idx<'SpellDef'>                            // T-470
 WorkOrder.targetType?: Idx<'ItemTypeDef'>                     // T-471
 Squad.equipment.draughts?: Idx<'ItemTypeDef'>[]               // T-474
 
-interface MagicState {           // system 25's serialize(); schemas/system-state.md. T-469
+interface MagicState {           // system 25's serialize(); schemas/system-state.md
   stateVersion: 1;
   sessionsToday?: [EntityId, number][];
   firstRunecasterDone?: boolean;
+  lastMishaps?: [EntityId, { kind: string; dwarfId: EntityId; tick: Tick }][];
   pendingBlooms?: { tile: TileIndex; at: Tick; casterId: EntityId; raw: number }[];  // T-473
 }
-HealthState.stunnedUntil?: [EntityId, Tick][]                 // T-469
+HealthState.stunnedUntil?: [EntityId, Tick][]
 ```
 
-The system: `MagicSystem` in `src/systems/magic/index.ts`, `id '25'`, `order 25`, cadence 1, phase 0, added to `HeadlessGame.standardSystems` last. Its tick does nothing unless `pendingBlooms` is due, and returns at once when it is empty. Rng: `ctx.rng` is `world.rngFor('25')` in its own hooks; `magic/cast.ts`, called from 16's tick, uses `ctx.world.rngFor('25')` by name.
+The system: `MagicSystem` in `src/systems/magic/index.ts`, `id '25'`, `order 25`, cadence 1, phase 0, added to `HeadlessGame.standardSystems` last. Its tick does nothing unless `pendingBlooms` is due, and returns at once when it is empty. Rng: `ctx.rng` is `world.rngFor('25')` in its own hooks; `magic/cast.ts`, called from 16's tick, uses `ctx.world.rngFor('25')` by name. The stream is saved in the `rng` section, not in `MagicState`, since 20 draws on it too.
 
 ## Interfaces
 
@@ -572,48 +569,43 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Reader
 
-None yet.
+- `magic.rune(id)` — current, max and regen in milli-rune, the metal percent and the pieces that lower it, and whole hours to full (0 full, −1 never); undefined without a `Rune`
+- `magic.sanctums()` — sanctum zones, ascending; `magic.apprentices(zoneId)` — its living adult apprentices, ascending; `magic.sessionsToday(id)`
+- `magic.mishapPermille(zoneId, id)` — the mishap chance of this dwarf's next session there; `magic.lastMishap(zoneId)` — kind, dwarf and tick of the sanctum's last mishap, or undefined
 
 ### Commands
 
-None yet.
+`SetSanctumApprentices { zoneId, dwarfIds }`.
 
 ### Events consumed
 
-None yet.
+`HourPassed` (regen; the producer's hourly look), `DayPassed` (sessions), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied`, `ZoneChanged` (sanctums).
 
 ### Events emitted
 
-None yet.
+`AttuneSession { id, xp, mishap }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }`, `FirstRunecaster { id }`, and 16's `DamageDealt` (a mishap's light burn, `attackerId` 0).
 
 ### Registrations
 
-None yet.
+Job producer `magic` (`attune`); inspector sections `creature › rune` and `zone › sanctum` (the sanctum panel, in 14's zones panel); announcements: `Mishap` (note for `singed`, `blackout`, `surge`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note).
 
 ## Planned interfaces
 
 | Kind | Name | Task |
 |---|---|---|
-| Reader | `magic.rune(id)`: current, max, regen with its breakdown, time to full | T-469 |
-| Reader | `magic.sanctums()`, `magic.apprentices(zoneId)`, `magic.sessionsToday(id)` | T-469 |
 | Reader | `magic.canCast(id)`, `magic.spellOf(itemId)`: the spell and its numbers in that item | T-470 |
 | Reader | `magic.effects(id)` | T-470 |
 | Reader | `magic.enchantOf(itemId)`: a text line and the row | T-471 |
 | Reader | `magic.summonsOf(id)` | T-475 |
-| Command | `SetSanctumApprentices { zoneId, dwarfIds }` | T-469 |
-| Event | `AttuneSession { id, xp }`, `Mishap { id, kind, buildingId?, tile? }`, `CreatureStunned { id, until }`, `FirstRunecaster { id }`, `DamageDealt` | T-469 |
 | Event | `SpellCast { casterId, spellId, targetId, tile }` | T-470 |
 | Event | `StoneSet { itemId, enchantId, tier, smithId }` (12 emits it) | T-471 |
 | Event | `RuneSpent { id }`, `VialDrunk { id }`, `Warded { id }`, `Mended { id, casterId }` | T-473 |
 | Event | `DraughtDrunk { id, draughtId }` | T-474 |
 | Event | `SummonCalled { id, casterId }`, `SummonTurned { id }`, `SummonFaded { id }` | T-475 |
 | Event | `DeepsilverWorked { amount, tile }` (12 emits it) | T-476 |
-| Consumes | `HourPassed`, `DayPassed`, `SkillLevelUp`, `CreatureDied`, `ZoneChanged` | T-469 |
 | Consumes | `RaidArrived`, `AmbushSprung`, `AttackResolved`, `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-474, T-476 |
-| Registration | job producer `magic` (`attune`; `give_draught` from T-474) | T-469 |
-| Registration | panel `sanctum`; inspector section `creature › rune` | T-469 |
+| Registration | job producer `magic`: `give_draught` | T-474 |
 | Registration | inspector section `item › stone`; announcement `StoneSet` at masterwork (note) | T-470, T-471 |
-| Registration | announcements: `Mishap` (note; alert for `fire`, `scorched_circle`), `FirstRunecaster` (note) | T-469 |
 | Registration | announcements: `RuneSpent` (note), `SpellCast` of a firebloom that burns a fortress creature (alert) | T-473 |
 | Registration | announcements: `SummonTurned` (danger) | T-475 |
 
@@ -622,8 +614,8 @@ Other systems' documents gain their parts in the same commits: 12 (`transform`, 
 ## Player-facing behavior
 
 - **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (T-473, `render/compositor.ts`; palette row in the same task).
-- **Sanctum panel** (T-469). Apprentices with level, rune and sessions left today; the glowcap in stock; the sanctum's tier and its mishap chance in words ("one session in thirty"); the last mishap.
-- **Inspector, `creature › rune`** (T-469): "Rune 31/50, +0.6 an hour (iron helm −20%, iron mail −20%); full tomorrow". From T-470 the staff and its spell's numbers; from T-473 vials and effects; from T-474 "Can take a draught again in 2 days"; from T-475 summons.
+- **Sanctum panel**: the selected sanctum's inspector in the zones panel (zone type key `[S-c]`, `ui-screens/panels.md` § Zones). The room's tier, score and missing circle; the glowcap in stock; the mishap chance in words for a new apprentice ("one session in 17"); each apprentice with level, rune and sessions left today, and its own chance; the last mishap. `[S-o]` opens the apprentice picker, which adds or removes one adult dwarf at a time through `SetSanctumApprentices`.
+- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow". From T-470 the staff and its spell's numbers; from T-473 vials and effects; from T-474 "Can take a draught again in 2 days"; from T-475 summons.
 - **Look cursor** (T-470): "iron staff of embers (fine). Emberbolt: 24 ember, range 12. Needs a runecaster." (T-471): "steel battle axe of embers (fine). +9 ember on a hit."
 - **Squad panel** (T-474): the ordered draught checklist, with each trigger in words. (T-470): a channel shows beside a member only if they can use it.
 - **Orders panel** (T-471): a transform recipe offers the target type and the material.
@@ -632,16 +624,16 @@ Other systems' documents gain their parts in the same commits: 12 (`transform`, 
 
 ## Tuning constants
 
-All *unmeasured*. Rows move to `src/systems/magic/constants.ts` as the task that uses them lands.
+All *unmeasured* unless the row says what was measured. Rows move to `src/systems/magic/constants.ts` as the task that uses them lands.
 
 | Name | Value | Meaning | Task |
 |---|---|---|---|
 | `RUNE_PER_LEVEL` | 5 | Rune maximum per level | T-469 |
-| `RUNE_REGEN_PER_LEVEL` | 0.1 | Rune per hour per level (*unmeasured*) | T-469 |
+| `RUNE_REGEN_PER_LEVEL` | 0.1 | Rune per hour per level; measured: a level-10 runecaster fills in 50 hours in a tunic and 84 in an iron helm and mail | T-469 |
 | `METAL_RUNE_PENALTY_PERCENT` / `METAL_RUNE_FLOOR_PERCENT` | 20 / 20 | Per worn metal piece; floor | T-469 |
 | `SANCTUM_APPRENTICES` | 4 | | T-469 |
-| `ATTUNE_TICKS` / `ATTUNE_XP` / `ATTUNE_SESSIONS_PER_DAY` | 300 / 25 / 2 | | T-469 |
-| `MISHAP_BASE` / `MISHAP_FLOOR` | 60 / 10 | Per mille a session, less 2 per level and 1 per tier | T-469 |
+| `ATTUNE_TICKS` / `ATTUNE_XP` / `ATTUNE_SESSIONS_PER_DAY` | 300 / 25 / 2 | Measured: Proficient at two sessions a day from Wits 50 in 73 days and 145 glowcap | T-469 |
+| `MISHAP_BASE` / `MISHAP_FLOOR` | 60 / 10 | Per mille a session, less 2 per level and 1 per tier; measured: 61 mishaps in 1,000 level-0 sessions in a bare sanctum | T-469 |
 | `MISHAP_BLACKOUT_TICKS` / `MISHAP_SURGE_RADIUS` | 200 / 3 | | T-469 |
 | `FROSTBIND_SLOW_PERCENT` | 50 | | T-470 |
 | `CASTER_HOLD_DISTANCE` | 4 | A support caster with rune stands this far from its target | T-473 |
