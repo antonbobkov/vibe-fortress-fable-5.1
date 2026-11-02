@@ -315,6 +315,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return zone === undefined || zone.type !== PASTURE_ZONE ? [] : zone.tiles;
       },
       homeTile: () => this.homeTile(),
+      standTile: (animalId) => this.standTile(animalId),
       claimGraze: (tile) => this.claimGraze(tile),
       grazeClaimed: (tile) => this.grazeClaimed(tile),
       grazeSkipped: (animalId, tile, tick) => {
@@ -371,6 +372,52 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return at >= 0 && Math.max(Math.abs(this.map.xOf(at) - this.map.xOf(tile)), Math.abs(this.map.yOf(at) - this.map.yOf(tile))) <= 1 && this.map.zOf(at) === this.map.zOf(tile);
       },
     };
+  }
+
+  /**
+   * 08 § Tame behavior: an idle tame animal near the hall stands on a tile of the hall or beside it.
+   * It stays where it is unless another idle tame animal of a lower id stands there too; when it
+   * moves, it takes the hall tile with the fewest creatures on it or walking to it, ties by lowest
+   * index, and only if that is fewer than it has now; a tile beside the hall only if that is fewer
+   * still, since beside the hall can be the far side of its wall. A dwarf walking past does not move it.
+   */
+  private standTile(id: EntityId): TileIndex {
+    const movement = this.world?.services.movement ?? null;
+    const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
+    const hall = buildings?.hearthHallTiles() ?? [];
+    if (movement === null || buildings === null || hall.length === 0) return this.homeTile();
+    const at = movement.tileOf(id);
+    const heading = movement.walkTarget(id);
+    const label = this.readers.pathing.labelOf(at, 'walker');
+    const near = new Set<TileIndex>();
+    for (const tile of hall) {
+      near.add(tile);
+      for (const beside of this.map.neighbors8(tile)) near.add(beside);
+    }
+    if (heading >= 0 && near.has(heading)) return heading;
+    const entities = movement === null ? null : this.world?.entities;
+    if (!entities) return this.homeTile();
+    const creaturesOn = (tile: TileIndex): EntityId[] => this.readers.entities.at(tile).filter((other) => other !== id && entities.kind(other) === 'creature');
+    const here = near.has(at) && !buildings.doorAt(at) ? creaturesOn(at) : null;
+    if (here !== null && !here.some((other) => other < id && entities.has(other, C.Tame) && movement.walkTarget(other) < 0)) return at;
+    const headed = new Map<TileIndex, number>();
+    for (const other of entities.with(C.Tame)) {
+      const target = other === id ? -1 : movement.walkTarget(other);
+      if (target >= 0) headed.set(target, (headed.get(target) ?? 0) + 1);
+    }
+    let best: TileIndex = -1;
+    let least = here === null ? Infinity : here.length;
+    const inHall = new Set(hall);
+    const byIndex = (a: TileIndex, b: TileIndex): number => a - b;
+    for (const tile of [...[...inHall].sort(byIndex), ...[...near].filter((t) => !inHall.has(t)).sort(byIndex)]) {
+      if (tile === at || buildings.doorAt(tile) || !this.readers.pathing.passable(tile, 'walker') || this.readers.pathing.labelOf(tile, 'walker') !== label) continue;
+      const count = creaturesOn(tile).length + (headed.get(tile) ?? 0);
+      if (count < least) {
+        least = count;
+        best = tile;
+      }
+    }
+    return best >= 0 ? best : here !== null ? at : this.homeTile();
   }
 
   /** The idle anchor of a tame animal with no pasture: the hearth hall, else the wagon tile (D-057). */

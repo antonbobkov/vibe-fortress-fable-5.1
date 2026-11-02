@@ -114,6 +114,8 @@ export interface TameHost extends BrainHost {
   pastureTiles(zoneId: EntityId): readonly TileIndex[];
   /** The idle anchor for a tame animal with no pasture: the hearth hall, else the wagon tile. */
   homeTile(): TileIndex;
+  /** Where an idle tame animal with no pasture stands: a tile of the hearth hall or beside it, else the anchor. */
+  standTile(animalId: EntityId): TileIndex;
   /** One grass tile feeds one grazer: `true` when this call took the tile, `false` when it is already held. */
   claimGraze(tile: TileIndex): boolean;
   /** A tile some grazer holds until 07 has cleared its grass. */
@@ -274,7 +276,7 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     else movement?.stopWalking(id);
     return next;
   }
-  const home = host.homeTile();
+  const home = host.standTile(id);
   if (home >= 0 && movement !== null && movement.tileOf(id) !== home) movement.walkTo(id, home, 'wander', ctx);
   else if (isDoorTile(host, at)) stepOffDoor(host, id, at, home, ctx);
   return next;

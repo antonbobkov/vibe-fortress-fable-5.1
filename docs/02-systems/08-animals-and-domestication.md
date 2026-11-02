@@ -57,7 +57,7 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 
 ### Tame behavior
 
-- Tame animals are `idle`/`wander` near their pasture (grazers) or near the hearth hall and meeting areas (others), or follow their assigned dwarf (war and hunting dogs, pets). A tame animal never stops on a door tile: when its movement would end on one, it continues to the nearest walkable non-door tile beside it, on the side it was heading to (14 does not lock a door on a creature in its doorway).
+- Tame animals are `idle`/`wander` near their pasture (grazers) or near the hearth hall and meeting areas (others), or follow their assigned dwarf (war and hunting dogs, pets). One with no pasture stands on a tile of the hearth hall or beside it. It stays there unless another idle tame animal of a lower id shares the tile; then it takes the walkable tile of the hall, not a door, with the fewest creatures on it or walking to it, ties by lowest index, if that is fewer than it has, and a tile beside the hall only if that is fewer still. Passers-by do not move it. A tame animal never stops on a door tile: when its movement would end on one, it continues to the nearest walkable non-door tile beside it, on the side it was heading to (14 does not lock a door on a creature in its doorway).
 - Tame `timid` animals flee hostiles; war-trained animals attack hostiles within `WAR_ANIMAL_RADIUS` of their station or their dwarf; hunting dogs attack the hunter's target.
 - Tame animals do not leave the map and do not attack dwarves. A tame `territorial` species loses its territoriality.
 
