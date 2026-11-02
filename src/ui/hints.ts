@@ -176,14 +176,18 @@ export class HintEngine {
     for (const row of this.registered) if (hintPredicate(row.id, f)) this.show(row.id, readers.calendar.tick);
   }
 
-  private noMiners(readers: ReaderSet): boolean {
-    const labor = this.registry.table('labors').index('mining');
+  /** True when a living fortress dwarf has the labor's bit set in its `Labors.enabled` bitset. */
+  private laborEnabledByDwarf(readers: ReaderSet, labor: number): boolean {
     const dwarf = this.registry.table('creatures').index('dwarf');
-    const enabled = readers.entities.with(C.Creature, C.Labors).some(id => {
+    return readers.entities.with(C.Creature, C.Labors).some(id => {
       const creature = readers.entities.get(id, C.Creature);
       return readers.entities.alive(id) && creature?.faction === 'fortress' && creature.species === dwarf &&
         (((readers.entities.get(id, C.Labors)?.enabled[labor >> 3] ?? 0) as number) & (1 << (labor & 7))) !== 0;
     });
+  }
+
+  private noMiners(readers: ReaderSet): boolean {
+    const enabled = this.laborEnabledByDwarf(readers, this.registry.table('labors').index('mining'));
     if (enabled) return false;
     const map = readers.map;
     for (let i = 0; i < map.w * map.h * map.d; i++) if (map.designationAt(i) === Designation.Dig) return true;
@@ -221,7 +225,7 @@ export class HintEngine {
     this.ui.hintBareSince = Array.from(bare).sort((a, b) => a[0] - b[0]);
     const bareRoomDays = Math.max(0, ...Array.from(bare.values(), (since) => (cal.tick - since) / TICKS_PER_DAY));
     const hunting = this.registry.table('labors').has('hunting') ? this.registry.table('labors').index('hunting') : 0;
-    const hunterLabor = hunting > 0 && readers.entities.with(C.Labors).some((id) => (readers.entities.get(id, C.Labors)?.enabled[hunting] ?? 0) !== 0);
+    const hunterLabor = hunting > 0 && this.laborEnabledByDwarf(readers, hunting);
     return {
       noMiners: this.noMiners(readers), noPath: this.noPath(readers),
       squadExists: readers.has('16') && readers.of<CombatReader>('16').squads().length > 0,

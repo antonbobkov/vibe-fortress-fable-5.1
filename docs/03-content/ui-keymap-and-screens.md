@@ -610,7 +610,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_containers` | a drink or seed stockpile exists without barrels or bags | "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags." |
 | `hint_barrel` | a workshop is blocked because no barrel is empty | "A brew needs an empty barrel, and a barrel that holds food or seed is not empty. Order a barrel at the carpenter's workshop." |
 | `hint_fuel` | a smelter or forge is blocked for fuel | "Smelters and forges need fuel. A wood furnace makes charcoal from logs; coal seams burn too." |
-| `hint_hunter` | hunting labor enabled and no crossbow or bow exists | "Hunters need a crossbow and bolts, or a bow and arrows." |
+| `hint_hunter` | a living fortress dwarf has hunting enabled and no crossbow or bow exists | "Hunters need a crossbow and bolts, or a bow and arrows." |
 | `hint_farm` | a farm plot placement is refused | "Farms need soil, mud left by water, or cave loam." |
 | `hint_seeds` | first harvest | "Harvest returns one seed. Brewing and cooking do not." |
 | `hint_room` | a bedroom zone with tier bare exists for 3 days | "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in." |
