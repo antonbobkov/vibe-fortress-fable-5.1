@@ -1,6 +1,8 @@
 # T-461 — Cave crawlers kill a whole fortress under a calm alert
 
-**Source:** T-457 ([measurement](../../reports/audits/2026-11-01-crowding.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-01, in ddba23c.
+
+**Source:** T-457 ([measurement](../../../reports/audits/2026-11-01-crowding.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

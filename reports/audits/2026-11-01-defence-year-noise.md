@@ -6,7 +6,7 @@
 
 - **The assertion was a coin flip on one seed.** A party ended `repelled` in 8 of 12 measured runs: 4 of 4 at T-460, 1 of 4 at T-462, 3 of 4 at T-463. None ended `wiped`.
 - **It does not say what it seemed to say.** In the four runs with party detail, every announced party with more than one member, the 3 bandits and the raid of 9 or 10, ended `looted`. Each `repelled` there came from a party with no `RaidArrived` announcement, so it was not the corridor turning back a raid.
-- **So this is a finding, not noise to bound with a set rule.** The result does not meet "most seeds at both states", and 1 of 4 at T-462 gives no useful N. The scenario now prints the outcomes and keeps its other assertions, including a soldier's kill, which held in all 12 runs. [Its own task](../../docs/work/T-NEW-defence-never-repels-a-raid.md) asks why.
+- **So this is a finding, not noise to bound with a set rule.** The result does not meet "most seeds at both states", and 1 of 4 at T-462 gives no useful N. The scenario now prints the outcomes and keeps its other assertions, including a soldier's kill, which held in all 12 runs. [Its own task](../../docs/work/T-466-defence-never-repels-a-raid.md) asks why.
 - **Three runs stopped on a fault in the script, now fixed.** The defence's own zones took dug pantry tiles before the pantry was zoned, so the pantry's zone was refused. The pantry now takes the tiles left: `defence-year-3` at T-460 and T-462, and `defence-year` at T-463. So a single seed's run could also fail for this reason on any timeline.
 
 ## Rows

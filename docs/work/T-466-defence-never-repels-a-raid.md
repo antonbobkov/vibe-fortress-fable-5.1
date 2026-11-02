@@ -1,4 +1,4 @@
-# T-NEW — The hand-laid defence of `defence_year` does not repel a raid
+# T-466 — The hand-laid defence of `defence_year` does not repel a raid
 
 **Source:** T-462 ([measurement](../../reports/audits/2026-11-01-defence-year-noise.md)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
 

@@ -1,6 +1,6 @@
-# T-NEW — A whole fortress dies to one cave crawler without striking it
+# T-464 — A whole fortress dies to one cave crawler without striking it
 
-**Source:** T-461 ([journal](../../reports/audits/2026-11-01-crawlers-in-the-halls.md)) · **Size:** M · **Needs:** — · **Status:** open (orchestrator's decision)
+**Source:** T-461 ([journal](../../reports/audits/2026-11-01-crawlers-in-the-halls.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -18,6 +18,10 @@ A balance decision, so the orchestrator takes it. The options:
 4. **Tame dogs defend.** Touches 08, which has no such rule for untrained animals.
 
 The author's view is 2, with the annual instrument and `pp_defence` run on it.
+
+## Orchestrator's decision (2026-11-01)
+
+Options 2 and 3 together. A hunting cavern monster catches a fleeing civilian as a hunting wild animal does, so the civilian turns and fights. A soldier off duty who is attacked fights, with the gear it carries. Not option 4. Measure both with the annual instrument and `pp_defence`, and report the twenty-seed row.
 
 ## Done
 

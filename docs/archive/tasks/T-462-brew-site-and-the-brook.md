@@ -1,5 +1,7 @@
 # T-462 — A full stockpile leaves the brew at the still, and no one drinks it
 
+**Closed:** 2026-11-01, in b4617e2.
+
 **Source:** T-458, T-457 (`pp_drink`) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
