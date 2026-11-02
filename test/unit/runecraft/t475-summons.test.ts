@@ -386,6 +386,25 @@ describe('T-475 turning', () => {
   });
 });
 
+describe('T-475 cages', () => {
+  it('a cage trap does not take a loose summon; the trap stays armed for the next creature', () => {
+    const w = arena('t475-cage');
+    const trap = w.build('cage_trap', w.index(40, 40, Z), 'iron');
+    const wisp = w.spawnCreature('wisp', w.index(39, 40, Z), 'wild');
+    w.game.world.entities.add(wisp, C.Summoned, { summonerId: 0, fadesAt: w.tick + SUMMON_TICKS });
+    w.step(1);
+    w.game.world.services.movement?.teleport(wisp, w.index(40, 40, Z));
+    w.step(2);
+    expect(w.events('CreatureCaged')).toHaveLength(0);
+    const troll = w.spawnCreature('trollkin', w.index(41, 41, Z), 'hostile:gloam');
+    w.step(1);
+    w.game.world.services.movement?.teleport(troll, w.index(40, 40, Z));
+    w.step(2);
+    expect(w.events('CreatureCaged').map((e) => e['creatureId'])).toEqual([troll]);
+    expect(trap).toBeGreaterThan(0);
+  });
+});
+
 describe('T-475 wisp mishap', () => {
   it('a wild wisp beside the circle, with no caster, that fades in a day; the apprentice gets no thought', () => {
     const w = new TestWorld({ seed: 't475-wisp', embark: 'none', surfaceWildlife: 'none' });

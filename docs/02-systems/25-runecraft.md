@@ -381,7 +381,7 @@ Rows carry `flags.summoned: true` (the word `summoned` in the flags column), and
 - is never slaughtered, named, assigned, pastured or trained: 08's animal commands reject it `not_found`, and 08's `tameList`, `wildList` and `bySpecies` leave it out, so the animals panel and the hunters do not see it;
 - gives no grief: it is no one's pet, and 15's `saw_death` passes over its death (15's other death thoughts read dwarves and pets only);
 - is never butchered: no `butcherable` flag;
-- is never bandaged by a medic (17's `bandage_animal` passes over a creature with `Summoned`) and never carried off by a thief (18);
+- is never bandaged by a medic (17's `bandage_animal` passes over a creature with `Summoned`), never carried off by a thief (18), and never caught by a cage trap (19), since it would fade in the cage;
 - is no name in the legend: 24's kill tally leaves out a killer with `Summoned`, though a summon's kill still awards its milestone;
 - has no `Hostile` while it is the fortress's, so no party counts it. It is no dwarf: it has no `Brain` or `Labors`, so the population, immigration, burial and the end of the fortress never count it, and it carries nothing, so it adds no wealth.
 
@@ -521,7 +521,7 @@ Job producer `magic` (`attune`); inspector sections `creature › rune` (with th
 | Consumes | `RaidArrived`, `AmbushSprung`, `AttackResolved`, `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-474, T-476 |
 | Registration | job producer `magic`: `give_draught` | T-474 |
 
-Other systems' documents gain their parts in the same commits: 08 (summons), 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`, no corpse for a summon), 14 (`sanctum`), 15 (`saw_death`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`, `SummonFaded`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 22 (`moveAlongPath`), 24 (the kill tally).
+Other systems' documents gain their parts in the same commits: 08 (summons), 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`, no corpse for a summon), 14 (`sanctum`), 15 (`saw_death`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`, `SummonFaded`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 19 (no cage for a summon), 22 (`moveAlongPath`), 24 (the kill tally).
 
 ## Player-facing behavior
 
