@@ -42,6 +42,8 @@ function fixture(def: ThoughtDef): GameEvent | null {
   if (id === 'argued') e.kind = 'argue';
   if (id === 'wept') e.kind = 'weep';
   if (id === 'hoarded') e.kind = 'hoard';
+  if (id === 'attuned') e.mishap = '';
+  if (id === 'singed') e.kind = 'singed';
   return e as GameEvent;
 }
 

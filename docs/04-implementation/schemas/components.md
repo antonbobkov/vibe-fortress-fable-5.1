@@ -122,6 +122,7 @@ interface Projectile { itemId: EntityId; from: TileIndex; to: TileIndex; progres
                        targetId: EntityId; hitRoll: number; damage: number; damageType: DamageType; line: TileIndex[] }
 interface Crop { plotZoneId: EntityId; plant: Idx<PlantDef>; stage: 0|1|2|3; growth: number; tile: TileIndex }
 interface Merchant { partyId: EntityId; goods: EntityId[] }
+interface Rune { current: number /* milli-rune; max and regen are derived, never stored */ }
 ```
 
 ## Component ownership table
@@ -143,6 +144,7 @@ interface Merchant { partyId: EntityId; goods: EntityId[] }
 | `Tame`, `Wild` | 08 | — |
 | `Crop` | 07 | — |
 | `Merchant` | 20 | — |
+| `Rune` | 25 | — |
 
 ## Fortress state
 

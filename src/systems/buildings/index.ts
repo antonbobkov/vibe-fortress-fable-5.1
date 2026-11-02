@@ -53,6 +53,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'CreatureDied',
     'ItemDestroyed',
     'BuildingCompleted',
+    'Mishap',
   ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
@@ -204,6 +205,10 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     } else if (event.type === 'SulkHappened' && event['kind'] === 'break' && typeof event['buildingId'] === 'number') {
       const id = event['buildingId'] as EntityId;
       if (!this.brokenFurniture.includes(id)) this.brokenFurniture.push(id);
+    } else if (event.type === 'Mishap' && event['kind'] === 'scorched_circle' && typeof event['buildingId'] === 'number') {
+      // 25 § The sanctum, Mishaps: the circle is destroyed and nothing comes back (it links no item).
+      const id = event['buildingId'] as EntityId;
+      if (this.buildings.get(id)?.state === 'built') this.buildings.remove(id);
     } else if (event.type === 'DayPassed') {
       rooms.markAll();
       rooms.recompute();

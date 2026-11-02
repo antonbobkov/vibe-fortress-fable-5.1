@@ -22,6 +22,8 @@ import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
+import type { MagicReader } from '@systems/magic';
+import { METAL_RUNE_PENALTY_PERCENT } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
@@ -308,6 +310,8 @@ export function drawLookPanel(
         for (const thought of morale.thoughts(id)) line(`  ${thought.value > 0 ? '+' : ''}${Math.round(thought.value)} ${thought.text}`);
       }
     }
+    const rune = runeLine(readers, registry, strings, id);
+    if (rune !== null) line(rune, t.value);
     if (has(readers, '17') && readers.entities.has(id, C.Body)) {
       const body = readers.entities.get(id, C.Body);
       if (body !== undefined) {
@@ -353,6 +357,43 @@ export function drawLookPanel(
       }
     }
   }
+}
+
+/** Milli-rune as the inspector shows it: "0.6", "1", "0.36". */
+function runeAmount(milli: number): string {
+  return String(Number((milli / 1000).toFixed(2)));
+}
+
+/**
+ * 25's `creature › rune` section on one line: "Rune 31/50, +0.6 an hour (iron helm −20%, iron mail
+ * −20%); full tomorrow". Null for a creature without a `Rune`.
+ */
+export function runeLine(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string | null {
+  if (!has(readers, '25')) return null;
+  const rune = readers.of<MagicReader>('25').rune(id);
+  if (rune === undefined) return null;
+  const items = registry.table<{ id: string; name: string }>('items');
+  const materials = registry.table<{ id: string; name: string }>('materials');
+  const pieces = rune.metalPieces.map((piece) => {
+    const item = readers.entities.get(piece, C.Item);
+    const name = item === undefined ? '' : materialItemName(materials.byIndex(item.material)?.name ?? '', { name: items.byIndex(item.type)?.name ?? '' });
+    return strings.get('ui.look.rune_metal_piece', { item: name, n: METAL_RUNE_PENALTY_PERCENT });
+  });
+  const hours = rune.hoursToFull;
+  const hourOfDay = readers.calendar.hour;
+  const days = hours < 0 ? -1 : Math.floor((hourOfDay + hours) / 24);
+  const full = hours < 0 ? strings.get('ui.look.rune_never')
+    : hours === 0 ? strings.get('ui.look.rune_full')
+      : days === 0 ? strings.get('ui.look.rune_full_hours', { n: hours })
+        : days === 1 ? strings.get('ui.look.rune_full_tomorrow')
+          : strings.get('ui.look.rune_full_days', { n: days });
+  return strings.get('ui.look.rune', {
+    current: Math.floor(rune.current / 1000),
+    max: Math.floor(rune.max / 1000),
+    regen: runeAmount(rune.regen),
+    metal: pieces.length === 0 ? '' : ` (${pieces.join(', ')})`,
+    full,
+  });
 }
 
 interface ItemsReaderLike {

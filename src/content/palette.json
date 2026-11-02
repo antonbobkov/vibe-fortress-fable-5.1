@@ -1043,6 +1043,10 @@
     "hex": "#2A3830"
   },
   {
+    "id": "zone_sanctum",
+    "hex": "#1E363A"
+  },
+  {
     "id": "zone_stockpile",
     "hex": "#23303F"
   },

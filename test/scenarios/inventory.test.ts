@@ -32,9 +32,12 @@ const commandTest = 'test/property/t184-paused-command-catalog.test.ts';
 
 interface Exception { readonly reason: string; readonly test?: string; readonly task?: string }
 const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', Readonly<Record<string, Exception>>>> = {
-  commands: Object.fromEntries(commandExceptions.map((id) => [id, {
-    test: commandTest, reason: `Accepts ${id} while paused, saves, and compares all next 50 stepped hashes with its load.`,
-  }])),
+  commands: {
+    ...Object.fromEntries(commandExceptions.map((id) => [id, {
+      test: commandTest, reason: `Accepts ${id} while paused, saves, and compares all next 50 stepped hashes with its load.`,
+    }])),
+    SetSanctumApprentices: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'Names apprentices of a built sanctum, refuses a child, a stranger and a fifth, and turns attunement on; the named dwarf then attunes through the job.' },
+  },
   events: {
     WorldGenerated: { reason: 'World-map generation emits outside the simulation tick loop.' },
     TreeFelled: { test: 'test/unit/terrain/producer.test.ts', reason: 'A commanded chop completes through the real job loop and delivers TreeFelled.' },
@@ -44,9 +47,14 @@ const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', 
     Talked: { test: 'test/unit/dwarves/activities.test.ts', reason: 'Dwarves actually talk through their stepped social plans and become friends.' },
     ToolDropped: { test: 'test/unit/jobs/tool-drop.test.ts', reason: 'Labor commands release a carried pick when its dwarf reaches a stockpile during step.' },
     FortressShutOut: { test: 'test/unit/buildings/t382-fortress-shut-out.test.ts', reason: 'A hearth alert locks the gate of a fortress whose dwarves all stand outdoors, through the stepped door rules.' },
+    AttuneSession: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'An apprentice sits two sessions a day at a built circle through the stepped job loop.' },
+    Mishap: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'A thousand session completions at a built circle roll mishaps that 05, 14 and 17 then play out in step.' },
+    CreatureStunned: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'A blackout knocks the apprentice down until the stun ends, through the stepped health tick.' },
+    FirstRunecaster: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'An apprentice attunes through the job to level 10 over 73 stepped days.' },
     SquadOrderIssued: { test: commandTest, reason: 'An accepted SquadOrder is dispatched through the following 50 ticks on both saved worlds.' },
   },
   jobs: {
+    attune: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'An apprentice fetches glowcap and attunes at a built circle through the job loop.' },
     bandage_animal: { test: 'test/unit/health/t190-bandage-animal.test.ts', reason: 'An animal-care worker fetches cloth and completes the catalog job for a bleeding cow.' },
     collect_egg: { test: 'test/unit/animals/products.test.ts', reason: 'Standing orders start actual collection of a nest egg during step.' },
     deconstruct: { test: 'test/unit/buildings/furniture.test.ts', reason: 'A DeconstructBuilding command runs to removal and returns its installed bed.' },
@@ -61,6 +69,7 @@ const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', 
     train_animal: { test: 'test/unit/animals/taming.test.ts', reason: 'A trainer completes the commanded dog training job at a kennel.' },
   },
   buildings: {
+    rune_circle: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'A sanctum counts as a room with a built circle, and apprentices attune at it.' },
     alchemist: { test: 'test/unit/runecraft/t468-glowcap-laboratory.test.ts', reason: 'A built laboratory turns two glowcap into a rune vial through a work order and a dwarf; recipe-smoke runs both recipes.' },
     archery_target: { test: 'test/unit/combat/squads.test.ts', reason: 'A built target is used by a ranged soldier during stepped barracks training.' },
     bowyer: { test: 'test/unit/workshops/recipe-smoke.test.ts', reason: 'The built bowyer completes each authored recipe through work orders and jobs.' },

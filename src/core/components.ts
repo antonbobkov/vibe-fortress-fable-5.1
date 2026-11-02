@@ -456,6 +456,11 @@ export interface Merchant {
   goods: EntityId[];
 }
 
+/** A runecaster's own rune (`25` § Rune of one's own): milli-rune; max and regen are derived. */
+export interface Rune {
+  current: number;
+}
+
 /**
  * `Kind` is a component in the ownership table; the store keeps it in its own slot table
  * (`EntityStore.create(kind)` / `EntityStore.kind(id)`), so its component value is just the tag.
@@ -664,6 +669,7 @@ const SPECS: Spec[] = [
   { name: 'Wild', owner: '08' },
   { name: 'Crop', owner: '07' },
   { name: 'Merchant', owner: '20' },
+  { name: 'Rune', owner: '25' },
 ];
 
 function define<T>(spec: Spec, id: number): ComponentType<T> {
@@ -726,6 +732,7 @@ export const C = {
   Wild: typed<Wild>('Wild'),
   Crop: typed<Crop>('Crop'),
   Merchant: typed<Merchant>('Merchant'),
+  Rune: typed<Rune>('Rune'),
 } as const;
 
 /** An entity store that knows every component type. `entities.ts` stays free of this module. */

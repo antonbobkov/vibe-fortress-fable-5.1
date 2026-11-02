@@ -67,6 +67,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `NameAnimal` | `animalId, name` | 08 | tame; name 1–24 characters | — |
 | `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
 | `RenameFortress` | `name` | core | 1–`FORTRESS_NAME_MAX_CHARS` characters | — |
+| `SetSanctumApprentices` | `zoneId, dwarfIds[]` | 25 | sanctum zone (`not_found`); each id a living dwarf of the fortress (`not_found`) and an adult (`not_adult`); no id twice and at most `SANCTUM_APPRENTICES` (`member_limit`); turns their `attunement` labor on | — |
 
 App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`), which run before the world exists.
 

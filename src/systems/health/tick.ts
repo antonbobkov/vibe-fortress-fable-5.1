@@ -117,7 +117,9 @@ export function updatePatient(
   // A light burn admits no one: its dwarf keeps working, and the producer still dresses it.
   const anyUndressedBurn = allWounds.some((w) => w.type === 'burn' && w.severity !== 'light' && !w.dressed);
   const anyInfected = allWounds.some((w) => w.infected);
-  const unconscious = !b.conscious;
+  // A stun (25's `CreatureStunned`) leaves the body unconscious with wounds that allow consciousness:
+  // it admits no one.
+  const unconscious = !b.conscious && !(b.pain < PAIN_UNCONSCIOUS && b.blood >= Math.floor((b.maxBlood * BLOOD_UNCONSCIOUS_PERCENT) / 100));
 
   const shouldBePatient =
     anyBleeds || anyUnsplintedFracture || anyUndressedBurn || anyInfected || unconscious;
@@ -163,7 +165,7 @@ export function updatePatient(
       !anyUnsplintedFracture &&
       !anyUndressedBurn &&
       !anyInfected &&
-      b.conscious &&
+      !unconscious &&
       b.pain < PAIN_DISCHARGE
     ) {
       let hospitalTier = 0;
@@ -295,6 +297,7 @@ export function tickHealth(
   woundedSet: Set<EntityId>,
   lastAttacker: Map<EntityId, EntityId>,
   lastHospitalTier?: Map<EntityId, number>,
+  stunnedUntil?: Map<EntityId, number>,
 ): void {
   // 1. Submersion environmental check
   checkSubmersion(ctx, woundedSet, lastAttacker);
@@ -353,7 +356,11 @@ export function tickHealth(
     // Consciousness
     const wasConscious = b.conscious;
     const unconsciousBloodThreshold = Math.floor((b.maxBlood * BLOOD_UNCONSCIOUS_PERCENT) / 100);
-    b.conscious = b.pain < PAIN_UNCONSCIOUS && b.blood >= unconsciousBloodThreshold;
+    // 17 § Consciousness: a stun holds it down until its tick (25's daze and blackout).
+    const stunEnd = stunnedUntil?.get(id) ?? 0;
+    const stunned = ctx.tick < stunEnd;
+    if (stunEnd !== 0 && !stunned) stunnedUntil?.delete(id);
+    b.conscious = b.pain < PAIN_UNCONSCIOUS && b.blood >= unconsciousBloodThreshold && !stunned;
 
     if (wasConscious && !b.conscious) {
       ctx.emit({ type: 'CreatureUnconscious', id });
@@ -420,7 +427,7 @@ export function tickHealth(
 
     // Check if fully healed and blood restored
     const remainingWoundCount = b.parts.reduce((acc, p) => acc + p.wounds.length, 0);
-    if (remainingWoundCount === 0 && b.blood >= b.maxBlood) {
+    if (remainingWoundCount === 0 && b.blood >= b.maxBlood && !stunned) {
       woundedSet.delete(id);
       lastAttacker.delete(id);
     }

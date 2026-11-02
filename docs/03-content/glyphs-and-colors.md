@@ -147,6 +147,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `zone_dump` | #3A3A1E |
 | `zone_fishing` | #1E2E3F |
 | `zone_gather` | #2E3A1E |
+| `zone_sanctum` | #1E363A |
 
 ### Material and nature colors
 
@@ -287,7 +288,7 @@ By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `
 
 ### Buildings
 
-Per [buildings-and-furniture.md](buildings-and-furniture.md). Doors `+` closed, `/` open, red when locked. Lever `/` (off) `\` (on). Plate `_`. Bridge `═` lowered, `▓` raised. Traps `^` in `trap_gray`. Hearth `☼` in `hearth_orange` with a pulsing `bg` between `black` and `#3A1A00`. Well `○` in `well_blue`. Depot and wagon patterns below. Planned buildings: the same glyph in `text_dim`.
+Per [buildings-and-furniture.md](buildings-and-furniture.md). Doors `+` closed, `/` open, red when locked. Lever `/` (off) `\` (on). Plate `_`. Bridge `═` lowered, `▓` raised. Traps `^` in `trap_gray`. Hearth `☼` in `hearth_orange` with a pulsing `bg` between `black` and `#3A1A00`. Well `○` in `well_blue`. Rune circle `○` in `rune_cyan`. Depot and wagon patterns below. Planned buildings: the same glyph in `text_dim`.
 
 ### Workshop patterns (3×3, north at top)
 

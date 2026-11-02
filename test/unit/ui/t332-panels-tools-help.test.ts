@@ -170,12 +170,12 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[1]).toMatch(/^last tick \d+\.\d{3} ms$/);
     expect(rows[2]).toMatch(/^─+ Timings ─+$/);
     expect(rows[3]).toMatch(/^System +avg ms +worst ms$/);
-    const timings = rows.slice(4, 24);
+    const timings = rows.slice(4, 25);
     expect(timings.length).toBeGreaterThan(15);
     for (const row of timings) expect(row).toMatch(/^\d\d +\d+\.\d{3} +\d+\.\d{3}$/);
-    expect(rows[24]).toMatch(/^─+ Counts ─+$/);
-    expect(rows[25]).toMatch(/^creature \d+$/);
-    expect(rows[26]).toMatch(/^item \d+$/);
+    expect(rows[25]).toMatch(/^─+ Counts ─+$/);
+    expect(rows[26]).toMatch(/^creature \d+$/);
+    // With 25's row the timings take one row more, so the item count scrolls below the buttons.
     expect(rows.slice(27)).toEqual(['[S-d] dump save', '[r] replay season log', '[h] hash world']);
   });
 

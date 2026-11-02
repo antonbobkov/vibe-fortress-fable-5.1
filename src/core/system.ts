@@ -69,6 +69,8 @@ export interface JobsApi {
   workerDied?(workerId: EntityId, deathTile?: TileIndex): void;
   /** `SetBuildingPriority` and friends: a job's priority (11's sink). */
   setPriority?(jobId: number, priority: number): void;
+  /** A dwarf's labor, as `SetLabor` sets it (25 turns `attunement` on for an apprentice); false when refused. */
+  setLabor?(workerId: EntityId, labor: string, on: boolean): boolean;
 }
 
 /**

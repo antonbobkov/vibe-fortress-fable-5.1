@@ -69,6 +69,7 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | `trade_depot` | trade depot | 3×3 | floor; reachable from an edge | 3 `log` or 3 `stone_block` | construction | 300 | depot, container | yes | 20 | pattern `depot` |
 | `well` | well | 1×1 | open tile with water within `WELL_DEPTH` below | 1 `bucket` + 1 `chain` or `rope` + 1 `mechanism` + 1 `stone_block` | mechanics | 150 | well | yes | 15 | `○` `well_blue` |
 | `wagon` | wagon | 3×3 | placed at embark only | — | — | — | container | yes | 0 | pattern `wagon` |
+| `rune_circle` | rune circle | 1×1 | floor | 3 `stone_block` + 1 `rune_vial` | masonry | 200 | rune_circle | no | 20 | `○` `rune_cyan` |
 
 ## Workshops
 
@@ -92,6 +93,7 @@ See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes.
 | `dump` | dump | no | — | — | 13 | — |
 | `fishing` | fishing | no | tiles adjacent to deep water | — | 09 | — |
 | `gather` | gather zone | no | — | priority | 09 | integer 1 to 9 |
+| `sanctum` | sanctum | yes | a rune circle | apprentices | 25 | 25's `SetSanctumApprentices` only; at most `SANCTUM_APPRENTICES` living adult dwarves |
 
 ## Room quality tiers (from 14)
 

@@ -17,6 +17,7 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ [S-a] Archery   [S-m] Meeting       │
 │ [S-t] Tomb      [S-u] Dump          │
 │ [i] Fishing     [g] Gather          │
+│ [S-c] Sanctum                       │
 │ ─ Drag a rectangle.                │
 │ Qualifying tiles show ▒, others x. │
 │ ── Selected: Farm plot #3 (24 t)   │
@@ -30,7 +31,7 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ [x] remove zone  [S-e] resize       │
 ```
 
-The type list uses names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The new zone is selected at once, so its inspector shows, and the tool stays armed for the next drag. A drag where no tile qualifies sends nothing and says "Bedroom: none of the 4 tiles qualify (floor that no other zone holds)." While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 t)".
+The type list uses names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather, Sanctum); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The new zone is selected at once, so its inspector shows, and the tool stays armed for the next drag. A drag where no tile qualifies sends nothing and says "Bedroom: none of the 4 tiles qualify (floor that no other zone holds)." While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 t)".
 
 A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓` move the highlight (`►` before the season) over the rows; it starts on the current season each time a plot is selected. `Enter` opens the highlighted row's crop list, in which `↑` `↓` and `Enter` choose and `Esc` closes it without a change; the list is as wide as the panel allows. `Shift+A`, or a click on `[S-a] all seasons`, sets the highlighted row's crop for every season in which that crop can grow (when the row is `none` it clears all four). With a farm plot selected `Shift+A` is this key and not the Archery zone type; `[y]` returns to the type list. A crop with no seeds in stock is listed with `(no seeds)` after its name, and the figure after a row reads `14 seeds`, in red at 0.
 
@@ -84,7 +85,27 @@ A room inspector shows current tier and score parts, named missing requirements,
 │ [x] remove zone  [S-e] resize      │
 ```
 
-Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin, as appropriate. A bedroom's owner button or Shift+O opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
+Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin / a rune circle, as appropriate. A bedroom's owner button or Shift+O opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
+
+A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in stock, the mishap chance of a new apprentice, each apprentice with its level and rune and, under it, the sessions left today and its own mishap chance, the last mishap, and the apprentice button:
+
+```
+│ [y] zone types                    │
+│ ── Selected: Sanctum #1 (12 t)     │
+│ Room: Bare (score 15)              │
+│ tiles 12 walls 0 furn. 0 size 12   │
+│ Enclosed                          │
+│ Requirements met                  │
+│ Glowcap in stock: 14              │
+│ Mishaps, new apprentice: one sessi│
+│ Urist: Runecraft 3, rune 2/15      │
+│   1 sessions left today; mishaps o│
+│ Last mishap: singed (Urist), today │
+│ [S-o] apprentices…                │
+│ [x] remove zone  [S-e] resize      │
+```
+
+`Shift+O` or a click on the button opens the apprentice picker: a title with the count ("Apprentices of Sanctum #1 (1/4):") and every adult dwarf, `●` for an apprentice and `○` for the rest. `Enter` or a click adds or removes the dwarf through `SetSanctumApprentices`, and the picker stays open; a fifth is refused in the status row. `Esc` closes it.
 
 ## Jobs (j)
 

@@ -18,6 +18,12 @@
     "children": false
   },
   {
+    "id": "attunement",
+    "name": "Attunement",
+    "defaultOn": true,
+    "children": false
+  },
+  {
     "id": "brewing",
     "name": "Brewing",
     "defaultOn": true,

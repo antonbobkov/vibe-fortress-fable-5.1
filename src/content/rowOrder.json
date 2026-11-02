@@ -54,5 +54,41 @@
   {
     "table": "recipes",
     "id": "grind_glowstone"
+  },
+  {
+    "table": "palette",
+    "id": "zone_sanctum"
+  },
+  {
+    "table": "labors",
+    "id": "attunement"
+  },
+  {
+    "table": "skills",
+    "id": "runecraft"
+  },
+  {
+    "table": "buildings",
+    "id": "rune_circle"
+  },
+  {
+    "table": "zoneTypes",
+    "id": "sanctum"
+  },
+  {
+    "table": "jobTypes",
+    "id": "attune"
+  },
+  {
+    "table": "thoughts",
+    "id": "attuned"
+  },
+  {
+    "table": "thoughts",
+    "id": "singed"
+  },
+  {
+    "table": "thoughts",
+    "id": "first_runecaster"
   }
 ]

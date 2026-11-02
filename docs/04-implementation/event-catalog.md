@@ -102,7 +102,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `SulkHappened` | `id, kind` | 15 | 10, 13 (hoard), 14 (broken furniture), ui |
 | `HallSpiritChanged` | `value, tier` | 15 | 21, ui |
 | `AttackResolved` | `attackerId, defenderId, part, damageType, amount, outcome` | 16 | 08, 18, 20, ui (combat log) |
-| `DamageDealt` | `defenderId, part, damageType, amount, attackerId, weaponId` | 16, 19 | 17 |
+| `DamageDealt` | `defenderId, part, damageType, amount, attackerId, weaponId` | 16, 19, 25 | 17 |
 | `ProjectileFired` | `shooterId, targetId, itemId` | 16 | 09 |
 | `CreatureFled` | `id, from` | 16 | 18 |
 | `ThreatNearby` | `id, hostileId` | 16 | 10, 11, 15 |
@@ -139,6 +139,10 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ImmigrationSkipped` | `reason` | 21 | ui |
 | `EntitiesMoved` | `moves: [id, from, to][]` | core movement helper | 03, 04, 18, 19 |
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
+| `AttuneSession` | `id, xp, mishap` | 25 | 15 |
+| `Mishap` | `id, kind, buildingId, tile` | 25 | 05 (`fire`), 14 (`scorched_circle`), 15, ui |
+| `CreatureStunned` | `id, until` | 25 | 17 |
+| `FirstRunecaster` | `id` | 25 | 15, ui |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 

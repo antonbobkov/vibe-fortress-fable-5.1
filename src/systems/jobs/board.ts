@@ -30,6 +30,7 @@ import {
 import { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './producers';
 import type { Job, JobsStateV1, Tool } from './state';
 import { stepWorker } from './steps';
+import { applySetLabor } from './commands';
 
 export interface JobTypeRow {
   readonly id: string;
@@ -217,6 +218,11 @@ export class JobBoard implements JobsApi, JobSink {
     if (!this.readers.has('10')) return 100;
     const r = this.readers.of<{ productivity(id: EntityId): number }>('10');
     return r.productivity(workerId);
+  }
+
+  /** `JobsApi.setLabor`: `SetLabor`'s rule, for another system's command (25's apprentices). */
+  setLabor(workerId: EntityId, labor: string, on: boolean): boolean {
+    return applySetLabor(this, { type: 'SetLabor', dwarfId: workerId, labor, on }).ok;
   }
 
   isChild(workerId: EntityId): boolean {

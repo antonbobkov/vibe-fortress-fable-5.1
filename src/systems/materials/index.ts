@@ -56,7 +56,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   readonly order = 5;
   override readonly cadence = MATERIALS_CADENCE;
   override readonly phase = MATERIALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike', 'SnowCoverChanged'];
+  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike', 'SnowCoverChanged', 'Mishap'];
 
   private readonly options: MaterialsOptions;
   private mapRef: Map3D | null = null;
@@ -289,6 +289,11 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     if (event.type === 'LightningStrike') {
       // `05` § Fire: "a `LightningStrike` names it" (06); ignites at the next materials tick.
       this.fire.pendingIgnite.add(event['tile'] as TileIndex);
+      return;
+    }
+    if (event.type === 'Mishap') {
+      // 25 § The sanctum, Mishaps: a `fire` mishap names a burnable tile beside the circle.
+      if (event['kind'] === 'fire' && typeof event['tile'] === 'number') this.fire.pendingIgnite.add(event['tile'] as TileIndex);
       return;
     }
     if (event.type === 'SnowCoverChanged') {
