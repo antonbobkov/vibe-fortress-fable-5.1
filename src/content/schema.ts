@@ -575,6 +575,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     armorMult: fixed,
     bluntBonus: int,
     runeMult: fixed,
+    runePressure: opt(int),
     summon: opt(ref('creatures')),
     meltsAtC: int,
     color: colorRef,
@@ -777,6 +778,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     factionDefault: nonEmptyStr,
     perception: int,
     gear: opt(str),
+    remains: opt(arr(obj({ item: itemRef, count: int }), 1)),
   }),
 
   plants: rows({
@@ -912,7 +914,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
   draughts: rows({
     id: itemRef,
     effects: arr(obj({ kind: enumOf(['mend', 'ease', 'heal_rate', 'pain_half', 'haste', 'fire_immune', 'spot_radius']), value: int })),
-    trigger: enumOf(['wounded', 'raid', 'miserable', 'never']),
+    trigger: enumOf(['wounded', 'raid', 'deep', 'fire', 'miserable', 'never']),
   }),
 
   biomes: rows({
@@ -1331,6 +1333,14 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
     if ((r.transform === true) !== (r.enchant !== undefined)) issues.push({ table: 'recipes', row: r.id, field: 'enchant', message: 'a transform recipe names its enchantment, and only a transform recipe does' });
     if (r.transform === true && outputs > 0) issues.push({ table: 'recipes', row: r.id, field: 'outputs', message: 'a transform recipe has no outputs' });
     if (r.transform !== true && outputs === 0) issues.push({ table: 'recipes', row: r.id, field: 'outputs', message: 'expected at least 1 entries, got 0' });
+  }
+
+  // 13 § Corpses: a species' remains are made of the material that shares the item's id.
+  const materialIds = ids.get('materials');
+  for (const c of (data['creatures'] ?? []) as { id: string; remains?: { item: string }[] }[]) {
+    for (const r of c.remains ?? []) {
+      if (materialIds?.has(r.item) !== true) issues.push({ table: 'creatures', row: c.id, field: 'remains', message: `"${r.item}" has no material of the same id` });
+    }
   }
 
   // F-07: at least one item type carries the tag fuel.

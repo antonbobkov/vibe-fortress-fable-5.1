@@ -76,7 +76,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ItemCrafted` | `itemId, quality, crafterId, workshopId, recipeId` | 12 | 13, 15, 16 (better gear), 24 (milestones) |
 | `MasterworkCreated` | `itemId, crafterId` | 12 | 15, ui |
 | `WorkOrderCompleted` | `workshopId, recipeId` | 12 | ui (none) |
-| `StoneSet` | `itemId, enchantId, tier, smithId` | 12 | ui (a masterwork setting: 25's announcement) |
+| `StoneSet` | `itemId, enchantId, tier, smithId` | 12 | 24 (legend), ui (a masterwork setting: 25's announcement) |
+| `DeepsilverWorked` | `amount, tile` | 12 (a `rune_work` building consumed a metal with `runePressure`) | 18 |
 | `WorkshopBlocked` / `WorkshopIdle` | `workshopId, reason[, container, input]` / `workshopId` | 12 | ui |
 | `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |
 | `ItemDestroyed` | `id, itemType, reason, crafterId` | 13 | 11, 12, 15 |
@@ -106,7 +107,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `DamageDealt` | `defenderId, part, damageType, amount, attackerId, weaponId` | 16, 19, 25 | 17 |
 | `ProjectileFired` | `shooterId, targetId, itemId` | 16 | 09 |
 | `CreatureFled` | `id, from` | 16 | 18 |
-| `ThreatNearby` | `id, hostileId` | 16 | 10, 11, 15 |
+| `ThreatNearby` | `id, hostileId` | 16 | 10, 11, 15, 25 (the `fire` draughts) |
 | `SquadOrderIssued` | `squadId, order` | 16 | ui (none) |
 | `AlertChanged` | `from, to` | 16 | 08, 10, 11, 14, 19, ui |
 | `KillRecorded` | `killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies` | 16 | 15, 24 (milestones, legend) |
@@ -124,8 +125,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ThiefSpotted` / `ThiefEscaped` | `id` / `id, itemId, animalId` | 18 | 13 (wealth), 15, ui |
 | `AmbushSprung` | `partyId` | 18 | 25, ui |
 | `HostileSpawned` | `id, partyId` | 18 | 16 |
-| `MonsterSpawned` / `MonsterEmerged` | `id, cavern` / `ids[], tile` | 18 | ui |
-| `DeepStirred` | `level` | 18 | 15, ui |
+| `MonsterSpawned` / `MonsterEmerged` | `id, cavern` / `ids[], tile` | 18 | ui; 25 (`MonsterEmerged`: the `deep` draughts) |
+| `DeepStirred` | `level` | 18 | 15, 25 (the `deep` draughts), ui |
 | `HostileFled` | `id` | 18 | ui (none) |
 | `DoorBreakAttempt` | `id, doorId` | 18 | 14 |
 | `RestlessRose` | `count` | 18 | ui |
@@ -143,7 +144,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `AttuneSession` | `id, xp, mishap` | 25 | 15 |
 | `Mishap` | `id, kind, buildingId, tile` | 25 | 05 (`fire`), 14 (`scorched_circle`), 15, ui |
 | `CreatureStunned` | `id, until` | 25 | 17 |
-| `FirstRunecaster` | `id` | 25 | 15, ui |
+| `FirstRunecaster` | `id` | 25 | 15, 24 (legend), ui |
 | `SpellCast` | `casterId, spellId, targetId, tile, burned` | 25 (casts ride 16's loop; a firebloom's bloom) | ui (a bloom that burned a fortress creature) |
 | `RuneSpent` | `id` | 25 | ui |
 | `VialDrunk` | `id` | 25 | ui (none) |

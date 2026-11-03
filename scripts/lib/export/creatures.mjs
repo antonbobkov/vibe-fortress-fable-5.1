@@ -174,8 +174,23 @@ const FACTION_BY_SECTION = {
 
 const SECTIONS = Object.keys(FACTION_BY_SECTION);
 
+/** creatures.md § Remains: "4 `wyrmscale`" -> { species: [{ item, count }] }. */
+function exportRemains(tables) {
+  const bySpecies = new Map();
+  for (const row of asObjects(findTable(tables, 'Remains', 'remains'))) {
+    const list = [];
+    for (const part of plain(row.remains).split(/[;,]/)) {
+      const m = /(\d+)\s+([a-z_]+)/.exec(part.trim());
+      if (m !== null) list.push({ item: m[2], count: Number(m[1]) });
+    }
+    if (list.length > 0) bySpecies.set(id(row.species), list);
+  }
+  return bySpecies;
+}
+
 export function exportCreatures() {
   const tables = readTables(join(CONTENT_DIR, 'creatures.md'));
+  const remains = exportRemains(tables);
   const out = [];
   for (const section of SECTIONS) {
     const table = findTable(tables, section, 'plan');
@@ -219,6 +234,7 @@ export function exportCreatures() {
           gear: isBlank(row['gear (see caravan-goods and threat-schedules)'])
             ? undefined
             : plain(row['gear (see caravan-goods and threat-schedules)']),
+          remains: remains.get(sid),
           glyph: glyph(row.glyph),
           fg: plain(row.fg) === 'state color' ? 'dwarf_normal' : id(row.fg),
         }),

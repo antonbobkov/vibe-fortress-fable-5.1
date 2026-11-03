@@ -153,16 +153,22 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 | `quick_draught` | draught of quickness | medical/draught | 2 | 5 | bag | 0 | `!` | `root_amber` | `draught` |
 | `calm_draught` | calming draught | medical/draught | 2 | 5 | bag | 0 | `!` | `hops_green` | `draught` |
 | `murky_draught` | murky draught | medical/draught | 0.07 | 5 | bag | 0 | `!` | `cave_umber` | `draught` |
+| `wyrmscale` | wyrmscale | medical/wyrmscale | 1 | 10 | bag | 0 | `§` | `wyrm_red` | |
+| `hollow_ichor` | hollow ichor | medical/ichor | 1 | 5 | bag | 0 | `¡` | `hollow_violet` | |
+| `hollowsight_draught` | draught of hollowsight | medical/draught | 2 | 5 | bag | 0 | `!` | `hollow_violet` | `draught` |
+| `wyrmblood_draught` | draught of wyrmblood | medical/draught | 2 | 5 | bag | 0 | `!` | `wyrm_red` | `draught` |
 
 Bandages are cloth cut at the clothier (1 cloth → 4 bandages); `stop_bleeding` and `dress_burn` accept a bandage or a cloth.
 
 Glowcap is its own item and not `plant_food`, because `plant_food` of any material is eaten and is an ingredient. So no dwarf eats a glowcap and no kitchen takes one. A rune vial holds the material `rune`.
 
-A draught holds the material `rune` of its vial, so a draught is worth 30 at common quality and a murky draught 1 (*unmeasured*). The four brewed draughts bear quality, which scales how long they last; a murky draught bears none. A draught is not `drinkable`: no thirsty dwarf takes one.
+Wyrmscale and hollow ichor are not made: they are the remains of a dead magma wyrm (4 wyrmscale) and of a dead hollow stalker or the Hollow Maw (1 ichor), recovered from the corpse by `strip_corpse` ([creatures.md](creatures.md) § Remains). Each is made of the material that shares its id ([materials.md](materials.md) § Rune), so one is worth 80 and one 60.
+
+A draught holds the material `rune` of its vial, so a draught is worth 30 at common quality and a murky draught 1 (*unmeasured*). The brewed draughts bear quality, which scales how long they last; a murky draught bears none. A draught is not `drinkable`: no thirsty dwarf takes one.
 
 ## Draughts
 
-What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draughts). An effect with a number is a timed effect of that value on the drinker, for `DRAUGHT_TICKS` times the draught's quality multiplier; `mend` bandages and closes wounds at once, as the Mend spell does; `ease` gives the thought `eased`. The trigger says when it is drunk: `wounded` by a soldier on duty whose blood is below half when a hit lands, or given by a medic to a patient with a serious or grievous wound; `raid` by every soldier on duty when a raid, siege or ambush arrives; `miserable` given by a medic to a Miserable dwarf; `never` is the spoiled batch.
+What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draughts). An effect with a number is a timed effect of that value on the drinker, for `DRAUGHT_TICKS` times the draught's quality multiplier; `mend` bandages and closes wounds at once, as the Mend spell does; `ease` gives the thought `eased`. The trigger says when it is drunk: `wounded` by a soldier on duty whose blood is below half when a hit lands, or given by a medic to a patient with a serious or grievous wound; `raid` by every soldier on duty when a raid, siege or ambush arrives; `miserable` given by a medic to a Miserable dwarf; `deep` by every soldier on duty when the Deep stirs or Hollow-born come up through the rock while the Deep is at level 2 or more; `fire` by a soldier on duty that a creature with a ranged fire attack (the magma wyrm's breath) comes near; `never` is the spoiled batch.
 
 | id | effects | trigger |
 |---|---|---|
@@ -171,6 +177,8 @@ What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draugh
 | `quick_draught` | `haste` 25 | `raid` |
 | `calm_draught` | `ease` | `miserable` |
 | `murky_draught` | — | `never` |
+| `hollowsight_draught` | `spot_radius` 10 | `deep` |
+| `wyrmblood_draught` | `fire_immune` 1 | `fire` |
 
 ## Refuse
 

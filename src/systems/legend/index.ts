@@ -28,7 +28,7 @@ export class LegendSystem extends BaseSystem<LegendStateV1> {
   override readonly subscribes: readonly EventType[] = [
     'HearthLit', 'ItemCrafted', 'CavernBreached', 'DeepsilverMined', 'CreatureDied',
     'RaidEnded', 'BuildingCompleted', 'RoomQualityChanged', 'YearPassed',
-    'LegendaryReached', 'ImmigrantsArrived', 'EntitiesMoved', 'SummonCalled',
+    'LegendaryReached', 'ImmigrantsArrived', 'EntitiesMoved', 'StoneSet', 'FirstRunecaster', 'SummonCalled',
   ];
   private peak = 0;
   private seeded = false;
@@ -104,6 +104,8 @@ export class LegendSystem extends BaseSystem<LegendStateV1> {
       }
       case 'YearPassed': if (Number(event['year']) >= LEGEND_DECADE_YEAR) this.award('m_decade', ctx); break;
       case 'LegendaryReached': this.award('m_legend', ctx); break;
+      case 'StoneSet': this.award('m_stone_set', ctx); break;
+      case 'FirstRunecaster': this.award('m_runecaster', ctx); break;
       case 'SummonCalled': this.award('m_summon', ctx); break;
       case 'RaidEnded': {
         if (event['outcome'] === 'repelled' || event['outcome'] === 'wiped') this.award('m_raid', ctx);

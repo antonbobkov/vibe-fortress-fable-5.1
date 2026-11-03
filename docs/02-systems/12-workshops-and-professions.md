@@ -73,6 +73,7 @@ Job execution (producer `workshops`):
 - Work: `baseTicks` skill-scaled by 11's work rate.
 - `onComplete`: validate that every delivered input still exists, is unconsumed and is reserved to this job before consuming; a missing or foreign-held input goes back to fetching or blocks rather than producing output. Consume inputs (destroy items; the container input becomes the output's container); consume fuel if applicable; roll quality if `quality`; for a `spoilable` recipe, one draw on this system's stream at `max(0, ALCHEMY_MISHAP_PERMILLE − 10 × skill)` per mille, and when it lands every output is the spoiled draught (25 § Draughts; no other recipe draws); spawn outputs at the workshop's output tile (into the container if any), each with the stone its recipe names (`stone: { from: 'input', index }`: that delivered input's material, read before the inputs are consumed; 25 § Channels); emit `ItemCrafted { itemId, quality, crafterId, workshopId, recipeId }`; decrement the order; if `remaining == 0` and not `maintain`, remove the order and emit `WorkOrderCompleted`.
 - A **transform** recipe (`transform: true`, with the `enchants` row it sets in `enchant`) has no outputs. Its `onComplete` consumes every input but input 0, rolls quality, gives each delivered item of input 0 the enchantment at that tier through 13's `items.setEnchant`, drops it at the output tile and emits `StoneSet { itemId, enchantId, tier, smithId }` for it; the job's release then frees its reservation. It emits no `ItemCrafted` and no `MasterworkCreated`; experience and the order count down as for any recipe.
+- At a building tagged `rune_work` (the runeforge, the laboratory), either kind of recipe emits `DeepsilverWorked { amount, tile }` for each consumed input whose material is a metal with a positive `runePressure` ([minerals-and-metals.md](../03-content/minerals-and-metals.md) § Metals): `amount` is the units consumed times `runePressure`, `tile` the building's origin, and the material is read before the input is consumed. No other building emits it. 18 raises the Deep's pressure by it (25 § Deepsilver).
 
 Delivered inputs stay reserved to the craft job while its order stands, through a need/threat interruption, a block or a reservation timeout. Only undelivered reservations use `RESERVE_KEEP_TICKS`; completed or cancelled jobs release all remaining reservations, and removing the order cancels the job. Haulers cannot remove delivered reserved inputs.
 
@@ -152,7 +153,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Events emitted
 
-`ItemCrafted`, `MasterworkCreated { itemId, crafterId }`, `StoneSet { itemId, enchantId, tier, smithId }` (a transform recipe), `WorkOrderCompleted { workshopId, recipeId }`, `WorkshopBlocked { workshopId, reason[, container, input] }`, `WorkshopIdle { workshopId }`.
+`ItemCrafted`, `MasterworkCreated { itemId, crafterId }`, `StoneSet { itemId, enchantId, tier, smithId }` (a transform recipe), `DeepsilverWorked { amount, tile }` (a `rune_work` building consumed a metal with `runePressure`; 25 § Deepsilver), `WorkOrderCompleted { workshopId, recipeId }`, `WorkshopBlocked { workshopId, reason[, container, input] }`, `WorkshopIdle { workshopId }`.
 
 ### Registrations
 

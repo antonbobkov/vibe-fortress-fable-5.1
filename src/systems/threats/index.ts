@@ -79,6 +79,7 @@ import {
   type DeepState,
   checkHollowWave,
   handleDeepsilverMined,
+  handleDeepsilverWorked,
   spawnedHollowBorn,
   nextDeepThreshold,
   stepHollowBorn,
@@ -121,6 +122,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     'TilesChanged',
     'CavernBreached',
     'DeepsilverMined',
+    'DeepsilverWorked',
     'SummonTurned',
   ];
 
@@ -460,6 +462,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     } else if (event.type === 'DeepsilverMined') {
       const tile = event['tile'] as TileIndex;
       handleDeepsilverMined(tile, ctx, this.deepsilverTiles, this.deepState, this.hollowBorn);
+    } else if (event.type === 'DeepsilverWorked') {
+      handleDeepsilverWorked(Number(event['amount']), event['tile'] as TileIndex, ctx, this.deepsilverTiles, this.deepState, this.hollowBorn);
     } else if (event.type === 'TrapTriggered') {
       const cId = event['creatureId'] as EntityId;
       if (typeof cId === 'number') {

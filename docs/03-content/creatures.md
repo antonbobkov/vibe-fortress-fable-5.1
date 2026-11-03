@@ -132,6 +132,15 @@ What a runecaster's Call brings ([25-runecraft.md](../02-systems/25-runecraft.md
 | `deep_shade` | deep shade | humanoid | 60 | 0.21 | aggressive | walker | claw edge 12 size 3 | 1 | — | summoned turns | `δ` | `hollow_violet` |
 
 A wisp is `neutral`: called, it fights as any war animal does, and below `FLEE_BLOOD_PERCENT` of its blood it runs; loose from a mishap, 08's wild brain wanders it, and it turns only on what strikes it. (A `timid` wisp would run from the apprentice beside it and, in a sanctum with no way to the map's edge, leave the map at once.) A warden and a shade are `aggressive`, so they never run.
+## Remains
+
+What a dead creature leaves on its corpse besides its gear: items made of the material that shares their id, which the `strip_corpse` job recovers like worn gear ([13](../02-systems/13-items-and-storage.md) § Corpses). A species not listed leaves none.
+
+| species | remains |
+|---|---|
+| `magma_wyrm` | 4 `wyrmscale` |
+| `hollow_stalker` | 1 `hollow_ichor` |
+| `hollow_maw` | 1 `hollow_ichor` |
 
 ## Fish pools
 

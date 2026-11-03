@@ -10,6 +10,16 @@
     "trigger": "miserable"
   },
   {
+    "id": "hollowsight_draught",
+    "effects": [
+      {
+        "kind": "spot_radius",
+        "value": 10
+      }
+    ],
+    "trigger": "deep"
+  },
+  {
     "id": "mending_draught",
     "effects": [
       {
@@ -47,5 +57,15 @@
       }
     ],
     "trigger": "raid"
+  },
+  {
+    "id": "wyrmblood_draught",
+    "effects": [
+      {
+        "kind": "fire_immune",
+        "value": 1
+      }
+    ],
+    "trigger": "fire"
   }
 ]

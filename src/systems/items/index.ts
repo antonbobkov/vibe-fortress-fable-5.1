@@ -28,7 +28,7 @@ import { StockpileStore } from './stockpiles';
 import { Hauling, type JobsView } from './hauling';
 import { WEALTH_EVENT_STEP } from './constants';
 import { TICKS_PER_DAY } from '@core/constants';
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import type { MaterialsReader } from '@systems/materials/reader';
 import { RotQueue } from './rot';
 import { ItemFacts } from './facts';
@@ -242,6 +242,27 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     }
   }
 
+  /**
+   * 13 § Corpses: a dead creature's `remains` (its species row) appear with it as `foreign` items,
+   * each made of the material that shares its id, and go onto the corpse with its worn gear, so
+   * `strip_corpse` recovers them. No rng.
+   */
+  private spawnRemains(ctx: TickContext, species: number, tile: TileIndex): number[] {
+    const row = ctx.registry.table<{ id: string; remains?: readonly { item: string; count: number }[] }>('creatures').byIndex(species);
+    if (row?.remains === undefined || !ctx.world.map.validIndex(tile)) return [];
+    const items = ctx.registry.table('items');
+    const materials = ctx.registry.table('materials');
+    const out: number[] = [];
+    for (const { item, count } of row.remains) {
+      if (!items.has(item) || !materials.has(item) || count <= 0) continue;
+      const id = ctx.spawn.item(items.index(item), materials.index(item), tile, count);
+      if (id === 0) continue;
+      this.core.setFlag(id, ItemFlag.Foreign, true);
+      out.push(id);
+    }
+    return out;
+  }
+
   override handle(event: GameEvent, ctx: TickContext): void {
     const core = this.core;
     if (event.type === 'CreatureDied') {
@@ -268,6 +289,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
           [equip.weapon, equip.shield, equip.quiver, ...Object.values(equip.armor), ...Object.values(equip.clothing)]
             .filter((itemId) => itemId !== 0 && core.isItem(itemId));
         wornItems.push(...core.carriedItems(id));
+        wornItems.push(...this.spawnRemains(ctx, species, tile));
         const death = { id, tile, species, name: typeof event['name'] === 'string' ? event['name'] : core.host.entities.get(id, C.Creature)?.name ?? null,
           wornItems: Array.from(new Set(wornItems)).sort((a, b) => a - b),
           ...(typeof faction === 'string' && faction !== 'fortress' ? { foreign: true } : {}) };

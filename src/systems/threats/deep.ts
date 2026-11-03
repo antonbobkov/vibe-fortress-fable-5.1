@@ -54,7 +54,9 @@ export function magmaWyrmLives(ctx: TickContext): boolean {
 }
 
 /**
- * Finds the emergence base tile: the most recently mined deepsilver tile still adjacent to rock.
+ * Finds the emergence base tile: the most recently recorded base (a mined deepsilver tile, or the
+ * tile of the building that worked a bar before any was mined) still adjacent to rock; else the
+ * last one. -1 for an empty list: there is no base and no emergence.
  */
 export function findEmergenceBaseTile(
   map: Map3D,
@@ -74,7 +76,7 @@ export function findEmergenceBaseTile(
       return t;
     }
   }
-  return deepsilverTiles[deepsilverTiles.length - 1] ?? 0;
+  return deepsilverTiles[deepsilverTiles.length - 1] ?? -1;
 }
 
 /**
@@ -163,6 +165,7 @@ export function triggerDeepEmergence(
 ): EntityId[] {
   const map = ctx.world.map;
   const baseTile = findEmergenceBaseTile(map, deepsilverTiles);
+  if (baseTile < 0) return [];
   const crackedWalls = findNearestWallTiles(map, baseTile, EMERGENCE_TILES);
 
   for (const wt of crackedWalls) {
@@ -232,11 +235,8 @@ export function spawnedHollowBorn(ctx: TickContext, id: EntityId, tile: TileInde
 }
 
 /**
- * Handles DeepsilverMined event:
- * - Adds DEEP_PRESSURE_PER_TILE (10)
- * - Checks thresholds 1..4
- * - Emits DeepStirred { level }
- * - Triggers emergence
+ * Handles DeepsilverMined event: the tile becomes an emergence base, and the pressure rises by
+ * DEEP_PRESSURE_PER_TILE (10).
  */
 export function handleDeepsilverMined(
   tile: TileIndex,
@@ -248,8 +248,39 @@ export function handleDeepsilverMined(
   if (tile >= 0 && !deepsilverTiles.includes(tile)) {
     deepsilverTiles.push(tile);
   }
+  addDeepPressure(DEEP_PRESSURE_PER_TILE, ctx, deepsilverTiles, deepState, hollowBorn);
+}
 
-  deepState.pressure += DEEP_PRESSURE_PER_TILE;
+/**
+ * Handles DeepsilverWorked (25 § Deepsilver): a bar worked at a `rune_work` building raises the
+ * pressure by the event's amount. With no deepsilver tile mined yet, the building's tile becomes the
+ * emergence base, so a fortress that bought its bar still has one.
+ */
+export function handleDeepsilverWorked(
+  amount: number,
+  tile: TileIndex,
+  ctx: TickContext,
+  deepsilverTiles: TileIndex[],
+  deepState: DeepState,
+  hollowBorn: Set<EntityId>,
+): void {
+  if (!(amount > 0)) return;
+  if (deepsilverTiles.length === 0 && ctx.world.map.validIndex(tile)) deepsilverTiles.push(tile);
+  addDeepPressure(amount, ctx, deepsilverTiles, deepState, hollowBorn);
+}
+
+/**
+ * Adds pressure, then for every threshold crossed (levels 1..4) emits DeepStirred { level } and
+ * triggers its emergence.
+ */
+export function addDeepPressure(
+  amount: number,
+  ctx: TickContext,
+  deepsilverTiles: readonly TileIndex[],
+  deepState: DeepState,
+  hollowBorn: Set<EntityId>,
+): void {
+  deepState.pressure += amount;
   if (ctx.world.fortress) {
     ctx.world.fortress.deepPressure = deepState.pressure;
   }

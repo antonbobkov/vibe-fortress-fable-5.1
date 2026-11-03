@@ -59,6 +59,37 @@
     "xp": 8
   },
   {
+    "id": "brew_hollowsight_draught",
+    "name": "Brew draught of hollowsight",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "rune_vial",
+        "count": 1
+      },
+      {
+        "match": "hollow_ichor",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "hollowsight_draught",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "spoilable": true,
+    "xp": 8
+  },
+  {
     "id": "brew_hopped",
     "name": "Brew hopped ale",
     "workshop": "still",
@@ -172,6 +203,37 @@
     "outputs": [
       {
         "item": "stout_draught",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "spoilable": true,
+    "xp": 8
+  },
+  {
+    "id": "brew_wyrmblood_draught",
+    "name": "Brew draught of wyrmblood",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "rune_vial",
+        "count": 1
+      },
+      {
+        "match": "wyrmscale",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "wyrmblood_draught",
         "count": 2,
         "material": {
           "from": "input",
@@ -3538,6 +3600,32 @@
     "xp": 4
   },
   {
+    "id": "quench_deepsilver",
+    "name": "Quench deepsilver",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1,
+        "material": "deepsilver"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rune_vial",
+        "count": 12,
+        "material": {
+          "fixed": "rune"
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": false,
+    "quality": false,
+    "xp": 12
+  },
+  {
     "id": "render_fat",
     "name": "Render fat",
     "workshop": "kitchen",
@@ -3562,6 +3650,31 @@
     "fuel": false,
     "quality": false,
     "xp": 3
+  },
+  {
+    "id": "render_ichor",
+    "name": "Render ichor",
+    "workshop": "alchemist",
+    "skill": "alchemy",
+    "inputs": [
+      {
+        "match": "hollow_ichor",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rune_vial",
+        "count": 6,
+        "material": {
+          "fixed": "rune"
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": false,
+    "xp": 10
   },
   {
     "id": "spin_thread",

@@ -118,7 +118,7 @@ A `bolt` flies as a missile. A `burst` blooms on the 3×3 around its target afte
 
 ## Enchantments
 
-A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arrows at the runeforge ([25-runecraft.md](../02-systems/25-runecraft.md) § Setting stones). One row per enchantment. `slot` is what it is set in; `stone` is a gem material (set as a `cut_gem` of it) or an item id; `vials` the rune vials the setting burns; `suffix` the name it gives the item: a suffix that begins with "of" follows the name ("iron battle axe of embers"), any other goes before it ("keen iron battle axe"); `only` limits an armor row to one slot. `effects` are what it does, at the common tier: `kind value`, with a damage type, a chance and a duration where the kind has them. `scales` says what the item's tier scales by `QUALITY_COMBAT_MULT[tier]`, rounded: `value`, `ticks` or `none`. The kinds are read in combat as 25 § Enchantments in combat says; a kind none reads does nothing. Every number is *unmeasured*.
+A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arrows at the runeforge ([25-runecraft.md](../02-systems/25-runecraft.md) § Setting stones). One row per enchantment. `slot` is what it is set in; `stone` is a gem material (set as a `cut_gem` of it), a metal (set as a `bar` of it) or an item id; `vials` the rune vials the setting burns; `suffix` the name it gives the item: a suffix that begins with "of" follows the name ("iron battle axe of embers"), any other goes before it ("keen iron battle axe"); `only` limits an armor row to one slot. `effects` are what it does, at the common tier: `kind value`, with a damage type, a chance and a duration where the kind has them. `scales` says what the item's tier scales by `QUALITY_COMBAT_MULT[tier]`, rounded: `value`, `ticks` or `none`. The kinds are read in combat as 25 § Enchantments in combat says; a kind none reads does nothing. Every number is *unmeasured*.
 
 | stone | id | slot | vials | suffix | effects | scales | only |
 |---|---|---|---|---|---|---|---|
@@ -129,16 +129,20 @@ A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arr
 | `sapphire` | `fearsome` | weapon | 8 | fearsome | `flee` 1, 25% for 200 ticks | none | |
 | `ruby` | `blaze` | weapon | 10 | of blaze | `extra_damage` 14 ember | value | |
 | `diamond` | `sunder` | weapon | 12 | sundering | `armor_percent` 50 | none | |
+| `deepsilver` | `deep` | weapon | 12 | of the deep | `damage_percent` 25; `vs_deep_percent` 50 | none | |
+| `hollow_ichor` | `hollowbane` | weapon | 8 | hollowbane | `vs_deep_percent` 100 | none | |
 | `quartz` | `stout` | armor | 4 | stout | `armor` 2 | value | |
 | `garnet` | `emberward` | armor | 6 | of embers warded | `fire_percent` 50 | none | |
 | `amethyst` | `rimeward` | armor | 6 | of rime warded | `frost_percent` 50; `slow_immune` 1 | none | |
 | `diamond` | `adamant` | armor | 12 | adamant | `armor` 4 | value | |
 | `glowstone` | `glowing` | armor | 6 | glowing | `spot_radius` 2 | none | |
+| `wyrmscale` | `wyrmhide` | armor | 8 | wyrmhide | `fire_percent` 0 | none | |
+| `hollow_ichor` | `hollowsight` | armor | 8 | of hollow sight | `spot_radius` 4 | none | head |
 | `garnet` | `ember_ammo` | ammo | 4 | of embers | `extra_damage` 6 ember | value | |
 | `amethyst` | `rime_ammo` | ammo | 4 | of rime | `slow` 30 for 200 ticks | ticks | |
 | `emerald` | `seeking` | ammo | 4 | seeking | `to_hit` 10 | value | |
 
-What each kind means: `damage_percent` adds to the blow's damage before armor; `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum).
+What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum).
 
 ## Shields
 

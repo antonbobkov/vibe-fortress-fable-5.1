@@ -14,7 +14,7 @@ import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { press } from './ui-fixture';
 
 describe('T-M7-06 milestone registry and fortress legend', () => {
-  it('awards all sixteen content milestones from their event fixtures once', () => {
+  it('awards all eighteen content milestones from their event fixtures once', () => {
     const registry = loadContent();
     const registrations = new Registrations();
     const system = new LegendSystem();
@@ -43,6 +43,8 @@ describe('T-M7-06 milestone registry and fortress legend', () => {
       ['m_decade', { type: 'YearPassed', year: 11 }],
       ['m_legend', { type: 'LegendaryReached', id: 9 }],
       ['m_summon', { type: 'SummonCalled', id: 11, casterId: 9 }],
+      ['m_stone_set', { type: 'StoneSet', itemId: 12, enchantId: 'keen', tier: 1, smithId: 9 }],
+      ['m_runecaster', { type: 'FirstRunecaster', id: 9 }],
     ];
     for (const [id, event] of fixtures) {
       system.handle(event, ctx);
@@ -50,7 +52,7 @@ describe('T-M7-06 milestone registry and fortress legend', () => {
       system.handle(event, ctx);
       expect(milestones.filter((entry) => entry.id === id), id).toHaveLength(1);
     }
-    expect(milestones).toHaveLength(16);
+    expect(milestones).toHaveLength(18);
     system.handle({ type: 'EntitiesMoved', moves: [[9, 32, 25]] }, ctx);
     expect(system.reader().deepestZ()).toBe(25);
     expect(system.reader().kills()).toEqual([{ name: 'Solveig Deephand', count: 4 }]);

@@ -182,12 +182,22 @@ export function withSuffix(name: string, suffix: string): string {
 
 const SLOT_WORDS: Readonly<Record<EnchantDef['slot'], string>> = { weapon: 'weapon', armor: 'armor', ammo: 'ammunition' };
 
+/**
+ * The stone of a setting: 1 cut gem of a gem material, 1 bar of a metal, otherwise 1 of the item
+ * the stone names (`workshops-and-recipes.md` § Runeforge).
+ */
+function stoneInput(stone: string, cls: string | undefined): RecipeDef['inputs'][number] {
+  if (cls === 'gem') return { match: 'cut_gem', count: 1, material: stone };
+  if (cls === 'metal') return { match: 'bar', count: 1, material: stone };
+  return { match: stone, count: 1 };
+}
+
 /** `workshops-and-recipes.md` § Runeforge: one `set_<slot>_<enchant>` per row of `enchants`. */
 export function settingRecipes(
   enchants: readonly EnchantDef[],
   weapons: readonly WeaponGenRow[],
   armor: readonly ArmorGenRow[],
-  isMaterial: (id: string) => boolean,
+  materialClass: (id: string) => string | undefined,
 ): RecipeDef[] {
   const melee = weapons.filter((w) => w.launcher === undefined && w.training !== true).map((w) => w.id);
   const out: RecipeDef[] = [];
@@ -204,7 +214,7 @@ export function settingRecipes(
       skill: 'runesmithing',
       inputs: [
         { match: targets.join('|'), count: e.slot === 'ammo' ? ENCHANT_AMMO_SET : 1 },
-        isMaterial(e.stone) ? { match: 'cut_gem', count: 1, material: e.stone } : { match: e.stone, count: 1 },
+        stoneInput(e.stone, materialClass(e.stone)),
         { match: RUNE_VIAL, count: e.vials },
       ],
       outputs: [],
@@ -431,9 +441,9 @@ export function applyGenerated(data: Record<string, unknown>): void {
   const enchants = (data['enchants'] ?? []) as EnchantDef[];
   const weapons = (data['weapons'] ?? []) as WeaponGenRow[];
   const armor = (data['armor'] ?? []) as ArmorGenRow[];
-  const materialIds = new Set((data['materials'] as MaterialDef[]).map((m) => m.id));
+  const materialClasses = new Map((data['materials'] as MaterialDef[]).map((m) => [m.id, m.class as string]));
   data['recipes'] = [...recipes, ...generatedRecipes(minerals, metals, spells),
-    ...settingRecipes(enchants, weapons, armor, (id) => materialIds.has(id))];
+    ...settingRecipes(enchants, weapons, armor, (id) => materialClasses.get(id))];
 
   for (const m of data['materials'] as MaterialDef[]) m.magmaSafe = m.meltsAtC > MAGMA_C;
 }
