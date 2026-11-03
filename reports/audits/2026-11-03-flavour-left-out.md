@@ -6,7 +6,7 @@
 
 The owner asked: during this stretch of work, did we drop or soften a mechanic that was fun, funny, goofy, interesting or gave the game character?
 
-## Short answer
+## Short answer (runecraft stretch)
 
 Yes, about a dozen. Most were cut in T-467's low-level design, for cost: "this needs a new mechanism for a small effect". Three things have changed since then.
 
@@ -77,6 +77,59 @@ Mishaps made unable to kill through infection (T-469) is the design's own limit,
 - **Daze can re-stun a captain** every 180 ticks (T-473, noted for T-477's balance pass).
 - **A summon can set the "deepest dug" milestone** (T-475 review).
 - **Owner's calls, not cuts of mine:** the door rule removed (T-457), no chapter cards or zooms in the intro (T-434), and no dwarf sheet (T-438).
+
+## Before runecraft (added the same day, at the owner's request)
+
+### Are the logs good enough to look back?
+
+Yes. The record goes back to the first day (2026-09-17):
+- 288 archived tasks in `docs/archive/tasks/`, each with its decisions;
+- 17 fix files and the build-plan milestones in `docs/archive/`;
+- the resolved decision rows in `docs/archive/decisions-archive.md`;
+- 102 audits in `reports/audits/`;
+- the git history.
+
+**Method and its limit:** I searched all of these for removed, replaced or softened rules, and read the ones that touched play. I did not read all 288 tasks in full.
+
+**What the logs show:** the game was built spec-first. Most design choices, including what to leave out, were made before any code, in `00-vision/vision.md` and `scope.md`. After that, almost all work was making the code match the spec, fixing bugs and tuning balance. So most of the character cuts are early, deliberate exclusions with a pillar behind each one. Few cuts were made along the way.
+
+### Cut along the way, before runecraft
+
+| # | Mechanic | Where | Reason | Flavour lost? |
+|---|---|---|---|---|
+| 18 | **A dwarf holding a doorway.** A creature standing in a door stopped every walker, so one soldier could hold a door | T-457, the owner's call (2026-10-31) | Jobs stuck behind a pet in a doorway. The owner wanted shared tiles with crowding instead | Some. The "hold the door" moment is now only a slowdown. Doors still keep out wild and large animals, and hostiles without `opensDoors`. A small way back: a soldier *on duty and stationed* on a door tile still stops hostile walkers, while everyone else passes |
+| 19 | **Obsidian and bone blades** | T-460 | No recipe made them | Yes; this is item 11 above |
+| 20 | **Swells on flat (relief 0) maps** | T-436 | They moved the instrument | No: no generated region is relief 0 since the rescale |
+| 21 | **Floods that generation caused** | T-449 | Dwarves drowned at the bank on day 1 | No: it was a bug. A flood the player makes still works |
+| 22 | **Long bleeding from light cuts** | T-404 | Combat ran far slower than the model; a light cut now clots in 150 ticks | Little: serious wounds still bleed and need a medic |
+| 23 | **Dwarves burned where they stood in a wildfire** | T-397 | They now flee a burning tile | No: it read as a bug, not a story |
+| 24 | **A dwarf sheet, intro chapter cards and zooms** | T-438, T-434 | The owner's calls | Not mine to weigh |
+
+**Kept or added along the way, with character:**
+- a restless dead that collapses at dawn drops its sword (T-351);
+- a fed wolf pack lets its quarry go (T-220);
+- frostmarrow maps bring wild yaks and more snow leopards (T-445);
+- personality-driven sulks: a day off, an argument, weeping at the hearth, hoarding, a broken chair.
+
+### Excluded on purpose at the start (vision and scope)
+
+These are the big ones. Each was cut for a pillar ("legible depth", "a forgiving fortress"), not for cost alone, and most left a hook in place. They are genre staples, so any that comes back must be *our own* design, not a copy of another game's.
+
+| # | Excluded | Reason in `scope.md` | Hook left | A version that fits the pillars |
+|---|---|---|---|---|
+| 25 | **Tantrum spirals** | "Failure is a setback with a story, never a spiral" | **Sulks**, already in, with personality | Already done well. Possible extra sulk kinds: a sulker who paints the wall, or sings badly all night (a mild `kept_awake` thought for neighbours) |
+| 26 | **Nobles, mandates, justice** | "Source of unforgiving spirals" | Positions exist (Thane, Warden, Broker, Chief Medic) | A Thane with *whims*: an occasional wish ("a silver goblet in the hall by autumn") that gives everyone a pride thought when met, and nothing worse than a grumble when missed. All character, no spiral. Medium |
+| 27 | **Cave-ins of natural rock** | "Punishing and opaque" | Constructions need support | A legible version: an over-wide unsupported span *creaks* (an announcement and a mark on the map) for a day before it falls, and the fall only drops rock. Medium to high |
+| 28 | **Aquifers** | "Frustrating for new players" | A layer-feature slot in generation | A *damp layer* as a region trait, named in the embark summary: tiles in it seep one water level now and then. It is a puzzle and a free well. Medium |
+| 29 | **Flying creatures** | Pathfinding cost | A `fly` bit reserved | Cave bats as harmless ambience, flying only inside a cavern's open air, with a little guano for farms. Medium |
+| 30 | **Diseases beyond infection** | Scope | Health's `condition` list | One readable illness, such as "cave cough" from living beside refuse, cured by a clean hall. Medium |
+| 31 | **Siege engines, ladders, digging enemies** | "Defence would need rework" | A `breach` behaviour slot in raider AI | Digging enemies are the most exciting of these, but also the costliest. They undo the meaning of walls. High; only with a design of its own |
+| 32 | **World history and legends** | Cost far over value | Civilisations have fixed personalities | The fortress's own Legend screen already tells its story. Low priority |
+| 33 | **Swimming** | Complexity | Deep water is impassable, with drowning damage | Little flavour to gain |
+
+### Related, still open
+
+**T-466: a raid is never repelled in measured play.** Only small unannounced parties are ever driven off. Announced raids always loot, even against a built kill corridor. A decisive defence is one of the most satisfying stories a fortress game tells, and today it does not happen. The owner was asked on 2026-11-01 whether a well-armed squad should be able to beat a raid. That answer decides whether T-466 becomes a balance task.
 
 ## Suggested order, if the owner wants any of it
 
