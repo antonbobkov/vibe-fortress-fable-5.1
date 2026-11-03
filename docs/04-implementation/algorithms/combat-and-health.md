@@ -11,7 +11,7 @@ tick(ctx):
     if not health.isConscious(id): continue
     if onDuty(id) and loadedLauncher(id) and legalKitingStep(id): walkTo(id, firstSafeAdjacentTile, 'combat'); continue
     if adjacent8SameZ(id, t): if cooldownUntil[id] <= tick: melee(id, t)
-    else if ranged = launcherOf(id) and ammoOf(id) > 0 and dist(id,t) <= ranged.range and lineOfSight(id, t): if cooldownUntil[id] <= tick: shoot(id, t)
+    else if ranged = launcherOf(id) and ammoOf(id) > 0 and dist(id,t) <= ranged.range and lineOfSight(id, t): if cooldownUntil[id] <= tick: s = heldShot(id, t); if s != 0: shoot(id, s)
     else: approach(id, t)                                             // walkTo with urgency 'combat'; ranged keeps RANGED_KEEP_DISTANCE
   advanceProjectiles()
   threatScan(); squadDuties(); training()
@@ -61,6 +61,7 @@ shoot(s, t):
   cooldownUntil[s] = tick + crowdTicks(max(MIN_ATTACK_COOLDOWN, L.size*3 + 10 - agi(s)/10), crowdPercentAt(tile(s)))
   spawn Projectile { itemId: ammoItem, from: pos(s), to: pos(t), line: bresenham(pos(s), extend(pos(s), pos(t), L.range)), progress: 0, shooterId: s, targetId: t, hitRoll: rng.int(0,99) < hit, damage: ammoDef.damage * L.power * (metalCrossbow ? 1.083 : 1) * metal(ammo).weaponMult, damageType: ammoDef.damageType }
   emit ProjectileFired; xp(s, L.skill, 1)
+heldShot(s, t): t if no creature of faction(s) stands on bresenham(pos(s), extend(pos(s), pos(t), L.range)) before t; else the nearest other hostile in range and sight with a clear ray (distance, then id); else 0 (wait). Natural ranged attacks skip it. 16 § Ranged resolution, Held shot
 advanceProjectiles(): for p in projectiles (ascending id):
   p.progress += PROJECTILE_SPEED * 1000
   while p.progress >= 1000 and p.line non-empty:
