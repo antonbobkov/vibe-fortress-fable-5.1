@@ -19,7 +19,7 @@ Grow things. Trees for wood, shrubs for gathering, grass for grazing, crops on f
 
 ### Species table (content) and the properties used here
 
-`kind`, `growSeasons` (surface species; cave species grow in all seasons), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any | glow`, `yieldItem`, `yieldCount: [min, max]`, `seedItem` (always the `seed` item type with the species as material), `secondaryYield` (for example `flax` → `flax_fiber` plus a seed-cake food unit), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `glyph`, `fg`.
+`kind`, `growSeasons` (surface species; cave species have no growing season, but still need `minC ≤ temperatureAt(tile)`), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any | glow`, `yieldItem`, `yieldCount: [min, max]`, `seedItem` (always the `seed` item type with the species as material), `secondaryYield` (for example `flax` → `flax_fiber` plus a seed-cake food unit), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `glyph`, `fg`.
 
 The species fixed by this design (properties in `plants.md`):
 
@@ -39,7 +39,7 @@ growthPerHour(plant, tile) =
   else BASE_GROWTH × weather.growthModifier() / 100        // growthModifier includes season and weather; 100 = normal
 ```
 
-A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accumulator crosses it the stage advances and the accumulator keeps the remainder. Stage 3 begins after three stage lengths, but its accumulator continues through the fourth. A crop is ready only once the mature stage has completed, after four stage lengths at normal growth; `plants.cropReady(tile)` is the readiness query used by harvest jobs, harvest designation and the mature-crop blink. Cave crops use a growth modifier of 100 in every season and ignore weather.
+A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accumulator crosses it the stage advances and the accumulator keeps the remainder. Stage 3 begins after three stage lengths, but its accumulator continues through the fourth. A crop is ready only once the mature stage has completed, after four stage lengths at normal growth; `plants.cropReady(tile)` is the readiness query used by harvest jobs, harvest designation and the mature-crop blink. Cave crops use a growth modifier of 100 in every season and ignore weather, but not temperature: a cave plot one or two levels below the surface in a cold region falls under a crop's `minC` in winter, and its crops stand still (dormant, not dead) until it warms, while a plot `NEAR_SURFACE_DEPTH` or more levels below the surface stays at `UNDERGROUND_BASE_C` all year (05 § Temperature model). A dimcap or cavewheat plot (`minC` 2) one level down in a taiga winter, with the surface at −12 °C, is −5 °C and does not grow; two levels down it is 2 °C at that surface temperature and below 2 °C on colder nights.
 
 - `seasonAllows`: surface crops grow only in their `growSeasons`; outside them they are dormant (not dead). Outside their growing seasons, `temperatureAt(tile) < FROST_KILL_C` kills surface crops (`CropDied { reason: frost }`), which clears the tile for spring.
 - `lightOk`: `sun` needs crop light; `dark` needs it clear; `glow` needs it clear and the tile under a lamp (`buildings.lampCoveredAt`); `any` ignores both. `buildings.cropLitAt` reads the original light bit recorded under lamp coverage, otherwise the `lit` flag; lamp comfort light does not alter crop eligibility. A crop whose light is wrong, such as a glowcap that loses its lamp, stops growing and does not die.
@@ -122,14 +122,14 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ### Registrations
 
-Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` and `zone › farm plot` (settings, crops by stage, seeds available); announcement `PlotNeedsSeeds` as a note.
+Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` and `zone › farm plot` (settings, crops by stage, seeds available, tiles too cold for the crop); announcement `PlotNeedsSeeds` as a note.
 
 ## Player-facing behavior
 
-- Zones menu › Farm plot: drag a rectangle; qualifying tiles highlight green, others red; confirm. The plot panel shows four season slots with species drop-downs filtered by light, a seed count per species, and the crops on the plot by stage.
+- Zones menu › Farm plot: drag a rectangle; qualifying tiles highlight green, others red; confirm. The plot panel shows four season slots with species drop-downs filtered by light, a seed count per species, and the crops on the plot by stage. When tiles of the plot are below the minimum temperature of the crop growing or chosen there for the current season, a note under the crop counts them ("Too cold to grow: 4 of 9 tiles are under 2°C for dimcap.") and, under it, says that rock `NEAR_SURFACE_DEPTH` levels below the surface stays warm all year.
 - Crops draw as the species glyph with foreground `grass_green` dimmed by 3, 2, 1, 0 for stages 0–3. Once ready, the foreground is `green` for one 500 ms frame per four-frame (two-second) cycle until harvested.
 - Trees `♣`, `♠` and `↑` by species; saplings `τ`; shrubs `"` in species color; grass as a `grass_green` foreground on the floor glyph; cave moss uses `moss_teal`. Grass in `cold_steppe`, `tundra`, `savanna`, `desert` and `badlands` uses `grass_dry` foreground; outdoors its glyph, tint and flowers vary by tile (23 § Compositor step 2).
-- Hints: "Farms need soil or mud", "Cave crops grow in the dark all year", "Harvest returns one seed; brewing does not".
+- Hints: "Farms need soil or mud", "Cave crops grow in the dark, but in a cold region a cave within two levels of the surface freezes in winter", "Harvest returns one seed; brewing does not".
 
 ## Tuning constants
 

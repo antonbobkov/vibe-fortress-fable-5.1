@@ -93,4 +93,4 @@ Every still recipe: 4 plant units + 1 empty barrel → 20 units of drink in the 
 
 ## Growth arithmetic
 
-A dimcap plot tile at 100% growth completes a cycle in 16 days and yields on average 4 plants plus 1 seed. Twenty dwarves consume about 25 raw plant units per day for food and drink combined (see [balance.md](balance.md)); a 10×10 cave plot of dimcaps yields 100 tiles × 4 / 16 = 25 per day at skill 0. Surface plots produce nothing in winter; cave plots produce all year.
+A dimcap plot tile at 100% growth completes a cycle in 16 days and yields on average 4 plants plus 1 seed. Twenty dwarves consume about 25 raw plant units per day for food and drink combined (see [balance.md](balance.md)); a 10×10 cave plot of dimcaps yields 100 tiles × 4 / 16 = 25 per day at skill 0. Surface plots produce nothing in winter. A cave plot grows in every season where its tiles are at or above the crop's `minC` (2 °C for dimcap and cavewheat): three levels or more below the surface that is all year in every region, but in a cold region a plot one or two levels down freezes in winter and produces nothing until spring (05 § Temperature model).

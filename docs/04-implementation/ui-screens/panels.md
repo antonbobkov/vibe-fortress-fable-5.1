@@ -26,6 +26,10 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ Autumn  [sweetroot   ▾]  0 seeds    │
 │ Winter  [dimcap      ▾]  14 seeds   │
 │ Crops: 18 growing, 4 ready, 2 empty │
+│ Too cold to grow: 4 of 24 tiles are │
+│ under 2°C for dimcap.               │
+│ Rock 3 levels below the surface     │
+│ stays warm all year.                │
 │ ↑↓ season · Enter choose crop       │
 │ [S-a] all seasons                   │
 │ [x] remove zone  [S-e] resize       │
@@ -33,7 +37,7 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 
 The type list uses names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather, Sanctum); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The new zone is selected at once, so its inspector shows, and the tool stays armed for the next drag. A drag where no tile qualifies sends nothing and says "Bedroom: none of the 4 tiles qualify (floor that no other zone holds)." While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 t)".
 
-A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓` move the highlight (`►` before the season) over the rows; it starts on the current season each time a plot is selected. `Enter` opens the highlighted row's crop list, in which `↑` `↓` and `Enter` choose and `Esc` closes it without a change; the list is as wide as the panel allows. `Shift+A`, or a click on `[S-a] all seasons`, sets the highlighted row's crop for every season in which that crop can grow (when the row is `none` it clears all four). With a farm plot selected `Shift+A` is this key and not the Archery zone type; `[y]` returns to the type list. A crop with no seeds in stock is listed with `(no seeds)` after its name, and the figure after a row reads `14 seeds`, in red at 0.
+A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓` move the highlight (`►` before the season) over the rows; it starts on the current season each time a plot is selected. `Enter` opens the highlighted row's crop list, in which `↑` `↓` and `Enter` choose and `Esc` closes it without a change; the list is as wide as the panel allows. `Shift+A`, or a click on `[S-a] all seasons`, sets the highlighted row's crop for every season in which that crop can grow (when the row is `none` it clears all four). With a farm plot selected `Shift+A` is this key and not the Archery zone type; `[y]` returns to the type list. A crop with no seeds in stock is listed with `(no seeds)` after its name, and the figure after a row reads `14 seeds`, in red at 0. When tiles of the plot are below the minimum temperature of the crop standing on them (of the current season's crop on an empty tile), a red note under the crop count says how many ("Too cold to grow: 4 of 24 tiles are under 2°C for dimcap.", for the species with most such tiles), followed by a dim line, "Rock 3 levels below the surface stays warm all year." (`NEAR_SURFACE_DEPTH`); with no cold tile the note is absent. The wireframe shows the note, which is not always there.
 
 A stockpile made while paused can be configured immediately, before its `ZoneChanged` is dispatched. While its record is absent, the inspector reads the same empty filter, zero wanted containers, no links and `HAUL_PRIORITY` defaults as the item system, without creating state during drawing. Every editor action uses those defaults until a command creates the record; a deleted zone still reports that it is unavailable.
 

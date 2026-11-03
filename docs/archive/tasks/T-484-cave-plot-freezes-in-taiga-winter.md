@@ -1,10 +1,12 @@
 # T-484 — A cave plot one level down freezes through a taiga winter
 
-**Source:** T-481 ([report](../../reports/audits/2026-11-02-taiga-1-food-margin.md)) · **Size:** S to M, by the decision · **Needs:** the owner's decision below · **Status:** open (decision needed)
+**Closed:** 2026-11-02, in 529e16de.
+
+**Source:** T-481 ([report](../../../reports/audits/2026-11-02-taiga-1-food-margin.md)) · **Size:** S to M, by the decision · **Needs:** the owner's decision below · **Status:** open (decision needed)
 
 ## Why
 
-[plants.md](../03-content/plants.md) § Growth arithmetic says "cave plots produce all year", and the farm hint says "cave crops grow in the dark all year". The temperature rules say otherwise for a shallow cave in a cold biome, and the game follows the rules:
+[plants.md](../../03-content/plants.md) § Growth arithmetic says "cave plots produce all year", and the farm hint says "cave crops grow in the dark all year". The temperature rules say otherwise for a shallow cave in a cold biome, and the game follows the rules:
 
 - 05 § Temperature model blends the surface temperature into `UNDERGROUND_BASE_C` (10 °C) over `NEAR_SURFACE_DEPTH` (3) levels. One level down, the tile is the surface temperature plus a third of the way to 10 °C.
 - A taiga winter's surface is −12 °C, with a daily swing of ±6 and weather of −1 to −4. One level down, that is about −7 °C at midnight (measured), −9 °C before dawn and −1 °C at the warmest hour of a clear day. Dimcap needs `minC` 2 (07 § Growth), so it does not grow at all from day 85 to day 112.

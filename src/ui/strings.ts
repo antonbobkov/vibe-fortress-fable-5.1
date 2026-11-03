@@ -454,6 +454,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.zone.actions': '[x] remove zone  [S-e] resize',
   'ui.zone.farm_no_seeds': '{name} (no seeds)',
   'ui.zone.farm_seeds': '{n} seeds',
+  'ui.zone.farm_cold': 'Too cold to grow: {n} of {m} tiles are under {min}°C for {name}.',
+  'ui.zone.farm_cold_help': 'Rock {depth} levels below the surface stays warm all year.',
   'ui.zone.farm_keys1': '↑↓ season · Enter choose crop',
   'ui.zone.farm_keys2': '[S-a] all seasons',
   'ui.look.deconstruct': '[x] take apart',
