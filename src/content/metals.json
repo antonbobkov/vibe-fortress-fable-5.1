@@ -134,6 +134,7 @@
     "bluntBonus": 0,
     "runeMult": 1600,
     "runePressure": 10,
+    "summon": "deep_shade",
     "meltsAtC": 2400,
     "color": "deepsilver_blue",
     "armorWeightMult": 500,
@@ -243,6 +244,7 @@
     "armorMult": 600,
     "bluntBonus": 30,
     "runeMult": 1300,
+    "summon": "stone_warden",
     "meltsAtC": 962,
     "color": "silver_white"
   },
@@ -257,6 +259,7 @@
     "armorMult": 1250,
     "bluntBonus": 0,
     "runeMult": 1100,
+    "summon": "stone_warden",
     "meltsAtC": 1500,
     "color": "steel_bright",
     "alloy": {

@@ -54,5 +54,11 @@ export const DRAUGHT_REST_DAYS = 3;
 export const CALM_REST_DAYS = 7;
 /** A spoilable batch spoils at this per mille, less 10 per level of the worker's skill. */
 export const ALCHEMY_MISHAP_PERMILLE = 100;
+/** A summon fades this long after its call: one day. */
+export const SUMMON_TICKS = 1200;
+/** Summons one caster has alive at most; a Call is not cast at this many. */
+export const MAX_SUMMONS_PER_CASTER = 2;
+/** A species that `turns` comes through turned with this chance per mille, on stream 25. */
+export const SHADE_TURN_PERMILLE = 50;
 /** The `deep` draughts are drunk when the Deep stirs or emerges at this level or above. */
 export const DEEP_DRAUGHT_LEVEL = 2;

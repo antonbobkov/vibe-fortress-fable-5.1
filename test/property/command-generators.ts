@@ -301,7 +301,7 @@ const M4_GENERATORS: readonly CommandGenerator[] = [
     arbitrary: (w) => {
       const recipes = w.game.registry.table<{ id: string; workshop: string; transform?: boolean }>('recipes');
       const ids = recipes.ids();
-      // A transform recipe (25 § Setting stones) takes a `once` order only.
+      // A transform recipe (a stone setting) has no output to count, so its order is `once` only (12 § Work orders).
       return fc.tuple(fc.constantFrom(...ids), fc.integer({ min: 1, max: 9 }), fc.boolean())
         .map(([recipeId, count, maintain]) => ({ type: 'AddWorkOrder', workshopId: 0,
           order: maintain && recipes.byId(recipeId)?.transform !== true

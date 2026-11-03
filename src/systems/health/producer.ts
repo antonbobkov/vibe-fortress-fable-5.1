@@ -374,7 +374,8 @@ export class HealthProducer implements JobProducer {
 
     // Tame animals: bandaging only.
     for (const animalId of entities.with(C.Tame, C.Body)) {
-      if (!entities.alive(animalId)) continue;
+      // A summon is no animal to tend (25 § Summons).
+      if (!entities.alive(animalId) || entities.has(animalId, C.Summoned)) continue;
       const ab = entities.get(animalId, C.Body);
       if (!ab) continue;
       const isBleeding = ab.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));

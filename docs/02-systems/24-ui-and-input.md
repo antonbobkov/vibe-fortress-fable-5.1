@@ -196,7 +196,7 @@ The presentation UI exposes no simulation reader. The legend journal, a saved si
 
 - `legend.peakPopulation()` — the highest population reached
 - `legend.deepestZ()` — the deepest level reached
-- `legend.kills()` — the kill tally, as name and count
+- `legend.kills()` — the kill tally, as name and count; a fortress killer is counted unless it is a summon (25 § Summons), whose kills still award the milestones
 
 ### Events consumed (presentation subscriber)
 

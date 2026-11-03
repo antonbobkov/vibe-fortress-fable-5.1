@@ -1,5 +1,14 @@
 [
   {
+    "id": "call",
+    "name": "Call",
+    "stone": "glowstone",
+    "kind": "call",
+    "cost": 3,
+    "suffix": "of calling",
+    "summon": "wisp"
+  },
+  {
     "id": "daze",
     "name": "Daze",
     "stone": "diamond",

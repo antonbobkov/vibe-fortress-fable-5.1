@@ -75,6 +75,11 @@
     "text": "A legend walked the halls."
   },
   {
+    "id": "m_summon",
+    "trigger": "first SummonCalled",
+    "text": "A summoning was answered."
+  },
+  {
     "id": "m_stone_set",
     "trigger": "first StoneSet",
     "text": "A stone was first set at the runeforge."

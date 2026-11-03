@@ -87,8 +87,12 @@ function parseFlags(cell, sid) {
   );
   const war = letters.has('W');
   const hunting = letters.has('H');
+  // Words beside the letters: `summoned` and `turns` (§ Summons, 25-runecraft.md § Summons).
+  const words = new Set(plain(cell).split(/[\s;,]+/));
   return {
     flags: compact({
+      summoned: words.has('summoned') ? true : undefined,
+      turns: words.has('turns') ? true : undefined,
       stealth: letters.has('S') ? true : undefined,
       breaksDoors: letters.has('D') ? true : undefined,
       opensDoors: letters.has('O') ? true : undefined,
@@ -165,6 +169,7 @@ const FACTION_BY_SECTION = {
   'Hollow-born (faction `deep`; never flee; never loot)': () => 'deep',
   'Gloam, Hillfolk bandits, the restless dead (owned by 18)': (sid) =>
     sid === 'hillfolk_bandit' ? 'hostile:hillfolk' : sid === 'restless_dead' ? 'wild' : 'hostile:gloam',
+  'Summons (owned by 25)': () => 'fortress',
 };
 
 const SECTIONS = Object.keys(FACTION_BY_SECTION);

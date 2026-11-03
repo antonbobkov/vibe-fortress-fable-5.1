@@ -80,6 +80,7 @@ import {
   checkHollowWave,
   handleDeepsilverMined,
   handleDeepsilverWorked,
+  spawnedHollowBorn,
   nextDeepThreshold,
   stepHollowBorn,
 } from './deep';
@@ -122,6 +123,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     'CavernBreached',
     'DeepsilverMined',
     'DeepsilverWorked',
+    'SummonTurned',
   ];
 
   private releaseDestroyObserver: (() => void) | null = null;
@@ -452,6 +454,11 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
           checkPartyCasualties(partyId, P, ctx);
         }
       }
+    } else if (event.type === 'SummonTurned') {
+      // 25 § Summons: a turned summon is Hollow-born from the tile it came through on.
+      const id = event['id'] as EntityId;
+      const pos = ctx.world.entities.get(id, C.Position);
+      if (pos !== undefined) spawnedHollowBorn(ctx, id, ctx.world.map.index(pos.x, pos.y, pos.z), this.hollowBorn);
     } else if (event.type === 'DeepsilverMined') {
       const tile = event['tile'] as TileIndex;
       handleDeepsilverMined(tile, ctx, this.deepsilverTiles, this.deepState, this.hollowBorn);

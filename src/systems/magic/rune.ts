@@ -135,9 +135,10 @@ export const MISHAP_WEIGHTS: readonly { readonly kind: MishapKind; readonly weig
   { kind: 'scorched_circle', weight: 15 },
   { kind: 'fire', weight: 7 },
   { kind: 'surge', weight: 3 },
+  { kind: 'wisp_loose', weight: 10 },
 ];
 
-export type MishapKind = 'singed' | 'blackout' | 'scorched_circle' | 'fire' | 'surge';
+export type MishapKind = 'singed' | 'blackout' | 'scorched_circle' | 'fire' | 'surge' | 'wisp_loose';
 
 /** One roll per session on stream 25; on a mishap, a second draw picks the kind by weight. */
 export function rollMishap(rng: RngStream, level: number, tier: number): MishapKind | null {

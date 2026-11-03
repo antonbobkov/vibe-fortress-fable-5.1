@@ -199,29 +199,39 @@ export function triggerDeepEmergence(
     const spIdx = speciesTable.index(sp);
     const id = ctx.world.services.spawn.creature(spIdx, spawnTile, 'deep');
     if (id !== 0) {
-      const hasStealth = speciesTable.byIndex(spIdx)?.flags?.stealth === true;
-      ctx.world.entities.add(id, C.Hostile, {
-        partyId: 0,
-        role: 'hollow',
-        behaviorState: 'attack',
-        stealthed: hasStealth,
-        spotted: false,
-        breakingDoorId: 0,
-        breakingSince: 0,
-      });
-
-      hollowBorn.add(id);
+      spawnedHollowBorn(ctx, id, spawnTile, hollowBorn);
       spawnedIds.push(id);
-
-      const target = findNearestFortressTarget(spawnTile, ctx);
-      if (target !== 0) {
-        ctx.world.services.combat?.setTarget(id, target);
-      }
     }
   }
 
   ctx.emit({ type: 'MonsterEmerged', ids: spawnedIds, tile: baseTile });
   return spawnedIds;
+}
+
+/**
+ * A creature of the `deep` faction that has just appeared becomes Hollow-born: `Hostile` (role
+ * `hollow`, attacking, stealthed when its species has stealth), a member of `hollowBorn`, and the
+ * nearest fortress creature as its target. The emergence and 25's turned summon (`SummonTurned`)
+ * both come through here.
+ */
+export function spawnedHollowBorn(ctx: TickContext, id: EntityId, tile: TileIndex, hollowBorn: Set<EntityId>): void {
+  const creature = ctx.world.entities.get(id, C.Creature);
+  if (creature === undefined || !ctx.world.entities.alive(id)) return;
+  const species = ctx.registry.table<{ id: string; flags?: { stealth?: boolean } }>('creatures').byIndex(creature.species);
+  ctx.world.entities.add(id, C.Hostile, {
+    partyId: 0,
+    role: 'hollow',
+    behaviorState: 'attack',
+    stealthed: species?.flags?.stealth === true,
+    spotted: false,
+    breakingDoorId: 0,
+    breakingSince: 0,
+  });
+  hollowBorn.add(id);
+  const target = findNearestFortressTarget(tile, ctx);
+  if (target !== 0) {
+    ctx.world.services.combat?.setTarget(id, target);
+  }
 }
 
 /**

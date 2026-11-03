@@ -146,6 +146,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `thief_escaped_with_my_things` | "A thief took my things." | −5 | 72 | halflife | 1 | none | `ThiefEscaped` item owner |
 | `lost_limb` | "I lost a limb." | −12 | 336 | halflife | 1 | none | `LimbLost` |
 | `deep_stirred_dread` | "Something below has noticed us." | −4 | 48 | halflife | 1 | fear | `DeepStirred` (everyone) |
+| `summon_turned` | "Something came through that was not called." | −4 | 48 | halflife | 1 | fear | `SummonTurned` (everyone) |
 | `argued` | "Had an argument." | −5 | 48 | halflife | 1 | social | sulk argument, both |
 
 ### Pride and relief

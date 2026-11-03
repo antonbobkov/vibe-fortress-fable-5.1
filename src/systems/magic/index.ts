@@ -9,7 +9,7 @@
  * section and not in this state.
  */
 
-import { C, type Rune } from '@core/components';
+import { C, type Rune, type Summoned } from '@core/components';
 import type { CommandType } from '@core/command-types';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { EventType } from '@core/event-types';
@@ -25,6 +25,7 @@ import { DEEP_DRAUGHT_LEVEL, SANCTUM_APPRENTICES } from './constants';
 import { MagicProducer, type MagicHost } from './producer';
 import type { MagicReader, RuneView, SpellView } from './reader';
 import { dropExpiredEffects, spellOfItem } from './cast';
+import { summonSpecies, summonsOf } from './summon';
 import { enchantOfItem } from './enchant';
 import { breathesFire, draughtRestLeft, soldierDrinks, soldiersOnDuty } from './draughts';
 import {
@@ -98,7 +99,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     ctx.register.inspector('zone', { id: SANCTUM, order: 40 });
     ctx.register.inspector('item', { id: 'stone', order: 20 });
     // One line per kind; a scorched circle and a fire are alerts.
-    for (const kind of ['singed', 'blackout', 'surge', 'scorched_circle', 'fire']) {
+    for (const kind of ['singed', 'blackout', 'surge', 'wisp_loose', 'scorched_circle', 'fire']) {
       const severity = kind === 'scorched_circle' || kind === 'fire' ? 'alert' : 'note';
       ctx.register.announcement('Mishap', { severity, stringKey: `announce.mishap_${kind}`, oneOf: { field: 'kind', values: [kind] } });
     }
@@ -107,6 +108,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     ctx.register.announcement('StoneSet', { severity: 'note', stringKey: 'announce.stone_set', oneOf: { field: 'tier', values: [5] } });
     ctx.register.announcement('RuneSpent', { severity: 'note', stringKey: 'announce.rune_spent' });
     ctx.register.announcement('SpellCast', { severity: 'alert', stringKey: 'announce.firebloom_burned', oneOf: { field: 'burned', values: [true] } });
+    ctx.register.announcement('SummonTurned', { severity: 'danger', stringKey: 'announce.summon_turned' });
   }
 
   // ---------- the casting API 16's ranged branch writes through ----------
@@ -251,6 +253,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     if (event.type === 'HourPassed') {
       this.regenerate(ctx);
       dropExpiredEffects(ctx.world.entities, ctx.tick);
+      fadeSummons(ctx);
       this.sweepDue = true;
     } else if (event.type === 'DayPassed') {
       this.calmDue = true;
@@ -278,6 +281,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     } else if (event.type === 'CreatureDied') {
       this.sessions.delete(event['id'] as EntityId);
       this.sweepDue = true;
+      bringFadeForward(ctx, event['id'] as EntityId);
     } else if (event.type === 'ZoneChanged' && event['zoneType'] === SANCTUM) {
       const zoneId = event['zoneId'] as EntityId;
       if (event['change'] === 'removed') {
@@ -392,6 +396,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
         return world === null || registry === null ? undefined : enchantOfItem(world.entities, registry, itemId);
       },
       spellOf: (itemId) => this.spellOf(itemId),
+      summonsOf: (id) => (this.worldRef === null ? [] : summonsOf(this.worldRef.entities, id)),
       effects: (id) => {
         const world = this.worldRef;
         const bound = world === null ? undefined : world.entities.get(id, C.Spellbound);
@@ -422,6 +427,9 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
       ticks: cs.ticks,
       power: cs.power,
       suffix: cs.spell.suffix,
+      summon: cs.spell.kind === 'call'
+        ? registry.table<{ id: string; name: string }>('creatures').byIndex(summonSpecies(registry, cs.spell, world.entities.get(itemId, C.Item)?.material ?? 0))?.name ?? ''
+        : '',
     };
   }
 
@@ -469,6 +477,23 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     for (const id of state.bloomAlertsToday ?? []) this.bloomAlertsToday.add(id);
     this.sanctumSet = null;
     this.sweepDue = true;
+  }
+}
+
+/** § Summons, fading: on `HourPassed`, every summon whose `fadesAt` has come dies through 17 (`SummonFaded`), ascending. */
+function fadeSummons(ctx: TickContext): void {
+  const entities = ctx.world.entities;
+  if (entities.store(C.Summoned).size === 0) return;
+  const due = entities.with(C.Summoned).filter((id) => entities.alive(id) && (entities.get(id, C.Summoned)?.fadesAt ?? 0) <= ctx.tick);
+  for (const id of due.sort((a, b) => a - b)) ctx.emit({ type: 'SummonFaded', id });
+}
+
+/** A summoner's death: its summons fade on the next `HourPassed`. */
+function bringFadeForward(ctx: TickContext, dead: EntityId): void {
+  const entities = ctx.world.entities;
+  for (const id of summonsOf(entities, dead)) {
+    const summoned = entities.get(id, C.Summoned);
+    if (summoned !== undefined && summoned.fadesAt > ctx.tick) entities.add<Summoned>(id, C.Summoned, { ...summoned, fadesAt: ctx.tick });
   }
 }
 

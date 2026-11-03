@@ -61,6 +61,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     'Slept',
     'CreatureStunned',
     'Mended',
+    'SummonFaded',
   ];
 
   override readonly ownsCommands: readonly CommandType[] = ['SetHospitalSupplies'];
@@ -159,6 +160,12 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       this.lastHospitalTier.delete(id);
       this.pendingTreatments.delete(id);
       this.stunnedUntil.delete(id);
+      return;
+    }
+
+    if (event.type === 'SummonFaded') {
+      // 25 § Summons: a summon's day is over. It dies here, so every system's cleanup runs.
+      killCreature(ctx, event['id'] as EntityId, 'faded');
       return;
     }
 

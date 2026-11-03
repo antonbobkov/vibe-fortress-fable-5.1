@@ -28,7 +28,7 @@ export class LegendSystem extends BaseSystem<LegendStateV1> {
   override readonly subscribes: readonly EventType[] = [
     'HearthLit', 'ItemCrafted', 'CavernBreached', 'DeepsilverMined', 'CreatureDied',
     'RaidEnded', 'BuildingCompleted', 'RoomQualityChanged', 'YearPassed',
-    'LegendaryReached', 'ImmigrantsArrived', 'EntitiesMoved', 'StoneSet', 'FirstRunecaster',
+    'LegendaryReached', 'ImmigrantsArrived', 'EntitiesMoved', 'StoneSet', 'FirstRunecaster', 'SummonCalled',
   ];
   private peak = 0;
   private seeded = false;
@@ -106,6 +106,7 @@ export class LegendSystem extends BaseSystem<LegendStateV1> {
       case 'LegendaryReached': this.award('m_legend', ctx); break;
       case 'StoneSet': this.award('m_stone_set', ctx); break;
       case 'FirstRunecaster': this.award('m_runecaster', ctx); break;
+      case 'SummonCalled': this.award('m_summon', ctx); break;
       case 'RaidEnded': {
         if (event['outcome'] === 'repelled' || event['outcome'] === 'wiped') this.award('m_raid', ctx);
         break;
@@ -117,10 +118,14 @@ export class LegendSystem extends BaseSystem<LegendStateV1> {
         break;
       }
       case 'CreatureDied': {
-        const killer = ctx.world.entities.get(Number(event['killerId'] ?? 0), C.Creature);
+        const killerId = Number(event['killerId'] ?? 0);
+        const killer = ctx.world.entities.get(killerId, C.Creature);
         if (killer?.faction !== 'fortress') break;
-        const name = killer.name;
-        this.killCounts.set(name, (this.killCounts.get(name) ?? 0) + 1);
+        // A summon's kills are the fortress's, but it is no name in the legend (25 § Summons).
+        if (ctx.world.entities.get(killerId, C.Summoned) === undefined) {
+          const name = killer.name;
+          this.killCounts.set(name, (this.killCounts.get(name) ?? 0) + 1);
+        }
         const speciesIndex = Number(event['species'] ?? 0);
         const species = this.registry.table<{ id: string }>('creatures').byIndex(speciesIndex)?.id ?? '';
         if (species.startsWith('hollow_')) this.award('m_hollow', ctx);

@@ -49,7 +49,8 @@ export function triggerTrap(ctx: TickContext, trapId: EntityId, creatureId: Enti
     const creature = entities.get(creatureId, C.Creature);
     const cageId = trap.loaded[0] ?? 0;
     const cage = entities.get(cageId, C.Item);
-    if (creature === undefined || creature.sizeClass > CAGE_MAX_SIZE || cage === undefined) return;
+    // A cage cannot hold a summon (25 § Summons): it would fade inside and leave the cage held.
+    if (creature === undefined || creature.sizeClass > CAGE_MAX_SIZE || cage === undefined || entities.has(creatureId, C.Summoned)) return;
     trap.loaded.shift();
     const from = ctx.world.services.movement?.tileOf(creatureId) ?? tile;
     ctx.world.services.movement?.stopWalking(creatureId);
