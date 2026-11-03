@@ -41,6 +41,9 @@ export interface HexerFigures {
   died: number;
   /** Dwarves dead whose killer was a hexer. */
   dwarvesKilled: number;
+  /** For comparison: the archers of the same parties, and the arrows they loosed. */
+  archers: number;
+  arrows: number;
 }
 
 const groupOf = (faction: string): string => (faction === 'hostile:cavern' ? 'cavern' : faction === 'deep' ? 'deep' : faction.startsWith('hostile') ? 'raiders' : faction);
@@ -48,7 +51,7 @@ const groupOf = (faction: string): string => (faction === 'hostile:cavern' ? 'ca
 export class PartyWatch {
   readonly figures: PartyFigures = {
     hostilesDied: {}, dwarvesKilledBy: {}, doorSteps: 0, doorStepsPastFortress: 0, doorStepsPastSoldier: 0,
-    hexers: { arrived: 0, casts: 0, spent: 0, frostHits: 0, otherHits: 0, blows: 0, died: 0, dwarvesKilled: 0 },
+    hexers: { arrived: 0, casts: 0, spent: 0, frostHits: 0, otherHits: 0, blows: 0, died: 0, dwarvesKilled: 0, archers: 0, arrows: 0 },
   };
 
   constructor(w: TestWorld) {
@@ -59,6 +62,7 @@ export class PartyWatch {
     const h = f.hexers;
     // A hexer's id and its casts so far, kept past its death.
     const hexers = new Map<EntityId, number>();
+    const archers = new Set<EntityId>();
     w.game.world.onEvents((events) => {
       const buildings = w.readers.of<BuildingsReader>('14');
       for (const e of events) {
@@ -72,7 +76,11 @@ export class PartyWatch {
           }
         } else if (e.type === 'HostileSpawned') {
           const id = Number(e['id']);
-          if (ent.get(id, C.Hostile)?.role === 'hexer') { hexers.set(id, 0); h.arrived += 1; }
+          const role = ent.get(id, C.Hostile)?.role;
+          if (role === 'hexer') { hexers.set(id, 0); h.arrived += 1; }
+          if (role === 'archers') { archers.add(id); h.archers += 1; }
+        } else if (e.type === 'ProjectileFired') {
+          if (archers.has(Number(e['shooterId']))) h.arrows += 1;
         } else if (e.type === 'SpellCast') {
           const id = Number(e['casterId']);
           const casts = hexers.get(id);

@@ -95,7 +95,7 @@ Fractions of `size` by role; the remainder after rounding goes to warriors. A ca
 | 3 | iron | axe, mace or spear, helm 50%, mail shirt 50% else jerkin, shield 60%, leggings | bow, 30 iron arrows, short sword, cap, jerkin | helm, mail shirt, greaves, shield | wand (stone amethyst), dagger, cap, leather jerkin |
 | 4 | steel | axe, warhammer or spear, helm, mail shirt, shield 70%, greaves, gauntlets 50% | bow, 30 steel arrows, short sword, helm, mail shirt | helm, breastplate, greaves, gauntlets, shield | wand (stone amethyst), dagger, cap, leather jerkin |
 
-Quality: common; captains fine. Restless dead carry a rusted (poor) iron weapon with 30% chance. A bow, a club and a wand are of wood (oak); a cap, a jerkin, leggings, boots and a quiver of leather; the rest of the tier's metal. `(stone amethyst)` sets that stone in the item when it is made, as a runeforge sets a channel's: a hexer's wand is a wand of frost (Frostbind). A hexer holds no other stone.
+Quality: common; captains fine. Restless dead carry a rusted (poor) iron weapon with 30% chance. A bow, a club and a wand are of wood (oak); a cap, a jerkin, leggings, boots and a quiver of leather; the rest of the tier's metal. `(stone amethyst)` sets that stone in the item when it is made, as a runeforge sets a channel's: a hexer's wand is a wand of frost (Frostbind). A hexer holds no other stone, and its kit is taken whole, with no roll.
 
 ## Cavern monsters
 

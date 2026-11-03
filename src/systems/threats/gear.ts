@@ -124,8 +124,10 @@ export function equipHostileCreature(
     kitItemsToRoll.push(...tierRow.kits.captain);
   }
 
+  // 25 § Hexers: a hexer's kit is fixed and draws nothing, so 18's stream runs as it would without hexers.
+  const fixedKit = role === 'hexer';
   for (const kitItem of kitItemsToRoll) {
-    if (rng.int(1, 1000) > kitItem.chance) continue;
+    if (!fixedKit && rng.int(1, 1000) > kitItem.chance) continue;
 
     const itemType = itemsTable.index(kitItem.item);
     if (itemType <= 0) continue;

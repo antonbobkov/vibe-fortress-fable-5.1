@@ -135,7 +135,11 @@ describe('T-479 a hexer', () => {
   it('carries a wooden wand of frost, a dagger, a cap and a jerkin, all foreign, and HEXER_RUNE that never comes back', () => {
     const w = arena('t479-kit');
     const at = w.index(30, 30, Z);
-    const h = hexer(w, raidParty(w, at), at);
+    const party = raidParty(w, at);
+    // Its kit is fixed: spawning it draws nothing on 18's stream.
+    const before = JSON.stringify(w.game.world.rngState());
+    const h = hexer(w, party, at);
+    expect(JSON.stringify(w.game.world.rngState())).toBe(before);
     const ent = w.game.world.entities;
     const eq = ent.get(h, C.Equipment)!;
     const wand = ent.get(eq.weapon, C.Item)!;
