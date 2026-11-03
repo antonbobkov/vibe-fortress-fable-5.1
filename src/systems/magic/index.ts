@@ -338,7 +338,8 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     const metal = metalPercent(pieces.length);
     const gear = runeGear(world.entities, registry, id);
     const max = runeMaxMilli(level, gear.maxBonus);
-    const regen = runeRegenMilli(level, metal, gear.regenPercent);
+    // § Rune: a hostile creature's rune never comes back.
+    const regen = world.entities.has(id, C.Hostile) ? 0 : runeRegenMilli(level, metal, gear.regenPercent);
     return {
       current: rune.current, max, regen, metalPercent: metal, metalPieces: pieces, robePercent: gear.regenPercent,
       maxBonus: gear.maxBonus, hoursToFull: hoursToFull(rune.current, max, regen),

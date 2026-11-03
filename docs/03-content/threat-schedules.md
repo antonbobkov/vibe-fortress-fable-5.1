@@ -74,28 +74,28 @@ Every autumn night at dusk: `count = clamp(2, 8, 2 + renown / 12)` rise from ran
 
 ## Party composition
 
-Fractions of `size` by role; the remainder after rounding goes to warriors. A captain is added on top of `size` for raids and sieges.
+Fractions of `size` by role; the remainder after rounding goes to warriors. A captain is added on top of `size` for raids and sieges, and so are hexers (`gloam_hexer`, [25 Runecraft](../02-systems/25-runecraft.md) § Hexers): at peril 3 from year 3 and at peril 4 from year 2, never at a lower peril or earlier.
 
-| Kind | Warriors | Archers | Captain | Trollkin |
-|---|---|---|---|---|
-| ambush | 60% | 40% | 0 | 0 |
-| raid | 70% | 30% | 1 | 0 |
-| siege | 60% | 30% | 1 (+1 per 20 members) | per table |
-| bandits | 100% (`hillfolk_bandit`) | 0 | 0 | 0 |
+| Kind | Warriors | Archers | Captain | Trollkin | Hexers |
+|---|---|---|---|---|---|
+| ambush | 60% | 40% | 0 | 0 | 0 |
+| raid | 70% | 30% | 1 | 0 | 1 |
+| siege | 60% | 30% | 1 (+1 per 20 members) | per table | 2 |
+| bandits | 100% (`hillfolk_bandit`) | 0 | 0 | 0 | 0 |
 
 ## Hostile gear by tier
 
 `tier = min(peril, 3)` for warriors and archers; sieges `+1`; captains `+1`; tier 0 exists only for restless dead and bandits.
 
-| Tier | Metal | Warrior kit | Archer kit | Captain extra |
-|---|---|---|---|---|
-| 0 | wood/rusted iron (poor) | club or rusted short sword, cap | — | — |
-| 1 | copper | short sword or mace (50/50), cap, leather jerkin, buckler 50% | bow, 30 wooden arrows, dagger, cap, jerkin | helm, mail shirt |
-| 2 | bronze | short sword, axe or mace, cap, leather jerkin, shield 50%, leggings | bow, 30 bone arrows, dagger, cap, jerkin | helm, mail shirt, shield |
-| 3 | iron | axe, mace or spear, helm 50%, mail shirt 50% else jerkin, shield 60%, leggings | bow, 30 iron arrows, short sword, cap, jerkin | helm, mail shirt, greaves, shield |
-| 4 | steel | axe, warhammer or spear, helm, mail shirt, shield 70%, greaves, gauntlets 50% | bow, 30 steel arrows, short sword, helm, mail shirt | helm, breastplate, greaves, gauntlets, shield |
+| Tier | Metal | Warrior kit | Archer kit | Captain extra | Hexer kit |
+|---|---|---|---|---|---|
+| 0 | wood/rusted iron (poor) | club or rusted short sword, cap | — | — | — |
+| 1 | copper | short sword or mace (50/50), cap, leather jerkin, buckler 50% | bow, 30 wooden arrows, dagger, cap, jerkin | helm, mail shirt | wand (stone amethyst), dagger, cap, leather jerkin |
+| 2 | bronze | short sword, axe or mace, cap, leather jerkin, shield 50%, leggings | bow, 30 bone arrows, dagger, cap, jerkin | helm, mail shirt, shield | wand (stone amethyst), dagger, cap, leather jerkin |
+| 3 | iron | axe, mace or spear, helm 50%, mail shirt 50% else jerkin, shield 60%, leggings | bow, 30 iron arrows, short sword, cap, jerkin | helm, mail shirt, greaves, shield | wand (stone amethyst), dagger, cap, leather jerkin |
+| 4 | steel | axe, warhammer or spear, helm, mail shirt, shield 70%, greaves, gauntlets 50% | bow, 30 steel arrows, short sword, helm, mail shirt | helm, breastplate, greaves, gauntlets, shield | wand (stone amethyst), dagger, cap, leather jerkin |
 
-Quality: common; captains fine. Restless dead carry a rusted (poor) iron weapon with 30% chance.
+Quality: common; captains fine. Restless dead carry a rusted (poor) iron weapon with 30% chance. A bow, a club and a wand are of wood (oak); a cap, a jerkin, leggings, boots and a quiver of leather; the rest of the tier's metal. `(stone amethyst)` sets that stone in the item when it is made, as a runeforge sets a channel's: a hexer's wand is a wand of frost (Frostbind). A hexer holds no other stone.
 
 ## Cavern monsters
 

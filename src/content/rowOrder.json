@@ -454,5 +454,9 @@
   {
     "table": "milestones",
     "id": "m_summon"
+  },
+  {
+    "table": "creatures",
+    "id": "gloam_hexer"
   }
 ]

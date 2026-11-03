@@ -18,7 +18,8 @@
         }
       ],
       "archer": [],
-      "captain": []
+      "captain": [],
+      "hexer": []
     }
   },
   {
@@ -73,6 +74,25 @@
         },
         {
           "item": "mail_shirt",
+          "chance": 1000
+        }
+      ],
+      "hexer": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "amethyst"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
           "chance": 1000
         }
       ]
@@ -142,6 +162,25 @@
         },
         {
           "item": "shield",
+          "chance": 1000
+        }
+      ],
+      "hexer": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "amethyst"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
           "chance": 1000
         }
       ]
@@ -215,6 +254,25 @@
         },
         {
           "item": "shield",
+          "chance": 1000
+        }
+      ],
+      "hexer": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "amethyst"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
           "chance": 1000
         }
       ]
@@ -300,6 +358,25 @@
         },
         {
           "item": "shield",
+          "chance": 1000
+        }
+      ],
+      "hexer": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "amethyst"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
           "chance": 1000
         }
       ]

@@ -122,3 +122,4 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | make_staff_glowstone |
 | thoughts | summon_turned |
 | milestones | m_summon |
+| creatures | gloam_hexer |

@@ -318,11 +318,12 @@ function setCastCooldown(ctx: TickContext, casterId: EntityId, size: number, coo
 
 /**
  * Spend a cast's rune, at the cast. A caster that falls below the cost emits `RuneSpent` once,
- * until regen lifts it over the cost again (`Rune.outAnnounced`).
+ * until regen lifts it over the cost again (`Rune.outAnnounced`). A hostile caster (a hexer) never
+ * emits it: its rune never comes back, and the fortress hears nothing of it.
  */
 function spendRune(ctx: TickContext, casterId: EntityId, rune: Rune, cs: ChannelSpell): void {
   const current = rune.current - cs.costMilli;
-  const out = current < cs.costMilli && rune.outAnnounced !== true;
+  const out = current < cs.costMilli && rune.outAnnounced !== true && !ctx.world.entities.has(casterId, C.Hostile);
   ctx.world.entities.add<Rune>(casterId, C.Rune, { ...rune, current, ...(out ? { outAnnounced: true } : {}) });
   if (out) ctx.emit({ type: 'RuneSpent', id: casterId });
 }

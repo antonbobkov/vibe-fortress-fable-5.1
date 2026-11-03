@@ -1153,6 +1153,43 @@
     "fg": "hostile_bright"
   },
   {
+    "id": "gloam_hexer",
+    "name": "gloam hexer",
+    "plan": "humanoid",
+    "size": 50,
+    "speed": 165,
+    "diet": "none",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "meatValue": 0,
+    "hideValue": 0,
+    "value": 0,
+    "attacks": [
+      {
+        "name": "punch",
+        "type": "blunt",
+        "damage": 5,
+        "size": 3
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 50,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "opensDoors": true,
+      "trainable": "none"
+    },
+    "factionDefault": "hostile:gloam",
+    "perception": 12,
+    "gear": "wand of frost, dagger, cap, jerkin",
+    "glyph": "G",
+    "fg": "hostile"
+  },
+  {
     "id": "gloam_snatcher",
     "name": "gloam snatcher",
     "plan": "humanoid",

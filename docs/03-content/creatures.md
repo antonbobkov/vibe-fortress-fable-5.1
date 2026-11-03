@@ -115,6 +115,7 @@ The fauna cavern cell accepts an optional `initial N` after its weight and cap. 
 | `gloam_warrior` | gloam warrior | humanoid | 55 | 0.165 | walker | punch blunt 5 size 3 | 0 | 40 | O | weapon by gear tier, cap or helm, jerkin or mail, shield 50% | `G` | `hostile` |
 | `gloam_archer` | gloam archer | humanoid | 50 | 0.18 | walker | punch blunt 5 size 3 | 0 | 50 | O | bow, 30 arrows, dagger, cap, jerkin | `G` | `hostile` |
 | `gloam_captain` | gloam captain | humanoid | 60 | 0.165 | walker | punch blunt 6 size 3 | 0 | 30 | O | best gear tier + 1, helm, mail, shield | `G` | `hostile_bright` |
+| `gloam_hexer` | gloam hexer | humanoid | 50 | 0.165 | walker | punch blunt 5 size 3 | 0 | 50 | O | wand of frost, dagger, cap, jerkin | `G` | `hostile` |
 | `trollkin` | trollkin | humanoid | 150 | 0.135 | large | slam blunt 28 size 8 | 3 | 25 | D | club | `T` | `hostile` |
 | `hillfolk_bandit` | hillfolk bandit | humanoid | 70 | 0.165 | walker | punch blunt 7 size 3 | 0 | 60 | O | club or dagger, cap, jerkin | `B` | `hostile` |
 | `restless_dead` | restless dead | humanoid | 60 | 0.09 | walker | claw edge 8 size 4 | 1 | — | N; collapses at dawn; not butcherable | rusted weapon 30% | `Z` | `undead_gray` |

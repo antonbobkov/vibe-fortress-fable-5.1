@@ -237,7 +237,7 @@ By 16's ranged branch, with `canCastBolt` also true only when:
 
 **Resist** (Dread, Daze): `Willpower / 2` percent, `RESIST_NO_ATTRIBUTES_PERCENT` without attributes, drawn on stream 25 (`ctx.world.rngFor('25')`). Creatures of size at least `MENTAL_IMMUNE_SIZE` and every `deep` creature are immune: such a target does not qualify. Only fortress casters hold these two stones (§ Hexers), so no dwarf is ever mind-struck.
 
-Announcements: `RuneSpent { id }` once a caster falls below its spell's cost, at the cast, until regen lifts it over the cost again (`Rune.outAnnounced`; a vial does not lift it). A bloom that catches a creature of the caster's faction emits `SpellCast { casterId, spellId, targetId: the lowest such id, tile, burned: true }`, announced as an alert, once per caster per day (`bloomAlertsToday`).
+Announcements: `RuneSpent { id }` once a caster falls below its spell's cost, at the cast, until regen lifts it over the cost again (`Rune.outAnnounced`; a vial does not lift it). A caster with `Hostile` (a hexer) never emits it. A bloom that catches a creature of the caster's faction emits `SpellCast { casterId, spellId, targetId: the lowest such id, tile, burned: true }`, announced as an alert, once per caster per day (`bloomAlertsToday`).
 
 Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinned by a test (`test/unit/runecraft/t470-runeforge-channels.test.ts`; the ward's by `t473-remaining-spells.test.ts`; the enchanted weapons' by `t472-enchants-in-combat.test.ts`). Steel keeps the top of the table: a stone is set in a weapon, never in a channel, so an enchanted axe only widens its lead over the best staff.
 
@@ -413,16 +413,16 @@ The deepsilver confirmation row `c_deepsilver` gains: "Working it at the runefor
 
 ### Hexers
 
-**Task:** T-479.
+`gloam_hexer` ([creatures.md](../03-content/creatures.md) § Gloam): humanoid, size 50, speed 0.165, punch `blunt` 5 size 3, faction `hostile:gloam`, opens doors, flees below 50% blood, `G` in `hostile`. Role `hexer`.
 
-`gloam_hexer`: humanoid, size 50, speed 165, attack punch `blunt` 5 size 3, faction Gloam, `opensDoors`, `fleeBloodPercent` 50, glyph `G`. Role `hexer`.
+- **Who comes** (`threats/parties.ts`). On top of a party's size, like the captain: one hexer in a raid and two in a siege (`HEXERS_PER_RAID`, `HEXERS_PER_SIEGE`), at peril 3 from year 3 and at peril 4 from year 2 (`HEXER_FIRST_YEAR`; 18 § Tuning constants). `hexerCount(kind, peril, year)` gives the number and `calculatePartyComposition` takes the `year` (`arriveParty` passes the year of its tick). Hexers are planned after every other member, so the others arrive on the tiles and draw the gear they would have without them. At peril 2 and below, in an ambush or before the year, none come and nothing new is drawn.
+- **Kit** (`threats/gear.ts`). The tier's `hexer` kit ([threat-schedules.md](../03-content/threat-schedules.md) § Hostile gear by tier): a wand set with amethyst, a dagger, a cap and a leather jerkin. A kit row may name a `stone`, written on the item after it is spawned, as a runeforge writes a channel's. A wand is of oak, by the branch that bows and clubs use. Skills are any member's, `2 + HOSTILE_SKILL_PER_TIER × gear tier`, `runecraft` too: 8 in a raid at peril 3 or 4, 10 in a siege.
+- **Rune** (`threats/parties.ts`, after the equipment): `Rune { current: HEXER_RUNE × 1000 }`. It carries no vials, so `drinkVial` does nothing for it, and its rune never comes back (§ Rune of one's own); `magic.rune` gives it a regen of 0, so the look panel reads "+0 an hour; never full".
+- **Targets** (`threats/ai.ts` `shootsFromRange`): the `hexer` role counts as an archer. It prefers a soldier, and while its party loiters it shoots at what it can see but not reach.
 
-- `threats/parties.ts` `calculatePartyComposition` gains a `year` argument. On top of size, like the captain: one `hexer` in a raid at peril 3 from year 3 and peril 4 from year 2; two in a siege.
-- `threats/gear.ts` `equipHostileCreature`: `gearTiers.kits` gains `hexer`: `wand` with `stone: amethyst`, `dagger`, `cap`, `leather_jerkin`. A kit row may have `stone`, written after spawn. The wand's material is wood, by the branch that bows use.
-- `threats/parties.ts`, after equipment: `entities.add(id, C.Rune, { current: HEXER_RUNE × 1000, … })`. It carries no vials and does not regenerate (§ Rune).
-- `threats/ai.ts`: where `isArcher` is computed (two sites), the `hexer` role counts as an archer.
+Casting is the ordinary loop: `canCastBolt` holds for any holder of a `Rune`. An oak wand of frost has power 0.7: twenty bolts of 6 `frost`, range 8, each that wounds slowing by 50% for 210 ticks; then the wand is a club. A hexer holds its bolt while a creature of its own faction stands on the line, an archer or a warrior, and throws at another target or waits (§ Casting); where its line of sight is blocked it walks on toward its target, as an archer does. Hexers hold only `amethyst`: never a glowstone, since a Call always brings a fortress summon, and never the design's dread wand, which is cut, so no dwarf is ever mind-struck; the `calm` armor enchantment went with it. A hexer's `RuneSpent` is not emitted (§ Spells): its rune never comes back, and the moment it closes to club is plain on the map.
 
-Casting is the ordinary loop: `canCastBolt` holds for any holder of a `Rune`. Twenty frost bolts, and then a club. Hexers hold only `amethyst`. The design's dread wand is cut, so no dwarf is ever mind-struck, and the `calm` armor enchantment goes with it. The wand is `foreign` as all hostile kit is, and it becomes fortress stock through `strip_corpse`. Only a member with `runecraft` claims it.
+The wand is `foreign`, as all hostile kit is, and becomes fortress stock only through `strip_corpse`. `scoreWeapon` gives a channel −1, so only a squad member with `runecraft` claims it: a common oak wand of frost.
 
 ### Trade and value
 
@@ -503,7 +503,7 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Registrations
 
-Job producer `magic` (`attune`, `give_draught`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`, `wisp_loose`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `SummonTurned` (danger), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
+Job producer `magic` (`attune`, `give_draught`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`, `wisp_loose`; alert for `scorched_circle`, `fire`), `FirstRunecaster` (note), `SummonTurned` (danger), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note; a fortress caster's only), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
 
 ## Planned interfaces
 
