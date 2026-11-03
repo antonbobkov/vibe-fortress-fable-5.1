@@ -66,7 +66,7 @@
   "hint.hint_still": "Dwarves need drink. Build a still [b > Workshops] and brew from plants.",
   "hint.hint_stockpile": "Set up a stockpile [z] so hauled goods have somewhere to go.",
   "hint.hint_troll": "Trollkin break doors. Walls and raised bridges hold.",
-  "hint.hint_winter": "Winter comes in 60 days. Farms need soil or mud; cave crops grow in the dark all year.",
+  "hint.hint_winter": "Winter comes in 60 days. Farms need soil or mud. Cave crops grow in the dark, but in a cold region a cave within two levels of the surface freezes in winter; three levels down stays warm.",
   "intro.deer": "The deer had seen dwarves before. It was not impressed.",
   "intro.found": "At last: a mountain with nobody in it.",
   "intro.full": "The old hold was full. Very, very full.",

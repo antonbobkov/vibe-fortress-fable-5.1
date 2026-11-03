@@ -25,6 +25,8 @@ import { lightMatches } from '@systems/plants/plots';
 import type { ItemsReader } from '@systems/items';
 import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
 import type { MagicReader } from '@systems/magic';
+import type { MaterialsReader } from '@systems/materials';
+import { NEAR_SURFACE_DEPTH } from '@systems/materials/constants';
 import { ATTUNE_SESSIONS_PER_DAY, SANCTUM_APPRENTICES } from '@systems/magic/constants';
 import { TICKS_PER_DAY } from '@core/constants';
 import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '../widgets';
@@ -35,7 +37,7 @@ import { drawnCols, keyCells, label, separator, toggleNode, type TreeNode, type 
 import { acceleratorLabel } from '../keymap';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
-import { stockpilePreset, zoneEditorMessage } from '../messages';
+import { stockpilePreset, wrapText, zoneEditorMessage } from '../messages';
 import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building';
 import { dwarvesOf, nameOf } from './units';
 import { drawStockpileEditor, StockpileEditor, PRESET_ORDER } from './stockpile-editor';
@@ -457,11 +459,47 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   const ready = cropIds.filter((id) => (plants.cropInfo(id)?.stage ?? 0) === 3).length;
   if (row < rect.row + rect.rows) label(s, rect.col + 1, row, `Crops: ${cropIds.length - ready} growing, ${ready} ready, ${Math.max(0, zone.tiles.length - cropIds.length)} empty`, { width: rect.cols - 2 });
   row += 1;
+  row = drawFarmCold(s, { col: rect.col, row, cols: rect.cols, rows: rect.row + rect.rows - row }, ctx, zone, plants);
   for (const key of ['ui.zone.farm_keys1', 'ui.zone.farm_keys2']) {
     if (row >= rect.row + rect.rows) break;
     const text = ctx.strings.get(key);
     label(s, rect.col + 1, row, text, { fg: t.dim, width: rect.cols - 2 });
     accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
+    row += 1;
+  }
+  return row;
+}
+
+/**
+ * `07` § Player-facing behavior: the tiles of the plot below the minimum temperature of the crop
+ * standing on them, or of the current season's choice when a tile is empty, with the species that
+ * has most of them. Draws nothing when no tile is too cold.
+ */
+function drawFarmCold(s: Surface, rect: Rect, ctx: PanelContext, zone: ZoneView, plants: PlantsReader): number {
+  if (!ctx.readers.has('05')) return rect.row;
+  const materials = ctx.readers.of<MaterialsReader>('05');
+  const chosen = plants.plotSettings(zone.id)[ctx.readers.calendar.season] ?? 0;
+  const cold = new Map<string, { row: PlantRow; n: number }>();
+  for (const tile of zone.tiles) {
+    const crop = plants.cropAt(tile);
+    const info = crop === 0 ? undefined : plants.cropInfo(crop);
+    const plant = info === undefined ? (chosen === 0 ? undefined : plants.def(chosen)) : plants.def(info.species);
+    if (plant === undefined || materials.temperatureAt(tile) >= plant.minC) continue;
+    const entry = cold.get(plant.id);
+    if (entry === undefined) cold.set(plant.id, { row: plant, n: 1 });
+    else entry.n += 1;
+  }
+  let worst: { row: PlantRow; n: number } | undefined;
+  for (const entry of cold.values()) if (worst === undefined || entry.n > worst.n) worst = entry;
+  if (worst === undefined) return rect.row;
+  const t = s.theme;
+  const text = ctx.strings.get('ui.zone.farm_cold', { n: worst.n, m: zone.tiles.length, min: worst.row.minC, name: worst.row.name });
+  const help = ctx.strings.get('ui.zone.farm_cold_help', { depth: NEAR_SURFACE_DEPTH });
+  const lines = [...wrapText(text, rect.cols - 2, 2).map((line) => ({ line, fg: t.bad })), ...wrapText(help, rect.cols - 2, 2).map((line) => ({ line, fg: t.dim }))];
+  let row = rect.row;
+  for (const { line, fg } of lines) {
+    if (row >= rect.row + rect.rows) break;
+    label(s, rect.col + 1, row, line, { fg, width: rect.cols - 2 });
     row += 1;
   }
   return row;
