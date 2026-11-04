@@ -142,7 +142,7 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
             board.setWorker(workerId, { carrying: target });
           }
         } else if (movement === null || movement.walkTo(workerId, at, 'job', ctx) === 'unreachable') {
-          board.unclaim(job, 'unreachable', at);
+          board.unclaim(job, 'unreachable', at, target);
         }
       } else {
         const dest = deliveryTile(board, job, workerId);
