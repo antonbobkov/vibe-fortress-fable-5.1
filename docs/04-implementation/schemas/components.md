@@ -159,7 +159,7 @@ interface Summoned { summonerId: EntityId /* the caster; 0 for one that came loo
 | `Wild` | 08 | — |
 | `Crop` | 07 | — |
 | `Merchant` | 20 | — |
-| `Rune`, `Spellbound`, `Summoned` | 25 | 18 at a hexer's spawn (`Rune`) |
+| `Rune`, `Spellbound`, `Summoned` | 25 | — |
 
 ## Fortress state
 
