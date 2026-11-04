@@ -1,0 +1,68 @@
+/**
+ * T-479 probe (not committed as a test): seeds of the three-year file, with hexers or, with
+ * T479_HEXERS=off, with `HEXER_FIRST_YEAR` emptied so that no party brings one; the same code
+ * otherwise. Seeds: T479_SEEDS, `seed:peril` joined by commas. Each seed's figures go to
+ * THREE_YEARS_SEEDS_OUT as the file writes them. Run with `-t "T-479 probe"`, so the file's own
+ * tests, imported with `runThreeYearsSeed`, are skipped.
+ */
+import { it, vi } from 'vitest';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TestWorld } from '../scenarios/test-world';
+import { runThreeYearsSeed } from './three_years_seeds.test';
+
+/** With T479_KILLS set: every dwarf killed by a hostile, as `day:species:role:party:partyKind`. */
+function watchKills(out: string[]): () => void {
+  const original = TestWorld.prototype.step;
+  let hooked: TestWorld | null = null;
+  TestWorld.prototype.step = function (this: TestWorld, n?: number) {
+    if (hooked !== this) {
+      hooked = this;
+      const w = this;
+      const ent = w.game.world.entities;
+      const dwarf = w.game.registry.table('creatures').index('dwarf');
+      const species = w.game.registry.table<{ id: string }>('creatures');
+      const dumpJob = Number(process.env['T479_JOB'] ?? 0);
+      let dumped = 0;
+      w.game.world.onEvents((events) => {
+        if (dumpJob !== 0 && dumped < 3 && w.tick >= Number(process.env['T479_AT'] ?? 0) + dumped * 400) {
+          dumped += 1;
+          const board = (w.game.world.scheduler.byId('11') as unknown as { board: { jobs: Map<number, unknown>; workers(): number[]; hasReachableStand(j: unknown, w: number): boolean; typeId(j: unknown): string } }).board;
+          const job = board.jobs.get(dumpJob) as { target: { ref: number } } | undefined;
+          const map = w.game.world.map;
+          const t = job?.target.ref ?? -1;
+          const hostiles = ent.with(C.Hostile).filter((id) => ent.alive(id)).map((id) => `${ent.get(id, C.Hostile)!.role}@${ent.get(id, C.Position)?.x},${ent.get(id, C.Position)?.y},${ent.get(id, C.Position)?.z}`);
+          console.log(`[t479_job] tick ${w.tick} job ${JSON.stringify(job)} type ${job === undefined ? '-' : board.typeId(job)} tile ${t >= 0 ? `${map.xOf(t)},${map.yOf(t)},${map.zOf(t)} kind ${map.kindAt(t)}` : '-'} alert ${w.game.world.fortress.alert} reachableBy ${job === undefined ? 0 : board.workers().filter((x) => board.hasReachableStand(job, x)).length}/${board.workers().length} hostiles ${hostiles.join(' ')}`);
+        }
+        for (const e of events) {
+          if (e.type !== 'CreatureDied' || e['species'] !== dwarf) continue;
+          const k = Number(e['killerId'] ?? 0);
+          const h = ent.get(k, C.Hostile);
+          const party = h === undefined ? undefined : ent.get(h.partyId, C.Party);
+          out.push(`${Math.floor(w.tick / TICKS_PER_DAY) + 1}:${species.byIndex(ent.get(k, C.Creature)?.species ?? -1)?.id ?? 'gone'}:${h?.role ?? '-'}:${h?.partyId ?? 0}:${party?.purpose ?? '-'}@${party === undefined ? '-' : Math.floor(party.arrivedTick / TICKS_PER_DAY) + 1}/${party?.state ?? '-'}:${e['cause']}`);
+        }
+      });
+    }
+    return original.call(this, n as number);
+  } as typeof original;
+  return () => { TestWorld.prototype.step = original; };
+}
+
+vi.mock('@systems/threats/constants', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@systems/threats/constants')>();
+  return process.env['T479_HEXERS'] === 'off' ? { ...real, HEXER_FIRST_YEAR: {} } : real;
+});
+
+const seeds = (process.env['T479_SEEDS'] ?? '').split(',').filter((s) => s.length > 0).map((s) => {
+  const [seed, peril] = s.split(':');
+  return { seed: seed as string, peril: Number(peril) };
+});
+
+it.each(seeds)('T-479 probe $seed (peril $peril)', ({ seed, peril }) => {
+  const kills: string[] = [];
+  const stop = process.env['T479_KILLS'] ? watchKills(kills) : () => {};
+  const r = runThreeYearsSeed(seed, peril);
+  stop();
+  if (kills.length > 0) console.log(`[t479_kills] ${seed} ${kills.join(' ')}`);
+  console.log(`[t479_probe] ${JSON.stringify({ mode: process.env['T479_HEXERS'] ?? 'on', seed, peril, y1Pop: r.y1Pop, y3Pop: r.y3Pop, deaths: r.dwarfDeaths, extinct: r.extinctDay, raids: r.raidsList.filter((x) => x.kind === 'raid' || x.kind === 'siege'), hexers: r.parties.hexers })}`);
+});

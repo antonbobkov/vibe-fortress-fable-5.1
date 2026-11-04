@@ -50,7 +50,7 @@ These hold for all tasks, and each task's review checks them.
 - **Caravans.** Runecraft goods are drawn outside the weighted pool (§ Trade and value), so the ordinary goods of a caravan do not change.
 - **Wild patches.** A separate pass with its own stream converts some cave shrubs (§ Glowcap). The main terrain stream draws the same numbers. The local-map golden moves once, in T-468. Only a tile that was already a cave shrub changes.
 - **Deliberate moves.** Three changes do move numbers with no runecraft in play, and each task runs the annual instrument and explains the move:
-  - **Hexers** move raid outcomes at peril 3 and 4 (T-479, which measures it). Peril 2 and below see none.
+  - **Hexers** move raid outcomes at peril 3 from year 3 and at peril 4 from year 2 (§ Hexers, measured there). Peril 2 and below see none, and nothing new is drawn for them: a hexer's kit is fixed.
   - **Converted shrubs** take 10–25% of cave shrubs from their forage (T-468). The annual instrument gathers no cave shrub and plays one year, before the first Mountainhome caravan, so it shows neither this nor the extra goods: its row stayed 12.5/7/11/149/7/0/0.
   - **Remains** put wyrmscale and ichor on a dead wyrm's, stalker's or Maw's corpse, so a `strip_corpse` job appears and the recovered items add wealth and renown (§ Rare materials). No wyrm or Hollow-born dies in the annual instrument's year, so its row stayed 13/7/10/149/7/0/0, every figure of every seed the same; `pp_defence` draws the same numbers and emits the same events. No golden moved.
 
@@ -395,6 +395,8 @@ Casting is the ordinary loop: `canCastBolt` holds for any holder of a `Rune`. An
 
 The wand is `foreign`, as all hostile kit is, and becomes fortress stock only through `strip_corpse`. `scoreWeapon` gives a channel −1, so only a squad member with `runecraft` claims it: a common oak wand of frost.
 
+Measured ([hexers measured](../../reports/audits/2026-11-04-t479-hexers.md)): against six Novice soldiers in full iron kit in the open, a peril-4 raid of ten wins 23 of 24 fights with no hexer and 21 with one or two; a hexer casts in 9 fights of 24, 3.3 bolts a fight, mostly waiting while a warrior stands on its line, and never hits its own side. In five seeds of the three-year file at peril 4, the same code with and without hexers: 86 dwarf deaths and 132 living at year 3 with them, 77 and 191 without; 29 hexers cast 50 bolts and killed one dwarf, and one fortress more fell, two days after a year-2 siege with two hexers. In the fortress a hexer casts as rarely as the archers shoot: most raids loot outside a locked gate.
+
 ### Trade and value
 
 Built. The Mountainhome's extra goods (`caravan-goods.md`) include rune vials, 5 to a good, permille 400 (*unmeasured*), at reputation ≥ 50; the extra goods are drawn outside the weighted pool on stream 25 (20 § Caravans), so the ordinary goods do not change, and a request finds the row only at the reputation it needs. The Mountainhome values `medical/vial` and `medical/draught` at 150 (`caravan-goods.md` § Preferences). Wildwood's wood rule already reaches a wand. No civilization values "enchanted" separately: `preferencePercent` reads category and material, and an enchanted item's value is already higher.
@@ -519,7 +521,7 @@ All *unmeasured* unless the row says what was measured. Rows move to `src/system
 | `ALCHEMY_MISHAP_PERMILLE` | 100 | Per job, less 10 per level | T-474 |
 | `SUMMON_TICKS` / `MAX_SUMMONS_PER_CASTER` / `SHADE_TURN_PERMILLE` | 1200 / 2 / 50 | A summon's day; summons a caster holds; turning per mille. Measured: 50 turned in 1,000 castings of a deepsilver staff | T-475 |
 | `DEEP_DRAUGHT_LEVEL` | 2 | The Deep's level from which its stirring and emergences make soldiers drink the `deep` draughts | T-476 |
-| `HEXER_RUNE` | 20 | | T-479 |
+| `HEXER_RUNE` | 20 | A hexer's rune at arrival; measured: in the open it never spent it, at peril 4 its party wins as often with it as without, within noise ([hexers measured](../../reports/audits/2026-11-04-t479-hexers.md)) | T-479 |
 
 ## Acceptance
 
