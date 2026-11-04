@@ -16,6 +16,8 @@ export interface GearKitItem {
   item: string;
   chance: number; // permille 1..1000
   count?: number;
+  /** The stone set in the item after spawn (a hexer's wand): a material id. */
+  stone?: string;
 }
 
 export interface GearTierRow {
@@ -25,6 +27,7 @@ export interface GearTierRow {
     warrior: GearKitItem[];
     archer: GearKitItem[];
     captain: GearKitItem[];
+    hexer?: GearKitItem[];
   };
 }
 
@@ -112,6 +115,8 @@ export function equipHostileCreature(
   const kitItemsToRoll: GearKitItem[] = [];
   if (role === 'archers') {
     kitItemsToRoll.push(...tierRow.kits.archer);
+  } else if (role === 'hexer') {
+    kitItemsToRoll.push(...(tierRow.kits.hexer ?? []));
   } else {
     kitItemsToRoll.push(...tierRow.kits.warrior);
   }
@@ -119,8 +124,10 @@ export function equipHostileCreature(
     kitItemsToRoll.push(...tierRow.kits.captain);
   }
 
+  // 25 § Hexers: a hexer's kit is fixed and draws nothing, so 18's stream runs as it would without hexers.
+  const fixedKit = role === 'hexer';
   for (const kitItem of kitItemsToRoll) {
-    if (rng.int(1, 1000) > kitItem.chance) continue;
+    if (!fixedKit && rng.int(1, 1000) > kitItem.chance) continue;
 
     const itemType = itemsTable.index(kitItem.item);
     if (itemType <= 0) continue;
@@ -130,7 +137,7 @@ export function equipHostileCreature(
     const wDef = weaponsTable.byId(kitItem.item);
     const aDef = armorTable.byId(kitItem.item);
 
-    if (kitItem.item === 'bow' || kitItem.item === 'club') {
+    if (kitItem.item === 'bow' || kitItem.item === 'club' || kitItem.item === 'wand') {
       matIdx = woodMat;
     } else if (
       kitItem.item === 'cap' ||
@@ -147,6 +154,12 @@ export function equipHostileCreature(
     const count = kitItem.count ?? 1;
     const spawnedId = world.services.spawn.item(itemType, matIdx, tile, count, quality);
     if (spawnedId === 0) continue;
+    // 25 § Hexers: a kit row's stone is written after spawn, as a runeforge writes a channel's.
+    const stone = kitItem.stone === undefined ? 0 : materialsTable.index(kitItem.stone);
+    if (stone > 0) {
+      const item = entities.get(spawnedId, C.Item);
+      if (item !== undefined) entities.add(spawnedId, C.Item, { ...item, stone });
+    }
 
     // Foreign equipment belongs to its carrier and uses 13 for every mutation.
     world.services.items?.setFlag(spawnedId, ItemFlag.Foreign, true);

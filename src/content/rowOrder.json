@@ -542,5 +542,9 @@
   {
     "table": "milestones",
     "id": "m_runecaster"
+  },
+  {
+    "table": "creatures",
+    "id": "gloam_hexer"
   }
 ]

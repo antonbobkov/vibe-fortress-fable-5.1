@@ -308,6 +308,7 @@ function parseKit(cell, names) {
     const split = /\((\d+)\/(\d+)\)/.exec(part);
     const pct = /(\d+)\s*%/.exec(part);
     const count = /^(\d+)\s+/.exec(part);
+    const stone = /\(stone ([a-z_]+)\)/.exec(part);
     const words = part
       .replace(/\([^)]*\)/g, ' ')
       .replace(/\d+\s*%/g, ' ')
@@ -326,6 +327,7 @@ function parseKit(cell, names) {
             ? Math.round(1000 / alternatives.length)
             : chance,
           count: count === null ? undefined : Number(count[1]),
+          stone: stone === null ? undefined : stone[1],
         }),
       );
     }
@@ -358,6 +360,7 @@ export function exportGearTiers(items) {
       warrior: parseKit(row['Warrior kit'], names),
       archer: parseKit(row['Archer kit'], names),
       captain: parseKit(row['Captain extra'], names),
+      hexer: parseKit(row['Hexer kit'], names),
     },
   }));
 }

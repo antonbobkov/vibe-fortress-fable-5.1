@@ -4,14 +4,17 @@
  * `03-content/threat-schedules.md` § Party composition.
  */
 
-import { C } from '@core/components';
+import { yearOf } from '@core/calendar';
+import { C, type Rune } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import { TileKind, type Map3D } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
 import type { Edge, EntityId, TileIndex } from '@core/types';
-import { ARRIVAL_SPREAD, ARRIVAL_TICKS } from './constants';
+import { HEXER_RUNE } from '@systems/magic/constants';
+import { MILLI } from '@systems/magic/rune';
+import { ARRIVAL_SPREAD, ARRIVAL_TICKS, HEXER_FIRST_YEAR, HEXERS_PER_RAID, HEXERS_PER_SIEGE } from './constants';
 import { assignHostileSkills, calculateGearTier, equipHostileCreature } from './gear';
 import type { PendingSpawnState } from './state';
 
@@ -34,9 +37,20 @@ export interface PlannedMember {
 }
 
 /**
+ * 25 § Hexers: how many hexers come on top of a party's size. A raid brings `HEXERS_PER_RAID` and a
+ * siege `HEXERS_PER_SIEGE` from the year `HEXER_FIRST_YEAR` names for the peril; none before it,
+ * at a peril it does not name, or in any other kind of party.
+ */
+export function hexerCount(kind: string, peril: number, year: number): number {
+  const from = HEXER_FIRST_YEAR[peril];
+  if (from === undefined || year < from) return 0;
+  return kind === 'raid' ? HEXERS_PER_RAID : kind === 'siege' ? HEXERS_PER_SIEGE : 0;
+}
+
+/**
  * Calculates composition of party members:
  * Fractions of size by role; remainder after rounding goes to warriors.
- * Captain is added on top of size for raids and sieges.
+ * Captain is added on top of size for raids and sieges, and so are hexers (last, `hexerCount`).
  */
 export function calculatePartyComposition(
   kind: string,
@@ -44,6 +58,7 @@ export function calculatePartyComposition(
   renown: number,
   peril: number,
   isTwilightPass = false,
+  year = 1,
 ): PlannedMember[] {
   const members: PlannedMember[] = [];
 
@@ -85,6 +100,7 @@ export function calculatePartyComposition(
     for (let i = 0; i < warriorsCount; i++) {
       members.push({ role: 'warriors', species: 'gloam_warrior', isCaptain: false });
     }
+    pushHexers(members, kind, peril, year);
     return members;
   }
 
@@ -108,10 +124,18 @@ export function calculatePartyComposition(
     for (let i = 0; i < warriorsCount; i++) {
       members.push({ role: 'warriors', species: 'gloam_warrior', isCaptain: false });
     }
+    pushHexers(members, kind, peril, year);
     return members;
   }
 
   return members;
+}
+
+/** Hexers come last, so every other member arrives on the tile and draws the gear it did before. */
+function pushHexers(members: PlannedMember[], kind: string, peril: number, year: number): void {
+  for (let i = 0; i < hexerCount(kind, peril, year); i++) {
+    members.push({ role: 'hexer', species: 'gloam_hexer', isCaptain: false });
+  }
 }
 
 /**
@@ -226,6 +250,8 @@ export function spawnHostileMember(
   // Assign skills and equipment
   assignHostileSkills(world.entities, registry, creatureId, gearTier, isCaptain);
   equipHostileCreature(world, registry, rng, creatureId, tile, role, gearTier, isCaptain);
+  // 25 § Hexers: a hexer carries `HEXER_RUNE` and no vials, and its rune never comes back.
+  if (role === 'hexer') world.entities.add<Rune>(creatureId, C.Rune, { current: HEXER_RUNE * MILLI });
 
   // Add to party members
   if (partyComp) {
@@ -277,7 +303,7 @@ export function arriveParty(
     ...(kind === 'ambush' ? { ambushSprung: false } : {}),
   });
 
-  const planned = calculatePartyComposition(kind, size, renown, peril, isTwilightPass);
+  const planned = calculatePartyComposition(kind, size, renown, peril, isTwilightPass, yearOf(currentTick));
   const tiles = findEdgeTiles(world.map, edge, planned.length);
 
   if (kind !== 'ambush') {

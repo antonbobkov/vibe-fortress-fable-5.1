@@ -1074,7 +1074,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
   gearTiers: list({
     tier: int,
     metal: nullable(ref('metals')),
-    kits: record(arr(obj({ item: itemRef, chance: int, count: opt(int) }))),
+    kits: record(arr(obj({ item: itemRef, chance: int, count: opt(int), stone: opt(materialRef) }))),
   }),
 
   cavernSpawns: list({

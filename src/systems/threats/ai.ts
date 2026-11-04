@@ -241,6 +241,11 @@ export function findAdjacentLockedDoor(pos: TileIndex, ctx: TickContext): Entity
   return 0;
 }
 
+/** 18 § Engage: an archer, and a hexer (25 § Hexers), prefers soldiers and shoots from range while loitering. */
+export function shootsFromRange(role: string): boolean {
+  return role === 'archers' || role === 'hexer';
+}
+
 export function findCombatTarget(
   m: EntityId,
   pos: TileIndex,
@@ -251,7 +256,7 @@ export function findCombatTarget(
 ): EntityId {
   const map = ctx.world.map;
   const pathing = ctx.readers.pathing;
-  const isArcher = role === 'archers';
+  const isArcher = shootsFromRange(role);
   const mx = map.xOf(pos);
   const my = map.yOf(pos);
   const mz = map.zOf(pos);
@@ -1077,10 +1082,10 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
   // 4. Combat targeting (except stealthed thieves)
   if (!H.stealthed) {
     const isLoitering = P?.state === 'loiter';
-    const isArcher = H.role === 'archers';
+    const isArcher = shootsFromRange(H.role);
     const allowUnreachable = isLoitering && isArcher;
     const found = findCombatTarget(m, pos, H.role, ctx, targets, !allowUnreachable);
-    const target = found === 0 ? 0 : keepHeldTarget(m, pos, found, H.role === 'archers', !allowUnreachable, ctx);
+    const target = found === 0 ? 0 : keepHeldTarget(m, pos, found, isArcher, !allowUnreachable, ctx);
     if (target !== 0) {
       ctx.world.services.combat?.setTarget(m, target);
       H.behaviorState = 'attack';

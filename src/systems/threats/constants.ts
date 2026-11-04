@@ -37,5 +37,11 @@ export const DEEP_THRESHOLDS = [50, 150, 300, 500] as const;
 export const EMERGENCE_TILES = 4;
 export const HOLLOW_WAVE_DAYS = 28;
 export const HOSTILE_SKILL_PER_TIER = 2;
+/** 25 § Hexers: the first year a raid or siege brings hexers, by peril; a peril not named brings none. */
+export const HEXER_FIRST_YEAR: Readonly<Record<number, number>> = { 3: 3, 4: 2 };
+/** Hexers a raid brings on top of its size. */
+export const HEXERS_PER_RAID = 1;
+/** Hexers a siege brings on top of its size. */
+export const HEXERS_PER_SIEGE = 2;
 export const RESTLESS_PER_NIGHT_MIN = 2;
 export const RESTLESS_PER_NIGHT_MAX = 8;

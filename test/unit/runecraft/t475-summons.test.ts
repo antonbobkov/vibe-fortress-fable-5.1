@@ -116,7 +116,10 @@ describe('T-475 content and constants', () => {
     const metals = registry.table<{ id: string; summon?: string }>('metals');
     expect(['steel', 'silver', 'deepsilver', 'iron', 'copper'].map((m) => metals.byId(m)?.summon)).toEqual(['stone_warden', 'stone_warden', 'deep_shade', undefined, undefined]);
     const creatures = registry.table<{ id: string; size: number; speed: number; temper: string; attacks: { type: string; damage: number; size: number }[]; naturalArmor: number; flags: Record<string, unknown>; glyph: string; fg: string }>('creatures');
-    expect(creatures.ids().slice(-3)).toEqual(['wisp', 'stone_warden', 'deep_shade']);
+    // Numbered after every row older than them; later tasks' rows (the hexer) come after.
+    const ids = creatures.ids();
+    expect(ids.slice(ids.indexOf('wisp'), ids.indexOf('wisp') + 3)).toEqual(['wisp', 'stone_warden', 'deep_shade']);
+    expect(ids.indexOf('wisp')).toBeGreaterThan(ids.indexOf('restless_dead'));
     expect(creatures.byId('wisp')).toMatchObject({ size: 10, speed: 240, temper: 'neutral', attacks: [{ type: 'ember', damage: 4, size: 2 }], naturalArmor: 0, glyph: '*', fg: 'rune_cyan' });
     expect(creatures.byId('stone_warden')).toMatchObject({ size: 90, speed: 105, attacks: [{ type: 'blunt', damage: 15, size: 8 }], naturalArmor: 7, glyph: 'Φ', fg: 'granite_gray' });
     expect(creatures.byId('deep_shade')).toMatchObject({ size: 60, speed: 210, attacks: [{ type: 'edge', damage: 12, size: 3 }], naturalArmor: 1, glyph: 'δ', fg: 'hollow_violet' });

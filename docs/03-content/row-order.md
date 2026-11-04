@@ -144,3 +144,4 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | set_armor_hollowsight |
 | milestones | m_stone_set |
 | milestones | m_runecaster |
+| creatures | gloam_hexer |
