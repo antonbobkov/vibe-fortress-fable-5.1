@@ -21,13 +21,13 @@ import { resolveProjectileHit, type WieldedWeapon } from '@systems/combat';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
-import { SANCTUM_APPRENTICES } from './constants';
+import { DEEP_DRAUGHT_LEVEL, SANCTUM_APPRENTICES } from './constants';
 import { MagicProducer, type MagicHost } from './producer';
 import type { MagicReader, RuneView, SpellView } from './reader';
 import { dropExpiredEffects, spellOfItem } from './cast';
 import { summonSpecies, summonsOf } from './summon';
 import { enchantOfItem } from './enchant';
-import { draughtRestLeft, soldierDrinks, soldiersOnDuty } from './draughts';
+import { breathesFire, draughtRestLeft, soldierDrinks, soldiersOnDuty } from './draughts';
 import {
   MILLI,
   hoursToFull,
@@ -59,6 +59,7 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
   readonly order = 25;
   override readonly subscribes: readonly EventType[] = [
     'HourPassed', 'DayPassed', 'SkillLevelUp', 'CreatureDied', 'ZoneChanged', 'RaidArrived', 'AmbushSprung', 'AttackResolved',
+    'MonsterEmerged', 'DeepStirred', 'ThreatNearby',
   ];
   override readonly ownsCommands: readonly CommandType[] = ['SetSanctumApprentices'];
 
@@ -262,6 +263,17 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     } else if (event.type === 'RaidArrived' || event.type === 'AmbushSprung') {
       // § Draughts: every soldier on duty drinks its first listed `raid` draught.
       for (const id of soldiersOnDuty(ctx.world.entities)) soldierDrinks(ctx, id, 'raid');
+    } else if (event.type === 'MonsterEmerged' || event.type === 'DeepStirred') {
+      // § Draughts: the Deep at level 2 or more; every soldier on duty drinks its first listed `deep` draught.
+      if ((ctx.world.fortress?.deepLevel ?? 0) >= DEEP_DRAUGHT_LEVEL) {
+        for (const id of soldiersOnDuty(ctx.world.entities)) soldierDrinks(ctx, id, 'deep');
+      }
+    } else if (event.type === 'ThreatNearby') {
+      // § Draughts: a creature that breathes fire comes near a soldier on duty.
+      const id = event['id'] as EntityId;
+      if (ctx.world.entities.get(id, C.Soldier)?.onDuty === true && breathesFire(ctx, event['hostileId'] as EntityId)) {
+        soldierDrinks(ctx, id, 'fire');
+      }
     } else if (event.type === 'AttackResolved') {
       this.hitTaken(event, ctx);
     } else if (event.type === 'SkillLevelUp') {

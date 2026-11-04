@@ -52,7 +52,7 @@ These hold for all tasks, and each task's review checks them.
 - **Deliberate moves.** Three changes do move numbers with no runecraft in play, and each task runs the annual instrument and explains the move:
   - **Hexers** move raid outcomes at peril 3 and 4 (T-479, which measures it). Peril 2 and below see none.
   - **Converted shrubs** take 10–25% of cave shrubs from their forage (T-468). The annual instrument gathers no cave shrub and plays one year, before the first Mountainhome caravan, so it shows neither this nor the extra goods: its row stayed 12.5/7/11/149/7/0/0.
-  - **`remains`** give a dead wyrm or stalker worn items, so a `strip_corpse` job appears and recovered items add wealth and renown (T-476, which names a `golden:` line).
+  - **Remains** put wyrmscale and ichor on a dead wyrm's, stalker's or Maw's corpse, so a `strip_corpse` job appears and the recovered items add wealth and renown (§ Rare materials). No wyrm or Hollow-born dies in the annual instrument's year, so its row stayed 13/7/10/149/7/0/0, every figure of every seed the same; `pp_defence` draws the same numbers and emits the same events. No golden moved.
 
 ## Rules
 
@@ -95,12 +95,7 @@ The runeforge is built: its row is in `workshops-and-recipes.md` (1 `anvil` + 3 
 
 `runecraft` and its labor `attunement` (default on, not for children) are in `skills-and-professions.md`. These skills and `runesmithing`, like `alchemy`, have `no` in the `embark` column there, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
 
-More laboratory recipes (`workshops-and-recipes.md` § Laboratory holds the rest, the draughts in its § Draughts):
-
-| id | name | inputs | outputs | ticks | Q | xp | Task |
-|---|---|---|---|---|---|---|---|
-| `quench_deepsilver` | Quench deepsilver | 1 `bar` (deepsilver) | 12 `rune_vial` (rune) | 250 | no | 12 | T-476 |
-| `render_ichor` | Render ichor | 1 `hollow_ichor` | 6 `rune_vial` (rune) | 200 | no | 10 | T-476 |
+The laboratory's recipes are in `workshops-and-recipes.md` § Laboratory, the draughts in its § Draughts. Besides distilling glowcap, it grinds glowstone, quenches a deepsilver bar into 12 vials (which wakes the Hollow, § Deepsilver) and renders a hollow ichor into 6.
 
 One apprentice eats 2 glowcap a day, which is 2.4 lamps while attuning (one lamp grows 0.83 a day).
 
@@ -259,7 +254,7 @@ Worked numbers, at Toughness 50 (5%). All round as 16 rounds. Every row is pinne
 
 ### Effects
 
-Every kind is read where the table says. No draught gives `fire_immune` or `spot_radius` until T-476 brings the two draughts that do.
+Every kind is read where the table says.
 
 `Spellbound` component (§ State). `src/core/effects.ts`: `effectValue(entities, id, kind, tick)`, the largest value among unexpired entries of a kind, 0 if none; `effortUnderEffects`, the step's effort below; `hastedTicks`, a wait under `haste`; and `immuneToBurn`. 25 adds entries through `addEffect` in `magic/cast.ts` (and a draught through `drinkDraught`, § Draughts) and, on `HourPassed`, drops expired entries and the draught rests that have run out, and the component when nothing is left. Readers compare `until` with the tick, so expiry needs no tick of its own.
 
@@ -304,23 +299,9 @@ A soldier's gear is owned and so is never a target. The runesmith sets stones in
 
 **`fearsome` is a trade-off, by decision (T-485).** A fled raider is out of the fight for a while, but soldiers who chase it swing less: in the T-472 arena six soldiers with fearsome axes held a raid of ten in 16 of 24 fights against 20 with plain axes. The owner chose to keep it; not every enchantment is a strict improvement. The look line says so: "A fleeing foe is hard to catch."
 
-**Task:** the rows below arrive with T-476. Content table `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments) holds the rest: `keen`, `ember`, `rime`, `sure`, `fearsome`, `blaze`, `sunder`; `stout`, `emberward`, `rimeward`, `adamant`, `glowing`; `ember_ammo`, `rime_ammo`, `seeking`.
+Content table `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments) holds them: on weapons `keen`, `ember`, `rime`, `sure`, `fearsome`, `blaze`, `sunder`, `deep` (a deepsilver bar: +25% damage, +50% more against the Hollow-born) and `hollowbane` (a hollow ichor: +100% against the Hollow-born); on armor `stout`, `emberward`, `rimeward`, `adamant`, `glowing`, `wyrmhide` (a wyrmscale: no fire through the piece) and `hollowsight` (a hollow ichor, head pieces only: +4 to the spot radius, so a dwarf spots within 10); on ammunition `ember_ammo`, `rime_ammo`, `seeking`. A hollowsight helm and a draught of hollowsight give the same 10 tiles.
 
 The resolution reads rows, never ids. A row: `{ id, slot, stone, vials, suffix, effects: { kind, value, type?, chance?, ticks?, scales }[], only? }`; `scales` is `value`, `ticks` or `none`. `magic/enchant.ts` `effectAtTier` gives an effect's numbers at a tier, `enchantOfItem` an item's, and for combat `itemEnchantEffects` (an item's effects at its tier, empty for none) and `wornEnchantEffects` (those of the pieces in a creature's five armor slots, head to feet). Effects of one kind on one item add up.
-
-Weapons:
-
-| stone | id | vials | suffix | effect at common tier | scales | Task |
-|---|---|---|---|---|---|---|
-| deepsilver bar | `deep` | 12 | of the deep | `damage_percent` +25, `vs_deep_percent` +50 | no | T-476 |
-| `hollow_ichor` | `hollowbane` | 8 | hollowbane | `vs_deep_percent` +100 | no | T-476 |
-
-Armor:
-
-| stone | id | vials | suffix | effect at common tier | scales | Task |
-|---|---|---|---|---|---|---|
-| `wyrmscale` | `wyrmhide` | 8 | wyrmhide | `fire_percent` 0 on covered parts | no | T-476 |
-| `hollow_ichor` | `hollowsight` | 8 | of hollow sight | `spot_radius` 10; head slot only | no | T-476 |
 
 Where each kind is read. Every seam reads `Item.enchant` first, so an unenchanted fight does the same arithmetic, in the same order, and draws the same numbers. Only `flee` draws, and only for an item that carries it.
 
@@ -341,22 +322,17 @@ Enchanted ammunition stays enchanted through `split`, and `canMerge` keeps it ap
 
 ### Draughts
 
-The draught items are in [items.md](../03-content/items.md) § Medical and herbs (category `medical/draught`, stack 5, bag, glyph `!` in the color of the row, tag `draught`, not `drinkable`), what each does in its § Draughts, and the laboratory recipes in [workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Laboratory › Draughts (150 ticks, xp 8, quality, `spoilable`, two draughts from the inputs). Content table `draughts`: `{ id, effects: { kind, value }[], trigger }`, its id the draught's item id. A brewed draught bears quality, and its timed effects last `round(DRAUGHT_TICKS × QUALITY_COMBAT_MULT[item.quality])` ticks. These two arrive with their materials:
-
-| id | name | inputs | effect | drunk when | Task |
-|---|---|---|---|---|---|
-| `hollowsight_draught` | draught of hollowsight | 1 `rune_vial` + 1 `hollow_ichor` | `spot_radius` 10 | `MonsterEmerged` or `DeepStirred` with Deep level ≥ 2: every soldier on duty | T-476 |
-| `wyrmblood_draught` | draught of wyrmblood | 1 `rune_vial` + 1 `wyrmscale` | `fire_immune` | `ThreatNearby` from a creature with a ranged `burn` attack | T-476 |
+The draught items are in [items.md](../03-content/items.md) § Medical and herbs (category `medical/draught`, stack 5, bag, glyph `!` in the color of the row, tag `draught`, not `drinkable`), what each does in its § Draughts, and the laboratory recipes in [workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Laboratory › Draughts (150 ticks, xp 8, quality, `spoilable`, two draughts from the inputs). Content table `draughts`: `{ id, effects: { kind, value }[], trigger }`, its id the draught's item id. A brewed draught bears quality, and its timed effects last `round(DRAUGHT_TICKS × QUALITY_COMBAT_MULT[item.quality])` ticks. The draughts of hollowsight (a hollow ichor; spots within 10) and of wyrmblood (a wyrmscale; proof against fire) are brewed from the rare materials (§ Rare materials).
 
 **Effects.** A kind with a number is a timed effect (§ Effects) on the drinker, `sourceId` the drinker. `mend` emits `Mended { id, casterId }` (the medic who gave it, or 0), which 17 handles as the spell's. `ease` gives the thought `eased`. A medic gives a calming draught only once `CALM_REST_DAYS` have passed since the dwarf's last (§ `give_draught`), so a dwarf is never dosed twice within them.
 
-**Triggers.** The `trigger` column: `wounded`, a soldier on duty is hit (`AttackResolved` with outcome `hit`) while its blood is below half its maximum, or `give_draught` for a patient; `raid`, `RaidArrived` (any kind) or `AmbushSprung`, every soldier on duty; `miserable`, `give_draught` to a Miserable dwarf; `never`, the spoiled batch, never drunk.
+**Triggers.** The `trigger` column: `wounded`, a soldier on duty is hit (`AttackResolved` with outcome `hit`) while its blood is below half its maximum, or `give_draught` for a patient; `raid`, `RaidArrived` (any kind) or `AmbushSprung`, every soldier on duty; `deep`, `DeepStirred` or `MonsterEmerged` while the Deep's level (`fortress.deepLevel`) is at least `DEEP_DRAUGHT_LEVEL`, every soldier on duty; `fire`, `ThreatNearby` for a soldier on duty from a creature whose species has a ranged natural attack that burns (`burn`, the magma wyrm's breath, or `ember`), that soldier; `miserable`, `give_draught` to a Miserable dwarf; `never`, the spoiled batch, never drunk.
 
 **One draught, then rest.** The rest lives on `Spellbound` (`lastDraughtTick`, `lastCalmTick`), since most soldiers have no `Rune`. A creature that drank any draught drinks none for `DRAUGHT_REST_DAYS`: no trigger makes it drink and no medic gives it one. `lastCalmTick` is its last calming draught. `HourPassed` drops a rest that has run out, and the component stays while either lasts. A plain vial is not a draught and starts no rest.
 
-**Who carries.** `Squad.equipment.draughts` (item ids, ordered, absent by default) is set through 16's `SetSquadEquipment`: distinct ids of draughts whose trigger is `wounded` or `raid` (a soldier's triggers), else `bad_setting`; an empty list clears it. `reequipSoldier` gives every member one of each listed draught by the ammunition logic, splitting a stack so that only one is taken. `kitTypes` adds tag `draught`.
+**Who carries.** `Squad.equipment.draughts` (item ids, ordered, absent by default) is set through 16's `SetSquadEquipment`: distinct ids of draughts whose trigger is `wounded`, `raid`, `deep` or `fire` (a soldier's triggers), else `bad_setting`; an empty list clears it. `reequipSoldier` gives every member one of each listed draught by the ammunition logic, splitting a stack so that only one is taken. `kitTypes` adds tag `draught`.
 
-**Triggers are events, not scans.** 25 subscribes to `RaidArrived`, `AmbushSprung` and `AttackResolved`. For a raid it walks the squads in id order and their members on duty; for a hit, the struck soldier. Each, if its rest allows, drinks the first draught of its squad's list whose trigger fired and which it carries (`soldierDrinks` in `magic/draughts.ts`): one unit is consumed through `items.consume`, the effects land, the rests start and `DraughtDrunk { id, draughtId, calm }` is emitted (`calm`: the draught eases). There is no drinking time. With nothing listed, no draught is drunk.
+**Triggers are events, not scans.** 25 subscribes to `RaidArrived`, `AmbushSprung`, `AttackResolved`, `DeepStirred`, `MonsterEmerged` and `ThreatNearby`. For a raid or the Deep it walks the squads in id order and their members on duty; for a hit, the struck soldier; for a threat, the soldier it names. A threshold crossing emits both `DeepStirred` and `MonsterEmerged`, and the rest keeps a soldier to one draught. Each, if its rest allows, drinks the first draught of its squad's list whose trigger fired and which it carries (`soldierDrinks` in `magic/draughts.ts`): one unit is consumed through `items.consume`, the effects land, the rests start and `DraughtDrunk { id, draughtId, calm }` is emitted (`calm`: the draught eases). There is no drinking time. With nothing listed, no draught is drunk.
 
 **`give_draught`.** Job type row in [jobs.md](../03-content/jobs.md) § Magic: labor and skill `medicine`, target entity (the patient's tile is a stand tile too), baseTicks 30, priority 2, producer `magic`, key `give_draught:<patientId>`, one input of the draught's item type, `excludeWorker` the patient. Produced on each pass of the job board for an admitted patient (17's `Patient`) with a serious or grievous wound, while an available draught with trigger `wounded` is in stock (each job counts one off) and the rest allows; and once on each `DayPassed` for each Miserable dwarf (15's tier) while an available draught with trigger `miserable` is in stock and both rests allow. A job whose patient died or no longer qualifies, or whose rest no longer allows, is cancelled with `target_invalid`. At completion the patient drinks the delivered draught as above, the medic named in `Mended`; if the rest no longer allows, nothing is drunk and the draught stays where it was brought.
 
@@ -392,24 +368,19 @@ Rows carry `flags.summoned: true` (the word `summoned` in the flags column), and
 
 ### Rare materials
 
-**Task:** T-476.
+Nothing new is placed in the rock. Two stones come from monsters: `wyrmscale` (4 from a dead magma wyrm, worth 80 each) and `hollow_ichor` (1 from a dead hollow stalker or the Hollow Maw, worth 60). A hollow crawler leaves none. The items are in [items.md](../03-content/items.md) § Medical and herbs (`medical/wyrmscale`, stack 10; `medical/ichor`, stack 5; both in bags), and each is made of the material that shares its id ([materials.md](../03-content/materials.md) § Rune).
 
-Nothing new is placed in the rock. Species get a new optional column `remains: { item, count }[]`. In `items/index.ts`, the `CreatureDied` branch, after `wornItems.push(...carriedItems)`: spawn each with `ItemFlag.Foreign` and add it to `wornItems`. The existing `strip_corpse` job then recovers it, since it runs on any non-dwarf corpse with worn items, and that clears `foreign`. No rng.
+A species row has an optional `remains: { item, count }[]` ([creatures.md](../03-content/creatures.md) § Remains). In `items/index.ts`, the `CreatureDied` branch (a summoned species leaves no corpse, and so no remains), after the carried items: each is spawned at the death tile, in the material of its own id, with `ItemFlag.Foreign`, and added to the corpse's `wornItems` (13 § Corpses). The `strip_corpse` job recovers them as it recovers worn gear, since it runs on any non-dwarf corpse with worn items, and that clears `foreign`; until then they count for nothing. A corpse that rots first drops them on its tile, still foreign, as it drops worn gear. No rng. The content check fails a remains item with no material of its id.
 
-| item | category | value | stack | container | from | Task |
-|---|---|---|---|---|---|---|
-| `wyrmscale` | `medical/wyrmscale` | 80 | 10 | bag | `magma_wyrm` remains: 4 | T-476 |
-| `hollow_ichor` | `medical/ichor` | 60 | 5 | bag | `hollow_stalker` and `hollow_maw` remains: 1 | T-476 |
+Each feeds the laboratory and the runeforge: a wyrmscale makes 2 draughts of wyrmblood or a `wyrmhide` piece; an ichor renders to 6 vials, makes 2 draughts of hollowsight, a `hollowbane` weapon or a `hollowsight` helm.
 
 ### Deepsilver
 
-**Task:** T-476.
+Working deepsilver wakes the Hollow as mining it does. In `WorkshopOperator.complete`, at a building tagged `rune_work`, every consumed input whose metal has a positive `runePressure` ([minerals-and-metals.md](../03-content/minerals-and-metals.md) § Metals; deepsilver 10, the same as one mined tile, *unmeasured*) emits `DeepsilverWorked { amount: units × runePressure, tile }`, `tile` the building's origin; its material is read before it is consumed. A quench, a `deep` setting, a staff shod in deepsilver and a deepsilver circlet each raise the pressure by 10. A forge, a smelter or any other building raises nothing: melting a deepsilver item or forging a deepsilver axe wakes nothing more.
 
-In `WorkshopOperator.complete`, at a building with tag `rune_work`: for each consumed input whose material row has a positive `runePressure` (a new metals column; deepsilver `DEEP_PRESSURE_PER_RUNE_BAR`), emit `DeepsilverWorked { amount: units × runePressure }`. It applies to a quench, a deep setting, a shod staff and a circlet alike. 18 subscribes. `threats/deep.ts` splits `handleDeepsilverMined` into its tile part and a new `addDeepPressure(amount, ctx, …)`, which holds the pressure, the thresholds and `DeepStirred`.
+18 handles it (18 § The Deep): the pressure rises by `amount` through `addDeepPressure`, which `DeepsilverMined` also goes through, so the thresholds, `DeepStirred` and the emergences act as for mining. With no deepsilver tile mined yet (the bar was bought), the building's tile becomes the emergence base, so the Hollow comes up beside the workshop.
 
-When no tile has been mined, because the bar was bought, `triggerDeepEmergence` must still have a base. `findEmergenceBaseTile` is checked and tested for an empty list; the fallback is the workshop's tile, carried in the event as `tile`.
-
-The deepsilver confirmation row `c_deepsilver` gains: "Working it at the runeforge or the laboratory wakes the Hollow too."
+The deepsilver confirmation (`c_deepsilver`) says so: "Working it at the runeforge or the laboratory wakes the Hollow too."
 
 ### Hexers
 
@@ -495,7 +466,7 @@ The `interface:check` script compares this section with the code. It holds only 
 
 ### Events consumed
 
-`HourPassed` (regen, which also ends a caster's `RuneSpent` silence; expired effects and draught rests; fading summons; the producer's hourly look), `DayPassed` (sessions, `vialsToday`, the day's bloom alerts, the calming draughts' look), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied` (a caster's summons fade), `ZoneChanged` (sanctums), `RaidArrived` and `AmbushSprung` (the `raid` draughts), `AttackResolved` (the `wounded` draughts).
+`HourPassed` (regen, which also ends a caster's `RuneSpent` silence; expired effects and draught rests; fading summons; the producer's hourly look), `DayPassed` (sessions, `vialsToday`, the day's bloom alerts, the calming draughts' look), `SkillLevelUp` (the `Rune`, `FirstRunecaster`), `CreatureDied` (a caster's summons fade), `ZoneChanged` (sanctums), `RaidArrived` and `AmbushSprung` (the `raid` draughts), `AttackResolved` (the `wounded` draughts), `DeepStirred` and `MonsterEmerged` (the `deep` draughts), `ThreatNearby` (the `fire` draughts).
 
 ### Events emitted
 
@@ -507,12 +478,9 @@ Job producer `magic` (`attune`, `give_draught`); inspector sections `creature �
 
 ## Planned interfaces
 
-| Kind | Name | Task |
-|---|---|---|
-| Event | `DeepsilverWorked { amount, tile }` (12 emits it) | T-476 |
-| Consumes | `ThreatNearby`, `MonsterEmerged`, `DeepStirred` | T-476 |
+None remain: every interface so far is in § Interfaces. T-479's hexers add none of 25's own.
 
-Other systems' documents gain their parts in the same commits: 08 (summons), 12 (`transform`, `spoilable`, `stone`), 13 (`setEnchant`, `noEnchant`, value, `remains`, no corpse for a summon), 14 (`sanctum`), 15 (`saw_death`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`, `SummonFaded`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 19 (no cage for a summon), 22 (`moveAlongPath`), 24 (the kill tally).
+Other systems' documents gain their parts in the same commits: 08 (summons), 12 (`transform`, `spoilable`, `stone`, `DeepsilverWorked`), 13 (`setEnchant`, `noEnchant`, value, `remains`, no corpse for a summon), 14 (`sanctum`), 15 (`saw_death`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`, `SummonFaded`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 19 (no cage for a summon), 22 (`moveAlongPath`), 24 (the kill tally, the milestones).
 
 ## Player-facing behavior
 
@@ -523,7 +491,7 @@ Other systems' documents gain their parts in the same commits: 08 (summons), 12 
 - **Squad panel**: under the gear, "[S-d] draughts: draught of stoutness, draught of quickness"; `[S-d]` opens the checklist of every draught a soldier drinks, each with its place in the list and its trigger in words ("a raid or an ambush arrives", "hit while below half blood"), and `Enter` adds the row at the end of the list or takes it out (`SetSquadEquipment`). A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
 - **Orders panel**: a transform recipe offers the target type (`set in: any`, stepped by a click) and the material, and is `once` only.
 - **Hints** (`hints` rows, T-477, each with a trigger on stock or buildings): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
-- **Legend milestones** (`milestones` rows and `legend/index.ts`): first stone set and first runecaster (T-476). `m_summon`, "A summoning was answered.", is awarded once, on the first `SummonCalled` ([ui-keymap-and-screens.md](../03-content/ui-keymap-and-screens.md) § Milestones); a shade that comes through turned answers nothing.
+- **Legend milestones** (`milestones` rows and `legend/index.ts`), each awarded once ([ui-keymap-and-screens.md](../03-content/ui-keymap-and-screens.md) § Milestones): `m_stone_set` on the first `StoneSet`, `m_runecaster` on `FirstRunecaster`, and `m_summon`, "A summoning was answered.", on the first `SummonCalled`; a shade that comes through turned answers nothing.
 
 ## Tuning constants
 
@@ -550,7 +518,7 @@ All *unmeasured* unless the row says what was measured. Rows move to `src/system
 | `DRAUGHT_REST_DAYS` / `CALM_REST_DAYS` | 3 / 7 | | T-474 |
 | `ALCHEMY_MISHAP_PERMILLE` | 100 | Per job, less 10 per level | T-474 |
 | `SUMMON_TICKS` / `MAX_SUMMONS_PER_CASTER` / `SHADE_TURN_PERMILLE` | 1200 / 2 / 50 | A summon's day; summons a caster holds; turning per mille. Measured: 50 turned in 1,000 castings of a deepsilver staff | T-475 |
-| `DEEP_PRESSURE_PER_RUNE_BAR` | 10 | The same as one mined tile (`DEEP_PRESSURE_PER_TILE`) | T-476 |
+| `DEEP_DRAUGHT_LEVEL` | 2 | The Deep's level from which its stirring and emergences make soldiers drink the `deep` draughts | T-476 |
 | `HEXER_RUNE` | 20 | | T-479 |
 
 ## Acceptance

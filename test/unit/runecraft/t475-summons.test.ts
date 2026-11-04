@@ -127,11 +127,15 @@ describe('T-475 content and constants', () => {
       expect(creatures.byId(id)?.flags).toEqual({ summoned: true, trainable: 'none', ...(id === 'deep_shade' ? { turns: true } : {}) });
     }
     const recipes = registry.table<{ id: string }>('recipes').ids();
-    expect(recipes.slice(-2)).toEqual(['make_wand_glowstone', 'make_staff_glowstone']);
+    // Numbered after T-474's draughts; T-476's rows number after them.
+    const glow = recipes.indexOf('make_wand_glowstone');
+    expect(glow).toBe(recipes.indexOf('brew_calm_draught') + 1);
+    expect(recipes.slice(glow, glow + 2)).toEqual(['make_wand_glowstone', 'make_staff_glowstone']);
     expect(registry.table<{ id: string; value: number; hours: number; group: string; trigger: { event?: string } }>('thoughts').byId('summon_turned'))
       .toMatchObject({ value: { formula: '−4' }, hours: 48, group: 'fear', trigger: { event: 'SummonTurned', target: '(everyone)' } });
     expect(registry.table('thoughts').ids().at(-1)).toBe('summon_turned');
-    expect(registry.table('milestones').ids().at(-1)).toBe('m_summon');
+    // T-476's two milestones number after it.
+    expect(registry.table('milestones').ids().slice(-3)).toEqual(['m_summon', 'm_stone_set', 'm_runecaster']);
     expect([SUMMON_TICKS, MAX_SUMMONS_PER_CASTER, SHADE_TURN_PERMILLE]).toEqual([1200, 2, 50]);
   });
 

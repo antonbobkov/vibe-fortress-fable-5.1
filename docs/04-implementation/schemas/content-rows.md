@@ -21,6 +21,7 @@ interface MineralDef extends MaterialDef {
 }
 interface MetalDef extends MaterialDef {
   tier: 0|1|2|3|4|5; weaponMult: Fixed; armorMult: Fixed; bluntBonus: Percent; runeMult: Fixed /* a staff's power (25) */;
+  runePressure?: number /* Deep pressure per bar consumed at a rune_work building (25); deepsilver 10 */;
   alloy?: { inputs: { material: Id<MaterialDef>; count: number; kind: 'bar'|'stone'|'fuel' }[]; output: number };
   armorWeightMult?: Fixed;   // deepsilver 0.5
 }
@@ -48,12 +49,12 @@ interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; m
 interface SpellDef { id: string; name: string; stone: Id<MaterialDef>; kind: 'bolt'|'burst'|'single'|'ward'|'mend'|'dread'|'call';
                      cost: number /* whole rune */; range?: number /* absent: the channel's */; base?: number; type?: DamageType;
                      ticks?: number; suffix: string }
-interface EnchantDef { id: string; slot: 'weapon'|'armor'|'ammo'; stone: Id<MaterialDef> | Id<ItemTypeDef> /* a gem, set as a cut_gem of it, or an item */;
+interface EnchantDef { id: string; slot: 'weapon'|'armor'|'ammo'; stone: Id<MaterialDef> | Id<ItemTypeDef> /* a gem, set as a cut_gem of it; a metal, as a bar of it; or an item */;
                        vials: number; suffix: string /* "of …" follows the name, any other goes before it */;
                        effects: { kind: string; value: number; type?: DamageType; chance?: Percent; ticks?: number; scales: 'value'|'ticks'|'none' }[] /* at least 1 */;
                        only?: 'head'|'body'|'arms'|'legs'|'feet' }
 interface DraughtDef { id: Id<ItemTypeDef> /* the draught's item */; effects: { kind: 'mend'|'ease'|'heal_rate'|'pain_half'|'haste'|'fire_immune'|'spot_radius'; value: number }[];
-                       trigger: 'wounded'|'raid'|'miserable'|'never' }   // items.md § Draughts; 25 § Draughts
+                       trigger: 'wounded'|'raid'|'deep'|'fire'|'miserable'|'never' }   // items.md § Draughts; 25 § Draughts
 
 interface BodyPlanDef extends RowBase {
   parts: Record<BodySlot, { name: string; hit: number; hpFactor: Fixed; functions: ('see'|'wield'|'walk')[] }>;
@@ -69,6 +70,7 @@ interface SpeciesDef extends RowBase {
                             butcherable?: boolean; tameable?: boolean; trainable?: 'none'|'war'|'hunting'|'both' };
   breeding?: { gestationDays: number; litter: [number, number]; growDays: number; hatch?: boolean };
   factionDefault: Faction; perception: number; gear?: string /* gear table key */;
+  remains?: { item: Id<ItemTypeDef>; count: number }[] /* creatures.md § Remains; made of the material of the item's id */;
 }
 
 interface PlantDef extends RowBase {

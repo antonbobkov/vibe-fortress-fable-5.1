@@ -86,8 +86,11 @@ export class ItemFacts {
       for (let e = 1; e <= enchants.size; e += 1) {
         const row = enchants.byIndex(e);
         if (row === undefined) continue;
-        // A gem stone is valued as its material; an item stone as its row's material value.
-        const stone = materials.has(row.stone) ? materials.byId(row.stone)?.value ?? 0 : 0;
+        // A gem or a metal is valued as its material (a cut gem, a bar). An item stone is one unit of
+        // that item, made of the material that shares its id: the row's `mult` times that value.
+        const itemStone = items.has(row.stone) ? items.byId(row.stone) : undefined;
+        const material = materials.has(row.stone) ? materials.byId(row.stone)?.value ?? 0 : 0;
+        const stone = itemStone === undefined ? material : Math.round((material * itemStone.mult) / 1000);
         // A set of ammunition shares it out per unit, rounded to whole marks, so value is linear in the
         // count: a split or a merge never changes wealth.
         const value = stone * ENCHANT_STONE_VALUE_MULT + row.vials * ENCHANT_VIAL_VALUE;

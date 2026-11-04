@@ -155,7 +155,9 @@ describe('T-470 content: channels, spells, the runeforge', () => {
     // T-471's rows number after the first fourteen, and T-475's glowstone pair after T-471's.
     const at = recipes.ids().indexOf('make_wand_garnet');
     expect(recipes.ids().slice(at, at + 14)).toEqual(made.slice(0, 14));
-    expect(recipes.ids().slice(-2)).toEqual(made.slice(14));
+    const glow = recipes.ids().indexOf('make_wand_glowstone');
+    expect(glow).toBeGreaterThan(recipes.ids().indexOf('set_ammo_seeking'));
+    expect(recipes.ids().slice(glow, glow + 2)).toEqual(made.slice(14));
     expect(at).toBeGreaterThan(recipes.ids().indexOf('grind_glowstone'));
     const staff = recipes.byId('make_staff_amethyst')!;
     expect(staff).toMatchObject({ workshop: 'runeforge', skill: 'runesmithing', baseTicks: 300, fuel: false, quality: true, xp: 12, generated: true });

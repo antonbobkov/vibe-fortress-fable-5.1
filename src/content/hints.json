@@ -17,7 +17,7 @@
   {
     "id": "hint_winter",
     "trigger": "day 20 of spring, year 1",
-    "text": "Winter comes in 60 days. Farms need soil or mud; cave crops grow in the dark all year."
+    "text": "Winter comes in 60 days. Farms need soil or mud. Cave crops grow in the dark, but in a cold region a cave within two levels of the surface freezes in winter; three levels down stays warm."
   },
   {
     "id": "hint_hearth",

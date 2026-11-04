@@ -51,6 +51,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'textile', 'textile/fiber', 'textile/thread', 'textile/cloth', 'textile/wool', 'textile/hide', 'textile/leather',
   'textile/bone', 'textile/shell', 'textile/skull',
   'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf', 'medical/glowcap', 'medical/vial', 'medical/draught',
+  'medical/wyrmscale', 'medical/ichor',
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
 ];
 

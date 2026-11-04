@@ -60,5 +60,7 @@ export const SUMMON_TICKS = 1200;
 export const MAX_SUMMONS_PER_CASTER = 2;
 /** A species that `turns` comes through turned with this chance per mille, on stream 25. */
 export const SHADE_TURN_PERMILLE = 50;
+/** The `deep` draughts are drunk when the Deep stirs or emerges at this level or above. */
+export const DEEP_DRAUGHT_LEVEL = 2;
 /** A hexer's rune at arrival, in whole rune; it never comes back (§ Hexers). */
 export const HEXER_RUNE = 20;

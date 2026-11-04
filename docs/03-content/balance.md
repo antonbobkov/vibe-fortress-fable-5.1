@@ -159,7 +159,7 @@ A year-2 fortress (renown 15, reputation 10) sees a Hillfolk caravan with `2500 
 
 ## Farming plots and light
 
-A cave plot must be fully dark; a surface plot fully lit. Digging out a farm chamber two levels below the surface guarantees darkness; a courtyard open to the sky guarantees light. Mixed plots are refused at placement so that the player never discovers a dormant crop by surprise.
+A cave plot must be fully dark; a surface plot fully lit. Digging out a farm chamber two levels below the surface guarantees darkness, and three levels down keeps it warm through any winter (a chamber one or two levels down freezes in a cold region); a courtyard open to the sky guarantees light. Mixed plots are refused at placement so that the player never discovers a dormant crop by surprise.
 
 ## Year-one expectation
 
@@ -171,7 +171,7 @@ A cave plot must be fully dark; a surface plot fully lit. Digging out a farm cha
 | 28 | Summer: Hillfolk caravan; first immigrants (2–4) |
 | 30–56 | Ore found; smelter and forge; first iron picks and axe; more bedrooms |
 | 56 | Autumn: Wildwood caravan; second guaranteed wave; at peril ≥ 2 the first ambush or raid warning (measured: at peril 2 an ambush of 4 or a band of 3 bandits on days 57 to 62; at peril 4 the first ambush on days 58 to 71 and the first raid, of 13, on days 59 to 76, [raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)) |
-| 84 | Winter: surface farm dormant; cave farm carries; river frozen at temper ≥ 1 (*unmeasured*) |
+| 84 | Winter: surface farm dormant; cave farm carries if it is three levels down (one or two in a cold region freeze); river frozen at temper ≥ 1 (*unmeasured*) |
 | 112 | Year 2: Mountainhome caravan with an anvil if requested; the fortress is 11–15 dwarves with iron tools and a squad |
 
 The pace is deliberate: the first hour of play (day 1 to about day 60) contains every basic system once, and the first raid arrives after the player has had time to build a gate.

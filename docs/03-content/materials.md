@@ -135,9 +135,13 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 
 ## Rune
 
-| id | name | class | value | color |
-|---|---|---|---|---|
-| `rune` | rune | liquid | 15 | `rune_cyan` |
+| id | name | class | value | color | meltsAtC |
+|---|---|---|---|---|---|
+| `rune` | rune | liquid | 15 | `rune_cyan` | |
+| `wyrmscale` | wyrmscale | shell | 80 | `wyrm_red` | 1600 |
+| `hollow_ichor` | hollow ichor | liquid | 60 | `hollow_violet` | |
+
+A wyrmscale and a hollow ichor are items made of the material that shares their id ([items.md](items.md) § Medical and herbs), so one of each is worth 80 and 60 (*unmeasured*). Wyrmscale does not burn in magma.
 
 ## Generated per species
 

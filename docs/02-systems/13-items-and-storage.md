@@ -38,7 +38,7 @@ clothing/  body  legs  feet
 tool/      pick  axe  fishing_rod  crutch
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull
-medical/   splint  bandage  brightleaf  glowcap  vial  draught
+medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor
 refuse/    corpse  skeleton  rotten  part
 ```
 
@@ -48,7 +48,7 @@ Stockpile filters select any node; selecting a node selects its subtree. Materia
 
 An item that does not come from the fortress (a hostile's gear, its corpse, what it drops) carries the `foreign` flag (`ItemFlag.Foreign`). The flag survives splitting, dropping and rot, and a creature whose death is still queued when the game is saved keeps the origin of what it holds. A foreign item is in no stock count and adds nothing to wealth. The flag is cleared, and the item counted, when a fortress dwarf picks it up (a container's contents with it) or when the `strip_corpse` job that recovers it completes.
 
-`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. An enchanted item (25 § Setting stones) adds `stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, from its `enchants` row; a gem stone's value is its material's. Enchanted ammunition carries it per unit, `round(enchant value / 25)` whole marks a unit times the count, so value is linear in the count and a split or a merge never changes wealth: a set of 25 bolts of embers carries 25 × round(96 / 25) = 100. A masterwork steel breastplate is 4,000; set adamant, 4,000 + 90 × 3 + 12 × 15 = 4,450. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
+`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. An enchanted item (25 § Setting stones) adds `stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, from its `enchants` row; a gem stone's and a metal's value is its material's (a cut gem, a bar), and an item stone's is one unit of that item in the material that shares its id (a wyrmscale 80, a hollow ichor 60). Enchanted ammunition carries it per unit, `round(enchant value / 25)` whole marks a unit times the count, so value is linear in the count and a split or a merge never changes wealth: a set of 25 bolts of embers carries 25 × round(96 / 25) = 100. A masterwork steel breastplate is 4,000; set adamant, 4,000 + 90 × 3 + 12 × 15 = 4,450. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
 
 Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress faction), `−value` on `ItemDestroyed`, `±` on quality change (none in version 1) and on a set stone (`items.setEnchant`), `+` when a hostile's loot is recovered, `−` when a thief escapes, plus building values from 14 (`BuildingCompleted` adds its material value plus a per-type bonus; `BuildingRemoved` subtracts). `WealthChanged` is emitted at the items cadence when the cached value differs from the last emitted by more than `WEALTH_EVENT_STEP`.
 
@@ -129,7 +129,7 @@ Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits m
 
 ### Corpses
 
-A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wornItems[] }`, created on `CreatureDied` at the death tile with the creature's size as its weight (heavier than most things: hauling a troll corpse is slow). Dwarf corpses use `skull_bone` as material, preserving species and dwarf name on the `Corpse` component; they want hauling to a coffin (14 burial job) before a refuse stockpile. Sapient hostile corpses can be dumped or hauled to refuse; they cannot be butchered.
+A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wornItems[] }`, created on `CreatureDied` at the death tile with the creature's size as its weight (heavier than most things: hauling a troll corpse is slow). A species with `remains` ([creatures.md](../03-content/creatures.md) § Remains) leaves them on its corpse: each is spawned at the death tile in the material that shares its id, flagged `foreign`, and joins `wornItems`, so `strip_corpse` recovers it as it recovers gear (25 § Rare materials). No rng. Dwarf corpses use `skull_bone` as material, preserving species and dwarf name on the `Corpse` component; they want hauling to a coffin (14 burial job) before a refuse stockpile. Sapient hostile corpses can be dumped or hauled to refuse; they cannot be butchered.
 
 ### Stock counts and the stocks panel
 

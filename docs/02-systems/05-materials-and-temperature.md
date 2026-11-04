@@ -38,7 +38,7 @@ else:
 return base + tempOverride(i) × 5 + (HEARTH_WARMTH_C if i is inside the built hearth's HEARTH_HALL_SIDE square (14))
 ```
 
-`surface` is 06's cached surface temperature, or `SURFACE_FALLBACK_C = UNDERGROUND_BASE_C` when 06 is absent. A forced tile temperature, set by the test/debug `forceTemperature(tile, c)`, takes precedence over the model and is saved; `null` releases it.
+`surface` is 06's cached surface temperature, or `SURFACE_FALLBACK_C = UNDERGROUND_BASE_C` when 06 is absent. A covered tile one or two levels below its column's surface follows the surface: in a −12 °C winter it is −5 °C one level down and 2 °C two levels down, and on a −18 °C night −9 °C and 0 °C. From `NEAR_SURFACE_DEPTH` levels down a tile is `UNDERGROUND_BASE_C` in every climate and every season, which is the depth a cave crop needs to grow through a cold winter (07 § Growth). A forced tile temperature, set by the test/debug `forceTemperature(tile, c)`, takes precedence over the model and is saved; `null` releases it.
 
 `tempOverride` is an `Int8` per tile written only by this system: the sum of source contributions in units of 5 °C, clamped to ±120 °C. Sources:
 

@@ -606,7 +606,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_dig` | tick 1 | "Designate a place to dig with [d]. Dwarves dig into rock faces from the side." |
 | `hint_still` | no still exists and drink < 40 units | "Dwarves need drink. Build a still [b > Workshops] and brew from plants." |
 | `hint_stockpile` | no stockpile exists and items on the ground > 20 | "Set up a stockpile [z] so hauled goods have somewhere to go." |
-| `hint_winter` | day 20 of spring, year 1 | "Winter comes in 60 days. Farms need soil or mud; cave crops grow in the dark all year." |
+| `hint_winter` | day 20 of spring, year 1 | "Winter comes in 60 days. Farms need soil or mud. Cave crops grow in the dark, but in a cold region a cave within two levels of the surface freezes in winter; three levels down stays warm." |
 | `hint_hearth` | no hearth and at least one dining hall or 5 bedrooms | "A hearth makes a hall a home. Build one [b > Special] in your main hall." |
 | `hint_containers` | a drink or seed stockpile exists without barrels or bags | "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags." |
 | `hint_barrel` | a workshop is blocked because no barrel is empty | "A brew needs an empty barrel, and a barrel that holds food or seed is not empty. Order a barrel at the carpenter's workshop." |
@@ -669,12 +669,14 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `m_decade` | year 11 | "Ten years in the deep." |
 | `m_legend` | first `LegendaryReached` | "A legend walked the halls." |
 | `m_summon` | first `SummonCalled` | "A summoning was answered." |
+| `m_stone_set` | first `StoneSet` | "A stone was first set at the runeforge." |
+| `m_runecaster` | `FirstRunecaster` | "A dwarf first held the rune." |
 
 ## Confirmations
 
 | id | Text | Default |
 |---|---|---|
-| `c_deepsilver` | "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Mine it?" | No |
+| `c_deepsilver` | "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?" | No |
 | `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed." | No |
 | `c_quickload` | "Load the quick save? Unsaved progress will be lost." | No |
 | `c_remove_zone_crops` | "This plot has {n} growing crops. Remove it?" | No |

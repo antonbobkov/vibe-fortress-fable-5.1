@@ -999,6 +999,37 @@
     ]
   },
   {
+    "id": "hollow_ichor",
+    "name": "hollow ichor",
+    "category": "medical/ichor",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "¡",
+    "fg": "hollow_violet",
+    "quality": false
+  },
+  {
+    "id": "hollowsight_draught",
+    "name": "draught of hollowsight",
+    "category": "medical/draught",
+    "mult": 2000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "!",
+    "fg": "hollow_violet",
+    "quality": true,
+    "tags": [
+      "draught"
+    ]
+  },
+  {
     "id": "lavish_meal",
     "name": "lavish meal",
     "category": "food/meal/lavish",
@@ -2020,6 +2051,37 @@
     "materials": "any",
     "glyph": "~",
     "fg": "wool_cream",
+    "quality": false
+  },
+  {
+    "id": "wyrmblood_draught",
+    "name": "draught of wyrmblood",
+    "category": "medical/draught",
+    "mult": 2000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "!",
+    "fg": "wyrm_red",
+    "quality": true,
+    "tags": [
+      "draught"
+    ]
+  },
+  {
+    "id": "wyrmscale",
+    "name": "wyrmscale",
+    "category": "medical/wyrmscale",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "§",
+    "fg": "wyrm_red",
     "quality": false
   }
 ]

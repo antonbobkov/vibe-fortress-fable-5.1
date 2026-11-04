@@ -29,6 +29,25 @@
     ]
   },
   {
+    "id": "deep",
+    "slot": "weapon",
+    "stone": "deepsilver",
+    "vials": 12,
+    "suffix": "of the deep",
+    "effects": [
+      {
+        "kind": "damage_percent",
+        "value": 25,
+        "scales": "none"
+      },
+      {
+        "kind": "vs_deep_percent",
+        "value": 50,
+        "scales": "none"
+      }
+    ]
+  },
+  {
     "id": "ember",
     "slot": "weapon",
     "stone": "garnet",
@@ -101,6 +120,35 @@
         "scales": "none"
       }
     ]
+  },
+  {
+    "id": "hollowbane",
+    "slot": "weapon",
+    "stone": "hollow_ichor",
+    "vials": 8,
+    "suffix": "hollowbane",
+    "effects": [
+      {
+        "kind": "vs_deep_percent",
+        "value": 100,
+        "scales": "none"
+      }
+    ]
+  },
+  {
+    "id": "hollowsight",
+    "slot": "armor",
+    "stone": "hollow_ichor",
+    "vials": 8,
+    "suffix": "of hollow sight",
+    "effects": [
+      {
+        "kind": "spot_radius",
+        "value": 4,
+        "scales": "none"
+      }
+    ],
+    "only": "head"
   },
   {
     "id": "keen",
@@ -218,6 +266,20 @@
         "kind": "to_hit",
         "value": 10,
         "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "wyrmhide",
+    "slot": "armor",
+    "stone": "wyrmscale",
+    "vials": 8,
+    "suffix": "wyrmhide",
+    "effects": [
+      {
+        "kind": "fire_percent",
+        "value": 0,
+        "scales": "none"
       }
     ]
   }
