@@ -363,6 +363,8 @@ export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
 
 export interface DefenceYearOptions {
   readonly ticks?: number;
+  /** The world seed; the scenario's own is `defence-year`. */
+  readonly seed?: string;
   /** Called once, before the first tick, to attach observers. */
   readonly observe?: (w: TestWorld, state: DefenceYearState) => void;
   /** Looked at every 100 ticks; true ends the run early. */
@@ -372,11 +374,11 @@ export interface DefenceYearOptions {
 }
 
 export function playDefenceYear(options: DefenceYearOptions = {}): { w: TestWorld; state: DefenceYearState } {
-  const { ticks = DEFENCE_YEAR_TICKS, observe, until, watch } = options;
+  const { ticks = DEFENCE_YEAR_TICKS, seed = 'defence-year', observe, until, watch } = options;
   // The defences are tested against the parties that 18 sends. Natural surface arrivals are left
   // out, as in `hospital_run`: which dwarf a boar kills is not what the assertions are about.
   // T-451: level ground; its corridor and walls are laid out by hand at fixed tiles.
-  const w = threeYearsWorld('defence-year', 2, 'none', 0);
+  const w = threeYearsWorld(seed, 2, 'none', 0);
   const fortress = setupThreeYearsFortress(w);
   const state = createDefenceYear(w, fortress);
   observe?.(w, state);

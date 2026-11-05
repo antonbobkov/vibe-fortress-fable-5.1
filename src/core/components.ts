@@ -393,6 +393,8 @@ export interface Party {
   despawnedCount?: number;
   /** Number of loot escapes actually emitted; missing in older saves means zero. */
   escapedLootCount?: number;
+  /** The captains the party arrived with (18 § Party AI, Retreat); absent: none, as in older saves. */
+  captainIds?: EntityId[];
   /** Animal loot has no Position while held; this records its individual carrier. */
   animalCarriers?: Record<EntityId, EntityId>;
   goalUnreachable?: boolean;

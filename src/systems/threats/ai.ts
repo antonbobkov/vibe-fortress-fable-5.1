@@ -795,6 +795,20 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
   }
 }
 
+/**
+ * 18 § Party AI, Retreat: the captain holds the party together. A party that arrived with captains
+ * breaks when none of them is still standing with it: dead, unconscious, caged or gone from the map.
+ */
+function captainsLost(P: Party, standing: readonly EntityId[]): boolean {
+  const captains = P.captainIds ?? [];
+  return captains.length > 0 && !captains.some((id) => standing.includes(id));
+}
+
+/** 18 § Party AI, Retreat: the casualties, or the loss of its captains, break a party. */
+function broken(P: Party, standing: readonly EntityId[]): boolean {
+  return ((P.members.length - standing.length) * 100) / P.members.length >= RETREAT_LOSS_PERCENT || captainsLost(P, standing);
+}
+
 /** Unconscious casualties are still living members; only actual deaths can wipe a party. */
 function retreatSurvivors(P: Party, ctx: TickContext): boolean {
   if (!P.members.some((id) => inParty(ctx.world.entities, id))) return false;
@@ -826,8 +840,7 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
     return;
   }
 
-  const casualtyPercent = ((P.members.length - alive.length) * 100) / P.members.length;
-  if (casualtyPercent >= RETREAT_LOSS_PERCENT) {
+  if (broken(P, alive)) {
     P.state = 'retreat';
     P.stateSince = ctx.tick;
     P.outcome = P.loot.length > 0 ? 'looted' : 'repelled';
@@ -870,13 +883,10 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
     }
   }
 
-  if (P.state !== 'retreat' && P.state !== 'gone' && P.purpose !== 'restless') {
-    const casualtyPercent = ((P.members.length - alive.length) * 100) / P.members.length;
-    if (casualtyPercent >= RETREAT_LOSS_PERCENT) {
-      P.state = 'retreat';
-      P.stateSince = ctx.tick;
-      P.outcome = P.loot.length > 0 ? 'looted' : 'repelled';
-    }
+  if (P.state !== 'retreat' && P.state !== 'gone' && P.purpose !== 'restless' && broken(P, alive)) {
+    P.state = 'retreat';
+    P.stateSince = ctx.tick;
+    P.outcome = P.loot.length > 0 ? 'looted' : 'repelled';
   }
 
   switch (P.state) {
