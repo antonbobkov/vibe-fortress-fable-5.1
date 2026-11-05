@@ -3,7 +3,8 @@
  * every journaled `defence_year` raid the captain walked the kill corridor first and its cage trap
  * caught it before any loot was taken; the rest stood outside the walls for two days, picked up
  * what lay there and left `looted`, since one loss in eleven is far from half. A party that arrived
- * with captains now breaks when none of them stands with it: dead, unconscious, caged or gone.
+ * with captains and has none standing with it (dead, unconscious, caged or gone) now fights on while
+ * it is engaged and goes home as soon as it is not: it neither approaches nor loiters without them.
  */
 import { describe, it, expect } from 'vitest';
 import { C } from '@core/components';
@@ -108,6 +109,23 @@ describe('T-466 the captain holds the party together', () => {
     w.step(60);
     expect(party().state).toBe('retreat');
     expect(ending(w, partyId)).toBe('looted');
+  });
+
+  it('a raid that loses its captain in a fight fights on, and goes home when the fight is over', () => {
+    const { w, partyId } = raid('t466-captain-in-fight');
+    const party = () => w.game.world.entities.get(partyId, C.Party)!;
+    const dwarf = w.spawnDwarf({ at: w.index(40, 14, Z) });
+    w.until(() => party().state === 'engage', 1_000);
+    expect(party().state).toBe('engage');
+    cage(w, party().captainIds![0]!);
+    w.step(120);
+    expect(party().state).toBe('engage');
+    if (w.game.world.entities.get(dwarf, C.Position) !== undefined) cage(w, dwarf);
+    w.until(() => party().state !== 'engage', 1_000);
+    w.step(60);
+    expect(party().state).toBe('retreat');
+    expect(party().loot).toEqual([]);
+    expect(ending(w, partyId)).toBe('repelled');
   });
 
   it('a siege breaks only when every captain is lost', () => {

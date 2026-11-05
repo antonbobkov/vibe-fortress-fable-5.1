@@ -797,16 +797,18 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
 
 /**
  * 18 § Party AI, Retreat: the captain holds the party together. A party that arrived with captains
- * breaks when none of them is still standing with it: dead, unconscious, caged or gone from the map.
+ * and has none still standing with it (dead, unconscious, caged or gone from the map) fights on
+ * while it is engaged, and goes home as soon as it is not: it neither approaches nor loiters.
  */
 function captainsLost(P: Party, standing: readonly EntityId[]): boolean {
   const captains = P.captainIds ?? [];
   return captains.length > 0 && !captains.some((id) => standing.includes(id));
 }
 
-/** 18 § Party AI, Retreat: the casualties, or the loss of its captains, break a party. */
+/** 18 § Party AI, Retreat: the casualties, or the loss of its captains out of a fight, break a party. */
 function broken(P: Party, standing: readonly EntityId[]): boolean {
-  return ((P.members.length - standing.length) * 100) / P.members.length >= RETREAT_LOSS_PERCENT || captainsLost(P, standing);
+  return ((P.members.length - standing.length) * 100) / P.members.length >= RETREAT_LOSS_PERCENT ||
+    (P.state !== 'engage' && captainsLost(P, standing));
 }
 
 /** Unconscious casualties are still living members; only actual deaths can wipe a party. */
