@@ -391,8 +391,16 @@
     "hex": "#A0A0B0"
   },
   {
+    "id": "glow_core",
+    "hex": "#1E4C50"
+  },
+  {
     "id": "glow_green",
     "hex": "#7CFFB2"
+  },
+  {
+    "id": "glow_halo",
+    "hex": "#0E2426"
   },
   {
     "id": "goat_gray",

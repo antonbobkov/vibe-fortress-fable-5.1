@@ -149,3 +149,5 @@ Every new row of every table goes at the end of this table, including generated 
 | thoughts | dosed_again |
 | thoughts | saw_wisp |
 | thoughts | lab_stink |
+| palette | glow_halo |
+| palette | glow_core |

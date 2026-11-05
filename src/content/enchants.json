@@ -124,6 +124,11 @@
         "kind": "spot_radius",
         "value": 2,
         "scales": "none"
+      },
+      {
+        "kind": "light",
+        "value": 1,
+        "scales": "none"
       }
     ]
   },

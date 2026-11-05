@@ -135,14 +135,14 @@ A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arr
 | `garnet` | `emberward` | armor | 6 | of embers warded | `fire_percent` 50 | none | |
 | `amethyst` | `rimeward` | armor | 6 | of rime warded | `frost_percent` 50; `slow_immune` 1 | none | |
 | `diamond` | `adamant` | armor | 12 | adamant | `armor` 4 | value | |
-| `glowstone` | `glowing` | armor | 6 | glowing | `spot_radius` 2 | none | |
+| `glowstone` | `glowing` | armor | 6 | glowing | `spot_radius` 2; `light` 1 | none | |
 | `wyrmscale` | `wyrmhide` | armor | 8 | wyrmhide | `fire_percent` 0 | none | |
 | `hollow_ichor` | `hollowsight` | armor | 8 | of hollow sight | `spot_radius` 4 | none | head |
 | `garnet` | `ember_ammo` | ammo | 4 | of embers | `extra_damage` 6 ember | value | |
 | `amethyst` | `rime_ammo` | ammo | 4 | of rime | `slow` 30 for 200 ticks | ticks | |
 | `emerald` | `seeking` | ammo | 4 | seeking | `to_hit` 10 | value | |
 
-What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `ignite` sets the struck creature's tile alight, on a roll of its chance, when that tile can burn; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum).
+What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `ignite` sets the struck creature's tile alight, on a roll of its chance, when that tile can burn; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum); `light` lights the 3×3 around the wearer as a glowstone lamp does for a `glow` crop (07 § Growth).
 
 ## Shields
 
