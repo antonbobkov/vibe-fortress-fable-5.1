@@ -22,7 +22,7 @@ import { accel, type PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
-import { militaryNoSquad, wrapText, zoneName } from '../messages';
+import { militaryNoSquad, wrapHang, wrapText, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
@@ -624,9 +624,13 @@ export function drawMilitaryPanel(
   row += 1;
   // 25 § Draughts: the squad's ordered list; each member carries one of each.
   const listed = (squad.equipment.draughts ?? []).map((d) => ctx.registry.table<{ id: string; name: string }>('items').byId(d)?.name ?? d);
-  label(s, col, row, ctx.strings.get('ui.military.draughts', { list: listed.length === 0 ? ctx.strings.get('ui.military.draughts_none') : listed.join(', ') }), { width });
-  s.hit({ col: col + 2, row, cols: width - 2, rows: 1 }, () => panel.openChoice(ctx, 'draughts'));
-  row += 1;
+  // The list wraps under its caption, so every draught on it is read.
+  const draughtsText = ctx.strings.get('ui.military.draughts', { list: listed.length === 0 ? ctx.strings.get('ui.military.draughts_none') : listed.join(', ') });
+  for (const part of wrapHang(draughtsText, width, 4)) {
+    label(s, col, row, part, { width });
+    s.hit({ col: col + 2, row, cols: width - 2, rows: 1 }, () => panel.openChoice(ctx, 'draughts'));
+    row += 1;
+  }
 
   // Station line: Station (60,28,z31) [s] set [c]lear
   const map = ctx.readers.map;
@@ -694,7 +698,9 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
   separator(s, col, top, width, strings.get(`ui.military.choice.${choice.kind}`, { n: choice.marks.size, free: panel.freeSlots(ctx) }));
   const first = top + 1;
   const foot = rect.row + rect.rows - 1;
-  const height = Math.max(1, foot - first - (multi ? 1 : 0));
+  // The draughts list keeps two rows under it for the selected draught's trigger, which is too long for a row.
+  const draughts = choice.kind === 'draughts';
+  const height = Math.max(1, foot - first - (multi ? 1 : 0) - (draughts ? 2 : 0));
   const state = { selected: choice.selected, scroll: choice.scroll };
   clampList(state, ids.length, height);
   choice.selected = state.selected;
@@ -708,11 +714,9 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
       const draught = panel.draughtOptions(ctx)[id] ?? '';
       const list = squad.equipment.draughts ?? [];
       const at = list.indexOf(draught);
-      const trigger = ctx.registry.table<{ id: string; trigger: string }>('draughts').byId(draught)?.trigger ?? '';
       text = strings.get('ui.military.draught_row', {
         mark: at < 0 ? '□' : '■',
         name: ctx.registry.table<{ id: string; name: string }>('items').byId(draught)?.name ?? draught,
-        when: strings.get(`ui.military.draught_when.${trigger}`),
         order: at < 0 ? '' : ` (${at + 1})`,
       });
     } else if (choice.kind === 'weapon' || choice.kind === 'armor') {
@@ -738,6 +742,14 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
       if (multi) panel.toggleMark(ctx, k);
       else for (const cmd of panel.commitChoice(ctx, k)) ctx.submit(cmd);
     });
+  }
+  if (draughts) {
+    const draught = panel.draughtOptions(ctx)[ids[choice.selected] ?? -1] ?? '';
+    const trigger = ctx.registry.table<{ id: string; trigger: string }>('draughts').byId(draught)?.trigger ?? '';
+    if (trigger !== '') {
+      const when = strings.get('ui.military.draught_drunk_when', { when: strings.get(`ui.military.draught_when.${trigger}`) });
+      wrapText(when, width, 2).forEach((text, k) => label(s, col, first + height + k, text, { fg: s.theme.dim, width }));
+    }
   }
   const commit = (): void => { for (const cmd of panel.commitChoice(ctx)) ctx.submit(cmd); };
   if (multi) {

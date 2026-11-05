@@ -1,8 +1,10 @@
 # T-477 — Runecraft 10: the whole loop played, and the docs that tell it
 
-**Source:** runecraft [design](../../reports/designs/2026-11-01-runecraft-magic-system.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in a24e52d9,0b6b026f.
 
-The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, and this task needs only its sections named below. Everything marked for this task lands here and nothing else. Move this task's rows from 25 to the tables and schemas it names, and into its § Interfaces. Every number stays *unmeasured* unless this task measures it.
+**Source:** runecraft [design](../../../reports/designs/2026-11-01-runecraft-magic-system.md) · **Size:** M · **Needs:** — · **Status:** open
+
+The specification is [25 Runecraft](../../02-systems/25-runecraft.md). It governs, and this task needs only its sections named below. Everything marked for this task lands here and nothing else. Move this task's rows from 25 to the tables and schemas it names, and into its § Interfaces. Every number stays *unmeasured* unless this task measures it.
 
 ## What to do
 
@@ -20,4 +22,4 @@ The specification is [25 Runecraft](../02-systems/25-runecraft.md). It governs, 
 
 ## Balance item from T-473 (orchestrator, 2026-11-02)
 
-The ward is strong in the arena: a warded soldier took 0.57 damage a hit against 4.8 unwarded; in the ambush of four, soldiers dead a day later fell from 0.63 to 0.04, and the peril-2 raid of ten was driven off 24 of 24 against 14 of 24 ([report](../../reports/audits/2026-11-02-t473-ward-arena.md), on master once T-473 merges). The design wanted the ward to be the spell that changes outcomes most, but "magic trails steel". Measure it here against a squad with one more marksdwarf or one more axedwarf instead of the caster, and lower `WARD_ARMOR` or `WARD_TICKS` if one caster is worth more than two soldiers. Daze re-stunning a captain every 180 ticks for 3 rune is measured in the same pass.
+The ward is strong in the arena: a warded soldier took 0.57 damage a hit against 4.8 unwarded; in the ambush of four, soldiers dead a day later fell from 0.63 to 0.04, and the peril-2 raid of ten was driven off 24 of 24 against 14 of 24 ([report](../../../reports/audits/2026-11-02-t473-ward-arena.md), on master once T-473 merges). The design wanted the ward to be the spell that changes outcomes most, but "magic trails steel". Measure it here against a squad with one more marksdwarf or one more axedwarf instead of the caster, and lower `WARD_ARMOR` or `WARD_TICKS` if one caster is worth more than two soldiers. Daze re-stunning a captain every 180 ticks for 3 rune is measured in the same pass.

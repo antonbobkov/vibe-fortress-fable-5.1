@@ -6,31 +6,32 @@ Terms used below. A **bar** is a block of refined metal, the thing smiths work w
 
 ## The metals
 
-`weapon x` multiplies a weapon's damage. `armour x` multiplies an armour piece's protection. `Blunt` is an extra bonus for maces and hammers. `Value` is the price of one bar. `Melts` is the melting point in degrees C. Metals that melt at 1200 or below are destroyed by magma.
+`weapon x` multiplies a weapon's damage. `armour x` multiplies an armour piece's protection. `Blunt` is an extra bonus for maces and hammers. `Rune x` multiplies the power of a staff shod in the metal (its spell's damage and duration; [runecraft](runecraft.md)). `Value` is the price of one bar. `Melts` is the melting point in degrees C. Metals that melt at 1200 or below are destroyed by magma.
 
-| Metal | Weapon x | Armour x | Blunt | Value | Melts | How you get it |
-|---|---|---|---|---|---|---|
-| **Deepsilver** | 1.60 | 1.60 | | 250 | 2400 | Deepsilver ore only, deep near magma. 1 bar per ore. Mining it wakes the Hollow (monsters come up through the rock). |
-| **Steel** | 1.25 | 1.25 | | 40 | 1500 | Alloy: 1 iron bar + 1 flux stone + 1 fuel, plus fuel for the job. 1 bar out. |
-| **Iron** | 1.00 | 1.00 | | 15 | 1538 | Hematite, magnetite, limonite. 2 bars per ore. |
-| **Bismuth bronze** | 0.92 | 0.92 | | 20 | 900 | Alloy: 2 copper + 1 tin + 1 bismuth bars, 4 out. |
-| **Bronze** | 0.90 | 0.90 | | 18 | 950 | Alloy: 1 copper + 1 tin bar, 2 out. |
-| **Copper** | 0.80 | 0.80 | | 10 | 1085 | Malachite, native copper (2 per ore); tetrahedrite (1, plus a 50% silver bar). |
-| **Brass** | 0.75 | 0.75 | | 16 | 930 | Alloy: 1 copper + 1 zinc bar, 2 out. Worse than plain copper. |
-| **Silver** | 0.70 | 0.60 | +30% | 25 | 962 | Native silver (2 per ore); a by-product of galena and tetrahedrite. |
-| **Platinum** | 0.50 | 0.60 | +10% | 90 | 1768 | Native platinum (rare, deep gabbro and diorite). |
-| **Tin** | 0.50 | 0.50 | | 12 | 232 | Cassiterite. Mainly an alloy input. |
-| **Zinc** | 0.50 | 0.50 | | 8 | 420 | Sphalerite. Alloy input. |
-| **Electrum** | 0.45 | 0.45 | | 45 | 1000 | Alloy: 1 gold + 1 silver bar, 2 out. |
-| **Gold** | 0.40 | 0.40 | +10% | 60 | 1064 | Native gold. |
-| **Lead** | 0.40 | 0.40 | | 6 | 327 | Galena (1 lead, plus a 50% silver bar). |
-| **Bismuth** | 0.30 | 0.30 | | 10 | 271 | Bismuthinite. Alloy input. |
+| Metal | Weapon x | Armour x | Blunt | Rune x | Value | Melts | How you get it |
+|---|---|---|---|---|---|---|---|
+| **Deepsilver** | 1.60 | 1.60 | | 1.6 | 250 | 2400 | Deepsilver ore only, deep near magma. 1 bar per ore. Mining it wakes the Hollow (monsters come up through the rock), and so does working a bar at the runeforge or the laboratory. |
+| **Steel** | 1.25 | 1.25 | | 1.1 | 40 | 1500 | Alloy: 1 iron bar + 1 flux stone + 1 fuel, plus fuel for the job. 1 bar out. |
+| **Iron** | 1.00 | 1.00 | | 1.0 | 15 | 1538 | Hematite, magnetite, limonite. 2 bars per ore. |
+| **Bismuth bronze** | 0.92 | 0.92 | | 0.7 | 20 | 900 | Alloy: 2 copper + 1 tin + 1 bismuth bars, 4 out. |
+| **Bronze** | 0.90 | 0.90 | | 0.9 | 18 | 950 | Alloy: 1 copper + 1 tin bar, 2 out. |
+| **Copper** | 0.80 | 0.80 | | 0.8 | 10 | 1085 | Malachite, native copper (2 per ore); tetrahedrite (1, plus a 50% silver bar). |
+| **Brass** | 0.75 | 0.75 | | 0.7 | 16 | 930 | Alloy: 1 copper + 1 zinc bar, 2 out. Worse than plain copper. |
+| **Silver** | 0.70 | 0.60 | +30% | 1.3 | 25 | 962 | Native silver (2 per ore); a by-product of galena and tetrahedrite. |
+| **Platinum** | 0.50 | 0.60 | +10% | 0.7 | 90 | 1768 | Native platinum (rare, deep gabbro and diorite). |
+| **Tin** | 0.50 | 0.50 | | 0.7 | 12 | 232 | Cassiterite. Mainly an alloy input. |
+| **Zinc** | 0.50 | 0.50 | | 0.7 | 8 | 420 | Sphalerite. Alloy input. |
+| **Electrum** | 0.45 | 0.45 | | 0.7 | 45 | 1000 | Alloy: 1 gold + 1 silver bar, 2 out. |
+| **Gold** | 0.40 | 0.40 | +10% | 0.7 | 60 | 1064 | Native gold. |
+| **Lead** | 0.40 | 0.40 | | 0.7 | 6 | 327 | Galena (1 lead, plus a 50% silver bar). |
+| **Bismuth** | 0.30 | 0.30 | | 0.7 | 10 | 271 | Bismuthinite. Alloy input. |
 
 In words:
 
 - **Weapon x** is a straight damage multiplier. A steel axe hits 25% harder than an iron one, a copper axe 20% softer.
 - **Armour x** multiplies how much damage a piece soaks up. Steel armour soaks 25% more than iron.
-- **Silver and platinum maces** get a blunt bonus, but 0.7 x 1.3 = 0.91 still trails iron. Silver is no better than iron for fighting.
+- **Silver and platinum maces** get a blunt bonus, but 0.7 x 1.3 = 0.91 still trails iron. Silver is no better than iron for fighting, but it is the second-best metal for a staff (1.3), and a silver circlet costs a runecaster no rune.
+- **Rune x** is the staff's multiplier. A wand counts its wood as 1.0. Steel and silver staffs of calling bring a stone warden, deepsilver a deep shade, every other metal a wisp.
 - **Value** is for trade and for the fortress's wealth score. Gold, platinum and silver are for selling and crafts, not for fighting.
 - **Melting point** only matters near magma, fire and the forge: iron, steel, platinum and deepsilver survive magma.
 - **Density and hardness** appear in the data (metal hardness is 100 for every metal) but the combat code does not read them. Armour weight comes from the armour piece; deepsilver alone halves it.
@@ -52,7 +53,8 @@ In words:
 | Strongest you can make safely | **Steel** | 1.25, needs only iron, flux stone and fuel. |
 | Strongest at any price | Deepsilver | 1.6, but it wakes the Hollow when mined. |
 | Cheap and good | Iron, then bronze | Iron is 1.0 from one ore type. Bronze needs two ores and an alloy job for 0.9. |
-| Avoid | Brass, silver, gold, lead, tin, zinc, bismuth | All trail copper. |
+| Avoid | Brass, silver, gold, lead, tin, zinc, bismuth | All trail copper in a fight. |
+| A runecaster's staff | Silver (1.3) or deepsilver (1.6) | Steel is only 1.1; iron 1.0. |
 
 ## Does it matter in a fight?
 
@@ -85,7 +87,10 @@ Other weapon and armour types change the numbers:
 | **Bone** | Crafts, totems, arrows and bolts at 0.5 damage. | Value 1. |
 | **Leather** | Cap, jerkin, bracers, leggings, boots, bags, quiver, sling. Counts as 1.0 for armour, whatever the animal. | Value 6. Jerkin armour 5, cap 4, leggings 4. |
 | **Cloth** | Clothing (counts as 1 padding armour), gambeson (padding, armour 3), cloak, bags, rope, bandages. Wool cloth sells for more than flax. | Value: flax 8, wool 10, sporecloth 12. |
-| **Obsidian** | Listed as a dagger and short-sword material at 0.7, but no recipe makes one. | |
+| **Obsidian** | Knapped at the craftsdwarf's workshop into daggers and short swords at 0.7, with no forge and no fuel. Bone knaps the same at 0.5. | An obsidian short sword deals 12.6, a bone one 9, a copper one 14.4. |
+| **Gems** | Cut at the jeweler for value and crafts, and the stone of runecraft: the gem set in a staff fixes its spell, set in a weapon or armour its enchantment (garnet fire, amethyst frost, quartz ward or armour, emerald mending or aim, sapphire fear or calm, ruby fire burst or blaze, diamond daze or sundering, glowstone a summon or light). | A gem's value is its material's; a setting adds 3 times the stone's value and 15 a vial. |
+| **Rune** | The material of a rune vial: 2 glowcap distilled at the laboratory, a ground glowstone (4), a quenched deepsilver bar (12) or a rendered hollow ichor (6). | |
+| **Monster stones** | A dead magma wyrm leaves 4 wyrmscales (80 each), a hollow stalker or the Hollow Maw an ichor (60), a giant cave spider its venom (20), an ember newt a gland (25). Each is a stone for the runeforge or the laboratory. | Recovered by stripping the corpse. |
 
 Armour **layers**: padding 3, leather 4 to 5, mail 12, plate 4 to 18 per piece (helm 8, breastplate 18, greaves 10, gauntlets 6, metal boots 4). A heavier piece slows the wearer by its weight divided by 4 in percent: a full steel kit with a shield costs about 11% of walking speed, less with armour skill. Metal does not change the weight.
 

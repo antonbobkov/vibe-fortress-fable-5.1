@@ -166,3 +166,11 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | knap_short_sword_bone |
 | recipes | set_weapon_venomed |
 | recipes | set_weapon_ember_gland |
+| hints | hint_glowcap |
+| hints | hint_runeforge |
+| hints | hint_staff |
+| hints | hint_wand |
+| hints | hint_sanctum |
+| hints | hint_rune_metal |
+| hints | hint_draught |
+| hints | hint_herbs_eaten |

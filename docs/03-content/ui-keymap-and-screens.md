@@ -630,6 +630,14 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_predator` | first `AnimalSpawned` of a dangerous species | "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is." |
 | `hint_food` | edible items in stock fall below `HINT_FOOD_DAYS` days for the population, hourly | "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]." |
 | `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
+| `hint_glowcap` | glowcap seeds in stock | "Glowcap grows in the dark under a glowstone lamp." |
+| `hint_runeforge` | a runeforge is placed | "The runeforge burns vials, not coal." |
+| `hint_staff` | a runeforge is built | "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." |
+| `hint_wand` | a wand or a staff in stock | "A wand is quick and soft; a shod staff is slow and hard." |
+| `hint_sanctum` | a sanctum zone exists | "Build the sanctum in stone." |
+| `hint_rune_metal` | a dwarf of the fortress has rune of their own | "Iron drinks the rune: a runecaster in mail recovers slowly." |
+| `hint_draught` | a draught in stock | "One draught, then three days' rest." |
+| `hint_herbs_eaten` | a dwarf eats a raw plant while a work order for a draught brewed from plants stands | "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest." |
 
 ## Tutorial
 

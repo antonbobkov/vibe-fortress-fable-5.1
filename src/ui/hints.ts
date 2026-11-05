@@ -32,6 +32,15 @@ export interface HintFacts {
   foodShort?: boolean;
   noMiners?: boolean;
   noPath?: boolean;
+  /** 25 § Player-facing behavior: the runecraft hints, each on stock or buildings. */
+  glowcapSeeds?: boolean;
+  runeforgePlaced?: boolean;
+  runeforgeBuilt?: boolean;
+  channelInStock?: boolean;
+  sanctumExists?: boolean;
+  runecasterExists?: boolean;
+  draughtInStock?: boolean;
+  herbsEaten?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -64,6 +73,14 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_troll': return f.doorBroken;
     case 'hint_deep': return f.deepsilverFound;
     case 'hint_magma': return f.cavernTwoBreached;
+    case 'hint_glowcap': return f.glowcapSeeds === true;
+    case 'hint_runeforge': return f.runeforgePlaced === true;
+    case 'hint_staff': return f.runeforgeBuilt === true;
+    case 'hint_wand': return f.channelInStock === true;
+    case 'hint_sanctum': return f.sanctumExists === true;
+    case 'hint_rune_metal': return f.runecasterExists === true;
+    case 'hint_draught': return f.draughtInStock === true;
+    case 'hint_herbs_eaten': return f.herbsEaten === true;
     default: return false;
   }
 }
@@ -135,6 +152,8 @@ export class HintEngine {
     }
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && this.animalWoundedDwarf(readers, Number(fields['attackerId']), Number(fields['defenderId']))) this.markId('hint_alert');
     if (event.type === 'ImmigrationSkipped') this.markId('hint_immigration');
+    // 25 § Draughts: a raw plant eaten while a draught brewed from plants is ordered (a fun feature: the herbs are food too).
+    if (event.type === 'MealEaten' && fields['kind'] === 'raw' && fields['mealType'] === 'plant_food' && this.draughtWantsPlants(readers)) this.markId('hint_herbs_eaten');
     if (event.type === 'RaidEnded') this.markId('hint_gate');
     if (event.type === 'DoorBroken') this.markId('hint_troll');
     if (event.type === 'CavernBreached' && fields['cavern'] === 2) this.markId('hint_magma');
@@ -157,6 +176,16 @@ export class HintEngine {
       const type = readers.of<BuildingsReader>('14').get(id)?.typeId;
       if (fuel && (type === 'smelter' || type === 'forge')) this.markId('hint_fuel');
     }
+  }
+
+  /** A work order stands for a draught recipe (a spoilable one) with a plant among its inputs. */
+  private draughtWantsPlants(readers: ReaderSet): boolean {
+    if (!readers.has('12')) return false;
+    const workshops = readers.of<WorkshopsReader>('12');
+    return workshops.allOrders().some(({ order }) => {
+      const recipe = workshops.recipe(order.recipe);
+      return recipe?.spoilable === true && recipe.inputs.some((input) => input.match === 'plant_food');
+    });
   }
 
   /** Whether a creature is a dwarf of the fortress. */
@@ -224,6 +253,9 @@ export class HintEngine {
     for (const id of Array.from(bare.keys())) if (!zones('bedroom').includes(id)) bare.delete(id);
     this.ui.hintBareSince = Array.from(bare).sort((a, b) => a[0] - b[0]);
     const bareRoomDays = Math.max(0, ...Array.from(bare.values(), (since) => (cal.tick - since) / TICKS_PER_DAY));
+    const runeforges = byType('runeforge');
+    const seed = this.registry.table('items').has('seed') ? this.registry.table('items').index('seed') : -1;
+    const glowcap = this.registry.table('materials').has('glowcap') ? this.registry.table('materials').index('glowcap') : -1;
     const hunting = this.registry.table('labors').has('hunting') ? this.registry.table('labors').index('hunting') : 0;
     const hunterLabor = hunting > 0 && this.laborEnabledByDwarf(readers, hunting);
     return {
@@ -245,6 +277,14 @@ export class HintEngine {
       immigrationSkipped: this.pending('hint_immigration'), raidEnded: this.pending('hint_gate'),
       cageTrapBuilt: this.pending('hint_cage'), doorBroken: this.pending('hint_troll'),
       deepsilverFound: this.pending('hint_deep'), cavernTwoBreached: this.pending('hint_magma'),
+      glowcapSeeds: items !== null && seed >= 0 && glowcap >= 0 && items.countMatching({ type: seed, materialId: glowcap }) > 0,
+      runeforgePlaced: runeforges.length > 0,
+      runeforgeBuilt: runeforges.some((id) => buildings?.get(id)?.state === 'built'),
+      channelInStock: (items?.count('wand') ?? 0) + (items?.count('staff') ?? 0) > 0,
+      sanctumExists: zones('sanctum').length > 0,
+      runecasterExists: readers.entities.with(C.Rune).some((id) => readers.entities.get(id, C.Creature)?.faction === 'fortress'),
+      draughtInStock: items !== null && items.countMatching({ tag: 'draught' }) > 0,
+      herbsEaten: this.pending('hint_herbs_eaten'),
     };
   }
 }
