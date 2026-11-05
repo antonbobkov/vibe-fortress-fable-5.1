@@ -12,8 +12,8 @@ Agents cannot look at the screen. Every behavior must therefore be observable th
 | Scenario | Vitest + headless runner | `test/scenarios/**` | every commit | The acceptance tests of `04-implementation/acceptance-tests.md`, one file per scenario id |
 | Property | Vitest + `fast-check` | `test/property/**` | every commit | Invariants: fluid conservation, determinism under random command streams, save round-trip, label consistency |
 | Golden | Vitest | `test/golden/**` | every commit | World hashes and cell buffers for fixed seeds; changes require an explicit update script |
-| E2E | Playwright (Chromium headless) | `test/e2e/**` | tasks touching `render/`, `ui/`, `app/`; every gate; nightly in CI | The real app in a browser: boot, generate, embark, issue commands through the DOM/keyboard, read the cell buffer through a test hook, take screenshots for the gate report |
-| Performance | Vitest, separate config | `test/perf/**` | tasks touching code that has a budget in `performance-budget.md`; every gate; nightly in CI | Tick budgets on the reference fortress, per-system budgets, and the long balance measurements |
+| E2E | Playwright (Chromium headless) | `test/e2e/**` | tasks touching `render/`, `ui/`, `app/`; every gate; on demand in CI | The real app in a browser: boot, generate, embark, issue commands through the DOM/keyboard, read the cell buffer through a test hook, take screenshots for the gate report |
+| Performance | Vitest, separate config | `test/perf/**` | tasks touching code that has a budget in `performance-budget.md`; every gate; on demand in CI (`measure.yml`) | Tick budgets on the reference fortress, per-system budgets, and the long balance measurements |
 
 The dev dependencies are the list in `tooling.md` § package.json; the tiers use `fast-check`, `@playwright/test`, `jsdom` (unit tests of `render/` and `ui/`) and `@vitest/coverage-v8` (coverage gates). Runtime dependencies: none.
 
@@ -185,7 +185,7 @@ npm run golden:update    scripts/golden-update.mjs <name>
 npm run gate             all of the checks above, then writes reports/gates/<label>-gate.md (label: an argument, or the date)
 ```
 
-CI (`.github/workflows/ci.yml`) runs `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check`, `test` and `build` on every push, and adds `test:e2e` and `test:perf` nightly.
+CI runs only on demand. `.github/workflows/ci.yml` runs `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check`, `test`, `build` and `test:e2e`. `.github/workflows/measure.yml` runs one heavy measurement, such as the twenty-seed sweep with one job per seed. How to start one and read its results: [tooling.md § Running tests on GitHub](../04-implementation/tooling.md#running-tests-on-github).
 
 ## The docs link check
 

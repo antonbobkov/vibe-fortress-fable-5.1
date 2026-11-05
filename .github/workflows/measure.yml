@@ -1,7 +1,9 @@
 name: Measure
-# On-demand heavy measurements, run on GitHub's runners instead of a local machine.
+# On-demand long measurements, run on GitHub's runners instead of a local machine.
 #   gh workflow run measure.yml --ref <branch> -f suite=sweep
-# Results: gh run download <run-id>   (one folder per job; the summary is in "sweep-summary")
+#   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
+# Results: gh run download <run-id>   (one folder per job; the sweep's summary is in "sweep-summary")
+# How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +11,11 @@ on:
         description: What to measure
         type: choice
         default: sweep
-        options: [sweep, instrument, pp_defence, e2e]
+        options: [sweep, instrument, three_years_main, scenario]
+      scenario:
+        description: For suite=scenario, the scenario id (its file name without .scenario.ts)
+        type: string
+        default: defence_year
 permissions:
   contents: read
 jobs:
@@ -86,15 +92,21 @@ jobs:
           WILDLIFE_YEAR_OUT: out/wildlife-year.json
         run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/wildlife_year.test.ts 2>&1 | tee out/wildlife-year.log; exit ${PIPESTATUS[0]}
         shell: bash
-      - if: inputs.suite == 'pp_defence'
-        run: mkdir -p out && npx vitest run test/scenarios -t "pp_defence" 2>&1 | tee out/pp-defence.log; exit ${PIPESTATUS[0]}
+      - if: inputs.suite == 'three_years_main'
+        env:
+          THREE_YEARS_OUT: out/three-years.json
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/three_years_main.test.ts 2>&1 | tee out/three-years-main.log; exit ${PIPESTATUS[0]}
         shell: bash
-      - if: inputs.suite == 'e2e'
-        run: node node_modules/@playwright/test/cli.js install --with-deps chromium && mkdir -p out && npm run test:e2e 2>&1 | tee out/e2e.log; exit ${PIPESTATUS[0]}
+      - if: inputs.suite == 'scenario'
+        run: mkdir -p out && npx vitest run test/scenarios -t "^.*${{ inputs.scenario }} \(M" 2>&1 | tee out/${{ inputs.scenario }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: The run tested something
+        if: always()
+        run: "! sed 's/\\x1b\\[[0-9;]*m//g' out/*.log | grep -qE 'Tests +[0-9]+ skipped|No test files found'"
         shell: bash
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.suite }}
+          name: ${{ inputs.suite == 'scenario' && inputs.scenario || inputs.suite }}
           path: out/
           retention-days: 14

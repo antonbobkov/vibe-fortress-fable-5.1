@@ -234,7 +234,8 @@ describe('T-M1-06 local map: stages 8-10', () => {
         river: { inflowEdges: ['w'], outflowEdge: 'e', class: 'river' },
       }),
     );
-    const field = result.spawns.filter((s) => s.source === 'old_battlefield');
+    // This map also holds the old channel of 03 stage 10 (one wand): the arms are counted without it.
+    const field = result.spawns.filter((s) => s.source === 'old_battlefield' && s.type !== 'wand');
     expect(field).toHaveLength(BATTLEFIELD_ITEM_COUNT + BATTLEFIELD_BONE_PILES + BATTLEFIELD_SKULLS);
     expect(field.filter((s) => s.type === 'skull')).toHaveLength(BATTLEFIELD_SKULLS);
     for (const s of field) {

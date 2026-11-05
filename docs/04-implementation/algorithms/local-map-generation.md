@@ -98,6 +98,8 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   if sunken_halls: site = highest dry floor in far half where the hall fits, ties by inward distance descending then column order; carve the layout in 03; record furniture and vault spawn list
   if gemsprings: 3 warm springs 2x2 on dry surface soil nearest a stream-selected river tile (map centre without river), one tile apart: kind Open with water 7, springs list for 05
   if wyrm_roost: carve 9x9 floor at the bottom of cavern 3 with two levels of headroom at a random interior point; vein starts in the east wall if the deepsilver magma-distance rule holds; sleeping wyrm spawn list
+  if old_battlefield: ch = stream(S, 'terrain.battlefield_channel'); if ch.chance(BATTLEFIELD_CHANNEL_PERMILLE): type = ch.pick(weapons rows with a launcher and no ammo); tile = ch.pick(band, after the traits above)
+    metal row: iron, quality 0, no stone; wooden row: material = ch.pick(materials of class wood), stone = ch.pick(spells' stones), quality 0; recorded in the spawn list
   // 9. discovery, outdoor, lit
   for x,y: top = highest non-Open z; for z: outdoor = z >= top ... (outdoor is true for tiles at or above the surface: the surface Floor tile and open tiles above it)
   discovered = outdoor tiles and their 26 neighbors; lit = outdoor or within LIGHT_SPREAD horizontally of an outdoor open tile on the same level with no wall between

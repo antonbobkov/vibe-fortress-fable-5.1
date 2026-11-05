@@ -32,6 +32,8 @@ export interface SpawnEntry {
   readonly type: string;
   readonly material?: string;
   readonly quality?: number;
+  /** Material id of the stone set in a channel (`Item.stone`); absent is none. */
+  readonly stone?: string;
   readonly tile: TileIndex;
   readonly asleep?: boolean;
   /** The trait that asked for it. */
