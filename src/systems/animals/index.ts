@@ -36,6 +36,8 @@ import {
   NEST_BOX_TAG,
   PREDATOR_HUNGER_DAYS,
   PASTURE_ZONE,
+  PET_PILE_MAX,
+  PET_PILE_SIZE_MAX,
   TAME_THINK_TICKS,
   WILD_THINK_TICKS,
   WILD_LOAD_SHEDDING_THINK_TICKS,
@@ -316,6 +318,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       },
       homeTile: () => this.homeTile(),
       standTile: (animalId) => this.standTile(animalId),
+      petSpot: (animalId) => {
+        const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
+        return buildings === null || !this.isPet(animalId) ? -1 : this.hearthSpot(buildings);
+      },
       claimGraze: (tile) => this.claimGraze(tile),
       grazeClaimed: (tile) => this.grazeClaimed(tile),
       grazeSkipped: (animalId, tile, tick) => {
@@ -399,20 +405,28 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     const entities = movement === null ? null : this.world?.entities;
     if (!entities) return this.homeTile();
     const creaturesOn = (tile: TileIndex): EntityId[] => this.readers.entities.at(tile).filter((other) => other !== id && entities.kind(other) === 'creature');
-    const here = near.has(at) && !buildings.doorAt(at) ? creaturesOn(at) : null;
     const standing = (other: EntityId): boolean => movement.walkTarget(other) < 0 || movement.walkTarget(other) === movement.tileOf(other);
-    if (here !== null && !here.some((other) => other < id && entities.has(other, C.Tame) && standing(other))) return at;
     const headed = new Map<TileIndex, number>();
     for (const other of entities.with(C.Tame)) {
       const target = other === id ? -1 : movement.walkTarget(other);
       if (target >= 0 && target !== movement.tileOf(other)) headed.set(target, (headed.get(target) ?? 0) + 1);
     }
+    // T-482, a fun feature: an idle pet heaps on the pets' spot beside the hearth while it holds fewer than
+    // `PET_PILE_MAX` pets; one already there stays unless that many pets of lower ids lie there with it.
+    const spot = this.hearthSpot(buildings);
+    if (spot >= 0 && this.isPet(id) && this.readers.pathing.labelOf(spot, 'walker') === label) {
+      const piled = creaturesOn(spot).filter((other) => this.isPet(other) && standing(other));
+      if (at === spot ? piled.filter((other) => other < id).length < PET_PILE_MAX : piled.length + (headed.get(spot) ?? 0) < PET_PILE_MAX) return spot;
+    }
+    // The spot is the pets': a creature that is not piled there moves off it, and none spreads onto it.
+    const here = near.has(at) && at !== spot && !buildings.doorAt(at) ? creaturesOn(at) : null;
+    if (here !== null && !here.some((other) => other < id && entities.has(other, C.Tame) && standing(other))) return at;
     let best: TileIndex = -1;
     let least = here === null ? Infinity : here.length;
     const inHall = new Set(hall);
     const byIndex = (a: TileIndex, b: TileIndex): number => a - b;
     for (const tile of [...[...inHall].sort(byIndex), ...[...near].filter((t) => !inHall.has(t)).sort(byIndex)]) {
-      if (tile === at || buildings.doorAt(tile) || !this.readers.pathing.passable(tile, 'walker') || this.readers.pathing.labelOf(tile, 'walker') !== label) continue;
+      if (tile === at || tile === spot || buildings.doorAt(tile) || !this.readers.pathing.passable(tile, 'walker') || this.readers.pathing.labelOf(tile, 'walker') !== label) continue;
       const count = creaturesOn(tile).length + (headed.get(tile) ?? 0);
       if (count < least) {
         least = count;
@@ -420,6 +434,44 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       }
     }
     return best >= 0 ? best : here !== null ? at : this.homeTile();
+  }
+
+  /** 08 § Tame behavior: a pet heaps (T-482): a tame animal that is no grazer and no larger than `PET_PILE_SIZE_MAX`. */
+  private isPet(id: EntityId): boolean {
+    if (!this.entities.has(id, C.Tame)) return false;
+    const species = this.entities.get(id, C.Creature)?.species ?? 0;
+    return species !== 0 && this.facts.dietOf(species) !== 'grazer' && this.facts.sizeOf(species) <= PET_PILE_SIZE_MAX;
+  }
+
+  /**
+   * 08 § Tame behavior, the pets' spot (T-482): the walkable tile beside the hearth hall's hearth, not a
+   * door, beside no door and with no building on it, that has the most of its eight neighbours taken by
+   * a wall, the hearth or furniture (a nook off the walking lines), ties by the lowest index; or -1.
+   */
+  private hearthSpot(buildings: BuildingsReader): TileIndex {
+    const hall = new Set(buildings.hearthHallTiles());
+    let hearth: TileIndex = -1;
+    for (const bid of buildings.byType('hearth')) {
+      const b = buildings.get(bid);
+      if (b?.state === 'built' && hall.has(b.origin)) {
+        hearth = b.origin;
+        break;
+      }
+    }
+    if (hearth < 0) return -1;
+    const pathing = this.readers.pathing;
+    const taken = (tile: TileIndex): boolean => !pathing.passable(tile, 'walker') || buildings.at(tile) !== 0;
+    let best: TileIndex = -1;
+    let most = -1;
+    for (const tile of [...this.map.neighbors8(hearth)].sort((a, b) => a - b)) {
+      if (taken(tile) || this.map.neighbors(tile).some((next) => buildings.doorAt(next))) continue;
+      const nook = this.map.neighbors8(tile).filter(taken).length;
+      if (nook > most) {
+        most = nook;
+        best = tile;
+      }
+    }
+    return best;
   }
 
   /** The idle anchor of a tame animal with no pasture: the hearth hall, else the wagon tile (D-057). */

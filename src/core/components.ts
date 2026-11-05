@@ -436,6 +436,8 @@ export interface Tame {
   slaughter: boolean;
   petOf: EntityId;
   noBreed: boolean;
+  /** 08 § Tame behavior (T-482): lying curled in the pets' heap beside the hearth; absent otherwise and in older saves. */
+  curled?: boolean;
 }
 
 export interface Wild {

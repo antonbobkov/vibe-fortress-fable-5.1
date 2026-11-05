@@ -120,6 +120,11 @@ export const WANDER_TIMEOUT_TICKS = 200;
  */
 export const PET_FOLLOW_RADIUS = 5;
 
+/** `08` § Tame behavior, the pets' spot (T-482, a fun feature): at most this many idle pets heap on it. */
+export const PET_PILE_MAX = 4;
+/** `08` § Tame behavior: a tame animal that is no grazer and no larger than this is a pet that heaps (a wolf's 35: dogs, cats, foxes, chickens; not a pig). */
+export const PET_PILE_SIZE_MAX = 35;
+
 /** `08` § Products: eggs are laid as this item type into a `nest_box` building. */
 export const EGG_ITEM = 'egg';
 /** The function tag of the nest box building (`buildings-and-furniture.md`). */
