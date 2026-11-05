@@ -1,6 +1,8 @@
 # T-487 — A plant job whose fetch walk failed is never retried, with every worker able to reach it
 
-**Source:** [hexers measured](../../reports/audits/2026-11-04-t479-hexers.md) § The invariant in three-years-p4-4 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-04, in 7eeff2e6,483b88e5.
+
+**Source:** [hexers measured](../../../reports/audits/2026-11-04-t479-hexers.md) § The invariant in three-years-p4-4 · **Size:** M · **Needs:** — · **Status:** open
 
 With hexers, `three-years-p4-4` (the twenty-seed file, peril 4) stops on day 251 on the T-176 invariant `job.unreachable-with-path`: job 4988, `plant:74899`, a surface plot tile (19, 24, 32), blocked `unreachable` with `failedWalk` for more than a day. Traced with the T-479 sweep probe (`reports/data/2026-11-02-t479-hexer-sweep.probe.ts.txt`, `T479_JOB=4988 T479_AT=299900`):
 

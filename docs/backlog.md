@@ -18,7 +18,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-482 | [Idle tame animals keep a walk that has arrived, and crowd one hall tile](work/T-482-tame-animal-stale-walk.md) | T-463's follow-up | — | open |
 | T-483 | [Marksdwarves shoot their own squad](work/T-483-marksdwarf-friendly-fire.md) | T-470's arena | — | open |
 | T-486 | [A peril-4 ambush can kill a whole fortress over five days](work/T-486-ambush-massacre.md) | T-479's sweep | — | open |
-| T-487 | [A plant job whose fetch walk failed is never retried, with every worker able to reach it](work/T-487-failed-fetch-walk-never-retried.md) | T-479's sweep | — | open |
 | T-488 | [three-years-p2-7 ends without its dining hall](work/T-488-p2-7-dining-hall-witness.md) | T-479's sweep | — | open |
+| T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
+| T-490 | [11 still describes the crowded-doorway retry that crowding removed](work/T-490-stale-crowded-walk-rule.md) | T-487's journal | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

@@ -21,6 +21,7 @@ import {
   ASSIGN_WORKERS_PER_TICK,
   BLOCKED_RETRIES_PER_TICK,
   BLOCKED_RETRY_TICKS,
+  FAILED_WALK_RETRY_TICKS,
   JOB_HOLD_BACK_TICKS,
   JOB_HOLD_TICKS,
   PATIENT_SUMMON_PRIORITY,
@@ -499,17 +500,20 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * `unclaim(job, reason)`: release undelivered inputs, free the worker, block. A walk that found no route
-   * (`reason` unreachable) waits for a reachability trigger. A walk that failed to reach `walkedTo` while
+   * (`reason` unreachable) waits for a reachability trigger, or `FAILED_WALK_RETRY_TICKS` when none comes. A walk that failed to reach `walkedTo` while
    * the labels no longer connect the worker to it did not fail despite connected labels (a door locked
-   * on its way): it retries on the timer.
+   * on its way): it retries on the timer. A walk bound for an item (`fetched`, the item's id) is no failure
+   * of the job's stand tiles: it retries on the timer, and the next input search passes that item by.
    */
-  unclaim(job: Job, reason: string, walkedTo: TileIndex = -1): void {
+  unclaim(job: Job, reason: string, walkedTo: TileIndex = -1, fetched: EntityId = 0): void {
     const worker = job.workerId;
     this.releaseReservations(job, true);
     this.freeWorker(job, true);
-    if (reason === 'unreachable' && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
+    if (reason === 'unreachable' && fetched === 0 && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
     else delete job.failedWalk;
+    if (reason === 'unreachable' && fetched !== 0) job.data['unreachableItem'] = fetched;
     this.block(job, reason);
+    if (job.failedWalk === true) job.retryTick = this.now + FAILED_WALK_RETRY_TICKS;
   }
 
   /** Whether the labels now keep a worker from a tile its walk was bound for. */
@@ -542,7 +546,7 @@ export class JobBoard implements JobsApi, JobSink {
   retryBlocked(): void {
     const due = this.ids.filter((id) => {
       const job = this.jobs.get(id) as Job;
-      return job.state === 'blocked' && job.retryTick <= this.now && job.failedWalk !== true;
+      return job.state === 'blocked' && job.retryTick <= this.now;
     });
     if (due.length === 0) return;
     this.toolOnHandMemo = new Map();
@@ -561,6 +565,8 @@ export class JobBoard implements JobsApi, JobSink {
       const id = due[(start + k) % due.length] as number;
       const job = this.jobs.get(id) as Job;
       this.blockedRetryCursor = id;
+      // A failed walk that no trigger cleared is retried as any other block once its longer wait is over.
+      delete job.failedWalk;
       const reason = job.blockedReason;
       if (reason === 'no_magma' && job.producer === 'workshops' && this.readers.has('12') &&
         !this.readers.of<{ isMagmaPowered(id: EntityId): boolean }>('12').isMagmaPowered(job.target.ref)) {
@@ -682,16 +688,21 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * Reserve what a job still lacks, nearest to `from` (`11` § Assignment step 4). False, with
-   * nothing more reserved for the short input, when an input cannot be found.
+   * nothing more reserved for the short input, when an input cannot be found. The item a failed fetch
+   * walk was bound for (`data.unreachableItem`) is passed by in this one search.
    */
   private reserveInputs(job: Job, from: TileIndex, inside: ((tile: TileIndex) => boolean) | null = null): boolean {
+    const avoid = job.data['unreachableItem'];
+    delete job.data['unreachableItem'];
     for (const input of job.inputs) {
       const units = job.data['inputUnits'] === true && input.wholeItem !== true;
       const count = (id: EntityId): number => units ? (this.items.countOf?.(id) ?? 1) : 1;
       const needed = input.count - input.delivered.reduce((sum, id) => sum + count(id), 0)
         - input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
       if (needed <= 0) continue;
-      const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+      const excluded = [...input.reserved, ...input.delivered];
+      if (typeof avoid === 'number') excluded.push(avoid);
+      const filter = { ...input.filter, excludeIds: excluded };
       const isBuild = this.typeId(job) === 'build';
       // A sheltering civilian looks only at items inside its shelter, so it finds what `workedInside` saw.
       const allowed = inside ?? undefined;

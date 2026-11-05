@@ -66,7 +66,7 @@ export interface Job {
   tool: Tool | null;
   state: JobState;
   blockedReason: string | null;
-  /** A real walk failed despite connected labels; only a reachability trigger retries it. */
+  /** A real walk failed despite connected labels: a reachability trigger retries it, or the timer at `retryTick` (`FAILED_WALK_RETRY_TICKS`). */
   failedWalk?: true;
   retryTick: Tick;
   workerId: EntityId;
@@ -76,7 +76,8 @@ export interface Job {
   claimedTick: Tick;
   /**
    * Producer data, plus 11's own: `effort` (work done, in skill-scaled hundredths of a tick
-   * times percent; D-055), `standTile` (the chosen work tile), `toolToFetch`, `ammoToFetch` (the ammunition a ranged job still fetches).
+   * times percent; D-055), `standTile` (the chosen work tile), `toolToFetch`, `ammoToFetch` (the ammunition a ranged job still fetches),
+   * `unreachableItem` (the item a failed fetch walk was bound for, passed by in the next input search).
    */
   data: Record<string, unknown>;
 }

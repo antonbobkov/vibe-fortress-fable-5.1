@@ -17,6 +17,8 @@ export const JOB_HOLD_TICKS = 600;
 export const JOB_HOLD_BACK_TICKS = 100;
 export const BLOCKED_RETRY_TICKS = 100;
 export const BLOCKED_RETRIES_PER_TICK = 20;
+/** A walk that failed despite connected labels waits this long for a reachability trigger, then retries (unmeasured). */
+export const FAILED_WALK_RETRY_TICKS = 600;
 /** A job for a patient at this priority calls a worker off interruptible work. */
 export const PATIENT_SUMMON_PRIORITY = 1;
 /** Hauling is below default work. */

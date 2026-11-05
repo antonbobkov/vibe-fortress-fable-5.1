@@ -14,7 +14,8 @@ tick(ctx):
     if w: interrupt(w, keepProgress = true); if not claim(w, job): assignQueue.add(w)
   served = 0
   while assignQueue non-empty and served < ASSIGN_WORKERS_PER_TICK: w = assignQueue.shift(); assign(w); served++
-retryBlocked(n): for job in blocked (creation order, cursor-resumed): if not job.failedWalk and (job.retryTick <= tick or job.retryTrigger fired):
+retryBlocked(n): for job in blocked (creation order, cursor-resumed): if job.retryTick <= tick or job.retryTrigger fired:
+                   job.failedWalk = unset
                    if reasonGone(job): job.state = open; job.blockedReason = null; emit JobUnblocked
                    else: job.retryTick = tick + BLOCKED_RETRY_TICKS
                    n--; if n==0: break
@@ -23,7 +24,7 @@ reasonGone(job): no_worker → a worker has the labor; unreachable → a worker 
                  no_tool → a worker carries the tool, or findTool succeeds from that tile (for 'ranged': a free launcher with free ammunition of its kind), or some worker can complete a ranged kit; any other reason → true
 ```
 
-An unreachable unclaim after a failed walk sets `failedWalk`. It is left unset when, at the failure, the labels keep the worker from the tile the walk was bound for (`unclaim` takes that tile; a fetch, a delivery and a stand walk pass theirs, and a worker that finds no stand tile in its label passes the job's first stand tile, or its anchor when it has none): the reachability trigger that explains the failure fired while the job was claimed and cannot fire again, so the periodic retry reopens the job. A matching reachability trigger clears it and brings the retry forward; until then, periodic retries omit that job even when its stand tiles share a connectivity label.
+An unreachable unclaim after a failed walk sets `failedWalk`. It is left unset when, at the failure, the labels keep the worker from the tile the walk was bound for (`unclaim` takes that tile; a delivery and a stand walk pass theirs, and a worker that finds no stand tile in its label passes the job's first stand tile, or its anchor when it has none): the reachability trigger that explains the failure fired while the job was claimed and cannot fire again, so the periodic retry reopens the job. It is never set after a failed fetch walk (bound for an input, a tool or ammunition): `unclaim` also takes the fetched item, which it stores as `data.unreachableItem`, and the periodic retry reopens the job. The next `reserveInputs` (at claim, or at a refetch) adds that item to every input's `excludeIds` and deletes the field. An unclaim that sets it puts the job's `retryTick` at `tick + FAILED_WALK_RETRY_TICKS` instead of `tick + BLOCKED_RETRY_TICKS`. A matching reachability trigger clears it and brings the retry forward; until then, periodic retries omit that job even when its stand tiles share a connectivity label. The retry at `retryTick` clears it too, and judges the job as any other block.
 
 Before removal of a hunted creature, an active hunt transitions from the quarry entity to a tile target at the death location and retains the quarry id in data.animal. It waits for CorpseCreated for that id and carries that corpse as 09 defines. Unclaimed hunts retain their entity target and cancel normally. After destruction, cancel all indexed non-completing jobs whose entity, building or zone target is that id, in job-id order, with target_gone. Ordinary cancellation releases reservations and frees workers immediately. A completing deconstruction is excluded because it destroys its own target on success. Rebuild the target index on load; it is derived and not serialized.
 
@@ -54,6 +55,7 @@ claim(w, job):
   for input in job.inputs:
      needed = input.count - delivered amount (units for unit-counted inputs, entities otherwise)
      found = unit input ? find required units in as few stacks as possible (split a partial stack) : items.findItems(input.filter, needed, workTileOf(job), 'walker', {reservable:true})
+             // either search excludes job.data.unreachableItem, which the claim then deletes
      if found amount < needed: unclaim(job, 'missing_input'); return
      for it in found: items.setFlag(it, Reserved, true); Item[it].reservedBy = job.id; input.reserved.push(it); emit ItemReserved
   if job.tool == 'ranged' and not hasTool(w, 'ranged'):          // hasTool: a launcher and ammunition of its kind, held
@@ -83,7 +85,7 @@ stepWorker(w, ctx):
         from = fetchTile(tileOf(target), w)   // the item's tile; for an item in a built chest (label 0) the nearest walkable neighbor with the worker's label
         if at(w, from): items.attachToCarrier(target, w); Worker[w].carrying = target
            if target is tool: equip(w, target); Worker[w].carrying = 0; release its reservation; emit ItemReleased{itemId: target, jobId: job.id} if live; job.data.toolToFetch = null
-        else: walkTo(w, from, 'job')
+        else: r = walkTo(w, from, 'job'); if r == 'unreachable': unclaim(job, 'unreachable', from, target)   // no failedWalk; data.unreachableItem = target
       else:                                                                            // deliver
         dest = deliveryTile(job)                                                       // workshop: input tile; build: origin; haul: slot tile
         if at(w, dest): items.dropAt(carrying, dest) or items.putIn(carrying, workshopContainer); mark delivered; Worker[w].carrying = 0
