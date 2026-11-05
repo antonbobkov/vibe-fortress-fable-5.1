@@ -1,6 +1,8 @@
 # T-466 — The hand-laid defence of `defence_year` does not repel a raid
 
-**Source:** T-462 ([measurement](../../reports/audits/2026-11-01-defence-year-noise.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in 50dd3c6a.
+
+**Source:** T-462 ([measurement](../../../reports/audits/2026-11-01-defence-year-noise.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

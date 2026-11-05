@@ -256,6 +256,7 @@ export function spawnHostileMember(
   // Add to party members
   if (partyComp) {
     partyComp.members.push(creatureId);
+    if (isCaptain) (partyComp.captainIds ??= []).push(creatureId);
     if (partyComp.leaderId === 0 || isCaptain) {
       partyComp.leaderId = creatureId;
     }

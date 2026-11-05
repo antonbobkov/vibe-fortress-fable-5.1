@@ -483,6 +483,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
               P.outcome = P.loot.length > 0 || (P.escapedLootCount ?? 0) > 0 ? 'looted' : 'withdrew';
             }
           }
+          // 18 § Party AI, Retreat: a caged member is a casualty at once, as a death or a fall is.
+          if (P !== undefined && event['outcome'] === 'caged') checkPartyCasualties(H.partyId, P, ctx);
         }
       }
     } else if (event.type === 'DoorBroken') {

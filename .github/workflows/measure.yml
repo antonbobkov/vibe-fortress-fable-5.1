@@ -11,11 +11,15 @@ on:
         description: What to measure
         type: choice
         default: sweep
-        options: [sweep, instrument, three_years_main, scenario, timing]
+        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds]
       scenario:
         description: For suite=scenario, the scenario id (its file name without .scenario.ts)
         type: string
         default: defence_year
+      watch:
+        description: For suite=defence_seeds, the script's watch cadence in ticks (20 is the scenario's)
+        type: string
+        default: '20'
 permissions:
   contents: read
 jobs:
@@ -74,8 +78,40 @@ jobs:
           path: sweep-summary.md
           retention-days: 30
 
+  defence-seeds:
+    if: inputs.suite == 'defence_seeds'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [defence-year, defence-year-2, defence-year-3, defence-year-4,
+               defence-year-5, defence-year-6, defence-year-7, defence-year-8]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: defence_year, seed ${{ matrix.seed }}
+        env:
+          DEFENCE_SEEDS: ${{ matrix.seed }}
+          DEFENCE_SEEDS_OUT: out
+          DEFENCE_WATCH_EVERY: ${{ inputs.watch }}
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/defence_year_seeds.test.ts 2>&1 | tee out/${{ matrix.seed }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.seed }}
+          path: out/
+          retention-days: 14
+
   single:
-    if: inputs.suite != 'sweep'
+    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:

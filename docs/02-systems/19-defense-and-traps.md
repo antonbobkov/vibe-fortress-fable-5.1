@@ -53,7 +53,7 @@ All owned by 14; this system documents the patterns the design guarantees work, 
 
 - **The gate**: a drawbridge over a channel (a moat one tile wide, any depth, or filled with water) linked to a lever inside. Raised: no path. Hostiles loiter and retreat (18).
 - **The airlock**: two doors with `lock_on_alert`; civilians retreat behind them.
-- **The kill corridor**: a 1-wide corridor lined with fortifications on both sides at the same level, crossbow squads stationed behind them, weapon traps along the floor. Ranged fire through fortifications from adjacent tiles (16).
+- **The kill corridor**: a 1-wide corridor lined with fortifications on both sides at the same level, crossbow squads stationed behind them, weapon traps along the floor. Ranged fire through fortifications from adjacent tiles (16). A raid's captain leads it, so the corridor's traps meet the captain first, and a raid that loses its captain retreats (18 § Party AI).
 - **The drowning chamber**: a corridor section with a floodgate on a water channel at one end, a plate or lever, and a drain floodgate at the other. Water at level ≥ `FLUID_DEEP_LEVEL` drowns non-aquatic creatures (17). Trollkin drown; wyrms do not (magma-safe species are not water-safe, but a wyrm's size lets it stand in water up to level 6: `size ≥ WADE_LARGE_SIZE` creatures are not submerged until level 7).
 - **The magma chamber**: the same with magma from a channel to a magma pool or the Sea; everything burns except magma-safe species; the corridor must be built of magma-safe materials.
 - **The pit**: a drawbridge over a shaft of 3+ levels; retracting it drops whatever stands on it (`Fell` damage, 17) into a room whose only exit is a locked hatch. Fallen hostiles can be shot from fortifications above.
