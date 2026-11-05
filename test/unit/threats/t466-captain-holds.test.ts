@@ -11,7 +11,9 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { roundTrip } from '@app/game-save';
 import type { EntityId } from '@core/types';
+import { isDue } from '@core/scheduler';
 import { arriveParty, spawnHostileMember } from '@systems/threats/parties';
+import { THREATS_CADENCE, THREATS_PHASE } from '@systems/threats/constants';
 import { TestWorld } from '../../scenarios/test-world';
 
 const Z = FLAT_TEST_SURFACE_Z;
@@ -73,6 +75,21 @@ describe('T-466 the captain holds the party together', () => {
     expect(party().state).toBe('retreat');
     expect(party().loot).toEqual([]);
     expect(ending(w, partyId)).toBe('repelled');
+  });
+
+  it('a cage trap that takes the captain turns the raid back at once, not at the next party think', () => {
+    const { w, partyId } = raid('t466-captain-trap');
+    const party = () => w.game.world.entities.get(partyId, C.Party)!;
+    const trap = w.build('cage_trap', w.index(40, 20, Z), 'iron');
+    expect(trap).toBeGreaterThan(0);
+    inland(w, partyId);
+    // Just after a party think: the next is THREATS_CADENCE ticks away.
+    w.until(() => isDue(w.tick - 1, THREATS_CADENCE, THREATS_PHASE), THREATS_CADENCE);
+    w.game.world.services.movement?.teleport(party().captainIds![0]!, w.index(40, 20, Z));
+    w.step(4);
+    expect(w.events('CreatureCaged').map((e) => e['creatureId'])).toEqual(party().captainIds);
+    expect(party().state).toBe('retreat');
+    expect(party().outcome).toBe('repelled');
   });
 
   it('with its captain standing, the same raid reaches the hearth, loots and leaves looted', () => {
