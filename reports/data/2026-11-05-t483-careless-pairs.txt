@@ -1,0 +1,6 @@
+[t483_pair] {"mode":"off","seed":"three-years-p4-3","peril":4,"error":"","y1Pop":7,"y3Pop":0,"deaths":26,"extinct":188,"ownHits":{},"ownDamage":{},"dwarvesKilledByFortress":0,"shots":{"hostile":84,"fortress":1}}
+[t483_pair] {"mode":"on","seed":"three-years-p4-3","peril":4,"error":"T-176 three-years-p4-3 tick 235200: expected [ { …(6) } ] to deeply equal []","ownHits":{},"ownDamage":{},"dwarvesKilledByFortress":0,"shots":{"hostile":32}}
+[t483_pair] {"mode":"off","seed":"three-years-p2-7","peril":2,"error":"","y1Pop":16,"y3Pop":57,"deaths":11,"extinct":null,"ownHits":{"wild":2},"ownDamage":{"wild":20},"dwarvesKilledByFortress":0,"shots":{"hostile":67}}
+[t483_pair] {"mode":"off","seed":"three-years-p2-6","peril":2,"error":"","y1Pop":13,"y3Pop":23,"deaths":8,"extinct":null,"ownHits":{},"ownDamage":{},"dwarvesKilledByFortress":0,"shots":{"hostile":43}}
+[t483_pair] {"mode":"on","seed":"three-years-p2-7","peril":2,"error":"","y1Pop":16,"y3Pop":35,"deaths":13,"extinct":null,"ownHits":{"wild":1},"ownDamage":{"wild":10},"dwarvesKilledByFortress":0,"shots":{"hostile":84,"fortress":2}}
+[t483_pair] {"mode":"on","seed":"three-years-p2-6","peril":2,"error":"","y1Pop":13,"y3Pop":40,"deaths":6,"extinct":null,"ownHits":{},"ownDamage":{},"dwarvesKilledByFortress":0,"shots":{"hostile":44}}

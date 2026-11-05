@@ -1,0 +1,73 @@
+/**
+ * T-483 diagnostic (not committed): three-years-p4-3, the siege of day 186. Logs every party state
+ * change of a siege, and each 600 ticks the fortress's living dwarves, their tiles and the siege's
+ * targets, until the invariant stops the seed.
+ */
+import { it, vi } from 'vitest';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TestWorld } from '../scenarios/test-world';
+import { runThreeYearsSeed } from './three_years_seeds.test';
+
+vi.mock('@systems/combat/constants', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@systems/combat/constants')>();
+  return process.env['T483_CARELESS'] === 'off' ? { ...real, CARELESS_SHOT_PERCENT: 0 } : real;
+});
+
+it('T-483 siege p4-3', () => {
+  const original = TestWorld.prototype.step;
+  let hooked: TestWorld | null = null;
+  const last = new Map<number, string>();
+  TestWorld.prototype.step = function (this: TestWorld, n?: number) {
+    if (hooked !== this) {
+      hooked = this;
+      const w = this;
+      const ent = w.game.world.entities;
+      const dwarf = w.game.registry.table('creatures').index('dwarf');
+      w.game.world.onEvents(() => {
+        if (w.tick < 215000) return;
+        for (const id of ent.with(C.Party)) {
+          const p = ent.get(id, C.Party)!;
+          if (p.purpose === 'caravan') continue;
+          const key = `${p.state}`;
+          if (last.get(id) !== key) {
+            last.set(id, key);
+            const alive = p.members.filter((m) => ent.alive(m)).length;
+            console.log(`[t483_siege] t${w.tick} d${Math.floor(w.tick / TICKS_PER_DAY) + 1} party ${id} ${p.purpose} -> ${p.state} members ${alive}/${p.members.length} goal ${p.goalTile} goalEntity ${p.goalEntity} unreachable ${p.goalUnreachable} walk ${String((p as { walkUnreachable?: boolean }).walkUnreachable)} alert ${w.game.world.fortress.alert}`);
+          }
+        }
+        if (w.tick % 600 === 0 && w.tick >= 222000) {
+          const dwarves = ent.with(C.Creature).filter((id) => ent.alive(id) && ent.get(id, C.Creature)!.species === dwarf);
+          const where = dwarves.slice(0, 40).map((id) => { const q = ent.get(id, C.Position); return `${q?.x},${q?.y},${q?.z}${ent.get(id, C.Body)?.conscious === false ? 'u' : ''}${ent.get(id, C.Soldier)?.onDuty ? 's' : ''}`; });
+          const targets = new Map<string, number>();
+          const combat = w.game.world.services.combat!;
+          for (const pid of ent.with(C.Party)) {
+            const p = ent.get(pid, C.Party)!;
+            if (p.purpose !== 'siege') continue;
+            for (const m of p.members) {
+              if (!ent.alive(m)) continue;
+              const t = combat.targetOf(m);
+              const q = ent.get(m, C.Position);
+              if (t !== 0 && w.tick % 3000 === 0) {
+                const tc = ent.get(t, C.Creature); const tp = ent.get(t, C.Position);
+                const sp = w.game.registry.table<{ id: string }>('creatures').byIndex(tc?.species ?? -1)?.id;
+                console.log(`[t483_siege_target] t${w.tick} ${ent.get(m, C.Hostile)?.role} at ${q?.x},${q?.y},${q?.z} holds ${t} ${sp} ${tc?.faction} at ${tp?.x},${tp?.y},${tp?.z} conscious ${String(ent.get(t, C.Body)?.conscious)} tame ${JSON.stringify(ent.get(t, C.Tame) ?? null)} engaged ${p.state} stateSince ${p.stateSince}`);
+              }
+              const k = `${ent.get(m, C.Hostile)?.role}:${t === 0 ? 'none' : 'held'}@${q?.z}`;
+              targets.set(k, (targets.get(k) ?? 0) + 1);
+            }
+          }
+          console.log(`[t483_siege_at] t${w.tick} dwarves ${dwarves.length} ${where.join(' ')} | siege ${JSON.stringify(Object.fromEntries(targets))}`);
+        }
+      });
+    }
+    return original.call(this, n as number);
+  } as typeof original;
+  try {
+    runThreeYearsSeed('three-years-p4-3', 4);
+  } catch (e) {
+    console.log(`[t483_siege_end] ${String((e as Error).message).split('\n')[0]}`);
+  } finally {
+    TestWorld.prototype.step = original;
+  }
+}, 3_600_000);

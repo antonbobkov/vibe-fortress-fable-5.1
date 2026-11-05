@@ -1,6 +1,6 @@
 # Measurement: careless shooters, in the combat-pace arenas and the twenty-seed file
 
-**Task:** T-483 · **Date:** 2026-11-04 · **Commit examined:** the T-483 branch at `921cba17` (master `9267b7fd` with T-479 and T-487 merged, and the held-shot branch `a5405a56` under it) · **Kind:** measurement; `CARELESS_SHOT_PERCENT` and `CARELESS_SAFE_SKILL` are new and stay *unmeasured*: nothing here tunes them · **Source:** [the T-483 work file](../../docs/work/T-483-marksdwarf-friendly-fire.md), [the held-shot arena](2026-11-04-t483-held-shot-arena.md), [the caster arena](2026-11-02-t470-caster-arena.md)
+**Task:** T-483 · **Date:** 2026-11-04 (runs of 2026-11-04 and 2026-11-05) · **Commit examined:** the T-483 branch at `921cba17` (master `9267b7fd` with T-479 and T-487 merged, and the held-shot branch `a5405a56` under it) · **Kind:** measurement; `CARELESS_SHOT_PERCENT` and `CARELESS_SAFE_SKILL` are new and stay *unmeasured*: nothing here tunes them · **Source:** [the T-483 work file](../../docs/work/T-483-marksdwarf-friendly-fire.md), [the held-shot arena](2026-11-04-t483-held-shot-arena.md), [the caster arena](2026-11-02-t470-caster-arena.md)
 
 ## The rule measured
 
@@ -12,6 +12,7 @@ A shooter with a launcher, ammunition or a channel's bolt, with one of its own o
 - **A Proficient marksdwarf is unchanged in kind.** It never fires through its line: 0.8 bolts a fight, as in the held-shot version, and 1.04 soldiers lost. Its one hit on its own side (11 damage in one fight) is friendly fire after the shot.
 - **An apprentice caster singes its squad a little.** At runecraft 2 (rune 50, to keep the comparison to skill) it hits its own side 5 times for 73 in 5 ambush fights of 24, and the squad loses **0.96** (0.75 with a Proficient caster, 0.88 with none). Its bolts miss more: 22 hits for 454 against 57 for 1,183. In the open it hits its own side 19 times for 306 in 10 fights. A Proficient caster draws nothing and never fires through.
 - **Raid archers pepper their own front again.** In the plain open arena a peril-2 raid's archers hit their own party 34 times for 359 in 18 fights of 24 (116 for 1,229 in 24 before the held shot, 0 with it). The raid loses **2.17** of its 11 (3.42 before, 1.50 with the held shot). The squad is down in every open fight either way. In the ambush of four, archers rarely have a fellow on their line: 0 to 2 hits on their own a variant.
+- **The twenty-seed file keeps its set rule.** 19 / 19 alive at year 1, 7 / 7 peril-0 seeds grown, 0 / 7 with need deaths; peril 0 is the reference to the dwarf. Peril 2 gives 57 deaths and 283 living (45 and 345), peril 4 61 and 230 in five seeds (86 and 132). The same code with every shooter always holding moves the same seeds as far, so these are the timeline's moves, not the rule's. One seed, `p4-3`, stopped on day 197 on an invariant after its fortress fell (a siege stays engaged with two fortress dogs; filed).
 - **No-launcher combat and the scripted checks do not move.** `pp_defence` gives the held-shot record on all four seeds, field for field (no launcher is fired in any of them). The annual instrument gives its reference row, 13/7/10/149/7/0/0.
 
 ## What was run
@@ -55,6 +56,23 @@ The Proficient rows move from the held-shot version only through the raiders, wh
 ### The annual instrument
 
 `test/perf/wildlife_year.test.ts` on the branch gives the reference row exactly: median 13, worst 7, second-worst 10, sum of the living 149, 7 of 12 years without a wildlife dwarf death, no extinction, no hunger or thirst death.
+
+## The twenty-seed file
+
+`test/perf/three_years_seeds.test.ts`, whole, once, on `c55d25cc`, after `npm test` passed (418 files; the one failure of that run was a link to this report, not yet written). Reference: [hexers measured](2026-11-04-t479-hexers.md) (`659cc62e`), 134 deaths and 866 living in nineteen seeds, without `p4-4`. Master has T-487 since, so `p4-4` now plays its three years. Data: `reports/data/2026-11-05-t483-sweep.json`.
+
+| Peril | Reference: deaths / living at year 3 | T-483 | Note |
+|---|---|---|---|
+| 0 (7 seeds) | 3 / 389 | **3 / 389** | every seed equal to the reference, field for field in deaths and population |
+| 2 (7 seeds) | 45 / 345 | **57 / 283** | `p2-1`, `p2-4`, `p2-5` as the reference; `p2-2` 12 / 11 (10 / 12), `p2-3` 2 / 71 (4 / 69), `p2-6` 6 / 40 (4 / 72), `p2-7` 13 / 35 (3 / 66), which passes its dining-hall witness this time |
+| 4 (6 seeds) | 86 / 132 in five; `p4-4` stopped on day 251 | **61 / 230** in five; `p4-3` stopped on day 197 | `p4-4` 10 / 30 (new); `p4-2` lives (14 / 55, was 22 / 0); `p4-3` falls on day 188 as before, then a T-176 finding (below) |
+| All | 134 / 866 in nineteen | **121 / 902** in nineteen; 111 / 872 in the eighteen both runs counted | |
+
+Set rule: alive at year 1 **19 / 19** counted (needs 18), peril 0 grown **7 / 7** (needs 6), peril-0 need deaths **0 / 7** (at most 1). The set test passed. The file failed on one seed, `p4-3`, on the invariant `party.active-over-10d`, and on nothing else. No dwarf in any seed was killed by a fortress creature.
+
+**Why seeds moved.** A weighing is a draw on 16's stream, and every later hit roll, parry and wound of the fortress moves with it, so a seed whose raids weigh even one shot plays a different war. The same code with `CARELESS_SHOT_PERCENT` at 0 (every shooter always holds; `reports/data/2026-11-05-t483-careless-pairs.probe.ts.txt`) gives `p2-7` 11 deaths and 57 living, `p2-6` 8 and 23, and `p4-3` 26 deaths, extinct on day 188, passing: as far from the reference as the careless run, in both directions. The moves at peril 2 and 4 are the timeline's, not a trend; the twenty seeds cannot tell careless shooters from the held shot. With the rule, the same probe counts every shooter's hit on its own faction: in `p2-6`, `p2-7` and `p4-3` no raider and no dwarf hit one of its own (the raids shoot 32 to 84 arrows a seed, mostly from outside a locked gate, and the fortress 0 to 2 bolts). In the scripted fortresses the careless shot is rare; it shows in an open fight. Data: `reports/data/2026-11-05-t483-careless-pairs.txt`.
+
+**The `p4-3` finding.** The fortress is extinct on day 188, two days after a siege of 35 arrives, as in the reference. The siege then stays in `engage` to day 197: its captain holds one of two fortress dogs it never reaches, every other member holds nothing, and the party's `stateSince` is set again about every 3,000 ticks, so neither engage's nor loiter's limit runs out. The siege's members have skill 10 and never weigh a shot; the careless rule only changed which creatures were left. Filed as [a siege stays engaged with fortress dogs](../../docs/work/T-NEW-siege-engaged-with-dogs.md). Data: `reports/data/2026-11-05-t483-p4-3-siege.txt`.
 
 ## What this does not measure
 

@@ -1,0 +1,70 @@
+/**
+ * T-483 probe (not committed as a test; run from test/perf with `-t "T-483 pair"`, so the file's own
+ * tests, imported with `runThreeYearsSeed`, are skipped). Seeds of the three-year file, with the
+ * careless-shooter rule or, with T483_CARELESS=off, with `CARELESS_SHOT_PERCENT` at 0 so that every
+ * shooter always holds (the held-shot rule); the same code otherwise. Seeds: T483_SEEDS,
+ * `seed:peril` joined by commas. Counts every hit of a shooter on a creature of its own faction
+ * (`ownHits`, by faction) and every dwarf killed by a fortress creature.
+ */
+import { it, vi } from 'vitest';
+import { C } from '@core/components';
+import { TestWorld } from '../scenarios/test-world';
+import { runThreeYearsSeed } from './three_years_seeds.test';
+
+vi.mock('@systems/combat/constants', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@systems/combat/constants')>();
+  return process.env['T483_CARELESS'] === 'off' ? { ...real, CARELESS_SHOT_PERCENT: 0 } : real;
+});
+
+function watch(tally: { ownHits: Record<string, number>; ownDamage: Record<string, number>; dwarvesKilledByFortress: number; shots: Record<string, number> }): () => void {
+  const original = TestWorld.prototype.step;
+  let hooked: TestWorld | null = null;
+  TestWorld.prototype.step = function (this: TestWorld, n?: number) {
+    if (hooked !== this) {
+      hooked = this;
+      const ent = this.game.world.entities;
+      const dwarf = this.game.registry.table('creatures').index('dwarf');
+      const group = (f: string): string => (f.startsWith('hostile') ? 'hostile' : f);
+      this.game.world.onEvents((events) => {
+        for (const e of events) {
+          if (e.type === 'ProjectileFired') {
+            const f = group(ent.get(Number(e['shooterId']), C.Creature)?.faction ?? '?');
+            tally.shots[f] = (tally.shots[f] ?? 0) + 1;
+          } else if (e.type === 'AttackResolved' && e['outcome'] === 'hit') {
+            const a = ent.get(Number(e['attackerId']), C.Creature)?.faction;
+            const d = ent.get(Number(e['defenderId']), C.Creature)?.faction;
+            if (a !== undefined && a === d && ent.get(Number(e['attackerId']), C.Position) !== undefined) {
+              // Only a missile reaches a creature of the attacker's own faction.
+              tally.ownHits[group(a)] = (tally.ownHits[group(a)] ?? 0) + 1;
+              tally.ownDamage[group(a)] = (tally.ownDamage[group(a)] ?? 0) + Number(e['amount'] ?? 0);
+            }
+          } else if (e.type === 'CreatureDied' && e['species'] === dwarf) {
+            if (ent.get(Number(e['killerId'] ?? 0), C.Creature)?.faction === 'fortress') tally.dwarvesKilledByFortress += 1;
+          }
+        }
+      });
+    }
+    return original.call(this, n as number);
+  } as typeof original;
+  return () => { TestWorld.prototype.step = original; };
+}
+
+const seeds = (process.env['T483_SEEDS'] ?? '').split(',').filter((s) => s.length > 0).map((s) => {
+  const [seed, peril] = s.split(':');
+  return { seed: seed as string, peril: Number(peril) };
+});
+
+it.each(seeds)('T-483 pair $seed (peril $peril)', ({ seed, peril }) => {
+  const tally = { ownHits: {}, ownDamage: {}, dwarvesKilledByFortress: 0, shots: {} };
+  const stop = watch(tally);
+  let error = '';
+  let r: ReturnType<typeof runThreeYearsSeed> | null = null;
+  try {
+    r = runThreeYearsSeed(seed, peril);
+  } catch (e) {
+    error = String((e as Error).message ?? e).split('\n')[0]!.slice(0, 200);
+  } finally {
+    stop();
+  }
+  console.log(`[t483_pair] ${JSON.stringify({ mode: process.env['T483_CARELESS'] ?? 'on', seed, peril, error, y1Pop: r?.y1Pop, y3Pop: r?.y3Pop, deaths: r?.dwarfDeaths, extinct: r?.extinctDay, ...tally })}`);
+}, 3_600_000);
