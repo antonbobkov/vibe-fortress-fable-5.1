@@ -1,0 +1,374 @@
+# T-482 seed probes (reports/data/2026-11-05-t482-seed.probe.ts.txt), played as the twenty-seed sweep plays a seed.
+# master = master's src (d0794187); T-482 = the branch; noheap = T-482 with PET_PILE_MAX 0; shift1 = one tick before the opening.
+# A dog* is curled in the heap; 'animals' marks a crowded hall tile with no dwarf on it.
+
+## master p4-2
+day 30 living 11 deaths 0 tames 3 alert calm heaps - crowded -
+day 40 living 11 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 50 living 11 deaths 0 tames 5 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 60 living 15 deaths 0 tames 5 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 70 living 15 deaths 0 tames 5 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 80 living 15 deaths 0 tames 8 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 90 living 15 deaths 0 tames 8 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 100 living 15 deaths 0 tames 8 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 110 living 15 deaths 0 tames 10 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 120 living 22 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog cat dog dog dwarf]
+day 130 living 22 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog cat dog dog] animals
+day 140 living 21 deaths 0 tames 13 alert hearth heaps - crowded 60322[dog dog cat dog dog] animals
+day 150 living 21 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog dog dog dwarf]
+day 160 living 21 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog dog dog] animals
+day 170 living 21 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog dog dog] animals
+day 180 living 18 deaths 0 tames 17 alert calm heaps - crowded 60322[dog dog dog dog] animals
+day 190 living 18 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog dog dog] animals
+
+## T-482 p4-2
+day 30 living 11 deaths 0 tames 3 alert calm heaps - crowded -
+day 40 living 11 deaths 0 tames 13 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 50 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 60 living 15 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 70 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 80 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 90 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 100 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 110 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 120 living 16 deaths 0 tames 7 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 130 living 16 deaths 0 tames 11 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 140 living 16 deaths 0 tames 11 alert hearth heaps 60371[dog* dog* cat* dog*] crowded -
+day 150 living 16 deaths 0 tames 13 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 160 living 16 deaths 0 tames 13 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 170 living 21 deaths 0 tames 14 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 180 living 0 deaths 0 tames 6 alert hearth heaps - crowded -
+
+## master p4-3
+day 30 living 9 deaths 0 tames 5 alert calm heaps - crowded 62473[dog cat dog dog dog] animals
+day 40 living 9 deaths 0 tames 5 alert calm heaps - crowded 62473[dog cat dog dog dog] animals
+day 50 living 9 deaths 0 tames 5 alert calm heaps - crowded 62473[dog cat dwarf dog dog dog]
+day 60 living 12 deaths 0 tames 5 alert hearth heaps - crowded 62473[dog dog dog dog] animals
+day 70 living 12 deaths 0 tames 11 alert calm heaps - crowded 62473[dog dog dog dog] animals
+day 80 living 12 deaths 0 tames 5 alert calm heaps - crowded 62473[dog dog dog dog] animals
+day 90 living 16 deaths 0 tames 5 alert calm heaps - crowded 62473[dog dog dog dog] animals
+day 100 living 16 deaths 0 tames 5 alert calm heaps - crowded 62473[dog dog dog dog] animals
+day 110 living 16 deaths 0 tames 5 alert calm heaps - crowded 62473[dog dog dog dog] animals
+day 120 living 16 deaths 0 tames 5 alert calm heaps - crowded 62473[dog dog dog dog] animals
+day 130 living 16 deaths 0 tames 7 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 140 living 16 deaths 0 tames 7 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 150 living 22 deaths 0 tames 11 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 160 living 21 deaths 0 tames 14 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 170 living 29 deaths 0 tames 10 alert calm heaps - crowded 62473[dog dog dog dog dwarf dog]
+day 180 living 29 deaths 0 tames 10 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 190 living 29 deaths 0 tames 10 alert hearth heaps - crowded 62473[dog dog dog dog dwarf dog]
+day 200 living 29 deaths 0 tames 10 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+
+## noheap p4-2
+day 30 living 11 deaths 0 tames 3 alert calm heaps - crowded -
+day 40 living 11 deaths 0 tames 13 alert calm heaps - crowded -
+day 50 living 11 deaths 0 tames 5 alert calm heaps - crowded -
+day 60 living 15 deaths 0 tames 5 alert calm heaps - crowded -
+day 70 living 11 deaths 0 tames 5 alert calm heaps - crowded -
+day 80 living 11 deaths 0 tames 5 alert calm heaps - crowded -
+day 90 living 11 deaths 0 tames 5 alert calm heaps - crowded -
+day 100 living 11 deaths 0 tames 5 alert calm heaps - crowded -
+day 110 living 11 deaths 0 tames 5 alert calm heaps - crowded -
+day 120 living 18 deaths 0 tames 7 alert calm heaps - crowded 60468[dwarf dwarf dwarf]
+day 130 living 18 deaths 0 tames 7 alert calm heaps - crowded -
+day 140 living 18 deaths 0 tames 9 alert hearth heaps - crowded 60514[dwarf dwarf dwarf]
+day 150 living 18 deaths 0 tames 12 alert calm heaps - crowded -
+day 160 living 18 deaths 0 tames 12 alert calm heaps - crowded -
+day 170 living 18 deaths 0 tames 12 alert calm heaps - crowded -
+day 180 living 0 deaths 0 tames 2 alert hearth heaps - crowded 60371[gloam_warrior gloam_warrior gloam_warrior gloam_warrior gloam_warrior gloam_warrior gloam_warrior gloam_warrior gloam_warrior gloam_captain gloam_warrior gloam_warrior gloam_warrior gloam_captain gloam_warrior] animals
+day 190 living 0 deaths 0 tames 0 alert calm heaps - crowded -
+
+## noheap p4-3
+day 30 living 9 deaths 0 tames 5 alert calm heaps - crowded -
+day 40 living 9 deaths 0 tames 5 alert calm heaps - crowded -
+day 50 living 9 deaths 0 tames 5 alert calm heaps - crowded -
+day 60 living 11 deaths 0 tames 5 alert hearth heaps - crowded -
+day 70 living 11 deaths 0 tames 11 alert calm heaps - crowded -
+day 80 living 10 deaths 0 tames 4 alert calm heaps - crowded -
+day 90 living 10 deaths 0 tames 4 alert calm heaps - crowded -
+day 100 living 10 deaths 0 tames 4 alert calm heaps - crowded -
+day 110 living 10 deaths 0 tames 4 alert calm heaps - crowded -
+day 120 living 10 deaths 0 tames 8 alert calm heaps - crowded -
+day 130 living 10 deaths 0 tames 8 alert calm heaps - crowded -
+day 140 living 10 deaths 0 tames 8 alert calm heaps - crowded -
+day 150 living 18 deaths 0 tames 12 alert hearth heaps - crowded -
+day 160 living 18 deaths 0 tames 19 alert calm heaps - crowded -
+day 170 living 27 deaths 0 tames 12 alert calm heaps - crowded -
+day 180 living 27 deaths 0 tames 12 alert calm heaps - crowded -
+day 190 living 0 deaths 0 tames 0 alert hearth heaps - crowded 62521[gloam_captain gloam_hexer gloam_hexer] animals
+day 200 living 0 deaths 0 tames 0 alert calm heaps - crowded -
+
+## master-shift1 p4-2
+day 30 living 11 deaths 0 tames 3 alert calm heaps - crowded -
+day 40 living 11 deaths 0 tames 13 alert calm heaps - crowded -
+day 50 living 11 deaths 0 tames 5 alert calm heaps - crowded 60322[dog dog dog dog] animals
+day 60 living 15 deaths 0 tames 5 alert calm heaps - crowded 60322[dog dog dog dog dwarf]
+day 70 living 14 deaths 0 tames 5 alert calm heaps - crowded 60322[dog dog dog dog] animals
+day 80 living 14 deaths 0 tames 5 alert calm heaps - crowded 60322[dog dog dog dog] animals
+day 90 living 14 deaths 0 tames 7 alert calm heaps - crowded 60322[dog dog dog dog dog] animals
+day 100 living 14 deaths 0 tames 7 alert calm heaps - crowded 60322[dog dog dog dog dog] animals
+day 110 living 14 deaths 0 tames 9 alert calm heaps - crowded 60322[dog dog dog dog dog] animals
+day 120 living 21 deaths 0 tames 9 alert calm heaps - crowded 60322[dog dog dog dog dog] animals
+day 130 living 21 deaths 0 tames 12 alert calm heaps - crowded 60322[dog dog dog dog dwarf dog]
+day 140 living 21 deaths 0 tames 12 alert hearth heaps - crowded 60322[dog dog dog dog dog] animals
+day 150 living 21 deaths 0 tames 12 alert calm heaps - crowded 60322[dog dog dog dog dwarf dog]
+day 160 living 21 deaths 0 tames 12 alert calm heaps - crowded 60322[dog dog dog dog dog] animals
+day 170 living 21 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog dog dog dog] animals
+day 180 living 21 deaths 0 tames 13 alert hearth heaps - crowded 60322[dog dog dog dog dog] animals
+day 190 living 21 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog dog dog dog] animals
+day 200 living 26 deaths 0 tames 13 alert calm heaps - crowded 60322[dog dog dog dog dwarf dog dwarf]
+
+## master-shift1 p4-3
+day 30 living 8 deaths 0 tames 7 alert calm heaps - crowded -
+day 40 living 8 deaths 0 tames 7 alert calm heaps - crowded -
+day 50 living 8 deaths 0 tames 7 alert calm heaps - crowded -
+day 60 living 11 deaths 0 tames 7 alert hearth heaps - crowded 62473[dog dog cat dog dog dog] animals
+day 70 living 11 deaths 0 tames 16 alert calm heaps - crowded 62473[dog dog cat dog dog dog] animals
+day 80 living 9 deaths 0 tames 9 alert calm heaps - crowded 62473[dog dog cat dog dog dog] animals
+day 90 living 8 deaths 0 tames 12 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 100 living 8 deaths 0 tames 12 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 110 living 7 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 120 living 7 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 130 living 7 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 140 living 7 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 150 living 7 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 160 living 7 deaths 0 tames 17 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 170 living 7 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 180 living 6 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+day 190 living 6 deaths 0 tames 13 alert hearth heaps - crowded 62473[dog dog dog dog dog] animals
+day 200 living 6 deaths 0 tames 13 alert calm heaps - crowded 62473[dog dog dog dog dog] animals
+
+## T-482-shift1 p4-2
+day 30 living 11 deaths 0 tames 3 alert calm heaps - crowded -
+day 40 living 11 deaths 0 tames 13 alert calm heaps - crowded -
+day 50 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 60 living 15 deaths 0 tames 5 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 70 living 15 deaths 0 tames 4 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 80 living 15 deaths 0 tames 4 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 90 living 15 deaths 0 tames 4 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 100 living 15 deaths 0 tames 6 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 110 living 15 deaths 0 tames 6 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 120 living 24 deaths 0 tames 6 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 130 living 24 deaths 0 tames 6 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 140 living 24 deaths 0 tames 6 alert hearth heaps 60371[dog* dog* dog* dog*] crowded -
+day 150 living 31 deaths 0 tames 11 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 160 living 31 deaths 0 tames 11 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 170 living 40 deaths 0 tames 11 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 180 living 40 deaths 0 tames 12 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 190 living 40 deaths 0 tames 12 alert hearth heaps 60371[dog* dog* dog* dog*] crowded 60375[dwarf dwarf dwarf]
+day 200 living 46 deaths 0 tames 12 alert calm heaps 60371[dog* dog* dog* dog*] crowded 60370[dog dwarf dwarf]
+
+## T-482-shift1 p4-3
+day 30 living 8 deaths 0 tames 7 alert calm heaps - crowded -
+day 40 living 8 deaths 0 tames 7 alert calm heaps - crowded -
+day 50 living 8 deaths 0 tames 7 alert calm heaps - crowded -
+day 60 living 11 deaths 0 tames 7 alert hearth heaps 62522[dog* cat* dog* dog*] crowded -
+day 70 living 11 deaths 0 tames 16 alert calm heaps 62522[dog* cat* dog* dog*] crowded -
+day 80 living 11 deaths 0 tames 9 alert calm heaps 62522[dog* cat* dog* dog*] crowded -
+day 90 living 12 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded 62523[dwarf dwarf dog]
+day 100 living 12 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+day 110 living 12 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+day 120 living 12 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+day 130 living 12 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+day 140 living 12 deaths 0 tames 13 alert calm heaps 62522[dog* dwarf dog* dog* dog*] crowded -
+day 150 living 12 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+day 160 living 12 deaths 0 tames 16 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+day 170 living 17 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded 62523[dwarf dwarf dog]
+day 180 living 17 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+day 190 living 16 deaths 0 tames 13 alert hearth heaps 62522[dog* dog* dog* dog*] crowded -
+day 200 living 19 deaths 0 tames 13 alert calm heaps 62522[dog* dog* dog* dog*] crowded -
+
+## T-482-shift1 p0-3
+day 30 living 11 deaths 0 tames 3 alert calm heaps 60319[dog* dog* cat*] crowded -
+day 40 living 11 deaths 0 tames 3 alert calm heaps 60319[dog* dog* cat*] crowded -
+day 50 living 11 deaths 0 tames 3 alert calm heaps 60319[dog* dog* cat*] crowded -
+day 60 living 14 deaths 0 tames 7 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 70 living 14 deaths 0 tames 7 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 80 living 14 deaths 0 tames 7 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 90 living 18 deaths 0 tames 9 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 100 living 18 deaths 0 tames 9 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 110 living 18 deaths 0 tames 9 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 120 living 18 deaths 0 tames 12 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 130 living 18 deaths 0 tames 12 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 140 living 18 deaths 0 tames 12 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 150 living 18 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 160 living 18 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 170 living 18 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 180 living 18 deaths 0 tames 17 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 190 living 18 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 200 living 18 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 210 living 18 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 220 living 18 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 230 living 27 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 240 living 27 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 250 living 27 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 260 living 37 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 270 living 37 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded 60320[dwarf dwarf dwarf dwarf]
+day 280 living 37 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 290 living 37 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 300 living 37 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded -
+day 310 living 43 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded 60320[dwarf dwarf dwarf dwarf dwarf]
+day 320 living 43 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded 60367[dwarf dwarf dwarf]
+day 330 living 43 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded 60416[dwarf dwarf dwarf]
+day 340 living 53 deaths 0 tames 13 alert calm heaps 60319[dog* dog* dog* dog*] crowded 60369[dwarf dwarf dwarf dwarf dwarf]
+
+## T-482-watch p4-2-days-172-176
+day 30 living 11 deaths 0 tames 3 alert calm heaps - crowded -
+day 40 living 11 deaths 0 tames 13 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 50 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 60 living 15 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 70 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 80 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 90 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 100 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 110 living 11 deaths 0 tames 5 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 120 living 16 deaths 0 tames 7 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 130 living 16 deaths 0 tames 11 alert calm heaps 60371[dog* dog* cat* dog*] crowded -
+day 140 living 16 deaths 0 tames 11 alert hearth heaps 60371[dog* dog* cat* dog*] crowded -
+day 150 living 16 deaths 0 tames 13 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 160 living 16 deaths 0 tames 13 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+day 170 living 21 deaths 0 tames 14 alert calm heaps 60371[dog* dog* dog* dog*] crowded -
+  died t 207739 Otta Copperaxe killed tile 74001 by gloam_warrior 117440797 hostile:gloam
+  died t 207847 Ymir Deepheart bled_out tile 60322 by gloam_archer 117441298 hostile:gloam
+  died t 207858 Unn Marblebrow killed tile 74337 by gloam_warrior 721421003 hostile:gloam
+  died t 208267 Torfi Coldgate bled_out tile 60895 by gloam_archer 117441298 hostile:gloam
+  died t 208363 Einar Ashwall killed tile 74288 by trollkin 587202704 hostile:gloam
+  died t 208477 gloam_archer bled_out tile 74334 by dwarf 16777284 fortress
+  died t 208487 Bodil Oakgate killed tile 74335 by gloam_warrior 218103834 hostile:gloam
+  died t 208492 Ragnhild Coldtongue bled_out tile 74288 by trollkin 587202704 hostile:gloam
+  died t 208735 cat killed tile 60416 by gloam_captain 150995757 hostile:gloam
+  died t 208892 dog bled_out tile 60370 by gloam_captain 150995757 hostile:gloam
+  died t 208948 Oddvar Hollowcrown killed tile 60416 by gloam_captain 150995757 hostile:gloam
+  died t 208962 Ulrik Saltwall bled_out tile 60418 by gloam_captain 150995757 hostile:gloam
+  died t 209167 Skarde Grimbrow bled_out tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209222 Signe Froststair bled_out tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209232 Vali Bearaxe bled_out tile 60417 by gloam_captain 150995757 hostile:gloam
+  died t 209272 Norna Boarhammer bled_out tile 60418 by gloam_captain 150995757 hostile:gloam
+  died t 209272 Dalla Boarcrown bled_out tile 60418 by gloam_captain 150995757 hostile:gloam
+  died t 209294 Dain Deepcrown killed tile 60417 by gloam_captain 150995757 hostile:gloam
+  died t 209317 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209340 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209487 dog bled_out tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209492 Melkorka Veinward bled_out tile 60418 by gloam_captain 150995757 hostile:gloam
+  died t 209547 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209593 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209685 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209731 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209887 dog bled_out tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209907 Yrsa Veinhelm bled_out tile 60419 by gloam_captain 150995757 hostile:gloam
+  died t 209938 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 209984 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 210030 dog killed tile 60371 by gloam_captain 150995757 hostile:gloam
+  died t 210183 Jorund Thundertongue killed tile 60363 by gloam_hexer 50332841 hostile:gloam
+  died t 210211 Otta Coalheart killed tile 60415 by gloam_warrior 150995211 hostile:gloam
+  died t 210252 Magnhild Frostmantle killed tile 60413 by gloam_captain 150995757 hostile:gloam
+  died t 210289 cat killed tile 60412 by gloam_warrior 117440797 hostile:gloam
+  died t 210387 Einar Deepfoot killed tile 60411 by gloam_captain 150995767 hostile:gloam
+
+## T-482 p0-6
+day 30 living 9 deaths 0 tames 7 alert calm heaps 60321[dog* dog* cat* dog*] crowded -
+day 40 living 9 deaths 0 tames 12 alert calm heaps 60321[dog* dog* cat* dog*] crowded -
+day 50 living 9 deaths 0 tames 11 alert calm heaps 60321[dog* dog* cat* dog*] crowded -
+day 60 living 12 deaths 0 tames 11 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 70 living 12 deaths 0 tames 11 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 80 living 12 deaths 0 tames 11 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 90 living 14 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 100 living 14 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 110 living 14 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60369[dwarf dwarf dwarf]
+day 120 living 14 deaths 0 tames 14 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 130 living 14 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 140 living 14 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 150 living 22 deaths 0 tames 16 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 160 living 22 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 170 living 22 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 180 living 22 deaths 0 tames 17 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 190 living 22 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 200 living 22 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 210 living 22 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 220 living 22 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 230 living 32 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60322[dwarf dog dwarf] 60369[dwarf dwarf dwarf]
+day 240 living 32 deaths 0 tames 17 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60369[dwarf dwarf dwarf]
+day 250 living 32 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 260 living 32 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 270 living 32 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 280 living 32 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 290 living 44 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 300 living 44 deaths 0 tames 21 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 310 living 50 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf]
+day 320 living 50 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf dwarf] 60369[dwarf dwarf dwarf]
+day 330 living 50 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf]
+day 340 living 50 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf] 60418[dwarf dwarf dwarf]
+day 350 living 50 deaths 0 tames 18 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 360 living 45 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 370 living 45 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 380 living 45 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog* dwarf] crowded -
+day 390 living 45 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf]
+day 400 living 57 deaths 0 tames 16 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf]
+day 410 living 57 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf] 60368[dwarf dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf dwarf]
+day 420 living 57 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf]
+day 430 living 57 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 440 living 57 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 450 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf] 60322[dwarf dwarf dwarf dwarf]
+day 460 living 65 deaths 0 tames 14 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf] 60322[dwarf dwarf dwarf]
+day 470 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 480 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 490 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dwarf dog dwarf dwarf] 60464[dwarf dwarf dwarf dwarf]
+day 500 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf]
+day 510 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf]
+day 520 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf] 60416[dwarf dwarf dwarf dwarf]
+day 530 living 65 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 540 living 55 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf] 60368[dwarf dwarf dwarf dwarf dwarf]
+day 550 living 48 deaths 0 tames 13 alert calm heaps 60323[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf]
+day 560 living 44 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 570 living 42 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf]
+day 580 living 42 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf]
+day 590 living 42 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 600 living 42 deaths 0 tames 15 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf]
+day 610 living 42 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 620 living 41 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf] 60368[dwarf dwarf dwarf]
+day 630 living 41 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf]
+day 640 living 41 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60320[dog dwarf dwarf dwarf]
+day 650 living 40 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 660 living 37 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 670 living 35 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf] 60320[dwarf dog dwarf dwarf dwarf dwarf]
+day 680 living 31 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 690 living 31 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dwarf dog dwarf] 60464[dwarf dwarf dwarf dwarf dwarf]
+day 700 living 31 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf] 60368[dwarf dwarf dwarf dwarf]
+day 710 living 39 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60464[dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 720 living 39 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 730 living 39 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 740 living 39 deaths 0 tames 18 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf]
+day 750 living 39 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf]
+day 760 living 45 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 770 living 45 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dwarf dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf] 60368[dwarf dwarf dwarf]
+day 780 living 45 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 790 living 56 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 800 living 56 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dwarf dog dwarf]
+day 810 living 56 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 820 living 54 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60416[dwarf dwarf dwarf dwarf dwarf]
+day 830 living 53 deaths 0 tames 15 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 840 living 51 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf] 60368[dwarf dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 850 living 48 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60320[dog dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf]
+day 860 living 48 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf]
+day 870 living 47 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf dwarf]
+day 880 living 44 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf]
+day 890 living 42 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 900 living 38 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf] 60416[dwarf dwarf dwarf dwarf]
+day 910 living 34 deaths 0 tames 17 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf]
+day 920 living 34 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf]
+day 930 living 34 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60464[dwarf dwarf dwarf dwarf]
+day 940 living 34 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 950 living 34 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dwarf dog dwarf dwarf]
+day 960 living 34 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf dwarf]
+day 970 living 34 deaths 0 tames 17 alert calm heaps 60321[dog* dog* dog* dog*] crowded -
+day 980 living 34 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf dwarf dwarf]
+day 990 living 34 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf]
+day 1000 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf dwarf]
+day 1010 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf] 60320[dwarf dog dwarf dwarf dwarf]
+day 1020 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dwarf dog dwarf dwarf dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf]
+day 1030 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dwarf dog dwarf dwarf dwarf dwarf dwarf dwarf]
+day 1040 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf] 60368[dwarf dwarf dwarf dwarf]
+day 1050 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf] 60320[dog dwarf dwarf dwarf] 60464[dwarf dwarf dwarf dwarf dwarf dwarf]
+day 1060 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 1070 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf dwarf dwarf]
+day 1080 living 33 deaths 0 tames 13 alert calm heaps 60321[dog* dog* dog* dog*] crowded 60272[dog dwarf dwarf dwarf dwarf dwarf]

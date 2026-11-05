@@ -1,0 +1,92 @@
+/**
+ * T-482 probe (not kept in test/): one three-year seed played exactly as the twenty-seed sweep plays it,
+ * to a given day. Every 10 days: living, deaths so far, the pets' heaps, and each crowded hall tile with
+ * who stands on it. A crowded tile is marked `animals` when no dwarf is on it.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { BuildingsReader } from '@systems/buildings';
+import type { CombatReader } from '@systems/combat/reader';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T482_SEED'] ?? 'three-years-p4-2';
+const PERIL = Number(process.env['T482_PERIL'] ?? 4);
+const DAYS = Number(process.env['T482_DAYS'] ?? 190);
+/** From this day to `T482_WATCH_TO`, a close look every 300 ticks: hostiles, what they attack, the hall's doors. */
+const WATCH_FROM = Number(process.env['T482_WATCH_FROM'] ?? 1e9);
+const WATCH_TO = Number(process.env['T482_WATCH_TO'] ?? 1e9);
+
+it(`T-482 seed probe ${SEED}`, () => {
+  const w = threeYearsWorld(SEED, PERIL);
+  // A harmless timeline shift, as T-481's second instrument sample: one tick before the opening.
+  for (let i = 0; i < Number(process.env['T482_SHIFT'] ?? 0); i += 1) w.step(1);
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const checks = (): void => {
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+  };
+  const boot = 20 * TICKS_PER_DAY;
+  while (w.tick < boot) {
+    playThreeYears(w, state, Math.min(100, boot - w.tick));
+    checks();
+  }
+  let deaths = 0;
+  const unsub = w.game.world.onEvents((events) => {
+    for (const e of events) if (e.type === 'CreatureDied' && w.tick / TICKS_PER_DAY >= WATCH_FROM && w.tick / TICKS_PER_DAY < WATCH_TO) lines.push(`  died t ${w.tick} ${String(e['name'])} ${String(e['cause'])} tile ${String(e['tile'])} by ${ent.has(Number(e['killerId']), C.Creature) ? `${species.rows[ent.get(Number(e['killerId']), C.Creature)!.species]?.id} ${String(e['killerId'])} ${ent.get(Number(e['killerId']), C.Creature)!.faction}` : String(e['killerId'])}`);
+    deaths += 0;
+  });
+  const lines: string[] = [];
+  const name = (id: number): string => `${species.rows[ent.get(id, C.Creature)!.species]?.id}${ent.get(id, C.Tame)?.curled === true ? '*' : ''}`;
+  const look = (): void => {
+    const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+    const crowded = buildings.hearthHallTiles().filter((t) => w.game.movement.crowdPercentAt(t) > 100).map((t) => {
+      const on = w.readers.entities.at(t).filter((id) => ent.kind(id) === 'creature');
+      return `${t}[${on.map(name).join(' ')}]${on.some((id) => ent.has(id, C.Labors)) ? '' : ' animals'}`;
+    });
+    const heaps = new Map<number, string>();
+    for (const id of ent.with(C.Tame)) if (ent.get(id, C.Tame)?.curled === true) {
+      const t = w.game.movement.tileOf(id);
+      heaps.set(t, w.readers.entities.at(t).filter((o) => ent.kind(o) === 'creature').map(name).join(' '));
+    }
+    lines.push(`day ${Math.floor(w.tick / TICKS_PER_DAY)} living ${living} deaths ${deaths} tames ${ent.with(C.Tame).length} alert ${w.game.world.fortress.alert} heaps ${[...heaps].map(([t, s]) => `${t}[${s}]`).join(' ') || '-'} crowded ${crowded.join(' ') || '-'}`);
+  };
+  let next = 30 * TICKS_PER_DAY;
+  while (w.tick < DAYS * TICKS_PER_DAY) {
+    playThreeYears(w, state, 300);
+    checks();
+    const day = w.tick / TICKS_PER_DAY;
+    if (day >= WATCH_FROM && day < WATCH_TO) {
+      const combat = w.readers.of<CombatReader>('16');
+      const hall = new Set(buildings.hearthHallTiles());
+      const hostiles = ent.with(C.Creature).filter((id) => String(ent.get(id, C.Creature)?.faction).startsWith('hostile') && w.game.movement.tileOf(id) >= 0);
+      const targets = new Map<string, number>();
+      for (const h of hostiles) {
+        const t = combat.targetOf(h);
+        const k = t === 0 ? 'none' : ent.kind(t) === 'creature' ? name(t) : 'other';
+        targets.set(k, (targets.get(k) ?? 0) + 1);
+      }
+      const exits = [...hall].filter((t) => w.game.map.neighbors8(t).some((n) => !hall.has(n) && w.readers.pathing.passable(n, 'walker')));
+      const near = hostiles.map((h) => w.game.movement.tileOf(h)).filter((t) => [...hall].some((x) => w.game.map.zOf(x) === w.game.map.zOf(t) && Math.max(Math.abs(w.game.map.xOf(x) - w.game.map.xOf(t)), Math.abs(w.game.map.yOf(x) - w.game.map.yOf(t))) <= 6));
+      if (exits.length > 0) lines.push(`  exits ${exits.join(',')} hostiles within 6 of the hall ${near.join(',')} hall ${Math.min(...hall)}..${Math.max(...hall)} n ${hall.size}`);
+      const inHall = hostiles.filter((h) => hall.has(w.game.movement.tileOf(h))).length;
+      const doors = buildings.byType('door').map((id) => buildings.get(id)).filter((b) => b?.state === 'built').map((b) => `${b!.origin}${hall.has(b!.origin) || w.game.map.neighbors(b!.origin).some((n) => hall.has(n)) ? 'H' : ''}`);
+      const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const tames = ent.with(C.Tame).map((id) => `${name(id)}@${w.game.movement.tileOf(id)}`).join(' ');
+      const dwarvesInHall = ent.with(C.Labors).filter((id) => hall.has(w.game.movement.tileOf(id))).length;
+      const zs = ent.with(C.Labors).map((id) => w.game.map.zOf(w.game.movement.tileOf(id))).sort((a, b) => a - b).join(',');
+      lines.push(`  t ${w.tick} alert ${w.game.world.fortress.alert} dwarvesInHall ${dwarvesInHall} z ${zs} hostileZ ${[...new Set(hostiles.map((h) => w.game.map.zOf(w.game.movement.tileOf(h))))].join(',')} living ${living} hostiles ${hostiles.length} inHall ${inHall} targets ${JSON.stringify(Object.fromEntries(targets))} hallDoors ${doors.filter((d) => d.endsWith('H')).join(',')} tames ${tames}`);
+    }
+    if (w.tick >= next) {
+      next += 10 * TICKS_PER_DAY;
+      look();
+    }
+  }
+  unsub();
+  console.log(lines.join('\n'));
+}, 7_200_000);
