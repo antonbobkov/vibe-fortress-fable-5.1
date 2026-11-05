@@ -342,7 +342,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   MonsterSpawned: "id, cavern / ids[], tile",
   MonsterEmerged: "id, cavern / ids[], tile",
   DeepStirred: "level",
-  HostileFled: "id",
+  HostileFled: "id[, nerve, species]",
   DoorBreakAttempt: "id, doorId",
   RestlessRose: "count",
   WebSpun: "tiles[]",

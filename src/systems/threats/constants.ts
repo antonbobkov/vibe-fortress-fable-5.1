@@ -25,6 +25,28 @@ export const LOOT_RADIUS = 6;
 export const LOITER_DAYS_RAID = 2;
 export const LOITER_DAYS_SIEGE = 5;
 export const RETREAT_LOSS_PERCENT = 50;
+/** 18 § Morale: a party's morale on arrival, by purpose; a purpose not named has none. */
+export const MORALE_START: Readonly<Partial<Record<string, number>>> = { siege: 100, raid: 90, ambush: 75, bandits: 60 };
+/** A party breaks when its morale falls to this. */
+export const MORALE_BREAK = 20;
+/** A party that has lost every captain it arrived with breaks below this once it is out of a fight. */
+export const MORALE_BREAK_LEADERLESS = 50;
+/** Morale a member's casualty costs, for a party of ten (scaled by 10 / members); its worst counts. */
+export const MORALE_CASUALTY = { fled: 5, down: 8, caged: 10, dead: 10 } as const;
+/** Morale the loss of the party's last captain costs, once. */
+export const MORALE_CAPTAIN_LOST = 30;
+/** Morale a trap that springs on a member and does not miss costs. */
+export const MORALE_TRAP = 3;
+/** Morale a hit from one of its own costs (a careless archer's arrow). */
+export const MORALE_OWN_FIRE = 2;
+/** Morale a fortress creature killed or downed by a member gives. */
+export const MORALE_FOE_FELLED = 5;
+/** Morale an item of loot picked up gives. */
+export const MORALE_LOOT = 2;
+/** A raider's nerve (the morale below which it runs) is its species' `fleeBloodPercent` less this, plus its spread. */
+export const NERVE_BELOW_FLEE_BLOOD = 20;
+/** The spread of nerve between raiders of one species: 0 .. NERVE_SPREAD - 1, from the entity id. */
+export const NERVE_SPREAD = 20;
 export const RETREAT_STUCK_TICKS = 600;
 export const RETREAT_GIVE_UP_DAYS = 2;
 export const SPOT_RADIUS = 6;

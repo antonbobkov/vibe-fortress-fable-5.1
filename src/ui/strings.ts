@@ -1348,6 +1348,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.threat_warning': 'Gloam scouts have been seen at the {edge} edge. They will come tomorrow.',
   'announce.raid_arrived': 'A raid has arrived!',
   'announce.raid_ended': 'The raid has ended.',
+  'announce.raider_lost_nerve': '{raider} has lost its nerve and runs.',
   'announce.thief_spotted': 'A thief has been spotted!',
   'announce.thief_escaped': 'A thief has escaped with stolen goods!',
   'announce.ambush_sprung': 'An ambush has been sprung!',

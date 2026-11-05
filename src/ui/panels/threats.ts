@@ -110,7 +110,9 @@ export function drawThreatsPanel(
       if (row >= rect.row + rect.rows) break;
       const p = threats?.party(pId);
       if (p) {
-        label(s, col, row, `Active: ${p.purpose} (${p.members.length}, ${p.state})`, { fg: t.bad, width });
+        // 18 § Morale: the party's morale in words, while it has not broken.
+        const morale = p.state === 'retreat' ? '' : threats?.moraleWord(pId) ?? '';
+        label(s, col, row, `Active: ${p.purpose} (${p.members.length}, ${p.state}${morale === '' ? '' : `, ${morale}`})`, { fg: t.bad, width });
         row += 1;
       }
     }

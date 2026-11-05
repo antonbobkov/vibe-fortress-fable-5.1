@@ -6,11 +6,14 @@ import { C, type Party } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { EntityId } from '@core/types';
 import type { ThreatScheduleEntry } from './schedule';
+import { hasMorale, moraleOf, moraleWord, type MoraleWord } from './morale';
 
 export interface ThreatsReader {
   activeParties(): readonly EntityId[];
   party(id: EntityId): Party | undefined;
   partyOf(creatureId: EntityId): Party | undefined;
+  /** 18 § Morale: a party's morale in words ('' for a party without morale or no party). */
+  moraleWord(partyId: EntityId): MoraleWord | '';
   isHostile(id: EntityId): boolean;
   isStealthed(id: EntityId): boolean;
   isSpotted(id: EntityId): boolean;
@@ -46,6 +49,10 @@ export function makeThreatsReader(
     partyOf: (creatureId: EntityId) => {
       const h = entities.get(creatureId, C.Hostile);
       return h && h.partyId !== 0 ? entities.get(h.partyId, C.Party) : undefined;
+    },
+    moraleWord: (partyId: EntityId) => {
+      const p = entities.get(partyId, C.Party);
+      return p !== undefined && hasMorale(p) ? moraleWord(moraleOf(p)) : '';
     },
     isHostile: (id: EntityId) => entities.has(id, C.Hostile),
     isStealthed: (id: EntityId) => entities.get(id, C.Hostile)?.stealthed === true,
