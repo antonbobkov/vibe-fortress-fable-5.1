@@ -9,7 +9,8 @@ Bring danger on a schedule the player can read, scaled by the region's peril and
 ## Concepts
 
 - **Threat kind**: `thief`, `bandits`, `ambush`, `raid`, `siege`, `restless_dead`, `cavern_spawn`, `hollow_emergence`.
-- **Party**: a group of hostiles with a leader, a purpose, a goal, a state and loot.
+- **Party**: a group of hostiles with a leader, a purpose, a goal, a state, a morale and loot.
+- **Morale and nerve**: a party's will to fight, 0 to 100, which breaks it when it falls; each raider's nerve is the morale below which it runs on its own (§ Morale).
 - **Schedule**: per peril rating, when each kind may first happen and how often (`threat-schedules.md`).
 - **Renown**: the fortress's threat-scaling score from wealth and population.
 - **Stealth**: a creature not drawn or detected until within spotting range and line of sight of a dwarf or trained guard animal, or a trap triggers.

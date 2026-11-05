@@ -127,11 +127,11 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `HostileSpawned` | `id, partyId` | 18 | 16 |
 | `MonsterSpawned` / `MonsterEmerged` | `id, cavern` / `ids[], tile` | 18 | ui; 25 (`MonsterEmerged`: the `deep` draughts) |
 | `DeepStirred` | `level` | 18 | 15, 25 (the `deep` draughts), ui |
-| `HostileFled` | `id` | 18 | ui (none) |
+| `HostileFled` | `id[, nerve, species]` | 18 | ui (a note when `nerve`: a raider that lost its nerve, 18 § Morale) |
 | `DoorBreakAttempt` | `id, doorId` | 18 | 14 |
 | `RestlessRose` | `count` | 18 | ui |
 | `WebSpun` | `tiles[]` | 18 | 03 (flag), 23 |
-| `TrapTriggered` / `TrapSpent` / `TrapJammed` / `TrapRearmed` | `trapId[, creatureId, kind, outcome]` | 19 | 08 (cage), 18 (spotting), ui |
+| `TrapTriggered` / `TrapSpent` / `TrapJammed` / `TrapRearmed` | `trapId[, creatureId, kind, outcome]` | 19 | 08 (cage), 18 (spotting, morale), ui |
 | `CreatureCaged` | `creatureId, cageItemId` | 19 | 08, 13, 18, ui |
 | `MechanismTriggered` | `sourceId, on` | 19 | 14 |
 | `CaravanArrived` / `CaravanWaiting` / `CaravanAtDepot` / `CaravanDeparted` / `CaravanLost` / `CaravanAttacked` | `civ[, …]` | 20 | 15 (arrived), 18 (attacked → nothing; reputation in 20), ui |
