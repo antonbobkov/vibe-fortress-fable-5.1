@@ -15,12 +15,12 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | Fearsome is a trade-off | A frightened foe runs, soldiers chase it and swing less; a squad with fearsome axes can do worse in the open | [25](02-systems/25-runecraft.md) § Enchantments | Not removable by this rule: the owner's call (T-485) |
 | Stoutness against bleeding | A draught of stoutness halves pain and does nothing for a soldier who is bleeding out | 25 § Draughts | Owner's view on trade-offs; keep |
 | Daze on a captain | A runecaster can stun a raid's captain again each time it wakes | 25 § Spells | T-477's balance pass may limit it |
+| Careless shooters | A shooter with an ally on its line holds, unless it is careless this time: 50% at skill 0, 5% less a level, never from Proficient. Raid archers (skill 6) pepper their own front, apprentice casters singe their squad, Novice marksdwarves and hunters shoot past their own, veterans hold | [16](02-systems/16-combat.md) § Ranged resolution, Held shot; 25 § Casting | `carelessThisTime` in `combat/clear-shot.ts` and `CARELESS_*` in 16; with them gone every shooter always holds |
 
 ## Planned
 
 | Feature | Task | Report item |
 |---|---|---|
-| Careless shooters: a shooter below Proficient sometimes fires through an ally on the line; goblin archers pepper their own front, apprentices singe their own squad, veterans are careful | [T-483](work/T-483-marksdwarf-friendly-fire.md) | 1, 3 and the owner's example |
 | Pets pile on a favourite spot by the hearth, off the main path | [T-482](work/T-482-tame-animal-stale-walk.md) | 2 |
 | Runecraft flavour pass: `rune_sick` from a desperate fourth vial; `dosed_again` from an early second calming draught; `blaze` sets the target's tile alight; `saw_wisp`; the firebloom's flash; a turned shade that hides; `lab_stink` after a spoiled batch; the Wildwood offended by staffs | [T-491](work/T-491-runecraft-flavour-pass.md) | 4, 5, 6, 9, 10, 14, 15, 16 |
 | Remains and venom: `venomed` blades from giant cave spider venom; the ember newt's gland as an `ember` stone; knapped obsidian and bone blades | [T-492](work/T-492-remains-venom-and-knapped-blades.md) | 7, 8, 11 |
