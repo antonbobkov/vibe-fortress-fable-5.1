@@ -61,7 +61,7 @@ shoot(s, t):
   cooldownUntil[s] = tick + crowdTicks(max(MIN_ATTACK_COOLDOWN, L.size*3 + 10 - agi(s)/10), crowdPercentAt(tile(s)))
   spawn Projectile { itemId: ammoItem, from: pos(s), to: pos(t), line: bresenham(pos(s), extend(pos(s), pos(t), L.range)), progress: 0, shooterId: s, targetId: t, hitRoll: rng.int(0,99) < hit, damage: ammoDef.damage * L.power * (metalCrossbow ? 1.083 : 1) * metal(ammo).weaponMult, damageType: ammoDef.damageType }
   emit ProjectileFired; xp(s, L.skill, 1)
-heldShot(s, t): t if no creature of faction(s) stands on bresenham(pos(s), extend(pos(s), pos(t), L.range)) before t; else the nearest other hostile in range and sight with a clear ray (distance, then id); else 0 (wait). Natural ranged attacks skip it. 16 § Ranged resolution, Held shot
+heldShot(s, t): t if no creature of faction(s) stands on bresenham(pos(s), extend(pos(s), pos(t), L.range)) before t; else t if carelessThisTime(stream of s, skill(s, L.skill)) (one draw when careless% > 0; stream 25 for a channel, 16 otherwise); else the nearest other hostile in range and sight with a clear ray (distance, then id); else 0 (wait; after a draw, cooldownUntil[s] = tick + the shot's cooldown). Natural ranged attacks skip it. 16 § Ranged resolution, Held shot
 advanceProjectiles(): for p in projectiles (ascending id):
   p.progress += PROJECTILE_SPEED * 1000
   while p.progress >= 1000 and p.line non-empty:

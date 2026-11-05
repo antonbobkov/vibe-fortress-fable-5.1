@@ -29,6 +29,10 @@ export const ARMOR_MIN_SPEED_PERCENT = 60;
 export const CREATURE_ATTRIBUTE_DEFAULT = 50;
 export const CREATURE_BASE_SKILL = 2;
 export const HOSTILE_SKILL_PER_TIER = 2;
+/** Percent chance at skill 0 that a shooter fires through an ally on its line (§ Ranged resolution, Held shot). */
+export const CARELESS_SHOT_PERCENT = 50;
+/** The shooting skill from which a shooter is never careless; the chance falls evenly to it. */
+export const CARELESS_SAFE_SKILL = 10;
 
 /**
  * Quality multipliers for combat equipment (weapons and armor).

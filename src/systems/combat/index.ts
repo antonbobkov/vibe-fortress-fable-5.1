@@ -27,8 +27,8 @@ import {
   TARGET_LOSE_TICKS,
 } from './constants';
 import { isCreatureHostile, isFactionHostile } from './factions';
-import { resolveMelee, weaponOf } from './melee';
-import { advanceProjectiles, bresenhamRay, findAmmoForShooter, fireRanged, lineOfSightRanged } from './ranged';
+import { getSkill, resolveMelee, weaponOf } from './melee';
+import { advanceProjectiles, bresenhamRay, findAmmoForShooter, fireRanged, lineOfSightRanged, shotCooldownTicks } from './ranged';
 import { makeCombatReader, type CombatReader } from './reader';
 import {
   createSquad,
@@ -53,7 +53,7 @@ import { kitingTile } from './kiting';
 import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
 import { canCastBolt, castSupport, drinkVial, heldSpellKind, otherBoltTarget, runeCovers, type CastHost } from '@systems/magic/cast';
-import { allyOnLine, nearestClearTarget, type RayTo } from './clear-shot';
+import { allyOnLine, carelessThisTime, nearestClearTarget, type RayTo } from './clear-shot';
 import { CASTER_HOLD_DISTANCE } from '@systems/magic/constants';
 import { stepFled } from './fled';
 
@@ -275,14 +275,35 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     const rayTo = this.rayFrom(ctx, from, launcher.range);
     const held = rayTo(target);
     if (held !== null && !allyOnLine(ctx, id, held.tile, held.ray)) return target;
+    // An ally on the line: one draw on the shooter's own stream decides whether it is careless.
+    const weigh = held === null ? { drew: false, careless: false } : this.weighShot(ctx, id, w, channel);
+    if (weigh.careless) return target;
     const isHostile = (a: EntityId, b: EntityId): boolean => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e));
-    if (channel) return otherBoltTarget(ctx, id, w, target, isHostile, rayTo);
-    return nearestClearTarget(ctx, id, target, launcher.range, isHostile, () => true, rayTo, true);
+    const other = channel
+      ? otherBoltTarget(ctx, id, w, target, isHostile, rayTo)
+      : nearestClearTarget(ctx, id, target, launcher.range, isHostile, () => true, rayTo, true);
+    if (other === 0 && weigh.drew) this.holdAim(ctx, id, w);
+    return other;
+  }
+
+  /**
+   * § Ranged resolution, Held shot: the one draw of a shooter with an ally on its line, on 16's
+   * stream for a launcher with ammunition and on 25's for a caster, by its shooting skill.
+   */
+  private weighShot(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, channel: boolean): { drew: boolean; careless: boolean } {
+    const skill = w === null ? 0 : getSkill(ctx.world.entities, ctx.registry, id, w.weaponDef.skill);
+    return carelessThisTime(channel ? ctx.world.rngFor('25') : this.rng, skill);
+  }
+
+  /** A careful shooter that weighed a shot and holds it takes aim again one attack cooldown later. */
+  private holdAim(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>): void {
+    this.targets.cooldownUntil.set(id, ctx.tick + shotCooldownTicks(ctx, id, w?.weaponDef.size ?? 0));
   }
 
   /**
    * A launcher with ammunition shooting at `target` would send its missile past one of the
-   * shooter's own faction (§ Ranged resolution). A natural ranged attack has no such rule.
+   * shooter's own faction and is held (§ Ranged resolution). A shooter weighs such a shot only once
+   * its attack cooldown has elapsed; a careless one fires. A natural ranged attack has no such rule.
    */
   private shotHeld(ctx: TickContext, shooterId: EntityId, target: EntityId): boolean {
     const entities = ctx.world.entities;
@@ -292,7 +313,12 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     const pos = entities.get(shooterId, C.Position);
     if (pos === undefined) return false;
     const line = this.rayFrom(ctx, ctx.world.map.index(pos.x, pos.y, pos.z), launcher.range)(target);
-    return line !== null && allyOnLine(ctx, shooterId, line.tile, line.ray);
+    if (line === null || !allyOnLine(ctx, shooterId, line.tile, line.ray)) return false;
+    if ((this.targets.cooldownUntil.get(shooterId) ?? 0) > ctx.tick) return true;
+    const weigh = this.weighShot(ctx, shooterId, w, false);
+    if (weigh.careless) return false;
+    if (weigh.drew) this.holdAim(ctx, shooterId, w);
+    return true;
   }
 
   /**

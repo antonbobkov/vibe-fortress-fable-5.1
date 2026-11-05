@@ -200,7 +200,8 @@ describe('T-479 a hexer', () => {
     const w = arena('t479-line');
     const target = guard(w, 30, 37);
     const at = w.index(30, 30, Z);
-    const h = hexer(w, raidParty(w, at), at);
+    // A siege's hexer (tier 4, runecraft 10) is never careless (16 § Ranged resolution, Held shot).
+    const h = hexer(w, raidParty(w, at), at, 4);
     // A gloam archer of no party, idle, between the hexer and its target.
     const archer = w.spawnCreature('gloam_archer', w.index(30, 33, Z), 'hostile:gloam');
     w.game.world.services.combat?.setTarget(h, target);

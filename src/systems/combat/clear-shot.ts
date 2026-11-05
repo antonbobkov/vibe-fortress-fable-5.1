@@ -3,13 +3,35 @@
  *
  * A shooter with a launcher, ammunition or a channel's bolt (25 § Casting), holds its shot while a
  * creature of its own faction stands on the projectile's ray before the target, and shoots the
- * nearest other hostile it can reach with a clear line, or waits. Nothing here draws: the check is
- * made at the shot, so friendly fire stays real after it.
+ * nearest other hostile it can reach with a clear line, or waits, unless it is careless this time:
+ * below `CARELESS_SAFE_SKILL` in its shooting skill, one draw decides whether it fires through.
+ * The line check itself draws nothing, so friendly fire after the shot stays real.
  */
 
 import { C } from '@core/components';
+import type { RngStream } from '@core/rng';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
+import { CARELESS_SAFE_SKILL, CARELESS_SHOT_PERCENT } from './constants';
+
+/**
+ * The percent chance that a shooter at `skill` fires through an ally on its line: `CARELESS_SHOT_PERCENT`
+ * at skill 0, falling evenly to 0 at `CARELESS_SAFE_SKILL` (50, 45, … 5, 0 at the defaults).
+ */
+export function carelessPercent(skill: number): number {
+  if (skill >= CARELESS_SAFE_SKILL) return 0;
+  return Math.floor((CARELESS_SHOT_PERCENT * (CARELESS_SAFE_SKILL - Math.max(0, skill))) / CARELESS_SAFE_SKILL);
+}
+
+/**
+ * The one draw of a shooter with an ally on its line, on the shooter's own system stream (16 for a
+ * launcher with ammunition, 25 for a caster). Nothing is drawn when the chance is 0.
+ */
+export function carelessThisTime(rng: RngStream, skill: number): { drew: boolean; careless: boolean } {
+  const percent = carelessPercent(skill);
+  if (percent <= 0) return { drew: false, careless: false };
+  return { drew: true, careless: rng.int(0, 99) < percent };
+}
 
 /** A candidate's tile and 16's projectile ray toward it, or null when there is no line of sight. */
 export type RayTo = (target: EntityId) => { tile: TileIndex; ray: readonly TileIndex[] } | null;
