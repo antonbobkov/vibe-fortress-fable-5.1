@@ -21,7 +21,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-498 | [A careful shooter waits behind its own line instead of finding a clear one](work/T-498-held-shooter-clear-line.md) | T-483's arena and sweep | — | open |
 | T-499 | [Re-measure the raid arenas now that archers weigh their shots](work/T-499-raid-arenas-after-held-shot.md) | T-483's arena and sweep | — | open |
 | T-500 | [The Warband's hunter never takes a hunt in pp_defence](work/T-500-warband-hunt-no-tool.md) | T-483's arena and sweep | — | open |
-| T-501 | [A siege stays engaged for days with fortress dogs it cannot strike](work/T-501-siege-engaged-with-dogs.md) | T-483's arena and sweep | — | open |
 | T-502 | [A soldier on `hold` who is off its station with a target stays where it is](work/T-502-hold-soldier-off-station.md) | T-493's arena | — | open |
 | T-503 | [`defence_year`'s script zones an archery range over a tile another zone holds](work/T-503-defence-script-archery-range-overlap.md) | T-466's report | — | open |
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |

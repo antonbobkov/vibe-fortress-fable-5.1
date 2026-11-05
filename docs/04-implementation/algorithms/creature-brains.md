@@ -180,11 +180,15 @@ partyThink(P):
   switch P.state:
     approach: for a thief, chooseGoal each threats tick; if no quarry, wait hidden at arrival, then retreat with withdrew at THIEF_WAIT_DAYS after arrival; reaching an empty goal never counts as theft; return
               goal = chooseGoal(P); if goal unreachable: P.goalTile = pathing.nearestReachable(leaderPos, hearthTile, cls, 3000); P.state = 'loiter'? (only after reaching the nearest tile)
-              if any revealed ambush member (or any member of another non-thief party) perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
+              if not P.stalled and any revealed ambush member (or any member of another non-thief party) perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
               else if leader on or adjacent to goal (except thieves and restless dead): begin goalIdleSince if absent; after ENGAGE_IDLE_TICKS enter loiter
               else: clear goalIdleSince
     engage:   if no member has a target for ENGAGE_IDLE_TICKS: P.state = 'approach'
-    loiter:   if tick - P.stateSince > LOITER_DAYS(P.purpose) * TICKS_PER_DAY: P.state = 'retreat'; outcome = P.loot.length ? 'looted' : 'withdrew'
+              else (not the restless dead): P.blowSince = max(P.blowSince ?? tick, each member's 16 lastEngagementTick, tick if a member breaks a door)
+                if tick - P.blowSince >= ENGAGE_STALL_TICKS: P.state = 'loiter'; P.stalled = true   // it sees what it cannot strike
+              (out of engage, P.blowSince is cleared)
+    loiter:   if not P.stalled and a member perceives a reachable fortress creature: P.state = 'engage'
+              if tick - P.stateSince > LOITER_DAYS(P.purpose) * TICKS_PER_DAY: P.state = 'retreat'; outcome = P.loot.length ? 'looted' : 'withdrew'
     retreat:  if all members despawned or dead: P.state='gone'; emit RaidEnded{outcome}
 chooseGoal(P): thief → most valuable reachable unattended item / small tame animal (outdoors preferred); bandits → nearest stockpile tile; ambush → nearest outdoor dwarf; raid/siege → hearth tile (or wagon, or nearest fortress building)
 memberThink(m): P = party(m); H = Hostile[m]
@@ -196,7 +200,7 @@ memberThink(m): P = party(m); H = Hostile[m]
                            if at any edge: despawn (loot goes with them: ThiefEscaped per item); otherwise walk to the selected exit; return
   if P has morale and P.state != 'retreat' and not H.nerveLost and P.morale < nerve(m): H.nerveLost = true; drop m's loot on its tile; emit HostileFled{nerve: true}; morale -= the fled share; check the party
   if (H.nerveLost or blood(m) < fleeBlood(species)) and P.purpose != 'restless' and faction != 'deep': flee to edge (a flight's first tick costs the fled share); emit HostileFled; return
-  target = nearest fortress creature within perception (archers prefer soldiers; reachability by m's own movement class); keep combat.targetOf(m) instead while it is still a valid choice no farther than target (an archer still trades a non-soldier for a soldier); if target: combat.setTarget(m, target); return
+  target = nearest fortress creature within perception (archers prefer soldiers; reachability by m's own movement class); keep combat.targetOf(m) instead while it is still a valid choice no farther than target (an archer still trades a non-soldier for a soldier); if target: combat.setTarget(m, target); a reachable target takes an approaching or (non-archer) loitering party that has not stalled into engage; return
   if combat.targetOf(m) != 0: return        // a held target survives losing sight of it; 16 drops it
   if P.state in {engage, loiter}: if breaksDoors(m) and adjacent locked door on the way to the goal: emit DoorBreakAttempt each tick (14 counts DOOR_BREAK_TICKS); return
                                   if item within LOOT_RADIUS unattended and m carries nothing: pick up (P.loot.push); return

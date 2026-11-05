@@ -81,7 +81,7 @@ A raid that has won in the open and lost its captain goes home without loiter, s
 | 4 (5 counted) | 61 / 230 | **61 / 230** |
 | All | 121 / 902 in nineteen | **121 / 902** in nineteen |
 
-Every counted seed has the reference's year-1 and year-3 populations and deaths. Set rule: alive at year 1 **19 / 19** (needs 18), peril-0 grown **7 / 7** (needs 6), peril-0 seeds with need deaths **0** (at most 1); it holds. The summary job marks the run failed because `p4-3` produced no result: it stops on tick 235,200 on `party.active-over-10d`, the siege that stays engaged with two fortress dogs ([T-501](../../docs/work/T-501-siege-engaged-with-dogs.md)), as in the reference. No raid or siege in these fortresses lost its captains outside a fight before it ended: their raids meet a locked gate with the captain alive, and loot or withdraw as before.
+Every counted seed has the reference's year-1 and year-3 populations and deaths. Set rule: alive at year 1 **19 / 19** (needs 18), peril-0 grown **7 / 7** (needs 6), peril-0 seeds with need deaths **0** (at most 1); it holds. The summary job marks the run failed because `p4-3` produced no result: it stops on tick 235,200 on `party.active-over-10d`, the siege that stays engaged with two fortress dogs ([T-501](../../docs/archive/tasks/T-501-siege-engaged-with-dogs.md)), as in the reference. No raid or siege in these fortresses lost its captains outside a fight before it ended: their raids meet a locked gate with the captain alive, and loot or withdraw as before.
 
 ## Fun
 
