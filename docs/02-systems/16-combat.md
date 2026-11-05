@@ -109,7 +109,7 @@ Line of sight (22): a Bresenham line on the same z-level with no wall, door, tre
 - Squad members on duty do not flee.
 - Animals and hostiles flee at their species' `fleeBloodPercent` of blood, or at `FLEE_BLOOD_PERCENT` when the species has none, or when 18 orders a retreat. An `aggressive` species with no value of its own and the `deep` faction never flee.
 - Fleeing creatures move away from all visible enemies; hostiles fleeing head for their arrival edge.
-- A creature under a `flee` effect (25's Dread) keeps its target and does not attack; it walks to the tile `FLEE_EFFECT_TILES` from the effect's source through itself, clamped to the map, or with no path there to the nearest tile of its party's arrival edge, and comes back when the effect ends. It stays on the map, so its party counts no loss for it. It is fleeing for the hit, parry and block rules.
+- A creature under a `flee` effect (25's Dread, or a fearsome blow) keeps its target and does not attack; it walks to the tile `FLEE_EFFECT_TILES` from the effect's source through itself, clamped to the map, or with no path there to the nearest tile of its party's arrival edge, and comes back when the effect ends. It stays on the map, so its party counts no loss for it. It is fleeing for the hit, parry and block rules. A dwarf, a soldier on duty included, runs the same way by 10's brain (10 § Behavior selection, Dread): it drops its target and its job, its squad does not move it or give it a target while it runs, and has it again when the effect ends.
 
 ### Threat detection
 
