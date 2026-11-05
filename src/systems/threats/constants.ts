@@ -21,6 +21,8 @@ export const THIEF_WAIT_DAYS = 1;
 export const THIEF_APPROACH_DAYS = 2;
 export const FOLLOW_RADIUS = 4;
 export const ENGAGE_IDLE_TICKS = 150;
+/** 18 § Engage: an engaged party none of whose members strikes a blow this long loiters, and stays out of the fight (unmeasured). */
+export const ENGAGE_STALL_TICKS = 600;
 export const LOOT_RADIUS = 6;
 export const LOITER_DAYS_RAID = 2;
 export const LOITER_DAYS_SIEGE = 5;

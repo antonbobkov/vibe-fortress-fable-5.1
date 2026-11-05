@@ -1,8 +1,10 @@
 # T-501 — A siege stays engaged for days with fortress dogs it cannot strike
 
-**Source:** [the careless-shooter arena](../../reports/audits/2026-11-04-t483-careless-shooter-arena.md) § The twenty-seed file · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in 0c873fe3,66611af9,31e2e2d6.
 
-The specification is [18 Threats](../02-systems/18-threats-monsters-and-raids.md) § Party AI (engage, loiter, retreat) and [16 Combat](../02-systems/16-combat.md) § Targeting.
+**Source:** [the careless-shooter arena](../../../reports/audits/2026-11-04-t483-careless-shooter-arena.md) § The twenty-seed file · **Size:** M · **Needs:** — · **Status:** open
+
+The specification is [18 Threats](../../02-systems/18-threats-monsters-and-raids.md) § Party AI (engage, loiter, retreat) and [16 Combat](../../02-systems/16-combat.md) § Targeting.
 
 ## What was found
 
