@@ -48,7 +48,7 @@ export function effectAtTier(effect: EnchantEffect, tier: number): EnchantEffect
 }
 
 /** The enchantment of an item, or undefined for an item with none (or no `enchants` table). */
-export function enchantOfItem(entities: EntityStore, registry: Registry, itemId: EntityId): EnchantView | undefined {
+export function enchantOfItem(entities: EntityGet, registry: Registry, itemId: EntityId): EnchantView | undefined {
   const enchant = entities.get(itemId, C.Item)?.enchant;
   if (enchant === undefined || !registry.hasTable('enchants')) return undefined;
   const row = registry.table<EnchantDef>('enchants').byIndex(enchant.id);
@@ -62,6 +62,9 @@ export function enchantOfItem(entities: EntityStore, registry: Registry, itemId:
   };
 }
 
+/** What the item lookups need of an entity store: get, so a frame's `readers.entities` serves too. */
+export type EntityGet = Pick<EntityStore, 'get'>;
+
 const NO_EFFECTS: readonly EnchantEffectView[] = Object.freeze([]);
 
 /**
@@ -69,7 +72,7 @@ const NO_EFFECTS: readonly EnchantEffectView[] = Object.freeze([]);
  * for item 0 and for an item with none. That is decided by `Item.enchant` alone, so an unenchanted
  * fight looks nothing more up.
  */
-export function itemEnchantEffects(entities: EntityStore, registry: Registry, itemId: EntityId): readonly EnchantEffectView[] {
+export function itemEnchantEffects(entities: EntityGet, registry: Registry, itemId: EntityId): readonly EnchantEffectView[] {
   if (itemId === 0 || entities.get(itemId, C.Item)?.enchant === undefined) return NO_EFFECTS;
   return enchantOfItem(entities, registry, itemId)?.effects ?? NO_EFFECTS;
 }
@@ -84,7 +87,7 @@ export function effectSum(effects: readonly EnchantEffectView[], kind: string): 
 const WORN_SLOTS = ['head', 'body', 'arms', 'legs', 'feet'] as const;
 
 /** The effects of every enchanted piece in the creature's armor slots, head to feet; empty with none. */
-export function wornEnchantEffects(entities: EntityStore, registry: Registry, id: EntityId): readonly EnchantEffectView[] {
+export function wornEnchantEffects(entities: EntityGet, registry: Registry, id: EntityId): readonly EnchantEffectView[] {
   const equip = entities.get(id, C.Equipment);
   if (equip === undefined) return NO_EFFECTS;
   let out: EnchantEffectView[] | undefined;
@@ -101,7 +104,7 @@ export function wearsSlowImmune(entities: EntityStore, registry: Registry, id: E
 }
 
 /** A worn piece lights its wearer's 3×3 (`light`). */
-export function wearsLight(entities: EntityStore, registry: Registry, id: EntityId): boolean {
+export function wearsLight(entities: EntityGet, registry: Registry, id: EntityId): boolean {
   return wornEnchantEffects(entities, registry, id).some((e) => e.kind === 'light' && e.value > 0);
 }
 
@@ -110,7 +113,7 @@ export function wearsLight(entities: EntityStore, registry: Registry, id: Entity
  * the tile lies in a worn light's 3×3 (07's `glow` rule reads it beside the lamps). `at` is the
  * spatial index's `readers.entities.at`; nothing is kept between calls.
  */
-export function wornLightAt(map: Map3D, at: (i: TileIndex) => readonly EntityId[], entities: EntityStore, registry: Registry,
+export function wornLightAt(map: Map3D, at: (i: TileIndex) => readonly EntityId[], entities: EntityGet, registry: Registry,
   tile: TileIndex): boolean {
   for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
     const t = map.offset(tile, dx, dy, 0);

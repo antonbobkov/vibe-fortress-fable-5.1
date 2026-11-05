@@ -15,6 +15,9 @@ import type { EnchantDef } from '@content/generate';
 import type { BuildingsReader } from '@systems/buildings';
 import { wornLightAt } from '@systems/magic/enchant';
 import type { PlantsReader } from '@systems/plants';
+import { loadContent } from '@content/loader';
+import { Compositor } from '@render/compositor';
+import { Palette } from '@render/palette';
 import { TestWorld } from '../../scenarios/test-world';
 
 const registry = contentRegistry();
@@ -146,5 +149,36 @@ describe('T-494 a glowing wearer lights its 3×3', () => {
     expect(w.readers.of<PlantsReader>('07').plotKind(zoneId)).toBe('cave');
     expect(w.game.world.applyCommand({ type: 'SetPlotCrop', zoneId, season: 0, speciesId: 'glowcap' }))
       .toEqual({ ok: false, reason: 'light_mismatch' });
+  });
+});
+
+describe('T-494 the view shows a glowing wearer\'s light', () => {
+  it('the wearer\'s tile on glow_core, its eight neighbours on glow_halo, on its level; it follows; none without the piece', () => {
+    const w = arena('t494-render');
+    const dwarf = w.spawnDwarf({ at: w.index(30, 30, Z) });
+    // By day, so step 9 does not dim the surface (underground is never dimmed).
+    w.until((x) => x.readers.calendar.isDaylight, 3000);
+    teleport(w, dwarf, w.index(30, 30, Z));
+    const content = loadContent();
+    const palette = new Palette(content);
+    const compositor = new Compositor({ registry: content, palette });
+    const draw = (x: number, y: number): number => compositor.compose(w.readers, { camX: x, camY: y, z: Z,
+      sidebarOpen: false, cursor: null, animFrame: 0 }, 3, 8).get(0, 0).bg;
+    const core = palette.color('glow_core');
+    const halo = palette.color('glow_halo');
+    const before = [draw(30, 30), draw(31, 31), draw(32, 30)];
+    expect(before).not.toContain(core);
+    expect(before).not.toContain(halo);
+    wearBreastplate(w, dwarf, 'stout');
+    expect([draw(30, 30), draw(31, 31)]).toEqual(before.slice(0, 2));
+
+    wearBreastplate(w, dwarf, 'glowing');
+    expect(draw(30, 30)).toBe(core);
+    expect([draw(29, 29), draw(31, 31), draw(30, 29), draw(29, 30)]).toEqual([halo, halo, halo, halo]);
+    expect(draw(32, 30)).toBe(before[2]);
+
+    teleport(w, dwarf, w.index(40, 30, Z));
+    expect([draw(31, 31), draw(32, 30)]).toEqual(before.slice(1));
+    expect([draw(40, 30), draw(41, 31)]).toEqual([core, halo]);
   });
 });
