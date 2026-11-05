@@ -115,26 +115,29 @@ describe('T-504 raid morale and raider nerve', () => {
     const captain = P().captainIds![0]!;
     expect(nerves.find((n) => n.m === captain)!.nerve).toBeLessThan(0);
     const coward = nerves.filter((n) => n.m !== captain).sort((a, b) => b.nerve - a.nerve || a.m - b.m)[0]!;
-    // Hand the coward a log, then set morale just below its nerve and above every other's.
+    // Hand the coward a log, then set morale just below its nerve, above every other raider's.
     const log = w.spawnItem('log', 'oak', w.index(40, 20, Z));
     w.game.world.services.items!.attachToCarrier(log, coward.m);
     P().loot.push(log);
     const next = nerves.filter((n) => n.m !== coward.m && n.m !== captain).reduce((a, n) => Math.max(a, n.nerve), -1);
-    P().morale = Math.max(next + 6, coward.nerve - 1);
-    if (P().morale! >= coward.nerve) return; // two equal nerves: nothing to single out on this seed
+    expect(next, 'this seed has one raider to single out').toBeLessThan(coward.nerve - 1);
+    P().morale = coward.nerve - 1;
     const before = P().morale!;
     w.step(1);
     const fled = w.events('HostileFled').filter((e) => e['id'] === coward.m);
     expect(fled).toHaveLength(1);
     expect(fled[0]!['nerve']).toBe(true);
+    // The coward runs first; its flight may put the next below its nerve (a rout cascades).
+    expect(w.events('HostileFled').filter((e) => e['nerve'] === true)[0]?.['id']).toBe(coward.m);
     expect(ent.get(coward.m, C.Hostile)?.nerveLost).toBe(true);
     expect(P().loot).not.toContain(log);
     expect(ent.get(log, C.Item)?.carriedBy).toBe(0);
-    expect(P().morale!).toBeLessThan(before);
+    // Its flight costs at least a fled member's share of seven.
+    expect(P().morale!).toBeLessThanOrEqual(before - Math.round(50 / 7));
     w.until(() => !ent.alive(coward.m), 2 * TICKS_PER_DAY);
     expect(ent.alive(coward.m)).toBe(false);
-    expect(ent.alive(captain)).toBe(true);
-    expect(w.events('RaidEnded').some((e) => e['partyId'] === partyId)).toBe(false);
+    expect(w.events('HostileFled').some((e) => e['id'] === captain && e['nerve'] === true)).toBe(false);
+    void partyId;
   });
 
   it('nerve comes from the species and the entity id: no draw, the same after a save', () => {
