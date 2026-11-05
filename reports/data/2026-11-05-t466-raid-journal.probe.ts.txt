@@ -1,8 +1,8 @@
 /**
  * T-466 journal probe: defence_year on one seed, with a line for every event that touches a raid
  * or the bandits (arrival, each member's walk, traps, damage, deaths, loot, retreat, end) and the
- * squad's and the bridge's part. Read-only; asserts nothing. Seed from DEFENCE_SEED, output to
- * DEFENCE_OUT (one text line per record).
+ * squad's and the bridge's part. Read-only; asserts nothing. Seeds from DEFENCE_SEEDS (comma list),
+ * one file per seed in the DEFENCE_OUT directory (one text line per record).
  */
 import { it } from 'vitest';
 import { appendFileSync, writeFileSync } from 'node:fs';

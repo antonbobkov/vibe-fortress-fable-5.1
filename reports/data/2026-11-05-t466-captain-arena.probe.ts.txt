@@ -1,5 +1,6 @@
 /**
- * T-483 careless-shooter probe (not committed as a test; a copy is filed as
+ * T-466: the T-483 arena probe below, with the captain's fate (`captainFate`) in each row; run with
+ * T483_ONLY=open,ambush. T-483 careless-shooter probe (not committed as a test; a copy is filed as
  * reports/data/2026-11-04-t483-careless-arena.probe.ts.txt; run from test/perf). The held-shot
  * arena probe (2026-11-04-t483-arena.probe.ts.txt) with the shooter's skill in the kind: `-xbow2`
  * and `-ember2` are a Novice (crossbow or runecraft 2), `-xbow` and `-ember` Proficient (10) as

@@ -1,0 +1,164 @@
+fortress cx=29 cy=3; coordinates below are relative (x-cx, y-cy, z). Corridor x=6, y=2..4; bridge y=0..1; north door y=5; stair y=6; south door y=7
+d76 t90001 ARRIVED party 150995412 bandits size 3 edge n
+d76 t90008 BuildingStateChanged 50331786 open
+d76 t90008 BuildingStateChanged 16777439 open
+d76 t90027 P150995412 approach goal -5,4,32 unr=false loot=0 | 385876232:-25,-3,32 | bridge lowered N locked S lock_on_alert alert hearth squad active 16777284:2,11,26>0 16777285:0,6,26>0 16777288:6,6,26>0 16777282:8,24,26>0 16777283:7,6,26>0
+d76 t90029 BuildingStateChanged 50331786 locked
+d76 t90127 P150995412 approach goal -5,4,32 unr=false loot=0 | 385876232:-9,0,32 16778138:-27,-3,32 16778141:-25,-3,32 | bridge lowered N locked S lock_on_alert alert hearth squad active 16777284:6,6,28>0 16777285:6,16,26>0 16777288:6,6,32>0 16777282:6,12,26>0 16777283:6,6,32>0
+d76 t90141 ESCAPED R150995412:16778138(warriors) with item 16777586 (gone)
+d76 t90141 ESCAPED R150995412:16778141(warriors) with item 16777583 (gone)
+d76 t90180 ESCAPED R150995412:385876232(warriors) with item 16777249 (gone)
+d76 t90180 ENDED party 150995412 bandits: looted
+d76 t90409 BuildingStateChanged 16777439 locked
+d76 t90428 BuildingStateChanged 50331786 open
+d76 t90428 BuildingStateChanged 16777439 open
+d133 t158408 BuildingStateChanged 50331786 open
+d133 t158408 BuildingStateChanged 16777439 open
+d133 t158429 BuildingStateChanged 50331786 locked
+d133 t158809 BuildingStateChanged 16777439 locked
+d134 t159601 ARRIVED party 587203052 raid size 10 edge n
+d134 t159627 P587203052 approach goal 6,4,32 unr=true loot=0 | 520094230:-25,-3,32 452985469:-27,-3,32 285213326:-25,-3,32 | bridge lowered N locked S locked alert hearth squad active 16777284:6,6,32>0 16777285:6,6,32>0 16777288:8,4,26>0 16777282:10,24,26>0 16777283:6,6,32>0
+d134 t159727 P587203052 approach goal 6,4,32 unr=true loot=0 | 520094230:-9,-3,32 452985469:-26,-3,32 285213326:-26,-3,32 452985745:-24,-3,32 385876875:-21,-3,32 553648385:-19,-3,32 117441083:-17,-3,32 117441267:-13,-3,32 117441260:-11,-3,32 117441252:-9,-3,32 117441246:-7,-3,32 | bridge lowered N locked S locked alert hearth squad active 16777284:6,6,32>0 16777285:6,6,32>0 16777288:6,6,26>0 16777282:7,24,26>0 16777283:6,6,32>0
+d134 t159827 P587203052 approach goal 6,4,32 unr=true loot=0 | 520094230:6,2,32 452985469:-25,-3,32 285213326:-25,-3,32 452985745:-23,-3,32 385876875:-21,-3,32 553648385:-19,-3,32 117441083:-17,-3,32 117441267:-13,-3,32 117441260:-11,-3,32 117441252:-9,-3,32 117441246:-7,-3,32 | bridge lowered N locked S locked alert hearth squad active 16777284:6,6,32>0 16777285:6,6,32>0 16777288:6,6,32>0 16777282:6,16,26>0 16777283:6,6,32>0
+d134 t159827 HIT ?:16777331 -> R587203052:520094230(captain) blunt 2
+d134 t159827 TRAP weapon on R587203052:520094230(captain): hit
+d134 t159833 CAGED R587203052:520094230(captain)
+d134 t159833 TRAP cage on R587203052:520094230(captain): caged
+d134 t159834 ENDED party 587203052 raid: repelled
+d134 t160128 BuildingStateChanged 50331786 open
+d134 t160128 BuildingStateChanged 16777439 open
+d162 t193208 BuildingStateChanged 50331786 open
+d162 t193208 BuildingStateChanged 16777439 open
+d162 t193229 BuildingStateChanged 50331786 locked
+d162 t193619 BuildingStateChanged 16777439 locked
+d163 t194588 BuildingStateChanged 50331786 open
+d163 t194588 BuildingStateChanged 16777439 open
+END day 225 outcomes 184549507:withdrew 150995804:looted 150995412:looted 352322077:withdrew 587203052:repelled 754974944:withdrew 687866953:repelled 620757665:withdrew trial done
+fortress cx=29 cy=4; coordinates below are relative (x-cx, y-cy, z). Corridor x=6, y=2..4; bridge y=0..1; north door y=5; stair y=6; south door y=7
+d74 t87601 ARRIVED party 218103846 bandits size 3 edge n
+d74 t87611 BuildingStateChanged 50331754 open
+d74 t87611 BuildingStateChanged 50331800 open
+d74 t87619 BuildingStateChanged 50331748 lowered
+d74 t87619 MechanismToggled 50331748 
+d74 t87650 P218103846 approach goal -5,4,32 unr=false loot=0 | 352321872:-22,-4,32 150995405:-27,-4,32 | bridge lowered N lock_on_alert S lock_on_alert alert hearth squad active 16777284:6,6,29>0 16777285:2,16,26>0 16777288:10,20,26>0
+d74 t87739 BuildingStateChanged 50331754 locked
+d74 t87750 P218103846 engage goal -5,4,32 unr=false loot=0 | 352321872:-25,-4,32 150995405:-25,-4,32 83886662:-25,-4,32 | bridge lowered N lock_on_alert S locked alert hearth squad active 16777284:6,6,32>0 16777285:6,6,26>0 16777288:6,11,26>0
+d74 t87759 BuildingStateChanged 50331800 locked
+d74 t87850 P218103846 approach goal -5,4,32 unr=false loot=0 | 352321872:-14,-4,32 150995405:-26,-4,32 83886662:-26,-4,32 | bridge lowered N locked S locked alert hearth squad active 16777284:6,6,32>0 16777285:6,6,32>0 16777288:6,6,32>0
+d74 t87897 ESCAPED R218103846:150995405(warriors) with item 83886280 (gone)
+d74 t87897 ESCAPED R218103846:83886662(warriors) with item 16777684 (gone)
+d74 t87942 ESCAPED R218103846:352321872(warriors) with item 16777233 (gone)
+d74 t87942 ENDED party 218103846 bandits: looted
+d74 t88191 BuildingStateChanged 50331754 open
+d74 t88191 BuildingStateChanged 50331800 open
+d120 t142811 BuildingStateChanged 50331754 open
+d120 t142811 BuildingStateChanged 50331800 open
+d120 t142839 BuildingStateChanged 50331800 locked
+d120 t142999 BuildingStateChanged 50331754 locked
+d121 t144001 ARRIVED party 83886849 raid size 10 edge n
+d121 t144050 P83886849 approach goal 6,4,32 unr=true loot=0 | 83886850:-22,-4,32 83886859:-27,-4,32 83886864:-25,-4,32 83886869:-23,-4,32 83886874:-21,-4,32 83886879:-13,-4,32 | bridge lowered N locked S locked alert hearth squad active 16777284:6,6,32>0 16777285:6,6,32>0 16777288:6,6,30>0
+d121 t144150 P83886849 approach goal 6,4,32 unr=true loot=0 | 83886850:-6,-4,32 83886859:-22,-4,32 83886864:-22,-4,32 83886869:-22,-4,32 83886874:-22,-4,32 83886879:-13,-4,32 184549806:-11,-4,32 385876530:-9,-4,32 50332546:-7,-4,32 83886680:-4,-4,32 16778128:-4,-4,32 | bridge lowered N locked S locked alert hearth squad active 16777284:6,6,32>0 16777285:6,6,32>0 16777288:6,6,32>0
+d121 t144235 HIT ?:16777336 -> R83886849:83886850(captain) blunt 2
+d121 t144235 TRAP weapon on R83886849:83886850(captain): hit
+d121 t144241 CAGED R83886849:83886850(captain)
+d121 t144241 TRAP cage on R83886849:83886850(captain): caged
+d121 t144242 ENDED party 83886849 raid: repelled
+d121 t144531 BuildingStateChanged 50331754 open
+d121 t144531 BuildingStateChanged 50331800 open
+d156 t186011 BuildingStateChanged 50331754 open
+d156 t186011 BuildingStateChanged 50331800 open
+d156 t186039 BuildingStateChanged 50331800 locked
+d156 t186419 BuildingStateChanged 50331754 locked
+d157 t187330 BuildingStateChanged 50331800 open
+d157 t187350 BuildingStateChanged 50331800 lock_on_alert
+d157 t187379 BuildingStateChanged 50331800 locked
+d157 t187430 BuildingStateChanged 50331800 open
+d157 t187450 BuildingStateChanged 50331800 lock_on_alert
+d157 t187859 BuildingStateChanged 50331800 locked
+d157 t187931 BuildingStateChanged 50331754 open
+d157 t187931 BuildingStateChanged 50331800 open
+d222 t265211 BuildingStateChanged 50331754 open
+d222 t265211 BuildingStateChanged 50331800 open
+d222 t265239 BuildingStateChanged 50331800 locked
+d222 t265459 BuildingStateChanged 50331754 locked
+d222 t265650 BuildingStateChanged 50331800 open
+d222 t265670 BuildingStateChanged 50331800 lock_on_alert
+d222 t265699 BuildingStateChanged 50331800 locked
+d222 t266071 BuildingStateChanged 50331754 open
+d222 t266071 BuildingStateChanged 50331800 open
+d224 t267611 BuildingStateChanged 50331754 open
+d224 t267611 BuildingStateChanged 50331800 open
+d224 t267639 BuildingStateChanged 50331800 locked
+d224 t267959 BuildingStateChanged 50331754 locked
+END day 225 outcomes 150995375:withdrew 150995352:repelled 218103846:looted 218104308:withdrew 83886849:repelled 318767968:withdrew 184550103:looted 486540063:withdrew 721420842:withdrew 251658950:repelled trial done
+fortress cx=25 cy=4; coordinates below are relative (x-cx, y-cy, z). Corridor x=6, y=2..4; bridge y=0..1; north door y=5; stair y=6; south door y=7
+d62 t73201 ARRIVED party 184549909 bandits size 3 edge n
+d62 t73212 BuildingStateChanged 83886197 open
+d62 t73212 BuildingStateChanged 50331804 open
+d62 t73239 BuildingStateChanged 50331804 locked
+d62 t73251 P184549909 engage goal -5,4,32 unr=false loot=0 | 50332225:-23,-4,32 50332509:-23,-4,32 | bridge lowered N locked S lock_on_alert alert hearth squad active 16777282:8,7,26>0 16777283:8,5,26>0 16777286:6,6,30>0 16777280:-1,5,26>0 16777281:6,6,31>0
+d62 t73351 P184549909 engage goal -5,4,32 unr=false loot=0 | 50332225:-21,-2,32 50332509:-23,-4,32 50332495:-19,-4,32 | bridge lowered N locked S lock_on_alert alert hearth squad active 16777282:8,7,26>0 16777283:8,5,26>0 16777286:6,6,32>0 16777280:6,6,29>0 16777281:6,6,32>0
+d62 t73438 ESCAPED R184549909:50332495(warriors) with item 16777552 (gone)
+d62 t73438 ESCAPED R184549909:50332509(warriors) with item 117440821 (gone)
+d62 t73451 LOOT party 184549909 item 117440692 drink foreign=false owner=0 by 50332225 at -7,2,32
+d62 t73451 P184549909 retreat goal -5,4,32 unr=false loot=1 | 50332225:-7,2,32* 50332509:dead 50332495:dead | bridge lowered N locked S lock_on_alert alert hearth squad active 16777282:6,6,28>0 16777283:6,6,32>0 16777286:6,6,32>0 16777280:6,6,32>0 16777281:6,6,32>0
+d62 t73483 ESCAPED R184549909:50332225(warriors) with item 117440692 (gone)
+d62 t73483 ENDED party 184549909 bandits: looted
+d62 t73619 BuildingStateChanged 83886197 locked
+d62 t74011 BuildingStateChanged 50331804 open
+d62 t74031 BuildingStateChanged 50331804 lock_on_alert
+d62 t74031 BuildingStateChanged 50331804 open
+d62 t74051 BuildingStateChanged 50331804 lock_on_alert
+d62 t74051 BuildingStateChanged 50331804 open
+d62 t74071 BuildingStateChanged 50331804 lock_on_alert
+d62 t74071 BuildingStateChanged 50331804 open
+d62 t74091 BuildingStateChanged 50331804 lock_on_alert
+d62 t74091 BuildingStateChanged 50331804 open
+d62 t74111 BuildingStateChanged 50331804 lock_on_alert
+d62 t74111 BuildingStateChanged 50331804 open
+d62 t74131 BuildingStateChanged 50331804 lock_on_alert
+d62 t74131 BuildingStateChanged 50331804 open
+d62 t74151 BuildingStateChanged 50331804 lock_on_alert
+d62 t74191 BuildingStateChanged 50331804 open
+d62 t74211 BuildingStateChanged 50331804 lock_on_alert
+d62 t74231 BuildingStateChanged 50331804 open
+d62 t74251 BuildingStateChanged 50331804 lock_on_alert
+d62 t74251 BuildingStateChanged 50331804 open
+d62 t74271 BuildingStateChanged 50331804 lock_on_alert
+d62 t74271 BuildingStateChanged 50331804 open
+d62 t74291 BuildingStateChanged 50331804 lock_on_alert
+d62 t74291 BuildingStateChanged 50331804 open
+d62 t74311 BuildingStateChanged 50331804 lock_on_alert
+d63 t74469 BuildingStateChanged 50331804 locked
+d63 t74752 BuildingStateChanged 83886197 open
+d63 t74752 BuildingStateChanged 50331804 open
+d69 t82369 BuildingStateChanged 16777363 raised
+d69 t82369 MechanismToggled 16777363 
+d69 t82579 BuildingStateChanged 16777363 lowered
+d69 t82579 MechanismToggled 16777363 
+d118 t140412 BuildingStateChanged 83886197 open
+d118 t140412 BuildingStateChanged 50331804 open
+d118 t140439 BuildingStateChanged 50331804 locked
+d118 t140619 BuildingStateChanged 83886197 locked
+d119 t141601 ARRIVED party 251658280 raid size 9 edge n
+d119 t141651 P251658280 approach goal 6,4,32 unr=true loot=0 | 150995655:-17,-4,32 285212847:-23,-4,32 16778111:-19,-4,32 16778116:-17,-4,32 16778121:-15,-4,32 | bridge lowered N locked S locked alert hearth squad active 16777282:6,6,32>0 16777283:-1,5,26>0 16777286:6,6,31>0
+d119 t141751 P251658280 approach goal 6,4,32 unr=true loot=0 | 150995655:-1,-3,32 285212847:-22,-4,32 16778111:-18,-4,32 16778116:-18,-4,32 16778121:-15,-4,32 16778128:-13,-4,32 16778135:-11,-4,32 16778142:-9,-4,32 419430890:-7,-4,32 16778153:-5,-4,32 | bridge lowered N locked S locked alert hearth squad active 16777282:6,6,32>0 16777283:6,9,26>0 16777286:6,6,32>0
+d119 t141802 TRAP weapon on R251658280:150995655(captain): blocked
+d119 t141809 CAGED R251658280:150995655(captain)
+d119 t141809 TRAP cage on R251658280:150995655(captain): caged
+d119 t141810 ENDED party 251658280 raid: repelled
+d119 t142092 BuildingStateChanged 83886197 open
+d119 t142092 BuildingStateChanged 50331804 open
+d126 t150012 BuildingStateChanged 83886197 open
+d126 t150012 BuildingStateChanged 50331804 open
+d126 t150039 BuildingStateChanged 50331804 locked
+d126 t150119 BuildingStateChanged 83886197 locked
+d130 t155432 BuildingStateChanged 83886197 open
+d130 t155432 BuildingStateChanged 50331804 open
+d198 t236412 BuildingStateChanged 83886197 open
+d198 t236412 BuildingStateChanged 50331804 open
+d198 t236439 BuildingStateChanged 50331804 locked
+d198 t236599 BuildingStateChanged 83886197 locked
+d200 t239932 BuildingStateChanged 83886197 open
+d200 t239932 BuildingStateChanged 50331804 open
+END day 225 outcomes 150995086:withdrew 184549909:looted 117441051:repelled 385876397:withdrew 251658280:repelled 251659121:looted 318767556:looted 754975844:withdrew 184550090:looted trial done
