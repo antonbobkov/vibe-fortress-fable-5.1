@@ -32,8 +32,10 @@ export const CASTER_HOLD_DISTANCE = 4;
 export const CASTER_VIALS = 3;
 /** Rune a drunk vial gives back, whole rune. */
 export const VIAL_RUNE = 5;
-/** Vials a caster drinks in a day at most. */
+/** Vials a caster drinks in a day, except a desperate fourth (§ Vials). */
 export const VIALS_PER_DAY = 3;
+/** A desperate fourth vial gives this share of `VIAL_RUNE`, in percent, and the thought `rune_sick`. */
+export const SICK_VIAL_PERCENT = 50;
 /** A drink holds the caster's next attack this long. */
 export const DRINK_TICKS = 30;
 /** Ticks between a Firebloom's cast and its bloom. */
@@ -50,7 +52,7 @@ export const ENCHANT_CLAIM_BONUS = 0.5;
 export const DRAUGHT_TICKS = 1200;
 /** Days after any draught before the dwarf takes another. */
 export const DRAUGHT_REST_DAYS = 3;
-/** Days after a calming draught before a medic gives another. */
+/** A calming draught within this many days of the last eases by half and gives `dosed_again`. */
 export const CALM_REST_DAYS = 7;
 /** A spoilable batch spoils at this per mille, less 10 per level of the worker's skill. */
 export const ALCHEMY_MISHAP_PERMILLE = 100;

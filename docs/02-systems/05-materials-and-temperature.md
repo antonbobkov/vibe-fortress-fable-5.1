@@ -64,7 +64,7 @@ On the first materials tick, compute the reach of all magma and warm spring sour
 
 State: `burning: Map<TileIndex, { remainingTicks, spreadCooldown }>`; the `burning` flag mirrors membership.
 
-- **Ignition.** Event handlers queue magma or lightning ignition for the next materials tick, ignoring wet/snow for those sources. A changed magma chunk queues its burnable cardinal neighbours and the tile above each magma tile. A burnable tile ignites when: it is adjacent (cardinal or below) to a magma tile with level ≥ 1; a `LightningStrike` names it (06); a `fire` `Mishap` names it (25: a sanctum mishap beside its rune circle, queued like lightning); a burning neighbor spreads to it; a creature carrying a burning status enters it (not in version 1); or a magma-adjacent wooden construction is built (14 warns and refuses unless the player confirms).
+- **Ignition.** Event handlers queue magma or lightning ignition for the next materials tick, ignoring wet/snow for those sources. A changed magma chunk queues its burnable cardinal neighbours and the tile above each magma tile. A burnable tile ignites when: it is adjacent (cardinal or below) to a magma tile with level ≥ 1; a `LightningStrike` names it (06); a `Mishap` names it (25: a sanctum's `fire` beside its rune circle, or the tile of a creature struck by a `blaze` weapon; queued like lightning); a burning neighbor spreads to it; a creature carrying a burning status enters it (not in version 1); or a magma-adjacent wooden construction is built (14 warns and refuses unless the player confirms).
 - **Burnable tiles.** Natural `tree`, `sapling`, `shrub`, grass floors and peat burn only outdoors. Constructed wood burns anywhere. Items on a burning tile burn individually but do not make the tile burnable; cave flora is not burnable. Tiles with `wet` or `snow` flags are not ignitable by spread, only by magma or lightning.
 - **Burning.** All burning-flag changes happen in the materials tick and mark connectivity dirty. A tile that is no longer burnable goes out without ash. A plant tile whose material has no burn duration uses `PLANT_BURN_TICKS = 300`; wood keeps its own material duration. Each materials tick (every 10 ticks): `remainingTicks −= 10`. When it reaches 0: a tree becomes `floor` with `ash` (grass cleared); a sapling or shrub becomes `floor` with `ash`; a grass floor loses `grass` and gains `ash`; a wooden construction is removed through `terrain.setKind` as if deconstructed with no item returned (support re-check follows). `ash` blocks grass regrowth and planting for `ASH_DURATION_DAYS` (07 clears it).
 - **Spread.** Each materials tick, each burning tile with `spreadCooldown == 0` tries each cardinal neighbor and the tile above: if burnable and not burning, ignite with `FIRE_SPREAD_PERMILLE` (`FIRE_SPREAD_WET_PERMILLE` under rain). After trying, `spreadCooldown = FIRE_SPREAD_COOLDOWN`.
@@ -106,7 +106,7 @@ None.
 
 ### Events consumed
 
-`FluidsChanged` (override recompute, ignition by magma), `LightningStrike`, `MagmaContact`, `Mishap` (25's `fire`, with its `tile`), `SnowCoverChanged`, `TilesChanged` (a burning tile that stops being burnable stops burning), `WeatherChanged` (rain state for spread and extinguish).
+`FluidsChanged` (override recompute, ignition by magma), `LightningStrike`, `MagmaContact`, `Mishap` (one with a `tile`: 25's `fire` and `blaze`), `SnowCoverChanged`, `TilesChanged` (a burning tile that stops being burnable stops burning), `WeatherChanged` (rain state for spread and extinguish).
 
 ### Events emitted
 

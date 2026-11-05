@@ -179,6 +179,7 @@ export const EVENT_TYPES = [
   'CreatureStunned',
   'FirstRunecaster',
   'SpellCast',
+  'SpellBloomed',
   'RuneSpent',
   'VialDrunk',
   'Warded',
@@ -187,6 +188,7 @@ export const EVENT_TYPES = [
   'SummonCalled',
   'SummonTurned',
   'SummonFaded',
+  'WispAppeared',
 ] as const;
 
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -368,14 +370,16 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   CreatureStunned: "id, until",
   FirstRunecaster: "id",
   SpellCast: "casterId, spellId, targetId, tile, burned",
+  SpellBloomed: "casterId, tile",
   RuneSpent: "id",
-  VialDrunk: "id",
+  VialDrunk: "id, sick",
   Warded: "id",
   Mended: "id, casterId",
-  DraughtDrunk: "id, draughtId, calm",
+  DraughtDrunk: "id, draughtId, calm, again",
   SummonCalled: "id, casterId",
   SummonTurned: "id",
   SummonFaded: "id",
+  WispAppeared: "id, tile",
 });
 
 const EVENT_TYPE_SET: ReadonlySet<string> = new Set<string>(EVENT_TYPES);

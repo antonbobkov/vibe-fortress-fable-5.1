@@ -23,7 +23,7 @@ import { generateGoods } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
 import type { TradeReader } from './reader';
 import type { ActiveCaravan, OfferLine, ReputationEntry, TradeRequest, TradeSession, TradeStateV1 } from './state';
-import { giftReputation, marginPercent, merchantPrice, preferencePercent, requiredValue, tradeReputation } from './valuation';
+import { giftReputation, marginPercent, merchantPrice, preferencePercent, requiredValue, tradeClass, tradeReputation } from './valuation';
 
 export * from './constants';
 export * from './schedule';
@@ -125,7 +125,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     const occupant = ctx.world.entities.get(item.occupantId ?? 0, C.Creature);
     const species = occupant ? ctx.registry.table<{ id: string; value: number }>('creatures').byIndex(occupant.species) : undefined;
     const percent = civ === 'mountainhome' && species?.id.startsWith('cave_') ? EXOTIC_CAGED_PREFERENCE
-      : preferencePercent(ctx.registry, civ, category, material?.id ?? '', material?.class ?? '', occupant !== undefined);
+      : preferencePercent(ctx.registry, civ, category, material?.id ?? '', tradeClass(ctx.registry, civ, item.type, material?.class ?? ''), occupant !== undefined);
     const speciesValue = species?.value ?? 0;
     return (items.value(id) + speciesValue) * percent / 100;
   }
@@ -243,8 +243,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     if (a.civ === 'wildwood') {
       for (const line of give) {
         const item = items.get(line.itemId);
-        const cls = ctx.registry.table<{ id: string; class: string }>('materials').byIndex(item?.material ?? 0)?.class;
-        if (cls === 'wood' && !session.woodOffered.includes(line.itemId)) {
+        const cls = ctx.registry.table<{ id: string; class: string }>('materials').byIndex(item?.material ?? 0)?.class ?? '';
+        if (item !== undefined && tradeClass(ctx.registry, a.civ, item.type, cls) === 'wood' && !session.woodOffered.includes(line.itemId)) {
           session.woodOffered.push(line.itemId);
           session.woodWarning = true;
           this.reputation(ctx, a.civ, -2, 'wood_offered');

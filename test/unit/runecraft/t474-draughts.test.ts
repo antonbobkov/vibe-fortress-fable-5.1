@@ -282,10 +282,9 @@ describe('T-474 calming draughts', () => {
     expect(w.game.world.entities.get(id, C.Spellbound)?.lastDraughtTick).toBeUndefined();
     stepRested(w, (CALM_REST_DAYS - DRAUGHT_REST_DAYS) * TICKS_PER_DAY);
     expect(w.game.world.entities.has(id, C.Spellbound)).toBe(false);
-    expect(registry.table('thoughts').has('dosed_again')).toBe(false);
   });
 
-  it('a medic gives a calming draught to a Miserable dwarf on the day, only once the longer rest allows', () => {
+  it('a medic gives a calming draught to a Miserable dwarf on the day, once the draught rest allows; a second within the week is drunk again', () => {
     const w = arena('t474-calm-medic');
     w.spawnItem('calm_draught', 'rune', w.index(12, 12, Z), 2, 1);
     const sad = w.spawnDwarf({ at: w.index(10, 10, Z) });
@@ -304,10 +303,12 @@ describe('T-474 calming draughts', () => {
     expect(w.readers.of<JobsReader>('11').byKey(`give_draught:${sad}`)).toBeDefined();
     for (let k = 0; k < 2000 && w.events('DraughtDrunk').length === 0; k += 1) { misery(); rest(w); w.step(1); }
     expect(w.events('DraughtDrunk')).toMatchObject([{ id: sad, draughtId: 'calm_draught', calm: true }]);
-    // Still Miserable at the next days' turns, within the seven days: none is given.
+    // Still Miserable at the next days' turns: none within the three-day rest, then a second (T-491: `dosed_again`).
     const drank = w.tick;
-    while (w.tick < drank + 5 * TICKS_PER_DAY) { misery(); rest(w); w.step(1); }
+    while (w.tick < drank + DRAUGHT_REST_DAYS * TICKS_PER_DAY) { misery(); rest(w); w.step(1); }
     expect(w.events('JobCreated').filter((e) => e['jobType'] === 'give_draught')).toHaveLength(1);
+    while (w.tick < drank + 5 * TICKS_PER_DAY && w.events('DraughtDrunk').length < 2) { misery(); rest(w); w.step(1); }
+    expect(w.events('DraughtDrunk')[1]).toMatchObject({ id: sad, draughtId: 'calm_draught', calm: true, again: true });
   });
 });
 

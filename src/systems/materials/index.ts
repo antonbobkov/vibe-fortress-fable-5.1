@@ -292,8 +292,8 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       return;
     }
     if (event.type === 'Mishap') {
-      // 25 § The sanctum, Mishaps: a `fire` mishap names a burnable tile beside the circle.
-      if (event['kind'] === 'fire' && typeof event['tile'] === 'number') this.fire.pendingIgnite.add(event['tile'] as TileIndex);
+      // 25: a mishap that names a tile lights it: a sanctum's `fire` beside the circle, a `blaze` hit's tile.
+      if (typeof event['tile'] === 'number') this.fire.pendingIgnite.add(event['tile'] as TileIndex);
       return;
     }
     if (event.type === 'SnowCoverChanged') {

@@ -1,8 +1,9 @@
 /**
  * Draughts: `02-systems/25-runecraft.md` § Draughts, rows in `03-content/items.md` § Draughts.
  *
- * One draught, then rest: a creature that drank one takes no other for `DRAUGHT_REST_DAYS`, and a
- * calming draught keeps its own longer rest, `CALM_REST_DAYS`. Both ticks live on `Spellbound`
+ * One draught, then rest: a creature that drank one takes no other for `DRAUGHT_REST_DAYS`. A
+ * calming draught drunk within `CALM_REST_DAYS` of the last eases by half and says `again` (the
+ * thought `dosed_again`), so `lastCalmTick` is kept that long. Both ticks live on `Spellbound`
  * (most soldiers have no `Rune`), which stays while either rest lasts. Soldiers drink on the events
  * of § Draughts, never on a scan; a medic gives one through the `give_draught` job. Drinking takes
  * no time and draws nothing.
@@ -65,12 +66,6 @@ export function draughtRestAllows(entities: EntityStore, id: EntityId, tick: Tic
   return last === undefined || !draughtRestLasts(last, tick);
 }
 
-/** No calming draught within `CALM_REST_DAYS`. */
-export function calmRestAllows(entities: EntityStore, id: EntityId, tick: Tick): boolean {
-  const last = entities.get(id, C.Spellbound)?.lastCalmTick;
-  return last === undefined || !calmRestLasts(last, tick);
-}
-
 /** Ticks until the creature may take a draught again; 0 when it may now. */
 export function draughtRestLeft(entities: EntityStore, id: EntityId, tick: Tick): number {
   const last = entities.get(id, C.Spellbound)?.lastDraughtTick;
@@ -80,7 +75,8 @@ export function draughtRestLeft(entities: EntityStore, id: EntityId, tick: Tick)
 /**
  * Drink a draught item: one unit is consumed, its effects land (timed effects for
  * `DRAUGHT_TICKS × QUALITY_COMBAT_MULT[quality]`; `mend` as the Mend spell; `ease` the thought,
- * through `DraughtDrunk`), the rests start and `DraughtDrunk` is emitted. False, and nothing
+ * through `DraughtDrunk`), the rests start and `DraughtDrunk` is emitted; a calming draught within
+ * `CALM_REST_DAYS` of the last is drunk `again`. False, and nothing
  * happens, when the item is no draught that is ever drunk or the rest does not allow it.
  * `giverId` is the medic who gave it, or 0.
  */
@@ -101,6 +97,8 @@ export function drinkDraught(ctx: TickContext, drinkerId: EntityId, itemId: Enti
     else if (effect.kind === 'ease') calm = true;
     else effects.push({ kind: effect.kind, value: effect.value, until, sourceId: drinkerId });
   }
+  // § Draughts: a second calming draught within the week eases by half, and grumbles.
+  const again = calm && bound?.lastCalmTick !== undefined && calmRestLasts(bound.lastCalmTick, ctx.tick);
   items.consume(itemId, 1);
   entities.add<Spellbound>(drinkerId, C.Spellbound, {
     ...(bound ?? {}),
@@ -109,7 +107,7 @@ export function drinkDraught(ctx: TickContext, drinkerId: EntityId, itemId: Enti
     ...(calm ? { lastCalmTick: ctx.tick } : {}),
   });
   if (mend) ctx.emit({ type: 'Mended', id: drinkerId, casterId: giverId });
-  ctx.emit({ type: 'DraughtDrunk', id: drinkerId, draughtId: row.id, calm });
+  ctx.emit({ type: 'DraughtDrunk', id: drinkerId, draughtId: row.id, calm, again });
   return true;
 }
 

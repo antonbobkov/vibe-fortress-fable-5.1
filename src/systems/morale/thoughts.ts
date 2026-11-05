@@ -35,7 +35,7 @@ const ALIAS_EVENT: Readonly<Record<string, EventType>> = {
   slept_in_decent_room: 'Slept', slept_in_fine_room: 'Slept', slept_in_grand_room: 'Slept', slept_in_royal_room: 'Slept',
   caught_in_storm: 'DwarfOutdoorsIn', snowed_on: 'DwarfOutdoorsIn', bitter_cold: 'DwarfOutdoorsIn', sweltering: 'DwarfOutdoorsIn',
   argued: 'SulkHappened', wept: 'SulkHappened', hoarded: 'SulkHappened',
-  saw_sunlight: 'EntitiesMoved', admired_statue: 'EntitiesMoved', finished_big_job: 'JobCompleted',
+  saw_sunlight: 'EntitiesMoved', admired_statue: 'EntitiesMoved', lab_stink: 'EntitiesMoved', finished_big_job: 'JobCompleted',
 };
 
 export function triggerEvent(def: ThoughtDef): EventType | null {
@@ -44,6 +44,8 @@ export function triggerEvent(def: ThoughtDef): EventType | null {
 }
 
 export function baseValue(def: ThoughtDef, event?: GameEvent): number {
+  // 25 § Draughts: a calming draught within the week of the last eases by half.
+  if (def.id === 'eased' && event?.['again'] === true && typeof def.value === 'number') return Math.trunc(def.value / 2);
   if (typeof def.value === 'number') return def.value;
   if (def.id === 'healed') return 5 + 2 * Math.max(0, Number(event?.['hospitalTier'] ?? 0));
   const match = /([+\-−]\d+)/u.exec(def.value.formula);
@@ -132,6 +134,9 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'warded': return true;
     case 'mended_by_rune': return true;
     case 'eased': return event['calm'] === true;
+    case 'dosed_again': return event['calm'] === true && event['again'] === true;
+    case 'rune_sick': return event['sick'] === true;
+    case 'saw_wisp': return true;
     default: return true;
   }
 }
@@ -143,7 +148,7 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   const dead = n(event, 'id') || n(event, 'dwarfId');
   if (def.id === 'dwarf_died' || def.id === 'child_died') return all.filter((id) => id !== dead);
   if (['hearth_lit', 'new_hearth_hall_tier', 'raid_arrived', 'raid_repelled', 'caravan_arrived',
-    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster', 'summon_turned'].includes(def.id)) return all;
+    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster', 'summon_turned', 'saw_wisp'].includes(def.id)) return all;
   if (def.id === 'saw_death') return all.filter((id) => id !== dead);
   if (['friend_died', 'buried_friend', 'memorial_placed'].includes(def.id)) return all.filter((id) => dwarves.isFriend(id, dead));
   if (def.id === 'pet_died') return all.filter((id) => ctx.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true);
@@ -160,17 +165,26 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   return all.includes(target) ? [target] : [];
 }
 
+/** How far a dwarf sees a death or a wisp, in tiles on its level, with line of sight. */
+const SIGHT_TILES = 8;
+
+/** The dwarf stands within `tiles` of `to` on its level, with line of sight. */
+function sees(ctx: TickContext, dwarf: EntityId, to: number, tiles: number): boolean {
+  const witness = ctx.world.entities.get(dwarf, C.Position);
+  const map = ctx.world.map;
+  const from = witness === undefined ? -1 : map.index(witness.x, witness.y, witness.z);
+  return from >= 0 && to >= 0 && map.zOf(from) === map.zOf(to)
+    && Math.max(Math.abs(map.xOf(from) - map.xOf(to)), Math.abs(map.yOf(from) - map.yOf(to))) <= tiles
+    && ctx.readers.pathing.lineOfSight(from, to);
+}
+
 /** A row's fixed condition has an existing event but may need world facts not present in the event. */
 export function worldPredicate(def: ThoughtDef, event: GameEvent, ctx: TickContext, dwarf: EntityId): boolean {
   if (def.id === 'harvest_in') return true;
-  if (def.id === 'saw_death') {
-    const victim = ctx.world.entities.get(n(event, 'id'), C.Position);
-    const witness = ctx.world.entities.get(dwarf, C.Position);
-    const to = n(event, 'tile') || (victim === undefined ? -1 : ctx.world.map.index(victim.x, victim.y, victim.z));
-    const from = witness === undefined ? -1 : ctx.world.map.index(witness.x, witness.y, witness.z);
-    return from >= 0 && to >= 0 && ctx.world.map.zOf(from) === ctx.world.map.zOf(to)
-      && Math.max(Math.abs(ctx.world.map.xOf(from) - ctx.world.map.xOf(to)), Math.abs(ctx.world.map.yOf(from) - ctx.world.map.yOf(to))) <= 8
-      && ctx.readers.pathing.lineOfSight(from, to);
+  if (def.id === 'saw_death' || def.id === 'saw_wisp') {
+    const subject = ctx.world.entities.get(n(event, 'id'), C.Position);
+    const to = n(event, 'tile') || (subject === undefined ? -1 : ctx.world.map.index(subject.x, subject.y, subject.z));
+    return sees(ctx, dwarf, to, SIGHT_TILES);
   }
   if (def.id === 'new_hearth_hall_tier') {
     const buildings = ctx.readers.of<BuildingsReader>('14');

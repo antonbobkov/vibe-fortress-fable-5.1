@@ -79,7 +79,7 @@ interface StockCount { total: number; available: number; byClass: [MaterialClass
 interface BuildingsState { stateVersion: 1; zoneAt: [TileIndex, EntityId][]; hearthId: EntityId; depots: EntityId[]; coffins: EntityId[];
   dirtyRooms: EntityId[]; pendingToggles: { id: EntityId; on: boolean; atTick: Tick }[]; pendingJobs: EntityId[]; magmaTouched?: TileIndex[]; lampLight?: { tile: TileIndex; count: number; baseLit: boolean }[]; rng: RngState }   // pendingJobs: buildings waiting for their build or deconstruct job; magmaTouched: tiles `MagmaContact` named, for 14's next tick
 
-interface MoraleState { stateVersion: 1; hallSpirit: number; hallSpiritTier: MoodTier; rng: RngState; hourlyDue: boolean /* pending initial or hourly recomputation */ }
+interface MoraleState { stateVersion: 1; hallSpirit: number; hallSpiritTier: MoodTier; rng: RngState; hourlyDue: boolean /* pending initial or hourly recomputation */; labStinks?: { x0: number; y0: number; x1: number; y1: number; z: number; until: Tick }[] /* laboratories that spoiled a batch today (25 § Draughts, `lab_stink`): the footprint's bounds on its level and the day's end, in the order spoiled; omitted when none, absent in older saves means none */ }
 
 interface CombatState { stateVersion: 1; alert: Alert; engagements: [EntityId, Tick][]; targets: [EntityId, EntityId][]; nextSquadName: number; unreachableSince?: [EntityId, Tick][]; threatThrottles?: [EntityId, Tick][]; rng: RngState }   // unreachableSince: when each creature's approach to its target first failed (16 § Targeting)
 

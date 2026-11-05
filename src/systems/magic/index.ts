@@ -98,9 +98,9 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     ctx.register.inspector('creature', { id: 'rune', order: 13 });
     ctx.register.inspector('zone', { id: SANCTUM, order: 40 });
     ctx.register.inspector('item', { id: 'stone', order: 20 });
-    // One line per kind; a scorched circle and a fire are alerts.
-    for (const kind of ['singed', 'blackout', 'surge', 'wisp_loose', 'scorched_circle', 'fire']) {
-      const severity = kind === 'scorched_circle' || kind === 'fire' ? 'alert' : 'note';
+    // One line per kind; a scorched circle and a fire are alerts, and so is a `blaze` hit's fire.
+    for (const kind of ['singed', 'blackout', 'surge', 'wisp_loose', 'scorched_circle', 'fire', 'blaze']) {
+      const severity = kind === 'scorched_circle' || kind === 'fire' || kind === 'blaze' ? 'alert' : 'note';
       ctx.register.announcement('Mishap', { severity, stringKey: `announce.mishap_${kind}`, oneOf: { field: 'kind', values: [kind] } });
     }
     ctx.register.announcement('FirstRunecaster', { severity: 'note', stringKey: 'announce.first_runecaster' });
@@ -137,6 +137,8 @@ export class MagicSystem extends BaseSystem<MagicStateV1> implements MagicHost, 
     const entities = ctx.world.entities;
     const map = ctx.world.map;
     if (!map.validIndex(bloom.tile)) return;
+    // § Player-facing behavior: the compositor flashes the 3×3 for a frame.
+    ctx.emit({ type: 'SpellBloomed', casterId: bloom.casterId, tile: bloom.tile });
     const cx = map.xOf(bloom.tile);
     const cy = map.yOf(bloom.tile);
     const z = map.zOf(bloom.tile);

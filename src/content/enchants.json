@@ -25,6 +25,12 @@
         "value": 14,
         "type": "ember",
         "scales": "value"
+      },
+      {
+        "kind": "ignite",
+        "value": 1,
+        "chance": 2,
+        "scales": "value"
       }
     ]
   },

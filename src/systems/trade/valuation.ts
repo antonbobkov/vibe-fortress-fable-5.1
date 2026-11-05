@@ -22,6 +22,18 @@ export function preferencePercent(registry: Registry, civ: Civ, category: string
   return exact('default') ?? 100;
 }
 
+/**
+ * The material class 20 judges an item by. For the Wildwood a channel (a weapon row with a launcher
+ * and no ammunition: 25's wand or staff) is a wooden item whatever its shoe, as a wand's wood already
+ * is: they take offence at it and pay little for it.
+ */
+export function tradeClass(registry: Registry, civ: Civ, itemType: number, materialClass: string): string {
+  if (civ !== 'wildwood' || materialClass === 'wood') return materialClass;
+  const typeId = registry.table<{ id: string }>('items').byIndex(itemType)?.id;
+  const row = typeId === undefined ? undefined : registry.table<{ id: string; launcher?: { ammo?: string } }>('weapons').byId(typeId);
+  return row?.launcher !== undefined && row.launcher.ammo === undefined ? 'wood' : materialClass;
+}
+
 export function marginPercent(skill: number, reputation: number): number {
   return Math.max(MARGIN_MIN, MARGIN_BASE - skill * MARGIN_PER_SKILL - reputation / MARGIN_REP_DIVISOR);
 }

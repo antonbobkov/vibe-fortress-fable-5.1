@@ -21,10 +21,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-488 | [three-years-p2-7 ends without its dining hall](work/T-488-p2-7-dining-hall-witness.md) | T-479's sweep | — | open |
 | T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
 | T-490 | [11 still describes the crowded-doorway retry that crowding removed](work/T-490-stale-crowded-walk-rule.md) | T-487's journal | — | open |
-| T-491 | [Runecraft flavour pass: small fun rules brought back](work/T-491-runecraft-flavour-pass.md) | Flavour report | — | open |
 | T-492 | [Remains and venom: venomed blades, the ember gland, knapped blades](work/T-492-remains-venom-and-knapped-blades.md) | Flavour report | — | open |
 | T-493 | [Hexers cast Dread on dwarves, and `calm` armour answers it](work/T-493-hexer-dread-and-calm-armour.md) | Flavour report | T-483 | blocked (needs T-483) |
 | T-494 | [`glowing` armour lights the wearer's tile](work/T-494-glowing-armour-lights-the-wearer.md) | Flavour report | — | open |
 | T-495 | [A dead runecaster's wand among an old battlefield's arms](work/T-495-wand-on-an-old-battlefield.md) | Flavour report | — | open |
+| T-496 | [A drunk vial is capped below a circlet's rune](work/T-496-vial-cap-ignores-circlet.md) | T-491's work | — | open |
+| T-497 | [A turned shade that stays hidden for a while](work/T-497-turned-shade-hides-longer.md) | T-491's work | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
