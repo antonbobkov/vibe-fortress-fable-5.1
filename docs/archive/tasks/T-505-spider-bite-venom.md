@@ -1,10 +1,12 @@
 # T-505 — The giant cave spider's bite venom is written and not played
 
+**Closed:** 2026-11-05, in fed9e584.
+
 **Source:** T-492 (its commit) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
-[creatures.md](../03-content/creatures.md) § Cavern monsters gives the giant cave spider's bite as "bite pierce 16 size 4 (venom: pain +20 for 300 ticks)". The export drops the bracket: `creatures.json` has the bite with no venom, and no code adds pain on a spider's bite. T-492 added a timed `pain` effect on `Spellbound`, read in 17's pain sum, for the `venomed` blade made from the spider's own venom. The spider itself still bites without it.
+[creatures.md](../../03-content/creatures.md) § Cavern monsters gives the giant cave spider's bite as "bite pierce 16 size 4 (venom: pain +20 for 300 ticks)". The export drops the bracket: `creatures.json` has the bite with no venom, and no code adds pain on a spider's bite. T-492 added a timed `pain` effect on `Spellbound`, read in 17's pain sum, for the `venomed` blade made from the spider's own venom. The spider itself still bites without it.
 
 ## What to do
 

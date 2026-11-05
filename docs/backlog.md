@@ -24,7 +24,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-501 | [A siege stays engaged for days with fortress dogs it cannot strike](work/T-501-siege-engaged-with-dogs.md) | T-483's arena and sweep | — | open |
 | T-502 | [A soldier on `hold` who is off its station with a target stays where it is](work/T-502-hold-soldier-off-station.md) | T-493's arena | — | open |
 | T-503 | [`defence_year`'s script zones an archery range over a tile another zone holds](work/T-503-defence-script-archery-range-overlap.md) | T-466's report | — | open |
-| T-505 | [The giant cave spider's bite venom is written and not played](work/T-505-spider-bite-venom.md) | T-492's work | — | open |
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
