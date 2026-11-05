@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
-| T-477 | [Runecraft 10: the whole loop played, and the docs that tell it](work/T-477-runecraft-whole-loop-scenario.md) | Runecraft design | — | open |
 | T-482 | [Idle tame animals keep a walk that has arrived, and crowd one hall tile](work/T-482-tame-animal-stale-walk.md) | T-463's follow-up | — | open |
 | T-486 | [A peril-4 ambush can kill a whole fortress over five days](work/T-486-ambush-massacre.md) | T-479's sweep | — | open |
 | T-488 | [three-years-p2-7 ends without its dining hall](work/T-488-p2-7-dining-hall-witness.md) | T-479's sweep | — | open |

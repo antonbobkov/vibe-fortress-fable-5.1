@@ -76,7 +76,7 @@
     "kind": "ward",
     "cost": 2,
     "range": 3,
-    "base": 6,
+    "base": 4,
     "ticks": 600,
     "suffix": "of warding"
   }

@@ -133,5 +133,45 @@
     "id": "hint_no_path",
     "trigger": "a job remains blocked unreachable for a whole day from first hourly observation",
     "text": "Jobs are blocked: no path. Check for doors, water and undug rock."
+  },
+  {
+    "id": "hint_glowcap",
+    "trigger": "glowcap seeds in stock",
+    "text": "Glowcap grows in the dark under a glowstone lamp."
+  },
+  {
+    "id": "hint_runeforge",
+    "trigger": "a runeforge is placed",
+    "text": "The runeforge burns vials, not coal."
+  },
+  {
+    "id": "hint_staff",
+    "trigger": "a runeforge is built",
+    "text": "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel."
+  },
+  {
+    "id": "hint_wand",
+    "trigger": "a wand or a staff in stock",
+    "text": "A wand is quick and soft; a shod staff is slow and hard."
+  },
+  {
+    "id": "hint_sanctum",
+    "trigger": "a sanctum zone exists",
+    "text": "Build the sanctum in stone."
+  },
+  {
+    "id": "hint_rune_metal",
+    "trigger": "a dwarf of the fortress has rune of their own",
+    "text": "Iron drinks the rune: a runecaster in mail recovers slowly."
+  },
+  {
+    "id": "hint_draught",
+    "trigger": "a draught in stock",
+    "text": "One draught, then three days' rest."
+  },
+  {
+    "id": "hint_herbs_eaten",
+    "trigger": "a dwarf eats a raw plant while a work order for a draught brewed from plants stands",
+    "text": "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest."
   }
 ]
