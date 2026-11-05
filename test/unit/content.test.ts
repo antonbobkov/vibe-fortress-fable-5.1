@@ -88,7 +88,7 @@ describe('T-M0-06 content: every table loads', () => {
     const expected: Record<string, number> = {
       carpenter: 27,
       mason: 13,
-      craftdwarf: 9,
+      craftdwarf: 13,
       jeweler: 2,
       mechanic: 2,
       wood_furnace: 1,
@@ -103,12 +103,12 @@ describe('T-M0-06 content: every table loads', () => {
       farmers_workshop: 4,
       bowyer: 3,
       alchemist: 10,
-      runeforge: 38,
+      runeforge: 40,
     };
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(199);
+    expect(registry.table('recipes').size).toBe(205);
   });
 
   it('the content hash is a stable hex string', () => {
@@ -214,7 +214,7 @@ describe('T-M0-06 content: generated recipes', () => {
 
   it('16 ores + 5 alloys + 1 melt = 22 generated recipes at the smelter; 2 per spell and 1 per enchantment at the runeforge', () => {
     expect(recipes.where('generated:smelter', (r) => r.generated === true && r.workshop === 'smelter').length).toBe(22);
-    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(58);
+    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(60);
   });
 });
 

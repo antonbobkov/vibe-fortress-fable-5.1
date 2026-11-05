@@ -564,7 +564,7 @@ export function applySpellOnHit(
  * `applyEnchantOnHit` (§ Enchantments in combat): a blow or a missile that did damage, from an
  * enchanted weapon or ammunition, on `part`. `extra_damage` is a second hit of its type on the same
  * part, with its own `armorReduction` and Toughness (and nothing under `fire_immune` for a burn): one
- * more `DamageDealt` when it does damage, and no `AttackResolved`. `slow` adds its effect (§ Effects). `flee` takes no creature that Dread
+ * more `DamageDealt` when it does damage, and no `AttackResolved`. `slow` and `pain` add their effects (§ Effects). `flee` takes no creature that Dread
  * cannot take (`mentallyImmune`: the deep, and the very large); for any other it rolls `chance` on
  * stream 25, then the resist roll, and adds a `flee` effect for `ticks`. Only an item that carries
  * such an effect gets here, so an unenchanted fight draws nothing more.
@@ -590,6 +590,9 @@ export function applyEnchantOnHit(
       if (damage > 0) ctx.emit({ type: 'DamageDealt', defenderId, part, damageType: type, amount: damage, attackerId, weaponId });
     } else if (e.kind === 'slow') {
       addEffect(entities, defenderId, { kind: 'slow', value: e.value, until: ctx.tick + e.ticks, sourceId: attackerId }, ctx.registry);
+    } else if (e.kind === 'pain') {
+      // `venomed`: a timed pain, which 17's pain sum reads (§ Effects).
+      addEffect(entities, defenderId, { kind: 'pain', value: e.value, until: ctx.tick + e.ticks, sourceId: attackerId });
     } else if (e.kind === 'flee') {
       if (fearless(ctx, defenderId)) continue;
       if (e.chance > 0 && ctx.world.rngFor('25').int(0, 99) >= e.chance) continue;

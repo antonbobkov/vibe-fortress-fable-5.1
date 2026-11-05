@@ -683,7 +683,9 @@
     "rotDays": 0,
     "weight": "medium",
     "materials": [
-      "metal"
+      "metal",
+      "obsidian",
+      "bone"
     ],
     "glyph": "/",
     "quality": true,
@@ -755,6 +757,20 @@
     "tags": [
       "ingredient"
     ]
+  },
+  {
+    "id": "ember_gland",
+    "name": "ember gland",
+    "category": "medical/gland",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "♥",
+    "fg": "ember_orange",
+    "quality": false
   },
   {
     "id": "fat",
@@ -1631,7 +1647,9 @@
     "rotDays": 0,
     "weight": "medium",
     "materials": [
-      "metal"
+      "metal",
+      "obsidian",
+      "bone"
     ],
     "glyph": "/",
     "quality": true,
@@ -1724,6 +1742,20 @@
     "tags": [
       "weapon"
     ]
+  },
+  {
+    "id": "spider_venom",
+    "name": "spider venom",
+    "category": "medical/venom",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "¡",
+    "fg": "lizard_green",
+    "quality": false
   },
   {
     "id": "spike",

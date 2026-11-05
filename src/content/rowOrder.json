@@ -582,5 +582,53 @@
   {
     "table": "thoughts",
     "id": "put_to_flight"
+  },
+  {
+    "table": "materials",
+    "id": "spider_venom"
+  },
+  {
+    "table": "materials",
+    "id": "ember_gland"
+  },
+  {
+    "table": "items",
+    "id": "spider_venom"
+  },
+  {
+    "table": "items",
+    "id": "ember_gland"
+  },
+  {
+    "table": "enchants",
+    "id": "venomed"
+  },
+  {
+    "table": "enchants",
+    "id": "ember_gland"
+  },
+  {
+    "table": "recipes",
+    "id": "knap_dagger_obsidian"
+  },
+  {
+    "table": "recipes",
+    "id": "knap_short_sword_obsidian"
+  },
+  {
+    "table": "recipes",
+    "id": "knap_dagger_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "knap_short_sword_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_venomed"
+  },
+  {
+    "table": "recipes",
+    "id": "set_weapon_ember_gland"
   }
 ]

@@ -1564,6 +1564,112 @@
     "xp": 8
   },
   {
+    "id": "knap_dagger_bone",
+    "name": "Bone dagger",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "dagger",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "knap_dagger_obsidian",
+    "name": "Obsidian dagger",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1,
+        "material": "obsidian"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "dagger",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "knap_short_sword_bone",
+    "name": "Bone short sword",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "short_sword",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "knap_short_sword_obsidian",
+    "name": "Obsidian short sword",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 2,
+        "material": "obsidian"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "short_sword",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 180,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
     "id": "make_archery_target",
     "name": "Archery target",
     "workshop": "carpenter",

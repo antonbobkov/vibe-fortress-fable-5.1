@@ -90,7 +90,9 @@
     "bars": 1,
     "mult": 4000,
     "materials": [
-      "metal"
+      "metal",
+      "obsidian",
+      "bone"
     ]
   },
   {
@@ -181,7 +183,9 @@
     "bars": 2,
     "mult": 8000,
     "materials": [
-      "metal"
+      "metal",
+      "obsidian",
+      "bone"
     ]
   },
   {

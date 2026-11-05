@@ -154,3 +154,15 @@ Every new row of every table goes at the end of this table, including generated 
 | enchants | calm |
 | recipes | set_armor_calm |
 | thoughts | put_to_flight |
+| materials | spider_venom |
+| materials | ember_gland |
+| items | spider_venom |
+| items | ember_gland |
+| enchants | venomed |
+| enchants | ember_gland |
+| recipes | knap_dagger_obsidian |
+| recipes | knap_short_sword_obsidian |
+| recipes | knap_dagger_bone |
+| recipes | knap_short_sword_bone |
+| recipes | set_weapon_venomed |
+| recipes | set_weapon_ember_gland |
