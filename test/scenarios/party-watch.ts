@@ -27,8 +27,12 @@ export interface PartyFigures {
 export interface HexerFigures {
   /** Hexers that arrived. */
   arrived: number;
-  /** Frost bolts cast. */
+  /** Spells cast: frost bolts, and a dread hexer's Dread. */
   casts: number;
+  /** Of those, Dread (a dread hexer). */
+  dreads: number;
+  /** Fortress creatures a hexer put to flight. */
+  putToFlight: number;
   /** Hexers that cast their whole rune. */
   spent: number;
   /** Bolt hits with damage on a fortress creature. */
@@ -51,7 +55,7 @@ const groupOf = (faction: string): string => (faction === 'hostile:cavern' ? 'ca
 export class PartyWatch {
   readonly figures: PartyFigures = {
     hostilesDied: {}, dwarvesKilledBy: {}, doorSteps: 0, doorStepsPastFortress: 0, doorStepsPastSoldier: 0,
-    hexers: { arrived: 0, casts: 0, spent: 0, frostHits: 0, otherHits: 0, blows: 0, died: 0, dwarvesKilled: 0, archers: 0, arrows: 0 },
+    hexers: { arrived: 0, casts: 0, dreads: 0, putToFlight: 0, spent: 0, frostHits: 0, otherHits: 0, blows: 0, died: 0, dwarvesKilled: 0, archers: 0, arrows: 0 },
   };
 
   constructor(w: TestWorld) {
@@ -87,7 +91,10 @@ export class PartyWatch {
           if (casts === undefined) continue;
           hexers.set(id, casts + 1);
           h.casts += 1;
+          if (e['spellId'] === 'dread') h.dreads += 1;
           if (casts + 1 === HEXER_RUNE) h.spent += 1;
+        } else if (e.type === 'PutToFlight') {
+          if (hexers.has(Number(e['sourceId'])) && ent.get(Number(e['id']), C.Creature)?.faction === 'fortress') h.putToFlight += 1;
         } else if (e.type === 'DamageDealt' && hexers.has(Number(e['attackerId'])) && Number(e['amount']) > 0) {
           if (e['damageType'] !== 'frost') continue;
           if (ent.get(Number(e['defenderId']), C.Creature)?.faction === 'fortress') h.frostHits += 1;
