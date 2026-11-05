@@ -102,6 +102,8 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `felt_mist` | "Felt the mist of a waterfall." | +5 | 24 | linear | 1 | comfort | `DwarfFeltMist` |
 | `warm_spring` | "Warmed my feet in a spring." | +3 | 24 | linear | 1 | comfort | `DwarfNearSpring` |
 | `warded` | "Felt the ward settle on me." | +1 | 12 | linear | 1 | comfort | `Warded` |
+| `saw_wisp` | "Saw a light that was not a lamp." | +2 | 24 | linear | 1 | comfort | `WispAppeared` within 8 tiles and line of sight, once a day (everyone) |
+| `lab_stink` | "The laboratory stinks." | −1 | 12 | halflife | 1 | comfort | passing within 3 tiles of a laboratory that spoiled a batch today |
 
 ### Work and skill
 
@@ -116,6 +118,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `first_vein` | "I struck ore." | +5 | 72 | linear | 1 | pride | `VeinFound` finder |
 | `attuned` | "Felt the rune answer." | +2 | 12 | linear | 1 | pride | `AttuneSession` with no mishap |
 | `singed` | "Singed my beard in the sanctum." | −3 | 24 | halflife | 1 | none | `Mishap` `singed` |
+| `rune_sick` | "Too much rune. My teeth hum." | −4 | 24 | halflife | 1 | none | `VialDrunk` a fourth vial in a day |
 
 ### Weather
 
@@ -166,7 +169,8 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `hoarded` | "Got something nice for my room." | +3 | 48 | linear | 1 | none | sulk hoard |
 | `first_runecaster` | "We have a runecaster in the hall." | +4 | 72 | linear | 1 | pride | `FirstRunecaster` (everyone) |
 | `mended_by_rune` | "The rune closed my wound." | +3 | 48 | linear | 1 | none | `Mended` |
-| `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | `DraughtDrunk` of a calming draught |
+| `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | `DraughtDrunk` of a calming draught; half, +4, for one within 7 days of the last |
+| `dosed_again` | "Another draught. I am tired of draughts." | −4 | 72 | halflife | 1 | none | `DraughtDrunk` of a calming draught within 7 days of the last |
 
 ## Announcement flags
 

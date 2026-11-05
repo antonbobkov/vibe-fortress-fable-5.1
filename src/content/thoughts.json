@@ -355,6 +355,23 @@
     "announce": false
   },
   {
+    "id": "dosed_again",
+    "name": "dosed again",
+    "text": "Another draught. I am tired of draughts.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 72,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "DraughtDrunk",
+      "target": "of a calming draught within 7 days of the last"
+    },
+    "announce": false
+  },
+  {
     "id": "drank_ale",
     "name": "drank ale",
     "text": "Had a drink.",
@@ -446,7 +463,7 @@
     "group": "none",
     "trigger": {
       "event": "DraughtDrunk",
-      "target": "of a calming draught"
+      "target": "of a calming draught; half, +4, for one within 7 days of the last"
     },
     "announce": false
   },
@@ -696,6 +713,22 @@
     "announce": false
   },
   {
+    "id": "lab_stink",
+    "name": "lab stink",
+    "text": "The laboratory stinks.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "condition": "passing within 3 tiles of a laboratory that spoiled a batch today"
+    },
+    "announce": false
+  },
+  {
     "id": "legendary",
     "name": "legendary",
     "text": "I have mastered my craft.",
@@ -917,6 +950,23 @@
     "announce": false
   },
   {
+    "id": "rune_sick",
+    "name": "rune sick",
+    "text": "Too much rune. My teeth hum.",
+    "value": {
+      "formula": "−4"
+    },
+    "hours": 24,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "VialDrunk",
+      "target": "a fourth vial in a day"
+    },
+    "announce": false
+  },
+  {
     "id": "sat_in_fine_room",
     "name": "sat in fine room",
     "text": "Sat in a fine room.",
@@ -991,6 +1041,21 @@
     "group": "comfort",
     "trigger": {
       "condition": "first outdoor tile after 7+ days underground"
+    },
+    "announce": false
+  },
+  {
+    "id": "saw_wisp",
+    "name": "saw wisp",
+    "text": "Saw a light that was not a lamp.",
+    "value": 2,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "WispAppeared",
+      "target": "within 8 tiles and line of sight, once a day (everyone)"
     },
     "announce": false
   },

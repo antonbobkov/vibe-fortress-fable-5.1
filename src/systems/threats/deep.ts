@@ -210,11 +210,11 @@ export function triggerDeepEmergence(
 
 /**
  * A creature of the `deep` faction that has just appeared becomes Hollow-born: `Hostile` (role
- * `hollow`, attacking, stealthed when its species has stealth), a member of `hollowBorn`, and the
- * nearest fortress creature as its target. The emergence and 25's turned summon (`SummonTurned`)
- * both come through here.
+ * `hollow`, attacking, stealthed when its species has stealth or `hidden` says so), a member of
+ * `hollowBorn`, and the nearest fortress creature as its target. The emergence and 25's turned
+ * summon (`SummonTurned`, which comes through hidden) both come through here.
  */
-export function spawnedHollowBorn(ctx: TickContext, id: EntityId, tile: TileIndex, hollowBorn: Set<EntityId>): void {
+export function spawnedHollowBorn(ctx: TickContext, id: EntityId, tile: TileIndex, hollowBorn: Set<EntityId>, hidden = false): void {
   const creature = ctx.world.entities.get(id, C.Creature);
   if (creature === undefined || !ctx.world.entities.alive(id)) return;
   const species = ctx.registry.table<{ id: string; flags?: { stealth?: boolean } }>('creatures').byIndex(creature.species);
@@ -222,7 +222,7 @@ export function spawnedHollowBorn(ctx: TickContext, id: EntityId, tile: TileInde
     partyId: 0,
     role: 'hollow',
     behaviorState: 'attack',
-    stealthed: species?.flags?.stealth === true,
+    stealthed: hidden || species?.flags?.stealth === true,
     spotted: false,
     breakingDoorId: 0,
     breakingSince: 0,

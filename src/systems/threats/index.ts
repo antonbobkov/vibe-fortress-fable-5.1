@@ -455,10 +455,10 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         }
       }
     } else if (event.type === 'SummonTurned') {
-      // 25 § Summons: a turned summon is Hollow-born from the tile it came through on.
+      // 25 § Summons: a turned summon is Hollow-born from the tile it came through on, and comes through hidden.
       const id = event['id'] as EntityId;
       const pos = ctx.world.entities.get(id, C.Position);
-      if (pos !== undefined) spawnedHollowBorn(ctx, id, ctx.world.map.index(pos.x, pos.y, pos.z), this.hollowBorn);
+      if (pos !== undefined) spawnedHollowBorn(ctx, id, ctx.world.map.index(pos.x, pos.y, pos.z), this.hollowBorn, true);
     } else if (event.type === 'DeepsilverMined') {
       const tile = event['tile'] as TileIndex;
       handleDeepsilverMined(tile, ctx, this.deepsilverTiles, this.deepState, this.hollowBorn);

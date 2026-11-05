@@ -100,7 +100,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | `medical/brightleaf` | 100 | 100 | 130 |
 | `medical/vial`, `medical/draught` | 150 | 100 | 100 |
 | creatures (caged) | 120 (exotic cave beasts 200) | 100 | 150 |
-| any item with material class `wood` | 100 | 100 | 20 (and −2 reputation per item offered) |
+| any item with material class `wood` | 100 | 100 | 20 (and −2 reputation per item offered); for the Wildwood a wand or staff counts as wooden |
 | `bar` deepsilver, deepsilver items | 300 | 200 | 150 |
 | `furniture/*` | 100 | 110 | 80 (wood: 20) |
 

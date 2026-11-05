@@ -182,6 +182,9 @@ export class Compositor {
   private readonly glyphOf: (ch: string) => number;
   private readonly attackedPairs = new Set<string>();
   private readonly flashUntil = new Map<EntityId, number>();
+  /** 25 § Player-facing behavior: a firebloom's 3×3, by its centre tile, shown in `ember_orange` until this frame. */
+  private readonly bloomUntil = new Map<TileIndex, number>();
+  private readonly emberOrange: Rgb;
   private readonly stations = new Set<TileIndex>();
   private readonly patrols = new Set<TileIndex>();
   private readonly projectiles = new Map<TileIndex, EntityId>();
@@ -239,6 +242,7 @@ export class Compositor {
     this.snowBg = palette.color('snow_white');
     this.snowFg = palette.color('gray');
     this.ash = palette.color('ash_gray');
+    this.emberOrange = palette.color('ember_orange');
 
     // Step 6: each species' glyph and color (`creatures.md`), by registry index.
     const chars = glyphChars(options.registry);
@@ -397,6 +401,16 @@ export class Compositor {
     // does not dim it a second time (D-103).
     cell = this.overlays(cell, i, x, y, false, creature !== null);
     if (!sky) cell = this.lighting(cell, i);
+    return this.bloomUntil.size === 0 ? cell : this.bloomOver(cell, map, x, y, z);
+  }
+
+  /** A firebloom's 3×3 shows in `ember_orange` for the frame it blooms in, over light and dark alike. */
+  private bloomOver(cell: Cell, map: MapReader, x: number, y: number, z: number): Cell {
+    for (const [centre, until] of this.bloomUntil) {
+      if (until <= this.animFrame) continue;
+      const c = map.unpack(centre);
+      if (c.z === z && Math.max(Math.abs(c.x - x), Math.abs(c.y - y)) <= 1) return { ...cell, bg: this.emberOrange };
+    }
     return cell;
   }
 
@@ -755,7 +769,9 @@ export class Compositor {
 
   /** Presentation event subscription: one flash for the first attack of an attacker/defender pair. */
   onEvents(events: readonly GameEvent[], animFrame: number): void {
+    for (const [centre, until] of this.bloomUntil) if (until <= animFrame) this.bloomUntil.delete(centre);
     for (const event of events) {
+      if (event.type === 'SpellBloomed' && typeof event['tile'] === 'number') this.bloomUntil.set(event['tile'] as TileIndex, animFrame + 1);
       if (event.type !== 'AttackResolved') continue;
       if (typeof event.attackerId !== 'number' || typeof event.defenderId !== 'number') continue;
       const pair = `${event.attackerId}:${event.defenderId}`;

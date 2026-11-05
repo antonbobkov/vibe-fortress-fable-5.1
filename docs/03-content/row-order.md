@@ -145,3 +145,7 @@ Every new row of every table goes at the end of this table, including generated 
 | milestones | m_stone_set |
 | milestones | m_runecaster |
 | creatures | gloam_hexer |
+| thoughts | rune_sick |
+| thoughts | dosed_again |
+| thoughts | saw_wisp |
+| thoughts | lab_stink |

@@ -62,6 +62,8 @@ const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', 
     SummonCalled: { test: 'test/unit/runecraft/t475-summons.test.ts', reason: 'A Call caster on duty calls its summons when a goblin is held, through the stepped combat loop.' },
     SummonTurned: { test: 'test/unit/runecraft/t475-summons.test.ts', reason: 'A deepsilver Call on a seed whose first draw turns brings a deep shade that 18 makes Hollow-born and a squad kills, in step.' },
     SummonFaded: { test: 'test/unit/runecraft/t475-summons.test.ts', reason: 'A summon fades at the hour after its day ends, and after its caster dies, through 25 and 17 in step.' },
+    WispAppeared: { test: 'test/unit/runecraft/t491-flavour-pass.test.ts', reason: 'A wand caster on duty calls a wisp through the stepped combat loop, and a sanctum lets one loose; dwarves who see it get saw_wisp.' },
+    SpellBloomed: { test: 'test/unit/runecraft/t491-flavour-pass.test.ts', reason: 'A firebloom queued with 25 blooms at its tick in step, and the compositor flashes its 3×3.' },
     SquadOrderIssued: { test: commandTest, reason: 'An accepted SquadOrder is dispatched through the following 50 ticks on both saved worlds.' },
   },
   jobs: {
