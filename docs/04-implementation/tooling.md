@@ -66,7 +66,7 @@ The repository is public, so the runners (4 vCPU, 16 GB) cost nothing. A job sto
 
 ### Running tests on GitHub
 
-Every test that takes six minutes or more locally runs here, not on the developer's machine (agent-workflow.md § Verifying). These are the full `npm test`, the e2e suite, the annual instrument, the twenty-seed sweep, `three_years_main` and `defence_year`. Short runs stay local: single test files, the arenas, `pp_defence`, probes of one seed.
+Tests of ten minutes or more locally always run here; five to ten minutes by judgement, preferring GitHub; new tests, quickly failing ones and fast iteration may stay local; fall back to local runs if Actions is unavailable for a long stretch (agent-workflow.md § Verifying, an experiment since 2026-11-05). Long ones: the full `npm test`, the e2e suite, the annual instrument, the twenty-seed sweep, `three_years_main` and `defence_year`. Short runs stay local: single test files, the arenas, one-seed probes.
 
 1. **Push the branch.** The runner checks out the pushed commit, not your working tree, so commit and push first: `git push -u origin <branch>`.
 2. **Start the run.**
