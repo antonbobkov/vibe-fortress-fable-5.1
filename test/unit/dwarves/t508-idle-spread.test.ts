@@ -30,11 +30,11 @@ function idleDwarves(w: TestWorld, at: TileIndex, n: number): EntityId[] {
 }
 
 /** Steps `ticks` with every dwarf's needs held at zero: with no want to serve, an idle dwarf goes to the hall and stands. */
-function stepContent(w: TestWorld, ticks: number): void {
+function stepContent(w: TestWorld, ticks: number, joy = 0): void {
   for (let done = 0; done < ticks; done += 10) {
     for (const id of w.game.world.entities.with(C.Needs)) {
       const needs = w.game.world.entities.get(id, C.Needs)!;
-      w.game.world.entities.add(id, C.Needs, { ...needs, hunger: 0, thirst: 0, rest: 0, social: 0, comfort: 0, purpose: 0, joy: 0 });
+      w.game.world.entities.add(id, C.Needs, { ...needs, hunger: 0, thirst: 0, rest: 0, social: 0, comfort: 0, purpose: 0, joy });
     }
     w.step(10);
   }
@@ -67,5 +67,22 @@ describe('T-508 idle dwarves spread over the hall', () => {
     const stands = w.game.movement.tileOf(dwarf!);
     expect(hall).toContain(stands);
     expect(stands).not.toBe(took);
+  });
+
+  it('dwarves on a joy errand stand in the hall on tiles of their own', () => {
+    const { w, hall, outside } = hallWorld('t508-joy');
+    const dwarves = idleDwarves(w, outside, 5);
+    let seen = 0;
+    for (let look = 0; look < 30; look += 1) {
+      stepContent(w, 20, 65);
+      const standing = dwarves.filter((d) => {
+        const b = w.game.world.entities.get(d, C.Brain);
+        return b?.activity === 'joy' && w.game.movement.tileOf(d) === b.targetTile;
+      }).map((d) => w.game.movement.tileOf(d));
+      for (const t of standing) expect(hall).toContain(t);
+      expect(new Set(standing).size, `tiles ${standing.join(',')}`).toBe(standing.length);
+      if (standing.length >= 2) seen += 1;
+    }
+    expect(seen, 'looks with two or more dwarves on the errand at once').toBeGreaterThan(0);
   });
 });
