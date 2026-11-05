@@ -37,8 +37,8 @@ function defaultMelts(cls) {
   return MINERAL_CLASSES.has(cls) ? MINERAL_MELTS_AT_C : ORGANIC_MELTS_AT_C;
 }
 
-/** minerals-and-metals.md: wood 0.40, bone 0.50 as weapon multipliers. */
-const SHARPNESS_BY_CLASS = { wood: 400, bone: 500 };
+/** minerals-and-metals.md: wood 0.40, bone 0.50, obsidian 0.70 as weapon multipliers. */
+const SHARPNESS_BY_CLASS = { wood: 400, bone: 500, obsidian: 700 };
 
 function tagsFromNotes(cell) {
   return ticked(cell).filter((t) => /^[a-z_]+$/.test(t));

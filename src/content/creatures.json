@@ -910,6 +910,12 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "remains": [
+      {
+        "item": "ember_gland",
+        "count": 1
+      }
+    ],
     "glyph": "n",
     "fg": "ember_orange"
   },
@@ -1019,6 +1025,12 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "remains": [
+      {
+        "item": "spider_venom",
+        "count": 1
+      }
+    ],
     "glyph": "S",
     "fg": "hostile"
   },

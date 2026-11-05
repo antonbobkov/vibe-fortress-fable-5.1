@@ -123,7 +123,7 @@ Columns: `tier` for weapons and armor (0 wood and bone, 1 copper, 2 bronze, 3 ir
 | `bismuth` | bismuth | 0 | 10 | 980 | 0.30 | 0.30 | 0 | 0.7 | — | — | 271 | `bismuth_pink` | — | alloy input |
 | `deepsilver` | deepsilver | 5 | 250 | 600 | 1.60 | 1.60 | 0 | 1.6 | `deep_shade` | 10 | 2400 | `deepsilver_blue` | — | magma-safe; light: armor weight halved |
 
-Metal tier for weapon and armor purposes: `wood` and `bone` items are tier 0 with `weaponMult` 0.40 and 0.50.
+Metal tier for weapon and armor purposes: `wood`, `bone` and `obsidian` items are tier 0 with `weaponMult` 0.40, 0.50 and 0.70. Obsidian and bone are knapped into daggers and short swords at the craftsdwarf's workshop ([workshops-and-recipes.md](workshops-and-recipes.md) § Craftsdwarf): an obsidian short sword deals 12.6 and a bone one 9 against a copper one's 14.4 and an iron one's 18, and a bone dagger's 6 is a dwarf's punch with an edge.
 
 ## Fuel
 

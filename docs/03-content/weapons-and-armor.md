@@ -10,8 +10,8 @@ Columns: `skill` is the combat skill used; `type` the damage type; `damage` the 
 
 | id | name | class | skill | type | damage | size | hands | bars | mult | materials | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `dagger` | dagger | dagger | `dagger` | edge | 12 | 3 | 1 | 1 | 4 | metal | fast: cooldown 19 at Agility 50 |
-| `short_sword` | short sword | sword | `sword` | edge | 18 | 5 | 1 | 2 | 8 | metal | |
+| `dagger` | dagger | dagger | `dagger` | edge | 12 | 3 | 1 | 1 | 4 | metal, obsidian (0.7), bone (0.5) | fast: cooldown 19 at Agility 50; knapped from 1 obsidian stone or 1 bone pile |
+| `short_sword` | short sword | sword | `sword` | edge | 18 | 5 | 1 | 2 | 8 | metal, obsidian (0.7), bone (0.5) | knapped from 2 obsidian stones or 2 bone piles |
 | `battle_axe` | battle axe | axe | `axe` | edge | 22 | 6 | 1 | 2 | 8 | metal | the same item as the woodcutting `axe`; `axe` in items.md is this |
 | `great_axe` | great axe | axe | `axe` | edge | 30 | 9 | 2 | 3 | 12 | metal | |
 | `mace` | mace | mace | `mace` | blunt | 20 | 6 | 1 | 2 | 7 | metal (silver +30%) | |
@@ -131,6 +131,8 @@ A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arr
 | `diamond` | `sunder` | weapon | 12 | sundering | `armor_percent` 50 | none | |
 | `deepsilver` | `deep` | weapon | 12 | of the deep | `damage_percent` 25; `vs_deep_percent` 50 | none | |
 | `hollow_ichor` | `hollowbane` | weapon | 8 | hollowbane | `vs_deep_percent` 100 | none | |
+| `spider_venom` | `venomed` | weapon | 4 | venomed | `pain` 20 for 300 ticks | ticks | |
+| `ember_gland` | `ember_gland` | weapon | 4 | of embers | `extra_damage` 8 ember | value | |
 | `quartz` | `stout` | armor | 4 | stout | `armor` 2 | value | |
 | `garnet` | `emberward` | armor | 6 | of embers warded | `fire_percent` 50 | none | |
 | `amethyst` | `rimeward` | armor | 6 | of rime warded | `frost_percent` 50; `slow_immune` 1 | none | |
@@ -143,7 +145,7 @@ A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arr
 | `amethyst` | `rime_ammo` | ammo | 4 | of rime | `slow` 30 for 200 ticks | ticks | |
 | `emerald` | `seeking` | ammo | 4 | seeking | `to_hit` 10 | value | |
 
-What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `flee_immune` keeps the wearer from being put to flight, by Dread or a fearsome blow; `daze_resist` adds to the wearer's resist roll against Daze, in percent; `ignite` sets the struck creature's tile alight, on a roll of its chance, when that tile can burn; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum); `light` lights the 3×3 around the wearer as a glowstone lamp does for a `glow` crop (07 § Growth).
+What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `flee_immune` keeps the wearer from being put to flight, by Dread or a fearsome blow; `daze_resist` adds to the wearer's resist roll against Daze, in percent; `ignite` sets the struck creature's tile alight, on a roll of its chance, when that tile can burn; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum); `light` lights the 3×3 around the wearer as a glowstone lamp does for a `glow` crop (07 § Growth); `pain` is a timed pain on the target, added to its wounds' pain while it lasts (17 § Bleeding, pain, consciousness). The `ember_gland` row is the setting of embers with an ember newt's gland for its stone, at fewer vials than a garnet: the same effect and the same name.
 
 ## Shields
 

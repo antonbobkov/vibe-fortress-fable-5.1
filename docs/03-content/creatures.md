@@ -142,6 +142,8 @@ What a dead creature leaves on its corpse besides its gear: items made of the ma
 | `magma_wyrm` | 4 `wyrmscale` |
 | `hollow_stalker` | 1 `hollow_ichor` |
 | `hollow_maw` | 1 `hollow_ichor` |
+| `giant_cave_spider` | 1 `spider_venom` |
+| `ember_newt` | 1 `ember_gland` |
 
 ## Fish pools
 

@@ -33,6 +33,8 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   glowcap: 'glowcap',
   hollow_ichor: 'hollow_ichor',
   wyrmscale: 'wyrmscale',
+  spider_venom: 'spider_venom',
+  ember_gland: 'ember_gland',
   rune_vial: 'rune',
   cut_gem: 'quartz',
   // The first alternative of a setting's kept input (25 § Setting stones).
@@ -173,12 +175,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 199', () => {
+  it('the recipe count over all types is 205', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(199);
+    expect(total).toBe(205);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

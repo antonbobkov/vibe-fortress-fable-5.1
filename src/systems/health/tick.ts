@@ -349,7 +349,9 @@ export function tickHealth(
       rawPain += w.pain;
     }
     if (anyInfected) rawPain += 10;
-    // 25 § Effects: a draught of stoutness halves the pain.
+    // 25 § Effects: a venomed blow's timed pain joins the sum; a draught of stoutness halves it all.
+    const venom = effectValue(entities, id, 'pain', ctx.tick);
+    rawPain += venom;
     if (effectValue(entities, id, 'pain_half', ctx.tick) > 0) rawPain = Math.floor(rawPain / 2);
 
     const attrs = entities.get(id, C.Attributes);
@@ -434,7 +436,8 @@ export function tickHealth(
 
     // Check if fully healed and blood restored
     const remainingWoundCount = b.parts.reduce((acc, p) => acc + p.wounds.length, 0);
-    if (remainingWoundCount === 0 && b.blood >= b.maxBlood && !stunned) {
+    // A timed pain keeps the creature here until it ends, so its pain is summed again without it.
+    if (remainingWoundCount === 0 && b.blood >= b.maxBlood && !stunned && venom === 0) {
       woundedSet.delete(id);
       lastAttacker.delete(id);
     }

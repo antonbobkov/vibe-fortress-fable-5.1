@@ -192,7 +192,10 @@ function stoneInput(stone: string, cls: string | undefined): RecipeDef['inputs']
   return { match: stone, count: 1 };
 }
 
-/** `workshops-and-recipes.md` § Runeforge: one `set_<slot>_<enchant>` per row of `enchants`. */
+/**
+ * `workshops-and-recipes.md` § Runeforge: one `set_<slot>_<enchant>` per row of `enchants`. A row
+ * whose slot and suffix an earlier row already has names its stone too: "Weapon of embers (ember gland)".
+ */
 export function settingRecipes(
   enchants: readonly EnchantDef[],
   weapons: readonly WeaponGenRow[],
@@ -201,12 +204,15 @@ export function settingRecipes(
 ): RecipeDef[] {
   const melee = weapons.filter((w) => w.launcher === undefined && w.training !== true).map((w) => w.id);
   const out: RecipeDef[] = [];
+  const named = new Set<string>();
   for (const e of enchants) {
     const targets = e.slot === 'weapon' ? melee
       : e.slot === 'armor' ? armor.filter((a) => a.layer !== 'none' && (e.only === undefined || a.armorSlot === e.only)).map((a) => a.id)
         : ['bolt', 'arrow'];
     if (targets.length === 0) continue;
-    const name = withSuffix(SLOT_WORDS[e.slot], e.suffix);
+    const base = withSuffix(SLOT_WORDS[e.slot], e.suffix);
+    const name = named.has(base) ? `${base} (${e.stone.replace(/_/g, ' ')})` : base;
+    named.add(base);
     out.push({
       id: `set_${e.slot}_${e.id}`,
       name: name.charAt(0).toUpperCase() + name.slice(1),

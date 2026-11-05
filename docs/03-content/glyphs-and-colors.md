@@ -285,7 +285,7 @@ Dwarves `☺` with state colors; traders `☺` in civ colors; animals by species
 
 ### Items
 
-By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage) `♠` (glowcap) `¡` (rune vial, hollow ichor) `§` (wyrmscale), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
+By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage) `♠` (glowcap) `¡` (rune vial, hollow ichor, spider venom) `§` (wyrmscale) `♥` (ember gland), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
 
 ### Buildings
 
