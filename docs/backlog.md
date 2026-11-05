@@ -18,7 +18,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-488 | [three-years-p2-7 ends without its dining hall](work/T-488-p2-7-dining-hall-witness.md) | T-479's sweep | — | open |
 | T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
 | T-490 | [11 still describes the crowded-doorway retry that crowding removed](work/T-490-stale-crowded-walk-rule.md) | T-487's journal | — | open |
-| T-497 | [A turned shade that stays hidden for a while](work/T-497-turned-shade-hides-longer.md) | T-491's work | — | open |
 | T-498 | [A careful shooter waits behind its own line instead of finding a clear one](work/T-498-held-shooter-clear-line.md) | T-483's arena and sweep | — | open |
 | T-499 | [Re-measure the raid arenas now that archers weigh their shots](work/T-499-raid-arenas-after-held-shot.md) | T-483's arena and sweep | — | open |
 | T-500 | [The Warband's hunter never takes a hunt in pp_defence](work/T-500-warband-hunt-no-tool.md) | T-483's arena and sweep | — | open |

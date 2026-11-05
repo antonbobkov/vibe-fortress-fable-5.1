@@ -1,5 +1,7 @@
 # T-497 — A turned shade that stays hidden for a while
 
+**Closed:** 2026-11-05, in 8cac295f.
+
 **Source:** T-491 (the turned shade hides, flavour report item 14) · **Size:** S · **Needs:** the owner's choice below · **Status:** open
 
 ## Why
