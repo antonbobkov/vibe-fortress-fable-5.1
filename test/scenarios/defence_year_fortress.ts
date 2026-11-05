@@ -327,24 +327,12 @@ function squadArmed(w: TestWorld, squadId: number): boolean {
   return members.filter((id) => combat.weaponOf(id) !== 0).length >= 3;
 }
 
-/** Whether a raid or a siege that has not broken is on the map. */
-function raidStanding(w: TestWorld): boolean {
-  const ent = w.game.world.entities;
-  return ent.with(C.Party).some((id) => {
-    const p = ent.get(id, C.Party);
-    return p !== undefined && (p.purpose === 'raid' || p.purpose === 'siege') && p.state !== 'gone' && p.state !== 'retreat' &&
-      p.members.some((m) => ent.alive(m) && ent.get(m, C.Position) !== undefined);
-  });
-}
-
 /**
  * Under the alert: hostiles of an ambush, a band or a thief that have come up the corridor stand at
  * the locked north door, over the traps. While they are fewer than the squad's armed members the
  * north door is opened to the squad, which waits behind it on the gate stair and is ordered to kill
- * each of them; the door goes back to locking on the alert once the corridor is clear. A raid that
- * has not broken is met at the north door: while it is on the map the door stands open to a squad
- * whose members are armed, which holds the gate stair behind it and fights what comes down the
- * corridor (T-504). The bridge closes the corridor behind the raiders in it (checkDefenceWorks).
+ * each of them; the door goes back to locking on the alert once the corridor is clear. A raid is
+ * never sallied on: the bridge closes the corridor behind it (checkDefenceWorks).
  */
 export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -357,12 +345,7 @@ export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const squadId = state.fortress.squadId;
   if (door === 0 || buildings.get(door)?.state !== 'built') return;
   const raid = new Set(raiders(w));
-  if (w.game.world.fortress.alert === 'hearth' && squadId !== 0 && squadArmed(w, squadId) && raidStanding(w)) {
-    if (buildings.get(door)?.mode !== 'open') {
-      command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
-      if (!state.notes.some((n) => n.endsWith('north door opened to meet the raid'))) note(state, w, 'north door opened to meet the raid');
-    }
-  } else if (w.game.world.fortress.alert === 'hearth' && inCorridor.length > 0 && !inCorridor.some((id) => raid.has(id)) &&
+  if (w.game.world.fortress.alert === 'hearth' && inCorridor.length > 0 && !inCorridor.some((id) => raid.has(id)) &&
       squadId !== 0 && squadArmed(w, squadId) && inCorridor.length < armedCount(w, squadId)) {
     if (buildings.get(door)?.mode !== 'open') {
       command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
