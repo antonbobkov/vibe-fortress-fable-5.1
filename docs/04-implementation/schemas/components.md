@@ -115,7 +115,7 @@ type SquadOrder = { kind: 'kill'; targetId: EntityId } | { kind: 'station'; tile
                 | { kind: 'patrol'; tiles: TileIndex[] } | { kind: 'follow'; dwarfId: EntityId };
 interface Party { civ: Civ | 'deep' | 'none'; purpose: 'thief'|'bandits'|'ambush'|'raid'|'siege'|'restless'|'caravan';
                   members: EntityId[]; leaderId: EntityId; state: string; goalTile: TileIndex; goalEntity: EntityId;
-                  arrivedTick: Tick; stateSince: Tick; loot: EntityId[]; edge: Edge; size: number; escapedLootCount?: number; captainIds?: EntityId[]; animalCarriers?: Record<EntityId, EntityId>; goalIdleSince?: Tick; ambushSprung?: boolean }
+                  arrivedTick: Tick; stateSince: Tick; loot: EntityId[]; edge: Edge; size: number; escapedLootCount?: number; captainIds?: EntityId[]; animalCarriers?: Record<EntityId, EntityId>; goalIdleSince?: Tick; ambushSprung?: boolean; blowSince?: Tick; stalled?: boolean }
 interface Hostile { partyId: EntityId; role: string; behaviorState: string; stealthed: boolean; spotted: boolean;
                     breakingDoorId: EntityId; breakingSince: Tick;
                     retreat?: { stateSince: Tick; goalTile: TileIndex; bestDistance: number; progressSince: Tick } }
@@ -136,7 +136,8 @@ interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: Ent
 interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */;
                        lastDraughtTick?: Tick; lastCalmTick?: Tick /* the last draught and calming draught, kept while their rests last (25 § Draughts) */ }
 interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */ }
-interface Summoned { summonerId: EntityId /* the caster; 0 for one that came loose or turned */; fadesAt: Tick /* 25 kills it on the first HourPassed at or after this tick */ }
+interface Summoned { summonerId: EntityId /* the caster; 0 for one that came loose or turned */; fadesAt: Tick /* 25 kills it on the first HourPassed at or after this tick */;
+                     turnedFrom?: EntityId /* a turned shade's caster, who never spots it (18 § Stealth); absent otherwise */ }
 ```
 
 ## Component ownership table

@@ -51,15 +51,22 @@ export function exportBodyPlans() {
 
 const DAMAGE_TYPES = ['edge', 'blunt', 'pierce', 'ember', 'frost', 'burn'];
 
-/** "claw edge 18 size 6; bite edge 16 size 5" -> AttackDef[]. */
+/** "(venom: pain +20 for 300 ticks)" -> { kind: 'pain', value: 20, ticks: 300 }; any other bracket is a note. */
+function parseOnHit(part) {
+  const m = /\(\s*venom:\s*pain\s*\+(\d+)\s+for\s+(\d+)\s+ticks\s*\)/.exec(part);
+  return m === null ? undefined : { kind: 'pain', value: Number(m[1]), ticks: Number(m[2]) };
+}
+
+/** "claw edge 18 size 6; bite pierce 16 size 4 (venom: pain +20 for 300 ticks)" -> AttackDef[]. */
 export function parseAttacks(cell) {
   if (isBlank(cell)) return [];
   return plain(cell)
-    .replace(/\([^)]*\)/g, ' ')
     .split(';')
     .map((part) => part.trim())
     .filter((p) => p.length > 0)
-    .map((part) => {
+    .map((whole) => {
+      const onHit = parseOnHit(whole);
+      const part = whole.replace(/\([^)]*\)/g, ' ').trim();
       const typeMatch = new RegExp(`\\b(${DAMAGE_TYPES.join('|')})\\b`).exec(part);
       if (typeMatch === null) return null;
       const name = part.slice(0, typeMatch.index).trim();
@@ -73,6 +80,7 @@ export function parseAttacks(cell) {
         damage: damage === null ? 0 : Number(damage[1]),
         size: size === null ? 1 : Number(size[1]),
         range: rng === null ? undefined : Number(rng[1]),
+        onHit,
       });
     })
     .filter((a) => a !== null);
