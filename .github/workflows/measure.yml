@@ -1,0 +1,98 @@
+name: Measure
+# On-demand heavy measurements, run on GitHub's runners instead of a local machine.
+#   gh workflow run measure.yml --ref <branch> -f suite=sweep
+# Results: gh run download <run-id>   (one folder per job; the summary is in "sweep-summary")
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: What to measure
+        type: choice
+        default: sweep
+        options: [sweep, instrument, pp_defence, e2e]
+permissions:
+  contents: read
+jobs:
+  sweep:
+    if: inputs.suite == 'sweep'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [p0-1, p0-2, p0-3, p0-4, p0-5, p0-6, p0-7,
+               p2-1, p2-2, p2-3, p2-4, p2-5, p2-6, p2-7,
+               p4-1, p4-2, p4-3, p4-4, p4-5, p4-6]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Three years, seed ${{ matrix.seed }}
+        env:
+          THREE_YEARS_SEEDS_OUT: out
+        run: npx vitest run -c vitest.perf.config.ts test/perf/three_years_seeds.test.ts -t "three-years-${{ matrix.seed }} " 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        run: mkdir -p out && mv out-log.txt out/three-years-${{ matrix.seed }}.log
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seed-${{ matrix.seed }}
+          path: out/
+          retention-days: 14
+
+  sweep-summary:
+    if: always() && inputs.suite == 'sweep'
+    needs: sweep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: seed-*
+          path: seeds
+          merge-multiple: true
+      - run: node scripts/ci/sweep-summary.mjs seeds | tee sweep-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sweep-summary
+          path: sweep-summary.md
+          retention-days: 30
+
+  single:
+    if: inputs.suite != 'sweep'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - if: inputs.suite == 'instrument'
+        env:
+          WILDLIFE_YEAR_OUT: out/wildlife-year.json
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/wildlife_year.test.ts 2>&1 | tee out/wildlife-year.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: inputs.suite == 'pp_defence'
+        run: mkdir -p out && npx vitest run test/scenarios -t "pp_defence" 2>&1 | tee out/pp-defence.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: inputs.suite == 'e2e'
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium && mkdir -p out && npm run test:e2e 2>&1 | tee out/e2e.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.suite }}
+          path: out/
+          retention-days: 14

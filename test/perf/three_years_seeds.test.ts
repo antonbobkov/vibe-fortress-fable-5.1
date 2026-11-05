@@ -317,10 +317,10 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   console.log(`[three_years_seeds_deaths] ${JSON.stringify(figures)}`);
   const out = process.env['THREE_YEARS_SEEDS_OUT'] ?? '.vite/three-years-seeds';
   mkdirSync(out, { recursive: true });
-  writeFileSync(`${out}/${seed}.json`, JSON.stringify({ figures, result }, null, 2) + '\n');
   // The file's set rule reads these. They come before the seed's assertions, so a seed that fails one
-  // is still counted as what it was.
+  // is still counted as what it was. The on-demand sweep (.github/workflows/measure.yml) reads the file.
   const needDeaths = economy.needDeaths();
+  writeFileSync(`${out}/${seed}.json`, JSON.stringify({ figures, result, needDeaths }, null, 2) + '\n');
   survival.push({ seed, peril, y1Pop, y3Pop, needDeaths });
   console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE, needDeaths })}`);
   // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
