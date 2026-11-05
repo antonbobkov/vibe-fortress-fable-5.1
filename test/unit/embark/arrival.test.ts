@@ -168,7 +168,8 @@ describe('T-M2-08 arrival: trait spawn lists', () => {
     const game = new HeadlessGame({ seed: 'battlefield', world: 'local', spec, embark: 'default' });
     const { items } = readers(game);
     const spawns = game.local?.spawns.filter((s) => s.source === 'old_battlefield') ?? [];
-    expect(spawns).toHaveLength(BATTLEFIELD_ITEM_COUNT + BATTLEFIELD_BONE_PILES + BATTLEFIELD_SKULLS);
+    // This map also holds the old channel of 03 stage 10 (one wand, not iron): one entry more.
+    expect(spawns).toHaveLength(BATTLEFIELD_ITEM_COUNT + BATTLEFIELD_BONE_PILES + BATTLEFIELD_SKULLS + 1);
     const all = game.world.entities.with(C.Item);
     const rusted = all.filter((id) => items.get(id)?.quality === 0 && game.registry.table('materials').idOf(items.get(id)?.material ?? 0) === 'iron');
     expect(rusted).toHaveLength(BATTLEFIELD_ITEM_COUNT);

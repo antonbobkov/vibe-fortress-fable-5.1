@@ -22,7 +22,7 @@ import { stageMinerals } from './minerals';
 import { stageVolcano } from './volcano';
 import { stageRarePatches, stageVegetation } from './vegetation';
 import { stageBoulders, stageRamps, stageSnow } from './surface';
-import { stageTraits } from './traits';
+import { stageBattlefieldChannel, stageTraits } from './traits';
 import { stageLight } from './light';
 
 export type { SpawnEntry, StackLayer, VeinRecord } from './common';
@@ -140,7 +140,10 @@ export function generateLocal(
       stageRarePatches(g);
       stageSnow(g);
     },
-    traits: () => stageTraits(g),
+    traits: () => {
+      stageTraits(g);
+      stageBattlefieldChannel(g);
+    },
     light: () => stageLight(map),
   };
   for (const stage of LOCAL_STAGES) {
