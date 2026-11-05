@@ -52,7 +52,49 @@ scripts/
 
 ## CI
 
-On every push: `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check`, `test`, `build`; nightly: `test:e2e` and `test:perf`. Golden changes require a reviewer.
+GitHub Actions runs nothing on push. Both workflows start only on demand. Golden changes require a reviewer.
+
+| Workflow | What it runs |
+|---|---|
+| `.github/workflows/ci.yml` (Verification) | `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check`, `test`, `build`, `test:e2e` |
+| `.github/workflows/measure.yml` (Measure) | One heavy measurement, chosen by the `suite` input: `sweep` (the twenty-seed file, one job per seed), `instrument` (the annual wildlife instrument), `pp_defence`, or `e2e` |
+
+The repository is public, so the runners (4 vCPU, 16 GB) cost nothing. A job stops at 6 hours.
+
+### Running a measurement on GitHub
+
+How to run a heavy measurement off the local machine. This describes a tool; whether a task needs a measurement is decided as before.
+
+1. **Push the branch.** The runner checks out the pushed commit, not your working tree, so commit and push what you want measured first (`git push -u origin <branch>`).
+2. **Start the run.**
+
+   ```
+   gh workflow run measure.yml --ref <branch> -f suite=sweep
+   ```
+
+   Other suites: `-f suite=instrument`, `-f suite=pp_defence`, `-f suite=e2e`. `ci.yml` takes no inputs: `gh workflow run ci.yml --ref <branch>`.
+3. **Find the run id.** `gh run list --workflow measure.yml --branch <branch> -L 1` prints it, with its status.
+4. **Wait for it.** A sweep takes about 15 minutes; its seeds run in parallel. In a shell that must not block for long, poll in the background:
+
+   ```
+   until [ "$(gh run view <id> --json status -q .status)" = completed ]; do sleep 60; done
+   gh run view <id> --json conclusion,jobs -q '.conclusion, (.jobs[] | .name+" "+.conclusion)'
+   ```
+
+5. **Read the result.**
+   - `gh run download <id> -n sweep-summary -D <dir>` gives `sweep-summary.md`: the totals, the row by peril, each seed's year-1 and year-3 population, deaths, need deaths and extinction day, and whether the set rule holds. The same table is on the run's page on GitHub.
+   - `gh run download <id> -n seed-<p0-1> -D <dir>` gives one seed's result file (`three-years-<seed>.json`, the same file the local run writes) and its full console log.
+   - `gh run download <id> -D <dir>` gives every artifact, one folder each. For the other suites the artifact is named after the suite.
+   - `gh run view <id> --log-failed` prints only the failed steps' output, which is the quickest way to see which assertion a seed broke.
+6. **Read the outcome correctly.**
+   - A seed job fails when the seed breaks one of its own assertions (an invariant, a witness) or produces no result file. Its numbers are still in the summary.
+   - The summary job fails when the set rule is broken or a seed has no result.
+   - So the run as a whole can show failure while the set rule holds. Read the summary before deciding.
+   - Artifacts are kept for 14 days (the summary for 30). Copy any figure a report needs into `reports/data/` in the commit.
+
+**Measuring your own probe.** A probe or journal that writes files can run the same way. Commit it on your branch, run it with the matching suite, or add a step to `measure.yml` on your branch. Files the job writes under `out/` become its artifact. Do not commit `reports/screenshots`.
+
+**Comparing two states.** Run the workflow once per branch or commit, wait for both, and compare the two summaries. Runs on different branches can go at the same time.
 
 ## Content authoring loop
 
