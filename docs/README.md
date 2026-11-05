@@ -28,6 +28,7 @@ report or audit ──► backlog row ──► work file ──► code + tests
 
 | Where | What it holds |
 |---|---|
+| [`fun-features.md`](fun-features.md) | Mechanics kept for character, not strength; each is removable if it breaks game logic. Also the candidates not yet planned |
 | [`balance-status.md`](balance-status.md) | Latest measurement and fixture qualification per balance measure; replaces the earlier balance journal |
 | [`backlog.md`](backlog.md) | Every open item in one table: id, title, source, needs, status. Nothing closed |
 | [`work/`](work/) | One file per open task: what to do, the decisions already made, the spec sections it changes, what "done" means |

@@ -18,3 +18,13 @@ Whether a launcher with ammunition takes the same rule (hold while an ally is on
 
 - The rule chosen is in 16 § Ranged resolution.
 - The two arenas are re-run and the marksdwarf figures go in a dated report and `balance-status.md`.
+
+## Decision, revised (orchestrator, 2026-11-04)
+
+The owner: "I like the idea of shooters shooting allies by accident until their skill is high enough." This replaces the rule committed on the branch (every shooter always holds). The rule becomes **carelessness by skill**:
+
+- A shooter with an ally on the line holds its shot **unless it is careless this time**. The chance of carelessness falls with the shooting skill (the launcher's skill, or `runecraft` for a caster): about 50% at skill 0, falling to 0 at Proficient (level 10) and above. Pick the exact curve and write it in 16 § Ranged resolution as a constant; it is *unmeasured*.
+- It applies to every shooter of every faction: marksdwarves, hunters, casters (25 § Casting), and hostile archers and hexers. Raiders, whose skills come from `threats/gear.ts`, will sometimes shoot their own front line; apprentices will singe their own squad; veterans hold.
+- The roll is one draw, made only when an ally is on the line, on the shooter's own system stream (16 for launchers, 25 for a caster).
+- This is a fun feature: list it in [`docs/fun-features.md`](../fun-features.md) § In the game when it lands.
+- Re-measure the two arenas as before, with marksdwarves at two skill levels (Novice and Proficient) and a Novice and a Proficient caster. Then run the twenty-seed file once (it is needed, since raids change). The set survival rule must hold.

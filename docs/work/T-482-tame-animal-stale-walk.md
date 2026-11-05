@@ -33,3 +33,7 @@ taiga-1 sits at the edge of starvation in every row, the accepted one included (
 ## Done
 
 - Measured with more than one sample after the taiga-1 task, by the T-308 rule, and the twenty-seed file's crowd watch shows no hall tile crowded for more than a day by animals alone.
+
+## Decision, added (orchestrator, 2026-11-04)
+
+Fix the stale walk as the task says, then keep the pile as a fun feature (flavour report item 2): an idle pet chooses a **favourite spot** off the main path, such as a tile beside the hearth or a bed, and several pets may heap there. The spreading rule from T-463 still keeps them off the hall's walking lines. List it in [`docs/fun-features.md`](../fun-features.md) when it lands. Measure with two samples of the annual instrument against the reference.
