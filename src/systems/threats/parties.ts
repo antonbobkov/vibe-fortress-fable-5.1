@@ -14,7 +14,7 @@ import type { RngStream } from '@core/rng';
 import type { Edge, EntityId, TileIndex } from '@core/types';
 import { HEXER_RUNE } from '@systems/magic/constants';
 import { MILLI } from '@systems/magic/rune';
-import { ARRIVAL_SPREAD, ARRIVAL_TICKS, HEXER_FIRST_YEAR, HEXERS_PER_RAID, HEXERS_PER_SIEGE } from './constants';
+import { ARRIVAL_SPREAD, ARRIVAL_TICKS, HEXER_FIRST_YEAR, HEXERS_PER_RAID, HEXERS_PER_SIEGE, MORALE_START } from './constants';
 import { assignHostileSkills, calculateGearTier, equipHostileCreature } from './gear';
 import type { PendingSpawnState } from './state';
 
@@ -301,6 +301,7 @@ export function arriveParty(
     loot: [],
     edge,
     size,
+    ...(MORALE_START[kind] !== undefined ? { morale: MORALE_START[kind] } : {}),
     ...(kind === 'ambush' ? { ambushSprung: false } : {}),
   });
 

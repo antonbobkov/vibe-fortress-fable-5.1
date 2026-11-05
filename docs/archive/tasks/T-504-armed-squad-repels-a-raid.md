@@ -1,6 +1,8 @@
 # T-504 — Raid morale: raiders lose nerve, and a well-armed squad repels a raid
 
-**Source:** T-466's [report](../../reports/audits/2026-11-05-t466-defence-repels-a-raid.md), the owner's decision on 2026-11-04 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in 22fbc458.
+
+**Source:** T-466's [report](../../../reports/audits/2026-11-05-t466-defence-repels-a-raid.md), the owner's decision on 2026-11-04 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

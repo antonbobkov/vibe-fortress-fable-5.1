@@ -175,7 +175,8 @@ A hungry wild killer saves the victim id while waiting for `CorpseCreated`; its 
 partyThink(P):
   if P.state == 'retreat' and tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY: despawn every living member through the departure path; return
   alive = P.members.filter(alive and conscious); if alive.length == 0: living unconscious survivors retreat; only no living survivors ends the party; return
-  if P.state != 'retreat' and ((P.members.length - alive.length) * 100 / P.members.length >= RETREAT_LOSS_PERCENT or (P.state != 'engage' and P.captainIds non-empty and no captain in alive)): P.state='retreat'; outcome = P.loot.length ? 'looted' : 'repelled'
+  if P.state != 'retreat': count a caged or down member no event counted (18 § Morale); leaderless = P.captainIds non-empty and no captain in alive; once leaderless: P.morale -= MORALE_CAPTAIN_LOST
+  if P.state != 'retreat' and ((P.members.length - alive.length) * 100 / P.members.length >= RETREAT_LOSS_PERCENT or P.morale <= MORALE_BREAK or (leaderless and P.state != 'engage' and P.morale < MORALE_BREAK_LEADERLESS)): P.state='retreat'; outcome = P.loot.length ? 'looted' : 'repelled'
   switch P.state:
     approach: for a thief, chooseGoal each threats tick; if no quarry, wait hidden at arrival, then retreat with withdrew at THIEF_WAIT_DAYS after arrival; reaching an empty goal never counts as theft; return
               goal = chooseGoal(P); if goal unreachable: P.goalTile = pathing.nearestReachable(leaderPos, hearthTile, cls, 3000); P.state = 'loiter'? (only after reaching the nearest tile)
@@ -193,7 +194,8 @@ memberThink(m): P = party(m); H = Hostile[m]
                            if distance improves: save bestDistance and progressSince
                            after RETREAT_STUCK_TICKS without improvement: choose nearest reachable passable tile on any edge by own movement class, distance, then tile index
                            if at any edge: despawn (loot goes with them: ThiefEscaped per item); otherwise walk to the selected exit; return
-  if blood(m) < fleeBlood(species) and P.purpose != 'restless' and faction != 'deep': flee to edge; emit HostileFled; return
+  if P has morale and P.state != 'retreat' and not H.nerveLost and P.morale < nerve(m): H.nerveLost = true; drop m's loot on its tile; emit HostileFled{nerve: true}; morale -= the fled share; check the party
+  if (H.nerveLost or blood(m) < fleeBlood(species)) and P.purpose != 'restless' and faction != 'deep': flee to edge (a flight's first tick costs the fled share); emit HostileFled; return
   target = nearest fortress creature within perception (archers prefer soldiers; reachability by m's own movement class); keep combat.targetOf(m) instead while it is still a valid choice no farther than target (an archer still trades a non-soldier for a soldier); if target: combat.setTarget(m, target); return
   if combat.targetOf(m) != 0: return        // a held target survives losing sight of it; 16 drops it
   if P.state in {engage, loiter}: if breaksDoors(m) and adjacent locked door on the way to the goal: emit DoorBreakAttempt each tick (14 counts DOOR_BREAK_TICKS); return

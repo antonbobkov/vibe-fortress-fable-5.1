@@ -395,6 +395,10 @@ export interface Party {
   escapedLootCount?: number;
   /** The captains the party arrived with (18 § Party AI, Retreat); absent: none, as in older saves. */
   captainIds?: EntityId[];
+  /** 18 § Morale, 0 to 100; absent in older saves means the purpose's starting morale. */
+  morale?: number;
+  /** The loss of the last captain has been taken from morale (once); absent: not yet. */
+  captainLost?: boolean;
   /** Animal loot has no Position while held; this records its individual carrier. */
   animalCarriers?: Record<EntityId, EntityId>;
   goalUnreachable?: boolean;
@@ -413,6 +417,10 @@ export interface Hostile {
   spotted: boolean;
   breakingDoorId: EntityId;
   breakingSince: Tick;
+  /** 18 § Morale: the casualty weight of this member already taken from its party's morale; absent: none. */
+  moraleLoss?: number;
+  /** 18 § Morale, Nerve: this raider has lost its nerve and runs for its edge; absent: no. */
+  nerveLost?: boolean;
   /** Stable exit and progress clock for the current retreat; absent in older saves. */
   retreat?: { stateSince: Tick; goalTile: TileIndex; bestDistance: number; progressSince: Tick };
 }
