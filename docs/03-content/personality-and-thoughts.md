@@ -150,6 +150,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `lost_limb` | "I lost a limb." | −12 | 336 | halflife | 1 | none | `LimbLost` |
 | `deep_stirred_dread` | "Something below has noticed us." | −4 | 48 | halflife | 1 | fear | `DeepStirred` (everyone) |
 | `summon_turned` | "Something came through that was not called." | −4 | 48 | halflife | 1 | fear | `SummonTurned` (everyone) |
+| `put_to_flight` | "Fear took my legs, and I ran." | −2 | 12 | halflife | 1 | fear | `PutToFlight` |
 | `argued` | "Had an argument." | −5 | 48 | halflife | 1 | social | sulk argument, both |
 
 ### Pride and relief

@@ -43,5 +43,7 @@ export const HEXER_FIRST_YEAR: Readonly<Record<number, number>> = { 3: 3, 4: 2 }
 export const HEXERS_PER_RAID = 1;
 /** Hexers a siege brings on top of its size. */
 export const HEXERS_PER_SIEGE = 2;
+/** 25 § Hexers: a hexer whose entity id is a multiple of this carries the dread hexer kit; no draw. */
+export const DREAD_HEXER_EVERY = 3;
 export const RESTLESS_PER_NIGHT_MIN = 2;
 export const RESTLESS_PER_NIGHT_MAX = 8;

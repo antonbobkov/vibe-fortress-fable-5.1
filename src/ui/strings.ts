@@ -1180,6 +1180,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.enchant.fire_percent': 'Lets {value}% of fire through.',
   'ui.look.enchant.frost_percent': 'Lets {value}% of frost through.',
   'ui.look.enchant.slow_immune': 'Never slowed.',
+  'ui.look.enchant.flee_immune': 'Never put to flight.',
+  'ui.look.enchant.daze_resist': '+{value}% to resist a daze.',
   'ui.look.enchant.spot_radius': '+{value} tiles to spot what hides.',
   'ui.look.enchant.ignite': '{chance}% of hits set the ground alight.',
   'ui.look.effect.heal_rate': 'healing at {value}% ({ticks} ticks)',

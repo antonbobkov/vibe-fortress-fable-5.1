@@ -902,6 +902,23 @@
     "announce": false
   },
   {
+    "id": "put_to_flight",
+    "name": "put to flight",
+    "text": "Fear took my legs, and I ran.",
+    "value": {
+      "formula": "−2"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "fear",
+    "trigger": {
+      "event": "PutToFlight",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
     "id": "raid_arrived",
     "name": "raid arrived",
     "text": "Raiders are at the gate.",

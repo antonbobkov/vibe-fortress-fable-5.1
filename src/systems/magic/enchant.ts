@@ -103,6 +103,16 @@ export function wearsSlowImmune(entities: EntityStore, registry: Registry, id: E
   return wornEnchantEffects(entities, registry, id).some((e) => e.kind === 'slow_immune' && e.value > 0);
 }
 
+/** A worn piece keeps its wearer from being put to flight, by Dread or a fearsome blow (`flee_immune`). */
+export function wearsFleeImmune(entities: EntityGet, registry: Registry, id: EntityId): boolean {
+  return wornEnchantEffects(entities, registry, id).some((e) => e.kind === 'flee_immune' && e.value > 0);
+}
+
+/** The percent the wearer's pieces add to its resist roll against Daze (`daze_resist`), summed; 0 for none. */
+export function wornDazeResist(entities: EntityGet, registry: Registry, id: EntityId): number {
+  return effectSum(wornEnchantEffects(entities, registry, id), 'daze_resist');
+}
+
 /** A worn piece lights its wearer's 3×3 (`light`). */
 export function wearsLight(entities: EntityGet, registry: Registry, id: EntityId): boolean {
   return wornEnchantEffects(entities, registry, id).some((e) => e.kind === 'light' && e.value > 0);

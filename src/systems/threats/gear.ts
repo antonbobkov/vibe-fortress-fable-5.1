@@ -10,7 +10,7 @@ import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
 import type { ItemsApi } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
-import { HOSTILE_SKILL_PER_TIER } from './constants';
+import { DREAD_HEXER_EVERY, HOSTILE_SKILL_PER_TIER } from './constants';
 
 export interface GearKitItem {
   item: string;
@@ -28,6 +28,7 @@ export interface GearTierRow {
     archer: GearKitItem[];
     captain: GearKitItem[];
     hexer?: GearKitItem[];
+    hexerDread?: GearKitItem[];
   };
 }
 
@@ -73,6 +74,11 @@ export function assignHostileSkills(
   entities.add(creatureId, C.Skills, { level, xp, lastRaised: 0 });
 }
 
+/** 25 § Hexers: a hexer whose entity id is a multiple of `DREAD_HEXER_EVERY` takes the dread hexer kit. */
+export function carriesDread(creatureId: EntityId): boolean {
+  return DREAD_HEXER_EVERY > 0 && creatureId % DREAD_HEXER_EVERY === 0;
+}
+
 /**
  * Equips a hostile creature with weapons and armor according to gear tier.
  */
@@ -116,7 +122,8 @@ export function equipHostileCreature(
   if (role === 'archers') {
     kitItemsToRoll.push(...tierRow.kits.archer);
   } else if (role === 'hexer') {
-    kitItemsToRoll.push(...(tierRow.kits.hexer ?? []));
+    // 25 § Hexers: the kit is chosen by the hexer's id, so the choice draws nothing.
+    kitItemsToRoll.push(...((carriesDread(creatureId) ? tierRow.kits.hexerDread : tierRow.kits.hexer) ?? []));
   } else {
     kitItemsToRoll.push(...tierRow.kits.warrior);
   }

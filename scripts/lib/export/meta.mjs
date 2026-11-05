@@ -361,6 +361,7 @@ export function exportGearTiers(items) {
       archer: parseKit(row['Archer kit'], names),
       captain: parseKit(row['Captain extra'], names),
       hexer: parseKit(row['Hexer kit'], names),
+      hexerDread: parseKit(row['Dread hexer kit'], names),
     },
   }));
 }

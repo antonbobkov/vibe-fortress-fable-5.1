@@ -137,6 +137,7 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'dosed_again': return event['calm'] === true && event['again'] === true;
     case 'rune_sick': return event['sick'] === true;
     case 'saw_wisp': return true;
+    case 'put_to_flight': return true;
     default: return true;
   }
 }

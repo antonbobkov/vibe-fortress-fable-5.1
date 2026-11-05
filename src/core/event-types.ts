@@ -189,6 +189,7 @@ export const EVENT_TYPES = [
   'SummonTurned',
   'SummonFaded',
   'WispAppeared',
+  'PutToFlight',
 ] as const;
 
 export type EventType = (typeof EVENT_TYPES)[number];
@@ -380,6 +381,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   SummonTurned: "id",
   SummonFaded: "id",
   WispAppeared: "id, tile",
+  PutToFlight: "id, sourceId",
 });
 
 const EVENT_TYPE_SET: ReadonlySet<string> = new Set<string>(EVENT_TYPES);

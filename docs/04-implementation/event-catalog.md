@@ -156,6 +156,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `SummonTurned` | `id` | 25 | 15, 18, ui |
 | `SummonFaded` | `id` | 25 | 17 |
 | `WispAppeared` | `id, tile` | 25 (a called wisp; a loose wisp) | 15 |
+| `PutToFlight` | `id, sourceId` | 25 (a Dread or a fearsome blow adds a `flee` effect) | 15 |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 

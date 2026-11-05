@@ -35,6 +35,25 @@
     ]
   },
   {
+    "id": "calm",
+    "slot": "armor",
+    "stone": "sapphire",
+    "vials": 8,
+    "suffix": "calm",
+    "effects": [
+      {
+        "kind": "flee_immune",
+        "value": 1,
+        "scales": "none"
+      },
+      {
+        "kind": "daze_resist",
+        "value": 25,
+        "scales": "none"
+      }
+    ]
+  },
+  {
     "id": "deep",
     "slot": "weapon",
     "stone": "deepsilver",
