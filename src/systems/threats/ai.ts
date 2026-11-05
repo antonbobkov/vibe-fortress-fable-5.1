@@ -15,9 +15,11 @@ import type { BuildingsReader } from '@systems/buildings/reader';
 import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import { PERCEPTION_RADIUS } from '@systems/combat/constants';
+import type { CombatReader } from '@systems/combat/reader';
 import { wornSpotRadius } from '@systems/magic/enchant';
 import {
   ENGAGE_IDLE_TICKS,
+  ENGAGE_STALL_TICKS,
   FOLLOW_RADIUS,
   LOITER_DAYS_RAID,
   LOITER_DAYS_SIEGE,
@@ -865,10 +867,29 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
   }
 }
 
+/**
+ * 18 § Engage: an engaged party stalls when none of its members has struck a blow (16's last
+ * engagement: a melee attack, a shot or a cast) or worked at a door for ENGAGE_STALL_TICKS. A
+ * creature the labels call reachable may still be one no member can come to (its walk fails or
+ * never settles), and 16 drops it only for the member to take it again at once.
+ */
+function stalledInEngage(P: Party, alive: readonly EntityId[], ctx: TickContext): boolean {
+  const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : undefined;
+  let since = P.blowSince ?? ctx.tick;
+  for (const m of alive) {
+    const blow = combat?.lastEngagementTick(m);
+    if (blow !== undefined && blow > since) since = blow;
+    if ((ctx.world.entities.get(m, C.Hostile)?.breakingDoorId ?? 0) !== 0) since = ctx.tick;
+  }
+  P.blowSince = since;
+  return ctx.tick - since >= ENGAGE_STALL_TICKS;
+}
+
 export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (P.state === 'gone') return;
   if (P.state !== 'approach') delete P.goalIdleSince;
+  if (P.state !== 'engage') delete P.blowSince;
   if (P.state === 'retreat' && ctx.tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY) {
     const remaining = P.members.filter((m) => inParty(entities, m));
     if (remaining.length > 0) {
@@ -924,7 +945,8 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
         chooseGoal(P, ctx);
       }
       let seesFortress = false;
-      for (const m of alive) {
+      // A stalled party (§ Engage) is not drawn back into the fight by sight.
+      for (const m of P.stalled === true ? [] : alive) {
         if (P.purpose === 'ambush' && entities.get(m, C.Hostile)?.stealthed === true) continue;
         const mPos = positionOf(m, ctx);
         if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets, true) !== 0) {
@@ -967,6 +989,12 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
           P.stateSince = ctx.tick;
           chooseGoal(P, ctx);
         }
+      } else if (P.purpose !== 'restless' && stalledInEngage(P, alive, ctx)) {
+        // It sees what it cannot strike: it loiters, and only its loiter time ends it.
+        P.state = 'loiter';
+        P.stateSince = ctx.tick;
+        P.stalled = true;
+        delete P.blowSince;
       } else {
         P.stateSince = ctx.tick;
       }
@@ -983,7 +1011,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
         }
       }
       let seesReachableFortress = false;
-      for (const m of alive) {
+      for (const m of P.stalled === true ? [] : alive) {
         if (P.purpose === 'ambush' && entities.get(m, C.Hostile)?.stealthed === true) continue;
         const mPos = positionOf(m, ctx);
         if (mPos >= 0 && findCombatTarget(m, mPos, 'warriors', ctx, targets, true) !== 0) {
@@ -1149,7 +1177,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
     if (target !== 0) {
       ctx.world.services.combat?.setTarget(m, target);
       H.behaviorState = 'attack';
-      if (P && (P.state === 'approach' || (P.state === 'loiter' && !allowUnreachable))) {
+      if (P && P.stalled !== true && (P.state === 'approach' || (P.state === 'loiter' && !allowUnreachable))) {
         const targetPos = positionOf(target, ctx);
         if (targetPos >= 0 && ctx.readers.pathing.reachable(pos, targetPos, entities.get(m, C.Motion)?.movementClass ?? 'walker')) {
           P.state = 'engage';

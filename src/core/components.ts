@@ -407,6 +407,10 @@ export interface Party {
   goalIdleSince?: Tick;
   /** An ambush has been revealed and its single announcement has been emitted. */
   ambushSprung?: boolean;
+  /** 18 § Engage: the tick from which an engaged party's stall is counted (its last blow); absent out of engage. */
+  blowSince?: Tick;
+  /** 18 § Engage: the party stalled in engage; sight no longer brings it back to the fight. Absent: no. */
+  stalled?: boolean;
 }
 
 export interface Hostile {
