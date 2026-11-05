@@ -23,7 +23,7 @@ Columns: `value` is marks per unit; `density` is relative (water 100; used for c
 | `basalt` | basalt | stone | 2 | 290 | 140 | `basalt_black` | 1300 | igneous extrusive; Sea of Fire pillars and roof |
 | `rhyolite` | rhyolite | stone | 2 | 250 | 120 | `rose_gray` | 1300 | igneous extrusive |
 | `andesite` | andesite | stone | 2 | 260 | 130 | `ash_gray` | 1300 | igneous extrusive |
-| `obsidian` | obsidian | obsidian | 3 | 240 | 110 | `obsidian_black` | 1500 | magma-safe |
+| `obsidian` | obsidian | obsidian | 3 | 240 | 110 | `obsidian_black` | 1500 | magma-safe; sharp: knapped daggers and short swords (0.70) |
 | `marble` | marble | stone | 3 | 270 | 130 | `marble_white` | 1400 | metamorphic; `flux` |
 | `slate` | slate | stone | 2 | 270 | 100 | `slate_blue` | 1300 | metamorphic |
 | `gneiss` | gneiss | stone | 2 | 280 | 150 | `banded_gray` | 1300 | metamorphic |
@@ -140,8 +140,10 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 | `rune` | rune | liquid | 15 | `rune_cyan` | |
 | `wyrmscale` | wyrmscale | shell | 80 | `wyrm_red` | 1600 |
 | `hollow_ichor` | hollow ichor | liquid | 60 | `hollow_violet` | |
+| `spider_venom` | spider venom | liquid | 20 | `lizard_green` | |
+| `ember_gland` | ember gland | liquid | 25 | `ember_orange` | |
 
-A wyrmscale and a hollow ichor are items made of the material that shares their id ([items.md](items.md) § Medical and herbs), so one of each is worth 80 and 60 (*unmeasured*). Wyrmscale does not burn in magma.
+A wyrmscale, a hollow ichor, a spider venom and an ember gland are items made of the material that shares their id ([items.md](items.md) § Medical and herbs), so one of each is worth 80, 60, 20 and 25 (*unmeasured*). Wyrmscale does not burn in magma.
 
 ## Generated per species
 

@@ -155,6 +155,8 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 | `murky_draught` | murky draught | medical/draught | 0.07 | 5 | bag | 0 | `!` | `cave_umber` | `draught` |
 | `wyrmscale` | wyrmscale | medical/wyrmscale | 1 | 10 | bag | 0 | `§` | `wyrm_red` | |
 | `hollow_ichor` | hollow ichor | medical/ichor | 1 | 5 | bag | 0 | `¡` | `hollow_violet` | |
+| `spider_venom` | spider venom | medical/venom | 1 | 5 | bag | 0 | `¡` | `lizard_green` | |
+| `ember_gland` | ember gland | medical/gland | 1 | 10 | bag | 0 | `♥` | `ember_orange` | |
 | `hollowsight_draught` | draught of hollowsight | medical/draught | 2 | 5 | bag | 0 | `!` | `hollow_violet` | `draught` |
 | `wyrmblood_draught` | draught of wyrmblood | medical/draught | 2 | 5 | bag | 0 | `!` | `wyrm_red` | `draught` |
 
@@ -162,7 +164,7 @@ Bandages are cloth cut at the clothier (1 cloth → 4 bandages); `stop_bleeding`
 
 Glowcap is its own item and not `plant_food`, because `plant_food` of any material is eaten and is an ingredient. So no dwarf eats a glowcap and no kitchen takes one. A rune vial holds the material `rune`.
 
-Wyrmscale and hollow ichor are not made: they are the remains of a dead magma wyrm (4 wyrmscale) and of a dead hollow stalker or the Hollow Maw (1 ichor), recovered from the corpse by `strip_corpse` ([creatures.md](creatures.md) § Remains). Each is made of the material that shares its id ([materials.md](materials.md) § Rune), so one is worth 80 and one 60.
+Wyrmscale, hollow ichor, spider venom and the ember gland are not made: they are the remains of a dead magma wyrm (4 wyrmscale), of a dead hollow stalker or the Hollow Maw (1 ichor), of a dead giant cave spider (1 venom) and of a dead ember newt (1 gland), recovered from the corpse by `strip_corpse` ([creatures.md](creatures.md) § Remains). Each is made of the material that shares its id ([materials.md](materials.md) § Rune), so one is worth 80, 60, 20 and 25. Venom is set in a `venomed` weapon, and a gland in a weapon of embers in place of a garnet ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments).
 
 A draught holds the material `rune` of its vial, so a draught is worth 30 at common quality and a murky draught 1 (*unmeasured*). The brewed draughts bear quality, which scales how long they last; a murky draught bears none. A draught is not `drinkable`: no thirsty dwarf takes one.
 

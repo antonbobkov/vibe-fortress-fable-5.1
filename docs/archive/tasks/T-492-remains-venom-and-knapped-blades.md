@@ -1,10 +1,12 @@
 # T-492 — Remains and venom: venomed blades, the ember gland, knapped blades
 
-**Source:** [flavour report](../../reports/audits/2026-11-03-flavour-left-out.md) (items 7, 8, 11), the owner on 2026-11-04 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in a41e1bf0.
+
+**Source:** [flavour report](../../../reports/audits/2026-11-03-flavour-left-out.md) (items 7, 8, 11), the owner on 2026-11-04 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
-The design's pattern is that the hardest fights leave the material for the next one. T-476's `remains` column and T-474's timed effects now make these cheap. Each is a fun feature, removable if it breaks game logic ([`docs/fun-features.md`](../fun-features.md)).
+The design's pattern is that the hardest fights leave the material for the next one. T-476's `remains` column and T-474's timed effects now make these cheap. Each is a fun feature, removable if it breaks game logic ([`docs/fun-features.md`](../../fun-features.md)).
 
 ## What to do
 

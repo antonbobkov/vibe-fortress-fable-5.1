@@ -118,7 +118,9 @@ describe('T-493 content', () => {
     const enchants = registry.table<{ id: string; slot: string; stone: string; effects: { kind: string; value: number }[] }>('enchants');
     expect(enchants.byId('calm')).toMatchObject({ slot: 'armor', stone: 'sapphire', vials: 8, suffix: 'calm' });
     expect(enchants.byId('calm')!.effects.map((e) => [e.kind, e.value])).toEqual([['flee_immune', 1], ['daze_resist', 25]]);
-    expect(enchants.ids().slice(-1)).toEqual(['calm']);
+    // Numbered after T-476's rows; T-492's venomed and ember_gland number after it.
+    expect(enchants.index('calm')).toBe(enchants.index('hollowsight') + 1);
+    expect(enchants.index('venomed')).toBe(enchants.index('calm') + 1);
     expect(registry.table('recipes').byId('set_armor_calm')).toMatchObject({ transform: true });
     const thoughtRows = registry.table<{ id: string; text: string; value: unknown; hours: number; group: string; trigger: { event?: string } }>('thoughts');
     expect(thoughtRows.ids().slice(-1)).toEqual(['put_to_flight']);

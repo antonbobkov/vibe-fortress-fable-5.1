@@ -103,6 +103,21 @@
     ]
   },
   {
+    "id": "ember_gland",
+    "slot": "weapon",
+    "stone": "ember_gland",
+    "vials": 4,
+    "suffix": "of embers",
+    "effects": [
+      {
+        "kind": "extra_damage",
+        "value": 8,
+        "type": "ember",
+        "scales": "value"
+      }
+    ]
+  },
+  {
     "id": "emberward",
     "slot": "armor",
     "stone": "garnet",
@@ -296,6 +311,21 @@
         "kind": "to_hit",
         "value": 10,
         "scales": "value"
+      }
+    ]
+  },
+  {
+    "id": "venomed",
+    "slot": "weapon",
+    "stone": "spider_venom",
+    "vials": 4,
+    "suffix": "venomed",
+    "effects": [
+      {
+        "kind": "pain",
+        "value": 20,
+        "ticks": 300,
+        "scales": "ticks"
       }
     ]
   },
