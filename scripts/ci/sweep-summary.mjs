@@ -54,3 +54,4 @@ out.push('| Seed | Year 1 | Year 3 | Deaths | Need deaths | Extinct day |');
 out.push('|---|---|---|---|---|---|');
 for (const r of rows) out.push(`| ${r.seed} | ${r.y1} | ${r.y3} | ${r.deaths} | ${r.needDeaths ?? '?'} | ${r.extinctDay ?? ''} |`);
 console.log(out.join('\n'));
+if (!ok) process.exitCode = 1;

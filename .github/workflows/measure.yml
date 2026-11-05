@@ -35,10 +35,12 @@ jobs:
       - name: Three years, seed ${{ matrix.seed }}
         env:
           THREE_YEARS_SEEDS_OUT: out
-        run: npx vitest run -c vitest.perf.config.ts test/perf/three_years_seeds.test.ts -t "three-years-${{ matrix.seed }} " 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
+        run: npx vitest run -c vitest.perf.config.ts test/perf/three_years_seeds.test.ts -t "'three-years-${{ matrix.seed }}'" 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
         shell: bash
       - if: always()
         run: mkdir -p out && mv out-log.txt out/three-years-${{ matrix.seed }}.log
+      - name: The seed produced its result file
+        run: test -f out/three-years-${{ matrix.seed }}.json
       - if: always()
         uses: actions/upload-artifact@v4
         with:
