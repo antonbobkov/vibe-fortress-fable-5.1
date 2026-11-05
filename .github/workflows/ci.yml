@@ -1,6 +1,8 @@
 name: Verification
 # On demand only (the owner, 2026-11-05): gh workflow run ci.yml --ref <branch>
-# The long measurements are in measure.yml.
+# The merge gate and an agent's final full run: the static checks and the build, the unit suite in
+# four parallel shards, and the e2e suite. The long measurements are in measure.yml.
+# How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
   workflow_dispatch:
 permissions:
@@ -8,6 +10,7 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,7 +26,57 @@ jobs:
       - run: npm run strings:check
       - run: npm run interface:check
       - run: npm run docs:check
-      - run: npm test
       - run: npm run build
+
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: npm test, shard ${{ matrix.shard }} of 4
+        run: npx vitest run --shard=${{ matrix.shard }}/4 2>&1 | tee unit-${{ matrix.shard }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-${{ matrix.shard }}
+          path: unit-${{ matrix.shard }}.log
+          retention-days: 14
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - run: node node_modules/@playwright/test/cli.js install --with-deps chromium
-      - run: npm run test:e2e
+      - name: npm run test:e2e
+        run: npm run test:e2e 2>&1 | tee e2e.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e
+          path: |
+            e2e.log
+            test-results/
+            playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore
