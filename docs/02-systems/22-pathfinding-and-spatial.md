@@ -99,7 +99,7 @@ moveAlongPath(id, ctx):
 
 ### Crowding
 
-A tile's **crowd** is the number of standing creatures on it, the mover or actor included, hostile and friendly alike. A creature lying down does not count: one that is unconscious (17), or one asleep (10: resting, with no path to walk). Items do not count.
+A tile's **crowd** is the number of standing creatures on it, the mover or actor included, hostile and friendly alike. A creature lying down does not count: one that is unconscious (17), one asleep (10: resting, with no path to walk), or a pet curled in the heap by the hearth with no path to walk (08 § Tame behavior, T-482). Items do not count.
 
 `crowdPercent(crowd) = 100 + min(CROWD_MAX_PERCENT, max(0, crowd − CROWD_FREE) × CROWD_STEP_PERCENT)`
 

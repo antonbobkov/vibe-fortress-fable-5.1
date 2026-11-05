@@ -1,0 +1,41 @@
+/** T-482 probe (not kept in test/): who lies on the pets' spot and which hall tiles crowd, every 10 days of one three-year seed. */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { BuildingsReader } from '@systems/buildings';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+import { CrowdWatch } from '../scenarios/crowd-watch';
+
+const SEED = process.env['T482_SEED'] ?? 'three-years-p0-2';
+const DAYS = Number(process.env['T482_DAYS'] ?? 140);
+
+it(`T-482 pile probe ${SEED}`, () => {
+  const w = threeYearsWorld(SEED, 0);
+  const state = setupThreeYearsFortress(w);
+  const watch = new CrowdWatch(w);
+  const ent = w.game.world.entities;
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const lines: string[] = [];
+  let nextLook = 10 * TICKS_PER_DAY;
+  while (w.tick < DAYS * TICKS_PER_DAY) {
+    playThreeYears(w, state, 100, w.tick > 20 * TICKS_PER_DAY ? () => watch.sample() : undefined);
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    if (w.tick < nextLook) continue;
+    nextLook += 10 * TICKS_PER_DAY;
+    const day = Math.floor(w.tick / TICKS_PER_DAY);
+    const hearth = buildings.byType('hearth').map((id) => buildings.get(id)).find((b) => b?.state === 'built');
+    const who = (tile: number): string => w.readers.entities.at(tile).filter((id) => ent.kind(id) === 'creature')
+      .map((id) => `${species.rows[ent.get(id, C.Creature)!.species]?.id}${ent.get(id, C.Tame)?.curled === true ? '*' : ''}`).join(' ');
+    const crowded = buildings.hearthHallTiles().filter((t) => w.game.movement.crowdPercentAt(t) > 100).map((t) => `${t}[${who(t)}]`);
+    const tames = ent.with(C.Tame).map((id) => species.rows[ent.get(id, C.Creature)!.species]?.id).join(',');
+    const piled = new Map<number, string>();
+    for (const id of ent.with(C.Tame)) if (ent.get(id, C.Tame)?.curled === true) piled.set(w.game.movement.tileOf(id), who(w.game.movement.tileOf(id)));
+    lines.push(`day ${day} hearth ${hearth?.origin ?? '-'} heaps ${[...piled].map(([t, s]) => `${t}[${s}]`).join(' ') || '-'} crowded hall ${crowded.join(' ') || '-'} tames ${tames}`);
+  }
+  lines.push(`hall ${JSON.stringify(watch.hall)} doors ${JSON.stringify(watch.doors)}`);
+  console.log(lines.join('\n'));
+}, 3_600_000);

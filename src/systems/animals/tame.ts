@@ -116,6 +116,8 @@ export interface TameHost extends BrainHost {
   homeTile(): TileIndex;
   /** Where an idle tame animal with no pasture stands: a tile of the hearth hall or beside it, else the anchor. */
   standTile(animalId: EntityId): TileIndex;
+  /** The pets' spot beside the hearth for a pet that heaps there (T-482), else -1. */
+  petSpot(animalId: EntityId): TileIndex;
   /** One grass tile feeds one grazer: `true` when this call took the tile, `false` when it is already held. */
   claimGraze(tile: TileIndex): boolean;
   /** A tile some grazer holds until 07 has cleared its grass. */
@@ -185,6 +187,8 @@ function grassStillFor(host: TameHost, id: EntityId, t: Tame, tile: TileIndex, t
 /** One think of a tame animal. */
 export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tame): Tame {
   const next: Tame = { ...t, lastProductTick: { ...t.lastProductTick } };
+  // A pet lies curled on the pets' spot only while this think leaves it there (T-482).
+  delete next.curled;
   const at = tileOf(host, id);
   if (at < 0) return next;
   const movement = host.movement;
@@ -279,6 +283,10 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
   const home = host.standTile(id);
   if (home >= 0 && movement !== null && movement.tileOf(id) !== home) movement.walkTo(id, home, 'wander', ctx);
   else if (isDoorTile(host, at)) stepOffDoor(host, id, at, home, ctx);
+  else {
+    if (movement !== null && home >= 0 && movement.walkTarget(id) >= 0) movement.stopWalking(id);
+    if (home >= 0 && home === at && host.petSpot(id) === at) next.curled = true;
+  }
   return next;
 }
 
