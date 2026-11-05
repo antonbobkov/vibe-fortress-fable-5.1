@@ -10,7 +10,7 @@ import type { Job } from '@systems/jobs/state';
 import type { DwarvesSystem } from '@systems/dwarves';
 import type { DefenseSystem } from '@systems/defense';
 import type { BuildingsReader } from '@systems/buildings/reader';
-import { BLOCKED_RETRY_TICKS, JOB_HOLD_TICKS } from '@systems/jobs/constants';
+import { FAILED_WALK_RETRY_TICKS, JOB_HOLD_TICKS } from '@systems/jobs/constants';
 
 /** The sampler looks at the board every 100 ticks, so an absence is seen up to that late. */
 const HELD_SAMPLE_TICKS = 100;
@@ -910,7 +910,7 @@ class Probe {
   /**
    * T-331 (2): a job blocked as `unreachable` is reopened by the next retry as soon as a worker with its
    * labor reaches one of its stand tiles. It is lost when it stays blocked for more than a day (a) while
-   * such a stand tile is reachable (a walk that failed once and is never retried), or (b) while none of its
+   * such a stand tile is reachable (a walk that failed and is not retried), or (b) while none of its
    * stand tiles can be stood on, although the anchor cannot be stood on and a tile beside it is passable and reachable (a work
    * tile that is a built chest's own tile). The start of the block is the first sample that saw it; a failed
    * walk's own retry tick says when it began.
@@ -975,8 +975,8 @@ class Probe {
         }
         if (kind !== null) {
           blocked.add(job.id);
-          // A walk that failed is never retried by the timer: its block began a retry interval before retryTick.
-          const began = job.failedWalk === true ? job.retryTick - BLOCKED_RETRY_TICKS : tick;
+          // A walk that failed waits FAILED_WALK_RETRY_TICKS for a trigger: its block began that long before retryTick.
+          const began = job.failedWalk === true ? job.retryTick - FAILED_WALK_RETRY_TICKS : tick;
           const prev = this.blockedPath.get(job.id);
           if (prev === undefined || prev.kind !== kind) this.blockedPath.set(job.id, { kind, since: Math.min(began, tick) });
           else if (began < prev.since) prev.since = began;

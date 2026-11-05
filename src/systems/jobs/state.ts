@@ -66,7 +66,7 @@ export interface Job {
   tool: Tool | null;
   state: JobState;
   blockedReason: string | null;
-  /** A real walk failed despite connected labels; only a reachability trigger retries it. */
+  /** A real walk failed despite connected labels: a reachability trigger retries it, or the timer at `retryTick` (`FAILED_WALK_RETRY_TICKS`). */
   failedWalk?: true;
   retryTick: Tick;
   workerId: EntityId;

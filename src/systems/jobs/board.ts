@@ -21,6 +21,7 @@ import {
   ASSIGN_WORKERS_PER_TICK,
   BLOCKED_RETRIES_PER_TICK,
   BLOCKED_RETRY_TICKS,
+  FAILED_WALK_RETRY_TICKS,
   JOB_HOLD_BACK_TICKS,
   JOB_HOLD_TICKS,
   PATIENT_SUMMON_PRIORITY,
@@ -499,7 +500,7 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * `unclaim(job, reason)`: release undelivered inputs, free the worker, block. A walk that found no route
-   * (`reason` unreachable) waits for a reachability trigger. A walk that failed to reach `walkedTo` while
+   * (`reason` unreachable) waits for a reachability trigger, or `FAILED_WALK_RETRY_TICKS` when none comes. A walk that failed to reach `walkedTo` while
    * the labels no longer connect the worker to it did not fail despite connected labels (a door locked
    * on its way): it retries on the timer. A walk bound for an item (`fetched`, the item's id) is no failure
    * of the job's stand tiles: it retries on the timer, and the next input search passes that item by.
@@ -512,6 +513,7 @@ export class JobBoard implements JobsApi, JobSink {
     else delete job.failedWalk;
     if (reason === 'unreachable' && fetched !== 0) job.data['unreachableItem'] = fetched;
     this.block(job, reason);
+    if (job.failedWalk === true) job.retryTick = this.now + FAILED_WALK_RETRY_TICKS;
   }
 
   /** Whether the labels now keep a worker from a tile its walk was bound for. */
@@ -544,7 +546,7 @@ export class JobBoard implements JobsApi, JobSink {
   retryBlocked(): void {
     const due = this.ids.filter((id) => {
       const job = this.jobs.get(id) as Job;
-      return job.state === 'blocked' && job.retryTick <= this.now && job.failedWalk !== true;
+      return job.state === 'blocked' && job.retryTick <= this.now;
     });
     if (due.length === 0) return;
     this.toolOnHandMemo = new Map();
@@ -563,6 +565,8 @@ export class JobBoard implements JobsApi, JobSink {
       const id = due[(start + k) % due.length] as number;
       const job = this.jobs.get(id) as Job;
       this.blockedRetryCursor = id;
+      // A failed walk that no trigger cleared is retried as any other block once its longer wait is over.
+      delete job.failedWalk;
       const reason = job.blockedReason;
       if (reason === 'no_magma' && job.producer === 'workshops' && this.readers.has('12') &&
         !this.readers.of<{ isMagmaPowered(id: EntityId): boolean }>('12').isMagmaPowered(job.target.ref)) {

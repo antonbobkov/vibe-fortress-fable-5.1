@@ -2,13 +2,18 @@
  * T-487: a fetch walk that fails while the connectivity labels join the worker to the item (here the
  * only way to it is forbidden traffic, which the labels do not see) is no failure of the job's stand
  * tiles. The job is blocked without the failed-walk memory, its periodic retry reopens it, and the
- * next claim passes that item by.
+ * next claim passes that item by. A failed walk to the work tile or a delivery tile (three-years-p4-4's
+ * plant job carrying its seed to the plot) waits for a reachability trigger, but not for ever.
  */
 import { describe, expect, it } from 'vitest';
 import { roundTrip } from '@app/game-save';
+import { buildFlatTestMap } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { JobBoard } from '@systems/jobs';
-import { BLOCKED_RETRY_TICKS } from '@systems/jobs/constants';
+import { BLOCKED_RETRY_TICKS, FAILED_WALK_RETRY_TICKS } from '@systems/jobs/constants';
 import { TestWorld } from '../../scenarios/test-world';
 
 const Z = 32;
@@ -62,5 +67,35 @@ describe('T-487 a failed fetch walk is retried on the timer', () => {
     expect(w.events('JobCompleted').some((e) => e['jobId'] === id)).toBe(false);
     expect(w.game.world.applyCommand({ type: 'SetTraffic', tiles: [gap], mode: 'normal' }).ok).toBe(true);
     w.until((v) => v.events('JobCompleted').some((e) => e['jobId'] === id), 3 * BLOCKED_RETRY_TICKS + 900);
+  });
+
+  it('retries a failed walk to the work tile after FAILED_WALK_RETRY_TICKS when no reachability trigger comes', () => {
+    // T-187's dig behind forbidden traffic: the walk to the stand tile fails with the labels joined.
+    const registry = contentRegistry();
+    const w = new TestWorld({ seed: 't487-stand-walk', world: 'flat-test', embark: 'none', registry, map: buildFlatTestMap(registry, 8, 3) });
+    for (let x = 0; x < 8; x += 1) for (const y of [0, 2]) w.carve(w.index(x, y, Z), TileKind.Wall);
+    const target = w.index(7, 1, Z);
+    w.carve(target, TileKind.Wall);
+    const at = w.index(1, 1, Z);
+    const dwarf = w.spawnDwarf({ at, skills: { mining: 10 } });
+    const pick = w.spawnItem('pick', 'iron', at);
+    w.items.attachToCarrier(pick, dwarf);
+    w.game.world.entities.add(dwarf, C.Worker, { jobId: 0, phase: 0, carrying: 0, toolId: pick });
+    const equipment = w.game.world.entities.get(dwarf, C.Equipment)!;
+    w.game.world.entities.add(dwarf, C.Equipment, { ...equipment, weapon: pick });
+    expect(w.game.world.applyCommand({ type: 'SetTraffic', tiles: [w.index(4, 1, Z)], mode: 'forbidden' }).ok).toBe(true);
+    expect(w.game.world.applyCommand({ type: 'Designate', kind: 'dig', tiles: [target] }).ok).toBe(true);
+    const board = w.game.world.services.jobs as JobBoard;
+    w.until(() => [...board.jobs.values()].some((j) => j.target.ref === target && j.failedWalk === true), 300);
+    const job = [...board.jobs.values()].find((j) => j.target.ref === target)!;
+    const blockedAt = w.tick;
+    const claims = () => w.events('JobClaimed').filter((e) => e['jobId'] === job.id).length;
+    expect(claims()).toBe(1);
+    // It waits for a trigger, and claims nothing while it waits.
+    w.step(FAILED_WALK_RETRY_TICKS - BLOCKED_RETRY_TICKS);
+    expect(claims()).toBe(1);
+    // No trigger comes: the job is claimed again once the wait is over, well within a day.
+    w.until(() => claims() > 1, 2 * BLOCKED_RETRY_TICKS);
+    expect(w.tick - blockedAt).toBeLessThan(TICKS_PER_DAY);
   });
 });

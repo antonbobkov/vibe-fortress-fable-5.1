@@ -61,7 +61,7 @@ interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string
   target: { kind: 'tile'|'entity'|'building'|'zone'|'pair'; ref: number; ref2?: number }; workTile: TileIndex | 'adjacent' | 'at';
   inputs: { filter: ItemFilter; count: number; wholeItem?: true /* reserve the whole stack, retained on save */; reserved: EntityId[]; delivered: EntityId[] }[]; tool: 'pick'|'axe'|'ranged'|'bucket'|null;
   state: 'open'|'claimed'|'fetching'|'travelling'|'working'|'completing'|'blocked'|'cancelled'|'done';
-  blockedReason: string | null; failedWalk?: true /* wait for a reachability trigger */; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
+  blockedReason: string | null; failedWalk?: true /* wait for a reachability trigger, at most until retryTick */; retryTick: Tick; workerId: EntityId; progress: Fixed; createdTick: Tick; claimedTick: Tick; data: Record<string, unknown> }
 // Job.data.inputsInvalidated?: true remembers a destroyed input already pruned from the lists, until the next delivered-input validation; absent means no pending invalidation.
 interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; types?: Idx<ItemTypeDef>[]; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
   minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; unoccupied?: boolean; excludeIds?: EntityId[];
