@@ -37,7 +37,7 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
   readonly id = '21';
   readonly order = 21;
   override readonly ownsCommands = ['SetPopulationCap'] as const;
-  override readonly subscribes: readonly EventType[] = ['SeasonChanged', 'DayPassed', 'RaidArrived', 'RaidEnded'];
+  override readonly subscribes: readonly EventType[] = ['SeasonChanged', 'DayPassed', 'RaidArrived', 'AmbushSprung', 'RaidEnded'];
   private rng!: RngStream;
   private wavesSoFarState = 0;
   private guaranteedDone: [boolean, boolean] = [false, false];
@@ -68,11 +68,12 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
 
   override reader(): ImmigrationReader { return this.readerRef; }
 
+  /** A battle on the map: a raid, a siege, or an ambush that has sprung (a hidden one nobody knows of). */
   private raidActive(ctx: InitContext): boolean {
     const threats = ctx.readers.of<ThreatsReader>('18');
     return threats.activeParties().some((id) => {
       const p = threats.party(id);
-      return p?.purpose === 'raid' || p?.purpose === 'siege';
+      return p?.purpose === 'raid' || p?.purpose === 'siege' || (p?.purpose === 'ambush' && p.ambushSprung === true);
     });
   }
 
@@ -253,7 +254,7 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
-    if (event.type === 'RaidArrived') this.raidOngoing = true;
+    if (event.type === 'RaidArrived' || event.type === 'AmbushSprung') this.raidOngoing = true;
     else if (event.type === 'RaidEnded') this.raidOngoing = this.raidActive(ctx);
     else if (event.type === 'SeasonChanged') this.evaluate(ctx, event['season'] as number, event['year'] as number);
     else if (event.type === 'DayPassed' && this.deferredUntilTick > 0 && ctx.tick >= this.deferredUntilTick) this.evaluate(ctx, this.deferredSeason, this.deferredYear);

@@ -64,8 +64,12 @@ function journal(): () => void {
       const seen = new Map<number, { soldier: boolean; behavior: string }>();
       const tilePlace = (t: unknown): Record<string, unknown> | null => typeof t !== 'number' || t < 0 ? null
         : { x: map.xOf(t), y: map.yOf(t), z: map.zOf(t), out: map.hasFlag(t, TileFlag.Outdoor) };
+      // When each dwarf was first on the map: an immigrant killed on arrival shows a small `onMap`.
+      const firstSeen = new Map<number, number>();
       w.game.world.onEvents((events) => {
+        for (const d of ent.with(C.Labors)) if (!firstSeen.has(d)) firstSeen.set(d, w.tick);
         for (const e of events) {
+          if (e.type === 'ImmigrantsArrived') line({ k: e.type, tick: w.tick, day: day(), count: e['count'], ids: e['ids'] });
           if (e.type === 'RaidArrived' || e.type === 'AmbushSprung' || e.type === 'RaidEnded' || e.type === 'HostileFled' || e.type === 'AlertChanged' || e.type === 'ThreatWarning') {
             const pid = Number(e['partyId'] ?? 0);
             const P = pid === 0 ? undefined : ent.get(pid, C.Party);
@@ -77,7 +81,7 @@ function journal(): () => void {
             const party = h === undefined ? undefined : ent.get(h.partyId, C.Party);
             const v = Number(e['id'] ?? e['entityId'] ?? 0);
             line({ k: 'death', tick: w.tick, day: day(), cause: e['cause'], killer: k === 0 ? '-' : sp(k), role: h?.role, party: h?.partyId ?? 0,
-              purpose: party?.purpose, pstate: party?.state, morale: party?.morale, victim: v, soldier: seen.get(v)?.soldier,
+              purpose: party?.purpose, pstate: party?.state, morale: party?.morale, victim: v, onMap: w.tick - (firstSeen.get(v) ?? 0), soldier: seen.get(v)?.soldier,
               behavior: seen.get(v)?.behavior, at: tilePlace(e['tile']), killerAt: place(k), alert: w.game.world.fortress.alert });
           }
         }
