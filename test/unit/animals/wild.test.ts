@@ -60,7 +60,7 @@ function setState(w: TestWorld, id: EntityId, state: string, stateUntil = 0, hun
 describe('T-M4-03 animals: tuning constants', () => {
   it('every row of 08 § Tuning constants is in src/systems/animals/constants.ts', () => {
     const rows = tuningConstants('02-systems/08-animals-and-domestication.md');
-    expect(rows.length).toBe(29); // T-213 adds the attack perception-grace constant; T-341 adds GRAZE_SKIP_TICKS; T-446 adds TERRITORY_AVOID_RADIUS.
+    expect(rows.length).toBe(31); // T-213 adds the attack perception-grace constant; T-341 adds GRAZE_SKIP_TICKS; T-446 adds TERRITORY_AVOID_RADIUS; T-482 adds PET_PILE_MAX and PET_PILE_SIZE_MAX.
     const values = K as unknown as Record<string, number>;
     for (const r of rows) expect([r.name, values[r.name]]).toEqual([r.name, r.value]);
   });
