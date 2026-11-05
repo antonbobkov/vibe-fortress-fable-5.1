@@ -204,13 +204,13 @@ Re-measure the distribution before and after a change to wildlife, fleeing, aler
 
 ## Runecraft
 
-Every figure here is *unmeasured*. The rules and the rest of the arithmetic are in [25 Runecraft](../02-systems/25-runecraft.md), and each task that builds on a figure measures it and replaces the mark.
+The rules and the rest of the arithmetic are in [25 Runecraft](../02-systems/25-runecraft.md). A figure is *unmeasured* unless its note names what measured it; [balance-status.md](../balance-status.md) holds the latest measurements.
 
 | Figure | Value | Note |
 |---|---|---|
-| One lamp, eight tiles | 0.83 glowcap, 0.42 vials a day | *unmeasured* |
-| Four lamps | 1.7 vials a day, 190 a year | *unmeasured* |
-| One apprentice attuning | 2 glowcap a day, 2.4 lamps | *unmeasured* |
-| Dabbling, Novice, Proficient, Legendary | 2, 6, 74, 268 days of attunement | *unmeasured* |
-| Proficient runecaster | 50 rune, 15 more from vials in a day, 50 hours to refill | *unmeasured* |
-| Emberbolt from an iron staff against a Gloam warrior in a jerkin | 18 a hit | *unmeasured* |
+| One lamp, eight tiles | 0.83 glowcap, 0.42 vials a day | Measured in `pp_runecraft`: two lamps over 16 tiles sown on day 3 gave 40 and 45 glowcap on days 27 and 28 of its two seeds, 0.83 to 0.94 a lamp a day over the first harvest |
+| Four lamps | 1.7 vials a day, 190 a year | Arithmetic from the lamp above; a whole year of lamps is *unmeasured* |
+| One apprentice attuning | 2 glowcap a day, 2.4 lamps, at two sessions a day | Two sessions a day measured in a bare sanctum with every other labor off; in `pp_runecraft`, where the apprentice is also a miner and hauler, one session a day (4 sessions in 4 days, 5 in 6) |
+| Dabbling, Novice, Proficient, Legendary | 2, 6, 74, 268 days of attunement at two sessions a day | Proficient measured: day 73 after 145 glowcap, from Wits 50; Dabbling in 4 or 5 sessions in `pp_runecraft`; Novice and Legendary *unmeasured* |
+| Proficient runecaster | 50 rune, 15 more from vials in a day, 50 hours to refill | Measured: 50 hours in a tunic, 34 in a robe, 84 in an iron helm and mail |
+| Emberbolt from an iron staff against a Gloam warrior in a jerkin | 18 a hit | The worked numbers, pinned by a test; measured against a peril-2 ambush in bronze, 20.8 a hit on 46% of bolts ([caster arena](../../reports/audits/2026-11-02-t470-caster-arena.md)) |

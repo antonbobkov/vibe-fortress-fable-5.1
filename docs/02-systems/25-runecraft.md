@@ -9,20 +9,10 @@ Treat magic the way the game treats metal. Rune is a substance. It grows in a fu
 Three limits hold everywhere:
 
 - **The player never casts.** They choose the stone on the staff, who sits in the sanctum and what a squad carries. The dwarf casts by rules the player can read.
-- **Nothing is necromancy.** No raising, no undead, no curses, no vampires, no mind control. A summon is a light, a stone or a shadow, and it fades.
+- **Nothing is necromancy.** No raising, no undead, no curses, no vampires, no werebeasts, no mind control. A summon is a light, a stone or a shadow, and it fades.
 - **Magic trails steel.** A deepsilver axe out-damages the best staff. Runecraft's worth is reach and utility.
 
 A fortress that never touches runecraft plays as before (§ What no runecraft means).
-
-## How to read this document while it is being built
-
-The rules here are the whole design. A later task needs nothing else.
-
-- Every table row and rule block carries the task that brings it in (**Task** column, or `[T-470]` at the head of a rule). Code that belongs to a later task does not land early.
-- **Content rows live here until their task.** `content:check` compares `src/content/*.json` byte for byte with an export of the `03-content/` tables, so a row in `03-content/` without its JSON fails. Each task moves its rows to the named `03-content/` file, runs `npm run content:export` and commits both.
-- **Schemas live here too.** `schemas/components.md`, `event-catalog.md` and `command-catalog.md` generate code (`scripts/parse-catalogs.mjs --write`, `scripts/parse-id-fields.mjs`) and tests fail on drift. Each task moves its rows there, and into § Interfaces below, in the same commit as the code.
-- The last task (T-477) removes these marks and this section, so the document reads as plain specification.
-- Every number here is *unmeasured* until a task measures it and says so in the row.
 
 ## Concepts
 
@@ -42,36 +32,34 @@ The rules here are the whole design. A later task needs nothing else.
 
 ## What no runecraft means
 
-These hold for all tasks, and each task's review checks them.
+These hold for every runecraft rule.
 
-- **No new rng draw on any existing stream** unless a channel, an enchanted item, a draught or a hexer is in play. All casting rolls that are not 16's ordinary hit, block and part rolls draw on system 25's stream, `world.rngFor('25')`. That stream is the design's `magic` stream. Streams are named by system id. 25 takes its stream at init, so the save's `rng` section always holds the key `25`; an older save without it starts the stream from the seed. With no sanctum session, nothing but 20's caravan extras draws on it; a Call draws only for a species that `turns`, and a weapon hit only for an `ignite` effect (`blaze`).
-- **No existing number moves.** The wyrm's breath keeps today's damage type `burn`, which has no row in the layer table and so multiplies by 1.0. Spells and enchantments use the new types `ember` and `frost` (§ Damage types).
-- **New rows do not renumber old rows** (§ Row numbering). A world hash may move because `Skills.level` grew by a byte. It does not move because anything played differently. A task whose content rows move a golden names this in its `golden:` line and shows the annual instrument row unchanged, apart from the deliberate moves below.
+- **No new rng draw on any existing stream** unless a channel, an enchanted item, a draught or a hexer is in play. All casting rolls that are not 16's ordinary hit, block and part rolls draw on system 25's stream, `world.rngFor('25')`. Streams are named by system id. 25 takes its stream at init, so the save's `rng` section always holds the key `25`; an older save without it starts the stream from the seed. With no sanctum session, nothing but 20's caravan extras draws on it; a Call draws only for a species that `turns`, and a weapon hit only for an `ignite` effect (`blaze`).
+- **No existing number moves.** The wyrm's breath keeps the damage type `burn`, which has no row in the layer table and so multiplies by 1.0. Spells and enchantments use the new types `ember` and `frost` (§ Damage types).
+- **New rows do not renumber old rows** (§ Row numbering). A world hash may move because `Skills.level` grew by a byte, never because anything played differently: the annual instrument's row stays as it was, apart from the deliberate moves below.
 - **Caravans.** Runecraft goods are drawn outside the weighted pool (§ Trade and value), so the ordinary goods of a caravan do not change.
-- **Wild patches.** A separate pass with its own stream converts some cave shrubs (§ Glowcap). The main terrain stream draws the same numbers. The local-map golden moves once, in T-468. Only a tile that was already a cave shrub changes.
-- **Deliberate moves.** Three changes do move numbers with no runecraft in play, and each task runs the annual instrument and explains the move:
+- **Wild patches.** A separate pass with its own stream converts some cave shrubs (§ Glowcap). The main terrain stream draws the same numbers. Only a tile that was already a cave shrub changes.
+- **Deliberate moves.** Three changes do move numbers with no runecraft in play:
   - **Hexers** move raid outcomes at peril 3 from year 3 and at peril 4 from year 2 (§ Hexers, measured there). Peril 2 and below see none, and nothing new is drawn for them: a hexer's kit is fixed.
-  - **Converted shrubs** take 10–25% of cave shrubs from their forage (T-468). The annual instrument gathers no cave shrub and plays one year, before the first Mountainhome caravan, so it shows neither this nor the extra goods: its row stayed 12.5/7/11/149/7/0/0.
+  - **Converted shrubs** take 10–25% of cave shrubs from their forage. The annual instrument gathers no cave shrub and plays one year, before the first Mountainhome caravan, so it shows neither this nor the extra goods: its row stayed 12.5/7/11/149/7/0/0.
   - **Remains** put wyrmscale, ichor, venom and a gland on a dead wyrm's, stalker's, Maw's, giant cave spider's or ember newt's corpse, so a `strip_corpse` job appears and the recovered items add wealth and renown (§ Rare materials). None of these dies in the annual instrument's year, so its row stayed 13/7/10/149/7/0/0, every figure of every seed the same; `pp_defence` draws the same numbers and emits the same events. No golden moved.
 
 ## Rules
 
 ### Row numbering
 
-**Task:** T-478. Without this, the first new row corrupts every save.
-
 The loader numbers rows sorted by id (`content-pipeline.md` § Loading step 4, `makeTable` in `core/registry.ts`). Numeric indices are saved in places that the id conversion does not reach: the `map.material` grid, `Skills.level` and `xp` (positional), `Labors.enabled` (bit position), `JobsState.laborPriorities`, job input filters, zone crop settings and other system states. A new material or skill that sorts into the middle of its table shifts all of them. An old save then loads under the soft match with its rock, skills and labors silently wrong.
 
-The rule: **rows added after version 1 number after every older row.**
+The rule: **rows added after version 1 number after every older row.** Without it, the first new row would corrupt every older save.
 
-- New table `rowOrder` in new file `03-content/row-order.md`: columns `table`, `id`. Rows named there number after all unnamed rows of their table, in the order listed. Unnamed rows keep sorted order, numbered from 1. The rows of a new table are listed too, so a later row of it cannot shift them.
+- Table `rowOrder` in `03-content/row-order.md`: columns `table`, `id`. Rows named there number after all unnamed rows of their table, in the order listed. Unnamed rows keep sorted order, numbered from 1. The rows of a new table are listed too, so a later row of it cannot shift them.
 - `src/content/loader.ts` step 4 passes each table's list to `makeTable(name, rows, appended)`. `ids()`, `where()` and `rows` follow the same order, so a pick from an old list stays as it was, as long as the new row stays out of that list. `metal()` in `terrain/generate/traits.ts` picks from every weapon and armor row whose materials include `metal`; it skips rows with a launcher and no `ammo`, and rows with a `rune` property, so `old_battlefield` maps keep their arms.
 - Schema: `list({ table: nonEmptyStr, id: nonEmptyStr })`; a listed id must exist in its table after `applyGenerated`, so a generated plant material (`glowcap`) is listed in `materials` too. New `exportRowOrder` in `scripts/lib/export/`.
-- `test/fixtures/content-row-baseline.json` holds every table's ids at this commit, and is never edited. A test asserts that each keeps its index for good. A new row not in `rowOrder` fails it, and fails `content:check` (`scripts/lib/row-baseline.mjs`), with the line to add. `rowOrder` is not in the content hash, because the index order already is.
+- `test/fixtures/content-row-baseline.json` holds every table's ids as they stood when this rule began, and is never edited. A test asserts that each keeps its index for good. A new row not in `rowOrder` fails it, and fails `content:check` (`scripts/lib/row-baseline.mjs`), with the line to add. `rowOrder` is not in the content hash, because the index order already is.
 - On load, positional arrays shorter than the table are grown with zeros: `Skills.level` and `xp` in `restoreEntities` (`app/game-save.ts`), `Labors.enabled` likewise. `combat/melee.ts` `getSkill` otherwise reads `undefined` and returns `CREATURE_BASE_SKILL`. `laborPriorities` needs no growing: `JobBoard` starts every labor at the default priority and its `deserialize` overwrites only the saved length.
 - New labors stay off for the dwarves of an older save, except as § The sanctum says. New dwarves get them on (`CoreSpawn.labors`).
 
-**Save format, for all tasks.** `formatVersion` stays 1 and every `stateVersion` stays 1. New component fields and new state fields are optional; absent means none, as `threatThrottles` and `Hostile.retreat` do. System 25 with no saved entry keeps its initial state (`World.deserializeSystems` already skips it). Components are saved by table, so they need no code. No task needs a migration. A task that adds a field to `Item` or `Rune` adds an old-save test.
+**Save format.** `formatVersion` stays 1 and every `stateVersion` stays 1. New component fields and new state fields are optional; absent means none, as `threatThrottles` and `Hostile.retreat` do. System 25 with no saved entry keeps its initial state (`World.deserializeSystems` already skips it). Components are saved by table, so they need no code. Nothing needs a migration: an older save loads with every new field absent, and its old-save tests (`Item`, `Rune`) pin that.
 
 ### Damage types
 
@@ -83,7 +71,7 @@ The layer table, with its `ember` and `frost` rows and its `ward` column, is in 
 
 ### Glowcap
 
-Glowcap is built. Its rows are in `plants.md` (the crop, and `glowcap_patch` under § Rare cave patches), `items.md` § Medical and herbs (`glowcap`, `rune_vial`), `materials.md` § Rune and `glyphs-and-colors.md` (`rune_cyan`). The light rule and the `glow` plot are in 07 § Growth and § Farm plots, and the lamp is in 14 § Special buildings.
+Glowcap's rows are in `plants.md` (the crop, and `glowcap_patch` under § Rare cave patches), `items.md` § Medical and herbs (`glowcap`, `rune_vial`), `materials.md` § Rune and `glyphs-and-colors.md` (`rune_cyan`). The light rule and the `glow` plot are in 07 § Growth and § Farm plots, and the lamp is in 14 § Special buildings.
 
 **Glowcap is its own item**, not `plant_food`. The `edible` and `cookable` columns of a plant are not read: `plant_food` is edible by its item row and is an `ingredient` by its tag, of any material. A glowcap in `plant_food` would be eaten and cooked. A separate item follows `fiber` and `brightleaf`.
 
@@ -91,7 +79,7 @@ Glowcap is built. Its rows are in `plants.md` (the crop, and `glowcap_patch` und
 
 A workshop needs a row in `workshops-and-recipes.md` § Workshops (the export makes its `buildings` row, category `workshop`; the `tags` column holds `rune_work`), a block in `glyphs-and-colors.md` § Workshop patterns, and for authored recipes a `RECIPE_SECTIONS` line in `scripts/lib/export/rules.mjs`. Labor comes from the recipe's skill.
 
-The runeforge is built: its row is in `workshops-and-recipes.md` (1 `anvil` + 3 `stone_block` + 1 `cut_gem`, masonry, 300 ticks, no fuel, tag `rune_work`, corners impassable like a forge), with its § Runeforge, and its skill `runesmithing` (labor `smithing`, profession Runesmith) in `skills-and-professions.md`. Its authored recipes, the runed robe and the circlet, are in its table there, with the `RECIPE_SECTIONS` line `['Runeforge', 'runeforge', 'runesmithing', false, true]` in `scripts/lib/export/rules.mjs`; the wands, staffs and settings are generated (§ Channels, § Setting stones).
+The runeforge's row is in `workshops-and-recipes.md` (1 `anvil` + 3 `stone_block` + 1 `cut_gem`, masonry, 300 ticks, no fuel, tag `rune_work`, corners impassable like a forge), with its § Runeforge, and its skill `runesmithing` (labor `smithing`, profession Runesmith) in `skills-and-professions.md`. Its authored recipes, the runed robe and the circlet, are in its table there, with the `RECIPE_SECTIONS` line `['Runeforge', 'runeforge', 'runesmithing', false, true]` in `scripts/lib/export/rules.mjs`; the wands, staffs and settings are generated (§ Channels, § Setting stones).
 
 `runecraft` and its labor `attunement` (default on, not for children) are in `skills-and-professions.md`. These skills and `runesmithing`, like `alchemy`, have `no` in the `embark` column there, so the embark screen hides them and `SetSkill` refuses them. Immigrants cannot arrive with them: `immigration/waves.ts` draws from its professions table, which names none of them. Profession colors: runecraft and runesmithing with Metal (`prof_steel`).
 
@@ -133,14 +121,14 @@ The thought `attuned` ends a session with no mishap. The first dwarf to reach `r
 
 **Mishaps.** One roll per session on stream 25, at the dwarf's level before the session's xp: `max(MISHAP_FLOOR, MISHAP_BASE − 2 × level − tier)` per mille, then a second draw picks the kind by weight among the rows that have landed. Measured over 1,000 level-0 sessions in a bare sanctum: 62 (25 singed, 11 blackouts, 10 scorched circles, 6 fires with nothing to burn, 3 surges, 7 loose wisps). None kills a dwarf, takes a limb or touches a stockpile. A light burn is 1 point on a random arm (a draw on stream 25); an arm at 1 hp or lost is spared for the other arm, and with neither the burn does nothing. Its `DamageDealt` carries `clean: true`, so 17 makes the burn already `cleaned`: it cannot take infection, and it heals on its own with or without a medic (one may still dress it). So no mishap kills a dwarf, now or later; the worst is the price of a chair. (A surge burns a loose wisp as it burns anyone, and so small a body can bleed out of it.) The last mishap of each sanctum is kept for its panel.
 
-| kind | weight | what happens | how | severity | Task |
-|---|---|---|---|---|---|
-| `singed` | 40 | a light burn on a random arm, already cleaned; thought `singed` | `DamageDealt { damageType: 'burn', amount: 1, attackerId: 0, clean: true }` | note | T-469 |
-| `blackout` | 25 | unconscious for `MISHAP_BLACKOUT_TICKS` | `CreatureStunned` (§ Effects) | note | T-469 |
-| `scorched_circle` | 15 | the circle is destroyed, no item back | `Mishap` carries `buildingId`; 14 handles it and removes the building with no yield | alert | T-469 |
-| `fire` | 7 | the first tile cardinal to the circle, north, east, south then west, that can burn (05's `burnableTile`) ignites; else nothing | `Mishap` carries `tile`; 05 queues it for its next tick, as lightning | alert | T-469 |
-| `surge` | 3 | every creature with a body within `MISHAP_SURGE_RADIUS` of the circle on its level (the larger of the two axis distances), in id order, takes a light burn; the session's xp is granted twice | as `singed` | note | T-469 |
-| `wisp_loose` | 10 | the `call` spell's own summon, a wisp, appears wild beside the circle and fades in a day; the apprentice gets no thought of the mishap, only `saw_wisp` as any dwarf who sees it | `looseWisp` in `magic/summon.ts` (§ Summons) | note | T-475 |
+| kind | weight | what happens | how | severity |
+|---|---|---|---|---|
+| `singed` | 40 | a light burn on a random arm, already cleaned; thought `singed` | `DamageDealt { damageType: 'burn', amount: 1, attackerId: 0, clean: true }` | note |
+| `blackout` | 25 | unconscious for `MISHAP_BLACKOUT_TICKS` | `CreatureStunned` (§ Effects) | note |
+| `scorched_circle` | 15 | the circle is destroyed, no item back | `Mishap` carries `buildingId`; 14 handles it and removes the building with no yield | alert |
+| `fire` | 7 | the first tile cardinal to the circle, north, east, south then west, that can burn (05's `burnableTile`) ignites; else nothing | `Mishap` carries `tile`; 05 queues it for its next tick, as lightning | alert |
+| `surge` | 3 | every creature with a body within `MISHAP_SURGE_RADIUS` of the circle on its level (the larger of the two axis distances), in id order, takes a light burn; the session's xp is granted twice | as `singed` | note |
+| `wisp_loose` | 10 | the `call` spell's own summon, a wisp, appears wild beside the circle and fades in a day; the apprentice gets no thought of the mishap, only `saw_wisp` as any dwarf who sees it | `looseWisp` in `magic/summon.ts` (§ Summons) | note |
 
 ### Channels
 
@@ -258,17 +246,17 @@ Every kind is read where the table says.
 
 `Spellbound` component (§ State). `src/core/effects.ts`: `effectValue(entities, id, kind, tick)`, the largest value among unexpired entries of a kind, 0 if none; `effortUnderEffects`, the step's effort below; `hastedTicks`, a wait under `haste`; and `immuneToBurn`. 25 adds entries through `addEffect` in `magic/cast.ts` (and a draught through `drinkDraught`, § Draughts) and, on `HourPassed`, drops expired entries and the draught rests that have run out, and the component when nothing is left. Readers compare `until` with the tick, so expiry needs no tick of its own.
 
-| kind | value | read at | Task |
-|---|---|---|---|
-| `slow` | percent | `core/movement.ts` `moveAlongPath`, on the step's effort after crowding: `× (100 − slow + haste) / 100`, truncated, at least 1; a game with no `Spellbound` (the store is empty) does no lookup per mover. Every creature, one place. 17's `speedModifier` is not touched | T-470 |
-| `ward` | armor | `armorReduction`: `+ ward × damageTypeVsLayer(type, ward)` on every part, while it lasts at the tick of the hit | T-473 |
-| `flee` | 1 | `CombatSystem.tick`, after the conscious check (`stepFled` in `combat/fled.ts`): while it lasts the creature keeps its target, does not attack, and walks to the tile `FLEE_EFFECT_TILES` from the source of its latest `flee` entry, through itself, clamped to the map and stepped back toward it to a tile a walker can stand on; with no such tile or no path, to the nearest tile of its party's arrival edge (`getNearestEdgeTile`); a creature of no party then stands. A source with no position counts as the held target. `isFleeing(entities, id, tick)` counts it (+10 to hit, no parry, no block). 18's member step needs no change: it holds a target and returns. Nothing leaves the map, so the party's losses and retreat do not move, and when the effect ends the creature still holds its target and comes back. A dwarf, a soldier on duty too, runs by 10's brain, which calls the same `stepFled` with no target (10 § Behavior selection, Dread): with a source that has no position it stands where it is | T-473 |
-| `heal_rate` | percent | `health/tick.ts` healing: each wound's `healRemaining` decrement (after its own rate and suture) `× value / 100` while it lasts | T-474 |
-| `pain_half` | 1 | `health/tick.ts` pain sum: the raw sum halved, rounded down, before Willpower | T-474 |
-| `pain` | pain | `health/tick.ts` pain sum: added to the wounds' raw sum, before `pain_half` halves it and before Willpower. A creature under it stays in 17's `wounded` list until it ends, so its pain is summed once more without it. Several do not add: the largest counts. A `venomed` blow brings it (§ Enchantments in combat) | T-492 |
-| `haste` | percent | the step above; and every wait of an attack, after crowding: `resolveMelee`, `fireRanged`, a cast's cooldown (`setCastCooldown` in `magic/cast.ts`) and a vial's `DRINK_TICKS`: `× 100 / (100 + value)`, rounded down, at least 1 (`hastedTicks`) | T-474 |
-| `fire_immune` | 1 | `resolveMelee`, `resolveProjectileHit` and the second hit of `extra_damage` (`applyEnchantOnHit`), after Toughness: a hit whose wound type is `burn` (`ember`, or the wyrm's `burn`) does 0 (`immuneToBurn`) | T-474 |
-| `spot_radius` | tiles | `threats/ai.ts` `fortressTargets`, where a fortress creature's `spotRadius` is set: the larger of its own and the effect's | T-474 |
+| kind | value | read at |
+|---|---|---|
+| `slow` | percent | `core/movement.ts` `moveAlongPath`, on the step's effort after crowding: `× (100 − slow + haste) / 100`, truncated, at least 1; a game with no `Spellbound` (the store is empty) does no lookup per mover. Every creature, one place. 17's `speedModifier` is not touched |
+| `ward` | armor | `armorReduction`: `+ ward × damageTypeVsLayer(type, ward)` on every part, while it lasts at the tick of the hit |
+| `flee` | 1 | `CombatSystem.tick`, after the conscious check (`stepFled` in `combat/fled.ts`): while it lasts the creature keeps its target, does not attack, and walks to the tile `FLEE_EFFECT_TILES` from the source of its latest `flee` entry, through itself, clamped to the map and stepped back toward it to a tile a walker can stand on; with no such tile or no path, to the nearest tile of its party's arrival edge (`getNearestEdgeTile`); a creature of no party then stands. A source with no position counts as the held target. `isFleeing(entities, id, tick)` counts it (+10 to hit, no parry, no block). 18's member step needs no change: it holds a target and returns. Nothing leaves the map, so the party's losses and retreat do not move, and when the effect ends the creature still holds its target and comes back. A dwarf, a soldier on duty too, runs by 10's brain, which calls the same `stepFled` with no target (10 § Behavior selection, Dread): with a source that has no position it stands where it is |
+| `heal_rate` | percent | `health/tick.ts` healing: each wound's `healRemaining` decrement (after its own rate and suture) `× value / 100` while it lasts |
+| `pain_half` | 1 | `health/tick.ts` pain sum: the raw sum halved, rounded down, before Willpower |
+| `pain` | pain | `health/tick.ts` pain sum: added to the wounds' raw sum, before `pain_half` halves it and before Willpower. A creature under it stays in 17's `wounded` list until it ends, so its pain is summed once more without it. Several do not add: the largest counts. A `venomed` blow brings it (§ Enchantments in combat) |
+| `haste` | percent | the step above; and every wait of an attack, after crowding: `resolveMelee`, `fireRanged`, a cast's cooldown (`setCastCooldown` in `magic/cast.ts`) and a vial's `DRINK_TICKS`: `× 100 / (100 + value)`, rounded down, at least 1 (`hastedTicks`) |
+| `fire_immune` | 1 | `resolveMelee`, `resolveProjectileHit` and the second hit of `extra_damage` (`applyEnchantOnHit`), after Toughness: a hit whose wound type is `burn` (`ember`, or the wyrm's `burn`) does 0 (`immuneToBurn`) |
+| `spot_radius` | tiles | `threats/ai.ts` `fortressTargets`, where a fortress creature's `spotRadius` is set: the larger of its own and the effect's |
 
 **Stun** is not an effect. Daze and `blackout` emit `CreatureStunned { id, until }`. 17 handles it (17 § Bleeding, pain, consciousness): it adds the creature to `wounded`, where it stays until the stun ends, saves `stunnedUntil` (a map in `HealthState`, optional), knocks a conscious body down at once with `CreatureUnconscious`, and its consciousness line becomes `conscious = pain < PAIN_UNCONSCIOUS && blood ≥ threshold && tick ≥ stunnedUntil`. So everything that respects `Body.conscious` holds: 16 skips the creature and hits it at +40, brains stop, and `CreatureUnconscious` and `CreatureConscious` fire. The patient check in `health/tick.ts` counts only unconsciousness from pain or blood, so a blackout admits no one. A stunned raider counts toward 18's retreat losses while it lies there. That is accepted: it is 150 ticks. A Daze caster may daze the same creature again once it wakes.
 
@@ -282,7 +270,7 @@ A caster carries `CASTER_VIALS`. In `reequipSoldier`, after the weapon: a member
 
 ### Setting stones
 
-Built. The enchantments are rows of `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments), the settings are generated runeforge recipes ([workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Runeforge), and the runed robe and the circlet are armor rows with a `rune` property (weapons-and-armor.md § Armor), made at the runeforge.
+The enchantments are rows of `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments), the settings are generated runeforge recipes ([workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Runeforge), and the runed robe and the circlet are armor rows with a `rune` property (weapons-and-armor.md § Armor), made at the runeforge.
 
 `Item.enchant { id: Idx<'EnchantDef'>, tier: Quality }`, optional; absent is none. One per item, permanent. `tier` is the runesmith's quality roll, and `QUALITY_COMBAT_MULT[tier]`, rounded, scales what the row's `scales` names: its `value` or its `ticks`.
 
@@ -300,7 +288,7 @@ A soldier's gear is owned and so is never a target. The runesmith sets stones in
 
 ### Enchantments in combat
 
-**`fearsome` is a trade-off, by decision (T-485).** A fled raider is out of the fight for a while, but soldiers who chase it swing less: in the T-472 arena six soldiers with fearsome axes held a raid of ten in 16 of 24 fights against 20 with plain axes. The owner chose to keep it; not every enchantment is a strict improvement. The look line says so: "A fleeing foe is hard to catch."
+**`fearsome` is a trade-off, by the owner's decision.** A fled raider is out of the fight for a while, but soldiers who chase it swing less: in the [enchant arena](../../reports/audits/2026-11-02-t472-enchant-arena.md) six soldiers with fearsome axes held a raid of ten in 16 of 24 fights against 20 with plain axes. Not every enchantment is a strict improvement. The look line says so: "A fleeing foe is hard to catch."
 
 Content table `enchants` ([weapons-and-armor.md](../03-content/weapons-and-armor.md) § Enchantments) holds them: on weapons `keen`, `ember` (a garnet, or an ember newt's gland at 4 vials in place of 6: the row `ember_gland`, with the same effect and name), `rime`, `sure`, `fearsome`, `blaze`, `sunder`, `deep` (a deepsilver bar: +25% damage, +50% more against the Hollow-born), `hollowbane` (a hollow ichor: +100% against the Hollow-born) and `venomed` (a giant cave spider's venom: a hit pains the target by 20 for 300 ticks, the numbers of the spider's own bite in [creatures.md](../03-content/creatures.md)); on armor `stout`, `emberward`, `rimeward`, `adamant`, `glowing`, `wyrmhide` (a wyrmscale: no fire through the piece), `hollowsight` (a hollow ichor, head pieces only: +4 to the spot radius, so a dwarf spots within 10) and `calm` (a sapphire: never put to flight, and Daze resisted by 25 more in a hundred); on ammunition `ember_ammo`, `rime_ammo`, `seeking`. A hollowsight helm and a draught of hollowsight give the same 10 tiles.
 
@@ -411,17 +399,17 @@ Measured ([hexers measured](../../reports/audits/2026-11-04-t479-hexers.md)): ag
 
 ### Trade and value
 
-Built. The Mountainhome's extra goods (`caravan-goods.md`) include rune vials, 5 to a good, permille 400 (*unmeasured*), at reputation ≥ 50; the extra goods are drawn outside the weighted pool on stream 25 (20 § Caravans), so the ordinary goods do not change, and a request finds the row only at the reputation it needs. The Mountainhome values `medical/vial` and `medical/draught` at 150 (`caravan-goods.md` § Preferences). The Wildwood count a channel, a wand or a staff, as a wooden item whatever its shoe (20 § The session, `tradeClass` in `trade/valuation.ts`): it takes their offence, −2 reputation for each offered, and their wood price, 20%. No civilization values "enchanted" separately: `preferencePercent` reads category and material, and an enchanted item's value is already higher.
+The Mountainhome's extra goods (`caravan-goods.md`) include rune vials, 5 to a good, permille 400 (*unmeasured*), at reputation ≥ 50; the extra goods are drawn outside the weighted pool on stream 25 (20 § Caravans), so the ordinary goods do not change, and a request finds the row only at the reputation it needs. The Mountainhome values `medical/vial` and `medical/draught` at 150 (`caravan-goods.md` § Preferences). The Wildwood count a channel, a wand or a staff, as a wooden item whatever its shoe (20 § The session, `tradeClass` in `trade/valuation.ts`): it takes their offence, −2 reputation for each offered, and their wood price, 20%. No civilization values "enchanted" separately: `preferencePercent` reads category and material, and an enchanted item's value is already higher.
 
 ### Morale
 
-**Task:** as the row says. Rows go to `personality-and-thoughts.md`; each needs a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune`, `eased`, `summon_turned`, `rune_sick`, `dosed_again`, `saw_wisp`, `lab_stink` and `put_to_flight` are there (Work and skill; Pride and relief; Social and comfort; Loss and fear): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` and `summon_turned` go to everyone (each event has its own announcement), `eased` matches a `DraughtDrunk` with `calm` (half its value with `again`), `dosed_again` one with `again`, `rune_sick` a `VialDrunk` with `sick`, and `warded`, `mended_by_rune`, `eased`, `dosed_again` and `rune_sick` go to the dwarf the event names. `put_to_flight` ("Fear took my legs, and I ran.", −2 for 12 hours) matches every `PutToFlight` and goes to the dwarf put to flight. `saw_wisp` matches `WispAppeared` for every dwarf within 8 tiles of its `tile` in line of sight, as `saw_death` does, at most once a day; `lab_stink` is given on a move (§ Draughts, Spoiled batch).
+The thoughts are rows of `personality-and-thoughts.md`, each with a case in `morale/thoughts.ts` `eventPredicate` and `eventTargets`. `attuned`, `singed`, `first_runecaster`, `warded`, `mended_by_rune`, `eased`, `summon_turned`, `rune_sick`, `dosed_again`, `saw_wisp`, `lab_stink` and `put_to_flight` are there (Work and skill; Pride and relief; Social and comfort; Loss and fear): `attuned` matches an `AttuneSession` whose `mishap` is empty, `first_runecaster` and `summon_turned` go to everyone (each event has its own announcement), `eased` matches a `DraughtDrunk` with `calm` (half its value with `again`), `dosed_again` one with `again`, `rune_sick` a `VialDrunk` with `sick`, and `warded`, `mended_by_rune`, `eased`, `dosed_again` and `rune_sick` go to the dwarf the event names. `put_to_flight` ("Fear took my legs, and I ran.", −2 for 12 hours) matches every `PutToFlight` and goes to the dwarf put to flight. `saw_wisp` matches `WispAppeared` for every dwarf within 8 tiles of its `tile` in line of sight, as `saw_death` does, at most once a day; `lab_stink` is given on a move (§ Draughts, Spoiled batch).
 
 Every value sits inside the caps. Nothing here can take a fed, rested dwarf below 20.
 
 ## State
 
-Rows go to `schemas/components.md` and the ownership table by task. `id-fields.ts` regenerates (an optional `Idx` field, `stone?`, is named without its mark). `Rune`, `Spellbound` (with `effects` and the draught rests), `Squad.equipment.draughts`, `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel, `pendingBlooms` and `bloomAlertsToday`), `HealthState.stunnedUntil` and `Summoned` are there.
+The rows are in `schemas/components.md` and its ownership table, from which `id-fields.ts` is generated (an optional `Idx` field, `stone?`, is named without its mark). `Rune`, `Spellbound` (with `effects` and the draught rests), `Squad.equipment.draughts`, `Item.stone`, `Item.enchant` (with its `ItemEnchant` record), `WorkOrder.targetType`, `Projectile.spell` and `spellPower`, `MagicState` (in `schemas/system-state.md`, with `lastMishaps`, the last mishap of each sanctum for its panel, `pendingBlooms` and `bloomAlertsToday`), `HealthState.stunnedUntil` and `Summoned` are there.
 
 ```ts
 interface Rune {                 // owner 25; also written by 18 for hexers
@@ -461,7 +449,7 @@ The system: `MagicSystem` in `src/systems/magic/index.ts`, `id '25'`, `order 25`
 
 ## Interfaces
 
-The `interface:check` script compares this section with the code. It holds only what exists. Each task moves its rows here from § Planned interfaces.
+The `interface:check` script compares this section with the code.
 
 ### Reader
 
@@ -490,58 +478,53 @@ The `interface:check` script compares this section with the code. It holds only 
 
 Job producer `magic` (`attune`, `give_draught`); inspector sections `creature › rune` (with the channel line), `zone › sanctum` (the sanctum panel, in 14's zones panel) and `item › stone`; announcements: `Mishap` (note for `singed`, `blackout`, `surge`, `wisp_loose`; alert for `scorched_circle`, `fire`, `blaze`), `FirstRunecaster` (note), `SummonTurned` (danger), `StoneSet` (note, a masterwork setting only; 12 emits it), `RuneSpent` (note; a fortress caster's only), `SpellCast` with `burned: true` (alert: "Urist's firebloom caught Tova."). Service `world.services.magic` (`MagicApi.addBloom`).
 
-## Planned interfaces
-
-None remain: every interface so far is in § Interfaces. T-479's hexers add none of 25's own.
-
-Other systems' documents gain their parts in the same commits: 08 (summons), 12 (`transform`, `spoilable`, `stone`, `DeepsilverWorked`), 13 (`setEnchant`, `noEnchant`, value, `remains`, no corpse for a summon), 14 (`sanctum`), 15 (`saw_death`), 16 (channels, effects, damage types), 17 (`CreatureStunned`, `Mended`, `SummonFaded`), 18 (`DeepsilverWorked`, `SummonTurned`, `hexer`), 19 (no cage for a summon), 22 (`moveAlongPath`), 24 (the kill tally, the milestones).
-
 ## Player-facing behavior
 
-- **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` does not change. `◊` and `¦` are not, which is why the design's glyphs changed. A warded creature's glyph has a dimmed `ward_cyan` background (`render/compositor.ts`, step 6), unless the attack flash is showing.
+- **Glyphs.** Wand `'`, staff `⌠`, vial `¡`, rune circle `○`, all `rune_cyan`. Draught `!`, in the color of its row. Wisp `*`, warden `Φ`, shade `δ`. A hexer is `G`. All are in CP437, so `font-additions.json` holds none of them. A warded creature's glyph has a dimmed `ward_cyan` background (`render/compositor.ts`, step 6), unless the attack flash is showing.
 - **Firebloom flash.** When a bloom blooms, 25 emits `SpellBloomed { casterId, tile }`, and the compositor shows the 3×3 around the tile in `ember_orange` for the animation frame it arrives in, over light and dark (after step 9). Render only: nothing is saved.
 - **Glowing light.** A creature that wears a piece with a `light` effect (a `glowing` stone), and is not a hidden hostile, lights the 3×3 around it on its level in the view: the background of its own tile is `glow_core`, of its eight neighbours `glow_halo` (dim shades of `rune_cyan`; `glyphs-and-colors.md` § Palette). The compositor gathers the wearers once a frame and tints the cells beneath step 6, so the creature's glyph, the attack flash and a ward still show on top, the step 8 overlays still tint over it, and step 9 dims it on the surface at night like any ground. Render only: nothing is saved, and with no wearer no cell changes.
 - **Sanctum panel**: the selected sanctum's inspector in the zones panel (zone type key `[S-c]`, `ui-screens/panels.md` § Zones). The room's tier, score and missing circle; the glowcap in stock; the mishap chance in words for a new apprentice ("one session in 17"); each apprentice with level, rune and sessions left today, and its own chance; the last mishap. `[S-o]` opens the apprentice picker, which adds or removes one adult dwarf at a time through `SetSanctumApprentices`.
-- **Inspector, `creature › rune`**, in the look panel's creature tab: "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks"; the other spells read by their kind ("Ward: 7 armour on every part for 720 ticks, range 3."). Under them, for a caster with vials or one that drank today, "Vials: 2 carried, 1 of 3 drunk today.", and for any creature under timed effects, "Under: ward 7 (340 ticks), slowed 50% (120 ticks)." (each kind has a key `ui.look.effect.<kind>`), and while a draught rest lasts "Can take a draught again in 2 days." (whole days begun; "tomorrow" for the last). A caster's summons and a summon's caster are named under them (§ Summons, Inspector).
+- **Inspector, `creature › rune`**, in the look panel's creature tab (each of these lines, and a channel's or an enchanted item's line on the Tile and Items tabs, wraps under its prefix in the panel's width, so it is read to its end): "Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow", and under it the held channel: "Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12." A Frostbind adds ", slows by 50% for 360 ticks"; the other spells read by their kind ("Ward: 7 armour on every part for 720 ticks, range 3."). Under them, for a caster with vials or one that drank today, "Vials: 2 carried, 1 of 3 drunk today.", and for any creature under timed effects, "Under: ward 7 (340 ticks), slowed 50% (120 ticks)." (each kind has a key `ui.look.effect.<kind>`), and while a draught rest lasts "Can take a draught again in 2 days." (whole days begun; "tomorrow" for the last). A caster's summons and a summon's caster are named under them (§ Summons, Inspector).
 - **Look cursor**: a channel is named with its spell's suffix, "1 iron staff of embers (fine)", then its value, and the line under it reads "Emberbolt: 24 ember, range 12. Needs a runecaster." An enchanted item carries its suffix, "1 steel axe of embers (fine)", and a dim line gives its effects at its tier: "+9 ember on a hit.", or for a venomed blade "A hit stings for 20 pain for 300 ticks."; a creature under the venom reads "Under: venom, pain +20 (240 ticks)."
-- **Squad panel**: under the gear, "[S-d] draughts: draught of stoutness, draught of quickness"; `[S-d]` opens the checklist of every draught a soldier drinks, each with its place in the list and its trigger in words ("a raid or an ambush arrives", "hit while below half blood"), and `Enter` adds the row at the end of the list or takes it out (`SetSquadEquipment`). A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
+- **Squad panel**: under the gear, "[S-d] draughts: draught of stoutness, draught of quickness"; `[S-d]` opens the checklist of every draught a soldier drinks, each with its place in the list, and under it the selected draught's trigger in words ("Drunk when a raid or an ambush arrives.", "Drunk when hit while below half blood."), and `Enter` adds the row at the end of the list or takes it out (`SetSquadEquipment`). The draughts line wraps under its caption. A member who can use the channel it holds (`runecraft` 1 or more) has the channel's glyph after its name in the members line: "Tova E. ⌠".
 - **Orders panel**: a transform recipe offers the target type (`set in: any`, stepped by a click) and the material, and is `once` only.
-- **Hints** (`hints` rows, T-477, each with a trigger on stock or buildings): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
+- **Hints** (`hints` rows in [ui-keymap-and-screens.md](../03-content/ui-keymap-and-screens.md) § Hints, each shown once when its stock or building first appears: glowcap seeds, a runeforge placed, a runeforge built, a wand or a staff, a sanctum, a dwarf with rune of its own, a draught): "Glowcap grows in the dark under a glowstone lamp." "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." "A wand is quick and soft; a shod staff is slow and hard." "Build the sanctum in stone." "Iron drinks the rune: a runecaster in mail recovers slowly." "The runeforge burns vials, not coal." "One draught, then three days' rest."
 - **Legend milestones** (`milestones` rows and `legend/index.ts`), each awarded once ([ui-keymap-and-screens.md](../03-content/ui-keymap-and-screens.md) § Milestones): `m_stone_set` on the first `StoneSet`, `m_runecaster` on `FirstRunecaster`, and `m_summon`, "A summoning was answered.", on the first `SummonCalled`; a shade that comes through turned answers nothing.
 
 ## Tuning constants
 
-All *unmeasured* unless the row says what was measured. Rows move to `src/systems/magic/constants.ts` as the task that uses them lands.
+All *unmeasured* unless the row says what was measured. They are in `src/systems/magic/constants.ts`.
 
-| Name | Value | Meaning | Task |
-|---|---|---|---|
-| `RUNE_PER_LEVEL` | 5 | Rune maximum per level | T-469 |
-| `RUNE_REGEN_PER_LEVEL` | 0.1 | Rune per hour per level; measured: a level-10 runecaster fills in 50 hours in a tunic and 84 in an iron helm and mail | T-469 |
-| `METAL_RUNE_PENALTY_PERCENT` / `METAL_RUNE_FLOOR_PERCENT` | 20 / 20 | Per worn metal piece; floor | T-469 |
-| `SANCTUM_APPRENTICES` | 4 | | T-469 |
-| `ATTUNE_TICKS` / `ATTUNE_XP` / `ATTUNE_SESSIONS_PER_DAY` | 300 / 25 / 2 | Measured: Proficient at two sessions a day from Wits 50 in 73 days and 145 glowcap | T-469 |
-| `MISHAP_BASE` / `MISHAP_FLOOR` | 60 / 10 | Per mille a session, less 2 per level and 1 per tier; measured: 61 mishaps in 1,000 level-0 sessions in a bare sanctum | T-469 |
-| `MISHAP_BLACKOUT_TICKS` / `MISHAP_SURGE_RADIUS` | 200 / 3 | | T-469 |
-| `FROSTBIND_SLOW_PERCENT` | 50 | | T-470 |
-| `CASTER_HOLD_DISTANCE` | 4 | A caster whose spell is no bolt, with the rune for it, stands this far from its target | T-473 |
-| `CASTER_VIALS` / `VIAL_RUNE` / `VIALS_PER_DAY` / `DRINK_TICKS` | 3 / 5 / 3 / 30 | | T-473 |
-| `SICK_VIAL_PERCENT` | 50 | A desperate fourth vial's share of `VIAL_RUNE` (§ Vials) | T-491 |
-| `FIREBLOOM_DELAY_TICKS` | 20 | Between the cast and the bloom | T-473 |
-| `DREAD_MAX_TARGETS` | 4 | | T-473 |
-| `RESIST_NO_ATTRIBUTES_PERCENT` | 25 | | T-473 |
-| `MENTAL_IMMUNE_SIZE` | 180 | | T-473 |
-| `ENCHANT_CLAIM_BONUS` | 0.5 | Added to a claim score | T-471 |
-| `DRAUGHT_TICKS` | 1200 | One day, times the quality multiplier | T-474 |
-| `DRAUGHT_REST_DAYS` / `CALM_REST_DAYS` | 3 / 7 | Any draught's rest; a calming draught within the second of the last eases by half and gives `dosed_again` | T-474 |
-| `ALCHEMY_MISHAP_PERMILLE` | 100 | Per job, less 10 per level | T-474 |
-| `SUMMON_TICKS` / `MAX_SUMMONS_PER_CASTER` / `SHADE_TURN_PERMILLE` | 1200 / 2 / 50 | A summon's day; summons a caster holds; turning per mille. Measured: 50 turned in 1,000 castings of a deepsilver staff | T-475 |
-| `DEEP_DRAUGHT_LEVEL` | 2 | The Deep's level from which its stirring and emergences make soldiers drink the `deep` draughts | T-476 |
-| `HEXER_RUNE` | 20 | A hexer's rune at arrival; measured: in the open it never spent it, at peril 4 its party wins as often with it as without, within noise ([hexers measured](../../reports/audits/2026-11-04-t479-hexers.md)) | T-479 |
+| Name | Value | Meaning |
+|---|---|---|
+| `RUNE_PER_LEVEL` | 5 | Rune maximum per level |
+| `RUNE_REGEN_PER_LEVEL` | 0.1 | Rune per hour per level; measured: a level-10 runecaster fills in 50 hours in a tunic and 84 in an iron helm and mail |
+| `METAL_RUNE_PENALTY_PERCENT` / `METAL_RUNE_FLOOR_PERCENT` | 20 / 20 | Per worn metal piece; floor |
+| `SANCTUM_APPRENTICES` | 4 | |
+| `ATTUNE_TICKS` / `ATTUNE_XP` / `ATTUNE_SESSIONS_PER_DAY` | 300 / 25 / 2 | Measured: Proficient at two sessions a day from Wits 50 in 73 days and 145 glowcap |
+| `MISHAP_BASE` / `MISHAP_FLOOR` | 60 / 10 | Per mille a session, less 2 per level and 1 per tier; measured: 61 mishaps in 1,000 level-0 sessions in a bare sanctum |
+| `MISHAP_BLACKOUT_TICKS` / `MISHAP_SURGE_RADIUS` | 200 / 3 | |
+| `FROSTBIND_SLOW_PERCENT` | 50 | |
+| `CASTER_HOLD_DISTANCE` | 4 | A caster whose spell is no bolt, with the rune for it, stands this far from its target |
+| `CASTER_VIALS` / `VIAL_RUNE` / `VIALS_PER_DAY` / `DRINK_TICKS` | 3 / 5 / 3 / 30 | |
+| `SICK_VIAL_PERCENT` | 50 | A desperate fourth vial's share of `VIAL_RUNE` (§ Vials) |
+| `FIREBLOOM_DELAY_TICKS` | 20 | Between the cast and the bloom |
+| `DREAD_MAX_TARGETS` | 4 | |
+| `RESIST_NO_ATTRIBUTES_PERCENT` | 25 | |
+| `MENTAL_IMMUNE_SIZE` | 180 | |
+| `ENCHANT_CLAIM_BONUS` | 0.5 | Added to a claim score |
+| `DRAUGHT_TICKS` | 1200 | One day, times the quality multiplier |
+| `DRAUGHT_REST_DAYS` / `CALM_REST_DAYS` | 3 / 7 | Any draught's rest; a calming draught within the second of the last eases by half and gives `dosed_again` |
+| `ALCHEMY_MISHAP_PERMILLE` | 100 | Per job, less 10 per level |
+| `SUMMON_TICKS` / `MAX_SUMMONS_PER_CASTER` / `SHADE_TURN_PERMILLE` | 1200 / 2 / 50 | A summon's day; summons a caster holds; turning per mille. Measured: 50 turned in 1,000 castings of a deepsilver staff |
+| `DEEP_DRAUGHT_LEVEL` | 2 | The Deep's level from which its stirring and emergences make soldiers drink the `deep` draughts |
+| `HEXER_RUNE` | 20 | A hexer's rune at arrival; measured: in the open it never spent it, at peril 4 its party wins as often with it as without, within noise ([hexers measured](../../reports/audits/2026-11-04-t479-hexers.md)) |
 
 ## Acceptance
 
-Each task's work file lists its own. Together:
+The rules above are pinned by the tests named beside them, and together by these:
 
+- The scripted fortress `pp_runecraft` plays the whole loop by commands from a Miner's Guild embark: two glowstone lamps over a glow plot of glowcap, a laboratory distilling vials and brewing draughts of stoutness, a sanctum where one apprentice attunes to Dabbling, a runeforge that makes an iron staff of embers and sets a garnet in an iron axe, and a squad of the two carrying the draught. At a raid the apprentice throws an emberbolt from the staff it made and a soldier drinks the draught, on both of its seeds.
 - A glowcap on a dark tile under a lamp grows. With the lamp removed, or on a lit tile, it does not. No dwarf eats or cooks one.
 - A glowcap on a dark tile with no lamp grows while a creature wearing a `glowing` piece stands on its 3×3, and stops when the wearer walks on; the tile keeps its `lit` bit, has no lamp coverage, and a cave plot under the wearer stays a cave plot.
 - Two glowcap make one vial. A dwarf with no `runecraft` never claims a channel and casts nothing.
@@ -563,48 +546,3 @@ Each task's work file lists its own. Together:
 
 - More stones: a row in `spells` and `enchants`.
 - A sanctum chest: the zone setting and 13's hospital rule, if attunement ever needs to be supplied in place.
-
-## Differs from the design
-
-The design is [the runecraft proposal](../../reports/designs/2026-11-01-runecraft-magic-system.md). This list goes when the marks go.
-
-| # | The design said | This says | Why |
-|---|---|---|---|
-| 1 | Adding rows is free | New rows number after old ones, in a table of their own (§ Row numbering) | Rows are sorted by id and indices are saved raw, so a new row would corrupt every older save |
-| 2 | Glowcap is `plant_food` (glowcap), "not food" | Its own item, `glowcap` | Any `plant_food` is eaten and cooked; the plant's `edible` column is not read |
-| 3 | Damage type `burn` with a table row | `ember` for spells; `burn` stays without a row | The wyrm's breath is `burn` and a row would change its damage with no runecraft in play |
-| 4 | `Item.shoe` and `Item.stone` | Only `Item.stone`; the staff's material is its shoe | The ordinary material filter, value and melting then work; one field fewer |
-| 5 | Yew gives +10% power | Cut | The log is not recorded once the material is the metal; a small effect |
-| 6 | One `make_wand`, one `make_staff`, `Item` filter picks the stone | One generated recipe per stone | The order's one material filter must pick the metal; this adds no order field |
-| 7 | A sanctum chest with `wants`, `SetSanctumSupplies` | No chest, no wants; input from any stockpile | Hospital stocking is special-cased in 13 and 14; the job search needs nothing |
-| 8 | `ATTUNE_XP` 50; "a one-year project" | 25: Proficient in 74 days | A year is 112 days; at 50 it took a third of a year |
-| 9 | 25 ticks right after 16 | Order 25, last, nearly idle | Casting rides in 16's loop; effects compare ticks, so nothing needs freshness |
-| 10 | `Slowed`, `Dazed`, `Fled`, `Ward` statuses; `magic.speedModifier` | One `Spellbound` list; slow and haste in the core step | Hostiles and animals do not read 17's modifier; one place covers everyone |
-| 11 | Daze as its own status | `CreatureStunned` through `Body.conscious` | Every system already respects it |
-| 12 | Firebloom is never cast into allies, and it burns allies | A 20-tick delay between the two | Instant, the two rules cannot both hold |
-| 13 | Spell range column for bolts | Bolts use the launcher's range | Two ranges for one bolt told the player nothing |
-| 14 | Robe +5 to the cast roll | Cut | The regen is the robe's point |
-| 15 | `mend_wounds` off-duty job | Cut | It races 17's `stop_bleeding` over the same wounds for little gain |
-| 16 | A fourth vial gives `rune_sick` | Only in a desperate moment: three drunk and the foe beside; half the rune | Unlimited, the limit of three means nothing |
-| 17 | Drinking stops movement | Only the attack cooldown | Stopping a soldier needs a new rule in 16's squads |
-| 18 | `SetSquadDraughts` | 16's `SetSquadEquipment` carries the list | The command exists and accepts partial preferences |
-| 19 | "Train with staff" toggle | A channel holder drills solo | No new setting |
-| 20 | Armor `calm`; hexers with Dread; Dread on dwarves | One hexer in `DREAD_HEXER_EVERY` by its id; a dwarf runs by 16's `stepFled` from 10's brain, dropping its job as from a fire; `calm` armor | A draw would move 18's stream; 10's fire flight already drops a job and an item cleanly |
-| 21 | Armor `mending` | Cut | Needs part coverage inside 17's heal loop |
-| 22 | Armor `glowing` lights the wearer's 3×3 | Spot radius, and the 3×3 lit for a `glow` crop's growth only, tinted in the view | The light is asked for where a lamp is, at a glow crop's hour; the `lit` flag and lamp coverage stay 14's, so nothing moves with no glowing wearer |
-| 23 | `adamant` weight −4 | Cut | The armor is the effect |
-| 24 | `blaze` 2% ignition | An `ignite` effect: a `Mishap` with the tile, which 05 lights | 05 already lights a sanctum's fire that way |
-| 25 | `venomed`, `spider_venom`; `ember_gland` as a second stone of `ember` | Kept, through `remains` (row 26); the gland is a row of its own, `ember_gland`, with `ember`'s effect and name | An `enchants` row has one stone and one vial count |
-| 26 | Butcher and `strip_corpse` yields | A `remains` column, carried out by `strip_corpse` | One seam for both; no change to the butcher |
-| 27 | "This exact item" in the stocks panel | Cut; a target type and a material | A new order field and a new panel path |
-| 28 | A set takes "≤ 25" of a stack | Exactly 25 units | The job search counts units |
-| 29 | Toughness +20 on stoutness | Cut | Attributes are read everywhere; pain halved is the effect |
-| 30 | Spoiled batch fills the lab with miasma | Murky draught, and `lab_stink` for those who pass the laboratory that day | Miasma is internal to 13's rot pass |
-| 31 | Mountainhome rows from year 2 in the weighted pool; "enchanted" valued by civ | `extra` goods outside the pool, no year gate; no civ value for enchants | The pool's draws must not move; preference reads category and material |
-| 32 | Wildwood draught; Hillfolk enchant value | Cut | No seam; little gain |
-| 33 | Wild patches by cavern weight | A separate pass converts cave shrubs | Weights would shift every map's shrubs |
-| 34 | `saw_wisp` for everyone who sees it | On `WispAppeared`, as `saw_death`, once a day | A scan in 15 for one light |
-| 35 | Deep pressure 10 and 5 by recipe | 10 per bar at any `rune_work` building | One rule, read from the metal |
-| 36 | A hollowbane kill in the legend; firebloom flash; a summon "stands in a doorway" | The flash is kept (`SpellBloomed`); the other two are cut | New event fields and presentation for small effects |
-| 37 | Summon rows at their fighting numbers; a shade with stealth | Rows hold lower numbers; only a turned shade hides | War training adds 50% and 1 armor; a summon of the fortress has nothing to hide from |
-| 38 | Glyphs `◊`, `¦` | `○`, `⌠` | Not in CP437 |

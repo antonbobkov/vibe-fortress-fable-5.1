@@ -133,6 +133,18 @@ function play(seed: string): Played {
   const emberAxes = (): EntityId[] => w.events('StoneSet').map((e) => Number(e['itemId'])).filter((id) => ent.alive(id));
   const stout = (): number => count(w, 'stout_draught');
 
+  // The days of the glowcap's planting and harvests, and its yield: events carry no tick.
+  const glow = { planted: -1, harvests: [] as number[], units: 0, sessions: [] as number[], firstCast: -1, vialDays: [] as number[] };
+  w.game.world.onEvents((batch) => {
+    for (const e of batch) {
+      if (e.type === 'CropPlanted' && e['species'] === 'glowcap' && glow.planted < 0) glow.planted = day(w);
+      if (e.type === 'CropHarvested' && e['species'] === 'glowcap') { glow.harvests.push(day(w)); glow.units += Number(e['count'] ?? 0); }
+      if (e.type === 'AttuneSession' && Number(e['id']) === apprentice) glow.sessions.push(day(w));
+      if (e.type === 'ItemCrafted' && e['recipeId'] === 'distill_rune') glow.vialDays.push(day(w));
+      if (e.type === 'SpellCast' && Number(e['casterId']) === apprentice && glow.firstCast < 0) glow.firstCast = day(w);
+    }
+  });
+
   const casts = (): number => {
     const weapon = ent.get(apprentice, C.Equipment)?.weapon ?? 0;
     if (weapon === 0 || !staffs().includes(weapon)) return 0;
@@ -233,7 +245,8 @@ function play(seed: string): Played {
   const axeId = emberAxes()[0] ?? 0;
   const harvested = (species: string): number => w.events('CropHarvested').filter((e) => e['species'] === species).length;
   const summary = `${trace(w, seed)}; lamps ${s.lamps.map((id) => built(w, id)).join('/')}; ` +
-    `glowcap harvested ${harvested('glowcap')}, in stock ${count(w, 'glowcap')}; pale bell harvested ${harvested('pale_bell')}; ` +
+    `glowcap planted day ${glow.planted}, ${glow.units} glowcap from ${harvested('glowcap')} harvests on days ${glow.harvests[0] ?? -1}-${glow.harvests[glow.harvests.length - 1] ?? -1}, in stock ${count(w, 'glowcap')}; ` +
+    `attuned on days ${JSON.stringify(glow.sessions)}; vials on days ${glow.vialDays[0] ?? -1}-${glow.vialDays[glow.vialDays.length - 1] ?? -1}; first cast day ${glow.firstCast}; pale bell harvested ${harvested('pale_bell')}; ` +
     `vials made ${crafted('distill_rune').length}, in stock ${count(w, 'rune_vial')}; circle ${built(w, s.circle)}; ` +
     `runecraft ${level(w, apprentice, 'runecraft')} after ${w.events('AttuneSession').filter((e) => Number(e['id']) === apprentice).length} sessions; ` +
     `staff ${staffId}; axe of embers ${axeId}; draughts brewed ${crafted('brew_stout_draught').length}, in stock ${stout()}; ` +

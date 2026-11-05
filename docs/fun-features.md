@@ -12,9 +12,9 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 
 | Feature | What happens | Spec | Remove by |
 |---|---|---|---|
-| Fearsome is a trade-off | A frightened foe runs, soldiers chase it and swing less; a squad with fearsome axes can do worse in the open | [25](02-systems/25-runecraft.md) § Enchantments | Not removable by this rule: the owner's call (T-485) |
+| Fearsome is a trade-off | A frightened foe runs, soldiers chase it and swing less; a squad with fearsome axes can do worse in the open | [25](02-systems/25-runecraft.md) § Enchantments in combat | Not removable by this rule: the owner's call (T-485) |
 | Stoutness against bleeding | A draught of stoutness halves pain and does nothing for a soldier who is bleeding out | 25 § Draughts | Owner's view on trade-offs; keep |
-| Daze on a captain | A runecaster can stun a raid's captain again each time it wakes | 25 § Spells | T-477's balance pass may limit it |
+| Daze on a captain | A runecaster can stun a raid's captain again each time it wakes | 25 § Spells, § Effects (Stun) | T-477's balance pass may limit it |
 | `rune_sick`: a desperate fourth vial | A caster with three vials drunk and its foe beside it drinks a fourth for half the rune: "Too much rune. My teeth hum." | 25 § Vials; thought in `personality-and-thoughts.md` | The fourth-vial branch of `drinkVial` (`magic/cast.ts`), `SICK_VIAL_PERCENT`, `VialDrunk.sick`, the `rune_sick` row and its case in `morale/thoughts.ts` |
 | `dosed_again` | The medic waits only the 3-day draught rest; a second calming draught within 7 days eases half as much and grumbles: "Another draught. I am tired of draughts." | 25 § Draughts | `again` in `drinkDraught` (`magic/draughts.ts`), the half in `baseValue` (`morale/thoughts.ts`), the `dosed_again` row; put the calming rest back in the producer's `stillWanted` |
 | `blaze` lights the tile | A blaze hit sets the struck creature's tile alight 2% of the time, if it can burn: your own wooden floor too | 25 § Enchantments in combat (`ignite`); 05 § Fire, Ignition | The `ignite` effect on the `blaze` row (`weapons-and-armor.md`) and `igniteOnHit` in `magic/cast.ts` |
