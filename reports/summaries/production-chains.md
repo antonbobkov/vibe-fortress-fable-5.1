@@ -1,6 +1,6 @@
 # Production chains: what makes what
 
-**Short answer.** The longest chain is **6 steps**: a plant grown for fibre is turned into thread, cloth, a cloth bag, flour (milled in that bag) and then a cooked meal. The product with the most work behind it is the **steel anvil**, at about 22 jobs. This page was computed from `src/content/recipes.json`, `metals.json` and `minerals.json` on master (2026-11-01).
+**Short answer.** The longest chain is **6 steps**: a plant grown for fibre is turned into thread, cloth, a cloth bag, flour (milled in that bag) and then a cooked meal. The product with the most work behind it is the **steel anvil**, at about 22 jobs. Runecraft adds chains of up to 5 steps (a stone set in anything forged of steel). This page was computed from `src/content/recipes.json`, `metals.json` and `minerals.json` on master (2026-11-01), with runecraft added on 2026-11-05.
 
 Dwarves in this game make things at **workshops** (3×3 buildings). Each workshop runs **recipes**: take some input items, spend some time, produce output items. One recipe run is one **job**. This page groups the recipes into chains.
 
@@ -29,6 +29,12 @@ Dwarves in this game make things at **workshops** (3×3 buildings). Each worksho
 | **Leather** | hide (from butchering), then leather (tannery), then armour, bags, quivers, slings (leatherworks) | |
 | **Bone and shell** | bone pile, shell piece, skull (from butchering), then crafts, arrows, bolts, totems (craftsdwarf) | |
 | **Gems** | rough gem (mined), then cut gem (jeweler) | A glowstone lamp also needs a stone block. |
+| **Rune** | glowcap (grown under a lamp), then rune vial (laboratory) | 2 glowcap a vial. A ground glowstone gives 4 vials, a quenched deepsilver bar 12, a rendered hollow ichor 6. |
+| **Channels** | log + cut gem, then a wand; log + cut gem + bar, then a staff (runeforge) | No fuel. The gem is the spell; the bar is the staff's power. An iron staff is 3 steps from the ore (fuel, bar, staff). |
+| **Settings** | an item + a stone + 4 to 12 vials, then the same item enchanted (runeforge) | The item is kept, not consumed. On a steel item this is 5 in a row. |
+| **Draughts** | rune vial + 2 plants (or a monster stone), then 2 draughts (laboratory) | 2 steps from the glowcap. A novice alchemist's batch can spoil into murky draughts. |
+| **Runed robe, circlet** | sporecloth cloth + 2 vials, then a robe; a silver bar + cut gem + 2 vials, then a circlet (runeforge) | The robe is 4 in a row (fibre, thread, cloth, robe). |
+| **Knapped blades** | obsidian stone or bone pile, then a dagger or short sword (craftsdwarf) | One step, no forge. |
 | **Crafts** | stone, wood, bone, shell or metal, then a random figurine, ring or amulet (craftsdwarf, forge) | Trade goods. |
 
 ## Main chains as a diagram
@@ -43,6 +49,9 @@ METAL    ore -> smelter: bar -> forge: weapon / armour / furniture
 FUEL     log -> wood furnace: charcoal   (burned at smelter and forge)
 CLOTH    flax -> farmer's: fibre -> loom: thread -> loom: cloth -> clothier: bag or garment
 LEATHER  hide -> tannery: leather -> leatherworks: armour or bag
+RUNE     glowcap (under a lamp) -> laboratory: vial -> laboratory: draught
+                                             vial + cut gem + item -> runeforge: enchanted item
+         log + cut gem (+ bar) -> runeforge: wand (staff)
 ```
 
 ## The longest chain: 6 steps
@@ -58,7 +67,7 @@ All three meal recipes (easy, fine, lavish) tie at 6. The route that makes it 6 
 | 5 | Mill flour into the bag (needs barley or cavewheat) | farmer's workshop |
 | 6 | Cook a meal with flour as an ingredient | kitchen |
 
-**Ties.** Cave sporecloth instead of flax is the same 6 steps. The steel barrel route to brewing and the glowstone lamp reach 5. Nothing else reaches 6.
+**Ties.** Cave sporecloth instead of flax is the same 6 steps. The steel barrel route to brewing and the glowstone lamp reach 5, and so does a stone set at the runeforge in a steel weapon or breastplate, or in a gambeson (fibre, thread, cloth, gambeson, setting). Nothing else reaches 6.
 
 **Shortest ways.** The same meal made from raw meat is 1 step. A leather bag gives 4 (hide, leather, bag, flour, meal). Wool gives 5.
 
@@ -83,6 +92,6 @@ Any bar can be forged into most metal items, so **material choice decides the de
 
 ## Spec vs code
 
-- The recipe tables agree with `docs/03-content/workshops-and-recipes.md`: 129 authored rows plus 22 generated (16 smelting, 5 alloy, 1 melt) is the spec's 151, and the per-workshop counts match.
+- The recipe tables agree with `docs/03-content/workshops-and-recipes.md`: 145 authored rows plus 60 generated (16 smelting, 5 alloy, 1 melt, 8 wands, 8 staffs, 22 settings) make 205, and the per-workshop counts match (the runeforge holds 40: 2 authored, 38 generated; the laboratory 10).
 - The spec says kitchen ingredients are "anything in food/* except meals and tallow". The code uses an `ingredient` tag, which leaves out milk (milk only goes to cheese). Same result for play, different wording.
 - The magma kiln has no recipes, as the spec says, and cannot be built from the menu.

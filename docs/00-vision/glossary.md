@@ -110,9 +110,29 @@ Every document uses these terms with exactly these meanings. When a later wave i
 - **Ambush** — a small hostile group without warning, only in peril ≥ 2 regions.
 - **Siege** — a large raid with trollkin, peril ≥ 3, year ≥ 3.
 - **Hollow-born** — the creatures of the Deep that come when deepsilver is mined.
-- **Deep pressure** — the gauge raised by mining deepsilver; thresholds release Hollow-born.
+- **Deep pressure** — the gauge raised by mining deepsilver, or working it at a runeforge or laboratory; thresholds release Hollow-born.
 - **Trap** — a building that triggers on a hostile stepping on it: stone-fall, spike, cage, weapon.
+- **Captain** — the leader a raid or siege arrives with. A party that has lost every captain it came with goes home once it is out of a fight.
+- **Hexer** — a gloam caster in a late raid or siege: a wand of frost or of dread, and rune that never comes back.
+- **Held shot** — a shooter does not fire while one of its own stands on the line to its target; it picks another target or waits, unless it is *careless* this time (a chance that falls with shooting skill to none at Proficient).
+- **Put to flight** — sent running for a while by a Dread spell, a fearsome blow or a dread hexer, then back; a *calm* piece of armour prevents it.
 - **Burrow** — not in Deepholm. The equivalent is the *hearth alert*, which sends civilians to the hearth hall or any indoor tile behind a door.
+
+### Runecraft
+
+- **Rune** — a runecaster's own store of magic, in milli-rune; spent on spells, recovered by the hour, slowed by metal armour.
+- **Runecaster** — a dwarf with the `runecraft` skill at 1 or more. Never chosen at embark: it comes from attuning in a sanctum.
+- **Glowcap** — a cave crop that grows only on a dark tile under a glowstone lamp (or beside a creature in glowing armour); distilled into rune vials.
+- **Lamp** — a placed glowstone statue: lights its 3×3 for comfort and for glowcap.
+- **Rune vial** — a stackable item of rune: spent at the runeforge and laboratory, or drunk by a caster below its spell's cost.
+- **Sanctum** — a room around a rune circle where up to four apprentices attune, two sessions a day; each session can bring a *mishap*.
+- **Channel** — a wand or a staff: a launcher with no ammunition. Its *stone* fixes the spell; a staff's metal, a wand's wood and its quality fix its *power*.
+- **Runeforge** — the workshop that makes channels, the runed robe and the circlet, and sets stones.
+- **Setting** — a stone set in a weapon, an armour piece or 25 bolts at the runeforge, giving it an *enchantment* for good.
+- **Ward** — a spell, and the effect it leaves: armour on every body part of the caster's side for a while.
+- **Draught** — a potion brewed at the laboratory with a timed effect; one, then three days' rest.
+- **Effect** — a timed entry on a creature: ward, slow, haste, flight, pain and the draughts' effects.
+- **Summon** — a war-trained creature a Call spell brings beside its caster for a day; a deep shade sometimes comes through turned.
 
 ### Trade and population
 
