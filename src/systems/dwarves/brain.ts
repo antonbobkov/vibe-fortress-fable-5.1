@@ -37,6 +37,8 @@ export interface BrainHost {
   readonly hasJobs: boolean;
   /** `hearthHallTile(id) or wagonTile`; -1 to idle in place. */
   idleGoal(id: EntityId): TileIndex;
+  /** Step 9's stand tile: a hall tile of the dwarf's own, off the doors (10 § Behavior selection); -1 for `idleGoal`. */
+  idleStand?(id: EntityId): TileIndex;
   /** The display name of the dwarf's current job, or ''. */
   jobName(id: EntityId): string;
   activities: Activities;
@@ -71,7 +73,8 @@ function startIdle(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): v
   const wasIdle = host.idleAnnounced(id);
   b.behavior = 'idle';
   b.behaviorUntil = ctx.tick + IDLE_TICKS;
-  b.targetTile = host.idleGoal(id);
+  const stand = host.idleStand?.(id) ?? -1;
+  b.targetTile = stand >= 0 ? stand : host.idleGoal(id);
   if (b.targetTile < 0) b.targetTile = ctx.world.services.movement?.tileOf(id) ?? -1;
   b.activity = NO_JOB;
   if (!wasIdle) { ctx.emit({ type: 'DwarfIdle', id }); host.markIdle(id); }

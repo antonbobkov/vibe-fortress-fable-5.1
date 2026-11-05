@@ -115,6 +115,57 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   }
 
   /**
+   * `10` § Behavior selection, step 9: where an idle dwarf stands in the hearth hall. It keeps the hall
+   * tile it stands on (not a door) while no other creature stands there, a dwarf of a higher id excepted;
+   * otherwise it takes the reachable hall tile, not a door, with the fewest creatures on it or heading to
+   * it, ties by the nearest, then the lowest index, and only if that is fewer than it has. So the dwarves
+   * who come in by one way spread over the hall instead of all standing on its first tile. -1 without a
+   * hall tile to stand on, for `idleGoal`'s answer.
+   */
+  private idleStand(ctx: InitContext, id: EntityId): TileIndex {
+    const movement = ctx.world.services.movement ?? null;
+    const from = movement?.tileOf(id) ?? -1;
+    if (movement === null || from < 0 || !ctx.readers.has('14')) return -1;
+    const buildings = ctx.readers.of<BuildingsReader>('14');
+    const map = ctx.world.map;
+    const entities = ctx.world.entities;
+    const hall = buildings.hearthHallTiles().filter((tile) => !buildings.doorAt(tile) &&
+      ctx.readers.pathing.passable(tile, 'walker') && ctx.readers.pathing.reachable(from, tile, 'walker'));
+    if (hall.length === 0) return -1;
+    const standing = (other: EntityId): boolean => movement.walkTarget(other) < 0 || movement.walkTarget(other) === movement.tileOf(other);
+    const creaturesOn = (tile: TileIndex): EntityId[] => ctx.readers.entities.at(tile).filter((other) => other !== id && entities.kind(other) === 'creature');
+    const inHall = new Set(hall);
+    if (inHall.has(from) && !creaturesOn(from).some((other) => standing(other) && !(entities.has(other, C.Brain) && other > id))) return from;
+    // Heading there: an idle dwarf by its brain's goal (its walk may not have started), any other by its walk.
+    const headed = new Map<TileIndex, number>();
+    const head = (other: EntityId, target: TileIndex): void => {
+      if (other !== id && target >= 0 && target !== movement.tileOf(other)) headed.set(target, (headed.get(target) ?? 0) + 1);
+    };
+    for (const other of entities.with(C.Brain)) {
+      const brain = entities.get(other, C.Brain);
+      head(other, brain?.behavior === 'idle' ? brain.targetTile : movement.walkTarget(other));
+    }
+    for (const other of entities.with(C.Tame)) head(other, movement.walkTarget(other));
+    const count = (tile: TileIndex): number => creaturesOn(tile).length + (headed.get(tile) ?? 0);
+    const far = (tile: TileIndex): number => Math.max(Math.abs(map.xOf(from) - map.xOf(tile)), Math.abs(map.yOf(from) - map.yOf(tile)));
+    let best: TileIndex = -1;
+    let bestCount = Infinity;
+    let bestFar = Infinity;
+    for (const tile of hall) {
+      if (tile === from) continue;
+      const n = count(tile);
+      const f = far(tile);
+      if (n < bestCount || (n === bestCount && (f < bestFar || (f === bestFar && tile < best)))) {
+        best = tile;
+        bestCount = n;
+        bestFar = f;
+      }
+    }
+    if (!inHall.has(from)) return best;
+    return best >= 0 && bestCount < count(from) ? best : from;
+  }
+
+  /**
    * `10` § Behavior selection: a fleeing civilian hit in melee by a wild animal or a cavern monster
    * that is hunting it, at least as fast as itself, is caught; from then on it fights that attacker
    * instead of fleeing. An animal defending its ground (`defendFrom` set, `08` § Wild behavior) and a
@@ -296,6 +347,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
             - Math.max(Math.abs(map.xOf(from) - map.xOf(b)), Math.abs(map.yOf(from) - map.yOf(b))) || a - b);
           return hall[0] ?? this.wagonTile;
         },
+        idleStand: (id) => this.idleStand(ctx, id),
       jobName: (id) => {
         if (!ctx.readers.has('11')) return '';
         const t = ctx.readers.of<{ forWorker(id: EntityId): { type: number } | undefined }>('11').forWorker(id);
