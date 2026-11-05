@@ -17,7 +17,7 @@ import {
   SOLDIER_AMMO,
 } from './constants';
 import { getSkill } from './melee';
-import { channelPower, isChannelRow } from '@systems/magic/cast';
+import { channelPower, isChannelRow, spellOfItem } from '@systems/magic/cast';
 import { CASTER_VIALS, ENCHANT_CLAIM_BONUS } from '@systems/magic/constants';
 
 export interface WeaponDefRow {
@@ -689,12 +689,13 @@ function claimDraughts(ctx: TickContext, list: readonly string[], soldierId: Ent
   }
 }
 
-/** A channel item's power, or -1 for anything else. */
+/** A channel item's power, or -1 for anything else and for a channel that casts nothing. */
 function channelScore(ctx: TickContext, itemId: EntityId): number {
   const item = ctx.world.entities.get(itemId, C.Item);
   const row = item && ctx.registry.table<ItemDefRow>('items').byIndex(item.type);
   const weapon = row ? ctx.registry.table<WeaponDefRow>('weapons').byId(row.id) : undefined;
   if (item === undefined || weapon === undefined || !isChannelRow(weapon)) return -1;
+  if (spellOfItem(ctx.world.entities, ctx.registry, itemId) === undefined) return -1;
   return channelPower(ctx.registry, weapon, item.material, item.quality);
 }
 

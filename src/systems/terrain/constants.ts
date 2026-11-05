@@ -25,6 +25,8 @@ export const CAVERN_OPEN_FRACTION_MAX: Fixed = 550;
 /** Tiles daylight reaches horizontally into openings. */
 export const LIGHT_SPREAD = 2;
 export const BATTLEFIELD_ITEM_COUNT = 30;
+/** `old_battlefield`: the chance per mille that one old channel lies among the arms (*unmeasured*). */
+export const BATTLEFIELD_CHANNEL_PERMILLE = 333;
 /** Deepsilver items in a sunken hall vault. */
 export const VAULT_TREASURE = 3;
 /** By species. */

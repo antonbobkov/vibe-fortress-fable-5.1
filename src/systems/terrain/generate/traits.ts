@@ -13,6 +13,7 @@ import {
   BATTLEFIELD_BAND_MAX,
   BATTLEFIELD_BAND_MIN,
   BATTLEFIELD_BONE_PILES,
+  BATTLEFIELD_CHANNEL_PERMILLE,
   BATTLEFIELD_ITEM_COUNT,
   BATTLEFIELD_SKULLS,
   DEEPSILVER_MAGMA_DISTANCE,
@@ -62,12 +63,8 @@ export function battlefieldArms(registry: Registry): string[] {
   return [...metal('weapons'), ...metal('armor')];
 }
 
-/**
- * `old_battlefield`: `BATTLEFIELD_ITEM_COUNT` rusted (poor quality) iron weapons and armor, 40
- * `bone_pile` and 6 `skull`, on dry surface floors 15–40 tiles from the arrival edge. The weapon
- * or armor type is uniform over {@link battlefieldArms}.
- */
-function battlefield(g: LocalGen, st: RngStream): void {
+/** The dry surface floors 15–40 tiles from the arrival edge, in column order. */
+function battlefieldBand(g: LocalGen): TileIndex[] {
   const band: TileIndex[] = [];
   for (let c = 0; c < g.w * g.h; c += 1) {
     const d = inward(g, c % g.w, Math.floor(c / g.w));
@@ -75,6 +72,16 @@ function battlefield(g: LocalGen, st: RngStream): void {
     const i = dryFloor(g, c);
     if (i >= 0) band.push(i);
   }
+  return band;
+}
+
+/**
+ * `old_battlefield`: `BATTLEFIELD_ITEM_COUNT` rusted (poor quality) iron weapons and armor, 40
+ * `bone_pile` and 6 `skull`, on dry surface floors 15–40 tiles from the arrival edge. The weapon
+ * or armor type is uniform over {@link battlefieldArms}.
+ */
+function battlefield(g: LocalGen, st: RngStream): void {
+  const band = battlefieldBand(g);
   if (band.length === 0) return;
   const arms = battlefieldArms(g.registry);
   for (let k = 0; k < BATTLEFIELD_ITEM_COUNT; k += 1) {
@@ -290,6 +297,40 @@ export function stageTraits(g: LocalGen): void {
   if (hasTrait(g, 'sunken_halls')) carveHall(g, st);
   if (hasTrait(g, 'gemsprings')) warmSprings(g, st);
   if (hasTrait(g, 'wyrm_roost')) wyrmRoost(g, st);
+}
+
+/**
+ * `old_battlefield`, on its own stream so the trait stage draws the same numbers: with
+ * `BATTLEFIELD_CHANNEL_PERMILLE`, one channel (a `weapons` row with a launcher and no ammunition)
+ * lies in the band at quality 0. A metal one is an iron staff whose stone is gone; a wooden one is
+ * a wand of a wood that keeps a stone of the `spells` table. Run after the trait stage, so the band
+ * leaves out the springs and the hall's stair.
+ */
+export function stageBattlefieldChannel(g: LocalGen): void {
+  if (!hasTrait(g, 'old_battlefield')) return;
+  const st = stageStream(g.s, 'terrain.battlefield_channel');
+  if (!st.chance(BATTLEFIELD_CHANNEL_PERMILLE)) return;
+  const weapons = g.registry.table<ArmsRow>('weapons');
+  const channels = weapons.ids().filter((id) => {
+    const row = weapons.byId(id);
+    return row?.launcher !== undefined && row.launcher.ammo === undefined;
+  });
+  const band = battlefieldBand(g);
+  if (channels.length === 0 || band.length === 0) return;
+  const type = st.pick(channels);
+  const tile = st.pick(band);
+  if ((weapons.byId(type)?.materials ?? []).includes('metal')) {
+    g.spawns.push({ kind: 'item', type, material: 'iron', quality: 0, tile, source: 'old_battlefield' });
+    return;
+  }
+  const materials = g.registry.table<{ id: string; class: string }>('materials');
+  const woods = materials.ids().filter((id) => materials.byId(id)?.class === 'wood');
+  const spells = g.registry.table<{ id: string; stone: string }>('spells');
+  const stones = spells.ids().map((id) => spells.byId(id)?.stone).filter((s): s is string => s !== undefined);
+  if (woods.length === 0 || stones.length === 0) return;
+  const material = st.pick(woods);
+  const stone = st.pick(stones);
+  g.spawns.push({ kind: 'item', type, material, quality: 0, stone, tile, source: 'old_battlefield' });
 }
 
 export type { SpawnEntry };
