@@ -90,15 +90,17 @@ export function planCall(ctx: TickContext, casterId: EntityId, spell: SpellDef, 
 /**
  * The call is answered: the summon stands beside its caster, of the fortress, war-trained and
  * assigned to it (`SummonCalled`). A species that `turns` comes through turned with
- * `SHADE_TURN_PERMILLE`: faction `deep`, no `Tame`, no summoner (`SummonTurned`). Either fades a
- * day later.
+ * `SHADE_TURN_PERMILLE`: faction `deep`, no `Tame`, no summoner (`SummonTurned`), and its caster in `turnedFrom`, which
+ * never spots it. Either fades a day later.
  */
 export function answerCall(ctx: TickContext, casterId: EntityId, plan: CallPlan): EntityId {
   const entities = ctx.world.entities;
   const row = ctx.registry.table<SpeciesRow>('creatures').byIndex(plan.species);
   const turned = row?.flags.turns === true && ctx.world.rngFor('25').int(0, 999) < SHADE_TURN_PERMILLE;
   const id = ctx.world.services.spawn.creature(plan.species, plan.tile, turned ? 'deep' : 'fortress');
-  entities.add<Summoned>(id, C.Summoned, { summonerId: turned ? 0 : casterId, fadesAt: ctx.tick + SUMMON_TICKS });
+  entities.add<Summoned>(id, C.Summoned, turned
+    ? { summonerId: 0, fadesAt: ctx.tick + SUMMON_TICKS, turnedFrom: casterId }
+    : { summonerId: casterId, fadesAt: ctx.tick + SUMMON_TICKS });
   if (turned) {
     ctx.emit({ type: 'SummonTurned', id });
     return id;

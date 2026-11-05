@@ -63,6 +63,7 @@ damage = round(damage × (100 − min(10, Toughness(def) / 10)) / 100)    // Tou
 emit DamageDealt { defender, part, damageType, amount: damage, attackerId, weaponId }
 emit AttackResolved { attacker, defender, part, damageType, amount, outcome: hit }
 if damage > 0: the weapon's extra_damage, slow and flee (25 § Enchantments in combat: applyEnchantOnHit)
+if damage > 0 and the natural attack has onHit: its timed pain (the giant cave spider's venom; 25 § Effects, pain)
 grant xp: attacker weapon skill; defender dodge (on miss), weapon skill (on parry), shield (on block), armor_use (on hit reduced by armor)
 ```
 

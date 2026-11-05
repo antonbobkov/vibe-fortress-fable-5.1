@@ -352,7 +352,7 @@ describe('T-491 a turned shade hides', () => {
     expect(w.game.world.entities.alive(watcher)).toBe(true);
   });
 
-  it('a shade that turns beside its caster is seen by the caster at once', () => {
+  it('a shade that turns beside its caster is not seen by that caster (T-497)', () => {
     const w = arena('t475-turn-27');
     const mage = w.spawnDwarf({ at: w.index(30, 30, Z), skills: { runecraft: 10 } });
     squad(w, [mage], w.index(30, 30, Z));
@@ -363,7 +363,7 @@ describe('T-491 a turned shade hides', () => {
     w.until(() => w.events('SummonTurned').length > 0, 400);
     const shade = w.events('SummonTurned')[0]!['id'] as EntityId;
     w.step(2);
-    expect(w.game.world.entities.get(shade, C.Hostile)).toMatchObject({ role: 'hollow', stealthed: false, spotted: true });
+    expect(w.game.world.entities.get(shade, C.Hostile)).toMatchObject({ role: 'hollow', stealthed: true, spotted: false });
   });
 });
 

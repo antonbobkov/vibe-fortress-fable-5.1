@@ -1002,7 +1002,12 @@
         "name": "bite",
         "type": "pierce",
         "damage": 16,
-        "size": 4
+        "size": 4,
+        "onHit": {
+          "kind": "pain",
+          "value": 20,
+          "ticks": 300
+        }
       }
     ],
     "naturalArmor": 3,

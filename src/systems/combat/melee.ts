@@ -92,6 +92,8 @@ interface AttackDef {
   readonly type: DamageType | string;
   readonly damage: number;
   readonly size: number;
+  /** A venom the attack carries (creatures.md: "(venom: pain +20 for 300 ticks)"). */
+  readonly onHit?: { readonly kind: 'pain'; readonly value: number; readonly ticks: number };
 }
 
 interface SpeciesRow {
@@ -497,6 +499,7 @@ export function resolveMelee(
   let atkType: DamageType = 'blunt';
   let atkSkill = 'unarmed';
   let isLauncherMelee = false;
+  let atkOnHit: AttackDef['onHit'];
 
   if (w !== null) {
     const def = w.weaponDef;
@@ -523,6 +526,7 @@ export function resolveMelee(
       atkSize = attack.size;
       atkType = isDamageType(attack.type) ? attack.type : 'blunt';
       atkSkill = 'unarmed';
+      atkOnHit = attack.onHit;
     } else {
       atkDamage = 4;
       atkSize = 3;
@@ -718,6 +722,10 @@ export function resolveMelee(
 
   // 25 § Enchantments in combat: a hit that did damage carries the weapon's extra damage, slow or fear.
   if (damage > 0 && enchant.length > 0) applyEnchantOnHit(ctx, enchant, attackerId, defenderId, part, w?.item ?? 0);
+  // A natural attack's venom (the giant cave spider's bite): the same timed pain as a venomed blade.
+  if (damage > 0 && atkOnHit !== undefined) {
+    applyEnchantOnHit(ctx, [{ kind: atkOnHit.kind, value: atkOnHit.value, type: '', chance: 0, ticks: atkOnHit.ticks }], attackerId, defenderId, part, 0);
+  }
 
   return { outcome: 'hit', damage, part, damageType: atkType };
 }
