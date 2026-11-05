@@ -17,7 +17,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { buildingName, enchantedName, filterText, materialItemName, zoneName } from '../messages';
+import { buildingName, enchantedName, filterText, materialItemName, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
@@ -221,6 +221,10 @@ export function drawLookPanel(
     label(s, rect.col + 1, row, text, { fg, width: rect.cols - 2 });
     row += 1;
   };
+  // A long line (a channel's spell, an enchantment, the rune lines) wraps under its prefix, so its end is read.
+  const wrapped = (prefix: string, text: string, fg = t.text): void => {
+    for (const part of wrapHang(text, rect.cols - 2 - prefix.length, 2)) line(`${prefix}${part}`, fg);
+  };
   line(strings.get('ui.look.header', { x, y, z }), t.value);
   line(strings.get('ui.look.tabs', { items: itemIds.length, creatures: creatures.length }));
   if (tab === 0) {
@@ -241,9 +245,9 @@ export function drawLookPanel(
       for (const id of itemIds) {
         line(`  ${itemLine(readers, registry, id)}`);
         const spell = spellLine(readers, strings, id, true);
-        if (spell !== null) line(`    ${spell}`, t.dim);
+        if (spell !== null) wrapped('    ', spell, t.dim);
         const enchant = enchantLine(readers, strings, id);
-        if (enchant !== null) line(`    ${enchant}`, t.dim);
+        if (enchant !== null) wrapped('    ', enchant, t.dim);
       }
       for (const id of creatures) line(`  ${creatureSummary(readers, id)}`);
     }
@@ -283,9 +287,9 @@ export function drawLookPanel(
     for (const id of itemIds) {
       line(itemLine(readers, registry, id));
       const spell = spellLine(readers, strings, id, true);
-      if (spell !== null) line(`  ${spell}`, t.dim);
+      if (spell !== null) wrapped('  ', spell, t.dim);
       const enchant = enchantLine(readers, strings, id);
-      if (enchant !== null) line(`  ${enchant}`, t.dim);
+      if (enchant !== null) wrapped('  ', enchant, t.dim);
     }
     return;
   }
@@ -324,17 +328,17 @@ export function drawLookPanel(
       }
     }
     const rune = runeLine(readers, registry, strings, id);
-    if (rune !== null) line(rune, t.value);
+    if (rune !== null) wrapped('', rune, t.value);
     const channel = channelLine(readers, registry, strings, id);
-    if (channel !== null) line(channel, t.value);
+    if (channel !== null) wrapped('', channel, t.value);
     const vials = vialsLine(readers, strings, id);
-    if (vials !== null) line(vials, t.dim);
+    if (vials !== null) wrapped('', vials, t.dim);
     const effects = effectsLine(readers, strings, id);
-    if (effects !== null) line(effects, t.dim);
+    if (effects !== null) wrapped('', effects, t.dim);
     const rest = draughtRestLine(readers, strings, id);
-    if (rest !== null) line(rest, t.dim);
+    if (rest !== null) wrapped('', rest, t.dim);
     const summons = summonsLine(readers, registry, strings, id);
-    if (summons !== null) line(summons, t.dim);
+    if (summons !== null) wrapped('', summons, t.dim);
     if (has(readers, '17') && readers.entities.has(id, C.Body)) {
       const body = readers.entities.get(id, C.Body);
       if (body !== undefined) {
@@ -431,7 +435,7 @@ export function vialsLine(readers: ReaderSet, strings: Strings, id: EntityId): s
 }
 
 /**
- * The creature's timed effects (25 § Effects): "Under: ward 7 (340 ticks), slowed 50% (120
+ * The creature's timed effects (25 § Effects): "Under: ward 5 (340 ticks), slowed 50% (120
  * ticks)." Null with none.
  */
 export function effectsLine(readers: ReaderSet, strings: Strings, id: EntityId): string | null {
