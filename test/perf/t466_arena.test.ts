@@ -1,0 +1,192 @@
+/**
+ * T-483 careless-shooter probe (not committed as a test; a copy is filed as
+ * reports/data/2026-11-04-t483-careless-arena.probe.ts.txt; run from test/perf). The held-shot
+ * arena probe (2026-11-04-t483-arena.probe.ts.txt) with the shooter's skill in the kind: `-xbow2`
+ * and `-ember2` are a Novice (crossbow or runecraft 2), `-xbow` and `-ember` Proficient (10) as
+ * before. Everything else is the held-shot probe's. The T-470 caster arena
+ * probe with the `-xbow` rows in its default list, and the raiders' own shots and hits on each
+ * other counted (`raiderShots`, `raiderFriendlyHits`, `raiderFriendlyDamage`). The combat-pace squad arenas of T-366 and
+ * T-404 on the flat test map, through the real tick loop, with and without a runecaster in the
+ * squad:
+ *  - ambush: three Novice soldiers in full kit (iron helm, mail shirt, greaves, axe, shield) at a
+ *    station against a peril-2 ambush of four (content composition, tier-2 gear, skill 6);
+ *  - open: the same squad against a peril-2 raid of ten in the open;
+ *  - `-ember`, `-frost`, `-wand`: a fourth member, a Proficient runecaster (runecraft 10, full
+ *    rune 50, Novice dodge, a tunic, no metal) holding a common iron staff of embers, of frost, or a
+ *    wand of embers.
+ * Each trial runs until one side is down or the party leaves (at most 4,800 ticks), then a day with
+ * no medic. Writes T470_OUT (JSON lines). Observation only.
+ */
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { C, type Equipment } from '@core/components';
+import type { EntityId } from '@core/types';
+import type { CombatReader, SquadWithId } from '@systems/combat/reader';
+import { arriveParty, spawnHostileMember } from '@systems/threats/parties';
+import { TestWorld } from '../scenarios/test-world';
+
+const OUT = process.env['T483_OUT'] ?? '.vite/t466-arena.jsonl';
+const NSQUAD = Number(process.env['T483_N'] ?? 24);
+const ONLY = process.env['T483_ONLY'] ?? '';
+const Z = FLAT_TEST_SURFACE_Z;
+
+function arena(seed: string): TestWorld {
+  return new TestWorld({ seed, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+}
+
+interface Kit { weapon: [string, string]; shield?: [string, string]; body?: [string, string]; head?: [string, string]; legs?: [string, string] }
+
+function equip(w: TestWorld, id: EntityId, at: number, kit: Kit): void {
+  const items = w.game.registry.table('items');
+  const mats = w.game.registry.table('materials');
+  const make = (k?: [string, string]): EntityId => (k ? w.spawnItem(items.index(k[0]), mats.index(k[1]), at, 1, 1) : 0);
+  const old = w.game.world.entities.get(id, C.Equipment);
+  const eq: Equipment = {
+    weapon: make(kit.weapon), shield: make(kit.shield),
+    armor: { head: make(kit.head), body: make(kit.body), arms: 0, legs: make(kit.legs), feet: 0 },
+    clothing: old?.clothing ?? { body: 0, legs: 0, feet: 0, over: 0 }, quiver: 0,
+  };
+  w.game.world.entities.add(id, C.Equipment, eq);
+}
+
+const FULL_KIT: Kit = { weapon: ['axe', 'iron'], shield: ['shield', 'iron'], body: ['mail_shirt', 'iron'], head: ['helm', 'iron'], legs: ['greaves', 'iron'] };
+const NOVICE = { axe: 2, shield: 2, dodge: 2, armor_use: 2, hammer: 2 };
+
+function squad(w: TestWorld, members: EntityId[], station: number): void {
+  w.game.world.applyCommand({ type: 'CreateSquad', name: 'Guard' });
+  const s = w.readers.of<CombatReader>('16').squads()[0] as SquadWithId;
+  w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: s.id, members });
+  w.game.world.applyCommand({ type: 'SetSquadStation', squadId: s.id, tile: station });
+  w.game.world.applyCommand({ type: 'SetSquadMode', squadId: s.id, mode: 'active' });
+}
+
+function standing(w: TestWorld, id: EntityId): boolean {
+  const ent = w.game.world.entities;
+  if (!ent.alive(id) || !ent.get(id, C.Position)) return false;
+  return ent.get(id, C.Body)?.conscious !== false;
+}
+
+function bloodLost(w: TestWorld, id: EntityId): number {
+  const b = w.game.world.entities.get(id, C.Body);
+  return b ? b.maxBlood - b.blood : -1;
+}
+
+function trial(kind: string, i: number): Record<string, unknown> {
+  // The same seeds as T-404's ambush and open arenas, so the plain rows are theirs re-run.
+  const base = kind.split('-')[0] as 'ambush' | 'open';
+  const w = arena(`t366-squad-${base}-${i}`);
+  const reg = w.game.registry;
+  const ent = w.game.world.entities;
+  const sx = 46, sy = 60;
+  const token = kind.includes('-') ? kind.split('-')[1] as string : '';
+  const level = /\d+$/.test(token) ? Number(/\d+$/.exec(token)![0]) : 10;
+  const caster = token === '' ? null : token.replace(/\d+$/, '') as 'ember' | 'frost' | 'wand' | 'xbow';
+  const ids: EntityId[] = [];
+  for (let k = 0; k < 3; k += 1) ids.push(w.spawnDwarf({ at: w.index(sx + k, sy, Z), skills: NOVICE }));
+  let mage = 0;
+  if (caster === 'xbow') {
+    // The comparison: a Proficient marksdwarf (crossbow 10) in a tunic with an oak crossbow and 25
+    // iron bolts, in a ranged squad of its own at the same station.
+    mage = w.spawnDwarf({ at: w.index(sx + 3, sy, Z), skills: { crossbow: level, dodge: 2, hammer: 2 } });
+  } else if (caster !== null) {
+    mage = w.spawnDwarf({ at: w.index(sx + 3, sy, Z), skills: { runecraft: level, dodge: 2, hammer: 2 } });
+    ent.add(mage, C.Rune, { current: 50_000 });
+  }
+  squad(w, mage === 0 || caster === 'xbow' ? ids : [...ids, mage], w.index(sx, sy, Z));
+  if (caster === 'xbow') {
+    w.game.world.applyCommand({ type: 'CreateSquad', name: 'Bolts' });
+    const all = w.readers.of<CombatReader>('16').squads();
+    const s2 = all[all.length - 1] as SquadWithId;
+    w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: s2.id, members: [mage] });
+    w.game.world.applyCommand({ type: 'SetSquadEquipment', squadId: s2.id, equipment: { weaponClass: 'any', armor: 'any', ranged: true } });
+    w.game.world.applyCommand({ type: 'SetSquadStation', squadId: s2.id, tile: w.index(sx, sy, Z) });
+    w.game.world.applyCommand({ type: 'SetSquadMode', squadId: s2.id, mode: 'active' });
+  }
+  w.step(1);
+  ids.forEach((id, k) => equip(w, id, w.index(sx + k, sy, Z), FULL_KIT));
+  if (caster === 'xbow') {
+    const items = w.game.world.services.items!;
+    const bow = w.spawnItem('crossbow', 'oak', w.index(sx + 3, sy, Z), 1, 1);
+    const bolts = w.spawnItem('bolt', 'iron', w.index(sx + 3, sy, Z), 25, 1);
+    for (const it of [bow, bolts]) { items.attachToCarrier(it, mage); items.setOwner(it, mage); }
+    const eq = ent.get(mage, C.Equipment)!;
+    ent.add(mage, C.Equipment, { ...eq, weapon: bow, quiver: bolts });
+  } else if (mage !== 0) {
+    const type = caster === 'wand' ? 'wand' : 'staff';
+    const item = w.spawnItem(type, caster === 'wand' ? 'oak' : 'iron', w.index(sx + 3, sy, Z), 1, 1);
+    ent.add(item, C.Item, { ...ent.get(item, C.Item)!, stone: reg.table('materials').index(caster === 'frost' ? 'amethyst' : 'garnet') });
+    const eq = ent.get(mage, C.Equipment)!;
+    ent.add(mage, C.Equipment, { ...eq, weapon: item });
+  }
+  const civ: EntityId[] = [];
+  for (let k = 0; k < 3; k += 1) civ.push(w.spawnDwarf({ at: w.index(sx + k, sy + 8, Z) }));
+  const rng = w.game.world.rngFor('t366');
+  const ambush = base === 'ambush';
+  const { partyId, pendingSpawns } = arriveParty(w.game.world as never, reg, rng, ambush ? 'ambush' : 'raid', 'gloam', ambush ? 4 : 10, 'n', w.tick, 15, 2, false);
+  for (const s of pendingSpawns) spawnHostileMember(w.game.world as never, reg, rng, s.partyId, s.species, s.role, s.tile, s.gearTier, s.isCaptain);
+  const members = [...ent.get(partyId, C.Party)!.members];
+  const captain = members.find((m) => ent.get(m, C.Hostile)?.role === 'captain') ?? 0;
+  let captainFate = 'standing';
+  const fortress = new Set([...ids, ...civ, ...(mage === 0 ? [] : [mage])]);
+  const tally = { raiderShots: 0, raiderFriendlyHits: 0, raiderFriendlyDamage: 0, casts: 0, boltHits: 0, boltDamage: 0, boltZero: 0, friendlyHits: 0, friendlyDamage: 0, boltMisses: 0, boltBlocked: 0, slowed: 0, mageKills: 0, soldierHits: 0, soldierDamage: 0, raiderHits: 0, raiderDamage: 0, mageMelee: 0 };
+  let ended = '';
+  w.game.world.onEvents((ev) => {
+    for (const e of ev) {
+      if (e.type === 'ProjectileFired' && members.includes(Number(e['shooterId']))) tally.raiderShots += 1;
+      if (e.type === 'AttackResolved' && members.includes(Number(e['attackerId'])) && members.includes(Number(e['defenderId'])) && e['outcome'] === 'hit') {
+        tally.raiderFriendlyHits += 1; tally.raiderFriendlyDamage += Number(e['amount']);
+      }
+      if (e.type === 'SpellCast' || (e.type === 'ProjectileFired' && caster === 'xbow' && Number(e['shooterId']) === mage)) tally.casts += 1;
+      else if (e.type === 'RaidEnded' && Number(e['partyId']) === partyId) ended = String(e['outcome']);
+      if (e.type === 'CreatureDied' && Number(e['id']) === captain && captainFate === 'standing') captainFate = 'died';
+      if (e.type === 'CreatureUnconscious' && Number(e['id']) === captain && captainFate === 'standing') captainFate = 'down';
+      else if (e.type === 'CreatureDied' && mage !== 0 && Number(e['killerId'] ?? e['killer'] ?? 0) === mage) tally.mageKills += 1;
+      else if (e.type === 'AttackResolved') {
+        const a = Number(e['attackerId']), d = Number(e['defenderId']), out = String(e['outcome']), amount = Number(e['amount']);
+        const bolt = a === mage && (e['damageType'] === 'ember' || e['damageType'] === 'frost' || e['damageType'] === 'pierce');
+        if (bolt) {
+          if (out === 'hit' && fortress.has(d)) { tally.friendlyHits += 1; tally.friendlyDamage += amount; }
+          else if (out === 'hit') { tally.boltHits += 1; tally.boltDamage += amount; if (amount === 0) tally.boltZero += 1; }
+          else if (out === 'miss') tally.boltMisses += 1;
+          else if (out === 'blocked') tally.boltBlocked += 1;
+        } else if (a === mage) tally.mageMelee += 1;
+        else if (ids.includes(a) && out === 'hit') { tally.soldierHits += 1; tally.soldierDamage += amount; }
+        else if (members.includes(a) && out === 'hit') { tally.raiderHits += 1; tally.raiderDamage += amount; }
+      }
+    }
+  });
+  const slowedSeen = new Set<EntityId>();
+  let endTick = 0;
+  const fighters = mage === 0 ? ids : [...ids, mage];
+  for (let t = 0; t < 4800; t += 1) {
+    w.step(1);
+    for (const m of members) if (ent.has(m, C.Spellbound)) slowedSeen.add(m);
+    if (ended !== '' || members.every((m) => !standing(w, m)) || fighters.every((d) => !standing(w, d))) { endTick = w.tick; break; }
+  }
+  tally.slowed = slowedSeen.size;
+  const after = (): Record<string, unknown> => ({
+    soldiersDead: ids.filter((d) => !ent.alive(d)).length, soldiersDown: ids.filter((d) => ent.alive(d) && !standing(w, d)).length,
+    mageDead: mage !== 0 && !ent.alive(mage), mageDown: mage !== 0 && ent.alive(mage) && !standing(w, mage),
+    civDead: civ.filter((d) => !ent.alive(d)).length,
+    hostilesDead: members.filter((m) => !ent.alive(m)).length,
+    blood: ids.map((d) => bloodLost(w, d)),
+  });
+  const atEnd = after();
+  const runeLeft = mage === 0 ? 0 : ent.get(mage, C.Rune)?.current ?? 0;
+  w.step(1200);
+  return {
+    kind, i, level, members: members.length, captainFate,
+    outcome: ended || (fighters.every((d) => !standing(w, d)) ? 'squad_down' : members.every((m) => !standing(w, m)) ? 'raid_down' : 'timeout'),
+    endTick, ...atEnd, runeLeft, dayAfter: after(), ...tally,
+  };
+}
+
+describe('T-466 captain arena probe', () => {
+  it('runs the arenas', () => {
+    if (!ONLY) writeFileSync(OUT, '');
+    const put = (r: Record<string, unknown>): void => appendFileSync(OUT, JSON.stringify(r) + '\n');
+    const kinds = (ONLY || 'ambush,ambush-xbow2,ambush-xbow,ambush-ember2,ambush-ember,open,open-xbow2,open-xbow,open-ember2,open-ember').split(',');
+    for (const k of kinds) for (let i = 0; i < NSQUAD; i += 1) put(trial(k, i));
+  }, 7_200_000);
+});
