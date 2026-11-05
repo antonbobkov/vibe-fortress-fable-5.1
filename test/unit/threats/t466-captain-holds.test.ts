@@ -9,6 +9,7 @@ import { describe, it, expect } from 'vitest';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
+import { roundTrip } from '@app/game-save';
 import type { EntityId } from '@core/types';
 import { arriveParty, spawnHostileMember } from '@systems/threats/parties';
 import { TestWorld } from '../../scenarios/test-world';
@@ -104,6 +105,19 @@ describe('T-466 the captain holds the party together', () => {
     cage(w, second!);
     w.step(60);
     expect(party().state).toBe('retreat');
+  });
+
+  it('the captains survive a save: a raid loaded and then robbed of its captain is repelled', () => {
+    const { w, partyId } = raid('t466-captain-save');
+    const before = [...w.game.world.entities.get(partyId, C.Party)!.captainIds!];
+    inland(w, partyId);
+    w.replaceGame(roundTrip(w.game).game);
+    const party = () => w.game.world.entities.get(partyId, C.Party)!;
+    expect(party().captainIds).toEqual(before);
+    cage(w, before[0]!);
+    w.step(60);
+    expect(party().state).toBe('retreat');
+    expect(ending(w, partyId)).toBe('repelled');
   });
 
   it('a party with no recorded captains, as in an older save, is held by its casualties alone', () => {
