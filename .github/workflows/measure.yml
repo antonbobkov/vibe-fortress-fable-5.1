@@ -11,7 +11,7 @@ on:
         description: What to measure
         type: choice
         default: sweep
-        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds]
+        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds, probe]
       scenario:
         description: For suite=scenario, the scenario id (its file name without .scenario.ts)
         type: string
@@ -110,8 +110,41 @@ jobs:
           path: out/
           retention-days: 14
 
+  probe:
+    if: inputs.suite == 'probe'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [p4-1, p4-2, p4-3, p4-4, p4-5, p4-6]
+        shift: [0, 1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: T-486 probe, seed ${{ matrix.seed }}, shift ${{ matrix.shift }}
+        env:
+          T486_SEED: three-years-${{ matrix.seed }}:4
+          T486_SHIFT: ${{ matrix.shift }}
+          T486_OUT: out/${{ matrix.seed }}-s${{ matrix.shift }}.jsonl
+          THREE_YEARS_SEEDS_OUT: out
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/t486_ambush_probe.test.ts -t "T-486 probe" 2>&1 | tail -200 > out/${{ matrix.seed }}-s${{ matrix.shift }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-${{ matrix.seed }}-s${{ matrix.shift }}
+          path: out/
+          retention-days: 14
+
   single:
-    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds'
+    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'probe'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
