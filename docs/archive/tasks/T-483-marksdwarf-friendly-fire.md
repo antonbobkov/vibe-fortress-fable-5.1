@@ -1,8 +1,10 @@
 # T-483 — Marksdwarves shoot their own squad
 
-**Source:** [the caster arena](../../reports/audits/2026-11-02-t470-caster-arena.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in 1af4cc19,2d8dced7,a5405a56,89a53b16.
 
-The specification is [16 Combat](../02-systems/16-combat.md) § Ranged resolution: a creature other than the target in the path is hit with half the hit chance, and nothing stops a shooter from firing through its own squad.
+**Source:** [the caster arena](../../../reports/audits/2026-11-02-t470-caster-arena.md) · **Size:** S · **Needs:** — · **Status:** open
+
+The specification is [16 Combat](../../02-systems/16-combat.md) § Ranged resolution: a creature other than the target in the path is hit with half the hit chance, and nothing stops a shooter from firing through its own squad.
 
 ## What was found
 
@@ -26,5 +28,5 @@ The owner: "I like the idea of shooters shooting allies by accident until their 
 - A shooter with an ally on the line holds its shot **unless it is careless this time**. The chance of carelessness falls with the shooting skill (the launcher's skill, or `runecraft` for a caster): about 50% at skill 0, falling to 0 at Proficient (level 10) and above. Pick the exact curve and write it in 16 § Ranged resolution as a constant; it is *unmeasured*.
 - It applies to every shooter of every faction: marksdwarves, hunters, casters (25 § Casting), and hostile archers and hexers. Raiders, whose skills come from `threats/gear.ts`, will sometimes shoot their own front line; apprentices will singe their own squad; veterans hold.
 - The roll is one draw, made only when an ally is on the line, on the shooter's own system stream (16 for launchers, 25 for a caster).
-- This is a fun feature: list it in [`docs/fun-features.md`](../fun-features.md) § In the game when it lands.
+- This is a fun feature: list it in [`docs/fun-features.md`](../../fun-features.md) § In the game when it lands.
 - Re-measure the two arenas as before, with marksdwarves at two skill levels (Novice and Proficient) and a Novice and a Proficient caster. Then run the twenty-seed file once (it is needed, since raids change). The set survival rule must hold.

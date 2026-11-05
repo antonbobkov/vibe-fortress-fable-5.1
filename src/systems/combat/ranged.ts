@@ -504,6 +504,21 @@ export function resolveProjectileHit(
 }
 
 /**
+ * The attack cooldown of a shot (§ Attack cooldown): `size × 3 + 10 − Agility / 10`, at least
+ * `MIN_ATTACK_COOLDOWN`, slowed by a crowd on the shooter's tile (22) and shortened by `haste` (25).
+ */
+export function shotCooldownTicks(ctx: TickContext, shooterId: EntityId, weaponSize: number): number {
+  const entities = ctx.world.entities;
+  const agiS = getAttribute(entities, shooterId, 'agi');
+  const movement = ctx.world.services.movement;
+  const crowd = movement === null ? 100 : movement.crowdPercentAt(movement.tileOf(shooterId));
+  return hastedTicks(entities, shooterId, crowdTicks(Math.max(
+    MIN_ATTACK_COOLDOWN,
+    Math.floor(weaponSize * 3 + 10 - agiS / 10),
+  ), crowd), ctx.tick);
+}
+
+/**
  * Fires a ranged weapon at a target (`16` § Ranged resolution).
  */
 export function fireRanged(
@@ -615,16 +630,7 @@ export function fireRanged(
   const line = bresenhamRay(map, fromTile, toTile, range);
 
   // Set cooldown
-  const agiS = getAttribute(entities, shooterId, 'agi');
-  // 22 § Crowding: a crowd on the shooter's tile slows its shots.
-  const movement = ctx.world.services.movement;
-  const crowd = movement === null ? 100 : movement.crowdPercentAt(movement.tileOf(shooterId));
-  // 25 § Effects: `haste` shortens the wait.
-  const cooldownTicks = hastedTicks(entities, shooterId, crowdTicks(Math.max(
-    MIN_ATTACK_COOLDOWN,
-    Math.floor(weaponSize * 3 + 10 - agiS / 10),
-  ), crowd), ctx.tick);
-  cooldownUntilMap.set(shooterId, ctx.tick + cooldownTicks);
+  cooldownUntilMap.set(shooterId, ctx.tick + shotCooldownTicks(ctx, shooterId, weaponSize));
 
   // Spawn projectile entity
   const projId = entities.create('projectile');

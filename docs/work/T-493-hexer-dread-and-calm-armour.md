@@ -1,6 +1,6 @@
 # T-493 — Hexers cast Dread on dwarves, and `calm` armour answers it
 
-**Source:** [flavour report](../../reports/audits/2026-11-03-flavour-left-out.md) (item 12) · **Size:** M · **Needs:** T-483 · **Status:** blocked (needs T-483)
+**Source:** [flavour report](../../reports/audits/2026-11-03-flavour-left-out.md) (item 12) · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-04): "I like all of these, let's try to make it work (but drop if too complex)."
 

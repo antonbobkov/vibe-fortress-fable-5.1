@@ -24,12 +24,12 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | `lab_stink` | After a spoiled batch, dwarves who pass within 3 tiles of that laboratory the rest of the day: "The laboratory stinks." | 25 § Draughts, Spoiled batch; 15 § State | `spoiledBatch` and `stinkThoughts` in `morale/index.ts`, `LAB_STINK_TILES`, `labStinks`, the `lab_stink` row |
 | The Wildwood and staffs | A wand or staff offered to the Wildwood is a wooden item: −2 reputation each and a fifth of its value | 25 § Trade and value; 20 § The session | `tradeClass` in `trade/valuation.ts` |
 | Glowing armour lights the wearer | A piece set with glowstone lights the 3×3 around its wearer for a glowcap, as a lamp does: a glowcap whose lamp is gone grows while a glowing dwarf stands beside it, and stops when they walk on. The view tints the 3×3 in dim cyan. It is no lamp for anything else (no `lit` flag, no glow plot) | [07](02-systems/07-plants-and-farming.md) § Growth `lightOk`; 25 § Enchantments in combat `light`, § Player-facing behavior | Removable: drop the `light` effect from the `glowing` row in weapons-and-armor.md, the `wornLightAt` call in `plants/index.ts` `grow`, and `indexGlow`/`glowOver` in `render/compositor.ts` |
+| Careless shooters | A shooter with an ally on its line holds, unless it is careless this time: 50% at skill 0, 5% less a level, never from Proficient. Raid archers (skill 6) pepper their own front, apprentice casters singe their squad, Novice marksdwarves and hunters shoot past their own, veterans hold | [16](02-systems/16-combat.md) § Ranged resolution, Held shot; 25 § Casting | `carelessThisTime` in `combat/clear-shot.ts` and `CARELESS_*` in 16; with them gone every shooter always holds |
 
 ## Planned
 
 | Feature | Task | Report item |
 |---|---|---|
-| Careless shooters: a shooter below Proficient sometimes fires through an ally on the line; goblin archers pepper their own front, apprentices singe their own squad, veterans are careful | [T-483](work/T-483-marksdwarf-friendly-fire.md) | 1, 3 and the owner's example |
 | Pets pile on a favourite spot by the hearth, off the main path | [T-482](work/T-482-tame-animal-stale-walk.md) | 2 |
 | Remains and venom: `venomed` blades from giant cave spider venom; the ember newt's gland as an `ember` stone; knapped obsidian and bone blades | [T-492](work/T-492-remains-venom-and-knapped-blades.md) | 7, 8, 11 |
 | Hexers cast Dread on dwarves, and `calm` armour answers it (drop if too complex) | [T-493](work/T-493-hexer-dread-and-calm-armour.md) | 12 |

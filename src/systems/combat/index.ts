@@ -27,8 +27,8 @@ import {
   TARGET_LOSE_TICKS,
 } from './constants';
 import { isCreatureHostile, isFactionHostile } from './factions';
-import { resolveMelee, weaponOf } from './melee';
-import { advanceProjectiles, bresenhamRay, findAmmoForShooter, fireRanged, lineOfSightRanged } from './ranged';
+import { getSkill, resolveMelee, weaponOf } from './melee';
+import { advanceProjectiles, bresenhamRay, findAmmoForShooter, fireRanged, lineOfSightRanged, shotCooldownTicks } from './ranged';
 import { makeCombatReader, type CombatReader } from './reader';
 import {
   createSquad,
@@ -52,7 +52,8 @@ import { threatScan } from './threats';
 import { kitingTile } from './kiting';
 import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
-import { allyOnLine, canCastBolt, castSupport, drinkVial, heldSpellKind, otherBoltTarget, runeCovers, type CastHost } from '@systems/magic/cast';
+import { canCastBolt, castSupport, drinkVial, heldSpellKind, otherBoltTarget, runeCovers, type CastHost } from '@systems/magic/cast';
+import { allyOnLine, carelessThisTime, nearestClearTarget, type RayTo } from './clear-shot';
 import { CASTER_HOLD_DISTANCE } from '@systems/magic/constants';
 import { stepFled } from './fled';
 
@@ -67,6 +68,14 @@ export * from './state';
 export * from './targets';
 export * from './threats';
 export * from './training';
+
+/** The species' natural ranged attack (the wyrm's breath), if it has one. */
+function naturalRangedOf(ctx: TickContext, id: EntityId): { range?: number } | undefined {
+  const creature = ctx.world.entities.get(id, C.Creature);
+  if (creature === undefined) return undefined;
+  const row = ctx.registry.table<{ id: string; attacks?: { range?: number }[] }>('creatures').byIndex(creature.species);
+  return row?.attacks?.find((a) => typeof a.range === 'number' && a.range > 0);
+}
 
 export class CombatSystem extends BaseSystem<CombatStateV1> {
   override readonly id: SystemId = '16';
@@ -197,8 +206,26 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     return lineOfSightRanged(this.world.map, from, to, 14, bReader);
   }
 
+  /**
+   * The `combat.fireAt` service (09's hunt): shoot now, or false. A launcher with ammunition holds
+   * its shot while one of the shooter's own faction stands on the ray (§ Ranged resolution); the
+   * caller has no other target to give it, so it waits.
+   */
   fireAt(shooterId: EntityId, targetId: EntityId, options?: { skipXp?: boolean }): boolean {
-    const ctx =
+    const ctx = this.shotCtx();
+    if (ctx === null || this.shotHeld(ctx, shooterId, targetId)) return false;
+    return fireRanged(ctx, shooterId, targetId, this.targets.cooldownUntil, options);
+  }
+
+  /** Shoot at a target this system has chosen, its line already checked. */
+  private shoot(shooterId: EntityId, targetId: EntityId): boolean {
+    const ctx = this.shotCtx();
+    if (ctx === null) return false;
+    return fireRanged(ctx, shooterId, targetId, this.targets.cooldownUntil);
+  }
+
+  private shotCtx(): TickContext | null {
+    return (
       this.currentCtx ??
       (this.initCtx
         ? ({
@@ -210,9 +237,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
             readers: this.initCtx.readers,
             register: this.initCtx.register,
           } as unknown as TickContext)
-        : null);
-    if (ctx === null) return false;
-    return fireRanged(ctx, shooterId, targetId, this.targets.cooldownUntil, options);
+        : null)
+    );
   }
 
   /** What 25's casting rules read from 16. */
@@ -224,24 +250,75 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     };
   }
 
-  /**
-   * The target a channel's cast goes to this tick: the held one with a clear line, another, or 0.
-   * Only a bolt has a line to keep clear; a burst or a single goes to the held target.
-   */
-  private clearBoltTarget(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, target: EntityId, from: TileIndex): EntityId {
-    if (heldSpellKind(ctx, w) !== 'bolt') return target;
+  /** 16's projectile ray from `from` toward a creature, as far as `range`; null without line of sight. */
+  private rayFrom(ctx: TickContext, from: TileIndex, range: number): RayTo {
     const map = ctx.world.map;
-    const range = w?.weaponDef.launcher?.range ?? 0;
-    const rayTo = (other: EntityId): { tile: TileIndex; ray: readonly TileIndex[] } | null => {
+    return (other) => {
       const p = ctx.world.entities.get(other, C.Position);
       if (p === undefined) return null;
       const tile = map.index(p.x, p.y, p.z);
       if (!this.lineOfSight(from, tile)) return null;
       return { tile, ray: bresenhamRay(map, from, tile, range) };
     };
+  }
+
+  /**
+   * § Ranged resolution: the target a launcher's shot goes to this tick: the held one with no ally
+   * on the ray, the nearest other hostile it can reach with a clear line, or 0 (it waits). A
+   * launcher with ammunition and a channel's bolt hold; a burst or a single goes to the held target.
+   */
+  private clearShotTarget(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, target: EntityId, from: TileIndex): EntityId {
+    const launcher = w?.weaponDef.launcher;
+    if (launcher === undefined) return target;
+    const channel = launcher.ammo === undefined;
+    if (channel && heldSpellKind(ctx, w) !== 'bolt') return target;
+    const rayTo = this.rayFrom(ctx, from, launcher.range);
     const held = rayTo(target);
     if (held !== null && !allyOnLine(ctx, id, held.tile, held.ray)) return target;
-    return otherBoltTarget(ctx, id, w, target, (a, b) => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e)), rayTo);
+    // An ally on the line: one draw on the shooter's own stream decides whether it is careless.
+    const weigh = held === null ? { drew: false, careless: false } : this.weighShot(ctx, id, w, channel);
+    if (weigh.careless) return target;
+    const isHostile = (a: EntityId, b: EntityId): boolean => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e));
+    const other = channel
+      ? otherBoltTarget(ctx, id, w, target, isHostile, rayTo)
+      : nearestClearTarget(ctx, id, target, launcher.range, isHostile, () => true, rayTo, true);
+    if (other === 0 && weigh.drew) this.holdAim(ctx, id, w);
+    return other;
+  }
+
+  /**
+   * § Ranged resolution, Held shot: the one draw of a shooter with an ally on its line, on 16's
+   * stream for a launcher with ammunition and on 25's for a caster, by its shooting skill.
+   */
+  private weighShot(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, channel: boolean): { drew: boolean; careless: boolean } {
+    const skill = w === null ? 0 : getSkill(ctx.world.entities, ctx.registry, id, w.weaponDef.skill);
+    return carelessThisTime(channel ? ctx.world.rngFor('25') : this.rng, skill);
+  }
+
+  /** A careful shooter that weighed a shot and holds it takes aim again one attack cooldown later. */
+  private holdAim(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>): void {
+    this.targets.cooldownUntil.set(id, ctx.tick + shotCooldownTicks(ctx, id, w?.weaponDef.size ?? 0));
+  }
+
+  /**
+   * A launcher with ammunition shooting at `target` would send its missile past one of the
+   * shooter's own faction and is held (§ Ranged resolution). A shooter weighs such a shot only once
+   * its attack cooldown has elapsed; a careless one fires. A natural ranged attack has no such rule.
+   */
+  private shotHeld(ctx: TickContext, shooterId: EntityId, target: EntityId): boolean {
+    const entities = ctx.world.entities;
+    const w = weaponOf(entities, ctx.registry, shooterId);
+    const launcher = w?.weaponDef.launcher;
+    if (launcher?.ammo === undefined || naturalRangedOf(ctx, shooterId) !== undefined) return false;
+    const pos = entities.get(shooterId, C.Position);
+    if (pos === undefined) return false;
+    const line = this.rayFrom(ctx, ctx.world.map.index(pos.x, pos.y, pos.z), launcher.range)(target);
+    if (line === null || !allyOnLine(ctx, shooterId, line.tile, line.ray)) return false;
+    if ((this.targets.cooldownUntil.get(shooterId) ?? 0) > ctx.tick) return true;
+    const weigh = this.weighShot(ctx, shooterId, w, false);
+    if (weigh.careless) return false;
+    if (weigh.drew) this.holdAim(ctx, shooterId, w);
+    return true;
   }
 
   /**
@@ -263,7 +340,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       });
       if (other !== 0) {
         this.targets.engagements.set(id, ctx.tick);
-        this.fireAt(id, other);
+        this.shoot(id, other);
         return true;
       }
     }
@@ -368,9 +445,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
 
       const w = weaponOf(entities, ctx.registry, id);
       const creatureA = entities.get(id, C.Creature);
-      const spTable = ctx.registry.table<{ id: string; attacks?: { name: string; type: string; damage: number; size: number; range?: number }[] }>('creatures');
-      const spRow = creatureA ? spTable.byIndex(creatureA.species) : undefined;
-      const naturalRanged = spRow?.attacks?.find((a) => typeof a.range === 'number' && a.range > 0);
+      const naturalRanged = naturalRangedOf(ctx, id);
 
       const launcher = w?.weaponDef.launcher;
       // 25 § Casting: a channel's ammunition is its holder's rune. With none, a channel is a club.
@@ -415,17 +490,16 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       ) {
         this.targets.unreachableSince.delete(id);
         const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
-        if (cooldown <= tick && channel) {
-          // 25 § Casting: a caster holds its bolt while one of its own stands on the line, and
-          // throws it at another target with a clear line, or waits.
-          const bolt = this.clearBoltTarget(ctx, id, w, target, tileA);
-          if (bolt !== 0) {
+        if (cooldown <= tick) {
+          // § Ranged resolution: a launcher's shot (a channel's bolt, 25 § Casting) is held while
+          // one of the shooter's own stands on the ray, and goes to another target with a clear
+          // line, or the shooter waits. A natural ranged attack has no such rule.
+          const launcherShot = channel || (hasAmmo && naturalRanged === undefined);
+          const shot = launcherShot ? this.clearShotTarget(ctx, id, w, target, tileA) : target;
+          if (shot !== 0) {
             this.targets.engagements.set(id, tick);
-            this.fireAt(id, bolt);
+            this.shoot(id, shot);
           }
-        } else if (cooldown <= tick) {
-          this.targets.engagements.set(id, tick);
-          this.fireAt(id, target);
         }
       } else {
         // A civilian who fights back (10) strikes only what is in reach; it does not chase.
