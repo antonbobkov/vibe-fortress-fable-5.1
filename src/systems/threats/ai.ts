@@ -188,15 +188,17 @@ function retreatMember(m: EntityId, H: Hostile, P: Party, pos: TileIndex, ctx: T
   if (retreat.goalTile >= 0) ctx.world.services.movement?.walkTo(m, retreat.goalTile, 'combat', ctx);
 }
 
-export function checkSpotted(_m: EntityId, pos: TileIndex, ctx: TickContext, targets: readonly FortressTarget[] = fortressTargets(ctx)): boolean {
+export function checkSpotted(m: EntityId, pos: TileIndex, ctx: TickContext, targets: readonly FortressTarget[] = fortressTargets(ctx)): boolean {
   const map = ctx.world.map;
+  // 25 § Summons, Turning: a turned shade is never spotted by the caster whose call it came through.
+  const unseenBy = ctx.world.entities.get(m, C.Summoned)?.turnedFrom ?? 0;
   const pathing = ctx.readers.pathing;
   const mz = map.zOf(pos);
   const mx = map.xOf(pos);
   const my = map.yOf(pos);
 
   for (const target of targets) {
-    if (target.spotRadius === 0) continue;
+    if (target.spotRadius === 0 || target.id === unseenBy) continue;
     if (Math.abs(target.z - mz) > 1) continue;
 
     const dx = Math.abs(target.x - mx);

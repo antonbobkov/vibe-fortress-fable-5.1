@@ -136,7 +136,8 @@ interface ActiveEffect { kind: string; value: number; until: Tick; sourceId: Ent
 interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */;
                        lastDraughtTick?: Tick; lastCalmTick?: Tick /* the last draught and calming draught, kept while their rests last (25 § Draughts) */ }
 interface Spellbound { effects: ActiveEffect[] /* timed effects (25 § Effects); read by comparing until with the tick */ }
-interface Summoned { summonerId: EntityId /* the caster; 0 for one that came loose or turned */; fadesAt: Tick /* 25 kills it on the first HourPassed at or after this tick */ }
+interface Summoned { summonerId: EntityId /* the caster; 0 for one that came loose or turned */; fadesAt: Tick /* 25 kills it on the first HourPassed at or after this tick */;
+                     turnedFrom?: EntityId /* a turned shade's caster, who never spots it (18 § Stealth); absent otherwise */ }
 ```
 
 ## Component ownership table

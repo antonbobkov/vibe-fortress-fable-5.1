@@ -1,5 +1,7 @@
 # T-496 — A drunk vial is capped below a circlet's rune
 
+**Closed:** 2026-11-05, in e1363027.
+
 **Source:** T-491 (found while adding the desperate fourth vial) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

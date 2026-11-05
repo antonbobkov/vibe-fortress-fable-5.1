@@ -519,6 +519,8 @@ export interface Summoned {
   /** The caster it answered; 0 for a wisp loose from a mishap or a shade that came through turned. */
   summonerId: EntityId;
   fadesAt: Tick;
+  /** A turned shade's caster, who never spots it (`18` § Stealth); absent for every other summon. */
+  turnedFrom?: EntityId;
 }
 
 /**

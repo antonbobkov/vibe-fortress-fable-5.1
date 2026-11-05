@@ -41,7 +41,7 @@ import {
   VIALS_PER_DAY,
 } from './constants';
 import { wearsFleeImmune, wearsSlowImmune, wornDazeResist, type EnchantEffectView } from './enchant';
-import { MILLI, runeMaxMilli, skillLevel } from './rune';
+import { MILLI, runeGear, runeMaxMilli, skillLevel } from './rune';
 import { answerCall, planCall } from './summon';
 
 /** The slice of a weapon row casting reads. */
@@ -533,7 +533,7 @@ export function drinkVial(ctx: TickContext, casterId: EntityId, held: Held | nul
   const items = ctx.world.services.items;
   if (vial === 0 || items === null) return false;
   items.consume(vial, 1);
-  const max = runeMaxMilli(skillLevel(entities, ctx.registry, casterId, 'runecraft'));
+  const max = runeMaxMilli(skillLevel(entities, ctx.registry, casterId, 'runecraft'), runeGear(entities, ctx.registry, casterId).maxBonus);
   const gain = sick ? (VIAL_RUNE * MILLI * SICK_VIAL_PERCENT) / 100 : VIAL_RUNE * MILLI;
   entities.add<Rune>(casterId, C.Rune, { ...rune, current: Math.max(rune.current, Math.min(max, rune.current + gain)), vialsToday: today + 1 });
   ctx.emit({ type: 'VialDrunk', id: casterId, sick });
