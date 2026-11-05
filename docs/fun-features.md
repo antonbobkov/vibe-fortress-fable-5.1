@@ -31,6 +31,9 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | Careless shooters: a shooter below Proficient sometimes fires through an ally on the line; goblin archers pepper their own front, apprentices singe their own squad, veterans are careful | [T-483](work/T-483-marksdwarf-friendly-fire.md) | 1, 3 and the owner's example |
 | Pets pile on a favourite spot by the hearth, off the main path | [T-482](work/T-482-tame-animal-stale-walk.md) | 2 |
 | Remains and venom: `venomed` blades from giant cave spider venom; the ember newt's gland as an `ember` stone; knapped obsidian and bone blades | [T-492](work/T-492-remains-venom-and-knapped-blades.md) | 7, 8, 11 |
+| Hexers cast Dread on dwarves, and `calm` armour answers it (drop if too complex) | [T-493](work/T-493-hexer-dread-and-calm-armour.md) | 12 |
+| `glowing` armour lights the wearer's 3×3, and glowcap grows under a glowing dwarf standing still (drop if too complex) | [T-494](work/T-494-glowing-armour-lights-the-wearer.md) | 13 |
+| A dead runecaster's wand among an old battlefield's arms (drop if too complex) | [T-495](work/T-495-wand-on-an-old-battlefield.md) | 17 |
 
 ## Candidates, not yet planned
 
@@ -38,8 +41,10 @@ Worth doing, at more cost. Each would be its own task with a measurement.
 
 | Feature | Report item | Why not yet |
 |---|---|---|
-| Hexers cast Dread on dwarves, and `calm` armour answers it | 12 | Dwarves need a flight rule; reuse `stepFled` |
-| `glowing` armour lights the wearer's 3×3 (glowcap grows briefly under a dwarf standing still) | 13 | Lamp coverage is per building today |
-| A dead runecaster's wand among an old battlefield's arms | 17 | A new pick on its own stream; moves battlefield maps |
-| A soldier stationed on a door tile holds it against hostile walkers | 18 | Rework of the door rule the owner removed; ask first |
 | Thane's whims, a creaking span before a fall, a damp layer, cave bats, cave cough | 26 to 30 | Each needs a design of its own |
+
+## Declined
+
+| Feature | Report item | Why |
+|---|---|---|
+| A soldier stationed on a door tile holds it against hostile walkers | 18 | The owner said no (2026-11-04); doors stay as T-457 left them |

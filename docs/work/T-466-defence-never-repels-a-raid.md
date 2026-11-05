@@ -1,6 +1,6 @@
 # T-466 — The hand-laid defence of `defence_year` does not repel a raid
 
-**Source:** T-462 ([measurement](../../reports/audits/2026-11-01-defence-year-noise.md)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
+**Source:** T-462 ([measurement](../../reports/audits/2026-11-01-defence-year-noise.md)) · **Size:** M · **Needs:** T-483 · **Status:** blocked (needs T-483)
 
 ## Why
 
@@ -17,3 +17,12 @@ Nothing yet says whether the fault is the script's use of the defence, the rule 
 
 - A report with the journal and the cause.
 - If the answer shows a raid can be repelled, `defence_year` may assert it by a set rule, with its noise measured.
+
+## Decision (the owner, 2026-11-04)
+
+"Yes, a well-armed squad should be able to repel a raid." A decisive defence is a goal, not a lucky outcome.
+
+- **Target:** with the hand-laid defence of `defence_year` (walls, fortifications, traps, a drawbridge on a lever, a trained squad), most peril-2 raids end `repelled` or `wiped`, not `looted`. Write the target as a set rule once its noise is measured; a first aim is a majority of seeds.
+- **Order:** journal one raid first and name the cause (the script's use of the defence, the loot rule, or raid morale and defence strength). Fix a fault before any tuning. Tune the plainest lever that matches the cause: when a party counts as having looted, how its retreat on losses works, or what the defence does.
+- **Do not make raids toothless.** A raid against a fortress with no defence, or an untrained squad, should still loot; the three-years survival file and its set rule must hold, and the defence must have to be built and manned to win.
+- **Measure after T-483**, because careless raider archers already weaken raids.
