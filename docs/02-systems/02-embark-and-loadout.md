@@ -94,7 +94,7 @@ The missing essentials come first, in the alert colour, each with its consequenc
 7. Set the fortress name, embark tick and region. The calendar is set to `START_SEASON`, day 1, `START_HOUR`, year 1 before any arrival spawn, so supplies and creatures carry the arrival tick.
 8. Emit `Embarked { fortressName, regionId }`. The app switches to the fortress screen, paused, centered on the wagon at the surface z-level, and shows the first hint.
 
-Arrival consumes item entries of the local map’s trait spawn list. Creature entries are consumed by 08 and 18 after arrival.
+Arrival consumes item entries of the local map’s trait spawn list; an entry's `stone`, when present, is set as the item's `Item.stone`. Creature entries are consumed by 08 and 18 after arrival.
 
 ## State
 

@@ -22,7 +22,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-490 | [11 still describes the crowded-doorway retry that crowding removed](work/T-490-stale-crowded-walk-rule.md) | T-487's journal | — | open |
 | T-492 | [Remains and venom: venomed blades, the ember gland, knapped blades](work/T-492-remains-venom-and-knapped-blades.md) | Flavour report | — | open |
 | T-493 | [Hexers cast Dread on dwarves, and `calm` armour answers it](work/T-493-hexer-dread-and-calm-armour.md) | Flavour report | — | open |
-| T-495 | [A dead runecaster's wand among an old battlefield's arms](work/T-495-wand-on-an-old-battlefield.md) | Flavour report | — | open |
 | T-496 | [A drunk vial is capped below a circlet's rune](work/T-496-vial-cap-ignores-circlet.md) | T-491's work | — | open |
 | T-497 | [A turned shade that stays hidden for a while](work/T-497-turned-shade-hides-longer.md) | T-491's work | — | open |
 | T-498 | [A careful shooter waits behind its own line instead of finding a clear one](work/T-498-held-shooter-clear-line.md) | T-483's arena and sweep | — | open |

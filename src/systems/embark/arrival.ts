@@ -314,7 +314,13 @@ export function spawnTraitItems(world: World, spawns: readonly SpawnEntry[]): En
   for (const s of spawns) {
     if (s.kind !== 'item' || s.material === undefined) continue;
     if (!items.has(s.type) || !materials.has(s.material)) throw new RangeError(`arrival: trait spawn ${s.type} of ${s.material}`);
-    out.push(world.services.spawn.item(items.index(s.type), materials.index(s.material), s.tile, 1, s.quality ?? 1));
+    const id = world.services.spawn.item(items.index(s.type), materials.index(s.material), s.tile, 1, s.quality ?? 1);
+    const item = s.stone === undefined ? undefined : world.entities.get(id, C.Item);
+    if (item !== undefined && s.stone !== undefined) {
+      if (!materials.has(s.stone)) throw new RangeError(`arrival: trait spawn stone ${s.stone}`);
+      world.entities.add(id, C.Item, { ...item, stone: materials.index(s.stone) });
+    }
+    out.push(id);
   }
   return out;
 }
