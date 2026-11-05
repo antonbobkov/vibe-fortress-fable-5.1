@@ -24,6 +24,7 @@ import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { LocalMapSpec } from '@systems/embark/spec';
+import { wornLightAt } from '@systems/magic/enchant';
 import type { MaterialsReader } from '@systems/materials';
 import { ASH_DURATION_DAYS, FROST_KILL_C } from '@systems/materials/constants';
 import { GLASSLANDS_TREE_DENSITY } from '@systems/terrain/constants';
@@ -304,10 +305,17 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
         if (!cave && tempC < FROST_KILL_C) this.killCrop(ctx, id, 'frost');
         continue;
       }
+      const lit = this.buildings()?.cropLitAt(tile) ?? map.hasFlag(tile, TileFlag.Lit);
+      let lamped = this.buildings()?.lampCoveredAt(tile) ?? false;
+      // "a tile in the 3×3 of a creature that wears a `light` piece counts as under a lamp": asked only
+      // for a `glow` crop on a dark tile with no lamp, so a fortress without one looks nothing up.
+      if (row.light === 'glow' && !lit && !lamped) {
+        lamped = wornLightAt(map, (i) => ctx.readers.entities.at(i), entities, ctx.registry, tile);
+      }
       const gained = growthPerHour(row, cave, {
         season,
-        lit: this.buildings()?.cropLitAt(tile) ?? map.hasFlag(tile, TileFlag.Lit),
-        lamped: this.buildings()?.lampCoveredAt(tile) ?? false,
+        lit,
+        lamped,
         tempC,
         growthModifier: modifier,
       });

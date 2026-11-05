@@ -317,6 +317,7 @@ Where each kind is read. Every seam reads `Item.enchant` first, so an unenchante
 | `slow_immune` | `addEffect`: a `slow` is not added to a creature that wears a piece with it, whether a spell or an enchantment brings it. `addEffect` takes the registry for this; every caller adding a `slow` passes it |
 | `flee` | `applyEnchantOnHit`: a creature Dread cannot take (`mentallyImmune`: the `deep` faction, size `MENTAL_IMMUNE_SIZE` or more) is never sent running, and nothing is drawn for it. Otherwise roll `chance` on stream 25 (a `chance` of 0 always applies), then the resist roll (§ Spells), and add a `flee` effect for `ticks`, `sourceId` the attacker, which 16's `stepFled` reads as Dread's |
 | `spot_radius` | `threats/ai.ts`, where fortress targets get `spotRadius`: a dwarf's `SPOT_RADIUS` plus the largest `spot_radius` among the pieces it wears (`wornSpotRadius`); pieces do not add to each other |
+| `light` | 07's growth, `plants/index.ts` `grow`: a `glow` crop on a dark tile with no lamp grows when a creature on that tile's 3×3, on its level, wears a piece with it (`wornLightAt` in `magic/enchant.ts`, through the spatial index). It is asked for no other crop, so with no such crop nothing is looked up. It is not a lamp: no `lit` flag, no coverage in 14, no glow plot |
 
 Enchanted ammunition stays enchanted through `split`, and `canMerge` keeps it apart. The unit split off for a shot carries the stone in flight; its effects are read from `proj.itemId` at the hit, before the unit drops or breaks. A bolt that drops keeps its stone; one that breaks is gone with it.
 
@@ -575,7 +576,7 @@ The design is [the runecraft proposal](../../reports/designs/2026-11-01-runecraf
 | 19 | "Train with staff" toggle | A channel holder drills solo | No new setting |
 | 20 | Armor `calm`; hexers with Dread; Dread on dwarves | All cut | Dwarves would need a new flight rule in 10; hexers throw frost |
 | 21 | Armor `mending` | Cut | Needs part coverage inside 17's heal loop |
-| 22 | Armor `glowing` lights the wearer's 3×3 | Spot radius only | A moving light is a new mechanism |
+| 22 | Armor `glowing` lights the wearer's 3×3 | Spot radius, and the 3×3 lit for a `glow` crop's growth only | The light is asked for where a lamp is, at a glow crop's hour; the `lit` flag and lamp coverage stay 14's, so nothing moves with no glowing wearer |
 | 23 | `adamant` weight −4 | Cut | The armor is the effect |
 | 24 | `blaze` 2% ignition | Cut | Needs 05 on a weapon hit for a rare effect |
 | 25 | `venomed`, `spider_venom`; `ember_gland` | Cut | A timed pain source in 17, and a newt that is not butcherable, for two small stones |

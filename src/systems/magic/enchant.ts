@@ -7,7 +7,8 @@
 import { C } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
-import type { EntityId } from '@core/types';
+import type { Map3D } from '@core/map3d';
+import type { EntityId, TileIndex } from '@core/types';
 import type { EnchantDef, EnchantEffect } from '@content/generate';
 import { QUALITY_COMBAT_MULT } from '@systems/combat/constants';
 
@@ -97,6 +98,26 @@ export function wornEnchantEffects(entities: EntityStore, registry: Registry, id
 /** A worn piece keeps its wearer from being slowed (`slow_immune`). */
 export function wearsSlowImmune(entities: EntityStore, registry: Registry, id: EntityId): boolean {
   return wornEnchantEffects(entities, registry, id).some((e) => e.kind === 'slow_immune' && e.value > 0);
+}
+
+/** A worn piece lights its wearer's 3×3 (`light`). */
+export function wearsLight(entities: EntityStore, registry: Registry, id: EntityId): boolean {
+  return wornEnchantEffects(entities, registry, id).some((e) => e.kind === 'light' && e.value > 0);
+}
+
+/**
+ * A creature on `tile` or on one of its eight neighbours on the same level wears a `light` piece, so
+ * the tile lies in a worn light's 3×3 (07's `glow` rule reads it beside the lamps). `at` is the
+ * spatial index's `readers.entities.at`; nothing is kept between calls.
+ */
+export function wornLightAt(map: Map3D, at: (i: TileIndex) => readonly EntityId[], entities: EntityStore, registry: Registry,
+  tile: TileIndex): boolean {
+  for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+    const t = map.offset(tile, dx, dy, 0);
+    if (t < 0) continue;
+    for (const id of at(t)) if (wearsLight(entities, registry, id)) return true;
+  }
+  return false;
 }
 
 /** Tiles worn pieces add to how far the wearer spots a hidden creature: the largest `spot_radius`, 0 for none. */

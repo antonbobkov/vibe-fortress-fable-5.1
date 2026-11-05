@@ -15,6 +15,7 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | Fearsome is a trade-off | A frightened foe runs, soldiers chase it and swing less; a squad with fearsome axes can do worse in the open | [25](02-systems/25-runecraft.md) § Enchantments | Not removable by this rule: the owner's call (T-485) |
 | Stoutness against bleeding | A draught of stoutness halves pain and does nothing for a soldier who is bleeding out | 25 § Draughts | Owner's view on trade-offs; keep |
 | Daze on a captain | A runecaster can stun a raid's captain again each time it wakes | 25 § Spells | T-477's balance pass may limit it |
+| Glowing armour lights the wearer | A piece set with glowstone lights the 3×3 around its wearer for a glowcap, as a lamp does: a glowcap whose lamp is gone grows while a glowing dwarf stands beside it, and stops when they walk on. It is no lamp for anything else (no `lit` flag, no glow plot) | [07](02-systems/07-plants-and-farming.md) § Growth `lightOk`; 25 § Enchantments in combat `light` | Removable: drop the `light` effect from the `glowing` row in weapons-and-armor.md and the `wornLightAt` call in `plants/index.ts` `grow` |
 
 ## Planned
 
@@ -25,7 +26,6 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | Runecraft flavour pass: `rune_sick` from a desperate fourth vial; `dosed_again` from an early second calming draught; `blaze` sets the target's tile alight; `saw_wisp`; the firebloom's flash; a turned shade that hides; `lab_stink` after a spoiled batch; the Wildwood offended by staffs | [T-491](work/T-491-runecraft-flavour-pass.md) | 4, 5, 6, 9, 10, 14, 15, 16 |
 | Remains and venom: `venomed` blades from giant cave spider venom; the ember newt's gland as an `ember` stone; knapped obsidian and bone blades | [T-492](work/T-492-remains-venom-and-knapped-blades.md) | 7, 8, 11 |
 | Hexers cast Dread on dwarves, and `calm` armour answers it (drop if too complex) | [T-493](work/T-493-hexer-dread-and-calm-armour.md) | 12 |
-| `glowing` armour lights the wearer's 3×3, and glowcap grows under a glowing dwarf standing still (drop if too complex) | [T-494](work/T-494-glowing-armour-lights-the-wearer.md) | 13 |
 | A dead runecaster's wand among an old battlefield's arms (drop if too complex) | [T-495](work/T-495-wand-on-an-old-battlefield.md) | 17 |
 
 ## Candidates, not yet planned
