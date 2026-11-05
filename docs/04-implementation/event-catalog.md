@@ -142,18 +142,20 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `EntitiesMoved` | `moves: [id, from, to][]` | core movement helper | 03, 04, 18, 19 |
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
 | `AttuneSession` | `id, xp, mishap` | 25 | 15 |
-| `Mishap` | `id, kind, buildingId, tile` | 25 | 05 (`fire`), 14 (`scorched_circle`), 15, ui |
+| `Mishap` | `id, kind, buildingId, tile` | 25 | 05 (a mishap with a tile: `fire`, `blaze`), 14 (`scorched_circle`), 15, ui |
 | `CreatureStunned` | `id, until` | 25 | 17 |
 | `FirstRunecaster` | `id` | 25 | 15, 24 (legend), ui |
 | `SpellCast` | `casterId, spellId, targetId, tile, burned` | 25 (casts ride 16's loop; a firebloom's bloom) | ui (a bloom that burned a fortress creature) |
+| `SpellBloomed` | `casterId, tile` | 25 (a firebloom's bloom) | ui (the compositor's flash) |
 | `RuneSpent` | `id` | 25 | ui |
-| `VialDrunk` | `id` | 25 | ui (none) |
+| `VialDrunk` | `id, sick` | 25 | 15 (`sick`), ui (none) |
 | `Warded` | `id` | 25 | 15 |
 | `Mended` | `id, casterId` | 25 | 15, 17 |
-| `DraughtDrunk` | `id, draughtId, calm` | 25 | 15, ui (none) |
+| `DraughtDrunk` | `id, draughtId, calm, again` | 25 | 15, ui (none) |
 | `SummonCalled` | `id, casterId` | 25 | 24 (milestone) |
 | `SummonTurned` | `id` | 25 | 15, 18, ui |
 | `SummonFaded` | `id` | 25 | 17 |
+| `WispAppeared` | `id, tile` | 25 (a called wisp; a loose wisp) | 15 |
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 

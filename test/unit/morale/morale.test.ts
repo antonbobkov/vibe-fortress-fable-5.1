@@ -45,6 +45,8 @@ function fixture(def: ThoughtDef): GameEvent | null {
   if (id === 'attuned') e.mishap = '';
   if (id === 'singed') e.kind = 'singed';
   if (id === 'eased') e.calm = true;
+  if (id === 'dosed_again') { e.calm = true; e.again = true; }
+  if (id === 'rune_sick') e.sick = true;
   return e as GameEvent;
 }
 

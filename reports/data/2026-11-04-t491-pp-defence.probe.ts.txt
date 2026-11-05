@@ -1,0 +1,38 @@
+/**
+ * T-491 probe (not committed as a test): pp_defence on its seed, with the rng state of every stream
+ * and every combat event recorded, so a run before and after the change can be compared.
+ * Output: T491_OUT (default .vite/t491-pp-defence.json).
+ */
+import { writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { it } from 'vitest';
+import { TestWorld } from '../scenarios/test-world';
+import scenario from '../scenarios/pp_defence.scenario';
+
+it('T-491 probe: pp_defence draws', () => {
+  let captured: TestWorld | null = null;
+  const original = TestWorld.prototype.events;
+  TestWorld.prototype.events = function (this: TestWorld, type) {
+    captured = (this as unknown as { self: TestWorld }).self ?? this; // eslint-disable-line @typescript-eslint/no-this-alias
+    return original.call(this, type);
+  };
+  try {
+    if (typeof scenario.run === 'function') scenario.run(null as unknown as TestWorld);
+  } finally {
+    TestWorld.prototype.events = original;
+  }
+  const w = captured as unknown as TestWorld;
+  const combatTypes = new Set(['AttackResolved', 'DamageDealt', 'ProjectileFired', 'CreatureDied', 'KillRecorded', 'CreatureFled']);
+  const combat = w.allEvents().filter((e) => combatTypes.has(e.type)).map((e) => JSON.stringify(e));
+  const out = {
+    tick: w.tick,
+    rng: w.game.world.rngState(),
+    combatEvents: combat.length,
+    combatDigest: createHash('sha256').update(combat.join('\n')).digest('hex'),
+    allEvents: w.allEvents().length,
+    attacks: w.events('AttackResolved').length,
+    firstAttacks: combat.slice(0, 5),
+    lastAttacks: combat.slice(-5),
+  };
+  writeFileSync(process.env['T491_OUT'] ?? '.vite/t491-pp-defence.json', JSON.stringify(out, null, 1));
+});

@@ -108,7 +108,17 @@ export function answerCall(ctx: TickContext, casterId: EntityId, plan: CallPlan)
     juvenileUntil: 0, slaughter: false, petOf: 0, noBreed: true,
   });
   ctx.emit({ type: 'SummonCalled', id, casterId });
+  if (plan.species === wispSpecies(ctx.registry)) ctx.emit({ type: 'WispAppeared', id, tile: plan.tile });
   return id;
+}
+
+/**
+ * The wisp: the `call` spell row's own summon, which a wand or an unlisted metal brings and a
+ * sanctum lets loose. 0 when content has none. A wisp appearing emits `WispAppeared` (15's `saw_wisp`).
+ */
+export function wispSpecies(registry: Registry): number {
+  const spell = registry.table<SpellDef>('spells').rows.find((s) => s?.kind === 'call');
+  return spell?.summon === undefined ? 0 : Math.max(0, registry.table('creatures').index(spell.summon));
 }
 
 /**
@@ -125,5 +135,6 @@ export function looseWisp(ctx: TickContext, circleTile: TileIndex): EntityId {
   if (tile < 0) return 0;
   const id = ctx.world.services.spawn.creature(species, tile, 'wild');
   entities.add<Summoned>(id, C.Summoned, { summonerId: 0, fadesAt: ctx.tick + SUMMON_TICKS });
+  ctx.emit({ type: 'WispAppeared', id, tile });
   return id;
 }

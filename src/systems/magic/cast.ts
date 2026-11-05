@@ -25,6 +25,7 @@ import { armorReduction, getAttribute, throughEnchantedArmor } from '@systems/co
 import { findAmmoForShooter } from '@systems/combat/ranged';
 import { BLOOD_UNCONSCIOUS_PERCENT, PAIN_UNCONSCIOUS } from '@systems/health/constants';
 import type { ItemsReader } from '@systems/items';
+import type { MaterialsReader } from '@systems/materials/reader';
 import {
   CALM_REST_DAYS,
   DRAUGHT_REST_DAYS,
@@ -34,6 +35,7 @@ import {
   FROSTBIND_SLOW_PERCENT,
   MENTAL_IMMUNE_SIZE,
   RESIST_NO_ATTRIBUTES_PERCENT,
+  SICK_VIAL_PERCENT,
   VIAL_RUNE,
   VIALS_PER_DAY,
 } from './constants';
@@ -520,15 +522,32 @@ function vialItemId(registry: Registry): string | undefined {
 }
 
 /**
+ * § Vials, the desperate fourth: three vials drunk today and the foe the caster holds beside it, on
+ * its level. Its target is always hostile (16's loop keeps no other).
+ */
+function desperate(ctx: TickContext, casterId: EntityId, vialsToday: number): boolean {
+  if (vialsToday !== VIALS_PER_DAY) return false;
+  const target = ctx.world.services.combat?.targetOf(casterId) ?? 0;
+  const a = ctx.world.entities.get(casterId, C.Position);
+  const b = target === 0 || !ctx.world.entities.alive(target) ? undefined : ctx.world.entities.get(target, C.Position);
+  return a !== undefined && b !== undefined && a.z === b.z && Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y)) <= 1;
+}
+
+/**
  * § Vials: a channel holder below its spell's cost, holding a hostile target, with a vial carried
  * and fewer than `VIALS_PER_DAY` drunk today, drinks one: `VIAL_RUNE` back, capped at its maximum,
- * `VialDrunk`, and its next attack waits `DRINK_TICKS` (shortened by `haste`). True when it drank.
+ * `VialDrunk`, and its next attack waits `DRINK_TICKS` (shortened by `haste`). With three drunk and
+ * its foe beside it, it drinks a fourth for `SICK_VIAL_PERCENT` of the rune, and `VialDrunk` says
+ * `sick` (the thought `rune_sick`). True when it drank.
  */
 export function drinkVial(ctx: TickContext, casterId: EntityId, held: Held | null, cooldownUntil: Map<EntityId, number>): boolean {
   const entities = ctx.world.entities;
   const rune = entities.get(casterId, C.Rune);
   const cs = heldSpell(entities, ctx.registry, held);
-  if (rune === undefined || cs === undefined || rune.current >= cs.costMilli || (rune.vialsToday ?? 0) >= VIALS_PER_DAY) return false;
+  if (rune === undefined || cs === undefined || rune.current >= cs.costMilli) return false;
+  const today = rune.vialsToday ?? 0;
+  const sick = today >= VIALS_PER_DAY && desperate(ctx, casterId, today);
+  if (today >= VIALS_PER_DAY && !sick) return false;
   const vialType = vialItemId(ctx.registry);
   if (vialType === undefined) return false;
   const carried = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13').carriedItems(casterId) : undefined;
@@ -537,8 +556,9 @@ export function drinkVial(ctx: TickContext, casterId: EntityId, held: Held | nul
   if (vial === 0 || items === null) return false;
   items.consume(vial, 1);
   const max = runeMaxMilli(skillLevel(entities, ctx.registry, casterId, 'runecraft'));
-  entities.add<Rune>(casterId, C.Rune, { ...rune, current: Math.max(rune.current, Math.min(max, rune.current + VIAL_RUNE * MILLI)), vialsToday: (rune.vialsToday ?? 0) + 1 });
-  ctx.emit({ type: 'VialDrunk', id: casterId });
+  const gain = sick ? (VIAL_RUNE * MILLI * SICK_VIAL_PERCENT) / 100 : VIAL_RUNE * MILLI;
+  entities.add<Rune>(casterId, C.Rune, { ...rune, current: Math.max(rune.current, Math.min(max, rune.current + gain)), vialsToday: today + 1 });
+  ctx.emit({ type: 'VialDrunk', id: casterId, sick });
   cooldownUntil.set(casterId, ctx.tick + hastedTicks(entities, casterId, DRINK_TICKS, ctx.tick));
   return true;
 }
@@ -597,8 +617,22 @@ export function applyEnchantOnHit(
       if (e.chance > 0 && ctx.world.rngFor('25').int(0, 99) >= e.chance) continue;
       if (resists(ctx, defenderId)) continue;
       addEffect(entities, defenderId, { kind: 'flee', value: 1, until: ctx.tick + e.ticks, sourceId: attackerId }, ctx.registry);
+    } else if (e.kind === 'ignite') {
+      igniteOnHit(ctx, e.chance, attackerId, defenderId);
     }
   }
+}
+
+/**
+ * `ignite` (a `blaze` weapon): one draw on stream 25 at `chance` percent; when it lands and the
+ * struck creature's tile can burn (05's `burnableTile`: a wooden floor, grass, a shrub), a `Mishap`
+ * of kind `blaze` names the tile, and 05 lights it at its next tick as it lights a sanctum's fire.
+ */
+function igniteOnHit(ctx: TickContext, chance: number, attackerId: EntityId, defenderId: EntityId): void {
+  if (ctx.world.rngFor('25').int(0, 99) >= chance) return;
+  const tile = tileOf(ctx, defenderId);
+  if (tile < 0 || !ctx.readers.has('05') || !ctx.readers.of<MaterialsReader>('05').burnableTile(tile)) return;
+  ctx.emit({ type: 'Mishap', id: attackerId, kind: 'blaze', tile });
 }
 
 /**

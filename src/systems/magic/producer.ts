@@ -29,7 +29,7 @@ import { looseWisp } from './summon';
 import type { EntityStore } from '@core/entities';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale/reader';
-import { calmRestAllows, draughtRestAllows, draughtsWith, drinkDraught, type DraughtDef, type DraughtTrigger } from './draughts';
+import { draughtRestAllows, draughtsWith, drinkDraught, type DraughtDef, type DraughtTrigger } from './draughts';
 
 const KEY_PREFIX = 'attune:';
 const CIRCLE_TAG = 'rune_circle';
@@ -266,7 +266,7 @@ function stillWanted(ctx: TickContext, id: EntityId, trigger: DraughtTrigger): b
   const entities = ctx.world.entities;
   if (!entities.alive(id) || !draughtRestAllows(entities, id, ctx.tick)) return false;
   if (trigger === 'wounded') return entities.has(id, C.Patient) && badlyWounded(entities, id);
-  return trigger === 'miserable' && calmRestAllows(entities, id, ctx.tick) && miserable(ctx, id);
+  return trigger === 'miserable' && miserable(ctx, id);
 }
 
 /**

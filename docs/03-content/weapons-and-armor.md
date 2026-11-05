@@ -127,7 +127,7 @@ A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arr
 | `amethyst` | `rime` | weapon | 6 | of rime | `slow` 30 for 200 ticks | ticks | |
 | `emerald` | `sure` | weapon | 6 | sure | `to_hit` 10 | value | |
 | `sapphire` | `fearsome` | weapon | 8 | fearsome | `flee` 1, 25% for 200 ticks | none | |
-| `ruby` | `blaze` | weapon | 10 | of blaze | `extra_damage` 14 ember | value | |
+| `ruby` | `blaze` | weapon | 10 | of blaze | `extra_damage` 14 ember; `ignite` 1, 2% | value | |
 | `diamond` | `sunder` | weapon | 12 | sundering | `armor_percent` 50 | none | |
 | `deepsilver` | `deep` | weapon | 12 | of the deep | `damage_percent` 25; `vs_deep_percent` 50 | none | |
 | `hollow_ichor` | `hollowbane` | weapon | 8 | hollowbane | `vs_deep_percent` 100 | none | |
@@ -142,7 +142,7 @@ A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arr
 | `amethyst` | `rime_ammo` | ammo | 4 | of rime | `slow` 30 for 200 ticks | ticks | |
 | `emerald` | `seeking` | ammo | 4 | seeking | `to_hit` 10 | value | |
 
-What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum); `light` lights the 3×3 around the wearer as a glowstone lamp does for a `glow` crop (07 § Growth).
+What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `ignite` sets the struck creature's tile alight, on a roll of its chance, when that tile can burn; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum); `light` lights the 3×3 around the wearer as a glowstone lamp does for a `glow` crop (07 § Growth).
 
 ## Shields
 

@@ -16,7 +16,8 @@ import { baseValue, eventPredicate, eventTargets, personalityBase, personalityMu
 import { NEED_PRESSURE_THOUGHTS, standingThoughts } from './standing';
 import { advanceSulkCounter, doSulk, sulkKind } from './sulks';
 import type { MoraleReader, ThoughtView } from './reader';
-import type { MoraleStateV1 } from './state';
+import type { LabStink, MoraleStateV1 } from './state';
+import { LAB_STINK_TILES } from './constants';
 
 export * from './mood';
 export * from './thoughts';
@@ -52,6 +53,8 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
   readonly dayOffUntil = new Map<EntityId, number>();
   readonly sunlightSeen = new Set<EntityId>();
   readonly statueSeen = new Set<string>();
+  /** 25 § Draughts, `lab_stink`: laboratories that spoiled a batch today, until the day's end. */
+  readonly stinks: LabStink[] = [];
 
   override init(ctx: InitContext): void {
     this.world = ctx.world;
@@ -141,6 +144,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
         else this.floorSleepers.delete(id);
       }
     }
+    if (event.type === 'ItemCrafted') this.spoiledBatch(event, ctx);
     if (event.type === 'EntitiesMoved') this.movementThoughts(event, ctx);
     let resolved = event;
     if (event.type === 'RoomQualityChanged') {
@@ -159,16 +163,62 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
       sourceMatches.set(match.thoughtId, list);
     }
     for (const def of Array.from(this.definitions.values())) {
-      if (def.id === 'saw_sunlight' || def.id === 'admired_statue') continue;
+      if (def.id === 'saw_sunlight' || def.id === 'admired_statue' || def.id === 'lab_stink') continue;
       if (!eventPredicate(def, resolved, ctx.registry)) continue;
       const targets = SOURCE_IDS.has(def.id) ? (sourceMatches.get(def.id) ?? []) : eventTargets(def, resolved, ctx);
-      for (const id of targets) if (worldPredicate(def, resolved, ctx, id)) this.give(id, def, ctx, resolved);
+      for (const id of targets) {
+        // `saw_wisp`: at most once a day, so a dwarf who still holds it does not see another.
+        if (def.id === 'saw_wisp' && this.holds(id, def, ctx.tick)) continue;
+        if (worldPredicate(def, resolved, ctx, id)) this.give(id, def, ctx, resolved);
+      }
+    }
+  }
+
+  /** The dwarf holds an unexpired thought of this row. */
+  private holds(id: EntityId, def: ThoughtDef, tick: number): boolean {
+    const index = this.indices.get(def.id);
+    const thoughts = this.world?.entities.get(id, C.Mood)?.thoughts ?? [];
+    return thoughts.some((t) => t.thought === index && currentValue(t, def, tick) !== 0);
+  }
+
+  /**
+   * 25 § Draughts, `lab_stink`: a crafted item that is the spoiled draught (its draught row's trigger
+   * is `never`) marks its workshop until the day's end. No rot pass and no miasma.
+   */
+  private spoiledBatch(event: GameEvent, ctx: TickContext): void {
+    if (!ctx.registry.hasTable('draughts')) return;
+    const item = ctx.world.entities.get(Number(event['itemId']), C.Item);
+    const typeId = item === undefined ? undefined : ctx.registry.table<{ id: string }>('items').byIndex(item.type)?.id;
+    if (typeId === undefined || ctx.registry.table<{ id: string; trigger: string }>('draughts').byId(typeId)?.trigger !== 'never') return;
+    const footprint = ctx.readers.of<BuildingsReader>('14').get(Number(event['workshopId']))?.footprint ?? [];
+    if (footprint.length === 0) return;
+    const map = ctx.world.map;
+    const xs = footprint.map((t) => map.xOf(t));
+    const ys = footprint.map((t) => map.yOf(t));
+    const until = ctx.tick - (ctx.tick % TICKS_PER_DAY) + TICKS_PER_DAY;
+    this.stinks.push({ x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys), z: map.zOf(footprint[0] as number), until });
+  }
+
+  /** `lab_stink`: a fortress dwarf who steps within `LAB_STINK_TILES` of a stinking laboratory, once while it holds the thought. */
+  private stinkThoughts(moves: readonly (readonly [EntityId, number, number])[], ctx: TickContext): void {
+    for (let k = this.stinks.length - 1; k >= 0; k -= 1) if ((this.stinks[k] as LabStink).until <= ctx.tick) this.stinks.splice(k, 1);
+    const def = this.definitions.get('lab_stink');
+    if (this.stinks.length === 0 || def === undefined) return;
+    const map = ctx.world.map;
+    for (const [id, , to] of moves) {
+      if (!map.validIndex(to) || !ctx.world.entities.has(id, C.Brain) || ctx.world.entities.get(id, C.Creature)?.faction !== 'fortress') continue;
+      const x = map.xOf(to);
+      const y = map.yOf(to);
+      const z = map.zOf(to);
+      const near = this.stinks.some((s) => s.z === z && Math.max(s.x0 - x, x - s.x1, 0) <= LAB_STINK_TILES && Math.max(s.y0 - y, y - s.y1, 0) <= LAB_STINK_TILES);
+      if (near && !this.holds(id, def, ctx.tick)) this.give(id, def, ctx);
     }
   }
 
   private movementThoughts(event: GameEvent, ctx: TickContext): void {
     const moves = event['moves'] as readonly (readonly [EntityId, number, number])[] | undefined;
     if (moves === undefined) return;
+    if (this.stinks.length > 0) this.stinkThoughts(moves, ctx);
     const map = ctx.world.map;
     const buildings = ctx.readers.of<BuildingsReader>('14');
     const items = ctx.readers.of<ItemsReader>('13');
@@ -259,7 +309,8 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
       hourlyDue: this.firstTick || this.hourDue, lastHearthTier: this.lastHearthTier,
       dayOffUntil: Array.from(this.dayOffUntil).sort((a, b) => a[0] - b[0]),
       sunlightSeen: Array.from(this.sunlightSeen).sort((a, b) => a - b),
-      statueSeen: Array.from(this.statueSeen).sort().map((key) => key.split(':').map(Number) as [EntityId, EntityId, number]) };
+      statueSeen: Array.from(this.statueSeen).sort().map((key) => key.split(':').map(Number) as [EntityId, EntityId, number]),
+      ...(this.stinks.length === 0 ? {} : { labStinks: this.stinks.map((st) => ({ ...st })) }) };
   }
 
   deserialize(state: MoraleStateV1, ctx: InitContext): void {
@@ -278,6 +329,8 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     for (const id of state.sunlightSeen ?? []) this.sunlightSeen.add(id);
     this.statueSeen.clear();
     for (const [id, statue, season] of state.statueSeen ?? []) this.statueSeen.add(`${id}:${statue}:${season}`);
+    this.stinks.length = 0;
+    for (const st of state.labStinks ?? []) this.stinks.push({ ...st });
     this.firstTick = false;
   }
 }

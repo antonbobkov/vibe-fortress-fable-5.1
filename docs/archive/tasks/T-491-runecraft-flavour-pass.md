@@ -1,10 +1,12 @@
 # T-491 — Runecraft flavour pass: small fun rules brought back
 
-**Source:** [flavour report](../../reports/audits/2026-11-03-flavour-left-out.md) (items 4, 5, 6, 9, 10, 14, 15, 16), the owner on 2026-11-04 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-04, in 36c2d042.
+
+**Source:** [flavour report](../../../reports/audits/2026-11-03-flavour-left-out.md) (items 4, 5, 6, 9, 10, 14, 15, 16), the owner on 2026-11-04 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
-The owner asked for the fun magic features cut for cost to come back where they add little complexity. Each is a small rule on a seam that now exists. Each is a fun feature: removable if it breaks game logic ([`docs/fun-features.md`](../fun-features.md)).
+The owner asked for the fun magic features cut for cost to come back where they add little complexity. Each is a small rule on a seam that now exists. Each is a fun feature: removable if it breaks game logic ([`docs/fun-features.md`](../../fun-features.md)).
 
 ## What to do
 

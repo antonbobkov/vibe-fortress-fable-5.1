@@ -546,5 +546,21 @@
   {
     "table": "creatures",
     "id": "gloam_hexer"
+  },
+  {
+    "table": "thoughts",
+    "id": "rune_sick"
+  },
+  {
+    "table": "thoughts",
+    "id": "dosed_again"
+  },
+  {
+    "table": "thoughts",
+    "id": "saw_wisp"
+  },
+  {
+    "table": "thoughts",
+    "id": "lab_stink"
   }
 ]

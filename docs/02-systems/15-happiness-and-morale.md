@@ -58,11 +58,11 @@ The thought list fixed by this design (values and durations in `03-content/perso
 - **Standing (needs):** `hungry`, `thirsty`, `tired`, `lonely`, `uncomfortable`, `restless`, `bored`; **standing (conditions):** `no_bedroom`, `slept_on_floor_last_night`, `unburied_dead` (any dwarf corpse unburied for 3+ days), `unclothed`, `in_miasma` (while standing in it), `in_pain` (pain above threshold), `bedridden`.
 - **Food and drink:** `ate_easy_meal`, `ate_fine_meal`, `ate_lavish_meal`, `ate_raw_food`, `ate_stale_food`, `ate_in_bare_hall`, `ate_in_decent_hall`, `ate_in_fine_hall`, `ate_in_grand_hall`, `ate_in_royal_hall`, `drank_ale`, `drank_fine_drink` (wine, bellwine), `drank_water`, `drank_from_puddle` (surface water outdoors).
 - **Sleep:** `slept_in_bare_room` … `slept_in_royal_room`, `slept_in_shared_bed_room` (a bedroom not their own), `slept_on_floor`, `slept_outdoors`, `well_rested`.
-- **Social and comfort:** `talked_with_friend`, `talked_with_someone`, `sat_in_fine_room`, `hearth_visit`, `hearth_lit` (one-time, everyone), `thane_hall_grand`, `thane_hall_bare`, `admired_statue`, `saw_masterwork`, `felt_mist`, `warm_spring`.
-- **Work and skill:** `made_masterwork`, `made_fine_item`, `skill_milestone` (levels 5/10/15/20), `legendary`, `finished_big_job` (a dig of 50+ tiles finished by the fortress: everyone with mining), `harvest_in` (farmers on harvest), `first_vein` (the finder).
+- **Social and comfort:** `talked_with_friend`, `talked_with_someone`, `sat_in_fine_room`, `hearth_visit`, `hearth_lit` (one-time, everyone), `thane_hall_grand`, `thane_hall_bare`, `admired_statue`, `saw_masterwork`, `felt_mist`, `warm_spring`, `saw_wisp` (a wisp appears within 8 tiles in line of sight, at most once a day: a dwarf who holds it sees no other), `lab_stink` (a dwarf of the fortress steps within `LAB_STINK_TILES` of a laboratory that spoiled a batch today, while it does not hold the thought: 25 § Draughts).
+- **Work and skill:** `made_masterwork`, `made_fine_item`, `skill_milestone` (levels 5/10/15/20), `legendary`, `finished_big_job` (a dig of 50+ tiles finished by the fortress: everyone with mining), `harvest_in` (farmers on harvest), `first_vein` (the finder), `rune_sick` (a caster's desperate fourth vial, 25 § Vials).
 - **Weather:** `caught_in_rain`, `caught_in_storm`, `snowed_on`, `bitter_cold`, `sweltering`, `saw_sunlight` (a dwarf who has been underground for 7+ days sees the sky: positive).
 - **Loss and fear:** `dwarf_died`, `friend_died`, `pet_died`, `child_died`, `saw_death`, `masterwork_lost`, `was_wounded`, `saw_hostile`, `raid_arrived`, `thief_escaped_with_my_things` (owner of a stolen item), `lost_limb`.
-- **Pride and relief:** `raid_repelled`, `killed_hostile` (soldiers), `caravan_arrived`, `immigrants_arrived`, `buried_friend`, `memorial_placed`, `got_it_out` (after a sulk), `healed`, `came_of_age` (family), `new_hearth_hall_tier` (everyone, when the hearth hall reaches a new tier), `deep_stirred_dread` (negative, everyone, when the Deep stirs; short), `eased` (a calming draught, 25 § Draughts).
+- **Pride and relief:** `raid_repelled`, `killed_hostile` (soldiers), `caravan_arrived`, `immigrants_arrived`, `buried_friend`, `memorial_placed`, `got_it_out` (after a sulk), `healed`, `came_of_age` (family), `new_hearth_hall_tier` (everyone, when the hearth hall reaches a new tier), `deep_stirred_dread` (negative, everyone, when the Deep stirs; short), `eased` (a calming draught, 25 § Draughts; half its value for one within `CALM_REST_DAYS` of the last), `dosed_again` (that early second draught).
 
 Personality scaling (three traits per dwarf from the table): `stoic` halves negatives; `sensitive` multiplies both by 1.3; `gregarious` doubles social thoughts and lonely; `solitary` halves social thoughts and lonely; `brave` halves fear thoughts; `timid` doubles them; `patient` halves restless; `restless` doubles it and `bored`; `tidy` doubles `in_miasma`; `messy` halves it; `greedy` doubles `thief_escaped_with_my_things` and `saw_masterwork`; `ascetic` halves room thoughts both ways. `personalityBase` is +3 for `stoic` and `brave`, −3 for `sensitive` and `timid`, 0 otherwise, summed.
 
@@ -104,6 +104,7 @@ Masterwork sight thoughts consume 10's `SawMasterwork` event on room entry. Its 
 - `hallSpirit`, `hallSpiritTier`.
 - Saved `hourlyDue`: a pending mood/hall-spirit recomputation, including the initial recomputation before the first system tick. Loading restores that pending work; saving neither executes it nor advances the clock. Once the initial recomputation has run, loading does not schedule it again.
 - Rng stream (sulk target choice).
+- `labStinks`: the laboratories that spoiled a batch today, each its footprint's bounds and the tick the day ends; an `ItemCrafted` of the spoiled draught (its draught row's trigger is `never`) adds its workshop. Expired marks are dropped at the next move. Saved, omitted when empty.
 
 ## Interfaces
 
@@ -121,7 +122,7 @@ None.
 
 ### Events consumed
 
-`HourPassed` (recompute), `DayPassed` (sulks, standing conditions), every event referenced by a thought row (declared from the table at init), `RoomQualityChanged`, `HearthLit`, `Buried`, `CorpseCreated`.
+`HourPassed` (recompute), `DayPassed` (sulks, standing conditions), every event referenced by a thought row (declared from the table at init), `RoomQualityChanged`, `HearthLit`, `Buried`, `CorpseCreated`, `ItemCrafted` (a spoiled batch marks its laboratory for `lab_stink`), `EntitiesMoved` (`saw_sunlight`, `admired_statue`, `lab_stink`).
 
 ### Events emitted
 
@@ -149,6 +150,7 @@ Panel `mood`; inspector section `creature › mood` (mood, tier, thoughts sorted
 | `HEARTH_TIER_BONUS` | 2 | Per hearth hall tier index (bare 0 … royal 5) |
 | `SULK_DAYS` | 7 | Consecutive days Miserable before a sulk (*unmeasured*) |
 | `UNBURIED_DAYS` | 3 | *unmeasured* |
+| `LAB_STINK_TILES` | 3 | A dwarf this close to a laboratory that spoiled a batch today (the larger axis distance to its footprint, on its level) gets `lab_stink` (*unmeasured*) |
 
 Thought values, durations and decay shapes are content; `MOOD_BASELINE` is global.
 

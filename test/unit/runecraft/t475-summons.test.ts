@@ -133,7 +133,8 @@ describe('T-475 content and constants', () => {
     expect(recipes.slice(glow, glow + 2)).toEqual(['make_wand_glowstone', 'make_staff_glowstone']);
     expect(registry.table<{ id: string; value: number; hours: number; group: string; trigger: { event?: string } }>('thoughts').byId('summon_turned'))
       .toMatchObject({ value: { formula: '−4' }, hours: 48, group: 'fear', trigger: { event: 'SummonTurned', target: '(everyone)' } });
-    expect(registry.table('thoughts').ids().at(-1)).toBe('summon_turned');
+    // T-491's thoughts number after it.
+    expect(registry.table('thoughts').ids().indexOf('summon_turned')).toBeLessThan(registry.table('thoughts').ids().indexOf('rune_sick'));
     // T-476's two milestones number after it.
     expect(registry.table('milestones').ids().slice(-3)).toEqual(['m_summon', 'm_stone_set', 'm_runecaster']);
     expect([SUMMON_TICKS, MAX_SUMMONS_PER_CASTER, SHADE_TURN_PERMILLE]).toEqual([1200, 2, 50]);
