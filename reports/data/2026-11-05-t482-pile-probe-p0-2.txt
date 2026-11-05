@@ -1,0 +1,15 @@
+day 10 hearth - heaps - crowded hall - tames dog,dog,cat
+day 20 hearth 60320 heaps 60271[dog* dog* cat*] crowded hall - tames dog,dog,cat
+day 30 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog
+day 40 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog
+day 50 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog
+day 60 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog
+day 70 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,cat,dog,dog
+day 80 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,dog,dog
+day 90 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,dog,dog
+day 100 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,dog,dog
+day 110 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,dog,dog
+day 120 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,dog,dog,dog,dog,dog
+day 130 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,dog,dog,dog,dog,dog
+day 140 hearth 60320 heaps 60271[dog* dog* dog* dog*] crowded hall - tames dog,dog,cat,dog,dog,dog,dog,dog,dog,dog,dog,dog,dog,dog
+hall {"samples":216000,"slowed":224,"worst":4,"longestTicks":360,"capped":0} doors {"samples":14400,"slowed":0,"worst":0,"longestTicks":0,"capped":0}
