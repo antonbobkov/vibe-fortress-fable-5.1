@@ -144,6 +144,12 @@ export class AnnouncementLog {
       if (typeof speciesOf === 'number') out['species'] = table.byIndex(speciesOf)?.name ?? '';
       else if (typeof speciesOf === 'string') out['species'] = table.byId(speciesOf)?.name ?? speciesOf;
     }
+    // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs."
+    if (event.type === 'HostileFled') {
+      const species = typeof speciesOf === 'number' ? speciesOf : readers.entities.get(Number(e['id']), C.Creature)?.species;
+      const name = this.formatCreatureName(undefined, species);
+      out['raider'] = name.charAt(0).toUpperCase() + name.slice(1);
+    }
     const skill = e['skill'];
     if (typeof skill === 'string' && this.registry.hasTable('skills')) {
       out['skill'] = this.registry.table<NamedRow>('skills').byId(skill)?.name ?? skill;

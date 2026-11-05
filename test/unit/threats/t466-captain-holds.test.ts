@@ -128,7 +128,7 @@ describe('T-466 the captain holds the party together', () => {
     expect(ending(w, partyId)).toBe('repelled');
   });
 
-  it('a siege breaks only when every captain is lost', () => {
+  it('a siege takes the loss of its captains only when every one is lost, and (T-504) is shaken, not broken, by it', () => {
     const { w, partyId } = raid('t466-siege-captains', 'siege', 20);
     const party = () => w.game.world.entities.get(partyId, C.Party)!;
     w.until(() => (party().captainIds?.length ?? 0) >= 2, 200);
@@ -137,9 +137,11 @@ describe('T-466 the captain holds the party together', () => {
     cage(w, first!);
     w.step(60);
     expect(party().state).not.toBe('retreat');
+    expect(party().captainLost).toBeUndefined();
     cage(w, second!);
     w.step(60);
-    expect(party().state).toBe('retreat');
+    expect(party().captainLost).toBe(true);
+    expect(party().state).not.toBe('retreat');
   });
 
   it('the captains survive a save: a raid loaded and then robbed of its captain is repelled', () => {

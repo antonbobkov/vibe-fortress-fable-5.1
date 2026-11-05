@@ -112,6 +112,12 @@ export function drawThreatsPanel(
       if (p) {
         label(s, col, row, `Active: ${p.purpose} (${p.members.length}, ${p.state})`, { fg: t.bad, width });
         row += 1;
+        // 18 § Morale: the party's morale in words, on a line of its own, while it has not broken.
+        const morale = p.state === 'retreat' ? '' : threats?.moraleWord(pId) ?? '';
+        if (morale !== '' && row < rect.row + rect.rows) {
+          label(s, col, row, `  Morale: ${morale}`, { fg: t.bad, width });
+          row += 1;
+        }
       }
     }
   }

@@ -321,6 +321,8 @@ describe('T-M1-14 announcements', () => {
       MonsterSpawned: 'note',
       DeepStirred: 'danger',
       RestlessRose: 'alert',
+      // T-504: 18 § Registrations (a raider that lost its nerve; a flight on blood is not announced).
+      HostileFled: 'note',
       // T-M7-10: the rows the system documents name that no earlier task registered.
       // 04 § Player-facing behavior, 05 § Player-facing behavior.
       MistProduced: 'note',

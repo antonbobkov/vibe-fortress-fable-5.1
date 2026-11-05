@@ -31,6 +31,7 @@ import {
   THIEF_WAIT_DAYS,
   THIEF_APPROACH_DAYS,
 } from './constants';
+import { countCaptainLoss, countCasualty, hasMorale, moraleBroken, moraleOf, nerveOf, steadyByLoot } from './morale';
 
 interface FortressTarget {
   id: EntityId;
@@ -425,6 +426,7 @@ export function pickUpLoot(m: EntityId, lootId: EntityId, P: Party, ctx: TickCon
   if (it) {
     if (!P.loot.includes(lootId)) {
       P.loot.push(lootId);
+      steadyByLoot(P);
     }
     if (ctx.world.services.items) {
       ctx.world.services.items.attachToCarrier(lootId, m);
@@ -443,6 +445,7 @@ export function pickUpLoot(m: EntityId, lootId: EntityId, P: Party, ctx: TickCon
   if (animal) {
     if (!P.loot.includes(lootId)) {
       P.loot.push(lootId);
+      steadyByLoot(P);
     }
     const p = entities.get(lootId, C.Position);
     if (p) {
@@ -797,18 +800,31 @@ export function chooseGoal(P: Party, ctx: TickContext): void {
 
 /**
  * 18 § Party AI, Retreat: the captain holds the party together. A party that arrived with captains
- * and has none still standing with it (dead, unconscious, caged or gone from the map) fights on
- * while it is engaged, and goes home as soon as it is not: it neither approaches nor loiters.
+ * and has none still standing with it (dead, unconscious, caged or gone from the map) has lost them.
  */
 function captainsLost(P: Party, standing: readonly EntityId[]): boolean {
   const captains = P.captainIds ?? [];
   return captains.length > 0 && !captains.some((id) => standing.includes(id));
 }
 
-/** 18 § Party AI, Retreat: the casualties, or the loss of its captains out of a fight, break a party. */
-function broken(P: Party, standing: readonly EntityId[]): boolean {
+/**
+ * 18 § Party AI, Retreat; § Morale: half the party lost breaks it (the floor of the morale scale),
+ * as does a morale fallen to its breaking point; the loss of its captains is a large drop in it,
+ * taken once, and a leaderless party out of a fight breaks sooner.
+ */
+function broken(P: Party, standing: readonly EntityId[], ctx: TickContext): boolean {
+  // A member caged or down that no event has counted yet (a save from before morale) counts now.
+  const entities = ctx.world.entities;
+  for (const m of P.members) {
+    const H = entities.get(m, C.Hostile);
+    if (H === undefined || standing.includes(m)) continue;
+    if ((entities.get(m, C.Creature)?.cagedIn ?? 0) !== 0) countCasualty(P, H, 'caged');
+    else if (entities.get(m, C.Body)?.conscious === false) countCasualty(P, H, 'down');
+  }
+  const leaderless = captainsLost(P, standing);
+  countCaptainLoss(P, leaderless);
   return ((P.members.length - standing.length) * 100) / P.members.length >= RETREAT_LOSS_PERCENT ||
-    (P.state !== 'engage' && captainsLost(P, standing));
+    moraleBroken(P, leaderless);
 }
 
 /** Unconscious casualties are still living members; only actual deaths can wipe a party. */
@@ -842,7 +858,7 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
     return;
   }
 
-  if (broken(P, alive)) {
+  if (broken(P, alive, ctx)) {
     P.state = 'retreat';
     P.stateSince = ctx.tick;
     P.outcome = P.loot.length > 0 ? 'looted' : 'repelled';
@@ -885,7 +901,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
     }
   }
 
-  if (P.state !== 'retreat' && P.state !== 'gone' && P.purpose !== 'restless' && broken(P, alive)) {
+  if (P.state !== 'retreat' && P.state !== 'gone' && P.purpose !== 'restless' && broken(P, alive, ctx)) {
     P.state = 'retreat';
     P.stateSince = ctx.tick;
     P.outcome = P.loot.length > 0 ? 'looted' : 'repelled';
@@ -1032,6 +1048,25 @@ function keepHeldTarget(m: EntityId, pos: TileIndex, found: EntityId, isArcher: 
   return held;
 }
 
+/**
+ * 18 § Morale, Nerve: the raider runs for its edge and leaves the map; it drops the loot it holds
+ * on its tile, and its flight costs its party morale again (counted when the flight begins).
+ */
+function loseNerve(m: EntityId, H: Hostile, P: Party, pos: TileIndex, ctx: TickContext): void {
+  H.nerveLost = true;
+  const entities = ctx.world.entities;
+  for (const lootId of P.loot.slice()) {
+    if (entities.get(lootId, C.Item)?.carriedBy !== m) continue;
+    ctx.world.services.items?.dropAt(lootId, pos);
+    P.loot = P.loot.filter((id) => id !== lootId);
+  }
+  ctx.world.services.combat?.clearTarget(m);
+  ctx.emit({ type: 'HostileFled', id: m, nerve: true, species: entities.get(m, C.Creature)?.species ?? 0 });
+  H.behaviorState = 'flee';
+  countCasualty(P, H, 'fled');
+  checkPartyCasualties(H.partyId, P, ctx);
+}
+
 export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
   if (!entities.alive(m)) return;
@@ -1066,17 +1101,30 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
     return;
   }
 
-  // 3. Fleeing on low blood
+  // 3. Losing its nerve (18 § Morale, Nerve): below its nerve the raider runs on its own, for good.
+  if (P !== undefined && H.nerveLost !== true && P.state !== 'retreat' && hasMorale(P) && moraleOf(P) < nerveOf(m, H, ctx)) {
+    loseNerve(m, H, P, pos, ctx);
+  }
+
+  // 3b. Fleeing on low blood, or with its nerve lost
   if (P?.purpose !== 'restless' && body && body.maxBlood > 0) {
     const creature = entities.get(m, C.Creature);
     if (creature && creature.faction !== 'deep') {
       const spTable = ctx.registry.table<{ id: string; temper: string; fleeBloodPercent: number | null }>('creatures');
       const sp = spTable.byIndex(creature.species);
       const fleeThresh = sp?.fleeBloodPercent ?? (sp?.temper === 'aggressive' ? null : 50);
-      if (fleeThresh !== null && ((body.blood / body.maxBlood) * 100) < fleeThresh) {
+      if (H.nerveLost === true || (fleeThresh !== null && ((body.blood / body.maxBlood) * 100) < fleeThresh)) {
         if (H.behaviorState !== 'flee') {
           H.behaviorState = 'flee';
           ctx.emit({ type: 'HostileFled', id: m });
+          if (P !== undefined) {
+            countCasualty(P, H, 'fled');
+            checkPartyCasualties(H.partyId, P, ctx);
+            if (P.state === 'retreat') {
+              retreatMember(m, H, P, pos, ctx);
+              return;
+            }
+          }
         }
         const edge = P?.edge ?? 'n';
         const edgeTile = getNearestEdgeTile(pos, edge, ctx);

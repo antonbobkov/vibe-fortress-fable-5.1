@@ -30,6 +30,7 @@ import {
   PARTY_HISTORY_DAYS,
 } from './constants';
 import { arriveParty, forgetDestroyedLoot, spawnHostileMember } from './parties';
+import { countCasualty, shakeByOwnFire, shakeByTrap, steadyPartiesThatFelled } from './morale';
 import { makeThreatsReader, type ThreatsReader } from './reader';
 import {
   calculatePartySize,
@@ -117,6 +118,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     'CreatureDied',
     'CreatureUnconscious',
     'TrapTriggered',
+    'AttackResolved',
     'DoorBroken',
     'EntitiesMoved',
     'TilesChanged',
@@ -199,6 +201,12 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     ctx.register.announcement('RaidEnded', {
       severity: 'note',
       stringKey: 'announce.raid_ended',
+    });
+    // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs." (a flight on blood is not announced).
+    ctx.register.announcement('HostileFled', {
+      severity: 'note',
+      stringKey: 'announce.raider_lost_nerve',
+      oneOf: { field: 'nerve', values: [true] },
     });
     ctx.register.announcement('ThiefSpotted', {
       severity: 'alert',
@@ -451,8 +459,12 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         const P = ctx.world.entities.get(partyId, C.Party);
         if (P) {
           if (event.type === 'CreatureDied') releaseStolenAnimals(cId, event['tile'] as TileIndex, P, ctx);
+          // 18 § Morale: a member killed or downed costs its party morale (its worst counts once).
+          if (H !== undefined) countCasualty(P, H, event.type === 'CreatureDied' ? 'dead' : 'down');
           checkPartyCasualties(partyId, P, ctx);
         }
+      } else if (event['faction'] === 'fortress' || ctx.world.entities.get(cId, C.Creature)?.faction === 'fortress') {
+        steadyPartiesThatFelled(ctx, cId, event.type === 'CreatureDied' ? Number(event['killerId'] ?? 0) : 0);
       }
     } else if (event.type === 'SummonTurned') {
       // 25 § Summons: a turned summon is Hollow-born from the tile it came through on, and comes through hidden.
@@ -484,8 +496,25 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
             }
           }
           // 18 § Party AI, Retreat: a caged member is a casualty at once, as a death or a fall is.
-          if (P !== undefined && event['outcome'] === 'caged') checkPartyCasualties(H.partyId, P, ctx);
+          // 18 § Morale: a trap that springs and does not miss shakes the party.
+          if (P !== undefined) {
+            const outcome = event['outcome'];
+            if (outcome !== 'miss' && outcome !== 'parried' && outcome !== 'blocked') shakeByTrap(P);
+            if (outcome === 'caged') countCasualty(P, H, 'caged');
+            checkPartyCasualties(H.partyId, P, ctx);
+          }
         }
+      }
+    } else if (event.type === 'AttackResolved') {
+      // 18 § Morale: a hit from one of its own (a careless archer's arrow) shakes the party.
+      if (event['outcome'] !== 'hit') return;
+      const a = ctx.world.entities.get(event['attackerId'] as EntityId, C.Hostile);
+      const d = ctx.world.entities.get(event['defenderId'] as EntityId, C.Hostile);
+      if (a === undefined || d === undefined || a.partyId === 0 || a.partyId !== d.partyId) return;
+      const P = ctx.world.entities.get(a.partyId, C.Party);
+      if (P !== undefined) {
+        shakeByOwnFire(P);
+        checkPartyCasualties(a.partyId, P, ctx);
       }
     } else if (event.type === 'DoorBroken') {
       const doorId = event['id'] as EntityId;
