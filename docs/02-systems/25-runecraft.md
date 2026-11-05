@@ -529,6 +529,7 @@ All *unmeasured* unless the row says what was measured. Rows move to `src/system
 Each task's work file lists its own. Together:
 
 - A glowcap on a dark tile under a lamp grows. With the lamp removed, or on a lit tile, it does not. No dwarf eats or cooks one.
+- A glowcap on a dark tile with no lamp grows while a creature wearing a `glowing` piece stands on its 3×3, and stops when the wearer walks on; the tile keeps its `lit` bit, has no lamp coverage, and a cave plot under the wearer stays a cave plot.
 - Two glowcap make one vial. A dwarf with no `runecraft` never claims a channel and casts nothing.
 - A Dabbling apprentice with 5 rune and a wand of embers casts five bolts, then clubs.
 - The worked numbers above hold exactly.
