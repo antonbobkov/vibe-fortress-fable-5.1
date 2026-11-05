@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias -- the probe hooks the world it is given */
 /**
  * T-486 probe (not committed as a test): a seed of the three-year file through its own
  * `runThreeYearsSeed`, journalling every hostile party and every dwarf death.
