@@ -32,6 +32,14 @@ export interface HintFacts {
   foodShort?: boolean;
   noMiners?: boolean;
   noPath?: boolean;
+  /** 25 § Player-facing behavior: the runecraft hints, each on stock or buildings. */
+  glowcapSeeds?: boolean;
+  runeforgePlaced?: boolean;
+  runeforgeBuilt?: boolean;
+  channelInStock?: boolean;
+  sanctumExists?: boolean;
+  runecasterExists?: boolean;
+  draughtInStock?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -64,6 +72,13 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_troll': return f.doorBroken;
     case 'hint_deep': return f.deepsilverFound;
     case 'hint_magma': return f.cavernTwoBreached;
+    case 'hint_glowcap': return f.glowcapSeeds === true;
+    case 'hint_runeforge': return f.runeforgePlaced === true;
+    case 'hint_staff': return f.runeforgeBuilt === true;
+    case 'hint_wand': return f.channelInStock === true;
+    case 'hint_sanctum': return f.sanctumExists === true;
+    case 'hint_rune_metal': return f.runecasterExists === true;
+    case 'hint_draught': return f.draughtInStock === true;
     default: return false;
   }
 }
@@ -224,6 +239,9 @@ export class HintEngine {
     for (const id of Array.from(bare.keys())) if (!zones('bedroom').includes(id)) bare.delete(id);
     this.ui.hintBareSince = Array.from(bare).sort((a, b) => a[0] - b[0]);
     const bareRoomDays = Math.max(0, ...Array.from(bare.values(), (since) => (cal.tick - since) / TICKS_PER_DAY));
+    const runeforges = byType('runeforge');
+    const seed = this.registry.table('items').has('seed') ? this.registry.table('items').index('seed') : -1;
+    const glowcap = this.registry.table('materials').has('glowcap') ? this.registry.table('materials').index('glowcap') : -1;
     const hunting = this.registry.table('labors').has('hunting') ? this.registry.table('labors').index('hunting') : 0;
     const hunterLabor = hunting > 0 && this.laborEnabledByDwarf(readers, hunting);
     return {
@@ -245,6 +263,13 @@ export class HintEngine {
       immigrationSkipped: this.pending('hint_immigration'), raidEnded: this.pending('hint_gate'),
       cageTrapBuilt: this.pending('hint_cage'), doorBroken: this.pending('hint_troll'),
       deepsilverFound: this.pending('hint_deep'), cavernTwoBreached: this.pending('hint_magma'),
+      glowcapSeeds: items !== null && seed >= 0 && glowcap >= 0 && items.countMatching({ type: seed, materialId: glowcap }) > 0,
+      runeforgePlaced: runeforges.length > 0,
+      runeforgeBuilt: runeforges.some((id) => buildings?.get(id)?.state === 'built'),
+      channelInStock: (items?.count('wand') ?? 0) + (items?.count('staff') ?? 0) > 0,
+      sanctumExists: zones('sanctum').length > 0,
+      runecasterExists: readers.entities.with(C.Rune).some((id) => readers.entities.get(id, C.Creature)?.faction === 'fortress'),
+      draughtInStock: items !== null && items.countMatching({ tag: 'draught' }) > 0,
     };
   }
 }

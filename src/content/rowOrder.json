@@ -630,5 +630,33 @@
   {
     "table": "recipes",
     "id": "set_weapon_ember_gland"
+  },
+  {
+    "table": "hints",
+    "id": "hint_glowcap"
+  },
+  {
+    "table": "hints",
+    "id": "hint_runeforge"
+  },
+  {
+    "table": "hints",
+    "id": "hint_staff"
+  },
+  {
+    "table": "hints",
+    "id": "hint_wand"
+  },
+  {
+    "table": "hints",
+    "id": "hint_sanctum"
+  },
+  {
+    "table": "hints",
+    "id": "hint_rune_metal"
+  },
+  {
+    "table": "hints",
+    "id": "hint_draught"
   }
 ]
