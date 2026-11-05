@@ -4,7 +4,7 @@
 
 T-487 found that job 4988 (`plant:74899`, the surface plot tile 19, 24, 32) in `three-years-p4-4` is not stopped by a failed fetch walk. A probe that wrapped `JobBoard.unclaim` and logged every fetch walk that failed while the labels joined the worker to the item logged none in the whole run to day 251, yet the job was blocked `unreachable` with `failedWalk` at tick 301,200 exactly as before (same job id, same tick: the T-487 fetch change did not move the timeline). The walk that failed is therefore the delivery walk: the job is `fetching` while the worker carries the seed to the plot, and a plant job's delivery tile is the plot tile itself (`workTile` `at`). The pathfinder found no route to it although the connectivity labels joined the worker to it, and all 28 workers with the labor had a reachable stand tile.
 
-T-487 makes such a job retry after `FAILED_WALK_RETRY_TICKS` when no trigger comes, so it is no longer lost. It does not say why the route failed. Candidates, none checked:
+T-487 makes such a job retry after `FAILED_WALK_RETRY_TICKS` when no trigger comes, so it is no longer lost: with it, `three-years-p4-4` plays its three years without the finding. It does not say why the route failed. Candidates, none checked:
 
 - the labels do not see forbidden traffic, and the pathfinder does (the script forbids workshop corners while it builds them);
 - a `lock_on_alert` gate door whose lock depends on the tick and on its doorway (`doorLocked` during an alert's grace), so that the pathfinder and the labels disagree for a while;
@@ -18,4 +18,4 @@ T-487 makes such a job retry after `FAILED_WALK_RETRY_TICKS` when no trigger com
 ## Done
 
 - The cause is named in a report, and fixed or filed.
-- `three-years-p4-4` with hexers plays its three years without the finding.
+- `three-years-p4-4` still plays its three years without the finding.
