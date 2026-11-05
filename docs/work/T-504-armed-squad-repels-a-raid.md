@@ -1,4 +1,4 @@
-# T-504 — A well-armed squad repels a raid in a fight
+# T-504 — Raid morale: raiders lose nerve, and a well-armed squad repels a raid
 
 **Source:** T-466's [report](../../reports/audits/2026-11-05-t466-defence-repels-a-raid.md), the owner's decision on 2026-11-04 · **Size:** M · **Needs:** — · **Status:** open
 
@@ -17,3 +17,14 @@ The owner: "a well-armed squad should be able to repel a raid." T-466 made raids
 
 - Arena figures before and after, in a dated report and `balance-status.md`.
 - `defence_year_seeds` still passes its set rule; the twenty-seed file (on GitHub) keeps its set rule.
+
+## Decision: raid morale (the owner, 2026-11-05)
+
+The owner: "Raiding party can lose morale and run away, but ideally it would be something more than leader death. Maybe if >50% of the party is defeated. Also a fun mechanic to have a morale, and raiders with low morale lose nerve sooner." So T-466's captain rule becomes one input to a morale rule, not the whole of it:
+
+- **Party morale**, 0 to 100, starting by purpose (a siege steadier than a raid, bandits the least). It falls when a member is killed, downed or caged (more for each), when its captain is lost (a large drop, not an instant retreat), when a trap or a hit from its own careless archers lands, and rises a little with loot taken. When it falls to a breaking point the party retreats: `repelled` without loot, `looted` with. Losing half the party should break it on its own, so the existing 50% rule is the floor of the same scale.
+- **Each raider's nerve.** Raiders differ: one with low nerve flees on its own once party morale falls below its nerve, before the party breaks. It leaves the map, may drop what it carries, and its flight lowers morale again, so a rout can cascade. Nerve comes from the species or role (a captain steadiest) and a per-raider spread; it must not draw on 18's stream at spawn (T-479's lesson): derive it from the entity, or use its own stream.
+- **Readable:** the threats panel shows a party's morale in words (steady, shaken, wavering, breaking), and a raider that loses its nerve gets a short note ("A Gloam warrior has lost its nerve and runs.").
+- It is a fun feature: list it in `docs/fun-features.md` when it lands. Its numbers are *unmeasured* constants.
+
+The measurement above then also covers morale: in the arena, how often a Skilled squad breaks a raid of ten before it loots, and how often a rout cascades.
