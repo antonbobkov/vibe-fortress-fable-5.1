@@ -185,7 +185,7 @@ npm run golden:update    scripts/golden-update.mjs <name>
 npm run gate             all of the checks above, then writes reports/gates/<label>-gate.md (label: an argument, or the date)
 ```
 
-CI runs only on demand. `.github/workflows/ci.yml` runs `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check`, `test`, `build` and `test:e2e`. `.github/workflows/measure.yml` runs one heavy measurement, such as the twenty-seed sweep with one job per seed. How to start one and read its results: [tooling.md § Running a measurement on GitHub](../04-implementation/tooling.md#running-a-measurement-on-github).
+CI runs only on demand. `.github/workflows/ci.yml` runs `lint`, `typecheck`, `content:check`, `strings:check`, `interface:check`, `docs:check`, `test`, `build` and `test:e2e`. `.github/workflows/measure.yml` runs one heavy measurement, such as the twenty-seed sweep with one job per seed. How to start one and read its results: [tooling.md § Running tests on GitHub](../04-implementation/tooling.md#running-tests-on-github).
 
 ## The docs link check
 

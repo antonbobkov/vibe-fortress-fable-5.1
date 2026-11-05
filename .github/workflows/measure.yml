@@ -102,7 +102,7 @@ jobs:
         shell: bash
       - name: The run tested something
         if: always()
-        run: "! grep -qE 'Tests +[0-9]+ skipped|No test files found' out/*.log"
+        run: "! sed 's/\\x1b\\[[0-9;]*m//g' out/*.log | grep -qE 'Tests +[0-9]+ skipped|No test files found'"
         shell: bash
       - if: always()
         uses: actions/upload-artifact@v4

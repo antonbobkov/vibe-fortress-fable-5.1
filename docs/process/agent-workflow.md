@@ -57,7 +57,9 @@ npm run lint && npm run typecheck && npm run content:check && npm run strings:ch
 npx vitest run <the test files of every module changed, and every scenario that plays those systems>
 ```
 
-The full `npm test` runs once, on `master`, after the merge and before the push; the orchestrator runs it. An agent runs the full `npm test` itself only when the task says so or when it cannot tell which tests a change affects (a change to a shared helper, the job board, items, pathfinding or the save format). After any fix that follows a failure, re-run the whole set of commands again, not only the file that failed.
+**Long tests run on GitHub, not locally** (the owner, 2026-11-05). Any test that takes six minutes or more locally runs through GitHub Actions: the full `npm test`, the e2e suite, the annual instrument, the twenty-seed sweep, `three_years_main` and `defence_year`. Push the branch, start the run, and read its result as [tooling.md § Running tests on GitHub](../04-implementation/tooling.md#running-tests-on-github) says. The static checks, single test files, the arenas, `pp_defence` and one-seed probes stay local.
+
+The full `npm test` runs once, on the merge commit, before `master` moves; the orchestrator runs it on GitHub. An agent runs the full `npm test` itself, on GitHub, only when the task says so or when it cannot tell which tests a change affects (a change to a shared helper, the job board, items, pathfinding or the save format). After any fix that follows a failure, re-run the whole set of commands again, not only the file that failed.
 
 | Command | What it checks |
 |---|---|
@@ -67,15 +69,17 @@ The full `npm test` runs once, on `master`, after the merge and before the push;
 | `npm run strings:check` | every string key that is used exists, and every key that exists is used |
 | `npm run interface:check` | each system document's Interfaces section against the readers, events and commands in the code; it also fails on any line of the specification that starts with `Implementation note:` |
 | `npm run docs:check` | no relative link in `docs/`, `reports/`, `agents/` or the root `README.md` points at a file that does not exist |
-| `npm test` | unit, scenario (every scenario), property and golden tests; eight to fourteen minutes |
+| `npm test` | unit, scenario (every scenario), property and golden tests; eight to fourteen minutes locally, so run it on GitHub (`gh workflow run ci.yml --ref <branch>`) |
 
-Several of them read `docs/`, so run all of them even for a documentation-only change. Then, when the task needs it:
+Several of them read `docs/`, so run all of them even for a documentation-only change. Then, when the task needs it, on GitHub:
 
 ```
-npm run test:e2e     # every behaviour change under src/; the whole suite, with "e2e: N passed" in the commit body
-npx vitest run --config <perf config> test/perf/wildlife_year.test.ts   # every change that can move the simulation; before and after rows in the commit body
-npm run test:perf    # tasks that touch a system's tick, the job board, pathfinding, or anything with a budget in performance-budget.md; about 40 minutes
+gh workflow run ci.yml --ref <branch>                               # e2e and npm test: every behaviour change under src/; "e2e: N passed" in the commit body
+gh workflow run measure.yml --ref <branch> -f suite=instrument      # every change that can move the simulation; before and after rows in the commit body
+gh workflow run measure.yml --ref <branch> -f suite=sweep           # the twenty-seed file, when a task asks for it
 ```
+
+`npm run test:perf` (about 40 minutes) runs the per-system budgets and the long measurements together; run its long parts through `measure.yml`, and its short budget files (`per-system.test.ts`, `perf_reference.test.ts`) locally with `npx vitest run -c vitest.perf.config.ts <file>`.
 
 Never run a tool through `npx` unless it is a dependency in `package.json`.
 
