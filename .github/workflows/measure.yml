@@ -11,7 +11,7 @@ on:
         description: What to measure
         type: choice
         default: sweep
-        options: [sweep, instrument, three_years_main, scenario]
+        options: [sweep, instrument, three_years_main, scenario, timing]
       scenario:
         description: For suite=scenario, the scenario id (its file name without .scenario.ts)
         type: string
@@ -96,6 +96,9 @@ jobs:
         env:
           THREE_YEARS_OUT: out/three-years.json
         run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/three_years_main.test.ts 2>&1 | tee out/three-years-main.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: inputs.suite == 'timing'
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/per-system.test.ts test/perf/perf_reference.test.ts 2>&1 | tee out/timing.log; exit ${PIPESTATUS[0]}
         shell: bash
       - if: inputs.suite == 'scenario'
         run: mkdir -p out && npx vitest run test/scenarios -t "^.*${{ inputs.scenario }} \(M" 2>&1 | tee out/${{ inputs.scenario }}.log; exit ${PIPESTATUS[0]}

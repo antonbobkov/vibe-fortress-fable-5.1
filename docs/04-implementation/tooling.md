@@ -61,6 +61,7 @@ GitHub Actions runs nothing on push. Both workflows start only on demand. Golden
 | | `instrument`: the annual wildlife instrument (`test/perf/wildlife_year.test.ts`) | about 10 minutes |
 | | `three_years_main`: the long economy run (`test/perf/three_years_main.test.ts`) | about 8 minutes |
 | | `scenario`, with input `scenario=<id>`: one scenario from `test/scenarios`, such as `defence_year` or `pp_defence` | a few minutes |
+| | `timing`: the timing tests (`test/perf/per-system.test.ts`, `test/perf/perf_reference.test.ts`), to see how quiet a runner is | a few minutes |
 
 The repository is public, so the runners (4 vCPU, 16 GB) cost nothing. A job stops at 6 hours. Runs on GitHub give the same numbers as local runs: the annual instrument's row matched the local reference exactly on 2026-11-05.
 
