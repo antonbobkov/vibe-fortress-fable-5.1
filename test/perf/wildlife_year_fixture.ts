@@ -98,6 +98,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     ...(options.brook === undefined ? {} : { river: { class: 'brook' as const, inflow: [options.brook === 'west' ? 'w' as const : 'n' as const], outflow: 's' as const } }),
     nearestEdgeTo: { mountainhome: 'w', hillfolk: 'w', wildwood: 'w', gloam: 'w' } });
   const game = new HeadlessGame({ seed, world: 'local', spec, embark: 'default' });
+  game.step(1); // T-482's second sample: the same code one tick later (not kept)
   const world = game.world;
   const entities = world.entities;
   const map = game.map;
