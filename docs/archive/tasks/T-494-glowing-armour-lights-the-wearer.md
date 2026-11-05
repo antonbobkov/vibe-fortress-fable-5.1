@@ -1,6 +1,8 @@
 # T-494 — `glowing` armour lights the wearer's tile
 
-**Source:** [flavour report](../../reports/audits/2026-11-03-flavour-left-out.md) (item 13) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in bf56d794,b1603733,aa7bc552,b297b3d7,45ae3071.
+
+**Source:** [flavour report](../../../reports/audits/2026-11-03-flavour-left-out.md) (item 13) · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-04): "I like all of these, let's try to make it work (but drop if too complex)."
 
@@ -11,7 +13,7 @@ The owner (2026-11-04): "I like all of these, let's try to make it work (but dro
 - The bonus from the report: glowcap under a glowing dwarf standing still grows while lit, by the ordinary glow rule.
 - Render: a glowing wearer's tile and its neighbours read as lit in the view, if the renderer shows light.
 
-**Drop rule.** This is a fun feature, and the owner said to drop it if it is too complex. If the plainest version needs a new mechanism much larger than the effect, or breaks a set rule that a small change cannot fix, stop, commit the findings, and report it as dropped with the reason. That is a valid outcome. If it lands, list it in [`docs/fun-features.md`](../fun-features.md) § In the game, marked removable.
+**Drop rule.** This is a fun feature, and the owner said to drop it if it is too complex. If the plainest version needs a new mechanism much larger than the effect, or breaks a set rule that a small change cannot fix, stop, commit the findings, and report it as dropped with the reason. That is a valid outcome. If it lands, list it in [`docs/fun-features.md`](../../fun-features.md) § In the game, marked removable.
 
 ## Done
 

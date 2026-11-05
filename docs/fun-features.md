@@ -23,6 +23,7 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | A turned shade hides | A deep shade that comes through turned arrives stealthed, like a hollow stalker, until spotted. Its caster beside it usually spots it at once | 25 § Summons, Turning; 18 § The Deep | The `hidden` argument of `spawnedHollowBorn` (`threats/deep.ts`, `threats/index.ts`) |
 | `lab_stink` | After a spoiled batch, dwarves who pass within 3 tiles of that laboratory the rest of the day: "The laboratory stinks." | 25 § Draughts, Spoiled batch; 15 § State | `spoiledBatch` and `stinkThoughts` in `morale/index.ts`, `LAB_STINK_TILES`, `labStinks`, the `lab_stink` row |
 | The Wildwood and staffs | A wand or staff offered to the Wildwood is a wooden item: −2 reputation each and a fifth of its value | 25 § Trade and value; 20 § The session | `tradeClass` in `trade/valuation.ts` |
+| Glowing armour lights the wearer | A piece set with glowstone lights the 3×3 around its wearer for a glowcap, as a lamp does: a glowcap whose lamp is gone grows while a glowing dwarf stands beside it, and stops when they walk on. The view tints the 3×3 in dim cyan. It is no lamp for anything else (no `lit` flag, no glow plot) | [07](02-systems/07-plants-and-farming.md) § Growth `lightOk`; 25 § Enchantments in combat `light`, § Player-facing behavior | Removable: drop the `light` effect from the `glowing` row in weapons-and-armor.md, the `wornLightAt` call in `plants/index.ts` `grow`, and `indexGlow`/`glowOver` in `render/compositor.ts` |
 
 ## Planned
 
@@ -32,7 +33,6 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | Pets pile on a favourite spot by the hearth, off the main path | [T-482](work/T-482-tame-animal-stale-walk.md) | 2 |
 | Remains and venom: `venomed` blades from giant cave spider venom; the ember newt's gland as an `ember` stone; knapped obsidian and bone blades | [T-492](work/T-492-remains-venom-and-knapped-blades.md) | 7, 8, 11 |
 | Hexers cast Dread on dwarves, and `calm` armour answers it (drop if too complex) | [T-493](work/T-493-hexer-dread-and-calm-armour.md) | 12 |
-| `glowing` armour lights the wearer's 3×3, and glowcap grows under a glowing dwarf standing still (drop if too complex) | [T-494](work/T-494-glowing-armour-lights-the-wearer.md) | 13 |
 | A dead runecaster's wand among an old battlefield's arms (drop if too complex) | [T-495](work/T-495-wand-on-an-old-battlefield.md) | 17 |
 
 ## Candidates, not yet planned

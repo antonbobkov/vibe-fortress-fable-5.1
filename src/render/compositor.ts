@@ -63,6 +63,7 @@ import type { CombatReader } from '@systems/combat';
 import { blend, brighten } from './palette';
 import { DESIGNATION_PULSE_FACTOR, HILL_LEVELS_ABOVE, ZONE_TINT_ALPHA } from './constants';
 import type { TerrainReader } from '@systems/terrain';
+import { wearsLight } from '@systems/magic/enchant';
 
 interface PlantGlyphRow {
   readonly id: string;
@@ -185,6 +186,11 @@ export class Compositor {
   /** 25 § Player-facing behavior: a firebloom's 3×3, by its centre tile, shown in `ember_orange` until this frame. */
   private readonly bloomUntil = new Map<TileIndex, number>();
   private readonly emberOrange: Rgb;
+  /** 25 § Player-facing behavior: a glowing wearer's 3×3 this frame, 2 on the wearer's own tile and 1 around it. */
+  private readonly glowTiles = new Map<TileIndex, number>();
+  private readonly glowHalo: Rgb;
+  private readonly glowCore: Rgb;
+  private readonly registry: Registry;
   private readonly stations = new Set<TileIndex>();
   private readonly patrols = new Set<TileIndex>();
   private readonly projectiles = new Map<TileIndex, EntityId>();
@@ -243,6 +249,9 @@ export class Compositor {
     this.snowFg = palette.color('gray');
     this.ash = palette.color('ash_gray');
     this.emberOrange = palette.color('ember_orange');
+    this.glowHalo = palette.color('glow_halo');
+    this.glowCore = palette.color('glow_core');
+    this.registry = options.registry;
 
     // Step 6: each species' glyph and color (`creatures.md`), by registry index.
     const chars = glyphChars(options.registry);
@@ -321,6 +330,7 @@ export class Compositor {
     this.stations.clear();
     this.patrols.clear();
     this.indexProjectiles(readers);
+    this.indexGlow(readers);
     if (this.frameOverlays.includes(OVERLAY_SQUAD_STATIONS) && readers.has('16')) {
       for (const squad of readers.of<CombatReader>('16').squads()) {
         if (squad.station !== null) this.stations.add(squad.station);
@@ -393,6 +403,7 @@ export class Compositor {
     cell = this.buildingOver(cell, i);
     cell = this.itemOver(cell, i);
     const creature = this.topCreature(i);
+    if (this.glowTiles.size > 0) cell = this.glowOver(cell, i);
     cell = this.creatureOver(cell, i);
     cell = this.projectileOver(cell, i);
     if (creature === null) cell = this.env.particleOver(cell, i, x, y);
@@ -754,6 +765,33 @@ export class Compositor {
       return { glyph: this.glyphOf(glyph), fg: this.combatColors.projectile, bg: cell.bg };
     }
     return cell;
+  }
+
+  /** A glowing wearer's 3×3 on its level: glow_core under the wearer, glow_halo around it, beneath step 6. */
+  private glowOver(cell: Cell, i: TileIndex): Cell {
+    const strength = this.glowTiles.get(i);
+    if (strength === undefined) return cell;
+    return { ...cell, bg: strength > 1 ? this.glowCore : this.glowHalo };
+  }
+
+  /** The tiles lit by creatures that wear a light piece (25 § Enchantments in combat), the hidden ones aside. */
+  private indexGlow(readers: ReaderSet): void {
+    this.glowTiles.clear();
+    const entities = readers.entities;
+    const map = readers.map;
+    for (const id of entities.with(C.Equipment)) {
+      if (!entities.has(id, C.Creature) || !wearsLight(entities, this.registry, id)) continue;
+      const hostile = entities.get(id, C.Hostile);
+      if (hostile?.stealthed === true && hostile.spotted !== true) continue;
+      const pos = entities.get(id, C.Position);
+      if (pos === undefined) continue;
+      for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+        if (!map.inBounds(pos.x + dx, pos.y + dy, pos.z)) continue;
+        const tile = map.index(pos.x + dx, pos.y + dy, pos.z);
+        const strength = dx === 0 && dy === 0 ? 2 : 1;
+        if ((this.glowTiles.get(tile) ?? 0) < strength) this.glowTiles.set(tile, strength);
+      }
+    }
   }
 
   private indexProjectiles(readers: ReaderSet): void {

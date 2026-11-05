@@ -562,5 +562,13 @@
   {
     "table": "thoughts",
     "id": "lab_stink"
+  },
+  {
+    "table": "palette",
+    "id": "glow_halo"
+  },
+  {
+    "table": "palette",
+    "id": "glow_core"
   }
 ]
