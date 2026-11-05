@@ -6,8 +6,9 @@
  * Nothing leaves the map, so a party's losses and retreat do not move, and when the effect ends the
  * creature still holds its target and comes back.
  *
- * Dread (25) adds the effect today; an enchanted weapon's `flee` will add it on a hit through the
- * same `addEffect`, and this reader serves both.
+ * Dread (25) and a fearsome weapon's hit add the effect through the same `addEffect`, and this
+ * reader serves both. A dwarf runs by 10's brain, which calls `stepFled` with no target (10 § Behavior
+ * selection, Dread).
  */
 
 import { C, type Position } from '@core/components';

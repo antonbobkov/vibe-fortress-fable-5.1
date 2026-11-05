@@ -40,7 +40,7 @@ import {
   VIAL_RUNE,
   VIALS_PER_DAY,
 } from './constants';
-import { wearsSlowImmune, type EnchantEffectView } from './enchant';
+import { wearsFleeImmune, wearsSlowImmune, wornDazeResist, type EnchantEffectView } from './enchant';
 import { MILLI, runeMaxMilli, skillLevel } from './rune';
 import { answerCall, planCall } from './summon';
 
@@ -236,6 +236,14 @@ export function mentallyImmune(ctx: TickContext, id: EntityId): boolean {
   return size >= MENTAL_IMMUNE_SIZE;
 }
 
+/**
+ * A creature that cannot be put to flight: one Dread cannot take (`mentallyImmune`), or one that
+ * wears a piece with `flee_immune` (a `calm` stone, § Enchantments in combat).
+ */
+export function fearless(ctx: TickContext, id: EntityId): boolean {
+  return mentallyImmune(ctx, id) || wearsFleeImmune(ctx.world.entities, ctx.registry, id);
+}
+
 /** Daze's target: a captain, or of size 100 or more; conscious (a stunned creature is not); not immune. */
 function dazeable(ctx: TickContext, id: EntityId): boolean {
   const entities = ctx.world.entities;
@@ -246,10 +254,13 @@ function dazeable(ctx: TickContext, id: EntityId): boolean {
   return size >= 100;
 }
 
-/** The resist roll of Dread and Daze, on stream 25: `Willpower / 2` percent, or the default without attributes. */
-export function resists(ctx: TickContext, id: EntityId): boolean {
+/**
+ * The resist roll of Dread and Daze, on stream 25: `Willpower / 2` percent, or the default without
+ * attributes, plus `bonus` (Daze: the wearer's `daze_resist`).
+ */
+export function resists(ctx: TickContext, id: EntityId, bonus = 0): boolean {
   const attrs = ctx.world.entities.get(id, C.Attributes);
-  const percent = attrs === undefined ? RESIST_NO_ATTRIBUTES_PERCENT : Math.floor(attrs.wil / 2);
+  const percent = (attrs === undefined ? RESIST_NO_ATTRIBUTES_PERCENT : Math.floor(attrs.wil / 2)) + bonus;
   return ctx.world.rngFor('25').int(0, 99) < percent;
 }
 
@@ -350,7 +361,7 @@ export function castAtTarget(ctx: TickContext, casterId: EntityId, held: Held | 
   setCastCooldown(ctx, casterId, held.weaponDef.size, cooldownUntil);
   if (cs.spell.kind === 'burst') {
     magic?.addBloom({ tile, at: ctx.tick + FIREBLOOM_DELAY_TICKS, casterId, raw: cs.damage });
-  } else if (!resists(ctx, targetId)) {
+  } else if (!resists(ctx, targetId, wornDazeResist(entities, ctx.registry, targetId))) {
     ctx.emit({ type: 'CreatureStunned', id: targetId, until: ctx.tick + cs.ticks });
   }
   return true;
@@ -395,7 +406,8 @@ export function castSupport(ctx: TickContext, casterId: EntityId, held: Held | n
       if (now !== undefined) entities.add<Rune>(casterId, C.Rune, { ...now, nextDreadTick: ctx.tick + cs.ticks });
       for (const id of foes.slice(0, DREAD_MAX_TARGETS)) {
         if (resists(ctx, id)) continue;
-        addEffect(entities, id, { kind: 'flee', value: 1, until: ctx.tick + cs.ticks, sourceId: casterId });
+        addEffect(entities, id, { kind: 'flee', value: 1, until: ctx.tick + cs.ticks, sourceId: casterId }, ctx.registry);
+        ctx.emit({ type: 'PutToFlight', id, sourceId: casterId });
       }
     };
   } else if (kind === 'call') {
@@ -475,7 +487,7 @@ function dreadTargets(ctx: TickContext, casterId: EntityId, pos: Position, range
     if (id === casterId || !entities.alive(id) || p === undefined || !host.isHostile(casterId, id)) continue;
     const dist = castDistance(p, pos);
     if (dist > range || entities.get(id, C.Body)?.conscious === false) continue;
-    if (mentallyImmune(ctx, id) || effectValue(entities, id, 'flee', ctx.tick) > 0) continue;
+    if (fearless(ctx, id) || effectValue(entities, id, 'flee', ctx.tick) > 0) continue;
     if (!host.lineOfSight(from, ctx.world.map.index(p.x, p.y, p.z))) continue;
     found.push({ id, dist });
   }
@@ -579,10 +591,11 @@ export function applyEnchantOnHit(
     } else if (e.kind === 'slow') {
       addEffect(entities, defenderId, { kind: 'slow', value: e.value, until: ctx.tick + e.ticks, sourceId: attackerId }, ctx.registry);
     } else if (e.kind === 'flee') {
-      if (mentallyImmune(ctx, defenderId)) continue;
+      if (fearless(ctx, defenderId)) continue;
       if (e.chance > 0 && ctx.world.rngFor('25').int(0, 99) >= e.chance) continue;
       if (resists(ctx, defenderId)) continue;
       addEffect(entities, defenderId, { kind: 'flee', value: 1, until: ctx.tick + e.ticks, sourceId: attackerId }, ctx.registry);
+      ctx.emit({ type: 'PutToFlight', id: defenderId, sourceId: attackerId });
     } else if (e.kind === 'ignite') {
       igniteOnHit(ctx, e.chance, attackerId, defenderId);
     }
@@ -603,12 +616,13 @@ function igniteOnHit(ctx: TickContext, chance: number, attackerId: EntityId, def
 
 /**
  * `addEffect`: one more timed entry on the creature's `Spellbound`. A `slow` does not take a
- * creature that wears a piece with `slow_immune` (§ Enchantments in combat), whether a spell or an
- * enchantment brings it; the check needs the registry, which every caller adding a `slow` passes.
- * False when nothing was added.
+ * creature that wears a piece with `slow_immune`, nor a `flee` one with `flee_immune` (§ Enchantments
+ * in combat), whether a spell or an enchantment brings it; the check needs the registry, which every
+ * caller adding a `slow` or a `flee` passes. False when nothing was added.
  */
 export function addEffect(entities: EntityStore, id: EntityId, effect: ActiveEffect, registry?: Registry): boolean {
   if (effect.kind === 'slow' && registry !== undefined && wearsSlowImmune(entities, registry, id)) return false;
+  if (effect.kind === 'flee' && registry !== undefined && wearsFleeImmune(entities, registry, id)) return false;
   const bound = entities.get(id, C.Spellbound);
   const effects = bound === undefined ? [] : bound.effects.slice();
   effects.push({ ...effect });

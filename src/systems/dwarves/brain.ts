@@ -19,7 +19,7 @@ import { hourOf } from '@core/calendar';
 import { ADULT_AGE_YEARS, CIVILIAN_COMBAT_TIMEOUT_TICKS, CIVILIAN_FLEE_NODE_LIMIT, IDLE_TICKS, LEISURE_MARK, NEED_DEFER_PRIORITY, THREAT_RADIUS } from './constants';
 import { CRITICAL, NEED_NAMES, WANT, type NeedName } from './needs';
 import { Activities } from './activities';
-import { avoidsFire, burnsNear, FIRE_FLEE_ACTIVITY, findFireRefuge, findWaterRefuge, fireDanger, WATER_FLEE_ACTIVITY, waterDanger } from './fire';
+import { avoidsFire, burnsNear, DREAD_FLEE_ACTIVITY, FIRE_FLEE_ACTIVITY, findFireRefuge, findWaterRefuge, fireDanger, WATER_FLEE_ACTIVITY, waterDanger } from './fire';
 import { PRIORITY_MAX, TICKS_PER_YEAR } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { HealthReader } from '@systems/health/reader';
@@ -27,6 +27,7 @@ import { awaitsBandage } from '@systems/health/wounds';
 import type { JobsReader } from '@systems/jobs';
 import type { CombatReader } from '@systems/combat/reader';
 import { PERCEPTION_RADIUS } from '@systems/combat/constants';
+import { fleeSource, stepFled } from '@systems/combat/fled';
 
 /** "Idle dwarves are shown as 'No job' in the units panel." */
 export const NO_JOB = 'No job';
@@ -566,8 +567,9 @@ function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): bo
   if (movement === null) return false;
   const here = movement.tileOf(id);
   if (here < 0) return false;
-  // A `flee` with no threat held is a flight from fire or water: a flight from a hostile ends when its threat does.
-  const fleeing = b.behavior === 'flee' && host.threatOf(id) === 0;
+  // A `flee` with no threat held is a flight from fire or water (or a dread's, below): a flight from a
+  // hostile ends when its threat does.
+  const fleeing = b.behavior === 'flee' && host.threatOf(id) === 0 && b.activity !== DREAD_FLEE_ACTIVITY;
   const burning = fireDanger(ctx, here);
   const drowning = !burning && waterDanger(ctx.world.map, here, movement.walkTarget(id) >= 0);
   const danger = burning || drowning;
@@ -607,6 +609,40 @@ function fleeFire(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): bo
   return true;
 }
 
+/**
+ * `10` § Behavior selection, dread: a dwarf under a `flee` effect (25's Dread, or a fearsome blow)
+ * drops what it is doing as from a fire and runs from the effect's source by 16's `stepFled`, a
+ * soldier on duty too; while it runs its squad does not move it. When the effect ends it selects
+ * again. Returns whether the dwarf spent this tick on the flight.
+ */
+function fleeDread(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): boolean {
+  const movement = ctx.world.services.movement;
+  if (movement === null) return false;
+  const fleeing = b.behavior === 'flee' && b.activity === DREAD_FLEE_ACTIVITY;
+  if (fleeSource(ctx, id) === undefined) {
+    if (!fleeing) return false;
+    movement.stopWalking(id);
+    b.behavior = 'idle';
+    b.activity = NO_JOB;
+    b.behaviorUntil = ctx.tick;
+    b.targetTile = movement.tileOf(id);
+    return false;
+  }
+  if (!fleeing) {
+    host.activities.cancel(ctx, id);
+    host.setCombatTarget(id, 0);
+    if (host.caught?.(id) === true) host.release?.(id);
+    if (host.hasJobs && jobIdOf(ctx, id) !== 0) ctx.jobs.interrupt(id, true);
+    movement.stopWalking(id);
+    b.behavior = 'flee';
+    b.activity = DREAD_FLEE_ACTIVITY;
+  }
+  stepFled(ctx, id, 0);
+  const goal = movement.walkTarget(id);
+  b.targetTile = goal >= 0 ? goal : movement.tileOf(id);
+  return true;
+}
+
 /** `tickDwarf(id)` for the behaviors of M1. */
 export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void {
   const current = ctx.world.entities.get(id, C.Brain);
@@ -619,6 +655,7 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
   const movement = ctx.world.services.movement;
   const interrupted = host.takeInterrupt(id);
   if (fleeFire(host, ctx, id, b)) { write(ctx, id, b); return; }
+  if (fleeDread(host, ctx, id, b)) { write(ctx, id, b); return; }
   // Alert/shelter changes interrupt even a running activity or job; flee still wins in select.
   if (interrupted && ctx.world.fortress.alert === 'hearth' && host.threatOf(id) === 0 &&
       (!ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id)) &&

@@ -19,7 +19,8 @@
       ],
       "archer": [],
       "captain": [],
-      "hexer": []
+      "hexer": [],
+      "hexerDread": []
     }
   },
   {
@@ -82,6 +83,25 @@
           "item": "wand",
           "chance": 1000,
           "stone": "amethyst"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
+          "chance": 1000
+        }
+      ],
+      "hexerDread": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "sapphire"
         },
         {
           "item": "dagger",
@@ -170,6 +190,25 @@
           "item": "wand",
           "chance": 1000,
           "stone": "amethyst"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
+          "chance": 1000
+        }
+      ],
+      "hexerDread": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "sapphire"
         },
         {
           "item": "dagger",
@@ -275,6 +314,25 @@
           "item": "leather_jerkin",
           "chance": 1000
         }
+      ],
+      "hexerDread": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "sapphire"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
+          "chance": 1000
+        }
       ]
     }
   },
@@ -366,6 +424,25 @@
           "item": "wand",
           "chance": 1000,
           "stone": "amethyst"
+        },
+        {
+          "item": "dagger",
+          "chance": 1000
+        },
+        {
+          "item": "cap",
+          "chance": 1000
+        },
+        {
+          "item": "leather_jerkin",
+          "chance": 1000
+        }
+      ],
+      "hexerDread": [
+        {
+          "item": "wand",
+          "chance": 1000,
+          "stone": "sapphire"
         },
         {
           "item": "dagger",

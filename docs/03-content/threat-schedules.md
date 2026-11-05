@@ -87,15 +87,15 @@ Fractions of `size` by role; the remainder after rounding goes to warriors. A ca
 
 `tier = min(peril, 3)` for warriors and archers; sieges `+1`; captains `+1`; tier 0 exists only for restless dead and bandits.
 
-| Tier | Metal | Warrior kit | Archer kit | Captain extra | Hexer kit |
-|---|---|---|---|---|---|
-| 0 | wood/rusted iron (poor) | club or rusted short sword, cap | — | — | — |
-| 1 | copper | short sword or mace (50/50), cap, leather jerkin, buckler 50% | bow, 30 wooden arrows, dagger, cap, jerkin | helm, mail shirt | wand (stone amethyst), dagger, cap, leather jerkin |
-| 2 | bronze | short sword, axe or mace, cap, leather jerkin, shield 50%, leggings | bow, 30 bone arrows, dagger, cap, jerkin | helm, mail shirt, shield | wand (stone amethyst), dagger, cap, leather jerkin |
-| 3 | iron | axe, mace or spear, helm 50%, mail shirt 50% else jerkin, shield 60%, leggings | bow, 30 iron arrows, short sword, cap, jerkin | helm, mail shirt, greaves, shield | wand (stone amethyst), dagger, cap, leather jerkin |
-| 4 | steel | axe, warhammer or spear, helm, mail shirt, shield 70%, greaves, gauntlets 50% | bow, 30 steel arrows, short sword, helm, mail shirt | helm, breastplate, greaves, gauntlets, shield | wand (stone amethyst), dagger, cap, leather jerkin |
+| Tier | Metal | Warrior kit | Archer kit | Captain extra | Hexer kit | Dread hexer kit |
+|---|---|---|---|---|---|---|
+| 0 | wood/rusted iron (poor) | club or rusted short sword, cap | — | — | — | — |
+| 1 | copper | short sword or mace (50/50), cap, leather jerkin, buckler 50% | bow, 30 wooden arrows, dagger, cap, jerkin | helm, mail shirt | wand (stone amethyst), dagger, cap, leather jerkin | wand (stone sapphire), dagger, cap, leather jerkin |
+| 2 | bronze | short sword, axe or mace, cap, leather jerkin, shield 50%, leggings | bow, 30 bone arrows, dagger, cap, jerkin | helm, mail shirt, shield | wand (stone amethyst), dagger, cap, leather jerkin | wand (stone sapphire), dagger, cap, leather jerkin |
+| 3 | iron | axe, mace or spear, helm 50%, mail shirt 50% else jerkin, shield 60%, leggings | bow, 30 iron arrows, short sword, cap, jerkin | helm, mail shirt, greaves, shield | wand (stone amethyst), dagger, cap, leather jerkin | wand (stone sapphire), dagger, cap, leather jerkin |
+| 4 | steel | axe, warhammer or spear, helm, mail shirt, shield 70%, greaves, gauntlets 50% | bow, 30 steel arrows, short sword, helm, mail shirt | helm, breastplate, greaves, gauntlets, shield | wand (stone amethyst), dagger, cap, leather jerkin | wand (stone sapphire), dagger, cap, leather jerkin |
 
-Quality: common; captains fine. Restless dead carry a rusted (poor) iron weapon with 30% chance. A bow, a club and a wand are of wood (oak); a cap, a jerkin, leggings, boots and a quiver of leather; the rest of the tier's metal. `(stone amethyst)` sets that stone in the item when it is made, as a runeforge sets a channel's: a hexer's wand is a wand of frost (Frostbind). A hexer holds no other stone, and its kit is taken whole, with no roll.
+Quality: common; captains fine. Restless dead carry a rusted (poor) iron weapon with 30% chance. A bow, a club and a wand are of wood (oak); a cap, a jerkin, leggings, boots and a quiver of leather; the rest of the tier's metal. `(stone amethyst)` sets that stone in the item when it is made, as a runeforge sets a channel's: a hexer's wand is a wand of frost (Frostbind), a dread hexer's a wand of dread (Dread). A hexer whose entity id is a multiple of `DREAD_HEXER_EVERY` (18 § Tuning constants) takes the dread hexer kit, every other hexer the hexer kit. A hexer holds no other stone, and its kit is taken whole, with no roll.
 
 ## Cavern monsters
 

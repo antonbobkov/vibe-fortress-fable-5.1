@@ -570,5 +570,17 @@
   {
     "table": "palette",
     "id": "glow_core"
+  },
+  {
+    "table": "enchants",
+    "id": "calm"
+  },
+  {
+    "table": "recipes",
+    "id": "set_armor_calm"
+  },
+  {
+    "table": "thoughts",
+    "id": "put_to_flight"
   }
 ]

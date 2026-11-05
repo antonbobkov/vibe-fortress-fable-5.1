@@ -1,6 +1,8 @@
 # T-493 — Hexers cast Dread on dwarves, and `calm` armour answers it
 
-**Source:** [flavour report](../../reports/audits/2026-11-03-flavour-left-out.md) (item 12) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in 362e3d48.
+
+**Source:** [flavour report](../../../reports/audits/2026-11-03-flavour-left-out.md) (item 12) · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-04): "I like all of these, let's try to make it work (but drop if too complex)."
 
@@ -11,7 +13,7 @@ The owner (2026-11-04): "I like all of these, let's try to make it work (but dro
 - Bring back the `calm` armour enchantment (sapphire): the wearer is immune to Dread and `fearsome`, and resists Daze better.
 - The thought for a dwarf put to flight, mild and short.
 
-**Drop rule.** This is a fun feature, and the owner said to drop it if it is too complex. If the plainest version needs a new mechanism much larger than the effect, or breaks a set rule that a small change cannot fix, stop, commit the findings, and report it as dropped with the reason. That is a valid outcome. If it lands, list it in [`docs/fun-features.md`](../fun-features.md) § In the game, marked removable.
+**Drop rule.** This is a fun feature, and the owner said to drop it if it is too complex. If the plainest version needs a new mechanism much larger than the effect, or breaks a set rule that a small change cannot fix, stop, commit the findings, and report it as dropped with the reason. That is a valid outcome. If it lands, list it in [`docs/fun-features.md`](../../fun-features.md) § In the game, marked removable.
 
 ## Done
 

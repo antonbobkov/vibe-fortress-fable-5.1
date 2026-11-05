@@ -151,3 +151,6 @@ Every new row of every table goes at the end of this table, including generated 
 | thoughts | lab_stink |
 | palette | glow_halo |
 | palette | glow_core |
+| enchants | calm |
+| recipes | set_armor_calm |
+| thoughts | put_to_flight |

@@ -43,7 +43,7 @@ Fixed by this design (numbers in `03-content/threat-schedules.md`):
 
 Content rows per kind and civ list roles with counts scaled by size. Roles and species:
 
-- Gloam: `gloam_snatcher` (thief; stealth; fast; steals), `gloam_warrior` (melee, leather and copper or iron), `gloam_archer` (bow), `gloam_captain` (leader, better gear, holds the party together), `gloam_hexer` (a wand of frost and 20 rune, then a club; on top of a raid's or siege's size at peril 3 from year 3 and peril 4 from year 2, 25 § Hexers), `trollkin` (large, breaks doors, no armor, heavy blunt attacks; sieges only).
+- Gloam: `gloam_snatcher` (thief; stealth; fast; steals), `gloam_warrior` (melee, leather and copper or iron), `gloam_archer` (bow), `gloam_captain` (leader, better gear, holds the party together), `gloam_hexer` (a wand of frost, or one in `DREAD_HEXER_EVERY` a wand of dread, and 20 rune, then a club; on top of a raid's or siege's size at peril 3 from year 3 and peril 4 from year 2, 25 § Hexers), `trollkin` (large, breaks doors, no armor, heavy blunt attacks; sieges only).
 - Hillfolk bandits: `hillfolk_bandit` (melee, steals; low peril nuisance; killing them lowers Hillfolk reputation slightly, capturing them in cages raises it).
 - Restless dead: `restless_dead` (slow, mindless, no loot, attacks fortress creatures, does not flee; rises at dusk in autumn from the battlefield band, `RESTLESS_PER_NIGHT` per night, and collapses to bones at dawn unless already slain; a collapsing dead drops what it wears and carries on its tile, where it lies as ordinary unowned stock).
 
@@ -176,6 +176,7 @@ Panel `threats` (active parties with size and state, renown, schedule preview, c
 | `HOLLOW_WAVE_DAYS` | 28 | *unmeasured* |
 | `HEXER_FIRST_YEAR` | peril 3: year 3; peril 4: year 2 | The first year a raid or siege brings hexers; no other peril brings any (25 § Hexers) |
 | `HEXERS_PER_RAID` / `HEXERS_PER_SIEGE` | 1 / 2 | Hexers on top of the party's size |
+| `DREAD_HEXER_EVERY` | 3 | A hexer whose entity id is a multiple of it carries a wand of dread instead of frost (25 § Hexers); no draw, *unmeasured* |
 | `RESTLESS_PER_NIGHT` | 2–8 | Scaled by renown (*unmeasured*) |
 
 Schedules, compositions, gear tables and caps are content.

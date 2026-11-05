@@ -18,6 +18,9 @@ export const FIRE_FLEE_ACTIVITY = 'Fleeing the fire';
 /** The activity text of a dwarf walking out of rising water. */
 export const WATER_FLEE_ACTIVITY = 'Leaving the water';
 
+/** The activity text of a dwarf put to flight by Dread or a fearsome blow (a `flee` effect, 25 § Effects). */
+export const DREAD_FLEE_ACTIVITY = 'Fleeing in dread';
+
 /**
  * Whether a dwarf at `tile` must leave the water it stands in (`10` § Behavior selection): deep water
  * always; water at wading depth when it has stopped there, since the next rise would drown it. A
