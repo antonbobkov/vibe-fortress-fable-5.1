@@ -753,6 +753,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
         damage: int,
         size: int,
         range: opt(int),
+        onHit: opt(obj({ kind: enumOf(['pain']), value: int, ticks: int })),
       }),
     ),
     naturalArmor: int,

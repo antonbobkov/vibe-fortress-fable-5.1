@@ -59,7 +59,8 @@ interface DraughtDef { id: Id<ItemTypeDef> /* the draught's item */; effects: { 
 interface BodyPlanDef extends RowBase {
   parts: Record<BodySlot, { name: string; hit: number; hpFactor: Fixed; functions: ('see'|'wield'|'walk')[] }>;
 }
-interface AttackDef { name: string; type: DamageType | 'burn'; damage: number; size: number; range?: number }
+interface AttackDef { name: string; type: DamageType | 'burn'; damage: number; size: number; range?: number;
+                    onHit?: { kind: 'pain'; value: number; ticks: number } /* creatures.md's "(venom: pain +V for T ticks)" */ }
 interface SpeciesDef extends RowBase {
   plan: Id<BodyPlanDef>; size: number; speed: Fixed; diet: 'grazer'|'carnivore'|'omnivore'|'none';
   temper: 'timid'|'neutral'|'territorial'|'aggressive'; movementClass: MovementClass; nocturnal: boolean;
