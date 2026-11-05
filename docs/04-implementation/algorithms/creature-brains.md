@@ -175,7 +175,7 @@ A hungry wild killer saves the victim id while waiting for `CorpseCreated`; its 
 partyThink(P):
   if P.state == 'retreat' and tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY: despawn every living member through the departure path; return
   alive = P.members.filter(alive and conscious); if alive.length == 0: living unconscious survivors retreat; only no living survivors ends the party; return
-  if P.state != 'retreat' and (P.members.length - alive.length) * 100 / P.members.length >= RETREAT_LOSS_PERCENT: P.state='retreat'; outcome = P.loot.length ? 'looted' : 'repelled'
+  if P.state != 'retreat' and ((P.members.length - alive.length) * 100 / P.members.length >= RETREAT_LOSS_PERCENT or (P.captainIds non-empty and no captain in alive)): P.state='retreat'; outcome = P.loot.length ? 'looted' : 'repelled'
   switch P.state:
     approach: for a thief, chooseGoal each threats tick; if no quarry, wait hidden at arrival, then retreat with withdrew at THIEF_WAIT_DAYS after arrival; reaching an empty goal never counts as theft; return
               goal = chooseGoal(P); if goal unreachable: P.goalTile = pathing.nearestReachable(leaderPos, hearthTile, cls, 3000); P.state = 'loiter'? (only after reaching the nearest tile)

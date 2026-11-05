@@ -39,8 +39,10 @@ function playSeed(seed: string): SeedRow {
   let soldierKills = 0;
   const members = new Map<number, number[]>();
   const fate = new Map<number, string>();
+  const watchEvery = Number(process.env['DEFENCE_WATCH_EVERY'] ?? 20);
   const { w, state } = playDefenceYear({
     seed,
+    watchEvery,
     observe: (tw) => {
       tw.game.world.onEvents((batch) => {
         const ent = tw.game.world.entities;
