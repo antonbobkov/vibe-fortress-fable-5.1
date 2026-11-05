@@ -5,8 +5,9 @@
  * (`t366-squad-<arena>-<i>`): five Novice soldiers in full kit (iron helm, mail shirt, greaves, axe,
  * shield) at a station, and in place of a sixth:
  *  - `ward`: a Proficient runecaster (runecraft 10, rune 50, Novice dodge, a tunic, no metal) holding
- *    a common iron staff of warding (a ward of 7 for 720 ticks);
- *  - `daze`: the same caster with a common iron staff of stillness (Daze, 180 ticks, 3 rune);
+ *    a common iron staff of warding (a ward of 7 for 720 ticks at the old base of 6, 5 at the new 4);
+ *  - `daze`: the same caster with a common iron staff of stillness (Daze, 180 ticks, 3 rune), in a
+ *    squad of its own with a kill order on the raid's captain;
  *  - `five`: no one;
  *  - `six`: one more axedwarf in full kit;
  *  - `marks`: a Proficient marksdwarf (crossbow 10, a tunic, an oak crossbow, 25 iron bolts) in a
@@ -28,6 +29,8 @@ import { TestWorld } from '../scenarios/test-world';
 
 const OUT = process.env['T477_OUT'] ?? '.vite/t477-balance.jsonl';
 const N = Number(process.env['T477_N'] ?? 24);
+/** The first trial: a second batch of seeds starts after the first. */
+const FROM = Number(process.env['T477_FROM'] ?? 0);
 const ONLY = process.env['T477_ONLY'] ?? '';
 const Z = FLAT_TEST_SURFACE_Z;
 
@@ -84,9 +87,13 @@ function trial(kind: string, i: number): Record<string, unknown> {
   if (mage !== 0) ent.add(mage, C.Rune, { current: 50_000 });
   const marks = variant === 'marks' || variant === 'sixmarks' ? w.spawnDwarf({ at: w.index(sx + axes, sy + 1, Z), skills: { crossbow: 10, dodge: 2, hammer: 2 } }) : 0;
   const station = w.index(sx, sy, Z);
+  // The Daze caster is a squad of its own, ordered to kill the captain once the raid is on the map: a
+  // player who wants the captain stunned names it, and the caster stands off and dazes it.
+  const daze = variant === 'daze';
   const melee = mage === 0 ? ids : [...ids, mage];
-  squad(w, 'Guard', melee.slice(0, 6), station);
-  if (melee.length > 6) squad(w, 'Second', melee.slice(6), station);
+  squad(w, 'Guard', daze ? ids : melee.slice(0, 6), station);
+  if (daze) squad(w, 'Stillness', [mage], station);
+  if (!daze && melee.length > 6) squad(w, 'Second', melee.slice(6), station);
   if (marks !== 0) squad(w, 'Bolts', [marks], station, true);
   w.step(1);
   ids.forEach((id, k) => equip(w, id, w.index(sx + k, sy, Z), FULL_KIT));
@@ -111,6 +118,10 @@ function trial(kind: string, i: number): Record<string, unknown> {
   for (const s of pendingSpawns) spawnHostileMember(w.game.world as never, reg, rng, s.partyId, s.species, s.role, s.tile, s.gearTier, s.isCaptain);
   const members = [...ent.get(partyId, C.Party)!.members];
   const captain = members.find((m) => ent.get(m, C.Hostile)?.role === 'captain') ?? 0;
+  if (daze && captain !== 0) {
+    const all = w.readers.of<CombatReader>('16').squads();
+    w.game.world.applyCommand({ type: 'SquadOrder', squadId: (all[all.length - 1] as SquadWithId).id, order: { kind: 'kill', targetId: captain } });
+  }
   const fighters = [...melee, ...(marks === 0 ? [] : [marks])];
   const tally = { wards: 0, warded: 0, dazes: 0, captainDazed: 0, captainStunTicks: 0, raiderHits: 0, raiderDamage: 0, raidersFled: 0, events: {} as Record<string, number> };
   let ended = '';
@@ -162,6 +173,6 @@ describe('T-477 balance probe', () => {
     if (!ONLY) writeFileSync(OUT, '');
     const put = (r: Record<string, unknown>): void => appendFileSync(OUT, JSON.stringify(r) + '\n');
     const kinds = (ONLY || 'open-five,open-ward,open-daze,open-six,open-marks,open-seven,open-sixmarks,ambush-five,ambush-ward,ambush-six,ambush-seven').split(',');
-    for (const k of kinds) for (let i = 0; i < N; i += 1) put(trial(k, i));
+    for (const k of kinds) for (let i = FROM; i < FROM + N; i += 1) put(trial(k, i));
   }, 7_200_000);
 });

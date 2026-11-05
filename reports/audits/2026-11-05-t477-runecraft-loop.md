@@ -21,6 +21,12 @@
 - `npx playwright test test/e2e/runecraft-screens.spec.ts`, locally; the full e2e suite and `npm test` on GitHub (the commit body has the run).
 - The six static checks and the unit suites under `test/unit/ui` and `test/unit/runecraft`.
 
-## Not done here
+## The balance pass
 
-The balance pass of the work file (the ward against a squad with one or two more soldiers instead of the caster, and Daze stunning a captain again each time it wakes) is measured once T-504's raid morale has landed, since it changes how a raid breaks; until then the ward and Daze rows of [balance-status.md](../../docs/balance-status.md) stand as T-473 left them. Its arenas are ready: `reports/data/2026-11-05-t477-balance-arena.probe.ts.txt` (copy it into `test/perf` and run it with `vitest.perf.config.ts`) sets five Novice soldiers against the peril-2 raid of ten and the ambush of four with, in place of a sixth, a ward caster, a Daze caster, nobody, one or two more axedwarves, a Proficient marksdwarf, or an axedwarf and the marksdwarf, and counts the captain's dazes and fate. A one-trial smoke run on this branch, before T-504, shows why the pass must wait: the raid's captain goes down at the same tick in every variant and the raid turns back by the captain rule, so the comparison measures the captain rule, not the ward.
+Measured once T-504's raid morale had landed, in [the ward and Daze](2026-11-05-t477-ward-and-daze.md): the ward's base came down from 6 to 4, so one caster is worth about two soldiers; Daze on a captain is kept.
+
+## The findings, judged
+
+- The apprentice who also mines attunes once a day: intended. Two sessions a day is the sanctum's limit, not a promise; a dwarf with other labors on takes other jobs between sessions, as any dwarf does. [balance.md](../../docs/03-content/balance.md#runecraft) says so.
+- Hungry dwarves eat the plants grown for a draught: kept, as a fun feature (the owner, 2026-11-05). A hint says so the first time a raw plant is eaten while a draught brewed from plants is ordered, and how to keep the next harvest: order the draught before the crop ripens. No setting keeps food from eaters: forbidding the plants keeps them from the laboratory too.
+- A civilian woodcutter keeps the iron axe from a soldier: intended, 16 § Equipment's rule, which `pp_defence` meets the same way. No work file.

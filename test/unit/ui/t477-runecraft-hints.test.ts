@@ -8,7 +8,7 @@ import { defaultUiState } from '@ui/ui-state';
 import { TestWorld } from '../../scenarios/test-world';
 import { strings } from './ui-fixture';
 
-const RUNECRAFT_HINTS = ['hint_glowcap', 'hint_runeforge', 'hint_staff', 'hint_wand', 'hint_sanctum', 'hint_rune_metal', 'hint_draught'];
+const RUNECRAFT_HINTS = ['hint_glowcap', 'hint_runeforge', 'hint_staff', 'hint_wand', 'hint_sanctum', 'hint_rune_metal', 'hint_draught', 'hint_herbs_eaten'];
 
 function world(): TestWorld {
   return new TestWorld({ seed: 't477-hints', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
@@ -67,5 +67,25 @@ describe('T-477 runecraft hints', () => {
     expect(text('hint_rune_metal')).toBe('Iron drinks the rune: a runecaster in mail recovers slowly.');
     expect(text('hint_runeforge')).toBe('The runeforge burns vials, not coal.');
     expect(text('hint_draught')).toBe("One draught, then three days' rest.");
+  });
+
+  it('the herbs are food too: a raw plant eaten while a draught brewed from plants is ordered shows a hint, once', () => {
+    const eaten = (w: TestWorld, ordered: boolean): string[] => {
+      if (ordered) {
+        const lab = w.build('alchemist', w.index(20, 20, z), 'granite');
+        w.step(1);
+        expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: lab, order: { recipeId: 'brew_stout_draught', mode: 'once', remaining: 1 } })).toEqual({ ok: true });
+      }
+      const ui = defaultUiState(z);
+      const hints = new HintEngine(w.game.registry, ui, new AnnouncementLog(strings, w.game.registry));
+      const meal = { type: 'MealEaten', id: 1, quality: 1, atTable: false, roomTier: 0, stage: 0, kind: 'raw', mealType: 'plant_food' } as const;
+      hints.onEvents([meal, { type: 'HourPassed', hour: 0 }], w.readers);
+      hints.onEvents([meal, { type: 'HourPassed', hour: 0 }], w.readers);
+      return ui.hintsShown.filter((id) => id === 'hint_herbs_eaten');
+    };
+    expect(eaten(world(), true)).toEqual(['hint_herbs_eaten']);
+    expect(eaten(world(), false)).toEqual([]);
+    expect(world().game.registry.table<{ id: string; text: string }>('hints').byId('hint_herbs_eaten')?.text)
+      .toBe('Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest.');
   });
 });

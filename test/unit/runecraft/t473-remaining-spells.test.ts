@@ -126,7 +126,7 @@ const dist = (w: TestWorld, a: EntityId, b: EntityId): number => {
 describe('T-473 content and constants', () => {
   it('five more spells, each with its stone, and their wands and staffs numbered last', () => {
     const spells = registry.table<{ id: string; stone: string; kind: string; cost: number; range?: number; base?: number; type?: string; ticks?: number; suffix: string }>('spells');
-    expect(spells.byId('ward')).toEqual({ id: 'ward', name: 'Ward', stone: 'quartz', kind: 'ward', cost: 2, range: 3, base: 6, ticks: 600, suffix: 'of warding' });
+    expect(spells.byId('ward')).toEqual({ id: 'ward', name: 'Ward', stone: 'quartz', kind: 'ward', cost: 2, range: 3, base: 4, ticks: 600, suffix: 'of warding' });
     expect(spells.byId('mend')).toMatchObject({ stone: 'emerald', kind: 'mend', cost: 2, range: 4 });
     expect(spells.byId('dread')).toMatchObject({ stone: 'sapphire', kind: 'dread', cost: 2, range: 4, ticks: 400 });
     expect(spells.byId('firebloom')).toMatchObject({ stone: 'ruby', kind: 'burst', cost: 3, range: 8, base: 14, type: 'ember' });
@@ -181,7 +181,7 @@ describe('T-473 ward', () => {
     return { w, mage, near, far, castTick: w.tick - 1 };
   }
 
-  it.each([['wand', 4, 420], ['staff', 7, 720]] as const)('from a %s: %i armour on the caster and its own within 3, lapsing at %i ticks', (kind, value, ticks) => {
+  it.each([['wand', 3, 420], ['staff', 5, 720]] as const)('from a %s: %i armour on the caster and its own within 3, lapsing at %i ticks', (kind, value, ticks) => {
     const { w, mage, near, far, castTick } = warding(`t473-ward-${kind}`, kind);
     const warded = w.events('Warded').map((e) => e['id']);
     expect(warded.sort()).toEqual([mage, ...near].sort());
@@ -210,7 +210,7 @@ describe('T-473 ward', () => {
     w.step(400);
     expect(dist(w, mage, goblin)).toBe(CASTER_HOLD_DISTANCE);
     expect(w.events('AttackResolved').filter((e) => e['attackerId'] === mage)).toHaveLength(0);
-    expect(spellLine(w.readers, strings, w.game.world.entities.get(mage, C.Equipment)!.weapon, false)).toBe('Ward: 7 armour on every part for 720 ticks, range 3.');
+    expect(spellLine(w.readers, strings, w.game.world.entities.get(mage, C.Equipment)!.weapon, false)).toBe('Ward: 5 armour on every part for 720 ticks, range 3.');
   });
 });
 

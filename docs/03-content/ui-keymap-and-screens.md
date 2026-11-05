@@ -637,6 +637,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_sanctum` | a sanctum zone exists | "Build the sanctum in stone." |
 | `hint_rune_metal` | a dwarf of the fortress has rune of their own | "Iron drinks the rune: a runecaster in mail recovers slowly." |
 | `hint_draught` | a draught in stock | "One draught, then three days' rest." |
+| `hint_herbs_eaten` | a dwarf eats a raw plant while a work order for a draught brewed from plants stands | "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest." |
 
 ## Tutorial
 

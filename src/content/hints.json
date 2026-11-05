@@ -168,5 +168,10 @@
     "id": "hint_draught",
     "trigger": "a draught in stock",
     "text": "One draught, then three days' rest."
+  },
+  {
+    "id": "hint_herbs_eaten",
+    "trigger": "a dwarf eats a raw plant while a work order for a draught brewed from plants stands",
+    "text": "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest."
   }
 ]

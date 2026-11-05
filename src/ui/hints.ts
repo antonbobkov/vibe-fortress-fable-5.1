@@ -40,6 +40,7 @@ export interface HintFacts {
   sanctumExists?: boolean;
   runecasterExists?: boolean;
   draughtInStock?: boolean;
+  herbsEaten?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -79,6 +80,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_sanctum': return f.sanctumExists === true;
     case 'hint_rune_metal': return f.runecasterExists === true;
     case 'hint_draught': return f.draughtInStock === true;
+    case 'hint_herbs_eaten': return f.herbsEaten === true;
     default: return false;
   }
 }
@@ -150,6 +152,8 @@ export class HintEngine {
     }
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && this.animalWoundedDwarf(readers, Number(fields['attackerId']), Number(fields['defenderId']))) this.markId('hint_alert');
     if (event.type === 'ImmigrationSkipped') this.markId('hint_immigration');
+    // 25 § Draughts: a raw plant eaten while a draught brewed from plants is ordered (a fun feature: the herbs are food too).
+    if (event.type === 'MealEaten' && fields['kind'] === 'raw' && fields['mealType'] === 'plant_food' && this.draughtWantsPlants(readers)) this.markId('hint_herbs_eaten');
     if (event.type === 'RaidEnded') this.markId('hint_gate');
     if (event.type === 'DoorBroken') this.markId('hint_troll');
     if (event.type === 'CavernBreached' && fields['cavern'] === 2) this.markId('hint_magma');
@@ -172,6 +176,16 @@ export class HintEngine {
       const type = readers.of<BuildingsReader>('14').get(id)?.typeId;
       if (fuel && (type === 'smelter' || type === 'forge')) this.markId('hint_fuel');
     }
+  }
+
+  /** A work order stands for a draught recipe (a spoilable one) with a plant among its inputs. */
+  private draughtWantsPlants(readers: ReaderSet): boolean {
+    if (!readers.has('12')) return false;
+    const workshops = readers.of<WorkshopsReader>('12');
+    return workshops.allOrders().some(({ order }) => {
+      const recipe = workshops.recipe(order.recipe);
+      return recipe?.spoilable === true && recipe.inputs.some((input) => input.match === 'plant_food');
+    });
   }
 
   /** Whether a creature is a dwarf of the fortress. */
@@ -270,6 +284,7 @@ export class HintEngine {
       sanctumExists: zones('sanctum').length > 0,
       runecasterExists: readers.entities.with(C.Rune).some((id) => readers.entities.get(id, C.Creature)?.faction === 'fortress'),
       draughtInStock: items !== null && items.countMatching({ tag: 'draught' }) > 0,
+      herbsEaten: this.pending('hint_herbs_eaten'),
     };
   }
 }

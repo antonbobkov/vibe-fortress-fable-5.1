@@ -658,5 +658,9 @@
   {
     "table": "hints",
     "id": "hint_draught"
+  },
+  {
+    "table": "hints",
+    "id": "hint_herbs_eaten"
   }
 ]

@@ -107,14 +107,14 @@ The stone set in a channel fixes its spell ([25-runecraft.md](../02-systems/25-r
 |---|---|---|---|---|---|---|---|---|---|---|
 | `garnet` | `emberbolt` | Emberbolt | bolt | 1 | — | 18 | ember | — | of embers | — |
 | `amethyst` | `frostbind` | Frostbind | bolt | 1 | — | 8 | frost | 300 | of frost | — |
-| `quartz` | `ward` | Ward | ward | 2 | 3 | 6 | — | 600 | of warding | — |
+| `quartz` | `ward` | Ward | ward | 2 | 3 | 4 | — | 600 | of warding | — |
 | `emerald` | `mend` | Mend | mend | 2 | 4 | — | — | — | of mending | — |
 | `sapphire` | `dread` | Dread | dread | 2 | 4 | — | — | 400 | of dread | — |
 | `ruby` | `firebloom` | Firebloom | burst | 3 | 8 | 14 | ember | — | of blooms | — |
 | `diamond` | `daze` | Daze | single | 3 | 6 | — | — | 150 | of stillness | — |
 | `glowstone` | `call` | Call | call | 3 | — | — | — | — | of calling | `wisp` |
 
-A `bolt` flies as a missile. A `burst` blooms on the 3×3 around its target after a delay, a `single` strikes its target with no missile; both are cast by 16's ranged branch. `ward`, `mend`, `dread` and `call` are support spells, cast for the fortress creatures or against the hostiles around the caster. `call` brings a summon beside the caster: the species is the `summon` of the staff's metal ([minerals-and-metals.md](minerals-and-metals.md) § Metals), or the row's own `summon` for a wand or a metal with none ([creatures.md](creatures.md) § Summons); its `range` is blank because it reaches no one. What each does, and when it is cast, is in 25 § Spells. A Frostbind hit that does damage slows the target by `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. A ward of a power-1.0 channel is 6 armour on every part for 600 ticks: 4 for 420 ticks from a wand, 7 for 720 from an iron staff.
+A `bolt` flies as a missile. A `burst` blooms on the 3×3 around its target after a delay, a `single` strikes its target with no missile; both are cast by 16's ranged branch. `ward`, `mend`, `dread` and `call` are support spells, cast for the fortress creatures or against the hostiles around the caster. `call` brings a summon beside the caster: the species is the `summon` of the staff's metal ([minerals-and-metals.md](minerals-and-metals.md) § Metals), or the row's own `summon` for a wand or a metal with none ([creatures.md](creatures.md) § Summons); its `range` is blank because it reaches no one. What each does, and when it is cast, is in 25 § Spells. A Frostbind hit that does damage slows the target by `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. A ward of a power-1.0 channel is 4 armour on every part for 600 ticks: 3 for 420 ticks from a wand, 5 for 720 from an iron staff. Measured: with the iron staff's 5, five soldiers and a Proficient caster turn a peril-2 raid of ten back as often as seven soldiers do ([ward and Daze](../../reports/audits/2026-11-05-t477-ward-and-daze.md)).
 
 ## Enchantments
 

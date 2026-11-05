@@ -37,7 +37,7 @@ The gem set in the channel decides the spell. A wand has power 0.7; an iron staf
 |---|---|---|---|---|
 | Garnet | Emberbolt | 1 | A fire bolt that flies like an arrow and can hit whoever stands in the way | 22 raw, 18 through a leather jerkin, 4 through a steel breastplate |
 | Amethyst | Frostbind | 1 | A frost bolt that slows what it wounds by half | 10 raw, slows for 360 ticks |
-| Quartz | Ward | 2 | Armour on every body part of every friend within 3 | 7 armour for 720 ticks |
+| Quartz | Ward | 2 | Armour on every body part of every friend within 3 | 5 armour for 720 ticks |
 | Emerald | Mend | 2 | Bandages a friend's bleeding wounds and closes the light ones, within 4 | |
 | Sapphire | Dread | 2 | Sends up to four foes within 4 running for a while; they come back | 480 ticks |
 | Ruby | Firebloom | 3 | A fire burst on the 3×3 around a target, 20 ticks after the cast; never thrown onto friends, but friends can walk in | 17 raw |
@@ -59,11 +59,10 @@ Measured against a peril-2 raid of ten in the open ([enchant arena](../audits/20
 | Setting | Without | With | Source |
 |---|---|---|---|
 | Three Novice soldiers against an ambush of four, soldiers dead a day later | 1.08 a fight | 0.58 with a Proficient caster's iron staff of embers; the caster never touched | [caster arena](../audits/2026-11-02-t470-caster-arena.md) |
-| Five soldiers and a caster against a peril-2 raid of ten | repelled 14 of 24 (caster casting nothing) | repelled 24 of 24 with a ward; a warded soldier takes 0.57 a hit against 4.8 | [ward arena](../audits/2026-11-02-t473-ward-arena.md) |
-| The same five against an ambush of four | 0.63 soldiers dead a day later | 0.04 | ward arena |
-| Six soldiers and no caster against that raid | repelled 20 of 24 | | ward arena |
+| Five soldiers against a peril-2 raid of ten, and a sixth or seventh beside them | repelled 3 of 24 alone; 11 of 24 with one more axedwarf; 36 of 48 with two | 36 of 48 with a ward caster (5 armour); 44 of 48 with a Daze caster ordered to kill the captain | [ward and Daze](../audits/2026-11-05-t477-ward-and-daze.md) |
+| The same five against an ambush of four, soldiers dead a day later | 0.62 alone, 0.50 with two more | 0.04 with a ward | ward and Daze |
 
-The ward is the strongest thing in runecraft: one warded squad of five and a caster did better than six soldiers. Whether one caster is worth more than two extra soldiers is the balance question still open ([balance status](../../docs/balance-status.md)).
+The ward was stronger still: at 7 armour one caster did better than two extra soldiers (44 of 48), so it was lowered to 5, where a caster is worth about two soldiers. The Daze caster wins by one stun: the soldiers kill the stunned captain, and a raid that loses its captain early loses heart (raid morale). It is kept as a strong choice that costs a diamond, a Proficient caster and the player's order.
 
 ## Magic against the fortress
 
@@ -84,4 +83,4 @@ No existing number moves and no existing dice roll is drawn unless a channel, an
 - No player-cast spells, no spell book, no mana bar for the fortress as a whole.
 - No necromancy, curses, undead or mind control. A summon is a light, a stone or a shadow, and it fades in a day.
 - No magic armour that mends, no "this exact item" order: a setting takes the nearest item of the chosen type and material.
-- The Daze spell can stun the same captain again each time it wakes; whether that needs a limit is measured in the balance pass.
+- A limit on Daze: it may stun the same captain again each time it wakes, though in the arena no captain lived to wake.

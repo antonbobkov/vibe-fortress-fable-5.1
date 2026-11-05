@@ -173,3 +173,4 @@ Every new row of every table goes at the end of this table, including generated 
 | hints | hint_sanctum |
 | hints | hint_rune_metal |
 | hints | hint_draught |
+| hints | hint_herbs_eaten |

@@ -435,7 +435,7 @@ export function vialsLine(readers: ReaderSet, strings: Strings, id: EntityId): s
 }
 
 /**
- * The creature's timed effects (25 § Effects): "Under: ward 7 (340 ticks), slowed 50% (120
+ * The creature's timed effects (25 § Effects): "Under: ward 5 (340 ticks), slowed 50% (120
  * ticks)." Null with none.
  */
 export function effectsLine(readers: ReaderSet, strings: Strings, id: EntityId): string | null {
