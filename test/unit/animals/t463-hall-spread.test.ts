@@ -34,6 +34,18 @@ describe('T-463 idle tame animals spread out', () => {
     expect(tiles(), 'no wander: they stand where they took').toEqual(first);
   });
 
+  it('dogs whose last walk ended where they stand still spread out', () => {
+    const { w, hall } = hallWorld('t463-stale');
+    const dogs = [0, 1, 2].map(() => w.spawnTame('dog', hall[20]!));
+    // A walk that arrived stays recorded until it is asked for again: its target is the dog's own tile.
+    const walks = (w.game.movement as unknown as { walks: Map<number, { target: number; request: number; following: boolean; attempts: number }> }).walks;
+    for (const d of dogs) walks.set(d, { target: hall[20]!, request: 0, following: true, attempts: 0 });
+    expect(dogs.every((d) => w.game.movement.walkTarget(d) === w.game.movement.tileOf(d))).toBe(true);
+    w.step(1200);
+    const tiles = dogs.map((d) => w.game.movement.tileOf(d));
+    expect(new Set(tiles).size, `tiles ${tiles.join(',')}`).toBe(3);
+  });
+
   it('they take hall tiles before the lower-index tiles beside the hall', () => {
     const { w, hall } = hallWorld('t463-beside');
     w.digRoom(10, 9, Z, 8, 1);

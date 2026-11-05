@@ -394,16 +394,18 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       near.add(tile);
       for (const beside of this.map.neighbors8(tile)) near.add(beside);
     }
-    if (heading >= 0 && near.has(heading)) return heading;
+    // A walk that has arrived is not cleared until it is asked for again: one that ends here is over.
+    if (heading >= 0 && heading !== at && near.has(heading)) return heading;
     const entities = movement === null ? null : this.world?.entities;
     if (!entities) return this.homeTile();
     const creaturesOn = (tile: TileIndex): EntityId[] => this.readers.entities.at(tile).filter((other) => other !== id && entities.kind(other) === 'creature');
     const here = near.has(at) && !buildings.doorAt(at) ? creaturesOn(at) : null;
-    if (here !== null && !here.some((other) => other < id && entities.has(other, C.Tame) && movement.walkTarget(other) < 0)) return at;
+    const standing = (other: EntityId): boolean => movement.walkTarget(other) < 0 || movement.walkTarget(other) === movement.tileOf(other);
+    if (here !== null && !here.some((other) => other < id && entities.has(other, C.Tame) && standing(other))) return at;
     const headed = new Map<TileIndex, number>();
     for (const other of entities.with(C.Tame)) {
       const target = other === id ? -1 : movement.walkTarget(other);
-      if (target >= 0) headed.set(target, (headed.get(target) ?? 0) + 1);
+      if (target >= 0 && target !== movement.tileOf(other)) headed.set(target, (headed.get(target) ?? 0) + 1);
     }
     let best: TileIndex = -1;
     let least = here === null ? Infinity : here.length;

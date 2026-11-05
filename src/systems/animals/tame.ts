@@ -279,6 +279,7 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
   const home = host.standTile(id);
   if (home >= 0 && movement !== null && movement.tileOf(id) !== home) movement.walkTo(id, home, 'wander', ctx);
   else if (isDoorTile(host, at)) stepOffDoor(host, id, at, home, ctx);
+  else if (movement !== null && home >= 0 && movement.walkTarget(id) >= 0) movement.stopWalking(id);
   return next;
 }
 
