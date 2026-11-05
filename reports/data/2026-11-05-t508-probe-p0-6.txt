@@ -1,0 +1,76 @@
+# T-508 probe of three-years-p0-6 to day 340 (2026-11-05-t508-idle.probe.ts.txt, run from test/perf)
+# A dwarf on a crowded hall tile: behavior:activity>goal, '=' when its goal is the tile it stands on
+
+## Before: master d96cfc9c (T-482)
+day 30 living 9 idle 0 crowded -
+day 40 living 9 idle 0 crowded -
+day 50 living 9 idle 0 crowded -
+day 60 living 12 idle 0 crowded -
+day 70 living 12 idle 0 crowded -
+day 80 living 12 idle 0 crowded -
+day 90 living 14 idle 0 crowded -
+day 100 living 14 idle 1 crowded -
+day 110 living 14 idle 1 crowded 60369[need:comfort>= need:comfort>= need:social>=]
+day 120 living 14 idle 0 crowded -
+day 130 living 14 idle 0 crowded -
+day 140 living 14 idle 0 crowded -
+day 150 living 22 idle 0 crowded -
+day 160 living 22 idle 0 crowded -
+day 170 living 22 idle 1 crowded -
+day 180 living 22 idle 1 crowded -
+day 190 living 22 idle 0 crowded -
+day 200 living 22 idle 0 crowded -
+day 210 living 22 idle 0 crowded -
+day 220 living 22 idle 0 crowded -
+day 230 living 32 idle 0 crowded 60322[need:comfort>= dog need:comfort>=] 60369[need:comfort>= need:comfort>= need:comfort>=]
+day 240 living 32 idle 0 crowded 60369[need:comfort>= need:comfort>= need:comfort>=]
+day 250 living 32 idle 1 crowded -
+day 260 living 32 idle 0 crowded -
+day 270 living 32 idle 5 crowded -
+day 280 living 32 idle 2 crowded -
+day 290 living 44 idle 14 crowded 60272[dog idle:No_job>= idle:No_job>= idle:No_job>= idle:No_job>= need:sleep>= idle:No_job>= idle:No_job>= idle:No_job>= need:sleep>=]
+day 300 living 44 idle 13 crowded 60272[dog idle:No_job>= idle:No_job>= idle:No_job>= idle:No_job>= need:sleep>= idle:No_job>= need:sleep>= idle:No_job>= idle:No_job>=]
+day 310 living 50 idle 14 crowded 60272[dog work:Haul>= idle:No_job>= idle:No_job>= need:joy>= idle:No_job>= idle:No_job>= idle:No_job>= need:social>= need:sleep>= need:sleep>= idle:No_job>= need:sleep>= idle:No_job>= idle:No_job>= idle:No_job>= need:sleep>= idle:No_job>= need:sleep>= idle:No_job>=] 60320[dog need:sleep>60272 need:sleep>= need:sleep>= idle:No_job>= need:sleep>=] 60368[need:comfort>60418 work:Haul>= idle:No_job>=]
+day 320 living 50 idle 19 crowded 60272[dog idle:No_job>= idle:No_job>= idle:No_job>= need:sleep>= need:sleep>= idle:No_job>= idle:No_job>= idle:No_job>= need:sleep>= need:joy>= idle:No_job>= need:sleep>= need:sleep>=] 60320[dog need:social>= idle:No_job>= idle:No_job>= idle:No_job>= idle:No_job>= idle:No_job>=] 60369[need:comfort>= need:social>= idle:No_job>=]
+day 330 living 50 idle 7 crowded 60272[dog idle:No_job>= idle:No_job>= need:sleep>= idle:No_job>= need:sleep>= need:sleep>= need:sleep>= need:sleep>= need:sleep>= idle:No_job>=] 60320[dog need:sleep>= idle:No_job>= idle:No_job>= need:sleep>=]
+day 340 living 50 idle 15 crowded 60272[dog idle:No_job>= need:sleep>= idle:No_job>= need:sleep>= need:sleep>= idle:No_job>= idle:No_job>=] 60368[idle:No_job>= idle:No_job>60272 need:comfort>60411] 60418[idle:No_job>= need:comfort>= idle:No_job>=]
+crowded hall tile-samples 618; dwarves on them 3566: idle with that tile as goal 1537, other 2029
+by behavior (= goal is the tile): need= 1792, idle= 1537, need 171, work= 27, idle 23, work 16
+hall tiles 30
+
+## After: T-508 1c3401ed
+day 30 living 9 idle 0 crowded -
+day 40 living 9 idle 0 crowded -
+day 50 living 9 idle 0 crowded -
+day 60 living 12 idle 0 crowded -
+day 70 living 12 idle 1 crowded -
+day 80 living 12 idle 1 crowded -
+day 90 living 15 idle 0 crowded -
+day 100 living 15 idle 0 crowded -
+day 110 living 15 idle 0 crowded -
+day 120 living 22 idle 0 crowded -
+day 130 living 22 idle 0 crowded -
+day 140 living 22 idle 0 crowded -
+day 150 living 22 idle 0 crowded -
+day 160 living 22 idle 0 crowded -
+day 170 living 34 idle 1 crowded -
+day 180 living 34 idle 0 crowded 60322[dog need:comfort>= need:comfort>=] 60371[need:comfort>= cat need:social>=]
+day 190 living 34 idle 0 crowded -
+day 200 living 39 idle 1 crowded -
+day 210 living 39 idle 1 crowded -
+day 220 living 39 idle 3 crowded 60272[dog need:sleep>= need:sleep>= need:social>= need:sleep>= cat]
+day 230 living 39 idle 1 crowded 60272[dog need:sleep>= need:joy>= need:sleep>= need:social>= need:sleep>=]
+day 240 living 39 idle 1 crowded 60418[need:comfort>= dog need:social>=]
+day 250 living 39 idle 0 crowded -
+day 260 living 39 idle 0 crowded -
+day 270 living 39 idle 5 crowded -
+day 280 living 39 idle 6 crowded -
+day 290 living 39 idle 9 crowded -
+day 300 living 39 idle 6 crowded 60272[dog need:joy>= need:joy>= need:joy>=]
+day 310 living 45 idle 3 crowded 60272[dog need:joy>= need:social>= need:joy>= need:sleep>=]
+day 320 living 45 idle 6 crowded 60368[cat need:joy>= cat]
+day 330 living 45 idle 11 crowded -
+day 340 living 45 idle 5 crowded 60371[need:comfort>= need:comfort>= dog]
+crowded hall tile-samples 443; dwarves on them 1307: idle with that tile as goal 103, other 1204
+by behavior (= goal is the tile): need= 999, need 125, idle= 103, idle 51, work 24, work= 5
+hall tiles 30
