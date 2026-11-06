@@ -49,7 +49,7 @@ import type { CombatStateV1 } from './state';
 import type { JobsReader } from '@systems/jobs/reader';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
-import { kitingTile } from './kiting';
+import { clearLineTile, kitingTile } from './kiting';
 import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
 import { canCastBolt, castSupport, drinkVial, heldSpellKind, otherBoltTarget, runeCovers, type CastHost } from '@systems/magic/cast';
@@ -287,6 +287,39 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   }
 
   /**
+   * § Ranged resolution, Held shot: where a soldier on duty that is not shooting steps, or null.
+   * Only while one of its own stands on its held target's ray and it has no other clear target
+   * from where it stands; then the first adjacent tile that `clearLineTile` allows from which the
+   * held target, or another hostile in range, has a clear line. Draws nothing.
+   */
+  private clearLineStep(ctx: TickContext, id: EntityId, w: ReturnType<typeof weaponOf>, target: EntityId,
+    from: TileIndex, targetTile: TileIndex): TileIndex | null {
+    const launcher = w?.weaponDef.launcher;
+    if (launcher === undefined) return null;
+    const channel = launcher.ammo === undefined;
+    if (channel && heldSpellKind(ctx, w) !== 'bolt') return null;
+    const here = this.rayFrom(ctx, from, launcher.range);
+    const held = here(target);
+    if (held === null || !allyOnLine(ctx, id, held.tile, held.ray)) return null;
+    const isHostile = (a: EntityId, b: EntityId): boolean => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e));
+    const other = channel
+      ? otherBoltTarget(ctx, id, w, target, isHostile, here)
+      : nearestClearTarget(ctx, id, target, launcher.range, isHostile, () => true, here, true);
+    if (other !== 0) return null;
+    const map = ctx.world.map;
+    const clearFrom = (tile: TileIndex): boolean => {
+      const rayTo = this.rayFrom(ctx, tile, launcher.range);
+      const line = rayTo(target);
+      const dist = Math.max(Math.abs(map.xOf(tile) - map.xOf(targetTile)), Math.abs(map.yOf(tile) - map.yOf(targetTile))) +
+        Math.abs(map.zOf(tile) - map.zOf(targetTile)) * 2;
+      if (line !== null && dist <= launcher.range && !allyOnLine(ctx, id, line.tile, line.ray)) return true;
+      return nearestClearTarget(ctx, id, target, launcher.range, isHostile, () => true, rayTo, true, tile) !== 0;
+    };
+    return clearLineTile(ctx, id, from, targetTile, (other) => this.targets.targetOf(other),
+      (a, b) => this.lineOfSight(a, b), clearFrom);
+  }
+
+  /**
    * § Ranged resolution, Held shot: the one draw of a shooter with an ally on its line, on 16's
    * stream for a launcher with ammunition and on 25's for a caster, by its shooting skill.
    */
@@ -490,16 +523,22 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       ) {
         this.targets.unreachableSince.delete(id);
         const cooldown = this.targets.cooldownUntil.get(id) ?? 0;
+        // § Ranged resolution: a launcher's shot (a channel's bolt, 25 § Casting) is held while
+        // one of the shooter's own stands on the ray, and goes to another target with a clear
+        // line, or the shooter waits. A natural ranged attack has no such rule.
+        const launcherShot = channel || (hasAmmo && naturalRanged === undefined);
+        let shot = 0;
         if (cooldown <= tick) {
-          // § Ranged resolution: a launcher's shot (a channel's bolt, 25 § Casting) is held while
-          // one of the shooter's own stands on the ray, and goes to another target with a clear
-          // line, or the shooter waits. A natural ranged attack has no such rule.
-          const launcherShot = channel || (hasAmmo && naturalRanged === undefined);
-          const shot = launcherShot ? this.clearShotTarget(ctx, id, w, target, tileA) : target;
+          shot = launcherShot ? this.clearShotTarget(ctx, id, w, target, tileA) : target;
           if (shot !== 0) {
             this.targets.engagements.set(id, tick);
             this.shoot(id, shot);
           }
+        }
+        // Held shot: a soldier on duty that does not shoot steps aside to a tile with a clear line.
+        if (shot === 0 && launcherShot && entities.get(id, C.Soldier)?.onDuty === true) {
+          const step = this.clearLineStep(ctx, id, w, target, tileA, tileT);
+          if (step !== null) ctx.world.services.movement?.walkTo(id, step, 'combat', ctx);
         }
       } else {
         // A civilian who fights back (10) strikes only what is in reach; it does not chase.
