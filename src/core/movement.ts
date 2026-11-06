@@ -24,13 +24,16 @@ import type { SpatialIndex } from './spatial';
 import type { EntityId, TileIndex } from './types';
 
 /**
- * A creature lying down (22 § Crowding): unconscious (17), or asleep (10: resting, with no path to
- * walk). It adds nothing to a tile's crowd.
+ * A creature lying down (22 § Crowding): unconscious (17), asleep (10: resting, with no path to
+ * walk), or a pet curled in the heap by the hearth with no path to walk (08, T-482). It adds nothing
+ * to a tile's crowd.
  */
 export function liesDown(entities: { get<T>(id: EntityId, type: ComponentType<T>): T | undefined }, id: EntityId): boolean {
   if (entities.get(id, C.Body)?.conscious === false) return true;
+  if ((entities.get(id, C.Motion)?.pathId ?? 0) !== 0) return false;
+  if (entities.get(id, C.Tame)?.curled === true) return true;
   const brain = entities.get(id, C.Brain);
-  return brain?.behavior === 'need' && brain.activity === 'sleep' && (entities.get(id, C.Motion)?.pathId ?? 0) === 0;
+  return brain?.behavior === 'need' && brain.activity === 'sleep';
 }
 
 /** What one call to {@link MovementHelper.moveAlongPath} did. */
