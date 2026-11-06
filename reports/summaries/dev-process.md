@@ -21,8 +21,6 @@ The game is built by AI agents from a written specification. The specification i
 - **Decide without asking.** The orchestrator makes the judgement calls on spec gaps, fixes and dispatch, writes them down, and reports them. It asks only for real taste questions (for example, "should a well-armed squad be able to beat a raid?").
 - **At most two working agents plus one review agent** at a time. Opus for complex or seam-crossing work, Sonnet for mechanical work.
 - **Short, high-level updates.** Big picture first; omit minor details. Tables for comparisons.
-- **A daily summary email** (work done, decisions, fun bugs, open questions), sent only on days with work.
-- **Quota discipline:** pause agents above 80% of the session or weekly quota, with agreed exceptions.
 
 ## The documents
 
@@ -117,8 +115,6 @@ The owner values character over tidiness. [`docs/fun-features.md`](../../docs/fu
 ## Communication and pacing
 
 - **Updates are short and high-level.** What moved, any decision that needs the owner, any real problem.
-- **A daily email** is sent from a scheduled nudge: work done, decisions, fun bugs, open questions, what's next. Nothing on idle days.
-- **Quota checks** run on a timer about every 20 minutes; above 80% of the session or weekly limit, agents commit work in progress and pause until the reset.
 - **Timers are background shell loops** in the orchestrator's session (`until [ time ]; do sleep 60; done`), which proved more reliable than one-shot cron jobs.
 
 ## Lessons that became rules
@@ -134,7 +130,6 @@ The owner values character over tidiness. [`docs/fun-features.md`](../../docs/fu
 | Adding a content row would have silently corrupted old saves (rows were numbered by sorted id) | New rows number last, through a checked `row-order.md`; the baseline file is never edited |
 | A feature drew one extra random number per spawn and reshuffled later raids | A new feature draws only on its own stream, only when it acts |
 | An agent's test passed before and after its fix | A fix needs a test that fails on the old code; otherwise the evidence is the probe, stated as such |
-| Usage limits killed agents mid-run | Agents commit work in progress; the orchestrator resumes them and says what was lost |
 
 ## Starting a new project this way
 
