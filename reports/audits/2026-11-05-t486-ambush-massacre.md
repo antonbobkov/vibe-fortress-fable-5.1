@@ -41,7 +41,15 @@ The fortress could have answered it, and the script did not: a cage trap or a we
 | Raid | 130 | 92 | 0 | 2.7 | 0.6 | looted 125, withdrew 4, one still on the map at the end |
 | Siege | 30 | 62 | 2 (the same siege, `p4-3` shifts 1 and 2) | 7.7 | 2.1 | looted 29, withdrew 1 |
 
-AFTER_TABLE
+| After the fix | Parties | Dwarves killed | Killed from inside the fortress | Longest on the map (days) | Longest in `engage` | Endings |
+|---|---|---|---|---|---|---|
+| Ambush | 214 | 154 | 0 | 4.0 | 1.7 | looted 195, withdrew 19 |
+| Raid | 129 | 80 | 0 | 2.7 | 0.6 | looted 124, withdrew 4, one still on the map at the end |
+| Siege | 30 | 63 | 2 (the same siege as before) | 7.7 | 2.1 | looted 29, withdrew 1 |
+
+Over the 30 timelines, **351** deaths and **1,232** living at year 3 before the fix, **320** and **1,290** after; two extinct both ways (the `p4-3` siege). Only `p4-1` moves at shift 0 (below); its five timelines read 81 deaths and 230 living before, 55 and 283 after.
+
+The heaviest ambush after the fix is new: `p4-1` shift 4, day 293 of year 3, ten Gloam that come to the north edge while 19 of the fortress's 50 work on the surface. It springs among 22 of them; those it stands between and the gate run from it to the map's edge and are cut down there, and it kills **27** in 1.7 days, losing 3 to the squad, at morale 100 from its fourth kill on. It never enters the gatehouse: once nobody is outdoors it loiters at the locked gate, and it goes home on day 296 with its loot. That timeline is the fix's (the wave of day 169 is alive in it, and several of the 27 are of that wave), and the seed reads 33 deaths and 22 living against 19 and 47 before. It is the open-ground ambush peril 4 promises: it ends, and a squad stronger than the script's could meet it.
 
 The heaviest ambushes before the fix were all the one of `p4-1` day 169 (10, 12, 13, 13 and 19 killed in the five timelines; 8 in `p4-4` shift 1 day 225 was the next). The shift-0 timeline of each seed is the sweep's own: `p4-6` shift 0 gives the sweep's 17 deaths and 56 living to the dwarf, and the probe gives the same figures on a local machine and on GitHub.
 
@@ -64,7 +72,9 @@ Test: `test/unit/immigration/t486-sprung-ambush.test.ts`. A hidden ambush still 
 
 ## Twenty seeds, `defence_year`, CI
 
-SWEEP_SECTION
+- **The twenty-seed file** (`measure.yml` suite `sweep`, run 42128699345 at `96df461f`): the set rule holds, alive at year 1 **20/20**, peril-0 grown **7/7**, peril-0 seeds with need deaths **0**. **114** deaths and **991** living against T-501's run 42119697821, 125 and 980. Only `p4-1` moves: 13 deaths and 61 living to **2** and **72** (its day-169 ambush now kills the wave's first arrival only). Every other seed is the reference's to the dwarf. [Summary](../data/2026-11-05-t486-sweep-summary.md).
+- **`defence_year_seeds`** (suite `defence_seeds`, run 42128703363): the announced raid `repelled` on **8 of 8**, every row field for field T-501's run 42119702677 (no ambush in that year's script reaches the rule).
+- **`ci.yml`**: CI_LINE
 
 ## Reproduce
 
