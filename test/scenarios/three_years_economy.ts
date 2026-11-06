@@ -126,6 +126,13 @@ const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cave
 const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7, 14, 8, 11], [7, 14, 0, 3], [7, 14, 12, 15], [15, 18, 0, 11]];
 /** The stair to the cave farm, from the centre: an east farm begins at `cx + 7`, a west one ends at `cx + 5` (T-455). */
 const CAVE_STAIR_X = 6;
+/**
+ * T-507: no cave strip is dug in the opening year: the miners dig the halls and the defences first.
+ * Bought cave seed comes with year 2's caravans; a west farm (T-455) smaller than the wagon's cave
+ * seed has seed over from day 1, and digging its strip then left `p2-4` with 0 to 4 dwarves at the
+ * end of year 1 against 6 to 11.
+ */
+const CAVE_STRIPS_FROM_DAY = DAYS_PER_YEAR;
 /** Free cave seed that justifies digging another cave strip. */
 const CAVE_STRIP_SEED = 12;
 const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
@@ -854,7 +861,7 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
     plan.zoneId = 0;
     if (tiles.length > 0 && command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) plan.zoneId = bSystem.lastCreatedZone;
   }
-  if (plans.some((p) => p.zoneId === -1) || plans.length >= CAVE_STRIPS.length) return;
+  if (plans.some((p) => p.zoneId === -1) || plans.length >= CAVE_STRIPS.length || w.tick < CAVE_STRIPS_FROM_DAY * TICKS_PER_DAY) return;
   // Cave seed in stock beyond what the cave plots' empty tiles will take.
   const stock = seedSupply(w, false);
   const plants = w.readers.of<PlantsReader>('07');
