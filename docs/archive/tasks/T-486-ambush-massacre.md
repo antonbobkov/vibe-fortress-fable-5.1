@@ -1,6 +1,8 @@
 # T-486 — A peril-4 ambush can kill a whole fortress over five days
 
-**Source:** [hexers measured](../../reports/audits/2026-11-04-t479-hexers.md) § What moved the peril-4 seeds · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in 8e959743.
+
+**Source:** [hexers measured](../../../reports/audits/2026-11-04-t479-hexers.md) § What moved the peril-4 seeds · **Size:** M · **Needs:** — · **Status:** open
 
 While measuring hexers, a run of `three-years-p4-6` whose threat stream had shifted (an earlier version of the hexer's kit drew on 18's stream; the filed code does not) met an ambush of Gloam warriors and archers on day 317 of year 3. It killed 68 dwarves between days 317 and 322: 21 killed outright and 47 bled out, all by members of that one ambush party, every one of them while the party stood in `engage`. The fortress, of 33 at the start of year 3 and more after its waves, was extinct on day 322. The same seed with that ambush not rolled ends year 3 with 47 dwarves. An ambush at peril 4 has at most 10 members (`threat-schedules.md` § Ambushes).
 

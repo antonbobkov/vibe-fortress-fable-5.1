@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
-| T-486 | [A peril-4 ambush can kill a whole fortress over five days](work/T-486-ambush-massacre.md) | T-479's sweep | — | open |
 | T-488 | [three-years-p2-7 ends without its dining hall](work/T-488-p2-7-dining-hall-witness.md) | T-479's sweep | — | open |
 | T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
 | T-490 | [11 still describes the crowded-doorway retry that crowding removed](work/T-490-stale-crowded-walk-rule.md) | T-487's journal | — | open |
