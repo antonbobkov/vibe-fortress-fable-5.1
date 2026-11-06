@@ -5,7 +5,8 @@
  * creature of its own faction stands on the projectile's ray before the target, and shoots the
  * nearest other hostile it can reach with a clear line, or waits, unless it is careless this time:
  * below `CARELESS_SAFE_SKILL` in its shooting skill, one draw decides whether it fires through.
- * The line check itself draws nothing, so friendly fire after the shot stays real.
+ * A soldier on duty that waits steps aside to a tile with a clear line (`clearLineTile` in
+ * `kiting.ts`). The line check itself draws nothing, so friendly fire after the shot stays real.
  */
 
 import { C } from '@core/components';
@@ -59,7 +60,8 @@ export function allyOnLine(ctx: TickContext, shooterId: EntityId, targetTile: Ti
  * The nearest other target of a held shot (distance, then id): a creature hostile to the shooter
  * other than `heldTarget`, within `range` (Chebyshev on the level, each level between counting
  * two), that `canTake` allows, in line of sight (`rayTo` not null), and, when `keepLineClear`, with
- * no ally on its line. 0 when there is none.
+ * no ally on its line. 0 when there is none. Distances are from `from` when given (a tile the shooter
+ * weighs stepping to, with `rayTo` from it), else from where the shooter stands.
  */
 export function nearestClearTarget(
   ctx: TickContext,
@@ -70,14 +72,17 @@ export function nearestClearTarget(
   canTake: (target: EntityId) => boolean,
   rayTo: RayTo,
   keepLineClear: boolean,
+  from?: TileIndex,
 ): EntityId {
   const entities = ctx.world.entities;
-  const pos = entities.get(shooterId, C.Position);
+  const map = ctx.world.map;
+  const at = entities.get(shooterId, C.Position);
+  const pos = from === undefined ? at : { x: map.xOf(from), y: map.yOf(from), z: map.zOf(from) };
   if (pos === undefined) return 0;
-  const from = ctx.world.map.index(pos.x, pos.y, pos.z);
+  const origin = from ?? map.index(pos.x, pos.y, pos.z);
   let best = 0;
   let bestDist = Infinity;
-  for (const id of ctx.readers.spatial.inRadius(from, range, 'creature')) {
+  for (const id of ctx.readers.spatial.inRadius(origin, range, 'creature')) {
     if (id === shooterId || id === heldTarget || !entities.alive(id) || !isHostile(shooterId, id)) continue;
     const p = entities.get(id, C.Position);
     if (p === undefined) continue;

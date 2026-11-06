@@ -74,6 +74,14 @@ function caged(w: TestWorld, x: number, y: number, fx: number, fy: number): Enti
   return g;
 }
 
+/**
+ * Walls on every side of `x`, `y` but the south: the one open step is toward a target to the south,
+ * so a held shooter there has no tile to step aside to (T-498) and waits.
+ */
+function nook(w: TestWorld, x: number, y: number): void {
+  for (const [dx, dy] of [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]] as const) w.carve(w.index(x + dx, y + dy, Z), TileKind.Wall);
+}
+
 /** A creature lying senseless on `x`, `y`: it stays on the ray. */
 function downed(w: TestWorld, x: number, y: number, species?: string, faction?: string): EntityId {
   const id = species === undefined ? w.spawnDwarf({ at: w.index(x, y, Z) }) : w.spawnCreature(species, w.index(x, y, Z), faction as never);
@@ -97,8 +105,9 @@ describe('T-483 a launcher holds its shot while an ally is on the ray', () => {
     expect(new Set(shotsBy(w, shooter))).toEqual(new Set([g]));
   });
 
-  it('a marksdwarf with a fortress creature on the ray and no other target waits', () => {
+  it('a marksdwarf with a fortress creature on the ray, no other target and no step aside waits', () => {
     const w = arena('t483-wait');
+    nook(w, 40, 40);
     const shooter = marksdwarf(w, 40, 40);
     const g = caged(w, 40, 50, 0, -1);
     downed(w, 40, 45);
@@ -197,6 +206,7 @@ describe('T-483 a careless shooter fires through an ally on the line', () => {
 
   it('a Novice marksdwarf sometimes shoots its held target through the ally, on stream 16, once a cooldown at most', () => {
     const w = arena('t483-careless');
+    nook(w, 40, 40);
     const shooter = marksdwarf(w, 40, 40, 2);
     const g = caged(w, 40, 50, 0, -1);
     downed(w, 40, 45);
@@ -263,6 +273,7 @@ describe('T-483 a careless shooter fires through an ally on the line', () => {
   it('a Novice caster singes through its ally, weighing on stream 25; a Proficient one holds and draws nothing', () => {
     for (const [level, careless] of [[2, true], [10, false]] as const) {
       const w = arena(`t483-caster-${level}`);
+      nook(w, 30, 30);
       const c = caster(w, 30, 30, level);
       const g = caged(w, 30, 38, 0, -1);
       downed(w, 30, 33);
@@ -296,5 +307,56 @@ describe('T-483 a careless shooter fires through an ally on the line', () => {
     }
     expect(fired).toBeGreaterThan(0);
     expect(fired).toBeLessThan(300 / 12);
+  });
+});
+
+describe('T-498 a held soldier steps aside to a clear line', () => {
+  it('a Proficient marksdwarf with an ally on its ray and no other target steps aside, no nearer, and shoots its held target', () => {
+    const w = arena('t498-step');
+    const shooter = marksdwarf(w, 40, 40);
+    const g = caged(w, 40, 50, 0, -1);
+    // Near the shooter, so one step aside clears the line.
+    downed(w, 40, 42);
+    w.game.world.services.combat?.setTarget(shooter, g);
+    const stream16 = w.game.world.rngFor('16').state();
+    let firstShot = -1;
+    let drawnBefore = false;
+    for (let t = 0; t < 200 && firstShot < 0; t += 1) {
+      const state = w.game.world.rngFor('16').state();
+      w.step(1);
+      if (shotsBy(w, shooter).length > 0) {
+        firstShot = w.game.world.calendar.tick;
+        drawnBefore = JSON.stringify(state) !== JSON.stringify(stream16);
+      }
+    }
+    expect(firstShot).toBeGreaterThan(0);
+    // The step draws nothing: stream 16 is untouched until the shot.
+    expect(drawnBefore).toBe(false);
+    expect(shotsBy(w, shooter)).toEqual([g]);
+    const p = w.game.world.entities.get(shooter, C.Position)!;
+    expect(p.x === 40 && p.y === 40).toBe(false);
+    // It stays on its own side: no nearer its target than where it stood.
+    expect(Math.max(Math.abs(p.x - 40), Math.abs(p.y - 50))).toBeGreaterThanOrEqual(10);
+    expect(w.readers.of<CombatReader>('16').targetOf(shooter)).toBe(g);
+  });
+
+  it('a hostile archer does not step aside: it waits where it stands', () => {
+    const w = arena('t498-archer');
+    const archer = w.spawnCreature('gloam_archer', w.index(40, 40, Z), 'hostile:gloam');
+    assignHostileSkills(w.game.world.entities, w.game.registry, archer, 4, false);
+    arm(w, archer, ['bow', 'yew'], ['arrow', 'oak']);
+    for (let dx = -1; dx <= 1; dx += 1) {
+      for (let dy = -1; dy <= 1; dy += 1) {
+        if (dx === 0 && dy === 0) continue;
+        w.carve(w.index(40 + dx, 50 + dy, Z), dx === 0 && dy === -1 ? TileKind.Fortification : TileKind.Wall);
+      }
+    }
+    const dwarf = w.spawnDwarf({ at: w.index(40, 50, Z) });
+    downed(w, 40, 45, 'gloam_warrior', 'hostile:gloam');
+    w.game.world.services.combat?.setTarget(archer, dwarf);
+    w.step(120);
+    expect(shotsBy(w, archer)).toEqual([]);
+    const p = w.game.world.entities.get(archer, C.Position)!;
+    expect([p.x, p.y]).toEqual([40, 40]);
   });
 });

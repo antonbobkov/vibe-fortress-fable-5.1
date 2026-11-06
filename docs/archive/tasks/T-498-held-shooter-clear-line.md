@@ -1,8 +1,10 @@
 # T-498 — A careful shooter waits behind its own line instead of finding a clear one
 
-**Source:** [the careless-shooter arena](../../reports/audits/2026-11-04-t483-careless-shooter-arena.md), [the held-shot arena](../../reports/audits/2026-11-04-t483-held-shot-arena.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in ca5642f0.
 
-The specification is [16 Combat](../02-systems/16-combat.md) § Ranged resolution (Held shot) and § Targeting (ranged kiting), and [25](../02-systems/25-runecraft.md) § Casting.
+**Source:** [the careless-shooter arena](../../../reports/audits/2026-11-04-t483-careless-shooter-arena.md), [the held-shot arena](../../../reports/audits/2026-11-04-t483-held-shot-arena.md) · **Size:** M · **Needs:** — · **Status:** open
+
+The specification is [16 Combat](../../02-systems/16-combat.md) § Ranged resolution (Held shot) and § Targeting (ranged kiting), and [25](../../02-systems/25-runecraft.md) § Casting.
 
 ## What was found
 

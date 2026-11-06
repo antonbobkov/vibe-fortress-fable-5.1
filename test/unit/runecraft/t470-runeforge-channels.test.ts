@@ -310,6 +310,8 @@ describe('T-470 casting', () => {
 
   it('a caster holds its bolt while an ally stands on the line, and waits when no other target is clear', () => {
     const { w, caster } = line('t470-hold', [30, 33]);
+    // Walls on every side but the target's (T-498): no tile to step aside to, so it waits.
+    for (const [dx, dy] of [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [1, 1]] as const) w.carve(w.index(30 + dx, 30 + dy, Z), TileKind.Wall);
     cellGoblin(w, 30, 38);
     w.step(400);
     expect(w.events('SpellCast')).toHaveLength(0);
