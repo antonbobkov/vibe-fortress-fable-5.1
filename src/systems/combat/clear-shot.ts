@@ -5,7 +5,8 @@
  * creature of its own faction stands on the projectile's ray before the target, and shoots the
  * nearest other hostile it can reach with a clear line, or waits, unless it is careless this time:
  * below `CARELESS_SAFE_SKILL` in its shooting skill, one draw decides whether it fires through.
- * The line check itself draws nothing, so friendly fire after the shot stays real.
+ * A soldier on duty that waits steps aside to a tile with a clear line (`clearLineTile` in
+ * `kiting.ts`). The line check itself draws nothing, so friendly fire after the shot stays real.
  */
 
 import { C } from '@core/components';
