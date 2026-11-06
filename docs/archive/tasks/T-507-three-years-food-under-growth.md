@@ -1,6 +1,8 @@
 # T-507 — The three-year fortress can outgrow its food at peril 0
 
-**Source:** T-482's twenty-seed run on `bba82dfc` ([report](../../reports/audits/2026-11-05-t482-pets-heap.md#the-sweep), [seeds](../../reports/data/2026-11-05-t482-sweep.json)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
+**Closed:** 2026-11-05, in d7c7e189.
+
+**Source:** T-482's twenty-seed run on `bba82dfc` ([report](../../../reports/audits/2026-11-05-t482-pets-heap.md#the-sweep), [seeds](../../../reports/data/2026-11-05-t482-sweep.json)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
 
 ## Why
 

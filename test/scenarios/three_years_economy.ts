@@ -124,6 +124,15 @@ const SURFACE_CROPS: readonly (readonly string[])[] = [['turnip', 'strawberry', 
 const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cavewheat'];
 /** Cave strips dug beside the first cave farm on its soil level for bought cave seed (x0, x1, y0, y1 from the centre). */
 const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7, 14, 8, 11], [7, 14, 0, 3], [7, 14, 12, 15], [15, 18, 0, 11]];
+/** The stair to the cave farm, from the centre: an east farm begins at `cx + 7`, a west one ends at `cx + 5` (T-455). */
+const CAVE_STAIR_X = 6;
+/**
+ * T-507: a west farm digs its first strip in year 2. Before its farm is zoned the wagon's cave seed
+ * counts as spare, so every farm plans a strip on day 1; an east farm's is part of its first winter's
+ * food (held back, the main run had no meal on day 224), but dug in a west farm's opening it left
+ * `p2-4` extinct on day 65 in three of four sweeps. Until T-507 a west farm's strips were never dug.
+ */
+const WEST_CAVE_STRIPS_FROM_DAY = DAYS_PER_YEAR;
 /** Free cave seed that justifies digging another cave strip. */
 const CAVE_STRIP_SEED = 12;
 const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
@@ -761,13 +770,14 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   for (let y = y0; y < y0 + FARM_STRIP.rows; y += 1) for (let x = x0; x < x0 + FARM_STRIP.width; x += 1) {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
-    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) tiles.push(t);
+    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t)) tiles.push(t);
   }
   // T-455: a slope may leave too little of the strip: as a player would, sow the same strip nearby.
-  // When that level is full, the next surface level the dwarves can walk to.
+  // When that level is full, the next surface level the dwarves can walk to. T-507: only sunlit
+  // tiles; a strip with a dark tile (dug rock one level down) is not a surface plot and refuses its crops.
   for (const level of [z, z - 1, z + 1, z - 2, z + 2]) {
     if (tiles.length >= FARM_STRIP.width) break;
-    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width));
+    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width).filter((t) => buildings.cropLitAt(t)));
   }
   const plan = { tiles, zoneId: -1 };
   plans.push(plan);
@@ -844,13 +854,16 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
   const plans = state.economy.cavePlans;
   const buildings = w.readers.of<BuildingsReader>('14');
   const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  const terrain = w.readers.of<TerrainReader>('03');
   for (const plan of plans) {
-    if (plan.zoneId !== -1 || !plan.tiles.every((t) => map.kindAt(t) === TileKind.Floor)) continue;
-    const tiles = plan.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
+    // A tile whose dig designation is gone without its being dug no longer holds the strip back.
+    if (plan.zoneId !== -1 || !plan.tiles.every((t) => map.kindAt(t) === TileKind.Floor || !terrain.designationAt(t))) continue;
+    const tiles = plan.tiles.filter((t) => map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t));
     plan.zoneId = 0;
     if (tiles.length > 0 && command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) plan.zoneId = bSystem.lastCreatedZone;
   }
   if (plans.some((p) => p.zoneId === -1) || plans.length >= CAVE_STRIPS.length) return;
+  if (westCaveFarm(w, state) && w.tick < WEST_CAVE_STRIPS_FROM_DAY * TICKS_PER_DAY) return;
   // Cave seed in stock beyond what the cave plots' empty tiles will take.
   const stock = seedSupply(w, false);
   const plants = w.readers.of<PlantsReader>('07');
@@ -858,17 +871,45 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
     .reduce((sum, z) => sum + (buildings.zone(z)?.tiles.filter((t) => plants.cropAt(t) === 0).length ?? 0), 0);
   const caveSeed = CAVE_CROPS.reduce((sum, sp) => sum + (stock.get(sp) ?? 0), 0);
   if (caveSeed - empty < CAVE_STRIP_SEED) return;
-  const [x0, x1, y0, y1] = CAVE_STRIPS[plans.length]!;
-  const z = map.zOf(state.caveTiles1[0]!);
+  const tiles = caveStripTiles(w, state, plans.length);
+  plans.push({ tiles, zoneId: tiles.length === 0 ? 0 : -1 });
+  if (tiles.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
+}
+
+/** T-455: the cave farm lies west of the stair (the east side would open to the hillside). */
+function westCaveFarm(w: TestWorld, state: FortressState): boolean {
+  return w.map.xOf(state.caveTiles1[0]!) < state.cx + CAVE_STAIR_X;
+}
+
+/**
+ * The rock of cave strip `n` (`CAVE_STRIPS`), on the cave farm's side of the stair: T-455 may put
+ * the farm west of the stair, and the strips are then mirrored about it (T-507: east of the stair
+ * they lay in solid rock that no miner could reach, and the bought cave seed was never sown). Only
+ * tiles joined to the farm or an earlier strip are taken, so a strip can always be dug.
+ */
+export function caveStripTiles(w: TestWorld, state: FortressState, n: number): number[] {
+  const map = w.map;
   const terrain = w.readers.of<TerrainReader>('03');
-  const tiles: number[] = [];
+  const [ex0, ex1, y0, y1] = CAVE_STRIPS[n]!;
+  const west = westCaveFarm(w, state);
+  const [x0, x1] = west ? [2 * CAVE_STAIR_X - ex1, 2 * CAVE_STAIR_X - ex0] : [ex0, ex1];
+  const z = map.zOf(state.caveTiles1[0]!);
+  const open = new Set<number>();
   for (let y = state.cy + y0; y <= state.cy + y1; y += 1) for (let x = state.cx + x0; x <= state.cx + x1; x += 1) {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
-    if (map.kindAt(t) === TileKind.Wall && map.fluidLevelAt(t) === 0 && !terrain.designationAt(t) && !opensToHillside(w, t)) tiles.push(t);
+    if (map.kindAt(t) === TileKind.Wall && map.fluidLevelAt(t) === 0 && !terrain.designationAt(t) && !opensToHillside(w, t)) open.add(t);
   }
-  plans.push({ tiles, zoneId: tiles.length === 0 ? 0 : -1 });
-  if (tiles.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
+  const farm = new Set([...state.caveTiles1, ...state.caveTiles2, ...state.economy.cavePlans.flatMap((p) => p.tiles)]);
+  const joined = new Set<number>();
+  const todo = [...open].filter((t) => map.neighbors8(t).some((b) => farm.has(b)));
+  while (todo.length > 0) {
+    const t = todo.pop()!;
+    if (joined.has(t)) continue;
+    joined.add(t);
+    for (const b of map.neighbors8(t)) if (open.has(b) && !joined.has(b)) todo.push(b);
+  }
+  return [...open].filter((t) => joined.has(t));
 }
 
 /**

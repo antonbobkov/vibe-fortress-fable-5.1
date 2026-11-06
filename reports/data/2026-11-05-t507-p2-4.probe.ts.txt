@@ -1,0 +1,56 @@
+/**
+ * T-507 probe (not kept in test/; run from test/perf): `three-years-p2-4`'s year 1, played as the sweep
+ * plays it, P_SHIFT ticks later. Every 5 days the living and the cave strips (tiles, floor, open to the
+ * outdoors, digs, zone); each fortress death with its tile and killer; raids and ambushes.
+ * Results (living at day 110, shifts 0 / 1 / 2): master d2f68294 11 / 7 / 6 (its west farm's strip
+ * unreachable); T-507's strips beside the farm, the first dug from day 1 as on an east farm: 0 (extinct
+ * day 65) / 3 / 4; the same with no strip in the opening year (tried in 96cf3fea, reverted): 11 / 11 / 4.
+ * The day-62 ambush at the gate makes the difference in each.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { TileKind, TileFlag } from '@core/map3d';
+import type { JobsReader } from '@systems/jobs';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+it('T-507 p2-4 probe', () => {
+  const w = threeYearsWorld(process.env['P_SEED'] ?? 'three-years-p2-4', Number(process.env['P_PERIL'] ?? 2));
+  w.step(Number(process.env['P_SHIFT'] ?? 0));
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const map = w.map;
+  const jobs = w.readers.of<JobsReader>('11');
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const xyz = (t: number): string => `(${map.xOf(t)},${map.yOf(t)},${map.zOf(t)})`;
+  console.log(`cx ${state.cx} cy ${state.cy} z ${state.z} cave1 ${xyz(state.caveTiles1[0]!)}`);
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      if (e.type === 'CreatureDied' && (ent.has(Number(e['id']), C.Labors) || e['faction'] === 'fortress')) {
+        const k = Number(e['killerId'] ?? 0);
+        console.log(`day ${(w.tick / TICKS_PER_DAY).toFixed(2)} died ${String(e['cause'])} at ${xyz(Number(e['tile']))} by ${ent.has(k, C.Creature) ? species.rows[ent.get(k, C.Creature)!.species]?.id : k}`);
+      }
+      if (e.type === 'RaidArrived' || e.type === 'AmbushSprung' || e.type === 'RaidEnded') console.log(`day ${(w.tick / TICKS_PER_DAY).toFixed(2)} ${e.type} ${JSON.stringify(e)}`);
+    }
+  });
+  let next = 0;
+  const DAYS = Number(process.env['P_DAYS'] ?? 66);
+  while (w.tick < DAYS * TICKS_PER_DAY) {
+    playThreeYears(w, state, w.tick < 20 * TICKS_PER_DAY ? 100 : 300);
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    if (w.tick >= next) {
+      next += 5 * TICKS_PER_DAY;
+      const plans = state.economy.cavePlans.map((p) => {
+        const floor = p.tiles.filter((t) => map.kindAt(t) === TileKind.Floor).length;
+        const outdoorNear = p.tiles.filter((t) => map.kindAt(t) === TileKind.Floor && map.neighbors8(t).some((n) => map.hasFlag(n, TileFlag.Outdoor) && map.kindAt(n) !== TileKind.Wall)).length;
+        const digs = jobs.list().filter((j) => jobs.typeOf(j.id) === 'dig' && p.tiles.includes(j.target.ref)).length;
+        return `${p.tiles.length}t first${xyz(p.tiles[0] ?? 0)} floor${floor} outdoorNear${outdoorNear} digs${digs} zone${p.zoneId}`;
+      });
+      const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      console.log(`day ${Math.floor(w.tick / TICKS_PER_DAY)} living ${living} alert ${w.game.world.fortress.alert} plans ${plans.join(' ; ')}`);
+    }
+  }
+}, 3_600_000);
