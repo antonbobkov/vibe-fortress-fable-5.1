@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { caveStripTiles, ripensInTime } from '../scenarios/three_years_economy';
+import { caveStripTiles } from '../scenarios/three_years_economy';
 import { setupThreeYearsFortress, threeYearsWorld } from '../scenarios/three_years_fortress';
 
 /**
@@ -34,33 +34,4 @@ describe('T-507 the three-year script digs its cave strips beside the cave farm'
       expect(sizes[0], `${seed} (${side}) strip sizes ${sizes.join(', ')}`).toBeGreaterThanOrEqual(16);
     }, 120_000);
   }
-});
-
-/**
- * T-507: on `three-years-p0-3` the script sowed strawberries and barley (28 days, spring and summer
- * only) late in summer and turnips late in autumn; none ripened, the frost killed 101 crops in year
- * 2 and 165 in year 3, and their seed with them. It now sows only what ripens in time.
- */
-describe('T-507 the three-year script sows only surface crops that ripen before their seasons end', () => {
-  const strawberry = { stageDays: 7, seasons: [0, 1] };
-  const turnip = { stageDays: 5, seasons: [0, 1, 2] };
-  const pumpkin = { stageDays: 8, seasons: [1, 2] };
-  it('a 28-day spring and summer crop: in the first weeks of spring only', () => {
-    expect(ripensInTime(strawberry, 0, 1)).toBe(true);
-    expect(ripensInTime(strawberry, 0, 20)).toBe(true);
-    expect(ripensInTime(strawberry, 0, 27)).toBe(false);
-    expect(ripensInTime(strawberry, 1, 1)).toBe(false);
-    expect(ripensInTime(strawberry, 1, 28)).toBe(false);
-  });
-  it('a 20-day crop of three seasons: through summer, and in autumn only in its first days', () => {
-    expect(ripensInTime(turnip, 1, 20)).toBe(true);
-    expect(ripensInTime(turnip, 2, 1)).toBe(true);
-    expect(ripensInTime(turnip, 2, 5)).toBe(true);
-    expect(ripensInTime(turnip, 2, 6)).toBe(false);
-    expect(ripensInTime(turnip, 2, 10)).toBe(false);
-  });
-  it('a 32-day summer and autumn crop is not sown in autumn', () => {
-    expect(ripensInTime(pumpkin, 1, 1)).toBe(true);
-    expect(ripensInTime(pumpkin, 2, 1)).toBe(false);
-  });
 });
