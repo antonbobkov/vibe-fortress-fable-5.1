@@ -10,10 +10,12 @@ import { playWildlifeYear, WILDLIFE_CASES, type WildlifeYear } from './wildlife_
 
 const rows: WildlifeYear[] = [];
 const output = process.env['WILDLIFE_YEAR_OUT'] ?? '.vite/wildlife-year.json';
+/** T-509: the ticks played before the opening; measure.yml runs one job per shift. */
+const shift = Number(process.env['WILDLIFE_YEAR_SHIFT'] ?? '0');
 
 describe('T-136 wildlife survival over twelve generated years', () => {
   it.each(WILDLIFE_CASES)('$biome / $seed', ({ seed, biome }) => {
-    const row = playWildlifeYear(seed, biome);
+    const row = playWildlifeYear(seed, biome, { shift });
     rows.push(row);
     mkdirSync(output + '.rows', { recursive: true });
     writeFileSync(output + '.rows/' + seed + '.json', JSON.stringify(row, null, 2) + '\n');
@@ -34,7 +36,7 @@ describe('T-136 wildlife survival over twelve generated years', () => {
     const byBiome = Object.fromEntries([...new Set(WILDLIFE_CASES.map((row) => row.biome))]
       .map((biome) => [biome, distribution(rows.filter((row) => row.biome === biome))]));
     mkdirSync(dirname(output), { recursive: true });
-    writeFileSync(output, JSON.stringify({ runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), target: TARGET, measured: MEASURED, reference: REFERENCE, floor: FLOOR, regression: check, improved: improvedMeasurements(MEASURED, summary), summary, byBiome, rows }, null, 2) + '\n');
+    writeFileSync(output, JSON.stringify({ shift, runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), target: TARGET, measured: MEASURED, reference: REFERENCE, floor: FLOOR, regression: check, improved: improvedMeasurements(MEASURED, summary), summary, byBiome, rows }, null, 2) + '\n');
     console.log(`T-136 wildlife distribution: ${JSON.stringify({ summary, byBiome })}`);
     expect(rows).toHaveLength(WILDLIFE_CASES.length);
     // Kept (T-334): the guarded figures of testing-strategy.md § Annual wildlife survival, each with

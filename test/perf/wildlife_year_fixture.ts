@@ -58,11 +58,18 @@ export interface WildlifeOptions {
   relief?: 0 | 1 | 2 | 3;
   /** Called after every look (20 ticks) of the year with the alert level; a probe's hook, absent in the instrument. */
   observe?: (game: HeadlessGame, level: string) => void;
+  /**
+   * T-509: ticks played before the opening's first command, so the same code runs a different
+   * timeline. 0 (the default) is the instrument's own sample; the verdict pools shifts 0 to N-1.
+   */
+  shift?: number;
 }
 
 export interface WildlifeYear {
   seed: string;
   biome: string;
+  /** T-509: the ticks played before the opening (0 for the instrument's own sample). */
+  shift: number;
   tick: number;
   living: number;
   arrivals: number;
@@ -98,6 +105,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     ...(options.brook === undefined ? {} : { river: { class: 'brook' as const, inflow: [options.brook === 'west' ? 'w' as const : 'n' as const], outflow: 's' as const } }),
     nearestEdgeTo: { mountainhome: 'w', hillfolk: 'w', wildwood: 'w', gloam: 'w' } });
   const game = new HeadlessGame({ seed, world: 'local', spec, embark: 'default' });
+  if ((options.shift ?? 0) > 0) game.step(options.shift);
   const world = game.world;
   const entities = world.entities;
   const map = game.map;
@@ -114,7 +122,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   const wx = map.xOf(wagon.origin);
   const wy = map.yOf(wagon.origin);
   const z = map.zOf(wagon.origin);
-  const result: WildlifeYear = { seed, biome, tick: 0, living: 0, arrivals: living().length,
+  const result: WildlifeYear = { seed, biome, shift: options.shift ?? 0, tick: 0, living: 0, arrivals: living().length,
     deaths: [], starving: 0, shelter: { longest: 0, maxHunger: 0, maxThirst: 0, maxRest: 0 }, sleepAttacks: [], livestockLost: 0, spawns: {}, alerts: [],
     stocks: { drink: 0, meal: 0, plantFood: 0 }, harvests: 0, hunts: 0, hash: '',
     setup: { caveDepth: Math.min(2, spec.soilDepth - 1), surfacePlots: [], caveTiles: 0, buildings: [], commands: 0, siteSteps: [] } };

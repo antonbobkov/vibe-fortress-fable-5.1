@@ -20,6 +20,10 @@ on:
         description: For suite=defence_seeds, the script's watch cadence in ticks (20 is the scenario's)
         type: string
         default: '20'
+      shifts:
+        description: For suite=instrument, the timeline shifts to play, in ticks before the opening (one job each)
+        type: string
+        default: '0,1,2,3,4,5,6,7'
 permissions:
   contents: read
 jobs:
@@ -110,8 +114,40 @@ jobs:
           path: out/
           retention-days: 14
 
+  instrument:
+    if: inputs.suite == 'instrument'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shift: ${{ fromJSON(format('[{0}]', inputs.shifts)) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Annual instrument, shift ${{ matrix.shift }}
+        env:
+          WILDLIFE_YEAR_OUT: out/wildlife-year-shift-${{ matrix.shift }}.json
+          WILDLIFE_YEAR_SHIFT: ${{ matrix.shift }}
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/wildlife_year.test.ts 2>&1 | tee out/wildlife-year-shift-${{ matrix.shift }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: The sample produced its result file
+        run: test -f out/wildlife-year-shift-${{ matrix.shift }}.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrument-shift-${{ matrix.shift }}
+          path: out/
+          retention-days: 14
+
   single:
-    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds'
+    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'instrument'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
@@ -123,11 +159,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - if: inputs.suite == 'instrument'
-        env:
-          WILDLIFE_YEAR_OUT: out/wildlife-year.json
-        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/wildlife_year.test.ts 2>&1 | tee out/wildlife-year.log; exit ${PIPESTATUS[0]}
-        shell: bash
       - if: inputs.suite == 'three_years_main'
         env:
           THREE_YEARS_OUT: out/three-years.json
