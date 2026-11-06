@@ -126,6 +126,13 @@ const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cave
 const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7, 14, 8, 11], [7, 14, 0, 3], [7, 14, 12, 15], [15, 18, 0, 11]];
 /** The stair to the cave farm, from the centre: an east farm begins at `cx + 7`, a west one ends at `cx + 5` (T-455). */
 const CAVE_STAIR_X = 6;
+/**
+ * T-507: a west farm digs its first strip in year 2. Before its farm is zoned the wagon's cave seed
+ * counts as spare, so every farm plans a strip on day 1; an east farm's is part of its first winter's
+ * food (held back, the main run had no meal on day 224), but dug in a west farm's opening it left
+ * `p2-4` extinct on day 65 in three of four sweeps. Until T-507 a west farm's strips were never dug.
+ */
+const WEST_CAVE_STRIPS_FROM_DAY = DAYS_PER_YEAR;
 /** Free cave seed that justifies digging another cave strip. */
 const CAVE_STRIP_SEED = 12;
 const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
@@ -856,6 +863,7 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
     if (tiles.length > 0 && command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) plan.zoneId = bSystem.lastCreatedZone;
   }
   if (plans.some((p) => p.zoneId === -1) || plans.length >= CAVE_STRIPS.length) return;
+  if (westCaveFarm(w, state) && w.tick < WEST_CAVE_STRIPS_FROM_DAY * TICKS_PER_DAY) return;
   // Cave seed in stock beyond what the cave plots' empty tiles will take.
   const stock = seedSupply(w, false);
   const plants = w.readers.of<PlantsReader>('07');
@@ -868,6 +876,11 @@ function checkCaveStrips(w: TestWorld, state: FortressState): void {
   if (tiles.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
 }
 
+/** T-455: the cave farm lies west of the stair (the east side would open to the hillside). */
+function westCaveFarm(w: TestWorld, state: FortressState): boolean {
+  return w.map.xOf(state.caveTiles1[0]!) < state.cx + CAVE_STAIR_X;
+}
+
 /**
  * The rock of cave strip `n` (`CAVE_STRIPS`), on the cave farm's side of the stair: T-455 may put
  * the farm west of the stair, and the strips are then mirrored about it (T-507: east of the stair
@@ -878,7 +891,7 @@ export function caveStripTiles(w: TestWorld, state: FortressState, n: number): n
   const map = w.map;
   const terrain = w.readers.of<TerrainReader>('03');
   const [ex0, ex1, y0, y1] = CAVE_STRIPS[n]!;
-  const west = map.xOf(state.caveTiles1[0]!) < state.cx + CAVE_STAIR_X;
+  const west = westCaveFarm(w, state);
   const [x0, x1] = west ? [2 * CAVE_STAIR_X - ex1, 2 * CAVE_STAIR_X - ex0] : [ex0, ex1];
   const z = map.zOf(state.caveTiles1[0]!);
   const open = new Set<number>();
