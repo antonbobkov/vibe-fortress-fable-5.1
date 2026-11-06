@@ -25,7 +25,7 @@ import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS } from './constants';
-import { Activities } from './activities';
+import { Activities, hallStand } from './activities';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
@@ -296,6 +296,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
             - Math.max(Math.abs(map.xOf(from) - map.xOf(b)), Math.abs(map.yOf(from) - map.yOf(b))) || a - b);
           return hall[0] ?? this.wagonTile;
         },
+        idleStand: (id) => hallStand(ctx, id),
       jobName: (id) => {
         if (!ctx.readers.has('11')) return '';
         const t = ctx.readers.of<{ forWorker(id: EntityId): { type: number } | undefined }>('11').forWorker(id);

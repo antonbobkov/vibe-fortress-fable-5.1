@@ -94,6 +94,62 @@ function nearest(ctx: TickContext, from: TileIndex, choices: readonly TileIndex[
   return best;
 }
 
+/**
+ * `10` § Behavior selection, step 9, and § Social, comfort, joy: where a dwarf stands in the hearth hall
+ * without a seat. It keeps the hall tile it stands on (no building on it) while no other creature stands
+ * there, a dwarf of a higher id excepted; otherwise it takes the reachable hall tile with no building on it
+ * that has the fewest creatures on it or heading to it, ties by the nearest to the hearth (to the dwarf
+ * without one in the hall), then the lowest index, and only if that is fewer than it has. So the dwarves
+ * who come in by one way gather round the hearth, each on a tile of its own, instead of all standing on
+ * the hall's first tile. -1 without a hall tile to stand on.
+ */
+export function hallStand(ctx: Pick<TickContext, 'world' | 'readers'>, id: EntityId, allowed: (tile: TileIndex) => boolean = () => true): TileIndex {
+  const movement = ctx.world.services.movement ?? null;
+  const from = movement?.tileOf(id) ?? -1;
+  if (movement === null || from < 0 || !ctx.readers.has('14')) return -1;
+  const buildings = ctx.readers.of<BuildingsReader>('14');
+  const map = ctx.world.map;
+  const entities = ctx.world.entities;
+  const hallTiles = buildings.hearthHallTiles();
+  const hall = hallTiles.filter((tile) => buildings.at(tile) === 0 && allowed(tile) &&
+    ctx.readers.pathing.passable(tile, 'walker') && ctx.readers.pathing.reachable(from, tile, 'walker'));
+  if (hall.length === 0) return -1;
+  const hearthView = buildings.get(buildings.hearth());
+  const hearth = hearthView?.state === 'built' && hallTiles.includes(hearthView.origin) ? hearthView.origin : from;
+  // Where a creature is going: an idle dwarf or one on an errand by its brain's goal (its walk may not have
+  // started, and a walk it left for a nearer goal stays recorded), any other by its walk.
+  const goalOf = (other: EntityId): TileIndex => {
+    const brain = entities.get(other, C.Brain);
+    return brain?.behavior === 'idle' || brain?.behavior === 'need' ? brain.targetTile : movement.walkTarget(other);
+  };
+  const standing = (other: EntityId): boolean => goalOf(other) < 0 || goalOf(other) === movement.tileOf(other);
+  const creaturesOn = (tile: TileIndex): EntityId[] => ctx.readers.entities.at(tile).filter((other) => other !== id && entities.kind(other) === 'creature');
+  const inHall = new Set(hall);
+  if (inHall.has(from) && !creaturesOn(from).some((other) => standing(other) && !(entities.has(other, C.Brain) && other > id))) return from;
+  const headed = new Map<TileIndex, number>();
+  for (const other of [...entities.with(C.Brain), ...entities.with(C.Tame)]) {
+    const target = other === id ? -1 : goalOf(other);
+    if (target >= 0 && target !== movement.tileOf(other)) headed.set(target, (headed.get(target) ?? 0) + 1);
+  }
+  const count = (tile: TileIndex): number => creaturesOn(tile).length + (headed.get(tile) ?? 0);
+  const far = (tile: TileIndex): number => Math.max(Math.abs(map.xOf(hearth) - map.xOf(tile)), Math.abs(map.yOf(hearth) - map.yOf(tile)));
+  let best: TileIndex = -1;
+  let bestCount = Infinity;
+  let bestFar = Infinity;
+  for (const tile of hall) {
+    if (tile === from) continue;
+    const n = count(tile);
+    const f = far(tile);
+    if (n < bestCount || (n === bestCount && (f < bestFar || (f === bestFar && tile < best)))) {
+      best = tile;
+      bestCount = n;
+      bestFar = f;
+    }
+  }
+  if (!inHall.has(from)) return best;
+  return best >= 0 && bestCount < count(from) ? best : from;
+}
+
 function hallTile(ctx: TickContext, from: TileIndex, wagon: TileIndex, allowed: (tile: TileIndex) => boolean = () => true): TileIndex {
   const hall = activityTargets(ctx).hall.filter((t) => reachable(ctx, from, t) && allowed(t));
   if (hall.length > 0) return nearest(ctx, from, hall);
@@ -286,7 +342,7 @@ export class Activities {
 
   /**
    * `10` § Behavior selection step 6: one sit in the hearth hall for a dwarf with social, comfort or
-   * joy at `LEISURE_MARK`. The seat is the nearest free chair on a hall tile, else a hall tile.
+   * joy at `LEISURE_MARK`. The seat is the nearest free chair on a hall tile, else a hall stand (`hallStand`).
    */
   startHallErrand(ctx: TickContext, id: EntityId, b: Brain, allowTarget?: (tile: TileIndex) => boolean): boolean {
     if (ctx.tick < (this.hallRetryUntil.get(id) ?? 0)) return false;
@@ -297,7 +353,7 @@ export class Activities {
     const usable = (to: TileIndex): boolean => reachable(ctx, from, to) && allowed(to);
     const free = (to: TileIndex): boolean => !ctx.readers.entities.at(to).some((occupant) => occupant !== id && ctx.world.entities.has(occupant, C.Brain));
     const chairs = targets.comfort.filter((s) => targets.hallSet.has(s.tile) && usable(s.tile) && free(s.tile)).map((s) => s.tile);
-    const target = chairs.length > 0 ? nearest(ctx, from, chairs) : nearest(ctx, from, targets.hall.filter(usable));
+    const target = chairs.length > 0 ? nearest(ctx, from, chairs) : hallStand(ctx, id, allowed);
     if (target < 0) return false;
     this.plans.set(id, plan('comfort', target, { roomTier: roomTier(ctx, target), hall: true }));
     b.behavior = 'need'; b.activity = 'comfort';
@@ -520,12 +576,10 @@ export class Activities {
       if (target >= 0) p = plan(need, target);
     } else if (need === 'comfort') {
       const s = seat(ctx, from, false, allowed);
-      const hall = activityTargets(ctx).hall.filter((t) => reachable(ctx, from, t) && allowed(t));
-      const target = s?.tile ?? (hall.length > 0 ? nearest(ctx, from, hall) : -1);
+      const target = s?.tile ?? hallStand(ctx, id, allowed);
       if (target >= 0) p = plan(need, target, { roomTier: s?.tier ?? 0 });
     } else if (need === 'joy') {
-      const hall = activityTargets(ctx).hall.filter((t) => reachable(ctx, from, t) && allowed(t));
-      const target = hall.length > 0 ? nearest(ctx, from, hall) : -1;
+      const target = hallStand(ctx, id, allowed);
       if (target >= 0) p = plan(need, target);
     }
     if (p === null || !allowed(p.target)) return false;
