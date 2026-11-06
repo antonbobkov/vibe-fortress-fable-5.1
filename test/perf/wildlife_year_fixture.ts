@@ -9,6 +9,7 @@ import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 
 export const WILDLIFE_CASES = ['temperate_forest', 'taiga', 'temperate_grassland'].flatMap((biome) =>
   [1, 2, 3, 4].map((n) => ({ biome, seed: `wildlife-${biome}-${n}` })));
@@ -58,11 +59,18 @@ export interface WildlifeOptions {
   relief?: 0 | 1 | 2 | 3;
   /** Called after every look (20 ticks) of the year with the alert level; a probe's hook, absent in the instrument. */
   observe?: (game: HeadlessGame, level: string) => void;
+  /**
+   * T-509: ticks played before the opening's first command, so the same code runs a different
+   * timeline. 0 (the default) is the instrument's own sample; the verdict pools shifts 0 to N-1.
+   */
+  shift?: number;
 }
 
 export interface WildlifeYear {
   seed: string;
   biome: string;
+  /** T-509: the ticks played before the opening (0 for the instrument's own sample). */
+  shift: number;
   tick: number;
   living: number;
   arrivals: number;
@@ -77,8 +85,12 @@ export interface WildlifeYear {
   harvests: number;
   hunts: number;
   hash: string;
-  /** `siteSteps` (T-481): walker steps from the camp's stockpile to the middle of each building site, -1 when none reach it. */
-  setup: { caveDepth: number; surfacePlots: number[]; caveTiles: number; buildings: number[]; commands: number; siteSteps: number[] };
+  /**
+   * `siteSteps` (T-481): walker steps from the camp's stockpile to the middle of each building site, -1 when none reach it.
+   * `stoneDigs` (T-509): the days on which the player dug more rock because a building waited for a stone.
+   * `unbuilt` (T-509): the opening's buildings not built at the year's end.
+   */
+  setup: { caveDepth: number; surfacePlots: number[]; caveTiles: number; buildings: number[]; commands: number; siteSteps: number[]; stoneDigs: number[]; unbuilt: string[] };
   brook?: BrookRecord;
 }
 
@@ -98,6 +110,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     ...(options.brook === undefined ? {} : { river: { class: 'brook' as const, inflow: [options.brook === 'west' ? 'w' as const : 'n' as const], outflow: 's' as const } }),
     nearestEdgeTo: { mountainhome: 'w', hillfolk: 'w', wildwood: 'w', gloam: 'w' } });
   const game = new HeadlessGame({ seed, world: 'local', spec, embark: 'default' });
+  if ((options.shift ?? 0) > 0) game.step(options.shift);
   const world = game.world;
   const entities = world.entities;
   const map = game.map;
@@ -114,10 +127,10 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   const wx = map.xOf(wagon.origin);
   const wy = map.yOf(wagon.origin);
   const z = map.zOf(wagon.origin);
-  const result: WildlifeYear = { seed, biome, tick: 0, living: 0, arrivals: living().length,
+  const result: WildlifeYear = { seed, biome, shift: options.shift ?? 0, tick: 0, living: 0, arrivals: living().length,
     deaths: [], starving: 0, shelter: { longest: 0, maxHunger: 0, maxThirst: 0, maxRest: 0 }, sleepAttacks: [], livestockLost: 0, spawns: {}, alerts: [],
     stocks: { drink: 0, meal: 0, plantFood: 0 }, harvests: 0, hunts: 0, hash: '',
-    setup: { caveDepth: Math.min(2, spec.soilDepth - 1), surfacePlots: [], caveTiles: 0, buildings: [], commands: 0, siteSteps: [] } };
+    setup: { caveDepth: Math.min(2, spec.soilDepth - 1), surfacePlots: [], caveTiles: 0, buildings: [], commands: 0, siteSteps: [], stoneDigs: [], unbuilt: [] } };
   if (options.dry === true) {
     // T-360: no drink in the fortress and no still; the first thirst walks to the brook. The barrels stay.
     const drinkType = game.registry.table<{ id: string }>('items').index('drink');
@@ -235,6 +248,39 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   const build = (buildingType: string, origin: number): void => {
     command({ type: 'PlaceBuilding', buildingType, origin, orientation: 0, materialChoice: 0, priority: PRIORITY_DEFAULT });
     result.setup.buildings.push(buildingSystem.lastPlacedBuilding);
+    placedAt.set(buildingSystem.lastPlacedBuilding, game.tick);
+  };
+  // T-509: the rock the opening digs drops a stone from 30% of its tiles, so the stones it yields
+  // move with the timeline (5 to 9), and the mason's blocks and the first workshops may take the
+  // stone a later building waits for: taiga seed 3's kitchen, two ticks later, waited all year, and
+  // grassland seeds 3 and 4 had no hearth in 7 of 16 timelines. A player whose building has waited two days for
+  // stone or blocks, with no raw stone about and nothing left to dig, digs the next room of rock
+  // beside the lower room (at most three rooms).
+  const placedAt = new Map<number, number>();
+  const stoneRooms: number[][] = [];
+  const itemTypes = game.registry.table<{ id: string }>('items');
+  const rawStone = itemTypes.index('raw_stone');
+  const stone = new Set([rawStone, itemTypes.index('stone_block')]);
+  let stoneDay = -1;
+  const digForStone = (): void => {
+    const day = Math.floor(game.tick / TICKS_PER_DAY);
+    if (day === stoneDay || stoneRooms.length === 0) return;
+    stoneDay = day;
+    const board = world.readers.of<JobsReader>('11');
+    const open = board.list();
+    if (items.available(rawStone) > 0 || open.some((job) => board.typeOf(job.id) === 'dig')) return;
+    const waitsForStone = (input: (typeof open)[number]['inputs'][number]): boolean => {
+      const types = input.filter.types ?? [];
+      const missing = input.count - input.delivered.length - input.reserved.length;
+      return missing > 0 && types.length > 0 && types.every((type) => stone.has(type)) &&
+        types.reduce((sum, type) => sum + items.available(type), 0) < missing;
+    };
+    const waiting = [...placedAt].some(([id, at]) => game.tick - at >= 2 * TICKS_PER_DAY && buildings.get(id)?.state !== 'built' &&
+      open.some((job) => job.target.kind === 'building' && job.target.ref === id && job.inputs.some(waitsForStone)));
+    if (!waiting) return;
+    const room = stoneRooms.shift()!;
+    command({ type: 'Designate', kind: 'dig', tiles: room, priority: PRIORITY_DEFAULT });
+    result.setup.stoneDigs.push(day + 1);
   };
   const order = (recipeId: string, mode: string, quantity: number): void => command({ type: 'AddWorkOrder', workshopId: 0,
     order: { recipeId, mode, remaining: mode === 'maintain' ? 1 : quantity, threshold: mode === 'maintain' ? quantity : 0,
@@ -246,6 +292,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     }));
     while (game.tick < target && living().length > 0) {
       game.step(Math.min(respond ? LOOK_EVERY : 300, target - game.tick));
+      digForStone();
       if (!respond) continue;
       options.observe?.(game, level);
       const tick = game.tick;
@@ -378,6 +425,12 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   if (caveDig.length > 0) command({ type: 'Designate', kind: 'dig', tiles: caveDig, priority: PRIORITY_DEFAULT });
   const lowerDig = rect(sx + 1, sy, 5, 5, z - 3).filter(diggable);
   if (lowerDig.length > 0) command({ type: 'Designate', kind: 'dig', tiles: lowerDig, priority: PRIORITY_DEFAULT });
+  // T-509: the rooms of rock a player digs next for stone: east of the lower room, south, south-east.
+  for (const [x, y] of [[sx + 6, sy], [sx + 1, sy + 5], [sx + 6, sy + 5]] as const) {
+    if (x < 1 || y < 1 || x + 5 >= map.w - 1 || y + 5 >= map.h - 1) continue;
+    const room = rect(x, y, 5, 5, z - 3).filter(diggable);
+    if (room.length > 0) stoneRooms.push(room);
+  }
   const trees: number[] = [];
   for (let dy = -12; dy <= 12; dy += 1) for (let dx = 1; dx <= 30; dx += 1) {
     const at = map.index(wx + dx, wy + dy, z);
@@ -415,6 +468,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   result.living = living().length;
   result.stocks = { drink: items.count('drink'), meal: items.count('easy_meal') + items.count('fine_meal') + items.count('lavish_meal'), plantFood: items.count('plant_food') };
   result.hash = game.hash();
+  result.setup.unbuilt = result.setup.buildings.filter((id) => buildings.get(id)?.state !== 'built').map((id) => buildings.get(id)?.typeId ?? String(id));
   if (options.dry === true || options.brook !== undefined) {
     const brook = (result.brook ??= { drinks: 0, alcohol: 0, firstDrinkDay: null, drinkers: 0, distances: [], tiles: [], outdoors: 0, wagon: { x: wx, y: wy, z } });
     brook.drinkers = drinkers.size;

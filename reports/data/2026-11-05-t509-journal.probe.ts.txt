@@ -1,0 +1,87 @@
+/** T-509 probe (from T-481's) (not committed): a daily journal of one instrument seed. */
+import { it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { EntityId } from '@core/types';
+import type { HeadlessGame } from '@app/headless';
+import { playWildlifeYear } from './wildlife_year_fixture';
+
+const SEED = process.env['T509_SEED'] ?? 'wildlife-taiga-3';
+const BIOME = process.env['T509_BIOME'] ?? 'taiga';
+const OUT = process.env['T509_OUT'] ?? 'probe.json';
+const SHIFT = Number(process.env['T509_SHIFT'] ?? '2');
+
+it('journal ' + SEED, () => {
+  const days: Record<string, unknown>[] = [];
+  let hooked = false;
+  let ev: Record<string, number> = {};
+  let acts: Record<string, number> = {};
+  let alerts: Record<string, number> = {};
+  const bump = (m: Record<string, number>, k: string, n = 1): void => { m[k] = (m[k] ?? 0) + n; };
+  let lastDay = -1;
+  const observe = (game: HeadlessGame, level: string): void => {
+    const world = game.world;
+    const e = world.entities;
+    const reg = game.registry;
+    const itemsT = reg.table<{ id: string }>('items');
+    const matT = reg.table<{ id: string }>('materials');
+    if (!hooked) {
+      hooked = true;
+      world.onEvents((batch) => {
+        for (const x of batch) {
+          const t = x.type;
+          if (t === 'JobCompleted' || t === 'JobCancelled') bump(ev, t + ':' + String(x['jobType']) + (t === 'JobCancelled' ? ':' + String(x['reason']) : ''));
+          else if (t === 'ItemCreated') bump(ev, 'made:' + String(x['itemType']) + ':' + String(x['material']), Number(x['count'] ?? 1));
+          else if (t === 'ItemDestroyed') bump(ev, 'gone:' + String(x['itemType']) + ':' + String(x['reason']));
+          else if (t === 'CropHarvested') bump(ev, 'harvest:' + String(x['species']), Number(x['count']));
+          else if (t === 'CropPlanted' || t === 'PlotNeedsSeeds') bump(ev, t + ':' + String(x['species']));
+          else if (t === 'CropDied') bump(ev, 'died:' + String(x['species']) + ':' + String(x['reason']));
+          else if (['HuntKill', 'HuntStarted', 'HuntAbandoned', 'DrankAlcohol', 'DrankWater', 'MealEaten', 'Starving', 'ItemRotted', 'FishCaught', 'ButcheryDone', 'FireStarted', 'ImmigrantsArrived', 'WorkshopBlocked', 'WorkshopIdle', 'NeedCritical', 'CaravanArrived', 'TradeCompleted', 'TileFrozen', 'TileThawed'].includes(t)) bump(ev, t + (t === 'WorkshopBlocked' ? ':' + String(x['reason'] ?? '') : ''));
+          else if (t === 'CreatureDied' && x['faction'] === 'fortress') bump(ev, 'death:' + String(x['cause']));
+        }
+      });
+    }
+    const living = e.with(C.Labors).filter((id) => e.get(id, C.Creature)?.faction === 'fortress');
+    const jobs = world.readers.of<{ forWorker(id: EntityId): { type?: unknown } | undefined; typeOf(id: number): string | null }>('11');
+    for (const id of living) {
+      const b = e.get(id, C.Brain);
+      const job = jobs.forWorker(id as EntityId) as { id?: number } | undefined;
+      const jt = job?.id === undefined ? '' : jobs.typeOf(job.id) ?? '';
+      bump(acts, (b?.behavior ?? '?') + ':' + (b?.activity ?? '') + (jt ? ':' + jt : ''));
+    }
+    bump(alerts, level);
+    const day = Math.floor(game.tick / TICKS_PER_DAY);
+    if (day === lastDay) return;
+    lastDay = day;
+    // A day's summary.
+    const stock: Record<string, number> = {};
+    for (const id of e.with(C.Item)) {
+      const it = e.get(id, C.Item)!;
+      const type = itemsT.idOf(it.type);
+      if (!['drink', 'easy_meal', 'fine_meal', 'plant_food', 'raw_meat', 'raw_fish', 'seed', 'barrel', 'flour'].includes(type)) continue;
+      const key = type === 'drink' || type.endsWith('meal') ? type : type + ':' + matT.idOf(it.material);
+      bump(stock, key, it.count);
+    }
+    const plants = world.readers.of<{ plots(): EntityId[]; crops(): EntityId[]; cropInfo(id: EntityId): { species: string; stage: number; percent: number; tile: number; plotZoneId: EntityId } | undefined; cropReady(t: number): boolean }>('07');
+    const crops: Record<string, number> = {};
+    let ready = 0;
+    for (const c of plants.crops()) {
+      const info = plants.cropInfo(c);
+      if (info === undefined) continue;
+      bump(crops, info.species + ':s' + info.stage);
+      if (plants.cropReady(info.tile)) ready += 1;
+    }
+    const weather = world.readers.of<{ surfaceTempC(): number; state(): string }>('06');
+    const mats = world.readers.of<{ temperatureAt(i: number): number }>('05');
+    const buildings = world.readers.of<{ zone(id: EntityId): { tiles: number[] } | undefined }>('14');
+    const plotTemps = plants.plots().map((z) => { const t = buildings.zone(z)?.tiles ?? []; return t.length === 0 ? null : mats.temperatureAt(t[0]!); });
+    const needs = living.map((id) => e.get(id, C.Needs)).filter((n) => n !== undefined);
+    const avg = (f: (n: (typeof needs)[number]) => number): number => needs.length === 0 ? 0 : Math.round(needs.reduce((s, n) => s + f(n!), 0) / needs.length);
+    days.push({ day, living: living.length, surfaceC: weather.surfaceTempC(), weather: weather.state(), plotTemps, stock, crops, ready,
+      hunger: avg((n) => n.hunger), thirst: avg((n) => n.thirst), events: ev, acts, alerts });
+    ev = {}; acts = {}; alerts = {};
+  };
+  const row = playWildlifeYear(SEED, BIOME, { observe, shift: SHIFT });
+  writeFileSync(OUT, JSON.stringify({ row: { ...row, sleepAttacks: row.sleepAttacks.length }, days }, null, 1));
+}, 1_800_000);

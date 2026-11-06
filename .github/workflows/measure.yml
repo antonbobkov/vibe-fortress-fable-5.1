@@ -2,6 +2,7 @@ name: Measure
 # On-demand long measurements, run on GitHub's runners instead of a local machine.
 #   gh workflow run measure.yml --ref <branch> -f suite=sweep
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
+#   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
 # Results: gh run download <run-id>   (one folder per job; the sweep's summary is in "sweep-summary")
 # How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
@@ -20,6 +21,10 @@ on:
         description: For suite=defence_seeds, the script's watch cadence in ticks (20 is the scenario's)
         type: string
         default: '20'
+      shifts:
+        description: For suite=instrument, the timeline shifts to play, in ticks before the opening (one job each)
+        type: string
+        default: '0,1,2,3,4,5,6,7'
 permissions:
   contents: read
 jobs:
@@ -110,8 +115,76 @@ jobs:
           path: out/
           retention-days: 14
 
+  instrument:
+    if: inputs.suite == 'instrument'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shift: ${{ fromJSON(format('[{0}]', inputs.shifts)) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Annual instrument, shift ${{ matrix.shift }}
+        env:
+          WILDLIFE_YEAR_OUT: out/wildlife-year-shift-${{ matrix.shift }}.json
+          WILDLIFE_YEAR_SHIFT: ${{ matrix.shift }}
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/wildlife_year.test.ts 2>&1 | tee out/wildlife-year-shift-${{ matrix.shift }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: The sample produced its result file
+        run: test -f out/wildlife-year-shift-${{ matrix.shift }}.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrument-shift-${{ matrix.shift }}
+          path: out/
+          retention-days: 14
+
+  instrument-verdict:
+    if: always() && inputs.suite == 'instrument'
+    needs: instrument
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: instrument-shift-*
+          path: samples
+          merge-multiple: true
+      - name: The verdict over the pooled samples
+        env:
+          WILDLIFE_SAMPLES: samples
+        run: npx vitest run -c vitest.perf.config.ts test/perf/wildlife_year_verdict.test.ts 2>&1 | tee samples/verdict.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: The verdict was written (no sample is a failure, not a skip)
+        if: always()
+        run: test -f samples/verdict.md && cat samples/verdict.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrument
+          path: |
+            samples/*.json
+            samples/verdict.*
+          retention-days: 30
+
   single:
-    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds'
+    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'instrument'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
@@ -123,11 +196,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - if: inputs.suite == 'instrument'
-        env:
-          WILDLIFE_YEAR_OUT: out/wildlife-year.json
-        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/wildlife_year.test.ts 2>&1 | tee out/wildlife-year.log; exit ${PIPESTATUS[0]}
-        shell: bash
       - if: inputs.suite == 'three_years_main'
         env:
           THREE_YEARS_OUT: out/three-years.json

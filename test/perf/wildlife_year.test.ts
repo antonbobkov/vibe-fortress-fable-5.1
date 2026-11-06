@@ -3,17 +3,22 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { distribution, improvedMeasurements, regressionCheck } from './wildlife_year_measurements';
-import { WILDLIFE_TARGET as TARGET, WILDLIFE_MEASURED as MEASURED, WILDLIFE_REFERENCE as REFERENCE } from './wildlife_year_constants';
+import { distribution } from './wildlife_year_measurements';
+import { WILDLIFE_TARGET as TARGET } from './wildlife_year_constants';
 import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import { playWildlifeYear, WILDLIFE_CASES, type WildlifeYear } from './wildlife_year_fixture';
 
 const rows: WildlifeYear[] = [];
 const output = process.env['WILDLIFE_YEAR_OUT'] ?? '.vite/wildlife-year.json';
+/**
+ * T-509: the ticks played before the opening; measure.yml runs one job per shift, and
+ * `wildlife_year_verdict.test.ts` judges the pooled samples. One sample is not judged.
+ */
+const shift = Number(process.env['WILDLIFE_YEAR_SHIFT'] ?? '0');
 
 describe('T-136 wildlife survival over twelve generated years', () => {
   it.each(WILDLIFE_CASES)('$biome / $seed', ({ seed, biome }) => {
-    const row = playWildlifeYear(seed, biome);
+    const row = playWildlifeYear(seed, biome, { shift });
     rows.push(row);
     mkdirSync(output + '.rows', { recursive: true });
     writeFileSync(output + '.rows/' + seed + '.json', JSON.stringify(row, null, 2) + '\n');
@@ -29,21 +34,12 @@ describe('T-136 wildlife survival over twelve generated years', () => {
 
   afterAll(() => {
     const summary = distribution(rows);
-    const check = regressionCheck(REFERENCE, summary, MEASURED);
-    const FLOOR = check.floors;
     const byBiome = Object.fromEntries([...new Set(WILDLIFE_CASES.map((row) => row.biome))]
       .map((biome) => [biome, distribution(rows.filter((row) => row.biome === biome))]));
     mkdirSync(dirname(output), { recursive: true });
-    writeFileSync(output, JSON.stringify({ runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), target: TARGET, measured: MEASURED, reference: REFERENCE, floor: FLOOR, regression: check, improved: improvedMeasurements(MEASURED, summary), summary, byBiome, rows }, null, 2) + '\n');
+    writeFileSync(output, JSON.stringify({ shift, runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), target: TARGET, summary, byBiome, rows }, null, 2) + '\n');
     console.log(`T-136 wildlife distribution: ${JSON.stringify({ summary, byBiome })}`);
+    // The guarded figures are judged over the pooled samples (wildlife_year_verdict.test.ts).
     expect(rows).toHaveLength(WILDLIFE_CASES.length);
-    // Kept (T-334): the guarded figures of testing-strategy.md § Annual wildlife survival, each with
-    // its bound wider than its measured spread. Single seeds are printed, never guarded.
-    expect(summary.median, 'measured median; target >= 11').toBeGreaterThanOrEqual(FLOOR.median);
-    expect(summary.living, 'sum of the living over the cohort').toBeGreaterThanOrEqual(FLOOR.living);
-    expect(summary.wildlifeFree, 'measured share with no wildlife dwarf death').toBeGreaterThanOrEqual(FLOOR.wildlifeFree);
-    expect(summary.extinct, 'measured extinctions; target zero').toBeLessThanOrEqual(FLOOR.extinct);
-    expect(summary.hungerThirstDeaths, 'measured deaths; target zero').toBeLessThanOrEqual(FLOOR.hungerThirstDeaths);
-    expect(check.allowed, `annual regression: ${JSON.stringify(check)}`).toBe(true);
   });
 });

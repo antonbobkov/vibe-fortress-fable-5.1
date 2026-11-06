@@ -1,6 +1,8 @@
 # T-509 — The annual instrument's bounds are inside master's own timeline noise
 
-**Source:** T-508's instrument samples on master `d96cfc9c` and on the T-508 branch ([report](../../reports/audits/2026-11-05-t508-idle-dwarves-by-the-hearth.md#the-annual-instrument)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
+**Closed:** 2026-11-05, in 348c5cf8.
+
+**Source:** T-508's instrument samples on master `d96cfc9c` and on the T-508 branch ([report](../../../reports/audits/2026-11-05-t508-idle-dwarves-by-the-hearth.md#the-annual-instrument)) · **Size:** M · **Needs:** — · **Status:** open (measurement first)
 
 ## Why
 
