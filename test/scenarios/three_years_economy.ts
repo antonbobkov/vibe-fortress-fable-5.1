@@ -1,6 +1,7 @@
 /** Player economy for T-M8-06. All changes go through commands and ordinary jobs. */
 import { C, ItemFlag } from '@core/components';
-import { CAVERN_1_Z_MIN, CAVERN_1_Z_MAX, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { CAVERN_1_Z_MIN, CAVERN_1_Z_MAX, DAYS_PER_SEASON, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { CROP_STAGE_MAX } from '@systems/plants/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import { THREAT_RADIUS } from '@systems/dwarves/constants';
@@ -122,6 +123,8 @@ const MEAL_RESERVE_DAYS = 56;
  */
 const SURFACE_CROPS: readonly (readonly string[])[] = [['turnip', 'strawberry', 'barley', 'cabbage'], ['turnip', 'strawberry', 'barley', 'pumpkin'], ['turnip', 'cabbage', 'pumpkin']];
 const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cavewheat'];
+/** Days a surface crop sown today should have to spare before its seasons end: the plot's sowing takes a few days. */
+const SOWING_MARGIN_DAYS = 3;
 /** Cave strips dug beside the first cave farm on its soil level for bought cave seed (x0, x1, y0, y1 from the centre). */
 const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7, 14, 8, 11], [7, 14, 0, 3], [7, 14, 12, 15], [15, 18, 0, 11]];
 /** The stair to the cave farm, from the centre: an east farm begins at `cx + 7`, a west one ends at `cx + 5` (T-455). */
@@ -800,6 +803,17 @@ function seedSupply(w: TestWorld, sown = true): Map<string, number> {
 }
 
 /**
+ * T-507: a surface crop sown on this day of this season ripens before its growing seasons end (07:
+ * four stages of `stageDays`, growing only in its `seasons`; winter's frost kills it), with
+ * `SOWING_MARGIN_DAYS` to spare.
+ */
+export function ripensInTime(row: { readonly stageDays?: number; readonly seasons?: readonly number[] }, season: number, dayOfSeason: number): boolean {
+  let days = DAYS_PER_SEASON - dayOfSeason;
+  for (let s = season + 1; s < SURFACE_CROPS.length && (row.seasons?.includes(s) ?? true); s += 1) days += DAYS_PER_SEASON;
+  return days >= (CROP_STAGE_MAX + 1) * (row.stageDays ?? 0) + SOWING_MARGIN_DAYS;
+}
+
+/**
  * The crops follow the seed. Each plot sows, season by season, the first crop of its list whose
  * seed (in stock or in the ground) covers half the plot after the plots before it have taken
  * theirs, and failing that the crop with the most seed left: a player reads the seed counts of the
@@ -827,12 +841,25 @@ function checkCrops(w: TestWorld): void {
     caveLeft.set(chosen, (caveLeft.get(chosen) ?? 0) - tiles);
     for (const season of [0, 1, 2, 3]) if (name(settings[season]) !== chosen) command(w, { type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
   }
-  for (const [season, list] of SURFACE_CROPS.entries()) {
+  // T-507: in the season under way a player sows only what ripens before its growing seasons end;
+  // sown later, a crop lies dormant until the frost kills it, and its seed is lost with it.
+  const calendar = w.readers.calendar;
+  const ripens = (speciesId: string): boolean => {
+    const row = plants.def(speciesId);
+    return row !== undefined && ripensInTime(row, calendar.season, calendar.dayOfSeason);
+  };
+  for (const [season, all] of SURFACE_CROPS.entries()) {
+    const list = season === calendar.season ? all.filter(ripens) : all;
     const left = new Map(supply);
     for (const zoneId of plots.filter((z) => plants.plotKind(z) === 'surface')) {
       const tiles = buildings.zone(zoneId)!.tiles.length;
       const current = name(plants.plotSettings(zoneId)[season]);
       const chosen = pick(tiles, current, list, left);
+      if (season === calendar.season && !list.includes(chosen)) {
+        // Nothing sown now would ripen: the plot lies fallow for the rest of the season.
+        if (current !== '') command(w, { type: 'SetPlotCrop', zoneId, season, speciesId: 0 });
+        continue;
+      }
       if (chosen === '') continue;
       left.set(chosen, (left.get(chosen) ?? 0) - tiles);
       if (chosen !== current) command(w, { type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
