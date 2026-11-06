@@ -1,0 +1,47 @@
+// T-486: every hostile party of the probe runs, and those that killed inside the fortress.
+// node t486-sweep-table.mjs <dir of probe-<seed>-s<shift>/ folders>
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+const dir = process.argv[2];
+const byPurpose = {};
+const inside = [];
+const heavy = [];
+const runs = [];
+for (const sub of readdirSync(dir).sort()) {
+  const file = readdirSync(join(dir, sub)).find((f) => f.endsWith('.jsonl'));
+  if (!file) continue;
+  const rows = readFileSync(join(dir, sub, file), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  const res = rows.find((r) => r.k === 'result');
+  runs.push(`| ${sub.replace('probe-', '')} | ${res.y1Pop} | ${res.y3Pop} | ${res.deaths} | ${res.extinct ?? ''} |`);
+  const parties = new Map();
+  const get = (id) => { if (!parties.has(id)) parties.set(id, { id, first: Infinity, last: 0, kills: 0, killedInside: 0, lost: 0, outcome: 'open' }); return parties.get(id); };
+  for (const r of rows) {
+    if (r.k === 'sample') {
+      const p = get(r.party); p.purpose = r.purpose; p.first = Math.min(p.first, r.tick); p.last = Math.max(p.last, r.tick);
+      p.size = Math.max(p.size ?? 0, r.members); p.lost = Math.max(p.lost, r.members - r.standing);
+      p.engage = (p.engage ?? 0) + (r.state === 'engage' ? 250 : 0); p.day ??= r.day;
+    } else if (r.k === 'death' && r.party) {
+      const p = get(r.party); p.purpose ??= r.purpose; p.kills += 1; if (r.killerAt && r.killerAt.out === false) p.killedInside += 1;
+    } else if (r.k === 'RaidEnded') { get(r.partyId).outcome = r.outcome; }
+  }
+  for (const p of parties.values()) {
+    if (!p.purpose || !['ambush', 'raid', 'siege'].includes(p.purpose)) continue;
+    const b = (byPurpose[p.purpose] ??= { parties: 0, kills: 0, inside: 0, maxDays: 0, maxEngage: 0, outcomes: {} });
+    b.parties += 1; b.kills += p.kills; if (p.killedInside > 0) b.inside += 1;
+    b.maxDays = Math.max(b.maxDays, (p.last - p.first) / 1200); b.maxEngage = Math.max(b.maxEngage, (p.engage ?? 0) / 1200);
+    b.outcomes[p.outcome] = (b.outcomes[p.outcome] ?? 0) + 1;
+    const line = `| ${sub.replace('probe-', '')} | ${p.purpose} | ${p.day} | ${p.size} | ${p.kills} | ${p.killedInside} | ${p.lost} | ${p.outcome} |`;
+    if (p.killedInside > 0) inside.push(line);
+    if (p.kills >= 8) heavy.push(line);
+  }
+}
+console.log('| Purpose | Parties | Dwarves killed | Parties that killed from inside | Longest on the map (days) | Longest in engage (days) | Endings |');
+console.log('|---|---|---|---|---|---|---|');
+for (const [k, b] of Object.entries(byPurpose)) console.log(`| ${k} | ${b.parties} | ${b.kills} | ${b.inside} | ${b.maxDays.toFixed(1)} | ${b.maxEngage.toFixed(1)} | ${Object.entries(b.outcomes).map(([o, n]) => `${o} ${n}`).join(', ')} |`);
+console.log('\nParties that killed 8 or more, or killed from inside the fortress:\n');
+console.log('| Run | Kind | Day | Size | Killed | From inside | Members lost | Ending |');
+console.log('|---|---|---|---|---|---|---|---|');
+for (const l of [...new Set([...heavy, ...inside])]) console.log(l);
+console.log('\n| Run | Year 1 | Year 3 | Deaths | Extinct day |');
+console.log('|---|---|---|---|---|');
+for (const r of runs) console.log(r);

@@ -20,7 +20,7 @@ Grow the fortress as a reward for keeping it happy and prosperous, in waves the 
 On every `SeasonChanged` (the first evaluation is the change to summer of year 1):
 
 1. If the fortress has no living dwarves, nothing happens (the game is ending).
-2. If an active raid or siege is on the map, defer to the next day and re-check daily until clear (immigrants do not walk into a battle).
+2. If a battle is on the map, defer to the next day and re-check daily until clear (immigrants do not walk into a battle). A battle is an active raid or siege, or an ambush that has sprung (18 § Stealth); a hidden ambush, which nobody knows of, defers nothing.
 3. Guaranteed waves: at summer year 1 and autumn year 1, if `population < cap`, a wave of `GUARANTEED_SIZE_MIN..GUARANTEED_SIZE_MAX` arrives. These are "the cousins": their announcement says so.
 4. Otherwise, eligible if all hold: `hallSpirit ≥ IMMIGRATION_SPIRIT_MIN`; `population < cap`; `wealth ≥ WEALTH_PER_WAVE × wavesSoFar` (each wave asks a little more renown than the last); not winter at temper ≥ 2 (the passes are closed). When eligible, a wave arrives with probability `IMMIGRATION_PERMILLE + reputation(mountainhome) × REP_PERMILLE_PER_POINT`.
 5. `ImmigrationSkipped { reason }` is emitted when not eligible, so the panel can say why ("Hall spirit is Fine; immigrants come when it is Content").
@@ -49,6 +49,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 - Spawn at `nearestEdgeTo.mountainhome`, one every `ARRIVAL_INTERVAL_TICKS`, with needs at 30, all labors enabled, no bedroom (14 auto-assigns daily).
 - `ImmigrantsArrived { ids, count, children, guaranteed }` (alert) is emitted once, after the last member of the wave has arrived: "Six dwarves have come to join the hall, two of them children." Everyone gets `immigrants_arrived`.
 - New dwarves walk to the hearth hall (or the wagon) and then behave normally. Before each staggered arrival, validate the saved entry as a currently walkable entry tile connected to the hearth hall, or the wagon when there is no hall. Without either anchor, use the lowest-id living resident's tile. An isolated edge floor is not an entry, even if its terrain is otherwise walkable. Keep a valid planned tile; otherwise choose qualifying tiles on the same civilization edge in coordinate order with the ordinary arrival spread, checking every edge tile if no spread candidate qualifies.
+- A wave still arriving stops while a battle is on the map: from `RaidArrived` or `AmbushSprung` until `RaidEnded` leaves no battle, and the rest of it arrives after. An ambush that springs on the wave's first arrivals holds the others at the edge.
 - If that edge has no qualifying entry, keep the same planned wave queued and retry after `ARRIVAL_INTERVAL_TICKS`. Do not spawn at an unreachable fallback or redraw the wave. A season evaluation that occurs while a wave is still pending waits and rechecks daily after that wave finishes. The saved next member and next-arrival tick preserve that wait and its continuation across load; recheck connectivity before spawning each remaining member.
 
 ### Population cap
@@ -57,7 +58,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 
 ## State
 
-- `wavesSoFar`, `guaranteedDone: [boolean, boolean]`, `lastWave: { tick, count }`, `deferredUntilTick`, `lastSkipReason`, the pending wave (its plan, the members already arrived and the tick of the next arrival), which is saved so that the remaining arrivals resume after a load.
+- `wavesSoFar`, `guaranteedDone: [boolean, boolean]`, `lastWave: { tick, count }`, `deferredUntilTick`, `lastSkipReason`, the pending wave (its plan, the members already arrived and the tick of the next arrival) and whether a battle holds it, which are saved so that the remaining arrivals resume after a load.
 - Rng stream.
 
 ## Interfaces
@@ -75,7 +76,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 
 ### Events consumed
 
-`SeasonChanged`, `DayPassed` (deferred checks), `RaidArrived`, `RaidEnded`.
+`SeasonChanged`, `DayPassed` (deferred checks), `RaidArrived`, `AmbushSprung`, `RaidEnded`.
 
 ### Events emitted
 
