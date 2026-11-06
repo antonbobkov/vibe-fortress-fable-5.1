@@ -51,7 +51,14 @@ The Proficient marksdwarf's 2 hits on its own side in the open are friendly fire
 
 [The T-483 probe](../data/2026-11-04-t483-pp-defence.probe.ts.txt), unchanged, on `pp-defence`, `-2`, `-3`, `-4`, before and after: every field equal (passes, end tick 30,440, 30,380, 22,040, 8,620, the combat events by digest, the state of every rng stream, the event count). No launcher is fired in any of them. Data: `reports/data/2026-11-05-t498-pp-defence.jsonl` (lines 1 to 4 before, 5 to 8 after).
 
-RUNS_GO_HERE
+### On GitHub
+
+All on the branch at `3b0ffe22`; the master runs on `6c923f67`, pushed as `t498-base`.
+
+- **`defence_year_seeds`** (`suite=defence_seeds`, eight seeds): run 42161702198, and 42161742385 on master. Every seed's row is the same, field for field: day 225, the raid of 9 to 11 repelled with its captain caged and 0 dead, the same thieves and bandits, soldier kills, trap triggers and cages.
+- **The annual instrument** (`suite=instrument`, shifts 0 to 7): run 42161696186, **verdict pass**. The pooled row is exactly the reference: median 12.63, worst 6, second-worst 8.88, sum of the living 143, wildlife-free 6.63, no extinction, no starved year, no need death.
+- **The twenty-seed sweep** (`suite=sweep`): run 42161699323, and 42161739678 on master. They are the same seed for seed: 135 dwarf deaths and 930 living over 20 of 20 seeds (peril 0: 6 and 413; peril 2: 60 and 242; peril 4: 69 and 275). Set rule: alive at year 1 **20/20**, peril-0 grown **7/7**, peril-0 with need deaths **1/7** (`p0-3`, as on master). Every seed plays the same three years as on master, so in these scripted fortresses the step changes nothing that the sweep records.
+- **`ci.yml`**: run 42161704785, all six jobs pass, 3,566 tests in four shards, e2e 39 passed.
 
 ## What this does not measure
 
