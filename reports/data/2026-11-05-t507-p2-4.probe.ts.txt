@@ -2,8 +2,10 @@
  * T-507 probe (not kept in test/; run from test/perf): `three-years-p2-4`'s year 1, played as the sweep
  * plays it, P_SHIFT ticks later. Every 5 days the living and the cave strips (tiles, floor, open to the
  * outdoors, digs, zone); each fortress death with its tile and killer; raids and ambushes.
- * Results (living at day 110, shifts 0 / 1 / 2): master d2f68294 11 / 7 / 6; the strips beside the farm
- * dug from day 1: 0 (extinct day 65) / 3 / 4; the same with no strip in the opening year: 11 / 11 / 4.
+ * Results (living at day 110, shifts 0 / 1 / 2): master d2f68294 11 / 7 / 6 (its west farm's strip
+ * unreachable); T-507's strips beside the farm, the first dug from day 1 as on an east farm: 0 (extinct
+ * day 65) / 3 / 4; the same with no strip in the opening year (tried in 96cf3fea, reverted): 11 / 11 / 4.
+ * The day-62 ambush at the gate makes the difference in each.
  */
 import { it } from 'vitest';
 import { TICKS_PER_DAY } from '@core/constants';

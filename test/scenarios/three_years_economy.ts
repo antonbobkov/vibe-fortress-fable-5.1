@@ -763,13 +763,14 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   for (let y = y0; y < y0 + FARM_STRIP.rows; y += 1) for (let x = x0; x < x0 + FARM_STRIP.width; x += 1) {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
-    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t)) tiles.push(t);
+    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t)) tiles.push(t);
   }
   // T-455: a slope may leave too little of the strip: as a player would, sow the same strip nearby.
-  // When that level is full, the next surface level the dwarves can walk to.
+  // When that level is full, the next surface level the dwarves can walk to. T-507: only sunlit
+  // tiles; a strip with a dark tile (dug rock one level down) is not a surface plot and refuses its crops.
   for (const level of [z, z - 1, z + 1, z - 2, z + 2]) {
     if (tiles.length >= FARM_STRIP.width) break;
-    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width));
+    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width).filter((t) => buildings.cropLitAt(t)));
   }
   const plan = { tiles, zoneId: -1 };
   plans.push(plan);
