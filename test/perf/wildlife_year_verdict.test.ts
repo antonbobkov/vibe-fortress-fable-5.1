@@ -10,12 +10,15 @@ import { join } from 'node:path';
 import { improvedMeasurements, pool, regressionCheck, type Sample, type WildlifeFigures } from './wildlife_year_measurements';
 import { WILDLIFE_MEASURED as MEASURED, WILDLIFE_REFERENCE as REFERENCE, WILDLIFE_SAMPLES, WILDLIFE_TOLERANCE } from './wildlife_year_constants';
 
-interface SampleFile { shift: number; runtimeCommit: string; summary: Sample; rows: { seed: string; living: number }[] }
+interface SampleFile { shift: number; runtimeCommit: string; summary: Sample; rows: { seed: string; living: number; setup: { stoneDigs?: number[]; unbuilt?: string[] } }[] }
 
 const dir = process.env['WILDLIFE_SAMPLES'] ?? '.vite/wildlife-samples';
 const names = existsSync(dir) ? readdirSync(dir).filter((name) => /^wildlife-year-shift-\d+\.json$/.test(name)) : [];
 const files: SampleFile[] = names.map((name) => JSON.parse(readFileSync(join(dir, name), 'utf8')) as SampleFile)
   .sort((a, b) => a.shift - b.shift);
+
+const digs = (f: SampleFile): string => f.rows.filter((r) => (r.setup.stoneDigs ?? []).length > 0)
+  .map((r) => `${r.seed.replace('wildlife-', '')} day ${r.setup.stoneDigs!.join(', ')}`).join('; ');
 
 const row = (f: Pick<WildlifeFigures, 'median' | 'worst' | 'secondWorst' | 'living' | 'wildlifeFree' | 'extinct' | 'starvedYears' | 'hungerThirstDeaths'>): string =>
   [f.median, f.worst, f.secondWorst, f.living, f.wildlifeFree, f.extinct, f.starvedYears, f.hungerThirstDeaths].join(' | ');
@@ -27,12 +30,12 @@ describe.skipIf(files.length === 0)('T-509 the annual instrument judged over its
     const lines = [
       `## Annual instrument: ${files.length} samples of ${[...new Set(files.map((f) => f.runtimeCommit.slice(0, 8)))].join(', ')}`,
       '',
-      '| Shift | Median | Worst | Second-worst | Sum of the living | Wildlife-free | Extinct | Starved years | Need deaths | Living by seed |',
-      '|---|---|---|---|---|---|---|---|---|---|',
-      ...files.map((f) => `| ${f.shift} | ${row(f.summary)} | ${f.rows.map((r) => r.living).join(', ')} |`),
-      `| **Pooled** | ${row(pooled)} | |`,
-      `| Reference | ${row(REFERENCE)} | |`,
-      `| Bounds | ≥ ${check.floors.median} | | | ≥ ${check.floors.living} | ≥ ${check.floors.wildlifeFree} | ≤ ${check.floors.extinct} | ≤ ${check.floors.starvedYears} | | |`,
+      '| Shift | Median | Worst | Second-worst | Sum of the living | Wildlife-free | Extinct | Starved years | Need deaths | Living by seed | Dug for stone |',
+      '|---|---|---|---|---|---|---|---|---|---|---|',
+      ...files.map((f) => `| ${f.shift} | ${row(f.summary)} | ${f.rows.map((r) => r.living).join(', ')} | ${digs(f)} |`),
+      `| **Pooled** | ${row(pooled)} | | |`,
+      `| Reference | ${row(REFERENCE)} | | |`,
+      `| Bounds | ≥ ${check.floors.median} | | | ≥ ${check.floors.living} | ≥ ${check.floors.wildlifeFree} | ≤ ${check.floors.extinct} | ≤ ${check.floors.starvedYears} | | | |`,
       '',
       `Median, worst, second-worst, sum and wildlife-free are means over the samples; extinct, starved years and need deaths are counted over all of them. Tolerances: ${JSON.stringify(WILDLIFE_TOLERANCE)}.`,
       '',
@@ -48,6 +51,8 @@ describe.skipIf(files.length === 0)('T-509 the annual instrument judged over its
     // The samples are one commit's, shifted 0 to N-1, so two verdicts compare like with like.
     expect(new Set(files.map((f) => f.runtimeCommit)).size, 'one commit').toBe(1);
     expect(files.map((f) => f.shift), 'the shifts').toEqual([...Array(WILDLIFE_SAMPLES).keys()]);
+    // Setup (T-509): the player digs for stone until every building of the opening stands.
+    expect(files.flatMap((f) => f.rows.filter((r) => (r.setup.unbuilt ?? []).length > 0).map((r) => `${f.shift} ${r.seed}: ${r.setup.unbuilt!.join(', ')}`)), 'buildings never built').toEqual([]);
     expect(check.allowed, `annual regression: ${JSON.stringify(check)}`).toBe(true);
   });
 });

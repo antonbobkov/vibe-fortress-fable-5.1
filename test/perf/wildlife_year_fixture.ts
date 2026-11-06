@@ -251,12 +251,16 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     placedAt.set(buildingSystem.lastPlacedBuilding, game.tick);
   };
   // T-509: the rock the opening digs drops a stone from 30% of its tiles, so the stones it yields
-  // move with the timeline (6 or 9 on taiga seed 3), and the mason's blocks may take the last one a
-  // workshop waits for. A player whose building has waited two days for a stone, with no stone
-  // about and nothing left to dig, digs the next room of rock beside the lower room (at most three).
+  // move with the timeline (5 to 9), and the mason's blocks and the first workshops may take the
+  // stone a later building waits for: taiga seed 3's kitchen, two ticks later, waited all year, and
+  // grassland seeds 3 and 4 never had their hearth. A player whose building has waited two days for
+  // stone or blocks, with no raw stone about and nothing left to dig, digs the next room of rock
+  // beside the lower room (at most three rooms).
   const placedAt = new Map<number, number>();
   const stoneRooms: number[][] = [];
-  const rawStone = game.registry.table<{ id: string }>('items').index('raw_stone');
+  const itemTypes = game.registry.table<{ id: string }>('items');
+  const rawStone = itemTypes.index('raw_stone');
+  const stone = new Set([rawStone, itemTypes.index('stone_block')]);
   let stoneDay = -1;
   const digForStone = (): void => {
     const day = Math.floor(game.tick / TICKS_PER_DAY);
@@ -265,9 +269,14 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
     const board = world.readers.of<JobsReader>('11');
     const open = board.list();
     if (items.available(rawStone) > 0 || open.some((job) => board.typeOf(job.id) === 'dig')) return;
+    const waitsForStone = (input: (typeof open)[number]['inputs'][number]): boolean => {
+      const types = input.filter.types ?? [];
+      const missing = input.count - input.delivered.length - input.reserved.length;
+      return missing > 0 && types.length > 0 && types.every((type) => stone.has(type)) &&
+        types.reduce((sum, type) => sum + items.available(type), 0) < missing;
+    };
     const waiting = [...placedAt].some(([id, at]) => game.tick - at >= 2 * TICKS_PER_DAY && buildings.get(id)?.state !== 'built' &&
-      open.some((job) => job.target.kind === 'building' && job.target.ref === id && job.inputs.some((input) =>
-        input.delivered.length < input.count && (input.filter.types ?? []).includes(rawStone))));
+      open.some((job) => job.target.kind === 'building' && job.target.ref === id && job.inputs.some(waitsForStone)));
     if (!waiting) return;
     const room = stoneRooms.shift()!;
     command({ type: 'Designate', kind: 'dig', tiles: room, priority: PRIORITY_DEFAULT });

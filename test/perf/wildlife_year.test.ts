@@ -30,8 +30,6 @@ describe('T-136 wildlife survival over twelve generated years', () => {
     expect(row.setup.surfacePlots).toHaveLength(2);
     expect(row.setup.caveTiles).toBeGreaterThan(0);
     expect(row.setup.buildings).toHaveLength(6);
-    // T-509: the player digs for stone until every building of the opening stands.
-    expect(row.setup.unbuilt).toEqual([]);
   }, 600_000);
 
   afterAll(() => {
