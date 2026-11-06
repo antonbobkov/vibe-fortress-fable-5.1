@@ -27,6 +27,8 @@ describe.skipIf(files.length === 0)('T-509 the annual instrument judged over its
   it(`pools shifts 0 to ${WILDLIFE_SAMPLES - 1} of one commit and keeps the guarded bounds`, () => {
     const pooled = pool(files.map((f) => f.summary));
     const check = regressionCheck(REFERENCE, pooled, MEASURED);
+    const commits = new Set(files.map((f) => f.runtimeCommit));
+    const judged = commits.size === 1 && files.map((f) => f.shift).join() === [...Array(WILDLIFE_SAMPLES).keys()].join();
     const lines = [
       `## Annual instrument: ${files.length} samples of ${[...new Set(files.map((f) => f.runtimeCommit.slice(0, 8)))].join(', ')}`,
       '',
@@ -39,7 +41,7 @@ describe.skipIf(files.length === 0)('T-509 the annual instrument judged over its
       '',
       `Median, worst, second-worst, sum and wildlife-free are means over the samples; extinct, starved years and need deaths are counted over all of them. Tolerances: ${JSON.stringify(WILDLIFE_TOLERANCE)}.`,
       '',
-      `**Verdict: ${check.allowed ? 'pass' : 'blocked'}.** Bounds exceeded: ${check.exceeded.join(', ') || 'none'}. Worsened together (by more than half a tolerance against the reference): ${check.worsened.join(', ') || 'none'}.`,
+      `**Verdict: ${!judged ? `not judged (a verdict pools shifts 0 to ${WILDLIFE_SAMPLES - 1} of one commit)` : check.allowed ? 'pass' : 'blocked'}.** Bounds exceeded: ${check.exceeded.join(', ') || 'none'}. Worsened together (by more than half a tolerance against the reference): ${check.worsened.join(', ') || 'none'}.`,
       '',
       `If accepted: \`WILDLIFE_REFERENCE\` = \`${JSON.stringify({ ...pooled, samples: undefined })}\`; \`WILDLIFE_MEASURED\` = \`${JSON.stringify(improvedMeasurements(MEASURED, pooled))}\`.`,
       '',
@@ -49,7 +51,7 @@ describe.skipIf(files.length === 0)('T-509 the annual instrument judged over its
       samples: files.map((f) => ({ shift: f.shift, runtimeCommit: f.runtimeCommit, summary: f.summary, living: f.rows.map((r) => r.living) })) }, null, 2) + '\n');
     console.log(lines.join('\n'));
     // The samples are one commit's, shifted 0 to N-1, so two verdicts compare like with like.
-    expect(new Set(files.map((f) => f.runtimeCommit)).size, 'one commit').toBe(1);
+    expect(commits.size, 'one commit').toBe(1);
     expect(files.map((f) => f.shift), 'the shifts').toEqual([...Array(WILDLIFE_SAMPLES).keys()]);
     // Setup (T-509): the player digs for stone until every building of the opening stands.
     expect(files.flatMap((f) => f.rows.filter((r) => (r.setup.unbuilt ?? []).length > 0).map((r) => `${f.shift} ${r.seed}: ${r.setup.unbuilt!.join(', ')}`)), 'buildings never built').toEqual([]);

@@ -8,19 +8,23 @@ export const WILDLIFE_TARGET = { median: 11, worst: 8, hungerThirstDeaths: 0 };
  */
 export const WILDLIFE_SAMPLES = 8;
 // Best accepted pooled figures set the guards; preserve a tolerated loss rather than ratcheting down.
-// T-509: the guards restart from the first pooled row (eight shifts of T-508's master, the opening digging for stone).
+// T-509: the guards restart from the first pooled row: shifts 0 to 7 of T-508's master with the
+// opening digging for stone (`de028566`, run 42151935437).
 export const WILDLIFE_MEASURED: WildlifeFigures = {
-  median: 0, worst: 0, secondWorst: 0, living: 0, wildlifeFree: 0, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
+  median: 12.63, worst: 6, secondWorst: 8.88, living: 143, wildlifeFree: 6.63, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
 };
 // Latest accepted pooled row: simultaneous regressions compare an actual before/after pair.
 export const WILDLIFE_REFERENCE: WildlifeFigures = {
-  median: 0, worst: 0, secondWorst: 0, living: 0, wildlifeFree: 0, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
+  median: 12.63, worst: 6, secondWorst: 8.88, living: 143, wildlifeFree: 6.63, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
 };
 /**
- * T-509: each guarded figure's tolerance, wider than the measured spread of its pooled value
- * between two sets of shifts of the same code (testing-strategy.md § Annual wildlife survival).
+ * T-509: each guarded figure's tolerance, wider than the measured spread of its pooled value: over
+ * every split of sixteen shifts of one commit into two sets of eight (two commits, 25,740 splits),
+ * the two means differed by at most 1.06 in the median, 12.5 in the sum and 2.25 in wildlife-free
+ * years, and the counts by one extinct year and no starved year; over twelve shifts of master
+ * before the fix, by one of each (testing-strategy.md § Annual wildlife survival).
  */
-export const WILDLIFE_TOLERANCE = { median: 0, living: 0, wildlifeFree: 0, extinct: 0, starvedYears: 0 };
+export const WILDLIFE_TOLERANCE = { median: 1.25, living: 13, wildlifeFree: 2.5, extinct: 2, starvedYears: 2 };
 /** A figure counts as worsened together with others when it falls by more than this share of its tolerance. */
 export const WORSENED_SHARE = 0.5;
 export const COMBINED_REGRESSION_LIMIT = 3;

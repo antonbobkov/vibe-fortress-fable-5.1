@@ -253,7 +253,7 @@ export function playWildlifeYear(seed: string, biome: string, options: WildlifeO
   // T-509: the rock the opening digs drops a stone from 30% of its tiles, so the stones it yields
   // move with the timeline (5 to 9), and the mason's blocks and the first workshops may take the
   // stone a later building waits for: taiga seed 3's kitchen, two ticks later, waited all year, and
-  // grassland seeds 3 and 4 never had their hearth. A player whose building has waited two days for
+  // grassland seeds 3 and 4 had no hearth in 7 of 16 timelines. A player whose building has waited two days for
   // stone or blocks, with no raw stone about and nothing left to dig, digs the next room of rock
   // beside the lower room (at most three rooms).
   const placedAt = new Map<number, number>();
