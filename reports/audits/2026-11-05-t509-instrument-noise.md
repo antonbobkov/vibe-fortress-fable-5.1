@@ -17,6 +17,7 @@
 | Measure 42144879074 | `instrument`, shifts 0 to 11, master `d8efa6db` with the shift input (`fc46b32a`) | [twelve shifts before](../data/2026-11-05-t509-noise-before.json) |
 | Measure 42146812479 | shifts 0 to 15, T-508's master with the first fix (`960d4aac`) | [sixteen shifts, first fix](../data/2026-11-05-t509-noise-first-fix.json) |
 | Measure 42151935437 | shifts 0 to 15, T-508's master with the fix as kept (`de028566`); its verdict job printed the sixteen-row table and, as designed, refused to judge sixteen shifts | [sixteen shifts after](../data/2026-11-05-t509-noise-after.json) |
+| Measure 42155581368 | the one command, `-f suite=instrument` with the default shifts, on the final commit `348c5cf8`: eight sample jobs and the verdict, **pass**, pooled 12.63/6/8.88/143/6.63/0/0 (the reference exactly) | the run's page |
 | Local journals | `wildlife-taiga-3` at shifts 0 and 2, before and after the fix, a day's stocks, crops, meals and Starving notes from day 20; the opening's buildings, build jobs and stone day by day | [journal](../data/2026-11-05-t509-taiga3-journal.txt), [stone](../data/2026-11-05-t509-taiga3-stone.txt), probes [journal](../data/2026-11-05-t509-journal.probe.ts.txt) and [kitchen](../data/2026-11-05-t509-kitchen.probe.ts.txt) |
 | Test | `test/perf/t509-opening-stone.test.ts`: `wildlife-taiga-3` two ticks later and `wildlife-temperate_grassland-3` unshifted have every opening building standing at day 20; both fail before the fix (the kitchen, the hearth "planned") | — |
 
