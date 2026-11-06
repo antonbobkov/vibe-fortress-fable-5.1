@@ -35,6 +35,7 @@ import type { ItemsReader } from '@systems/items';
 import { arriveParty, spawnHostileMember } from '@systems/threats/parties';
 import type { Scenario } from './runner';
 import { built, cmd, day, dug, expectNoInvariantFindings, fortressDwarves, pathWorld, placeNear, playUntil, rect, stairToRock, surfaceZ, trace, wagon, zoneRect } from './player-path';
+import { snapshot, snapshotsOn } from './snapshot';
 import type { TestWorld } from './test-world';
 
 /** The seeds the loop is played on. */
@@ -135,13 +136,36 @@ function play(seed: string): Played {
 
   // The days of the glowcap's planting and harvests, and its yield: events carry no tick.
   const glow = { planted: -1, harvests: [] as number[], units: 0, sessions: [] as number[], firstCast: -1, vialDays: [] as number[] };
+  // With SNAPSHOTS=1, pictures of the loop's moments (`tooling.md` § Screenshots): the glow plot at
+  // its first harvest, the apprentice's first session at the circle, its first three emberbolts.
+  let bolts = 0;
   w.game.world.onEvents((batch) => {
+    const shots: string[] = [];
     for (const e of batch) {
       if (e.type === 'CropPlanted' && e['species'] === 'glowcap' && glow.planted < 0) glow.planted = day(w);
-      if (e.type === 'CropHarvested' && e['species'] === 'glowcap') { glow.harvests.push(day(w)); glow.units += Number(e['count'] ?? 0); }
-      if (e.type === 'AttuneSession' && Number(e['id']) === apprentice) glow.sessions.push(day(w));
+      if (e.type === 'CropHarvested' && e['species'] === 'glowcap') {
+        if (glow.harvests.length === 0) shots.push('glowcap-farm');
+        glow.harvests.push(day(w));
+        glow.units += Number(e['count'] ?? 0);
+      }
+      if (e.type === 'AttuneSession' && Number(e['id']) === apprentice) {
+        if (glow.sessions.length === 0) shots.push('attunement');
+        glow.sessions.push(day(w));
+      }
       if (e.type === 'ItemCrafted' && e['recipeId'] === 'distill_rune') glow.vialDays.push(day(w));
       if (e.type === 'SpellCast' && Number(e['casterId']) === apprentice && glow.firstCast < 0) glow.firstCast = day(w);
+      if (e.type === 'SpellCast' && Number(e['casterId']) === apprentice && e['spellId'] === 'emberbolt' && bolts < 3) {
+        bolts += 1;
+        shots.push(`emberbolt-${bolts}`);
+      }
+    }
+    if (!snapshotsOn()) return;
+    for (const shot of shots) {
+      const caster = ent.get(apprentice, C.Position);
+      const at = shot === 'glowcap-farm' ? { x: sx + 5, y: sy, z: below }
+        : shot === 'attunement' ? { x: sx - 2, y: sy, z: rockZ }
+          : { x: caster?.x ?? cx, y: caster?.y ?? cy, z: caster?.z ?? z };
+      snapshot(w.game, `pp_runecraft-${seed}-${shot}`, { ...at, cols: 40, rows: 20 });
     }
   });
 

@@ -18,6 +18,7 @@
     "golden:update": "node scripts/golden-update.mjs",
     "golden:png": "node scripts/render-goldens-png.mjs",
     "hash": "node scripts/world-hash.mjs",
+    "screenshot": "node scripts/screenshot.mjs",
     "gate": "node scripts/gate.mjs",
     "interface:check": "node scripts/interface-check.mjs",
     "docs:check": "node scripts/docs-links-check.mjs",

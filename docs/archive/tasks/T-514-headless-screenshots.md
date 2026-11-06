@@ -1,5 +1,7 @@
 # T-514 — Screenshots from a headless game or a save
 
+**Closed:** 2026-11-06, in 5615b1e4,d12738fb.
+
 **Source:** the owner, 2026-11-06 ("Can we add a mechanism for headless setups to generate screenshots? Or from a save. Naively it should be as easy as stitching tile images") · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
