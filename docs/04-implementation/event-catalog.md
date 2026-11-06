@@ -123,7 +123,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `RaidArrived` | `partyId, kind, size` | 18 | 15, 16, 20, 21, 25, ui |
 | `RaidEnded` | `partyId, outcome` | 18 | 15, 21, 24 (milestone), ui |
 | `ThiefSpotted` / `ThiefEscaped` | `id` / `id, itemId, animalId` | 18 | 13 (wealth), 15, ui |
-| `AmbushSprung` | `partyId` | 18 | 25, ui |
+| `AmbushSprung` | `partyId` | 18 | 21, 25, ui |
 | `HostileSpawned` | `id, partyId` | 18 | 16 |
 | `MonsterSpawned` / `MonsterEmerged` | `id, cavern` / `ids[], tile` | 18 | ui; 25 (`MonsterEmerged`: the `deep` draughts) |
 | `DeepStirred` | `level` | 18 | 15, 25 (the `deep` draughts), ui |

@@ -1,0 +1,23 @@
+// The old p4-6 ambush, phase by phase: node t486-old.mjs <jsonl> <partyId>
+import { readFileSync } from 'node:fs';
+const [file, pid] = process.argv.slice(2);
+const rows = readFileSync(file, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+const deaths = rows.filter((r) => r.k === 'death' && String(r.party) === pid);
+const phase = (r) => (r.at.z === 32 ? 'gate (surface)' : r.at.z >= 27 ? 'stairwell' : 'halls');
+const t = {};
+for (const r of deaths) {
+  const k = `${phase(r)} | day ${r.day}`;
+  const e = (t[k] ??= { n: 0, soldiers: 0, bled: 0, behaviors: {} });
+  e.n += 1; if (r.soldier) e.soldiers += 1; if (r.cause === 'bled_out') e.bled += 1;
+  e.behaviors[r.behavior ?? 'new'] = (e.behaviors[r.behavior ?? 'new'] ?? 0) + 1;
+}
+console.log('| Where | Day | Killed | Soldiers | Bled out | What they were doing |');
+console.log('|---|---|---|---|---|---|');
+for (const [k, e] of Object.entries(t)) console.log(`| ${k} | ${e.n} | ${e.soldiers} | ${e.bled} | ${Object.entries(e.behaviors).map(([b, n]) => `${b} ${n}`).join(', ')} |`);
+const killers = {};
+for (const r of deaths) { const k = `${r.killer}@${r.killerAt ? `${r.killerAt.x},${r.killerAt.y},${r.killerAt.z}` : '-'}`; killers[k] = (killers[k] ?? 0) + 1; }
+console.log('killer tiles (top):', Object.entries(killers).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${k} ${n}`).join('; '));
+const samples = rows.filter((r) => r.k === 'sample' && String(r.party) === pid);
+let lastStanding = -1;
+for (const s of samples) if (s.standing !== lastStanding) { console.log(`tick ${s.tick} day ${s.day} state ${s.state} standing ${s.standing}/${s.members} dwarves ${s.dwarves}`); lastStanding = s.standing; }
+console.log(`first sample ${samples[0].tick} last ${samples.at(-1).tick}; deaths ${deaths.length}`);
