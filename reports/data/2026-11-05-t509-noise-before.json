@@ -1,0 +1,2365 @@
+{
+ "run": 42144879074,
+ "note": "master d8efa6db (T-482, T-486) with only the shift input added (fc46b32a), shifts 0 to 11",
+ "samples": [
+  {
+   "shift": 0,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 9,
+    "secondWorst": 10,
+    "living": 149,
+    "wildlifeFree": 7,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 105,
+      "meal": 58,
+      "plantFood": 47
+     },
+     "hash": "86b88dbef1c97658",
+     "deaths": [
+      "17:infection:none"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 112,
+      "meal": 58,
+      "plantFood": 116
+     },
+     "hash": "0f0c5471e6da30ab",
+     "deaths": [
+      "95:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 11,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 112,
+      "meal": 61,
+      "plantFood": 28
+     },
+     "hash": "aaddc4ec48150090",
+     "deaths": [
+      "36:infection:none",
+      "86:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 106,
+      "meal": 61,
+      "plantFood": 97
+     },
+     "hash": "8ca54b4591debd91",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 22,
+     "stocks": {
+      "drink": 107,
+      "meal": 60,
+      "plantFood": 0
+     },
+     "hash": "d2d81e451d79f3da",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 11,
+     "arrivals": 12,
+     "starving": 10,
+     "stocks": {
+      "drink": 0,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "hash": "54fd65717bacfb8b",
+     "deaths": [
+      "84:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 83,
+      "meal": 52,
+      "plantFood": 0
+     },
+     "hash": "b33d5690d067d994",
+     "deaths": [
+      "54:bled_out:bear",
+      "54:bled_out:bear",
+      "55:bled_out:bear"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 9,
+     "arrivals": 11,
+     "starving": 1,
+     "stocks": {
+      "drink": 96,
+      "meal": 52,
+      "plantFood": 31
+     },
+     "hash": "0eac7ef83302f280",
+     "deaths": [
+      "88:bled_out:wolf",
+      "108:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 98,
+      "meal": 42,
+      "plantFood": 70
+     },
+     "hash": "91e3c72351907267",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 107,
+      "meal": 59,
+      "plantFood": 131
+     },
+     "hash": "859346be37d7b059",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 108,
+      "meal": 59,
+      "plantFood": 73
+     },
+     "hash": "21c5db86eb079ccb",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 110,
+      "meal": 58,
+      "plantFood": 87
+     },
+     "hash": "b7d60bbc8222b0c0",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 1,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 3,
+    "secondWorst": 9,
+    "living": 139,
+    "wildlifeFree": 7,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 4,
+     "stocks": {
+      "drink": 119,
+      "meal": 57,
+      "plantFood": 57
+     },
+     "hash": "76f79b14d49091f6",
+     "deaths": [
+      "67:bled_out:boar",
+      "67:bled_out:badger",
+      "68:bled_out:badger",
+      "89:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 11,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 101,
+      "meal": 60,
+      "plantFood": 131
+     },
+     "hash": "a0e79d5c71e794db",
+     "deaths": [
+      "59:bled_out:boar",
+      "60:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 109,
+      "meal": 62,
+      "plantFood": 58
+     },
+     "hash": "b3f3a370153af484",
+     "deaths": [
+      "56:killed:bear",
+      "57:bled_out:bear",
+      "79:bled_out:bear",
+      "110:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 98,
+      "meal": 58,
+      "plantFood": 92
+     },
+     "hash": "b483eb4f9210d58f",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 7,
+     "stocks": {
+      "drink": 78,
+      "meal": 52,
+      "plantFood": 0
+     },
+     "hash": "0b60fb1c45aa2b31",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 3,
+     "arrivals": 12,
+     "starving": 5,
+     "stocks": {
+      "drink": 113,
+      "meal": 63,
+      "plantFood": 29
+     },
+     "hash": "ae7ab04ee76466d4",
+     "deaths": [
+      "36:bled_out:wolf",
+      "40:bled_out:wolf",
+      "62:killed:wolf",
+      "66:bled_out:wolf",
+      "72:bled_out:wolf",
+      "84:killed:wolf",
+      "89:bled_out:wolf",
+      "94:bled_out:wolf",
+      "106:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 1,
+     "stocks": {
+      "drink": 42,
+      "meal": 7,
+      "plantFood": 0
+     },
+     "hash": "54b2ecf5696de771",
+     "deaths": [
+      "71:bled_out:bear"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "starving": 0,
+     "stocks": {
+      "drink": 110,
+      "meal": 45,
+      "plantFood": 7
+     },
+     "hash": "1aa8e08d02f4d90e",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 44,
+      "plantFood": 102
+     },
+     "hash": "d84ff66d4afd7d44",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 110,
+      "meal": 60,
+      "plantFood": 101
+     },
+     "hash": "0edd5ecc65bf9d43",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 60,
+      "plantFood": 72
+     },
+     "hash": "7743a60d3bd8757d",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 104,
+      "meal": 57,
+      "plantFood": 77
+     },
+     "hash": "5358ce3896a9636e",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 2,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 10.5,
+    "worst": 2,
+    "secondWorst": 3,
+    "living": 118,
+    "wildlifeFree": 7,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 11,
+    "starvedYears": 1
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 5,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 103,
+      "meal": 60,
+      "plantFood": 104
+     },
+     "hash": "b8c5184ba801ddb0",
+     "deaths": [
+      "40:bled_out:bear",
+      "49:killed:bear",
+      "68:killed:wolf",
+      "72:killed:wolf",
+      "73:bled_out:wolf",
+      "73:bled_out:wolf",
+      "86:bled_out:wolf",
+      "87:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 84,
+      "meal": 34,
+      "plantFood": 131
+     },
+     "hash": "98262d195f8a6381",
+     "deaths": [
+      "100:bled_out:badger",
+      "106:bled_out:boar",
+      "111:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 109,
+      "meal": 62,
+      "plantFood": 58
+     },
+     "hash": "c7c83b4030c6bc9c",
+     "deaths": [
+      "56:killed:bear",
+      "57:bled_out:bear",
+      "79:bled_out:bear",
+      "110:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 7,
+     "arrivals": 13,
+     "starving": 1,
+     "stocks": {
+      "drink": 99,
+      "meal": 62,
+      "plantFood": 144
+     },
+     "hash": "ff6fcfbad2ef7f43",
+     "deaths": [
+      "41:bled_out:wolf",
+      "49:bled_out:wolf",
+      "57:bled_out:wolf",
+      "62:bled_out:wolf",
+      "71:bled_out:wolf",
+      "84:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 7,
+     "stocks": {
+      "drink": 78,
+      "meal": 52,
+      "plantFood": 0
+     },
+     "hash": "196844b7ffc8af46",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 3,
+     "arrivals": 12,
+     "starving": 5,
+     "stocks": {
+      "drink": 113,
+      "meal": 63,
+      "plantFood": 29
+     },
+     "hash": "ae7ab04ee76466d4",
+     "deaths": [
+      "36:bled_out:wolf",
+      "40:bled_out:wolf",
+      "62:killed:wolf",
+      "66:bled_out:wolf",
+      "72:bled_out:wolf",
+      "84:killed:wolf",
+      "89:bled_out:wolf",
+      "94:bled_out:wolf",
+      "106:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 2,
+     "arrivals": 13,
+     "starving": 352,
+     "stocks": {
+      "drink": 0,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "hash": "15f8887af1edd61a",
+     "deaths": [
+      "110:starvation:none",
+      "110:starvation:none",
+      "110:starvation:none",
+      "111:starvation:none",
+      "111:starvation:none",
+      "111:starvation:none",
+      "112:starvation:none",
+      "112:starvation:none",
+      "112:starvation:none",
+      "112:starvation:none",
+      "112:starvation:none"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "starving": 0,
+     "stocks": {
+      "drink": 113,
+      "meal": 52,
+      "plantFood": 2
+     },
+     "hash": "698d31c4e6d811ac",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 44,
+      "plantFood": 102
+     },
+     "hash": "d84ff66d4afd7d44",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 9,
+     "stocks": {
+      "drink": 112,
+      "meal": 63,
+      "plantFood": 90
+     },
+     "hash": "80a1184195ccc9ea",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 154,
+     "stocks": {
+      "drink": 96,
+      "meal": 0,
+      "plantFood": 19
+     },
+     "hash": "a52676009b03909b",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 99,
+      "meal": 57,
+      "plantFood": 79
+     },
+     "hash": "7cefcc94a3538dde",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 3,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12,
+    "worst": 3,
+    "secondWorst": 8,
+    "living": 136,
+    "wildlifeFree": 6,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 8,
+     "arrivals": 13,
+     "starving": 1,
+     "stocks": {
+      "drink": 112,
+      "meal": 61,
+      "plantFood": 80
+     },
+     "hash": "6211193586db0d54",
+     "deaths": [
+      "22:bled_out:wolf",
+      "26:bled_out:wolf",
+      "38:bled_out:badger",
+      "39:bled_out:badger",
+      "40:bled_out:badger"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 109,
+      "meal": 57,
+      "plantFood": 100
+     },
+     "hash": "b377e1b7b5447f14",
+     "deaths": [
+      "98:killed:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 109,
+      "meal": 62,
+      "plantFood": 58
+     },
+     "hash": "c7c83b4030c6bc9c",
+     "deaths": [
+      "56:killed:bear",
+      "57:bled_out:bear",
+      "79:bled_out:bear",
+      "110:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 108,
+      "meal": 63,
+      "plantFood": 93
+     },
+     "hash": "43c9eeab03232fbb",
+     "deaths": [
+      "35:bled_out:boar",
+      "50:bled_out:boar",
+      "59:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 7,
+     "stocks": {
+      "drink": 78,
+      "meal": 52,
+      "plantFood": 0
+     },
+     "hash": "196844b7ffc8af46",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 3,
+     "arrivals": 12,
+     "starving": 5,
+     "stocks": {
+      "drink": 113,
+      "meal": 63,
+      "plantFood": 29
+     },
+     "hash": "834fc6ddfaacea89",
+     "deaths": [
+      "36:bled_out:wolf",
+      "40:bled_out:wolf",
+      "62:killed:wolf",
+      "66:bled_out:wolf",
+      "72:bled_out:wolf",
+      "84:killed:wolf",
+      "89:bled_out:wolf",
+      "94:bled_out:wolf",
+      "106:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 65,
+     "stocks": {
+      "drink": 76,
+      "meal": 45,
+      "plantFood": 0
+     },
+     "hash": "d7e45658e7592557",
+     "deaths": [
+      "28:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "starving": 0,
+     "stocks": {
+      "drink": 113,
+      "meal": 52,
+      "plantFood": 2
+     },
+     "hash": "4aced2bb08989643",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 44,
+      "plantFood": 102
+     },
+     "hash": "d84ff66d4afd7d44",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 9,
+     "stocks": {
+      "drink": 112,
+      "meal": 63,
+      "plantFood": 90
+     },
+     "hash": "80a1184195ccc9ea",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 49,
+      "plantFood": 64
+     },
+     "hash": "51ba8795c978701b",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 97,
+      "meal": 58,
+      "plantFood": 70
+     },
+     "hash": "89329511509e6d5d",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 4,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 3,
+    "secondWorst": 9,
+    "living": 141,
+    "wildlifeFree": 7,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 104,
+      "meal": 62,
+      "plantFood": 35
+     },
+     "hash": "cd8cbb9857c315c6",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 84,
+      "meal": 34,
+      "plantFood": 131
+     },
+     "hash": "98262d195f8a6381",
+     "deaths": [
+      "100:bled_out:badger",
+      "106:bled_out:boar",
+      "111:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 109,
+      "meal": 62,
+      "plantFood": 58
+     },
+     "hash": "c7c83b4030c6bc9c",
+     "deaths": [
+      "56:killed:bear",
+      "57:bled_out:bear",
+      "79:bled_out:bear",
+      "110:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 107,
+      "meal": 63,
+      "plantFood": 105
+     },
+     "hash": "4a632d100830f4d8",
+     "deaths": [
+      "41:bled_out:badger"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 7,
+     "stocks": {
+      "drink": 80,
+      "meal": 58,
+      "plantFood": 2
+     },
+     "hash": "755cf16a8c643ae9",
+     "deaths": [
+      "111:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 3,
+     "arrivals": 12,
+     "starving": 5,
+     "stocks": {
+      "drink": 113,
+      "meal": 63,
+      "plantFood": 29
+     },
+     "hash": "834fc6ddfaacea89",
+     "deaths": [
+      "36:bled_out:wolf",
+      "40:bled_out:wolf",
+      "62:killed:wolf",
+      "66:bled_out:wolf",
+      "72:bled_out:wolf",
+      "84:killed:wolf",
+      "89:bled_out:wolf",
+      "94:bled_out:wolf",
+      "106:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 3,
+      "meal": 4,
+      "plantFood": 0
+     },
+     "hash": "1f72909c9dc5a48c",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "starving": 0,
+     "stocks": {
+      "drink": 113,
+      "meal": 52,
+      "plantFood": 2
+     },
+     "hash": "4aced2bb08989643",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 96,
+      "meal": 36,
+      "plantFood": 91
+     },
+     "hash": "58273ad36c3bc825",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 7,
+     "stocks": {
+      "drink": 104,
+      "meal": 58,
+      "plantFood": 110
+     },
+     "hash": "14510744ea697ff1",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 109,
+      "meal": 60,
+      "plantFood": 88
+     },
+     "hash": "b33714f0fe8f2396",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 99,
+      "meal": 60,
+      "plantFood": 74
+     },
+     "hash": "716415863cd52ef4",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 5,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 8,
+    "secondWorst": 9,
+    "living": 145,
+    "wildlifeFree": 7,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 111,
+      "meal": 59,
+      "plantFood": 64
+     },
+     "hash": "6f2c0671b6432d8b",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 109,
+      "meal": 57,
+      "plantFood": 100
+     },
+     "hash": "b377e1b7b5447f14",
+     "deaths": [
+      "98:killed:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 109,
+      "meal": 62,
+      "plantFood": 58
+     },
+     "hash": "c7c83b4030c6bc9c",
+     "deaths": [
+      "56:killed:bear",
+      "57:bled_out:bear",
+      "79:bled_out:bear",
+      "110:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 99,
+      "meal": 63,
+      "plantFood": 94
+     },
+     "hash": "2c19b4d8d9000a97",
+     "deaths": [
+      "57:bled_out:wolf",
+      "67:killed:bear",
+      "72:bled_out:badger"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 20,
+     "stocks": {
+      "drink": 108,
+      "meal": 60,
+      "plantFood": 0
+     },
+     "hash": "0f4275ed987b000e",
+     "deaths": [
+      "39:bled_out:wolf",
+      "45:bled_out:wolf",
+      "59:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "arrivals": 12,
+     "starving": 13,
+     "stocks": {
+      "drink": 49,
+      "meal": 21,
+      "plantFood": 1
+     },
+     "hash": "1c9d3b100a44e235",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 4,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "hash": "67d22338accd445a",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 8,
+     "arrivals": 11,
+     "starving": 2,
+     "stocks": {
+      "drink": 98,
+      "meal": 60,
+      "plantFood": 46
+     },
+     "hash": "94b8410f32428ac9",
+     "deaths": [
+      "59:killed:wolf",
+      "93:bled_out:wolf",
+      "96:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 96,
+      "meal": 36,
+      "plantFood": 91
+     },
+     "hash": "58273ad36c3bc825",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 1,
+     "stocks": {
+      "drink": 106,
+      "meal": 56,
+      "plantFood": 100
+     },
+     "hash": "1f9112150322c761",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 109,
+      "meal": 55,
+      "plantFood": 69
+     },
+     "hash": "caadae04902bfbe7",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 166,
+     "stocks": {
+      "drink": 94,
+      "meal": 0,
+      "plantFood": 11
+     },
+     "hash": "77e17ae51f78f517",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 6,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 8,
+    "secondWorst": 11,
+    "living": 149,
+    "wildlifeFree": 6,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 11,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 108,
+      "meal": 60,
+      "plantFood": 42
+     },
+     "hash": "3e270a0df948d499",
+     "deaths": [
+      "31:burnt:none",
+      "76:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 97,
+      "meal": 59,
+      "plantFood": 115
+     },
+     "hash": "a733335dff4344b1",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 108,
+      "meal": 62,
+      "plantFood": 31
+     },
+     "hash": "8c87aed64393aec6",
+     "deaths": [
+      "112:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 11,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 112,
+      "meal": 58,
+      "plantFood": 118
+     },
+     "hash": "fe204205a4416460",
+     "deaths": [
+      "73:bled_out:bear",
+      "74:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 7,
+     "stocks": {
+      "drink": 80,
+      "meal": 58,
+      "plantFood": 2
+     },
+     "hash": "cd13f849cab8f476",
+     "deaths": [
+      "111:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "arrivals": 12,
+     "starving": 12,
+     "stocks": {
+      "drink": 9,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "hash": "883d81ed21b5c676",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 4,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "hash": "7408f58f7432883f",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 8,
+     "arrivals": 11,
+     "starving": 2,
+     "stocks": {
+      "drink": 98,
+      "meal": 60,
+      "plantFood": 46
+     },
+     "hash": "a52cfe040417a16e",
+     "deaths": [
+      "59:killed:wolf",
+      "93:bled_out:wolf",
+      "96:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 97,
+      "meal": 38,
+      "plantFood": 84
+     },
+     "hash": "fbf925c1d9af2cce",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 7,
+     "stocks": {
+      "drink": 104,
+      "meal": 58,
+      "plantFood": 110
+     },
+     "hash": "14510744ea697ff1",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 14,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 111,
+      "meal": 52,
+      "plantFood": 79
+     },
+     "hash": "adefae1f7feec2ce",
+     "deaths": [
+      "99:infection:badger"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 101,
+      "meal": 52,
+      "plantFood": 63
+     },
+     "hash": "f25d58f16fa0e322",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 7,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 9,
+    "secondWorst": 9,
+    "living": 144,
+    "wildlifeFree": 8,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 108,
+      "meal": 58,
+      "plantFood": 27
+     },
+     "hash": "53db638301cf304b",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 61,
+      "plantFood": 103
+     },
+     "hash": "6da8c053cd01b19d",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 112,
+      "meal": 62,
+      "plantFood": 13
+     },
+     "hash": "5d22b63d321071db",
+     "deaths": [
+      "34:infection:none"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 3,
+     "stocks": {
+      "drink": 108,
+      "meal": 46,
+      "plantFood": 71
+     },
+     "hash": "98387a30aabbc6e0",
+     "deaths": [
+      "94:bled_out:wolf",
+      "94:bled_out:wolf",
+      "103:killed:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 9,
+     "stocks": {
+      "drink": 94,
+      "meal": 64,
+      "plantFood": 22
+     },
+     "hash": "c993dcf670129524",
+     "deaths": [
+      "23:bled_out:wolf",
+      "30:bled_out:wolf",
+      "56:bled_out:wolf",
+      "104:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 9,
+     "arrivals": 12,
+     "starving": 8,
+     "stocks": {
+      "drink": 112,
+      "meal": 59,
+      "plantFood": 22
+     },
+     "hash": "d18d60c89aa52db5",
+     "deaths": [
+      "36:bled_out:wolf",
+      "40:bled_out:wolf",
+      "45:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 3,
+     "stocks": {
+      "drink": 99,
+      "meal": 50,
+      "plantFood": 1
+     },
+     "hash": "d6a2d7cb0d0609ee",
+     "deaths": [
+      "30:bled_out:wolf",
+      "36:killed:wolf",
+      "44:bled_out:wolf",
+      "69:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "starving": 1,
+     "stocks": {
+      "drink": 101,
+      "meal": 52,
+      "plantFood": 6
+     },
+     "hash": "cb81fc8abb2eaa60",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 99,
+      "meal": 49,
+      "plantFood": 82
+     },
+     "hash": "0a610d873b962767",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 7,
+     "stocks": {
+      "drink": 103,
+      "meal": 60,
+      "plantFood": 101
+     },
+     "hash": "5975082ddc36aab9",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 109,
+      "meal": 54,
+      "plantFood": 60
+     },
+     "hash": "8299de00f6d72896",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 96,
+      "meal": 48,
+      "plantFood": 78
+     },
+     "hash": "d0c087fd800a346e",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 8,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 3,
+    "secondWorst": 6,
+    "living": 130,
+    "wildlifeFree": 6,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 100,
+      "meal": 59,
+      "plantFood": 30
+     },
+     "hash": "c6dfe0a205e0670f",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 109,
+      "meal": 62,
+      "plantFood": 115
+     },
+     "hash": "918be846a3e99346",
+     "deaths": [
+      "43:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 97,
+      "meal": 54,
+      "plantFood": 8
+     },
+     "hash": "c162651fab7d6158",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 7,
+     "arrivals": 13,
+     "starving": 1,
+     "stocks": {
+      "drink": 99,
+      "meal": 62,
+      "plantFood": 144
+     },
+     "hash": "91255e95940ec006",
+     "deaths": [
+      "41:bled_out:wolf",
+      "49:bled_out:wolf",
+      "57:bled_out:wolf",
+      "62:bled_out:wolf",
+      "71:bled_out:wolf",
+      "84:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 9,
+     "stocks": {
+      "drink": 94,
+      "meal": 64,
+      "plantFood": 22
+     },
+     "hash": "222cb0bc27647662",
+     "deaths": [
+      "23:bled_out:wolf",
+      "30:bled_out:wolf",
+      "56:bled_out:wolf",
+      "104:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 3,
+     "arrivals": 12,
+     "starving": 5,
+     "stocks": {
+      "drink": 113,
+      "meal": 63,
+      "plantFood": 29
+     },
+     "hash": "ae7ab04ee76466d4",
+     "deaths": [
+      "36:bled_out:wolf",
+      "40:bled_out:wolf",
+      "62:killed:wolf",
+      "66:bled_out:wolf",
+      "72:bled_out:wolf",
+      "84:killed:wolf",
+      "89:bled_out:wolf",
+      "94:bled_out:wolf",
+      "106:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 3,
+     "stocks": {
+      "drink": 99,
+      "meal": 50,
+      "plantFood": 1
+     },
+     "hash": "35ff53c75f873992",
+     "deaths": [
+      "30:bled_out:wolf",
+      "36:killed:wolf",
+      "44:bled_out:wolf",
+      "69:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 6,
+     "arrivals": 11,
+     "starving": 10,
+     "stocks": {
+      "drink": 107,
+      "meal": 63,
+      "plantFood": 49
+     },
+     "hash": "fb51cfe5ede1b430",
+     "deaths": [
+      "62:bled_out:wolf",
+      "65:bled_out:wolf",
+      "88:bled_out:wolf",
+      "89:bled_out:wolf",
+      "91:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 46,
+      "plantFood": 80
+     },
+     "hash": "7b166779f29d217c",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 7,
+     "stocks": {
+      "drink": 103,
+      "meal": 60,
+      "plantFood": 101
+     },
+     "hash": "c11bb4072d438259",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 2,
+     "stocks": {
+      "drink": 110,
+      "meal": 62,
+      "plantFood": 99
+     },
+     "hash": "15661e0108c43678",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 105,
+      "meal": 64,
+      "plantFood": 81
+     },
+     "hash": "3aad279fea926b36",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 9,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12.5,
+    "worst": 0,
+    "secondWorst": 7,
+    "living": 137,
+    "wildlifeFree": 7,
+    "seeds": 12,
+    "extinct": 1,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 118,
+      "meal": 62,
+      "plantFood": 43
+     },
+     "hash": "8c99c0917cfae81d",
+     "deaths": [
+      "90:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 0,
+     "arrivals": 13,
+     "starving": 1,
+     "stocks": {
+      "drink": 123,
+      "meal": 63,
+      "plantFood": 94
+     },
+     "hash": "4ef1a17d159c7e6d",
+     "deaths": [
+      "12:bled_out:boar",
+      "25:bled_out:boar",
+      "74:bled_out:boar",
+      "83:bled_out:boar",
+      "88:bled_out:wolf",
+      "92:bled_out:wolf",
+      "92:bled_out:wolf",
+      "95:bled_out:boar",
+      "95:bled_out:boar",
+      "97:bled_out:badger",
+      "97:bled_out:boar",
+      "100:bled_out:boar",
+      "103:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 96,
+      "meal": 45,
+      "plantFood": 18
+     },
+     "hash": "a7d5e26325e6f246",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 98,
+      "meal": 63,
+      "plantFood": 89
+     },
+     "hash": "95074e4ef23e90f8",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 10,
+     "arrivals": 13,
+     "starving": 29,
+     "stocks": {
+      "drink": 95,
+      "meal": 54,
+      "plantFood": 25
+     },
+     "hash": "171a366973b9e858",
+     "deaths": [
+      "100:bled_out:wolf",
+      "100:bled_out:wolf",
+      "101:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "arrivals": 12,
+     "starving": 40,
+     "stocks": {
+      "drink": 0,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "hash": "8066780e9bb85304",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 3,
+     "stocks": {
+      "drink": 22,
+      "meal": 12,
+      "plantFood": 0
+     },
+     "hash": "934d8bfcb067454c",
+     "deaths": [
+      "112:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 7,
+     "arrivals": 11,
+     "starving": 8,
+     "stocks": {
+      "drink": 89,
+      "meal": 54,
+      "plantFood": 30
+     },
+     "hash": "2bfa2cc4b28223b7",
+     "deaths": [
+      "98:bled_out:wolf",
+      "99:bled_out:wolf",
+      "104:bled_out:wolf",
+      "109:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 113,
+      "meal": 61,
+      "plantFood": 104
+     },
+     "hash": "db544cd83fa23c2d",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 114,
+      "meal": 56,
+      "plantFood": 121
+     },
+     "hash": "d6f343248b097df9",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 104,
+      "meal": 50,
+      "plantFood": 74
+     },
+     "hash": "20940267e012a750",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 177,
+     "stocks": {
+      "drink": 115,
+      "meal": 0,
+      "plantFood": 26
+     },
+     "hash": "6b1a3ed39c2e60e4",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 10,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 13,
+    "worst": 11,
+    "secondWorst": 12,
+    "living": 157,
+    "wildlifeFree": 10,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 2,
+     "stocks": {
+      "drink": 92,
+      "meal": 60,
+      "plantFood": 48
+     },
+     "hash": "8de733021b677a02",
+     "deaths": [
+      "102:bled_out:boar"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 114,
+      "meal": 63,
+      "plantFood": 111
+     },
+     "hash": "75dbad74e9df2f82",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 47,
+      "plantFood": 14
+     },
+     "hash": "f778bd6708a84da9",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 113,
+      "meal": 59,
+      "plantFood": 78
+     },
+     "hash": "0c2e991c34fcb852",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 21,
+     "stocks": {
+      "drink": 100,
+      "meal": 63,
+      "plantFood": 25
+     },
+     "hash": "37f0ea3b20a26101",
+     "deaths": [
+      "58:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "arrivals": 12,
+     "starving": 36,
+     "stocks": {
+      "drink": 0,
+      "meal": 0,
+      "plantFood": 0
+     },
+     "hash": "56cc4038d2bbaa76",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 1,
+     "stocks": {
+      "drink": 25,
+      "meal": 9,
+      "plantFood": 1
+     },
+     "hash": "fec3516eaa3e4b8c",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "starving": 10,
+     "stocks": {
+      "drink": 105,
+      "meal": 58,
+      "plantFood": 17
+     },
+     "hash": "3c85e2da7501fb6a",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 102,
+      "meal": 57,
+      "plantFood": 81
+     },
+     "hash": "407976a218dc4b2a",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 104,
+      "meal": 55,
+      "plantFood": 111
+     },
+     "hash": "9b65e254f6b54d64",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 99,
+      "meal": 47,
+      "plantFood": 68
+     },
+     "hash": "e9acd8d19fee38b4",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 106,
+      "meal": 63,
+      "plantFood": 86
+     },
+     "hash": "1902ebed0aa98ab7",
+     "deaths": []
+    }
+   ]
+  },
+  {
+   "shift": 11,
+   "runtimeCommit": "fc46b32a958dd07c2a15f5a66956c1b00dc8e3a4",
+   "summary": {
+    "median": 12,
+    "worst": 8,
+    "secondWorst": 8,
+    "living": 142,
+    "wildlifeFree": 8,
+    "seeds": 12,
+    "extinct": 0,
+    "hungerThirstDeaths": 0,
+    "starvedYears": 0
+   },
+   "seeds": [
+    {
+     "seed": "wildlife-temperate_forest-1",
+     "living": 8,
+     "arrivals": 13,
+     "starving": 1,
+     "stocks": {
+      "drink": 112,
+      "meal": 61,
+      "plantFood": 80
+     },
+     "hash": "f61797033c856e52",
+     "deaths": [
+      "22:bled_out:wolf",
+      "26:bled_out:wolf",
+      "38:bled_out:badger",
+      "39:bled_out:badger",
+      "40:bled_out:badger"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-2",
+     "living": 8,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 106,
+      "meal": 61,
+      "plantFood": 152
+     },
+     "hash": "bc3f41f056b6ddfd",
+     "deaths": [
+      "12:bled_out:wolf",
+      "19:bled_out:wolf",
+      "20:bled_out:wolf",
+      "73:bled_out:wolf",
+      "74:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-3",
+     "living": 12,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 116,
+      "meal": 65,
+      "plantFood": 15
+     },
+     "hash": "faece259a3da99d9",
+     "deaths": [
+      "33:infection:none"
+     ]
+    },
+    {
+     "seed": "wildlife-temperate_forest-4",
+     "living": 11,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 112,
+      "meal": 58,
+      "plantFood": 118
+     },
+     "hash": "d7bb41181f405269",
+     "deaths": [
+      "73:bled_out:bear",
+      "74:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-1",
+     "living": 9,
+     "arrivals": 13,
+     "starving": 9,
+     "stocks": {
+      "drink": 94,
+      "meal": 64,
+      "plantFood": 22
+     },
+     "hash": "222cb0bc27647662",
+     "deaths": [
+      "23:bled_out:wolf",
+      "30:bled_out:wolf",
+      "56:bled_out:wolf",
+      "104:bled_out:wolf"
+     ]
+    },
+    {
+     "seed": "wildlife-taiga-2",
+     "living": 12,
+     "arrivals": 12,
+     "starving": 13,
+     "stocks": {
+      "drink": 49,
+      "meal": 21,
+      "plantFood": 1
+     },
+     "hash": "1c9d3b100a44e235",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-3",
+     "living": 13,
+     "arrivals": 13,
+     "starving": 0,
+     "stocks": {
+      "drink": 35,
+      "meal": 5,
+      "plantFood": 0
+     },
+     "hash": "4e76c5ae688e6a10",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-taiga-4",
+     "living": 11,
+     "arrivals": 11,
+     "starving": 13,
+     "stocks": {
+      "drink": 115,
+      "meal": 40,
+      "plantFood": 0
+     },
+     "hash": "fff8fe7a289f3361",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-1",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 3,
+     "stocks": {
+      "drink": 101,
+      "meal": 46,
+      "plantFood": 98
+     },
+     "hash": "ccab0c2c2894d725",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-2",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 113,
+      "meal": 58,
+      "plantFood": 113
+     },
+     "hash": "588c73c23544f772",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-3",
+     "living": 15,
+     "arrivals": 15,
+     "starving": 0,
+     "stocks": {
+      "drink": 113,
+      "meal": 63,
+      "plantFood": 79
+     },
+     "hash": "f31a048efe82632c",
+     "deaths": []
+    },
+    {
+     "seed": "wildlife-temperate_grassland-4",
+     "living": 14,
+     "arrivals": 14,
+     "starving": 0,
+     "stocks": {
+      "drink": 110,
+      "meal": 61,
+      "plantFood": 82
+     },
+     "hash": "c313bfa7a6e2ae21",
+     "deaths": []
+    }
+   ]
+  }
+ ]
+}

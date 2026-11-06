@@ -75,7 +75,7 @@ Several of them read `docs/`, so run all of them even for a documentation-only c
 
 ```
 gh workflow run ci.yml --ref <branch>                               # e2e and npm test: every behaviour change under src/; "e2e: N passed" in the commit body
-gh workflow run measure.yml --ref <branch> -f suite=instrument      # every change that can move the simulation; before and after rows in the commit body
+gh workflow run measure.yml --ref <branch> -f suite=instrument      # every change that can move the simulation: eight shifted samples and the verdict; the pooled before and after rows in the commit body
 gh workflow run measure.yml --ref <branch> -f suite=sweep           # the twenty-seed file, when a task asks for it
 ```
 
@@ -92,7 +92,7 @@ Never run a tool through `npx` unless it is a dependency in `package.json`.
   3. **`Tests:`** the tests added;
   4. **`Expectations changed:`** each existing assertion that was changed, one line each: the file, the old expectation, and why it was exactly the old behaviour the task changes. `none` if none. The reviewer checks every line of it;
   5. **`golden:`** each golden file that moved and why, or `none`;
-  6. **`Gates:`** one line: the checks and tests run, `e2e: N passed`, and the instrument rows when it ran;
+  6. **`Gates:`** one line: the checks and tests run, `e2e: N passed`, and the instrument's pooled rows and verdict when it ran;
   7. **`Closes:`** the task id when this commit finishes it, and **`New rows:`** one line per new task (id, title, the work file it created).
 - Golden files change only through `npm run golden:update -- <name>`, in the same commit as the behaviour change. A golden change that the work file does not predict is a regression: investigate it before committing.
 

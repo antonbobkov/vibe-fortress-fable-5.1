@@ -58,7 +58,7 @@ GitHub Actions runs nothing on push. Both workflows start only on demand. Golden
 |---|---|---|
 | `.github/workflows/ci.yml` (Verification) | The six static checks and the build; `npm test` split into four parallel shards; `npm run test:e2e` | about 12 minutes |
 | `.github/workflows/measure.yml` (Measure), input `suite` | `sweep`: the twenty-seed file, one job per seed, plus a summary job | about 15 minutes |
-| | `instrument`: the annual wildlife instrument (`test/perf/wildlife_year.test.ts`) | about 10 minutes |
+| | `instrument`, with input `shifts` (`0,1,2,3,4,5,6,7` by default): the annual wildlife instrument (`test/perf/wildlife_year.test.ts`) once per shift, the same commit played that many ticks later, one job a shift; then a verdict job pools them (`test/perf/wildlife_year_verdict.test.ts`) and judges the change by testing-strategy.md § Annual wildlife survival | about 15 minutes with free runners |
 | | `three_years_main`: the long economy run (`test/perf/three_years_main.test.ts`) | about 8 minutes |
 | | `scenario`, with input `scenario=<id>`: one scenario from `test/scenarios`, such as `defence_year` or `pp_defence` | a few minutes |
 | | `timing`: the timing tests (`test/perf/per-system.test.ts`, `test/perf/perf_reference.test.ts`), to see how quiet a runner is | a few minutes |
@@ -76,7 +76,7 @@ Tests of ten minutes or more locally always run here; five to ten minutes by jud
    ```
    gh workflow run ci.yml --ref <branch>                                          # npm test (4 shards), e2e, checks, build
    gh workflow run measure.yml --ref <branch> -f suite=sweep                     # the twenty-seed file
-   gh workflow run measure.yml --ref <branch> -f suite=instrument                # the annual wildlife instrument
+   gh workflow run measure.yml --ref <branch> -f suite=instrument                # the annual wildlife instrument: eight shifts and the verdict
    gh workflow run measure.yml --ref <branch> -f suite=three_years_main          # the long economy run
    gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
    ```
@@ -94,12 +94,13 @@ Tests of ten minutes or more locally always run here; five to ten minutes by jud
 5. **Read the result.**
    - `gh run view <id> --log-failed` prints only the failed steps: the quickest way to see which test or assertion broke.
    - `gh run view <id> --log` prints everything. Vitest output on the runner is coloured; strip it with `sed 's/\x1b\[[0-9;]*m//g'` before you grep.
-   - `gh run download <id> -D <dir>` downloads every artifact, one folder each: `unit-1` to `unit-4` (each shard's log), `e2e` (its log, and Playwright's traces and report on a failure), `seed-<p0-1>` (a seed's result file `three-years-<seed>.json` and its log), `sweep-summary`, `instrument`, `three_years_main`, or the scenario's id. `-n <name>` downloads one.
+   - `gh run download <id> -D <dir>` downloads every artifact, one folder each: `unit-1` to `unit-4` (each shard's log), `e2e` (its log, and Playwright's traces and report on a failure), `seed-<p0-1>` (a seed's result file `three-years-<seed>.json` and its log), `sweep-summary`, `instrument-shift-<n>` (one instrument sample: its rows, `wildlife-year-shift-<n>.json`, and log), `instrument` (the verdict, `verdict.md` and `verdict.json`, with every sample's result file), `three_years_main`, or the scenario's id. `-n <name>` downloads one.
    - For the sweep, `sweep-summary.md` has the totals, the row by peril, each seed's year-1 and year-3 population, deaths, need deaths and extinction day, and whether the set rule holds. The same table is on the run's page on GitHub.
 6. **Read the outcome correctly.**
    - `ci.yml` passes only when all six jobs pass. The test count is the sum of the four shards' `Tests` lines.
    - A sweep seed job fails when the seed breaks one of its own assertions (an invariant, a witness) or produces no result file; its numbers are still in the summary. The summary job fails when the set rule breaks or a seed has no result. So the run can show failure while the set rule holds: read the summary before deciding.
    - Each Measure job checks that it ran at least one test, so a filter that matches nothing fails instead of passing empty.
+   - For the instrument, read the verdict job (`instrument-verdict`): its summary on the run's page has each shift's row, the pooled row, the reference, the bounds and the verdict, and the rows to commit when the change is accepted. A sample job fails only on an invariant of its own (the accounting, the opening's setup), never on a bound: one sample is not judged. A verdict over shifts other than `0` to `7` prints its table and fails.
    - Artifacts are kept for 14 days (the sweep summary for 30). Copy any figure a report or commit needs into the commit or `reports/data/`.
 
 **Your own probe.** A probe or journal that writes files can run the same way. Commit it on your branch, then run it as a scenario, or add a step to `measure.yml` on your branch. Files a Measure job writes under `out/` become its artifact. Do not commit `reports/screenshots`.

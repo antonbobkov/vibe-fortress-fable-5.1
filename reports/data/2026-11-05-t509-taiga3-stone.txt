@@ -1,0 +1,85 @@
+# T-509: wildlife-taiga-3's opening buildings, build jobs and stone, before the fix (probe: 2026-11-05-t509-kitchen.probe.ts.txt, with the fixture's observe hook called from day 0, not kept)
+
+## shift 2
+  events so far {}
+day 0 dwarves 7 cooks? 0 | carpenter#16777322@297825 constructing | mason#16777323@297898 planned | still#16777324@298382 planned brew:{"runnable":false,"reason":"not_found"} | orders make_barrel:maintain:1/20,make_stone_block:once:4/0,brew:maintain:1/100
+  job 103 build buildings target building:16777322 fetching null worker 16777295 inputs [{"filter":{"types":[62],"unoccupied":true},"count":2,"reserved":[16777265,16777266],"delivered":[16777265]}]
+  job 104 build buildings target building:16777323 blocked missing_input worker 0 inputs [{"filter":{"types":[80,97],"unoccupied":true},"count":2,"reserved":[],"delivered":[]}]
+  job 105 build buildings target building:16777324 blocked missing_input worker 0 inputs [{"filter":{"types":[10],"emptyContainer":"barrel","unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 0 log 10
+  events so far {"done:dig":28,"done:carve_stairs":1}
+day 1 dwarves 7 cooks? 0 | carpenter#16777322@297825 constructing | mason#16777323@297898 planned | still#16777324@298382 planned brew:{"runnable":false,"reason":"not_found"} | orders make_barrel:maintain:1/20,make_stone_block:once:4/0,brew:maintain:1/100
+  job 103 build buildings target building:16777322 travelling null worker 16777296 inputs [{"filter":{"types":[62],"unoccupied":true},"count":2,"reserved":[16777265,16777266],"delivered":[16777265,16777266]}]
+  job 104 build buildings target building:16777323 blocked missing_input worker 0 inputs [{"filter":{"types":[80,97],"unoccupied":true},"count":2,"reserved":[],"delivered":[]}]
+  job 105 build buildings target building:16777324 blocked missing_input worker 0 inputs [{"filter":{"types":[10],"emptyContainer":"barrel","unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 0 log 22
+  events so far {"done:dig":47,"done:carve_stairs":3,"made:raw_stone":4,"done:build":2}
+day 2 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 constructing | still#16777324@298382 built brew:{"runnable":true,"reason":null} | orders make_barrel:maintain:1/20,make_stone_block:once:4/0,brew:maintain:1/100
+  job 104 build buildings target building:16777323 fetching null worker 16777293 inputs [{"filter":{"types":[80,97],"unoccupied":true},"count":2,"reserved":[50331797,50331800],"delivered":[50331797]}]
+  items table 1/1 raw_stone 3/1 stone_block 0 log 26
+  events so far {"done:dig":55,"done:carve_stairs":5,"made:raw_stone":6,"done:build":3,"made:stone_block":4}
+day 3 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | orders make_barrel:maintain:1/20,make_stone_block:once:2/0,brew:maintain:1/100
+  items table 1/1 raw_stone 1/0 stone_block 4 log 30
+  events so far {"done:dig":55,"done:carve_stairs":5,"made:raw_stone":6,"done:build":3,"made:stone_block":6}
+day 4 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | hearth#16777384@300112 constructing | kitchen#16777385@300493 planned cook:{"runnable":false,"reason":"not_found"} ws:undefined | orders make_barrel:maintain:1/20,make_stone_block:once:1/0,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 141 build buildings target building:16777384 working null worker 16777294 inputs [{"filter":{"types":[97],"unoccupied":true},"count":3,"reserved":[83886242,83886243],"delivered":[83886242,83886243]},{"filter":{"types":[62],"unoccupied":true},"count":1,"reserved":[16777351],"delivered":[16777351]}]
+  job 142 build buildings target building:16777385 blocked missing_input worker 0 inputs [{"filter":{"types":[98],"unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 6 log 36
+  events so far {"done:dig":55,"done:carve_stairs":5,"made:raw_stone":6,"done:build":4,"made:stone_block":6}
+day 5 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | hearth#16777384@300112 built | kitchen#16777385@300493 planned cook:{"runnable":false,"reason":"not_found"} ws:undefined | orders make_barrel:maintain:1/20,make_stone_block:once:1/0,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 142 build buildings target building:16777385 blocked missing_input worker 0 inputs [{"filter":{"types":[98],"unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 3 log 35
+  events so far {"done:dig":55,"done:carve_stairs":5,"made:raw_stone":6,"done:build":4,"made:stone_block":6}
+day 6 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | hearth#16777384@300112 built | kitchen#16777385@300493 planned cook:{"runnable":false,"reason":"not_found"} ws:undefined | orders make_barrel:maintain:1/20,make_stone_block:once:1/0,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 142 build buildings target building:16777385 blocked missing_input worker 0 inputs [{"filter":{"types":[98],"unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 3 log 34
+  events so far {"done:dig":55,"done:carve_stairs":5,"made:raw_stone":6,"done:build":4,"made:stone_block":6}
+day 7 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | hearth#16777384@300112 built | kitchen#16777385@300493 planned cook:{"runnable":false,"reason":"not_found"} ws:undefined | orders make_barrel:maintain:1/20,make_stone_block:once:1/0,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 142 build buildings target building:16777385 blocked missing_input worker 0 inputs [{"filter":{"types":[98],"unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 3 log 31
+  events so far {"done:dig":55,"done:carve_stairs":5,"made:raw_stone":6,"done:build":4,"made:stone_block":6}
+day 8 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":false,"reason":"waiting for plant_food"} | hearth#16777384@300112 built | kitchen#16777385@300493 planned cook:{"runnable":false,"reason":"not_found"} ws:undefined | orders make_barrel:maintain:1/20,make_stone_block:once:1/0,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 142 build buildings target building:16777385 blocked missing_input worker 0 inputs [{"filter":{"types":[98],"unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 3 log 30
+
+## shift 0
+  events so far {}
+day 0 dwarves 7 cooks? 0 | carpenter#16777322@297825 constructing | mason#16777323@297898 planned | still#16777324@298382 planned brew:{"runnable":false,"reason":"not_found"} | orders make_barrel:maintain:1/20,make_stone_block:once:4/0,brew:maintain:1/100
+  job 112 build buildings target building:16777322 fetching null worker 16777295 inputs [{"filter":{"types":[62],"unoccupied":true},"count":2,"reserved":[16777265,16777266],"delivered":[16777265]}]
+  job 113 build buildings target building:16777323 blocked missing_input worker 0 inputs [{"filter":{"types":[80,97],"unoccupied":true},"count":2,"reserved":[],"delivered":[]}]
+  job 114 build buildings target building:16777324 blocked missing_input worker 0 inputs [{"filter":{"types":[10],"emptyContainer":"barrel","unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 0/0 stone_block 0 log 7
+  events so far {"done:dig":29,"made:raw_stone":1,"done:carve_stairs":1}
+day 1 dwarves 7 cooks? 0 | carpenter#16777322@297825 constructing | mason#16777323@297898 planned | still#16777324@298382 planned brew:{"runnable":false,"reason":"not_found"} | orders make_barrel:maintain:1/20,make_stone_block:once:4/0,brew:maintain:1/100
+  job 112 build buildings target building:16777322 working null worker 16777297 inputs [{"filter":{"types":[62],"unoccupied":true},"count":2,"reserved":[16777265,16777266],"delivered":[16777265,16777266]}]
+  job 113 build buildings target building:16777323 blocked missing_input worker 0 inputs [{"filter":{"types":[80,97],"unoccupied":true},"count":2,"reserved":[],"delivered":[]}]
+  job 114 build buildings target building:16777324 blocked missing_input worker 0 inputs [{"filter":{"types":[10],"emptyContainer":"barrel","unoccupied":true},"count":1,"reserved":[],"delivered":[]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[],"delivered":[]}]
+  items table 1/1 raw_stone 1/1 stone_block 0 log 13
+  events so far {"done:dig":44,"made:raw_stone":4,"done:carve_stairs":3,"done:build":2}
+day 2 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 constructing brew:{"runnable":false,"reason":"not_found"} | orders make_barrel:maintain:1/20,make_stone_block:once:4/0,brew:maintain:1/100
+  job 114 build buildings target building:16777324 fetching null worker 16777293 inputs [{"filter":{"types":[10],"emptyContainer":"barrel","unoccupied":true},"count":1,"reserved":[50331770],"delivered":[50331770]},{"filter":{"types":[80],"unoccupied":true},"count":1,"reserved":[83886130],"delivered":[]}]
+  items table 1/1 raw_stone 2/0 stone_block 0 log 25
+  events so far {"done:dig":55,"made:raw_stone":7,"done:carve_stairs":3,"done:build":3,"made:stone_block":6}
+day 3 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | orders make_barrel:maintain:1/20,make_stone_block:once:1/0,brew:maintain:1/100
+  items table 1/1 raw_stone 1/0 stone_block 6 log 32
+  events so far {"done:dig":55,"made:raw_stone":9,"done:carve_stairs":5,"done:build":4,"made:stone_block":8}
+day 4 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | hearth#50331814@300112 constructing | kitchen#117440676@300493 built cook:{"runnable":true,"reason":null} ws:{"orders":[],"currentJobId":144,"suspended":false,"assignedWorker":0,"magmaPowered":false,"lastBlockedReason":null} | orders make_barrel:maintain:1/20,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 139 build buildings target building:50331814 fetching null worker 16777293 inputs [{"filter":{"types":[97],"unoccupied":true},"count":3,"reserved":[50331801,50331807],"delivered":[50331801,50331807]},{"filter":{"types":[62],"unoccupied":true},"count":1,"reserved":[16777329],"delivered":[]}]
+  job 144 craft workshops target building:117440676 fetching null worker 16777292 inputs [{"filter":{"tag":"ingredient"},"count":2,"reserved":[50331825],"delivered":[]}]
+  items table 0/0 raw_stone 1/1 stone_block 8 log 36
+  events so far {"done:dig":55,"made:raw_stone":9,"done:carve_stairs":5,"done:build":5,"made:stone_block":8}
+day 5 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":false,"reason":"waiting for barrel"} | hearth#50331814@300112 built | kitchen#117440676@300493 built cook:{"runnable":true,"reason":null} ws:{"orders":[],"currentJobId":149,"suspended":false,"assignedWorker":0,"magmaPowered":false,"lastBlockedReason":null} | orders make_barrel:maintain:1/20,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 149 craft workshops target building:117440676 working null worker 16777291 inputs [{"filter":{"tag":"ingredient"},"count":2,"reserved":[117440581],"delivered":[117440581]}]
+  items table 0/0 raw_stone 1/1 stone_block 5 log 35
+  events so far {"done:dig":55,"made:raw_stone":9,"done:carve_stairs":5,"done:build":5,"made:stone_block":8}
+day 6 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | hearth#50331814@300112 built | kitchen#117440676@300493 built cook:{"runnable":true,"reason":null} ws:{"orders":[],"currentJobId":160,"suspended":false,"assignedWorker":0,"magmaPowered":false,"lastBlockedReason":null} | orders make_barrel:maintain:1/20,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 160 craft workshops target building:117440676 working null worker 16777296 inputs [{"filter":{"tag":"ingredient"},"count":2,"reserved":[16777399],"delivered":[16777399]}]
+  items table 0/0 raw_stone 1/1 stone_block 5 log 35
+  events so far {"done:dig":55,"made:raw_stone":9,"done:carve_stairs":5,"done:build":5,"made:stone_block":8}
+day 7 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":true,"reason":null} | hearth#50331814@300112 built | kitchen#117440676@300493 built cook:{"runnable":true,"reason":null} ws:{"orders":[],"currentJobId":172,"suspended":false,"assignedWorker":0,"magmaPowered":false,"lastBlockedReason":null} | orders make_barrel:maintain:1/20,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 172 craft workshops target building:117440676 fetching null worker 16777295 inputs [{"filter":{"tag":"ingredient"},"count":2,"reserved":[184549565],"delivered":[]}]
+  items table 0/0 raw_stone 1/1 stone_block 5 log 34
+  events so far {"done:dig":55,"made:raw_stone":9,"done:carve_stairs":5,"done:build":5,"made:stone_block":8}
+day 8 dwarves 7 cooks? 0 | carpenter#16777322@297825 built | mason#16777323@297898 built | still#16777324@298382 built brew:{"runnable":false,"reason":"waiting for plant_food"} | hearth#50331814@300112 built | kitchen#117440676@300493 built cook:{"runnable":false,"reason":"waiting for ingredient"} ws:{"orders":[],"currentJobId":181,"suspended":false,"assignedWorker":0,"magmaPowered":false,"lastBlockedReason":null} | orders make_barrel:maintain:1/20,brew:maintain:1/100,cook_easy_meal:maintain:1/60
+  job 181 craft workshops target building:117440676 fetching null worker 16777296 inputs [{"filter":{"tag":"ingredient"},"count":2,"reserved":[16777242],"delivered":[]}]
+  items table 0/0 raw_stone 1/1 stone_block 5 log 31

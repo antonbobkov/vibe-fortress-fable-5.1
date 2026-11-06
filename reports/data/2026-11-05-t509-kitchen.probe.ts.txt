@@ -1,0 +1,69 @@
+/** T-509 probe (not committed): the kitchen of one instrument seed, every day of the year. */
+import { it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { HeadlessGame } from '@app/headless';
+import type { BuildingsReader } from '@systems/buildings';
+import { playWildlifeYear } from './wildlife_year_fixture';
+
+const SEED = process.env['T509_SEED'] ?? 'wildlife-taiga-3';
+const BIOME = process.env['T509_BIOME'] ?? 'taiga';
+const OUT = process.env['T509_OUT'] ?? 'probe.txt';
+const SHIFT = Number(process.env['T509_SHIFT'] ?? '2');
+
+it('kitchen ' + SEED, () => {
+  const lines: string[] = [];
+  let lastDay = -1;
+  let hooked = false;
+  const ev: Record<string, number> = {};
+  const observe = (game: HeadlessGame): void => {
+    if (!hooked) {
+      hooked = true;
+      game.world.onEvents((batch) => {
+        for (const x of batch) {
+          if (x.type === 'JobCompleted') ev['done:' + String(x['jobType'])] = (ev['done:' + String(x['jobType'])] ?? 0) + 1;
+          if (x.type === 'JobCancelled') ev['cancel:' + String(x['jobType']) + ':' + String(x['reason'])] = (ev['cancel:' + String(x['jobType']) + ':' + String(x['reason'])] ?? 0) + 1;
+          if (x.type === 'ItemCreated') ev['made:' + String(x['itemType'])] = (ev['made:' + String(x['itemType'])] ?? 0) + Number(x['count'] ?? 1);
+        }
+      });
+    }
+    const day = Math.floor(game.tick / TICKS_PER_DAY);
+    if (day !== lastDay && (day <= 10 || day % 10 === 0)) lines.push('  events so far ' + JSON.stringify(Object.fromEntries(Object.entries(ev).filter(([k]) => /dig|stair|mine|raw_stone|stone_block|build|channel|ramp/.test(k)))));
+    if (day === lastDay) return;
+    lastDay = day;
+    const world = game.world;
+    const buildings = world.readers.of<BuildingsReader>('14');
+    const workshops = world.readers.of<{ ordersOf(id: number): readonly { recipe: number; remaining: number; mode: string; threshold: number }[]; globalOrders(): readonly { recipe: number; remaining: number; mode: string; threshold: number }[]; isRunnable(r: string, w: number): { runnable: boolean; reason: string | null } }>('12');
+    const recipes = game.registry.table<{ id: string }>('recipes');
+    const parts: string[] = [];
+    for (const type of ['carpenter', 'mason', 'still', 'hearth', 'kitchen', 'trade_depot']) {
+      for (const id of buildings.byType(type)) {
+        const b = buildings.get(id)!;
+        const ws = world.entities.get(id, C.Workshop) as unknown;
+        let extra = '';
+        if (type === 'kitchen') extra = ' cook:' + JSON.stringify(workshops.isRunnable('cook_easy_meal', id)) + ' ws:' + JSON.stringify(ws);
+        if (type === 'still') extra = ' brew:' + JSON.stringify(workshops.isRunnable('brew', id));
+        parts.push(`${type}#${id}@${b.origin} ${b.state}${extra}`);
+      }
+    }
+    const orders = workshops.globalOrders().map((o) => `${recipes.idOf(o.recipe)}:${o.mode}:${o.remaining}/${o.threshold}`).join(',');
+    const e = world.entities;
+    const dwarves = e.with(C.Labors).filter((id) => e.get(id, C.Creature)?.faction === 'fortress');
+    const cooks = dwarves.filter((id) => JSON.stringify(e.get(id, C.Labors)).includes('cook')).length;
+    lines.push(`day ${day} dwarves ${dwarves.length} cooks? ${cooks} | ${parts.join(' | ')} | orders ${orders}`);
+    if (day === 21) lines.push('labors sample: ' + JSON.stringify(e.get(dwarves[0]!, C.Labors)));
+    if (day <= 8 || day % 10 === 0) {
+      const jobs = world.readers.of<{ list(): { id: number; type: number; target: { kind: string; ref: number }; state: string; blockedReason: string | null; inputs: unknown; workerId: number; producer: string }[]; typeOf(id: number): string | null }>('11');
+      const kitchens = new Set(buildings.byType('kitchen'));
+      for (const job of jobs.list()) {
+        if (!kitchens.has(job.target.ref as never) && !/build|construct/.test(jobs.typeOf(job.id) ?? '')) continue;
+        lines.push(`  job ${job.id} ${jobs.typeOf(job.id)} ${job.producer} target ${job.target.kind}:${job.target.ref} ${job.state} ${job.blockedReason} worker ${job.workerId} inputs ${JSON.stringify(job.inputs)}`);
+      }
+      const items = world.readers.of<{ count(t: string): number; available(t: string): number }>('13');
+      lines.push(`  items table ${items.count('table')}/${items.available('table')} raw_stone ${items.count('raw_stone')}/${items.available('raw_stone')} stone_block ${items.count('stone_block')} log ${items.count('log')}`);
+    }
+  };
+  playWildlifeYear(SEED, BIOME, { observe, shift: SHIFT });
+  writeFileSync(OUT, lines.join('\n') + '\n');
+}, 1_800_000);
