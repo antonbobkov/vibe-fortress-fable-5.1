@@ -1,6 +1,8 @@
 # T-508 — Idle dwarves stand on the hall tile nearest the way in, and crowd it
 
-**Source:** T-482's seed probes on `three-years-p0-6` ([report](../../reports/audits/2026-11-05-t482-pets-heap.md#the-crowd-watch), [output](../../reports/data/2026-11-05-t482-seed-probes.txt)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-05, in 2dbe2e95.
+
+**Source:** T-482's seed probes on `three-years-p0-6` ([report](../../../reports/audits/2026-11-05-t482-pets-heap.md#the-crowd-watch), [output](../../../reports/data/2026-11-05-t482-seed-probes.txt)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

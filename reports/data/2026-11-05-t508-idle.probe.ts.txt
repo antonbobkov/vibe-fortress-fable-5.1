@@ -1,0 +1,88 @@
+/**
+ * T-508 probe (not kept in test/): one three-year seed played exactly as the twenty-seed sweep plays it,
+ * to a given day. Every 10 days: living, and each crowded hall tile with who stands on it: a dwarf as
+ * `behavior:activity>goal` (goal `=` when its brain's target is the tile it stands on), an animal by species.
+ * Also, over the whole run, the share of the hall's crowded tile-samples (every 300 ticks) whose dwarves
+ * are idle with that tile as their goal.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { BuildingsReader } from '@systems/buildings';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T508_SEED'] ?? 'three-years-p0-6';
+const PERIL = Number(process.env['T508_PERIL'] ?? 0);
+const DAYS = Number(process.env['T508_DAYS'] ?? 360);
+
+it(`T-508 seed probe ${SEED}`, () => {
+  const w = threeYearsWorld(SEED, PERIL);
+  for (let i = 0; i < Number(process.env['T508_SHIFT'] ?? 0); i += 1) w.step(1);
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const checks = (): void => {
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+  };
+  const boot = 20 * TICKS_PER_DAY;
+  while (w.tick < boot) {
+    playThreeYears(w, state, Math.min(100, boot - w.tick));
+    checks();
+  }
+  const lines: string[] = [];
+  const who = (id: number, tile: number): string => {
+    const b = ent.get(id, C.Brain);
+    if (b === undefined) return `${species.rows[ent.get(id, C.Creature)!.species]?.id}${ent.get(id, C.Tame)?.curled === true ? '*' : ''}`;
+    return `${b.behavior}:${b.activity.replace(/ /g, '_')}>${b.targetTile === tile ? '=' : String(b.targetTile)}`;
+  };
+  const tally = { crowdedSamples: 0, dwarvesOnCrowded: 0, idleGoalHere: 0, otherHere: 0, byBehavior: new Map<string, number>() };
+  // A tile crowded on every 300-tick sample since `streak`'s tick; a stretch of 1,200 ticks or more is printed.
+  const streak = new Map<number, number>();
+  const sample = (record: boolean): string[] => {
+    const out: string[] = [];
+    for (const t of buildings.hearthHallTiles()) {
+      if (w.game.movement.crowdPercentAt(t) <= 100) {
+        streak.delete(t);
+        continue;
+      }
+      if (!streak.has(t)) streak.set(t, w.tick);
+      if (w.tick - streak.get(t)! >= 1200 && (w.tick - streak.get(t)!) % 600 === 0) {
+        const on = w.readers.entities.at(t).filter((id) => ent.kind(id) === 'creature');
+        lines.push(`  long t ${w.tick} tile ${t} crowded ${w.tick - streak.get(t)!} ticks [${on.map((id) => who(id, t)).join(' ')}]`);
+      }
+      const on = w.readers.entities.at(t).filter((id) => ent.kind(id) === 'creature');
+      tally.crowdedSamples += 1;
+      for (const id of on) {
+        const b = ent.get(id, C.Brain);
+        if (b === undefined) continue;
+        tally.dwarvesOnCrowded += 1;
+        const key = `${b.behavior}${b.targetTile === t ? '=' : ''}`;
+        tally.byBehavior.set(key, (tally.byBehavior.get(key) ?? 0) + 1);
+        if (b.behavior === 'idle' && b.targetTile === t) tally.idleGoalHere += 1; else tally.otherHere += 1;
+      }
+      if (record) out.push(`${t}[${on.map((id) => who(id, t)).join(' ')}]`);
+    }
+    return out;
+  };
+  let next = 30 * TICKS_PER_DAY;
+  while (w.tick < DAYS * TICKS_PER_DAY) {
+    playThreeYears(w, state, 300);
+    checks();
+    const look = w.tick >= next;
+    const crowded = sample(look);
+    if (look) {
+      next += 10 * TICKS_PER_DAY;
+      const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const idle = ent.with(C.Brain).filter((id) => ent.get(id, C.Brain)?.behavior === 'idle').length;
+      lines.push(`day ${Math.floor(w.tick / TICKS_PER_DAY)} living ${living} idle ${idle} crowded ${crowded.join(' ') || '-'}`);
+    }
+  }
+  lines.push(`crowded hall tile-samples ${tally.crowdedSamples}; dwarves on them ${tally.dwarvesOnCrowded}: idle with that tile as goal ${tally.idleGoalHere}, other ${tally.otherHere}`);
+  lines.push(`by behavior (= goal is the tile): ${[...tally.byBehavior].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  lines.push(`hall tiles ${buildings.hearthHallTiles().length}`);
+  console.log(lines.join('\n'));
+}, 7_200_000);
