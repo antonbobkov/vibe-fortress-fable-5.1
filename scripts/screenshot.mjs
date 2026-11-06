@@ -18,6 +18,7 @@
 //   --screen         the whole fortress screen (map, sidebar, log, status) instead of the map
 //   --keys a,b,S-c   keys pressed in order (with --screen); S- holds Shift
 //   --click X,Y      a map tile left-clicked after the keys (with --screen); repeatable
+//   --hints          show the first-time hints in the log (with --screen; off by default)
 //   --crop C,R,W,H   the cells of the screen kept (with --screen); repeated, the pieces are
 //                    stacked top to bottom
 //   --out FILE       where the PNG goes (default: out/screenshots/<save name>.png)
@@ -51,6 +52,7 @@ function parse(argv) {
     else if (a === '--scale') out.scale = ints(next(), 1, 'an integer')[0];
     else if (a === '--steps') out.steps = ints(next(), 1, 'an integer')[0];
     else if (a === '--screen') out.screen = true;
+    else if (a === '--hints') out.hints = true;
     else if (a === '--keys') out.keys = next().split(',').filter((s) => s !== '');
     else if (a === '--click') out.clicks.push(ints(next(), 2, 'X,Y'));
     else if (a === '--crop') (out.crops ??= []).push(ints(next(), 4, 'C,R,W,H'));
@@ -104,6 +106,7 @@ export async function main(argv) {
         ...(at === undefined || z === undefined ? {} : { centre: { x: at[0], y: at[1], z } }),
         keys,
         clicks: opts.clicks.map(([x, y]) => ({ x, y })),
+        hints: opts.hints === true,
       });
       const crops = opts.crops ?? [opts.size === undefined ? [0, 0, screen.cells.cols, screen.cells.rows] : [0, 0, opts.size[0], opts.size[1]]];
       cells = shot.stackCells(crops.map(([c, r, w, h]) => shot.cropCells(screen.cells, { col: c, row: r, cols: w, rows: h })));

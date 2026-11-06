@@ -265,6 +265,11 @@ export interface ScreenOptions {
   readonly keys?: readonly (string | { readonly key: string; readonly shift?: boolean })[];
   /** Map tiles left-clicked after the keys, on the level in view. */
   readonly clicks?: readonly { readonly x: number; readonly y: number }[];
+  /**
+   * Whether hints are shown. Off by default: a save without its `ui` section would raise every
+   * first-time hint in the log, over what happened.
+   */
+  readonly hints?: boolean;
 }
 
 /** The screen a save shows: loaded paused into a whole game, played, centred, keys and clicks. */
@@ -279,6 +284,7 @@ export async function screenOfSave(blob: Uint8Array, options: ScreenOptions = {}
     height: options.height ?? 800,
     reducedMotion: true,
   });
+  if (options.hints !== true) game.changeSettings({ hints: false });
   game.enterLoaded(await game.host.load(blob));
   if ((options.steps ?? 0) > 0) game.host.step(options.steps as number);
   if (options.centre !== undefined) game.centerOn(options.centre.x, options.centre.y, options.centre.z);

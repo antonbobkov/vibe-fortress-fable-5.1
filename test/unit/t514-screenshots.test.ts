@@ -138,6 +138,8 @@ describe('T-514 headless screenshots', () => {
     const { cells, map, game } = await screenOfSave(blob, { registry, steps: 10, keys: ['u'] });
     expect([cells.cols, cells.rows]).toEqual([80, 50]);
     expect(game.ui.panel).toBe('units');
+    // Hints are off unless asked for: a save without its ui section would raise them all.
+    expect(game.userSettings.hints).toBe(false);
     expect(map.cols).toBeLessThan(80);
     const text = game.textRows().join('\n');
     expect(text).toContain('Units (');
