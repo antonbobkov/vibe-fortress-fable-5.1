@@ -6,7 +6,7 @@
 
 Runtime: none. Dev: `typescript`, `vite`, `vitest`, `@vitest/coverage-v8`, `jsdom`, `fast-check`, `@playwright/test`, `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-plugin-import`, `prettier`, `@types/node` (types only: the configuration files, the scripts and the tests use Node's built-in modules).
 
-Scripts: `dev` (vite), `build` (tsc --noEmit && vite build), `typecheck` (tsc --noEmit), `test` (vitest run: unit, every scenario, property, golden), `test:e2e` (playwright test), `test:perf` (vitest run -c vitest.perf.config.ts), `lint` (eslint src test scripts), `content:check` (node scripts/content-check.mjs: validates JSON tables against the schemas and cross-references ids), `golden:update` (node scripts/golden-update.mjs <name>), `docs:check` (node scripts/docs-links-check.mjs: fails on a broken relative link in `docs/`, `reports/`, `agents/` or the root `README.md`), `gate` (node scripts/gate.mjs [label]: runs all of the above and writes `reports/gates/<label>-gate.md`; the label defaults to the date), `hash` (node scripts/world-hash.mjs <save>). [`../process/testing-strategy.md`](../process/testing-strategy.md) is the authority on test tiers and commands.
+Scripts: `dev` (vite), `build` (tsc --noEmit && vite build), `typecheck` (tsc --noEmit), `test` (vitest run: unit, every scenario, property, golden), `test:e2e` (playwright test), `test:perf` (vitest run -c vitest.perf.config.ts), `lint` (eslint src test scripts), `content:check` (node scripts/content-check.mjs: validates JSON tables against the schemas and cross-references ids), `golden:update` (node scripts/golden-update.mjs <name>), `docs:check` (node scripts/docs-links-check.mjs: fails on a broken relative link in `docs/`, `reports/`, `agents/` or the root `README.md`), `gate` (node scripts/gate.mjs [label]: runs all of the above and writes `reports/gates/<label>-gate.md`; the label defaults to the date), `hash` (node scripts/world-hash.mjs <save>), `screenshot` (node scripts/screenshot.mjs <save> [options]: a PNG of a save, § Screenshots). [`../process/testing-strategy.md`](../process/testing-strategy.md) is the authority on test tiers and commands.
 
 ## tsconfig
 
@@ -48,6 +48,7 @@ scripts/
   export-tables.mjs   converts docs/03-content Markdown tables to src/content JSON; the JSON is committed
   golden-update.mjs   rewrites a golden file and prints the diff summary
   replay.mjs          replays a season's command log from a save
+  screenshot.mjs      draws a save's map or whole screen as a PNG (§ Screenshots)
 ```
 
 ## CI
@@ -118,3 +119,13 @@ Tests of ten minutes or more locally always run here; five to ten minutes by jud
 
 - `F12` debug panel in the game.
 - A season's command log can be exported from the debug panel and replayed headless: `node scripts/replay.mjs <save> <log>` prints world hashes per 100 ticks for bisecting divergence.
+
+## Screenshots
+
+A picture of a game needs no browser. The compositor fills the cell buffer as it does for the canvas; each cell's glyph is stamped as its 8 × 8 mask in the cell's foreground over its background, at a whole scale (a cell is `8 × scale` pixels), and written as a PNG with Node's `zlib` (indexed colour when the picture has at most 256 colours, as a cell picture nearly always has). The masks are read from the bundled font's outlines (`src/render/font-masks.ts`), a design pixel on when its centre is inside the glyph; for the bundled font they are the masks the browser's atlas reads off its canvas. The code is `src/app/screenshot.ts`.
+
+- **From a save:** `node scripts/screenshot.mjs <save> [--z N] [--at X,Y] [--size WxH] [--scale N] [--steps N] [--out file.png]` (also `npm run screenshot -- …`) draws the map of the save, centred on the tile `--at` (the wagon by default) on level `--z` (the wagon's), `--size` tiles (48 × 24), at `--scale` (2), after `--steps` ticks of play. With `--screen` the save is loaded paused into a whole game on a 1280 × 800 window (80 × 50 cells) instead, so the sidebar, the log and the status bar are drawn too: `--keys z,S-a` presses keys in order (`S-` holds Shift), `--click X,Y` left-clicks a map tile after them (repeatable), `--crop C,R,W,H` keeps a rectangle of the screen's cells, and the log holds what happened in the `--steps` ticks. The default output is `out/screenshots/<save name>.png`.
+- **From a test:** `snapshot(game, name, view?)` (`test/scenarios/snapshot.ts`) writes `out/screenshots/<name>.png`: the map as the fortress screen draws it with the sidebar shut, centred on `view.x, view.y` (the wagon) on `view.z`, `view.cols × view.rows` tiles (48 × 24) at `view.scale` (2). It writes only when the environment has `SNAPSHOTS=1` and otherwise returns at once; it only reads the world, so a run's world hashes are the same with it and without. Called from an event listener (`world.onEvents`) it shows a moment as the screen would after that tick. `pp_runecraft` takes its moments this way: the glow plot at its first harvest, the apprentice's first session at the rune circle, and its first three emberbolts.
+- **On GitHub:** `gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=pp_runecraft -f snapshots=true` runs a scenario with `SNAPSHOTS=1`; the pictures come back in the job's artifact under `out/screenshots/`.
+
+A map picture draws no firebloom flash (the compositor learns of a bloom from the events the game passes it) and no look cursor; a `--screen` picture draws both, as the game does.

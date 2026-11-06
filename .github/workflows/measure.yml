@@ -25,6 +25,10 @@ on:
         description: For suite=instrument, the timeline shifts to play, in ticks before the opening (one job each)
         type: string
         default: '0,1,2,3,4,5,6,7'
+      snapshots:
+        description: For suite=scenario and the other single runs, write the tests' snapshot pictures (SNAPSHOTS=1) to out/screenshots, uploaded with the artifact
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -187,6 +191,8 @@ jobs:
     if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'instrument'
     runs-on: ubuntu-latest
     timeout-minutes: 300
+    env:
+      SNAPSHOTS: ${{ inputs.snapshots && '1' || '' }}
     steps:
       - uses: actions/checkout@v4
         with:

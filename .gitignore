@@ -9,3 +9,4 @@ playwright-report/
 *.tsbuildinfo
 *.lintfixture.ts
 .DS_Store
+out/
