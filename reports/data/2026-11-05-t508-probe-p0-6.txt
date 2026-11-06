@@ -38,7 +38,7 @@ crowded hall tile-samples 618; dwarves on them 3566: idle with that tile as goal
 by behavior (= goal is the tile): need= 1792, idle= 1537, need 171, work= 27, idle 23, work 16
 hall tiles 30
 
-## After: T-508 1c3401ed
+## First version: idle dwarves only, ties by the nearest to the dwarf (1c3401ed, not kept)
 day 30 living 9 idle 0 crowded -
 day 40 living 9 idle 0 crowded -
 day 50 living 9 idle 0 crowded -
@@ -73,4 +73,41 @@ day 330 living 45 idle 11 crowded -
 day 340 living 45 idle 5 crowded 60371[need:comfort>= need:comfort>= dog]
 crowded hall tile-samples 443; dwarves on them 1307: idle with that tile as goal 103, other 1204
 by behavior (= goal is the tile): need= 999, need 125, idle= 103, idle 51, work 24, work= 5
+hall tiles 30
+
+## After: T-508 0348c100 (idle, joy and chairless comfort stands; ties by the nearest to the hearth)
+day 30 living 9 idle 1 crowded -
+day 40 living 9 idle 0 crowded -
+day 50 living 9 idle 0 crowded -
+day 60 living 12 idle 0 crowded -
+day 70 living 12 idle 1 crowded -
+day 80 living 12 idle 1 crowded -
+day 90 living 14 idle 2 crowded -
+day 100 living 14 idle 0 crowded -
+day 110 living 14 idle 1 crowded -
+day 120 living 14 idle 0 crowded -
+day 130 living 14 idle 0 crowded 60418[need:social>= need:comfort>= need:social>=]
+day 140 living 14 idle 0 crowded -
+day 150 living 20 idle 0 crowded -
+day 160 living 20 idle 0 crowded -
+day 170 living 29 idle 0 crowded -
+day 180 living 29 idle 0 crowded 60369[need:comfort>= need:comfort>= need:social>=]
+day 190 living 29 idle 0 crowded -
+day 200 living 33 idle 0 crowded -
+day 210 living 33 idle 0 crowded -
+day 220 living 33 idle 1 crowded -
+day 230 living 41 idle 0 crowded -
+day 240 living 41 idle 0 crowded 60369[need:comfort>= need:comfort>= need:joy>60419]
+day 250 living 41 idle 6 crowded 60369[cat need:sleep>61418 need:joy>60421]
+day 260 living 41 idle 0 crowded 60368[need:thirst>60206 need:sleep>60272 need:thirst>60206]
+day 270 living 41 idle 2 crowded -
+day 280 living 41 idle 0 crowded -
+day 290 living 53 idle 5 crowded -
+day 300 living 53 idle 15 crowded 60368[work:Haul>60419 need:joy>60469 idle:No_job>=]
+day 310 living 53 idle 9 crowded 60320[need:sleep>60272 dog need:sleep>60272]
+day 320 living 53 idle 13 crowded -
+day 330 living 53 idle 7 crowded 60322[cat need:comfort>= need:comfort>=]
+day 340 living 53 idle 16 crowded 60322[cat need:comfort>= need:comfort>=]
+crowded hall tile-samples 285; dwarves on them 775: idle with that tile as goal 85, other 690
+by behavior (= goal is the tile): need= 446, need 138, idle= 85, idle 72, work 20, work= 14
 hall tiles 30

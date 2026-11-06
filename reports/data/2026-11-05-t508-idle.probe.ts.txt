@@ -40,10 +40,20 @@ it(`T-508 seed probe ${SEED}`, () => {
     return `${b.behavior}:${b.activity.replace(/ /g, '_')}>${b.targetTile === tile ? '=' : String(b.targetTile)}`;
   };
   const tally = { crowdedSamples: 0, dwarvesOnCrowded: 0, idleGoalHere: 0, otherHere: 0, byBehavior: new Map<string, number>() };
+  // A tile crowded on every 300-tick sample since `streak`'s tick; a stretch of 1,200 ticks or more is printed.
+  const streak = new Map<number, number>();
   const sample = (record: boolean): string[] => {
     const out: string[] = [];
     for (const t of buildings.hearthHallTiles()) {
-      if (w.game.movement.crowdPercentAt(t) <= 100) continue;
+      if (w.game.movement.crowdPercentAt(t) <= 100) {
+        streak.delete(t);
+        continue;
+      }
+      if (!streak.has(t)) streak.set(t, w.tick);
+      if (w.tick - streak.get(t)! >= 1200 && (w.tick - streak.get(t)!) % 600 === 0) {
+        const on = w.readers.entities.at(t).filter((id) => ent.kind(id) === 'creature');
+        lines.push(`  long t ${w.tick} tile ${t} crowded ${w.tick - streak.get(t)!} ticks [${on.map((id) => who(id, t)).join(' ')}]`);
+      }
       const on = w.readers.entities.at(t).filter((id) => ent.kind(id) === 'creature');
       tally.crowdedSamples += 1;
       for (const id of on) {
