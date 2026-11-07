@@ -188,16 +188,20 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
     fortress.orderedWorkshops.add('carpenter_defence');
     command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_cage_wood', mode: 'maintain', threshold: 2, priority: DEFENCE } });
     command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_archery_target', mode: 'once', remaining: 1, priority: DEFENCE } });
+    // T-522: the weapon trap is built from a weapon no soldier holds; a club is the carpenter's.
+    command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_club', mode: 'maintain', threshold: 1, priority: DEFENCE } });
   }
   // T-522: the carpenter takes its orders in list order (12 § Work orders), and from the second season
-  // its standing barrel order is never met (its threshold follows the drink), so a cage order behind
-  // it waits for good: cages an ambush carried off from the stockpile were never made again and the
-  // cage trap stayed planned. The cage order leads the list, as a player moves a defence order up; a
-  // maintained order that is met is passed over, so it costs the routine work nothing.
-  const cageOrders = (): readonly { recipe: number }[] => w.game.world.entities.get(carpenter, C.Workshop)?.orders ?? [];
-  const cageRecipe = w.game.registry.table('recipes').index('make_cage_wood');
-  const cageAt = cageOrders().findIndex((o) => o.recipe === cageRecipe);
-  if (cageAt > 0) command(w, { type: 'ReorderWorkOrder', workshopId: carpenter, from: cageAt, to: 0 });
+  // its standing barrel order is never met (its threshold follows the drink), so an order behind it
+  // waits for good: cages an ambush carried off from the stockpile were never made again and the cage
+  // trap stayed planned. The cage and the club lead the list, as a player moves a defence order up; a
+  // maintained order that is met is passed over, so they cost the routine work nothing.
+  const carpenterOrders = (): readonly { recipe: number }[] => w.game.world.entities.get(carpenter, C.Workshop)?.orders ?? [];
+  const recipes = w.game.registry.table('recipes');
+  for (const [want, recipe] of [[0, 'make_cage_wood'], [1, 'make_club']] as const) {
+    const at = carpenterOrders().findIndex((o) => o.recipe === recipes.index(recipe));
+    if (at > want) command(w, { type: 'ReorderWorkOrder', workshopId: carpenter, from: at, to: want });
+  }
 
   const span = w.map.offset(state.bridgeTile, 0, 1, 0);
   if (!state.cleared) {
