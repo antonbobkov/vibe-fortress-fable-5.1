@@ -12,6 +12,7 @@ import { CARAVAN_DAY_MAX, CARAVAN_DAY_MIN } from '../../src/systems/trade/consta
 import { CARAVAN_SEASON } from '../../src/systems/trade/schedule';
 import { GUARANTEED_SIZE_MAX, GUARANTEED_SIZE_MIN } from '../../src/systems/immigration/constants';
 import { DAYS_PER_SEASON, DAYS_PER_YEAR } from '../../src/core/constants';
+import { TileFlag, TileKind } from '../../src/core/map3d';
 import { readFileSync } from 'node:fs';
 
 /** Species ids of the content table, for naming the species of a killer. */
@@ -80,6 +81,51 @@ interface YearTracker {
   lastLoggedDay: number;
   raisedAt: number;
   noHearthUntil: number;
+  /** The tick each building of the opening was placed (BuildingPlaced). */
+  placedAt: Record<string, number>;
+  /** The days on which the player dug another room of rock because a building waited for stone (T-511). */
+  stoneDigs: number[];
+  /** At the day-20 checkpoint: each placed building and whether it stands. */
+  openingBuilt: { type: string; built: boolean }[];
+}
+
+/**
+ * The instrument's answer to a stone shortage (`test/perf/wildlife_year_fixture.ts`, T-509): the rock the
+ * opening digs drops a stone from 30% of its tiles, so the stones it yields move with the timeline, and the
+ * mason's blocks and the first workshops may take the stone a later building waits for. Once a day, when a
+ * building has waited two days for stone or blocks, with no raw stone about and nothing left to dig, the
+ * player digs the next 5 by 5 room of rock beside the lower room (east, south, south-east; at most three).
+ */
+const STONE_WAIT_TICKS = 2 * 1200;
+
+interface StoneWatch {
+  rooms: { x: number; y: number; z: number }[];
+  day: number;
+  pending: { x: number; y: number; z: number } | null;
+}
+
+/** Dig the pending room through the UI, as a player does: down to its level, `d`, drag, back up. */
+async function digPendingRoom(page: Page): Promise<void> {
+  const room = await page.evaluate(() => (window as unknown as { __stone: StoneWatch }).__stone.pending);
+  if (room === null) return;
+  const level = (): Promise<number> => page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.ui.z);
+  const start = await level();
+  await closePanels(page);
+  // A death pins a danger line to the log strip, and the first key after it only dismisses it (24).
+  for (let i = 0; i < 12 && (await level()) > room.z; i += 1) await page.keyboard.press('<');
+  expect(await level(), 'the view is on the level of the room of rock').toBe(room.z);
+  await page.keyboard.press('d');
+  await dragTiles(page, { x: room.x, y: room.y }, { x: room.x + 4, y: room.y + 4 });
+  await closePanels(page);
+  const designated = await page.evaluate((r) => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    let n = 0;
+    for (let dy = 0; dy < 5; dy += 1) for (let dx = 0; dx < 5; dx += 1) if (h.readers.map.designationAt(h.readers.map.index(r.x + dx, r.y + dy, r.z)) !== 0) n += 1;
+    (window as unknown as { __stone: StoneWatch }).__stone.pending = null;
+    return n;
+  }, room);
+  expect(designated, 'the room of rock is designated for digging').toBeGreaterThan(0);
+  for (let i = 0; i < 12 && (await level()) < start; i += 1) await page.keyboard.press('>');
 }
 
 /** A fortress creature that died: when, of what, and who killed it (T-221). */
@@ -155,10 +201,20 @@ function playClock(page: Page, startTick: number): {
       await clock.advanceTo(expected + ticks);
     },
     async advanceTo(tick: number): Promise<void> {
-      await page.evaluate((target) => {
-        const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
-        while (h.readers.calendar.tick < target) h.step(Math.min(300, target - h.readers.calendar.tick));
-      }, tick);
+      for (;;) {
+        const dig = await page.evaluate((target) => {
+          const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+          // The daily check for stone (installed once the site is found), between the steps as the instrument's.
+          const stoneCheck = (window as unknown as { __stoneCheck?: () => boolean }).__stoneCheck;
+          while (h.readers.calendar.tick < target) {
+            h.step(Math.min(300, target - h.readers.calendar.tick));
+            if (stoneCheck?.() === true) return true;
+          }
+          return false;
+        }, tick);
+        if (!dig) break;
+        await digPendingRoom(page);
+      }
       expected = tick;
       await clock.expectPaused();
     },
@@ -251,6 +307,8 @@ async function playTo(page: Page, clock: ReturnType<typeof playClock>, target: n
           console.log(`[full-year] STALLED at tick ${before}! Dwarves: ${h.dwarves().length}`);
           return 'stalled';
         }
+        // The daily check for stone, before the wildlife, as the instrument's.
+        if ((window as unknown as { __stoneCheck?: () => boolean }).__stoneCheck?.() === true) return 'dig';
         const day = Math.floor(tick / 1200);
         if (day > tracker.lastLoggedDay && (day >= tracker.lastLoggedDay + 10 || day >= 80)) {
           tracker.lastLoggedDay = day;
@@ -271,7 +329,10 @@ async function playTo(page: Page, clock: ReturnType<typeof playClock>, target: n
     }, { target, every: LOOK_EVERY_TICKS, calm: ALERT_CALM_TICKS, hold: HEARTH_HOLD_TICKS, holdMax: HEARTH_HOLD_MAX_TICKS, near: PREDATOR_NEAR_TILES, aggressive: aggressiveSpecies });
 
     if (outcome === 'done' || outcome === 'stalled') break;
-    const level = outcome as 'calm' | 'watchful' | 'hearth';
+    if (outcome === 'dig') {
+      await digPendingRoom(page);
+      continue;
+    }    const level = outcome as 'calm' | 'watchful' | 'hearth';
     await setAlertThroughUi(page, level);
     const read = await page.evaluate(({ level, pause }) => {
       const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
@@ -465,6 +526,9 @@ test('full-year', async ({ page }) => {
       lastLoggedDay: 0,
       raisedAt: 0,
       noHearthUntil: 0,
+      placedAt: {},
+      stoneDigs: [],
+      openingBuilt: [],
     };
     (window as unknown as { __tracker: YearTracker }).__tracker = tracker;
 
@@ -498,6 +562,8 @@ test('full-year', async ({ page }) => {
             (z === wz ? tracker.plantedDays : tracker.cavePlantedDays).push(day);
           } else if (event.type === 'TileFrozen') {
             tracker.frozenDays.push(day);
+          } else if (event.type === 'BuildingPlaced') {
+            tracker.placedAt[String(event['id'])] = h.readers.calendar.tick;
           } else if (event.type === 'TradeCompleted') {
             tracker.tradesDone += 1;
           } else if (event.type === 'CropHarvested') {
@@ -632,6 +698,52 @@ test('full-year', async ({ page }) => {
 
   expect(site.patches.length).toBeGreaterThanOrEqual(6);
   expect(site.trees.length).toBeGreaterThanOrEqual(8);
+
+  // The instrument's dig for stone (T-511): the rooms of rock beside the lower room, and the daily check.
+  await page.evaluate(({ sx, sy, wz, wall, boulder, discovered, constructed, waitTicks }) => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const map = h.readers.map as FullYearHook['readers']['map'] & { flagsAt(i: number): number };
+    const diggable = (at: number): boolean => (map.flagsAt(at) & discovered) === 0 ||
+      ((map.kindAt(at) === wall || map.kindAt(at) === boulder) && (map.flagsAt(at) & constructed) === 0);
+    const rooms: StoneWatch['rooms'] = [];
+    for (const [x, y] of [[sx + 6, sy], [sx + 1, sy + 5], [sx + 6, sy + 5]] as const) {
+      if (x < 1 || y < 1 || x + 5 >= map.w - 1 || y + 5 >= map.h - 1) continue;
+      let any = false;
+      for (let dy = 0; dy < 5; dy += 1) for (let dx = 0; dx < 5; dx += 1) if (diggable(map.index(x + dx, y + dy, wz - 3))) any = true;
+      if (any) rooms.push({ x, y, z: wz - 3 });
+    }
+    const watch: StoneWatch = { rooms, day: -1, pending: null };
+    (window as unknown as { __stone: StoneWatch }).__stone = watch;
+    const registry = h.host.headless.registry;
+    const rawStone = registry.table('items').index('raw_stone');
+    const stone = new Set([rawStone, registry.table('items').index('stone_block')]);
+    interface Input { count: number; delivered: unknown[]; reserved: unknown[]; filter: { types?: number[] } }
+    interface Job { id: number; target: { kind: string; ref: number }; inputs: Input[] }
+    (window as unknown as { __stoneCheck: () => boolean }).__stoneCheck = (): boolean => {
+      const tracker = (window as unknown as { __tracker: YearTracker }).__tracker;
+      const tick = h.readers.calendar.tick;
+      const day = Math.floor(tick / 1200);
+      if (day === watch.day || watch.rooms.length === 0) return false;
+      watch.day = day;
+      const board = h.readers.of<{ list(): Job[]; typeOf(id: number): string | null }>('11');
+      const items = h.readers.items as unknown as { available(type: number): number };
+      const open = board.list();
+      if (items.available(rawStone) > 0 || open.some((job) => board.typeOf(job.id) === 'dig')) return false;
+      const waitsForStone = (input: Input): boolean => {
+        const types = input.filter.types ?? [];
+        const missing = input.count - input.delivered.length - input.reserved.length;
+        return missing > 0 && types.length > 0 && types.every((type) => stone.has(type)) &&
+          types.reduce((sum, type) => sum + items.available(type), 0) < missing;
+      };
+      const waiting = Object.entries(tracker.placedAt).some(([id, at]) => tick - at >= waitTicks && h.readers.buildings.get(Number(id))?.state !== 'built' &&
+        open.some((job) => job.target.kind === 'building' && job.target.ref === Number(id) && job.inputs.some(waitsForStone)));
+      if (!waiting) return false;
+      watch.pending = watch.rooms.shift()!;
+      tracker.stoneDigs.push(day + 1);
+      console.log(`[full-year] Day ${day + 1}: a building has waited two days for stone; digging the room of rock at ${watch.pending.x},${watch.pending.y}`);
+      return true;
+    };
+  }, { sx: site.sx, sy: site.sy, wz: site.wz, wall: TileKind.Wall, boulder: TileKind.Boulder, discovered: TileFlag.Discovered, constructed: TileFlag.Constructed, waitTicks: STONE_WAIT_TICKS });
 
   // Checkpoint 1 (Days 1–3): Entrance dug, stockpiles placed, still and carpenter built
   // 1. Stockpile on surface near wagon: z, Shift+S, drag, set Everything preset
@@ -859,6 +971,19 @@ test('full-year', async ({ page }) => {
   await clock.expectPaused();
   await clock.advanceTo(20 * 1200); // Day 20
 
+  // T-511: which buildings of the opening stand at day 20 (a building waiting for stone shows here).
+  const openingBuilt = await page.evaluate(() => {
+    const h = (window as unknown as { __deepholm: FullYearHook }).__deepholm;
+    const tracker = (window as unknown as { __tracker: YearTracker }).__tracker;
+    const types = h.host.headless.registry.table('buildings');
+    tracker.openingBuilt = Object.keys(tracker.placedAt).map(Number).sort((a, b) => a - b).map((id) => {
+      const b = h.readers.buildings.get(id);
+      return { type: b === undefined ? 'gone' : types.idOf(b.type), built: b?.state === 'built' };
+    });
+    return tracker.openingBuilt;
+  });
+  console.log(`[full-year] Day 20 buildings: ${openingBuilt.map((b) => `${b.type} ${b.built ? 'built' : 'not built'}`).join(', ')}`);
+
   // Screenshot 2: full-year-summer
   const shot2 = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.screenshotName('full-year-summer'));
   await page.screenshot({ path: shot2 });
@@ -880,8 +1005,14 @@ test('full-year', async ({ page }) => {
   await playTo(page, clock, 30 * 1200);
   const hashBefore = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.hash());
   await closePanels(page);
-  await page.keyboard.press('F5');
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.lastSaveId())).toMatch(/^manual-\d+$/);
+  const saveId = (): Promise<string | null> => page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.lastSaveId());
+  // A death by now pins a danger line, which takes the first key (24).
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await page.keyboard.press('F5');
+    const saved = await expect.poll(saveId, { timeout: 5_000 }).toMatch(/^manual-\d+$/).then(() => true, () => false);
+    if (saved) break;
+  }
+  await expect.poll(saveId).toMatch(/^manual-\d+$/);
   await page.keyboard.press('F9');
   await expect.poll(() => screenOf(page)).toBe('confirm');
   await page.keyboard.press('y');
@@ -959,7 +1090,7 @@ test('full-year', async ({ page }) => {
   ];
 
   console.log(['full-year balance table:', ...table.map((row) => `  ${row.day} -> ${row.measured}`)].join('\n'));
-  console.log(`full-year end state: ${JSON.stringify({ livingCount, wealth, stocks, waves: tracker.waves, caravanDay: tracker.caravanDay, trades: tracker.tradesDone, starving: tracker.starvingCount, alerts: tracker.alerts, deaths: tracker.deaths, hash })}`);
+  console.log(`full-year end state: ${JSON.stringify({ livingCount, wealth, stocks, waves: tracker.waves, caravanDay: tracker.caravanDay, trades: tracker.tradesDone, starving: tracker.starvingCount, alerts: tracker.alerts, deaths: tracker.deaths, openingBuilt: tracker.openingBuilt, stoneDigs: tracker.stoneDigs, hash })}`);
 
   console.log(`T-192 full-year wildlife: ${JSON.stringify({ spawns: tracker.wildSpawns, liveAtEnd: results.wildAtEnd, huntsCompleted: tracker.huntsCompleted, huntKills: tracker.huntKills })}`);
 

@@ -175,8 +175,12 @@ describe('T-331 invariant 3: a built container with items or a slot has a work t
     expect(names(w)).not.toContain('container.no-work-tile');
   });
 
-  it('reports a chest with items that no tile beside it connects to a dwarf', () => {
+  it('reports a chest with items that no tile beside it connects to a dwarf, once it has been so for a day (T-519)', () => {
     const { w } = sealedChest(true);
+    expect(names(w)).not.toContain('container.no-work-tile');
+    w.step(TICKS_PER_DAY);
+    expect(names(w)).not.toContain('container.no-work-tile');
+    w.step(1);
     expect(names(w)).toContain('container.no-work-tile');
   });
 });
@@ -191,6 +195,8 @@ describe('T-331 invariant 3, a hospital empty chest', () => {
     expect(names(w)).not.toContain('container.no-work-tile');
     for (const n of w.map.neighbors8(at)) w.carve(n, TileKind.Wall);
     w.step(1);
+    expect(names(w)).not.toContain('container.no-work-tile');
+    w.step(TICKS_PER_DAY + 1);
     expect(names(w)).toContain('container.no-work-tile');
   });
 });

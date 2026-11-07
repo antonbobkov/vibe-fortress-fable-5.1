@@ -2,6 +2,8 @@ import { C, ItemFlag, type Equipment } from '@core/components';
 import type { RngStream } from '@core/rng';
 import type { TickContext } from '@core/system';
 import type { Civ, Edge, EntityId, TileIndex } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings/reader';
+import { ARRIVAL_SPREAD } from '@systems/threats/constants';
 import { findEdgeTiles } from '@systems/threats/parties';
 import { GUARDS_BASE, GUARDS_PER_PERIL, MERCHANTS_MAX, MERCHANTS_MIN, PACK_VALUE } from './constants';
 import { CARAVAN_BUNDLE_UNITS } from './constants';
@@ -70,11 +72,28 @@ export function packAnimalsFor(planned: readonly PlannedGood[]): number {
   return Math.max(1, Math.ceil(value / PACK_VALUE));
 }
 
+/**
+ * 20 § Movement step 1 (T-519): the members' edge tiles, each one from which a walker reaches a
+ * depot, or, with no depot reachable from the edge, the first edge tile. A member that arrived in a
+ * pocket of the edge that walks nowhere held the caravan's walk to the depot for good.
+ */
+function arrivalTiles(ctx: TickContext, edge: Edge, count: number): TileIndex[] {
+  const map = ctx.world.map;
+  const pathing = ctx.readers.pathing;
+  const buildings = ctx.readers.of<BuildingsReader>('14');
+  const depots = buildings.depots().map((id) => buildings.get(id)?.footprint ?? []).filter((fp) => fp.length > 0);
+  const reachesDepot = (t: TileIndex): boolean => pathing.passable(t, 'walker') && depots.some((fp) => fp.some((d) => pathing.reachable(t, d, 'walker')));
+  const toDepot = depots.length > 0 ? findEdgeTiles(map, edge, count, ARRIVAL_SPREAD, reachesDepot) : [];
+  if (toDepot.length > 0) return toDepot;
+  const first = findEdgeTiles(map, edge, 1)[0] as TileIndex;
+  return findEdgeTiles(map, edge, count, ARRIVAL_SPREAD, (t) => t === first || pathing.reachable(t, first, 'walker'));
+}
+
 export function spawnCaravan(ctx: TickContext, civ: Civ, edge: Edge, peril: number, twilightPass: boolean, reputation: number, planned: readonly PlannedGood[], rng: RngStream): ActiveCaravan {
   const merchants = rng.int(MERCHANTS_MIN, MERCHANTS_MAX);
   const guards = caravanGuardCount(peril, twilightPass);
   const animals = packAnimalsFor(planned);
-  const tiles = findEdgeTiles(ctx.world.map, edge, merchants + guards + animals);
+  const tiles = arrivalTiles(ctx, edge, merchants + guards + animals);
   const edgeTile = tiles[0] as TileIndex;
   const partyId = ctx.world.entities.create('party');
   const party = {
