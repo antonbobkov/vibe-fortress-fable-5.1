@@ -1,0 +1,31 @@
+/** T-513 probe: which shifts before the opening give the same game at the end of the bootstrap.
+ * Copy to test/perf/t513-shift-probe.test.ts and run with PROBE_SEED, PROBE_PERIL, PROBE_SHIFTS, PROBE_DAYS. */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const seed = process.env['PROBE_SEED'] ?? 'three-years-p2-3';
+const peril = Number(process.env['PROBE_PERIL'] ?? '2');
+const shifts = (process.env['PROBE_SHIFTS'] ?? '0,1,2,3,4,5,6,7,8,9,10,11,12').split(',').map(Number);
+const days = Number(process.env['PROBE_DAYS'] ?? '20');
+
+it('T-513 shift probe', () => {
+  const hashes: Record<string, number[]> = {};
+  for (const shift of shifts) {
+    const w = threeYearsWorld(seed, peril);
+    if (shift > 0) w.step(shift);
+    const state = setupThreeYearsFortress(w);
+    const end = days * TICKS_PER_DAY;
+    while (w.tick < end) {
+      playThreeYears(w, state, Math.min(100, end - w.tick));
+      checkFortressWorkOrders(w, state);
+      checkFortressRooms(w, state);
+      checkFortressCaveFarm(w, state);
+      checkFortressDefense(w, state);
+    }
+    const h = w.hash();
+    (hashes[h] ??= []).push(shift);
+    console.log(`[t513-shift] ${seed} shift ${shift} day ${days} hash ${h}`);
+  }
+  console.log(`[t513-shift-classes] ${seed} ${JSON.stringify(Object.values(hashes))}`);
+}, 3_600_000);
