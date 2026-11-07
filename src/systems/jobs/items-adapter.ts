@@ -134,6 +134,10 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
       const ammo = freeAmmo(kind, from);
       return ammo === 0 ? null : { launcher: 0, ammo };
     },
+    wieldsOtherWeapon: (workerId) => {
+      const weapon = entities.get(workerId, C.Equipment)?.weapon ?? 0;
+      return weapon !== 0 && heldLauncher(workerId) === 0;
+    },
     limitStack: (itemId, n) => {
       const count = reader.get(itemId)?.count ?? 0;
       if (count <= n) return itemId;

@@ -1080,6 +1080,8 @@ export class JobBoard implements JobsApi, JobSink {
     const minSkill = job.data['minSkill'];
     if (typeof minSkill === 'number' && this.skillFor(workerId, job) < minSkill) return false;
     if (this.toolHeldElsewhere(job, workerId, labor)) return false;
+    // A soldier with an axe in hand would fetch a launcher it cannot shoot (11 § Assignment, step 5).
+    if (job.tool === 'ranged' && this.items.wieldsOtherWeapon?.(workerId) === true) return false;
     return this.hasReachableStand(job, workerId);
   }
 

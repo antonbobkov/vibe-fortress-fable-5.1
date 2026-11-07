@@ -1,5 +1,7 @@
 # T-502 — A soldier on `hold` who is off its station with a target stays where it is
 
+**Closed:** 2026-11-07, in ed7b864e.
+
 **Source:** T-493 (`test/unit/runecraft/t493-hexer-dread.test.ts`, the dread test with a `hold` squad) · **Size:** S · **Needs:** — · **Status:** open
 
 ## What was found

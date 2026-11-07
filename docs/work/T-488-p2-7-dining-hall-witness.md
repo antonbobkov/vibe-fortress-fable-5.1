@@ -12,3 +12,7 @@ The twenty-seed file on master `37da07a4` (with T-479, which draws nothing new a
 ## Done
 
 - `three-years-p2-7` passes its witnesses, and the cause is named in the commit.
+
+## Also seen (2026-11-07)
+
+Seed `p2-4` at shift 50 fails the same kind of witness (no hearth or dining hall, one dwarf left at year 3), in T-513's reference sweep and since; the same seed goes extinct at shift 100. Treat it with this task.
