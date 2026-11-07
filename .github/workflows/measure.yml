@@ -3,7 +3,8 @@ name: Measure
 #   gh workflow run measure.yml --ref <branch> -f suite=sweep           (twenty seeds at shifts 0, 50, 100, 150 in parallel, then the verdict)
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
 #   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
-# Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep" and "instrument")
+#   gh workflow run measure.yml --ref <branch> -f suite=defence_seeds   (eight seeds at cadences 20 and 25 in parallel, then the verdict)
+# Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep", "instrument" and "defence")
 # How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
   workflow_dispatch:
@@ -18,9 +19,9 @@ on:
         type: string
         default: defence_year
       watch:
-        description: For suite=defence_seeds, the script's watch cadence in ticks (20 is the scenario's)
+        description: "For suite=defence_seeds, the script's watch cadences in ticks, one job each per seed (20 is the scenario's; the verdict pools them)"
         type: string
-        default: '20'
+        default: '20,25'
       shifts:
         description: "For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening, one job each (empty = the suite's own, 0 to 7 and 0,50,100,150)"
         type: string
@@ -114,6 +115,7 @@ jobs:
       matrix:
         seed: [defence-year, defence-year-2, defence-year-3, defence-year-4,
                defence-year-5, defence-year-6, defence-year-7, defence-year-8]
+        watch: ${{ fromJSON(format('[{0}]', inputs.watch || '20,25')) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -123,19 +125,57 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: defence_year, seed ${{ matrix.seed }}
+      - name: defence_year, seed ${{ matrix.seed }}, cadence ${{ matrix.watch }}
         env:
           DEFENCE_SEEDS: ${{ matrix.seed }}
-          DEFENCE_SEEDS_OUT: out
-          DEFENCE_WATCH_EVERY: ${{ inputs.watch }}
-        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/defence_year_seeds.test.ts 2>&1 | tee out/${{ matrix.seed }}.log; exit ${PIPESTATUS[0]}
+          DEFENCE_SEEDS_OUT: out/watch-${{ matrix.watch }}/${{ matrix.seed }}
+          DEFENCE_WATCH_EVERY: ${{ matrix.watch }}
+        run: mkdir -p $DEFENCE_SEEDS_OUT && npx vitest run -c vitest.perf.config.ts test/perf/defence_year_seeds.test.ts 2>&1 | tee $DEFENCE_SEEDS_OUT/${{ matrix.seed }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: The seed produced its row
+        run: test -s out/watch-${{ matrix.watch }}/${{ matrix.seed }}/rows.jsonl
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: defence-${{ matrix.seed }}-watch-${{ matrix.watch }}
+          path: out/
+          retention-days: 14
+
+  defence-verdict:
+    if: always() && inputs.suite == 'defence_seeds'
+    needs: defence-seeds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: defence-defence-year*
+          path: defence
+          merge-multiple: true
+      - name: The verdict over the pooled cadences
+        env:
+          DEFENCE_SEEDS_SAMPLES: defence
+        run: npx vitest run -c vitest.perf.config.ts test/perf/defence_year_seeds_verdict.test.ts 2>&1 | tee defence/verdict.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: The verdict was written (no rows is a failure, not a skip)
+        if: always()
+        run: test -f defence/verdict.md && cat defence/verdict.md >> "$GITHUB_STEP_SUMMARY"
         shell: bash
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.seed }}
-          path: out/
-          retention-days: 14
+          name: defence
+          path: |
+            defence/watch-*/*/rows.jsonl
+            defence/verdict.*
+          retention-days: 30
 
   instrument:
     if: inputs.suite == 'instrument'
