@@ -157,6 +157,11 @@ const SPECIALISTS = [
 ] as const;
 /** Two spare adults beyond the founders support the craft professions; waves can include children. */
 const SPECIALIST_MIN_POPULATION = 9;
+/**
+ * T-524: a fortress the raids cut below its embark party gives its specialists the general labors
+ * back. The floor lies below SPECIALIST_MIN_POPULATION, so a fortress hovering at nine keeps them.
+ */
+export const SPECIALIST_RELEASE_POPULATION = 7;
 
 /** T-156: 11 changes the priority of a job only while it waits for a worker (open or claimed). */
 function reprioritised(job: { state: string }): boolean {
@@ -677,6 +682,7 @@ function checkSpecialists(w: TestWorld, state: FortressState): void {
     // The gem-skilled miner opens the deposits before leaving mining for a supplied bench.
     if (spec.role === 'jeweler' && chosen[spec.role] === undefined && w.readers.of<ItemsReader>('13').count('rough_gem') === 0) continue;
     const taken = new Set(Object.entries(chosen).filter(([role]) => role !== spec.role).map(([, id]) => id));
+    if (state.economy.brewer !== undefined) taken.add(state.economy.brewer);
     let current = chosen[spec.role];
     if (current === undefined) {
       const free = adults.filter((id) => !essential.has(id) && !taken.has(id));
@@ -707,6 +713,70 @@ function checkBrewer(w: TestWorld, state: FortressState): void {
   if (free[0] === undefined) return;
   economy.brewer = free[0];
   dedicate(w, state, free[0], ['brewing']);
+}
+
+/**
+ * T-488: when the last dwarf with the mining labor dies, the player gives it to another, so the
+ * halls, bedrooms and drifts still designated are dug. Only the founders' two miners and the
+ * immigrants nobody dedicated mine; a raid that kills them all left a fortress of survivors with
+ * hundreds of dig jobs nobody could take, and no hearth or dining hall (`three-years-p2-4`,
+ * shift 50). A dwarf the specialists keep at a bench is the last choice, then the most skilled
+ * miner, then the lowest id.
+ */
+export function keepAMiner(w: TestWorld, state: FortressState): void {
+  const adults = fortressDwarves(w);
+  const jobs = w.readers.of<JobsReader>('11');
+  if (adults.length === 0 || adults.some((id) => jobs.laborEnabled(id, 'mining'))) return;
+  const benched = new Set(Object.values(state.economy.specialists));
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  const miner = adults.slice().sort((a, b) => Number(benched.has(a)) - Number(benched.has(b)) ||
+    dwarves.skill(b, 'mining') - dwarves.skill(a, 'mining') || a - b)[0]!;
+  command(w, { type: 'SetLabor', dwarfId: miner, labor: 'mining', on: true });
+}
+
+/**
+ * The immigrants free to become the builder or the fuel worker: no founder, specialist or broker,
+ * and (T-524) not the brewer, whose dedication to the still the new one would override.
+ */
+export function specialistCandidates(w: TestWorld, state: FortressState): number[] {
+  const founders = new Set(w.game.arrival?.dwarves ?? []);
+  const taken = new Set(Object.values(state.economy.specialists));
+  return fortressDwarves(w).filter((id) => !founders.has(id) && !taken.has(id) && id !== state.economy.broker?.id && id !== state.economy.brewer);
+}
+
+/**
+ * T-524: below SPECIALIST_RELEASE_POPULATION adults the player gives every specialist the general
+ * labors back: the builder, the fuel worker, the bench specialists, the metal worker and the
+ * brewer. In `three-years-p2-4` at shift 50 raids cut the fortress to two by day 164, and the fuel
+ * worker, kept on smelting alone with hauling off, stood idle for the last 180 days. The squad's
+ * smith and smelter keep the metal chain while it still owes the squad its kit. Their workshops
+ * are freed for anyone; the specialists are chosen again once the fortress regrows to
+ * SPECIALIST_MIN_POPULATION.
+ */
+export function releaseSpecialists(w: TestWorld, state: FortressState): void {
+  const adults = fortressDwarves(w);
+  if (adults.length >= SPECIALIST_RELEASE_POPULATION) return;
+  const { economy } = state;
+  const arming = armingSquad(state);
+  const released = new Set<number>();
+  for (const [role, id] of Object.entries(economy.specialists)) {
+    if (arming && (role === 'forge' || role === 'smelter')) continue;
+    delete economy.specialists[role];
+    released.add(id);
+  }
+  if (economy.brewer !== undefined) released.add(economy.brewer);
+  delete economy.brewer;
+  const metalWorker = w.game.arrival?.dwarves[6];
+  if (economy.phases.delete('metal staffed') && metalWorker !== undefined) released.add(metalWorker);
+  const general = w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
+    .filter((r) => r.defaultOn && !['mining', 'woodcutting'].includes(r.id)).map((r) => r.id);
+  for (const id of released) {
+    if (!adults.includes(id)) continue;
+    dedicate(w, state, id, general);
+    for (const shopId of Object.values(state.placedIds)) {
+      if (w.game.world.entities.get(shopId, C.Workshop)?.assignedWorker === id) command(w, { type: 'SetWorkshopWorker', workshopId: shopId, dwarfId: 0 });
+    }
+  }
 }
 
 /** Kitchens and stills follow the dwarf count, and the lavish order follows it too. */
@@ -985,12 +1055,11 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const { phases } = state.economy;
   const buildings = w.readers.of<BuildingsReader>('14');
   checkArming(w, state, first, day);
+  releaseSpecialists(w, state);
   // Give the growing settlement a builder rather than leaving every immigrant on food and
   // hauling: those higher-priority supply jobs otherwise consume all of the spare workforce.
   if (fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && state.economy.specialists['builder'] === undefined) {
-    const founders = new Set(w.game.arrival?.dwarves ?? []);
-    const taken = new Set(Object.values(state.economy.specialists));
-    const available = fortressDwarves(w).filter(id => !founders.has(id) && !taken.has(id) && id !== state.economy.broker?.id);
+    const available = specialistCandidates(w, state);
     const dwarves = w.readers.of<DwarvesReader>('10');
     available.sort((a, b) => dwarves.skill(b, 'masonry') - dwarves.skill(a, 'masonry') || a - b);
     const builder = available[0];
@@ -1002,11 +1071,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   // Masonry includes hundreds of room-finishing jobs. Keep a separate furnace worker on fuel,
   // iron and alloy rather than asking the builder to smelt after every nearby smoothing job.
   if (fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && !armingSquad(state)) {
-    const founders = new Set(w.game.arrival?.dwarves ?? []);
-    const taken = new Set(Object.values(state.economy.specialists));
     let fuel = state.economy.specialists['fuel'];
     if (fuel === undefined) {
-      const available = fortressDwarves(w).filter(id => !founders.has(id) && !taken.has(id) && id !== state.economy.broker?.id);
+      const available = specialistCandidates(w, state);
       const dwarves = w.readers.of<DwarvesReader>('10');
       available.sort((a, b) => dwarves.skill(b, 'smelting') - dwarves.skill(a, 'smelting') || a - b);
       fuel = available[0];
@@ -1273,6 +1340,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     if (!phases.has(name)) { phases.add(name); mine(w, state, upper, isOre, 20); mine(w, state, upper, isGem, 5); }
   }
   checkBrewer(w, state);
+  keepAMiner(w, state);
   checkFarm(w, state);
   checkCaveStrips(w, state);
   checkCrops(w);
