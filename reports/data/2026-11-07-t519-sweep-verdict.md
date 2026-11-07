@@ -1,0 +1,42 @@
+## Twenty-seed sweep: 4 sweeps of de190917
+
+| Shift | Alive at year 1 | Peril-0 grown | Peril-0 with need deaths | Living at year 3 | Dwarf deaths | Extinct | Need deaths |
+|---|---|---|---|---|---|---|---|
+| 0 | 20 | 7 | 0 | 822 | 187 | 2 | 3 |
+| 50 | 19 | 7 | 0 | 913 | 102 | 2 | 0 |
+| 100 | 20 | 7 | 0 | 872 | 140 | 3 | 1 |
+| 150 | 20 | 7 | 0 | 907 | 151 | 3 | 1 |
+| **Pooled** | 19.75 | 7 | 0 | 878.5 | 145 | 2.5 | 1.25 |
+| Reference | 19.75 | 7 | 0 | 876 | 145 | 2.5 | 1.25 |
+| Bounds | ≥ 18 | ≥ 6 | ≤ 1 | ≥ 776 | ≤ 175 | | |
+
+Pooled figures are means over the sweeps. Alive, grown and need-death fortresses are bounded by the set rule; living and deaths by the best accepted pooled figures and tolerances {"living":100,"deaths":30}.
+
+**Verdict: pass.** Bounds exceeded: none.
+
+If accepted: `SWEEP_REFERENCE` = `{"alive":19.75,"grown":7,"hungry":0,"living":878.5,"deaths":145,"extinct":2.5,"needDeaths":1.25}`; `SWEEP_MEASURED` = `{"living":878.5,"deaths":145}`.
+
+| Seed | Year 1 by shift | Year 3 by shift | Deaths by shift | Need deaths by shift | Extinct (shift: day) |
+|---|---|---|---|---|---|
+| three-years-p0-1 | 14, 14, 14, 14 | 59, 74, 66, 37 | 0, 0, 0, 0 | 0, 0, 0, 0 |  |
+| three-years-p0-2 | 13, 13, 13, 13 | 52, 58, 67, 52 | 0, 0, 0, 0 | 0, 0, 0, 0 |  |
+| three-years-p0-3 | 17, 17, 16, 17 | 74, 74, 60, 80 | 0, 0, 1, 0 | 0, 0, 0, 0 |  |
+| three-years-p0-4 | 14, 15, 15, 13 | 58, 78, 61, 58 | 3, 0, 0, 2 | 0, 0, 0, 0 |  |
+| three-years-p0-5 | 15, 17, 16, 16 | 44, 80, 80, 80 | 0, 0, 0, 0 | 0, 0, 0, 0 |  |
+| three-years-p0-6 | 15, 14, 15, 15 | 69, 61, 45, 56 | 0, 0, 0, 0 | 0, 0, 0, 0 |  |
+| three-years-p0-7 | 18, 17, 17, 17 | 76, 80, 41, 71 | 0, 0, 0, 0 | 0, 0, 0, 0 |  |
+| three-years-p2-1 | 15, 15, 17, 12 | 46, 54, 68, 0 | 10, 1, 5, 19 | 0, 0, 0, 1 | 150: 294 |
+| three-years-p2-2 | 15, 12, 13, 5 | 43, 10, 11, 34 | 6, 13, 13, 11 | 0, 0, 0, 0 |  |
+| three-years-p2-3 | 15, 16, 18, 17 | 18, 54, 45, 59 | 16, 6, 8, 4 | 0, 0, 0, 0 |  |
+| three-years-p2-4 | 10, 5, 2, 5 | 13, 1, 0, 12 | 17, 12, 17, 19 | 0, 0, 1, 0 | 100: 169 |
+| three-years-p2-5 | 13, 13, 13, 10 | 53, 37, 23, 40 | 6, 5, 4, 6 | 0, 0, 0, 0 |  |
+| three-years-p2-6 | 11, 9, 12, 16 | 14, 20, 50, 52 | 18, 7, 5, 2 | 0, 0, 0, 0 |  |
+| three-years-p2-7 | 14, 17, 18, 17 | 70, 68, 68, 46 | 9, 0, 2, 6 | 0, 0, 0, 0 |  |
+| three-years-p4-1 | 7, 0, 18, 16 | 25, 0, 58, 52 | 16, 14, 8, 4 | 0, 0, 0, 0 | 50: 61 |
+| three-years-p4-2 | 4, 15, 14, 15 | 2, 79, 44, 73 | 13, 3, 6, 12 | 0, 0, 0, 0 |  |
+| three-years-p4-3 | 15, 8, 14, 13 | 0, 0, 0, 0 | 32, 17, 21, 33 | 0, 0, 0, 0 | 0: 189; 50: 187; 100: 188; 150: 188 |
+| three-years-p4-4 | 12, 15, 14, 12 | 48, 24, 0, 0 | 11, 8, 25, 18 | 0, 0, 0, 0 | 100: 286; 150: 245 |
+| three-years-p4-5 | 4, 11, 14, 14 | 0, 34, 48, 47 | 12, 8, 7, 7 | 3, 0, 0, 0 | 0: 183 |
+| three-years-p4-6 | 12, 9, 15, 16 | 58, 27, 37, 58 | 18, 8, 18, 8 | 0, 0, 0, 0 |  |
+
+Invariant findings (each fails its seed's job, not the verdict): none.
