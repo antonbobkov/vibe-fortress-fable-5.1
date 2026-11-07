@@ -1,6 +1,8 @@
 # T-513 — The twenty-seed sweep judges pooled shifted samples, like the instrument
 
-**Source:** T-507's [report](../../reports/audits/2026-11-05-t507-three-years-food.md) and T-509's [report](../../reports/audits/2026-11-05-t509-instrument-noise.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-06, in 68bfda83.
+
+**Source:** T-507's [report](../../../reports/audits/2026-11-05-t507-three-years-food.md) and T-509's [report](../../../reports/audits/2026-11-05-t509-instrument-noise.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

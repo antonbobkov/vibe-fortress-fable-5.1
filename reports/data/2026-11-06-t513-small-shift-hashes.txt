@@ -1,0 +1,98 @@
+T-513: small shifts of the twenty-seed sweep fall into a few timelines.
+
+1. World hashes at the end of year 3 (seed, shift in ticks, hash), from Measure run 42325771766
+   (master 1a8f0ef4 with the shift input, shifts 0 to 11; cancelled after 63 of 240 seed jobs once the
+   collapse was seen). Shifts 2 to 10 end with the same hash on every seed with several of them;
+   shift 11 repeats shift 1 on p0-3, p2-3 and p4-6. Only p2-7 differs at every shift.
+
+three-years-p0-3 0 435202e2a359b89b
+three-years-p0-3 1 2072649078eb2047
+three-years-p0-3 2 378ec7e27b9420a3
+three-years-p0-3 3 378ec7e27b9420a3
+three-years-p0-3 4 378ec7e27b9420a3
+three-years-p0-3 5 378ec7e27b9420a3
+three-years-p0-3 6 378ec7e27b9420a3
+three-years-p0-3 7 378ec7e27b9420a3
+three-years-p0-3 8 378ec7e27b9420a3
+three-years-p0-3 9 378ec7e27b9420a3
+three-years-p0-3 10 378ec7e27b9420a3
+three-years-p0-3 11 2072649078eb2047
+three-years-p0-6 8 ce18ca22fea08545
+three-years-p0-7 0 fbdd1c0143093c9a
+three-years-p0-7 1 3dd9d321d783d771
+three-years-p0-7 2 c13cb3744649edc0
+three-years-p0-7 3 c13cb3744649edc0
+three-years-p2-3 0 ffe2239ba2c6ccb9
+three-years-p2-3 1 9399ec67a5776ccf
+three-years-p2-3 2 b24bbec7a836cd05
+three-years-p2-3 3 b24bbec7a836cd05
+three-years-p2-3 4 b24bbec7a836cd05
+three-years-p2-3 5 b24bbec7a836cd05
+three-years-p2-3 6 b24bbec7a836cd05
+three-years-p2-3 7 b24bbec7a836cd05
+three-years-p2-3 8 b24bbec7a836cd05
+three-years-p2-3 9 b24bbec7a836cd05
+three-years-p2-3 10 b24bbec7a836cd05
+three-years-p2-3 11 9399ec67a5776ccf
+three-years-p2-4 0 b3fcade372f218d0
+three-years-p2-4 1 354fe2aafc9a29bb
+three-years-p2-4 3 98155999ab99a970
+three-years-p2-4 4 98155999ab99a970
+three-years-p2-7 1 455b01f51a3cf96e
+three-years-p2-7 2 8d4242a9117841a2
+three-years-p2-7 4 69e7b81209a9da78
+three-years-p2-7 5 4a2b3b5b73fdb230
+three-years-p2-7 8 c68efd4f7e390feb
+three-years-p2-7 9 bcccfb7efbb57379
+three-years-p2-7 10 51574a6357e4b1d8
+three-years-p2-7 11 f24fc62860e86e1b
+three-years-p4-1 0 6f6e1254b15dc379
+three-years-p4-1 1 d047b7435a995f40
+three-years-p4-1 2 663d8bac0e56c16e
+three-years-p4-1 3 663d8bac0e56c16e
+three-years-p4-1 4 663d8bac0e56c16e
+three-years-p4-1 5 663d8bac0e56c16e
+three-years-p4-1 6 663d8bac0e56c16e
+three-years-p4-1 7 663d8bac0e56c16e
+three-years-p4-1 8 663d8bac0e56c16e
+three-years-p4-1 9 663d8bac0e56c16e
+three-years-p4-1 10 663d8bac0e56c16e
+three-years-p4-1 11 34d2e75f1cb8932b
+three-years-p4-4 0 f1b739262b0bfb21
+three-years-p4-4 1 049da87827d58ec5
+three-years-p4-4 9 dd53799502053fed
+three-years-p4-5 0 2d20066f6655c561
+three-years-p4-5 1 e403687cda388ee8
+three-years-p4-5 2 1b62fb10b77a86f8
+three-years-p4-5 3 1b62fb10b77a86f8
+three-years-p4-5 4 1b62fb10b77a86f8
+three-years-p4-5 5 1b62fb10b77a86f8
+three-years-p4-5 6 1b62fb10b77a86f8
+three-years-p4-5 7 1b62fb10b77a86f8
+three-years-p4-5 8 1b62fb10b77a86f8
+three-years-p4-5 9 1e4e413124afbf4b
+three-years-p4-5 10 1e4e413124afbf4b
+three-years-p4-5 11 d0b5eba6c5573adc
+three-years-p4-6 0 15267fdcb6333d1b
+three-years-p4-6 1 2fb9aec0a727d596
+three-years-p4-6 2 36eb5160dd97fa56
+three-years-p4-6 3 36eb5160dd97fa56
+three-years-p4-6 4 36eb5160dd97fa56
+three-years-p4-6 5 36eb5160dd97fa56
+three-years-p4-6 6 36eb5160dd97fa56
+three-years-p4-6 7 36eb5160dd97fa56
+three-years-p4-6 8 36eb5160dd97fa56
+three-years-p4-6 9 36eb5160dd97fa56
+three-years-p4-6 10 36eb5160dd97fa56
+three-years-p4-6 11 2fb9aec0a727d596
+
+2. Probe (2026-11-06-t513-shift.probe.ts.txt), world hash at the end of the bootstrap (day 20),
+   shifts grouped by equal hash:
+three-years-p2-3, shifts 0 to 40: [[0],[1,11],[2,3,4,5,6,7,8,9,10],[12,13,16],[14],[15],[17],...,[40]] (17 to 40 each alone)
+three-years-p0-1: [[0],[1],[2,5,10],[15],[17,20],[40],[60],[80],[100],[120],[140],[160],[180],[200],[220]]
+three-years-p4-1: [[0],[1],[2,5,10],[15,17,20],[40],[60],[80],[100],[120],[140],[160],[180],[200],[220]]
+
+3. Twelve sweeps of the same master at shifts 0 to 550 ticks, 50 apart (Measure run 42329994960,
+   hashes in 2026-11-06-t513-sweeps.json): shifts 0 to 400 end year 3 with a different world hash on
+   every seed; shifts 450, 500 and 550 end with the same hash on most seeds (500 and 550 on 18 of 20,
+   all three on 15). The verdict pools shifts 0, 50, 100 and 150.
