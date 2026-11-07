@@ -106,9 +106,10 @@ const scenario: Scenario = {
     expect(w.events('TrapTriggered').length, 'a trap triggered').toBeGreaterThan(0);
     const trapKills = w.events('TrapTriggered').filter((e) => e['outcome'] === 'killed').length;
     expect(w.events('CreatureCaged').length + trapKills, 'a creature caged or killed by a trap').toBeGreaterThan(0);
-    // Whether this seed's raid is turned back is printed, not asserted: it is a rule over eight seeds,
-    // test/perf/defence_year_seeds.test.ts (reports/audits/2026-11-05-t466-defence-repels-a-raid.md).
-    expect(soldierKills.length, 'a hostile killed by a soldier').toBeGreaterThan(0);
+    // Whether this seed's raid is turned back, and whether a soldier kills a hostile, are printed, not
+    // asserted: they are rules over eight seeds, test/perf/defence_year_seeds.test.ts
+    // (reports/audits/2026-11-05-t466-defence-repels-a-raid.md). T-512: one or two kills on this seed,
+    // and a timeline change in the economy script alone left it none.
     expect(hearthEpisodes.length).toBeGreaterThan(0);
     expect(hearthEpisodes.every((e) => e.locked), 'the gate locked under every hearth alert').toBe(true);
     expect(jobsDone('rearm_trap'), 'a trap rearmed').toBeGreaterThan(0);
