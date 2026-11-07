@@ -1,0 +1,81 @@
+/**
+ * T-512 probe (not kept in test/): `three-years-p4-3` played as the sweep plays it, and the year-2
+ * siege (day 186) watched: the alert, the gate doors, where the hostiles and the dwarves are.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { BuildingsReader } from '@systems/buildings';
+import type { JobsReader } from '@systems/jobs';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T512_SEED'] ?? 'three-years-p4-3';
+const PERIL = Number(process.env['T512_PERIL'] ?? 4);
+const FROM = Number(process.env['T512_FROM'] ?? 184);
+const TO = Number(process.env['T512_TO'] ?? 189);
+
+it(`T-512 siege probe ${SEED}`, () => {
+  const w = threeYearsWorld(SEED, PERIL);
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const b = w.readers.of<BuildingsReader>('14');
+  const jobs = w.readers.of<JobsReader>('11');
+  const boot = 20 * TICKS_PER_DAY;
+  const end = TO * TICKS_PER_DAY;
+  const firstBlood: string[] = [];
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      if (e.type === 'CreatureDied' && ent.get(Number(e['id']), C.Labors) !== undefined && firstBlood.length < 5) {
+        const p = ent.get(Number(e['id']), C.Position);
+        firstBlood.push(`t${w.tick} ${String(e['cause'])} at ${p?.x},${p?.y},${p?.z}`);
+      }
+    }
+  });
+  while (w.tick < end) {
+    playThreeYears(w, state, w.tick < boot ? Math.min(100, boot - w.tick) : Math.min(300, end - w.tick));
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    const day = w.tick / TICKS_PER_DAY;
+    if (day < FROM) continue;
+    const door = (id: number): string => id === 0 ? 'none' : `${b.get(id)?.state}/${b.mechanismState(id)}`;
+    const hostiles = ent.with(C.Hostile).filter((id) => ent.alive(id));
+    const hz: Record<string, number> = {};
+    for (const id of hostiles) { const p = ent.get(id, C.Position); if (p) { const k = p.z >= state.z ? 'surface' : `below${state.z - p.z}`; hz[k] = (hz[k] ?? 0) + 1; } }
+    const dwarves = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress');
+    const dz: Record<string, number> = {};
+    const outside: string[] = [];
+    for (const id of dwarves) {
+      const p = ent.get(id, C.Position);
+      if (!p) continue;
+      const k = p.z >= state.z ? 'surface' : `below${state.z - p.z}`;
+      dz[k] = (dz[k] ?? 0) + 1;
+      if (p.z >= state.z && outside.length < 6) {
+        outside.push(`${p.x},${p.y}:${jobs.forWorker(id)?.type ?? '-'}`);
+      }
+    }
+    const nearest = hostiles.map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined)
+      .map((p) => ({ p, d: Math.abs(p.x - state.cx - 6) + Math.abs(p.y - state.cy - 6) + 3 * Math.abs(p.z - state.z) })).sort((a, c) => a.d - c.d).slice(0, 3)
+      .map(({ p }) => `${p.x},${p.y},${p.z}`);
+    for (const pid of ent.with(C.Party)) {
+      const party = ent.get(pid, C.Party)!;
+      if (party.purpose !== 'siege' || party.state === 'gone') continue;
+      const goal = w.map.unpack(party.goalTile);
+      const species: Record<string, number> = {};
+      const near: string[] = [];
+      const creatures = w.game.registry.table<{ id: string }>('creatures');
+      for (const m of party.members) {
+        if (!ent.alive(m)) continue;
+        const sp = creatures.byIndex(ent.get(m, C.Creature)?.species ?? -1)?.id ?? '?';
+        species[sp] = (species[sp] ?? 0) + 1;
+        const p = ent.get(m, C.Position);
+        const h = ent.get(m, C.Hostile);
+        if (p && Math.abs(p.x - state.cx - 6) <= 3 && Math.abs(p.y - state.cy - 6) <= 4 && Math.abs(p.z - state.z) <= 1) near.push(`${sp}@${p.x},${p.y},${p.z}${h?.breakingDoorId ? ' breaking' : ''}`);
+      }
+      console.log(`T512P day ${day.toFixed(2)} siege state ${party.state} edge ${party.edge} goal ${goal.x},${goal.y},${goal.z} unreachable ${party.goalUnreachable} ${JSON.stringify(species)} near ${near.join(' ')}`);
+    }
+    console.log(`T512S day ${day.toFixed(2)} alert ${w.game.world.fortress.alert} shutOut ${state.shutOut} south ${door(state.gateDoorId)} north ${door(state.gateDoorId2)} hostiles ${JSON.stringify(hz)} near ${nearest.join(' ')} dwarves ${JSON.stringify(dz)} outside ${outside.join(' ')} gate ${state.cx + 6},${state.cy + 6},${state.z}`);
+  }
+  console.log(`T512S first deaths ${firstBlood.join(' | ')}`);
+}, 3_600_000);

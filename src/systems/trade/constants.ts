@@ -16,6 +16,9 @@ export const REQUEST_SHARE = 30;
 export const REQUEST_MAX = 8;
 export const DEPOT_WAIT_DAYS = 3;
 export const CARAVAN_STAY_DAYS = 5;
+/** T-517: a leave's limit, and how long within it a guard keeps fighting. */
+export const CARAVAN_LEAVE_DAYS = 2;
+export const CARAVAN_GUARD_FIGHT_DAYS = 1;
 export const DEPOT_HAUL_PRIORITY = 3;
 export const MERCHANT_MARKUP = 120;
 export const MARGIN_BASE = 15;

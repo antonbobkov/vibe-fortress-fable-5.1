@@ -1,0 +1,68 @@
+/**
+ * T-517 probe (not kept in test/): `three-years-p4-6` played as the sweep plays it, and the Wildwood
+ * caravan watched from day 63: its state, each member's tile, combat target, consciousness and walk.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { TradeSystem } from '@systems/trade';
+import { watchInvariants } from '../scenarios/invariants';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T517_SEED'] ?? 'three-years-p4-6';
+const PERIL = Number(process.env['T517_PERIL'] ?? 4);
+const FROM = Number(process.env['T517_FROM'] ?? 62);
+const TO = Number(process.env['T517_TO'] ?? 86);
+
+it(`T-517 caravan probe ${SEED}`, () => {
+  const w = threeYearsWorld(SEED, PERIL);
+  const findings: string[] = [];
+  watchInvariants(w.game, (f) => { if (f.length && findings.length < 3) findings.push(`t${w.tick} ${JSON.stringify(f)}`); });
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const trade = w.game.world.scheduler.byId('20') as TradeSystem;
+  const combat = w.game.world.services.combat;
+  const boot = 20 * TICKS_PER_DAY;
+  const end = TO * TICKS_PER_DAY;
+  const log: string[] = [];
+  w.game.world.onEvents((events) => {
+    if (w.tick < FROM * TICKS_PER_DAY) return;
+    for (const e of events) {
+      if (e.type.startsWith('Caravan') || e.type === 'RaidArrived' || e.type === 'RaidEnded') log.push(`t${w.tick} ${e.type} ${JSON.stringify(e)}`);
+      if (e.type === 'AttackResolved' || e.type === 'ShotFired' || e.type === 'CreatureDied') {
+        const a = trade.serialize().activeCaravan;
+        const members = a ? [...a.merchants, ...a.guards, ...a.animals] : [];
+        const who = (id: number): string => `${id}(${ent.get(id, C.Creature) ? w.game.registry.table('creatures').idOf(ent.get(id, C.Creature)!.species) : '?'} ${ent.get(id, C.Creature)?.faction}${members.includes(id) ? ' MEMBER' : ''})`;
+        const ids = [e['attackerId'], e['defenderId'], e['shooterId'], e['targetId'], e['id'], e['killerId']].map(Number).filter((x) => x > 0);
+        if (ids.some((x) => members.includes(x)) && log.length < 400) log.push(`t${w.tick} ${e.type} ${JSON.stringify(e).slice(0, 160)} :: ${ids.map(who).join(' ')}`);
+      }
+    }
+  });
+  let lastPrint = 0;
+  while (w.tick < end) {
+    playThreeYears(w, state, w.tick < boot ? Math.min(100, boot - w.tick) : Math.min(300, end - w.tick));
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    if (w.tick < FROM * TICKS_PER_DAY || w.tick - lastPrint < 600) continue;
+    lastPrint = w.tick;
+    const a = trade.serialize().activeCaravan;
+    if (!a) { log.push(`t${w.tick} no caravan`); continue; }
+    const party = ent.get(a.partyId, C.Party);
+    const rows: string[] = [];
+    for (const id of [...a.merchants, ...a.guards, ...a.animals]) {
+      if (!ent.alive(id)) continue;
+      const p = ent.get(id, C.Position);
+      const body = ent.get(id, C.Body);
+      const target = combat?.targetOf(id) ?? 0;
+      const tp = ent.get(target, C.Position);
+      const role = a.merchants.includes(id) ? 'M' : a.guards.includes(id) ? 'G' : 'A';
+      const tsp = target && ent.get(target, C.Creature) ? w.game.registry.table('creatures').idOf(ent.get(target, C.Creature)!.species) : '';
+      rows.push(`${role}${id}@${p?.x},${p?.y},${p?.z} c=${body?.conscious ? 1 : 0} b=${body?.blood}/${body?.maxBlood}${target ? ` T${target}(${tsp} ${ent.get(target, C.Creature)?.faction})@${tp?.x},${tp?.y},${tp?.z}` : ''}`);
+    }
+    log.push(`t${w.tick} day${(w.tick / TICKS_PER_DAY).toFixed(1)} state=${a.state} since=${a.stateSince} party=${party?.state} attacked=${a.attacked} lost=${a.lost} edge=${w.map.xOf(a.edgeTile)},${w.map.yOf(a.edgeTile)},${w.map.zOf(a.edgeTile)} dead=${a.dead.length}\n   ${rows.join('\n   ')}`);
+  }
+  console.log(log.join('\n'));
+  console.log('INVARIANTS', findings.join('\n'));
+}, 3_600_000);
