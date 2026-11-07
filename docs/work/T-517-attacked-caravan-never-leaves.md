@@ -24,3 +24,9 @@ This is a game rule, not the three-year script: the sowing rule only moved this 
 ## Done
 
 - No caravan stays on the map past its limit; the test passes; `three-years-p4-6` keeps its invariants.
+
+## Found (probe: `reports/data/2026-11-06-t517-caravan.probe.ts.txt`)
+
+Not a target out of reach: a brawl inside the caravan. On day 64 a gloam archer shot at the Wildwood caravan at its depot; the caravan went to `leave` and its six elf guards shot back. One guard's arrow hit the caravan's own bearer (friendly fire is real for a careless shooter, 16 § Ranged resolution). That `AttackResolved` had a caravan member as its attacker, so the trade system set every guard's target on that guard. An explicit target makes two creatures hostile (16's `isCreatureHostile`), so the guards fought each other at the map edge, each hit restarting the leave, and killed four of their own. With every member on the edge tile, the last guards held targets on each other (one unconscious, which keeps its target) until day 85.
+
+Fix: a hit from a caravan member is not an attack on the caravan; the party goes to `leave` with the caravan; guards fight only for the first `CARAVAN_GUARD_FIGHT_DAYS` of a leave; the leave departs after `CARAVAN_LEAVE_DAYS` with whoever is left; the leave's clock starts at the first attack. With the fix the same seed's caravan kills the archer and leaves on day 64.

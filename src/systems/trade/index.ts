@@ -438,10 +438,11 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       if (carrier) ctx.world.services.items?.putIn(id, carrier);
       else ctx.world.services.items?.dropAt(id, ctx.readers.of<BuildingsReader>('14').holderTile(a.depotId));
     }
+    // A merchant's death during a leave packs again, but the leave's clock keeps its start (T-517).
+    if (a.state !== 'leave') a.stateSince = ctx.tick;
     a.state = 'leave';
-    a.stateSince = ctx.tick;
     const party = ctx.world.entities.get(a.partyId, C.Party);
-    if (party) { party.state = 'leave'; party.stateSince = ctx.tick; }
+    if (party) { party.state = 'leave'; party.stateSince = a.stateSince; }
   }
 
   private depart(ctx: TickContext, reason?: string): void {
@@ -551,7 +552,10 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       const a = this.active;
       const defender = event['defenderId'] as EntityId;
       const attacker = event['attackerId'] as EntityId;
-      if (!a || !ctx.world.entities.get(a.partyId, C.Party)?.members.includes(defender)) return;
+      const members = a ? ctx.world.entities.get(a.partyId, C.Party)?.members : undefined;
+      if (!a || !members?.includes(defender)) return;
+      // § Movement step 5: a comrade's stray shot is not an attack; the caravan never turns on its own (T-517).
+      if (members.includes(attacker)) return;
       if (!a.attacked) ctx.emit({ type: 'CaravanAttacked', civ: a.civ, partyId: a.partyId });
       a.attacked = true;
       this.cancelTradeJob(ctx, a.depotId);
