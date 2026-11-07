@@ -15,8 +15,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
 | T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
-| T-521 | [A hunter who joins a squad and takes a melee weapon keeps the fortress's launcher](work/T-521-hunter-in-squad-keeps-launcher.md) | T-500's code reading | — | open |
 | T-522 | [The defence fortress turns back fewer raids, and nothing checks it](work/T-522-defence-repel-rate-fell.md) | T-503's runs | — | open |
-| T-525 | [Refresh the sweep's reference after the gate and food fixes](work/T-525-refresh-sweep-reference.md) | T-488's work | — | open |
+| T-526 | [A hunter who takes a pick keeps carrying the launcher it no longer holds](work/T-526-hunter-mines-keeps-launcher.md) | T-521's code reading | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

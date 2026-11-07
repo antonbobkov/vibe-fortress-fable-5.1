@@ -1,8 +1,10 @@
 # T-521 — A hunter who joins a squad and takes a melee weapon keeps the fortress's launcher
 
+**Closed:** 2026-11-07, in 8097d305.
+
 **Source:** T-500 (`test/unit/jobs/t500-warband-hunt.test.ts`) · **Size:** S · **Needs:** — · **Status:** open
 
-The specification is [09](../02-systems/09-hunting-gathering-fishing.md) § Hunting, [11](../02-systems/11-jobs-and-labor.md) § Assignment (step 5) and [16](../02-systems/16-combat.md) § Equipment.
+The specification is [09](../../02-systems/09-hunting-gathering-fishing.md) § Hunting, [11](../../02-systems/11-jobs-and-labor.md) § Assignment (step 5) and [16](../../02-systems/16-combat.md) § Equipment.
 
 ## What was found
 

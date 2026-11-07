@@ -1,6 +1,8 @@
 # T-525 — Refresh the sweep's reference after the gate and food fixes
 
-**Source:** T-488's sweep verdict ([data](../../reports/data/2026-11-07-t488-sweep-verdict.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-07, in 837b2714.
+
+**Source:** T-488's sweep verdict ([data](../../../reports/data/2026-11-07-t488-sweep-verdict.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
