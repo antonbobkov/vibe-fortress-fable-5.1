@@ -7,12 +7,15 @@
 /** Founders: a peril-0 fortress has grown when it ends year 3 above this. */
 export const EMBARK_SIZE = 7;
 export const SWEEP_SEEDS = 20;
-/** A verdict pools this many sweeps of the same code, each shifted before the opening by a multiple of SWEEP_SHIFT_STEP. */
+/**
+ * A verdict pools this many sweeps of the same code, each shifted before the opening by a multiple of
+ * SWEEP_SHIFT_STEP: 80 jobs, about 45 minutes on GitHub's twenty free runners when nothing else queues.
+ */
 export const SWEEP_SAMPLES = 4;
 /**
- * Ticks between two sweeps' shifts. Shifts under about 20 ticks fall into three or four timelines
- * (shifts 2 to 10 end year 3 with the same world hash on every seed measured); multiples of 20 from 20
- * up are each a timeline of their own.
+ * Ticks between two sweeps' shifts. Shifts 2 to 10 end year 3 with the same world hash on every seed
+ * measured but one, and shifts 450, 500 and 550 on most seeds; shifts 0 to 400 ticks, 50 apart, are
+ * each a timeline of their own on every seed.
  */
 export const SWEEP_SHIFT_STEP = 50;
 /** The shifts a verdict pools: 0, 50, 100, 150. */
@@ -78,15 +81,17 @@ export function poolSweeps(samples: readonly SweepFigures[]): SweepFigures {
 }
 
 /**
- * Tolerances of the guarded pooled figures, wider than the spread of their pooled means between
- * two sets of SWEEP_SAMPLES shifts of the same code (set from the measurement of T-513).
+ * Tolerances of the guarded pooled figures, wider than the spread of their pooled means: over every
+ * pair of disjoint sets of four among ten shifts of master (0 to 450 ticks, 1,575 pairs), the two
+ * means differed by at most 96.25 living and 26.25 deaths (testing-strategy.md § The twenty-seed sweep).
  */
-export const SWEEP_TOLERANCE = { living: 40, deaths: 30 };
+export const SWEEP_TOLERANCE = { living: 100, deaths: 30 };
 
+// T-513: the first pooled row, shifts 0, 50, 100 and 150 of master `1a8f0ef4` (Measure run 42329994960).
 /** The best accepted pooled figures, which set the bounds; a tolerated loss is not ratcheted down. */
-export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 0, deaths: 0 };
+export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 903.75, deaths: 141.75 };
 /** The latest accepted pooled row. */
-export const SWEEP_REFERENCE: SweepFigures = { alive: 0, grown: 0, hungry: 0, living: 0, deaths: 0, extinct: 0, needDeaths: 0 };
+export const SWEEP_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0.75, living: 903.75, deaths: 141.75, extinct: 2, needDeaths: 2.5 };
 
 export interface SweepCheck {
   readonly allowed: boolean;
