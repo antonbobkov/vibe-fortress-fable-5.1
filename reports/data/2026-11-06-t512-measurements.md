@@ -16,7 +16,7 @@ Master `1a8f0ef4` ("before") against T-512's sowing rule over it ("after", `ce56
 - No peril-0 seed has a need death in any sample. The set rule holds wherever all twenty seeds gave a result.
 - Peril-0 living is 446 before and 405 after on average. The gap is in immigration: waves come to 59, 56 and 57 before against 55, 48 and 53 after, with the same hall spirit and mood (59–62) and no peril-0 deaths. One commit's samples spread as widely (`p0-5`: 78, 47 and 80 before).
 - `p4-3` dies out in its year-2 siege in all three after samples and in no before sample. The trollkin break the south gate door ([probe](2026-11-06-t512-siege.probe.ts.txt); T-NEW: the three-year gatehouse is one broken door from the halls).
-- `p4-6`, after shift 0: `caravan.present-over-20d`. An attacked Wildwood caravan stayed on the map 21 days ([work file](../../docs/work/T-517-attacked-caravan-never-leaves.md)).
+- `p4-6`, after shift 0: `caravan.present-over-20d`. An attacked Wildwood caravan stayed on the map 21 days ([work file](../../docs/archive/tasks/T-517-attacked-caravan-never-leaves.md)).
 - One-tick shifts do not always separate a seed's timelines: several seeds give the same figures at shifts 0 and 2 (before `p0-1`, `p0-6`; after `p4-3`).
 
 ## Frost on `three-years-p0-3` ([probe](2026-11-06-t512-frost.probe.ts.txt), unshifted, local)

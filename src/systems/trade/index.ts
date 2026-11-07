@@ -17,7 +17,7 @@ import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
-import { CARAVAN_STAY_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED } from './constants';
+import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED } from './constants';
 import { spawnCaravan } from './caravan';
 import { generateGoods } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
@@ -438,10 +438,11 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       if (carrier) ctx.world.services.items?.putIn(id, carrier);
       else ctx.world.services.items?.dropAt(id, ctx.readers.of<BuildingsReader>('14').holderTile(a.depotId));
     }
+    // A merchant's death during a leave packs again, but the leave's clock keeps its start (T-517).
+    if (a.state !== 'leave') a.stateSince = ctx.tick;
     a.state = 'leave';
-    a.stateSince = ctx.tick;
     const party = ctx.world.entities.get(a.partyId, C.Party);
-    if (party) { party.state = 'leave'; party.stateSince = ctx.tick; }
+    if (party) { party.state = 'leave'; party.stateSince = a.stateSince; }
   }
 
   private depart(ctx: TickContext, reason?: string): void {
@@ -498,14 +499,23 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       return;
     }
     if (a.state === 'unload') { this.unload(ctx, a); return; }
+    const leaving = a.state === 'leave' || a.state === 'pack';
+    // § Movement step 4: a leave has a limit; whoever is still on the map then goes with the caravan.
+    if (a.state === 'leave' && ctx.tick - a.stateSince >= CARAVAN_LEAVE_DAYS * TICKS_PER_DAY) {
+      this.depart(ctx, a.lost ? 'lost' : undefined);
+      return;
+    }
     const movement = ctx.world.services.movement;
     if (!movement) return;
-    const leaving = a.state === 'leave' || a.state === 'pack';
     const goal = leaving ? a.edgeTile : ctx.readers.of<BuildingsReader>('14').get(a.depotId)?.origin ?? a.edgeTile;
+    const done = leaving && ctx.tick - a.stateSince >= CARAVAN_GUARD_FIGHT_DAYS * TICKS_PER_DAY;
     let remaining = 0;
     for (const id of [...a.merchants, ...a.guards, ...a.animals]) {
       if (!ctx.world.entities.alive(id)) continue;
-      if (leaving && a.guards.includes(id) && ctx.world.services.combat?.targetOf(id)) { remaining += 1; continue; }
+      if (leaving && a.guards.includes(id) && ctx.world.services.combat?.targetOf(id)) {
+        if (!done) { remaining += 1; continue; }
+        ctx.world.services.combat.clearTarget(id);
+      }
       const target = leaving ? a.edgeTile : a.destinations[id] ?? goal;
       const status = movement.walkTo(id, target, leaving ? 'flee' : 'caravan', ctx);
       if (status !== 'arrived') remaining += 1;
@@ -542,14 +552,24 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       const a = this.active;
       const defender = event['defenderId'] as EntityId;
       const attacker = event['attackerId'] as EntityId;
-      if (!a || !ctx.world.entities.get(a.partyId, C.Party)?.members.includes(defender)) return;
+      const members = a ? ctx.world.entities.get(a.partyId, C.Party)?.members : undefined;
+      if (!a || !members?.includes(defender)) return;
+      // § Movement step 5: a comrade's stray shot is not an attack; the caravan never turns on its own (T-517).
+      if (members.includes(attacker)) return;
       if (!a.attacked) ctx.emit({ type: 'CaravanAttacked', civ: a.civ, partyId: a.partyId });
       a.attacked = true;
       this.cancelTradeJob(ctx, a.depotId);
       this.sessionState = null;
-      for (const guard of a.guards) if (ctx.world.entities.alive(guard)) ctx.world.services.combat?.setTarget(guard, attacker);
-      a.state = 'leave';
-      a.stateSince = ctx.tick;
+      if (a.state !== 'leave') {
+        a.state = 'leave';
+        a.stateSince = ctx.tick;
+        const party = ctx.world.entities.get(a.partyId, C.Party);
+        if (party) { party.state = 'leave'; party.stateSince = ctx.tick; }
+      }
+      // Guards turn on the attacker until the leave's fighting time is over (§ Movement step 5).
+      if (ctx.tick - a.stateSince < CARAVAN_GUARD_FIGHT_DAYS * TICKS_PER_DAY) {
+        for (const guard of a.guards) if (ctx.world.entities.alive(guard)) ctx.world.services.combat?.setTarget(guard, attacker);
+      }
     } else if (event.type === 'TitleAssigned' && event['title'] === 'broker') {
       this.repairTradeJob(ctx);
     } else if (event.type === 'CreatureDied') {
