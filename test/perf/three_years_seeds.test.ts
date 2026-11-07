@@ -1,4 +1,4 @@
-import { checkInvariants, watchInvariants } from '../scenarios/invariants';
+import { checkInvariants, watchInvariants, type Finding } from '../scenarios/invariants';
 import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
 /**
  * 20-seed sweep across three regions (peril 0, 2, 4) for T-M8-06 (DECISIONS D-204).
@@ -114,9 +114,13 @@ export interface ThreeYearsSeedResult {
 export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHIFT): ThreeYearsSeedResult {
   const w = threeYearsWorld(seed, peril);
   // Kept (T-334): the T-176 invariants hold in every state of the game, whatever the order of jobs.
-  const stopInvariants = peril === 2 || peril === 4
-    ? watchInvariants(w.game, (findings) => expect(findings, `T-176 ${seed} tick ${w.tick}`).toEqual([]))
-    : () => {};
+  // T-513: a finding is kept, with its tick, and asserted once the seed's figures are written, so a
+  // fortress that breaks one still counts in the sweep's verdict as what it was.
+  const invariantFindings: Finding[] = [];
+  const keepFindings = (findings: Finding[]): void => {
+    for (const f of findings) if (!invariantFindings.some((g) => g.inv === f.inv && g.cls === f.cls)) invariantFindings.push(f);
+  };
+  const stopInvariants = peril === 2 || peril === 4 ? watchInvariants(w.game, keepFindings) : () => {};
   // T-513: the same code a few ticks later plays another timeline; the bootstrap ends on day 20 as before.
   if (shift > 0) w.step(shift);
   const state = setupThreeYearsFortress(w);
@@ -219,7 +223,7 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
 
   unsub();
   stopInvariants();
-  if (peril === 2 || peril === 4) expect(checkInvariants(w.game), `T-176 ${seed} final invariants`).toEqual([]);
+  if (peril === 2 || peril === 4) keepFindings(checkInvariants(w.game));
   console.log(`[three_years_hash] ${JSON.stringify({ seed, peril, tick: w.tick, hash: w.hash() })}`);
 
   y3Wealth = items.wealth();
@@ -320,9 +324,11 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
   // is still counted as what it was. The on-demand sweep (.github/workflows/measure.yml) reads the file.
   const needDeaths = economy.needDeaths();
   const runtimeCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  writeFileSync(`${out}/${seed}.json`, JSON.stringify({ shift, runtimeCommit, figures, result, needDeaths }, null, 2) + '\n');
+  const invariants = invariantFindings.map((f) => `${f.inv} (${f.cls}) from tick ${f.firstTick}: ${f.samples[0] ?? ''}`);
+  writeFileSync(`${out}/${seed}.json`, JSON.stringify({ shift, runtimeCommit, figures, result, needDeaths, invariants }, null, 2) + '\n');
   survival.push({ seed, peril, y1Pop, y3Pop, needDeaths });
   console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE, needDeaths })}`);
+  expect(invariants, `T-176 ${seed} invariants`).toEqual([]);
   // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
   // bedrooms, the squad; at perils 2 and 4 an alert raised and lowered, and a trade).
   console.log(`[three_years_seeds_script] ${JSON.stringify({ seed, accepted: Object.fromEntries(scriptRecord(w).accepted), rejected: Object.fromEntries(scriptRecord(w).rejected) })}`);

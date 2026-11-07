@@ -16,9 +16,10 @@ interface SeedFile {
   shift?: number;
   runtimeCommit?: string;
   needDeaths?: number;
+  invariants?: string[];
   result: { seed: string; peril: number; y1Pop: number; y3Pop: number; dwarfDeaths: number; extinctDay: number | null };
 }
-interface Sample { shift: number; commits: string[]; rows: SweepSeedRow[]; figures: SweepFigures }
+interface Sample { shift: number; commits: string[]; rows: SweepSeedRow[]; figures: SweepFigures; invariants: string[] }
 
 const dir = process.env['THREE_YEARS_SWEEP_SAMPLES'] ?? '.vite/three-years-sweep';
 const shiftDirs = existsSync(dir) ? readdirSync(dir).filter((name) => /^shift-\d+$/.test(name)) : [];
@@ -29,7 +30,8 @@ const samples: Sample[] = shiftDirs.map((name) => {
     seed: result.seed, peril: result.peril, y1: result.y1Pop, y3: result.y3Pop, deaths: result.dwarfDeaths,
     needDeaths: needDeaths ?? 0, extinctDay: result.extinctDay ?? null,
   })).sort((a, b) => a.seed.localeCompare(b.seed, 'en', { numeric: true }));
-  return { shift: Number(name.slice('shift-'.length)), commits: [...new Set(files.map((f) => f.runtimeCommit ?? '?'))], rows, figures: sweepFigures(rows) };
+  const invariants = files.flatMap((f) => (f.invariants ?? []).map((text) => `${f.result.seed}: ${text}`));
+  return { shift: Number(name.slice('shift-'.length)), commits: [...new Set(files.map((f) => f.runtimeCommit ?? '?'))], rows, figures: sweepFigures(rows), invariants };
 }).sort((a, b) => a.shift - b.shift);
 
 const row = (f: SweepFigures): string => [f.alive, f.grown, f.hungry, f.living, f.deaths, f.extinct, f.needDeaths].join(' | ');
@@ -69,10 +71,12 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
       '|---|---|---|---|---|---|',
       ...seeds.map((seed) => `| ${seed} | ${cell(seed, (r) => String(r.y1))} | ${cell(seed, (r) => String(r.y3))} | ${cell(seed, (r) => String(r.deaths))} | ${cell(seed, (r) => String(r.needDeaths))} | ${extinct(seed)} |`),
       '',
+      `Invariant findings (each fails its seed's job, not the verdict): ${samples.flatMap((s) => s.invariants.map((text) => `shift ${s.shift}, ${text}`)).join('; ') || 'none'}.`,
+      '',
     ];
     writeFileSync(join(dir, 'verdict.md'), lines.join('\n'));
     writeFileSync(join(dir, 'verdict.json'), JSON.stringify({ pooled, reference: REFERENCE, measured: MEASURED, check, improved: improvedSweep(MEASURED, pooled),
-      samples: samples.map((s) => ({ shift: s.shift, commits: s.commits, figures: s.figures, rows: s.rows })) }, null, 2) + '\n');
+      samples: samples.map((s) => ({ shift: s.shift, commits: s.commits, figures: s.figures, rows: s.rows, invariants: s.invariants })) }, null, 2) + '\n');
     console.log(lines.join('\n'));
     // The sweeps are one commit's, shifted 0 to N-1, every seed in each, so two verdicts compare like with like.
     expect(commits, 'one commit').toHaveLength(1);
