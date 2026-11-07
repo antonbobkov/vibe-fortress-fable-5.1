@@ -76,8 +76,10 @@ Several of them read `docs/`, so run all of them even for a documentation-only c
 ```
 gh workflow run ci.yml --ref <branch>                               # e2e and npm test: every behaviour change under src/; "e2e: N passed" in the commit body
 gh workflow run measure.yml --ref <branch> -f suite=instrument      # every change that can move the simulation: eight shifted samples and the verdict; the pooled before and after rows in the commit body
-gh workflow run measure.yml --ref <branch> -f suite=sweep           # the twenty-seed file, when a task asks for it
+gh workflow run measure.yml --ref <branch> -f suite=sweep           # the twenty-seed file, when a task asks for it: four shifted sweeps and the verdict; the pooled before and after rows in the commit body
 ```
+
+The instrument and the sweep are judged over their pooled shifted samples, by their verdict jobs: one sample's figures, or one seed's, move with the timeline on unchanged code and are no evidence of a regression or of a fix ([testing-strategy.md § Annual wildlife survival](testing-strategy.md#annual-wildlife-survival), [§ The twenty-seed sweep](testing-strategy.md#the-twenty-seed-sweep)). A sweep verdict is 80 jobs and takes about 40 minutes when the runners are free, longer behind other runs; start it early.
 
 `npm run test:perf` (about 40 minutes) runs the per-system budgets and the long measurements together; run its long parts through `measure.yml`, and its short budget files (`per-system.test.ts`, `perf_reference.test.ts`) locally with `npx vitest run -c vitest.perf.config.ts <file>`.
 
@@ -92,7 +94,7 @@ Never run a tool through `npx` unless it is a dependency in `package.json`.
   3. **`Tests:`** the tests added;
   4. **`Expectations changed:`** each existing assertion that was changed, one line each: the file, the old expectation, and why it was exactly the old behaviour the task changes. `none` if none. The reviewer checks every line of it;
   5. **`golden:`** each golden file that moved and why, or `none`;
-  6. **`Gates:`** one line: the checks and tests run, `e2e: N passed`, and the instrument's pooled rows and verdict when it ran;
+  6. **`Gates:`** one line: the checks and tests run, `e2e: N passed`, and the instrument's and the sweep's pooled rows and verdicts when they ran;
   7. **`Closes:`** the task id when this commit finishes it, and **`New rows:`** one line per new task (id, title, the work file it created).
 - Golden files change only through `npm run golden:update -- <name>`, in the same commit as the behaviour change. A golden change that the work file does not predict is a regression: investigate it before committing.
 

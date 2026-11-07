@@ -3,7 +3,7 @@ import { contentRegistry } from '@content/loader';
 import { DAYS_PER_SEASON, HOURS_PER_DAY } from '@core/constants';
 import { PlantFacts, advance, growthPerHour, isMature, stageLength, type PlantRow } from '@systems/plants';
 import { growthModifier } from '@systems/weather/transitions';
-import { ripensInTime } from '../scenarios/three_years_economy';
+import { ripensInTime } from '@systems/plants/growth';
 
 /**
  * T-512: on `three-years-p0-3` the script sowed strawberries and barley late in summer and turnips,

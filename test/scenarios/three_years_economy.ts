@@ -1,6 +1,6 @@
 /** Player economy for T-M8-06. All changes go through commands and ordinary jobs. */
 import { C, ItemFlag } from '@core/components';
-import { CAVERN_1_Z_MIN, CAVERN_1_Z_MAX, DAYS_PER_SEASON, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { CAVERN_1_Z_MIN, CAVERN_1_Z_MAX, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import { THREAT_RADIUS } from '@systems/dwarves/constants';
@@ -8,8 +8,7 @@ import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { PlantsReader } from '@systems/plants';
-import { CROP_STAGE_MAX } from '@systems/plants/constants';
-import { OVERCAST_GROWTH_PERCENT, SEASON_GROWTH_PERCENT } from '@systems/weather/constants';
+import { ripensInTime } from '@systems/plants/growth';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { TradeReader } from '@systems/trade/reader';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
@@ -124,8 +123,6 @@ const MEAL_RESERVE_DAYS = 56;
  */
 const SURFACE_CROPS: readonly (readonly string[])[] = [['turnip', 'strawberry', 'barley', 'cabbage'], ['turnip', 'strawberry', 'barley', 'pumpkin'], ['turnip', 'cabbage', 'pumpkin']];
 const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cavewheat'];
-/** T-512: days of a crop's first season kept back for the sowing itself: a plot takes days to sow. */
-const SOWING_MARGIN_DAYS = 3;
 /** Cave strips dug beside the first cave farm on its soil level for bought cave seed (x0, x1, y0, y1 from the centre). */
 const CAVE_STRIPS: readonly (readonly [number, number, number, number])[] = [[7, 14, 8, 11], [7, 14, 0, 3], [7, 14, 12, 15], [15, 18, 0, 11]];
 /** The stair to the cave farm, from the centre: an east farm begins at `cx + 7`, a west one ends at `cx + 5` (T-455). */
@@ -811,24 +808,6 @@ function seedSupply(w: TestWorld, sown = true): Map<string, number> {
   return supply;
 }
 
-/**
- * T-512: a surface crop sown on this day of this season ripens before winter (07 § Growth: four
- * stages of `stageDays` at normal growth; it grows only in its `seasons`, at the season's growth
- * percent, 120 in summer and 80 in autumn; out of its seasons it lies dormant, and winter's frost
- * kills it with its seed). The days left are counted after `SOWING_MARGIN_DAYS`, every one as if
- * overcast, as a player who reads the calendar would leave a margin. A dormant season between two
- * growing ones (cabbage's summer) is passed over: a temperate summer does not freeze.
- */
-export function ripensInTime(row: { readonly stageDays?: number; readonly seasons?: readonly number[] }, season: number, dayOfSeason: number): boolean {
-  const need = (CROP_STAGE_MAX + 1) * (row.stageDays ?? 0) * 100 * 100;
-  let growth = 0;
-  for (let s = season; s < SEASON_GROWTH_PERCENT.length - 1; s += 1) {
-    if (row.seasons !== undefined && !row.seasons.includes(s)) continue;
-    const days = s === season ? Math.max(0, DAYS_PER_SEASON - dayOfSeason - SOWING_MARGIN_DAYS) : DAYS_PER_SEASON;
-    growth += days * (SEASON_GROWTH_PERCENT[s] ?? 0) * OVERCAST_GROWTH_PERCENT;
-  }
-  return growth >= need;
-}
 
 /**
  * The crops follow the seed. Each plot sows, season by season, the first crop of its list whose
@@ -858,7 +837,8 @@ function checkCrops(w: TestWorld): void {
     caveLeft.set(chosen, (caveLeft.get(chosen) ?? 0) - tiles);
     for (const season of [0, 1, 2, 3]) if (name(settings[season]) !== chosen) command(w, { type: 'SetPlotCrop', zoneId, season, speciesId: chosen });
   }
-  // T-512: in the season under way a player sows only what ripens before winter; sown later, a
+  // T-512: in the season under way a player sows only what ripens before winter (`ripensInTime`, the
+  // reckoning the plot panel's note reads, T-516); sown later, a
   // crop lies dormant until the frost kills it, and its seed with it. Nothing left: fallow.
   const calendar = w.readers.calendar;
   const ripens = (speciesId: string): boolean => {

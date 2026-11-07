@@ -456,6 +456,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.zone.farm_seeds': '{n} seeds',
   'ui.zone.farm_cold': 'Too cold to grow: {n} of {m} tiles are under {min}°C for {name}.',
   'ui.zone.farm_cold_help': 'Rock {depth} levels below the surface stays warm all year.',
+  // 07 § Player-facing behavior (T-516): a surface crop that, sown now or on the first day of its
+  // row's season, cannot ripen before its growing seasons end (`ripeningOutlook`).
+  'ui.zone.farm_late': 'Sown now, {name} cannot ripen before its seasons end: it needs {need} days, {left|is|are} left.',
+  'ui.zone.farm_late_season': 'Sown in {season}, {name} cannot ripen before its seasons end: it needs {need} days, {left|is|are} left at most.',
   'ui.zone.farm_keys1': '↑↓ season · Enter choose crop',
   'ui.zone.farm_keys2': '[S-a] all seasons',
   'ui.look.deconstruct': '[x] take apart',
@@ -1282,6 +1286,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.stockpile_full': '{zone} is full.',
   'announce.miasma': 'Miasma spreads.',
   // 07 § Registrations ("announcement `PlotNeedsSeeds` as a note"); text D-065.
+  // 07 § Registrations (T-516): a frost's kills on one plot, merged into one line per crop.
+  'announce.crop_frost': 'Frost killed {n|plant|plants} of {crop} on {plot}.',
   // 21 and 20: the reason of a skipped wave or a fallen standing, in words (§4.5).
   'announce.immigrants_arrived_adults': '{count} dwarves have come to join the hall.',
   'announce.immigration_skipped.reason.spirit': 'hall spirit must be Content (now {tier})',

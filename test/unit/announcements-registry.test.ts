@@ -45,6 +45,7 @@ const DOCUMENTED: readonly { event: string; severity: 'note' | 'alert' | 'danger
   { event: 'SeasonChanged', severity: 'note', doc: '06' },
   // `07` § Registrations.
   { event: 'PlotNeedsSeeds', severity: 'note', doc: '07' },
+  { event: 'CropDied', severity: 'note', doc: '07' },
   // `08` § Player-facing behavior.
   { event: 'AnimalSpawned', severity: 'note', doc: '08' },
   { event: 'AnimalStarving', severity: 'alert', doc: '08' },
