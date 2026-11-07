@@ -47,6 +47,8 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
       const r = s.rows.find((x) => x.seed === seed);
       return r ? f(r) : '–';
     }).join(', ');
+    const extinct = (seed: string): string => samples.flatMap((s) => s.rows.filter((r) => r.seed === seed && r.extinctDay !== null)
+      .map((r) => `${s.shift}: ${r.extinctDay}`)).join('; ');
     const lines = [
       `## Twenty-seed sweep: ${samples.length} sweeps of ${commits.map((c) => c.slice(0, 8)).join(', ')}`,
       '',
@@ -63,9 +65,9 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
       '',
       `If accepted: \`SWEEP_REFERENCE\` = \`${JSON.stringify(pooled)}\`; \`SWEEP_MEASURED\` = \`${JSON.stringify(improvedSweep(MEASURED, pooled))}\`.`,
       '',
-      '| Seed | Year 1 by shift | Year 3 by shift | Deaths by shift | Need deaths by shift | Extinct day |',
+      '| Seed | Year 1 by shift | Year 3 by shift | Deaths by shift | Need deaths by shift | Extinct (shift: day) |',
       '|---|---|---|---|---|---|',
-      ...seeds.map((seed) => `| ${seed} | ${cell(seed, (r) => String(r.y1))} | ${cell(seed, (r) => String(r.y3))} | ${cell(seed, (r) => String(r.deaths))} | ${cell(seed, (r) => String(r.needDeaths))} | ${cell(seed, (r) => (r.extinctDay === null ? '' : String(r.extinctDay)))} |`),
+      ...seeds.map((seed) => `| ${seed} | ${cell(seed, (r) => String(r.y1))} | ${cell(seed, (r) => String(r.y3))} | ${cell(seed, (r) => String(r.deaths))} | ${cell(seed, (r) => String(r.needDeaths))} | ${extinct(seed)} |`),
       '',
     ];
     writeFileSync(join(dir, 'verdict.md'), lines.join('\n'));
