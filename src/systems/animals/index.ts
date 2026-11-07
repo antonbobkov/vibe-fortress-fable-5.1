@@ -320,7 +320,11 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       standTile: (animalId) => this.standTile(animalId),
       petSpot: (animalId) => {
         const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
-        return buildings === null || !this.isPet(animalId) ? -1 : this.hearthSpot(buildings);
+        return buildings === null ? -1 : this.clubSpot(animalId, buildings);
+      },
+      byHall: (tile) => {
+        const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
+        return tile >= 0 && buildings !== null && this.hallArea(buildings).has(tile);
       },
       claimGraze: (tile) => this.claimGraze(tile),
       grazeClaimed: (tile) => this.grazeClaimed(tile),
@@ -395,11 +399,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     const at = movement.tileOf(id);
     const heading = movement.walkTarget(id);
     const label = this.readers.pathing.labelOf(at, 'walker');
-    const near = new Set<TileIndex>();
-    for (const tile of hall) {
-      near.add(tile);
-      for (const beside of this.map.neighbors8(tile)) near.add(beside);
-    }
+    const near = this.hallArea(buildings);
     // A walk that has arrived is not cleared until it is asked for again: one that ends here is over.
     if (heading >= 0 && heading !== at && near.has(heading)) return heading;
     const entities = movement === null ? null : this.world?.entities;
@@ -411,22 +411,26 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       const target = other === id ? -1 : movement.walkTarget(other);
       if (target >= 0 && target !== movement.tileOf(other)) headed.set(target, (headed.get(target) ?? 0) + 1);
     }
-    // T-482, a fun feature: an idle pet heaps on the pets' spot beside the hearth while it holds fewer than
-    // `PET_PILE_MAX` pets; one already there stays unless that many pets of lower ids lie there with it.
-    const spot = this.hearthSpot(buildings);
-    if (spot >= 0 && this.isPet(id) && this.readers.pathing.labelOf(spot, 'walker') === label) {
-      const piled = creaturesOn(spot).filter((other) => this.isPet(other) && standing(other));
-      if (at === spot ? piled.filter((other) => other < id).length < PET_PILE_MAX : piled.length + (headed.get(spot) ?? 0) < PET_PILE_MAX) return spot;
+    // T-482, a fun feature: an idle pet heaps on its club's spot (T-510: the pets' spot beside the hearth, or
+    // the cats' corner for a cat) while it holds fewer than `PET_PILE_MAX` of the club; one already there
+    // stays unless that many of the club of lower ids lie there with it.
+    const club = this.clubSpot(id, buildings);
+    if (club >= 0 && this.readers.pathing.labelOf(club, 'walker') === label) {
+      const piled = creaturesOn(club).filter((other) => this.clubSpot(other, buildings) === club && standing(other));
+      if (at === club ? piled.filter((other) => other < id).length < PET_PILE_MAX : piled.length + (headed.get(club) ?? 0) < PET_PILE_MAX) return club;
     }
-    // The spot is the pets': a creature that is not piled there moves off it, and none spreads onto it.
-    const here = near.has(at) && at !== spot && !buildings.doorAt(at) ? creaturesOn(at) : null;
+    // The spots are the clubs': a creature that is not piled there moves off one, and none spreads onto one.
+    const spot = this.hearthSpot(buildings);
+    const corner = this.catsCorner(buildings);
+    const spots = (tile: TileIndex): boolean => tile >= 0 && (tile === spot || tile === corner);
+    const here = near.has(at) && !spots(at) && !buildings.doorAt(at) ? creaturesOn(at) : null;
     if (here !== null && !here.some((other) => other < id && entities.has(other, C.Tame) && standing(other))) return at;
     let best: TileIndex = -1;
     let least = here === null ? Infinity : here.length;
     const inHall = new Set(hall);
     const byIndex = (a: TileIndex, b: TileIndex): number => a - b;
     for (const tile of [...[...inHall].sort(byIndex), ...[...near].filter((t) => !inHall.has(t)).sort(byIndex)]) {
-      if (tile === at || tile === spot || buildings.doorAt(tile) || !this.readers.pathing.passable(tile, 'walker') || this.readers.pathing.labelOf(tile, 'walker') !== label) continue;
+      if (tile === at || spots(tile) || buildings.doorAt(tile) || !this.readers.pathing.passable(tile, 'walker') || this.readers.pathing.labelOf(tile, 'walker') !== label) continue;
       const count = creaturesOn(tile).length + (headed.get(tile) ?? 0);
       if (count < least) {
         least = count;
@@ -441,6 +445,60 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     if (!this.entities.has(id, C.Tame)) return false;
     const species = this.entities.get(id, C.Creature)?.species ?? 0;
     return species !== 0 && this.facts.dietOf(species) !== 'grazer' && this.facts.sizeOf(species) <= PET_PILE_SIZE_MAX;
+  }
+
+  /** 08 § Tame behavior, T-510: a cat is a pet of a species that adopts a dwarf (§ Pets). */
+  private isCat(id: EntityId): boolean {
+    return this.isPet(id) && this.facts.adopts(this.entities.get(id, C.Creature)?.species ?? 0);
+  }
+
+  /** The spot where this pet heaps: the cats' corner for a cat, the pets' spot for another pet, else -1. */
+  private clubSpot(id: EntityId, buildings: BuildingsReader): TileIndex {
+    if (!this.isPet(id)) return -1;
+    return this.isCat(id) ? this.catsCorner(buildings) : this.hearthSpot(buildings);
+  }
+
+  /** The hearth hall's tiles and the tiles beside them (08 § Tame behavior, "in or beside the hall"). */
+  private hallArea(buildings: BuildingsReader): Set<TileIndex> {
+    const near = new Set<TileIndex>();
+    for (const tile of buildings.hearthHallTiles()) {
+      near.add(tile);
+      for (const beside of this.map.neighbors8(tile)) near.add(beside);
+    }
+    return near;
+  }
+
+  /**
+   * 08 § Tame behavior, the cats' corner (T-510, a fun feature): the walkable tile of the hearth hall that
+   * is not a door, beside no door, holds no building and is not the pets' spot, with the most of its eight
+   * neighbours taken by a wall or furniture; ties by the farthest from the hall's ways in (a hall tile with
+   * a walkable tile outside the hall beside it), then by the lowest index; or -1.
+   */
+  private catsCorner(buildings: BuildingsReader): TileIndex {
+    const hall = buildings.hearthHallTiles();
+    if (hall.length === 0) return -1;
+    const inHall = new Set(hall);
+    const pathing = this.readers.pathing;
+    const taken = (tile: TileIndex): boolean => !pathing.passable(tile, 'walker') || buildings.at(tile) !== 0;
+    const ways = hall.filter((tile) => this.map.neighbors8(tile).some((beside) => !inHall.has(beside) && pathing.passable(beside, 'walker')));
+    const spot = this.hearthSpot(buildings);
+    let best: TileIndex = -1;
+    let most = -1;
+    let farthest = -1;
+    for (const tile of [...hall].sort((a, b) => a - b)) {
+      if (tile === spot || taken(tile) || this.map.neighbors(tile).some((next) => buildings.doorAt(next))) continue;
+      const nook = this.map.neighbors8(tile).filter(taken).length;
+      const x = this.map.xOf(tile);
+      const y = this.map.yOf(tile);
+      let away = ways.length === 0 ? 0 : Infinity;
+      for (const way of ways) away = Math.min(away, Math.max(Math.abs(this.map.xOf(way) - x), Math.abs(this.map.yOf(way) - y)));
+      if (nook > most || (nook === most && away > farthest)) {
+        most = nook;
+        farthest = away;
+        best = tile;
+      }
+    }
+    return best;
   }
 
   /**
