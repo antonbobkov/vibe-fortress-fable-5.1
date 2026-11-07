@@ -23,6 +23,8 @@ import type { ThreatsReader } from '@systems/threats/reader';
 import { deathCounts } from '../scenarios/death-counts';
 import { PartyWatch, type PartyFigures } from '../scenarios/party-watch';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { EMBARK_SIZE } from './three_years_sweep';
 import {
   playThreeYears,
   setupThreeYearsFortress,
@@ -68,15 +70,10 @@ export const THREE_YEARS_20_SEEDS: readonly SeedConfig[] = [
 ] as const;
 
 /**
- * The set rule (testing-strategy.md § What may be a gate): one seed's survival flips under changes
- * that do not aim at it, so the file asserts survival over the whole set and each seed prints its own.
+ * T-513: the ticks played before the opening; measure.yml's `sweep` suite runs one job per seed and
+ * shift, and `three_years_sweep_verdict.test.ts` judges the pooled sweeps. 0 is the sweep's own sample.
  */
-export const SET_ALIVE_AT_YEAR_ONE = 18;
-export const SET_PERIL_ZERO_GROWN = 6;
-/** Of the peril-0 seeds, how many may have a dwarf die of hunger or thirst. */
-export const SET_PERIL_ZERO_NEED_DEATHS = 1;
-/** Founders: a peril-0 fortress has grown when it ends year 3 above this. */
-const EMBARK_SIZE = 7;
+const SWEEP_SHIFT = Number(process.env['THREE_YEARS_SHIFT'] ?? '0');
 
 const survival: { seed: string; peril: number; y1Pop: number; y3Pop: number; needDeaths: number }[] = [];
 
@@ -114,12 +111,14 @@ export interface ThreeYearsSeedResult {
   readonly crowds: { readonly doors: CrowdFigures; readonly hall: CrowdFigures; readonly stations: CrowdFigures; readonly fighting: CrowdFigures };
 }
 
-export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedResult {
+export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHIFT): ThreeYearsSeedResult {
   const w = threeYearsWorld(seed, peril);
   // Kept (T-334): the T-176 invariants hold in every state of the game, whatever the order of jobs.
   const stopInvariants = peril === 2 || peril === 4
     ? watchInvariants(w.game, (findings) => expect(findings, `T-176 ${seed} tick ${w.tick}`).toEqual([]))
     : () => {};
+  // T-513: the same code a few ticks later plays another timeline; the bootstrap ends on day 20 as before.
+  if (shift > 0) w.step(shift);
   const state = setupThreeYearsFortress(w);
 
   // Advance bootstrap period (20 days)
@@ -320,7 +319,8 @@ export function runThreeYearsSeed(seed: string, peril: number): ThreeYearsSeedRe
   // The file's set rule reads these. They come before the seed's assertions, so a seed that fails one
   // is still counted as what it was. The on-demand sweep (.github/workflows/measure.yml) reads the file.
   const needDeaths = economy.needDeaths();
-  writeFileSync(`${out}/${seed}.json`, JSON.stringify({ figures, result, needDeaths }, null, 2) + '\n');
+  const runtimeCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  writeFileSync(`${out}/${seed}.json`, JSON.stringify({ shift, runtimeCommit, figures, result, needDeaths }, null, 2) + '\n');
   survival.push({ seed, peril, y1Pop, y3Pop, needDeaths });
   console.log(`[three_years_seeds_set] ${JSON.stringify({ seed, peril, y1Pop, y3Pop, grew: y3Pop > EMBARK_SIZE, needDeaths })}`);
   // T-156: a living fortress did what the script exists to exercise (the gate, the halls, the
@@ -344,19 +344,17 @@ describe('T-M8-06 perf: three_years_seeds', () => {
   });
 
   // Runs last, over the seeds that reached their end of the file. A seed stopped early by an invariant
-  // fails on its own and counts here as neither alive nor grown.
-  it('as a set: nearly every fortress is alive at year 1, and nearly every peril-0 fortress grows and is fed', () => {
+  // fails on its own and counts here as neither alive nor grown. T-513: one sweep's set figures turn
+  // on the timeline (a peril-0 seed starving in one shift and not the next), so the set rule is judged
+  // over the pooled shifted sweeps (three_years_sweep_verdict.test.ts) and printed here.
+  it('as a set: prints how many fortresses are alive at year 1, and how many peril-0 fortresses grow and are fed', () => {
     const alive = survival.filter((row) => row.y1Pop > 0);
     const peril0 = survival.filter((row) => row.peril === 0);
     const grown = peril0.filter((row) => row.y3Pop > EMBARK_SIZE);
     const dead = survival.filter((row) => row.y1Pop <= 0).map((row) => row.seed);
     const small = peril0.filter((row) => row.y3Pop <= EMBARK_SIZE).map((row) => row.seed);
-    // Kept as a set: the food chain. Hardly anyone dies of hunger or thirst where the farm, the
-    // kitchens and the stills follow the population (85 starvation deaths in four seeds on 2026-10-12, before T-145).
     const hungry = peril0.filter((row) => row.needDeaths > 0).map((row) => `${row.seed}: ${row.needDeaths}`);
     console.log(`[three_years_seeds_set] ${JSON.stringify({ seeds: survival.length, alive: alive.length, grown: grown.length, dead, small, hungry })}`);
-    expect(alive.length, `alive at the end of year 1; dead: ${dead.join(', ')}`).toBeGreaterThanOrEqual(SET_ALIVE_AT_YEAR_ONE);
-    expect(grown.length, `peril 0 past embark size at year 3; not: ${small.join(', ')}`).toBeGreaterThanOrEqual(SET_PERIL_ZERO_GROWN);
-    expect(hungry.length, `peril-0 seeds with need deaths: ${hungry.join(', ')}`).toBeLessThanOrEqual(SET_PERIL_ZERO_NEED_DEATHS);
+    expect(survival.length, 'seeds that reached the end of the file').toBeGreaterThan(0);
   });
 });

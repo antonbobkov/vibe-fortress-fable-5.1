@@ -1,9 +1,9 @@
 name: Measure
 # On-demand long measurements, run on GitHub's runners instead of a local machine.
-#   gh workflow run measure.yml --ref <branch> -f suite=sweep
+#   gh workflow run measure.yml --ref <branch> -f suite=sweep           (twenty seeds at four shifts in parallel, then the verdict)
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
 #   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
-# Results: gh run download <run-id>   (one folder per job; the sweep's summary is in "sweep-summary")
+# Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep" and "instrument")
 # How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
   workflow_dispatch:
@@ -22,9 +22,9 @@ on:
         type: string
         default: '20'
       shifts:
-        description: For suite=instrument, the timeline shifts to play, in ticks before the opening (one job each)
+        description: For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening (empty = the suite's own, 0-7 and 0-3)
         type: string
-        default: '0,1,2,3,4,5,6,7'
+        default: ''
       snapshots:
         description: For suite=scenario and the other single runs, write the tests' snapshot pictures (SNAPSHOTS=1) to out/screenshots, uploaded with the artifact
         type: boolean
@@ -39,9 +39,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        seed: [p0-1, p0-2, p0-3, p0-4, p0-5, p0-6, p0-7,
-               p2-1, p2-2, p2-3, p2-4, p2-5, p2-6, p2-7,
-               p4-1, p4-2, p4-3, p4-4, p4-5, p4-6]
+        # The longest seeds first, so the queue of 20 x N jobs ends with short ones.
+        seed: [p2-3, p4-6, p0-3, p4-5, p4-1, p0-7, p2-7, p2-4, p4-4, p0-6,
+               p4-3, p2-6, p0-5, p2-1, p4-2, p0-4, p0-2, p0-1, p2-2, p2-5]
+        shift: ${{ fromJSON(format('[{0}]', inputs.shifts || '0,1,2,3')) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,23 +52,24 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Three years, seed ${{ matrix.seed }}
+      - name: Three years, seed ${{ matrix.seed }}, shift ${{ matrix.shift }}
         env:
-          THREE_YEARS_SEEDS_OUT: out
-        run: npx vitest run -c vitest.perf.config.ts test/perf/three_years_seeds.test.ts -t "'three-years-${{ matrix.seed }}'" 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
+          THREE_YEARS_SEEDS_OUT: out/shift-${{ matrix.shift }}
+          THREE_YEARS_SHIFT: ${{ matrix.shift }}
+        run: mkdir -p out/shift-${{ matrix.shift }} && npx vitest run -c vitest.perf.config.ts test/perf/three_years_seeds.test.ts -t "'three-years-${{ matrix.seed }}'" 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
         shell: bash
       - if: always()
-        run: mkdir -p out && mv out-log.txt out/three-years-${{ matrix.seed }}.log
+        run: mv out-log.txt out/shift-${{ matrix.shift }}/three-years-${{ matrix.seed }}.log
       - name: The seed produced its result file
-        run: test -f out/three-years-${{ matrix.seed }}.json
+        run: test -f out/shift-${{ matrix.shift }}/three-years-${{ matrix.seed }}.json
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: seed-${{ matrix.seed }}
+          name: seed-${{ matrix.seed }}-shift-${{ matrix.shift }}
           path: out/
           retention-days: 14
 
-  sweep-summary:
+  sweep-verdict:
     if: always() && inputs.suite == 'sweep'
     needs: sweep
     runs-on: ubuntu-latest
@@ -75,16 +77,32 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
       - uses: actions/download-artifact@v4
         with:
           pattern: seed-*
-          path: seeds
+          path: sweeps
           merge-multiple: true
-      - run: node scripts/ci/sweep-summary.mjs seeds | tee sweep-summary.md >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - name: The verdict over the pooled sweeps
+        env:
+          THREE_YEARS_SWEEP_SAMPLES: sweeps
+        run: npx vitest run -c vitest.perf.config.ts test/perf/three_years_sweep_verdict.test.ts 2>&1 | tee sweeps/verdict.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - name: The verdict was written (no sweep is a failure, not a skip)
+        if: always()
+        run: test -f sweeps/verdict.md && cat sweeps/verdict.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: sweep-summary
-          path: sweep-summary.md
+          name: sweep
+          path: |
+            sweeps/shift-*/*.json
+            sweeps/verdict.*
           retention-days: 30
 
   defence-seeds:
@@ -126,7 +144,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shift: ${{ fromJSON(format('[{0}]', inputs.shifts)) }}
+        shift: ${{ fromJSON(format('[{0}]', inputs.shifts || '0,1,2,3,4,5,6,7')) }}
     steps:
       - uses: actions/checkout@v4
         with:
