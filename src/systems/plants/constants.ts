@@ -25,6 +25,12 @@ export const GRASS_REGROW_PERMILLE = 120;
 /** Default; species may override. */
 export const SAPLING_YEARS = 2;
 
+/**
+ * `07` § Player-facing behavior (T-512, T-516): days of a crop's first season kept back for the
+ * sowing itself when the plot panel reckons whether a crop sown now ripens before winter.
+ */
+export const SOWING_MARGIN_DAYS = 3;
+
 /** `07` § Concepts: crops have four stages, `0 sprout … 3 mature`. */
 export const CROP_STAGE_MAX = 3;
 

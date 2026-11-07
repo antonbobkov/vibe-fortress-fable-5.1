@@ -165,6 +165,8 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     // `07` § Registrations.
     ctx.register.jobProducer(this.producer);
     ctx.register.announcement('PlotNeedsSeeds', { severity: 'note', stringKey: 'announce.plot_needs_seeds' });
+    // T-516: the UI merges one frost's kills on a plot into one line per crop.
+    ctx.register.announcement('CropDied', { severity: 'note', stringKey: 'announce.crop_frost', oneOf: { field: 'reason', values: ['frost'] } });
     ctx.register.inspector('tile', { id: 'plant', order: 40 });
     ctx.register.inspector('zone', { id: 'farm_plot', order: 20 });
   }

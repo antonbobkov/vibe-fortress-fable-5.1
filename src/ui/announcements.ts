@@ -63,6 +63,8 @@ export class AnnouncementLog {
   readonly lines: LogLine[] = [];
   private readonly specs = new Map<string, AnnouncementSpec[]>();
   private readonly seen = new Set<string>();
+  /** The open frost line of each plot and crop (`announceFrost`). */
+  private readonly frostLines = new Map<string, { line: LogLine; n: number }>();
 
   constructor(
     private readonly strings: Strings,
@@ -271,6 +273,7 @@ export class AnnouncementLog {
       return candidate.oneOf === undefined || candidate.oneOf.values.includes(fields[candidate.oneOf.field] as string | number | boolean);
     });
     if (spec === undefined) return null;
+    if (event.type === 'CropDied') return this.announceFrost(fields, readers, tick, spec);
     if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
@@ -307,6 +310,35 @@ export class AnnouncementLog {
     }
     const line = this.append(severity, text, tick, focus, category);
     return { line, severity, focus };
+  }
+
+  /**
+   * 07 § Registrations (T-516): a frost kills a plot's crops one `CropDied { reason: frost }` each,
+   * often on one hour and sometimes over a night. The kills of one crop on one plot within the
+   * dedup window (`LOG_DEDUP_TICKS`, or the same day) count up in a single line ("Frost killed 12
+   * plants of strawberry on Farm plot #3."); a later frost starts a new one.
+   */
+  private announceFrost(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
+    const tile = typeof fields['tile'] === 'number' ? fields['tile'] : undefined;
+    const zoneId = tile !== undefined && readers.has('14') ? readers.of<BuildingsReader>('14').zoneAt(tile) : 0;
+    const species = String(fields['species'] ?? '');
+    const key = `${zoneId}:${species}`;
+    const prev = this.frostLines.get(key);
+    const merges = prev !== undefined && this.lines.includes(prev.line) &&
+      (tick - prev.line.tick <= LOG_DEDUP_TICKS || dayIndexOf(prev.line.tick) === dayIndexOf(tick));
+    const n = merges ? prev.n + 1 : 1;
+    const crop = this.registry.hasTable('plants') ? this.registry.table<NamedRow>('plants').byId(species)?.name ?? species : species;
+    const plot = zoneName({ readers, strings: this.strings }, zoneId) || this.strings.get('ui.zone.type.farm_plot');
+    const text = this.strings.get(spec.stringKey, { n, crop, plot });
+    if (merges) {
+      prev.n = n;
+      prev.line.text = text.charAt(0).toUpperCase() + text.slice(1);
+      prev.line.tick = tick;
+      return { line: prev.line, severity: prev.line.severity, focus: prev.line.focus };
+    }
+    const line = this.append(spec.severity, text, tick, tile, spec.category);
+    this.frostLines.set(key, { line, n });
+    return { line, severity: spec.severity, focus: tile };
   }
 
   /** `ui.announce(severity, text, focus?, category?)`, with the dedup rule. */
