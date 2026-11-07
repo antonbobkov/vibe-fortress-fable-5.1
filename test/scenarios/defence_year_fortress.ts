@@ -314,7 +314,9 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const squad = combat.squads().find((s) => s.id === fortress.squadId);
   if (!squad || squad.members.length === 0) return;
-  if (!squad.members.includes(squad.leaderId)) command(w, { type: 'SetSquadLeader', squadId: squad.id, leaderId: squad.members[0]! });
+  // T-522: a soldier who has just died is still on the roll until 16 drops it; the leader is a living one.
+  const living = squad.members.find((id) => w.game.world.entities.alive(id));
+  if (!squad.members.includes(squad.leaderId) && living !== undefined) command(w, { type: 'SetSquadLeader', squadId: squad.id, leaderId: living });
   for (const zoneId of [state.barracksZoneId, state.archeryRangeZoneId]) {
     if (zoneId && buildings.zone(zoneId)?.settings['squad'] !== squad.id) command(w, { type: 'SetZoneSetting', zoneId, key: 'squad', value: squad.id });
   }

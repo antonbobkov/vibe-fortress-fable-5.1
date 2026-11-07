@@ -1,0 +1,860 @@
+{
+  "cadences": [
+    20,
+    25,
+    30,
+    35
+  ],
+  "commits": [
+    "16fbba04508a082b392fc9da8b8a42354fd01e4c"
+  ],
+  "turned": [
+    6,
+    7,
+    6,
+    7
+  ],
+  "killed": [
+    7,
+    8,
+    8,
+    6
+  ],
+  "meanTurned": 6.5,
+  "meanKilled": 7.25,
+  "setRule": 5,
+  "killRule": 4,
+  "rows": [
+    {
+      "seed": "defence-year",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 0,
+      "trapTriggers": 2,
+      "caged": 2,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-2",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:repelled",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 6,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-3",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:looted"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 9,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-4",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 11,
+          "members": 12,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 7,
+      "caged": 4,
+      "trial": "none"
+    },
+    {
+      "seed": "defence-year-5",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 6,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-6",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 11,
+          "members": 12,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:repelled",
+        "thief:1:withdrew",
+        "thief:1:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 7,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-7",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 9,
+          "members": 10,
+          "outcome": "looted",
+          "dead": 0,
+          "captain": "left"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:4:looted",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 1,
+      "caged": 1,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-8",
+      "watch": 20,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 7,
+          "members": 8,
+          "outcome": "withdrew",
+          "dead": 0,
+          "captain": "left"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "thief:1:looted",
+        "bandits:3:looted",
+        "thief:1:looted",
+        "thief:1:looted",
+        "thief:1:looted"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 0,
+      "caged": 0,
+      "trial": "none"
+    },
+    {
+      "seed": "defence-year",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 9,
+          "members": 10,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:looted",
+        "thief:1:looted",
+        "bandits:3:looted",
+        "thief:1:looted",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 6,
+      "caged": 2,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-2",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 1,
+      "trapTriggers": 3,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-3",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 12,
+          "members": 13,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 1,
+      "trapTriggers": 2,
+      "caged": 2,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-4",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 11,
+          "members": 12,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:looted",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 4,
+      "trapTriggers": 12,
+      "caged": 4,
+      "trial": "none"
+    },
+    {
+      "seed": "defence-year-5",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 9,
+          "members": 10,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 6,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-6",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:repelled",
+        "thief:1:looted",
+        "thief:1:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 1,
+      "trapTriggers": 10,
+      "caged": 1,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-7",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 7,
+          "members": 8,
+          "outcome": "looted",
+          "dead": 0,
+          "captain": "left"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:looted",
+        "thief:1:looted",
+        "thief:1:looted",
+        "bandits:3:looted"
+      ],
+      "soldierKills": 1,
+      "trapTriggers": 1,
+      "caged": 1,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-8",
+      "watch": 25,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 3,
+      "caged": 2,
+      "trial": "none"
+    },
+    {
+      "seed": "defence-year",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "looted",
+          "dead": 1,
+          "captain": "died (killed)"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 8,
+      "caged": 2,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-2",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 1,
+      "trapTriggers": 7,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-3",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 9,
+          "members": 10,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:repelled",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 7,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-4",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 11,
+          "members": 12,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 9,
+      "caged": 3,
+      "trial": "none"
+    },
+    {
+      "seed": "defence-year-5",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 1,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 6,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-6",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 12,
+          "members": 13,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 6,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-7",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 8,
+          "members": 9,
+          "outcome": "looted",
+          "dead": 0,
+          "captain": "left"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:repelled",
+        "thief:1:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:3:looted"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 2,
+      "caged": 1,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-8",
+      "watch": 30,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:3:repelled",
+        "thief:1:withdrew",
+        "thief:1:looted",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 2,
+      "caged": 1,
+      "trial": "none"
+    },
+    {
+      "seed": "defence-year",
+      "watch": 35,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 5,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-2",
+      "watch": 35,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 11,
+          "members": 12,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:looted"
+      ],
+      "soldierKills": 4,
+      "trapTriggers": 11,
+      "caged": 4,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-3",
+      "watch": 35,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 11,
+          "members": 12,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 2,
+      "trapTriggers": 7,
+      "caged": 3,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-4",
+      "watch": 35,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 12,
+          "members": 13,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:4:looted"
+      ],
+      "soldierKills": 1,
+      "trapTriggers": 17,
+      "caged": 4,
+      "trial": "none"
+    },
+    {
+      "seed": "defence-year-5",
+      "watch": 35,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 9,
+          "members": 10,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 1,
+      "trapTriggers": 3,
+      "caged": 2,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-6",
+      "watch": 35,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 8,
+          "members": 9,
+          "outcome": "repelled",
+          "dead": 1,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "bandits:3:repelled",
+        "thief:1:withdrew",
+        "thief:1:looted",
+        "thief:1:looted"
+      ],
+      "soldierKills": 0,
+      "trapTriggers": 1,
+      "caged": 1,
+      "trial": "done"
+    },
+    {
+      "seed": "defence-year-8",
+      "watch": 35,
+      "runtimeCommit": "16fbba04508a082b392fc9da8b8a42354fd01e4c",
+      "day": 225,
+      "raids": [
+        {
+          "size": 10,
+          "members": 11,
+          "outcome": "repelled",
+          "dead": 0,
+          "captain": "caged"
+        }
+      ],
+      "others": [
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "bandits:3:looted",
+        "thief:1:withdrew",
+        "thief:1:withdrew",
+        "thief:1:withdrew"
+      ],
+      "soldierKills": 3,
+      "trapTriggers": 6,
+      "caged": 2,
+      "trial": "none"
+    }
+  ]
+}

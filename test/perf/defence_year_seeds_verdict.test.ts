@@ -1,13 +1,13 @@
 /**
  * T-522: the verdict of `defence_year_seeds` over its pooled cadences. measure.yml's `defence_seeds`
- * suite plays the eight seeds at each of its cadences (input `watch`, 20 and 25 by default) in
+ * suite plays the eight seeds at each of its cadences (input `watch`, 20, 25, 30 and 35 by default) in
  * parallel, one job a seed and cadence, and runs this file over their rows; locally, run
  * `defence_year_seeds.test.ts` once per cadence (`DEFENCE_WATCH_EVERY`) with `DEFENCE_SEEDS_OUT` under
  * one folder, and point `DEFENCE_SEEDS_SAMPLES` at it. Every `rows.jsonl` below that folder is read.
  * With no rows the file skips.
  *
  * One seed's raid can go either way on the job timeline, and so can one set of eight (T-522 measured
- * the count at several cadences of one commit), so the set rules are judged on the mean over the
+ * 1 to 4 of 8 over six cadences of one commit), so the set rules are judged on the mean over the
  * cadences: at least DEFENCE_SET_RULE of the eight seeds end every announced raid `repelled` or
  * `wiped`, and on at least DEFENCE_KILL_RULE a soldier kills a hostile.
  */

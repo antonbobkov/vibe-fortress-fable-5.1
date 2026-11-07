@@ -3,7 +3,7 @@ name: Measure
 #   gh workflow run measure.yml --ref <branch> -f suite=sweep           (twenty seeds at shifts 0, 50, 100, 150 in parallel, then the verdict)
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
 #   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
-#   gh workflow run measure.yml --ref <branch> -f suite=defence_seeds   (eight seeds at cadences 20 and 25 in parallel, then the verdict)
+#   gh workflow run measure.yml --ref <branch> -f suite=defence_seeds   (eight seeds at cadences 20, 25, 30, 35 in parallel, then the verdict)
 # Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep", "instrument" and "defence")
 # How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
@@ -21,7 +21,7 @@ on:
       watch:
         description: "For suite=defence_seeds, the script's watch cadences in ticks, one job each per seed (20 is the scenario's; the verdict pools them)"
         type: string
-        default: '20,25'
+        default: '20,25,30,35'
       shifts:
         description: "For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening, one job each (empty = the suite's own, 0 to 7 and 0,50,100,150)"
         type: string
@@ -115,7 +115,7 @@ jobs:
       matrix:
         seed: [defence-year, defence-year-2, defence-year-3, defence-year-4,
                defence-year-5, defence-year-6, defence-year-7, defence-year-8]
-        watch: ${{ fromJSON(format('[{0}]', inputs.watch || '20,25')) }}
+        watch: ${{ fromJSON(format('[{0}]', inputs.watch || '20,25,30,35')) }}
     steps:
       - uses: actions/checkout@v4
         with:
