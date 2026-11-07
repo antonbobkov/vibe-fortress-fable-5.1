@@ -203,6 +203,14 @@ export interface FortressState {
   gateWallLostTick: number;
   gateDoorId2: number;
   gateDoorPlaced2: boolean;
+  /**
+   * T-518: the second line, the doors on the four ways out of the stair's foot on the hall level
+   * (west, east, north, south; 0 until placed), and when the short way round them was last asked for.
+   */
+  innerDoorIds?: number[];
+  innerRingAsked?: number;
+  /** T-518: the last threat warning was of a siege (a party that may bring door-breakers). */
+  siegeWarned?: boolean;
   squadId: number;
   /** The dangers the squad's current orders answer, and when a danger was last near. */
   answered: string;
@@ -723,6 +731,9 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     gateWallLostTick: 0,
     gateDoorId2: 0,
     gateDoorPlaced2: false,
+    innerDoorIds: [0, 0, 0, 0],
+    innerRingAsked: -1,
+    siegeWarned: false,
     squadId: 0,
     answered: '',
     lastDangerTick: -1,
@@ -1132,10 +1143,98 @@ function gateDoorSite(w: TestWorld, state: FortressState, y: number): number {
   return -1;
 }
 
+/**
+ * T-518: the four ways out of the stair's foot on the hall level, west (the dining hall), east (the
+ * hearth hall), north and south (the corridors). A door on each makes the foot a vestibule: the
+ * second line behind the gate.
+ */
+export function innerDoorTiles(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy' | 'hallZ'>): TileIndex[] {
+  const sx = state.cx + 6, sy = state.cy + 6, z = state.hallZ;
+  return [w.index(sx - 1, sy, z), w.index(sx + 1, sy, z), w.index(sx, sy - 1, z), w.index(sx, sy + 1, z)];
+}
+
+/**
+ * T-518: the short way round the vestibule, two tiles north and two south of the stair's foot, from
+ * the dining hall's corner through the corridor to the hearth hall's: with the vestibule's doors
+ * locked the halls behind them are still one place, with their food, drink and beds.
+ */
+export function innerRingTiles(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy' | 'hallZ'>): TileIndex[] {
+  const sx = state.cx + 6, sy = state.cy + 6, z = state.hallZ;
+  return [w.index(sx - 1, sy - 2, z), w.index(sx + 1, sy - 2, z), w.index(sx - 1, sy + 2, z), w.index(sx + 1, sy + 2, z)];
+}
+
+/** T-518: a tile of the halls behind the second line, where the squad waits below: the south corridor beyond the vestibule. */
+function behindTheLine(w: TestWorld, state: Pick<FortressState, 'cx' | 'cy' | 'hallZ'>): TileIndex {
+  return w.index(state.cx + 6, state.cy + 8, state.hallZ);
+}
+
+/** T-518: every door of the second line stands built. */
+export function innerLineBuilt(w: TestWorld, state: FortressState): boolean {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const ids = state.innerDoorIds ?? [];
+  return ids.length === 4 && ids.every((id) => id !== 0 && buildings.get(id)?.state === 'built');
+}
+
+/**
+ * T-518: a player who has seen a siege's trollkin break a door builds a second line: once the gate
+ * stands and the four ways out of the stair's foot are dug, the short way round it is dug, and then
+ * a door goes on each way out, locked on the alert like the gate's. A broken gate door then leaves a
+ * siege in the gatehouse; a door that is broken or gone is placed again, as the gate's are. The line
+ * is built ahead of routine work, and the doors it lacks are made first at the mason's: the mason
+ * takes its orders in list order, and the routine blocks ahead of the stock doors would leave the
+ * line half built for months.
+ */
+function keepInnerLine(w: TestWorld, state: FortressState): void {
+  if (!state.gateDoorPlaced || !state.gateDoorPlaced2) return;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  const map = w.map;
+  const sx = state.cx + 6, sy = state.cy + 6, z = state.hallZ;
+  const dug = (t: TileIndex): boolean => map.kindAt(t) === TileKind.Floor;
+  const doors = innerDoorTiles(w, state);
+  const joins = [[sx - 2, sy - 2], [sx, sy - 2], [sx + 2, sy - 2], [sx - 2, sy + 2], [sx, sy + 2], [sx + 2, sy + 2]].map(([x, y]) => w.index(x!, y!, z));
+  const ids = state.innerDoorIds ?? (state.innerDoorIds = [0, 0, 0, 0]);
+  if (ids.every((id) => id === 0) && ![...doors, ...joins].every(dug)) return;
+  const ring = innerRingTiles(w, state);
+  if (!ring.every(dug)) {
+    // Asked for again after a day, should a designation have been lost.
+    if (w.tick - (state.innerRingAsked ?? -1) < TICKS_PER_DAY && (state.innerRingAsked ?? -1) >= 0) return;
+    state.innerRingAsked = w.tick;
+    designateDig(w, ring, ROUTINE);
+    return;
+  }
+  for (const [k, origin] of doors.entries()) {
+    const id = ids[k] ?? 0;
+    const b = id === 0 ? undefined : buildings.get(id);
+    if (b === undefined) {
+      ids[k] = 0;
+      if (buildings.at(origin) === 0 && buildings.ghost('door', origin, 0).reason === null &&
+        command(w, { type: 'PlaceBuilding', buildingType: 'door', origin, orientation: 0, materialChoice: 0, priority: KIT_FIRST }).ok) {
+        ids[k] = bSystem.lastPlacedBuilding;
+      }
+    } else if (b.state === 'built' && b.mode !== 'lock_on_alert') {
+      command(w, { type: 'SetDoorMode', buildingId: id, mode: 'lock_on_alert' });
+    }
+  }
+  const waiting = [...ids, state.gateDoorId, state.gateDoorId2].filter((id) => id !== 0 && buildings.get(id)?.state === 'planned').length;
+  const short = waiting - w.readers.of<ItemsReader>('13').available('door');
+  const mason = state.placedIds['mason'] ?? 0;
+  const orders = (): readonly { recipe: number }[] => w.game.world.entities.get(mason, C.Workshop)?.orders ?? [];
+  const doorRecipe = w.game.registry.table('recipes').index('make_door_stone');
+  if (short > 0 && mason !== 0 && buildings.get(mason)?.state === 'built' && !orders().some((o, i) => o.recipe === doorRecipe && i === 0) &&
+    command(w, { type: 'AddWorkOrder', workshopId: mason, order: { recipeId: 'make_door_stone', mode: 'once', remaining: short, priority: KIT_FIRST } }).ok) {
+    command(w, { type: 'ReorderWorkOrder', workshopId: mason, from: orders().length - 1, to: 0 });
+  }
+}
+
 export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const { cx, cy } = state;
   const buildings = w.readers.of<BuildingsReader>('14');
   const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+
+  // T-518: a gate door a siege's trollkin broke is placed again, as a player rebuilds it.
+  if (state.gateDoorPlaced && state.gateDoorId !== 0 && buildings.get(state.gateDoorId) === undefined) state.gateDoorPlaced = false;
+  if (state.gateDoorPlaced2 && state.gateDoorId2 !== 0 && buildings.get(state.gateDoorId2) === undefined) state.gateDoorPlaced2 = false;
 
   // Open the underground route before enclosing its only surface entrance. Otherwise a
   // civilian can occupy the still-undug stair tile and prevent the miners reaching it.
@@ -1201,6 +1300,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       command(w, { type: 'SetDoorMode', buildingId: state.gateDoorId2, mode: wantDoorMode });
     }
   }
+  keepInnerLine(w, state);
 
   // 3. The squad stands from the first day, with the spears from the wagon and the woodcutter's axe.
   const ent = w.game.world.entities;
@@ -1245,23 +1345,31 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const hostilePurposes = new Set(['thief', 'bandits', 'ambush', 'raid', 'siege', 'restless']);
   const intruders: number[] = [];
   let raid = false;
+  let siege = false;
   for (const pId of ent.with(C.Party)) {
     const p = ent.get(pId, C.Party);
     if (!p || !hostilePurposes.has(p.purpose) || p.state === 'gone' || p.state === 'retreat') continue;
     // A thief is a threat from the moment it is spotted; until then the player does not see it.
     if (p.purpose === 'thief') intruders.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Hostile)?.stealthed !== true));
     else raid = true;
+    if (p.purpose === 'siege') siege = true;
   }
   // T-387: a threat warning (18) is answered as a player answers its announcement, which pauses
   // the game: the fortress shelters and the squad takes its post until the party comes, instead
   // of the raiders finding the dwarves at work on the surface.
   const seen = w.allEvents();
   for (let i = state.eventsRead ?? seen.length; i < seen.length; i += 1) {
-    if (seen[i]!.type === 'ThreatWarning') state.warnedUntil = w.tick + WARNED_TICKS;
+    if (seen[i]!.type === 'ThreatWarning') {
+      state.warnedUntil = w.tick + WARNED_TICKS;
+      state.siegeWarned = seen[i]!['kind'] === 'siege';
+    }
   }
   state.eventsRead = seen.length;
   if (raid) state.warnedUntil = -1;
-  else if (w.tick < (state.warnedUntil ?? -1)) raid = true;
+  else if (w.tick < (state.warnedUntil ?? -1)) {
+    raid = true;
+    siege = state.siegeWarned === true;
+  }
   // T-387: once the alert for wild animals alone has been lifted (below), the fortress works for
   // a while before it shelters from them again.
   const wild = !raid && intruders.length === 0 && w.tick < (state.wildQuietUntil ?? -1) ? [] : dangerousWildlife(w, state, adults);
@@ -1278,8 +1386,12 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const positions = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress')
     .map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined);
   const hallLabel = w.readers.pathing.labelOf(w.index(cx + 6, cy + 6, state.hallZ), 'walker');
-  if (curAlert === 'hearth' && state.gateDoorPlaced && hallLabel !== 0 && positions.length > 0 &&
-      !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === hallLabel)) {
+  // T-518: once the second line stands, the stair's foot is its vestibule: a dwarf there, in the
+  // shaft or in the cave farm is shut out of the halls as surely as one outside the gate.
+  const line = innerLineBuilt(w, state);
+  const insideLabel = line ? w.readers.pathing.labelOf(behindTheLine(w, state), 'walker') : hallLabel;
+  if (curAlert === 'hearth' && state.gateDoorPlaced && insideLabel !== 0 && positions.length > 0 &&
+      !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === insideLabel)) {
     state.shutOut = true;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
@@ -1287,7 +1399,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
     return;
   }
-  if (state.shutOut && positions.some((p) => p.z < state.z)) state.shutOut = false;
+  if (state.shutOut && positions.some((p) => p.z < state.z && (!line || p.z <= state.hallZ))) state.shutOut = false;
   // T-387: an alert kept up by wild animals alone, which a squad without its weapons does not
   // hunt, only keeps the fortress from the brook and its surface work. On seed p2-3 one boar by
   // the gate held it for 27 days and all fourteen dwarves died of thirst inside. The player lifts
@@ -1307,17 +1419,20 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       command(w, { type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
     }
-    const answer = `${raid ? 'raid' : ''}:${squadArmed(w, state)}:${targets.join(',')}`;
+    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}:${squadArmed(w, state)}:${targets.join(',')}`;
     if (state.squadId !== 0 && state.answered !== answer) {
       state.answered = answer;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
       // A raid is met at the gate. A thief or a beast is hunted down, the nearest first, by a
       // squad whose every member holds a weapon; an unarmed squad waits below with everybody else.
       // A hostile indoors is hunted first and by any squad: below is where it is.
+      // T-518: below is behind the second line once it stands, and a siege, whose trollkin break
+      // doors, is waited for there: a squad in the gatehouse, locked between the gate and the
+      // vestibule, has no drink and no way back, and a siege outnumbers it at a broken gate.
       const hunted = raid ? indoors : squadArmed(w, state) ? targets : indoors;
       for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
-      const below = w.index(cx + 6, cy + 6, state.hallZ);
-      const outdoors = raid || hunted.length > indoors.length;
+      const below = line ? behindTheLine(w, state) : w.index(cx + 6, cy + 6, state.hallZ);
+      const outdoors = (raid && !(siege && line)) || hunted.length > indoors.length;
       const post = outdoors || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
     }

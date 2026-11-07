@@ -1,6 +1,8 @@
 # T-518 — The three-year fortress is one broken door from its halls, and a siege's trollkin break it when they follow a dwarf there
 
-**Source:** T-512's sweep and siege probe ([probe](../../reports/data/2026-11-06-t512-siege.probe.ts.txt)). With T-512's sowing rule, `three-years-p4-3` dies out in its year-2 siege on day 188–189 in all three timeline samples (runs 42325947404, 42325949783, 42325952264). It survives the same siege in all three samples of master (42325939870, 42325942200, 42325944699). · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-07, in 96935615.
+
+**Source:** T-512's sweep and siege probe ([probe](../../../reports/data/2026-11-06-t512-siege.probe.ts.txt)). With T-512's sowing rule, `three-years-p4-3` dies out in its year-2 siege on day 188–189 in all three timeline samples (runs 42325947404, 42325949783, 42325952264). It survives the same siege in all three samples of master (42325939870, 42325942200, 42325944699). · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

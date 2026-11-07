@@ -20,6 +20,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-503 | [`defence_year`'s script zones an archery range over a tile another zone holds](work/T-503-defence-script-archery-range-overlap.md) | T-466's report | — | open |
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-510 | [Cats stand together on one tile of the hall's walking line](work/T-510-cats-stand-together-in-the-hall-way.md) | T-508's measurements | — | open |
-| T-518 | [The three-year fortress is one broken door from its halls, and a siege's trollkin break it when they follow a dwarf there](work/T-518-three-years-gate-one-door-from-the-halls.md) | T-512's measurements | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
