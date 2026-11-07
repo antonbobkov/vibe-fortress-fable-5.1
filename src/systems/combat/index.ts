@@ -118,6 +118,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
   private targetManager: TargetManager | null = null;
   private readonly threatThrottles = new Map<EntityId, number>();
   private readonly patrolIndices = new Map<EntityId, number>();
+  /** This tick's posts of `hold` soldiers that hold a target (§ Squads); rebuilt by every squad step, not saved. */
+  private readonly holdPosts = new Map<EntityId, TileIndex>();
   private readonly sessionEnds = new Map<EntityId, number>();
   private daysCount = 0;
   /** Event dispatch sees all items created by the previous tick before any ItemCreated handler. */
@@ -398,6 +400,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       this.targets,
       (from, to) => this.lineOfSight(from, to),
       this.patrolIndices,
+      this.holdPosts,
     );
 
     // Step barracks & archery range training
@@ -595,6 +598,13 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
           if (since !== undefined && tick - since + 1 >= TARGET_LOSE_TICKS) {
             this.targets.clearTarget(id);
             ctx.world.services.movement?.stopWalking(id);
+          }
+        } else {
+          // § Squads: on `hold`, a soldier off its post that cannot strike its target from where it
+          // stands walks back to the post, keeping the target (T-502).
+          const post = this.holdPosts.get(id);
+          if (post !== undefined && post !== tileA) {
+            ctx.world.services.movement?.walkTo(id, post, 'combat', ctx);
           }
         }
       }

@@ -420,17 +420,61 @@ export function dropOrdersOf(entities: EntityStore, id: EntityId): void {
   }
 }
 
+/**
+ * A member's fixed post when the squad stands rather than moves (§ Squads): its tile at a `station`
+ * order's point, its station shift's or its barracks tile while the squad trains, its tile at the
+ * squad's station, or its barracks tile. Null under a patrol or follow order, on a patrol route, and
+ * with nowhere to stand.
+ */
+function fixedPost(
+  ctx: TickContext,
+  squadId: EntityId,
+  squad: Squad,
+  m: EntityId,
+  tileM: TileIndex,
+  alert: Alert,
+  currentOrder: SquadOrder | undefined,
+): TileIndex | null {
+  const memberIndex = Math.max(0, squad.members.slice().sort((a, b) => a - b).indexOf(m));
+  const postOf = (point: TileIndex): TileIndex => {
+    const posts = stationPosts(ctx, point, squad.members.length);
+    return posts[memberIndex % posts.length] as TileIndex;
+  };
+  if (currentOrder) {
+    return currentOrder.kind === 'station' ? postOf(currentOrder.tile) : null;
+  }
+  if (squad.mode === 'train' && alert === 'calm') {
+    const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
+    const onStation = squad.station !== null && isOnStationShift(squad, m, ctx.tick);
+    if (onStation && squad.station !== null) return postOf(squad.station);
+    if (barracks && barracks.tiles.length > 0) {
+      if (barracks.tiles.includes(tileM)) return tileM;
+      return barracks.tiles[memberIndex % barracks.tiles.length] ?? barracks.tiles[0] ?? null;
+    }
+    return null;
+  }
+  if (squad.station !== null) return postOf(squad.station);
+  if (squad.patrol !== null && squad.patrol.length > 0) return null;
+  if (ctx.readers.has('14')) {
+    const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
+    if (barracks && barracks.tiles.length > 0) return barracks.tiles[memberIndex % barracks.tiles.length] ?? null;
+  }
+  return null;
+}
+
 export function stepSquads(
   ctx: TickContext,
   alert: Alert,
   targets: TargetManager,
   losFn: (from: TileIndex, to: TileIndex) => boolean,
   patrolIndices: Map<EntityId, number>,
+  holdPosts: Map<EntityId, TileIndex> = new Map(),
 ): void {
   const entities = ctx.world.entities;
   const map = ctx.world.map;
 
   updateSquadDuty(entities, alert);
+  holdPosts.clear();
 
   for (const squadId of entities.with(C.Squad)) {
     const squad = entities.get(squadId, C.Squad);
@@ -475,9 +519,16 @@ export function stepSquads(
       // or to give a target, a kill target included; the squad resumes control on its return to duty.
       if (!followsSquad(entities, m)) continue;
 
-      // If already has an active target, keep engaging
+      // If already has an active target, keep engaging. A `hold` soldier with no kill order notes its
+      // post: 16's attack step walks it back there while it cannot strike the target (§ Squads, T-502).
       const activeTarget = targets.targetOf(m);
-      if (activeTarget !== 0) continue;
+      if (activeTarget !== 0) {
+        if (soldier.stance === 'hold' && currentOrder?.kind !== 'kill') {
+          const post = fixedPost(ctx, squadId, squad, m, tileM, alert, currentOrder);
+          if (post !== null) holdPosts.set(m, post);
+        }
+        continue;
+      }
 
       // Kill order takes precedence. A target out of perception is walked toward, since the
       // targeting of 16 drops a target beyond perception (§ Squads).
@@ -530,45 +581,18 @@ export function stepSquads(
       // No hostile in perception: execute squad positioning
 
       let destTile: TileIndex | null = null;
-      const memberIndex = Math.max(0, squad.members.slice().sort((a, b) => a - b).indexOf(m));
-      const postOf = (point: TileIndex): TileIndex => {
-        const posts = stationPosts(ctx, point, squad.members.length);
-        return posts[memberIndex % posts.length] as TileIndex;
-      };
-      if (currentOrder) {
-        if (currentOrder.kind === 'station') {
-          destTile = postOf(currentOrder.tile);
-        } else if (currentOrder.kind === 'patrol') {
-          destTile = advancePatrol(m, currentOrder.tiles, tileM, patrolIndices);
-        } else if (currentOrder.kind === 'follow') {
-          const followPos = entities.get(currentOrder.dwarfId, C.Position);
-          if (followPos) {
-            destTile = map.index(followPos.x, followPos.y, followPos.z);
-          }
+      if (currentOrder?.kind === 'patrol') {
+        destTile = advancePatrol(m, currentOrder.tiles, tileM, patrolIndices);
+      } else if (currentOrder?.kind === 'follow') {
+        const followPos = entities.get(currentOrder.dwarfId, C.Position);
+        if (followPos) {
+          destTile = map.index(followPos.x, followPos.y, followPos.z);
         }
-      } else if (squad.mode === 'train' && alert === 'calm') {
-        const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
-        const onStation = squad.station !== null && isOnStationShift(squad, m, ctx.tick);
-        if (onStation && squad.station !== null) {
-          destTile = postOf(squad.station);
-        } else if (barracks && barracks.tiles.length > 0) {
-          if (barracks.tiles.includes(tileM)) {
-            destTile = tileM;
-          } else {
-            const sorted = squad.members.slice().sort((a, b) => a - b);
-            const mIdx = sorted.indexOf(m);
-            destTile = barracks.tiles[(mIdx >= 0 ? mIdx : 0) % barracks.tiles.length] ?? barracks.tiles[0] ?? null;
-          }
-        }
-      } else if (squad.station !== null) {
-        destTile = postOf(squad.station);
-      } else if (squad.patrol !== null && squad.patrol.length > 0) {
+      } else if (currentOrder === undefined && !(squad.mode === 'train' && alert === 'calm') && squad.station === null &&
+          squad.patrol !== null && squad.patrol.length > 0) {
         destTile = advancePatrol(m, squad.patrol, tileM, patrolIndices);
-      } else if (ctx.readers.has('14')) {
-        const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
-        if (barracks && barracks.tiles.length > 0) {
-          destTile = barracks.tiles[memberIndex % barracks.tiles.length] ?? null;
-        }
+      } else {
+        destTile = fixedPost(ctx, squadId, squad, m, tileM, alert, currentOrder);
       }
 
       if (destTile !== null && destTile !== tileM) {
