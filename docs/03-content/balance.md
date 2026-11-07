@@ -206,6 +206,24 @@ Forest seeds 1 and 2 and taiga seed 1 move by nine to thirteen living between ti
 
 Re-measure the distribution before and after a change to wildlife, fleeing, alerts or treatment, with one command: `gh workflow run measure.yml --ref <branch> -f suite=instrument`. The verdict records its target beside the measured bounds. The browser year's single sample asserts that the fortress survives and nobody dies of hunger or thirst, and prints its remaining end state.
 
+### Three-year sweep
+
+The three-year fortress plays three years on twenty seeds of its standard world: seven at peril 0, seven at peril 2 and six at peril 4 (testing-strategy.md § The long scenarios). Every figure is pooled over four sweeps of the same code, shifted 0, 50, 100 and 150 ticks before the opening: means over the four sweeps, the counts of fortresses among them.
+
+| Measure | Target | Latest accepted | Best measured | Bound |
+|---|---|---:|---:|---|
+| Fortresses alive at the end of year 1 | All twenty | 20 | — | At least 18 (the set rule) |
+| Peril-0 fortresses past embark size at year 3 | All seven | 7 | — | At least 6 (the set rule) |
+| Peril-0 fortresses with a dwarf dead of hunger or thirst | None | 0.75 | — | At most 1 (the set rule) |
+| Dwarves living at year 3, over the twenty | — | 903.75 | 903.75 | At least 803.75 |
+| Dwarf deaths, over the twenty | — | 141.75 | 141.75 | At most 171.75 |
+| Fortresses extinct by year 3 | — | 2 | — | Reported; not guarded |
+| Dwarf deaths from hunger or thirst | None | 2.5 | — | Reported; not guarded |
+
+The latest accepted row is [shifts 0 to 150 of master after T-507](../../reports/data/2026-11-06-t513-sweeps.json) (run 42329994960, [report](../../reports/audits/2026-11-06-t513-sweep-verdict.md)). The bounds and their tolerances (living 100, deaths 30) are those of [testing-strategy.md § The twenty-seed sweep](../process/testing-strategy.md#the-twenty-seed-sweep), each wider than the spread of its pooled figure between two sets of four shifts of the same code. The peril-0 hunger is not met: `three-years-p0-3` starves in three of ten timelines (1 to 16 dead), `three-years-p0-4` in one.
+
+Re-measure before and after a change that can move the three-year fortress, with one command: `gh workflow run measure.yml --ref <branch> -f suite=sweep`.
+
 ## Runecraft
 
 The rules and the rest of the arithmetic are in [25 Runecraft](../02-systems/25-runecraft.md). A figure is *unmeasured* unless its note names what measured it; [balance-status.md](../balance-status.md) holds the latest measurements.

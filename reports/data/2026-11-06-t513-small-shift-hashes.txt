@@ -91,3 +91,8 @@ three-years-p4-6 11 2fb9aec0a727d596
 three-years-p2-3, shifts 0 to 40: [[0],[1,11],[2,3,4,5,6,7,8,9,10],[12,13,16],[14],[15],[17],...,[40]] (17 to 40 each alone)
 three-years-p0-1: [[0],[1],[2,5,10],[15],[17,20],[40],[60],[80],[100],[120],[140],[160],[180],[200],[220]]
 three-years-p4-1: [[0],[1],[2,5,10],[15,17,20],[40],[60],[80],[100],[120],[140],[160],[180],[200],[220]]
+
+3. Twelve sweeps of the same master at shifts 0 to 550 ticks, 50 apart (Measure run 42329994960,
+   hashes in 2026-11-06-t513-sweeps.json): shifts 0 to 400 end year 3 with a different world hash on
+   every seed; shifts 450, 500 and 550 end with the same hash on most seeds (500 and 550 on 18 of 20,
+   all three on 15). The verdict pools shifts 0, 50, 100 and 150.
