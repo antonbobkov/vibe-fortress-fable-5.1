@@ -15,7 +15,7 @@ import { BaseSystem, Registrations, type InitContext, type TickContext } from '@
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
 import { JobBoard } from './board';
-import { dropStrandedTools, dropUnusedTools, itemSourceOf } from './items-adapter';
+import { dropStrandedTools, dropUnusableLaunchers, dropUnusedTools, itemSourceOf } from './items-adapter';
 import { NO_ITEMS } from './producers';
 import {
   applyCancelJob,
@@ -116,6 +116,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     this.readProducers();
     this.connectItems(ctx);
     dropStrandedTools(this.board, ctx);
+    dropUnusableLaunchers(this.board, ctx);
     dropUnusedTools(this.board, ctx);
     this.board.tick(ctx);
   }

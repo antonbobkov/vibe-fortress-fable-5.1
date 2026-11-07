@@ -223,6 +223,34 @@ export function dropStrandedTools(board: JobBoard, ctx: TickContext): void {
   }
 }
 
+/**
+ * 11 § Assignment step 5: a worker whose weapon slot holds a weapon that is not a launcher cannot
+ * loose the launcher it holds as its tool (a hunter who joined a squad and claimed an axe). It drops
+ * that launcher, and the unowned ammunition of the launcher's kind it carries, on its own tile.
+ */
+export function dropUnusableLaunchers(board: JobBoard, ctx: TickContext): void {
+  const api = ctx.world.services.items;
+  if (api === null || !ctx.readers.has('13')) return;
+  const items = ctx.readers.of<ItemsReader>('13');
+  for (const id of board.workers()) {
+    const worker = board.workerOf(id);
+    if (worker.toolId === 0 || board.items.wieldsOtherWeapon?.(id) !== true) continue;
+    const launcher = items.get(worker.toolId);
+    if (launcher?.carriedBy !== id || items.categoryOf(launcher.type) !== toolFilter('ranged').category) continue;
+    const tile = board.workerTile(id);
+    if (tile < 0) continue;
+    const ammo = ctx.registry.table<{ id: string; launcher?: { ammo?: string } }>('weapons').byId(items.def(launcher.type)?.id ?? '')?.launcher?.ammo;
+    dropTool(board, ctx, id, worker.toolId, tile);
+    for (const itemId of ammo === undefined ? [] : items.carriedItems(id)) {
+      const it = items.get(itemId);
+      if (it === undefined || it.carriedBy !== id || itemId === worker.carrying || (it.flags & ItemFlag.Owned) !== 0) continue;
+      if (items.def(it.type)?.id !== ammo) continue;
+      if (it.reservedBy !== 0 || (it.flags & ItemFlag.Reserved) !== 0) api.release(itemId);
+      api.dropAt(itemId, tile);
+    }
+  }
+}
+
 /** 11 § Assignment: keep tools until both tool labors are off and a stockpile is passed. */
 export function dropUnusedTools(board: JobBoard, ctx: TickContext): void {
   const api = ctx.world.services.items;
