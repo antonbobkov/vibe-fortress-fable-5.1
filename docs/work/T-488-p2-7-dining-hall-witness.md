@@ -16,3 +16,11 @@ The twenty-seed file on master `37da07a4` (with T-479, which draws nothing new a
 ## Also seen (2026-11-07)
 
 Seed `p2-4` at shift 50 fails the same kind of witness (no hearth or dining hall, one dwarf left at year 3), in T-513's reference sweep and since; the same seed goes extinct at shift 100. Treat it with this task.
+
+## Found (2026-11-07)
+
+Replays in [2026-11-07-t488-halls.txt](../../reports/data/2026-11-07-t488-halls.txt).
+
+- `p2-7` on `37da07a4`: its halls stood from day 31; in a miserable year 3 the sulks (15 § Sulks, which break the nearest poor chair or table) broke the dining hall's table and all four chairs between days 306 and 336, and the script never placed them again. The script was at fault: it now places a hall's hearth, table or chair again where it stood. The two starvation deaths came on days 329 and 330, after the breaks began, and do not follow from them. On master the seed passes at all four shifts.
+- `p2-4` at shift 50: raids cut the fortress from 11 dwarves to 5 by day 84 and to 2 by day 164, while its halls were still being dug; the last dwarf with the mining labor died on day 164, and 400 dig jobs stood for the rest of the run with nobody to take them. The script was at fault there too (it now gives the labor to a survivor), and so was the witness: a fortress of one or two dwarves is not asked to finish or keep its rooms. The halls and bedrooms witness now holds a fortress that ends with at least the embark party's seven dwarves. With the fix the seed's last two dwarves bleed out on days 303 and 306.
+- The game was not at fault in either seed.

@@ -1,0 +1,102 @@
+/**
+ * T-488 diagnostic: replays one sweep seed at one shift (T488_SEED, THREE_YEARS_SHIFT) and logs what
+ * happens to the hearth hall and the dining hall: every hearth, table and chair removed (by what,
+ * when, where), every sulk that breaks furniture, every dwarf death; and at the end each hall
+ * zone's buildings and requirements.
+ */
+import { it, vi } from 'vitest';
+import type { FortressState } from '../scenarios/three_years_fortress';
+
+const captured: { state?: FortressState } = {};
+vi.mock('../scenarios/three_years_fortress', async (importOriginal) => {
+  const real = await importOriginal<typeof import('../scenarios/three_years_fortress')>();
+  return { ...real, setupThreeYearsFortress: (w: TestWorld) => { const s = real.setupThreeYearsFortress(w); captured.state = s; return s; } };
+});
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { BuildingsReader } from '@systems/buildings';
+import type { JobsReader } from '@systems/jobs';
+import { TestWorld } from '../scenarios/test-world';
+import { fortressWitnesses } from '../scenarios/three_years_fortress';
+import { runThreeYearsSeed } from './three_years_seeds.test';
+
+const SEED = process.env['T488_SEED'] ?? 'three-years-p2-4';
+const PERIL = Number(process.env['T488_PERIL'] ?? '2');
+
+it(`T-488 probe ${SEED}`, () => {
+  const original = TestWorld.prototype.step;
+  let hooked: TestWorld | null = null;
+  const where = new Map<number, string>();
+  const day = (t: number): number => Math.floor(t / TICKS_PER_DAY) + 1;
+  const ends: { w: TestWorld }[] = [];
+  TestWorld.prototype.step = function (this: TestWorld, n?: number) {
+    if (hooked !== this) {
+      hooked = this;
+      const w = this;
+      ends.push({ w });
+      const ent = w.game.world.entities;
+      const dwarf = w.game.registry.table('creatures').index('dwarf');
+      const b = (): BuildingsReader => w.readers.of<BuildingsReader>('14');
+      const zonesTag = (tile: number): string => b().zonesAt(tile).map((z) => b().zone(z)?.type).join('+') || '-';
+      let lastHall = ''; let nextSample = 0;
+      w.game.world.onEvents((events) => {
+        const st = captured.state;
+        if (st !== undefined && w.tick >= nextSample) { nextSample = w.tick + 600;
+          const desc = (tiles: readonly number[]): string => {
+            const bad = tiles.filter((t) => w.map.kindAt(t) !== 2);
+            return `${tiles.length - bad.length}/${tiles.length} floor` + (bad.length ? ` [${bad.map((t) => `${w.map.xOf(t)},${w.map.yOf(t)} k${w.map.kindAt(t)} d${String(w.map.designationAt(t))}`).join(' ')}]` : '');
+          };
+          const dHall = w.index(st.cx + 7, st.cy + 6, st.hallZ);
+          const dDin = w.index(st.cx + 5, st.cy + 6, st.hallZ);
+          const s = `hearth ${desc(st.hearthHallTiles)} door k${w.map.kindAt(dHall)} setup ${st.hearthHallSetup} | dining ${desc(st.diningHallTiles)} door k${w.map.kindAt(dDin)} setup ${st.diningHallSetup} kitchen ${b().get(st.placedIds['kitchen'] ?? 0)?.state}`;
+          if (s !== lastHall) { lastHall = s; console.log(`[t488] t${w.tick} d${day(w.tick)} ${s.replace(/\[[^\]]*\]/g, '')}`); }
+          if (w.tick % (TICKS_PER_DAY * 10) < 600) {
+            const jobs = w.readers.of<JobsReader>('11');
+            const founders = w.game.arrival?.dwarves ?? [];
+            const living = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+            const digJobs = jobs.list().filter((j) => jobs.typeOf(j.id) === 'dig').length;
+            console.log(`[t488] t${w.tick} d${day(w.tick)} roster ${living.map((id) => `${founders.indexOf(id) >= 0 ? 'F' + founders.indexOf(id) : 'i' + id}${jobs.laborEnabled(id, 'mining') ? '(M)' : ''}:${jobs.typeOf(jobs.forWorker(id)?.id ?? -1) ?? '-'}${jobs.hasWork(id) ? '' : '/nowork'}${ent.has(id, C.Soldier) ? '/sol' : ''}${ent.has(id, C.Patient) ? '/pat' : ''}`).join(' ')} digJobs ${digJobs} open ${jobs.list().filter((j) => jobs.typeOf(j.id) === 'dig' && j.state === 'open').length} blocked ${JSON.stringify(Object.entries(jobs.list().filter((j) => jobs.typeOf(j.id) === 'dig').reduce((m: Record<string, number>, j) => { const r = jobs.blockedReason(j.id) ?? j.state; m[r] = (m[r] ?? 0) + 1; return m; }, {})))} alert ${w.game.world.fortress.alert} spec ${JSON.stringify(st.economy.specialists)} brewer ${st.economy.brewer} labors ${living.map((id) => w.game.registry.table<{ id: string }>('labors').rows.slice(1).filter((r) => jobs.laborEnabled(id, r.id)).length).join(',')}`);
+          }
+        }
+        for (const e of events) {
+          if (e.type === 'BuildingPlaced' || e.type === 'BuildingCompleted') {
+            const v = b().get(Number(e['id']));
+            if (v !== undefined && ['hearth', 'table', 'chair'].includes(v.typeId)) {
+              const t = v.footprint[0]!;
+              where.set(Number(e['id']), `${v.typeId}@${w.map.xOf(t)},${w.map.yOf(t)},${w.map.zOf(t)} zones ${zonesTag(t)}`);
+            }
+          } else if (e.type === 'BuildingRemoved') {
+            const s = where.get(Number(e['id']));
+            if (s !== undefined && !s.includes('zones -')) console.log(`[t488] t${w.tick} d${day(w.tick)} removed ${s}`);
+          } else if (e.type === 'SulkHappened') {
+            console.log(`[t488] t${w.tick} d${day(w.tick)} sulk ${JSON.stringify(e)} ${where.get(Number(e['buildingId'])) ?? ''}`);
+          } else if (e.type === 'CreatureDied' && e['species'] === dwarf) {
+            const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+            console.log(`[t488] t${w.tick} d${day(w.tick)} dwarf died ${String(e['cause'])}, ${pop} left`);
+          } else if (e.type === 'ZoneChanged' && (e['zoneType'] === 'hearth_hall' || e['zoneType'] === 'dining_hall')) {
+            console.log(`[t488] t${w.tick} d${day(w.tick)} zone change ${JSON.stringify(e)}`);
+          }
+        }
+      });
+    }
+    return original.call(this, n);
+  };
+  try {
+    runThreeYearsSeed(SEED, PERIL);
+  } catch (err) {
+    console.log(`[t488] seed failed: ${String(err).slice(0, 300)}`);
+  } finally {
+    TestWorld.prototype.step = original;
+    const w = ends[0]!.w;
+    const b = w.readers.of<BuildingsReader>('14');
+    for (const type of ['hearth_hall', 'dining_hall']) {
+      for (const z of b.zonesOfType(type)) {
+        const zone = b.zone(z)!;
+        const ids = [...new Set(zone.tiles.map((t) => b.at(t)).filter((id) => id !== 0))];
+        console.log(`[t488] end ${type} zone ${z} tiles ${zone.tiles.length} room ${JSON.stringify(b.roomScore(z))} buildings ${ids.map((id) => `${b.get(id)?.typeId}:${b.get(id)?.state}`).join(' ')}`);
+      }
+    }
+    console.log(`[t488] end hearths ${JSON.stringify(b.byType('hearth').map((id) => b.get(id)?.state))} tables ${b.byType('table').length} chairs ${b.byType('chair').length}`);
+    void fortressWitnesses;
+  }
+}, 3_600_000);
