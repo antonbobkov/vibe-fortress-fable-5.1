@@ -1,0 +1,130 @@
+T-488 replays with test/perf/t488_probe.test.ts (reports/data/2026-11-07-t488-halls.probe.ts.txt).
+
+== three-years-p2-4, shift 50, master 6f5763ad (hash a6ad5a6ee036a5c6, as run 42362125659's job): halls never finished, nobody mines from day 164
+[t488] t917 d1 hearth 0/30 floor  door k1 setup false | dining 0/25 floor  door k1 setup false kitchen undefined
+[t488] t1517 d2 hearth 0/30 floor  door k1 setup false | dining 0/25 floor  door k1 setup false kitchen planned
+[t488] t5119 d5 hearth 0/30 floor  door k1 setup false | dining 0/25 floor  door k2 setup false kitchen planned
+[t488] t5720 d5 hearth 0/30 floor  door k1 setup false | dining 1/25 floor  door k2 setup false kitchen planned
+[t488] t6321 d6 hearth 0/30 floor  door k1 setup false | dining 2/25 floor  door k2 setup false kitchen planned
+[t488] t8182 d7 dwarf died bled_out, 6 left
+[t488] t12323 d11 roster F1(M):dig/sol F2:chop/sol F3:-/sol F4:haul_to_stockpile/nowork F5:haul_to_stockpile/nowork F6:build/sol digJobs 192 open 10 blocked [["unreachable",181],["open",10],["working",1]] alert calm spec {"forge":16777286,"smelter":16777283} brewer undefined labors 2,4,5,4,5,5
+[t488] t22523 d19 hearth 0/30 floor  door k1 setup false | dining 3/25 floor  door k2 setup false kitchen planned
+[t488] t24323 d21 roster F1(M):dig/sol F2:-/sol F3:craft/sol F4:craft F5:haul_to_stockpile F6:craft/sol digJobs 158 open 14 blocked [["unreachable",143],["open",14],["travelling",1]] alert calm spec {"forge":16777286,"smelter":16777283} brewer undefined labors 2,4,5,4,5,3
+[t488] t29723 d25 hearth 0/30 floor  door k1 setup false | dining 4/25 floor  door k2 setup false kitchen constructing
+[t488] t30923 d26 hearth 0/30 floor  door k1 setup false | dining 4/25 floor  door k2 setup false kitchen built
+[t488] t36323 d31 roster F1(M):dig/sol F2:chop/sol F3:build/sol F4:- F5:- F6:-/nowork/sol i184549514:- i16777624:- i16777630(M):plant digJobs 241 open 17 blocked [["unreachable",223],["open",17],["travelling",1]] alert calm spec {"forge":16777286,"smelter":16777283,"builder":184549514} brewer 16777624 labors 2,4,5,4,5,3,4,2,26
+[t488] t48323 d41 roster F1(M):dig/sol F2:haul_to_depot/sol F3:craft/sol F4:- F5:craft F6:craft/sol i184549514:craft i16777624:haul_to_depot i16777630(M):- digJobs 289 open 26 blocked [["unreachable",262],["open",26],["travelling",1]] alert calm spec {"forge":16777286,"smelter":16777283,"builder":184549514} brewer 16777624 labor
+[t488] t54323 d46 hearth 0/30 floor  door k2 setup false | dining 5/25 floor  door k2 setup false kitchen built
+[t488] t54923 d46 hearth 0/30 floor  door k2 setup false | dining 8/25 floor  door k2 setup false kitchen built
+[t488] t56123 d47 hearth 0/30 floor  door k2 setup false | dining 9/25 floor  door k2 setup false kitchen built
+[t488] t60323 d51 roster F1(M):dig/sol F2:chop/sol F3:craft/sol F4:- F5:craft F6:craft/sol i184549514:craft i16777624:- i16777630(M):craft digJobs 239 open 18 blocked [["unreachable",220],["open",18],["working",1]] alert calm spec {"forge":16777286,"smelter":16777283,"builder":184549514} brewer 16777624 labors 2,4,5,4,5,3,4,2,26
+[t488] t66923 d56 hearth 4/30 floor  door k2 setup false | dining 9/25 floor  door k2 setup false kitchen built
+[t488] t72323 d61 roster F1(M):dig/sol F2:-/sol F3:craft/sol F4:plant F5:- F6:-/sol i184549514:- i16777624:- i16777630(M):craft i150995457(M):- i50332300(M):- i50332304(M):- digJobs 220 open 16 blocked [["unreachable",203],["open",16],["travelling",1]] alert calm spec {"forge":16777286,"smelter":16777283,"builder":184549514} bre
+[t488] t73523 d62 hearth 5/30 floor  door k2 setup false | dining 9/25 floor  door k2 setup false kitchen built
+[t488] t74123 d62 hearth 5/30 floor  door k2 setup false | dining 10/25 floor  door k2 setup false kitchen built
+[t488] t74847 d63 dwarf died killed, 11 left
+[t488] t75077 d63 dwarf died bled_out, 10 left
+[t488] t78923 d66 hearth 7/30 floor  door k2 setup false | dining 10/25 floor  door k2 setup false kitchen built
+[t488] t79523 d67 hearth 13/30 floor  door k2 setup false | dining 10/25 floor  door k2 setup false kitchen built
+[t488] t80123 d67 hearth 13/30 floor  door k2 setup false | dining 11/25 floor  door k2 setup false kitchen built
+[t488] t84323 d71 roster F1:-/sol F2:-/sol F3:-/sol F4:harvest F5:- i184549514:haul_to_depot i16777624:craft i16777630(M):plant/sol i150995457(M):-/sol i50332300(M):dig digJobs 195 open 22 blocked [["unreachable",172],["open",22],["travelling",1]] alert calm spec {"builder":184549514,"fuel":16777624,"forge":16777281} brewer 1677
+[t488] t90357 d76 dwarf died bled_out, 9 left
+[t488] t90797 d76 dwarf died bled_out, 8 left
+[t488] t90912 d76 dwarf died bled_out, 7 left
+[t488] t91917 d77 dwarf died bled_out, 6 left
+[t488] t96323 d81 roster F2:-/sol F3:-/sol F4:haul_to_depot i16777624:craft i16777630(M):-/sol i50332300(M):-/sol digJobs 158 open 37 blocked [["unreachable",121],["open",37]] alert calm spec {"fuel":16777624} brewer 16777624 labors 4,24,4,1,26,26
+[t488] t100177 d84 dwarf died bled_out, 5 left
+[t488] t108323 d91 roster F2:haul_to_depot/sol F3:haul_to_depot/sol F4:- i16777624:craft i50332300(M):craft/sol digJobs 133 open 22 blocked [["unreachable",111],["open",22]] alert calm spec {"fuel":16777624} brewer 16777624 labors 4,24,4,1,26
+[t488] t120323 d101 roster F2:haul_to_stockpile/sol F3:harvest/sol F4:haul_to_stockpile i16777624:- i50332300(M):-/sol digJobs 122 open 21 blocked [["unreachable",101],["open",21]] alert calm spec {"fuel":16777624} brewer 16777624 labors 4,24,4,1,26
+[t488] t126323 d106 hearth 13/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t126923 d106 hearth 14/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t127523 d107 hearth 16/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t128123 d107 hearth 18/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t130523 d109 hearth 19/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t131123 d110 hearth 22/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t131723 d110 hearth 23/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t132323 d111 roster F2:haul_to_stockpile/sol F3:-/sol F4:haul_to_stockpile i16777624:craft i50332300(M):dig/sol digJobs 105 open 18 blocked [["unreachable",86],["open",18],["working",1]] alert calm spec {"fuel":16777624} brewer 16777624 labors 4,24,4,1,26
+[t488] t132923 d111 hearth 24/30 floor  door k2 setup false | dining 12/25 floor  door k2 setup false kitchen built
+[t488] t134547 d113 dwarf died bled_out, 4 left
+[t488] t144323 d121 roster F2:-/sol F4:- i16777624:-/nowork i50332300(M):-/sol digJobs 236 open 33 blocked [["unreachable",203],["open",33]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 5,4,1,26
+[t488] t156323 d131 roster F2:-/sol F4:harvest i16777624:-/nowork i50332300(M):-/sol digJobs 268 open 41 blocked [["unreachable",227],["open",41]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 5,4,1,26
+[t488] t168323 d141 roster F2:-/sol F4:- i16777624:-/nowork i50332300(M):-/sol digJobs 380 open 41 blocked [["unreachable",339],["open",41]] alert calm spec {"fuel":16777624} brewer 16777624 labors 5,4,1,26
+[t488] t180323 d151 roster F2:-/sol F4:- i16777624:-/nowork i50332300(M):-/sol digJobs 380 open 41 blocked [["unreachable",339],["open",41]] alert calm spec {"fuel":16777624} brewer 16777624 labors 5,4,1,26
+[t488] t192323 d161 roster F2:-/nowork/sol F4:harvest i16777624:-/nowork i50332300(M):-/sol digJobs 380 open 41 blocked [["unreachable",339],["open",41]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 5,4,1,26
+[t488] t196342 d164 dwarf died bled_out, 3 left
+[t488] t196392 d164 dwarf died bled_out, 2 left
+[t488] t204323 d171 roster F4(M):- i16777624:-/nowork digJobs 408 open 41 blocked [["unreachable",367],["open",41]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t216323 d181 roster F4(M):plant i16777624:-/nowork digJobs 408 open 41 blocked [["unreachable",367],["open",41]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t228323 d191 roster F4(M):dig i16777624:-/nowork digJobs 391 open 34 blocked [["unreachable",356],["open",34],["travelling",1]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t228923 d191 hearth 24/30 floor  door k2 setup false | dining 13/25 floor  door k2 setup false kitchen built
+[t488] t237923 d199 hearth 25/30 floor  door k2 setup false | dining 13/25 floor  door k2 setup false kitchen built
+[t488] t240323 d201 roster F4(M):craft i16777624:-/nowork digJobs 365 open 25 blocked [["unreachable",340],["open",25]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t242723 d203 hearth 30/30 floor door k2 setup true | dining 13/25 floor  door k2 setup false kitchen built
+[t488] t243323 d203 hearth 30/30 floor door k2 setup true | dining 15/25 floor  door k2 setup false kitchen built
+[t488] t252323 d211 roster F4(M):plant i16777624:-/nowork digJobs 387 open 25 blocked [["unreachable",362],["open",25]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t264323 d221 roster F4(M):- i16777624:-/nowork digJobs 386 open 27 blocked [["unreachable",359],["open",27]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t276323 d231 roster F4(M):- i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t288323 d241 roster F4(M):plant i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t300323 d251 roster F4(M):- i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t312323 d261 roster F4(M):plant i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t324323 d271 roster F4(M):-/nowork i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t336323 d281 roster F4(M):harvest i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert calm spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t348323 d291 roster F4(M):- i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t360323 d301 roster F4(M):harvest i16777624:-/nowork digJobs 399 open 30 blocked [["unreachable",369],["open",30]] alert hearth spec {"fuel":16777624} brewer 16777624 labors 6,1
+[t488] t363247 d303 dwarf died bled_out, 1 left
+[t488] t366352 d306 dwarf died bled_out, 0 left
+[t488] t372323 d311 roster  digJobs 399 open 30 blocked [["no_worker",369],["open",30]] alert calm spec {} brewer undefined labors 
+[t488] t384323 d321 roster  digJobs 399 open 30 blocked [["no_worker",369],["open",30]] alert calm spec {} brewer undefined labors 
+[t488] t396323 d331 roster  digJobs 399 open 30 blocked [["no_worker",369],["open",30]] alert calm spec {} brewer undefined labors 
+[three_years_hash] {"seed":"three-years-p2-4","peril":2,"tick":403200,"hash":"9dec1e3014afec99"}
+[t488] end hearth_hall zone 251659186 tiles 30 room {"score":60,"tier":2,"enclosed":false,"requirementsMet":false,"parts":{"tiles":30,"walls":0,"furniture":0,"size":30}} buildings chair:planned chair:planned hearth:planned chair:planned chair:planned
+[t488] end hearths ["planned"] tables 1 chairs 5
+
+== three-years-p2-4, shift 50, with keepAMiner (on master a4b43368): a survivor mines from day 164, the hearth hall is set up on day 203, the fortress dies out on day 306
+[t488] t8182 d7 dwarf died bled_out, 6 left
+[t488] t74847 d63 dwarf died killed, 11 left
+[t488] t75077 d63 dwarf died bled_out, 10 left
+[t488] t90357 d76 dwarf died bled_out, 9 left
+[t488] t90797 d76 dwarf died bled_out, 8 left
+[t488] t90912 d76 dwarf died bled_out, 7 left
+[t488] t91917 d77 dwarf died bled_out, 6 left
+[t488] t100177 d84 dwarf died bled_out, 5 left
+[t488] t134547 d113 dwarf died bled_out, 4 left
+[t488] t196342 d164 dwarf died bled_out, 3 left
+[t488] t196392 d164 dwarf died bled_out, 2 left
+[t488] t242723 d203 hearth 30/30 floor door k2 setup true | dining 13/25 floor  door k2 setup false kitchen built
+[t488] t243323 d203 hearth 30/30 floor door k2 setup true | dining 15/25 floor  door k2 setup false kitchen built
+[t488] t363247 d303 dwarf died bled_out, 1 left
+[t488] t366352 d306 dwarf died bled_out, 0 left
+[three_years_hash] {"seed":"three-years-p2-4","peril":2,"tick":403200,"hash":"9dec1e3014afec99"}
+[three_years_seeds_set] {"seed":"three-years-p2-4","peril":2,"y1Pop":5,"y3Pop":0,"grew":false,"needDeaths":0}
+[t488] end hearth_hall zone 251659186 tiles 30 room {"score":60,"tier":2,"enclosed":false,"requirementsMet":false,"parts":{"tiles":30,"walls":0,"furniture":0,"size":30}} buildings chair:planned chair:planned hearth:planned chair:planned chair:planned
+[t488] end hearths ["planned"] tables 1 chairs 5
+
+== three-years-p2-7, shift 0, master 37da07a4 (T-488's failing run): halls set up by day 31; year-3 sulks break the dining hall's table and four chairs
+[t488] t34500 d29 zone change {"type":"ZoneChanged","zoneId":16777683,"zoneType":"hearth_hall","change":"created","tiles":[60040,60041,60042,60043,60044,60045,60088,60089,60090,60091,60092,60093,60136,60137,60138,60139,60140,60141,60184,60185,60186,6
+[t488] t36000 d31 zone change {"type":"ZoneChanged","zoneId":16777703,"zoneType":"dining_hall","change":"created","tiles":[60032,60033,60034,60035,60036,60080,60081,60082,60083,60084,60128,60129,60130,60131,60132,60176,60177,60178,60179,60180,60224,6
+[t488] t72277 d61 dwarf died bled_out, 13 left
+[t488] t364801 d305 sulk {"type":"SulkHappened","id":218104917,"kind":"break","buildingId":16777440} chair@35,9,26 zones bedroom
+[t488] t364809 d305 removed chair@35,9,26 zones bedroom
+[t488] t366001 d306 sulk {"type":"SulkHappened","id":1157628828,"kind":"break","buildingId":16777700} table@34,5,26 zones dining_hall
+[t488] t366009 d306 removed table@34,5,26 zones dining_hall
+[t488] t367201 d307 sulk {"type":"SulkHappened","id":50332723,"kind":"break","buildingId":16777701} chair@33,5,26 zones dining_hall
+[t488] t367209 d307 removed chair@33,5,26 zones dining_hall
+[t488] t368401 d308 sulk {"type":"SulkHappened","id":218104784,"kind":"break","buildingId":16777702} chair@35,5,26 zones dining_hall
+[t488] t368409 d308 removed chair@35,5,26 zones dining_hall
+[t488] t369601 d309 sulk {"type":"SulkHappened","id":150995765,"kind":"break","buildingId":16777680} chair@43,4,26 zones hearth_hall+meeting_area
+[t488] t369601 d309 sulk {"type":"SulkHappened","id":285213689,"kind":"break","buildingId":16777698} chair@33,3,26 zones dining_hall
+[t488] t369609 d309 removed chair@43,4,26 zones hearth_hall+meeting_area
+[t488] t369609 d309 removed chair@33,3,26 zones dining_hall
+[t488] t393602 d329 dwarf died starvation, 67 left
+[t488] t394802 d330 dwarf died starvation, 66 left
+[t488] t402001 d336 sulk {"type":"SulkHappened","id":150995765,"kind":"break","buildingId":16777699} chair@35,3,26 zones dining_hall
+[t488] t402001 d336 sulk {"type":"SulkHappened","id":50332514,"kind":"break","buildingId":16777682} chair@42,5,26 zones hearth_hall+meeting_area
+[t488] t402009 d336 removed chair@42,5,26 zones hearth_hall+meeting_area
+[t488] t402009 d336 removed chair@35,3,26 zones dining_hall
+[three_years_hash] {"seed":"three-years-p2-7","peril":2,"tick":403200,"hash":"c08764a9f83711a9"}
+[t488] seed failed: AssertionError: three-years-p2-7 T-156 witnesses: expected [ 'a dining hall' ] to deeply equal []
+[t488] end hearth_hall zone 16777683 tiles 30 room {"score":169.9,"tier":3,"enclosed":false,"requirementsMet":true,"parts":{"tiles":89,"walls":50,"furniture":0.8999999999999999,"size":30}} buildings chair:built chair:built hearth:built
+[t488] end dining_hall zone 16777703 tiles 25 room {"score":124.8,"tier":2,"enclosed":false,"requirementsMet":false,"parts":{"tiles":69,"walls":29,"furniture":1.8,"size":25}} buildings table:built
+[t488] end hearths ["built"] tables 2 chairs 2

@@ -194,6 +194,8 @@ export interface FortressState {
   readonly caveTiles2: number[];
   hearthHallSetup: boolean;
   diningHallSetup: boolean;
+  /** T-488: the halls' hearth, tables and chairs, where the script placed them, to place again when one is gone. */
+  hallFurniture?: { readonly type: string; readonly origin: number; readonly priority: number }[];
   caveFarmId1: number;
   caveFarmId2: number;
   hearthBuildingId: number;
@@ -904,6 +906,22 @@ export function designateSmoothTiles(w: TestWorld, tiles: readonly number[], pri
   }
 }
 
+/**
+ * T-488: a hearth, table or chair of the halls that is gone (a miserable dwarf breaks the nearest
+ * poor chair or table, 15 § Sulks) is placed again where it stood, as a player replaces it; the
+ * builders bring a new one from stock. In `three-years-p2-7` (master 37da07a4) sulks of year 3
+ * broke the dining hall's table and all four chairs and the 68-dwarf fortress ended without one.
+ */
+export function keepHallFurniture(w: TestWorld, state: FortressState): void {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  for (const { type, origin, priority } of state.hallFurniture ?? []) {
+    if (buildings.at(origin) !== 0 || buildings.ghost(type, origin, 0).reason !== null) continue;
+    if (!command(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority }).ok) continue;
+    if (type === 'hearth') state.hearthBuildingId = bSystem.lastPlacedBuilding;
+  }
+}
+
 export function checkFortressRooms(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
@@ -923,6 +941,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       const hearthOrigin = w.index(cx + 10, cy + 6, state.hallZ);
       const rHearth = command(w, { type: 'PlaceBuilding', buildingType: 'hearth', origin: hearthOrigin, orientation: 0, materialChoice: 0, priority: BUILD - 1 });
       if (rHearth.ok) state.hearthBuildingId = bSystem.lastPlacedBuilding;
+      (state.hallFurniture ??= []).push({ type: 'hearth', origin: hearthOrigin, priority: BUILD - 1 });
 
       // Chairs for hearth-side sitting (all passable)
       const c1 = w.index(cx + 9, cy + 6, state.hallZ);
@@ -933,6 +952,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c2, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c3, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c4, orientation: 0, materialChoice: 0, priority: BUILD });
+      for (const origin of [c1, c2, c3, c4]) state.hallFurniture.push({ type: 'chair', origin, priority: BUILD });
 
       // Create zones
       command(w, { type: 'CreateZone', zoneType: 'hearth_hall', tiles: state.hearthHallTiles });
@@ -962,6 +982,9 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       command(w, { type: 'PlaceBuilding', buildingType: 'table', origin: t2, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c3, orientation: 0, materialChoice: 0, priority: BUILD });
       command(w, { type: 'PlaceBuilding', buildingType: 'chair', origin: c4, orientation: 0, materialChoice: 0, priority: BUILD });
+      for (const [type, origin] of [['table', t1], ['chair', c1], ['chair', c2], ['table', t2], ['chair', c3], ['chair', c4]] as const) {
+        (state.hallFurniture ??= []).push({ type, origin, priority: BUILD });
+      }
 
       // Create dining_hall zone
       command(w, { type: 'CreateZone', zoneType: 'dining_hall', tiles: state.diningHallTiles });
@@ -989,6 +1012,8 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       smooth(state.diningHallTiles);
     }
   }
+
+  keepHallFurniture(w, state);
 
   if (!state.economy.phases.has('pantry') && state.pantryTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
     // Whatever the fortress has zoned there meanwhile keeps its tiles: the pantry takes the rest.
@@ -1519,9 +1544,18 @@ export function playThreeYears(w: TestWorld, state: FortressState, ticks: number
 }
 
 /**
+ * T-488: the fewest dwarves, at the end of a run, of a fortress asked for its halls and bedrooms:
+ * the embark party's size. Raids that cut a fortress below it can leave the rooms half dug (in
+ * `three-years-p2-4` at shift 50 the halls were still being dug when the miners died) or their
+ * furniture broken by miserable survivors; a handful of dwarves is not asked to finish or keep them.
+ */
+export const ROOMS_WITNESS_POPULATION = 7;
+
+/**
  * T-156: what the script exists to exercise, each of which must have happened by the end of a
- * run. Returns the witnesses that are missing. The structures and the squad hold at every peril;
- * at perils 2 and 4 a living fortress has also raised the hearth alert and lowered it, and traded.
+ * run. Returns the witnesses that are missing. The gate and the squad hold at every peril; the
+ * halls and bedrooms in a fortress of at least ROOMS_WITNESS_POPULATION dwarves (T-488); at perils
+ * 2 and 4 a living fortress has also raised the hearth alert and lowered it, and traded.
  */
 export function fortressWitnesses(w: TestWorld, state: FortressState, peril: number): string[] {
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -1535,9 +1569,13 @@ export function fortressWitnesses(w: TestWorld, state: FortressState, peril: num
   if (!rebuilding && !walls.every((id) => id !== 0 && buildings.get(id)?.typeId === 'wall' && built(id))) missing.push('gate walls built');
   if (!built(state.gateDoorId) || !built(state.gateDoorId2)) missing.push('gate doors built');
   const rooms = (type: string): number => buildings.zonesOfType(type).filter((id) => buildings.roomScore(id)?.requirementsMet === true).length;
-  if (rooms('hearth_hall') < 1) missing.push('a hearth hall');
-  if (rooms('dining_hall') < 1) missing.push('a dining hall');
-  if (rooms('bedroom') < 7) missing.push(`seven bedrooms (${rooms('bedroom')})`);
+  const ent = w.game.world.entities;
+  const living = w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+  if (living >= ROOMS_WITNESS_POPULATION) {
+    if (rooms('hearth_hall') < 1) missing.push('a hearth hall');
+    if (rooms('dining_hall') < 1) missing.push('a dining hall');
+    if (rooms('bedroom') < 7) missing.push(`seven bedrooms (${rooms('bedroom')})`);
+  }
   if (!w.readers.of<CombatReader>('16').squads().some((sq) => sq.id === state.squadId)) missing.push('the squad');
   if (peril >= 2) {
     const alerts = w.events('AlertChanged');

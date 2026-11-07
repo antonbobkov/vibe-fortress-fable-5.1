@@ -709,6 +709,25 @@ function checkBrewer(w: TestWorld, state: FortressState): void {
   dedicate(w, state, free[0], ['brewing']);
 }
 
+/**
+ * T-488: when the last dwarf with the mining labor dies, the player gives it to another, so the
+ * halls, bedrooms and drifts still designated are dug. Only the founders' two miners and the
+ * immigrants nobody dedicated mine; a raid that kills them all left a fortress of survivors with
+ * hundreds of dig jobs nobody could take, and no hearth or dining hall (`three-years-p2-4`,
+ * shift 50). A dwarf the specialists keep at a bench is the last choice, then the most skilled
+ * miner, then the lowest id.
+ */
+export function keepAMiner(w: TestWorld, state: FortressState): void {
+  const adults = fortressDwarves(w);
+  const jobs = w.readers.of<JobsReader>('11');
+  if (adults.length === 0 || adults.some((id) => jobs.laborEnabled(id, 'mining'))) return;
+  const benched = new Set(Object.values(state.economy.specialists));
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  const miner = adults.slice().sort((a, b) => Number(benched.has(a)) - Number(benched.has(b)) ||
+    dwarves.skill(b, 'mining') - dwarves.skill(a, 'mining') || a - b)[0]!;
+  command(w, { type: 'SetLabor', dwarfId: miner, labor: 'mining', on: true });
+}
+
 /** Kitchens and stills follow the dwarf count, and the lavish order follows it too. */
 function checkKitchens(w: TestWorld, state: FortressState): void {
   const { phases } = state.economy;
@@ -1273,6 +1292,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     if (!phases.has(name)) { phases.add(name); mine(w, state, upper, isOre, 20); mine(w, state, upper, isGem, 5); }
   }
   checkBrewer(w, state);
+  keepAMiner(w, state);
   checkFarm(w, state);
   checkCaveStrips(w, state);
   checkCrops(w);
