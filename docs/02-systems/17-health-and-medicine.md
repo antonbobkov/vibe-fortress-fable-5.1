@@ -130,11 +130,11 @@ Tame animals get bandaging only, and a summon (a creature with `Summoned`) gets 
 
 ### Events emitted
 
-`WoundInflicted { id, part, type, severity }`, `LimbLost { id, part }`, `CreatureUnconscious { id }`, `CreatureConscious { id }`, `CreatureDied { id, cause, killerId }`, `PatientAdmitted`, `PatientDischarged`, `PatientHealed { id, hospitalTier }`, `InfectionStarted { id }`, `InfectionCured { id }`, `TreatmentDone { patientId, medicId, kind }`, and 04's `CreatureSubmerged { id, tile }` (each health tick, for every creature its own drowning check finds submerged).
+`WoundInflicted { id, part, type, severity }`, `LimbLost { id, part, name, species }`, `CreatureUnconscious { id }`, `CreatureConscious { id }`, `CreatureDied { id, cause, killerId }`, `PatientAdmitted`, `PatientDischarged`, `PatientHealed { id, hospitalTier }`, `InfectionStarted { id }`, `InfectionCured { id }`, `TreatmentDone { patientId, medicId, kind }`, and 04's `CreatureSubmerged { id, tile }` (each health tick, for every creature its own drowning check finds submerged).
 
 ### Registrations
 
-Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_bleeding`, `set_bone`, `suture`, `clean_wound`, `dress_burn`, `diagnose`, `give_crutch`, `bandage_animal`); inspector section `creature › health` (parts with hp bars, wounds with treatment flags, blood, pain, consciousness, permanent injuries); announcements: `PatientAdmitted` (note), `CreatureUnconscious` for dwarves (alert), `CreatureDied` for dwarves (danger, pauses; "Ketil Ironvein has bled to death"), for pets (alert), for others (note), `InfectionStarted` (alert), `LimbLost` (alert).
+Job producer `health` (`carry_patient`, `feed_patient`, `water_patient`, `stop_bleeding`, `set_bone`, `suture`, `clean_wound`, `dress_burn`, `diagnose`, `give_crutch`, `bandage_animal`); inspector section `creature › health` (parts with hp bars, wounds with treatment flags, blood, pain, consciousness, permanent injuries); announcements: `PatientAdmitted` (note), `CreatureUnconscious` for dwarves (alert), `CreatureDied` for dwarves (danger, pauses; "Ketil Ironvein has bled to death"), for pets (alert), for others (note), `InfectionStarted` (alert), `LimbLost` (alert; "Ketil Ironvein has lost a limb", an animal or a raider by its species, "A cat has lost a limb"; the event carries the name and species taken when the limb was lost, so the line names a creature the same blow killed).
 
 ## Player-facing behavior
 

@@ -1339,7 +1339,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.creature_died': '{name} has died.',
   'announce.summon_faded': '{name} fades.',
   'announce.infection': '{dwarf} has developed an infection.',
-  'announce.limb_lost': '{dwarf} has lost a limb.',
+  'announce.limb_lost': '{name} has lost a limb.',
   // 19 Defense announcements.
   'announce.trap_triggered': 'A trap has been triggered.',
   'announce.trap_jammed': 'A trap has jammed.',

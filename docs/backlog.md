@@ -23,7 +23,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-510 | [Cats stand together on one tile of the hall's walking line](work/T-510-cats-stand-together-in-the-hall-way.md) | T-508's measurements | — | open |
 | T-511 | [The browser year's opening can leave its kitchen or hearth waiting for stone](work/T-511-browser-year-opening-stone.md) | T-509's report | — | open |
-| T-515 | [A limb lost by a creature that dies in the same tick is logged as "{dwarf} has lost a limb."](work/T-515-limb-lost-placeholder.md) | T-514's runs | — | open |
 | T-518 | [The three-year fortress is one broken door from its halls, and a siege's trollkin break it when they follow a dwarf there](work/T-518-three-years-gate-one-door-from-the-halls.md) | T-512's measurements | — | open |
 | T-519 | [Three invariant findings in shifted sweeps of master](work/T-519-sweep-invariant-findings.md) | T-513's noise run | — | open |
 

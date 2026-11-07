@@ -1,5 +1,7 @@
 # T-515 — A limb lost by a creature that dies in the same tick is logged as "{dwarf} has lost a limb."
 
+**Closed:** 2026-11-06, in 6a04a336.
+
 **Source:** T-514 (the screenshots of `three-years-p4-3`'s year-2 siege, a save of day 185 played on 100 ticks) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
