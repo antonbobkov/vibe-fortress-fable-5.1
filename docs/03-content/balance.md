@@ -212,15 +212,15 @@ The three-year fortress plays three years on twenty seeds of its standard world:
 
 | Measure | Target | Latest accepted | Best measured | Bound |
 |---|---|---:|---:|---|
-| Fortresses alive at the end of year 1 | All twenty | 19.75 | — | At least 18 (the set rule) |
+| Fortresses alive at the end of year 1 | All twenty | 20 | — | At least 18 (the set rule) |
 | Peril-0 fortresses past embark size at year 3 | All seven | 7 | — | At least 6 (the set rule) |
 | Peril-0 fortresses with a dwarf dead of hunger or thirst | None | 0 | — | At most 1 (the set rule) |
-| Dwarves living at year 3, over the twenty | — | 876 | 876 | At least 776 |
-| Dwarf deaths, over the twenty | — | 145 | 145 | At most 175 |
-| Fortresses extinct by year 3 | — | 2.5 | — | Reported; not guarded |
-| Dwarf deaths from hunger or thirst | None | 1.25 | — | Reported; not guarded |
+| Dwarves living at year 3, over the twenty | — | 948.5 | 948.5 | At least 848.5 |
+| Dwarf deaths, over the twenty | — | 125.25 | 125.25 | At most 155.25 |
+| Fortresses extinct by year 3 | — | 0.25 | — | Reported; not guarded |
+| Dwarf deaths from hunger or thirst | None | 0.25 | — | Reported; not guarded |
 
-The latest accepted row is [shifts 0 to 150 of master after T-512 and T-517](../../reports/data/2026-11-06-t513-verdict.md) (run 42347442263, [report](../../reports/audits/2026-11-06-t513-sweep-verdict.md)). The master before them, measured over [ten shifts](../../reports/data/2026-11-06-t513-sweeps.json) (run 42329994960), pooled to 20 / 7 / 0.75 / 903.75 / 141.75 at the same four shifts. The bounds and their tolerances (living 100, deaths 30) are those of [testing-strategy.md § The twenty-seed sweep](../process/testing-strategy.md#the-twenty-seed-sweep), each wider than the spread of its pooled figure between two sets of four shifts of the same code. Before T-512 the peril-0 hunger was not met: `three-years-p0-3` starved in three of ten timelines (1 to 16 dead), `three-years-p0-4` in one; after it, no peril-0 fortress has a need death in the four reference timelines.
+The latest accepted row is [shifts 0 to 150 of master `8e622811`](../../reports/data/2026-11-07-t525-sweep-verdict.md) (run 42420388361), after the second gate line, the sowing fix, the three-year script's halls, and the party and labour fixes; the same code's sweep for those last two (run 42415227316) gave the same row. The row before it, of [shifts 0 to 150 of master after T-512 and T-517](../../reports/data/2026-11-06-t513-verdict.md) (run 42347442263, [report](../../reports/audits/2026-11-06-t513-sweep-verdict.md)), was 19.75 / 7 / 0 / 876 / 145, with 2.5 extinct and 1.25 need deaths, and bounds of 776 living and 175 deaths. The defence repel rate is still being worked on and may move this row again. The master before T-512 and T-517, measured over [ten shifts](../../reports/data/2026-11-06-t513-sweeps.json) (run 42329994960), pooled to 20 / 7 / 0.75 / 903.75 / 141.75 at the same four shifts. The bounds and their tolerances (living 100, deaths 30) are those of [testing-strategy.md § The twenty-seed sweep](../process/testing-strategy.md#the-twenty-seed-sweep), each wider than the spread of its pooled figure between two sets of four shifts of the same code. Before T-512 the peril-0 hunger was not met: `three-years-p0-3` starved in three of ten timelines (1 to 16 dead), `three-years-p0-4` in one; after it, no peril-0 fortress has a need death in the four reference timelines.
 
 Re-measure before and after a change that can move the three-year fortress, with one command: `gh workflow run measure.yml --ref <branch> -f suite=sweep`.
 

@@ -87,13 +87,13 @@ export function poolSweeps(samples: readonly SweepFigures[]): SweepFigures {
  */
 export const SWEEP_TOLERANCE = { living: 100, deaths: 30 };
 
-// T-513: the guards start from the first pooled row, shifts 0, 50, 100 and 150 of master `ec0c9e03`
-// (T-512, T-517; Measure run 42347442263). The noise was measured on master `1a8f0ef4`, whose row was
-// 20/7/0.75/903.75/141.75 (run 42329994960).
+// T-525: shifts 0, 50, 100 and 150 of master `8e622811` (after T-518, T-512, T-488, T-523 and T-524;
+// Measure run 42420388361). T-513's first row, of master `ec0c9e03`, was 19.75/7/0/876/145. The noise
+// was measured on master `1a8f0ef4`, whose row was 20/7/0.75/903.75/141.75 (run 42329994960).
 /** The best accepted pooled figures, which set the bounds; a tolerated loss is not ratcheted down. */
-export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 876, deaths: 145 };
+export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 948.5, deaths: 125.25 };
 /** The latest accepted pooled row. */
-export const SWEEP_REFERENCE: SweepFigures = { alive: 19.75, grown: 7, hungry: 0, living: 876, deaths: 145, extinct: 2.5, needDeaths: 1.25 };
+export const SWEEP_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 948.5, deaths: 125.25, extinct: 0.25, needDeaths: 0.25 };
 
 export interface SweepCheck {
   readonly allowed: boolean;
