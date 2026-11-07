@@ -223,6 +223,11 @@ export class TileGraph implements ConnectivityGraph {
     this.vertical(i, cls, fn, NO_MOVER, false);
   }
 
+  /** `22` § Connectivity labels: a built door on the tile (the search of `nearestReachable` goes through it). */
+  doorAt(i: TileIndex): boolean {
+    return this.hooks.doorAt(i);
+  }
+
   /** `22` § Edges: a tile a diagonal step may not cut past, and a ramp may lean on. */
   cornerBlocks(i: TileIndex): boolean {
     return isSolidObstacle(this.map.kindAt(i));

@@ -112,6 +112,28 @@ describe('T-M0-09 connectivity: labels equal reachability', () => {
     expect(core.connectivity.nearestReachable(from, map.index(16, 3, 0), 'walker', 500)).toBe(-1);
   });
 
+  it('T-522: `nearestReachable` searches through a locked door, the way in, to the tile before it', () => {
+    // Two rooms joined by a doorway at x = 10; the door in it is locked, so they have two labels.
+    const map = solidMap(24, 8, 1);
+    fillRect(map, 1, 1, 9, 6, 0, TileKind.Floor);
+    fillRect(map, 11, 1, 22, 6, 0, TileKind.Floor);
+    const door = map.index(10, 3, 0);
+    map.setKind(door, TileKind.Floor, 1);
+    const core = new PathingCore(map, { doorAt: (i) => i === door, blocksMovementAt: (i) => i === door });
+    const outside = map.index(2, 3, 0);
+    const hearth = map.index(20, 3, 0);
+    expect(core.connectivity.reachable(outside, hearth, 'walker')).toBe(false);
+    // Without the door the search stops in the hearth's room; with it, it finds the tile before the door.
+    for (const goal of [hearth, map.index(16, 5, 0)]) {
+      const found = core.connectivity.nearestReachable(outside, goal, 'walker', 500);
+      expect(found).toBeGreaterThanOrEqual(0);
+      expect(map.xOf(found), 'next to the doorway, on the outer side').toBe(9);
+      expect(Math.abs(map.yOf(found) - 3)).toBeLessThanOrEqual(1);
+    }
+    // The door is no tile of the mover's: a door with nothing beyond it finds nothing.
+    expect(core.connectivity.nearestReachable(map.index(0, 0, 0), hearth, 'walker', 500)).toBe(-1);
+  });
+
   it('only the chunks marked dirty are rebuilt', () => {
     const map = solidMap(40, 8, 1);
     fillRect(map, 1, 1, 38, 6, 0, TileKind.Floor);
