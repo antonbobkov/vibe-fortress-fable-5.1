@@ -1,0 +1,103 @@
+/**
+ * T-519 probe (not kept in test/): a three-year seed played as the sweep plays it at a shift, and the
+ * caravan watched from day FROM: its state, each member's tile, walk target, destination and whether it
+ * can reach it; and, at CHEST, the built containers no dwarf reaches with their neighbourhood.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { TradeSystem } from '@systems/trade';
+import { watchInvariants } from '../scenarios/invariants';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T519_SEED'] ?? 'three-years-p2-4';
+const PERIL = Number(process.env['T519_PERIL'] ?? 2);
+const SHIFT = Number(process.env['T519_SHIFT'] ?? 400);
+const FROM = Number(process.env['T519_FROM'] ?? 149);
+const TO = Number(process.env['T519_TO'] ?? 172);
+const EVERY = Number(process.env['T519_EVERY'] ?? 600);
+
+it(`T-519 probe ${SEED} shift ${SHIFT}`, () => {
+  const w = threeYearsWorld(SEED, PERIL);
+  const findings: string[] = [];
+  watchInvariants(w.game, (f) => { for (const x of f) if (findings.length < 6) findings.push(`t${w.tick} ${x.inv} ${x.cls} ${x.samples[0] ?? ''}`); });
+  if (SHIFT > 0) w.step(SHIFT);
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const trade = w.game.world.scheduler.byId('20') as TradeSystem;
+  const movement = w.game.world.services.movement as unknown as { walkTarget(id: number): number };
+  const pr = w.readers.pathing;
+  const boot = 20 * TICKS_PER_DAY;
+  const end = TO * TICKS_PER_DAY;
+  const log: string[] = [];
+  const xyz = (t: number): string => (t < 0 ? '-' : `${w.map.xOf(t)},${w.map.yOf(t)},${w.map.zOf(t)}`);
+  w.game.world.onEvents((events) => {
+    if (w.tick < FROM * TICKS_PER_DAY) return;
+    for (const e of events) {
+      if (e.type.startsWith('Caravan') || e.type === 'RaidArrived' || e.type === 'RaidEnded' || e.type === 'AlertChanged' || e.type === 'DoorBroken' || e.type === 'DoorLocked' || e.type === 'DoorUnlocked' || e.type === 'BuildingCompleted' || e.type === 'BuildingRemoved' || e.type === 'CaveIn' || e.type === 'TileChanged') {
+        if (log.length < 2000) log.push(`t${w.tick} ${e.type} ${JSON.stringify(e).slice(0, 200)}`);
+      }
+    }
+  });
+  let lastPrint = 0;
+  while (w.tick < end) {
+    playThreeYears(w, state, w.tick < boot ? Math.min(100, boot - w.tick) : Math.min(300, end - w.tick));
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    if (w.tick < FROM * TICKS_PER_DAY || w.tick - lastPrint < EVERY) continue;
+    lastPrint = w.tick;
+    const CHEST = Number(process.env['T519_CHEST'] ?? -1);
+    if (CHEST >= 0) {
+      const fortressLabels = new Map<number, number>();
+      for (const id of ent.with(C.Labors)) {
+        const p = ent.get(id, C.Position);
+        if (!p || !ent.alive(id)) continue;
+        const l = pr.labelOf(w.map.index(p.x, p.y, p.z), 'walker');
+        fortressLabels.set(l, (fortressLabels.get(l) ?? 0) + 1);
+      }
+      const cx = w.map.xOf(CHEST); const cy = w.map.yOf(CHEST); const cz = w.map.zOf(CHEST);
+      const grid: string[] = [];
+      for (let dy = -2; dy <= 2; dy += 1) {
+        let row = '';
+        for (let dx = -2; dx <= 2; dx += 1) {
+          const t = w.map.index(cx + dx, cy + dy, cz);
+          const occ = [...ent.with(C.Building)].filter((b) => ent.get(b, C.Building)!.footprint.includes(t)).map((b) => { const bb = ent.get(b, C.Building)!; return `${w.game.registry.table('buildings').idOf(bb.type)}:${bb.state}`; }).join('+');
+          row += ` [${w.map.kindAt(t)}${pr.passable(t, 'walker', { faction: 'fortress' }) ? 'p' : 'x'}L${pr.labelOf(t, 'walker')}${occ ? ' ' + occ : ''}]`;
+        }
+        grid.push(row);
+      }
+      const dwarves: string[] = [];
+      for (const id of ent.with(C.Labors)) {
+        const p = ent.get(id, C.Position);
+        if (!p || !ent.alive(id)) continue;
+        const t = w.map.index(p.x, p.y, p.z);
+        const occ = [...ent.with(C.Building)].filter((b) => ent.get(b, C.Building)!.footprint.includes(t)).map((b) => { const bb = ent.get(b, C.Building)!; return `${w.game.registry.table('buildings').idOf(bb.type)}:${bb.state}`; }).join('+');
+        const brain = ent.get(id, C.Brain) as { behavior?: string } | undefined;
+        const body = ent.get(id, C.Body);
+        dwarves.push(`D${id}@${p.x},${p.y},${p.z} kind=${w.map.kindAt(t)} L${pr.labelOf(t, 'walker')} ${occ} beh=${brain?.behavior} c=${body?.conscious ? 1 : 0} reachChest=${pr.reachable(t, w.map.index(cx - 1, cy, cz), 'walker')}`);
+      }
+      log.push(`t${w.tick} day${(w.tick / TICKS_PER_DAY).toFixed(2)} chest@${cx},${cy},${cz} dwarfLabels=${JSON.stringify([...fortressLabels])} ${dwarves.join(' | ')}${EVERY >= 1200 ? `\n  ${grid.join('\n  ')}` : ''}`);
+      continue;
+    }
+    const a = trade.serialize().activeCaravan;
+    if (!a) { log.push(`t${w.tick} no caravan`); continue; }
+    const party = ent.get(a.partyId, C.Party);
+    const depot = w.game.world.entities.get(a.depotId, C.Building);
+    const rows: string[] = [];
+    for (const id of [...a.merchants, ...a.guards, ...a.animals]) {
+      if (!ent.alive(id)) continue;
+      const p = ent.get(id, C.Position);
+      const at = p ? w.map.index(p.x, p.y, p.z) : -1;
+      const dest = a.destinations?.[id] ?? -1;
+      const role = a.merchants.includes(id) ? 'M' : a.guards.includes(id) ? 'G' : 'A';
+      const body = ent.get(id, C.Body);
+      const brain = ent.get(id, C.Creature);
+      rows.push(`${role}${id}@${xyz(at)} c=${body?.conscious ? 1 : 0} walk=${xyz(movement.walkTarget(id))} dest=${xyz(dest)} pass=${dest >= 0 ? pr.passable(dest, 'walker') : '-'} reach=${dest >= 0 && at >= 0 ? pr.reachable(at, dest, 'walker') : '-'} edgeReach=${at >= 0 ? pr.reachable(at, a.edgeTile, 'walker') : '-'} fac=${brain?.faction}`);
+    }
+    log.push(`t${w.tick} day${(w.tick / TICKS_PER_DAY).toFixed(1)} civ=${a.civ} state=${a.state} since=${a.stateSince} party=${party?.state}/${party?.stateSince} attacked=${a.attacked} lost=${a.lost} depot=${a.depotId} ${depot ? `${depot.state} fp=${depot.footprint.map(xyz).join(' ')}` : 'GONE'} edge=${xyz(a.edgeTile)} dead=${a.dead.length}\n   ${rows.join('\n   ')}`);
+  }
+  console.log(log.join('\n'));
+  console.log('INVARIANTS\n' + findings.join('\n'));
+}, 3_600_000);
