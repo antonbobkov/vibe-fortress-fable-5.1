@@ -1179,7 +1179,10 @@ export function innerLineBuilt(w: TestWorld, state: FortressState): boolean {
  * T-518: a player who has seen a siege's trollkin break a door builds a second line: once the gate
  * stands and the four ways out of the stair's foot are dug, the short way round it is dug, and then
  * a door goes on each way out, locked on the alert like the gate's. A broken gate door then leaves a
- * siege in the gatehouse; a door that is broken or gone is placed again, as the gate's are.
+ * siege in the gatehouse; a door that is broken or gone is placed again, as the gate's are. The line
+ * is built ahead of routine work, and the doors it lacks are made first at the mason's: the mason
+ * takes its orders in list order, and the routine blocks ahead of the stock doors would leave the
+ * line half built for months.
  */
 function keepInnerLine(w: TestWorld, state: FortressState): void {
   if (!state.gateDoorPlaced || !state.gateDoorPlaced2) return;
@@ -1206,12 +1209,21 @@ function keepInnerLine(w: TestWorld, state: FortressState): void {
     if (b === undefined) {
       ids[k] = 0;
       if (buildings.at(origin) === 0 && buildings.ghost('door', origin, 0).reason === null &&
-        command(w, { type: 'PlaceBuilding', buildingType: 'door', origin, orientation: 0, materialChoice: 0, priority: BUILD }).ok) {
+        command(w, { type: 'PlaceBuilding', buildingType: 'door', origin, orientation: 0, materialChoice: 0, priority: KIT_FIRST }).ok) {
         ids[k] = bSystem.lastPlacedBuilding;
       }
     } else if (b.state === 'built' && b.mode !== 'lock_on_alert') {
       command(w, { type: 'SetDoorMode', buildingId: id, mode: 'lock_on_alert' });
     }
+  }
+  const waiting = [...ids, state.gateDoorId, state.gateDoorId2].filter((id) => id !== 0 && buildings.get(id)?.state === 'planned').length;
+  const short = waiting - w.readers.of<ItemsReader>('13').available('door');
+  const mason = state.placedIds['mason'] ?? 0;
+  const orders = (): readonly { recipe: number }[] => w.game.world.entities.get(mason, C.Workshop)?.orders ?? [];
+  const doorRecipe = w.game.registry.table('recipes').index('make_door_stone');
+  if (short > 0 && mason !== 0 && buildings.get(mason)?.state === 'built' && !orders().some((o, i) => o.recipe === doorRecipe && i === 0) &&
+    command(w, { type: 'AddWorkOrder', workshopId: mason, order: { recipeId: 'make_door_stone', mode: 'once', remaining: short, priority: KIT_FIRST } }).ok) {
+    command(w, { type: 'ReorderWorkOrder', workshopId: mason, from: orders().length - 1, to: 0 });
   }
 }
 

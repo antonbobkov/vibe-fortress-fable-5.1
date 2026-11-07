@@ -7,6 +7,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { C } from '@core/components';
 import type { BuildingsReader } from '@systems/buildings';
 import type { JobsReader } from '@systems/jobs';
+import type { ItemsReader } from '@systems/items';
 import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld, innerLineBuilt } from '../scenarios/three_years_fortress';
 
 const SEED = process.env['T518_SEED'] ?? 'three-years-p4-3';
@@ -26,6 +27,7 @@ it(`T-518 siege probe ${SEED}`, () => {
   const end = TO * TICKS_PER_DAY;
   const firstBlood: string[] = [];
   let lineDay = -1;
+  let lastDoors = '';
   w.game.world.onEvents((events) => {
     for (const e of events) {
       if (e.type === 'CreatureDied' && ent.get(Number(e['id']), C.Labors) !== undefined && firstBlood.length < 5) {
@@ -42,6 +44,15 @@ it(`T-518 siege probe ${SEED}`, () => {
     checkFortressDefense(w, state);
     const day = w.tick / TICKS_PER_DAY;
     if (lineDay < 0 && innerLineBuilt(w, state)) { lineDay = day; console.log(`T518L inner line built day ${day.toFixed(2)}`); }
+    const seenDoors = (state.innerDoorIds ?? []).map((id) => `${id}:${id === 0 ? 'none' : `${b.get(id)?.state}`}`).join(',');
+    const westId = (state.innerDoorIds ?? [])[0] ?? 0;
+    const westJobs = westId === 0 ? [] : jobs.list().filter((j) => JSON.stringify(j).includes(`${westId}`)).map((j) => `${j.type}/${j.state}/${jobs.blockedReason(j.id)}`);
+    const sig = `${seenDoors} ${westJobs.join(';')}`;
+    if (sig !== lastDoors && (day >= FROM - 80)) {
+      lastDoors = sig;
+      const wt = w.index(state.cx + 5, state.cy + 6, state.hallZ);
+      console.log(`T518D day ${day.toFixed(2)} doors ${seenDoors} westJobs ${westJobs.join(';')} westItems ${w.readers.of<ItemsReader>('13').at(wt).length} doorItems ${w.readers.of<ItemsReader>('13').count('door')}`);
+    }
     if (day < FROM) continue;
     const door = (id: number): string => id === 0 ? 'none' : `${b.get(id)?.state}/${b.mechanismState(id)}`;
     const hostiles = ent.with(C.Hostile).filter((id) => ent.alive(id));
