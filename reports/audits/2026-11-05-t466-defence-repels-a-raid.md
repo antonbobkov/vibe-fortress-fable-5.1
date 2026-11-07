@@ -49,7 +49,7 @@ On `defence-year-7` the captain is not caught (the cage trap's one catch in that
 
 **The set rule.** `test/perf/defence_year_seeds.test.ts` asserts that at least 5 of the 8 seeds end every announced raid `repelled` or `wiped`. The cadence-25 run (the script looking at the defence every 25 ticks instead of 20, which moves only the job timeline) moved no seed's ending. It lost one seed to a script fault, not to the raid. A bound of 5 leaves room for two more flips. `defence-year-4` and `-8` never finish the bridge trial (as in the [noise report](2026-11-01-defence-year-noise.md)), so the scenario's own assertions would fail on them. Their raids are still counted.
 
-**The script fault.** On `defence-year-6` at cadence 25 the script zoned the archery range over the target's tile, which another zone had taken first: `CreateZone rejected (overlap)` on tick 75,976. Filed as [T-NEW: the archery range overlaps](../../docs/work/T-503-defence-script-archery-range-overlap.md).
+**The script fault.** On `defence-year-6` at cadence 25 the script zoned the archery range over the target's tile, which another zone had taken first: `CreateZone rejected (overlap)` on tick 75,976. Filed as [T-NEW: the archery range overlaps](../../docs/archive/tasks/T-503-defence-script-archery-range-overlap.md).
 
 ## Is the raid still dangerous?
 
