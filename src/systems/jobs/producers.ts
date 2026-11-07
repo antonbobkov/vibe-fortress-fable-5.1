@@ -55,6 +55,11 @@ export interface ItemSource {
    * that launcher's ammunition (0 when it holds some). Null when it cannot have both.
    */
   findRangedKit?(workerId: EntityId, from: TileIndex): { launcher: EntityId; ammo: EntityId } | null;
+  /**
+   * The worker's weapon slot holds a weapon that is not a launcher with ammunition (a soldier's axe,
+   * a channel): 16 shoots only what it wields, so it takes no ranged job (11 § Assignment).
+   */
+  wieldsOtherWeapon?(workerId: EntityId): boolean;
   /** A stack of at most `n` units of the item: the item itself, or a part split from it. */
   limitStack?(itemId: EntityId, n: number): EntityId;
   reserve(itemId: EntityId, jobId: number): void;
