@@ -22,7 +22,7 @@ on:
         type: string
         default: '20'
       shifts:
-        description: For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening (empty = the suite's own: 0-7, and 0,50,100,150)
+        description: "For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening, one job each (empty = the suite's own, 0 to 7 and 0,50,100,150)"
         type: string
         default: ''
       snapshots:
