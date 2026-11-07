@@ -1,6 +1,6 @@
 # Measurement: the raid arenas on today's rules
 
-**Task:** T-499 · **Date:** 2026-11-07 · **Commit examined:** master `ad591b0f` (with T-483's careless shooters, T-504's raid morale, T-477's ward of 4 and T-498's held shooter stepping aside) · **Kind:** re-measurement; no rule, constant or content value was changed · **Source:** [the T-499 work file](../../docs/work/T-499-raid-arenas-after-held-shot.md), [the careless-shooter arena](2026-11-04-t483-careless-shooter-arena.md), [the held-shot arena](2026-11-04-t483-held-shot-arena.md)
+**Task:** T-499 · **Date:** 2026-11-07 · **Commit examined:** master `ad591b0f` (with T-483's careless shooters, T-504's raid morale, T-477's ward of 4 and T-498's held shooter stepping aside) · **Kind:** re-measurement; no rule, constant or content value was changed · **Source:** [the T-499 work file](../../docs/archive/tasks/T-499-raid-arenas-after-held-shot.md), [the careless-shooter arena](2026-11-04-t483-careless-shooter-arena.md), [the held-shot arena](2026-11-04-t483-held-shot-arena.md)
 
 ## The answer
 
