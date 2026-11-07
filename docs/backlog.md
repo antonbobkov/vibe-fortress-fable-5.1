@@ -17,7 +17,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-521 | [A hunter who joins a squad and takes a melee weapon keeps the fortress's launcher](work/T-521-hunter-in-squad-keeps-launcher.md) | T-500's code reading | — | open |
 | T-522 | [The defence fortress turns back fewer raids, and nothing checks it](work/T-522-defence-repel-rate-fell.md) | T-503's runs | — | open |
-| T-523 | [The party invariant can sample a dead party between thinks](work/T-523-party-invariant-gap.md) | T-510's sweep | — | open |
 | T-524 | [The three-year script keeps a decimated fortress's specialists on one labor](work/T-524-decimated-fortress-keeps-specialists.md) | T-488's work | — | open |
 | T-525 | [Refresh the sweep's reference after the gate and food fixes](work/T-525-refresh-sweep-reference.md) | T-488's work | — | open |
 

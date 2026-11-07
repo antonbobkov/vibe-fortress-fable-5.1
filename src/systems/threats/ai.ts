@@ -527,17 +527,7 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
   P.despawnedCount = (P.despawnedCount ?? 0) + 1;
 
   const remainingAlive = P.members.filter((id) => inParty(entities, id));
-  if (remainingAlive.length === 0) {
-    P.state = 'gone';
-    P.stateSince = ctx.tick;
-    const outcome = finalPartyOutcome(P);
-    P.outcome = outcome;
-    ctx.emit({
-      type: 'RaidEnded',
-      partyId,
-      outcome,
-    });
-  }
+  if (remainingAlive.length === 0) endParty(partyId, P, ctx);
 }
 
 function setHearthOrWagonGoal(
@@ -850,10 +840,25 @@ function retreatSurvivors(P: Party, ctx: TickContext): boolean {
   return true;
 }
 
+/** The party's end once no member is left in it: gone, with its final outcome and RaidEnded. */
+function endParty(partyId: EntityId, P: Party, ctx: TickContext): void {
+  P.state = 'gone';
+  P.stateSince = ctx.tick;
+  const outcome = finalPartyOutcome(P);
+  P.outcome = outcome;
+  ctx.emit({ type: 'RaidEnded', partyId, outcome });
+}
+
 export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickContext): void {
-  if (!threatParty(P)) return;
-  if (P.state === 'retreat' || P.state === 'gone' || P.purpose === 'restless') return;
+  if (!threatParty(P) || P.state === 'gone') return;
   const entities = ctx.world.entities;
+  // T-523: a party with no member left ends on that casualty, in every state, as its next think
+  // would end it; a retreating or restless party no longer lingers until then.
+  if (!P.members.some((id) => inParty(entities, id))) {
+    endParty(partyId, P, ctx);
+    return;
+  }
+  if (P.state === 'retreat' || P.purpose === 'restless') return;
   const alive = P.members.filter((m) => {
     if (!inParty(entities, m)) return false;
     const body = entities.get(m, C.Body);
@@ -862,12 +867,7 @@ export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickConte
   });
 
   if (alive.length === 0) {
-    if (retreatSurvivors(P, ctx)) return;
-    P.state = 'gone';
-    P.stateSince = ctx.tick;
-    const outcome = finalPartyOutcome(P);
-    P.outcome = outcome;
-    ctx.emit({ type: 'RaidEnded', partyId, outcome });
+    retreatSurvivors(P, ctx);
     return;
   }
 
@@ -917,12 +917,7 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
   });
 
   if (alive.length === 0) {
-    if (retreatSurvivors(P, ctx)) return;
-    P.state = 'gone';
-    P.stateSince = ctx.tick;
-    const outcome = finalPartyOutcome(P);
-    P.outcome = outcome;
-    ctx.emit({ type: 'RaidEnded', partyId, outcome });
+    if (!retreatSurvivors(P, ctx)) endParty(partyId, P, ctx);
     return;
   }
 
