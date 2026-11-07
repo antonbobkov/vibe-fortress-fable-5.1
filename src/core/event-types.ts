@@ -322,7 +322,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   KillRecorded: "killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies",
   TrainingSession: "squadId, members[]",
   WoundInflicted: "id, part, type, severity",
-  LimbLost: "id, part",
+  LimbLost: "id, part, name, species",
   CreatureUnconscious: "id",
   CreatureConscious: "id",
   CreatureDied: "id, cause, killerId, tile, species, name, faction, ageTicks, wornItems",

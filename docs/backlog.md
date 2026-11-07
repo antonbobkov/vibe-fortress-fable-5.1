@@ -15,15 +15,12 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
 | T-488 | [three-years-p2-7 ends without its dining hall](work/T-488-p2-7-dining-hall-witness.md) | T-479's sweep | — | open |
 | T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
-| T-490 | [11 still describes the crowded-doorway retry that crowding removed](work/T-490-stale-crowded-walk-rule.md) | T-487's journal | — | open |
 | T-499 | [Re-measure the raid arenas now that archers weigh their shots](work/T-499-raid-arenas-after-held-shot.md) | T-483's arena and sweep | — | open |
 | T-500 | [The Warband's hunter never takes a hunt in pp_defence](work/T-500-warband-hunt-no-tool.md) | T-483's arena and sweep | — | open |
 | T-502 | [A soldier on `hold` who is off its station with a target stays where it is](work/T-502-hold-soldier-off-station.md) | T-493's arena | — | open |
 | T-503 | [`defence_year`'s script zones an archery range over a tile another zone holds](work/T-503-defence-script-archery-range-overlap.md) | T-466's report | — | open |
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-510 | [Cats stand together on one tile of the hall's walking line](work/T-510-cats-stand-together-in-the-hall-way.md) | T-508's measurements | — | open |
-| T-511 | [The browser year's opening can leave its kitchen or hearth waiting for stone](work/T-511-browser-year-opening-stone.md) | T-509's report | — | open |
-| T-515 | [A limb lost by a creature that dies in the same tick is logged as "{dwarf} has lost a limb."](work/T-515-limb-lost-placeholder.md) | T-514's runs | — | open |
 | T-518 | [The three-year fortress is one broken door from its halls, and a siege's trollkin break it when they follow a dwarf there](work/T-518-three-years-gate-one-door-from-the-halls.md) | T-512's measurements | — | open |
 | T-519 | [Three invariant findings in shifted sweeps of master](work/T-519-sweep-invariant-findings.md) | T-513's noise run | — | open |
 

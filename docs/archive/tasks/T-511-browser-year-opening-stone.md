@@ -1,6 +1,8 @@
 # T-511 — The browser year's opening can leave its kitchen or hearth waiting for stone
 
-**Source:** T-509 ([report](../../reports/audits/2026-11-05-t509-instrument-noise.md#taiga-seed-3-two-ticks-later)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-06, in 894851b9.
+
+**Source:** T-509 ([report](../../../reports/audits/2026-11-05-t509-instrument-noise.md#taiga-seed-3-two-ticks-later)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
