@@ -1,0 +1,22 @@
+// Summarise arena JSON lines by kind: outcome counts, means of numeric fields (top level and dayAfter),
+// and the number of fights in which a field is non-zero (marked #).
+import { readFileSync } from 'node:fs';
+for (const file of process.argv.slice(2)) {
+  const rows = readFileSync(file, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  const by = new Map();
+  for (const r of rows) { if (!by.has(r.kind)) by.set(r.kind, []); by.get(r.kind).push(r); }
+  console.log(`=== ${file}`);
+  for (const [k, rs] of by) {
+    const out = {};
+    for (const r of rs) out[r.outcome] = (out[r.outcome] ?? 0) + 1;
+    const extra = {};
+    for (const r of rs) for (const [f, v] of Object.entries(r)) if (typeof v === 'boolean') extra[f] = (extra[f] ?? 0) + (v ? 1 : 0);
+    const mean = (get) => { const v = rs.map(get).filter((x) => typeof x === 'number'); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN; };
+    const sum = (get) => rs.map(get).filter((x) => typeof x === 'number').reduce((a, b) => a + b, 0);
+    const nz = (get) => rs.filter((r) => { const x = get(r); return typeof x === 'number' && x > 0; }).length;
+    const fields = Object.keys(rs[0]).filter((f) => typeof rs[0][f] === 'number' && f !== 'i');
+    const s = fields.map((f) => `${f}=${mean((r) => r[f]).toFixed(2)}(Σ${sum((r) => r[f])},#${nz((r) => r[f])})`).join(' ');
+    const da = rs[0].dayAfter ? Object.keys(rs[0].dayAfter).filter((f) => typeof rs[0].dayAfter[f] === 'number').map((f) => `${f}=${mean((r) => r.dayAfter[f]).toFixed(2)}`).join(' ') : '';
+    console.log(`${k} n=${rs.length} ${JSON.stringify(out)} bools=${JSON.stringify(extra)}\n   ${s}\n   dayAfter: ${da}`);
+  }
+}
