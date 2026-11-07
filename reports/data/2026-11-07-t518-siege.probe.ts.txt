@@ -30,9 +30,9 @@ it(`T-518 siege probe ${SEED}`, () => {
   let lastDoors = '';
   w.game.world.onEvents((events) => {
     for (const e of events) {
-      if (e.type === 'CreatureDied' && ent.get(Number(e['id']), C.Labors) !== undefined && firstBlood.length < 5) {
+      if (e.type === 'CreatureDied' && e['faction'] === 'fortress' && e['name'] !== undefined && String(e['name']).includes(' ')) {
         const p = ent.get(Number(e['id']), C.Position);
-        firstBlood.push(`t${w.tick} ${String(e['cause'])} at ${p?.x},${p?.y},${p?.z}`);
+        console.log(`T518X death day ${(w.tick / TICKS_PER_DAY).toFixed(2)} ${String(e['cause'])} killer ${String(e['killerId'] ?? 0)} tile ${String(e['tile'])} species ${String(e['species'])} alert ${w.game.world.fortress.alert}`);
       }
     }
   });
@@ -92,7 +92,11 @@ it(`T-518 siege probe ${SEED}`, () => {
     }
     const inner = (state.innerDoorIds ?? []).map(door).join(',');
     const living = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress').length;
-    console.log(`T518S day ${day.toFixed(2)} living ${living} inner ${inner} alert ${w.game.world.fortress.alert} shutOut ${state.shutOut} south ${door(state.gateDoorId)} north ${door(state.gateDoorId2)} hostiles ${JSON.stringify(hz)} near ${nearest.join(' ')} dwarves ${JSON.stringify(dz)} outside ${outside.join(' ')} gate ${state.cx + 6},${state.cy + 6},${state.z}`);
+    const behind = w.readers.pathing.labelOf(w.index(state.cx + 6, state.cy + 8, state.hallZ), 'walker');
+    const inside = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress').filter((id) => { const p = ent.get(id, C.Position); return p !== undefined && w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === behind; }).length;
+    const it13 = w.readers.of<ItemsReader>('13');
+    const foodLine = `meals ${it13.count('easy_meal') + it13.count('fine_meal') + it13.count('lavish_meal')} drink ${it13.count('drink')} seedsFood ${it13.countAvailable({ category: 'food' } as never)}`;
+    console.log(`T518S day ${day.toFixed(2)} ${foodLine} living ${living} behind ${inside} inner ${inner} alert ${w.game.world.fortress.alert} shutOut ${state.shutOut} south ${door(state.gateDoorId)} north ${door(state.gateDoorId2)} hostiles ${JSON.stringify(hz)} near ${nearest.join(' ')} dwarves ${JSON.stringify(dz)} outside ${outside.join(' ')} gate ${state.cx + 6},${state.cy + 6},${state.z}`);
   }
   console.log(`T518S first deaths ${firstBlood.join(' | ')}`);
 }, 3_600_000);

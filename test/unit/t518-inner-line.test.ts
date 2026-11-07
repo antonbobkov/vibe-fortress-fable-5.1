@@ -20,7 +20,7 @@ const cy = 40;
 const sx = cx + 6;
 const sy = cy + 6;
 
-function gatehouse(seed: string): { w: TestWorld; state: FortressState; squadId: number } {
+function gatehouse(seed: string, soldiersAt = { x: sx + 3, y: sy + 1, z: HALL_Z }): { w: TestWorld; state: FortressState; squadId: number } {
   const w = new TestWorld({ seed, registry: contentRegistry() });
   // The script's gatehouse: a stairwell walled east and west, a lock_on_alert door north and south.
   w.carve(w.index(sx, sy, Z), TileKind.StairsDown);
@@ -40,7 +40,7 @@ function gatehouse(seed: string): { w: TestWorld; state: FortressState; squadId:
   const south = w.build('door', w.index(sx, sy + 1, Z));
   const north = w.build('door', w.index(sx, sy - 1, Z));
   w.build('hearth', w.index(sx + 4, sy, HALL_Z));
-  const soldiers = [0, 1, 2].map((i) => w.spawnDwarf({ at: w.index(sx + 3 + i, sy + 1, HALL_Z) }));
+  const soldiers = [0, 1, 2].map((i) => w.spawnDwarf({ at: w.index(soldiersAt.x + i, soldiersAt.y, soldiersAt.z) }));
   expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' }).ok).toBe(true);
   const squadId = w.readers.of<CombatReader>('16').squads()[0]!.id;
   expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: soldiers }).ok).toBe(true);
@@ -88,6 +88,24 @@ describe('T-518 the three-year gatehouse has a second line at the stair\'s foot'
     checkFortressDefense(w, state);
     expect(state.shutOut).toBe(false);
     expect(w.game.world.fortress.alert).toBe('hearth');
+  });
+
+  it('lifts an alert that has left every dwarf outside the halls, one of them in the vestibule', () => {
+    // The squad is out on the surface beyond the gate; a civilian is at the stair's foot.
+    const { w, state } = gatehouse('t518-vestibule', { x: sx - 1, y: sy + 4, z: Z });
+    for (const t of innerRingTiles(w, state)) w.carve(t, TileKind.Floor);
+    checkFortressDefense(w, state);
+    finishDoors(w, state);
+    checkFortressDefense(w, state);
+    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
+    w.step(ALERT_LOCK_GRACE_TICKS + 30);
+    w.spawnDwarf({ at: w.index(sx, sy, HALL_Z) });
+    w.step(1);
+    expect(w.reachable(w.index(sx, sy, HALL_Z), w.index(sx + 3, sy, HALL_Z)), 'the vestibule is shut').toBe(false);
+    state.lastDangerTick = w.tick;
+    checkFortressDefense(w, state);
+    expect(state.shutOut, 'nobody is behind the second line').toBe(true);
+    expect(w.game.world.fortress.alert).toBe('calm');
   });
 
   it('places a broken gate door and a broken inner door again', () => {

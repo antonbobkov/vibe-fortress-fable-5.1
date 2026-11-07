@@ -1386,13 +1386,12 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const positions = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress')
     .map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined);
   const hallLabel = w.readers.pathing.labelOf(w.index(cx + 6, cy + 6, state.hallZ), 'walker');
-  // T-518: with the second line locked the stair's foot is the vestibule, and the halls are behind it.
-  const behindLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
-  if (curAlert === 'hearth' && state.gateDoorPlaced && hallLabel !== 0 && positions.length > 0 &&
-      !positions.some((p) => {
-        const label = w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker');
-        return label === hallLabel || (behindLabel !== 0 && label === behindLabel);
-      })) {
+  // T-518: once the second line stands, the stair's foot is its vestibule: a dwarf there, in the
+  // shaft or in the cave farm is shut out of the halls as surely as one outside the gate.
+  const line = innerLineBuilt(w, state);
+  const insideLabel = line ? w.readers.pathing.labelOf(behindTheLine(w, state), 'walker') : hallLabel;
+  if (curAlert === 'hearth' && state.gateDoorPlaced && insideLabel !== 0 && positions.length > 0 &&
+      !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === insideLabel)) {
     state.shutOut = true;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
@@ -1400,7 +1399,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
     return;
   }
-  if (state.shutOut && positions.some((p) => p.z < state.z)) state.shutOut = false;
+  if (state.shutOut && positions.some((p) => p.z < state.z && (!line || p.z <= state.hallZ))) state.shutOut = false;
   // T-387: an alert kept up by wild animals alone, which a squad without its weapons does not
   // hunt, only keeps the fortress from the brook and its surface work. On seed p2-3 one boar by
   // the gate held it for 27 days and all fourteen dwarves died of thirst inside. The player lifts
@@ -1432,7 +1431,6 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       // vestibule, has no drink and no way back, and a siege outnumbers it at a broken gate.
       const hunted = raid ? indoors : squadArmed(w, state) ? targets : indoors;
       for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
-      const line = innerLineBuilt(w, state);
       const below = line ? behindTheLine(w, state) : w.index(cx + 6, cy + 6, state.hallZ);
       const outdoors = (raid && !(siege && line)) || hunted.length > indoors.length;
       const post = outdoors || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
