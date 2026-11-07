@@ -1,15 +1,15 @@
 # Measurement: the twenty-seed sweep's noise, and a verdict over four shifted sweeps
 
-**Task:** T-513 · **Date:** 2026-11-06 · **Commits examined:** master `1a8f0ef4` (T-514) with only the shift input added (`b17c65f2`), twelve sweeps shifted 0 to 550 ticks; the same with a seed playing on after an invariant finding (`c50712e6`), three seed-shifts replayed locally; the final branch (`c7517918`), the one command · **Kind:** a measurement, a rule redesigned · **Source:** [the T-513 work file](../../docs/work/T-513-sweep-verdict-by-shifts.md), [T-507's sweep samples](2026-11-05-t507-three-years-food.md#the-timeline-samples), [T-509's instrument verdict](2026-11-05-t509-instrument-noise.md)
+**Task:** T-513 · **Date:** 2026-11-06 · **Commits examined:** master `1a8f0ef4` (T-514) with only the shift input added (`b17c65f2`), twelve sweeps shifted 0 to 550 ticks; the same with a seed playing on after an invariant finding (`c50712e6`), three seed-shifts replayed locally; the branch before and after merging master `ec0c9e03` (T-512, T-517; `c7517918`, `0794bb8e`), the one command · **Kind:** a measurement, a rule redesigned · **Source:** [the T-513 work file](../../docs/work/T-513-sweep-verdict-by-shifts.md), [T-507's sweep samples](2026-11-05-t507-three-years-food.md#the-timeline-samples), [T-509's instrument verdict](2026-11-05-t509-instrument-noise.md)
 
 ## The answer
 
 - **One sweep is noise.** Ten sweeps of master, the same code shifted 0 to 450 ticks before the opening, give 718 to 973 dwarves living at year 3 (s.d. 66), 119 to 172 dwarf deaths (s.d. 15), 0 to 4 extinct fortresses and 0 to 16 need deaths. Peril-0 fortresses have need deaths in 4 of the 70 peril-0 timelines (`p0-3` in three, 1 to 16 dead; `p0-4` in one), and one sweep of the ten (shift 50, two hungry peril-0 seeds) breaks the set rule a single sweep was held to. Alive at year 1 (19 or 20) and peril-0 grown (always 7) are far inside it.
 - **Small shifts are not new timelines.** Shifts 2 to 10 ticks end year 3 with the same world hash on every seed measured but one, and shifts 450, 500 and 550 on most seeds. Shifts 0 to 400, 50 apart, are each a timeline of their own on every seed. So the sweep's samples are 50 ticks apart, not 1.
 - **The rule: four sweeps, one verdict, one command.** `gh workflow run measure.yml --ref <branch> -f suite=sweep` plays the twenty seeds at shifts 0, 50, 100 and 150 in parallel (80 jobs) and a verdict job pools them. The set rule keeps its meaning, read as a mean over the four: at least 18 of 20 alive at year 1, at least 6 of 7 peril-0 fortresses grown, at most 1 of 7 peril-0 fortresses with a dwarf dead of hunger or thirst. The living and the deaths are guarded too, from the best pooled figures: living at least the best minus 100, deaths at most the best plus 30. Over all 1,575 pairs of disjoint sets of four among the ten shifts, the two means differed by at most 96.25 living and 26.25 deaths. The second set of four shifts of master passes against the first.
-- **What it catches.** A peril-0 fortress starving out in every timeline (blocked on hunger), three fortresses dead before year 1 (blocked), forty more deaths a sweep (blocked; T-482's apparent rise was about fifty), eighty fewer living (blocked), two peril-0 fortresses that never grow (blocked). It cannot see twenty more deaths, or one fortress starving in two timelines of four.
+- **What it catches.** A peril-0 fortress starving out in every timeline (blocked on hunger), three fortresses dead before year 1 in every timeline (blocked), forty more deaths a sweep (blocked; T-482's apparent rise was about fifty), eighty fewer living (blocked), two peril-0 fortresses that never grow (blocked). It cannot see twenty more deaths, one fortress starving in two timelines of four, or three dead before year 1 in two of four.
 - **A verdict takes about 40 minutes** when the runners are free: 80 jobs of 2 to 18 minutes, 167 job-minutes a sweep, on GitHub's twenty free runners. Behind other runs it waits: the twelve-sweep measurement queued behind another task's runs and took 2 hours 40 minutes.
-- **The reference** is the pooled row of shifts 0 to 150: **20 / 7 / 0.75 / 903.75 / 141.75** (alive / grown / peril-0 with need deaths / living / deaths), 2 extinct, 2.5 need deaths. Bounds: 18 / 6 / 1 / 803.75 / 171.75.
+- **The reference** is the pooled row of shifts 0 to 150 of today's master (T-512's sowing and T-517's caravans merged while this ran): **19.75 / 7 / 0 / 876 / 145** (alive / grown / peril-0 with need deaths / living / deaths), 2.5 extinct, 1.25 need deaths. Bounds: 18 / 6 / 1 / 776 / 175. The master the noise was measured on pooled 20 / 7 / 0.75 / 903.75 / 141.75 at the same shifts and passes against it.
 - **Three invariant findings** stopped three seed-shifts of master (two caravans present over 20 days, a walled-in chest): [T-NEW: invariant findings in shifted sweeps](../../docs/work/T-NEW-sweep-invariant-findings.md). A seed now plays on after a finding, writes its figures and then fails, so the verdict still counts it.
 
 ## What was run
@@ -21,7 +21,8 @@
 | Measure 42329994960 | `sweep`, shifts 0 to 550 ticks, 50 apart, `b17c65f2`: 240 jobs; `p4-4` at 150 and 400 and `p2-4` at 400 stopped on an invariant | [sweeps](../data/2026-11-06-t513-sweeps.json) |
 | Local | those three seed-shifts on `c50712e6`, which plays on after a finding (the same simulation) | in [sweeps](../data/2026-11-06-t513-sweeps.json) |
 | Analysis | splits of the ten distinct shifts (0 to 450) into two sets of four; regressions built from shifts 200 to 350 | [splits](../data/2026-11-06-t513-splits.txt) ([script](../data/2026-11-06-t513-splits.mjs.txt)), [regressions](../data/2026-11-06-t513-regressions.txt) ([script](../data/2026-11-06-t513-regressions.mjs.txt)) |
-| Measure 42344402231 | the one command, `-f suite=sweep` with the default shifts, on `c7517918`: 80 seed jobs and the verdict, **pass**, pooled 20/7/0.75/903.75/141.75 (the reference exactly), 39 minutes from start to verdict; `p4-4` at shift 150 failed its job on its invariant finding and was counted | the run's page |
+| Measure 42344402231 | the one command, `-f suite=sweep` with the default shifts, on `c7517918` (master `1a8f0ef4`): 80 seed jobs and the verdict, **pass**, pooled 20/7/0.75/903.75/141.75 (the noise run's row exactly), 39 minutes from start to verdict; `p4-4` at shift 150 failed its job on its invariant finding and was counted | the run's page |
+| Measure 42347442263 | the one command on `0794bb8e`, the branch with master `ec0c9e03` (T-512, T-517) merged: **pass** against that row, pooled 19.75/7/0/876/145/2.5/1.25, set as the reference; 37 minutes; `p2-4` at shift 50 (one dwarf left) failed its witnesses; no invariant finding | [verdict](../data/2026-11-06-t513-verdict.md) |
 
 The shift is `w.step(shift)` before the three-year fortress's setup (`THREE_YEARS_SHIFT`), as T-507's shifted sweeps and T-509's instrument do; shift 0 is the unshifted sweep.
 
@@ -72,7 +73,7 @@ What it judges, in `test/perf/three_years_sweep_verdict.test.ts` with `test/perf
 - **Output.** The verdict job's summary on the run's page: each sweep's row, the pooled row, the reference, the bounds and the verdict; each seed's year-1 and year-3 population, deaths and need deaths by shift and its extinctions; the invariant findings; and the reference and best rows to paste into `three_years_sweep.ts` when the change is accepted. Seed jobs fail only on their own assertions.
 - **Why the set rule needs no tolerance of its own.** Its limits are absolute, and master sits well inside two of them; the hunger limit is met only by the unluckiest set of four of master's ten shifts (`p0-3` hungry at 50 and 100 and `p0-4` at 50: 4 of 28). A change that does nothing to food goes over it about one verdict in forty (master's 0.4 hungry peril-0 fortresses a sweep, as a Poisson count over four sweeps, exceeds four with probability 0.024). One sweep broke it in one of ten.
 
-What it catches, built from shifts 200 to 350 of master and judged against the reference ([cases](../data/2026-11-06-t513-regressions.txt)):
+What it catches, built from shifts 200 to 350 of master `1a8f0ef4` and judged against the bounds of the reference, 776 living and 175 deaths ([cases](../data/2026-11-06-t513-regressions.txt)):
 
 | Change | Pooled row (alive/grown/hungry/living/deaths/extinct) | Verdict |
 |---|---|---|
@@ -81,8 +82,8 @@ What it catches, built from shifts 200 to 350 of master and judged against the r
 | … in 2 of 4 | 19.5/7/0.75/841/153.5/2.25 | pass |
 | `p0-1` and `p0-5` starve out in 4 of 4 | 19.5/7/2.25/806.5/188/2.25 | blocked: hunger, deaths |
 | `p0-1`, `p0-2`, `p0-5` lose 5 to hunger in 2 of 4 | 19.5/7/1.75/845/149.5/2.25 | blocked: hunger |
-| Three fortresses dead before year 1 in 4 of 4 | 17/7/0.25/780/214.5/4.5 | blocked: alive, living, deaths |
-| … in 2 of 4 | 18.25/7/0.25/821.5/173/3.25 | blocked: deaths |
+| Three fortresses dead before year 1 in 4 of 4 | 17/7/0.25/780/214.5/4.5 | blocked: alive, deaths |
+| … in 2 of 4 | 18.25/7/0.25/821.5/173/3.25 | pass |
 | `p0-4` stays at seven in 4 of 4 | 19.5/6/0.25/804/142/2.25 | pass |
 | `p0-4` and `p0-6` stay at seven in 4 of 4 | 19.5/5/0.25/757.5/142/2.25 | blocked: grown, living |
 | 20 more deaths and 20 fewer living in every sweep | 19.5/7/0.25/832.5/162/2.25 | pass |
@@ -94,9 +95,9 @@ What it catches, built from shifts 200 to 350 of master and judged against the r
 
 ## Invariant findings
 
-Three seed-shifts of master stopped on a T-176 invariant, none of them seen in an unshifted sweep: `p2-4` at shift 400 (`caravan.present-over-20d`, a Hillfolk caravan still walking to the depot 21 days after it came), `p4-4` at shift 150 (`caravan.present-over-20d`, a repelled Wildwood caravan retreating for 21 days) and `p4-4` at shift 400 (`container.no-work-tile`, a chest of 7 items with no tile a dwarf reaches). Each stopped its seed before its figures were written, which would have left the verdict without a seed in about two runs of three (3 of 240 seed-timelines; 80 a verdict). The seed now keeps its findings, plays on, writes its figures with the findings, and fails at the end; the verdict lists the findings. The faults are [a task of their own](../../docs/work/T-NEW-sweep-invariant-findings.md).
+Three seed-shifts of master stopped on a T-176 invariant, none of them seen in an unshifted sweep: `p2-4` at shift 400 (`caravan.present-over-20d`, a Hillfolk caravan still walking to the depot 21 days after it came), `p4-4` at shift 150 (`caravan.present-over-20d`, a repelled Wildwood caravan retreating for 21 days) and `p4-4` at shift 400 (`container.no-work-tile`, a chest of 7 items with no tile a dwarf reaches). Each stopped its seed before its figures were written, which would have left the verdict without a seed in about two runs of three (3 of 240 seed-timelines; 80 a verdict). The seed now keeps its findings, plays on, writes its figures with the findings, and fails at the end; the verdict lists the findings. The faults are [a task of their own](../../docs/work/T-NEW-sweep-invariant-findings.md). T-517, merged since, limits an attacked caravan's stay; the run on today's master shows no finding, but its timelines are new ones.
 
 ## Noticed
 
-- `p0-3` still starves in three of ten timelines on today's master (1, 2 and 16 dead), after T-507 moved its cave strips beside the farm; T-512 (crops sown too late to ripen) is open on the same fortress's surface farm.
+- Before T-512, `p0-3` still starved in three of ten timelines (1, 2 and 16 dead) after T-507 moved its cave strips beside the farm. With T-512's sowing rule no peril-0 fortress has a need death in the four reference timelines; four timelines cannot say more.
 - `p4-3` is wiped out on days 187 to 189 in six of ten timelines, the year-2 siege; `p2-4` in six of ten, on days 115 to 312.

@@ -1,4 +1,6 @@
-reference {"alive":20,"grown":7,"hungry":0.75,"living":903.75,"deaths":141.75,"extinct":2} bounds living >= 803.75 deaths <= 171.75
+# REF_LIVING=876 REF_DEATHS=145 node inject.mjs noise10 0,50,100,150 200,250,300,350 100 30
+# master 1a8f0ef4's shifts 200 to 350, judged against the bounds of the reference set from master ec0c9e03 (run 42347442263)
+reference {"alive":20,"grown":7,"hungry":0.75,"living":876,"deaths":145,"extinct":2} bounds living >= 776 deaths <= 175
 | none | 19.5/7/0.25/852.5/142/2.25 | pass |
 | three-years-p0-1 23 starve in 4 of 4 | 19.5/7/1.25/829.5/165/2.25 | blocked: hungry |
 | three-years-p0-1 23 starve in 2 of 4 | 19.5/7/0.75/841/153.5/2.25 | pass |
@@ -8,15 +10,15 @@ reference {"alive":20,"grown":7,"hungry":0.75,"living":903.75,"deaths":141.75,"e
 | three-years-p0-5 23 starve in 1 of 4 | 19.5/7/0.5/846.75/147.75/2.25 | pass |
 | p0-1 and p0-5 both starve (23) in 4 of 4 | 19.5/7/2.25/806.5/188/2.25 | blocked: hungry, deaths |
 | p0-1, p0-5 starve in 2, p0-2 in 2 | 19.5/7/1.75/845/149.5/2.25 | blocked: hungry |
-| p4-2 and p2-5 and p4-4 dead before year 1 in 4 of 4 | 17/7/0.25/780/214.5/4.5 | blocked: alive, living, deaths |
-| p4-2 and p2-5 and p4-4 dead before year 1 in 2 of 4 | 18.25/7/0.25/821.5/173/3.25 | blocked: deaths |
+| p4-2 and p2-5 and p4-4 dead before year 1 in 4 of 4 | 17/7/0.25/780/214.5/4.5 | blocked: alive, deaths |
+| p4-2 and p2-5 and p4-4 dead before year 1 in 2 of 4 | 18.25/7/0.25/821.5/173/3.25 | pass |
 | p0-4 stays at seven (no wave) in 4 of 4 | 19.5/6/0.25/804/142/2.25 | pass |
 | p0-4 stays at seven (no wave) in 2 of 4 | 19.5/6.5/0.25/830.75/142/2.25 | pass |
 | p0-4 and p0-6 stay at seven in 4 of 4 | 19.5/5/0.25/757.5/142/2.25 | blocked: grown, living |
 | every sweep 20 more deaths and 20 fewer living | 19.5/7/0.25/832.5/162/2.25 | pass |
 | every sweep 40 more deaths and 40 fewer living | 19.5/7/0.25/812.5/182/2.25 | blocked: deaths |
-| every sweep 60 more deaths and 60 fewer living | 19.5/7/0.25/794/200.5/2.25 | blocked: living, deaths |
-| every sweep 80 more deaths and 80 fewer living | 19.5/7/0.25/788.25/206.25/2.25 | blocked: living, deaths |
+| every sweep 60 more deaths and 60 fewer living | 19.5/7/0.25/794/200.5/2.25 | blocked: deaths |
+| every sweep 80 more deaths and 80 fewer living | 19.5/7/0.25/788.25/206.25/2.25 | blocked: deaths |
 | every sweep 40 fewer living (fewer immigrants), no deaths | 19.5/7/0.25/812.5/142/2.25 | pass |
 | every sweep 80 fewer living (fewer immigrants), no deaths | 19.5/7/0.25/772.5/142/2.25 | blocked: living |
 | every sweep 120 fewer living (fewer immigrants), no deaths | 19.5/7/0.25/732.5/142/2.25 | blocked: living |
