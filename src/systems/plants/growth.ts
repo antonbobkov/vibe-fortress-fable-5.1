@@ -13,8 +13,9 @@
  * weather. Nothing here reads the map or the clock: the system passes the conditions in.
  */
 
-import { HOURS_PER_DAY } from '@core/constants';
-import { BASE_GROWTH, CROP_STAGE_MAX, YIELD_BONUS_MAX, YIELD_LEVELS_PER_BONUS } from './constants';
+import { DAYS_PER_SEASON, HOURS_PER_DAY } from '@core/constants';
+import { OVERCAST_GROWTH_PERCENT, SEASON_GROWTH_PERCENT } from '@systems/weather/constants';
+import { BASE_GROWTH, CROP_STAGE_MAX, SOWING_MARGIN_DAYS, YIELD_BONUS_MAX, YIELD_LEVELS_PER_BONUS } from './constants';
 import type { PlantRow } from './facts';
 
 export interface GrowthConditions {
@@ -104,4 +105,38 @@ export function harvestCount(row: PlantRow, roll: number, skill: number): number
   const max = row.yield?.[1] ?? roll;
   const bonus = Math.floor(skill / YIELD_LEVELS_PER_BONUS);
   return Math.min(roll + bonus, max + YIELD_BONUS_MAX);
+}
+
+/** What a surface crop sown on a day needs and has before winter, in days of growth at 100%. */
+export interface RipeningOutlook {
+  /** Four stages of `stageDays`. */
+  readonly needDays: number;
+  /** The growing days left, each counted at its season's growth percent, overcast; rounded down. */
+  readonly leftDays: number;
+  readonly ripens: boolean;
+}
+
+/**
+ * T-512, T-516: whether a surface crop sown on this day of this season (`dayOfSeason` 1-based)
+ * ripens before winter (07 § Growth: four stages of `stageDays` at normal growth; it grows only in
+ * its `seasons`, at the season's growth percent, 120 in summer and 80 in autumn; out of its seasons
+ * it lies dormant, and winter's frost kills it with its seed). The days left are counted after
+ * `SOWING_MARGIN_DAYS`, every one as if overcast, as a player who reads the calendar would leave a
+ * margin. A dormant season between two growing ones (cabbage's summer) is passed over: a temperate
+ * summer does not freeze. The plot panel's note and the three-year script both read this.
+ */
+export function ripeningOutlook(row: { readonly stageDays?: number; readonly seasons?: readonly number[] }, season: number, dayOfSeason: number): RipeningOutlook {
+  const needDays = (CROP_STAGE_MAX + 1) * (row.stageDays ?? 0);
+  let growth = 0;
+  for (let s = season; s < SEASON_GROWTH_PERCENT.length - 1; s += 1) {
+    if (row.seasons !== undefined && !row.seasons.includes(s)) continue;
+    const days = s === season ? Math.max(0, DAYS_PER_SEASON - dayOfSeason - SOWING_MARGIN_DAYS) : DAYS_PER_SEASON;
+    growth += days * (SEASON_GROWTH_PERCENT[s] ?? 0) * OVERCAST_GROWTH_PERCENT;
+  }
+  return { needDays, leftDays: Math.floor(growth / (100 * 100)), ripens: growth >= needDays * 100 * 100 };
+}
+
+/** `ripeningOutlook(...).ripens`. */
+export function ripensInTime(row: { readonly stageDays?: number; readonly seasons?: readonly number[] }, season: number, dayOfSeason: number): boolean {
+  return ripeningOutlook(row, season, dayOfSeason).ripens;
 }

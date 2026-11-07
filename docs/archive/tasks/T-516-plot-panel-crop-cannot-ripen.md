@@ -1,6 +1,8 @@
 # T-516 — The plot panel says when a crop sown now cannot ripen before winter, and the log says when frost kills crops
 
-**Source:** T-512 ([work file](../archive/tasks/T-512-three-years-sows-crops-too-late.md)): the three-year script sowed crops that could not ripen, and the frost killed 101 and 165 of them on `three-years-p0-3`, seed and all. A player walks into the same trap and is not warned. · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-06, in HEAD.
+
+**Source:** T-512 ([work file](T-512-three-years-sows-crops-too-late.md)): the three-year script sowed crops that could not ripen, and the frost killed 101 and 165 of them on `three-years-p0-3`, seed and all. A player walks into the same trap and is not warned. · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

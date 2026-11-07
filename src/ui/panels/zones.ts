@@ -20,7 +20,7 @@ import type { PlantsReader } from '@systems/plants';
 import type { AnimalsReader } from '@systems/animals';
 import { GRASS_PER_GRAZER } from '@systems/animals/constants';
 import type { PlantRow } from '@systems/plants';
-import { seasonAllows } from '@systems/plants/growth';
+import { ripeningOutlook, seasonAllows } from '@systems/plants/growth';
 import { lightMatches } from '@systems/plants/plots';
 import type { ItemsReader } from '@systems/items';
 import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
@@ -460,6 +460,7 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   if (row < rect.row + rect.rows) label(s, rect.col + 1, row, `Crops: ${cropIds.length - ready} growing, ${ready} ready, ${Math.max(0, zone.tiles.length - cropIds.length)} empty`, { width: rect.cols - 2 });
   row += 1;
   row = drawFarmCold(s, { col: rect.col, row, cols: rect.cols, rows: rect.row + rect.rows - row }, ctx, zone, plants);
+  row = drawFarmLate(s, { col: rect.col, row, cols: rect.cols, rows: rect.row + rect.rows - row }, ctx, zone, plants);
   for (const key of ['ui.zone.farm_keys1', 'ui.zone.farm_keys2']) {
     if (row >= rect.row + rect.rows) break;
     const text = ctx.strings.get(key);
@@ -500,6 +501,40 @@ function drawFarmCold(s: Surface, rect: Rect, ctx: PanelContext, zone: ZoneView,
   for (const { line, fg } of lines) {
     if (row >= rect.row + rect.rows) break;
     label(s, rect.col + 1, row, line, { fg, width: rect.cols - 2 });
+    row += 1;
+  }
+  return row;
+}
+
+/**
+ * `07` § Player-facing behavior (T-516): on a surface plot, a red note for each season whose crop
+ * cannot ripen before its growing seasons end (`ripeningOutlook`, the reckoning the three-year
+ * script sows by): the current season's crop sown today, and every other season's crop sown on that
+ * season's first day, so a `Shift+A` that gives summer strawberries or autumn turnips says so.
+ * Draws nothing when every chosen crop ripens.
+ */
+function drawFarmLate(s: Surface, rect: Rect, ctx: PanelContext, zone: ZoneView, plants: PlantsReader): number {
+  if (plants.plotKind(zone.id) !== 'surface') return rect.row;
+  const settings = plants.plotSettings(zone.id);
+  const calendar = ctx.readers.calendar;
+  const seasonNames = ['spring', 'summer', 'autumn', 'winter'];
+  const order = [calendar.season, ...[0, 1, 2, 3].filter((season) => season !== calendar.season)];
+  const texts: string[] = [];
+  for (const season of order) {
+    const id = settings[season] ?? 0;
+    const plant = id === 0 ? undefined : plants.def(id);
+    if (plant === undefined || plant.kind !== 'crop') continue;
+    const now = season === calendar.season;
+    const outlook = ripeningOutlook(plant, season, now ? calendar.dayOfSeason : 1);
+    if (outlook.ripens) continue;
+    const params = { name: plant.name, need: outlook.needDays, left: outlook.leftDays, season: seasonNames[season] as string };
+    texts.push(ctx.strings.get(now ? 'ui.zone.farm_late' : 'ui.zone.farm_late_season', params));
+  }
+  const t = s.theme;
+  let row = rect.row;
+  for (const line of texts.flatMap((text) => wrapText(text, rect.cols - 2, 4))) {
+    if (row >= rect.row + rect.rows) break;
+    label(s, rect.col + 1, row, line, { fg: t.bad, width: rect.cols - 2 });
     row += 1;
   }
   return row;
