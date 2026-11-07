@@ -1,0 +1,106 @@
+T-519 probes (reports/data/2026-11-07-t519-sweep.probe.ts.txt), excerpts. Caravan lines: tick, caravan state, then each member: role+id@x,y,z, its walk, its destination, whether it reaches the destination and the edge. Chest lines: the dwarves' labels and tiles, the 5x5 tiles around the chest as [kind, p=passable, label].
+
+== three-years-p2-4, shift 400, on c50712e6 ==
+t180600 day150.5 civ=hillfolk state=toDepot since=180000 party=toDepot/180000 attacked=false lost=false depot=16777376 built fp=10,10,32 11,10,32 12,10,32 10,11,32 11,11,32 12,11,32 10,12,32 11,12,32 12,12,32 edge=0,0,32 dead=0
+   M654311862@10,10,32 c=1 walk=- dest=10,10,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   M218104608@11,10,32 c=1 walk=- dest=11,10,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   M218104612@12,10,32 c=1 walk=- dest=12,10,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   G553648436@10,9,32 c=1 walk=- dest=10,9,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   G117441297@9,10,32 c=1 walk=- dest=9,10,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   G117441302@11,9,32 c=1 walk=- dest=11,9,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   G419431168@12,9,32 c=1 walk=- dest=12,9,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   A520094375@13,10,32 c=1 walk=- dest=13,10,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   A218103986@9,11,32 c=1 walk=- dest=9,11,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   A83886638@13,11,32 c=1 walk=- dest=13,11,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   A83886639@10,13,32 c=1 walk=- dest=10,13,32 pass=true reach=true edgeReach=true fac=trader:hillfolk
+   A83886640@30,0,31 c=1 walk=9,12,32 dest=9,12,32 pass=true reach=false edgeReach=false fac=trader:hillfolk
+t181200 day151.0 civ=hillfolk state=toDepot since=180000 party=toDepot/180000 attacked=false lost=false depot=16777376 built fp=10,10,32 11,10,32 12,10,32 10,11,32 11,11,32 12,11,32 10,12,32 11,12,32 12,12,32 edge=0,0,32 dead=0
+INVARIANTS
+t205200 caravan.present-over-20d caravan/toDepot t205200: party 452985501 hillfolk caravan state toDepot since t180000 arrived t180000 members 12/12 size 12 loot 0 goalUnreachable=undefined walkUnreachable=undefined outcome=undefined
+
+== three-years-p2-4, shift 400, on master 5312b44d (days 36 to 38) ==
+t43800 day36.5 civ=hillfolk state=toDepot since=43200: eleven members at the depot; A16777738@30,0,31 walk=9,12,32 reach=false edgeReach=false (the same pocket)
+
+== three-years-p4-4, shift 150, on c50712e6 ==
+t81000 no caravan
+t81600 no caravan
+t81601 RaidArrived {"type":"RaidArrived","partyId":184550193,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+t81601 CaravanArrived {"type":"CaravanArrived","civ":"wildwood","merchants":[83886252,285213178,83886831],"guards":[83886830,83886836,83886802,218104528,50332173,50332362],"animals":[50332357,50332356
+t81611 RaidEnded {"type":"RaidEnded","partyId":184550193,"outcome":"withdrew"}
+t81706 CaravanAtDepot {"type":"CaravanAtDepot","civ":"wildwood","partyId":83886819,"depotId":16777439}
+t82200 day68.5 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t82800 day69.0 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t83400 day69.5 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t84000 day70.0 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t84600 day70.5 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t85200 day71.0 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t85800 day71.5 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t86400 day72.0 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t87000 day72.5 civ=wildwood state=atDepot since=81706 party=wait/81706 attacked=false lost=false depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,3
+t87001 RaidArrived {"type":"RaidArrived","partyId":385876460,"kind":"raid","size":12,"tile":76032,"edge":"n"}
+t87081 CaravanAttacked {"type":"CaravanAttacked","civ":"wildwood","partyId":83886819}
+t87378 CaravanLost {"type":"CaravanLost","civ":"wildwood","partyId":83886819}
+t87600 day73.0 civ=wildwood state=leave since=87575 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t88200 day73.5 civ=wildwood state=leave since=88175 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t88800 day74.0 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t89400 day74.5 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t89789 RaidEnded {"type":"RaidEnded","partyId":385876460,"outcome":"looted"}
+t90000 day75.0 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t90600 day75.5 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t91200 day76.0 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t91800 day76.5 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t92400 day77.0 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t93000 day77.5 civ=wildwood state=leave since=88534 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t93600 day78.0 civ=wildwood state=leave since=93579 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t94200 day78.5 civ=wildwood state=leave since=94179 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t94800 day79.0 civ=wildwood state=leave since=94779 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t95400 day79.5 civ=wildwood state=leave since=94978 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t96000 day80.0 civ=wildwood state=leave since=94978 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t96600 day80.5 civ=wildwood state=leave since=94978 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t97200 day81.0 civ=wildwood state=leave since=94978 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t97800 day81.5 civ=wildwood state=leave since=94978 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t98400 day82.0 civ=wildwood state=leave since=94978 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t99000 day82.5 civ=wildwood state=leave since=94978 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t99600 day83.0 civ=wildwood state=leave since=99584 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33 d
+t100200 day83.5 civ=wildwood state=leave since=100184 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t100800 day84.0 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t101400 day84.5 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t102000 day85.0 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t102600 day85.5 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t103200 day86.0 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t103800 day86.5 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t104400 day87.0 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t105000 day87.5 civ=wildwood state=leave since=100744 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t105600 day88.0 civ=wildwood state=leave since=105549 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t106200 day88.5 civ=wildwood state=leave since=106189 party=leave/87377 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0,33
+t106800 day89.0 civ=wildwood state=leave since=106789 party=retreat/106552 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0
+t107400 day89.5 civ=wildwood state=leave since=106829 party=retreat/106552 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0
+t108000 day90.0 civ=wildwood state=leave since=106829 party=retreat/106552 attacked=true lost=true depot=16777439 built fp=9,2,32 10,2,32 11,2,32 9,3,32 10,3,32 11,3,32 9,4,32 10,4,32 11,4,32 edge=0,0
+INVARIANTS
+t106800 caravan.present-over-20d caravan/retreat t106800: party 83886819 wildwood caravan state retreat since t106552 arrived t81600 members 9/14 size 14 loot 0 goalUnreachable=undefined walkUnreachab
+t108000 caravan.present-over-20d caravan/retreat t106800: party 83886819 wildwood caravan state retreat since t106552 arrived t81600 members 9/14 size 14 loot 0 goalUnreachable=undefined walkUnreachab
+
+== three-years-p4-4, shift 400, on c50712e6: the chest and the fortress's last dwarf ==
+t342000 day285.00 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@24,13,33 kind=2 L148  beh=work c=1 reachChest=true
+t342001 RaidArrived {"type":"RaidArrived","partyId":218104653,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+t342020 AlertChanged {"type":"AlertChanged","from":"calm","to":"hearth"}
+t342054 RaidEnded {"type":"RaidEnded","partyId":218104653,"outcome":"looted"}
+t342060 AlertChanged {"type":"AlertChanged","from":"hearth","to":"calm"}
+t342300 day285.25 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@26,6,28 kind=6 L148  beh=need c=1 reachChest=true
+t342600 day285.50 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@23,24,26 kind=2 L148  beh=need c=1 reachChest=true
+t342900 day285.75 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@23,13,33 kind=2 L148  beh=need c=1 reachChest=true
+t342960 AlertChanged {"type":"AlertChanged","from":"calm","to":"hearth"}
+t343200 day286.00 chest@30,12,26 dwarfLabels=[[174,1]] D150995278@19,18,33 kind=2 L174 carpenter:built beh=duty c=1 reachChest=false
+t343200 AlertChanged {"type":"AlertChanged","from":"hearth","to":"calm"}
+t343500 day286.25 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@26,6,26 kind=4 L148  beh=need c=1 reachChest=true
+t343800 day286.50 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@22,24,26 kind=2 L148 bed:built beh=need c=1 reachChest=true
+t344100 day286.75 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@27,6,31 kind=2 L148  beh=need c=1 reachChest=true
+t344400 day287.00 chest@30,12,26 dwarfLabels=[[148,1]] D150995278@29,6,26 kind=2 L148 chair:built beh=need c=1 reachChest=true
+t343200 container.no-work-tile chest t343200: built chest 16777501 at 60510 holds 7 items, no tile beside it that a dwarf reaches
+t344400 container.no-work-tile chest t343200: built chest 16777501 at 60510 holds 7 items, no tile beside it that a dwarf reaches
+t343200 day286.0 chest@30,12,26 dwarfLabels=[[174,1]]
+   [2pL148] [2pL148] [2pL148] [2pL148] [1xL0]
+   [2pL148] [2pL148] [2pL148 bed:built] [2pL148] [1xL0]
+   [2pL148] [2pL148] [2xL0 chest:built] [2pL148] [1xL0]
+   [2pL148] [2pL148] [2pL148] [2pL148] [1xL0]
+   [1xL0] [1xL0] [1xL0] [1xL0] [1xL0]

@@ -38,6 +38,8 @@ class Probe {
   private readonly blockedPath = new Map<number, { kind: 'path' | 'anchor'; since: number }>();
   /** T-331: a job whose worker's brain is not working, since when. */
   private readonly heldElsewhere = new Map<number, { worker: number; behavior: string; sig: string; since: number }>();
+  /** T-519: a built container out of every dwarf's reach (T-331 3), since when. */
+  private readonly noWorkTile = new Map<number, { classId: string; detail: string; since: number }>();
   calmNoHostileAlertTicks = 0;
   lastTick = 0;
 
@@ -936,11 +938,13 @@ class Probe {
   }
 
   /**
-   * Record, from the world as it is now, the two conditions that only matter once they last a day: a
-   * job blocked as unreachable that should not be (T-331 2), and a job held by a worker whose brain is
-   * not working (T-331 1). Called by every check, every 100 ticks by `observe`, and by the scenario runner.
+   * Record, from the world as it is now, the three conditions that only matter once they last a day: a
+   * job blocked as unreachable that should not be (T-331 2), a job held by a worker whose brain is
+   * not working (T-331 1), and a built container no dwarf reaches (T-331 3, T-519). Called by every
+   * check, every 100 ticks by `observe`, and by the scenario runner.
    */
   sample(game: HeadlessGame): void {
+    this.sampleContainerAccess(game);
     const world = game.world;
     const ent = world.entities;
     const tick = world.calendar.tick;
@@ -1001,14 +1005,32 @@ class Probe {
 
   /**
    * T-331 (3): a built container that holds items, or that lies in a stockpile or hospital zone and
-   * so offers slots, has a tile beside it (or under it) that a dwarf of the fortress can reach.
+   * so offers slots, has a tile beside it (or under it) that a dwarf of the fortress can reach. T-519:
+   * it is lost only once it has been out of reach for more than a day. A door locked on an alert cuts
+   * the halls off from any dwarf left outside, and the three-year script lifts an alert that has locked
+   * every dwarf out (T-363); `three-years-p4-4` (shift 400) met its daily check in that moment with its
+   * last dwarf at a surface workshop.
    */
   private checkContainerAccess(game: HeadlessGame): void {
+    const tick = game.world.calendar.tick;
+    for (const [id, seen] of this.noWorkTile) {
+      const age = tick - seen.since;
+      if (age <= TICKS_PER_DAY) continue;
+      this.hit(tick, 'container.no-work-tile', seen.classId, `${seen.detail}, for ${age} ticks`, `b${id}`);
+    }
+  }
+
+  /** T-331 (3): the built containers that no dwarf reaches now, sampled with the day-long conditions. */
+  private sampleContainerAccess(game: HeadlessGame): void {
     const world = game.world;
     const ent = world.entities;
     const map = game.map;
     const tick = world.calendar.tick;
     const pathing = world.readers.pathing;
+    const out = new Set<number>();
+    const forget = (): void => {
+      for (const id of [...this.noWorkTile.keys()]) if (!out.has(id)) this.noWorkTile.delete(id);
+    };
     const labels = new Set<number>();
     for (const id of ent.with(C.Labors)) {
       const p = ent.get(id, C.Position);
@@ -1016,7 +1038,7 @@ class Probe {
       const label = pathing.labelOf(map.index(p.x, p.y, p.z), 'walker');
       if (label !== 0) labels.add(label);
     }
-    if (labels.size === 0) return;
+    if (labels.size === 0) return forget();
     // The tiles of stockpile and hospital zones: a built container there gives the zone its slots.
     const zoneTypes = game.registry.table<{ id: string }>('zoneTypes');
     const zoned = new Set<number>();
@@ -1045,15 +1067,14 @@ class Probe {
           break;
         }
       }
-      if (!reachable)
-        this.hit(
-          tick,
-          'container.no-work-tile',
-          container.classId,
-          `built ${container.classId} ${id} at ${b.origin} holds ${container.contents.length} items, no tile beside it that a dwarf reaches`,
-          `b${id}`,
-        );
+      if (reachable) continue;
+      out.add(id);
+      const detail = `built ${container.classId} ${id} at ${b.origin} holds ${container.contents.length} items, no tile beside it that a dwarf reaches`;
+      const prev = this.noWorkTile.get(id);
+      if (prev === undefined) this.noWorkTile.set(id, { classId: container.classId, detail, since: tick });
+      else prev.detail = detail;
     }
+    forget();
   }
 
   /**
@@ -1167,7 +1188,7 @@ export function checkInvariants(game: HeadlessGame): Finding[] {
  * short scenarios stage equipment, creatures and terrain by hand in ways it rejects.
  *  1. no reservation, claim or held job whose holder is dead, gone or doing something else;
  *  2. no job blocked unreachable for more than a day while a path to its work tile exists;
- *  3. every built container with items or a stockpile slot has a reachable work tile;
+ *  3. every built container with items or a stockpile slot has a reachable work tile (out of reach for more than a day is lost, T-519);
  *  4. every item has a place.
  */
 export const SCENARIO_END_INVARIANTS: ReadonlySet<string> = new Set([

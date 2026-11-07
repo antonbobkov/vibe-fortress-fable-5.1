@@ -34,7 +34,7 @@ it(`T-519 probe ${SEED} shift ${SHIFT}`, () => {
   w.game.world.onEvents((events) => {
     if (w.tick < FROM * TICKS_PER_DAY) return;
     for (const e of events) {
-      if (e.type.startsWith('Caravan') || e.type === 'RaidArrived' || e.type === 'RaidEnded' || e.type === 'AlertRaised' || e.type === 'AlertLowered' || e.type === 'DoorLocked' || e.type === 'DoorUnlocked' || e.type === 'BuildingCompleted' || e.type === 'BuildingRemoved' || e.type === 'CaveIn' || e.type === 'TileChanged') {
+      if (e.type.startsWith('Caravan') || e.type === 'RaidArrived' || e.type === 'RaidEnded' || e.type === 'AlertChanged' || e.type === 'DoorBroken' || e.type === 'DoorLocked' || e.type === 'DoorUnlocked' || e.type === 'BuildingCompleted' || e.type === 'BuildingRemoved' || e.type === 'CaveIn' || e.type === 'TileChanged') {
         if (log.length < 2000) log.push(`t${w.tick} ${e.type} ${JSON.stringify(e).slice(0, 200)}`);
       }
     }
@@ -68,7 +68,17 @@ it(`T-519 probe ${SEED} shift ${SHIFT}`, () => {
         }
         grid.push(row);
       }
-      log.push(`t${w.tick} day${(w.tick / TICKS_PER_DAY).toFixed(1)} chest@${cx},${cy},${cz} dwarfLabels=${JSON.stringify([...fortressLabels])}\n  ${grid.join('\n  ')}`);
+      const dwarves: string[] = [];
+      for (const id of ent.with(C.Labors)) {
+        const p = ent.get(id, C.Position);
+        if (!p || !ent.alive(id)) continue;
+        const t = w.map.index(p.x, p.y, p.z);
+        const occ = [...ent.with(C.Building)].filter((b) => ent.get(b, C.Building)!.footprint.includes(t)).map((b) => { const bb = ent.get(b, C.Building)!; return `${w.game.registry.table('buildings').idOf(bb.type)}:${bb.state}`; }).join('+');
+        const brain = ent.get(id, C.Brain) as { behavior?: string } | undefined;
+        const body = ent.get(id, C.Body);
+        dwarves.push(`D${id}@${p.x},${p.y},${p.z} kind=${w.map.kindAt(t)} L${pr.labelOf(t, 'walker')} ${occ} beh=${brain?.behavior} c=${body?.conscious ? 1 : 0} reachChest=${pr.reachable(t, w.map.index(cx - 1, cy, cz), 'walker')}`);
+      }
+      log.push(`t${w.tick} day${(w.tick / TICKS_PER_DAY).toFixed(2)} chest@${cx},${cy},${cz} dwarfLabels=${JSON.stringify([...fortressLabels])} ${dwarves.join(' | ')}${EVERY >= 1200 ? `\n  ${grid.join('\n  ')}` : ''}`);
       continue;
     }
     const a = trade.serialize().activeCaravan;
