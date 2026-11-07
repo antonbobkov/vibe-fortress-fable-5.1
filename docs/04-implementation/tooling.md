@@ -63,7 +63,7 @@ GitHub Actions runs nothing on push. Both workflows start only on demand. Golden
 | | `three_years_main`: the long economy run (`test/perf/three_years_main.test.ts`) | about 8 minutes |
 | | `scenario`, with input `scenario=<id>`: one scenario from `test/scenarios`, such as `defence_year` or `pp_defence` | a few minutes |
 | | `timing`: the timing tests (`test/perf/per-system.test.ts`, `test/perf/perf_reference.test.ts`), to see how quiet a runner is | a few minutes |
-| | `defence_seeds`, with input `watch` (the script's cadences in ticks, `20,25,30,35` by default): `defence_year` on its eight seeds (`test/perf/defence_year_seeds.test.ts`) once per seed and cadence, one job each; then a verdict job pools the rows (`test/perf/defence_year_seeds_verdict.test.ts`) and judges the set rules on their mean over the cadences (testing-strategy.md § `defence_year`) | about 15 minutes with free runners (32 jobs) |
+| | `defence_seeds`, with input `watch` (the script's cadences in ticks, `20,25,30,35,40,45,50,55` by default): `defence_year` on its eight seeds (`test/perf/defence_year_seeds.test.ts`) once per seed and cadence, one job each; then a verdict job pools the rows (`test/perf/defence_year_seeds_verdict.test.ts`) and judges the set rules on their mean over the cadences (testing-strategy.md § `defence_year`) | about 25 minutes with free runners (64 jobs) |
 
 The repository is public, so the runners (4 vCPU, 16 GB) cost nothing. A job stops at 6 hours. Runs on GitHub give the same numbers as local runs: the annual instrument's row matched the local reference exactly on 2026-11-05.
 

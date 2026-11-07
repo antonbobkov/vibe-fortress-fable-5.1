@@ -1,6 +1,6 @@
 /**
  * T-522: the verdict of `defence_year_seeds` over its pooled cadences. measure.yml's `defence_seeds`
- * suite plays the eight seeds at each of its cadences (input `watch`, 20, 25, 30 and 35 by default) in
+ * suite plays the eight seeds at each of its cadences (input `watch`, 20 to 55 by fives by default) in
  * parallel, one job a seed and cadence, and runs this file over their rows; locally, run
  * `defence_year_seeds.test.ts` once per cadence (`DEFENCE_WATCH_EVERY`) with `DEFENCE_SEEDS_OUT` under
  * one folder, and point `DEFENCE_SEEDS_SAMPLES` at it. Every `rows.jsonl` below that folder is read.
