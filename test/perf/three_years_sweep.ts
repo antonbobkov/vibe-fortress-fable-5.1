@@ -9,7 +9,7 @@ export const EMBARK_SIZE = 7;
 export const SWEEP_SEEDS = 20;
 /**
  * A verdict pools this many sweeps of the same code, each shifted before the opening by a multiple of
- * SWEEP_SHIFT_STEP: 80 jobs, about 45 minutes on GitHub's twenty free runners when nothing else queues.
+ * SWEEP_SHIFT_STEP: 80 jobs, about 40 minutes on GitHub's twenty free runners when nothing else queues.
  */
 export const SWEEP_SAMPLES = 4;
 /**

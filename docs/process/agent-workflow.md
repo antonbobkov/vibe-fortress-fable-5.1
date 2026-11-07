@@ -79,7 +79,7 @@ gh workflow run measure.yml --ref <branch> -f suite=instrument      # every chan
 gh workflow run measure.yml --ref <branch> -f suite=sweep           # the twenty-seed file, when a task asks for it: four shifted sweeps and the verdict; the pooled before and after rows in the commit body
 ```
 
-The instrument and the sweep are judged over their pooled shifted samples, by their verdict jobs: one sample's figures, or one seed's, move with the timeline on unchanged code and are no evidence of a regression or of a fix ([testing-strategy.md § Annual wildlife survival](testing-strategy.md#annual-wildlife-survival), [§ The twenty-seed sweep](testing-strategy.md#the-twenty-seed-sweep)). A sweep verdict is 80 jobs and takes about 45 minutes when the runners are free, longer behind other runs; start it early.
+The instrument and the sweep are judged over their pooled shifted samples, by their verdict jobs: one sample's figures, or one seed's, move with the timeline on unchanged code and are no evidence of a regression or of a fix ([testing-strategy.md § Annual wildlife survival](testing-strategy.md#annual-wildlife-survival), [§ The twenty-seed sweep](testing-strategy.md#the-twenty-seed-sweep)). A sweep verdict is 80 jobs and takes about 40 minutes when the runners are free, longer behind other runs; start it early.
 
 `npm run test:perf` (about 40 minutes) runs the per-system budgets and the long measurements together; run its long parts through `measure.yml`, and its short budget files (`per-system.test.ts`, `perf_reference.test.ts`) locally with `npx vitest run -c vitest.perf.config.ts <file>`.
 
