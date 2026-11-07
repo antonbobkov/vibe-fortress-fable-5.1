@@ -1,6 +1,8 @@
 # T-510 — Cats stand together on one tile of the hall's walking line
 
-**Source:** T-508's three-year probe of `three-years-p0-6` ([report](../../reports/audits/2026-11-05-t508-idle-dwarves-by-the-hearth.md#the-crowd-watch), [output](../../reports/data/2026-11-05-t508-probe-p0-6.txt)) · **Size:** S · **Needs:** — · **Status:** open (probe first)
+**Closed:** 2026-11-07, in e2d8a575.
+
+**Source:** T-508's three-year probe of `three-years-p0-6` ([report](../../../reports/audits/2026-11-05-t508-idle-dwarves-by-the-hearth.md#the-crowd-watch), [output](../../../reports/data/2026-11-05-t508-probe-p0-6.txt)) · **Size:** S · **Needs:** — · **Status:** open (probe first)
 
 ## Why
 
