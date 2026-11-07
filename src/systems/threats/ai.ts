@@ -831,6 +831,14 @@ function broken(P: Party, standing: readonly EntityId[], ctx: TickContext): bool
     moraleBroken(P, leaderless);
 }
 
+/**
+ * 18 § Party AI: a caravan's party is 20's, not a threat party. Its state and its end are 20's, so
+ * the party think, the casualty check and morale never touch it.
+ */
+function threatParty(P: Party): boolean {
+  return P.purpose !== 'caravan';
+}
+
 /** Unconscious casualties are still living members; only actual deaths can wipe a party. */
 function retreatSurvivors(P: Party, ctx: TickContext): boolean {
   if (!P.members.some((id) => inParty(ctx.world.entities, id))) return false;
@@ -843,6 +851,7 @@ function retreatSurvivors(P: Party, ctx: TickContext): boolean {
 }
 
 export function checkPartyCasualties(partyId: EntityId, P: Party, ctx: TickContext): void {
+  if (!threatParty(P)) return;
   if (P.state === 'retreat' || P.state === 'gone' || P.purpose === 'restless') return;
   const entities = ctx.world.entities;
   const alive = P.members.filter((m) => {
@@ -889,7 +898,7 @@ function stalledInEngage(P: Party, alive: readonly EntityId[], ctx: TickContext)
 
 export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, targets?: readonly FortressTarget[]): void {
   const entities = ctx.world.entities;
-  if (P.state === 'gone') return;
+  if (P.state === 'gone' || !threatParty(P)) return;
   if (P.state !== 'approach') delete P.goalIdleSince;
   if (P.state !== 'engage') delete P.blowSince;
   if (P.state === 'retreat' && ctx.tick - P.stateSince >= RETREAT_GIVE_UP_DAYS * TICKS_PER_DAY) {

@@ -109,11 +109,14 @@ function leverSite(w: TestWorld, state: DefenceYearState): number {
 function zoneTiles(w: TestWorld, state: DefenceYearState, type: string, count: number): number[] {
   const buildings = w.readers.of<BuildingsReader>('14');
   const { cx, cy } = state.fortress;
+  // T-518: the dining hall the fortress script has planned stays its own: a barracks, a target or a
+  // range put there while the hall waits for its kitchen refuses the hall its zone and its chairs later.
+  const planned = new Set(state.fortress.diningHallTiles);
   const found: { t: number; d: number }[] = [];
   for (let y = 1; y < w.map.h - 1; y += 1) {
     for (let x = 1; x < w.map.w - 1; x += 1) {
       const t = w.index(x, y, HALL_Z);
-      if (w.map.kindAt(t) !== TileKind.Floor || buildings.zoneAt(t) !== 0 || buildings.at(t) !== 0) continue;
+      if (planned.has(t) || w.map.kindAt(t) !== TileKind.Floor || buildings.zoneAt(t) !== 0 || buildings.at(t) !== 0) continue;
       if (!buildings.zoneTileQualifies(type, t)) continue;
       found.push({ t, d: Math.abs(x - cx - 6) + Math.abs(y - cy - 6) });
     }
@@ -276,7 +279,7 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
   if (!state.archeryRangeZoneId && built(state.archeryTargetId)) {
     const origin = buildings.get(state.archeryTargetId)!.origin;
     const tiles = [origin, ...[-1, 1, -2, 2].map((d) => w.map.offset(origin, d, 0, 0))]
-      .filter((t) => t >= 0 && (t === origin || (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('archery_range', t))));
+      .filter((t) => t >= 0 && (t === origin || (buildings.zoneAt(t) === 0 && !state.fortress.diningHallTiles.includes(t) && buildings.zoneTileQualifies('archery_range', t))));
     if (command(w, { type: 'CreateZone', zoneType: 'archery_range', tiles }).ok) {
       state.archeryRangeZoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
     }
