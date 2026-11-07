@@ -19,5 +19,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-510 | [Cats stand together on one tile of the hall's walking line](work/T-510-cats-stand-together-in-the-hall-way.md) | T-508's measurements | — | open |
 | T-521 | [A hunter who joins a squad and takes a melee weapon keeps the fortress's launcher](work/T-521-hunter-in-squad-keeps-launcher.md) | T-500's code reading | — | open |
+| T-522 | [The defence fortress turns back fewer raids, and nothing checks it](work/T-522-defence-repel-rate-fell.md) | T-503's runs | — | open |
+| T-523 | [The party invariant can sample a dead party between thinks](work/T-523-party-invariant-gap.md) | T-510's sweep | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
