@@ -278,6 +278,14 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
   }
   if (!state.archeryRangeZoneId && built(state.archeryTargetId)) {
     const origin = buildings.get(state.archeryTargetId)!.origin;
+    // T-503: a zone the fortress made while the target was being set up may hold its tile, and the
+    // range would be refused for the overlap. The target comes down and is set up again on a free site.
+    if (buildings.zoneAt(origin) !== 0) {
+      command(w, { type: 'DeconstructBuilding', buildingId: state.archeryTargetId });
+      note(state, w, `the archery target's tile was zoned meanwhile: the target comes down to be set up elsewhere`);
+      state.archeryTargetId = 0;
+      return;
+    }
     const tiles = [origin, ...[-1, 1, -2, 2].map((d) => w.map.offset(origin, d, 0, 0))]
       .filter((t) => t >= 0 && (t === origin || (buildings.zoneAt(t) === 0 && !state.fortress.diningHallTiles.includes(t) && buildings.zoneTileQualifies('archery_range', t))));
     if (command(w, { type: 'CreateZone', zoneType: 'archery_range', tiles }).ok) {

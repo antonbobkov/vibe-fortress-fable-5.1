@@ -116,8 +116,10 @@ export interface TameHost extends BrainHost {
   homeTile(): TileIndex;
   /** Where an idle tame animal with no pasture stands: a tile of the hearth hall or beside it, else the anchor. */
   standTile(animalId: EntityId): TileIndex;
-  /** The pets' spot beside the hearth for a pet that heaps there (T-482), else -1. */
+  /** The spot where this pet heaps (T-482): the pets' spot beside the hearth, or the cats' corner for a cat (T-510); else -1. */
   petSpot(animalId: EntityId): TileIndex;
+  /** True for a tile of the hearth hall or beside it. */
+  byHall(tile: TileIndex): boolean;
   /** One grass tile feeds one grazer: `true` when this call took the tile, `false` when it is already held. */
   claimGraze(tile: TileIndex): boolean;
   /** A tile some grazer holds until 07 has cleared its grass. */
@@ -231,11 +233,12 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     return next;
   }
 
-  // A pet follows its dwarf loosely (within `PET_FOLLOW_RADIUS`).
+  // A pet follows its dwarf loosely (within `PET_FOLLOW_RADIUS`). T-510: while its dwarf is in or beside the
+  // hearth hall, the pet is idle in the hall like any tame animal there (its club's spot, or a tile of its own).
   if (next.petOf !== 0 || next.assignedTo !== 0) {
     const owner = next.petOf !== 0 ? next.petOf : next.assignedTo;
     const to = tileOf(host, owner);
-    if (to >= 0) {
+    if (to >= 0 && !host.byHall(to)) {
       const d = Math.max(Math.abs(host.map.xOf(to) - host.map.xOf(at)), Math.abs(host.map.yOf(to) - host.map.yOf(at)));
       if (d > PET_FOLLOW_RADIUS) {
         movement?.walkTo(id, to, 'wander', ctx);

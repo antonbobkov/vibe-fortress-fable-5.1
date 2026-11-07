@@ -1,0 +1,76 @@
+/**
+ * T-510 probe (not kept in test/): `three-years-p0-6` played as the sweep plays it. Every 300 ticks, each
+ * crowded hall tile; a stretch of 1,200 ticks or more is printed with who stands there: an animal as
+ * `species(owner d=dist dz=levels owner-behavior, walk target)`, a dwarf as `behavior>goal`.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { BuildingsReader } from '@systems/buildings';
+import { playThreeYears, setupThreeYearsFortress, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense, threeYearsWorld } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['T510_SEED'] ?? 'three-years-p0-6';
+const DAYS = Number(process.env['T510_DAYS'] ?? 400);
+
+it(`T-510 cats probe ${SEED}`, () => {
+  const w = threeYearsWorld(SEED, 0);
+  const state = setupThreeYearsFortress(w);
+  const ent = w.game.world.entities;
+  const map = w.game.world.map;
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const mv = w.game.movement;
+  const checks = (): void => {
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+  };
+  const lines: string[] = [];
+  const who = (id: number, tile: number): string => {
+    const b = ent.get(id, C.Brain);
+    if (b !== undefined) return `${b.behavior}>${b.targetTile === tile ? '=' : String(b.targetTile)}`;
+    const t = ent.get(id, C.Tame);
+    const sp = species.rows[ent.get(id, C.Creature)!.species]?.id;
+    const owner = t === undefined ? 0 : t.petOf || t.assignedTo;
+    const wt = mv.walkTarget(id);
+    const walk = wt < 0 ? 'none' : wt === tile ? '=' : String(wt);
+    if (owner === 0) return `${sp}${t?.curled === true ? '*' : ''}(no owner, walk ${walk})`;
+    const ot = mv.tileOf(owner);
+    const ob = ent.get(owner, C.Brain);
+    const d = ot < 0 ? -1 : Math.max(Math.abs(map.xOf(ot) - map.xOf(tile)), Math.abs(map.yOf(ot) - map.yOf(tile)));
+    const dz = ot < 0 ? 0 : map.zOf(ot) - map.zOf(tile);
+    return `${sp}(owner ${owner} at ${ot} d=${d} dz=${dz} ${ob?.behavior ?? '?'}:${ob?.activity.replace(/ /g, '_') ?? ''}, walk ${walk})`;
+  };
+  const streak = new Map<number, number>();
+  let longCount = 0;
+  const ownedOnCrowded = { owned: 0, unowned: 0 };
+  while (w.tick < DAYS * TICKS_PER_DAY) {
+    playThreeYears(w, state, 300);
+    checks();
+    for (const t of buildings.hearthHallTiles()) {
+      if (mv.crowdPercentAt(t) <= 100) {
+        streak.delete(t);
+        continue;
+      }
+      if (!streak.has(t)) streak.set(t, w.tick);
+      const on = w.readers.entities.at(t).filter((id) => ent.kind(id) === 'creature');
+      for (const id of on) {
+        const tm = ent.get(id, C.Tame);
+        if (tm === undefined) continue;
+        if (tm.petOf !== 0 || tm.assignedTo !== 0) ownedOnCrowded.owned += 1; else ownedOnCrowded.unowned += 1;
+      }
+      const long = w.tick - streak.get(t)!;
+      if (long >= 1200 && long % 600 === 0) {
+        longCount += 1;
+        lines.push(`day ${(w.tick / TICKS_PER_DAY).toFixed(2)} t ${w.tick} tile ${t} crowded ${long} [${on.map((id) => who(id, t)).join(' ')}]`);
+      }
+    }
+  }
+  const hearth = buildings.byType('hearth').map((b) => buildings.get(b)?.origin);
+  lines.push(`long samples ${longCount}; tame animals on crowded hall samples: owned ${ownedOnCrowded.owned}, unowned ${ownedOnCrowded.unowned}`);
+  lines.push(`hall tiles ${buildings.hearthHallTiles().join(',')} hearth ${hearth.join(',')}`);
+  const cats = ent.with(C.Tame).map((id) => `${id}:${species.rows[ent.get(id, C.Creature)!.species]?.id}:owner${ent.get(id, C.Tame)!.petOf}`);
+  lines.push(`tame: ${cats.join(' ')}`);
+  console.log(lines.join('\n'));
+}, 7_200_000);

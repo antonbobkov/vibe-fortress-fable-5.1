@@ -124,7 +124,7 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
   threats = perceivedThreats(id)   // per temperament rules in 08
   if T: if T.slaughter or T.assignedTo: (jobs / follow logic) ...
         if trained war and hostile within WAR_ANIMAL_RADIUS of station/owner: combat.setTarget(id, hostile); return
-        if T.petOf and dist(owner) > 5: walkTo(near owner); return
+        if T.petOf and owner not in or beside the hearth hall (T-510): if dist(owner) > 5: walkTo(near owner); return   // with its dwarf by the hall, it stands as below (08 § Pets)
         if grazer: if T.condition > 40 and grass tile within pasture (or within 6 if no pasture) with the animal's region label (the tile it is already walking to while that tile still qualifies; a tile whose walk came back unreachable is skipped for `GRAZE_SKIP_TICKS`): walkTo(grass); on arrival: if the tile is unclaimed, claim it and eatGrass (GrassGrazed, condition -= 25); return. A claimed tile is skipped, when choosing grass and on arrival
         wander within pasture or near hearth; return
   if W.pendingMeal: moveAlongPath(id); return  // await the corpse notification

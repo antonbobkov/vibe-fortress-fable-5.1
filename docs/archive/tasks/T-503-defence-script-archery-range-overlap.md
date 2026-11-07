@@ -1,6 +1,8 @@
 # T-503 — `defence_year`'s script zones an archery range over a tile another zone holds
 
-**Source:** T-466 ([report](../../reports/audits/2026-11-05-t466-defence-repels-a-raid.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-07, in 95560fa1.
+
+**Source:** T-466 ([report](../../../reports/audits/2026-11-05-t466-defence-repels-a-raid.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
