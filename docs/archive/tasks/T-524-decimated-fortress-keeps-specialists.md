@@ -1,8 +1,10 @@
 # T-524 — The three-year script keeps a decimated fortress's specialists on one labor
 
+**Closed:** 2026-11-07, in 46da6d04.
+
 **Source:** T-488 (`reports/data/2026-11-07-t488-halls.txt`) · **Size:** S · **Needs:** — · **Status:** open
 
-The script is `test/scenarios/three_years_economy.ts` (`checkEconomy`, `checkSpecialists`, `checkBrewer`); [testing-strategy.md](../process/testing-strategy.md) describes it.
+The script is `test/scenarios/three_years_economy.ts` (`checkEconomy`, `checkSpecialists`, `checkBrewer`); [testing-strategy.md](../../process/testing-strategy.md) describes it.
 
 ## What was found
 

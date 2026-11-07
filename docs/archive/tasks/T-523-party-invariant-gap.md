@@ -1,5 +1,7 @@
 # T-523 — The party invariant can sample a dead party between thinks
 
+**Closed:** 2026-11-07, in be8abc1f.
+
 **Source:** T-510's sweep (run 42372046622, `p2-6` at shift 150) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
