@@ -23,5 +23,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-510 | [Cats stand together on one tile of the hall's walking line](work/T-510-cats-stand-together-in-the-hall-way.md) | T-508's measurements | — | open |
 | T-518 | [The three-year fortress is one broken door from its halls, and a siege's trollkin break it when they follow a dwarf there](work/T-518-three-years-gate-one-door-from-the-halls.md) | T-512's measurements | — | open |
 | T-519 | [Three invariant findings in shifted sweeps of master](work/T-519-sweep-invariant-findings.md) | T-513's noise run | — | open |
+| T-520 | [The threat system's casualty check relabels a caravan's party](work/T-520-caravan-party-relabelled-repelled.md) | T-519's work | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
