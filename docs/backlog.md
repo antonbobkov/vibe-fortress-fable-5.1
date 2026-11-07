@@ -15,13 +15,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
 | T-488 | [three-years-p2-7 ends without its dining hall](work/T-488-p2-7-dining-hall-witness.md) | T-479's sweep | — | open |
 | T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
-| T-499 | [Re-measure the raid arenas now that archers weigh their shots](work/T-499-raid-arenas-after-held-shot.md) | T-483's arena and sweep | — | open |
 | T-500 | [The Warband's hunter never takes a hunt in pp_defence](work/T-500-warband-hunt-no-tool.md) | T-483's arena and sweep | — | open |
 | T-502 | [A soldier on `hold` who is off its station with a target stays where it is](work/T-502-hold-soldier-off-station.md) | T-493's arena | — | open |
 | T-503 | [`defence_year`'s script zones an archery range over a tile another zone holds](work/T-503-defence-script-archery-range-overlap.md) | T-466's report | — | open |
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-510 | [Cats stand together on one tile of the hall's walking line](work/T-510-cats-stand-together-in-the-hall-way.md) | T-508's measurements | — | open |
 | T-518 | [The three-year fortress is one broken door from its halls, and a siege's trollkin break it when they follow a dwarf there](work/T-518-three-years-gate-one-door-from-the-halls.md) | T-512's measurements | — | open |
-| T-520 | [The threat system's casualty check relabels a caravan's party](work/T-520-caravan-party-relabelled-repelled.md) | T-519's work | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

@@ -78,4 +78,4 @@ Set rule: alive at year 1 **19 / 19** counted (needs 18), peril 0 grown **7 / 7*
 
 - Whether 50% and Proficient are the right ends of the curve: both constants are *unmeasured*. A player who wants no friendly fire trains marksdwarves to Proficient or gives them a fortification or a station of their own.
 - A Novice caster with a Novice's rune (10): the caster rows keep rune 50 so that only the skill differs.
-- Sieges (archers and hexers at skill 10 are never careless), and the other raid arenas in `balance-status.md` (filed as [re-measure the raid arenas](../../docs/work/T-499-raid-arenas-after-held-shot.md)).
+- Sieges (archers and hexers at skill 10 are never careless), and the other raid arenas in `balance-status.md` (filed as [re-measure the raid arenas](../../docs/archive/tasks/T-499-raid-arenas-after-held-shot.md)).

@@ -1,6 +1,8 @@
 # T-520 — The threat system's casualty check relabels a caravan's party
 
-**Source:** T-519's work ([findings](../archive/tasks/T-519-sweep-invariant-findings.md), archived at merge) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-07, in f4a12bbb.
+
+**Source:** T-519's work ([findings](T-519-sweep-invariant-findings.md), archived at merge) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

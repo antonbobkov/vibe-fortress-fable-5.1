@@ -57,5 +57,5 @@ With the rule for fortress shooters only, `ambush-xbow` gives 1.00 soldiers dead
 ## What this does not measure
 
 - A marksdwarf on a fortification or an overlook, or on a station of its own away from the melee squad.
-- Sieges, the other raid arenas in `balance-status.md` (combat pace, ward, enchantment, draughts), and the scripted fortresses (`defence_year`, the three-year and twenty-seed runs). Their raids have archers, so their figures can move; the twenty-seed sweep was not run. Filed as [re-measure the raid arenas](../../docs/work/T-499-raid-arenas-after-held-shot.md).
+- Sieges, the other raid arenas in `balance-status.md` (combat pace, ward, enchantment, draughts), and the scripted fortresses (`defence_year`, the three-year and twenty-seed runs). Their raids have archers, so their figures can move; the twenty-seed sweep was not run. Filed as [re-measure the raid arenas](../../docs/archive/tasks/T-499-raid-arenas-after-held-shot.md).
 - Hunting with a dog: no hunt took place in `pp_defence` ([filed](../../docs/work/T-500-warband-hunt-no-tool.md)).

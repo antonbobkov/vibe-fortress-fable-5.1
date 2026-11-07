@@ -1,8 +1,10 @@
 # T-499 — Re-measure the raid arenas now that archers weigh their shots
 
-**Source:** [the careless-shooter arena](../../reports/audits/2026-11-04-t483-careless-shooter-arena.md), [the held-shot arena](../../reports/audits/2026-11-04-t483-held-shot-arena.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-07, in bbd63b2b.
 
-The specification is [16 Combat](../02-systems/16-combat.md) § Ranged resolution (Held shot); the figures are in [`balance-status.md`](../balance-status.md).
+**Source:** [the careless-shooter arena](../../../reports/audits/2026-11-04-t483-careless-shooter-arena.md), [the held-shot arena](../../../reports/audits/2026-11-04-t483-held-shot-arena.md) · **Size:** M · **Needs:** — · **Status:** open
+
+The specification is [16 Combat](../../02-systems/16-combat.md) § Ranged resolution (Held shot); the figures are in [`balance-status.md`](../../balance-status.md).
 
 ## What was found
 
