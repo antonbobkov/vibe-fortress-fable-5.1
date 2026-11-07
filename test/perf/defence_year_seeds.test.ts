@@ -5,7 +5,8 @@
  * prints, for every party that arrived with an announcement, its kind, size and ending, and for
  * the raid what became of its captain and how many of it died. One seed's raid can go either way
  * on the job timeline (testing-strategy.md § What may be a gate), so the rule is over the set: at
- * least DEFENCE_SET_RULE of the seeds end every announced raid `repelled` or `wiped`. Its noise is
+ * least DEFENCE_SET_RULE of the seeds end every announced raid `repelled` or `wiped`, and on at least
+ * DEFENCE_KILL_RULE a soldier kills a hostile. Its noise is
  * measured in reports/audits/2026-11-05-t466-defence-repels-a-raid.md.
  */
 
@@ -22,6 +23,12 @@ export const DEFENCE_YEAR_SEEDS: readonly string[] = [
 ];
 /** Seeds of the eight whose every announced raid must end `repelled` or `wiped`. */
 export const DEFENCE_SET_RULE = 5;
+/**
+ * T-512: seeds of the eight on which a soldier kills a hostile. Measured: 8, 7 of 7, 5 and 7 seeds on
+ * master and with T-512's sowing rule at two timelines each, and 7 or 8 in T-466's, T-486's and
+ * T-504's rows (reports/data/2026-11-06-t512-measurements.md).
+ */
+export const DEFENCE_KILL_RULE = 4;
 
 interface SeedRow {
   seed: string;
@@ -81,6 +88,7 @@ const SEEDS = ONLY.length > 0 ? ONLY : DEFENCE_YEAR_SEEDS;
 
 describe('T-466 defence_year seeds', () => {
   const turned: string[] = [];
+  const killed: string[] = [];
   for (const seed of SEEDS) {
     it(`defence_year on ${seed}`, () => {
       const row = playSeed(seed);
@@ -89,10 +97,15 @@ describe('T-466 defence_year seeds', () => {
       appendFileSync(`${out}/rows.jsonl`, JSON.stringify(row) + '\n');
       console.log(`defence_year_seeds: ${JSON.stringify(row)}`);
       if (row.raids.length > 0 && row.raids.every((r) => r.outcome === 'repelled' || r.outcome === 'wiped')) turned.push(seed);
+      if (row.soldierKills > 0) killed.push(seed);
     }, 1_800_000);
   }
   it('turns the announced raid back on most seeds', () => {
     console.log(`defence_year_seeds: raid turned back on ${turned.length} of ${SEEDS.length}: ${turned.join(', ')}`);
     if (ONLY.length === 0) expect(turned.length).toBeGreaterThanOrEqual(DEFENCE_SET_RULE);
+  });
+  it('a soldier kills a hostile on most seeds', () => {
+    console.log(`defence_year_seeds: a soldier killed a hostile on ${killed.length} of ${SEEDS.length}: ${killed.join(', ')}`);
+    if (ONLY.length === 0) expect(killed.length).toBeGreaterThanOrEqual(DEFENCE_KILL_RULE);
   });
 });

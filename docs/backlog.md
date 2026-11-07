@@ -23,8 +23,10 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-510 | [Cats stand together on one tile of the hall's walking line](work/T-510-cats-stand-together-in-the-hall-way.md) | T-508's measurements | — | open |
 | T-511 | [The browser year's opening can leave its kitchen or hearth waiting for stone](work/T-511-browser-year-opening-stone.md) | T-509's report | — | open |
-| T-512 | [The three-year script sows surface crops that cannot ripen before the frost](work/T-512-three-years-sows-crops-too-late.md) | T-507's report | — | open |
 | T-513 | [The twenty-seed sweep judges pooled shifted samples, like the instrument](work/T-513-sweep-verdict-by-shifts.md) | T-507's report | — | open |
 | T-515 | [A limb lost by a creature that dies in the same tick is logged as "{dwarf} has lost a limb."](work/T-515-limb-lost-placeholder.md) | T-514's runs | — | open |
+| T-516 | [The plot panel says when a crop sown now cannot ripen before winter, and the log says when frost kills crops](work/T-516-plot-panel-crop-cannot-ripen.md) | T-512's measurements | — | open |
+| T-517 | [An attacked caravan whose guard keeps a target never leaves the map](work/T-517-attacked-caravan-never-leaves.md) | T-512's measurements | — | open |
+| T-518 | [The three-year fortress is one broken door from its halls, and a siege's trollkin break it when they follow a dwarf there](work/T-518-three-years-gate-one-door-from-the-halls.md) | T-512's measurements | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

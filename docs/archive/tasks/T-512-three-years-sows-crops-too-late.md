@@ -1,6 +1,8 @@
 # T-512 — The three-year script sows surface crops that cannot ripen before the frost
 
-**Source:** T-507's food journal of `three-years-p0-3` ([report](../../reports/audits/2026-11-05-t507-three-years-food.md#the-second-fault-crops-sown-too-late), [journal](../../reports/data/2026-11-05-t507-food-journal-p0-3.txt)) · **Size:** S · **Needs:** — · **Status:** open (a fix is written and measured once, not merged)
+**Closed:** 2026-11-06, in a02c4718.
+
+**Source:** T-507's food journal of `three-years-p0-3` ([report](../../../reports/audits/2026-11-05-t507-three-years-food.md#the-second-fault-crops-sown-too-late), [journal](../../../reports/data/2026-11-05-t507-food-journal-p0-3.txt)) · **Size:** S · **Needs:** — · **Status:** open (a fix is written and measured once, not merged)
 
 ## Why
 
