@@ -1,0 +1,20 @@
+# T-510 probe of three-years-p0-6 (2026-11-07-t510-cats.probe.ts.txt, run from test/perf)
+# Every 300 ticks, each crowded hall tile; a stretch of 1,200 ticks or more is printed with who stands there:
+# an animal as species(owner id at tile, d = tiles from the crowded tile, dz, owner behavior:activity, its walk target),
+# a dwarf as behavior>goal ('=' when its goal is the tile). 'owned'/'unowned': tame animals counted on crowded hall samples.
+
+## T-508's code (0348c100, the timeline T-508 probed), to day 345
+day 328.29 t 393947 tile 60369 crowded 1200 [cat(owner 452985668 at 60417 d=1 dz=0 idle:No_job, walk none) cat(owner 16777287 at 60371 d=2 dz=0 need:comfort, walk none) need>=]
+day 328.79 t 394547 tile 60369 crowded 1800 [idle>60420 cat(owner 452985668 at 60417 d=1 dz=0 need:sleep, walk none) need>=]
+long samples 2; tame animals on crowded hall samples: owned 202, unowned 189
+
+## The same code with T-510's animals system (index.ts, tame.ts), to day 345
+long samples 0; tame animals on crowded hall samples: owned 4, unowned 228
+
+## master 6f5763ad (T-518 merged), to day 1,080
+day 668.79 t 802547 tile 60322 crowded 1200 [dog(no owner, walk none) need>= need>=]
+day 734.04 t 880847 tile 60369 crowded 1200 [dog(no owner, walk none) need>= need>=]
+long samples 2; tame animals on crowded hall samples: owned 11, unowned 1334
+
+## T-510 on master, to day 1,080
+long samples 0; tame animals on crowded hall samples: owned 470, unowned 370
