@@ -7,8 +7,16 @@
 /** Founders: a peril-0 fortress has grown when it ends year 3 above this. */
 export const EMBARK_SIZE = 7;
 export const SWEEP_SEEDS = 20;
-/** A verdict pools this many sweeps of the same code, shifted 0 to N-1 ticks before the opening. */
+/** A verdict pools this many sweeps of the same code, each shifted before the opening by a multiple of SWEEP_SHIFT_STEP. */
 export const SWEEP_SAMPLES = 4;
+/**
+ * Ticks between two sweeps' shifts. Shifts under about 20 ticks fall into three or four timelines
+ * (shifts 2 to 10 end year 3 with the same world hash on every seed measured); multiples of 20 from 20
+ * up are each a timeline of their own.
+ */
+export const SWEEP_SHIFT_STEP = 50;
+/** The shifts a verdict pools: 0, 50, 100, 150. */
+export const SWEEP_SHIFTS: readonly number[] = [...Array(SWEEP_SAMPLES).keys()].map((k) => k * SWEEP_SHIFT_STEP);
 
 /**
  * The set rule, read as a mean over the pooled sweeps: on average at least this many of the twenty

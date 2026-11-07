@@ -1,6 +1,6 @@
 /**
  * T-513: the twenty-seed sweep's verdict over its pooled shifted sweeps. measure.yml's `sweep` suite
- * plays every seed at shifts 0 to N-1 in parallel and runs this file over their result files; locally,
+ * plays every seed at shifts 0, 50, 100 and 150 in parallel and runs this file over their result files; locally,
  * run `three_years_seeds.test.ts` once per shift (`THREE_YEARS_SHIFT`, with `THREE_YEARS_SEEDS_OUT`
  * set to `<dir>/shift-<n>`) and point `THREE_YEARS_SWEEP_SAMPLES` at `<dir>`. With no samples the file skips.
  */
@@ -9,7 +9,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   improvedSweep, poolSweeps, sweepCheck, sweepFigures, SWEEP_MEASURED as MEASURED, SWEEP_REFERENCE as REFERENCE,
-  SWEEP_SAMPLES, SWEEP_SEEDS, SWEEP_TOLERANCE, type SweepFigures, type SweepSeedRow,
+  SWEEP_SEEDS, SWEEP_SHIFTS, SWEEP_TOLERANCE, type SweepFigures, type SweepSeedRow,
 } from './three_years_sweep';
 
 interface SeedFile {
@@ -35,13 +35,13 @@ const samples: Sample[] = shiftDirs.map((name) => {
 const row = (f: SweepFigures): string => [f.alive, f.grown, f.hungry, f.living, f.deaths, f.extinct, f.needDeaths].join(' | ');
 
 describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over its pooled shifted sweeps', () => {
-  it(`pools shifts 0 to ${SWEEP_SAMPLES - 1} of one commit and keeps the set rule and the guarded bounds`, () => {
+  it(`pools shifts ${SWEEP_SHIFTS.join(', ')} of one commit and keeps the set rule and the guarded bounds`, () => {
     const pooled = poolSweeps(samples.map((s) => s.figures));
     const check = sweepCheck(pooled);
     const commits = [...new Set(samples.flatMap((s) => s.commits))];
     const incomplete = samples.filter((s) => s.rows.length !== SWEEP_SEEDS).map((s) => `shift ${s.shift}: ${s.rows.length} of ${SWEEP_SEEDS}`);
     const judged = commits.length === 1 && incomplete.length === 0
-      && samples.map((s) => s.shift).join() === [...Array(SWEEP_SAMPLES).keys()].join();
+      && samples.map((s) => s.shift).join() === SWEEP_SHIFTS.join();
     const seeds = [...new Set(samples.flatMap((s) => s.rows.map((r) => r.seed)))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
     const cell = (seed: string, f: (r: SweepSeedRow) => string): string => samples.map((s) => {
       const r = s.rows.find((x) => x.seed === seed);
@@ -61,7 +61,7 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
       '',
       `Pooled figures are means over the sweeps. Alive, grown and need-death fortresses are bounded by the set rule; living and deaths by the best accepted pooled figures and tolerances ${JSON.stringify(SWEEP_TOLERANCE)}.`,
       '',
-      `**Verdict: ${!judged ? `not judged (a verdict pools shifts 0 to ${SWEEP_SAMPLES - 1} of one commit, all ${SWEEP_SEEDS} seeds each${incomplete.length ? `; missing: ${incomplete.join('; ')}` : ''})` : check.allowed ? 'pass' : 'blocked'}.** Bounds exceeded: ${check.exceeded.join(', ') || 'none'}.`,
+      `**Verdict: ${!judged ? `not judged (a verdict pools shifts ${SWEEP_SHIFTS.join(', ')} of one commit, all ${SWEEP_SEEDS} seeds each${incomplete.length ? `; missing: ${incomplete.join('; ')}` : ''})` : check.allowed ? 'pass' : 'blocked'}.** Bounds exceeded: ${check.exceeded.join(', ') || 'none'}.`,
       '',
       `If accepted: \`SWEEP_REFERENCE\` = \`${JSON.stringify(pooled)}\`; \`SWEEP_MEASURED\` = \`${JSON.stringify(improvedSweep(MEASURED, pooled))}\`.`,
       '',
@@ -77,7 +77,7 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
     // The sweeps are one commit's, shifted 0 to N-1, every seed in each, so two verdicts compare like with like.
     expect(commits, 'one commit').toHaveLength(1);
     expect(incomplete, 'sweeps without every seed').toEqual([]);
-    expect(samples.map((s) => s.shift), 'the shifts').toEqual([...Array(SWEEP_SAMPLES).keys()]);
+    expect(samples.map((s) => s.shift), 'the shifts').toEqual(SWEEP_SHIFTS);
     expect(check.allowed, `sweep regression: ${JSON.stringify(check)}`).toBe(true);
   });
 });

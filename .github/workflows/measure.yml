@@ -1,6 +1,6 @@
 name: Measure
 # On-demand long measurements, run on GitHub's runners instead of a local machine.
-#   gh workflow run measure.yml --ref <branch> -f suite=sweep           (twenty seeds at four shifts in parallel, then the verdict)
+#   gh workflow run measure.yml --ref <branch> -f suite=sweep           (twenty seeds at shifts 0, 50, 100, 150 in parallel, then the verdict)
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
 #   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
 # Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep" and "instrument")
@@ -22,7 +22,7 @@ on:
         type: string
         default: '20'
       shifts:
-        description: For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening (empty = the suite's own, 0-7 and 0-3)
+        description: For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening (empty = the suite's own: 0-7, and 0,50,100,150)
         type: string
         default: ''
       snapshots:
@@ -42,7 +42,7 @@ jobs:
         # The longest seeds first, so the queue of 20 x N jobs ends with short ones.
         seed: [p2-3, p4-6, p0-3, p4-5, p4-1, p0-7, p2-7, p2-4, p4-4, p0-6,
                p4-3, p2-6, p0-5, p2-1, p4-2, p0-4, p0-2, p0-1, p2-2, p2-5]
-        shift: ${{ fromJSON(format('[{0}]', inputs.shifts || '0,1,2,3')) }}
+        shift: ${{ fromJSON(format('[{0}]', inputs.shifts || '0,50,100,150')) }}
     steps:
       - uses: actions/checkout@v4
         with:
