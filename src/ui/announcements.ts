@@ -92,7 +92,8 @@ export class AnnouncementLog {
     }
     const e = event as unknown as Record<string, unknown>;
     const deadId = e['id'];
-    if (event.type === 'CreatureDied' && typeof deadId === 'number') {
+    // A death or a lost limb names the creature from the event, which carries the name taken when it happened.
+    if ((event.type === 'CreatureDied' || event.type === 'LimbLost') && typeof deadId === 'number') {
       const creature = readers.entities.get(deadId, C.Creature);
       const rawName = typeof e['name'] === 'string' && e['name'].length > 0 ? e['name'] : creature?.name;
       const speciesIdx = typeof e['species'] === 'number' ? e['species'] : creature?.species;

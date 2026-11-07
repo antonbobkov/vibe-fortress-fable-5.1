@@ -113,7 +113,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `KillRecorded` | `killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies` | 16 | 15, 24 (milestones, legend) |
 | `TrainingSession` | `squadId, members[]` | 16 | 15 (barracks thought) |
 | `WoundInflicted` | `id, part, type, severity` | 17 | 15 |
-| `LimbLost` | `id, part` | 17 | 15, 16, ui |
+| `LimbLost` | `id, part, name, species` | 17 | 15, 16, ui |
 | `CreatureUnconscious` / `CreatureConscious` | `id` | 17 | 10, 16, 18, ui |
 | `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 14, 15, 16, 18, 20, ui |
 | `PatientAdmitted` / `PatientDischarged` / `PatientHealed` | `id[, hospitalTier]` | 17 | 10, 15, ui |

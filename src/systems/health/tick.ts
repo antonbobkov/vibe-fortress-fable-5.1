@@ -237,7 +237,9 @@ export function applyDamage(
     const stumpWound = createWound('cut', 'grievous', maxHp, ctx.tick);
     part.wounds.push(stumpWound);
     woundedSet.add(id);
-    ctx.emit({ type: 'LimbLost', id, part: slotName });
+    // The name and species are taken now: a blow in the same tick may kill the creature before the log names it.
+    const lostBy = entities.get(id, C.Creature);
+    ctx.emit({ type: 'LimbLost', id, part: slotName, name: lostBy?.name, species: lostBy?.species });
     ctx.emit({ type: 'WoundInflicted', id, part: slotName, woundType: 'cut', severity: 'grievous' });
     updatePatient(ctx, id, lastHospitalTier);
     return;
