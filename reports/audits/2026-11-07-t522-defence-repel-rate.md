@@ -68,6 +68,10 @@ The rule moves every party whose goal is locked away: raids and sieges now come 
 
 Raids are not weaker: they come to the defence instead of the surface, and at peril 4 a fortress behind its gate loses fewer dwarves to them. `p2-4` at shift 50 fails its job on its T-156 witness, as in T-513's reference and since (T-488).
 
+## On today's master
+
+Merged with T-488, T-523 and T-524 (`23d73d03`): `defence_seeds` gives the final commit's rows to the seed, mean **5.63** (pass; run 42421159823, [verdict](../data/2026-11-07-t522-defence-seeds-merged.md)); the sweep passes, pooled 943.5 living and 130.75 deaths, peril 4 243 living and 66.25 deaths a sweep (run 42421166022, [verdict](../data/2026-11-07-t522-sweep-verdict-merged.md)); `ci.yml` passes, 3,619 tests in four shards and e2e 39 (run 42421153861).
+
 ## Fun
 
 - **Raiders who never found the door.** Before the fix a raid on a fortress behind two locked lines stood at the map's corner and walked from log to log across the surface, a scavenging party that never saw the gate, then went home pleased with itself (morale 100).
