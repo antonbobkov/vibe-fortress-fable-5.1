@@ -10,7 +10,7 @@ import type { Job, JobBoard, JobSink, ItemFilter } from '@systems/jobs';
 import type { JobsReader } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import { MAGMA_POWER_LEVEL } from './constants';
-import { MELT_RETURN_PERCENT } from './constants';
+import { MELT_RETURN_PERCENT, ORDER_AHEAD_TICKS } from './constants';
 import { MAGMA_C } from '@systems/fluids/constants';
 import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
@@ -443,8 +443,9 @@ export class WorkshopOperator {
       }
       if (ws.lastBlockedReason === 'no_magma') this.save(id, { ...this.workshop(id) as Workshop, lastBlockedReason: null });
       if (ws.currentJobId !== 0) {
-        // 12 § Operation: a job blocked on a missing input whose order is no longer runnable is let go.
-        if (!this.dropUnrunnableJob(ctx, id, ws)) continue;
+        // 12 § Operation: a job blocked on a missing input whose order is no longer runnable is let go,
+        // and a job nobody has taken gives way to a runnable order ahead of it (T-527).
+        if (!this.dropUnrunnableJob(ctx, id, ws) && !this.yieldToOrderAhead(ctx, id, ws)) continue;
         ws = this.workshop(id) as Workshop;
       }
       const choices = [...ws.orders.map((o, index) => ({ order: o, index, global: false })),
@@ -535,6 +536,37 @@ export class WorkshopOperator {
     if (order === undefined || this.problem(order, id) === null) return false;
     board.cancel(job.id, 'order_not_runnable');
     return true;
+  }
+
+  /**
+   * 12 § Operation, step 1: every `ORDER_AHEAD_TICKS` after its creation, a current job that no worker
+   * holds, with no progress and nothing delivered, is cancelled (`order_ahead`) when an order ahead of
+   * its own in the list is runnable, so a job of a less urgent order that the workers pass over for
+   * more urgent work does not hold the workshop's one job from the orders the player put first.
+   * Local orders come before global ones, and an automatic melt (order index -1) comes after both.
+   */
+  private yieldToOrderAhead(ctx: TickContext, id: EntityId, ws: Workshop): boolean {
+    const board = ctx.world.services.jobs as JobBoard;
+    const job = board.jobs.get(ws.currentJobId);
+    if (job === undefined || job.workerId !== 0 || (job.state !== 'open' && job.state !== 'blocked')) return false;
+    const waited = ctx.tick - job.createdTick;
+    if (waited <= 0 || waited % ORDER_AHEAD_TICKS !== 0) return false;
+    if (job.progress > 0 || job.inputs.some((input) => input.delivered.length > 0)) return false;
+    const index = job.data['orderIndex'];
+    if (typeof index !== 'number') return false;
+    const global = job.data['globalOrder'] === true;
+    const ahead: WorkOrder[] = index < 0 ? [...ws.orders, ...this.globalOrders]
+      : global ? [...ws.orders, ...this.globalOrders.slice(0, Math.max(0, this.globalOrderIndex(job)))]
+        : ws.orders.slice(0, index);
+    const type = this.typeOf(id);
+    for (const order of ahead) {
+      if (this.recipe(order.recipe)?.workshop !== type) continue;
+      if (order.serial !== undefined && this.globalOrders.includes(order) && board.byKey(`craft:global:${order.serial}`) !== undefined) continue;
+      if (this.problem(order, id) !== null) continue;
+      board.cancel(job.id, 'order_ahead');
+      return true;
+    }
+    return false;
   }
 
   private onJobEvent(event: GameEvent): void {
