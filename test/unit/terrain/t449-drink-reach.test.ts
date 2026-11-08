@@ -118,13 +118,29 @@ describe('T-449 a river site has water a dwarf can drink', () => {
           if (OUT !== undefined) continue;
           expect(reach.banks, `${seed}: floor or ramp banks`).toBeGreaterThan(0);
           expect(reach.fishing, `${seed}: fishing banks`).toBeGreaterThan(0);
-          // The search looks DRINK_SEARCH_RADIUS tiles and DRINK_SEARCH_LEVELS levels from the dwarf: a
-          // lake at the far side of the map may lie beyond it from the arrival point, on level ground too.
+          // The search looks DRINK_SEARCH_RADIUS tiles and DRINK_SEARCH_LEVELS levels from the dwarf. T-453:
+          // a lake lies in the arrival edge's half of the map, so its bank is always inside the radius.
+          if (shape.inflow.length > 0 && shape.outflow === null) expect(reach.nearest, `${seed}: the lake's nearest bank`).toBeLessThan(DRINK_SEARCH_RADIUS);
           if (reach.nearest < DRINK_SEARCH_RADIUS && reach.levels <= DRINK_SEARCH_LEVELS) expect(reach.stand, `${seed}: the drink search`).toBeGreaterThanOrEqual(0);
           if (reach.stand >= 0) expect(reach.standKind === TileKind.Floor || reach.standKind === TileKind.Ramp || reach.standKind === TileKind.Shrub, `${seed}: stand kind ${reach.standKind}`).toBe(true);
         }
       }, 600_000);
     }
+  }
+
+  // T-453: a river from the south edge into a lake, a wagon on the north edge. Before the lake kept to
+  // the arrival half, the nearest bank of seeds 7, 9 and 10 lay 65 to 67 tiles from the wagon, past
+  // the search, at every relief.
+  for (const relief of [0, 1] as const) {
+    it(`relief ${relief}, river s-lake: the drink search finds the far lake's water from the wagon (T-453)`, () => {
+      for (const s of [7, 9, 10]) {
+        const seed = `t449-reach-${s}`;
+        const spec = regionSpec(seed, { peril: 0, wealth: 2, biome: 'temperate_forest', geology: 'mixed', traits: [], relief, river: { class: 'river', inflow: ['s'], outflow: null } }, registry);
+        const reach = reachFrom(spec, seed);
+        expect(reach.nearest, `${seed}: the lake's nearest bank`).toBeLessThan(DRINK_SEARCH_RADIUS);
+        expect(reach.stand, `${seed}: the drink search`).toBeGreaterThanOrEqual(0);
+      }
+    }, 600_000);
   }
 
   it('the tutorial region, ranked as having water, has a reachable bank the search accepts', () => {

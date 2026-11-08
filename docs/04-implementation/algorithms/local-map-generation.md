@@ -25,7 +25,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
        width = {brook:1, river:3, major:5}[class]; depth = {brook:1, river:2, major:2}[class]
        for each path tile p and its width-band tiles q: riverTiles.add(q); sourceEdge/sinkEdge marks kept
   if spec.lake or lake created: center = lakeCenter; radius = st.int(6,12); for tiles within radius (plain disc, no edge jitter): lakeTiles.add
-  lakeCenter(st): uniform centre where radius 12 fits inside the map
+  lakeCenter(st): uniform centre where radius 12 fits inside the map, in the half of the map on spec.arrivalEdge's side (T-453)
   if spec.river and no inflow edge: spring = st point SPRING_EDGE_MARGIN from every edge, in the half away from the outflow edge (if any)
        path = wander(st, spring, outflow midpoint or lakeCenter); carved as above; the spring's band columns → SOURCE
   waterSurface = min of h over the dry tiles cardinally beside riverTiles and lakeTiles
