@@ -189,18 +189,43 @@ function isPickOrAxe(items: ItemsReader, itemId: EntityId): boolean {
   return category === 'tool/pick' || category === 'tool/axe';
 }
 
+function isLauncher(items: ItemsReader, itemId: EntityId): boolean {
+  const item = items.get(itemId);
+  return item !== undefined && items.categoryOf(item.type) === toolFilter('ranged').category;
+}
+
+/** Drops the launcher a worker holds as its tool on `tile`, and the unowned ammunition of its kind the worker carries. */
+function dropLauncherWithAmmo(board: JobBoard, ctx: TickContext, workerId: EntityId, launcherId: EntityId, tile: TileIndex): void {
+  const api = ctx.world.services.items;
+  if (api === null) return;
+  const items = ctx.readers.of<ItemsReader>('13');
+  const launcher = items.get(launcherId);
+  const carrying = board.workerOf(workerId).carrying;
+  const ammo = ctx.registry.table<{ id: string; launcher?: { ammo?: string } }>('weapons').byId(items.def(launcher?.type ?? -1)?.id ?? '')?.launcher?.ammo;
+  dropTool(board, ctx, workerId, launcherId, tile);
+  for (const itemId of ammo === undefined ? [] : items.carriedItems(workerId)) {
+    const it = items.get(itemId);
+    if (it === undefined || it.carriedBy !== workerId || itemId === carrying || (it.flags & ItemFlag.Owned) !== 0) continue;
+    if (items.def(it.type)?.id !== ammo) continue;
+    if (it.reservedBy !== 0 || (it.flags & ItemFlag.Reserved) !== 0) api.release(itemId);
+    api.dropAt(itemId, tile);
+  }
+}
+
 /**
  * 11 § Assignment: a worker holds one tool. A worker that is about to equip another tool first
- * puts the pick or axe it holds down on its own tile (the tile it stands on).
+ * puts the pick, axe or launcher it holds down on its own tile (the tile it stands on); a launcher
+ * goes with the unowned ammunition of its kind the worker carries.
  */
 export function dropHeldToolBeforeEquip(board: JobBoard, ctx: TickContext, workerId: EntityId): void {
   if (!ctx.readers.has('13')) return;
   const items = ctx.readers.of<ItemsReader>('13');
   const held = board.workerOf(workerId).toolId;
-  if (held === 0 || items.get(held)?.carriedBy !== workerId || !isPickOrAxe(items, held)) return;
+  if (held === 0 || items.get(held)?.carriedBy !== workerId) return;
   const tile = board.workerTile(workerId);
   if (tile < 0) return;
-  dropTool(board, ctx, workerId, held, tile);
+  if (isLauncher(items, held)) dropLauncherWithAmmo(board, ctx, workerId, held, tile);
+  else if (isPickOrAxe(items, held)) dropTool(board, ctx, workerId, held, tile);
 }
 
 /** 11 § Assignment: a worker carries no pick or axe it does not hold (its `toolId`, its `Equipment`, or the item it hauls). */
@@ -229,25 +254,15 @@ export function dropStrandedTools(board: JobBoard, ctx: TickContext): void {
  * that launcher, and the unowned ammunition of the launcher's kind it carries, on its own tile.
  */
 export function dropUnusableLaunchers(board: JobBoard, ctx: TickContext): void {
-  const api = ctx.world.services.items;
-  if (api === null || !ctx.readers.has('13')) return;
+  if (ctx.world.services.items === null || !ctx.readers.has('13')) return;
   const items = ctx.readers.of<ItemsReader>('13');
   for (const id of board.workers()) {
     const worker = board.workerOf(id);
     if (worker.toolId === 0 || board.items.wieldsOtherWeapon?.(id) !== true) continue;
-    const launcher = items.get(worker.toolId);
-    if (launcher?.carriedBy !== id || items.categoryOf(launcher.type) !== toolFilter('ranged').category) continue;
+    if (items.get(worker.toolId)?.carriedBy !== id || !isLauncher(items, worker.toolId)) continue;
     const tile = board.workerTile(id);
     if (tile < 0) continue;
-    const ammo = ctx.registry.table<{ id: string; launcher?: { ammo?: string } }>('weapons').byId(items.def(launcher.type)?.id ?? '')?.launcher?.ammo;
-    dropTool(board, ctx, id, worker.toolId, tile);
-    for (const itemId of ammo === undefined ? [] : items.carriedItems(id)) {
-      const it = items.get(itemId);
-      if (it === undefined || it.carriedBy !== id || itemId === worker.carrying || (it.flags & ItemFlag.Owned) !== 0) continue;
-      if (items.def(it.type)?.id !== ammo) continue;
-      if (it.reservedBy !== 0 || (it.flags & ItemFlag.Reserved) !== 0) api.release(itemId);
-      api.dropAt(itemId, tile);
-    }
+    dropLauncherWithAmmo(board, ctx, id, worker.toolId, tile);
   }
 }
 
