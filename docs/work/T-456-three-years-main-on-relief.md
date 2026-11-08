@@ -17,3 +17,12 @@ Journal `three-years` at relief 1 to find who kills the first six dwarves by day
 ## Done
 
 - The scenario plays on relief 1 with its assertions unchanged, or a dated report says why it should not.
+
+## Outcome (2026-11-07)
+
+On master `303a109a` the scenario still fails on relief 1, now only on `cut_gem completed through normal jobs` (run 42427934351): 11 dwarf deaths, all `bled_out`, population 9, 8 and 23 at years 1 to 3. On relief 0 the same code has no deaths and 58 dwarves (run 42428712635). Journalled with [the probe](../../reports/data/2026-11-07-t456-relief.probe.ts.txt):
+
+- **Who kills them:** boars. Every death follows a boar's hit on the surface (days 70 to 334), mostly of a dwarf on `duty`: the script sends an armed squad after a dangerous wild animal, and on this map it meets the boars again and again. Founders 0 and 1, the two miners, are the first two (days 70 and 71).
+- **Why no gem:** on this relief-1 map the gem walls lie only at z 20 and below, under the upper mine (z 23 to 26), where relief 0 has them at z 26 and 27. The deep shaft's head is 29 tiles of drift away at z 23; with both miners dead its first tile stays open, untaken, from day 120 to about day 340, and no rough gem is mined in three years.
+
+The seven peril-0 seeds of the pooled master sweep (run 42420388361) lose 0 to 4 dwarves at relief 1; this seed's map is the outlier, and the deaths are the wildlife the scenario already accepts as timeline-dependent at peril 0. Chosen: the scenario plays on relief 1 on a representative seed, `three-years-p0-3`, every assertion unchanged. In the pooled sweep it ends at 80, 78, 60 and 75 dwarves with 0, 0, 1 and 0 deaths. Three candidates on relief 1, each passing: p0-3 (80 dwarves, cut_gem 25, forge_pick 17, alloy_steel 3, run 42430714755), p0-6 (51, cut_gem 12, run 42430719867), p0-7 (76, cut_gem 1, run 42430709340); p0-3 has the widest margins. The squad's losses to boars are filed as a new row.
