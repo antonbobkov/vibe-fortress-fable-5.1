@@ -1,4 +1,4 @@
-# T-NEW — A workshop's open craft job waits for months while its laborers are idle
+# T-527 — A workshop's open craft job waits for months while its laborers are idle
 
 **Source:** [T-522's report](../../reports/audits/2026-11-07-t522-defence-repel-rate.md) § After the fix · **Size:** S · **Needs:** — · **Status:** open
 

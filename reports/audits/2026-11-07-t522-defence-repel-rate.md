@@ -1,6 +1,6 @@
 # Measurement: why the defence fortress stopped turning raids back, and a verdict for it
 
-**Task:** T-522 · **Date:** 2026-11-07 · **Commits examined:** the merges on master from T-504 (`d0794187`) to T-518 (`6f5763ad`); master `a7ba4629` (with the verdict job only, `676ae0e3`); the T-522 branch at `16fbba04` (master with T-503 and T-510, the door rule and the cage order) and `9932873e` (with the club and the living squad leader) · **Kind:** a regression found by bisection, a game rule fixed, a script fault fixed, and a verdict job · **Source:** [the T-522 work file](../../docs/work/T-522-defence-repel-rate-fell.md), [T-504](2026-11-05-t504-raid-morale.md), [T-466](2026-11-05-t466-defence-repels-a-raid.md), [T-503's rows](../data/2026-11-07-t503-defence-seeds.md)
+**Task:** T-522 · **Date:** 2026-11-07 · **Commits examined:** the merges on master from T-504 (`d0794187`) to T-518 (`6f5763ad`); master `a7ba4629` (with the verdict job only, `676ae0e3`); the T-522 branch at `16fbba04` (master with T-503 and T-510, the door rule and the cage order) and `9932873e` (with the club and the living squad leader) · **Kind:** a regression found by bisection, a game rule fixed, a script fault fixed, and a verdict job · **Source:** [the T-522 work file](../../docs/archive/tasks/T-522-defence-repel-rate-fell.md), [T-504](2026-11-05-t504-raid-morale.md), [T-466](2026-11-05-t466-defence-repels-a-raid.md), [T-503's rows](../data/2026-11-07-t503-defence-seeds.md)
 
 ## The answer
 
