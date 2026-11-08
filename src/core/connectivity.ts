@@ -41,6 +41,8 @@ export interface ConnectivityGraph {
   cornerBlocks(i: TileIndex): boolean;
   /** Only the stairs and ramp edges (every one of them leaves the tile's chunk). */
   forEachVerticalLink(i: TileIndex, cls: MovementClass, fn: (to: TileIndex) => void): void;
+  /** `22` § Connectivity labels, `nearestReachable`: a built door stands on the tile, locked or not. */
+  doorAt(i: TileIndex): boolean;
 }
 
 /** The chunk edge, as a module constant for the inner loops. */
@@ -621,8 +623,10 @@ export class Connectivity {
   }
 
   /**
-   * BFS outward from `target` over passable tiles until one shares `from`'s label, bounded by
-   * `limit` visited tiles. -1 when none is found inside the bound.
+   * BFS outward from `target` over passable tiles and doors until one shares `from`'s label, bounded
+   * by `limit` visited tiles. -1 when none is found inside the bound. T-522: a door the mover cannot
+   * pass (locked, or shut to its kind) is the way in, not a wall, so a goal behind a fortress's locked
+   * gate finds the tile before the gate.
    */
   nearestReachable(from: TileIndex, target: TileIndex, cls: MovementClass, limit: number): TileIndex {
     const want = this.label(from, cls);
@@ -642,7 +646,10 @@ export class Connectivity {
           const j = neighbours[n] as TileIndex;
           if (seen.has(j)) continue;
           seen.add(j);
-          if (!this.graph.passable(j, cls)) continue;
+          if (!this.graph.passable(j, cls)) {
+            if (this.graph.doorAt(j)) next.push(j);
+            continue;
+          }
           if (this.label(j, cls) === want) return j;
           next.push(j);
         }

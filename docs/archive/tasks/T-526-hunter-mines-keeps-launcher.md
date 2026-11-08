@@ -1,8 +1,10 @@
 # T-526 — A hunter who takes a pick keeps carrying the launcher it no longer holds
 
+**Closed:** 2026-11-07, in HEAD.
+
 **Source:** T-521 (`test/unit/jobs/t521-hunter-joins-squad.test.ts`) · **Size:** S · **Needs:** — · **Status:** open
 
-The specification is [09](../02-systems/09-hunting-gathering-fishing.md) § Hunting and [11](../02-systems/11-jobs-and-labor.md) § Assignment.
+The specification is [09](../../02-systems/09-hunting-gathering-fishing.md) § Hunting and [11](../../02-systems/11-jobs-and-labor.md) § Assignment.
 
 ## What was found
 
