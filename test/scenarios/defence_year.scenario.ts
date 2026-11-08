@@ -26,12 +26,17 @@ const scenario: Scenario = {
     // The tick of each creature's last blow and of its death (events carry no tick).
     const lastBlow = new Map<number, number>();
     const diedAt = new Map<number, number>();
+    // T-522: dwarves burned by a lightning strike (a burn within a tick of a strike), a death of the weather.
+    let strikeTick = -1;
+    const struck = new Set<number>();
     const hearthEpisodes: { locked: boolean }[] = [];
     let wasHearth = false;
     const { w, state } = playDefenceYear({
       observe: (tw) => {
         tw.game.world.onEvents((batch) => {
           for (const e of batch) {
+            if (e.type === 'LightningStrike') strikeTick = tw.tick;
+            else if (e.type === 'WoundInflicted' && e['woundType'] === 'burn' && strikeTick >= 0 && tw.tick - strikeTick <= 1) struck.add(e['id'] as number);
             if (e.type === 'DamageDealt') lastBlow.set(e['defenderId'] as number, tw.tick);
             else if (e.type === 'CreatureDied') diedAt.set(e['id'] as number, tw.tick);
             if (e.type === 'KillRecorded' && e['hostile'] === true && soldiers.has(e['killerId'] as number)) {
@@ -59,15 +64,16 @@ const scenario: Scenario = {
     // Which dwarf a raider reaches, and whether it dies, turns on the job timeline, and the noise of
     // that count over two years is not measured (testing-strategy.md § What may be a gate): a death
     // in a fight (killed, or bled out within a day of its last blow) is printed. Any other death is
-    // the fortress failing and is asserted: hunger, thirst, a fall, a late bleed or an infection.
+    // the fortress failing and is asserted: hunger, thirst, a fall, a late bleed or an infection; but a
+    // dwarf burned by lightning outdoors in a storm is the weather's (T-522: it moved onto one by the timeline).
     const dwarfDeaths = w.events('CreatureDied').filter((e) => e['species'] === dwarf).map((e) => {
       const id = e['id'] as number;
       return { name: String(e['name']), cause: String(e['cause']), killer: Number(e['killerId'] ?? 0),
-        afterBlow: (diedAt.get(id) ?? 0) - (lastBlow.get(id) ?? -Infinity) };
+        afterBlow: (diedAt.get(id) ?? 0) - (lastBlow.get(id) ?? -Infinity), lightning: struck.has(id) };
     });
     const inFight = (d: (typeof dwarfDeaths)[number]): boolean => d.killer !== 0 &&
       (d.cause === 'killed' || (d.cause === 'bled_out' && d.afterBlow <= TICKS_PER_DAY));
-    const deaths = dwarfDeaths.map((d) => `${d.name}: ${d.cause}${inFight(d) ? ' (fight)' : ''}`);
+    const deaths = dwarfDeaths.map((d) => `${d.name}: ${d.cause}${inFight(d) ? ' (fight)' : d.lightning ? ' (lightning)' : ''}`);
     const outcomes = w.events('RaidEnded').map((e) => String(e['outcome']));
     const jobsDone = (type: string): number => w.events('JobCompleted').filter((e) => e['jobType'] === type).length;
     console.log(`defence_year: ${JSON.stringify({ day, deaths, outcomes, soldierKills, hearthEpisodes: hearthEpisodes.length,
@@ -118,7 +124,8 @@ const scenario: Scenario = {
 
     // No command of the script was refused, and no dwarf died but in a fight.
     expect([...scriptRecord(w).rejected]).toEqual([]);
-    expect(dwarfDeaths.filter((d) => !inFight(d)), 'no dwarf died but in a fight').toEqual([]);
+    // T-522: a dwarf a lightning strike burns outdoors in a storm is the weather's, printed like a fight's.
+    expect(dwarfDeaths.filter((d) => !inFight(d) && !d.lightning), 'no dwarf died but in a fight or by lightning').toEqual([]);
   },
 };
 
