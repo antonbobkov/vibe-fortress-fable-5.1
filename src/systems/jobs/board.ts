@@ -262,15 +262,16 @@ export class JobBoard implements JobsApi, JobSink {
 
   /**
    * The tiles a worker may stand on for a job: `at` the target, `adjacent` the walkable
-   * 8-neighbours on the target's level, or the given tile (`jobs.md` workTile column).
+   * 8-neighbours on the target's level, or the given tile (`jobs.md` workTile column). T-489: a
+   * fortress walker must be able to enter each, so a forbidden tile is no stand tile, whichever kind.
    */
   standTiles(job: Job): TileIndex[] {
     const map = this.world.map;
     const wt = job.workTile;
-    if (typeof wt === 'number') return [wt];
+    if (typeof wt === 'number') return this.enterable(wt) ? [wt] : [];
     const target = this.anchorTile(job);
     if (!map.validIndex(target)) return [];
-    if (wt === 'at') return [target];
+    if (wt === 'at') return this.enterable(target) ? [target] : [];
     const out: TileIndex[] = [];
     for (const n of map.neighbors8(target)) {
       if (this.readers.pathing.passable(n, 'walker', FORTRESS_WALKER)) out.push(n);
@@ -324,6 +325,14 @@ export class JobBoard implements JobsApi, JobSink {
     return best;
   }
 
+  /**
+   * A fortress walker may enter the tile. The labels know the terrain only (22), so a tile they join to
+   * the worker can still be forbidden traffic (03), which the pathfinder keeps every dwarf out of.
+   */
+  private enterable(t: TileIndex): boolean {
+    return this.world.map.validIndex(t) && this.readers.pathing.passable(t, 'walker', FORTRESS_WALKER);
+  }
+
   /** The stand tiles that share the worker's connectivity label. */
   reachableStands(job: Job, workerId: EntityId): TileIndex[] {
     const from = this.workerTile(workerId);
@@ -338,11 +347,11 @@ export class JobBoard implements JobsApi, JobSink {
     if (from < 0) return false;
     const label = this.readers.pathing.labelOf(from, 'walker');
     const wt = job.workTile;
-    if (typeof wt === 'number') return this.readers.pathing.labelOf(wt, 'walker') === label;
+    if (typeof wt === 'number') return this.readers.pathing.labelOf(wt, 'walker') === label && this.enterable(wt);
     const target = this.anchorTile(job);
     const map = this.world.map;
     if (!map.validIndex(target)) return false;
-    if (wt === 'at') return this.readers.pathing.labelOf(target, 'walker') === label;
+    if (wt === 'at') return this.readers.pathing.labelOf(target, 'walker') === label && this.enterable(target);
     for (const n of map.neighbors8(target)) {
       if (this.readers.pathing.passable(n, 'walker', FORTRESS_WALKER) && this.readers.pathing.labelOf(n, 'walker') === label) {
         return true;

@@ -70,9 +70,21 @@ export function wander(st: RngStream, from: Point, to: Point, w: number, h: numb
   return path;
 }
 
-/** A lake centre where the largest lake fits inside the map (docs/04-implementation/algorithms/local-map-generation.md). */
-export function lakeCenter(st: RngStream, w: number, h: number): Point {
-  return { x: st.int(LAKE_RADIUS_MAX, w - 1 - LAKE_RADIUS_MAX), y: st.int(LAKE_RADIUS_MAX, h - 1 - LAKE_RADIUS_MAX) };
+/**
+ * A lake centre where the largest lake fits inside the map, in the half of the map on the arrival
+ * edge's side, so a dwarf at the wagon finds its water within `DRINK_SEARCH_RADIUS` (T-453;
+ * docs/04-implementation/algorithms/local-map-generation.md).
+ */
+export function lakeCenter(st: RngStream, w: number, h: number, arrival: Edge): Point {
+  let x0 = LAKE_RADIUS_MAX;
+  let x1 = w - 1 - LAKE_RADIUS_MAX;
+  let y0 = LAKE_RADIUS_MAX;
+  let y1 = h - 1 - LAKE_RADIUS_MAX;
+  if (arrival === 'n') y1 = Math.max(y0, Math.floor(h / 2) - 1);
+  else if (arrival === 's') y0 = Math.min(y1, Math.ceil(h / 2));
+  else if (arrival === 'w') x1 = Math.max(x0, Math.floor(w / 2) - 1);
+  else x0 = Math.min(x1, Math.ceil(w / 2));
+  return { x: st.int(x0, x1), y: st.int(y0, y1) };
 }
 
 /**
@@ -250,7 +262,7 @@ export function stageRivers(g: LocalGen): void {
   const st = stageStream(g.s, 'terrain.rivers');
   const river = g.spec.river;
   const needsLake = carvesLake(g.spec);
-  const center = needsLake ? lakeCenter(st, g.w, g.h) : null;
+  const center = needsLake ? lakeCenter(st, g.w, g.h, g.spec.arrivalEdge) : null;
   const carves: { path: Point[]; band: Set<number>; inflow: Edge | null; spring: Point | null }[] = [];
   if (river !== null) {
     const target = river.outflowEdge !== null ? edgePoint(g.w, g.h, river.outflowEdge) : center;

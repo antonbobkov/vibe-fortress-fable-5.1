@@ -1,6 +1,8 @@
 # T-453 — A river that ends in a far lake can lie beyond the drink search from the wagon
 
-**Source:** T-449, [the drink reach](../../reports/audits/2026-10-30-drink-reach.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-07, in 7fb11674.
+
+**Source:** T-449, [the drink reach](../../../reports/audits/2026-10-30-drink-reach.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -20,3 +22,9 @@ Do not change the drink rule in 10 without measuring what it does to the search'
 ## Done
 
 - The decision is in the spec, with a test on the shape above.
+
+## Outcome (2026-11-07)
+
+Still there on master `303a109a`: relief 1, river from the south into a lake, seeds 0 to 10 of the T-449 measurement: seeds 7, 9 and 10 find no water from the wagon, nearest bank 65 to 67 tiles. At relief 0 seed 7's nearest bank is 64, so level maps do it too.
+
+Chosen: the lake's centre lies in the half of the map on the arrival edge's side (03 § Local map generation stage 2, `local-map-generation.md`), as a spring already keeps to the half away from its outflow. The drink rule of 10 is unchanged. Re-measured, 40 seeds of this shape at each of reliefs 1 to 3: the search finds water from the wagon on 120 of 120 maps, the nearest bank at most 35 tiles away (31, 35, 34 by relief), at most 8 levels. A test holds seeds 7, 9 and 10 at reliefs 0 and 1 and fails on the old placement. The three-year fixture and the instrument's maps have no lake; no golden moved.

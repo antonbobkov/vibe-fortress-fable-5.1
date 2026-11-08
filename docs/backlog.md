@@ -11,10 +11,9 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-453 | [A river that ends in a far lake can lie beyond the drink search from the wagon](work/T-453-lake-beyond-the-drink-search.md) | T-449's measurements | — | open |
-| T-456 | [The `three_years` scenario does not yet play on relief](work/T-456-three-years-main-on-relief.md) | T-451's sweep | — | open |
-| T-489 | [Why three-years-p4-4's plant job cannot walk its seed to the plot](work/T-489-p4-4-seed-delivery-walk-fails.md) | T-487's journal | — | open |
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-528 | [A dwarf stays in `retreat` for one tick after the alert falls](work/T-528-retreat-invariant-last-tick.md) | T-527's sweep | — | open |
+| T-529 | [A peril-0 squad sent after boars loses eleven dwarves on one map](work/T-529-squad-lost-to-boars.md) | The triage of T-453/456/489 | — | open |
+| T-530 | [Walks that fail between places the labels join: health jobs under the alert, sites behind forbidden tiles](work/T-530-walks-the-labels-join.md) | The triage of T-453/456/489 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

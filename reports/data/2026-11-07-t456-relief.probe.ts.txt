@@ -1,0 +1,95 @@
+/**
+ * T-456 probe (not kept in test/): the `three_years` scenario's fortress, seed `three-years`, at
+ * relief T456_RELIEF (1 by default), played as the scenario plays it. Logs the gem walls the script's
+ * mines can reach, the rough gems and the cut_gem jobs over time, and every dwarf death with its
+ * killer's species. Run with `-t "T-456 probe"`.
+ */
+import { it } from 'vitest';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { TileKind } from '@core/map3d';
+import type { ItemsReader } from '@systems/items';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+
+const RELIEF = Number(process.env['T456_RELIEF'] ?? 1) as 0 | 1;
+
+it(`T-456 probe relief ${RELIEF}`, () => {
+  const w = threeYearsWorld('three-years', 0, undefined, RELIEF);
+  const map = w.map;
+  const materials = w.game.registry.table<{ id: string; class: string }>('materials');
+  const gemsByZ = new Map<number, number>();
+  for (let z = 0; z < map.d; z += 1) for (let y = 2; y < map.h - 2; y += 1) for (let x = 2; x < map.w - 2; x += 1) {
+    const t = w.index(x, y, z);
+    if (map.kindAt(t) === TileKind.Wall && materials.byIndex(map.materialAt(t))?.class === 'gem') gemsByZ.set(z, (gemsByZ.get(z) ?? 0) + 1);
+  }
+  console.log(`[t456] relief ${RELIEF} gem walls by z ${JSON.stringify(Object.fromEntries([...gemsByZ].sort((a, b) => b[0] - a[0])))}`);
+  const state = setupThreeYearsFortress(w);
+  console.log(`[t456] founders ${JSON.stringify(w.game.arrival?.dwarves ?? [])}`);
+  console.log(`[t456] hallZ ${state.hallZ} centre ${state.cx},${state.cy}`);
+  const ent = w.game.world.entities;
+  const species = w.game.registry.table<{ id: string }>('creatures');
+  const dwarf = species.index('dwarf');
+  const deaths: string[] = [];
+  const last = new Map<number, string>();
+  const hit = new Set<number>();
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      if (e.type === 'AttackResolved' && e['outcome'] !== 'miss') {
+        const a = ent.get(Number(e['attackerId']), C.Creature);
+        const dd = Number(e['defenderId']);
+        const dc = ent.get(dd, C.Creature);
+        if (a && dc && dc.species === dwarf && a.faction === 'wild' && !hit.has(dd)) {
+          hit.add(dd);
+          const ap = ent.get(Number(e['attackerId']), C.Position);
+          deaths.push(`first wild hit day ${Math.floor(w.tick / TICKS_PER_DAY) + 1} dwarf ${dd} by ${species.byIndex(a.species)?.id} at ${ap ? `,${ap.y},${ap.z} surface ${map.columnSurfaceZ(ap.x, ap.y)}` : '-'} dwarf [${last.get(dd) ?? '-'}]`);
+        }
+      }
+      if (e.type !== 'CreatureDied' || (e['species'] ?? ent.get(Number(e['id']), C.Creature)?.species) !== dwarf) continue;
+      const k = Number(e['killerId'] ?? 0);
+      const kc = ent.get(k, C.Creature);
+      const pos = ent.get(Number(e['id'] ?? e['entityId'] ?? 0), C.Position);
+      deaths.push(`day ${Math.floor(w.tick / TICKS_PER_DAY) + 1} id ${e['id']} last [${last.get(Number(e['id'])) ?? '-'}] ${e['cause']} by ${kc === undefined ? `gone(${k})` : `${species.byIndex(kc.species)?.id}/${kc.faction}`} at ${pos ? `${pos.x},${pos.y},${pos.z}` : '-'}`);
+    }
+  });
+  const items = (): ItemsReader => w.readers.of<ItemsReader>('13');
+  const board = (w.game.world.scheduler.byId('11') as unknown as { board: { jobs: Map<number, { state: string; blockedReason?: string }>; typeId(j: unknown): string } }).board;
+  const boot = 20 * TICKS_PER_DAY;
+  const end = Number(process.env['T456_DAYS'] ?? 3 * DAYS_PER_YEAR) * TICKS_PER_DAY;
+  let nextReport = 30;
+  while (w.tick < end) {
+    playThreeYears(w, state, w.tick < boot ? Math.min(100, boot - w.tick) : Math.min(300, end - w.tick));
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    for (const id of ent.with(C.Labors)) {
+      const p = ent.get(id, C.Position);
+      const b = ent.get(id, C.Brain) as { behavior?: string } | undefined;
+      const job = board.jobs.get((ent.get(id, C.Worker) as { jobId?: number } | undefined)?.jobId ?? 0);
+      if (p) last.set(id, `t${w.tick} ${p.x},${p.y},${p.z} surface ${map.columnSurfaceZ(p.x, p.y)} ${b?.behavior ?? '-'} ${job === undefined ? '-' : board.typeId(job) + ':' + job.state}`);
+    }
+    const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+    if (day >= nextReport) {
+      nextReport += 30;
+      const cut = [...board.jobs.values()].filter((j) => board.typeId(j) === 'cut_gem').map((j) => `${j.state}${j.blockedReason ? ':' + j.blockedReason : ''}`);
+      const jeweler = [...ent.with(C.Building)].filter((b) => w.game.registry.table('buildings').idOf(ent.get(b, C.Building)!.type) === 'jeweler').map((b) => ent.get(b, C.Building)!.state);
+      const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const ds = state.economy.deepShaft;
+      if (ds !== undefined) {
+        const ux = state.cx + 6;
+        const uy = Math.min(map.h - 3, state.cy + 15);
+        const drift: number[] = [];
+        for (let xx = Math.min(ux, ds.x); xx <= Math.max(ux, ds.x); xx += 1) drift.push(w.index(xx, uy, 23));
+        for (let yy = Math.min(uy, ds.y); yy <= Math.max(uy, ds.y); yy += 1) drift.push(w.index(ds.x, yy, 23));
+        const terrain = w.readers.of<{ designationAt(t: number): unknown }>('03');
+        const tiles = drift.map((t) => `${map.xOf(t)},${map.yOf(t)}:${TileKind[map.kindAt(t)]}${terrain.designationAt(t) !== null ? '*' : ''}`);
+        const digJobs = [...board.jobs.values()].filter((j) => drift.includes((j as unknown as { target: { ref: number } }).target.ref)).map((j) => `${board.typeId(j)}@${map.xOf((j as unknown as { target: { ref: number } }).target.ref)},${map.yOf((j as unknown as { target: { ref: number } }).target.ref)}:${j.state}${j.blockedReason ? ':' + j.blockedReason : ''}`);
+        const stairs: string[] = [];
+        for (let z = 26; z >= ds.bottom; z -= 1) stairs.push(`${z}:${TileKind[map.kindAt(w.index(ds.x, ds.y, z))]}`);
+        console.log(`[t456] day ${day} upper ${ux},${uy} upper column ${[26, 25, 24, 23].map((z) => TileKind[map.kindAt(w.index(ux, uy, z))]).join('/')} drift ${tiles.join(' ')} jobs ${digJobs.join(' ')} deep column ${stairs.join(' ')}`);
+      }
+      console.log(`[t456] day ${day} pop ${pop} rough_gem ${items().count('rough_gem')} cut_gem ${items().count('cut_gem')} jeweler ${JSON.stringify(jeweler)} cut jobs ${JSON.stringify(cut)} deepShaft ${JSON.stringify(state.economy.deepShaft ?? null)} phases ${JSON.stringify([...((state.economy as unknown as { phases?: Set<string> }).phases ?? [])])}`);
+    }
+  }
+  console.log(['[t456] dwarf deaths', ...deaths].join('\n'));
+}, 3_600_000);

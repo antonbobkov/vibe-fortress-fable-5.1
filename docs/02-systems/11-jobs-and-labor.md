@@ -46,7 +46,7 @@ Job {
 
 A job targeting an entity, building or zone is cancelled as soon as that target is destroyed, in the same tick, regardless of its producer: JobCancelled with reason target_gone. Release its reservations and worker once and remove it from the board. Tile and pair targets do not imply this entity rule. A completing job that destroys its own target, such as deconstruction, completes normally. Before a hunted creature is removed, an active hunt transitions to a tile target at its death location, retaining the original quarry id in data.animal while it waits for that creature's CorpseCreated; it no longer targets the creature. An unclaimed hunt is cancelled normally.
 
-For stand tiles and assignment distances, use `data.anchorTile` if supplied, else a numeric work tile, else the target. The board accesses items through an `ItemSource` seam; without 13, its test/core fallback finds no input and treats the tool as already held. Real games use 13's installed item source.
+For stand tiles and assignment distances, use `data.anchorTile` if supplied, else a numeric work tile, else the target. A stand tile is a tile a fortress walker may enter, whatever the `workTile` kind: a numeric work tile or an `at` target that is forbidden traffic (03), which the connectivity labels do not see, is no stand tile, so the job is not offered while it stays forbidden and is blocked `unreachable` (an `adjacent` job already takes only such neighbours). The board accesses items through an `ItemSource` seam; without 13, its test/core fallback finds no input and treats the tool as already held. Real games use 13's installed item source.
 
 Job types are content rows; the producer that owns the type executes its steps. Every type has a `baseTicks` and an `xp`.
 

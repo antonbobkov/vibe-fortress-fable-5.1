@@ -5,7 +5,7 @@ import type { TradeReader } from '@systems/trade';
 /**
  * The three-years scenario (T-M8-06): extends the year-one bootstrap across three full years.
  *
- * Runs on seed `three-years` (generated wealth-2 48×48 map, serene_vale peril-0, Balanced embark),
+ * Runs on seed `three-years-p0-3` (generated wealth-2 48×48 map on relief 1, serene_vale peril-0, Balanced embark),
  * asserting the deterministic guarantees named in `balance.md` § Mood floor and the no-spiral
  * guarantee and `M8-polish.md` (mood floor, no spiral, caps), and reporting the measured balance
  * table for consumption, wealth curve, immigration, and mood distribution.
@@ -48,12 +48,15 @@ const scenario: Scenario = {
   id: 'three_years',
   milestone: 8,
   timeoutMs: 2_400_000,
-  seed: 'three-years',
+  seed: 'three-years-p0-3',
   world: { region: { wealth: 2, peril: 0, biome: 'temperate_forest', geology: 'mixed', traits: ['serene_vale'], river: { class: 'brook', inflow: ['w'], outflow: 's' } } },
   embark: 'default',
   run: () => {
-    // T-451: level ground; this seed does not yet play on relief (reports/audits/2026-10-31-three-year-script-on-relief.md).
-    const w = threeYearsWorld('three-years', 0, undefined, 0);
+    // T-456: the fixture's own relief 1, on a seed that grows in every shifted sweep (0, 0, 1 and 0 dwarf
+    // deaths at shifts 0 to 150 of master 8e622811). Seed `three-years` on relief 1 sends its armed squad
+    // after the map's boars and loses 11 dwarves, both miners first, and its only gems lie down the deep
+    // shaft's drift, which no miner digs for 220 days.
+    const w = threeYearsWorld('three-years-p0-3', 0);
     const state = setupThreeYearsFortress(w);
     // T-141: observe every tick without changing the fixture, its commands or world state.
     const fleeSince = new Map<number, number>();

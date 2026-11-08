@@ -963,7 +963,8 @@ class Probe {
         else {
           const anchor = board.anchorTile(job);
           // Nobody can stand on the anchor itself (a built chest, a wall): only then is a tile beside it the way in.
-          if (map.validIndex(anchor) && !pathing.passable(anchor, 'walker', { faction: 'fortress' })) {
+          // T-489: an anchor that is only forbidden traffic waits for the player to lift it, and is no fault.
+          if (map.validIndex(anchor) && !pathing.passable(anchor, 'walker')) {
             const labels = new Set<number>();
             for (const w of workers) {
               const at = board.workerTile(w);

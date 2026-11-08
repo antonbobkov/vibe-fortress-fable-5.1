@@ -39,7 +39,7 @@ A bank counts only if it is a floor or ramp, dry, walkable and reachable by 22's
 - The one shrub is a tile the game accepts as walkable; that map has floor and ramp banks too.
 - The level distance reaches the search's limit of 8 at relief 3, so a higher wagon could fall outside it. None did in this sample.
 
-**The 10 maps where the search finds nothing from the wagon** are all "river from the south into a lake": seeds 7, 9 and 10 at relief 1; 7, 9, 10 and 18 at relief 2; 7, 9 and 10 at relief 3. Their nearest banks lie 64 to 73 tiles away. The distance comes from where the lake's centre falls, which is why the same seeds repeat at each relief. Filed as [a far lake](../../docs/work/T-453-lake-beyond-the-drink-search.md).
+**The 10 maps where the search finds nothing from the wagon** are all "river from the south into a lake": seeds 7, 9 and 10 at relief 1; 7, 9, 10 and 18 at relief 2; 7, 9 and 10 at relief 3. Their nearest banks lie 64 to 73 tiles away. The distance comes from where the lake's centre falls, which is why the same seeds repeat at each relief. Filed as [a far lake](../../docs/archive/tasks/T-453-lake-beyond-the-drink-search.md).
 
 **The tutorial region** (`TUTORIAL_WORLD_SEED`, relief 1): 20 banks reachable, 53 fishing banks, the search chooses a floor tile, and the nearest bank is 48 tiles and 2 levels from the wagon. A test now holds this. The other river rows of the summary and the tutorial's ranking read the same generation, so these figures are what stand behind "has water" for those shapes. The rows were not re-measured one by one.
 

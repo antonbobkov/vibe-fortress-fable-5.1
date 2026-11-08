@@ -1,0 +1,89 @@
+/**
+ * T-489 probe (not kept in test/): `three-years-p4-4` played as the sweep plays it at
+ * THREE_YEARS_SHIFT, logging every job unclaim that sets `failedWalk` (a walk ended `unreachable`
+ * while the labels joined the worker to its tile): the job type, the walk's stage, why the walk
+ * failed (the path request's reason, or the repath limit), and whether a fresh search finds the way
+ * with and without the forbidden set and with a larger node limit. Run with `-t "T-489 probe"`.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TestWorld } from '../scenarios/test-world';
+import { runThreeYearsSeed } from './three_years_seeds.test';
+
+const SEED = process.env['T489_SEED'] ?? 'three-years-p4-4';
+const PERIL = Number(/-p(\d)-/.exec(SEED)?.[1] ?? 4);
+
+interface WalkRec { target: number; request: number; following: boolean; attempts: number }
+
+it(`T-489 probe ${SEED}`, () => {
+  const log: string[] = [];
+  const counts = new Map<string, number>();
+  const original = TestWorld.prototype.step;
+  const seen = new WeakSet<TestWorld>();
+  const install = (w: TestWorld): void => {
+    {
+      const map = w.game.world.map;
+      const xyz = (t: number): string => (t < 0 ? '-' : `${map.xOf(t)},${map.yOf(t)},${map.zOf(t)}`);
+      const movement = w.game.world.services.movement as unknown as {
+        walks: Map<number, WalkRec>; moverOf(id: number): unknown; tileOf(id: number): number;
+        pathing: { pathfinder: { pathResult(r: number): { state: string; reason?: string }; searchImmediate(f: number, t: number, c: string, n?: number, m?: unknown): number[] | null } };
+        walkTo(id: number, target: number, urgency: string, ctx: unknown): string;
+      };
+      const lastFail = new Map<number, { tick: number; why: string; from: number; to: number }>();
+      const walkTo = movement.walkTo.bind(movement);
+      movement.walkTo = (id, target, urgency, ctx) => {
+        const at = movement.tileOf(id);
+        const prior = movement.walks.get(id);
+        const priorResult = prior !== undefined && prior.target === target && !prior.following ? movement.pathing.pathfinder.pathResult(prior.request) : null;
+        const following = prior !== undefined && prior.target === target && prior.following;
+        const out = walkTo(id, target, urgency, ctx);
+        if (out === 'unreachable') {
+          const why = at < 0 ? 'no_position' : following ? `repath_limit(${prior?.attempts ?? -1})` : `path_${priorResult?.reason ?? priorResult?.state ?? 'none'}`;
+          lastFail.set(id, { tick: w.tick, why, from: at, to: target });
+        }
+        return out;
+      };
+      const board = (w.game.world.scheduler.byId('11') as unknown as { board: {
+        unclaim(job: { id: number; state: string; failedWalk?: true; data: Record<string, unknown> }, reason: string, walkedTo?: number, fetched?: number): void;
+        typeId(job: unknown): string; workerOf(id: number): { carrying: number } } }).board;
+      const unclaim = board.unclaim.bind(board);
+      board.unclaim = (job, reason, walkedTo = -1, fetched = 0) => {
+        const stage = job.state;
+        const worker = (job as unknown as { workerId: number }).workerId;
+        const carrying = board.workerOf(worker).carrying;
+        unclaim(job, reason, walkedTo, fetched);
+        const any = `all:${reason}${fetched !== 0 ? ':item' : ''}`;
+        counts.set(any, (counts.get(any) ?? 0) + 1);
+        if (job.failedWalk !== true) return;
+        const f = lastFail.get(worker);
+        const fresh = f === undefined || f.tick !== w.tick ? 'stale' : f.why;
+        const from = f?.from ?? -1;
+        const pf = movement.pathing.pathfinder;
+        const withMover = from < 0 ? null : pf.searchImmediate(from, walkedTo, 'walker', undefined, movement.moverOf(worker));
+        const noMover = from < 0 ? null : pf.searchImmediate(from, walkedTo, 'walker');
+        const big = from < 0 || withMover !== null ? null : pf.searchImmediate(from, walkedTo, 'walker', 200_000, movement.moverOf(worker));
+        const kind = `${board.typeId(job)}:${stage}${carrying !== 0 ? ':deliver' : ''}:${fresh.replace(/\(.*\)/, '')}`;
+        counts.set(kind, (counts.get(kind) ?? 0) + 1);
+        if (log.length < 400) {
+          log.push(`day ${Math.floor(w.tick / TICKS_PER_DAY) + 1} t${w.tick} job ${job.id} ${board.typeId(job)} ${stage}${carrying !== 0 ? ' carrying' : ''} why ${fresh} from ${xyz(from)} to ${xyz(walkedTo)} ` +
+            `search(mover) ${withMover === null ? 'none' : withMover.length} search(no forbidden) ${noMover === null ? 'none' : noMover.length} search(200k) ${big === null ? '-' : big.length} alert ${w.game.world.fortress.alert}`);
+        }
+      };
+    }
+  };
+  TestWorld.prototype.step = function (this: TestWorld, n?: number) {
+    if (!seen.has(this)) {
+      seen.add(this);
+      install(this);
+    }
+    return original.call(this, n as number);
+  } as typeof original;
+  try {
+    const r = runThreeYearsSeed(SEED, PERIL);
+    console.log(`[t489] ${SEED} shift ${process.env['THREE_YEARS_SHIFT'] ?? '0'} y3Pop ${r.y3Pop} deaths ${r.dwarfDeaths}`);
+  } finally {
+    TestWorld.prototype.step = original;
+    console.log(`[t489] counts ${JSON.stringify(Object.fromEntries(counts))}`);
+    console.log(['[t489] log', ...log].join('\n'));
+  }
+}, 3_600_000);
