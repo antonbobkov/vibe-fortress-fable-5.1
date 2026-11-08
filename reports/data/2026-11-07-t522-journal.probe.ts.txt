@@ -1,0 +1,139 @@
+/**
+ * T-522 journal: one defence_year seed, the defence works as they come up, and the announced raid
+ * tick by tick (every watch): where its members stand against the corridor and the gate, its
+ * state and morale, the bridge, the traps and their triggers. T522_SEED, DEFENCE_WATCH_EVERY, T522_OUT.
+ */
+import { it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileKind } from '@core/map3d';
+import type { BuildingsReader } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
+import { playDefenceYear } from '../scenarios/defence_year_fortress';
+
+it('t522 journal', () => {
+  const seed = process.env['T522_SEED'] ?? 'defence-year-8';
+  const watchEvery = Number(process.env['DEFENCE_WATCH_EVERY'] ?? 20);
+  const lines: string[] = [];
+  const day = (t: number): string => `d${Math.floor(t / TICKS_PER_DAY) + 1} t${t}`;
+  let lastRaidLine = '';
+  const diagnosed = new Set<number>();
+  const worksDays = new Set<number>();
+  const cageIds = new Set<number>();
+  const { w, state } = playDefenceYear({
+    seed,
+    watchEvery,
+    ticks: Number(process.env['T522_TICKS'] ?? 2 * 112 * TICKS_PER_DAY),
+    observe: (tw, st) => {
+      tw.game.world.onEvents((batch) => {
+        const b = tw.readers.of<BuildingsReader>('14');
+        for (const e of batch) {
+          if (e.type === 'BuildingCompleted') {
+            const id = (e['id'] ?? e['buildingId']) as number;
+            const ids = [st.cageTrapId, st.weaponTrapId, st.stoneFallTrapId, st.drawbridgeId, st.leverId, st.archeryTargetId, st.fortress.gateDoorId, st.fortress.gateDoorId2, ...st.wallIds, ...st.fortIds];
+            if (ids.includes(id) || ['mechanic', 'carpenter', 'mason'].some((k) => st.fortress.placedIds[k] === id)) lines.push(`${day(tw.tick)} built ${b.get(id)?.typeId} #${id}`);
+          } else if (e.type === 'ItemDestroyed' && cageIds.has(e['id'] as number)) {
+            lines.push(`${day(tw.tick)} CAGE GONE ${JSON.stringify(e)}`);
+          } else if (['RaidArrived', 'RaidEnded', 'TrapTriggered', 'CreatureCaged', 'TrapJammed', 'TrapSpent', 'MechanismToggled', 'AlertChanged'].includes(e.type)) {
+            lines.push(`${day(tw.tick)} ${e.type} ${JSON.stringify(e)}`);
+          }
+        }
+      });
+    },
+    watch: (tw, st) => {
+      const ent = tw.game.world.entities;
+      const b = tw.readers.of<BuildingsReader>('14');
+      const { cx, cy } = st.fortress;
+      const dayNow = Math.floor(tw.tick / TICKS_PER_DAY) + 1;
+      if (dayNow % 10 === 0 && !worksDays.has(dayNow)) {
+        worksDays.add(dayNow);
+        const items = tw.readers.of<ItemsReader>('13');
+        const jobs = tw.readers.of<JobsReader>('11');
+        const traps = [st.cageTrapId, st.weaponTrapId, st.stoneFallTrapId, st.drawbridgeId, st.leverId];
+        const trapJobs = jobs.list().filter((j) => traps.includes(j.target.ref) || traps.includes(j.target.ref2 ?? -1))
+          .map((j) => `${jobs.typeOf(j.id)}#${j.target.ref}:${j.state}${j.blockedReason ? `(${j.blockedReason})` : ''}${j.workerId ? `w${j.workerId}` : ''}`);
+        lines.push(`${day(tw.tick)} CARPENTERS ${jobs.workersWithLabor('carpentry').map((d) => `${d}:${ent.alive(d) ? jobs.typeOf(jobs.forWorker(d)?.id ?? -1) ?? 'idle' : 'dead'}`).join(' ')}`);
+        const mech = jobs.workersWithLabor('mechanics').map((d) => `${d}:${jobs.typeOf(jobs.forWorker(d)?.id ?? -1) ?? 'idle'}`);
+        const mechOrders = jobs.list().filter((j) => jobs.typeOf(j.id) === 'craft' || jobs.typeOf(j.id)?.includes('make')).length;
+        const cageType = tw.game.registry.table('items').index('cage');
+        const cages = ent.with(C.Item).filter((id) => ent.get(id, C.Item)?.type === cageType).map((id) => {
+          const it = ent.get(id, C.Item)!;
+          cageIds.add(id);
+          return `${id}:occ${it.occupantId ?? 0}:res${it.reservedBy}:car${it.carriedBy}:con${it.containerId}`;
+        });
+        lines.push(`${day(tw.tick)} CAGES ${cages.join(' ')}`);
+        const recipes = tw.game.registry.table('recipes');
+        for (const k of ['carpenter', 'mechanic', 'mason']) {
+          const ws = ent.get(st.fortress.placedIds[k] ?? 0, C.Workshop);
+          const cj = jobs.get(ws?.currentJobId ?? -1);
+          if (ws) lines.push(`${day(tw.tick)} ORDERS ${k} logs ${items.count('log')} job ${ws.currentJobId}:${jobs.typeOf(ws.currentJobId)}:${cj?.state}:${cj?.blockedReason}:w${cj?.workerId}:o${String((cj as { data?: Record<string, unknown> } | undefined)?.data?.['orderIndex'])} blocked ${ws.lastBlockedReason} susp ${ws.suspended} | ${ws.orders.map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode}:${o.remaining}/${o.threshold}`).join(' ')}`);
+        }
+        lines.push(`${day(tw.tick)} WORKS mechanism ${items.count('mechanism')} cage ${items.count('cage')} weapon ${items.count('weapon')} traps ${traps.map((id) => (id ? b.get(id)?.state : '-')).join('/')} jobs ${trapJobs.join(' ')} mechanics ${mech.join(' ')} crafts ${mechOrders}`);
+      }
+      for (const pId of ent.with(C.Party)) {
+        const p = ent.get(pId, C.Party)!;
+        if (p.state === 'gone' || (p.purpose !== 'raid')) continue;
+        if (!diagnosed.has(pId)) {
+          diagnosed.add(pId);
+          const conn = tw.game.pathing.connectivity;
+          const lp = ent.get(p.leaderId, C.Position);
+          const from = lp ? tw.index(lp.x, lp.y, lp.z) : -1;
+          const hearth = b.get(b.hearth())?.footprint[0] ?? -1;
+          const rel = (t: number): string => (t < 0 ? String(t) : `${tw.map.xOf(t) - cx},${tw.map.yOf(t) - cy},${tw.map.zOf(t)}`);
+          const near = [3000, 6000, 12000, 50000].map((lim) => `${lim}:${rel(conn.nearestReachable(from, hearth, 'walker', lim))}`).join(' ');
+          const col = [-2, -1, 0, 1, 2, 3, 4, 5, 6].map((dy) => {
+            const t = tw.index(cx + 6, cy + dy, 32);
+            return `y${dy}:${TileKind[tw.map.kindAt(t)]}/b${b.at(t) ? b.get(b.at(t))?.typeId : '-'}/L${conn.label(t, 'walker')}`;
+          }).join(' ');
+          const ghosts = [0, 1, 2, 3].map((o) => b.ghost('drawbridge', st.bridgeTile, o, 1, 2).reason).join(',');
+          lines.push(`${day(tw.tick)} DIAG leaderLabel ${conn.label(from, 'walker')} column x+6: ${col} bridgeGhost ${ghosts}`);
+          {
+            // The BFS of nearestReachable, with parents: how it leaves the halls, or where it stops.
+            const graph = tw.game.pathing.graph;
+            const want = conn.label(from, 'walker');
+            const parent = new Map<number, number>([[hearth, -1]]);
+            let frontier = [hearth];
+            let found = -1;
+            let visited = 0;
+            while (frontier.length > 0 && found < 0 && visited < 50000) {
+              const next: number[] = [];
+              for (const cur of frontier) {
+                visited += 1;
+                for (const j of [...tw.map.neighbors26(cur)].sort((a, c) => a - c)) {
+                  if (parent.has(j)) continue;
+                  parent.set(j, cur);
+                  if (!graph.passable(j, 'walker')) continue;
+                  if (conn.label(j, 'walker') === want) { found = j; break; }
+                  next.push(j);
+                }
+                if (found >= 0) break;
+              }
+              frontier = next;
+            }
+            const path: string[] = [];
+            for (let t = found; t >= 0; t = parent.get(t) ?? -1) path.push(`${rel(t)}${TileKind[tw.map.kindAt(t)]?.slice(0, 2)}`);
+            const zs = [...new Set([...parent.keys()].filter((t) => graph.passable(t, 'walker')).map((t) => tw.map.zOf(t)))].sort((a, c) => a - c);
+            lines.push(`${day(tw.tick)} DIAG bfs visited ${visited} found ${rel(found)} levels ${zs.join(',')} path(found->hearth) ${path.slice(0, 40).join(' ')}`);
+          }
+          lines.push(`${day(tw.tick)} DIAG hearth ${rel(hearth)} reachable ${conn.reachable(from, hearth, 'walker')} goalUnreachable ${p.goalUnreachable} nearestReachable ${near}`);
+        }
+        const pos = p.members.filter((m) => ent.alive(m)).map((m) => {
+          const q = ent.get(m, C.Position);
+          if (!q) return 'x';
+          const role = ent.get(m, C.Hostile)?.role === 'captain' ? 'C' : '';
+          return `${role}${q.x - cx},${q.y - cy},${q.z}`;
+        });
+        const line = `${p.state} morale ${p.morale} loot ${p.loot.length} goal ${p.goalTile >= 0 ? `${tw.map.xOf(p.goalTile) - cx},${tw.map.yOf(p.goalTile) - cy},${tw.map.zOf(p.goalTile)}` : '-'} bridge ${st.drawbridgeId ? b.mechanismState(st.drawbridgeId) : 'none'} door ${b.get(st.fortress.gateDoorId2)?.mode}/${st.fortress.gateDoorId2 ? b.mechanismState(st.fortress.gateDoorId2) : ''} alert ${tw.game.world.fortress.alert} | ${pos.join(' ')}`;
+        if (line !== lastRaidLine) { lines.push(`${day(tw.tick)} RAID ${line}`); lastRaidLine = line; }
+      }
+    },
+  });
+  const b = w.readers.of<BuildingsReader>('14');
+  const st = (id: number): string => (id ? `${b.get(id)?.state}` : 'unplaced');
+  lines.push(`end: cage ${st(state.cageTrapId)} weapon ${st(state.weaponTrapId)} stone ${st(state.stoneFallTrapId)} bridge ${st(state.drawbridgeId)} lever ${st(state.leverId)} trial ${state.trial}`);
+  lines.push(`centre ${state.fortress.cx},${state.fortress.cy}; corridor x+6 y+2..4; bridge x+6 y+0; north door gateDoorId2 #${state.fortress.gateDoorId2} at ${b.get(state.fortress.gateDoorId2)?.origin !== undefined ? `${w.map.xOf(b.get(state.fortress.gateDoorId2)!.origin) - state.fortress.cx},${w.map.yOf(b.get(state.fortress.gateDoorId2)!.origin) - state.fortress.cy},${w.map.zOf(b.get(state.fortress.gateDoorId2)!.origin)}` : '-'}`);
+  lines.push(...state.notes);
+  writeFileSync(process.env['T522_OUT'] ?? `.vite/t522-${seed}-${watchEvery}.txt`, lines.join('\n') + '\n');
+}, 3_600_000);

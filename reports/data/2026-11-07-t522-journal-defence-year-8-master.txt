@@ -1,0 +1,266 @@
+d2 t1280 built wall #16777327
+d2 t1337 built wall #16777326
+d2 t1413 built wall #16777328
+d2 t1493 built fortification #16777329
+d2 t1812 built fortification #16777330
+d2 t1829 built carpenter #16777336
+d2 t2254 built fortification #16777331
+d3 t2504 built fortification #16777332
+d3 t2659 built wall #117440643
+d5 t5947 built mason #16777338
+d10 t10806 CAGES 
+d10 t10806 ORDERS carpenter job 683:craft blocked null susp false | make_barrel:once:5/0 make_chest_wood:once:1/0 make_buckler_wood:once:5/0 make_bed:once:5/0 make_barrel:maintain:1/20 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2 make_archery_target:once:1/0
+d10 t10806 ORDERS mason job 680:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d10 t10806 WORKS mechanism 1 cage 0 weapon 0 traps -/planned/planned/-/- jobs build#16777333:open build#16777334:open mechanics  crafts 5
+d13 t14486 built mechanic #16777325
+d16 t18217 built door #50331799
+d17 t19438 built door #50331798
+d20 t22806 CAGES 
+d20 t22806 ORDERS carpenter job 893:craft blocked null susp false | make_barrel:maintain:1/20 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2 make_archery_target:once:1/0
+d20 t22806 ORDERS mechanic job 735:craft blocked null susp false | make_mechanism:maintain:1/4
+d20 t22806 ORDERS mason job 795:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d20 t22806 WORKS mechanism 1 cage 0 weapon 0 traps -/planned/planned/-/- jobs build#16777333:open build#16777334:open mechanics  crafts 4
+d30 t34806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d30 t34806 ORDERS carpenter job 1064:craft blocked null susp false | make_bed:once:1/0 make_barrel:maintain:1/20 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d30 t34806 ORDERS mechanic job 735:craft blocked null susp false | make_mechanism:maintain:1/4
+d30 t34806 ORDERS mason job 1080:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d30 t34806 WORKS mechanism 1 cage 2 weapon 0 traps planned/planned/planned/-/- jobs build#16777333:open build#16777334:open build#83886299:open mechanics  crafts 8
+d33 t38401 RaidArrived {"type":"RaidArrived","partyId":184549882,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+d33 t38447 RaidEnded {"type":"RaidEnded","partyId":184549882,"outcome":"withdrew"}
+d40 t46806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0 16778014:occ16778015:res0:car0:con16777454 16778016:occ16778017:res0:car0:con16777454 16778018:occ16778019:res0:car0:con16777454 16778020:occ16778021:res0:car0:con16777454 16778022:occ16778023:res0:car0:con16777454 16778024:occ16778025:res0:car0:con16777454 16778026:occ16778027:res0:car0:con16777454 16778028:occ16778029:res0:car0:con16777454 16778034:occ16778035:res0:car0:con16777454 16778036:occ16778037:res0:car0:con16777454 16778053:occ16778054:res0:car0:con16777454 16778055:occ16778056:res0:car0:con16777454
+d40 t46806 ORDERS carpenter job 1230:craft blocked null susp false | make_barrel:maintain:1/20 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d40 t46806 ORDERS mechanic job 735:craft blocked null susp false | make_mechanism:maintain:1/4
+d40 t46806 ORDERS mason job 1246:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d40 t46806 WORKS mechanism 1 cage 2 weapon 0 traps planned/planned/planned/-/planned jobs build#16777333:open build#16777334:open build#83886299:open build#16777817:blocked(no_worker) mechanics  crafts 8
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778014,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778016,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778018,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778020,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778022,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778024,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778026,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778028,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778034,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778036,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778053,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d44 t51806 CAGE GONE {"type":"ItemDestroyed","id":16778055,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d50 t58806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d50 t58806 ORDERS carpenter job 1230:craft blocked null susp false | make_barrel:maintain:1/20 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d50 t58806 ORDERS mechanic job 735:craft blocked null susp false | make_mechanism:maintain:1/4
+d50 t58806 ORDERS mason job 1246:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d50 t58806 WORKS mechanism 1 cage 2 weapon 0 traps planned/planned/planned/-/planned jobs build#16777333:open build#16777334:open build#83886299:open build#16777817:blocked(no_worker) mechanics  crafts 7
+d57 t68273 built stone_fall_trap #16777333
+d58 t68406 AlertChanged {"type":"AlertChanged","from":"calm","to":"hearth"}
+d58 t68931 RaidEnded {"type":"RaidEnded","partyId":117441335,"outcome":"repelled"}
+d58 t69146 AlertChanged {"type":"AlertChanged","from":"hearth","to":"calm"}
+d59 t70400 built archery_target #16777820
+d60 t70806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d60 t70806 ORDERS carpenter job 1702:craft blocked null susp false | make_bed:once:3/0 make_barrel:maintain:1/39 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d60 t70806 ORDERS mechanic job 735:craft blocked null susp false | make_mechanism:maintain:1/4
+d60 t70806 ORDERS mason job 1246:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d60 t70806 WORKS mechanism 0 cage 2 weapon 0 traps planned/planned/built/-/planned jobs build#16777334:open build#83886299:open build#16777817:blocked(missing_input) mechanics 251658639:craft 50332479:idle 50332486:idle crafts 7
+d63 t74831 built lever #16777817
+d68 t80594 built cage_trap #83886299
+d70 t82806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0 50332320:occ50332319:res0:car0:con50332425 50332322:occ50332321:res0:car0:con50332425 16778107:occ16778108:res0:car0:con50332424 16778109:occ16778110:res0:car0:con50332428 16778111:occ16778112:res0:car0:con50332428
+d70 t82806 ORDERS carpenter job 1702:craft blocked null susp false | make_bed:once:3/0 make_barrel:maintain:1/39 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d70 t82806 ORDERS mechanic job 0:null blocked null susp false | make_mechanism:maintain:1/4
+d70 t82806 ORDERS mason job 2119:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d70 t82806 WORKS mechanism 4 cage 2 weapon 0 traps built/planned/built/-/built jobs build#16777334:blocked(missing_input) mechanics 251658639:idle 50332479:smooth 50332486:idle crafts 5
+d71 t84001 RaidArrived {"type":"RaidArrived","partyId":184550182,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+d71 t84148 RaidEnded {"type":"RaidEnded","partyId":184550182,"outcome":"withdrew"}
+d75 t89017 CAGE GONE {"type":"ItemDestroyed","id":50332322,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d75 t89017 CAGE GONE {"type":"ItemDestroyed","id":50332320,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d75 t89017 CAGE GONE {"type":"ItemDestroyed","id":16778107,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d75 t89017 CAGE GONE {"type":"ItemDestroyed","id":16778109,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d75 t89017 CAGE GONE {"type":"ItemDestroyed","id":16778111,"itemType":"cage","reason":"caravan_departed","crafterId":0,"quality":1}
+d76 t90001 RaidArrived {"type":"RaidArrived","partyId":218104671,"kind":"bandits","size":3,"tile":73728,"edge":"n"}
+d76 t90006 AlertChanged {"type":"AlertChanged","from":"calm","to":"hearth"}
+d76 t90137 RaidEnded {"type":"RaidEnded","partyId":218104671,"outcome":"looted"}
+d76 t90386 AlertChanged {"type":"AlertChanged","from":"hearth","to":"calm"}
+d80 t94806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d80 t94806 ORDERS carpenter job 1702:craft blocked null susp false | make_bed:once:3/0 make_barrel:maintain:1/39 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d80 t94806 ORDERS mechanic job 2271:craft blocked null susp false | make_mechanism:maintain:1/4
+d80 t94806 ORDERS mason job 2223:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d80 t94806 WORKS mechanism 4 cage 2 weapon 0 traps built/constructing/built/-/built jobs build#16777334:fetchingw251658639 mechanics 251658639:build 50332479:idle 50332486:idle crafts 7
+d80 t95124 built weapon_trap #16777334
+d90 t106806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d90 t106806 ORDERS carpenter job 1702:craft blocked null susp false | make_bed:once:3/0 make_barrel:maintain:1/41 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d90 t106806 ORDERS mechanic job 0:null blocked null susp false | make_mechanism:maintain:1/4
+d90 t106806 ORDERS mason job 2371:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d90 t106806 WORKS mechanism 4 cage 2 weapon 0 traps built/built/built/-/built jobs  mechanics 150995176:smooth 251658639:craft 452985285:smooth 117441331:idle 50332479:idle 50332486:idle crafts 5
+d100 t118806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d100 t118806 ORDERS carpenter job 1702:craft blocked null susp false | make_bed:once:3/0 make_barrel:maintain:1/41 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d100 t118806 ORDERS mechanic job 0:null blocked null susp false | make_mechanism:maintain:1/4
+d100 t118806 ORDERS mason job 2420:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d100 t118806 WORKS mechanism 4 cage 2 weapon 0 traps built/built/built/-/built jobs  mechanics 150995176:idle 251658639:idle 452985285:craft 117441331:idle 50332479:idle 50332486:harvest crafts 6
+d110 t130806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d110 t130806 ORDERS carpenter job 1702:craft blocked null susp false | make_bed:once:3/0 make_barrel:maintain:1/41 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d110 t130806 ORDERS mechanic job 0:null blocked null susp false | make_mechanism:maintain:1/4
+d110 t130806 ORDERS mason job 2578:craft blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d110 t130806 WORKS mechanism 4 cage 2 weapon 0 traps built/built/built/-/built jobs  mechanics 150995176:idle 251658639:idle 452985285:idle 117441331:craft 50332479:idle 50332486:haul_to_stockpile crafts 6
+d120 t142806 CAGES 50331796:occ0:res0:car0:con0 50331928:occ0:res0:car0:con0
+d120 t142806 ORDERS carpenter job 1702:craft blocked null susp false | make_bed:once:3/0 make_barrel:maintain:1/41 make_table_wood:maintain:1/6 make_cage_wood:maintain:1/2
+d120 t142806 ORDERS mechanic job 0:null blocked null susp false | make_mechanism:maintain:1/4
+d120 t142806 ORDERS mason job 0:null blocked null susp false | make_stone_block:maintain:1/30 make_door_stone:maintain:1/4 make_table_stone:maintain:1/6 make_chair_stone:maintain:1/14 make_stone_block:maintain:1/4
+d120 t142806 WORKS mechanism 4 cage 2 weapon 0 traps built/built/built/-/built jobs  mechanics 150995176:idle 251658639:idle 452985285:idle 117441331:idle 50332479:idle 50332486:idle crafts 4
+d120 t142806 AlertChanged {"type":"AlertChanged","from":"calm","to":"hearth"}
+d121 t144001 RaidArrived {"type":"RaidArrived","partyId":50332162,"kind":"raid","size":10,"tile":73728,"edge":"n"}
+d121 t144006 DIAG leaderLabel 158 column x+6: y-2:Floor/b-/L158 y-1:Floor/b-/L158 y0:Floor/b-/L158 y1:Floor/b-/L158 y2:Floor/bweapon_trap/L158 y3:Floor/bcage_trap/L158 y4:Floor/bstone_fall_trap/L158 y5:Floor/bdoor/L0 y6:StairsDown/b-/L138 bridgeGhost ,,,
+d121 t144006 DIAG bfs visited 354 found -1 levels 23,24,25,26 path(found->hearth) 
+d121 t144006 DIAG hearth 10,6,26 reachable false goalUnreachable true nearestReachable 3000:-1 6000:-1 12000:-1 50000:-1
+d121 t144006 RAID loiter morale 90 loot 0 goal -22,-3,32 bridge none door lock_on_alert/locked alert hearth | C-22,-3,32
+d121 t144026 RAID loiter morale 90 loot 0 goal -22,-3,32 bridge none door lock_on_alert/locked alert hearth | C-19,-2,32 -19,-2,32 -19,-3,32
+d121 t144046 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -12,-3,32
+d121 t144066 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -12,-3,32 -10,-3,32 -9,-3,32 -6,-3,32
+d121 t144086 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -12,-3,32 -10,-3,32 -10,-3,32 -9,-3,32 0,-3,32 4,-3,32
+d121 t144106 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -10,-2,32 -8,0,32 -8,0,32 -10,-2,32 0,0,32 1,-3,32 5,-3,32
+d121 t144126 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -7,1,32 -5,3,32 -5,3,32 -7,1,32 0,3,32 0,0,32 1,-2,32
+d121 t144146 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -5,3,32 -4,5,32 -4,5,32 -5,3,32 0,5,32 0,2,32 1,-1,32
+d121 t144166 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -4,4,32 -3,5,32 -3,5,32 -4,4,32 1,6,32 0,3,32 1,0,32
+d121 t144186 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -4,6,32 -4,6,32 -4,6,32 -4,6,32 -1,6,32 -1,5,32 -1,2,32
+d121 t144206 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -3,8,32 -3,8,32 -3,8,32 -3,8,32 -2,6,32 -2,6,32 -1,4,32
+d121 t144226 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -1,8,32 -1,8,32 -1,8,32 -1,8,32 0,6,32 0,6,32 0,6,32
+d121 t144246 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 2,8,32 2,8,32 2,8,32 2,8,32 4,10,32 4,10,32 4,10,32
+d121 t144266 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 3,10,32 3,10,32 3,10,32 3,10,32 4,11,32 4,11,32 4,11,32
+d121 t144286 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 3,11,32 3,11,32 3,11,32 3,11,32 3,11,32 3,11,32 3,11,32
+d121 t144306 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 3,12,32 3,12,32 3,12,32 3,12,32 3,12,32 3,12,32 3,12,32
+d121 t144366 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 3,10,32 3,10,32 3,10,32 3,10,32 3,10,32 3,11,32 3,11,32
+d121 t144386 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 3,7,32 3,7,32 3,8,32 3,7,32 3,8,32 3,8,32 3,8,32
+d121 t144406 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 0,4,32 0,4,32 1,5,32 0,4,32 1,5,32 2,6,32 2,6,32
+d121 t144426 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -4,0,32 -2,2,32 -2,2,32 -4,0,32 -2,2,32 -1,3,32 -1,3,32
+d121 t144446 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -7,-3,32 -5,-1,32 -5,-1,32 -7,-3,32 -5,-1,32 -4,0,32 -4,0,32
+d121 t144466 RAID engage morale 90 loot 0 goal -18,-1,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -17,0,32 -19,-2,32 -17,-3,32 -10,-3,32 -8,-3,32 -8,-3,32 -10,-3,32 -7,-3,32 -7,-3,32 -7,-3,32
+d121 t144486 RAID loiter morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-17,0,32 -16,1,32 -19,-2,32 -18,-3,32 -13,-3,32 -11,-3,32 -11,-3,32 -13,-3,32 -10,-3,32 -9,-3,32 -9,-3,32
+d121 t144506 RAID loiter morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-14,3,32 -14,4,32 -15,2,32 -19,-2,32 -16,-3,32 -8,-3,32 -8,-3,32 -16,-3,32 -8,-3,32 -8,-3,32 -8,-3,32
+d121 t144526 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-13,5,32 -14,6,32 -15,2,32 -16,1,32 -18,-2,32 -7,-1,32 -7,-1,32 -18,-2,32 -7,-1,32 -8,-3,32 -8,-3,32
+d121 t144546 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-13,5,32 -14,6,32 -15,2,32 -16,1,32 -16,1,32 -7,-1,32 -7,-1,32 -16,1,32 -7,-1,32 -11,-3,32 -11,-3,32
+d121 t144566 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-13,1,32 -14,6,32 -15,2,32 -16,1,32 -16,1,32 -10,-2,32 -10,-2,32 -16,1,32 -10,-2,32 -9,-1,32 -9,-1,32
+d121 t144586 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-11,-1,32 -13,5,32 -15,2,32 -15,2,32 -15,2,32 -7,1,32 -7,1,32 -15,2,32 -7,1,32 -5,3,32 -5,3,32
+d121 t144606 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-8,0,32 -13,4,32 -14,2,32 -14,2,32 -14,2,32 -5,3,32 -5,3,32 -14,2,32 -5,3,32 -4,5,32 -4,5,32
+d121 t144626 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-7,2,32 -11,2,32 -11,2,32 -11,2,32 -12,2,32 -4,5,32 -4,5,32 -11,2,32 -4,5,32 -2,5,32 -2,5,32
+d121 t144646 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-4,5,32 -11,2,32 -11,2,32 -11,2,32 -12,2,32 -1,6,32 -1,6,32 -9,2,32 -2,5,32 1,8,32 1,8,32
+d121 t144666 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-3,7,32 -9,2,32 -9,2,32 -9,2,32 -11,2,32 -1,8,32 -1,8,32 -9,2,32 -2,7,32 1,10,32 1,10,32
+d121 t144686 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-3,8,32 -8,3,32 -8,3,32 -8,3,32 -11,2,32 -3,8,32 -3,8,32 -7,4,32 -3,8,32 -2,9,32 -2,9,32
+d121 t144706 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-3,9,32 -7,4,32 -7,4,32 -7,4,32 -9,3,32 -3,9,32 -3,9,32 -5,6,32 -3,9,32 -3,9,32 -3,9,32
+d121 t144726 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-3,9,32 -7,4,32 -7,4,32 -7,4,32 -7,5,32 -3,9,32 -3,9,32 -5,6,32 -3,9,32 -3,9,32 -3,9,32
+d121 t144746 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-1,9,32 -7,4,32 -7,4,32 -7,4,32 -7,5,32 -1,9,32 -1,9,32 -3,6,32 -1,9,32 -1,9,32 -1,9,32
+d121 t144766 RAID engage morale 90 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C3,9,32 -7,4,32 -7,4,32 -7,4,32 -7,5,32 3,9,32 2,9,32 1,7,32 2,9,32 2,9,32 1,9,32
+d121 t144786 RAID engage morale 95 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C5,12,32 -7,4,32 -7,4,32 -7,4,32 -7,5,32 5,12,32 5,11,32 3,9,32 5,11,32 4,10,32 4,10,32
+d121 t144806 RAID engage morale 100 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C3,13,32 -6,5,32 -6,5,32 -6,5,32 -6,5,32 4,13,32 5,12,32 4,10,32 5,12,32 5,11,32 5,11,32
+d121 t144826 RAID engage morale 100 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-1,9,32 -6,5,32 -6,5,32 -6,5,32 -6,5,32 4,13,32 5,12,32 4,10,32 5,12,32 5,11,32 5,11,32
+d121 t144846 RAID engage morale 100 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-4,7,32 -6,5,32 -6,5,32 -6,5,32 -6,5,32 4,13,32 5,12,32 4,10,32 5,12,32 5,11,32 5,11,32
+d121 t144866 RAID engage morale 100 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-7,6,32 -6,5,32 -6,5,32 -6,5,32 -6,5,32 4,13,32 5,12,32 4,10,32 5,12,32 5,11,32 5,11,32
+d121 t144886 RAID engage morale 100 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-11,5,32 -6,5,32 -6,5,32 -6,5,32 -6,5,32 4,13,32 5,12,32 4,10,32 5,12,32 5,11,32 5,11,32
+d121 t144906 RAID engage morale 100 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-14,3,32 -7,5,32 -7,5,32 -7,5,32 -6,5,32 4,13,32 5,12,32 4,10,32 5,12,32 5,11,32 5,11,32
+d121 t144926 RAID engage morale 100 loot 0 goal -17,0,32 bridge none door lock_on_alert/locked alert hearth | C-16,1,32 -8,5,32 -8,5,32 -8,5,32 -7,5,32 3,13,32 4,12,32 3,10,32 4,12,32 4,11,32 4,11,32
+d121 t144946 RAID loiter morale 100 loot 1 goal -16,1,32 bridge none door lock_on_alert/locked alert hearth | C-15,2,32 -10,3,32 -10,3,32 -10,3,32 -9,4,32 2,13,32 2,13,32 2,11,32 2,13,32 3,11,32 3,11,32
+d121 t144966 RAID loiter morale 100 loot 3 goal -16,1,32 bridge none door lock_on_alert/locked alert hearth | C-13,5,32 -11,2,32 -11,2,32 -11,2,32 -10,2,32 1,13,32 2,13,32 0,13,32 1,16,32 0,13,32 0,13,32
+d121 t144986 RAID loiter morale 100 loot 3 goal -16,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -10,2,32 1,13,32 2,13,32 -1,16,32 -1,17,32 0,13,32 -1,16,32
+d121 t145006 RAID loiter morale 100 loot 4 goal -16,8,32 bridge none door lock_on_alert/locked alert hearth | C-18,11,32 -11,2,32 -10,2,32 -11,2,32 -11,2,32 1,13,32 2,13,32 -1,15,32 0,14,32 0,13,32 0,14,32
+d121 t145026 RAID loiter morale 100 loot 6 goal -16,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -11,2,32 0,13,32 1,13,32 0,14,32 1,13,32 0,13,32 -1,12,32
+d121 t145046 RAID loiter morale 100 loot 6 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -10,2,32 -11,2,32 -2,13,32 -2,13,32 -1,13,32 -2,13,32 -2,13,32 -1,9,32
+d121 t145066 RAID loiter morale 100 loot 6 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -5,12,32 -5,12,32 -4,12,32 -5,12,32 -4,12,32 0,6,32
+d121 t145086 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -8,11,32 -8,11,32 -7,11,32 -7,11,32 -7,11,32 -1,5,32
+d121 t145106 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -12,10,32 -12,10,32 -10,10,32 -10,10,32 -10,10,32 -4,5,32
+d121 t145126 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -12,10,32 -13,10,32 -13,10,32 -8,5,32
+d121 t145146 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -11,5,32
+d121 t145166 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145206 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145246 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145266 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145286 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145306 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145326 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145346 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145366 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145406 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145426 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145446 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145486 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145506 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145526 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145546 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145566 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145606 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145626 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145646 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145686 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145706 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145726 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145746 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145766 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145786 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145806 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145846 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145886 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145926 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145946 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145966 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t145986 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146006 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146046 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146066 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146086 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146126 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146146 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146166 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146186 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146206 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146226 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146246 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146286 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146326 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146346 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146366 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d122 t146386 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146406 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146426 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146446 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146486 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146506 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146526 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146566 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146586 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146606 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146626 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146646 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146686 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146706 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146726 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146766 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146786 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146806 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146826 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146846 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146866 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146886 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146926 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t146966 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147006 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147026 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147046 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147066 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147086 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147126 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147146 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147166 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147206 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147226 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -11,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147246 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147266 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147286 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -10,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147306 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -11,2,32 -11,2,32 -10,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147326 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -10,2,32 -10,2,32 -11,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147366 RAID loiter morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147386 RAID retreat morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,8,32 -11,2,32 -10,2,32 -10,2,32 -11,2,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,10,32 -13,6,32
+d123 t147406 RAID retreat morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-14,9,32 -15,-2,32 -14,-2,32 -14,-2,32 -14,-1,32 -16,7,32 -16,7,32 -16,7,32 -16,7,32 -16,7,32 -14,9,32
+d123 t147426 RAID retreat morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,7,32 -17,4,32 -17,5,32 -17,4,32 -17,5,32 -17,6,32 -17,7,32
+d123 t147446 RAID retreat morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-17,4,32 -18,1,32 -17,2,32 -18,1,32 -17,3,32 -17,3,32 -17,4,32
+d123 t147466 RAID retreat morale 100 loot 7 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-18,1,32 -21,-2,32 -20,-1,32 -21,-2,32 -20,-1,32 -19,0,32 -18,1,32
+d123 t147486 RAID retreat morale 100 loot 2 goal -17,8,32 bridge none door lock_on_alert/locked alert hearth | C-21,-2,32 -21,-2,32
+d123 t147490 RaidEnded {"type":"RaidEnded","partyId":50332162,"outcome":"looted"}
+d124 t147666 AlertChanged {"type":"AlertChanged","from":"hearth","to":"calm"}
+d127 t151201 RaidArrived {"type":"RaidArrived","partyId":83886841,"kind":"thief","size":1,"tile":73728,"edge":"n"}
+d127 t151346 RaidEnded {"type":"RaidEnded","partyId":83886841,"outcome":"withdrew"}
+end: cage built weapon built stone built bridge unplaced lever built trial none
+centre 22,3; corridor x+6 y+2..4; bridge x+6 y+0; north door gateDoorId2 #50331798 at 6,5,32

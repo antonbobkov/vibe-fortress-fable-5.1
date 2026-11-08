@@ -188,6 +188,19 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
     fortress.orderedWorkshops.add('carpenter_defence');
     command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_cage_wood', mode: 'maintain', threshold: 2, priority: DEFENCE } });
     command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_archery_target', mode: 'once', remaining: 1, priority: DEFENCE } });
+    // T-522: the weapon trap is built from a weapon no soldier holds; a club is the carpenter's.
+    command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_club', mode: 'maintain', threshold: 1, priority: DEFENCE } });
+  }
+  // T-522: the carpenter takes its orders in list order (12 § Work orders), and from the second season
+  // its standing barrel order is never met (its threshold follows the drink), so an order behind it
+  // waits for good: cages an ambush carried off from the stockpile were never made again and the cage
+  // trap stayed planned. The cage and the club lead the list, as a player moves a defence order up; a
+  // maintained order that is met is passed over, so they cost the routine work nothing.
+  const carpenterOrders = (): readonly { recipe: number }[] => w.game.world.entities.get(carpenter, C.Workshop)?.orders ?? [];
+  const recipes = w.game.registry.table('recipes');
+  for (const [want, recipe] of [[0, 'make_cage_wood'], [1, 'make_club']] as const) {
+    const at = carpenterOrders().findIndex((o) => o.recipe === recipes.index(recipe));
+    if (at > want) command(w, { type: 'ReorderWorkOrder', workshopId: carpenter, from: at, to: want });
   }
 
   const span = w.map.offset(state.bridgeTile, 0, 1, 0);
@@ -305,7 +318,9 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const squad = combat.squads().find((s) => s.id === fortress.squadId);
   if (!squad || squad.members.length === 0) return;
-  if (!squad.members.includes(squad.leaderId)) command(w, { type: 'SetSquadLeader', squadId: squad.id, leaderId: squad.members[0]! });
+  // T-522: a soldier who has just died is still on the roll until 16 drops it; the leader is a living one.
+  const living = squad.members.find((id) => w.game.world.entities.alive(id));
+  if (!squad.members.includes(squad.leaderId) && living !== undefined) command(w, { type: 'SetSquadLeader', squadId: squad.id, leaderId: living });
   for (const zoneId of [state.barracksZoneId, state.archeryRangeZoneId]) {
     if (zoneId && buildings.zone(zoneId)?.settings['squad'] !== squad.id) command(w, { type: 'SetZoneSetting', zoneId, key: 'squad', value: squad.id });
   }

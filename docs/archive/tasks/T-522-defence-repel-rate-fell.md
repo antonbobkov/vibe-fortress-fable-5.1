@@ -1,6 +1,8 @@
 # T-522 — The defence fortress turns back fewer raids, and nothing checks it
 
-**Source:** T-503/T-510's runs ([data](../../reports/data/2026-11-07-t503-defence-seeds.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-07, in 2fb6e1c8.
+
+**Source:** T-503/T-510's runs ([data](../../../reports/data/2026-11-07-t503-defence-seeds.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -71,7 +71,7 @@ Incremental update: `TilesChanged` and `BuildingStateChanged` mark chunks `dirty
 
 Doors: an unlocked door is passable for connectivity purposes for classes that can use doors; locking a door dirties its chunk. Bridges and floodgates likewise. Fluids: a rising river dirties the chunks where its water crosses a passability band; connectivity follows.
 
-`reachable(from, to, class)`: label equality. `nearestReachable(from, target, class, limit)`: BFS from `target` over passable tiles until one with `label == label(from)` is found, bounded by `limit` tiles.
+`reachable(from, to, class)`: label equality. `nearestReachable(from, target, class, limit)`: BFS from `target` over passable tiles and built doors until one with `label == label(from)` is found, bounded by `limit` tiles. A door the mover cannot pass (locked, or shut to its class) is a way in, not a wall: the search goes through it and never returns it, so a goal behind a fortress's locked gate finds the tile before the gate.
 
 ### Path cache
 
