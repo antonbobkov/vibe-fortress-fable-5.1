@@ -41,6 +41,8 @@ class Probe {
   /** T-519: a built container out of every dwarf's reach (T-331 3), since when. */
   private readonly noWorkTile = new Map<number, { classId: string; detail: string; since: number }>();
   calmNoHostileAlertTicks = 0;
+  /** The tick and the alert of the last step observed: a script that lowers the alert after that step has not been lived through yet (T-528). */
+  private observed: { tick: number; alert: string } | null = null;
   lastTick = 0;
 
   constructor(
@@ -69,6 +71,7 @@ class Probe {
   observe(game: HeadlessGame): void {
     const entities = game.world.entities;
     const tick = game.tick;
+    this.observed = { tick, alert: game.world.fortress.alert };
     if (tick % 100 === 0) this.sample(game);
     const board = (game.world.scheduler.byId('11') as JobsSystem).board;
     for (const job of board.jobs.values()) {
@@ -611,7 +614,9 @@ class Probe {
         if (brain.behavior === 'flee') {
           if (!this.fleeSince.has(id)) this.fleeSince.set(id, tick);
         } else this.fleeSince.delete(id);
-        if (brain.behavior === 'retreat' && world.fortress.alert !== 'hearth')
+        // T-528: the alert a script lowered since the last step is one the dwarf has not stepped under yet.
+        const fellSinceStep = this.observed?.tick === tick && this.observed.alert === 'hearth';
+        if (brain.behavior === 'retreat' && world.fortress.alert !== 'hearth' && !fellSinceStep)
           this.hit(
             tick,
             'dwarf.retreat-without-hearth-alert',

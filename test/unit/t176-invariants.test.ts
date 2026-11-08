@@ -77,4 +77,24 @@ describe('T-176 invariant checker controls', () => {
     stop();
     expect(a.hash()).toBe(b.hash());
   });
+
+  it('T-528: a dwarf in retreat is no finding in the tick the alert falls, before a step has run, and is one after', () => {
+    const { w, dwarf } = fixture();
+    const entities = w.game.world.entities;
+    const stop = watchInvariants(w.game, () => {});
+    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
+    w.step(2);
+    const brain = entities.get(dwarf, C.Brain)!;
+    entities.add(dwarf, C.Brain, { ...brain, behavior: 'retreat', activity: 'Retreating' });
+    const retreating = (): string[] => checkInvariants(w.game).filter((f) => f.inv === 'dwarf.retreat-without-hearth-alert').map((f) => f.inv);
+    expect(retreating()).toEqual([]);
+    // A script lowers the alert between two steps, as the sweep's last command does: 10 has not stepped since.
+    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' }).ok).toBe(true);
+    expect(retreating()).toEqual([]);
+    // A step later the alert is down in a tick the dwarf has lived through, so a dwarf still in retreat is a finding.
+    w.step(1);
+    entities.add(dwarf, C.Brain, { ...entities.get(dwarf, C.Brain)!, behavior: 'retreat', activity: 'Retreating' });
+    expect(retreating()).toEqual(['dwarf.retreat-without-hearth-alert']);
+    stop();
+  });
 });

@@ -652,6 +652,11 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
   if (current === undefined) return;
   if (ctx.readers.has('17') && !ctx.readers.of<{ isConscious(id: EntityId): boolean }>('17').isConscious(id)) {
     host.activities.cancel(ctx, id);
+    // A retreat ends with the alert: a dwarf downed while sheltering does not keep it after the alert falls, and
+    // chooses afresh on waking.
+    if (current.behavior === 'retreat' && ctx.world.fortress.alert !== 'hearth') {
+      write(ctx, id, { ...current, behavior: 'idle', activity: NO_JOB, behaviorUntil: ctx.tick });
+    }
     return;
   }
   const b: Brain = { ...current };
