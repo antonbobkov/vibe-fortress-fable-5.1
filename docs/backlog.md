@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
-| T-528 | [A dwarf stays in `retreat` for one tick after the alert falls](work/T-528-retreat-invariant-last-tick.md) | T-527's sweep | — | open |
 | T-529 | [A peril-0 squad sent after boars loses eleven dwarves on one map](work/T-529-squad-lost-to-boars.md) | The triage of T-453/456/489 | — | open |
 | T-530 | [Walks that fail between places the labels join: health jobs under the alert, sites behind forbidden tiles](work/T-530-walks-the-labels-join.md) | The triage of T-453/456/489 | — | open |
 
