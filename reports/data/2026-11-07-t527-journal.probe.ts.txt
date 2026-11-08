@@ -1,0 +1,70 @@
+/* eslint-disable */
+import { it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { JobsReader } from '@systems/jobs';
+import type { ItemsReader } from '@systems/items';
+import { playDefenceYear } from '../scenarios/defence_year_fortress';
+
+it('t527 probe', () => {
+  const seed = process.env['T527_SEED'] ?? 'defence-year';
+  const watchEvery = Number(process.env['DEFENCE_WATCH_EVERY'] ?? 20);
+  const fromDay = Number(process.env['T527_FROM'] ?? 50);
+  const lines: string[] = [];
+  const day = (t: number): string => `d${Math.floor(t / TICKS_PER_DAY) + 1} t${t}`;
+  let lastLook = 0;
+  let watchedJob = 0;
+  playDefenceYear({
+    seed,
+    watchEvery,
+    ticks: Number(process.env['T527_TICKS'] ?? 80 * TICKS_PER_DAY),
+    observe: (tw) => {
+      const board0 = tw.game.world.services.jobs as any;
+      const orig = board0.assignOne.bind(board0);
+      board0.assignOne = (w: number) => {
+        const bed = board0.jobs.get(watchedJob);
+        const carps = tw.readers.of<JobsReader>('11').workersWithLabor('carpentry');
+        if (bed === undefined || bed.state !== 'open' || !carps.includes(w) || tw.tick < fromDay * TICKS_PER_DAY) return orig(w);
+        const map = tw.game.world.map;
+        const at = map.unpack(board0.workerTile(w));
+        const sc = (j: any) => { const eff = j.priority + (board0.laborPriorities[board0.jobLabor(j)] ?? 5) - 5; const d = Math.max(Math.abs(at.x - map.unpack(board0.anchorTile(j)).x), Math.abs(at.y - map.unpack(board0.anchorTile(j)).y)) + Math.abs(at.z - map.unpack(board0.anchorTile(j)).z) * 6; return `${board0.typeId(j)}#${j.id} p${eff} d${d} s${board0.skillFor(w, j)}`; };
+        const got = orig(w);
+        const gj = board0.jobs.get(got);
+        lines.push(`${day(tw.tick)} ASSIGN ${w} at ${at.x},${at.y},${at.z} got ${gj ? sc(gj) : got} bed ${sc(bed)} elig ${board0.eligible(bed, w)} nOpen ${board0.ids.filter((i: number) => board0.jobs.get(i).state === 'open' && board0.eligible(board0.jobs.get(i), w)).length}`);
+        return got;
+      };
+      tw.game.world.onEvents((batch) => {
+        for (const e of batch) {
+          if (typeof e.type === 'string' && e.type.startsWith('Job') && (e['jobId'] === watchedJob)) lines.push(`${day(tw.tick)} EV ${JSON.stringify(e)}`);
+        }
+      });
+    },
+    watch: (tw, st) => {
+      if (tw.tick < fromDay * TICKS_PER_DAY || tw.tick - lastLook < 500) return;
+      lastLook = tw.tick;
+      const ent = tw.game.world.entities;
+      const jobs = tw.readers.of<JobsReader>('11');
+      const board = tw.game.world.services.jobs as any;
+      const items = tw.readers.of<ItemsReader>('13');
+      const carp = st.fortress.placedIds['carpenter'] ?? 0;
+      const ws = ent.get(carp, C.Workshop);
+      const job = board.jobs.get(ws?.currentJobId ?? -1);
+      if (job === undefined) { lines.push(`${day(tw.tick)} carpenter no job (${ws?.currentJobId}) orders ${ws?.orders.length}`); return; }
+      watchedJob = job.id;
+      const recipes = tw.game.registry.table('recipes');
+      lines.push(`${day(tw.tick)} JOB ${job.id} ${job.key} ${job.state} br ${job.blockedReason} w${job.workerId} prio ${job.priority} data ${JSON.stringify(job.data)} inputs ${JSON.stringify(job.inputs)} logs ${items.count('log')} | orders ${ws!.orders.map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode}:${o.remaining}/${o.threshold}`).join(' ')}`);
+      if (job.state !== 'open') return;
+      for (const d of jobs.workersWithLabor('carpentry')) {
+        const br = ent.get(d, C.Brain);
+        const wk = ent.get(d, C.Worker);
+        const p = ent.get(d, C.Position);
+        const other = board.jobs.get(wk?.jobId ?? -1);
+        let elig: string;
+        try { elig = String(board.eligible(job, d)); } catch (err) { elig = `err ${String(err)}`; }
+        lines.push(`  ${d} ${br?.behavior}/${br?.activity} until ${br?.behaviorUntil} job ${wk?.jobId}:${other ? board.typeId(other) : '-'} q ${jobs.isQueued(d)} hasWork ${jobs.hasWork(d)} urgent9 ${jobs.hasUrgent(d, 9)} elig ${elig} pos ${p?.x},${p?.y},${p?.z} reach ${board.hasReachableStand(job, d)}`);
+      }
+    },
+  });
+  writeFileSync(process.env['T527_OUT'] ?? `.vite/t527-${seed}-${watchEvery}.txt`, lines.join('\n') + '\n');
+}, 3_600_000);

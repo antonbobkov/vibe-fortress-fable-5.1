@@ -1,0 +1,120 @@
+d51 t60016 carpenter no job (0) orders 4
+d51 t60516 carpenter no job (0) orders 4
+d51 t61016 carpenter no job (0) orders 4
+d52 t61516 carpenter no job (0) orders 4
+d52 t62016 carpenter no job (0) orders 4
+d53 t62516 carpenter no job (0) orders 4
+d53 t63016 carpenter no job (0) orders 4
+d53 t63516 carpenter no job (0) orders 4
+d54 t64016 carpenter no job (0) orders 4
+d54 t64516 carpenter no job (0) orders 4
+d55 t65016 carpenter no job (0) orders 4
+d55 t65516 carpenter no job (0) orders 4
+d56 t66016 carpenter no job (0) orders 4
+d56 t66516 carpenter no job (0) orders 4
+d56 t67016 carpenter no job (0) orders 4
+d57 t67516 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 work/Plant seed until 67445 job 1840:plant q false hasWork true urgent9 true elig true pos 17,21,32 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 36,9,26 reach true
+  16777786 work/Harvest until 67492 job 1837:harvest q false hasWork true urgent9 true elig true pos 43,8,31 reach true
+  184550074 work/Harvest until 67427 job 1727:harvest q false hasWork true urgent9 true elig true pos 20,21,32 reach true
+d57 t67549 ASSIGN 16777786 at 43,8,31 got plant#1932 p4 d0 s0 bed craft#1923 p5 d31 s0 elig true nOpen 497
+d57 t67593 ASSIGN 16777786 at 43,8,31 got craft#708 p4 d13 s0 bed craft#1923 p5 d31 s0 elig true nOpen 496
+d57 t67970 ASSIGN 184550074 at 26,9,26 got harvest#1937 p4 d41 s2 bed craft#1923 p5 d44 s0 elig true nOpen 496
+d57 t68016 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 need/thirst until 67445 job 0:- q false hasWork true urgent9 true elig true pos 27,8,26 reach true
+  16777284 need/sleep until 42588 job 0:- q false hasWork true urgent9 true elig true pos 31,20,26 reach true
+  16777786 work/Craft (recipe) until 67593 job 708:craft q false hasWork true urgent9 true elig true pos 40,15,32 reach true
+  184550074 work/Harvest until 67970 job 1937:harvest q false hasWork true urgent9 true elig true pos 32,9,26 reach true
+d57 t68059 ASSIGN 218103846 at 26,9,26 got craft#1938 p3 d46 s0 bed craft#1923 p5 d44 s0 elig true nOpen 495
+d57 t68119 ASSIGN 184550074 at 37,11,31 got plant#1942 p4 d0 s2 bed craft#1923 p5 d25 s0 elig true nOpen 499
+d57 t68158 ASSIGN 184550074 at 37,11,31 got build#433 p4 d9 s0 bed craft#1923 p5 d25 s0 elig true nOpen 498
+d58 t68516 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 work/Craft (recipe) until 68059 job 1938:craft q false hasWork true urgent9 true elig true pos 28,17,32 reach true
+  16777284 need/comfort until 42588 job 0:- q false hasWork true urgent9 true elig true pos 40,9,26 reach true
+  16777786 need/hunger until 67593 job 0:- q false hasWork true urgent9 true elig true pos 39,21,32 reach true
+  184550074 need/hunger until 68158 job 0:- q false hasWork true urgent9 true elig true pos 39,21,32 reach true
+d58 t68801 ASSIGN 184550074 at 37,12,26 got build#1315 p4 d4 s0 bed craft#1923 p5 d55 s0 elig true nOpen 496
+d58 t69016 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 need/sleep until 68059 job 0:- q false hasWork true urgent9 true elig true pos 37,9,26 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 35,13,26 reach true
+  16777786 need/comfort until 67593 job 0:- q false hasWork true urgent9 true elig true pos 39,9,26 reach true
+  184550074 work/Build until 68801 job 1315:build q false hasWork true urgent9 true elig true pos 35,10,28 reach true
+d58 t69101 ASSIGN 184550074 at 36,9,26 got harvest#1945 p4 d32 s2 bed craft#1923 p5 d54 s0 elig true nOpen 496
+d58 t69201 ASSIGN 184550074 at 38,11,31 got plant#1948 p4 d0 s2 bed craft#1923 p5 d26 s0 elig true nOpen 497
+d58 t69240 ASSIGN 184550074 at 38,11,31 got harvest#1946 p4 d1 s2 bed craft#1923 p5 d26 s0 elig true nOpen 496
+d58 t69251 ASSIGN 16777786 at 39,9,26 got craft#1941 p4 d42 s0 bed craft#1923 p5 d57 s0 elig true nOpen 492
+d58 t69260 ASSIGN 218103846 at 39,21,32 got craft#1947 p4 d1 s0 bed craft#1923 p5 d21 s0 elig true nOpen 490
+d58 t69285 ASSIGN 184550074 at 38,10,31 got plant#1950 p4 d0 s2 bed craft#1923 p5 d26 s0 elig true nOpen 491
+d58 t69324 ASSIGN 184550074 at 38,10,31 got harvest#1900 p4 d21 s2 bed craft#1923 p5 d26 s0 elig true nOpen 490
+d58 t69516 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 work/Craft (recipe) until 69260 job 1947:craft q false hasWork true urgent9 true elig true pos 39,20,32 reach true
+  16777284 need/sleep until 42588 job 0:- q false hasWork true urgent9 true elig true pos 31,20,26 reach true
+  16777786 work/Craft (recipe) until 69251 job 1941:craft q false hasWork true urgent9 true elig true pos 40,15,32 reach true
+  184550074 need/sleep until 69324 job 0:- q false hasWork true urgent9 true elig true pos 24,20,32 reach true
+d59 t69603 ASSIGN 16777786 at 40,15,32 got craft#1952 p4 d0 s0 bed craft#1923 p5 d22 s0 elig true nOpen 486
+d59 t69996 ASSIGN 184550074 at 39,9,26 got craft#1962 p3 d48 s4 bed craft#1923 p5 d57 s0 elig true nOpen 492
+d59 t70016 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 need/thirst until 69260 job 0:- q false hasWork true urgent9 true elig true pos 27,8,26 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 36,9,26 reach true
+  16777786 work/Craft (recipe) until 69603 job 1952:craft q false hasWork true urgent9 true elig true pos 40,15,32 reach true
+  184550074 work/Craft (recipe) until 69996 job 1962:craft q false hasWork true urgent9 true elig true pos 37,9,26 reach true
+d59 t70260 ASSIGN 218103846 at 39,11,26 got harvest#1958 p4 d33 s0 bed craft#1923 p5 d57 s0 elig true nOpen 492
+d59 t70380 ASSIGN 218103846 at 39,8,31 got plant#1967 p4 d0 s0 bed craft#1923 p5 d27 s0 elig true nOpen 494
+d59 t70424 ASSIGN 218103846 at 39,8,31 got harvest#1959 p4 d1 s0 bed craft#1923 p5 d27 s0 elig true nOpen 492
+d59 t70516 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 need/comfort until 70424 job 0:- q false hasWork true urgent9 true elig true pos 35,10,30 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 33,20,26 reach true
+  16777786 need/social until 69603 job 0:- q false hasWork true urgent9 true elig true pos 39,11,26 reach true
+  184550074 work/Craft (recipe) until 69996 job 1962:craft q false hasWork true urgent9 true elig true pos 35,10,29 reach true
+d60 t70917 ASSIGN 16777786 at 38,10,26 got build#587 p4 d39 s0 bed craft#1923 p5 d56 s0 elig true nOpen 487
+d60 t70951 ASSIGN 218103846 at 39,9,26 got build#434 p4 d40 s0 bed craft#1923 p5 d57 s0 elig true nOpen 486
+d60 t71016 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 work/Build until 70951 job 434:build q false hasWork true urgent9 true elig true pos 35,10,32 reach true
+  16777284 need/hunger until 42588 job 0:- q false hasWork true urgent9 true elig true pos 39,19,32 reach true
+  16777786 work/Build until 70917 job 587:build q false hasWork true urgent9 true elig true pos 37,13,32 reach true
+  184550074 need/hunger until 70652 job 0:- q false hasWork true urgent9 true elig true pos 35,11,32 reach true
+d60 t71327 ASSIGN 218103846 at 34,7,32 got craft#1964 p4 d8 s0 bed craft#1923 p5 d16 s0 elig true nOpen 482
+d60 t71516 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 work/Craft (recipe) until 71327 job 1964:craft q false hasWork true urgent9 true elig true pos 40,15,32 reach true
+  16777284 need/comfort until 42588 job 0:- q false hasWork true urgent9 true elig true pos 33,20,26 reach true
+  16777786 need/sleep until 70917 job 0:- q false hasWork true urgent9 true elig true pos 39,19,32 reach true
+  184550074 need/thirst until 70652 job 0:- q false hasWork true urgent9 true elig true pos 28,8,26 reach true
+d60 t71535 ASSIGN 184550074 at 28,8,26 got harvest#1783 p4 d48 s2 bed craft#1923 p5 d46 s0 elig true nOpen 478
+d60 t71817 ASSIGN 16777786 at 39,11,26 got craft#1974 p4 d40 s0 bed craft#1923 p5 d57 s0 elig true nOpen 479
+d61 t72016 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 need/thirst until 71327 job 0:- q false hasWork true urgent9 true elig true pos 37,10,26 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 35,12,26 reach true
+  16777786 work/Craft (recipe) until 71817 job 1974:craft q false hasWork true urgent9 true elig true pos 40,15,32 reach true
+  184550074 need/sleep until 71535 job 0:- q false hasWork true urgent9 true elig true pos 37,8,26 reach true
+d61 t72051 ASSIGN 184550074 at 37,8,26 got build#492 p4 d40 s0 bed craft#1923 p5 d55 s0 elig true nOpen 478
+d61 t72163 ASSIGN 16777786 at 40,15,32 got craft#1982 p4 d0 s0 bed craft#1923 p5 d22 s0 elig true nOpen 478
+d61 t72516 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/39 make_table_wood:maintain:1/6
+  218103846 need/comfort until 71327 job 0:- q false hasWork true urgent9 true elig true pos 39,11,26 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 35,12,26 reach true
+  16777786 work/Craft (recipe) until 72163 job 1982:craft q false hasWork true urgent9 true elig true pos 40,15,32 reach true
+  184550074 work/Build until 72051 job 492:build q false hasWork true urgent9 true elig true pos 34,4,32 reach true
+d61 t72587 ASSIGN 218103846 at 39,11,26 got craft#1983 p4 d45 s0 bed craft#1923 p5 d57 s0 elig true nOpen 475
+d61 t72770 ASSIGN 184550074 at 39,9,26 got link_mechanism#1985 p1 d41 s0 bed craft#1923 p5 d57 s0 elig true nOpen 476
+d61 t73016 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/39 make_table_wood:maintain:1/6
+  218103846 need/sleep until 72902 job 0:- q false hasWork true urgent9 true elig true pos 37,12,26 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 34,8,26 reach true
+  16777786 need/thirst until 72652 job 0:- q false hasWork true urgent9 true elig true pos 28,8,26 reach true
+  184550074 need/sleep until 73002 job 0:- q false hasWork true urgent9 true elig true pos 36,10,26 reach true
+d61 t73055 ASSIGN 16777786 at 28,8,26 got link_mechanism#1985 p1 d43 s0 bed craft#1923 p5 d46 s0 elig true nOpen 475
+d62 t73201 ASSIGN 218103846 at 37,12,26 got craft#1982 p4 d39 s0 bed craft#1923 p5 d55 s0 elig true nOpen 474
+d62 t73330 ASSIGN 218103846 at 40,15,32 got craft#1988 p3 d13 s0 bed craft#1923 p5 d22 s0 elig true nOpen 471
+d62 t73405 ASSIGN 184550074 at 28,8,26 got link_mechanism#1991 p1 d9 s0 bed craft#1923 p5 d46 s0 elig true nOpen 470
+d62 t73516 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 work/Craft (recipe) until 73330 job 1988:craft q false hasWork true urgent9 true elig true pos 27,19,32 reach true
+  16777284 need/sleep until 42588 job 0:- q false hasWork true urgent9 true elig true pos 35,19,26 reach true
+  16777786 need/comfort until 73055 job 0:- q false hasWork true urgent9 true elig true pos 39,9,26 reach true
+  184550074 work/Link mechanism until 73405 job 1991:link_mechanism q false hasWork true urgent9 true elig true pos 36,8,26 reach true
+d62 t73707 ASSIGN 218103846 at 27,19,32 got pull_lever#1993 p1 d47 s0 bed craft#1923 p5 d9 s0 elig true nOpen 467
+d62 t73851 ASSIGN 16777786 at 39,9,26 got craft#1989 p4 d42 s0 bed craft#1923 p5 d57 s0 elig true nOpen 466
+d62 t74013 ASSIGN 184550074 at 32,15,26 got pull_lever#1995 p1 d7 s0 bed craft#1923 p5 d50 s0 elig true nOpen 465
+d62 t74016 JOB 1923 craft:16777337:2 open br null w0 prio 5 data {"recipe":"make_bed","orderIndex":2,"globalOrder":false,"labor":"carpentry","skill":"carpentry","assignedWorker":0,"workshopWorker":0,"inputUnits":true,"anchorTile":74370} inputs [{"filter":{"type":62},"count":1,"reserved":[],"delivered":[]}] logs 152 | orders make_cage_wood:maintain:1/2 make_club:maintain:1/1 make_bed:once:1/0 make_barrel:maintain:1/38 make_table_wood:maintain:1/6
+  218103846 need/sleep until 73707 job 0:- q false hasWork true urgent9 true elig true pos 37,8,26 reach true
+  16777284 duty/On duty until 42588 job 0:- q false hasWork true urgent9 true elig true pos 36,12,32 reach true
+  16777786 work/Craft (recipe) until 73851 job 1989:craft q false hasWork true urgent9 true elig true pos 40,15,32 reach true
+  184550074 work/Pull lever until 74013 job 1995:pull_lever q false hasWork true urgent9 true elig true pos 32,15,26 reach true

@@ -67,6 +67,8 @@ Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 
 
 `laborPriorityShift = laborPriority − PRIORITY_DEFAULT`, so raising mining's labor priority to 3 makes every mining job behave two steps more urgent.
 
+Priority is strict and a job does not age: a worker takes a less urgent job only when no more urgent one is open to it, so while a fortress keeps a backlog of more urgent work open to every worker with a labor, a less urgent job of that labor stays `open`, unclaimed and not blocked (nothing is wrong with it), however long it waits. The player raises its priority or its labor's. A producer that holds one job at a time must not let such a job keep back its more urgent work (12 § Operation, step 1).
+
 An open job for a patient at priority `PATIENT_SUMMON_PRIORITY` (17: `stop_bleeding`, `carry_patient`) does not wait for a worker to finish what it is doing. Each tick, before the queue is answered, for each such job that no free worker in the queue could take: among the workers to whom the job is open by step 1, who are in `work` behavior at an interruptible job that is not itself for a patient, and who are neither soldiers on duty nor patients, the nearest to the patient's own tile (the estimate of step 2, the first in id order on a tie) is interrupted with its progress kept (§ Job steps, interruptions) and claims the patient's job at once; if that claim fails (steps 4 and 5), it is queued like any free worker. A worker eating, drinking or asleep is not called.
 
 A worker without a required tool skips the job while no free tool of that kind is reachable and another worker with the labor carries one, leaving the job available to that worker. If nobody could do it, the ordinary `no_tool` block still applies.
