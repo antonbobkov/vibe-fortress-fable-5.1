@@ -19,3 +19,10 @@ T-487 makes such a job retry after `FAILED_WALK_RETRY_TICKS` when no trigger com
 
 - The cause is named in a report, and fixed or filed.
 - `three-years-p4-4` still plays its three years without the finding.
+
+## Outcome (2026-11-07)
+
+Probed on master `303a109a` with [the probe](../../reports/data/2026-11-07-t489-walks.probe.ts.txt), on GitHub, 16 seeds of the twenty-seed file at the sweep's four shifts (run 42430747691): every unclaim that set `failedWalk`, why the walk failed, and whether a fresh search finds the way with the fortress walker, without the forbidden set, and with a 200,000-node limit. Job 4988 itself is gone with the timeline (p4-4 at shift 0 now has one such walk, a doctor's), but the class is not: 274 walks over 64 runs, all `path_unreachable` (never `too_far`, never the repath limit).
+
+- **223 plant deliveries, and the cause:** a plant job's stand and delivery tile is the plot tile (`at`). When that tile is forbidden traffic (most often a workshop's corner the script forbids while it builds, lying on a plot), the labels, which know the terrain only, join the worker to it, so the job was claimed, its seed fetched and carried, and the walk failed every `FAILED_WALK_RETRY_TICKS`. The search without the forbidden set found the way every time. **Fixed:** a stand tile, of any `workTile` kind, is a tile a fortress walker may enter (11 § stand tiles), as an `adjacent` job's neighbours and an item's tile (13) already were; such a job is blocked `unreachable` and reopens once the forbid is lifted. The T-331 check no longer counts such a wait as a fault. With the fix, on the five seeds with most of them at four shifts (run 42436521252), plant failures went from 214 to 0.
+- **Left, filed:** 16 build deliveries to a stand tile reached only through forbidden tiles (the same blind spot of the labels, one step removed), and 35 health-job walks (diagnose, suture, stop_bleeding, feed and carry a patient) under the hearth alert, from the halls to a patient on the surface, where no search finds a way even without the forbidden set: the labels join two places a locked gate keeps apart. T-487's retry already keeps each from being lost.
