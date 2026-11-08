@@ -12,3 +12,7 @@ On `defence-year-7` (`defence_year`, cadence 20, T-522's branch `16fbba04`, with
 ## Done
 
 - The cause is named, and on `defence-year-7` the carpenter's open job is taken within a day while a carpenter is idle.
+
+## Found
+
+The carpenters were not idle (T-522's journal read "no job" at the moment it looked). On `defence-year` at cadence 20 the bed job, priority 5, was open to all four of them, eligible by every check (labor, skill, label, inputs, tool); in days 57 to 62 they asked for work 35 times and each time took one of 465 to 499 open jobs of effective priority 4 or better (planting, harvest, building, other workshops' orders, levers). Priority is strict, so the job waited; the workshop's one job kept the cage order ahead of it from running. The fix is the workshop's: an untaken job gives way to a runnable order ahead of it (12 § Operation, step 1). See [the report](../../reports/audits/2026-11-07-t527-open-craft-job.md).

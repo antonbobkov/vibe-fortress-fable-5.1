@@ -1,0 +1,37 @@
+/* eslint-disable */
+import { it } from 'vitest';
+import { writeFileSync } from 'node:fs';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import { playDefenceYear } from '../scenarios/defence_year_fortress';
+
+it('t527 raid', () => {
+  const seed = process.env['T527_SEED'] ?? 'defence-year';
+  const watchEvery = Number(process.env['DEFENCE_WATCH_EVERY'] ?? 20);
+  const lines: string[] = [];
+  const day = (t: number): string => `d${Math.floor(t / TICKS_PER_DAY) + 1}`;
+  let lastJob = -1;
+  const { state } = playDefenceYear({
+    seed, watchEvery,
+    ticks: Number(process.env['T527_TICKS'] ?? 2 * 112 * TICKS_PER_DAY),
+    observe: (tw) => {
+      tw.game.world.onEvents((batch) => {
+        for (const e of batch) {
+          if ((e.type === 'ItemCrafted' && String(e['recipeId']).includes('cage')) || e.type === 'RaidEnded' || e.type === 'RaidArrived' || e.type === 'CreatureCaged' || (e.type === 'JobCancelled' && e['reason'] === 'order_ahead')) lines.push(`${day(tw.tick)} ${JSON.stringify(e)}`);
+        }
+      });
+    },
+    watch: (tw, st) => {
+      const carp = st.fortress.placedIds['carpenter'] ?? 0;
+      const ws = tw.game.world.entities.get(carp, C.Workshop);
+      const board = tw.game.world.services.jobs as any;
+      const job = board.jobs.get(ws?.currentJobId ?? -1);
+      if ((ws?.currentJobId ?? 0) !== lastJob) {
+        lastJob = ws?.currentJobId ?? 0;
+        if (job) lines.push(`${day(tw.tick)} carpenter job ${job.id} ${job.data.recipe} p${job.priority} ${job.state}`);
+      }
+    },
+  });
+  lines.push(...state.notes.map((n: unknown) => `note ${String(n)}`));
+  writeFileSync(process.env['T527_OUT'] ?? `.vite/t527-raid-${seed}-${watchEvery}.txt`, lines.join('\n') + '\n');
+}, 3_600_000);
