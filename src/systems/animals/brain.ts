@@ -19,7 +19,7 @@
  *           attack (provoked, not hunting) breaks off into wander when its target is beyond the
  *           provoke radius of the tile where the attack began, or unconscious
  *   eat:    walk to the saved corpse; wait EAT_CORPSE_TICKS there, consume through 13, idle
- *   sleep:  stay until stateUntil; a threat wakes it; struck (wakeStruck): below the flee percent
+ *   sleep:  stay until stateUntil; a threat wakes it; hit (wakeStruck): below the flee percent
  *           flee the striker unless aggressive, territorial defend against it from its tile, else idle
  *   leave:  walk to the nearest edge tile; despawn on arrival (AnimalLeft)
  * ```
@@ -662,11 +662,11 @@ function woundedToFlee(host: BrainHost, id: EntityId): boolean {
 }
 
 /**
- * `08` § Wild behavior, `sleep` (T-535): an animal attacked in its sleep wakes at once. Below its
+ * `08` § Wild behavior, `sleep` (T-535): an animal struck in its sleep wakes at once. Below its
  * flee percent it flees the striker unless aggressive, as in `attack`; a territorial one defends
  * against the striker from its own tile, as `idle`'s provoke rule starts a defence; any other
- * wakes to `idle`, where its threats decide. Called on `AttackResolved` against the animal; a
- * record not in `sleep` is returned unchanged.
+ * wakes to `idle` with no wait, where its threats decide (none, at rest time: it sleeps again).
+ * Called on a `hit` `AttackResolved` against the animal; a record not in `sleep` is returned unchanged.
  */
 export function wakeStruck(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, striker: EntityId): Wild {
   if (w.state !== 'sleep') return w;
@@ -682,7 +682,11 @@ export function wakeStruck(host: BrainHost, ctx: TickContext, id: EntityId, w: W
     delete next.unseenSince;
     host.setTarget(id, striker);
   } else {
-    toIdle(host, ctx, id, next);
+    // Awake at once, with no idle wait: at its next think its threats decide, and with none it
+    // goes back to sleep if it is still its rest time.
+    delete next.defendFrom; delete next.unseenSince;
+    next.state = 'idle';
+    next.stateUntil = ctx.tick;
   }
   return next;
 }

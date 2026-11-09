@@ -28,8 +28,8 @@ function sleepingBoar(w: TestWorld): { boar: EntityId; dwarf: EntityId } {
   return { boar, dwarf };
 }
 
-function strike(w: TestWorld, attacker: EntityId, target: EntityId, emitted: GameEvent[] = []): void {
-  const event = { type: 'AttackResolved', attackerId: attacker, defenderId: target, targetId: target, part: null, damageType: 'pierce', amount: 3, outcome: 'hit' } as unknown as GameEvent;
+function strike(w: TestWorld, attacker: EntityId, target: EntityId, emitted: GameEvent[] = [], outcome = 'hit'): void {
+  const event = { type: 'AttackResolved', attackerId: attacker, defenderId: target, targetId: target, part: null, damageType: 'pierce', amount: outcome === 'hit' ? 3 : 0, outcome } as unknown as GameEvent;
   w.animals.handle(event, ctxOf(w, emitted));
 }
 
@@ -66,6 +66,23 @@ describe('T-535 an animal struck in its sleep wakes', () => {
     expect(['flee', 'leave']).toContain(e.get(boar, C.Wild)!.state);
     expect(w.animals.brain.targetOf!(boar)).toBe(0);
     expect(emitted.some((ev) => ev.type === 'CreatureFled' && ev['id'] === boar && ev['from'] === dwarf)).toBe(true);
+  });
+
+  it('a missed blow leaves it asleep', () => {
+    const w = world('t535-missed');
+    const { boar, dwarf } = sleepingBoar(w);
+    strike(w, dwarf, boar, [], 'miss');
+    expect(w.game.world.entities.get(boar, C.Wild)!.state).toBe('sleep');
+  });
+
+  it('a deer struck in its sleep wakes to idle with no wait', () => {
+    const w = world('t535-deer');
+    const deer = w.spawnCreature('deer', w.index(32, 32, Z), 'wild');
+    const e = w.game.world.entities;
+    e.add(deer, C.Wild, { ...e.get(deer, C.Wild)!, state: 'sleep', stateUntil: w.tick + 600 });
+    const archer = w.spawnDwarf({ at: w.index(52, 32, Z) });
+    strike(w, archer, deer);
+    expect(e.get(deer, C.Wild)).toMatchObject({ state: 'idle', stateUntil: w.tick });
   });
 
   it('a strike on a boar that is awake leaves its state to its own think', () => {

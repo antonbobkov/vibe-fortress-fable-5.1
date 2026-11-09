@@ -1181,8 +1181,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       const attacker = event['attackerId'];
       if (typeof target === 'number' && typeof attacker === 'number' && ctx.world.entities.alive(target)) {
         this.provoked.set(target, attacker);
-        // T-535: an animal attacked in its sleep wakes (08 § Wild behavior, `sleep`).
-        const wild = ctx.world.entities.get(target, C.Wild);
+        // T-535: an animal struck (hit) in its sleep wakes (08 § Wild behavior, `sleep`).
+        const wild = event['outcome'] === 'hit' ? ctx.world.entities.get(target, C.Wild) : undefined;
         if (wild !== undefined && wild.state === 'sleep') ctx.world.entities.add(target, C.Wild, wakeStruck(this.brain, ctx, target, wild, attacker));
       }
     }
