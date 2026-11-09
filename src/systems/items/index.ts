@@ -15,6 +15,7 @@ import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { TileIndex } from '@core/types';
+import { TileKind } from '@core/map3d';
 import { ItemCore } from './api';
 import { applyClaimItem, applyDumpItem, applyForbidItem, applyMeltItem, type ItemCommandHost } from './commands';
 import {
@@ -150,6 +151,12 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       zone: (id) => (readers.has('14') ? readers.of<{ zone(id: number): ZoneViewLike | undefined }>('14').zone(id) : undefined),
       itemsOn,
       buildingAt: (i) => world.map.buildingAtTile(i),
+      // 13 § Stockpiles: solid or open terrain, or a built building that blocks walkers, leaves no place to stand.
+      standable: (i) => {
+        const kind = world.map.kindAt(i);
+        if (kind === TileKind.Wall || kind === TileKind.Tree || kind === TileKind.Boulder || kind === TileKind.Open || kind === TileKind.Fortification) return false;
+        return !readers.has('14') || !readers.of<{ blocksMovementAt(i: TileIndex, cls: 'walker'): boolean }>('14').blocksMovementAt(i, 'walker');
+      },
     });
     this.storeRef = store;
     const classes = new Set<string>();
@@ -312,6 +319,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       this.rotRef?.resample();
     } else if (event.type === 'TilesChanged') {
       for (const t of event['tiles'] as readonly TileIndex[]) core.settleTile(t, this.entitiesAt);
+      this.hauling.groundChanged(event['tiles'] as readonly TileIndex[]);
     } else if (event.type === 'ItemMelted') {
       // 13 § Events consumed: "`MagmaContact` (04): items with `meltsAt ≤ MAGMA_C` are destroyed with
       // `ItemMelted` (05 decides; this system destroys)".
@@ -322,6 +330,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       core.buildingWealth += typeof event['value'] === 'number' ? (event['value'] as number) : 0;
       // A built container in a stockpile or hospital (a hospital's chest) gives it slots.
       const building = core.host.entities.get(event['id'] as number, C.Building);
+      // A building that blocks walkers takes the slot of the tile it stands on.
+      if (building !== undefined) this.hauling.groundChanged(building.footprint);
       if (building !== undefined && building.itemId !== 0 && core.container(building.itemId) !== undefined &&
         building.footprint.some((t) => this.stockpiles.stockpileAt(t) !== 0)) this.hauling.slotsGained();
     } else if (event.type === 'BuildingRemoved') {

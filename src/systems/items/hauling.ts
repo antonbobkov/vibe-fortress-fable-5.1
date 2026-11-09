@@ -35,7 +35,7 @@ import { WANTED_CLASSES, type ContainerNeeded, type Slot, type StockpileStore, t
 export interface JobsView {
   get(id: number): { readonly id: number; readonly key: string; readonly producer: string; readonly data: Readonly<Record<string, unknown>> } | undefined;
   byKey(key: string): { readonly id: number; readonly state?: string } | undefined;
-  list(): readonly { readonly id: number; readonly producer: string; readonly data: Readonly<Record<string, unknown>> }[];
+  list(): readonly { readonly id: number; readonly producer: string; readonly workTile: unknown; readonly data: Readonly<Record<string, unknown>> }[];
 }
 
 export interface HaulHost {
@@ -324,7 +324,7 @@ export class Hauling {
     const e = this.core.host.entities;
     const store = this.host.store;
     return e.revision(C.Item) + e.revision(C.Container) + e.revision(C.Position) + e.revision(C.Stockpile) + e.revision(C.Zone)
-      + e.revision(C.Building) + store.reservations.changes + store.tiles.changes;
+      + e.revision(C.Building) + store.reservations.changes + store.tiles.changes + store.groundChanges;
   }
 
   private cache(): PassCache {
@@ -436,7 +436,7 @@ export class Hauling {
   private epoch(): number {
     const e = this.core.host.entities;
     const store = this.host.store;
-    return store.tiles.changes + store.incomingContainers.losses + this.core.containerNotices
+    return store.tiles.changes + store.incomingContainers.losses + this.core.containerNotices + store.groundChanges
       + e.revision(C.Stockpile) + e.revision(C.Zone) + e.revision(C.Building);
   }
 
@@ -606,12 +606,13 @@ export class Hauling {
     return best;
   }
 
-  /** `haul_to_dump`: the nearest dump zone's first tile; with no dump zone the item has no home. */
+  /** `haul_to_dump`: the nearest dump zone's first standable tile; with no dump zone the item has no home. */
   private createDump(id: EntityId, jobs: JobsApi): boolean {
     const tile = this.core.tileOf(id);
     let best: { tile: TileIndex; d: number } | null = null;
     for (const z of this.host.zonesOfType('dump')) {
-      const first = z.tiles[0];
+      // The zone's first tile a dwarf can stand on (13 § Stockpiles: a tile nobody stands on takes nothing).
+      const first = z.tiles.find((t) => this.host.store.host.standable(t));
       if (first === undefined) continue;
       const d = this.distanceTo(tile, z.tiles);
       if (best === null || d < best.d) best = { tile: first, d };
@@ -722,6 +723,29 @@ export class Hauling {
     }
     for (const c of Array.from(store.incomingContainers.keys())) {
       if (view.byKey(haulKey(c)) === undefined) store.incomingContainers.delete(c);
+    }
+  }
+
+  /**
+   * 13 § Stockpiles: the terrain or a building changed on these tiles. A stockpile tile among them may have lost its
+   * slot or got it back (`groundChanges`), and a haul or dump whose work tile is one of them that no dwarf can stand
+   * on any more (a sapling grown into a tree, a wall or a chest built there) is cancelled with `target_invalid`: its
+   * slot is released and the item finds another home. A haul into a container a dwarf fills from beside it is not.
+   */
+  groundChanged(tiles: readonly TileIndex[]): void {
+    const store = this.host.store;
+    const lost = new Set<TileIndex>();
+    for (const t of tiles) {
+      const onStockpile = store.stockpileAt(t) !== 0;
+      if (onStockpile) store.groundChanges += 1;
+      if ((onStockpile || this.host.zoneTypeAt(t) === 'dump') && !store.host.standable(t)) lost.add(t);
+    }
+    if (lost.size === 0) return;
+    const view = this.host.jobsView();
+    if (view === null) return;
+    for (const job of view.list()) {
+      if (job.producer !== 'items' || typeof job.workTile !== 'number' || !lost.has(job.workTile)) continue;
+      this.host.jobs().cancel(job.id, 'target_invalid');
     }
   }
 

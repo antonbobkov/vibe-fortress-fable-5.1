@@ -47,6 +47,8 @@ Worth doing, at more cost. Each would be its own task with a measurement.
 |---|---|---|
 | Thane's whims, a creaking span before a fall, a damp layer, cave bats, cave cough | 26 to 30 | Each needs a design of its own |
 
+| Trees reclaim a surface stockpile | A sapling may take root on an outdoor stockpile tile and, two or three years on, grow into a tree in the middle of the goods; the tile takes nothing more, and a haul on its way there turns back (T-536) | [07](02-systems/07-plants-and-farming.md) § Trees; [13](02-systems/13-items-and-storage.md) § Stockpiles | Removable: count stockpile zones in `isReserved` (`plants/index.ts`), so no sapling takes a stockpile tile; the 13 rule stays for walls and chests |
+
 ## Declined
 
 | Feature | Report item | Why |
