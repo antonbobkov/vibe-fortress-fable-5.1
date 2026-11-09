@@ -1,6 +1,8 @@
 # T-530 — Walks that fail between places the labels join: health jobs under the alert, sites behind forbidden tiles
 
-**Source:** [T-489](../archive/tasks/T-489-p4-4-seed-delivery-walk-fails.md) (its probe of the twenty-seed file, [the probe](../../reports/data/2026-11-07-t489-walks.probe.ts.txt)) · **Size:** M · **Needs:** T-489 · **Status:** open
+**Closed:** 2026-11-09, in adb6dc4b,dd289195.
+
+**Source:** [T-489](T-489-p4-4-seed-delivery-walk-fails.md) (its probe of the twenty-seed file, [the probe](../../../reports/data/2026-11-07-t489-walks.probe.ts.txt)) · **Size:** M · **Needs:** T-489 · **Status:** open
 
 ## Why
 

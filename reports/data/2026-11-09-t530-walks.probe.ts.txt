@@ -1,0 +1,127 @@
+/**
+ * T-530 probe (not kept in test/): the T-489 probe of `reports/data/2026-11-07-t489-walks.probe.ts.txt`,
+ * with what T-530 asks of each failed walk the labels joined: the doors whose lock the pathfinder sees
+ * but whose stored state (`alertLocked`, `lockHeld`) does not say so yet (the labels' blind spot), the
+ * tick's phase against 14's cadence, the labels between the two tiles a few ticks later, and, for a
+ * walk that a search without the forbidden set finds, how many forbidden tiles that path crosses and
+ * whether the target has a neighbour a fortress walker may enter. Run with `-t "T-530 probe"`.
+ */
+import { it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TestWorld } from '../scenarios/test-world';
+import { runThreeYearsSeed } from './three_years_seeds.test';
+
+const SEED = process.env['T489_SEED'] ?? 'three-years-p4-4';
+const PERIL = Number(/-p(\d)-/.exec(SEED)?.[1] ?? 4);
+
+interface WalkRec { target: number; request: number; following: boolean; attempts: number }
+interface DoorRec { mode: string; state: string; footprint: number[]; settings: Record<string, unknown> }
+
+it(`T-530 probe ${SEED}`, () => {
+  const log: string[] = [];
+  const counts = new Map<string, number>();
+  const original = TestWorld.prototype.step;
+  const seen = new WeakSet<TestWorld>();
+  const install = (w: TestWorld): void => {
+    const map = w.game.world.map;
+    const xyz = (t: number): string => (t < 0 ? '-' : `${map.xOf(t)},${map.yOf(t)},${map.zOf(t)}`);
+    const movement = w.game.world.services.movement as unknown as {
+      walks: Map<number, WalkRec>; moverOf(id: number): unknown; tileOf(id: number): number;
+      pathing: { pathfinder: { pathResult(r: number): { state: string; reason?: string }; searchImmediate(f: number, t: number, c: string, n?: number, m?: unknown): number[] | null } };
+      walkTo(id: number, target: number, urgency: string, ctx: unknown): string;
+    };
+    const conn = w.game.pathing.connectivity;
+    const terrain = w.game.terrain;
+    const store = (w.game.world.scheduler.byId('14') as unknown as { buildings: {
+      all(): number[]; get(id: number): DoorRec | undefined; doorLocked(b: DoorRec): boolean; row(type: string): { tags: string[] } } & Record<string, unknown> }).buildings;
+    const doors = (): string => {
+      const out: string[] = [];
+      for (const id of store.all()) {
+        const b = store.get(id) as DoorRec & { type: string };
+        if (b.state !== 'built' || !store.row(b.type).tags.includes('door')) continue;
+        if (b.mode !== 'locked' && b.mode !== 'lock_on_alert') continue;
+        const live = store.doorLocked(b);
+        const stored = b.mode === 'locked' ? b.settings['lockHeld'] === true : b.settings['alertLocked'] === true;
+        const dirty = b.footprint.some((t) => map.chunk(map.chunkOf(t))?.dirtyPath === true);
+        out.push(`${id}@${xyz(b.footprint[0] ?? -1)}:${b.mode}:live=${live ? 'L' : 'o'}:stored=${stored ? 'L' : 'o'}${dirty ? ':dirty' : ''}${live !== stored ? ':STALE' : ''}`);
+      }
+      return out.join(' ');
+    };
+    const pending: { tick: number; from: number; to: number; tag: string }[] = [];
+    const settle = (): void => {
+      for (let k = pending.length - 1; k >= 0; k -= 1) {
+        const p = pending[k]!;
+        if (w.tick < p.tick + 11) continue;
+        pending.splice(k, 1);
+        const apart = conn.label(p.from, 'walker') !== conn.label(p.to, 'walker');
+        const key = `later:${p.tag}:${apart ? 'apart' : 'joined'}`;
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+    };
+    const lastFail = new Map<number, { tick: number; why: string; from: number; to: number }>();
+    const walkTo = movement.walkTo.bind(movement);
+    movement.walkTo = (id, target, urgency, ctx) => {
+      if (pending.length > 0) settle();
+      const at = movement.tileOf(id);
+      const prior = movement.walks.get(id);
+      const priorResult = prior !== undefined && prior.target === target && !prior.following ? movement.pathing.pathfinder.pathResult(prior.request) : null;
+      const following = prior !== undefined && prior.target === target && prior.following;
+      const out = walkTo(id, target, urgency, ctx);
+      if (out === 'unreachable') {
+        const why = at < 0 ? 'no_position' : following ? `repath_limit(${prior?.attempts ?? -1})` : `path_${priorResult?.reason ?? priorResult?.state ?? 'none'}`;
+        lastFail.set(id, { tick: w.tick, why, from: at, to: target });
+      }
+      return out;
+    };
+    const board = (w.game.world.scheduler.byId('11') as unknown as { board: {
+      unclaim(job: { id: number; state: string; failedWalk?: true; data: Record<string, unknown> }, reason: string, walkedTo?: number, fetched?: number): void;
+      typeId(job: unknown): string; workerOf(id: number): { carrying: number } } }).board;
+    const unclaim = board.unclaim.bind(board);
+    board.unclaim = (job, reason, walkedTo = -1, fetched = 0) => {
+      const stage = job.state;
+      const worker = (job as unknown as { workerId: number }).workerId;
+      const carrying = board.workerOf(worker).carrying;
+      unclaim(job, reason, walkedTo, fetched);
+      const any = `all:${reason}${fetched !== 0 ? ':item' : ''}`;
+      counts.set(any, (counts.get(any) ?? 0) + 1);
+      if (job.failedWalk !== true) return;
+      const f = lastFail.get(worker);
+      const fresh = f === undefined || f.tick !== w.tick ? 'stale' : f.why;
+      const from = f?.from ?? -1;
+      const pf = movement.pathing.pathfinder;
+      const withMover = from < 0 ? null : pf.searchImmediate(from, walkedTo, 'walker', undefined, movement.moverOf(worker));
+      const noMover = from < 0 ? null : pf.searchImmediate(from, walkedTo, 'walker');
+      const big = from < 0 || withMover !== null ? null : pf.searchImmediate(from, walkedTo, 'walker', 200_000, movement.moverOf(worker));
+      const typeId = board.typeId(job);
+      const kind = `${typeId}:${stage}${carrying !== 0 ? ':deliver' : ''}:${fresh.replace(/\(.*\)/, '')}`;
+      counts.set(kind, (counts.get(kind) ?? 0) + 1);
+      const doorText = doors();
+      const staleDoor = doorText.includes('STALE');
+      const forbiddenOnWay = noMover === null || terrain === null ? -1 : noMover.filter((t) => terrain.core.isForbidden(t)).length;
+      const openNeighbours = walkedTo < 0 || terrain === null ? -1 : map.neighbors8(walkedTo).filter((n) => conn.label(n, 'walker') !== 0 && !terrain.core.isForbidden(n)).length;
+      const tag = noMover === null ? (staleDoor ? 'graph:staleDoor' : 'graph:noStaleDoor') : `forbidden:${forbiddenOnWay > 0 ? 'onWay' : 'none'}`;
+      counts.set(`diag:${tag}`, (counts.get(`diag:${tag}`) ?? 0) + 1);
+      if (from >= 0 && walkedTo >= 0) pending.push({ tick: w.tick, from, to: walkedTo, tag });
+      if (log.length < 400) {
+        log.push(`day ${Math.floor(w.tick / TICKS_PER_DAY) + 1} t${w.tick} (mod10 ${w.tick % 10}) job ${job.id} ${typeId} ${stage}${carrying !== 0 ? ' carrying' : ''} why ${fresh} from ${xyz(from)} to ${xyz(walkedTo)} ` +
+          `search(mover) ${withMover === null ? 'none' : withMover.length} search(no forbidden) ${noMover === null ? 'none' : noMover.length} search(200k) ${big === null ? '-' : big.length} alert ${w.game.world.fortress.alert} ` +
+          `forbiddenOnWay ${forbiddenOnWay} openNeighbours ${openNeighbours} doors [${doorText}]`);
+      }
+    };
+  };
+  TestWorld.prototype.step = function (this: TestWorld, n?: number) {
+    if (!seen.has(this)) {
+      seen.add(this);
+      install(this);
+    }
+    return original.call(this, n as number);
+  } as typeof original;
+  try {
+    const r = runThreeYearsSeed(SEED, PERIL);
+    console.log(`[t530] ${SEED} shift ${process.env['THREE_YEARS_SHIFT'] ?? '0'} y3Pop ${r.y3Pop} deaths ${r.dwarfDeaths}`);
+  } finally {
+    TestWorld.prototype.step = original;
+    console.log(`[t530] counts ${JSON.stringify(Object.fromEntries(counts))}`);
+    console.log(['[t530] log', ...log].join('\n'));
+  }
+}, 3_600_000);

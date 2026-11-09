@@ -19,6 +19,8 @@ export const BLOCKED_RETRY_TICKS = 100;
 export const BLOCKED_RETRIES_PER_TICK = 20;
 /** A walk that failed despite connected labels waits this long for a reachability trigger, then retries (unmeasured). */
 export const FAILED_WALK_RETRY_TICKS = 600;
+/** T-530: a walk region that forbidden tiles close within this many tiles is a pocket the labels do not see (unmeasured). */
+export const STAND_POCKET_TILES = 256;
 /** A job for a patient at this priority calls a worker off interruptible work. */
 export const PATIENT_SUMMON_PRIORITY = 1;
 /** Hauling is below default work. */

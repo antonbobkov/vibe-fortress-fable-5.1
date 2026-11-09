@@ -12,7 +12,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
-| T-530 | [Walks that fail between places the labels join: health jobs under the alert, sites behind forbidden tiles](work/T-530-walks-the-labels-join.md) | The triage of T-453/456/489 | — | open |
 | T-535 | [A territorial animal struck in its sleep sleeps on until it dies](work/T-535-struck-animal-sleeps-on.md) | T-529's runs | — | open |
+| T-536 | [A haul stays blocked on a stockpile slot that has become impassable](work/T-536-haul-to-a-walled-slot.md) | T-530's runs | — | open |
+| T-537 | [A job unclaimed for a worker with no tile is remembered as a failed walk](work/T-537-failed-walk-without-a-tile.md) | T-530's runs | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
