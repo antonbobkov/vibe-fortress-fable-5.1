@@ -188,6 +188,11 @@ export interface StockpileHost {
   itemsOn(i: TileIndex): EntityId[];
   /** The building on a tile (a workshop is a link source), or 0. */
   buildingAt(i: TileIndex): EntityId;
+  /**
+   * A dwarf can stand on the tile: it is not solid or open terrain (a tree grown from a sapling, a wall) and no built
+   * building that blocks walkers stands on it (a chest, a statue). A stockpile tile that is not offers no slot.
+   */
+  standable(i: TileIndex): boolean;
 }
 
 /** A map that counts the entries it loses or replaces and those it gains, so a reader can tell that it changed. */
@@ -225,6 +230,8 @@ export class StockpileStore {
   readonly explicitPriority: EntityId[] = [];
   /** Container hauls in flight: `containerId → stockpileId`, counted as present. */
   readonly incomingContainers = new CountedMap<EntityId, EntityId>();
+  /** Counts the terrain and building changes on stockpile tiles, which can take a slot away or give one back (derived). */
+  groundChanges = 0;
 
   constructor(host: StockpileHost) {
     this.host = host;
@@ -538,19 +545,21 @@ export class StockpileStore {
     return n;
   }
 
-  /** An empty tile no reservation holds, in `(y, x)` order, or -1. */
+  /** An empty tile no reservation holds and a dwarf can stand on, in `(y, x)` order, or -1. */
   emptyTile(spId: EntityId): TileIndex {
     for (const t of this.tilesOf(spId)) {
       if (this.reservations.has(this.tileKey(t))) continue;
-      if (this.host.itemsOn(t).length === 0) return t;
+      if (this.host.itemsOn(t).length === 0 && this.host.standable(t)) return t;
     }
     return -1;
   }
 
-  /** Empty, unreserved tiles. */
+  /** Empty, unreserved tiles a dwarf can stand on. */
   freeSlots(spId: EntityId): number {
     let n = 0;
-    for (const t of this.tilesOf(spId)) if (!this.reservations.has(this.tileKey(t)) && this.host.itemsOn(t).length === 0) n += 1;
+    for (const t of this.tilesOf(spId)) {
+      if (!this.reservations.has(this.tileKey(t)) && this.host.itemsOn(t).length === 0 && this.host.standable(t)) n += 1;
+    }
     return n;
   }
 
@@ -602,7 +611,7 @@ export class StockpileStore {
     for (const tile of this.tilesOf(spId)) {
       if (this.reservations.has(this.tileKey(tile))) continue;
       const on = this.host.itemsOn(tile);
-      if (on.length !== 1) continue;
+      if (on.length !== 1 || !this.host.standable(tile)) continue;
       const other = on[0] as EntityId;
       const x = this.core.get(other);
       if (x === undefined || x.type !== it.type || x.material !== it.material || x.quality !== it.quality) continue;
@@ -622,7 +631,7 @@ export class StockpileStore {
     for (const tile of this.tilesOf(spId)) {
       if (this.reservations.has(this.tileKey(tile))) continue;
       const on = this.host.itemsOn(tile);
-      if (on.length !== 1) continue;
+      if (on.length !== 1 || !this.host.standable(tile)) continue;
       const other = on[0] as EntityId;
       const x = this.core.get(other);
       if (x === undefined || (x.flags & ItemFlag.Reserved) !== 0 || this.core.container(other) !== undefined) continue;

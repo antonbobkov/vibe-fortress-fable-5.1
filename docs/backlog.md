@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
-| T-536 | [A haul stays blocked on a stockpile slot that has become impassable](work/T-536-haul-to-a-walled-slot.md) | T-530's runs | — | open |
 | T-537 | [A job unclaimed for a worker with no tile is remembered as a failed walk](work/T-537-failed-walk-without-a-tile.md) | T-530's runs | — | open |
 | T-538 | [An aggressive animal struck outside `attack` flees its attacker](work/T-538-aggressive-animal-flees-its-attacker.md) | T-535's runs | — | open |
 
