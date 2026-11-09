@@ -1,6 +1,8 @@
 # T-535 — A territorial animal struck in its sleep sleeps on until it dies
 
-**Source:** [T-529](../archive/tasks/T-529-squad-lost-to-boars.md) ([the audit](../../reports/audits/2026-11-09-t529-squad-and-boars.md), [the probe](../../reports/data/2026-11-09-t529-boars.probe.ts.txt)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-09, in 135a9b4e,e4fd888e,90029cb6.
+
+**Source:** [T-529](T-529-squad-lost-to-boars.md) ([the audit](../../../reports/audits/2026-11-09-t529-squad-and-boars.md), [the probe](../../../reports/data/2026-11-09-t529-boars.probe.ts.txt)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
