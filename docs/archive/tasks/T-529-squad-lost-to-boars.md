@@ -1,6 +1,8 @@
 # T-529 — A peril-0 squad sent after boars loses eleven dwarves on one map
 
-**Source:** [T-456](../archive/tasks/T-456-three-years-main-on-relief.md) (its journal of seed `three-years` on relief 1, [the probe](../../reports/data/2026-11-07-t456-relief.probe.ts.txt)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-09, in e02daf56,6abd03b2.
+
+**Source:** [T-456](T-456-three-years-main-on-relief.md) (its journal of seed `three-years` on relief 1, [the probe](../../../reports/data/2026-11-07-t456-relief.probe.ts.txt)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

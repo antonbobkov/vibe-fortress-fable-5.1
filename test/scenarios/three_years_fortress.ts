@@ -1482,9 +1482,16 @@ function speciesName(w: TestWorld, id: number): string {
 
 /**
  * The wild animals a player answers: every living aggressive or territorial one that can walk to
- * the gate and is within WILD_NEAR of it or of a dwarf, the nearest to the gate first.
+ * the gate and is within WILD_NEAR of it, and every aggressive one within WILD_NEAR of a dwarf on
+ * the surface, the nearest to the gate first.
+ * T-529: a territorial animal (a boar, a badger) is answered only at the gate. It attacks only a
+ * dwarf who walks into its ground, lets a fleeing one go, and keeps that ground away from the
+ * fortress (08 § Wild behavior), so a dwarf near it is not hunted. Sent after every one near a
+ * dwarf on the surface, the squad went 15 to 40 tiles out behind a gate the hearth alert had
+ * locked, met the boars one soldier at a time, unarmoured, and no medic could reach the wounded:
+ * on seed `three-years` at relief 1 it lost 6 to 14 dwarves in 400 days at each of six shifts.
  */
-function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: readonly number[]): number[] {
+export function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: readonly number[]): number[] {
   const ent = w.game.world.entities;
   const animals = w.readers.of<AnimalsReader>('08');
   const wild = animals.wildList();
@@ -1499,7 +1506,8 @@ function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: readonly
     const p = ent.get(id, C.Position);
     if (!p || (temper !== 'aggressive' && temper !== 'territorial')) continue;
     if (w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') !== gateLabel) continue;
-    if (!places.some((q) => q !== undefined && Math.abs(q.z - p.z) <= 2 && Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)) <= WILD_NEAR)) continue;
+    const near = temper === 'territorial' ? [gate] : places;
+    if (!near.some((q) => q !== undefined && Math.abs(q.z - p.z) <= 2 && Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)) <= WILD_NEAR)) continue;
     found.push({ id, d: Math.max(Math.abs(gate.x - p.x), Math.abs(gate.y - p.y)) });
   }
   return found.sort((a, b) => a.d - b.d || a.id - b.id).map((f) => f.id);
