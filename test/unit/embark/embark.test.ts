@@ -46,7 +46,7 @@ const registry = contentRegistry();
 describe('T-M1-04 embark: tuning constants', () => {
   it('every numeric row of 02 § Tuning constants is in constants.ts with its value', () => {
     const rows = tuningConstants('02-systems/02-embark-and-loadout.md');
-    expect(rows.length).toBe(7);
+    expect(rows.length).toBe(9);
     const code = E as unknown as Record<string, number>;
     for (const row of rows) expect([row.name, code[row.name]]).toEqual([row.name, row.value]);
   });

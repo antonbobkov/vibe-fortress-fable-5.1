@@ -186,7 +186,8 @@ export class LoadoutsPanel {
       const total = this.host.total(loadout);
       const cost = `${String(total).replace(/\B(?=(\d{3})+(?!\d))/g, ',').padStart(6)} ☼`;
       label(surface, col + EMBARK_LOADOUT_NAME_MAX + 5, row, cost, { fg: t.value, bg: t.panelBg });
-      if (total > budget) label(surface, col + EMBARK_LOADOUT_NAME_MAX + 15, row, s.get('ui.embark.loadouts.row_over'), { fg: t.bad, bg: t.panelBg, width: Math.max(1, width - EMBARK_LOADOUT_NAME_MAX - 17) });
+      if (loadout.mode === 'testing') label(surface, col + EMBARK_LOADOUT_NAME_MAX + 15, row, s.get('ui.embark.loadouts.row_testing'), { fg: t.bad, bg: t.panelBg, width: Math.max(1, width - EMBARK_LOADOUT_NAME_MAX - 17) });
+      else if (total > budget) label(surface, col + EMBARK_LOADOUT_NAME_MAX + 15, row, s.get('ui.embark.loadouts.row_over'), { fg: t.bad, bg: t.panelBg, width: Math.max(1, width - EMBARK_LOADOUT_NAME_MAX - 17) });
       surface.hit({ col: col + 2, row, cols: inner, rows: 1 }, () => {
         if (this.list.selected === index) this.load();
         else this.list.selected = index;

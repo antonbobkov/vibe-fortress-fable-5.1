@@ -69,7 +69,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `RenameFortress` | `name` | core | 1–`FORTRESS_NAME_MAX_CHARS` characters | — |
 | `SetSanctumApprentices` | `zoneId, dwarfIds[]` | 25 | sanctum zone (`not_found`); each id a living dwarf of the fortress (`not_found`) and an adult (`not_adult`); no id twice and at most `SANCTUM_APPRENTICES` (`member_limit`); turns their `attunement` labor on | — |
 
-App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`), which run before the world exists.
+App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress`, `SetSpeed`, `SetSetting`, and the embark-session commands of 02 (`SetSkill`, `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`, and testing mode's `SetEmbarkMode`, `AddDwarf`, `RemoveDwarf`, `SetSkillAll`, `AddItem`, `SetItemCount`), which run before the world exists.
 
 `Designate` and `DesignateStairwell` reject the whole command if any discovered tile fails its precondition; UI tools submit only eligible or undiscovered tiles. Every designation kind on discovered deepsilver requires confirmation. The kind accepts a designation number or name, and priority defaults to `PRIORITY_DEFAULT`, with values outside 1 to 9 rejected. `SetDesignationPriority` requires a designation on every tile. `UndoDesignation` clears each designation without progress, keeps progressed ones, and returns `has_progress` when any are kept: this is the explicit partial-application exception.
 

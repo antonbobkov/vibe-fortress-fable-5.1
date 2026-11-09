@@ -56,7 +56,7 @@ Presets menu (`p`): Balanced, Farmstead, Miner's Guild, Warband, each with its t
 
 - **The keys line.** The body's last line names each tab's keys: `[Tab] list  [↑][↓] select  [+][-] points  [0] clear  [/] find skill` on Dwarves, `[←][→] group  [↑][↓] select  [+][-] count  [0] none  [/] find  [l] loadouts` on Supplies, `[↑][↓] select  [+][-] count  [0] none  [/] find` on Animals. A key that did nothing says why on that line until the next key or click: "No skill points left for {name}: lower another skill first.", "{skill} is at most 5 at embark.", "At most {max} of {entry} at embark."
 - **Finding a supply or an animal.** `/` (on Supplies or Animals) starts a new find in the `/filter:` field on Supplies; each typed word must appear in an entry's name or its group's name, in any order and case ("thread", "war dog", "seeds"). A find lists matches from every group, animals too, group by group, each line naming its group after its cost; no group is marked in the bar while a find is in use. `Enter`, `Tab`, `↑` or `↓` hand the keys back to the list with the find kept; `Esc` in the field, or on the list while a find is in use, empties it; choosing a group ends it. With no match the list reads "Nothing matches "{text}".".
-- **Finding a skill.** On Dwarves, `/` starts a find over the skill list, in a field at the right end of the skills rule (a `[/] find` caption until it is in use); it works as the supplies find over skill names.
+- **Finding a skill.** On Dwarves, `/` starts a find over the skill list, in a field at the right end of the skills rule (a `[/] find` caption until it is in use); it works as the supplies find over skill names. On the Items tab of testing mode, `/` is the same find over the selected field's choices (§ Testing mode). So `/` finds on every tab, and `Esc` empties a find before it leaves the screen.
 - **The chosen lines.** The supplies bar ends with Chosen, every line with a count, supplies and animals, group by group, each naming its group, to review and trim the whole loadout in one place; "Nothing chosen yet." when empty. `←` `→` cycle the groups and Chosen, wrapping.
 - **Quantities.** `+` `-` (and `=`) step the selected skill or line by one; `0` sets it to none. A click on `[-]` or `[+]` does the same; a control at its bound is dim.
 - **Scrolling.** The mouse wheel scrolls the list under the pointer by `EMBARK_WHEEL_ROWS` (3) rows a notch, keeping the selection in view, so every skill is within reach of the mouse at 80 × 50 cells. `PageUp` `PageDown` move the selection a page.
@@ -75,10 +75,33 @@ Presets menu (`p`): Balanced, Farmstead, Miner's Guild, Warband, each with its t
 │  [s] Save current  [Enter] Load  [n] Rename  [x] Delete  [Esc] Close                   │
 ```
 
-- Rows are the saved loadouts by name, each with what it costs at today's prices; one that costs more than this site's budget says "over budget". `↑` `↓` select, a click selects and a click on the selected row loads it. With none saved the list reads "No saved loadouts yet: [s] saves the current one."
+- Rows are the saved loadouts by name, each with what it costs at today's prices; one that costs more than this site's budget says "over budget", and a testing loadout (02 § Testing mode) says "testing". `↑` `↓` select, a click selects and a click on the selected row loads it. With none saved the list reads "No saved loadouts yet: [s] saves the current one."
 - `s` asks for a name in the `text_input` dialog, "Loadout 1" (the first number not taken) by default; a taken name asks `c_overwrite_loadout`. `Enter` loads the selected loadout (after `c_load_loadout` when anything was edited), `n` renames it (a taken name is refused and the panel says so), `x` deletes it after `c_delete_loadout`, `Esc` closes the panel.
 - The line above the captions says what the last action did. After a load it lists what was left out or lowered ("No longer in the game, left out: …", "Not offered here, left out: …", "Lowered to the limit: …", "Skills for 2 more dwarves than the party were left out.") and, when the loadout is over this site's budget, "It costs 1,620 ☼, 120 ☼ over the budget here: trim it to embark." The footer's budget line and the Embark reason show the same overspend until it is trimmed.
 
 Validation display: the Embark button is dim with a reason line when over budget ("Over budget by 44 ☼"), when a dwarf has more than 10 points, or when the name is empty. With no reason, the line names the dwarves with points left, which are lost at embark ("Unspent skill points: Tova Emberheart 10, Orm Ashbrow 2"). Over budget, the budget line reads "Budget 1,500 ☼   Spent 1,544   Over 44" in red. Embarking with no pick, no axe, no food item or no drink item asks first, one question for each, in that order ("Embark without a pick?", "Embark without an axe?", "Embark with no food?", "Embark with no drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food`, `c_embark_no_drink`, default No).
 
 At 80 columns the header reduces tab and preset spacing so every caption and its mouse target fits. The reroll caption is `[r] reroll 25 ☼`. Budget, Spent and Left (or Over) align against the right edge, never over the name field; when they would not fit, the gaps between them close to one space, so their digits are never clipped. The supplies bar's separators close to `│` when the spaced bar would not fit. The party list's skills line, the keys lines and the presets menu fit 80 columns whole. Attribute bars use up to five cells, reducing their width when necessary to preserve the complete attribute numbers and spacing.
+
+## Testing mode
+
+The bottom line is the switch: `[t] Testing mode: off` with "For trying features: no budget, any dwarves and items." in dim; on, `[t] Testing mode: ON` with "No budget or limits. The fortress is marked as testing." in the bad colour; both fit 80 columns whole, and the title reads "Embark at Greenhollow (testing)" in the same colour. The presets menu lists "Testing fortress" after the four normal presets, with "testing" for its total (02 § Testing mode).
+
+In testing mode the footer reads "Budget unlimited (testing)   Spent 1,480" and names no unspent points; the Dwarves list shows each dwarf's points with no limit, scrolls, and keeps its last row above the keys line for `[a] add dwarf  [x] remove`; the skill list holds every skill, to 20, under "Skills (testing: up to 20)", and its keys line reads `[Tab] list  [+][-] level  [0] clear  [*] to every dwarf  [/] find skill`, where `*` gives every dwarf the selected dwarf's level of the selected skill. Supplies and Animals ignore `max` and temperature conditions; `+` and `-` step by 1 to 10, by 10 to 100 and by 100 beyond, to 999.
+
+Items tab (`4`, testing mode only):
+
+```
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ /filter: [ __________Any item in any material. ←→ change, [a] add, [x] remove.          │
+│ ─── New item ─────────────────────────────────────────────────────────────────────────── │
+│   Item       ◄ staff ►                                                                   │
+│   Material   ◄ steel ►                                                                   │
+│   Quality    ◄ superior ►                                                                │
+│   Stone      ◄ garnet · Emberbolt ►                                                      │
+│ ▶ Count      [-]   3 [+]   [a] add                                                       │
+│ ─── Items to bring (1 lines) ─────────────────────────────────────────────────────────── │
+│   3 x superior steel staff · garnet (Emberbolt)              [-]   3 [+] [x]             │
+```
+
+`↑` `↓` (or the wheel) move through the form's rows and then the lines; `←` `→` (or `+` `-`, or a click on `◄` `►`) change the selected row: the item (every `items` row, by name), the material (those that suit the item first, then the rest, marked "(unusual)"), the quality (poor to masterwork), the stone of a wand or a staff ("garnet · Emberbolt") or the enchantment of a weapon, armor piece or ammunition ("of blaze · ruby"), labelled Stone or Enchant by the item, and the count. `/` starts the same find as on the other tabs, here over the selected row's choices: typing narrows them to those whose name holds the text and moves the row to the first of them; `Esc` empties it; moving to another row clears it. `[a]` adds the line (a line of the same kind grows instead); on a line, `+` `-` change its count and `[x]`, `x` or `0` removes it.

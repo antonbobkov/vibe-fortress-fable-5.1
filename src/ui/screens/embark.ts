@@ -10,11 +10,22 @@
  * why." Purchases are listed and priced here; they materialize in the wagon with M2 (T-M2-08).
  */
 
-import { ATTRIBUTE_MAX, EMBARK_SKILL_MAX_PER_SKILL, EMBARK_SKILL_POINTS_PER_DWARF } from '@core/constants';
+import { ATTRIBUTE_MAX, EMBARK_SKILL_MAX_PER_SKILL, EMBARK_SKILL_POINTS_PER_DWARF, SKILL_MAX_LEVEL } from '@core/constants';
 import type { Attributes } from '@core/components';
 import type { Registry } from '@core/registry';
 import type { KeyPress } from '@platform/input';
-import { EMBARK_REROLL_COST, EmbarkSession, skillPoints, suppliesTotal, type EmbarkCommand, type EmbarkPresetRow } from '@systems/embark';
+import {
+  EMBARK_REROLL_COST,
+  EMBARK_TESTING_MAX_COUNT,
+  EmbarkSession,
+  TESTING_PRESET,
+  TESTING_PRESET_ID,
+  skillPoints,
+  suppliesTotal,
+  type EmbarkCommand,
+  type EmbarkPresetRow,
+} from '@systems/embark';
+import { DRAFT_ROWS, TestingDraft, testingStep } from './embark-testing';
 import { applyLoadout, loadoutOf, loadoutTotal, type LoadoutResult, type SavedLoadout } from '@systems/embark';
 import { EMBARK_DEFAULT_PRESET, EMBARK_HINT_SECONDS, EMBARK_PRESET_SPACING, EMBARK_PRESETS_WIDTH, EMBARK_WHEEL_ROWS, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
 import type { KeyContext, Keymap } from '../keymap';
@@ -166,7 +177,12 @@ export class EmbarkScreen implements Screen {
   edited = false;
   private last: Surface | null = null;
   private readonly catalog: CatalogRow[];
-  private readonly skillRows: SkillRow[];
+  /** The skills offered in normal play (`embark` not `no`). */
+  private readonly embarkSkillRows: SkillRow[];
+  /** Every skill, for testing mode. */
+  private readonly allSkillRows: SkillRow[];
+  /** Testing mode's Items tab: the item being made and the free lines (`02` § Testing mode). */
+  readonly draft: TestingDraft;
   private readonly traitNames: Map<string, string>;
   private readonly presetRows: EmbarkPresetRow[];
   /** The saved loadouts panel, when the host keeps loadouts. */
@@ -185,11 +201,12 @@ export class EmbarkScreen implements Screen {
     const catalog = registry.table<CatalogRow>('embarkCatalog');
     this.catalog = catalog.ids().map((id) => catalog.byId(id) as CatalogRow);
     const skills = registry.table<SkillRow>('skills');
-    this.skillRows = skills
+    this.allSkillRows = skills
       .ids()
       .map((id) => skills.byId(id) as SkillRow)
-      .filter((row) => row.embark !== false)
       .sort((a, b) => a.name.localeCompare(b.name));
+    this.embarkSkillRows = this.allSkillRows.filter((row) => row.embark !== false);
+    this.draft = new TestingDraft(registry);
     const traits = registry.table<TraitRow>('personality');
     this.traitNames = new Map(traits.ids().map((id) => [id, (traits.byId(id) as TraitRow).name]));
     const presets = registry.table<EmbarkPresetRow>('embarkPresets');
@@ -212,8 +229,58 @@ export class EmbarkScreen implements Screen {
 
   apply(cmd: EmbarkCommand): boolean {
     const r = this.session.apply(cmd);
-    if (r.ok && cmd.type !== 'ApplyPreset' && cmd.type !== 'ConfirmEmbark') this.edited = true;
+    if (r.ok && cmd.type !== 'ApplyPreset' && cmd.type !== 'ConfirmEmbark' && cmd.type !== 'SetEmbarkMode') this.edited = true;
     return r.ok;
+  }
+
+  /** Testing mode (`02` § Testing mode): no budget, any dwarves, skills and items. */
+  get testing(): boolean {
+    return this.session.testing;
+  }
+
+  /** The skills the Dwarves tab lists: every skill in testing mode, the embark skills otherwise. */
+  get skillRows(): readonly SkillRow[] {
+    return this.testing ? this.allSkillRows : this.embarkSkillRows;
+  }
+
+  /** The tab count: the Items tab exists only in testing mode. */
+  tabCount(): number {
+    return this.testing ? 4 : 3;
+  }
+
+  /**
+   * `t`: testing mode on keeps the loadout and lifts the limits; off goes back to the default
+   * preset, asking first when anything was edited.
+   */
+  toggleTesting(): void {
+    if (!this.testing) {
+      this.session.apply({ type: 'SetEmbarkMode', mode: 'testing' });
+      return;
+    }
+    this.choosePreset(EMBARK_DEFAULT_PRESET);
+  }
+
+  /** `a` on the Dwarves tab: a new dwarf with no skills, selected. */
+  addDwarf(): void {
+    if (this.apply({ type: 'AddDwarf' })) this.party.selected = this.session.party.length - 1;
+  }
+
+  /** `x` on the Dwarves tab: the selected dwarf leaves the party. */
+  removeDwarf(): void {
+    this.apply({ type: 'RemoveDwarf', dwarf: this.party.selected });
+  }
+
+  /** `*`: every dwarf takes the selected dwarf's level in the selected skill. */
+  skillAll(): void {
+    const skill = this.visibleSkills()[this.skills.selected];
+    const d = this.session.party[this.party.selected];
+    if (skill === undefined || d === undefined) return;
+    this.apply({ type: 'SetSkillAll', skill: skill.id, level: d.skills[skill.id] ?? 0 });
+  }
+
+  /** `a` on the Items tab: the item being made joins the free lines. */
+  addItem(): void {
+    this.apply({ type: 'AddItem', line: this.draft.line() });
   }
 
   count(entry: string): number {
@@ -253,7 +320,7 @@ export class EmbarkScreen implements Screen {
   }
 
   /** The skills the Dwarves tab lists: all that can be chosen at embark, or the find field's matches. */
-  visibleSkills(): SkillRow[] {
+  visibleSkills(): readonly SkillRow[] {
     const needle = this.skillFind.value.trim();
     return needle.length === 0 ? this.skillRows : this.skillRows.filter((row) => findMatches(needle, row.name));
   }
@@ -263,6 +330,9 @@ export class EmbarkScreen implements Screen {
   }
 
   setSupply(row: CatalogRow, delta: number): boolean {
+    if (this.testing) {
+      return this.apply({ type: 'SetSupply', entry: row.id, count: testingStep(this.count(row.id), delta) });
+    }
     if (!this.available(row)) return false;
     const count = this.count(row.id);
     if (delta > 0 && count >= row.max) {
@@ -273,31 +343,39 @@ export class EmbarkScreen implements Screen {
     return this.apply({ type: 'SetSupply', entry: row.id, count: next });
   }
 
-  /** A skill change, refused when the dwarf's points would pass `EMBARK_SKILL_POINTS_PER_DWARF`; a refused rise says why. */
+  /**
+   * A skill change, refused when the dwarf's points would pass `EMBARK_SKILL_POINTS_PER_DWARF`;
+   * in testing mode any level to `SKILL_MAX_LEVEL`. A refused rise says why.
+   */
   setSkill(dwarf: number, skill: string, delta: number): boolean {
     const d = this.session.party[dwarf];
     if (d === undefined) return false;
     const level = d.skills[skill] ?? 0;
     const next = level + delta;
     if (next < 0) return false;
-    if (next > EMBARK_SKILL_MAX_PER_SKILL) {
+    const max = this.testing ? SKILL_MAX_LEVEL : EMBARK_SKILL_MAX_PER_SKILL;
+    if (next > max) {
       const name = this.skillRows.find((r) => r.id === skill)?.name ?? skill;
-      this.flash = this.strings.get('ui.embark.skill_max', { skill: name, max: EMBARK_SKILL_MAX_PER_SKILL });
+      this.flash = this.strings.get('ui.embark.skill_max', { skill: name, max });
       return false;
     }
-    if (delta > 0 && skillPoints(d) + delta > EMBARK_SKILL_POINTS_PER_DWARF) {
+    if (!this.testing && delta > 0 && skillPoints(d) + delta > EMBARK_SKILL_POINTS_PER_DWARF) {
       this.flash = this.strings.get('ui.embark.no_points', { name: d.name });
       return false;
     }
     return this.apply({ type: 'SetSkill', dwarf, skill, level: next });
   }
 
-  /** `0`: the selected skill to nothing (Dwarves), or none of the selected line (Supplies, Animals). */
+  /** `0`: the selected skill to nothing (Dwarves), none of the selected line (Supplies, Animals), or the selected free line gone (Items). */
   clear(): void {
     if (this.tab === 0) {
       const skill = this.visibleSkills()[this.skills.selected];
       const level = skill === undefined ? 0 : this.session.party[this.party.selected]?.skills[skill.id] ?? 0;
       if (skill !== undefined && level > 0) this.apply({ type: 'SetSkill', dwarf: this.party.selected, skill: skill.id, level: 0 });
+      return;
+    }
+    if (this.tab === 3) {
+      this.draft.removeSelected(this.items.selected, (cmd) => this.apply(cmd));
       return;
     }
     const row = this.rows()[this.items.selected];
@@ -308,14 +386,16 @@ export class EmbarkScreen implements Screen {
   presetOptions(): DropdownOption[] {
     const library = this.host.loadouts;
     const loadoutsLabel = this.strings.get('ui.embark.loadouts.option');
-    const width = Math.max(...this.presetRows.map((p) => Array.from(p.name).length), library === undefined ? 0 : Array.from(loadoutsLabel).length);
+    // The normal presets' totals and descriptions line up; the testing preset and the loadouts option are short.
+    const width = Math.max(...this.presetRows.map((p) => Array.from(p.name).length));
     const options: DropdownOption[] = this.presetRows.map((p) => ({
       id: p.id,
       label: p.name.padEnd(width),
-      detail: `${marks(suppliesTotal(this.registry, p.supplies)).padStart(5)} ☼ ${presetSummary(p.skills, this.skillRows)}`,
+      detail: `${marks(suppliesTotal(this.registry, p.supplies)).padStart(5)} ☼ ${presetSummary(p.skills, this.embarkSkillRows)}`,
     }));
+    options.push({ id: TESTING_PRESET_ID, label: TESTING_PRESET.name, detail: this.strings.get('ui.embark.testing_preset_detail') });
     if (library !== undefined) {
-      options.push({ id: LOADOUTS_OPTION, label: loadoutsLabel.padEnd(width), detail: this.strings.get('ui.embark.loadouts.count', { n: library.list().length }) });
+      options.push({ id: LOADOUTS_OPTION, label: loadoutsLabel, detail: this.strings.get('ui.embark.loadouts.count', { n: library.list().length }) });
     }
     return options;
   }
@@ -333,9 +413,17 @@ export class EmbarkScreen implements Screen {
     this.applyPreset(id);
   }
 
+  /** A normal preset plays normally (leaving testing mode); the testing preset plays in testing mode. */
   applyPreset(id: string): void {
     this.pendingPreset = null;
+    if (id !== TESTING_PRESET_ID && this.testing) this.session.apply({ type: 'SetEmbarkMode', mode: 'normal' });
     if (this.session.apply({ type: 'ApplyPreset', preset: id }).ok) this.edited = false;
+    if (this.tab >= this.tabCount()) this.setTab(0);
+  }
+
+  /** The name of a preset, the testing preset's included. */
+  presetName(id: string): string {
+    return id === TESTING_PRESET_ID ? TESTING_PRESET.name : this.presetRows.find((p) => p.id === id)?.name ?? '';
   }
 
   /** `l`, or the presets menu's last option: the saved loadouts panel. */
@@ -363,9 +451,10 @@ export class EmbarkScreen implements Screen {
   loadLoadout(loadout: SavedLoadout): LoadoutResult {
     const result = applyLoadout(this.session, this.registry, loadout, (entry) => {
       const row = this.catalog.find((r) => r.id === entry);
-      return row === undefined || this.available(row);
+      return this.testing || row === undefined || this.available(row);
     });
     this.edited = false;
+    if (this.tab >= this.tabCount()) this.setTab(0);
     if (this.loadouts !== null) this.loadouts.note = this.loadoutNote(loadout.name, result);
     return result;
   }
@@ -388,6 +477,7 @@ export class EmbarkScreen implements Screen {
   reason(): string | null {
     const s = this.strings;
     if (this.fortressName.value.trim().length === 0) return s.get('ui.embark.no_name');
+    if (this.testing) return null;
     const check = this.session.canEmbark();
     if (check.ok) return null;
     const why = check.reason ?? '';
@@ -400,6 +490,8 @@ export class EmbarkScreen implements Screen {
 
   /** "Unspent skill points: Frida Boarcloak 3": the dwarves with points left, which are lost at embark (`02` § Party generation). */
   unspent(): string | null {
+    // Testing mode has no point limit, so nothing is left unspent.
+    if (this.testing) return null;
     const left = this.session.party
       .filter((d) => skillPoints(d) < EMBARK_SKILL_POINTS_PER_DWARF)
       .map((d) => `${d.name} ${EMBARK_SKILL_POINTS_PER_DWARF - skillPoints(d)}`);
@@ -416,7 +508,8 @@ export class EmbarkScreen implements Screen {
     const items = this.registry.table<{ id: string; category?: string }>('items');
     const categories = this.session.supplies
       .filter((line) => line.count > 0)
-      .map((line) => items.byId(catalog.byId(line.entry)?.item ?? '')?.category ?? '');
+      .map((line) => items.byId(catalog.byId(line.entry)?.item ?? '')?.category ?? '')
+      .concat(this.session.items.map((line) => items.byId(line.item)?.category ?? ''));
     const has = (prefix: string): boolean => categories.some((c) => c === prefix || c.startsWith(`${prefix}/`));
     return { pick: !has('tool/pick'), axe: !has('tool/axe'), food: !has('food'), drink: !has('drink') };
   }
@@ -460,16 +553,20 @@ export class EmbarkScreen implements Screen {
     const s = this.strings;
     const t = surface.theme;
     const cols = surface.cols;
-    label(surface, 1, 0, s.get('ui.embark.title', { region: this.region.name }), { fg: t.key, width: 30 });
-    const tabCol = Math.max(32, cols - 60);
     const tabItems = [
       { key: '1', label: s.get('ui.embark.tab.dwarves') },
       { key: '2', label: s.get('ui.embark.tab.supplies') },
       { key: '3', label: s.get('ui.embark.tab.animals') },
+      ...(this.testing ? [{ key: '4', label: s.get('ui.embark.tab.items') }] : []),
     ];
     const tabWidth = tabItems.reduce((sum, item) => sum + Array.from(`[${item.key}] ${item.label}`).length, 0);
     const presetWidth = Array.from(`[p] ${s.get('ui.embark.presets')}`).length;
+    // The Items tab of testing mode moves the tabs left, over the title, rather than off the edge.
+    const compactWidth = tabWidth + (tabItems.length - 1) * UI_COMPACT_SPACING + UI_COMPACT_SPACING + presetWidth;
+    const tabCol = this.testing ? Math.max(Math.min(32, cols - compactWidth), cols - 60) : Math.max(32, cols - 60);
     const compact = tabCol + tabWidth + (tabItems.length - 1) * UI_NORMAL_SPACING + EMBARK_PRESET_SPACING + presetWidth > cols;
+    const title = s.get(this.testing ? 'ui.embark.title_testing' : 'ui.embark.title', { region: this.region.name });
+    label(surface, 1, 0, title, { fg: this.testing ? t.bad : t.key, width: this.testing ? tabCol - 2 : 30 });
     const n = tabs(
       surface,
       tabCol,
@@ -484,8 +581,10 @@ export class EmbarkScreen implements Screen {
     separator(surface, 0, 1, cols);
     const bodyRows = surface.rows - 6;
     if (this.tab === 0) this.drawDwarves(surface, 2, bodyRows);
+    else if (this.tab === 3) this.draft.draw(surface, 2, bodyRows, this.drawContext());
     else this.drawCatalog(surface, 2, bodyRows);
     this.drawFooter(surface, surface.rows - 4);
+    this.drawTestingLine(surface, surface.rows - 1);
     if (this.presets.open) {
       // Wide enough for each preset's description: its total and its dwarves' main skills.
       const listWidth = Math.min(cols - 2, EMBARK_PRESETS_WIDTH);
@@ -495,8 +594,7 @@ export class EmbarkScreen implements Screen {
       }, () => this.togglePresets(), listWidth);
     }
     if (this.pendingPreset !== null) {
-      const preset = this.presetRows.find((p) => p.id === this.pendingPreset);
-      const text = s.get('ui.embark.replace', { preset: preset?.name ?? '' });
+      const text = s.get('ui.embark.replace', { preset: this.presetName(this.pendingPreset) });
       surface.fill({ col: 0, row: surface.rows - 5, cols, rows: 1 }, t.panelBg);
       label(surface, 1, surface.rows - 5, text, { bg: t.panelBg, width: cols - 2 });
     }
@@ -513,7 +611,8 @@ export class EmbarkScreen implements Screen {
     const t = surface.theme;
     const party = this.session.party;
     const listCols = 30;
-    const listHeight = height - 1;
+    // The body's last row is the keys line; testing mode keeps the list's last row for `[a] add  [x] remove`.
+    const listHeight = Math.max(1, height - (this.testing ? 2 : 1));
     // Each dwarf's skills on a second line, so the party's trades read at a glance; one line each when the party is too long for two.
     const perDwarf = party.length * 2 <= listHeight ? 2 : 1;
     const shown = Math.max(1, Math.floor(listHeight / perDwarf));
@@ -525,7 +624,7 @@ export class EmbarkScreen implements Screen {
       if (d === undefined) break;
       const row = top + k * perDwarf;
       const mark = i === this.party.selected ? '▶ ' : '  ';
-      const pts = `${skillPoints(d)}/${EMBARK_SKILL_POINTS_PER_DWARF}`;
+      const pts = this.testing ? String(skillPoints(d)) : `${skillPoints(d)}/${EMBARK_SKILL_POINTS_PER_DWARF}`;
       const text = `${mark}${d.name}`.slice(0, listCols - pts.length - 2).padEnd(listCols - pts.length - 1) + pts;
       label(surface, 0, row, text, { width: listCols });
       if (i === this.party.selected && this.focus === 'party') surface.invert({ col: 0, row, cols: listCols, rows: 1 });
@@ -538,9 +637,14 @@ export class EmbarkScreen implements Screen {
         this.setFocus('party');
       });
     }
+    if (this.testing) {
+      const row = top + height - 2;
+      const n = button(surface, 1, row, 'a', s.get('ui.embark.add_dwarf'), () => this.addDwarf());
+      button(surface, 1 + n + 2, row, 'x', s.get('ui.embark.remove'), () => this.removeDwarf(), { enabled: party.length > 1 });
+    }
     const rule = surface.glyphs.index('│');
-    for (let r = 0; r < listHeight; r += 1) surface.put(listCols, top + r, rule, t.border, t.black);
-    this.drawKeys(surface, top + height - 1, 'ui.embark.keys.dwarves');
+    for (let r = 0; r < height - 1; r += 1) surface.put(listCols, top + r, rule, t.border, t.black);
+    this.drawKeys(surface, top + height - 1, this.testing ? 'ui.embark.keys.dwarves_testing' : 'ui.embark.keys.dwarves');
 
     const d = party[this.party.selected];
     if (d === undefined) return;
@@ -569,7 +673,9 @@ export class EmbarkScreen implements Screen {
     label(surface, c, row, d.personality.map((p) => this.traitNames.get(p) ?? p).join(' · '), { width: surface.cols - c - 1 });
     row += 1;
     const left = EMBARK_SKILL_POINTS_PER_DWARF - skillPoints(d);
-    separator(surface, c, row, surface.cols - c - 1, s.get('ui.embark.skills', { n: left }));
+    const maxLevel = this.testing ? SKILL_MAX_LEVEL : EMBARK_SKILL_MAX_PER_SKILL;
+    const heading = this.testing ? s.get('ui.embark.skills_testing', { max: SKILL_MAX_LEVEL }) : s.get('ui.embark.skills', { n: left });
+    separator(surface, c, row, surface.cols - c - 1, heading);
     // The skill list's find field sits at the rule's right end: a caption until it is in use.
     const findWidth = 10;
     const findCol = surface.cols - findWidth - 6;
@@ -600,9 +706,11 @@ export class EmbarkScreen implements Screen {
       const dwarf = this.party.selected;
       const w = numberField(surface, c + 19, y, level, (delta) => void this.setSkill(dwarf, skill.id, delta), {
         min: 0,
-        max: Math.min(EMBARK_SKILL_MAX_PER_SKILL, level + left),
+        max: this.testing ? maxLevel : Math.min(maxLevel, level + left),
       });
-      if (level > 0) bar(surface, c + 19 + w + 2, y, level, EMBARK_SKILL_MAX_PER_SKILL, level);
+      const barCol = c + 19 + w + 2;
+      const barWidth = Math.max(0, Math.min(level, surface.cols - barCol - 1));
+      if (level > 0) bar(surface, barCol, y, level, level, barWidth);
     }
   }
 
@@ -646,7 +754,7 @@ export class EmbarkScreen implements Screen {
       if (entry === undefined) break;
       const y = row + r;
       const selected = index === this.items.selected;
-      const ok = this.available(entry);
+      const ok = this.testing || this.available(entry);
       const name = entry.entry.charAt(0).toUpperCase() + entry.entry.slice(1);
       label(surface, 1, y, `${selected ? '▶ ' : '  '}${name}`, { width: 26, fg: ok ? t.text : t.dim });
       if (selected && this.focus === 'items') surface.invert({ col: 1, row: y, cols: 26, rows: 1 });
@@ -659,17 +767,17 @@ export class EmbarkScreen implements Screen {
       const count = this.count(entry.id);
       const w = numberField(surface, 36, y, count, (delta) => void this.setSupply(entry, delta), {
         min: 0,
-        max: ok ? entry.max : count,
-        width: 2,
+        max: this.testing ? EMBARK_TESTING_MAX_COUNT : ok ? entry.max : count,
+        width: this.testing ? 3 : 2,
       });
-      if (count > 0) label(surface, 36 + w + 2, y, `= ${String(entry.price * count).padStart(4)}`, { fg: t.value });
+      if (count > 0) label(surface, 36 + w + 2, y, `= ${String(entry.price * count).padStart(this.testing ? 5 : 4)}`, { fg: t.value });
       // Lines of several groups name theirs.
       if (mixed) label(surface, 36 + w + 10, y, this.categoryName(entry.category), { fg: t.dim, width: Math.max(1, surface.cols - (36 + w + 11)) });
     }
     const current = rows[this.items.selected];
     const noteRow = row + listHeight;
     let note: string | null = null;
-    if (current !== undefined && !this.available(current)) note = s.get('ui.embark.unavailable', { condition: current.condition ?? '' });
+    if (current !== undefined && !this.testing && !this.available(current)) note = s.get('ui.embark.unavailable', { condition: current.condition ?? '' });
     else if (current?.note !== undefined) note = current.note;
     else if (this.tab === 1) {
       // The hint alternates between two lines every EMBARK_HINT_SECONDS of real time and on each tab change.
@@ -695,9 +803,11 @@ export class EmbarkScreen implements Screen {
     const field = textField(surface, 15, row + 1, 20, this.fortressName, () => this.setFocus('name'));
     const budget = this.session.budget();
     const spent = this.session.total();
-    const full = spent > budget
-      ? s.get('ui.embark.budget_over', { budget: marks(budget), spent: marks(spent), over: marks(spent - budget) })
-      : s.get('ui.embark.budget', { budget: marks(budget), spent: marks(spent), left: marks(budget - spent) });
+    const full = this.testing
+      ? s.get('ui.embark.budget_testing', { spent: marks(spent) })
+      : spent > budget
+        ? s.get('ui.embark.budget_over', { budget: marks(budget), spent: marks(spent), over: marks(spent - budget) })
+        : s.get('ui.embark.budget', { budget: marks(budget), spent: marks(spent), left: marks(budget - spent) });
     // The figures close up rather than run into the name field or past the edge.
     const room = surface.cols - (15 + field + 1) - 1;
     const text = Array.from(full).length > room ? full.replace(/ {3}/g, ' ') : full;
@@ -712,11 +822,41 @@ export class EmbarkScreen implements Screen {
     button(surface, surface.cols - 12, row + 2, 'Esc', s.get('ui.embark.back'), () => this.leave());
   }
 
+  /** The bottom line: the testing mode switch and what the mode is (`02` § Testing mode: "not the default; say so"). */
+  private drawTestingLine(surface: Surface, row: number): void {
+    const s = this.strings;
+    const n = button(surface, 1, row, 't', s.get(this.testing ? 'ui.embark.testing_on' : 'ui.embark.testing_off'), () => this.toggleTesting());
+    const note = s.get(this.testing ? 'ui.embark.testing_note_on' : 'ui.embark.testing_note_off');
+    label(surface, 1 + n + 2, row, note, { fg: this.testing ? surface.theme.bad : surface.theme.dim, width: Math.max(0, surface.cols - n - 4) });
+  }
+
+  /** What the Items tab draws with (`embark-testing.ts`). */
+  private drawContext(): Parameters<TestingDraft['draw']>[3] {
+    return {
+      session: this.session,
+      strings: this.strings,
+      list: this.items,
+      focused: this.focus === 'items',
+      filter: this.filter,
+      apply: (cmd) => this.apply(cmd),
+      add: () => this.addItem(),
+      select: (index) => {
+        this.items.selected = index;
+        this.setFocus('items');
+      },
+      focusFilter: () => this.setFocus('filter'),
+    };
+  }
+
   // ---------- input ----------
 
   setTab(index: number): void {
-    if (Math.max(0, Math.min(2, index)) !== this.tab) this.tabChanges += 1;
-    this.tab = Math.max(0, Math.min(2, index));
+    const last = this.tabCount() - 1;
+    const next = Math.max(0, Math.min(last, index));
+    if (next !== this.tab) this.tabChanges += 1;
+    // The Items tab's filter names an item or a material, not a catalog entry: it starts empty there.
+    if ((next === 3) !== (this.tab === 3)) this.filter.value = '';
+    this.tab = next;
     this.items.selected = 0;
     this.items.scroll = 0;
     this.setFocus(this.tab === 0 ? 'party' : 'items');
@@ -747,7 +887,7 @@ export class EmbarkScreen implements Screen {
   togglePresets(): void {
     this.presets.open = !this.presets.open;
     // The menu opens on the preset the loadout started from.
-    this.presets.highlighted = Math.max(0, this.presetRows.findIndex((p) => p.id === this.session.preset));
+    this.presets.highlighted = Math.max(0, this.presetOptions().findIndex((p) => p.id === this.session.preset));
   }
 
   startRename(): void {
@@ -774,13 +914,15 @@ export class EmbarkScreen implements Screen {
 
   /** The fields `Tab` cycles through on each tab. */
   private fields(): Focus[] {
-    return this.tab === 0 ? ['party', 'skills', 'filter', 'name'] : this.tab === 1 ? ['items', 'filter', 'name'] : ['items', 'name'];
+    return this.tab === 0 ? ['party', 'skills', 'filter', 'name'] : this.tab === 2 ? ['items', 'name'] : ['items', 'filter', 'name'];
   }
 
   /** The list the selection keys, the wheel and `PageUp` `PageDown` move: its state, length and visible rows. */
   private focusedList(): { list: ListState; size: number; page: number } {
     if (this.tab === 0 && this.focus === 'party') return { list: this.party, size: this.session.party.length, page: this.shown.party };
     if (this.tab === 0) return { list: this.skills, size: this.visibleSkills().length, page: this.shown.skills };
+    // The Items tab's form and lines do not scroll as one list: a page is the form's rows.
+    if (this.tab === 3) return { list: this.items, size: this.draft.rowCount(this.session), page: DRAFT_ROWS };
     return { list: this.items, size: this.rows().length, page: this.shown.items };
   }
 
@@ -811,6 +953,12 @@ export class EmbarkScreen implements Screen {
         this.setFocus(this.listFocus());
         return true;
       }
+      if (this.tab === 3) {
+        // The Items tab's find narrows the selected field's choices (item, material, stone).
+        const handled = editText(find, press);
+        this.draft.refilter(this.items.selected, find.value);
+        return handled;
+      }
       list.selected = 0;
       list.scroll = 0;
       return editText(find, press);
@@ -830,12 +978,14 @@ export class EmbarkScreen implements Screen {
     }
     if (press.key === 'Esc') {
       // A find in use is the first thing `Esc` takes back; then the screen, after asking when there are edits to lose.
-      const find = this.tab === 0 ? this.skillFind : this.tab === 1 ? this.filter : null;
+      const find = this.tab === 0 ? this.skillFind : this.tab === 2 ? null : this.filter;
       if (find !== null && find.value.length > 0) {
         find.value = '';
-        const list = this.tab === 0 ? this.skills : this.items;
-        list.selected = 0;
-        list.scroll = 0;
+        if (this.tab !== 3) {
+          const list = this.tab === 0 ? this.skills : this.items;
+          list.selected = 0;
+          list.scroll = 0;
+        }
       } else this.leave();
       return true;
     }
@@ -843,7 +993,8 @@ export class EmbarkScreen implements Screen {
     if (action !== null) {
       switch (action.id) {
         case 'tab':
-          this.setTab(Number(action.arg));
+          // `4` (Items) exists only in testing mode.
+          if (Number(action.arg) < this.tabCount()) this.setTab(Number(action.arg));
           return true;
         case 'adjust':
           this.adjust(Number(action.arg));
@@ -866,6 +1017,20 @@ export class EmbarkScreen implements Screen {
         case 'embark':
           this.confirm();
           return true;
+        case 'testing':
+          this.toggleTesting();
+          return true;
+        case 'add':
+          if (this.testing && this.tab === 0) this.addDwarf();
+          else if (this.testing && this.tab === 3) this.addItem();
+          return true;
+        case 'remove':
+          if (this.testing && this.tab === 0) this.removeDwarf();
+          else if (this.testing && this.tab === 3) this.draft.removeSelected(this.items.selected, (cmd) => this.apply(cmd));
+          return true;
+        case 'skill_all':
+          if (this.testing && this.tab === 0) this.skillAll();
+          return true;
         default:
           break;
       }
@@ -874,6 +1039,10 @@ export class EmbarkScreen implements Screen {
     if (panel === null) return false;
     switch (panel.id) {
       case 'across': {
+        if (this.tab === 3) {
+          this.draft.adjust(this.items.selected, panel.arg === '←' ? -1 : 1, this.filter.value, this.session, (cmd) => this.apply(cmd));
+          return true;
+        }
         if (this.tab !== 1) return false;
         const d = panel.arg === '←' ? -1 : 1;
         this.setCategory((this.category + d + CHOSEN_VIEW + 1) % (CHOSEN_VIEW + 1));
@@ -882,11 +1051,14 @@ export class EmbarkScreen implements Screen {
       case 'select': {
         const { list, size } = this.focusedList();
         list.selected = Math.max(0, Math.min(size - 1, list.selected + (panel.arg === '↑' ? -1 : 1)));
+        // On the Items tab a find is for one field: moving to another drops it.
+        if (this.tab === 3) this.filter.value = '';
         return true;
       }
       case 'scroll': {
         const { list, size, page } = this.focusedList();
         list.selected = Math.max(0, Math.min(size - 1, list.selected + Number(panel.arg) * Math.max(1, page - 1)));
+        if (this.tab === 3) this.filter.value = '';
         return true;
       }
       case 'field': {
@@ -896,7 +1068,9 @@ export class EmbarkScreen implements Screen {
         return true;
       }
       case 'filter_focus':
-        // `/` starts a new find. The Animals tab has no find field of its own: the Supplies find reaches the animals too.
+        // `/` starts a new find on every tab: skills on Dwarves, every supply and animal on Supplies,
+        // the selected field's choices on Items. The Animals tab has no find field of its own: the
+        // Supplies find reaches the animals too.
         if (this.tab === 2) this.setTab(1);
         (this.tab === 0 ? this.skillFind : this.filter).value = '';
         this.setFocus('filter');
@@ -906,11 +1080,15 @@ export class EmbarkScreen implements Screen {
     }
   }
 
-  /** `+`/`-` on the selected skill (Dwarves) or quantity (Supplies, Animals). */
+  /** `+`/`-` on the selected skill (Dwarves), quantity (Supplies, Animals) or Items row. */
   adjust(delta: number): void {
     if (this.tab === 0) {
       const skill = this.visibleSkills()[this.skills.selected];
       if (skill !== undefined) this.setSkill(this.party.selected, skill.id, delta);
+      return;
+    }
+    if (this.tab === 3) {
+      this.draft.adjust(this.items.selected, delta, this.filter.value, this.session, (cmd) => this.apply(cmd));
       return;
     }
     const row = this.rows()[this.items.selected];
@@ -931,6 +1109,8 @@ export class EmbarkScreen implements Screen {
     };
     if (this.tab === 0 && w.col < 30) scroll(this.party, this.session.party.length, this.shown.party);
     else if (this.tab === 0) scroll(this.skills, this.visibleSkills().length, this.shown.skills);
+    // The Items tab draws its form and lines whole: the wheel moves the selection.
+    else if (this.tab === 3) this.items.selected = Math.max(0, Math.min(this.draft.rowCount(this.session) - 1, this.items.selected + step));
     else scroll(this.items, this.rows().length, this.shown.items);
   }
 }

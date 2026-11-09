@@ -25,6 +25,8 @@ export interface SaveListing {
   readonly population: number;
   readonly wealth: number;
   readonly thumbnail?: { readonly cols: number; readonly rows: number; readonly cells: string };
+  /** A testing fortress (`02` § Testing mode): marked in its row. */
+  readonly testing?: boolean;
   /** Set when the header could not be read; the save cannot be loaded. */
   readonly unreadable?: string;
 }
@@ -95,7 +97,8 @@ export class LoadScreen implements Screen {
     if (s.unreadable !== undefined) return this.strings.get('ui.load.unreadable', { id: s.id, reason: s.unreadable });
     const date = s.kind === 'auto' ? formatDate(s.tick).replace(/^Day \d+ of /, '') : formatDate(s.tick);
     const auto = s.kind === 'auto' ? ` ${this.strings.get('ui.load.auto_mark')}` : '';
-    return `${s.fortress} · ${date}${auto} · ${this.strings.get('ui.load.dwarves', { n: s.population })} · ${s.wealth.toLocaleString('en-US')} ☼`;
+    const testing = s.testing === true ? ` ${this.strings.get('ui.load.testing_mark')}` : '';
+    return `${s.fortress}${testing} · ${date}${auto} · ${this.strings.get('ui.load.dwarves', { n: s.population })} · ${s.wealth.toLocaleString('en-US')} ☼`;
   }
 
   draw(surface: Surface): void {

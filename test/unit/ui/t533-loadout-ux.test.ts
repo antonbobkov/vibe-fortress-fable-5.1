@@ -290,3 +290,55 @@ describe('T-533 presets, keys and leaving', () => {
     expect(table.byId('c_leave_embark')?.default).toBe('no');
   });
 });
+
+describe('T-533 with testing mode (T-532)', () => {
+  it('`/` finds on every tab: skills, supplies, and the Items field; Esc empties a find before it leaves', () => {
+    const { s, back } = screen();
+    s.key(press('t'));
+    // Dwarves: the find covers every skill in testing mode, and `*` gives the found one to every dwarf.
+    s.key(press('/'));
+    type(s, 'runecr');
+    s.key(press('Enter'));
+    expect(s.visibleSkills().map((r) => r.id)).toEqual(['runecraft']);
+    for (let k = 0; k < 3; k += 1) s.key(press('+'));
+    s.key(press('*'));
+    expect(s.session.party.every((d) => d.skills.runecraft === 3)).toBe(true);
+    // Items: `/` starts an empty find over the selected field; Esc in the field empties it.
+    s.key(press('4'));
+    s.key(press('/'));
+    expect(s.filter.value).toBe('');
+    type(s, 'staff');
+    expect(s.draft.item).toBe('staff');
+    s.key(press('Enter'));
+    expect(s.filter.value).toBe('staff');
+    s.key(press('Esc'));
+    expect(s.filter.value).toBe('');
+    expect(back).toEqual([]);
+  });
+
+  it('`0` on an Items line removes it, like `x`', () => {
+    const { s } = screen();
+    s.key(press('t'));
+    s.key(press('4'));
+    s.key(press('a'));
+    expect(s.session.items).toHaveLength(1);
+    for (let k = 0; k < 5; k += 1) s.key(press('↓'));
+    s.key(press('0'));
+    expect(s.session.items).toHaveLength(0);
+  });
+
+  it('names its own keys, warns of no unspent points, and keeps the body and bottom line whole at eighty columns', () => {
+    const { s } = screen();
+    s.key(press('t'));
+    s.apply({ type: 'SetSkill', dwarf: 0, skill: 'mining', level: 0 });
+    const l = lines(s);
+    expect(l[45]).toContain('[*] to every dwarf');
+    expect(l[44]).toContain('[a] add dwarf');
+    expect(l.join('\n')).not.toContain('Unspent');
+    for (const tab of ['1', '2', '3', '4']) {
+      s.key(press(tab));
+      // The testing title gives way to the four tabs (T-532); every other line is whole.
+      expect(lines(s).slice(1).join('\n'), tab).not.toContain('»');
+    }
+  });
+});

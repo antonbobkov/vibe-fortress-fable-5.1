@@ -26,17 +26,24 @@ export interface LegendRecord {
   readonly killsOfNote: readonly string[];
   readonly lastWords: readonly string[];
   readonly cause: string;
+  /** Started in the embark's testing mode (`02` § Testing mode); absent for a normal fortress. */
+  readonly testing?: boolean;
 }
+
+/** The legend's note on a testing fortress (24 § The legend record). */
+export const LEGEND_TESTING_NOTE = 'A testing fortress: it began with an unlimited loadout, so its milestones were not earned in normal play.';
 
 export function legendLines(record: LegendRecord): string[] {
   const foundedSeason = SEASON_NAMES[Math.floor(record.foundedTick / (TICKS_PER_YEAR / SEASONS_PER_YEAR)) % SEASONS_PER_YEAR] ?? 'spring';
   const foundedYear = Math.floor(record.foundedTick / TICKS_PER_YEAR) + 1;
+  const testing = record.testing === true;
   return [
-    record.name,
+    testing ? `${record.name} (testing)` : record.name,
+    ...(testing ? [LEGEND_TESTING_NOTE] : []),
     `Founded ${foundedSeason[0]?.toUpperCase()}${foundedSeason.slice(1)}, Year ${foundedYear} at ${record.region} (${record.biome}, wealth ${record.wealthRating}, peril ${record.perilRating})`,
     record.cause,
     `Years ${record.yearsSurvived} · Days ${record.daysSurvived} · Peak population ${record.peakPopulation} · Deepest level ${record.deepestLevel} · Wealth ${record.finalWealth.toLocaleString('en-US')} ☼`,
-    'Milestones',
+    testing ? 'Milestones (testing start)' : 'Milestones',
     ...record.milestones.map((entry) => `  ${entry.date}  ${entry.text}`),
     'Notable',
     ...record.killsOfNote.map((entry) => `  ${entry}`),
@@ -89,7 +96,7 @@ export class LegendScreen implements Screen {
     else {
       for (let i = 0; i < this.records.length && i < surface.rows - 5; i += 1) {
         const record = this.records[i] as LegendRecord;
-        const line = `${i === this.selected ? '▶' : ' '} ${record.name} · ${record.region} · Year ${Math.floor(record.endedTick / TICKS_PER_YEAR) + 1}`;
+        const line = `${i === this.selected ? '▶' : ' '} ${record.name}${record.testing === true ? ' (testing)' : ''} · ${record.region} · Year ${Math.floor(record.endedTick / TICKS_PER_YEAR) + 1}`;
         surface.text(2, i + 3, line, i === this.selected ? key : text);
         surface.hit({ col: 2, row: i + 3, cols: Math.min(surface.cols - 4, Array.from(line).length), rows: 1 }, () => {
           this.selected = i;

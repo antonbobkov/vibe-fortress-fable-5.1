@@ -34,9 +34,12 @@ Typed array section names carry the element type after a colon: `map.kind:u8`, `
   "contentHash": "sha256-…", "compressed": true,
   "population": 23, "wealth": 18450, "playTimeSeconds": 5400,
   "thumbnail": { "cols": 48, "rows": 27, "cells": "…base64 of glyph,fg,bg triples…" },
-  "kind": "manual" | "auto" | "snapshot" | "final"
+  "kind": "manual" | "auto" | "snapshot" | "final",
+  "testing": true
 }
 ```
+
+`testing` is present, and `true`, only for a fortress started in the embark's testing mode (02 § Testing mode); the Load screen marks its row "(testing)".
 
 ## Sections (in order)
 

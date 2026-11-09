@@ -61,6 +61,7 @@ export function composeLegend(
     lastWords: log.filter((line) => line.severity === 'alert' || line.severity === 'danger')
       .slice(-LEGEND_LOG_LINES).map(lineText),
     cause: endText(tick, fortress.populationCached, reason),
+    ...(fortress.testing === true ? { testing: true } : {}),
   };
 }
 
