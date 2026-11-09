@@ -18,6 +18,9 @@ import {
   TESTING_PRESET_LEVEL,
   testingItemProblem,
   testingItemSlot,
+  applyLoadout,
+  loadoutOf,
+  readLoadout,
 } from '@systems/embark';
 import { runeMaxMilli } from '@systems/magic/rune';
 import { LEGEND_TESTING_NOTE, legendLines, type LegendRecord } from '@ui/screens/legend';
@@ -193,5 +196,36 @@ describe('T-532 testing mode: arrival, save header and legend', () => {
     expect(lines[0]).toBe('Testhold (testing)');
     expect(lines).toContain(LEGEND_TESTING_NOTE);
     expect(lines).toContain('Milestones (testing start)');
+  });
+});
+
+describe('T-532 testing mode: saved loadouts (T-531)', () => {
+  it('a testing loadout saves and loads whole: mode, party size, skills, supplies and free lines', () => {
+    const from = new EmbarkSession(registry, 'testing-loadout-a', 0);
+    from.apply({ type: 'ApplyPreset', preset: TESTING_PRESET_ID });
+    from.apply({ type: 'AddDwarf' });
+    from.apply({ type: 'SetSkill', dwarf: TESTING_PRESET.dwarves, skill: 'runecraft', level: 20 });
+    const stored = JSON.parse(JSON.stringify({ name: 'Test kit', ...loadoutOf(from) })) as unknown;
+    const read = readLoadout(stored);
+    if (read === null) throw new Error('unreadable');
+    expect(read.mode).toBe('testing');
+
+    const to = new EmbarkSession(registry, 'testing-loadout-b', 0);
+    to.apply({ type: 'ApplyPreset', preset: 'balanced' });
+    const result = applyLoadout(to, registry, read);
+    expect(result).toEqual({ missing: [], unavailable: [], lowered: [], extraDwarves: 0 });
+    expect(to.mode).toBe('testing');
+    expect(to.party).toHaveLength(TESTING_PRESET.dwarves + 1);
+    expect(to.party.map((d) => d.skills)).toEqual(from.party.map((d) => d.skills));
+    expect(to.supplies).toEqual(from.supplies);
+    expect(to.items).toEqual(from.items);
+    expect(to.canEmbark().ok).toBe(true);
+
+    // A normal loadout loaded into a testing session goes back to normal play.
+    const normal = readLoadout({ name: 'Plain', supplies: [{ entry: 'e_pick_iron', count: 2 }], skills: [{ mining: 5 }] });
+    if (normal === null) throw new Error('unreadable');
+    applyLoadout(to, registry, normal);
+    expect([to.mode, to.party.length, to.items.length, to.supplies]).toEqual(['normal', EMBARK_DWARF_COUNT, 0, [{ entry: 'e_pick_iron', count: 2 }]]);
+    expect(to.party[0]?.skills).toEqual({ mining: 5 });
   });
 });

@@ -31,6 +31,7 @@ export * from './spec';
 export * from './party';
 export * from './arrival';
 export * from './site';
+export * from './loadout';
 export * from './testing';
 
 /** `normal` play, or the testing start of `02` § Testing mode. */

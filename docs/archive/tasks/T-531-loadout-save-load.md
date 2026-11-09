@@ -1,5 +1,7 @@
 # T-531 — Starting loadouts can be saved and loaded
 
+**Closed:** 2026-11-09, in e881c037.
+
 **Source:** the owner, 2026-11-08 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

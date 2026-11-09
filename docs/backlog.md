@@ -14,7 +14,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-529 | [A peril-0 squad sent after boars loses eleven dwarves on one map](work/T-529-squad-lost-to-boars.md) | The triage of T-453/456/489 | — | open |
 | T-530 | [Walks that fail between places the labels join: health jobs under the alert, sites behind forbidden tiles](work/T-530-walks-the-labels-join.md) | The triage of T-453/456/489 | — | open |
-| T-531 | [Starting loadouts can be saved and loaded](work/T-531-loadout-save-load.md) | The owner | — | open |
 | T-532 | [A testing start mode with an unlimited loadout](work/T-532-dev-start-mode.md) | The owner | — | open |
 | T-533 | [A pass over the starting loadout's UI and UX](work/T-533-loadout-ui-pass.md) | The owner | — | open |
 

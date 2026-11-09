@@ -662,5 +662,17 @@
   {
     "table": "hints",
     "id": "hint_herbs_eaten"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_load_loadout"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_overwrite_loadout"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_delete_loadout"
   }
 ]

@@ -70,6 +70,21 @@
     "default": "no"
   },
   {
+    "id": "c_load_loadout",
+    "text": "Load {loadout}? It replaces the skills and supplies you have set.",
+    "default": "no"
+  },
+  {
+    "id": "c_overwrite_loadout",
+    "text": "A loadout named {loadout} is saved already. Replace it with this one?",
+    "default": "no"
+  },
+  {
+    "id": "c_delete_loadout",
+    "text": "Delete the loadout {loadout}? This cannot be undone.",
+    "default": "no"
+  },
+  {
     "id": "c_melt_items",
     "text": "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars.",
     "default": "no"

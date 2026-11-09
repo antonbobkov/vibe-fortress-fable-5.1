@@ -515,6 +515,7 @@ The `confirm` dialog, and the embark screen's "Replace your changes" line.
 | `r` | reroll the selected dwarf |
 | `n` | rename |
 | `p` | presets menu |
+| `l` | saved loadouts |
 | `Enter` on the footer | Embark |
 | `=` | adjust the selected skill or quantity |
 | `t` | testing mode on or off |
@@ -703,6 +704,9 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `c_embark_no_axe` | "Embark without an axe?" | No |
 | `c_embark_no_food` | "Embark with no food?" | No |
 | `c_embark_no_drink` | "Embark with no drink?" | No |
+| `c_load_loadout` | "Load {loadout}? It replaces the skills and supplies you have set." | No |
+| `c_overwrite_loadout` | "A loadout named {loadout} is saved already. Replace it with this one?" | No |
+| `c_delete_loadout` | "Delete the loadout {loadout}? This cannot be undone." | No |
 | `c_melt_items` | "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars." | No |
 | `c_dump_items` | "Mark {what} for dumping? Dwarves will carry every one of them to a dump zone." | No |
 | `c_dump_selection` | "Dump everything on these {n} tiles? Dwarves will carry it to a dump zone." | No |

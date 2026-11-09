@@ -46,7 +46,24 @@ Attributes use up to five cells, filled with `floor(value × barCells / ATTRIBUT
 
 Animals tab: rows `species · sex · price · [-] n [+]`, with a note line for species needing pasture or nest boxes. The `max` per entry disables `[+]` at the limit.
 
-Presets menu (`p`): Balanced, Miner's Guild, Farmstead, Warband, each with its one-line description and total; choosing replaces skills and supplies after a confirm if anything was edited.
+Presets menu (`p`): Balanced, Miner's Guild, Farmstead, Warband, each with its one-line description and total; choosing replaces skills and supplies after a confirm if anything was edited. Its last option, "Saved loadouts…" with the number saved, opens the saved loadouts panel.
+
+## Saved loadouts
+
+`l`, or the presets menu's last option, opens the saved loadouts panel over the body (`02` § Loadouts). It is modal: while it is open it takes every key, and a click outside it closes it.
+
+```
+│  Saved loadouts                                                                         │
+│  ▶ Deep start                          1,620 ☼  over budget                             │
+│    Farm start                          1,210 ☼                                          │
+│                                                                                         │
+│  Loaded Deep start. It costs 1,620 ☼, 120 ☼ over the budget here: trim it to embark.   │
+│  [s] Save current  [Enter] Load  [n] Rename  [x] Delete  [Esc] Close                   │
+```
+
+- Rows are the saved loadouts by name, each with what it costs at today's prices; one that costs more than this site's budget says "over budget", and a testing loadout (02 § Testing mode) says "testing". `↑` `↓` select, a click selects and a click on the selected row loads it. With none saved the list reads "No saved loadouts yet: [s] saves the current one."
+- `s` asks for a name in the `text_input` dialog, "Loadout 1" (the first number not taken) by default; a taken name asks `c_overwrite_loadout`. `Enter` loads the selected loadout (after `c_load_loadout` when anything was edited), `n` renames it (a taken name is refused and the panel says so), `x` deletes it after `c_delete_loadout`, `Esc` closes the panel.
+- The line above the captions says what the last action did. After a load it lists what was left out or lowered ("No longer in the game, left out: …", "Not offered here, left out: …", "Lowered to the limit: …", "Skills for 2 more dwarves than the party were left out.") and, when the loadout is over this site's budget, "It costs 1,620 ☼, 120 ☼ over the budget here: trim it to embark." The footer's budget line and the Embark reason show the same overspend until it is trimmed.
 
 Validation display: the Embark button is dim with a reason line when over budget ("Over budget by 44 ☼"), when a dwarf has more than 10 points, or when the name is empty. Embarking with no pick, no axe, no food item or no drink item asks first, one question for each, in that order ("Embark without a pick?", "Embark without an axe?", "Embark with no food?", "Embark with no drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food`, `c_embark_no_drink`, default No).
 
