@@ -65,6 +65,7 @@ import { GameMenuScreen } from '@ui/screens/game_menu';
 import { composeLegend, LegendStore, type EndReason } from '@app/legend';
 import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
+import { LoadoutStore } from '@app/loadout-store';
 import { Music, type MusicScene } from '@ui/music';
 import { MUSIC_REVERB_S, MUSIC_SUSPEND_DELAY_S, TUTORIAL_CHECK_MS, TUTORIAL_WORLD_SEED } from '@ui/constants';
 import { readTutorialFacts, Tutorial, tutorialRegion, type TutorialStep } from '@ui/tutorial';
@@ -116,6 +117,8 @@ export interface GameOptions {
   /** The export download and import picker (`platform/files.ts`); none in the unit tests. */
   readonly files?: FileBridge;
   readonly settingsStore?: SettingsStore;
+  /** The saved embark loadouts (`02` § Loadouts); a store without storage when none is given. */
+  readonly loadouts?: LoadoutStore;
   readonly legends?: LegendStore;
   /** Where the music's pieces start and its silences come from; `Math.random` by default. */
   readonly musicRandom?: () => number;
@@ -169,6 +172,7 @@ export class Game {
   theme: Theme;
   readonly userSettings: UserSettings = { ...DEFAULT_USER_SETTINGS };
   private readonly settingsStore: SettingsStore | null;
+  readonly loadouts: LoadoutStore;
   private readonly legends: LegendStore | null;
   readonly ui: UiState = defaultUiState(START_Z);
   /** The fortress screen's tools, panels, log and status bar (T-M1-14). */
@@ -251,6 +255,7 @@ export class Game {
     this.theme = themeOf(this.palette);
     this.saves = options.saves ?? null;
     this.settingsStore = options.settingsStore ?? null;
+    this.loadouts = options.loadouts ?? new LoadoutStore(null);
     this.legends = options.legends ?? null;
     this.files = options.files ?? null;
     this.host.afterTick = () => { this.takeAutosave(); this.checkHallEnd(); };
@@ -1239,6 +1244,13 @@ export class Game {
           back: () => this.popScreen(),
           confirm: (id, params, answer) => this.confirm(id, params, answer),
           now: () => Date.now(),
+          prompt: (spec, answer) => this.prompt(spec, answer),
+          loadouts: {
+            list: () => this.loadouts.list(),
+            put: (loadout) => void this.track(this.loadouts.put(loadout)),
+            rename: (from, to) => void this.track(this.loadouts.rename(from, to)),
+            remove: (name) => void this.track(this.loadouts.remove(name)),
+          },
         },
         this.keymap,
         this.strings,
@@ -1711,6 +1723,7 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     saves: new SaveManager(storage),
     legends: new LegendStore(storage),
     settingsStore: new SettingsStore(storage),
+    loadouts: new LoadoutStore(storage),
     files: browserFiles(document),
     // 23 § Animation: a test build draws as with Reduced motion (e2e and screenshots).
     reducedMotion: import.meta.env.MODE === 'test',
@@ -1718,6 +1731,7 @@ export async function boot(options: BootOptions = {}): Promise<Game> {
     offerTutorial: !testBuild || query?.get('tutorial') === 'offer',
   });
   await game.loadSettings();
+  await game.loadouts.load();
   // 24 § Music: audio waits for the first key press or click, and a test build makes none.
   if (!testBuild) {
     const gate = new AudioGate(() => game.userSettings.music && game.userSettings.musicVolume > 0, browserAudioContext, MUSIC_REVERB_S, MUSIC_SUSPEND_DELAY_S);

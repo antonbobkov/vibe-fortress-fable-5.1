@@ -42,6 +42,9 @@ export const HINT_CHECK_HOURS = 1;
 /** The embark screen's hint line turns over after this many seconds of real time. */
 export const EMBARK_HINT_SECONDS = 5;
 
+/** A saved loadout's name is at most this many characters (`02` § Loadouts). */
+export const EMBARK_LOADOUT_NAME_MAX = 32;
+
 /** `hint_food`: the stock of edible items is below this many days of eating for the population. */
 export const HINT_FOOD_DAYS = 2;
 /** Days one edible item feeds one dwarf at the base hunger rate (a meal takes 100 of the 24 hunger a day brings, rounded down to four). */

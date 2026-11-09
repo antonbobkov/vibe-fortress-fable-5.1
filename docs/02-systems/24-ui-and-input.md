@@ -181,7 +181,7 @@ Music is a presentation listener on the event bus. It reads events and readers a
 
 ## State
 
-Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, the tutorial and its step, settings, keymap overrides. The tutorial is not saved; whether it has been offered is kept in the settings store. Camera, z, zoom, overlays, hints shown and pending, bare-bedroom observation ticks, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories are saved in the `ui` section; settings and keymap in the settings store.
+Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, the tutorial and its step, settings, keymap overrides. The tutorial is not saved; whether it has been offered is kept in the settings store. Camera, z, zoom, overlays, hints shown and pending, bare-bedroom observation ticks, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories are saved in the `ui` section; settings, keymap and the saved embark loadouts in the settings store.
 
 ## Interfaces
 
@@ -228,6 +228,7 @@ This entire document.
 | `UI_NORMAL_SPACING` | 3 | Normal gap between tabs and status fields (*unmeasured*) |
 | `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport (*unmeasured*) |
 | `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button (*unmeasured*) |
+| `EMBARK_LOADOUT_NAME_MAX` | 32 | Longest saved loadout name, characters (02 § Loadouts) |
 | `SITE_LIST_NAMES` | 2 | Names a row of the world map's site summary lists before "and N more" (*unmeasured*) |
 | `SITE_LABEL_COLS` | 9 | Width of the site summary's row labels, cells |
 | `SETTINGS_VOLUME_STEP` | 10 | Step of the music and sound volumes |

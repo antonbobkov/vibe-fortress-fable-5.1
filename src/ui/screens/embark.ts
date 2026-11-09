@@ -15,6 +15,7 @@ import type { Attributes } from '@core/components';
 import type { Registry } from '@core/registry';
 import type { KeyPress } from '@platform/input';
 import { EMBARK_REROLL_COST, EmbarkSession, skillPoints, suppliesTotal, type EmbarkCommand, type EmbarkPresetRow } from '@systems/embark';
+import { applyLoadout, loadoutOf, loadoutTotal, type LoadoutResult, type SavedLoadout } from '@systems/embark';
 import { EMBARK_DEFAULT_PRESET, EMBARK_HINT_SECONDS, EMBARK_PRESET_SPACING, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
 import type { KeyContext, Keymap } from '../keymap';
 import { clickHit, type CellPointer, type Screen } from '../screen';
@@ -38,6 +39,8 @@ import {
   type ListState,
   type TextFieldState,
 } from '../widgets';
+import { LoadoutsPanel, type LoadoutLibrary } from './embark_loadouts';
+import type { TextInputSpec } from './text_input';
 
 /** One row of `embarkCatalog` as the screen reads it (`category` and `note`: docs/03-content/embark-catalog.md). */
 export interface CatalogRow {
@@ -102,7 +105,14 @@ export interface EmbarkHost {
   confirm?(id: string, params: Readonly<Record<string, string | number>>, answer: (yes: boolean) => void): void;
   /** Real time in milliseconds, for the hint line that alternates every few seconds. */
   now?(): number;
+  /** The saved loadouts (`02` § Loadouts); without them the screen offers none. */
+  loadouts?: LoadoutLibrary;
+  /** The `text_input` dialog, for a loadout's name. */
+  prompt?(spec: TextInputSpec, answer: (text: string | null) => void): void;
 }
+
+/** The presets menu's last option, which opens the saved loadouts panel. */
+export const LOADOUTS_OPTION = '@loadouts';
 
 /** What the party's supply list lacks for a working start (D-U3). */
 export interface MissingSupplies {
@@ -124,7 +134,7 @@ export class EmbarkScreen implements Screen {
   readonly id = 'embark' as const;
 
   /** The confirmation's keys while "Replace your changes" asks, the list keys while the presets dropdown is open. */
-  translatedKeys(): readonly KeyContext[] { return this.pendingPreset !== null ? ['confirm'] : this.presets.open ? ['panel'] : []; }
+  translatedKeys(): readonly KeyContext[] { return this.pendingPreset !== null ? ['confirm'] : this.presets.open || this.loadouts?.open === true ? ['panel'] : []; }
   captionKeys(): readonly KeyContext[] { return ['embark', 'panel', 'confirm']; }
   readonly session: EmbarkSession;
   tab = 0;
@@ -148,6 +158,8 @@ export class EmbarkScreen implements Screen {
   private readonly skillRows: SkillRow[];
   private readonly traitNames: Map<string, string>;
   private readonly presetRows: EmbarkPresetRow[];
+  /** The saved loadouts panel, when the host keeps loadouts. */
+  readonly loadouts: LoadoutsPanel | null;
 
   constructor(
     private readonly registry: Registry,
@@ -173,6 +185,16 @@ export class EmbarkScreen implements Screen {
     this.presetRows = presets.ids().map((id) => presets.byId(id) as EmbarkPresetRow);
     // `02` § Presets: "The screen opens with `balanced` applied" (D-U3, audit Q1).
     if (presets.has(EMBARK_DEFAULT_PRESET)) this.applyPreset(EMBARK_DEFAULT_PRESET);
+    const library = host.loadouts;
+    this.loadouts = library === undefined ? null : new LoadoutsPanel({
+      library,
+      current: () => loadoutOf(this.session),
+      load: (loadout) => this.chooseLoadout(loadout),
+      total: (loadout) => loadoutTotal(registry, loadout),
+      budget: () => this.session.budget(),
+      ...(host.prompt === undefined ? {} : { prompt: (spec, answer) => host.prompt?.(spec, answer) }),
+      ...(host.confirm === undefined ? {} : { confirm: (id, params, answer) => host.confirm?.(id, params, answer) }),
+    }, keymap, strings);
   }
 
   // ---------- state ----------
@@ -220,14 +242,24 @@ export class EmbarkScreen implements Screen {
   }
 
   presetOptions(): DropdownOption[] {
-    return this.presetRows.map((p) => ({
+    const options: DropdownOption[] = this.presetRows.map((p) => ({
       id: p.id,
       label: p.name,
       detail: `${marks(suppliesTotal(this.registry, p.supplies))} ☼`,
     }));
+    const library = this.host.loadouts;
+    if (library !== undefined) {
+      options.push({ id: LOADOUTS_OPTION, label: this.strings.get('ui.embark.loadouts.option'), detail: this.strings.get('ui.embark.loadouts.count', { n: library.list().length }) });
+    }
+    return options;
   }
 
   choosePreset(id: string): void {
+    if (id === LOADOUTS_OPTION) {
+      this.presets.open = false;
+      this.openLoadouts();
+      return;
+    }
     if (this.edited) {
       this.pendingPreset = id;
       return;
@@ -238,6 +270,52 @@ export class EmbarkScreen implements Screen {
   applyPreset(id: string): void {
     this.pendingPreset = null;
     if (this.session.apply({ type: 'ApplyPreset', preset: id }).ok) this.edited = false;
+  }
+
+  /** `l`, or the presets menu's last option: the saved loadouts panel. */
+  openLoadouts(): void {
+    if (this.loadouts === null) return;
+    this.presets.open = false;
+    this.loadouts.toggle();
+  }
+
+  /** Load a saved loadout; edits are replaced only after the `c_load_loadout` confirmation. */
+  chooseLoadout(loadout: SavedLoadout): void {
+    if (!this.edited || this.host.confirm === undefined) {
+      this.loadLoadout(loadout);
+      return;
+    }
+    this.host.confirm('c_load_loadout', { loadout: loadout.name }, (yes) => {
+      if (yes) this.loadLoadout(loadout);
+    });
+  }
+
+  /**
+   * Replace the skills and supplies with a saved loadout's (`02` § Loadouts). The budget stays the
+   * site's: a loadout over it loads whole, and the panel says by how much so the player can trim it.
+   */
+  loadLoadout(loadout: SavedLoadout): LoadoutResult {
+    const result = applyLoadout(this.session, this.registry, loadout, (entry) => {
+      const row = this.catalog.find((r) => r.id === entry);
+      return row === undefined || this.available(row);
+    });
+    this.edited = false;
+    if (this.loadouts !== null) this.loadouts.note = this.loadoutNote(loadout.name, result);
+    return result;
+  }
+
+  /** "Loaded Deep start." and what the load left out or lowered, and the overspend. */
+  loadoutNote(name: string, result: LoadoutResult): string {
+    const s = this.strings;
+    const entryName = (id: string): string => this.catalog.find((r) => r.id === id)?.entry ?? this.skillRows.find((r) => r.id === id)?.name ?? id;
+    const parts = [s.get('ui.embark.loadouts.loaded', { loadout: name })];
+    if (result.missing.length > 0) parts.push(s.get('ui.embark.loadouts.missing', { list: result.missing.join(', ') }));
+    if (result.unavailable.length > 0) parts.push(s.get('ui.embark.loadouts.unavailable', { list: result.unavailable.map(entryName).join(', ') }));
+    if (result.lowered.length > 0) parts.push(s.get('ui.embark.loadouts.lowered', { list: result.lowered.map(entryName).join(', ') }));
+    if (result.extraDwarves > 0) parts.push(s.get('ui.embark.loadouts.extra_dwarves', { n: result.extraDwarves }));
+    const over = this.session.total() - this.session.budget();
+    if (over > 0) parts.push(s.get('ui.embark.loadouts.over', { total: marks(this.session.total()), n: marks(over) }));
+    return parts.join(' ');
   }
 
   /** Why Embark is disabled, or `null` when it is enabled. */
@@ -345,6 +423,12 @@ export class EmbarkScreen implements Screen {
       const text = s.get('ui.embark.replace', { preset: preset?.name ?? '' });
       surface.fill({ col: 0, row: surface.rows - 5, cols, rows: 1 }, t.panelBg);
       label(surface, 1, surface.rows - 5, text, { bg: t.panelBg, width: cols - 2 });
+    }
+    if (this.loadouts?.open === true) {
+      // Modal: a click outside the panel closes it.
+      const panel = this.loadouts;
+      surface.hit({ col: 0, row: 0, cols, rows: surface.rows }, () => panel.close());
+      panel.draw(surface, surface.rows - 4);
     }
   }
 
@@ -545,6 +629,7 @@ export class EmbarkScreen implements Screen {
       else this.pendingPreset = null;
       return true;
     }
+    if (this.loadouts?.open === true) return this.loadouts.key(press);
     if (this.presets.open) {
       const r = dropdownKey(this.presets, this.presetOptions(), press);
       if (r !== null && r !== 'handled') this.choosePreset(r);
@@ -591,6 +676,9 @@ export class EmbarkScreen implements Screen {
         case 'presets':
           this.togglePresets();
           return true;
+        case 'loadouts':
+          this.openLoadouts();
+          return this.loadouts !== null;
         case 'embark':
           this.confirm();
           return true;
