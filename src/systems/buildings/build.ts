@@ -1140,7 +1140,7 @@ export class BuildingStore {
           shutOutNoted: false,
         },
       });
-      const locked = isHearth && this.doorLocked(this.get(id) as Building);
+      const locked = isHearth && this.alertLockDue(this.get(id) as Building);
       if (locked) {
         this.write(id, { settings: { ...(this.get(id) as Building).settings, alertLocked: true } });
       }
@@ -1180,7 +1180,7 @@ export class BuildingStore {
       const clearSince = outside ? null : (typeof b.settings['outsideClearSince'] === 'number' ? b.settings['outsideClearSince'] : this.host.tick());
       this.write(id, { settings: { ...b.settings, outsideClearSince: clearSince } });
       const updated = this.get(id) as Building;
-      if (this.doorLocked(updated)) {
+      if (this.alertLockDue(updated)) {
         this.write(id, { settings: { ...updated.settings, alertLocked: true } });
         for (const tile of b.footprint) this.map.markChunkDirty(tile, true, true);
         this.host.emit({ type: 'BuildingStateChanged', id, state: 'locked' });
@@ -1318,10 +1318,23 @@ export class BuildingStore {
     return { id, b, row: this.row(b.type) };
   }
 
-  /** A door's `locked`, or `lock_on_alert` while the alert is `hearth` (14 § Doors and hatches). */
+  /**
+   * A door's `locked`, or `lock_on_alert` while the alert is `hearth` (14 § Doors and hatches), as it
+   * stands: the lock that 14 has taken and dirtied the door's chunks for, so that the pathfinder and the
+   * connectivity labels see it on the same tick (T-530). Whether a lock is due is {@link alertLockDue}.
+   */
   doorLocked(b: Building): boolean {
-    // A door does not close on a creature in its doorway, whoever locks it: the lock waits until it is clear.
-    if (b.mode === 'locked') return b.settings['lockHeld'] === true || !this.occupied(b);
+    if (b.mode === 'locked') return b.settings['lockHeld'] === true;
+    // `onAlertChanged` clears `alertLocked`, and dirties the chunks, when the alert leaves `hearth`.
+    return b.mode === 'lock_on_alert' && b.settings['alertLocked'] === true;
+  }
+
+  /**
+   * A `lock_on_alert` door under a `hearth` alert should lock now: its outside has been clear for
+   * `ALERT_OUTSIDE_CLEAR_TICKS`, or the alert is `ALERT_LOCK_GRACE_TICKS` old, and nobody stands in its
+   * doorway. It locks on 14's tick ({@link tickAlertDoors}, {@link onAlertChanged}), which dirties its chunks.
+   */
+  private alertLockDue(b: Building): boolean {
     if (b.mode !== 'lock_on_alert' || this.host.alert() !== 'hearth') return false;
     if (b.settings['alertLocked'] === true) return true;
     // A door does not close on a creature in its doorway: the alert lock waits until it is clear.

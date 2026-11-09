@@ -79,9 +79,11 @@ describe('T-M2-06 doors', () => {
     const { w, door, t } = doorWorld('door-alert');
     expect(apply(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' })).toEqual({ ok: true });
     expect(bld(w).blocksMovementAt(t, 'walker', 'fortress', { faction: 'fortress' })).toBe(false);
-    w.game.world.fortress.alert = 'hearth';
+    w.build('hearth', w.index(40, 28, Z), 'granite');
+    expect(apply(w, { type: 'SetAlert', level: 'hearth' })).toEqual({ ok: true });
+    // T-530: the lock is taken on 14's tick, which dirties the door's chunks, once its outside is clear.
+    w.until(() => bld(w).mechanismState(door) === 'locked', ALERT_OUTSIDE_CLEAR_TICKS + 20);
     expect(bld(w).blocksMovementAt(t, 'walker', 'fortress', { faction: 'fortress' })).toBe(true);
-    expect(bld(w).mechanismState(door)).toBe('locked');
   });
 
   it('SetDoorMode and SetHatchMode: the tag and the mode are checked', () => {
@@ -302,7 +304,8 @@ describe('T-M8-06 door lock', () => {
     w.until(() => !w.reachable(outside, inside), ALERT_OUTSIDE_CLEAR_TICKS + 20);
     expect(w.reachable(outside, inside)).toBe(false);
     expect(apply(w, { type: 'SetAlert', level: 'calm' })).toEqual({ ok: true });
-    w.step(1);
+    // AlertChanged unlocks the door and dirties its chunks in step 4; the labels follow in step 3 of the next tick.
+    w.step(2);
     expect(w.reachable(outside, inside)).toBe(true);
     expect(bld(w).blocksMovementAt(t, 'walker', 'fortress')).toBe(false);
     const openEvents = w.events('BuildingStateChanged').filter((e) => e['id'] === door && e['state'] === 'open');

@@ -13,7 +13,7 @@ import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { JobBoard } from '@systems/jobs';
-import { BLOCKED_RETRY_TICKS, FAILED_WALK_RETRY_TICKS } from '@systems/jobs/constants';
+import { BLOCKED_RETRY_TICKS, FAILED_WALK_RETRY_TICKS, STAND_POCKET_TILES } from '@systems/jobs/constants';
 import { TestWorld } from '../../scenarios/test-world';
 
 const Z = 32;
@@ -70,11 +70,13 @@ describe('T-487 a failed fetch walk is retried on the timer', () => {
   });
 
   it('retries a failed walk to the work tile after FAILED_WALK_RETRY_TICKS when no reachability trigger comes', () => {
-    // T-187's dig behind forbidden traffic: the walk to the stand tile fails with the labels joined.
+    // T-187's dig behind forbidden traffic: the walk to the stand tile fails with the labels joined. T-530: the
+    // corridor on either side of the forbidden tile is longer than STAND_POCKET_TILES, so no pocket rule keeps the job unclaimed.
     const registry = contentRegistry();
-    const w = new TestWorld({ seed: 't487-stand-walk', world: 'flat-test', embark: 'none', registry, map: buildFlatTestMap(registry, 8, 3) });
-    for (let x = 0; x < 8; x += 1) for (const y of [0, 2]) w.carve(w.index(x, y, Z), TileKind.Wall);
-    const target = w.index(7, 1, Z);
+    const long = 2 * STAND_POCKET_TILES + 17;
+    const w = new TestWorld({ seed: 't487-stand-walk', world: 'flat-test', embark: 'none', registry, map: buildFlatTestMap(registry, long, 3) });
+    for (let x = 0; x < long; x += 1) for (const y of [0, 2]) w.carve(w.index(x, y, Z), TileKind.Wall);
+    const target = w.index(long - 1, 1, Z);
     w.carve(target, TileKind.Wall);
     const at = w.index(1, 1, Z);
     const dwarf = w.spawnDwarf({ at, skills: { mining: 10 } });
@@ -83,7 +85,7 @@ describe('T-487 a failed fetch walk is retried on the timer', () => {
     w.game.world.entities.add(dwarf, C.Worker, { jobId: 0, phase: 0, carrying: 0, toolId: pick });
     const equipment = w.game.world.entities.get(dwarf, C.Equipment)!;
     w.game.world.entities.add(dwarf, C.Equipment, { ...equipment, weapon: pick });
-    expect(w.game.world.applyCommand({ type: 'SetTraffic', tiles: [w.index(4, 1, Z)], mode: 'forbidden' }).ok).toBe(true);
+    expect(w.game.world.applyCommand({ type: 'SetTraffic', tiles: [w.index(STAND_POCKET_TILES + 8, 1, Z)], mode: 'forbidden' }).ok).toBe(true);
     expect(w.game.world.applyCommand({ type: 'Designate', kind: 'dig', tiles: [target] }).ok).toBe(true);
     const board = w.game.world.services.jobs as JobBoard;
     w.until(() => [...board.jobs.values()].some((j) => j.target.ref === target && j.failedWalk === true), 300);

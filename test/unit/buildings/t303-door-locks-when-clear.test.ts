@@ -28,7 +28,7 @@ describe('T-303 an alert door locks only when its doorway is clear', () => {
     expect(w.game.world.readers.pathing.passable(t, 'walker')).toBe(true);
     // It steps inside: the door locks behind it.
     expect(w.game.movement.teleport(soldier, w.index(40, 22, Z))).toBe(true);
-    w.until(() => b.mechanismState(door) === 'locked', 5);
+    w.until(() => b.mechanismState(door) === 'locked', 10); // on 14's next tick (T-530)
     expect(w.game.world.readers.pathing.passable(t, 'walker')).toBe(false);
   });
 });
