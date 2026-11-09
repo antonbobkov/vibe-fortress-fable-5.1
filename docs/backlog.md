@@ -14,7 +14,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
 | T-529 | [A peril-0 squad sent after boars loses eleven dwarves on one map](work/T-529-squad-lost-to-boars.md) | The triage of T-453/456/489 | — | open |
 | T-530 | [Walks that fail between places the labels join: health jobs under the alert, sites behind forbidden tiles](work/T-530-walks-the-labels-join.md) | The triage of T-453/456/489 | — | open |
-| T-532 | [A testing start mode with an unlimited loadout](work/T-532-dev-start-mode.md) | The owner | — | open |
-| T-533 | [A pass over the starting loadout's UI and UX](work/T-533-loadout-ui-pass.md) | The owner | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

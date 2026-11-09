@@ -1,5 +1,7 @@
 # T-532 — A testing start mode with an unlimited loadout
 
+**Closed:** 2026-11-09, in HEAD.
+
 **Source:** the owner, 2026-11-08 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

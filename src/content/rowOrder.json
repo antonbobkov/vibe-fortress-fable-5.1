@@ -674,5 +674,9 @@
   {
     "table": "confirmations",
     "id": "c_delete_loadout"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_leave_embark"
   }
 ]

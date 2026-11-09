@@ -1,5 +1,7 @@
 # T-533 — A pass over the starting loadout's UI and UX
 
+**Closed:** 2026-11-09, in HEAD.
+
 **Source:** the owner, 2026-11-08 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why

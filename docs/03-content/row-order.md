@@ -177,3 +177,4 @@ Every new row of every table goes at the end of this table, including generated 
 | confirmations | c_load_loadout |
 | confirmations | c_overwrite_loadout |
 | confirmations | c_delete_loadout |
+| confirmations | c_leave_embark |

@@ -44,6 +44,19 @@ For each of `EMBARK_DWARF_COUNT` dwarves, from the `embark.party` rng stream:
 
 A preset fills the party skills and the supply list to `EMBARK_BUDGET_BASE`; any extra peril budget stays unspent for the player. The embark screen opens with `balanced` applied.
 
+### Testing mode
+
+A start for trying features without reaching them in play (the owner, T-532). It is off by default; the embark screen says so on its bottom line (`[t] Testing mode: off`), and a fortress started in it is marked as testing for good.
+
+- **No budget.** The budget is unlimited; rerolls are free; Embark needs only a name and one dwarf.
+- **Any party.** Dwarves are added (`AddDwarf`, from the `embark.party` stream, with no skills) and removed (`RemoveDwarf`), from 1 to `EMBARK_TESTING_MAX_DWARVES`.
+- **Any skill at any level.** Every skill is offered, the `embark: no` ones (runecraft, runesmithing, alchemy) included, from 0 to `SKILL_MAX_LEVEL`, per dwarf (`SetSkill`) or for the whole party at once (`SetSkillAll`). There is no point limit.
+- **Any item.** A catalog line goes to `EMBARK_TESTING_MAX_COUNT`, ignoring its `max` and its temperature condition. Free item lines (`AddItem`, `SetItemCount`) bring anything else: an `items` row in any material (the materials that suit the item's `materials` column are offered first; any other is allowed and marked unusual), a quality from poor to masterwork (common when absent), a count to `EMBARK_TESTING_MAX_COUNT`, and for a wand or a staff (a launcher with no ammunition) a stone that carries a spell (`Item.stone`), or for a weapon, an armor piece or ammunition an enchantment of its slot (`Item.enchant`, its tier the line's quality). Two lines of the same item, material, quality, stone and enchantment merge. At arrival the free lines go into the wagon after the catalog's supplies, in stacks of the item's `stack`, a drink in a pine barrel per stack.
+- **Rune at arrival.** A dwarf who arrives with `runecraft` 1 or more holds its `Rune`, full (25 § Rune of one's own); no `SkillLevelUp` is emitted, so `FirstRunecaster` waits for a dwarf who earns level 10.
+- **Switching.** Turning testing mode on keeps the loadout and lifts the limits. Turning it off goes back to seven dwarves with no skills and nothing bought, and the screen applies `balanced` (asking first when anything was edited). A normal preset leaves testing mode; the testing preset enters it.
+- **The testing preset** (`testing_fortress`, "Testing fortress", defined with the session in `systems/embark/testing.ts` because it names free item lines the preset table cannot hold): twelve dwarves at level 15 covering every labour that has a skill (mining, masonry, carpentry, farming, brewing, cooking, smithing, runecraft, runesmithing, alchemy, medicine, the combat skills and the rest); plenty of food, drink, logs, blocks, bars (iron, copper, steel, silver, gold) and charcoal; seeds of every kind; beds and furniture; a squad's kit (helms, mail, swords, spears, shields, crossbows and bolts) and two war dogs; for runecraft 40 glowcap, 20 glowcap seed, rough glowstone and two glowstone statues to place as lamps, 60 rune vials, a cut gem of every spell's stone, staffs of embers, of warding and of mending, wands of stillness and of calling, an axe of blaze, a keen sword, a stout mail shirt, 25 ember bolts, two runed robes and two silver circlets, and mending and stout draughts. Runecraft, smithing, farming and combat can be tried on the first day.
+- **The mark.** `FortressState.testing` is `true` (absent for a normal fortress, so no normal world hash moves). The save header carries `testing: true` and the Load screen marks the row "(testing)". The legend record carries `testing`; its screen names the fortress "(testing)", says "A testing fortress: it began with an unlimited loadout, so its milestones were not earned in normal play.", and heads its milestones "Milestones (testing start)". Milestones are still recorded, since testing them is a use of the mode.
+
 ### Loadouts
 
 The player can save the current loadout under a name and load it on a later embark, on any site and any world.
@@ -52,6 +65,7 @@ The player can save the current loadout under a name and load it on a later emba
 - **Saved loadouts** are kept by the app outside any world, beside the settings (`01-architecture/persistence.md` § Storage), so they survive a reload and serve every new world. A name is 1 to `EMBARK_LOADOUT_NAME_MAX` characters (24 § Tuning constants); names compare without case, and saving under a name that is taken asks before it replaces that loadout (`c_overwrite_loadout`). Saved loadouts can be listed, loaded, renamed (not to a taken name) and deleted (`c_delete_loadout`).
 - **Loading** replaces every skill and supply line with the loadout's, through the session's own `SetSupply` and `SetSkill`; after edits it asks first (`c_load_loadout`). A loadout is stored by content id, so it survives a content change: a catalog entry or skill that no longer exists, or is no longer offered at embark, is left out; an entry whose temperature condition fails on this site is left out; a count or level above its current limit is lowered to the limit; skills for dwarves beyond the party are left out. The screen names each of them after the load.
 - **The budget is never changed by a load.** A loadout that costs more than the site's budget loads whole; the screen says what it costs and by how much it is over, Embark stays disabled with its reason ("Over budget by 44 ☼"), and the player trims it. The same holds for a dwarf with more skill points than `EMBARK_SKILL_POINTS_PER_DWARF`.
+- **A testing loadout** (saved in testing mode, § Testing mode) also holds `mode: testing` and the free item lines, and its party size is the number of dwarves whose skills it holds. It loads in testing mode: the party grows or shrinks to that size (new dwarves from the `embark.party` stream), then the skills, supplies and free lines are set; a free line whose item, material, stone or enchantment no longer exists is left out and named. A normal loadout loaded in testing mode goes back to normal play first (seven dwarves). The saved loadouts list marks a testing loadout "testing" instead of "over budget".
 
 ### Fortress name
 
@@ -107,7 +121,7 @@ Arrival consumes item entries of the local map’s trait spawn list; an entry's 
 
 ## State
 
-Embark state exists only during the embark screen: `budget`, `party[]`, `supplies[]`, `preset`, `fortressName`. After arrival nothing of it persists except through the world (the wagon, items, dwarves), and the saved loadouts, which the app keeps outside every world (§ Loadouts). The `LocalMapSpec` is saved with the world for reference.
+Embark state exists only during the embark screen: `budget`, `party[]`, `supplies[]`, `preset`, `fortressName`, `mode` (`normal` or `testing`) and `items[]` (testing mode's free item lines). After arrival nothing of it persists except through the world (the wagon, items, dwarves), for a testing embark `FortressState.testing`, and the saved loadouts, which the app keeps outside every world (§ Loadouts). The `LocalMapSpec` is saved with the world for reference.
 
 ## Interfaces
 
@@ -117,7 +131,7 @@ Not applicable: there is no embark reader. The app constructs the embark session
 
 ### Commands (embark session, handled by the app before the world exists)
 
-`SetSkill { dwarf, skill, level }`, `RerollDwarf { dwarf }`, `RenameDwarf { dwarf, name }`, `SetSupply { entry, count }`, `ApplyPreset { preset }`, `SetFortressName { name }`, `ConfirmEmbark`.
+`SetSkill { dwarf, skill, level }`, `RerollDwarf { dwarf }`, `RenameDwarf { dwarf, name }`, `SetSupply { entry, count }`, `ApplyPreset { preset }`, `SetFortressName { name }`, `ConfirmEmbark`; and for testing mode (§ Testing mode) `SetEmbarkMode { mode }`, `AddDwarf`, `RemoveDwarf { dwarf }`, `SetSkillAll { skill, level }`, `AddItem { line }`, `SetItemCount { index, count }`. The testing commands are refused with `not_testing` in normal mode.
 
 ### Events emitted
 
@@ -127,10 +141,11 @@ Not applicable: there is no embark reader. The app constructs the embark session
 
 The site is chosen on the world map, whose region panel carries the site summary (§ Site summary). The embark screen has three tabs and a footer:
 
-- **Dwarves**: list of seven; selecting one shows name (editable), age, attributes as bars, personality words, and the skill list with +/− controls and remaining points. Reroll button.
-- **Supplies**: catalog grouped by category with quantity fields, unit price, line total.
+- **Dwarves**: list of seven, each with its skills beside its name; selecting one shows name (editable), age, attributes as bars, personality words, and the skill list with +/− controls, remaining points and a find field. Reroll button.
+- **Supplies**: catalog grouped by category with quantity fields, unit price, line total; a find field that searches every entry, animals too, by name or group; and a view of every chosen line, supplies and animals, to review and trim the loadout in one place.
 - **Animals**: species with price and count.
-- Footer: budget remaining, preset menu, fortress name, Embark button. Embark is disabled while over budget and shows why. Embarking with no pick, no axe, no food item or no drink item asks first, one question for each, in that order ("Embark without a pick?", "Embark without an axe?", "Embark with no food?", "Embark with no drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food`, `c_embark_no_drink`, default No).
+- **Items** (testing mode only): the free item lines and the form that makes one (§ Testing mode); its find field narrows the selected field's choices.
+- Footer: budget remaining, preset menu (each preset with its total and its dwarves' main skills), fortress name, Embark button; below it the testing mode switch. Embark is disabled while over budget and shows why; otherwise, outside testing mode, the footer names any dwarf whose skill points are unspent. Leaving the screen after edits asks first (`c_leave_embark`, default No), since the edits are lost. Embarking with no pick, no axe, no food item or no drink item asks first, one question for each, in that order ("Embark without a pick?", "Embark without an axe?", "Embark with no food?", "Embark with no drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food`, `c_embark_no_drink`, default No).
 
 Nothing chosen here is irreversible in the fortress: skills grow, items are consumed, animals breed.
 
@@ -144,6 +159,8 @@ Nothing chosen here is irreversible in the fortress: skills grow, items are cons
 | `ARRIVAL_SEARCH_DEPTH` | 20 | Tiles inward from the edge to search for a wagon site (*unmeasured*) |
 | `WAGON_LOGS` | 3 | Logs from deconstructing the wagon (*unmeasured*) |
 | `RELIEF_DIFF_STEP` | 96 | Elevation difference to a neighbour per relief level above 1 (*unmeasured*) |
+| `EMBARK_TESTING_MAX_DWARVES` | 50 | Most dwarves a testing embark brings (*unmeasured*) |
+| `EMBARK_TESTING_MAX_COUNT` | 999 | Most units of one catalog entry or one free item line in a testing embark (*unmeasured*) |
 
 ## Extension points
 

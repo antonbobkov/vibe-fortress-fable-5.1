@@ -1806,5 +1806,6 @@ export function listingOf(id: string, header: SaveHeader): SaveListing {
     population: header.population,
     wealth: header.wealth,
     ...(header.thumbnail === undefined ? {} : { thumbnail: header.thumbnail }),
+    ...(header.testing === true ? { testing: true } : {}),
   };
 }

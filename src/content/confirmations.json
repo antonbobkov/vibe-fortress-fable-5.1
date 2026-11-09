@@ -85,6 +85,11 @@
     "default": "no"
   },
   {
+    "id": "c_leave_embark",
+    "text": "Go back to the world map? The skills and supplies you have set here are lost.",
+    "default": "no"
+  },
+  {
     "id": "c_melt_items",
     "text": "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars.",
     "default": "no"

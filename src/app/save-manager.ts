@@ -80,6 +80,8 @@ export interface SaveHeader {
   readonly playTimeSeconds: number;
   readonly thumbnail?: SaveThumbnail;
   readonly kind: SaveKind;
+  /** A fortress started in the embark's testing mode (`02` § Testing mode); absent for a normal one. */
+  readonly testing?: boolean;
 }
 
 export class SaveFormatError extends Error {
