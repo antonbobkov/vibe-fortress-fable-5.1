@@ -1,0 +1,24 @@
+T-538: dwarf deaths in the twenty-seed sweep by killer, over the 80 seed-timelines of one sweep run
+(4 shifts x 20 seeds), from each seed log's [three_years_death] lines. A death whose killer's species
+is not logged (the killer already gone) is counted "near:<species>" when the only alerts in the three
+days before it were for wild animals of that species, and "unknown" otherwise (mostly raids).
+
+Before: T-535's sweep, run 42636786767 (pooled 20/7/0.25/982.5/132.75 alive/grown/hungry/living/deaths)
+  531 dwarf deaths
+  wolf 30 + near:wolf 48 = 78
+  bear 4 + near:bear 8 = 12
+  boar 6 + near:boar 6 = 12
+  raiders (gloam, hillfolk) 399, unknown 92
+
+After, T-538 with the script unchanged: run 42650065940 on d124f7e9 (pooled 19/7/0.25/857.75/158.75, blocked on deaths)
+  634 dwarf deaths
+  wolf 36 + near:wolf 91 = 127   (+49, about +12 a sweep)
+  bear 43 + near:bear 10 = 53    (+41, about +10 a sweep)
+  bear+wolf 7, boar 11 + near:boar 6, boar+wolf 2, badger 1
+  raiders (gloam, hillfolk, trollkin) 357, unknown 186
+
+A struck wolf or bear no longer flees and leaves the map at the first swing; it fights the squad.
+The script sent its three soldiers after every aggressive animal within 14 tiles of a surface
+dwarf. A bear (omnivore) never hunts a dwarf (08: only a hungry carnivore hunts), attacks only one
+within APPROACH_RADIUS and lets a fleeing one go, so the script now answers a bear only at the gate,
+as it answers a territorial boar since T-529.
