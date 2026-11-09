@@ -130,7 +130,7 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
   if W.pendingMeal: moveAlongPath(id); return  // await the corpse notification
   if W.mealId and W.state in {idle, wander, hunt}: W.state = eat; W.stateUntil = 0
   switch W.state:
-    idle:   if threats: W.state = timid/neutral-attacked ? 'flee' : 'idle'
+    idle:   if threats (timid; neutral-attacked; none for territorial or aggressive): W.state = 'flee'
             else if aggressive carnivore and W.hungry and quarry(id): W.state='hunt'; combat.setTarget(id, quarry(id))
             else if (territorial and dwarf within TERRITORY_RADIUS) or (aggressive and dwarf within APPROACH_RADIUS): W.state='attack'; W.defendFrom = tile; combat.setTarget
             else if restTime(species): W.state='sleep'; W.stateUntil = tick + 600
@@ -149,6 +149,8 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
             else clear unseen tick; 16 does not apply its generic perception cutoff to this wild attack
     eat:    walk to saved ground corpse; on arrival stateUntil = tick + EAT_CORPSE_TICKS; at deadline consume corpse through 13, clear meal and idle
             missing, carried-away or unreachable corpse: clear meal and idle, with no consumption
+    on AttackResolved against an aggressive W in idle/graze/wander/eat (T-538): if blood < species fleeBlood: 'flee' from the striker
+            else W.state='attack'; W.defendFrom = striker's tile; combat.setTarget(id, striker)   // it fears no attacker
     on CreatureDied with killerId = a hungry predator: W.hungry = false for it and every member of its pack; for each newly fed member in hunt or attack without defendFrom, clear combat target and stopWalking
   quarry(id):   // pack = wild animals of the species with the same arrivedTick
     q = target of a hungry pack member in 'hunt' (or in an 'attack' without defendFrom), ascending member id
