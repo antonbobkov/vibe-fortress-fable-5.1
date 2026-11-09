@@ -12,6 +12,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import type { EntityId } from '@core/types';
 import type { CombatReader } from '@systems/combat';
 import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 import { cmd, fortressDwarves, pathWorld, playUntil, surfaceZ, wagon, zoneRect } from '../../scenarios/player-path';
 
 describe('T-521 a hunter who joins a squad and takes an axe puts the crossbow down', () => {
@@ -48,8 +49,15 @@ describe('T-521 a hunter who joins a squad and takes an axe puts the crossbow do
     const bolts = items.carriedItems(hunter).filter((id) => typeId(id) === 'bolt');
     expect(bolts, 'and the bolts with it').toEqual([]);
 
-    // Another dwarf fetches them and hunts.
-    const shotByOther = playUntil(w, () => w.events('ProjectileFired').slice(firedBefore).some((e) => Number(e['shooterId']) !== hunter), 10 * TICKS_PER_DAY);
-    expect(shotByOther, 'another dwarf hunts with the crossbow within ten days').toBe(true);
+    // Another dwarf fetches the crossbow for a hunt (whether it then gets a shot depends on the
+    // deer: on this small map a herd that flees a dwarf leaves it, T-535).
+    const jobs = w.readers.of<JobsReader>('11');
+    const takenForHunt = (): boolean => {
+      const carrier = items.get(crossbow)?.carriedBy ?? 0;
+      if (carrier === 0 || carrier === hunter) return false;
+      return jobs.get(ent.get(carrier, C.Worker)?.jobId ?? 0)?.key.startsWith('hunt') === true;
+    };
+    expect(playUntil(w, takenForHunt, 10 * TICKS_PER_DAY), 'another dwarf takes the crossbow to hunt within ten days').toBe(true);
+    expect(w.events('ProjectileFired').slice(firedBefore).some((e) => Number(e['shooterId']) === hunter), 'the soldier shoots no more').toBe(false);
   });
 });

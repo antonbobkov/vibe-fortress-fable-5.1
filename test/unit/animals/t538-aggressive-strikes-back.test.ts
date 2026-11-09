@@ -98,6 +98,21 @@ describe('T-538 an aggressive animal struck strikes back', () => {
     expect(w.animals.brain.targetOf!(wolf)).toBe(0);
   });
 
+  it('a bear hit in its sleep wakes and attacks the striker back; a miss leaves it asleep', () => {
+    const w = world('t538-sleep');
+    const bear = w.spawnCreature('bear', w.index(32, 32, Z), 'wild');
+    const dwarf = w.spawnDwarf({ at: w.index(33, 33, Z) });
+    setState(w, bear, 'sleep');
+    strike(w, dwarf, bear, [], 'miss');
+    expect(w.game.world.entities.get(bear, C.Wild)!.state).toBe('sleep');
+    strike(w, dwarf, bear);
+    const wild = w.game.world.entities.get(bear, C.Wild)!;
+    expect(wild.state).toBe('attack');
+    expect(wild.defendFrom).toBe(w.index(33, 33, Z));
+    expect(w.animals.brain.targetOf!(bear)).toBe(dwarf);
+    expect(think(w, bear)).toBe('attack');
+  });
+
   it('a leaving wolf keeps leaving', () => {
     const w = world('t538-leave');
     const wolf = w.spawnCreature('wolf', w.index(32, 32, Z), 'wild');

@@ -19,7 +19,9 @@
  *           attack (provoked, not hunting) breaks off into wander when its target is beyond the
  *           provoke radius of the tile where the attack began, or unconscious
  *   eat:    walk to the saved corpse; wait EAT_CORPSE_TICKS there, consume through 13, idle
- *   sleep:  stay until stateUntil; a threat wakes it
+ *   sleep:  stay until stateUntil; a threat wakes it; hit (wakeStruck): below the flee percent
+ *           flee the striker, territorial defend against it from its tile, aggressive attack it
+ *           back from its tile (T-538), else idle
  *   leave:  walk to the nearest edge tile; despawn on arrival (AnimalLeft)
  *   struck (strikeBack, T-538): an aggressive animal in idle, graze, wander or eat attacks the
  *           striker, defending the striker's tile; below a species flee percent it flees instead
@@ -560,16 +562,11 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       break;
     }
     case 'attack': {
-      const body = host.entities.get(id, C.Body);
-      const fleeThresh = host.facts.fleeBloodPercentOf(species) ?? (temper === 'aggressive' ? null : FLEE_BLOOD_PERCENT);
-      if (body && body.maxBlood > 0 && fleeThresh !== null) {
-        const bloodPct = (body.blood / body.maxBlood) * 100;
-        if (bloodPct < fleeThresh) {
-          const currentTarget = host.targetOf ? host.targetOf(id) : 0;
-          host.setTarget(id, 0);
-          startFlee(host, ctx, id, next, currentTarget !== 0 ? [currentTarget] : threats);
-          break;
-        }
+      if (woundedToFlee(host, id)) {
+        const currentTarget = host.targetOf ? host.targetOf(id) : 0;
+        host.setTarget(id, 0);
+        startFlee(host, ctx, id, next, currentTarget !== 0 ? [currentTarget] : threats);
+        break;
       }
       const target = host.targetOf ? host.targetOf(id) : 0;
       if (target === 0 || !host.entities.alive(target)) {
@@ -631,6 +628,7 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       break;
     }
     case 'sleep': {
+      // A sleeper struck wakes at once, on the strike's AttackResolved (wakeStruck, T-535).
       if (threats.length > 0) {
         startFlee(host, ctx, id, next, threats);
         break;
@@ -696,6 +694,40 @@ function woundedToFlee(host: BrainHost, id: EntityId): boolean {
   const fleeThresh = host.facts.fleeBloodPercentOf(species) ?? (host.facts.temperOf(species) === 'aggressive' ? null : FLEE_BLOOD_PERCENT);
   if (!body || body.maxBlood <= 0 || fleeThresh === null) return false;
   return (body.blood / body.maxBlood) * 100 < fleeThresh;
+}
+
+/**
+ * `08` § Wild behavior, `sleep` (T-535): an animal struck in its sleep wakes at once. Below its
+ * flee percent it flees the striker (an aggressive one only below a percent of its own), as in
+ * `attack`; a territorial one defends against the striker from its own tile, as `idle`'s provoke
+ * rule starts a defence; an aggressive one attacks back as `strikeBack` does (T-538); any other
+ * wakes to `idle` with no wait, where its threats decide (none, at rest time: it sleeps again).
+ * Called on a `hit` `AttackResolved` against the animal; a record not in `sleep` is returned unchanged.
+ */
+export function wakeStruck(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, striker: EntityId): Wild {
+  if (w.state !== 'sleep') return w;
+  const next: Wild = { ...w };
+  const at = tileOf(host, id);
+  const temper = host.facts.temperOf(speciesOf(host, id));
+  if (woundedToFlee(host, id)) {
+    host.setTarget(id, 0);
+    startFlee(host, ctx, id, next, striker !== 0 ? [striker] : []);
+  } else if (at >= 0 && striker !== 0 && striker !== id && host.entities.alive(striker) &&
+      (temper === 'territorial' || temper === 'aggressive')) {
+    // T-538: an aggressive one attacks back as when struck awake, defending the striker's tile.
+    const from = temper === 'aggressive' ? tileOf(host, striker) : at;
+    next.state = 'attack';
+    next.defendFrom = from >= 0 ? from : at;
+    delete next.unseenSince;
+    host.setTarget(id, striker);
+  } else {
+    // Awake at once, with no idle wait: at its next think its threats decide, and with none it
+    // goes back to sleep if it is still its rest time.
+    delete next.defendFrom; delete next.unseenSince;
+    next.state = 'idle';
+    next.stateUntil = ctx.tick;
+  }
+  return next;
 }
 
 function chebyshev(host: BrainHost, a: TileIndex, b: TileIndex): number {

@@ -44,7 +44,7 @@ import {
   TERRITORY_AVOID_RADIUS,
 } from './constants';
 import { AnimalFacts } from './facts';
-import { chunkCentre, packOf, strikeBack, tickAnimal, type BrainHost } from './brain';
+import { chunkCentre, packOf, strikeBack, tickAnimal, wakeStruck, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
@@ -1181,10 +1181,13 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       const attacker = event['attackerId'];
       if (typeof target === 'number' && typeof attacker === 'number' && ctx.world.entities.alive(target)) {
         this.provoked.set(target, attacker);
-        // T-538: an aggressive animal struck awake strikes back (08 § Wild behavior).
         const wild = ctx.world.entities.get(target, C.Wild);
         if (wild !== undefined) {
-          const next = strikeBack(this.brain, ctx, target, wild, attacker);
+          // T-535: an animal struck (hit) in its sleep wakes; T-538: an aggressive animal struck
+          // awake strikes back (08 § Wild behavior, `sleep` and *Struck*).
+          const next = wild.state === 'sleep'
+            ? (event['outcome'] === 'hit' ? wakeStruck(this.brain, ctx, target, wild, attacker) : wild)
+            : strikeBack(this.brain, ctx, target, wild, attacker);
           if (next !== wild) ctx.world.entities.add(target, C.Wild, next);
         }
       }
