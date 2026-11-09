@@ -192,6 +192,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   rename: 'rename',
   'presets menu': 'presets',
   'saved loadouts': 'loadouts',
+  'clear the selected skill or quantity': 'clear',
   Embark: 'embark',
   'switch column': 'switch_column',
   quantity: 'adjust',

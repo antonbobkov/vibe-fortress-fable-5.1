@@ -1,8 +1,8 @@
 /**
  * The embark screen: `04-implementation/ui-screens/embark.md`, `02-systems/02-embark-and-loadout.md`
  * § Presets, § Player-facing behavior, `03-content/embark-catalog.md`, and the `embark` keys of
- * `ui-keymap-and-screens.md` (`1` `2` `3` tabs, `+` `-` adjust, `r` reroll, `n` rename, `p`
- * presets, `Enter` Embark).
+ * `ui-keymap-and-screens.md` (`1` `2` `3` tabs, `+` `-` adjust, `0` clear, `r` reroll, `n` rename,
+ * `p` presets, `l` loadouts, `Enter` Embark; `/` finds, § Finding things of the wireframe).
  *
  * The screen edits an {@link EmbarkSession} only through the session's commands (`SetSkill`,
  * `RerollDwarf`, `RenameDwarf`, `SetSupply`, `ApplyPreset`, `SetFortressName`, `ConfirmEmbark`),
@@ -16,9 +16,9 @@ import type { Registry } from '@core/registry';
 import type { KeyPress } from '@platform/input';
 import { EMBARK_REROLL_COST, EmbarkSession, skillPoints, suppliesTotal, type EmbarkCommand, type EmbarkPresetRow } from '@systems/embark';
 import { applyLoadout, loadoutOf, loadoutTotal, type LoadoutResult, type SavedLoadout } from '@systems/embark';
-import { EMBARK_DEFAULT_PRESET, EMBARK_HINT_SECONDS, EMBARK_PRESET_SPACING, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
+import { EMBARK_DEFAULT_PRESET, EMBARK_HINT_SECONDS, EMBARK_PRESET_SPACING, EMBARK_PRESETS_WIDTH, EMBARK_WHEEL_ROWS, UI_NORMAL_SPACING, UI_COMPACT_SPACING } from '../constants';
 import type { KeyContext, Keymap } from '../keymap';
-import { clickHit, type CellPointer, type Screen } from '../screen';
+import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import {
@@ -40,7 +40,9 @@ import {
   type TextFieldState,
 } from '../widgets';
 import { LoadoutsPanel, type LoadoutLibrary } from './embark_loadouts';
+import { findMatches, presetSummary, skillSummary } from './embark_lists';
 import type { TextInputSpec } from './text_input';
+import { wrapText } from '../messages';
 
 /** One row of `embarkCatalog` as the screen reads it (`category` and `note`: docs/03-content/embark-catalog.md). */
 export interface CatalogRow {
@@ -68,6 +70,9 @@ interface TraitRow {
 
 /** The supply groups of `embark-catalog.md`, in the document's order; animals have their own tab. */
 export const SUPPLY_CATEGORIES = ['tools', 'food', 'drink', 'seeds', 'materials', 'furniture'] as const;
+
+/** The Supplies tab's last view, after the groups: every chosen line, supplies and animals (`ui-screens/embark.md` § Finding things). */
+export const CHOSEN_VIEW = SUPPLY_CATEGORIES.length;
 
 /** The attributes in the wireframe's order. */
 const ATTRIBUTES: readonly (keyof Attributes)[] = ['str', 'agi', 'tou', 'end', 'wil', 'wit', 'cha'];
@@ -148,6 +153,12 @@ export class EmbarkScreen implements Screen {
   readonly fortressName: TextFieldState;
   readonly rename: TextFieldState = { value: '', focused: false, maxLength: 32 };
   readonly filter: TextFieldState = { value: '', focused: false, maxLength: 20 };
+  /** The Dwarves tab's find field, over the skill list (`/` on that tab). */
+  readonly skillFind: TextFieldState = { value: '', focused: false, maxLength: 20 };
+  /** Why the last key did nothing ("No skill points left …"), shown on the keys line until the next key. */
+  flash: string | null = null;
+  /** The rows each list showed when last drawn, for the wheel and `PageUp` `PageDown`. */
+  private readonly shown = { party: 1, skills: 1, items: 1 };
   readonly presets: DropdownState = { open: false, highlighted: 0 };
   /** A preset waiting for the "replace your changes" confirmation. */
   pendingPreset: string | null = null;
@@ -209,15 +220,42 @@ export class EmbarkScreen implements Screen {
     return this.session.supplies.find((l) => l.entry === entry)?.count ?? 0;
   }
 
-  /** The catalog rows of the current tab (and category and filter on the supplies tab). */
+  /**
+   * The catalog rows of the current tab. On the Supplies tab: the find field's matches over every
+   * entry, animals too, by name or group; else the chosen lines (the last view); else one group.
+   */
   rows(): CatalogRow[] {
-    const needle = this.filter.value.trim().toLowerCase();
-    return this.catalog.filter((row) => {
+    const needle = this.filter.value.trim();
+    const rows = this.catalog.filter((row) => {
       if (this.tab === 2) return row.category === 'animals';
+      if (needle.length > 0) return findMatches(needle, row.entry, this.categoryName(row.category));
+      if (this.category === CHOSEN_VIEW) return this.count(row.id) > 0;
       if (row.category === 'animals') return false;
-      if (needle.length > 0) return row.entry.toLowerCase().includes(needle);
       return row.category === SUPPLY_CATEGORIES[this.category];
     });
+    if (!this.mixed()) return rows;
+    // Lines of several groups come group by group, in the bar's order, the animals last.
+    const group = (row: CatalogRow): number => {
+      const k = (SUPPLY_CATEGORIES as readonly string[]).indexOf(row.category ?? '');
+      return k < 0 ? SUPPLY_CATEGORIES.length : k;
+    };
+    return rows.map((row, k) => ({ row, k })).sort((a, b) => group(a.row) - group(b.row) || a.k - b.k).map((e) => e.row);
+  }
+
+  /** "Tools", "Animals": a catalog group's name. */
+  categoryName(category: string | undefined): string {
+    return category === undefined ? '' : this.strings.get(`ui.embark.category.${category}`);
+  }
+
+  /** Whether the Supplies list shows lines of several groups (a find, or the chosen lines), so each names its group. */
+  private mixed(): boolean {
+    return this.tab === 1 && (this.filter.value.trim().length > 0 || this.category === CHOSEN_VIEW);
+  }
+
+  /** The skills the Dwarves tab lists: all that can be chosen at embark, or the find field's matches. */
+  visibleSkills(): SkillRow[] {
+    const needle = this.skillFind.value.trim();
+    return needle.length === 0 ? this.skillRows : this.skillRows.filter((row) => findMatches(needle, row.name));
   }
 
   available(row: CatalogRow): boolean {
@@ -226,30 +264,58 @@ export class EmbarkScreen implements Screen {
 
   setSupply(row: CatalogRow, delta: number): boolean {
     if (!this.available(row)) return false;
-    const next = Math.max(0, Math.min(row.max, this.count(row.id) + delta));
+    const count = this.count(row.id);
+    if (delta > 0 && count >= row.max) {
+      this.flash = this.strings.get('ui.embark.supply_max', { max: row.max, entry: row.entry });
+      return false;
+    }
+    const next = Math.max(0, Math.min(row.max, count + delta));
     return this.apply({ type: 'SetSupply', entry: row.id, count: next });
   }
 
-  /** A skill change, refused when the dwarf's points would pass `EMBARK_SKILL_POINTS_PER_DWARF`. */
+  /** A skill change, refused when the dwarf's points would pass `EMBARK_SKILL_POINTS_PER_DWARF`; a refused rise says why. */
   setSkill(dwarf: number, skill: string, delta: number): boolean {
     const d = this.session.party[dwarf];
     if (d === undefined) return false;
     const level = d.skills[skill] ?? 0;
     const next = level + delta;
-    if (next < 0 || next > EMBARK_SKILL_MAX_PER_SKILL) return false;
-    if (delta > 0 && skillPoints(d) + delta > EMBARK_SKILL_POINTS_PER_DWARF) return false;
+    if (next < 0) return false;
+    if (next > EMBARK_SKILL_MAX_PER_SKILL) {
+      const name = this.skillRows.find((r) => r.id === skill)?.name ?? skill;
+      this.flash = this.strings.get('ui.embark.skill_max', { skill: name, max: EMBARK_SKILL_MAX_PER_SKILL });
+      return false;
+    }
+    if (delta > 0 && skillPoints(d) + delta > EMBARK_SKILL_POINTS_PER_DWARF) {
+      this.flash = this.strings.get('ui.embark.no_points', { name: d.name });
+      return false;
+    }
     return this.apply({ type: 'SetSkill', dwarf, skill, level: next });
   }
 
+  /** `0`: the selected skill to nothing (Dwarves), or none of the selected line (Supplies, Animals). */
+  clear(): void {
+    if (this.tab === 0) {
+      const skill = this.visibleSkills()[this.skills.selected];
+      const level = skill === undefined ? 0 : this.session.party[this.party.selected]?.skills[skill.id] ?? 0;
+      if (skill !== undefined && level > 0) this.apply({ type: 'SetSkill', dwarf: this.party.selected, skill: skill.id, level: 0 });
+      return;
+    }
+    const row = this.rows()[this.items.selected];
+    if (row !== undefined && this.count(row.id) > 0) this.apply({ type: 'SetSupply', entry: row.id, count: 0 });
+  }
+
+  /** The presets, each with its total and its dwarves' main skills, then the saved loadouts. */
   presetOptions(): DropdownOption[] {
+    const library = this.host.loadouts;
+    const loadoutsLabel = this.strings.get('ui.embark.loadouts.option');
+    const width = Math.max(...this.presetRows.map((p) => Array.from(p.name).length), library === undefined ? 0 : Array.from(loadoutsLabel).length);
     const options: DropdownOption[] = this.presetRows.map((p) => ({
       id: p.id,
-      label: p.name,
-      detail: `${marks(suppliesTotal(this.registry, p.supplies))} ☼`,
+      label: p.name.padEnd(width),
+      detail: `${marks(suppliesTotal(this.registry, p.supplies)).padStart(5)} ☼ ${presetSummary(p.skills, this.skillRows)}`,
     }));
-    const library = this.host.loadouts;
     if (library !== undefined) {
-      options.push({ id: LOADOUTS_OPTION, label: this.strings.get('ui.embark.loadouts.option'), detail: this.strings.get('ui.embark.loadouts.count', { n: library.list().length }) });
+      options.push({ id: LOADOUTS_OPTION, label: loadoutsLabel.padEnd(width), detail: this.strings.get('ui.embark.loadouts.count', { n: library.list().length }) });
     }
     return options;
   }
@@ -330,6 +396,14 @@ export class EmbarkScreen implements Screen {
     const name = this.session.party[Number(index)]?.name ?? '';
     if (kind === 'too_many_points') return s.get('ui.embark.too_many_points', { name, max: EMBARK_SKILL_POINTS_PER_DWARF });
     return s.get('ui.embark.skill_over_max', { name, max: EMBARK_SKILL_MAX_PER_SKILL });
+  }
+
+  /** "Unspent skill points: Frida Boarcloak 3": the dwarves with points left, which are lost at embark (`02` § Party generation). */
+  unspent(): string | null {
+    const left = this.session.party
+      .filter((d) => skillPoints(d) < EMBARK_SKILL_POINTS_PER_DWARF)
+      .map((d) => `${d.name} ${EMBARK_SKILL_POINTS_PER_DWARF - skillPoints(d)}`);
+    return left.length === 0 ? null : this.strings.get('ui.embark.unspent', { list: left.join(', ') });
   }
 
   /**
@@ -413,10 +487,12 @@ export class EmbarkScreen implements Screen {
     else this.drawCatalog(surface, 2, bodyRows);
     this.drawFooter(surface, surface.rows - 4);
     if (this.presets.open) {
-      dropdown(surface, Math.max(0, Math.min(presetsCol, cols - 32)), 1, 31, s.get('ui.embark.presets'), this.presetOptions(), this.presets, (id) => {
+      // Wide enough for each preset's description: its total and its dwarves' main skills.
+      const listWidth = Math.min(cols - 2, EMBARK_PRESETS_WIDTH);
+      dropdown(surface, Math.max(0, Math.min(presetsCol, cols - listWidth - 1)), 1, 31, s.get('ui.embark.presets'), this.presetOptions(), this.presets, (id) => {
         this.presets.open = false;
         this.choosePreset(id);
-      }, () => this.togglePresets());
+      }, () => this.togglePresets(), listWidth);
     }
     if (this.pendingPreset !== null) {
       const preset = this.presetRows.find((p) => p.id === this.pendingPreset);
@@ -437,22 +513,34 @@ export class EmbarkScreen implements Screen {
     const t = surface.theme;
     const party = this.session.party;
     const listCols = 30;
-    clampList(this.party, party.length, height);
-    party.forEach((d, i) => {
-      const row = top + i;
-      if (i >= height) return;
+    const listHeight = height - 1;
+    // Each dwarf's skills on a second line, so the party's trades read at a glance; one line each when the party is too long for two.
+    const perDwarf = party.length * 2 <= listHeight ? 2 : 1;
+    const shown = Math.max(1, Math.floor(listHeight / perDwarf));
+    this.shown.party = shown;
+    clampList(this.party, party.length, shown);
+    for (let k = 0; k < shown; k += 1) {
+      const i = this.party.scroll + k;
+      const d = party[i];
+      if (d === undefined) break;
+      const row = top + k * perDwarf;
       const mark = i === this.party.selected ? '▶ ' : '  ';
       const pts = `${skillPoints(d)}/${EMBARK_SKILL_POINTS_PER_DWARF}`;
       const text = `${mark}${d.name}`.slice(0, listCols - pts.length - 2).padEnd(listCols - pts.length - 1) + pts;
       label(surface, 0, row, text, { width: listCols });
       if (i === this.party.selected && this.focus === 'party') surface.invert({ col: 0, row, cols: listCols, rows: 1 });
-      surface.hit({ col: 0, row, cols: listCols, rows: 1 }, () => {
+      if (perDwarf === 2) {
+        const summary = skillSummary(d.skills, this.skillRows, listCols - 4);
+        label(surface, 3, row + 1, summary.length > 0 ? summary : s.get('ui.embark.no_skills'), { fg: t.dim, width: listCols - 4, keys: false });
+      }
+      surface.hit({ col: 0, row, cols: listCols, rows: perDwarf }, () => {
         this.party.selected = i;
         this.setFocus('party');
       });
-    });
+    }
     const rule = surface.glyphs.index('│');
-    for (let r = 0; r < height; r += 1) surface.put(listCols, top + r, rule, t.border, t.black);
+    for (let r = 0; r < listHeight; r += 1) surface.put(listCols, top + r, rule, t.border, t.black);
+    this.drawKeys(surface, top + height - 1, 'ui.embark.keys.dwarves');
 
     const d = party[this.party.selected];
     if (d === undefined) return;
@@ -482,12 +570,23 @@ export class EmbarkScreen implements Screen {
     row += 1;
     const left = EMBARK_SKILL_POINTS_PER_DWARF - skillPoints(d);
     separator(surface, c, row, surface.cols - c - 1, s.get('ui.embark.skills', { n: left }));
+    // The skill list's find field sits at the rule's right end: a caption until it is in use.
+    const findWidth = 10;
+    const findCol = surface.cols - findWidth - 6;
+    if (this.focus === 'filter' || this.skillFind.value.length > 0) textField(surface, findCol, row, findWidth, this.skillFind, () => this.setFocus('filter'));
+    else {
+      const caption = s.get('ui.embark.find_skill');
+      button(surface, surface.cols - Array.from(`[/] ${caption}`).length - 3, row, '/', caption, () => this.setFocus('filter'));
+    }
     row += 1;
-    const skillHeight = Math.max(1, top + height - row);
-    clampList(this.skills, this.skillRows.length, skillHeight);
+    const skills = this.visibleSkills();
+    const skillHeight = Math.max(1, top + height - 1 - row);
+    this.shown.skills = skillHeight;
+    clampList(this.skills, skills.length, skillHeight);
+    if (skills.length === 0) label(surface, c, row, s.get('ui.embark.no_match', { text: this.skillFind.value.trim() }), { fg: t.dim, width: surface.cols - c - 1 });
     for (let r = 0; r < skillHeight; r += 1) {
       const index = this.skills.scroll + r;
-      const skill = this.skillRows[index];
+      const skill = skills[index];
       if (skill === undefined) break;
       const level = d.skills[skill.id] ?? 0;
       const selected = index === this.skills.selected;
@@ -510,27 +609,37 @@ export class EmbarkScreen implements Screen {
   private drawCatalog(surface: Surface, top: number, height: number): void {
     const s = this.strings;
     const t = surface.theme;
+    const finding = this.filter.value.trim().length > 0;
     let row = top;
     if (this.tab === 1) {
       label(surface, 1, row, s.get('ui.embark.filter'));
       textField(surface, 10, row, 10, this.filter, () => this.setFocus('filter'));
+      // The groups, then the chosen lines; the separators close up when the bar would not fit.
+      const views = [...SUPPLY_CATEGORIES.map((cat) => s.get(`ui.embark.category.${cat}`)), s.get('ui.embark.category.chosen')];
+      const width = views.reduce((sum, v) => sum + Array.from(v).length, 0);
+      const gap = 26 + width + 3 * (views.length - 1) <= surface.cols - 1 ? ' │ ' : '│';
       let c = 26;
-      SUPPLY_CATEGORIES.forEach((cat, k) => {
-        if (k > 0) c += label(surface, c, row, ' │ ', { fg: t.border });
-        const n = label(surface, c, row, s.get(`ui.embark.category.${cat}`));
+      views.forEach((view, k) => {
+        if (k > 0) c += label(surface, c, row, gap, { fg: t.border });
+        const n = label(surface, c, row, view);
         const rect = { col: c, row, cols: n, rows: 1 };
-        if (k === this.category) surface.invert(rect);
-        surface.hit(rect, () => {
-          this.category = k;
-          this.items.selected = 0;
-        });
+        // A find lists every group, so no group is marked while it is in use.
+        if (k === this.category && !finding) surface.invert(rect);
+        surface.hit(rect, () => this.setCategory(k));
         c += n;
       });
       row += 1;
     }
     const rows = this.rows();
-    const listHeight = Math.max(1, height - (row - top) - 2);
+    const mixed = this.mixed();
+    // Below the list: two lines for the selected line's note or the hint, then the keys line.
+    const listHeight = Math.max(1, height - (row - top) - 3);
+    this.shown.items = listHeight;
     clampList(this.items, rows.length, listHeight);
+    if (rows.length === 0) {
+      const empty = finding ? s.get('ui.embark.no_match', { text: this.filter.value.trim() }) : s.get('ui.embark.none_chosen');
+      label(surface, 3, row, empty, { fg: t.dim, width: surface.cols - 4 });
+    }
     for (let r = 0; r < listHeight; r += 1) {
       const index = this.items.scroll + r;
       const entry = rows[index];
@@ -554,18 +663,28 @@ export class EmbarkScreen implements Screen {
         width: 2,
       });
       if (count > 0) label(surface, 36 + w + 2, y, `= ${String(entry.price * count).padStart(4)}`, { fg: t.value });
+      // Lines of several groups name theirs.
+      if (mixed) label(surface, 36 + w + 10, y, this.categoryName(entry.category), { fg: t.dim, width: Math.max(1, surface.cols - (36 + w + 11)) });
     }
     const current = rows[this.items.selected];
     const noteRow = row + listHeight;
-    if (current !== undefined && !this.available(current)) {
-      label(surface, 1, noteRow, s.get('ui.embark.unavailable', { condition: current.condition ?? '' }), { fg: t.dim });
-    } else if (current?.note !== undefined) {
-      label(surface, 1, noteRow, current.note, { fg: t.dim });
-    } else if (this.tab === 1) {
+    let note: string | null = null;
+    if (current !== undefined && !this.available(current)) note = s.get('ui.embark.unavailable', { condition: current.condition ?? '' });
+    else if (current?.note !== undefined) note = current.note;
+    else if (this.tab === 1) {
       // The hint alternates between two lines every EMBARK_HINT_SECONDS of real time and on each tab change.
       const turn = Math.floor((this.host.now?.() ?? 0) / (EMBARK_HINT_SECONDS * 1000)) + this.tabChanges;
-      label(surface, 1, noteRow, s.get(turn % 2 === 0 ? 'ui.embark.hint' : 'ui.embark.hint_beasts'), { fg: t.dim });
+      note = s.get(turn % 2 === 0 ? 'ui.embark.hint' : 'ui.embark.hint_beasts');
     }
+    if (note !== null) wrapText(note, surface.cols - 2, 2).forEach((line, k) => label(surface, 1, noteRow + k, line, { fg: t.dim, keys: false }));
+    this.drawKeys(surface, top + height - 1, this.tab === 1 ? 'ui.embark.keys.supplies' : 'ui.embark.keys.animals');
+  }
+
+  /** The keys line at the foot of the body, or why the last key did nothing. */
+  private drawKeys(surface: Surface, row: number, key: string): void {
+    const t = surface.theme;
+    if (this.flash !== null) label(surface, 1, row, this.flash, { fg: t.note, width: surface.cols - 2, keys: false });
+    else label(surface, 1, row, this.strings.get(key), { fg: t.dim, width: surface.cols - 2 });
   }
 
   private drawFooter(surface: Surface, row: number): void {
@@ -573,16 +692,24 @@ export class EmbarkScreen implements Screen {
     const t = surface.theme;
     separator(surface, 0, row, surface.cols);
     label(surface, 1, row + 1, s.get('ui.embark.fortress_name'));
-    textField(surface, 15, row + 1, 20, this.fortressName, () => this.setFocus('name'));
+    const field = textField(surface, 15, row + 1, 20, this.fortressName, () => this.setFocus('name'));
     const budget = this.session.budget();
     const spent = this.session.total();
-    const text = s.get('ui.embark.budget', { budget: marks(budget), spent: marks(spent), left: marks(budget - spent) });
-    const budgetCol = Math.max(36, surface.cols - Array.from(text).length - 1);
+    const full = spent > budget
+      ? s.get('ui.embark.budget_over', { budget: marks(budget), spent: marks(spent), over: marks(spent - budget) })
+      : s.get('ui.embark.budget', { budget: marks(budget), spent: marks(spent), left: marks(budget - spent) });
+    // The figures close up rather than run into the name field or past the edge.
+    const room = surface.cols - (15 + field + 1) - 1;
+    const text = Array.from(full).length > room ? full.replace(/ {3}/g, ' ') : full;
+    const budgetCol = Math.max(15 + field + 1, surface.cols - Array.from(text).length - 1);
     label(surface, budgetCol, row + 1, text, { fg: spent > budget ? t.bad : t.text });
     const reason = this.reason();
     button(surface, 1, row + 2, 'Enter', s.get('ui.embark.embark'), () => this.confirm(), { enabled: reason === null });
+    // A reason Embark is off, else the dwarves whose points would be lost.
+    const unspent = reason === null ? this.unspent() : null;
     if (reason !== null) label(surface, 18, row + 2, reason, { fg: t.bad, width: surface.cols - 34 });
-    button(surface, surface.cols - 12, row + 2, 'Esc', s.get('ui.embark.back'), () => this.host.back());
+    else if (unspent !== null) label(surface, 18, row + 2, unspent, { fg: t.note, width: surface.cols - 34, keys: false });
+    button(surface, surface.cols - 12, row + 2, 'Esc', s.get('ui.embark.back'), () => this.leave());
   }
 
   // ---------- input ----------
@@ -595,16 +722,32 @@ export class EmbarkScreen implements Screen {
     this.setFocus(this.tab === 0 ? 'party' : 'items');
   }
 
+  /** A Supplies view: a group, or the chosen lines ({@link CHOSEN_VIEW}); choosing one ends a find. */
+  setCategory(index: number): void {
+    this.category = index;
+    this.filter.value = '';
+    this.items.selected = 0;
+    this.items.scroll = 0;
+    if (this.focus === 'filter') this.setFocus('items');
+  }
+
   setFocus(focus: Focus): void {
     this.focus = focus;
     this.fortressName.focused = focus === 'name';
     this.rename.focused = focus === 'rename';
-    this.filter.focused = focus === 'filter';
+    this.filter.focused = focus === 'filter' && this.tab !== 0;
+    this.skillFind.focused = focus === 'filter' && this.tab === 0;
+  }
+
+  /** The list a find field hands the keys back to. */
+  private listFocus(): Focus {
+    return this.tab === 0 ? (this.focus === 'filter' ? 'skills' : 'party') : 'items';
   }
 
   togglePresets(): void {
     this.presets.open = !this.presets.open;
-    this.presets.highlighted = 0;
+    // The menu opens on the preset the loadout started from.
+    this.presets.highlighted = Math.max(0, this.presetRows.findIndex((p) => p.id === this.session.preset));
   }
 
   startRename(): void {
@@ -618,12 +761,31 @@ export class EmbarkScreen implements Screen {
     this.apply({ type: 'RerollDwarf', dwarf: this.party.selected });
   }
 
+  /** `Esc` Back: the skills and supplies set here are lost, so after edits it asks first (`c_leave_embark`, default No). */
+  leave(): void {
+    if (!this.edited || this.host.confirm === undefined) {
+      this.host.back();
+      return;
+    }
+    this.host.confirm('c_leave_embark', {}, (yes) => {
+      if (yes) this.host.back();
+    });
+  }
+
   /** The fields `Tab` cycles through on each tab. */
   private fields(): Focus[] {
-    return this.tab === 0 ? ['party', 'skills', 'name'] : this.tab === 1 ? ['items', 'filter', 'name'] : ['items', 'name'];
+    return this.tab === 0 ? ['party', 'skills', 'filter', 'name'] : this.tab === 1 ? ['items', 'filter', 'name'] : ['items', 'name'];
+  }
+
+  /** The list the selection keys, the wheel and `PageUp` `PageDown` move: its state, length and visible rows. */
+  private focusedList(): { list: ListState; size: number; page: number } {
+    if (this.tab === 0 && this.focus === 'party') return { list: this.party, size: this.session.party.length, page: this.shown.party };
+    if (this.tab === 0) return { list: this.skills, size: this.visibleSkills().length, page: this.shown.skills };
+    return { list: this.items, size: this.rows().length, page: this.shown.items };
   }
 
   key(press: KeyPress): boolean {
+    this.flash = null;
     if (this.pendingPreset !== null) {
       if (press.key === 'y') this.applyPreset(this.pendingPreset);
       else this.pendingPreset = null;
@@ -640,7 +802,20 @@ export class EmbarkScreen implements Screen {
       }
       return false;
     }
-    if (this.focus === 'name' || this.focus === 'rename' || this.focus === 'filter') {
+    if (this.focus === 'filter') {
+      // A find field: `Esc` empties it; `Enter`, `Tab` and the arrows hand the keys back to its list.
+      const find = this.tab === 0 ? this.skillFind : this.filter;
+      const list = this.tab === 0 ? this.skills : this.items;
+      if (press.key === 'Esc') find.value = '';
+      if (press.key === 'Enter' || press.key === 'Tab' || press.key === 'Esc' || press.key === '↓' || press.key === '↑') {
+        this.setFocus(this.listFocus());
+        return true;
+      }
+      list.selected = 0;
+      list.scroll = 0;
+      return editText(find, press);
+    }
+    if (this.focus === 'name' || this.focus === 'rename') {
       if (press.key === 'Enter' || press.key === 'Tab' || press.key === 'Esc') {
         if (this.focus === 'rename' && press.key !== 'Esc') {
           this.apply({ type: 'RenameDwarf', dwarf: this.party.selected, name: normalizeName(this.rename.value) });
@@ -648,14 +823,20 @@ export class EmbarkScreen implements Screen {
         if (this.focus === 'name' && this.fortressName.value.trim().length > 0) {
           this.apply({ type: 'SetFortressName', name: normalizeName(this.fortressName.value) });
         }
-        this.setFocus(this.tab === 0 ? 'party' : 'items');
+        this.setFocus(this.listFocus());
         return true;
       }
-      if (this.focus === 'filter') this.items.selected = 0;
-      return editText(this.focus === 'name' ? this.fortressName : this.focus === 'rename' ? this.rename : this.filter, press);
+      return editText(this.focus === 'name' ? this.fortressName : this.rename, press);
     }
     if (press.key === 'Esc') {
-      this.host.back();
+      // A find in use is the first thing `Esc` takes back; then the screen, after asking when there are edits to lose.
+      const find = this.tab === 0 ? this.skillFind : this.tab === 1 ? this.filter : null;
+      if (find !== null && find.value.length > 0) {
+        find.value = '';
+        const list = this.tab === 0 ? this.skills : this.items;
+        list.selected = 0;
+        list.scroll = 0;
+      } else this.leave();
       return true;
     }
     const action = this.keymap.resolve('embark', press);
@@ -666,6 +847,9 @@ export class EmbarkScreen implements Screen {
           return true;
         case 'adjust':
           this.adjust(Number(action.arg));
+          return true;
+        case 'clear':
+          this.clear();
           return true;
         case 'reroll':
           this.reroll();
@@ -692,16 +876,17 @@ export class EmbarkScreen implements Screen {
       case 'across': {
         if (this.tab !== 1) return false;
         const d = panel.arg === '←' ? -1 : 1;
-        this.category = (this.category + d + SUPPLY_CATEGORIES.length) % SUPPLY_CATEGORIES.length;
-        this.items.selected = 0;
+        this.setCategory((this.category + d + CHOSEN_VIEW + 1) % (CHOSEN_VIEW + 1));
         return true;
       }
       case 'select': {
-        const d = panel.arg === '↑' ? -1 : 1;
-        const list = this.focus === 'party' ? this.party : this.focus === 'skills' ? this.skills : this.items;
-        list.selected = Math.max(0, list.selected + d);
-        const size = this.focus === 'party' ? this.session.party.length : this.focus === 'skills' ? this.skillRows.length : this.rows().length;
-        list.selected = Math.min(size - 1, list.selected);
+        const { list, size } = this.focusedList();
+        list.selected = Math.max(0, Math.min(size - 1, list.selected + (panel.arg === '↑' ? -1 : 1)));
+        return true;
+      }
+      case 'scroll': {
+        const { list, size, page } = this.focusedList();
+        list.selected = Math.max(0, Math.min(size - 1, list.selected + Number(panel.arg) * Math.max(1, page - 1)));
         return true;
       }
       case 'field': {
@@ -711,7 +896,10 @@ export class EmbarkScreen implements Screen {
         return true;
       }
       case 'filter_focus':
-        if (this.tab === 1) this.setFocus('filter');
+        // `/` starts a new find. The Animals tab has no find field of its own: the Supplies find reaches the animals too.
+        if (this.tab === 2) this.setTab(1);
+        (this.tab === 0 ? this.skillFind : this.filter).value = '';
+        this.setFocus('filter');
         return true;
       default:
         return false;
@@ -721,7 +909,7 @@ export class EmbarkScreen implements Screen {
   /** `+`/`-` on the selected skill (Dwarves) or quantity (Supplies, Animals). */
   adjust(delta: number): void {
     if (this.tab === 0) {
-      const skill = this.skillRows[this.skills.selected];
+      const skill = this.visibleSkills()[this.skills.selected];
       if (skill !== undefined) this.setSkill(this.party.selected, skill.id, delta);
       return;
     }
@@ -730,6 +918,19 @@ export class EmbarkScreen implements Screen {
   }
 
   pointerDown(p: CellPointer): void {
+    this.flash = null;
     clickHit(this.last, p);
+  }
+
+  /** The wheel scrolls the list under the pointer, three rows a notch; the selection stays in view. */
+  wheel(w: CellWheel): void {
+    const step = Math.sign(w.dy) * EMBARK_WHEEL_ROWS;
+    const scroll = (list: ListState, size: number, page: number): void => {
+      list.scroll = Math.max(0, Math.min(Math.max(0, size - page), list.scroll + step));
+      list.selected = Math.max(list.scroll, Math.min(list.scroll + page - 1, list.selected));
+    };
+    if (this.tab === 0 && w.col < 30) scroll(this.party, this.session.party.length, this.shown.party);
+    else if (this.tab === 0) scroll(this.skills, this.visibleSkills().length, this.shown.skills);
+    else scroll(this.items, this.rows().length, this.shown.items);
   }
 }

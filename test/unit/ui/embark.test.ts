@@ -181,7 +181,9 @@ describe('T-M1-13 embark: supplies and animals', () => {
     const { s } = screen(0, 25);
     const anvil = s.rows.call(Object.assign(Object.create(s), { tab: 1, category: 0 })).find((r: CatalogRow) => r.id === 'e_anvil') as CatalogRow;
     expect(s.setSupply(anvil, 1)).toBe(true);
-    expect(s.setSupply(anvil, 1)).toBe(true);
+    // T-533: a rise past the maximum is refused and says why.
+    expect(s.setSupply(anvil, 1)).toBe(false);
+    expect(s.flash).toBe(`At most ${anvil.max} of ${anvil.entry} at embark.`);
     expect(s.count('e_anvil')).toBe(anvil.max);
     expect(temperatureBand(-10)).toBe('frozen');
     expect(temperatureBand(0)).toBe('cold');

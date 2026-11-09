@@ -1380,6 +1380,11 @@
     "action": "adjust the selected skill or quantity"
   },
   {
+    "context": "embark",
+    "key": "0",
+    "action": "clear the selected skill or quantity"
+  },
+  {
     "context": "load",
     "key": "x",
     "action": "Delete (confirm)"

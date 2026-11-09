@@ -127,10 +127,10 @@ Not applicable: there is no embark reader. The app constructs the embark session
 
 The site is chosen on the world map, whose region panel carries the site summary (§ Site summary). The embark screen has three tabs and a footer:
 
-- **Dwarves**: list of seven; selecting one shows name (editable), age, attributes as bars, personality words, and the skill list with +/− controls and remaining points. Reroll button.
-- **Supplies**: catalog grouped by category with quantity fields, unit price, line total.
+- **Dwarves**: list of seven, each with its skills beside its name; selecting one shows name (editable), age, attributes as bars, personality words, and the skill list with +/− controls, remaining points and a find field. Reroll button.
+- **Supplies**: catalog grouped by category with quantity fields, unit price, line total; a find field that searches every entry, animals too, by name or group; and a view of every chosen line, supplies and animals, to review and trim the loadout in one place.
 - **Animals**: species with price and count.
-- Footer: budget remaining, preset menu, fortress name, Embark button. Embark is disabled while over budget and shows why. Embarking with no pick, no axe, no food item or no drink item asks first, one question for each, in that order ("Embark without a pick?", "Embark without an axe?", "Embark with no food?", "Embark with no drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food`, `c_embark_no_drink`, default No).
+- Footer: budget remaining, preset menu (each preset with its total and its dwarves' main skills), fortress name, Embark button. Embark is disabled while over budget and shows why; otherwise the footer names any dwarf whose skill points are unspent. Leaving the screen after edits asks first (`c_leave_embark`, default No), since the edits are lost. Embarking with no pick, no axe, no food item or no drink item asks first, one question for each, in that order ("Embark without a pick?", "Embark without an axe?", "Embark with no food?", "Embark with no drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food`, `c_embark_no_drink`, default No).
 
 Nothing chosen here is irreversible in the fortress: skills grow, items are consumed, animals breed.
 

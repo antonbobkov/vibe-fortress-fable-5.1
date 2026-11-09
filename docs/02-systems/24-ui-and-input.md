@@ -228,6 +228,8 @@ This entire document.
 | `UI_NORMAL_SPACING` | 3 | Normal gap between tabs and status fields (*unmeasured*) |
 | `UI_COMPACT_SPACING` | 1 | Gap when normal spacing does not fit the viewport (*unmeasured*) |
 | `EMBARK_PRESET_SPACING` | 4 | Normal gap before the Presets button (*unmeasured*) |
+| `EMBARK_PRESETS_WIDTH` | 78 | Widest the embark presets menu opens, cells: room for each preset's total and description |
+| `EMBARK_WHEEL_ROWS` | 3 | Rows a mouse wheel notch scrolls an embark list (*unmeasured*) |
 | `EMBARK_LOADOUT_NAME_MAX` | 32 | Longest saved loadout name, characters (02 § Loadouts) |
 | `SITE_LIST_NAMES` | 2 | Names a row of the world map's site summary lists before "and N more" (*unmeasured*) |
 | `SITE_LABEL_COLS` | 9 | Width of the site summary's row labels, cells |
