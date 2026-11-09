@@ -1,0 +1,182 @@
+/**
+ * T-529 probe (not kept in test/): seed `three-years`, peril 0, relief T529_RELIEF (1 by default),
+ * played as the sweep plays a seed. Journals every fight between a dwarf and a wild animal: who
+ * started it, whether the dwarf was a soldier on duty with a kill order on that animal, its weapon,
+ * armour and skill, the animal's group and state, the wounds, and for each dead dwarf whether it
+ * reached a bed and a bandage. Run with `npx vitest run -c vitest.perf.config.ts test/perf/t529-boars.probe.test.ts`.
+ */
+import { it } from 'vitest';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import { TileKind } from '@core/map3d';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms, checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+
+const RELIEF = Number(process.env['T529_RELIEF'] ?? 1) as 0 | 1;
+const SEED = process.env['T529_SEED'] ?? 'three-years';
+const SHIFT = Number(process.env['T529_SHIFT'] ?? 0);
+const OUT = process.env['T529_OUT'] ?? `out/t529-${SEED}-r${RELIEF}-s${SHIFT}.txt`;
+
+it(`T-529 probe ${SEED} relief ${RELIEF} shift ${SHIFT}`, () => {
+  mkdirSync(dirname(OUT), { recursive: true });
+  writeFileSync(OUT, '');
+  const log = (s: string): void => { appendFileSync(OUT, s + '\n'); };
+  const w = threeYearsWorld(SEED, 0, undefined, RELIEF);
+  if (SHIFT > 0) w.step(SHIFT);
+  const state = setupThreeYearsFortress(w);
+  const map = w.map;
+  const ent = w.game.world.entities;
+  const reg = w.game.registry;
+  const species = reg.table<{ id: string }>('creatures');
+  const itemTypes = reg.table<{ id: string }>('items');
+  const materials = reg.table<{ id: string }>('materials');
+  const skillsT = reg.table<{ id: string }>('skills');
+  const dwarf = species.index('dwarf');
+  const founders = w.game.arrival?.dwarves ?? [];
+  const day = (): number => Math.floor(w.tick / TICKS_PER_DAY) + 1;
+  const gate = { x: state.cx + 6, y: state.cy + 6 };
+  const itemName = (id: number): string => {
+    const it = id ? ent.get(id, C.Item) : undefined;
+    return it ? `${materials.byIndex(it.material)?.id}_${itemTypes.byIndex(it.type)?.id}` : '-';
+  };
+  const sp = (id: number): string => species.byIndex(ent.get(id, C.Creature)?.species ?? -1)?.id ?? `gone${id}`;
+  const isDwarf = (id: number): boolean => ent.get(id, C.Creature)?.species === dwarf;
+  const isWild = (id: number): boolean => ent.get(id, C.Creature)?.faction === 'wild';
+  const who = (id: number): string => `${id}${founders.includes(id) ? `(founder ${founders.indexOf(id)})` : ''}`;
+  const kit = (id: number): string => {
+    const e = ent.get(id, C.Equipment);
+    const worker = ent.get(id, C.Worker) as { toolId?: number } | undefined;
+    const armor = e ? Object.values(e.armor).filter((a) => a !== 0).map(itemName) : [];
+    const sk = ent.get(id, C.Skills) as { level: number[] } | undefined;
+    const lv = (s: string): number => sk?.level[skillsT.index(s)] ?? -1;
+    return `w ${itemName(e?.weapon ?? 0)} tool ${itemName(worker?.toolId ?? 0)} sh ${itemName(e?.shield ?? 0)} arm [${armor.join(',')}] spear ${lv('spear')} pick ${lv('pick')} sword ${lv('sword')} dodge ${lv('dodge')} shield ${lv('shield')}`;
+  };
+  const wounds = (id: number): string => {
+    const body = ent.get(id, C.Body);
+    return (body?.parts ?? []).flatMap((pt, i) => pt.wounds.map((wd) => `${i}:${wd.severity}${wd.bandaged ? '+B' : ''} b${wd.bleed}`)).join(' ');
+  };
+  const status = (id: number): string => {
+    const s = ent.get(id, C.Soldier);
+    const b = ent.get(id, C.Brain);
+    const body = ent.get(id, C.Body);
+    const pat = ent.get(id, C.Patient);
+    const p = ent.get(id, C.Position);
+    const med = [...board.jobs.values()].filter((j) => (j as unknown as { target: { ref: number } }).target.ref === id).map((j) => `${board.typeId(j)}:${j.state}${j.blockedReason ? ':' + j.blockedReason : ''}${j.workerId ? '@' + j.workerId : ''}`);
+    const items = w.readers.of<{ count(t: string): number }>('13');
+    return `cloth ${items.count('cloth')} bandage ${items.count('bandage')} jobs [${med.join(' ')}] at ${p ? `${p.x},${p.y},${p.z}` : '-'} beh ${b?.behavior ?? '-'} "${b?.activity ?? ''}" ${s ? `${s.onDuty ? 'ON' : 'off'} tgt ${s.targetId ? sp(s.targetId) : 0}` : 'civ'} blood ${body?.blood ?? '-'}/${body?.maxBlood ?? '-'}${body?.conscious === false ? ' UNCONSCIOUS' : ''} patient ${pat ? `bed ${pat.bedId}` : 'no'} wounds [${wounds(id)}]`;
+  };
+  const board = (w.game.world.scheduler.byId('11') as unknown as { board: { jobs: Map<number, { state: string; blockedReason?: string; workerId?: number }>; typeId(j: unknown): string } }).board;
+  const snap = new Map<number, string>();
+  const engaged = new Map<string, { first: number; hits: [number, number]; swings: [number, number]; dmg: [number, number] }>();
+  const firstWound = new Map<number, number>();
+  const hitBy = new Map<number, string>();
+  const deathSummary: string[] = [];
+  const orderedState = new Map<number, string>();
+  w.game.world.onEvents((events) => {
+    for (const e of events) {
+      if (e.type === 'AnimalSpawned') {
+        const s = String(e['species']);
+        if (s === 'boar' || s === 'wolf' || s === 'bear' || s === 'badger' || s === 'lynx') log(`day ${day()} spawned ${s} ${e['id']} group@${ent.get(Number(e['id']), C.Wild)?.arrivedTick}`);
+      } else if (e.type === 'SquadOrderIssued') {
+        const o = e['order'] as { kind: string; targetId?: number } | undefined;
+        const t = o?.targetId ?? 0;
+        if (o?.kind === 'kill' && !orderedState.has(t)) {
+          const wild = ent.get(t, C.Wild);
+          const p = ent.get(t, C.Position);
+          const st = `${wild?.state}${wild?.defendFrom !== undefined ? '(defending)' : ''}`;
+          orderedState.set(t, st);
+          const surface = ent.with(C.Labors).filter((d) => { const q = ent.get(d, C.Position); return q && p && q.z >= state.z && Math.abs(q.z - p.z) <= 2 && Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)) <= 14; }).length;
+          log(`day ${day()} t${w.tick} KILL ORDER ${sp(t)} ${t} state ${st} at ${p?.x},${p?.y},${p?.z} gate dist ${p ? Math.max(Math.abs(p.x - gate.x), Math.abs(p.y - gate.y)) : '-'} surface dwarves within 14: ${surface}`);
+        }
+      } else if (e.type === 'AttackResolved') {
+        const a = Number(e['attackerId']);
+        const d = Number(e['defenderId']);
+        let dw = 0; let an = 0;
+        if (isDwarf(a) && isWild(d)) { dw = a; an = d; } else if (isDwarf(d) && isWild(a)) { dw = d; an = a; } else continue;
+        const key = `${dw}:${an}`;
+        let rec = engaged.get(key);
+        const out = String(e['outcome']);
+        const hit = Number(e['amount'] ?? 0) > 0;
+        if (!rec) {
+          rec = { first: w.tick, hits: [0, 0], swings: [0, 0], dmg: [0, 0] };
+          engaged.set(key, rec);
+          const wild = ent.get(an, C.Wild);
+          const others = [...engaged.keys()].filter((k) => k.endsWith(`:${an}`)).length;
+          log(`day ${day()} t${w.tick} ENGAGE ${who(dw)} vs ${sp(an)} ${an} (#${others} on it) first blow by ${a === dw ? 'dwarf' : 'animal'} | animal ${wild?.state}${wild?.defendFrom !== undefined ? '(defending)' : ''} | ${status(dw)} | ${kit(dw)}`);
+        }
+        const side = a === dw ? 0 : 1;
+        rec.swings[side] += 1;
+        if (hit) { rec.dmg[side] += Number(e['amount'] ?? 0); rec.hits[side] += 1; }
+        if (side === 1 && hit) {
+          if (!firstWound.has(dw)) firstWound.set(dw, w.tick);
+          hitBy.set(dw, sp(an));
+          snap.set(dw, `t${w.tick} ${status(dw)}`);
+          log(`  t${w.tick} ${sp(an)} ${an} hits ${who(dw)} ${e['part']} ${out} ${e['amount']} -> ${status(dw)}`);
+        }
+      } else if (e.type === 'CreatureDied') {
+        const id = Number(e['id']);
+        const s = Number(e['species'] ?? -1);
+        const k = Number(e['killerId'] ?? 0);
+        if (s === dwarf) {
+          const fw = firstWound.get(id);
+          const line = `day ${day()} t${w.tick} DWARF DIED ${who(id)} ${e['cause']} killer ${k} (${hitBy.get(id) ?? '?'}) | first wild wound ${fw === undefined ? '-' : `${w.tick - fw} ticks before`} | last seen ${snap.get(id) ?? '-'}`;
+          log(line);
+          deathSummary.push(line);
+        } else if (species.byIndex(s)?.id === 'boar' || ['wolf', 'bear', 'badger', 'lynx'].includes(species.byIndex(s)?.id ?? '')) {
+          log(`day ${day()} t${w.tick} wild died ${species.byIndex(s)?.id} ${id} ${e['cause']} killer ${k}`);
+        }
+      } else if (e.type === 'AlertChanged') {
+        log(`day ${day()} t${w.tick} alert ${e['from']}->${e['to']}`);
+      }
+    }
+  });
+  const watchWounded = (): void => {
+    for (const id of ent.with(C.Labors)) {
+      if (!firstWound.has(id)) continue;
+      const body = ent.get(id, C.Body);
+      if (body && body.blood < body.maxBlood) snap.set(id, `t${w.tick} ${status(id)}`);
+    }
+  };
+  const boot = 20 * TICKS_PER_DAY;
+  const end = Number(process.env['T529_DAYS'] ?? 3 * DAYS_PER_YEAR) * TICKS_PER_DAY;
+  let lastSquad = '';
+  let nextReport = 30;
+  while (w.tick < end) {
+    playThreeYears(w, state, w.tick < boot ? Math.min(100, boot - w.tick) : Math.min(300, end - w.tick), watchWounded);
+    checkFortressWorkOrders(w, state);
+    checkFortressRooms(w, state);
+    checkFortressCaveFarm(w, state);
+    checkFortressDefense(w, state);
+    const combat = w.readers.of<{ squads(): { id: number; members: number[] }[] }>('16');
+    const sq = combat.squads().find((q) => q.id === state.squadId);
+    const desc = sq ? sq.members.map((m) => `${who(m)}[${kit(m)}]`).join(' ') : '-';
+    if (desc !== lastSquad) { lastSquad = desc; log(`day ${day()} squad ${desc}`); }
+    if (day() >= nextReport) {
+      nextReport += 30;
+      const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const labors = reg.table<{ id: string }>('labors');
+      const mi = labors.index('mining');
+      const miners = ent.with(C.Labors).filter((id) => ((ent.get(id, C.Labors)?.enabled[mi >> 3] ?? 0) & (1 << (mi & 7))) !== 0);
+      const ds = state.economy.deepShaft;
+      let drift = '';
+      if (ds !== undefined) {
+        const ux = state.cx + 6;
+        const uy = Math.min(map.h - 3, state.cy + 15);
+        const tiles: number[] = [];
+        for (let xx = Math.min(ux, ds.x); xx <= Math.max(ux, ds.x); xx += 1) tiles.push(w.index(xx, uy, 23));
+        for (let yy = Math.min(uy, ds.y); yy <= Math.max(uy, ds.y); yy += 1) tiles.push(w.index(ds.x, yy, 23));
+        const open = tiles.filter((t) => map.kindAt(t) === TileKind.Wall).length;
+        const jobs = [...board.jobs.values()].filter((j) => tiles.includes((j as unknown as { target: { ref: number } }).target.ref)).map((j) => `${board.typeId(j)}:${j.state}${j.blockedReason ? ':' + j.blockedReason : ''}${j.workerId ? '@' + j.workerId : ''}`);
+        drift = ` drift walls ${open}/${tiles.length} jobs [${jobs.join(' ')}]`;
+      }
+      const picks = ent.with(C.Item).filter((i) => itemTypes.byIndex(ent.get(i, C.Item)!.type)?.id === 'pick').map((i) => `${i}${ent.get(i, C.Item)!.flags}o${ent.get(i, C.Item)!.ownerId}`);
+      log(`day ${day()} pop ${pop} mining-enabled ${miners.map(who).join(',')} picks [${picks.join(' ')}]${drift}`);
+    }
+  }
+  for (const [k, r] of engaged) log(`engagement ${k} first t${r.first} dwarf swings ${r.swings[0]} hits ${r.hits[0]} dmg ${r.dmg[0]} | animal swings ${r.swings[1]} hits ${r.hits[1]} dmg ${r.dmg[1]}`);
+  for (const [t, st] of orderedState) log(`ordered ${t} state-at-order ${st}`);
+  const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+  log(`SUMMARY ${SEED} r${RELIEF} s${SHIFT} end day ${day()} pop ${pop} dwarf deaths ${deathSummary.length}`);
+  for (const l of deathSummary) log(`  ${l}`);
+}, 14_400_000);
