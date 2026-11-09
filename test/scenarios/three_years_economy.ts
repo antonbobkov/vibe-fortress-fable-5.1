@@ -55,6 +55,13 @@ export const BUILD = 5;
 /** One step ahead of routine work: a caravan's few days at the depot. */
 const DEADLINE = 4;
 /**
+ * T-534: the wood furnace and the smelter are built one step ahead of the routine backlog. Priority
+ * is strict and a job does not age (11 § Assignment): at BUILD the builder's nearer smoothing and
+ * hauling, at the same priority, left `three-years-p0-3`'s smelter half built from day 63 to about
+ * day 160, and its year 3 had too few iron bars for any steel. A player raises such a build.
+ */
+export const METAL_BUILD = 4;
+/**
  * F-17h: the squad's metal chain is ordered ahead of all routine work until the kit is forged.
  * It stays above NEED_DEFER_PRIORITY: nobody skips a meal for it.
  */
@@ -1151,8 +1158,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     trade(w, state);
   }
   if (metal) {
-    placeEconomyBuilding(w, state, 'wood_furnace', -12, 10);
-    placeEconomyBuilding(w, state, 'smelter', -16, 10);
+    placeEconomyBuilding(w, state, 'wood_furnace', -12, 10, METAL_BUILD);
+    placeEconomyBuilding(w, state, 'smelter', -16, 10, METAL_BUILD);
     if (day >= 30) placeEconomyBuilding(w, state, 'jeweler', -20, 10);
     for (const type of ['wood_furnace', 'smelter', 'jeweler']) {
       const id = state.placedIds[type];
