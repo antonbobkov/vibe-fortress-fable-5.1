@@ -56,7 +56,7 @@ export const BUILD = 5;
 const DEADLINE = 4;
 /**
  * T-534: the wood furnace and the smelter are built one step ahead of the routine backlog. Priority
- * is strict and a job does not age (11 ง Assignment): at BUILD the builder's nearer smoothing and
+ * is strict and a job does not age (11 ยง Assignment): at BUILD the builder's nearer smoothing and
  * hauling, at the same priority, left `three-years-p0-3`'s smelter half built from day 63 to about
  * day 160, and its year 3 had too few iron bars for any steel. A player raises such a build.
  */

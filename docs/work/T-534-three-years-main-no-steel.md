@@ -13,3 +13,13 @@ Find the commit since T-456 after which `three-years-p0-3` stops making steel, a
 ## Done
 
 - `three_years_main` passes on master with its assertions unchanged, or a dated report says why it should not.
+
+## Outcome (2026-11-09)
+
+**When:** T-456 chose the seed on its branch at `3cfb9f0e`, before T-527 (run 42438978685 passes there, `alloy_steel` 3). The merge `ead1656d` brought T-456 together with T-527 and already fails (run 42622261911); nothing after it touches the cause. T-527 changes no rule the metal chain uses: it moves the timeline, and on the new one the smelter's build job loses out.
+
+**Why no steel:** not ore, flux, fuel or the worker. The smelter is placed at the routine build priority (5) on day 35 and stands `constructing`, one of its three stones delivered, its build job `open` and untaken from day 63 to about day 150: the builder takes the nearer smoothing and hauling of the same priority first (11 § Assignment: priority is strict and a job does not age). Smelting begins about 80 days late (hematite 14 smelts by day 224, against 38), the forge's standing iron orders take every bar, and the steel order of day 224 never finds one.
+
+**Fix:** the three-year script builds the wood furnace and the smelter at `METAL_BUILD` = 4, one step ahead of the routine backlog, as a player raises a build left waiting (`test/scenarios/three_years_economy.ts`). On p0-3 smelting now starts by day 56. Test: `test/unit/t534-smelter-build-first.test.ts` (at priority 5 a builder smooths 42 nearer tiles before the smelter; at 4 it builds the smelter first). Every assertion of the scenario is unchanged.
+
+**Verified:** `three_years_main` passes on branch `t-534` (run 42624915804): year 3 ends with 63 dwarves, no death, 81,401 marks, 53 hematite smelts and `alloy_steel` 4. `ci.yml` passes (run 42624920101, e2e 42 passed). The pooled sweep was not run: no game rule changed, only the script's build priority, which moves the twenty-seed timelines as any script change does.
