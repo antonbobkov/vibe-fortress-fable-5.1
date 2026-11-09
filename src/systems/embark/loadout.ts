@@ -13,12 +13,19 @@ import { EMBARK_SKILL_MAX_PER_SKILL } from '@core/constants';
 import type { Registry } from '@core/registry';
 import type { EmbarkSession } from './index';
 import type { EmbarkEntryRow, SupplyLine } from './party';
+import type { TestingItemLine } from './testing';
 
 export interface Loadout {
   /** The supply lines, by catalog entry id. */
   readonly supplies: readonly SupplyLine[];
   /** Each dwarf's skills by party position: skill id → level. */
   readonly skills: readonly Readonly<Record<string, number>>[];
+  /**
+   * A testing loadout (`02` § Testing mode): it loads in testing mode, with a party of as many
+   * dwarves as `skills` holds and its free item lines. Absent: a normal loadout.
+   */
+  readonly mode?: 'testing';
+  readonly items?: readonly TestingItemLine[];
 }
 
 export interface SavedLoadout extends Loadout {
@@ -47,6 +54,24 @@ export function loadoutOf(session: EmbarkSession): Loadout {
   return {
     supplies: session.supplies.filter((line) => line.count > 0).map((line) => ({ entry: line.entry, count: line.count })),
     skills: session.party.map((d) => ({ ...d.skills })),
+    ...(session.testing ? { mode: 'testing' as const, items: session.items.map((line) => ({ ...line })) } : {}),
+  };
+}
+
+/** A stored free item line read back, or null when malformed. */
+function readItemLine(value: unknown): TestingItemLine | null {
+  if (value === null || typeof value !== 'object') return null;
+  const row = value as Record<string, unknown>;
+  const count = positiveInt(row['count']);
+  if (typeof row['item'] !== 'string' || typeof row['material'] !== 'string' || count === null) return null;
+  const quality = row['quality'];
+  return {
+    item: row['item'],
+    material: row['material'],
+    count,
+    ...(typeof quality === 'number' && Number.isInteger(quality) ? { quality } : {}),
+    ...(typeof row['stone'] === 'string' ? { stone: row['stone'] } : {}),
+    ...(typeof row['enchant'] === 'string' ? { enchant: row['enchant'] } : {}),
   };
 }
 
@@ -83,7 +108,13 @@ export function readLoadout(value: unknown): SavedLoadout | null {
     }
     skills.push(out);
   }
-  return { name, supplies, skills };
+  if (row['mode'] !== 'testing') return { name, supplies, skills };
+  const items: TestingItemLine[] = [];
+  for (const line of Array.isArray(row['items']) ? row['items'] as unknown[] : []) {
+    const item = readItemLine(line);
+    if (item !== null) items.push(item);
+  }
+  return { name, supplies, skills, mode: 'testing', items };
 }
 
 /** The stored list read back: unreadable rows dropped, one loadout per name (the first), sorted by name. */
@@ -126,6 +157,15 @@ export function applyLoadout(
   const note = (list: string[], id: string): void => {
     if (!list.includes(id)) list.push(id);
   };
+  // A loadout loads in its own mode; a testing one brings its party size (`02` § Testing mode).
+  const testing = loadout.mode === 'testing';
+  session.apply({ type: 'SetEmbarkMode', mode: testing ? 'testing' : 'normal' });
+  if (testing) {
+    const size = Math.max(1, loadout.skills.length);
+    while (session.party.length < size && session.apply({ type: 'AddDwarf' }).ok);
+    while (session.party.length > size && session.apply({ type: 'RemoveDwarf', dwarf: session.party.length - 1 }).ok);
+  }
+  while (session.items.length > 0 && session.apply({ type: 'SetItemCount', index: session.items.length - 1, count: 0 }).ok);
   for (const line of session.supplies.slice()) session.apply({ type: 'SetSupply', entry: line.entry, count: 0 });
   session.party.forEach((d, dwarf) => {
     for (const skill of Object.keys(d.skills)) session.apply({ type: 'SetSkill', dwarf, skill, level: 0 });
@@ -157,6 +197,10 @@ export function applyLoadout(
       }
     }
   });
+  for (const line of testing ? loadout.items ?? [] : []) {
+    const r = session.apply({ type: 'AddItem', line });
+    if (!r.ok) note(missing, line.item);
+  }
   const extraDwarves = loadout.skills.slice(session.party.length).filter((s) => Object.keys(s).length > 0).length;
   session.preset = null;
   return { missing, unavailable, lowered, extraDwarves };

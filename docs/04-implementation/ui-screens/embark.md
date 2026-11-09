@@ -61,10 +61,33 @@ Presets menu (`p`): Balanced, Miner's Guild, Farmstead, Warband, each with its o
 │  [s] Save current  [Enter] Load  [n] Rename  [x] Delete  [Esc] Close                   │
 ```
 
-- Rows are the saved loadouts by name, each with what it costs at today's prices; one that costs more than this site's budget says "over budget". `↑` `↓` select, a click selects and a click on the selected row loads it. With none saved the list reads "No saved loadouts yet: [s] saves the current one."
+- Rows are the saved loadouts by name, each with what it costs at today's prices; one that costs more than this site's budget says "over budget", and a testing loadout (02 § Testing mode) says "testing". `↑` `↓` select, a click selects and a click on the selected row loads it. With none saved the list reads "No saved loadouts yet: [s] saves the current one."
 - `s` asks for a name in the `text_input` dialog, "Loadout 1" (the first number not taken) by default; a taken name asks `c_overwrite_loadout`. `Enter` loads the selected loadout (after `c_load_loadout` when anything was edited), `n` renames it (a taken name is refused and the panel says so), `x` deletes it after `c_delete_loadout`, `Esc` closes the panel.
 - The line above the captions says what the last action did. After a load it lists what was left out or lowered ("No longer in the game, left out: …", "Not offered here, left out: …", "Lowered to the limit: …", "Skills for 2 more dwarves than the party were left out.") and, when the loadout is over this site's budget, "It costs 1,620 ☼, 120 ☼ over the budget here: trim it to embark." The footer's budget line and the Embark reason show the same overspend until it is trimmed.
 
 Validation display: the Embark button is dim with a reason line when over budget ("Over budget by 44 ☼"), when a dwarf has more than 10 points, or when the name is empty. Embarking with no pick, no axe, no food item or no drink item asks first, one question for each, in that order ("Embark without a pick?", "Embark without an axe?", "Embark with no food?", "Embark with no drink?"; confirmations `c_embark_no_pick`, `c_embark_no_axe`, `c_embark_no_food`, `c_embark_no_drink`, default No).
 
 At 80 columns the header reduces tab and preset spacing so every caption and its mouse target fits. The reroll caption is `[r] reroll 25 ☼`. Budget, Spent and Left align against the right edge; their digits are never clipped. Attribute bars use up to five cells, reducing their width when necessary to preserve the complete attribute numbers and spacing.
+
+## Testing mode
+
+The bottom line is the switch: `[t] Testing mode: off` with "For trying features: no budget, any dwarves, skills, items." in dim; on, `[t] Testing mode: ON` with "No budget; any dwarves, skills and items. Marked as testing." in the bad colour, and the title reads "Embark at Greenhollow (testing)" in the same colour. The presets menu lists "Testing fortress" after the four normal presets, with "testing" for its total (02 § Testing mode).
+
+In testing mode the footer reads "Budget unlimited (testing)   Spent 1,480"; the Dwarves list shows each dwarf's points with no limit, scrolls, and keeps its last row for `[a] add dwarf  [x] remove`; the skill list holds every skill, to 20, under "Skills (testing: up to 20; [*] every dwarf)", where `*` gives every dwarf the selected dwarf's level of the selected skill. Supplies and Animals ignore `max` and temperature conditions; `+` and `-` step by 1 to 10, by 10 to 100 and by 100 beyond, to 999.
+
+Items tab (`4`, testing mode only):
+
+```
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ /filter: [ __________Any item in any material. ←→ change, [a] add, [x] remove.          │
+│ ─── New item ─────────────────────────────────────────────────────────────────────────── │
+│   Item       ◄ staff ►                                                                   │
+│   Material   ◄ steel ►                                                                   │
+│   Quality    ◄ superior ►                                                                │
+│   Stone      ◄ garnet · Emberbolt ►                                                      │
+│ ▶ Count      [-]   3 [+]   [a] add                                                       │
+│ ─── Items to bring (1 lines) ─────────────────────────────────────────────────────────── │
+│   3 x superior steel staff · garnet (Emberbolt)              [-]   3 [+] [x]             │
+```
+
+`↑` `↓` move through the form's rows and then the lines; `←` `→` (or `+` `-`, or a click on `◄` `►`) change the selected row: the item (every `items` row, by name), the material (those that suit the item first, then the rest, marked "(unusual)"), the quality (poor to masterwork), the stone of a wand or a staff ("garnet · Emberbolt") or the enchantment of a weapon, armor piece or ammunition ("of blaze · ruby"), labelled Stone or Enchant by the item, and the count. `/` starts an empty filter for the selected row: typing narrows its choices to those whose name holds the text and moves the row to the first of them; moving to another row clears it. `[a]` adds the line (a line of the same kind grows instead); on a line, `+` `-` change its count and `[x]` or `x` removes it.

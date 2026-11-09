@@ -400,6 +400,8 @@ export class HeadlessGame {
       return arrive(this.world, spec, session.party, {
         fortressName: fortressName ?? session.fortressName,
         supplies: session.supplies,
+        items: session.items,
+        testing: session.testing,
         spawnDwarf: spawnApiDwarfSpawner(this.world),
         ...this.arrivalHooks(),
       });
@@ -411,6 +413,8 @@ export class HeadlessGame {
     return arrive(this.world, spec, session.party, {
       fortressName: fortressName ?? this.world.fortress.name,
       supplies: session.supplies,
+      items: session.items,
+      testing: session.testing,
       spawnDwarf: spawnApiDwarfSpawner(this.world),
       ...this.arrivalHooks(),
     });

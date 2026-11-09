@@ -553,6 +553,8 @@ export interface FortressState {
   milestones: { id: string; tick: Tick }[];
   hintsShown: string[];
   deepsilverConfirmed: boolean;
+  /** Started in the embark's testing mode (`02` § Testing mode); absent is a normal fortress. */
+  testing?: boolean;
 }
 
 // ---------- structure-of-arrays stores for the hot components ----------

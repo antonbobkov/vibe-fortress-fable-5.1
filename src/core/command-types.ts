@@ -101,6 +101,12 @@ export const APP_COMMAND_TYPES = [
   'ApplyPreset',
   'SetFortressName',
   'ConfirmEmbark',
+  'SetEmbarkMode',
+  'AddDwarf',
+  'RemoveDwarf',
+  'SetSkillAll',
+  'AddItem',
+  'SetItemCount',
 ] as const;
 
 export type AppCommandType = (typeof APP_COMMAND_TYPES)[number];

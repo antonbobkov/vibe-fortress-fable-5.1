@@ -217,6 +217,7 @@ export function gameHeader(
     playTimeSeconds: Math.trunc(extras.playTimeSeconds ?? 0),
     ...(extras.thumbnail === undefined ? {} : { thumbnail: extras.thumbnail }),
     kind,
+    ...(world.fortress.testing === true ? { testing: true } : {}),
   };
 }
 
