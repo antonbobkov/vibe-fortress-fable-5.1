@@ -6,7 +6,7 @@
  * tickAnimal(id):
  *   if tick < lastThink + thinkInterval(id): moveAlongPath(id); return
  *   lastThink = tick; threats = perceivedThreats(id)
- *   idle:   threats → flee; aggressive carnivore and hungry with a quarry → hunt (the pack's
+ *   idle:   threats → flee (none for territorial or aggressive); aggressive carnivore and hungry with a quarry → hunt (the pack's
  *           quarry, else the nearest animal prey, else the nearest dwarf); territorial with a
  *           dwarf within TERRITORY_RADIUS → attack; rest time → sleep; grazer with grass within 6
  *           → graze; else wander
@@ -20,8 +20,11 @@
  *           provoke radius of the tile where the attack began, or unconscious
  *   eat:    walk to the saved corpse; wait EAT_CORPSE_TICKS there, consume through 13, idle
  *   sleep:  stay until stateUntil; a threat wakes it; hit (wakeStruck): below the flee percent
- *           flee the striker unless aggressive, territorial defend against it from its tile, else idle
+ *           flee the striker, territorial defend against it from its tile, aggressive attack it
+ *           back from its tile (T-538), else idle
  *   leave:  walk to the nearest edge tile; despawn on arrival (AnimalLeft)
+ *   struck (strikeBack, T-538): an aggressive animal in idle, graze, wander or eat attacks the
+ *           striker, defending the striker's tile; below a species flee percent it flees instead
  * ```
  *
  * The brain reads the map and the spatial index and writes only `Wild` and the mover's path; the
@@ -157,16 +160,16 @@ function visible(host: BrainHost, at: TileIndex, other: EntityId): boolean {
 
 /**
  * `08` § Wild behavior: "a *threat* is any creature of a faction the species fears: for `timid`,
- * dwarves, hostiles and carnivores; for `neutral`, anything that attacked it; for `territorial`,
- * nothing; for `aggressive` carnivores", dwarves only inside `APPROACH_RADIUS`.
+ * dwarves, hostiles and carnivores; for `neutral`, anything that attacked it; for `territorial`
+ * and `aggressive`, nothing". An aggressive animal struck strikes back instead (`strikeBack`, T-538).
  */
 export function perceivedThreats(host: BrainHost, id: EntityId): EntityId[] {
   const at = tileOf(host, id);
   if (at < 0) return [];
   const species = speciesOf(host, id);
   const temper = host.facts.temperOf(species);
-  if (temper === 'territorial') return [];
-  if (temper === 'neutral' || temper === 'aggressive') {
+  if (temper === 'territorial' || temper === 'aggressive') return [];
+  if (temper === 'neutral') {
     const attacker = host.provokedBy(id);
     return attacker !== 0 && visible(host, at, attacker) ? [attacker] : [];
   }
@@ -649,6 +652,38 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
   return next;
 }
 
+/** The states in which an `aggressive` animal that is struck awake strikes back (T-538). */
+const STRIKE_BACK_STATES: readonly string[] = Object.freeze(['idle', 'graze', 'wander', 'eat']);
+
+/**
+ * `08` § Wild behavior (T-538): an `aggressive` animal fears no attacker. Struck (any outcome)
+ * while it is awake and not already fighting, hunting, fleeing or leaving (`idle`, `graze`,
+ * `wander`, `eat`), it attacks the striker back: a defending attack whose ground is the tile the
+ * striker stood on, so it charges an archer and lets go of one that runs more than
+ * `APPROACH_RADIUS` from where it shot. Below a species' own flee percent it flees the striker
+ * instead. Any other record is returned unchanged.
+ */
+export function strikeBack(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, striker: EntityId): Wild {
+  if (!STRIKE_BACK_STATES.includes(w.state)) return w;
+  if (host.facts.temperOf(speciesOf(host, id)) !== 'aggressive') return w;
+  if (striker === 0 || striker === id || !host.entities.alive(striker)) return w;
+  const at = tileOf(host, id);
+  if (at < 0) return w;
+  const next: Wild = { ...w };
+  host.movement?.stopWalking(id);
+  if (woundedToFlee(host, id)) {
+    host.setTarget(id, 0);
+    startFlee(host, ctx, id, next, [striker]);
+    return next;
+  }
+  const from = tileOf(host, striker);
+  next.state = 'attack';
+  next.defendFrom = from >= 0 ? from : at;
+  delete next.unseenSince;
+  host.setTarget(id, striker);
+  return next;
+}
+
 /**
  * `08` § Wild behavior: wounded animals (blood below the species' `flee` percent, defaulting to
  * 16's `FLEE_BLOOD_PERCENT`) flee unless `aggressive` (a species percent applies to any temper).
@@ -663,8 +698,9 @@ function woundedToFlee(host: BrainHost, id: EntityId): boolean {
 
 /**
  * `08` § Wild behavior, `sleep` (T-535): an animal struck in its sleep wakes at once. Below its
- * flee percent it flees the striker unless aggressive, as in `attack`; a territorial one defends
- * against the striker from its own tile, as `idle`'s provoke rule starts a defence; any other
+ * flee percent it flees the striker (an aggressive one only below a percent of its own), as in
+ * `attack`; a territorial one defends against the striker from its own tile, as `idle`'s provoke
+ * rule starts a defence; an aggressive one attacks back as `strikeBack` does (T-538); any other
  * wakes to `idle` with no wait, where its threats decide (none, at rest time: it sleeps again).
  * Called on a `hit` `AttackResolved` against the animal; a record not in `sleep` is returned unchanged.
  */
@@ -672,13 +708,16 @@ export function wakeStruck(host: BrainHost, ctx: TickContext, id: EntityId, w: W
   if (w.state !== 'sleep') return w;
   const next: Wild = { ...w };
   const at = tileOf(host, id);
+  const temper = host.facts.temperOf(speciesOf(host, id));
   if (woundedToFlee(host, id)) {
     host.setTarget(id, 0);
     startFlee(host, ctx, id, next, striker !== 0 ? [striker] : []);
-  } else if (at >= 0 && striker !== 0 && host.entities.alive(striker) &&
-      host.facts.temperOf(speciesOf(host, id)) === 'territorial') {
+  } else if (at >= 0 && striker !== 0 && striker !== id && host.entities.alive(striker) &&
+      (temper === 'territorial' || temper === 'aggressive')) {
+    // T-538: an aggressive one attacks back as when struck awake, defending the striker's tile.
+    const from = temper === 'aggressive' ? tileOf(host, striker) : at;
     next.state = 'attack';
-    next.defendFrom = at;
+    next.defendFrom = from >= 0 ? from : at;
     delete next.unseenSince;
     host.setTarget(id, striker);
   } else {
