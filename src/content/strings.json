@@ -23,6 +23,7 @@
   "confirm.c_embark_no_drink": "Embark with no drink?",
   "confirm.c_embark_no_food": "Embark with no food?",
   "confirm.c_embark_no_pick": "Embark without a pick?",
+  "confirm.c_leave_embark": "Go back to the world map? The skills and supplies you have set here are lost.",
   "confirm.c_load_loadout": "Load {loadout}? It replaces the skills and supplies you have set.",
   "confirm.c_load_snapshot": "Load the {season} snapshot? The current game continues to exist as its own saves.",
   "confirm.c_main_menu": "Return to the main menu? Unsaved progress since {time} will be lost.",

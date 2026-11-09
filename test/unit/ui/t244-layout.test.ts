@@ -42,7 +42,9 @@ describe('T-244 complete text at eighty columns', () => {
     const catalog = registry.table<CatalogRow>('embarkCatalog');
     for (const id of catalog.ids()) expect(e.apply({ type: 'SetSupply', entry: id, count: catalog.byId(id)!.max })).toBe(true);
     const left = e.session.budget() - e.session.total(); expect(left).toBeLessThan(0);
-    const s = surface(80, 50); e.draw(s); expect(s.lines()[47]).toContain(`Left ${marks(left)}`);
+    // T-533: an overspend reads "Over", and the figures close up to stay whole at eighty columns.
+    const s = surface(80, 50); e.draw(s); expect(s.lines()[47]).toContain(`Over ${marks(-left)}`);
+    expect(s.lines()[47]).toMatch(/\] Budget 1,500 ☼ Spent [\d,]+ Over [\d,]+ $/);
   });
   it('keeps the final attribute number visible', () => {
     const e = embark(), s = surface(80, 50); e.draw(s);

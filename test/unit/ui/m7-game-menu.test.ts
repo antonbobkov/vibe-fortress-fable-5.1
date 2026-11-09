@@ -139,8 +139,9 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       // for the destructive single-key actions (melt, dump ×2, slaughter, suspend, take apart,
       // remove zone, remove order). U-05: and releasing a caged creature (c_release_cage). T-439:
       // and the tutorial offered on the first New world (c_tutorial). T-531: and loading, replacing
-      // and deleting a saved loadout (c_load_loadout, c_overwrite_loadout, c_delete_loadout).
-      expect(table.ids()).toHaveLength(27);
+      // and deleting a saved loadout (c_load_loadout, c_overwrite_loadout, c_delete_loadout). T-533:
+      // and leaving the embark screen with edits (c_leave_embark).
+      expect(table.ids()).toHaveLength(28);
       for (const id of table.ids()) {
         expect(sources.includes(`'${id}'`), `${id} is never asked for in src/`).toBe(true);
         const row = table.byId(id) as ConfirmRow;

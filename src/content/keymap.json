@@ -1381,6 +1381,11 @@
   },
   {
     "context": "embark",
+    "key": "0",
+    "action": "clear the selected skill or quantity"
+  },
+  {
+    "context": "embark",
     "key": "t",
     "action": "testing mode on or off"
   },
