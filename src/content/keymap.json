@@ -1366,6 +1366,11 @@
   },
   {
     "context": "embark",
+    "key": "l",
+    "action": "saved loadouts"
+  },
+  {
+    "context": "embark",
     "key": "Enter",
     "action": "Embark"
   },

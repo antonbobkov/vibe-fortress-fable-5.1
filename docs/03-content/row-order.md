@@ -174,3 +174,6 @@ Every new row of every table goes at the end of this table, including generated 
 | hints | hint_rune_metal |
 | hints | hint_draught |
 | hints | hint_herbs_eaten |
+| confirmations | c_load_loadout |
+| confirmations | c_overwrite_loadout |
+| confirmations | c_delete_loadout |

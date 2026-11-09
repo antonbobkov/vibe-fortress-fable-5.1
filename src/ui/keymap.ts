@@ -191,6 +191,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'reroll the selected dwarf': 'reroll',
   rename: 'rename',
   'presets menu': 'presets',
+  'saved loadouts': 'loadouts',
   Embark: 'embark',
   'switch column': 'switch_column',
   quantity: 'adjust',

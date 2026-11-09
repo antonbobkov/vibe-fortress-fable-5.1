@@ -44,6 +44,15 @@ For each of `EMBARK_DWARF_COUNT` dwarves, from the `embark.party` rng stream:
 
 A preset fills the party skills and the supply list to `EMBARK_BUDGET_BASE`; any extra peril budget stays unspent for the player. The embark screen opens with `balanced` applied.
 
+### Loadouts
+
+The player can save the current loadout under a name and load it on a later embark, on any site and any world.
+
+- **A loadout** is the supply list (catalog entry and count) and each dwarf's skills by party position (the first dwarf's, the second's, …). It does not hold the party's names, attributes or rerolls, or the fortress name: those belong to the world and the site.
+- **Saved loadouts** are kept by the app outside any world, beside the settings (`01-architecture/persistence.md` § Storage), so they survive a reload and serve every new world. A name is 1 to `EMBARK_LOADOUT_NAME_MAX` characters (24 § Tuning constants); names compare without case, and saving under a name that is taken asks before it replaces that loadout (`c_overwrite_loadout`). Saved loadouts can be listed, loaded, renamed (not to a taken name) and deleted (`c_delete_loadout`).
+- **Loading** replaces every skill and supply line with the loadout's, through the session's own `SetSupply` and `SetSkill`; after edits it asks first (`c_load_loadout`). A loadout is stored by content id, so it survives a content change: a catalog entry or skill that no longer exists, or is no longer offered at embark, is left out; an entry whose temperature condition fails on this site is left out; a count or level above its current limit is lowered to the limit; skills for dwarves beyond the party are left out. The screen names each of them after the load.
+- **The budget is never changed by a load.** A loadout that costs more than the site's budget loads whole; the screen says what it costs and by how much it is over, Embark stays disabled with its reason ("Over budget by 44 ☼"), and the player trims it. The same holds for a dwarf with more skill points than `EMBARK_SKILL_POINTS_PER_DWARF`.
+
 ### Fortress name
 
 Text field with a generated default from the names table. Used in announcements, saves and the legend.
@@ -98,7 +107,7 @@ Arrival consumes item entries of the local map’s trait spawn list; an entry's 
 
 ## State
 
-Embark state exists only during the embark screen: `budget`, `party[]`, `supplies[]`, `preset`, `fortressName`. After arrival nothing of it persists except through the world (the wagon, items, dwarves). The `LocalMapSpec` is saved with the world for reference.
+Embark state exists only during the embark screen: `budget`, `party[]`, `supplies[]`, `preset`, `fortressName`. After arrival nothing of it persists except through the world (the wagon, items, dwarves), and the saved loadouts, which the app keeps outside every world (§ Loadouts). The `LocalMapSpec` is saved with the world for reference.
 
 ## Interfaces
 
