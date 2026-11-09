@@ -22,3 +22,12 @@ The script sent its three soldiers after every aggressive animal within 14 tiles
 dwarf. A bear (omnivore) never hunts a dwarf (08: only a hungry carnivore hunts), attacks only one
 within APPROACH_RADIUS and lets a fleeing one go, so the script now answers a bear only at the gate,
 as it answers a territorial boar since T-529.
+
+After, with the script answering a bear only at the gate: run 42661644014 on 2c2a46e2 (pooled 19.5/7/0.25/918/146, pass)
+  583 dwarf deaths
+  wolf 26 + near:wolf 88 = 114   (+36 against before, about +9 a sweep)
+  bear 25 + near:bear 5 = 30     (+18, about +4.5 a sweep: a bear at the gate is still answered)
+  boar 8 + near:boar 7, boar+wolf 3
+  raiders (gloam, hillfolk, trollkin) 366, unknown 158
+  Seed jobs p2-5 and p2-6 at shift 150 failed their own witnesses (gate walls; a dining hall); on
+  p2-6 the script raised the hearth alert for wolves 46 times between days 27 and 70 (once before).
