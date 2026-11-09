@@ -1,0 +1,435 @@
+# T-530 probe (2026-11-09-t530-walks.probe.ts.txt) on GitHub: 16 seeds of the twenty-seed file at shifts 0, 50, 100, 150.
+# Before: master bbed6fa0 with the probe (run 42594759735). After: t530-walks 0e783c05 with the probe (run 42596590023).
+# Each [t530] counts line is one run; each 'day' line one failed walk the labels joined: why, from, to, the searches, the alert,
+# forbidden tiles on the way, and the locked doors (live = what the pathfinder sees, stored = the lock 14 took and dirtied; STALE where they differ).
+
+## Before
+sweep (p0-3, 150) | [t530] three-years-p0-3 shift 150 y3Pop 74 deaths 0
+sweep (p0-3, 150) | [t530] counts {"all:missing_input":1200,"all:no_tool":23}
+sweep (p0-3, 150) | [t530] log
+sweep (p0-1, 150) | [t530] three-years-p0-1 shift 150 y3Pop 76 deaths 0
+sweep (p0-1, 150) | [t530] counts {"all:missing_input":537,"all:no_tool":12}
+sweep (p0-1, 150) | [t530] log
+sweep (p0-3, 50) | [t530] three-years-p0-3 shift 50 y3Pop 76 deaths 0
+sweep (p0-3, 50) | [t530] counts {"all:missing_input":2002,"all:no_tool":32}
+sweep (p0-3, 50) | [t530] log
+sweep (p4-5, 150) | [t530] three-years-p4-5 shift 150 y3Pop 47 deaths 1
+sweep (p4-5, 150) | [t530] counts {"all:missing_input":481}
+sweep (p4-5, 150) | [t530] log
+sweep (p0-3, 0) | [t530] three-years-p0-3 shift 0 y3Pop 75 deaths 0
+sweep (p0-3, 0) | [t530] counts {"all:missing_input":3016,"all:no_tool":46}
+sweep (p0-3, 0) | [t530] log
+sweep (p0-6, 100) | [t530] three-years-p0-6 shift 100 y3Pop 57 deaths 0
+sweep (p0-6, 100) | [t530] counts {"all:missing_input":711}
+sweep (p0-6, 100) | [t530] log
+sweep (p2-7, 150) | [t530] three-years-p2-7 shift 150 y3Pop 64 deaths 15
+sweep (p2-7, 150) | [t530] counts {"all:missing_input":570,"all:no_tool":64,"all:unreachable":6,"suture:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":1,"all:unreachable:item":2,"later:graph:staleDoor:apart":1}
+sweep (p2-7, 150) | [t530] log
+sweep (p2-7, 150) | day 226 t270427 (mod10 7) job 5824 suture fetching carrying why path_unreachable from 38,8,26 to 24,11,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [50331747@38,3,32:lock_on_alert:live=L:stored=L 50331790@38,5,32:lock_on_alert:live=o:stored=o 117440986@37,4,26:lock_on_alert:live=L:stored=o:STALE 16777692@39,4,26:lock_on_alert:live=L:stored=o:STALE 16777693@38,3,26:lock_on_alert:live=L:stored=o:STALE 16777694@38,5,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p0-1, 0) | [t530] three-years-p0-1 shift 0 y3Pop 62 deaths 0
+sweep (p0-1, 0) | [t530] counts {"all:missing_input":613}
+sweep (p0-1, 0) | [t530] log
+sweep (p0-1, 100) | [t530] three-years-p0-1 shift 100 y3Pop 57 deaths 0
+sweep (p0-1, 100) | [t530] counts {"all:missing_input":388}
+sweep (p0-1, 100) | [t530] log
+sweep (p4-6, 0) | [t530] three-years-p4-6 shift 0 y3Pop 42 deaths 11
+sweep (p4-6, 0) | [t530] counts {"all:missing_input":467,"all:no_tool":8,"all:unreachable:item":3,"all:unreachable":3,"diagnose:travelling:path_unreachable":1,"diag:graph:staleDoor":1,"later:graph:staleDoor:apart":1}
+sweep (p4-6, 0) | [t530] log
+sweep (p4-6, 0) | day 295 t353226 (mod10 6) job 8541 diagnose travelling why path_unreachable from 34,14,26 to 32,12,30 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 6 doors [50331744@31,14,32:lock_on_alert:live=L:stored=o:STALE 50331781@31,12,32:lock_on_alert:live=L:stored=L 83887109@30,13,26:lock_on_alert:live=L:stored=L 16778248@32,13,26:lock_on_alert:live=L:stored=o:STALE 16778249@31,12,26:lock_on_alert:live=L:stored=o:STALE 16778250@31,14,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p4-3, 150) | [t530] three-years-p4-3 shift 150 y3Pop 58 deaths 10
+sweep (p4-3, 150) | [t530] counts {"all:no_tool":287,"all:missing_input":934,"all:unreachable":2}
+sweep (p4-3, 150) | [t530] log
+sweep (p4-4, 150) | [t530] three-years-p4-4 shift 150 y3Pop 12 deaths 18
+sweep (p4-4, 150) | [t530] counts {"all:missing_input":396,"all:no_tool":15,"all:unreachable":12,"feed_patient:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":1,"later:graph:staleDoor:apart":1,"all:unreachable:item":2}
+sweep (p4-4, 150) | [t530] log
+sweep (p4-4, 150) | day 217 t259621 (mod10 1) job 4336 feed_patient fetching carrying why path_unreachable from 26,6,29 to 24,7,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 6 doors [251658267@26,5,26:lock_on_alert:live=L:stored=o:STALE 50331750@26,7,32:lock_on_alert:live=L:stored=o:STALE 16777404@26,5,32:lock_on_alert:live=L:stored=L 83886628@25,6,26:lock_on_alert:live=L:stored=L 50332197@27,6,26:lock_on_alert:live=L:stored=o:STALE 50332198@26,7,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p0-1, 50) | [t530] three-years-p0-1 shift 50 y3Pop 40 deaths 0
+sweep (p0-1, 50) | [t530] counts {"all:missing_input":904}
+sweep (p0-1, 50) | [t530] log
+sweep (p2-1, 50) | [t530] three-years-p2-1 shift 50 y3Pop 50 deaths 3
+sweep (p2-1, 50) | [t530] counts {"all:missing_input":396}
+sweep (p2-1, 50) | [t530] log
+sweep (p4-1, 0) | [t530] three-years-p4-1 shift 0 y3Pop 58 deaths 6
+sweep (p4-1, 0) | [t530] counts {"all:missing_input":772,"all:unreachable":4,"build:fetching:deliver:path_unreachable":4,"diag:forbidden:onWay":4,"later:forbidden:onWay:joined":4,"all:no_tool":6}
+sweep (p4-1, 0) | [t530] log
+sweep (p4-1, 0) | day 5 t5330 (mod10 0) job 444 build fetching carrying why path_unreachable from 20,12,33 to 9,16,31 search(mover) none search(no forbidden) 16 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 0) | day 5 t5612 (mod10 2) job 444 build fetching carrying why path_unreachable from 28,12,26 to 9,16,31 search(mover) none search(no forbidden) 35 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 0) | day 6 t6955 (mod10 5) job 444 build fetching carrying why path_unreachable from 20,12,33 to 9,16,31 search(mover) none search(no forbidden) 16 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 0) | day 7 t7877 (mod10 7) job 444 build fetching carrying why path_unreachable from 20,12,33 to 9,16,31 search(mover) none search(no forbidden) 16 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-5, 50) | [t530] three-years-p4-5 shift 50 y3Pop 51 deaths 9
+sweep (p4-5, 50) | [t530] counts {"all:missing_input":518,"all:no_tool":4,"all:unreachable":3,"diagnose:travelling:path_unreachable":1,"diag:graph:staleDoor":2,"all:unreachable:item":2,"later:graph:staleDoor:apart":2,"stop_bleeding:fetching:deliver:path_unreachable":1}
+sweep (p4-5, 50) | [t530] log
+sweep (p4-5, 50) | day 209 t250025 (mod10 5) job 4894 diagnose travelling why path_unreachable from 31,9,26 to 28,6,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 7 doors [50331760@29,9,32:lock_on_alert:live=L:stored=o:STALE 50331793@29,7,32:lock_on_alert:live=L:stored=o:STALE 117441000@28,8,26:lock_on_alert:live=L:stored=L 16778060@30,8,26:lock_on_alert:live=L:stored=o:STALE 16778061@29,7,26:lock_on_alert:live=L:stored=o:STALE 16778062@29,9,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p4-5, 50) | day 314 t376021 (mod10 1) job 10203 stop_bleeding fetching carrying why path_unreachable from 29,8,32 to 25,11,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [50331760@29,9,32:lock_on_alert:live=L:stored=o:STALE 50331793@29,7,32:lock_on_alert:live=L:stored=L 117441000@28,8,26:lock_on_alert:live=L:stored=L 16778060@30,8,26:lock_on_alert:live=L:stored=o:STALE 16778061@29,7,26:lock_on_alert:live=L:stored=o:STALE 16778062@29,9,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p0-3, 100) | [t530] three-years-p0-3 shift 100 y3Pop 41 deaths 2
+sweep (p0-3, 100) | [t530] counts {"all:missing_input":2997,"all:unreachable:item":2,"all:no_tool":158}
+sweep (p0-3, 100) | [t530] log
+sweep (p2-3, 100) | [t530] three-years-p2-3 shift 100 y3Pop 51 deaths 33
+sweep (p2-3, 100) | [t530] counts {"all:missing_input":1086,"all:unreachable:item":11,"all:no_tool":15,"all:unreachable":3}
+sweep (p2-3, 100) | [t530] log
+sweep (p4-4, 50) | [t530] three-years-p4-4 shift 50 y3Pop 10 deaths 13
+sweep (p4-4, 50) | [t530] counts {"all:missing_input":196,"all:no_tool":3}
+sweep (p4-4, 50) | [t530] log
+sweep (p4-5, 100) | [t530] three-years-p4-5 shift 100 y3Pop 34 deaths 4
+sweep (p4-5, 100) | [t530] counts {"all:missing_input":782,"all:no_tool":3}
+sweep (p4-5, 100) | [t530] log
+sweep (p2-3, 0) | [t530] three-years-p2-3 shift 0 y3Pop 35 deaths 12
+sweep (p2-3, 0) | [t530] counts {"all:missing_input":533,"all:unreachable":8,"diagnose:travelling:path_unreachable":1,"diag:graph:staleDoor":4,"all:unreachable:item":6,"later:graph:staleDoor:apart":4,"all:no_tool":6,"stop_bleeding:fetching:deliver:path_unreachable":1,"suture:fetching:deliver:path_unreachable":2}
+sweep (p2-3, 0) | [t530] log
+sweep (p2-3, 0) | day 70 t83221 (mod10 1) job 2399 diagnose travelling why path_unreachable from 23,14,30 to 23,12,26 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 4 doors [50331806@23,13,32:lock_on_alert:live=L:stored=L 50331828@23,15,32:lock_on_alert:live=L:stored=o:STALE 50332302@22,14,26:lock_on_alert:live=L:stored=L 16777871@24,14,26:lock_on_alert:live=L:stored=o:STALE 16777872@23,13,26:lock_on_alert:live=L:stored=o:STALE 16777873@23,15,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-3, 0) | day 136 t162427 (mod10 7) job 3880 stop_bleeding fetching carrying why path_unreachable from 25,14,26 to 23,14,30 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 0 doors [50331806@23,13,32:lock_on_alert:live=L:stored=L 50331828@23,15,32:lock_on_alert:live=L:stored=o:STALE 50332302@22,14,26:lock_on_alert:live=L:stored=o:STALE 16777871@24,14,26:lock_on_alert:live=L:stored=o:STALE 16777872@23,13,26:lock_on_alert:live=L:stored=o:STALE 16777873@23,15,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-3, 0) | day 136 t162427 (mod10 7) job 3881 suture fetching carrying why path_unreachable from 25,14,26 to 23,14,30 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 0 doors [50331806@23,13,32:lock_on_alert:live=L:stored=L 50331828@23,15,32:lock_on_alert:live=L:stored=o:STALE 50332302@22,14,26:lock_on_alert:live=L:stored=o:STALE 16777871@24,14,26:lock_on_alert:live=L:stored=o:STALE 16777872@23,13,26:lock_on_alert:live=L:stored=o:STALE 16777873@23,15,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-3, 0) | day 332 t397625 (mod10 5) job 13252 suture fetching carrying why path_unreachable from 23,14,32 to 22,16,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 7 doors [50331806@23,13,32:lock_on_alert:live=L:stored=L 50331828@23,15,32:lock_on_alert:live=L:stored=o:STALE 50332302@22,14,26:lock_on_alert:live=o:stored=o 16777871@24,14,26:lock_on_alert:live=L:stored=o:STALE 16777872@23,13,26:lock_on_alert:live=L:stored=o:STALE 16777873@23,15,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p4-4, 0) | [t530] three-years-p4-4 shift 0 y3Pop 33 deaths 10
+sweep (p4-4, 0) | [t530] counts {"all:missing_input":306,"all:unreachable":4,"stop_bleeding:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":1,"all:unreachable:item":2,"later:graph:staleDoor:apart":1,"all:no_tool":2}
+sweep (p4-4, 0) | [t530] log
+sweep (p4-4, 0) | day 104 t124023 (mod10 3) job 2632 stop_bleeding fetching carrying why path_unreachable from 28,11,26 to 24,7,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 6 doors [50331750@26,7,32:lock_on_alert:live=L:stored=o:STALE 50331777@26,5,32:lock_on_alert:live=L:stored=L 50331936@27,6,26:lock_on_alert:live=L:stored=L 251658581@25,6,26:lock_on_alert:live=L:stored=L 16777823@26,5,26:lock_on_alert:live=L:stored=o:STALE 16777824@26,7,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p4-2, 150) | [t530] three-years-p4-2 shift 150 y3Pop 68 deaths 7
+sweep (p4-2, 150) | [t530] counts {"all:missing_input":2369,"all:no_tool":4}
+sweep (p4-2, 150) | [t530] log
+sweep (p0-6, 150) | [t530] three-years-p0-6 shift 150 y3Pop 76 deaths 0
+sweep (p0-6, 150) | [t530] counts {"all:missing_input":920}
+sweep (p0-6, 150) | [t530] log
+sweep (p4-3, 100) | [t530] three-years-p4-3 shift 100 y3Pop 8 deaths 19
+sweep (p4-3, 100) | [t530] counts {"all:missing_input":169,"all:unreachable":4,"all:unreachable:item":7}
+sweep (p4-3, 100) | [t530] log
+sweep (p4-6, 150) | [t530] three-years-p4-6 shift 150 y3Pop 74 deaths 11
+sweep (p4-6, 150) | [t530] counts {"all:missing_input":1414,"all:unreachable":15,"all:unreachable:item":1,"diagnose:travelling:path_unreachable":2,"diag:graph:staleDoor":4,"later:graph:staleDoor:apart":4,"all:no_tool":5,"stop_bleeding:travelling:path_unreachable":1,"suture:fetching:deliver:path_unreachable":1}
+sweep (p4-6, 150) | [t530] log
+sweep (p4-6, 150) | day 258 t308823 (mod10 3) job 10264 diagnose travelling why path_unreachable from 33,13,26 to 29,14,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 5 doors [50331742@31,12,32:lock_on_alert:live=L:stored=L 50331744@31,14,32:lock_on_alert:live=L:stored=o:STALE 83886628@30,13,26:lock_on_alert:live=L:stored=L 50332275@31,14,26:lock_on_alert:live=L:stored=o:STALE 50332276@31,12,26:lock_on_alert:live=L:stored=o:STALE 50332277@32,13,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p4-6, 150) | day 290 t347221 (mod10 1) job 13886 diagnose travelling why path_unreachable from 31,13,27 to 30,15,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 7 doors [50331742@31,12,32:lock_on_alert:live=L:stored=L 50331744@31,14,32:lock_on_alert:live=L:stored=o:STALE 83886628@30,13,26:lock_on_alert:live=L:stored=o:STALE 50332275@31,14,26:lock_on_alert:live=L:stored=o:STALE 50332276@31,12,26:lock_on_alert:live=L:stored=o:STALE 50332277@32,13,26:lock_on_alert:live=o:stored=o]
+sweep (p4-6, 150) | day 290 t347222 (mod10 2) job 13883 stop_bleeding travelling why path_unreachable from 31,13,29 to 30,15,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 7 doors [50331742@31,12,32:lock_on_alert:live=L:stored=L 50331744@31,14,32:lock_on_alert:live=L:stored=o:STALE 83886628@30,13,26:lock_on_alert:live=L:stored=o:STALE 50332275@31,14,26:lock_on_alert:live=L:stored=o:STALE 50332276@31,12,26:lock_on_alert:live=L:stored=o:STALE 50332277@32,13,26:lock_on_alert:live=o:stored=o]
+sweep (p4-6, 150) | day 290 t347225 (mod10 5) job 13890 suture fetching carrying why path_unreachable from 31,13,32 to 20,15,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [50331742@31,12,32:lock_on_alert:live=L:stored=L 50331744@31,14,32:lock_on_alert:live=L:stored=o:STALE 83886628@30,13,26:lock_on_alert:live=L:stored=o:STALE 50332275@31,14,26:lock_on_alert:live=L:stored=o:STALE 50332276@31,12,26:lock_on_alert:live=L:stored=o:STALE 50332277@32,13,26:lock_on_alert:live=o:stored=o]
+sweep (p4-6, 100) | [t530] three-years-p4-6 shift 100 y3Pop 52 deaths 18
+sweep (p4-6, 100) | [t530] counts {"all:missing_input":766,"all:unreachable:item":2,"all:no_tool":12,"all:unreachable":7,"diagnose:travelling:path_unreachable":1,"diag:graph:staleDoor":2,"later:graph:staleDoor:apart":2,"water_patient:fetching:deliver:path_unreachable":1}
+sweep (p4-6, 100) | [t530] log
+sweep (p4-6, 100) | day 228 t272823 (mod10 3) job 9841 diagnose travelling why path_unreachable from 31,13,32 to 19,22,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [50331775@31,12,32:lock_on_alert:live=L:stored=L 50331776@31,14,32:lock_on_alert:live=L:stored=o:STALE 16777864@30,13,26:lock_on_alert:live=L:stored=L 16777865@32,13,26:lock_on_alert:live=o:stored=o 16777866@31,12,26:lock_on_alert:live=L:stored=o:STALE 16777867@31,14,26:lock_on_alert:live=o:stored=o]
+sweep (p4-6, 100) | day 322 t385621 (mod10 1) job 18507 water_patient fetching carrying why path_unreachable from 31,11,26 to 31,13,26 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 3 doors [50331775@31,12,32:lock_on_alert:live=L:stored=L 50331776@31,14,32:lock_on_alert:live=o:stored=o 16777864@30,13,26:lock_on_alert:live=L:stored=L 16777865@32,13,26:lock_on_alert:live=L:stored=o:STALE 16777866@31,12,26:lock_on_alert:live=L:stored=o:STALE 16777867@31,14,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p4-6, 50) | [t530] three-years-p4-6 shift 50 y3Pop 59 deaths 8
+sweep (p4-6, 50) | [t530] counts {"all:missing_input":631,"all:unreachable:item":2,"all:no_tool":3,"all:unreachable":1}
+sweep (p4-6, 50) | [t530] log
+sweep (p4-2, 100) | [t530] three-years-p4-2 shift 100 y3Pop 36 deaths 16
+sweep (p4-2, 100) | [t530] counts {"all:missing_input":1047,"all:no_tool":10,"all:unreachable":5}
+sweep (p4-2, 100) | [t530] log
+sweep (p0-6, 0) | [t530] three-years-p0-6 shift 0 y3Pop 30 deaths 0
+sweep (p0-6, 0) | [t530] counts {"all:missing_input":332}
+sweep (p0-6, 0) | [t530] log
+sweep (p4-5, 0) | [t530] three-years-p4-5 shift 0 y3Pop 53 deaths 5
+sweep (p4-5, 0) | [t530] counts {"all:missing_input":200,"all:no_tool":1,"all:unreachable":3}
+sweep (p4-5, 0) | [t530] log
+sweep (p4-3, 0) | [t530] three-years-p4-3 shift 0 y3Pop 21 deaths 12
+sweep (p4-3, 0) | [t530] counts {"all:missing_input":688,"all:unreachable":17,"all:unreachable:item":1}
+sweep (p4-3, 0) | [t530] log
+sweep (p4-1, 150) | [t530] three-years-p4-1 shift 150 y3Pop 44 deaths 11
+sweep (p4-1, 150) | [t530] counts {"all:missing_input":391,"all:unreachable:item":2,"all:unreachable":4}
+sweep (p4-1, 150) | [t530] log
+sweep (p4-1, 100) | [t530] three-years-p4-1 shift 100 y3Pop 60 deaths 14
+sweep (p4-1, 100) | [t530] counts {"all:missing_input":758,"all:unreachable":5,"all:unreachable:item":2,"all:no_tool":11,"suture:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":1,"later:graph:staleDoor:apart":1}
+sweep (p4-1, 100) | [t530] log
+sweep (p4-1, 100) | day 249 t298027 (mod10 7) job 9583 suture fetching carrying why path_unreachable from 28,10,26 to 14,8,31 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 5 doors [50331744@28,9,32:lock_on_alert:live=L:stored=o:STALE 50331800@28,7,32:lock_on_alert:live=L:stored=L 16777808@27,8,26:lock_on_alert:live=L:stored=L 16777809@29,8,26:lock_on_alert:live=L:stored=o:STALE 16777810@28,7,26:lock_on_alert:live=L:stored=o:STALE 16777811@28,9,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p4-1, 50) | [t530] three-years-p4-1 shift 50 y3Pop 35 deaths 11
+sweep (p4-1, 50) | [t530] counts {"all:missing_input":590,"all:unreachable":14,"build:fetching:deliver:path_unreachable":12,"diag:forbidden:onWay":12,"later:forbidden:onWay:joined":12}
+sweep (p4-1, 50) | [t530] log
+sweep (p4-1, 50) | day 5 t5823 (mod10 3) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 7 t7480 (mod10 0) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 7 t8306 (mod10 6) job 444 build fetching carrying why path_unreachable from 37,9,32 to 9,16,31 search(mover) none search(no forbidden) 32 search(200k) - alert calm forbiddenOnWay 2 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 8 t8636 (mod10 6) job 444 build fetching carrying why path_unreachable from 6,13,31 to 9,16,31 search(mover) none search(no forbidden) 5 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 8 t8870 (mod10 0) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 8 t9512 (mod10 2) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 9 t10420 (mod10 0) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 10 t11454 (mod10 4) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 10 t11526 (mod10 6) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 11 t12313 (mod10 3) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 11 t12565 (mod10 5) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p4-1, 50) | day 11 t13020 (mod10 0) job 444 build fetching carrying why path_unreachable from 16,18,31 to 9,16,31 search(mover) none search(no forbidden) 15 search(200k) - alert calm forbiddenOnWay 1 openNeighbours 5 doors []
+sweep (p2-4, 50) | [t530] three-years-p2-4 shift 50 y3Pop 2 deaths 17
+sweep (p2-4, 50) | [t530] counts {"all:missing_input":109,"all:no_tool":670,"all:unreachable:item":3,"all:unreachable":11}
+sweep (p2-4, 50) | [t530] log
+sweep (p2-6, 0) | [t530] three-years-p2-6 shift 0 y3Pop 68 deaths 3
+sweep (p2-6, 0) | [t530] counts {"all:missing_input":1480,"all:unreachable":1}
+sweep (p2-6, 0) | [t530] log
+sweep (p4-4, 100) | [t530] three-years-p4-4 shift 100 y3Pop 9 deaths 19
+sweep (p4-4, 100) | [t530] counts {"all:missing_input":294,"all:unreachable":4,"stop_bleeding:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":1,"all:unreachable:item":5,"later:graph:staleDoor:apart":1}
+sweep (p4-4, 100) | [t530] log
+sweep (p4-4, 100) | day 61 t72423 (mod10 3) job 1916 stop_bleeding fetching carrying why path_unreachable from 26,6,30 to 14,5,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [50331748@26,5,32:lock_on_alert:live=L:stored=L 50331833@26,7,32:lock_on_alert:live=L:stored=o:STALE 218103995@25,6,26:lock_on_alert:live=L:stored=L 83886619@27,6,26:lock_on_alert:live=L:stored=o:STALE 16777756@26,5,26:lock_on_alert:live=o:stored=o 16777757@26,7,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-6, 100) | [t530] three-years-p2-6 shift 100 y3Pop 67 deaths 12
+sweep (p2-6, 100) | [t530] counts {"all:missing_input":1172,"all:no_tool":1,"all:unreachable":4,"all:unreachable:item":1}
+sweep (p2-6, 100) | [t530] log
+sweep (p4-2, 50) | [t530] three-years-p4-2 shift 50 y3Pop 76 deaths 0
+sweep (p4-2, 50) | [t530] counts {"all:missing_input":3692}
+sweep (p4-2, 50) | [t530] log
+sweep (p2-2, 150) | [t530] three-years-p2-2 shift 150 y3Pop 53 deaths 8
+sweep (p2-2, 150) | [t530] counts {"all:no_tool":1,"all:missing_input":667,"all:unreachable:item":1,"all:unreachable":7,"diagnose:travelling:path_unreachable":1,"diag:graph:staleDoor":1,"later:graph:staleDoor:apart":1}
+sweep (p2-2, 150) | [t530] log
+sweep (p2-2, 150) | day 61 t72427 (mod10 7) job 1922 diagnose travelling why path_unreachable from 18,13,26 to 20,12,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 2 doors [50331810@18,10,32:lock_on_alert:live=L:stored=L 83886572@18,12,26:lock_on_alert:live=L:stored=o:STALE 50332317@19,11,26:lock_on_alert:live=L:stored=L 50332318@17,11,26:lock_on_alert:live=L:stored=L 50332320@18,10,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-5, 150) | [t530] three-years-p2-5 shift 150 y3Pop 18 deaths 6
+sweep (p2-5, 150) | [t530] counts {"all:missing_input":331,"all:no_tool":7,"all:unreachable":5,"all:unreachable:item":1}
+sweep (p2-5, 150) | [t530] log
+sweep (p2-5, 100) | [t530] three-years-p2-5 shift 100 y3Pop 15 deaths 8
+sweep (p2-5, 100) | [t530] counts {"all:missing_input":191,"all:unreachable:item":2,"all:unreachable":2}
+sweep (p2-5, 100) | [t530] log
+sweep (p2-7, 0) | [t530] three-years-p2-7 shift 0 y3Pop 77 deaths 3
+sweep (p2-7, 0) | [t530] counts {"all:missing_input":1373,"all:no_tool":138}
+sweep (p2-7, 0) | [t530] log
+sweep (p0-6, 50) | [t530] three-years-p0-6 shift 50 y3Pop 52 deaths 0
+sweep (p0-6, 50) | [t530] counts {"all:missing_input":2230}
+sweep (p0-6, 50) | [t530] log
+sweep (p2-5, 0) | [t530] three-years-p2-5 shift 0 y3Pop 6 deaths 12
+sweep (p2-5, 0) | [t530] counts {"all:missing_input":281,"all:unreachable:item":3,"all:unreachable":3,"all:no_tool":13}
+sweep (p2-5, 0) | [t530] log
+sweep (p2-4, 100) | [t530] three-years-p2-4 shift 100 y3Pop 3 deaths 22
+sweep (p2-4, 100) | [t530] counts {"all:missing_input":235,"all:unreachable":6}
+sweep (p2-4, 100) | [t530] log
+sweep (p2-1, 100) | [t530] three-years-p2-1 shift 100 y3Pop 52 deaths 1
+sweep (p2-1, 100) | [t530] counts {"all:missing_input":871,"all:unreachable":2,"all:unreachable:item":2}
+sweep (p2-1, 100) | [t530] log
+sweep (p2-6, 50) | [t530] three-years-p2-6 shift 50 y3Pop 23 deaths 12
+sweep (p2-6, 50) | [t530] counts {"all:missing_input":538,"all:unreachable:item":1,"all:no_tool":1,"all:unreachable":9,"suture:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":2,"diagnose:travelling:path_unreachable":1,"later:graph:staleDoor:apart":2}
+sweep (p2-6, 50) | [t530] log
+sweep (p2-6, 50) | day 239 t286026 (mod10 6) job 6587 suture fetching carrying why path_unreachable from 28,9,30 to 22,6,31 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [16777435@28,8,31:lock_on_alert:live=L:stored=o:STALE 50331905@27,9,25:lock_on_alert:live=L:stored=L 16777495@28,10,31:lock_on_alert:live=L:stored=L 16777755@29,9,25:lock_on_alert:live=L:stored=o:STALE 16777756@28,8,25:lock_on_alert:live=L:stored=o:STALE 16777757@28,10,25:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-6, 50) | day 239 t286026 (mod10 6) job 6589 diagnose travelling why path_unreachable from 32,10,25 to 22,6,31 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [16777435@28,8,31:lock_on_alert:live=L:stored=o:STALE 50331905@27,9,25:lock_on_alert:live=L:stored=L 16777495@28,10,31:lock_on_alert:live=L:stored=L 16777755@29,9,25:lock_on_alert:live=L:stored=o:STALE 16777756@28,8,25:lock_on_alert:live=L:stored=o:STALE 16777757@28,10,25:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-5, 50) | [t530] three-years-p2-5 shift 50 y3Pop 69 deaths 7
+sweep (p2-5, 50) | [t530] counts {"all:missing_input":639,"all:no_tool":3,"all:unreachable":5,"all:unreachable:item":1}
+sweep (p2-5, 50) | [t530] log
+sweep (p2-4, 150) | [t530] three-years-p2-4 shift 150 y3Pop 2 deaths 30
+sweep (p2-4, 150) | [t530] counts {"all:missing_input":550,"all:unreachable":5,"all:unreachable:item":1,"all:no_tool":8}
+sweep (p2-4, 150) | [t530] log
+sweep (p2-3, 150) | [t530] three-years-p2-3 shift 150 y3Pop 61 deaths 2
+sweep (p2-3, 150) | [t530] counts {"all:missing_input":1320,"all:unreachable:item":2,"all:no_tool":2,"all:unreachable":2}
+sweep (p2-3, 150) | [t530] log
+sweep (p2-7, 100) | [t530] three-years-p2-7 shift 100 y3Pop 64 deaths 5
+sweep (p2-7, 100) | [t530] counts {"all:missing_input":811,"all:unreachable":5,"water_patient:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":1,"later:graph:staleDoor:apart":1,"all:no_tool":52}
+sweep (p2-7, 100) | [t530] log
+sweep (p2-7, 100) | day 61 t72425 (mod10 5) job 1735 water_patient fetching carrying why path_unreachable from 30,2,26 to 28,8,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [50331756@38,3,32:lock_on_alert:live=L:stored=L 50331767@38,3,26:lock_on_alert:live=L:stored=o:STALE 50331791@38,5,32:lock_on_alert:live=L:stored=o:STALE 83886533@39,4,26:lock_on_alert:live=L:stored=o:STALE 50332148@37,4,26:lock_on_alert:live=L:stored=L 16777720@38,5,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-2, 50) | [t530] three-years-p2-2 shift 50 y3Pop 44 deaths 8
+sweep (p2-2, 50) | [t530] counts {"all:missing_input":542,"all:unreachable":6,"all:no_tool":2,"all:unreachable:item":3}
+sweep (p2-2, 50) | [t530] log
+sweep (p4-3, 50) | [t530] three-years-p4-3 shift 50 y3Pop 47 deaths 15
+sweep (p4-3, 50) | [t530] counts {"all:missing_input":931,"all:unreachable":5,"all:no_tool":4}
+sweep (p4-3, 50) | [t530] log
+sweep (p4-2, 0) | [t530] three-years-p4-2 shift 0 y3Pop 54 deaths 4
+sweep (p4-2, 0) | [t530] counts {"all:missing_input":756,"all:unreachable:item":4,"all:no_tool":11,"all:unreachable":2}
+sweep (p4-2, 0) | [t530] log
+sweep (p2-2, 100) | [t530] three-years-p2-2 shift 100 y3Pop 43 deaths 10
+sweep (p2-2, 100) | [t530] counts {"all:no_tool":8788,"all:missing_input":742,"all:unreachable":3,"stop_bleeding:fetching:deliver:path_unreachable":1,"diag:graph:staleDoor":1,"later:graph:staleDoor:apart":1}
+sweep (p2-2, 100) | [t530] log
+sweep (p2-2, 100) | day 61 t72427 (mod10 7) job 2025 stop_bleeding fetching carrying why path_unreachable from 18,16,26 to 13,14,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 8 doors [50331756@18,12,32:lock_on_alert:live=L:stored=o:STALE 50331817@18,10,32:lock_on_alert:live=L:stored=L 16777869@17,11,26:lock_on_alert:live=L:stored=L 16777870@19,11,26:lock_on_alert:live=L:stored=o:STALE 16777871@18,10,26:lock_on_alert:live=L:stored=o:STALE 16777872@18,12,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-1, 150) | [t530] three-years-p2-1 shift 150 y3Pop 48 deaths 5
+sweep (p2-1, 150) | [t530] counts {"all:missing_input":532}
+sweep (p2-1, 150) | [t530] log
+sweep (p2-3, 50) | [t530] three-years-p2-3 shift 50 y3Pop 77 deaths 5
+sweep (p2-3, 50) | [t530] counts {"all:missing_input":779,"all:unreachable":2,"all:unreachable:item":2,"all:no_tool":1}
+sweep (p2-3, 50) | [t530] log
+sweep (p2-7, 50) | [t530] three-years-p2-7 shift 50 y3Pop 63 deaths 2
+sweep (p2-7, 50) | [t530] counts {"all:missing_input":680,"all:no_tool":6}
+sweep (p2-7, 50) | [t530] log
+sweep (p2-1, 0) | [t530] three-years-p2-1 shift 0 y3Pop 29 deaths 8
+sweep (p2-1, 0) | [t530] counts {"all:missing_input":311,"all:unreachable:item":4,"all:unreachable":1,"diagnose:travelling:path_unreachable":1,"diag:graph:staleDoor":1,"later:graph:staleDoor:apart":1}
+sweep (p2-1, 0) | [t530] log
+sweep (p2-1, 0) | day 68 t80826 (mod10 6) job 2441 diagnose travelling why path_unreachable from 34,8,26 to 30,10,32 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 6 doors [50331748@31,9,32:lock_on_alert:live=L:stored=o:STALE 16777403@31,7,32:lock_on_alert:live=L:stored=L 16778118@30,8,26:lock_on_alert:live=L:stored=L 16778119@32,8,26:lock_on_alert:live=L:stored=L 16778120@31,7,26:lock_on_alert:live=L:stored=o:STALE 16778121@31,9,26:lock_on_alert:live=L:stored=o:STALE]
+sweep (p2-4, 0) | [t530] three-years-p2-4 shift 0 y3Pop 1 deaths 24
+sweep (p2-4, 0) | [t530] counts {"all:missing_input":102,"all:unreachable":8,"clean_wound:travelling:path_unreachable":1,"diag:graph:staleDoor":2,"diagnose:travelling:path_unreachable":1,"later:graph:staleDoor:apart":2,"all:no_tool":46,"all:unreachable:item":6}
+sweep (p2-4, 0) | [t530] log
+sweep (p2-4, 0) | day 63 t74823 (mod10 3) job 1832 clean_wound travelling why path_unreachable from 19,9,27 to 16,7,33 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 4 doors [150995493@16,9,27:lock_on_alert:live=L:stored=o:STALE 50332204@16,7,27:lock_on_alert:live=L:stored=o:STALE 50332205@17,8,27:lock_on_alert:live=L:stored=L 50332206@15,8,27:lock_on_alert:live=L:stored=L]
+sweep (p2-4, 0) | day 63 t74823 (mod10 3) job 1833 diagnose travelling why path_unreachable from 19,8,27 to 16,7,33 search(mover) none search(no forbidden) none search(200k) - alert hearth forbiddenOnWay -1 openNeighbours 4 doors [150995493@16,9,27:lock_on_alert:live=L:stored=o:STALE 50332204@16,7,27:lock_on_alert:live=L:stored=o:STALE 50332205@17,8,27:lock_on_alert:live=L:stored=L 50332206@15,8,27:lock_on_alert:live=L:stored=L]
+sweep (p2-2, 0) | [t530] three-years-p2-2 shift 0 y3Pop 35 deaths 7
+sweep (p2-2, 0) | [t530] counts {"all:missing_input":963,"all:unreachable:item":1,"all:no_tool":1}
+sweep (p2-2, 0) | [t530] log
+sweep (p2-6, 150) | [t530] three-years-p2-6 shift 150 y3Pop 52 deaths 3
+sweep (p2-6, 150) | [t530] counts {"all:missing_input":1021,"all:no_tool":7,"all:unreachable:item":3,"all:unreachable":3}
+sweep (p2-6, 150) | [t530] log
+
+## After
+sweep (p0-1, 0) | [t530] three-years-p0-1 shift 0 y3Pop 62 deaths 0
+sweep (p0-1, 0) | [t530] counts {"all:missing_input":613}
+sweep (p0-1, 0) | [t530] log
+sweep (p0-3, 100) | [t530] three-years-p0-3 shift 100 y3Pop 52 deaths 5
+sweep (p0-3, 100) | [t530] counts {"all:missing_input":2209,"all:unreachable:item":1,"all:no_tool":151}
+sweep (p0-3, 100) | [t530] log
+sweep (p0-6, 50) | [t530] three-years-p0-6 shift 50 y3Pop 52 deaths 0
+sweep (p0-6, 50) | [t530] counts {"all:missing_input":2230}
+sweep (p0-6, 50) | [t530] log
+sweep (p0-6, 100) | [t530] three-years-p0-6 shift 100 y3Pop 57 deaths 0
+sweep (p0-6, 100) | [t530] counts {"all:missing_input":711}
+sweep (p0-6, 100) | [t530] log
+sweep (p0-6, 150) | [t530] three-years-p0-6 shift 150 y3Pop 76 deaths 0
+sweep (p0-6, 150) | [t530] counts {"all:missing_input":920}
+sweep (p0-6, 150) | [t530] log
+sweep (p0-3, 0) | [t530] three-years-p0-3 shift 0 y3Pop 75 deaths 0
+sweep (p0-3, 0) | [t530] counts {"all:missing_input":3016,"all:no_tool":46}
+sweep (p0-3, 0) | [t530] log
+sweep (p0-6, 0) | [t530] three-years-p0-6 shift 0 y3Pop 30 deaths 0
+sweep (p0-6, 0) | [t530] counts {"all:missing_input":332}
+sweep (p0-6, 0) | [t530] log
+sweep (p2-1, 50) | [t530] three-years-p2-1 shift 50 y3Pop 52 deaths 2
+sweep (p2-1, 50) | [t530] counts {"all:missing_input":459}
+sweep (p2-1, 50) | [t530] log
+sweep (p0-1, 50) | [t530] three-years-p0-1 shift 50 y3Pop 40 deaths 0
+sweep (p0-1, 50) | [t530] counts {"all:missing_input":904}
+sweep (p0-1, 50) | [t530] log
+sweep (p2-1, 100) | [t530] three-years-p2-1 shift 100 y3Pop 47 deaths 6
+sweep (p2-1, 100) | [t530] counts {"all:missing_input":106,"all:unreachable":4,"all:unreachable:item":3}
+sweep (p2-1, 100) | [t530] log
+sweep (p0-1, 100) | [t530] three-years-p0-1 shift 100 y3Pop 57 deaths 0
+sweep (p0-1, 100) | [t530] counts {"all:missing_input":388}
+sweep (p0-1, 100) | [t530] log
+sweep (p2-2, 50) | [t530] three-years-p2-2 shift 50 y3Pop 38 deaths 6
+sweep (p2-2, 50) | [t530] counts {"all:missing_input":568,"all:unreachable":5,"all:unreachable:item":3,"all:no_tool":16}
+sweep (p2-2, 50) | [t530] log
+sweep (p0-3, 50) | [t530] three-years-p0-3 shift 50 y3Pop 76 deaths 0
+sweep (p0-3, 50) | [t530] counts {"all:missing_input":2002,"all:no_tool":32}
+sweep (p0-3, 50) | [t530] log
+sweep (p2-1, 0) | [t530] three-years-p2-1 shift 0 y3Pop 47 deaths 9
+sweep (p2-1, 0) | [t530] counts {"all:missing_input":587,"all:unreachable":4,"all:unreachable:item":4}
+sweep (p2-1, 0) | [t530] log
+sweep (p2-2, 100) | [t530] three-years-p2-2 shift 100 y3Pop 58 deaths 8
+sweep (p2-2, 100) | [t530] counts {"all:no_tool":75,"all:missing_input":519,"all:unreachable":4}
+sweep (p2-2, 100) | [t530] log
+sweep (p0-3, 150) | [t530] three-years-p0-3 shift 150 y3Pop 74 deaths 0
+sweep (p0-3, 150) | [t530] counts {"all:missing_input":1200,"all:no_tool":23}
+sweep (p0-3, 150) | [t530] log
+sweep (p2-1, 150) | [t530] three-years-p2-1 shift 150 y3Pop 47 deaths 7
+sweep (p2-1, 150) | [t530] counts {"all:missing_input":685,"all:unreachable:item":3,"all:unreachable":5,"all:no_tool":4}
+sweep (p2-1, 150) | [t530] log
+sweep (p2-2, 0) | [t530] three-years-p2-2 shift 0 y3Pop 36 deaths 6
+sweep (p2-2, 0) | [t530] counts {"all:missing_input":965,"all:unreachable:item":1,"all:no_tool":1}
+sweep (p2-2, 0) | [t530] log
+sweep (p0-1, 150) | [t530] three-years-p0-1 shift 150 y3Pop 76 deaths 0
+sweep (p0-1, 150) | [t530] counts {"all:missing_input":537,"all:no_tool":12}
+sweep (p0-1, 150) | [t530] log
+sweep (p2-3, 50) | [t530] three-years-p2-3 shift 50 y3Pop 78 deaths 4
+sweep (p2-3, 50) | [t530] counts {"all:missing_input":1850,"all:no_tool":1}
+sweep (p2-3, 50) | [t530] log
+sweep (p4-3, 50) | [t530] three-years-p4-3 shift 50 y3Pop 18 deaths 13
+sweep (p4-3, 50) | [t530] counts {"all:missing_input":834,"all:unreachable":2,"all:no_tool":6}
+sweep (p4-3, 50) | [t530] log
+sweep (p2-3, 100) | [t530] three-years-p2-3 shift 100 y3Pop 65 deaths 19
+sweep (p2-3, 100) | [t530] counts {"all:missing_input":1557,"all:unreachable:item":6,"all:no_tool":12,"all:unreachable":3}
+sweep (p2-3, 100) | [t530] log
+sweep (p4-2, 150) | [t530] three-years-p4-2 shift 150 y3Pop 64 deaths 8
+sweep (p4-2, 150) | [t530] counts {"all:missing_input":1178,"all:no_tool":5,"all:unreachable":3,"all:unreachable:item":1}
+sweep (p4-2, 150) | [t530] log
+sweep (p4-1, 50) | [t530] three-years-p4-1 shift 50 y3Pop 28 deaths 26
+sweep (p4-1, 50) | [t530] counts {"all:missing_input":381,"all:unreachable":10,"all:no_tool":36,"craft:travelling:stale":2,"diag:graph:noStaleDoor":2,"all:unreachable:item":1}
+sweep (p4-1, 50) | [t530] log
+sweep (p4-1, 50) | day 254 t304753 (mod10 3) job 10041 craft travelling why stale from - to 34,5,32 search(mover) none search(no forbidden) none search(200k) - alert calm forbiddenOnWay -1 openNeighbours 7 doors [50331796@28,7,32:lock_on_alert:live=o:stored=o 50331797@28,9,32:lock_on_alert:live=o:stored=o 16777810@27,8,26:lock_on_alert:live=o:stored=o 16777811@29,8,26:lock_on_alert:live=o:stored=o 16777812@28,7,26:lock_on_alert:live=o:stored=o 16777813@28,9,26:lock_on_alert:live=o:stored=o]
+sweep (p4-1, 50) | day 254 t304763 (mod10 3) job 10036 craft travelling why stale from - to 34,10,32 search(mover) none search(no forbidden) none search(200k) - alert calm forbiddenOnWay -1 openNeighbours 4 doors [50331796@28,7,32:lock_on_alert:live=o:stored=o 50331797@28,9,32:lock_on_alert:live=o:stored=o 16777810@27,8,26:lock_on_alert:live=o:stored=o 16777811@29,8,26:lock_on_alert:live=o:stored=o 16777812@28,7,26:lock_on_alert:live=o:stored=o 16777813@28,9,26:lock_on_alert:live=o:stored=o]
+sweep (p2-4, 0) | [t530] three-years-p2-4 shift 0 y3Pop 0 deaths 13
+sweep (p2-4, 0) | [t530] counts {"all:missing_input":81,"all:unreachable":4}
+sweep (p2-4, 0) | [t530] log
+sweep (p2-3, 150) | [t530] three-years-p2-3 shift 150 y3Pop 75 deaths 0
+sweep (p2-3, 150) | [t530] counts {"all:missing_input":1306,"all:unreachable:item":1,"all:no_tool":1}
+sweep (p2-3, 150) | [t530] log
+sweep (p4-3, 100) | [t530] three-years-p4-3 shift 100 y3Pop 51 deaths 11
+sweep (p4-3, 100) | [t530] counts {"all:missing_input":633,"all:unreachable":13,"all:no_tool":1}
+sweep (p4-3, 100) | [t530] log
+sweep (p4-1, 150) | [t530] three-years-p4-1 shift 150 y3Pop 47 deaths 17
+sweep (p4-1, 150) | [t530] counts {"all:missing_input":392,"all:unreachable":11,"all:unreachable:item":1,"all:no_tool":6}
+sweep (p4-1, 150) | [t530] log
+sweep (p4-5, 0) | [t530] three-years-p4-5 shift 0 y3Pop 33 deaths 5
+sweep (p4-5, 0) | [t530] counts {"all:missing_input":662,"all:no_tool":149,"all:unreachable:item":2}
+sweep (p4-5, 0) | [t530] log
+sweep (p4-6, 50) | [t530] counts {"all:missing_input":428,"all:no_tool":3,"all:unreachable:item":1,"all:unreachable":2}
+sweep (p4-6, 50) | [t530] log
+sweep (p2-3, 0) | [t530] three-years-p2-3 shift 0 y3Pop 60 deaths 3
+sweep (p2-3, 0) | [t530] counts {"all:missing_input":882,"all:unreachable":6,"all:no_tool":2}
+sweep (p2-3, 0) | [t530] log
+sweep (p4-4, 100) | [t530] three-years-p4-4 shift 100 y3Pop 0 deaths 17
+sweep (p4-4, 100) | [t530] counts {"all:missing_input":60}
+sweep (p4-4, 100) | [t530] log
+sweep (p2-4, 100) | [t530] three-years-p2-4 shift 100 y3Pop 5 deaths 18
+sweep (p2-4, 100) | [t530] counts {"all:missing_input":203,"all:unreachable":11}
+sweep (p2-4, 100) | [t530] log
+sweep (p2-6, 0) | [t530] three-years-p2-6 shift 0 y3Pop 32 deaths 5
+sweep (p2-6, 0) | [t530] counts {"all:missing_input":961,"all:no_tool":3}
+sweep (p2-6, 0) | [t530] log
+sweep (p4-2, 100) | [t530] three-years-p4-2 shift 100 y3Pop 29 deaths 12
+sweep (p4-2, 100) | [t530] counts {"all:missing_input":188,"all:no_tool":2,"all:unreachable:item":1,"all:unreachable":2}
+sweep (p4-2, 100) | [t530] log
+sweep (p2-7, 150) | [t530] three-years-p2-7 shift 150 y3Pop 66 deaths 7
+sweep (p2-7, 150) | [t530] counts {"all:missing_input":1914,"all:no_tool":1892,"all:unreachable":4,"all:unreachable:item":1}
+sweep (p2-7, 150) | [t530] log
+sweep (p4-3, 150) | [t530] three-years-p4-3 shift 150 y3Pop 28 deaths 11
+sweep (p4-3, 150) | [t530] counts {"all:no_tool":119,"all:missing_input":1060,"all:unreachable":7,"all:unreachable:item":1}
+sweep (p4-3, 150) | [t530] log
+sweep (p4-2, 0) | [t530] three-years-p4-2 shift 0 y3Pop 51 deaths 4
+sweep (p4-2, 0) | [t530] counts {"all:missing_input":629,"all:unreachable:item":1,"all:no_tool":2,"all:unreachable":3}
+sweep (p4-2, 0) | [t530] log
+sweep (p4-6, 0) | [t530] three-years-p4-6 shift 0 y3Pop 78 deaths 13
+sweep (p4-6, 0) | [t530] counts {"all:missing_input":790,"all:unreachable:item":3,"all:no_tool":3,"all:unreachable":6}
+sweep (p4-6, 0) | [t530] log
+sweep (p4-6, 150) | [t530] three-years-p4-6 shift 150 y3Pop 58 deaths 10
+sweep (p4-6, 150) | [t530] counts {"all:missing_input":688,"all:unreachable":8,"all:unreachable:item":1,"all:no_tool":1}
+sweep (p4-6, 150) | [t530] log
+sweep (p2-4, 50) | [t530] three-years-p2-4 shift 50 y3Pop 11 deaths 16
+sweep (p2-4, 50) | [t530] counts {"all:missing_input":151,"all:no_tool":829,"all:unreachable":18,"all:unreachable:item":1}
+sweep (p2-4, 50) | [t530] log
+sweep (p2-4, 150) | [t530] three-years-p2-4 shift 150 y3Pop 6 deaths 22
+sweep (p2-4, 150) | [t530] counts {"all:missing_input":325,"all:unreachable":3,"all:no_tool":1}
+sweep (p2-4, 150) | [t530] log
+sweep (p2-6, 50) | [t530] three-years-p2-6 shift 50 y3Pop 37 deaths 9
+sweep (p2-6, 50) | [t530] counts {"all:missing_input":593,"all:no_tool":4,"all:unreachable":3}
+sweep (p2-6, 50) | [t530] log
+sweep (p4-5, 100) | [t530] three-years-p4-5 shift 100 y3Pop 34 deaths 4
+sweep (p4-5, 100) | [t530] counts {"all:missing_input":782,"all:no_tool":3}
+sweep (p4-5, 100) | [t530] log
+sweep (p4-4, 0) | [t530] three-years-p4-4 shift 0 y3Pop 4 deaths 26
+sweep (p4-4, 0) | [t530] counts {"all:missing_input":170,"all:no_tool":8,"all:unreachable":5,"all:unreachable:item":2}
+sweep (p4-4, 0) | [t530] log
+sweep (p4-1, 0) | [t530] three-years-p4-1 shift 0 y3Pop 54 deaths 20
+sweep (p4-1, 0) | [t530] counts {"all:missing_input":2510,"all:no_tool":8,"all:unreachable":3,"all:unreachable:item":1}
+sweep (p4-1, 0) | [t530] log
+sweep (p2-2, 150) | [t530] three-years-p2-2 shift 150 y3Pop 0 deaths 11
+sweep (p2-2, 150) | [t530] counts {"all:no_tool":1,"all:missing_input":68,"all:unreachable":1}
+sweep (p2-2, 150) | [t530] log
+sweep (p4-4, 150) | [t530] three-years-p4-4 shift 150 y3Pop 18 deaths 14
+sweep (p4-4, 150) | [t530] counts {"all:missing_input":339,"all:no_tool":14,"all:unreachable":4}
+sweep (p4-4, 150) | [t530] log
+sweep (p2-5, 50) | [t530] three-years-p2-5 shift 50 y3Pop 51 deaths 6
+sweep (p2-5, 50) | [t530] counts {"all:missing_input":1224,"all:no_tool":3,"all:unreachable":6,"all:unreachable:item":1}
+sweep (p2-5, 50) | [t530] log
+sweep (p2-5, 150) | [t530] three-years-p2-5 shift 150 y3Pop 6 deaths 8
+sweep (p2-5, 150) | [t530] counts {"all:missing_input":109,"all:no_tool":40}
+sweep (p2-5, 150) | [t530] log
+sweep (p4-5, 50) | [t530] three-years-p4-5 shift 50 y3Pop 31 deaths 3
+sweep (p4-5, 50) | [t530] counts {"all:missing_input":366,"all:no_tool":3,"all:unreachable":2}
+sweep (p4-5, 50) | [t530] log
+sweep (p4-3, 0) | [t530] three-years-p4-3 shift 0 y3Pop 27 deaths 7
+sweep (p4-3, 0) | [t530] counts {"all:missing_input":693,"all:unreachable":8}
+sweep (p4-3, 0) | [t530] log
+sweep (p4-4, 50) | [t530] three-years-p4-4 shift 50 y3Pop 5 deaths 18
+sweep (p4-4, 50) | [t530] counts {"all:missing_input":178,"all:no_tool":2,"all:unreachable":1}
+sweep (p4-4, 50) | [t530] log
+sweep (p2-6, 100) | [t530] three-years-p2-6 shift 100 y3Pop 66 deaths 13
+sweep (p2-6, 100) | [t530] counts {"all:missing_input":1208,"all:no_tool":1,"all:unreachable":3,"all:unreachable:item":2}
+sweep (p2-6, 100) | [t530] log
+sweep (p4-2, 50) | [t530] three-years-p4-2 shift 50 y3Pop 74 deaths 3
+sweep (p4-2, 50) | [t530] counts {"all:missing_input":3933,"all:no_tool":2,"all:unreachable:item":1}
+sweep (p4-2, 50) | [t530] log
+sweep (p4-1, 100) | [t530] three-years-p4-1 shift 100 y3Pop 13 deaths 38
+sweep (p4-1, 100) | [t530] counts {"all:missing_input":588,"all:no_tool":9,"all:unreachable":5,"all:unreachable:item":1}
+sweep (p4-1, 100) | [t530] log
+sweep (p2-7, 50) | [t530] three-years-p2-7 shift 50 y3Pop 79 deaths 2
+sweep (p2-7, 50) | [t530] counts {"all:missing_input":2320,"all:no_tool":58}
+sweep (p2-7, 50) | [t530] log
+sweep (p4-6, 100) | [t530] three-years-p4-6 shift 100 y3Pop 58 deaths 6
+sweep (p4-6, 100) | [t530] counts {"all:missing_input":776,"all:unreachable:item":2,"all:no_tool":4,"all:unreachable":1}
+sweep (p4-6, 100) | [t530] log
+sweep (p2-7, 100) | [t530] three-years-p2-7 shift 100 y3Pop 63 deaths 8
+sweep (p2-7, 100) | [t530] counts {"all:missing_input":587,"all:unreachable":6,"all:unreachable:item":3,"all:no_tool":57}
+sweep (p2-7, 100) | [t530] log
+sweep (p4-5, 150) | [t530] three-years-p4-5 shift 150 y3Pop 51 deaths 3
+sweep (p4-5, 150) | [t530] counts {"all:missing_input":486}
+sweep (p4-5, 150) | [t530] log
+sweep (p2-6, 150) | [t530] three-years-p2-6 shift 150 y3Pop 53 deaths 3
+sweep (p2-6, 150) | [t530] counts {"all:missing_input":1375,"all:no_tool":4,"all:unreachable:item":3,"all:unreachable":4}
+sweep (p2-6, 150) | [t530] log
+sweep (p2-5, 0) | [t530] three-years-p2-5 shift 0 y3Pop 8 deaths 10
+sweep (p2-5, 0) | [t530] counts {"all:missing_input":274,"all:unreachable:item":3,"all:unreachable":3,"all:no_tool":13}
+sweep (p2-5, 0) | [t530] log
+sweep (p2-5, 100) | [t530] three-years-p2-5 shift 100 y3Pop 40 deaths 5
+sweep (p2-5, 100) | [t530] counts {"all:missing_input":696,"all:unreachable":3,"all:unreachable:item":1}
+sweep (p2-5, 100) | [t530] log
+sweep (p2-7, 0) | [t530] three-years-p2-7 shift 0 y3Pop 72 deaths 8
+sweep (p2-7, 0) | [t530] counts {"all:missing_input":822,"all:unreachable":2,"all:no_tool":7}
+sweep (p2-7, 0) | [t530] log
