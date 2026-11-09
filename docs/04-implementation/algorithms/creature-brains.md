@@ -157,6 +157,7 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
     prey = animals (Wild or Tame) within perception and visible, not carnivore, size < own size × 0.8 × members(prey)
     return nearest prey (Chebyshev, then id), else nearest visible dwarf within perception, else none
     sleep:  stay; if threat: 'flee'/'attack'; at stateUntil: 'idle'
+            on AttackResolved against it (at once, not at a think): blood < fleeBlood and not aggressive: 'flee' from the attacker; else territorial and attacker alive: 'attack' with W.defendFrom = tile, combat.setTarget(id, attacker); else 'idle'
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)
   moveAlongPath(id)
 ```

@@ -44,7 +44,7 @@ import {
   TERRITORY_AVOID_RADIUS,
 } from './constants';
 import { AnimalFacts } from './facts';
-import { chunkCentre, packOf, tickAnimal, type BrainHost } from './brain';
+import { chunkCentre, packOf, tickAnimal, wakeStruck, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
@@ -1181,6 +1181,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       const attacker = event['attackerId'];
       if (typeof target === 'number' && typeof attacker === 'number' && ctx.world.entities.alive(target)) {
         this.provoked.set(target, attacker);
+        // T-535: an animal attacked in its sleep wakes (08 § Wild behavior, `sleep`).
+        const wild = ctx.world.entities.get(target, C.Wild);
+        if (wild !== undefined && wild.state === 'sleep') ctx.world.entities.add(target, C.Wild, wakeStruck(this.brain, ctx, target, wild, attacker));
       }
     }
   }
