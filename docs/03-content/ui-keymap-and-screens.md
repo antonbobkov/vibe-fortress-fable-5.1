@@ -518,6 +518,7 @@ The `confirm` dialog, and the embark screen's "Replace your changes" line.
 | `l` | saved loadouts |
 | `Enter` on the footer | Embark |
 | `=` | adjust the selected skill or quantity |
+| `0` | clear the selected skill or quantity |
 | `t` | testing mode on or off |
 | `4` | Items tab (testing mode) |
 | `a` | add a dwarf or the item being made (testing mode) |
@@ -707,6 +708,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `c_load_loadout` | "Load {loadout}? It replaces the skills and supplies you have set." | No |
 | `c_overwrite_loadout` | "A loadout named {loadout} is saved already. Replace it with this one?" | No |
 | `c_delete_loadout` | "Delete the loadout {loadout}? This cannot be undone." | No |
+| `c_leave_embark` | "Go back to the world map? The skills and supplies you have set here are lost." | No |
 | `c_melt_items` | "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars." | No |
 | `c_dump_items` | "Mark {what} for dumping? Dwarves will carry every one of them to a dump zone." | No |
 | `c_dump_selection` | "Dump everything on these {n} tiles? Dwarves will carry it to a dump zone." | No |

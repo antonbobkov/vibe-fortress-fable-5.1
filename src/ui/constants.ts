@@ -209,6 +209,10 @@ export const STOCKPILE_QUALITY_MAX = 5;
 export const UI_NORMAL_SPACING = 3;
 export const UI_COMPACT_SPACING = 1;
 export const EMBARK_PRESET_SPACING = 4;
+/** The embark presets menu opens at most this many cells wide, room for each preset's description. */
+export const EMBARK_PRESETS_WIDTH = 78;
+/** Rows a notch of the mouse wheel scrolls an embark list. */
+export const EMBARK_WHEEL_ROWS = 3;
 
 /** The world map's site summary names at most this many species, layers or ores in a row, then "and N more". */
 export const SITE_LIST_NAMES = 2;

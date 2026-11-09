@@ -80,9 +80,13 @@ describe('T-332 screens: what each outside screen says', () => {
   it('the Dwarves tab lists the seven dwarves with the cursor on the first, and details that dwarf: name, age, attributes, traits and skills', () => {
     const r = rows('embark_dwarves');
     expect(r[0]).toMatch(/^Embark at Greenhollow +\[1\] Dwarves +\[2\] Supplies +\[3\] Animals +\[p\] Presets$/);
-    const names = r.slice(2, 9).map((row) => row.split('│')[0]!.trim());
+    // Each dwarf on two lines: the name and points, then the dwarf's skills, highest first (T-533).
+    const names = r.slice(2, 16).filter((_, k) => k % 2 === 0).map((row) => row.split('│')[0]!.trim());
     expect(names[0]).toMatch(/^► Kolbein Bronzehelm +10\/10$/);
     for (const name of names.slice(1)) expect(name).toMatch(/^\S+ \S+ +10\/10$/);
+    const trades = r.slice(2, 16).filter((_, k) => k % 2 === 1).map((row) => row.split('│')[0]!.trim());
+    expect(trades[0]).toBe('Mining 5, Building 3 +1');
+    expect(trades[2]).toBe('Carpentry 5, Woodcutting 5');
     expect(r[2]).toMatch(/│ Kolbein Bronzehelm +\[n\] rename$/);
     expect(r[3]).toMatch(/│ (Male|Female) · \d+ years +\[r\] reroll 25 ☼$/);
     expect(r[4]).toMatch(/│ Str [▓░]{5} \d+ Agi [▓░]{5} \d+ Tou [▓░]{5} \d+ End/);
@@ -107,7 +111,9 @@ describe('T-332 screens: what each outside screen says', () => {
       expect(Number(m![1]) * Number(m![2])).toBe(Number(m![3]));
     }
     expect(r[8]).toMatch(/^Bucket +5 ☼ +\[-\] +2 \[\+\] += +10$/);
-    expect(r[29]).toBe('Hint: two picks and one axe are the minimum for a working start.');
+    // T-533: the hint has two lines above the keys line.
+    expect(r[28]).toBe('Hint: two picks and one axe are the minimum for a working start.');
+    expect(r[30]).toBe('[←][→] group  [↑][↓] select  [+][-] count  [0] none  [/] find  [l] loadouts');
   });
 
   it('the Animals tab lists the animals that can come with their price, and the chosen ones with their cost', () => {
