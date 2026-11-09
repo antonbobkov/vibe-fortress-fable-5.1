@@ -27,6 +27,7 @@ import {
   PATIENT_SUMMON_PRIORITY,
   RESERVE_KEEP_TICKS,
   STANDING_ORDERS,
+  STAND_POCKET_TILES,
 } from './constants';
 import { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './producers';
 import type { Job, JobsStateV1, Tool } from './state';
@@ -86,6 +87,8 @@ export class JobBoard implements JobsApi, JobSink {
    * kit search over every worker runs once a pass instead of once a job.
    */
   private toolOnHandMemo: Map<Tool, boolean> | null = null;
+  /** T-530: the small pockets forbidden tiles close, per connectivity revision ({@link pocketOf}). */
+  private pockets = { revision: -1, of: new Map<TileIndex, number>() };
   readonly producers: JobProducer[] = [];
   /** 13's item search and handling (the D-054 seam); the jobs system installs the real one. */
   items: ItemSource = NO_ITEMS;
@@ -333,12 +336,64 @@ export class JobBoard implements JobsApi, JobSink {
     return this.world.map.validIndex(t) && this.readers.pathing.passable(t, 'walker', FORTRESS_WALKER);
   }
 
-  /** The stand tiles that share the worker's connectivity label. */
+  /**
+   * T-530: the pocket a tile lies in, 0 outside every pocket. A pocket is a walk region of a fortress
+   * walker, the forbidden set (03) honoured, that borders a forbidden tile and closes within
+   * `STAND_POCKET_TILES` tiles (a workshop site whose forbidden corners and the walls beside it shut
+   * its footprint in, a room behind a forbidden doorway). The labels know the terrain only (22) and
+   * join such a pocket to the region around it; only two tiles in the same pocket, or both outside
+   * every pocket, are joined for a fortress walker. Computed from the forbidden tiles once per relabel.
+   */
+  pocketOf(t: TileIndex): number {
+    const pathing = this.readers.pathing;
+    const revision = pathing.connectivityRevision();
+    if (this.pockets.revision !== revision) this.pockets = { revision, of: this.findPockets() };
+    return this.pockets.of.get(t) ?? 0;
+  }
+
+  /** Every closed pocket beside a forbidden tile: tile to pocket id (an open region's tiles map to 0). */
+  private findPockets(): Map<TileIndex, number> {
+    const of = new Map<TileIndex, number>();
+    if (!this.readers.has('03')) return of;
+    const forbidden = this.readers.of<{ forbiddenTiles(): readonly TileIndex[] }>('03').forbiddenTiles();
+    if (forbidden.length === 0) return of;
+    const map = this.world.map;
+    const pathing = this.readers.pathing;
+    let next = 1;
+    for (const f of forbidden) {
+      for (const start of [...map.neighbors8(f), map.above(f), map.below(f)]) {
+        if (start < 0 || of.has(start) || !map.validIndex(start) || !pathing.passable(start, 'walker', FORTRESS_WALKER)) continue;
+        // A breadth-first walk from the tile until it closes, grows past the limit, or meets an open region.
+        const seen = [start];
+        const inSeen = new Set<TileIndex>(seen);
+        let open = false;
+        for (let k = 0; k < seen.length && !open; k += 1) {
+          for (const [n] of pathing.edges(seen[k] as TileIndex, 'walker', FORTRESS_WALKER)) {
+            if (inSeen.has(n)) continue;
+            if (of.get(n) === 0 || seen.length >= STAND_POCKET_TILES) { open = true; break; }
+            inSeen.add(n);
+            seen.push(n);
+          }
+        }
+        const id = open ? 0 : next;
+        if (!open) next += 1;
+        for (const t of seen) of.set(t, id);
+      }
+    }
+    return of;
+  }
+
+  /** The two tiles share a connectivity label, and a pocket of the forbidden set does not part them. */
+  private joined(from: TileIndex, label: number, t: TileIndex): boolean {
+    return this.readers.pathing.labelOf(t, 'walker') === label && this.pocketOf(t) === this.pocketOf(from);
+  }
+
+  /** The stand tiles that share the worker's connectivity label (and pocket). */
   reachableStands(job: Job, workerId: EntityId): TileIndex[] {
     const from = this.workerTile(workerId);
     if (from < 0) return [];
     const label = this.readers.pathing.labelOf(from, 'walker');
-    return this.standTiles(job).filter((t) => this.readers.pathing.labelOf(t, 'walker') === label);
+    return this.standTiles(job).filter((t) => this.joined(from, label, t));
   }
 
   /** True when at least one stand tile of the job shares the worker's connectivity label without allocating arrays. */
@@ -347,19 +402,19 @@ export class JobBoard implements JobsApi, JobSink {
     if (from < 0) return false;
     const label = this.readers.pathing.labelOf(from, 'walker');
     const wt = job.workTile;
-    if (typeof wt === 'number') return this.readers.pathing.labelOf(wt, 'walker') === label && this.enterable(wt);
+    if (typeof wt === 'number') return this.joined(from, label, wt) && this.enterable(wt);
     const target = this.anchorTile(job);
     const map = this.world.map;
     if (!map.validIndex(target)) return false;
-    if (wt === 'at') return this.readers.pathing.labelOf(target, 'walker') === label && this.enterable(target);
+    if (wt === 'at') return this.joined(from, label, target) && this.enterable(target);
     for (const n of map.neighbors8(target)) {
-      if (this.readers.pathing.passable(n, 'walker', FORTRESS_WALKER) && this.readers.pathing.labelOf(n, 'walker') === label) {
+      if (this.readers.pathing.passable(n, 'walker', FORTRESS_WALKER) && this.joined(from, label, n)) {
         return true;
       }
     }
     const producer = this.producers.find((p) => p.id === job.producer);
     for (const extra of producer?.extraStandTiles?.(job) ?? []) {
-      if (this.readers.pathing.passable(extra, 'walker', FORTRESS_WALKER) && this.readers.pathing.labelOf(extra, 'walker') === label) {
+      if (this.readers.pathing.passable(extra, 'walker', FORTRESS_WALKER) && this.joined(from, label, extra)) {
         return true;
       }
     }
@@ -525,12 +580,12 @@ export class JobBoard implements JobsApi, JobSink {
     if (job.failedWalk === true) job.retryTick = this.now + FAILED_WALK_RETRY_TICKS;
   }
 
-  /** Whether the labels now keep a worker from a tile its walk was bound for. */
+  /** Whether the labels, or a pocket of the forbidden set (T-530), now keep a worker from a tile its walk was bound for. */
   private labelsApart(workerId: EntityId, tile: TileIndex): boolean {
     const from = this.workerTile(workerId);
     if (tile < 0 || from < 0 || !this.world.map.validIndex(tile)) return false;
     const pathing = this.readers.pathing;
-    return pathing.labelOf(from, 'walker') !== pathing.labelOf(tile, 'walker');
+    return pathing.labelOf(from, 'walker') !== pathing.labelOf(tile, 'walker') || this.pocketOf(from) !== this.pocketOf(tile);
   }
 
   /** A trigger fired: blocked jobs with this reason (and, for tiles, in a changed chunk) retry now. */

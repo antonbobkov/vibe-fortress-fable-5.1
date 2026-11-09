@@ -41,6 +41,8 @@ export interface TerrainReader {
   materialClassAt(i: TileIndex): MaterialClass;
   spec(): LocalMapSpec | null;
   isForbidden(i: TileIndex): boolean;
+  /** The forbidden set, ascending (a copy). */
+  forbiddenTiles(): TileIndex[];
   /** Items 03 owes the world until the item system exists (M2); a fresh copy. */
   intendedDrops(): IntendedDrop[];
   /** The look cursor's data for a tile. */
@@ -90,6 +92,7 @@ export function makeReader(
     materialClassAt,
     spec,
     isForbidden: (i) => core.isForbidden(i),
+    forbiddenTiles: () => core.forbidden.slice(),
     intendedDrops: () => core.drops.slice(),
     designationWork: (i) => workOf(i),
     inspect: (i) => {
