@@ -517,6 +517,11 @@ The `confirm` dialog, and the embark screen's "Replace your changes" line.
 | `p` | presets menu |
 | `Enter` on the footer | Embark |
 | `=` | adjust the selected skill or quantity |
+| `t` | testing mode on or off |
+| `4` | Items tab (testing mode) |
+| `a` | add a dwarf or the item being made (testing mode) |
+| `x` | remove the selected dwarf or item line (testing mode) |
+| `*` | give every dwarf the selected skill's level (testing mode) |
 
 ### Load
 

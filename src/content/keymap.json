@@ -1375,6 +1375,31 @@
     "action": "adjust the selected skill or quantity"
   },
   {
+    "context": "embark",
+    "key": "t",
+    "action": "testing mode on or off"
+  },
+  {
+    "context": "embark",
+    "key": "4",
+    "action": "Items tab (testing mode)"
+  },
+  {
+    "context": "embark",
+    "key": "a",
+    "action": "add a dwarf or the item being made (testing mode)"
+  },
+  {
+    "context": "embark",
+    "key": "x",
+    "action": "remove the selected dwarf or item line (testing mode)"
+  },
+  {
+    "context": "embark",
+    "key": "*",
+    "action": "give every dwarf the selected skill's level (testing mode)"
+  },
+  {
     "context": "load",
     "key": "x",
     "action": "Delete (confirm)"

@@ -17,3 +17,7 @@ export const ARRIVAL_SEARCH_DEPTH = 20;
 export const WAGON_LOGS = 3;
 /** Elevation difference to a neighbour per relief level above 1 (`relief = 1 + floor(maxDiff / RELIEF_DIFF_STEP)`). */
 export const RELIEF_DIFF_STEP = 96;
+/** Most dwarves a testing embark can bring (`02` § Testing mode). */
+export const EMBARK_TESTING_MAX_DWARVES = 50;
+/** Most units of one catalog entry or one free item line in a testing embark. */
+export const EMBARK_TESTING_MAX_COUNT = 999;

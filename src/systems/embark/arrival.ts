@@ -22,9 +22,11 @@ import { ARRIVAL_SEARCH_DEPTH, WAGON_LOGS } from './constants';
 import { TREE_LOGS_MAX, TREE_LOGS_MIN } from '@systems/terrain/constants';
 import type { SpawnEntry } from '@systems/terrain/generate/common';
 import { C, type Tame } from '@core/components';
+import { runeMaxMilli } from '@systems/magic/rune';
 import type { LocalMapSpec } from './spec';
 import type { SupplyLine } from './party';
 import { thaneIndex } from './party';
+import { spawnTestingItems, type TestingItemLine } from './testing';
 
 /** `02` § Arrival step 5: "Needs start at 20 (mildly hungry, thirsty, rested)". */
 export const ARRIVAL_NEEDS = 20;
@@ -182,6 +184,10 @@ export interface ArrivalOptions {
   readonly placeWagon?: (centre: TileIndex, logs: { type: string; material: number; count: number }) => EntityId;
   /** The local map's trait spawn list (`LocalMapResult.spawns`); its items are spawned. */
   readonly spawns?: readonly SpawnEntry[];
+  /** A testing embark's free item lines (`02` § Testing mode), spawned into the wagon after the supplies. */
+  readonly items?: readonly TestingItemLine[];
+  /** A testing embark: the fortress is marked `testing` (`02` § Testing mode). */
+  readonly testing?: boolean;
 }
 
 export interface ArrivalResult {
@@ -350,6 +356,7 @@ export function arrive(world: World, spec: LocalMapSpec, party: readonly DwarfRe
   const supplies = [...(options.supplies ?? [])];
   const wagonId = options.placeWagon?.(centre, { type: 'log', material: registry.table('materials').index(WAGON_WOOD), count: WAGON_LOGS }) ?? 0;
   spawnSupplies(world, supplies, wagonId, centre);
+  spawnTestingItems(world, options.items ?? [], wagonId, centre, SUPPLY_CONTAINER_MATERIAL['barrel'] ?? WAGON_WOOD);
   const animalsWanted = supplyAnimals(registry, supplies);
   const tiles = tilesAroundWagon(map, wagon, party.length + animalsWanted.length);
   if (tiles.length < party.length) throw new Error('arrival: not enough walkable tiles around the wagon');
@@ -368,6 +375,12 @@ export function arrive(world: World, spec: LocalMapSpec, party: readonly DwarfRe
     spawn({ ...d, needs: ARRIVAL_NEEDS }, tiles[k] as TileIndex, k === thane ? 'thane' : 'none'),
   );
   dwarves.forEach((id, k) => equipStartingClothes(world, id, tiles[k] as TileIndex));
+  // A dwarf who arrives with runecraft (a testing embark) holds its rune already, full (25 § Rune of one's own).
+  party.forEach((d, k) => {
+    const level = d.skills['runecraft'] ?? 0;
+    const id = dwarves[k] as EntityId;
+    if (level >= 1 && world.entities.alive(id) && !world.entities.has(id, C.Rune)) world.entities.add(id, C.Rune, { current: runeMaxMilli(level) });
+  });
 
   // The local map's trait features: their items lie where generation put them.
   spawnTraitItems(world, options.spawns ?? []);
@@ -376,6 +389,7 @@ export function arrive(world: World, spec: LocalMapSpec, party: readonly DwarfRe
   world.fortress.name = options.fortressName;
   world.fortress.embarkTick = tick;
   world.fortress.regionId = spec.regionId;
+  if (options.testing === true) world.fortress.testing = true;
 
   // Step 8.
   world.events.emit({ type: 'Embarked', fortressName: options.fortressName, regionId: spec.regionId });
