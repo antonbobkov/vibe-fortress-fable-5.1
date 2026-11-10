@@ -56,7 +56,7 @@ jobs:
         env:
           THREE_YEARS_SEEDS_OUT: out/shift-${{ matrix.shift }}
           THREE_YEARS_SHIFT: ${{ matrix.shift }}
-        run: mkdir -p out/shift-${{ matrix.shift }} && T543_SEED=three-years-${{ matrix.seed }} npx vitest run -c vitest.perf.config.ts test/perf/t543-wild-probe.test.ts 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
+        run: mkdir -p out/shift-${{ matrix.shift }} && T543_SEED=three-years-${{ matrix.seed }} npx vitest run -c vitest.perf.config.ts test/perf/t543-wild-probe.test.ts -t "T-543 probe" 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
         shell: bash
       - if: always()
         run: mv out-log.txt out/shift-${{ matrix.shift }}/three-years-${{ matrix.seed }}.log
