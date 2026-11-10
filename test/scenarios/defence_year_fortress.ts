@@ -76,6 +76,8 @@ export interface DefenceYearState {
   sallying?: boolean;
   /** T-506: the squad has been called back to the gate stair since the corridor cleared. */
   recalled?: boolean;
+  /** The north door is open to the squad on hostiles of another party (noted once an opening). */
+  othersSally?: boolean;
   readonly notes: string[];
 }
 
@@ -459,14 +461,18 @@ export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   }
   if (hearth && inCorridor.length > 0 && !inCorridor.some((id) => raid.has(id)) &&
       squadId !== 0 && squadArmed(w, squadId) && inCorridor.length < armedCount(w, squadId)) {
-    if (buildings.get(door)?.mode !== 'open') {
-      command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
-      note(state, w, `north door opened to the squad on ${inCorridor.length} in the corridor`);
-    }
+    // The fortress script sets the gate's doors back to lock on the alert at each look
+    // (checkFortressDefense): the door is opened again, and the opening noted once.
+    if (buildings.get(door)?.mode !== 'open') command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
+    if (state.othersSally !== true) note(state, w, `north door opened to the squad on ${inCorridor.length} in the corridor`);
+    state.othersSally = true;
     order(inCorridor);
-  } else if (buildings.get(door)?.mode === 'open') {
-    command(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' });
-    note(state, w, 'north door locks on the alert again');
+  } else {
+    state.othersSally = false;
+    if (buildings.get(door)?.mode === 'open') {
+      command(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' });
+      note(state, w, 'north door locks on the alert again');
+    }
   }
 }
 
