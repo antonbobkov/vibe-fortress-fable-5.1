@@ -1,6 +1,6 @@
-# T-NEW — Wolves that fight back hold the three-year script's hearth alert for weeks
+# T-539 — Wolves that fight back hold the three-year script's hearth alert for weeks
 
-**Source:** [T-538](T-538-aggressive-animal-flees-its-attacker.md) ([the deaths by killer](../../reports/data/2026-11-09-t538-wild-deaths.txt)) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** [T-538](../archive/tasks/T-538-aggressive-animal-flees-its-attacker.md) ([the deaths by killer](../../reports/data/2026-11-09-t538-wild-deaths.txt)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -1,6 +1,8 @@
 # T-538 — An aggressive animal struck outside `attack` flees its attacker
 
-**Source:** [T-535](../archive/tasks/T-535-struck-animal-sleeps-on.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-09, in 7fa1b8f9,2c2a46e2,31ab10e5.
+
+**Source:** [T-535](T-535-struck-animal-sleeps-on.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
