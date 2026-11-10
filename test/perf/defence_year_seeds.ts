@@ -44,13 +44,11 @@ export interface DefenceSeedRow {
   trial: string;
   /**
    * T-506: dwarves of the fortress killed by a member of an announced raid, and how many of them were
-   * soldiers; the second line (T-518) standing when each raid arrived; and the times the script opened
-   * the north door to its squad on a raid. Absent in rows before T-506.
+   * soldiers; and whether the second line (T-518) stood when each raid arrived. Absent in rows before T-506.
    */
   raidKilled?: number;
   raidKilledSoldiers?: number;
   lineAtRaid?: boolean[];
-  raidSallies?: number;
 }
 
 /** Whether a seed ended every announced raid `repelled` or `wiped`. */
@@ -109,5 +107,5 @@ export function playDefenceSeed(seed: string, watchEvery: number): DefenceSeedRo
   return { seed, watch: watchEvery, runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raids, others, soldierKills,
     trapTriggers: w.events('TrapTriggered').length, caged: w.events('CreatureCaged').length, trial: state.trial,
-    raidKilled, raidKilledSoldiers, lineAtRaid, raidSallies: state.raidSallies };
+    raidKilled, raidKilledSoldiers, lineAtRaid };
 }
