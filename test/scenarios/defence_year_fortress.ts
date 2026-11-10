@@ -366,8 +366,8 @@ function squadArmed(w: TestWorld, squadId: number): boolean {
  * (T-518) an open north door no longer lets a raid into the halls, but a sally has nothing to win: a
  * raid that the cage robs of its captain falls to 48 and breaks the moment it is out of a fight, and
  * a squad that meets it there keeps it fighting (18 § Morale), so it takes heart and loots; a steady
- * raid on spent traps kills the soldiers who meet it in the corridor and loots all the same; and a
- * broken raid is off the map before the squad reaches it.
+ * raid whose captain no trap took kills the soldiers who meet it in the corridor and loots all the
+ * same; and a broken raid is off the map before the squad reaches it.
  */
 export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
