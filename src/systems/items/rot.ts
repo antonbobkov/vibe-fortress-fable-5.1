@@ -160,16 +160,30 @@ export class RotQueue {
     if (added.length > 0) ctx.emit({ type: 'MiasmaSpread', tiles: added.sort((a, b) => a - b) });
   }
 
+  private isClothing(itemId: EntityId): boolean {
+    const item = this.core.get(itemId);
+    return item !== undefined && this.core.host.facts.row(item.type).category.startsWith('clothing/');
+  }
+
   createCorpse(ctx: TickContext, creatureId: EntityId, species: number, tile: TileIndex, name: string | null, wornItems: EntityId[] = [], foreign = false): EntityId {
     const speciesId = ctx.registry.table('creatures').idOf(species);
     const materials = ctx.registry.table('materials');
     const material = materials.has(`${speciesId}_meat`) ? materials.index(`${speciesId}_meat`) : materials.index('skull_bone');
     const id = ctx.spawn.item(ctx.registry.table('items').index('corpse'), material, tile, 1);
     if (foreign) this.core.setFlag(id, ItemFlag.Foreign, true);
-    const corpse: Corpse = { species, diedTick: ctx.tick, wornItems: wornItems.slice(), dwarfName: speciesId === 'dwarf' ? name : null,
+    // 13 § Forbid, dump, melt, claim (T-541): a dwarf falls out of its kit. Everything it carried
+    // that is not clothing (weapon, shield, armor, quiver, ammunition) drops on its tile, fortress
+    // stock again for the squad's next look; it keeps its clothing, in which it is buried.
+    const dwarf = speciesId === 'dwarf';
+    const kept = dwarf ? wornItems.filter((worn) => !this.core.isItem(worn) || this.isClothing(worn)) : wornItems;
+    const corpse: Corpse = { species, diedTick: ctx.tick, wornItems: kept.slice(), dwarfName: dwarf ? name : null,
       weight: ctx.registry.table<{ id: string; size: number }>('creatures').byIndex(species)?.size ?? 0 };
     ctx.world.entities.add(id, C.Corpse, corpse);
-    for (const worn of wornItems) if (this.core.isItem(worn)) this.core.attachToCarrier(worn, id);
+    for (const worn of wornItems) {
+      if (!this.core.isItem(worn)) continue;
+      if (kept === wornItems || kept.includes(worn)) this.core.attachToCarrier(worn, id);
+      else this.core.dropAt(worn, tile);
+    }
     ctx.emit({ type: 'CorpseCreated', id, itemId: id, creatureId, species });
     return id;
   }

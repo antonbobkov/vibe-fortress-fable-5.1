@@ -50,7 +50,7 @@ describe('T-164 burial consumes clothing and returns gear', () => {
     for (const id of entities.with(C.Item)) expect(entities.get(id, C.Item)?.carriedBy).not.toBe(corpse);
   });
 
-  it('buried soldier gear drops unowned at the coffin and another soldier claims the sword', () => {
+  it('a fallen soldier\'s gear drops unowned where it fell, stays there through the burial, and another soldier claims the sword', () => {
     const w = world();
     const entities = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');
@@ -68,11 +68,14 @@ describe('T-164 burial consumes clothing and returns gear', () => {
     const equip = entities.get(victim, C.Equipment)!;
     entities.add(victim, C.Equipment, { ...equip, weapon: sword, shield, armor: { ...equip.armor, body: armor }, quiver });
     const corpse = kill(w, victim);
-    expect(entities.get(corpse, C.Corpse)?.wornItems).toEqual(expect.arrayContaining(gear));
+    // T-541: a dwarf falls out of its kit; only its clothing goes to the coffin with it.
+    const deathTile = items.tileOf(corpse);
+    for (const id of gear) expect(entities.get(corpse, C.Corpse)?.wornItems).not.toContain(id);
     w.until(() => w.events('Buried').some((event) => event['dwarfId'] === victim), 1000);
+    expect(deathTile).not.toBe(coffinTile);
     for (const id of gear) {
       expect(entities.alive(id)).toBe(true);
-      expect(items.tileOf(id)).toBe(coffinTile);
+      expect(items.tileOf(id)).toBe(deathTile);
       expect(entities.get(id, C.Item)?.carriedBy).toBe(0);
       expect(entities.get(id, C.Item)?.ownerId).toBe(0);
       expect(entities.get(id, C.Item)!.flags & ItemFlag.Owned).toBe(0);

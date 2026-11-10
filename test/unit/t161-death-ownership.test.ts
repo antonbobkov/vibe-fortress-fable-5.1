@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { buildFlatTestMap } from '@app/headless';
 import { contentRegistry } from '@content/loader';
 import { C, ItemFlag } from '@core/components';
-import { TICKS_PER_DAY } from '@core/constants';
 import { TestWorld } from '../scenarios/test-world';
 
 function world(): TestWorld {
@@ -19,7 +18,7 @@ function squad(w: TestWorld, soldier: number): number {
 }
 
 describe('T-161 ownership ends at death and civilian tools remain available', () => {
-  it('a dead soldier releases all claims; its pick becomes usable after the corpse rots', () => {
+  it('a dead soldier releases all claims; its pick drops beside the corpse and is usable at once', () => {
     const w = world();
     const entities = w.game.world.entities;
     const soldier = w.spawnDwarf({ at: w.index(12, 10, 32), ageYears: 30 });
@@ -42,9 +41,8 @@ describe('T-161 ownership ends at death and civilian tools remain available', ()
       expect(entities.get(id, C.Item)!.flags & ItemFlag.Owned).toBe(0);
     }
     expect(entities.get(contents, C.Item)?.containerId).toBe(barrel);
-    expect(entities.get(corpse, C.Corpse)?.wornItems).toContain(pick);
-    expect(entities.get(pick, C.Item)?.carriedBy).toBe(corpse);
-    w.step(28 * TICKS_PER_DAY);
+    // T-541: a dwarf falls out of its kit; the pick lies beside the corpse at once, not after rot.
+    expect(entities.get(corpse, C.Corpse)?.wornItems).not.toContain(pick);
     expect(entities.get(pick, C.Item)?.carriedBy).toBe(0);
     expect(entities.has(pick, C.Position)).toBe(true);
     const miner = w.spawnDwarf({ at: w.index(10, 11, 32), ageYears: 30, skills: { mining: 5 } });
