@@ -71,11 +71,12 @@ export function playDefenceSeed(seed: string, watchEvery: number): DefenceSeedRo
     seed,
     watchEvery,
     observe: (tw, st) => {
+      const dwarf = tw.game.registry.table('creatures').index('dwarf');
       tw.game.world.onEvents((batch) => {
         const ent = tw.game.world.entities;
         for (const e of batch) {
           if (e.type === 'RaidArrived' && e['kind'] === 'raid') lineAtRaid.push(innerLineBuilt(tw, st.fortress));
-          if (e.type === 'CreatureDied' && e['faction'] === 'fortress' && e['species'] === 'dwarf' && raidMembers.has(e['killerId'] as number)) {
+          if (e.type === 'CreatureDied' && e['faction'] === 'fortress' && e['species'] === dwarf && raidMembers.has(e['killerId'] as number)) {
             raidKilled += 1;
             if (soldiers.has(e['id'] as number)) raidKilledSoldiers += 1;
           }
