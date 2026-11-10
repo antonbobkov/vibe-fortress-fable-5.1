@@ -342,6 +342,51 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     return 0;
   }
 
+  /** The tiles around a depot's footprint a walker can stand on and reach from `from`, in footprint order. */
+  private ring(ctx: TickContext, footprint: readonly TileIndex[], from: TileIndex): TileIndex[] {
+    const map = ctx.world.map;
+    const around: TileIndex[] = [];
+    for (const tile of footprint) {
+      const x = map.xOf(tile);
+      const y = map.yOf(tile);
+      const z = map.zOf(tile);
+      for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]] as const) {
+        const nx = x + dx; const ny = y + dy;
+        if (!map.inBounds(nx, ny, z)) continue;
+        const neighbor = map.index(nx, ny, z);
+        if (!footprint.includes(neighbor) && !around.includes(neighbor) && ctx.readers.pathing.passable(neighbor, 'walker') && ctx.readers.pathing.reachable(from, neighbor, 'walker')) around.push(neighbor);
+      }
+    }
+    return around;
+  }
+
+  /**
+   * 20 § Movement step 3 (T-542): a member whose walk to its place at the depot comes back
+   * unreachable, and whose place can no longer be stood on or walked to (a sapling grown into a
+   * tree on the ring, a wall built there), takes another: the nearest place of its kind (inside the
+   * depot for a merchant, around it for the others) that it can walk to, one no other member is
+   * bound for first; else the nearest place of the other kind; else where it stands. The walk waits
+   * for every member, so a mule bound for a tile that grew a tree held the caravan for good.
+   */
+  private redestine(ctx: TickContext, a: ActiveCaravan, id: EntityId): void {
+    const at = ctx.world.services.movement?.tileOf(id) ?? -1;
+    const building = ctx.readers.of<BuildingsReader>('14').get(a.depotId);
+    if (at < 0 || !building) return;
+    const pathing = ctx.readers.pathing;
+    const current = a.destinations[id];
+    if (current !== undefined && pathing.passable(current, 'walker') && pathing.reachable(at, current, 'walker')) return;
+    const map = ctx.world.map;
+    const distance = (t: TileIndex): number => Math.abs(map.xOf(t) - map.xOf(at)) + Math.abs(map.yOf(t) - map.yOf(at)) + Math.abs(map.zOf(t) - map.zOf(at));
+    const taken = new Set<TileIndex>();
+    for (const [member, tile] of Object.entries(a.destinations)) if (Number(member) !== id) taken.add(tile);
+    const nearest = (tiles: readonly TileIndex[]): TileIndex | undefined => [...tiles].sort((p, q) =>
+      Number(taken.has(p)) - Number(taken.has(q)) || distance(p) - distance(q) || p - q)[0];
+    const inside = building.footprint.filter((t) => pathing.passable(t, 'walker') && pathing.reachable(at, t, 'walker'));
+    const around = this.ring(ctx, building.footprint, at);
+    const [own, other] = a.merchants.includes(id) ? [inside, around] : [around, inside];
+    a.destinations[id] = nearest(own) ?? nearest(other) ?? at;
+  }
+
   private seekDepot(ctx: TickContext): void {
     const a = this.active;
     if (!a) return;
@@ -352,21 +397,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       a.stateSince = ctx.tick;
       const building = ctx.readers.of<BuildingsReader>('14').get(depotId);
       if (building) {
-        const map = ctx.world.map;
         const footprint = building.footprint;
         const inside = footprint[Math.floor(footprint.length / 2)] ?? building.origin;
-        const around: TileIndex[] = [];
-        for (const tile of footprint) {
-          const x = map.xOf(tile);
-          const y = map.yOf(tile);
-          const z = map.zOf(tile);
-          for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]] as const) {
-            const nx = x + dx; const ny = y + dy;
-            if (!map.inBounds(nx, ny, z)) continue;
-            const neighbor = map.index(nx, ny, z);
-            if (!footprint.includes(neighbor) && !around.includes(neighbor) && ctx.readers.pathing.passable(neighbor, 'walker') && ctx.readers.pathing.reachable(a.edgeTile, neighbor, 'walker')) around.push(neighbor);
-          }
-        }
+        const around = this.ring(ctx, footprint, a.edgeTile);
         a.destinations = {};
         for (let i = 0; i < a.merchants.length; i += 1) a.destinations[a.merchants[i] as EntityId] = footprint[i % footprint.length] ?? inside;
         for (let i = 0; i < a.guards.length; i += 1) a.destinations[a.guards[i] as EntityId] = around[i % around.length] ?? inside;
@@ -518,6 +551,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       }
       const target = leaving ? a.edgeTile : a.destinations[id] ?? goal;
       const status = movement.walkTo(id, target, leaving ? 'flee' : 'caravan', ctx);
+      if (status === 'unreachable' && !leaving) this.redestine(ctx, a, id);
       if (status !== 'arrived') remaining += 1;
     }
     if (remaining === 0) {
