@@ -27,6 +27,8 @@ import {
   checkFortressRooms,
   checkFortressCaveFarm,
   checkFortressDefense,
+  innerLineBuilt,
+  musteredAt,
   HALL_Z,
   Z,
   type FortressState,
@@ -70,6 +72,10 @@ export interface DefenceYearState {
   trapModeSet: boolean;
   /** T-506: the times the north door was opened to the squad on a raid. */
   raidSallies: number;
+  /** T-506: the squad is out on a raid, or coming back from it, through the open north door. */
+  sallying?: boolean;
+  /** T-506: the squad has been called back to the gate stair since the corridor cleared. */
+  recalled?: boolean;
   readonly notes: string[];
 }
 
@@ -355,12 +361,53 @@ function squadArmed(w: TestWorld, squadId: number): boolean {
   return members.filter((id) => combat.weaponOf(id) !== 0).length >= 3;
 }
 
+/** Living members, on the map, of the parties of `purpose` that are not gone. */
+function partyMembers(w: TestWorld, purpose: string): number[] {
+  const ent = w.game.world.entities;
+  const out: number[] = [];
+  for (const id of ent.with(C.Party)) {
+    const p = ent.get(id, C.Party);
+    if (p === undefined || p.state === 'gone' || p.purpose !== purpose) continue;
+    out.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Position) !== undefined));
+  }
+  return out;
+}
+
+/** The gate stair's head: the gatehouse between the north door and the south one. */
+function gateStair(w: TestWorld, state: DefenceYearState): number {
+  return w.index(state.fortress.cx + 6, state.fortress.cy + 6, Z);
+}
+
+/** The squad's living members out on the surface, beyond the gate (the corridor or the open). */
+function soldiersOut(w: TestWorld, state: DefenceYearState): number[] {
+  const ent = w.game.world.entities;
+  const stair = gateStair(w, state);
+  const members = w.readers.of<CombatReader>('16').squads().find((q) => q.id === state.fortress.squadId)?.members ?? [];
+  return members.filter((id) => {
+    const p = ent.get(id, C.Position);
+    return ent.alive(id) && p !== undefined && p.z === Z && w.index(p.x, p.y, p.z) !== stair;
+  });
+}
+
 /**
- * Under the alert: hostiles of an ambush, a band or a thief that have come up the corridor stand at
- * the locked north door, over the traps. While they are fewer than the squad's armed members the
- * north door is opened to the squad, which waits behind it on the gate stair and is ordered to kill
- * each of them; the door goes back to locking on the alert once the corridor is clear. A raid is
- * never sallied on: the bridge closes the corridor behind it (checkDefenceWorks).
+ * Under the alert: hostiles that have come up the corridor stand at the locked north door, over the
+ * traps.
+ *
+ * T-506: a raid's are met there. Once the second line stands (T-518: the four doors at the gate
+ * stair's foot, locked under the alert) the north door is the corridor's end and no longer the halls'
+ * way in, so the squad sallies on raiders in the corridor, broken or not: when at least three of its
+ * armed members have mustered at the gate stair (T-539's muster), the north door is opened to it and
+ * it is ordered to kill each raider there. Whatever comes through the door finds the squad on the
+ * stair and the locked line below it. T-504's sally, before the line, let a raid down the stair into
+ * the halls, and none is made without it, nor on a siege, whose trollkin break doors. The door stays
+ * open while a raider is in the corridor or a soldier is out beyond the gate; once the corridor is
+ * clear the squad is called back to the stair, and the door locks on the alert again when the last
+ * soldier is in.
+ *
+ * Hostiles of an ambush, a band or a thief are sallied on as before: while they are fewer than the
+ * squad's armed members the north door is opened to the squad, which waits behind it on the gate stair
+ * and is ordered to kill each of them; the door goes back to locking on the alert once the corridor is
+ * clear.
  */
 export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -373,16 +420,50 @@ export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const squadId = state.fortress.squadId;
   if (door === 0 || buildings.get(door)?.state !== 'built') return;
   const raid = new Set(raiders(w));
-  if (w.game.world.fortress.alert === 'hearth' && inCorridor.length > 0 && !inCorridor.some((id) => raid.has(id)) &&
+  const hearth = w.game.world.fortress.alert === 'hearth';
+  const order = (targets: number[]): void => {
+    const orders = w.readers.of<CombatReader>('16').squads().find((q) => q.id === squadId)?.orders ?? [];
+    for (const targetId of targets) {
+      if (!orders.some((o) => o.kind === 'kill' && o.targetId === targetId)) command(w, { type: 'SquadOrder', squadId, order: { kind: 'kill', targetId } });
+    }
+  };
+  // T-506: the sally on a raid.
+  const raidHere = new Set(partyMembers(w, 'raid'));
+  const raidThere = inCorridor.filter((id) => raidHere.has(id));
+  const out = squadId === 0 ? [] : soldiersOut(w, state);
+  const begin = hearth && raidThere.length > 0 && squadId !== 0 && partyMembers(w, 'siege').length === 0 &&
+    innerLineBuilt(w, state.fortress) && squadArmed(w, squadId) && musteredAt(w, state.fortress, gateStair(w, state));
+  if (hearth && (begin || (state.sallying === true && (raidThere.length > 0 || out.length > 0)))) {
+    if (state.sallying !== true) {
+      state.sallying = true;
+      state.raidSallies += 1;
+      note(state, w, `north door opened to the squad on the raid: ${raidThere.length} in the corridor`);
+    }
+    if (buildings.get(door)?.mode !== 'open') command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
+    if (raidThere.length > 0) {
+      state.recalled = false;
+      order(raidThere);
+    } else if (state.recalled !== true) {
+      // The corridor is clear: the squad comes back to the stair before the door locks.
+      state.recalled = true;
+      command(w, { type: 'SquadOrder', squadId, order: { kind: 'cancel' } });
+      command(w, { type: 'SquadOrder', squadId, order: { kind: 'station', tile: gateStair(w, state) } });
+      note(state, w, `the squad called back to the gate stair, ${out.length} out`);
+    }
+    return;
+  }
+  if (state.sallying === true) {
+    state.sallying = false;
+    state.recalled = false;
+    note(state, w, 'the sally on the raid is over');
+  }
+  if (hearth && inCorridor.length > 0 && !inCorridor.some((id) => raid.has(id)) &&
       squadId !== 0 && squadArmed(w, squadId) && inCorridor.length < armedCount(w, squadId)) {
     if (buildings.get(door)?.mode !== 'open') {
       command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
       note(state, w, `north door opened to the squad on ${inCorridor.length} in the corridor`);
     }
-    const orders = w.readers.of<CombatReader>('16').squads().find((q) => q.id === squadId)?.orders ?? [];
-    for (const targetId of inCorridor) {
-      if (!orders.some((o) => o.kind === 'kill' && o.targetId === targetId)) command(w, { type: 'SquadOrder', squadId, order: { kind: 'kill', targetId } });
-    }
+    order(inCorridor);
   } else if (buildings.get(door)?.mode === 'open') {
     command(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' });
     note(state, w, 'north door locks on the alert again');
