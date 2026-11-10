@@ -1,0 +1,58 @@
+T-543: dwarf deaths in the twenty-seed sweep by killer, per sweep (the sum over a run's 80 seed-timelines
+divided by its 4 shifts), from each seed log's [three_years_death] lines with species "dwarf" and its
+[three_years_alert] lines and raid list. "raid" is a death to gloam, hillfolk, trollkin or elf, or with no
+killer named within 3 days of a party's arrival or a raid alert; "wild" is a death to a wolf, bear, boar,
+badger or cave spider, or with no killer named within 3 days of a wild-only alert; "other" is the rest
+(infection, fire, hunger, a death far from any alert). The pooled row is the verdict's (its count differs
+from this one by at most 0.5).
+
+run                 commit    run id        shifts   pooled living / deaths | deaths  raid   wild  other | wolf  bear  boar+badger (named)
+T-525 reference     8e622811  42420388361   0-150    948.5  / 125.25        | 125     93.75  27.5   3.75 |  6     1.5   3.5
+T-535               e4fd888e  42636786767   0-150    982.5  / 132.75        | 132.75 106.25  23.75  2.75 |  7.25  1     1.25
+T-536 (+T-530)      00de0314  42644116254   0-150    979.5  / 133           | 132.75 104.5   20.25  8    |  3.75  1.25  3.5
+master after T-535  48b754d1  42870676873   0-150    967    / 134.25        | 134    107     19.5   7.5  |  3     1     3.75
+master after T-535  48b754d1  42870682282   200-350  912.5  / 134.5         | 134    101.5   26     6.5  |  8     2     1.5
+T-538, script as was d124f7e9 42650065940   0-150    857.75 / 158.75        | 158.5  103.25  47.5   7.75 |  7     9.5   2.75
+T-538               2c2a46e2  42661644014   0-150    918    / 146           | 145.75 101.75  38     6    |  4.5   5.75  1.75
+T-539               360745fc  42782003867   0-150    936.75 / 150.75        | 150.5  111     29    10.5  | 10.25  4     1.75
+T-540 (no T-539)    a855a78a  42851630696   0-150    879.75 / 142.25        | 142     98     42     2    |  9.25  4.25  1.75
+T-541 (no T-540)    5851bd64  42856498520   0-150    922    / 154.25        | 154.25 115.5   32.25  6.5  | 10.25  6.25  1.75
+master after T-541  6e6a6ec3  42872065870   0-150    886    / 147           | 146.25 105.5   39.5   1.25 | 11.75  8     1.25
+master after T-541  6e6a6ec3  42873612241   200-350  878.5  / 145.75        | 145.75  97.75  43.75  4.25 | 11.5   8.5   1.25
+
+Eight shifts each (0 to 350), the same commit before and after today's merges:
+  48b754d1 (master after T-535)  living 939.75  deaths 134.38  raid 104.25  wild 22.75  other 7
+  6e6a6ec3 (master after T-541)  living 882.25  deaths 146.38  raid 101.63  wild 41.63  other 2.75
+  difference                     living -57.5   deaths +12     raid  -2.63  wild +18.88  other -4.25
+
+The noise, from the spread of each seed's figure over the shifts of one run (12 runs, 240 seed-runs): a
+timeline's deaths vary by SD 4.0 to 4.8 within a seed, its raid deaths by 3.8 to 4.4, its wild deaths by 1.9
+to 2.1. So one 4-shift pooled figure has a standard error of about 9 deaths (raid 8.5 to 9.7, wild 4.3 to
+4.8), an 8-shift one about 6.3 (wild 3.4); the difference of two 8-shift figures about 8.9 deaths, raid 8.5,
+wild 4.8. Single sweeps (one shift) of one commit ranged from 109 to 174 deaths (48b754d1) and from 124 to
+184 (6e6a6ec3).
+
+Raid parties are the same in every run: 164 to 171 raids of 2,287 to 2,561 raiders, 105 to 107 bandit
+parties, 24 sieges, 631 to 646 thieves over the 80 timelines. No raid code changed in these merges.
+
+The fights, from a probe on 6e6a6ec3 (run 42903590270, branch t543-probe, source in
+2026-11-10-t543-wild.probe.ts.txt): seeds p2-1, p2-4, p2-5, p4-1, p4-2 and p4-4 at shifts 0, 50, 100 and 150
+(24 timelines, the sweep's own). Each dwarf death to a bear or a wolf, by the first blow between the two:
+who struck, soldier (in the squad) or civilian, the alert at that blow, and the time from it to the death.
+   1 bear: animal struck first, civilian, alert calm, dead in <=1200 ticks
+   4 bear: animal struck first, civilian, alert calm, dead in <=300 ticks
+   1 bear: animal struck first, civilian, alert hearth, dead in <=1200 ticks
+   2 bear: animal struck first, soldier, alert calm, dead in <=1200 ticks
+   5 bear: animal struck first, soldier, alert calm, dead in <=300 ticks
+   2 bear: dwarf struck first, soldier, alert hearth, dead in <=1200 ticks
+   2 bear: dwarf struck first, soldier, alert hearth, dead in <=300 ticks
+   6 wolf: animal struck first, civilian, alert calm, dead in <=1200 ticks
+  25 wolf: animal struck first, civilian, alert calm, dead in <=300 ticks
+   1 wolf: animal struck first, civilian, alert hearth, dead in <=1200 ticks
+  12 wolf: animal struck first, civilian, alert hearth, dead in <=300 ticks
+  16 wolf: animal struck first, soldier, alert calm, dead in <=1200 ticks
+   3 wolf: animal struck first, soldier, alert calm, dead in <=300 ticks
+   4 wolf: animal struck first, soldier, alert hearth, dead in <=1200 ticks
+   6 wolf: animal struck first, soldier, alert hearth, dead in <=300 ticks
+   6 wolf: dwarf struck first, soldier, alert hearth, dead in <=1200 ticks
+  bear and wolf: 96 deaths; the animal struck first in 86, with no alert up in 62; 57 dead within 300 ticks.

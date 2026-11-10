@@ -87,13 +87,16 @@ export function poolSweeps(samples: readonly SweepFigures[]): SweepFigures {
  */
 export const SWEEP_TOLERANCE = { living: 100, deaths: 30 };
 
-// T-525: shifts 0, 50, 100 and 150 of master `8e622811` (after T-518, T-512, T-488, T-523 and T-524;
-// Measure run 42420388361). T-513's first row, of master `ec0c9e03`, was 19.75/7/0/876/145. The noise
-// was measured on master `1a8f0ef4`, whose row was 20/7/0.75/903.75/141.75 (run 42329994960).
+// T-543: shifts 0, 50, 100 and 150 of master `6e6a6ec3` (after T-538 to T-541: a struck wolf or bear
+// fights back, and noise wakes a sleeping animal; Measure run 42872065870). The best figures were reset
+// to the means of eight shifts of that master (0 to 350, runs 42872065870 and 42873612241): the same
+// eight shifts of master `48b754d1` before those rules pooled to 939.75 living and 134.38 deaths, and
+// the rise is wild animals alone (reports/audits/2026-11-10-t543-sweep-deaths-drift.md). The row
+// before, of master `8e622811` (T-525, run 42420388361), was 20/7/0/948.5/125.25.
 /** The best accepted pooled figures, which set the bounds; a tolerated loss is not ratcheted down. */
-export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 948.5, deaths: 125.25 };
+export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 882.25, deaths: 146.38 };
 /** The latest accepted pooled row. */
-export const SWEEP_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 948.5, deaths: 125.25, extinct: 0.25, needDeaths: 0.25 };
+export const SWEEP_REFERENCE: SweepFigures = { alive: 19.75, grown: 7, hungry: 0.25, living: 886, deaths: 147, extinct: 1, needDeaths: 2.5 };
 
 export interface SweepCheck {
   readonly allowed: boolean;
