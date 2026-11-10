@@ -1,0 +1,18 @@
+T-541: dwarf deaths in the twenty-seed sweep by killer, over the 80 seed-timelines of one sweep run
+(4 shifts x 20 seeds), from each seed log's [three_years_death] lines with species "dwarf". "raider" is
+gloam, hillfolk, trollkin and elf; "none" is a death with no living killer named (bleeding out after
+the attacker left, infection, fire).
+
+T-539, run 42782003867 (pooled 19.75/7/0.25/936.75/150.75 alive/grown/hungry/living/deaths)
+  602 dwarf deaths: raider 407, none 131, wolf 41, bear 16, badger 4, boar 3
+
+T-541, run 42856498520 on 5851bd64 (pooled 20/7/0.25/922/154.25, verdict pass)
+  a dwarf's kit drops on its tile at death; the squad's next look claims it
+  617 dwarf deaths: raider 430, none 113, wolf 41, bear 25, boar 5, badger 2, giant cave spider 1
+  seed witness failed: p2-5 at shift 150, "gate walls built" (5 living at year 3, against 7 before);
+  the timeline is the same until its first death (day 58), so the rest is that timeline's own
+
+Local probe, three-years-p2-6 at shift 150 to day 90: the soldier who died on day 61 had its spear
+  T-539 rule: on its corpse to day 90 and later; the recruit unarmed
+  a strip_corpse job for dwarf corpses (tried, dropped): the job stayed open to day 66 and later
+  the kit drops at death: the recruit held the spear on day 62

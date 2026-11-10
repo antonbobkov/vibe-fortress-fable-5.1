@@ -89,7 +89,7 @@ describe('T-160 held items fall at the death tile', () => {
     expect(w.readers.of<ItemsReader>('13').stockpileAt(w.readers.of<ItemsReader>('13').tileOf(stone))).toBe(stockpile);
   });
 
-  it('a tool also referenced by Equipment stays worn by the corpse', () => {
+  it('a tool also referenced by Equipment drops with the kit beside the corpse (T-541)', () => {
     const w = world();
     const entities = w.game.world.entities;
     const miner = w.spawnDwarf({ at: w.index(10, 10, 32), ageYears: 30 });
@@ -99,12 +99,11 @@ describe('T-160 held items fall at the death tile', () => {
       tiles: [w.index(10, 16, 32)], priority: 5 })).toEqual({ ok: true });
     w.until(() => entities.get(miner, C.Worker)?.toolId === pick, 1000);
     entities.add(miner, C.Equipment, { ...entities.get(miner, C.Equipment)!, weapon: pick });
-    kill(w, miner);
+    const tile = kill(w, miner);
     w.until(() => entities.with(C.Corpse).length > 0, 10);
     const corpse = entities.with(C.Corpse)[0]!;
-    expect(entities.get(corpse, C.Corpse)?.wornItems).toContain(pick);
-    expect(entities.get(pick, C.Item)?.carriedBy).toBe(corpse);
-    expect(entities.get(pick, C.Position)).toBeUndefined();
+    expect(entities.get(corpse, C.Corpse)?.wornItems).not.toContain(pick);
+    expectDropped(w, pick, tile);
     expect(w.events('ToolDropped').filter((event) => event['itemId'] === pick)).toHaveLength(0);
   });
 
