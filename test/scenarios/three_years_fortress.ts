@@ -62,6 +62,13 @@ const WARNED_TICKS = TICKS_PER_DAY + 100;
 const WILD_ALERT_TICKS = TICKS_PER_DAY / 2;
 /** T-387: after such an alert is lifted, wild animals alone raise no alert for this long. */
 const WILD_QUIET_TICKS = TICKS_PER_DAY;
+/**
+ * T-539: a wild-only alert raised again this soon after the last one was lowered is the same
+ * episode (the pack is still about), and WILD_ALERT_TICKS counts from the episode's first alert.
+ */
+const WILD_EPISODE_GAP_TICKS = TICKS_PER_DAY / 2;
+/** T-539: the squad sets out after wild animals once this many of its armed members stand this near its post. */
+const MUSTER_RADIUS = 3;
 /** The founders who stand in the squad: the woodcutter, the mason, the seventh, and the two miners. */
 const MILITIA: readonly number[] = [2, 3, 6, 0, 1];
 /** Barrels made before anything else at the carpenter's. */
@@ -232,6 +239,11 @@ export interface FortressState {
   alertSince: number;
   /** No alert is raised for wild animals alone before this tick. */
   wildQuietUntil: number;
+  /** T-539: when the current episode of wild-only alerts began, and when its last alert was lowered. */
+  wildEpisodeSince?: number | undefined;
+  wildCalmTick?: number;
+  /** T-539: under this alert the squad has mustered at its post, and hunts the wild animals together. */
+  mustered?: boolean;
   hospitalSetup: boolean;
   forgePlaced: boolean;
   /** Trees around the settlement, felled in batches as the log stock runs down. */
@@ -1418,6 +1430,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   if (curAlert === 'hearth' && state.gateDoorPlaced && insideLabel !== 0 && positions.length > 0 &&
       !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === insideLabel)) {
     state.shutOut = true;
+    state.mustered = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
     state.answered = '';
@@ -1429,22 +1442,60 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // hunt, only keeps the fortress from the brook and its surface work. On seed p2-3 one boar by
   // the gate held it for 27 days and all fourteen dwarves died of thirst inside. The player lifts
   // it after half a day and does not shelter from the animals again for a day.
-  if (curAlert === 'hearth' && !raid && intruders.length === 0 && indoors.length === 0 && targets.length > 0 && !squadArmed(w, state) &&
-      w.tick - (state.alertSince ?? w.tick) >= WILD_ALERT_TICKS) {
+  // T-539: the half day counts from the first alert of an episode, the alerts a pack raises one
+  // after another as it wanders in and out of sight. On seed p2-6 at shift 150 two hungry wolves
+  // that an unarmed squad did not hunt raised 46 alerts in 40 days, each lowered before half a day,
+  // and the dining hall was never dug. An armed squad that has not mustered (below) in half a day
+  // of its own alert hunts nothing either.
+  const wildOnly = !raid && intruders.length === 0 && indoors.length === 0 && targets.length > 0;
+  const armed = squadArmed(w, state);
+  const quiet = (): void => {
     state.wildQuietUntil = w.tick + WILD_QUIET_TICKS;
+    state.wildEpisodeSince = undefined;
+    state.mustered = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, wildQuiet: true });
     state.answered = '';
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+  };
+  const wildSince = armed ? state.alertSince : (state.wildEpisodeSince ?? state.alertSince);
+  if (curAlert === 'hearth' && wildOnly && !(armed && state.mustered === true) &&
+      w.tick - (wildSince ?? w.tick) >= WILD_ALERT_TICKS) {
+    quiet();
     return;
   }
   if (danger && !state.shutOut) {
     if (curAlert !== 'hearth') {
+      // T-539: a wild-only alert raised again soon after the last one was lowered continues its episode.
+      const since = state.wildEpisodeSince;
+      const episode = wildOnly && since !== undefined && state.wildCalmTick !== undefined &&
+        w.tick - state.wildCalmTick <= WILD_EPISODE_GAP_TICKS;
+      if (episode && !armed && w.tick - since >= WILD_ALERT_TICKS) {
+        quiet();
+        return;
+      }
+      state.wildEpisodeSince = !wildOnly ? undefined : episode ? since : w.tick;
       state.alertSince = w.tick;
+      state.mustered = false;
       command(w, { type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
     }
-    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}:${squadArmed(w, state)}:${targets.join(',')}`;
+    // T-539: wild animals alone are hunted by the squad together. It first musters at the gatehouse
+    // stair, and sets out once SQUAD_SIZE of its armed members stand there. Sent out at once, each
+    // soldier walked to the pack from wherever the alert found it, and since a struck wolf fights
+    // back (T-538) the first to arrive fought the pack alone: on seed p2-6 at shift 150 three
+    // soldiers died so in nine days, one of them unarmed, and the squad was left without its weapons.
+    // A member with no weapon does not go: it leaves the squad and shelters with the civilians, and
+    // is put back in it once the alert is down (above).
+    const muster = armed && wildOnly && state.mustered !== true;
+    if (muster && musteredAt(w, state, gatehouseStairsTile)) {
+      state.mustered = true;
+      const members = squad?.members ?? [];
+      const withWeapons = members.filter((id) => combat.weaponOf(id) !== 0);
+      if (withWeapons.length < members.length) command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: withWeapons });
+    }
+    const mustering = muster && state.mustered !== true;
+    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}:${armed}:${mustering ? 'muster' : ''}:${targets.join(',')}`;
     if (state.squadId !== 0 && state.answered !== answer) {
       state.answered = answer;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
@@ -1454,19 +1505,40 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       // T-518: below is behind the second line once it stands, and a siege, whose trollkin break
       // doors, is waited for there: a squad in the gatehouse, locked between the gate and the
       // vestibule, has no drink and no way back, and a siege outnumbers it at a broken gate.
-      const hunted = raid ? indoors : squadArmed(w, state) ? targets : indoors;
+      const hunted = raid || mustering ? indoors : armed ? targets : indoors;
       for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
       const below = line ? behindTheLine(w, state) : w.index(cx + 6, cy + 6, state.hallZ);
-      const outdoors = (raid && !(siege && line)) || hunted.length > indoors.length;
+      const outdoors = (raid && !(siege && line)) || hunted.length > indoors.length || mustering;
       const post = outdoors || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
     }
   } else if (curAlert === 'hearth' && w.tick - state.lastDangerTick >= ALL_CLEAR_TICKS) {
+    if (state.wildEpisodeSince !== undefined) state.wildCalmTick = w.tick;
+    state.mustered = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true });
     state.answered = '';
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
   }
+}
+
+/**
+ * T-539: at least SQUAD_SIZE of the squad's armed members stand within MUSTER_RADIUS of its post
+ * (and a level of it), so it sets out after wild animals together.
+ */
+export function musteredAt(w: TestWorld, state: FortressState, post: number): boolean {
+  const combat = w.readers.of<CombatReader>('16');
+  const ent = w.game.world.entities;
+  const members = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  const px = w.map.xOf(post);
+  const py = w.map.yOf(post);
+  const pz = w.map.zOf(post);
+  const there = members.filter((id) => {
+    const p = ent.get(id, C.Position);
+    return p !== undefined && combat.weaponOf(id) !== 0 && Math.abs(p.z - pz) <= 1 &&
+      Math.max(Math.abs(p.x - px), Math.abs(p.y - py)) <= MUSTER_RADIUS;
+  });
+  return there.length >= SQUAD_SIZE;
 }
 
 /** At least three of the squad hold a weapon (a spear, a sword, an axe or a pick). */
