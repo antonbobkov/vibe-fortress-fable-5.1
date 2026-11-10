@@ -1,6 +1,8 @@
 # T-506 — `defence_year`'s squad meets a raid without opening the halls to it
 
-**Source:** T-504 ([report](../../reports/audits/2026-11-05-t504-raid-morale.md), § `defence_year` and a sally) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-10, in 63ea94f0,19dfb896,13fbbea8,59443e94,bbfcb19b,253e9e88,c2740c39.
+
+**Source:** T-504 ([report](../../../reports/audits/2026-11-05-t504-raid-morale.md), § `defence_year` and a sally) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -68,6 +68,8 @@ export interface DefenceYearState {
   /** The bridge state a pull has been ordered for and not yet reached ('' when none is pending). */
   pulledFor: '' | 'raised' | 'lowered';
   trapModeSet: boolean;
+  /** The north door stands open to the squad on hostiles in the corridor (the opening is noted once). */
+  sallying?: boolean;
   readonly notes: string[];
 }
 
@@ -359,6 +361,13 @@ function squadArmed(w: TestWorld, squadId: number): boolean {
  * north door is opened to the squad, which waits behind it on the gate stair and is ordered to kill
  * each of them; the door goes back to locking on the alert once the corridor is clear. A raid is
  * never sallied on: the bridge closes the corridor behind it (checkDefenceWorks).
+ *
+ * T-506 measured why (reports/audits/2026-11-10-t506-defence-year-sally.md). Behind the second line
+ * (T-518) an open north door no longer lets a raid into the halls, but a sally has nothing to win: a
+ * raid that the cage robs of its captain falls to 48 and breaks the moment it is out of a fight, and
+ * a squad that meets it there keeps it fighting (18 § Morale), so it takes heart and loots; a steady
+ * raid whose captain no trap took kills the soldiers who meet it in the corridor and loots all the
+ * same; and a broken raid is off the map before the squad reaches it.
  */
 export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -373,17 +382,21 @@ export function checkDefenceRaid(w: TestWorld, state: DefenceYearState): void {
   const raid = new Set(raiders(w));
   if (w.game.world.fortress.alert === 'hearth' && inCorridor.length > 0 && !inCorridor.some((id) => raid.has(id)) &&
       squadId !== 0 && squadArmed(w, squadId) && inCorridor.length < armedCount(w, squadId)) {
-    if (buildings.get(door)?.mode !== 'open') {
-      command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
-      note(state, w, `north door opened to the squad on ${inCorridor.length} in the corridor`);
-    }
+    // The fortress script sets the gate's doors back to lock on the alert at each look
+    // (checkFortressDefense): the door is opened again, and the opening noted once.
+    if (buildings.get(door)?.mode !== 'open') command(w, { type: 'SetDoorMode', buildingId: door, mode: 'open' });
+    if (state.sallying !== true) note(state, w, `north door opened to the squad on ${inCorridor.length} in the corridor`);
+    state.sallying = true;
     const orders = w.readers.of<CombatReader>('16').squads().find((q) => q.id === squadId)?.orders ?? [];
     for (const targetId of inCorridor) {
       if (!orders.some((o) => o.kind === 'kill' && o.targetId === targetId)) command(w, { type: 'SquadOrder', squadId, order: { kind: 'kill', targetId } });
     }
-  } else if (buildings.get(door)?.mode === 'open') {
-    command(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' });
-    note(state, w, 'north door locks on the alert again');
+  } else {
+    state.sallying = false;
+    if (buildings.get(door)?.mode === 'open') {
+      command(w, { type: 'SetDoorMode', buildingId: door, mode: 'lock_on_alert' });
+      note(state, w, 'north door locks on the alert again');
+    }
   }
 }
 
