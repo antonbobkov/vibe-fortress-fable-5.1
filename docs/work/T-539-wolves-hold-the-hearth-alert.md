@@ -13,3 +13,7 @@ Find why a three-soldier armed squad does not clear a wolf pack near the gate in
 ## Done
 
 - The cause is named, the script's answer changed if it is the script, and the sweep's verdict passes with the seed witnesses green at the four shifts, or a dated report says why not.
+
+## Outcome
+
+The cause was the script, not a rule: soldiers sent at once fought the pack one at a time (three dead on p2-6 at shift 150, one unarmed), and an unarmed squad's short wolf alerts each ended before T-387's half day, so it never applied. The script now counts the half day over an episode of alerts, musters an armed squad before a hunt and leaves its unarmed members behind, shelters from an aggressive animal instead of hunting it, and answers at once an animal attacking a dwarf, quiet day or not. Sweep run 42782003867 passes (pooled 19.75/7/0.25/936.75/150.75) with the seed witnesses green at the four shifts; deaths to wild animals fell from 162 to 131 over its 80 timelines, but pooled deaths did not return to 132.75 ([the report](../../reports/audits/2026-11-10-t539-wolves-and-the-hearth-alert.md)).

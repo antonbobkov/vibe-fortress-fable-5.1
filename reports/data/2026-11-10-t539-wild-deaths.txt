@@ -1,0 +1,30 @@
+T-539: dwarf deaths in the twenty-seed sweep by killer and by the alert standing at the death, over the
+80 seed-timelines of one sweep run (4 shifts x 20 seeds), from each seed log's [three_years_death] and
+[three_years_alert] lines. A death whose killer's species is not logged counts as "near" a wild animal
+when the only alerts in the three days before it were for wild animals. "wild" below is every death
+with a wild killer or near one. The alert state is the last alert note before the death: wildAlert (a
+hearth alert for wild animals), calm, quiet (lifted by the episode's half day), raidAlert, shutOut.
+
+T-535, run 42636786767 (pooled 20/7/0.25/982.5/132.75 alive/grown/hungry/living/deaths)
+  531 dwarf deaths; wild 102 (wolf 30 + near:wolf 48, bear 12, boar 12); 389 wild alerts in all
+  by state: wolf/near in a wild alert 58, calm 29, quiet 5
+
+T-538, run 42661644014 (pooled 19.5/7/0.25/918/146): a struck wolf or bear fights back
+  583 dwarf deaths; wild 162 (wolf 26 + near:wolf 88, bear 30, boar 18); 604 wild alerts in all
+  by state: wolf/near in a wild alert 73, calm 41, quiet 9, shutOut 6; bear 25 (11 in a wild alert)
+
+T-539, run 42782003867 on 360745fc (pooled 19.75/7/0.25/936.75/150.75, verdict pass)
+  the squad musters before a hunt and leaves its unarmed behind; an aggressive animal is not hunted,
+  the fortress shelters from it; the half day counts over an episode of alerts; an animal attacking a
+  dwarf is answered at once, quiet day or not
+  602 dwarf deaths; wild 131 (wolf 53 + near:wolf 43, bear 17, boar 6, badger 4); 1155 wild alerts in all
+  by state: wolf/near in a wild alert 69, calm 16, quiet 15; bear 17 (5 in a wild alert)
+  raiders (gloam, hillfolk, trollkin) 410 against 366 and 399: timeline noise, no raid code changed
+  p2-6 at shift 150 passes its witnesses (locally too: 11 deaths, 1 to a wolf, all rooms built)
+
+Local probe, three-years-p2-6 at shift 150 to day 80 (wolf alerts / wolf deaths)
+  T-538 script                              46 / 3 (one soldier unarmed, each alone against the pack)
+  episode half day only                     28 / 3
+  + muster at the gatehouse stair            5 / 3 (three spears still met three wolves one by one)
+  + shelter from wolves, no hunt            29 / 2 (both at the gate in a quiet day, unanswered)
+  + answer an animal attacking a dwarf      62 over three years / 1
