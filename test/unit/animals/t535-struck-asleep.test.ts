@@ -8,7 +8,7 @@ import { C } from '@core/components';
 import type { GameEvent } from '@core/events';
 import type { TickContext } from '@core/system';
 import type { EntityId } from '@core/types';
-import { thinkWild } from '@systems/animals';
+import { NOISE_LISTEN_TICKS, thinkWild } from '@systems/animals';
 import { TestWorld } from '../../scenarios/test-world';
 
 function world(seed: string): TestWorld {
@@ -34,11 +34,13 @@ function strike(w: TestWorld, attacker: EntityId, target: EntityId, emitted: Gam
 }
 
 describe('T-535 an animal struck in its sleep wakes', () => {
-  it('a boar sleeps on beside a dwarf who does not strike it', () => {
+  it('a boar sleeps on beside a dwarf who does not strike it, between listens', () => {
     const w = world('t535-sleeps');
     const { boar } = sleepingBoar(w);
     const e = w.game.world.entities;
-    const next = thinkWild(w.animals.brain, ctxOf(w), boar, e.get(boar, C.Wild)!);
+    // T-540: the sleeper listens for dwarves every NOISE_LISTEN_TICKS; this think is not one.
+    const tick = (w.tick + boar) % NOISE_LISTEN_TICKS === 0 ? w.tick + 1 : w.tick;
+    const next = thinkWild(w.animals.brain, { ...ctxOf(w), tick }, boar, e.get(boar, C.Wild)!);
     expect(next.state).toBe('sleep');
   });
 
@@ -66,13 +68,6 @@ describe('T-535 an animal struck in its sleep wakes', () => {
     expect(['flee', 'leave']).toContain(e.get(boar, C.Wild)!.state);
     expect(w.animals.brain.targetOf!(boar)).toBe(0);
     expect(emitted.some((ev) => ev.type === 'CreatureFled' && ev['id'] === boar && ev['from'] === dwarf)).toBe(true);
-  });
-
-  it('a missed blow leaves it asleep', () => {
-    const w = world('t535-missed');
-    const { boar, dwarf } = sleepingBoar(w);
-    strike(w, dwarf, boar, [], 'miss');
-    expect(w.game.world.entities.get(boar, C.Wild)!.state).toBe('sleep');
   });
 
   it('a deer struck in its sleep wakes to idle with no wait', () => {

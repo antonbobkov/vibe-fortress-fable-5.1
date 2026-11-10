@@ -21,7 +21,11 @@
  *   eat:    walk to the saved corpse; wait EAT_CORPSE_TICKS there, consume through 13, idle
  *   sleep:  stay until stateUntil; a threat wakes it; hit (wakeStruck): below the flee percent
  *           flee the striker, territorial defend against it from its tile, aggressive attack it
- *           back from its tile (T-538), else idle
+ *           back from its tile (T-538), else idle; a miss, parry or block on it wakes it the same
+ *           way on a NOISE_MISS_PERMILLE roll (T-540); every NOISE_LISTEN_TICKS each dwarf within
+ *           NOISE_RADIUS rolls (louder in metal armour), as does any fight within it (index.ts):
+ *           woken so (wakeToNoise), below the flee percent flee the noise, else idle; a heavy
+ *           sleeper's noise chances are a tenth
  *   leave:  walk to the nearest edge tile; despawn on arrival (AnimalLeft)
  *   struck (strikeBack, T-538): an aggressive animal in idle, graze, wander or eat attacks the
  *           striker, defending the striker's tile; below a species flee percent it flees instead
@@ -36,7 +40,7 @@ import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import { CHUNK_SIZE } from '@core/constants';
 import { TileFlag, type Map3D } from '@core/map3d';
-import type { RngStream } from '@core/rng';
+import { splitmix32, type RngStream } from '@core/rng';
 import type { MovementApi, ReaderSetLike, TickContext } from '@core/system';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import {
@@ -49,9 +53,15 @@ import {
   FLEE_TICKS,
   GRAZE_SEARCH_RADIUS,
   GRAZE_TICKS,
+  HEAVY_SLEEPER_NOISE_DIVISOR,
+  HEAVY_SLEEPER_PERMILLE,
   IDLE_MAX_TICKS,
   IDLE_MIN_TICKS,
   NEAR_DWARF_RADIUS,
+  NOISE_DWARF_METAL_PERMILLE,
+  NOISE_DWARF_PERMILLE,
+  NOISE_LISTEN_TICKS,
+  NOISE_RADIUS,
   PREY_PACK_MAX_MEMBERS,
   PREY_SIZE_PERMILLE,
   SLEEP_TICKS,
@@ -114,6 +124,8 @@ export interface BrainHost {
    * that does, or -1 when none does.
    */
   homeAwayFromFortress?(chunk: number): number;
+  /** T-540: whether the creature wears any armour piece or shield of a `metal` material (a loud walker). */
+  wearsMetal?(id: EntityId): boolean;
 }
 
 export function tileOf(host: BrainHost, id: EntityId): TileIndex {
@@ -628,12 +640,22 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
       break;
     }
     case 'sleep': {
-      // A sleeper struck wakes at once, on the strike's AttackResolved (wakeStruck, T-535).
+      // A sleeper struck wakes at once, on the strike's AttackResolved (wakeStruck, T-535); a
+      // missed attack on it or a fight near it may wake it there too (T-540, index.ts).
       if (threats.length > 0) {
         startFlee(host, ctx, id, next, threats);
         break;
       }
-      if (ctx.tick >= next.stateUntil) toIdle(host, ctx, id, next);
+      if (ctx.tick >= next.stateUntil) {
+        toIdle(host, ctx, id, next);
+        break;
+      }
+      // T-540: it listens for dwarves near it once every NOISE_LISTEN_TICKS (a sleeper near a
+      // dwarf thinks every tick); a dwarf in metal armour is louder.
+      if ((ctx.tick + id) % NOISE_LISTEN_TICKS === 0) {
+        const dwarf = noisyDwarf(host, at, next);
+        if (dwarf !== 0) return wakeToNoise(host, ctx, id, next, dwarf);
+      }
       break;
     }
     case 'leave': {
@@ -728,6 +750,86 @@ export function wakeStruck(host: BrainHost, ctx: TickContext, id: EntityId, w: W
     next.stateUntil = ctx.tick;
   }
   return next;
+}
+
+/**
+ * `08` § Wild behavior, `sleep` (T-540): a heavy sleeper or not, from the creature's id alone, so
+ * the choice moves no stream. About `HEAVY_SLEEPER_PERMILLE` in a thousand are.
+ */
+export function isHeavySleeperId(id: EntityId): boolean {
+  return splitmix32(id ^ 0x5133_9e7d)() % 1000 < HEAVY_SLEEPER_PERMILLE;
+}
+
+/**
+ * `08` § Wild behavior, `sleep` (T-540): the chance in permille that a sleeper wakes from a noise of
+ * `loudness` (its chance one tile away) `distance` tiles from it. It falls by a quarter of the
+ * loudness a tile, to 0 beyond `NOISE_RADIUS`; distance 0 (an attack on the sleeper) is as loud as 1.
+ * A heavy sleeper's chance is a `HEAVY_SLEEPER_NOISE_DIVISOR`th of it.
+ */
+export function noiseWakeChance(loudness: number, distance: number, heavy: boolean): number {
+  if (distance > NOISE_RADIUS) return 0;
+  const near = Math.floor((loudness * (NOISE_RADIUS + 1 - Math.max(1, distance))) / NOISE_RADIUS);
+  return heavy ? Math.floor(near / HEAVY_SLEEPER_NOISE_DIVISOR) : near;
+}
+
+/** Whether a sleeper hears a noise and wakes: one draw on the animals' stream, only when the chance is above 0. */
+export function hearsNoise(host: BrainHost, w: Wild, loudness: number, distance: number): boolean {
+  const chance = noiseWakeChance(loudness, distance, w.heavySleeper === true);
+  return chance > 0 && host.rng.chance(chance);
+}
+
+/** The first dwarf (ascending id) within `NOISE_RADIUS` on the sleeper's level whose noise wakes it, or 0. */
+function noisyDwarf(host: BrainHost, at: TileIndex, w: Wild): EntityId {
+  const z = host.map.zOf(at);
+  for (const other of host.readers.spatial.inRadius(at, NOISE_RADIUS, 'creature')) {
+    if (!isDwarf(host, other) || host.entities.get(other, C.Body)?.conscious === false) continue;
+    const to = tileOf(host, other);
+    if (to < 0 || host.map.zOf(to) !== z) continue;
+    const loudness = host.wearsMetal?.(other) === true ? NOISE_DWARF_METAL_PERMILLE : NOISE_DWARF_PERMILLE;
+    if (hearsNoise(host, w, loudness, chebyshev(host, at, to))) return other;
+  }
+  return 0;
+}
+
+/**
+ * `08` § Wild behavior, `sleep` (T-540): a sleeper woken by a noise that is not an attack on it.
+ * Below its flee percent it flees the noise's maker, as a struck sleeper does; any other wakes to
+ * `idle` with the ordinary idle wait, where its next think decides: a territorial one defends
+ * against a dwarf within `TERRITORY_RADIUS`, an aggressive one within `APPROACH_RADIUS`, a timid one
+ * flees what it sees, and with nothing to do it sleeps again after the wait if it is still its rest
+ * time. A record not in `sleep` is returned unchanged.
+ */
+export function wakeToNoise(host: BrainHost, ctx: TickContext, id: EntityId, w: Wild, source: EntityId): Wild {
+  if (w.state !== 'sleep') return w;
+  const next: Wild = { ...w };
+  if (source !== 0 && woundedToFlee(host, id)) {
+    host.setTarget(id, 0);
+    startFlee(host, ctx, id, next, [source]);
+  } else {
+    toIdle(host, ctx, id, next);
+  }
+  return next;
+}
+
+/**
+ * T-540: a fight's noise at `at` (the struck creature's tile): each wild sleeper within
+ * `NOISE_RADIUS` on its level, but the two fighters, may wake (ascending id). Returns the sleepers
+ * woken with their new records; the caller writes them.
+ */
+export function fightNoise(host: BrainHost, ctx: TickContext, at: TileIndex, loudness: number, fighters: readonly EntityId[], source: EntityId): [EntityId, Wild][] {
+  const out: [EntityId, Wild][] = [];
+  if (at < 0) return out;
+  const z = host.map.zOf(at);
+  for (const other of host.readers.spatial.inRadius(at, NOISE_RADIUS, 'creature')) {
+    if (fighters.includes(other)) continue;
+    const w = host.entities.get(other, C.Wild);
+    if (w === undefined || w.state !== 'sleep' || host.entities.get(other, C.Creature)?.cagedIn) continue;
+    const to = tileOf(host, other);
+    if (to < 0 || host.map.zOf(to) !== z) continue;
+    if (!hearsNoise(host, w, loudness, chebyshev(host, at, to))) continue;
+    out.push([other, wakeToNoise(host, ctx, other, w, source)]);
+  }
+  return out;
 }
 
 function chebyshev(host: BrainHost, a: TileIndex, b: TileIndex): number {
