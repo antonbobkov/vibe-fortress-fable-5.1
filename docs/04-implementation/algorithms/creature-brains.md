@@ -160,6 +160,11 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
     return nearest prey (Chebyshev, then id), else nearest visible dwarf within perception, else none
     sleep:  stay; if threat: 'flee'/'attack'; at stateUntil: 'idle'
             on AttackResolved with outcome hit against it (at once, not at a think): blood < fleeBlood and not aggressive: 'flee' from the attacker; else territorial and attacker alive: 'attack' with W.defendFrom = tile, combat.setTarget(id, attacker); else aggressive and attacker alive: 'attack' with W.defendFrom = attacker's tile (T-538); else 'idle' with stateUntil = tick (no idle wait)
+            on AttackResolved with outcome miss/parried/blocked against it (T-540): the same, on a roll of noiseChance(NOISE_MISS_PERMILLE, 0)
+            every think with (tick + id) % NOISE_LISTEN_TICKS == 0: each conscious dwarf within NOISE_RADIUS on its level, ascending id, rolls noiseChance(metal armour or shield ? NOISE_DWARF_METAL_PERMILLE : NOISE_DWARF_PERMILLE, dist); the first that wakes it: wakeToNoise(dwarf)
+            on AttackResolved against another creature within NOISE_RADIUS of it, same level (T-540): roll noiseChance(NOISE_FIGHT_PERMILLE, dist to the struck creature); woken: wakeToNoise(attacker)
+            wakeToNoise(src): blood < fleeBlood (aggressive: its own percent): 'flee' from src; else 'idle' with the ordinary idle wait
+            noiseChance(loud, d) = d > NOISE_RADIUS ? 0 : floor(loud * (NOISE_RADIUS + 1 - max(1, d)) / NOISE_RADIUS), divided by HEAVY_SLEEPER_NOISE_DIVISOR for W.heavySleeper; a roll is drawn only when it is above 0
     leave:  walk to nearest edge tile; on arrival: despawn (AnimalLeft)
   moveAlongPath(id)
 ```

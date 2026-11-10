@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
-| T-540 | [Noise and closeness may wake a sleeping animal](work/T-540-noise-wakes-a-sleeper.md) | the owner, 2026-11-09 | — | open |
 | T-541 | [T-541: A fallen soldier's spear is not picked up again for weeks](work/T-541-fallen-soldiers-weapons.md) | T-539's runs | — | open |
 | T-542 | [A hillfolk caravan stuck on its way to the depot](work/T-542-hillfolk-caravan-stuck.md) | T-539's runs | — | open |
 

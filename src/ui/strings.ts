@@ -1280,6 +1280,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.building': 'Building: {name} ({state}){mode}',
   'ui.look.zone': 'Zone: {name} ({n} t){room}',
   'ui.look.no_creatures': 'No one is here.',
+  'ui.look.heavy_sleeper': 'A heavy sleeper.',
   'ui.settings.zoom_hint': 'Auto: a larger cell on a large window. A fixed zoom keeps the old look.',
   'ui.settings.zoom_shown': 'Zoom {zoom} (shown at {shown}: the window is small)',
   'ui.music.on': 'Music on.',

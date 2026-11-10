@@ -34,6 +34,8 @@ import {
   HATCH_DAYS,
   KENNEL_WORKSHOP,
   NEST_BOX_TAG,
+  NOISE_FIGHT_PERMILLE,
+  NOISE_MISS_PERMILLE,
   PREDATOR_HUNGER_DAYS,
   PASTURE_ZONE,
   PET_PILE_MAX,
@@ -44,7 +46,7 @@ import {
   TERRITORY_AVOID_RADIUS,
 } from './constants';
 import { AnimalFacts } from './facts';
-import { chunkCentre, packOf, strikeBack, tickAnimal, wakeStruck, type BrainHost } from './brain';
+import { chunkCentre, fightNoise, hearsNoise, isHeavySleeperId, packOf, strikeBack, tickAnimal, tileOf, wakeStruck, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import type { AnimalsReader } from './reader';
@@ -250,7 +252,22 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       },
       despawn: (id) => this.despawnQueue.push(id),
       homeAwayFromFortress: (chunk) => this.homeAwayFromFortress(chunk),
+      wearsMetal: (id) => this.wearsMetal(id),
     };
+  }
+
+  /** T-540: any armour piece or shield the creature wears is of a `metal` material. */
+  private wearsMetal(id: EntityId): boolean {
+    const entities = (this.world as WorldLike).entities;
+    const equip = entities.get(id, C.Equipment);
+    if (equip === undefined) return false;
+    const a = equip.armor;
+    for (const piece of [a.head, a.body, a.arms, a.legs, a.feet, equip.shield]) {
+      if (piece === 0) continue;
+      const item = entities.get(piece, C.Item);
+      if (item !== undefined && this.facts.isMetal(item.material)) return true;
+    }
+    return false;
   }
 
   /** T-446: per chunk column (`chunk % per level`), 1 when its centre lies within `TERRITORY_AVOID_RADIUS` of the fortress; rebuilt when null. */
@@ -1004,7 +1021,11 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
   private spawnCreature(species: number, at: TileIndex): EntityId {
     const world = this.world as WorldLike;
-    return world.services.spawn.creature(species, at, 'wild');
+    const id = world.services.spawn.creature(species, at, 'wild');
+    // T-540: a heavy sleeper or not, once, from its id (no stream moves).
+    const w = world.entities.get(id, C.Wild);
+    if (w !== undefined && isHeavySleeperId(id)) world.entities.add(id, C.Wild, { ...w, heavySleeper: true });
+    return id;
   }
 
   private hasKennel(): boolean {
@@ -1183,12 +1204,22 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         this.provoked.set(target, attacker);
         const wild = ctx.world.entities.get(target, C.Wild);
         if (wild !== undefined) {
-          // T-535: an animal struck (hit) in its sleep wakes; T-538: an aggressive animal struck
-          // awake strikes back (08 § Wild behavior, `sleep` and *Struck*).
+          // T-535: an animal struck (hit) in its sleep wakes; T-540: a miss, parry or block on
+          // it is the loudest noise short of a hit and wakes it the same way on a roll; T-538: an
+          // aggressive animal struck awake strikes back (08 § Wild behavior, `sleep` and *Struck*).
           const next = wild.state === 'sleep'
-            ? (event['outcome'] === 'hit' ? wakeStruck(this.brain, ctx, target, wild, attacker) : wild)
+            ? (event['outcome'] === 'hit' || hearsNoise(this.brain, wild, NOISE_MISS_PERMILLE, 0)
+              ? wakeStruck(this.brain, ctx, target, wild, attacker) : wild)
             : strikeBack(this.brain, ctx, target, wild, attacker);
           if (next !== wild) ctx.world.entities.add(target, C.Wild, next);
+        }
+      }
+      // T-540: a fight wakes the sleepers near it on a roll, falling with distance.
+      if (typeof target === 'number' && typeof attacker === 'number') {
+        const at = tileOf(this.brain, target);
+        const where = at >= 0 ? at : tileOf(this.brain, attacker);
+        for (const [sleeper, next] of fightNoise(this.brain, ctx, where, NOISE_FIGHT_PERMILLE, [target, attacker], attacker)) {
+          ctx.world.entities.add(sleeper, C.Wild, next);
         }
       }
     }

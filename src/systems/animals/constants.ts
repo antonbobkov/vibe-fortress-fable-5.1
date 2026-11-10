@@ -75,6 +75,25 @@ export const PREY_SIZE_PERMILLE = 800;
 export const PREY_PACK_MAX_MEMBERS = 3;
 /** "ignores dwarves unless approached within 3 tiles". */
 export const APPROACH_RADIUS = 3;
+
+// ---------- a sleeper and noise (`08` § Wild behavior, `sleep`, T-540; all *unmeasured*) ----------
+
+/** Tiles (Chebyshev, the same level) within which a sleeper hears a noise. */
+export const NOISE_RADIUS = 4;
+/** Wake chance of an attack on the sleeper itself that misses, is parried or is blocked. */
+export const NOISE_MISS_PERMILLE = 600;
+/** Wake chance of any attack on another creature, one tile away. */
+export const NOISE_FIGHT_PERMILLE = 250;
+/** Wake chance of a dwarf in metal armour one tile away, at each listen. */
+export const NOISE_DWARF_METAL_PERMILLE = 100;
+/** Wake chance of a dwarf in leather or no armour one tile away, at each listen. */
+export const NOISE_DWARF_PERMILLE = 30;
+/** A sleeper listens for dwarves near it once in this many ticks. */
+export const NOISE_LISTEN_TICKS = 10;
+/** The share of wild animals, in permille, that are heavy sleepers. */
+export const HEAVY_SLEEPER_PERMILLE = 200;
+/** A heavy sleeper's wake chance from a noise is the ordinary chance divided by this. */
+export const HEAVY_SLEEPER_NOISE_DIVISOR = 10;
 /** `creature-brains.md` `flee`: "sampled 8 directions × 6 steps". */
 export const FLEE_SAMPLE_DIRECTIONS = 8;
 export const FLEE_SAMPLE_STEPS = 6;

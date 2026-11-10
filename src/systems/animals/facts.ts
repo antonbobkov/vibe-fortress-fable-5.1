@@ -60,6 +60,8 @@ export interface SpeciesRow {
 export class AnimalFacts {
   private readonly rows: (SpeciesRow | undefined)[] = [];
   private readonly index = new Map<string, number>();
+  /** By material index: the `metal` class (T-540, a loud armour). */
+  private readonly metal: boolean[] = [];
   readonly size: number;
 
   constructor(registry: Registry) {
@@ -70,6 +72,15 @@ export class AnimalFacts {
       this.rows[s] = row;
       this.index.set(row.id, s);
     }
+    if (registry.hasTable('materials')) {
+      const materials = registry.table<{ id: string; class: string }>('materials');
+      for (let m = 1; m <= materials.size; m += 1) this.metal[m] = materials.byIndex(m)?.class === 'metal';
+    }
+  }
+
+  /** Whether the material is of the `metal` class (T-540: metal armour is loud). */
+  isMetal(material: number): boolean {
+    return this.metal[material] === true;
   }
 
   row(species: number): SpeciesRow | undefined {
