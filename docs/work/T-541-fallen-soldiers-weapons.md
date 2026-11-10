@@ -1,6 +1,6 @@
-# T-NEW: A fallen soldier's spear is not picked up again for weeks
+# T-541: A fallen soldier's spear is not picked up again for weeks
 
-**Source:** [T-539](T-539-wolves-hold-the-hearth-alert.md) ([the report](../../reports/audits/2026-11-10-t539-wolves-and-the-hearth-alert.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** [T-539](../archive/tasks/T-539-wolves-hold-the-hearth-alert.md) ([the report](../../reports/audits/2026-11-10-t539-wolves-and-the-hearth-alert.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

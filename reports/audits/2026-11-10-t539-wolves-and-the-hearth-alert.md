@@ -27,4 +27,4 @@ Pooled deaths did not come back toward T-535's 132.75. Raid deaths rose by 44 (4
 - **Sheltering keeps the wolves around.** A pack that is not hunted stays its 42 days, and wild alerts rose from 604 to 1155.
 - **Lone fights remain.** Soldiers who answer an attack still reach the fight one at a time. Before T-538 that cost little, because the wolf fled at the first swing.
 
-To cut wild deaths further, the squad would need to fight as one, or keep its weapons after a death (follow-up: [T-NEW-fallen-soldiers-weapons](../../docs/work/T-NEW-fallen-soldiers-weapons.md)).
+To cut wild deaths further, the squad would need to fight as one, or keep its weapons after a death (follow-up: [T-541-fallen-soldiers-weapons](../../docs/work/T-541-fallen-soldiers-weapons.md)).
