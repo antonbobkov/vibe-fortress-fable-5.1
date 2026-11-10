@@ -1,0 +1,116 @@
+/**
+ * T-537 probe (not kept in test/): every job unclaimed `unreachable` with no walk tried that tick, with
+ * the worker's tile, its components and creature record, the stand tiles and their labels; and every
+ * worker holding a job that loses its `Position`, with the tick's events that name it.
+ */
+import { it } from 'vitest';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+import type { GameEvent } from '@core/events';
+import { TileFlag, TileKind } from '@core/map3d';
+import { TestWorld } from '../scenarios/test-world';
+import { runThreeYearsSeed } from './three_years_seeds.test';
+
+const SEED = process.env['T489_SEED'] ?? 'three-years-p4-1';
+const STOP = Number(process.env['T537_STOP'] ?? 256 * TICKS_PER_DAY);
+const PERIL = Number(/-p(\d)-/.exec(SEED)?.[1] ?? 4);
+
+it(`T-537 probe ${SEED}`, () => {
+  const log: string[] = [];
+  const counts = new Map<string, number>();
+  const bump = (k: string): void => { counts.set(k, (counts.get(k) ?? 0) + 1); };
+  const original = TestWorld.prototype.step;
+  const seen = new WeakSet<TestWorld>();
+  const install = (w: TestWorld): void => {
+    const world = w.game.world;
+    const entities = world.entities;
+    const map = world.map;
+    const xyz = (t: number): string => (t < 0 ? '-' : `${map.xOf(t)},${map.yOf(t)},${map.zOf(t)}`);
+    const day = (): number => Math.floor(w.tick / TICKS_PER_DAY) + 1;
+    const comps = (id: number): string => entities.componentTypes().filter((t) => entities.has(id, t)).map((t) => t.name).join(',');
+    const board = (world.scheduler.byId('11') as unknown as { board: {
+      unclaim(job: { id: number; state: string; failedWalk?: true; workerId: number; data: Record<string, unknown> }, reason: string, walkedTo?: number, fetched?: number): void;
+      typeId(job: unknown): string; workerTile(id: number): number; standTiles(job: unknown): number[]; anchorTile(job: unknown): number;
+      pocketOf(t: number): number; jobs: Map<number, { id: number; state: string; workerId: number }> } }).board;
+    const pathing = world.readers.pathing;
+    const movement = world.services.movement as unknown as { walkTo(id: number, target: number, urgency: string, ctx: unknown): string };
+    const walked = new Map<number, number>();
+    const walkTo = movement.walkTo.bind(movement);
+    movement.walkTo = (id, target, urgency, ctx) => {
+      walked.set(id, w.tick);
+      return walkTo(id, target, urgency, ctx);
+    };
+    const lost = new Map<number, string>();
+    let workers: number[] = [];
+    world.onEvents((events: readonly GameEvent[]) => {
+      // The worker list is refreshed every 50 ticks: a full component scan every tick is too slow.
+      if (w.tick % 50 === 0) workers = entities.with(C.Worker);
+      for (const id of workers) {
+        if (!entities.alive(id)) continue;
+        const worker = entities.get(id, C.Worker);
+        const has = entities.has(id, C.Position);
+        if (has) {
+          if (lost.has(id)) {
+            log.push(`day ${day()} t${w.tick} worker ${id} has a Position again at ${xyz(board.workerTile(id))} job ${worker?.jobId ?? 0}`);
+            lost.delete(id);
+          }
+          continue;
+        }
+        if (lost.has(id)) continue;
+        const job = worker === undefined || worker.jobId === 0 ? undefined : board.jobs.get(worker.jobId);
+        const named = events.filter((e) => Object.values(e).some((v) => v === id || (Array.isArray(v) && JSON.stringify(v).includes(String(id)))));
+        const rec = `day ${day()} t${w.tick} worker ${id} lost its Position, alive ${entities.alive(id)} job ${worker?.jobId ?? 0} ${job === undefined ? '' : `${board.typeId(job)} ${job.state}`} ` +
+          `comps [${comps(id)}] creature ${JSON.stringify(entities.get(id, C.Creature) ?? null)?.slice(0, 300)} ` +
+          `events ${named.map((e) => JSON.stringify(e).slice(0, 200)).join(' | ')}`;
+        lost.set(id, rec);
+        bump(`lost:${worker?.jobId === 0 ? 'idle' : 'holding'}`);
+        if (log.length < 400) log.push(rec);
+      }
+    });
+    const unclaim = board.unclaim.bind(board);
+    board.unclaim = (job, reason, walkedTo = -1, fetched = 0) => {
+      const stage = job.state;
+      const worker = job.workerId;
+      const tile = board.workerTile(worker);
+      unclaim(job, reason, walkedTo, fetched);
+      if (reason !== 'unreachable' || fetched !== 0) return;
+      const tried = walked.get(worker) === w.tick;
+      const kind = `unclaim:${board.typeId(job)}:${stage}:${tried ? 'walked' : 'nowalk'}:${tile < 0 ? 'notile' : 'tile'}:${job.failedWalk === true ? 'failedWalk' : 'timer'}`;
+      bump(kind);
+      if (tried && tile >= 0) return;
+      const stands = board.standTiles(job);
+      const anchor = board.anchorTile(job);
+      const pf = world.readers.pathing as unknown as { passable(i: number, c: string, m?: unknown): boolean };
+      const terrain = w.game.terrain;
+      const tileWhy = (t: number): string => (t < 0 || !map.validIndex(t) ? '-' :
+        `kind ${TileKind[map.kindAt(t)] ?? map.kindAt(t)} burning ${map.hasFlag(t, TileFlag.Burning)} fluid ${map.fluidLevelAt(t)} forbidden ${terrain?.core.isForbidden(t) ?? '?'} ` +
+        `passable(walker) ${pf.passable(t, 'walker')} passable(fortress) ${pf.passable(t, 'walker', { faction: 'fortress' })} ` +
+        `here [${world.readers.entities.at(t).map((e: number) => `${e}:${entities.kind(e) ?? '?'}`).join(' ')}] burningNear ${map.neighbors8(t).filter((n) => map.hasFlag(n, TileFlag.Burning)).length}`);
+      const lbl = (t: number): string => (t < 0 ? '-' : `L${pathing.labelOf(t, 'walker')}P${board.pocketOf(t)}`);
+      if (log.length < 400) {
+        log.push(`day ${day()} t${w.tick} job ${job.id} ${board.typeId(job)} ${stage} worker ${worker} alive ${entities.alive(worker)} tile ${xyz(tile)} ${lbl(tile)} ` +
+          `walkedTo ${xyz(walkedTo)} ${lbl(walkedTo)} anchor ${xyz(anchor)} ${lbl(anchor)} stands [${stands.map((t) => `${xyz(t)}:${lbl(t)}`).join(' ')}] ` +
+          `failedWalk ${job.failedWalk === true} anchorTile {${tileWhy(anchor)}} comps [${comps(worker)}] lost ${lost.get(worker) ?? '-'}`);
+      }
+    };
+  };
+  TestWorld.prototype.step = function (this: TestWorld, n?: number) {
+    if (!seen.has(this)) {
+      seen.add(this);
+      install(this);
+    }
+    const r = original.call(this, n as number);
+    if (this.tick > STOP) throw new Error('stop');
+    return r;
+  } as typeof original;
+  try {
+    const r = runThreeYearsSeed(SEED, PERIL);
+    console.log(`[t537] ${SEED} shift ${process.env['THREE_YEARS_SHIFT'] ?? '0'} y3Pop ${r.y3Pop} deaths ${r.dwarfDeaths}`);
+  } catch (e) {
+    if ((e as Error).message !== 'stop') throw e;
+  } finally {
+    TestWorld.prototype.step = original;
+    console.log(`[t537] counts ${JSON.stringify(Object.fromEntries(counts))}`);
+    console.log(['[t537] log', ...log].join('\n'));
+  }
+}, 3_600_000);
