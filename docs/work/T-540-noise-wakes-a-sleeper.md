@@ -15,8 +15,9 @@ T-535 made a hit wake a sleeper at once; a miss, a parry or a block leaves it as
 - If armour has no "noisy" property yet, add the plainest one: by armour material class (metal loud, leather quiet), not per item.
 - Rolls draw on the animals' own stream and only when a sleeper hears something, so a fortress with no sleeping animal near noise draws nothing new.
 - Update the fun-features row for the dozing sleeper: it now dozes through a volley only by luck.
+- **Heavy sleepers** (the owner, 2026-11-09: "Maybe some creatures have 'heavy sleeper' trait. They would sleep through the noise much more"). Add a `heavy_sleeper` flag on the species row in `03-content` (a content column, with `row-order.md` untouched if no row is added, and `content:export`). A heavy sleeper's chance to wake from noise is a small fraction of the ordinary one (pick it, *unmeasured*); a hit still wakes it at once. Pick the species by character: for example the bear and the badger as heavy sleepers, the deer and the hare as light. Say in 08 which ones and why. If one trait per individual reads better than per species, decide and write why; the plainest that gives the effect wins. List it in `docs/fun-features.md` § In the game as a fun feature.
 
 ## Done
 
-- Tests: a hit always wakes; a miss on the sleeper wakes it often but not always; a dwarf in metal armour walking past wakes it more often than one in leather; a sleeper far from any noise never rolls.
+- Tests: a hit always wakes; a miss on the sleeper wakes it often but not always; a dwarf in metal armour walking past wakes it more often than one in leather; a sleeper far from any noise never rolls; a heavy sleeper wakes from noise far less often than a light one, and at once from a hit.
 - Measured on GitHub: the pooled sweep and the instrument verdicts pass (hunting and the three-year squad's fights with boars move), or a dated report says why not.
