@@ -41,8 +41,7 @@ jobs:
       fail-fast: false
       matrix:
         # The longest seeds first, so the queue of 20 x N jobs ends with short ones.
-        seed: [p2-3, p4-6, p0-3, p4-5, p4-1, p0-7, p2-7, p2-4, p4-4, p0-6,
-               p4-3, p2-6, p0-5, p2-1, p4-2, p0-4, p0-2, p0-1, p2-2, p2-5]
+        seed: [p4-4, p2-4, p2-1, p2-5, p4-2, p4-1]
         shift: ${{ fromJSON(format('[{0}]', inputs.shifts || '0,50,100,150')) }}
     steps:
       - uses: actions/checkout@v4
@@ -57,7 +56,7 @@ jobs:
         env:
           THREE_YEARS_SEEDS_OUT: out/shift-${{ matrix.shift }}
           THREE_YEARS_SHIFT: ${{ matrix.shift }}
-        run: mkdir -p out/shift-${{ matrix.shift }} && npx vitest run -c vitest.perf.config.ts test/perf/three_years_seeds.test.ts -t "'three-years-${{ matrix.seed }}'" 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
+        run: mkdir -p out/shift-${{ matrix.shift }} && T543_SEED=three-years-${{ matrix.seed }} npx vitest run -c vitest.perf.config.ts test/perf/t543-wild-probe.test.ts 2>&1 | tee out-log.txt; exit ${PIPESTATUS[0]}
         shell: bash
       - if: always()
         run: mv out-log.txt out/shift-${{ matrix.shift }}/three-years-${{ matrix.seed }}.log
