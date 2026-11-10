@@ -1,0 +1,42 @@
+# T-542 probe (2026-11-10-t542-caravan.probe.ts.txt) on GitHub, run 42865675914 (branch t542-probe on master d3f494e0): three-years-p2-2 at shifts 100 and 150.
+# The caravans of each run, then the first dump of the stuck one; every later dump is the same. Kind 8 is a tree: the mule's place 10,6,32 beside the depot
+# grew one while it walked there (53 steps moving, then unreachable), and its walk is asked again and fails for good.
+
+## shift 100
+[t542] t48016 day 41 caravan 16777768 hillfolk arrived t48000 state toDepot depot 16777440 edge 0,0,31
+[t542] t76816 day 65 caravan 285212930 wildwood arrived t76800 state toDepot depot 16777440 edge 0,0,31
+[t542] t152416 day 128 caravan 150995843 mountainhome arrived t152400 state toDepot depot 16777440 edge 0,0,31
+[t542] t183616 day 154 caravan 251658406 hillfolk arrived t183600 state toDepot depot 16777440 edge 0,0,31
+[t542] t279616 day 234 caravan 352322361 mountainhome arrived t279600 state toDepot depot 16777440 edge 0,0,31
+[t542] t322816 day 270 caravan 385876964 hillfolk arrived t322800 state toDepot depot 16777440 edge 0,0,31
+[t542] DUMP t324000 day 271 caravan 385876964 hillfolk state toDepot since t322800 alert calm depot 16777440 51:built origin 7,5,32 footprint [7,5,32 8,5,32 9,5,32 7,6,32 8,6,32 9,6,32 7,7,32 8,7,32 9,7,32] depots now [16777440] edge 0,0,31 edgeLabel 92
+[t542]   merchant 50332070 sp 33 fac trader:hillfolk cls walker speed 165 at 7,5,32 (kind 2 pass y label 92 bld 16777440:51:built) dest 7,5,32 (kind 2 pass y label 92 bld 16777440:51:built) last arrived@t323999 counts {"pending":1,"moving":42,"arrived":1156} walk none reach true search(mover) 0 search 0
+[t542]   merchant 251659126 sp 33 fac trader:hillfolk cls walker speed 165 at 8,5,32 (kind 2 pass y label 92 bld 16777440:51:built) dest 8,5,32 (kind 2 pass y label 92 bld 16777440:51:built) last arrived@t323999 counts {"pending":1,"moving":37,"arrived":1161} walk none reach true search(mover) 0 search 0
+[t542]   guard 218104701 sp 33 fac trader:hillfolk cls walker speed 165 at 7,4,32 (kind 2 pass y label 92) dest 7,4,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":24,"arrived":1174} walk none reach true search(mover) 0 search 0
+[t542]   guard 50331724 sp 33 fac trader:hillfolk cls walker speed 165 at 6,5,32 (kind 2 pass y label 92) dest 6,5,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":30,"arrived":1168} walk none reach true search(mover) 0 search 0
+[t542]   guard 218104690 sp 33 fac trader:hillfolk cls walker speed 165 at 8,4,32 (kind 2 pass y label 92) dest 8,4,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":24,"arrived":1174} walk none reach true search(mover) 0 search 0
+[t542]   guard 184550000 sp 33 fac trader:hillfolk cls walker speed 165 at 9,4,32 (kind 2 pass y label 92) dest 9,4,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":24,"arrived":1174} walk none reach true search(mover) 0 search 0
+[t542]   animal 150995531 sp 39 fac trader:hillfolk cls walker speed 150 at 10,5,32 (kind 2 pass y label 92) dest 10,5,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":33,"arrived":1165} walk none reach true search(mover) 0 search 0
+[t542]   animal 352322062 sp 39 fac trader:hillfolk cls walker speed 150 at 6,6,32 (kind 2 pass y label 92) dest 6,6,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":66,"arrived":1132} walk none reach true search(mover) 0 search 0
+[t542]   animal 251659022 sp 39 fac trader:hillfolk cls walker speed 150 at 11,5,32 (kind 2 pass y label 92) dest 10,6,32 (kind 8 pass n label 0) last pending@t323999 counts {"pending":574,"moving":53,"unreachable":572} walk 10,6,32 following false attempts 0 reach false search(mover) none search none
+[t542]   animal 318767854 sp 39 fac trader:hillfolk cls walker speed 150 at 7,8,32 (kind 2 pass y label 92) dest 7,8,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":99,"arrived":1099} walk none reach true search(mover) 0 search 0
+[t542]   animal 318767848 sp 39 fac trader:hillfolk cls walker speed 150 at 6,7,32 (kind 2 pass y label 92) dest 6,7,32 (kind 2 pass y label 92) last arrived@t323999 counts {"pending":1,"moving":119,"arrived":1079} walk none reach true search(mover) 0 search 0
+
+## shift 150
+[t542] t48016 day 41 caravan 16777768 hillfolk arrived t48000 state toDepot depot 16777436 edge 0,0,31
+[t542] t76816 day 65 caravan 150995411 wildwood arrived t76800 state toDepot depot 16777436 edge 0,0,31
+[t542] t152416 day 128 caravan 251658534 mountainhome arrived t152400 state toDepot depot 16777436 edge 0,0,31
+[t542] t183616 day 154 caravan 184549665 hillfolk arrived t183600 state toDepot depot 16777436 edge 0,0,31
+[t542] t274816 day 230 caravan 184549971 mountainhome arrived t274800 state toDepot depot 16777436 edge 0,0,31
+[t542] t320416 day 268 caravan 218104556 hillfolk arrived t320400 state toDepot depot 16777436 edge 0,0,31
+[t542] DUMP t321600 day 269 caravan 218104556 hillfolk state toDepot since t320400 alert calm depot 16777436 51:built origin 7,5,32 footprint [7,5,32 8,5,32 9,5,32 7,6,32 8,6,32 9,6,32 7,7,32 8,7,32 9,7,32] depots now [16777436] edge 0,0,31 edgeLabel 142
+[t542]   merchant 184550123 sp 33 fac trader:hillfolk cls walker speed 165 at 7,5,32 (kind 2 pass y label 142 bld 16777436:51:built) dest 7,5,32 (kind 2 pass y label 142 bld 16777436:51:built) last arrived@t321599 counts {"pending":1,"moving":42,"arrived":1156} walk none reach true search(mover) 0 search 0
+[t542]   merchant 285213144 sp 33 fac trader:hillfolk cls walker speed 165 at 8,5,32 (kind 2 pass y label 142 bld 16777436:51:built) dest 8,5,32 (kind 2 pass y label 142 bld 16777436:51:built) last arrived@t321599 counts {"pending":1,"moving":36,"arrived":1162} walk none reach true search(mover) 0 search 0
+[t542]   guard 251658687 sp 33 fac trader:hillfolk cls walker speed 165 at 7,4,32 (kind 2 pass y label 142) dest 7,4,32 (kind 2 pass y label 142) last arrived@t321599 counts {"pending":1,"moving":30,"arrived":1168} walk none reach true search(mover) 0 search 0
+[t542]   guard 218104549 sp 33 fac trader:hillfolk cls walker speed 165 at 6,5,32 (kind 2 pass y label 142) dest 6,5,32 (kind 2 pass y label 142) last arrived@t321599 counts {"pending":1,"moving":36,"arrived":1162} walk none reach true search(mover) 0 search 0
+[t542]   guard 117440828 sp 33 fac trader:hillfolk cls walker speed 165 at 8,4,32 (kind 2 pass y label 142) dest 8,4,32 (kind 2 pass y label 142) last arrived@t321599 counts {"pending":1,"moving":24,"arrived":1174} walk none reach true search(mover) 0 search 0
+[t542]   guard 117440535 sp 33 fac trader:hillfolk cls walker speed 165 at 9,4,32 (kind 2 pass y label 142) dest 9,4,32 (kind 2 pass y label 142) last arrived@t321599 counts {"pending":1,"moving":30,"arrived":1168} walk none reach true search(mover) 0 search 0
+[t542]   animal 318767683 sp 39 fac trader:hillfolk cls walker speed 150 at 10,5,32 (kind 2 pass y label 142) dest 10,5,32 (kind 2 pass y label 142) last arrived@t321599 counts {"pending":1,"moving":33,"arrived":1165} walk none reach true search(mover) 0 search 0
+[t542]   animal 251658817 sp 39 fac trader:hillfolk cls walker speed 150 at 6,6,32 (kind 2 pass y label 142) dest 6,6,32 (kind 2 pass y label 142) last arrived@t321599 counts {"pending":1,"moving":66,"arrived":1132} walk none reach true search(mover) 0 search 0
+[t542]   animal 285213248 sp 39 fac trader:hillfolk cls walker speed 150 at 11,5,32 (kind 2 pass y label 142) dest 10,6,32 (kind 8 pass n label 0) last pending@t321599 counts {"pending":574,"moving":53,"unreachable":572} walk 10,6,32 following false attempts 0 reach false search(mover) none search none
+[t542]   animal 251658806 sp 39 fac trader:hillfolk cls walker speed 150 at 7,8,32 (kind 2 pass y label 142) dest 7,8,32 (kind 2 pass y label 142) last arrived@t321599 counts {"pending":1,"moving":86,"arrived":1112} walk none reach true search(mover) 0 search 0
