@@ -4,8 +4,9 @@
  * time from wherever the alert found them, and three died fighting it alone in nine days; the squad
  * was left with two weapons, did not hunt, and two hungry wolves wandering in and out of sight
  * raised 46 alerts in 40 days, each lowered before T-387's half day, so the dining hall was never
- * dug. The script now counts T-387's half day from the first alert of an episode, and an armed
- * squad musters at the gatehouse stair before it sets out after wild animals.
+ * dug. The script now counts T-387's half day from the first alert of an episode, shelters from an
+ * aggressive animal (a wolf, a bear) instead of hunting it, and musters an armed squad at the
+ * gatehouse stair before it sets out after a territorial one, without its unarmed members.
  */
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
@@ -27,15 +28,39 @@ function fortress(squadId: EntityId): FortressState {
   } as unknown as FortressState;
 }
 
-/** A wolf asleep for good this far south of the gate. */
-function sleepingWolf(w: TestWorld, dy: number): EntityId {
-  const wolf = w.spawnCreature('wolf', w.index(GATE.x, GATE.y + dy, Z), 'wild');
+/** A wild animal asleep for good this far south of the gate. */
+function sleeping(w: TestWorld, species: string, dy: number): EntityId {
+  const wolf = w.spawnCreature(species, w.index(GATE.x, GATE.y + dy, Z), 'wild');
   const wild = w.game.world.entities.get(wolf, C.Wild)!;
   w.game.world.entities.add(wolf, C.Wild, { ...wild, state: 'sleep', stateUntil: w.tick + 100 * TICKS_PER_DAY, hungry: false });
   return wolf;
 }
 
-describe('T-539 the three-year script answers a wolf pack as one episode, and musters before it hunts', () => {
+/** Three soldiers with spears, each about fourteen tiles from the gate, and a fourth with none by it. */
+function gateGuard(w: TestWorld): { squad: SquadWithId; soldiers: EntityId[]; unarmed: EntityId } {
+  const items = w.game.registry.table('items');
+  const iron = w.game.registry.table('materials').index('iron');
+  const soldiers = [[-14, 0], [0, -14], [14, -10]].map(([dx, dy]) => {
+    const at = w.index(GATE.x + dx!, GATE.y + dy!, Z);
+    const id = w.spawnDwarf({ at });
+    const spear = w.spawnItem(items.index('spear'), iron, at, 1, 1);
+    // Held, so that no other member claims it.
+    w.game.world.entities.add(spear, C.Item, { ...w.game.world.entities.get(spear, C.Item)!, carriedBy: id });
+    w.game.world.entities.add(id, C.Equipment, {
+      weapon: spear, shield: 0, armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 },
+      clothing: { body: 0, legs: 0, feet: 0, over: 0 }, quiver: 0,
+    });
+    return id;
+  });
+  const unarmed = w.spawnDwarf({ at: w.index(GATE.x + 1, GATE.y - 2, Z) });
+  expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' }).ok).toBe(true);
+  const squad = w.readers.of<CombatReader>('16').squads()[0] as SquadWithId;
+  expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: squad.id, members: [...soldiers, unarmed] }).ok).toBe(true);
+  expect(w.game.world.applyCommand({ type: 'SetSquadMode', squadId: squad.id, mode: 'off' }).ok).toBe(true);
+  return { squad, soldiers, unarmed };
+}
+
+describe('T-539 the three-year script answers wild animals as a player would', () => {
   it('lifts the alerts of one episode after half a day in all, though each was lowered sooner', () => {
     const w = new TestWorld({ seed: 't539-episode', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
     w.spawnDwarf({ at: w.index(GATE.x - 4, GATE.y + 4, Z) });
@@ -43,7 +68,7 @@ describe('T-539 the three-year script answers a wolf pack as one episode, and mu
     const alert = (): string => w.game.world.fortress.alert;
     let raised = 0;
     for (let round = 0; round < 4; round += 1) {
-      const wolf = sleepingWolf(w, 6);
+      const wolf = sleeping(w, 'wolf', 6);
       w.step(1);
       checkFortressDefense(w, state);
       if (alert() === 'hearth') raised += 1;
@@ -64,32 +89,12 @@ describe('T-539 the three-year script answers a wolf pack as one episode, and mu
     expect(alert()).toBe('calm');
   }, 60_000);
 
-  it('musters its armed members at the gatehouse stair before it orders the kill, and leaves the unarmed behind', () => {
+  it('musters its armed members at the gatehouse stair before it hunts a boar, and leaves the unarmed behind', () => {
     const w = new TestWorld({ seed: 't539-muster', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
-    const items = w.game.registry.table('items');
-    const iron = w.game.registry.table('materials').index('iron');
-    // Three armed soldiers far apart, each about fourteen tiles from the gate.
-    const soldiers = [[-14, 0], [0, -14], [14, -10]].map(([dx, dy]) => {
-      const at = w.index(GATE.x + dx!, GATE.y + dy!, Z);
-      const id = w.spawnDwarf({ at });
-      const spear = w.spawnItem(items.index('spear'), iron, at, 1, 1);
-      // Held, so that no other member claims it.
-      w.game.world.entities.add(spear, C.Item, { ...w.game.world.entities.get(spear, C.Item)!, carriedBy: id });
-      w.game.world.entities.add(id, C.Equipment, {
-        weapon: spear, shield: 0, armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 },
-        clothing: { body: 0, legs: 0, feet: 0, over: 0 }, quiver: 0,
-      });
-      return id;
-    });
-    // A fourth member with no weapon, by the gate.
-    const unarmed = w.spawnDwarf({ at: w.index(GATE.x + 1, GATE.y - 2, Z) });
-    expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' }).ok).toBe(true);
+    const { squad, soldiers } = gateGuard(w);
     const combat = w.readers.of<CombatReader>('16');
-    const squad = combat.squads()[0] as SquadWithId;
-    expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: squad.id, members: [...soldiers, unarmed] }).ok).toBe(true);
-    expect(w.game.world.applyCommand({ type: 'SetSquadMode', squadId: squad.id, mode: 'off' }).ok).toBe(true);
     const state = fortress(squad.id);
-    const wolf = sleepingWolf(w, 9);
+    const boar = sleeping(w, 'boar', 9);
     const post = w.index(GATE.x, GATE.y, Z);
     w.step(1);
 
@@ -108,8 +113,23 @@ describe('T-539 the three-year script answers a wolf pack as one episode, and mu
         expect(before, 'the kill is ordered only once three armed members stand at the post').toBe(true);
       }
     }
-    expect(killAt, 'the mustered squad sets out after the wolf').toBeGreaterThan(0);
-    expect((combat.squad(squad.id)?.orders ?? [])[0]).toEqual({ kind: 'kill', targetId: wolf });
+    expect(killAt, 'the mustered squad sets out after the boar').toBeGreaterThan(0);
+    expect((combat.squad(squad.id)?.orders ?? [])[0]).toEqual({ kind: 'kill', targetId: boar });
     expect(combat.squad(squad.id)?.members, 'the member with no weapon stays behind').toEqual(soldiers);
+  }, 60_000);
+
+  it('shelters from a wolf with an armed squad instead of hunting it', () => {
+    const w = new TestWorld({ seed: 't539-wolf', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const { squad } = gateGuard(w);
+    const combat = w.readers.of<CombatReader>('16');
+    const state = fortress(squad.id);
+    sleeping(w, 'wolf', 9);
+    w.step(1);
+    for (let t = 0; t < 400; t += 20) {
+      checkFortressDefense(w, state);
+      expect(w.game.world.fortress.alert).toBe('hearth');
+      expect((combat.squad(squad.id)?.orders ?? []).map((o) => o.kind), 'no kill order for a wolf').toEqual(['station']);
+      w.step(20);
+    }
   }, 60_000);
 });
