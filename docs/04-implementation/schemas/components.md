@@ -122,7 +122,7 @@ interface Hostile { partyId: EntityId; role: string; behaviorState: string; stea
 interface Tame { pastureId: EntityId; condition: number; trained: 'none'|'war'|'hunting'; assignedTo: EntityId;
                  pregnantUntil: Tick; lastProductTick: Record<string, Tick>; juvenileUntil: Tick; slaughter: boolean;
                  petOf: EntityId; noBreed: boolean }
-interface Wild { state: string; homeChunk: ChunkIndex; stateUntil: Tick; hungry: boolean; lastThinkTick: Tick; arrivedTick: Tick; defendFrom?: TileIndex; unseenSince?: Tick; pendingMeal?: EntityId; mealId?: EntityId } // unseenSince: first observed perception loss; pendingMeal: dead creature awaiting CorpseCreated; mealId: corpse being approached/eaten, stateUntil 0 while approaching, then the eating deadline; omitted fields in older saves mean no grace or meal
+interface Wild { state: string; homeChunk: ChunkIndex; stateUntil: Tick; hungry: boolean; lastThinkTick: Tick; arrivedTick: Tick; defendFrom?: TileIndex; unseenSince?: Tick; pendingMeal?: EntityId; mealId?: EntityId; heavySleeper?: true } // unseenSince: first observed perception loss; pendingMeal: dead creature awaiting CorpseCreated; mealId: corpse being approached/eaten, stateUntil 0 while approaching, then the eating deadline; heavySleeper: wakes from noise far less often (08 § Wild behavior, `sleep`, T-540); omitted fields in older saves mean no grace or meal, and a light sleeper
 interface Projectile { itemId: EntityId; from: TileIndex; to: TileIndex; progress: Fixed; shooterId: EntityId;
                        targetId: EntityId; hitRoll: number; damage: number; damageType: DamageType; line: TileIndex[];
                        spell?: Idx<SpellDef> /* a bolt's spell (25); absent: a missile */;

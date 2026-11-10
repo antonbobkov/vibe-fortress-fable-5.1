@@ -327,6 +327,8 @@ export function drawLookPanel(
         for (const thought of morale.thoughts(id)) line(`  ${thought.value > 0 ? '+' : ''}${Math.round(thought.value)} ${thought.text}`);
       }
     }
+    // 08 § Wild behavior, `sleep` (T-540): a wild animal that sleeps through noise.
+    if (readers.entities.get(id, C.Wild)?.heavySleeper === true) line(strings.get('ui.look.heavy_sleeper'), t.dim);
     const rune = runeLine(readers, registry, strings, id);
     if (rune !== null) wrapped('', rune, t.value);
     const channel = channelLine(readers, registry, strings, id);

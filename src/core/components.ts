@@ -459,6 +459,8 @@ export interface Wild {
   pendingMeal?: EntityId;
   /** The corpse this predator is walking to or eating; stateUntil is its meal deadline. */
   mealId?: EntityId;
+  /** A heavy sleeper, decided once at its arrival (08 § Wild behavior, `sleep`, T-540); absent: not. */
+  heavySleeper?: true;
 }
 
 export interface Projectile {
