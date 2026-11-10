@@ -38,6 +38,10 @@ describe.skipIf(rows.length === 0)('T-522 defence_year seeds judged over their p
     const turned = cadences.map((c) => DEFENCE_YEAR_SEEDS.filter((s) => { const r = at(c, s); return r !== undefined && turnedBack(r); }).length);
     const killed = cadences.map((c) => DEFENCE_YEAR_SEEDS.filter((s) => (at(c, s)?.soldierKills ?? 0) > 0).length);
     const sum = (xs: number[]): number => xs.reduce((a, b) => a + b, 0);
+    // T-506: dwarves the raids killed, the seeds whose squad sallied on a raid, and those where a raider died.
+    const raidKilled = cadences.map((c) => sum(DEFENCE_YEAR_SEEDS.map((s) => at(c, s)?.raidKilled ?? 0)));
+    const sallied = cadences.map((c) => DEFENCE_YEAR_SEEDS.filter((s) => (at(c, s)?.raidSallies ?? 0) > 0).length);
+    const raidersDied = cadences.map((c) => DEFENCE_YEAR_SEEDS.filter((s) => (at(c, s)?.raids ?? []).some((r) => r.dead > 0)).length);
     const meanTurned = sum(turned) / cadences.length;
     const meanKilled = sum(killed) / cadences.length;
     const raidCell = (r: DefenceSeedRow | undefined): string => r === undefined ? '–'
@@ -47,25 +51,26 @@ describe.skipIf(rows.length === 0)('T-522 defence_year seeds judged over their p
     const lines = [
       `## defence_year seeds: cadences ${cadences.join(', ')} of ${commits.map((c) => c.slice(0, 8)).join(', ')}`,
       '',
-      '| Cadence | Raids turned back (of 8) | A soldier killed (of 8) |',
-      '|---|---|---|',
-      ...cadences.map((c, k) => `| ${c} | ${turned[k]} | ${killed[k]} |`),
-      `| **Mean** | **${meanTurned.toFixed(2)}** | **${meanKilled.toFixed(2)}** |`,
-      `| Set rule | ≥ ${DEFENCE_SET_RULE} | ≥ ${DEFENCE_KILL_RULE} |`,
+      '| Cadence | Raids turned back (of 8) | A soldier killed (of 8) | Sallied on a raid (of 8) | A raider died (of 8) | Dwarves killed by raids |',
+      '|---|---|---|---|---|---|',
+      ...cadences.map((c, k) => `| ${c} | ${turned[k]} | ${killed[k]} | ${sallied[k]} | ${raidersDied[k]} | ${raidKilled[k]} |`),
+      `| **Mean** | **${meanTurned.toFixed(2)}** | **${meanKilled.toFixed(2)}** | ${(sum(sallied) / cadences.length).toFixed(2)} | ${(sum(raidersDied) / cadences.length).toFixed(2)} | ${(sum(raidKilled) / cadences.length).toFixed(2)} |`,
+      `| Set rule | ≥ ${DEFENCE_SET_RULE} | ≥ ${DEFENCE_KILL_RULE} | | | |`,
       '',
       `**Verdict: ${!judged ? `not judged (one commit, all eight seeds at every cadence${missing.length ? `; missing: ${missing.join(', ')}` : ''})` : pass ? 'pass' : 'blocked'}.**`,
       '',
-      `| Seed | ${cadences.map((c) => `Raid at ${c} (size, ending, captain)`).join(' | ')} | Soldier kills | Traps triggered | Caged | Bridge trial |`,
-      `|---|${cadences.map(() => '---').join('|')}|---|---|---|---|`,
+      `| Seed | ${cadences.map((c) => `Raid at ${c} (size, ending, captain)`).join(' | ')} | Soldier kills | Dwarves killed by the raid | Sallies on a raid | Second line at the raid | Traps triggered | Caged | Bridge trial |`,
+      `|---|${cadences.map(() => '---').join('|')}|---|---|---|---|---|---|---|`,
       ...DEFENCE_YEAR_SEEDS.map((s) => {
         const per = cadences.map((c) => at(c, s));
         const by = (f: (r: DefenceSeedRow) => string | number): string => per.map((r) => (r === undefined ? '–' : String(f(r)))).join(', ');
-        return `| ${s} | ${per.map(raidCell).join(' | ')} | ${by((r) => r.soldierKills)} | ${by((r) => r.trapTriggers)} | ${by((r) => r.caged)} | ${by((r) => r.trial)} |`;
+        const line = (r: DefenceSeedRow): string => r.lineAtRaid === undefined ? '?' : r.lineAtRaid.map((b) => (b ? 'y' : 'n')).join('') || '–';
+        return `| ${s} | ${per.map(raidCell).join(' | ')} | ${by((r) => r.soldierKills)} | ${by((r) => r.raidKilled ?? '?')} | ${by((r) => r.raidSallies ?? '?')} | ${by(line)} | ${by((r) => r.trapTriggers)} | ${by((r) => r.caged)} | ${by((r) => r.trial)} |`;
       }),
       '',
     ];
     writeFileSync(join(dir, 'verdict.md'), lines.join('\n'));
-    writeFileSync(join(dir, 'verdict.json'), JSON.stringify({ cadences, commits, turned, killed, meanTurned, meanKilled, setRule: DEFENCE_SET_RULE, killRule: DEFENCE_KILL_RULE, rows }, null, 2) + '\n');
+    writeFileSync(join(dir, 'verdict.json'), JSON.stringify({ cadences, commits, turned, killed, sallied, raidersDied, raidKilled, meanTurned, meanKilled, setRule: DEFENCE_SET_RULE, killRule: DEFENCE_KILL_RULE, rows }, null, 2) + '\n');
     console.log(lines.join('\n'));
     expect(commits, 'one commit').toHaveLength(1);
     expect(missing, 'seeds without a row').toEqual([]);

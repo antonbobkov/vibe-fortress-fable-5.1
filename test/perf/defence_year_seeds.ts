@@ -15,6 +15,7 @@ import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { CombatReader } from '@systems/combat/reader';
 import { playDefenceYear } from '../scenarios/defence_year_fortress';
+import { innerLineBuilt } from '../scenarios/three_years_fortress';
 
 export const DEFENCE_YEAR_SEEDS: readonly string[] = [
   'defence-year', 'defence-year-2', 'defence-year-3', 'defence-year-4',
@@ -41,6 +42,15 @@ export interface DefenceSeedRow {
   trapTriggers: number;
   caged: number;
   trial: string;
+  /**
+   * T-506: dwarves of the fortress killed by a member of an announced raid, and how many of them were
+   * soldiers; the second line (T-518) standing when each raid arrived; and the times the script opened
+   * the north door to its squad on a raid. Absent in rows before T-506.
+   */
+  raidKilled?: number;
+  raidKilledSoldiers?: number;
+  lineAtRaid?: boolean[];
+  raidSallies?: number;
 }
 
 /** Whether a seed ended every announced raid `repelled` or `wiped`. */
@@ -53,15 +63,25 @@ export function playDefenceSeed(seed: string, watchEvery: number): DefenceSeedRo
   let soldierKills = 0;
   const members = new Map<number, number[]>();
   const fate = new Map<number, string>();
+  const raidMembers = new Set<number>();
+  const lineAtRaid: boolean[] = [];
+  let raidKilled = 0;
+  let raidKilledSoldiers = 0;
   const { w, state } = playDefenceYear({
     seed,
     watchEvery,
-    observe: (tw) => {
+    observe: (tw, st) => {
       tw.game.world.onEvents((batch) => {
         const ent = tw.game.world.entities;
         for (const e of batch) {
+          if (e.type === 'RaidArrived' && e['kind'] === 'raid') lineAtRaid.push(innerLineBuilt(tw, st.fortress));
+          if (e.type === 'CreatureDied' && e['faction'] === 'fortress' && e['species'] === 'dwarf' && raidMembers.has(e['killerId'] as number)) {
+            raidKilled += 1;
+            if (soldiers.has(e['id'] as number)) raidKilledSoldiers += 1;
+          }
           if (e.type === 'HostileSpawned') {
             const party = ent.get(e['partyId'] as number, C.Party);
+            if (party?.purpose === 'raid') raidMembers.add(e['id'] as number);
             if (party?.purpose === 'raid') members.set(e['partyId'] as number, [...(members.get(e['partyId'] as number) ?? []), e['id'] as number]);
             if (ent.get(e['id'] as number, C.Hostile)?.role === 'captain') fate.set(e['id'] as number, 'left');
           } else if (e.type === 'CreatureCaged' && fate.has(e['creatureId'] as number)) fate.set(e['creatureId'] as number, 'caged');
@@ -87,5 +107,6 @@ export function playDefenceSeed(seed: string, watchEvery: number): DefenceSeedRo
   const others = w.events('RaidArrived').filter((e) => e['kind'] !== 'raid').map((e) => `${String(e['kind'])}:${Number(e['size'])}:${ended(e['partyId'])}`);
   return { seed, watch: watchEvery, runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raids, others, soldierKills,
-    trapTriggers: w.events('TrapTriggered').length, caged: w.events('CreatureCaged').length, trial: state.trial };
+    trapTriggers: w.events('TrapTriggered').length, caged: w.events('CreatureCaged').length, trial: state.trial,
+    raidKilled, raidKilledSoldiers, lineAtRaid, raidSallies: state.raidSallies };
 }

@@ -68,6 +68,8 @@ export interface DefenceYearState {
   /** The bridge state a pull has been ordered for and not yet reached ('' when none is pending). */
   pulledFor: '' | 'raised' | 'lowered';
   trapModeSet: boolean;
+  /** T-506: the times the north door was opened to the squad on a raid. */
+  raidSallies: number;
   readonly notes: string[];
 }
 
@@ -148,7 +150,7 @@ export function createDefenceYear(w: TestWorld, fortress: FortressState): Defenc
     cageTrapId: 0, weaponTrapId: 0, stoneFallTrapId: 0, drawbridgeId: 0, leverId: 0,
     archeryTargetId: 0, archeryRangeZoneId: 0, barracksZoneId: 0,
     cleared: false, linkOrdered: false, trial: 'none', pulledFor: '', trapModeSet: false,
-    notes: [],
+    raidSallies: 0, notes: [],
   };
 }
 
