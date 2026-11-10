@@ -132,4 +132,24 @@ describe('T-539 the three-year script answers wild animals as a player would', (
       w.step(20);
     }
   }, 60_000);
+
+  it('sends the squad at once at a wolf attacking a dwarf, even in a day it shelters from no wolf', () => {
+    const w = new TestWorld({ seed: 't539-rescue', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const { squad } = gateGuard(w);
+    const combat = w.readers.of<CombatReader>('16');
+    const state = fortress(squad.id);
+    state.wildQuietUntil = w.tick + 2 * TICKS_PER_DAY;
+    // A hungry wolf by a dwarf at work south of the gate, with no other quarry in sight.
+    const victim = w.spawnDwarf({ at: w.index(GATE.x, GATE.y + 8, Z) });
+    const wolf = w.spawnCreature('wolf', w.index(GATE.x + 3, GATE.y + 10, Z), 'wild');
+    w.game.world.entities.add(wolf, C.Wild, { ...w.game.world.entities.get(wolf, C.Wild)!, hungry: true });
+    const attacking = (): boolean => w.game.world.entities.get(wolf, C.Wild)?.state === 'attack' && combat.targetOf(wolf) === victim;
+    w.step(1);
+    checkFortressDefense(w, state);
+    expect(w.game.world.fortress.alert, 'a wolf that attacks nobody raises no alert in the quiet day').toBe('calm');
+    expect(w.until(attacking, 600), 'the wolf attacks the dwarf').toBeGreaterThanOrEqual(0);
+    checkFortressDefense(w, state);
+    expect(w.game.world.fortress.alert).toBe('hearth');
+    expect((combat.squad(squad.id)?.orders ?? [])[0], 'the squad goes at once, without mustering').toEqual({ kind: 'kill', targetId: wolf });
+  }, 60_000);
 });

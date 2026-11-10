@@ -1409,7 +1409,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   }
   // T-387: once the alert for wild animals alone has been lifted (below), the fortress works for
   // a while before it shelters from them again.
-  const wild = !raid && intruders.length === 0 && w.tick < (state.wildQuietUntil ?? -1) ? [] : dangerousWildlife(w, state, adults);
+  // T-539: an animal that attacks a dwarf is answered even then: on seed p2-6 at shift 150 a hungry
+  // wolf killed two dwarves at the gate in such a quiet day, unanswered.
+  const nearWild = dangerousWildlife(w, state, adults);
+  const wild = !raid && intruders.length === 0 && w.tick < (state.wildQuietUntil ?? -1) ? nearWild.filter((id) => attackingDwarf(w, id)) : nearWild;
   // T-461: a cavern monster or a Hollow-born that can walk to a dwarf: the breach, the attack and the
   // death are all announced, and the alert and the squad are how a player answers them.
   const indoors = hostilesIndoors(w, adults);
@@ -1452,8 +1455,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // T-539: an aggressive animal (a wolf, a bear) is not hunted: since T-538 one that is struck fights
   // to its flee percent instead of running off the map, and a pack meets the soldiers as they come,
   // one at a time. The fortress shelters from it behind its doors, which no wild animal passes, and
-  // the squad waits below with everybody, as an unarmed squad does. A territorial one is hunted.
-  const huntable = wildOnly ? targets.filter((id) => !aggressiveAnimal(w, id)) : targets;
+  // the squad waits below with everybody, as an unarmed squad does. A territorial one is hunted,
+  // and so is any animal attacking a dwarf.
+  const huntable = wildOnly ? targets.filter((id) => !aggressiveAnimal(w, id) || attackingDwarf(w, id)) : targets;
+  const rescue = huntable.some((id) => attackingDwarf(w, id));
   const hunts = armed && huntable.length > 0;
   const quiet = (): void => {
     state.wildQuietUntil = w.tick + WILD_QUIET_TICKS;
@@ -1493,7 +1498,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     // soldiers died so in nine days, one of them unarmed, and the squad was left without its weapons.
     // A member with no weapon does not go: it leaves the squad and shelters with the civilians, and
     // is put back in it once the alert is down (above).
-    const muster = hunts && wildOnly && state.mustered !== true;
+    // An animal attacking a dwarf is not waited for: the squad goes at once.
+    const muster = hunts && wildOnly && !rescue && state.mustered !== true;
     if (muster && musteredAt(w, state, gatehouseStairsTile)) {
       state.mustered = true;
       const members = squad?.members ?? [];
@@ -1545,6 +1551,14 @@ export function musteredAt(w: TestWorld, state: FortressState, post: number): bo
       Math.max(Math.abs(p.x - px), Math.abs(p.y - py)) <= MUSTER_RADIUS;
   });
   return there.length >= SQUAD_SIZE;
+}
+
+/** T-539: a wild animal in `attack` whose target is a creature of the fortress. */
+function attackingDwarf(w: TestWorld, id: number): boolean {
+  const ent = w.game.world.entities;
+  if (ent.get(id, C.Wild)?.state !== 'attack') return false;
+  const target = w.readers.of<CombatReader>('16').targetOf(id);
+  return target !== 0 && ent.get(target, C.Creature)?.faction === 'fortress';
 }
 
 /** T-539: a wild animal of an `aggressive` species (a wolf, a bear). */
