@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-506 | [`defence_year`'s squad meets a raid without opening the halls to it](work/T-506-defence-year-squad-sally.md) | T-504's report | — | open |
-| T-537 | [A job unclaimed for a worker with no tile is remembered as a failed walk](work/T-537-failed-walk-without-a-tile.md) | T-530's runs | — | open |
 | T-539 | [Wolves that fight back hold the three-year script's hearth alert for weeks](work/T-539-wolves-hold-the-hearth-alert.md) | T-538's runs | — | open |
 | T-540 | [Noise and closeness may wake a sleeping animal](work/T-540-noise-wakes-a-sleeper.md) | the owner, 2026-11-09 | — | open |
 

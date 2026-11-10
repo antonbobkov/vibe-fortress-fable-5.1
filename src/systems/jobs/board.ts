@@ -568,12 +568,14 @@ export class JobBoard implements JobsApi, JobSink {
    * the labels no longer connect the worker to it did not fail despite connected labels (a door locked
    * on its way): it retries on the timer. A walk bound for an item (`fetched`, the item's id) is no failure
    * of the job's stand tiles: it retries on the timer, and the next input search passes that item by.
+   * A worker turned back with no walk tried (`walkedTo` null: no stand tile of the job is joined to it
+   * and a fortress walker may enter, T-537) failed no walk either: it retries on the timer.
    */
-  unclaim(job: Job, reason: string, walkedTo: TileIndex = -1, fetched: EntityId = 0): void {
+  unclaim(job: Job, reason: string, walkedTo: TileIndex | null = -1, fetched: EntityId = 0): void {
     const worker = job.workerId;
     this.releaseReservations(job, true);
     this.freeWorker(job, true);
-    if (reason === 'unreachable' && fetched === 0 && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
+    if (reason === 'unreachable' && fetched === 0 && walkedTo !== null && !this.labelsApart(worker, walkedTo)) job.failedWalk = true;
     else delete job.failedWalk;
     if (reason === 'unreachable' && fetched !== 0) job.data['unreachableItem'] = fetched;
     this.block(job, reason);

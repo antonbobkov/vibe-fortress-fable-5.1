@@ -1,6 +1,8 @@
 # T-537 — A job unclaimed for a worker with no tile is remembered as a failed walk
 
-**Source:** [T-530](../archive/tasks/T-530-walks-the-labels-join.md) (its probe after the fix, [the log](../../reports/data/2026-11-09-t530-walks.probe-log.txt)) · **Size:** S · **Needs:** T-530 · **Status:** open
+**Closed:** 2026-11-10, in 364f25e9,ebaeae3d.
+
+**Source:** [T-530](T-530-walks-the-labels-join.md) (its probe after the fix, [the log](../../../reports/data/2026-11-09-t530-walks.probe-log.txt)) · **Size:** S · **Needs:** T-530 · **Status:** open
 
 ## Why
 

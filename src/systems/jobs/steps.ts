@@ -84,11 +84,12 @@ export function chooseStand(board: JobBoard, job: Job, workerId: EntityId): Tile
 }
 
 /**
- * No stand tile shares the worker's label: the labels explain why it cannot get there (a door locked
- * on its way), so the job is unclaimed as a walk bound for a stand tile the labels keep it from.
+ * No stand tile shares the worker's label, or none is a tile a fortress walker may enter (a burning
+ * work tile the labels still join to the worker): no walk was tried, so the job is blocked
+ * `unreachable` without the memory of a failed walk, and its periodic retry reopens it (T-537).
  */
 function unclaimNoStand(board: JobBoard, job: Job): void {
-  board.unclaim(job, 'unreachable', board.standTiles(job)[0] ?? board.anchorTile(job));
+  board.unclaim(job, 'unreachable', null);
 }
 
 /** `jobs.stepWorker(id, ctx)`. */
@@ -98,6 +99,12 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
   const job = board.jobs.get(worker.jobId);
   if (job === undefined || job.workerId !== workerId) {
     board.setWorker(workerId, { jobId: 0, phase: 0 });
+    return;
+  }
+  // A worker with no tile (a dwarf a cage trap caught, 19) keeps no job: it goes back to the board as
+  // an interrupted job does, progress kept (T-537).
+  if (board.workerTile(workerId) < 0) {
+    board.interrupt(workerId, true);
     return;
   }
   const jobType = board.typeId(job);
