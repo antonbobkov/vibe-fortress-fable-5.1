@@ -158,8 +158,9 @@ export const SQUAD_KIT_ITEMS = ['mail_shirt', 'shield', 'short_sword'] as const;
 /**
  * T-544: then greaves and a helm for each, ordered next after the kit, so the squad is armed in
  * metal and hunts wolves and bears (three_years_fortress.ts). Left to the standing armour orders of
- * 'iron goods', behind the picks and battle axes, the squad on seed p2-1 had no greaves in a year.
- * Greaves first: a bite lands on a leg three times as often as on the head (16, the body plan).
+ * 'iron goods', the squad on seed p2-5 had no helm or greaves in a year; with a helm ordered first
+ * after the kit, the squad on seed p2-1 had a helm by day 191 and no greaves. Greaves first: a bite
+ * lands on a leg three times as often as on the head (the body plan's hit weights).
  */
 export const HUNT_KIT = ['forge_greaves', 'forge_helm'] as const;
 

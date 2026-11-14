@@ -1,6 +1,6 @@
 # T-544: a strong squad against wolves and bears
 
-**Task:** T-544 · **Date:** 2026-11-13 · **Branch:** `t544-wild-squad` on master `71484494` · **Kind:** an arena and its set rule, then a script change measured on GitHub; no game rule and no content row changed · **Source:** [the T-544 work file](../../docs/work/T-544-bear-mauls-unanswered.md), [T-543](2026-11-10-t543-sweep-deaths-drift.md), [T-539](2026-11-10-t539-wolves-and-the-hearth-alert.md)
+**Task:** T-544 · **Date:** 2026-11-13 · **Branch:** `t544-wild-squad` on master `71484494`, then merged with T-545 · **Kind:** an arena and its set rule, then a script change measured on GitHub; no game rule and no content row changed · **Source:** [the T-544 work file](../../docs/work/T-544-bear-mauls-unanswered.md), [T-543](2026-11-10-t543-sweep-deaths-drift.md), [T-539](2026-11-10-t539-wolves-and-the-hearth-alert.md)
 
 ## The answer
 
@@ -8,7 +8,7 @@
 - **What dead there are, the squad does to itself, or its caster draws.** Against twelve wolves a crossbow bolt (or once an ember bolt) that misses a wolf flies on into the soldiers fighting it and kills one in 5 fights of 48 (16 § Ranged resolution: a miss flies on; a Proficient shooter holds only while an ally stands *before* its target). A bear charges whoever struck it first (08 § Struck), usually the caster, whose bolt reaches it before the soldiers do; one serious cut with no medic kills it in 2 fights of 48. A caster in a tunic, as earlier caster arenas field one, dies in 5 bear fights of 48 and 8 against two bears.
 - **The set rule is met with no rule fix and no softening.** No rule examined was wrong: armour stops a bite as 16's formula says, the squad fights together under its kill orders, the marksdwarves shoot about ten bolts a fight and the caster casts three to seven bolts. Friendly fire after the shot is a rule 16 keeps on purpose, and a bear's charge at the striker is T-538's. Wolves and bears are unchanged.
 - **Weaker squads still find them dangerous.** The same squad at Novice in copper wins every fight but loses a fighter in 14 of 24 against six wolves and 19 of 24 against a bear. The three-year script's squad (three Novice swordsdwarves in iron mail shirts) loses 2.54 of its 3 a fight to six wolves and is down in 6 of 24; with iron helms and greaves, which its forge makes after the kit, it wins every fight and loses 0.25 a fight to six wolves or a bear.
-- **The three-year script** now hunts a wolf or a bear with its mustered squad once three members are armed in metal (a metal weapon, helm, body armour and greaves), and shelters as before until then. SWEEP_RESULT
+- **The three-year script** now hunts a wolf or a bear with its mustered squad once three members are armed in metal (a metal weapon, helm, body armour and greaves), and shelters as before until then. Its forge now makes the squad greaves and a helm each right after its kit: left to the standing armour orders, the squads of two seeds run locally had no greaves in a year. Even so a squad is armed in metal late and seldom: it set out 4 times in 80 timelines on its own and 7 with T-545. The sweep passes and the change is harmless (148.75 deaths against master's 147, inside the noise), so the hunt stays. Bear kills fell from 8 to 5.75 a sweep, wolf kills held at 11.5. With T-545's quiet season the merged sweep pools 1024.25 living and 130.75 deaths, with 4.5 wolf and 2.25 bear kills a sweep, and the sweep and instrument references are refreshed to it.
 
 ## The arena
 
@@ -41,4 +41,19 @@ The work file's example bar was none against a lone bear. It is not met in 48 fi
 
 ## The three-year script
 
-SWEEP_SECTION
+The script now hunts a wolf or a bear with its squad, mustered at the gatehouse stair as T-539 musters it for a boar, once three members are armed in metal: a metal weapon, helm, body armour and greaves. Only those members set out. Until then it shelters, as before. A wolf or a bear attacking a dwarf is answered at once, as before. The arena's last two rows are why the bar is helm, mail and greaves and not mail alone.
+
+The forge did not make greaves in time. In local runs at shift 0, with only the 'iron goods' standing orders, the squad on seed p2-5 had mail by day 61 and no helm or greaves in the year. With a helm and then greaves ordered right after the kit, the squad on seed p2-1 had its first helm by day 191 and still no greaves: the forge takes the first runnable order, and the kit's own standing orders (mail, shields, swords, three of each in stock) refill as soldiers die and are replaced. So where the anvil comes in the wagon (perils 2 and 4) the forge is now ordered greaves first, then a helm, for each of the three, right after the kit, at routine priority (`HUNT_KIT`); greaves first because a bite lands on a leg three times as often as on the head. The kit still comes first.
+
+Runs on GitHub ([the deaths by killer](../data/2026-11-13-t544-sweep-deaths.txt), [the merged verdict](../data/2026-11-13-t544-sweep-verdict.md)):
+
+| Run | Commit | Living / deaths | Verdict | Deaths to raiders / none named / wolves / bears, a sweep | Hunts in 80 timelines |
+|---|---|---|---|---|---|
+| master, before (T-545's baseline) | `71484494`, 43561424594 | 886 / 147 | pass | 96 / 29 / 11.75 / 8 | — |
+| T-544 alone | `5698da35`, 43568577943 | 889.5 / 148.75 | pass | 95 / 34.5 / 11.5 / 5.75 | 4 (2 wolf, 2 bear) |
+| T-544 and T-545, shifts 0 to 150 | `4ab37734`, 43573320107 | 1024.25 / 130.75 | pass | 94.75 / 26.75 / 4.5 / 2.25 | 7 (3 wolf, 4 bear) |
+| T-544 and T-545, shifts 200 to 350 | `4ab37734`, 43573322208 | 972.25 / 96.75 | (other shifts) | 83.75 / 10.75 / 0.75 / 1 | 3 (wolf) |
+
+On its own the change is within the noise of one 4-shift sweep (about 9 deaths, T-543): its squad is rarely armed in metal before a fortress's wolves and bears do their harm, which is mostly in the first year. The script's answer stays the hunt, on the sweep's evidence that it costs nothing, and on the arena's that a squad in helm, mail and greaves wins. The instrument does not play this script; it passes on both commits (runs 43563647188 and 43573353421). `defence_seeds`, which plays the script's forge orders, passes on `5698da35` (run 43568581706): 6.75 raids of 8 turned back a cadence, against 6.50 in T-506's run.
+
+**The references.** Both verdicts on the merged head pass, so, the T-543 way, `SWEEP_REFERENCE` is now its shifts 0 to 150 (20 / 7 / 0 / 1024.25 / 130.75, with 0.5 extinct and 3 need deaths) and `SWEEP_MEASURED` its eight-shift means (998.25 living, 113.75 deaths), giving bounds of 898.25 living and 143.75 deaths. `WILDLIFE_REFERENCE` and `WILDLIFE_MEASURED` are run 43573353421's pooled row (12.94 / 9.63 / 10.5 / 151.88 / 9.38), the row T-545's data file proposed.
