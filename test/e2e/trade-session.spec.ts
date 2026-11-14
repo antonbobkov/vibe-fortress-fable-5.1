@@ -86,6 +86,8 @@ test('T-M7-03 trade-session', async ({ page }) => {
     if (!dwarf || !h.host.world.services.movement.teleport(dwarf.id, tile)) throw new Error('broker fixture failed');
     const title = h.host.world.applyCommand({ type: 'AssignTitle', dwarfId: dwarf.id, title: 'broker' });
     if (!title.ok) throw new Error(`broker: ${title.reason}`);
+    // T-551: this fortress has no beds, and a floor sleep is twice as long; the broker is awake.
+    (h.host.world.scheduler.byId('10') as unknown as { setNeed(id: number, need: string, value: number): void }).setNeed(dwarf.id, 'rest', 0);
   }, fixture);
 
   // T-117: deaths during the caravan wait leave a danger line; acknowledge it before panel input.
