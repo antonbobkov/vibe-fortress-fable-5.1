@@ -152,3 +152,44 @@ Water body kinds and their fish material: river → `trout`, lake → `perch`, c
 ## Speeds in play
 
 At `SIM_TICKS_PER_SECOND` = 20 and 1×, a dwarf at 0.15 crosses 3 tiles per second; a deer at 0.24 outruns a dwarf; a wolf at 0.225 nearly matches a deer; trolls at 0.135 are slower than dwarves, which is why sealing a breach is possible.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), or makes the new table, adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [08](../02-systems/08-animals-and-domestication.md) and [09](../02-systems/09-hunting-gathering-fishing.md) § Planned. Every number is *unmeasured*.
+
+### Planned domestic animals
+
+| id | name | plan | size | speed | diet | temper | class | products | meat | hide | value | attacks | armor | flee | gestation / litter / grow (days) | flags | glyph | fg | task |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `reindeer` | reindeer | quadruped | 70 | 0.195 | grazer | timid | walker | milk 6 | 4 | 7 | 45 | butt blunt 8 size 5 | 0 | 65 | 50 / 1 / 100 | B T | `R` | `reindeer_brown` | T-561 |
+| `camel` | camel | quadruped | 110 | 0.15 | grazer | neutral | walker | milk 5, wool 28 | 4 | 8 | 80 | kick blunt 12 size 6 | 0 | 60 | 70 / 1 / 140 | B T | `K` | `camel_tan` | T-561 |
+
+### Planned wild herds
+
+The new herd species spawn wild on their own stream (08 § Planned, Reindeer and camels), so these weights are not in the biome lists of the ordinary wild spawning.
+
+| species | biomes (weight) | group | season | task |
+|---|---|---|---|---|
+| `reindeer` | tundra 20, taiga 15 | 4–8 | all | T-561 |
+| `camel` | desert 20, badlands 15, savanna 8 | 2–4 | all | T-561 |
+
+### Butcher parts (a new table)
+
+What a butchered corpse gives besides meat, hide, bone, fat, skull and shell ([09](../02-systems/09-hunting-gathering-fishing.md) § Planned). Each item is made of the material named. A species not listed gives none.
+
+| species | item | material | count | task |
+|---|---|---|---|---|
+| `yak` | `horn` | `horn` | 2 | T-547 |
+| `mountain_goat` | `horn` | `horn` | 2 | T-547 |
+| `goat` | `horn` | `horn` | 1 | T-547 |
+| `elk` | `horn` | `horn` | 2 | T-547 |
+| `cave_ox` | `horn` | `horn` | 2 | T-547 |
+| `mammoth` | `tusk` | `ivory` | 2 | T-547 |
+| `chicken` | `feather` | `feather` | 2 | T-547 |
+| `cave_crawler` | `shell_piece` | `chitin` | 2 | T-547 |
+| `reindeer` | `horn` | `horn` | 2 | T-561 |
+
+### Planned edits to existing rows
+
+- `glow_beetle`'s flags gain `G` (glows: lights its tile, and from a cage the four tiles beside it for glowcap; 07 § Planned) (T-556). The column key gains `G`.
+- `giant_cave_spider`'s note gains "in a built cage, spins around the cage" (T-556).

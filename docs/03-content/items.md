@@ -209,3 +209,72 @@ Any item in `food/meat/raw`, `food/fish/raw`, `food/plant/raw` (species `cookabl
 | Barrel of 20 dimcap ale | 2 × 1 × 20 | 40 |
 | Cut emerald | 40 × 3 | 120 |
 | Deepsilver bar | 250 | 250 |
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into the table of its section above (in that table's columns, without `section` and `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules that use them are in the § Planned sections of the system documents ([13](../02-systems/13-items-and-storage.md) for the category leaves). Every number is *unmeasured*.
+
+### Planned item types
+
+| section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Stone, ore, gems | `soil_load` | load | stone/soil | 1 | 5 | none | 0 | medium | `≈` | material | `clay`, `sand`, `peat` (the dug soil) | T-547 |
+| Stone, ore, gems | `fossil` | fossil | stone/fossil | 1 | 1 | none | 0 | heavy | `•` | material | `giant_bone` | T-547 |
+| Textiles and animal parts | `horn` | horn | textile/horn | 1 | 10 | bin | 0 | light | `%` | `horn_gray` | `horn` | T-547 |
+| Textiles and animal parts | `tusk` | tusk | textile/tusk | 1 | 5 | bin | 0 | medium | `(` | `ivory_cream` | `ivory` | T-547 |
+| Textiles and animal parts | `feather` | feather | textile/feather | 1 | 20 | bin | 0 | light | `'` | `feather_white` | `feather`; tag `stuffing` | T-547 |
+| Food | `salt` | salt | food/salt | 1 | 20 | bag | 0 | light | `:` | `salt_white` | `salt`; tag `ingredient` | T-547 |
+| Textiles and animal parts | `straw` | straw | textile/straw | 1 | 10 | bin | 0 | light | `"` | material | the crop's plant material; tag `stuffing` | T-548 |
+| Textiles and animal parts | `reed` | reed | textile/reed | 1 | 10 | bin | 0 | light | `|` | `reed_green` | `reed` | T-548 |
+| Food | `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<species>_meat`; tag `ingredient` | T-552 |
+| Food | `cured_fish` | cured fish | food/fish/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<fish>_meat`; tag `ingredient` | T-552 |
+| Textiles and animal parts | `salted_hide` | salted hide | textile/hide | 1 | 5 | bin | 0 | light | `≈` | material | `<species>_hide`; tans as a raw hide | T-552 |
+| Wood and bars | `peat_brick` | peat brick | bar/peat | 1 | 5 | bin | 0 | medium | `▬` | `peat_black` | `peat`; tags `fuel_half`, `smoky` | T-552 |
+| Wood and bars | `dung_cake` | dung cake | bar/dung | 1 | 5 | bin | 0 | medium | `▬` | `dung_brown` | `dung`; tags `fuel_half`, `smoky` | T-552 |
+| Farm goods (a new section) | `dung` | dung | farm/dung | 1 | 10 | bin | 0 | light | `%` | `dung_brown` | `dung`; tag `fertilizer` | T-552 |
+| Farm goods (a new section) | `bone_ash` | bone ash | farm/bone_ash | 1 | 10 | bag | 0 | light | `:` | `bone_white` | `bone`; tags `fertilizer`, `flux` | T-553 |
+| Farm goods (a new section) | `potash` | potash | farm/potash | 1 | 10 | bag | 0 | light | `:` | `ash_gray` | `potash` | T-553 |
+| Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
+| Farm goods (a new section) | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `compost`; tag `fertilizer` | T-564 |
+| Furniture | `stone_bed` | stone bed | furniture/stone_bed | 2 | 1 | none | 0 | heavy | `Θ` | material | stone | T-551 |
+| Furniture | `bedding` | bedding | furniture/bedding | 4 | 1 | none | 0 | medium | `≈` | material | cloth (its cloth); records its stuffing | T-551 |
+| Furniture | `pillow` | pillow | furniture/pillow | 2 | 1 | none | 0 | light | `≈` | material | cloth; records its stuffing | T-551 |
+| Furniture | `beehive` | beehive | furniture/beehive | 3 | 1 | none | 0 | medium | `∩` | material | wood, stone (earthenware), plant (reed) | T-555 |
+| Furniture | `lantern` | lantern | furniture/lantern | 6 | 1 | none | 0 | medium | `¥` | material | glass | T-563 |
+| Tools | `candle` | candle | tool/candle | 1 | 10 | bin | 0 | light | `ì` | material | tallow, beeswax | T-563 |
+| Tools | `firebrand` | firebrand | tool/firebrand | 1 | 5 | bin | 0 | light | `/` | material | wood, bone | T-559 |
+| Food | `honeycomb` | honeycomb | food/honeycomb | 1 | 10 | barrel | 0 | light | `#` | `honey_amber` | `honey` | T-555 |
+| Food | `honey` | honey | food/honey | 1 | 20 | barrel | 0 | light | `≈` | `honey_amber` | `honey`; tag `ingredient` | T-555 |
+| Food | `beeswax` | beeswax | food/wax | 1 | 20 | bin | 0 | light | `%` | `wax_yellow` | `beeswax` | T-555 |
+| Medical and herbs | `soap` | soap | medical/soap | 1 | 20 | bag | 0 | light | `▪` | `soap_white` | `soap` | T-564 |
+| Food | `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | `meal`; quality-bearing; eaten before any other meal | T-565 |
+| Stone, ore, gems | `giant_skull` | giant skull | textile/skull | 10 | 1 | none | 0 | heavy | `☻` | `bone_white` | `giant_bone` | T-557 |
+
+The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colors.md) § Glyph set); a task may choose another from the set.
+
+### Planned containers
+
+| id | name | category | mult | capacity | weight | glyph | fg | materials | task |
+|---|---|---|---|---|---|---|---|---|---|
+| `pot` | pot | container/pot | 2 | 10 units (class barrel) | heavy when full | `Ö` | material | stone (earthenware); breaks when its carrier is hit | T-553 |
+| `basket` | basket | container/basket | 2 | 15 (class bin) | heavy when full | `▐` | material | plant (reed); burns | T-549 |
+
+### Drying (a new table)
+
+What a drying rack turns its items into ([14](../02-systems/14-buildings-and-rooms.md) § Planned, The drying rack). `count` units are dried together; `with` is a second input held on the same rack and consumed with them. Days are under a roof; outdoors a clear day counts twice and a wet one not at all.
+
+| id | input | count | with | output | days | task |
+|---|---|---|---|---|---|---|
+| `dry_peat` | `soil_load` (peat) | 1 | — | 1 `peat_brick` | 7 | T-552 |
+| `dry_dung` | `dung` | 3 | — | 1 `dung_cake` | 7 | T-552 |
+| `dry_fish` | `raw_fish` | 1 | — | 1 `cured_fish` (its material) | 5 | T-552 |
+| `dry_meat` | `raw_meat` | 1 | — | 1 `cured_meat` (its material) | 7 | T-552 |
+| `salt_hide` | `raw_hide` | 1 | 1 `salt` | 1 `salted_hide` (its material) | 5 | T-552 |
+
+### Planned edits to existing rows
+
+- `bucket` materials gain stone (an earthenware jug breaks as a pot does) (T-553); `mug` materials gain bone (horn), glass (T-547, T-553: the material classes the mug recipes need); `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
+- `tallow`'s note "candles are not in version 1" goes (T-563).
+- `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-548, T-554, T-555).
+- § Meal ingredients gains `food/meat/cured`, `food/fish/cured`, `food/salt` and `food/honey` (T-547, T-552, T-555).
+- An item of a cured, salted or aged form names itself so: "cured boar meat", "a barrel of aged bellwine", "a wheel of vintage cheese" (T-552, T-554).

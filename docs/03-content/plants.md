@@ -94,3 +94,61 @@ Every still recipe: 4 plant units + 1 empty barrel → 20 units of drink in the 
 ## Growth arithmetic
 
 A dimcap plot tile at 100% growth completes a cycle in 16 days and yields on average 4 plants plus 1 seed. Twenty dwarves consume about 25 raw plant units per day for food and drink combined (see [balance.md](balance.md)); a 10×10 cave plot of dimcaps yields 100 tiles × 4 / 16 = 25 per day at skill 0. Surface plots produce nothing in winter. A cave plot grows in every season where its tiles are at or above the crop's `minC` (2 °C for dimcap and cavewheat): three levels or more below the surface that is all year in every region, but in a cold region a plot one or two levels down freezes in winter and produces nothing until spring (05 § Temperature model).
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [07](../02-systems/07-plants-and-farming.md) § Planned and [03](../02-systems/03-terrain-and-mining.md) § Planned (the conversions). Every number is *unmeasured*.
+
+### Planned surface crops
+
+| id | name | stageDays | seasons | light | minC | maxC | yield | yieldItem | value | edible | cookable | brew | secondary | straw | glyph | fg | task |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `rye` | rye | 6 (24) | spring, summer, autumn | sun | −2 | 26 | 2–4 | `plant_food` | 1 | no | yes | `black_ale` | `flour` at the farmer's workshop (1 → 1) | 1 | `"` | `rye_gold` | T-548 |
+| `nettle` | nettle | 5 (20) | spring, summer | sun | 4 | 28 | 2–3 | `fiber` (`nettle_fiber`) | 1 | no | no | — | — | — | `"` | `nettle_green` | T-548 |
+| `wyrmtongue` | wyrmtongue | 6 (24) | spring, summer, autumn | any (ash only) | 4 | 45 | 2–3 | `plant_food` | 8 | no | yes | `emberwine` | — | — | `"` | `wyrmtongue_red` | T-548 |
+
+`barley` and `cavewheat` gain `straw` 1 (T-548). `wyrmtongue` is sown only on ash (07 § Planned) and its material carries `seasoning`: a meal with it gives `ate_wyrmtongue` and keeps out `bitter_cold` for a day.
+
+### Planned wild shrubs
+
+| id | name | product | count | regrowDays | wildSeedPermille | seed of | graze | glyph | fg | task |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `reed_bed` | reed bed | `reed` (`reed`, value 1) | 2–4 | 14 | 0 | — | no | `"` | `reed_green` | T-548 |
+| `barrel_cactus` | barrel cactus | `plant_food` (`cactus_pulp`, value 1, edible, cookable, drinkable, brew `cactus_wine`); and 1 `fiber` (`cactus_fiber`) | 1–2 | 28 | 0 | — | yes | `"` | `cactus_green` | T-548 |
+| `wild_nettle` | wild nettle | `fiber` (`nettle_fiber`); stings the gatherer | 1–2 | 28 | 300 | `nettle` | no | `"` | `nettle_green` | T-548 |
+| `wild_rye` | wild rye | `plant_food` (`rye`) | 1–2 | 28 | 300 | `rye` | no | `"` | `rye_gold` | T-548 |
+| `rock_lichen` | rock lichen | `plant_food` (`lichen`, value 1, edible) | 1 | 56 | 0 | — | yes | `"` | `lichen_orange` | T-548 |
+| `salt_crust` | salt crust | `salt` | 2 | 28 | 0 | — | yes | `∙` | `salt_white` | T-548 |
+| `wild_wyrmtongue` | wild wyrmtongue | `plant_food` (`wyrmtongue`) | 1–2 | 28 | 300 | `wyrmtongue` | no | `"` | `wyrmtongue_red` | T-548 |
+
+`wild_nettle` carries the tag `stings`. A salt crust is a shrub that is not a plant: it reuses gathering and regrowth whole, burns not, and is grazed by camels (and any tame grazer).
+
+### Planned tree
+
+| id | name | logs | saplingYears | biomes (weight) | glyph | fg | task |
+|---|---|---|---|---|---|---|---|
+| `ironwood` | ironwood | 1–2 | 5 | — (converted, below) | `♣` | `ironwood_dark` | T-548 |
+
+### Conversions (a new table)
+
+What 03's conversion passes turn into the new plants (03 § Planned, Stage 9 conversions), each pass on its own stream, `terrain.convert.<id>`. *Eligible* is what a tile must be now; *biomes* limits it to those regions (any: every region).
+
+| id | eligible | biomes | permille | task |
+|---|---|---|---|---|
+| `reed_bed` | a soil floor (grass or shrub) within 2 tiles of surface water, or a soil floor in shallow water (level ≤ 2) | any; wetland ×3 | 150 | T-548 |
+| `barrel_cactus` | a dry soil floor of `sand`, or an existing shrub | `desert`, `badlands` | 15 | T-548 |
+| `wild_nettle` | an existing shrub | `temperate_forest`, `temperate_hills`, `dark_forest`, `wetland` | 120 | T-548 |
+| `wild_rye` | an existing shrub, or a grass floor | `taiga`, `tundra`, `cold_steppe`, `alpine` | 150 shrub, 5 grass | T-548 |
+| `rock_lichen` | a bare rock surface floor (outcrop, crag, scree or a soilless surface) | `tundra`, `alpine`, `mountain`, `glacier`, `taiga`, `cold_steppe` | 80 | T-548 |
+| `salt_crust` | a dry soil or bare rock surface floor | `desert`, `badlands` | 2 | T-548 |
+| `wild_wyrmtongue` | a floor of `ash_soil` | any (the Glasslands' ash) | 30 | T-548 |
+| `ironwood` | an existing tree | `dark_forest` 60, `temperate_forest` 30 | as given | T-548 |
+
+### Planned brewing
+
+| Plant | Drink | Value per unit | task |
+|---|---|---|---|
+| `rye` | `black_ale` | 3 | T-548 |
+| `barrel_cactus` (`cactus_pulp`) | `cactus_wine` | 3 | T-548 |
+| `wyrmtongue` | `emberwine` | 6 | T-548 |
+| `honey` (at the still, 4 honey → 20) | `mead` | 5 | T-555 |

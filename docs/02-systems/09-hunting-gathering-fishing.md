@@ -124,3 +124,23 @@ Job producer `foraging` (`hunt`, `fish`, `butcher`); inspector sections `zone �
 - Trapping small game: a `snare` building with a daily catch roll, reusing the corpse path.
 - Fish species by season or depth: the body kind is one field.
 - Melee hunting for war-trained squads: a `hunt` order in 16 rather than a job here.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
+
+### Butcher parts (T-547)
+
+- A new content table, `creatures.md` § Butcher parts (in § Planned rows until this task): a species row lists items its corpse yields besides meat, hide, bone, fat, skull and shell, each an item, a material and a count (`yak` 2 `horn` of `horn`; `mammoth` 2 `tusk` of `ivory`; `chicken` 2 `feather` of `feather`; `cave_crawler` 2 `shell_piece` of `chitin`; and the rest of the table). The butcher job spawns them with the other yields; a field-butchered corpse gives them whole (`FIELD_BUTCHER_PERCENT` scales meat, hide, bone and fat only); a rotten corpse gives none of them, only bones.
+- `cave_crawler` becomes butcherable for its parts: it leaves no meat or hide (its monster row has none), so its butcher yield is its bones, its skull and its chitin.
+- `foraging.butcherYields(species)` lists the parts.
+
+### Gathering the new shrubs (T-548)
+
+- `gather` on a shrub row tagged `stings` (`wild_nettle`) stings the gatherer with `NETTLE_STING_PERMILLE`: thought `nettles` (15). The draw is on its own stream, `rngFor('09.stings')`, made only for such a shrub.
+- `gather` on `salt_crust` yields `salt`; on `reed_bed` `reed`; on `barrel_cactus` its pulp and its fiber (the row's product and secondary, both at once). Nothing else changes.
+- Constants: `NETTLE_STING_PERMILLE` 100. Events: `Stung { id }` (the same event 08's hives emit).
+
+### Gathering webs (T-556)
+
+- A `gather` zone designates every `web` tile inside it each `DayPassed`, as it designates mature shrubs: the zone over a spider ranch's room collects its silk daily. `gather` on a web tile yields one `thread` of `silk_web` and clears the web (as now). The gatherer still walks in from a tile beside the web, and a web it walks into entangles it (18).

@@ -145,3 +145,30 @@ From the tables above the loader generates, per 12:
 - `smelt_hematite` … `smelt_deepsilver_ore` (1 ore → yields; fuel true except coal ores).
 - `alloy_bronze`, `alloy_bismuth_bronze`, `alloy_brass`, `alloy_electrum`, `alloy_steel` (steel is listed as an alloy for uniformity: 1 iron bar + 1 flux + 1 fuel → 1 steel).
 - `melt_metal_item` (any `melt`-flagged metal item → 60% of its bar cost in bars).
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules that use them are in the § Planned sections of the system documents. Every number is *unmeasured*.
+
+### Planned ores and bone
+
+| id | name | hosts | shape | count | length / radius | yields | value | color | notes | task |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `halite` | rock salt | `limestone`, `shale`, `sandstone`, `chalk` | cluster | 2 | 2 | — | 2 | `salt_white` | no smelt recipe (no yields); the kitchen crushes 1 → 5 `salt` | T-547 |
+| `bog_iron` | bog iron | `peat` | cluster | 3 | 2 | 1 `iron` | 4 | `limonite_yellow` | the wetland's iron, half a hematite's | T-547 |
+| `giant_bone` | giant bone | `sandstone`, `shale`, `limestone`, `siltstone`, `chalk`, `conglomerate` | cluster | 3 | 2 | — | 3 | `bone_white` | class `bone`, density 140, hardness 70, melts at 1600 (magma-safe); a dug tile always drops a `fossil`; the boneyards are of it too (03) | T-547 |
+| `star_iron` | star iron | — | cluster | 0 | 0 | 3 `star_steel` | 30 | `star_silver` | placed only by `starfall` (03 § Planned); smelted without flux | T-560 |
+
+Fossils lie only in the sedimentary layers: an igneous or metamorphic map has fossils only where its mixed template holds a sedimentary layer.
+
+### Planned metals
+
+| id | name | tier | value (bar) | density | weaponMult | armorMult | bluntBonus | runeMult | summon | runePressure | meltsAtC | color | alloy inputs (→ output) | notes | task |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `pewter` | pewter | 0 | 9 | 730 | 0.40 | 0.40 | 0 | 0.7 | — | — | 300 | `pewter_gray` | 1 `tin` + 1 `lead` → 2 | mugs, crafts, tableware | T-547 |
+| `star_steel` | star steel | 4 | 90 | 780 | 1.30 | 1.25 | 0 | 1.4 | `stone_warden` | — | 1600 | `star_silver` | — | magma-safe; never sold; merchants pay 200% | T-560 |
+
+### Planned fuel and flux
+
+- Half fuels (T-552): `peat_brick` (a peat load dried on a rack) and `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`: a fuel job burns two of them in place of one bar (12 § Planned).
+- Flux substitutes (T-547): 3 `shell_piece` (any shell material, chitin included) or 1 `bone_ash` in place of the flux stone, in the smelter's authored `make_steel_shell` and `make_steel_bone_ash` (`workshops-and-recipes.md` § Planned rows). Bone ash is also a fertilizer.

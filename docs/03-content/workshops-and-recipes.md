@@ -327,3 +327,80 @@ Carpenter 27, mason 13, craftsdwarf 13, jeweler 2, mechanic 2, wood furnace 1, s
 ## Time arithmetic
 
 A level-6 carpenter (factor 148%) makes a bed in 150 × 100/148 ≈ 101 ticks, about five seconds at 1×; a legendary one in 58 ticks. A level-0 armorsmith needs 400 ticks for a breastplate; a level-12 one 205 ticks. Meals: a level-4 cook makes 4 easy meals in 91 ticks; twenty dwarves eat about 30 meals a day, which is 8 cooking jobs or 12 minutes of a cook's day.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its workshop's table above (in that table's columns, without `workshop`, `substitute for` and `task`; a new workshop gets its own section and its line in `RECIPE_SECTIONS`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [12](../02-systems/12-workshops-and-professions.md) § Planned. Every number is *unmeasured*. *Substitute for* names the regular recipe a substitute must stay worse than (12 § Planned, Substitutes are worse).
+
+### Planned workshops
+
+| id | name | inputs | labor | ticks | fuel | magma | glyph pattern | tags | task |
+|---|---|---|---|---|---|---|---|---|---|
+| `kiln` | kiln | 3 `stone_block` | masonry | 250 | yes | `magma_kiln` | `kiln` | | T-553 |
+| `smokehouse` | smokehouse | 3 `stone_block` | masonry | 250 | yes | no | `smokehouse` | | T-552 |
+
+Edits: `magma_kiln` becomes the magma variant of `kiln` (`variant of` `kiln`), with the kiln's recipes; its note "reserved for glass in a later version" goes, and so does the paragraph on a workshop with no recipes for it (T-553). `carpenter` gains the tag `logs_only`: every other workshop may be built of blocks in place of logs (14 § Planned, Workshops of stone) (T-549).
+
+### Planned recipes
+
+| workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
+|---|---|---|---|---|---|---|---|---|---|---|
+| smelter | `make_steel_shell` | Steel (shell flux) | 1 bar (iron) + 3 shell_piece | 1 bar (steel) | 200 | yes | no | 8 | `alloy_steel` | T-547 |
+| smelter | `make_steel_bone_ash` | Steel (bone ash flux) | 1 bar (iron) + 1 bone_ash | 1 bar (steel) | 200 | yes | no | 8 | `alloy_steel` | T-547 |
+| kitchen | `crush_halite` | Crush rock salt | 1 ore (halite) | 5 salt | 60 | no | no | 3 | — | T-547 |
+| craftsdwarf | `make_mug_horn` | Drinking horns | 1 horn | 3 mug (from_input) | 120 | no | yes | 6 | — | T-547 |
+| craftsdwarf | `craft_ivory` | Ivory crafts | 1 tusk | 2 craft (from_input) | 150 | no | yes | 8 | — | T-547 |
+| loom | `spin_coarse_thread` | Spin coarse thread | 2 fiber or reed (reed, cactus_fiber, nettle_fiber; same material) | 1 thread (matching thread material) | 100 | no | no | 4 | `spin_thread` | T-549 |
+| craftsdwarf | `weave_basket` | Basket | 3 reed | 1 basket (from_input) | 100 | no | no | 4 | `make_bin` | T-549 |
+| craftsdwarf | `twist_reed_rope` | Reed rope | 3 reed | 1 rope (from_input) | 80 | no | no | 3 | `make_rope` | T-549 |
+| leatherworks | `cut_leather_rope` | Leather rope | 2 leather_piece | 1 rope (from_input) | 80 | no | no | 3 | `make_rope` | T-549 |
+| craftsdwarf | `weave_wicker_shield` | Wicker buckler | 3 reed | 1 buckler (from_input) | 120 | no | yes | 5 | `make_buckler_wood` | T-549 |
+| craftsdwarf | `make_splint_bone` | Bone splints | 1 bone_pile | 2 splint (from_input) | 80 | no | no | 4 | `make_splint` | T-549 |
+| craftsdwarf | `make_crutch_bone` | Bone crutch | 2 bone_pile | 1 crutch (from_input) | 100 | no | no | 4 | `make_crutch` | T-549 |
+| forge | `forge_crutch` | Metal crutch | 1 bar | 1 crutch | 120 | yes | no | 4 | `make_crutch` | T-549 |
+| leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
+| leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
+| bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
+| mason | `make_stone_bed` | Stone bed | 1 raw_stone + 2 cloth or wool_raw | 1 stone_bed (from_input) | 120 | no | no | 5 | `make_bed` | T-551 |
+| mason | `make_stone_bed_straw` | Stone bed (straw) | 1 raw_stone + 3 fiber or straw or reed | 1 stone_bed (from_input) | 120 | no | no | 5 | `make_bed` | T-551 |
+| clothier | `make_bedding` | Bedding | 2 cloth + 2 straw or wool_raw or feather (same material) | 1 bedding (from_input) | 150 | no | yes | 6 | — | T-551 |
+| clothier | `make_pillow` | Pillow | 1 cloth + 1 straw or wool_raw or feather | 1 pillow (from_input) | 80 | no | yes | 4 | — | T-551 |
+| smokehouse | `smoke_meat` | Smoke meat | 5 raw_meat (same material) | 5 cured_meat (from_input) | 150 | yes | no | 6 | — | T-552 |
+| smokehouse | `smoke_fish` | Smoke fish | 5 raw_fish (same material) | 5 cured_fish (from_input) | 150 | yes | no | 6 | — | T-552 |
+| kitchen | `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | no | 5 | — | T-552 |
+| kitchen | `salt_fish` | Salt fish | 5 raw_fish (same material) + 1 salt | 5 cured_fish (from_input) | 100 | no | no | 5 | — | T-552 |
+| kiln | `fire_bricks` | Bricks | 1 soil_load (clay) | 1 stone_block (brick) | 80 | yes | no | 4 | `make_stone_block` | T-553 |
+| kiln | `make_pot` | Pot | 1 soil_load (clay) | 1 pot (earthenware) | 100 | yes | no | 4 | `make_barrel` | T-553 |
+| kiln | `make_jug` | Clay jug | 1 soil_load (clay) | 1 bucket (earthenware) | 80 | yes | no | 4 | `make_bucket` | T-553 |
+| kiln | `make_mugs_clay` | Clay mugs | 1 soil_load (clay) | 3 mug (earthenware) | 120 | yes | yes | 6 | `make_mug_stone` | T-553 |
+| kiln | `make_glass_block` | Glass block | 2 soil_load (sand) | 1 stone_block (glass) | 150 | yes | no | 6 | — | T-553 |
+| kiln | `make_glass_block_potash` | Glass blocks (potash) | 2 soil_load (sand) + 1 potash | 2 stone_block (glass) | 200 | yes | no | 8 | — | T-553 |
+| kiln | `make_mugs_glass` | Glass mugs | 1 stone_block (glass) | 3 mug (glass) | 120 | yes | yes | 6 | — | T-553 |
+| kiln | `burn_potash` | Potash | 1 log | 2 potash | 80 | yes | no | 3 | — | T-553 |
+| kiln | `burn_bone_ash` | Bone ash | 2 bone_pile | 1 bone_ash | 80 | yes | no | 3 | — | T-553 |
+| kiln | `crush_fossil` | Crush fossil | 1 fossil | 2 bone_ash | 100 | yes | no | 4 | — | T-553 |
+| still | `distill` | Distil spirits | 20 drink (ale or wine group; same material) + container barrel | 10 drink (deepfire) in the barrel | 250 | yes | no | 10 | — | T-554 |
+| carpenter | `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | no | 4 | — | T-555 |
+| kiln | `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (earthenware) | 100 | yes | no | 4 | `make_hive_wood` | T-555 |
+| craftsdwarf | `weave_hive` | Wicker beehive | 3 reed | 1 beehive (from_input) | 100 | no | no | 4 | `make_hive_wood` | T-555 |
+| farmer's workshop | `press_honeycomb` | Press honeycomb | 1 honeycomb | 1 honey + 1 beeswax | 80 | no | no | 4 | — | T-555 |
+| still | `brew_mead` | Brew mead | 4 honey + container barrel | 20 drink (mead) in the barrel | 200 | no | no | 8 | — | T-555 |
+| craftsdwarf | `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (from_input) | 80 | no | no | 3 | — | T-555 |
+| craftsdwarf | `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (from_input) | 80 | no | no | 3 | — | T-563 |
+| kiln | `make_lantern` | Lantern | 1 stone_block (glass) + 1 candle | 1 lantern (from_input) | 150 | yes | yes | 8 | — | T-563 |
+| mason | `cut_bone_blocks` | Bone blocks | 1 fossil | 2 stone_block (from_input) | 80 | no | no | 3 | `make_stone_block` | T-557 |
+| mason | `make_table_bone` | Bone table | 1 fossil | 1 table (from_input) | 150 | no | yes | 6 | — | T-557 |
+| mason | `make_chair_bone` | Bone chair (a throne) | 1 fossil | 1 chair (from_input) | 120 | no | yes | 6 | — | T-557 |
+| mason | `make_door_bone` | Bone door | 1 fossil | 1 door (from_input) | 150 | no | yes | 6 | — | T-557 |
+| mason | `make_coffin_bone` | Bone coffin | 2 fossil | 1 coffin (from_input) | 200 | no | yes | 6 | — | T-557 |
+| mason | `make_statue_bone` | Bone statue | 3 fossil | 1 statue (from_input) | 400 | no | yes | 15 | — | T-557 |
+| mason | `mount_skull` | Mount the skull | 1 giant_skull | 1 statue (from_input) | 300 | no | yes | 15 | — | T-557 |
+| craftsdwarf | `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | no | yes | 8 | — | T-557 |
+| craftsdwarf | `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | no | yes | 15 | — | T-557 |
+| craftsdwarf | `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | no | 2 | — | T-559 |
+| kitchen | `make_soap` | Soap | 1 tallow + 1 potash | 2 soap | 100 | no | no | 4 | — | T-564 |
+| kitchen | `cook_feast` | Feast | 6 ingredient (distinct stacks) + 1 salt or honey or plant_food (wyrmtongue) | 1 feast (20 servings) | 400 | no | yes | 20 | — | T-565 |
+
+The kiln's skill is `pottery`, the smokehouse's `cooking`. The fletching recipe `set_ammo_fletched` is generated at the bowyer from the `fletched` enchantment ([weapons-and-armor.md](weapons-and-armor.md) § Planned rows). Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
+
+A substitute pair the check reads: a brick is 1 clay load + a fuel and a job for 1 block against 1 stone for 2; a pot holds 10 against a barrel's 20 for the same input and a fuel; a basket 3 reeds for 15 against a log for 30; a bone splint 1 bone for 2 against a log for 4; coarse thread 2 fiber against 1.

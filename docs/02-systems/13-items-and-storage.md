@@ -236,3 +236,61 @@ Rot days per type, stack sizes and value multipliers are content.
 - Wear on clothing: `wear` exists on the record; a daily increment and a `tattered` threshold with a thought.
 - Quantum stockpiles through dumping into a pit are allowed by the fall rule; a rule capping items per tile would go in `dropAt`.
 - Minecarts and carts: a container class with movement; out of scope.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `items.md` § Planned rows and the other content documents' § Planned rows.
+
+### The category tree grows (each leaf with the task that brings its first item)
+
+```
+food/      meat/cured (T-552)  fish/cured (T-552)  salt (T-547)  honey honeycomb wax (T-555)  meal/feast (T-565)
+drink/     spirits gets its first material (T-554)
+stone/     soil (T-547)  fossil (T-547)
+bar/       peat  dung (T-552)
+furniture/ stone_bed  bedding  pillow (T-551)  lantern (T-563)  beehive (T-555)
+container/ pot (T-553)  basket (T-549)
+textile/   horn  tusk  feather (T-547)  straw  reed (T-548)
+medical/   soap (T-564)
+tool/      candle (T-563)  firebrand (T-559)
+farm/      dung (T-552)  compost (T-564)  guano (T-556)  bone_ash  potash (T-553)
+```
+
+The new top node `farm/` gets the stockpile preset Farm goods (`farm`). The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `bar/dung`; Furniture, Cloth and leather and Stone take theirs by their nodes.
+
+### Clay pots and baskets (T-553, T-549)
+
+- A `pot` is a container of class `barrel` with capacity 10 (`items.md` § Containers: capacity is per type), of `earthenware`; a `basket` is a container of class `bin` with capacity 15, of `reed`. Stockpile container wants (`SetStockpileContainers`) count them as barrels and bins: a stockpile that wants 3 barrels takes pots too, nearest first. A brew, a distillation or anything that wants an empty barrel takes an empty pot as well, and a pot holds 10 units of drink: half the drink, twice the hauling.
+- **A pot breaks.** When a creature carrying a pot or a clay jug (a `bucket` of `earthenware`), directly or in its hands, is struck by a melee attack that hits (16's `AttackResolved` with a hit), the pot is destroyed (`ItemDestroyed { reason: 'broken' }`) and its contents lie where it was, except drink, which is lost with it. No draw: every hit breaks it. A pot standing in a stockpile does not break.
+- A basket burns as wood does (its material `reed` is burnable).
+
+### Curing (T-552)
+
+`cured_meat`, `cured_fish` and `salted_hide` have `rotDays` 0: they never rot. A cured item is worth twice its raw form (its type's `mult` 2). `tan_hide` takes a `salted_hide` as it takes a `raw_hide`.
+
+### Aging in a cellar (T-554)
+
+- Stockpile setting `cellar` (boolean; `SetStockpileCellar { zoneId, on }`, and the stockpile panel's `Cellar` line). A stockpile is a *working cellar* when the setting is on, every tile is dark (not `lit`, and in no comfort light: 14's `buildings.comfortLightAt`, the hearth's square, a lamp's, a candle stand's or a lantern's) and every tile's temperature (05) is from `CELLAR_MIN_C` to `CELLAR_MAX_C`. It is judged on each `DayPassed` and cached (`cellarOk`, with the reason when not: "too warm (16 °C)", "lit", "too cold").
+- On each `DayPassed`, every item in a working cellar that can age gains one cellar day (`Item.cellarDays`). What can age: a stack of `drink` in a barrel of a `wood` material, and `cheese`. When its cellar days reach a year's (`DAYS_PER_YEAR`) for an oak barrel (the material carries the tag `fine_cask`) or for cheese, or two years' for any other wood, it gains one stage (`Item.age`: 0 young, 1 aged, 2 vintage) and its cellar days return to 0. A drink in a pot or a metal barrel never ages. Vintage is the last stage.
+- Value: an aged item is worth × `AGED_VALUE_PERCENT` / 100, a vintage one × `VINTAGE_VALUE_PERCENT` / 100 (§ Value gains the factor; wealth is re-accounted on the stage change). Aged and vintage cheese no longer rot. The name says it: "a barrel of aged bellwine", "a wheel of vintage cheese". Stacks merge only at the same stage.
+- The stocks panel shows each aged stack's stage and, for a cellar, its years ("vintage, 2 years in the cellar"). Wealth from a cellar raises renown, and renown sizes raids (18): a fortress that hoards vintage is worth raiding.
+- Constants: `CELLAR_MIN_C` / `CELLAR_MAX_C` 2 / 14, `AGED_VALUE_PERCENT` 150, `VINTAGE_VALUE_PERCENT` 250. Events: `ItemAged { id, stage }` (no announcement). Commands: `SetStockpileCellar`. Save: `Stockpile.cellar`, `cellarOk`, `Item.cellarDays`, `Item.age` (both omitted when 0).
+
+### Ice blocks melt (T-559)
+
+An item of material class `ice` (a `stone_block` of `ice`, cut by `harvest_ice`) melts: it rots on the rot queue with `ICE_MELT_DAYS` in place of its type's `rotDays`, with every speed factor of § Rot (stopped below `FREEZE_C`, so it keeps outdoors in winter and in an ice larder), and at 100% it is destroyed (`ItemDestroyed { reason: 'melted' }`) with no stale or rotting stage and no miasma. Ice blocks are cut in winter and used in winter.
+
+- Constants: `ICE_MELT_DAYS` 7.
+
+### Buildings that want items (T-551)
+
+- A building row may have `wants` (`buildings-and-furniture.md`): a list of item matches with counts (a bed: 1 `bedding` and 1 `pillow`; a drying rack: `RACK_CAPACITY` units of what its setting dries; a candle stand: `STAND_CANDLES` candles; a dining table: 1 `mug` per adjacent chair). A built building with wants is a slot for those items, as a hospital's chest is for its supplies: the items tick finds the nearest available item that matches a want not yet met (counting the items already held and those on their way) and makes a `haul_to_stockpile` job to the building, worked from a tile beside it (the chest rule of § Containers in play). On delivery the item is *held* by the building (`Building.held`, 14): flagged `installed`, off every search and count of available stock, still in the totals and in wealth.
+- A held item leaves the building only when 14 consumes it (a rack's dried item becomes its dried form and is released; a stand's candle burns out), when the player takes it out (`ReleaseHeld { buildingId }`, which releases every held item to the building's tile), or when the building is removed (its held items drop on its tile, unflagged).
+- No new job type: the haul is `haul_to_stockpile`, labor `hauling`.
+- Save: `Building.held` (14); the wants are content.
+
+### The compost heap (T-564)
+
+- Zone type `compost` (a heap): its tiles are slots for `refuse/rotten` and `farm/dung`, filled by hauling as a stockpile's are, at `HAUL_PRIORITY`. Allows rot. Like a refuse pile it emits miasma indoors: put it outside.
+- An item on a compost tile turns to `compost` after `COMPOST_DAYS_ROTTEN` days (rotten food) or `COMPOST_DAYS_DUNG` (dung), counted from its arrival (`Item.compostAt`, a tick): one `compost` for each unit, on the same tile. Rotten food there is not destroyed at its "gone" stage while it waits.
+- Constants: `COMPOST_DAYS_ROTTEN` 14, `COMPOST_DAYS_DUNG` 7. Save: `Item.compostAt` (omitted when 0).

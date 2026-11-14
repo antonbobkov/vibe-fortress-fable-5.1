@@ -186,3 +186,69 @@ Hardness per material and layer templates are content.
 - Aquifers: a stage between 3 and 4 that marks a layer as `source` water walls (04 already supports source tiles).
 - Cave-ins of natural rock: a support rule for natural tiles is the only change.
 - New designation kinds: a row in the transition table, a job type in `jobs.md`, and a menu entry.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, so a map or a game without the new content draws the same numbers as before.
+
+### Soil that drops something (T-547)
+
+- `dig` of a natural `wall` or `boulder` whose material carries the tag `soil_drop` (`clay`, `sand`, `peat`) drops one `soil_load` of that material with `SOIL_DROP_PERMILLE`. The roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for such a tile, so digging stone, ore and other soil draws the same numbers as before. Every other soil still drops nothing. The table of § Tile transitions gains the line.
+- Constants: `SOIL_DROP_PERMILLE` 500.
+- Save: the stream's state.
+
+### Bone tiles: fossils and the boneyards' ribs (T-547 for the drop, T-557 for the boneyards)
+
+- `giant_bone` is a mineral of class `bone` (minerals-and-metals.md § Planned rows): stage 7 places its clusters in the sedimentary layers as it places any mineral. A dug tile of class `bone` (a fossil, a rib, a skull tile, a boulder of bone) always drops one `fossil` item of its material, as an ore tile drops `ore`. It emits `MineralMined` as an ore does, and no `VeinFound`.
+- The first tile of class `bone` dug in a fortress emits `FossilFound { dwarfId, tile }` once (saved flag `fossilFound`): the note "{dwarf} has found the bones of something old." (`announce.first_fossil`) and the digger's thought `first_fossil` (15).
+- Save: `fossilFound` (absent in older saves: false).
+
+### Stage 9b: the boneyards (T-557)
+
+- After stage 9 and before stage 10, on its own stream (`terrain.giant_bones`), a map whose biome is `desert`, `badlands`, `wetland` or `tundra` lays `BONEYARD_MIN`–`BONEYARD_MAX` skeletons. Every other biome draws nothing from the stream, so its map is unchanged.
+- A skeleton: a spine, a straight or once-bent line of `BONEYARD_SPINE_MIN`–`BONEYARD_SPINE_MAX` dry surface floor tiles, each made a `boulder` of `giant_bone`; at every second spine tile a pair of ribs, one tile out on each side, made `wall` of `giant_bone` one level tall; at one end a skull, a 2×2 of `giant_bone` walls. A spine starts at least `BONEYARD_EDGE_MARGIN` tiles from every edge and from the arrival edge's wagon search band (02 § Arrival), and keeps 3 tiles from water, trees and the other skeletons; a tile that fails (water, a tree, a cliff, a drinking step) is left as it was and the skeleton is laid with a gap. Up to `BONEYARD_TRIES` starts are tried per skeleton.
+- Where the surface is soil, the walls are dug into it (the soil tile becomes the bone wall), so the skeleton lies half sunk. In `wetland` a rib whose tile is shallow water (level ≤ 3) stays a wall in the water. In `tundra` the skull's two outer tiles are `ivory` walls in place of bone (the tusks): they drop a `tusk` when dug.
+- The skull's four tiles are recorded (`giantSkulls`, a list of four-tile groups). When the last tile of a group is dug, a `giant_skull` drops beside its fossil.
+- The ribs' cage, the tiles between a skeleton's ribs and beside its spine, is recorded per skeleton (`boneyards`, the tile lists). The first fortress dwarf to stand on one emits `RibsEntered { id, boneyard }` once per skeleton (thought `stood_in_the_ribs`, 15), checked by 10 on `EntitiesMoved`.
+- The site summary (02) lists "the bones of something enormous" for these biomes as likely, not certain.
+- Constants: `BONEYARD_MIN` / `BONEYARD_MAX` 1 / 3, `BONEYARD_SPINE_MIN` / `BONEYARD_SPINE_MAX` 8 / 14, `BONEYARD_EDGE_MARGIN` 12, `BONEYARD_TRIES` 20.
+- Events: `RibsEntered { id, boneyard }` (10 emits it). Save: `giantSkulls`, `boneyards` and the per-skeleton entered flag (`boneyardsEntered`).
+- Golden: the local-map hash of the four biomes' seeds moves; no other.
+
+### Stage 9 conversions: the new wild plants (T-548)
+
+After the shrubs, trees and grass of stage 9, and after the rare cave patches, one pass per row of `plants.md` § Planned rows, Conversions, each on its own stream (`terrain.convert.<plant id>`): every eligible tile, in tile order, turns into the row's plant with the row's permille. The rows say which tiles are eligible: an existing shrub, an existing tree, a grass floor, a bare rock floor, a dry sand floor, or a soil floor within 2 tiles of surface water. A tile that is already a planted conversion is not eligible again. The main stage-9 stream draws the same numbers, so the rock, the trees and the shrubs of a map are those it had, and only an eligible tile changes. `ironwood` converts existing trees: a converted tree keeps its tile and its age. The site summary (02) lists the converted plants with the shrubs, by the same rule.
+
+### Glass passes light (T-558)
+
+- A constructed `wall` or `floor` whose material is of class `glass` (the material `glass`) passes daylight. Natural `obsidian` is class `obsidian` and passes nothing.
+- `skylit` (flag bit 14): a tile that is not `outdoor` and whose every tile above in the column is `open` or a constructed glass floor, with at least one glass floor among them. It is computed with `outdoor`, in the same column pass: scanning down from the sky, a glass floor keeps the light going as an open tile does, and the first other solid tile is the last tile reached, as for `outdoor`. A column is recomputed when any tile in it changes kind or material, as `outdoor` is. A tile that is `skylit` is `lit`.
+- `lit` spread: a constructed glass wall does not stop daylight spreading (§ Outdoor and lit: "with no wall between"), so light reaches `LIGHT_SPREAD` tiles through it into the hall behind. The wall tile itself is not `lit`.
+- 05 reads `skylit` (05 § Planned), 07 reads it (07 § Planned), 22 reads glass for sight (22 § Planned).
+- Save: none; the flag is recomputed with `lit` on load as the other light flags are.
+
+### Ice harvesting (T-559)
+
+- Designation `harvest_ice` on a tile of frozen outdoor water (04's frozen record, an ice `wall` or ice `floor`). The job `harvest_ice` (labor `mining`, skill `mining`, a pick) is worked from a walkable tile beside it on its level or from the walkable tile directly above it (standing on the ice, through the producer's `extraStandTiles`). On completion it drops one `stone_block` of `ice` on the worker's tile and leaves the tile as it was: ice is cut, not dug out, and the water under it stays. The tile cannot be designated again for `ICE_RECUT_DAYS` (`iceCut: Map<TileIndex, tick>`). A tile that thaws clears its designation.
+- Work time `ICE_HARVEST_TICKS`, skill-scaled as digging.
+- Constants: `ICE_RECUT_DAYS` 3, `ICE_HARVEST_TICKS` 80. Save: `iceCut`.
+- UI: the designation menu's `harvest ice` entry (key in `ui-keymap-and-screens.md` § Planned rows).
+
+### Setting a fire (T-559)
+
+- Designation `ignite` on a tile 05 calls burnable (`materials.burnableTile`), not `wet` and not `snow`. The job `ignite` (labor `woodcutting`, no skill, xp 0, a `firebrand` fetched and consumed) walks to a tile beside it, works `IGNITE_TICKS` and emits `TileIgnited { tile, dwarfId }`; 05 queues the ignition as it queues a lightning strike's (05 § Planned). The dwarf gets `set_a_fire` (15).
+- The first `ignite` designation of a fortress asks for the confirmation `c_first_ignite` (24), as the first deepsilver designation does; `ConfirmIgnite` (no payload) sets the fortress's `igniteConfirmed`.
+- Constants: `IGNITE_TICKS` 30. Events: `TileIgnited { tile, dwarfId }`. Commands: `ConfirmIgnite`. Save: `igniteConfirmed` on the fortress record (absent: false).
+
+### Stage 10: the Starfall crater (T-560)
+
+- `starfall` (regions-biomes-and-traits.md § Planned rows): on its own stream (`terrain.starfall`), a crater of radius `CRATER_RADIUS_MIN`–`CRATER_RADIUS_MAX` centred on a dry surface floor at least `CRATER_EDGE_DISTANCE` tiles from the arrival edge and `CRATER_RADIUS_MAX + 2` from every edge, away from water. Every column within the radius is lowered so that its floor stands one level below the centre's original surface: rock above that is opened, soil is removed, trees and shrubs on it go. The floor tiles are of `ash_soil`, which is ash for good (07: ash on `ash_soil` never clears). A ring of ramps joins the floor to the rim where the step is one level.
+- One level below the centre's floor tile, the tile is a `boulder` of `star_iron` in a pocket opened for it, the only one on the map: `star_iron` has a mineral count of 0, so stage 7 places none.
+- Wild wyrmtongue on the crater floor: each floor tile turns into `wild_wyrmtongue` with `CRATER_WYRMTONGUE_PERMILLE`, on the same stream.
+- The crater's tiles are recorded (`craterTiles`). A fortress dwarf entering one emits `CraterEntered { id }` (10, on `EntitiesMoved`), the thought `saw_the_star` (15; the thought's cap and hours keep it from repeating while it lasts).
+- Constants: `CRATER_RADIUS_MIN` / `CRATER_RADIUS_MAX` 3 / 5, `CRATER_EDGE_DISTANCE` 20, `CRATER_WYRMTONGUE_PERMILLE` 150. Events: `CraterEntered { id }`. Save: `craterTiles`.
+
+### Bat roosts (T-556)
+
+- After stage 6, on its own stream (`terrain.roosts`), each cavern floor tile of cavern one and two with an open tile above it and a natural `wall` above that (the cavern's ceiling over open floor) becomes a roost's drop tile with `ROOST_PERMILLE` (doubled by `fungal_depths`). The drop tiles are recorded in `LocalMapResult.roosts` for 08, which keeps them. Nothing is drawn: a roost is not a tile kind.
+- Constants: `ROOST_PERMILLE` 1.

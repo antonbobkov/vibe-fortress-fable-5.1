@@ -1,25 +1,33 @@
-# T-555 — Making Do B5: fertilizer, compost, hives, honey and soap
+# T-555 — Making Do B5: hives, honey, beeswax and mead
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 6 (hives), 7 (compost, fertilizer, soap)); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546, T-547, T-548, T-552 · **Status:** blocked (needs T-546, T-547, T-548, T-552)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 6 (hives), 7 (honey)); the owner, 2026-11-13 · **Size:** M · **Needs:** T-549, T-553 · **Status:** blocked (needs T-549, T-553)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
+Compost, fertilizer and soap moved to T-564.
+
 ## What to do
 
-- The compost heap zone (rotten food → compost in 14 days, dung and straw in 7); the `fertilize` plot setting (+1 harvest per fertilizer item).
-- Beehives (clay pot, wooden blocks or a wicker basket; 8 flower tiles within 6; a honeycomb every 14 days spring to autumn; `collect_honey`); honey, beeswax, mead's input; stings for the collector and passers-by.
-- Honey as a wound dressing that prevents infection; soap at the kitchen and the `wash_patient` job.
+The blocks and rows marked T-555:
+
+- **07 § Planned:** Flowers (`plants.flowerAt`, the compositor's test moved to `core/`).
+- **08 § Planned:** Hives (flowers in reach, a comb every `HIVE_DAYS` from spring to autumn, `collect_honey`, the collector's and passers-by's stings, `Stung`, the hive panel).
+- **14 § Planned:** Beehives (outdoors on soil, refused elsewhere).
+- **17 § Planned:** Honey (for cloth in `dress_burn`, a honeyed burn cleaned; for water in `clean_wound`; the supply kind).
+- **Rows:** `honey`, `beeswax` (materials and items), `honeycomb`, `beehive`, `mead` and `brew_mead`, the three hive recipes (wood, clay, wicker), `press_honeycomb`, `make_candles_wax`, `collect_honey`, `stung`, `hint_hive`, the honey and beeswax sundries and preferences, the colours.
+
 
 ## Common rules for every Making Do task
 
-- Build on the spec as T-546 wrote it, not on the design alone. Where the two disagree, the spec wins; where the spec is silent, decide, write it in the spec, and say so.
-- Rows are appended (`docs/03-content/row-order.md`, then `npm run content:export`); none is removed. Never edit `test/fixtures/content-row-baseline.json`.
-- New wild plants, features and terrain go on their own rng streams, so existing maps keep their rock, trees and shrubs. Name any golden that moves in `golden:`, with the reason.
-- **Substitutes are worse.** Every substitute route costs more inputs, more work or a worse result than the regular route (design § 3). T-547's content check enforces this once it lands; keep it green.
-- Faces and tricks are part of the task: the thoughts, log lines and announcements the design names. Trade-offs and goofy rules go in `docs/fun-features.md` § In the game (stings, spit, tipsy dwarves, webs across your own corridor, and so on).
-- Measure as the design's § 13 says for the bundle: rows against the content checks; mechanisms against the three-year fixture's food and wealth, the sleep audit, and the pooled sweep and instrument verdicts; terrain against the annual instrument.
+- **The spec is the § Planned blocks.** Each system document touched carries a `## Planned: Making Do` section; each content document a `## Planned rows` section. Build every block and row marked with this task, and only those. Move each block into its document's sections as plain specification (no task id), its constants into § Tuning constants, its readers, events and commands into § Interfaces and into `04-implementation/event-catalog.md`, `command-catalog.md`, the schemas and `save-format.md`; then delete the block. Move each row into its table (without the `task` column), add its line to `row-order.md`, and run `npm run content:export`. The last task to empty a § Planned section deletes it.
+- Where the spec is silent or a planned rule does not fit the code, decide, write it in the spec, and say so in the report.
+- Rows are appended; none is removed. Never edit `test/fixtures/content-row-baseline.json`.
+- A new rng draw is on a stream of its own, or on an existing stream only where the new content is present, so a game without it draws the same numbers. Name every golden that moves in `golden:`, with the reason.
+- **Substitutes are worse.** Every recipe the planned table marks `substitute for` stays worse than its regular recipe; T-547's check enforces it once it lands. Add your pairs to it.
+- A caravan good the planned table marks with this task lands with it (20 § Planned, Sundries).
+- **Fun features.** Move this task's entries from `docs/fun-features.md` § Planned to § In the game, with where each lives and how to remove it.
 
 ## Done
 
-- The rules are in the spec with tests.
-- The three-year food margin before and after; the sweep and instrument verdicts pass.
+- A hive by a meadow fills with comb in summer and is silent in winter; its keeper is stung now and then, and so is anyone who walks past it; honey brews mead and cleans a wound where there is no well.
+- The three-year fixture's food margin before and after; the sweep and instrument verdicts pass.

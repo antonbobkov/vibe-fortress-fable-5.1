@@ -1,6 +1,6 @@
-# T-551 — Making Do B1: beds that rest differently, bedding and pillows
+# T-551 — Making Do B1: beds that rest differently, bedding, and buildings that want items
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 Beds); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546, T-547, T-548 · **Status:** blocked (needs T-546, T-547, T-548)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 Beds); the owner, 2026-11-13 · **Size:** L · **Needs:** T-547, T-548 · **Status:** blocked (needs T-547, T-548)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
@@ -15,20 +15,31 @@ The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-co
 
 ## What to do
 
-- The bed `rest` column and its effect on 10's sleep errand; `pallet` (60%, laid from its materials with no workshop or labor), `stone_bed` (75%, a mason's job: a raw stone + a pallet's materials), the wooden bed (100%), the dressed bed (125%) and the featherbed.
-- `bedding` and `pillow` at the clothier from cloth and any `stuffing` (straw, wool, feathers); a built bed wants its bedding and pillow as a hospital chest wants supplies, and a hauler makes it up.
-- The thoughts: `slept_on_a_pallet`, `slept_in_a_soft_bed`, `slept_in_a_featherbed`.
+The blocks and rows marked T-551:
+
+- **13 § Planned** and **14 § Planned:** Buildings that want items, the shared mechanism (`wants` on a building row, `Building.held`, hauls by `haul_to_stockpile` as a hospital chest's, `ReleaseHeld`). The drying rack (T-552), the candle stand (T-563) and the dining table's mugs (T-565) use it after this task.
+- **14 § Planned:** Beds (the `rest` column; `pallet` and `straw_pallet` laid by `hauling` in 20 ticks; the stone bed's two mason recipes and its item; the made-up bed and the featherbed; "a bed" for a room is any `sleep` building).
+- **10 § Planned:** Beds rest differently (rest × `rest` / 100, the sleep's cap × 100 / `rest`, `FLOOR_REST_PERCENT`, `Slept`'s `rest` and `bedding`).
+- **Rows:** the furniture rows and columns, `stone_bed`, `bedding`, `pillow` (with their stuffing), the recipes marked T-551, the thoughts, `hint_pallet`, the Hillfolk's bedding, the `t` key.
+
+## Decisions
+
+- A pallet is two building rows (cloth 2, straw 3), since a building input has one count. Its labor is `hauling`: any dwarf, children too; there is no job without a labor.
+- The floor rests at 50 so that a pallet is worth laying: below every bed.
+- A dressed bed is a bed that holds its bedding and pillow through the shared wants mechanism, which is the hospital chest's hauling made general: the plainest fit for the bed, the rack, the stand and the table.
+
 
 ## Common rules for every Making Do task
 
-- Build on the spec as T-546 wrote it, not on the design alone. Where the two disagree, the spec wins; where the spec is silent, decide, write it in the spec, and say so.
-- Rows are appended (`docs/03-content/row-order.md`, then `npm run content:export`); none is removed. Never edit `test/fixtures/content-row-baseline.json`.
-- New wild plants, features and terrain go on their own rng streams, so existing maps keep their rock, trees and shrubs. Name any golden that moves in `golden:`, with the reason.
-- **Substitutes are worse.** Every substitute route costs more inputs, more work or a worse result than the regular route (design § 3). T-547's content check enforces this once it lands; keep it green.
-- Faces and tricks are part of the task: the thoughts, log lines and announcements the design names. Trade-offs and goofy rules go in `docs/fun-features.md` § In the game (stings, spit, tipsy dwarves, webs across your own corridor, and so on).
-- Measure as the design's § 13 says for the bundle: rows against the content checks; mechanisms against the three-year fixture's food and wealth, the sleep audit, and the pooled sweep and instrument verdicts; terrain against the annual instrument.
+- **The spec is the § Planned blocks.** Each system document touched carries a `## Planned: Making Do` section; each content document a `## Planned rows` section. Build every block and row marked with this task, and only those. Move each block into its document's sections as plain specification (no task id), its constants into § Tuning constants, its readers, events and commands into § Interfaces and into `04-implementation/event-catalog.md`, `command-catalog.md`, the schemas and `save-format.md`; then delete the block. Move each row into its table (without the `task` column), add its line to `row-order.md`, and run `npm run content:export`. The last task to empty a § Planned section deletes it.
+- Where the spec is silent or a planned rule does not fit the code, decide, write it in the spec, and say so in the report.
+- Rows are appended; none is removed. Never edit `test/fixtures/content-row-baseline.json`.
+- A new rng draw is on a stream of its own, or on an existing stream only where the new content is present, so a game without it draws the same numbers. Name every golden that moves in `golden:`, with the reason.
+- **Substitutes are worse.** Every recipe the planned table marks `substitute for` stays worse than its regular recipe; T-547's check enforces it once it lands. Add your pairs to it.
+- A caravan good the planned table marks with this task lands with it (20 § Planned, Sundries).
+- **Fun features.** Move this task's entries from `docs/fun-features.md` § Planned to § In the game, with where each lives and how to remove it.
 
 ## Done
 
-- 10, 13 and 14 say it, the code does it, with tests.
-- The sleep audit before and after (design § 12: about 3% more working time), and the sweep and instrument verdicts pass.
+- Seven dwarves on day one sleep on pallets of the wagon's cloth within the hour; a pallet sleeper sleeps longer, a made-up bed's sleeper shorter; a featherbed gives its thought; taking a pallet apart returns its cloth.
+- The sleep audit before and after (the floor's rest moves too), with the three-year fixture's working time; the sweep and instrument verdicts pass.

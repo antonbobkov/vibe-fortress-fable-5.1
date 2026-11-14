@@ -164,3 +164,42 @@ The battle axe uses the item id `axe`, shared with the woodcutting tool, and car
 - **Steel warhammer (common) vs trollkin (natural armor 4, size 150)**: raw = 24 × 1.25 × 1.0 × (50 + 60)/100 = 33; natural plate 4 × 0.9 = 3.6; 29.4 × 0.95 (Toughness 50) = 27.9 → 28; trollkin torso 150 → ratio 0.19 → light bruise, no fracture (45); a limb (maxHp 90): 28 ≥ 27 → a fracture in one hit.
 - **Magma wyrm bite (damage 45, edge) vs steel breastplate (superior)**: reduction 18 × 1.25 × 1.0 × 1.2 × 1.1 = 29.7; damage 15.3; ratio 0.26 → serious cut. Deepsilver breastplate: 18 × 1.6 × 1.2 × 1.1 = 38 → 7 → light.
 - **Crossbow (wood, iron bolt) at range 8 by a skill-6 hunter vs a deer (size 40, dodge 2)**: hit = 40 + 18 − 16 + (40 − 60)/4 − 4 = 33%; damage 20 × 1.2 × 1.0 = 24 × 0.95 = 22.8 → 23 vs deer torso 40 → ratio 0.575 → grievous puncture, bleed 8: the deer (blood 400) is unconscious after 150 ticks and dead within 200 ticks of a torso hit.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [16](../02-systems/16-combat.md) § Planned and [25](../02-systems/25-runecraft.md) § Planned. Every number is *unmeasured*.
+
+### Planned launcher
+
+| id | name | as | power | notes | task |
+|---|---|---|---|---|---|
+| `horn_bow` | horn bow | the `bow` row in every other column | 1.10 | any wood; no `yewPower`; made at the bowyer from 1 log + 1 horn | T-562 |
+
+### Planned armor
+
+| id | name | slot | covers | layer | armor | weight | bars | materials | mult | rune | task |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `scale_shirt` | scale shirt | body | torso 100, arms 40 | scale | 8 | 7 | 3 plates + 1 leather or cloth | shell, bone (horn, chitin) | 8 | | T-562 |
+| `scale_skirt` | scale skirt | legs | legs 100 | scale | 6 | 5 | 2 plates + 1 leather or cloth | shell, bone | 6 | | T-562 |
+
+A plate is a `shell_piece`, a `bone_pile` or a `horn`. A wicker buckler (T-549) is the `buckler` row of material `reed` (the row's materials gain plant): it blocks as a wooden one and burns.
+
+### Planned damage column
+
+The table of § Damage type versus layer gains the column `scale`, between leather and mail (T-562):
+
+| Type | scale |
+|---|---|
+| edge | 1.0 |
+| pierce | 0.7 |
+| blunt | 0.8 |
+| ember | 0.6 |
+| frost | 0.7 |
+
+### Planned enchantment
+
+The table of § Enchantments gains the column `workshop` (empty for every row of today: the runeforge) and the row (T-562):
+
+| stone | id | slot | vials | suffix | effects | scales | only | workshop |
+|---|---|---|---|---|---|---|---|---|
+| `feather` | `fletched` | ammo | 0 | fletched | `to_hit` 5 | value | | `bowyer` |

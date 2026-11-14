@@ -155,3 +155,40 @@ Species stage lengths, yields, seasons, temperatures and biome weights are conte
 - Multi-tile trees: see 03.
 - Crop rotation or soil exhaustion: a per-tile counter in this system's state and a factor in the growth formula.
 - Orchards: trees as a crop kind with yearly yields; the harvest job already handles per-tile yields.
+
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `plants.md` § Planned rows and the other content documents' § Planned rows.
+
+### The new species (T-548)
+
+- Surface crops `rye` (grows from `minC` −2 in spring, summer and autumn: the cold region's grain, where barley's 4 °C fails; 2–4 a harvest against barley's 3–5) and `nettle` (a fiber crop: its harvest is `fiber` of `nettle_fiber`, no farmer's step). Shrubs `reed_bed`, `barrel_cactus`, `wild_nettle`, `wild_rye`, `rock_lichen`, `salt_crust`, `wild_wyrmtongue`; tree `ironwood`. All are placed at generation by 03's conversion passes (03 § Planned, Stage 9 conversions), never by the biome weights of stage 9 or by regrowth, so existing maps and their regrowth draw the same numbers. No ironwood sapling ever grows by itself: an ironwood felled is gone.
+- **Straw.** A crop row with a `straw` count (barley, rye, cavewheat: 1) drops that many `straw` of its own material at each harvest, beside the seed, whatever recipes exist. Straw is a `stuffing` (bedding, 14 § Planned) and pallet material.
+- **Wyrmtongue grows on ash.** A crop or shrub row marked `ash` (wyrmtongue) can be sown only on an *ash tile*: a tile with the `ash` flag, or a floor of material `ash_soil`. Every other crop still cannot be sown on a tile with the `ash` flag. A plot is a wyrmtongue plot when every tile is an ash tile; `SetPlotCrop` refuses wyrmtongue elsewhere (`not_on_ash`). A wyrmtongue harvest renews its tile's ash (the tile's `ashTiles` clear tick becomes `ASH_DURATION_DAYS` from now), so a field kept in wyrmtongue stays ash. Ash on `ash_soil` is the material and never clears. Burning a field to farm it is the trick (05's fire, 03's `ignite`).
+- **Ironwood is hard to chop.** `chop` takes `CHOP_BASE_TICKS × max(100, hardness) / 100` of the tree's wood: every wood of today (hardness ≤ 65) chops as now, ironwood (200) at twice the time. jobs.md's `chop` row changes with it.
+- **Grazable shrubs.** A shrub row with `graze` (`rock_lichen`, `salt_crust`, `barrel_cactus`) is grazing for tame grazers when mature (08 § Planned): eaten, it enters `regrowing` for its `regrowDays` (56 for lichen against grass's daily chance), as gathering does. 08 emits `ShrubGrazed { tile }`; this system sets the timer. Wild grazers do not eat shrubs.
+- Events: `ShrubGrazed { tile }` (consumed). Commands: `SetPlotCrop` gains the refusal `not_on_ash`. Save: none new (`shrubTimers`, `ashTiles` exist).
+
+### Flowers (T-555)
+
+- `plants.flowerAt(i)` — the tile is an outdoor grass floor that carries a flower: the same test 23's compositor uses to draw one (a hash of the tile against the biome's `flowers` share, `regions-biomes-and-traits.md` § Biome surface). The test moves into a pure helper in `core/` that both call, so the simulation never reads the renderer. A grazed or snowed tile has no flower while it lacks grass or carries snow.
+- Beehives count flowers (08 § Planned).
+
+### Under a skylight (T-558)
+
+- A surface (`sun`) crop on a `skylit` tile (03 § Planned) ignores `seasonAllows`, uses a growth modifier of 100 and ignores weather, as a cave crop does; it still needs `minC ≤ temperatureAt ≤ maxC`. Outside its seasons it is not killed by frost, and heatwave wilting passes it by. The plot of such tiles is a surface plot (its tiles are `lit`).
+- The greenhouse is these rules with 05's: one level under a skylight in a temperate winter a plot is 3 °C (cabbage grows, barley does not); inside the hearth's square 5 °C (barley and flax grow); beside a magma channel anything grows; three levels down every surface crop grows all year at `UNDERGROUND_BASE_C`.
+- The ripening note of § Player-facing behavior says nothing for a plot whose tiles are all skylit.
+
+### The beetle jar (T-556)
+
+- `lightOk` for a `glow` crop on a dark tile with no lamp and no worn light: the tile is beetle-lit when one of its four cardinal neighbours on its level holds a built cage building whose occupant's species has the flag `glows` (the `glow_beetle`). A beetle-lit tile grows at `BEETLE_GROWTH_PERCENT` of the rate. Beetle light is crop light only: no `lit`, no comfort.
+- A plot is a glow plot when every tile is under a lamp or beetle-lit (`buildings.beetleLitAt`, 14 § Planned).
+- Constants: `BEETLE_GROWTH_PERCENT` 50.
+
+### Fertilizer (T-564)
+
+- Farm plot setting `fertilize` (boolean, default off; `SetZoneSetting` and the plot panel). While it is on, each `plant` job takes one item tagged `fertilizer` (`dung`, `compost`, `guano`, `bone_ash`) as a second input when one is available, and plants without one when none is (the job does not wait). The crop records it (`Crop.fertilized`), and its harvest yields `FERTILIZER_YIELD_BONUS` more, beyond the skill cap too.
+- Constants: `FERTILIZER_YIELD_BONUS` 1. Save: `Crop.fertilized` (absent: false). UI: the plot panel's `Fertilize: on/off` and the count of fertilizer in stock.
+- The extension point "Fertilizer" is taken: a plot setting and an item, adding to the yield, not to growth.

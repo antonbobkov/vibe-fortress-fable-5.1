@@ -159,3 +159,14 @@ Glyphs and colors per thing are content.
 - WebGL renderer: implement `draw(cellBuffer)` with instanced quads; the compositor is unchanged.
 - Multi-level view (drawing several levels at once, transparency): the compositor's step 2 already walks levels below; a mode could draw levels above at low alpha.
 - Smooth camera scrolling: presentation-only interpolation of the camera between frames.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Glyphs and colours are in `glyphs-and-colors.md` § Planned rows.
+
+- **Smoke** (T-552): the tiles within `SMOKE_RADIUS` of a smoky workshop (05 § Planned) take the `smoke_bg` background while it lasts, under the same rule as mist's tint.
+- **Glass** (T-558): a constructed wall of glass draws the smooth wall glyph in `glass_pale`, and the tile beyond it on the view's level is drawn as seen (the fog of war follows 22's sight). A glass floor draws `+` in `glass_pale` over what lies below, dimmed: magma or water under a glass floor shows through.
+- **Skylit tiles** (T-558) are drawn lit, as `lit` tiles are.
+- **Comfort light** (T-563): the `light` overlay tints tiles in comfort light (the hearth's square, lamps, burning stands, lanterns) in `glow_halo`.
+- **Bone** (T-557): a boulder of bone draws `•` and a wall of bone the rough wall glyph, in `bone_white`; ivory in `ivory_cream`. The flower test moves to `core/` (07 § Planned, Flowers) and the compositor calls it there; what it draws does not change.
+- Roosts are never drawn (T-556).
