@@ -8,14 +8,16 @@ export const WILDLIFE_TARGET = { median: 11, worst: 8, hungerThirstDeaths: 0 };
  */
 export const WILDLIFE_SAMPLES = 8;
 // Best accepted pooled figures set the guards; preserve a tolerated loss rather than ratcheting down.
-// T-509: the guards restart from the first pooled row: shifts 0 to 7 of T-508's master with the
-// opening digging for stone (`de028566`, run 42151935437).
+// T-544: shifts 0 to 7 of `4ab37734`, T-544 merged with T-545's quiet season between dangerous wild
+// arrivals (run 43573353421), the row T-545 proposed; T-544 alone does not move the instrument (run
+// 43563647188 equals master's 43561445362). The row before, T-509's first pooled row (shifts 0 to 7
+// of `de028566`, run 42151935437), was 12.63/6/8.88/143/6.63/0/0.
 export const WILDLIFE_MEASURED: WildlifeFigures = {
-  median: 12.63, worst: 6, secondWorst: 8.88, living: 143, wildlifeFree: 6.63, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
+  median: 12.94, worst: 9.63, secondWorst: 10.5, living: 151.88, wildlifeFree: 9.38, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
 };
 // Latest accepted pooled row: simultaneous regressions compare an actual before/after pair.
 export const WILDLIFE_REFERENCE: WildlifeFigures = {
-  median: 12.63, worst: 6, secondWorst: 8.88, living: 143, wildlifeFree: 6.63, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
+  median: 12.94, worst: 9.63, secondWorst: 10.5, living: 151.88, wildlifeFree: 9.38, extinct: 0, starvedYears: 0, hungerThirstDeaths: 0,
 };
 /**
  * T-509: each guarded figure's tolerance, wider than the measured spread of its pooled value: over
