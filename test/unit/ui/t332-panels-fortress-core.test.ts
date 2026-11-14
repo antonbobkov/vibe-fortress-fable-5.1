@@ -83,7 +83,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(listed.find((row) => row.startsWith('Carpenter'))).toBe("Carpenter's workshop   2 logs (5)");
     expect(listed.find((row) => row.startsWith('Smelter'))).toMatch(/^Smelter +3 stones \(\d+\)$/);
     expect(rows[36]).toMatch(/^Material: \[x\] any \(\d+\)$/);
-    expect(rows[37]).toBe('[r] rotate');
+    // The bowyer may be built of blocks (T-549): the line says how it is built, where `[r] rotate` was.
+    expect(rows[37]).toBe('Of logs: 2 logs, 200 ticks');
     expect(rows.slice(38).join(' ')).toMatch(/choose, Enter picks the\s+building to place\./);
   });
 

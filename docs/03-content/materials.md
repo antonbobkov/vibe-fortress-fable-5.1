@@ -127,7 +127,7 @@ Made at the kiln from clay, sand, logs and bones ([workshops-and-recipes.md](wor
 
 Cloth burns (300 ticks, unless its row gives `burnTicks`) and melts at 300 °C.
 
-Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `reed` → `reed_thread` → `reed_cloth` (`reed` is the material of `plants.md`'s reed bed's product, generated from its row); `cactus_fiber` → `cactus_thread` → `cactus_cloth`; `nettle_fiber` → `nettle_thread` → `nettle_cloth`; `silk_web` has no further stage. The coarse fibers (reed, cactus and nettle) are spun by their own recipe (T-549's `spin_coarse_thread`); until it exists they are stuffing and trade goods.
+Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `reed` → `reed_thread` → `reed_cloth` (`reed` is the material of `plants.md`'s reed bed's product, generated from its row); `cactus_fiber` → `cactus_thread` → `cactus_cloth`; `nettle_fiber` → `nettle_thread` → `nettle_cloth`; `silk_web` has no further stage. The coarse fibers (reed, cactus and nettle) are spun at the loom by their own recipe, `spin_coarse_thread`, two to a thread.
 
 ## Gems (rough and cut share the material; the item type differs)
 
@@ -161,7 +161,7 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 - `meal` — class `meat` (edible), value 1; meal item types carry the value multiplier.
 - Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3, `black_ale` 3 (rye, an ale), `cactus_wine` 3 (a wine), `emberwine` 6 (wyrmtongue, a wine), `deepfire` 8 (spirits, distilled from an ale or a wine at the still; group `drink/spirits`, colour `ember_orange`).
 - `flour` — class `plant`, value 2 (from barley or cavewheat at the farmer's workshop).
-- Each plant species is a material of class `plant` with the value in [plants.md](plants.md), and so is a shrub's product material that no table above defines (`bramble_berry`, `reed`, `cactus_pulp`, `lichen`). A plant row's material tags go on it: `wyrmtongue` carries `seasoning`, `cactus_pulp` `drinkable`. A product material whose `<id>_thread` exists has it as its next stage (`reed`).
+- Each plant species is a material of class `plant` with the value in [plants.md](plants.md), and so is a shrub's product material that no table above defines (`bramble_berry`, `reed`, `cactus_pulp`, `lichen`). A plant row's material tags go on it: `wyrmtongue` carries `seasoning`, `cactus_pulp` `drinkable`. A product material whose `<id>_thread` exists has it as its next stage (`reed`), and burns as cloth does (300 ticks): a basket or a wicker buckler of reed burns.
 
 ## Rune
 

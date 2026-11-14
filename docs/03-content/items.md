@@ -90,7 +90,7 @@ A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `
 | `archery_target` | archery target | furniture/archery_target | 2 | 1 | medium | `◙` | material | wood |
 | `spike` | spike | furniture/trap_part | 4 | 5 | medium | `↑` | material | metal, wood (0.4) |
 | `chain` | chain | furniture/chain | 4 | 1 | medium | `§` | material | metal |
-| `rope` | rope | furniture/chain | 2 | 1 | light | `§` | material | cloth; equivalent to chain for buildings |
+| `rope` | rope | furniture/chain | 2 | 1 | light | `§` | material | cloth, plant (reed), leather; equivalent to chain for buildings |
 
 ## Containers
 
@@ -101,8 +101,11 @@ A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `
 | `bin` | bin | container/bin | 3 | 30 | heavy when full | `▐` | material | wood, metal |
 | `bucket` | bucket | container/bucket | 2 | 1 | light | `u` | material | wood, metal, stone (earthenware: a clay jug, which breaks as a pot does) |
 | `pot` | pot | container/pot | 2 | 10 units (class barrel) | heavy when full | `Ö` | material | stone (earthenware); breaks when its carrier is hit |
+| `basket` | basket | container/basket | 2 | 15 (class bin) | heavy when full | `▐` | material | plant (reed); burns |
 
 A pot is a container of class `barrel` that holds 10 units: a stockpile that wants barrels takes pots too, and a brew into a pot makes 10 drinks ([13](../02-systems/13-items-and-storage.md) § Containers in play). Fired clay is `earthenware`, a `fragile` material: a pot or a clay jug carried by a creature that is hit breaks ([16](../02-systems/16-combat.md) § Pots break).
+
+A basket is a container of class `bin` that holds 15 items, woven of reeds at the craftsdwarf's workshop: a stockpile that wants bins takes baskets too ([13](../02-systems/13-items-and-storage.md) § Containers in play). It is of `reed` and burns.
 
 ## Tools
 
@@ -111,8 +114,8 @@ A pot is a container of class `barrel` that holds 10 units: a stockpile that wan
 | `pick` | pick | tool/pick | 6 | 1 | medium | `¶` | material | metal (copper or better) | also a weapon of class `pick` |
 | `axe` | axe | tool/axe | 8 | 1 | medium | `Ρ` | material | metal | also a weapon of class `axe` (the same item as the battle axe) |
 | `fishing_rod` | fishing rod | tool/fishing_rod | 3 | 1 | light | `⌠` | material | wood | not required for fishing in version 1; trade good |
-| `crutch` | crutch | tool/crutch | 3 | 1 | light | `⌡` | material | wood | |
-| `splint` | splint | medical/splint | 2 | 5 | light | `‖` | material | wood | |
+| `crutch` | crutch | tool/crutch | 3 | 1 | light | `⌡` | material | wood, bone, metal | |
+| `splint` | splint | medical/splint | 2 | 5 | light | `‖` | material | wood, bone, metal | |
 | `quiver` | quiver | tool/quiver | 3 | 1 | light | `∫` | material | leather | holds up to 50 ammunition |
 
 ## Crafts and gems
@@ -268,12 +271,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colors.md) § Glyph set); a task may choose another from the set.
 
-### Planned containers
-
-| id | name | category | mult | capacity | weight | glyph | fg | materials | task |
-|---|---|---|---|---|---|---|---|---|---|
-| `basket` | basket | container/basket | 2 | 15 (class bin) | heavy when full | `▐` | material | plant (reed); burns | T-549 |
-
 ### Drying (a new table)
 
 What a drying rack turns its items into ([14](../02-systems/14-buildings-and-rooms.md) § Planned, The drying rack). `count` units are dried together; `with` is a second input held on the same rack and consumed with them. Days are under a roof; outdoors a clear day counts twice and a wet one not at all.
@@ -288,7 +285,7 @@ What a drying rack turns its items into ([14](../02-systems/14-buildings-and-roo
 
 ### Planned edits to existing rows
 
-- `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
+- `statue` materials gain bone (bone and ivory statues, T-557).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
 - `drink` gains `mead` in `drink/wine` (§ Drink's categories line) (T-555).
 - § Meal ingredients gains `food/meat/cured`, `food/fish/cured` and `food/honey` (T-552, T-555).

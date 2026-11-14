@@ -266,6 +266,11 @@
     "percent": 130
   },
   {
+    "civ": "wildwood",
+    "key": "material reed",
+    "percent": 100
+  },
+  {
     "civ": "hillfolk",
     "key": "material salt",
     "percent": 150

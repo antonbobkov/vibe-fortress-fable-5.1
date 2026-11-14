@@ -23,19 +23,19 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 |---|---|---|
 | `carpenter` | carpentry | beds, tables, chairs, doors, hatches, cabinets, chests, bins, barrels, buckets, wooden blocks, training weapons, wooden shields, bolts (wood) |
 | `mason` | masonry | stone blocks, doors, hatches, tables, chairs, cabinets, chests, coffins, statues, floodgates, bridges' stone parts |
-| `craftdwarf` | crafts | crafts (figurines, rings, amulets, mugs) from stone, bone, shell, wood; totems from skulls |
+| `craftdwarf` | crafts | crafts (figurines, rings, amulets, mugs) from stone, bone, shell, wood; totems from skulls; baskets, reed rope and wicker bucklers from reeds; bone splints and crutches |
 | `jeweler` | gem_cutting | cut gems from rough gems |
 | `mechanic` | mechanics | mechanisms from stone; assembles traps and levers (14 consumes mechanisms as build materials) |
 | `wood_furnace` | smelting | charcoal from logs |
 | `smelter` | smelting | bars from ore; alloys; melts marked metal items to bars |
 | `alchemist` | alchemy | the laboratory: rune vials from glowcap and glowstone, and draughts ([25](25-runecraft.md) § Draughts) |
 | `runeforge` | smithing | wands and staffs, one recipe of each per stone that carries a spell ([25](25-runecraft.md) § Channels); the runed robe and the circlet; a setting recipe per enchantment (25 § Setting stones) |
-| `forge` | smithing | weapons, armor, picks, axes, anvils, chains, metal cages, bolts, metal blocks, metal furniture |
+| `forge` | smithing | weapons, armor, picks, axes, anvils, chains, metal cages, bolts, metal blocks, metal furniture, metal crutches |
 | `kitchen` | cooking | meals (easy 2 ingredients, fine 3, lavish 4), tallow from fat |
 | `still` | brewing | drinks from brewable plants (needs an empty barrel) |
 | `tannery` | leather | leather from raw hide |
-| `leatherworks` | leather | leather armor, bags, quivers, backpacks |
-| `loom` | textiles | thread from fiber (flax, sporecloth, wool); cloth from thread |
+| `leatherworks` | leather | leather armor, bags, quivers, backpacks, leather rope |
+| `loom` | textiles | thread from fiber (flax, sporecloth, wool); coarse thread from reed, cactus and nettle fiber, two to a thread; cloth from thread |
 | `clothier` | textiles | clothing, cloth bags, ropes, padded armor |
 | `farmers_workshop` | animal_care / farming | milking and shearing (08), cheese from milk, fiber from flax and sporecloth plants |
 | `butcher` | butchery | corpse processing (09) |
@@ -44,6 +44,8 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `kiln` | crafts | bricks and pots, clay jugs and mugs from clay; glass blocks from sand; glass mugs; potash from logs; bone ash from bones and crushed fossils |
 
 Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln`; each has its base workshop's recipes. The `magma` building tag identifies a magma workshop for power detection, independently of whether a base workshop or recipes exist. A magma workshop is buildable only where at least one footprint tile has, directly below it, a tile with magma of level ≥ `MAGMA_POWER_LEVEL` (a channel over a magma pool or a pipe branch). Placement without that magma rejects with `bad_placement`; `no_magma` is reserved for workshop/job blocking after power is lost. It needs no fuel. If the magma drops below the level, its jobs block with `no_magma`.
+
+Every workshop built of logs but the carpenter's may be built of stone blocks in place of its logs, two blocks a log, more slowly (14 § Placement, Workshops of stone): a treeless fortress still has its loom, tannery, leatherworks, kennel, bowyer and craftsdwarf.
 
 The kiln is built of 3 `stone_block` (bricks are blocks) with `masonry`, and every kiln recipe burns a fuel. Its magma variant `magma_kiln` (3 magma-safe blocks, `variant of: kiln`) is buildable wherever the magma rule holds and needs no anvil: a Glasslands fortress, over one of its shallow magma pools, has a kiln that burns no fuel from its first days. The kiln's recipes use the skill `pottery` (labor `crafts`, profession Potter, attributes Agility and Wits): bricks, pots, clay jugs, clay and glass mugs, glass blocks, potash, bone ash and crushed fossils ([workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Kiln). Glass comes out of the kiln as blocks (2 sand loads → 1 block; with 1 potash, 2 sand loads → 2 blocks): there is no glass item between. Fired clay is its own material, `earthenware`; a brick is a block of `brick`.
 
@@ -127,7 +129,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 - A `maintain` order counts deepfire (§ Work orders). Deepfire is the `drink/spirits` group (13 § Category tree; `items.md`), the Mountainhome's favourite (20, `caravan-goods.md` § Preferences), and makes its drinker tipsy (10 § Tipsy).
 ### Substitutes
 
-A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel); `make_steel_bone_ash` for `alloy_steel` (4 units against 4, 200 ticks against 200: as dear as the stone, after a kiln job and a fuel for the ash); at the kiln, `fire_bricks` for `make_stone_block` (2 units a block against half a stone), `make_pot` for `make_barrel` (2 units against 1, the same 100 ticks, for a container of the same class that holds half), `make_jug` for `make_bucket` and `make_mugs_clay` for `make_mug_stone` (a fuel beside the one input). A pot is compared with a barrel as containers of one class.
+A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel); `make_steel_bone_ash` for `alloy_steel` (4 units against 4, 200 ticks against 200: as dear as the stone, after a kiln job and a fuel for the ash); at the kiln, `fire_bricks` for `make_stone_block` (2 units a block against half a stone), `make_pot` for `make_barrel` (2 units against 1, the same 100 ticks, for a container of the same class that holds half), `make_jug` for `make_bucket` and `make_mugs_clay` for `make_mug_stone` (a fuel beside the one input). Of reeds, bones and scraps: `spin_coarse_thread` for `spin_thread` (2 fiber a thread against 1, 100 ticks against 80); `weave_basket` for `make_bin` (3 reeds against a log, the same 100 ticks, for a bin of half the room); `twist_reed_rope` and `cut_leather_rope` for `make_rope` (3 reeds, a rope worth a third of a linen one; 2 leather in 120 ticks against 2 thread in 100); `weave_wicker_shield` for `make_buckler_wood` (3 reeds against a log, 120 ticks against 100); `make_splint_bone` for `make_splint` (2 splints a bone pile against 4 a log); `make_crutch_bone` and `forge_crutch` for `make_crutch` (2 bone piles, or a bar and a fuel, against a log, and slower). A pot is compared with a barrel, and a basket with a bin, as containers of one class.
 
 ### Fuel and charcoal
 
@@ -223,10 +225,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 
 - An `enchants` row may name a `workshop` (`weapons-and-armor.md` § Enchantments gains the column; empty means the runeforge). Its generated `set_<slot>_<id>` recipe is offered at that workshop, with that workshop's skill (the bowyer's `carpentry`), and is a transform recipe by every rule of § Work orders. It emits `DeepsilverWorked` only at a `rune_work` building, as now.
 - `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5) is the one such row: 25 bolts or arrows + 1 feather → fletched. A fletched set cannot take a rune setting (one enchantment per item), so seeking (emerald, +10) and fletching are a choice.
-
-### The workshop-inputs rule (T-549)
-
-14 § Planned (Workshops of stone) says how a workshop is built from blocks in place of logs; nothing here changes.
 
 ### Soap and the feast (T-564, T-565)
 
