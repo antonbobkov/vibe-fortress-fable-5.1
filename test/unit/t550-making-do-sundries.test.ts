@@ -6,7 +6,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { Game } from '@app/game';
 import { FLAT_TEST_SPEC } from '@app/headless';
+import { loadContent } from '@content/loader';
 import { C, ItemFlag } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { RngStream } from '@core/rng';
@@ -17,7 +19,8 @@ import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { generate } from '@systems/worldgen';
 import { WorldMapScreen } from '@ui/screens/world_map';
 import { TestWorld } from '../scenarios/test-world';
-import { keymap, palette, registry, strings, surface, theme } from './ui/ui-fixture';
+import { MockCanvas, mockCanvasFactory } from './render/canvas-mock';
+import { keymap, palette, press, registry, strings, surface, theme } from './ui/ui-fixture';
 
 const spec = (over: Partial<LocalMapSpec>): LocalMapSpec => ({ ...FLAT_TEST_SPEC, traits: [], ...over });
 const materials = registry.table('materials');
@@ -203,5 +206,32 @@ describe('T-550 the scarcity price', () => {
     w.submit({ type: 'SetRequests', civ: 'hillfolk', entries: [{ itemType: 'log', material: 'oak', priority: 3 }] });
     w.step(1);
     expect(w.readers.of<TradeReader>('20').requests('hillfolk')).toEqual([{ itemType: 'log', material: 'oak', priority: 3 }]);
+  });
+});
+
+describe('T-550 the requests editor', () => {
+  it('refuses a never-sold good with "The Hillfolk do not trade in that." and submits nothing', async () => {
+    const game = new Game({ canvas: new MockCanvas(), seed: 't550-requests', registry: loadContent(),
+      createCanvas: mockCanvasFactory(), devicePixelRatio: 1, width: 1280, height: 800 });
+    await game.start({ embark: 'default' });
+    const panel = game.fortress.civilizations;
+    const notes: string[] = [];
+    const ctx = { ...game.fortress.ctx, notice: (text: string) => { notes.push(text); } };
+    game.fortress.openPanel('civilizations');
+    panel.key(ctx, press('ArrowDown'), () => {});
+    expect(panel.civ()).toBe('hillfolk');
+    panel.key(ctx, press('a', { shift: true }), () => {});
+    panel.candidate = panel.candidates(ctx).indexOf('wyrmscale');
+    expect(panel.candidate).toBeGreaterThanOrEqual(0);
+    expect(panel.key(ctx, press('Enter'), () => {})).toBe(true);
+    game.host.step(1);
+    expect(notes).toEqual(['The Hillfolk do not trade in that.']);
+    expect(game.host.readers.of<TradeReader>('20').requests('hillfolk')).toEqual([]);
+    // An ordinary good is added as before.
+    panel.key(ctx, press('a', { shift: true }), () => {});
+    panel.candidate = panel.candidates(ctx).indexOf('log');
+    panel.key(ctx, press('Enter'), () => {});
+    game.host.step(1);
+    expect(game.host.readers.of<TradeReader>('20').requests('hillfolk')).toEqual([{ itemType: 'log', priority: 1 }]);
   });
 });
