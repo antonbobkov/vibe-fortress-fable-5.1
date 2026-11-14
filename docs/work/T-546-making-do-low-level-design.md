@@ -6,6 +6,15 @@ The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-co
 
 The design is reviewed and has no open questions (its § 14). Treat its numbers and mechanic details as guidance, not a strict rule, as for runecraft (T-467's pattern). This task does no code.
 
+## The owner on pallets and stone beds (2026-11-13)
+
+"make stone bed to be just stone + pallet materials. Pallet should be very easy to construct - no specialized workshop, labor (think dwarf just sleeping covering with cloth)." Then: "Stone bed should take a mason. Adjust resting percentages, pallet and stone bed should be less comfortable."
+
+- **A pallet needs no workshop, no recipe and no skill.** It is laid straight from its materials, 2 cloth or wool, or 3 fiber, straw or reeds, by any dwarf, with no labor and the shortest build the game has. Think of a dwarf lying down under a cloth. It rests at **60%**, with `slept_on_a_pallet` (−1).
+- **A stone bed is a mason's job:** 1 raw stone + a pallet's materials, at the mason's workshop (skill `masonry`), no `bedding`. It rests at **75%**.
+- The wooden bed rests at 100% and the dressed bed at 125%, as the design says. All four are *unmeasured*.
+- These numbers replace the design's 80% and 90%.
+
 ## What to do
 
 1. **Read it against the spec.** For every section of the design, find the systems it touches (03 terrain and generation, 05 fire and temperature, 07 plants, 08 animals, 09 production, 10 needs and sleep, 11 jobs, 13 items and stockpiles, 14 buildings and light, 16 combat layers, 17 health, 20 trade, 24 UI, 25 runecraft for fletching's enchant column) and the content tables. List every place the design's wording does not fit what the spec already says, and decide each one.

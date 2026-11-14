@@ -4,9 +4,18 @@
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
+## The owner on pallets and stone beds (2026-11-13)
+
+"make stone bed to be just stone + pallet materials. Pallet should be very easy to construct - no specialized workshop, labor (think dwarf just sleeping covering with cloth)." Then: "Stone bed should take a mason. Adjust resting percentages, pallet and stone bed should be less comfortable."
+
+- **A pallet needs no workshop, no recipe and no skill.** It is laid straight from its materials, 2 cloth or wool, or 3 fiber, straw or reeds, by any dwarf, with no labor and the shortest build the game has. Think of a dwarf lying down under a cloth. It rests at **60%**, with `slept_on_a_pallet` (−1).
+- **A stone bed is a mason's job:** 1 raw stone + a pallet's materials, at the mason's workshop (skill `masonry`), no `bedding`. It rests at **75%**.
+- The wooden bed rests at 100% and the dressed bed at 125%, as the design says. All four are *unmeasured*.
+- These numbers replace the design's 80% and 90%.
+
 ## What to do
 
-- The bed `rest` column and its effect on 10's sleep errand; `pallet` (80%), `stone_bed` (90%, refused bare), the wooden bed (100%), the dressed bed (125%) and the featherbed.
+- The bed `rest` column and its effect on 10's sleep errand; `pallet` (60%, laid from its materials with no workshop or labor), `stone_bed` (75%, a mason's job: a raw stone + a pallet's materials), the wooden bed (100%), the dressed bed (125%) and the featherbed.
 - `bedding` and `pillow` at the clothier from cloth and any `stuffing` (straw, wool, feathers); a built bed wants its bedding and pillow as a hospital chest wants supplies, and a hauler makes it up.
 - The thoughts: `slept_on_a_pallet`, `slept_in_a_soft_bed`, `slept_in_a_featherbed`.
 

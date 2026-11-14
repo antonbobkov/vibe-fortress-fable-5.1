@@ -75,7 +75,7 @@ The merchant route costs marks instead, at the scarcity price (§ 10). A player 
 | **Fuel** | charcoal: 1 log → 1 bar; coal: 1 ore → 2 bars; magma, free | **peat brick**: 1 peat dried 7 days on a rack → 1 brick, and a job burns 2. **Dung cake**: 3 dung dried 7 days → 1 cake, and a job burns 2. Both are smoky (§ 7) | Mountainhome: coal, charcoal |
 | **Flux for steel** | 1 limestone, dolomite, marble or chalk stone | **shell or chitin**: 3 pieces per steel bar. **Bone ash**: 2 bone piles + fuel at the kiln → 1 ash, 1 ash per bar. Either way, a steel bar costs a second job or a hunt | Mountainhome: flux stone |
 | **Blocks** | 1 stone → 2 blocks, no fuel | **brick**: 1 clay + 1 fuel → 1 brick block, and the clay must be dug first. **Bone blocks**: 1 giant bone → 2 blocks, but giant bone is finite (§ 4). Metal blocks: a bar each | Hillfolk: bricks; Mountainhome: blocks |
-| **A bed** | a wooden bed; a dressed bed is the best (§ 7) | **Pallet**: 2 cloth or wool, or 3 fiber, straw or reeds, laid on the floor by any dwarf with no workshop; rests at 80% with a bad thought. **Stone bed**: a raw stone plus the same materials, laid the same way; rests at 90% | Hillfolk: beds, bedding |
+| **A bed** | a wooden bed; a dressed bed is the best (§ 7) | **Pallet**: 2 cloth or wool, or 3 fiber, straw or reeds, laid on the floor by any dwarf with no workshop; rests at 60% with a bad thought. **Stone bed**: a raw stone plus the same materials at the mason's; rests at 75% | Hillfolk: beds, bedding |
 | **A barrel** | 1 log → a barrel of 20 | **clay pot**: 1 clay + 1 fuel → a pot of 10; twice the hauling, and a pot breaks (destroyed) when its holder is struck in a fight. Metal barrel: 2 bars | Hillfolk: barrels, pots |
 | **A bucket** | 1 log | **clay jug**: 1 clay + 1 fuel; breaks like a pot. Metal: 1 bar | Hillfolk |
 | **A bin** | 1 log → 30 | **wicker basket**: 3 reeds → 15, and burns like wood. Metal: 2 bars | Hillfolk |
@@ -258,8 +258,8 @@ The wooden bed stays the regular bed. **A dressed bed is the best bed in the gam
 
 | bed | made of | where | rest | sleeping on it |
 |---|---|---|---|---|
-| `pallet` | pallet materials: 2 cloth, or 2 wool, or 3 fiber, straw or reeds | nowhere: laid where it will be slept on | 80% | `slept_on_a_pallet` −1 |
-| `stone_bed` | 1 raw stone + pallet materials | nowhere: laid like a pallet, on a stone | 90% | nothing |
+| `pallet` | pallet materials: 2 cloth, or 2 wool, or 3 fiber, straw or reeds | nowhere: laid where it will be slept on | 60% | `slept_on_a_pallet` −1 |
+| `stone_bed` | 1 raw stone + pallet materials | mason | 75% | nothing |
 | `bed` (wooden, exists) | 1 log | carpenter | 100% | as now, by room |
 | **dressed bed** | a built wooden bed + 1 `bedding` + 1 `pillow` | carpenter's bed, clothier's bedding and pillow, placed by a hauler | 125% | `slept_in_a_soft_bed` +3; with feathers, `slept_in_a_featherbed` +5 |
 
@@ -358,7 +358,7 @@ A transform recipe at the bowyer, as the runeforge's settings are: 25 arrows or 
 | Fuel | dung cake (smoky, half) · peat brick (smoky, half) · charcoal · coal · magma |
 | Light | hearth (5×5) · candle stand (3×3, burns down, refilled) · lantern (3×3, forever) · glowstone lamp (crops too). Beetle jar: a side rung for glowcap, a quarter as good |
 | Drink containers | clay pot (10, breaks) · barrel (20; oak ages best) · metal barrel (20; magma-safe, never ages) |
-| Beds | pallet, laid by anyone (80%) · stone bed, a pallet on a stone (90%) · wooden bed (100%) · dressed bed (125%) · featherbed (125%, the best thought) |
+| Beds | pallet, laid by anyone (60%) · stone bed, a pallet on a stone at the mason's (75%) · wooden bed (100%) · dressed bed (125%) · featherbed (125%, the best thought) |
 | Blocks | brick (a clay and a fuel each) · bone (finite) · stone · metal · glass (light) |
 | Armor layers | padding · leather · **scale** · mail · plate · ward |
 | Drink | ale, beer, black ale (2–3) · wine, cactus wine (3–4) · mead (5) · emberwine (6) · spirits (8, tipsy) · aged ×1.5 · vintage ×2.5 |
