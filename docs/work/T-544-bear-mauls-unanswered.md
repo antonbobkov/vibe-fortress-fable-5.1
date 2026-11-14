@@ -6,7 +6,7 @@
 
 Asked whether the higher death level from wolves and bears is acceptable, the owner said (2026-11-13): "Generally, a steel-equipped well-trained squad of ~5 fighters, few archers and a wizard should have no problem handling wildlife incursions (wolves/bears). Don't make them come too often - it's a nuisance."
 
-This task is the first half: the squad. [T-545](T-545-dangerous-wildlife-less-often.md) is the second: how often they come.
+This task is the first half: the squad. [T-545](../archive/tasks/T-545-dangerous-wildlife-less-often.md) is the second: how often they come.
 
 ## Why
 

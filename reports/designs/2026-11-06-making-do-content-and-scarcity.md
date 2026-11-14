@@ -75,7 +75,7 @@ The merchant route costs marks instead, at the scarcity price (§ 10). A player 
 | **Fuel** | charcoal: 1 log → 1 bar; coal: 1 ore → 2 bars; magma, free | **peat brick**: 1 peat dried 7 days on a rack → 1 brick, and a job burns 2. **Dung cake**: 3 dung dried 7 days → 1 cake, and a job burns 2. Both are smoky (§ 7) | Mountainhome: coal, charcoal |
 | **Flux for steel** | 1 limestone, dolomite, marble or chalk stone | **shell or chitin**: 3 pieces per steel bar. **Bone ash**: 2 bone piles + fuel at the kiln → 1 ash, 1 ash per bar. Either way, a steel bar costs a second job or a hunt | Mountainhome: flux stone |
 | **Blocks** | 1 stone → 2 blocks, no fuel | **brick**: 1 clay + 1 fuel → 1 brick block, and the clay must be dug first. **Bone blocks**: 1 giant bone → 2 blocks, but giant bone is finite (§ 4). Metal blocks: a bar each | Hillfolk: bricks; Mountainhome: blocks |
-| **A bed** | a wooden bed; a dressed bed is the best (§ 7) | **stone bed**: 1 raw stone + 1 bedding, rests at 90%, and a bare stone bed with no bedding is refused. **Pallet**: 2 cloth or 3 fiber or 2 wool, rests at 80% with a bad thought | Hillfolk: beds, bedding |
+| **A bed** | a wooden bed; a dressed bed is the best (§ 7) | **Pallet**: 2 cloth or wool, or 3 fiber, straw or reeds, laid on the floor by any dwarf with no workshop; rests at 60% with a bad thought. **Stone bed**: a raw stone plus the same materials at the mason's; rests at 75% | Hillfolk: beds, bedding |
 | **A barrel** | 1 log → a barrel of 20 | **clay pot**: 1 clay + 1 fuel → a pot of 10; twice the hauling, and a pot breaks (destroyed) when its holder is struck in a fight. Metal barrel: 2 bars | Hillfolk: barrels, pots |
 | **A bucket** | 1 log | **clay jug**: 1 clay + 1 fuel; breaks like a pot. Metal: 1 bar | Hillfolk |
 | **A bin** | 1 log → 30 | **wicker basket**: 3 reeds → 15, and burns like wood. Metal: 2 bars | Hillfolk |
@@ -258,8 +258,8 @@ The wooden bed stays the regular bed. **A dressed bed is the best bed in the gam
 
 | bed | made of | where | rest | sleeping on it |
 |---|---|---|---|---|
-| `pallet` | 2 cloth, or 3 fiber or straw, or 2 wool | clothier | 80% | `slept_on_a_pallet` −1 |
-| `stone_bed` | 1 raw stone + 1 `bedding` | mason | 90% | nothing at common; the stone is cold until the mason is good: +1 at superior |
+| `pallet` | pallet materials: 2 cloth, or 2 wool, or 3 fiber, straw or reeds | nowhere: laid where it will be slept on | 60% | `slept_on_a_pallet` −1 |
+| `stone_bed` | 1 raw stone + pallet materials | mason | 75% | nothing |
 | `bed` (wooden, exists) | 1 log | carpenter | 100% | as now, by room |
 | **dressed bed** | a built wooden bed + 1 `bedding` + 1 `pillow` | carpenter's bed, clothier's bedding and pillow, placed by a hauler | 125% | `slept_in_a_soft_bed` +3; with feathers, `slept_in_a_featherbed` +5 |
 
@@ -267,6 +267,9 @@ The wooden bed stays the regular bed. **A dressed bed is the best bed in the gam
 - `bedding` is a mattress: 2 cloth + 2 stuffing at the clothier (stuffing: straw, wool, or feathers; any `stuffing`-tagged item). A `pillow` is 1 cloth + 1 stuffing. With feathers in both, the bed is a featherbed, worth double.
 - A built wooden bed wants its bedding and pillow as a hospital chest wants supplies: place them in a stockpile and a hauler makes the bed up. A dwarf in a bed that has its bedding but no pillow gets the soft bed's rest and no thought. The bedding adds its value to the room.
 - A dressed bed is the regular route's top rung: logs, cloth, a stuffing and three jobs. The stone bed and the pallet are the ways to make do.
+- **A pallet is a dwarf lying down under a cloth.** It is a building, not an item: the player places it on a floor like a chair, and any dwarf lays it with the `hauling` labor (every adult has it), no skill and no workshop, in 20 ticks. The materials are carried to the tile and spread there. Taking it apart returns them. It counts as a bed for a bedroom and adds no room value.
+- **A stone bed is a pallet on a stone.** The same placement and the same labor, with 1 raw stone among its inputs: a dwarf rolls a stone to the spot and lays the pallet materials on it. It lifts the sleeper off the floor, which is worth 10% of rest and the pallet's bad thought, and nothing more. No mason, no quality. Taking it apart returns the stone and the soft goods.
+- So a fortress on day one, with no carpenter, puts its seven dwarves on pallets of the wagon's cloth within the hour, and on stone beds once the first tunnel has dropped some stone.
 
 ### The drying rack
 
@@ -336,7 +339,7 @@ Halite clusters in sedimentary rock; salt crusts on desert and badlands surfaces
 
 ### Wicker
 
-At the craftsdwarf's, from reeds: `weave_basket` (3 reeds → 1 `basket`, a bin of 15 or a bag of 15), `twist_reed_rope` (3 reeds → 1 rope), `weave_wicker_shield` (3 reeds → 1 buckler, wood-class, 0.8 of a wooden one), `weave_pallet` (3 reeds → 1 pallet), `weave_hive` (3 reeds → 1 beehive). Wicker burns like wood. The marsh fortress is made of it, and makes a lot of trips to the bank.
+At the craftsdwarf's, from reeds: `weave_basket` (3 reeds → 1 `basket`, a bin of 15 or a bag of 15), `twist_reed_rope` (3 reeds → 1 rope), `weave_wicker_shield` (3 reeds → 1 buckler, wood-class, 0.8 of a wooden one), `weave_hive` (3 reeds → 1 beehive). Reeds need no recipe to become a pallet: three of them are pallet materials as they are. Wicker burns like wood. The marsh fortress is made of it, and makes a lot of trips to the bank.
 
 ### Soap
 
@@ -355,7 +358,7 @@ A transform recipe at the bowyer, as the runeforge's settings are: 25 arrows or 
 | Fuel | dung cake (smoky, half) · peat brick (smoky, half) · charcoal · coal · magma |
 | Light | hearth (5×5) · candle stand (3×3, burns down, refilled) · lantern (3×3, forever) · glowstone lamp (crops too). Beetle jar: a side rung for glowcap, a quarter as good |
 | Drink containers | clay pot (10, breaks) · barrel (20; oak ages best) · metal barrel (20; magma-safe, never ages) |
-| Beds | pallet (80%) · stone bed with bedding (90%) · wooden bed (100%) · dressed bed (125%) · featherbed (125%, the best thought) |
+| Beds | pallet, laid by anyone (60%) · stone bed, a pallet on a stone at the mason's (75%) · wooden bed (100%) · dressed bed (125%) · featherbed (125%, the best thought) |
 | Blocks | brick (a clay and a fuel each) · bone (finite) · stone · metal · glass (light) |
 | Armor layers | padding · leather · **scale** · mail · plate · ward |
 | Drink | ale, beer, black ale (2–3) · wine, cactus wine (3–4) · mead (5) · emberwine (6) · spirits (8, tipsy) · aged ×1.5 · vintage ×2.5 |
@@ -430,6 +433,7 @@ What changed in this revision, from the owner's notes:
 
 - **Substitutes are harder.** Every substitute route now costs more inputs, more work or a worse result than the regular route (§ 3, the rule and the table).
 - **Beds.** The dressed wooden bed, with bedding and a pillow, is the most restful bed and takes the most work; the bone cot is gone (§ 7, Beds).
+- **Pallets and stone beds** (a second note the same day). A pallet needs no workshop and no skill: any dwarf lays cloth, wool, fiber, straw or reeds on the floor. A stone bed is the same materials on a raw stone, laid the same way (§ 7, Beds).
 - **Giant bones.** Boneyards of giant extinct beasts on the surface of desert, badlands, wetland and tundra, and fossils underground everywhere, common in sedimentary rock (§ 4.1).
 - **Decided as proposed:** fire on purpose; spirits that slow dwarves; a skylight per plot tile (sand is meant to be a poor material); camels that spit and bees that sting.
 - **Star steel** stays, and is rare: one region in seventy, one meteorite, three bars (§ 9).

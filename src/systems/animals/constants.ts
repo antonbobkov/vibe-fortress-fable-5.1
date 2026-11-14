@@ -25,6 +25,8 @@ export const ATTACK_PERCEPTION_GRACE_TICKS = 50;
 export const WILD_LIFETIME_DAYS = 42;
 /** Per species per day when below cap. */
 export const SPAWN_PERMILLE = 150;
+/** T-545: days after a dangerous surface group arrives in which no other dangerous species rolls to spawn (not on `beastwood`). */
+export const DANGEROUS_QUIET_DAYS = 28;
 /** Tiles from any dwarf. */
 export const SPAWN_MIN_DISTANCE = 25;
 /** Growing-season capacity allowance; winter needs accessible cave moss. */

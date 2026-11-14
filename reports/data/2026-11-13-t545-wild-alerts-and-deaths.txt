@@ -1,0 +1,39 @@
+T-545: wild alerts and dwarf deaths in the twenty-seed sweep, before and after the quiet spell between
+dangerous arrivals (08 § Wild spawning, DANGEROUS_QUIET_DAYS = 28). Method as T-543's
+(2026-11-10-t543-deaths-by-killer.txt): from each seed log's [three_years_alert] and [three_years_death]
+lines and its raid list. A wild alert is an alert line with raid false and targets. A dwarf death is
+"raid" when its killer is a raider (gloam, hillfolk, trollkin, elf) or, unnamed, within 3 days of a
+party's arrival or a raid alert; "wild" when its killer is a wild animal or, unnamed, within 3 days of a
+wild-only alert; "other" the rest. Deaths are per sweep (80 seed-timelines over 4 shifts, 0 to 150).
+
+run                    commit    run id        pooled alive/grown/hungry/living/deaths  verdict
+before (master)        71484494  43561424594   19.75 / 7 / 0.25 / 886     / 147        pass
+after (T-545)          5d355335  43562051671   20    / 7 / 0    / 1014.75 / 135        pass
+
+                       wild alerts (80 timelines)            deaths  raid    wild   other | named wild killers
+before                 1202 (wolf 1129, bear 48, boar 19)    146.25  105.5   39.5   1.25  | wolf 11.75, bear 8, boar 1.25
+after                   540 (wolf 505, boar 17, bear 14)     134.75  116.75  12.25  5.75  | bear 2.75, wolf 2.5, boar 1
+
+Wild alerts fell by 55%, wild deaths by 69% (27.25 a sweep, against a standard error of about 4.8 for
+the difference). Raid deaths rose by 11.25, inside the 8.5 to 9.7 standard error of one 4-shift figure
+each (no raid code changed); more dwarves living at year 3 meet more raiders. The before row is the
+reference row of master exactly. Before, seed p2-5 at shift 150 failed a witness of its own; after, no
+seed job failed.
+
+Annual instrument (eight shifts each)
+run                    commit    run id        median  worst  2nd-worst  living  wildlife-free  extinct  starved  need deaths  verdict
+before (master)        71484494  43561445362   12.44   7.13   9.25       143.25  6.38           0        0        0            pass
+after (T-545)          5d355335  43562053876   12.94   9.63   10.5       151.88  9.38           0        0        0            pass
+
+Rows the verdicts offer when the change is accepted (not committed by T-545, since T-544 moves the
+same sweep at the same time):
+  SWEEP_REFERENCE = {"alive":20,"grown":7,"hungry":0,"living":1014.75,"deaths":135,"extinct":0.5,"needDeaths":2.5}
+  SWEEP_MEASURED = {"living":1014.75,"deaths":135}
+  WILDLIFE_REFERENCE = WILDLIFE_MEASURED = {"median":12.94,"worst":9.63,"secondWorst":10.5,"living":151.88,"wildlifeFree":9.38,"extinct":0,"starvedYears":0,"hungerThirstDeaths":0}
+
+Arrivals by spawning alone (no kills, groups leaving at WILD_LIFETIME_DAYS, 10 seeds x 3 years each, a
+day-by-day ledger over the real dailySpawn), dangerous groups a year, before / after:
+  temperate_forest 11.13 / 3.17   +serene_vale 7.40 / 2.97   +beastwood 10.80 / 10.80
+  taiga 8.17 / 3.00   dark_forest 6.87 / 3.07   mountain 6.17 / 2.67   wetland 7.17 / 2.77
+  desert 3.77 / 2.47   temperate_hills 4.70 / 2.27   temperate_grassland 1.37 / 1.27   alpine 2.63 / 2.07
+  tundra 2.63 / 2.03   savanna 2.33 / 1.67   tropical_forest 2.57 / 1.67   badlands 3.77 / 2.47   cold_steppe 1.67 / 1.53

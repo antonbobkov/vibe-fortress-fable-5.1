@@ -56,11 +56,15 @@ function dangerous(w: TestWorld, home: number): EntityId[] {
 const scenario: Scenario = {
   id: 'pp_defence',
   milestone: 8,
-  seed: 'pp-defence',
+  // T-545: dangerous arrivals keep a quiet spell of DANGEROUS_QUIET_DAYS, so two seasons see one or
+  // two. On 'pp-defence' the first pair of boars killed a soldier and fled, and the next dangerous
+  // group came on day 43, after the wagon's food had run out; on this seed a badger is met and killed
+  // on day 7, with or without the spell.
+  seed: 'pp-defence-4',
   world: 'flat-test',
   timeoutMs: 300_000,
   run: () => {
-    const w = pathWorld('pp-defence', { preset: 'warband' }, { traits: [] });
+    const w = pathWorld('pp-defence-4', { preset: 'warband' }, { traits: [] });
     const { x: cx, y: cy } = wagon(w);
     const ent = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');
