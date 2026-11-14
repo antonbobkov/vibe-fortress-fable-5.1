@@ -120,7 +120,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     const items = ctx.readers.of<ItemsReader>('13');
     const item = items.get(id);
     if (!item) return 0;
-    const category = items.categoryOf(item.type);
+    // A drink is judged by its material's group (`caravan-goods.md` § Preferences: `drink/spirits`).
+    const category = items.categoryOf(item.type) === 'drink' ? items.itemCategory(id) : items.categoryOf(item.type);
     const material = ctx.registry.table<{ id: string; class: string }>('materials').byIndex(item.material);
     const occupant = ctx.world.entities.get(item.occupantId ?? 0, C.Creature);
     const species = occupant ? ctx.registry.table<{ id: string; value: number }>('creatures').byIndex(occupant.species) : undefined;

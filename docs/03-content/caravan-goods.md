@@ -85,7 +85,7 @@ Merchants: elves. Guards: elves with yew bows and 30 wooden arrows, daggers, lea
 
 ## Preferences (valuation multipliers, percent)
 
-Applied to `value(item)` to get the merchant's valuation when buying from the fortress, and inversely when selling to it (`price = value × preference / 100 × MERCHANT_MARKUP / 100`, so a civ that values metal at 150% also charges 150% for it). A `material <id>` row applies to every item of that material, before the category and class rows; a civilization with an empty cell has no such row.
+Applied to `value(item)` to get the merchant's valuation when buying from the fortress, and inversely when selling to it (`price = value × preference / 100 × MERCHANT_MARKUP / 100`, so a civ that values metal at 150% also charges 150% for it). A `material <id>` row applies to every item of that material, before the category and class rows; a civilization with an empty cell has no such row. A drink is judged by its material's group (`drink/ale`, `drink/wine`, `drink/spirits`): a group's own row comes before `drink/*`.
 
 | Category or material class | Mountainhome | Hillfolk | Wildwood |
 |---|---|---|---|
@@ -97,6 +97,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | `stone/raw`, `stone/block` | 60 | 80 | 80 |
 | `food/*` | 70 | 80 | 110 |
 | `drink/*` | 120 | 100 | 100 |
+| `drink/spirits` | 150 | 100 | 100 |
 | `textile/cloth`, `clothing/*` | 100 | 100 | 120 |
 | `textile/leather`, `armor/*` (leather) | 100 | 110 | 60 |
 | `medical/brightleaf` | 100 | 100 | 130 |
@@ -163,7 +164,6 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 
 | Category or material class | Mountainhome | Hillfolk | Wildwood | task |
 |---|---|---|---|---|
-| `drink/spirits` | 150 | | | T-554 |
 | material `silk_cloth` | 150 | | 140 | T-556 |
 | `craft` of `giant_bone` | 150 | | | T-557 |
 | material `salt` | | 150 | | T-550 |

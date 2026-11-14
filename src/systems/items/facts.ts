@@ -32,6 +32,7 @@ interface MaterialRow {
   readonly id: string;
   readonly class: string;
   readonly value: number;
+  readonly tags?: readonly string[];
 }
 
 interface EnchantRow {
@@ -65,6 +66,7 @@ export class ItemFacts {
   readonly typeCount: number;
   private readonly materialValues: number[] = [];
   private readonly materialClasses: string[] = [];
+  private readonly materialTags: (readonly string[])[] = [];
   /** Per `enchants` index: what the enchantment adds to the value of one unit, in whole marks. */
   private readonly enchantUnitValues: number[] = [];
   readonly typeIndex: (id: string) => number;
@@ -80,6 +82,7 @@ export class ItemFacts {
       const row = materials.byIndex(m);
       this.materialValues[m] = row?.value ?? 0;
       this.materialClasses[m] = row?.class ?? '';
+      this.materialTags[m] = row?.tags ?? [];
     }
     if (registry.hasTable('enchants')) {
       const enchants = registry.table<EnchantRow>('enchants');
@@ -126,6 +129,11 @@ export class ItemFacts {
 
   materialClass(material: number): string {
     return this.materialClasses[material] ?? '';
+  }
+
+  /** Whether a material row carries a tag (`fine_cask` on oak, `spirits` on deepfire). */
+  materialHasTag(material: number, tag: string): boolean {
+    return this.materialTags[material]?.includes(tag) === true;
   }
 
   /** The class of container a type is, or '' when it is not a container. */

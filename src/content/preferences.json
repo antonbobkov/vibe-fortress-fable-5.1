@@ -121,6 +121,21 @@
   },
   {
     "civ": "mountainhome",
+    "key": "drink/spirits",
+    "percent": 150
+  },
+  {
+    "civ": "hillfolk",
+    "key": "drink/spirits",
+    "percent": 100
+  },
+  {
+    "civ": "wildwood",
+    "key": "drink/spirits",
+    "percent": 100
+  },
+  {
+    "civ": "mountainhome",
     "key": "textile/cloth, clothing/*",
     "percent": 100
   },

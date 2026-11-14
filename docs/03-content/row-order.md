@@ -278,3 +278,9 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | burn_potash |
 | recipes | burn_bone_ash |
 | recipes | crush_fossil |
+| materials | deepfire |
+| recipes | distill |
+| thoughts | drank_strong_drink |
+| thoughts | drank_aged_drink |
+| thoughts | drank_vintage_drink |
+| hints | hint_cellar |

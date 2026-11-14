@@ -98,6 +98,18 @@ function validTarget(game: HeadlessGame, type: string): Command | null {
           ),
         wants: { cloth: 1 },
       };
+    // T-554: a deterministic target; the random candidates move whenever the catalog gains a command.
+    case 'SetZoneSetting':
+      return {
+        type,
+        zoneId: e
+          .with(C.Zone)
+          .find(
+            (id) => e.get(id, C.Zone)?.type === game.registry.table('zoneTypes').index('barracks'),
+          ),
+        key: 'squad',
+        value: 0,
+      };
     case 'SetSanctumApprentices':
       return {
         type,

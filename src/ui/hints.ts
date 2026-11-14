@@ -41,6 +41,8 @@ export interface HintFacts {
   runecasterExists?: boolean;
   draughtInStock?: boolean;
   herbsEaten?: boolean;
+  /** 13 § Aging in a cellar: a stockpile with the cellar setting on is not a working cellar. */
+  cellarFailing?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -81,6 +83,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_rune_metal': return f.runecasterExists === true;
     case 'hint_draught': return f.draughtInStock === true;
     case 'hint_herbs_eaten': return f.herbsEaten === true;
+    case 'hint_cellar': return f.cellarFailing === true;
     default: return false;
   }
 }
@@ -285,6 +288,10 @@ export class HintEngine {
       runecasterExists: readers.entities.with(C.Rune).some((id) => readers.entities.get(id, C.Creature)?.faction === 'fortress'),
       draughtInStock: items !== null && items.countMatching({ tag: 'draught' }) > 0,
       herbsEaten: this.pending('hint_herbs_eaten'),
+      cellarFailing: stockpiles.some((id) => {
+        const pile = items?.stockpile(id);
+        return pile?.cellar === true && pile.cellarOk !== true;
+      }),
     };
   }
 }

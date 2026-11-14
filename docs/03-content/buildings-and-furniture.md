@@ -79,7 +79,7 @@ See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes.
 
 | id | name | room | requirements to count | settings | consumers | value types |
 |---|---|---|---|---|---|---|
-| `stockpile` | stockpile | no | — | filter, containers, priority, links | 13 | 13's dedicated commands; filter tree, container counts, priority and links |
+| `stockpile` | stockpile | no | — | filter, containers, priority, links, cellar | 13 | 13's dedicated commands; filter tree, container counts, priority, links and the cellar (`SetStockpileCellar`) |
 | `farm_plot` | farm plot | no | soil, mud or cave loam tiles | crop per season | 07 | four season slots: 0 or a farmed plant id/index matching plot light |
 | `pasture` | pasture | no | walkable | — | 08 | — |
 | `bedroom` | bedroom | yes | a bed | owner | 14, 10, 15 | 0 or a living dwarf, with AssignRoom checks |
@@ -137,4 +137,4 @@ A pallet and a straw pallet return their materials when taken apart. The candle 
 |---|---|---|---|---|---|---|---|
 | `compost` | compost heap | no | — | — | 13 | — | T-564 |
 
-Edits: `stockpile` settings gain `cellar` (boolean, through `SetStockpileCellar`) (T-554); `farm_plot` settings gain `fertilize` (boolean) (T-564); the `bedroom` and `hospital` requirement "a bed" is any building tagged `sleep` (T-551).
+Edits: `farm_plot` settings gain `fertilize` (boolean) (T-564); the `bedroom` and `hospital` requirement "a bed" is any building tagged `sleep` (T-551).

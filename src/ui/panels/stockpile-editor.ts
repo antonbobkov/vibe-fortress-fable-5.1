@@ -112,6 +112,13 @@ export class StockpileEditor {
     }
   }
 
+  /** `[S-c]`: 13 § Aging in a cellar, the stockpile's cellar setting on or off (`SetStockpileCellar`). */
+  toggleCellar(ctx: PanelContext, zoneId: EntityId): void {
+    const sp = stockpileForEditor(ctx, zoneId);
+    if (sp === undefined || buildings(ctx)?.zone(zoneId)?.type !== 'stockpile') { this.fail(ctx, 'unavailable'); return; }
+    ctx.submit({ type: 'SetStockpileCellar', zoneId, on: sp.cellar !== true });
+  }
+
   toggleCategory(ctx: PanelContext, zoneId: EntityId, id: string): void {
     const f = stockpileForEditor(ctx, zoneId)?.filter;
     if (f === undefined) { this.fail(ctx, 'unavailable'); return; }
@@ -201,6 +208,7 @@ export class StockpileEditor {
     }
     if (letter === 'i') { this.startLink(ctx, zoneId); return true; }
     if (letter === 'x') { this.startUnlink(ctx, zoneId); return true; }
+    if (letter === 'c' && press.shift) { this.toggleCellar(ctx, zoneId); return true; }
     if (letter === 'p') { this.openPreset(ctx, zoneId); return true; }
     if (letter === 'q') { this.focus = 'barrel'; return true; }
     if (letter === 'g') { this.focus = 'tree'; return true; }
@@ -242,6 +250,17 @@ export class StockpileEditor {
     if (space) { this.toggleCategory(ctx, zoneId, node.id); return true; }
     return false;
   }
+}
+
+/** The stockpile inspector's cellar line (24 § Panels): off, working, or why not ("Cellar: too warm (16 °C)"). */
+export function cellarText(ctx: PanelContext, sp: { cellar?: true; cellarOk?: true; cellarReason?: 'lit' | 'too_warm' | 'too_cold'; cellarC?: number }): string {
+  const strings = ctx.strings;
+  if (sp.cellar !== true) return strings.get('ui.stockpile.cellar_off');
+  if (sp.cellarOk === true) return strings.get('ui.stockpile.cellar_ok');
+  if (sp.cellarReason === 'lit') return strings.get('ui.stockpile.cellar_lit');
+  if (sp.cellarReason === 'too_warm') return strings.get('ui.stockpile.cellar_too_warm', { c: sp.cellarC ?? 0 });
+  if (sp.cellarReason === 'too_cold') return strings.get('ui.stockpile.cellar_too_cold', { c: sp.cellarC ?? 0 });
+  return strings.get('ui.stockpile.cellar_on');
 }
 
 export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEditor, ctx: PanelContext, zoneId: EntityId, tiles: number): void {
@@ -300,7 +319,7 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
     c += n + 1;
   }
   row += 1;
-  const treeRows = Math.max(1, rect.rows - (row - rect.row) - 12);
+  const treeRows = Math.max(1, rect.rows - (row - rect.row) - 13);
   const names = (nodes: readonly TreeNode[]): TreeNode[] => nodes.map((n) => ({ ...n, name: capitalize(n.name.replaceAll('_', ' ')), children: names(n.children) }));
   tree(s, { col, row, cols: width, rows: treeRows }, names(editor.categories()), editor.tree,
     (n) => nodeState(sp.filter.categories, n.id), {
@@ -324,6 +343,9 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
   label(s, col, row++, strings.get('ui.stockpile.links', { names: editor.sourceIds(ctx, zoneId).map(id => zoneName(ctx, id)).join(', ') || strings.get('ui.stockpile.no_links') }), { width });
   const linkWidth = button(s, col, row, acceleratorLabel('i', ctx.panelLetters).slice(1, -1), strings.get('ui.stockpile.link'), () => editor.startLink(ctx, zoneId));
   button(s, col + linkWidth + 1, row++, acceleratorLabel('x', ctx.panelLetters).slice(1, -1), strings.get('ui.stockpile.unlink'), () => editor.startUnlink(ctx, zoneId));
+  const cellar = `[S-c] ${cellarText(ctx, sp)}`;
+  const cellarWidth = label(s, col, row, cellar, { width });
+  s.hit({ col, row: row++, cols: cellarWidth, rows: 1 }, () => editor.toggleCellar(ctx, zoneId));
   label(s, col, row++, strings.get('ui.stockpile.usage', { used: tiles - (items(ctx)?.freeSlots(zoneId) ?? 0), n: tiles }), { width });
   label(s, col, row, strings.get(editor.focus === 'tree' ? 'ui.stockpile.tree_help' : 'ui.stockpile.number_help'), { width, fg: s.theme.dim });
 }

@@ -55,7 +55,7 @@ Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a 
 
 | id | name | class | value | density | hardness | color | burnTicks | notes |
 |---|---|---|---|---|---|---|---|---|
-| `oak` | oak | wood | 3 | 75 | 60 | `oak_brown` | 600 | |
+| `oak` | oak | wood | 3 | 75 | 60 | `oak_brown` | 600 | `fine_cask`: an oak barrel ages its drink in a year ([13](../02-systems/13-items-and-storage.md) § Aging in a cellar) |
 | `pine` | pine | wood | 2 | 55 | 40 | `pine_yellow` | 400 | |
 | `birch` | birch | wood | 2 | 60 | 45 | `birch_pale` | 400 | |
 | `willow` | willow | wood | 2 | 50 | 35 | `willow_green` | 350 | riverbanks |
@@ -159,7 +159,7 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 ## Meal, drink and plant materials
 
 - `meal` — class `meat` (edible), value 1; meal item types carry the value multiplier.
-- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3, `black_ale` 3 (rye, an ale), `cactus_wine` 3 (a wine), `emberwine` 6 (wyrmtongue, a wine).
+- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3, `black_ale` 3 (rye, an ale), `cactus_wine` 3 (a wine), `emberwine` 6 (wyrmtongue, a wine), `deepfire` 8 (spirits, distilled from an ale or a wine at the still; group `drink/spirits`, colour `ember_orange`).
 - `flour` — class `plant`, value 2 (from barley or cavewheat at the farmer's workshop).
 - Each plant species is a material of class `plant` with the value in [plants.md](plants.md), and so is a shrub's product material that no table above defines (`bramble_berry`, `reed`, `cactus_pulp`, `lichen`). A plant row's material tags go on it: `wyrmtongue` carries `seasoning`, `cactus_pulp` `drinkable`. A product material whose `<id>_thread` exists has it as its next stage (`reed`).
 
@@ -214,5 +214,4 @@ Stages (T-556): `silk_web` → `silk_cloth`.
 
 ### Planned drinks, tags and edits
 
-- Drink materials, class `liquid`, value per unit: `mead` 5 (honey, `drink/wine`, T-555), `deepfire` 8 (distilled, `drink/spirits`, T-554).
-- Tags on existing rows: `fine_cask` on `oak` (T-554).
+- Drink materials, class `liquid`, value per unit: `mead` 5 (honey, `drink/wine`, T-555).

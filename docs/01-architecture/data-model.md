@@ -167,7 +167,7 @@ The owner is the only system that writes the component. "Core" means the movemen
 | `Building` | 14 buildings | `type, material, state, origin, footprint, orientation, linkedIds[], ownerId` |
 | `Workshop` | 12 workshops | `orders[], currentJobId, progressFixed, inputsPresent[]` |
 | `Zone` | 14 buildings | `type, tiles: TileIndex[] (sorted), settings` |
-| `Stockpile` | 13 items | `filter, containersWanted` |
+| `Stockpile` | 13 items | `filter, containersWanted` (and the cellar setting with its judgement) |
 | `Room` | 14 buildings | `zoneId, tiles, qualityScore, tier, ownerId` |
 | `Squad` | 16 combat | `members[], schedule, equipmentSet, orders[], alert` |
 | `Party` | 18 threats / 20 trade | `civ, purpose (raid, thief, ambush, siege, caravan), members[], state, arrivedTick, goal` |

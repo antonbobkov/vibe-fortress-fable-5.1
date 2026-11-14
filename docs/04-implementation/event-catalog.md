@@ -55,7 +55,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ButcheryDone` | `workshopId, species, yields` | 09 | ui (none) |
 | `FishPoolDepleted` | `bodyId` | 09 | ui |
 | `MealEaten` | `id, quality, atTable, roomTier, stage, kind` | 10 | 15 |
-| `DrankAlcohol` / `DrankWater` | `id, material` / `id, outdoors` | 10 | 15 |
+| `DrankAlcohol` / `DrankWater` | `id, material, quality, group, aged` / `id, outdoors` | 10 | 15 |
 | `DrankFromPlant` | `id, material` | 10 | 15 |
 | `Stung` | `id, source` | 09 | 15 |
 | `Slept` | `id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored` | 10 | 15 |
@@ -86,6 +86,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |
 | `ItemDestroyed` | `id, itemType, reason, crafterId` | 13 | 11, 12, 15 |
 | `ItemRotStage` / `ItemRotted` | `id, stage` / `id` | 13 | ui (none) |
+| `ItemAged` | `id, stage` | 13 (a stage gained in a working cellar) | ui (none) |
 | `MiasmaSpread` | `tiles[]` | 13 | 17 (infection modifier), ui |
 | `StocksChanged` | `types[]` | 13 | 11, 12, ui |
 | `StockpileFull` | `id` | 13 | ui |

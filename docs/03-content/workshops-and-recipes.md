@@ -210,10 +210,13 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 
 ## Still (`brewing`)
 
-| id | name | inputs | outputs | ticks | Q | xp |
-|---|---|---|---|---|---|---|
-| `brew` | Brew drink | 4 plant_food (brewable species) + container barrel | 20 drink (species' drink material) in the barrel | 200 | no | 8 |
-| `brew_hopped` | Brew hopped ale | 4 plant_food (barley) + 1 plant_food (hops) + container barrel | 20 drink (hopped_ale) | 220 | no | 10 |
+| id | name | inputs | outputs | ticks | fuel | Q | xp |
+|---|---|---|---|---|---|---|---|
+| `brew` | Brew drink | 4 plant_food (brewable species) + container barrel | 20 drink (species' drink material) in the barrel | 200 | no | no | 8 |
+| `brew_hopped` | Brew hopped ale | 4 plant_food (barley) + 1 plant_food (hops) + container barrel | 20 drink (hopped_ale) | 220 | no | no | 10 |
+| `distill` | Distil spirits | 20 drink (ale or wine group; same material) + container barrel | 10 drink (deepfire) in the barrel | 250 | yes | no | 10 |
+
+`fuel`: the recipe burns one fuel bar. "(ale or wine group)" takes a drink whose material is of the `drink/ale` or `drink/wine` group ([items.md](items.md) § Drink); distilling leaves the source barrel a free container ([12](../02-systems/12-workshops-and-professions.md) § Spirits).
 
 ## Laboratory (`alchemy`)
 
@@ -352,7 +355,7 @@ Four are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Sub
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 2), forge 40, kitchen 5, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, kiln 10, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 222.
+Carpenter 27, mason 13, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 2), forge 40, kitchen 5, still 3, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, kiln 10, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 223.
 
 ## Time arithmetic
 
@@ -393,7 +396,6 @@ Edits: `carpenter` gains the tag `logs_only`: every other workshop may be built 
 | smokehouse | `smoke_fish` | Smoke fish | 5 raw_fish (same material) | 5 cured_fish (from_input) | 150 | yes | no | 6 | — | T-552 |
 | kitchen | `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | no | 5 | — | T-552 |
 | kitchen | `salt_fish` | Salt fish | 5 raw_fish (same material) + 1 salt | 5 cured_fish (from_input) | 100 | no | no | 5 | — | T-552 |
-| still | `distill` | Distil spirits | 20 drink (ale or wine group; same material) + container barrel | 10 drink (deepfire) in the barrel | 250 | yes | no | 10 | — | T-554 |
 | carpenter | `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | no | 4 | — | T-555 |
 | kiln | `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (earthenware) | 100 | yes | no | 4 | `make_hive_wood` | T-555 |
 | craftsdwarf | `weave_hive` | Wicker beehive | 3 reed | 1 beehive (from_input) | 100 | no | no | 4 | `make_hive_wood` | T-555 |

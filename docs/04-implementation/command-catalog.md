@@ -37,6 +37,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `ForbidItem` / `ClaimItem` / `DumpItem` / `MeltItem` | `itemId \| tiles[] \| typeId, on` | 13 | items exist; melt only metal items | `ItemReleased` when forbidding a reserved item cancels its job |
 | `SetStockpileFilter` | `zoneId, filter` | 13 | zone is a stockpile; category nodes exist | — |
 | `SetStockpileContainers` / `SetStockpilePriority` / `LinkStockpile` | `zoneId, …` | 13 | — | — |
+| `SetStockpileCellar` | `zoneId, on` | 13 | zone is a stockpile (not a hospital); `on` is a boolean (`bad_setting`) | — |
 | `PlaceBuilding` | `buildingType, origin, orientation, materialChoice, priority, width?, height?` | 14 | optional integer dimensions only for a variable footprint (`fixed_footprint` names a fixed type); footprint rules; materials exist in the fortress (`no_materials` is a warning, not a rejection: the job blocks); magma safety (`not_magma_safe`); one hearth (`hearth_exists`); a workshop that no recipe names and no job is worked at is refused (`precondition_failed`, "Nothing can be made there yet."); depot reachability is checked at caravan time | `BuildingPlaced`, `JobCreated` |
 | `CancelBuilding` | `buildingId` | 14 | planned or constructing | `BuildingRemoved`, `JobCancelled` |
 | `DeconstructBuilding` | `buildingId` | 14 | built; not the hearth while dwarves live (`hearth_is_home`) | `JobCreated` |

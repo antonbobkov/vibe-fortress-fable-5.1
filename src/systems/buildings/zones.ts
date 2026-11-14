@@ -48,7 +48,7 @@ const MEETING = 'meeting_area';
 const FARM_PLOT_ZONE = 'farm_plot';
 
 /** Stockpile settings live in 13's `Stockpile` component and are set by 13's commands (D-071). */
-const STOCKPILE_OWNED_SETTINGS: readonly string[] = ['filter', 'containers', 'priority', 'links'];
+const STOCKPILE_OWNED_SETTINGS: readonly string[] = ['filter', 'containers', 'priority', 'links', 'cellar'];
 
 export interface ZoneHost {
   readonly map: Map3D;

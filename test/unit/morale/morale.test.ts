@@ -49,6 +49,9 @@ function fixture(def: ThoughtDef): GameEvent | null {
   if (id === 'rune_sick') e.sick = true;
   if (id === 'ate_wyrmtongue') e.seasoned = ['wyrmtongue'];
   if (id === 'nettles') e.source = 'nettle';
+  if (id === 'drank_strong_drink') { e.material = registry.table('materials').index('deepfire'); e.group = 'spirits'; }
+  if (id === 'drank_aged_drink') e.aged = 1;
+  if (id === 'drank_vintage_drink') e.aged = 2;
   return e as GameEvent;
 }
 
