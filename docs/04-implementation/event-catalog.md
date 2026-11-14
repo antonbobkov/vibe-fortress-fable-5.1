@@ -107,7 +107,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ThoughtGained` | `id, thoughtId, value` | 15 | ui |
 | `SulkHappened` | `id, kind` | 15 | 10, 13 (hoard), 14 (broken furniture), ui |
 | `HallSpiritChanged` | `value, tier` | 15 | 21, ui |
-| `AttackResolved` | `attackerId, defenderId, part, damageType, amount, outcome` | 16 | 08, 18, 20, 25, ui (combat log) |
+| `AttackResolved` | `attackerId, defenderId, part, damageType, amount, outcome` | 16 | 08, 13, 18, 20, 25, ui (combat log) |
 | `DamageDealt` | `defenderId, part, damageType, amount, attackerId, weaponId` | 16, 19, 25 | 17 |
 | `ProjectileFired` | `shooterId, targetId, itemId` | 16 | 09 |
 | `CreatureFled` | `id, from` | 16 | 18 |

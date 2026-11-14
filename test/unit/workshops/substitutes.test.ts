@@ -4,7 +4,8 @@
  * many input units (the job's own fuel counted as one) and at least as many ticks, or its output is
  * worth less (the output item's `mult` × its material's value); it is never better on all three.
  *
- * Every substitute recipe adds its pair to {@link SUBSTITUTES} when its row lands.
+ * Every substitute recipe adds its pair to {@link SUBSTITUTES} when its row lands. The two make the
+ * same item, or containers of one class (a pot of 10 stands in for a barrel of 20).
  */
 
 import { describe, expect, it } from 'vitest';
@@ -14,6 +15,11 @@ import type { ItemTypeDef, MaterialDef, RecipeDef } from '@content/generate';
 /** [substitute, the regular recipe it stands in for, the material its output is judged in when it takes an input's]. */
 const SUBSTITUTES: readonly (readonly [string, string, string?])[] = [
   ['make_steel_shell', 'alloy_steel'],
+  ['make_steel_bone_ash', 'alloy_steel'],
+  ['fire_bricks', 'make_stone_block', 'granite'],
+  ['make_pot', 'make_barrel', 'oak'],
+  ['make_jug', 'make_bucket', 'oak'],
+  ['make_mugs_clay', 'make_mug_stone', 'granite'],
 ];
 
 interface Cost {
@@ -79,8 +85,13 @@ describe('12 § Substitutes: a substitute recipe stays worse than the recipe it 
       const a = cost(sub as RecipeDef, judgedIn);
       const b = cost(regular as RecipeDef, judgedIn);
       expect(substituteIsWorse(a, b), `${subId} ${JSON.stringify(a)} against ${regularId} ${JSON.stringify(b)}`).toBe(true);
-      // The two make the same thing: the comparison is per unit of the same output item.
-      expect(sub?.outputs[0]?.item).toBe(regular?.outputs[0]?.item);
+      // The two make the same thing: the comparison is per unit of the same output item, or of a
+      // container of the same class.
+      const kind = (r: RecipeDef | undefined): string => {
+        const item = items.byId(r?.outputs[0]?.item ?? '');
+        return item?.containerClass ?? item?.id ?? '';
+      };
+      expect(kind(sub)).toBe(kind(regular));
     });
   }
 
@@ -90,6 +101,19 @@ describe('12 § Substitutes: a substitute recipe stays worse than the recipe it 
     expect(shell).toEqual({ ...alloy, units: 6 });
     expect(alloy.units).toBe(4);
     expect(alloy.ticks).toBe(200);
+  });
+
+  it('bone ash takes the 4 units of the flux stone, in the same 200 ticks, for the same steel', () => {
+    const ash = cost(recipes.byId('make_steel_bone_ash') as RecipeDef);
+    expect(ash).toEqual(cost(recipes.byId('alloy_steel') as RecipeDef));
+  });
+
+  it('a brick takes a clay load and a fuel for one block, the mason one stone for two', () => {
+    const brick = cost(recipes.byId('fire_bricks') as RecipeDef);
+    const block = cost(recipes.byId('make_stone_block') as RecipeDef, 'granite');
+    expect(brick).toMatchObject({ units: 2, per: 1 });
+    expect(block).toMatchObject({ units: 1, per: 2 });
+    expect(brick.value).toBeLessThan(block.value);
   });
 
   it('the rule fails a substitute that is better on every count and passes one that is worse on any of its terms', () => {

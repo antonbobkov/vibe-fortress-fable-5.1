@@ -91,6 +91,17 @@ All wood is burnable and melts (burns) at 300 °C for the melting rule. Wood's w
 |---|---|---|---|---|---|---|
 | `salt` | salt | plant | 2 | 120 | `salt_white` | `seasoning`; crushed from halite at the kitchen |
 
+## Fired at the kiln
+
+| id | name | class | value | density | hardness | color | meltsAtC | notes |
+|---|---|---|---|---|---|---|---|---|
+| `brick` | brick | stone | 1 | 200 | 90 | `brick_red` | 1400 | blocks only; magma-safe; a brick wall draws smooth, as every block wall does |
+| `earthenware` | earthenware | stone | 1 | 180 | 60 | `clay_red` | 1300 | `fragile`; fired clay: pots, jugs, mugs |
+| `glass` | glass | glass | 6 | 250 | 60 | `glass_pale` | 1400 | magma-safe; glass blocks and mugs |
+| `potash` | potash | stone | 1 | 90 | | `ash_gray` | | burned from logs; a glass flux |
+
+Made at the kiln from clay, sand, logs and bones ([workshops-and-recipes.md](workshops-and-recipes.md) § Kiln); none is dug. A `fragile` material breaks when its carrier is hit: a pot, or a clay jug ([16](../02-systems/16-combat.md) § Pots break).
+
 ## Cloth and fiber
 
 | id | name | class | value | density | color | burnTicks | notes |
@@ -186,10 +197,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `brick` | brick | stone | 1 | 200 | 90 | `brick_red` | 1400 | — | blocks only; magma-safe; a brick wall draws smooth | T-553 |
-| `earthenware` | earthenware | stone | 1 | 180 | 60 | `clay_red` | 1300 | — | fired clay: pots, jugs, mugs, hives | T-553 |
-| `glass` | glass | glass | 6 | 250 | 60 | `glass_pale` | 1400 | — | passes light; magma-safe | T-553 |
-| `potash` | potash | stone | 1 | 90 | — | `ash_gray` | — | — | glass and soap | T-553 |
 | `dung` | dung | plant | 0 | 60 | — | `dung_brown` | 300 | 200 | `fertilizer`; dries to a half fuel | T-552 |
 | `guano` | guano | soil | 1 | 70 | — | `dung_brown` | — | — | `fertilizer` | T-556 |
 | `compost` | compost | soil | 0 | 80 | — | `loam_brown` | — | — | `fertilizer` | T-564 |

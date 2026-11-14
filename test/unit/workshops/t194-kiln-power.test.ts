@@ -4,8 +4,8 @@ import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { WorkshopsReader } from '@systems/workshops';
 import { TestWorld } from '../../scenarios/test-world';
 
-describe('T-194 the reserved magma kiln still recognizes its power source', () => {
-  it('reads magma power without requiring a future base kiln or recipe', () => {
+describe('T-194 the magma kiln recognizes its power source', () => {
+  it("reads magma power by the footprint rule, and has the kiln's recipes (T-553)", () => {
     const w = new TestWorld({ seed: 't194-kiln-power', world: 'flat-test', embark: 'none' });
     const at = w.index(15, 15, 32);
     const below = w.map.below(at);
@@ -14,7 +14,8 @@ describe('T-194 the reserved magma kiln still recognizes its power source', () =
     const kiln = w.buildUnchecked('magma_kiln', at, 'granite');
     w.step(1);
     const reader = w.readers.of<WorkshopsReader>('12');
-    expect(reader.recipesFor('magma_kiln')).toHaveLength(0);
+    expect(reader.recipesFor('magma_kiln')).toEqual(reader.recipesFor('kiln'));
+    expect(reader.recipesFor('kiln')).toHaveLength(10);
     expect(reader.isMagmaPowered(kiln)).toBe(true);
     w.setFluid(below, MAGMA_POWER_LEVEL - 1, 'magma', true);
     expect(reader.isMagmaPowered(kiln)).toBe(false);

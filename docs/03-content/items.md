@@ -99,7 +99,10 @@ A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `
 | `barrel` | barrel | container/barrel | 3 | 20 units | heavy when full | `Ю` | material | wood, metal |
 | `bag` | bag | container/bag | 2 | 25 | light | `ð` | material | cloth, leather |
 | `bin` | bin | container/bin | 3 | 30 | heavy when full | `▐` | material | wood, metal |
-| `bucket` | bucket | container/bucket | 2 | 1 | light | `u` | material | wood, metal |
+| `bucket` | bucket | container/bucket | 2 | 1 | light | `u` | material | wood, metal, stone (earthenware: a clay jug, which breaks as a pot does) |
+| `pot` | pot | container/pot | 2 | 10 units (class barrel) | heavy when full | `Ö` | material | stone (earthenware); breaks when its carrier is hit |
+
+A pot is a container of class `barrel` that holds 10 units: a stockpile that wants barrels takes pots too, and a brew into a pot makes 10 drinks ([13](../02-systems/13-items-and-storage.md) § Containers in play). Fired clay is `earthenware`, a `fragile` material: a pot or a clay jug carried by a creature that is hit breaks ([16](../02-systems/16-combat.md) § Pots break).
 
 ## Tools
 
@@ -119,7 +122,7 @@ A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `
 | `figurine` | figurine | craft/figurine | 3 | 5 | `♀` | material | stone, bone, wood, metal, shell |
 | `ring` | ring | craft/ring | 2 | 5 | `○` | material | as figurine |
 | `amulet` | amulet | craft/amulet | 3 | 5 | `♀` | material | as figurine |
-| `mug` | mug | craft/mug | 2 | 5 | `∂` | material | stone, wood, metal, bone (horn) |
+| `mug` | mug | craft/mug | 2 | 5 | `∂` | material | stone, wood, metal, bone (horn), glass |
 | `totem` | totem | craft/totem | 5 | 1 | `♀` | material | skull |
 
 ## Textiles and animal parts
@@ -196,6 +199,15 @@ What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draugh
 | `hollowsight_draught` | `spot_radius` 10 | `deep` |
 | `wyrmblood_draught` | `fire_immune` 1 | `fire` |
 
+## Farm goods
+
+| id | name | category | mult | stack | container | rotDays | weight | glyph | fg | tags |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `bone_ash` | bone ash | farm/bone_ash | 1 | 10 | bag | 0 | light | `:` | `bone_white` | `fertilizer`, `flux` |
+| `potash` | potash | farm/potash | 1 | 10 | bag | 0 | light | `:` | `ash_gray` | |
+
+Both are burned at the kiln: bone ash, of `bone`, from bone piles or a crushed fossil; potash, of `potash`, from a log. Bone ash stands in for the flux stone in steel (`make_steel_bone_ash`); potash doubles a glass batch.
+
 ## Refuse
 
 | id | name | category | stack | rotDays | glyph | fg | notes |
@@ -238,8 +250,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | Wood and bars | `peat_brick` | peat brick | bar/peat | 1 | 5 | bin | 0 | medium | `▬` | `peat_black` | `peat`; tags `fuel_half`, `smoky` | T-552 |
 | Wood and bars | `dung_cake` | dung cake | bar/dung | 1 | 5 | bin | 0 | medium | `▬` | `dung_brown` | `dung`; tags `fuel_half`, `smoky` | T-552 |
 | Farm goods (a new section) | `dung` | dung | farm/dung | 1 | 10 | bin | 0 | light | `%` | `dung_brown` | `dung`; tag `fertilizer` | T-552 |
-| Farm goods (a new section) | `bone_ash` | bone ash | farm/bone_ash | 1 | 10 | bag | 0 | light | `:` | `bone_white` | `bone`; tags `fertilizer`, `flux` | T-553 |
-| Farm goods (a new section) | `potash` | potash | farm/potash | 1 | 10 | bag | 0 | light | `:` | `ash_gray` | `potash` | T-553 |
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
 | Farm goods (a new section) | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `compost`; tag `fertilizer` | T-564 |
 | Furniture | `stone_bed` | stone bed | furniture/stone_bed | 2 | 1 | none | 0 | heavy | `Θ` | material | stone | T-551 |
@@ -262,7 +272,6 @@ The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colo
 
 | id | name | category | mult | capacity | weight | glyph | fg | materials | task |
 |---|---|---|---|---|---|---|---|---|---|
-| `pot` | pot | container/pot | 2 | 10 units (class barrel) | heavy when full | `Ö` | material | stone (earthenware); breaks when its carrier is hit | T-553 |
 | `basket` | basket | container/basket | 2 | 15 (class bin) | heavy when full | `▐` | material | plant (reed); burns | T-549 |
 
 ### Drying (a new table)
@@ -279,7 +288,7 @@ What a drying rack turns its items into ([14](../02-systems/14-buildings-and-roo
 
 ### Planned edits to existing rows
 
-- `bucket` materials gain stone (an earthenware jug breaks as a pot does) (T-553); `mug` materials gain glass (T-553: the material class the glass mug recipe needs); `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
+- `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
 - `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-554, T-555).
 - § Meal ingredients gains `food/meat/cured`, `food/fish/cured` and `food/honey` (T-552, T-555).

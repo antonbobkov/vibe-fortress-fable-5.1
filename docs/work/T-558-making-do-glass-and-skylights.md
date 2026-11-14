@@ -1,6 +1,6 @@
 # T-558 — Making Do C2: glass walls, skylights and greenhouses
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (glass, skylights)); the owner, 2026-11-13 · **Size:** L · **Needs:** T-553 · **Status:** blocked (needs T-553)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (glass, skylights)); the owner, 2026-11-13 · **Size:** L · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

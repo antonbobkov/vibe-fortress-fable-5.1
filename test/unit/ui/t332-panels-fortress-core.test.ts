@@ -72,8 +72,9 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[1]).toMatch(/^\[w\] Workshops +\[S-m\] Mechanisms/);
     expect(rows[2]).toMatch(/^\[S-t\] Traps +\[S-s\] Special/);
     expect(rows[3]).toMatch(/^─+ Workshops ─+$/);
-    const listed = rows.slice(4, 24);
-    expect(listed).toHaveLength(20);
+    // The 21 workshops of version 1 and the magma kiln (T-553), by name; the later rows follow.
+    const listed = rows.slice(4, 25);
+    expect(listed).toHaveLength(21);
     for (const row of listed) expect(row).toMatch(/\(\d+\)$/);
     const names = listed.map((row) => row.replace(/ {2,}.*$/, '').replace(/ 1 .*$/, ''));
     expect(names[0]).toMatch(/^Bowyer's workshop/);

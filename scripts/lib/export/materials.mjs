@@ -90,6 +90,7 @@ export function exportMaterials() {
   }
   for (const row of asObjects(findTable(tables, 'Animal products'))) out.push(material(row, {}));
   for (const row of asObjects(findTable(tables, 'Salt'))) out.push(material(row, {}));
+  for (const row of asObjects(findTable(tables, 'Fired at the kiln'))) out.push(material(row, {}));
   for (const row of asObjects(findTable(tables, 'Cloth and fiber'))) {
     // materials.md: "Cloth burns (300 ticks, unless its row gives `burnTicks`) and melts at 300 C."
     out.push(material(row, { burnable: true, burnTicks: isBlank(row.burnTicks) ? 300 : int(row.burnTicks), meltsAtC: 300 }));

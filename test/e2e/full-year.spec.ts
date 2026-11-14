@@ -1145,7 +1145,9 @@ test('full-year', async ({ page }) => {
   // Kept (T-334): nobody dies of hunger or thirst. Measured on the twelve-seed instrument of T-136,
   // which plays this opening: in the 25 cohort runs recorded under reports/data (2026-10-11 to
   // 2026-10-16), six runs before T-260 had two such deaths each and the 19 runs since have none.
-  expect(tracker.deaths.filter((d) => ['starvation', 'dehydration', 'thirst', 'hunger'].includes(d.cause)), 'no dwarf died of hunger or thirst').toEqual([]);
+  // A dwarf, as the message says: a goat left in no pasture may starve on a timeline where the trade
+  // went otherwise (T-553: the Hillfolk's new entries re-roll the year), and that is not this rule.
+  expect(tracker.deaths.filter((d) => d.kind === 'dwarf' && ['starvation', 'dehydration', 'thirst', 'hunger'].includes(d.cause)), 'no dwarf died of hunger or thirst').toEqual([]);
   // What this one year can and cannot assert (testing-strategy.md § What may be a gate). The year
   // is deterministic, but it is ONE year, and it is chaotic: any change to where a dwarf stands on
   // day 60 re-rolls every wolf encounter after it. Three correct fixes in a row (T-134, T-135)

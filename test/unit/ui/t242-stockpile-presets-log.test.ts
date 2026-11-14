@@ -7,8 +7,8 @@ import { TestWorld } from '../../scenarios/test-world';
 import { registry, strings } from './ui-fixture';
 
 describe('T-242 stockpile presets and announcement formatting', () => {
-  it('preset list offers exactly thirteen presets in 13 order without hospital', () => {
-    expect(PRESET_ORDER).toHaveLength(13);
+  it('preset list offers exactly fourteen presets in 13 order without hospital', () => {
+    expect(PRESET_ORDER).toHaveLength(14);
     expect(PRESET_ORDER).not.toContain('hospital');
     expect(PRESET_ORDER).toEqual([
       'food',
@@ -21,6 +21,7 @@ describe('T-242 stockpile presets and announcement formatting', () => {
       'weapons_and_armor',
       'cloth_and_leather',
       'crafts_and_gems',
+      'farm',
       'refuse',
       'corpses',
       'everything',
@@ -37,7 +38,7 @@ describe('T-242 stockpile presets and announcement formatting', () => {
       panelLetters: new Set<string>(),
     };
     const options = editor.presetOptions(ctx as never);
-    expect(options).toHaveLength(13);
+    expect(options).toHaveLength(14);
     for (const opt of options) {
       expect(strings.has(`ui.stockpile.preset.${opt.id}`)).toBe(true);
       expect(opt.label).not.toMatch(/^ui\./);

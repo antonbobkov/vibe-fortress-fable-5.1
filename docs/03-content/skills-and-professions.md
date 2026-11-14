@@ -74,6 +74,7 @@ Columns: `labor`; `profession` title when this is the highest skill; `military` 
 | `masonry` | Masonry | masonry | Mason | — | Strength, Wits | mason recipes, smoothing |
 | `crafting` | Crafting | crafts | Craftsdwarf | — | Agility, Wits | craftdwarf recipes |
 | `engraving` | Engraving | crafts | Engraver | — | Agility, Wits | engrave, memorial slabs |
+| `pottery` | Pottery | crafts | Potter | — | Agility, Wits | kiln recipes |
 | `gem_cutting` | Gem cutting | gem_cutting | Gem cutter | — | Agility, Wits | jeweler recipes |
 | `mechanics` | Mechanics | mechanics | Mechanic | — | Wits, Agility | mechanisms, links, traps, rearming |
 | `building` | Building | construction | Builder | — | Strength, Endurance | build, deconstruct |
@@ -120,7 +121,7 @@ Combat skills have no labor; they are used when a creature fights. Weapon skills
 
 | Group | Skills | Color |
 |---|---|---|
-| Earth | mining, engraving, masonry, gem_cutting | `prof_gray` |
+| Earth | mining, engraving, masonry, gem_cutting, pottery | `prof_gray` |
 | Wood | woodcutting, carpentry | `prof_brown` |
 | Craft | crafting, mechanics, building | `prof_tan` |
 | Field | farming, herbalism, animal_care, animal_training, hunting, fishing, butchery | `prof_green` |
@@ -135,14 +136,4 @@ Combat skills have no labor; they are used when a creature fights. Weapon skills
 
 Given in [jobs.md](jobs.md) per job type and in [workshops-and-recipes.md](workshops-and-recipes.md) per recipe (`xp` column). Combat: attacker weapon skill +3 per hit, +1 per miss; defender dodge +2 per dodged attack, shield +2 per block, armor_use +1 per hit reduced by armor; training sessions `TRAIN_XP` = 12 per skill. Medicine: `TREAT_XP` = 10 per treatment, `DIAGNOSE_XP` = 20. Trading: `TRADE_XP` = 15 × (1 + value/1000). Hunting: +5 per shot, +20 per kill. Fishing: +6 per attempt, +10 per catch. Farming: +5 per plant, +8 per harvest.
 
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. The task named adds the row to its table above (without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`.
-
-### Planned skill
-
-| id | name | labor | profession | military | attributes | used by | embark | task |
-|---|---|---|---|---|---|---|---|---|
-| `pottery` | Pottery | crafts | Potter | — | Agility, Wits | kiln | | T-553 |
-
-Potter joins the Earth profession colour group. Smoking is cooking, wicker is crafting, hives are animal care, fletching is the bowyer's carpentry: no other skill is new.
+Smoking is cooking, wicker is crafting, hives are animal care, fletching is the bowyer's carpentry: Making Do brings no skill but pottery.
