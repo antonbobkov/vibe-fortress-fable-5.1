@@ -25,6 +25,8 @@ export interface EggRecord {
 export interface AnimalsStateV1 {
   stateVersion: 1;
   initializedCaverns?: number[];
+  /** T-545: the tick the last dangerous surface group arrived; omitted when none has (older saves too). */
+  lastDangerousTick?: number;
   breedingCaps: [number, number][];
   speciesCounts: [number, SpeciesCount][];
   nestBoxes: EntityId[];

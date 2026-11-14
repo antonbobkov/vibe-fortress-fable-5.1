@@ -7,6 +7,8 @@
  * each DayPassed, for each species of the biome's list for this season, below its cap:
  *   with SPAWN_PERMILLE × weight, spawn a group at a walkable outdoor edge tile at least
  *   SPAWN_MIN_DISTANCE from any dwarf, with `home` set to the spawn chunk
+ * a dangerous species neither rolls nor spawns within DANGEROUS_QUIET_DAYS of the last dangerous
+ *   group's arrival, except on a `beastwood` map (T-545)
  * cavern fauna respawns by the same rule at random walkable cavern tiles once breached
  * the global MAX_CREATURES cap applies
  * leaving: over the species cap, or longer on the map than WILD_LIFETIME_DAYS
@@ -23,6 +25,7 @@ import {
   BEASTWOOD_ALL_FACTOR_PERCENT,
   BEASTWOOD_SPECIES,
   BEASTWOOD_SPECIES_FACTOR_PERCENT,
+  DANGEROUS_QUIET_DAYS,
   FROSTMARROW_SNOW_LEOPARD,
   FROSTMARROW_SNOW_LEOPARD_CAP_BONUS,
   FROSTMARROW_YAK,
@@ -58,6 +61,17 @@ export interface SpawnHost {
   cavernTiles(tier: number): readonly TileIndex[];
   /** Create the creature through the spawn API; returns its id. */
   spawn(species: number, at: TileIndex): EntityId;
+  /** T-545: the tick the last dangerous surface group arrived, -1 for none; `dailySpawn` sets it. */
+  lastDangerousTick: number;
+}
+
+/**
+ * T-545: whether dangerous species keep quiet at `tick`, within `DANGEROUS_QUIET_DAYS` of the last
+ * dangerous group's arrival. A `beastwood` map has no quiet spell.
+ */
+export function dangerousQuiet(host: Pick<SpawnHost, 'traits' | 'lastDangerousTick'>, tick: number): boolean {
+  if (host.traits.includes('beastwood') || host.lastDangerousTick < 0) return false;
+  return tick - host.lastDangerousTick < DANGEROUS_QUIET_DAYS * TICKS_PER_DAY;
 }
 
 /** `SPAWN_PERMILLE` at weight 100, scaled by the species' weight in the biome (D-110). */
@@ -194,12 +208,17 @@ export function initialCavernSpawn(host: SpawnHost, tier: number): SpawnedGroup[
   return out;
 }
 
-/** One day's wild spawning, surface and breached caverns. */
-export function dailySpawn(host: SpawnHost, season: number): SpawnedGroup[] {
+/**
+ * One day's wild spawning, surface and breached caverns, at `tick`. A dangerous species draws nothing
+ * while dangerous species keep quiet; one whose group arrives starts the quiet spell (T-545).
+ */
+export function dailySpawn(host: SpawnHost, season: number, tick: number): SpawnedGroup[] {
   const out: SpawnedGroup[] = [];
   const surface = regionSurfaceSpecies(host, season);
   let edges: TileIndex[] | null = null;
   for (const [species, weight] of surface) {
+    const dangerous = host.facts.isDangerous(species);
+    if (dangerous && dangerousQuiet(host, tick)) continue;
     const cap = surfaceCap(host, species, weight);
     if (cap <= 0 || host.countWild(species) >= cap) continue;
     if (host.creatureCount() >= MAX_CREATURES) break;
@@ -209,7 +228,9 @@ export function dailySpawn(host: SpawnHost, season: number): SpawnedGroup[] {
     const pool = cls === 'walker' ? edges : edgeSpawnTiles(host, cls);
     if (pool.length === 0) continue;
     const anchor = pool[host.rng.int(0, pool.length - 1)] as TileIndex;
-    out.push(spawnGroup(host, species, anchor, cls, cap));
+    const group = spawnGroup(host, species, anchor, cls, cap);
+    if (dangerous && group.ids.length > 0) host.lastDangerousTick = tick;
+    out.push(group);
   }
   for (const tier of host.breachedCaverns()) {
     const tiles = host.cavernTiles(tier);

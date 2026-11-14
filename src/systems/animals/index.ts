@@ -58,7 +58,7 @@ export * from './brain';
 export * from './tame';
 export { AnimalsProducer, trainKey, type AnimalsProducerHost } from './producer';
 export { AnimalFacts, type SpeciesRow, type Diet, type Temperament } from './facts';
-export { cavernCap, dailySpawn, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, leavers, regionSurfaceSpecies, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
+export { cavernCap, dailySpawn, dangerousQuiet, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, leavers, regionSurfaceSpecies, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
 export type { AnimalsReader } from './reader';
 
 /** The id 08 registers its reader under. */
@@ -112,6 +112,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   private spawnRef: SpawnHost | null = null;
   private initialTiers: number[] = [];
   private readonly initializedCaverns = new Set<number>();
+  /** T-545: the tick the last dangerous surface group arrived, -1 for none (`08` § Wild spawning). */
+  private lastDangerousTick = -1;
   private wildlifeDensity = 1000;
   private cavernTileCache: (TileIndex[] | null)[] = [null, null, null, null];
 
@@ -568,6 +570,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   private makeSpawnHost(): SpawnHost {
     const world = this.world as WorldLike;
     const readers = this.readers;
+    const lastDangerous = (tick?: number): number => (tick === undefined ? this.lastDangerousTick : (this.lastDangerousTick = tick));
     return {
       map: world.map,
       facts: this.facts,
@@ -584,6 +587,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       breachedCaverns: () => this.breachedCaverns(),
       cavernTiles: (tier) => this.cavernTiles(tier),
       spawn: (species, at) => this.spawnCreature(species, at),
+      get lastDangerousTick() {
+        return lastDangerous();
+      },
+      set lastDangerousTick(tick: number) {
+        lastDangerous(tick);
+      },
     };
   }
 
@@ -739,7 +748,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   private daily(ctx: TickContext): void {
     const season = ctx.readers.calendar.season;
     this.cavernTileCache = [null, null, null, null];
-    for (const group of dailySpawn(this.spawner, season)) {
+    for (const group of dailySpawn(this.spawner, season, ctx.tick)) {
       for (const id of group.ids) ctx.emit({ type: 'AnimalSpawned', id, species: this.facts.idOf(group.species) });
     }
     const wild = ctx.world.entities.with(C.Wild);
@@ -1437,6 +1446,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     return {
       stateVersion: 1,
       ...(this.initializedCaverns.size > 0 ? { initializedCaverns: Array.from(this.initializedCaverns).sort((a, b) => a - b) } : {}),
+      ...(this.lastDangerousTick < 0 ? {} : { lastDangerousTick: this.lastDangerousTick }),
       breedingCaps: sortedPairs(this.breedingCaps),
       speciesCounts: sortedPairs(this.speciesCounts).map(([s, c]): [number, SpeciesCount] => [s, { ...c }]),
       nestBoxes: this.nestBoxes.slice(),
@@ -1478,6 +1488,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.fortressNear = null;
     this.initializedCaverns.clear();
     for (const tier of state.initializedCaverns ?? []) this.initializedCaverns.add(tier);
+    this.lastDangerousTick = state.lastDangerousTick ?? -1;
     this.breedingCaps.clear();
     for (const [s, cap] of state.breedingCaps) this.breedingCaps.set(s, cap);
     this.speciesCounts.clear();

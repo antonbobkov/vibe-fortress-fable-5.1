@@ -45,7 +45,7 @@ describe('T-130 retained animal and job decisions', () => {
       expect(w.animals.reader().bySpecies('glow_beetle', true)).toHaveLength(3);
     }
     // Daily respawning still operates after the one-time initial population.
-    for (let day = 0; day < 200; day++) dailySpawn(w.animals.spawner, 0);
+    for (let day = 0; day < 200; day++) dailySpawn(w.animals.spawner, 0, 0);
     expect(w.animals.reader().bySpecies('glow_beetle', true)).toHaveLength(w.animals.spawner.facts.row(w.animals.facts.indexOf('glow_beetle'))!.cavern!.cap);
   });
 

@@ -14,7 +14,7 @@
     "freq": 100,
     "companion": true,
     "hooks": {
-      "08": "wolf and bear groups ×2, caps ×2; all wildlife caps ×1.5"
+      "08": "wolf and bear groups ×2, caps ×2; all wildlife caps ×1.5; no quiet spell between dangerous arrivals (08 § Wild spawning)"
     }
   },
   {
