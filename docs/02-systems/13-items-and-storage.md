@@ -11,7 +11,7 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 - **Item type**: a row of `items.md` with a three-level category path (`food/meat/raw`), a value multiplier, stacking rules, the container class it wants in a stockpile, a rot time, tags, and a glyph.
 - **Item**: an entity with `Item { type, material, quality, wear, count, containerId, ownerId, flags }` and a `Position` when it lies on the ground. Items in a container have no `Position`; items carried have `Item.carriedBy` naming their creature, corpse or in-flight projectile, and no `Position`.
 - **Stack**: one entity with `count > 1` for stackable types (ammunition, seeds, meals, bars, blocks, coins). Stacks split when part of one is taken and merge when identical stacks meet in a stockpile slot: same type, material, quality, stone (a channel's gem, 25), enchantment (25 § Setting stones: the same row at the same tier), flags and owner. A split keeps the stone and the enchantment.
-- **Container**: an item with `Container { contents, capacity }`. Classes: `barrel` (drink, liquids, food), `bag` (seeds, flour, powders), `bin` (crafts, cloth, leather, bars, ammunition), `chest` (personal items, hospital supplies), `bucket` (one unit of water or milk). A cage is not a container: it holds one creature, named by the cage item's `occupantId` (0 when it is empty).
+- **Container**: an item with `Container { contents, capacity }`. Classes: `barrel` (drink, liquids, food; a `pot` is a barrel that holds 10), `bag` (seeds, flour, powders), `bin` (crafts, cloth, leather, bars, ammunition), `chest` (personal items, hospital supplies), `bucket` (one unit of water or milk). A cage is not a container: it holds one creature, named by the cage item's `occupantId` (0 when it is empty).
 - **Stockpile**: a zone with a filter, container wants, a priority, and optional source links.
 - **Slot**: a stockpile tile, or a container in a stockpile tile. A tile holds one item or stack, or one container.
 - **Rot**: the decay of perishable items in stages.
@@ -30,7 +30,7 @@ ore/
 wood/      log  block
 bar/       metal  coal  charcoal
 furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part
-container/ barrel  bag  bin  bucket
+container/ barrel  bag  bin  bucket  pot
 weapon/    melee  ranged
 ammo/
 armor/     head  body  arms  legs  feet  shield
@@ -39,6 +39,7 @@ tool/      pick  axe  fishing_rod  crutch
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather  straw  reed
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland
+farm/      bone_ash  potash
 refuse/    corpse  skeleton  rotten  part
 ```
 
@@ -77,7 +78,7 @@ Stockpile { filter: { categories: Set<CategoryPath>, materialClasses: Set<Materi
 - Slot reservations: when a haul job is claimed, the destination slot is reserved for the job (`slotReservations: Map<slotKey, jobId>`), released on completion or cancellation.
 - A stockpile at capacity emits `StockpileFull { id }` once until it has space again; when it gains space, `noHome` items return to the wants set. Items waiting for a wanted or incoming container stay in the wants set without a job. Such an item is looked at again only when a stockpile (its place, filter or wanted containers), a zone, a building or a container standing on a stockpile changes, or when a container on a stockpile has room for it after what the slot reservations promise, or when a hospital accepts it (its supply limit is not reached) and a hospital chest has room for it; until then the answer is the one it had. Stale slot reservations are dropped each items tick.
 - Stockpile priority is the haul job priority for items going to it (default `HAUL_PRIORITY`, food stockpiles `HAUL_PRIORITY_FOOD`; both from 11). A new stockpile has an empty filter and accepts nothing. Its priority is the default until the player sets one, and the default follows the filter: `HAUL_PRIORITY_FOOD` while the filter selects only food nodes. A priority the player has set stays when the filter changes (`ItemsState.explicitPriority`).
-- The presets select category nodes: Food `food`; Drink `drink`; Seeds `seed`; Stone `stone/raw`, `stone/block`, `stone/soil`, `stone/fossil`; Ore and bars `ore`, `bar`; Wood `wood`; Furniture `furniture`; Weapons and armor `weapon`, `ammo`, `armor`; Cloth and leather `textile`, `clothing`; Crafts and gems `craft`, `stone/gem_rough`, `stone/gem_cut`; Refuse `refuse/skeleton`, `refuse/rotten`, `refuse/part` and Corpses `refuse/corpse` (both allow rot); Everything every top-level node (rot allowed). The quality range applies only to types that bear a quality.
+- The presets select category nodes: Food `food`; Drink `drink`; Seeds `seed`; Stone `stone/raw`, `stone/block`, `stone/soil`, `stone/fossil`; Ore and bars `ore`, `bar`; Wood `wood`; Furniture `furniture`; Weapons and armor `weapon`, `ammo`, `armor`; Cloth and leather `textile`, `clothing`; Crafts and gems `craft`, `stone/gem_rough`, `stone/gem_cut`; Farm goods `farm`; Refuse `refuse/skeleton`, `refuse/rotten`, `refuse/part` and Corpses `refuse/corpse` (both allow rot); Everything every top-level node (rot allowed). The quality range applies only to types that bear a quality.
 - Destroying an item or removing its destination stockpile cancels the affected haul jobs with `target_invalid`.
 - Removing a stockpile zone leaves its items where they are; they become "wants hauling" again if another stockpile accepts them.
 
@@ -97,6 +98,8 @@ Maintained incrementally, sorted by item id:
 
 - Drinks are made *into* a barrel at the still (12's `container` input) and stay in it on a stockpile that accepts them (off one, § The "wants hauling" set); a dwarf drinks one unit from the barrel where it stands (10 finds the barrel, walks to it, takes one unit: the stack count in the barrel decrements; an empty barrel becomes a free container). A barrel that holds anything is not empty, so a brew never takes one that holds food, seed or another drink; when every barrel holds something the still waits for a new one (12 § Operation).
 - Seeds go into bags; bags into stockpiles.
+- A `pot` (`items.md` § Containers: capacity is per type) is a container of class `barrel` with capacity 10, of `earthenware`. Stockpile container wants (`SetStockpileContainers`) count it as a barrel: a stockpile that wants 3 barrels takes pots too, nearest first. A brew or anything else that wants an empty barrel takes an empty pot as well, and makes as much as the pot holds (12 § Operation): a pot holds 10 units of drink, half the drink and twice the hauling.
+- **A pot breaks.** When a creature that carries a container of a `fragile` material (a pot, or a clay jug: a `bucket` of `earthenware`) is struck by an attack that hits (16's `AttackResolved` with `outcome: 'hit'`, melee or ranged), the container is destroyed (`ItemDestroyed { reason: 'broken' }`) and its contents lie where it was, except drink, which is destroyed with it (the same reason). No draw: every hit breaks it. A pot standing in a stockpile, or anywhere else on the ground, does not break. A job carrying the pot loses it as it loses any destroyed item.
 - Bins hold up to `BIN_CAPACITY` items of any bin-wanting category; a bin in a stockpile that accepts crafts and cloth may hold both.
 - Barrels, bags and buckets count units; bins and chests count items. An item container never goes inside another item container. The wagon’s building container can hold item containers; everything held in it resolves to its centre and is found and unloaded as on the ground. A container is hauled with its contents. A destroyed container leaves its contents on its tile (a built chest's on its furniture's tile); a container that leaves the map with its holder, as a thief's escaped loot (18), takes its contents with it, and they are destroyed with the container's reason.
 - Items in containers are visible in the stocks panel and are found by `findItem`; taking one out is part of the fetch step (11).
@@ -196,7 +199,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Events consumed
 
-`CreatureDied` (release the creature's item ownership; create corpse), `DayPassed` (judge the cellars and age what lies in the working ones), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `TemperatureTick` (rot speed sampling for the head bucket).
+`CreatureDied` (release the creature's item ownership; create corpse), `DayPassed` (judge the cellars and age what lies in the working ones), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `AttackResolved` (a pot or a clay jug its defender carries breaks, § Containers in play), `TemperatureTick` (rot speed sampling for the head bucket).
 
 ### Events emitted
 
@@ -208,7 +211,7 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 
 ## Player-facing behavior
 
-- Zones menu › Stockpile: drag, then a filter editor with the category tree (checkboxes with tri-state for partial subtrees), material classes, quality range, container counts, priority, source links. Presets: Food, Drink, Seeds, Stone, Ore and bars, Wood, Furniture, Weapons and armor, Cloth and leather, Crafts and gems, Refuse, Corpses, Everything.
+- Zones menu › Stockpile: drag, then a filter editor with the category tree (checkboxes with tri-state for partial subtrees), material classes, quality range, container counts, priority, source links. Presets: Food, Drink, Seeds, Stone, Ore and bars, Wood, Furniture, Weapons and armor, Cloth and leather, Crafts and gems, Farm goods, Refuse, Corpses, Everything.
   - The preset is a dropdown opened with its button or `Shift+P`; arrows choose, `Enter` applies, and accelerator letters jump to matching names (a panel letter requires Shift). In the tree, `↑↓` selects, `→` expands, `←` collapses or selects the parent, and `Space` toggles the selected subtree. Clicking a name expands it; clicking its checkbox toggles it.
   - `q` focuses the wanted barrel count; `↑↓` or `Tab` moves through barrels, bags, bins, priority, minimum quality and maximum quality. `←→` or `+/-` changes the selected value, as do the mouse minus and plus buttons. Counts are non-negative, priority is 1–9 and quality is 0–5 with minimum no greater than maximum. A refused adjustment says why in the status row and changes nothing.
   - `g` returns to the category tree. `v` opens the material-class checklist; arrows select and `Space` toggles, as does a click. The Any row switches between all classes and none. `Esc` returns without another change. All these actions are buttons or fields as well as keys, and are listed in Help. Truncated values have full-text tooltips.
@@ -259,18 +262,17 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 food/      meat/cured (T-552)  fish/cured (T-552)  honey honeycomb wax (T-555)  meal/feast (T-565)
 bar/       peat  dung (T-552)
 furniture/ stone_bed  bedding  pillow (T-551)  lantern (T-563)  beehive (T-555)
-container/ pot (T-553)  basket (T-549)
+container/ basket (T-549)
 medical/   soap (T-564)
 tool/      candle (T-563)  firebrand (T-559)
-farm/      dung (T-552)  compost (T-564)  guano (T-556)  bone_ash  potash (T-553)
+farm/      dung (T-552)  compost (T-564)  guano (T-556)
 ```
 
-The new top node `farm/` gets the stockpile preset Farm goods (`farm`). The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `bar/dung`; Furniture and Cloth and leather take theirs by their nodes.
+The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `bar/dung`; Furniture and Cloth and leather take theirs by their nodes.
 
-### Clay pots and baskets (T-553, T-549)
+### Baskets (T-549)
 
-- A `pot` is a container of class `barrel` with capacity 10 (`items.md` § Containers: capacity is per type), of `earthenware`; a `basket` is a container of class `bin` with capacity 15, of `reed`. Stockpile container wants (`SetStockpileContainers`) count them as barrels and bins: a stockpile that wants 3 barrels takes pots too, nearest first. A brew, a distillation or anything that wants an empty barrel takes an empty pot as well, and a pot holds 10 units of drink: half the drink, twice the hauling.
-- **A pot breaks.** When a creature carrying a pot or a clay jug (a `bucket` of `earthenware`), directly or in its hands, is struck by a melee attack that hits (16's `AttackResolved` with a hit), the pot is destroyed (`ItemDestroyed { reason: 'broken' }`) and its contents lie where it was, except drink, which is lost with it. No draw: every hit breaks it. A pot standing in a stockpile does not break.
+- A `basket` is a container of class `bin` with capacity 15, of `reed` (a container of another class's kind, as a pot is a barrel: § Containers in play). Stockpile container wants (`SetStockpileContainers`) count it as a bin.
 - A basket burns as wood does (its material `reed` is burnable).
 
 ### Curing (T-552)

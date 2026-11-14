@@ -28,6 +28,7 @@ All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel 
 | `bowyer` | bowyer's workshop | 2 `log` | carpentry | 200 | no | no | `bowyer` | |
 | `alchemist` | laboratory | 1 `table` + 2 `stone_block` + 1 `bucket` | construction | 250 | no | no | `alchemist` | `rune_work` |
 | `runeforge` | runeforge | 1 `anvil` + 3 `stone_block` + 1 `cut_gem` | masonry | 300 | no | no | `runeforge` | `rune_work` |
+| `kiln` | kiln | 3 `stone_block` | masonry | 250 | yes | `magma_kiln` | `kiln` | |
 
 Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one footprint tile at build time and at every job start, and every input must be magma-safe (the anvil is iron or steel; blocks must be magma-safe stone or obsidian).
 
@@ -35,9 +36,9 @@ Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one foo
 |---|---|---|---|---|---|
 | `magma_smelter` | magma smelter | `smelter` | 3 `stone_block` (magma-safe) | masonry | 350 |
 | `magma_forge` | magma forge | `forge` | 1 `anvil` (iron or steel) + 3 `stone_block` (magma-safe) | masonry | 350 |
-| `magma_kiln` | magma kiln | — | 3 `stone_block` (magma-safe) | masonry | 300; reserved for glass in a later version; it has no recipes, so it is not offered in the build menu |
+| `magma_kiln` | magma kiln | `kiln` | 3 `stone_block` (magma-safe) | masonry | 300 |
 
-A workshop that no recipe names and no job is worked at (`jobs.md`: the butcher's shop and the kennel have jobs and no recipes) is not offered in the build menu, and `PlaceBuilding` refuses it; the magma kiln is the one example. A kiln that an older save already holds loads and is shown, its panel reads "No recipes in this version.", and it can only be taken apart.
+The kiln is built of blocks, and bricks are blocks. Its magma variant needs no anvil, so it is the magma workshop a fortress can build before it has metal: on a Glasslands site, over one of its two shallow magma pools, a kiln that burns no fuel from the first days.
 
 ## Recipe columns
 
@@ -142,8 +143,9 @@ Generated per ore and alloy (see [minerals-and-metals.md](minerals-and-metals.md
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
 | `make_steel_shell` | Steel (shell flux) | 1 bar (iron) + 3 shell_piece + 1 fuel | 1 bar (steel) | 200 | no | 8 |
+| `make_steel_bone_ash` | Steel (bone ash flux) | 1 bar (iron) + 1 bone_ash + 1 fuel | 1 bar (steel) | 200 | no | 8 |
 
-Shells of any shell material (`chitin` included) stand in for `alloy_steel`'s flux stone, three for one: a substitute ([12](../02-systems/12-workshops-and-professions.md) § Substitutes).
+Shells of any shell material (`chitin` included) stand in for `alloy_steel`'s flux stone, three for one, and bone ash from the kiln one for one: substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes). Bone ash takes as many inputs and as long as the flux stone, and costs a kiln job and a fuel before it.
 
 ## Forge (`weaponsmithing`, `armorsmithing`, `metalcrafting`)
 
@@ -332,9 +334,28 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 | `make_crossbow_wood` | Crossbow | 1 log | 1 crossbow (wood) | 220 | yes | 10 |
 | `make_arrows_wood` | Wooden arrows | 1 log | 20 arrow (wood) | 80 | no | 4 |
 
+## Kiln (`pottery`)
+
+Every kiln recipe burns a fuel, unless the kiln is the magma kiln. A brick is a `stone_block` of `brick`; a glass block a `stone_block` of `glass`: glass comes out of the kiln as blocks, with no glass item between.
+
+| id | name | inputs | outputs | ticks | Q | xp |
+|---|---|---|---|---|---|---|
+| `fire_bricks` | Bricks | 1 soil_load (clay) | 1 stone_block (`brick`) | 80 | no | 4 |
+| `make_pot` | Pot | 1 soil_load (clay) | 1 pot (`earthenware`) | 100 | no | 4 |
+| `make_jug` | Clay jug | 1 soil_load (clay) | 1 bucket (`earthenware`) | 80 | no | 4 |
+| `make_mugs_clay` | Clay mugs | 1 soil_load (clay) | 3 mug (`earthenware`) | 120 | yes | 6 |
+| `make_glass_block` | Glass block | 2 soil_load (sand) | 1 stone_block (`glass`) | 150 | no | 6 |
+| `make_glass_block_potash` | Glass blocks (potash) | 2 soil_load (sand) + 1 potash | 2 stone_block (`glass`) | 200 | no | 8 |
+| `make_mugs_glass` | Glass mugs | 1 stone_block (glass) | 3 mug (`glass`) | 120 | yes | 6 |
+| `burn_potash` | Potash | 1 log | 2 potash (`potash`) | 80 | no | 3 |
+| `burn_bone_ash` | Bone ash | 2 bone_pile | 1 bone_ash (`bone`) | 80 | no | 3 |
+| `crush_fossil` | Crush fossil | 1 fossil | 2 bone_ash (`bone`) | 100 | no | 4 |
+
+Four are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug and clay mugs take a fuel beside the input that a bucket and stone mugs take alone (`make_bucket`, `make_mug_stone`).
+
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 1), forge 40, kitchen 5, still 3, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 212.
+Carpenter 27, mason 13, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 2), forge 40, kitchen 5, still 3, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, kiln 10, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 223.
 
 ## Time arithmetic
 
@@ -348,16 +369,14 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | name | inputs | labor | ticks | fuel | magma | glyph pattern | tags | task |
 |---|---|---|---|---|---|---|---|---|---|
-| `kiln` | kiln | 3 `stone_block` | masonry | 250 | yes | `magma_kiln` | `kiln` | | T-553 |
 | `smokehouse` | smokehouse | 3 `stone_block` | masonry | 250 | yes | no | `smokehouse` | | T-552 |
 
-Edits: `magma_kiln` becomes the magma variant of `kiln` (`variant of` `kiln`), with the kiln's recipes; its note "reserved for glass in a later version" goes, and so does the paragraph on a workshop with no recipes for it (T-553). `carpenter` gains the tag `logs_only`: every other workshop may be built of blocks in place of logs (14 § Planned, Workshops of stone) (T-549).
+Edits: `carpenter` gains the tag `logs_only`: every other workshop may be built of blocks in place of logs (14 § Planned, Workshops of stone) (T-549).
 
 ### Planned recipes
 
 | workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| smelter | `make_steel_bone_ash` | Steel (bone ash flux) | 1 bar (iron) + 1 bone_ash + 1 fuel | 1 bar (steel) | 200 | yes | no | 8 | `alloy_steel` | T-553 |
 | loom | `spin_coarse_thread` | Spin coarse thread | 2 fiber or reed (reed, cactus_fiber, nettle_fiber; same material) | 1 thread (matching thread material) | 100 | no | no | 4 | `spin_thread` | T-549 |
 | craftsdwarf | `weave_basket` | Basket | 3 reed | 1 basket (from_input) | 100 | no | no | 4 | `make_bin` | T-549 |
 | craftsdwarf | `twist_reed_rope` | Reed rope | 3 reed | 1 rope (from_input) | 80 | no | no | 3 | `make_rope` | T-549 |
@@ -377,16 +396,6 @@ Edits: `magma_kiln` becomes the magma variant of `kiln` (`variant of` `kiln`), w
 | smokehouse | `smoke_fish` | Smoke fish | 5 raw_fish (same material) | 5 cured_fish (from_input) | 150 | yes | no | 6 | — | T-552 |
 | kitchen | `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | no | 5 | — | T-552 |
 | kitchen | `salt_fish` | Salt fish | 5 raw_fish (same material) + 1 salt | 5 cured_fish (from_input) | 100 | no | no | 5 | — | T-552 |
-| kiln | `fire_bricks` | Bricks | 1 soil_load (clay) | 1 stone_block (brick) | 80 | yes | no | 4 | `make_stone_block` | T-553 |
-| kiln | `make_pot` | Pot | 1 soil_load (clay) | 1 pot (earthenware) | 100 | yes | no | 4 | `make_barrel` | T-553 |
-| kiln | `make_jug` | Clay jug | 1 soil_load (clay) | 1 bucket (earthenware) | 80 | yes | no | 4 | `make_bucket` | T-553 |
-| kiln | `make_mugs_clay` | Clay mugs | 1 soil_load (clay) | 3 mug (earthenware) | 120 | yes | yes | 6 | `make_mug_stone` | T-553 |
-| kiln | `make_glass_block` | Glass block | 2 soil_load (sand) | 1 stone_block (glass) | 150 | yes | no | 6 | — | T-553 |
-| kiln | `make_glass_block_potash` | Glass blocks (potash) | 2 soil_load (sand) + 1 potash | 2 stone_block (glass) | 200 | yes | no | 8 | — | T-553 |
-| kiln | `make_mugs_glass` | Glass mugs | 1 stone_block (glass) | 3 mug (glass) | 120 | yes | yes | 6 | — | T-553 |
-| kiln | `burn_potash` | Potash | 1 log | 2 potash | 80 | yes | no | 3 | — | T-553 |
-| kiln | `burn_bone_ash` | Bone ash | 2 bone_pile | 1 bone_ash | 80 | yes | no | 3 | — | T-553 |
-| kiln | `crush_fossil` | Crush fossil | 1 fossil | 2 bone_ash | 100 | yes | no | 4 | — | T-553 |
 | carpenter | `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | no | 4 | — | T-555 |
 | kiln | `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (earthenware) | 100 | yes | no | 4 | `make_hive_wood` | T-555 |
 | craftsdwarf | `weave_hive` | Wicker beehive | 3 reed | 1 beehive (from_input) | 100 | no | no | 4 | `make_hive_wood` | T-555 |
@@ -408,6 +417,6 @@ Edits: `magma_kiln` becomes the magma variant of `kiln` (`variant of` `kiln`), w
 | kitchen | `make_soap` | Soap | 1 tallow + 1 potash | 2 soap | 100 | no | no | 4 | — | T-564 |
 | kitchen | `cook_feast` | Feast | 6 ingredient (distinct stacks) + 1 salt or honey or plant_food (wyrmtongue) | 1 feast (20 servings) | 400 | no | yes | 20 | — | T-565 |
 
-The kiln's skill is `pottery`, the smokehouse's `cooking`. The fletching recipe `set_ammo_fletched` is generated at the bowyer from the `fletched` enchantment ([weapons-and-armor.md](weapons-and-armor.md) § Planned rows). Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
+The smokehouse's skill is `cooking`. The fletching recipe `set_ammo_fletched` is generated at the bowyer from the `fletched` enchantment ([weapons-and-armor.md](weapons-and-armor.md) § Planned rows). Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
 
-A substitute pair the check reads: a brick is 1 clay load + a fuel and a job for 1 block against 1 stone for 2; a pot holds 10 against a barrel's 20 for the same input and a fuel; a basket 3 reeds for 15 against a log for 30; a bone splint 1 bone for 2 against a log for 4; coarse thread 2 fiber against 1.
+A substitute pair the check reads: a basket 3 reeds for 15 against a log for 30; a bone splint 1 bone for 2 against a log for 4; coarse thread 2 fiber against 1.

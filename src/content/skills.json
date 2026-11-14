@@ -343,6 +343,17 @@
     ]
   },
   {
+    "id": "pottery",
+    "name": "Pottery",
+    "labor": "crafts",
+    "profession": "Potter",
+    "military": null,
+    "attributes": [
+      "agi",
+      "wit"
+    ]
+  },
+  {
     "id": "runecraft",
     "name": "Runecraft",
     "labor": "attunement",

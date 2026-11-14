@@ -213,6 +213,18 @@
     "burnTicks": 0
   },
   {
+    "id": "brick",
+    "name": "brick",
+    "class": "stone",
+    "value": 1,
+    "density": 200,
+    "hardness": 90,
+    "color": "brick_red",
+    "meltsAtC": 1400,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
     "id": "bronze",
     "name": "bronze",
     "class": "metal",
@@ -525,6 +537,21 @@
     ]
   },
   {
+    "id": "earthenware",
+    "name": "earthenware",
+    "class": "stone",
+    "value": 1,
+    "density": 180,
+    "hardness": 60,
+    "color": "clay_red",
+    "meltsAtC": 1300,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "fragile"
+    ]
+  },
+  {
     "id": "egg",
     "name": "egg",
     "class": "meat",
@@ -698,6 +725,18 @@
     "hardness": 70,
     "color": "bone_white",
     "meltsAtC": 1600,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
+    "id": "glass",
+    "name": "glass",
+    "class": "glass",
+    "value": 6,
+    "density": 250,
+    "hardness": 60,
+    "color": "glass_pale",
+    "meltsAtC": 1400,
     "burnable": false,
     "burnTicks": 0
   },
@@ -1205,6 +1244,18 @@
     "tags": [
       "magma_safe"
     ]
+  },
+  {
+    "id": "potash",
+    "name": "potash",
+    "class": "stone",
+    "value": 1,
+    "density": 90,
+    "hardness": 100,
+    "color": "ash_gray",
+    "meltsAtC": 1300,
+    "burnable": false,
+    "burnTicks": 0
   },
   {
     "id": "quartz",

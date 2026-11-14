@@ -144,7 +144,7 @@ Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel addi
 
 Stones tagged `flux`: `limestone`, `dolomite`, `marble`, `chalk`. One raw stone per steel bar.
 
-Shells stand in for the flux stone: 3 `shell_piece` of any shell material (`chitin` included) in the smelter's authored `make_steel_shell` ([workshops-and-recipes.md](workshops-and-recipes.md) § Smelter), worse than the stone.
+Shells stand in for the flux stone: 3 `shell_piece` of any shell material (`chitin` included) in the smelter's authored `make_steel_shell` ([workshops-and-recipes.md](workshops-and-recipes.md) § Smelter), worse than the stone. So does bone ash, one for one, in `make_steel_bone_ash`: burned at the kiln from bone piles or a crushed fossil, it costs a kiln job and a fuel before the smelter.
 
 ## Generated recipes
 
@@ -173,4 +173,3 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 ### Planned fuel and flux
 
 - Half fuels (T-552): `peat_brick` (a peat load dried on a rack) and `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`: a fuel job burns two of them in place of one bar (12 § Planned).
-- Flux substitute (T-553): 1 `bone_ash` in place of the flux stone, in the smelter's authored `make_steel_bone_ash` (`workshops-and-recipes.md` § Planned rows), beside the shells' `make_steel_shell`. Bone ash is also a fertilizer.

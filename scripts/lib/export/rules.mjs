@@ -263,7 +263,7 @@ export function exportBuildings() {
       out.push(
         buildingRow({ ...row, pass: 'yes', fluid: 'no', room: '0', value: '0', tags: 'magma' }, 'workshop', {
           footprint: { w: 3, h: 3, rotatable: false },
-          // magma_kiln has no pattern: it is reserved for a later version and hidden.
+          // A magma variant draws its base workshop's pattern.
           pattern: variantOf ?? undefined,
           workTile: 4,
           outputTile: 7,
@@ -326,6 +326,8 @@ const RECIPE_SECTIONS = [
   ['Clothier', 'clothier', 'clothesmaking', false, false],
   ["Farmer's workshop", 'farmers_workshop', 'farming', false, false],
   ['Bowyer', 'bowyer', 'carpentry', false, false],
+  // § Kiln: "Every kiln recipe burns a fuel".
+  ['Kiln', 'kiln', 'pottery', true, false],
   ['Laboratory', 'alchemist', 'alchemy', false, false],
   ['Runeforge', 'runeforge', 'runesmithing', false, true],
 ];
