@@ -42,6 +42,8 @@ export * from './rules/transitions';
 
 /** The id 03 registers its reader under. */
 export const TERRAIN_ID = '03';
+/** `03` § Tile transitions: the soil drop's own rng stream. */
+export const SOIL_DROP_STREAM = '03.soil_drop';
 
 export interface TerrainOptions {
   /** The spec the map was generated from (`FLAT_TEST_SPEC` for the fixture). */
@@ -133,7 +135,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     this.commandHost = { core, fortress: world.fortress, progressOf: (tile) => this.progressOf(tile) };
     this.readerRef = makeReader(core, () => this.specValue, (tile) => this.progressOf(tile), (tile) => this.producer?.workOf(tile) ?? null);
     // `03` § Registrations: job producer `terrain` (designation jobs, T-M1-10).
-    const producer = new TerrainProducer(core, ctx.readers, ctx.rng);
+    const producer = new TerrainProducer(core, ctx.readers, ctx.rng, () => world.rngFor(SOIL_DROP_STREAM));
     this.producer = producer;
     core.plantClearer = (tile, ripe) => producer.clearPlant(tile, ripe);
     this.progressOf = (tile) => producer.progressOf(tile);
@@ -147,6 +149,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     ctx.register.announcement('CavernBreached', { severity: 'alert', stringKey: 'announce.cavern_breached' });
     ctx.register.announcement('DeepsilverMined', { severity: 'danger', stringKey: 'announce.deepsilver_mined', once: true });
     ctx.register.announcement('ConstructionCollapsed', { severity: 'alert', stringKey: 'announce.construction_collapsed' });
+    // "`FossilFound`: note, string key `announce.first_fossil`".
+    ctx.register.announcement('FossilFound', { severity: 'note', stringKey: 'announce.first_fossil' });
   }
 
   /**
@@ -214,6 +218,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       rng: (this.rng as RngStream).state(),
       bigDigCounter: this.bigDigCounter,
       veinsFound: core.veinsFound.slice(),
+      ...(core.fossilFound ? { fossilFound: true } : {}),
       spec: this.specValue,
       pendingMoves: this.pendingMoves.map((m) => [m[0], m[1], m[2]] as [EntityId, TileIndex, TileIndex]),
       producerCurrent: this.producer?.current ?? false,
@@ -237,6 +242,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     core.cavernBreached[2] = state.cavernBreached[2];
     core.veinsFound.length = 0;
     core.veinsFound.push(...state.veinsFound);
+    core.fossilFound = state.fossilFound === true;
     this.layerStack = state.layerStack.map((l) => ({ ...l }));
     this.bigDigCounter = state.bigDigCounter;
     this.specValue = state.spec;

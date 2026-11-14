@@ -403,12 +403,18 @@ async function tradeThroughUi(page: Page, clock: ReturnType<typeof playClock>): 
   const arrived = await playWhile(page, clock, "h.readers.of('20').depotItems().length > 0", 1500);
   expect(arrived, 'the marked goods reached the depot').toBe(true);
 
-  await page.keyboard.press('c');
-  await page.keyboard.press('Shift+D');
-  await expect.poll(() => textOf(page)).toContain('goods at depot');
-  await page.keyboard.press('Shift+T');
-  await clock.expectPaused();
-  const opened = await playWhile(page, clock, "h.readers.of('20').sessionOpen()", 1500);
+  // The year's alert keeper sets the alert through the military panel while the broker walks, and
+  // closing the panels for it closes a trade screen that has just opened: as a player would, ask the
+  // broker again (T-547: on this timeline a predator came near on the tick the session opened).
+  let opened = false;
+  for (let attempt = 0; attempt < 3 && !opened; attempt += 1) {
+    await page.keyboard.press('c');
+    await page.keyboard.press('Shift+D');
+    await expect.poll(() => textOf(page)).toContain('goods at depot');
+    await page.keyboard.press('Shift+T');
+    await clock.expectPaused();
+    opened = await playWhile(page, clock, "h.readers.of('20').sessionOpen()", 1500);
+  }
   expect(opened, 'the broker opened the trade session').toBe(true);
   await expect.poll(() => screenOf(page)).toBe('trade_session');
   expect(await textOf(page)).toContain('Trading with the');

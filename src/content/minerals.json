@@ -38,10 +38,26 @@
       }
     ],
     "value": 5,
-    "color": "coal_black",
-    "tags": [
-      "fuel"
-    ]
+    "color": "coal_black"
+  },
+  {
+    "id": "bog_iron",
+    "name": "bog iron",
+    "class": "ore",
+    "hosts": [
+      "peat"
+    ],
+    "shape": "cluster",
+    "count": 300,
+    "radius": 2,
+    "yields": [
+      {
+        "metal": "iron",
+        "count": 1
+      }
+    ],
+    "value": 4,
+    "color": "limonite_yellow"
   },
   {
     "id": "cassiterite",
@@ -111,6 +127,45 @@
     "color": "galena_gray"
   },
   {
+    "id": "giant_bone",
+    "name": "giant bone",
+    "class": "bone",
+    "density": 140,
+    "hardness": 70,
+    "meltsAtC": 1600,
+    "hosts": [
+      "sandstone",
+      "shale",
+      "limestone",
+      "siltstone",
+      "chalk",
+      "conglomerate"
+    ],
+    "shape": "cluster",
+    "count": 300,
+    "radius": 2,
+    "yields": [],
+    "value": 3,
+    "color": "bone_white"
+  },
+  {
+    "id": "halite",
+    "name": "rock salt",
+    "class": "ore",
+    "hosts": [
+      "limestone",
+      "shale",
+      "sandstone",
+      "chalk"
+    ],
+    "shape": "cluster",
+    "count": 200,
+    "radius": 2,
+    "yields": [],
+    "value": 2,
+    "color": "salt_white"
+  },
+  {
     "id": "hematite",
     "name": "hematite",
     "class": "ore",
@@ -152,10 +207,7 @@
       }
     ],
     "value": 3,
-    "color": "lignite_brown",
-    "tags": [
-      "fuel"
-    ]
+    "color": "lignite_brown"
   },
   {
     "id": "limonite",

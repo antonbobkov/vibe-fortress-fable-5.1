@@ -196,9 +196,22 @@ function exportRemains(tables) {
   return bySpecies;
 }
 
+/** creatures.md § Butcher parts: one row per species and part -> { species: [{ item, material, count }] }. */
+function exportButcherParts(tables) {
+  const bySpecies = new Map();
+  for (const row of asObjects(findTable(tables, 'Butcher parts', 'material'))) {
+    const sid = id(row.species);
+    const list = bySpecies.get(sid) ?? [];
+    list.push({ item: id(row.item), material: id(row.material), count: Number(plain(row.count)) });
+    bySpecies.set(sid, list);
+  }
+  return bySpecies;
+}
+
 export function exportCreatures() {
   const tables = readTables(join(CONTENT_DIR, 'creatures.md'));
   const remains = exportRemains(tables);
+  const butcherParts = exportButcherParts(tables);
   const out = [];
   for (const section of SECTIONS) {
     const table = findTable(tables, section, 'plan');
@@ -243,6 +256,7 @@ export function exportCreatures() {
             ? undefined
             : plain(row['gear (see caravan-goods and threat-schedules)']),
           remains: remains.get(sid),
+          butcherParts: butcherParts.get(sid),
           glyph: glyph(row.glyph),
           fg: plain(row.fg) === 'state color' ? 'dwarf_normal' : id(row.fg),
         }),

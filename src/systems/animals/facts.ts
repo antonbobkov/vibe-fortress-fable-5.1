@@ -39,6 +39,8 @@ export interface SpeciesRow {
   readonly meatValue: number;
   readonly hideValue: number;
   readonly shell?: boolean;
+  /** `creatures.md` § Butcher parts: what the corpse gives besides meat, hide, bone, fat, skull and shell. */
+  readonly butcherParts?: readonly { readonly item: string; readonly material: string; readonly count: number }[];
   readonly value: number;
   readonly naturalArmor: number;
   readonly fleeBloodPercent: number;

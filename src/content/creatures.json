@@ -399,6 +399,13 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "shell_piece",
+        "material": "chitin",
+        "count": 2
+      }
+    ],
     "glyph": "C",
     "fg": "hostile"
   },
@@ -443,6 +450,13 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "horn",
+        "material": "horn",
+        "count": 2
+      }
+    ],
     "glyph": "O",
     "fg": "ox_gray"
   },
@@ -495,6 +509,13 @@
     },
     "factionDefault": "fortress",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "feather",
+        "material": "feather",
+        "count": 2
+      }
+    ],
     "glyph": "h",
     "fg": "chicken_white"
   },
@@ -874,6 +895,13 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "horn",
+        "material": "horn",
+        "count": 2
+      }
+    ],
     "glyph": "E",
     "fg": "elk_brown"
   },
@@ -1359,6 +1387,13 @@
     },
     "factionDefault": "fortress",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "horn",
+        "material": "horn",
+        "count": 1
+      }
+    ],
     "glyph": "g",
     "fg": "goat_gray"
   },
@@ -1792,6 +1827,13 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "tusk",
+        "material": "ivory",
+        "count": 2
+      }
+    ],
     "glyph": "M",
     "fg": "mammoth_brown"
   },
@@ -1893,6 +1935,13 @@
     },
     "factionDefault": "wild",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "horn",
+        "material": "horn",
+        "count": 2
+      }
+    ],
     "glyph": "g",
     "fg": "goat_white"
   },
@@ -2558,6 +2607,13 @@
     },
     "factionDefault": "fortress",
     "perception": 12,
+    "butcherParts": [
+      {
+        "item": "horn",
+        "material": "horn",
+        "count": 2
+      }
+    ],
     "glyph": "Y",
     "fg": "yak_black"
   }

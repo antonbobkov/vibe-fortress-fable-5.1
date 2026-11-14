@@ -52,10 +52,12 @@ Fuel inputs use the item tag `fuel`. An input with `flagged: 'melt'` takes one w
 
 Generated at load from the minerals and metals tables:
 
-- `smelt_<ore>`: 1 ore → `yields` bars (the ore's `yields` list; `galena` gives 1 `lead` and, with the silver yield's `permille`, 1 `silver`), fuel, no quality.
-- `alloy_<metal>`: the metal's `alloyInputs` bars → `alloyOutput` bars, fuel, no quality (`bronze`: 1 copper + 1 tin → 2 bronze; `brass`: 1 copper + 1 zinc → 2 brass; `steel`: 1 iron + 1 flux stone + 1 fuel → 1 steel, on top of the workshop's fuel; `electrum`: 1 gold + 1 silver → 2 electrum).
+- `smelt_<ore>`: 1 ore → `yields` bars (the ore's `yields` list; `galena` gives 1 `lead` and, with the silver yield's `permille`, 1 `silver`), fuel, no quality. A mineral row with no yields (`halite`, `giant_bone`) has none.
+- `alloy_<metal>`: the metal's `alloyInputs` bars → `alloyOutput` bars, fuel, no quality (`bronze`: 1 copper + 1 tin → 2 bronze; `brass`: 1 copper + 1 zinc → 2 brass; `steel`: 1 iron + 1 flux stone + 1 fuel → 1 steel, on top of the workshop's fuel; `electrum`: 1 gold + 1 silver → 2 electrum; `pewter`: 1 tin + 1 lead → 2 pewter).
 - `melt_<class>`: a marked metal item → `floor(stackCount × itemBarValue × MELT_RETURN_PERCENT / 100)` bars of its metal, fuel, no quality.
 - `forge_<weapon|armor|tool>`: bars → the item; bar counts per item type; material from input; quality.
+
+Authored beside them at the smelter: `make_steel_shell`, 1 iron bar + 3 `shell_piece` of any shell material (`chitin` included) + 1 fuel → 1 steel, fuel and no quality as the alloy: shells stand in for the flux stone. At the kitchen, `crush_halite` crushes 1 `ore` of halite (rock salt) into 5 `salt`.
 
 Melting takes the whole marked stack. Its bar cost comes from the weapon or armor row, else the matching metal recipe's bar inputs divided by its output units, else one bar. Explicit work orders run first; `autoMeltMarked` starts only when none starts and the smelter is idle.
 
@@ -120,6 +122,9 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 - At the still, `distill`: 20 `drink` of the `drink/ale` or `drink/wine` group (one material: a barrel's worth, the input's `ale_or_wine` property, the material's `ale` or `wine` tag) + 1 fuel + an empty `barrel` container → 10 `drink` of `deepfire` in that barrel. The container rule is as it is: the job fetches its twenty units as any input (11's fetch takes them out of their barrel, from more than one barrel when no barrel holds twenty of one material), and the emptied source barrel is a free container again. A distillation therefore wants two barrels: the one it empties and the empty one it fills. Spirits are no input: deepfire is not of the ale or wine group.
 - A `maintain` order counts deepfire (§ Work orders). Deepfire is the `drink/spirits` group (13 § Category tree; `items.md`), the Mountainhome's favourite (20, `caravan-goods.md` § Preferences), and makes its drinker tipsy (10 § Tipsy).
+### Substitutes
+
+A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel).
 
 ### Fuel and charcoal
 
@@ -199,13 +204,9 @@ Recipe times, bar costs per item and profession names are content.
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `workshops-and-recipes.md` § Planned rows and the other content documents' § Planned rows.
 
-### Substitutes are worse (T-547 builds the check; every Making Do task keeps it green)
+### Steel with bone ash (T-553)
 
-Every planned recipe marked `substitute` in `workshops-and-recipes.md` § Planned rows names the regular recipe it stands in for. A unit test compares the pair: per unit of output, the substitute takes at least as many input units and at least as many ticks, or gives a lower output value, and it is never better on all three. A substitute that is better on every count fails the test.
-
-### Steel without flux stone (T-547)
-
-The smelter has two authored steel recipes beside the generated `alloy_steel`: `make_steel_shell` (1 iron bar + 3 `shell_piece` of any shell material, chitin included, + 1 fuel → 1 steel) and `make_steel_bone_ash` (1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel), fuel and no quality as the alloy. Bone ash is made at the kiln (T-553); until then the second recipe is never runnable.
+The smelter's authored `make_steel_bone_ash` (1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel), fuel and no quality as the alloy, beside `make_steel_shell` (§ Recipes): a substitute for `alloy_steel`, its pair added to the substitute check. Bone ash is made at the kiln.
 
 ### Half fuels and smoke (T-552)
 
@@ -221,7 +222,7 @@ The smelter has two authored steel recipes beside the generated `alloy_steel`: `
 ### Smoke, salt and the smokehouse (T-552)
 
 - Workshop `smokehouse`: 3 `stone_block`, masonry, skill `cooking`, fuel. `smoke_meat`: 1 fuel + 5 raw meat or raw fish (same material) → 5 `cured_meat` or `cured_fish` of that material. On its completion every fortress dwarf within `SMOKE_RADIUS` of the smokehouse who is not its worker gets `smelled_smokehouse` ("Smells of smoked {meat}. Hungry now.", the material's name) and hunger +`SMOKEHOUSE_HUNGER`.
-- Kitchen: `crush_halite` (1 `ore` of halite → 5 `salt`, T-547) and `salt_meat` (1 salt + 5 raw meat or raw fish → 5 cured, no fuel, T-552).
+- Kitchen: `salt_meat` (1 salt + 5 raw meat or raw fish → 5 cured, no fuel, T-552), beside `crush_halite`.
 - `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (12 § Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt.
 - Constants: `SMOKEHOUSE_HUNGER` 5.
 

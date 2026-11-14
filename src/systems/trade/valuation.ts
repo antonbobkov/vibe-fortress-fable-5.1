@@ -10,6 +10,10 @@ export function preferencePercent(registry: Registry, civ: Civ, category: string
   const exact = (key: string): number | undefined => rows.find((row) => row.key === key)?.percent;
   if (material === 'deepsilver') return exact('bar deepsilver, deepsilver items') ?? 100;
   if (caged) return exact('creatures (caged)') ?? 100;
+  // `caravan-goods.md` § Preferences: "A `material <id>` row applies to every item of that
+  // material, before the category and class rows".
+  const byMaterial = exact(`material ${material}`);
+  if (byMaterial !== undefined) return byMaterial;
   if (materialClass === 'wood' && civ === 'wildwood') return exact('any item with material class wood') ?? 100;
   for (const row of rows) {
     if (row.key === category || row.key.split(', ').includes(category)) return row.percent;

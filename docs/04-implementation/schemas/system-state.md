@@ -18,7 +18,7 @@ interface LocalMapSpec { seed: string; regionId: number; biome: Id<BiomeDef>; el
 
 interface TerrainState { stateVersion: 1; designations: { tile: TileIndex; kind: Designation; priority: Priority; progress: Fixed }[];
   engravings: [TileIndex, { quality: Quality; engraverId: EntityId; motif: number }][]; forbiddenTiles: TileIndex[];
-  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number;
+  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; fossilFound?: boolean /* omitted while false */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number;
   pendingTerrain?: { changed: TileIndex[]; discovered: TileIndex[]; litDirty: number[] /* z levels */ } }
 // pendingTerrain arrays are sorted and unique; absent means no deferred batch. Serialization and loading do not flush terrain work.
 

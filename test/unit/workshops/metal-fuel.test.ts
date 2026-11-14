@@ -7,12 +7,17 @@ import type { RecipeRow, WorkshopsReader, WorkshopsSystem } from '@systems/works
 import { TestWorld } from '../../scenarios/test-world';
 
 describe('T-M5-01 wood furnace and smelter fuel and ore yields', () => {
-  it('generates an exact recipe for every ore, with no workshop fuel for coal', () => {
+  it('generates an exact recipe for every ore with yields, with no workshop fuel for coal', () => {
     const w = new TestWorld({ seed: 'm5-ore-rows', world: 'flat-test', embark: 'none' });
     const ores = w.game.registry.table<{ id: string; yields: readonly { metal: string; count: number; permille?: number }[] }>('minerals');
     const recipes = w.readers.of<WorkshopsReader>('12');
     for (const ore of ores.ids()) {
       const row = ores.byId(ore)!;
+      // minerals-and-metals.md § Ores: "An ore with no yields (`halite`, `giant_bone`) has no smelt recipe."
+      if (row.yields.length === 0) {
+        expect(recipes.recipe(`smelt_${ore}`), ore).toBeUndefined();
+        continue;
+      }
       const recipe = recipes.recipe(`smelt_${ore}`)!;
       expect(recipe.inputs).toEqual([{ match: 'ore', count: 1, material: ore }]);
       expect(recipe.outputs).toEqual(row.yields.map((y) => ({
@@ -20,7 +25,8 @@ describe('T-M5-01 wood furnace and smelter fuel and ore yields', () => {
         ...(y.permille === undefined ? {} : { permille: y.permille }),
       })));
       expect(recipe.fuel).toBe(!row.yields.some((y) => y.metal === 'coal'));
-      if (row.yields.length === 1 && row.yields[0]?.permille === undefined && row.yields[0]?.metal !== 'coal' && ore !== 'deepsilver_ore') {
+      // Bog iron is "the wetland's iron, half a hematite's" (minerals-and-metals.md § Ores).
+      if (row.yields.length === 1 && row.yields[0]?.permille === undefined && row.yields[0]?.metal !== 'coal' && ore !== 'deepsilver_ore' && ore !== 'bog_iron') {
         expect(recipe.outputs[0]?.count).toBe(2);
       }
     }
@@ -47,6 +53,7 @@ describe('T-M5-01 wood furnace and smelter fuel and ore yields', () => {
       } }, emit: () => {} } as unknown as TickContext;
     for (const ore of ores.ids()) {
       const row = ores.byId(ore)!;
+      if (row.yields.length === 0) continue;
       const recipe = system.operator.recipe(`smelt_${ore}`) as RecipeRow;
       const totals = new Map<string, number>();
       for (let trial = 0; trial < 1000; trial += 1) {

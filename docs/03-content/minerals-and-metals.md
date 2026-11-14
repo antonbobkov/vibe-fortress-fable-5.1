@@ -71,8 +71,13 @@ Columns: `hosts` are the layer materials a vein or cluster may start in; `shape`
 | `bituminous_coal` | bituminous coal | `sandstone`, `shale`, `siltstone` | vein | 4 | 22 | 2 `coal` | 5 | `coal_black` | fuel |
 | `lignite` | lignite | `sandstone`, `chalk`, `conglomerate` | vein | 3 | 20 | 1 `coal` | 3 | `lignite_brown` | fuel |
 | `deepsilver_ore` | deepsilver | any rock at `z ≤ DEEPSILVER_Z_MAX` within 2 of magma | vein | see below | 6 | 1 `deepsilver` | 120 | `deepsilver_blue` | wakes the Hollow |
+| `halite` | rock salt | `limestone`, `shale`, `sandstone`, `chalk` | cluster | 2 | 2 | — | 2 | `salt_white` | no smelt recipe (no yields); the kitchen crushes 1 → 5 `salt` |
+| `bog_iron` | bog iron | `peat` | cluster | 3 | 2 | 1 `iron` | 4 | `limonite_yellow` | the wetland's iron, half a hematite's |
+| `giant_bone` | giant bone | `sandstone`, `shale`, `limestone`, `siltstone`, `chalk`, `conglomerate` | cluster | 3 | 2 | — | 3 | `bone_white` | class `bone`, density 140, hardness 70, melts at 1600 (magma-safe); a dug tile always drops a `fossil` |
 
 `bismuth` is a metal used only in `bismuth_bronze` (below); it is not a bar players use directly.
+
+An ore with no yields (`halite`, `giant_bone`) has no smelt recipe. A row's notes may give its material another class, density, hardness and melting point than an ore's (`giant_bone` is of class `bone`: a fossil, not an ore). Fossils lie only in the sedimentary layers: an igneous or metamorphic map has fossils only where its mixed template holds a sedimentary layer. Every row's clusters are placed by 03 stage 7.
 
 ### Wealth multiplier
 
@@ -122,6 +127,7 @@ Columns: `tier` for weapons and armor (0 wood and bone, 1 copper, 2 bronze, 3 ir
 | `electrum` | electrum | 0 | 45 | 1500 | 0.45 | 0.45 | 0 | 0.7 | — | — | 1000 | `electrum_pale` | 1 `gold` + 1 `silver` → 2 | crafts |
 | `bismuth` | bismuth | 0 | 10 | 980 | 0.30 | 0.30 | 0 | 0.7 | — | — | 271 | `bismuth_pink` | — | alloy input |
 | `deepsilver` | deepsilver | 5 | 250 | 600 | 1.60 | 1.60 | 0 | 1.6 | `deep_shade` | 10 | 2400 | `deepsilver_blue` | — | magma-safe; light: armor weight halved |
+| `pewter` | pewter | 0 | 9 | 730 | 0.40 | 0.40 | 0 | 0.7 | — | — | 300 | `pewter_gray` | 1 `tin` + 1 `lead` → 2 | mugs, crafts, tableware |
 
 Metal tier for weapon and armor purposes: `wood`, `bone` and `obsidian` items are tier 0 with `weaponMult` 0.40, 0.50 and 0.70. Obsidian and bone are knapped into daggers and short swords at the craftsdwarf's workshop ([workshops-and-recipes.md](workshops-and-recipes.md) § Craftsdwarf): an obsidian short sword deals 12.6 and a bone one 9 against a copper one's 14.4 and an iron one's 18, and a bone dagger's 6 is a dwarf's punch with an edge.
 
@@ -138,12 +144,14 @@ Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel addi
 
 Stones tagged `flux`: `limestone`, `dolomite`, `marble`, `chalk`. One raw stone per steel bar.
 
+Shells stand in for the flux stone: 3 `shell_piece` of any shell material (`chitin` included) in the smelter's authored `make_steel_shell` ([workshops-and-recipes.md](workshops-and-recipes.md) § Smelter), worse than the stone.
+
 ## Generated recipes
 
 From the tables above the loader generates, per 12:
 
-- `smelt_hematite` … `smelt_deepsilver_ore` (1 ore → yields; fuel true except coal ores).
-- `alloy_bronze`, `alloy_bismuth_bronze`, `alloy_brass`, `alloy_electrum`, `alloy_steel` (steel is listed as an alloy for uniformity: 1 iron bar + 1 flux + 1 fuel → 1 steel).
+- `smelt_hematite` … `smelt_bog_iron` (1 ore → yields; fuel true except coal ores), one per ore with yields.
+- `alloy_bronze`, `alloy_bismuth_bronze`, `alloy_brass`, `alloy_electrum`, `alloy_steel` (steel is listed as an alloy for uniformity: 1 iron bar + 1 flux + 1 fuel → 1 steel), `alloy_pewter`.
 - `melt_metal_item` (any `melt`-flagged metal item → 60% of its bar cost in bars).
 
 ## Planned rows
@@ -154,21 +162,15 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | name | hosts | shape | count | length / radius | yields | value | color | notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `halite` | rock salt | `limestone`, `shale`, `sandstone`, `chalk` | cluster | 2 | 2 | — | 2 | `salt_white` | no smelt recipe (no yields); the kitchen crushes 1 → 5 `salt` | T-547 |
-| `bog_iron` | bog iron | `peat` | cluster | 3 | 2 | 1 `iron` | 4 | `limonite_yellow` | the wetland's iron, half a hematite's | T-547 |
-| `giant_bone` | giant bone | `sandstone`, `shale`, `limestone`, `siltstone`, `chalk`, `conglomerate` | cluster | 3 | 2 | — | 3 | `bone_white` | class `bone`, density 140, hardness 70, melts at 1600 (magma-safe); a dug tile always drops a `fossil`; the boneyards are of it too (03) | T-547 |
 | `star_iron` | star iron | — | cluster | 0 | 0 | 3 `star_steel` | 30 | `star_silver` | placed only by `starfall` (03 § Planned); smelted without flux | T-560 |
-
-Fossils lie only in the sedimentary layers: an igneous or metamorphic map has fossils only where its mixed template holds a sedimentary layer.
 
 ### Planned metals
 
 | id | name | tier | value (bar) | density | weaponMult | armorMult | bluntBonus | runeMult | summon | runePressure | meltsAtC | color | alloy inputs (→ output) | notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `pewter` | pewter | 0 | 9 | 730 | 0.40 | 0.40 | 0 | 0.7 | — | — | 300 | `pewter_gray` | 1 `tin` + 1 `lead` → 2 | mugs, crafts, tableware | T-547 |
 | `star_steel` | star steel | 4 | 90 | 780 | 1.30 | 1.25 | 0 | 1.4 | `stone_warden` | — | 1600 | `star_silver` | — | magma-safe; never sold; merchants pay 200% | T-560 |
 
 ### Planned fuel and flux
 
 - Half fuels (T-552): `peat_brick` (a peat load dried on a rack) and `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`: a fuel job burns two of them in place of one bar (12 § Planned).
-- Flux substitutes (T-547): 3 `shell_piece` (any shell material, chitin included) or 1 `bone_ash` in place of the flux stone, in the smelter's authored `make_steel_shell` and `make_steel_bone_ash` (`workshops-and-recipes.md` § Planned rows). Bone ash is also a fertilizer.
+- Flux substitute (T-553): 1 `bone_ash` in place of the flux stone, in the smelter's authored `make_steel_bone_ash` (`workshops-and-recipes.md` § Planned rows), beside the shells' `make_steel_shell`. Bone ash is also a fertilizer.

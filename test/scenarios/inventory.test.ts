@@ -42,6 +42,7 @@ const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', 
   events: {
     WorldGenerated: { reason: 'World-map generation emits outside the simulation tick loop.' },
     TreeFelled: { test: 'test/unit/terrain/producer.test.ts', reason: 'A commanded chop completes through the real job loop and delivers TreeFelled.' },
+    FossilFound: { test: 'test/unit/t547-making-do-materials.test.ts', reason: 'A miner digs a room of giant bone through the real job loop; the first fossil delivers FossilFound once and the thought of the digger.' },
     ShrubRegrown: { test: 'test/unit/plants/wild.test.ts', reason: 'A delivered gather completion starts the shrub timer; stepped days deliver regrowth.' },
     ShrubGrazed: { test: 'test/unit/t548-making-do-plants.test.ts', reason: 'A tame yak in a pasture of lichen with no grass walks onto a lichen shrub and grazes it through the stepped tame brain; 07 then sets it regrowing.' },
     Stung: { test: 'test/unit/t548-making-do-plants.test.ts', reason: 'Two hundred gather completions on a wild nettle draw the sting on its own stream in step; 15 gives the nettles thought.' },
