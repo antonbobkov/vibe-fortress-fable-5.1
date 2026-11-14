@@ -40,7 +40,28 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 
 ## Planned
 
-None at present.
+The goofy rules and trade-offs of the Making Do content ([design](../reports/designs/2026-11-06-making-do-content-and-scarcity.md)). Each is specified in the § Planned section of its system document; the task that builds it moves it to § In the game, with where it lives in the code and how to remove it.
+
+| Feature | What happens | Spec | Task |
+|---|---|---|---|
+| Stung | A beekeeper is stung one time in ten ("Stung. The bees were not consulted."), and in summer anyone who stands within 3 tiles of a hive at the hour is stung now and then: place the hive off the walking lines | 08 § Planned, Hives | T-555 |
+| Nettles | Gathering wild nettles stings one time in ten: "Nettles. Of course." | 09 § Planned | T-548 |
+| Drinking a cactus | A thirsty dwarf with nothing else to drink eats a cactus: half a drink of water and "Drank cactus. Cactus." | 10 § Planned | T-548 |
+| The camel spits | One milking or shearing of a camel in twenty ends with "The camel spat on Ketil Ironvein." | 08 § Planned, Reindeer and camels | T-561 |
+| Spirits and song | A dwarf who drinks spirits sings ("Sang at the hearth. Everyone heard."), and walks and works 10% slower for two hours: a barrel by the forge is a slow forge, a locked cellar a wine cellar. The owner's call: the slowdown stays | 10 § Planned, Tipsy | T-554 |
+| The spider ranch | A caged giant cave spider webs the room around its cage every day: silk for the loom, and webs that catch your own haulers for 100 ticks | 18 § Planned; 09 § Planned | T-556 |
+| Candles at the gate | Candle light lets a dwarf spot a hidden thief two tiles sooner, and shows a thief standing in it; a room lit only by tallow is smoky now and then | 14 § Planned, Comfort light; 18 § Planned | T-563 |
+| Peat smoke | A forge burning peat or dung fills the hall around it with smoke: "The hall is full of smoke." A taiga fortress smells of peat and knows it | 05 § Planned, Smoke | T-552 |
+| The smokehouse's smell | Dwarves near a smokehouse that has just finished: "Smells of smoked boar. Hungry now.", and a little hungrier | 12 § Planned | T-552 |
+| Pots break | A hauler carrying a clay pot who is struck in a fight breaks it, and the drink in it is lost | 13 § Planned, Clay pots | T-553 |
+| Fire on purpose | A firebrand lights a tile: clear brush, burn a field for wyrmtongue, fire a peat field across a raid's path. Fire is not choosy. "Set a fire. On purpose, this time." The first one asks first | 03 § Planned, Setting a fire; 05 § Planned | T-559 |
+| A gate of ice | A wall of winter ice holds a gate and keeps a larder; underground it melts after 84 days, outdoors at the thaw, and the gate opens itself in spring | 05 § Planned, Ice constructions | T-559 |
+| A vintage worth raiding | A cellar ages drink and cheese into wealth, and wealth raises renown, which sizes raids | 13 § Planned, Aging | T-554 |
+| Wyrmtongue | "Ate something that fought back.": a meal with wyrmtongue keeps the cold out for a day | 15 § Planned | T-548 |
+| Faces of the land | The first dwarf to stand in a skeleton's ribs, a dwarf in the crater ("Stood where the star fell."), the first roost ("Bats. Hundreds of them. Brynja Coldhammer counted.") | 03, 08, 10 § Planned | T-557, T-560, T-556 |
+| Behind glass | An archer behind a glass wall sees the raid and cannot shoot it, and the raid sees the hall | 22 § Planned | T-558 |
+| A child's pallet | Anyone lays a pallet, a child too: a cloth on the floor in 20 ticks | 14 § Planned, Beds | T-551 |
+| The Thane's whims | Once a season the Thane wishes for one thing in the hall (a lantern, a barrel of mead, a statue of ivory): met, everyone is pleased; missed, the Thane grumbles alone. All face, no spiral (flavour report item 26) | 10 § Planned | T-565 |
 
 ## Candidates, not yet planned
 
@@ -48,7 +69,7 @@ Worth doing, at more cost. Each would be its own task with a measurement.
 
 | Feature | Report item | Why not yet |
 |---|---|---|
-| Thane's whims, a creaking span before a fall, a damp layer, cave bats, cave cough | 26 to 30 | Each needs a design of its own |
+| A creaking span before a fall, a damp layer, cave cough | 26 to 30, less the Thane's whims and the cave bats (planned above) | Each needs a design of its own |
 
 | Trees reclaim a surface stockpile | A sapling may take root on an outdoor stockpile tile and, two or three years on, grow into a tree in the middle of the goods; the tile takes nothing more, and a haul on its way there turns back (T-536) | [07](02-systems/07-plants-and-farming.md) § Trees; [13](02-systems/13-items-and-storage.md) § Stockpiles | Removable: count stockpile zones in `isReserved` (`plants/index.ts`), so no sapling takes a stockpile tile; the 13 rule stays for walls and chests |
 | Don't poke a leaderless raid | A raid whose captain is caged goes home as soon as it is out of a fight; a squad that sallies on it keeps it fighting, and it takes heart from the soldiers it fells and loots (T-506: 3 soldiers lost on one timeline where the cage alone turned the raid) | [18](02-systems/18-threats-monsters-and-raids.md) § Morale | Kept: it is the leaderless break rule itself; scripts and players hold the gate instead |

@@ -1,24 +1,31 @@
-# T-561 — Making Do C5: reindeer, camels, feasts, the Thane's whims and mugs
+# T-561 — Making Do C5: reindeer and camels
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 6, 11); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546, T-548, T-553 · **Status:** blocked (needs T-546, T-548, T-553)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 6); the owner, 2026-11-13 · **Size:** S · **Needs:** T-547, T-548 · **Status:** blocked (needs T-547, T-548)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
+Feasts, the Thane's whims and mugs moved to T-565.
+
 ## What to do
 
-- `reindeer` and `camel` rows (camels spit: `spat_on`); grazing lichen, salt crust and cactus.
-- Feasts at the kitchen and their thoughts; the Thane's seasonal whim (all face, no spiral); mugs at the table and `drank_from_a_mug`.
+The blocks and rows marked T-561:
+
+- **08 § Planned:** Reindeer and camels (domestic rows; wild herds on their own stream, `rngFor('08.herds')`; the camel's spit, `SpatOn`).
+- **20 § Planned:** camels from the Hillfolk in hot regions.
+- **Rows:** `reindeer`, `camel`, the Wild herds table, the reindeer's horns (butcher parts), `spat_on`, `announce.spat_on`, the colours.
+
 
 ## Common rules for every Making Do task
 
-- Build on the spec as T-546 wrote it, not on the design alone. Where the two disagree, the spec wins; where the spec is silent, decide, write it in the spec, and say so.
-- Rows are appended (`docs/03-content/row-order.md`, then `npm run content:export`); none is removed. Never edit `test/fixtures/content-row-baseline.json`.
-- New wild plants, features and terrain go on their own rng streams, so existing maps keep their rock, trees and shrubs. Name any golden that moves in `golden:`, with the reason.
-- **Substitutes are worse.** Every substitute route costs more inputs, more work or a worse result than the regular route (design § 3). T-547's content check enforces this once it lands; keep it green.
-- Faces and tricks are part of the task: the thoughts, log lines and announcements the design names. Trade-offs and goofy rules go in `docs/fun-features.md` § In the game (stings, spit, tipsy dwarves, webs across your own corridor, and so on).
-- Measure as the design's § 13 says for the bundle: rows against the content checks; mechanisms against the three-year fixture's food and wealth, the sleep audit, and the pooled sweep and instrument verdicts; terrain against the annual instrument.
+- **The spec is the § Planned blocks.** Each system document touched carries a `## Planned: Making Do` section; each content document a `## Planned rows` section. Build every block and row marked with this task, and only those. Move each block into its document's sections as plain specification (no task id), its constants into § Tuning constants, its readers, events and commands into § Interfaces and into `04-implementation/event-catalog.md`, `command-catalog.md`, the schemas and `save-format.md`; then delete the block. Move each row into its table (without the `task` column), add its line to `row-order.md`, and run `npm run content:export`. The last task to empty a § Planned section deletes it.
+- Where the spec is silent or a planned rule does not fit the code, decide, write it in the spec, and say so in the report.
+- Rows are appended; none is removed. Never edit `test/fixtures/content-row-baseline.json`.
+- A new rng draw is on a stream of its own, or on an existing stream only where the new content is present, so a game without it draws the same numbers. Name every golden that moves in `golden:`, with the reason.
+- **Substitutes are worse.** Every recipe the planned table marks `substitute for` stays worse than its regular recipe; T-547's check enforces it once it lands. Add your pairs to it.
+- A caravan good the planned table marks with this task lands with it (20 § Planned, Sundries).
+- **Fun features.** Move this task's entries from `docs/fun-features.md` § Planned to § In the game, with where each lives and how to remove it.
 
 ## Done
 
-- The rules are in 08, 10 and 09 with tests.
-- The sweep and instrument verdicts pass.
+- Reindeer herds walk into a tundra map and camels into a desert one; tamed, they are milked (and the camel sheared), and the camel spits now and then; both graze lichen, salt crust and cactus (T-548's rule).
+- The ordinary wild spawning draws as before. The instrument verdict passes; its taiga row may move by the reindeer, which the report explains.

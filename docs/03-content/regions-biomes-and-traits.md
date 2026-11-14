@@ -179,3 +179,40 @@ The initial state at embark is `clear`.
 ## Names of places
 
 Region names are generated from [names.md](names.md) with the biome's flavor list.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (without `task`), or makes the new table, adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`. Every number is *unmeasured*.
+
+### Planned region trait
+
+| id | name | requirements | freq | companion | hooks | task |
+|---|---|---|---|---|---|---|
+| `starfall` | Starfall | any land biome (not `ocean`, `glacier`) | 15 | yes | 01: rolled on its own stream after the other traits; 03: a crater of radius 3–5, its floor one level down and of `ash_soil`, wild wyrmtongue on it, one `star_iron` boulder one level below its centre | T-560 |
+
+### Signatures (a new table)
+
+What a site has and lacks, for the site summary and the scarcity price ([02](../02-systems/02-embark-and-loadout.md) § Planned, [20](../02-systems/20-trade-and-caravans.md) § Planned). A row is a biome, a geology class (`geology:`) or a trait (`trait:`). Goods are material ids, material classes, or the words `honey`, `flux`, `fossils`, `giant_bones`, `horses`, `camels`, `reindeer`, `ice`. Every site has caverns, so the caverns have no row.
+
+| key | has | lacks | task |
+|---|---|---|---|
+| `temperate_forest` | wood, honey, `nettle_fiber`, clay | salt, sand | T-550 |
+| `temperate_hills` | wood, honey, `nettle_fiber`, clay | salt, sand | T-550 |
+| `dark_forest` | wood, `ironwood`, `yew`, peat, honey | sand, salt | T-550 |
+| `temperate_grassland` | honey, flax, barley, clay, horses | wood, sand | T-550 |
+| `wetland` | `reed`, peat, `bog_iron`, clay, giant_bones | stone, flux | T-550 |
+| `taiga` | peat, rye, ice, horn, `bog_iron`, reindeer | honey, sand | T-550 |
+| `tundra` | ice, rye, lichen, `ivory`, reindeer, peat, giant_bones | wood, honey, clay | T-550 |
+| `cold_steppe` | rye, horses, sand, horn | wood, honey | T-550 |
+| `mountain` | stone, sand, lichen, horn, ice | wood, soil, clay, honey | T-550 |
+| `alpine` | stone, sand, lichen, horn, ice | wood, soil, clay, honey | T-550 |
+| `savanna` | honey, `sunfruit`, clay, camels | peat, ice | T-550 |
+| `desert` | sand, salt, `cactus_fiber`, camels, giant_bones | wood, clay, honey, peat | T-550 |
+| `badlands` | salt, clay, sand, giant_bones | wood, honey, peat | T-550 |
+| `tropical_forest` | wood, honey, clay | salt, peat, ice | T-550 |
+| `trait:glasslands` | `obsidian`, `ash_soil`, wyrmtongue | wood, soil | T-550 |
+| `geology:sedimentary` | flux, coal, `halite`, fossils | gold, gem | T-550 |
+| `geology:igneous` | copper, gem, `basalt` | flux | T-550 |
+| `geology:metamorphic` | copper, gem | flux | T-550 |
+
+In the lists, a word such as `wood`, `stone`, `soil` or `gem` is a material class; `salt`, `sand`, `clay`, `peat` and the backticked ids are materials; the rest are the words above. A good on a *lacks* line that is also on a *has* line of the same site is not lacking (a sedimentary wetland has flux). The rows are written in the site summary's words: "This site lacks: salt, sand."

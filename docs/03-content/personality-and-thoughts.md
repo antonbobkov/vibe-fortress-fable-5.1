@@ -180,3 +180,54 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 ## Consistency check with the mood formula
 
 A dwarf with every need met, no bedroom (−2), unclothed (−3) and three deaths (−15 halflife) sits at 55 − 20 = 35 (Unhappy) and climbs within a week. The same dwarf with a decent bedroom (+3 per night), meals in a decent hall (+2), ale (+3) and a chat (+3) rests around 55 + 11 = 66 (Content). Reaching Ecstatic (85) needs a fine or grand hall, fine meals and drinks, a friend, a mist garden and a masterwork or two: 55 + 40 (capped) − 0 + 8 (grand hearth hall) = 103 → clamped 100.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into the table of its group above (without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The events are in the § Planned sections of the system documents. Every number is *unmeasured*.
+
+### Planned thoughts
+
+| id | text | value | hours | decay | cap | group | trigger | task |
+|---|---|---|---|---|---|---|---|---|
+| `first_fossil` | "I found the bones of something old." | +3 | 72 | linear | 1 | pride | `FossilFound` finder | T-547 |
+| `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle | T-548 |
+| `drank_cactus` | "Drank cactus. Cactus." | −1 | 12 | halflife | 1 | comfort | `DrankFromPlant` | T-548 |
+| `ate_wyrmtongue` | "Ate something that fought back." | +2 | 24 | linear | 1 | comfort | `MealEaten` seasoned with wyrmtongue; while held, no `bitter_cold` | T-548 |
+| `slept_on_a_pallet` | "Slept on a pallet." | −1 | 24 | linear | 1 | room | `Slept` on a pallet | T-551 |
+| `slept_in_a_soft_bed` | "Slept in a soft bed." | +3 | 24 | linear | 1 | comfort | `Slept` bedding soft | T-551 |
+| `slept_in_a_featherbed` | "Slept in a featherbed." | +5 | 36 | linear | 1 | comfort | `Slept` bedding feather | T-551 |
+| `smoky_hall` | "The hall is full of smoke." | −1 | 12 | halflife | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS`; tallow smoke | T-552 |
+| `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `smoke_meat` or `smoke_fish` done within `SMOKE_RADIUS` | T-552 |
+| `ate_salted_meal` | "The food was well salted." | +1 | 24 | linear | 1 | comfort | `MealEaten` seasoned with salt | T-552 |
+| `drank_strong_drink` | "Sang at the hearth. Everyone heard." | +5 | 24 | linear | 1 | comfort | `DrankAlcohol` spirits | T-554 |
+| `drank_aged_drink` | "That was a good year." | +2 | 24 | linear | 1 | comfort | `DrankAlcohol` aged | T-554 |
+| `drank_vintage_drink` | "A vintage. They do not make them like that." | +4 | 36 | linear | 1 | comfort | `DrankAlcohol` vintage | T-554 |
+| `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees | T-555 |
+| `stood_in_the_ribs` | "Stood inside the ribs of something enormous." | +2 | 72 | linear | 1 | pride | `RibsEntered` | T-557 |
+| `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |
+| `saw_the_star` | "Stood where the star fell." | +3 | 168 | linear | 1 | pride | `CraterEntered` | T-560 |
+| `forged_the_star` | "I forged the steel the sky made." | +6 | 168 | linear | 1 | craft | `ItemCrafted` of `star_steel`, the crafter | T-560 |
+| `spat_on` | "The camel spat on me." | −1 | 12 | halflife | 1 | comfort | `SpatOn` | T-561 |
+| `ate_by_candlelight` | "Ate by candlelight." | +1 | 24 | linear | 1 | room | `MealEaten` candlelit | T-563 |
+| `feasted` | "Ate at a feast." | +8 | 48 | linear | 1 | comfort | `MealEaten` feast | T-565 |
+| `held_a_feast` | "We held a feast." | +3 | 72 | linear | 1 | social | `ItemCrafted` of a feast (everyone) | T-565 |
+| `drank_from_a_mug` | "Drank from a proper mug." | +1 | 24 | linear | 1 | room | `MealEaten` at a seat with its mug | T-565 |
+| `thane_pleased` | "The Thane got what the Thane wanted." | +3 | 72 | linear | 1 | social | `WhimJudged` met (everyone) | T-565 |
+| `thane_grumbled` | "Nobody listens to the Thane." | −1 | 72 | linear | 1 | none | `WhimJudged` missed (the Thane) | T-565 |
+
+`first_fossil`, `stood_in_the_ribs` and `saw_the_star` are announced (`announce: true`), as `first_vein` is not.
+
+### Whims (a new table)
+
+What the Thane may wish for in a season (10 § Planned, The Thane's whim). `stock`: at least `count` of the item type, of the material when one is named, in stock at the season's end; `room`: a built building of the type inside a room of the zone type. A row is possible when the content has it and the fortress has the workshop that makes it or one in stock.
+
+| id | kind | what | count | text | task |
+|---|---|---|---|---|---|
+| `whim_lantern` | room | `lantern` in a `dining_hall` | 1 | "a lantern in the dining hall" | T-565 |
+| `whim_mead` | stock | `drink` of `mead` | 20 | "a barrel of mead" | T-565 |
+| `whim_ivory_statue` | room | `statue` of `ivory` in a `hearth_hall` | 1 | "a statue of ivory in the hall" | T-565 |
+| `whim_fine_meal` | stock | `fine_meal` | 20 | "fine meals for everyone" | T-565 |
+| `whim_cheese` | stock | `cheese` | 10 | "a store of cheese" | T-565 |
+| `whim_spirits` | stock | `drink` of `deepfire` | 10 | "something strong" | T-565 |
+| `whim_masterwork` | stock | any item of masterwork quality | 1 | "a masterwork, any masterwork" | T-565 |
+| `whim_featherbed` | room | `bed` made up with feathers in the Thane's `bedroom` | 1 | "a featherbed" | T-565 |

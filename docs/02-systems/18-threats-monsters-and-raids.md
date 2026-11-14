@@ -210,3 +210,17 @@ Schedules, compositions, gear tables and caps are content.
 - Diplomacy: a `demand` party purpose that leaves if paid.
 - Named enemies and vendettas: a legend record of party leaders that return.
 - More civilizations as raiders: a civ row with `raids: true` and a composition table.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*.
+
+### A caged spider's lair is its cage (T-556)
+
+- A living `giant_cave_spider` held in a built cage building (14's `cageOccupant`) spins its daily webs on the 8 tiles around the cage, as around a lair, by the web rules of § Cavern monsters (the `web` flag, `webs` with the spider as owner, `WEB_TICKS` for whoever walks in, the fortress's own haulers included). One in a cage item that is not built spins nothing. Its webs are gathered as silk (09 § Planned).
+- A caged spider is out of the cavern's monster count and its respawn, as any caged member is out of its party; a released one is a wild monster again, and dangerous.
+- A ranch wants its own room, its own door and its own dwarf.
+
+### Candle light shows the thief (T-563)
+
+`SPOT_RADIUS` is larger by `CANDLE_SPOT_BONUS` (14 § Planned) when the spotting creature stands on a comfort-lit tile, or when the hidden creature does. Candles at the gate catch thieves.

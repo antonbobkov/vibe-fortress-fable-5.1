@@ -185,3 +185,13 @@ None directly. Unreachable jobs are explained in the jobs panel; the connectivit
 - Swimming: `amphibious` already exists; a swimming skill would scale water cost.
 - Hierarchical pathfinding across chunks (using portals as waypoints) if profiles show A* dominating on large maps; the two-level labels already provide the abstraction.
 - Creature-blocking rules (single occupancy) would change `moveAlongPath` only; the crowd's constants are the softer form of the same thing.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section.
+
+### Sight through glass (T-558)
+
+- `lineOfSight(a, b)` is not blocked by a constructed `wall` whose material is of class `glass`: perception, spotting, targeting and the fog of war see through it.
+- `lineOfFire(a, b)` is `lineOfSight` with glass walls blocking, as every wall blocks: 16 fires only along it. A projectile in flight stops at a glass wall as at any wall.
+- Movement and fluids are unchanged: a glass wall is a wall.

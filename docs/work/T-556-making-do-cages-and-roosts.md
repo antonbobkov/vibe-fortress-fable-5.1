@@ -1,25 +1,31 @@
 # T-556 — Making Do B6: the spider ranch, the beetle jar and bat roosts
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 6); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546 · **Status:** blocked (needs T-546)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 6); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
 ## What to do
 
-- A caged spider's lair is its cage: it webs the 8 tiles around, gathered as silk; `silk_cloth` at the loom. Webs still entangle your own haulers.
-- A caged creature whose species lights its tile lights the 4 tiles beside its cage for a `glow` crop at half growth.
-- Bat roosts on cavern ceilings on their own stream; guano every 7 days; the first-roost announcement.
+The blocks and rows marked T-556:
+
+- **18 § Planned:** A caged spider's lair is its cage (webs around a built cage; out of the cavern's count).
+- **09 § Planned:** Gathering webs (a gather zone designates web tiles daily).
+- **07 § Planned** and **14 § Planned:** The beetle jar (`buildings.beetleLitAt`, `BEETLE_GROWTH_PERCENT`, glow plots).
+- **03 § Planned:** Bat roosts at generation (`terrain.roosts`, `LocalMapResult.roosts`); **08 § Planned:** Bat roosts (guano every `ROOST_DAYS` by day and index, `RoostFound`).
+- **Rows:** `silk_cloth` and its stage, `guano` (material and item), the `G` flag on `glow_beetle`, the spider's note, `announce.roost_found`, `hint_spider_ranch`, the silk preferences.
+
 
 ## Common rules for every Making Do task
 
-- Build on the spec as T-546 wrote it, not on the design alone. Where the two disagree, the spec wins; where the spec is silent, decide, write it in the spec, and say so.
-- Rows are appended (`docs/03-content/row-order.md`, then `npm run content:export`); none is removed. Never edit `test/fixtures/content-row-baseline.json`.
-- New wild plants, features and terrain go on their own rng streams, so existing maps keep their rock, trees and shrubs. Name any golden that moves in `golden:`, with the reason.
-- **Substitutes are worse.** Every substitute route costs more inputs, more work or a worse result than the regular route (design § 3). T-547's content check enforces this once it lands; keep it green.
-- Faces and tricks are part of the task: the thoughts, log lines and announcements the design names. Trade-offs and goofy rules go in `docs/fun-features.md` § In the game (stings, spit, tipsy dwarves, webs across your own corridor, and so on).
-- Measure as the design's § 13 says for the bundle: rows against the content checks; mechanisms against the three-year fixture's food and wealth, the sleep audit, and the pooled sweep and instrument verdicts; terrain against the annual instrument.
+- **The spec is the § Planned blocks.** Each system document touched carries a `## Planned: Making Do` section; each content document a `## Planned rows` section. Build every block and row marked with this task, and only those. Move each block into its document's sections as plain specification (no task id), its constants into § Tuning constants, its readers, events and commands into § Interfaces and into `04-implementation/event-catalog.md`, `command-catalog.md`, the schemas and `save-format.md`; then delete the block. Move each row into its table (without the `task` column), add its line to `row-order.md`, and run `npm run content:export`. The last task to empty a § Planned section deletes it.
+- Where the spec is silent or a planned rule does not fit the code, decide, write it in the spec, and say so in the report.
+- Rows are appended; none is removed. Never edit `test/fixtures/content-row-baseline.json`.
+- A new rng draw is on a stream of its own, or on an existing stream only where the new content is present, so a game without it draws the same numbers. Name every golden that moves in `golden:`, with the reason.
+- **Substitutes are worse.** Every recipe the planned table marks `substitute for` stays worse than its regular recipe; T-547's check enforces it once it lands. Add your pairs to it.
+- A caravan good the planned table marks with this task lands with it (20 § Planned, Sundries).
+- **Fun features.** Move this task's entries from `docs/fun-features.md` § Planned to § In the game, with where each lives and how to remove it.
 
 ## Done
 
-- The rules are in 08, 18 and 07 with tests; existing cavern generation unchanged except the roosts' own stream.
-- The instrument verdict passes.
+- A spider caught in cavern one and caged in a side room webs it daily, a gather zone collects the silk and the loom weaves silk; a hauler who walks into the room is caught for 100 ticks. A caged beetle grows four glowcap at half speed. Roosts drop guano.
+- Cavern generation is unchanged but for the roosts' own stream (the local-map hash does not move: roosts are not tiles). The instrument verdict passes.

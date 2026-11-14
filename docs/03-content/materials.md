@@ -158,3 +158,51 @@ For fish: `trout_meat`, `perch_meat`, `blindfish_meat` are created from the thre
 ## Material colors summary
 
 Every `color` value above must exist in [glyphs-and-colors.md](glyphs-and-colors.md).
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules that use them are in the § Planned sections of the system documents. Every number is *unmeasured*.
+
+### Planned materials
+
+| id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes | task |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `salt` | salt | plant | 2 | 120 | — | `salt_white` | — | — | `seasoning`; crushed from halite, gathered from salt crusts | T-547 |
+| `chitin` | chitin | shell | 4 | 130 | — | `chitin_brown` | — | — | a cave crawler's shell; flux at 3 a steel bar | T-547 |
+| `horn` | horn | bone | 3 | 120 | — | `horn_gray` | — | — | horn bows, drinking horns, scale | T-547 |
+| `ivory` | ivory | bone | 13 | 180 | — | `ivory_cream` | — | — | a craft of it is worth about 40 | T-547 |
+| `feather` | feather | cloth | 2 | 10 | — | `feather_white` | 300 | 100 | `stuffing`; fletching | T-547 |
+| `ironwood` | ironwood | wood | 6 | 90 | 200 | `ironwood_dark` | 300 | 1200 | `fire_resistant`; weapons and bolts at 0.60 (sharpness) | T-548 |
+| `brick` | brick | stone | 1 | 200 | 90 | `brick_red` | 1400 | — | blocks only; magma-safe; a brick wall draws smooth | T-553 |
+| `earthenware` | earthenware | stone | 1 | 180 | 60 | `clay_red` | 1300 | — | fired clay: pots, jugs, mugs, hives | T-553 |
+| `glass` | glass | glass | 6 | 250 | 60 | `glass_pale` | 1400 | — | passes light; magma-safe | T-553 |
+| `potash` | potash | stone | 1 | 90 | — | `ash_gray` | — | — | glass and soap | T-553 |
+| `dung` | dung | plant | 0 | 60 | — | `dung_brown` | 300 | 200 | `fertilizer`; dries to a half fuel | T-552 |
+| `guano` | guano | soil | 1 | 70 | — | `dung_brown` | — | — | `fertilizer` | T-556 |
+| `compost` | compost | soil | 0 | 80 | — | `loam_brown` | — | — | `fertilizer` | T-564 |
+| `soap` | soap | liquid | 3 | 100 | — | `soap_white` | — | — | a hospital supply | T-564 |
+| `honey` | honey | liquid | 6 | 140 | — | `honey_amber` | — | — | an ingredient; brews mead; dresses wounds | T-555 |
+| `beeswax` | beeswax | liquid | 4 | 95 | — | `wax_yellow` | 300 | 300 | candles that burn twice as long and do not smoke | T-555 |
+
+### Planned cloth and fiber
+
+| id | name | class | value | density | color | notes | task |
+|---|---|---|---|---|---|---|---|
+| `reed_thread` | reed thread | cloth | 2 | 30 | `reed_green` | 2 reeds a thread | T-548 |
+| `reed_cloth` | reed cloth | cloth | 6 | 35 | `reed_green` | | T-548 |
+| `cactus_fiber` | cactus fiber | cloth | 1 | 30 | `cactus_green` | from barrel cacti | T-548 |
+| `cactus_thread` | cactus thread | cloth | 2 | 30 | `cactus_green` | 2 fiber a thread | T-548 |
+| `cactus_cloth` | cactus cloth | cloth | 6 | 35 | `cactus_green` | | T-548 |
+| `nettle_fiber` | nettle fiber | cloth | 1 | 30 | `nettle_green` | from nettles, wild or farmed | T-548 |
+| `nettle_thread` | nettle thread | cloth | 2 | 30 | `nettle_green` | 2 fiber a thread | T-548 |
+| `nettle_cloth` | nettle cloth | cloth | 6 | 35 | `nettle_green` | | T-548 |
+| `silk_cloth` | silk | cloth | 20 | 20 | `silk_white` | the finest cloth: a silk gambeson weighs 1 | T-556 |
+
+Stages (T-548, T-556): `reed` → `reed_thread` → `reed_cloth` (the reed is the plant material of `plants.md`'s `reed_bed`); `cactus_fiber` → `cactus_thread` → `cactus_cloth`; `nettle_fiber` → `nettle_thread` → `nettle_cloth`; `silk_web` → `silk_cloth`.
+
+### Planned drinks, tags and edits
+
+- Drink materials, class `liquid`, value per unit: `black_ale` 3 (rye, group `drink/ale`, T-548), `cactus_wine` 3 (group `drink/wine`, T-548), `emberwine` 6 (wyrmtongue, `drink/wine`, T-548), `mead` 5 (honey, `drink/wine`, T-555), `deepfire` 8 (distilled, `drink/spirits`, T-554).
+- Tags on existing rows: `soil_drop` on `clay`, `sand` and `peat` (T-547); `fine_cask` on `oak` (T-554).
+- The sentence "Soil tiles never drop items when dug." becomes "Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a `soil_load` half the time ([03](../02-systems/03-terrain-and-mining.md))." (T-547).
+- The plant materials of `rye`, `nettle` and `wyrmtongue` are generated from their plant rows as every plant's is; `wyrmtongue`'s carries `seasoning` (T-548).

@@ -159,3 +159,15 @@ Thought values, durations and decay shapes are content; `MOOD_BASELINE` is globa
 - Values and preferences (a dwarf who loves oak): a per-dwarf preference list and a multiplier in the predicate.
 - Festivals: a scheduled event that emits a fortress-wide positive thought.
 - Stress that accumulates across seasons: a second slow variable feeding `personalityBase`; keep the caps.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The thought rows are in `personality-and-thoughts.md` § Planned rows, each with its task and trigger.
+
+### The new thoughts (each with its task)
+
+- Every planned thought is an ordinary row: a value, hours, decay, cap, group and a trigger on an event that the task emits (`Slept` with `rest` and `bedding`, `MealEaten` with `seasoned`, `candlelit`, `feast` and `mug`, `DrankAlcohol` with `group` and `aged`, `DrankFromPlant`, `Stung`, `SpatOn`, `FossilFound`, `RibsEntered`, `CraterEntered`, `TileIgnited`, `SmokyFuelBurned`, `ItemCrafted` of star steel or of a feast, `WhimJudged`). No new mechanism in this system but the two below.
+- **Wyrmtongue keeps out the cold** (T-548). A dwarf who holds `ate_wyrmtongue` (24 hours) is not given `bitter_cold`, and one it already holds is removed when `ate_wyrmtongue` is added.
+- **The Thane's whim** is all face (T-565): `thane_pleased` (everyone) and `thane_grumbled` (the Thane alone) are ordinary thoughts on `WhimJudged`, and nothing else in this system reads a whim.
+- `forged_the_star` (T-560) is given on `ItemCrafted` whose output's material is `star_steel`, to the crafter; there are at most three bars, so at most a handful of pieces.
+- Announcements: `RibsEntered`, `CraterEntered` and `FossilFound` are notes the first time each happens; the thoughts are visible in the dwarf's list as always.

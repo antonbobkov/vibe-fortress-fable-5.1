@@ -134,3 +134,15 @@ Combat skills have no labor; they are used when a creature fights. Weapon skills
 ## Experience per job
 
 Given in [jobs.md](jobs.md) per job type and in [workshops-and-recipes.md](workshops-and-recipes.md) per recipe (`xp` column). Combat: attacker weapon skill +3 per hit, +1 per miss; defender dodge +2 per dodged attack, shield +2 per block, armor_use +1 per hit reduced by armor; training sessions `TRAIN_XP` = 12 per skill. Medicine: `TREAT_XP` = 10 per treatment, `DIAGNOSE_XP` = 20. Trading: `TRADE_XP` = 15 × (1 + value/1000). Hunting: +5 per shot, +20 per kill. Fishing: +6 per attempt, +10 per catch. Farming: +5 per plant, +8 per harvest.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. The task named adds the row to its table above (without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`.
+
+### Planned skill
+
+| id | name | labor | profession | military | attributes | used by | embark | task |
+|---|---|---|---|---|---|---|---|---|
+| `pottery` | Pottery | crafts | Potter | — | Agility, Wits | kiln | | T-553 |
+
+Potter joins the Earth profession colour group. Smoking is cooking, wicker is crafting, hives are animal care, fletching is the bowyer's carpentry: no other skill is new.
