@@ -284,3 +284,12 @@ Every new row of every table goes at the end of this table, including generated 
 | thoughts | drank_aged_drink |
 | thoughts | drank_vintage_drink |
 | hints | hint_cellar |
+| items | basket |
+| recipes | spin_coarse_thread |
+| recipes | weave_basket |
+| recipes | twist_reed_rope |
+| recipes | cut_leather_rope |
+| recipes | weave_wicker_shield |
+| recipes | make_splint_bone |
+| recipes | make_crutch_bone |
+| recipes | forge_crutch |

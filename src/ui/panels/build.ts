@@ -15,7 +15,7 @@ import type { Command } from '@core/commands';
 import { PRIORITY_DEFAULT } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import type { BuildingRow } from '@systems/buildings';
+import { buildTicksOf, inputsOf, mayBeOfBlocks, type BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
 import { workshopHasWork } from '@core/workshop-use';
@@ -75,8 +75,11 @@ export function buildRowText(name: string, inputs: string, count: string, width:
   return `${nameText}${' '.repeat(gap)}${right}`;
 }
 
+/** The material choice "blocks": a workshop of blocks in place of its logs (14 § Placement, Workshops of stone). */
+export const OF_BLOCKS = -1;
+
 export interface MaterialChoice {
-  /** 0: any. */
+  /** 0: any; {@link OF_BLOCKS}: of blocks. */
   readonly material: number;
   readonly count: number;
 }
@@ -240,10 +243,22 @@ export class BuildTool {
     this.materialIndex = n === 0 ? 0 : (this.materialIndex + 1) % n;
   }
 
-  /** The first input's item types. */
-  private inputTypes(ctx: PanelContext, row: BuildingRow): number[] {
+  /** Whether the current type is to be placed of blocks in place of its logs (the material choice "blocks"). */
+  ofBlocks(ctx: PanelContext, row: BuildingRow | undefined = this.current(ctx)): boolean {
+    if (row === undefined || !mayBeOfBlocks(row) || row.id !== this.current(ctx)?.id) return false;
+    return this.materials(ctx)[this.materialIndex]?.material === OF_BLOCKS;
+  }
+
+  /** The inputs a building of this type is placed with: the row's, or of blocks. */
+  private inputsFor(ctx: PanelContext, row: BuildingRow): BuildingRow['inputs'] {
+    return inputsOf(row, this.ofBlocks(ctx, row));
+  }
+
+  /** The first input's item types; `asPlaced` false: the row's own, whatever the material choice. */
+  private inputTypes(ctx: PanelContext, row: BuildingRow, asPlaced = true): number[] {
     const b = buildings(ctx);
-    const first = row.id === 'magma_forge' ? row.inputs.find((input) => input.match === 'stone_block') : row.inputs[0];
+    const inputs = asPlaced ? this.inputsFor(ctx, row) : row.inputs;
+    const first = row.id === 'magma_forge' ? inputs.find((input) => input.match === 'stone_block') : inputs[0];
     return b === null || first === undefined ? [] : b.inputTypes(first.match);
   }
 
@@ -254,23 +269,27 @@ export class BuildTool {
       this.counts.tick = tick;
       this.counts.byRow.clear();
     }
-    const known = this.counts.byRow.get(row.id);
+    const key = this.ofBlocks(ctx, row) ? `${row.id}:blocks` : row.id;
+    const known = this.counts.byRow.get(key);
     if (known !== undefined) return known;
     const it = items(ctx);
     const types = this.inputTypes(ctx, row);
     const n = it === null || types.length === 0 ? 0 : it.countAvailable({ types });
-    this.counts.byRow.set(row.id, n);
+    this.counts.byRow.set(key, n);
     return n;
   }
 
-  /** "Material: [x] any wood ▸ oak (9)": any, then each material of the first input's available items, most first. */
+  /**
+   * "Material: [x] any wood ▸ oak (9)": any, then each material of the first input's available items,
+   * most first; then, for a workshop that may be built of blocks, "blocks" with the stone blocks available.
+   */
   materials(ctx: PanelContext): MaterialChoice[] {
     const row = this.current(ctx);
     const it = items(ctx);
     if (row === undefined || it === null) return [{ material: 0, count: 0 }];
     const key = `${row.id}:${ctx.readers.calendar.tick}`;
     if (this.cache?.key === key) return this.cache.materials;
-    const types = new Set(this.inputTypes(ctx, row));
+    const types = new Set(this.inputTypes(ctx, row, false));
     const per = new Map<number, number>();
     let total = 0;
     for (const id of ctx.readers.entities.with(C.Item)) {
@@ -284,12 +303,33 @@ export class BuildTool {
     for (const m of Array.from(per.keys()).sort((a, b) => (per.get(b) as number) - (per.get(a) as number) || a - b)) {
       out.push({ material: m, count: per.get(m) as number });
     }
+    if (mayBeOfBlocks(row)) {
+      const b = buildings(ctx);
+      const blocks = b === null ? [] : b.inputTypes('stone_block');
+      out.push({ material: OF_BLOCKS, count: blocks.length === 0 ? 0 : it.countAvailable({ types: blocks }) });
+    }
     this.cache = { key, materials: out };
     return out;
   }
 
   material(ctx: PanelContext): number {
     return this.materials(ctx)[this.materialIndex]?.material ?? 0;
+  }
+
+  /** The command's `materialChoice`: a material index (0: any), or `'blocks'`. */
+  private choice(ctx: PanelContext): number | 'blocks' {
+    const m = this.material(ctx);
+    return m === OF_BLOCKS ? 'blocks' : m;
+  }
+
+  /** "Of logs: 2 logs, 200 ticks" or "Of blocks: 4 blocks, 300 ticks" for a workshop that may be built of blocks, else null. */
+  builtOfText(ctx: PanelContext): string | null {
+    const row = this.current(ctx);
+    if (row === undefined || !mayBeOfBlocks(row)) return null;
+    const blocks = this.ofBlocks(ctx, row);
+    const inputs = inputText({ ...row, inputs: inputsOf(row, blocks) }, ctx.registry);
+    const ticks = buildTicksOf(row, blocks);
+    return blocks ? ctx.strings.get('ui.build.of_blocks', { inputs, ticks }) : ctx.strings.get('ui.build.of_logs', { inputs, ticks });
   }
 
   /** The origin of the footprint centred on a point. */
@@ -324,7 +364,7 @@ export class BuildTool {
     const row = this.current(ctx);
     const origin = this.origin(ctx, p);
     if (row === undefined || origin === null) return null;
-    return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.material(ctx), priority: this.priority,
+    return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.choice(ctx), priority: this.priority,
       ...(row.footprint.variable === undefined ? {} : { width: this.width, height: this.height }) };
   }
 
@@ -360,12 +400,12 @@ export class BuildTool {
   commandAt(ctx: PanelContext, origin: TileIndex): Command | null {
     const row = this.current(ctx);
     if (row === undefined) return null;
-    return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.material(ctx), priority: this.priority };
+    return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.choice(ctx), priority: this.priority };
   }
 
   /** Units of the first input one building takes; 0 when it has none or takes one per tile. */
-  private perBuilding(row: BuildingRow): number {
-    const first = row.inputs[0];
+  private perBuilding(ctx: PanelContext, row: BuildingRow): number {
+    const first = this.inputsFor(ctx, row)[0];
     return first === undefined || first.count === 'tiles' ? 0 : first.count;
   }
 
@@ -376,7 +416,7 @@ export class BuildTool {
 
   /** Units of the first input the stock cannot give `n` more buildings of the current type. */
   private shortFor(ctx: PanelContext, row: BuildingRow, n: number): number {
-    const per = this.perBuilding(row);
+    const per = this.perBuilding(ctx, row);
     if (per === 0 || n <= 0) return 0;
     return Math.max(0, n * per - Math.max(0, this.available(ctx, row) - this.covered(ctx)));
   }
@@ -385,7 +425,7 @@ export class BuildTool {
   placed(ctx: PanelContext, n: number): void {
     const row = this.current(ctx);
     if (row === undefined || n <= 0) return;
-    const per = this.perBuilding(row);
+    const per = this.perBuilding(ctx, row);
     if (per === 0) return;
     const short = this.shortFor(ctx, row, n);
     this.tally = { tick: ctx.readers.calendar.tick, covered: this.covered(ctx) + n * per - short };
@@ -400,8 +440,8 @@ export class BuildTool {
     const row = this.current(ctx);
     const reader = buildings(ctx);
     if (row === undefined || reader === null) return null;
-    const per = this.perBuilding(row);
-    const first = row.inputs[0];
+    const per = this.perBuilding(ctx, row);
+    const first = this.inputsFor(ctx, row)[0];
     if (per === 0 || first === undefined) return null;
     const units = (this.short ?? 0) + this.shortFor(ctx, row, extra);
     if (units <= 0) return null;
@@ -498,7 +538,8 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   row += height;
   const mats = tool.materials(ctx);
   const choice = mats[tool.materialIndex] ?? mats[0];
-  const matName = choice === undefined || choice.material === 0 ? strings.get('ui.build.any') : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(choice.material)?.name ?? '';
+  const matName = choice === undefined || choice.material === 0 ? strings.get('ui.build.any')
+    : choice.material === OF_BLOCKS ? strings.get('ui.build.blocks') : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(choice.material)?.name ?? '';
   label(s, rect.col + 1, row, strings.get('ui.build.material', { material: matName, n: choice?.count ?? 0 }), { width: rect.cols - 2 });
   s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => tool.cycleMaterial(ctx));
   row += 1;
@@ -509,8 +550,10 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
     s.hit({ col: rect.col + 13, row, cols: rect.cols - 14, rows: 1 }, () => tool.cycleSize(ctx, 'height'));
     row += 1;
   }
-  const rotate = current?.footprint.rotatable === true ? strings.get('ui.build.rotate', { n: tool.orientation }) : strings.get('ui.build.no_rotate');
-  label(s, rect.col + 1, row, rotate, { fg: current?.footprint.rotatable === true ? t.text : t.dim, width: rect.cols - 2 });
+  // A workshop that may be built of blocks shows how it is built where a rotatable type shows `[r] rotate` (24).
+  const builtOf = tool.builtOfText(ctx);
+  const rotate = builtOf ?? (current?.footprint.rotatable === true ? strings.get('ui.build.rotate', { n: tool.orientation }) : strings.get('ui.build.no_rotate'));
+  label(s, rect.col + 1, row, rotate, { fg: builtOf !== null || current?.footprint.rotatable === true ? t.text : t.dim, width: rect.cols - 2 });
   row += 1;
   // D-U6: what the stock cannot supply takes the help rows, with the order as a button.
   const offer = tool.offer(ctx);

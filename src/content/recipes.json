@@ -584,6 +584,32 @@
     "xp": 12
   },
   {
+    "id": "cut_leather_rope",
+    "name": "Leather rope",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "leather_piece",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rope",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
     "id": "distill",
     "name": "Distil spirits",
     "workshop": "still",
@@ -1111,6 +1137,32 @@
     "fuel": true,
     "quality": true,
     "xp": 10
+  },
+  {
+    "id": "forge_crutch",
+    "name": "Metal crutch",
+    "workshop": "forge",
+    "skill": "metalcrafting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "crutch",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": true,
+    "quality": false,
+    "xp": 4
   },
   {
     "id": "forge_dagger",
@@ -2776,6 +2828,32 @@
     "xp": 4
   },
   {
+    "id": "make_crutch_bone",
+    "name": "Bone crutch",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "crutch",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "make_door_stone",
     "name": "Door",
     "workshop": "mason",
@@ -3626,6 +3704,32 @@
     "xp": 4
   },
   {
+    "id": "make_splint_bone",
+    "name": "Bone splints",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "splint",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "make_statue",
     "name": "Statue",
     "workshop": "mason",
@@ -4221,6 +4325,39 @@
     "xp": 10
   },
   {
+    "id": "spin_coarse_thread",
+    "name": "Spin coarse thread",
+    "workshop": "loom",
+    "skill": "weaving",
+    "inputs": [
+      {
+        "match": "fiber|reed",
+        "count": 2,
+        "materials": [
+          "reed",
+          "cactus_fiber",
+          "nettle_fiber"
+        ],
+        "sameMaterial": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "thread",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0,
+          "stage": "next"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "spin_thread",
     "name": "Spin thread",
     "workshop": "loom",
@@ -4278,6 +4415,60 @@
     "xp": 6
   },
   {
+    "id": "twist_reed_rope",
+    "name": "Reed rope",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "reed",
+        "count": 3,
+        "material": "reed"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "rope",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "weave_basket",
+    "name": "Basket",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "reed",
+        "count": 3,
+        "material": "reed"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "basket",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "weave_cloth",
     "name": "Weave cloth",
     "workshop": "loom",
@@ -4304,5 +4495,32 @@
     "fuel": false,
     "quality": false,
     "xp": 6
+  },
+  {
+    "id": "weave_wicker_shield",
+    "name": "Wicker buckler",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "reed",
+        "count": 3,
+        "material": "reed"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "buckler",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 5
   }
 ]
