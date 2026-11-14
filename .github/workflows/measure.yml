@@ -4,6 +4,7 @@ name: Measure
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
 #   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
 #   gh workflow run measure.yml --ref <branch> -f suite=defence_seeds   (eight seeds at cadences 20 to 55 in parallel, then the verdict)
+#   gh workflow run measure.yml --ref <branch> -f suite=spirits         (T-554's probe: three-year seeds with and without a still making spirits)
 # Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep", "instrument" and "defence")
 # How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
@@ -13,7 +14,7 @@ on:
         description: What to measure
         type: choice
         default: sweep
-        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds]
+        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds, spirits]
       scenario:
         description: For suite=scenario, the scenario id (its file name without .scenario.ts)
         type: string
@@ -24,6 +25,10 @@ on:
         default: '20,25,30,35,40,45,50,55'
       shifts:
         description: "For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening, one job each (empty = the suite's own, 0 to 7 and 0,50,100,150)"
+        type: string
+        default: ''
+      probe_seeds:
+        description: "For suite=spirits, the three-year seeds, quoted and comma-separated (empty = four peril-0 and four peril-2 seeds)"
         type: string
         default: ''
       snapshots:
@@ -245,8 +250,40 @@ jobs:
             samples/verdict.*
           retention-days: 30
 
+  spirits:
+    if: inputs.suite == 'spirits'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: ${{ fromJSON(format('[{0}]', inputs.probe_seeds || '"three-years-p0-1","three-years-p0-2","three-years-p0-3","three-years-p0-4","three-years-p2-1","three-years-p2-2","three-years-p2-5","three-years-p2-6"')) }}
+        mode: [base, spirits]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Spirits probe, ${{ matrix.seed }}, ${{ matrix.mode }}
+        env:
+          PROBE_SEED: ${{ matrix.seed }}
+          PROBE_MODE: ${{ matrix.mode }}
+          PROBE_OUT: out/${{ matrix.seed }}-${{ matrix.mode }}.json
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/t554_spirits_probe.test.ts 2>&1 | tee out/${{ matrix.seed }}-${{ matrix.mode }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spirits-${{ matrix.seed }}-${{ matrix.mode }}
+          path: out/
+          retention-days: 14
+
   single:
-    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'instrument'
+    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'instrument' && inputs.suite != 'spirits'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:

@@ -4,7 +4,7 @@ import { roundTrip } from '@app/game-save';
 import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import { TileFlag } from '@core/map3d';
 import type { TileIndex } from '@core/types';
-import type { ItemsReader } from '@systems/items';
+import type { ItemsReader, ItemsSystem } from '@systems/items';
 import { TestWorld } from '../../scenarios/test-world';
 
 const Z = 32;
@@ -138,7 +138,7 @@ describe('T-554 the cellar ages drink and cheese', () => {
     w.step(60 * TICKS_PER_DAY);
     expect(items.rotStage(cheese)).toBe(stage);
     const young = w.spawnItem('cheese', 'milk', w.index(26, 25, Z), 1);
-    expect(w.items.canMerge(cheese, young)).toBe(false);
+    expect((w.game.world.scheduler.byId('13') as ItemsSystem).core.canMerge(cheese, young)).toBe(false);
   }, 240_000);
 
   it('saves the setting, the judgement and the stage, and resumes with the same hash', () => {
