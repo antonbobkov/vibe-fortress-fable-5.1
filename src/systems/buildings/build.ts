@@ -38,7 +38,7 @@ import { BODY_SLOTS, type EntityId, type Idx, type MovementClass, type TileIndex
 import { killCreature } from '@systems/health/tick';
 import { CLEAR_PLANT_TICKS } from '@systems/plants/constants';
 import { CONSTRUCTION_KIND, constructionFlags, isClearablePlant, onRuleHolds, onRuleOf, standsAt, treeRefuses, type OnRule } from './constructions';
-import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, MADE_UP_REST_PERCENT, WAGON_CAPACITY, WELL_DEPTH } from './constants';
+import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, MADE_UP_REST_PERCENT, STONE_WORKSHOP_TICKS_PERCENT, WAGON_CAPACITY, WELL_DEPTH } from './constants';
 import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 
 export interface BuildingRow {
@@ -139,6 +139,30 @@ export interface BuildHost {
   waterBelow?(i: TileIndex, maxDepth: number): number | null;
   /** The walker region (connectivity label) of a tile, 0 when nobody can stand there. */
   regionOf?(i: TileIndex): number;
+}
+
+/**
+ * 14 § Placement, Workshops of stone: a workshop with `log` among its inputs, unless it is tagged
+ * `logs_only` (the carpenter's), may be placed with `materialChoice: 'blocks'`.
+ */
+export function mayBeOfBlocks(row: BuildingRow): boolean {
+  return row.category === 'workshop' && !row.tags.includes('logs_only') && row.inputs.some((input) => input.match === 'log');
+}
+
+/** The inputs a building is built from: of blocks, each input of `n` `log` is `2n` `stone_block`. */
+export function inputsOf(row: BuildingRow, ofBlocks: boolean): BuildingRow['inputs'] {
+  if (!ofBlocks) return row.inputs;
+  return row.inputs.map((input) => input.match === 'log' && typeof input.count === 'number' ? { match: 'stone_block', count: 2 * input.count } : input);
+}
+
+/** A building's `buildTicks`: of blocks, × `STONE_WORKSHOP_TICKS_PERCENT` / 100. */
+export function buildTicksOf(row: BuildingRow, ofBlocks: boolean): number {
+  return ofBlocks ? Math.floor(row.buildTicks * STONE_WORKSHOP_TICKS_PERCENT / 100) : row.buildTicks;
+}
+
+/** Whether a placed building was placed of blocks in place of logs (`settings.ofBlocks`). */
+export function isOfBlocks(b: Building): boolean {
+  return b.settings['ofBlocks'] === true;
 }
 
 export function buildKey(id: EntityId): string {
@@ -370,8 +394,8 @@ export class BuildingStore {
     return Array.from(out).sort((a, b) => a - b);
   }
 
-  private inputsFor(row: BuildingRow, tiles: number, material: number): { filter: Record<string, unknown>; count: number }[] {
-    return row.inputs.map((input) => ({
+  private inputsFor(row: BuildingRow, tiles: number, material: number, ofBlocks = false): { filter: Record<string, unknown>; count: number }[] {
+    return inputsOf(row, ofBlocks).map((input) => ({
       filter: { types: this.typesOf(input.match),
         ...(input.match === 'barrel' ? { emptyContainer: 'barrel' } : {}),
         unoccupied: true,
@@ -507,8 +531,13 @@ export class BuildingStore {
       return reject('out_of_range');
     }
     let material = 0;
+    let ofBlocks = false;
     const choice = cmd['materialChoice'];
-    if (typeof choice === 'string' && choice !== '') {
+    if (choice === 'blocks') {
+      // 14 § Placement, Workshops of stone; for any other type 'blocks' names no material.
+      if (!mayBeOfBlocks(row)) return reject('not_found');
+      ofBlocks = true;
+    } else if (typeof choice === 'string' && choice !== '') {
       const mats = this.host.registry.table('materials');
       if (!mats.has(choice)) return reject('not_found');
       material = mats.index(choice);
@@ -544,7 +573,7 @@ export class BuildingStore {
       mode: row.tags.includes('door') || row.tags.includes('hatch') ? 'open' : '',
       linkedIds: [],
       ownerId: 0,
-      settings: { priority, materialChoice: material, inputs: [], ...(row.tags.includes('bridge') ? { openTiles: tiles.filter((t) => map.kindAt(t) === TileKind.Open) } : {}) },
+      settings: { priority, materialChoice: material, inputs: [], ...(ofBlocks ? { ofBlocks: true } : {}), ...(row.tags.includes('bridge') ? { openTiles: tiles.filter((t) => map.kindAt(t) === TileKind.Open) } : {}) },
       toggled: false,
     });
     for (const t of tiles) map.setBuildingAt(t, id);
@@ -702,7 +731,7 @@ export class BuildingStore {
       const material = (b.settings['materialChoice'] as number | undefined) ?? 0;
       if (b.state !== 'built') {
         if (jobs.exists(buildKey(id))) continue;
-        const inputs = this.inputsFor(row, b.footprint.length, material);
+        const inputs = this.inputsFor(row, b.footprint.length, material, isOfBlocks(b));
         const plants = b.footprint.filter((t) => isClearablePlant(this.map.kindAt(t))).length;
         jobs.create(buildKey(id), {
           type: 'build',
@@ -716,7 +745,7 @@ export class BuildingStore {
             labor: this.laborFor(row, material),
             // 14 § Beds: a pallet is laid by any hauler with no skill (no speed from `building`, no xp).
             ...(row.labor === 'hauling' ? { skill: '' } : {}),
-            buildTicks: row.buildTicks * (row.tags.includes('bridge') ? b.footprint.length : 1),
+            buildTicks: buildTicksOf(row, isOfBlocks(b)) * (row.tags.includes('bridge') ? b.footprint.length : 1),
             inputUnits: inputs.some((i) => i.count > 1),
             ...(plants > 0 ? { clearTicks: plants * CLEAR_PLANT_TICKS } : {}),
           },
@@ -728,7 +757,7 @@ export class BuildingStore {
           target: { kind: 'building', ref: id },
           workTile: 'adjacent',
           priority,
-          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, b.material), ...(row.labor === 'hauling' ? { skill: '' } : {}), buildTicks: Math.floor(row.buildTicks * (row.tags.includes('bridge') ? b.footprint.length : 1) / 2) },
+          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, b.material), ...(row.labor === 'hauling' ? { skill: '' } : {}), buildTicks: Math.floor(buildTicksOf(row, isOfBlocks(b)) * (row.tags.includes('bridge') ? b.footprint.length : 1) / 2) },
         });
       }
     }
@@ -882,7 +911,7 @@ export class BuildingStore {
       items?.consume(it, units);
     }
     if (delivered.length === 0) {
-      row.inputs.forEach((input, k) => {
+      inputsOf(row, isOfBlocks(b)).forEach((input, k) => {
         const t = this.typesOf(input.match)[0];
         const n = input.count === 'tiles' ? b.footprint.length : input.count;
         if (furniture && k === 0) {

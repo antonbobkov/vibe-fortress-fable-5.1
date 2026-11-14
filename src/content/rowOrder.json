@@ -1105,6 +1105,42 @@
   },
   {
     "table": "items",
+    "id": "basket"
+  },
+  {
+    "table": "recipes",
+    "id": "spin_coarse_thread"
+  },
+  {
+    "table": "recipes",
+    "id": "weave_basket"
+  },
+  {
+    "table": "recipes",
+    "id": "twist_reed_rope"
+  },
+  {
+    "table": "recipes",
+    "id": "cut_leather_rope"
+  },
+  {
+    "table": "recipes",
+    "id": "weave_wicker_shield"
+  },
+  {
+    "table": "recipes",
+    "id": "make_splint_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_crutch_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "forge_crutch"
+  },
+  {
+    "table": "items",
     "id": "stone_bed"
   },
   {

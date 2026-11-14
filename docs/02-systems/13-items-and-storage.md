@@ -30,7 +30,7 @@ ore/
 wood/      log  block
 bar/       metal  coal  charcoal
 furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow
-container/ barrel  bag  bin  bucket  pot
+container/ barrel  bag  bin  bucket  pot  basket
 weapon/    melee  ranged
 ammo/
 armor/     head  body  arms  legs  feet  shield
@@ -100,6 +100,7 @@ Maintained incrementally, sorted by item id:
 - Seeds go into bags; bags into stockpiles.
 - A `pot` (`items.md` § Containers: capacity is per type) is a container of class `barrel` with capacity 10, of `earthenware`. Stockpile container wants (`SetStockpileContainers`) count it as a barrel: a stockpile that wants 3 barrels takes pots too, nearest first. A brew or anything else that wants an empty barrel takes an empty pot as well, and makes as much as the pot holds (12 § Operation): a pot holds 10 units of drink, half the drink and twice the hauling.
 - **A pot breaks.** When a creature that carries a container of a `fragile` material (a pot, or a clay jug: a `bucket` of `earthenware`) is struck by an attack that hits (16's `AttackResolved` with `outcome: 'hit'`, melee or ranged), the container is destroyed (`ItemDestroyed { reason: 'broken' }`) and its contents lie where it was, except drink, which is destroyed with it (the same reason). No draw: every hit breaks it. A pot standing in a stockpile, or anywhere else on the ground, does not break. A job carrying the pot loses it as it loses any destroyed item.
+- A `basket` (`items.md` § Containers) is a container of class `bin` with capacity 15, of `reed`, woven at the craftsdwarf's workshop: a bin for a fortress with no wood, which holds half as much. Stockpile container wants (`SetStockpileContainers`) count it as a bin, as they count a pot as a barrel. A basket burns as wood does (its material `reed` is burnable, 05 § Fire).
 - Bins hold up to `BIN_CAPACITY` items of any bin-wanting category; a bin in a stockpile that accepts crafts and cloth may hold both.
 - Barrels, bags and buckets count units; bins and chests count items. An item container never goes inside another item container. The wagon’s building container can hold item containers; everything held in it resolves to its centre and is found and unloaded as on the ground. A container is hauled with its contents. A destroyed container leaves its contents on its tile (a built chest's on its furniture's tile); a container that leaves the map with its holder, as a thief's escaped loot (18), takes its contents with it, and they are destroyed with the container's reason.
 - Items in containers are visible in the stocks panel and are found by `findItem`; taking one out is part of the fetch step (11).
@@ -271,18 +272,12 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 food/      meat/cured (T-552)  fish/cured (T-552)  honey honeycomb wax (T-555)  meal/feast (T-565)
 bar/       peat  dung (T-552)
 furniture/ lantern (T-563)  beehive (T-555)
-container/ basket (T-549)
 medical/   soap (T-564)
 tool/      candle (T-563)  firebrand (T-559)
 farm/      dung (T-552)  compost (T-564)  guano (T-556)
 ```
 
 The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `bar/dung`; Furniture and Cloth and leather take theirs by their nodes.
-
-### Baskets (T-549)
-
-- A `basket` is a container of class `bin` with capacity 15, of `reed` (a container of another class's kind, as a pot is a barrel: § Containers in play). Stockpile container wants (`SetStockpileContainers`) count it as a bin.
-- A basket burns as wood does (its material `reed` is burnable).
 
 ### Curing (T-552)
 

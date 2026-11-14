@@ -53,7 +53,8 @@
     "mult": 4000,
     "materials": [
       "wood",
-      "metal"
+      "metal",
+      "plant"
     ]
   },
   {

@@ -27,6 +27,8 @@ export const HEARTH_HALL_SIDE = 5;
 export const HEARTH_WARMTH_C = 2;
 /** 14 § Beds: the percent a made-up bed (one holding its bedding) rests at. */
 export const MADE_UP_REST_PERCENT = 125;
+/** Build time of a workshop of blocks against its logs, percent (14 § Placement, Workshops of stone). */
+export const STONE_WORKSHOP_TICKS_PERCENT = 150;
 
 /** `door` modes (14 § Doors and hatches); `open` is the default. */
 export const DOOR_MODES: readonly string[] = Object.freeze(['open', 'locked', 'no_pets', 'lock_on_alert']);

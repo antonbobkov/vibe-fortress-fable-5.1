@@ -20,6 +20,14 @@ const SUBSTITUTES: readonly (readonly [string, string, string?])[] = [
   ['make_pot', 'make_barrel', 'oak'],
   ['make_jug', 'make_bucket', 'oak'],
   ['make_mugs_clay', 'make_mug_stone', 'granite'],
+  ['spin_coarse_thread', 'spin_thread', 'flax_thread'],
+  ['weave_basket', 'make_bin', 'oak'],
+  ['twist_reed_rope', 'make_rope', 'flax_thread'],
+  ['cut_leather_rope', 'make_rope', 'flax_thread'],
+  ['weave_wicker_shield', 'make_buckler_wood', 'oak'],
+  ['make_splint_bone', 'make_splint', 'oak'],
+  ['make_crutch_bone', 'make_crutch', 'oak'],
+  ['forge_crutch', 'make_crutch', 'oak'],
 ];
 
 interface Cost {
@@ -130,6 +138,21 @@ describe('12 § Substitutes: a substitute recipe stays worse than the recipe it 
     expect(brick).toMatchObject({ units: 2, per: 1 });
     expect(block).toMatchObject({ units: 1, per: 2 });
     expect(brick.value).toBeLessThan(block.value);
+  });
+
+  it("T-549: a reed rope is worth a third of a linen one; a leather rope takes the thread's 2 units in 120 ticks against 100", () => {
+    const reed = cost(recipes.byId('twist_reed_rope') as RecipeDef, 'flax_thread');
+    const leather = cost(recipes.byId('cut_leather_rope') as RecipeDef, 'flax_thread');
+    const linen = cost(recipes.byId('make_rope') as RecipeDef, 'flax_thread');
+    expect(reed).toMatchObject({ units: 3, ticks: 80 });
+    expect(reed.value * 3).toBe(linen.value);
+    expect(leather).toMatchObject({ units: linen.units, ticks: 120 });
+    expect(linen).toMatchObject({ units: 2, ticks: 100 });
+  });
+
+  it("T-549: a bone pile splints two legs to a log's four", () => {
+    expect(cost(recipes.byId('make_splint_bone') as RecipeDef, 'oak')).toMatchObject({ units: 1, per: 2 });
+    expect(cost(recipes.byId('make_splint') as RecipeDef, 'oak')).toMatchObject({ units: 1, per: 4 });
   });
 
   it('the rule fails a substitute that is better on every count and passes one that is worse on any of its terms', () => {

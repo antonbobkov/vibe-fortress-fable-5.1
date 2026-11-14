@@ -165,6 +165,23 @@
     "containerClass": "barrel"
   },
   {
+    "id": "basket",
+    "name": "basket",
+    "category": "container/basket",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "plant"
+    ],
+    "glyph": "▐",
+    "quality": false,
+    "capacity": 15,
+    "containerClass": "bin"
+  },
+  {
     "id": "bed",
     "name": "bed",
     "category": "furniture/bed",
@@ -386,7 +403,8 @@
     "weight": "medium",
     "materials": [
       "wood",
-      "metal"
+      "metal",
+      "plant"
     ],
     "glyph": ")",
     "quality": true,
@@ -692,7 +710,9 @@
     "rotDays": 0,
     "weight": "light",
     "materials": [
-      "wood"
+      "wood",
+      "bone",
+      "metal"
     ],
     "glyph": "⌡",
     "quality": false
@@ -1668,7 +1688,9 @@
     "rotDays": 0,
     "weight": "light",
     "materials": [
-      "cloth"
+      "cloth",
+      "plant",
+      "leather"
     ],
     "glyph": "§",
     "quality": false
@@ -1959,7 +1981,9 @@
     "rotDays": 0,
     "weight": "light",
     "materials": [
-      "wood"
+      "wood",
+      "bone",
+      "metal"
     ],
     "glyph": "‖",
     "quality": false

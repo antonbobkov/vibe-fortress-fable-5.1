@@ -88,17 +88,17 @@ describe('T-M0-06 content: every table loads', () => {
     const expected: Record<string, number> = {
       carpenter: 27,
       mason: 15,
-      craftdwarf: 15,
+      craftdwarf: 20,
       jeweler: 2,
       mechanic: 2,
       wood_furnace: 1,
       smelter: 26,
-      forge: 40,
+      forge: 41,
       kitchen: 5,
       still: 3,
       tannery: 1,
-      leatherworks: 11,
-      loom: 2,
+      leatherworks: 12,
+      loom: 3,
       clothier: 10,
       farmers_workshop: 4,
       bowyer: 3,
@@ -109,7 +109,7 @@ describe('T-M0-06 content: every table loads', () => {
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(227);
+    expect(registry.table('recipes').size).toBe(235);
   });
 
   it('the content hash is a stable hex string', () => {

@@ -8,7 +8,7 @@ All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel 
 
 | id | name | inputs | labor | ticks | fuel | magma | glyph pattern | tags |
 |---|---|---|---|---|---|---|---|---|
-| `carpenter` | carpenter's workshop | 2 `log` | carpentry | 200 | no | no | `carpenter` |
+| `carpenter` | carpenter's workshop | 2 `log` | carpentry | 200 | no | no | `carpenter` | `logs_only` |
 | `mason` | mason's workshop | 2 `raw_stone` or `stone_block` | masonry | 200 | no | no | `mason` |
 | `craftdwarf` | craftsdwarf's workshop | 1 `raw_stone` + 1 `log` | construction | 200 | no | no | `craftdwarf` |
 | `jeweler` | jeweler's workshop | 2 `stone_block` | masonry | 200 | no | no | `jeweler` |
@@ -38,7 +38,7 @@ Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one foo
 | `magma_forge` | magma forge | `forge` | 1 `anvil` (iron or steel) + 3 `stone_block` (magma-safe) | masonry | 350 |
 | `magma_kiln` | magma kiln | `kiln` | 3 `stone_block` (magma-safe) | masonry | 300 |
 
-The kiln is built of blocks, and bricks are blocks. Its magma variant needs no anvil, so it is the magma workshop a fortress can build before it has metal: on a Glasslands site, over one of its two shallow magma pools, a kiln that burns no fuel from the first days.
+A workshop built of logs may be built of stone blocks instead, two blocks a log, in half as long again ([14](../02-systems/14-buildings-and-rooms.md) § Placement, Workshops of stone), except the carpenter's (`logs_only`). The kiln is built of blocks, and bricks are blocks. Its magma variant needs no anvil, so it is the magma workshop a fortress can build before it has metal: on a Glasslands site, over one of its two shallow magma pools, a kiln that burns no fuel from the first days.
 
 ## Recipe columns
 
@@ -115,8 +115,15 @@ The kiln is built of blocks, and bricks are blocks. Its magma variant needs no a
 | `knap_short_sword_bone` | Bone short sword | 2 bone_pile | 1 short_sword (from_input) | 180 | yes | 8 |
 | `make_mug_horn` | Drinking horns | 1 horn | 3 mug (from_input) | 120 | yes | 6 |
 | `craft_ivory` | Ivory crafts | 1 tusk | 2 craft (from_input) | 150 | yes | 8 |
+| `weave_basket` | Basket | 3 reed (reed) | 1 basket (from_input) | 100 | no | 4 |
+| `twist_reed_rope` | Reed rope | 3 reed (reed) | 1 rope (from_input) | 80 | no | 3 |
+| `weave_wicker_shield` | Wicker buckler | 3 reed (reed) | 1 buckler (from_input) | 120 | yes | 5 |
+| `make_splint_bone` | Bone splints | 1 bone_pile | 2 splint (from_input) | 80 | no | 4 |
+| `make_crutch_bone` | Bone crutch | 2 bone_pile | 1 crutch (from_input) | 100 | no | 4 |
 
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
+
+Reeds and bones stand in for wood ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a basket is a bin of reed that holds 15 (`make_bin`), reed rope a rope of reed (`make_rope`), a wicker buckler a buckler of reed that blocks as a wooden one and burns (`make_buckler_wood`), and bone splints and crutches serve a hospital as wooden ones do (`make_splint`, `make_crutch`).
 
 ## Jeweler (`gem_cutting`)
 
@@ -151,7 +158,7 @@ Shells of any shell material (`chitin` included) stand in for `alloy_steel`'s fl
 
 ## Forge (`weaponsmithing`, `armorsmithing`, `metalcrafting`)
 
-Bars per item from [weapons-and-armor.md](weapons-and-armor.md) and [items.md](items.md); all `Q` yes unless noted; `fuel` yes.
+Bars per item from [weapons-and-armor.md](weapons-and-armor.md) and [items.md](items.md); all `Q` yes unless noted ("no quality" in the outputs); `fuel` yes. The metal crutch stands in for the carpenter's (`make_crutch`, 12 § Substitutes).
 
 | id | name | skill | inputs | outputs | ticks | xp |
 |---|---|---|---|---|---|---|
@@ -195,6 +202,7 @@ Bars per item from [weapons-and-armor.md](weapons-and-armor.md) and [items.md](i
 | `forge_bucket` | Metal bucket | metalcrafting | 1 bar | 1 bucket | 100 | 4 |
 | `forge_barrel` | Metal barrel | metalcrafting | 2 bar | 1 barrel | 150 | 6 |
 | `forge_bin` | Metal bin | metalcrafting | 2 bar | 1 bin | 150 | 6 |
+| `forge_crutch` | Metal crutch | metalcrafting | 1 bar | 1 crutch (no quality) | 120 | 4 |
 
 Wooden crossbows, bows and shields are made at the bowyer and carpenter. Leather and cloth armor at the leatherworks and clothier.
 
@@ -288,6 +296,7 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 | `make_tunic_leather` | Leather tunic | 2 leather_piece | 1 tunic | 150 | yes | 6 |
 | `make_trousers_leather` | Leather trousers | 2 leather_piece | 1 trousers | 150 | yes | 6 |
 | `make_boots_leather` | Boots | 1 leather_piece | 1 boots | 100 | yes | 5 |
+| `cut_leather_rope` | Leather rope | 2 leather_piece | 1 rope (from_input) | 120 | no | 3 |
 
 ## Loom (`weaving`)
 
@@ -295,6 +304,7 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 |---|---|---|---|---|---|---|
 | `spin_thread` | Spin thread | 1 fiber or 1 wool_raw (flax_fiber, sporecloth_fiber, wool) | 1 thread (matching thread material) | 80 | no | 4 |
 | `weave_cloth` | Weave cloth | 2 thread (same material) | 1 cloth (matching cloth material) | 150 | no | 6 |
+| `spin_coarse_thread` | Spin coarse thread | 2 fiber or reed (reed, cactus_fiber, nettle_fiber; same material) | 1 thread (matching thread material) | 100 | no | 4 |
 | `collect_web` | not a recipe: `gather` on a web tile yields 1 thread (`silk_web`) | | | | | |
 
 ## Clothier (`clothesmaking`)
@@ -359,7 +369,7 @@ Four are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Sub
 
 ## Recipe counts
 
-Carpenter 27, mason 15, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 2), forge 40, kitchen 5, still 3, tannery 1, leatherworks 11, loom 2, clothier 10, farmer's workshop 4, bowyer 3, kiln 10, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 227.
+Carpenter 27, mason 15, craftsdwarf 20, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 2), forge 41, kitchen 5, still 3, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 4, bowyer 3, kiln 10, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 235.
 
 ## Time arithmetic
 
@@ -375,20 +385,10 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 |---|---|---|---|---|---|---|---|---|---|
 | `smokehouse` | smokehouse | 3 `stone_block` | masonry | 250 | yes | no | `smokehouse` | | T-552 |
 
-Edits: `carpenter` gains the tag `logs_only`: every other workshop may be built of blocks in place of logs (14 § Planned, Workshops of stone) (T-549).
-
 ### Planned recipes
 
 | workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| loom | `spin_coarse_thread` | Spin coarse thread | 2 fiber or reed (reed, cactus_fiber, nettle_fiber; same material) | 1 thread (matching thread material) | 100 | no | no | 4 | `spin_thread` | T-549 |
-| craftsdwarf | `weave_basket` | Basket | 3 reed | 1 basket (from_input) | 100 | no | no | 4 | `make_bin` | T-549 |
-| craftsdwarf | `twist_reed_rope` | Reed rope | 3 reed | 1 rope (from_input) | 80 | no | no | 3 | `make_rope` | T-549 |
-| leatherworks | `cut_leather_rope` | Leather rope | 2 leather_piece | 1 rope (from_input) | 80 | no | no | 3 | `make_rope` | T-549 |
-| craftsdwarf | `weave_wicker_shield` | Wicker buckler | 3 reed | 1 buckler (from_input) | 120 | no | yes | 5 | `make_buckler_wood` | T-549 |
-| craftsdwarf | `make_splint_bone` | Bone splints | 1 bone_pile | 2 splint (from_input) | 80 | no | no | 4 | `make_splint` | T-549 |
-| craftsdwarf | `make_crutch_bone` | Bone crutch | 2 bone_pile | 1 crutch (from_input) | 100 | no | no | 4 | `make_crutch` | T-549 |
-| forge | `forge_crutch` | Metal crutch | 1 bar | 1 crutch | 120 | yes | no | 4 | `make_crutch` | T-549 |
 | leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
 | leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
 | bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
