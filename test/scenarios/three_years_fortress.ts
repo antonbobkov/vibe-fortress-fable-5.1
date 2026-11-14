@@ -1457,7 +1457,12 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // one at a time. The fortress shelters from it behind its doors, which no wild animal passes, and
   // the squad waits below with everybody, as an unarmed squad does. A territorial one is hunted,
   // and so is any animal attacking a dwarf.
-  const huntable = wildOnly ? targets.filter((id) => !aggressiveAnimal(w, id) || attackingDwarf(w, id)) : targets;
+  // T-544: a squad armed in metal (SQUAD_SIZE members with a metal weapon, helm, body armour and
+  // greaves) hunts it too, mustered. In mail alone three Novices lose two or three of themselves to
+  // a pack of six; in helm, mail and greaves they beat it (the wild-squad arena).
+  const inMetal = squadInMetal(w, state);
+  const huntable = wildOnly ? targets.filter((id) => !aggressiveAnimal(w, id) || attackingDwarf(w, id) || inMetal) : targets;
+  const metalHunt = huntable.some((id) => aggressiveAnimal(w, id) && !attackingDwarf(w, id));
   const rescue = huntable.some((id) => attackingDwarf(w, id));
   const hunts = armed && huntable.length > 0;
   const quiet = (): void => {
@@ -1500,10 +1505,15 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     // is put back in it once the alert is down (above).
     // An animal attacking a dwarf is not waited for: the squad goes at once.
     const muster = hunts && wildOnly && !rescue && state.mustered !== true;
-    if (muster && musteredAt(w, state, gatehouseStairsTile)) {
+    if (muster && musteredAt(w, state, gatehouseStairsTile, metalHunt)) {
       state.mustered = true;
       const members = squad?.members ?? [];
-      const withWeapons = members.filter((id) => combat.weaponOf(id) !== 0);
+      // T-544: after a wolf or a bear only the members armed in metal set out.
+      const withWeapons = members.filter((id) => (metalHunt ? armedInMetal(w, id) : combat.weaponOf(id) !== 0));
+      if (metalHunt) {
+        note('three_years_hunt', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, soldiers: withWeapons.length,
+          targets: huntable.map((id) => speciesName(w, id)) });
+      }
       if (withWeapons.length < members.length) command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: withWeapons });
     }
     const mustering = muster && state.mustered !== true;
@@ -1536,9 +1546,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
 
 /**
  * T-539: at least SQUAD_SIZE of the squad's armed members stand within MUSTER_RADIUS of its post
- * (and a level of it), so it sets out after wild animals together.
+ * (and a level of it), so it sets out after wild animals together. T-544: after a wolf or a bear
+ * (`inMetal`), members armed in metal.
  */
-export function musteredAt(w: TestWorld, state: FortressState, post: number): boolean {
+export function musteredAt(w: TestWorld, state: FortressState, post: number, inMetal = false): boolean {
   const combat = w.readers.of<CombatReader>('16');
   const ent = w.game.world.entities;
   const members = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
@@ -1547,7 +1558,7 @@ export function musteredAt(w: TestWorld, state: FortressState, post: number): bo
   const pz = w.map.zOf(post);
   const there = members.filter((id) => {
     const p = ent.get(id, C.Position);
-    return p !== undefined && combat.weaponOf(id) !== 0 && Math.abs(p.z - pz) <= 1 &&
+    return p !== undefined && (inMetal ? armedInMetal(w, id) : combat.weaponOf(id) !== 0) && Math.abs(p.z - pz) <= 1 &&
       Math.max(Math.abs(p.x - px), Math.abs(p.y - py)) <= MUSTER_RADIUS;
   });
   return there.length >= SQUAD_SIZE;
@@ -1572,6 +1583,26 @@ function squadArmed(w: TestWorld, state: FortressState): boolean {
   const combat = w.readers.of<CombatReader>('16');
   const members = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
   return members.length >= SQUAD_SIZE && members.filter((id) => combat.weaponOf(id) !== 0).length >= SQUAD_SIZE;
+}
+
+/**
+ * T-544: a dwarf armed in metal: a weapon of metal in hand and a helm, body armour and greaves of
+ * metal on. The forge makes the squad its helms and greaves after its kit (three_years_economy.ts,
+ * the 'iron goods' orders), so a squad is armed in metal some weeks after its kit is forged.
+ */
+export function armedInMetal(w: TestWorld, id: number): boolean {
+  const combat = w.readers.of<CombatReader>('16');
+  const ent = w.game.world.entities;
+  const materials = w.game.registry.table<{ id: string; class: string }>('materials');
+  const metal = (item: number): boolean => item !== 0 && materials.byIndex(ent.get(item, C.Item)?.material ?? -1)?.class === 'metal';
+  const armor = combat.armorOf(id);
+  return metal(combat.weaponOf(id)) && metal(armor.head) && metal(armor.body) && metal(armor.legs);
+}
+
+/** T-544: at least SQUAD_SIZE of the squad are armed in metal. */
+function squadInMetal(w: TestWorld, state: FortressState): boolean {
+  const members = w.readers.of<CombatReader>('16').squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  return members.filter((id) => armedInMetal(w, id)).length >= SQUAD_SIZE;
 }
 
 function speciesName(w: TestWorld, id: number): string {
