@@ -86,8 +86,14 @@ test('T-M7-03 trade-session', async ({ page }) => {
     if (!dwarf || !h.host.world.services.movement.teleport(dwarf.id, tile)) throw new Error('broker fixture failed');
     const title = h.host.world.applyCommand({ type: 'AssignTitle', dwarfId: dwarf.id, title: 'broker' });
     if (!title.ok) throw new Error(`broker: ${title.reason}`);
-    // T-551: this fortress has no beds, and a floor sleep is twice as long; the broker is awake.
-    (h.host.world.scheduler.byId('10') as unknown as { setNeed(id: number, need: string, value: number): void }).setNeed(dwarf.id, 'rest', 0);
+    // T-551: this fortress has no beds, and a floor sleep is twice as long; the broker is awake, fed and
+    // watered, so the trade job is the first thing it does.
+    const dwarves = h.host.world.scheduler.byId('10') as unknown as { setNeed(id: number, need: string, value: number): void };
+    for (const need of ['rest', 'hunger', 'thirst']) dwarves.setNeed(dwarf.id, need, 0);
+    // The timeline T-551 moved has this dwarf out hunting when it is named broker: a player calls it in.
+    h.host.world.applyCommand({ type: 'SetLabor', dwarfId: dwarf.id, labor: 'hunting', on: false });
+    const own = h.readers.of<{ forWorker(id: number): { id: number } | undefined }>('11').forWorker(dwarf.id);
+    if (own !== undefined) h.host.world.applyCommand({ type: 'CancelJob', jobId: own.id });
   }, fixture);
 
   // T-117: deaths during the caravan wait leave a danger line; acknowledge it before panel input.
@@ -105,7 +111,12 @@ test('T-M7-03 trade-session', async ({ page }) => {
     const h = (window as unknown as { __deepholm: TradeHook }).__deepholm;
     const trade = h.readers.of<{ sessionOpen(): boolean }>('20');
     for (let n = 0; n < 300 && !trade.sessionOpen(); n += 1) h.step(1);
-    if (!trade.sessionOpen()) throw new Error('trade job did not open a session');
+    if (!trade.sessionOpen()) {
+      const d = h.dwarves()[0];
+      const r10 = h.readers.of<{ behavior(id: number): string; activityText(id: number): string; need(id: number, n: string): number }>('10');
+      const id = d?.id ?? 0;
+      throw new Error(`trade job did not open a session; broker ${id} ${r10.behavior(id)}/${r10.activityText(id)} rest ${r10.need(id, 'rest')} hunger ${r10.need(id, 'hunger')} thirst ${r10.need(id, 'thirst')} jobs ${JSON.stringify(h.readers.of<{ list(): { key: string; state: string; workerId: number; blockedReason: string | null }[] }>('11').list().filter((j) => j.key.includes('trade') || j.workerId === id))}`);
+    }
   });
   await expect.poll(() => screenOf(page)).toBe('trade_session');
   expect(await textOf(page)).toContain('Trading with the Hillfolk');
