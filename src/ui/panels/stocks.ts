@@ -17,7 +17,7 @@ import { CATEGORY_TREE, categoryUnder } from '@systems/items';
 import type { Surface } from '../surface';
 import { buildTree, label, tree, type TreeNode, type TreeState } from '../widgets';
 import { buildings, confirmThen, items, marks, type PanelContext } from './context';
-import { enchantedName } from '../messages';
+import { ageNote, agedMaterial, enchantedName } from '../messages';
 
 interface NodeTotals {
   count: number;
@@ -86,9 +86,12 @@ export class StocksPanel {
           if (it.categoryOf(type) !== n.id) continue;
           children.push({ id: `type:${type}`, name: it.def(type)?.name ?? String(type), children: (itemIds.get(type) ?? []).map((id) => {
             const rec = it.get(id);
-            const material = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
+            const plain = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
+            // 13 § Aging in a cellar: an aged stack names its stage and its years ("aged bellwine ×20 (aged, 1 year in the cellar)").
+            const material = agedMaterial(ctx.strings, plain, rec?.age);
+            const note = rec === undefined ? '' : ageNote(ctx.strings, ctx.registry, rec, rec.containerId === 0 ? undefined : it.get(rec.containerId));
             // An enchanted stack carries its suffix (25 § Setting stones): "keen iron ×1".
-            return { id: `item:${id}`, name: `${enchantedName(ctx.readers, id, material)} ×${rec?.count ?? 1}`, children: [] };
+            return { id: `item:${id}`, name: `${enchantedName(ctx.readers, id, material)} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, children: [] };
           }) });
         }
         return { ...n, children };

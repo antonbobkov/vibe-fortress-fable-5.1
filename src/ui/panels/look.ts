@@ -17,7 +17,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { buildingName, enchantedName, filterText, materialItemName, wrapHang, zoneName } from '../messages';
+import { agedMaterial, buildingName, enchantedName, filterText, materialItemName, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
@@ -51,6 +51,7 @@ interface DwarvesReaderLike {
   activityText(id: EntityId): string;
   skill(id: EntityId, skill: string): number;
   skillTier(id: EntityId, skill: string): string;
+  isTipsy?(id: EntityId): boolean;
 }
 
 interface JobsReaderLike {
@@ -304,7 +305,8 @@ export function drawLookPanel(
     row += 1;
     if (has(readers, '10')) {
       const dwarves = readers.of<DwarvesReaderLike>('10');
-      const activity = dwarves.activityText(id);
+      // 10 § Tipsy: the inspector says "Tipsy" beside the activity.
+      const activity = dwarves.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: dwarves.activityText(id) }) : dwarves.activityText(id);
       const job = has(readers, '11') ? readers.of<JobsReaderLike>('11').forWorker(id) : undefined;
       line(
         job === undefined
@@ -559,7 +561,7 @@ function channelName(readers: ReaderSet, registry: Registry, id: EntityId): stri
 }
 
 interface ItemsReaderLike {
-  get(id: EntityId): { type: number; material: number; quality: number; count: number; flags: number; containerId: EntityId } | undefined;
+  get(id: EntityId): { type: number; material: number; quality: number; count: number; flags: number; containerId: EntityId; age?: 1 | 2 } | undefined;
   value(id: EntityId): number;
   def(type: number): { name: string; quality: boolean } | undefined;
   inContainer(id: EntityId): EntityId[];
@@ -593,7 +595,8 @@ function itemName(readers: ReaderSet, registry: Registry, id: EntityId): string 
   const rec = it.get(id);
   if (rec === undefined) return '';
   const def = it.def(rec.type);
-  const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
+  // 13 § Aging in a cellar: "aged bellwine", "vintage cheese".
+  const material = agedMaterial(null, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
   const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
   const suffix = has(readers, '25') ? readers.of<MagicReader>('25').spellOf(id)?.suffix : undefined;
   const name = enchantedName(readers, id, meal ?? materialItemName(material, { name: def?.name ?? '' }));
