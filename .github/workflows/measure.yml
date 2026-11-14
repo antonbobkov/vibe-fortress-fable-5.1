@@ -4,6 +4,7 @@ name: Measure
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
 #   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
 #   gh workflow run measure.yml --ref <branch> -f suite=defence_seeds   (eight seeds at cadences 20 to 55 in parallel, then the verdict)
+#   gh workflow run measure.yml --ref <branch> -f suite=sleep_audit     (the sleep audit: three seeds' first 112 days, plain and with dressed beds)
 # Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep", "instrument" and "defence")
 # How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
@@ -13,7 +14,7 @@ on:
         description: What to measure
         type: choice
         default: sweep
-        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds]
+        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds, sleep_audit]
       scenario:
         description: For suite=scenario, the scenario id (its file name without .scenario.ts)
         type: string
@@ -264,6 +265,17 @@ jobs:
         env:
           THREE_YEARS_OUT: out/three-years.json
         run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/three_years_main.test.ts 2>&1 | tee out/three-years-main.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: inputs.suite == 'sleep_audit'
+        env:
+          SLEEP_OUT: out/sleep
+        run: mkdir -p out/sleep && npx vitest run -c vitest.perf.config.ts test/perf/sleep_audit.test.ts 2>&1 | tee out/sleep-audit.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: inputs.suite == 'sleep_audit'
+        env:
+          SLEEP_OUT: out/sleep
+          SLEEP_DRESSED: '1'
+        run: npx vitest run -c vitest.perf.config.ts test/perf/sleep_audit.test.ts 2>&1 | tee out/sleep-audit-dressed.log; exit ${PIPESTATUS[0]}
         shell: bash
       - if: inputs.suite == 'timing'
         run: mkdir -p out && npx vitest run -c vitest.perf.config.ts test/perf/per-system.test.ts test/perf/perf_reference.test.ts 2>&1 | tee out/timing.log; exit ${PIPESTATUS[0]}
