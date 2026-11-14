@@ -14,7 +14,7 @@
 import { TICKS_PER_DAY } from '@core/constants';
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
-import { TileKind } from '@core/map3d';
+import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { ItemsReader } from '@systems/items';
@@ -58,6 +58,8 @@ export interface DefenceYearState {
   drawbridgeId: number;
   leverId: number;
   archeryTargetId: number;
+  /** T-547: a room was dug for the range, the halls' level having no open floor for its target. */
+  rangeRoomDug?: boolean;
   archeryRangeZoneId: number;
   barracksZoneId: number;
   /** The trees on the works' sites are designated for felling, and the shrub under the bridge for a channel. */
@@ -105,6 +107,36 @@ function leverSite(w: TestWorld, state: DefenceYearState): number {
   const hall = state.fortress.hearthHallTiles.filter((t) => w.map.kindAt(t) === TileKind.Floor && buildings.at(t) === 0)
     .sort((a, b) => d(a) - d(b) || a - b);
   return hall.find((t) => buildings.ghost('lever', t, 0).reason === null) ?? -1;
+}
+
+/**
+ * T-547: five by three tiles of natural rock beside one of the sites (a corridor tile), off every
+ * zone and building and the planned dining hall, nearest site first; empty when none fits.
+ */
+function rangeRoom(w: TestWorld, state: DefenceYearState, sites: readonly number[]): number[] {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const planned = new Set(state.fortress.diningHallTiles);
+  const rock = (t: number): boolean => t >= 0 && w.map.kindAt(t) === TileKind.Wall && !w.map.hasFlag(t, TileFlag.Constructed) &&
+    buildings.zoneAt(t) === 0 && buildings.at(t) === 0 && !planned.has(t) &&
+    // under a roof: the tile above is solid, so the dug room is indoors.
+    w.map.above(t) >= 0 && w.map.kindAt(w.map.above(t)) !== TileKind.Open;
+  for (const t of sites) {
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
+      // The room's nearest row or column touches the site; its middle is the target's site.
+      const centre = w.map.offset(t, dx * 3, dy * 2, 0);
+      if (centre < 0) continue;
+      const room: number[] = [];
+      for (let y = -1; y <= 1; y += 1) for (let x = -2; x <= 2; x += 1) room.push(w.map.offset(centre, x, y, 0));
+      // The ring around it is rock or the fortress's own indoor floor, so the room opens on nothing
+      // else: no new way in from the surface or a cavern.
+      const ring: number[] = [];
+      for (let y = -2; y <= 2; y += 1) for (let x = -3; x <= 3; x += 1) if (Math.abs(y) === 2 || Math.abs(x) === 3) ring.push(w.map.offset(centre, x, y, 0));
+      const closed = (t: number): boolean => t >= 0 && (w.map.kindAt(t) === TileKind.Wall ||
+        (w.map.kindAt(t) === TileKind.Floor && !w.map.hasFlag(t, TileFlag.Outdoor)));
+      if (room.every(rock) && ring.every(closed)) return room;
+    }
+  }
+  return [];
 }
 
 /** Tiles on the halls' level, not in a zone, that a zone of this type may take, nearest the gate stair first. */
@@ -286,9 +318,31 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
       const n = w.map.offset(t, dx, dy, 0);
       return n >= 0 && w.map.kindAt(n) === TileKind.Floor && (n === t || buildings.at(n) === 0);
     }));
-    for (const t of zoneTiles(w, state, 'archery_range', 200).filter(open)) {
+    const sites = zoneTiles(w, state, 'archery_range', 200);
+    for (const t of sites.filter(open)) {
       const id = place(w, 'archery_target', t);
       if (id) { state.archeryTargetId = id; break; }
+    }
+    // T-547: where the halls' level has no open floor yet (the rooms a fortress digs come with its
+    // timeline, and soil loads to haul moved it), the range gets a room of its own: five by three of
+    // rock beside a corridor tile, dug once, its middle the target's site.
+    if (!state.archeryTargetId && !state.rangeRoomDug && sites.filter(open).length === 0) {
+      const room = rangeRoom(w, state, sites);
+      if (room.length > 0 && command(w, { type: 'Designate', kind: 'dig', priority: DEFENCE, tiles: room }).ok) {
+        state.rangeRoomDug = true;
+        note(state, w, 'no open floor for the archery target: a room is dug for the range');
+      }
+    }
+    // The founding miners are the squad's soldiers and keep their picks while they train, so a miner
+    // outside the squad has none and the room waits. A player takes mining from the soldiers: their
+    // picks go back to the stockpile for the miner who is not a soldier.
+    if (state.rangeRoomDug) {
+      const jobs = w.readers.of<JobsReader>('11');
+      const members = w.readers.of<CombatReader>('16').squads().find((s) => s.id === state.fortress.squadId)?.members ?? [];
+      const miners = jobs.workersWithLabor('mining');
+      if (miners.some((m) => !members.includes(m))) {
+        for (const m of miners.filter((id) => members.includes(id))) command(w, { type: 'SetLabor', dwarfId: m, labor: 'mining', on: false });
+      }
     }
   }
   if (!state.archeryRangeZoneId && built(state.archeryTargetId)) {

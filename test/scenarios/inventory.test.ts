@@ -41,6 +41,7 @@ const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', 
   events: {
     WorldGenerated: { reason: 'World-map generation emits outside the simulation tick loop.' },
     TreeFelled: { test: 'test/unit/terrain/producer.test.ts', reason: 'A commanded chop completes through the real job loop and delivers TreeFelled.' },
+    FossilFound: { test: 'test/unit/t547-making-do-materials.test.ts', reason: 'A miner digs a room of giant bone through the real job loop; the first fossil delivers FossilFound once and the thought of the digger.' },
     ShrubRegrown: { test: 'test/unit/plants/wild.test.ts', reason: 'A delivered gather completion starts the shrub timer; stepped days deliver regrowth.' },
     AnimalTrained: { test: 'test/unit/animals/taming.test.ts', reason: 'TrainAnimal runs at a kennel until its actual completion event.' },
     PetAdopted: { test: 'test/unit/t165-death-ownership.test.ts', reason: 'The remaining cat adopts another living dwarf during stepped days after its owner dies.' },

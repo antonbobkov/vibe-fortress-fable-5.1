@@ -123,7 +123,9 @@ describe('T-493 content', () => {
     expect(enchants.index('venomed')).toBe(enchants.index('calm') + 1);
     expect(registry.table('recipes').byId('set_armor_calm')).toMatchObject({ transform: true });
     const thoughtRows = registry.table<{ id: string; text: string; value: unknown; hours: number; group: string; trigger: { event?: string } }>('thoughts');
-    expect(thoughtRows.ids().slice(-1)).toEqual(['put_to_flight']);
+    // Numbered after T-491's rows, before the rows appended after it.
+    const thoughtIds = thoughtRows.ids();
+    expect(thoughtIds[thoughtIds.indexOf('lab_stink') + 1]).toBe('put_to_flight');
     expect(thoughtRows.byId('put_to_flight')).toMatchObject({ text: 'Fear took my legs, and I ran.', hours: 12, group: 'fear', trigger: { event: 'PutToFlight' } });
     const tiers = registry.derived<readonly { tier: number; kits: Record<string, { item: string; stone?: string }[]> }[]>('gearTiers');
     for (const row of tiers.filter((r) => r.tier >= 1)) {

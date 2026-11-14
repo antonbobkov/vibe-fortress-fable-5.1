@@ -306,7 +306,7 @@ export class TerrainProducer implements JobProducer {
       ctx.emit({ type: 'MineralMined', tile, material: materialId, minerId: worker });
       if (core.findVein(tile)) ctx.emit({ type: 'VeinFound', material: materialId, tile, finderId: worker });
     }
-    // `03` § Tile transitions, bone tiles: "It emits `MineralMined` as an ore does, and no
+    // `03` § Digging as a job: a tile of class `bone` "emits `MineralMined` as an ore does, and no
     // `VeinFound`"; the first one dug in a fortress emits `FossilFound` once.
     if (mines && cls === 'bone') {
       ctx.emit({ type: 'MineralMined', tile, material: materialId, minerId: worker });
