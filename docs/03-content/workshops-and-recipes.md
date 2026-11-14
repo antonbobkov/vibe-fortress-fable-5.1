@@ -309,7 +309,7 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 |---|---|---|---|---|---|---|---|
 | `process_flax` | Process flax | farming | 1 plant_food (flax) | 2 fiber (flax_fiber) | 100 | no | 4 |
 | `process_sporecloth` | Process sporecloth | farming | 1 plant_food (sporecloth) | 2 fiber (sporecloth_fiber) | 100 | no | 4 |
-| `mill_flour` | Mill flour | farming | 2 plant_food (barley or cavewheat) + container bag | 3 flour in the bag | 120 | no | 5 |
+| `mill_flour` | Mill flour | farming | 2 plant_food (barley, cavewheat or rye) + container bag | 3 flour in the bag | 120 | no | 5 |
 | `make_cheese` | Make cheese | animal_care | 3 milk | 2 cheese | 150 | yes | 6 |
 | (`milk_animal`, `shear_animal` are jobs, not recipes) | | | | | | | |
 

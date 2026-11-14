@@ -215,7 +215,7 @@ describe('T-M0-07 catalogs: the type unions contain every catalog name', () => {
 
   it('every event of the catalog is an EventType, in document order', () => {
     expect([...EVENT_TYPES]).toEqual(events.map((e) => e.name));
-    expect(EVENT_TYPES.length).toBe(187);
+    expect(EVENT_TYPES.length).toBe(190);
   });
 
   it('every event keeps its documented field list', () => {
@@ -249,7 +249,7 @@ describe('T-M0-07 catalogs: the type unions contain every catalog name', () => {
 
   it('every rejection reason of the catalog exists with its strings key', () => {
     expect([...REJECT_REASONS]).toEqual(reasons);
-    expect(REJECT_REASONS.length).toBe(42);
+    expect(REJECT_REASONS.length).toBe(43);
     expect(rejectStringKey('out_of_bounds')).toBe('reject.out_of_bounds');
   });
 

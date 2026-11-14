@@ -1,6 +1,6 @@
 # T-551 — Making Do B1: beds that rest differently, bedding, and buildings that want items
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 Beds); the owner, 2026-11-13 · **Size:** L · **Needs:** T-547, T-548 · **Status:** blocked (needs T-547, T-548)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 Beds); the owner, 2026-11-13 · **Size:** L · **Needs:** T-547 · **Status:** blocked (needs T-547)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

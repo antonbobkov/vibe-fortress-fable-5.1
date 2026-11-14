@@ -77,6 +77,8 @@ Job execution (producer `workshops`):
 - A **transform** recipe (`transform: true`, with the `enchants` row it sets in `enchant`) has no outputs. Its `onComplete` consumes every input but input 0, rolls quality, gives each delivered item of input 0 the enchantment at that tier through 13's `items.setEnchant`, drops it at the output tile and emits `StoneSet { itemId, enchantId, tier, smithId }` for it; the job's release then frees its reservation. It emits no `ItemCrafted` and no `MasterworkCreated`; experience and the order count down as for any recipe.
 - At a building tagged `rune_work` (the runeforge, the laboratory), either kind of recipe emits `DeepsilverWorked { amount, tile }` for each consumed input whose material is a metal with a positive `runePressure` ([minerals-and-metals.md](../03-content/minerals-and-metals.md) § Metals): `amount` is the units consumed times `runePressure`, `tile` the building's origin, and the material is read before the input is consumed. No other building emits it. 18 raises the Deep's pressure by it (25 § Deepsilver).
 
+A meal records the seasonings among its ingredients: `Item.seasoned`, the materials of its delivered ingredients (not its fuel or container) that carry the tag `seasoning` (`wyrmtongue`), ascending, read before the inputs are consumed; omitted when there is none. Two stacks of meals merge only with the same seasonings. `MealEaten` carries `seasoned` (the material ids) when the meal has any, and 15 gives `ate_wyrmtongue` beside the meal's own thought.
+
 Delivered inputs stay reserved to the craft job while its order stands, through a need/threat interruption, a block or a reservation timeout. Only undelivered reservations use `RESERVE_KEEP_TICKS`; completed or cancelled jobs release all remaining reservations, and removing the order cancels the job. Haulers cannot remove delivered reserved inputs.
 
 Suspending a workshop cancels its current job; the order waits until it is resumed. Setting or clearing its assigned worker also cancels the current job. On `CreatureDied` of an assigned worker, clear `assignedWorker` to 0 and cancel the current job exactly as `SetWorkshopWorker { dwarfId: 0 }` does; another eligible worker can run the retained order.
@@ -217,8 +219,8 @@ The smelter's authored `make_steel_bone_ash` (1 iron bar + 1 `bone_ash` + 1 fuel
 
 - Workshop `smokehouse`: 3 `stone_block`, masonry, skill `cooking`, fuel. `smoke_meat`: 1 fuel + 5 raw meat or raw fish (same material) → 5 `cured_meat` or `cured_fish` of that material. On its completion every fortress dwarf within `SMOKE_RADIUS` of the smokehouse who is not its worker gets `smelled_smokehouse` ("Smells of smoked {meat}. Hungry now.", the material's name) and hunger +`SMOKEHOUSE_HUNGER`.
 - Kitchen: `salt_meat` (1 salt + 5 raw meat or raw fish → 5 cured, no fuel, T-552), beside `crush_halite`.
-- A meal records the seasonings among its ingredients: `Item.seasoned`, the materials of its ingredients that carry the tag `seasoning` (`salt`, `wyrmtongue`). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"). `MealEaten` carries `seasoned`, and 15 gives `ate_salted_meal` (T-552) or `ate_wyrmtongue` (T-548) beside the meal's own thought.
-- Constants: `SMOKEHOUSE_HUNGER` 5. Save: `Item.seasoned` (omitted when empty).
+- `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (12 § Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt.
+- Constants: `SMOKEHOUSE_HUNGER` 5.
 
 ### Spirits (T-554)
 

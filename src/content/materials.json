@@ -160,6 +160,22 @@
     "burnTicks": 0
   },
   {
+    "id": "black_ale",
+    "name": "black ale",
+    "class": "liquid",
+    "value": 3,
+    "density": 100,
+    "hardness": 100,
+    "color": "rye_gold",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "drink",
+      "ale"
+    ]
+  },
+  {
     "id": "bog_iron",
     "name": "bog iron",
     "class": "ore",
@@ -207,6 +223,60 @@
     "meltsAtC": 950,
     "burnable": false,
     "burnTicks": 0
+  },
+  {
+    "id": "cactus_cloth",
+    "name": "cactus cloth",
+    "class": "cloth",
+    "value": 6,
+    "density": 35,
+    "hardness": 100,
+    "color": "cactus_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300
+  },
+  {
+    "id": "cactus_fiber",
+    "name": "cactus fiber",
+    "class": "cloth",
+    "value": 1,
+    "density": 30,
+    "hardness": 100,
+    "color": "cactus_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300,
+    "nextStage": "cactus_thread"
+  },
+  {
+    "id": "cactus_thread",
+    "name": "cactus thread",
+    "class": "cloth",
+    "value": 2,
+    "density": 30,
+    "hardness": 100,
+    "color": "cactus_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300,
+    "nextStage": "cactus_cloth"
+  },
+  {
+    "id": "cactus_wine",
+    "name": "cactus wine",
+    "class": "liquid",
+    "value": 3,
+    "density": 100,
+    "hardness": 100,
+    "color": "cactus_green",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "drink",
+      "wine"
+    ]
   },
   {
     "id": "cassiterite",
@@ -475,6 +545,22 @@
     "burnTicks": 0
   },
   {
+    "id": "emberwine",
+    "name": "emberwine",
+    "class": "liquid",
+    "value": 6,
+    "density": 100,
+    "hardness": 100,
+    "color": "wyrmtongue_red",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "drink",
+      "wine"
+    ]
+  },
+  {
     "id": "emerald",
     "name": "emerald",
     "class": "gem",
@@ -740,6 +826,22 @@
     ]
   },
   {
+    "id": "ironwood",
+    "name": "ironwood",
+    "class": "wood",
+    "value": 6,
+    "density": 90,
+    "hardness": 200,
+    "color": "ironwood_dark",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 1200,
+    "sharpness": 600,
+    "tags": [
+      "fire_resistant"
+    ]
+  },
+  {
     "id": "ivory",
     "name": "ivory",
     "class": "bone",
@@ -955,6 +1057,44 @@
     "burnTicks": 0
   },
   {
+    "id": "nettle_cloth",
+    "name": "nettle cloth",
+    "class": "cloth",
+    "value": 6,
+    "density": 35,
+    "hardness": 100,
+    "color": "nettle_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300
+  },
+  {
+    "id": "nettle_fiber",
+    "name": "nettle fiber",
+    "class": "cloth",
+    "value": 1,
+    "density": 30,
+    "hardness": 100,
+    "color": "nettle_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300,
+    "nextStage": "nettle_thread"
+  },
+  {
+    "id": "nettle_thread",
+    "name": "nettle thread",
+    "class": "cloth",
+    "value": 2,
+    "density": 30,
+    "hardness": 100,
+    "color": "nettle_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300,
+    "nextStage": "nettle_cloth"
+  },
+  {
     "id": "oak",
     "name": "oak",
     "class": "wood",
@@ -1070,6 +1210,31 @@
     "meltsAtC": 1600,
     "burnable": false,
     "burnTicks": 0
+  },
+  {
+    "id": "reed_cloth",
+    "name": "reed cloth",
+    "class": "cloth",
+    "value": 6,
+    "density": 35,
+    "hardness": 100,
+    "color": "reed_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300
+  },
+  {
+    "id": "reed_thread",
+    "name": "reed thread",
+    "class": "cloth",
+    "value": 2,
+    "density": 30,
+    "hardness": 100,
+    "color": "reed_green",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300,
+    "nextStage": "reed_cloth"
   },
   {
     "id": "rhyolite",

@@ -180,6 +180,21 @@
     "announce": false
   },
   {
+    "id": "ate_wyrmtongue",
+    "name": "ate wyrmtongue",
+    "text": "Ate something that fought back.",
+    "value": 2,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "seasoned with wyrmtongue; while held, no bitter_cold"
+    },
+    "announce": false
+  },
+  {
     "id": "attuned",
     "name": "attuned",
     "text": "Felt the rune answer.",
@@ -383,6 +398,23 @@
     "trigger": {
       "event": "DrankAlcohol",
       "target": "ale, beer"
+    },
+    "announce": false
+  },
+  {
+    "id": "drank_cactus",
+    "name": "drank cactus",
+    "text": "Drank cactus. Cactus.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankFromPlant",
+      "target": "self"
     },
     "announce": false
   },
@@ -865,6 +897,23 @@
     "trigger": {
       "event": "Mended",
       "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "nettles",
+    "name": "nettles",
+    "text": "Nettles. Of course.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "Stung",
+      "target": "by a nettle"
     },
     "announce": false
   },

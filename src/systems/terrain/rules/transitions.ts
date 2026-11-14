@@ -176,9 +176,10 @@ export interface TransitionRolls {
   /**
    * The product of a gathered shrub of the given plant species index: item type, material and
    * count, and — with the species' `wildSeedPermille` — one seed of the crop it sows
-   * (`07` § Shrubs, § Seeds; T-M4-02).
+   * (`07` § Shrubs, § Seeds; T-M4-02), and a second product given with the first (`09` § Gathering).
    */
-  gather(species: number): { type: string; material: string; count: number; seed?: string } | null;
+  gather(species: number): { type: string; material: string; count: number; seed?: string;
+    extra?: { type: string; material: string; count: number } } | null;
   /** The log material of a tree species (its wood). */
   logMaterial(species: number): string;
 }
@@ -306,6 +307,7 @@ export function transition(
         drops.push({ type: product.type, material: product.material, count: product.count, tile: i });
       }
       if (product?.seed !== undefined) drops.push({ type: 'seed', material: product.seed, count: 1, tile: i });
+      if (product?.extra !== undefined && product.extra.count > 0) drops.push({ ...product.extra, tile: i });
       break;
     }
     case Designation.None:
@@ -330,6 +332,7 @@ export function clearPlantTransition(map: Map3D, i: TileIndex, facts: MaterialFa
     const product = rolls.gather(map.materialAt(i));
     if (product !== null && product.count > 0) drops.push({ type: product.type, material: product.material, count: product.count, tile: i });
     if (product?.seed !== undefined) drops.push({ type: 'seed', material: product.seed, count: 1, tile: i });
+    if (product?.extra !== undefined && product.extra.count > 0) drops.push({ ...product.extra, tile: i });
   }
   return { changes: [{ tile: i, kind: TileKind.Floor, material: ground, ...(soil ? { set: TileFlag.Grass } : {}) }], drops };
 }

@@ -49,7 +49,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'tool', 'tool/pick', 'tool/axe', 'tool/fishing_rod', 'tool/crutch',
   'craft', 'craft/figurine', 'craft/ring', 'craft/amulet', 'craft/mug', 'craft/totem',
   'textile', 'textile/fiber', 'textile/thread', 'textile/cloth', 'textile/wool', 'textile/hide', 'textile/leather',
-  'textile/bone', 'textile/shell', 'textile/skull', 'textile/horn', 'textile/tusk', 'textile/feather',
+  'textile/bone', 'textile/shell', 'textile/skull', 'textile/horn', 'textile/tusk', 'textile/feather', 'textile/straw', 'textile/reed',
   'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf', 'medical/glowcap', 'medical/vial', 'medical/draught',
   'medical/wyrmscale', 'medical/ichor', 'medical/venom', 'medical/gland',
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
@@ -61,9 +61,12 @@ const DRINK_GROUPS: Readonly<Record<string, string>> = Object.freeze({
   dimcap_ale: 'drink/ale',
   cavewheat_beer: 'drink/ale',
   hopped_ale: 'drink/ale',
+  black_ale: 'drink/ale',
   bellwine: 'drink/wine',
   rootwine: 'drink/wine',
   strawberry_wine: 'drink/wine',
+  cactus_wine: 'drink/wine',
+  emberwine: 'drink/wine',
 });
 
 /**

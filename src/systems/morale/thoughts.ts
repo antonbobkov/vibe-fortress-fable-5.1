@@ -138,6 +138,10 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'rune_sick': return event['sick'] === true;
     case 'saw_wisp': return true;
     case 'put_to_flight': return true;
+    // Making Do: the nettle's sting (09), a cactus drunk (10), a meal seasoned with wyrmtongue (12).
+    case 'nettles': return s(event, 'source') === 'nettle';
+    case 'drank_cactus': return true;
+    case 'ate_wyrmtongue': return Array.isArray(event['seasoned']) && (event['seasoned'] as unknown[]).includes('wyrmtongue');
     default: return true;
   }
 }

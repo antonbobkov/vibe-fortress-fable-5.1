@@ -321,12 +321,30 @@ export function generatedMaterials(
   add(baseMaterial('blindfish_meat', 'blindfish', 'meat', 3, 100, 'meat_red'));
 
   // "Each plant species is a material of class `plant` with the value in plants.md."
+  // A row's `materialTags` go on the material it yields (`wyrmtongue` a seasoning, `cactus_pulp`
+  // drinkable); a product material whose `<id>_thread` exists spins into it (`reed`).
+  const tagsOf = new Map<string, string[]>();
+  for (const p of plants) {
+    const tags = p.materialTags;
+    if (!Array.isArray(tags) || tags.length === 0) continue;
+    const target = p.yieldMaterial ?? p.id;
+    tagsOf.set(target, [...(tagsOf.get(target) ?? []), ...(tags as string[])]);
+  }
+  const withExtras = (m: MaterialDef, product: boolean): MaterialDef => {
+    const tags = tagsOf.get(m.id);
+    const next = `${m.id}_thread`;
+    return {
+      ...m,
+      ...(tags === undefined ? {} : { tags: [...(m.tags ?? []), ...tags] }),
+      ...(product && existing.has(next) ? { nextStage: next } : {}),
+    };
+  };
   for (const p of plants) {
     if (p.kind === 'tree' || p.kind === 'fungus_tree') continue;
-    add(baseMaterial(p.id, p.name, 'plant', p.value, 100, p.fg ?? 'grass_green'));
+    add(withExtras(baseMaterial(p.id, p.name, 'plant', p.value, 100, p.fg ?? 'grass_green'), false));
     const yielded = p.yieldMaterial;
     if (typeof yielded === 'string') {
-      add(baseMaterial(yielded, yielded.replace(/_/g, ' '), 'plant', p.value, 100, p.fg ?? 'grass_green'));
+      add(withExtras(baseMaterial(yielded, yielded.replace(/_/g, ' '), 'plant', p.value, 100, p.fg ?? 'grass_green'), yielded !== p.id));
     }
   }
   return out;

@@ -1536,6 +1536,20 @@
     "quality": false
   },
   {
+    "id": "reed",
+    "name": "reed",
+    "category": "textile/reed",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "|",
+    "fg": "reed_green",
+    "quality": false
+  },
+  {
     "id": "ring",
     "name": "ring",
     "category": "craft/ring",
@@ -1927,6 +1941,22 @@
     "quality": true,
     "tags": [
       "draught"
+    ]
+  },
+  {
+    "id": "straw",
+    "name": "straw",
+    "category": "textile/straw",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "\"",
+    "quality": false,
+    "tags": [
+      "stuffing"
     ]
   },
   {

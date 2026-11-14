@@ -124,7 +124,7 @@
     "skill": "woodcutting",
     "target": "tile",
     "workTile": "adjacent",
-    "baseTicks": "CHOP_BASE_TICKS",
+    "baseTicks": "CHOP_BASE_TICKS × max(100, hardness)/100",
     "tool": "axe",
     "xp": 10,
     "producer": "terrain",

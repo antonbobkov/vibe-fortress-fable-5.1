@@ -77,6 +77,11 @@ interface PlantRow {
   readonly id: string;
   readonly kind: string;
   readonly biomes?: readonly { readonly biome: string; readonly weight: number }[];
+  readonly convert?: {
+    readonly tiles: readonly { readonly tile: string; readonly permille: number }[];
+    readonly any?: boolean;
+    readonly biomes?: readonly { readonly biome: string; readonly times?: number; readonly permille?: number }[];
+  };
 }
 
 interface CreatureRow {
@@ -137,6 +142,52 @@ function plantsOf(registry: Registry, kind: string, biome: string): string[] {
   return byWeight(rows);
 }
 
+/** A conversion row that applies to a site: its plant, kind and per-tile permille there. */
+interface Conversion {
+  readonly id: string;
+  readonly kind: string;
+  readonly tiles: readonly { readonly tile: string; readonly permille: number }[];
+}
+
+/**
+ * The conversions of 03 (end of stage 10) that may place a plant here (`plants.md` § Conversions): a
+ * row that names the biome, or an every-region row whose tiles lie by surface water when the site
+ * has a river or a lake. A row on `ash_soil` alone never applies: no generated surface is ash.
+ */
+function conversionsOf(registry: Registry, biome: string, wet: boolean): Conversion[] {
+  const plants = registry.table<PlantRow>('plants');
+  const out: Conversion[] = [];
+  for (const id of plants.ids()) {
+    const p = plants.byId(id) as PlantRow;
+    const conv = p.convert;
+    if (conv === undefined) continue;
+    const entry = conv.biomes?.find((b) => b.biome === biome);
+    const byWater = conv.any === true && wet && conv.tiles.some((t) => t.tile === 'near_water' || t.tile === 'shallow');
+    if (entry === undefined && !byWater) continue;
+    const times = entry?.times ?? 1;
+    out.push({ id, kind: p.kind, tiles: conv.tiles.map((t) => ({ tile: t.tile, permille: (entry?.permille ?? t.permille) * times })) });
+  }
+  return out;
+}
+
+/**
+ * The shrubs the conversions add on open ground, as an estimate: each row's permille of the soil
+ * floors left bare of trees and shrubs (`grass`, `dry_soil`, and `sand` by its share of the soil),
+ * and of every surface tile when the ground is bare rock (`rock`). A shrub or tree turned is no new
+ * plant, and the tiles by the water are too few to count.
+ */
+function convertedShrubs(conversions: readonly Conversion[], bareSoil: number, rock: number, sandShare: number): number {
+  let n = 0;
+  for (const c of conversions) {
+    if (c.kind !== 'shrub') continue;
+    for (const t of c.tiles) {
+      const area = t.tile === 'grass' || t.tile === 'dry_soil' ? bareSoil : t.tile === 'sand' ? (bareSoil * sandShare) / FIXED_SCALE : t.tile === 'rock' ? rock : 0;
+      n += (area * t.permille) / FIXED_SCALE;
+    }
+  }
+  return Math.round(n);
+}
+
 /**
  * The rock materials the map is sure to reach: the layers of the rolled stack (`glasslands`
  * basalt first, the template, then the basement pairs) whose deepest possible top lies above the
@@ -182,10 +233,22 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
   const trees = hasSoil && treeDensity > 0 && treeSpecies.length > 0
     ? { estimate: Math.round((treeDensity * tiles) / FIXED_SCALE), species: treeSpecies }
     : null;
-  const shrubSpecies = plantsOf(registry, 'shrub', spec.biome);
-  const shrubs = hasSoil && biome.shrubDensity > 0 && shrubSpecies.length > 0
-    ? { estimate: Math.round(((FIXED_SCALE - treeDensity) * biome.shrubDensity * tiles) / (FIXED_SCALE * FIXED_SCALE)), species: shrubSpecies }
-    : null;
+  const shrubSpecies = hasSoil && biome.shrubDensity > 0 ? plantsOf(registry, 'shrub', spec.biome) : [];
+  // 03 stage 10 conversions: the converted plants are listed after their kind's own species, and
+  // the shrubs they add on open ground counted in.
+  const conversions = conversionsOf(registry, spec.biome, river || carvesLake(spec));
+  for (const c of conversions) if (c.kind === 'tree' && trees !== null && !treeSpecies.includes(c.id)) treeSpecies.push(c.id);
+  const baseShrubs = shrubSpecies.length > 0 ? Math.round(((FIXED_SCALE - treeDensity) * biome.shrubDensity * tiles) / (FIXED_SCALE * FIXED_SCALE)) : 0;
+  const bareSoil = hasSoil ? ((FIXED_SCALE - treeDensity) * (FIXED_SCALE - biome.shrubDensity) * tiles) / (FIXED_SCALE * FIXED_SCALE) : 0;
+  const soilWeight = biome.soil.reduce((sum, s) => sum + s.weight, 0);
+  const sandShare = serene || soilWeight <= 0 ? 0 : Math.round(((biome.soil.find((s) => s.material === 'sand')?.weight ?? 0) * FIXED_SCALE) / soilWeight);
+  const added = convertedShrubs(conversions, bareSoil, hasSoil ? 0 : tiles, sandShare);
+  for (const c of conversions) {
+    if (c.kind !== 'shrub' || shrubSpecies.includes(c.id)) continue;
+    // A shrub conversion appears where its tiles exist: existing shrubs, or the open ground it counted.
+    if (baseShrubs > 0 || convertedShrubs([c], bareSoil, hasSoil ? 0 : tiles, sandShare) > 0 || c.tiles.some((t) => t.tile === 'near_water' || t.tile === 'shallow')) shrubSpecies.push(c.id);
+  }
+  const shrubs = shrubSpecies.length > 0 && baseShrubs + added > 0 ? { estimate: baseShrubs + added, species: shrubSpecies } : null;
 
   // 06: the season's base plus the temper spread, as the weather system computes it.
   const climate: Climate = {

@@ -67,7 +67,7 @@ State: `burning: Map<TileIndex, { remainingTicks, spreadCooldown }>`; the `burni
 - **Ignition.** Event handlers queue magma or lightning ignition for the next materials tick, ignoring wet/snow for those sources. A changed magma chunk queues its burnable cardinal neighbours and the tile above each magma tile. A burnable tile ignites when: it is adjacent (cardinal or below) to a magma tile with level ≥ 1; a `LightningStrike` names it (06); a `Mishap` names it (25: a sanctum's `fire` beside its rune circle, or the tile of a creature struck by a `blaze` weapon; queued like lightning); a burning neighbor spreads to it; a creature carrying a burning status enters it (not in version 1); or a magma-adjacent wooden construction is built (14 warns and refuses unless the player confirms).
 - **Burnable tiles.** Natural `tree`, `sapling`, `shrub`, grass floors and peat burn only outdoors. Constructed wood burns anywhere. Items on a burning tile burn individually but do not make the tile burnable; cave flora is not burnable. Tiles with `wet` or `snow` flags are not ignitable by spread, only by magma or lightning.
 - **Burning.** All burning-flag changes happen in the materials tick and mark connectivity dirty. A tile that is no longer burnable goes out without ash. A plant tile whose material has no burn duration uses `PLANT_BURN_TICKS = 300`; wood keeps its own material duration. Each materials tick (every 10 ticks): `remainingTicks −= 10`. When it reaches 0: a tree becomes `floor` with `ash` (grass cleared); a sapling or shrub becomes `floor` with `ash`; a grass floor loses `grass` and gains `ash`; a wooden construction is removed through `terrain.setKind` as if deconstructed with no item returned (support re-check follows). `ash` blocks grass regrowth and planting for `ASH_DURATION_DAYS` (07 clears it).
-- **Spread.** Each materials tick, each burning tile with `spreadCooldown == 0` tries each cardinal neighbor and the tile above: if burnable and not burning, ignite with `FIRE_SPREAD_PERMILLE` (`FIRE_SPREAD_WET_PERMILLE` under rain). After trying, `spreadCooldown = FIRE_SPREAD_COOLDOWN`.
+- **Spread.** Each materials tick, each burning tile with `spreadCooldown == 0` tries each cardinal neighbor and the tile above: if burnable and not burning, ignite with `FIRE_SPREAD_PERMILLE` (`FIRE_SPREAD_WET_PERMILLE` under rain). A tile whose material carries the tag `fire_resistant` (`ironwood`) is ignited with that chance divided by `FIRE_RESIST_DIVISOR` (rounded down); it burns for its material's `burnTicks` (1200), so once alight it burns long. After trying, `spreadCooldown = FIRE_SPREAD_COOLDOWN`.
 - **Items.** Items on a burning tile whose material is burnable are destroyed after `ITEM_BURN_TICKS`; non-burnable items survive. Items *in containers* on a burning tile: the container burns if burnable, and then its contents follow the rule.
 - **Creatures.** A creature on a burning tile receives `BurnDamage { id, amount }` every materials tick (17 applies it as burn wounds to random parts). Creatures avoid burning tiles in pathfinding (22 reads the flag). Dwarves leave a burning tile, and burnable ground beside one, for ground that cannot burn (10 § Behavior selection); other creatures do not.
 - **Extinguish.** Rain (06 weather is `rain` or `storm`) gives each outdoor burning tile a `RAIN_EXTINGUISH_PERMILLE × MATERIALS_CADENCE` draw per materials tick to go out early with no ash. Water at level ≥ 1 on a burning tile puts it out immediately. Fire never burns underground except on wooden constructions and items, which spread only along other wooden constructions.
@@ -136,6 +136,7 @@ Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles 
 | `SNOW_OVERRIDE` | 1 | −5 (*unmeasured*) |
 | `FIRE_SPREAD_PERMILLE` | 150 | Per neighbor per attempt (*unmeasured*) |
 | `FIRE_SPREAD_WET_PERMILLE` | 20 | Under rain (*unmeasured*) |
+| `FIRE_RESIST_DIVISOR` | 4 | A `fire_resistant` material catches spread fire at this fraction of the chance (*unmeasured*) |
 | `FIRE_SPREAD_COOLDOWN` | 30 | Ticks between spread attempts (*unmeasured*) |
 | `ITEM_BURN_TICKS` | 100 | *unmeasured* |
 | `BURN_TICK_DAMAGE` | 6 | Damage units per materials tick to a creature on a burning tile (*unmeasured*) |
@@ -173,11 +174,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - `TileIgnited { tile, dwarfId }` (03's `ignite` job) queues the tile for ignition at the next materials tick, as a `LightningStrike` does, and it burns by every rule of § Fire: spread, rain, ash, dwarves stepping off burning ground. A tile that stopped being burnable before the tick does not ignite.
 - The announcement is the ordinary `FireStarted` alert.
 - The extension point "Deliberate fire" is taken by this rule.
-
-### Ironwood is hard to burn (T-548)
-
-- A tile whose material carries the tag `fire_resistant` (`ironwood`) is ignited by spread with `FIRE_SPREAD_PERMILLE / FIRE_RESIST_DIVISOR` (and the wet chance likewise). It burns for its material's `burnTicks` (1200), so once alight it burns long.
-- Constants: `FIRE_RESIST_DIVISOR` 4.
 
 ### Smoke (T-552)
 

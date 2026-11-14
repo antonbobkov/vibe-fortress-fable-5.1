@@ -15,7 +15,7 @@ Every job type the game creates. Columns: `labor` required; `skill` used (— no
 | `smooth` | Smooth | masonry | masonry | tile | adjacent / at (floor) | `SMOOTH_BASE_TICKS` | — | 6 | yes |
 | `engrave` | Engrave | crafts | engraving | tile | adjacent / at (floor) | `ENGRAVE_BASE_TICKS` | — | 15 | yes |
 | `remove_construction` | Remove construction | mining | mining | tile | adjacent | `DIG_BASE_TICKS / 2` | pick | 4 | yes |
-| `chop` | Chop tree | woodcutting | woodcutting | tile | adjacent | `CHOP_BASE_TICKS` | axe | 10 | yes |
+| `chop` | Chop tree | woodcutting | woodcutting | tile | adjacent | `CHOP_BASE_TICKS × max(100, hardness)/100` | axe | 10 | yes |
 | `gather` | Gather plant | herbalism | herbalism | tile | adjacent | `GATHER_BASE_TICKS` | — | 5 | no |
 
 For up or up/down stairs, the terrain producer's `extraStandTiles` also permits the tile directly above when it is a down or up/down stair. Floor smoothing and engraving, channel and down stairs work at the target; the other terrain rows work adjacent.
@@ -130,4 +130,4 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 | animals | `collect_honey` | Collect honey | animal_care | animal_care | building (hive) | adjacent | `COLLECT_HONEY_TICKS` | — | 4 | no | T-555 |
 | health | `wash_patient` | Wash patient | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 4 | no | T-564 |
 
-Edit (T-548): `chop`'s baseTicks becomes `CHOP_BASE_TICKS × max(100, hardness)/100` (the tree's wood). Hauling into a building that wants items is `haul_to_stockpile`; a pallet is laid by the `build` job with the row's labor `hauling`: no other job is new.
+Hauling into a building that wants items is `haul_to_stockpile`; a pallet is laid by the `build` job with the row's labor `hauling`: no other job is new.

@@ -1,6 +1,6 @@
 # T-560 — Making Do C4: the Starfall region trait and star steel
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 9); the owner, 2026-11-13 · **Size:** M · **Needs:** T-548 · **Status:** blocked (needs T-548)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 9); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

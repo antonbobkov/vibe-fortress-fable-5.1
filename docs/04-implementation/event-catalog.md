@@ -46,6 +46,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `AnimalSpawned` / `AnimalBorn` / `AnimalLeft` | `id, species` | 08 | 09, 18 (counts), ui |
 | `AnimalStarving` | `id` | 08 | ui |
 | `GrassGrazed` | `tile` | 08 | 07 |
+| `ShrubGrazed` | `tile` | 08 | 07 |
 | `ProductReady` | `id, product` | 08 | ui (first only) |
 | `AnimalTamed` / `AnimalTrained` | `id[, kind]` | 08 | ui |
 | `PetAdopted` | `animalId, dwarfId` | 08 | 10, 15, ui |
@@ -55,6 +56,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `FishPoolDepleted` | `bodyId` | 09 | ui |
 | `MealEaten` | `id, quality, atTable, roomTier, stage, kind` | 10 | 15 |
 | `DrankAlcohol` / `DrankWater` | `id, material` / `id, outdoors` | 10 | 15 |
+| `DrankFromPlant` | `id, material` | 10 | 15 |
+| `Stung` | `id, source` | 09 | 15 |
 | `Slept` | `id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored` | 10 | 15 |
 | `Talked` | `a, b, friends` | 10 | 15 |
 | `Sat` | `id, roomTier` | 10 | 15 |
@@ -167,6 +170,6 @@ For `WorkshopBlocked`, `input` names the missing recipe input match when reason 
 
 - Subscribers listed as "ui (none)" exist for the log's optional verbose filter and the debug panel; they need no announcement row.
 - Events carrying `ids` of destroyed entities are still delivered; handlers check `alive`.
-- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `wildState` (a wild victim's behavior state, absent for others), `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `KillRecorded` carries the names and species of both creatures because the victim is gone when a line is drawn; `hostile` is whether the victim was an enemy of the killer, and `hunted` is true when the victim was the quarry of a claimed hunt job, which `HuntKill` announces; a trap's kill names the trap building as `killerName`. `HuntKill` also carries `targetSpecies`, the quarry's species index, for the same reason. `MealEaten` also carries `mealType` and `ItemDestroyed` also carries `quality`. `DamageDealt` from 25 also carries `clean: true`: 17 makes that wound already cleaned. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
+- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `wildState` (a wild victim's behavior state, absent for others), `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `KillRecorded` carries the names and species of both creatures because the victim is gone when a line is drawn; `hostile` is whether the victim was an enemy of the killer, and `hunted` is true when the victim was the quarry of a claimed hunt job, which `HuntKill` announces; a trap's kill names the trap building as `killerName`. `HuntKill` also carries `targetSpecies`, the quarry's species index, for the same reason. `MealEaten` also carries `mealType`, and `seasoned` (the material ids of the meal's seasonings) when it has any, and `ItemDestroyed` also carries `quality`. `DamageDealt` from 25 also carries `clean: true`: 17 makes that wound already cleaned. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
 - `TilesChanged` is emitted by 03 only. When 04, 05 or 14 change tiles through the terrain API, 03 batches them into the same tick's event.
 - The announcement registry (24) has one row per event marked `ui` with a severity from the system document that emits it.

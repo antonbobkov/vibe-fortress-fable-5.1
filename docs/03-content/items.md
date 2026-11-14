@@ -32,7 +32,7 @@ Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour and salt ar
 |---|---|---|---|---|---|---|---|---|
 | `drink` | drink | drink | 1 | 20 | barrel | 0 | `☼` | material |
 
-One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale), `drink/wine` (bellwine, rootwine, strawberry_wine).
+One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`, `black_ale`, `cactus_wine`, `emberwine`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale, black_ale), `drink/wine` (bellwine, rootwine, strawberry_wine, cactus_wine, emberwine).
 
 ## Seeds
 
@@ -138,8 +138,12 @@ A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `
 | `horn` | horn | textile/horn | 1 | 10 | bin | 0 | light | `%` | `horn_gray` | |
 | `tusk` | tusk | textile/tusk | 1 | 5 | bin | 0 | medium | `(` | `ivory_cream` | |
 | `feather` | feather | textile/feather | 1 | 20 | bin | 0 | light | `'` | `feather_white` | `stuffing` |
+| `straw` | straw | textile/straw | 1 | 10 | bin | 0 | | `"` | material | `stuffing` |
+| `reed` | reed | textile/reed | 1 | 10 | bin | 0 | | `\|` | `reed_green` | |
 
 A `horn` is of `horn`, a `tusk` of `ivory`, a `feather` of `feather`: the butcher parts of [creatures.md](creatures.md) § Butcher parts.
+
+`straw` is dropped by a grain harvest in its crop's material (`plants.md` § Surface crops, `straw`); `reed` is gathered from reed beds, of `reed`. The tag `stuffing` marks what fills a bed or a pallet.
 
 ## Clothing
 
@@ -228,8 +232,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Textiles and animal parts | `straw` | straw | textile/straw | 1 | 10 | bin | 0 | light | `"` | material | the crop's plant material; tag `stuffing` | T-548 |
-| Textiles and animal parts | `reed` | reed | textile/reed | 1 | 10 | bin | 0 | light | `|` | `reed_green` | `reed` | T-548 |
 | Food | `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<species>_meat`; tag `ingredient` | T-552 |
 | Food | `cured_fish` | cured fish | food/fish/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<fish>_meat`; tag `ingredient` | T-552 |
 | Textiles and animal parts | `salted_hide` | salted hide | textile/hide | 1 | 5 | bin | 0 | light | `≈` | material | `<species>_hide`; tans as a raw hide | T-552 |
@@ -279,6 +281,6 @@ What a drying rack turns its items into ([14](../02-systems/14-buildings-and-roo
 
 - `bucket` materials gain stone (an earthenware jug breaks as a pot does) (T-553); `mug` materials gain glass (T-553: the material class the glass mug recipe needs); `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
-- `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-548, T-554, T-555).
+- `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-554, T-555).
 - § Meal ingredients gains `food/meat/cured`, `food/fish/cured` and `food/honey` (T-552, T-555).
 - An item of a cured, salted or aged form names itself so: "cured boar meat", "a barrel of aged bellwine", "a wheel of vintage cheese" (T-552, T-554).

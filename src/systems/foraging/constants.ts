@@ -21,3 +21,5 @@ export const HUNT_GIVE_UP_TICKS = 300;
 export const CARRY_MAX_SIZE = 100;
 export const FIELD_BUTCHER_PERCENT = 60;
 export const CORPSE_WAIT_TICKS = 20;
+/** `09` § Gathering: a gatherer of a shrub tagged `stings` (the wild nettle) is stung this often. */
+export const NETTLE_STING_PERMILLE = 100;

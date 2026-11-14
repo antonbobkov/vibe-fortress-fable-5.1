@@ -601,6 +601,25 @@ export class WorkshopOperator {
     return { bars: 1, units: 1 };
   }
 
+  /**
+   * `12` § Operation: the seasonings among a job's ingredients, the materials of its delivered inputs
+   * (not the fuel, not the container) that carry the tag `seasoning`, ascending and once each. Read
+   * before the inputs are consumed.
+   */
+  private seasoningsOf(job: Job, recipe: RecipeRow, fuelIndex: number): number[] {
+    const materials = this.ctx.registry.table<{ id: string; tags?: readonly string[] }>('materials');
+    const out: number[] = [];
+    for (let k = 0; k < job.inputs.length && k < recipe.inputs.length; k += 1) {
+      if (k === fuelIndex) continue;
+      for (const item of job.inputs[k]?.delivered ?? []) {
+        const material = this.items.get(item)?.material ?? 0;
+        if (material === 0 || out.includes(material)) continue;
+        if (materials.byIndex(material)?.tags?.includes('seasoning') === true) out.push(material);
+      }
+    }
+    return out.sort((a, b) => a - b);
+  }
+
   /** Every consumed input (and the fuel and the container, when the recipe has them) is still there. */
   private holdsInputs(job: Job, recipe: RecipeRow, fuelIndex: number, container: EntityId): boolean {
     if (recipe.container && this.items.get(container) === undefined) return false;
@@ -636,6 +655,7 @@ export class WorkshopOperator {
       : this.items.get(job.inputs[out.stone.index]?.delivered[0] ?? 0)?.material);
     const container = recipe.container ? (job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0) : 0;
     const fuelIndex = recipe.fuel && !this.isMagmaPowered(id) ? recipe.inputs.length : -1;
+    const seasoned = this.seasoningsOf(job, recipe, fuelIndex);
     const itemsApi = ctx.world.services.items;
     // F-17b (`12` § Operation, onComplete: "consume inputs ... spawn outputs"): a job whose
     // delivered inputs no longer cover the recipe makes nothing. 11 revalidates before it gets
@@ -687,6 +707,11 @@ export class WorkshopOperator {
       if (stone !== undefined) {
         const item = ctx.world.entities.get(itemId, C.Item);
         if (item !== undefined) ctx.world.entities.add(itemId, C.Item, { ...item, stone });
+      }
+      // `12` § Operation: a meal records the seasonings among its ingredients (`Item.seasoned`).
+      if (seasoned.length > 0 && (itemTable.byIndex(itemTable.index(type))?.category ?? '').startsWith('food/meal')) {
+        const item = ctx.world.entities.get(itemId, C.Item);
+        if (item !== undefined) ctx.world.entities.add(itemId, C.Item, { ...item, seasoned: seasoned.slice() });
       }
       itemsApi?.setCrafter?.(itemId, job.workerId);
       ctx.emit({ type: 'ItemCrafted', itemId, quality, crafterId: job.workerId, workshopId: id, recipeId: recipe.id });
