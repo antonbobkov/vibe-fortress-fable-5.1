@@ -9,7 +9,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemFilter, ItemsReader } from '@systems/items';
 import { Z_DISTANCE_WEIGHT } from '@systems/jobs/constants';
-import { CACTUS_THIRST_RELIEF, DINING_SEARCH_RADIUS, DRINK_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_CHECK_TICKS, TALK_TICKS, THREAT_RADIUS } from './constants';
+import { CACTUS_THIRST_RELIEF, DINING_SEARCH_RADIUS, DRINK_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, NEED_RETRY_TICKS, FLOOR_REST_PERCENT, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_CHECK_TICKS, TALK_TICKS, THREAT_RADIUS } from './constants';
 import { CRITICAL, WANT, type NeedName } from './needs';
 import type { ActivityPlan } from './state';
 import type { EntityStore } from '@core/entities';
@@ -612,6 +612,19 @@ export class Activities {
     return true;
   }
 
+  /**
+   * 10 § Sleeping: the percent a dwarf on the sleep errand rests at, read live: the bed it holds
+   * (`buildings.restPercent`, 125 for a made-up bed), or `FLOOR_REST_PERCENT` on the floor; 100 when
+   * it is on no sleep errand.
+   */
+  restPercent(ctx: TickContext, id: EntityId): number {
+    const p = this.plans.get(id);
+    if (p === undefined || p.need !== 'rest') return 100;
+    if (p.itemId === 0) return FLOOR_REST_PERCENT;
+    const rest = buildings(ctx)?.restPercent(p.itemId) ?? 0;
+    return rest > 0 ? rest : FLOOR_REST_PERCENT;
+  }
+
   /** Returns true when the activity finished or became impossible. */
   step(ctx: TickContext, id: EntityId, b: Brain): boolean {
     const p = this.plans.get(id);
@@ -700,7 +713,7 @@ export class Activities {
       const slowed = (ticks: number): number => crowdTicks(ticks, ctx.world.services.movement?.crowdPercentAt(at) ?? 100);
       p.until = ctx.tick + (p.need === 'hunger' ? slowed(EAT_TICKS) : p.need === 'thirst' ? slowed(DRINK_TICKS)
         : p.need === 'comfort' ? SIT_TICKS
-        : p.need === 'joy' ? HEARTH_VISIT_TICKS : SLEEP_HOURS * TICKS_PER_HOUR);
+        : p.need === 'joy' ? HEARTH_VISIT_TICKS : Math.floor(SLEEP_HOURS * TICKS_PER_HOUR * 100 / this.restPercent(ctx, id)));
       p.startedRest = ctx.world.entities.get(id, C.Needs)?.rest ?? 0;
     }
     if (p.need === 'rest' && (ctx.world.entities.get(id, C.Needs)?.rest ?? 0) <= 0) p.until = ctx.tick;
@@ -763,10 +776,13 @@ export class Activities {
       }
     } else if (p.need === 'rest') {
       change('rest', n.rest);
-      const bedItem = buildings(ctx)?.get(p.itemId)?.itemId ?? 0;
+      const bed = p.itemId === 0 ? undefined : buildings(ctx)?.get(p.itemId);
+      const bedItem = bed?.itemId ?? 0;
+      // 10 § Sleeping: the percent slept at, what the bed was made up with, and the bed's type (15's thoughts).
       ctx.emit({ type: 'Slept', id, bedQuality: its?.get(bedItem)?.quality ?? 0, roomTier: p.roomTier,
         onFloor: p.itemId === 0, outdoors: ctx.world.map.hasFlag(at, TileFlag.Outdoor), ownBed: p.ownBed,
-        restored: p.startedRest - n.rest });
+        restored: p.startedRest - n.rest, rest: this.restPercent(ctx, id),
+        bedding: p.itemId === 0 ? 'none' : (buildings(ctx)?.bedding(p.itemId) ?? 'none'), bedType: bed?.typeId ?? '' });
     } else if (p.need === 'social') {
       const partner = p.partner;
       if (partner !== 0 && ctx.world.entities.alive(partner)) this.talked(ctx, id, partner);

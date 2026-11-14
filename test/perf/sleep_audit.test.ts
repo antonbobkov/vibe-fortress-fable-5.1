@@ -75,12 +75,12 @@ describe('T-551 sleep audit', () => {
       if (dress && w.tick % TICKS_PER_DAY === 0) {
         // One bedding and one pillow, in linen, by the first dwarf, for each bed not yet made up and
         // not yet sent for: the haulers carry them to the beds.
-        const b = w.game.world.readers.of<{ list(): readonly number[]; get(id: number): { type: string; state: string } | undefined;
+        const b = w.game.world.readers.of<{ byType(type: string): readonly number[]; get(id: number): { state: string } | undefined;
           wants(id: number): readonly { match: string; count: number; held: number; coming: number }[] }>('14');
         let bedding = 0, pillows = 0;
-        for (const id of b.list()) {
+        for (const id of b.byType('bed')) {
           const row = b.get(id);
-          if (row?.type !== 'bed' || row.state !== 'built') continue;
+          if (row?.state !== 'built') continue;
           for (const want of b.wants(id)) {
             const short = want.count - want.held - want.coming;
             if (short <= 0) continue;

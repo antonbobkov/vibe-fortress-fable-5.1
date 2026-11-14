@@ -871,6 +871,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
     workTile: opt(int),
     outputTile: opt(int),
     magmaVariantOf: opt(ref('buildings')),
+    rest: opt(int),
+    wants: opt(arr(obj({ match: itemMatch, count: int }))),
     glyph: opt(str),
   }),
 

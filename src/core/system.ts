@@ -173,6 +173,8 @@ export interface ItemsApi {
   setCrafter?(itemId: EntityId, crafterId: EntityId): void;
   /** 12 sets a runesmith's stone (`25` § Setting stones); the value and wealth follow. */
   setEnchant?(itemId: EntityId, enchant: ItemEnchant): void;
+  /** 12 records a `stuffed` item's stuffing (`12` § Operation); the value and wealth follow. */
+  setStuffing?(itemId: EntityId, material: number): void;
   destroy(itemId: EntityId, reason: string): void;
   setFlag(itemId: EntityId, flag: number, on: boolean): void;
   setOwner(itemId: EntityId, dwarfId: EntityId): void;

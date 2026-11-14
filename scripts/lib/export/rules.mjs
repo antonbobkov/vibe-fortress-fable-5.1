@@ -213,6 +213,9 @@ function buildingRow(row, category, extra = {}) {
     passable: parsePassable(row.pass),
     blocksFluid: parseBlocksFluid(row.fluid),
     value: /item/.test(valueCell) ? 0 : int(valueCell),
+    // 14 § Beds: the percent a `sleep` building rests at; § Building wants: the items a built one holds.
+    rest: isBlank(row.rest) || plain(row.rest ?? '') === '' ? undefined : int(row.rest),
+    wants: isBlank(row.wants) || plain(row.wants ?? '') === '' ? undefined : parseInputs(row.wants).map((w) => ({ match: w.match, count: w.count })),
     glyph: patternMatch === null ? (glyph(row.glyph) ?? undefined) : undefined,
     pattern: patternMatch === null ? extra.pattern : patternMatch[1],
     impassableTiles: extra.impassableTiles,
@@ -384,12 +387,13 @@ function recipeInputs(cell) {
       continue;
     }
     const bare = part.replace(/\([^)]*\)/g, ' ').trim();
-    const alt = /(\d+)\s+([a-z_]+)\s+or\s+(?:(\d+)\s+)?([a-z_]+)/.exec(bare);
+    // "1 fiber or 1 wool_raw", "2 straw or wool_raw or feather": every alternative, in order.
+    const alt = /(\d+)\s+([a-z_]+(?:\s+or\s+(?:\d+\s+)?[a-z_]+)+)/.exec(bare);
     let count = 1;
     let match = '';
     if (alt !== null) {
       count = Number(alt[1]);
-      match = `${alt[2]}|${alt[4]}`;
+      match = alt[2].split(/\s+or\s+/).map((name) => name.replace(/^\d+\s+/, '')).join('|');
     } else {
       const m = /(\d+)\s+([a-z_]+)/.exec(bare);
       if (m === null) continue;

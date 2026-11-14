@@ -31,7 +31,23 @@ The `wagon` is placed at embark only (02); `PlaceBuilding` refuses it with `bad_
 
 `build` job completion: consume inputs (the furniture item is *linked*, not destroyed: `Building.itemId` keeps it for quality, material and value, the item is `installed` (13) and so leaves every search, haul and available count while it stays in the totals and in wealth, and it returns to the building's anchor tile on deconstruction or removal), set state `built`, apply tile changes through the terrain API for constructions (`setKind`, `constructed` flag; the material grid gets the block's material), register mechanisms, emit `BuildingCompleted`. Constructions that become walls check that no creature is on the tile (the job waits otherwise). Any other building that makes a footprint tile impassable when it is built (a workshop's impassable tiles, such as the forge's corners, where its builder may have worked) moves each creature standing on such a tile, in the same tick, to the nearest tile beside the footprint that a walker can stand on (Chebyshev distance from the creature's tile, ties by tile index). Work done standing on a tile the building now blocks ends with it: 03 clears the designations worked from that tile (03 § Tile transitions), and a farm plot tile under a built building is not planted (07 § Farm plots). Before sealing a wall, move each loose ground item that will remain after consuming its construction inputs to one of the eight adjacent tiles on the same level, outside the footprint, that is solid-bottomed and passable to a walker. Choose the qualifying tile with the lowest tile index. Move whole remaining stacks and containers, preserving contents, ownership, reservations and flags. If a remaining item has no qualifying destination, the build waits without consuming any inputs or changing the terrain.
 
-A build input of more than one unit is counted in units, not stacks: a hearth's three blocks may arrive as a stack of two and a stack of one; the job consumes exactly the units it needs and leaves any remainder of a stack on the site (a wall clears that remainder as above). A furniture building takes its linked item's material; any other building takes the material of the first unit consumed. The item types consumed are kept on the building, and deconstruction returns them.
+A build input of more than one unit is counted in units, not stacks: a hearth's three blocks may arrive as a stack of two and a stack of one; the job consumes exactly the units it needs and leaves any remainder of a stack on the site (a wall clears that remainder as above). A furniture building takes its linked item's material; any other building takes the material of the first unit consumed. The item types consumed are kept on the building, and deconstruction returns them. A furniture row whose input is counted (a pallet's "2 `cloth` or `wool_raw`") links no item: it is laid from its materials, which are consumed and kept as a construction's are (§ Beds).
+
+### Beds
+
+Every building tagged `sleep` is a bed: for a bedroom's and a hospital's requirement, for the bed search (10 § Sleeping) and for `freeBeds`. Its row's `rest` is the percent it rests at (10 § Sleeping): `pallet` and `straw_pallet` 60, `stone_bed` 75, `bed` 100. `buildings.restPercent(id)` reads it, and gives `MADE_UP_REST_PERCENT` for a made-up bed.
+
+- **A pallet is a dwarf lying down under a cloth.** `pallet` (2 `cloth` or `wool_raw`) and `straw_pallet` (3 `fiber`, `straw` or `reed`) are laid straight from their materials, with no item and no workshop: the player places one on a floor like a chair, and a `build` job of labor `hauling` (any dwarf, children too) carries the materials to the tile and spreads them in `buildTicks` 20, the shortest build there is. The job uses no skill (the worker's `building` level does not speed it) and gives no experience. Taking it apart returns the materials. A pallet adds no room value, and its sleeper thinks `slept_on_a_pallet`.
+- **A stone bed is a mason's job.** `make_stone_bed` and `make_stone_bed_straw` at the mason (`masonry`): 1 `raw_stone` and a pallet's materials make 1 `stone_bed` item of the stone, with no quality. It is placed as a bed is (labor `masonry`) and rests at 75. It takes no bedding.
+- **A dressed bed.** A built `bed` (the wooden bed) wants 1 `bedding` and 1 `pillow` (§ Building wants). A bed holding its bedding is *made up*: it rests at `MADE_UP_REST_PERCENT`. `buildings.bedding(id)` is `soft` for a bed holding both, `feather` when both were stuffed with feathers (`Item.stuffing`, recorded at the clothier, 12 § Operation), and `none` otherwise: bedding with no pillow rests as a made-up bed and gives no thought. 10's `Slept` carries it, and 15's thoughts follow. The bedding and pillow add their value to the room as a linked item does (§ Rooms and quality), a featherbed's at its doubled value (13 § Value).
+- So a fortress on day one, with no carpenter, puts its seven dwarves on pallets of the wagon's cloth within the hour, and on stone beds once the mason has stone.
+
+### Building wants
+
+A building row's `wants` (`buildings-and-furniture.md`) makes a built building of that type hold items: a bed wants 1 `bedding` and 1 `pillow`. `Building.held` lists the items it holds (saved; absent: none). 13 fills the wants as it fills a hospital's chest (13 § Buildings that want items): each item it brings is held, flagged `installed`, off every search and count of available stock and still in the totals and in wealth. `buildings.wants(id)` gives each want with its count, the held items that answer it and those on their way; `buildings.held(id)` the items held; `buildings.withWants()` the built buildings whose type has wants.
+
+- A held item leaves the building when the player takes it out (`ReleaseHeld { buildingId }`: every held item drops on the building's tile, unflagged), or when the building is taken apart or removed (its held items drop on its tile, unflagged). Taken out, the wants are filled again from the nearest available items, the same ones unless the player forbids them.
+- The building panel lists what it holds and wants, a bed's rest and whether it is made up ("Made up: linen bedding, feather pillow"), and offers `[h] take out` (`t`, the first choice, is the Threats panel's letter).
 
 ### Constructions
 
@@ -108,14 +124,14 @@ For each zone of a room type:
 ```
 tileScore(tile) = constructedFloorValue(material) or (engraved ? 3 + engravingQuality : smoothed ? 3 : natural stone ? 1 : 0)
 wallScore = for each wall tile bordering the zone (8-neighborhood): engraved ? 2 + engravingQuality/2 : smoothed ? 2 : 0
-furnitureScore = Σ value(building.item) / 10 for buildings inside, poor quality counts 0; statues multiply the linked item contribution by 2. Without a positive-quality linked item, use numeric type.roomValue, else 0
+furnitureScore = Σ value(building.item) / 10 for buildings inside, poor quality counts 0; statues multiply the linked item contribution by 2. Without a positive-quality linked item, use numeric type.roomValue, else 0; plus Σ value(item) / 10 for each item a building inside holds (§ Building wants), poor quality counting 0
 sizeScore = min(tiles, ROOM_SIZE_CAP) × 1
 enclosed = every border tile is a wall, a door, a hatch, or a fortification → score × ENCLOSED_PERCENT / 100
 score = (Σ tileScore + wallScore + furnitureScore + sizeScore) × enclosure
 tier: bare < 20, modest < 60, decent < 150, fine < 400, grand < 1000, royal ≥ 1000
 ```
 
-Room type requirements for the zone to count as that room: bedroom needs a built bed; dining hall needs at least one built table with an adjacent built chair; hearth hall needs the built hearth inside; hospital needs a built bed and chest; barracks needs nothing (an armor stand or weapon rack adds value); tomb needs a built coffin; sanctum needs a built building tagged `rune_circle` (25).
+Room type requirements for the zone to count as that room ("a bed" is any built building tagged `sleep`: a bed, a stone bed or a pallet): bedroom needs a built bed; dining hall needs at least one built table with an adjacent built chair; hearth hall needs the built hearth inside; hospital needs a built bed and chest; barracks needs nothing (an armor stand or weapon rack adds value); tomb needs a built coffin; sanctum needs a built building tagged `rune_circle` (25).
 
 The room inspector names each missing requirement and counts the unique open border tiles in the same-z 8-neighbourhood. Walls, fortifications and built doors or hatches close the border; planned doors and hatches do not. Open border tiles on the viewed level are highlighted while the zone is selected. These diagnostics read current tiles and furniture without recomputing or writing the stored room state.
 
@@ -140,7 +156,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 
 ## State
 
-- `Building` components (`type, material, state, origin, footprint, orientation, itemId, mode, linkedIds, ownerId, settings`), `buildingAt` map (in `Map3D`), `Zone` components with `tiles` sorted, `zoneAt: Map<TileIndex, zoneId>` (one per tile), `Room` components (`zoneId, score, tier, ownerId, enclosed`), `hearthId`, `depots[]`, `coffins[]`, `dirtyRooms`.
+- `Building` components (`type, material, state, origin, footprint, orientation, itemId, mode, linkedIds, ownerId, settings`, and `held` for a building with wants), `buildingAt` map (in `Map3D`), `Zone` components with `tiles` sorted, `zoneAt: Map<TileIndex, zoneId>` (one per tile), `Room` components (`zoneId, score, tier, ownerId, enclosed`), `hearthId`, `depots[]`, `coffins[]`, `dirtyRooms`.
 - Rng stream (auto-assignment ties; reserved).
 - Superset fields of `BuildingsState` (schemas/system-state.md): `pendingJobs`, the buildings waiting for a build or deconstruct job, and `magmaTouched`.
 
@@ -167,10 +183,12 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.wagon()` — the wagon, or 0; `buildings.holderTile(id)` — the tile a building's container contents lie on (the wagon), or −1
 - `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp
 - `buildings.value(id)` — a building's contribution to wealth when built (material value plus the per-type bonus)
+- `buildings.wants(id)` — each want of a built building with its `count`, the `held` items that answer it and those `coming` (13's hauls to it); `buildings.held(id)` — the living items it holds; `buildings.withWants()` — the built buildings whose type has wants, ascending (§ Building wants)
+- `buildings.restPercent(id)` — the percent a built `sleep` building rests at (`MADE_UP_REST_PERCENT` made up), 0 for anything else; `buildings.bedding(id)` — `none`, `soft` or `feather` (§ Beds)
 
 ### Commands
 
-`PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`, `SetBuildingPriority`, `CreateZone`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`, `AssignRoom`, `LinkMechanism`, `UnlinkMechanism`, `SetDoorMode`, `SetHatchMode`, `SetPlateTrigger`, `ReleaseCage`, `AssignCoffin`.
+`PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`, `SetBuildingPriority`, `CreateZone`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`, `AssignRoom`, `LinkMechanism`, `UnlinkMechanism`, `SetDoorMode`, `SetHatchMode`, `SetPlateTrigger`, `ReleaseCage`, `AssignCoffin`, `ReleaseHeld` (§ Building wants).
 
 ### Events consumed
 
@@ -197,6 +215,7 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
   - A planned building shows what it waits for and takes a build priority (`1`–`9`).
   - A bed gives the bedroom zone it stands in an owner from the list of dwarves, or nobody; a coffin is kept for a dwarf, or for anyone.
   - A cage shows its occupant, with release (confirmed) and tame.
+  - A bed says what it rests at and whether it is made up; a building with wants lists what it holds and wants, with `[h] take out` (§ Building wants).
 - Lever panel: linked targets with their states; a Pull button (creates the job); link, which picks the target on the map or from a list of the buildings that can be linked; unlink. A pressure plate has the same links and its trigger (19).
 - Hints: "A room needs walls or doors around it to count as enclosed", "Smooth and engrave the walls to raise room quality", "Lock doors on alert to keep raiders out".
 
@@ -216,6 +235,7 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 | `LINK_WORK_TICKS` | 150 | Each of the two jobs of a link (*unmeasured*) |
 | `HEARTH_HALL_SIDE` | 5 | Side of the square around the hearth that is its stand-in hall and comfort light (*unmeasured*) |
 | `HEARTH_WARMTH_C` | 2 | °C added inside that square (05) (*unmeasured*) |
+| `MADE_UP_REST_PERCENT` | 125 | The percent a made-up bed rests at (§ Beds) (*unmeasured*) |
 
 Material and item requirements, value bonuses and footprints are content.
 
@@ -229,21 +249,6 @@ Material and item requirements, value bonuses and footprints are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `buildings-and-furniture.md` § Planned rows and the other content documents' § Planned rows.
-
-### Building wants (T-551)
-
-- A building row's `wants` (13 § Planned, Buildings that want items) makes a built building of that type hold items. `Building.held: EntityId[]` lists them (saved; absent: none). `buildings.wants(id)` — each want with its count held and on its way; 13 reads it to make the hauls.
-- The building panel lists what it holds and wants, and offers `[t] take out` (`ReleaseHeld { buildingId }`).
-- Deconstruction and removal drop every held item on the building's tile, unflagged.
-
-### Beds (T-551)
-
-- Furniture rows tagged `sleep` gain `rest` (10 § Planned): `pallet` 60, `straw_pallet` 60, `stone_bed` 75, `bed` 100.
-- **A pallet is a dwarf lying down under a cloth.** `pallet` (2 `cloth` or `wool_raw`) and `straw_pallet` (3 `fiber`, `straw` or `reed`) are buildings laid straight from their materials, with no item and no workshop: the player places one on a floor like a chair, and a `build` job of labor `hauling` (any dwarf, children too), no skill, xp 0, carries the materials to the tile and spreads them in `buildTicks` 20, the shortest build there is. Taking it apart returns them. A pallet is a bed for a bedroom and for sleep, adds no room value, and gives `slept_on_a_pallet`.
-- **A stone bed is a mason's job.** `make_stone_bed` and `make_stone_bed_straw` at the mason (`masonry`): 1 `raw_stone` + a pallet's materials → 1 `stone_bed` item of the stone, no quality. It is placed like a bed (labor `masonry`) and rests at 75. It takes no bedding.
-- **A dressed bed.** A built `bed` (the wooden bed) wants 1 `bedding` and 1 `pillow`. A bed holding its bedding is made up: it rests at 125, and its sleeper's `Slept` carries `bedding: soft`, or `feather` when both its bedding and its pillow were stuffed with feathers (the item's `stuffing` material, recorded at the clothier: `Item.stuffing`), and the thought follows (10 § Planned). Bedding with no pillow rests at 125 and gives no thought. The bedding and pillow add their value to the room as furniture does (§ Rooms and quality: held items count as the linked item does), a featherbed's at its doubled value (`bedding` and `pillow` of feathers have their type's `mult` × 2).
-- The bedroom requirement "a built bed" is any built building tagged `sleep`.
-- So a fortress on day one, with no carpenter, puts its seven dwarves on pallets of the wagon's cloth within the hour, and on stone beds once the mason has stone.
 
 ### The drying rack (T-552)
 

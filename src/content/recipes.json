@@ -1956,6 +1956,37 @@
     "xp": 8
   },
   {
+    "id": "make_bedding",
+    "name": "Bedding",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 2
+      },
+      {
+        "match": "straw|wool_raw|feather",
+        "count": 2,
+        "sameMaterial": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bedding",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
     "id": "make_bin",
     "name": "Bin",
     "workshop": "carpenter",
@@ -3120,6 +3151,36 @@
     "xp": 4
   },
   {
+    "id": "make_pillow",
+    "name": "Pillow",
+    "workshop": "clothier",
+    "skill": "clothesmaking",
+    "inputs": [
+      {
+        "match": "cloth",
+        "count": 1
+      },
+      {
+        "match": "straw|wool_raw|feather",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pillow",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": true,
+    "xp": 4
+  },
+  {
     "id": "make_quiver",
     "name": "Quiver",
     "workshop": "leatherworks",
@@ -3396,6 +3457,66 @@
     "fuel": true,
     "quality": false,
     "xp": 8
+  },
+  {
+    "id": "make_stone_bed",
+    "name": "Stone bed",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      },
+      {
+        "match": "cloth|wool_raw",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_bed",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "make_stone_bed_straw",
+    "name": "Stone bed (straw)",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "raw_stone",
+        "count": 1
+      },
+      {
+        "match": "fiber|straw|reed",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_bed",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
   },
   {
     "id": "make_stone_block",

@@ -23,13 +23,17 @@ export const SLEEP_NEED_MIN = 20;
 
 const clamp = (n: number): number => Math.max(0, Math.min(NEED_MAX, n));
 
-/** `10` § Needs: Endurance slows hunger and awake rest; 06 scales thirst. D-117. */
-export function advanceNeeds(n: Needs, endurance: number, thirstPercent: number, asleep: boolean, working: boolean): Needs {
+/**
+ * `10` § Needs: Endurance slows hunger and awake rest; 06 scales thirst. D-117. On the sleep errand rest
+ * falls at `REST_ASLEEP_PER_HOUR × restPercent / 100`, the percent the bed held (or the floor) rests at
+ * (10 § Sleeping).
+ */
+export function advanceNeeds(n: Needs, endurance: number, thirstPercent: number, asleep: boolean, working: boolean, restPercent = PERCENT): Needs {
   const endFactor = (ENDURANCE_BASE - endurance) / PERCENT;
   return {
     hunger: clamp(n.hunger + HUNGER_PER_HOUR * endFactor),
     thirst: clamp(n.thirst + THIRST_PER_HOUR * thirstPercent / PERCENT),
-    rest: clamp(n.rest + (asleep ? REST_ASLEEP_PER_HOUR : REST_AWAKE_PER_HOUR * endFactor)),
+    rest: clamp(n.rest + (asleep ? REST_ASLEEP_PER_HOUR * restPercent / PERCENT : REST_AWAKE_PER_HOUR * endFactor)),
     social: clamp(n.social + SOCIAL_PER_HOUR),
     comfort: clamp(n.comfort + COMFORT_PER_HOUR),
     purpose: clamp(n.purpose + (working ? PURPOSE_WORK_PER_HOUR : PURPOSE_IDLE_PER_HOUR)),

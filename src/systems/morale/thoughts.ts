@@ -73,6 +73,9 @@ export function personalityMultiplier(registry: Registry, traits: readonly numbe
   return factor;
 }
 
+/** The building types a dwarf lies on as a pallet (`buildings-and-furniture.md` § Furniture placements). */
+const PALLETS: readonly string[] = ['pallet', 'straw_pallet'];
+
 const n = (event: GameEvent, key: string): number => typeof event[key] === 'number' ? event[key] as number : 0;
 const s = (event: GameEvent, key: string): string => typeof event[key] === 'string' ? event[key] as string : '';
 const tier = (event: GameEvent): number => n(event, 'roomTier');
@@ -102,6 +105,10 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     }
     case 'slept_in_shared_bed_room': return event['onFloor'] === false && event['ownBed'] === false;
     case 'slept_on_floor': return event['onFloor'] === true;
+    // 10 § Sleeping: a pallet's sleeper, and a bed made up with bedding and a pillow (feathers in both: a featherbed).
+    case 'slept_on_a_pallet': return event['onFloor'] === false && PALLETS.includes(s(event, 'bedType'));
+    case 'slept_in_a_soft_bed': return s(event, 'bedding') === 'soft';
+    case 'slept_in_a_featherbed': return s(event, 'bedding') === 'feather';
     case 'slept_outdoors': return event['outdoors'] === true;
     case 'well_rested': return n(event, 'restored') > 0;
     case 'talked_with_friend': return event['friends'] === true;

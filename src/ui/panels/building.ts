@@ -20,7 +20,7 @@ import type { DefenseReader } from '@systems/defense';
 import type { JobsReader } from '@systems/jobs';
 import { LINKABLE_TAGS, PLATE_LEVEL_MAX, PLATE_SIZE_MAX, PLATE_SIZE_STEP } from '../constants';
 import { acceleratorLabel } from '../keymap';
-import { buildingName, capitalize, jobBlockText, whereMade, wrapText, zoneName } from '../messages';
+import { buildingName, capitalize, jobBlockText, matchName, materialItemName, whereMade, wrapText, zoneName } from '../messages';
 import type { Surface } from '../surface';
 import { label, type ListState } from '../widgets';
 import { accel, buildings, confirmThen, items, type PanelContext } from './context';
@@ -381,6 +381,59 @@ export class BuildingPanel {
     return cmd;
   }
 
+  // ---------- what a building holds (14 § Building wants, § Beds) ----------
+
+  /** A held item as the panel names it: a featherbed's pieces after their feathers ("feather pillow"), the rest after their cloth. */
+  private heldName(ctx: PanelContext, itemId: EntityId): string {
+    const it = items(ctx)?.get(itemId);
+    if (it === undefined) return '';
+    const types = ctx.registry.table<{ id: string; name: string; plural?: string }>('items');
+    const materials = ctx.registry.table<{ id: string; name: string }>('materials');
+    const type = types.byIndex(it.type);
+    if (type === undefined) return '';
+    const stuffing = it.stuffing === undefined ? undefined : materials.byIndex(it.stuffing);
+    const material = stuffing?.id === 'feather' ? stuffing.name : (materials.byIndex(it.material)?.name ?? '');
+    return materialItemName(material, type);
+  }
+
+  /** `[h] take out`: `ReleaseHeld`, every held item to the building's tile. */
+  takeOut(ctx: PanelContext): Command | null {
+    const reader = buildings(ctx);
+    if (reader === null || reader.held(this.id).length === 0) { this.say(ctx, 'ui.building.take_out_none', { building: this.name(ctx) }); return null; }
+    const cmd: Command = { type: 'ReleaseHeld', buildingId: this.id };
+    ctx.submit(cmd);
+    this.say(ctx, 'ui.building.taken_out', { building: this.name(ctx) });
+    return cmd;
+  }
+
+  /** The lines of a building with wants or a bed: what it holds and wants, a bed's rest, `[h] take out`. */
+  private heldLines(ctx: PanelContext, key: (letter: string, caption: string) => string): BuildingLine[] {
+    const reader = buildings(ctx);
+    if (reader === null) return [];
+    const s = ctx.strings;
+    const out: BuildingLine[] = [];
+    const tags = this.tags(ctx);
+    const wants = reader.wants(this.id);
+    const held = reader.held(this.id).map((id) => this.heldName(ctx, id)).filter((n) => n !== '');
+    const missing = wants.filter((w) => w.held < w.count).map((w) => {
+      const n = w.count - w.held;
+      return n === 1 ? matchName(ctx.registry, w.match) : `${n} ${matchName(ctx.registry, w.match, n)}`;
+    });
+    if (tags.includes('sleep')) {
+      if (wants.length > 0) {
+        const made = reader.restPercent(this.id) > (reader.types().find((row) => row.id === this.view(ctx)?.typeId)?.rest ?? 100);
+        out.push({ id: 'made_up', text: made ? s.get('ui.building.made_up', { items: held.join(', ') }) : s.get('ui.building.not_made_up'), tone: made ? 'good' : 'dim' });
+        if (missing.length > 0) out.push({ id: 'wants', text: s.get('ui.building.wants', { items: missing.join(', ') }), tone: 'dim' });
+      }
+      out.push({ id: 'rest', text: s.get('ui.building.rests', { n: reader.restPercent(this.id) }), tone: 'dim', help: s.get('ui.building.rest_help') });
+    } else if (wants.length > 0) {
+      out.push({ id: 'holds', text: held.length === 0 ? s.get('ui.building.holds_none') : s.get('ui.building.holds', { items: held.join(', ') }), tone: held.length === 0 ? 'dim' : 'value' });
+      if (missing.length > 0) out.push({ id: 'wants', text: s.get('ui.building.wants', { items: missing.join(', ') }), tone: 'dim' });
+    }
+    if (held.length > 0) out.push({ id: 'take_out', text: key('h', s.get('ui.building.take_out')), key: 'h', run: () => void this.takeOut(ctx), help: s.get('ui.building.take_out_help') });
+    return out;
+  }
+
   // ---------- planned buildings ----------
 
   /** `SetBuildingPriority`. */
@@ -525,6 +578,7 @@ export class BuildingPanel {
       out.push({ id: 'owner', text, tone: owner === 0 ? 'dim' : 'value' });
       out.push({ id: 'choose', text: key('w', s.get(coffin ? 'ui.building.coffin_caption' : 'ui.building.owner_caption')), key: 'w', run: () => void this.startOwner(ctx), help: s.get(coffin ? 'ui.building.coffin_help' : 'ui.building.owner_caption_help') });
     }
+    out.push(...this.heldLines(ctx, key));
     out.push({ id: 'look', text: s.get('ui.building.look'), run: () => ctx.look(view.origin), help: s.get('ui.building.look_help') });
     if (takeApart !== undefined && !doomed) out.push({ id: 'take_apart', text: key('x', s.get('ui.building.take_apart')), key: 'x', run: () => takeApart(this.id), help: s.get('ui.building.take_apart_help') });
     return out;

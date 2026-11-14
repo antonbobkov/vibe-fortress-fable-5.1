@@ -656,6 +656,8 @@ export class WorkshopOperator {
     const container = recipe.container ? (job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0) : 0;
     const fuelIndex = recipe.fuel && !this.isMagmaPowered(id) ? recipe.inputs.length : -1;
     const seasoned = this.seasoningsOf(job, recipe, fuelIndex);
+    // `12` § Operation: a `stuffed` output records its stuffing, the material of the recipe's last input.
+    const stuffing = recipe.inputs.length > 1 ? (this.items.get(job.inputs[recipe.inputs.length - 1]?.delivered[0] ?? 0)?.material ?? 0) : 0;
     const itemsApi = ctx.world.services.items;
     // F-17b (`12` § Operation, onComplete: "consume inputs ... spawn outputs"): a job whose
     // delivered inputs no longer cover the recipe makes nothing. 11 revalidates before it gets
@@ -713,6 +715,7 @@ export class WorkshopOperator {
         const item = ctx.world.entities.get(itemId, C.Item);
         if (item !== undefined) ctx.world.entities.add(itemId, C.Item, { ...item, seasoned: seasoned.slice() });
       }
+      if (stuffing !== 0 && itemTable.byIndex(itemTable.index(type))?.tags?.includes('stuffed') === true) itemsApi?.setStuffing?.(itemId, stuffing);
       itemsApi?.setCrafter?.(itemId, job.workerId);
       ctx.emit({ type: 'ItemCrafted', itemId, quality, crafterId: job.workerId, workshopId: id, recipeId: recipe.id });
       if (quality === 5) ctx.emit({ type: 'MasterworkCreated', itemId, crafterId: job.workerId });

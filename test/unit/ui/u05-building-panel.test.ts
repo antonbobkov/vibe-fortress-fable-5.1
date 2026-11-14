@@ -551,13 +551,14 @@ describe('U-05 the building panel (M4)', () => {
     const rows = helpKeyRows(keymap, strings).map((row) => row.text);
     const from = rows.indexOf('Building panel');
     expect(from).toBeGreaterThanOrEqual(0);
-    expect(rows.slice(from + 1, from + 9)).toEqual([
+    expect(rows.slice(from + 1, from + 10)).toEqual([
       '1–9  a planned building\'s build priority',
       '[i]  link a lever or a plate',
       '[r]  unlink the target under the cursor, or release a caged creature (confirm)',
       '[y]  pull the lever',
       '[g]  tame the caged creature',
       '[w]  the owner of a bed\'s bedroom, or whom a coffin is kept for',
+      '[h]  take out what the building holds (its bedding and pillow): they drop on its tile',
       '[x]  cancel the plan, or take the building apart (confirm)',
       '↑↓ Enter  choose a mode, an owner, a link',
     ]);
@@ -565,6 +566,39 @@ describe('U-05 the building panel (M4)', () => {
     expect(rows).not.toContain('Building panel (click a building)');
     expect(rows).not.toContain('[S-p]  last designation takes the priority');
     expect(rows).not.toContain('i link (pick on the map)  r unlink  y pull');
+  });
+});
+
+describe('T-551 a bed\'s panel: its rest, what it is made up with, and [h] take out (ReleaseHeld)', () => {
+  it('T-551 a made-up bed names its bedding and pillow, rests at 125%, and [h] takes them out; a pallet rests at 60%', () => {
+    const f = setup('t551-bed-panel');
+    const bed = f.w.build('bed', f.w.index(30, 30, z), 'oak');
+    const pallet = f.w.build('pallet', f.w.index(34, 30, z), 'flax_cloth');
+    f.w.spawnDwarf({ at: f.w.index(32, 32, z), name: 'Urist' });
+    f.w.step(1);
+    open(f, bed);
+    expect(panel(f).text).toContain('Not made up');
+    expect(panel(f).text).toContain('Wants: bedding, pillow');
+    expect(panel(f).text).toContain('Rests at 100%');
+    expect(panel(f).text).not.toContain('take out');
+    const materials = f.w.game.registry.table('materials');
+    const bedding = f.w.spawnItem('bedding', 'flax_cloth', f.w.index(31, 32, z), 1, 2);
+    const pillow = f.w.spawnItem('pillow', 'flax_cloth', f.w.index(33, 32, z), 1, 2);
+    f.w.items.setStuffing?.(bedding, materials.index('wool'));
+    f.w.items.setStuffing?.(pillow, materials.index('feather'));
+    f.w.until((v) => v.readers.of<BuildingsReader>('14').held(bed).length === 2, 1200);
+    const text = panel(f).text;
+    expect(text).toContain('Made up: linen bedding, feather pillow');
+    expect(text).toContain('Rests at 125%');
+    expect(text).not.toContain('Wants:');
+    f.screen.key(press('h'));
+    expect(f.sent).toEqual([{ type: 'ReleaseHeld', buildingId: bed }]);
+    expect(notice(f)).toBe('What Bed #1 held is on the floor.');
+    f.w.step(1);
+    expect(f.w.readers.of<BuildingsReader>('14').held(bed)).toEqual([]);
+    open(f, pallet);
+    expect(panel(f).text).toContain('Rests at 60%');
+    expect(panel(f).text).not.toContain('made up');
   });
 });
 

@@ -92,6 +92,8 @@ A workshop that no recipe names and no job is worked at (`jobs.md`: the butcher'
 | `make_nest_box_stone` | Nest box | 1 raw_stone | 1 nest_box | 100 | no | 4 |
 | `make_memorial_slab` | Memorial slab (for a dead dwarf) | 1 raw_stone | 1 memorial_slab | 300 (skill `engraving`) | yes | 15 |
 | `make_sling_stones` | Sling stones | 1 raw_stone | 30 sling_stone | 60 | no | 2 |
+| `make_stone_bed` | Stone bed | 1 raw_stone + 2 cloth or wool_raw | 1 stone_bed (from_input) | 120 | no | 5 |
+| `make_stone_bed_straw` | Stone bed (straw) | 1 raw_stone + 3 fiber or straw or reed | 1 stone_bed (from_input) | 120 | no | 5 |
 
 ## Craftsdwarf (`crafting`)
 
@@ -302,6 +304,8 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 | `make_bag_cloth` | Cloth bag | 1 cloth | 1 bag | 80 | no | 4 |
 | `make_rope` | Rope | 2 thread | 1 rope | 100 | no | 4 |
 | `make_bandages` | Bandages | 1 cloth | 4 bandage | 60 | no | 3 |
+| `make_bedding` | Bedding | 2 cloth + 2 straw or wool_raw or feather (same material) | 1 bedding (from_input) | 150 | yes | 6 |
+| `make_pillow` | Pillow | 1 cloth + 1 straw or wool_raw or feather | 1 pillow (from_input) | 80 | yes | 4 |
 
 ## Farmer's workshop (`farming`, `animal_care`)
 
@@ -331,7 +335,7 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 1), forge 40, kitchen 5, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 211.
+Carpenter 27, mason 15, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 1), forge 40, kitchen 5, still 2, tannery 1, leatherworks 11, loom 2, clothier 10, farmer's workshop 4, bowyer 3, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 215.
 
 ## Time arithmetic
 
@@ -366,10 +370,6 @@ Edits: `magma_kiln` becomes the magma variant of `kiln` (`variant of` `kiln`), w
 | leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
 | leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
 | bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
-| mason | `make_stone_bed` | Stone bed | 1 raw_stone + 2 cloth or wool_raw | 1 stone_bed (from_input) | 120 | no | no | 5 | `make_bed` | T-551 |
-| mason | `make_stone_bed_straw` | Stone bed (straw) | 1 raw_stone + 3 fiber or straw or reed | 1 stone_bed (from_input) | 120 | no | no | 5 | `make_bed` | T-551 |
-| clothier | `make_bedding` | Bedding | 2 cloth + 2 straw or wool_raw or feather (same material) | 1 bedding (from_input) | 150 | no | yes | 6 | — | T-551 |
-| clothier | `make_pillow` | Pillow | 1 cloth + 1 straw or wool_raw or feather | 1 pillow (from_input) | 80 | no | yes | 4 | — | T-551 |
 | smokehouse | `smoke_meat` | Smoke meat | 5 raw_meat (same material) | 5 cured_meat (from_input) | 150 | yes | no | 6 | — | T-552 |
 | smokehouse | `smoke_fish` | Smoke fish | 5 raw_fish (same material) | 5 cured_fish (from_input) | 150 | yes | no | 6 | — | T-552 |
 | kitchen | `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | no | 5 | — | T-552 |

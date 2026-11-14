@@ -173,5 +173,10 @@
     "id": "hint_herbs_eaten",
     "trigger": "a dwarf eats a raw plant while a work order for a draught brewed from plants stands",
     "text": "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest."
+  },
+  {
+    "id": "hint_pallet",
+    "trigger": "first Slept on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock",
+    "text": "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor."
   }
 ]

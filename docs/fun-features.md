@@ -40,6 +40,7 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | Nettles | Gathering a wild nettle stings one time in ten: "Nettles. Of course." (T-548) | [09](02-systems/09-hunting-gathering-fishing.md) § Gathering; 15 § Thoughts | Removable: the `stings` words in the wild nettle's product (`plants.md`), or `sting` in `foraging/index.ts` with `NETTLE_STING_PERMILLE`; the `nettles` row stays, never given |
 | Drinking a cactus | A thirsty dwarf with nothing else to drink eats a cactus: half a drink of water and "Drank cactus. Cactus." (T-548) | [10](02-systems/10-dwarves.md) § Eating and drinking | Removable: `drinkablePlantFilter` and its search in `dwarves/activities.ts` (`start`), with the `plant` branch of the thirst completion; the `drank_cactus` row stays, never given |
 | Wyrmtongue | "Ate something that fought back.": a meal cooked with wyrmtongue keeps the cold out for a day (T-548) | 15 § Thoughts; 12 § Operation (`Item.seasoned`) | Removable: the `ate_wyrmtongue` case in `morale/thoughts.ts` and the `bitter_cold` guard in `give` (`morale/index.ts`); the seasoning record stays, for salt |
+| A child's pallet | Anyone lays a pallet, a child too: a cloth on the floor in 20 ticks, no workshop, no skill, and the seven founders are off the floor within the hour (T-551) | [14](02-systems/14-buildings-and-rooms.md) § Beds | Removable: give the `pallet` and `straw_pallet` rows the labor `construction` (`buildings-and-furniture.md`), and the `skill: ''` of a `hauling` build in `buildings/build.ts` (`produce`) goes unused; children then cannot lay one |
 
 ## Planned
 
@@ -60,7 +61,6 @@ The goofy rules and trade-offs of the Making Do content ([design](../reports/des
 | A vintage worth raiding | A cellar ages drink and cheese into wealth, and wealth raises renown, which sizes raids | 13 § Planned, Aging | T-554 |
 | Faces of the land | The first dwarf to stand in a skeleton's ribs, a dwarf in the crater ("Stood where the star fell."), the first roost ("Bats. Hundreds of them. Brynja Coldhammer counted.") | 03, 08, 10 § Planned | T-557, T-560, T-556 |
 | Behind glass | An archer behind a glass wall sees the raid and cannot shoot it, and the raid sees the hall | 22 § Planned | T-558 |
-| A child's pallet | Anyone lays a pallet, a child too: a cloth on the floor in 20 ticks | 14 § Planned, Beds | T-551 |
 | The Thane's whims | Once a season the Thane wishes for one thing in the hall (a lantern, a barrel of mead, a statue of ivory): met, everyone is pleased; missed, the Thane grumbles alone. All face, no spiral (flavour report item 26) | 10 § Planned | T-565 |
 
 ## Candidates, not yet planned

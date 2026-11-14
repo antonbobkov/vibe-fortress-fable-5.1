@@ -21,7 +21,8 @@ function inputMaterial(type: string, recipe: RecipeRow): string {
   return 'turnip';
 }
 
-function fixtureInputType(match: string): string { return match === 'ingredient' ? 'plant_food' : match; }
+/** An input's first alternative ("cloth|wool_raw": cloth). */
+function fixtureInputType(match: string): string { return match === 'ingredient' ? 'plant_food' : match.split('|')[0] as string; }
 
 /** A single world per workshop runs all its authored recipes; no full map is built per row. */
 function exercise(workshopType: string): { count: number; outputs: { recipe: string; ids: number[]; container: number }[]; world: TestWorld } {

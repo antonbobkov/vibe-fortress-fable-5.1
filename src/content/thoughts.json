@@ -1173,6 +1173,36 @@
     "announce": false
   },
   {
+    "id": "slept_in_a_featherbed",
+    "name": "slept in a featherbed",
+    "text": "Slept in a featherbed.",
+    "value": 5,
+    "hours": 36,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "Slept",
+      "target": "bedding feather"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_in_a_soft_bed",
+    "name": "slept in a soft bed",
+    "text": "Slept in a soft bed.",
+    "value": 3,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "Slept",
+      "target": "bedding soft"
+    },
+    "announce": false
+  },
+  {
     "id": "slept_in_bare_room",
     "name": "slept in bare room",
     "text": "Slept in a bare room.",
@@ -1271,6 +1301,23 @@
     "trigger": {
       "event": "Slept",
       "target": "unassigned bed"
+    },
+    "announce": false
+  },
+  {
+    "id": "slept_on_a_pallet",
+    "name": "slept on a pallet",
+    "text": "Slept on a pallet.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "Slept",
+      "target": "on a pallet (bedType pallet or straw_pallet)"
     },
     "announce": false
   },

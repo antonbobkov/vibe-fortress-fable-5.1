@@ -202,7 +202,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       const end = entities.get(id, C.Attributes)?.end ?? 50;
       const asleep = brain?.behavior === 'need' && brain.activity === 'sleep';
       const working = brain?.behavior === 'work' && (entities.get(id, C.Worker)?.jobId ?? 0) !== 0;
-      const after = advanceNeeds(before, end, thirstPercent, asleep, working);
+      const after = advanceNeeds(before, end, thirstPercent, asleep, working, asleep ? this.activities.restPercent(ctx, id) : 100);
       entities.add(id, C.Needs, after);
       this.recordCrossings(id, before, after, (e) => ctx.emit(e));
       if (schedule?.sleepStartHour === hour && after.rest > SLEEP_NEED_MIN) this.interruptFlags.add(id);
@@ -512,6 +512,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (!entities.alive(workerId) || !entities.has(workerId, C.Brain)) return;
     const row = ctx.registry.table<JobTypeRow>('jobTypes').byId(event['jobType'] as string);
     if (row === undefined || row.skill === null || row.xp <= 0) return;
+    // 14 § Beds: laying a pallet (a build of labor `hauling`) trains no skill.
+    if (row.id === 'build' && ctx.readers.has('14')) {
+      const b14 = ctx.readers.of<BuildingsReader>('14');
+      const typeId = b14.get(event['target'] as EntityId)?.typeId;
+      if (typeId !== undefined && b14.types().find((type) => type.id === typeId)?.labor === 'hauling') return;
+    }
     const wits = entities.get(workerId, C.Attributes)?.wit ?? 0;
     grantXp(entities, ctx.registry, workerId, row.skill, jobXp(row.xp, wits), (e) => ctx.emit(e));
   }

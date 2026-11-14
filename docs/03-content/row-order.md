@@ -255,3 +255,17 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | smelt_bog_iron |
 | recipes | alloy_pewter |
 | thoughts | first_fossil |
+| items | stone_bed |
+| items | bedding |
+| items | pillow |
+| buildings | pallet |
+| buildings | straw_pallet |
+| buildings | stone_bed |
+| recipes | make_stone_bed |
+| recipes | make_stone_bed_straw |
+| recipes | make_bedding |
+| recipes | make_pillow |
+| thoughts | slept_on_a_pallet |
+| thoughts | slept_in_a_soft_bed |
+| thoughts | slept_in_a_featherbed |
+| hints | hint_pallet |

@@ -35,7 +35,7 @@ import { WANTED_CLASSES, type ContainerNeeded, type Slot, type StockpileStore, t
 export interface JobsView {
   get(id: number): { readonly id: number; readonly key: string; readonly producer: string; readonly data: Readonly<Record<string, unknown>> } | undefined;
   byKey(key: string): { readonly id: number; readonly state?: string } | undefined;
-  list(): readonly { readonly id: number; readonly producer: string; readonly workTile: unknown; readonly data: Readonly<Record<string, unknown>> }[];
+  list(): readonly { readonly id: number; readonly producer: string; readonly workTile: unknown; readonly target?: { readonly ref: number }; readonly data: Readonly<Record<string, unknown>> }[];
 }
 
 export interface HaulHost {
@@ -50,6 +50,12 @@ export interface HaulHost {
   /** Whether a dwarf can stand on the tile. */
   walkable(i: TileIndex): boolean;
   emit(event: GameEvent): void;
+  /** 14's built buildings whose type has wants, ascending (13 § Buildings that want items); absent: none. */
+  holders?(): readonly EntityId[];
+  /** A building's wants (its row's `wants`) and the tile its hauls are worked beside; null when it holds nothing. */
+  holderWants?(id: EntityId): { readonly wants: readonly { readonly types: readonly number[]; readonly count: number }[]; readonly tile: TileIndex } | null;
+  /** The nearest available items of any of these types, from a tile, nearest first (13 § Searching). */
+  nearestOf?(types: readonly number[], from: TileIndex, count: number): readonly EntityId[];
 }
 
 export function haulKey(itemId: EntityId): string {
@@ -486,6 +492,7 @@ export class Hauling {
       }
     }
     let created = this.requestContainers();
+    created += this.fillHolders(HAUL_JOBS_PER_TICK - created);
     const jobs = this.host.jobs();
     // A hospital takes an item into a chest, which no container count or room tells: a waiting item is looked at
     // again when a hospital would take it.
@@ -540,6 +547,74 @@ export class Hauling {
       this.settle();
     }
     created += this.createStrips(jobs, HAUL_JOBS_PER_TICK - created);
+  }
+
+  /**
+   * 13 § Buildings that want items: for each built building with wants, in id order, each want not
+   * met by the items it holds and those on their way gets a `haul_to_stockpile` job for the nearest
+   * available item that answers it, worked from a tile beside the building. What is on its way is read
+   * from the haul jobs (`data.holder`) only when an item could be sent, so a fortress with nothing to
+   * send reads no job list. Returns the jobs made.
+   */
+  private fillHolders(budget: number): number {
+    const holders = this.host.holders?.() ?? [];
+    if (holders.length === 0 || budget <= 0) return 0;
+    const core = this.core;
+    const entities = core.host.entities;
+    let coming: Map<EntityId, EntityId[]> | null = null;
+    let made = 0;
+    for (const id of holders) {
+      if (made >= budget) break;
+      const spec = this.host.holderWants?.(id) ?? null;
+      if (spec === null) continue;
+      const held = (entities.get(id, C.Building)?.held ?? []).filter((it) => core.isItem(it));
+      for (const want of spec.wants) {
+        if (made >= budget) break;
+        const answers = (it: EntityId): boolean => want.types.includes(core.get(it)?.type ?? 0);
+        const have = held.filter(answers).length;
+        if (have >= want.count) continue;
+        if (!want.types.some((t) => core.counts.available(t) > 0)) continue;
+        if (coming === null) coming = this.holderHauls();
+        const onWay = (coming.get(id) ?? []).filter(answers).length;
+        let short = want.count - have - onWay;
+        if (short <= 0) continue;
+        for (const it of this.host.nearestOf?.(want.types, spec.tile, short + 4) ?? []) {
+          if (short <= 0 || made >= budget) break;
+          if (this.hasJob(it)) continue;
+          this.host.jobs().create(haulKey(it), {
+            type: 'haul_to_stockpile',
+            priority: HAUL_PRIORITY,
+            target: { kind: 'entity', ref: it },
+            workTile: 'adjacent',
+            inputs: [{ filter: { itemId: it }, count: 1 }],
+            data: { holder: id, anchorTile: spec.tile },
+          });
+          const list = coming.get(id) ?? [];
+          list.push(it);
+          coming.set(id, list);
+          short -= 1;
+          made += 1;
+        }
+      }
+    }
+    return made;
+  }
+
+  /** The items on their way to each building that holds items: 13's haul jobs with `data.holder`. */
+  private holderHauls(): Map<EntityId, EntityId[]> {
+    const out = new Map<EntityId, EntityId[]>();
+    const view = this.host.jobsView();
+    if (view === null) return out;
+    for (const job of view.list()) {
+      const holder = job.data['holder'];
+      if (job.producer !== 'items' || typeof holder !== 'number') continue;
+      const ref = job.target?.ref;
+      if (ref === undefined) continue;
+      const list = out.get(holder) ?? [];
+      list.push(ref);
+      out.set(holder, list);
+    }
+    return out;
   }
 
   private createHaul(id: EntityId, sp: EntityId, slot: Slot, jobs: JobsApi): void {
@@ -682,6 +757,11 @@ export class Hauling {
   private deliver(job: { readonly key: string; readonly data: Readonly<Record<string, unknown>> }, id: EntityId): void {
     const core = this.core;
     core.release(id);
+    const holder = job.data['holder'];
+    if (typeof holder === 'number') {
+      this.hold(holder, id);
+      return;
+    }
     if (job.key.startsWith('dump:')) {
       // "on arrival the flag clears".
       core.setFlag(id, ItemFlag.Dump, false);
@@ -704,6 +784,28 @@ export class Hauling {
     this.endJob(job.data, id);
     if (core.isItem(id)) this.examine(id);
     if (containerIn) this.slotsGained();
+  }
+
+  /**
+   * 13 § Buildings that want items: on delivery the item is held by the building (`Building.held`),
+   * flagged `installed`, while the building stands built and still wants it; otherwise it lies where it
+   * was brought and finds another home.
+   */
+  private hold(holder: EntityId, id: EntityId): void {
+    const core = this.core;
+    const entities = core.host.entities;
+    const b = entities.get(holder, C.Building);
+    const spec = this.host.holderWants?.(holder) ?? null;
+    const held = (b?.held ?? []).filter((it) => core.isItem(it));
+    const type = core.get(id)?.type ?? 0;
+    const want = spec?.wants.find((w) => w.types.includes(type));
+    if (b === undefined || b.state !== 'built' || want === undefined ||
+      held.filter((it) => want.types.includes(core.get(it)?.type ?? 0)).length >= want.count) {
+      this.examine(id);
+      return;
+    }
+    core.install(id);
+    entities.add(holder, C.Building, { ...b, held: [...held, id] });
   }
 
   /** A haul job ended (done or cancelled): its slot and any incoming-container mark are released. */

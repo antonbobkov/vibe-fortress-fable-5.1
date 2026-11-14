@@ -180,6 +180,24 @@
     "quality": true
   },
   {
+    "id": "bedding",
+    "name": "bedding",
+    "category": "furniture/bedding",
+    "mult": 4000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "cloth"
+    ],
+    "glyph": "≈",
+    "quality": true,
+    "tags": [
+      "stuffed"
+    ]
+  },
+  {
     "id": "bin",
     "name": "bin",
     "category": "container/bin",
@@ -1426,6 +1444,24 @@
     ]
   },
   {
+    "id": "pillow",
+    "name": "pillow",
+    "category": "furniture/pillow",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "cloth"
+    ],
+    "glyph": "≈",
+    "quality": true,
+    "tags": [
+      "stuffed"
+    ]
+  },
+  {
     "id": "plant_food",
     "name": "plant",
     "category": "food/plant/raw",
@@ -1909,6 +1945,21 @@
     ],
     "glyph": "Ω",
     "quality": true
+  },
+  {
+    "id": "stone_bed",
+    "name": "stone bed",
+    "category": "furniture/stone_bed",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "stone"
+    ],
+    "glyph": "Θ",
+    "quality": false
   },
   {
     "id": "stone_block",

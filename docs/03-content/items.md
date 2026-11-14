@@ -68,29 +68,34 @@ A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `
 
 ## Furniture (items that become buildings when placed)
 
-| id | name | category | mult | stack | weight | glyph | fg | materials allowed |
-|---|---|---|---|---|---|---|---|---|
-| `bed` | bed | furniture/bed | 5 | 1 | heavy | `Θ` | material | wood |
-| `table` | table | furniture/table | 4 | 1 | heavy | `╥` | material | wood, stone, metal |
-| `chair` | chair | furniture/chair | 3 | 1 | medium | `╫` | material | wood, stone, metal |
-| `door` | door | furniture/door | 4 | 1 | heavy | `+` | material | wood, stone, metal |
-| `hatch` | hatch | furniture/hatch | 4 | 1 | medium | `¤` | material | wood, stone, metal |
-| `cabinet` | cabinet | furniture/cabinet | 6 | 1 | heavy | `π` | material | wood, stone, metal |
-| `chest` | chest | furniture/chest | 5 | 1 | medium | `▄` | material | wood, stone, metal; also a container (20) |
-| `coffin` | coffin | furniture/coffin | 6 | 1 | heavy | `▬` | material | wood, stone, metal |
-| `statue` | statue | furniture/statue | 12 | 1 | heavy | `Ω` | material | stone, metal, glowstone |
-| `cage` | cage | furniture/cage | 6 | 1 | medium | `▒` | material | wood, metal |
-| `mechanism` | mechanism | furniture/mechanism | 5 | 1 | medium | `‼` | material | stone, metal |
-| `floodgate` | floodgate | furniture/floodgate | 6 | 1 | heavy | `╪` | material | stone, metal |
-| `anvil` | anvil | furniture/anvil | 15 | 1 | heavy | `Ξ` | material | iron, steel |
-| `nest_box` | nest box | furniture/nest_box | 3 | 1 | medium | `∩` | material | wood, stone |
-| `weapon_rack` | weapon rack | furniture/weapon_rack | 4 | 1 | medium | `╨` | material | wood, metal |
-| `armor_stand` | armor stand | furniture/armor_stand | 4 | 1 | medium | `╧` | material | wood, metal |
-| `memorial_slab` | memorial slab | furniture/memorial_slab | 8 | 1 | heavy | `╤` | material | stone |
-| `archery_target` | archery target | furniture/archery_target | 2 | 1 | medium | `◙` | material | wood |
-| `spike` | spike | furniture/trap_part | 4 | 5 | medium | `↑` | material | metal, wood (0.4) |
-| `chain` | chain | furniture/chain | 4 | 1 | medium | `§` | material | metal |
-| `rope` | rope | furniture/chain | 2 | 1 | light | `§` | material | cloth; equivalent to chain for buildings |
+| id | name | category | mult | stack | weight | glyph | fg | materials allowed | tags |
+|---|---|---|---|---|---|---|---|---|---|
+| `bed` | bed | furniture/bed | 5 | 1 | heavy | `Θ` | material | wood | — |
+| `table` | table | furniture/table | 4 | 1 | heavy | `╥` | material | wood, stone, metal | — |
+| `chair` | chair | furniture/chair | 3 | 1 | medium | `╫` | material | wood, stone, metal | — |
+| `door` | door | furniture/door | 4 | 1 | heavy | `+` | material | wood, stone, metal | — |
+| `hatch` | hatch | furniture/hatch | 4 | 1 | medium | `¤` | material | wood, stone, metal | — |
+| `cabinet` | cabinet | furniture/cabinet | 6 | 1 | heavy | `π` | material | wood, stone, metal | — |
+| `chest` | chest | furniture/chest | 5 | 1 | medium | `▄` | material | wood, stone, metal; also a container (20) | — |
+| `coffin` | coffin | furniture/coffin | 6 | 1 | heavy | `▬` | material | wood, stone, metal | — |
+| `statue` | statue | furniture/statue | 12 | 1 | heavy | `Ω` | material | stone, metal, glowstone | — |
+| `cage` | cage | furniture/cage | 6 | 1 | medium | `▒` | material | wood, metal | — |
+| `mechanism` | mechanism | furniture/mechanism | 5 | 1 | medium | `‼` | material | stone, metal | — |
+| `floodgate` | floodgate | furniture/floodgate | 6 | 1 | heavy | `╪` | material | stone, metal | — |
+| `anvil` | anvil | furniture/anvil | 15 | 1 | heavy | `Ξ` | material | iron, steel | — |
+| `nest_box` | nest box | furniture/nest_box | 3 | 1 | medium | `∩` | material | wood, stone | — |
+| `weapon_rack` | weapon rack | furniture/weapon_rack | 4 | 1 | medium | `╨` | material | wood, metal | — |
+| `armor_stand` | armor stand | furniture/armor_stand | 4 | 1 | medium | `╧` | material | wood, metal | — |
+| `memorial_slab` | memorial slab | furniture/memorial_slab | 8 | 1 | heavy | `╤` | material | stone | — |
+| `archery_target` | archery target | furniture/archery_target | 2 | 1 | medium | `◙` | material | wood | — |
+| `spike` | spike | furniture/trap_part | 4 | 5 | medium | `↑` | material | metal, wood (0.4) | — |
+| `chain` | chain | furniture/chain | 4 | 1 | medium | `§` | material | metal | — |
+| `rope` | rope | furniture/chain | 2 | 1 | light | `§` | material | cloth; equivalent to chain for buildings | — |
+| `stone_bed` | stone bed | furniture/stone_bed | 2 | 1 | heavy | `Θ` | material | stone | — |
+| `bedding` | bedding | furniture/bedding | 4 | 1 | medium | `≈` | material | cloth; records its stuffing | `stuffed` |
+| `pillow` | pillow | furniture/pillow | 2 | 1 | light | `≈` | material | cloth; records its stuffing | `stuffed` |
+
+An item tagged `stuffed` records its stuffing, the material of its last input (`Item.stuffing`, [12](../02-systems/12-workshops-and-professions.md) § Operation); a stuffed item whose stuffing is `feather` is worth its type's `mult` × 2 ([13](../02-systems/13-items-and-storage.md) § Value). A built bed holds a bedding and a pillow ([14](../02-systems/14-buildings-and-rooms.md) § Beds).
 
 ## Containers
 
@@ -242,9 +247,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | Farm goods (a new section) | `potash` | potash | farm/potash | 1 | 10 | bag | 0 | light | `:` | `ash_gray` | `potash` | T-553 |
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
 | Farm goods (a new section) | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `compost`; tag `fertilizer` | T-564 |
-| Furniture | `stone_bed` | stone bed | furniture/stone_bed | 2 | 1 | none | 0 | heavy | `Θ` | material | stone | T-551 |
-| Furniture | `bedding` | bedding | furniture/bedding | 4 | 1 | none | 0 | medium | `≈` | material | cloth (its cloth); records its stuffing | T-551 |
-| Furniture | `pillow` | pillow | furniture/pillow | 2 | 1 | none | 0 | light | `≈` | material | cloth; records its stuffing | T-551 |
 | Furniture | `beehive` | beehive | furniture/beehive | 3 | 1 | none | 0 | medium | `∩` | material | wood, stone (earthenware), plant (reed) | T-555 |
 | Furniture | `lantern` | lantern | furniture/lantern | 6 | 1 | none | 0 | medium | `¥` | material | glass | T-563 |
 | Tools | `candle` | candle | tool/candle | 1 | 10 | bin | 0 | light | `ì` | material | tallow, beeswax | T-563 |

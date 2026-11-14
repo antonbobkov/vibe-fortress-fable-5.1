@@ -62,6 +62,7 @@ Merchants: humans. Guards: humans with iron spears, caps, leather jerkins, buckl
 | Livestock | `cow`, `sheep`, `goat`, `pig`, `chicken` ×4 | — | 1–3 | 12 | `horse` |
 | Wooden goods | `barrel`, `bin`, `bucket`, `bed`, `chair`, `table` | pine, oak | 2–4 | 8 | |
 | Bandages and splints | `bandage` ×4, `splint` ×4 | flax_cloth, pine | 1–2 | 5 | |
+| Bedding | `bedding` | flax_cloth | 2–4 | 6 | |
 
 ## Wildwood (autumn, from year 1)
 
@@ -143,7 +144,6 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 | Hillfolk | Leather | `leather_piece` | leather | 5–10 | 6 | T-550 |
 | Hillfolk | Salt | `salt` ×10 in `bag` | salt | 1–2 bags | 6 | T-550 |
 | Hillfolk | Clay | `soil_load` | clay | 5–10 | 6 | T-550 |
-| Hillfolk | Bedding | `bedding` | flax_cloth | 2–4 | 6 | T-551 |
 | Hillfolk | Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 | T-552 |
 | Hillfolk | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 | T-552 |
 | Hillfolk | Bricks | `stone_block` | brick | 5–10 | 6 | T-553 |

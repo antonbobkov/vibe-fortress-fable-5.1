@@ -79,6 +79,8 @@ Job execution (producer `workshops`):
 
 A meal records the seasonings among its ingredients: `Item.seasoned`, the materials of its delivered ingredients (not its fuel or container) that carry the tag `seasoning` (`wyrmtongue`), ascending, read before the inputs are consumed; omitted when there is none. Two stacks of meals merge only with the same seasonings. `MealEaten` carries `seasoned` (the material ids) when the meal has any, and 15 gives `ate_wyrmtongue` beside the meal's own thought.
 
+An output whose item type carries the tag `stuffed` (`bedding`, `pillow`) records its stuffing: `Item.stuffing`, the material of the recipe's last input (the straw's crop, `wool`, `feather`), read before the inputs are consumed, through `items.setStuffing` (13 § Value: feathers double its worth). Two stacks merge only with the same stuffing.
+
 Delivered inputs stay reserved to the craft job while its order stands, through a need/threat interruption, a block or a reservation timeout. Only undelivered reservations use `RESERVE_KEEP_TICKS`; completed or cancelled jobs release all remaining reservations, and removing the order cancels the job. Haulers cannot remove delivered reserved inputs.
 
 Suspending a workshop cancels its current job; the order waits until it is resumed. Setting or clearing its assigned worker also cancels the current job. On `CreatureDied` of an assigned worker, clear `assignedWorker` to 0 and cancel the current job exactly as `SetWorkshopWorker { dwarfId: 0 }` does; another eligible worker can run the retained order.
@@ -120,7 +122,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Substitutes
 
-A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel).
+A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel). `make_stone_bed` and `make_stone_bed_straw` stand in for `make_bed` with an item of their own: a stone bed is judged by its rest (75 against the wooden bed's 100, 14 § Beds) and its worth (a `mult` of 2 against 5), so the check holds it to resting less and being worth less, whatever its inputs.
 
 ### Fuel and charcoal
 

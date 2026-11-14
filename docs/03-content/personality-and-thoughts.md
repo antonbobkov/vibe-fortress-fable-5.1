@@ -86,6 +86,9 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `slept_on_floor` | "Slept on the floor." | −4 | 24 | linear | 1 | room | `Slept` onFloor |
 | `slept_outdoors` | "Slept under the sky." | −5 | 24 | linear | 1 | weather | `Slept` outdoor tile |
 | `well_rested` | "Feel well rested." | +2 | 12 | linear | 1 | comfort | `Slept` with rest reaching 0 |
+| `slept_on_a_pallet` | "Slept on a pallet." | −1 | 24 | linear | 1 | room | `Slept` on a pallet (`bedType` `pallet` or `straw_pallet`) |
+| `slept_in_a_soft_bed` | "Slept in a soft bed." | +3 | 24 | linear | 1 | comfort | `Slept` bedding `soft` |
+| `slept_in_a_featherbed` | "Slept in a featherbed." | +5 | 36 | linear | 1 | comfort | `Slept` bedding `feather` |
 
 ### Social and comfort
 
@@ -193,9 +196,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
-| `slept_on_a_pallet` | "Slept on a pallet." | −1 | 24 | linear | 1 | room | `Slept` on a pallet | T-551 |
-| `slept_in_a_soft_bed` | "Slept in a soft bed." | +3 | 24 | linear | 1 | comfort | `Slept` bedding soft | T-551 |
-| `slept_in_a_featherbed` | "Slept in a featherbed." | +5 | 36 | linear | 1 | comfort | `Slept` bedding feather | T-551 |
 | `smoky_hall` | "The hall is full of smoke." | −1 | 12 | halflife | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS`; tallow smoke | T-552 |
 | `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `smoke_meat` or `smoke_fish` done within `SMOKE_RADIUS` | T-552 |
 | `ate_salted_meal` | "The food was well salted." | +1 | 24 | linear | 1 | comfort | `MealEaten` seasoned with salt | T-552 |

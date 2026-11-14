@@ -49,6 +49,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetPlateTrigger` | `plateId, trigger` | 14 | valid trigger: `{ kind: 'creatures', minSize, includeFortress }` or `{ kind: 'water' or 'magma', level }` with level 1 to 7 | — |
 | `ReleaseCage` | `cageBuildingId` | 14 | occupied | `CreatureCaged` reverse (creature spawned adjacent) |
 | `AssignCoffin` | `coffinId, dwarfId \| 0` | 14 | coffin free | — |
+| `ReleaseHeld` | `buildingId` | 14 | built and holding items (`precondition_failed` otherwise); every held item drops on the building's tile, unflagged (14 § Building wants) | — |
 | `CreateSquad` | `name` | 16 | fewer than `SQUAD_MAX_COUNT` squads | — |
 | `DisbandSquad` | `squadId` | 16 | exists | — |
 | `SetSquadMembers` | `squadId, members[]` | 16 | adults; at most `SQUAD_MAX_SIZE`; not in another squad | — |

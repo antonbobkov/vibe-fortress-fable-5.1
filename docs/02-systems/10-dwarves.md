@@ -40,7 +40,7 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 |---|---|---|---|---|
 | hunger | 1 | eating: meal −100, raw food −70 | 50 | 85 |
 | thirst | 1.6 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80, a cactus −40 | 50 | 85 |
-| rest | 5 awake; −15 per hour on the sleep errand, from setting off for bed | sleeping | 60 | 90 |
+| rest | 5 awake; −15 × `rest` / 100 per hour on the sleep errand, from setting off for bed (§ Sleeping: −15 on a bed of 100) | sleeping | 60 | 90 |
 | social | 2 | talking: −40 per conversation | 50 | none |
 | comfort | 1 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20; a meal at a table is a sit | 55 | none |
 | purpose | 2 while idle; −10 per hour of work | working | 60 | none |
@@ -68,8 +68,9 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 
 ### Sleeping
 
-- Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and goes to bed at that hour unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed. Rest falls at the sleeping rate from the moment the dwarf sets off for its bed (or the floor it will sleep on), the walk included: the walk to bed is part of resting. A sleep ends when rest reaches 0, or after `SLEEP_HOURS` if that comes first, and the dwarf wakes with rest 0, so a dwarf whose walk to bed is long can reach it rested, lie down and get up at once.
-- Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. Emits `Slept { id, bedQuality, roomTier, onFloor }`.
+- Schedule: each dwarf has `sleepStartHour` (uniformly 20–23 from 10's rng stream) and goes to bed at that hour unless rest is below 20. Rest at its want threshold outside the window also sends the dwarf to bed. Rest falls at the sleeping rate from the moment the dwarf sets off for its bed (or the floor it will sleep on), the walk included: the walk to bed is part of resting. A sleep ends when rest reaches 0, or after `SLEEP_HOURS` × 100 / `rest` hours if that comes first, and the dwarf wakes with rest 0, so a dwarf whose walk to bed is long can reach it rested, lie down and get up at once.
+- **Beds rest differently.** Every building tagged `sleep` has a `rest` percent (`buildings-and-furniture.md`; 14 § Beds): `pallet` and `straw_pallet` 60, `stone_bed` 75, `bed` 100, and a made-up bed `MADE_UP_REST_PERCENT` (125). Sleeping on the floor rests at `FLOOR_REST_PERCENT`, below every bed, so a pallet is worth laying. On the sleep errand rest falls by `15 × rest / 100` an hour (§ Needs), read live from the bed the dwarf holds (`buildings.restPercent`) or the floor. So a dwarf on the floor sleeps twice as long as one in a bed, one on a pallet about two thirds longer, and one in a made-up bed a fifth less.
+- Bed search: own bed (assigned bedroom), else any unassigned free bed, else the floor of the hearth hall, else where they stand. A pallet and a stone bed are beds. Emits `Slept { id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType }`: `rest` the percent slept at, `bedding` what the bed was made up with (`none`, `soft`, `feather`: 14's `buildings.bedding`), `bedType` the bed's building type ('' on the floor). 15's thoughts: `slept_on_a_pallet` for a pallet, `slept_in_a_soft_bed` for a bed made up with bedding and a pillow, `slept_in_a_featherbed` in place of the soft one for a featherbed; a bed with bedding and no pillow rests at 125 and gives no bedding thought, and a stone bed gives none.
 - A built bed holds one dwarf. Choosing it for sleep holds it immediately, during the walk and sleep, until the dwarf wakes, abandons the activity or dies. The saved rest activity's `itemId` is the bed id (0 for floor sleep); loading preserves the hold. Bed availability is live, not cached with room geometry. An own bed held by another dwarf is unavailable too; another free unassigned bed or the floor is the fallback. A patient holds its assigned bed under 17's rule, so a tired medic never chooses it.
 - Sleep is interrupted by `danger`-severity events nearby and by hearth alert.
 - A soldier on duty who walks to a bed or sleeps is serving a need: in every squad mode, 16's squad code neither moves it nor gives it a target until it is back on duty (16 § Squads).
@@ -186,7 +187,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Events emitted
 
-`ItemReleased { itemId, jobId: dwarfId }`, `MealEaten` (with `seasoned`, the meal's seasonings, when it has any), `DrankAlcohol`, `DrankWater`, `DrankFromPlant { id, material }`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
+`ItemReleased { itemId, jobId: dwarfId }`, `MealEaten` (with `seasoned`, the meal's seasonings, when it has any), `DrankAlcohol`, `DrankWater`, `DrankFromPlant { id, material }`, `Slept { id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType }` (§ Sleeping), `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
 
 ### Registrations
 
@@ -209,7 +210,8 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `DEHYDRATE_DAYS` | 3 | *unmeasured* |
 | `EAT_TICKS` | 60 | |
 | `DRINK_TICKS` | 40 | |
-| `SLEEP_HOURS` | 7 | Longest sleep. Rest falls 15 an hour asleep from at most 100, so a sleep ends at rest 0 within 6.7 hours and this limit is not reached; measured, none of 3,363 sleeps reached it ([sleep](../../reports/audits/2026-10-21-sleep-hours.md)) |
+| `SLEEP_HOURS` | 7 | Longest sleep on a bed of 100; on a bed of `rest`, × 100 / `rest`. Rest falls 15 × `rest` / 100 an hour asleep from at most 100, so a sleep ends at rest 0 within 6.7 × 100 / `rest` hours and this limit is not reached; measured, none of 3,363 sleeps reached it ([sleep](../../reports/audits/2026-10-21-sleep-hours.md)), and the measurement of the beds' rest ([beds](../../reports/audits/2026-11-14-beds-rest.md)) |
+| `FLOOR_REST_PERCENT` | 50 | The percent sleeping on the floor rests at, below every bed's (*unmeasured*; the sleep audit before and after: [beds](../../reports/audits/2026-11-14-beds-rest.md)) |
 | `TALK_TICKS` | 80 | |
 | `TALK_CHECK_TICKS` | 10 | Ticks between two scans that start, check and end talks in passing (*unmeasured*) |
 | `SOCIAL_WAIT_TICKS` | 200 | A social errand waits this long for a partner (*unmeasured*) |
@@ -251,15 +253,6 @@ Need rates and thresholds above follow the balance model; the consumption arithm
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
 
-### Beds rest differently (T-551)
-
-- Every building tagged `sleep` has a `rest` percent (`buildings-and-furniture.md`): `pallet` and `straw_pallet` 60, `stone_bed` 75, `bed` 100, and a made-up bed (14 § Planned, Dressed beds) 125. Sleeping on the floor rests at `FLOOR_REST_PERCENT`.
-- On the sleep errand, rest falls by `15 × rest / 100` an hour (§ Needs: −15 an hour on a bed of 100), from the moment the dwarf sets off, for the bed it holds or the floor. A sleep ends when rest reaches 0, or after `SLEEP_HOURS × 100 / rest` hours if that comes first, and the dwarf wakes with rest 0 either way. So a dwarf on a pallet sleeps about two thirds longer and works less, and one in a made-up bed sleeps a quarter less of the day.
-- `Slept { id, bedQuality, roomTier, onFloor }` gains `rest` (the percent slept at) and `bedding` (`none`, `soft`, `feather`). 15's thoughts: `slept_on_a_pallet` for a pallet, `slept_in_a_soft_bed` for a made-up bed, `slept_in_a_featherbed` for a featherbed in place of the soft one; a bed with bedding and no pillow rests at 125 and gives no bedding thought. A stone bed gives none.
-- The audit of `SLEEP_HOURS` (its 3,363 sleeps) was taken on beds of 100: the task measures again.
-- Constants: `FLOOR_REST_PERCENT` 50 (below every bed, so a pallet is worth laying; a floor sleeper sleeps twice as long as one in a bed, and the sleep audit measures it before and after). Save: the rest activity keeps the bed id, and the percent is read live from the bed.
-- Bed search is unchanged: own bed, any free unassigned bed, the hearth hall's floor. A pallet is a bed.
-
 ### Tipsy (T-554)
 
 - A dwarf who drinks a drink of the `drink/spirits` group is tipsy for `TIPSY_TICKS`: its walking speed and its work rate are × (100 − `TIPSY_SLOW_PERCENT`) / 100, and a talk relieves its social need twice over (−80, a friend −120). `dwarves.productivity(id)` includes it, and the movement formula of § Movement gains the factor. A second drink while tipsy restarts the time; it does not stack.
@@ -274,6 +267,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### Feasts, mugs and the Thane's whim (T-565)
 
 - **Feast.** A `feast` (`food/meal/feast`, a stack of `FEAST_SERVINGS` servings, rot one day) is food. The food search takes a feast serving before any other meal. A dwarf who eats one emits `MealEaten` with `feast: true`: thought `feasted`. The kitchen's `cook_feast` (12) emits `ItemCrafted` for it: everyone gets `held_a_feast`.
-- **Mugs.** A dining seat (a chair beside a table) whose table holds a mug for it (14 § Planned, Building wants: a table wants one mug per adjacent chair) gives a dwarf who eats there `drank_from_a_mug` (`MealEaten` gains `mug: true`).
+- **Mugs.** A dining seat (a chair beside a table) whose table holds a mug for it (14 § Building wants: a table wants one mug per adjacent chair) gives a dwarf who eats there `drank_from_a_mug` (`MealEaten` gains `mug: true`).
 - **The Thane's whim.** On each `SeasonChanged`, if the fortress has a Thane, this system draws one whim from `whims` (`personality-and-thoughts.md` § Planned rows, Whims) on its own stream (`rngFor('10.whims')`), among the rows whose `possible` test holds (the item or building exists in the content, and the fortress has the workshop that makes it or the item in stock). It is announced as a note ("Ketil Ironvein, Thane, wishes for a lantern in the dining hall by the end of the season." `announce.thane_whim`). On the next `SeasonChanged` it is judged before the next draw: met (a `stock` whim: at least `count` of the item type, of the material when one is named, in stock; a `room` whim: a built building of the type inside a room of the type) → everyone `thane_pleased`; missed → the Thane `thane_grumbled`, and nobody else anything. A whim never spirals: no other thought, no sulk, no mood cascade.
 - Constants: `FEAST_SERVINGS` 20. Events: `WhimSet { thaneId, whimId }`, `WhimJudged { whimId, met }`. Save: `whim: { id, setTick } | null`. UI: the units panel's Thane line shows the whim and whether it is met now.

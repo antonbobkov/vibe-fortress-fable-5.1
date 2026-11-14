@@ -15,10 +15,13 @@ import { TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import { entityIndex, type EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { ItemsApi, SpatialWriter } from '@core/system';
-import type { EntityId, Quality, TileIndex } from '@core/types';
+import type { EntityId, Idx, Quality, TileIndex } from '@core/types';
 import { StockCounts, isAvailable, type Contribution } from './counts';
 import type { ItemFacts } from './facts';
 import { itemValue } from './value';
+
+/** 13 § Value: the stuffing that makes a featherbed (`items.md` § Furniture, `stuffed`). */
+const FEATHER_STUFFING = 'feather';
 
 export interface ItemHost {
   readonly map: Map3D;
@@ -359,7 +362,9 @@ export class ItemCore implements ItemsApi {
 
   valueOf(it: Item): number {
     const row = this.host.facts.row(it.type);
-    const base = itemValue(this.host.facts.materialValue(it.material), row.mult, it.quality, row.quality, it.count);
+    // 13 § Value: a stuffed item stuffed with feathers (a featherbed's bedding and pillow) is worth its type's `mult` × 2.
+    const mult = it.stuffing !== undefined && this.host.facts.materialIdOf(it.stuffing) === FEATHER_STUFFING ? row.mult * 2 : row.mult;
+    const base = itemValue(this.host.facts.materialValue(it.material), mult, it.quality, row.quality, it.count);
     return it.enchant === undefined ? base : base + this.host.facts.enchantValue(it.enchant.id, it.count);
   }
 
@@ -645,6 +650,7 @@ export class ItemCore implements ItemsApi {
       x.quality === y.quality &&
       x.stone === y.stone &&
       (x.seasoned ?? []).join(',') === (y.seasoned ?? []).join(',') &&
+      x.stuffing === y.stuffing &&
       x.enchant?.id === y.enchant?.id &&
       x.enchant?.tier === y.enchant?.tier &&
       x.flags === y.flags &&
@@ -797,6 +803,15 @@ export class ItemCore implements ItemsApi {
    * `items.setEnchant(itemId, enchant)`: the stone a runesmith set (`25` § Setting stones). The value
    * and the wealth are re-accounted, as every mutation is.
    */
+  /**
+   * `items.setStuffing(itemId, material)`: a `stuffed` item's stuffing (`12` § Operation); the value
+   * and the wealth are re-accounted, as every mutation is (feathers double it, 13 § Value).
+   */
+  setStuffing(itemId: EntityId, material: number): void {
+    if (!this.isItem(itemId) || material === 0) return;
+    this.mutate(itemId, { stuffing: material as Idx<'MaterialDef'> });
+  }
+
   setEnchant(itemId: EntityId, enchant: ItemEnchant): void {
     if (!this.isItem(itemId)) return;
     this.mutate(itemId, { enchant: { id: enchant.id, tier: enchant.tier } });

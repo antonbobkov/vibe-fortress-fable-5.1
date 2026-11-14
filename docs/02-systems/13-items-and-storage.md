@@ -29,7 +29,7 @@ stone/     raw  block  gem_rough  gem_cut  soil  fossil
 ore/
 wood/      log  block
 bar/       metal  coal  charcoal
-furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part
+furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow
 container/ barrel  bag  bin  bucket
 weapon/    melee  ranged
 ammo/
@@ -48,7 +48,7 @@ Stockpile filters select any node; selecting a node selects its subtree. Materia
 
 An item that does not come from the fortress (a hostile's gear, its corpse, what it drops) carries the `foreign` flag (`ItemFlag.Foreign`). The flag survives splitting, dropping and rot, and a creature whose death is still queued when the game is saved keeps the origin of what it holds. A foreign item is in no stock count and adds nothing to wealth. The flag is cleared, and the item counted, when a fortress dwarf picks it up (a container's contents with it) or when the `strip_corpse` job that recovers it completes.
 
-`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. An enchanted item (25 § Setting stones) adds `stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, from its `enchants` row; a gem stone's and a metal's value is its material's (a cut gem, a bar), and an item stone's is one unit of that item in the material that shares its id (a wyrmscale 80, a hollow ichor 60, a spider venom 20, an ember gland 25). Enchanted ammunition carries it per unit, `round(enchant value / 25)` whole marks a unit times the count, so value is linear in the count and a split or a merge never changes wealth: a set of 25 bolts of embers carries 25 × round(96 / 25) = 100. A masterwork steel breastplate is 4,000; set adamant, 4,000 + 90 × 3 + 12 × 15 = 4,450. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
+`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. An enchanted item (25 § Setting stones) adds `stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, from its `enchants` row; a gem stone's and a metal's value is its material's (a cut gem, a bar), and an item stone's is one unit of that item in the material that shares its id (a wyrmscale 80, a hollow ichor 60, a spider venom 20, an ember gland 25). Enchanted ammunition carries it per unit, `round(enchant value / 25)` whole marks a unit times the count, so value is linear in the count and a split or a merge never changes wealth: a set of 25 bolts of embers carries 25 × round(96 / 25) = 100. A masterwork steel breastplate is 4,000; set adamant, 4,000 + 90 × 3 + 12 × 15 = 4,450. A `stuffed` item whose stuffing (`Item.stuffing`, 12 § Operation) is `feather` takes its type's multiplier twice over: a featherbed's bedding and pillow are worth double. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
 
 Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress faction), `−value` on `ItemDestroyed`, `±` on quality change (none in version 1) and on a set stone (`items.setEnchant`), `+` when a hostile's loot is recovered, `−` when a thief escapes, plus building values from 14 (`BuildingCompleted` adds its material value plus a per-type bonus; `BuildingRemoved` subtracts). `WealthChanged` is emitted at the items cadence when the cached value differs from the last emitted by more than `WEALTH_EVENT_STEP`.
 
@@ -100,6 +100,15 @@ Maintained incrementally, sorted by item id:
 - Barrels, bags and buckets count units; bins and chests count items. An item container never goes inside another item container. The wagon’s building container can hold item containers; everything held in it resolves to its centre and is found and unloaded as on the ground. A container is hauled with its contents. A destroyed container leaves its contents on its tile (a built chest's on its furniture's tile); a container that leaves the map with its holder, as a thief's escaped loot (18), takes its contents with it, and they are destroyed with the container's reason.
 - Items in containers are visible in the stocks panel and are found by `findItem`; taking one out is part of the fetch step (11).
 - A hospital's built chest is a container on a tile nobody stands on. What lies in it is on the chest's tile; the chest's own linked item stays `installed`. A hauler fills it, and a worker takes from it, standing on a walkable tile beside it: the haul job's work tile is `adjacent` to the chest, and the connectivity check of `findItem` accepts an item in a container on an unwalkable tile when a tile beside it has the searcher's label.
+
+### Buildings that want items
+
+A building row may have `wants` (`buildings-and-furniture.md`): item matches with counts (a bed: 1 `bedding` and 1 `pillow`). A built building with wants is a slot for those items, as a hospital's chest is for its supplies (14 § Building wants).
+
+- At the items tick, before the stockpile hauls and within `HAUL_JOBS_PER_TICK`, each built building with wants (14's `buildings.withWants()`, ascending), for each want not met by the items it holds and those on their way, gets a `haul_to_stockpile` job (labor `hauling`, priority `HAUL_PRIORITY`, keyed by the item as any haul is) for the nearest available item that answers it (§ Searching, from the building's tile), worked from a tile beside the building; the job's `data.holder` names the building. An item that has a haul job already is passed over. A want is looked at only while an item of its types is available, and what is on its way is read from the haul jobs only then.
+- On delivery the item is *held* by the building (`Building.held`, 14): flagged `installed`, off every search and count of available stock, still in the totals and in wealth. If the building is gone, not built, or has meanwhile been given as many as it wants, the item stays where it was brought and finds another home.
+- A held item leaves the building only when the player takes it out (`ReleaseHeld { buildingId }`, which releases every held item to the building's tile) or when the building is taken apart or removed (its held items drop on its tile, unflagged). Later rows that consume what they hold say so.
+- No new job type: the haul is `haul_to_stockpile`. Save: `Building.held` (14); the wants are content.
 
 ### Forbid, dump, melt, claim
 
@@ -178,7 +187,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Item API (mutation, called by 11, 12, 10, 14, 16, 20)
 
-`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `setEnchant(itemId, { id, tier })` (12's setting of a stone; value and wealth are re-accounted), `setOccupant(itemId, creatureId)` (the creature a cage holds, 0 when released), `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation).
+`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `setEnchant(itemId, { id, tier })` (12's setting of a stone; value and wealth are re-accounted), `setStuffing(itemId, material)` (12's record of a `stuffed` item's stuffing; value and wealth are re-accounted), `setOccupant(itemId, creatureId)` (the creature a cage holds, 0 when released), `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation).
 
 ### Commands
 
@@ -247,7 +256,7 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 food/      meat/cured (T-552)  fish/cured (T-552)  honey honeycomb wax (T-555)  meal/feast (T-565)
 drink/     spirits gets its first material (T-554)
 bar/       peat  dung (T-552)
-furniture/ stone_bed  bedding  pillow (T-551)  lantern (T-563)  beehive (T-555)
+furniture/ lantern (T-563)  beehive (T-555)
 container/ pot (T-553)  basket (T-549)
 medical/   soap (T-564)
 tool/      candle (T-563)  firebrand (T-559)
@@ -279,13 +288,6 @@ The new top node `farm/` gets the stockpile preset Farm goods (`farm`). The Food
 An item of material class `ice` (a `stone_block` of `ice`, cut by `harvest_ice`) melts: it rots on the rot queue with `ICE_MELT_DAYS` in place of its type's `rotDays`, with every speed factor of § Rot (stopped below `FREEZE_C`, so it keeps outdoors in winter and in an ice larder), and at 100% it is destroyed (`ItemDestroyed { reason: 'melted' }`) with no stale or rotting stage and no miasma. Ice blocks are cut in winter and used in winter.
 
 - Constants: `ICE_MELT_DAYS` 7.
-
-### Buildings that want items (T-551)
-
-- A building row may have `wants` (`buildings-and-furniture.md`): a list of item matches with counts (a bed: 1 `bedding` and 1 `pillow`; a drying rack: `RACK_CAPACITY` units of what its setting dries; a candle stand: `STAND_CANDLES` candles; a dining table: 1 `mug` per adjacent chair). A built building with wants is a slot for those items, as a hospital's chest is for its supplies: the items tick finds the nearest available item that matches a want not yet met (counting the items already held and those on their way) and makes a `haul_to_stockpile` job to the building, worked from a tile beside it (the chest rule of § Containers in play). On delivery the item is *held* by the building (`Building.held`, 14): flagged `installed`, off every search and count of available stock, still in the totals and in wealth.
-- A held item leaves the building only when 14 consumes it (a rack's dried item becomes its dried form and is released; a stand's candle burns out), when the player takes it out (`ReleaseHeld { buildingId }`, which releases every held item to the building's tile), or when the building is removed (its held items drop on its tile, unflagged).
-- No new job type: the haul is `haul_to_stockpile`, labor `hauling`.
-- Save: `Building.held` (14); the wants are content.
 
 ### The compost heap (T-564)
 

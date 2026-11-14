@@ -3,11 +3,11 @@
  * arrays returned are fresh copies; entity references are ids.
  */
 
-import type { Building, Room } from '@core/components';
+import { C, type Building, type Room } from '@core/components';
 import { TileFlag } from '@core/map3d';
 import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
-import type { BuildingRow, BuildingStore } from './build';
+import type { Bedding, BuildingRow, BuildingStore, WantView } from './build';
 import type { RoomStore, RoomScore, RoomDiagnostics } from './rooms';
 import type { ZoneStore } from './zones';
 
@@ -109,10 +109,23 @@ export interface BuildingsReader {
   hearth(): EntityId;
   /** A building's contribution to wealth when built (`materialValue + valueBonus`). */
   value(id: EntityId): number;
+  /** `buildings.wants(id)`: each want of a built building with its count held and on its way (14 § Building wants); [] for none. */
+  wants(id: EntityId): WantView[];
+  /** The items a building holds (`Building.held`), living ones only. */
+  held(id: EntityId): EntityId[];
+  /** Built buildings whose type has wants, ascending id. */
+  withWants(): EntityId[];
+  /** `buildings.restPercent(id)`: the percent a built `sleep` building rests at (125 made up), 0 for anything else (14 § Beds). */
+  restPercent(id: EntityId): number;
+  /** `buildings.bedding(id)`: `none`, `soft` or `feather` (14 § Beds). */
+  bedding(id: EntityId): Bedding;
 }
 
 export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: RoomStore,
-  memorialEligible: (id: EntityId) => boolean = () => false): BuildingsReader {
+  memorialEligible: (id: EntityId) => boolean = () => false,
+  /** The items on their way to a building that holds items (13's hauls to it). */
+  coming: (id: EntityId) => readonly EntityId[] = () => []): BuildingsReader {
+  let wantsCache: { revision: number; ids: EntityId[] } | null = null;
   const view = (id: EntityId): ZoneView | undefined => {
     const z = zones.zone(id);
     if (z === undefined) return undefined;
@@ -204,5 +217,25 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
       const b = buildings.get(id);
       return b === undefined || b.state !== 'built' ? 0 : buildings.valueOf(b);
     },
+    wants: (id) => {
+      const on = coming(id);
+      return buildings.wants(id, (match) => on.filter((it) => buildings.answers(it, match)).length);
+    },
+    held: (id) => {
+      const b = buildings.get(id);
+      return b === undefined ? [] : buildings.heldOf(b);
+    },
+    withWants: () => {
+      const revision = buildings.host.entities.revision(C.Building);
+      if (wantsCache === null || wantsCache.revision !== revision) {
+        wantsCache = { revision, ids: buildings.all().filter((id) => {
+          const b = buildings.get(id) as Building;
+          return b.state === 'built' && (buildings.row(b.type).wants?.length ?? 0) > 0;
+        }).sort((a, b) => a - b) };
+      }
+      return wantsCache.ids.slice();
+    },
+    restPercent: (id) => buildings.restPercent(id),
+    bedding: (id) => buildings.bedding(id),
   };
 }

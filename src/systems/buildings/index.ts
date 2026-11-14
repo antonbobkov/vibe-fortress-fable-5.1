@@ -29,7 +29,7 @@ import { LINK_DELAY_TICKS } from './constants';
 import type { Job } from '@systems/jobs';
 
 export { ZoneStore, settingKey, type ZoneTypeRow } from './zones';
-export { BuildingStore, buildKey, deconstructKey, type BuildingRow } from './build';
+export { BuildingStore, buildKey, deconstructKey, linksItem, type Bedding, type BuildingRow, type WantView } from './build';
 export { CONSTRUCTION_KIND, onRuleOf, onRuleHolds, type OnRule } from './constructions';
 export { RoomStore, ROOM_TYPES, type RoomScore, type RoomDiagnostics } from './rooms';
 export type { BuildingsReader, ZoneView, BuildingView } from './reader';
@@ -72,6 +72,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'SetPlateTrigger',
     'ReleaseCage',
     'AssignCoffin',
+    'ReleaseHeld',
   ];
   readonly pendingToggles: { id: EntityId; on: boolean; atTick: number }[] = [];
 
@@ -184,7 +185,12 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     store.onFootprintChanged = (tiles) => rooms.markTiles(tiles);
     this.zones.onChange = (zoneId, typeId, change) => rooms.onZoneChanged(zoneId, typeId, change);
     this.rng = ctx.rng;
-    this.readerRef = makeReader(this.zones, store, this.roomsRef, (id) => burial.eligible(id));
+    this.readerRef = makeReader(this.zones, store, this.roomsRef, (id) => burial.eligible(id), (id) => {
+      // 13's hauls to a building that holds items name it as `holder` (14 § Building wants).
+      if (!readers.has('11')) return [];
+      return readers.of<{ list(): readonly { readonly target: { readonly ref: number }; readonly data: Readonly<Record<string, unknown>> }[] }>('11').list()
+        .filter((job) => job.data['holder'] === id).map((job) => job.target.ref);
+    });
   }
 
   override handle(event: GameEvent, _ctx: TickContext): void {
@@ -280,6 +286,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       SetPlateTrigger: () => buildings.setPlateTrigger(cmd),
       ReleaseCage: () => buildings.releaseCage(cmd),
       AssignCoffin: () => this.burial.assign(cmd, _ctx),
+      ReleaseHeld: () => buildings.releaseHeld(cmd),
     };
     const handler = handlers[cmd.type];
     return handler === undefined ? reject('not_found') : handler();
