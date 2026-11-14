@@ -9,12 +9,11 @@
  * (dead, or fled off its edge) or no fighter of the squad stands, or after `FIGHT_TICKS`; then a day
  * passes with no medic, and the dead are counted.
  *
- * Squads (`steel` is the owner's; `copper` the weak one that should still find them dangerous):
- *  - five soldiers, axe, shield, helm, mail shirt and greaves of the squad's metal;
- *  - three marksdwarves in a ranged squad of their own at the same station, helm, mail shirt and
- *    greaves of the squad's metal, an oak crossbow and 25 bolts of the squad's metal;
- *  - one runecaster in the soldiers' squad, in a tunic, rune 50, an iron staff of embers.
- * `steel` is Proficient (10) in every skill it uses; `copper` Novice (2).
+ * Squads (`SQUADS`): the owner's (`steel`) is five soldiers with axe, shield, helm, mail shirt and
+ * greaves; three marksdwarves in a ranged squad of their own at the same station, in helm, mail
+ * shirt and greaves, with an oak crossbow and 25 bolts; and a runecaster in the soldiers' squad, in
+ * helm, mail shirt and greaves, rune 50, with an iron staff of embers; all Proficient (10), all
+ * metal steel. The others are weaker, to show the animals are still dangerous to them.
  *
  * Foes: `pack`, the largest wolf group a spawn draws (the row's group maximum, 6); `bear`, one bear;
  * `beast-pack` and `beast-bears`, the groups `beastwood` doubles (12 wolves, 2 bears; 08 § Wild
@@ -44,8 +43,9 @@ interface SquadSpec {
 /**
  * `steel`: the owner's squad, everyone in steel, the caster too. `steel-tunic`: the same with the
  * caster in its tunic, as the caster arenas field one (T-470). `copper`: the same squad at Novice in
- * copper. `iron3`: the three-year script's squad, three Novices with iron short swords, shields and
- * mail shirts (`three_years_economy.ts` SQUAD_KIT).
+ * copper. `iron3`: the three-year script's squad once its kit is forged, three Novices with iron
+ * short swords, shields and mail shirts (`three_years_economy.ts` SQUAD_KIT); `iron3-full`: the same
+ * with the iron helms and greaves its forge makes next, armed in metal (`three_years_fortress.ts`).
  */
 export const SQUADS: Record<ArenaSquad, SquadSpec> = {
   'steel': { level: 10, metal: 'steel', soldiers: 5, weapon: 'axe', weaponSkill: 'axe', fullKit: true, marks: 3, caster: 'armoured' },
