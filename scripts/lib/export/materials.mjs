@@ -60,6 +60,9 @@ function material(row, extra) {
   };
   const merged = { ...base, ...extra };
   if (SHARPNESS_BY_CLASS[merged.class] !== undefined) merged.sharpness = SHARPNESS_BY_CLASS[merged.class];
+  // materials.md § Wood: a row may name its own, "weapons and bolts at 0.60 (sharpness)".
+  const ownSharpness = /at\s+(\d\.\d+)\s*\(sharpness\)/.exec(plain(row.notes));
+  if (ownSharpness !== null) merged.sharpness = Math.round(Number(ownSharpness[1]) * 1000);
   const tags = tagsFromNotes(row.notes);
   const mid = plain(row.id);
   if (['limestone', 'dolomite', 'marble', 'chalk'].includes(mid) && !tags.includes('flux')) tags.push('flux');
@@ -144,8 +147,11 @@ export function exportMaterials() {
     ['rootwine', 'rootwine', 3, 'root_amber'],
     ['strawberry_wine', 'strawberry wine', 4, 'berry_red'],
     ['hopped_ale', 'hopped ale', 3, 'hops_green'],
+    ['black_ale', 'black ale', 3, 'rye_gold'],
+    ['cactus_wine', 'cactus wine', 3, 'cactus_green'],
+    ['emberwine', 'emberwine', 6, 'wyrmtongue_red'],
   ];
-  const WINES = new Set(['bellwine', 'rootwine', 'strawberry_wine']);
+  const WINES = new Set(['bellwine', 'rootwine', 'strawberry_wine', 'cactus_wine', 'emberwine']);
   for (const [did, dname, dvalue, dcolor] of drinks) {
     out.push(
       compact({

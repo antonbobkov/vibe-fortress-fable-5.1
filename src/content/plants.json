@@ -66,8 +66,59 @@
       "item": "flour",
       "count": 1
     },
+    "straw": 1,
     "glyph": "\"",
     "fg": "barley_gold"
+  },
+  {
+    "id": "barrel_cactus",
+    "name": "barrel cactus",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "cactus_pulp",
+    "value": 1,
+    "edible": true,
+    "cookable": true,
+    "secondary": {
+      "item": "fiber",
+      "material": "cactus_fiber",
+      "count": 1
+    },
+    "regrowDays": 28,
+    "wildSeedPermille": 0,
+    "graze": true,
+    "materialTags": [
+      "drinkable"
+    ],
+    "convert": {
+      "tiles": [
+        {
+          "tile": "sand",
+          "permille": 15
+        },
+        {
+          "tile": "shrub",
+          "permille": 15
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "desert"
+        },
+        {
+          "biome": "badlands"
+        }
+      ]
+    },
+    "glyph": "\"",
+    "fg": "cactus_green"
   },
   {
     "id": "birch",
@@ -236,6 +287,7 @@
       "item": "flour",
       "count": 1
     },
+    "straw": 1,
     "glyph": "\"",
     "fg": "cavewheat_pale"
   },
@@ -460,6 +512,44 @@
     "fg": "hops_green"
   },
   {
+    "id": "ironwood",
+    "name": "ironwood",
+    "kind": "tree",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "value": 6,
+    "edible": false,
+    "cookable": false,
+    "logs": [
+      1,
+      2
+    ],
+    "saplingYears": 5,
+    "yieldItem": "log",
+    "yieldMaterial": "ironwood",
+    "convert": {
+      "tiles": [
+        {
+          "tile": "tree",
+          "permille": 0
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "dark_forest",
+          "permille": 60
+        },
+        {
+          "biome": "temperate_forest",
+          "permille": 30
+        }
+      ]
+    },
+    "glyph": "♣",
+    "fg": "ironwood_dark"
+  },
+  {
     "id": "maple",
     "name": "maple",
     "kind": "tree",
@@ -488,6 +578,30 @@
     ],
     "glyph": "♣",
     "fg": "maple_amber"
+  },
+  {
+    "id": "nettle",
+    "name": "nettle",
+    "kind": "crop",
+    "stageDays": 5,
+    "seasons": [
+      0,
+      1
+    ],
+    "light": "sun",
+    "minC": 4,
+    "maxC": 28,
+    "yield": [
+      2,
+      3
+    ],
+    "yieldItem": "fiber",
+    "yieldMaterial": "nettle_fiber",
+    "value": 1,
+    "edible": false,
+    "cookable": false,
+    "glyph": "\"",
+    "fg": "nettle_green"
   },
   {
     "id": "nutbush",
@@ -706,6 +820,126 @@
     "cookable": true,
     "glyph": "\"",
     "fg": "pumpkin_orange"
+  },
+  {
+    "id": "reed_bed",
+    "name": "reed bed",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "reed",
+    "yieldMaterial": "reed",
+    "value": 1,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 14,
+    "wildSeedPermille": 0,
+    "convert": {
+      "tiles": [
+        {
+          "tile": "near_water",
+          "permille": 150
+        },
+        {
+          "tile": "shallow",
+          "permille": 150
+        }
+      ],
+      "any": true,
+      "biomes": [
+        {
+          "biome": "wetland",
+          "times": 3
+        }
+      ]
+    },
+    "glyph": "\"",
+    "fg": "reed_green"
+  },
+  {
+    "id": "rock_lichen",
+    "name": "rock lichen",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      1
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "lichen",
+    "value": 1,
+    "edible": true,
+    "cookable": false,
+    "regrowDays": 56,
+    "wildSeedPermille": 0,
+    "graze": true,
+    "convert": {
+      "tiles": [
+        {
+          "tile": "rock",
+          "permille": 80
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "tundra"
+        },
+        {
+          "biome": "alpine"
+        },
+        {
+          "biome": "mountain"
+        },
+        {
+          "biome": "glacier"
+        },
+        {
+          "biome": "taiga"
+        },
+        {
+          "biome": "cold_steppe"
+        }
+      ]
+    },
+    "glyph": "\"",
+    "fg": "lichen_orange"
+  },
+  {
+    "id": "rye",
+    "name": "rye",
+    "kind": "crop",
+    "stageDays": 6,
+    "seasons": [
+      0,
+      1,
+      2
+    ],
+    "light": "sun",
+    "minC": -2,
+    "maxC": 26,
+    "yield": [
+      2,
+      4
+    ],
+    "yieldItem": "plant_food",
+    "value": 1,
+    "edible": false,
+    "cookable": true,
+    "brew": "black_ale",
+    "secondary": {
+      "item": "flour",
+      "count": 1
+    },
+    "straw": 1,
+    "glyph": "\"",
+    "fg": "rye_gold"
   },
   {
     "id": "sporecloth",
@@ -1043,6 +1277,101 @@
     "fg": "flax_straw"
   },
   {
+    "id": "wild_nettle",
+    "name": "wild nettle",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "fiber",
+    "yieldMaterial": "nettle_fiber",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 300,
+    "seedOf": "nettle",
+    "tags": [
+      "stings"
+    ],
+    "convert": {
+      "tiles": [
+        {
+          "tile": "shrub",
+          "permille": 120
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "temperate_forest"
+        },
+        {
+          "biome": "temperate_hills"
+        },
+        {
+          "biome": "dark_forest"
+        },
+        {
+          "biome": "wetland"
+        }
+      ]
+    },
+    "glyph": "\"",
+    "fg": "nettle_green"
+  },
+  {
+    "id": "wild_rye",
+    "name": "wild rye",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "rye",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 300,
+    "seedOf": "rye",
+    "convert": {
+      "tiles": [
+        {
+          "tile": "shrub",
+          "permille": 150
+        },
+        {
+          "tile": "grass",
+          "permille": 5
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "taiga"
+        },
+        {
+          "biome": "tundra"
+        },
+        {
+          "biome": "cold_steppe"
+        },
+        {
+          "biome": "alpine"
+        }
+      ]
+    },
+    "glyph": "\"",
+    "fg": "rye_gold"
+  },
+  {
     "id": "wild_strawberry",
     "name": "wild strawberry",
     "kind": "shrub",
@@ -1079,6 +1408,37 @@
     "fg": "berry_red"
   },
   {
+    "id": "wild_wyrmtongue",
+    "name": "wild wyrmtongue",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      1,
+      2
+    ],
+    "yieldItem": "plant_food",
+    "yieldMaterial": "wyrmtongue",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 300,
+    "seedOf": "wyrmtongue",
+    "convert": {
+      "tiles": [
+        {
+          "tile": "ash_soil",
+          "permille": 30
+        }
+      ],
+      "any": true
+    },
+    "glyph": "\"",
+    "fg": "wyrmtongue_red"
+  },
+  {
     "id": "willow",
     "name": "willow",
     "kind": "tree",
@@ -1107,6 +1467,37 @@
     ],
     "glyph": "♣",
     "fg": "willow_green"
+  },
+  {
+    "id": "wyrmtongue",
+    "name": "wyrmtongue",
+    "kind": "crop",
+    "stageDays": 6,
+    "seasons": [
+      0,
+      1,
+      2
+    ],
+    "light": "any",
+    "minC": 4,
+    "maxC": 45,
+    "yield": [
+      2,
+      3
+    ],
+    "yieldItem": "plant_food",
+    "value": 8,
+    "edible": false,
+    "cookable": true,
+    "brew": "emberwine",
+    "tags": [
+      "ash"
+    ],
+    "materialTags": [
+      "seasoning"
+    ],
+    "glyph": "\"",
+    "fg": "wyrmtongue_red"
   },
   {
     "id": "yew",

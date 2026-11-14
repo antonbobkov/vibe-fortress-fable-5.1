@@ -31,6 +31,8 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 - 03 owns the `gather` designation and job. This system adds the `gather` zone type: each `DayPassed`, every mature shrub inside a gather zone without a designation gets a `gather` designation at the zone's priority.
 - Gathering wild crop species may yield a seed (07).
+- A shrub row with a second product gives it with the first at each gathering: `barrel_cactus` its pulp and its fiber. `reed_bed` yields `reed`.
+- `gather` on a shrub whose row is tagged `stings` (`wild_nettle`) stings the gatherer with `NETTLE_STING_PERMILLE`: `Stung { id, source: nettle }`, and 15 gives `nettles`. The draw is on its own stream, `rngFor('09.stings')`, made only for such a shrub, so a game without nettles draws the same numbers.
 - Brightleaf (the medicine herb) is what hospitals use for infection treatment (17); it is the reason to gather in the woods.
 
 ### Fishing
@@ -80,7 +82,7 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 ### Events emitted
 
-`FishCaught { fisherId, bodyId, species }`, `ButcheryDone { workshopId, species, yields }`, `FishPoolDepleted { bodyId }`. (The hunt events `HuntStarted`, `HuntKill` and `HuntAbandoned` are emitted by 11, which executes this system's hunt jobs; they are listed in 11.)
+`FishCaught { fisherId, bodyId, species }`, `ButcheryDone { workshopId, species, yields }`, `FishPoolDepleted { bodyId }`, `Stung { id, source }` (a gatherer stung by a nettle). (The hunt events `HuntStarted`, `HuntKill` and `HuntAbandoned` are emitted by 11, which executes this system's hunt jobs; they are listed in 11.)
 
 ### Registrations
 
@@ -98,6 +100,7 @@ Job producer `foraging` (`hunt`, `fish`, `butcher`); inspector sections `zone �
 | Name | Value | Meaning |
 |---|---|---|
 | `HUNT_MIN_SIZE` | 10 | Rabbits (size 8) are not hunted by default (*unmeasured*) |
+| `NETTLE_STING_PERMILLE` | 100 | A gatherer of a `stings` shrub is stung (*unmeasured*) |
 | `AMMO_FETCH` | 20 | Bolts a hunter keeps (*unmeasured*) |
 | `HUNT_GIVE_UP_TICKS` | 300 | *unmeasured* |
 | `CARRY_MAX_SIZE` | 100 | Larger corpses are butchered in the field (*unmeasured*) |
@@ -134,12 +137,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - A new content table, `creatures.md` § Butcher parts (in § Planned rows until this task): a species row lists items its corpse yields besides meat, hide, bone, fat, skull and shell, each an item, a material and a count (`yak` 2 `horn` of `horn`; `mammoth` 2 `tusk` of `ivory`; `chicken` 2 `feather` of `feather`; `cave_crawler` 2 `shell_piece` of `chitin`; and the rest of the table). The butcher job spawns them with the other yields; a field-butchered corpse gives them whole (`FIELD_BUTCHER_PERCENT` scales meat, hide, bone and fat only); a rotten corpse gives none of them, only bones.
 - `cave_crawler` becomes butcherable for its parts: it leaves no meat or hide (its monster row has none), so its butcher yield is its bones, its skull and its chitin.
 - `foraging.butcherYields(species)` lists the parts.
-
-### Gathering the new shrubs (T-548)
-
-- `gather` on a shrub row tagged `stings` (`wild_nettle`) stings the gatherer with `NETTLE_STING_PERMILLE`: thought `nettles` (15). The draw is on its own stream, `rngFor('09.stings')`, made only for such a shrub.
-- `gather` on `salt_crust` yields `salt`; on `reed_bed` `reed`; on `barrel_cactus` its pulp and its fiber (the row's product and secondary, both at once). Nothing else changes.
-- Constants: `NETTLE_STING_PERMILLE` 100. Events: `Stung { id }` (the same event 08's hives emit).
 
 ### Gathering webs (T-556)
 

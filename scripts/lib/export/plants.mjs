@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import {
   CONTENT_DIR,
   asObjects,
+  bool,
   byId,
   compact,
   findTable,
@@ -39,11 +40,25 @@ function parseBiomes(cell) {
   return entries.length > 0 ? entries : undefined;
 }
 
+/** plants.md `tags`: row tags, except `seasoning`, which the crop's material carries. */
+const MATERIAL_TAGS = new Set(['seasoning', 'drinkable']);
+
+function rowTags(list) {
+  const tags = list.filter((t) => !MATERIAL_TAGS.has(t));
+  return tags.length > 0 ? tags : undefined;
+}
+
+function materialTags(list) {
+  const tags = list.filter((t) => MATERIAL_TAGS.has(t));
+  return tags.length > 0 ? tags : undefined;
+}
+
 function cropRow(row, kind) {
   const yieldItemCell = plain(row.yieldItem);
   const marks = ticked(row.yieldItem);
   const secondary = ticked(row.secondary);
   const brewIds = ticked(row.brew);
+  const tags = ticked(row.tags);
   return compact({
     id: plain(row.id),
     name: plain(row.name),
@@ -61,7 +76,46 @@ function cropRow(row, kind) {
     cookable: /yes/i.test(plain(row.cookable)),
     brew: brewIds[0],
     secondary: secondary.length > 0 ? { item: secondary[0], count: 1 } : undefined,
+    straw: isBlank(row.straw) ? undefined : int(row.straw),
+    tags: rowTags(tags),
+    materialTags: materialTags(tags),
   });
+}
+
+/**
+ * plants.md § Conversions -> { plant id: convert }. `tiles` is each eligible kind with its
+ * permille; `biomes` limits the pass (absent: every region), each with its own permille or a
+ * multiplier ("`wetland` ×3").
+ */
+function parseConversions(tables) {
+  const out = new Map();
+  for (const row of asObjects(findTable(tables, 'Conversions', 'eligible'))) {
+    const eligible = ticked(row.eligible);
+    const permilleCell = String(row.permille ?? '');
+    const byTile = new Map();
+    for (const m of permilleCell.matchAll(/(\d+)\s*`([a-z_]+)`/g)) byTile.set(m[2], Number(m[1]));
+    const flat = byTile.size === 0 && /\d/.test(permilleCell) ? int(permilleCell) : 0;
+    const biomeCell = plain(row.biomes);
+    const any = /^any\b/.test(biomeCell);
+    const biomes = [];
+    for (const part of String(row.biomes ?? '').split(/[,;]/)) {
+      const name = ticked(part)[0];
+      if (name === undefined) continue;
+      const times = /×\s*(\d+)/.exec(part);
+      const weight = /`\s*(\d+)/.exec(part);
+      biomes.push(compact({
+        biome: name,
+        times: times === null ? undefined : Number(times[1]),
+        permille: weight === null ? undefined : Number(weight[1]),
+      }));
+    }
+    out.set(plain(row.id), compact({
+      tiles: eligible.map((tile) => ({ tile, permille: byTile.get(tile) ?? flat })),
+      any: any ? true : undefined,
+      biomes: biomes.length > 0 ? biomes : undefined,
+    }));
+  }
+  return out;
 }
 
 export function exportPlants() {
@@ -75,6 +129,7 @@ export function exportPlants() {
     out.push({ ...cropRow(row, 'cave_crop'), glyph: glyph(row.glyph), fg: id(row.fg) });
   }
 
+  const conversions = parseConversions(tables);
   const shrubRows = [
     ...asObjects(findTable(tables, 'Wild shrubs', 'regrowDays')),
     ...asObjects(findTable(tables, 'Rare cave patches', 'regrowDays')),
@@ -84,6 +139,9 @@ export function exportPlants() {
     const marks = ticked(row.product);
     const valueMatch = /value\s+(\d+)/.exec(product);
     const brewMatch = /brew\s+`([a-z_]+)`/.exec(product);
+    // "; and 1 `fiber` (`cactus_fiber`)": a second product, given with the first.
+    const second = /and\s+(\d+)\s+`([a-z_]+)`\s*\(`([a-z_]+)`\)/.exec(row.product ?? '');
+    const sid = plain(row.id);
     const caverns = parseCaverns(row['biomes (weight)']);
     const rarePermille = isBlank(row.rarePermille) ? undefined : plain(row.rarePermille).split(/,\s*/).map(Number);
     out.push(
@@ -101,12 +159,17 @@ export function exportPlants() {
         edible: /edible/.test(product),
         cookable: /cookable/.test(product),
         brew: brewMatch === null ? undefined : brewMatch[1],
+        secondary: second === null ? undefined : { item: second[2], material: second[3], count: Number(second[1]) },
         regrowDays: int(row.regrowDays),
         wildSeedPermille: int(row.wildSeedPermille),
         seedOf: id(row['seed of']) ?? undefined,
         biomes: parseBiomes(row['biomes (weight)']),
         caverns,
         rarePermille,
+        graze: bool(row.graze) ? true : undefined,
+        tags: /stings/.test(product) ? ['stings'] : undefined,
+        materialTags: /\bdrinkable\b/.test(product) ? ['drinkable'] : undefined,
+        convert: conversions.get(sid),
         glyph: glyph(row.glyph),
         fg: id(row.fg),
       }),
@@ -145,6 +208,7 @@ export function exportPlants() {
         yieldMaterial: tid,
         biomes,
         caverns,
+        convert: conversions.get(tid),
         glyph: glyph(row.glyph),
         fg: id(row.fg),
       }),

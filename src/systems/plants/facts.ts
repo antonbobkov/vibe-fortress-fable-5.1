@@ -56,6 +56,12 @@ export interface PlantRow {
   readonly caverns?: readonly PlantCavernWeight[];
   /** Permille of cave shrubs a rare patch takes over, by cavern tier. */
   readonly rarePermille?: readonly [number, number, number];
+  /** `straw` items of the crop's material each harvest drops (`plants.md` § Surface crops). */
+  readonly straw?: number;
+  /** `ash`: sown only on an ash tile; `stings`: gathering may sting (09). */
+  readonly tags?: readonly string[];
+  /** A shrub a tame grazer may eat when mature (08 § Grazing shrubs). */
+  readonly graze?: boolean;
   readonly glyph: string;
   readonly fg: string;
 }
@@ -72,6 +78,12 @@ interface RecipeRow {
 /** `07` § Seeds: "always the `seed` item type with the species as material". */
 export const SEED_ITEM = 'seed';
 
+/** `07` § Farm plots: the item a crop row's `straw` count drops. */
+export const STRAW_ITEM = 'straw';
+
+/** `07` § Ash: the floor material that is ash for good. */
+export const ASH_SOIL = 'ash_soil';
+
 export class PlantFacts {
   /** By plant index. */
   private readonly rows: (PlantRow | undefined)[] = [];
@@ -87,6 +99,10 @@ export class PlantFacts {
   private readonly secondaries: ({ item: number; material: number; count: number } | null)[] = [];
   readonly size: number;
   readonly seedItem: number;
+  /** The `straw` item index, or 0. */
+  readonly strawItem: number;
+  /** The `ash_soil` material index, or -1. */
+  readonly ashSoil: number;
 
   constructor(registry: Registry) {
     const plants = registry.table<PlantRow>('plants');
@@ -100,6 +116,8 @@ export class PlantFacts {
     }
     this.size = plants.size;
     this.seedItem = items.has(SEED_ITEM) ? items.index(SEED_ITEM) : 0;
+    this.strawItem = items.has(STRAW_ITEM) ? items.index(STRAW_ITEM) : 0;
+    this.ashSoil = materials.has(ASH_SOIL) ? materials.index(ASH_SOIL) : -1;
     for (let p = 1; p <= plants.size; p += 1) {
       const row = plants.byIndex(p) as PlantRow;
       this.rows[p] = row;
@@ -165,6 +183,16 @@ export class PlantFacts {
   isTree(plant: number): boolean {
     const kind = this.rows[plant]?.kind;
     return kind === 'tree' || kind === 'fungus_tree';
+  }
+
+  /** `07` § Ash: the crop is sown only on an ash tile (wyrmtongue). */
+  ashOnly(plant: number): boolean {
+    return this.rows[plant]?.tags?.includes('ash') === true;
+  }
+
+  /** `07` § Shrubs: a mature shrub of this species feeds a tame grazer. */
+  grazable(plant: number): boolean {
+    return this.rows[plant]?.kind === 'shrub' && this.rows[plant]?.graze === true;
   }
 
   /** `07` § Trees: `saplingYears` from the row, else `SAPLING_YEARS`. */

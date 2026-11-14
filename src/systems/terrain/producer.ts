@@ -83,7 +83,8 @@ export function workCentiTicksFor(kind: Designation, hardness: number): number {
     case Designation.Remove:
       return (DIG_BASE_TICKS * 100) / 2;
     case Designation.Chop:
-      return CHOP_BASE_TICKS * 100;
+      // `CHOP_BASE_TICKS × max(100, hardness)/100` of the tree's wood: ironwood (200) takes twice.
+      return CHOP_BASE_TICKS * Math.max(100, hardness);
     case Designation.Gather:
       return GATHER_BASE_TICKS * 100;
     case Designation.None:
@@ -242,7 +243,10 @@ export class TerrainProducer implements JobProducer {
         const permille = row.wildSeedPermille ?? 0;
         const sows = row.seedOf;
         const seed = sows !== undefined && permille > 0 && this.rng.chance(permille) ? sows : undefined;
-        return { type: row.yieldItem, material: row.yieldMaterial, count, ...(seed === undefined ? {} : { seed }) };
+        // `09` § Gathering: a shrub with a second product gives it too, at once (the barrel cactus's fiber).
+        const second = row.kind === 'shrub' ? row.secondary : undefined;
+        const extra = second === undefined ? undefined : { type: second.item, material: second.material ?? row.yieldMaterial, count: second.count };
+        return { type: row.yieldItem, material: row.yieldMaterial, count, ...(seed === undefined ? {} : { seed }), ...(extra === undefined ? {} : { extra }) };
       },
       logMaterial: (species) => facts.logMaterial(species),
     };

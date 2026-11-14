@@ -1,6 +1,8 @@
 # T-548 — Making Do A2: new plants, wild and farmed
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 5); the owner, 2026-11-13 · **Size:** L · **Needs:** — · **Status:** open
+**Closed:** 2026-11-14, in a59c685a.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 5); the owner, 2026-11-13 · **Size:** L · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
@@ -21,6 +23,21 @@ The blocks and rows marked T-548:
 
 - No new plant enters a biome's weights: every one is placed by a conversion of an eligible tile on its own stream, so the main stage-9 stream and 07's regrowth draw as before. Ironwood never regrows.
 - Only tame grazers eat shrubs; wild grazing is unchanged.
+
+### Taken while building (T-548)
+
+- **The conversions end stage 10**, after every trait and before lighting, not straight after the rare cave patches: no other stage reads what they place, so a map changes only on converted tiles, and the `ash_soil` that a trait lays (the Starfall crater, T-560; the Glasslands' ash) is eligible for wild wyrmtongue. A converted floor loses its `grass` and `snow`.
+- **The Conversions table is machine-readable**: the eligible tiles are named codes (`shrub`, `tree`, `grass`, `sand`, `dry_soil`, `rock`, `near_water`, `shallow`, `ash_soil`) defined in `plants.md`, exported as each row's `convert`. Passes run in the `plants` table's order, tiles in column order. "Within 2 tiles of surface water" is within `CONVERT_WATER_RADIUS` columns of a wet column; "shallow" is water level 1 or 2 (`CONVERT_SHALLOW_MAX`).
+- **The site summary** lists the converted plants after their kind's species, and its shrub estimate adds each converted shrub's permille of the open soil (sand by its share) or, on bare rock, of every surface tile, so an alpine site now says it has lichen.
+- **Shrub products do not brew yet.** The still finds a brewable plant by its own species material, so a shrub's product (`cactus_pulp`, like `bramble_berry`, `sunfruit` and `frostberry` before it) does not brew: `cactus_wine` exists as a material with no way to make it. Wiring it would make the berries brewable too and move every forest fortress, so it is left for a task of its own.
+- **Reed, cactus and nettle fiber** have their thread and cloth stages; nothing spins them until T-549's `spin_coarse_thread`.
+- **Ironwood's 0.60** is its material's `sharpness`, read from the wood row's notes.
+- **`Stung { id, source }`**: `source` is `nettle` here, so T-555's bees share the event; `nettles` matches the nettle only.
+- **`MealEaten.seasoned`** is present only when the meal has a seasoning, so no other meal's event changes. Meals with different seasonings do not stack.
+- **A grazer walks onto the shrub** (a shrub is walkable), as onto grass, rather than beside it; it claims the tile, and the claim ends when the shrub is no longer mature.
+- **Ash and sowing**: 05 already said ash blocks planting; the producer now enforces it: no crop but wyrmtongue is sown on a tile with `ash`, and wyrmtongue only on an ash tile.
+- **`mill_flour` takes rye** with barley and cavewheat (the rye row's "flour at the farmer's workshop").
+- **Fire**: the resistant chance is `floor(permille / FIRE_RESIST_DIVISOR)` (150 → 37, 20 → 5).
 
 
 ## Common rules for every Making Do task

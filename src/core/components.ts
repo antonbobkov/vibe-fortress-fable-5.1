@@ -254,6 +254,8 @@ export interface Item {
   stone?: Idx<'MaterialDef'>;
   /** The stone set in a weapon, armor piece or ammunition (`25` § Setting stones); absent: none. */
   enchant?: ItemEnchant;
+  /** A meal's seasonings: the materials of its ingredients tagged `seasoning`, ascending (`12` § Operation); absent: none. */
+  seasoned?: Idx<'MaterialDef'>[];
 }
 
 /** An item's enchantment: the `enchants` row and the runesmith's quality roll, which scales its numbers. */

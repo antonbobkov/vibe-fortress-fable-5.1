@@ -4,10 +4,12 @@
  */
 
 import type { Fixed } from '@core/fixed';
-import { TileFlag, TileKind } from '@core/map3d';
+import { FluidType, TileFlag, TileKind } from '@core/map3d';
 import {
   CAVE_SHRUB_DENSITY,
   CAVE_TREE_DENSITY,
+  CONVERT_SHALLOW_MAX,
+  CONVERT_WATER_RADIUS,
   GLASSLANDS_TREE_DENSITY,
   RIVER_TREE_CLEARANCE,
 } from '../constants';
@@ -123,6 +125,114 @@ export function stageVegetation(g: LocalGen): void {
       }
       // `07` § Grass ("cavern `cave_loam` floors start with `grass`") is already done by stage 6:
       // every cave loam floor is laid with the flag (see `caverns.ts`).
+    }
+  }
+}
+
+/** `plants.md` § Conversions: the tile kinds a conversion pass may take. */
+export type ConvertTile = 'shrub' | 'tree' | 'grass' | 'sand' | 'dry_soil' | 'rock' | 'near_water' | 'shallow' | 'ash_soil';
+
+interface ConvertRow {
+  readonly id: string;
+  readonly convert?: {
+    readonly tiles: readonly { readonly tile: ConvertTile; readonly permille: number }[];
+    readonly any?: boolean;
+    readonly biomes?: readonly { readonly biome: string; readonly times?: number; readonly permille?: number }[];
+  };
+}
+
+/** Columns within `CONVERT_WATER_RADIUS` of a wet column (a river, lake or sea column). */
+function nearWaterColumns(g: LocalGen): Uint8Array {
+  const near = new Uint8Array(g.w * g.h);
+  const r = CONVERT_WATER_RADIUS;
+  for (let y = 0; y < g.h; y += 1) {
+    for (let x = 0; x < g.w; x += 1) {
+      if ((g.waterTop[y * g.w + x] as number) <= 0) continue;
+      for (let dy = -r; dy <= r; dy += 1) {
+        for (let dx = -r; dx <= r; dx += 1) {
+          const nx = x + dx;
+          const ny = y + dy;
+          if (nx >= 0 && ny >= 0 && nx < g.w && ny < g.h) near[ny * g.w + nx] = 1;
+        }
+      }
+    }
+  }
+  return near;
+}
+
+/**
+ * `03` § Local map generation, the conversions that end stage 10; `plants.md` § Conversions. After
+ * every other stage but lighting, one pass per conversion row, each on its own stream
+ * (`terrain.convert.<id>`): every eligible surface tile, in column order, turns into the row's
+ * plant with the row's permille. A converted tile is not eligible again. The main stage-9 stream
+ * draws what it drew before, so a map changes only on converted tiles; a biome a row does not
+ * name draws nothing.
+ */
+export function stageConversions(g: LocalGen): void {
+  const plants = g.registry.table<ConvertRow>('plants');
+  const rows = plants.ids().map((id) => plants.byId(id) as ConvertRow).filter((p) => p.convert !== undefined);
+  if (rows.length === 0) return;
+  const map = g.map;
+  const materials = g.registry.table<{ id: string; class: string }>('materials');
+  const classOf = (m: number): string => materials.byIndex(m)?.class ?? '';
+  const sand = materials.has('sand') ? materials.index('sand') : -1;
+  const ashSoil = materials.has('ash_soil') ? materials.index('ash_soil') : -1;
+  const converted = new Uint8Array(g.w * g.h);
+  let nearWater: Uint8Array | null = null;
+  for (const row of rows) {
+    const conv = row.convert;
+    if (conv === undefined) continue;
+    const entry = conv.biomes?.find((b) => b.biome === g.spec.biome);
+    if (conv.any !== true && entry === undefined) continue;
+    const times = entry?.times ?? 1;
+    const tiles = conv.tiles
+      .map((t) => ({ tile: t.tile, permille: (entry?.permille ?? t.permille) * times }))
+      .filter((t) => t.permille > 0);
+    if (tiles.length === 0) continue;
+    if (nearWater === null && tiles.some((t) => t.tile === 'near_water')) nearWater = nearWaterColumns(g);
+    const st = stageStream(g.s, `terrain.convert.${row.id}`);
+    const species = materialIndex(g, row.id);
+    for (let y = 0; y < g.h; y += 1) {
+      for (let x = 0; x < g.w; x += 1) {
+        const c = y * g.w + x;
+        if (converted[c] === 1) continue;
+        const i = map.index(x, y, g.heights[c] as number);
+        const kind = map.kindAt(i);
+        const level = map.fluidLevelAt(i);
+        const water = level > 0 && map.fluidTypeAt(i) === FluidType.Water;
+        const dry = (g.waterTop[c] as number) <= 0 && level === 0;
+        const m = map.materialAt(i);
+        const floor = kind === TileKind.Floor;
+        const soil = floor && classOf(m) === 'soil';
+        const grass = soil && map.hasFlag(i, TileFlag.Grass);
+        let permille = 0;
+        for (const t of tiles) {
+          let ok = false;
+          switch (t.tile) {
+            case 'shrub': ok = kind === TileKind.Shrub; break;
+            case 'tree': ok = kind === TileKind.Tree; break;
+            case 'grass': ok = grass && dry; break;
+            case 'sand': ok = floor && m === sand && dry; break;
+            case 'dry_soil': ok = soil && dry; break;
+            case 'rock': ok = floor && classOf(m) === 'stone' && dry; break;
+            case 'near_water': ok = nearWater?.[c] === 1 && level === 0 && (grass || kind === TileKind.Shrub); break;
+            case 'shallow': ok = soil && water && level <= CONVERT_SHALLOW_MAX; break;
+            case 'ash_soil': ok = floor && m === ashSoil; break;
+          }
+          if (ok) {
+            permille = t.permille;
+            break;
+          }
+        }
+        if (permille === 0 || !st.chance(permille)) continue;
+        converted[c] = 1;
+        // An ironwood keeps its tree's tile: only the species changes.
+        if (kind !== TileKind.Tree) {
+          map.kind[i] = TileKind.Shrub;
+          map.flags[i] = (map.flags[i] as number) & ~(TileFlag.Grass | TileFlag.Snow);
+        }
+        map.material[i] = species;
+      }
     }
   }
 }

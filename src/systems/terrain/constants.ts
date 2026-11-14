@@ -116,3 +116,8 @@ export const SCREE_BOULDER_PERMILLE = 250;
 export const ROCK_BOULDER_FACTOR = 3;
 /** Stage 9 snow: the patch field's two octaves (periods 14 and 5). */
 export const SNOW_PERIODS: readonly number[] = [14, 5];
+
+/** `03` stage 10 conversions: columns from a water column within which a `near_water` tile lies. */
+export const CONVERT_WATER_RADIUS = 2;
+/** `03` stage 10 conversions: the deepest water a `shallow` tile stands in. */
+export const CONVERT_SHALLOW_MAX = 2;

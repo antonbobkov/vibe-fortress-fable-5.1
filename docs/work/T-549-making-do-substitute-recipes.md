@@ -1,6 +1,6 @@
 # T-549 — Making Do A3: wicker, coarse cloth, bone and metal splints, and workshops of stone
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 3, 7 (wicker)); the owner, 2026-11-13 · **Size:** M · **Needs:** T-547, T-548 · **Status:** blocked (needs T-547, T-548)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 3, 7 (wicker)); the owner, 2026-11-13 · **Size:** M · **Needs:** T-547 · **Status:** blocked (needs T-547)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

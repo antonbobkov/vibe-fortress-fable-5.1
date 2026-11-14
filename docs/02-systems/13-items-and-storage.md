@@ -37,7 +37,7 @@ armor/     head  body  arms  legs  feet  shield
 clothing/  body  legs  feet
 tool/      pick  axe  fishing_rod  crutch
 craft/     figurine  ring  amulet  mug  totem
-textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull
+textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  straw  reed
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland
 refuse/    corpse  skeleton  rotten  part
 ```
@@ -250,7 +250,7 @@ stone/     soil (T-547)  fossil (T-547)
 bar/       peat  dung (T-552)
 furniture/ stone_bed  bedding  pillow (T-551)  lantern (T-563)  beehive (T-555)
 container/ pot (T-553)  basket (T-549)
-textile/   horn  tusk  feather (T-547)  straw  reed (T-548)
+textile/   horn  tusk  feather (T-547)
 medical/   soap (T-564)
 tool/      candle (T-563)  firebrand (T-559)
 farm/      dung (T-552)  compost (T-564)  guano (T-556)  bone_ash  potash (T-553)
