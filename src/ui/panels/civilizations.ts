@@ -3,7 +3,7 @@ import { formatDate } from '@core/calendar';
 import type { Civ } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
-import { REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
+import { neverSold, REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
 import { itemName } from '../messages';
 import type { Surface } from '../surface';
 import { captionButtons, label } from '../widgets';
@@ -41,6 +41,12 @@ export class CivilizationsPanel {
       if (k === 'Enter') {
         const id = candidates[this.candidate];
         const entries = this.trade(ctx).requests(this.civ());
+        // 20 § Never sold: refused here, with the reason.
+        if (id && neverSold(id, undefined, this.trade(ctx).reputation(this.civ()))) {
+          ctx.notice?.(ctx.strings.get('ui.trade.not_traded', { civ: CIV_NAMES[this.civ()] }));
+          this.choosingRequest = false;
+          return true;
+        }
         if (id && entries.length < REQUEST_MAX && !entries.some((entry) => entry.itemType === id)) this.update(ctx, [...entries, { itemType: id, priority: 1 }]);
         this.choosingRequest = false;
         return true;

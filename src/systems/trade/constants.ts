@@ -21,6 +21,8 @@ export const CARAVAN_LEAVE_DAYS = 2;
 export const CARAVAN_GUARD_FIGHT_DAYS = 1;
 export const DEPOT_HAUL_PRIORITY = 3;
 export const MERCHANT_MARKUP = 120;
+/** Percent: a merchant good whose material the site lacks costs this much more (20 § The scarcity price). */
+export const SCARCITY_MARKUP = 250;
 export const MARGIN_BASE = 15;
 export const MARGIN_MIN = 3;
 export const MARGIN_PER_SKILL = 0.5;
@@ -52,3 +54,12 @@ export const CARAVAN_BUNDLE_UNITS: Readonly<Record<string, number>> = {
   seed: 10, plant_food: 20, drink: 20, arrow: 25, brightleaf: 5,
   bandage: 4, splint: 4, chicken: 4, rune_vial: 5,
 };
+
+/**
+ * Never in any list or request (20 § Never sold), beside deepsilver below `DEEPSILVER_SALE_REP`:
+ * item types and materials. Aged and vintage goods are never drawn, since a list names no age.
+ */
+export const NEVER_SOLD_ITEMS: readonly string[] = ['wyrmscale', 'hollow_ichor', 'giant_skull'];
+export const NEVER_SOLD_MATERIALS: readonly string[] = ['star_steel', 'silk_cloth', 'wyrmscale', 'hollow_ichor'];
+/** The reputation at which deepsilver is drawn and may be requested. */
+export const DEEPSILVER_SALE_REP = 75;

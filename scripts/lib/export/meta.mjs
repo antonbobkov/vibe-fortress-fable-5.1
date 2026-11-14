@@ -441,6 +441,26 @@ export function exportCaravanGoods() {
         rareAdds: rareAdds.length > 0 ? rareAdds : undefined,
       });
     });
+    // The Sundries table (20 § Sundries): a lot names its own units ("`salt` ×10 in `bag`").
+    const sundries = tables.find(
+      (t) => (t.headings[t.headings.length - 1] ?? '').toLowerCase().startsWith(civ) &&
+        plain(t.header[0]) === 'Sundries',
+    );
+    for (const row of sundries === undefined ? [] : asObjects(sundries)) {
+      const raw = String(row.Item ?? '');
+      const inContainer = /in `([a-z_]+)`/.exec(raw);
+      const marks = ticked(raw.replace(/in `[a-z_]+`/, ' '));
+      const units = /×\s*(\d+)/.exec(plain(raw));
+      entries.push(compact({
+        item: marks.length === 1 ? marks[0] : marks,
+        materials: weighted(row['Material pool']).map((w) => ({ material: w.key, weight: w.weight })),
+        count: range(row.Count) ?? [1, 1],
+        weight: int(row.Weight),
+        container: inContainer?.[1],
+        sundries: true,
+        units: units === null ? 1 : Number(units[1]),
+      }));
+    }
     const extraTable = tables.find(
       (t) => (t.headings[t.headings.length - 1] ?? '').toLowerCase().startsWith(civ) &&
         t.header.map(plain).includes('Permille'),

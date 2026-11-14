@@ -14,6 +14,9 @@ export function preferencePercent(registry: Registry, civ: Civ, category: string
   // material, before the category and class rows".
   const byMaterial = exact(`material ${material}`);
   if (byMaterial !== undefined) return byMaterial;
+  // A `material class <class>` row (the Wildwood's bone) comes next, before the category rows.
+  const byClass = exact(`material class ${materialClass}`);
+  if (byClass !== undefined) return byClass;
   if (materialClass === 'wood' && civ === 'wildwood') return exact('any item with material class wood') ?? 100;
   for (const row of rows) {
     if (row.key === category || row.key.split(', ').includes(category)) return row.percent;

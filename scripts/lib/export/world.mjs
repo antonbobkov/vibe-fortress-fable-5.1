@@ -1,5 +1,5 @@
 // docs/03-content/regions-biomes-and-traits.md -> biomes, biomeLookup, ratingThresholds,
-// regionTraits, civilizations, weatherStates, weatherTables.
+// regionTraits, civilizations, weatherStates, weatherTables, signatures.
 
 import { join } from 'node:path';
 import {
@@ -165,6 +165,26 @@ export function exportRegionTraits() {
       freq: int(row.freq),
       companion: /yes/i.test(plain(row.companion)),
       hooks: parseHooks(row.hooks),
+    })),
+  );
+}
+
+/** "wood, `ironwood`, peat" -> ['wood', 'ironwood', 'peat']: every good of a cell, backticked or not. */
+function goodsList(cell) {
+  return plain(cell)
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+/** § Signatures: what a biome, a geology class or a trait has and lacks (02 § What a site has and lacks). */
+export function exportSignatures() {
+  const table = findTable(DOC(), 'Signatures', 'lacks');
+  return byId(
+    asObjects(table).map((row) => ({
+      id: plain(row.id),
+      has: goodsList(row.has),
+      lacks: goodsList(row.lacks),
     })),
   );
 }

@@ -1,5 +1,5 @@
 /** Caravan cargo from the authored `caravanGoods` table. */
-import { CARAVAN_BUNDLE_UNITS, CARAVAN_VALUE_BASE, CARAVAN_VALUE_PER_RENOWN, CARAVAN_VALUE_PER_REP, REQUEST_SHARE } from './constants';
+import { CARAVAN_BUNDLE_UNITS, CARAVAN_VALUE_BASE, CARAVAN_VALUE_PER_RENOWN, CARAVAN_VALUE_PER_REP, DEEPSILVER_SALE_REP, NEVER_SOLD_ITEMS, NEVER_SOLD_MATERIALS, REQUEST_SHARE } from './constants';
 import type { TradeRequest } from './state';
 import type { Civ } from '@core/types';
 import type { Registry } from '@core/registry';
@@ -15,6 +15,12 @@ export interface GoodsEntry {
   rare?: boolean;
   /** Drawn outside the weighted pool, past the budget, on system 25's stream. */
   extra?: { permille: number; minReputation?: number };
+  /** A sundries entry (`caravan-goods.md` § Sundries): raw materials in small lots. */
+  sundries?: boolean;
+  /** The container a lot comes in, `units` to a container (a sundries entry's "×10 in `bag`"). */
+  container?: string;
+  /** Units per drawn count, in place of `CARAVAN_BUNDLE_UNITS` (a sundries entry names its own). */
+  units?: number;
 }
 interface CivGoods { civ: Civ; entries: GoodsEntry[] }
 interface ItemRow { id: string; mult: number; quality: boolean; tags?: string[] }
@@ -27,6 +33,19 @@ export interface PlannedGood {
   companion?: { type: number; material: number; count: number };
   /** An `extra` good: it comes on top of the budget and adds no pack animal. */
   extra?: true;
+  /** Units to a container, when the entry names its own (a sundries entry). */
+  units?: number;
+}
+
+/**
+ * Never in any list or request (20 § Never sold): the item types and materials of the never-sold
+ * list, and deepsilver below `DEEPSILVER_SALE_REP`.
+ */
+export function neverSold(itemType: string, material: string | undefined, reputation: number): boolean {
+  if (NEVER_SOLD_ITEMS.includes(itemType)) return true;
+  if (material === undefined) return false;
+  if (material === 'deepsilver') return reputation < DEEPSILVER_SALE_REP;
+  return NEVER_SOLD_MATERIALS.includes(material);
 }
 
 export function caravanBudget(renown: number, reputation: number): number {
@@ -39,7 +58,7 @@ function entriesFor(registry: Registry, civ: Civ): GoodsEntry[] {
 
 export function eligibleGoodsEntries(registry: Registry, civ: Civ, reputation: number): GoodsEntry[] {
   return entriesFor(registry, civ).filter((entry) => {
-    if (entry.materials.length === 1 && entry.materials[0]?.material === 'deepsilver') return reputation >= 75;
+    if (entry.materials.length === 1 && entry.materials[0]?.material === 'deepsilver') return reputation >= DEEPSILVER_SALE_REP;
     return true;
   }).map((entry) => {
     const keys = Array.isArray(entry.item) ? entry.item : [entry.item];
@@ -67,13 +86,14 @@ function resolveType(registry: Registry, key: string, rng: RngStream): number {
 function resolveMaterial(registry: Registry, key: string, reputation: number, rng: RngStream): number {
   const materials = registry.table<MaterialRow>('materials');
   if (materials.has(key)) return materials.index(key);
-  const byClass = materials.ids().filter((id) => materials.byId(id)?.class === key && (id !== 'deepsilver' || reputation >= 75));
+  const byClass = materials.ids().filter((id) => materials.byId(id)?.class === key && (id !== 'deepsilver' || reputation >= DEEPSILVER_SALE_REP));
   return byClass.length > 0 ? materials.index(rng.pick(byClass)) : 0;
 }
 
 function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng: RngStream, requested?: TradeRequest): PlannedGood | null {
   const keys = Array.isArray(entry.item) ? entry.item : [entry.item];
-  const packaged = keys.includes('drink') || keys.includes('seed') || keys.includes('flour');
+  const packaged = entry.container !== undefined || keys.includes('drink') || keys.includes('seed') || keys.includes('flour');
+  const units = (id: string): number => entry.units ?? CARAVAN_BUNDLE_UNITS[id] ?? 1;
   const paired = keys.includes('crossbow') || keys.includes('bandage');
   const key = requested?.itemType ?? (packaged || paired ? keys[0] as string : rng.pick(keys));
   if (!keys.includes(key)) return null;
@@ -83,7 +103,7 @@ function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng
     const pine = registry.table<MaterialRow>('materials').byId('pine');
     const kind = species.byId(key);
     if (!cage || !pine || !kind) return null;
-    const count = rng.int(entry.count[0], entry.count[1]) * (CARAVAN_BUNDLE_UNITS[key] ?? 1);
+    const count = rng.int(entry.count[0], entry.count[1]) * units(key);
     return {
       type: registry.table('items').index('cage'), material: registry.table('materials').index('pine'),
       species: species.index(key), count,
@@ -101,15 +121,14 @@ function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng
   const row = registry.table<ItemRow>('items').byIndex(type);
   const mat = materials.byIndex(material);
   if (!row || !mat) return null;
-  const count = rng.int(entry.count[0], entry.count[1]) * (CARAVAN_BUNDLE_UNITS[key] ?? 1);
+  const count = rng.int(entry.count[0], entry.count[1]) * units(key);
   let value = itemValue(mat.value, row.mult, 1, row.quality, count);
-  const containerKey = packaged ? keys[1] : undefined;
+  const containerKey = entry.container ?? (packaged ? keys[1] : undefined);
   const container = containerKey ? registry.table('items').index(containerKey) : undefined;
   if (container) {
     const containerRow = registry.table<ItemRow>('items').byIndex(container);
     const pine = registry.table<MaterialRow>('materials').byId('pine');
-    const units = CARAVAN_BUNDLE_UNITS[key] ?? 1;
-    if (containerRow && pine) value += itemValue(pine.value, containerRow.mult, 1, containerRow.quality, Math.ceil(count / units));
+    if (containerRow && pine) value += itemValue(pine.value, containerRow.mult, 1, containerRow.quality, Math.ceil(count / units(key)));
   }
   let companion: PlannedGood['companion'];
   if (paired) {
@@ -124,7 +143,7 @@ function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng
       if (otherRow && otherMaterial) value += itemValue(otherMaterial.value, otherRow.mult, 1, otherRow.quality, otherCount);
     }
   }
-  return { type, material, count, value, ...(container ? { container } : {}), ...(companion ? { companion } : {}) };
+  return { type, material, count, value, ...(container ? { container } : {}), ...(companion ? { companion } : {}), ...(entry.units !== undefined ? { units: entry.units } : {}) };
 }
 
 /**
@@ -139,6 +158,8 @@ export function generateGoods(registry: Registry, civ: Civ, renown: number, repu
   let requestRemaining = Math.floor(budget * REQUEST_SHARE / 100);
   const priorities = [...requests].sort((a, b) => b.priority - a.priority);
   for (const request of priorities) {
+    // A never-sold good is refused when it is asked for; one asked for earlier is not brought.
+    if (neverSold(request.itemType, request.material, reputation)) continue;
     // An extra good below its reputation is not on offer, to a request either.
     const entry = entries.find((e) => (Array.isArray(e.item) ? e.item : [e.item]).includes(request.itemType)
       && (e.extra === undefined || reputation >= (e.extra.minReputation ?? reputation)));
