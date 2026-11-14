@@ -41,7 +41,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'furniture/chest', 'furniture/coffin', 'furniture/statue', 'furniture/cage', 'furniture/mechanism', 'furniture/floodgate',
   'furniture/anvil', 'furniture/nest_box', 'furniture/weapon_rack', 'furniture/armor_stand', 'furniture/memorial_slab',
   'furniture/trap_part',
-  'container', 'container/barrel', 'container/bag', 'container/bin', 'container/bucket', 'container/pot',
+  'container', 'container/barrel', 'container/bag', 'container/bin', 'container/bucket', 'container/pot', 'container/basket',
   'weapon', 'weapon/melee', 'weapon/ranged',
   'ammo',
   'armor', 'armor/head', 'armor/body', 'armor/arms', 'armor/legs', 'armor/feet', 'armor/shield',

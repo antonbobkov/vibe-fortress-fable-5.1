@@ -322,7 +322,7 @@ export function generatedMaterials(
 
   // "Each plant species is a material of class `plant` with the value in plants.md."
   // A row's `materialTags` go on the material it yields (`wyrmtongue` a seasoning, `cactus_pulp`
-  // drinkable); a product material whose `<id>_thread` exists spins into it (`reed`).
+  // drinkable); a product material whose `<id>_thread` exists spins into it and burns (`reed`).
   const tagsOf = new Map<string, string[]>();
   for (const p of plants) {
     const tags = p.materialTags;
@@ -336,7 +336,8 @@ export function generatedMaterials(
     return {
       ...m,
       ...(tags === undefined ? {} : { tags: [...(m.tags ?? []), ...tags] }),
-      ...(product && existing.has(next) ? { nextStage: next } : {}),
+      // A fiber that spins (`reed`) burns as cloth does (`materials.md` § Cloth and fiber: 300 ticks).
+      ...(product && existing.has(next) ? { nextStage: next, burnable: true, burnTicks: 300 } : {}),
     };
   };
   for (const p of plants) {

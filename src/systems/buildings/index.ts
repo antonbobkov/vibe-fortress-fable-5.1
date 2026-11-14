@@ -29,7 +29,7 @@ import { LINK_DELAY_TICKS } from './constants';
 import type { Job } from '@systems/jobs';
 
 export { ZoneStore, settingKey, type ZoneTypeRow } from './zones';
-export { BuildingStore, buildKey, deconstructKey, type BuildingRow } from './build';
+export { BuildingStore, buildKey, buildTicksOf, deconstructKey, inputsOf, mayBeOfBlocks, type BuildingRow } from './build';
 export { CONSTRUCTION_KIND, onRuleOf, onRuleHolds, type OnRule } from './constructions';
 export { RoomStore, ROOM_TYPES, type RoomScore, type RoomDiagnostics } from './rooms';
 export type { BuildingsReader, ZoneView, BuildingView } from './reader';

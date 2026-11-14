@@ -412,8 +412,9 @@ function recipeInputs(cell) {
     let materials;
     // § Recipe columns: "a `fuel` input is fuel taken into the product, steel's carbon", as the
     // generated `alloy_steel`'s `fuel` pseudo-material.
+    // "(reed, cactus_fiber, nettle_fiber; same material)" lists the materials and makes the units share one.
     if (match === 'fuel') material = 'fuel';
-    else if (materialProperty === undefined && !sameMaterial) {
+    else if (materialProperty === undefined) {
       const materialIds = Array.from(note.matchAll(/`?\b([a-z][a-z_]{2,})\b`?/g)).map((x) => x[1]);
       const filtered = materialIds.filter(
         (x) => !['distinct', 'stacks', 'species', 'brewable', 'metal', 'safe', 'magma', 'or', 'same', 'material'].includes(x),
@@ -471,7 +472,8 @@ export function exportRecipes() {
           baseTicks: int(ticksCell),
           // A table with a `fuel` column (the still's) says it per recipe; elsewhere the section does.
           fuel: row.fuel === undefined || isBlank(row.fuel) ? fuel : /^yes/i.test(plain(row.fuel)),
-          quality: isBlank(row.Q) ? defaultQuality : /^yes/i.test(plain(row.Q)),
+          // § Forge: "all `Q` yes unless noted": "(no quality)" in the outputs is the note.
+          quality: /no quality/.test(plain(row.outputs)) ? false : isBlank(row.Q) ? defaultQuality : /^yes/i.test(plain(row.Q)),
           spoilable: /^yes/i.test(plain(row.spoilable ?? '')) ? true : undefined,
           container: container ?? outContainer?.[1],
           xp: int(row.xp),

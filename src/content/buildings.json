@@ -276,7 +276,9 @@
     ],
     "labor": "carpentry",
     "buildTicks": 200,
-    "tags": [],
+    "tags": [
+      "logs_only"
+    ],
     "roomValue": 0,
     "passable": true,
     "blocksFluid": false,

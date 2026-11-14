@@ -264,5 +264,10 @@
     "civ": "hillfolk",
     "key": "material glass",
     "percent": 130
+  },
+  {
+    "civ": "wildwood",
+    "key": "material reed",
+    "percent": 100
   }
 ]

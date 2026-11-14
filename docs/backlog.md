@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-549 | [Making Do A3: wicker, coarse cloth, bone and metal splints, and workshops of stone](work/T-549-making-do-substitute-recipes.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-550 | [Making Do A4: sundries, the scarcity price and the site summary](work/T-550-making-do-sundries-and-site-summary.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-551 | [Making Do B1: beds that rest differently, bedding, and buildings that want items](work/T-551-making-do-beds.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-552 | [Making Do B2: dung, the drying rack, half fuels, smoke, curing and the smokehouse](work/T-552-making-do-drying-curing-and-smoke.md) | Making Do design; the owner, 2026-11-13 | T-551 | blocked (needs T-551) |

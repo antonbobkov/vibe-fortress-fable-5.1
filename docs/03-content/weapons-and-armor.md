@@ -74,7 +74,7 @@ Columns: `slot`; `covers` lists body parts with coverage percent; `layer`; `armo
 | `greaves` | greaves | legs | legs 100 | plate | 10 | 10 | 2 | metal | 10 | |
 | `leather_boots` | leather boots | feet | legs 20 | leather | 2 | 1 | 1 leather | leather | 2 | |
 | `metal_boots` | metal boots | feet | legs 30 | plate | 4 | 4 | 1 | metal | 5 | |
-| `buckler` | buckler | shield | — | — | block only | 3 | 1 log or 1 bar | wood, metal | 4 | |
+| `buckler` | buckler | shield | — | — | block only | 3 | 1 log or 1 bar, or 3 reeds | wood, metal, plant (reed) | 4 | |
 | `shield` | shield | shield | — | — | block only | 6 | 1 log + 1 bar, or 2 bars | wood, metal | 6 | |
 | `rune_robe` | runed robe | body | torso 100, arms 60, legs 40 | padding | 3 | 2 | 3 cloth | cloth | 8 | regen ×1.5 |
 | `circlet` | circlet | head | head 100 | plate | 2 | 1 | 1 | metal | 10 | max +10 |
@@ -149,7 +149,7 @@ What each kind means: `damage_percent` adds to the blow's damage before armor, a
 
 ## Shields
 
-`blockChance = min(40, 10 + 2 × shield skill)` for `shield`; a `buckler` uses `min(30, 5 + 2 × skill)` and has half the weight.
+`blockChance = min(40, 10 + 2 × shield skill)` for `shield`; a `buckler` uses `min(30, 5 + 2 × skill)` and has half the weight. A wicker buckler (a `buckler` of `reed`, woven at the craftsdwarf's workshop) blocks as a wooden one does, and burns.
 
 ## Natural armor and attacks
 
@@ -182,7 +182,7 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `scale_shirt` | scale shirt | body | torso 100, arms 40 | scale | 8 | 7 | 3 plates + 1 leather or cloth | shell, bone (horn, chitin) | 8 | | T-562 |
 | `scale_skirt` | scale skirt | legs | legs 100 | scale | 6 | 5 | 2 plates + 1 leather or cloth | shell, bone | 6 | | T-562 |
 
-A plate is a `shell_piece`, a `bone_pile` or a `horn`. A wicker buckler (T-549) is the `buckler` row of material `reed` (the row's materials gain plant): it blocks as a wooden one and burns.
+A plate is a `shell_piece`, a `bone_pile` or a `horn`.
 
 ### Planned damage column
 
