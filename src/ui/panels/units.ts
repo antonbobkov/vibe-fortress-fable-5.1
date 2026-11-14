@@ -35,6 +35,7 @@ type TitleId = (typeof TITLE_IDS)[number];
 interface DwarvesReaderLike {
   list(): EntityId[];
   activityText(id: EntityId): string;
+  isTipsy?(id: EntityId): boolean;
   skill(id: EntityId, skill: string): number;
   isChild?(id: EntityId): boolean;
   holder?(title: TitleId): EntityId;
@@ -391,7 +392,12 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
       { title: '', width: MOOD_COLS },
       { title: strings.get('ui.units.activity'), width: 16 },
     ],
-    rows.map((id, k) => [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${nameOf(ctx, id)}`, '', isIdle(ctx, id) ? strings.get('ui.units.idle') : dwarves?.activityText(id) ?? '']),
+    rows.map((id, k) => {
+      // 10 § Tipsy: "Tipsy" beside the activity.
+      const activity = isIdle(ctx, id) ? strings.get('ui.units.idle') : dwarves?.activityText(id) ?? '';
+      const tipsy = dwarves?.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity }) : activity;
+      return [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${nameOf(ctx, id)}`, '', tipsy];
+    }),
     panel.list,
     (index) => panel.clickRow(ctx, index),
   );

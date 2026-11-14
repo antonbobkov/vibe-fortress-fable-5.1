@@ -152,8 +152,11 @@ export function exportMaterials() {
     ['black_ale', 'black ale', 3, 'rye_gold'],
     ['cactus_wine', 'cactus wine', 3, 'cactus_green'],
     ['emberwine', 'emberwine', 6, 'wyrmtongue_red'],
+    // Spirits, distilled at the still (materials.md; 12 § Spirits).
+    ['deepfire', 'deepfire', 8, 'ember_orange'],
   ];
   const WINES = new Set(['bellwine', 'rootwine', 'strawberry_wine', 'cactus_wine', 'emberwine']);
+  const SPIRITS = new Set(['deepfire']);
   for (const [did, dname, dvalue, dcolor] of drinks) {
     out.push(
       compact({
@@ -167,7 +170,7 @@ export function exportMaterials() {
         meltsAtC: ORGANIC_MELTS_AT_C,
         burnable: false,
         burnTicks: 0,
-        tags: ['drink', WINES.has(did) ? 'wine' : 'ale'],
+        tags: ['drink', SPIRITS.has(did) ? 'spirits' : WINES.has(did) ? 'wine' : 'ale'],
       }),
     );
   }

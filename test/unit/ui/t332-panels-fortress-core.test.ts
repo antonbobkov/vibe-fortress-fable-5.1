@@ -99,16 +99,18 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(ticked).toHaveLength(1);
     expect(rows[6]).toMatch(/^► Drink +\[ \]$/);
     expect(rows[7]).toMatch(/^ {2}Seed +\[ \]$/);
-    expect(rows[27]).toMatch(/^Barrels wanted \[-\] +0 \[\+\]$/);
-    expect(rows[28]).toMatch(/^Bags wanted {4}\[-\] +0 \[\+\]$/);
-    expect(rows[29]).toMatch(/^Bins wanted {4}\[-\] +0 \[\+\]$/);
-    expect(rows[30]).toMatch(/^Priority +\[-\] +5 \[\+\]$/);
-    expect(rows[31]).toMatch(/^Min quality +\[-\] +0 \[\+\]$/);
-    expect(rows[32]).toMatch(/^Max quality +\[-\] +5 \[\+\]$/);
-    expect(rows[33]).toBe('Materials [any]  Quality 0-5');
-    expect(rows[34]).toBe('Priority 5');
-    expect(rows[35]).toBe('Links: none');
-    expect(rows[36]).toBe('[i] link [x] unlink');
+    // The tree gives a row to the cellar line (13 § Aging in a cellar).
+    expect(rows[26]).toMatch(/^Barrels wanted \[-\] +0 \[\+\]$/);
+    expect(rows[27]).toMatch(/^Bags wanted {4}\[-\] +0 \[\+\]$/);
+    expect(rows[28]).toMatch(/^Bins wanted {4}\[-\] +0 \[\+\]$/);
+    expect(rows[29]).toMatch(/^Priority +\[-\] +5 \[\+\]$/);
+    expect(rows[30]).toMatch(/^Min quality +\[-\] +0 \[\+\]$/);
+    expect(rows[31]).toMatch(/^Max quality +\[-\] +5 \[\+\]$/);
+    expect(rows[32]).toBe('Materials [any]  Quality 0-5');
+    expect(rows[33]).toBe('Priority 5');
+    expect(rows[34]).toBe('Links: none');
+    expect(rows[35]).toBe('[i] link [x] unlink');
+    expect(rows[36]).toBe('[S-c] Cellar: off');
     expect(rows[37]).toBe('Usage 0/20 tiles');
     expect(rows[38]).toBe('↑↓ select  ←→ expand  Space toggle');
     expect(rows[39]).toBe('[Del] remove zone  [S-e] resize');

@@ -90,7 +90,9 @@ interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Qu
                  stone?: Idx<MaterialDef> /* the gem set in a channel (25); absent: none */;
                  enchant?: ItemEnchant /* the stone set in a weapon, armor piece or ammunition (25); absent: none */;
                  seasoned?: Idx<MaterialDef>[] /* a meal's seasonings, ascending (12 § Operation); absent: none */;
-                 stuffing?: Idx<MaterialDef> /* a `stuffed` item's stuffing, the material of its last input (12 § Operation); absent: none */ }
+                 stuffing?: Idx<MaterialDef> /* a `stuffed` item's stuffing, the material of its last input (12 § Operation); absent: none */;
+                 cellarDays?: number /* days aged in a working cellar toward the next stage (13 § Aging in a cellar); absent: 0 */;
+                 age?: 1|2 /* aged, vintage; absent: young */ }
 interface ItemEnchant { id: Idx<EnchantDef>; tier: Quality /* the setting's quality roll; scales the row's numbers */ }
 interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage'|'wagon' }
 interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null; juvenile?: boolean }
@@ -107,7 +109,11 @@ interface Workshop { orders: WorkOrder[]; currentJobId: number; suspended: boole
 interface Zone { type: Idx<ZoneTypeDef>; tiles: TileIndex[] /* sorted */; settings: Record<string, unknown> }
 interface StockpileFilter { categories: string[]; materialClasses: string[] | 'any'; minQuality: Quality; maxQuality: Quality; allowRot: boolean }
 interface Stockpile { filter: StockpileFilter; containersWanted: { barrel: number; bag: number; bin: number };
-                      priority: Priority; linkedSources: EntityId[] }
+                      priority: Priority; linkedSources: EntityId[];
+                      cellar?: true /* the cellar setting (13 § Aging in a cellar); absent: off */;
+                      cellarOk?: true /* the last judgement: a working cellar */;
+                      cellarReason?: 'lit'|'too_warm'|'too_cold' /* why not, at the last judgement */;
+                      cellarC?: number /* the warmest or coldest tile's °C, with too_warm or too_cold */ }
 interface Room { zoneId: EntityId; score: number; tier: RoomTier; ownerId: EntityId; enclosed: boolean; requirementsMet: boolean }
 interface Squad { name: string; leaderId: EntityId; members: EntityId[]; mode: 'off'|'train'|'active';
                   station: TileIndex | null; patrol: TileIndex[] | null;

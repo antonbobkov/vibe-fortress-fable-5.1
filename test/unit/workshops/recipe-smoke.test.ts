@@ -110,6 +110,8 @@ function runRecipe(workshopType: string, recipe: RecipeRow): { ok: boolean; erro
           material = 'dimcap';
         } else if (recipe.id === 'mill_flour' && item === 'plant_food') {
           material = 'barley';
+        } else if (recipe.id === 'distill' && item === 'drink') {
+          material = 'ale';
         } else if (input.material !== undefined && registry.table('materials').has(input.material)) {
           material = input.material;
         } else if (input.materials !== undefined && !input.materials.includes(DEFAULT_MATERIALS[item] ?? '')) {
@@ -181,12 +183,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 226', () => {
+  it('the recipe count over all types is 227', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(226);
+    expect(total).toBe(227);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

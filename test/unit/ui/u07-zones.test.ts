@@ -229,9 +229,9 @@ describe('U-07 room panel and stockpile announcements (M9, §4.4)', () => {
   });
 
   it('Help covers the editor actions and follows rebound accelerator letters', () => {
-    // The zone inspector's section: its keymap rows (13), then the notes its rows do not give (7).
+    // The zone inspector's section: its keymap rows (14, the cellar's among them), then the notes its rows do not give (7).
     const rows = helpKeyRows(keymap, strings).filter((r) => r.category === 'zone_inspector' && r.heading !== true);
-    expect(rows.filter((r) => r.keys !== undefined)).toHaveLength(13);
+    expect(rows.filter((r) => r.keys !== undefined)).toHaveLength(14);
     expect(rows.filter((r) => r.keys === undefined)).toHaveLength(7);
     expect(rows.some((r) => r.text.startsWith('Farm plot: ↑↓ season'))).toBe(true);
     expect(rows.some((r) => r.text.startsWith('[i]  link a source stockpile'))).toBe(true);

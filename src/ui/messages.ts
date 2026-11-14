@@ -22,6 +22,7 @@ import type { Command } from '@core/commands';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
+import { DAYS_PER_YEAR } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { ItemsReader } from '@systems/items';
@@ -222,6 +223,36 @@ export function materialItemName(material: string, type: { readonly name: string
 }
 
 /**
+ * 13 § Aging in a cellar: the stage word an aged item puts before its material ("aged bellwine"), or ''.
+ * A caller with no strings table (the look panel's one-line names) gets the table's English words.
+ */
+export function ageWord(strings: Strings | null, age: number | undefined): string {
+  if (age === 2) return strings?.get('ui.item.vintage') ?? 'vintage';
+  return age === 1 ? strings?.get('ui.item.aged') ?? 'aged' : '';
+}
+
+/** A material name with the item's stage before it: "aged bellwine", "vintage cheese"; a young item's is unchanged. */
+export function agedMaterial(strings: Strings | null, material: string, age: number | undefined): string {
+  const word = ageWord(strings, age);
+  return word === '' ? material : `${word} ${material}`;
+}
+
+/**
+ * The stocks panel's note on an aged stack (24 § Panels): its stage and its years in the cellar,
+ * "vintage, 2 years in the cellar". A stage is a year in an oak barrel or for a cheese, two in other wood.
+ */
+export function ageNote(strings: Strings, registry: Registry, item: { readonly type: number; readonly age?: number; readonly cellarDays?: number },
+  container: { readonly material: number } | undefined): string {
+  const age = item.age ?? 0;
+  if (age === 0) return '';
+  const cheese = registry.table<{ id: string }>('items').byIndex(item.type)?.id === 'cheese';
+  const fine = container !== undefined && registry.table<{ id: string; tags?: readonly string[] }>('materials').byIndex(container.material)?.tags?.includes('fine_cask') === true;
+  const span = cheese || fine ? DAYS_PER_YEAR : 2 * DAYS_PER_YEAR;
+  const years = Math.floor((age * span + (item.cellarDays ?? 0)) / DAYS_PER_YEAR);
+  return strings.get(years === 1 ? 'ui.item.age_note_one' : 'ui.item.age_note', { stage: ageWord(strings, age), n: years });
+}
+
+/**
  * An item's name with its enchantment's suffix (`25` § Setting stones): a suffix that begins with
  * "of" follows the name ("iron axe of embers"), any other goes before it ("keen iron axe").
  */
@@ -297,7 +328,7 @@ const NOT_FOUND_SUBJECT: Readonly<Record<string, string>> = Object.freeze({
   AssignTitle: 'dwarf', RenameDwarf: 'dwarf', SetSchedule: 'squad', AddWorkOrder: 'workshop',
   EditWorkOrder: 'workshop', RemoveWorkOrder: 'workshop', ReorderWorkOrder: 'workshop', SetWorkshopWorker: 'workshop',
   SuspendWorkshop: 'workshop', ForbidItem: 'items', ClaimItem: 'items', DumpItem: 'items', MeltItem: 'items',
-  SetStockpileFilter: 'zone', SetStockpileContainers: 'zone', SetStockpilePriority: 'zone', LinkStockpile: 'zone',
+  SetStockpileFilter: 'zone', SetStockpileContainers: 'zone', SetStockpilePriority: 'zone', LinkStockpile: 'zone', SetStockpileCellar: 'zone',
   PlaceBuilding: 'building_type', CancelBuilding: 'building', DeconstructBuilding: 'building',
   SetBuildingPriority: 'building', ResizeZone: 'zone', RemoveZone: 'zone', SetZoneSetting: 'zone', AssignRoom: 'zone',
   LinkMechanism: 'building', UnlinkMechanism: 'building', SetDoorMode: 'building', SetHatchMode: 'building',

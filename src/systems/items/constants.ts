@@ -28,6 +28,14 @@ export const CORPSE_ROT_DAYS = 14;
 export const ENCHANT_STONE_VALUE_MULT = 3;
 /** An enchanted item's value adds this for each rune vial its setting burned. */
 export const ENCHANT_VIAL_VALUE = 15;
+/** °C: the coolest a working cellar's tiles may be. */
+export const CELLAR_MIN_C = 2;
+/** °C: the warmest a working cellar's tiles may be. */
+export const CELLAR_MAX_C = 14;
+/** An aged item's value, percent of its young value. */
+export const AGED_VALUE_PERCENT = 150;
+/** A vintage item's value, percent of its young value. */
+export const VINTAGE_VALUE_PERCENT = 250;
 
 /**
  * `12-workshops-and-professions.md` § Quality, "Value multiplier" column, in permille, by quality

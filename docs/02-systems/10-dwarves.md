@@ -59,12 +59,18 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 ### Eating and drinking
 
 - Food search: nearest reachable edible item that is not forbidden or reserved, preferring `meal` items, then raw food, using 13's `findItem`. The dwarf carries it to the nearest dining hall chair with a table if one is within `DINING_SEARCH_RADIUS`, else eats on the spot. Emits `MealEaten { id, quality, atTable, roomTier }`.
-- Drink search: alcohol in a barrel on a stockpile, else alcohol in a barrel standing anywhere else (at the still, on a full fortress's floor), else a well with water, else the nearest reachable water tile of level ≥ 1 (not frozen) within `DRINK_SEARCH_RADIUS` tiles horizontally of the dwarf and 8 levels up or down, drunk from any walkable tile below `FLUID_WADE_LEVEL` 8-adjacent to it on its level, or on the level above it when open air with no fluid lies over the water (the bank over a brook or river, whose water lies one level below the ground, `local-map-generation.md` § 2; a floor or rock over the water is no bank). A brook that has frozen (04 § Freezing and thawing) gives no water until it thaws: a fortress with no drink in stock, no brew and no well on unfrozen water has nothing to drink through the winter. Rank the stand tiles by their horizontal Chebyshev distance from the dwarf plus their vertical distance times `Z_DISTANCE_WEIGHT`, ties by the stand tile index. If none of the listed sources is reachable, a reachable alcohol item in no barrel is a last resort; consume one unit and emit the same `DrankAlcohol` event. Emits `DrankAlcohol { id, quality }` or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought).
+- Drink search: alcohol in a barrel on a stockpile, else alcohol in a barrel standing anywhere else (at the still, on a full fortress's floor), else a well with water, else the nearest reachable water tile of level ≥ 1 (not frozen) within `DRINK_SEARCH_RADIUS` tiles horizontally of the dwarf and 8 levels up or down, drunk from any walkable tile below `FLUID_WADE_LEVEL` 8-adjacent to it on its level, or on the level above it when open air with no fluid lies over the water (the bank over a brook or river, whose water lies one level below the ground, `local-map-generation.md` § 2; a floor or rock over the water is no bank). A brook that has frozen (04 § Freezing and thawing) gives no water until it thaws: a fortress with no drink in stock, no brew and no well on unfrozen water has nothing to drink through the winter. Rank the stand tiles by their horizontal Chebyshev distance from the dwarf plus their vertical distance times `Z_DISTANCE_WEIGHT`, ties by the stand tile index. If none of the listed sources is reachable, a reachable alcohol item in no barrel is a last resort; consume one unit and emit the same `DrankAlcohol` event. Emits `DrankAlcohol { id, material, quality, group, aged }` (`group` is the drink's group, `ale`, `wine` or `spirits`, from its material's tag; `aged` its stage, 0 young, 1 aged, 2 vintage, 13 § Aging in a cellar) or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought). 15 gives `drank_strong_drink` for spirits, and `drank_aged_drink` or `drank_vintage_drink` beside the drink's own thought.
 - After every drink source above, the alcohol in no barrel included, a thirsty dwarf takes a reachable `plant_food` whose material is tagged `drinkable` (`cactus_pulp`), walks to it and eats it there for its water: thirst falls by `CACTUS_THIRST_RELIEF` (half of water's), hunger is not relieved. Emits `DrankFromPlant { id, material }`, and 15 gives `drank_cactus`.
 - Eating and drinking take `EAT_TICKS` and `DRINK_TICKS`, longer on a crowded tile (22 § Crowding).
 - A meal eaten at a table is also a sit in the room of its chair. It relieves comfort as a sit there would and emits `Sat { id, roomTier }`: −40 in a room of tier ≥ decent, −20 in the hearth hall, nothing at a table in neither.
 - A meal or a drink finished on a hearth-hall tile counts its `EAT_TICKS` or `DRINK_TICKS` toward a hearth visit (§ Social, comfort, joy).
 - Patients are fed by care jobs (17).
+
+### Tipsy
+
+- A dwarf who drinks a drink of the `drink/spirits` group is tipsy for `TIPSY_TICKS`: its walking speed and its work rate are × (100 − `TIPSY_SLOW_PERCENT`) / 100, and a talk relieves its social need twice over (−80, a friend −120; the partner's relief is its own). `dwarves.productivity(id)` includes it, and the movement formula of § Movement gains the factor. A second drink while tipsy restarts the time; it does not stack. A tipsy time that has run out, or whose dwarf has died, is forgotten on the dwarves tick.
+- Dwarves drink the nearest drink as now, so where the spirits stand is where the singing is: a barrel of spirits by the forge is a slow forge, a locked cellar a wine cellar.
+- The units panel and the inspector say "Tipsy" beside the activity; the glyph is unchanged.
 
 ### Sleeping
 
@@ -125,7 +131,7 @@ Every target a need activity walks to must be reachable (connectivity labels). I
 
 ### Movement
 
-Dwarves move with the movement helper at `speedFixed = species speed × (50 + Agility) / 100 × wound modifier (17) × carry modifier (a carried item heavier than `HEAVY_ITEM_DENSITY × size` halves speed)`. They avoid `restricted` tiles when a path without them exists (22 cost) and never enter `forbidden` tiles. A dwarf entering a misty tile emits `DwarfFeltMist` (once per `MIST_THOUGHT_COOLDOWN`); entering an outdoor tile during rain, storm, snow, heatwave or cold snap emits `DwarfOutdoorsIn { weather }` once per hour.
+Dwarves move with the movement helper at `speedFixed = species speed × (50 + Agility) / 100 × wound modifier (17) × tipsy modifier (§ Tipsy) × carry modifier (a carried item heavier than `HEAVY_ITEM_DENSITY × size` halves speed)`. They avoid `restricted` tiles when a path without them exists (22 cost) and never enter `forbidden` tiles. A dwarf entering a misty tile emits `DwarfFeltMist` (once per `MIST_THOUGHT_COOLDOWN`); entering an outdoor tile during rain, storm, snow, heatwave or cold snap emits `DwarfOutdoorsIn { weather }` once per hour.
 
 The `EntitiesMoved` handler observes entries using the batch’s from/to tiles. It writes the dwarf’s `Brain` for mist and outdoor thought memory, and `Needs` for masterwork joy relief; it never changes a tile. A zero `lastMistTick` means mist has never been felt; otherwise the cooldown must have elapsed. `lastOutdoorThoughtHour` stores the hour index so the weather thought fires only once per hour. `DwarfNearSpring` fires when the destination is on or 8-adjacent to a spring on the same level and the origin was not. Miasma is a standing thought checked by 15, rather than a movement event.
 
@@ -158,7 +164,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 - Components: `Attributes`, `Skills`, `Needs`, `Personality`, `Schedule`, `Relationships`, `Title`, plus private `Brain { behavior, behaviorUntilTick, targetTile, activity, lastMistTick, lastOutdoorThoughtHour }`.
 - `titles: Record<Title, EntityId | 0>`, `populationCached`, `children: EntityId[]`.
-- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id, last scan tick and last seen tile, and `caught` while the hostile holds a civilian it caught fleeing); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; talks in passing (the two dwarves and the end tick), per-dwarf hearth-hall ticks and per-dwarf hall-errand retry ticks, each omitted when empty and empty in older saves; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
+- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id, last scan tick and last seen tile, and `caught` while the hostile holds a civilian it caught fleeing); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; talks in passing (the two dwarves and the end tick), per-dwarf hearth-hall ticks, per-dwarf hall-errand retry ticks and `tipsyUntil` (per tipsy dwarf, the tick its tipsiness ends), each omitted when empty and empty in older saves; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
 - Rng stream.
 
 ## Interfaces
@@ -171,7 +177,8 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 - `dwarves.isUnclothed(id)` — a body garment, a leg garment or boots are missing
 - `dwarves.skill(id, skillId)`, `dwarves.skillTier(id, skillId)`, `dwarves.attribute(id, attr)`
 - `dwarves.need(id, need)`, `dwarves.behavior(id)`, `dwarves.activityText(id)` (for the units panel: "Digging", "Eating", "Sleeping", "No job"; the panel shows "No job" as "Idle")
-- `dwarves.productivity(id)` — percent: mood multiplier (15) × wound modifier (17)
+- `dwarves.productivity(id)` — percent: mood multiplier (15) × wound modifier (17) × the tipsy factor (§ Tipsy)
+- `dwarves.isTipsy(id)` — the dwarf drank spirits within `TIPSY_TICKS` (§ Tipsy)
 - `dwarves.friends(id)`, `dwarves.isFriend(a, b)`
 - `dwarves.bedHolder(bedId)` ? the living dwarf walking to or sleeping in the bed through its saved rest activity, or 0; patient holds are combined by 14
 - `dwarves.avoidedThreatTile(id)` — the last seen tile of a still-near living hostile for a civilian, or −1; job eligibility uses this memory
@@ -238,6 +245,8 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `WARDEN_TRAINING_BONUS_PERCENT` | 25 | *unmeasured* |
 | `HEAVY_ITEM_DENSITY` | 3 | Items heavier than 3 × the carrier's size units halve speed (*unmeasured*) |
 | `MIST_THOUGHT_COOLDOWN` | 1200 | Ticks (*unmeasured*) |
+| `TIPSY_TICKS` | 100 | Ticks a dwarf stays tipsy after a drink of spirits: two hours (*unmeasured*) |
+| `TIPSY_SLOW_PERCENT` | 10 | A tipsy dwarf walks and works this much slower, percent (the owner's call, 2026-11-13: the slowdown stays) (*unmeasured*) |
 
 Need rates and thresholds above follow the balance model; the consumption arithmetic is in [`../03-content/balance.md`](../03-content/balance.md).
 
@@ -253,12 +262,6 @@ Need rates and thresholds above follow the balance model; the consumption arithm
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
 
-### Tipsy (T-554)
-
-- A dwarf who drinks a drink of the `drink/spirits` group is tipsy for `TIPSY_TICKS`: its walking speed and its work rate are × (100 − `TIPSY_SLOW_PERCENT`) / 100, and a talk relieves its social need twice over (−80, a friend −120). `dwarves.productivity(id)` includes it, and the movement formula of § Movement gains the factor. A second drink while tipsy restarts the time; it does not stack.
-- `DrankAlcohol { id, quality }` gains `group` (`ale`, `wine`, `spirits`) and `aged` (0, 1, 2); 15 gives `drank_strong_drink` for spirits, and `drank_aged_drink` or `drank_vintage_drink` beside the drink's own thought.
-- Dwarves drink the nearest drink as now, so where the spirits stand is where the singing is: a barrel of spirits by the forge is a slow forge.
-- Constants: `TIPSY_TICKS` 100 (two hours), `TIPSY_SLOW_PERCENT` 10. Save: `tipsyUntil` per dwarf (omitted when empty). UI: the units panel and the inspector say "Tipsy" beside the activity; the glyph is unchanged.
 
 ### Places that make a face (T-557, T-560)
 

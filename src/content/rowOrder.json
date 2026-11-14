@@ -1080,6 +1080,30 @@
     "id": "crush_fossil"
   },
   {
+    "table": "materials",
+    "id": "deepfire"
+  },
+  {
+    "table": "recipes",
+    "id": "distill"
+  },
+  {
+    "table": "thoughts",
+    "id": "drank_strong_drink"
+  },
+  {
+    "table": "thoughts",
+    "id": "drank_aged_drink"
+  },
+  {
+    "table": "thoughts",
+    "id": "drank_vintage_drink"
+  },
+  {
+    "table": "hints",
+    "id": "hint_cellar"
+  },
+  {
     "table": "items",
     "id": "stone_bed"
   },

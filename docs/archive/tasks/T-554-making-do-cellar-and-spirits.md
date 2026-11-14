@@ -1,6 +1,8 @@
 # T-554 — Making Do B4: the cellar, aging and spirits
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (cellar, spirits)); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-14, in 76cf17e9,1c1cd4d4,9eb8c229,56b6edab,68e9eaa3,86d0199d,d022e6e2.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (cellar, spirits)); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

@@ -49,7 +49,7 @@ Stockpile filters select any node; selecting a node selects its subtree. Materia
 
 An item that does not come from the fortress (a hostile's gear, its corpse, what it drops) carries the `foreign` flag (`ItemFlag.Foreign`). The flag survives splitting, dropping and rot, and a creature whose death is still queued when the game is saved keeps the origin of what it holds. A foreign item is in no stock count and adds nothing to wealth. The flag is cleared, and the item counted, when a fortress dwarf picks it up (a container's contents with it) or when the `strip_corpse` job that recovers it completes.
 
-`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items. An enchanted item (25 § Setting stones) adds `stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, from its `enchants` row; a gem stone's and a metal's value is its material's (a cut gem, a bar), and an item stone's is one unit of that item in the material that shares its id (a wyrmscale 80, a hollow ichor 60, a spider venom 20, an ember gland 25). Enchanted ammunition carries it per unit, `round(enchant value / 25)` whole marks a unit times the count, so value is linear in the count and a split or a merge never changes wealth: a set of 25 bolts of embers carries 25 × round(96 / 25) = 100. A masterwork steel breastplate is 4,000; set adamant, 4,000 + 90 × 3 + 12 × 15 = 4,450. A `stuffed` item whose stuffing (`Item.stuffing`, 12 § Operation) is `feather` takes its type's multiplier twice over: a featherbed's bedding and pillow are worth double. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
+`value(item) = materialValue × type.valueMultiplier × qualityMultiplier × count × ageFactor`, integer marks, where `qualityMultiplier` is 12's tier table (0.5 … 5.0) and 1.0 for non-quality items, and `ageFactor` is 1 for a young item, `AGED_VALUE_PERCENT` / 100 for an aged one and `VINTAGE_VALUE_PERCENT` / 100 for a vintage one (§ Aging in a cellar); the product is truncated once. An enchanted item (25 § Setting stones) adds `stone value × ENCHANT_STONE_VALUE_MULT + vials × ENCHANT_VIAL_VALUE`, from its `enchants` row; a gem stone's and a metal's value is its material's (a cut gem, a bar), and an item stone's is one unit of that item in the material that shares its id (a wyrmscale 80, a hollow ichor 60, a spider venom 20, an ember gland 25). Enchanted ammunition carries it per unit, `round(enchant value / 25)` whole marks a unit times the count, so value is linear in the count and a split or a merge never changes wealth: a set of 25 bolts of embers carries 25 × round(96 / 25) = 100. A masterwork steel breastplate is 4,000; set adamant, 4,000 + 90 × 3 + 12 × 15 = 4,450. A `stuffed` item whose stuffing (`Item.stuffing`, 12 § Operation) is `feather` takes its type's multiplier twice over: a featherbed's bedding and pillow are worth double. Engravings, decorations and encrusting do not exist in version 1, so this is the whole formula.
 
 Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress faction), `−value` on `ItemDestroyed`, `±` on quality change (none in version 1) and on a set stone (`items.setEnchant`), `+` when a hostile's loot is recovered, `−` when a thief escapes, plus building values from 14 (`BuildingCompleted` adds its material value plus a per-type bonus; `BuildingRemoved` subtracts). `WealthChanged` is emitted at the items cadence when the cached value differs from the last emitted by more than `WEALTH_EVENT_STEP`.
 
@@ -64,7 +64,8 @@ Fortress wealth is maintained incrementally: `+value` on `ItemCreated` (fortress
 
 ```
 Stockpile { filter: { categories: Set<CategoryPath>, materialClasses: Set<MaterialClass> | 'any', minQuality, maxQuality, allowRot: boolean },
-            containersWanted: { barrel, bag, bin },  priority, linkedSources: EntityId[], acceptsFromAnywhere: boolean }
+            containersWanted: { barrel, bag, bin },  priority, linkedSources: EntityId[], acceptsFromAnywhere: boolean,
+            cellar?: true, cellarOk?: true, cellarReason?: 'lit' | 'too_warm' | 'too_cold', cellarC?: number }
 ```
 
 - `accepts(stockpile, item)`: the item's category is under a selected node, its material class is allowed, its quality is in range, it is not forbidden, and (if `linkedSources` is non-empty) the item currently sits in one of those stockpiles. `LinkStockpile` accepts only another stockpile zone as source; a building or any other zone type rejects with `not_found`.
@@ -140,6 +141,13 @@ Rot speed: full speed on the ground and in a workshop; `ROT_CONTAINER_PERCENT` w
 
 Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits miasma to its tile and the 8 neighbors: `miasmaTiles: Map<TileIndex, expiresTick>` with `MIASMA_DURATION`. Dwarves entering a miasma tile get the `miasma` thought (10 checks `items.isMiasma(i)` on entering, like mist). Refuse stockpiles outdoors are the answer; so are burial and butchering promptly.
 
+### Aging in a cellar
+
+- A stockpile zone has the setting `cellar` (`SetStockpileCellar { zoneId, on }`; a hospital has none, and the command refuses it with `not_found`; `on` that is not a boolean is `bad_setting`). A stockpile is a *working cellar* when the setting is on, every tile is dark (no `lit` flag, and in no comfort light: 14's `buildings.comfortLightAt`, the built hearth's square and a built lamp's 3×3) and every tile's temperature (05's `temperatureAt`) is from `CELLAR_MIN_C` to `CELLAR_MAX_C`. The judgement is cached on the record: `cellarOk`, or the first reason it fails, in this order: `lit`, `too_warm` with the warmest tile's temperature in `cellarC`, `too_cold` with the coldest's. It is made on each `DayPassed`, and at once when the setting is turned on, so the inspector and the hint know before the next day; turning it off clears the judgement. No rng.
+- On each `DayPassed`, after the judgement, every item in a working cellar that can age gains one cellar day (`Item.cellarDays`), in ascending id order: the items lying on its tiles and the contents of the containers there. What can age: a stack of `drink` in a container of class `barrel` of a `wood` material, and `cheese` (in a container or not). When its cellar days reach `DAYS_PER_YEAR` for a barrel whose material carries the tag `fine_cask` (oak) or for cheese, or twice that for any other wood, it gains one stage (`Item.age`: absent young, 1 aged, 2 vintage), its cellar days return to 0 and the system emits `ItemAged { id, stage }` (no announcement). A drink in a pot, a metal barrel or no barrel never ages, and vintage is the last stage. A cellar that stops working (a warm week, a lamp) only pauses: the days stay with the item, and with it when it leaves the cellar.
+- The stage is part of the value (§ Value: wealth is re-accounted on the change of stage). An aged or vintage cheese leaves the rot queue and rots no more. The name says the stage before the material: "a barrel of aged bellwine", "a wheel of vintage cheese" (24). Stacks merge only at the same stage, and a merged stack keeps the fewer cellar days of the two; a split part keeps both.
+- Wealth from a cellar raises renown, and renown sizes raids (18): a fortress that hoards vintage is worth raiding, and a thief takes the most valuable thing it can reach.
+
 ### Corpses
 
 A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wornItems[] }`, created on `CreatureDied` at the death tile with the creature's size as its weight (heavier than most things: hauling a troll corpse is slow). A species with `remains` ([creatures.md](../03-content/creatures.md) § Remains) leaves them on its corpse: each is spawned at the death tile in the material that shares its id, flagged `foreign`, and joins `wornItems`, so `strip_corpse` recovers it as it recovers gear (25 § Rare materials). No rng. Dwarf corpses use `skull_bone` as material, preserving species and dwarf name on the `Corpse` component; they want hauling to a coffin (14 burial job) before a refuse stockpile. Sapient hostile corpses can be dumped or hauled to refuse; they cannot be butchered.
@@ -165,7 +173,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ## State
 
-- `Item`, `Container`, `Corpse` components; `itemsAtTile` via the spatial index; `wantsHauling`, `noHome`; `slotReservations`; `rotQueue`; `miasmaTiles`; `counts`; `wealthCached`; `Stockpile` components and `stockpileTiles: Map<TileIndex, stockpileId>`.
+- `Item` (with `cellarDays` and `age`, both omitted when 0), `Container`, `Corpse` components; `itemsAtTile` via the spatial index; `wantsHauling`, `noHome`; `slotReservations`; `rotQueue`; `miasmaTiles`; `counts`; `wealthCached`; `Stockpile` components (with `cellar`, `cellarOk`, `cellarReason` and `cellarC`, each omitted when off or absent) and `stockpileTiles: Map<TileIndex, stockpileId>`.
 - `dirtyTypes`, `fullStockpiles` and `buildingWealth`; queued `pendingDeaths` retain foreign origin.
 - Rng stream (ammunition breakage, not used here; reserved).
 
@@ -194,21 +202,21 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Commands
 
-`ForbidItem { itemId | tiles | typeId, on }`, `ClaimItem` (the same with `on: false`), `DumpItem { … }`, `MeltItem { … }`, `SetStockpileFilter { zoneId, filter }`, `SetStockpileContainers { zoneId, wants }`, `SetStockpilePriority`, `LinkStockpile { zoneId, sourceZoneId, on }`. (`SetHospitalSupplies` is 17's command; its value is stored as a filter here.)
+`ForbidItem { itemId | tiles | typeId, on }`, `ClaimItem` (the same with `on: false`), `DumpItem { … }`, `MeltItem { … }`, `SetStockpileFilter { zoneId, filter }`, `SetStockpileContainers { zoneId, wants }`, `SetStockpilePriority`, `LinkStockpile { zoneId, sourceZoneId, on }`, `SetStockpileCellar { zoneId, on }` (§ Aging in a cellar). (`SetHospitalSupplies` is 17's command; its value is stored as a filter here.)
 
 `SetStockpileFilter`, `SetStockpileContainers`, `SetStockpilePriority` and `LinkStockpile` ensure a missing record first for an existing stockpile or hospital zone, using exactly the defaults of the deferred zone event. The later event preserves that record and its settings. A stockpile begins with an empty filter; a hospital begins with its hospital filter. Both have no wanted containers or source links and the initial haul priority specified in Stockpiles. `LinkStockpile` also ensures its source, which must be another stockpile zone. Paused commands retain their ordinary queued event dispatch and the same save format.
 
 ### Events consumed
 
-`CreatureDied` (release the creature's item ownership; create corpse), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `AttackResolved` (a pot or a clay jug its defender carries breaks, § Containers in play), `TemperatureTick` (rot speed sampling for the head bucket).
+`CreatureDied` (release the creature's item ownership; create corpse), `DayPassed` (judge the cellars and age what lies in the working ones), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `AttackResolved` (a pot or a clay jug its defender carries breaks, § Containers in play), `TemperatureTick` (rot speed sampling for the head bucket).
 
 ### Events emitted
 
-`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`, and `ItemReleased { itemId, jobId }` when creature-removal cleanup releases a personal reservation.
+`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `ItemAged { id, stage }`, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`, and `ItemReleased { itemId, jobId }` when creature-removal cleanup releases a personal reservation.
 
 ### Registrations
 
-Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, owner, flags, container) and `zone › stockpile` (filter, containers, usage, priority, links); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day, "Miasma spreads.").
+Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, owner, flags, container) and `zone › stockpile` (filter, containers, usage, priority, links, cellar); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day, "Miasma spreads.").
 
 ## Player-facing behavior
 
@@ -216,11 +224,12 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
   - The preset is a dropdown opened with its button or `Shift+P`; arrows choose, `Enter` applies, and accelerator letters jump to matching names (a panel letter requires Shift). In the tree, `↑↓` selects, `→` expands, `←` collapses or selects the parent, and `Space` toggles the selected subtree. Clicking a name expands it; clicking its checkbox toggles it.
   - `q` focuses the wanted barrel count; `↑↓` or `Tab` moves through barrels, bags, bins, priority, minimum quality and maximum quality. `←→` or `+/-` changes the selected value, as do the mouse minus and plus buttons. Counts are non-negative, priority is 1–9 and quality is 0–5 with minimum no greater than maximum. A refused adjustment says why in the status row and changes nothing.
   - `g` returns to the category tree. `v` opens the material-class checklist; arrows select and `Space` toggles, as does a click. The Any row switches between all classes and none. `Esc` returns without another change. All these actions are buttons or fields as well as keys, and are listed in Help. Truncated values have full-text tooltips.
+  - `Shift+C` turns the cellar setting on or off, as does a click on its line; the line says whether the cellar works and why not: "Cellar: working", "Cellar: too warm (16 °C)", "Cellar: lit" (24 § Panels).
   - A full-stockpile announcement names its ordinal and category preset, or Custom, and focuses the stockpile: "Stockpile #2 (Wood) is full."
-- Stocks panel: category tree with counts and values; stocked category leaves expand to type rows and individual item stacks. Forbid, dump and melt act on the selected scope. With mixed materials in a type, melt addresses only its metal stacks.
+- Stocks panel: category tree with counts and values; stocked category leaves expand to type rows and individual item stacks. An aged stack names its stage and its years in the cellar: "aged bellwine ×20 (aged, 1 year in the cellar)". Forbid, dump and melt act on the selected scope. With mixed materials in a type, melt addresses only its metal stacks.
 - Item inspection: every field.
 - Glyphs: `%` food and corpses (corpses in dark red), `☼` drink barrels... the full glyph table is in `03-content/glyphs-and-colors.md`; the rule is one glyph per category node at depth 2.
-- Hints: "Stockpiles need barrels for drink and bags for seeds", "Refuse rots: keep the refuse pile outside".
+- Hints: "Stockpiles need barrels for drink and bags for seeds", "Refuse rots: keep the refuse pile outside", and `hint_cellar` while a stockpile with the cellar setting on is not a working cellar.
 
 ## Tuning constants
 
@@ -239,6 +248,9 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 | `CORPSE_ROT_DAYS` | 14 | Default; species may override (*unmeasured*) |
 | `ENCHANT_STONE_VALUE_MULT` | 3 | An enchanted item's value adds its stone's value times this (*unmeasured*) |
 | `ENCHANT_VIAL_VALUE` | 15 | An enchanted item's value adds this per rune vial of its setting (*unmeasured*) |
+| `CELLAR_MIN_C` / `CELLAR_MAX_C` | 2 / 14 | °C: a working cellar's tiles all lie in this range (*unmeasured*) |
+| `AGED_VALUE_PERCENT` | 150 | An aged item's value, percent of its young value (*unmeasured*) |
+| `VINTAGE_VALUE_PERCENT` | 250 | A vintage item's value, percent of its young value (*unmeasured*) |
 
 Rot days per type, stack sizes and value multipliers are content.
 
@@ -257,7 +269,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 
 ```
 food/      meat/cured (T-552)  fish/cured (T-552)  honey honeycomb wax (T-555)  meal/feast (T-565)
-drink/     spirits gets its first material (T-554)
 bar/       peat  dung (T-552)
 furniture/ lantern (T-563)  beehive (T-555)
 container/ basket (T-549)
@@ -276,14 +287,6 @@ The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `ba
 ### Curing (T-552)
 
 `cured_meat`, `cured_fish` and `salted_hide` have `rotDays` 0: they never rot. A cured item is worth twice its raw form (its type's `mult` 2). `tan_hide` takes a `salted_hide` as it takes a `raw_hide`.
-
-### Aging in a cellar (T-554)
-
-- Stockpile setting `cellar` (boolean; `SetStockpileCellar { zoneId, on }`, and the stockpile panel's `Cellar` line). A stockpile is a *working cellar* when the setting is on, every tile is dark (not `lit`, and in no comfort light: 14's `buildings.comfortLightAt`, the hearth's square, a lamp's, a candle stand's or a lantern's) and every tile's temperature (05) is from `CELLAR_MIN_C` to `CELLAR_MAX_C`. It is judged on each `DayPassed` and cached (`cellarOk`, with the reason when not: "too warm (16 °C)", "lit", "too cold").
-- On each `DayPassed`, every item in a working cellar that can age gains one cellar day (`Item.cellarDays`). What can age: a stack of `drink` in a barrel of a `wood` material, and `cheese`. When its cellar days reach a year's (`DAYS_PER_YEAR`) for an oak barrel (the material carries the tag `fine_cask`) or for cheese, or two years' for any other wood, it gains one stage (`Item.age`: 0 young, 1 aged, 2 vintage) and its cellar days return to 0. A drink in a pot or a metal barrel never ages. Vintage is the last stage.
-- Value: an aged item is worth × `AGED_VALUE_PERCENT` / 100, a vintage one × `VINTAGE_VALUE_PERCENT` / 100 (§ Value gains the factor; wealth is re-accounted on the stage change). Aged and vintage cheese no longer rot. The name says it: "a barrel of aged bellwine", "a wheel of vintage cheese". Stacks merge only at the same stage.
-- The stocks panel shows each aged stack's stage and, for a cellar, its years ("vintage, 2 years in the cellar"). Wealth from a cellar raises renown, and renown sizes raids (18): a fortress that hoards vintage is worth raiding.
-- Constants: `CELLAR_MIN_C` / `CELLAR_MAX_C` 2 / 14, `AGED_VALUE_PERCENT` 150, `VINTAGE_VALUE_PERCENT` 250. Events: `ItemAged { id, stage }` (no announcement). Commands: `SetStockpileCellar`. Save: `Stockpile.cellar`, `cellarOk`, `Item.cellarDays`, `Item.age` (both omitted when 0).
 
 ### Ice blocks melt (T-559)
 

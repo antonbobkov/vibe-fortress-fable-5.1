@@ -181,7 +181,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.roomDiagnostics(zoneId)` — current missing furniture requirements and sorted, unique open border tiles; a read-only query, undefined for a non-room zone
 - `buildings.wellWorking(id)` — the well has water within `WELL_DEPTH` below; `buildings.cageOccupant(id)` — the creature held in a cage building, or 0; `buildings.memorialEligible(id)` — the dead dwarf has no intact body and can be named on a memorial slab
 - `buildings.wagon()` — the wagon, or 0; `buildings.holderTile(id)` — the tile a building's container contents lie on (the wagon), or −1
-- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp
+- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp; `buildings.comfortLightAt(i)` — the tile is in comfort light, the built hearth's square or a built lamp's 3×3 (not crop light; it sets no `lit` flag; 13's cellars must be out of it)
 - `buildings.value(id)` — a building's contribution to wealth when built (material value plus the per-type bonus)
 - `buildings.wants(id)` — each want of a built building with its `count`, the `held` items that answer it and those `coming` (13's hauls to it); `buildings.held(id)` — the living items it holds; `buildings.withWants()` — the built buildings whose type has wants, ascending (§ Building wants)
 - `buildings.restPercent(id)` — the percent a built `sleep` building rests at (`MADE_UP_REST_PERCENT` made up), 0 for anything else; `buildings.bedding(id)` — `none`, `soft` or `feather` (§ Beds)
@@ -262,9 +262,9 @@ Every workshop but the carpenter's (the row's tag `logs_only`) may be placed wit
 
 - Constants: `STONE_WORKSHOP_TICKS_PERCENT` 150.
 
-### Comfort light, candle stands and lanterns (T-554 for the query; T-563 for the rest)
+### Comfort light, candle stands and lanterns (T-563)
 
-- `buildings.comfortLightAt(i)` (T-554): the tile is in the built hearth's square or a built lamp's 3×3; T-563 adds a burning candle stand's and a lantern's 3×3. It is not crop light and sets no `lit` flag.
+- `buildings.comfortLightAt(i)` (§ Interfaces) gains a burning candle stand's and a lantern's 3×3.
 - `candle_stand` (1×1, 1 `stone_block` or `bar`, labor `construction`, tag `light`, impassable): wants `STAND_CANDLES` `candle`s. While it holds a candle it burns the first: a candle burns `burnDays` of its material (tallow 7, beeswax 14: `CANDLE_DAYS_TALLOW`, `CANDLE_DAYS_WAX`), counted on `DayPassed` (`Building.burnDays`), and is consumed when they are spent; the next is lit. A stand with a burning candle lights its 3×3. It adds room value as furniture of its candles' value (the held candles count, § Building wants). A `maintain` order for candles keeps it fed.
 - `lantern` (an item made at the kiln: 1 glass + 1 candle; placed like furniture, labor `construction`, tag `light`) lights its 3×3 forever: the permanent version, at the price of glass.
 - **What light does.** A meal eaten at a table on a comfort-lit tile carries `candlelit: true` on `MealEaten` (the hearth's square and lamps count), and 15 gives `ate_by_candlelight`. A fortress creature standing on a comfort-lit tile spots a hidden creature `CANDLE_SPOT_BONUS` tiles farther, and a hidden creature standing on one is spotted that much farther away (18 § Planned): candles at the gate catch thieves.
@@ -290,6 +290,6 @@ Every workshop but the carpenter's (the row's tag `logs_only`) may be placed wit
 
 A wall or floor built of `stone_block` of `ice` is an ice construction: 05 cools and melts it (05 § Planned). It is magma-unsafe as ice is. A gate of ice holds a raid in winter and opens itself in spring.
 
-### The compost heap and the cellar (T-564, T-554)
+### The compost heap (T-564)
 
-Zone type `compost` (13 § Planned) and the stockpile setting `cellar` (13 § Planned) are rows of `buildings-and-furniture.md` § Zone types; a compost heap is no room.
+Zone type `compost` (13 § Planned) is a row of `buildings-and-furniture.md` § Zone types; a compost heap is no room. (The stockpile setting `cellar` is in that table's `stockpile` row, 13 § Aging in a cellar.)

@@ -78,6 +78,11 @@ export class RotQueue {
     if (this.core.get(id)?.rotStage === 2) this.rotten.add(id);
     else this.rotten.delete(id);
     if (change === 'destroyed') { this.unqueue(id); this.records.delete(id); return; }
+    // 13 § Aging in a cellar: aged and vintage cheese no longer rot.
+    if ((this.core.get(id)?.age ?? 0) > 0) {
+      if (this.records.has(id)) { this.unqueue(id); this.records.delete(id); }
+      return;
+    }
     if (change !== 'created' && change !== 'placed' && change !== 'lifted' && change !== 'contained') return;
     const it = this.core.get(id);
     if (it === undefined) return;

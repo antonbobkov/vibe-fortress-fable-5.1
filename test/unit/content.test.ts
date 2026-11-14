@@ -95,7 +95,7 @@ describe('T-M0-06 content: every table loads', () => {
       smelter: 26,
       forge: 40,
       kitchen: 5,
-      still: 2,
+      still: 3,
       tannery: 1,
       leatherworks: 11,
       loom: 2,
@@ -109,7 +109,7 @@ describe('T-M0-06 content: every table loads', () => {
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(226);
+    expect(registry.table('recipes').size).toBe(227);
   });
 
   it('the content hash is a stable hex string', () => {

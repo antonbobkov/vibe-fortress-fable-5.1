@@ -16,6 +16,7 @@ import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
 import { jobXp } from '@systems/dwarves/rules/skills';
 import { ALCHEMY_MISHAP_PERMILLE } from '@systems/magic/constants';
+import { distillable } from './spirits';
 
 export interface RecipeRow {
   readonly id: string;
@@ -27,7 +28,7 @@ export interface RecipeRow {
     readonly count: number;
     readonly material?: string;
     readonly materials?: readonly string[];
-    readonly materialProperty?: 'magma_safe' | 'brewable';
+    readonly materialProperty?: 'magma_safe' | 'brewable' | 'ale_or_wine';
     readonly sameMaterial?: boolean;
     readonly flagged?: 'melt';
     readonly distinct?: boolean;
@@ -59,7 +60,7 @@ export interface RecipeRow {
 
 interface BuildingRow { readonly id: string; readonly category: string; readonly tags: readonly string[]; readonly magmaVariantOf?: string; readonly workTile?: number; readonly outputTile?: number }
 interface MaterialRow { readonly id: string; readonly class: string; readonly tags?: readonly string[]; readonly meltsAtC: number; readonly nextStage?: string }
-interface ItemRow { readonly id: string; readonly category?: string; readonly tags?: readonly string[] }
+interface ItemRow { readonly id: string; readonly category?: string; readonly tags?: readonly string[]; readonly drinkable?: boolean }
 interface PlantRow { readonly id: string; readonly brew?: string }
 
 export function recipeInputFilter(registry: Registry, input: RecipeRow['inputs'][number], order: WorkOrder): ItemFilter {
@@ -94,6 +95,12 @@ export function recipeInputFilter(registry: Registry, input: RecipeRow['inputs']
       .filter((id) => materials.has(id))
       .map((id) => materials.index(id));
     filter.materialIds = filter.materialIds !== undefined ? filter.materialIds.filter((id) => brewable.includes(id)) : brewable;
+  }
+
+  // 12 § Spirits: `distill` takes a drink of the `drink/ale` or `drink/wine` group (the material's `ale` or `wine` tag).
+  if (input.materialProperty === 'ale_or_wine') {
+    const drinks = materials.where('distillable', distillable).map((row) => materials.index(row.id));
+    filter.materialIds = filter.materialIds !== undefined ? filter.materialIds.filter((id) => drinks.includes(id)) : drinks;
   }
 
   if (input.material === 'flux') {
@@ -132,6 +139,8 @@ export function outputFilter(registry: Registry, recipe: RecipeRow, order: WorkO
   if (typeof material === 'number') filter.materialId = material;
   else if (typeof material === 'string' && materials.has(material)) filter.materialId = materials.index(material);
   else if (typeof material === 'string') filter.materialClass = material;
+  // 12 § Spirits: a drink of a fixed material (deepfire, hopped ale) is counted by that material alone.
+  else if (items.byId(first.item)?.drinkable === true && 'fixed' in first.material && materials.has(first.material.fixed)) filter.materialId = materials.index(first.material.fixed);
   return filter;
 }
 
