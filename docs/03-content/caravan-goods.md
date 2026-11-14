@@ -63,6 +63,8 @@ Merchants: humans. Guards: humans with iron spears, caps, leather jerkins, buckl
 | Wooden goods | `barrel`, `bin`, `bucket`, `bed`, `chair`, `table` | pine, oak | 2–4 | 8 | |
 | Bandages and splints | `bandage` ×4, `splint` ×4 | flax_cloth, pine | 1–2 | 5 | |
 | Bedding | `bedding` | flax_cloth | 2–4 | 6 | |
+| Bricks | `stone_block` | brick | 5–10 | 6 | |
+| Pots | `pot` | earthenware | 2–4 | 6 | |
 
 ## Wildwood (autumn, from year 1)
 
@@ -105,6 +107,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | `bar` deepsilver, deepsilver items | 300 | 200 | 150 |
 | `furniture/*` | 100 | 110 | 80 (wood: 20) |
 | material `pewter` | 110 | | |
+| material `glass` | | 130 | |
 
 ## Reputation events
 
@@ -146,8 +149,6 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 | Hillfolk | Clay | `soil_load` | clay | 5–10 | 6 | T-550 |
 | Hillfolk | Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 | T-552 |
 | Hillfolk | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 | T-552 |
-| Hillfolk | Bricks | `stone_block` | brick | 5–10 | 6 | T-553 |
-| Hillfolk | Pots | `pot` | earthenware | 2–4 | 6 | T-553 |
 | Hillfolk | Candles | `candle` | tallow | 5–10 | 6 | T-563 |
 | Hillfolk | Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
 | Wildwood | Reeds | `reed` | reed | 5–10 | 6 | T-550 |
@@ -167,7 +168,6 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 | `craft` of `giant_bone` | 150 | | | T-557 |
 | material `salt` | | 150 | | T-550 |
 | `food/meat/cured`, `food/fish/cured` | | 120 | | T-552 |
-| material `glass` | | 130 | | T-553 |
 | `food/honey`, `food/wax` | | | 100 | T-555 |
 | material `reed` (baskets, wicker) | | | 100 | T-549 |
 | material class `bone` | | | 60 | T-550 |

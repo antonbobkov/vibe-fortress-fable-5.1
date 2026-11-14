@@ -246,6 +246,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `salt_white` | #ECEAE2 |  |  | `chitin_brown` | #6B4A2E |  |
 | `horn_gray` | #A89A86 |  |  | `ivory_cream` | #F2E8CF |  |
 | `feather_white` | #F4F1EA |  |  | `pewter_gray` | #8E949A |  |
+| `brick_red` | #A0482E |  |  | `glass_pale` | #BFE3E6 |  |
 
 ## Glyphs by thing
 
@@ -315,10 +316,10 @@ loom         clothier     farmers      butcher      kennel       bowyer
 ≈ ┼ ≈        ≈ ┼ ≈        ╥ ┼ ╥        ╥ ┼ ╥        ▒ ┼ ▒        ≡ ┼ ≡
 ~ ≈ ~        [ ≈ [        u ╥ u        % ╥ %        § ▒ §        ) ≡ )
 
-depot        wagon        alchemist    runeforge
-▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ
-═ ┼ ═        ═ ▄ ═        ╥ ┼ ╥        ♦ ┼ ♦
-▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ
+depot        wagon        alchemist    runeforge    kiln
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ        ▄ ▲ ▄
+═ ┼ ═        ═ ▄ ═        ╥ ┼ ╥        ♦ ┼ ♦        █ ┼ █
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ        ▀ ☼ ▀
 ```
 
 The center `┼` is the work tile; the south-center tile is the output tile. Impassable corner tiles (smelter, forge, furnace, runeforge and magma variants) are the `▒`, `Ξ` glyphs. Magma variants draw the pattern in `magma_2` instead of the material color.
@@ -337,8 +338,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|
 | `dung_brown` | #5C4A30 | T-552 |
 | `smoke_bg` | #2E2E2E | T-552 |
-| `brick_red` | #A0482E | T-553 |
-| `glass_pale` | #BFE3E6 | T-553 |
 | `honey_amber` | #D49A2A | T-555 |
 | `wax_yellow` | #E8D27A | T-555 |
 | `soap_white` | #EEF0F2 | T-564 |
@@ -350,7 +349,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 
 | id | rows | task |
 |---|---|---|
-| `kiln` | `▄▲▄`, `█☼█`, `▀ ▀` | T-553 |
 | `smokehouse` | `≡≡≡`, `≡%≡`, `▀ ▀` | T-552 |
 
 The patterns' exact glyphs follow § Workshop patterns' conventions; a task may choose others from the glyph set.

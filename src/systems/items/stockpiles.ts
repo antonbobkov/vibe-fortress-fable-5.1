@@ -41,7 +41,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'furniture/chest', 'furniture/coffin', 'furniture/statue', 'furniture/cage', 'furniture/mechanism', 'furniture/floodgate',
   'furniture/anvil', 'furniture/nest_box', 'furniture/weapon_rack', 'furniture/armor_stand', 'furniture/memorial_slab',
   'furniture/trap_part',
-  'container', 'container/barrel', 'container/bag', 'container/bin', 'container/bucket',
+  'container', 'container/barrel', 'container/bag', 'container/bin', 'container/bucket', 'container/pot',
   'weapon', 'weapon/melee', 'weapon/ranged',
   'ammo',
   'armor', 'armor/head', 'armor/body', 'armor/arms', 'armor/legs', 'armor/feet', 'armor/shield',
@@ -52,6 +52,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'textile/bone', 'textile/shell', 'textile/skull', 'textile/horn', 'textile/tusk', 'textile/feather', 'textile/straw', 'textile/reed',
   'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf', 'medical/glowcap', 'medical/vial', 'medical/draught',
   'medical/wyrmscale', 'medical/ichor', 'medical/venom', 'medical/gland',
+  'farm', 'farm/bone_ash', 'farm/potash',
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
 ];
 
@@ -71,7 +72,7 @@ const DRINK_GROUPS: Readonly<Record<string, string>> = Object.freeze({
 
 /**
  * The presets of 13 § Player-facing behavior ("Food, Drink, Seeds, Stone, Ore and bars, Wood,
- * Furniture, Weapons and armor, Cloth and leather, Crafts and gems, Refuse, Corpses, Everything"),
+ * Furniture, Weapons and armor, Cloth and leather, Crafts and gems, Farm goods, Refuse, Corpses, Everything"),
  * as category nodes (D-071).
  */
 export const STOCKPILE_PRESETS: Readonly<Record<string, { categories: readonly string[]; allowRot: boolean }>> = Object.freeze({
@@ -85,11 +86,12 @@ export const STOCKPILE_PRESETS: Readonly<Record<string, { categories: readonly s
   weapons_and_armor: { categories: ['weapon', 'ammo', 'armor'], allowRot: false },
   cloth_and_leather: { categories: ['textile', 'clothing'], allowRot: false },
   crafts_and_gems: { categories: ['craft', 'stone/gem_rough', 'stone/gem_cut'], allowRot: false },
+  farm: { categories: ['farm'], allowRot: false },
   refuse: { categories: ['refuse/skeleton', 'refuse/rotten', 'refuse/part'], allowRot: true },
   corpses: { categories: ['refuse/corpse'], allowRot: true },
   everything: {
     categories: ['food', 'drink', 'seed', 'stone', 'ore', 'wood', 'bar', 'furniture', 'container', 'weapon', 'ammo', 'armor',
-      'clothing', 'tool', 'craft', 'textile', 'medical', 'refuse'],
+      'clothing', 'tool', 'craft', 'textile', 'medical', 'farm', 'refuse'],
     allowRot: true,
   },
   hospital: {

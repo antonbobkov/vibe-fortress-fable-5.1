@@ -89,6 +89,10 @@
     "hex": "#D4AF37"
   },
   {
+    "id": "brick_red",
+    "hex": "#A0482E"
+  },
+  {
     "id": "bright_green",
     "hex": "#66FF66"
   },
@@ -397,6 +401,10 @@
     "id": "ghost_ok",
     "hex": "#358035",
     "alt": "#2B558C"
+  },
+  {
+    "id": "glass_pale",
+    "hex": "#BFE3E6"
   },
   {
     "id": "glitter_gray",

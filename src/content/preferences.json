@@ -244,5 +244,10 @@
     "civ": "mountainhome",
     "key": "material pewter",
     "percent": 110
+  },
+  {
+    "civ": "hillfolk",
+    "key": "material glass",
+    "percent": 130
   }
 ]

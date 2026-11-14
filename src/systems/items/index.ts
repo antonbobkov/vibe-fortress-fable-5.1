@@ -17,6 +17,7 @@ import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { TileKind } from '@core/map3d';
 import { ItemCore } from './api';
+import { breakCarried, fragileMaterials } from './breakage';
 import { applyClaimItem, applyDumpItem, applyForbidItem, applyMeltItem, type ItemCommandHost } from './commands';
 import {
   applyLinkStockpile,
@@ -82,7 +83,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped', 'AttackResolved'];
   override readonly ownsCommands: readonly CommandType[] = [
     'ForbidItem',
     'ClaimItem',
@@ -291,6 +292,9 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     return out;
   }
 
+  /** The `fragile` material indices (derived from content, never saved). */
+  private fragile: ReadonlySet<number> | null = null;
+
   override handle(event: GameEvent, ctx: TickContext): void {
     const core = this.core;
     if (event.type === 'CreatureDied') {
@@ -327,6 +331,13 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
           this.pendingDeaths.delete(id);
           this.rotRef.createCorpse(ctx, id, species, tile, death.name, death.wornItems, death.foreign);
         } else this.pendingDeaths.set(id, death);
+      }
+    } else if (event.type === 'AttackResolved') {
+      // § Containers in play: a pot or a clay jug a struck creature carries breaks.
+      const defender = event['defenderId'];
+      if (event['outcome'] === 'hit' && typeof defender === 'number') {
+        this.fragile ??= fragileMaterials(ctx.registry);
+        breakCarried(core, this.fragile, defender);
       }
     } else if (event.type === 'CorpseCreated') {
       const id = event['creatureId'];

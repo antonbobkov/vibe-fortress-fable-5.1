@@ -1,11 +1,14 @@
 /**
  * T-284: a workshop that no recipe names is not offered in the build menu, is refused by PlaceBuilding,
- * and a kiln an older save already holds shows that it has nothing to make and can be taken apart.
+ * and one a save already holds shows that it has nothing to make and can be taken apart. Since T-553
+ * the magma kiln has the kiln's recipes; the rule is shown on content without them.
  */
 import { describe, expect, it } from 'vitest';
 import { roundTrip } from '@app/game-save';
 import { Game } from '@app/game';
 import { loadContent } from '@content/loader';
+import recipeRows from '@content/recipes.json';
+import rowOrderRows from '@content/rowOrder.json';
 import { TileKind } from '@core/map3d';
 import type { BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
@@ -16,6 +19,17 @@ import type { PanelContext } from '@ui/panels/context';
 import { TestWorld } from '../../scenarios/test-world';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { registry, strings, surface } from './ui-fixture';
+
+/** The content with the kiln's recipes taken out: a magma kiln no recipe names. */
+function withoutKilnRecipes(): ReturnType<typeof loadContent> {
+  const kiln = new Set((recipeRows as { id: string; workshop: string }[]).filter((r) => r.workshop === 'kiln').map((r) => r.id));
+  return loadContent({
+    overrides: {
+      recipes: (recipeRows as { id: string }[]).filter((r) => !kiln.has(r.id)),
+      rowOrder: (rowOrderRows as { table: string; id: string }[]).filter((r) => !(r.table === 'recipes' && kiln.has(r.id))),
+    },
+  });
+}
 
 describe('T-284 the build menu', () => {
   it('lists exactly the workshops that a recipe or a job names, and every other building but the wagon', async () => {
@@ -35,7 +49,7 @@ describe('T-284 the build menu', () => {
     for (const row of workshops) expect(offered.has(row.id), row.id).toBe(reader.recipesFor(row.id).length > 0 || jobs.some((job) => job.workshop === row.id));
     expect(offered.has('butcher')).toBe(true);
     expect(offered.has('kennel')).toBe(true);
-    expect(offered.has('magma_kiln')).toBe(false);
+    expect(offered.has('magma_kiln')).toBe(true);
     for (const row of all.filter((r) => r.category !== 'workshop' && r.id !== 'wagon')) expect(offered.has(row.id), row.id).toBe(true);
     expect(offered.has('wagon')).toBe(false);
   });
@@ -43,7 +57,7 @@ describe('T-284 the build menu', () => {
 
 describe('T-284 PlaceBuilding', () => {
   it('refuses a workshop no recipe or job names, and says "Nothing can be made there yet."', () => {
-    const w = new TestWorld({ seed: 't284-refuse', world: 'flat-test', embark: 'none' });
+    const w = new TestWorld({ seed: 't284-refuse', world: 'flat-test', embark: 'none', registry: withoutKilnRecipes() });
     const at = w.index(15, 15, 32);
     const below = w.map.below(at);
     w.carve(below, TileKind.Open);
@@ -60,7 +74,7 @@ describe('T-284 PlaceBuilding', () => {
 
 describe('T-284 a kiln that a save already holds', () => {
   it('loads, is listed with its type, and its panel says there are no recipes and offers only taking it apart', () => {
-    const w = new TestWorld({ seed: 't284-old-kiln', world: 'flat-test', embark: 'none' });
+    const w = new TestWorld({ seed: 't284-old-kiln', world: 'flat-test', embark: 'none', registry: withoutKilnRecipes() });
     const at = w.index(15, 15, 32);
     const below = w.map.below(at);
     w.carve(below, TileKind.Open);

@@ -655,7 +655,7 @@ export function runDescent(w: TestWorld): void {
   console.log('rPlaceForge:', rPlaceForge);
   expect(rPlaceForge.ok).toBe(true);
 
-  // T-284: the command refuses a workshop no recipe names, and the kiln has none; the store places it.
+  // Placed through the store, as before T-553 gave the magma kiln the kiln's recipes; the command now places it too.
   const rPlaceKiln = (w.game.world.scheduler.byId('14') as BuildingsSystem).buildings.place({
     type: 'PlaceBuilding',
     buildingType: 'magma_kiln',
@@ -684,7 +684,7 @@ export function runDescent(w: TestWorld): void {
   const wsReader = w.readers.of<WorkshopsReader>('12');
   expect(wsReader.isMagmaPowered(magmaSmelterId)).toBe(true);
   expect(wsReader.isMagmaPowered(magmaForgeId)).toBe(true);
-  // T-194: the reserved kiln has magma power even before its recipes are authored.
+  // T-194: the magma kiln has magma power by the footprint rule.
   expect(wsReader.isMagmaPowered(magmaKilnId)).toBe(true);
 
   // 20. Work orders in magma workshops without fuel consumption
@@ -733,8 +733,8 @@ export function runDescent(w: TestWorld): void {
   );
   console.log(`Magma forge completed order in ${spentMagmaForge} ticks!`);
 
-  // Magma kiln: recipesFor('magma_kiln') has length 0; document rejection under T-194
-  expect(wsReader.recipesFor('magma_kiln')).toHaveLength(0);
+  // Magma kiln: the kiln's recipes (T-553); a recipe no workshop has is still refused.
+  expect(wsReader.recipesFor('magma_kiln')).toEqual(wsReader.recipesFor('kiln'));
   const rKilnMagma = w.game.world.applyCommand({
     type: 'AddWorkOrder',
     workshopId: magmaKilnId,

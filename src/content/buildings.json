@@ -793,6 +793,33 @@
     "outputTile": 7
   },
   {
+    "id": "kiln",
+    "name": "kiln",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 3
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 250,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "kiln",
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
     "id": "kitchen",
     "name": "kitchen",
     "category": "workshop",
@@ -975,6 +1002,7 @@
     "passable": true,
     "blocksFluid": false,
     "value": 0,
+    "pattern": "kiln",
     "impassableTiles": [
       0,
       2,
@@ -982,7 +1010,8 @@
       8
     ],
     "workTile": 4,
-    "outputTile": 7
+    "outputTile": 7,
+    "magmaVariantOf": "kiln"
   },
   {
     "id": "magma_smelter",

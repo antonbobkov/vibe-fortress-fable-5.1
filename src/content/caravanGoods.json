@@ -725,6 +725,34 @@
           4
         ],
         "weight": 6
+      },
+      {
+        "item": "stone_block",
+        "materials": [
+          {
+            "material": "brick",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6
+      },
+      {
+        "item": "pot",
+        "materials": [
+          {
+            "material": "earthenware",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 6
       }
     ]
   },

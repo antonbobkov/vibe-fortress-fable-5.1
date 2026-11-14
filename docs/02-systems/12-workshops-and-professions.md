@@ -41,8 +41,11 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `butcher` | butchery | corpse processing (09) |
 | `kennel` | animal_training | training and taming (08) |
 | `bowyer` | carpentry | bows and crossbows from wood; arrows from wood |
+| `kiln` | crafts | bricks and pots, clay jugs and mugs from clay; glass blocks from sand; glass mugs; potash from logs; bone ash from bones and crushed fossils |
 
-Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln` (unused in version 1 but listed for glass later). The `magma` building tag identifies a magma workshop for power detection, independently of whether a base workshop or recipes exist. The reserved magma kiln therefore reports power by the same footprint rule while its recipe list remains empty. A magma workshop is buildable only where at least one footprint tile has, directly below it, a tile with magma of level ≥ `MAGMA_POWER_LEVEL` (a channel over a magma pool or a pipe branch). Placement without that magma rejects with `bad_placement`; `no_magma` is reserved for workshop/job blocking after power is lost. It needs no fuel. If the magma drops below the level, its jobs block with `no_magma`.
+Magma variants: `magma_smelter`, `magma_forge`, `magma_kiln`; each has its base workshop's recipes. The `magma` building tag identifies a magma workshop for power detection, independently of whether a base workshop or recipes exist. A magma workshop is buildable only where at least one footprint tile has, directly below it, a tile with magma of level ≥ `MAGMA_POWER_LEVEL` (a channel over a magma pool or a pipe branch). Placement without that magma rejects with `bad_placement`; `no_magma` is reserved for workshop/job blocking after power is lost. It needs no fuel. If the magma drops below the level, its jobs block with `no_magma`.
+
+The kiln is built of 3 `stone_block` (bricks are blocks) with `masonry`, and every kiln recipe burns a fuel. Its magma variant `magma_kiln` (3 magma-safe blocks, `variant of: kiln`) is buildable wherever the magma rule holds and needs no anvil: a Glasslands fortress, over one of its shallow magma pools, has a kiln that burns no fuel from its first days. The kiln's recipes use the skill `pottery` (labor `crafts`, profession Potter, attributes Agility and Wits): bricks, pots, clay jugs, clay and glass mugs, glass blocks, potash, bone ash and crushed fossils ([workshops-and-recipes.md](../03-content/workshops-and-recipes.md) § Kiln). Glass comes out of the kiln as blocks (2 sand loads → 1 block; with 1 potash, 2 sand loads → 2 blocks): there is no glass item between. Fired clay is its own material, `earthenware`; a brick is a block of `brick`.
 
 ### Recipes (content) and derived recipes
 
@@ -57,7 +60,7 @@ Generated at load from the minerals and metals tables:
 - `melt_<class>`: a marked metal item → `floor(stackCount × itemBarValue × MELT_RETURN_PERCENT / 100)` bars of its metal, fuel, no quality.
 - `forge_<weapon|armor|tool>`: bars → the item; bar counts per item type; material from input; quality.
 
-Authored beside them at the smelter: `make_steel_shell`, 1 iron bar + 3 `shell_piece` of any shell material (`chitin` included) + 1 fuel → 1 steel, fuel and no quality as the alloy: shells stand in for the flux stone. At the kitchen, `crush_halite` crushes 1 `ore` of halite (rock salt) into 5 `salt`.
+Authored beside them at the smelter: `make_steel_shell`, 1 iron bar + 3 `shell_piece` of any shell material (`chitin` included) + 1 fuel → 1 steel, and `make_steel_bone_ash`, 1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel, both fuel and no quality as the alloy: shells and bone ash from the kiln stand in for the flux stone. At the kitchen, `crush_halite` crushes 1 `ore` of halite (rock salt) into 5 `salt`.
 
 Melting takes the whole marked stack. Its bar cost comes from the weapon or armor row, else the matching metal recipe's bar inputs divided by its output units, else one bar. Explicit work orders run first; `autoMeltMarked` starts only when none starts and the smelter is idle.
 
@@ -73,7 +76,7 @@ Job execution (producer `workshops`):
 
 - `onStart`: nothing.
 - Work: `baseTicks` skill-scaled by 11's work rate.
-- `onComplete`: validate that every delivered input still exists, is unconsumed and is reserved to this job before consuming; a missing or foreign-held input goes back to fetching or blocks rather than producing output. Consume inputs (destroy items; the container input becomes the output's container); consume fuel if applicable; roll quality if `quality`; for a `spoilable` recipe, one draw on this system's stream at `max(0, ALCHEMY_MISHAP_PERMILLE − 10 × skill)` per mille, and when it lands every output is the spoiled draught (25 § Draughts; no other recipe draws); spawn outputs at the workshop's output tile (into the container if any), each with the stone its recipe names (`stone: { from: 'input', index }`: that delivered input's material, read before the inputs are consumed; 25 § Channels); emit `ItemCrafted { itemId, quality, crafterId, workshopId, recipeId }`; decrement the order; if `remaining == 0` and not `maintain`, remove the order and emit `WorkOrderCompleted`.
+- `onComplete`: validate that every delivered input still exists, is unconsumed and is reserved to this job before consuming; a missing or foreign-held input goes back to fetching or blocks rather than producing output. Consume inputs (destroy items; the container input becomes the output's container); consume fuel if applicable; roll quality if `quality`; for a `spoilable` recipe, one draw on this system's stream at `max(0, ALCHEMY_MISHAP_PERMILLE − 10 × skill)` per mille, and when it lands every output is the spoiled draught (25 § Draughts; no other recipe draws); spawn outputs at the workshop's output tile (into the container if any, as many as it holds: a pot of 10 takes 10 units of a brew of 20, and the job completes only while the container has room for that many), each with the stone its recipe names (`stone: { from: 'input', index }`: that delivered input's material, read before the inputs are consumed; 25 § Channels); emit `ItemCrafted { itemId, quality, crafterId, workshopId, recipeId }`; decrement the order; if `remaining == 0` and not `maintain`, remove the order and emit `WorkOrderCompleted`.
 - A **transform** recipe (`transform: true`, with the `enchants` row it sets in `enchant`) has no outputs. Its `onComplete` consumes every input but input 0, rolls quality, gives each delivered item of input 0 the enchantment at that tier through 13's `items.setEnchant`, drops it at the output tile and emits `StoneSet { itemId, enchantId, tier, smithId }` for it; the job's release then frees its reservation. It emits no `ItemCrafted` and no `MasterworkCreated`; experience and the order count down as for any recipe.
 - At a building tagged `rune_work` (the runeforge, the laboratory), either kind of recipe emits `DeepsilverWorked { amount, tile }` for each consumed input whose material is a metal with a positive `runePressure` ([minerals-and-metals.md](../03-content/minerals-and-metals.md) § Metals): `amount` is the units consumed times `runePressure`, `tile` the building's origin, and the material is read before the input is consumed. No other building emits it. 18 raises the Deep's pressure by it (25 § Deepsilver).
 
@@ -122,7 +125,7 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 
 ### Substitutes
 
-A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel). `make_stone_bed` and `make_stone_bed_straw` stand in for `make_bed` with an item of their own: a stone bed is judged by its rest (75 against the wooden bed's 100, 14 § Beds) and its worth (a `mult` of 2 against 5), so the check holds it to resting less and being worth less, whatever its inputs.
+A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel); `make_steel_bone_ash` for `alloy_steel` (4 units against 4, 200 ticks against 200: as dear as the stone, after a kiln job and a fuel for the ash); at the kiln, `fire_bricks` for `make_stone_block` (2 units a block against half a stone), `make_pot` for `make_barrel` (2 units against 1, the same 100 ticks, for a container of the same class that holds half), `make_jug` for `make_bucket` and `make_mugs_clay` for `make_mug_stone` (a fuel beside the one input). A pot is compared with a barrel as containers of one class. `make_stone_bed` and `make_stone_bed_straw` stand in for `make_bed` with an item of their own: a stone bed is judged by its rest (75 against the wooden bed's 100, 14 § Beds) and its worth (a `mult` of 2 against 5), so the check holds it to resting less and being worth less, whatever its inputs.
 
 ### Fuel and charcoal
 
@@ -193,7 +196,6 @@ Recipe times, bar costs per item and profession names are content.
 
 ## Extension points
 
-- Glass and kilns: a `kiln` workshop with sand → glass recipes; the magma kiln exists already.
 - Reaction chains with by-products (slag): additional outputs in the recipe row.
 - Worker preferences (a workshop preferring the most skilled dwarf): the assignment bonus in 11 already favors skill; a `preferBest` flag could raise it.
 - Custom player recipes: not planned; the recipe table is the extension point.
@@ -202,20 +204,11 @@ Recipe times, bar costs per item and profession names are content.
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `workshops-and-recipes.md` § Planned rows and the other content documents' § Planned rows.
 
-### Steel with bone ash (T-553)
-
-The smelter's authored `make_steel_bone_ash` (1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel), fuel and no quality as the alloy, beside `make_steel_shell` (§ Recipes): a substitute for `alloy_steel`, its pair added to the substitute check. Bone ash is made at the kiln.
-
 ### Half fuels and smoke (T-552)
 
 - A fuel job takes one item tagged `fuel` (a coal or charcoal bar), or, when none is available, two items tagged `fuel_half` (`peat_brick`, `dung_cake`). An order is runnable when either is; the job reserves what it takes, bars first.
 - A job that burns an item tagged `smoky` emits `SmokyFuelBurned { workshopId, tile }` (05 § Planned, Smoke), on completion.
 - Magma workshops burn nothing, as before.
-
-### The kiln and pottery (T-553)
-
-- Workshop `kiln`: 3 `stone_block` (bricks are blocks), masonry, fuel; its magma variant is the reserved `magma_kiln`, which gains `variant of: kiln` and becomes buildable where the magma rule holds (a Glasslands fortress has a fuel-free kiln on day one). Every kiln recipe burns a fuel.
-- Skill `pottery` (labor `crafts`, profession Potter, attributes Agility, Wits). Its recipes: bricks, pots, jugs, clay mugs, glass, glass blocks, potash, bone ash, crushed fossils, the clay hive (T-555) and the lantern (T-563).
 
 ### Smoke, salt and the smokehouse (T-552)
 
