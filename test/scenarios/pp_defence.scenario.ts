@@ -64,7 +64,7 @@ const scenario: Scenario = {
   world: 'flat-test',
   timeoutMs: 300_000,
   run: () => {
-    const w = pathWorld('pp-defence-4', { preset: 'warband' }, { traits: [] });
+    const w = pathWorld(process.env['PPSEED'] ?? 'pp-defence-4', { preset: 'warband' }, { traits: [] });
     const { x: cx, y: cy } = wagon(w);
     const ent = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');

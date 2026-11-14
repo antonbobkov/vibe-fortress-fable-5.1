@@ -617,6 +617,8 @@ describe('F-01 job loop', () => {
     expect(unblockedBuild.length).toBe(0);
 
     w.spawnItem('raw_stone', 'granite', w.index(38, 41, z));
+    // T-551: a dwarf with no bed sleeps on the floor at 50, twice as long; this test is about the job, so it is awake.
+    w.setNeed(dwarf, 'rest', 0);
     w.until((x) => x.events('JobClaimed').some((e) => e['jobType'] === 'build'), 200);
     expect(w.events('JobUnblocked').some((e) => e['jobType'] === 'build')).toBe(true);
   });

@@ -33,6 +33,15 @@ export function stairShaft(w: TestWorld, x: number, y: number, zTop: number, zBo
   }
 }
 
+/**
+ * T-551: a pallet for each dwarf of the party, in a row from (x, y, z) eastward, laid at once. A dwarf
+ * with no bed sleeps on the floor at 50, twice as long as on a bed; these fixtures time their work
+ * against a party that sleeps in beds, as a player's would.
+ */
+export function palletsFor(w: TestWorld, x: number, y: number, z: number): void {
+  for (let k = 0; k < dwarves(w).length; k += 1) w.build('pallet', w.index(x + k, y, z), 'flax_cloth');
+}
+
 /** The tiles of a w × h rectangle on one level, row by row. */
 export function rect(w: TestWorld, x: number, y: number, z: number, width: number, height: number): TileIndex[] {
   const out: TileIndex[] = [];

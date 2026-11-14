@@ -1096,6 +1096,7 @@ class Probe {
     for (const id of ent.with(C.Building)) {
       const b = ent.get(id, C.Building)!;
       if (b.itemId !== 0) linked.add(b.itemId);
+      for (const held of b.held ?? []) linked.add(held); // 14 § Building wants: a bed's bedding and pillow
     }
     // A trap holds its loaded stone, weapons or cage as installed items, in 19's trap records.
     const defense = world.scheduler.byId('19') as DefenseSystem | undefined;

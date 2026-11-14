@@ -18,7 +18,7 @@ import { buildFlatTestMap } from '@app/headless';
 import { TileKind } from '@core/map3d';
 import type { TerrainReader } from '@systems/terrain';
 import type { Scenario } from './runner';
-import { onlyMiner, rect, stairShaft } from './m1-helpers';
+import { onlyMiner, palletsFor, rect, stairShaft } from './m1-helpers';
 import { TestWorld } from './test-world';
 
 const RUNS = 100;
@@ -28,6 +28,7 @@ const ROCK_Z = 29;
 
 function setupRoom(w: TestWorld, sx: number, sy: number): number[] {
   stairShaft(w, sx, sy, 32, ROCK_Z);
+  palletsFor(w, sx - 7, sy + 3, 32);
   onlyMiner(w);
   const room = rect(w, sx + 1, sy - 1, ROCK_Z, 3, 3);
   const r = w.game.world.applyCommand({ type: 'Designate', tiles: room, kind: 'dig', priority: 5 });

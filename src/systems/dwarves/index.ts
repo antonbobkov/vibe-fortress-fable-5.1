@@ -23,7 +23,7 @@ import { TileFlag } from '@core/map3d';
 import type { WeatherReader } from '@systems/weather';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
-import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
+import { SLEEP_NEED_MIN, advanceNeeds, crossed, firstCritical, type NeedName } from './needs';
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS, TIPSY_SLOW_PERCENT } from './constants';
 import { Activities, hallStand } from './activities';
 
@@ -205,6 +205,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       const after = advanceNeeds(before, end, thirstPercent, asleep, working, asleep ? this.activities.restPercent(ctx, id) : 100);
       entities.add(id, C.Needs, after);
       this.recordCrossings(id, before, after, (e) => ctx.emit(e));
+      // 10 § Sleeping: a sleeper whose hunger or thirst is further over its critical mark than any other
+      // need wakes to eat or drink (the brain abandons the sleep for the critical need, rest kept).
+      if (asleep && after.rest > 0) {
+        const first = firstCritical(after);
+        if (first === 'hunger' || first === 'thirst') this.interruptFlags.add(id);
+      }
       if (schedule?.sleepStartHour === hour && after.rest > SLEEP_NEED_MIN) this.interruptFlags.add(id);
       this.updateMaxSince(id, after, ctx.tick);
       this.announceStarving(id, after, day, (e) => ctx.emit(e));

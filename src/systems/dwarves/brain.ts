@@ -664,8 +664,13 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
   const interrupted = host.takeInterrupt(id);
   if (fleeFire(host, ctx, id, b)) { write(ctx, id, b); return; }
   if (fleeDread(host, ctx, id, b)) { write(ctx, id, b); return; }
-  // Alert/shelter changes interrupt even a running activity or job; flee still wins in select.
-  if (interrupted && ctx.world.fortress.alert === 'hearth' && host.threatOf(id) === 0 &&
+  // Alert/shelter changes interrupt even a running activity or job; flee still wins in select. An errand
+  // to eat or drink at a critical need is not one of them: the critical need overrides the retreat (step 2), and
+  // restarting it at every interrupt (a need crossing its want mark) walks the dwarf back and forth.
+  const plan = host.activities.plans.get(id);
+  const servingCritical = current.behavior === 'need' && plan !== undefined && (plan.need === 'hunger' || plan.need === 'thirst') && CRITICAL[plan.need as NeedName] !== undefined &&
+    (ctx.world.entities.get(id, C.Needs)?.[plan.need as NeedName] ?? 0) >= (CRITICAL[plan.need as NeedName] as number);
+  if (interrupted && !servingCritical && ctx.world.fortress.alert === 'hearth' && host.threatOf(id) === 0 &&
       (!ctx.readers.has('16') || !ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16').onDuty(id)) &&
       ctx.readers.has('19') && ctx.readers.of<{ retreatTile(id: EntityId): TileIndex }>('19').retreatTile(id) >= 0) {
     host.activities.cancel(ctx, id);

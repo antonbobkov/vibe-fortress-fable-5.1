@@ -41,6 +41,18 @@ export function advanceNeeds(n: Needs, endurance: number, thirstPercent: number,
   };
 }
 
+/** The critical need furthest over its mark (§ Behavior selection's ranking), or null for none. */
+export function firstCritical(n: Needs): NeedName | null {
+  let best: NeedName | null = null;
+  let excess = -1;
+  for (const name of NEED_NAMES) {
+    const mark = CRITICAL[name];
+    if (mark === undefined || n[name] < mark) continue;
+    if (n[name] - mark > excess) { best = name; excess = n[name] - mark; }
+  }
+  return best;
+}
+
 export function crossed(before: Needs, after: Needs): { want: NeedName[]; critical: NeedName[] } {
   const want: NeedName[] = [];
   const critical: NeedName[] = [];

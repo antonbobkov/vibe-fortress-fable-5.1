@@ -43,6 +43,9 @@ const scenario: Scenario = {
     const plot = tilesOf(w, 11, 11, CAVE_Z, PLOT, PLOT);
     const zoneId = w.zone('farm_plot', plot);
     const farmer = w.spawnDwarf({ at: w.index(10, 10, CAVE_Z), skills: { farming: 0 } });
+    // T-551: the farmer's bed (a pallet), so it does not sleep on the floor, twice as long.
+    w.discover(w.index(17, 10, CAVE_Z));
+    w.build('pallet', w.index(17, 10, CAVE_Z), 'flax_cloth');
     expect(farmer).toBeGreaterThan(0);
     w.spawnItem('drink', 'ale', w.index(10, 12, CAVE_Z), 100);
     w.spawnItem('easy_meal', 'dimcap', w.index(10, 13, CAVE_Z), 50);

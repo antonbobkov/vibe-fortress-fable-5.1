@@ -56,7 +56,7 @@ const scenario: Scenario = {
   world: 'flat-test',
   timeoutMs: 300_000,
   run: () => {
-    const w = pathWorld('pp-forge', { preset: 'miner_s_guild' });
+    const w = pathWorld(process.env['PPSEED2'] ?? 'pp-forge', { preset: 'miner_s_guild' });
     const { x: cx, y: cy } = wagon(w);
     const ent = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');
