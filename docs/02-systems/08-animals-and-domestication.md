@@ -70,11 +70,12 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 
 ### Pastures and feeding
 
-- `pasture` zone: tiles must be walkable; the zone has a capacity shown as "grass tiles / grazers" and a warning if grazers exceed `grass tiles / GRASS_PER_GRAZER`. The allowance is for replenishing, accessible grass through the growing seasons, with no competing grazers; it includes a reserve for regrowth requiring a cardinal grass neighbour and uneven regrowth. It is a conservative warning, not a promise under snow, cold snaps, hostile interference or competition.
+- `pasture` zone: tiles must be walkable; the zone has a capacity shown as "grass tiles / grazers" and a warning if grazers exceed `grass tiles / GRASS_PER_GRAZER`. A grazable shrub (below) counts as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile, since it feeds once in its `regrowDays`: an alpine pasture of lichen needs about four times the tiles of a meadow, and the line names the shrubs ("12 grass, 30 grazing shrubs"). The allowance is for replenishing, accessible grass through the growing seasons, with no competing grazers; it includes a reserve for regrowth requiring a cardinal grass neighbour and uneven regrowth. It is a conservative warning, not a promise under snow, cold snaps, hostile interference or competition.
 - Winter feeding: outdoor grass does not regrow and snow-covered grass cannot be eaten, so outdoor capacity is not a winter feeding guarantee. Move retained grazers to a walkable cave-loam pasture with unsnowed cave moss at the same capacity allowance before surface feeding stops, or reduce the herd. Cave moss uses the normal grass-regrowth rule throughout winter; animals do not eat stored fodder or plant-food items.
 - Reject `AssignPasture` with `not_tame` for an untamed animal, or `not_grazer` for a tame animal whose diet is not grazer, without changing its assignment.
 - Assignment: `AssignPasture { animalId, zoneId | none }`. Assigned grazers path into the pasture and stay (they do not path out unless fleeing). Unassigned grazers wander near the wagon or hearth and eat any grass they find.
 - Condition rises `CONDITION_PER_HOUR` per hour; eating a grass tile lowers it by `CONDITION_PER_GRASS`. One grass tile feeds one grazer: the first to eat it claims the tile, and until 07 has cleared the flag no other grazer eats it or walks to it; a grazer standing on a claimed tile looks for other grass. A hungry tame grazer walks to the nearest grass tile of its pasture (with no pasture, within 6 tiles) that it can reach: grass in another region of its movement class, such as a tile shut in by trees, is passed over. It keeps walking to the tile it is walking to while that tile is still grass for it (uneaten, unclaimed, in its pasture, or within 6 tiles with no pasture, and in its region), and does not choose again on each think. A walk that comes back unreachable, such as one through a `no_pets` door (which the regions, computed with no faction, do not show), makes the grazer pass over that tile for `GRAZE_SKIP_TICKS`; the skip is part of 08's saved state. The claim is part of 08's saved state and ends when 07's change to the tile is announced (`TilesChanged`), or at once if the tile has no grass. At 100 the animal is `starving` (announcement, once per animal per season); after `ANIMAL_STARVE_DAYS` at 100 it dies (`CreatureDied { cause: starvation }` through 17). Snow-covered grass cannot be eaten; cold snaps double the rise.
+- Grazing shrubs: a hungry tame grazer may eat a mature shrub whose plant row has `graze` (`plants.md`: `rock_lichen`, `barrel_cactus`) in its pasture (with no pasture, within 6 tiles), as it eats a grass tile. Grass first: it walks to a shrub only when no grass in reach is free for it, and eats one it stands on only then. It walks onto the shrub (a shrub is walkable), claims the tile as it claims grass, and its condition falls by `CONDITION_PER_GRASS`; 08 emits `ShrubGrazed { tile }` and 07 sets the shrub regrowing. The claim ends when the shrub is no longer mature. Wild grazers eat grass only.
 - Only tame grazers accumulate condition and eat grass. Other diets, including carnivores, omnivores and `none`, forage abstractly without a concrete feeding action.
 
 ### Breeding
@@ -143,7 +144,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ### Events emitted
 
-`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`. This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
+`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`. This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
 
 ### Registrations
 
@@ -188,6 +189,7 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 | `DANGEROUS_QUIET_DAYS` | 28 | Days after a dangerous group arrives in which no dangerous species spawns, except on `beastwood` (T-545): about one dangerous group a season in an ordinary biome; *unmeasured* in play |
 | `SPAWN_MIN_DISTANCE` | 25 | Tiles from any dwarf |
 | `GRASS_PER_GRAZER` | 48 | Growing-season capacity allowance per grazer |
+| `SHRUB_GRAZE_WEIGHT` | 4 | A grazable shrub counts as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile in a pasture's capacity (*unmeasured*) |
 | `CONDITION_PER_HOUR` | 2 | |
 | `CONDITION_PER_GRASS` | 25 | |
 | `ANIMAL_STARVE_DAYS` | 10 | Days at condition 100 before a grazer dies (dwarves use 10's `STARVE_DAYS`) (*unmeasured*) |
@@ -215,12 +217,6 @@ Species values (size, speed, products, intervals, gestation, litter, growth) are
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, or on this system's stream only where the new content is present, so a game without it draws the same numbers as before.
-
-### Grazing shrubs (T-548)
-
-- A hungry tame grazer may eat a mature shrub whose plant row has `graze` (`rock_lichen`, `salt_crust`, `barrel_cactus`) in its pasture (with no pasture, within 6 tiles), exactly as it eats a grass tile: it claims the tile, walks to a tile beside the shrub, stays `GRAZE_TICKS`, its condition falls by `CONDITION_PER_GRASS`, and it emits `ShrubGrazed { tile }`; 07 sets the shrub regrowing. Grass first: a grazer takes a shrub only when no grass in reach is free for it. Wild grazers eat grass only, as now.
-- The pasture's capacity counts each grazable shrub as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile, since it feeds once in its `regrowDays`: an alpine pasture of lichen needs about four times the tiles of a meadow.
-- Constants: `SHRUB_GRAZE_WEIGHT` 4. Events: `ShrubGrazed { tile }`. Save: the claim map already holds shrub tiles as grass tiles.
 
 ### Dung (T-552)
 

@@ -37,6 +37,9 @@ Sources: the [flavour report](../reports/audits/2026-11-03-flavour-left-out.md) 
 | A sleeper dozes through a volley, by luck | A wild animal asleep wakes at once when a blow or bolt lands; a miss, parry or block wakes it only on a roll (60%), so a deer can still sleep through a hunter's missed bolts if the dice are kind (T-535, T-540) | [08](02-systems/08-animals-and-domestication.md) § Wild behavior, `sleep`, *Noise* | Removable: wake on any outcome in the `AttackResolved` handler (`animals/index.ts`); T-535 found that this moves hunting timelines (`pp_defence`), so measure |
 | Clanking past a sleeping boar | A sleeping animal may wake from noise: a fight within 4 tiles, or a dwarf walking close, three times as loud in metal armour as in leather. A boar woken by a dwarf in mail defends its ground; one in leather slips by more often (T-540) | 08 § Wild behavior, *Noise* | Removable: the listen in `thinkWild`'s `sleep` case and `fightNoise` in the `AttackResolved` handler (`animals/brain.ts`, `animals/index.ts`) |
 | Heavy sleepers | About one wild animal in five is a heavy sleeper, chosen at random per animal: it wakes from noise a tenth as often, though a hit still wakes it. The look panel says "A heavy sleeper." (T-540, the owner's request) | 08 § Wild behavior, *Heavy sleepers* | Removable: `isHeavySleeperId` in `animals/brain.ts` and its call in `spawnCreature` (`animals/index.ts`); a saved `Wild.heavySleeper` then does nothing but show in the look panel, so drop that line in `ui/panels/look.ts` too |
+| Nettles | Gathering a wild nettle stings one time in ten: "Nettles. Of course." (T-548) | [09](02-systems/09-hunting-gathering-fishing.md) § Gathering; 15 § Thoughts | Removable: the `stings` words in the wild nettle's product (`plants.md`), or `sting` in `foraging/index.ts` with `NETTLE_STING_PERMILLE`; the `nettles` row stays, never given |
+| Drinking a cactus | A thirsty dwarf with nothing else to drink eats a cactus: half a drink of water and "Drank cactus. Cactus." (T-548) | [10](02-systems/10-dwarves.md) § Eating and drinking | Removable: `drinkablePlantFilter` and its search in `dwarves/activities.ts` (`start`), with the `plant` branch of the thirst completion; the `drank_cactus` row stays, never given |
+| Wyrmtongue | "Ate something that fought back.": a meal cooked with wyrmtongue keeps the cold out for a day (T-548) | 15 § Thoughts; 12 § Operation (`Item.seasoned`) | Removable: the `ate_wyrmtongue` case in `morale/thoughts.ts` and the `bitter_cold` guard in `give` (`morale/index.ts`); the seasoning record stays, for salt |
 
 ## Planned
 
@@ -45,8 +48,6 @@ The goofy rules and trade-offs of the Making Do content ([design](../reports/des
 | Feature | What happens | Spec | Task |
 |---|---|---|---|
 | Stung | A beekeeper is stung one time in ten ("Stung. The bees were not consulted."), and in summer anyone who stands within 3 tiles of a hive at the hour is stung now and then: place the hive off the walking lines | 08 § Planned, Hives | T-555 |
-| Nettles | Gathering wild nettles stings one time in ten: "Nettles. Of course." | 09 § Planned | T-548 |
-| Drinking a cactus | A thirsty dwarf with nothing else to drink eats a cactus: half a drink of water and "Drank cactus. Cactus." | 10 § Planned | T-548 |
 | The camel spits | One milking or shearing of a camel in twenty ends with "The camel spat on Ketil Ironvein." | 08 § Planned, Reindeer and camels | T-561 |
 | Spirits and song | A dwarf who drinks spirits sings ("Sang at the hearth. Everyone heard."), and walks and works 10% slower for two hours: a barrel by the forge is a slow forge, a locked cellar a wine cellar. The owner's call: the slowdown stays | 10 § Planned, Tipsy | T-554 |
 | The spider ranch | A caged giant cave spider webs the room around its cage every day: silk for the loom, and webs that catch your own haulers for 100 ticks | 18 § Planned; 09 § Planned | T-556 |
@@ -57,7 +58,6 @@ The goofy rules and trade-offs of the Making Do content ([design](../reports/des
 | Fire on purpose | A firebrand lights a tile: clear brush, burn a field for wyrmtongue, fire a peat field across a raid's path. Fire is not choosy. "Set a fire. On purpose, this time." The first one asks first | 03 § Planned, Setting a fire; 05 § Planned | T-559 |
 | A gate of ice | A wall of winter ice holds a gate and keeps a larder; underground it melts after 84 days, outdoors at the thaw, and the gate opens itself in spring | 05 § Planned, Ice constructions | T-559 |
 | A vintage worth raiding | A cellar ages drink and cheese into wealth, and wealth raises renown, which sizes raids | 13 § Planned, Aging | T-554 |
-| Wyrmtongue | "Ate something that fought back.": a meal with wyrmtongue keeps the cold out for a day | 15 § Planned | T-548 |
 | Faces of the land | The first dwarf to stand in a skeleton's ribs, a dwarf in the crater ("Stood where the star fell."), the first roost ("Bats. Hundreds of them. Brynja Coldhammer counted.") | 03, 08, 10 § Planned | T-557, T-560, T-556 |
 | Behind glass | An archer behind a glass wall sees the raid and cannot shoot it, and the raid sees the hall | 22 § Planned | T-558 |
 | A child's pallet | Anyone lays a pallet, a child too: a cloth on the floor in 20 ticks | 14 § Planned, Beds | T-551 |

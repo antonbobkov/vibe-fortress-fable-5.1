@@ -66,7 +66,7 @@ describe('T-M4-01 plants: the species table', () => {
   it('the surface and cave crops of 07 § Species table are the farmed species', () => {
     const farmed = facts.farmedPlants().map((p) => (facts.row(p) as PlantRow).id);
     expect(farmed).toEqual(
-      ['barley', 'cabbage', 'cavewheat', 'dimcap', 'flax', 'hops', 'pale_bell', 'pumpkin', 'sporecloth', 'strawberry', 'sweetroot', 'turnip'].sort().concat('glowcap'),
+      ['barley', 'cabbage', 'cavewheat', 'dimcap', 'flax', 'hops', 'pale_bell', 'pumpkin', 'sporecloth', 'strawberry', 'sweetroot', 'turnip'].sort().concat('glowcap', 'nettle', 'rye', 'wyrmtongue'),
     );
   });
 });

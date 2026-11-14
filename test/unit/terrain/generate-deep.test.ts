@@ -275,7 +275,7 @@ describe('T-M1-06 local map: stages 8-10', () => {
     expect(share).toBeGreaterThan(0.15);
     expect(share).toBeLessThan(0.3);
     expect(new Set(trees)).toContain('oak');
-    expect(trees.every((t) => ['oak', 'birch', 'yew', 'ash', 'maple', 'willow'].includes(t))).toBe(true);
+    expect(trees.every((t) => ['oak', 'birch', 'yew', 'ash', 'maple', 'willow', 'ironwood'].includes(t))).toBe(true);
     expect(grass).toBeGreaterThan(1000);
   });
 

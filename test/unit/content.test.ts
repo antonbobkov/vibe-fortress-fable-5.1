@@ -407,7 +407,7 @@ describe('F-07: recipe constraints are exported', () => {
     expect(brew?.inputs[0]?.materialProperty).toBe('brewable');
 
     const millFlour = recipes.byId('mill_flour');
-    expect(millFlour?.inputs[0]?.materials).toEqual(['barley', 'cavewheat']);
+    expect(millFlour?.inputs[0]?.materials).toEqual(['barley', 'cavewheat', 'rye']);
 
     const weaveCloth = recipes.byId('weave_cloth');
     expect(weaveCloth?.inputs[0]?.sameMaterial).toBe(true);

@@ -42,6 +42,7 @@ interface MaterialRow {
   readonly burnable: boolean;
   readonly burnTicks: number;
   readonly color: string;
+  readonly tags?: readonly string[];
 }
 
 export interface MaterialsOptions {
@@ -165,6 +166,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       classOf: (m) => this.rows[m]?.class ?? '',
       burnable: (m) => this.burnableOf[m] === 1,
       burnTicks: (m) => this.burnTicksOf[m] ?? 0,
+      fireResistant: (m) => this.rows[m]?.tags?.includes('fire_resistant') === true,
       entitiesAt: (i) => readers.entities.at(i),
       raining: () => {
         const state = this.weather()?.state?.();

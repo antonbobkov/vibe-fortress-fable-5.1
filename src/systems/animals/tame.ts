@@ -128,6 +128,8 @@ export interface TameHost extends BrainHost {
   grazeSkipped(animalId: EntityId, tile: TileIndex, tick: Tick): boolean;
   /** This grazer passes over the tile until `until`. */
   skipGraze(animalId: EntityId, tile: TileIndex, until: Tick): void;
+  /** `08` § Grazing shrubs: a mature shrub whose plant row has `graze` stands on the tile. */
+  grazableShrub(tile: TileIndex): boolean;
   /** `06` weather: a cold snap doubles the condition rise. */
   isColdSnap(): boolean;
   /** 19 § War animals: chain, squad or hearth entrance. */
@@ -169,6 +171,39 @@ export function grassForTame(host: TameHost, id: EntityId, t: Tame, tick: Tick):
     if (d >= bestD) continue;
     bestD = d;
     best = tile;
+  }
+  return best;
+}
+
+/**
+ * `08` § Grazing shrubs: a mature grazable shrub a tame grazer may eat and can reach, in its pasture
+ * or within 6 tiles with none, nearest first; the same tiles are passed over as for grass.
+ */
+export function shrubForTame(host: TameHost, id: EntityId, t: Tame, tick: Tick): TileIndex {
+  const at = tileOf(host, id);
+  if (at < 0) return -1;
+  const skip = passedOver(host, id, tick);
+  const map = host.map;
+  const ax = map.xOf(at);
+  const ay = map.yOf(at);
+  const az = map.zOf(at);
+  let best = -1;
+  let bestD = Number.MAX_SAFE_INTEGER;
+  const consider = (tile: TileIndex): void => {
+    if (!host.grazableShrub(tile) || skip(tile)) return;
+    const d = Math.max(Math.abs(map.xOf(tile) - ax), Math.abs(map.yOf(tile) - ay));
+    if (d >= bestD) return;
+    bestD = d;
+    best = tile;
+  };
+  if (t.pastureId !== 0) {
+    for (const tile of host.pastureTiles(t.pastureId)) consider(tile);
+    return best;
+  }
+  for (let dy = -GRAZE_SEARCH_RADIUS; dy <= GRAZE_SEARCH_RADIUS; dy += 1) {
+    for (let dx = -GRAZE_SEARCH_RADIUS; dx <= GRAZE_SEARCH_RADIUS; dx += 1) {
+      if (map.inBounds(ax + dx, ay + dy, az)) consider(map.index(ax + dx, ay + dy, az));
+    }
   }
   return best;
 }
@@ -264,6 +299,12 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
       else movement?.stopWalking(id);
       return next;
     }
+    // `08` § Grazing shrubs: grass first; a grazable shrub only when no grass in reach is free for it.
+    if (inPasture && host.grazableShrub(at) && grassForTame(host, id, next, ctx.tick) < 0 && host.claimGraze(at)) {
+      next.condition = Math.max(0, next.condition - CONDITION_PER_GRASS);
+      movement?.stopWalking(id);
+      return next;
+    }
     // A grazer keeps walking to the tile it is walking to while that tile is still grass for it: chosen
     // again by straight distance on every think, it would turn back and forth around an obstacle.
     const walking = movement?.walkTarget(id) ?? -1;
@@ -271,6 +312,11 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     if (grass >= 0) {
       // A walk that comes back unreachable (a `no_pets` door in the way) is not tried again at once.
       if (movement?.walkTo(id, grass, 'wander', ctx) === 'unreachable') host.skipGraze(id, grass, ctx.tick + GRAZE_SKIP_TICKS);
+      return next;
+    }
+    const shrub = shrubForTame(host, id, next, ctx.tick);
+    if (shrub >= 0) {
+      if (movement?.walkTo(id, shrub, 'wander', ctx) === 'unreachable') host.skipGraze(id, shrub, ctx.tick + GRAZE_SKIP_TICKS);
       return next;
     }
   }

@@ -11,7 +11,7 @@ import { tuningConstants } from '../system-constants';
 describe('T-M3-03 materials: tuning constants', () => {
   it('every row of 05 § Tuning constants is in src/systems/materials/constants.ts', () => {
     const rows = tuningConstants('02-systems/05-materials-and-temperature.md');
-    expect(rows.length).toBe(18);
+    expect(rows.length).toBe(19); // T-548 adds FIRE_RESIST_DIVISOR
     const values = K as unknown as Record<string, number>;
     for (const row of rows) expect([row.name, values[row.name]]).toEqual([row.name, row.value]);
   });

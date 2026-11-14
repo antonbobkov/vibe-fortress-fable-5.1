@@ -33,7 +33,7 @@ import { WILT_PERMILLE } from '@systems/weather/constants';
 import { CROP_DROWN_LEVEL, HARVEST_PRIORITY, PLANTS_CADENCE, PLANTS_PHASE } from './constants';
 import { PlantFacts, type PlantRow } from './facts';
 import { advance, growthPerHour, isMature, progressPercent, seasonAllows, stageLength } from './growth';
-import { FARM_PLOT, cropsOf, cropChoice, plotKindOf, withCrop, type PlotKind } from './plots';
+import { FARM_PLOT, cropsOf, cropChoice, isAshTile, plotKindOf, withCrop, type PlotKind } from './plots';
 import { PlantsProducer } from './producer';
 import type { CropInfo, PlantsReader } from './reader';
 import type { PlantsStateV1 } from './state';
@@ -42,7 +42,7 @@ import { growSaplings, regrowGrass, regrowthTries, type WildHost } from './wild'
 export * from './constants';
 export * from './growth';
 export { PlantFacts, type PlantRow } from './facts';
-export { FARM_PLOT, CROP_SETTING, cropsOf, lightMatches, plotKindOf, type PlotKind } from './plots';
+export { FARM_PLOT, CROP_SETTING, cropsOf, isAshTile, lightMatches, plotKindOf, type PlotKind } from './plots';
 export { AUTO_HARVEST, PlantsProducer, harvestKey, plantKey } from './producer';
 export { CAVERN_BANDS, clearOfTrees, hasGrassNeighbor, plantable, weighted, type WildHost } from './wild';
 export type { CropInfo, PlantsReader } from './reader';
@@ -74,6 +74,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     'ZoneChanged',
     'TilesChanged',
     'GrassGrazed',
+    'ShrubGrazed',
     'FireOut',
     'JobCompleted',
   ];
@@ -160,6 +161,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       plantCrop: (c, tile, plant, zoneId) => this.plantCrop(c, tile, plant, zoneId),
       removeCrop: (id) => this.removeCrop(id),
       announceNeedsSeeds: (c, zoneId, plant) => this.announceNeedsSeeds(c, zoneId, plant),
+      renewAsh: (tile, tick) => this.renewAsh(tile, tick),
     });
     this.readerRef = this.makeReader();
     // `07` § Registrations.
@@ -387,6 +389,23 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     }
   }
 
+  /** A shrub gathered or grazed: `regrowing` until `regrowDays` from now (`shrubTimers`). */
+  private startRegrowing(tile: TileIndex, tick: number): void {
+    if (!this.map.validIndex(tile) || this.map.kindAt(tile) !== TileKind.Shrub) return;
+    const row = this.facts.row(this.facts.plantOfMaterial(this.map.materialAt(tile)));
+    if (row?.regrowDays === undefined) return;
+    this.shrubTimers.set(tile, tick + row.regrowDays * TICKS_PER_DAY);
+  }
+
+  /**
+   * `07` § Ash: a wyrmtongue harvest renews its tile's ash, "the tile's `ashTiles` clear tick becomes
+   * `ASH_DURATION_DAYS` from now". Ash on `ash_soil` is the material and needs no renewing.
+   */
+  renewAsh(tile: TileIndex, tick: number): void {
+    if (!this.map.validIndex(tile) || !this.map.hasFlag(tile, TileFlag.Ash)) return;
+    this.ashTiles.set(tile, tick + ASH_DURATION_DAYS * TICKS_PER_DAY);
+  }
+
   // ---------- crops ----------
 
   /** `plant` completion: the `Crop` entity at stage 0, and `CropPlanted`. */
@@ -461,6 +480,11 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       this.pendingGrazed.push(event['tile'] as TileIndex);
       return;
     }
+    if (event.type === 'ShrubGrazed') {
+      // `07` § Shrubs: a grazed shrub "enters `regrowing` for its `regrowDays`", as gathering does.
+      this.startRegrowing(event['tile'] as TileIndex, ctx.tick);
+      return;
+    }
     if (event.type === 'TilesChanged') {
       // "`bareSoil` … maintained from grazing events and construction removal".
       for (const tile of (event['tiles'] as readonly TileIndex[]) ?? []) this.pendingBare.push(tile);
@@ -477,11 +501,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     if (event.type === 'JobCompleted') {
       // `07` § Shrubs: a gathered shrub "enters `regrowing` for `regrowDays`".
       if (event['jobType'] !== 'gather') return;
-      const tile = event['target'] as TileIndex;
-      if (!this.map.validIndex(tile) || this.map.kindAt(tile) !== TileKind.Shrub) return;
-      const row = this.facts.row(this.facts.plantOfMaterial(this.map.materialAt(tile)));
-      if (row?.regrowDays === undefined) return;
-      this.shrubTimers.set(tile, ctx.tick + row.regrowDays * TICKS_PER_DAY);
+      this.startRegrowing(event['target'] as TileIndex, ctx.tick);
       return;
     }
     if (event.type === 'SeasonEffectsChanged') {
@@ -529,7 +549,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     const view = this.buildings()?.zone(zoneId);
     if (zone === undefined || view === undefined || view.type !== FARM_PLOT) return reject('not_found');
     const choice = cropChoice(cmd['speciesId'], ctx.registry.table<PlantRow>('plants'),
-      this.kindOfTiles(view.tiles));
+      this.kindOfTiles(view.tiles), view.tiles.length > 0 && view.tiles.every((t) => isAshTile(this.map, t, this.facts.ashSoil)));
     if (!choice.ok) return choice;
     const plant = choice.plant;
     entities.add(zoneId, C.Zone, { ...zone, settings: withCrop(zone.settings, season, plant) });

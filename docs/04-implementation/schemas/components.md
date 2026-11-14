@@ -88,7 +88,8 @@ interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Qu
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
                  rotStart: Tick; rotStage: 0|1|2|3; reservedBy: number /* jobId or eating/drinking dwarfId */; carriedBy: EntityId;
                  stone?: Idx<MaterialDef> /* the gem set in a channel (25); absent: none */;
-                 enchant?: ItemEnchant /* the stone set in a weapon, armor piece or ammunition (25); absent: none */ }
+                 enchant?: ItemEnchant /* the stone set in a weapon, armor piece or ammunition (25); absent: none */;
+                 seasoned?: Idx<MaterialDef>[] /* a meal's seasonings, ascending (12 § Operation); absent: none */ }
 interface ItemEnchant { id: Idx<EnchantDef>; tier: Quality /* the setting's quality roll; scales the row's numbers */ }
 interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage'|'wagon' }
 interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null; juvenile?: boolean }

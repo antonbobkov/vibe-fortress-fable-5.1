@@ -17,7 +17,10 @@ import type { PlantsReader } from '@systems/plants';
 import { butcherYields } from './butcher';
 import { waterOfBank, floodBodies, type WaterBody } from './fishing';
 import { BUTCHER_ROT_LIMIT, BUTCHER_TICKS, FISH_BASE_PERMILLE, FISH_PER_SKILL, FISH_PER_TILE, FISH_REGEN_PERCENT,
-  FISH_RETRY_TICKS, FISH_TICKS, HUNT_MIN_SIZE, MIN_FISHING_TILES } from './constants';
+  FISH_RETRY_TICKS, FISH_TICKS, HUNT_MIN_SIZE, MIN_FISHING_TILES, NETTLE_STING_PERMILLE } from './constants';
+
+/** `09` § Gathering: the stream of the nettle's sting, its own so no other draw moves. */
+export const STINGS_STREAM = '09.stings';
 import type { ForagingReader } from './reader';
 import type { ForagingStateV1 } from './state';
 
@@ -145,7 +148,8 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
     }
   }
 
-  override handle(event: GameEvent): void {
+  override handle(event: GameEvent, ctx?: TickContext): void {
+    if (event.type === 'JobCompleted' && event['jobType'] === 'gather' && ctx !== undefined) this.sting(event, ctx);
     if (event.type === 'DayPassed') this.dailyDue = true;
     else if (event.type === 'TilesChanged' || event.type === 'FluidsChanged' || event.type === 'ZoneChanged') this.bodiesStale = true;
     else if (event.type === 'JobStarted' && event['jobType'] === 'fish') this.ensureBodies();
@@ -153,6 +157,22 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
     else if ((event.type === 'JobCompleted' || event.type === 'JobCancelled') && event['jobType'] === 'hunt') this.hunterAssignments.delete(event['target'] as number);
     else if (event.type === 'HuntKill') this.hunterAssignments.delete(event['targetId'] as number);
     else if (event.type === 'CreatureDied') this.hunterAssignments.delete(event['id'] as number);
+  }
+
+  /**
+   * `09` § Gathering: `gather` on a shrub whose row is tagged `stings` (the wild nettle) stings the
+   * gatherer with `NETTLE_STING_PERMILLE`, on its own stream (`09.stings`), drawn only for such a
+   * shrub, so a game without nettles draws the same numbers.
+   */
+  private sting(event: GameEvent, ctx: TickContext): void {
+    const tile = event['target'];
+    const worker = event['workerId'];
+    if (typeof tile !== 'number' || typeof worker !== 'number' || !ctx.readers.has('07')) return;
+    const plants = this.plants;
+    const row = plants.def(plants.speciesAt(tile));
+    if (row?.kind !== 'shrub' || row.tags?.includes('stings') !== true) return;
+    if (!ctx.world.rngFor(STINGS_STREAM).chance(NETTLE_STING_PERMILLE)) return;
+    ctx.emit({ type: 'Stung', id: worker, source: 'nettle' });
   }
 
   override applyCommand(cmd: Command): CommandResult {

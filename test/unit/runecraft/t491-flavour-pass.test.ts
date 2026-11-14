@@ -90,7 +90,10 @@ function stepRested(w: TestWorld, n: number): void {
 describe('T-491 content', () => {
   it('four thoughts numbered last, the blaze row ignites, and the constants', () => {
     const thoughts = registry.table<{ id: string; value: number | { formula: string }; hours: number; group: string; trigger: { event?: string; condition?: string } }>('thoughts');
-    expect(thoughts.ids().slice(-5, -1)).toEqual(['rune_sick', 'dosed_again', 'saw_wisp', 'lab_stink']);
+    // Numbered after the older rows, just before T-493's `put_to_flight` (later tasks append after it).
+    const ids = thoughts.ids();
+    const flight = ids.indexOf('put_to_flight');
+    expect(ids.slice(flight - 4, flight)).toEqual(['rune_sick', 'dosed_again', 'saw_wisp', 'lab_stink']);
     expect(thoughts.byId('rune_sick')).toMatchObject({ text: 'Too much rune. My teeth hum.', value: { formula: '−4' }, hours: 24, trigger: { event: 'VialDrunk' } });
     expect(thoughts.byId('dosed_again')).toMatchObject({ text: 'Another draught. I am tired of draughts.', value: { formula: '−4' }, hours: 72, trigger: { event: 'DraughtDrunk' } });
     expect(thoughts.byId('saw_wisp')).toMatchObject({ text: 'Saw a light that was not a lamp.', value: 2, hours: 24, trigger: { event: 'WispAppeared' } });

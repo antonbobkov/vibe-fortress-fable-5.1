@@ -10,7 +10,7 @@
  */
 
 import { SEASONS_PER_YEAR } from '@core/constants';
-import { TileFlag, type Map3D } from '@core/map3d';
+import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { TileIndex } from '@core/types';
 import type { RegistryTable } from '@core/registry';
 import type { PlantRow } from './facts';
@@ -68,14 +68,24 @@ export function withCrop(
   return { ...settings, [CROP_SETTING]: crops };
 }
 
+/**
+ * `07` § Ash: an *ash tile* is a tile with the `ash` flag, or a floor of `ash_soil` (ash for good).
+ */
+export function isAshTile(map: Map3D, tile: TileIndex, ashSoil: number): boolean {
+  if (!map.validIndex(tile)) return false;
+  return map.hasFlag(tile, TileFlag.Ash) || (ashSoil > 0 && map.kindAt(tile) === TileKind.Floor && map.materialAt(tile) === ashSoil);
+}
+
 /** Resolve a typed crop choice with the same farmed-species and light rules for every setting path. */
-export function cropChoice(raw: unknown, plants: RegistryTable<PlantRow>, kind: PlotKind):
-  { ok: true; plant: number } | { ok: false; reason: 'not_found' | 'light_mismatch' } {
+export function cropChoice(raw: unknown, plants: RegistryTable<PlantRow>, kind: PlotKind, allAsh = false):
+  { ok: true; plant: number } | { ok: false; reason: 'not_found' | 'light_mismatch' | 'not_on_ash' } {
   const plant = typeof raw === 'string' ? (plants.has(raw) ? plants.index(raw) : -1) : raw;
   if (typeof plant !== 'number' || !Number.isInteger(plant) || plant < 0) return { ok: false, reason: 'not_found' };
   if (plant === 0) return { ok: true, plant };
   const row = plants.byIndex(plant);
   if (row === undefined || (row.kind !== 'crop' && row.kind !== 'cave_crop')) return { ok: false, reason: 'not_found' };
   if (!lightMatches(row, kind)) return { ok: false, reason: 'light_mismatch' };
+  // "A plot is a wyrmtongue plot when every tile is an ash tile; `SetPlotCrop` refuses wyrmtongue elsewhere."
+  if (row.tags?.includes('ash') === true && !allAsh) return { ok: false, reason: 'not_on_ash' };
   return { ok: true, plant };
 }

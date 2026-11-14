@@ -32,6 +32,9 @@ const SUBSCRIBES = Array.from(new Set<EventType>([
   ...AUTHORED.map(triggerEvent).filter((e): e is EventType => e !== null),
 ]));
 const SOURCE_IDS = new Set(['friend_died', 'pet_died', 'buried_friend', 'memorial_placed']);
+/** 15 § Thoughts, Wyrmtongue keeps out the cold. */
+const WYRMTONGUE_THOUGHT = 'ate_wyrmtongue';
+const BITTER_COLD_THOUGHT = 'bitter_cold';
 
 export class MoraleSystem extends BaseSystem<MoraleStateV1> {
   readonly id = MORALE_ID;
@@ -122,7 +125,13 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     if (value === 0) return;
     const index = this.indices.get(def.id);
     if (index === undefined) return;
-    const thoughts = mood.thoughts.filter((thought) => thought.thought !== index || currentValue(thought, def, ctx.tick) !== 0);
+    // 15 § Thoughts: wyrmtongue keeps out the cold. A dwarf who holds `ate_wyrmtongue` is not given
+    // `bitter_cold`, and one it holds goes when `ate_wyrmtongue` is added.
+    const warm = this.definitions.get(WYRMTONGUE_THOUGHT);
+    if (def.id === BITTER_COLD_THOUGHT && warm !== undefined && this.holds(id, warm, ctx.tick)) return;
+    const cold = def.id === WYRMTONGUE_THOUGHT ? this.indices.get(BITTER_COLD_THOUGHT) : undefined;
+    const thoughts = mood.thoughts.filter((thought) => thought.thought !== cold &&
+      (thought.thought !== index || currentValue(thought, def, ctx.tick) !== 0));
     const owned = thoughts.filter((thought) => thought.thought === index);
     if (owned.length >= def.cap) {
       const oldest = owned[0] as ActiveThought;

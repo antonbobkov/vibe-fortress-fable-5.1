@@ -18,6 +18,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import {
   BURN_TICK_DAMAGE,
   FIRE_SPREAD_COOLDOWN,
+  FIRE_RESIST_DIVISOR,
   FIRE_SPREAD_PERMILLE,
   FIRE_SPREAD_WET_PERMILLE,
   ITEM_BURN_TICKS,
@@ -35,6 +36,8 @@ export interface FireHost {
   classOf(material: number): string;
   burnable(material: number): boolean;
   burnTicks(material: number): number;
+  /** The material carries the tag `fire_resistant` (ironwood). */
+  fireResistant(material: number): boolean;
   /** Everything standing or lying on a tile. */
   entitiesAt(i: TileIndex): readonly EntityId[];
   /** 06's state is `rain` or `storm`. */
@@ -195,7 +198,9 @@ export class Fire {
         for (const n of spreadTargets(map, t)) {
           if (this.burning.has(n) || !this.burnableTile(n)) continue;
           if (map.hasFlag(n, TileFlag.Wet) || map.hasFlag(n, TileFlag.Snow) || this.hasWater(n)) continue;
-          if (rng.chance(raining ? FIRE_SPREAD_WET_PERMILLE : FIRE_SPREAD_PERMILLE)) {
+          // `fire_resistant` (ironwood): spread catches it at `1 / FIRE_RESIST_DIVISOR` of the chance.
+          const permille = raining ? FIRE_SPREAD_WET_PERMILLE : FIRE_SPREAD_PERMILLE;
+          if (rng.chance(this.host.fireResistant(map.materialAt(n)) ? Math.floor(permille / FIRE_RESIST_DIVISOR) : permille)) {
             this.ignite(n, ctx);
             spread.push(n);
           }

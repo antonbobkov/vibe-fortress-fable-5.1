@@ -34,6 +34,8 @@ interface PlantRow {
   readonly wildSeedPermille?: number;
   /** The crop species a wild shrub's seed sows. */
   readonly seedOf?: string;
+  /** A second product, given with the first at each gathering (`plants.md`: "and 1 `fiber`"). */
+  readonly secondary?: { readonly item: string; readonly material?: string; readonly count: number };
 }
 
 function classOfRow(cls: string): MaterialClass {

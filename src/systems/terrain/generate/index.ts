@@ -20,7 +20,7 @@ import { stageSea } from './sea';
 import { stageCaverns } from './caverns';
 import { stageMinerals } from './minerals';
 import { stageVolcano } from './volcano';
-import { stageRarePatches, stageVegetation } from './vegetation';
+import { stageConversions, stageRarePatches, stageVegetation } from './vegetation';
 import { stageBoulders, stageRamps, stageSnow } from './surface';
 import { stageBattlefieldChannel, stageTraits } from './traits';
 import { stageLight } from './light';
@@ -143,6 +143,8 @@ export function generateLocal(
     traits: () => {
       stageTraits(g);
       stageBattlefieldChannel(g);
+      // 03 § Local map generation, stage 10's end: the conversions, last, so no other stage reads them.
+      stageConversions(g);
     },
     light: () => stageLight(map),
   };

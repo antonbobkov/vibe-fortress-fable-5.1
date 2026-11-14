@@ -23,8 +23,8 @@ import type { Registry } from '@core/registry';
 import type { EntityId, Idx, TileIndex } from '@core/types';
 import { validHospitalSupplies } from '@systems/health/supplies';
 import { waterOfBank } from '@systems/foraging/fishing';
-import { cropChoice, plotKindOf } from '@systems/plants/plots';
-import type { PlantRow } from '@systems/plants/facts';
+import { cropChoice, isAshTile, plotKindOf } from '@systems/plants/plots';
+import { ASH_SOIL, type PlantRow } from '@systems/plants/facts';
 
 export interface ZoneTypeRow {
   readonly id: string;
@@ -279,8 +279,11 @@ export class ZoneStore {
       const crops: number[] = [];
       const kind = plotKindOf(this.host.map, zone.tiles, (tile) => this.host.cropLitAt?.(tile) ?? this.host.map.hasFlag(tile, TileFlag.Lit),
         (tile) => this.host.lampCoveredAt?.(tile) ?? false);
+      const materials = this.host.registry.table('materials');
+      const ashSoil = materials.has(ASH_SOIL) ? materials.index(ASH_SOIL) : -1;
+      const allAsh = zone.tiles.length > 0 && zone.tiles.every((t) => isAshTile(this.host.map, t, ashSoil));
       for (const raw of value as unknown[]) {
-        const choice = cropChoice(raw, this.host.registry.table<PlantRow>('plants'), kind);
+        const choice = cropChoice(raw, this.host.registry.table<PlantRow>('plants'), kind, allAsh);
         if (!choice.ok) return reject('bad_setting');
         crops.push(choice.plant);
       }

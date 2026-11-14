@@ -258,6 +258,8 @@ export interface Item {
   cellarDays?: number;
   /** The aging stage: 1 aged, 2 vintage; absent: young. */
   age?: 1 | 2;
+  /** A meal's seasonings: the materials of its ingredients tagged `seasoning`, ascending (`12` § Operation); absent: none. */
+  seasoned?: Idx<'MaterialDef'>[];
 }
 
 /** An item's enchantment: the `enchants` row and the runesmith's quality roll, which scales its numbers. */

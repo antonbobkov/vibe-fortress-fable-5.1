@@ -277,7 +277,7 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - **Designations** (T-559): `harvest ice` and `ignite` in the designation menu. The first `ignite` box of a fortress opens the confirmation `c_first_ignite` (default No); Yes sends `ConfirmIgnite` and then the designation, No drops it. Later ones need none.
 - **Building panel** (T-551, T-552, T-563, T-555): a building with wants lists what it holds and wants and offers `[t] take out`; a bed says whether it is made up ("Made up: linen bedding, feather pillow"); a drying rack lists its items with days left and its drying checklist (`SetRackDrying`); a candle stand its candles and days left; a hive its combs and its flowers in reach.
 - **Stockpile inspector** (T-554): the `Cellar` toggle, and for a cellar whether it works and why not ("Cellar: too warm (16 °C)").
-- **Farm plot panel** (T-564, T-548): `Fertilize: on/off` with the fertilizer in stock; a wyrmtongue plot's refusal "Wyrmtongue grows only on ash."
+- **Farm plot panel** (T-564): `Fertilize: on/off` with the fertilizer in stock.
 - **Stocks panel** (T-554): an aged stack shows its stage and its years in the cellar.
 - **Build menu** (T-549): a workshop with logs among its inputs offers "of logs" and "of blocks" with their inputs and build times.
 - **World map** (T-550): the region panel's **This site has:** and **This site lacks:** rows (02 § Planned).
