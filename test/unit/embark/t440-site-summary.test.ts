@@ -68,6 +68,11 @@ function measure(spec: LocalMapSpec): Actual {
   const { map, result } = generateLocalMap(spec, registry);
   const a: Actual = { soilColumns: 0, soilDepths: new Set(), trees: 0, shrubs: 0, grass: 0, riverColumns: 0, lakeColumns: 0, springs: result.warmSprings.length, outdoorWater: 0 };
   const soil = (i: number): boolean => materials.byIndex(map.materialAt(i))?.class === 'soil';
+  const minerals = registry.table<{ id: string; hosts: readonly string[] }>('minerals');
+  const inSoil = (i: number): boolean => {
+    const hosts = minerals.byId(materials.byIndex(map.materialAt(i))?.id ?? '')?.hosts ?? [];
+    return hosts.length > 0 && hosts.every((h) => materials.byId(h)?.class === 'soil');
+  };
   for (let y = 0; y < map.h; y += 1) {
     for (let x = 0; x < map.w; x += 1) {
       const c = y * map.w + x;
@@ -83,7 +88,8 @@ function measure(spec: LocalMapSpec): Actual {
       if ((flags & (COL_RIVER | COL_LAKE)) === 0 && kind === TileKind.Floor && soil(i)) {
         a.soilColumns += 1;
         let depth = 0;
-        while (top - depth >= 0 && soil(map.index(x, y, top - depth))) depth += 1;
+        // A cluster of a mineral that lies only in soil (bog iron in peat) is part of the soil's depth.
+        while (top - depth >= 0 && (soil(map.index(x, y, top - depth)) || inSoil(map.index(x, y, top - depth)))) depth += 1;
         a.soilDepths.add(depth);
       }
       for (let z = 0; z < map.d; z += 1) {

@@ -1,5 +1,5 @@
 import type { EntityId, TileIndex } from '@core/types';
-import type { ButcherYields } from './butcher';
+import type { ButcherYieldsWithParts } from './butcher';
 import type { WaterBody } from './fishing';
 
 export interface ForagingReader {
@@ -8,5 +8,6 @@ export interface ForagingReader {
   waterBodyAt(tile: TileIndex): WaterBody | undefined;
   fishPool(bodyId: number): number;
   canFishAt(tile: TileIndex): boolean;
-  butcherYields(species: string | number): ButcherYields;
+  /** A whole adult corpse's yields, with the species' butcher parts (`09` § Butchery). */
+  butcherYields(species: string | number): ButcherYieldsWithParts;
 }

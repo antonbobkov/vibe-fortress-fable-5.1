@@ -20,7 +20,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `TilesChanged` | `tiles[]` | 03 (also on behalf of 04, 05, 14 through the terrain API) | 04, 07, 08, 11, 13, 14, 18, 22, 23 |
 | `TilesDiscovered` | `tiles[]` | 03 | 23 |
 | `VeinFound` | `material, tile, finderId` | 03 (first mined tile of a new face-connected mineral vein key) | 15, 18 (deepsilver gauge unlock), ui |
-| `MineralMined` | `tile, material, minerId` | 03 | 13 (item spawn is done by 03 via spawn API; 13 counts) |
+| `MineralMined` | `tile, material, minerId` | 03 (an ore, gem or bone tile dug) | 13 (item spawn is done by 03 via spawn API; 13 counts) |
+| `FossilFound` | `dwarfId, tile` | 03 (the first tile of class `bone` dug in a fortress, once) | 15, ui |
 | `DeepsilverMined` | `tile, minerId` | 03 | 18, ui |
 | `CavernBreached` | `cavern, tile` | 03 | 08, 18, 24 (milestone), ui |
 | `ConstructionCollapsed` | `tiles[]` | 03 | 14, 13, ui |

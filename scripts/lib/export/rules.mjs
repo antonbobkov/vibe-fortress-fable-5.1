@@ -313,6 +313,8 @@ const RECIPE_SECTIONS = [
   ['Jeweler', 'jeweler', 'gem_cutting', false, false],
   ['Mechanic', 'mechanic', 'mechanics', false, false],
   ['Wood furnace', 'wood_furnace', 'smelting', false, false],
+  // § Smelter: the authored recipes beside the generated ones, "with fuel and no quality as the alloys".
+  ['Smelter', 'smelter', 'smelting', true, false],
   ['Forge', 'forge', 'metalcrafting', true, true],
   ['Kitchen', 'kitchen', 'cooking', false, false],
   ['Still', 'still', 'brewing', false, false],
@@ -405,7 +407,10 @@ function recipeInputs(cell) {
 
     let material;
     let materials;
-    if (materialProperty === undefined && !sameMaterial) {
+    // § Recipe columns: "a `fuel` input is fuel taken into the product, steel's carbon", as the
+    // generated `alloy_steel`'s `fuel` pseudo-material.
+    if (match === 'fuel') material = 'fuel';
+    else if (materialProperty === undefined && !sameMaterial) {
       const materialIds = Array.from(note.matchAll(/`?\b([a-z][a-z_]{2,})\b`?/g)).map((x) => x[1]);
       const filtered = materialIds.filter(
         (x) => !['distinct', 'stacks', 'species', 'brewable', 'metal', 'safe', 'magma', 'or', 'same', 'material'].includes(x),

@@ -541,13 +541,16 @@ export const SCHEMAS: Record<string, TableSchema> = {
 
   minerals: rows({
     ...rowBase,
-    class: enumOf(['ore']),
+    class: enumOf(['ore', 'bone']),
+    density: opt(int),
+    hardness: opt(int),
+    meltsAtC: opt(int),
     hosts: arr(materialRef),
     shape: enumOf(['vein', 'cluster']),
     count: int,
     length: opt(int),
     radius: opt(int),
-    yields: arr(obj({ metal: materialRef, count: int, permille: opt(int) }), 1),
+    yields: arr(obj({ metal: materialRef, count: int, permille: opt(int) })),
     value: int,
     color: colorRef,
     deepsilver: opt(bool),
@@ -780,6 +783,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     perception: int,
     gear: opt(str),
     remains: opt(arr(obj({ item: itemRef, count: int }), 1)),
+    butcherParts: opt(arr(obj({ item: itemRef, material: materialRef, count: int }), 1)),
   }),
 
   plants: rows({

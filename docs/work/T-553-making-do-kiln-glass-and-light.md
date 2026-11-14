@@ -1,6 +1,6 @@
 # T-553 — Making Do B3: the kiln, pottery, bricks, pots and glass
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (kiln)); the owner, 2026-11-13 · **Size:** M · **Needs:** T-547 · **Status:** blocked (needs T-547)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (kiln)); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
@@ -13,7 +13,7 @@ The blocks and rows marked T-553:
 - **12 § Planned:** The kiln and pottery (the `kiln` workshop; `magma_kiln` becomes its magma variant and buildable; the `pottery` skill, labor `crafts`, profession Potter).
 - **13 § Planned:** Clay pots (a barrel-class container of 10 that breaks with its contents when its carrier is hit; the earthenware jug breaks too); **16 § Planned:** Pots break.
 - **Rows:** `brick`, `earthenware`, `glass`, `potash` (materials), `bone_ash`, `potash` (items), `pot`, the kiln and its pattern, the recipes marked T-553 (bricks, pot, jug, clay and glass mugs, glass blocks with and without potash, potash, bone ash, `crush_fossil`), the `pottery` skill, the Hillfolk's bricks and pots, the glass preference, the colours, and the item edits (buckets and mugs of earthenware and glass).
-- `make_steel_bone_ash` (T-547) becomes runnable: test it end to end.
+- `make_steel_bone_ash` comes here from T-547 (its `bone_ash` item is this task's): add its row (12 § Planned, Steel with bone ash; `workshops-and-recipes.md` § Planned rows) and its pair to the substitute check (`test/unit/workshops/substitutes.test.ts`), and test it end to end.
 
 ## Decisions
 

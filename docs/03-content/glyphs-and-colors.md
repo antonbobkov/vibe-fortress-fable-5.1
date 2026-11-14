@@ -243,6 +243,9 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `reed_green` | #9AA65A |  |  | `cactus_green` | #5E8C4A |  |
 | `nettle_green` | #4F7A3A |  |  | `rye_gold` | #B89A55 |  |
 | `wyrmtongue_red` | #C2452D |  |  | `ironwood_dark` | #4A3A2C |  |
+| `salt_white` | #ECEAE2 |  |  | `chitin_brown` | #6B4A2E |  |
+| `horn_gray` | #A89A86 |  |  | `ivory_cream` | #F2E8CF |  |
+| `feather_white` | #F4F1EA |  |  | `pewter_gray` | #8E949A |  |
 
 ## Glyphs by thing
 
@@ -332,12 +335,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 
 | id | hex | task |
 |---|---|---|
-| `salt_white` | #ECEAE2 | T-547 |
-| `chitin_brown` | #6B4A2E | T-547 |
-| `horn_gray` | #A89A86 | T-547 |
-| `ivory_cream` | #F2E8CF | T-547 |
-| `feather_white` | #F4F1EA | T-547 |
-| `pewter_gray` | #8E949A | T-547 |
 | `dung_brown` | #5C4A30 | T-552 |
 | `smoke_bg` | #2E2E2E | T-552 |
 | `brick_red` | #A0482E | T-553 |

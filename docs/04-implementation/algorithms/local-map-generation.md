@@ -66,7 +66,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   progress('caverns')
   // 5. veins and clusters
   st = stream(S, 'terrain.minerals'); mult = wealthMultiplier[spec.wealth]
-  for mineral in registry.minerals (id order):
+  for mineral in registry.minerals (index order), except the appended rows (registry.appendedRows.minerals):
     n = expectedCount(mineral, spec) * mult.ore (gems: mult.gem); count = floor(n) + (st.fixed() < frac(n) ? 1 : 0)
     for k in 0..count-1:
       start = randomWallTile(st, hosts = mineral.hosts); if none after 50 tries: continue
@@ -75,6 +75,7 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
           dir = st.weighted([[±x,3],[±y,3],[±z,1]]); walk += dir; if out of bounds or not host: break
       else: paint(start, radius mineral.radius)
   deepsilver: veins = mult.deepsilverVeins (+1 with wyrm_roost placed next to the chamber): start tiles are Wall tiles with z <= DEEPSILVER_Z_MAX within 2 of a magma tile; length 6, radius 1
+  for mineral in the appended rows (index order): as above, on its own st = stream(S, 'terrain.minerals.' + mineral.id)
   progress('minerals')
   // 6. volcano
   if spec.volcano: c = randomSurfacePoint(st) at chebyshev >= 20 from arrivalEdge midpoint; r = glasslands ? 3 : st.int(1,2)

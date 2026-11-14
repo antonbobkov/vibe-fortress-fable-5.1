@@ -42,6 +42,8 @@ export interface TerrainStateV1 {
   bigDigCounter: number;
   /** The veins already found, each keyed by its lowest tile (docs/02-systems/03-terrain-and-mining.md § Discovery). */
   veinsFound: TileIndex[];
+  /** The first tile of class `bone` has been dug (`03` § State). Absent in older saves and while false. */
+  fossilFound?: boolean;
   /** The `LocalMapSpec` of the map, for the legend and regeneration in tests (`03` § State). */
   spec: LocalMapSpec | null;
   /** `EntitiesMoved` batches handled but not yet ticked (discovery runs next tick; D-082). */

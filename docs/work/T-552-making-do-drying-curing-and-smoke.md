@@ -1,6 +1,6 @@
 # T-552 — Making Do B2: dung, the drying rack, half fuels, smoke, curing and the smokehouse
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (drying rack, smokehouse, salt)); the owner, 2026-11-13 · **Size:** L · **Needs:** T-547, T-551 · **Status:** blocked (needs T-547, T-551)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (drying rack, smokehouse, salt)); the owner, 2026-11-13 · **Size:** L · **Needs:** T-551 · **Status:** blocked (needs T-551)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

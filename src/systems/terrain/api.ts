@@ -75,6 +75,8 @@ export class TerrainCore implements TerrainApi {
   readonly forbidden: number[] = [];
   readonly cavernBreached: [boolean, boolean, boolean] = [false, false, false];
   readonly veinsFound: number[] = [];
+  /** `03` § State: the first tile of class `bone` has been dug (`FossilFound` is emitted once). */
+  fossilFound = false;
   /** Drops recorded for the M2 item system (and read by tests). */
   readonly drops: IntendedDrop[] = [];
 

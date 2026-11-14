@@ -271,6 +271,7 @@ describe('T-M1-14 announcements', () => {
       CavernBreached: 'alert',
       DeepsilverMined: 'danger',
       ConstructionCollapsed: 'alert',
+      FossilFound: 'note',
       StockpileFull: 'note',
       MiasmaSpread: 'alert',
       HearthLit: 'note',

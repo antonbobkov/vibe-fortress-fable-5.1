@@ -353,6 +353,32 @@
     "xp": 8
   },
   {
+    "id": "craft_ivory",
+    "name": "Ivory crafts",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "tusk",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "craft",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
     "id": "craft_shell",
     "name": "Shell crafts",
     "workshop": "craftdwarf",
@@ -429,6 +455,32 @@
     "fuel": false,
     "quality": true,
     "xp": 8
+  },
+  {
+    "id": "crush_halite",
+    "name": "Crush rock salt",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "ore",
+        "count": 1,
+        "material": "halite"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "salt",
+        "count": 5,
+        "material": {
+          "fixed": "salt"
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
   },
   {
     "id": "cut_gem",
@@ -2938,6 +2990,32 @@
     "xp": 15
   },
   {
+    "id": "make_mug_horn",
+    "name": "Drinking horns",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "horn",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mug",
+        "count": 3,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
     "id": "make_mug_stone",
     "name": "Stone mugs",
     "workshop": "craftdwarf",
@@ -3283,6 +3361,41 @@
     "fuel": false,
     "quality": true,
     "xp": 15
+  },
+  {
+    "id": "make_steel_shell",
+    "name": "Steel (shell flux)",
+    "workshop": "smelter",
+    "skill": "smelting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1,
+        "material": "iron"
+      },
+      {
+        "match": "shell_piece",
+        "count": 3
+      },
+      {
+        "match": "fuel",
+        "count": 1,
+        "material": "fuel"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bar",
+        "count": 1,
+        "material": {
+          "fixed": "steel"
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": false,
+    "xp": 8
   },
   {
     "id": "make_stone_block",
