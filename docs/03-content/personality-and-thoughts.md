@@ -67,6 +67,9 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `ate_in_royal_hall` | "Ate in a royal hall." | +10 | 48 | linear | 1 | room | tier royal |
 | `drank_ale` | "Had a drink." | +3 | 24 | linear | 1 | comfort | `DrankAlcohol` ale, beer |
 | `drank_fine_drink` | "Had a fine drink." | +5 | 36 | linear | 1 | comfort | `DrankAlcohol` wine, bellwine |
+| `drank_strong_drink` | "Sang at the hearth. Everyone heard." | +5 | 24 | linear | 1 | comfort | `DrankAlcohol` spirits |
+| `drank_aged_drink` | "That was a good year." | +2 | 24 | linear | 1 | comfort | `DrankAlcohol` aged |
+| `drank_vintage_drink` | "A vintage. They do not make them like that." | +4 | 36 | linear | 1 | comfort | `DrankAlcohol` vintage |
 | `drank_water` | "Drank water. Water." | −2 | 12 | halflife | 1 | comfort | `DrankWater` from a well or indoor source |
 | `drank_from_puddle` | "Drank from a puddle." | −4 | 12 | halflife | 1 | comfort | `DrankWater` outdoors |
 
@@ -199,9 +202,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `smoky_hall` | "The hall is full of smoke." | −1 | 12 | halflife | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS`; tallow smoke | T-552 |
 | `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `smoke_meat` or `smoke_fish` done within `SMOKE_RADIUS` | T-552 |
 | `ate_salted_meal` | "The food was well salted." | +1 | 24 | linear | 1 | comfort | `MealEaten` seasoned with salt | T-552 |
-| `drank_strong_drink` | "Sang at the hearth. Everyone heard." | +5 | 24 | linear | 1 | comfort | `DrankAlcohol` spirits | T-554 |
-| `drank_aged_drink` | "That was a good year." | +2 | 24 | linear | 1 | comfort | `DrankAlcohol` aged | T-554 |
-| `drank_vintage_drink` | "A vintage. They do not make them like that." | +4 | 36 | linear | 1 | comfort | `DrankAlcohol` vintage | T-554 |
 | `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees | T-555 |
 | `stood_in_the_ribs` | "Stood inside the ribs of something enormous." | +2 | 72 | linear | 1 | pride | `RibsEntered` | T-557 |
 | `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |

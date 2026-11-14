@@ -94,6 +94,10 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
       const material = registry.table('materials').byIndex(n(event, 'material'))?.id ?? '';
       return def.id === 'drank_fine_drink' ? /wine|bellwine/.test(material) : /ale|beer/.test(material);
     }
+    // 10 § Tipsy: spirits sing; a cellar's aged and vintage drinks add their own thought beside the drink's.
+    case 'drank_strong_drink': return s(event, 'group') === 'spirits';
+    case 'drank_aged_drink': return n(event, 'aged') === 1;
+    case 'drank_vintage_drink': return n(event, 'aged') === 2;
     case 'drank_water': return event['outdoors'] !== true;
     case 'drank_from_puddle': return event['outdoors'] === true;
     case 'slept_in_modest_room': case 'slept_in_decent_room': case 'slept_in_fine_room': case 'slept_in_grand_room': case 'slept_in_royal_room': {

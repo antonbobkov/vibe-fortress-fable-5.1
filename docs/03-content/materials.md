@@ -55,7 +55,7 @@ Soil tiles never drop items when dug.
 
 | id | name | class | value | density | hardness | color | burnTicks | notes |
 |---|---|---|---|---|---|---|---|---|
-| `oak` | oak | wood | 3 | 75 | 60 | `oak_brown` | 600 | |
+| `oak` | oak | wood | 3 | 75 | 60 | `oak_brown` | 600 | `fine_cask`: an oak barrel ages its drink in a year ([13](../02-systems/13-items-and-storage.md) § Aging in a cellar) |
 | `pine` | pine | wood | 2 | 55 | 40 | `pine_yellow` | 400 | |
 | `birch` | birch | wood | 2 | 60 | 45 | `birch_pale` | 400 | |
 | `willow` | willow | wood | 2 | 50 | 35 | `willow_green` | 350 | riverbanks |
@@ -129,7 +129,7 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 ## Meal, drink and plant materials
 
 - `meal` — class `meat` (edible), value 1; meal item types carry the value multiplier.
-- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3.
+- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3, `deepfire` 8 (spirits, distilled from an ale or a wine at the still; group `drink/spirits`, colour `ember_orange`).
 - `flour` — class `plant`, value 2 (from barley or cavewheat at the farmer's workshop).
 - Each plant species is a material of class `plant` with the value in [plants.md](plants.md).
 
@@ -202,7 +202,7 @@ Stages (T-548, T-556): `reed` → `reed_thread` → `reed_cloth` (the reed is th
 
 ### Planned drinks, tags and edits
 
-- Drink materials, class `liquid`, value per unit: `black_ale` 3 (rye, group `drink/ale`, T-548), `cactus_wine` 3 (group `drink/wine`, T-548), `emberwine` 6 (wyrmtongue, `drink/wine`, T-548), `mead` 5 (honey, `drink/wine`, T-555), `deepfire` 8 (distilled, `drink/spirits`, T-554).
-- Tags on existing rows: `soil_drop` on `clay`, `sand` and `peat` (T-547); `fine_cask` on `oak` (T-554).
+- Drink materials, class `liquid`, value per unit: `black_ale` 3 (rye, group `drink/ale`, T-548), `cactus_wine` 3 (group `drink/wine`, T-548), `emberwine` 6 (wyrmtongue, `drink/wine`, T-548), `mead` 5 (honey, `drink/wine`, T-555).
+- Tags on existing rows: `soil_drop` on `clay`, `sand` and `peat` (T-547).
 - The sentence "Soil tiles never drop items when dug." becomes "Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a `soil_load` half the time ([03](../02-systems/03-terrain-and-mining.md))." (T-547).
 - The plant materials of `rye`, `nettle` and `wyrmtongue` are generated from their plant rows as every plant's is; `wyrmtongue`'s carries `seasoning` (T-548).

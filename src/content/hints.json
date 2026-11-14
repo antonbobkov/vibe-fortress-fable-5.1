@@ -173,5 +173,10 @@
     "id": "hint_herbs_eaten",
     "trigger": "a dwarf eats a raw plant while a work order for a draught brewed from plants stands",
     "text": "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest."
+  },
+  {
+    "id": "hint_cellar",
+    "trigger": "a stockpile with the cellar setting on is not a working cellar (hourly)",
+    "text": "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two."
   }
 ]

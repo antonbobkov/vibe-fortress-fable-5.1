@@ -15,11 +15,12 @@ import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { TileIndex } from '@core/types';
-import { TileKind } from '@core/map3d';
+import { TileFlag, TileKind } from '@core/map3d';
 import { ItemCore } from './api';
 import { applyClaimItem, applyDumpItem, applyForbidItem, applyMeltItem, type ItemCommandHost } from './commands';
 import {
   applyLinkStockpile,
+  applySetStockpileCellar,
   applySetStockpileContainers,
   applySetStockpileFilter,
   applySetStockpilePriority,
@@ -32,6 +33,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { C, ItemFlag } from '@core/components';
 import type { MaterialsReader } from '@systems/materials/reader';
 import { RotQueue } from './rot';
+import { cellarDay, judgeCellar, type CellarHost } from './cellar';
 import { ItemFacts } from './facts';
 import { makeReader, type ItemsReader } from './reader';
 import { ItemSearch } from './search';
@@ -70,6 +72,7 @@ const STOCKPILE_HANDLERS: Partial<Record<CommandType, (host: StockpileCommandHos
   SetStockpileContainers: applySetStockpileContainers,
   SetStockpilePriority: applySetStockpilePriority,
   LinkStockpile: applyLinkStockpile,
+  SetStockpileCellar: applySetStockpileCellar,
 };
 
 interface ZoneViewLike {
@@ -82,7 +85,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped', 'DayPassed'];
   override readonly ownsCommands: readonly CommandType[] = [
     'ForbidItem',
     'ClaimItem',
@@ -92,6 +95,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     'SetStockpileContainers',
     'SetStockpilePriority',
     'LinkStockpile',
+    'SetStockpileCellar',
   ];
 
   private coreRef: ItemCore | null = null;
@@ -104,6 +108,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   private entitiesAt: (i: TileIndex) => readonly number[] = () => [];
   private wealthLastEmitted = 0;
   private rotRef: RotQueue | null = null;
+  private cellarRef: CellarHost | null = null;
   private readonly pendingDeaths = new Map<number, ItemsStateV1['pendingDeaths'][number]>();
 
   get core(): ItemCore {
@@ -162,10 +167,21 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     const classes = new Set<string>();
     const materials = ctx.registry.table<{ id: string; class: string }>('materials');
     for (let m = 1; m <= materials.size; m += 1) classes.add(materials.byIndex(m)?.class ?? '');
+    // 13 § Aging in a cellar: dark is no `lit` flag and no comfort light (14), warm is 05's temperature.
+    const cellar: CellarHost = {
+      core,
+      store,
+      dark: (i) => !world.map.hasFlag(i, TileFlag.Lit) &&
+        !(readers.has('14') && readers.of<{ comfortLightAt(i: TileIndex): boolean }>('14').comfortLightAt(i)),
+      temperature: (i) => readers.of<MaterialsReader>('05').temperatureAt(i),
+      emit: (event) => world.emit(event),
+    };
+    this.cellarRef = cellar;
     this.stockpileHost = {
       store,
       materialClasses: classes,
       changed: (id) => this.stockpileChanged(id),
+      judgeCellar: (id) => judgeCellar(cellar, store.tilesOf(id)),
     };
     this.search = new ItemSearch({
       core,
@@ -315,6 +331,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       if (typeof itemId === 'number' && core.host.entities.alive(itemId)) {
         core.destroy(itemId, 'stolen');
       }
+    } else if (event.type === 'DayPassed') {
+      if (this.cellarRef !== null) cellarDay(this.cellarRef);
     } else if (event.type === 'SeasonChanged') {
       this.rotRef?.resample();
     } else if (event.type === 'TilesChanged') {

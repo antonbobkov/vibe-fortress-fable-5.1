@@ -65,4 +65,6 @@ export interface DwarvesStateV1 {
   hearthTicks?: [EntityId, number][];
   /** Per dwarf, the tick before which it takes no hall errand before work. Absent means none. */
   hallRetryUntil?: [EntityId, number][];
+  /** `10` § Tipsy: per tipsy dwarf, the tick its tipsiness ends. Absent means none. */
+  tipsyUntil?: [EntityId, number][];
 }

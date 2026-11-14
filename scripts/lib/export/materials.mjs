@@ -144,8 +144,11 @@ export function exportMaterials() {
     ['rootwine', 'rootwine', 3, 'root_amber'],
     ['strawberry_wine', 'strawberry wine', 4, 'berry_red'],
     ['hopped_ale', 'hopped ale', 3, 'hops_green'],
+    // Spirits, distilled at the still (materials.md; 12 § Spirits).
+    ['deepfire', 'deepfire', 8, 'ember_orange'],
   ];
   const WINES = new Set(['bellwine', 'rootwine', 'strawberry_wine']);
+  const SPIRITS = new Set(['deepfire']);
   for (const [did, dname, dvalue, dcolor] of drinks) {
     out.push(
       compact({
@@ -159,7 +162,7 @@ export function exportMaterials() {
         meltsAtC: ORGANIC_MELTS_AT_C,
         burnable: false,
         burnTicks: 0,
-        tags: ['drink', WINES.has(did) ? 'wine' : 'ale'],
+        tags: ['drink', SPIRITS.has(did) ? 'spirits' : WINES.has(did) ? 'wine' : 'ale'],
       }),
     );
   }

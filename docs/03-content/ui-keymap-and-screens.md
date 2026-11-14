@@ -200,6 +200,7 @@ The keys of a selected zone, before the zone types; letters that open panels req
 | `[q]` | focus numeric settings | settings button or numeric label |
 | `[v]` | open allowed material classes | materials button |
 | `[S-o]` | open the bedroom's owner picker, or the sanctum's apprentice picker | owner or apprentices button |
+| `[S-c]` | a stockpile: turn the cellar setting on or off | the `[S-c] cellar` caption |
 | `Shift+A` | a farm plot: the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
 | `Space` | toggle the checkbox (category tree, material classes) | the checkbox |
 | `+` `=` `-` | adjust the focused value | minus or plus button |
@@ -645,6 +646,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_rune_metal` | a dwarf of the fortress has rune of their own | "Iron drinks the rune: a runecaster in mail recovers slowly." |
 | `hint_draught` | a draught in stock | "One draught, then three days' rest." |
 | `hint_herbs_eaten` | a dwarf eats a raw plant while a work order for a draught brewed from plants stands | "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest." |
+| `hint_cellar` | a stockpile with the cellar setting on is not a working cellar (hourly) | "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two." |
 
 ## Tutorial
 
@@ -781,7 +783,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|---|
 | `hint_pallet` | first `Slept` on the floor with cloth, wool, straw or reeds in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." | T-551 |
 | `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." | T-552 |
-| `hint_cellar` | first stockpile with the cellar setting that does not work | "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two." | T-554 |
 | `hint_hive` | first hive with too few flowers | "Bees need flowers: eight within six tiles of the hive." | T-555 |
 | `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
 | `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." | T-558 |
@@ -793,7 +794,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 | Designate panel | `I` | harvest ice | T-559 |
 | Designate panel | `F` | ignite (set a fire) | T-559 |
 | Building panel | `t` | take out what the building holds | T-551 |
-| Zone inspector | `C` | toggle cellar | T-554 |
 | Zone inspector | `f` | toggle fertilize (farm plot) | T-564 |
 
 The keys are first choices; the task checks them against the existing bindings of each context and the fixed keys.

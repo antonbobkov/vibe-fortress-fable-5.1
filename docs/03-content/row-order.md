@@ -178,3 +178,9 @@ Every new row of every table goes at the end of this table, including generated 
 | confirmations | c_overwrite_loadout |
 | confirmations | c_delete_loadout |
 | confirmations | c_leave_embark |
+| materials | deepfire |
+| recipes | distill |
+| thoughts | drank_strong_drink |
+| thoughts | drank_aged_drink |
+| thoughts | drank_vintage_drink |
+| hints | hint_cellar |

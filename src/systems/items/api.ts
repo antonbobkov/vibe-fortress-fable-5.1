@@ -359,7 +359,7 @@ export class ItemCore implements ItemsApi {
 
   valueOf(it: Item): number {
     const row = this.host.facts.row(it.type);
-    const base = itemValue(this.host.facts.materialValue(it.material), row.mult, it.quality, row.quality, it.count);
+    const base = itemValue(this.host.facts.materialValue(it.material), row.mult, it.quality, row.quality, it.count, it.age ?? 0);
     return it.enchant === undefined ? base : base + this.host.facts.enchantValue(it.enchant.id, it.count);
   }
 
@@ -646,6 +646,7 @@ export class ItemCore implements ItemsApi {
       x.stone === y.stone &&
       x.enchant?.id === y.enchant?.id &&
       x.enchant?.tier === y.enchant?.tier &&
+      (x.age ?? 0) === (y.age ?? 0) &&
       x.flags === y.flags &&
       x.ownerId === y.ownerId &&
       x.reservedBy === y.reservedBy &&
@@ -660,7 +661,10 @@ export class ItemCore implements ItemsApi {
     this.detach(b);
     this.account(this.item(b), -1);
     this.entities.destroy(b);
-    this.mutate(a, { count: this.item(a).count + y.count });
+    const x = this.mutate(a, { count: this.item(a).count + y.count });
+    // 13 § Aging in a cellar: a merged stack keeps the fewer cellar days of the two.
+    const days = Math.min(x.cellarDays ?? 0, y.cellarDays ?? 0);
+    if ((x.cellarDays ?? 0) !== days) this.setAge(a, x.age ?? 0, days);
     this.notify(b, 'destroyed');
     this.notify(a, 'count');
     return true;
@@ -808,6 +812,25 @@ export class ItemCore implements ItemsApi {
   }
 
   /** 13 § Rot: change stage and, when needed, the stock category through the accounting path. */
+  /**
+   * 13 § Aging in a cellar: the item's aging stage and its cellar days. A new stage re-accounts the
+   * wealth; cellar days alone change no count and no value, so they are written without accounting.
+   */
+  setAge(itemId: EntityId, age: 0 | 1 | 2, cellarDays: number): void {
+    const it = this.get(itemId);
+    if (it === undefined) return;
+    const { age: _age, cellarDays: _days, ...rest } = it;
+    const next: Item = { ...rest, ...(age > 0 ? { age: age as 1 | 2 } : {}), ...(cellarDays > 0 ? { cellarDays } : {}) };
+    if ((it.age ?? 0) === age) {
+      this.entities.add(itemId, C.Item, next);
+      return;
+    }
+    this.account(it, -1);
+    this.entities.add(itemId, C.Item, next);
+    this.account(next, 1);
+    this.notify(itemId, 'flags');
+  }
+
   setRot(itemId: EntityId, stage: 0 | 1 | 2 | 3, type?: number, material?: number): void {
     if (!this.isItem(itemId)) return;
     this.mutate(itemId, { rotStage: stage, ...(type === undefined ? {} : { type }), ...(material === undefined ? {} : { material }) });

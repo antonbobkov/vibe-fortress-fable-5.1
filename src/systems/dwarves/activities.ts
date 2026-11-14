@@ -9,7 +9,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { Z_DISTANCE_WEIGHT } from '@systems/jobs/constants';
-import { DINING_SEARCH_RADIUS, DRINK_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_CHECK_TICKS, TALK_TICKS, THREAT_RADIUS } from './constants';
+import { DINING_SEARCH_RADIUS, DRINK_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_CHECK_TICKS, TALK_TICKS, THREAT_RADIUS, TIPSY_TICKS } from './constants';
 import { CRITICAL, WANT, type NeedName } from './needs';
 import type { ActivityPlan } from './state';
 import type { EntityStore } from '@core/entities';
@@ -311,6 +311,12 @@ function inTalkReach(ctx: TickContext, a: TileIndex, b: TileIndex): boolean {
     Math.max(Math.abs(m.xOf(a) - m.xOf(b)), Math.abs(m.yOf(a) - m.yOf(b))) <= 2;
 }
 
+/** `10` § Tipsy: a drink's group, from its material's tag (`ale`, `wine`, `spirits`). */
+export function drinkGroup(ctx: TickContext, material: number): 'ale' | 'wine' | 'spirits' {
+  const tags = ctx.registry.table<{ id: string; tags?: readonly string[] }>('materials').byIndex(material)?.tags ?? [];
+  return tags.includes('spirits') ? 'spirits' : tags.includes('wine') ? 'wine' : 'ale';
+}
+
 export class Activities {
   readonly plans = new Map<EntityId, ActivityPlan>();
   readonly retryUntil = new Map<EntityId, Map<NeedName, number>>();
@@ -320,6 +326,18 @@ export class Activities {
   readonly hearthTicks = new Map<EntityId, number>();
   /** The tick before which a dwarf takes no hall errand before work. */
   readonly hallRetryUntil = new Map<EntityId, number>();
+  /** `10` § Tipsy: the tick at which a dwarf who drank spirits stops being tipsy. */
+  readonly tipsyUntil = new Map<EntityId, number>();
+
+  /** Whether a dwarf is tipsy at `tick` (`10` § Tipsy). */
+  isTipsy(id: EntityId, tick: number): boolean {
+    return (this.tipsyUntil.get(id) ?? 0) > tick;
+  }
+
+  /** Forget every tipsy time that has run out or whose dwarf is gone. */
+  soberUp(tick: number, alive: (id: EntityId) => boolean): void {
+    for (const [id, until] of Array.from(this.tipsyUntil)) if (until <= tick || !alive(id)) this.tipsyUntil.delete(id);
+  }
 
   serializeTalks(): [EntityId, EntityId, number][] {
     return Array.from(this.talks).filter(([id, talk]) => id < talk.partner)
@@ -338,6 +356,7 @@ export class Activities {
     this.endTalk(id);
     this.hearthTicks.delete(id);
     this.hallRetryUntil.delete(id);
+    this.tipsyUntil.delete(id);
   }
 
   /**
@@ -451,7 +470,9 @@ export class Activities {
     const friends = (ctx.world.entities.get(id, C.Relationships)?.friends ?? []).includes(partner);
     for (const who of [id, partner]) {
       const n = ctx.world.entities.get(who, C.Needs);
-      if (n !== undefined) ctx.world.entities.add(who, C.Needs, { ...n, social: clamp(n.social - (friends ? 60 : 40)) });
+      // `10` § Tipsy: a tipsy dwarf's talk relieves its social need twice over.
+      const relief = (friends ? 60 : 40) * (this.isTipsy(who, ctx.tick) ? 2 : 1);
+      if (n !== undefined) ctx.world.entities.add(who, C.Needs, { ...n, social: clamp(n.social - relief) });
     }
     for (const [a, z] of [[id, partner], [partner, id]] as [EntityId, EntityId][]) {
       const rel = ctx.world.entities.get(a, C.Relationships);
@@ -720,7 +741,10 @@ export class Activities {
         const item = its?.get(p.itemId);
         if (item !== undefined) {
           ctx.world.services.items?.consume(p.itemId, 1); change('thirst', 100);
-          ctx.emit({ type: 'DrankAlcohol', id, material: item.material, quality: item.quality });
+          const group = drinkGroup(ctx, item.material);
+          ctx.emit({ type: 'DrankAlcohol', id, material: item.material, quality: item.quality, group, aged: item.age ?? 0 });
+          // `10` § Tipsy: spirits make a dwarf tipsy for `TIPSY_TICKS`; another drink restarts the time.
+          if (group === 'spirits') this.tipsyUntil.set(id, ctx.tick + TIPSY_TICKS);
           hearthTime(DRINK_TICKS);
         }
       } else {

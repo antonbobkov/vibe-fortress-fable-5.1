@@ -402,6 +402,7 @@ function recipeInputs(cell) {
     let materialProperty;
     if (/brewable species/.test(note)) materialProperty = 'brewable';
     else if (/magma-safe metal/.test(note)) materialProperty = 'magma_safe';
+    else if (/ale or wine group/.test(note)) materialProperty = 'ale_or_wine';
 
     let material;
     let materials;
@@ -461,7 +462,8 @@ export function exportRecipes() {
           inputs,
           outputs,
           baseTicks: int(ticksCell),
-          fuel,
+          // A table with a `fuel` column (the still's) says it per recipe; elsewhere the section does.
+          fuel: row.fuel === undefined || isBlank(row.fuel) ? fuel : /^yes/i.test(plain(row.fuel)),
           quality: isBlank(row.Q) ? defaultQuality : /^yes/i.test(plain(row.Q)),
           spoilable: /^yes/i.test(plain(row.spoilable ?? '')) ? true : undefined,
           container: container ?? outContainer?.[1],

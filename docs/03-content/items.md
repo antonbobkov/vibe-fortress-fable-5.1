@@ -31,7 +31,7 @@ Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour is not edib
 |---|---|---|---|---|---|---|---|---|
 | `drink` | drink | drink | 1 | 20 | barrel | 0 | `☼` | material |
 
-One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale), `drink/wine` (bellwine, rootwine, strawberry_wine).
+One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`, `deepfire`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale), `drink/wine` (bellwine, rootwine, strawberry_wine), `drink/spirits` (deepfire). A drink aged in a cellar names its stage before its material: "a barrel of aged bellwine", "vintage deepfire"; so does a cheese, "a wheel of vintage cheese" ([13](../02-systems/13-items-and-storage.md) § Aging in a cellar).
 
 ## Seeds
 
@@ -275,6 +275,6 @@ What a drying rack turns its items into ([14](../02-systems/14-buildings-and-roo
 
 - `bucket` materials gain stone (an earthenware jug breaks as a pot does) (T-553); `mug` materials gain bone (horn), glass (T-547, T-553: the material classes the mug recipes need); `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
-- `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-548, T-554, T-555).
+- `drink` gains the new ales and wines (§ Drink's categories line) (T-548, T-555).
 - § Meal ingredients gains `food/meat/cured`, `food/fish/cured`, `food/salt` and `food/honey` (T-547, T-552, T-555).
-- An item of a cured, salted or aged form names itself so: "cured boar meat", "a barrel of aged bellwine", "a wheel of vintage cheese" (T-552, T-554).
+- An item of a cured or salted form names itself so: "cured boar meat" (T-552).

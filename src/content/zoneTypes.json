@@ -177,7 +177,8 @@
       "filter",
       "containers",
       "priority",
-      "links"
+      "links",
+      "cellar"
     ],
     "consumers": [
       "13"

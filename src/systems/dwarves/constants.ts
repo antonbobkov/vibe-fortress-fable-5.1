@@ -24,6 +24,10 @@ export const SIT_TICKS = 100;
 export const LEISURE_MARK = 75;
 /** After a hall errand that left one of the three at the mark, no other before work for this long. */
 export const LEISURE_RETRY_TICKS = 600;
+/** Ticks a dwarf stays tipsy after a drink of spirits (two hours). */
+export const TIPSY_TICKS = 100;
+/** A tipsy dwarf walks and works this much slower, percent. */
+export const TIPSY_SLOW_PERCENT = 10;
 export const IDLE_TICKS = 50;
 /** Tiles (path distance). */
 export const DINING_SEARCH_RADIUS = 40;

@@ -1,7 +1,8 @@
 /**
  * 13's stockpile commands: `04-implementation/command-catalog.md` rows `SetStockpileFilter`
  * (`zoneId, filter`; "zone is a stockpile; category nodes exist") and `SetStockpileContainers` /
- * `SetStockpilePriority` / `LinkStockpile` (`zoneId, …`), and `13` § Stockpiles.
+ * `SetStockpilePriority` / `LinkStockpile` (`zoneId, …`), `SetStockpileCellar` (`zoneId, on`), and `13`
+ * §§ Stockpiles, Aging in a cellar.
  *
  * `filter` is a preset name (`food`, `ore_and_bars`, … `everything`) or a filter object whose
  * missing fields take the empty filter's values (`preset` in the object starts from that preset).
@@ -9,9 +10,10 @@
 
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
-import type { StockpileFilter } from '@core/components';
+import { C, type StockpileFilter } from '@core/components';
 import type { EntityId, Priority } from '@core/types';
 import { emptyFilter, presetFilter, WANTED_CLASSES, type StockpileStore } from './stockpiles';
+import { withCellar, type CellarJudgement } from './cellar';
 
 export interface StockpileCommandHost {
   readonly store: StockpileStore;
@@ -19,6 +21,8 @@ export interface StockpileCommandHost {
   readonly materialClasses: ReadonlySet<string>;
   /** The stockpile's filter or settings changed: its items and the wants set are re-examined. */
   changed(spId: EntityId): void;
+  /** 13 § Aging in a cellar: the judgement of a stockpile's tiles as a cellar. */
+  judgeCellar?(spId: EntityId): CellarJudgement;
 }
 
 function stockpileOf(host: StockpileCommandHost, cmd: Command): EntityId | null {
@@ -128,5 +132,22 @@ export function applyLinkStockpile(host: StockpileCommandHost, cmd: Command): Co
   links.sort((a, b) => a - b);
   host.store.write(id, { linkedSources: links });
   host.changed(id);
+  return OK;
+}
+
+/**
+ * `SetStockpileCellar { zoneId, on }` (13 § Aging in a cellar): a stockpile zone (not a hospital) turns
+ * its cellar setting on or off. Turning it on judges the cellar at once, so the inspector and the hint
+ * say whether it works before the next `DayPassed`; turning it off clears the judgement. An item's
+ * cellar days and stage stay with it.
+ */
+export function applySetStockpileCellar(host: StockpileCommandHost, cmd: Command): CommandResult {
+  const id = stockpileOf(host, cmd);
+  if (id === null || host.store.host.zone(id)?.type !== 'stockpile') return reject('not_found');
+  if (typeof cmd['on'] !== 'boolean') return reject('bad_setting');
+  const sp = host.store.stockpile(id);
+  if (sp === undefined) return reject('not_found');
+  const on = cmd['on'];
+  host.store.host.core.host.entities.add(id, C.Stockpile, withCellar(sp, on, on ? host.judgeCellar?.(id) ?? null : null));
   return OK;
 }

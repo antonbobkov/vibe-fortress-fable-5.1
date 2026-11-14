@@ -24,7 +24,7 @@ import type { WeatherReader } from '@systems/weather';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, type NeedName } from './needs';
-import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS } from './constants';
+import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS, TIPSY_SLOW_PERCENT } from './constants';
 import { Activities, hallStand } from './activities';
 
 export { makeReader, type DwarvesReader } from './reader';
@@ -270,7 +270,9 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       (id) => {
         const mood = ctx.readers.has('15') ? ctx.readers.of<{ productivity(id: EntityId): number }>('15').productivity(id) : 100;
         const health = ctx.readers.has('17') ? ctx.readers.of<{ productivityModifier(id: EntityId): number }>('17').productivityModifier(id) : 100;
-        return Math.floor((mood * health) / 100);
+        const rate = Math.floor((mood * health) / 100);
+        // `10` § Tipsy: a tipsy dwarf works `TIPSY_SLOW_PERCENT` slower.
+        return this.activities.isTipsy(id, ctx.world.calendar.tick) ? Math.floor((rate * (100 - TIPSY_SLOW_PERCENT)) / 100) : rate;
       }, (id) => ctx.world.entities.get(id, C.Soldier)?.onDuty ? -1 : this.threatTile(id), (bedId) => {
         if (bedId === 0) return 0;
         let holder = 0;
@@ -279,7 +281,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
               ctx.world.entities.get(id, C.Brain)?.behavior === 'need' && (holder === 0 || id < holder)) holder = id;
         }
         return holder;
-      }, () => ctx.world.calendar.tick);
+      }, () => ctx.world.calendar.tick, (id) => this.activities.isTipsy(id, ctx.world.calendar.tick));
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {
@@ -374,6 +376,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const species = ctx.registry.table<SpeciesRow & { id: string }>('creatures');
     const movement = ctx.world.services.movement;
     const dwarves = reader.list();
+    this.activities.soberUp(ctx.tick, (id) => entities.alive(id));
     this.activities.passingTalks(ctx, dwarves);
     for (const id of dwarves) {
       // `10` § Movement: species speed × (50 + Agility) / 100 (wounds and carrying from M4/M6).
@@ -388,7 +391,10 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         const armorPercent = ctx.readers.has('16') && typeof ctx.readers.of<{ armorSpeedModifier?(id: EntityId): number }>('16').armorSpeedModifier === 'function'
           ? (ctx.readers.of<{ armorSpeedModifier(id: EntityId): number }>('16').armorSpeedModifier(id) ?? 100)
           : 100;
-        movement.setSpeed(id, dwarfSpeed(base, attrs.agi, Math.floor((healthPercent * armorPercent) / 100), carryPercent));
+        const woundPercent = Math.floor((healthPercent * armorPercent) / 100);
+        // `10` § Tipsy: a tipsy dwarf walks `TIPSY_SLOW_PERCENT` slower.
+        const tipsyPercent = this.activities.isTipsy(id, ctx.tick) ? 100 - TIPSY_SLOW_PERCENT : 100;
+        movement.setSpeed(id, dwarfSpeed(base, attrs.agi, Math.floor((woundPercent * tipsyPercent) / 100), carryPercent));
       }
       tickDwarf(this.host as BrainHost, ctx, id);
     }
@@ -651,6 +657,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       ...(this.activities.talks.size > 0 ? { talks: this.activities.serializeTalks() } : {}),
       ...(this.activities.hearthTicks.size > 0 ? { hearthTicks: Array.from(this.activities.hearthTicks).sort((a, b) => a[0] - b[0]) } : {}),
       ...(this.activities.hallRetryUntil.size > 0 ? { hallRetryUntil: Array.from(this.activities.hallRetryUntil).sort((a, b) => a[0] - b[0]) } : {}),
+      ...(this.activities.tipsyUntil.size > 0 ? { tipsyUntil: Array.from(this.activities.tipsyUntil).sort((a, b) => a[0] - b[0]) } : {}),
     };
   }
 
@@ -699,5 +706,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     for (const [id, ticks] of state.hearthTicks ?? []) this.activities.hearthTicks.set(id, ticks);
     this.activities.hallRetryUntil.clear();
     for (const [id, until] of state.hallRetryUntil ?? []) this.activities.hallRetryUntil.set(id, until);
+    this.activities.tipsyUntil.clear();
+    for (const [id, until] of state.tipsyUntil ?? []) this.activities.tipsyUntil.set(id, until);
   }
 }

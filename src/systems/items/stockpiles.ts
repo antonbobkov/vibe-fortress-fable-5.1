@@ -55,7 +55,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
 ];
 
-/** `items.md` § Drink: "Categories for stockpile filters: `drink/ale` (…), `drink/wine` (…)". */
+/** `items.md` § Drink: "Categories for stockpile filters: `drink/ale` (…), `drink/wine` (…), `drink/spirits` (deepfire)". */
 const DRINK_GROUPS: Readonly<Record<string, string>> = Object.freeze({
   ale: 'drink/ale',
   dimcap_ale: 'drink/ale',
@@ -64,6 +64,7 @@ const DRINK_GROUPS: Readonly<Record<string, string>> = Object.freeze({
   bellwine: 'drink/wine',
   rootwine: 'drink/wine',
   strawberry_wine: 'drink/wine',
+  deepfire: 'drink/spirits',
 });
 
 /**
@@ -635,7 +636,7 @@ export class StockpileStore {
       const other = on[0] as EntityId;
       const x = this.core.get(other);
       if (x === undefined || (x.flags & ItemFlag.Reserved) !== 0 || this.core.container(other) !== undefined) continue;
-      const kind = `${x.type}:${x.material}:${x.quality}`;
+      const kind = `${x.type}:${x.material}:${x.quality}:${x.age ?? 0}`;
       const list = stacks.get(kind);
       if (list === undefined) stacks.set(kind, [{ tile, other }]);
       else list.push({ tile, other });
@@ -688,7 +689,7 @@ export class StockpileStore {
     if (it === undefined) return null;
     if (scan.empty >= 0) return { tile: scan.empty, container: 0, merge: 0, key: this.tileKey(scan.empty) };
     const stack = this.core.host.facts.row(it.type).stack;
-    for (const c of scan.stacks.get(`${it.type}:${it.material}:${it.quality}`) ?? []) {
+    for (const c of scan.stacks.get(`${it.type}:${it.material}:${it.quality}:${it.age ?? 0}`) ?? []) {
       const x = this.core.get(c.other);
       if (x === undefined || x.count + it.count > stack) continue;
       return { tile: c.tile, container: 0, merge: c.other, key: this.tileKey(c.tile) };

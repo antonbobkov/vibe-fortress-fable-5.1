@@ -476,6 +476,11 @@
   },
   {
     "context": "zone_inspector",
+    "key": "[S-c]",
+    "action": "a stockpile: turn the cellar setting on or off"
+  },
+  {
+    "context": "zone_inspector",
     "key": "Shift+A",
     "action": "a farm plot: the highlighted row's crop for every season in which that crop can grow"
   },

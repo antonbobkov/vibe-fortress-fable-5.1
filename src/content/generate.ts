@@ -80,7 +80,7 @@ export interface RecipeInput {
   count: number;
   material?: string;
   materials?: string[];
-  materialProperty?: 'magma_safe' | 'brewable';
+  materialProperty?: 'magma_safe' | 'brewable' | 'ale_or_wine';
   sameMaterial?: true;
   flagged?: 'melt';
   distinct?: boolean;

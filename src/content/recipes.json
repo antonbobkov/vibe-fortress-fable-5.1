@@ -457,6 +457,34 @@
     "xp": 12
   },
   {
+    "id": "distill",
+    "name": "Distil spirits",
+    "workshop": "still",
+    "skill": "brewing",
+    "inputs": [
+      {
+        "match": "drink",
+        "count": 20,
+        "materialProperty": "ale_or_wine",
+        "sameMaterial": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "drink",
+        "count": 10,
+        "material": {
+          "fixed": "deepfire"
+        }
+      }
+    ],
+    "baseTicks": 250,
+    "fuel": true,
+    "quality": false,
+    "container": "barrel",
+    "xp": 10
+  },
+  {
     "id": "distill_rune",
     "name": "Distill rune",
     "workshop": "alchemist",

@@ -254,6 +254,10 @@ export interface Item {
   stone?: Idx<'MaterialDef'>;
   /** The stone set in a weapon, armor piece or ammunition (`25` § Setting stones); absent: none. */
   enchant?: ItemEnchant;
+  /** Days aged in a working cellar toward the next stage (`13` § Aging in a cellar); absent: 0. */
+  cellarDays?: number;
+  /** The aging stage: 1 aged, 2 vintage; absent: young. */
+  age?: 1 | 2;
 }
 
 /** An item's enchantment: the `enchants` row and the runesmith's quality roll, which scales its numbers. */
@@ -343,6 +347,14 @@ export interface Stockpile {
   containersWanted: { barrel: number; bag: number; bin: number };
   priority: Priority;
   linkedSources: EntityId[];
+  /** The cellar setting (`13` § Aging in a cellar); absent: off. */
+  cellar?: true;
+  /** A cellar's last judgement: a working cellar; absent: not (or not a cellar). */
+  cellarOk?: true;
+  /** Why a cellar does not work, at its last judgement; absent when it works or is no cellar. */
+  cellarReason?: 'lit' | 'too_warm' | 'too_cold';
+  /** The temperature that broke it (the warmest or the coldest tile), with `too_warm` or `too_cold`. */
+  cellarC?: number;
 }
 
 export interface Room {

@@ -372,6 +372,21 @@
     "announce": false
   },
   {
+    "id": "drank_aged_drink",
+    "name": "drank aged drink",
+    "text": "That was a good year.",
+    "value": 2,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankAlcohol",
+      "target": "aged"
+    },
+    "announce": false
+  },
+  {
     "id": "drank_ale",
     "name": "drank ale",
     "text": "Had a drink.",
@@ -415,6 +430,36 @@
     "trigger": {
       "event": "DrankWater",
       "target": "outdoors"
+    },
+    "announce": false
+  },
+  {
+    "id": "drank_strong_drink",
+    "name": "drank strong drink",
+    "text": "Sang at the hearth. Everyone heard.",
+    "value": 5,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankAlcohol",
+      "target": "spirits"
+    },
+    "announce": false
+  },
+  {
+    "id": "drank_vintage_drink",
+    "name": "drank vintage drink",
+    "text": "A vintage. They do not make them like that.",
+    "value": 4,
+    "hours": 36,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "DrankAlcohol",
+      "target": "vintage"
     },
     "announce": false
   },

@@ -881,7 +881,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
         count: int,
         material: opt(materialConstraint),
         materials: opt(arr(materialRef)),
-        materialProperty: opt(enumOf(['magma_safe', 'brewable'])),
+        materialProperty: opt(enumOf(['magma_safe', 'brewable', 'ale_or_wine'])),
         sameMaterial: opt(bool),
         flagged: opt(enumOf(['melt'])),
         distinct: opt(bool),
