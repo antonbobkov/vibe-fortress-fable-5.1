@@ -84,19 +84,25 @@ export function siteSignature(spec: LocalMapSpec, registry: Registry): SiteSigna
   };
 }
 
-/** Whether a good names a material: its id, its class, the flux tag for `flux`, or the word's material. */
-export function goodCovers(good: string, material: MaterialRow): boolean {
-  if (good === material.id || good === material.class) return true;
-  if (good === 'flux') return material.tags?.includes('flux') === true;
-  return WORD_MATERIALS[good]?.includes(material.id) === true;
+/**
+ * How closely a good names a material: 3 by its id, 2 by a word (`flux` for a `flux`-tagged stone,
+ * `giant_bones` for `giant_bone`), 1 by its class, 0 not at all.
+ */
+export function goodCovers(good: string, material: MaterialRow): number {
+  if (good === material.id) return 3;
+  if (good === 'flux' && material.tags?.includes('flux') === true) return 2;
+  if (WORD_MATERIALS[good]?.includes(material.id) === true) return 2;
+  return good === material.class ? 1 : 0;
 }
 
 /**
- * Whether the site lacks a material (20 § The scarcity price): a good of its lacks names it, and no
- * good of its has does (a mountain lacks soil but has sand, so sand is not scarce there).
+ * Whether the site lacks a material (20 § The scarcity price): a good of its lacks names it more
+ * closely than any good of its has. A mountain lacks soil but has sand, so its sand is not scarce;
+ * an igneous mountain has stone but lacks flux, so its limestone is.
  */
 export function lacksMaterial(signature: SiteSignature, registry: Registry, materialIndex: number): boolean {
   const material = registry.table<MaterialRow>('materials').byIndex(materialIndex);
   if (material === undefined) return false;
-  return signature.lacks.some((good) => goodCovers(good, material)) && !signature.has.some((good) => goodCovers(good, material));
+  const closest = (goods: readonly string[]): number => goods.reduce((best, good) => Math.max(best, goodCovers(good, material)), 0);
+  return closest(signature.lacks) > closest(signature.has);
 }

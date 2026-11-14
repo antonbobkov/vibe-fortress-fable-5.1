@@ -66,7 +66,7 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 
 ### The scarcity price
 
-A merchant good whose material the site lacks (02 § What a site has and lacks: a good of the site's lacks names the material, by its id, its class, or for `flux` its `flux` tag, and no good of its has does) is priced at `price × SCARCITY_MARKUP / 100`, on top of the markup and the preference. Logs on a steppe cost two and a half times what they cost in a forest. The trade screen marks such a good "scarce here" (`trade.isScarce(itemId)`). The offer's `Σ price(take)` is these prices. The fortress's own goods are valued as before. The summary's lacks line is the same list, so the player knows before embarking what will be dear. With no local map spec (a test world) nothing is scarce.
+A merchant good whose material the site lacks (02 § What a site has and lacks: a good of the site's lacks names the material, by its id, a word such as `flux` for its `flux` tag, or its class, more closely than any good of its has) is priced at `price × SCARCITY_MARKUP / 100`, on top of the markup and the preference. Logs on a steppe cost two and a half times what they cost in a forest. The trade screen marks such a good "scarce here" (`trade.isScarce(itemId)`). The offer's `Σ price(take)` is these prices. The fortress's own goods are valued as before. The summary's lacks line is the same list, so the player knows before embarking what will be dear. With no local map spec (a test world) nothing is scarce.
 
 `margin = max(MARGIN_MIN, MARGIN_BASE − tradingSkill × MARGIN_PER_SKILL − reputation / MARGIN_REP_DIVISOR)` percent.
 
