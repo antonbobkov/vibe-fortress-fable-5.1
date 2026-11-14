@@ -791,6 +791,23 @@
     ]
   },
   {
+    "id": "feather",
+    "name": "feather",
+    "category": "textile/feather",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "'",
+    "fg": "feather_white",
+    "quality": false,
+    "tags": [
+      "stuffing"
+    ]
+  },
+  {
     "id": "fiber",
     "name": "fiber",
     "category": "textile/fiber",
@@ -887,6 +904,19 @@
     "tags": [
       "ingredient"
     ]
+  },
+  {
+    "id": "fossil",
+    "name": "fossil",
+    "category": "stone/fossil",
+    "mult": 1000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": "any",
+    "glyph": "•",
+    "quality": false
   },
   {
     "id": "gambeson",
@@ -1044,6 +1074,20 @@
     "tags": [
       "draught"
     ]
+  },
+  {
+    "id": "horn",
+    "name": "horn",
+    "category": "textile/horn",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "horn_gray",
+    "quality": false
   },
   {
     "id": "lavish_meal",
@@ -1295,7 +1339,8 @@
     "materials": [
       "stone",
       "wood",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "∂",
     "quality": true
@@ -1591,6 +1636,23 @@
     ]
   },
   {
+    "id": "salt",
+    "name": "salt",
+    "category": "food/salt",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": ":",
+    "fg": "salt_white",
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
     "id": "seed",
     "name": "seed",
     "category": "seed",
@@ -1723,6 +1785,19 @@
     "tags": [
       "ammo"
     ]
+  },
+  {
+    "id": "soil_load",
+    "name": "load",
+    "category": "stone/soil",
+    "mult": 1000,
+    "stack": 5,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "≈",
+    "quality": false
   },
   {
     "id": "spear",
@@ -2002,6 +2077,20 @@
     "glyph": "[",
     "quality": true,
     "slot": "body"
+  },
+  {
+    "id": "tusk",
+    "name": "tusk",
+    "category": "textile/tusk",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "(",
+    "fg": "ivory_cream",
+    "quality": false
   },
   {
     "id": "wand",

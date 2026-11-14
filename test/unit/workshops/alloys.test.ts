@@ -32,7 +32,7 @@ describe('T-M5-02 alloys and steel', () => {
     expect(reader.isRunnable('alloy_steel', smelter)).toEqual({ runnable: true, reason: null });
   });
 
-  it('executes all five alloy rows and consumes the steel reaction fuel plus workshop fuel', () => {
+  it('executes all six alloy rows and consumes the steel reaction fuel plus workshop fuel', () => {
     const w = new TestWorld({ seed: 'm5-alloy-outputs', world: 'flat-test', embark: 'none' });
     const at = w.index(15, 15, 32);
     const smelter = w.build('smelter', at);
@@ -41,7 +41,7 @@ describe('T-M5-02 alloys and steel', () => {
     const system = w.game.world.scheduler.byId('12') as WorkshopsSystem;
     const items = w.readers.of<ItemsReader>('13');
     const rows = w.readers.of<WorkshopsReader>('12').recipesFor('smelter').filter((r) => r.id.startsWith('alloy_'));
-    expect(rows).toHaveLength(5);
+    expect(rows).toHaveLength(6);
     const events: { type: string; itemId?: number; recipeId?: string }[] = [];
     const ctx = { world: w.game.world, registry: w.game.registry, spawn: w.game.world.services.spawn,
       emit: (event: { type: string; itemId?: number; recipeId?: string }) => events.push(event) } as unknown as TickContext;

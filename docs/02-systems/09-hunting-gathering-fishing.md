@@ -51,8 +51,10 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
   - `fat`: `size / FAT_PER_SIZE` items, rendered to `tallow` at a kitchen.
   - `skull`: 1 if `size ≥ SKULL_MIN_SIZE` (crafts).
   - `shell`: for `cave_crab` and `crocodile` in place of hide.
+  - Butcher parts: the items a species row of `creatures.md` § Butcher parts lists, each an item, a material and a count (`yak` 2 `horn` of `horn`; `mammoth` 2 `tusk` of `ivory`; `chicken` 2 `feather` of `feather`; `cave_crawler` 2 `shell_piece` of `chitin`; and the rest of the table). A species not listed gives none.
+- A species whose row has no meat (`meat` 0) gives no meat and no fat; one with no hide gives no hide. So `cave_crawler`, butcherable for its parts, gives its bones, its skull and its chitin.
 - A shelled species gives `max(1, hideYield)` shells, even below `HIDE_MIN_SIZE`; that threshold still applies to hide. A corpse with its saved `juvenile` marker gives `max(1, floor(adultMeat / 2))` meat and unchanged other yields.
-- Keep the stage-2 admission limit for corpses; the separate `skeleton` item type is accepted as a bones-only input. A rotten corpse (13) yields only bones.
+- Keep the stage-2 admission limit for corpses; the separate `skeleton` item type is accepted as a bones-only input. A rotten corpse (13) yields only bones: none of its butcher parts. A field-butchered corpse gives its butcher parts whole: `FIELD_BUTCHER_PERCENT` scales meat, hide, bone and fat only.
 - Slaughtered animals (08) go through the same job at the workshop where they were killed. Slaughter completion owns corpse creation; its `CorpseCreated` cancels the general pending corpse transition in 13.
 
 ## State
@@ -68,7 +70,7 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 - `foraging.isHuntable(species)`, `foraging.huntTargets()` (animal ids currently eligible)
 - `foraging.waterBodyAt(i)`, `foraging.fishPool(bodyId)`, `foraging.canFishAt(i)`
-- `foraging.butcherYields(species)` — computed from the rules above, for the inspector
+- `foraging.butcherYields(species)` — computed from the rules above, for the inspector, with the species' butcher parts
 
 ### Commands
 
@@ -128,12 +130,6 @@ Job producer `foraging` (`hunt`, `fish`, `butcher`); inspector sections `zone �
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
-
-### Butcher parts (T-547)
-
-- A new content table, `creatures.md` § Butcher parts (in § Planned rows until this task): a species row lists items its corpse yields besides meat, hide, bone, fat, skull and shell, each an item, a material and a count (`yak` 2 `horn` of `horn`; `mammoth` 2 `tusk` of `ivory`; `chicken` 2 `feather` of `feather`; `cave_crawler` 2 `shell_piece` of `chitin`; and the rest of the table). The butcher job spawns them with the other yields; a field-butchered corpse gives them whole (`FIELD_BUTCHER_PERCENT` scales meat, hide, bone and fat only); a rotten corpse gives none of them, only bones.
-- `cave_crawler` becomes butcherable for its parts: it leaves no meat or hide (its monster row has none), so its butcher yield is its bones, its skull and its chitin.
-- `foraging.butcherYields(species)` lists the parts.
 
 ### Gathering the new shrubs (T-548)
 

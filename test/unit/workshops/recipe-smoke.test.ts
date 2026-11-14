@@ -19,6 +19,8 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   bone_pile: 'bone',
   stone_block: 'granite',
   shell_piece: 'shell',
+  horn: 'horn',
+  tusk: 'ivory',
   bar: 'iron',
   skull: 'skull_bone',
   cloth: 'flax_cloth',
@@ -175,12 +177,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 205', () => {
+  it('the recipe count over all types is 211', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(205);
+    expect(total).toBe(211);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

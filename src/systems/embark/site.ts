@@ -88,6 +88,8 @@ interface CreatureRow {
 
 interface MineralRow {
   readonly id: string;
+  /** `ore`, or `bone` for a fossil, which the summary does not list as an ore. */
+  readonly class?: string;
   readonly hosts: readonly string[];
   readonly count: number;
   readonly deepsilver?: boolean;
@@ -214,7 +216,7 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
   const ores: [string, number][] = [];
   for (const id of minerals.ids()) {
     const m = minerals.byId(id) as MineralRow;
-    if (m.deepsilver === true || mult === undefined) continue;
+    if (m.deepsilver === true || mult === undefined || (m.class !== undefined && m.class !== 'ore')) continue;
     const expected = expectedOreCount(m, mult.ore, spec.traits);
     if (expected >= FIXED_SCALE && m.hosts.some((h) => reached.includes(h))) ores.push([id, expected]);
   }

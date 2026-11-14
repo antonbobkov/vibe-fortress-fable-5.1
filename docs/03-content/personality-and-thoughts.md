@@ -116,6 +116,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `finished_big_job` | "We finished a great digging." | +3 | 48 | linear | 1 | pride | a dig designation batch of 50+ tiles completes (all miners) |
 | `harvest_in` | "The harvest is in." | +3 | 48 | linear | 1 | pride | `CropHarvested` (the farmer, once per day) |
 | `first_vein` | "I struck ore." | +5 | 72 | linear | 1 | pride | `VeinFound` finder |
+| `first_fossil` | "I found the bones of something old." | +3 | 72 | linear | 1 | pride | `FossilFound` finder |
 | `attuned` | "Felt the rune answer." | +2 | 12 | linear | 1 | pride | `AttuneSession` with no mishap |
 | `singed` | "Singed my beard in the sanctum." | −3 | 24 | halflife | 1 | none | `Mishap` `singed` |
 | `rune_sick` | "Too much rune. My teeth hum." | −4 | 24 | halflife | 1 | none | `VialDrunk` a fourth vial in a day |
@@ -189,7 +190,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
-| `first_fossil` | "I found the bones of something old." | +3 | 72 | linear | 1 | pride | `FossilFound` finder | T-547 |
 | `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle | T-548 |
 | `drank_cactus` | "Drank cactus. Cactus." | −1 | 12 | halflife | 1 | comfort | `DrankFromPlant` | T-548 |
 | `ate_wyrmtongue` | "Ate something that fought back." | +2 | 24 | linear | 1 | comfort | `MealEaten` seasoned with wyrmtongue; while held, no `bitter_cold` | T-548 |
@@ -215,7 +215,7 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `thane_pleased` | "The Thane got what the Thane wanted." | +3 | 72 | linear | 1 | social | `WhimJudged` met (everyone) | T-565 |
 | `thane_grumbled` | "Nobody listens to the Thane." | −1 | 72 | linear | 1 | none | `WhimJudged` missed (the Thane) | T-565 |
 
-`first_fossil`, `stood_in_the_ribs` and `saw_the_star` are announced (`announce: true`), as `first_vein` is not.
+`stood_in_the_ribs` and `saw_the_star` are announced (`announce: true`), as `first_vein` is not.
 
 ### Whims (a new table)
 

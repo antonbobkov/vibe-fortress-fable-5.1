@@ -156,11 +156,20 @@
     "hardness": 100,
     "color": "coal_black",
     "meltsAtC": 1300,
-    "burnable": true,
-    "burnTicks": 0,
-    "tags": [
-      "fuel"
-    ]
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
+    "id": "bog_iron",
+    "name": "bog iron",
+    "class": "ore",
+    "value": 4,
+    "density": 100,
+    "hardness": 100,
+    "color": "limonite_yellow",
+    "meltsAtC": 1300,
+    "burnable": false,
+    "burnTicks": 0
   },
   {
     "id": "bone",
@@ -282,6 +291,18 @@
     "burnTicks": 0
   },
   {
+    "id": "chitin",
+    "name": "chitin",
+    "class": "shell",
+    "value": 4,
+    "density": 130,
+    "hardness": 100,
+    "color": "chitin_brown",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
     "id": "clay",
     "name": "clay",
     "class": "soil",
@@ -291,7 +312,10 @@
     "color": "clay_red",
     "meltsAtC": 1300,
     "burnable": false,
-    "burnTicks": 0
+    "burnTicks": 0,
+    "tags": [
+      "soil_drop"
+    ]
   },
   {
     "id": "coal",
@@ -463,6 +487,21 @@
     "burnTicks": 0
   },
   {
+    "id": "feather",
+    "name": "feather",
+    "class": "cloth",
+    "value": 2,
+    "density": 10,
+    "hardness": 100,
+    "color": "feather_white",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 100,
+    "tags": [
+      "stuffing"
+    ]
+  },
+  {
     "id": "flax_cloth",
     "name": "linen",
     "class": "cloth",
@@ -549,6 +588,18 @@
     "burnTicks": 0
   },
   {
+    "id": "giant_bone",
+    "name": "giant bone",
+    "class": "bone",
+    "value": 3,
+    "density": 140,
+    "hardness": 70,
+    "color": "bone_white",
+    "meltsAtC": 1600,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
     "id": "glowstone",
     "name": "glowstone",
     "class": "gem",
@@ -597,6 +648,18 @@
     "burnTicks": 0
   },
   {
+    "id": "halite",
+    "name": "rock salt",
+    "class": "ore",
+    "value": 2,
+    "density": 100,
+    "hardness": 100,
+    "color": "salt_white",
+    "meltsAtC": 1300,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
     "id": "hematite",
     "name": "hematite",
     "class": "ore",
@@ -637,6 +700,19 @@
     ]
   },
   {
+    "id": "horn",
+    "name": "horn",
+    "class": "bone",
+    "value": 3,
+    "density": 120,
+    "hardness": 100,
+    "color": "horn_gray",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0,
+    "sharpness": 500
+  },
+  {
     "id": "ice",
     "name": "ice",
     "class": "ice",
@@ -662,6 +738,19 @@
     "tags": [
       "magma_safe"
     ]
+  },
+  {
+    "id": "ivory",
+    "name": "ivory",
+    "class": "bone",
+    "value": 13,
+    "density": 180,
+    "hardness": 100,
+    "color": "ivory_cream",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0,
+    "sharpness": 500
   },
   {
     "id": "lead",
@@ -696,11 +785,8 @@
     "hardness": 100,
     "color": "lignite_brown",
     "meltsAtC": 1300,
-    "burnable": true,
-    "burnTicks": 0,
-    "tags": [
-      "fuel"
-    ]
+    "burnable": false,
+    "burnTicks": 0
   },
   {
     "id": "limestone",
@@ -904,7 +990,22 @@
     "color": "peat_black",
     "meltsAtC": 300,
     "burnable": true,
-    "burnTicks": 200
+    "burnTicks": 200,
+    "tags": [
+      "soil_drop"
+    ]
+  },
+  {
+    "id": "pewter",
+    "name": "pewter",
+    "class": "metal",
+    "value": 9,
+    "density": 730,
+    "hardness": 100,
+    "color": "pewter_gray",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0
   },
   {
     "id": "phyllite",
@@ -1023,6 +1124,21 @@
     "burnTicks": 0
   },
   {
+    "id": "salt",
+    "name": "salt",
+    "class": "plant",
+    "value": 2,
+    "density": 120,
+    "hardness": 100,
+    "color": "salt_white",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "seasoning"
+    ]
+  },
+  {
     "id": "sand",
     "name": "sand",
     "class": "soil",
@@ -1032,7 +1148,10 @@
     "color": "sand_yellow",
     "meltsAtC": 1300,
     "burnable": false,
-    "burnTicks": 0
+    "burnTicks": 0,
+    "tags": [
+      "soil_drop"
+    ]
   },
   {
     "id": "sandstone",

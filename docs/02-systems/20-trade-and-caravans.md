@@ -61,7 +61,7 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 
 ### Valuation
 
-`valuation(civ, item) = value(item) × preference(civ, item.category or item.material class) / 100`, where `preference` rows are content: defaults 100; Hillfolk metal 150, food 80, stone crafts 90; Mountainhome crafts 130, gems 140, deepsilver items 300, food 70, drink 120; Wildwood wood 20, cloth 120, herbs 130, animals 150, stone 80.
+`valuation(civ, item) = value(item) × preference(civ, item.category or item.material class) / 100`, where `preference` rows are content (a `material <id>` row, such as the Mountainhome's pewter at 110, applies to every item of that material before the category and class rows): defaults 100; Hillfolk metal 150, food 80, stone crafts 90; Mountainhome crafts 130, gems 140, deepsilver items 300, food 70, drink 120; Wildwood wood 20, cloth 120, herbs 130, animals 150, stone 80.
 
 `margin = max(MARGIN_MIN, MARGIN_BASE − tradingSkill × MARGIN_PER_SKILL − reputation / MARGIN_REP_DIVISOR)` percent.
 
@@ -174,7 +174,7 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### Never sold, and the new preferences (T-550; T-554, T-556, T-557, T-560 for theirs)
 
 - Never in any list or request: deepsilver below reputation 75 (as now), star steel, anything aged or vintage, silk cloth, giant skulls, wyrmscale and ichor. A request for one is refused in the requests editor ("The {civ} do not trade in that.").
-- Preferences (`caravan-goods.md` § Preferences): Mountainhome `drink/spirits` 150, silk cloth 150, carved fossils 150, pewter 110; Hillfolk salt 150, cured meat 120, glass 130; Wildwood honey and beeswax 100, silk cloth 140, `basket` and reed goods 100 (reed is not wood: the elves have thought about it and decided reeds are fine), bone 60. Every civilization: star steel 200, with the merchant's line "Where did you get this?" once a session (T-560).
+- Preferences (`caravan-goods.md` § Preferences): Mountainhome `drink/spirits` 150, silk cloth 150, carved fossils 150; Hillfolk salt 150, cured meat 120, glass 130; Wildwood honey and beeswax 100, silk cloth 140, `basket` and reed goods 100 (reed is not wood: the elves have thought about it and decided reeds are fine), bone 60. Every civilization: star steel 200, with the merchant's line "Where did you get this?" once a session (T-560).
 
 ### Camels from the Hillfolk (T-561)
 

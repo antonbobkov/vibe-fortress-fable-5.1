@@ -470,6 +470,8 @@ export function exportPreferences() {
     const key = plain(row['Category or material class']);
     for (const civ of CARAVAN_CIVS) {
       const cell = plain(row[civ.charAt(0).toUpperCase() + civ.slice(1)]);
+      // "a civilization with an empty cell has no such row".
+      if (isBlank(cell)) continue;
       out.push(
         compact({
           civ,

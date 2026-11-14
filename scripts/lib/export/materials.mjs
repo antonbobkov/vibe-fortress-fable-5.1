@@ -86,9 +86,10 @@ export function exportMaterials() {
     out.push(material(row, { burnable: true, burnTicks: int(row.burnTicks), meltsAtC: 300 }));
   }
   for (const row of asObjects(findTable(tables, 'Animal products'))) out.push(material(row, {}));
+  for (const row of asObjects(findTable(tables, 'Salt'))) out.push(material(row, {}));
   for (const row of asObjects(findTable(tables, 'Cloth and fiber'))) {
-    // materials.md: "Cloth burns (300 ticks) and melts at 300 C."
-    out.push(material(row, { burnable: true, burnTicks: 300, meltsAtC: 300 }));
+    // materials.md: "Cloth burns (300 ticks, unless its row gives `burnTicks`) and melts at 300 C."
+    out.push(material(row, { burnable: true, burnTicks: isBlank(row.burnTicks) ? 300 : int(row.burnTicks), meltsAtC: 300 }));
   }
   for (const row of asObjects(findTable(tables, 'Gems (rough and cut'))) {
     // materials.md: "Gems melt at 1600 C or above (magma-safe)."
@@ -184,12 +185,12 @@ export function exportMaterials() {
       compact({
         id: m.id,
         name: m.name,
-        class: 'ore',
+        class: m.class,
         value: m.value,
-        density: DEFAULT_DENSITY,
-        hardness: DEFAULT_HARDNESS,
+        density: m.density ?? DEFAULT_DENSITY,
+        hardness: m.hardness ?? DEFAULT_HARDNESS,
         color: m.color,
-        meltsAtC: MINERAL_MELTS_AT_C,
+        meltsAtC: m.meltsAtC ?? MINERAL_MELTS_AT_C,
         burnable: m.tags?.includes('fuel') === true,
         burnTicks: 0,
         tags: m.tags,
@@ -260,11 +261,20 @@ export function exportMinerals() {
       const isDeepsilver = plain(row.id) === 'deepsilver_ore';
       const notes = plain(row.notes);
       const tags = [];
-      if (notes.includes('fuel')) tags.push('fuel');
+      if (/fuel/.test(notes)) tags.push('fuel');
+      // minerals-and-metals.md § Ores: "A row's notes may give its material another class, density,
+      // hardness and melting point than an ore's" ("class `bone`, density 140, hardness 70, melts at 1600").
+      const cls = /class\s+([a-z]+)/.exec(notes);
+      const density = /density\s+(\d+)/.exec(notes);
+      const hardness = /hardness\s+(\d+)/.exec(notes);
+      const melts = /melts at\s+(\d+)/.exec(notes);
       return compact({
         id: plain(row.id),
         name: plain(row.name),
-        class: 'ore',
+        class: cls === null ? 'ore' : cls[1],
+        density: density === null ? undefined : Number(density[1]),
+        hardness: hardness === null ? undefined : Number(hardness[1]),
+        meltsAtC: melts === null ? undefined : Number(melts[1]),
         hosts: isDeepsilver ? [] : idList(row.hosts),
         shape,
         // content-rows.md: count is the expected number per standard map at wealth 2, x100.

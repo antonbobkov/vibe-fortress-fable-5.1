@@ -497,6 +497,21 @@
     "announce": false
   },
   {
+    "id": "first_fossil",
+    "name": "first fossil",
+    "text": "I found the bones of something old.",
+    "value": 3,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "FossilFound",
+      "target": "finder"
+    },
+    "announce": false
+  },
+  {
     "id": "first_runecaster",
     "name": "first runecaster",
     "text": "We have a runecaster in the hall.",

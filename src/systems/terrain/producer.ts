@@ -26,6 +26,7 @@ import {
   GATHER_BASE_TICKS,
   MINING_STONE_DROP_PERMILLE,
   SMOOTH_BASE_TICKS,
+  SOIL_DROP_PERMILLE,
 } from './constants';
 import { clearPlantTransition, precondition, transition, type TransitionRolls } from './rules/transitions';
 import { rollQuality } from './rules/engrave';
@@ -117,6 +118,11 @@ export class TerrainProducer implements JobProducer {
     private readonly core: TerrainCore,
     private readonly readers: ReaderSetLike,
     private readonly rng: RngStream,
+    /**
+     * `03` § Tile transitions: the soil drop's own stream, `03.soil_drop`, asked for only when such
+     * a tile is dug, so a game that digs none never creates it and draws the same numbers.
+     */
+    private readonly soilRng: (() => RngStream) | null = null,
   ) {}
 
   private get map(): TerrainCore['host']['map'] {
@@ -229,6 +235,7 @@ export class TerrainProducer implements JobProducer {
     const facts = this.core.host.facts;
     return {
       stoneDrops: () => this.rng.chance(MINING_STONE_DROP_PERMILLE),
+      ...(this.soilRng === null ? {} : { soilDrops: () => (this.soilRng as () => RngStream)().chance(SOIL_DROP_PERMILLE) }),
       logs: (species) => {
         const [lo, hi] = facts.logRange(species);
         return this.rng.int(lo, hi);
@@ -298,6 +305,15 @@ export class TerrainProducer implements JobProducer {
     if (mines && (cls === 'ore' || cls === 'gem')) {
       ctx.emit({ type: 'MineralMined', tile, material: materialId, minerId: worker });
       if (core.findVein(tile)) ctx.emit({ type: 'VeinFound', material: materialId, tile, finderId: worker });
+    }
+    // `03` § Tile transitions, bone tiles: "It emits `MineralMined` as an ore does, and no
+    // `VeinFound`"; the first one dug in a fortress emits `FossilFound` once.
+    if (mines && cls === 'bone') {
+      ctx.emit({ type: 'MineralMined', tile, material: materialId, minerId: worker });
+      if (!core.fossilFound) {
+        core.fossilFound = true;
+        ctx.emit({ type: 'FossilFound', dwarfId: worker, tile });
+      }
     }
     if (mines && facts.isDeepsilver(material)) ctx.emit({ type: 'DeepsilverMined', tile, minerId: worker });
     if (kind === Designation.Chop && wasTree) ctx.emit({ type: 'TreeFelled', tile, species: facts.plant(material)?.id ?? '' });

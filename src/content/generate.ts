@@ -35,6 +35,7 @@ export interface MaterialDef extends RowBase {
   nextStage?: string;
 }
 
+/** A mineral row: an ore, or a fossil of class `bone` (`minerals-and-metals.md` § Ores). */
 export interface MineralDef extends MaterialDef {
   hosts: string[];
   shape: 'vein' | 'cluster';
@@ -339,6 +340,8 @@ export function generatedRecipes(
 ): RecipeDef[] {
   const out: RecipeDef[] = [];
   for (const ore of minerals) {
+    // "An ore with no yields (`halite`, `giant_bone`) has no smelt recipe."
+    if (ore.yields.length === 0) continue;
     // "the `smelt_coal` recipes have `fuel: false`" - the coal is its own fuel.
     const isCoalOre = ore.yields.some((y) => y.metal === 'coal');
     out.push({

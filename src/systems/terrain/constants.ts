@@ -10,6 +10,8 @@ import type { Fixed } from '@core/fixed';
 
 /** Chance a dug stone tile drops a stone item. */
 export const MINING_STONE_DROP_PERMILLE = 300;
+/** Chance a dug soil tile tagged `soil_drop` (clay, sand, peat) drops a `soil_load` (*unmeasured*). */
+export const SOIL_DROP_PERMILLE = 500;
 /** Base time to dig one wall tile of hardness 100. */
 export const DIG_BASE_TICKS = 60;
 export const CHANNEL_BASE_TICKS = 80;

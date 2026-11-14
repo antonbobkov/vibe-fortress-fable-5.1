@@ -239,5 +239,10 @@
     "civ": "wildwood",
     "key": "furniture/*",
     "percent": 80
+  },
+  {
+    "civ": "mountainhome",
+    "key": "material pewter",
+    "percent": 110
   }
 ]

@@ -80,7 +80,7 @@ describe('T-M0-06 content: every table loads', () => {
     expect((byClass.get('stone') ?? []).length).toBeGreaterThan(10);
     const byWorkshop = registry.derived<ReadonlyMap<string, readonly RecipeDef[]>>('recipesByWorkshop');
     expect((byWorkshop.get('carpenter') ?? []).length).toBe(27); // workshops-and-recipes.md § Recipe counts
-    expect((byWorkshop.get('smelter') ?? []).length).toBe(22);
+    expect((byWorkshop.get('smelter') ?? []).length).toBe(25);
   });
 
   it('the recipe counts match workshops-and-recipes.md § Recipe counts', () => {
@@ -88,13 +88,13 @@ describe('T-M0-06 content: every table loads', () => {
     const expected: Record<string, number> = {
       carpenter: 27,
       mason: 13,
-      craftdwarf: 13,
+      craftdwarf: 15,
       jeweler: 2,
       mechanic: 2,
       wood_furnace: 1,
-      smelter: 22,
+      smelter: 25,
       forge: 40,
-      kitchen: 4,
+      kitchen: 5,
       still: 2,
       tannery: 1,
       leatherworks: 11,
@@ -108,7 +108,7 @@ describe('T-M0-06 content: every table loads', () => {
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(205);
+    expect(registry.table('recipes').size).toBe(211);
   });
 
   it('the content hash is a stable hex string', () => {
@@ -148,10 +148,14 @@ describe('T-M0-06 content: generated recipes', () => {
   const registry = loadContent();
   const recipes = registry.table<RecipeDef>('recipes');
 
-  it('one smelting recipe per ore', () => {
+  it('one smelting recipe per ore with yields, none for a row without', () => {
     const minerals = registry.table<MineralDef>('minerals');
-    expect(minerals.size).toBe(16);
+    expect(minerals.size).toBe(19);
     for (const ore of minerals.ids()) {
+      if ((minerals.byId(ore)?.yields ?? []).length === 0) {
+        expect(recipes.byId(`smelt_${ore}`), ore).toBeUndefined();
+        continue;
+      }
       const recipe = recipes.byId(`smelt_${ore}`);
       expect(recipe, ore).toBeDefined();
       expect(recipe?.workshop).toBe('smelter');
@@ -212,9 +216,9 @@ describe('T-M0-06 content: generated recipes', () => {
     expect(recipe?.xp).toBe(3);
   });
 
-  it('16 ores + 5 alloys + 1 melt = 22 generated recipes at the smelter; 2 per spell and 1 per enchantment at the runeforge', () => {
-    expect(recipes.where('generated:smelter', (r) => r.generated === true && r.workshop === 'smelter').length).toBe(22);
-    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(60);
+  it('17 ores + 6 alloys + 1 melt = 24 generated recipes at the smelter; 2 per spell and 1 per enchantment at the runeforge', () => {
+    expect(recipes.where('generated:smelter', (r) => r.generated === true && r.workshop === 'smelter').length).toBe(24);
+    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(62);
   });
 });
 

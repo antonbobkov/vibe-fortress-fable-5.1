@@ -304,6 +304,8 @@ export function loadContent(options: LoadOptions = {}): Registry {
     ['caravanGoods', Object.freeze(data['caravanGoods'])],
     ['preferences', Object.freeze(data['preferences'])],
     ['reputationEvents', Object.freeze(data['reputationEvents'])],
+    // Step 4's appended rows by table: the rows numbered after version 1, in their order.
+    ['appendedRows', Object.freeze(Object.fromEntries(Array.from(appended, ([name, ids]) => [name, Object.freeze(ids.slice())])))],
   ]);
 
   // Steps 6 and 7: "a stable hash over the sorted JSON", so the row order in the files does not

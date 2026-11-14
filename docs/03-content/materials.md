@@ -36,14 +36,14 @@ Columns: `value` is marks per unit; `density` is relative (water 100; used for c
 | id | name | class | value | density | hardness | color | notes |
 |---|---|---|---|---|---|---|---|
 | `loam` | loam | soil | 0 | 150 | 30 | `loam_brown` | best farming soil |
-| `clay` | clay | soil | 0 | 180 | 40 | `clay_red` | |
-| `sand` | sand | soil | 0 | 160 | 20 | `sand_yellow` | deserts, riverbanks |
+| `clay` | clay | soil | 0 | 180 | 40 | `clay_red` | `soil_drop` |
+| `sand` | sand | soil | 0 | 160 | 20 | `sand_yellow` | `soil_drop`; deserts, riverbanks |
 | `silt` | silt | soil | 0 | 150 | 25 | `silt_gray` | wetlands |
-| `peat` | peat | soil | 0 | 100 | 20 | `peat_black` | burnable (tile burns 200 ticks, leaves ash) |
+| `peat` | peat | soil | 0 | 100 | 20 | `peat_black` | `soil_drop`; burnable (tile burns 200 ticks, leaves ash) |
 | `cave_loam` | cave loam | soil | 0 | 160 | 30 | `cave_umber` | cavern floors; grows cave moss |
 | `ash_soil` | ash | soil | 0 | 120 | 20 | `ash_gray` | `glasslands` surface patches |
 
-Soil tiles never drop items when dug.
+Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a `soil_load` half the time ([03](../02-systems/03-terrain-and-mining.md) § Tile transitions).
 
 ## Ice
 
@@ -80,22 +80,32 @@ All wood is burnable and melts (burns) at 300 °C for the melting rule.
 | `milk` | milk | liquid | 2 | 100 | `milk_white` | |
 | `cheese` | cheese | meat | 5 | 110 | `cheese_yellow` | food; rots slowly |
 | `egg` | egg | meat | 2 | 100 | `egg_cream` | food |
+| `chitin` | chitin | shell | 4 | 130 | `chitin_brown` | a cave crawler's shell; flux at 3 a steel bar |
+| `horn` | horn | bone | 3 | 120 | `horn_gray` | horn bows, drinking horns, scale |
+| `ivory` | ivory | bone | 13 | 180 | `ivory_cream` | a craft of it is worth about 40 |
 
-## Cloth and fiber
+## Salt
 
 | id | name | class | value | density | color | notes |
 |---|---|---|---|---|---|---|
-| `flax_fiber` | flax fiber | cloth | 2 | 30 | `flax_straw` | from flax plants |
-| `flax_thread` | flax thread | cloth | 3 | 30 | `flax_straw` | |
-| `flax_cloth` | linen | cloth | 8 | 30 | `linen_cream` | |
-| `wool_thread` | wool thread | cloth | 4 | 30 | `wool_cream` | |
-| `wool_cloth` | wool cloth | cloth | 10 | 35 | `wool_cream` | warmer: halves cold injury risk when worn |
-| `sporecloth_fiber` | sporecloth fiber | cloth | 3 | 25 | `spore_violet` | from sporecloth plants |
-| `sporecloth_thread` | sporecloth thread | cloth | 4 | 25 | `spore_violet` | |
-| `sporecloth_cloth` | sporecloth | cloth | 12 | 25 | `spore_violet` | |
-| `silk_web` | web silk | cloth | 8 | 20 | `silk_white` | collected from cave spider webs (`gather` on a web tile) |
+| `salt` | salt | plant | 2 | 120 | `salt_white` | `seasoning`; crushed from halite at the kitchen |
 
-Cloth burns (300 ticks) and melts at 300 °C.
+## Cloth and fiber
+
+| id | name | class | value | density | color | burnTicks | notes |
+|---|---|---|---|---|---|---|---|
+| `flax_fiber` | flax fiber | cloth | 2 | 30 | `flax_straw` | | from flax plants |
+| `flax_thread` | flax thread | cloth | 3 | 30 | `flax_straw` | | |
+| `flax_cloth` | linen | cloth | 8 | 30 | `linen_cream` | | |
+| `wool_thread` | wool thread | cloth | 4 | 30 | `wool_cream` | | |
+| `wool_cloth` | wool cloth | cloth | 10 | 35 | `wool_cream` | | warmer: halves cold injury risk when worn |
+| `sporecloth_fiber` | sporecloth fiber | cloth | 3 | 25 | `spore_violet` | | from sporecloth plants |
+| `sporecloth_thread` | sporecloth thread | cloth | 4 | 25 | `spore_violet` | | |
+| `sporecloth_cloth` | sporecloth | cloth | 12 | 25 | `spore_violet` | | |
+| `silk_web` | web silk | cloth | 8 | 20 | `silk_white` | | collected from cave spider webs (`gather` on a web tile) |
+| `feather` | feather | cloth | 2 | 10 | `feather_white` | 100 | `stuffing`; fletching |
+
+Cloth burns (300 ticks, unless its row gives `burnTicks`) and melts at 300 °C.
 
 Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `silk_web` has no further stage.
 
@@ -120,9 +130,9 @@ Gems melt at 1600 °C or above (magma-safe).
 
 Ids fixed here; properties in [minerals-and-metals.md](minerals-and-metals.md).
 
-Ores: `hematite`, `magnetite`, `limonite`, `malachite`, `native_copper`, `cassiterite`, `galena`, `sphalerite`, `tetrahedrite`, `native_gold`, `native_silver`, `native_platinum`, `bismuthinite`, `bituminous_coal`, `lignite`, `deepsilver_ore`.
+Ores: `hematite`, `magnetite`, `limonite`, `malachite`, `native_copper`, `cassiterite`, `galena`, `sphalerite`, `tetrahedrite`, `native_gold`, `native_silver`, `native_platinum`, `bismuthinite`, `bituminous_coal`, `lignite`, `deepsilver_ore`, `halite`, `bog_iron`, and the fossil `giant_bone` (class `bone`).
 
-Metals: `copper`, `tin`, `bronze`, `iron`, `steel`, `silver`, `gold`, `lead`, `zinc`, `brass`, `platinum`, `electrum`, `bismuth_bronze`, `deepsilver`.
+Metals: `copper`, `tin`, `bronze`, `iron`, `steel`, `silver`, `gold`, `lead`, `zinc`, `brass`, `platinum`, `electrum`, `bismuth_bronze`, `deepsilver`, `pewter`.
 
 Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3, density 60, burns).
 
@@ -167,11 +177,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `salt` | salt | plant | 2 | 120 | — | `salt_white` | — | — | `seasoning`; crushed from halite, gathered from salt crusts | T-547 |
-| `chitin` | chitin | shell | 4 | 130 | — | `chitin_brown` | — | — | a cave crawler's shell; flux at 3 a steel bar | T-547 |
-| `horn` | horn | bone | 3 | 120 | — | `horn_gray` | — | — | horn bows, drinking horns, scale | T-547 |
-| `ivory` | ivory | bone | 13 | 180 | — | `ivory_cream` | — | — | a craft of it is worth about 40 | T-547 |
-| `feather` | feather | cloth | 2 | 10 | — | `feather_white` | 300 | 100 | `stuffing`; fletching | T-547 |
 | `ironwood` | ironwood | wood | 6 | 90 | 200 | `ironwood_dark` | 300 | 1200 | `fire_resistant`; weapons and bolts at 0.60 (sharpness) | T-548 |
 | `brick` | brick | stone | 1 | 200 | 90 | `brick_red` | 1400 | — | blocks only; magma-safe; a brick wall draws smooth | T-553 |
 | `earthenware` | earthenware | stone | 1 | 180 | 60 | `clay_red` | 1300 | — | fired clay: pots, jugs, mugs, hives | T-553 |
@@ -203,6 +208,5 @@ Stages (T-548, T-556): `reed` → `reed_thread` → `reed_cloth` (the reed is th
 ### Planned drinks, tags and edits
 
 - Drink materials, class `liquid`, value per unit: `black_ale` 3 (rye, group `drink/ale`, T-548), `cactus_wine` 3 (group `drink/wine`, T-548), `emberwine` 6 (wyrmtongue, `drink/wine`, T-548), `mead` 5 (honey, `drink/wine`, T-555), `deepfire` 8 (distilled, `drink/spirits`, T-554).
-- Tags on existing rows: `soil_drop` on `clay`, `sand` and `peat` (T-547); `fine_cask` on `oak` (T-554).
-- The sentence "Soil tiles never drop items when dug." becomes "Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a `soil_load` half the time ([03](../02-systems/03-terrain-and-mining.md))." (T-547).
+- Tags on existing rows: `fine_cask` on `oak` (T-554).
 - The plant materials of `rye`, `nettle` and `wyrmtongue` are generated from their plant rows as every plant's is; `wyrmtongue`'s carries `seasoning` (T-548).

@@ -28,7 +28,7 @@ Stages, each with its own rng stream (`terrain.<stage>`), run in order:
 4. **Rock layers.** Per geology class, a layer template lists candidate materials in order from top to bottom with thickness ranges (content). The stack is generated once per map with thicknesses rolled from the ranges, then applied to every column with an undulation of ±1 z from low-frequency noise, so layers tilt gently. The stack is anchored at the surface and extends to z = `MAGMA_SEA_TOP_Z + 1`; the stack repeats if it runs out.
 5. **Sea of Fire.** z in `0..MAGMA_SEA_TOP_Z`: all tiles `open` with magma level 7 and `source`, except basalt pillars (noise threshold 8%) and the outer 2-tile rim which is basalt wall. z = `MAGMA_SEA_TOP_Z + 1` is a wall layer of basalt (the sea's roof).
 6. **Caverns.** For each band, a 3D noise field whose lowest-noise `CAVERN_OPEN_FRACTION` of interior tiles is opened (count rounded down, ties by tile position; the two-tile rim stays closed) (scaled by `deepness`: 0.25 at 0 to 0.55 at 255; `fungal_depths` adds 0.15; `deep_well` makes cavern one 0.7 and mostly water). Open tiles in the band become `open`; the tile below the lowest open tile in each column becomes `floor`. Cavern lakes select the lowest-noise 18% of floor tiles (60% in cavern one with `deep_well`), with ties by position and counts rounded down; water fills from the floor through one above the band's lowest open level, stopping at the band ceiling or a blocking tile. Each dry floor tile in cavern two and three rolls a 2‰ chance for a magma pool (level 7, no source, radius 2–4). Pillars are left where noise is highest. Cavern floors get fungal flora (07) and the band's species list (08). Caverns do not connect to the surface or to each other except through the noise; connections are not forced.
-7. **Veins and clusters.** For each mineral row in the content table, the expected count per map is `base × wealthMultiplier[wealth]` with `ironheart` and `gemsprings` adding to specific minerals. Veins: choose a random start tile in a host layer (the mineral lists host materials), random-walk `length` steps with 6-direction moves biased horizontally, painting a 1–2 tile radius; clusters: a blob of radius 1–3. Deepsilver: only at `z ≤ DEEPSILVER_Z_MAX`, only in walls adjacent (within 2) to the Sea of Fire rim or to a magma pool, count by wealth (0 at wealth 0–1). `wyrm_roost` guarantees one deepsilver vein next to the wyrm's chamber in cavern three.
+7. **Veins and clusters.** For each mineral row in the content table, the expected count per map is `base × wealthMultiplier[wealth]` with `ironheart` and `gemsprings` adding to specific minerals. Veins: choose a random start tile in a host layer (the mineral lists host materials), random-walk `length` steps with 6-direction moves biased horizontally, painting a 1–2 tile radius; clusters: a blob of radius 1–3. Deepsilver: only at `z ≤ DEEPSILVER_Z_MAX`, only in walls adjacent (within 2) to the Sea of Fire rim or to a magma pool, count by wealth (0 at wealth 0–1). `wyrm_roost` guarantees one deepsilver vein next to the wyrm's chamber in cavern three. Ores, gems and deepsilver draw on the stage's stream in that order; a mineral row added after version 1 (a row of `row-order.md`: `halite`, `bog_iron`, `giant_bone`) is placed after the deepsilver, each on its own stream (`terrain.minerals.<id>`), so the older minerals of a map lie where they did. `giant_bone` is a mineral of class `bone` (a fossil), placed in the sedimentary layers as any mineral is.
 8. **Volcano.** If `volcano`: a magma pipe of radius 1–2 from the Sea of Fire to the surface at a random location at least 20 tiles from the arrival edge; the surface around it for radius 6 is obsidian and bare. On `glasslands` the whole surface soil layer is replaced by obsidian and the pipe radius is 3, with two more shallow magma pools at cavern one depth.
 9. **Slopes, boulders, trees and vegetation.** First the slopes: every dry surface `floor` one level below a cardinal neighbour's dry surface `floor` or `ramp` (the neighbour's tile on its level is `wall`) becomes a `ramp` of its own material, so every one-level step of the surface can be walked, up a slope of several steps as up one (the neighbour may itself be a ramp); two levels or more stay a cliff. Then, from relief 1, loose boulders (stream `terrain.boulders`): each dry surface `floor` outside the volcano's bare ground and the drinking steps becomes a `boulder` with the biome's `boulders` probability (`regions-biomes-and-traits.md` § Biome surface), three times that on bare rock and at least 250‰ in a crag's scree; a boulder is of the first rock under its column's soil. Then, on soil surface tiles, place trees by the biome's tree density and species weights (trees are `tree` kind at the surface tile; trees occupy one tile and are 1 tile tall in version 1); shrubs by shrub density; grass flag on remaining soil floors. Trees are not placed within 2 tiles of the river bed except willows. Cave shrubs follow on cavern floors, and then, on their own stream (`terrain.rare_patches`), each cave shrub may turn into a rare species with its `rarePermille` by cavern tier (`plants.md` § Rare cave patches). Only a tile that is already a cave shrub changes, and the other streams draw the same numbers. Last, lying snow, where the biome has a `snow` share: a dry surface `floor` or `ramp` carries `snow` where a patch field (two octaves, periods 14 and 5, weights 0.7 and 0.3, from stream `terrain.snow`), raised a tenth for each level its surface stands above the base surface, lies in the top `snow` of its range; 06 treats it as snow cover. The surface keeps its kind of resources: soil, trees, shrubs and grass only where the biome has them.
 10. **Trait features.** `old_battlefield`: scatter `BATTLEFIELD_ITEM_COUNT` rusted iron weapons and armor, choosing uniformly among the metal-made rows of those tables, at quality 0; scatter the bone piles and skulls of the region trait as bone. All lie on dry surface floors 15–40 tiles from the arrival edge. After the other traits, on its own stream (`terrain.battlefield_channel`), an `old_battlefield` map holds a dead runecaster's channel with `BATTLEFIELD_CHANNEL_PERMILLE`: one row drawn uniformly among the `weapons` rows with a launcher and no ammunition, at quality 0, on a tile of the same band. A metal one lies in iron with no stone; a wooden one is of a material of class `wood` drawn uniformly and keeps a stone drawn uniformly among the `stone`s of the `spells` table ([25-runecraft.md](25-runecraft.md) § Channels). There is at most one, the trait's other picks draw the same numbers, and no other map holds one. `sunken_halls`: choose the highest dry surface floor in the far half of the map where the footprint fits (every column from one west of the entrance to 16 east of it, and 4 rows each side, is dry and stands above the hall level, so the hall lies in rock); among equal heights prefer greater inward distance from the arrival edge, then column order. Two levels below that entrance, carve an 11-tile corridor east, six 3×3 rooms (three on each side, each with a one-tile opening to the corridor), and a stairwell at the corridor’s end down two further levels. A 5×5 vault begins two tiles east of the foot of the stair, sealed by the intervening rock. A stair shaft joins the surface entrance to the corridor. Spawn 12 common furniture items in the rooms’ own stone, drawn from `bed`, `table`, `chair`, `chest`, `cabinet`, `door`; the vault holds `VAULT_TREASURE` deepsilver items (axe, helm, breastplate) and a sleeping `blind_stalker`. `gemsprings`: choose three dry surface-soil patches of 2×2 tiles nearest a river tile drawn by the stream, or nearest the map centre when there is no river; keep the patches one tile apart. Their tiles are `open` with water level 7, recorded as warm springs for 05 so they never freeze. `wyrm_roost`: carve a 9×9 floor at the bottom of cavern three with two levels of headroom; start its deepsilver vein in the wall immediately east when that wall meets the deepsilver magma-distance rule; record the sleeping wyrm. Item and creature entries are recorded in `LocalMapResult.spawns` for arrival.
@@ -41,7 +41,7 @@ The generator runs synchronously with progress callbacks after each stage; budge
 
 | Designation | Precondition | Result | Item produced |
 |---|---|---|---|
-| `dig` | `wall` or `boulder`, not `constructed` | `floor` with the same material; the tile above is unchanged | Per material class: `stone` and `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always `rough_gem`; every other class: none |
+| `dig` | `wall` or `boulder`, not `constructed` | `floor` with the same material; the tile above is unchanged | Per material class: `stone` and `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always `rough_gem`; `bone`: always a `fossil`; `soil` whose material carries the tag `soil_drop` (`clay`, `sand`, `peat`): a `soil_load` with `SOIL_DROP_PERMILLE`; every other class, and every other soil: none |
 | `channel` | `floor`, `ramp`, `sapling`, `shrub`, or `stairs_down` | Tile becomes `open`; if the tile below is `wall`, it becomes `ramp`; if it is `floor` it stays; if it is `open` nothing more | Drops from the tile below as if dug when it becomes a ramp |
 | `stairs_up` | `wall` | `stairs_up` | As dig |
 | `stairs_down` | `floor` | `stairs_down` | None |
@@ -52,6 +52,8 @@ The generator runs synchronously with progress callbacks after each stage; budge
 | `remove` | `constructed` tile | the construction's material returns as an item; `wall` or `floor` becomes `open`, except a constructed floor over natural rock becomes the natural floor; stairs and ramps become `open` | The block, log or bar used |
 | `chop` | `tree` or `sapling` | `floor` (grass if soil); logs by species size for a tree | A tree: 1–4 logs; a sapling: none |
 | `gather` | `shrub` | shrub stays; regrowth timer set (07) | The shrub's product |
+
+Every drop is of the dug tile's material. The soil drop's roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for a tile of such a soil, so digging stone, ore and every other soil draws the same numbers as before.
 
 Digging a `wall` that has a `floor` above it (which is every underground wall) never affects the tile above. Digging removes the last support of nothing, because natural rock is never subject to support.
 
@@ -66,7 +68,7 @@ When a designation is applied to a tile that no longer matches its precondition 
 - Work time: `baseTicks × hardness(material) / (100 + SKILL_TIME_BONUS_PERCENT × skillLevel)`, then the mood multiplier (15). Progress is stored on the job and survives interruption.
 - The worker stands on the target for channel, down stairs, or floor smoothing and engraving; other jobs use an adjacent walkable tile in the same-level 8-neighborhood. Up and up/down stairs also allow the tile directly above when it is a down or up/down stair, supplied by the producer's `extraStandTiles`. With no valid stand tile, the job is `blocked: unreachable`.
 - Channeling: before removing the floor, move the worker to the first passable 8-neighbour in tile order. With none, the movement helper makes it fall after the floor opens.
-- On completion: apply the transition, spawn the item on the tile, or on the first solid-bottomed tile below when it is now `open`, grant skill experience, emit `TilesChanged` and, for ore or gem, `MineralMined { tile, material }` and on the first tile of a vein `VeinFound { material }`. Digging into an open cavern tile emits `CavernBreached { cavern }` the first time for each cavern.
+- On completion: apply the transition, spawn the item on the tile, or on the first solid-bottomed tile below when it is now `open`, grant skill experience, emit `TilesChanged` and, for ore or gem, `MineralMined { tile, material }` and on the first tile of a vein `VeinFound { material }`. A tile of class `bone` (a fossil, or a boulder of bone) emits `MineralMined` as an ore does, and no `VeinFound`; the first one dug in a fortress emits `FossilFound { dwarfId, tile }` once (saved flag `fossilFound`): the note "{dwarf} has found the bones of something old." and the digger's thought `first_fossil` (15). Digging into an open cavern tile emits `CavernBreached { cavern }` the first time for each cavern.
 - A vein is the face-connected set of tiles of one mineral material, searched with a 4,096-tile bound and keyed by its lowest tile index. Dug tiles retain material, so digging preserves the identity. Only the first mined tile whose key is absent from `veinsFound` emits `VeinFound`.
 - A player `CancelJob` clears its designation so it cannot recreate the job. Removing or changing a designation cancels its job with `target_invalid`.
 - Deepsilver: each deepsilver tile dug emits `DeepsilverMined { tile }` (18 raises Deep pressure). Before the first deepsilver designation is applied, the UI shows a one-time confirmation (24) explaining the consequence.
@@ -105,9 +107,10 @@ When a designation is applied to a tile that no longer matches its precondition 
 - `forbiddenTiles: Set<TileIndex>` (sorted array).
 - `cavernBreached: [boolean, boolean, boolean]`.
 - `veinsFound: TileIndex[]`: sorted keys of veins already announced.
+- `fossilFound: boolean`: the first tile of class `bone` has been dug (absent in older saves and while false).
 - `layerStack` and `LocalMapSpec` for the legend and for regeneration in tests.
 
-The saved state retains the changed and discovered tile batches and the levels awaiting relighting until the normal terrain flush. Saving and loading neither dispatch these notifications nor recompute light. An older save without these pending fields starts with empty batches.
+The soil drop's stream `03.soil_drop` is saved in the `rng` section with every other stream; a game that has dug no such soil has none. The saved state retains the changed and discovered tile batches and the levels awaiting relighting until the normal terrain flush. Saving and loading neither dispatch these notifications nor recompute light. An older save without these pending fields starts with empty batches.
 
 ## Interfaces
 
@@ -118,7 +121,7 @@ The saved state retains the changed and discovered tile batches and the levels a
 - `terrain.surfaceZ(x, y)`
 - `terrain.isSupported(i)`
 - `terrain.cavernBreached(n)`
-- `terrain.materialClassAt(i)` (stone, soil, ore, gem, ice, wood, constructed)
+- `terrain.materialClassAt(i)` (stone, soil, ore, gem, bone, ice, wood, constructed)
 - `terrain.spec()` — the `LocalMapSpec`
 - `terrain.isForbidden(i)` — the tile's traffic mode is `forbidden`
 - `terrain.forbiddenTiles()` — the forbidden set, ascending (a copy)
@@ -140,12 +143,13 @@ The saved state retains the changed and discovered tile batches and the levels a
 
 ### Events emitted
 
-`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`.
+`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `FossilFound { dwarfId, tile }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`.
 
 ### Registrations
 
 Job producer `terrain` (designation jobs); overlay `designations`; inspector section `tile` (kind, material, flags, designation, engraving, temperature from 05, fluid from 04). Announcements:
 - `VeinFound`: note, string key `announce.vein_found` ("{dwarf} has found {material}.")
+- `FossilFound`: note, string key `announce.first_fossil` ("{dwarf} has found the bones of something old.")
 - `CavernBreached`: alert, string key `announce.cavern_breached` ("A cavern has been breached.")
 - `DeepsilverMined`: danger, string key `announce.deepsilver_mined` ("Deepsilver has been mined."), first occurrence only (`once: true`)
 - `ConstructionCollapsed`: alert, string key `announce.construction_collapsed` ("A construction has collapsed.")
@@ -154,7 +158,7 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 
 - Designation menu (hotkey `d`): dig, channel, up stairs, down stairs, up/down stairs, ramp, stairwell, smooth, engrave, remove construction, chop, gather, traffic; then a box by two clicks (or two presses of `Enter`) that may span levels, every level between its two corners, or by a drag on one level; with a stair tool a box over several levels is a stair column on each of its tiles (24 § Input model). A priority key 1–9 while designating sets the priority; the current priority is shown in the menu. Designations render as overlay glyphs colored by priority. Shift+P or a click on the reprioritize row gives the current priority to the still-designated tiles of the last batch, also kept for Undo; with no batch or no remaining designation, the status row explains why nothing changed.
 - Undo: the last designation batch (or a selected rectangle) is cleared if no work has begun; tiles with progress are kept and the UI says how many.
-- Announcements: `VeinFound` as a note naming the finder and the material; `CavernBreached` as an alert; `DeepsilverMined` first occurrence as a danger-severity announcement that pauses; `ConstructionCollapsed` as an alert.
+- Announcements: `VeinFound` as a note naming the finder and the material; `FossilFound` as a note naming the finder, once; `CavernBreached` as an alert; `DeepsilverMined` first occurrence as a danger-severity announcement that pauses; `ConstructionCollapsed` as an alert.
 - The look cursor shows the material, whether smoothed or engraved, the designation, and "undiscovered" where applicable.
 
 ## Tuning constants
@@ -162,6 +166,7 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 | Name | Value | Meaning |
 |---|---|---|
 | `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item (*unmeasured*) |
+| `SOIL_DROP_PERMILLE` | 500 | Chance a dug soil tile tagged `soil_drop` drops a `soil_load` (*unmeasured*) |
 | `DIG_BASE_TICKS` | 60 | Base time to dig one wall tile of hardness 100; measured, 90 ticks a granite tile at skill 0 and 50 at skill 10 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `CHANNEL_BASE_TICKS` | 80 | *unmeasured* |
 | `SMOOTH_BASE_TICKS` | 120 | Measured: 368 tiles smoothed in the first year of the economy fixture, 115 ticks normalised to skill 0 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
@@ -190,18 +195,6 @@ Hardness per material and layer templates are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, so a map or a game without the new content draws the same numbers as before.
-
-### Soil that drops something (T-547)
-
-- `dig` of a natural `wall` or `boulder` whose material carries the tag `soil_drop` (`clay`, `sand`, `peat`) drops one `soil_load` of that material with `SOIL_DROP_PERMILLE`. The roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for such a tile, so digging stone, ore and other soil draws the same numbers as before. Every other soil still drops nothing. The table of § Tile transitions gains the line.
-- Constants: `SOIL_DROP_PERMILLE` 500.
-- Save: the stream's state.
-
-### Bone tiles: fossils and the boneyards' ribs (T-547 for the drop, T-557 for the boneyards)
-
-- `giant_bone` is a mineral of class `bone` (minerals-and-metals.md § Planned rows): stage 7 places its clusters in the sedimentary layers as it places any mineral. A dug tile of class `bone` (a fossil, a rib, a skull tile, a boulder of bone) always drops one `fossil` item of its material, as an ore tile drops `ore`. It emits `MineralMined` as an ore does, and no `VeinFound`.
-- The first tile of class `bone` dug in a fortress emits `FossilFound { dwarfId, tile }` once (saved flag `fossilFound`): the note "{dwarf} has found the bones of something old." (`announce.first_fossil`) and the digger's thought `first_fossil` (15).
-- Save: `fossilFound` (absent in older saves: false).
 
 ### Stage 9b: the boneyards (T-557)
 

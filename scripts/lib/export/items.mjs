@@ -40,8 +40,11 @@ function materials(cell) {
 /** items.md § Meal ingredients. */
 const INGREDIENT_CATEGORIES = [
   'food/meat/raw', 'food/fish/raw', 'food/plant/raw', 'food/egg', 'food/cheese',
-  'food/plant/processed', 'food/fat',
+  'food/plant/processed', 'food/fat', 'food/salt',
 ];
+
+/** items.md § Food: "Flour and salt are not edible raw." */
+const NOT_EDIBLE = new Set(['flour', 'salt']);
 
 /** workshops-and-recipes.md: "3 craft (random of figurine, ring, amulet)". */
 const CRAFT_ITEMS = new Set(['figurine', 'ring', 'amulet']);
@@ -92,7 +95,7 @@ function itemRow(row) {
     materials: materials(row.materials ?? row['materials allowed']),
     glyph: glyph(row.glyph),
     fg: plain(row.fg) === 'material' ? undefined : id(row.fg),
-    edible: category.startsWith('food/') && iid !== 'flour' ? true : undefined,
+    edible: category.startsWith('food/') && !NOT_EDIBLE.has(iid) ? true : undefined,
     drinkable: category === 'drink' ? true : undefined,
     quality: false, // set from the recipes that produce it
     slot: isBlank(row.slot) ? undefined : plain(row.slot).split(' ')[0],

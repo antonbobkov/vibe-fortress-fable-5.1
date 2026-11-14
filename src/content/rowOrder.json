@@ -678,5 +678,133 @@
   {
     "table": "confirmations",
     "id": "c_leave_embark"
+  },
+  {
+    "table": "palette",
+    "id": "salt_white"
+  },
+  {
+    "table": "palette",
+    "id": "chitin_brown"
+  },
+  {
+    "table": "palette",
+    "id": "horn_gray"
+  },
+  {
+    "table": "palette",
+    "id": "ivory_cream"
+  },
+  {
+    "table": "palette",
+    "id": "feather_white"
+  },
+  {
+    "table": "palette",
+    "id": "pewter_gray"
+  },
+  {
+    "table": "materials",
+    "id": "salt"
+  },
+  {
+    "table": "materials",
+    "id": "chitin"
+  },
+  {
+    "table": "materials",
+    "id": "horn"
+  },
+  {
+    "table": "materials",
+    "id": "ivory"
+  },
+  {
+    "table": "materials",
+    "id": "feather"
+  },
+  {
+    "table": "materials",
+    "id": "halite"
+  },
+  {
+    "table": "materials",
+    "id": "bog_iron"
+  },
+  {
+    "table": "materials",
+    "id": "giant_bone"
+  },
+  {
+    "table": "materials",
+    "id": "pewter"
+  },
+  {
+    "table": "minerals",
+    "id": "halite"
+  },
+  {
+    "table": "minerals",
+    "id": "bog_iron"
+  },
+  {
+    "table": "minerals",
+    "id": "giant_bone"
+  },
+  {
+    "table": "metals",
+    "id": "pewter"
+  },
+  {
+    "table": "items",
+    "id": "soil_load"
+  },
+  {
+    "table": "items",
+    "id": "fossil"
+  },
+  {
+    "table": "items",
+    "id": "horn"
+  },
+  {
+    "table": "items",
+    "id": "tusk"
+  },
+  {
+    "table": "items",
+    "id": "feather"
+  },
+  {
+    "table": "items",
+    "id": "salt"
+  },
+  {
+    "table": "recipes",
+    "id": "make_steel_shell"
+  },
+  {
+    "table": "recipes",
+    "id": "crush_halite"
+  },
+  {
+    "table": "recipes",
+    "id": "make_mug_horn"
+  },
+  {
+    "table": "recipes",
+    "id": "craft_ivory"
+  },
+  {
+    "table": "recipes",
+    "id": "smelt_bog_iron"
+  },
+  {
+    "table": "recipes",
+    "id": "alloy_pewter"
+  },
+  {
+    "table": "thoughts",
+    "id": "first_fossil"
   }
 ]

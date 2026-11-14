@@ -41,7 +41,7 @@ A workshop that no recipe names and no job is worked at (`jobs.md`: the butcher'
 
 ## Recipe columns
 
-`inputs` as `count × (item | tag | class)` with material constraints in parentheses; `outputs` as `count × item (material source)`; `skill`; `ticks` base; `fuel`; `Q` quality-bearing; `xp`; `spoilable`, in a table that has the column, a batch a low-skill worker can spoil. `from_input` means the output takes the material of the first input; `container` means an empty container of that class is an input and holds the output. Parenthesised constraints are data: "(a or b)" and "(a, b)" list the allowed materials; "(brewable species)" and "(magma-safe metal)" name a material property; "(same material)" makes every unit of the input share one material; "(matching thread material)" and "(matching cloth material)" take the next stage of the input's material (`materials.md` § Cloth and fiber); a work order's material filter constrains only the input the first output takes its material from.
+`inputs` as `count × (item | tag | class)` with material constraints in parentheses (a `fuel` input is fuel taken into the product, steel's carbon, on top of the fuel the job burns); `outputs` as `count × item (material source)`; `skill`; `ticks` base; `fuel`; `Q` quality-bearing; `xp`; `spoilable`, in a table that has the column, a batch a low-skill worker can spoil. `from_input` means the output takes the material of the first input; `container` means an empty container of that class is an input and holds the output. Parenthesised constraints are data: "(a or b)" and "(a, b)" list the allowed materials; "(brewable species)" and "(magma-safe metal)" name a material property; "(same material)" makes every unit of the input share one material; "(matching thread material)" and "(matching cloth material)" take the next stage of the input's material (`materials.md` § Cloth and fiber); a work order's material filter constrains only the input the first output takes its material from.
 
 ## Carpenter (`carpentry`)
 
@@ -110,6 +110,8 @@ A workshop that no recipe names and no job is worked at (`jobs.md`: the butcher'
 | `knap_short_sword_obsidian` | Obsidian short sword | 2 raw_stone (obsidian) | 1 short_sword (from_input) | 180 | yes | 8 |
 | `knap_dagger_bone` | Bone dagger | 1 bone_pile | 1 dagger (from_input) | 120 | yes | 6 |
 | `knap_short_sword_bone` | Bone short sword | 2 bone_pile | 1 short_sword (from_input) | 180 | yes | 8 |
+| `make_mug_horn` | Drinking horns | 1 horn | 3 mug (from_input) | 120 | yes | 6 |
+| `craft_ivory` | Ivory crafts | 1 tusk | 2 craft (from_input) | 150 | yes | 8 |
 
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
 
@@ -135,7 +137,13 @@ The knapped blades are the primitive tier of the dagger and the short sword, for
 
 ## Smelter (`smelting`)
 
-Generated per ore and alloy (see [minerals-and-metals.md](minerals-and-metals.md)). Base: `smelt_*` 150 ticks, xp 6; `alloy_*` 200 ticks, xp 8; `melt_metal_item` 120 ticks, xp 3. `smelt_bituminous_coal` and `smelt_lignite` have `fuel: false`.
+Generated per ore and alloy (see [minerals-and-metals.md](minerals-and-metals.md)). Base: `smelt_*` 150 ticks, xp 6; `alloy_*` 200 ticks, xp 8; `melt_metal_item` 120 ticks, xp 3. `smelt_bituminous_coal` and `smelt_lignite` have `fuel: false`. Authored beside them, with fuel and no quality as the alloys:
+
+| id | name | inputs | outputs | ticks | Q | xp |
+|---|---|---|---|---|---|---|
+| `make_steel_shell` | Steel (shell flux) | 1 bar (iron) + 3 shell_piece + 1 fuel | 1 bar (steel) | 200 | no | 8 |
+
+Shells of any shell material (`chitin` included) stand in for `alloy_steel`'s flux stone, three for one: a substitute ([12](../02-systems/12-workshops-and-professions.md) § Substitutes).
 
 ## Forge (`weaponsmithing`, `armorsmithing`, `metalcrafting`)
 
@@ -194,6 +202,7 @@ Wooden crossbows, bows and shields are made at the bowyer and carpenter. Leather
 | `cook_fine_meal` | Fine meal | 3 ingredient | 6 fine_meal | 180 | yes | 10 |
 | `cook_lavish_meal` | Lavish meal | 4 ingredient | 8 lavish_meal | 250 | yes | 15 |
 | `render_fat` | Render fat | 1 fat | 1 tallow | 80 | no | 3 |
+| `crush_halite` | Crush rock salt | 1 ore (halite) | 5 salt (`salt`) | 60 | no | 3 |
 
 Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack.
 
@@ -322,7 +331,7 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 
 ## Recipe counts
 
-Carpenter 27, mason 13, craftsdwarf 13, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 16 ores + 5 alloys + 1 melt = 22), forge 40, kitchen 4, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 205.
+Carpenter 27, mason 13, craftsdwarf 15, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 1), forge 40, kitchen 5, still 2, tannery 1, leatherworks 11, loom 2, clothier 8, farmer's workshop 4, bowyer 3, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 211.
 
 ## Time arithmetic
 
@@ -345,11 +354,7 @@ Edits: `magma_kiln` becomes the magma variant of `kiln` (`variant of` `kiln`), w
 
 | workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| smelter | `make_steel_shell` | Steel (shell flux) | 1 bar (iron) + 3 shell_piece | 1 bar (steel) | 200 | yes | no | 8 | `alloy_steel` | T-547 |
-| smelter | `make_steel_bone_ash` | Steel (bone ash flux) | 1 bar (iron) + 1 bone_ash | 1 bar (steel) | 200 | yes | no | 8 | `alloy_steel` | T-547 |
-| kitchen | `crush_halite` | Crush rock salt | 1 ore (halite) | 5 salt | 60 | no | no | 3 | — | T-547 |
-| craftsdwarf | `make_mug_horn` | Drinking horns | 1 horn | 3 mug (from_input) | 120 | no | yes | 6 | — | T-547 |
-| craftsdwarf | `craft_ivory` | Ivory crafts | 1 tusk | 2 craft (from_input) | 150 | no | yes | 8 | — | T-547 |
+| smelter | `make_steel_bone_ash` | Steel (bone ash flux) | 1 bar (iron) + 1 bone_ash + 1 fuel | 1 bar (steel) | 200 | yes | no | 8 | `alloy_steel` | T-553 |
 | loom | `spin_coarse_thread` | Spin coarse thread | 2 fiber or reed (reed, cactus_fiber, nettle_fiber; same material) | 1 thread (matching thread material) | 100 | no | no | 4 | `spin_thread` | T-549 |
 | craftsdwarf | `weave_basket` | Basket | 3 reed | 1 basket (from_input) | 100 | no | no | 4 | `make_bin` | T-549 |
 | craftsdwarf | `twist_reed_rope` | Reed rope | 3 reed | 1 rope (from_input) | 80 | no | no | 3 | `make_rope` | T-549 |

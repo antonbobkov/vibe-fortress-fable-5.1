@@ -39,7 +39,7 @@ describe('T-M5-04 magma workshops', () => {
   it('exposes magma smelter and forge recipes but keeps the reserved kiln without recipes', () => {
     const w = new TestWorld({ seed: 'm5-magma-recipes', world: 'flat-test', embark: 'none' });
     const reader = w.readers.of<WorkshopsReader>('12');
-    expect(reader.recipesFor('magma_smelter')).toHaveLength(22);
+    expect(reader.recipesFor('magma_smelter')).toHaveLength(25);
     expect(reader.recipesFor('magma_forge')).toHaveLength(40);
     expect(reader.recipesFor('magma_kiln')).toHaveLength(0);
   });

@@ -759,7 +759,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 
 | Key | Text | task |
 |---|---|---|
-| `announce.first_fossil` | "{dwarf} has found the bones of something old." | T-547 |
 | `announce.ribs_entered` | "{dwarf} stood inside the ribs of something enormous." | T-557 |
 | `announce.crater_entered` | "{dwarf} stood where the star fell." | T-560 |
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |

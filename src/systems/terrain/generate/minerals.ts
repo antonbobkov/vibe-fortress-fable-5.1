@@ -201,11 +201,15 @@ export function stageMinerals(g: LocalGen): void {
   zHi = Math.min(zHi, SURFACE_Z_MAX);
   const surfaceAt = (i: TileIndex): number => g.heights[map.yOf(i) * g.w + map.xOf(i)] as number;
 
-  // Ores, in id order.
+  // Ores, in index order. A mineral row added after version 1 (a row of `row-order.md`) is placed
+  // last, on its own stream, so a map draws the same numbers for the older ores, the gems and the
+  // deepsilver as before it (03 stage 7).
   const minerals = g.registry.table<MineralRow>('minerals');
-  for (const id of minerals.ids()) {
+  const appended = g.registry.hasDerived('appendedRows')
+    ? new Set(g.registry.derived<Readonly<Record<string, readonly string[]>>>('appendedRows')['minerals'] ?? [])
+    : new Set<string>();
+  const placeOre = (id: string, st: RngStream): void => {
     const m = minerals.byId(id) as MineralRow;
-    if (m.deepsilver === true) continue;
     const expected = expectedOreCount(m, mult.ore, g.spec.traits);
     const record = { mineral: id, expected, placed: 0 };
     g.veins.push(record);
@@ -223,6 +227,10 @@ export function stageMinerals(g: LocalGen): void {
         paintBall(map, start, m.radius ?? 1, material, ok);
       }
     }
+  };
+  for (const id of minerals.ids()) {
+    if (minerals.byId(id)?.deepsilver === true || appended.has(id)) continue;
+    placeOre(id, st);
   }
 
   // Gems: clusters of radius 1-2; gemsprings doubles them and puts half near the surface.
@@ -271,5 +279,11 @@ export function stageMinerals(g: LocalGen): void {
     if (start < 0) continue;
     record.placed += 1;
     paintDeepsilver(g, st, start, near);
+  }
+
+  // The minerals added after version 1, each on `terrain.minerals.<id>`.
+  for (const id of minerals.ids()) {
+    if (minerals.byId(id)?.deepsilver === true || !appended.has(id)) continue;
+    placeOre(id, stageStream(g.s, `terrain.minerals.${id}`));
   }
 }

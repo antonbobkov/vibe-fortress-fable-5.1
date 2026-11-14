@@ -217,6 +217,35 @@
     "color": "lead_gray"
   },
   {
+    "id": "pewter",
+    "name": "pewter",
+    "class": "metal",
+    "tier": 0,
+    "value": 9,
+    "density": 730,
+    "weaponMult": 400,
+    "armorMult": 400,
+    "bluntBonus": 0,
+    "runeMult": 700,
+    "meltsAtC": 300,
+    "color": "pewter_gray",
+    "alloy": {
+      "inputs": [
+        {
+          "material": "tin",
+          "count": 1,
+          "kind": "bar"
+        },
+        {
+          "material": "lead",
+          "count": 1,
+          "kind": "bar"
+        }
+      ],
+      "output": 2
+    }
+  },
+  {
     "id": "platinum",
     "name": "platinum",
     "class": "metal",

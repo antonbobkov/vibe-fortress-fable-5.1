@@ -14,7 +14,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { Job, JobSink } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import type { PlantsReader } from '@systems/plants';
-import { butcherYields } from './butcher';
+import { butcherParts, butcherYields } from './butcher';
 import { waterOfBank, floodBodies, type WaterBody } from './fishing';
 import { BUTCHER_ROT_LIMIT, BUTCHER_TICKS, FISH_BASE_PERMILLE, FISH_PER_SKILL, FISH_PER_TILE, FISH_REGEN_PERCENT,
   FISH_RETRY_TICKS, FISH_TICKS, HUNT_MIN_SIZE, MIN_FISHING_TILES } from './constants';
@@ -22,7 +22,7 @@ import type { ForagingReader } from './reader';
 import type { ForagingStateV1 } from './state';
 
 export * from './constants';
-export { butcherYields, type ButcherYields } from './butcher';
+export { butcherParts, butcherYields, type ButcherPart, type ButcherYields, type ButcherYieldsWithParts } from './butcher';
 export { floodBodies, fishingWater, type WaterBody } from './fishing';
 export type { ForagingReader } from './reader';
 export const FORAGING_ID = '09';
@@ -77,7 +77,11 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
       waterBodyAt: (tile) => { this.ensureBodies(); const id = this.bodyOfTile.get(tile); return id === undefined ? undefined : this.body(id); },
       fishPool: (id) => { this.ensureBodies(); return this.body(id)?.fishPool ?? 0; },
       canFishAt: (tile) => this.canFishAt(tile),
-      butcherYields: (s) => { const row = this.row(s); return butcherYields(row?.size ?? 0, row?.shell === true); },
+      butcherYields: (s) => {
+        const row = this.row(s);
+        return { ...butcherYields(row?.size ?? 0, row?.shell === true, false, false, (row?.meatValue ?? 0) > 0, (row?.hideValue ?? 0) > 0),
+          parts: butcherParts(row?.butcherParts) };
+      },
     };
     ctx.register.jobProducer(this.producer);
     ctx.register.announcement('FishPoolDepleted', { severity: 'note', stringKey: 'announce.fish_pool_depleted' });
@@ -246,7 +250,12 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
     const c = ctx.world.entities.get(corpse, C.Corpse);
     const row = c === undefined ? undefined : this.row(c.species);
     if (c === undefined || row === undefined) return;
-    const yieldCounts = butcherYields(row.size, row.shell === true, c.juvenile === true, this.items.rotStage(corpse) >= BUTCHER_ROT_LIMIT);
+    const rotten = this.items.rotStage(corpse) >= BUTCHER_ROT_LIMIT;
+    // 09 § Butchery: a species with no meat or hide in its row gives none; its butcher parts come
+    // whole, and none from a rotten corpse.
+    const counts = butcherYields(row.size, row.shell === true, c.juvenile === true, rotten, row.meatValue > 0, row.hideValue > 0);
+    const parts = butcherParts(row.butcherParts, rotten);
+    const yieldCounts = { ...counts, parts };
     const itemTypes = ctx.registry.table('items'); const materials = ctx.registry.table('materials');
     const tile = job.data['anchorTile'] as number;
     const spawn = (type: string, material: string, count: number): void => { if (count > 0) ctx.spawn.item(itemTypes.index(type), materials.index(material), tile, count); };
@@ -256,6 +265,7 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
     spawn('fat', 'tallow', yieldCounts.fat);
     spawn('skull', 'skull_bone', yieldCounts.skull);
     spawn('shell_piece', `${row.id}_shell`, yieldCounts.shell);
+    for (const part of parts) spawn(part.item, part.material, part.count);
     ctx.world.services.items?.destroy(corpse, 'butchered');
     ctx.emit({ type: 'ButcheryDone', workshopId: job.data['workshop'], species: row.id, yields: yieldCounts });
   }

@@ -145,6 +145,21 @@ What a dead creature leaves on its corpse besides its gear: items made of the ma
 | `giant_cave_spider` | 1 `spider_venom` |
 | `ember_newt` | 1 `ember_gland` |
 
+## Butcher parts
+
+What a butchered corpse gives besides meat, hide, bone, fat, skull and shell ([09](../02-systems/09-hunting-gathering-fishing.md) § Butchery). Each item is made of the material named. A species not listed gives none.
+
+| species | item | material | count |
+|---|---|---|---|
+| `yak` | `horn` | `horn` | 2 |
+| `mountain_goat` | `horn` | `horn` | 2 |
+| `goat` | `horn` | `horn` | 1 |
+| `elk` | `horn` | `horn` | 2 |
+| `cave_ox` | `horn` | `horn` | 2 |
+| `mammoth` | `tusk` | `ivory` | 2 |
+| `chicken` | `feather` | `feather` | 2 |
+| `cave_crawler` | `shell_piece` | `chitin` | 2 |
+
 ## Fish pools
 
 Water body kinds and their fish material: river → `trout`, lake → `perch`, cavern lake → `blindfish`. These are not creatures; the `blind_fish` creature above is the visible schooling animal in cavern lakes and is separate from the pool.
@@ -155,7 +170,7 @@ At `SIM_TICKS_PER_SECOND` = 20 and 1×, a dwarf at 0.15 crosses 3 tiles per seco
 
 ## Planned rows
 
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), or makes the new table, adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [08](../02-systems/08-animals-and-domestication.md) and [09](../02-systems/09-hunting-gathering-fishing.md) § Planned. Every number is *unmeasured*.
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [08](../02-systems/08-animals-and-domestication.md) and [09](../02-systems/09-hunting-gathering-fishing.md) § Planned. Every number is *unmeasured*.
 
 ### Planned domestic animals
 
@@ -173,20 +188,12 @@ The new herd species spawn wild on their own stream (08 § Planned, Reindeer and
 | `reindeer` | tundra 20, taiga 15 | 4–8 | all | T-561 |
 | `camel` | desert 20, badlands 15, savanna 8 | 2–4 | all | T-561 |
 
-### Butcher parts (a new table)
+### Planned butcher parts
 
-What a butchered corpse gives besides meat, hide, bone, fat, skull and shell ([09](../02-systems/09-hunting-gathering-fishing.md) § Planned). Each item is made of the material named. A species not listed gives none.
+Rows for § Butcher parts above.
 
 | species | item | material | count | task |
 |---|---|---|---|---|
-| `yak` | `horn` | `horn` | 2 | T-547 |
-| `mountain_goat` | `horn` | `horn` | 2 | T-547 |
-| `goat` | `horn` | `horn` | 1 | T-547 |
-| `elk` | `horn` | `horn` | 2 | T-547 |
-| `cave_ox` | `horn` | `horn` | 2 | T-547 |
-| `mammoth` | `tusk` | `ivory` | 2 | T-547 |
-| `chicken` | `feather` | `feather` | 2 | T-547 |
-| `cave_crawler` | `shell_piece` | `chitin` | 2 | T-547 |
 | `reindeer` | `horn` | `horn` | 2 | T-561 |
 
 ### Planned edits to existing rows

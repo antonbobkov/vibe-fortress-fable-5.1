@@ -22,8 +22,9 @@ Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md
 | `milk` | milk | food/milk | 1 | 10 | barrel | 5 | light | `≈` | `milk_white` | liquid |
 | `fat` | fat | food/fat | 1 | 10 | barrel | 6 | light | `%` | `tallow_yellow` | rendered to tallow |
 | `tallow` | tallow | food/tallow | 1 | 20 | bin | 0 | light | `%` | `tallow_yellow` | trade good; candles are not in version 1 |
+| `salt` | salt | food/salt | 1 | 20 | bag | 0 | light | `:` | `salt_white` | material `salt`; a meal ingredient |
 
-Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour is not edible raw.
+Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour and salt are not edible raw.
 
 ## Drink
 
@@ -50,6 +51,10 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 | `rough_gem` | rough gem | stone/gem_rough | 1 | 5 | bin | light | `*` | material |
 | `cut_gem` | cut gem | stone/gem_cut | 3 | 5 | bin | light | `♦` | material |
 | `ore` | ore | ore | 1 | 1 | none | heavy | `£` | material |
+| `soil_load` | load | stone/soil | 1 | 5 | none | medium | `≈` | material |
+| `fossil` | fossil | stone/fossil | 1 | 1 | none | heavy | `•` | material |
+
+A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `peat`: the soils tagged `soil_drop`). A `fossil` is a dug tile of class `bone`, of its material (`giant_bone`) ([03](../02-systems/03-terrain-and-mining.md) § Tile transitions).
 
 ## Wood and bars
 
@@ -114,22 +119,27 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 | `figurine` | figurine | craft/figurine | 3 | 5 | `♀` | material | stone, bone, wood, metal, shell |
 | `ring` | ring | craft/ring | 2 | 5 | `○` | material | as figurine |
 | `amulet` | amulet | craft/amulet | 3 | 5 | `♀` | material | as figurine |
-| `mug` | mug | craft/mug | 2 | 5 | `∂` | material | stone, wood, metal |
+| `mug` | mug | craft/mug | 2 | 5 | `∂` | material | stone, wood, metal, bone (horn) |
 | `totem` | totem | craft/totem | 5 | 1 | `♀` | material | skull |
 
 ## Textiles and animal parts
 
-| id | name | category | mult | stack | container | rotDays | glyph | fg |
-|---|---|---|---|---|---|---|---|---|
-| `fiber` | fiber | textile/fiber | 1 | 10 | bin | 0 | `~` | material |
-| `thread` | thread | textile/thread | 1 | 10 | bin | 0 | `~` | material |
-| `cloth` | cloth | textile/cloth | 1 | 10 | bin | 0 | `≈` | material |
-| `wool_raw` | wool | textile/wool | 1 | 10 | bin | 0 | `~` | `wool_cream` |
-| `raw_hide` | raw hide | textile/hide | 1 | 5 | bin | 10 | `≈` | material |
-| `leather_piece` | leather | textile/leather | 1 | 10 | bin | 0 | `≈` | `leather_brown` |
-| `bone_pile` | bones | textile/bone | 1 | 10 | bin | 0 | `%` | `bone_white` |
-| `shell_piece` | shell | textile/shell | 1 | 10 | bin | 0 | `%` | `shell_pink` |
-| `skull` | skull | textile/skull | 1 | 1 | bin | 0 | `☻` | `bone_white` |
+| id | name | category | mult | stack | container | rotDays | weight | glyph | fg | tags |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `fiber` | fiber | textile/fiber | 1 | 10 | bin | 0 | | `~` | material | |
+| `thread` | thread | textile/thread | 1 | 10 | bin | 0 | | `~` | material | |
+| `cloth` | cloth | textile/cloth | 1 | 10 | bin | 0 | | `≈` | material | |
+| `wool_raw` | wool | textile/wool | 1 | 10 | bin | 0 | | `~` | `wool_cream` | |
+| `raw_hide` | raw hide | textile/hide | 1 | 5 | bin | 10 | | `≈` | material | |
+| `leather_piece` | leather | textile/leather | 1 | 10 | bin | 0 | | `≈` | `leather_brown` | |
+| `bone_pile` | bones | textile/bone | 1 | 10 | bin | 0 | | `%` | `bone_white` | |
+| `shell_piece` | shell | textile/shell | 1 | 10 | bin | 0 | | `%` | `shell_pink` | |
+| `skull` | skull | textile/skull | 1 | 1 | bin | 0 | | `☻` | `bone_white` | |
+| `horn` | horn | textile/horn | 1 | 10 | bin | 0 | light | `%` | `horn_gray` | |
+| `tusk` | tusk | textile/tusk | 1 | 5 | bin | 0 | medium | `(` | `ivory_cream` | |
+| `feather` | feather | textile/feather | 1 | 20 | bin | 0 | light | `'` | `feather_white` | `stuffing` |
+
+A `horn` is of `horn`, a `tusk` of `ivory`, a `feather` of `feather`: the butcher parts of [creatures.md](creatures.md) § Butcher parts.
 
 ## Clothing
 
@@ -196,7 +206,7 @@ The wagon is a building (see [buildings-and-furniture.md](buildings-and-furnitur
 
 ## Meal ingredients
 
-Any item in `food/meat/raw`, `food/fish/raw`, `food/plant/raw` (species `cookable: true`), `food/egg`, `food/cheese`, `food/plant/processed`, `food/fat` is an ingredient. Meals inherit the quality roll of the cook; their names in the UI are generated as "{ingredient} {dish}" from the first ingredient ("turnip stew", "boar roast", "dimcap pie") using the dish word table in [names.md](names.md).
+Any item in `food/meat/raw`, `food/fish/raw`, `food/plant/raw` (species `cookable: true`), `food/egg`, `food/cheese`, `food/plant/processed`, `food/fat`, `food/salt` is an ingredient. Meals inherit the quality roll of the cook; their names in the UI are generated as "{ingredient} {dish}" from the first ingredient ("turnip stew", "boar roast", "dimcap pie") using the dish word table in [names.md](names.md).
 
 ## Value examples
 
@@ -218,12 +228,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Stone, ore, gems | `soil_load` | load | stone/soil | 1 | 5 | none | 0 | medium | `≈` | material | `clay`, `sand`, `peat` (the dug soil) | T-547 |
-| Stone, ore, gems | `fossil` | fossil | stone/fossil | 1 | 1 | none | 0 | heavy | `•` | material | `giant_bone` | T-547 |
-| Textiles and animal parts | `horn` | horn | textile/horn | 1 | 10 | bin | 0 | light | `%` | `horn_gray` | `horn` | T-547 |
-| Textiles and animal parts | `tusk` | tusk | textile/tusk | 1 | 5 | bin | 0 | medium | `(` | `ivory_cream` | `ivory` | T-547 |
-| Textiles and animal parts | `feather` | feather | textile/feather | 1 | 20 | bin | 0 | light | `'` | `feather_white` | `feather`; tag `stuffing` | T-547 |
-| Food | `salt` | salt | food/salt | 1 | 20 | bag | 0 | light | `:` | `salt_white` | `salt`; tag `ingredient` | T-547 |
 | Textiles and animal parts | `straw` | straw | textile/straw | 1 | 10 | bin | 0 | light | `"` | material | the crop's plant material; tag `stuffing` | T-548 |
 | Textiles and animal parts | `reed` | reed | textile/reed | 1 | 10 | bin | 0 | light | `|` | `reed_green` | `reed` | T-548 |
 | Food | `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<species>_meat`; tag `ingredient` | T-552 |
@@ -273,8 +277,8 @@ What a drying rack turns its items into ([14](../02-systems/14-buildings-and-roo
 
 ### Planned edits to existing rows
 
-- `bucket` materials gain stone (an earthenware jug breaks as a pot does) (T-553); `mug` materials gain bone (horn), glass (T-547, T-553: the material classes the mug recipes need); `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
+- `bucket` materials gain stone (an earthenware jug breaks as a pot does) (T-553); `mug` materials gain glass (T-553: the material class the glass mug recipe needs); `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
 - `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-548, T-554, T-555).
-- § Meal ingredients gains `food/meat/cured`, `food/fish/cured`, `food/salt` and `food/honey` (T-547, T-552, T-555).
+- § Meal ingredients gains `food/meat/cured`, `food/fish/cured` and `food/honey` (T-552, T-555).
 - An item of a cured, salted or aged form names itself so: "cured boar meat", "a barrel of aged bellwine", "a wheel of vintage cheese" (T-552, T-554).

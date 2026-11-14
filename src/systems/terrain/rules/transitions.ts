@@ -12,8 +12,8 @@
 import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { TileIndex } from '@core/types';
 
-/** `03` § Reader `materialClassAt`: stone, soil, ore, gem, ice, wood, constructed. */
-export type MaterialClass = 'stone' | 'soil' | 'ore' | 'gem' | 'ice' | 'wood' | 'constructed' | 'other';
+/** `03` § Reader `materialClassAt`: stone, soil, ore, gem, bone, ice, wood, constructed. */
+export type MaterialClass = 'stone' | 'soil' | 'ore' | 'gem' | 'bone' | 'ice' | 'wood' | 'constructed' | 'other';
 
 /** What the rules need to know about materials and plants, from the registry. */
 export interface MaterialFacts {
@@ -21,6 +21,8 @@ export interface MaterialFacts {
   classOf(material: number): MaterialClass;
   /** True for the deepsilver mineral (`minerals-and-metals.md`, the `deepsilver` flag). */
   isDeepsilver(material: number): boolean;
+  /** True for a soil tagged `soil_drop` (`materials.md` § Soil: clay, sand, peat). Absent: none. */
+  dropsSoil?(material: number): boolean;
 }
 
 /** An item a transition owes the world: `type` and `material` are content ids. */
@@ -164,6 +166,11 @@ export interface TransitionResult {
 export interface TransitionRolls {
   /** `chance(MINING_STONE_DROP_PERMILLE)` for a dug stone tile. */
   stoneDrops(): boolean;
+  /**
+   * `chance(SOIL_DROP_PERMILLE)` for a dug soil tile tagged `soil_drop`, on the stream
+   * `03.soil_drop` (drawn only for such a tile). Absent: such a tile drops nothing.
+   */
+  soilDrops?(): boolean;
   /** Logs for a felled tree of the given plant species index. */
   logs(species: number): number;
   /**
@@ -177,16 +184,22 @@ export interface TransitionRolls {
 }
 
 /**
- * "Item produced" of `dig` (and every row that says "As dig"): "Per material class: soil none;
- * stone with `MINING_STONE_DROP_PERMILLE`; ore and gem always; ice none". Obsidian and other rock
- * classes count as stone (docs/02-systems/03-terrain-and-mining.md § Digging).
+ * "Item produced" of `dig` (and every row that says "As dig"): "Per material class: `stone` and
+ * `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always
+ * `rough_gem`; `bone`: always `fossil`; `soil` tagged `soil_drop`: `soil_load` with
+ * `SOIL_DROP_PERMILLE`; every other class: none" (docs/02-systems/03-terrain-and-mining.md
+ * § Tile transitions).
  */
 export function digDrop(map: Map3D, i: TileIndex, facts: MaterialFacts, rolls: TransitionRolls): DropSpec | null {
   const material = map.materialAt(i);
   const cls = facts.classOf(material);
   if (cls === 'ore') return { type: 'ore', material, count: 1, tile: i };
   if (cls === 'gem') return { type: 'rough_gem', material, count: 1, tile: i };
+  if (cls === 'bone') return { type: 'fossil', material, count: 1, tile: i };
   if (cls === 'stone') return rolls.stoneDrops() ? { type: 'raw_stone', material, count: 1, tile: i } : null;
+  if (cls === 'soil' && facts.dropsSoil?.(material) === true && rolls.soilDrops !== undefined) {
+    return rolls.soilDrops() ? { type: 'soil_load', material, count: 1, tile: i } : null;
+  }
   return null;
 }
 

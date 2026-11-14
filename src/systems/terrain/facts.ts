@@ -2,7 +2,7 @@
  * Material and plant facts 03 needs from the registry, flattened into arrays by index once.
  *
  * `materials.md` § Columns gives each material a `class`; `03` § Reader `materialClassAt` names the
- * seven classes 03 reports. `minerals-and-metals.md` marks the deepsilver mineral with its
+ * eight classes 03 reports. `minerals-and-metals.md` marks the deepsilver mineral with its
  * `deepsilver` flag; `plants.md` gives trees their `logs` range and log material and shrubs their
  * `yield`, `yieldItem` and `yieldMaterial`.
  */
@@ -16,6 +16,7 @@ interface MaterialRow {
   readonly class: string;
   readonly hardness: number;
   readonly name: string;
+  readonly tags?: readonly string[];
 }
 
 interface MineralRow {
@@ -47,6 +48,8 @@ function classOfRow(cls: string): MaterialClass {
       return 'ore';
     case 'gem':
       return 'gem';
+    case 'bone':
+      return 'bone';
     case 'ice':
       return 'ice';
     case 'wood':
@@ -60,6 +63,7 @@ export class TerrainFacts implements MaterialFacts {
   private readonly classes: MaterialClass[];
   private readonly metal: boolean[];
   private readonly deepsilver: boolean[];
+  private readonly soilDrop: boolean[];
   private readonly hardness: number[];
   private readonly names: string[];
   private readonly plants: (PlantRow | undefined)[];
@@ -72,6 +76,7 @@ export class TerrainFacts implements MaterialFacts {
     this.classes = [];
     this.metal = [];
     this.deepsilver = [];
+    this.soilDrop = [];
     this.hardness = [];
     this.names = [];
     const ids: string[] = [''];
@@ -80,6 +85,7 @@ export class TerrainFacts implements MaterialFacts {
       this.classes[m] = classOfRow(row.class);
       this.metal[m] = row.class === 'metal';
       this.deepsilver[m] = minerals.byId(row.id)?.deepsilver === true;
+      this.soilDrop[m] = row.class === 'soil' && row.tags?.includes('soil_drop') === true;
       this.hardness[m] = row.hardness;
       this.names[m] = row.name;
       ids[m] = row.id;
@@ -105,6 +111,11 @@ export class TerrainFacts implements MaterialFacts {
 
   isDeepsilver(material: number): boolean {
     return this.deepsilver[material] === true;
+  }
+
+  /** `materials.md` § Soil: a soil tagged `soil_drop` drops a `soil_load` when dug, half the time. */
+  dropsSoil(material: number): boolean {
+    return this.soilDrop[material] === true;
   }
 
   /** `materials.md` `hardness`: 100 is one `DIG_BASE_TICKS`. */

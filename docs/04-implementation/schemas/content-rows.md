@@ -16,8 +16,9 @@ interface MaterialDef extends RowBase {
 }
 interface MineralDef extends MaterialDef {
   hosts: Id<MaterialDef>[]; shape: 'vein'|'cluster'; count: number /* ×100, per standard map at wealth 2 */;
-  length?: number; radius?: number; yields: { metal: Id<MetalDef>; count: number; permille?: Permille }[];
+  length?: number; radius?: number; yields: { metal: Id<MetalDef>; count: number; permille?: Permille }[] /* empty: no smelt recipe */;
   deepsilver?: boolean;
+  // class is 'ore' or 'bone' (a fossil); density, hardness and meltsAtC, when given, are its material's
 }
 interface MetalDef extends MaterialDef {
   tier: 0|1|2|3|4|5; weaponMult: Fixed; armorMult: Fixed; bluntBonus: Percent; runeMult: Fixed /* a staff's power (25) */;
@@ -72,6 +73,7 @@ interface SpeciesDef extends RowBase {
   breeding?: { gestationDays: number; litter: [number, number]; growDays: number; hatch?: boolean };
   factionDefault: Faction; perception: number; gear?: string /* gear table key */;
   remains?: { item: Id<ItemTypeDef>; count: number }[] /* creatures.md § Remains; made of the material of the item's id */;
+  butcherParts?: { item: Id<ItemTypeDef>; material: Id<MaterialDef>; count: number }[] /* creatures.md § Butcher parts */;
 }
 
 interface PlantDef extends RowBase {

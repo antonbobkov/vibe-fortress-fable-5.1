@@ -70,7 +70,7 @@ Numbers in Markdown tables are written in the unit named in the column header. T
 2. Validate each row against its schema (`schema.ts`, hand-written validators matching the type definitions). A failure reports table, row id, field and expected type, and stops the game with a visible error.
 3. Resolve references: every `Id<Table>` must exist. A dangling reference is a validation failure.
 4. Assign indices, numbered from 1 (0 is reserved for "none" everywhere). Rows not named in `rowOrder` ([row-order.md](../03-content/row-order.md)) come first, sorted by id; rows named there follow, in the order listed. `ids()`, `where()` and `rows` run in this order. A listed id must exist in its table after the generated rows are added, and be listed once.
-5. Build derived structures: per-class material lists, recipes by workshop, thoughts by trigger event, species by biome and season, item types by category path.
+5. Build derived structures: per-class material lists, recipes by workshop, thoughts by trigger event, species by biome and season, item types by category path, and the appended rows of step 4 by table (`appendedRows`: a generator that gives a row added after version 1 a stream of its own reads it, as 03 stage 7 does for minerals).
 6. Compute the content hash (a stable hash over the sorted JSON) and store it in the registry for save compatibility checks.
 7. Freeze everything.
 

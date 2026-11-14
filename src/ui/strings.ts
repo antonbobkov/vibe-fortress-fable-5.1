@@ -1322,6 +1322,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.kind.11': 'boulder',
   // Announcements (`03` § Registrations; texts D-065).
   'announce.vein_found': '{dwarf} has found {material}.',
+  'announce.first_fossil': '{dwarf} has found the bones of something old.',
   'announce.cavern_breached': 'A cavern has been breached.',
   'announce.deepsilver_mined': 'Deepsilver has been mined.',
   'announce.construction_collapsed': 'A construction has collapsed.',

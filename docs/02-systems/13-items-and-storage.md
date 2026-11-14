@@ -22,10 +22,10 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 ### Category tree (fixed by this design; leaves in `03-content/items.md`)
 
 ```
-food/      meat/{raw, cooked}  fish/raw  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow
+food/      meat/{raw, cooked}  fish/raw  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow  salt
 drink/     ale  beer  wine  spirits
 seed/
-stone/     raw  block  gem_rough  gem_cut
+stone/     raw  block  gem_rough  gem_cut  soil  fossil
 ore/
 wood/      log  block
 bar/       metal  coal  charcoal
@@ -37,7 +37,7 @@ armor/     head  body  arms  legs  feet  shield
 clothing/  body  legs  feet
 tool/      pick  axe  fishing_rod  crutch
 craft/     figurine  ring  amulet  mug  totem
-textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull
+textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland
 refuse/    corpse  skeleton  rotten  part
 ```
@@ -76,7 +76,7 @@ Stockpile { filter: { categories: Set<CategoryPath>, materialClasses: Set<Materi
 - Slot reservations: when a haul job is claimed, the destination slot is reserved for the job (`slotReservations: Map<slotKey, jobId>`), released on completion or cancellation.
 - A stockpile at capacity emits `StockpileFull { id }` once until it has space again; when it gains space, `noHome` items return to the wants set. Items waiting for a wanted or incoming container stay in the wants set without a job. Such an item is looked at again only when a stockpile (its place, filter or wanted containers), a zone, a building or a container standing on a stockpile changes, or when a container on a stockpile has room for it after what the slot reservations promise, or when a hospital accepts it (its supply limit is not reached) and a hospital chest has room for it; until then the answer is the one it had. Stale slot reservations are dropped each items tick.
 - Stockpile priority is the haul job priority for items going to it (default `HAUL_PRIORITY`, food stockpiles `HAUL_PRIORITY_FOOD`; both from 11). A new stockpile has an empty filter and accepts nothing. Its priority is the default until the player sets one, and the default follows the filter: `HAUL_PRIORITY_FOOD` while the filter selects only food nodes. A priority the player has set stays when the filter changes (`ItemsState.explicitPriority`).
-- The presets select category nodes: Food `food`; Drink `drink`; Seeds `seed`; Stone `stone/raw`, `stone/block`; Ore and bars `ore`, `bar`; Wood `wood`; Furniture `furniture`; Weapons and armor `weapon`, `ammo`, `armor`; Cloth and leather `textile`, `clothing`; Crafts and gems `craft`, `stone/gem_rough`, `stone/gem_cut`; Refuse `refuse/skeleton`, `refuse/rotten`, `refuse/part` and Corpses `refuse/corpse` (both allow rot); Everything every top-level node (rot allowed). The quality range applies only to types that bear a quality.
+- The presets select category nodes: Food `food`; Drink `drink`; Seeds `seed`; Stone `stone/raw`, `stone/block`, `stone/soil`, `stone/fossil`; Ore and bars `ore`, `bar`; Wood `wood`; Furniture `furniture`; Weapons and armor `weapon`, `ammo`, `armor`; Cloth and leather `textile`, `clothing`; Crafts and gems `craft`, `stone/gem_rough`, `stone/gem_cut`; Refuse `refuse/skeleton`, `refuse/rotten`, `refuse/part` and Corpses `refuse/corpse` (both allow rot); Everything every top-level node (rot allowed). The quality range applies only to types that bear a quality.
 - Destroying an item or removing its destination stockpile cancels the affected haul jobs with `target_invalid`.
 - Removing a stockpile zone leaves its items where they are; they become "wants hauling" again if another stockpile accepts them.
 
@@ -244,19 +244,18 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### The category tree grows (each leaf with the task that brings its first item)
 
 ```
-food/      meat/cured (T-552)  fish/cured (T-552)  salt (T-547)  honey honeycomb wax (T-555)  meal/feast (T-565)
+food/      meat/cured (T-552)  fish/cured (T-552)  honey honeycomb wax (T-555)  meal/feast (T-565)
 drink/     spirits gets its first material (T-554)
-stone/     soil (T-547)  fossil (T-547)
 bar/       peat  dung (T-552)
 furniture/ stone_bed  bedding  pillow (T-551)  lantern (T-563)  beehive (T-555)
 container/ pot (T-553)  basket (T-549)
-textile/   horn  tusk  feather (T-547)  straw  reed (T-548)
+textile/   straw  reed (T-548)
 medical/   soap (T-564)
 tool/      candle (T-563)  firebrand (T-559)
 farm/      dung (T-552)  compost (T-564)  guano (T-556)  bone_ash  potash (T-553)
 ```
 
-The new top node `farm/` gets the stockpile preset Farm goods (`farm`). The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `bar/dung`; Furniture, Cloth and leather and Stone take theirs by their nodes.
+The new top node `farm/` gets the stockpile preset Farm goods (`farm`). The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `bar/dung`; Furniture and Cloth and leather take theirs by their nodes.
 
 ### Clay pots and baskets (T-553, T-549)
 
