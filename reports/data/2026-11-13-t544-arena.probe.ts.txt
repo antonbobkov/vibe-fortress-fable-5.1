@@ -1,0 +1,21 @@
+import { describe, it } from 'vitest';
+import { appendFileSync, writeFileSync } from 'node:fs';
+import { wildArenaTrial, type ArenaFoe, type ArenaSquad } from '../scenarios/wild-squad-arena';
+
+const OUT = process.env['T544_OUT'] ?? '.vite/t544-arena.jsonl';
+const N = Number(process.env['T544_N'] ?? 8);
+const KINDS = (process.env['T544_KINDS'] ?? 'steel:pack,steel:bear,steel:beast-pack,steel:beast-bears,copper:pack,copper:bear').split(',');
+
+describe('T-544 arena probe', () => {
+  it('runs the arena', () => {
+    writeFileSync(OUT, '');
+    for (const k of KINDS) {
+      const [squad, foe] = k.split(':') as [ArenaSquad, ArenaFoe];
+      for (let i = 0; i < N; i += 1) {
+        const t0 = Date.now();
+        const r = wildArenaTrial(squad, foe, i);
+        appendFileSync(OUT, JSON.stringify({ ...r, ms: Date.now() - t0 }) + '\n');
+      }
+    }
+  }, 14_400_000);
+});

@@ -1,0 +1,14 @@
+const f = process.argv[2];
+const rows = require('fs').readFileSync(f, 'utf8').trim().split('\n').map(JSON.parse);
+const g = {};
+for (const r of rows) { const k = r.squad + ':' + r.foe; (g[k] ??= []).push(r); }
+for (const [k, rs] of Object.entries(g)) {
+  const s = (f) => rs.reduce((a, r) => a + r[f], 0);
+  const n = rs.length;
+  const ff = rs.flatMap((r) => r.deaths).filter((d) => d.killer !== 'animal').length;
+  console.log(k.padEnd(24), 'won', rs.filter((r) => r.outcome === 'won').length + '/' + n, 'lost', rs.filter((r) => r.outcome === 'lost').length,
+    'to', rs.filter((r) => r.outcome === 'timeout').length, '| dead', s('dead'), 'in', rs.filter((r) => r.dead > 0).length,
+    'fights (sold', s('soldiersDead'), 'marks', s('marksDead'), 'caster', s('casterDead'), 'ownfire', ff + ')',
+    '| killed', (s('animalsKilled') / n).toFixed(2), 'fled', (s('animalsFled') / n).toFixed(2), 'hitsTaken', (s('hitsTaken') / n).toFixed(1),
+    'shots', (s('shots') / n).toFixed(1), 'casts', (s('casts') / n).toFixed(1), 'ticks', (s('fightTicks') / n).toFixed(0), 'ms', (s('ms') / n).toFixed(0));
+}
