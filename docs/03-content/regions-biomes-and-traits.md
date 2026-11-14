@@ -90,7 +90,7 @@ Columns: `freq` permille among eligible regions; `companion` whether a second tr
 | `ironheart` | Ironheart | geology igneous or metamorphic | 80 | yes | minerals: `hematite` 12, `magnetite` 6 regardless of wealth; 01: wealth +1 |
 | `gemsprings` | Gemsprings | wealth ≥ 2; river | 70 | yes | minerals: gem clusters ×2, half within 6 levels of the surface; 03: three 2×2 warm springs on the surface; 05: springs never freeze |
 | `thunderhead` | Thunderhead | temper ≥ 2 | 100 | yes | 06: storm weight ×2; `LIGHTNING_PER_HOUR_PERMILLE` ×1.5 |
-| `beastwood` | Beastwood | `temperate_forest`, `taiga`, `dark_forest`, `tropical_forest` | 100 | yes | 08: `wolf` and `bear` groups ×2, caps ×2; all wildlife caps ×1.5 |
+| `beastwood` | Beastwood | `temperate_forest`, `taiga`, `dark_forest`, `tropical_forest` | 100 | yes | 08: `wolf` and `bear` groups ×2, caps ×2; all wildlife caps ×1.5; no quiet spell between dangerous arrivals (08 § Wild spawning) |
 | `twilight_pass` | Twilight Pass | peril ≥ 3 | 150 | yes | 18: all intervals halved; thief frequency ×2; caravans bring +1 guard |
 | `deep_well` | Deep Well | deepness ≥ 120 | 80 | yes | 03: cavern 1 open fraction 0.7 with 60% of its floor as lake; 09: cavern 1 lake fish ×2 |
 

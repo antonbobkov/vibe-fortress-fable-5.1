@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-544 | [A well-armed squad handles wolves and bears](work/T-544-bear-mauls-unanswered.md) | T-543's runs; the owner, 2026-11-13 | — | open |
-| T-545 | [Wolves and bears come less often](work/T-545-dangerous-wildlife-less-often.md) | the owner, 2026-11-13 | — | open |
 | T-546 | [Making Do: the low-level design, written into the spec](work/T-546-making-do-low-level-design.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-547 | [Making Do A1: new materials, minerals and butchering products](work/T-547-making-do-materials-and-minerals.md) | Making Do design; the owner, 2026-11-13 | T-546 | blocked (needs T-546) |
 | T-548 | [Making Do A2: new plants, wild and farmed](work/T-548-making-do-plants.md) | Making Do design; the owner, 2026-11-13 | T-546 | blocked (needs T-546) |
