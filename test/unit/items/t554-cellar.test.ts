@@ -113,6 +113,9 @@ describe('T-554 the cellar ages drink and cheese', () => {
   it('refuses a hospital and a missing zone, and a non-boolean setting', () => {
     const w = world('t554-refuse');
     const { zone } = cellar(w, 10);
+    // An older save is a stockpile with no cellar fields: a new stockpile has none.
+    const plain = w.zone('stockpile', [w.index(25, 25, Z)]);
+    expect(Object.keys(w.readers.of<ItemsReader>('13').stockpile(plain) ?? {}).filter((k) => k.startsWith('cellar'))).toEqual([]);
     expect(w.game.world.applyCommand({ type: 'SetStockpileCellar', zoneId: zone, on: 'yes' })).toEqual({ ok: false, reason: 'bad_setting' });
     expect(w.game.world.applyCommand({ type: 'SetStockpileCellar', zoneId: 9999, on: true }).ok).toBe(false);
     const hospital = w.zone('hospital', [w.index(20, 20, Z)]);

@@ -304,6 +304,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'focus numeric settings': 'numbers',
   'open allowed material classes': 'materials',
   "open the bedroom's owner picker, or the sanctum's apprentice picker": 'owner',
+  'a stockpile: turn the cellar setting on or off': 'cellar',
   "a farm plot: the highlighted row's crop for every season in which that crop can grow": 'all_seasons',
   'toggle the checkbox (category tree, material classes)': 'toggle_check',
   'adjust the focused value': 'adjust',

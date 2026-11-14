@@ -88,6 +88,8 @@ describe('T-554 a dwarf who drinks spirits is tipsy', () => {
     const mood = (): number => w.readers.of<MoraleReader>('15').productivity(dwarf);
     expect(reader.productivity(dwarf)).toBe(mood());
     expect(reader.isTipsy(dwarf)).toBe(false);
+    // An older save is a save with no tipsy dwarf: the field is omitted when empty.
+    expect(w.dwarves.serialize().tipsyUntil).toBeUndefined();
     w.setNeed(dwarf, 'thirst', 90);
     w.until(() => w.events('DrankAlcohol').some((e) => e['id'] === dwarf), TICKS_PER_DAY);
     const drank = w.events('DrankAlcohol').find((e) => e['id'] === dwarf);
@@ -104,9 +106,13 @@ describe('T-554 a dwarf who drinks spirits is tipsy', () => {
     expect(thoughts).toContain('drank_strong_drink');
     expect(thoughts).not.toContain('drank_ale');
     // A save keeps the time; the dwarf is sober `TIPSY_TICKS` after the drink.
+    const until = w.dwarves.serialize().tipsyUntil?.[0]?.[1] ?? 0;
+    expect(w.dwarves.serialize().tipsyUntil).toEqual([[dwarf, until]]);
+    expect(until).toBeGreaterThan(at + TIPSY_TICKS - 20);
+    expect(until).toBeLessThanOrEqual(at + TIPSY_TICKS);
     const resumed = roundTrip(w.game).game;
     expect(resumed.world.readers.of<DwarvesReader>('10').isTipsy(dwarf)).toBe(true);
-    w.step(at + TIPSY_TICKS - w.tick + 1);
+    w.step(until - w.tick + 1);
     expect(reader.isTipsy(dwarf)).toBe(false);
     expect(reader.productivity(dwarf)).toBe(mood());
     expect(w.game.world.entities.get(dwarf, C.Motion)?.speed).toBe(before);

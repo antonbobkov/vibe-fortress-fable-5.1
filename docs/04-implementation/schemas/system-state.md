@@ -51,7 +51,7 @@ interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broke
   wagonTile: TileIndex; interruptFlags: EntityId[]; hungerMaxSince: [EntityId, Tick][]; thirstMaxSince: [EntityId, Tick][];
   starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][];
   needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; threatened?: [EntityId, { hostileId: EntityId; tick: Tick; tile?: TileIndex; caught?: true }][];
-  talks?: [EntityId, EntityId, Tick][] /* talks in passing: lower id, higher id, end tick; absent means none */; hearthTicks?: [EntityId, number][] /* ticks eaten, drunk and sat in the hearth hall toward the next hearth visit; absent means none */; hallRetryUntil?: [EntityId, Tick][] /* no hall errand before this tick; absent means none */; rng: RngState }
+  talks?: [EntityId, EntityId, Tick][] /* talks in passing: lower id, higher id, end tick; absent means none */; hearthTicks?: [EntityId, number][] /* ticks eaten, drunk and sat in the hearth hall toward the next hearth visit; absent means none */; hallRetryUntil?: [EntityId, Tick][] /* no hall errand before this tick; absent means none */; tipsyUntil?: [EntityId, Tick][] /* 10 § Tipsy: the tick a tipsy dwarf's tipsiness ends; absent means none */; rng: RngState }
 // A rest activity's itemId holds its chosen bed during travel/use; 0 means floor sleep. Patient.bedId is the corresponding hospital hold.
 // A stay for a talk in passing is an ActivityPlan with need 'social', phase 'use', partner 0 and until = the talk's end tick.
 

@@ -93,7 +93,7 @@ WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintai
 - Editing or removing an order cancels only the job belonging to that order; another order's running job keeps its progress. Reordering cancels no job and updates each running job's `orderIndex`. Global orders have non-reused serials, saved with their next serial; a global job is keyed by its order serial, independently of list position. Completion decrements that same order and renumbers remaining running jobs. Older saves without serials retain their immediate loaded state; serials are assigned in list order on first use.
 - Orders on the workshop are executed in list order (the player reorders). A `WorkOrder` panel lists all orders in the fortress by workshop.
 - Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; a global order goes to the first idle workshop of the type, in entity order).
-- Applying AddWorkOrder or EditWorkOrder normalises materialFilter: a known material id becomes its registry index; another string must be a material class; null means no filter. Numeric filters must be valid integer material indices. Invalid filters reject with bad_setting before changing orders or cancelling work. The same form is held by local and global orders and survives save/load. A brewing maintain order counts the selected plant's drink output for either id or index input.
+- Applying AddWorkOrder or EditWorkOrder normalises materialFilter: a known material id becomes its registry index; another string must be a material class; null means no filter. Numeric filters must be valid integer material indices. Invalid filters reject with bad_setting before changing orders or cancelling work. The same form is held by local and global orders and survives save/load. A brewing maintain order counts the selected plant's drink output for either id or index input. With no filter, a maintain order of a recipe whose first output is `drink` of a `fixed` material counts that material alone (`distill` counts deepfire, `brew_hopped` hopped ale).
 - `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`, or the recipe has no outputs.
 - A transform recipe's order is `once` only, since there is no output to count: AddWorkOrder or EditWorkOrder with `maintain` rejects with `precondition_failed`. Its input 0 takes only an item with no enchantment (the filter's `noEnchant`), so an enchanted item is never set again. `targetType` (an item id, normalised to its index, or null) narrows input 0 to one of its alternatives; any other value, or a target on a recipe that is not a transform, rejects with `bad_setting`. There is no order for one exact item: the search takes the nearest match.
 
@@ -115,6 +115,11 @@ Level 20 rolls 100–140, so masterworks are common for legends and impossible b
 Seeing a masterwork follows 10's room-entry visibility and saved per-dwarf memory: floor items and installed furniture, excluding container contents and the crafter.
 
 A masterwork that is later destroyed (melted, burned, sold is fine) gives its crafter a grief-like thought `masterwork_lost`; 15 gives this on 13's `ItemDestroyed` with the crafter id.
+
+### Spirits
+
+- At the still, `distill`: 20 `drink` of the `drink/ale` or `drink/wine` group (one material: a barrel's worth, the input's `ale_or_wine` property, the material's `ale` or `wine` tag) + 1 fuel + an empty `barrel` container → 10 `drink` of `deepfire` in that barrel. The container rule is as it is: the job fetches its twenty units as any input (11's fetch takes them out of their barrel, from more than one barrel when no barrel holds twenty of one material), and the emptied source barrel is a free container again. A distillation therefore wants two barrels: the one it empties and the empty one it fills. Spirits are no input: deepfire is not of the ale or wine group.
+- A `maintain` order counts deepfire (§ Work orders). Deepfire is the `drink/spirits` group (13 § Category tree; `items.md`), the Mountainhome's favourite (20, `caravan-goods.md` § Preferences), and makes its drinker tipsy (10 § Tipsy).
 
 ### Fuel and charcoal
 
@@ -219,10 +224,6 @@ The smelter has two authored steel recipes beside the generated `alloy_steel`: `
 - Kitchen: `crush_halite` (1 `ore` of halite → 5 `salt`, T-547) and `salt_meat` (1 salt + 5 raw meat or raw fish → 5 cured, no fuel, T-552).
 - `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (12 § Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt.
 - Constants: `SMOKEHOUSE_HUNGER` 5.
-
-### Spirits (T-554)
-
-- At the still, `distill`: 20 `drink` of the `drink/ale` or `drink/wine` group (same material, one barrel's worth, taken from its barrel) + 1 fuel + an empty `barrel` container → 10 `drink` of `deepfire` in that barrel. The emptied source barrel is a free container again. A `maintain` order counts deepfire.
 
 ### Fletching at the bowyer (T-562)
 
