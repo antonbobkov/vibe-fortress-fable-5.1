@@ -248,6 +248,56 @@
     "xp": 8
   },
   {
+    "id": "burn_bone_ash",
+    "name": "Bone ash",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "bone_pile",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bone_ash",
+        "count": 1,
+        "material": {
+          "fixed": "bone"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": true,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "burn_potash",
+    "name": "Potash",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "potash",
+        "count": 2,
+        "material": {
+          "fixed": "potash"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": true,
+    "quality": false,
+    "xp": 3
+  },
+  {
     "id": "cook_easy_meal",
     "name": "Easy meal",
     "workshop": "kitchen",
@@ -457,6 +507,31 @@
     "xp": 8
   },
   {
+    "id": "crush_fossil",
+    "name": "Crush fossil",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bone_ash",
+        "count": 2,
+        "material": {
+          "fixed": "bone"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": true,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "crush_halite",
     "name": "Crush rock salt",
     "workshop": "kitchen",
@@ -532,6 +607,32 @@
     "fuel": false,
     "quality": false,
     "xp": 6
+  },
+  {
+    "id": "fire_bricks",
+    "name": "Bricks",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 1,
+        "material": "clay"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_block",
+        "count": 1,
+        "material": {
+          "fixed": "brick"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": true,
+    "quality": false,
+    "xp": 4
   },
   {
     "id": "forge_anvil",
@@ -2751,6 +2852,62 @@
     "xp": 10
   },
   {
+    "id": "make_glass_block",
+    "name": "Glass block",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 2,
+        "material": "sand"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_block",
+        "count": 1,
+        "material": {
+          "fixed": "glass"
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": false,
+    "xp": 6
+  },
+  {
+    "id": "make_glass_block_potash",
+    "name": "Glass blocks (potash)",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 2,
+        "material": "sand"
+      },
+      {
+        "match": "potash",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_block",
+        "count": 2,
+        "material": {
+          "fixed": "glass"
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": false,
+    "xp": 8
+  },
+  {
     "id": "make_glowstone_lamp",
     "name": "Glowstone lamp",
     "workshop": "jeweler",
@@ -2831,6 +2988,32 @@
     "fuel": false,
     "quality": true,
     "xp": 6
+  },
+  {
+    "id": "make_jug",
+    "name": "Clay jug",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 1,
+        "material": "clay"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bucket",
+        "count": 1,
+        "material": {
+          "fixed": "earthenware"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": true,
+    "quality": false,
+    "xp": 4
   },
   {
     "id": "make_leather_boots",
@@ -3068,6 +3251,58 @@
     "xp": 6
   },
   {
+    "id": "make_mugs_clay",
+    "name": "Clay mugs",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 1,
+        "material": "clay"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mug",
+        "count": 3,
+        "material": {
+          "fixed": "earthenware"
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_mugs_glass",
+    "name": "Glass mugs",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 1,
+        "material": "glass"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "mug",
+        "count": 3,
+        "material": {
+          "fixed": "glass"
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": true,
+    "quality": true,
+    "xp": 6
+  },
+  {
     "id": "make_nest_box",
     "name": "Nest box",
     "workshop": "carpenter",
@@ -3116,6 +3351,32 @@
     ],
     "baseTicks": 100,
     "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_pot",
+    "name": "Pot",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 1,
+        "material": "clay"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "pot",
+        "count": 1,
+        "material": {
+          "fixed": "earthenware"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": true,
     "quality": false,
     "xp": 4
   },
@@ -3361,6 +3622,41 @@
     "fuel": false,
     "quality": true,
     "xp": 15
+  },
+  {
+    "id": "make_steel_bone_ash",
+    "name": "Steel (bone ash flux)",
+    "workshop": "smelter",
+    "skill": "smelting",
+    "inputs": [
+      {
+        "match": "bar",
+        "count": 1,
+        "material": "iron"
+      },
+      {
+        "match": "bone_ash",
+        "count": 1
+      },
+      {
+        "match": "fuel",
+        "count": 1,
+        "material": "fuel"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bar",
+        "count": 1,
+        "material": {
+          "fixed": "steel"
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": true,
+    "quality": false,
+    "xp": 8
   },
   {
     "id": "make_steel_shell",

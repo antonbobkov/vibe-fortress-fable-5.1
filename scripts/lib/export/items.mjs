@@ -58,7 +58,7 @@ const FUEL_ITEMS = new Set(['coal_bar', 'charcoal_bar']);
 const ITEM_SECTIONS = [
   'Food', 'Drink', 'Seeds', 'Stone, ore, gems', 'Wood and bars',
   'Furniture (items that become buildings when placed)', 'Containers', 'Tools', 'Crafts and gems',
-  'Textiles and animal parts', 'Clothing', 'Medical and herbs', 'Refuse',
+  'Textiles and animal parts', 'Clothing', 'Medical and herbs', 'Farm goods', 'Refuse',
 ];
 
 function itemRow(row) {
@@ -77,8 +77,11 @@ function itemRow(row) {
   if (alsoContainer !== null) capacity = Number(alsoContainer[1]);
   const holdsUpTo = /holds up to (\d+)/.exec(notes);
   if (holdsUpTo !== null) capacity = Number(holdsUpTo[1]);
+  // items.md § Containers: "10 units (class barrel)" is a container of another class's kind (a pot).
+  const classNote = /\(class ([a-z_]+)\)/.exec(String(capacityCell));
   const containerClass =
-    category.startsWith('container/') ? category.slice('container/'.length)
+    classNote !== null ? classNote[1]
+      : category.startsWith('container/') ? category.slice('container/'.length)
       : iid === 'chest' ? 'chest'
         : undefined;
 

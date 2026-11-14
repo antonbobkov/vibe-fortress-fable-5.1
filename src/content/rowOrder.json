@@ -986,5 +986,97 @@
   {
     "table": "thoughts",
     "id": "first_fossil"
+  },
+  {
+    "table": "palette",
+    "id": "brick_red"
+  },
+  {
+    "table": "palette",
+    "id": "glass_pale"
+  },
+  {
+    "table": "materials",
+    "id": "brick"
+  },
+  {
+    "table": "materials",
+    "id": "earthenware"
+  },
+  {
+    "table": "materials",
+    "id": "glass"
+  },
+  {
+    "table": "materials",
+    "id": "potash"
+  },
+  {
+    "table": "items",
+    "id": "pot"
+  },
+  {
+    "table": "items",
+    "id": "bone_ash"
+  },
+  {
+    "table": "items",
+    "id": "potash"
+  },
+  {
+    "table": "skills",
+    "id": "pottery"
+  },
+  {
+    "table": "patterns",
+    "id": "kiln"
+  },
+  {
+    "table": "buildings",
+    "id": "kiln"
+  },
+  {
+    "table": "recipes",
+    "id": "make_steel_bone_ash"
+  },
+  {
+    "table": "recipes",
+    "id": "fire_bricks"
+  },
+  {
+    "table": "recipes",
+    "id": "make_pot"
+  },
+  {
+    "table": "recipes",
+    "id": "make_jug"
+  },
+  {
+    "table": "recipes",
+    "id": "make_mugs_clay"
+  },
+  {
+    "table": "recipes",
+    "id": "make_glass_block"
+  },
+  {
+    "table": "recipes",
+    "id": "make_glass_block_potash"
+  },
+  {
+    "table": "recipes",
+    "id": "make_mugs_glass"
+  },
+  {
+    "table": "recipes",
+    "id": "burn_potash"
+  },
+  {
+    "table": "recipes",
+    "id": "burn_bone_ash"
+  },
+  {
+    "table": "recipes",
+    "id": "crush_fossil"
   }
 ]

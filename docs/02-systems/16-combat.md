@@ -163,6 +163,10 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 
 On `CreatureDied` with a killer: `killed_hostile` thought for a fortress killer; `KillRecorded { killerId, victimId, hostile, hunted, killerName, killerSpecies, victimName, victimSpecies }` for the legend (the victim is gone by then, so the death event's name, species and faction, and a wild victim's state, are copied; `hostile` is true when the killer's faction is hostile to the victim's, or the victim is a wild animal that was in the `attack` state; `hunted` is true when the victim was the quarry of a claimed hunt job, whose kill `HuntKill` announces; a trap, which is a building and not a creature, is named by its building type). Hostile equipment stays on the corpse (13 `strip_corpse`).
 
+### Pots break
+
+An `AttackResolved` with `outcome: 'hit'`, melee or ranged, on a creature that carries a pot or a clay jug breaks it, and the drink in it is lost (13 § Containers in play). No draw: a hauler carrying a pot of ale through a fight loses the ale.
+
 ### Combat log
 
 Every `AttackResolved` is rendered by the announcement registry into a combat log line from the strings table ("Orm Ashbrow hits the gloam warrior in the torso with his iron axe (18 damage)" or "The wolf bites Brynja Coldhammer in the left leg"). The combat log is a separate tab of the log panel and does not raise alerts except for the first attack of an engagement, which is an alert that centers the view: the first observed attack of an attacker and defender pair is the alert, and later attacks of that pair are notes. A log line is saved with its category, so the combat tab works after a load.
@@ -266,10 +270,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### The horn bow (T-562)
 
 `horn_bow` is a launcher row like `bow` with power 1.10 for any wood (the yew's power without the yew), made at the bowyer from 1 log + 1 horn in 220 ticks against the bow's 180. A yew horn bow is no better than a yew bow: the row has no `yewPower`.
-
-### Pots break (T-553)
-
-`AttackResolved` with a hit on a creature that carries a `pot` or a clay jug breaks it (13 § Planned, Clay pots). No draw.
 
 ### Seeing through glass (T-558)
 

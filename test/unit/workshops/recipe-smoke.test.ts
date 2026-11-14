@@ -9,7 +9,7 @@ const registry = contentRegistry();
 const WORKSHOP_TYPES = [
   'carpenter', 'mason', 'craftdwarf', 'jeweler', 'mechanic',
   'wood_furnace', 'smelter', 'forge', 'kitchen', 'still',
-  'tannery', 'leatherworks', 'loom', 'clothier', 'farmers_workshop', 'bowyer', 'alchemist', 'runeforge',
+  'tannery', 'leatherworks', 'loom', 'clothier', 'farmers_workshop', 'bowyer', 'alchemist', 'runeforge', 'kiln',
 ] as const;
 
 const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
@@ -39,6 +39,9 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   ember_gland: 'ember_gland',
   rune_vial: 'rune',
   cut_gem: 'quartz',
+  bone_ash: 'bone',
+  potash: 'potash',
+  fossil: 'giant_bone',
   // The first alternative of a setting's kept input (25 § Setting stones).
   axe: 'iron',
   bracers: 'leather',
@@ -177,12 +180,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 211', () => {
+  it('the recipe count over all types is 222', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(211);
+    expect(total).toBe(222);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

@@ -390,9 +390,20 @@ export class WorkshopOperator {
       canComplete: (raw) => {
         const job = raw as Job;
         const recipe = this.recipe(job.data['recipe'] as string);
-        return recipe === undefined || !recipe.container || this.items.room(job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0) >= (recipe.outputs[0]?.count ?? 0);
+        if (recipe === undefined || !recipe.container) return true;
+        const container = job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0;
+        return this.items.room(container) >= this.intoContainer(recipe.outputs[0]?.count ?? 0, container);
       },
     };
+  }
+
+  /**
+   * `12` § Operation: an output made into a container is as much as the container holds, at most the
+   * recipe's count (a pot of 10 takes half a brew of 20).
+   */
+  private intoContainer(count: number, container: EntityId): number {
+    const capacity = this.items.containerRecord(container)?.capacity;
+    return capacity === undefined ? count : Math.min(count, capacity);
   }
 
   /** The built buildings that have recipes, in entity order; rebuilt when any building changes (derived, never saved). */
@@ -696,7 +707,7 @@ export class WorkshopOperator {
       const made = itemTable.has(out.item) ? out.item : options.length > 0 ? options[this.ctx.rng.int(0, options.length - 1)]?.id : undefined;
       const type = made === undefined ? undefined : spoiledAs ?? made;
       if (type === undefined) continue;
-      const count = isMelt ? meltCount : out.count;
+      const count = isMelt ? meltCount : container === 0 ? out.count : this.intoContainer(out.count, container);
       if (count <= 0) continue;
       const itemId = ctx.spawn.item(itemTable.index(type), materials[k] as number, container === 0 ? outAt : { containerId: container }, count, quality);
       if (typeof job.data['memorialDwarfId'] === 'number') {

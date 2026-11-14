@@ -583,6 +583,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stockpile.preset.weapons_and_armor': 'Weapons and armor',
   'ui.stockpile.preset.cloth_and_leather': 'Cloth and leather',
   'ui.stockpile.preset.crafts_and_gems': 'Crafts and gems',
+  'ui.stockpile.preset.farm': 'Farm goods',
   'ui.stockpile.preset.refuse': 'Refuse',
   'ui.stockpile.preset.corpses': 'Corpses',
   'ui.stockpile.preset.everything': 'Everything',

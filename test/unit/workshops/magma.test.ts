@@ -36,12 +36,12 @@ describe('T-M5-04 magma workshops', () => {
     expect(job?.inputs[1]?.filter.materialId).toBe(w.game.registry.table('materials').index('granite'));
   });
 
-  it('exposes magma smelter and forge recipes but keeps the reserved kiln without recipes', () => {
+  it("exposes the magma smelter's, forge's and kiln's recipes", () => {
     const w = new TestWorld({ seed: 'm5-magma-recipes', world: 'flat-test', embark: 'none' });
     const reader = w.readers.of<WorkshopsReader>('12');
-    expect(reader.recipesFor('magma_smelter')).toHaveLength(25);
+    expect(reader.recipesFor('magma_smelter')).toHaveLength(26);
     expect(reader.recipesFor('magma_forge')).toHaveLength(40);
-    expect(reader.recipesFor('magma_kiln')).toHaveLength(0);
+    expect(reader.recipesFor('magma_kiln')).toHaveLength(10);
   });
 
   it('forges a steel dagger over magma without consuming a fuel bar', () => {

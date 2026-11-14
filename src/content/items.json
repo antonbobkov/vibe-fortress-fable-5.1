@@ -219,6 +219,24 @@
     ]
   },
   {
+    "id": "bone_ash",
+    "name": "bone ash",
+    "category": "farm/bone_ash",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": ":",
+    "fg": "bone_white",
+    "quality": false,
+    "tags": [
+      "fertilizer",
+      "flux"
+    ]
+  },
+  {
     "id": "bone_pile",
     "name": "bones",
     "category": "textile/bone",
@@ -331,7 +349,8 @@
     "weight": "light",
     "materials": [
       "wood",
-      "metal"
+      "metal",
+      "stone"
     ],
     "glyph": "u",
     "quality": true,
@@ -1340,7 +1359,8 @@
       "stone",
       "wood",
       "metal",
-      "bone"
+      "bone",
+      "glass"
     ],
     "glyph": "∂",
     "quality": true
@@ -1441,6 +1461,37 @@
     "tags": [
       "ingredient"
     ]
+  },
+  {
+    "id": "pot",
+    "name": "pot",
+    "category": "container/pot",
+    "mult": 2000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": [
+      "stone"
+    ],
+    "glyph": "Ö",
+    "quality": false,
+    "capacity": 10,
+    "containerClass": "barrel"
+  },
+  {
+    "id": "potash",
+    "name": "potash",
+    "category": "farm/potash",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": ":",
+    "fg": "ash_gray",
+    "quality": false
   },
   {
     "id": "quick_draught",
