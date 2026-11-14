@@ -28,7 +28,7 @@ import type { AnimalsReader } from '@systems/animals';
 import type { DwarvesReader } from '@systems/dwarves';
 import { TestWorld } from './test-world';
 import { command } from './script-commands';
-import { armingSquad, assignBroker, BUILD, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, type EconomyState } from './three_years_economy';
+import { armingSquad, assignBroker, BUILD, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 
 export const Z = FLAT_TEST_SURFACE_Z;
@@ -873,6 +873,11 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
       for (const recipeId of SQUAD_KIT) {
         command(w, { type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
           order: { recipeId, mode: 'maintain', threshold: SQUAD_SIZE, materialFilter: 'iron', priority: KIT_FIRST } });
+      }
+      // T-544: then their helms and greaves, so they are armed in metal and hunt wolves and bears.
+      for (const recipeId of HUNT_KIT) {
+        command(w, { type: 'AddWorkOrder', workshopId: state.placedIds['forge'],
+          order: { recipeId, mode: 'maintain', threshold: SQUAD_SIZE, materialFilter: 'iron', priority: ROUTINE } });
       }
     } else {
       // Replace tools first, then equip the squad before producing export goods.

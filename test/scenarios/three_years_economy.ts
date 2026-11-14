@@ -155,6 +155,13 @@ const EASY_MEALS_STOCKED = 20;
 export const SQUAD_SIZE = 3;
 export const SQUAD_KIT = ['forge_mail_shirt', 'forge_shield', 'forge_short_sword'] as const;
 export const SQUAD_KIT_ITEMS = ['mail_shirt', 'shield', 'short_sword'] as const;
+/**
+ * T-544: then greaves and a helm for each, ordered next after the kit, so the squad is armed in
+ * metal and hunts wolves and bears (three_years_fortress.ts). Left to the standing armour orders of
+ * 'iron goods', behind the picks and battle axes, the squad on seed p2-1 had no greaves in a year.
+ * Greaves first: a bite lands on a leg three times as often as on the head (16, the body plan).
+ */
+export const HUNT_KIT = ['forge_greaves', 'forge_helm'] as const;
 
 /** F-17i: the craft each specialist is kept on, and the skill a player picks them by. */
 const SPECIALISTS = [
