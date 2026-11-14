@@ -1,12 +1,14 @@
 # T-544 — A well-armed squad handles wolves and bears
 
-**Source:** [T-543](../archive/tasks/T-543-sweep-deaths-drift.md) ([the report](../../reports/audits/2026-11-10-t543-sweep-deaths-drift.md)); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-14, in 6b92a16e,14dde2de,5698da35,3be54a00,84080477.
+
+**Source:** [T-543](T-543-sweep-deaths-drift.md) ([the report](../../../reports/audits/2026-11-10-t543-sweep-deaths-drift.md)); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
 
 ## The owner's decision
 
 Asked whether the higher death level from wolves and bears is acceptable, the owner said (2026-11-13): "Generally, a steel-equipped well-trained squad of ~5 fighters, few archers and a wizard should have no problem handling wildlife incursions (wolves/bears). Don't make them come too often - it's a nuisance."
 
-This task is the first half: the squad. [T-545](../archive/tasks/T-545-dangerous-wildlife-less-often.md) is the second: how often they come.
+This task is the first half: the squad. [T-545](T-545-dangerous-wildlife-less-often.md) is the second: how often they come.
 
 ## Why
 

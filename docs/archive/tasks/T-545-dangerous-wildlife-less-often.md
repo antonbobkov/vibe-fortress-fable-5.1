@@ -6,7 +6,7 @@
 
 ## The owner's decision
 
-"Generally, a steel-equipped well-trained squad of ~5 fighters, few archers and a wizard should have no problem handling wildlife incursions (wolves/bears). Don't make them come too often - it's a nuisance." This task is the second half: how often they come. [T-544](../../work/T-544-bear-mauls-unanswered.md) is the squad.
+"Generally, a steel-equipped well-trained squad of ~5 fighters, few archers and a wizard should have no problem handling wildlife incursions (wolves/bears). Don't make them come too often - it's a nuisance." This task is the second half: how often they come. [T-544](T-544-bear-mauls-unanswered.md) is the squad.
 
 ## Why
 

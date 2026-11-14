@@ -1,0 +1,46 @@
+// Dwarf deaths by killer in a downloaded sweep (one folder per seed job), per sweep (sum / shifts).
+const fs = require('fs');
+const path = require('path');
+const root = process.argv[2];
+const logs = [];
+(function walk(d) {
+  for (const f of fs.readdirSync(d)) {
+    const p = path.join(d, f);
+    if (fs.statSync(p).isDirectory()) walk(p);
+    else if (/three-years-.*\.log$/.test(f)) logs.push(p);
+  }
+})(root);
+const raid = new Set(['gloam_warrior', 'gloam_archer', 'gloam_captain', 'gloam_hexer', 'trollkin', 'hillfolk_bandit', 'gloam', 'elf']);
+const counts = {};
+const hunts = { n: 0, bySpecies: {} };
+const shifts = new Set();
+const bySeed = {};
+for (const p of logs) {
+  const shift = (/shift-(\d+)/.exec(p) || [])[1];
+  shifts.add(shift);
+  const seed = (/three-years-(p\d-\d)/.exec(p) || [])[1];
+  for (const line of fs.readFileSync(p, 'utf8').split('\n')) {
+    if (line.includes('[three_years_hunt]')) {
+      hunts.n += 1;
+      const d = JSON.parse(line.slice(line.indexOf('{')));
+      for (const t of d.targets) hunts.bySpecies[t] = (hunts.bySpecies[t] || 0) + 1;
+      continue;
+    }
+    if (!line.includes('[three_years_death]')) continue;
+    const d = JSON.parse(line.slice(line.indexOf('{')));
+    if (d.species !== 'dwarf') continue;
+    const k = d.killer === null ? 'none' : d.killer;
+    const cls = ['wolf', 'bear', 'boar', 'badger'].includes(k) ? k : raid.has(k) || /gloam|troll|hillfolk|bandit/.test(k) ? 'raider' : k;
+    counts[cls] = (counts[cls] || 0) + 1;
+    counts.all = (counts.all || 0) + 1;
+    if (k === 'wolf' || k === 'bear') {
+      bySeed[seed] ??= { wolf: 0, bear: 0 };
+      bySeed[seed][k] += 1;
+    }
+  }
+}
+const n = shifts.size;
+console.log('logs', logs.length, 'shifts', [...shifts].sort().join(','));
+for (const [k, v] of Object.entries(counts).sort((a, b) => b[1] - a[1])) console.log(k.padEnd(16), v, (v / n).toFixed(2));
+console.log('hunts', hunts.n, JSON.stringify(hunts.bySpecies));
+console.log('wolf/bear deaths by seed', JSON.stringify(bySeed));
