@@ -69,10 +69,13 @@ describe('T-551 sleep audit', () => {
     const original = w.game.world.step.bind(w.game.world);
     w.game.world.step = () => { original(); watch(); };
     const end = DAYS * TICKS_PER_DAY;
+    let dressedDay = -1;
     while (w.tick < end) {
       playThreeYears(w, state, Math.min(300, end - w.tick));
       checkFortressWorkOrders(w, state); checkFortressRooms(w, state); checkFortressCaveFarm(w, state); checkFortressDefense(w, state);
-      if (dress && w.tick % TICKS_PER_DAY === 0) {
+      const today = Math.floor(w.tick / TICKS_PER_DAY);
+      if (dress && today !== dressedDay) {
+        dressedDay = today;
         // One bedding and one pillow, in linen, by the first dwarf, for each bed not yet made up and
         // not yet sent for: the haulers carry them to the beds.
         const b = w.game.world.readers.of<{ byType(type: string): readonly number[]; get(id: number): { state: string } | undefined;
@@ -112,6 +115,7 @@ describe('T-551 sleep audit', () => {
       bedTicksMedian: med(done.map((e) => e.bedTicks)), bedTicksMax: done.length > 0 ? Math.max(...done.map((e) => e.bedTicks)) : 0,
       bedTicksMedianFloor: med(done.filter((e) => e.onFloor).map((e) => e.bedTicks)),
       bedTicksMedianBed: med(done.filter((e) => e.slept && !e.onFloor).map((e) => e.bedTicks)),
+      bedTicksMedianMadeUp: med(done.filter((e) => e.restPercent > 100).map((e) => e.bedTicks)),
       endedAtRestZero: eps.filter((e) => e.restEnd === 0).length,
     };
     console.log(`SLEEP_AUDIT ${JSON.stringify(summary)}`);
