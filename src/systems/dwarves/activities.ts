@@ -7,9 +7,9 @@ import { FLUID_FROZEN_BIT, FLUID_LEVEL_MASK, FLUID_TYPE_BIT, TileFlag, TileKind 
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
-import type { ItemsReader } from '@systems/items';
+import type { ItemFilter, ItemsReader } from '@systems/items';
 import { Z_DISTANCE_WEIGHT } from '@systems/jobs/constants';
-import { DINING_SEARCH_RADIUS, DRINK_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_CHECK_TICKS, TALK_TICKS, THREAT_RADIUS } from './constants';
+import { CACTUS_THIRST_RELIEF, DINING_SEARCH_RADIUS, DRINK_SEARCH_RADIUS, DRINK_TICKS, EAT_TICKS, FRIEND_TALKS, HEARTH_VISIT_TICKS, LEISURE_MARK, LEISURE_RETRY_TICKS, NEED_RETRY_TICKS, SIT_TICKS, SLEEP_HOURS, SOCIAL_WAIT_TICKS, TALK_CHECK_TICKS, TALK_TICKS, THREAT_RADIUS } from './constants';
 import { CRITICAL, WANT, type NeedName } from './needs';
 import type { ActivityPlan } from './state';
 import type { EntityStore } from '@core/entities';
@@ -158,6 +158,18 @@ function hallTile(ctx: TickContext, from: TileIndex, wagon: TileIndex, allowed: 
 
 function socialTile(ctx: TickContext, from: TileIndex, allowed: (tile: TileIndex) => boolean): TileIndex {
   return nearest(ctx, from, activityTargets(ctx).social.filter((t) => reachable(ctx, from, t) && allowed(t)));
+}
+
+/**
+ * `10` § Eating and drinking: the filter of a drinkable plant, `plant_food` of a material tagged
+ * `drinkable` (cactus pulp); null when the content has none.
+ */
+function drinkablePlantFilter(ctx: TickContext): ItemFilter | null {
+  const itemTypes = ctx.registry.table('items');
+  if (!itemTypes.has('plant_food')) return null;
+  const materials = ctx.registry.table<{ id: string; tags?: readonly string[] }>('materials');
+  const ids = materials.where('tag:drinkable', (row) => row.tags?.includes('drinkable') === true).map((row) => materials.index(row.id));
+  return ids.length === 0 ? null : { type: itemTypes.index('plant_food'), materialIds: ids };
 }
 
 function plan(need: NeedName, target: TileIndex, extra: Partial<ActivityPlan> = {}): ActivityPlan {
@@ -569,6 +581,17 @@ export class Activities {
           if (target >= 0) { ctx.world.services.items.reserve(one, id); p = plan(need, target, { itemId: one }); }
         }
       }
+      // 10 § Eating and drinking: after every drink source, a plant whose material is `drinkable` (a cactus).
+      if (p === null && its !== null && ctx.world.services.items !== null) {
+        const plantFood = drinkablePlantFilter(ctx);
+        const pulp = plantFood === null ? 0 : its.findItem(plantFood, from, 'walker', searchOptions);
+        if (pulp !== 0) {
+          const record = its.get(pulp);
+          const one = record !== undefined && record.count > 1 ? ctx.world.services.items.split(pulp, 1) : pulp;
+          const target = its.tileOf(one);
+          if (target >= 0) { ctx.world.services.items.reserve(one, id); p = plan(need, target, { itemId: one, plant: true }); }
+        }
+      }
     } else if (need === 'rest') p = bed(ctx, id, from, wagon, allowed);
     else if (need === 'social') {
       if (!dwarves.some((x) => x !== id && ctx.world.entities.alive(x))) return false;
@@ -602,7 +625,7 @@ export class Activities {
       const item = reader?.get(p.itemId);
       const def = item === undefined ? undefined : reader?.def(item.type);
       if (item === undefined || item.reservedBy !== id || item.rotStage >= 2 ||
-          !(p.need === 'hunger' ? def?.edible : def?.drinkable)) {
+          !(p.need === 'hunger' ? def?.edible : (p.plant === true || def?.drinkable))) {
         this.cancel(ctx, id);
         return true;
       }
@@ -705,8 +728,11 @@ export class Activities {
         const meal = def?.category.startsWith('food/meal') ?? false;
         ctx.world.services.items?.consume(p.itemId, 1);
         change('hunger', meal ? 100 : 70);
+        // `12` § Operation: `seasoned`, the seasonings' material ids (only when there are any), for 15's thoughts.
+        const materials = ctx.registry.table('materials');
+        const seasoned = (item.seasoned ?? []).map((m) => materials.byIndex(m)?.id ?? '').filter((m) => m !== '');
         ctx.emit({ type: 'MealEaten', id, quality: item.quality, atTable: p.atTable, roomTier: p.roomTier,
-          stage: item.rotStage, kind: meal ? 'meal' : 'raw', mealType: def?.id ?? '' });
+          stage: item.rotStage, kind: meal ? 'meal' : 'raw', mealType: def?.id ?? '', ...(seasoned.length > 0 ? { seasoned } : {}) });
         if (meal && item.quality >= 4) change('joy', 20);
         if (p.atTable) {
           // A meal at a table is also a sit in that room.
@@ -716,7 +742,14 @@ export class Activities {
         hearthTime(EAT_TICKS);
       }
     } else if (p.need === 'thirst') {
-      if (p.itemId !== 0) {
+      if (p.itemId !== 0 && p.plant === true) {
+        // A cactus eaten for its water: half a drink, and hunger is not relieved.
+        const item = its?.get(p.itemId);
+        if (item !== undefined) {
+          ctx.world.services.items?.consume(p.itemId, 1); change('thirst', CACTUS_THIRST_RELIEF);
+          ctx.emit({ type: 'DrankFromPlant', id, material: item.material });
+        }
+      } else if (p.itemId !== 0) {
         const item = its?.get(p.itemId);
         if (item !== undefined) {
           ctx.world.services.items?.consume(p.itemId, 1); change('thirst', 100);

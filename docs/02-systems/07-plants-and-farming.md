@@ -19,15 +19,16 @@ Grow things. Trees for wood, shrubs for gathering, grass for grazing, crops on f
 
 ### Species table (content) and the properties used here
 
-`kind`, `growSeasons` (surface species; cave species have no growing season, but still need `minC ≤ temperatureAt(tile)`), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any | glow`, `yieldItem`, `yieldCount: [min, max]`, `seedItem` (always the `seed` item type with the species as material), `secondaryYield` (for example `flax` → `flax_fiber` plus a seed-cake food unit), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `glyph`, `fg`.
+`kind`, `growSeasons` (surface species; cave species have no growing season, but still need `minC ≤ temperatureAt(tile)`), `stageDays` (days per stage at 100% growth), `minC`, `maxC`, `light: sun | dark | any | glow`, `yieldItem`, `yieldCount: [min, max]`, `seedItem` (always the `seed` item type with the species as material), `secondaryYield` (for example `flax` → `flax_fiber` plus a seed-cake food unit), `straw` (crops: straw items each harvest drops), `tags` (`ash`: sown only on ash; `stings`: 09), `graze` (shrubs a tame grazer eats), `logs` (trees), `regrowDays` (shrubs), `wildSeedPermille` (chance a gathered wild shrub gives a seed), `biomes` with weights, `caverns` with weights, `convert` (the plants placed by 03's conversions, stage 10, `plants.md` § Conversions), `glyph`, `fg`.
 
 The species fixed by this design (properties in `plants.md`):
 
-- Trees: `oak`, `pine`, `birch`, `willow`, `yew`, `ash`, `maple`; fungus trees: `tower_shroom`, `stalk_fern`.
+- Trees: `oak`, `pine`, `birch`, `willow`, `yew`, `ash`, `maple`, `ironwood` (converted, never regrown); fungus trees: `tower_shroom`, `stalk_fern`.
 - A rare cavern shrub: `glowcap_patch`.
-- Shrubs: `bramble` (berries), `brightleaf` (medicine herb), `nutbush` (nuts), `wild_barley`, `wild_strawberry`, `wild_flax`, `sunfruit` (savanna), `frostberry` (tundra and taiga); cavern shrubs: `dimcap_patch`, `pale_bell_patch`, `sweetroot_patch`, `cavewheat_patch`, `sporecloth_patch`.
-- Surface crops: `barley` (ale, flour), `turnip`, `cabbage`, `strawberry` (food and wine), `flax` (fiber and seed oil), `pumpkin` (autumn), `hops` (improves ale).
-- Cave crops: `dimcap` (food and dimcap ale), `cavewheat` (flour and cavewheat beer), `pale_bell` (bellwine), `sweetroot` (food and rootwine), `sporecloth` (thread), `glowcap` (rune, by way of the laboratory).
+- Shrubs: `bramble` (berries), `brightleaf` (medicine herb), `nutbush` (nuts), `wild_barley`, `wild_strawberry`, `wild_flax`, `sunfruit` (savanna), `frostberry` (tundra and taiga); converted shrubs: `reed_bed`, `barrel_cactus`, `wild_nettle`, `wild_rye`, `rock_lichen`, `wild_wyrmtongue`; cavern shrubs: `dimcap_patch`, `pale_bell_patch`, `sweetroot_patch`, `cavewheat_patch`, `sporecloth_patch`.
+- Surface crops: `barley` (ale, flour, straw), `turnip`, `cabbage`, `strawberry` (food and wine), `flax` (fiber and seed oil), `pumpkin` (autumn), `hops` (improves ale), `rye` (the cold region's grain: it grows from −2 °C in spring, summer and autumn, where barley's 4 °C fails; black ale, flour, straw), `nettle` (a fiber crop: its harvest is `fiber` of `nettle_fiber`), `wyrmtongue` (sown only on ash; a seasoning; emberwine).
+- Converted plants: the shrubs and the tree above marked converted are placed at generation only, by 03's conversion passes (03 § Local map generation, the conversions at the end of stage 10), never by the biome weights of stage 9 or by regrowth, so a map without them and its regrowth draw the same numbers. No ironwood sapling ever grows by itself: an ironwood felled is gone.
+- Cave crops: `dimcap` (food and dimcap ale), `cavewheat` (flour, cavewheat beer and straw), `pale_bell` (bellwine), `sweetroot` (food and rootwine), `sporecloth` (thread), `glowcap` (rune, by way of the laboratory).
 
 ### Growth
 
@@ -49,12 +50,12 @@ A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accu
 ### Farm plots
 
 - A `farm_plot` zone can be drawn over tiles that are `floor` with material class `soil`, or with the `mud` flag, or cavern `cave_loam`. Tiles that do not qualify are excluded from the zone and shown in red during placement.
-- `SetPlotCrop` accepts 0 for none, or a known farmed plant id or nonnegative integer index; malformed or unknown choices reject as `not_found`, and a mismatched light requirement rejects as `light_mismatch`. The four-slot zone setting uses this same validation for every slot before storing the normalized indices.
+- `SetPlotCrop` accepts 0 for none, or a known farmed plant id or nonnegative integer index; malformed or unknown choices reject as `not_found`, a mismatched light requirement rejects as `light_mismatch`, and a crop sown only on ash (wyrmtongue) rejects as `not_on_ash` unless every tile of the plot is an ash tile (§ Ash). The four-slot zone setting uses this same validation for every slot before storing the normalized indices.
 - Settings: one crop per season (four plant indices under `Zone.settings.crop_per_season`, 0 = none), each `none` or a species whose light requirement matches the plot (the UI filters: a plot with any `lit` tile is a surface plot; a plot with no `lit` tile is a cave plot, and a glow plot when every one of its tiles is under a lamp; mixed plots are refused). `dark` species grow on cave and glow plots, `glow` species only on glow plots, `any` species on all three. One lamp in the middle of a 3×3 plot gives eight planted tiles, since the lamp stands on the ninth.
 - A plot tile that a built building covers is not plantable: the producer creates no `plant` job for it and cancels one it made.
 - Each hour, for each plantable plot tile without a crop, if the season's species is set and a seed exists in a stockpile or on the ground (13 `findItem(seedItem)`), the plants job producer creates `plant { tile, species }` (labor `farming`, skill `farming`); if no seed exists, the plot is marked `needsSeeds` once per season with a note.
 - `plant` job: fetch the seed, walk to the tile, work `PLANT_TICKS` (skill-scaled), consume the seed, create the `Crop` entity at stage 0.
-- `harvest` job: created for crops with their fourth stage complete when `autoHarvest` (11 standing order) is on, or when the player designates harvest. Work `HARVEST_TICKS`; spawn `yieldCount` of `yieldItem` (rolled, +1 per 5 farming skill levels, capped at `yieldMax + 2`) and exactly `SEEDS_PER_HARVEST` seeds, plus the secondary yield only when no registry recipe produces that item (workshop conversions such as flour are not free harvest drops); destroy the crop. Harvest by a skilled farmer gives the produce a quality tier used only for meal quality (13).
+- `harvest` job: created for crops with their fourth stage complete when `autoHarvest` (11 standing order) is on, or when the player designates harvest. Work `HARVEST_TICKS`; spawn `yieldCount` of `yieldItem` (rolled, +1 per 5 farming skill levels, capped at `yieldMax + 2`) and exactly `SEEDS_PER_HARVEST` seeds, plus the secondary yield only when no registry recipe produces that item (workshop conversions such as flour are not free harvest drops), and, for a crop row with a `straw` count (barley, rye, cavewheat: 1), that many `straw` of the crop's own material beside the seed, whatever recipes exist; destroy the crop. Straw is a `stuffing` and pallet material. Harvest by a skilled farmer gives the produce a quality tier used only for meal quality (13).
 - A crop on a tile that stops qualifying (construction placed, tile dug, flooded to level ≥ 4) dies.
 - Removing the zone kills its crops and returns nothing.
 
@@ -64,7 +65,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ### Trees
 
-- A `tree` tile is one tile; it blocks movement and fluids; `chop` (03) turns it into `floor` and drops `logs` logs of the species (material `wood` with the species as the material row: each tree species is also a wood material with its own value and color).
+- A `tree` tile is one tile; it blocks movement and fluids; `chop` (03) takes `CHOP_BASE_TICKS × max(100, hardness) / 100` of the tree's wood (every wood at the base, ironwood's 200 at twice the time), turns it into `floor` and drops `logs` logs of the species (material `wood` with the species as the material row: each tree species is also a wood material with its own value and color).
 - A `sapling` tile grows into a `tree` after `saplingYears` (from `saplings: Map<tile, plantedTick>`), checked daily. While any creature occupies the tile, or a building is planned on it, keep the mature sapling and its planted tick; retry growth on the next daily pass after the tile clears. A sapling is walkable. A building may be placed on it (14 § Placement): the builder uproots it, and it leaves nothing. The chop tool also takes a sapling (03).
 - Regrowth: each `DayPassed`, for `REGROWTH_TRIES_PER_DAY` random outdoor soil floor tiles with `grass` and no tree or sapling within 2 tiles, plant a sapling of a species drawn from the biome's tree weights with probability `biome.treeDensity × REGROWTH_PERMILLE`. A stockpile tile is no exception: the tree that grows there takes the tile's slot (13 § Stockpiles). Cavern floors do the same for fungus trees within the cavern band.
 - Trees never spread onto farm plots, roads or constructed floors.
@@ -72,6 +73,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 ### Shrubs
 
 - Wild shrubs are gatherable when `mature`. `gather` (03) yields `yieldCount` of `yieldItem` and, with `wildSeedPermille`, one seed; the shrub enters `regrowing` for `regrowDays` (tracked in `shrubTimers`), then returns to `mature`. Regrowing shrubs are drawn dimmer.
+- A shrub row with `graze` (`rock_lichen`, `barrel_cactus`) is grazing for tame grazers when mature (08 § Pastures and feeding): eaten, it enters `regrowing` for its `regrowDays` as gathering does (56 days for lichen, against grass's daily chance). 08 emits `ShrubGrazed { tile }`; this system sets the timer. Wild grazers do not eat shrubs.
 - Shrubs on burning tiles are destroyed (05).
 - A building may be placed on a shrub (14 § Placement): the builder uproots it, and the shrub leaves what `gather` would leave if it is `mature`, and nothing if it is `regrowing`.
 - A `gather` zone (09) auto-designates mature shrubs inside it.
@@ -85,6 +87,8 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 ### Ash
 
 05 sets `ash`; this system clears it after `ASH_DURATION_DAYS` (checked daily on the `ashTiles` set) and restores nothing else; grass regrows afterwards by the normal rule.
+
+- **Wyrmtongue grows on ash.** A crop row tagged `ash` (wyrmtongue) is sown only on an *ash tile*: a tile with the `ash` flag, or a floor of material `ash_soil`. Every other crop is not sown on a tile with the `ash` flag (the producer makes no `plant` job there). A plot is a wyrmtongue plot when every tile is an ash tile; `SetPlotCrop` (and the plot's crop setting) refuses wyrmtongue elsewhere (`not_on_ash`). A wyrmtongue harvest renews its tile's ash (the tile's `ashTiles` clear tick becomes `ASH_DURATION_DAYS` from now), so a field kept in wyrmtongue stays ash; a tile whose ash cleared before the next sowing gets no wyrmtongue. Ash on `ash_soil` is the material and never clears. Burning a field to farm it is the trick (05's fire).
 
 ## State
 
@@ -110,11 +114,11 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ### Commands
 
-`SetPlotCrop { zoneId, season, speciesId | none }`, `DesignateHarvest { tiles }` (also reachable through 03's designation menu as `harvest`).
+`SetPlotCrop { zoneId, season, speciesId | none }` (refusals `not_found`, `light_mismatch`, `not_on_ash`), `DesignateHarvest { tiles }` (also reachable through 03's designation menu as `harvest`).
 
 ### Events consumed
 
-`HourPassed` (growth), `DayPassed` (saplings, regrowth, grass, ash), `SeasonEffectsChanged`, `TilesChanged` (crop validity, bare soil), `ZoneChanged` (plots), `GrassGrazed { tile }` (from 08), `JobCompleted` for `plant`, `harvest`.
+`HourPassed` (growth), `DayPassed` (saplings, regrowth, grass, ash), `SeasonEffectsChanged`, `TilesChanged` (crop validity, bare soil), `ZoneChanged` (plots), `GrassGrazed { tile }` and `ShrubGrazed { tile }` (from 08), `JobCompleted` for `plant`, `harvest`, `gather`.
 
 ### Events emitted
 
@@ -160,15 +164,6 @@ Species stage lengths, yields, seasons, temperatures and biome weights are conte
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `plants.md` § Planned rows and the other content documents' § Planned rows.
-
-### The new species (T-548)
-
-- Surface crops `rye` (grows from `minC` −2 in spring, summer and autumn: the cold region's grain, where barley's 4 °C fails; 2–4 a harvest against barley's 3–5) and `nettle` (a fiber crop: its harvest is `fiber` of `nettle_fiber`, no farmer's step). Shrubs `reed_bed`, `barrel_cactus`, `wild_nettle`, `wild_rye`, `rock_lichen`, `salt_crust`, `wild_wyrmtongue`; tree `ironwood`. All are placed at generation by 03's conversion passes (03 § Planned, Stage 9 conversions), never by the biome weights of stage 9 or by regrowth, so existing maps and their regrowth draw the same numbers. No ironwood sapling ever grows by itself: an ironwood felled is gone.
-- **Straw.** A crop row with a `straw` count (barley, rye, cavewheat: 1) drops that many `straw` of its own material at each harvest, beside the seed, whatever recipes exist. Straw is a `stuffing` (bedding, 14 § Planned) and pallet material.
-- **Wyrmtongue grows on ash.** A crop or shrub row marked `ash` (wyrmtongue) can be sown only on an *ash tile*: a tile with the `ash` flag, or a floor of material `ash_soil`. Every other crop still cannot be sown on a tile with the `ash` flag. A plot is a wyrmtongue plot when every tile is an ash tile; `SetPlotCrop` refuses wyrmtongue elsewhere (`not_on_ash`). A wyrmtongue harvest renews its tile's ash (the tile's `ashTiles` clear tick becomes `ASH_DURATION_DAYS` from now), so a field kept in wyrmtongue stays ash. Ash on `ash_soil` is the material and never clears. Burning a field to farm it is the trick (05's fire, 03's `ignite`).
-- **Ironwood is hard to chop.** `chop` takes `CHOP_BASE_TICKS × max(100, hardness) / 100` of the tree's wood: every wood of today (hardness ≤ 65) chops as now, ironwood (200) at twice the time. jobs.md's `chop` row changes with it.
-- **Grazable shrubs.** A shrub row with `graze` (`rock_lichen`, `salt_crust`, `barrel_cactus`) is grazing for tame grazers when mature (08 § Planned): eaten, it enters `regrowing` for its `regrowDays` (56 for lichen against grass's daily chance), as gathering does. 08 emits `ShrubGrazed { tile }`; this system sets the timer. Wild grazers do not eat shrubs.
-- Events: `ShrubGrazed { tile }` (consumed). Commands: `SetPlotCrop` gains the refusal `not_on_ash`. Save: none new (`shrubTimers`, `ashTiles` exist).
 
 ### Flowers (T-555)
 

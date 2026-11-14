@@ -132,6 +132,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly grazeEmitted: TileIndex[] = [];
   /** The grass tile each grazer passes over until the tick, after its walk there came back unreachable (08 § Pastures and feeding). */
   readonly grazeSkips = new Map<EntityId, { tile: TileIndex; until: number }>();
+  /** Material indices of the shrub species a tame grazer eats (`plants.md` `graze`), read on first use. */
+  private grazableSpecies: Set<number> | null = null;
+  private registryRef: InitContext['registry'] | null = null;
   /** Eggs waiting in a nest box: item → the box, the tick it was laid and the species. */
   readonly eggs = new Map<EntityId, EggRecord>();
   /** Products waiting for their job, `<animalId>:<kind>`. */
@@ -206,6 +209,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.rngRef = ctx.rng;
     this.readersRef = ctx.readers;
     this.factsRef = new AnimalFacts(ctx.registry);
+    this.registryRef = ctx.registry;
+    this.grazableSpecies = null;
     this.initialTiers = [1, 2, 3].filter((tier) => this.facts.cavernSpecies(tier)
       .some(([species]) => (this.facts.row(species)?.cavern?.initial ?? 0) > 0));
     const biome = ctx.registry.table<BiomeRow>('biomes').byId(this.options.spec.biome);
@@ -357,6 +362,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return skip.tile === tile;
       },
       skipGraze: (animalId, tile, until) => void this.grazeSkips.set(animalId, { tile, until }),
+      grazableShrub: (tile) => this.grazableShrub(tile),
       isColdSnap: () => this.readers.has('06') && this.readers.of<{ state(): string }>('06').state() === 'cold_snap',
       stationTile: (animalId, assignedTo) => {
         if (assignedTo === 0) {
@@ -720,6 +726,27 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     }
   }
 
+  /**
+   * `08` § Grazing shrubs: a mature shrub of a species whose plant row has `graze`. The species are
+   * read once from the plant rows; readiness is 07's (`plants.shrubReady`).
+   */
+  private grazableShrub(tile: TileIndex): boolean {
+    const map = this.map;
+    if (!map.validIndex(tile) || map.kindAt(tile) !== TileKind.Shrub) return false;
+    if (this.grazableSpecies === null) {
+      const registry = this.registryRef;
+      const plants = registry?.table<{ id: string; kind: string; graze?: boolean }>('plants');
+      const materials = registry?.table('materials');
+      this.grazableSpecies = new Set();
+      for (const id of plants?.ids() ?? []) {
+        const row = plants?.byId(id);
+        if (row?.kind === 'shrub' && row.graze === true && materials?.has(id) === true) this.grazableSpecies.add(materials.index(id));
+      }
+    }
+    if (!this.grazableSpecies.has(map.materialAt(tile))) return false;
+    return this.readers.has('07') && this.readers.of<{ shrubReady(i: TileIndex): boolean }>('07').shrubReady(tile);
+  }
+
   /** True while a grazer holds the tile: its event is pending or 07 has not yet cleared the flag. */
   private grazeClaimed(tile: TileIndex): boolean {
     return this.grazedPending.includes(tile) || this.grazeEmitted.includes(tile);
@@ -732,14 +759,17 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     return true;
   }
 
-  /** `GrassGrazed { tile }` goes out from 08; 07 clears the flag in its own tick, and the claim ends with it. */
+  /**
+   * `GrassGrazed { tile }` goes out from 08; 07 clears the flag in its own tick, and the claim ends with it.
+   * A grazed shrub is `ShrubGrazed { tile }`: 07 sets it regrowing, and the claim ends when it is no longer ready.
+   */
   private flushGrazed(ctx: TickContext): void {
     const map = this.map;
-    const held = this.grazeEmitted.filter((tile) => map.hasFlag(tile, TileFlag.Grass));
+    const held = this.grazeEmitted.filter((tile) => map.kindAt(tile) === TileKind.Shrub ? this.grazableShrub(tile) : map.hasFlag(tile, TileFlag.Grass));
     this.grazeEmitted.length = 0;
     this.grazeEmitted.push(...held);
     for (const tile of this.grazedPending.splice(0)) {
-      ctx.emit({ type: 'GrassGrazed', tile });
+      ctx.emit({ type: map.kindAt(tile) === TileKind.Shrub ? 'ShrubGrazed' : 'GrassGrazed', tile });
       if (!this.grazeEmitted.includes(tile)) this.grazeEmitted.push(tile);
     }
   }

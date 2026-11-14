@@ -64,8 +64,9 @@ Soil tiles never drop items when dug.
 | `maple` | maple | wood | 3 | 70 | 58 | `maple_amber` | 500 | |
 | `tower_shroom` | tower shroom | wood | 2 | 40 | 30 | `shroom_gray` | 300 | cavern fungus wood |
 | `stalk_fern` | stalk fern | wood | 1 | 35 | 25 | `fern_teal` | 250 | cavern fungus wood |
+| `ironwood` | ironwood | wood | 6 | 90 | 200 | `ironwood_dark` | 1200 | `fire_resistant`: spread fire catches it at a quarter of the chance (05); chops at twice the time (07); weapons and bolts at 0.60 (sharpness) |
 
-All wood is burnable and melts (burns) at 300 °C for the melting rule.
+All wood is burnable and melts (burns) at 300 °C for the melting rule. Wood's weapons are at 0.40 sharpness; a row that names its own in the notes ("at 0.60 (sharpness)") has that.
 
 ## Animal products
 
@@ -94,10 +95,18 @@ All wood is burnable and melts (burns) at 300 °C for the melting rule.
 | `sporecloth_thread` | sporecloth thread | cloth | 4 | 25 | `spore_violet` | |
 | `sporecloth_cloth` | sporecloth | cloth | 12 | 25 | `spore_violet` | |
 | `silk_web` | web silk | cloth | 8 | 20 | `silk_white` | collected from cave spider webs (`gather` on a web tile) |
+| `reed_thread` | reed thread | cloth | 2 | 30 | `reed_green` | 2 reeds a thread |
+| `reed_cloth` | reed cloth | cloth | 6 | 35 | `reed_green` | |
+| `cactus_fiber` | cactus fiber | cloth | 1 | 30 | `cactus_green` | from barrel cacti |
+| `cactus_thread` | cactus thread | cloth | 2 | 30 | `cactus_green` | 2 fiber a thread |
+| `cactus_cloth` | cactus cloth | cloth | 6 | 35 | `cactus_green` | |
+| `nettle_fiber` | nettle fiber | cloth | 1 | 30 | `nettle_green` | from nettles, wild or farmed |
+| `nettle_thread` | nettle thread | cloth | 2 | 30 | `nettle_green` | 2 fiber a thread |
+| `nettle_cloth` | nettle cloth | cloth | 6 | 35 | `nettle_green` | |
 
 Cloth burns (300 ticks) and melts at 300 °C.
 
-Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `silk_web` has no further stage.
+Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `reed` → `reed_thread` → `reed_cloth` (`reed` is the material of `plants.md`'s reed bed's product, generated from its row); `cactus_fiber` → `cactus_thread` → `cactus_cloth`; `nettle_fiber` → `nettle_thread` → `nettle_cloth`; `silk_web` has no further stage. The coarse fibers (reed, cactus and nettle) are spun by their own recipe (T-549's `spin_coarse_thread`); until it exists they are stuffing and trade goods.
 
 ## Gems (rough and cut share the material; the item type differs)
 
@@ -129,9 +138,9 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 ## Meal, drink and plant materials
 
 - `meal` — class `meat` (edible), value 1; meal item types carry the value multiplier.
-- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3.
+- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3, `black_ale` 3 (rye, an ale), `cactus_wine` 3 (a wine), `emberwine` 6 (wyrmtongue, a wine).
 - `flour` — class `plant`, value 2 (from barley or cavewheat at the farmer's workshop).
-- Each plant species is a material of class `plant` with the value in [plants.md](plants.md).
+- Each plant species is a material of class `plant` with the value in [plants.md](plants.md), and so is a shrub's product material that no table above defines (`bramble_berry`, `reed`, `cactus_pulp`, `lichen`). A plant row's material tags go on it: `wyrmtongue` carries `seasoning`, `cactus_pulp` `drinkable`. A product material whose `<id>_thread` exists has it as its next stage (`reed`).
 
 ## Rune
 
@@ -172,7 +181,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `horn` | horn | bone | 3 | 120 | — | `horn_gray` | — | — | horn bows, drinking horns, scale | T-547 |
 | `ivory` | ivory | bone | 13 | 180 | — | `ivory_cream` | — | — | a craft of it is worth about 40 | T-547 |
 | `feather` | feather | cloth | 2 | 10 | — | `feather_white` | 300 | 100 | `stuffing`; fletching | T-547 |
-| `ironwood` | ironwood | wood | 6 | 90 | 200 | `ironwood_dark` | 300 | 1200 | `fire_resistant`; weapons and bolts at 0.60 (sharpness) | T-548 |
 | `brick` | brick | stone | 1 | 200 | 90 | `brick_red` | 1400 | — | blocks only; magma-safe; a brick wall draws smooth | T-553 |
 | `earthenware` | earthenware | stone | 1 | 180 | 60 | `clay_red` | 1300 | — | fired clay: pots, jugs, mugs, hives | T-553 |
 | `glass` | glass | glass | 6 | 250 | 60 | `glass_pale` | 1400 | — | passes light; magma-safe | T-553 |
@@ -188,21 +196,12 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | name | class | value | density | color | notes | task |
 |---|---|---|---|---|---|---|---|
-| `reed_thread` | reed thread | cloth | 2 | 30 | `reed_green` | 2 reeds a thread | T-548 |
-| `reed_cloth` | reed cloth | cloth | 6 | 35 | `reed_green` | | T-548 |
-| `cactus_fiber` | cactus fiber | cloth | 1 | 30 | `cactus_green` | from barrel cacti | T-548 |
-| `cactus_thread` | cactus thread | cloth | 2 | 30 | `cactus_green` | 2 fiber a thread | T-548 |
-| `cactus_cloth` | cactus cloth | cloth | 6 | 35 | `cactus_green` | | T-548 |
-| `nettle_fiber` | nettle fiber | cloth | 1 | 30 | `nettle_green` | from nettles, wild or farmed | T-548 |
-| `nettle_thread` | nettle thread | cloth | 2 | 30 | `nettle_green` | 2 fiber a thread | T-548 |
-| `nettle_cloth` | nettle cloth | cloth | 6 | 35 | `nettle_green` | | T-548 |
 | `silk_cloth` | silk | cloth | 20 | 20 | `silk_white` | the finest cloth: a silk gambeson weighs 1 | T-556 |
 
-Stages (T-548, T-556): `reed` → `reed_thread` → `reed_cloth` (the reed is the plant material of `plants.md`'s `reed_bed`); `cactus_fiber` → `cactus_thread` → `cactus_cloth`; `nettle_fiber` → `nettle_thread` → `nettle_cloth`; `silk_web` → `silk_cloth`.
+Stages (T-556): `silk_web` → `silk_cloth`.
 
 ### Planned drinks, tags and edits
 
-- Drink materials, class `liquid`, value per unit: `black_ale` 3 (rye, group `drink/ale`, T-548), `cactus_wine` 3 (group `drink/wine`, T-548), `emberwine` 6 (wyrmtongue, `drink/wine`, T-548), `mead` 5 (honey, `drink/wine`, T-555), `deepfire` 8 (distilled, `drink/spirits`, T-554).
+- Drink materials, class `liquid`, value per unit: `mead` 5 (honey, `drink/wine`, T-555), `deepfire` 8 (distilled, `drink/spirits`, T-554).
 - Tags on existing rows: `soil_drop` on `clay`, `sand` and `peat` (T-547); `fine_cask` on `oak` (T-554).
 - The sentence "Soil tiles never drop items when dug." becomes "Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a `soil_load` half the time ([03](../02-systems/03-terrain-and-mining.md))." (T-547).
-- The plant materials of `rye`, `nettle` and `wyrmtongue` are generated from their plant rows as every plant's is; `wyrmtongue`'s carries `seasoning` (T-548).

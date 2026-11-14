@@ -53,3 +53,6 @@ export const WARDEN_TRAINING_BONUS_PERCENT = 25;
 export const HEAVY_ITEM_DENSITY = 3;
 /** Ticks. */
 export const MIST_THOUGHT_COOLDOWN = 1200;
+
+/** `10` § Eating and drinking: thirst a drinkable plant (cactus pulp) relieves, half of water's 80. */
+export const CACTUS_THIRST_RELIEF = 40;

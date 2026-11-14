@@ -24,6 +24,8 @@ export const SNOW_OVERRIDE = 1;
 export const FIRE_SPREAD_PERMILLE = 150;
 /** Under rain. */
 export const FIRE_SPREAD_WET_PERMILLE = 20;
+/** A `fire_resistant` material (ironwood) catches spread fire at this fraction of the chance. */
+export const FIRE_RESIST_DIVISOR = 4;
 /** Ticks between spread attempts. */
 export const FIRE_SPREAD_COOLDOWN = 30;
 export const ITEM_BURN_TICKS = 100;

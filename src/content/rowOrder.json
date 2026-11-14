@@ -678,5 +678,185 @@
   {
     "table": "confirmations",
     "id": "c_leave_embark"
+  },
+  {
+    "table": "palette",
+    "id": "cactus_green"
+  },
+  {
+    "table": "palette",
+    "id": "ironwood_dark"
+  },
+  {
+    "table": "palette",
+    "id": "nettle_green"
+  },
+  {
+    "table": "palette",
+    "id": "reed_green"
+  },
+  {
+    "table": "palette",
+    "id": "rye_gold"
+  },
+  {
+    "table": "palette",
+    "id": "wyrmtongue_red"
+  },
+  {
+    "table": "materials",
+    "id": "barrel_cactus"
+  },
+  {
+    "table": "materials",
+    "id": "black_ale"
+  },
+  {
+    "table": "materials",
+    "id": "cactus_cloth"
+  },
+  {
+    "table": "materials",
+    "id": "cactus_fiber"
+  },
+  {
+    "table": "materials",
+    "id": "cactus_pulp"
+  },
+  {
+    "table": "materials",
+    "id": "cactus_thread"
+  },
+  {
+    "table": "materials",
+    "id": "cactus_wine"
+  },
+  {
+    "table": "materials",
+    "id": "emberwine"
+  },
+  {
+    "table": "materials",
+    "id": "ironwood"
+  },
+  {
+    "table": "materials",
+    "id": "lichen"
+  },
+  {
+    "table": "materials",
+    "id": "nettle"
+  },
+  {
+    "table": "materials",
+    "id": "nettle_cloth"
+  },
+  {
+    "table": "materials",
+    "id": "nettle_fiber"
+  },
+  {
+    "table": "materials",
+    "id": "nettle_thread"
+  },
+  {
+    "table": "materials",
+    "id": "reed"
+  },
+  {
+    "table": "materials",
+    "id": "reed_bed"
+  },
+  {
+    "table": "materials",
+    "id": "reed_cloth"
+  },
+  {
+    "table": "materials",
+    "id": "reed_thread"
+  },
+  {
+    "table": "materials",
+    "id": "rock_lichen"
+  },
+  {
+    "table": "materials",
+    "id": "rye"
+  },
+  {
+    "table": "materials",
+    "id": "wild_nettle"
+  },
+  {
+    "table": "materials",
+    "id": "wild_rye"
+  },
+  {
+    "table": "materials",
+    "id": "wild_wyrmtongue"
+  },
+  {
+    "table": "materials",
+    "id": "wyrmtongue"
+  },
+  {
+    "table": "items",
+    "id": "reed"
+  },
+  {
+    "table": "items",
+    "id": "straw"
+  },
+  {
+    "table": "plants",
+    "id": "barrel_cactus"
+  },
+  {
+    "table": "plants",
+    "id": "ironwood"
+  },
+  {
+    "table": "plants",
+    "id": "nettle"
+  },
+  {
+    "table": "plants",
+    "id": "reed_bed"
+  },
+  {
+    "table": "plants",
+    "id": "rock_lichen"
+  },
+  {
+    "table": "plants",
+    "id": "rye"
+  },
+  {
+    "table": "plants",
+    "id": "wild_nettle"
+  },
+  {
+    "table": "plants",
+    "id": "wild_rye"
+  },
+  {
+    "table": "plants",
+    "id": "wild_wyrmtongue"
+  },
+  {
+    "table": "plants",
+    "id": "wyrmtongue"
+  },
+  {
+    "table": "thoughts",
+    "id": "ate_wyrmtongue"
+  },
+  {
+    "table": "thoughts",
+    "id": "drank_cactus"
+  },
+  {
+    "table": "thoughts",
+    "id": "nettles"
   }
 ]

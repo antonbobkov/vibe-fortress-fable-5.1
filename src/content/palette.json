@@ -109,6 +109,10 @@
     "hex": "#7ACC52"
   },
   {
+    "id": "cactus_green",
+    "hex": "#5E8C4A"
+  },
+  {
     "id": "cat_gray",
     "hex": "#A0A0A0"
   },
@@ -506,6 +510,10 @@
     "hex": "#7A7A7A"
   },
   {
+    "id": "ironwood_dark",
+    "hex": "#4A3A2C"
+  },
+  {
     "id": "jungle_green",
     "hex": "#1E7A3E"
   },
@@ -646,6 +654,10 @@
     "hex": "#7A5A3A"
   },
   {
+    "id": "nettle_green",
+    "hex": "#4F7A3A"
+  },
+  {
     "id": "note",
     "hex": "#909090"
   },
@@ -762,6 +774,10 @@
     "hex": "#FF5555"
   },
   {
+    "id": "reed_green",
+    "hex": "#9AA65A"
+  },
+  {
     "id": "root_amber",
     "hex": "#C8783C"
   },
@@ -780,6 +796,10 @@
   {
     "id": "rune_cyan",
     "hex": "#5AD8E0"
+  },
+  {
+    "id": "rye_gold",
+    "hex": "#B89A55"
   },
   {
     "id": "sand_tan",
@@ -989,6 +1009,10 @@
     "id": "wyrm_red",
     "hex": "#FF2A00",
     "alt": "#E64500"
+  },
+  {
+    "id": "wyrmtongue_red",
+    "hex": "#C2452D"
   },
   {
     "id": "yak_black",

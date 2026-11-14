@@ -34,6 +34,7 @@ export const ID_FIELDS: readonly IdField[] = Object.freeze([
   { component: 'Item', path: 'material', table: 'materials', orString: false },
   { component: 'Item', path: 'stone', table: 'materials', orString: false },
   { component: 'Item', path: 'enchant.id', table: 'enchants', orString: false },
+  { component: 'Item', path: 'seasoned[]', table: 'materials', orString: false },
   { component: 'Corpse', path: 'species', table: 'creatures', orString: false },
   { component: 'Building', path: 'type', table: 'buildings', orString: false },
   { component: 'Building', path: 'material', table: 'materials', orString: false },

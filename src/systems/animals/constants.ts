@@ -31,6 +31,8 @@ export const DANGEROUS_QUIET_DAYS = 28;
 export const SPAWN_MIN_DISTANCE = 25;
 /** Growing-season capacity allowance; winter needs accessible cave moss. */
 export const GRASS_PER_GRAZER = 48;
+/** `08` § Grazing shrubs: a grazable shrub counts as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile in a pasture's capacity. */
+export const SHRUB_GRAZE_WEIGHT = 4;
 export const CONDITION_PER_HOUR = 2;
 export const CONDITION_PER_GRASS = 25;
 /** Days at condition 100 before a grazer dies. */

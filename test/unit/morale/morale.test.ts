@@ -47,6 +47,8 @@ function fixture(def: ThoughtDef): GameEvent | null {
   if (id === 'eased') e.calm = true;
   if (id === 'dosed_again') { e.calm = true; e.again = true; }
   if (id === 'rune_sick') e.sick = true;
+  if (id === 'ate_wyrmtongue') e.seasoned = ['wyrmtongue'];
+  if (id === 'nettles') e.source = 'nettle';
   return e as GameEvent;
 }
 

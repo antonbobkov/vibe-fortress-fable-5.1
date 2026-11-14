@@ -806,6 +806,17 @@ export const SCHEMAS: Record<string, TableSchema> = {
     biomes: opt(arr(obj({ biome: ref('biomes', { allowWords: ['riverbank'] }), weight: int }))),
     caverns: opt(arr(obj({ tier: int, weight: int }))),
     rarePermille: opt(tupleOf(3, int)),
+    straw: opt(int),
+    materialTags: opt(arr(enumOf(['seasoning', 'drinkable']))),
+    graze: opt(bool),
+    convert: opt(obj({
+      tiles: arr(obj({
+        tile: enumOf(['shrub', 'tree', 'grass', 'sand', 'dry_soil', 'rock', 'near_water', 'shallow', 'ash_soil']),
+        permille: int,
+      }), 1),
+      any: opt(bool),
+      biomes: opt(arr(obj({ biome: ref('biomes'), times: opt(int), permille: opt(int) }))),
+    })),
   }),
 
   skills: rows({

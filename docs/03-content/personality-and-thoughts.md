@@ -69,6 +69,8 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `drank_fine_drink` | "Had a fine drink." | +5 | 36 | linear | 1 | comfort | `DrankAlcohol` wine, bellwine |
 | `drank_water` | "Drank water. Water." | −2 | 12 | halflife | 1 | comfort | `DrankWater` from a well or indoor source |
 | `drank_from_puddle` | "Drank from a puddle." | −4 | 12 | halflife | 1 | comfort | `DrankWater` outdoors |
+| `drank_cactus` | "Drank cactus. Cactus." | −1 | 12 | halflife | 1 | comfort | `DrankFromPlant` |
+| `ate_wyrmtongue` | "Ate something that fought back." | +2 | 24 | linear | 1 | comfort | `MealEaten` seasoned with wyrmtongue; while held, no `bitter_cold` |
 
 ### Sleep
 
@@ -104,6 +106,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `warded` | "Felt the ward settle on me." | +1 | 12 | linear | 1 | comfort | `Warded` |
 | `saw_wisp` | "Saw a light that was not a lamp." | +2 | 24 | linear | 1 | comfort | `WispAppeared` within 8 tiles and line of sight, once a day (everyone) |
 | `lab_stink` | "The laboratory stinks." | −1 | 12 | halflife | 1 | comfort | passing within 3 tiles of a laboratory that spoiled a batch today |
+| `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle |
 
 ### Work and skill
 
@@ -190,9 +193,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
 | `first_fossil` | "I found the bones of something old." | +3 | 72 | linear | 1 | pride | `FossilFound` finder | T-547 |
-| `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle | T-548 |
-| `drank_cactus` | "Drank cactus. Cactus." | −1 | 12 | halflife | 1 | comfort | `DrankFromPlant` | T-548 |
-| `ate_wyrmtongue` | "Ate something that fought back." | +2 | 24 | linear | 1 | comfort | `MealEaten` seasoned with wyrmtongue; while held, no `bitter_cold` | T-548 |
 | `slept_on_a_pallet` | "Slept on a pallet." | −1 | 24 | linear | 1 | room | `Slept` on a pallet | T-551 |
 | `slept_in_a_soft_bed` | "Slept in a soft bed." | +3 | 24 | linear | 1 | comfort | `Slept` bedding soft | T-551 |
 | `slept_in_a_featherbed` | "Slept in a featherbed." | +5 | 36 | linear | 1 | comfort | `Slept` bedding feather | T-551 |

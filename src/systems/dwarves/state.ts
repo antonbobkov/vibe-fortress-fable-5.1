@@ -33,6 +33,8 @@ export interface ActivityPlan {
   startedRest: number;
   /** A sit in the hearth hall taken at `LEISURE_MARK`, before work. Absent on every other plan. */
   hall?: true;
+  /** A thirsty dwarf's last resort: a drinkable plant (a cactus) eaten for its water. Absent on every other plan. */
+  plant?: true;
 }
 
 export interface DwarvesStateV1 {

@@ -18,7 +18,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { ZoneView } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
 import type { AnimalsReader } from '@systems/animals';
-import { GRASS_PER_GRAZER } from '@systems/animals/constants';
+import { GRASS_PER_GRAZER, SHRUB_GRAZE_WEIGHT } from '@systems/animals/constants';
 import type { PlantRow } from '@systems/plants';
 import { ripeningOutlook, seasonAllows } from '@systems/plants/growth';
 import { lightMatches } from '@systems/plants/plots';
@@ -409,8 +409,13 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     const animals = ctx.readers.has('08') ? ctx.readers.of<AnimalsReader>('08') : null;
     const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
     const grass = zone.tiles.filter((tile) => plants?.hasGrass(tile)).length;
+    // 08 § Grazing shrubs: a grazable shrub counts as 1 / SHRUB_GRAZE_WEIGHT of a grass tile.
+    const shrubs = zone.tiles.filter((tile) => plants !== null && plants.def(plants.speciesAt(tile))?.graze === true &&
+      plants.def(plants.speciesAt(tile))?.kind === 'shrub').length;
+    const feed = grass + shrubs / SHRUB_GRAZE_WEIGHT;
     const assigned = animals?.tameList().filter((id) => animals.pastureOf(id) === zone.id && animals.def(ctx.readers.entities.get(id, C.Creature)?.species ?? 0)?.diet === 'grazer').length ?? 0;
-    label(s, rect.col + 1, row, `Capacity: ${grass} grass / ${assigned} grazers (${Math.floor(grass / GRASS_PER_GRAZER)} supported)`, { fg: assigned > grass / GRASS_PER_GRAZER ? t.bad : t.value, width: rect.cols - 2 });
+    const what = shrubs > 0 ? `${grass} grass, ${shrubs} grazing shrubs` : `${grass} grass`;
+    label(s, rect.col + 1, row, `Capacity: ${what} / ${assigned} grazers (${Math.floor(feed / GRASS_PER_GRAZER)} supported)`, { fg: assigned > feed / GRASS_PER_GRAZER ? t.bad : t.value, width: rect.cols - 2 });
     row += 1;
   } else if (zone.type === 'hospital') {
     row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);

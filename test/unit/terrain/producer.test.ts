@@ -57,7 +57,9 @@ describe('T-M1-10 terrain jobs: work time', () => {
     expect(workCentiTicksFor(Designation.Smooth, h)).toBe(SMOOTH_BASE_TICKS * 100);
     expect(workCentiTicksFor(Designation.Engrave, h)).toBe(ENGRAVE_BASE_TICKS * 100);
     expect(workCentiTicksFor(Designation.Remove, h)).toBe((DIG_BASE_TICKS / 2) * 100);
-    expect(workCentiTicksFor(Designation.Chop, h)).toBe(CHOP_BASE_TICKS * 100);
+    // `jobs.md`: `CHOP_BASE_TICKS × max(100, hardness)/100` (T-548: ironwood chops at twice the time).
+    expect(workCentiTicksFor(Designation.Chop, 60)).toBe(CHOP_BASE_TICKS * 100);
+    expect(workCentiTicksFor(Designation.Chop, h)).toBe(CHOP_BASE_TICKS * h);
     expect(workCentiTicksFor(Designation.Gather, h)).toBe(GATHER_BASE_TICKS * 100);
   });
 

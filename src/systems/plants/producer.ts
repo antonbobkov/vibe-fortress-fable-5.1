@@ -18,7 +18,7 @@
 
 import { C } from '@core/components';
 import type { GameEvent } from '@core/events';
-import { Designation, type Map3D } from '@core/map3d';
+import { Designation, TileFlag, type Map3D } from '@core/map3d';
 import type { RngStream } from '@core/rng';
 import type { JobProducer, ReaderSetLike, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
@@ -29,7 +29,7 @@ import { rollQuality } from '@systems/terrain/rules/engrave';
 import { HARVEST_TICKS, PLANT_TICKS, SEEDS_PER_HARVEST } from './constants';
 import type { PlantFacts } from './facts';
 import { harvestCount, isMature, stageLength } from './growth';
-import { cropsOf } from './plots';
+import { cropsOf, isAshTile } from './plots';
 
 /** `11` § Standing orders: "`autoHarvest` (07)". */
 export const AUTO_HARVEST = 'autoHarvest';
@@ -58,6 +58,8 @@ export interface PlantsProducerHost {
   removeCrop(id: EntityId): void;
   /** `PlotNeedsSeeds` once per plot per season. */
   announceNeedsSeeds(ctx: TickContext, zoneId: EntityId, plant: number): void;
+  /** `07` § Ash: a wyrmtongue harvest renews its tile's ash. */
+  renewAsh(tile: TileIndex, tick: number): void;
 }
 
 export class PlantsProducer implements JobProducer {
@@ -130,8 +132,11 @@ export class PlantsProducer implements JobProducer {
       const filter = this.seedFilter(plant);
       let available = items === null ? 0 : items.countAvailable(filter);
       let short = false;
+      const ashOnly = this.facts.ashOnly(plant);
       for (const tile of zone.tiles) {
         if (this.host.cropAtTile.has(tile) || this.underBuilding(tile)) continue;
+        // `07` § Ash: wyrmtongue is sown only on an ash tile; every other crop never on one with `ash`.
+        if (ashOnly ? !isAshTile(this.host.map, tile, this.facts.ashSoil) : this.host.map.hasFlag(tile, TileFlag.Ash)) continue;
         const key = plantKey(tile);
         if (sink.exists(key)) {
           available -= 1;
@@ -227,6 +232,10 @@ export class PlantsProducer implements JobProducer {
     const yieldItem = facts.yieldItemOf(crop.plant);
     if (yieldItem !== 0 && count > 0) ctx.spawn.item(yieldItem, facts.yieldMaterialOf(crop.plant), tile, count, quality);
     if (facts.seedItem !== 0) ctx.spawn.item(facts.seedItem, facts.materialOf(crop.plant), tile, SEEDS_PER_HARVEST, 1);
+    // `07` § Farm plots: a crop row's `straw` drops that many straw of its own material, beside the seed.
+    const straw = row.straw ?? 0;
+    if (straw > 0 && facts.strawItem !== 0) ctx.spawn.item(facts.strawItem, facts.materialOf(crop.plant), tile, straw, 1);
+    if (facts.ashOnly(crop.plant)) this.host.renewAsh(tile, ctx.tick);
     const secondary = facts.secondaryOf(crop.plant);
     if (secondary !== null) ctx.spawn.item(secondary.item, secondary.material, tile, secondary.count, quality);
     this.host.removeCrop(id);

@@ -39,7 +39,7 @@ Rates per hour (applied at the hourly boundary, scaled by Endurance for hunger a
 | Need | Rise per hour | Relieved by | Want threshold | Critical threshold |
 |---|---|---|---|---|
 | hunger | 1 | eating: meal −100, raw food −70 | 50 | 85 |
-| thirst | 1.6 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80 | 50 | 85 |
+| thirst | 1.6 (× `weather.thirstModifier()`) | drink: alcohol −100, water −80, a cactus −40 | 50 | 85 |
 | rest | 5 awake; −15 per hour on the sleep errand, from setting off for bed | sleeping | 60 | 90 |
 | social | 2 | talking: −40 per conversation | 50 | none |
 | comfort | 1 | sitting in a room of tier ≥ decent −40 per sit; hearth hall −20; a meal at a table is a sit | 55 | none |
@@ -60,6 +60,7 @@ A food or drink errand reserves one unit under the dwarf's id. Death, unconsciou
 
 - Food search: nearest reachable edible item that is not forbidden or reserved, preferring `meal` items, then raw food, using 13's `findItem`. The dwarf carries it to the nearest dining hall chair with a table if one is within `DINING_SEARCH_RADIUS`, else eats on the spot. Emits `MealEaten { id, quality, atTable, roomTier }`.
 - Drink search: alcohol in a barrel on a stockpile, else alcohol in a barrel standing anywhere else (at the still, on a full fortress's floor), else a well with water, else the nearest reachable water tile of level ≥ 1 (not frozen) within `DRINK_SEARCH_RADIUS` tiles horizontally of the dwarf and 8 levels up or down, drunk from any walkable tile below `FLUID_WADE_LEVEL` 8-adjacent to it on its level, or on the level above it when open air with no fluid lies over the water (the bank over a brook or river, whose water lies one level below the ground, `local-map-generation.md` § 2; a floor or rock over the water is no bank). A brook that has frozen (04 § Freezing and thawing) gives no water until it thaws: a fortress with no drink in stock, no brew and no well on unfrozen water has nothing to drink through the winter. Rank the stand tiles by their horizontal Chebyshev distance from the dwarf plus their vertical distance times `Z_DISTANCE_WEIGHT`, ties by the stand tile index. If none of the listed sources is reachable, a reachable alcohol item in no barrel is a last resort; consume one unit and emit the same `DrankAlcohol` event. Emits `DrankAlcohol { id, quality }` or `DrankWater { id }` (dwarves prefer ale; water gives a mild negative thought).
+- After every drink source above, the alcohol in no barrel included, a thirsty dwarf takes a reachable `plant_food` whose material is tagged `drinkable` (`cactus_pulp`), walks to it and eats it there for its water: thirst falls by `CACTUS_THIRST_RELIEF` (half of water's), hunger is not relieved. Emits `DrankFromPlant { id, material }`, and 15 gives `drank_cactus`.
 - Eating and drinking take `EAT_TICKS` and `DRINK_TICKS`, longer on a crowded tile (22 § Crowding).
 - A meal eaten at a table is also a sit in the room of its chair. It relieves comfort as a sit there would and emits `Sat { id, roomTier }`: −40 in a room of tier ≥ decent, −20 in the hearth hall, nothing at a table in neither.
 - A meal or a drink finished on a hearth-hall tile counts its `EAT_TICKS` or `DRINK_TICKS` toward a hearth visit (§ Social, comfort, joy).
@@ -185,7 +186,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Events emitted
 
-`ItemReleased { itemId, jobId: dwarfId }`, `MealEaten`, `DrankAlcohol`, `DrankWater`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
+`ItemReleased { itemId, jobId: dwarfId }`, `MealEaten` (with `seasoned`, the meal's seasonings, when it has any), `DrankAlcohol`, `DrankWater`, `DrankFromPlant { id, material }`, `Slept`, `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
 
 ### Registrations
 
@@ -218,6 +219,7 @@ Panel `units`; inspector sections `creature › dwarf` (attributes, skills with 
 | `HEARTH_VISIT_TICKS` | 100 | Ticks in the hearth hall that make one hearth visit |
 | `IDLE_TICKS` | 50 | *unmeasured* |
 | `DINING_SEARCH_RADIUS` | 40 | Tiles (path distance) (*unmeasured*) |
+| `CACTUS_THIRST_RELIEF` | 40 | Thirst a drinkable plant relieves, half of water's 80 (*unmeasured*) |
 | `DRINK_SEARCH_RADIUS` | 64 | Tiles, horizontal Chebyshev distance from the dwarf, within which a thirsty dwarf looks for water; a bank beyond it is not searched for (*unmeasured*) |
 | `NEED_DEFER_PRIORITY` | 2 | A job at priority 1–2 is done before a want-level need |
 | `NEED_RETRY_TICKS` | 50 | After an unreachable need target (*unmeasured*) |
@@ -257,11 +259,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - The audit of `SLEEP_HOURS` (its 3,363 sleeps) was taken on beds of 100: the task measures again.
 - Constants: `FLOOR_REST_PERCENT` 50 (below every bed, so a pallet is worth laying; a floor sleeper sleeps twice as long as one in a bed, and the sleep audit measures it before and after). Save: the rest activity keeps the bed id, and the percent is read live from the bed.
 - Bed search is unchanged: own bed, any free unassigned bed, the hearth hall's floor. A pallet is a bed.
-
-### Drinking a cactus (T-548)
-
-- After every drink source of § Eating and drinking, a thirsty dwarf takes a reachable `plant_food` whose material is `drinkable` (`cactus_pulp`), eats it where it stands and is relieved by `CACTUS_THIRST_RELIEF`. Emits `DrankFromPlant { id }`: thought `drank_cactus` (15). Hunger is not relieved.
-- Constants: `CACTUS_THIRST_RELIEF` 40 (half of water's 80).
 
 ### Tipsy (T-554)
 

@@ -31,7 +31,7 @@ Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour is not edib
 |---|---|---|---|---|---|---|---|---|
 | `drink` | drink | drink | 1 | 20 | barrel | 0 | `☼` | material |
 
-One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale), `drink/wine` (bellwine, rootwine, strawberry_wine).
+One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`, `black_ale`, `cactus_wine`, `emberwine`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale, black_ale), `drink/wine` (bellwine, rootwine, strawberry_wine, cactus_wine, emberwine).
 
 ## Seeds
 
@@ -119,17 +119,21 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 
 ## Textiles and animal parts
 
-| id | name | category | mult | stack | container | rotDays | glyph | fg |
-|---|---|---|---|---|---|---|---|---|
-| `fiber` | fiber | textile/fiber | 1 | 10 | bin | 0 | `~` | material |
-| `thread` | thread | textile/thread | 1 | 10 | bin | 0 | `~` | material |
-| `cloth` | cloth | textile/cloth | 1 | 10 | bin | 0 | `≈` | material |
-| `wool_raw` | wool | textile/wool | 1 | 10 | bin | 0 | `~` | `wool_cream` |
-| `raw_hide` | raw hide | textile/hide | 1 | 5 | bin | 10 | `≈` | material |
-| `leather_piece` | leather | textile/leather | 1 | 10 | bin | 0 | `≈` | `leather_brown` |
-| `bone_pile` | bones | textile/bone | 1 | 10 | bin | 0 | `%` | `bone_white` |
-| `shell_piece` | shell | textile/shell | 1 | 10 | bin | 0 | `%` | `shell_pink` |
-| `skull` | skull | textile/skull | 1 | 1 | bin | 0 | `☻` | `bone_white` |
+| id | name | category | mult | stack | container | rotDays | glyph | fg | tags |
+|---|---|---|---|---|---|---|---|---|---|
+| `fiber` | fiber | textile/fiber | 1 | 10 | bin | 0 | `~` | material | |
+| `thread` | thread | textile/thread | 1 | 10 | bin | 0 | `~` | material | |
+| `cloth` | cloth | textile/cloth | 1 | 10 | bin | 0 | `≈` | material | |
+| `wool_raw` | wool | textile/wool | 1 | 10 | bin | 0 | `~` | `wool_cream` | |
+| `raw_hide` | raw hide | textile/hide | 1 | 5 | bin | 10 | `≈` | material | |
+| `leather_piece` | leather | textile/leather | 1 | 10 | bin | 0 | `≈` | `leather_brown` | |
+| `bone_pile` | bones | textile/bone | 1 | 10 | bin | 0 | `%` | `bone_white` | |
+| `shell_piece` | shell | textile/shell | 1 | 10 | bin | 0 | `%` | `shell_pink` | |
+| `skull` | skull | textile/skull | 1 | 1 | bin | 0 | `☻` | `bone_white` | |
+| `straw` | straw | textile/straw | 1 | 10 | bin | 0 | `"` | material | `stuffing` |
+| `reed` | reed | textile/reed | 1 | 10 | bin | 0 | `\|` | `reed_green` | |
+
+`straw` is dropped by a grain harvest in its crop's material (`plants.md` § Surface crops, `straw`); `reed` is gathered from reed beds, of `reed`. The tag `stuffing` marks what fills a bed or a pallet.
 
 ## Clothing
 
@@ -224,8 +228,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | Textiles and animal parts | `tusk` | tusk | textile/tusk | 1 | 5 | bin | 0 | medium | `(` | `ivory_cream` | `ivory` | T-547 |
 | Textiles and animal parts | `feather` | feather | textile/feather | 1 | 20 | bin | 0 | light | `'` | `feather_white` | `feather`; tag `stuffing` | T-547 |
 | Food | `salt` | salt | food/salt | 1 | 20 | bag | 0 | light | `:` | `salt_white` | `salt`; tag `ingredient` | T-547 |
-| Textiles and animal parts | `straw` | straw | textile/straw | 1 | 10 | bin | 0 | light | `"` | material | the crop's plant material; tag `stuffing` | T-548 |
-| Textiles and animal parts | `reed` | reed | textile/reed | 1 | 10 | bin | 0 | light | `|` | `reed_green` | `reed` | T-548 |
 | Food | `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<species>_meat`; tag `ingredient` | T-552 |
 | Food | `cured_fish` | cured fish | food/fish/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<fish>_meat`; tag `ingredient` | T-552 |
 | Textiles and animal parts | `salted_hide` | salted hide | textile/hide | 1 | 5 | bin | 0 | light | `≈` | material | `<species>_hide`; tans as a raw hide | T-552 |
@@ -275,6 +277,6 @@ What a drying rack turns its items into ([14](../02-systems/14-buildings-and-roo
 
 - `bucket` materials gain stone (an earthenware jug breaks as a pot does) (T-553); `mug` materials gain bone (horn), glass (T-547, T-553: the material classes the mug recipes need); `statue` materials gain bone (bone and ivory statues, T-557); `crutch` and `splint` materials gain bone and metal (T-549).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
-- `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-548, T-554, T-555).
+- `drink` gains the groups `drink/spirits` (`deepfire`) and the new ales and wines (§ Drink's categories line) (T-554, T-555).
 - § Meal ingredients gains `food/meat/cured`, `food/fish/cured`, `food/salt` and `food/honey` (T-547, T-552, T-555).
 - An item of a cured, salted or aged form names itself so: "cured boar meat", "a barrel of aged bellwine", "a wheel of vintage cheese" (T-552, T-554).
