@@ -116,3 +116,18 @@ An `attune` job's xp is granted by the producer at completion, scaled by the san
 - Every job's work rate is `1000 / baseTicks` per tick × skill factor `(100 + SKILL_TIME_BONUS_PERCENT × level) / 100` × productivity (mood and wounds), as defined in 11.
 - Tool jobs require the tool in the weapon slot; the fetch step happens before the job's travel step.
 - Interruptible `no` means the job is short enough that a critical need waits for it; the need is served immediately after.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. The task named adds the row to its producer's table above (without `producer` and `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in the § Planned sections of the system documents.
+
+### Planned job types
+
+| producer | id | name | labor | skill | target | workTile | baseTicks | tool | xp | interruptible | task |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| terrain | `harvest_ice` | Cut ice | mining | mining | tile | adjacent, or above | `ICE_HARVEST_TICKS` | pick | 6 | yes | T-559 |
+| terrain | `ignite` | Set a fire | woodcutting | — | tile | adjacent | `IGNITE_TICKS` | firebrand (consumed) | 0 | yes | T-559 |
+| animals | `collect_honey` | Collect honey | animal_care | animal_care | building (hive) | adjacent | `COLLECT_HONEY_TICKS` | — | 4 | no | T-555 |
+| health | `wash_patient` | Wash patient | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 4 | no | T-NEW (compost) |
+
+Edit (T-548): `chop`'s baseTicks becomes `CHOP_BASE_TICKS × max(100, hardness)/100` (the tree's wood). Hauling into a building that wants items is `haul_to_stockpile`; a pallet is laid by the `build` job with the row's labor `hauling`: no other job is new.

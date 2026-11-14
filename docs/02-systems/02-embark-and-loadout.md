@@ -167,3 +167,16 @@ Nothing chosen here is irreversible in the fortress: skills grow, items are cons
 - New catalog entries and presets are content rows.
 - A different party size is `EMBARK_DWARF_COUNT`; the screen lays out any count up to 12.
 - A "reclaim" mode (arriving at a fallen fortress) would reuse arrival steps 2–8 with an existing local map.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
+
+### What a site has and lacks (T-550)
+
+- A new content table, `regions-biomes-and-traits.md` § Signatures (in § Planned rows until this task): one row per biome, per geology class and per region trait, each with the goods it *has* and the goods it *lacks*. A good is a material id (`salt`, `sand`, `peat`), a material class (`wood`, `stone`, `soil`), or one of the words `honey`, `flux`, `fossils`, `giant_bones`, `horses`, `camels`, `reindeer`, `ice`, which name what the rules of 03, 07 and 08 give a map.
+- A site's *has* is the union of its biome's, its geology's and its traits' *has*; its *lacks* is the union of their *lacks* less anything in its *has* (a `volcano` site of the Glasslands has obsidian whatever its biome says).
+- The site summary gains two rows after Wildlife: **This site has:** and **This site lacks:**, each the list in table order, the lacks in the alert colour. Like the other rows they are about the map the generator will make: a good that the map's rules give only by chance ("giant bones" on a boneyard biome) is "likely".
+- 20 prices a good the site lacks at the scarcity price (20 § Planned): the summary's lacks line is the same list, so the player knows before embarking what will be dear.
+- The missing essentials (no soil, no trees, no water) still come first, as now.
+- UI: `menus-and-world.md` § World map's region panel shows the two rows.

@@ -320,3 +320,43 @@ The center `┼` is the work tile; the south-center tile is the output tile. Imp
 ### Status bar glyphs
 
 Sun `☼` day, moon `C` night (CP437 lacks a moon; `C` in `dark_cyan` is the convention), weather: clear `☼`, overcast `≡`, rain `'`, storm `↯`, snow `*`, fog `≡` dim, heatwave `☼` red, cold snap `*` cyan; population `☺`; hall spirit `♥`; patients `+` red; hostiles `!` red; caravan `$`; speed `►`, `►►`, `►►►`, paused `║`.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. The task named adds each colour to § Material and nature colors (the hex here is a first choice; it may change if it clashes) and its pattern to § Workshop patterns, adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`.
+
+### Planned colours
+
+| id | hex | task |
+|---|---|---|
+| `salt_white` | #ECEAE2 | T-547 |
+| `chitin_brown` | #6B4A2E | T-547 |
+| `horn_gray` | #A89A86 | T-547 |
+| `ivory_cream` | #F2E8CF | T-547 |
+| `feather_white` | #F4F1EA | T-547 |
+| `pewter_gray` | #8E949A | T-547 |
+| `reed_green` | #9AA65A | T-548 |
+| `cactus_green` | #5E8C4A | T-548 |
+| `nettle_green` | #4F7A3A | T-548 |
+| `rye_gold` | #B89A55 | T-548 |
+| `wyrmtongue_red` | #C2452D | T-548 |
+| `ironwood_dark` | #4A3A2C | T-548 |
+| `dung_brown` | #5C4A30 | T-552 |
+| `smoke_bg` | #2E2E2E | T-552 |
+| `brick_red` | #A0482E | T-553 |
+| `glass_pale` | #BFE3E6 | T-553 |
+| `honey_amber` | #D49A2A | T-555 |
+| `wax_yellow` | #E8D27A | T-555 |
+| `soap_white` | #EEF0F2 | T-NEW (compost) |
+| `star_silver` | #D8E4F0 | T-560 |
+| `reindeer_brown` | #8A6A4A | T-561 |
+| `camel_tan` | #C8A472 | T-561 |
+
+### Planned workshop patterns
+
+| id | rows | task |
+|---|---|---|
+| `kiln` | `▄▲▄`, `█☼█`, `▀ ▀` | T-553 |
+| `smokehouse` | `≡≡≡`, `≡%≡`, `▀ ▀` | T-552 |
+
+The patterns' exact glyphs follow § Workshop patterns' conventions; a task may choose others from the glyph set.

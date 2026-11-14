@@ -155,3 +155,27 @@ Goods lists and preferences are content.
 - Buying information (maps, threat warnings) as a service item.
 - Diplomatic envoys and treaties: a party purpose `envoy` with a dialog screen.
 - Player-sent trade expeditions: a squad order to leave the map with goods and return next season with a result computed off-map.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `caravan-goods.md` § Planned rows.
+
+### Sundries (T-550, and each task that brings a good)
+
+- Each civilization's list gains `sundries` entries: raw materials in small lots (5 to 10 units, weight 6 each), drawn like any other entry from the weighted pool. Mountainhome: flux stone, coal, charcoal, glowstone, sand. Hillfolk: logs, leather, salt, clay, bricks, bedding, dung, candles, pots, cured meat, and honey when the Wildwood's home is far. Wildwood: honey, beeswax, reeds, nettle fiber, feathers, brightleaf, yew saplings. T-550 adds the mechanism and the entries whose items exist by then; a later task adds its own good's entry (each row of the planned table names its task).
+- Adding entries changes every civilization's ordinary draw: the sweep measures it.
+
+### The scarcity price (T-550)
+
+- A merchant good whose material the site lacks (02 § Planned, What a site has and lacks: its material id or its material's class is in the site's lacks) is priced at `price × SCARCITY_MARKUP / 100`, on top of the markup and the preference. Logs on a steppe cost two and a half times what they cost in a forest. The trade screen marks such a good "scarce here". The fortress's own goods are valued as before.
+- Requests can name a scarce good, and the request share brings it as any request.
+- Constants: `SCARCITY_MARKUP` 250. Reader: `trade.isScarce(itemId)`.
+
+### Never sold, and the new preferences (T-550; T-554, T-556, T-557, T-560 for theirs)
+
+- Never in any list or request: deepsilver below reputation 75 (as now), star steel, anything aged or vintage, silk cloth, giant skulls, wyrmscale and ichor. A request for one is refused in the requests editor ("The {civ} do not trade in that.").
+- Preferences (`caravan-goods.md` § Preferences): Mountainhome `drink/spirits` 150, silk cloth 150, carved fossils 150, pewter 110; Hillfolk salt 150, cured meat 120, glass 130; Wildwood honey and beeswax 100, silk cloth 140, `basket` and reed goods 100 (reed is not wood: the elves have thought about it and decided reeds are fine), bone 60. Every civilization: star steel 200, with the merchant's line "Where did you get this?" once a session (T-560).
+
+### Camels from the Hillfolk (T-561)
+
+The Hillfolk bring camels as an animal entry when the site's biome is `desert`, `badlands` or `savanna`.

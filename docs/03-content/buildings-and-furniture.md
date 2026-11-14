@@ -110,3 +110,31 @@ Worked examples:
 
 - A 2×3 bedroom dug in granite, unsmoothed, with a common pine bed (value 10): tiles 6 × 1 = 6; walls 0; furniture 1; size 6; enclosed ×1.5 → 19.5 → **bare**. Smooth the six floor tiles and ten bordering walls: 18 + 20 + 1 + 6 = 45 × 1.5 = 67 → **decent**. Add a fine oak cabinet (27) and a common granite chest (10): +3.7 → 74 → decent; engrave the walls (quality 5: 2 + 2.5 each = 45): 18 + 45 + 4.7 + 6 = 74 × 1.5 = 110 → decent; to reach **fine** the bedroom needs a masterwork bed (75 → 7.5) and engraved floors (8 × 6 = 48): 48 + 45 + 11 + 6 = 110 × 1.5 = 165 → fine.
 - A 7×7 hearth hall with the hearth (value 50 → 5), four granite tables (8 → 0.8 each), eight chairs, smoothed floors and walls, two fine statues (36 → 7.2 each): tiles 49 × 3 = 147; walls 28 × 2 = 56; furniture 5 + 3.2 + 4.8 + 14.4 = 27; size 40 (cap); ×1.5 → 405 → **grand** (hearth bonus 4 × 2 = +8 mood to everyone).
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `table` and `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [14](../02-systems/14-buildings-and-rooms.md) § Planned. Every number is *unmeasured*.
+
+### Planned buildings
+
+New columns (T-551): `rest`, the percent a `sleep` building rests at (10 § Planned), and `wants`, the items a built one holds (13 § Planned, Buildings that want items). `bed` gets rest 100 and wants 1 `bedding` + 1 `pillow`; `table` wants 1 `mug` per adjacent chair, up to 4 (T-NEW (hall life)).
+
+| table | id | name | footprint | on | inputs | labor | ticks | tags | room | pass | rest | wants | glyph | task |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Furniture placements | `pallet` | cloth pallet | 1×1 | floor | 2 `cloth` or `wool_raw` | hauling | 20 | sleep | 0 | yes | 60 | — | `≈` material | T-551 |
+| Furniture placements | `straw_pallet` | straw pallet | 1×1 | floor | 3 `fiber`, `straw` or `reed` | hauling | 20 | sleep | 0 | yes | 60 | — | `≈` material | T-551 |
+| Furniture placements | `stone_bed` | stone bed | 1×1 | floor | `stone_bed` | masonry | 40 | sleep | item | yes | 75 | — | `Θ` item | T-551 |
+| Special | `drying_rack` | drying rack | 1×1 | floor | 2 `log`, `stone_block` or `bone_pile` | construction | 60 | rack | 0 | no | — | 5 units of its drying rows | `╤` material | T-552 |
+| Special | `candle_stand` | candle stand | 1×1 | floor | 1 `stone_block` or `bar` | construction | 40 | light | its candles' value / 10 | no | — | 5 `candle` | `ì` material | T-NEW (candles) |
+| Furniture placements | `lantern` | lantern | 1×1 | floor | `lantern` | construction | 30 | light | item | no | — | — | `¥` item | T-NEW (candles) |
+| Furniture placements | `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | — | — | `∩` item | T-555 |
+
+A pallet and a straw pallet return their materials when taken apart. The candle stand and the drying rack have the value 2 and 3 as a special building does (`value` column), and the lantern its item's.
+
+### Planned zone types and settings
+
+| id | name | room | requirements to count | settings | consumers | value types | task |
+|---|---|---|---|---|---|---|---|
+| `compost` | compost heap | no | — | — | 13 | — | T-NEW (compost) |
+
+Edits: `stockpile` settings gain `cellar` (boolean, through `SetStockpileCellar`) (T-554); `farm_plot` settings gain `fertilize` (boolean) (T-NEW (compost)); the `bedroom` and `hospital` requirement "a bed" is any building tagged `sleep` (T-551).

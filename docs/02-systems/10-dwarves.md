@@ -243,3 +243,40 @@ Need rates and thresholds above follow the balance model; the consumption arithm
 - Skill rust: a decay pass in the daily handler.
 - More needs (faith, beauty): a row in the needs table and an activity in behavior selection.
 - Personality-driven job preferences: a bias term in 11's scoring that reads `Personality`.
+
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
+
+### Beds rest differently (T-551)
+
+- Every building tagged `sleep` has a `rest` percent (`buildings-and-furniture.md`): `pallet` and `straw_pallet` 60, `stone_bed` 75, `bed` 100, and a made-up bed (14 § Planned, Dressed beds) 125. Sleeping on the floor rests at `FLOOR_REST_PERCENT`.
+- On the sleep errand, rest falls by `15 × rest / 100` an hour (§ Needs: −15 an hour on a bed of 100), from the moment the dwarf sets off, for the bed it holds or the floor. A sleep ends when rest reaches 0, or after `SLEEP_HOURS × 100 / rest` hours if that comes first, and the dwarf wakes with rest 0 either way. So a dwarf on a pallet sleeps about two thirds longer and works less, and one in a made-up bed sleeps a quarter less of the day.
+- `Slept { id, bedQuality, roomTier, onFloor }` gains `rest` (the percent slept at) and `bedding` (`none`, `soft`, `feather`). 15's thoughts: `slept_on_a_pallet` for a pallet, `slept_in_a_soft_bed` for a made-up bed, `slept_in_a_featherbed` for a featherbed in place of the soft one; a bed with bedding and no pillow rests at 125 and gives no bedding thought. A stone bed gives none.
+- The audit of `SLEEP_HOURS` (its 3,363 sleeps) was taken on beds of 100: the task measures again.
+- Constants: `FLOOR_REST_PERCENT` 50 (below every bed, so a pallet is worth laying; a floor sleeper sleeps twice as long as one in a bed, and the sleep audit measures it before and after). Save: the rest activity keeps the bed id, and the percent is read live from the bed.
+- Bed search is unchanged: own bed, any free unassigned bed, the hearth hall's floor. A pallet is a bed.
+
+### Drinking a cactus (T-548)
+
+- After every drink source of § Eating and drinking, a thirsty dwarf takes a reachable `plant_food` whose material is `drinkable` (`cactus_pulp`), eats it where it stands and is relieved by `CACTUS_THIRST_RELIEF`. Emits `DrankFromPlant { id }`: thought `drank_cactus` (15). Hunger is not relieved.
+- Constants: `CACTUS_THIRST_RELIEF` 40 (half of water's 80).
+
+### Tipsy (T-554)
+
+- A dwarf who drinks a drink of the `drink/spirits` group is tipsy for `TIPSY_TICKS`: its walking speed and its work rate are × (100 − `TIPSY_SLOW_PERCENT`) / 100, and a talk relieves its social need twice over (−80, a friend −120). `dwarves.productivity(id)` includes it, and the movement formula of § Movement gains the factor. A second drink while tipsy restarts the time; it does not stack.
+- `DrankAlcohol { id, quality }` gains `group` (`ale`, `wine`, `spirits`) and `aged` (0, 1, 2); 15 gives `drank_strong_drink` for spirits, and `drank_aged_drink` or `drank_vintage_drink` beside the drink's own thought.
+- Dwarves drink the nearest drink as now, so where the spirits stand is where the singing is: a barrel of spirits by the forge is a slow forge.
+- Constants: `TIPSY_TICKS` 100 (two hours), `TIPSY_SLOW_PERCENT` 10. Save: `tipsyUntil` per dwarf (omitted when empty). UI: the units panel and the inspector say "Tipsy" beside the activity; the glyph is unchanged.
+
+### Places that make a face (T-557, T-560)
+
+- On `EntitiesMoved`, a fortress dwarf entering a tile of a boneyard's ribs whose skeleton no dwarf has entered emits `RibsEntered { id, boneyard }` and 03's record is marked (T-557); one entering a crater tile emits `CraterEntered { id }` (T-560). Both are checked from the batch's tiles against 03's sorted tile lists, as a spring is.
+
+### Feasts, mugs and the Thane's whim (T-NEW (hall life))
+
+- **Feast.** A `feast` (`food/meal/feast`, a stack of `FEAST_SERVINGS` servings, rot one day) is food. The food search takes a feast serving before any other meal. A dwarf who eats one emits `MealEaten` with `feast: true`: thought `feasted`. The kitchen's `cook_feast` (12) emits `ItemCrafted` for it: everyone gets `held_a_feast`.
+- **Mugs.** A dining seat (a chair beside a table) whose table holds a mug for it (14 § Planned, Building wants: a table wants one mug per adjacent chair) gives a dwarf who eats there `drank_from_a_mug` (`MealEaten` gains `mug: true`).
+- **The Thane's whim.** On each `SeasonChanged`, if the fortress has a Thane, this system draws one whim from `whims` (`personality-and-thoughts.md` § Planned rows, Whims) on its own stream (`rngFor('10.whims')`), among the rows whose `possible` test holds (the item or building exists in the content, and the fortress has the workshop that makes it or the item in stock). It is announced as a note ("Ketil Ironvein, Thane, wishes for a lantern in the dining hall by the end of the season." `announce.thane_whim`). On the next `SeasonChanged` it is judged before the next draw: met (a `stock` whim: at least `count` of the item type, of the material when one is named, in stock; a `room` whim: a built building of the type inside a room of the type) → everyone `thane_pleased`; missed → the Thane `thane_grumbled`, and nobody else anything. A whim never spirals: no other thought, no sulk, no mood cascade.
+- Constants: `FEAST_SERVINGS` 20. Events: `WhimSet { thaneId, whimId }`, `WhimJudged { whimId, met }`. Save: `whim: { id, setTick } | null`. UI: the units panel's Thane line shows the whim and whether it is met now.

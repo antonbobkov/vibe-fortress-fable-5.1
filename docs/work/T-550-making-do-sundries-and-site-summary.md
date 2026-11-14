@@ -1,25 +1,32 @@
 # T-550 — Making Do A4: sundries, the scarcity price and the site summary
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 2, 10); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546, T-547 · **Status:** blocked (needs T-546, T-547)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 2, 10); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546, T-547, T-548 · **Status:** blocked (needs T-546, T-547, T-548)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
 ## What to do
 
-- The site summary's "This site has: …" and "This site lacks: …" lines, read from one rule over biome, geology and traits (design § 2).
-- `sundries` in each civilization's goods list, the never-sold list and the new preferences.
-- The scarcity price: a material the region lacks costs `SCARCITY_MARKUP` (250%) on top; requests can name it.
+The blocks and rows marked T-550:
+
+- **02 § Planned:** What a site has and lacks (the Signatures table; the two summary rows).
+- **20 § Planned:** Sundries (the entries whose goods exist by now: the rows marked T-550; later tasks add theirs), the scarcity price (`SCARCITY_MARKUP`, `trade.isScarce`, "scarce here"), never sold, the preferences marked T-550.
+- **24 § Planned:** the world map's two rows and the trade screen's mark.
+- **Rows:** `regions-biomes-and-traits.md`'s Signatures, `caravan-goods.md`'s rows marked T-550.
+
 
 ## Common rules for every Making Do task
 
-- Build on the spec as T-546 wrote it, not on the design alone. Where the two disagree, the spec wins; where the spec is silent, decide, write it in the spec, and say so.
-- Rows are appended (`docs/03-content/row-order.md`, then `npm run content:export`); none is removed. Never edit `test/fixtures/content-row-baseline.json`.
-- New wild plants, features and terrain go on their own rng streams, so existing maps keep their rock, trees and shrubs. Name any golden that moves in `golden:`, with the reason.
-- **Substitutes are worse.** Every substitute route costs more inputs, more work or a worse result than the regular route (design § 3). T-547's content check enforces this once it lands; keep it green.
-- Faces and tricks are part of the task: the thoughts, log lines and announcements the design names. Trade-offs and goofy rules go in `docs/fun-features.md` § In the game (stings, spit, tipsy dwarves, webs across your own corridor, and so on).
-- Measure as the design's § 13 says for the bundle: rows against the content checks; mechanisms against the three-year fixture's food and wealth, the sleep audit, and the pooled sweep and instrument verdicts; terrain against the annual instrument.
+- **The spec is the § Planned blocks.** Each system document touched carries a `## Planned: Making Do` section; each content document a `## Planned rows` section. Build every block and row marked with this task, and only those. Move each block into its document's sections as plain specification (no task id), its constants into § Tuning constants, its readers, events and commands into § Interfaces and into `04-implementation/event-catalog.md`, `command-catalog.md`, the schemas and `save-format.md`; then delete the block. Move each row into its table (without the `task` column), add its line to `row-order.md`, and run `npm run content:export`. The last task to empty a § Planned section deletes it.
+- Where the spec is silent or a planned rule does not fit the code, decide, write it in the spec, and say so in the report.
+- Rows are appended; none is removed. Never edit `test/fixtures/content-row-baseline.json`.
+- A new rng draw is on a stream of its own, or on an existing stream only where the new content is present, so a game without it draws the same numbers. Name every golden that moves in `golden:`, with the reason.
+- **Substitutes are worse.** Every recipe the planned table marks `substitute for` stays worse than its regular recipe; T-547's check enforces it once it lands. Add your pairs to it.
+- A caravan good the planned table marks with this task lands with it (20 § Planned, Sundries).
+- **Fun features.** Move this task's entries from `docs/fun-features.md` § Planned to § In the game, with where each lives and how to remove it.
+- The tasks named `T-NEW (…)` in the spec are those of the new work files: `T-NEW (scale)` is `T-NEW-making-do-scale-armour-and-bows.md`, `T-NEW (candles)` `T-NEW-making-do-candles-and-lanterns.md`, `T-NEW (compost)` `T-NEW-making-do-compost-fertilizer-soap.md`, `T-NEW (hall life)` `T-NEW-making-do-hall-life.md`. Read them by the ids they are given.
 
 ## Done
 
-- The site summary and trade rules are in 02 and 20 with tests; an e2e for the summary lines.
-- The sweep verdict passes (caravans change).
+- The region panel says what a desert lacks before embarking, and a merchant's logs cost two and a half times as much there; the never-sold goods are refused in the requests editor.
+- Tests for the summary rule and the price; an e2e for the summary lines.
+- The sweep verdict passes (every caravan's draw changes).

@@ -208,3 +208,45 @@ Species values (size, speed, products, intervals, gestation, litter, growth) are
 - Milking and shearing at pasture instead of at a workshop: change the job target.
 - Animal happiness (pastured animals happier, affects products): a field on `Tame`.
 - New products (honey, silk) are product rows with a job type.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, or on this system's stream only where the new content is present, so a game without it draws the same numbers as before.
+
+### Grazing shrubs (T-548)
+
+- A hungry tame grazer may eat a mature shrub whose plant row has `graze` (`rock_lichen`, `salt_crust`, `barrel_cactus`) in its pasture (with no pasture, within 6 tiles), exactly as it eats a grass tile: it claims the tile, walks to a tile beside the shrub, stays `GRAZE_TICKS`, its condition falls by `CONDITION_PER_GRASS`, and it emits `ShrubGrazed { tile }`; 07 sets the shrub regrowing. Grass first: a grazer takes a shrub only when no grass in reach is free for it. Wild grazers eat grass only, as now.
+- The pasture's capacity counts each grazable shrub as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile, since it feeds once in its `regrowDays`: an alpine pasture of lichen needs about four times the tiles of a meadow.
+- Constants: `SHRUB_GRAZE_WEIGHT` 4. Events: `ShrubGrazed { tile }`. Save: the claim map already holds shrub tiles as grass tiles.
+
+### Dung (T-552)
+
+- Every tame grazer assigned to a pasture drops one `dung` on its tile every `DUNG_DAYS` days, on the `DayPassed` whose day number plus the animal's id is a multiple of `DUNG_DAYS` (no draw, no state). Dung is an ordinary item: haulers take it to a stockpile or compost heap that accepts `farm/dung`, or leave it.
+- Constants: `DUNG_DAYS` 7.
+
+### Hives (T-555)
+
+- A built `beehive` (14 § Planned) stands on an outdoor soil floor. On each `DayPassed` from spring to autumn whose day number plus the hive's id is a multiple of `HIVE_DAYS`, a hive with at least `HIVE_FLOWERS_MIN` flower tiles (07's `plants.flowerAt`) within `HIVE_FLOWER_RADIUS` (Chebyshev, same level) adds one `honeycomb` to itself, up to `HIVE_CAPACITY`. The comb lies in the hive reserved, as an egg lies in its nest box (13 keeps it out of hauling). A hive in winter makes nothing; a hive short of flowers makes nothing and its panel says "Too few flowers: {n} of {HIVE_FLOWERS_MIN} within {HIVE_FLOWER_RADIUS} tiles."
+- With `autoCollectProducts` on, a hive holding a comb gets a `collect_honey` job (labor `animal_care`, skill `animal_care`, work tile beside the hive, `COLLECT_HONEY_TICKS`, xp 4): it lifts every comb to the worker's tile and releases it for hauling, as `collect_egg` does. The collector is stung with `STING_PERMILLE`: thought `stung` (15).
+- Passers-by: on each `HourPassed` in summer, every fortress dwarf within `HIVE_STING_RADIUS` (Chebyshev, same level) of a built hive is stung with `HIVE_PASSER_PERMILLE`, in ascending dwarf id. Place a hive away from the walking lines.
+- Draws: the collector's and the passers-by's on this system's stream, made only where a hive is: a fortress with no hive draws as before.
+- The farmer's workshop turns 1 `honeycomb` into 1 `honey` and 1 `beeswax` (`press_honeycomb`).
+- Constants: `HIVE_DAYS` 14, `HIVE_FLOWERS_MIN` 8, `HIVE_FLOWER_RADIUS` 6, `HIVE_CAPACITY` 2, `COLLECT_HONEY_TICKS` 60, `STING_PERMILLE` 100, `HIVE_STING_RADIUS` 3, `HIVE_PASSER_PERMILLE` 20. Events: `Stung { id }` (15's thought; 08 emits it for the collector and passers-by). Save: `hives: EntityId[]`, as `nestBoxes`. Reader: `animals.hives()`, `animals.hiveFlowers(id)`. UI: the hive's building panel shows combs, flowers in reach and the season.
+
+### The spider ranch and the beetle jar (T-556)
+
+- A creature held in a built cage building keeps its species' nature. A `giant_cave_spider` in one spins its webs around the cage (18 § Planned). A creature whose species has the flag `glows` (`glow_beetle`) lights the four tiles beside its cage for a `glow` crop (07 § Planned).
+- A caged creature is never fed, never tamed by being kept, and never unhappy; `TameCaged` still refuses an untameable one. A caged beetle lives as long as it lives now. "The spider does not need feeding. Nobody has asked it." is the hint `hint_spider_ranch` on the first caged spider placed in a cage building.
+
+### Bat roosts (T-556)
+
+- 08 keeps the roosts' drop tiles from `LocalMapResult.roosts` (03 § Planned) as `roosts: TileIndex[]`. On each `DayPassed` whose day number plus the roost's index in the list is a multiple of `ROOST_DAYS`, a roost whose drop tile is still a floor with an `open` tile above and a natural wall above that drops one `guano` on it. A roost whose ceiling has been dug away is gone.
+- The first time a roost's drop tile becomes discovered while a fortress dwarf stands within `ROOST_NOTICE_RADIUS` of it, the fortress emits `RoostFound { tile, dwarfId }` once (`roostFound`): the note "Bats. Hundreds of them. {dwarf} counted." (`announce.roost_found`). Bats are never drawn, never fought and never leave.
+- Constants: `ROOST_DAYS` 7, `ROOST_NOTICE_RADIUS` 8. Events: `RoostFound`. Save: `roosts`, `roostFound`.
+
+### Reindeer and camels (T-561)
+
+- `reindeer` and `camel` are domestic rows (creatures.md § Planned rows) with products, breeding and the `T` flag, and they live wild in their biomes as herds: each `DayPassed`, on their own stream (`rngFor('08.herds')`), for each row of `creatures.md` § Planned rows, Wild herds, whose biome is the region's, while the wild count of the species is under its cap, a herd of its group size spawns at an outdoor edge tile with `HERD_SPAWN_PERMILLE × weight / 100`, by the rules of wild spawning. The ordinary wild spawning stream draws the same numbers as before. A wild reindeer or camel is a wild grazer (`timid` and `neutral`); a tamed one (cage trap and kennel, or bought) is milked and, the camel, sheared.
+- Hillfolk caravans bring camels in hot regions (`caravan-goods.md` § Planned rows).
+- **The camel spits.** A `milk_animal` or `shear_animal` job on a camel completes, and then with `SPIT_PERMILLE` the worker gets `spat_on` (15) and the log the note "The camel spat on {dwarf}." (`announce.spat_on`, once a day). The draw is on this system's stream, made only for a camel.
+- Constants: `HERD_SPAWN_PERMILLE` 30, `SPIT_PERMILLE` 50. Events: `SpatOn { id, animalId }`.

@@ -1,25 +1,38 @@
-# T-553 — Making Do B3: the kiln, pottery, glass, candles and lanterns
+# T-553 — Making Do B3: the kiln, pottery, bricks, pots and glass
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (kiln, candles)); the owner, 2026-11-13 · **Size:** L · **Needs:** T-546, T-547 · **Status:** blocked (needs T-546, T-547)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (kiln)); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546, T-547 · **Status:** blocked (needs T-546, T-547)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
+Candles, candle stands, lanterns and their light moved to T-NEW (candles).
+
 ## What to do
 
-- The `kiln` workshop, the `magma_kiln` variant, the `pottery` skill and Potter profession.
-- Bricks, pots (a barrel of 10 that breaks when its holder is struck), jugs, clay mugs, glass, glass blocks, potash, bone ash, crushed fossils, lanterns.
-- Candles from tallow or beeswax; candle stands that hold 5 and want refilling; lit tiles for comfort and room value; a lit tile reveals hidden creatures 2 tiles farther; tallow smoke; `ate_by_candlelight`.
+The blocks and rows marked T-553:
+
+- **12 § Planned:** The kiln and pottery (the `kiln` workshop; `magma_kiln` becomes its magma variant and buildable; the `pottery` skill, labor `crafts`, profession Potter).
+- **13 § Planned:** Clay pots (a barrel-class container of 10 that breaks with its contents when its carrier is hit; the earthenware jug breaks too); **16 § Planned:** Pots break.
+- **Rows:** `brick`, `earthenware`, `glass`, `potash` (materials), `bone_ash`, `potash` (items), `pot`, the kiln and its pattern, the recipes marked T-553 (bricks, pot, jug, clay and glass mugs, glass blocks with and without potash, potash, bone ash, `crush_fossil`), the `pottery` skill, the Hillfolk's bricks and pots, the glass preference, the colours, and the item edits (buckets and mugs of earthenware and glass).
+- `make_steel_bone_ash` (T-547) becomes runnable: test it end to end.
+
+## Decisions
+
+- Glass comes out of the kiln as blocks: there is no glass item in between (2 sand → 1 block; with potash, 2 sand + 1 potash → 2).
+- Fired clay is its own material, `earthenware`; a brick is `brick`.
+
 
 ## Common rules for every Making Do task
 
-- Build on the spec as T-546 wrote it, not on the design alone. Where the two disagree, the spec wins; where the spec is silent, decide, write it in the spec, and say so.
-- Rows are appended (`docs/03-content/row-order.md`, then `npm run content:export`); none is removed. Never edit `test/fixtures/content-row-baseline.json`.
-- New wild plants, features and terrain go on their own rng streams, so existing maps keep their rock, trees and shrubs. Name any golden that moves in `golden:`, with the reason.
-- **Substitutes are worse.** Every substitute route costs more inputs, more work or a worse result than the regular route (design § 3). T-547's content check enforces this once it lands; keep it green.
-- Faces and tricks are part of the task: the thoughts, log lines and announcements the design names. Trade-offs and goofy rules go in `docs/fun-features.md` § In the game (stings, spit, tipsy dwarves, webs across your own corridor, and so on).
-- Measure as the design's § 13 says for the bundle: rows against the content checks; mechanisms against the three-year fixture's food and wealth, the sleep audit, and the pooled sweep and instrument verdicts; terrain against the annual instrument.
+- **The spec is the § Planned blocks.** Each system document touched carries a `## Planned: Making Do` section; each content document a `## Planned rows` section. Build every block and row marked with this task, and only those. Move each block into its document's sections as plain specification (no task id), its constants into § Tuning constants, its readers, events and commands into § Interfaces and into `04-implementation/event-catalog.md`, `command-catalog.md`, the schemas and `save-format.md`; then delete the block. Move each row into its table (without the `task` column), add its line to `row-order.md`, and run `npm run content:export`. The last task to empty a § Planned section deletes it.
+- Where the spec is silent or a planned rule does not fit the code, decide, write it in the spec, and say so in the report.
+- Rows are appended; none is removed. Never edit `test/fixtures/content-row-baseline.json`.
+- A new rng draw is on a stream of its own, or on an existing stream only where the new content is present, so a game without it draws the same numbers. Name every golden that moves in `golden:`, with the reason.
+- **Substitutes are worse.** Every recipe the planned table marks `substitute for` stays worse than its regular recipe; T-547's check enforces it once it lands. Add your pairs to it.
+- A caravan good the planned table marks with this task lands with it (20 § Planned, Sundries).
+- **Fun features.** Move this task's entries from `docs/fun-features.md` § Planned to § In the game, with where each lives and how to remove it.
+- The tasks named `T-NEW (…)` in the spec are those of the new work files: `T-NEW (scale)` is `T-NEW-making-do-scale-armour-and-bows.md`, `T-NEW (candles)` `T-NEW-making-do-candles-and-lanterns.md`, `T-NEW (compost)` `T-NEW-making-do-compost-fertilizer-soap.md`, `T-NEW (hall life)` `T-NEW-making-do-hall-life.md`. Read them by the ids they are given.
 
 ## Done
 
-- The kiln's recipes and the light rules are in the spec with tests; e2e for building a kiln and a candle stand.
-- The sweep and instrument verdicts pass.
+- A kiln built of blocks (or on magma, with no fuel) fires bricks, pots and glass blocks; a pot holds 10 drinks and breaks when a hauler carrying it is struck.
+- E2e: build a kiln and fire a brick. The sweep and instrument verdicts pass.

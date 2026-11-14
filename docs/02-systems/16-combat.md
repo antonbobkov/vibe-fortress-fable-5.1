@@ -251,3 +251,26 @@ Weapon and armor values, hit weights per body plan, and the damage-type-versus-l
 - Mounted combat, wrestling, grappling: new attack kinds in the resolution switch.
 - Morale for hostiles as a party stat is in 18; individual morale for dwarves (routing) is deliberately absent by pillar 2.
 - Siege weapons: a `siege` building with a fire job and the projectile path.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `weapons-and-armor.md` § Planned rows.
+
+### The scale layer (T-NEW (scale))
+
+- A fifth steel layer, `scale`, between leather and mail: plates of shell, bone, horn or chitin sewn on leather or cloth. The layer list of § Concepts and the `ArmorDef.layer` enumeration gain it; `damageTypeVsLayer` reads its column (edge 1.0, pierce 0.7, blunt 0.8, ember 0.6, frost 0.7). `armorReduction` needs no other change.
+- A scale piece takes its material from its plates (`from_input` of the first input) and uses `armorMult` 1.0 whatever the plates, as leather and cloth do. It does not count toward the metal penalty (its material is not a metal).
+- Rows: `scale_shirt` (torso 100, arms 40, armor 8, weight 7) and `scale_skirt` (legs 100, armor 6, weight 5), made at the leatherworks. A hunter's fortress with no metal has a second line, heavier than leather and weaker than mail.
+- The three steel types and the two rune types are untouched.
+
+### The horn bow (T-NEW (scale))
+
+`horn_bow` is a launcher row like `bow` with power 1.10 for any wood (the yew's power without the yew), made at the bowyer from 1 log + 1 horn in 220 ticks against the bow's 180. A yew horn bow is no better than a yew bow: the row has no `yewPower`.
+
+### Pots break (T-553)
+
+`AttackResolved` with a hit on a creature that carries a `pot` or a clay jug breaks it (13 § Planned, Clay pots). No draw.
+
+### Seeing through glass (T-558)
+
+Perception, targeting and spotting use 22's `lineOfSight`, which a glass wall does not block; firing uses 22's `lineOfFire`, which it does (the pseudocode's `if not lineOfSight(shooter, target)` becomes `lineOfFire`). An archer behind a glass wall sees the raid and cannot shoot it, and the raid sees the hall.

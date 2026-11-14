@@ -152,3 +152,36 @@ Burn durations per material (`burnTicks`) and all property values are content.
 - Stored temperature grid: if a future feature needs heat diffusion (a heated hall), replace `temperatureAt` with a grid updated by diffusion at this system's cadence; consumers do not change.
 - Deliberate fire: a `torch` item or an `ignite` designation calls the same ignition path.
 - Smoke: a transient per-chunk counter like mist, rendered as a gray tint.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
+
+### A skylit tile is lit but not outdoors (T-558)
+
+`temperatureAt` takes the surface temperature for a tile that is `outdoor`, or `lit` and not `skylit` (03 § Planned, Glass passes light). A `skylit` tile is covered: it follows the near-surface blend and the deep base like any covered tile. So a greenhouse one level under a skylight in a −12 °C winter is −5 °C, two levels down 2 °C, and from `NEAR_SURFACE_DEPTH` down `UNDERGROUND_BASE_C`; the hearth's square adds `HEARTH_WARMTH_C` and a magma channel its override, as anywhere. Every tile that is `lit` today stays as it is: only a skylit tile is new.
+
+### Ice constructions cool (T-559)
+
+- A constructed `wall` or `floor` of material `ice` is a cold source: −`ICE_OVERRIDE` at the tile and at Chebyshev distance 1 on its level, summed with every other source and clamped as they are. Two ice walls beside a tile make it `ICE_OVERRIDE × 2 × 5` °C colder. Such a tile is queued for override work when it is built or removed (`TilesChanged` with an ice construction), as a fire's reach is.
+- Underground (not `outdoor`) an ice construction melts `ICE_CONSTRUCTION_DAYS` days after it was built: on the `DayPassed` that reaches it, 05 removes it through `terrain.setKind` as a burned wooden construction is removed, with no item and no water. Outdoors it melts on the first materials tick its tile is above `THAW_C`, the same way. The record is `iceBuilt: Map<TileIndex, builtTick>`.
+- Rot stops below `FREEZE_C` (13), so a larder walled in ice keeps its meat until the walls melt.
+- Constants: `ICE_OVERRIDE` 2, `ICE_CONSTRUCTION_DAYS` 84. Save: `iceBuilt`. Events: `IceMelted { tiles[] }` (a note "The ice walls of {place} have melted." once per day).
+
+### Fire on purpose (T-559)
+
+- `TileIgnited { tile, dwarfId }` (03's `ignite` job) queues the tile for ignition at the next materials tick, as a `LightningStrike` does, and it burns by every rule of § Fire: spread, rain, ash, dwarves stepping off burning ground. A tile that stopped being burnable before the tick does not ignite.
+- The announcement is the ordinary `FireStarted` alert.
+- The extension point "Deliberate fire" is taken by this rule.
+
+### Ironwood is hard to burn (T-548)
+
+- A tile whose material carries the tag `fire_resistant` (`ironwood`) is ignited by spread with `FIRE_SPREAD_PERMILLE / FIRE_RESIST_DIVISOR` (and the wet chance likewise). It burns for its material's `burnTicks` (1200), so once alight it burns long.
+- Constants: `FIRE_RESIST_DIVISOR` 4.
+
+### Smoke (T-552)
+
+- A craft job that burns a fuel tagged `smoky` (`peat_brick`, `dung_cake`) makes its workshop smoky for `SMOKE_TICKS` (12 emits `SmokyFuelBurned { workshopId, tile }`; this system records `smoke: Map<TileIndex, untilTick>` keyed by the workshop's centre tile). Every fortress dwarf within `SMOKE_RADIUS` (Chebyshev, same level) of the centre when the job completes gets `smoky_hall` (15).
+- 23 draws the tiles within `SMOKE_RADIUS` of a smoky workshop with the `smoke_bg` tint while it lasts, as it draws mist (23 § Planned).
+- The extension point "Smoke" is taken by this rule: a per-workshop record, not a per-chunk counter.
+- Constants: `SMOKE_TICKS` 600 (12 hours), `SMOKE_RADIUS` 3. Events: `SmokyFuelBurned` (consumed). Save: `smoke`.

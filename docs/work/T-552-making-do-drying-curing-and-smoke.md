@@ -1,24 +1,33 @@
-# T-552 — Making Do B2: the drying rack, smoky fuel, curing and the smokehouse
+# T-552 — Making Do B2: dung, the drying rack, half fuels, smoke, curing and the smokehouse
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (drying rack, smokehouse, salt)); the owner, 2026-11-13 · **Size:** M · **Needs:** T-546, T-547 · **Status:** blocked (needs T-546, T-547)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (drying rack, smokehouse, salt)); the owner, 2026-11-13 · **Size:** L · **Needs:** T-546, T-547, T-551 · **Status:** blocked (needs T-546, T-547, T-551)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
 ## What to do
 
-- `dung` from pastured grazers; the drying rack (holds 5, dries by the item's days, faster outdoors in clear weather, not at all in rain); `peat_brick` and `dung_cake` as half fuels; smoky fuel and the `smoky_hall` thought and gray tint.
-- Curing: cured fish and meat on the rack, salted hides; the smokehouse (`smoke_meat`); the kitchen's `salt_meat`; salted meals a tier better.
+The blocks and rows marked T-552:
+
+- **08 § Planned:** Dung (one every `DUNG_DAYS` from a pastured tame grazer, by day and id: no draw).
+- **14 § Planned:** The drying rack (wants by its checklist, `SetRackDrying`, days counted on `DayPassed` by the day's weather, the outputs).
+- **12 § Planned:** Half fuels and smoke (one `fuel` bar or two `fuel_half`; `SmokyFuelBurned`); the smokehouse and `smoke_meat`/`smoke_fish`, `smelled_smokehouse`; `salt_meat`/`salt_fish`; salted meals (`Item.seasoned`, extending T-548's).
+- **05 § Planned:** Smoke (`smoke`, `SMOKE_TICKS`, `SMOKE_RADIUS`, `smoky_hall`); **23 § Planned:** the smoke tint.
+- **13 § Planned:** Curing (rot 0, value ×2, salted hides tan); the leaves `food/meat/cured`, `food/fish/cured`, `bar/peat`, `bar/dung`, `farm/dung`.
+- **Rows:** `dung` (material and item), `peat_brick`, `dung_cake`, `cured_meat`, `cured_fish`, `salted_hide`, the smokehouse and its pattern, the recipes, the thoughts, `hint_rack`, the new Drying table (`items.md` § Planned rows) and `drying_rack`, the Hillfolk's dung and cured meat, the cured preference, the colours.
+
 
 ## Common rules for every Making Do task
 
-- Build on the spec as T-546 wrote it, not on the design alone. Where the two disagree, the spec wins; where the spec is silent, decide, write it in the spec, and say so.
-- Rows are appended (`docs/03-content/row-order.md`, then `npm run content:export`); none is removed. Never edit `test/fixtures/content-row-baseline.json`.
-- New wild plants, features and terrain go on their own rng streams, so existing maps keep their rock, trees and shrubs. Name any golden that moves in `golden:`, with the reason.
-- **Substitutes are worse.** Every substitute route costs more inputs, more work or a worse result than the regular route (design § 3). T-547's content check enforces this once it lands; keep it green.
-- Faces and tricks are part of the task: the thoughts, log lines and announcements the design names. Trade-offs and goofy rules go in `docs/fun-features.md` § In the game (stings, spit, tipsy dwarves, webs across your own corridor, and so on).
-- Measure as the design's § 13 says for the bundle: rows against the content checks; mechanisms against the three-year fixture's food and wealth, the sleep audit, and the pooled sweep and instrument verdicts; terrain against the annual instrument.
+- **The spec is the § Planned blocks.** Each system document touched carries a `## Planned: Making Do` section; each content document a `## Planned rows` section. Build every block and row marked with this task, and only those. Move each block into its document's sections as plain specification (no task id), its constants into § Tuning constants, its readers, events and commands into § Interfaces and into `04-implementation/event-catalog.md`, `command-catalog.md`, the schemas and `save-format.md`; then delete the block. Move each row into its table (without the `task` column), add its line to `row-order.md`, and run `npm run content:export`. The last task to empty a § Planned section deletes it.
+- Where the spec is silent or a planned rule does not fit the code, decide, write it in the spec, and say so in the report.
+- Rows are appended; none is removed. Never edit `test/fixtures/content-row-baseline.json`.
+- A new rng draw is on a stream of its own, or on an existing stream only where the new content is present, so a game without it draws the same numbers. Name every golden that moves in `golden:`, with the reason.
+- **Substitutes are worse.** Every recipe the planned table marks `substitute for` stays worse than its regular recipe; T-547's check enforces it once it lands. Add your pairs to it.
+- A caravan good the planned table marks with this task lands with it (20 § Planned, Sundries).
+- **Fun features.** Move this task's entries from `docs/fun-features.md` § Planned to § In the game, with where each lives and how to remove it.
+- The tasks named `T-NEW (…)` in the spec are those of the new work files: `T-NEW (scale)` is `T-NEW-making-do-scale-armour-and-bows.md`, `T-NEW (candles)` `T-NEW-making-do-candles-and-lanterns.md`, `T-NEW (compost)` `T-NEW-making-do-compost-fertilizer-soap.md`, `T-NEW (hall life)` `T-NEW-making-do-hall-life.md`. Read them by the ids they are given.
 
 ## Done
 
-- The rules are in the spec with tests.
-- The three-year fixture's food margin before and after, and the sweep and instrument verdicts pass.
+- A rack under a roof turns peat into a brick in a week, outdoors in half that in clear weather and never in rain; two bricks fire a smelter and the hall around it fills with smoke; meat smoked, salted or dried never rots.
+- The three-year fixture's food margin before and after; the sweep and instrument verdicts pass.

@@ -122,3 +122,55 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 ## Immigration bonus
 
 Mountainhome reputation adds `reputation / 25` immigrants per wave (21) and `reputation × 2` permille to the wave chance.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its civilization's table above (without `civ` and `task`), adds its line to [row-order.md](row-order.md) when the table numbers its entries, and runs `npm run content:export`. The rules are in [20](../02-systems/20-trade-and-caravans.md) § Planned. Every number is *unmeasured*.
+
+### Planned sundries
+
+A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
+
+| civ | Entry | Item | Material pool | Count | Weight | task |
+|---|---|---|---|---|---|---|
+| Mountainhome | Flux stone | `raw_stone` | limestone 40, dolomite 30, marble 30 | 5–10 | 6 | T-550 |
+| Mountainhome | Coal | `coal_bar` | coal | 5–10 | 6 | T-550 |
+| Mountainhome | Charcoal | `charcoal_bar` | charcoal | 5–10 | 6 | T-550 |
+| Mountainhome | Glowstone | `rough_gem` | glowstone | 1–2 | 6 | T-550 |
+| Mountainhome | Sand | `soil_load` | sand | 5–10 | 6 | T-550 |
+| Hillfolk | Logs | `log` | oak 40, pine 40, birch 20 | 5–10 | 6 | T-550 |
+| Hillfolk | Leather | `leather_piece` | leather | 5–10 | 6 | T-550 |
+| Hillfolk | Salt | `salt` ×10 in `bag` | salt | 1–2 bags | 6 | T-550 |
+| Hillfolk | Clay | `soil_load` | clay | 5–10 | 6 | T-550 |
+| Hillfolk | Bedding | `bedding` | flax_cloth | 2–4 | 6 | T-551 |
+| Hillfolk | Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 | T-552 |
+| Hillfolk | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 | T-552 |
+| Hillfolk | Bricks | `stone_block` | brick | 5–10 | 6 | T-553 |
+| Hillfolk | Pots | `pot` | earthenware | 2–4 | 6 | T-553 |
+| Hillfolk | Candles | `candle` | tallow | 5–10 | 6 | T-NEW (candles) |
+| Hillfolk | Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
+| Wildwood | Reeds | `reed` | reed | 5–10 | 6 | T-550 |
+| Wildwood | Nettle fiber | `fiber` | nettle_fiber | 5–10 | 6 | T-550 |
+| Wildwood | Feathers | `feather` | feather | 5–10 | 6 | T-550 |
+| Wildwood | Brightleaf | `brightleaf` | brightleaf | 5–10 | 6 | T-550 |
+| Wildwood | Honey | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
+| Wildwood | Beeswax | `beeswax` | beeswax | 5–10 | 6 | T-555 |
+| Hillfolk | Camels (in `desert`, `badlands`, `savanna`) | `camel` | — | 1–2 | 6 | T-561 |
+
+### Planned preferences
+
+| Category or material class | Mountainhome | Hillfolk | Wildwood | task |
+|---|---|---|---|---|
+| `drink/spirits` | 150 | | | T-554 |
+| material `silk_cloth` | 150 | | 140 | T-556 |
+| `craft` of `giant_bone` | 150 | | | T-557 |
+| material `pewter` | 110 | | | T-547 |
+| material `salt` | | 150 | | T-550 |
+| `food/meat/cured`, `food/fish/cured` | | 120 | | T-552 |
+| material `glass` | | 130 | | T-553 |
+| `food/honey`, `food/wax` | | | 100 | T-555 |
+| material `reed` (baskets, wicker) | | | 100 | T-549 |
+| material class `bone` | | | 60 | T-550 |
+| material `star_steel` | 200 | 200 | 200 | T-560 |
+
+`SCARCITY_MARKUP` multiplies a merchant's price for a good the site lacks (20 § Planned). Never sold: star steel, aged and vintage goods, silk cloth, giant skulls, wyrmscale, ichor, and deepsilver below reputation 75.

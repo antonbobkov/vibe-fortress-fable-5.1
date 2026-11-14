@@ -225,3 +225,66 @@ Material and item requirements, value bonuses and footprints are content.
 - Multi-tile furniture (long tables): a footprint on the type; placement already supports it.
 - Room flood-fill detection from furniture: replace the zone-defined room with a fill from the bed; the quality formula is unchanged.
 - Ownership of dining seats or workshops: `ownerId` exists on every building.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `buildings-and-furniture.md` § Planned rows and the other content documents' § Planned rows.
+
+### Building wants (T-551)
+
+- A building row's `wants` (13 § Planned, Buildings that want items) makes a built building of that type hold items. `Building.held: EntityId[]` lists them (saved; absent: none). `buildings.wants(id)` — each want with its count held and on its way; 13 reads it to make the hauls.
+- The building panel lists what it holds and wants, and offers `[t] take out` (`ReleaseHeld { buildingId }`).
+- Deconstruction and removal drop every held item on the building's tile, unflagged.
+
+### Beds (T-551)
+
+- Furniture rows tagged `sleep` gain `rest` (10 § Planned): `pallet` 60, `straw_pallet` 60, `stone_bed` 75, `bed` 100.
+- **A pallet is a dwarf lying down under a cloth.** `pallet` (2 `cloth` or `wool_raw`) and `straw_pallet` (3 `fiber`, `straw` or `reed`) are buildings laid straight from their materials, with no item and no workshop: the player places one on a floor like a chair, and a `build` job of labor `hauling` (any dwarf, children too), no skill, xp 0, carries the materials to the tile and spreads them in `buildTicks` 20, the shortest build there is. Taking it apart returns them. A pallet is a bed for a bedroom and for sleep, adds no room value, and gives `slept_on_a_pallet`.
+- **A stone bed is a mason's job.** `make_stone_bed` and `make_stone_bed_straw` at the mason (`masonry`): 1 `raw_stone` + a pallet's materials → 1 `stone_bed` item of the stone, no quality. It is placed like a bed (labor `masonry`) and rests at 75. It takes no bedding.
+- **A dressed bed.** A built `bed` (the wooden bed) wants 1 `bedding` and 1 `pillow`. A bed holding its bedding is made up: it rests at 125, and its sleeper's `Slept` carries `bedding: soft`, or `feather` when both its bedding and its pillow were stuffed with feathers (the item's `stuffing` material, recorded at the clothier: `Item.stuffing`), and the thought follows (10 § Planned). Bedding with no pillow rests at 125 and gives no thought. The bedding and pillow add their value to the room as furniture does (§ Rooms and quality: held items count as the linked item does), a featherbed's at its doubled value (`bedding` and `pillow` of feathers have their type's `mult` × 2).
+- The bedroom requirement "a built bed" is any built building tagged `sleep`.
+- So a fortress on day one, with no carpenter, puts its seven dwarves on pallets of the wagon's cloth within the hour, and on stone beds once the mason has stone.
+
+### The drying rack (T-552)
+
+- `drying_rack` (1×1, 2 `log`, `stone_block` or `bone_pile`, labor `construction`, tag `rack`, impassable) wants `RACK_CAPACITY` units of the items its setting dries (default: every row of `items.md` § Planned rows, Drying). `SetRackDrying { buildingId, rows }` sets which drying rows it takes. Nobody works it.
+- **An item on a rack becomes its dried form after its drying days.** On each `DayPassed`, each held stack (or, for a row with a count above one, each group of that many units) gains one drying day: under a roof always; outdoors (`outdoor` tile) two in a day whose weather was `clear` all day, and none in a day with `rain`, `storm` or `snow` (06's weather of the day). At the row's days it is consumed with any second input the row names (a `salt` for a salted hide, which must be held on the same rack), and its output is spawned on the rack's tile, released: `soil_load` of peat → `peat_brick`; 3 `dung` → 1 `dung_cake`; raw fish → `cured_fish`; raw meat → `cured_meat`; `raw_hide` + 1 `salt` → `salted_hide`. A held raw item does not rot while it dries.
+- Constants: `RACK_CAPACITY` 5. Commands: `SetRackDrying`. Save: `Building.dryDays` (per held stack, with `held`). UI: the rack's panel shows each held item with its days left, and the setting's checklist.
+
+### Workshops of stone (T-549)
+
+Every workshop but the carpenter's (the row's tag `logs_only`) may be placed with `materialChoice: 'blocks'`: each of its inputs that is `n` `log` becomes `2n` `stone_block` (blocks of any material: stone, brick, bone, metal), and its `buildTicks` is × `STONE_WORKSHOP_TICKS_PERCENT` / 100. A treeless fortress builds its loom, tannery or kennel of stone, slowly. The build menu shows both choices with their inputs.
+
+- Constants: `STONE_WORKSHOP_TICKS_PERCENT` 150.
+
+### Comfort light, candle stands and lanterns (T-554 for the query; T-NEW (candles) for the rest)
+
+- `buildings.comfortLightAt(i)` (T-554): the tile is in the built hearth's square or a built lamp's 3×3; T-NEW (candles) adds a burning candle stand's and a lantern's 3×3. It is not crop light and sets no `lit` flag.
+- `candle_stand` (1×1, 1 `stone_block` or `bar`, labor `construction`, tag `light`, impassable): wants `STAND_CANDLES` `candle`s. While it holds a candle it burns the first: a candle burns `burnDays` of its material (tallow 7, beeswax 14: `CANDLE_DAYS_TALLOW`, `CANDLE_DAYS_WAX`), counted on `DayPassed` (`Building.burnDays`), and is consumed when they are spent; the next is lit. A stand with a burning candle lights its 3×3. It adds room value as furniture of its candles' value (the held candles count, § Building wants). A `maintain` order for candles keeps it fed.
+- `lantern` (an item made at the kiln: 1 glass + 1 candle; placed like furniture, labor `construction`, tag `light`) lights its 3×3 forever: the permanent version, at the price of glass.
+- **What light does.** A meal eaten at a table on a comfort-lit tile carries `candlelit: true` on `MealEaten` (the hearth's square and lamps count), and 15 gives `ate_by_candlelight`. A fortress creature standing on a comfort-lit tile spots a hidden creature `CANDLE_SPOT_BONUS` tiles farther, and a hidden creature standing on one is spotted that much farther away (18 § Planned): candles at the gate catch thieves.
+- **Tallow smokes.** On each `HourPassed`, each dwarf standing on a tile lit only by stands burning tallow candles (no daylight, hearth, lamp, lantern or beeswax stand reaching it) gets `smoky_hall` with `TALLOW_SMOKE_PERMILLE`, on 10's stream; the draw is made only for such a dwarf. Beeswax does not smoke.
+- Constants: `STAND_CANDLES` 5, `CANDLE_DAYS_TALLOW` / `CANDLE_DAYS_WAX` 7 / 14, `CANDLE_SPOT_BONUS` 2, `TALLOW_SMOKE_PERMILLE` 20. Save: `Building.burnDays`. UI: the stand's panel shows candles held and days left; the `light` overlay tints comfort-lit tiles.
+
+### Beehives (T-555)
+
+`beehive` (an item from the carpenter, the kiln or the craftsdwarf; placed like furniture, labor by material) must stand on an outdoor floor of class `soil`; elsewhere `PlaceBuilding` refuses it (`bad_placement`, "A hive stands outdoors on soil."). 08 runs it (08 § Planned).
+
+### The beetle jar and the spider ranch (T-556)
+
+- `buildings.beetleLitAt(i)` — a cardinal neighbour on the tile's level holds a built cage building whose occupant's species has the flag `glows`. 07 reads it for growth and for a glow plot.
+- A cage building's panel says what its occupant does: "Lights the four tiles beside its cage for glowcap." or "Spins webs around its cage every day."
+
+### Glass (T-558)
+
+- A wall, floor or fortification built of `stone_block` of `glass` is a glass construction (material class `glass`). A glass wall blocks movement and fluids as any wall, passes light (03) and sight (22 § Planned): archers and watchers see through it, and nothing passes it, arrows included.
+- A glass floor is a skylight wherever it stands over open space (03's `skylit`), and a floor one can see through over magma or water: magma-safe (glass melts at 1400), with the room value of a constructed floor of its material.
+- No new building row: the construction rows take a glass block as they take any block.
+
+### Ice (T-559)
+
+A wall or floor built of `stone_block` of `ice` is an ice construction: 05 cools and melts it (05 § Planned). It is magma-unsafe as ice is. A gate of ice holds a raid in winter and opens itself in spring.
+
+### The compost heap and the cellar (T-NEW (compost), T-554)
+
+Zone type `compost` (13 § Planned) and the stockpile setting `cellar` (13 § Planned) are rows of `buildings-and-furniture.md` § Zone types; a compost heap is no room.

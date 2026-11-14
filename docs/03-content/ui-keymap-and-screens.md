@@ -750,3 +750,50 @@ A refused fixed-footprint placement names the building and explains that width a
 Pasture rejection defaults include `reject.not_tame` ("that animal is not tame") and `reject.not_grazer` ("that animal does not graze").
 
 Player-facing text uses string keys. The UI reads `strings.json` together with the `UI_STRINGS` defaults in `ui/strings.ts`; a content row wins over a default of the same key. Screen wireframes list the keys per screen; announcement, thought, hint, milestone and confirmation texts above are their canonical values. Count placeholders in strings support plural forms `{count|singular|plural}` (such as `{n|table|tables}`), evaluating to `{count} singular` when `count` is 1 and `{count} plural` otherwise; prefixing the singular form with `!` (`{count|!singular|!plural}`) outputs only the chosen noun without the count number. The strings check audits both tables, used keys, and the bidirectional text mirrors for confirmations, hints, milestones and thoughts.
+
+## Planned rows
+
+Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The screens are in [24](../02-systems/24-ui-and-input.md) § Planned.
+
+### Planned announcement strings
+
+| Key | Text | task |
+|---|---|---|
+| `announce.first_fossil` | "{dwarf} has found the bones of something old." | T-547 |
+| `announce.ribs_entered` | "{dwarf} stood inside the ribs of something enormous." | T-557 |
+| `announce.crater_entered` | "{dwarf} stood where the star fell." | T-560 |
+| `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
+| `announce.spat_on` | "The camel spat on {dwarf}." | T-561 |
+| `announce.ice_melted` | "The ice walls of {place} have melted." | T-559 |
+| `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." | T-NEW (hall life) |
+| `announce.thane_whim_met` | "The Thane's wish was met: {whim}." | T-NEW (hall life) |
+| `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." | T-NEW (hall life) |
+
+### Planned confirmation
+
+| id | Text | Default | task |
+|---|---|---|---|
+| `c_first_ignite` | "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out." | No | T-559 |
+
+### Planned hints
+
+| id | Trigger | Text | task |
+|---|---|---|---|
+| `hint_pallet` | first `Slept` on the floor with cloth, wool, straw or reeds in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." | T-551 |
+| `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." | T-552 |
+| `hint_cellar` | first stockpile with the cellar setting that does not work | "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two." | T-554 |
+| `hint_hive` | first hive with too few flowers | "Bees need flowers: eight within six tiles of the hive." | T-555 |
+| `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
+| `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." | T-558 |
+
+### Planned keys
+
+| Context | Key | Action | task |
+|---|---|---|---|
+| Designate panel | `I` | harvest ice | T-559 |
+| Designate panel | `F` | ignite (set a fire) | T-559 |
+| Building panel | `t` | take out what the building holds | T-551 |
+| Zone inspector | `C` | toggle cellar | T-554 |
+| Zone inspector | `f` | toggle fertilize (farm plot) | T-NEW (compost) |
+
+The keys are first choices; the task checks them against the existing bindings of each context and the fixed keys.

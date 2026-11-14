@@ -192,3 +192,11 @@ Values follow the balance model (see [`../03-content/balance.md`](../03-content/
 - New trait: a row with requirements and hooks; the hooks are implemented by 03, 06, 07, 08 and 18 as documented there.
 - New civilization: a row in the civilization table and a placement rule here; 20 and 18 read the table for schedules and behavior.
 - Different world shapes: the continental mask is one function.
+
+## Planned: Making Do
+
+Not yet in the game. The block below names the task that builds it; that task moves it into the sections above as plain specification and deletes it here, and this section with it. Its numbers are *unmeasured*.
+
+### Starfall (T-560)
+
+`starfall` (`regions-biomes-and-traits.md` § Planned rows) is not rolled with the other traits: after § Traits has run, each embarkable region that has fewer than `TRAIT_MAX_PER_REGION` traits, whose traits all allow a companion, rolls once more on its own stream (`worldgen.starfall`), in id order, with the trait's permille. So every other trait of every region is what it was, and a world gains a crater in about one region in seventy. The trait list of § Traits gains its row: any land biome; a crater of bare rock with one meteorite of star iron (03 § Planned).

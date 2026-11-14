@@ -179,3 +179,24 @@ Wound bleed and pain values per type and severity are content.
 - Prosthetics: an item that removes a `lost_leg` penalty.
 - Surgery on internal injuries: a new wound type and treatment kind.
 - Veterinary care beyond bandaging: enable more job kinds for animals.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
+
+### Bone and metal splints and crutches (T-549)
+
+A splint or crutch of bone or metal is a splint or crutch: `set_bone` and `give_crutch` take any material. The recipes are rows (`workshops-and-recipes.md` § Planned rows).
+
+### Honey (T-555)
+
+- `dress_burn` takes a `honey` in place of a `cloth`; a burn dressed with honey is also `cleaned`, so it is never rolled for infection.
+- `clean_wound` takes a `honey` in place of the bucket of water: a fortress with no well cleans its wounds with honey. An infected wound still needs its brightleaf; honey prevents and cures nothing that is already infected.
+- The medic takes cloth and water first, honey only when they are not available, so a hospital's honey goes to the fortress without them.
+- Hospital supply kind `honey` (the desired-supplies record and `HOSPITAL_DEFAULT_SUPPLIES` gain it, default 0).
+
+### Soap (T-NEW (compost))
+
+- Hospital supply kind `soap` (default 0). A `wash_patient` job (labor `medicine`, skill `medicine`, priority 3, input 1 `soap`, `TREAT_TICKS`, xp 4) is made once per admission for a patient when a soap is available. Done, the patient is `washed` (`Patient.washed`): no wound of theirs is rolled for infection for the rest of that admission, the wounds they take during it included. Discharge clears it.
+- Soap prevents, brightleaf cures, honey prevents one wound at a time: three medicines where there was one.
+- Save: `Patient.washed` (absent: false).

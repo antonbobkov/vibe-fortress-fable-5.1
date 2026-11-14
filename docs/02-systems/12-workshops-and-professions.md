@@ -187,3 +187,51 @@ Recipe times, bar costs per item and profession names are content.
 - Reaction chains with by-products (slag): additional outputs in the recipe row.
 - Worker preferences (a workshop preferring the most skilled dwarf): the assignment bonus in 11 already favors skill; a `preferBest` flag could raise it.
 - Custom player recipes: not planned; the recipe table is the extension point.
+
+## Planned: Making Do
+
+Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `workshops-and-recipes.md` § Planned rows and the other content documents' § Planned rows.
+
+### Substitutes are worse (T-547 builds the check; every Making Do task keeps it green)
+
+Every planned recipe marked `substitute` in `workshops-and-recipes.md` § Planned rows names the regular recipe it stands in for. A unit test compares the pair: per unit of output, the substitute takes at least as many input units and at least as many ticks, or gives a lower output value, and it is never better on all three. A substitute that is better on every count fails the test.
+
+### Steel without flux stone (T-547)
+
+The smelter has two authored steel recipes beside the generated `alloy_steel`: `make_steel_shell` (1 iron bar + 3 `shell_piece` of any shell material, chitin included, + 1 fuel → 1 steel) and `make_steel_bone_ash` (1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel), fuel and no quality as the alloy. Bone ash is made at the kiln (T-553); until then the second recipe is never runnable.
+
+### Half fuels and smoke (T-552)
+
+- A fuel job takes one item tagged `fuel` (a coal or charcoal bar), or, when none is available, two items tagged `fuel_half` (`peat_brick`, `dung_cake`). An order is runnable when either is; the job reserves what it takes, bars first.
+- A job that burns an item tagged `smoky` emits `SmokyFuelBurned { workshopId, tile }` (05 § Planned, Smoke), on completion.
+- Magma workshops burn nothing, as before.
+
+### The kiln and pottery (T-553)
+
+- Workshop `kiln`: 3 `stone_block` (bricks are blocks), masonry, fuel; its magma variant is the reserved `magma_kiln`, which gains `variant of: kiln` and becomes buildable where the magma rule holds (a Glasslands fortress has a fuel-free kiln on day one). Every kiln recipe burns a fuel.
+- Skill `pottery` (labor `crafts`, profession Potter, attributes Agility, Wits). Its recipes: bricks, pots, jugs, clay mugs, glass, glass blocks, potash, bone ash, crushed fossils, the clay hive (T-555) and the lantern (T-NEW (candles)).
+
+### Smoke, salt and the smokehouse (T-552)
+
+- Workshop `smokehouse`: 3 `stone_block`, masonry, skill `cooking`, fuel. `smoke_meat`: 1 fuel + 5 raw meat or raw fish (same material) → 5 `cured_meat` or `cured_fish` of that material. On its completion every fortress dwarf within `SMOKE_RADIUS` of the smokehouse who is not its worker gets `smelled_smokehouse` ("Smells of smoked {meat}. Hungry now.", the material's name) and hunger +`SMOKEHOUSE_HUNGER`.
+- Kitchen: `crush_halite` (1 `ore` of halite → 5 `salt`, T-547) and `salt_meat` (1 salt + 5 raw meat or raw fish → 5 cured, no fuel, T-552).
+- A meal records the seasonings among its ingredients: `Item.seasoned`, the materials of its ingredients that carry the tag `seasoning` (`salt`, `wyrmtongue`). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"). `MealEaten` carries `seasoned`, and 15 gives `ate_salted_meal` (T-552) or `ate_wyrmtongue` (T-548) beside the meal's own thought.
+- Constants: `SMOKEHOUSE_HUNGER` 5. Save: `Item.seasoned` (omitted when empty).
+
+### Spirits (T-554)
+
+- At the still, `distill`: 20 `drink` of the `drink/ale` or `drink/wine` group (same material, one barrel's worth, taken from its barrel) + 1 fuel + an empty `barrel` container → 10 `drink` of `deepfire` in that barrel. The emptied source barrel is a free container again. A `maintain` order counts deepfire.
+
+### Fletching at the bowyer (T-NEW (scale))
+
+- An `enchants` row may name a `workshop` (`weapons-and-armor.md` § Enchantments gains the column; empty means the runeforge). Its generated `set_<slot>_<id>` recipe is offered at that workshop, with that workshop's skill (the bowyer's `carpentry`), and is a transform recipe by every rule of § Work orders. It emits `DeepsilverWorked` only at a `rune_work` building, as now.
+- `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5) is the one such row: 25 bolts or arrows + 1 feather → fletched. A fletched set cannot take a rune setting (one enchantment per item), so seeking (emerald, +10) and fletching are a choice.
+
+### The workshop-inputs rule (T-549)
+
+14 § Planned (Workshops of stone) says how a workshop is built from blocks in place of logs; nothing here changes.
+
+### Soap and the feast (T-NEW (compost), T-NEW (hall life))
+
+- Kitchen `make_soap`: 1 tallow + 1 `potash` → 2 `soap` (T-NEW (compost)).
+- Kitchen `cook_feast`: 6 distinct ingredients + 1 `salt`, `honey` or `plant_food` of wyrmtongue → 1 `feast` (a stack of `FEAST_SERVINGS`), `Q` yes; its `ItemCrafted` gives everyone `held_a_feast` (10 § Planned) (T-NEW (hall life)).

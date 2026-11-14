@@ -548,3 +548,11 @@ The rules above are pinned by the tests named beside them, and together by these
 
 - More stones: a row in `spells` and `enchants`.
 - A sanctum chest: the zone setting and 13's hospital rule, if attunement ever needs to be supplied in place.
+
+## Planned: Making Do
+
+Not yet in the game. The block below names the task that builds it; that task moves it into the sections above and deletes it here, and this section with it.
+
+### Settings at another workshop (T-NEW (scale))
+
+The `enchants` table gains an optional `workshop` column (`weapons-and-armor.md` § Enchantments). A row that names one has its `set_<slot>_<id>` recipe generated at that workshop with that workshop's skill, not at the runeforge with `runesmithing` (12 § Planned, Fletching at the bowyer). `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5, workshop `bowyer`) is the one such row. "seeking" (emerald, +10) stays the rune version. Every rule of § Setting stones holds: one enchantment per item, transform, `once` orders, value by the stone and the vials.
