@@ -329,6 +329,20 @@ describe('T-552 the drying rack', () => {
     expect(units(w, 'peat_brick', 'peat')).toBe(3);
   });
 
+  it('stepped: under a roof a held peat load is a brick after 7 DayPassed, and the rack keeps its day record while it stands', () => {
+    const w = new TestWorld({ seed: 't552-rack-stepped', world: 'flat-test', embark: 'none' });
+    const tiles = room(w, 10, 30, 4, 3);
+    const rack = w.build('drying_rack', tiles[0] as TileIndex, 'oak');
+    hold(w, rack, w.spawnItem('soil_load', 'peat', tiles[1] as TileIndex, 1));
+    w.step(6 * TICKS_PER_DAY + 20);
+    expect(units(w, 'peat_brick')).toBe(0);
+    expect(b14(w).rackItems(rack)[0]).toMatchObject({ row: 'dry_peat', left: 1 });
+    expect(system14(w).serialize().rackDay).toBeDefined();
+    w.step(TICKS_PER_DAY);
+    expect(units(w, 'peat_brick', 'peat')).toBe(1);
+    expect(b14(w).held(rack)).toEqual([]);
+  });
+
   it('the day record follows the weather: one hour of rain makes a wet day', () => {
     const w = new TestWorld({ seed: 't552-rack-weather', world: 'flat-test', embark: 'none' });
     w.build('drying_rack', w.index(10, 10, Z), 'oak');
