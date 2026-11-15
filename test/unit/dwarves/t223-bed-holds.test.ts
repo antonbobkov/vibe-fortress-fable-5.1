@@ -43,7 +43,8 @@ describe('T-223 a bed holds one dwarf from selection until release',()=>{
   expect(loaded.world.readers.of<BuildingsReader>('14').freeBeds()).toEqual([]);
   for(let tick=0;tick<50;tick+=1){w.step(1);loaded.step(1);expect(loaded.hash()).toBe(w.hash());}
   expect(reader().freeBeds()).toEqual([]);
-  w.until(()=>w.events('Slept').some(e=>e['id']===b),500);
+  // T-551: the floor rests at 50, so the floor sleeper sleeps twice as long as one in a bed.
+  w.until(()=>w.events('Slept').some(e=>e['id']===b),1000);
   expect(w.events('Slept').find(e=>e['id']===b)).toMatchObject({onFloor:true});
  });
  it('a patient holds its bed against a tired medic',()=>{

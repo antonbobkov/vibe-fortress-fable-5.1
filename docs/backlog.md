@@ -12,8 +12,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-550 | [Making Do A4: sundries, the scarcity price and the site summary](work/T-550-making-do-sundries-and-site-summary.md) | Making Do design; the owner, 2026-11-13 | — | open |
-| T-551 | [Making Do B1: beds that rest differently, bedding, and buildings that want items](work/T-551-making-do-beds.md) | Making Do design; the owner, 2026-11-13 | — | open |
-| T-552 | [Making Do B2: dung, the drying rack, half fuels, smoke, curing and the smokehouse](work/T-552-making-do-drying-curing-and-smoke.md) | Making Do design; the owner, 2026-11-13 | T-551 | blocked (needs T-551) |
+| T-552 | [Making Do B2: dung, the drying rack, half fuels, smoke, curing and the smokehouse](work/T-552-making-do-drying-curing-and-smoke.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-555 | [Making Do B5: hives, honey, beeswax and mead](work/T-555-making-do-farm-hive-and-medicine.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-556 | [Making Do B6: the spider ranch, the beetle jar and bat roosts](work/T-556-making-do-cages-and-roosts.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-557 | [Making Do C1: boneyards and the bone recipes](work/T-557-making-do-boneyards.md) | Making Do design; the owner, 2026-11-13 | — | open |
@@ -22,10 +21,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-560 | [Making Do C4: the Starfall region trait and star steel](work/T-560-making-do-starfall.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-561 | [Making Do C5: reindeer and camels](work/T-561-making-do-animals-and-hall-life.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-562 | [Making Do A3b: scale armour, horn bows and fletching](work/T-562-making-do-scale-armour-and-bows.md) | T-546's re-cut of Making Do | — | open |
-| T-563 | [Making Do B3b: candles, candle stands, lanterns and what light does](work/T-563-making-do-candles-and-lanterns.md) | T-546's re-cut of Making Do | T-551, T-552 | blocked (needs T-551, T-552) |
+| T-563 | [Making Do B3b: candles, candle stands, lanterns and what light does](work/T-563-making-do-candles-and-lanterns.md) | T-546's re-cut of Making Do | T-552 | blocked (needs T-552) |
 | T-564 | [Making Do B5b: the compost heap, fertilizer and soap](work/T-564-making-do-compost-fertilizer-soap.md) | T-546's re-cut of Making Do | T-552 | blocked (needs T-552) |
-| T-565 | [Making Do C6: feasts, the Thane's whims and mugs at the table](work/T-565-making-do-hall-life.md) | T-546's re-cut of Making Do | T-551, T-555, T-557, T-563 | blocked (needs T-551, T-555, T-557, T-563) |
+| T-565 | [Making Do C6: feasts, the Thane's whims and mugs at the table](work/T-565-making-do-hall-life.md) | T-546's re-cut of Making Do | T-555, T-557, T-563 | blocked (needs T-555, T-557, T-563) |
 | T-566 | [Making Do: salt crusts, after T-547's salt](work/T-566-making-do-salt-crust.md) | T-548's runs | — | open |
 | T-567 | [The fixtures: soldiers' picks stall the digging, and p2-6 ends without dining chairs](work/T-567-fixture-picks-and-chairs.md) | T-547's runs | — | open |
+| T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

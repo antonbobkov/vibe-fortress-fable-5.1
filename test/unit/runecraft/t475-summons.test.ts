@@ -181,6 +181,8 @@ describe('T-475 call', () => {
     expect(magic(w).summonsOf(mage)).toHaveLength(MAX_SUMMONS_PER_CASTER);
     // One killed at 0 hp: the caster calls again.
     killCreature(ctxOf(w), magic(w).summonsOf(mage)[0]!, 'wounds');
+    // T-551: the mage has no bed; awake, not on a floor sleep twice as long as a bed's.
+    w.setNeed(mage, 'rest', 0);
     w.step(400);
     expect(w.events('SummonCalled')).toHaveLength(MAX_SUMMONS_PER_CASTER + 1);
     // Summons count toward MAX_CREATURES: at the cap, no call.

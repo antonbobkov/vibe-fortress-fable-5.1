@@ -336,6 +336,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'pull the lever': 'pull',
   'tame the caged creature': 'tame',
   "the owner of a bed's bedroom, or whom a coffin is kept for": 'owner',
+  'take out what the building holds (its bedding and pillow): they drop on its tile': 'take_out',
   'cancel the plan, or take the building apart (confirm)': 'cancel_or_take_apart',
   'forbid the selected items': 'forbid',
   'dump the selected items (confirm)': 'dump',

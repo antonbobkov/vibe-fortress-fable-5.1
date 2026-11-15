@@ -32,6 +32,9 @@ function fixture(def: ThoughtDef): GameEvent | null {
     slept_in_decent_room: 2, slept_in_fine_room: 3, slept_in_grand_room: 4, slept_in_royal_room: 5 }[id];
   if (id === 'slept_in_shared_bed_room') e.ownBed = false;
   if (id === 'slept_on_floor') e.onFloor = true;
+  if (id === 'slept_on_a_pallet') { e.onFloor = false; e.bedType = 'pallet'; }
+  if (id === 'slept_in_a_soft_bed') e.bedding = 'soft';
+  if (id === 'slept_in_a_featherbed') e.bedding = 'feather';
   if (id === 'talked_with_friend') e.friends = true;
   if (id === 'talked_with_someone') e.friends = false;
   if (id === 'caught_in_storm') e.weather = 'storm';

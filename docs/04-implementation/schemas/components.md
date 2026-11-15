@@ -90,6 +90,7 @@ interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Qu
                  stone?: Idx<MaterialDef> /* the gem set in a channel (25); absent: none */;
                  enchant?: ItemEnchant /* the stone set in a weapon, armor piece or ammunition (25); absent: none */;
                  seasoned?: Idx<MaterialDef>[] /* a meal's seasonings, ascending (12 § Operation); absent: none */;
+                 stuffing?: Idx<MaterialDef> /* a `stuffed` item's stuffing, the material of its last input (12 § Operation); absent: none */;
                  cellarDays?: number /* days aged in a working cellar toward the next stage (13 § Aging in a cellar); absent: 0 */;
                  age?: 1|2 /* aged, vintage; absent: young */ }
 interface ItemEnchant { id: Idx<EnchantDef>; tier: Quality /* the setting's quality roll; scales the row's numbers */ }
@@ -98,7 +99,8 @@ interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId
 interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 'planned'|'constructing'|'built';
                      origin: TileIndex; footprint: TileIndex[]; orientation: 0|1|2|3; itemId: EntityId;
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;
-                     settings: Record<string, unknown>; toggled: boolean /* bridge raised, floodgate open, lever on */ }
+                     settings: Record<string, unknown>; toggled: boolean /* bridge raised, floodgate open, lever on */;
+                     held?: EntityId[] /* the items a building with wants holds, each Installed (14 § Building wants); absent: none */ }
 interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
                       targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }

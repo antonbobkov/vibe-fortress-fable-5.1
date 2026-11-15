@@ -178,5 +178,10 @@
     "id": "hint_cellar",
     "trigger": "a stockpile with the cellar setting on is not a working cellar (hourly)",
     "text": "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two."
+  },
+  {
+    "id": "hint_pallet",
+    "trigger": "first Slept on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock",
+    "text": "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor."
   }
 ]

@@ -58,6 +58,7 @@ const previouslyUnaccepted = [
   'ReleaseCage',
   'AssignCoffin',
   'SetTrapMode',
+  'ReleaseHeld',
 ] as const;
 
 function validTarget(game: HeadlessGame, type: string): Command | null {
@@ -155,6 +156,8 @@ function validTarget(game: HeadlessGame, type: string): Command | null {
       return { type, coffinId: b.byType('coffin')[0], dwarfId: dwarf };
     case 'SetTrapMode':
       return { type, trapId: b.byType('stone_fall_trap')[0], mode: 'all' };
+    case 'ReleaseHeld':
+      return { type, buildingId: b.byType('bed')[0] };
     default:
       return null;
   }
@@ -296,6 +299,7 @@ const OWN: Record<string, string[]> = {
   SetPlateTrigger: ['plateId', 'trigger'],
   ReleaseCage: ['cageBuildingId'],
   AssignCoffin: ['coffinId', 'dwarfId'],
+  ReleaseHeld: ['buildingId'],
   CreateSquad: ['name'],
   DisbandSquad: ['squadId'],
   SetSquadMembers: ['squadId', 'members'],
@@ -365,6 +369,11 @@ function buildWorld(): TestWorld {
     w.map.materialAt(w.index(73, 65, Z)),
   );
   w.build('hatch', w.index(73, 65, Z), 'granite');
+  // T-551: the bed holds its bedding, so ReleaseHeld has something to take out.
+  const bed = w.readers.of<BuildingsReader>('14').byType('bed')[0] as number;
+  const bedding = w.spawnItem('bedding', 'flax_cloth', w.index(60, 70, Z), 1, 2);
+  w.game.world.services.items?.install?.(bedding);
+  w.game.world.entities.add(bed, C.Building, { ...w.game.world.entities.get(bed, C.Building)!, held: [bedding] });
   w.zone('bedroom', [w.index(60, 70, Z), w.index(61, 70, Z)]);
   w.zone('hospital', [w.index(70, 70, Z)]);
   w.zone('dump', [w.index(72, 70, Z)]);

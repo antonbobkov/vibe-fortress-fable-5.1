@@ -52,6 +52,9 @@ function fortress(): { w: TestWorld; dwarves: EntityId[]; hall: EntityId } {
   }
   const dwarves: EntityId[] = [];
   for (let i = 0; i < 7; i += 1) dwarves.push(w.spawnDwarf({ at: w.index(28 + i, 17, Z) }));
+  // T-551: a bed for each, beside the hall. Without one a dwarf sleeps on the floor at 50, twice as long
+  // as in a bed; these shares were measured when the hall's floor rested at 100, as a bed does.
+  for (let i = 0; i < 7; i += 1) w.build('bed', w.index(17 + i, 25, Z), 'oak');
   return { w, dwarves, hall };
 }
 

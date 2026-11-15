@@ -43,6 +43,8 @@ export interface HintFacts {
   herbsEaten?: boolean;
   /** 13 § Aging in a cellar: a stockpile with the cellar setting on is not a working cellar. */
   cellarFailing?: boolean;
+  /** 14 § Beds: a dwarf slept on the floor while a pallet's materials were in stock. */
+  palletMaterials?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -84,6 +86,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_draught': return f.draughtInStock === true;
     case 'hint_herbs_eaten': return f.herbsEaten === true;
     case 'hint_cellar': return f.cellarFailing === true;
+    case 'hint_pallet': return f.palletMaterials === true;
     default: return false;
   }
 }
@@ -158,6 +161,8 @@ export class HintEngine {
     // 25 § Draughts: a raw plant eaten while a draught brewed from plants is ordered (a fun feature: the herbs are food too).
     if (event.type === 'MealEaten' && fields['kind'] === 'raw' && fields['mealType'] === 'plant_food' && this.draughtWantsPlants(readers)) this.markId('hint_herbs_eaten');
     if (event.type === 'RaidEnded') this.markId('hint_gate');
+    // 14 § Beds: someone slept on the floor with a pallet's materials (cloth, wool, straw or reeds) in stock.
+    if (event.type === 'Slept' && fields['onFloor'] === true && this.palletMaterials(readers)) this.markId('hint_pallet');
     if (event.type === 'DoorBroken') this.markId('hint_troll');
     if (event.type === 'CavernBreached' && fields['cavern'] === 2) this.markId('hint_magma');
     if (event.type === 'VeinFound' && typeof fields['material'] === 'string' &&
@@ -179,6 +184,16 @@ export class HintEngine {
       const type = readers.of<BuildingsReader>('14').get(id)?.typeId;
       if (fuel && (type === 'smelter' || type === 'forge')) this.markId('hint_fuel');
     }
+  }
+
+  /** Units of a pallet's materials in stock: cloth, wool, straw or reeds (`hint_pallet`). */
+  private palletMaterials(readers: ReaderSet): boolean {
+    if (!readers.has('13') || !readers.has('14')) return false;
+    const b14 = readers.of<BuildingsReader>('14');
+    const types = b14.types().filter((row) => row.labor === 'hauling' && row.tags.includes('sleep'))
+      .flatMap((row) => row.inputs.flatMap((input) => b14.inputTypes(input.match)));
+    const items = readers.of<ItemsReader>('13');
+    return types.some((type) => items.available(type) > 0);
   }
 
   /** A work order stands for a draught recipe (a spoilable one) with a plant among its inputs. */
@@ -292,6 +307,7 @@ export class HintEngine {
         const pile = items?.stockpile(id);
         return pile?.cellar === true && pile.cellarOk !== true;
       }),
+      palletMaterials: this.pending('hint_pallet'),
     };
   }
 }

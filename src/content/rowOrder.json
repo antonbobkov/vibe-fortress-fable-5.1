@@ -1138,5 +1138,61 @@
   {
     "table": "recipes",
     "id": "forge_crutch"
+  },
+  {
+    "table": "items",
+    "id": "stone_bed"
+  },
+  {
+    "table": "items",
+    "id": "bedding"
+  },
+  {
+    "table": "items",
+    "id": "pillow"
+  },
+  {
+    "table": "buildings",
+    "id": "pallet"
+  },
+  {
+    "table": "buildings",
+    "id": "straw_pallet"
+  },
+  {
+    "table": "buildings",
+    "id": "stone_bed"
+  },
+  {
+    "table": "recipes",
+    "id": "make_stone_bed"
+  },
+  {
+    "table": "recipes",
+    "id": "make_stone_bed_straw"
+  },
+  {
+    "table": "recipes",
+    "id": "make_bedding"
+  },
+  {
+    "table": "recipes",
+    "id": "make_pillow"
+  },
+  {
+    "table": "thoughts",
+    "id": "slept_on_a_pallet"
+  },
+  {
+    "table": "thoughts",
+    "id": "slept_in_a_soft_bed"
+  },
+  {
+    "table": "thoughts",
+    "id": "slept_in_a_featherbed"
+  },
+  {
+    "table": "hints",
+    "id": "hint_pallet"
   }
 ]

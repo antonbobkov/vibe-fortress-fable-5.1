@@ -332,7 +332,7 @@ const NOT_FOUND_SUBJECT: Readonly<Record<string, string>> = Object.freeze({
   PlaceBuilding: 'building_type', CancelBuilding: 'building', DeconstructBuilding: 'building',
   SetBuildingPriority: 'building', ResizeZone: 'zone', RemoveZone: 'zone', SetZoneSetting: 'zone', AssignRoom: 'zone',
   LinkMechanism: 'building', UnlinkMechanism: 'building', SetDoorMode: 'building', SetHatchMode: 'building',
-  SetPlateTrigger: 'building', ReleaseCage: 'building', AssignCoffin: 'building', DisbandSquad: 'squad',
+  SetPlateTrigger: 'building', ReleaseCage: 'building', AssignCoffin: 'building', ReleaseHeld: 'building', DisbandSquad: 'squad',
   SetSquadMembers: 'squad', SetSquadLeader: 'squad', SetSquadMode: 'squad', SetSquadEquipment: 'squad',
   SetSquadStation: 'squad', SetSquadPatrol: 'squad', SquadOrder: 'squad', SetHospitalSupplies: 'zone',
   SetTrapMode: 'building', PullLever: 'building', MoveToDepot: 'items', RemoveFromDepot: 'items',

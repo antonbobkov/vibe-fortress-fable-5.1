@@ -721,6 +721,11 @@
   },
   {
     "context": "building_panel",
+    "key": "[h]",
+    "action": "take out what the building holds (its bedding and pillow): they drop on its tile"
+  },
+  {
+    "context": "building_panel",
     "key": "[x]",
     "action": "cancel the plan, or take the building apart (confirm)"
   },

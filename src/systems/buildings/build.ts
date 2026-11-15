@@ -38,7 +38,7 @@ import { BODY_SLOTS, type EntityId, type Idx, type MovementClass, type TileIndex
 import { killCreature } from '@systems/health/tick';
 import { CLEAR_PLANT_TICKS } from '@systems/plants/constants';
 import { CONSTRUCTION_KIND, constructionFlags, isClearablePlant, onRuleHolds, onRuleOf, standsAt, treeRefuses, type OnRule } from './constructions';
-import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, STONE_WORKSHOP_TICKS_PERCENT, WAGON_CAPACITY, WELL_DEPTH } from './constants';
+import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, MADE_UP_REST_PERCENT, STONE_WORKSHOP_TICKS_PERCENT, WAGON_CAPACITY, WELL_DEPTH } from './constants';
 import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 
 export interface BuildingRow {
@@ -56,12 +56,38 @@ export interface BuildingRow {
   readonly blocksFluid: boolean | 'rules';
   readonly value: number;
   readonly impassableTiles?: readonly number[];
+  /** 14 § Beds: the percent a `sleep` building rests at. */
+  readonly rest?: number;
+  /** 14 § Building wants: the items a built one holds. */
+  readonly wants?: readonly { readonly match: string; readonly count: number }[];
+}
+
+/** One of a building's wants with what it holds of it (`buildings.wants(id)`). */
+export interface WantView {
+  readonly match: string;
+  readonly count: number;
+  /** The held items that answer it. */
+  readonly held: number;
+  /** The items on their way to it (13's haul jobs to the building). */
+  readonly coming: number;
+}
+
+/**
+ * 14 § Placement: furniture links its item. A furniture row whose input is counted (the pallets: "2
+ * `cloth` or `wool_raw`") is laid from its materials instead: they are consumed and return when it is
+ * taken apart, as a construction's are (14 § Beds).
+ */
+export function linksItem(row: BuildingRow): boolean {
+  return row.category === 'furniture' && (row.inputs[0]?.count ?? 1) === 1;
 }
 
 interface ItemRow {
   readonly id: string;
   readonly tags?: readonly string[];
 }
+
+/** 14 § Beds: what a bed is made up with (`Slept.bedding`). */
+export type Bedding = 'none' | 'soft' | 'feather';
 
 interface MaterialRow {
   readonly id: string;
@@ -226,6 +252,89 @@ export class BuildingStore {
 
   all(): EntityId[] {
     return this.host.entities.with(C.Building);
+  }
+
+  // ---------- building wants and beds (14 § Building wants, § Beds) ----------
+
+  /** The living items a building holds, in its order. */
+  heldOf(b: Building): EntityId[] {
+    return (b.held ?? []).filter((it) => this.host.entities.has(it, C.Item));
+  }
+
+  /** Whether an item answers a want's match. */
+  answers(itemId: EntityId, match: string): boolean {
+    const type = this.host.entities.get(itemId, C.Item)?.type;
+    return type !== undefined && this.typesOf(match).includes(type);
+  }
+
+  /**
+   * `buildings.wants(id)`: each want of a built building with the held items that answer it and those
+   * `coming` names on their way (13's hauls to the building, counted by the caller); [] for none.
+   */
+  wants(id: EntityId, coming: (match: string) => number = () => 0): WantView[] {
+    const b = this.get(id);
+    if (b === undefined || b.state !== 'built') return [];
+    const row = this.row(b.type);
+    const held = this.heldOf(b);
+    const used = new Set<EntityId>();
+    return (row.wants ?? []).map((want) => {
+      let n = 0;
+      for (const it of held) {
+        if (n >= want.count || used.has(it) || !this.answers(it, want.match)) continue;
+        used.add(it);
+        n += 1;
+      }
+      return { match: want.match, count: want.count, held: n, coming: coming(want.match) };
+    });
+  }
+
+  /** A bed holding an item of its first want (its bedding) is made up (14 § Beds). */
+  madeUp(id: EntityId): boolean {
+    const b = this.get(id);
+    if (b === undefined || b.state !== 'built') return false;
+    const first = this.row(b.type).wants?.[0];
+    return first !== undefined && this.heldOf(b).some((it) => this.answers(it, first.match));
+  }
+
+  /**
+   * `buildings.restPercent(id)`: the percent a `sleep` building rests at, its row's `rest`, or
+   * `MADE_UP_REST_PERCENT` when it is made up; 0 for anything else.
+   */
+  restPercent(id: EntityId): number {
+    const b = this.get(id);
+    if (b === undefined || b.state !== 'built') return 0;
+    const row = this.row(b.type);
+    if (!row.tags.includes('sleep')) return 0;
+    return this.madeUp(id) ? MADE_UP_REST_PERCENT : (row.rest ?? 100);
+  }
+
+  /**
+   * `buildings.bedding(id)` (`Slept.bedding`): `soft` for a bed holding every item it wants,
+   * `feather` when every one of them is stuffed with feathers, else `none` (bedding with no pillow
+   * rests as a made-up bed and gives no thought).
+   */
+  bedding(id: EntityId): Bedding {
+    const wants = this.wants(id);
+    if (wants.length === 0 || wants.some((w) => w.held < w.count)) return 'none';
+    const b = this.get(id) as Building;
+    const feather = this.heldOf(b).every((it) => {
+      const stuffing = this.host.entities.get(it, C.Item)?.stuffing;
+      return stuffing !== undefined && this.materials[stuffing]?.id === 'feather';
+    });
+    return feather ? 'feather' : 'soft';
+  }
+
+  /** `ReleaseHeld { buildingId }`: every held item drops on the building's tile, unflagged. */
+  releaseHeld(cmd: Command): CommandResult {
+    const id = cmd['buildingId'];
+    const b = typeof id === 'number' ? this.get(id) : undefined;
+    if (b === undefined) return reject('not_found');
+    if (b.state !== 'built' || this.heldOf(b).length === 0) return reject('precondition_failed');
+    const anchor = this.anchorOf(b);
+    for (const it of this.heldOf(b)) this.host.services.items?.uninstall?.(it, anchor);
+    this.write(id as EntityId, { held: [] });
+    this.onFootprintChanged(b.footprint);
+    return OK;
   }
 
   private write(id: EntityId, patch: Partial<Building>): Building {
@@ -560,6 +669,8 @@ export class BuildingStore {
         settings: { ...peer.settings, linkMaterials: peerMaterials.filter(([target]) => target !== id) } });
     }
     if (b.itemId !== 0) this.host.services.items?.uninstall?.(b.itemId, anchor);
+    // 14 § Building wants: what the building held drops on its tile, unflagged.
+    for (const it of this.heldOf(b)) this.host.services.items?.uninstall?.(it, anchor);
     if (b.state === 'built' && row.tags.includes('bridge')) {
       for (const tile of (b.settings['openTiles'] as TileIndex[] | undefined) ?? []) {
         if (this.map.kindAt(tile) === TileKind.Floor) this.host.services.terrain.setKind(tile, TileKind.Open, 0);
@@ -632,6 +743,8 @@ export class BuildingStore {
             building: id,
             anchorTile: anchor,
             labor: this.laborFor(row, material),
+            // 14 § Beds: a pallet is laid by any hauler with no skill (no speed from `building`, no xp).
+            ...(row.labor === 'hauling' ? { skill: '' } : {}),
             buildTicks: buildTicksOf(row, isOfBlocks(b)) * (row.tags.includes('bridge') ? b.footprint.length : 1),
             inputUnits: inputs.some((i) => i.count > 1),
             ...(plants > 0 ? { clearTicks: plants * CLEAR_PLANT_TICKS } : {}),
@@ -644,7 +757,7 @@ export class BuildingStore {
           target: { kind: 'building', ref: id },
           workTile: 'adjacent',
           priority,
-          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, b.material), buildTicks: Math.floor(buildTicksOf(row, isOfBlocks(b)) * (row.tags.includes('bridge') ? b.footprint.length : 1) / 2) },
+          data: { building: id, anchorTile: anchor, labor: this.laborFor(row, b.material), ...(row.labor === 'hauling' ? { skill: '' } : {}), buildTicks: Math.floor(buildTicksOf(row, isOfBlocks(b)) * (row.tags.includes('bridge') ? b.footprint.length : 1) / 2) },
         });
       }
     }
@@ -771,7 +884,7 @@ export class BuildingStore {
     if (moves === null) return;
     const items = this.host.services.items;
     const used: { type: string; material: number }[] = [];
-    const furniture = row.category === 'furniture';
+    const furniture = linksItem(row);
     const trap = row.tags.some((tag) => tag.startsWith('trap:'));
     const trapLoaded: EntityId[] = [];
     let itemId: EntityId = 0;

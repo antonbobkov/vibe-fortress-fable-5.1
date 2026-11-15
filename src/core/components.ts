@@ -260,6 +260,8 @@ export interface Item {
   age?: 1 | 2;
   /** A meal's seasonings: the materials of its ingredients tagged `seasoning`, ascending (`12` § Operation); absent: none. */
   seasoned?: Idx<'MaterialDef'>[];
+  /** A `stuffed` item's stuffing: the material of its last input (`12` § Operation); absent: none. */
+  stuffing?: Idx<'MaterialDef'>;
 }
 
 /** An item's enchantment: the `enchants` row and the runesmith's quality roll, which scales its numbers. */
@@ -303,6 +305,8 @@ export interface Building {
   settings: Record<string, unknown>;
   /** Bridge raised, floodgate open, lever on. */
   toggled: boolean;
+  /** The items a building with wants holds (`14` § Building wants), each flagged `Installed`; absent: none. */
+  held?: EntityId[];
 }
 
 export interface WorkOrder {

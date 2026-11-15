@@ -295,6 +295,10 @@ export class RoomStore {
       } else if (typeof row.roomValue === 'number') {
         furniture += row.roomValue;
       }
+      // 14 § Beds: the items a building holds count as a linked item does (a bed's bedding and pillow).
+      for (const held of this.host.buildings.heldOf(b)) {
+        if (this.host.itemQuality(held) > 0) furniture += this.host.itemValue(held) / 10;
+      }
     }
     const size = Math.min(tiles.length, ROOM_SIZE_CAP);
     let score = tileScore + wallScore + furniture + size;

@@ -289,6 +289,7 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 | `[y]` | pull the lever |
 | `[g]` | tame the caged creature |
 | `[w]` | the owner of a bed's bedroom, or whom a coffin is kept for |
+| `[h]` | take out what the building holds (its bedding and pillow): they drop on its tile |
 | `[x]` | cancel the plan, or take the building apart (confirm) |
 
 ### Stocks panel
@@ -647,6 +648,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_draught` | a draught in stock | "One draught, then three days' rest." |
 | `hint_herbs_eaten` | a dwarf eats a raw plant while a work order for a draught brewed from plants stands | "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest." |
 | `hint_cellar` | a stockpile with the cellar setting on is not a working cellar (hourly) | "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two." |
+| `hint_pallet` | first `Slept` on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." |
 
 ## Tutorial
 
@@ -780,7 +782,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 
 | id | Trigger | Text | task |
 |---|---|---|---|
-| `hint_pallet` | first `Slept` on the floor with cloth, wool, straw or reeds in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." | T-551 |
 | `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." | T-552 |
 | `hint_hive` | first hive with too few flowers | "Bees need flowers: eight within six tiles of the hive." | T-555 |
 | `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
@@ -792,7 +793,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|---|
 | Designate panel | `I` | harvest ice | T-559 |
 | Designate panel | `F` | ignite (set a fire) | T-559 |
-| Building panel | `t` | take out what the building holds | T-551 |
 | Zone inspector | `f` | toggle fertilize (farm plot) | T-564 |
 
 The keys are first choices; the task checks them against the existing bindings of each context and the fixed keys.

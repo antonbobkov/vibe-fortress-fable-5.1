@@ -262,7 +262,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   DrankWater: "id, material, quality, group, aged / id, outdoors",
   DrankFromPlant: "id, material",
   Stung: "id, source",
-  Slept: "id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored",
+  Slept: "id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType",
   Talked: "a, b, friends",
   Sat: "id, roomTier",
   HearthVisited: "id",

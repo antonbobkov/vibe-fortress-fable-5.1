@@ -111,6 +111,22 @@ describe('12 § Substitutes: a substitute recipe stays worse than the recipe it 
     expect(alloy.ticks).toBe(200);
   });
 
+  // A substitute with an item of its own (T-551): the stone bed stands in for the wooden bed. It is
+  // judged by what a bed is for, its rest (14 § Beds), and by its worth: it rests less and is worth less.
+  for (const subId of ['make_stone_bed', 'make_stone_bed_straw']) {
+    it(`${subId} makes a bed that rests less and is worth less than make_bed's`, () => {
+      const buildings = registry.table<{ id: string; rest?: number }>('buildings');
+      // In the commonest stone and wood: granite against pine.
+      const sub = cost(recipes.byId(subId) as RecipeDef, 'granite');
+      const regular = cost(recipes.byId('make_bed') as RecipeDef, 'pine');
+      expect(recipes.byId(subId)?.outputs[0]?.item).toBe('stone_bed');
+      expect(buildings.byId('stone_bed')?.rest ?? 0).toBeLessThan(buildings.byId('bed')?.rest ?? 0);
+      expect(sub.value).toBeLessThan(regular.value);
+      // And it takes more units of input than the wooden bed's one log.
+      expect(sub.units).toBeGreaterThan(regular.units);
+    });
+  }
+
   it('bone ash takes the 4 units of the flux stone, in the same 200 ticks, for the same steel', () => {
     const ash = cost(recipes.byId('make_steel_bone_ash') as RecipeDef);
     expect(ash).toEqual(cost(recipes.byId('alloy_steel') as RecipeDef));

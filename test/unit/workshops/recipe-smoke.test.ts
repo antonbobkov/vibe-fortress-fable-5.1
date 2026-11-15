@@ -32,6 +32,7 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   plant_food: 'dimcap',
   raw_hide: 'cow_hide',
   wool_raw: 'wool',
+  straw: 'barley',
   glowcap: 'glowcap',
   hollow_ichor: 'hollow_ichor',
   wyrmscale: 'wyrmscale',
@@ -182,12 +183,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 231', () => {
+  it('the recipe count over all types is 235', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(231);
+    expect(total).toBe(235);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

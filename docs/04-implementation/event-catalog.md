@@ -58,7 +58,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `DrankAlcohol` / `DrankWater` | `id, material, quality, group, aged` / `id, outdoors` | 10 | 15 |
 | `DrankFromPlant` | `id, material` | 10 | 15 |
 | `Stung` | `id, source` | 09 | 15 |
-| `Slept` | `id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored` | 10 | 15 |
+| `Slept` | `id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType` | 10 | 15, 24 |
 | `Talked` | `a, b, friends` | 10 | 15 |
 | `Sat` | `id, roomTier` | 10 | 15 |
 | `HearthVisited` | `id` | 10 | 15 |

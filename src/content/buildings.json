@@ -113,6 +113,17 @@
     "passable": true,
     "blocksFluid": false,
     "value": 0,
+    "rest": 100,
+    "wants": [
+      {
+        "match": "bedding",
+        "count": 1
+      },
+      {
+        "match": "pillow",
+        "count": 1
+      }
+    ],
     "glyph": "Θ"
   },
   {
@@ -1150,6 +1161,34 @@
     "glyph": "∩"
   },
   {
+    "id": "pallet",
+    "name": "cloth pallet",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "cloth|wool_raw",
+        "count": 2
+      }
+    ],
+    "labor": "hauling",
+    "buildTicks": 20,
+    "tags": [
+      "sleep"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "rest": 60,
+    "glyph": "≈"
+  },
+  {
     "id": "paved_floor",
     "name": "paved floor",
     "category": "construction",
@@ -1496,6 +1535,34 @@
     "outputTile": 7
   },
   {
+    "id": "stone_bed",
+    "name": "stone bed",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "stone_bed",
+        "count": 1
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 40,
+    "tags": [
+      "sleep"
+    ],
+    "roomValue": "item",
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "rest": 75,
+    "glyph": "Θ"
+  },
+  {
     "id": "stone_fall_trap",
     "name": "stone-fall trap",
     "category": "trap",
@@ -1525,6 +1592,34 @@
     "blocksFluid": false,
     "value": 0,
     "glyph": "^"
+  },
+  {
+    "id": "straw_pallet",
+    "name": "straw pallet",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "fiber|straw|reed",
+        "count": 3
+      }
+    ],
+    "labor": "hauling",
+    "buildTicks": 20,
+    "tags": [
+      "sleep"
+    ],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "rest": 60,
+    "glyph": "≈"
   },
   {
     "id": "table",

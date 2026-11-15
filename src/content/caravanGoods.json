@@ -713,6 +713,20 @@
         "weight": 5
       },
       {
+        "item": "bedding",
+        "materials": [
+          {
+            "material": "flax_cloth",
+            "weight": 1
+          }
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "weight": 6
+      },
+      {
         "item": "stone_block",
         "materials": [
           {
