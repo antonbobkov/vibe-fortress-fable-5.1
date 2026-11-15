@@ -198,6 +198,8 @@ export const MATERIAL_CLASSES = [
   'glass', 'ice', 'meat', 'liquid', 'obsidian',
 ] as const;
 
+/** `02-systems/02-embark-and-loadout.md` § What a site has and lacks: the goods that are words, not materials. */
+export const SIGNATURE_WORDS: readonly string[] = ['honey', 'flux', 'fossils', 'giant_bones', 'horses', 'camels', 'reindeer', 'ice'];
 const DAMAGE_TYPES = ['edge', 'blunt', 'pierce', 'ember', 'frost'] as const;
 const BODY_SLOTS = ['head', 'torso', 'left_arm', 'right_arm', 'left_leg', 'right_leg'] as const;
 const WEIGHT_CLASSES = ['light', 'medium', 'heavy', 'density'] as const;
@@ -984,6 +986,10 @@ export const SCHEMAS: Record<string, TableSchema> = {
     hooks: record(anyValue),
   }),
 
+  // What a biome (`<biome>`), a geology class (`geology:<id>`) or a trait (`trait:<id>`) has and lacks:
+  // material ids, material classes or the words of 02 § What a site has and lacks.
+  signatures: rows({ id: nonEmptyStr, has: arr(nonEmptyStr), lacks: arr(nonEmptyStr) }),
+
   civilizations: rows({
     id: nonEmptyStr,
     name: str,
@@ -1125,6 +1131,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
         rare: opt(bool),
         rareAdds: opt(arr(str)),
         extra: opt(obj({ permille: int, minReputation: opt(int) })),
+        sundries: opt(bool),
+        units: opt(int),
       }),
     ),
   }),
@@ -1358,6 +1366,19 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
   for (const c of (data['creatures'] ?? []) as { id: string; remains?: { item: string }[] }[]) {
     for (const r of c.remains ?? []) {
       if (materialIds?.has(r.item) !== true) issues.push({ table: 'creatures', row: c.id, field: 'remains', message: `"${r.item}" has no material of the same id` });
+    }
+  }
+
+  // `regions-biomes-and-traits.md` § Signatures: a row is a biome, `geology:<template>` or
+  // `trait:<trait>`; a good is a material id, a material class or one of the words.
+  const materialClasses = new Set(((data['materials'] ?? []) as { class?: string }[]).map((m) => String(m.class)));
+  for (const sig of (data['signatures'] ?? []) as { id: string; has: string[]; lacks: string[] }[]) {
+    const [kind, rest] = sig.id.includes(':') ? sig.id.split(':', 2) as [string, string] : ['biome', sig.id];
+    const table = kind === 'geology' ? 'geologyTemplates' : kind === 'trait' ? 'regionTraits' : kind === 'biome' ? 'biomes' : '';
+    if (ids.get(table)?.has(rest) !== true) issues.push({ table: 'signatures', row: sig.id, field: 'id', message: `"${sig.id}" is not a biome, geology:<template> or trait:<trait>` });
+    for (const good of [...sig.has, ...sig.lacks]) {
+      if (SIGNATURE_WORDS.includes(good) || materialIds?.has(good) === true || materialClasses.has(good)) continue;
+      issues.push({ table: 'signatures', row: sig.id, field: 'has', message: `"${good}" is not a material, a material class or a signature word` });
     }
   }
 

@@ -10,6 +10,7 @@ import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { Civ, EntityId, TileIndex } from '@core/types';
 import type { LocalMapSpec } from '@systems/embark/spec';
+import { lacksMaterial, siteSignature, type SiteSignature } from '@systems/embark/signatures';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
 import type { DwarvesReader } from '@systems/dwarves/reader';
@@ -17,9 +18,9 @@ import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
-import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED } from './constants';
+import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP } from './constants';
 import { spawnCaravan } from './caravan';
-import { generateGoods } from './goods';
+import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
 import type { TradeReader } from './reader';
 import type { ActiveCaravan, OfferLine, ReputationEntry, TradeRequest, TradeSession, TradeStateV1 } from './state';
@@ -49,6 +50,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   // A completion rejected in 10 is retried in 11 after the old job is removed.
   // This flag is cleared in the same atomic tick, before any save can observe it.
   private retryTradeRequest = false;
+  /** What the site has and lacks, read once from the spec: the scarcity price's list. */
+  private signature: SiteSignature | null = null;
 
   constructor(private readonly spec: LocalMapSpec | null = null) { super(); }
 
@@ -67,7 +70,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       reputationLog: (civ) => this.reputationEntries.filter((entry) => entry.civ === civ).map((entry) => ({ ...entry })),
       marginPercent: (civ) => this.margin(ctx, civ),
       valuation: (civ, id) => this.valuation(ctx, civ, id),
-      price: (civ, id) => merchantPrice(this.valuation(ctx, civ, id)),
+      price: (civ, id) => merchantPrice(this.valuation(ctx, civ, id)) * this.scarcityPercent(ctx, id) / 100,
+      isScarce: (id) => this.scarcityPercent(ctx, id) !== 100,
       depotItems: () => {
         const ids: EntityId[] = [];
         for (const id of ctx.world.entities.with(C.Item)) {
@@ -129,6 +133,18 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       : preferencePercent(ctx.registry, civ, category, material?.id ?? '', tradeClass(ctx.registry, civ, item.type, material?.class ?? ''), occupant !== undefined);
     const speciesValue = species?.value ?? 0;
     return (items.value(id) + speciesValue) * percent / 100;
+  }
+
+  /**
+   * 20 § The scarcity price: `SCARCITY_MARKUP` for a merchant good whose material the site lacks,
+   * 100 for every other item (the fortress's own goods are valued as before).
+   */
+  private scarcityPercent(ctx: InitContext, id: EntityId): number {
+    if (this.spec === null) return 100;
+    const item = ctx.world.entities.get(id, C.Item);
+    if (item === undefined || (item.flags & ItemFlag.Merchant) === 0) return 100;
+    this.signature ??= siteSignature(this.spec, ctx.registry);
+    return lacksMaterial(this.signature, ctx.registry, item.material) ? SCARCITY_MARKUP : 100;
   }
 
   private margin(ctx: InitContext, civ: Civ): number {
@@ -231,7 +247,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       if ((item.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned)) !== 0) return -1;
       const count = line.count || item.count;
       if (count > item.count) return -1;
-      return this.valuation(ctx, a.civ, line.itemId) * count / item.count;
+      return this.valuation(ctx, a.civ, line.itemId) * count / item.count * (merchant ? this.scarcityPercent(ctx, line.itemId) / 100 : 1);
     };
     const g = give.map((line) => value(line, false));
     const t = take.map((line) => value(line, true));
@@ -293,6 +309,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     if (cmd.type === 'SetRequests') {
       const civ = cmd['civ']; const entries = cmd['entries'];
       if (!TRADE_CIVS.includes(civ as Civ) || !Array.isArray(entries) || entries.length > REQUEST_MAX || entries.some((r) => !r || typeof r.itemType !== 'string' || (!ctx.registry.table('items').has(r.itemType) && !ctx.registry.table('creatures').has(r.itemType)) || (r.material !== undefined && (typeof r.material !== 'string' || !ctx.registry.table('materials').has(r.material))) || ![1, 2, 3].includes(r.priority))) return reject('bad_setting');
+      // 20 § Never sold: a request for one is refused.
+      if (entries.some((r) => neverSold(r.itemType, r.material, ctx.world.fortress.reputation[civ as Civ] ?? 0))) return reject('not_traded');
       this.requestsState[civ as Civ] = entries.map((r) => ({ itemType: r.itemType, ...(r.material ? { material: r.material } : {}), priority: r.priority }));
       return OK;
     }

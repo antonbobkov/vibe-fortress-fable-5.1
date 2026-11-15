@@ -1,0 +1,249 @@
+[
+  {
+    "id": "alpine",
+    "has": [
+      "stone",
+      "sand",
+      "lichen",
+      "horn",
+      "ice"
+    ],
+    "lacks": [
+      "wood",
+      "soil",
+      "clay",
+      "honey"
+    ]
+  },
+  {
+    "id": "badlands",
+    "has": [
+      "salt",
+      "clay",
+      "sand",
+      "giant_bones"
+    ],
+    "lacks": [
+      "wood",
+      "honey",
+      "peat"
+    ]
+  },
+  {
+    "id": "cold_steppe",
+    "has": [
+      "rye",
+      "horses",
+      "sand",
+      "horn"
+    ],
+    "lacks": [
+      "wood",
+      "honey"
+    ]
+  },
+  {
+    "id": "dark_forest",
+    "has": [
+      "wood",
+      "ironwood",
+      "yew",
+      "peat",
+      "honey"
+    ],
+    "lacks": [
+      "sand",
+      "salt"
+    ]
+  },
+  {
+    "id": "desert",
+    "has": [
+      "sand",
+      "salt",
+      "cactus_fiber",
+      "camels",
+      "giant_bones"
+    ],
+    "lacks": [
+      "wood",
+      "clay",
+      "honey",
+      "peat"
+    ]
+  },
+  {
+    "id": "geology:igneous",
+    "has": [
+      "copper",
+      "gem",
+      "basalt"
+    ],
+    "lacks": [
+      "flux"
+    ]
+  },
+  {
+    "id": "geology:metamorphic",
+    "has": [
+      "copper",
+      "gem"
+    ],
+    "lacks": [
+      "flux"
+    ]
+  },
+  {
+    "id": "geology:sedimentary",
+    "has": [
+      "flux",
+      "coal",
+      "halite",
+      "fossils"
+    ],
+    "lacks": [
+      "gold",
+      "gem"
+    ]
+  },
+  {
+    "id": "mountain",
+    "has": [
+      "stone",
+      "sand",
+      "lichen",
+      "horn",
+      "ice"
+    ],
+    "lacks": [
+      "wood",
+      "soil",
+      "clay",
+      "honey"
+    ]
+  },
+  {
+    "id": "savanna",
+    "has": [
+      "honey",
+      "sunfruit",
+      "clay",
+      "camels"
+    ],
+    "lacks": [
+      "peat",
+      "ice"
+    ]
+  },
+  {
+    "id": "taiga",
+    "has": [
+      "peat",
+      "rye",
+      "ice",
+      "horn",
+      "bog_iron",
+      "reindeer"
+    ],
+    "lacks": [
+      "honey",
+      "sand"
+    ]
+  },
+  {
+    "id": "temperate_forest",
+    "has": [
+      "wood",
+      "honey",
+      "nettle_fiber",
+      "clay"
+    ],
+    "lacks": [
+      "salt",
+      "sand"
+    ]
+  },
+  {
+    "id": "temperate_grassland",
+    "has": [
+      "honey",
+      "flax",
+      "barley",
+      "clay",
+      "horses"
+    ],
+    "lacks": [
+      "wood",
+      "sand"
+    ]
+  },
+  {
+    "id": "temperate_hills",
+    "has": [
+      "wood",
+      "honey",
+      "nettle_fiber",
+      "clay"
+    ],
+    "lacks": [
+      "salt",
+      "sand"
+    ]
+  },
+  {
+    "id": "trait:glasslands",
+    "has": [
+      "obsidian",
+      "ash_soil",
+      "wyrmtongue"
+    ],
+    "lacks": [
+      "wood",
+      "soil"
+    ]
+  },
+  {
+    "id": "tropical_forest",
+    "has": [
+      "wood",
+      "honey",
+      "clay"
+    ],
+    "lacks": [
+      "salt",
+      "peat",
+      "ice"
+    ]
+  },
+  {
+    "id": "tundra",
+    "has": [
+      "ice",
+      "rye",
+      "lichen",
+      "ivory",
+      "reindeer",
+      "peat",
+      "giant_bones"
+    ],
+    "lacks": [
+      "wood",
+      "honey",
+      "clay"
+    ]
+  },
+  {
+    "id": "wetland",
+    "has": [
+      "reed",
+      "peat",
+      "bog_iron",
+      "clay",
+      "giant_bones"
+    ],
+    "lacks": [
+      "stone",
+      "flux"
+    ]
+  }
+]

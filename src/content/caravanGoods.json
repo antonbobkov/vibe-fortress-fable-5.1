@@ -339,6 +339,94 @@
         "rare": true
       },
       {
+        "item": "raw_stone",
+        "materials": [
+          {
+            "material": "limestone",
+            "weight": 40
+          },
+          {
+            "material": "dolomite",
+            "weight": 30
+          },
+          {
+            "material": "marble",
+            "weight": 30
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "coal_bar",
+        "materials": [
+          {
+            "material": "coal",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "charcoal_bar",
+        "materials": [
+          {
+            "material": "charcoal",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "rough_gem",
+        "materials": [
+          {
+            "material": "glowstone",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "soil_load",
+        "materials": [
+          {
+            "material": "sand",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
         "item": [
           "seed",
           "bag"
@@ -753,6 +841,79 @@
           4
         ],
         "weight": 6
+      },
+      {
+        "item": "log",
+        "materials": [
+          {
+            "material": "oak",
+            "weight": 40
+          },
+          {
+            "material": "pine",
+            "weight": 40
+          },
+          {
+            "material": "birch",
+            "weight": 20
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "leather_piece",
+        "materials": [
+          {
+            "material": "leather",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "salt",
+        "materials": [
+          {
+            "material": "salt",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 6,
+        "container": "bag",
+        "sundries": true,
+        "units": 10
+      },
+      {
+        "item": "soil_load",
+        "materials": [
+          {
+            "material": "clay",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
       }
     ]
   },
@@ -968,6 +1129,70 @@
           6
         ],
         "weight": 6
+      },
+      {
+        "item": "reed",
+        "materials": [
+          {
+            "material": "reed",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "fiber",
+        "materials": [
+          {
+            "material": "nettle_fiber",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "feather",
+        "materials": [
+          {
+            "material": "feather",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "brightleaf",
+        "materials": [
+          {
+            "material": "brightleaf",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
       }
     ]
   }

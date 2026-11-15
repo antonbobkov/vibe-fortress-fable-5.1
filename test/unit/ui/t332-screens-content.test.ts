@@ -67,12 +67,10 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(panel[14]).toMatch(/^Ores {5}likely /);
     expect(panel[17]).toMatch(/^Climate {2}warm, about \d+°C; summer$/);
     expect(panel[19]).toMatch(/^Wildlife dangerous: /);
-    expect(panel[22]).toMatch(/^Wealth +[▓░]{5} \d$/);
-    expect(panel[23]).toMatch(/^Peril +[▓░]{5} \d$/);
-    expect(panel[24]).toBe('Peril counts raiders. Wild beasts');
-    expect(panel[25]).toBe('live everywhere.');
-    // The trait and the neighbours are below the fold of this 32-row window: the panel scrolls.
-    expect(panel[26]).toMatch(/^Temper +[▓░]{5} \d +▼$/);
+    // T-550: what the site has and lacks, after Wildlife; the lacks in the alert colour.
+    expect(panel.slice(22, 26)).toEqual(['This site has: wood, nettle fiber,', 'clay, copper, gems.', 'This site lacks: salt, sand, flux', 'stone.']);
+    // The ratings, the trait and the neighbours are below the fold of this 32-row window: the panel scrolls.
+    expect(panel[26]).toMatch(/^Wealth +[▓░]{5} \d +▼$/);
     expect(panel[27]).toBe('[f] filter  [?] legend');
     expect(panel[28]).toBe('[Enter] Embark here');
   });

@@ -33,6 +33,16 @@ Merchants: dwarves. Guards: dwarves with iron axes, helms, mail shirts, shields 
 | Cloth | `cloth` | sporecloth_cloth | 2–4 | 5 | |
 | Deepsilver | `bar` | deepsilver | 1 | 1 | only at reputation ≥ 75, weight 4 |
 
+Sundries: raw materials in small lots, ordinary entries of the weighted draw after the ones above ([20](../02-systems/20-trade-and-caravans.md) § Sundries). A lot is its count of units, or its count of containers of the units named. The weights are *unmeasured*.
+
+| Sundries | Item | Material pool | Count | Weight |
+|---|---|---|---|---|
+| Flux stone | `raw_stone` | limestone 40, dolomite 30, marble 30 | 5–10 | 6 |
+| Coal | `coal_bar` | coal | 5–10 | 6 |
+| Charcoal | `charcoal_bar` | charcoal | 5–10 | 6 |
+| Glowstone | `rough_gem` | glowstone | 1–2 | 6 |
+| Sand | `soil_load` | sand | 5–10 | 6 |
+
 Extra goods sit outside the draw by weight. After the budget is spent, each rolls once with its permille and adds one good on top of the budget, on the runecraft stream. They add no pack animal. A request can still name one. The permilles are *unmeasured*.
 
 | Entry | Item | Material pool | Count | Permille | Reputation |
@@ -66,6 +76,15 @@ Merchants: humans. Guards: humans with iron spears, caps, leather jerkins, buckl
 | Bricks | `stone_block` | brick | 5–10 | 6 | |
 | Pots | `pot` | earthenware | 2–4 | 6 | |
 
+Sundries: raw materials in small lots, ordinary entries of the weighted draw after the ones above ([20](../02-systems/20-trade-and-caravans.md) § Sundries). A lot is its count of units, or its count of containers of the units named. The weights are *unmeasured*.
+
+| Sundries | Item | Material pool | Count | Weight |
+|---|---|---|---|---|
+| Logs | `log` | oak 40, pine 40, birch 20 | 5–10 | 6 |
+| Leather | `leather_piece` | leather | 5–10 | 6 |
+| Salt | `salt` ×10 in `bag` | salt | 1–2 bags | 6 |
+| Clay | `soil_load` | clay | 5–10 | 6 |
+
 ## Wildwood (autumn, from year 1)
 
 Merchants: elves. Guards: elves with yew bows and 30 wooden arrows, daggers, leather jerkins. Pack animals: `wildwood_bearer` (carrying capacity as a mule).
@@ -83,6 +102,15 @@ Merchants: elves. Guards: elves with yew bows and 30 wooden arrows, daggers, lea
 | Quivers and bags | `quiver`, `bag` | leather, flax_cloth | 2–3 | 6 | |
 | Tame animals | `dog` (hunting-trained), `cat` | — | 1–2 | 6 | `bear` (tame, war-trained), `lynx` (tame) |
 | Crafts | `craft` | bone, shell | 3–6 | 6 | |
+
+Sundries: raw materials in small lots, ordinary entries of the weighted draw after the ones above ([20](../02-systems/20-trade-and-caravans.md) § Sundries). A lot is its count of units, or its count of containers of the units named. The weights are *unmeasured*.
+
+| Sundries | Item | Material pool | Count | Weight |
+|---|---|---|---|---|
+| Reeds | `reed` | reed | 5–10 | 6 |
+| Nettle fiber | `fiber` | nettle_fiber | 5–10 | 6 |
+| Feathers | `feather` | feather | 5–10 | 6 |
+| Brightleaf | `brightleaf` | brightleaf | 5–10 | 6 |
 
 ## Preferences (valuation multipliers, percent)
 
@@ -110,6 +138,14 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | material `pewter` | 110 | | |
 | material `glass` | | 130 | |
 | material `reed` | | | 100 |
+| material `salt` | | 150 | |
+| material class `bone` | | | 60 |
+
+## Scarcity and never sold
+
+A merchant good whose material the site lacks costs `SCARCITY_MARKUP` = 250% of its price, on top of the markup and the preference ([20](../02-systems/20-trade-and-caravans.md) § The scarcity price; what a site lacks is [regions-biomes-and-traits.md](regions-biomes-and-traits.md) § Signatures). The fortress's own goods are valued as before.
+
+Never in any list or request: star steel, aged and vintage goods, silk cloth, giant skulls, wyrmscale, hollow ichor, and deepsilver below reputation 75. The requests editor refuses them.
 
 ## Reputation events
 
@@ -132,7 +168,7 @@ Mountainhome reputation adds `reputation / 25` immigrants per wave (21) and `rep
 
 ## Planned rows
 
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its civilization's table above (without `civ` and `task`), adds its line to [row-order.md](row-order.md) when the table numbers its entries, and runs `npm run content:export`. The rules are in [20](../02-systems/20-trade-and-caravans.md) § Planned. Every number is *unmeasured*.
+Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its civilization's table above (a sundries row into its Sundries table; without `civ` and `task`), adds its line to [row-order.md](row-order.md) when the table numbers its entries, and runs `npm run content:export`. The rules are in [20](../02-systems/20-trade-and-caravans.md) § Planned. Every number is *unmeasured*.
 
 ### Planned sundries
 
@@ -140,23 +176,10 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 
 | civ | Entry | Item | Material pool | Count | Weight | task |
 |---|---|---|---|---|---|---|
-| Mountainhome | Flux stone | `raw_stone` | limestone 40, dolomite 30, marble 30 | 5–10 | 6 | T-550 |
-| Mountainhome | Coal | `coal_bar` | coal | 5–10 | 6 | T-550 |
-| Mountainhome | Charcoal | `charcoal_bar` | charcoal | 5–10 | 6 | T-550 |
-| Mountainhome | Glowstone | `rough_gem` | glowstone | 1–2 | 6 | T-550 |
-| Mountainhome | Sand | `soil_load` | sand | 5–10 | 6 | T-550 |
-| Hillfolk | Logs | `log` | oak 40, pine 40, birch 20 | 5–10 | 6 | T-550 |
-| Hillfolk | Leather | `leather_piece` | leather | 5–10 | 6 | T-550 |
-| Hillfolk | Salt | `salt` ×10 in `bag` | salt | 1–2 bags | 6 | T-550 |
-| Hillfolk | Clay | `soil_load` | clay | 5–10 | 6 | T-550 |
 | Hillfolk | Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 | T-552 |
 | Hillfolk | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 | T-552 |
 | Hillfolk | Candles | `candle` | tallow | 5–10 | 6 | T-563 |
 | Hillfolk | Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
-| Wildwood | Reeds | `reed` | reed | 5–10 | 6 | T-550 |
-| Wildwood | Nettle fiber | `fiber` | nettle_fiber | 5–10 | 6 | T-550 |
-| Wildwood | Feathers | `feather` | feather | 5–10 | 6 | T-550 |
-| Wildwood | Brightleaf | `brightleaf` | brightleaf | 5–10 | 6 | T-550 |
 | Wildwood | Honey | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
 | Wildwood | Beeswax | `beeswax` | beeswax | 5–10 | 6 | T-555 |
 | Hillfolk | Camels (in `desert`, `badlands`, `savanna`) | `camel` | — | 1–2 | 6 | T-561 |
@@ -167,10 +190,7 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 |---|---|---|---|---|
 | material `silk_cloth` | 150 | | 140 | T-556 |
 | `craft` of `giant_bone` | 150 | | | T-557 |
-| material `salt` | | 150 | | T-550 |
 | `food/meat/cured`, `food/fish/cured` | | 120 | | T-552 |
 | `food/honey`, `food/wax` | | | 100 | T-555 |
-| material class `bone` | | | 60 | T-550 |
 | material `star_steel` | 200 | 200 | 200 | T-560 |
 
-`SCARCITY_MARKUP` multiplies a merchant's price for a good the site lacks (20 § Planned). Never sold: star steel, aged and vintage goods, silk cloth, giant skulls, wyrmscale, ichor, and deepsilver below reputation 75.

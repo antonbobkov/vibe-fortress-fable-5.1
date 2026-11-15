@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-550 | [Making Do A4: sundries, the scarcity price and the site summary](work/T-550-making-do-sundries-and-site-summary.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-552 | [Making Do B2: dung, the drying rack, half fuels, smoke, curing and the smokehouse](work/T-552-making-do-drying-curing-and-smoke.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-555 | [Making Do B5: hives, honey, beeswax and mead](work/T-555-making-do-farm-hive-and-medicine.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-556 | [Making Do B6: the spider ranch, the beetle jar and bat roosts](work/T-556-making-do-cages-and-roosts.md) | Making Do design; the owner, 2026-11-13 | — | open |

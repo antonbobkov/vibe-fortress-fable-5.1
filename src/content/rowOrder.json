@@ -1194,5 +1194,77 @@
   {
     "table": "hints",
     "id": "hint_pallet"
+  },
+  {
+    "table": "signatures",
+    "id": "temperate_forest"
+  },
+  {
+    "table": "signatures",
+    "id": "temperate_hills"
+  },
+  {
+    "table": "signatures",
+    "id": "dark_forest"
+  },
+  {
+    "table": "signatures",
+    "id": "temperate_grassland"
+  },
+  {
+    "table": "signatures",
+    "id": "wetland"
+  },
+  {
+    "table": "signatures",
+    "id": "taiga"
+  },
+  {
+    "table": "signatures",
+    "id": "tundra"
+  },
+  {
+    "table": "signatures",
+    "id": "cold_steppe"
+  },
+  {
+    "table": "signatures",
+    "id": "mountain"
+  },
+  {
+    "table": "signatures",
+    "id": "alpine"
+  },
+  {
+    "table": "signatures",
+    "id": "savanna"
+  },
+  {
+    "table": "signatures",
+    "id": "desert"
+  },
+  {
+    "table": "signatures",
+    "id": "badlands"
+  },
+  {
+    "table": "signatures",
+    "id": "tropical_forest"
+  },
+  {
+    "table": "signatures",
+    "id": "trait:glasslands"
+  },
+  {
+    "table": "signatures",
+    "id": "geology:sedimentary"
+  },
+  {
+    "table": "signatures",
+    "id": "geology:igneous"
+  },
+  {
+    "table": "signatures",
+    "id": "geology:metamorphic"
   }
 ]

@@ -328,6 +328,7 @@ export const REJECT_REASONS = [
   'bad_name',
   'caravan_absent',
   'not_on_ash',
+  'not_traded',
 ] as const;
 
 export type RejectReason = (typeof REJECT_REASONS)[number];

@@ -168,7 +168,7 @@ export function spawnCaravan(ctx: TickContext, civ: Civ, edge: Edge, peril: numb
     }
     if (good.container) {
       const key = itemTypes.idOf(good.type);
-      const unitsPerContainer = CARAVAN_BUNDLE_UNITS[key] ?? good.count;
+      const unitsPerContainer = good.units ?? CARAVAN_BUNDLE_UNITS[key] ?? good.count;
       let remaining = good.count;
       while (remaining > 0) {
         const packageId = ctx.spawn.item(good.container, pine, { containerId: carrier }, 1, 1);

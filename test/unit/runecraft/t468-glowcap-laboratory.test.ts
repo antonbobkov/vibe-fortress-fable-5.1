@@ -226,11 +226,11 @@ describe('T-468 caravan extras', () => {
       const ordinary = goods.filter((g) => !g.extra);
       expect(ordinary).toEqual(again.filter((g) => !g.extra));
       expect(ordinary.some((g) => g.material === registry.table('materials').index('glowcap'))).toBe(false);
-      expect(ordinary.some((g) => g.material === registry.table('materials').index('glowstone'))).toBe(false);
+      // Glowstone is also a Mountainhome sundries entry (T-550), so it may come in the ordinary draw.
       expect(goods.slice(0, ordinary.length)).toEqual(ordinary);
       expect(ordinary.reduce((s, g) => s + g.value, 0)).toBeLessThanOrEqual(caravanBudget(0, 0) * 1.2);
       seeds += good(goods, 'seed', 'glowcap').length;
-      stones += good(goods, 'rough_gem', 'glowstone').length;
+      stones += good(goods, 'rough_gem', 'glowstone').filter((g) => g.extra === true).length;
     }
     expect(seeds / runs).toBeGreaterThan(0.6);
     expect(seeds / runs).toBeLessThan(0.8);

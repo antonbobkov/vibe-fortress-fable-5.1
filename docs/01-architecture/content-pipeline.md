@@ -28,6 +28,7 @@ Content is data. The Markdown tables in `03-content/` are the source of truth; t
 | `recipes` | `RecipeDef` | workshops |
 | `biomes` | `BiomeDef` | worldgen, terrain, weather, plants, animals |
 | `regionTraits` | `RegionTraitDef` | worldgen, terrain, threats |
+| `signatures` | `SignatureDef` (what a biome, geology or trait has and lacks) | embark (site summary), trade (scarcity price) |
 | `civilizations` | `CivDef` | worldgen, trade, threats, immigration |
 | `personality` | `TraitDef` | dwarves, morale |
 | `thoughts` | `ThoughtDef` | morale |

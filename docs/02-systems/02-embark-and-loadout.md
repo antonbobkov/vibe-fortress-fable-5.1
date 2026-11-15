@@ -103,8 +103,19 @@ Before the player chooses a site, the world map's region panel summarises what i
 | Ores | likely: every ore (a mineral row of class `ore`: fossils are not listed) whose expected count (03 stage 7, with the `ironheart` and `glasslands` changes) is at least one and whose host is a layer the map must reach, most expected first; deepsilver when the wealth gives deepsilver veins | a layer is reached when its deepest possible top (the maximum thicknesses above it) lies above the lowest rock level under the lowest possible surface (stage 1's base minus the relief amplitude, less the soil) |
 | Climate | the temperature band of the region's `tempC`, the mean, and summer and winter as `seasonBase + temperSpread`; under `frostmarrow`, spring and autumn as cold | 01 § Biomes bands; 06 § Surface temperature |
 | Wildlife | the biome's surface species by weight: the aggressive and territorial ones as dangerous, then the rest; `serene_vale` removes its banned species; `frostmarrow` adds the wild yak | 08 § Wild spawning |
+| This site has: | the site's has (§ What a site has and lacks), in table order, on a line of its own | `regions-biomes-and-traits.md` § Signatures |
+| This site lacks: | the site's lacks, in table order, on a line of its own in the alert colour | the same |
 
 The missing essentials come first, in the alert colour, each with its consequence and workaround: no surface soil (farm in a cavern or on mud, graze in a cavern), no trees (wood only from the wagon, logs brought, caravans and cavern fungus), no water on the surface (drink only what is brought or brewed; dig to a cavern lake). Water is missing when there is no carved river, no lake and no spring.
+
+### What a site has and lacks
+
+- The content table `regions-biomes-and-traits.md` § Signatures has one row per biome, per geology class and per region trait, each with the goods it *has* and the goods it *lacks*. A good is a material id (`salt`, `sand`, `peat`), a material class (`wood`, `stone`, `soil`), or one of the words `honey`, `flux`, `fossils`, `giant_bones`, `horses`, `camels`, `reindeer`, `ice`, which name what the rules of 03, 07 and 08 give a map. The `mixed` geology has no row.
+- A site's *has* is the union of its biome's, its geology's and its traits' *has* (in that order, the traits in the spec's order); its *lacks* is the union of their *lacks* less anything in its *has* (a `volcano` site of the Glasslands has obsidian whatever its biome says).
+- A good the game does not have yet (a word whose item, material or species does not exist: `honey` before there is honey, `camels`, `reindeer`) is left out of both lists, and so out of the price.
+- The site summary's last two rows, after Wildlife, are **This site has:** and **This site lacks:**, each the list in table order, the lacks in the alert colour; a list with nothing in it reads "none". Like the other rows they are about the map the generator will make: a good that the map's rules give only by chance (`fossils` in the sedimentary layers, `giant_bones` on a boneyard biome) reads "likely" ("likely giant bones").
+- 20 prices a merchant good whose material the site lacks at the scarcity price (20 § The scarcity price): the summary's lacks line is the same list, so the player knows before embarking what will be dear. A material is lacking when a good of the lacks names it more closely than any good of the has: by its id most closely, then by a word (`flux` for a `flux`-tagged stone, `giant_bones` and `fossils` for `giant_bone`, `honey` and `ice` for theirs), then by its class. A mountain lacks soil but has sand, so its sand is not dear; an igneous mountain has stone but lacks flux, so its limestone is; a sedimentary wetland lacks stone but has flux, so its limestone is not.
+- The missing essentials (no soil, no trees, no water) still come first, as before.
 
 ### Arrival
 
@@ -167,16 +178,3 @@ Nothing chosen here is irreversible in the fortress: skills grow, items are cons
 - New catalog entries and presets are content rows.
 - A different party size is `EMBARK_DWARF_COUNT`; the screen lays out any count up to 12.
 - A "reclaim" mode (arriving at a fallen fortress) would reuse arrival steps 2–8 with an existing local map.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
-
-### What a site has and lacks (T-550)
-
-- A new content table, `regions-biomes-and-traits.md` § Signatures (in § Planned rows until this task): one row per biome, per geology class and per region trait, each with the goods it *has* and the goods it *lacks*. A good is a material id (`salt`, `sand`, `peat`), a material class (`wood`, `stone`, `soil`), or one of the words `honey`, `flux`, `fossils`, `giant_bones`, `horses`, `camels`, `reindeer`, `ice`, which name what the rules of 03, 07 and 08 give a map.
-- A site's *has* is the union of its biome's, its geology's and its traits' *has*; its *lacks* is the union of their *lacks* less anything in its *has* (a `volcano` site of the Glasslands has obsidian whatever its biome says).
-- The site summary gains two rows after Wildlife: **This site has:** and **This site lacks:**, each the list in table order, the lacks in the alert colour. Like the other rows they are about the map the generator will make: a good that the map's rules give only by chance ("giant bones" on a boneyard biome) is "likely".
-- 20 prices a good the site lacks at the scarcity price (20 § Planned): the summary's lacks line is the same list, so the player knows before embarking what will be dear.
-- The missing essentials (no soil, no trees, no water) still come first, as now.
-- UI: `menus-and-world.md` § World map's region panel shows the two rows.
