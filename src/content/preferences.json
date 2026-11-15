@@ -266,6 +266,11 @@
     "percent": 130
   },
   {
+    "civ": "hillfolk",
+    "key": "food/meat/cured, food/fish/cured",
+    "percent": 120
+  },
+  {
     "civ": "wildwood",
     "key": "material reed",
     "percent": 100

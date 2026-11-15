@@ -1194,5 +1194,105 @@
   {
     "table": "hints",
     "id": "hint_pallet"
+  },
+  {
+    "table": "palette",
+    "id": "dung_brown"
+  },
+  {
+    "table": "palette",
+    "id": "smoke_bg"
+  },
+  {
+    "table": "materials",
+    "id": "dung"
+  },
+  {
+    "table": "items",
+    "id": "cured_meat"
+  },
+  {
+    "table": "items",
+    "id": "cured_fish"
+  },
+  {
+    "table": "items",
+    "id": "salted_hide"
+  },
+  {
+    "table": "items",
+    "id": "peat_brick"
+  },
+  {
+    "table": "items",
+    "id": "dung_cake"
+  },
+  {
+    "table": "items",
+    "id": "dung"
+  },
+  {
+    "table": "drying",
+    "id": "dry_peat"
+  },
+  {
+    "table": "drying",
+    "id": "dry_dung"
+  },
+  {
+    "table": "drying",
+    "id": "dry_fish"
+  },
+  {
+    "table": "drying",
+    "id": "dry_meat"
+  },
+  {
+    "table": "drying",
+    "id": "salt_hide"
+  },
+  {
+    "table": "patterns",
+    "id": "smokehouse"
+  },
+  {
+    "table": "buildings",
+    "id": "drying_rack"
+  },
+  {
+    "table": "buildings",
+    "id": "smokehouse"
+  },
+  {
+    "table": "recipes",
+    "id": "salt_meat"
+  },
+  {
+    "table": "recipes",
+    "id": "salt_fish"
+  },
+  {
+    "table": "recipes",
+    "id": "smoke_meat"
+  },
+  {
+    "table": "recipes",
+    "id": "smoke_fish"
+  },
+  {
+    "table": "thoughts",
+    "id": "ate_salted_meal"
+  },
+  {
+    "table": "thoughts",
+    "id": "smoky_hall"
+  },
+  {
+    "table": "thoughts",
+    "id": "smelled_smokehouse"
+  },
+  {
+    "table": "hints",
+    "id": "hint_rack"
   }
 ]

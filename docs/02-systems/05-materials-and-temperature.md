@@ -82,11 +82,16 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 
 `gemsprings` places 2×2 water tiles flagged as springs in terrain generation; this system keeps them in `warmSprings: TileIndex[]` and applies `SPRING_OVERRIDE`. They never freeze and give a mild comfort bonus to dwarves standing adjacent (15 thought `warm_spring` on the `DwarfNearSpring` event emitted by 10).
 
+### Smoke
+
+A craft job that burns a fuel tagged `smoky` (`peat_brick`, `dung_cake`: 12 § Fuel) makes its workshop smoky for `SMOKE_TICKS`: 12 emits `SmokyFuelBurned { workshopId, tile }` when the job completes, `tile` the workshop's centre, and this system records `smoke: Map<TileIndex, untilTick>` keyed by that tile (a later job renews it). Every fortress dwarf within `SMOKE_RADIUS` (Chebyshev, same level) of the centre when the job completes gets `smoky_hall` (15). `materials.isSmoky(i)` holds for the tiles within `SMOKE_RADIUS` of a smoky workshop on its level while the smoke lasts, and 23 draws them with the `smoke_bg` tint, as it draws mist. The record is per workshop, not a per-chunk counter; an expired entry is dropped on the next materials tick.
+
 ## State
 
 - `tempOverride` grid (owned here, stored in `Map3D`).
 - `burning` map; `warmSprings`; `magmaSourceChunks` (chunks containing magma, maintained from `FluidsChanged`).
 - `magmaSignatures` per source chunk; `pendingChunks` for override work; `started` for initial source computation; `forced` tile temperatures; `pendingIgnite` tiles and `itemBurn` timers.
+- `smoke`: each smoky workshop's centre tile and the tick its smoke clears (§ Smoke); omitted from the save when empty.
 - Property typed arrays (rebuilt from the registry on load; not saved).
 
 ## Interfaces
@@ -96,6 +101,7 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 - `materials.temperatureAt(i)`
 - `materials.surfaceTempC()` — the surface temperature this system is using (06's, or its own fallback when 06 is absent)
 - `materials.isWarmSpring(i)` — the tile is a warm spring
+- `materials.isSmoky(i)` — the tile is within `SMOKE_RADIUS` of a smoky workshop on its level (§ Smoke)
 - `materials.isBurning(i)`, `materials.burningTiles()`, `materials.burnableTile(i)` — the tile can catch fire (§ Fire, burnable tiles)
 - `materials.propertyOf(materialIdx, property)` and the typed accessors `hardness(idx)`, `meltsAt(idx)`, `burnable(idx)`, `value(idx)`, `classOf(idx)`, `isMagmaSafe(idx)`
 - `materials.yieldsOf(oreIdx)`, `materials.alloyInputs(metalIdx)`
@@ -106,7 +112,7 @@ None.
 
 ### Events consumed
 
-`FluidsChanged` (override recompute, ignition by magma), `LightningStrike`, `MagmaContact`, `Mishap` (one with a `tile`: 25's `fire` and `blaze`), `SnowCoverChanged`, `TilesChanged` (a burning tile that stops being burnable stops burning), `WeatherChanged` (rain state for spread and extinguish).
+`FluidsChanged` (override recompute, ignition by magma), `LightningStrike`, `MagmaContact`, `Mishap` (one with a `tile`: 25's `fire` and `blaze`), `SmokyFuelBurned` (§ Smoke), `SnowCoverChanged`, `TilesChanged` (a burning tile that stops being burnable stops burning), `WeatherChanged` (rain state for spread and extinguish).
 
 ### Events emitted
 
@@ -145,6 +151,8 @@ Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles 
 | `FROST_KILL_C` | −2 | Surface crops die below this (*unmeasured*) |
 | `HEAT_INJURY_C` | 55 | Heat stroke (*unmeasured*) |
 | `COLD_INJURY_C` | −25 | Frostbite (*unmeasured*) |
+| `SMOKE_TICKS` | 600 | How long a workshop that burned a smoky fuel stays smoky: 12 hours (*unmeasured*) |
+| `SMOKE_RADIUS` | 3 | The reach of a smoky workshop's smoke and of `smoky_hall`, Chebyshev, on its level (*unmeasured*) |
 
 Burn durations per material (`burnTicks`) and all property values are content.
 
@@ -152,7 +160,6 @@ Burn durations per material (`burnTicks`) and all property values are content.
 
 - Stored temperature grid: if a future feature needs heat diffusion (a heated hall), replace `temperatureAt` with a grid updated by diffusion at this system's cadence; consumers do not change.
 - Deliberate fire: a `torch` item or an `ignite` designation calls the same ignition path.
-- Smoke: a transient per-chunk counter like mist, rendered as a gray tint.
 
 ## Planned: Making Do
 
@@ -175,9 +182,3 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - The announcement is the ordinary `FireStarted` alert.
 - The extension point "Deliberate fire" is taken by this rule.
 
-### Smoke (T-552)
-
-- A craft job that burns a fuel tagged `smoky` (`peat_brick`, `dung_cake`) makes its workshop smoky for `SMOKE_TICKS` (12 emits `SmokyFuelBurned { workshopId, tile }`; this system records `smoke: Map<TileIndex, untilTick>` keyed by the workshop's centre tile). Every fortress dwarf within `SMOKE_RADIUS` (Chebyshev, same level) of the centre when the job completes gets `smoky_hall` (15).
-- 23 draws the tiles within `SMOKE_RADIUS` of a smoky workshop with the `smoke_bg` tint while it lasts, as it draws mist (23 § Planned).
-- The extension point "Smoke" is taken by this rule: a per-workshop record, not a per-chunk counter.
-- Constants: `SMOKE_TICKS` 600 (12 hours), `SMOKE_RADIUS` 3. Events: `SmokyFuelBurned` (consumed). Save: `smoke`.

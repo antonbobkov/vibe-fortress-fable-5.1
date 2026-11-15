@@ -215,7 +215,10 @@ function buildingRow(row, category, extra = {}) {
     value: /item/.test(valueCell) ? 0 : int(valueCell),
     // 14 § Beds: the percent a `sleep` building rests at; § Building wants: the items a built one holds.
     rest: isBlank(row.rest) || plain(row.rest ?? '') === '' ? undefined : int(row.rest),
-    wants: isBlank(row.wants) || plain(row.wants ?? '') === '' ? undefined : parseInputs(row.wants).map((w) => ({ match: w.match, count: w.count })),
+    wants: isBlank(row.wants) || plain(row.wants ?? '') === '' ? undefined
+      // § Special: a drying rack's "5 units of its drying rows" is one want of its setting's rows (`items.md` § Drying).
+      : /drying rows/.test(plain(row.wants)) ? [{ match: 'drying', count: int(plain(row.wants)) }]
+        : parseInputs(row.wants).map((w) => ({ match: w.match, count: w.count })),
     glyph: patternMatch === null ? (glyph(row.glyph) ?? undefined) : undefined,
     pattern: patternMatch === null ? extra.pattern : patternMatch[1],
     impassableTiles: extra.impassableTiles,
@@ -331,6 +334,8 @@ const RECIPE_SECTIONS = [
   ['Bowyer', 'bowyer', 'carpentry', false, false],
   // § Kiln: "Every kiln recipe burns a fuel".
   ['Kiln', 'kiln', 'pottery', true, false],
+  // § Smokehouse: "Every smokehouse recipe burns a fuel".
+  ['Smokehouse', 'smokehouse', 'cooking', true, false],
   ['Laboratory', 'alchemist', 'alchemy', false, false],
   ['Runeforge', 'runeforge', 'runesmithing', false, true],
 ];

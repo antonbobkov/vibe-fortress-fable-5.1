@@ -92,6 +92,7 @@ Panel conventions:
 - The stockpile inspector's cellar line toggles the setting with `[S-c]` or a click (`SetStockpileCellar`) and says whether the cellar works and why not: "Cellar: off", "Cellar: working", "Cellar: lit", "Cellar: too warm (16 °C)", "Cellar: too cold (1 °C)" (13 § Aging in a cellar).
 - The stocks panel names an aged stack's stage before its material and its years in the cellar after its count: "aged bellwine ×20 (aged, 1 year in the cellar)"; the look panel's item lines name the stage too ("20 aged bellwine drink").
 - The units panel and the creature inspector say "Tipsy" after a tipsy dwarf's activity ("Hauling · Tipsy", 10 § Tipsy).
+- A drying rack's building panel lists its items with their days left and its drying checklist, one line a row that `Enter` or a click turns on or off (`SetRackDrying`, 14 § The drying rack).
 
 ### Inspection
 
@@ -279,7 +280,7 @@ The complete default keymap, the screen and panel lists with hotkeys, the mouse 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification and deletes it here; the last one deletes this section. Keys, strings, hints and confirmations are in `ui-keymap-and-screens.md` § Planned rows.
 
 - **Designations** (T-559): `harvest ice` and `ignite` in the designation menu. The first `ignite` box of a fortress opens the confirmation `c_first_ignite` (default No); Yes sends `ConfirmIgnite` and then the designation, No drops it. Later ones need none.
-- **Building panel** (T-552, T-563, T-555): a drying rack lists its items with days left and its drying checklist (`SetRackDrying`); a candle stand its candles and days left; a hive its combs and its flowers in reach.
+- **Building panel** (T-563, T-555): a candle stand its candles and days left; a hive its combs and its flowers in reach.
 - **Farm plot panel** (T-564): `Fertilize: on/off` with the fertilizer in stock.
 - **World map** (T-550): the region panel's **This site has:** and **This site lacks:** rows (02 § Planned).
 - **Trade screen** (T-550): a merchant good priced at the scarcity price says "scarce here".

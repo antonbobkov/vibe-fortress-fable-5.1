@@ -12,7 +12,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TileFlag } from '@core/map3d';
 import { currentValue, moodValue, productivity, tierOf } from './mood';
-import { baseValue, eventPredicate, eventTargets, personalityBase, personalityMultiplier, triggerEvent, worldPredicate, type ThoughtDef } from './thoughts';
+import { baseValue, eventPredicate, eventTargets, personalityBase, personalityMultiplier, thoughtDetail, triggerEvent, worldPredicate, type ThoughtDef } from './thoughts';
 import { NEED_PRESSURE_THOUGHTS, standingThoughts } from './standing';
 import { advanceSulkCounter, doSulk, sulkKind } from './sulks';
 import type { MoraleReader, ThoughtView } from './reader';
@@ -98,7 +98,9 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
       const value = currentValue(thought, def, tick);
       if (value === 0) return [];
       const remainingHours = def.hours === null ? null : Math.max(0, def.hours - (tick - thought.startTick) / TICKS_PER_HOUR);
-      return [{ id: def.id, text: def.text, value, remainingHours }];
+      // A thought's detail fills its text's word: "Smells of smoked {meat}." (`smelled_smokehouse`).
+      const text = thought.detail === undefined ? def.text : def.text.replace(/\{[a-z]+\}/, thought.detail);
+      return [{ id: def.id, text, value, remainingHours }];
     }).sort((a, b) => Math.abs(b.value) - Math.abs(a.value) || a.id.localeCompare(b.id));
   }
 
@@ -116,7 +118,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     return fresh;
   }
 
-  private give(id: EntityId, def: ThoughtDef, ctx: TickContext, event?: GameEvent): void {
+  private give(id: EntityId, def: ThoughtDef, ctx: TickContext, event?: GameEvent, detail?: string): void {
     const entities = ctx.world.entities;
     if (!entities.alive(id) || !entities.has(id, C.Brain)) return;
     const mood = this.ensure(id);
@@ -137,7 +139,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
       const oldest = owned[0] as ActiveThought;
       thoughts.splice(thoughts.indexOf(oldest), 1);
     }
-    thoughts.push({ thought: index, startTick: ctx.tick, baseValue: value });
+    thoughts.push({ thought: index, startTick: ctx.tick, baseValue: value, ...(detail === undefined ? {} : { detail }) });
     entities.add(id, C.Mood, { ...mood, thoughts });
     if (def.announce) ctx.emit({ type: 'ThoughtGained', id, thoughtId: def.id, value });
   }
@@ -175,10 +177,11 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
       if (def.id === 'saw_sunlight' || def.id === 'admired_statue' || def.id === 'lab_stink') continue;
       if (!eventPredicate(def, resolved, ctx.registry)) continue;
       const targets = SOURCE_IDS.has(def.id) ? (sourceMatches.get(def.id) ?? []) : eventTargets(def, resolved, ctx);
+      const detail = targets.length === 0 ? undefined : thoughtDetail(def, resolved, ctx);
       for (const id of targets) {
         // `saw_wisp`: at most once a day, so a dwarf who still holds it does not see another.
         if (def.id === 'saw_wisp' && this.holds(id, def, ctx.tick)) continue;
-        if (worldPredicate(def, resolved, ctx, id)) this.give(id, def, ctx, resolved);
+        if (worldPredicate(def, resolved, ctx, id)) this.give(id, def, ctx, resolved, detail);
       }
     }
   }

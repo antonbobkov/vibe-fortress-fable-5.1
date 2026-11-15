@@ -102,6 +102,14 @@ All wood is burnable and melts (burns) at 300 °C for the melting rule. Wood's w
 
 Made at the kiln from clay, sand, logs and bones ([workshops-and-recipes.md](workshops-and-recipes.md) § Kiln); none is dug. A `fragile` material breaks when its carrier is hit: a pot, or a clay jug ([16](../02-systems/16-combat.md) § Pots break).
 
+## Farm materials
+
+| id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes |
+|---|---|---|---|---|---|---|---|---|---|
+| `dung` | dung | plant | 0 | 60 | | `dung_brown` | 300 | 200 | `fertilizer`; dries to a half fuel |
+
+Dung is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung) and burns as peat does; three of it dry on a rack into a dung cake, a smoky half fuel ([items.md](items.md) § Wood and bars).
+
 ## Cloth and fiber
 
 | id | name | class | value | density | color | burnTicks | notes |
@@ -197,7 +205,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `dung` | dung | plant | 0 | 60 | — | `dung_brown` | 300 | 200 | `fertilizer`; dries to a half fuel | T-552 |
 | `guano` | guano | soil | 1 | 70 | — | `dung_brown` | — | — | `fertilizer` | T-556 |
 | `compost` | compost | soil | 0 | 80 | — | `loam_brown` | — | — | `fertilizer` | T-564 |
 | `soap` | soap | liquid | 3 | 100 | — | `soap_white` | — | — | a hospital supply | T-564 |

@@ -191,7 +191,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Events consumed
 
-`HourPassed`, `DayPassed`, `YearPassed`, `JobCompleted` (experience), `CreatureDied`, `CreatureUnconscious` (abandon a need errand), `AlertChanged`, `ThreatNearby` (from 16), `AttackResolved` (from 16: a civilian caught by a hunting animal or a cavern monster, or a soldier off duty who is hit), `PatientAdmitted` and `PatientDischarged` (17: interrupt behavior selection), `HearthLit`, `MoodTierChanged` (productivity cache).
+`HourPassed`, `DayPassed`, `YearPassed`, `JobCompleted` (experience), `CreatureDied`, `CreatureUnconscious` (abandon a need errand), `AlertChanged`, `ThreatNearby` (from 16), `AttackResolved` (from 16: a civilian caught by a hunting animal or a cavern monster, or a soldier off duty who is hit), `PatientAdmitted` and `PatientDischarged` (17: interrupt behavior selection), `HearthLit`, `MoodTierChanged` (productivity cache), `ItemCrafted` (a smokehouse's batch: every dwarf within `SMOKE_RADIUS` of it but its worker gains `SMOKEHOUSE_HUNGER` hunger, 12 § Smoke, salt and the smokehouse).
 
 ### Events emitted
 

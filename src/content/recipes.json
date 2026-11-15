@@ -4446,6 +4446,122 @@
     "xp": 10
   },
   {
+    "id": "salt_fish",
+    "name": "Salt fish",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "raw_fish",
+        "count": 5,
+        "sameMaterial": true
+      },
+      {
+        "match": "salt",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cured_fish",
+        "count": 5,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "salt_meat",
+    "name": "Salt meat",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "raw_meat",
+        "count": 5,
+        "sameMaterial": true
+      },
+      {
+        "match": "salt",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cured_meat",
+        "count": 5,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 5
+  },
+  {
+    "id": "smoke_fish",
+    "name": "Smoke fish",
+    "workshop": "smokehouse",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "raw_fish",
+        "count": 5,
+        "sameMaterial": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cured_fish",
+        "count": 5,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": false,
+    "xp": 6
+  },
+  {
+    "id": "smoke_meat",
+    "name": "Smoke meat",
+    "workshop": "smokehouse",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "raw_meat",
+        "count": 5,
+        "sameMaterial": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "cured_meat",
+        "count": 5,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": false,
+    "xp": 6
+  },
+  {
     "id": "spin_coarse_thread",
     "name": "Spin coarse thread",
     "workshop": "loom",
@@ -4517,7 +4633,7 @@
     "skill": "tanning",
     "inputs": [
       {
-        "match": "raw_hide",
+        "match": "raw_hide|salted_hide",
         "count": 1
       }
     ],

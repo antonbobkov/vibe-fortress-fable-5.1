@@ -28,7 +28,7 @@ import {
   type StockpileCommandHost,
 } from './stockpile-commands';
 import { StockpileStore } from './stockpiles';
-import { Hauling, type JobsView } from './hauling';
+import { Hauling, type HolderWant, type JobsView } from './hauling';
 import { WEALTH_EVENT_STEP } from './constants';
 import { TICKS_PER_DAY } from '@core/constants';
 import { C, ItemFlag } from '@core/components';
@@ -205,8 +205,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     };
     const b = (): BuildingsView | null => (readers.has('14') ? readers.of<BuildingsView>('14') : null);
     /** 14's side of 13 § Buildings that want items. */
-    type HoldersView = { withWants(): EntityId[]; inputTypes(match: string): number[] };
-    const holderTypes = new Map<string, readonly number[]>();
+    type HoldersView = { withWants(): EntityId[]; holderWants(id: EntityId): HolderWant[] };
     const hauling = new Hauling({
       core,
       store,
@@ -230,19 +229,21 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         const v = readers.has('14') ? readers.of<HoldersView>('14') : null;
         const bld = world.entities.get(id, C.Building);
         if (v === null || bld === undefined || bld.state !== 'built') return null;
-        const row = ctx.registry.table<{ id: string; wants?: readonly { match: string; count: number }[] }>('buildings').byIndex(bld.type);
-        if (row?.wants === undefined || row.wants.length === 0) return null;
-        const typesOf = (match: string): readonly number[] => {
-          let types = holderTypes.get(match);
-          if (types === undefined) {
-            types = v.inputTypes(match);
-            holderTypes.set(match, types);
+        const wants = v.holderWants(id);
+        if (wants.length === 0) return null;
+        // An impassable holder (a drying rack) is searched from, and worked beside, a walkable tile next to it.
+        const passable = (i: TileIndex): boolean => !readers.has('pathing') || readers.pathing.passable(i, 'walker', { faction: 'fortress' });
+        let tile = bld.origin;
+        if (!passable(tile)) {
+          for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, 1], [1, -1], [-1, -1]] as const) {
+            const next = world.map.offset(bld.origin, dx, dy, 0);
+            if (next >= 0 && passable(next)) { tile = next; break; }
           }
-          return types;
-        };
-        return { wants: row.wants.map((w) => ({ types: typesOf(w.match), count: w.count })), tile: bld.origin };
+        }
+        return { wants, tile };
       },
-      nearestOf: (types, from, count) => this.search?.findItems({ types }, count, from) ?? [],
+      nearestOf: (types, from, count, materials) =>
+        this.search?.findItems(materials === undefined ? { types: types.slice() } : { types: types.slice(), materialIds: materials.slice() }, count, from) ?? [],
     });
     this.haulingRef = hauling;
     core.listen((id, change) => hauling.onChange(id, change));

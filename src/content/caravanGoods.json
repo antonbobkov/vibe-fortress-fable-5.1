@@ -753,6 +753,45 @@
           4
         ],
         "weight": 6
+      },
+      {
+        "item": [
+          "dung",
+          "bag"
+        ],
+        "materials": [
+          {
+            "material": "dung",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 6
+      },
+      {
+        "item": "cured_meat",
+        "materials": [
+          {
+            "material": "cow_meat",
+            "weight": 1
+          },
+          {
+            "material": "pig_meat",
+            "weight": 1
+          },
+          {
+            "material": "sheep_meat",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 6
       }
     ]
   },

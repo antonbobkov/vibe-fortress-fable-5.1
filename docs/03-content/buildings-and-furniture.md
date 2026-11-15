@@ -68,13 +68,16 @@ A pallet and a straw pallet are laid from their materials, not from an item: the
 
 ## Special
 
-| id | name | footprint | on | inputs | labor | ticks | tags | pass | value | glyph |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `hearth` | hearth | 1×1 | floor, indoors or outdoors | 3 `stone_block` + 1 `log` | masonry | 200 | hearth, light | no | 50 | `☼` `hearth_orange` |
-| `trade_depot` | trade depot | 3×3 | floor; reachable from an edge | 3 `log` or 3 `stone_block` | construction | 300 | depot, container | yes | 20 | pattern `depot` |
-| `well` | well | 1×1 | open tile with water within `WELL_DEPTH` below | 1 `bucket` + 1 `chain` or `rope` + 1 `mechanism` + 1 `stone_block` | mechanics | 150 | well | yes | 15 | `○` `well_blue` |
-| `wagon` | wagon | 3×3 | placed at embark only | — | — | — | container | yes | 0 | pattern `wagon` |
-| `rune_circle` | rune circle | 1×1 | floor | 3 `stone_block` + 1 `rune_vial` | masonry | 200 | rune_circle | no | 20 | `○` `rune_cyan` |
+| id | name | footprint | on | inputs | labor | ticks | tags | pass | value | glyph | wants |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `hearth` | hearth | 1×1 | floor, indoors or outdoors | 3 `stone_block` + 1 `log` | masonry | 200 | hearth, light | no | 50 | `☼` `hearth_orange` | — |
+| `trade_depot` | trade depot | 3×3 | floor; reachable from an edge | 3 `log` or 3 `stone_block` | construction | 300 | depot, container | yes | 20 | pattern `depot` | — |
+| `well` | well | 1×1 | open tile with water within `WELL_DEPTH` below | 1 `bucket` + 1 `chain` or `rope` + 1 `mechanism` + 1 `stone_block` | mechanics | 150 | well | yes | 15 | `○` `well_blue` | — |
+| `wagon` | wagon | 3×3 | placed at embark only | — | — | — | container | yes | 0 | pattern `wagon` | — |
+| `rune_circle` | rune circle | 1×1 | floor | 3 `stone_block` + 1 `rune_vial` | masonry | 200 | rune_circle | no | 20 | `○` `rune_cyan` | — |
+| `drying_rack` | drying rack | 1×1 | floor | 2 `log`, `stone_block` or `bone_pile` | construction | 60 | rack | no | 3 | `╤` material | 5 units of its drying rows |
+
+A drying rack is built of its materials (consumed, and returned when it is taken apart) and is impassable. Its `wants` are the inputs of the drying rows its setting takes ([items.md](items.md) § Drying), 5 units in all, and the salt a hide it holds needs ([14](../02-systems/14-buildings-and-rooms.md) § The drying rack).
 
 ## Workshops
 
@@ -128,12 +131,11 @@ The columns `rest` and `wants` are those of § Furniture placements. `table` gai
 
 | table | id | name | footprint | on | inputs | labor | ticks | tags | room | pass | rest | wants | glyph | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Special | `drying_rack` | drying rack | 1×1 | floor | 2 `log`, `stone_block` or `bone_pile` | construction | 60 | rack | 0 | no | — | 5 units of its drying rows | `╤` material | T-552 |
 | Special | `candle_stand` | candle stand | 1×1 | floor | 1 `stone_block` or `bar` | construction | 40 | light | its candles' value / 10 | no | — | 5 `candle` | `ì` material | T-563 |
 | Furniture placements | `lantern` | lantern | 1×1 | floor | `lantern` | construction | 30 | light | item | no | — | — | `¥` item | T-563 |
 | Furniture placements | `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | — | — | `∩` item | T-555 |
 
-The candle stand and the drying rack have the value 2 and 3 as a special building does (`value` column), and the lantern its item's.
+The candle stand has the value 2 as a special building does (`value` column), and the lantern its item's.
 
 ### Planned zone types and settings
 

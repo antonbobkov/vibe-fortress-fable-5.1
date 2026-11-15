@@ -183,5 +183,10 @@
     "id": "hint_pallet",
     "trigger": "first Slept on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock",
     "text": "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor."
+  },
+  {
+    "id": "hint_rack",
+    "trigger": "first drying_rack built",
+    "text": "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain."
   }
 ]

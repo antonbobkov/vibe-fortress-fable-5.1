@@ -29,6 +29,7 @@ All are 3×3. `inputs` to build; `fuel` whether its fuel recipes consume a fuel 
 | `alchemist` | laboratory | 1 `table` + 2 `stone_block` + 1 `bucket` | construction | 250 | no | no | `alchemist` | `rune_work` |
 | `runeforge` | runeforge | 1 `anvil` + 3 `stone_block` + 1 `cut_gem` | masonry | 300 | no | no | `runeforge` | `rune_work` |
 | `kiln` | kiln | 3 `stone_block` | masonry | 250 | yes | `magma_kiln` | `kiln` | |
+| `smokehouse` | smokehouse | 3 `stone_block` | masonry | 250 | yes | no | `smokehouse` | |
 
 Magma variants require `MAGMA_POWER_LEVEL` magma directly below at least one footprint tile at build time and at every job start, and every input must be magma-safe (the anvil is iron or steel; blocks must be magma-safe stone or obsidian).
 
@@ -215,8 +216,10 @@ Wooden crossbows, bows and shields are made at the bowyer and carpenter. Leather
 | `cook_lavish_meal` | Lavish meal | 4 ingredient | 8 lavish_meal | 250 | yes | 15 |
 | `render_fat` | Render fat | 1 fat | 1 tallow | 80 | no | 3 |
 | `crush_halite` | Crush rock salt | 1 ore (halite) | 5 salt (`salt`) | 60 | no | 3 |
+| `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | 5 |
+| `salt_fish` | Salt fish | 5 raw_fish (same material) + 1 salt | 5 cured_fish (from_input) | 100 | no | 5 |
 
-Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack.
+Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack. A meal with salt among its ingredients is salted: "salted boar stew", and `ate_salted_meal` beside its own thought ([12](../02-systems/12-workshops-and-professions.md) § Smoke, salt and the smokehouse). Salting meat or fish burns no fuel: the desert's way of keeping meat.
 
 ## Still (`brewing`)
 
@@ -279,7 +282,9 @@ The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver
 
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
-| `tan_hide` | Tan hide | 1 raw_hide | 1 leather_piece (`leather`) | 150 | no | 6 |
+| `tan_hide` | Tan hide | 1 raw_hide or salted_hide | 1 leather_piece (`leather`) | 150 | no | 6 |
+
+A salted hide tans as a raw hide does ([13](../02-systems/13-items-and-storage.md) § Curing).
 
 ## Leatherworks (`leatherworking`)
 
@@ -367,9 +372,18 @@ Every kiln recipe burns a fuel, unless the kiln is the magma kiln. A brick is a 
 
 Four are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug and clay mugs take a fuel beside the input that a bucket and stone mugs take alone (`make_bucket`, `make_mug_stone`).
 
+## Smokehouse (`cooking`)
+
+Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels. Smoking is the forest's way of keeping meat, faster than a rack.
+
+| id | name | inputs | outputs | ticks | Q | xp |
+|---|---|---|---|---|---|---|
+| `smoke_meat` | Smoke meat | 5 raw_meat (same material) | 5 cured_meat (from_input) | 150 | no | 6 |
+| `smoke_fish` | Smoke fish | 5 raw_fish (same material) | 5 cured_fish (from_input) | 150 | no | 6 |
+
 ## Recipe counts
 
-Carpenter 27, mason 15, craftsdwarf 20, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 2), forge 41, kitchen 5, still 3, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 4, bowyer 3, kiln 10, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 235.
+Carpenter 27, mason 15, craftsdwarf 20, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 17 ores + 6 alloys + 1 melt = 24; authored 2), forge 41, kitchen 7, still 3, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 4, bowyer 3, kiln 10, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 239.
 
 ## Time arithmetic
 
@@ -379,12 +393,6 @@ A level-6 carpenter (factor 148%) makes a bed in 150 × 100/148 ≈ 101 ticks, a
 
 Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its workshop's table above (in that table's columns, without `workshop`, `substitute for` and `task`; a new workshop gets its own section and its line in `RECIPE_SECTIONS`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [12](../02-systems/12-workshops-and-professions.md) § Planned. Every number is *unmeasured*. *Substitute for* names the regular recipe a substitute must stay worse than (12 § Planned, Substitutes are worse).
 
-### Planned workshops
-
-| id | name | inputs | labor | ticks | fuel | magma | glyph pattern | tags | task |
-|---|---|---|---|---|---|---|---|---|---|
-| `smokehouse` | smokehouse | 3 `stone_block` | masonry | 250 | yes | no | `smokehouse` | | T-552 |
-
 ### Planned recipes
 
 | workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
@@ -392,10 +400,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
 | leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
 | bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
-| smokehouse | `smoke_meat` | Smoke meat | 5 raw_meat (same material) | 5 cured_meat (from_input) | 150 | yes | no | 6 | — | T-552 |
-| smokehouse | `smoke_fish` | Smoke fish | 5 raw_fish (same material) | 5 cured_fish (from_input) | 150 | yes | no | 6 | — | T-552 |
-| kitchen | `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | no | 5 | — | T-552 |
-| kitchen | `salt_fish` | Salt fish | 5 raw_fish (same material) + 1 salt | 5 cured_fish (from_input) | 100 | no | no | 5 | — | T-552 |
 | carpenter | `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | no | 4 | — | T-555 |
 | kiln | `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (earthenware) | 100 | yes | no | 4 | `make_hive_wood` | T-555 |
 | craftsdwarf | `weave_hive` | Wicker beehive | 3 reed | 1 beehive (from_input) | 100 | no | no | 4 | `make_hive_wood` | T-555 |

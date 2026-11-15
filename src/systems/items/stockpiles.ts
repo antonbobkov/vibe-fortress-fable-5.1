@@ -28,7 +28,7 @@ export const WANTED_CLASSES: readonly ('barrel' | 'bag' | 'bin')[] = ['barrel', 
  * `drink/wine`). Filters may select any node of this tree or of the item types' own paths.
  */
 export const CATEGORY_TREE: readonly string[] = [
-  'food', 'food/meat', 'food/meat/raw', 'food/meat/cooked', 'food/fish', 'food/fish/raw', 'food/plant', 'food/plant/raw',
+  'food', 'food/meat', 'food/meat/raw', 'food/meat/cooked', 'food/meat/cured', 'food/fish', 'food/fish/raw', 'food/fish/cured', 'food/plant', 'food/plant/raw',
   'food/plant/processed', 'food/meal', 'food/meal/easy', 'food/meal/fine', 'food/meal/lavish', 'food/egg', 'food/cheese',
   'food/milk', 'food/fat', 'food/tallow', 'food/salt',
   'drink', 'drink/ale', 'drink/beer', 'drink/wine', 'drink/spirits',
@@ -36,7 +36,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'stone', 'stone/raw', 'stone/block', 'stone/gem_rough', 'stone/gem_cut', 'stone/soil', 'stone/fossil',
   'ore',
   'wood', 'wood/log', 'wood/block',
-  'bar', 'bar/metal', 'bar/coal', 'bar/charcoal',
+  'bar', 'bar/metal', 'bar/coal', 'bar/charcoal', 'bar/peat', 'bar/dung',
   'furniture', 'furniture/bed', 'furniture/table', 'furniture/chair', 'furniture/door', 'furniture/hatch', 'furniture/cabinet',
   'furniture/chest', 'furniture/coffin', 'furniture/statue', 'furniture/cage', 'furniture/mechanism', 'furniture/floodgate',
   'furniture/anvil', 'furniture/nest_box', 'furniture/weapon_rack', 'furniture/armor_stand', 'furniture/memorial_slab',
@@ -52,7 +52,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'textile/bone', 'textile/shell', 'textile/skull', 'textile/horn', 'textile/tusk', 'textile/feather', 'textile/straw', 'textile/reed',
   'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf', 'medical/glowcap', 'medical/vial', 'medical/draught',
   'medical/wyrmscale', 'medical/ichor', 'medical/venom', 'medical/gland',
-  'farm', 'farm/bone_ash', 'farm/potash',
+  'farm', 'farm/bone_ash', 'farm/potash', 'farm/dung',
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
 ];
 

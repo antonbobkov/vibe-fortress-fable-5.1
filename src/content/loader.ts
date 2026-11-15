@@ -68,6 +68,7 @@ import damageVsLayerJson from './damageVsLayer.json';
 import deepIntroJson from './deepIntro.json';
 import deepThresholdsJson from './deepThresholds.json';
 import draughtsJson from './draughts.json';
+import dryingJson from './drying.json';
 import embarkCatalogJson from './embarkCatalog.json';
 import embarkPresetsJson from './embarkPresets.json';
 import enchantsJson from './enchants.json';
@@ -141,6 +142,7 @@ export function rawTables(): Record<string, unknown> {
     deepIntro: deepIntroJson,
     deepThresholds: deepThresholdsJson,
     draughts: draughtsJson,
+    drying: dryingJson,
     embarkCatalog: embarkCatalogJson,
     embarkPresets: embarkPresetsJson,
     enchants: enchantsJson,

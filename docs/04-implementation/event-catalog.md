@@ -36,7 +36,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `FireStarted` / `FireSpread` / `FireOut` | `tile` / `tiles[]` / `tiles[]` | 05 | 13, 14, 23, ui |
 | `BurnDamage` | `id, amount` | 05 | 17 |
 | `ItemMelted` | `id` | 05 | 13 |
-| `WeatherChanged` | `from, to` | 06 | 05, 18, ui |
+| `WeatherChanged` | `from, to` | 06 | 05, 14 (a drying rack's day), 18, ui |
 | `LightningStrike` | `tile` | 06 | 05, 17 |
 | `SnowCoverChanged` | `chunks[]` | 06 | 05, 23 |
 | `SeasonEffectsChanged` | `season` | 06 | 07, 18 |
@@ -77,10 +77,11 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ItemReserved` | `itemId, jobId` | 11 | 13 |
 | `ItemReleased` | `itemId, jobId` | 10, 11 | 13 |
 | `ToolEquipped` / `ToolDropped` | `dwarfId, itemId` / `itemId` | 11 | 11 (retry), 16 |
-| `ItemCrafted` | `itemId, quality, crafterId, workshopId, recipeId` | 12 | 13, 15, 16 (better gear), 24 (milestones) |
+| `ItemCrafted` | `itemId, quality, crafterId, workshopId, recipeId` | 12 | 10 (the smokehouse's hunger), 13, 15, 16 (better gear), 24 (milestones) |
 | `MasterworkCreated` | `itemId, crafterId` | 12 | 15, ui |
 | `WorkOrderCompleted` | `workshopId, recipeId` | 12 | ui (none) |
 | `StoneSet` | `itemId, enchantId, tier, smithId` | 12 | 24 (legend), ui (a masterwork setting: 25's announcement) |
+| `SmokyFuelBurned` | `workshopId, tile` | 12 | 05 (smoke), 15 (`smoky_hall`) |
 | `DeepsilverWorked` | `amount, tile` | 12 (a `rune_work` building consumed a metal with `runePressure`) | 18 |
 | `WorkshopBlocked` / `WorkshopIdle` | `workshopId, reason[, container, input]` / `workshopId` | 12 | ui |
 | `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |

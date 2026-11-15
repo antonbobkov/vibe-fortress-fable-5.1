@@ -23,6 +23,7 @@ import { makeReader, type BuildingsReader } from './reader';
 import type { BuildingsStateV1 } from './state';
 import { ZoneStore } from './zones';
 import { RoomStore } from './rooms';
+import { RackStore } from './racks';
 import { MOOD_BASELINE } from '@core/constants';
 import { DOOR_BREAK_TICKS } from './constants';
 import { LINK_DELAY_TICKS } from './constants';
@@ -33,6 +34,7 @@ export { BuildingStore, buildKey, buildTicksOf, deconstructKey, inputsOf, linksI
 export { CONSTRUCTION_KIND, onRuleOf, onRuleHolds, type OnRule } from './constructions';
 export { RoomStore, ROOM_TYPES, type RoomScore, type RoomDiagnostics } from './rooms';
 export type { BuildingsReader, ZoneView, BuildingView } from './reader';
+export { RackStore, RACK_TAG, type DryingRow, type HolderWantView, type RackItemView } from './racks';
 
 export const BUILDINGS_ID = '14';
 
@@ -54,6 +56,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'ItemDestroyed',
     'BuildingCompleted',
     'Mishap',
+    'WeatherChanged',
   ];
   override readonly ownsCommands: readonly CommandType[] = [
     'CreateZone',
@@ -73,6 +76,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     'ReleaseCage',
     'AssignCoffin',
     'ReleaseHeld',
+    'SetRackDrying',
   ];
   readonly pendingToggles: { id: EntityId; on: boolean; atTick: number }[] = [];
 
@@ -82,6 +86,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   private readerRef: BuildingsReader | null = null;
   private rng: RngStream | null = null;
   private burialRef: BurialStore | null = null;
+  private racksRef: RackStore | null = null;
   readonly brokenFurniture: EntityId[] = [];
   readonly doorBreakProgress = new Map<EntityId, number>();
   /** The id of the zone the last accepted `CreateZone` made (for setup helpers and the UI). */
@@ -102,6 +107,11 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   get burial(): BurialStore {
     if (this.burialRef === null) throw new Error('14 buildings: burial before init');
     return this.burialRef;
+  }
+
+  get racks(): RackStore {
+    if (this.racksRef === null) throw new Error('14 buildings: racks before init');
+    return this.racksRef;
   }
 
   get rooms(): RoomStore {
@@ -171,6 +181,8 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       sleepingBedHolder: (id) => readers.has('10') ? readers.of<{ bedHolder(id: EntityId): EntityId }>('10').bedHolder(id) : 0,
     });
     this.burialRef = new BurialStore(store, this.roomsRef, this.zones);
+    this.racksRef = new RackStore(store, () => (readers.has('06') ? readers.of<{ state(): string }>('06').state() : null));
+    const racks = this.racksRef;
     const buildProducer = store.producer();
     const burial = this.burialRef;
     ctx.register.jobProducer({ ...buildProducer,
@@ -190,7 +202,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       if (!readers.has('11')) return [];
       return readers.of<{ list(): readonly { readonly target: { readonly ref: number }; readonly data: Readonly<Record<string, unknown>> }[] }>('11').list()
         .filter((job) => job.data['holder'] === id).map((job) => job.target.ref);
-    });
+    }, racks);
   }
 
   override handle(event: GameEvent, _ctx: TickContext): void {
@@ -215,7 +227,10 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       // 25 § The sanctum, Mishaps: the circle is destroyed and nothing comes back (it links no item).
       const id = event['buildingId'] as EntityId;
       if (this.buildings.get(id)?.state === 'built') this.buildings.remove(id);
+    } else if (event.type === 'WeatherChanged') {
+      this.racks.weatherChanged(String(event['from']), String(event['to']));
     } else if (event.type === 'DayPassed') {
+      this.racks.dayPassed(_ctx);
       rooms.markAll();
       rooms.recompute();
       rooms.autoAssign();
@@ -287,6 +302,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       ReleaseCage: () => buildings.releaseCage(cmd),
       AssignCoffin: () => this.burial.assign(cmd, _ctx),
       ReleaseHeld: () => buildings.releaseHeld(cmd),
+      SetRackDrying: () => this.racks.setDrying(cmd),
     };
     const handler = handlers[cmd.type];
     return handler === undefined ? reject('not_found') : handler();
@@ -329,6 +345,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       doorBreakProgress: Array.from(this.doorBreakProgress.entries()),
       ...(this.burial.dead.size > 0 ? { deadDwarves: this.burial.serialize() } : {}),
       ...(this.burial.assignments.size > 0 ? { burialAssignments: Array.from(this.burial.assignments.entries()).sort((a, b) => a[0] - b[0]) } : {}),
+      ...(this.racks.day === null ? {} : { rackDay: { ...this.racks.day } }),
     };
   }
 
@@ -354,6 +371,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
         this.doorBreakProgress.set(id, count);
       }
     }
+    this.racks.day = state.rackDay === undefined ? null : { ...state.rackDay };
     this.rng?.setState(state.rng);
   }
 }

@@ -26,6 +26,9 @@ import type { BuildingsReader } from '@systems/buildings';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, firstCritical, type NeedName } from './needs';
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS, TIPSY_SLOW_PERCENT } from './constants';
 import { Activities, hallStand } from './activities';
+import { SMOKE_RADIUS } from '@systems/materials/constants';
+import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
+import { SMOKEHOUSE_RECIPES, dwarvesNear } from '@systems/morale/thoughts';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
@@ -74,7 +77,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'PatientAdmitted', 'PatientDischarged', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'PatientAdmitted', 'PatientDischarged', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged', 'ItemCrafted'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -163,6 +166,26 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   titlesOf(id: EntityId): TitleName[] {
     this.seedTitles();
     return TITLES.filter((name) => this.titles[name] === id);
+  }
+
+  /**
+   * 12 § Smoke, salt and the smokehouse: a smokehouse's batch done makes every dwarf within
+   * `SMOKE_RADIUS` of it but its worker `SMOKEHOUSE_HUNGER` hungrier (15 gives `smelled_smokehouse`).
+   */
+  private smelledSmokehouse(event: GameEvent, ctx: TickContext): void {
+    if (!SMOKEHOUSE_RECIPES.includes(String(event['recipeId']))) return;
+    const footprint = ctx.readers.of<BuildingsReader>('14').get(Number(event['workshopId']))?.footprint ?? [];
+    const centre = footprint[4] ?? footprint[0];
+    if (centre === undefined) return;
+    for (const id of dwarvesNear(ctx, centre, SMOKE_RADIUS)) {
+      if (id === event['crafterId']) continue;
+      const before = ctx.world.entities.get(id, C.Needs);
+      if (before === undefined) continue;
+      const after: Needs = { ...before, hunger: Math.min(NEED_MAX, before.hunger + SMOKEHOUSE_HUNGER) };
+      ctx.world.entities.add(id, C.Needs, after);
+      this.recordCrossings(id, before, after, (e) => ctx.emit(e));
+      this.updateMaxSince(id, after, ctx.tick);
+    }
   }
 
   /** TestWorld's direct setup helper uses the same crossing rule as an hourly update. */
@@ -482,6 +505,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       return;
     }
     if (event.type === 'BuildingStateChanged') { this.checkShelters(ctx); return; }
+    if (event.type === 'ItemCrafted') { this.smelledSmokehouse(event, ctx); return; }
     if (event.type === 'PatientAdmitted' || event.type === 'PatientDischarged') {
       this.interruptFlags.add(event['id'] as EntityId);
       return;

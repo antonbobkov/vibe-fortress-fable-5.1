@@ -39,3 +39,6 @@ export const HATCH_MODES: readonly string[] = Object.freeze(['open', 'locked']);
  * integer so the container's room arithmetic stays exact (D-074).
  */
 export const WAGON_CAPACITY = Number.MAX_SAFE_INTEGER;
+
+/** 14 § The drying rack: the units a rack holds over its drying rows. */
+export const RACK_CAPACITY = 5;

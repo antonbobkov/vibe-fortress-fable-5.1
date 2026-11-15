@@ -44,6 +44,8 @@ import {
   WILD_THINK_TICKS,
   WILD_LOAD_SHEDDING_THINK_TICKS,
   TERRITORY_AVOID_RADIUS,
+  DUNG_DAYS,
+  DUNG_ITEM,
 } from './constants';
 import { AnimalFacts } from './facts';
 import { chunkCentre, fightNoise, hearsNoise, isHeavySleeperId, packOf, strikeBack, tickAnimal, tileOf, wakeStruck, type BrainHost } from './brain';
@@ -809,7 +811,29 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.births(ctx);
     this.breeding(ctx);
     this.products(ctx);
+    this.dung(ctx);
     this.recount();
+  }
+
+  /**
+   * `08` § Dung: every tame grazer assigned to a pasture drops one `dung` on its tile on the day whose
+   * number plus its id is a multiple of `DUNG_DAYS` (no draw, no state). Content with no `dung` drops none.
+   */
+  private dung(ctx: TickContext): void {
+    const items = ctx.registry.table<{ id: string }>('items');
+    const materials = ctx.registry.table<{ id: string }>('materials');
+    if (!items.has(DUNG_ITEM) || !materials.has(DUNG_ITEM)) return;
+    const day = Math.floor(ctx.tick / TICKS_PER_DAY);
+    const entities = ctx.world.entities;
+    for (const id of entities.with(C.Tame)) {
+      if ((day + id) % DUNG_DAYS !== 0) continue;
+      const t = entities.get(id, C.Tame);
+      const species = entities.get(id, C.Creature)?.species ?? 0;
+      if (t === undefined || t.pastureId === 0 || this.facts.dietOf(species) !== 'grazer') continue;
+      const at = this.tileOf(id);
+      if (at < 0) continue;
+      ctx.spawn.item(items.index(DUNG_ITEM), materials.index(DUNG_ITEM), at, 1, 1);
+    }
   }
 
   /** A pregnancy that has come due: `litter` young beside the mother, `Tame` and juvenile. */
