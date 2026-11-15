@@ -60,6 +60,13 @@ const ALL_CLEAR_TICKS = 300;
 const WARNED_TICKS = TICKS_PER_DAY + 100;
 /** T-387: the longest a hearth alert stands for wild animals that nobody hunts. */
 const WILD_ALERT_TICKS = TICKS_PER_DAY / 2;
+/**
+ * T-567: the longest a hearth alert stands while the mustered squad hunts wild animals. On seed p2-4
+ * at shift 0 a hunt in metal after two wolves held the alert from day 241 to day 258: the fortress
+ * sheltered behind its doors with its food work outside them, and 35 dwarves starved on one day.
+ * The player calls the squad back after a day and the fortress goes back to work.
+ */
+export const WILD_HUNT_TICKS = TICKS_PER_DAY;
 /** T-387: after such an alert is lifted, wild animals alone raise no alert for this long. */
 const WILD_QUIET_TICKS = TICKS_PER_DAY;
 /**
@@ -1165,9 +1172,13 @@ export function keepGateWalls(w: TestWorld, state: Pick<FortressState, 'cx' | 'c
     if (walls.every((t) => isWall(t) && buildings.get(buildings.at(t))?.state === 'built')) state.gateWallLostTick = 0;
     else if (state.gateWallLostTick === 0 && walls.some((t) => buildings.at(t) === 0)) state.gateWallLostTick = w.tick;
   }
+  // T-567: a wall placed again goes up ahead of routine work, as the second line's doors do. At
+  // routine priority it waited behind the food work a step ahead of it, which never runs out: on
+  // seed p2-1 at shift 50 three walls burnt on day 155 stood planned to the end of year 3.
+  const priority = state.economy.phases.has('gate walls') ? KIT_FIRST : BUILD;
   for (const origin of walls) {
     if (!buildings.at(origin) && buildings.ghost('wall', origin, 0).reason === null) {
-      command(w, { type: 'PlaceBuilding', buildingType: 'wall', origin, orientation: 0, materialChoice: 0, priority: BUILD });
+      command(w, { type: 'PlaceBuilding', buildingType: 'wall', origin, orientation: 0, materialChoice: 0, priority });
     }
   }
   if (walls.every(isWall)) state.economy.phases.add('gate walls');
@@ -1480,8 +1491,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
   };
   const wildSince = hunts ? state.alertSince : (state.wildEpisodeSince ?? state.alertSince);
-  if (curAlert === 'hearth' && wildOnly && !(hunts && state.mustered === true) &&
-      w.tick - (wildSince ?? w.tick) >= WILD_ALERT_TICKS) {
+  // T-567: a hunt is called off after WILD_HUNT_TICKS of its alert, as a wait after WILD_ALERT_TICKS.
+  const hunting = hunts && state.mustered === true;
+  if (curAlert === 'hearth' && wildOnly &&
+      w.tick - (wildSince ?? w.tick) >= (hunting ? WILD_HUNT_TICKS : WILD_ALERT_TICKS)) {
     quiet();
     return;
   }
