@@ -282,6 +282,10 @@
     "hex": "#C8A878"
   },
   {
+    "id": "dung_brown",
+    "hex": "#5C4A30"
+  },
+  {
     "id": "dust_brown",
     "hex": "#9C8A6A"
   },
@@ -892,6 +896,10 @@
   {
     "id": "slate_gray",
     "hex": "#6E7278"
+  },
+  {
+    "id": "smoke_bg",
+    "hex": "#2E2E2E"
   },
   {
     "id": "snow_white",

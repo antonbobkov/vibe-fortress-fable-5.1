@@ -15,7 +15,7 @@ import { C } from '@core/components';
 import { MAGMA_C } from '@systems/fluids/constants';
 import { HEARTH_WARMTH_C } from '@systems/buildings/constants';
 import { Fire } from './fire';
-import { MATERIALS_CADENCE, MATERIALS_PHASE, UNDERGROUND_BASE_C } from './constants';
+import { MATERIALS_CADENCE, MATERIALS_PHASE, SMOKE_RADIUS, SMOKE_TICKS, UNDERGROUND_BASE_C } from './constants';
 import type { AlloyInput, MaterialsReader, OreYield } from './reader';
 import type { BurningState, MaterialsStateV1 } from './state';
 import { chunkTiles, magmaSignature, reachOf, recomputeChunk, temperatureOf, type OverrideSources } from './temperature';
@@ -57,7 +57,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   readonly order = 5;
   override readonly cadence = MATERIALS_CADENCE;
   override readonly phase = MATERIALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike', 'SnowCoverChanged', 'Mishap'];
+  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike', 'SnowCoverChanged', 'Mishap', 'SmokyFuelBurned'];
 
   private readonly options: MaterialsOptions;
   private mapRef: Map3D | null = null;
@@ -84,6 +84,9 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   /** Per chunk with magma, a signature of where its magma lies (D-095). */
   readonly magmaSignatures = new Map<ChunkIndex, number>();
   started = false;
+  /** `05` § Smoke: each smoky workshop's centre tile and the tick its smoke clears. */
+  readonly smoke = new Map<TileIndex, number>();
+  private now: () => number = () => 0;
   readonly pendingChunks = new Set<ChunkIndex>();
   readonly forced = new Map<TileIndex, number>();
   /** How many chunk recomputes ran (a debug counter for the tests; not state). */
@@ -111,6 +114,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
 
   override init(ctx: InitContext): void {
     this.mapRef = ctx.world.map;
+    this.now = () => ctx.world.calendar.tick;
     this.rng = ctx.rng;
     const table = ctx.registry.table<MaterialRow>('materials');
     const n = table.size + 1;
@@ -248,6 +252,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
 
   override tick(ctx: TickContext): void {
     if (!this.started) this.start();
+    for (const [tile, until] of Array.from(this.smoke)) if (until <= ctx.tick) this.smoke.delete(tile);
     this.tickFire(ctx);
     if (this.pendingChunks.size > 0) {
       const due = Array.from(this.pendingChunks);
@@ -288,6 +293,11 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
    * alone never recomputes. D-095.
    */
   override handle(event: GameEvent, ctx: TickContext): void {
+    if (event.type === 'SmokyFuelBurned') {
+      // `05` § Smoke: the workshop is smoky for `SMOKE_TICKS` from the job's completion.
+      this.smoke.set(event['tile'] as TileIndex, ctx.tick + SMOKE_TICKS);
+      return;
+    }
     if (event.type === 'LightningStrike') {
       // `05` § Fire: "a `LightningStrike` names it" (06); ignites at the next materials tick.
       this.fire.pendingIgnite.add(event['tile'] as TileIndex);
@@ -363,7 +373,23 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       yieldsOf: (m) => this.yields.get(m) ?? [],
       alloyInputs: (m) => this.alloys.get(m) ?? [],
       isWarmSpring: (i) => this.springSet.has(i),
+      isSmoky: (i) => this.isSmoky(i),
     };
+  }
+
+  /** `05` § Smoke: the tile is within `SMOKE_RADIUS` (Chebyshev, same level) of a smoky workshop's centre. */
+  isSmoky(i: TileIndex): boolean {
+    if (this.smoke.size === 0) return false;
+    const map = this.map;
+    const now = this.now();
+    const x = map.xOf(i);
+    const y = map.yOf(i);
+    const z = map.zOf(i);
+    for (const [tile, until] of this.smoke) {
+      if (until <= now || map.zOf(tile) !== z) continue;
+      if (Math.max(Math.abs(map.xOf(tile) - x), Math.abs(map.yOf(tile) - y)) <= SMOKE_RADIUS) return true;
+    }
+    return false;
   }
 
   override reader(): MaterialsReader {
@@ -390,6 +416,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
         .map((t): [TileIndex, number] => [t, this.forced.get(t) as number]),
       itemBurn: this.serializeItemBurn(),
       pendingIgnite: this.serializePendingIgnite(),
+      ...(this.smoke.size === 0 ? {} : { smoke: Array.from(this.smoke).sort((a, b) => a[0] - b[0]) }),
     };
   }
 
@@ -421,6 +448,8 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     this.forced.clear();
     for (const [t, c] of state.forced) this.forced.set(t, c);
     this.deserializeFire(state);
+    this.smoke.clear();
+    for (const [t, until] of state.smoke ?? []) this.smoke.set(t, until);
     this.rng?.setState(state.rng);
   }
 

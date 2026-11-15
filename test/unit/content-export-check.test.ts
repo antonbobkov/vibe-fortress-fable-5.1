@@ -22,9 +22,9 @@ function fixture(run: (dir: string) => void): void {
 }
 
 describe('T-126 source exports reproduce committed content', () => {
-  it('exports all sixty tables into temporary storage without changing any committed byte', () => {
+  it('exports all sixty-one tables into temporary storage without changing any committed byte', () => {
     const before = files.map((name) => readFileSync(join(content, name)));
-    expect(checkExport()).toEqual({ tableCount: 60, differences: [] });
+    expect(checkExport()).toEqual({ tableCount: 61, differences: [] });
     expect(files.map((name) => readFileSync(join(content, name)))).toEqual(before);
   });
 

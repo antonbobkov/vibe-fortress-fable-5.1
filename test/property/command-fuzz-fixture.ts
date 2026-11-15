@@ -59,6 +59,7 @@ const previouslyUnaccepted = [
   'AssignCoffin',
   'SetTrapMode',
   'ReleaseHeld',
+  'SetRackDrying',
 ] as const;
 
 function validTarget(game: HeadlessGame, type: string): Command | null {
@@ -158,6 +159,8 @@ function validTarget(game: HeadlessGame, type: string): Command | null {
       return { type, trapId: b.byType('stone_fall_trap')[0], mode: 'all' };
     case 'ReleaseHeld':
       return { type, buildingId: b.byType('bed')[0] };
+    case 'SetRackDrying':
+      return { type, buildingId: b.byType('drying_rack')[0], rows: ['dry_peat', 'dry_meat'] };
     default:
       return null;
   }
@@ -300,6 +303,7 @@ const OWN: Record<string, string[]> = {
   ReleaseCage: ['cageBuildingId'],
   AssignCoffin: ['coffinId', 'dwarfId'],
   ReleaseHeld: ['buildingId'],
+  SetRackDrying: ['buildingId', 'rows'],
   CreateSquad: ['name'],
   DisbandSquad: ['squadId'],
   SetSquadMembers: ['squadId', 'members'],
@@ -374,6 +378,10 @@ function buildWorld(): TestWorld {
   const bedding = w.spawnItem('bedding', 'flax_cloth', w.index(60, 70, Z), 1, 2);
   w.game.world.services.items?.install?.(bedding);
   w.game.world.entities.add(bed, C.Building, { ...w.game.world.entities.get(bed, C.Building)!, held: [bedding] });
+  // T-552: a drying rack for SetRackDrying, set to peat, which the fortress has none of, so no hauler
+  // walks the embark's meat to it while the mechanic links the lever.
+  const rack = w.build('drying_rack', w.index(64, 72, Z), 'pine');
+  w.game.world.applyCommand({ type: 'SetRackDrying', buildingId: rack, rows: ['dry_peat'] });
   w.zone('bedroom', [w.index(60, 70, Z), w.index(61, 70, Z)]);
   w.zone('hospital', [w.index(70, 70, Z)]);
   w.zone('dump', [w.index(72, 70, Z)]);

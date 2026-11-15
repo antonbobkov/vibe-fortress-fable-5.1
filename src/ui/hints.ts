@@ -45,6 +45,8 @@ export interface HintFacts {
   cellarFailing?: boolean;
   /** 14 § Beds: a dwarf slept on the floor while a pallet's materials were in stock. */
   palletMaterials?: boolean;
+  /** 14 § The drying rack: the first drying rack was built. */
+  rackBuilt?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -87,6 +89,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_herbs_eaten': return f.herbsEaten === true;
     case 'hint_cellar': return f.cellarFailing === true;
     case 'hint_pallet': return f.palletMaterials === true;
+    case 'hint_rack': return f.rackBuilt === true;
     default: return false;
   }
 }
@@ -168,6 +171,7 @@ export class HintEngine {
     if (event.type === 'VeinFound' && typeof fields['material'] === 'string' &&
       this.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(fields['material'])?.deepsilver === true) this.markId('hint_deep');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'cage_trap') this.markId('hint_cage');
+    if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'drying_rack') this.markId('hint_rack');
     // The hospital is for the fortress's own dwarves: a wounded beast or invader does not call for one.
     if (event.type === 'WoundInflicted' && (fields['severity'] === 'serious' || fields['severity'] === 'grievous') && this.fortressDwarf(readers, Number(fields['id']))) this.markId('hint_hospital');
     if (event.type === 'CommandRejected') {
@@ -308,6 +312,7 @@ export class HintEngine {
         return pile?.cellar === true && pile.cellarOk !== true;
       }),
       palletMaterials: this.pending('hint_pallet'),
+      rackBuilt: this.pending('hint_rack'),
     };
   }
 }

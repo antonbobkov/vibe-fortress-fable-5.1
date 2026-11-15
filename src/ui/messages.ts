@@ -202,6 +202,9 @@ export function itemName(registry: Registry, id: string, n = 1): string {
   return n === 1 ? row.name : row.plural ?? `${row.name}s`;
 }
 
+/** The first words of an item type in a cured or salted form (`items.md` § Food). */
+const CURED_WORDS: readonly string[] = ['cured', 'salted'];
+
 /**
  * An item as the lists name it: the material, then the item type's name ("oak log", "3 iron bars"). A word is
  * never said twice: a material that ends with the type's name ("wool cloth" for cloth) is the whole name; a type
@@ -213,6 +216,8 @@ export function materialItemName(material: string, type: { readonly name: string
   if (material === '') return typeName;
   const m = material.split(' ');
   const t = type.name.split(' ');
+  // items.md § Food: an item of a cured or salted form names itself so: "cured boar meat", "cured trout", "salted boar hide".
+  if (t.length > 1 && CURED_WORDS.includes(t[0] as string)) return `${t[0]} ${material}`;
   const ends = (long: readonly string[], short: readonly string[]): boolean => long.length >= short.length && long.slice(long.length - short.length).join(' ') === short.join(' ');
   if (m.length > t.length && ends(m, t)) return material;
   if (ends(t, m)) return typeName;

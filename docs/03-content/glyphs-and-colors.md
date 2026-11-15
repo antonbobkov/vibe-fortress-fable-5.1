@@ -118,6 +118,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `magma_7` | #C02800 | |
 | `magma_bg` | #3A0800 | |
 | `mist_bg` | #1C3A44 | |
+| `smoke_bg` | #2E2E2E | |
 | `ice_blue` | #BFE6FF | |
 
 ### Designation and zone tints (backgrounds)
@@ -247,7 +248,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `horn_gray` | #A89A86 |  |  | `ivory_cream` | #F2E8CF |  |
 | `feather_white` | #F4F1EA |  |  | `pewter_gray` | #8E949A |  |
 | `brick_red` | #A0482E |  |  | `glass_pale` | #BFE3E6 |  |
-| `star_silver` | #D8E4F0 |  |  |  |  |  |
+| `dung_brown` | #5C4A30 |  |  | `star_silver` | #D8E4F0 |  |
 
 ## Glyphs by thing
 
@@ -317,10 +318,10 @@ loom         clothier     farmers      butcher      kennel       bowyer
 ≈ ┼ ≈        ≈ ┼ ≈        ╥ ┼ ╥        ╥ ┼ ╥        ▒ ┼ ▒        ≡ ┼ ≡
 ~ ≈ ~        [ ≈ [        u ╥ u        % ╥ %        § ▒ §        ) ≡ )
 
-depot        wagon        alchemist    runeforge    kiln
-▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ        ▄ ▲ ▄
-═ ┼ ═        ═ ▄ ═        ╥ ┼ ╥        ♦ ┼ ♦        █ ┼ █
-▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ        ▀ ☼ ▀
+depot        wagon        alchemist    runeforge    kiln         smokehouse
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ        ▄ ▲ ▄        ≡ ≡ ≡
+═ ┼ ═        ═ ▄ ═        ╥ ┼ ╥        ♦ ┼ ♦        █ ┼ █        ≡ ┼ ≡
+▄ ═ ▄        ○ ═ ○        ¡ ╥ ¡        Ξ ¡ Ξ        ▀ ☼ ▀        ▀ % ▀
 ```
 
 The center `┼` is the work tile; the south-center tile is the output tile. Impassable corner tiles (smelter, forge, furnace, runeforge and magma variants) are the `▒`, `Ξ` glyphs. Magma variants draw the pattern in `magma_2` instead of the material color.
@@ -331,24 +332,15 @@ Sun `☼` day, moon `C` night (CP437 lacks a moon; `C` in `dark_cyan` is the con
 
 ## Planned rows
 
-Rows of the Making Do content, not yet in the game and not exported. The task named adds each colour to § Material and nature colors (the hex here is a first choice; it may change if it clashes) and its pattern to § Workshop patterns, adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`.
+Rows of the Making Do content, not yet in the game and not exported. The task named adds each colour to § Material and nature colors (the hex here is a first choice; it may change if it clashes) adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`.
 
 ### Planned colours
 
 | id | hex | task |
 |---|---|---|
-| `dung_brown` | #5C4A30 | T-552 |
-| `smoke_bg` | #2E2E2E | T-552 |
 | `honey_amber` | #D49A2A | T-555 |
 | `wax_yellow` | #E8D27A | T-555 |
 | `soap_white` | #EEF0F2 | T-564 |
 | `reindeer_brown` | #8A6A4A | T-561 |
 | `camel_tan` | #C8A472 | T-561 |
 
-### Planned workshop patterns
-
-| id | rows | task |
-|---|---|---|
-| `smokehouse` | `≡≡≡`, `≡%≡`, `▀ ▀` | T-552 |
-
-The patterns' exact glyphs follow § Workshop patterns' conventions; a task may choose others from the glyph set.

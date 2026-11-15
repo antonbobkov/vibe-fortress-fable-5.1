@@ -10,7 +10,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import type { EntityId } from '@core/types';
 import type { CombatReader, SquadWithId } from '@systems/combat';
 import { TestWorld } from '../scenarios/test-world';
-import { HALL_Z, Z, armedInMetal, checkFortressDefense, musteredAt, type FortressState } from '../scenarios/three_years_fortress';
+import { HALL_Z, Z, WILD_HUNT_TICKS, armedInMetal, checkFortressDefense, musteredAt, type FortressState } from '../scenarios/three_years_fortress';
 
 const CX = 34;
 const CY = 34;
@@ -107,6 +107,35 @@ describe('T-544 a squad armed in metal hunts wolves and bears', () => {
       expect(combat.squad(squad.id)?.members, 'the member with no armour stays behind').toEqual(soldiers);
     }, 60_000);
   }
+
+  it('T-567: calls the hunt off a day after its alert, and the fortress goes back to work', () => {
+    // On seed p2-4 at shift 0 a hunt after two wolves held the alert for 17 days and 35 dwarves starved.
+    const w = new TestWorld({ seed: 't567-hunt-called-off', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const { squad } = gateGuard(w, true);
+    const combat = w.readers.of<CombatReader>('16');
+    const state = fortress(squad.id);
+    sleeping(w, 'wolf', 9);
+    w.step(1);
+    checkFortressDefense(w, state);
+    let hunting = -1;
+    for (let t = 0; t < 600 && hunting < 0; t += 20) {
+      w.step(20);
+      checkFortressDefense(w, state);
+      if ((combat.squad(squad.id)?.orders ?? []).some((o) => o.kind === 'kill')) hunting = w.tick;
+    }
+    expect(hunting, 'the mustered squad sets out').toBeGreaterThan(0);
+    // The wolf still sleeps where it lay. Just short of WILD_HUNT_TICKS of alert the hunt goes on;
+    // at WILD_HUNT_TICKS it is called off, and wild animals raise no alert for a while.
+    state.alertSince = w.tick - WILD_HUNT_TICKS + 1;
+    checkFortressDefense(w, state);
+    expect(w.game.world.fortress.alert).toBe('hearth');
+    expect((combat.squad(squad.id)?.orders ?? []).some((o) => o.kind === 'kill')).toBe(true);
+    state.alertSince = w.tick - WILD_HUNT_TICKS;
+    checkFortressDefense(w, state);
+    expect(w.game.world.fortress.alert, 'the alert is lowered').toBe('calm');
+    expect(state.wildQuietUntil).toBeGreaterThan(w.tick);
+    expect(combat.squad(squad.id)?.orders ?? [], 'the squad is called back').toEqual([]);
+  }, 60_000);
 
   it('shelters from a wolf while its soldiers wear mail alone', () => {
     const w = new TestWorld({ seed: 't544-mail-shelters', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });

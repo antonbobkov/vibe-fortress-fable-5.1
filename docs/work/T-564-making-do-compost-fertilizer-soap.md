@@ -1,6 +1,6 @@
 # T-564 — Making Do B5b: the compost heap, fertilizer and soap
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (compost heap, fertilizer, soap)); T-546, split from T-555 · **Size:** M · **Needs:** T-552 · **Status:** blocked (needs T-552)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (compost heap, fertilizer, soap)); T-546, split from T-555 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

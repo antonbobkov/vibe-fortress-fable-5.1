@@ -37,4 +37,6 @@ export interface MaterialsReader {
   alloyInputs(metal: number): readonly AlloyInput[];
   /** A `gemsprings` warm spring tile (`05` § Warm springs). */
   isWarmSpring(i: TileIndex): boolean;
+  /** `05` § Smoke: the tile lies within `SMOKE_RADIUS` of a smoky workshop (23 tints it). */
+  isSmoky(i: TileIndex): boolean;
 }

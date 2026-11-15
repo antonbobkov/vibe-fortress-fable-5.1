@@ -91,6 +91,11 @@ export function exportMaterials() {
   for (const row of asObjects(findTable(tables, 'Animal products'))) out.push(material(row, {}));
   for (const row of asObjects(findTable(tables, 'Salt'))) out.push(material(row, {}));
   for (const row of asObjects(findTable(tables, 'Fired at the kiln'))) out.push(material(row, {}));
+  // materials.md § Farm materials: a row with `burnTicks` burns (dung, as peat).
+  for (const row of asObjects(findTable(tables, 'Farm materials'))) {
+    const burn = isBlank(row.burnTicks) ? 0 : int(row.burnTicks);
+    out.push(material(row, burn > 0 ? { burnable: true, burnTicks: burn } : {}));
+  }
   for (const row of asObjects(findTable(tables, 'Cloth and fiber'))) {
     // materials.md: "Cloth burns (300 ticks, unless its row gives `burnTicks`) and melts at 300 C."
     out.push(material(row, { burnable: true, burnTicks: isBlank(row.burnTicks) ? 300 : int(row.burnTicks), meltsAtC: 300 }));

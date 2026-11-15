@@ -9,6 +9,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { TICKS_PER_DAY } from '@core/constants';
 import { loadContent } from '@content/loader';
 import type { ItemTypeDef, MaterialDef, RecipeDef } from '@content/generate';
 
@@ -154,6 +155,27 @@ describe('12 § Substitutes: a substitute recipe stays worse than the recipe it 
     expect(cost(recipes.byId('make_splint_bone') as RecipeDef, 'oak')).toMatchObject({ units: 1, per: 2 });
     expect(cost(recipes.byId('make_splint') as RecipeDef, 'oak')).toMatchObject({ units: 1, per: 4 });
   });
+
+  // T-552: the half fuels stand in for charcoal. They are dried on a rack (`items.md` § Drying), not
+  // made at a workshop, and a job burns two of them in place of one bar (12 § Fuel). Per fuel burned,
+  // each takes at least the log charcoal takes and longer than the wood furnace's job, and smokes.
+  const HALF_FUELS: readonly (readonly [string, string])[] = [['dry_peat', 'peat_brick'], ['dry_dung', 'dung_cake']];
+  for (const [rowId, fuel] of HALF_FUELS) {
+    it(`${rowId} (${fuel}, a half fuel) is worse than make_charcoal per fuel burned`, () => {
+      const drying = registry.table<{ id: string; count: number; output: { item: string; count: number }; days: number }>('drying');
+      const row = drying.byId(rowId);
+      const charcoal = recipes.byId('make_charcoal') as RecipeDef;
+      expect(row?.output.item).toBe(fuel);
+      expect(items.byId(fuel)?.tags).toEqual(expect.arrayContaining(['fuel_half', 'smoky']));
+      expect(items.byId('charcoal_bar')?.tags).toContain('fuel');
+      const halves = 2; // HALF_FUELS_PER_JOB: two half fuels burn as one bar
+      const sub: Cost = { units: (row?.count ?? 0) * halves, ticks: (row?.days ?? 0) * TICKS_PER_DAY * halves, value: 0, per: (row?.output.count ?? 0) };
+      const regular: Cost = { units: charcoal.inputs.reduce((n, input) => n + input.count, 0), ticks: charcoal.baseTicks, value: 0, per: charcoal.outputs[0]?.count ?? 0 };
+      expect(atLeast(sub.units, sub.per, regular.units, regular.per), `${rowId} ${JSON.stringify(sub)} against ${JSON.stringify(regular)}`).toBe(true);
+      expect(atLeast(sub.ticks, sub.per, regular.ticks, regular.per)).toBe(true);
+      expect(substituteIsWorse(sub, regular)).toBe(true);
+    });
+  }
 
   it('the rule fails a substitute that is better on every count and passes one that is worse on any of its terms', () => {
     const regular: Cost = { units: 4, ticks: 200, value: 40_000, per: 1 };

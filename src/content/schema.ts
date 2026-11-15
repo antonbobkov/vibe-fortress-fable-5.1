@@ -874,7 +874,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
     outputTile: opt(int),
     magmaVariantOf: opt(ref('buildings')),
     rest: opt(int),
-    wants: opt(arr(obj({ match: itemMatch, count: int }))),
+    // 14 § The drying rack: `drying` is the rack's setting's rows (`items.md` § Drying).
+    wants: opt(arr(obj({ match: ref('items', { allowTag: true, alternation: true, allowWords: ['any', 'drying'] }), count: int }))),
     glyph: opt(str),
   }),
 
@@ -929,6 +930,17 @@ export const SCHEMAS: Record<string, TableSchema> = {
     transform: opt(bool),
     enchant: opt(ref('enchants')),
     spoilable: opt(bool),
+  }),
+
+  // items.md § Drying: what a drying rack turns its items into (14 § The drying rack).
+  drying: rows({
+    id: nonEmptyStr,
+    input: itemRef,
+    material: opt(materialRef),
+    count: int,
+    with: opt(obj({ item: itemRef, count: int })),
+    output: obj({ item: itemRef, count: int }),
+    days: int,
   }),
 
   draughts: rows({

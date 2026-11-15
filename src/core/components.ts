@@ -182,6 +182,8 @@ export interface ActiveThought {
   thought: Idx<'ThoughtDef'>;
   startTick: Tick;
   baseValue: number;
+  /** The word the thought's text names (`smelled_smokehouse`'s `{meat}`: "boar"); absent: none. */
+  detail?: string;
 }
 
 export interface Mood {
@@ -307,6 +309,8 @@ export interface Building {
   toggled: boolean;
   /** The items a building with wants holds (`14` § Building wants), each flagged `Installed`; absent: none. */
   held?: EntityId[];
+  /** A drying rack's held items with the drying days each has gained (`14` § The drying rack); absent: none. */
+  dryDays?: [EntityId, number][];
 }
 
 export interface WorkOrder {

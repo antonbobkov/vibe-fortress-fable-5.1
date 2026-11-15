@@ -537,6 +537,21 @@
     ]
   },
   {
+    "id": "dung",
+    "name": "dung",
+    "class": "plant",
+    "value": 0,
+    "density": 60,
+    "hardness": 100,
+    "color": "dung_brown",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 200,
+    "tags": [
+      "fertilizer"
+    ]
+  },
+  {
     "id": "earthenware",
     "name": "earthenware",
     "class": "stone",

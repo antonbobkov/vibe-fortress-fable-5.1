@@ -142,6 +142,8 @@ Metal tier for weapon and armor purposes: `wood`, `bone` and `obsidian` items ar
 
 Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel additionally consumes 1 fuel as an input (carbon). Both fuels carry the item tag `fuel`.
 
+Half fuels: a `peat_brick` (a peat load dried on a rack) and a `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`. A fuel job burns two of them in place of one bar when no bar is to be had, and the hall around the workshop fills with smoke ([12](../02-systems/12-workshops-and-professions.md) § Fuel, [05](../02-systems/05-materials-and-temperature.md) § Smoke). A half fuel is never steel's carbon.
+
 ## Flux
 
 Stones tagged `flux`: `limestone`, `dolomite`, `marble`, `chalk`. One raw stone per steel bar.
@@ -155,11 +157,3 @@ From the tables above the loader generates, per 12:
 - `smelt_hematite` … `smelt_bog_iron`, `smelt_star_iron` (1 ore → yields; fuel true except coal ores), one per ore with yields. None takes flux: `smelt_star_iron` is 1 star iron and 1 fuel → 3 `star_steel`.
 - `alloy_bronze`, `alloy_bismuth_bronze`, `alloy_brass`, `alloy_electrum`, `alloy_steel` (steel is listed as an alloy for uniformity: 1 iron bar + 1 flux + 1 fuel → 1 steel), `alloy_pewter`.
 - `melt_metal_item` (any `melt`-flagged metal item → 60% of its bar cost in bars).
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules that use them are in the § Planned sections of the system documents. Every number is *unmeasured*.
-
-### Planned fuel and flux
-
-- Half fuels (T-552): `peat_brick` (a peat load dried on a rack) and `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`: a fuel job burns two of them in place of one bar (12 § Planned).

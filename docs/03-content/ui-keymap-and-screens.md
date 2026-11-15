@@ -650,6 +650,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_herbs_eaten` | a dwarf eats a raw plant while a work order for a draught brewed from plants stands | "Hungry dwarves ate the plants a draught was waiting for. Order the draught before the crop ripens, and its job takes the first of the harvest." |
 | `hint_cellar` | a stockpile with the cellar setting on is not a working cellar (hourly) | "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two." |
 | `hint_pallet` | first `Slept` on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." |
+| `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." |
 
 ## Tutorial
 
@@ -782,7 +783,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 
 | id | Trigger | Text | task |
 |---|---|---|---|
-| `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." | T-552 |
 | `hint_hive` | first hive with too few flowers | "Bees need flowers: eight within six tiles of the hive." | T-555 |
 | `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
 | `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." | T-558 |

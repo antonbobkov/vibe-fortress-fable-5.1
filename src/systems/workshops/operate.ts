@@ -9,7 +9,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Job, JobBoard, JobSink, ItemFilter } from '@systems/jobs';
 import type { JobsReader } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
-import { MAGMA_POWER_LEVEL } from './constants';
+import { HALF_FUELS_PER_JOB, MAGMA_POWER_LEVEL } from './constants';
 import { MELT_RETURN_PERCENT, ORDER_AHEAD_TICKS } from './constants';
 import { MAGMA_C } from '@systems/fluids/constants';
 import { rollQuality } from './quality';
@@ -202,6 +202,16 @@ class RunePressure {
   }
 }
 
+/** `12` § Fuel: the tag of a half fuel, two of which a fuel job burns in place of a bar. */
+const HALF_FUEL_TAG = 'fuel_half';
+/** `12` § Fuel: the tag of a fuel whose burning fills the hall with smoke (05 § Smoke). */
+const SMOKY_TAG = 'smoky';
+
+/** The fuel bars a recipe takes into its product (steel's carbon), beside the one its job burns. */
+function reactionFuelOf(recipe: RecipeRow): number {
+  return recipe.inputs.reduce((count, input) => count + (input.material === 'fuel' ? input.count : 0), 0);
+}
+
 export class WorkshopOperator {
   readonly ctx: InitContext;
   readonly recipes = new Map<string, RecipeRow>();
@@ -330,18 +340,20 @@ export class WorkshopOperator {
         if (this.items.findItems(filter, input.count, tile, 'walker', { reservable: true }).length < input.count) return `waiting for ${input.match}`;
       }
     }
-    if (recipe.fuel && !this.isMagmaPowered(id)) {
-      const fuel = this.fuelFilter();
-      const reactionFuel = recipe.inputs.reduce((count, input) => count + (input.material === 'fuel' ? input.count : 0), 0);
-      if (fuel === null || this.items.countAvailable(fuel) < reactionFuel + 1) return 'missing_input';
-    }
+    if (recipe.fuel && !this.isMagmaPowered(id) && this.fuelInput(reactionFuelOf(recipe)) === null) return 'missing_input';
     if (recipe.container && this.items.countAvailable({ emptyContainer: recipe.container }) < 1) return `waiting for ${recipe.container}`;
     return null;
   }
 
-  fuelFilter(): ItemFilter | null {
-    const filter: ItemFilter = { tag: 'fuel' };
-    return this.items.countAvailable(filter) > 0 ? filter : null;
+  /**
+   * `12` § Fuel: what a fuel job burns: one item tagged `fuel` (a coal or charcoal bar) beyond the
+   * `reaction` bars the recipe takes into its product, or, when there is none, two items tagged
+   * `fuel_half` (a peat brick, a dung cake); null when neither is available.
+   */
+  fuelInput(reaction = 0): { filter: ItemFilter; count: number } | null {
+    if (this.items.countAvailable({ tag: 'fuel' }) >= reaction + 1) return { filter: { tag: 'fuel' }, count: 1 };
+    if (this.items.countAvailable({ tag: HALF_FUEL_TAG }) >= HALF_FUELS_PER_JOB) return { filter: { tag: HALF_FUEL_TAG }, count: HALF_FUELS_PER_JOB };
+    return null;
   }
 
   /** Alternatives and same-species inputs specified in content data beyond RecipeDef. */
@@ -494,7 +506,7 @@ export class WorkshopOperator {
           count: input.count,
           ...(input.flagged !== undefined ? { wholeItem: true as const } : {}),
         }));
-        if (recipe.fuel && !powered) inputs.push({ filter: this.fuelFilter() as ItemFilter, count: 1 });
+        if (recipe.fuel && !powered) inputs.push(this.fuelInput(reactionFuelOf(recipe)) as { filter: ItemFilter; count: number });
         if (recipe.container) inputs.push({ filter: { emptyContainer: recipe.container }, count: 1 });
         const key = choice.global ? `craft:global:${choice.order.serial}` : `craft:${id}:${choice.index}`;
         const jobId = sink.create(key, { type: 'craft', target: { kind: 'building', ref: id }, workTile: this.workTile(b),
@@ -520,12 +532,12 @@ export class WorkshopOperator {
             mode: 'once', threshold: 0, priority: 5, materialFilter: null };
           const filter = this.inputFilter(meltRecipe, meltInput, order);
           const item = filter === null ? 0 : this.items.findItem(filter, this.workTile(b), 'walker', { reservable: true });
-          const fuel = powered || !meltRecipe.fuel ? null : this.fuelFilter();
+          const fuel = powered || !meltRecipe.fuel ? null : this.fuelInput();
           if (item !== 0 && (powered || !meltRecipe.fuel || fuel !== null)) {
             const inputs: { filter: ItemFilter; count: number; wholeItem?: true }[] = [
               { filter: { ...filter, itemId: item }, count: 1, wholeItem: true },
             ];
-            if (fuel !== null) inputs.push({ filter: fuel, count: 1 });
+            if (fuel !== null) inputs.push({ filter: fuel.filter, count: fuel.count });
             const labor = ctx.registry.table<{ id: string; labor: string | null }>('skills').byId(meltRecipe.skill)?.labor ?? meltRecipe.skill;
             const jobId = sink.create(`craft:auto-melt:${id}`, { type: 'craft', target: { kind: 'building', ref: id },
               workTile: this.workTile(b), priority: 5, inputs,
@@ -646,7 +658,7 @@ export class WorkshopOperator {
     for (let k = 0; k < job.inputs.length; k += 1) {
       if (recipe.container && k === job.inputs.length - 1) continue;
       if (k !== fuelIndex && k >= recipe.inputs.length) continue;
-      const needed = k === fuelIndex ? 1 : (recipe.inputs[k]?.count ?? 0);
+      const needed = k === fuelIndex ? (job.inputs[k]?.count ?? 1) : (recipe.inputs[k]?.count ?? 0);
       let held = 0;
       for (const item of job.inputs[k]?.delivered ?? []) held += this.items.get(item)?.count ?? 0;
       if (held < needed) return false;
@@ -683,11 +695,13 @@ export class WorkshopOperator {
     // delivered inputs no longer cover the recipe makes nothing. 11 revalidates before it gets
     // here, so this is the last line: no output is ever spawned from inputs that are not consumed.
     if (!this.holdsInputs(job, recipe, fuelIndex, container)) return;
+    // 12 § Fuel: a job that burns an item tagged `smoky` fills the hall (05 § Smoke). Read before the fuel is consumed.
+    const smoky = fuelIndex >= 0 && (job.inputs[fuelIndex]?.delivered ?? []).some((item) => this.tagged(item, SMOKY_TAG));
     const pressure = new RunePressure(this, b);
     for (let k = 0; k < job.inputs.length; k += 1) {
       if (recipe.container && k === job.inputs.length - 1) continue;
       if (k === fuelIndex || k < recipe.inputs.length) {
-        let remaining = k === fuelIndex ? 1 : (recipe.inputs[k]?.count ?? 0);
+        let remaining = k === fuelIndex ? (job.inputs[k]?.count ?? 1) : (recipe.inputs[k]?.count ?? 0);
         for (const item of job.inputs[k]?.delivered ?? []) {
           if (remaining <= 0) break;
           const take = Math.min(remaining, this.items.get(item)?.count ?? 0);
@@ -740,7 +754,14 @@ export class WorkshopOperator {
       ctx.emit({ type: 'ItemCrafted', itemId, quality, crafterId: job.workerId, workshopId: id, recipeId: recipe.id });
       if (quality === 5) ctx.emit({ type: 'MasterworkCreated', itemId, crafterId: job.workerId });
     }
+    if (smoky) ctx.emit({ type: 'SmokyFuelBurned', workshopId: id, tile: b.footprint[4] ?? b.origin });
     this.finishOrder(job, ctx, recipe, id, ws);
+  }
+
+  /** The item's type carries the tag. */
+  private tagged(itemId: EntityId, tag: string): boolean {
+    const type = this.items.get(itemId)?.type;
+    return type !== undefined && this.ctx.registry.table<ItemRow>('items').byIndex(type)?.tags?.includes(tag) === true;
   }
 
   /**

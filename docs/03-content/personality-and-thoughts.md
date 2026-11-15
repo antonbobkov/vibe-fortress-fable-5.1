@@ -74,6 +74,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `drank_from_puddle` | "Drank from a puddle." | −4 | 12 | halflife | 1 | comfort | `DrankWater` outdoors |
 | `drank_cactus` | "Drank cactus. Cactus." | −1 | 12 | halflife | 1 | comfort | `DrankFromPlant` |
 | `ate_wyrmtongue` | "Ate something that fought back." | +2 | 24 | linear | 1 | comfort | `MealEaten` seasoned with wyrmtongue; while held, no `bitter_cold` |
+| `ate_salted_meal` | "The food was well salted." | +1 | 24 | linear | 1 | comfort | `MealEaten` seasoned with salt |
 
 ### Sleep
 
@@ -113,6 +114,8 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `saw_wisp` | "Saw a light that was not a lamp." | +2 | 24 | linear | 1 | comfort | `WispAppeared` within 8 tiles and line of sight, once a day (everyone) |
 | `lab_stink` | "The laboratory stinks." | −1 | 12 | halflife | 1 | comfort | passing within 3 tiles of a laboratory that spoiled a batch today |
 | `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle |
+| `smoky_hall` | "The hall is full of smoke." | −1 | 12 | linear | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS` of the workshop |
+| `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `ItemCrafted` of `smoke_meat` or `smoke_fish` within `SMOKE_RADIUS` of the smokehouse, not its worker; `{meat}` is the meat's species |
 
 ### Work and skill
 
@@ -201,9 +204,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
-| `smoky_hall` | "The hall is full of smoke." | −1 | 12 | halflife | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS`; tallow smoke | T-552 |
-| `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `smoke_meat` or `smoke_fish` done within `SMOKE_RADIUS` | T-552 |
-| `ate_salted_meal` | "The food was well salted." | +1 | 24 | linear | 1 | comfort | `MealEaten` seasoned with salt | T-552 |
 | `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees | T-555 |
 | `stood_in_the_ribs` | "Stood inside the ribs of something enormous." | +2 | 72 | linear | 1 | pride | `RibsEntered` | T-557 |
 | `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |

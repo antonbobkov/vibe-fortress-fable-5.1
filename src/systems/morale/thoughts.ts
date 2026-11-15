@@ -10,6 +10,7 @@ import type { DwarvesReader } from '@systems/dwarves';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import type { JobsReader } from '@systems/jobs';
+import { SMOKE_RADIUS } from '@systems/materials/constants';
 import type { ItemsReader } from '@systems/items';
 
 /** `15` § Thoughts: the metal of `forged_the_star`. */
@@ -160,13 +161,55 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'nettles': return s(event, 'source') === 'nettle';
     case 'drank_cactus': return true;
     case 'ate_wyrmtongue': return Array.isArray(event['seasoned']) && (event['seasoned'] as unknown[]).includes('wyrmtongue');
+    // 12 § Smoke, salt and the smokehouse: a salted meal; a smokehouse's batch done; 05 § Smoke.
+    case 'ate_salted_meal': return Array.isArray(event['seasoned']) && (event['seasoned'] as unknown[]).includes('salt');
+    case 'smelled_smokehouse': return SMOKEHOUSE_RECIPES.includes(s(event, 'recipeId'));
+    case 'smoky_hall': return true;
     default: return true;
   }
+}
+
+/** 12 § Smoke, salt and the smokehouse: the recipes whose batch a dwarf nearby smells. */
+export const SMOKEHOUSE_RECIPES: readonly string[] = ['smoke_meat', 'smoke_fish'];
+
+/** The fortress dwarves standing within `radius` (Chebyshev) of the tile on its level, ascending. */
+export function dwarvesNear(ctx: TickContext, tile: number, radius: number): EntityId[] {
+  const map = ctx.world.map;
+  if (!map.validIndex(tile)) return [];
+  const x = map.xOf(tile);
+  const y = map.yOf(tile);
+  const z = map.zOf(tile);
+  return ctx.readers.of<DwarvesReader>('10').list().filter((id) => {
+    const p = ctx.world.entities.get(id, C.Position);
+    return p !== undefined && p.z === z && Math.max(Math.abs(p.x - x), Math.abs(p.y - y)) <= radius;
+  });
+}
+
+/** A smokehouse's centre tile, from 14 (05 § Smoke measures from it). */
+function workshopCentre(ctx: TickContext, workshopId: number): number {
+  const footprint = ctx.readers.of<BuildingsReader>('14').get(workshopId)?.footprint ?? [];
+  return footprint[4] ?? footprint[0] ?? -1;
+}
+
+/**
+ * A thought's detail, the word its text names: `smelled_smokehouse`'s `{meat}`, the species of the
+ * smoked meat ("boar"), or the material's name when it is no species' meat; undefined for any other.
+ */
+export function thoughtDetail(def: ThoughtDef, event: GameEvent, ctx: TickContext): string | undefined {
+  if (def.id !== 'smelled_smokehouse') return undefined;
+  const material = ctx.world.entities.get(n(event, 'itemId'), C.Item)?.material;
+  const row = material === undefined ? undefined : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(material);
+  if (row === undefined) return undefined;
+  const species = row.id.endsWith('_meat') ? ctx.registry.table<{ id: string; name: string }>('creatures').byId(row.id.slice(0, -'_meat'.length)) : undefined;
+  return species?.name ?? row.name;
 }
 
 /** Resolve the event's subject to living dwarf ids; 10's relationship reader supplies friend and pet links. */
 export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext): EntityId[] {
   const dwarves = ctx.readers.of<DwarvesReader>('10');
+  // 05 § Smoke: everyone within `SMOKE_RADIUS` of the smoky workshop; 12: of a smokehouse's batch, but its worker.
+  if (def.id === 'smoky_hall') return dwarvesNear(ctx, n(event, 'tile'), SMOKE_RADIUS);
+  if (def.id === 'smelled_smokehouse') return dwarvesNear(ctx, workshopCentre(ctx, n(event, 'workshopId')), SMOKE_RADIUS).filter((id) => id !== n(event, 'crafterId'));
   const all = dwarves.list();
   const dead = n(event, 'id') || n(event, 'dwarfId');
   if (def.id === 'dwarf_died' || def.id === 'child_died') return all.filter((id) => id !== dead);

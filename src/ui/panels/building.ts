@@ -419,7 +419,8 @@ export class BuildingPanel {
       const n = w.count - w.held;
       return n === 1 ? matchName(ctx.registry, w.match) : `${n} ${matchName(ctx.registry, w.match, n)}`;
     });
-    if (tags.includes('sleep')) {
+    if (tags.includes('rack')) out.push(...this.rackLines(ctx));
+    else if (tags.includes('sleep')) {
       if (wants.length > 0) {
         const made = reader.restPercent(this.id) > (reader.types().find((row) => row.id === this.view(ctx)?.typeId)?.rest ?? 100);
         out.push({ id: 'made_up', text: made ? s.get('ui.building.made_up', { items: held.join(', ') }) : s.get('ui.building.not_made_up'), tone: made ? 'good' : 'dim' });
@@ -432,6 +433,49 @@ export class BuildingPanel {
     }
     if (held.length > 0) out.push({ id: 'take_out', text: key('h', s.get('ui.building.take_out')), key: 'h', run: () => void this.takeOut(ctx), help: s.get('ui.building.take_out_help') });
     return out;
+  }
+
+  /**
+   * 24 § Building panel: a drying rack lists each held item with its days left, then its drying
+   * checklist: one line a row, `Enter` turns it on or off (`SetRackDrying`).
+   */
+  private rackLines(ctx: PanelContext): BuildingLine[] {
+    const reader = buildings(ctx);
+    if (reader === null) return [];
+    const s = ctx.strings;
+    const out: BuildingLine[] = [];
+    const items = reader.rackItems(this.id);
+    if (items.length === 0) out.push({ id: 'rack:none', text: s.get('ui.building.rack_none'), tone: 'dim' });
+    for (const it of items) {
+      const name = this.heldName(ctx, it.itemId);
+      const text = it.row === '' ? s.get('ui.building.rack_with', { item: name })
+        : it.left > 0 ? s.get('ui.building.rack_item', { item: name, n: it.left }) : s.get('ui.building.rack_dry', { item: name });
+      out.push({ id: `rack:item:${it.itemId}`, text, tone: 'value' });
+    }
+    out.push({ id: 'rack:dries', text: s.get('ui.building.rack_dries'), tone: 'dim', help: s.get('ui.building.rack_help') });
+    const on = reader.rackDrying(this.id);
+    const types = ctx.registry.table<{ id: string; name: string }>('items');
+    for (const row of reader.dryingRows()) {
+      const enabled = on.includes(row.id);
+      const output = types.byId(row.output.item)?.name ?? row.output.item;
+      const input = types.byId(row.input)?.name ?? row.input;
+      const caption = s.get(row.with === undefined ? 'ui.building.rack_row' : 'ui.building.rack_row_with',
+        { output, input: row.material === undefined ? input : `${row.material} ${input}`, n: row.days, with: types.byId(row.with?.item ?? '')?.name ?? '' });
+      out.push({ id: `rack:row:${row.id}`, text: `${enabled ? '[x]' : '[ ]'} ${caption}`, tone: enabled ? 'value' : 'dim',
+        run: () => void this.toggleDrying(ctx, row.id), help: s.get('ui.building.rack_help') });
+    }
+    return out;
+  }
+
+  /** `SetRackDrying`: the rack takes the row, or no longer does. */
+  toggleDrying(ctx: PanelContext, rowId: string): Command | null {
+    const reader = buildings(ctx);
+    if (reader === null) return null;
+    const on = reader.rackDrying(this.id);
+    const rows = on.includes(rowId) ? on.filter((r) => r !== rowId) : [...on, rowId];
+    const cmd: Command = { type: 'SetRackDrying', buildingId: this.id, rows };
+    ctx.submit(cmd);
+    return cmd;
   }
 
   // ---------- planned buildings ----------

@@ -52,3 +52,8 @@ export const TEMP_OVERRIDE_LIMIT = 24;
 /** The materials tick (`tick-order.md`: 05 runs at `(tick − 3) % 10`). */
 export const MATERIALS_CADENCE = 10;
 export const MATERIALS_PHASE = 3;
+
+/** `05` § Smoke: how long a workshop that burned a smoky fuel stays smoky (12 hours). */
+export const SMOKE_TICKS = 600;
+/** `05` § Smoke: the reach of a smoky workshop's smoke and of `smoky_hall`, Chebyshev, on its level. */
+export const SMOKE_RADIUS = 3;

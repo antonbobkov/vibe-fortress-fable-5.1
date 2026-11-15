@@ -1,5 +1,7 @@
 # T-567 — The fixtures: soldiers' picks stall the digging, and p2-6 ends without dining chairs
 
+**Closed:** 2026-11-15, in 9650b986,65a36a55,c73e57dc.
+
 **Source:** T-547's runs (CI 43578890540, sweeps 43578896745 and 43586642336) · **Size:** S · **Needs:** — · **Status:** open
 
 T-547's soil loads moved the economy fixture's timelines, and two weaknesses of the fixtures showed.
