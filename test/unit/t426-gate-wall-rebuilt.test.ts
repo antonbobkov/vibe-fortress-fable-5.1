@@ -1,12 +1,14 @@
 /**
  * T-426: the three-year script places a gate wall again when a fire burns it, and the T-156
- * witness waits `GATE_WALL_REBUILD_TICKS` for it.
+ * witness waits `GATE_WALL_REBUILD_TICKS` for it. T-567: the wall placed again goes up ahead of
+ * routine work.
  */
 import { describe, expect, it } from 'vitest';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader } from '@systems/buildings';
+import type { JobsReader } from '@systems/jobs';
 import { GATE_WALL_REBUILD_TICKS, gateWallTiles, keepGateWalls, Z } from '../scenarios/three_years_fortress';
-import type { EconomyState } from '../scenarios/three_years_economy';
+import { BUILD, KIT_FIRST, type EconomyState } from '../scenarios/three_years_economy';
 import { TestWorld } from '../scenarios/test-world';
 
 describe('T-426 a burnt gate wall is placed again', () => {
@@ -39,6 +41,12 @@ describe('T-426 a burnt gate wall is placed again', () => {
     w.materials.fire.pendingIgnite.add(target);
     play(2_000, () => buildings.get(burnt) === undefined || buildings.at(target) !== burnt);
     expect(buildings.at(target)).not.toBe(burnt);
+    // T-567: the six were placed at routine priority (BUILD); the wall placed again goes up ahead of routine work.
+    expect(KIT_FIRST).toBeLessThan(BUILD);
+    w.step(1);
+    const again = buildings.at(target);
+    const job = w.readers.of<JobsReader>('11').list().find((j) => j.target.kind === 'building' && j.target.ref === again);
+    expect(job?.priority).toBe(KIT_FIRST);
     const lost = state.gateWallLostTick;
     expect(lost).toBeGreaterThan(0);
 

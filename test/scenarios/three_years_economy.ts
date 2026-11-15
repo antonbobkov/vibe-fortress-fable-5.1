@@ -750,6 +750,23 @@ export function keepAMiner(w: TestWorld, state: FortressState): void {
 }
 
 /**
+ * T-567: the builder is the mason's workshop's worker, as the smith is the forge's. The mason's
+ * orders (blocks, doors, tables and the chairs of the halls) are routine work, and 11 never ages a
+ * job: once the founding mason had gone to the metal chain or the stone crafts, every immigrant with
+ * the masonry labor had food work a step ahead, and the builder, the one dwarf kept on masonry, had
+ * hundreds of smoothing jobs of the same priority nearer to hand. On seed p2-6 the workshop's job
+ * stood open for a hundred and fifty days at a time and the dining hall ended the third year with
+ * its chairs planned. Not while the squad's kit is owed: then the founding mason cuts its blocks.
+ */
+export function keepMasonAtWork(w: TestWorld, state: FortressState): void {
+  const builder = state.economy.specialists['builder'];
+  const shop = state.placedIds['mason'];
+  if (builder === undefined || shop === undefined || armingSquad(state) || !w.game.world.entities.alive(builder)) return;
+  if (w.readers.of<BuildingsReader>('14').get(shop)?.state !== 'built') return;
+  if (w.game.world.entities.get(shop, C.Workshop)?.assignedWorker !== builder) command(w, { type: 'SetWorkshopWorker', workshopId: shop, dwarfId: builder });
+}
+
+/**
  * The immigrants free to become the builder or the fuel worker: no founder, specialist or broker,
  * and (T-524) not the brewer, whose dedication to the still the new one would override.
  */
@@ -1083,6 +1100,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       dedicate(w, state, builder, ['masonry', 'construction', 'smelting']);
     }
   }
+  keepMasonAtWork(w, state);
   // Masonry includes hundreds of room-finishing jobs. Keep a separate furnace worker on fuel,
   // iron and alloy rather than asking the builder to smelt after every nearby smoothing job.
   if (fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && !armingSquad(state)) {
