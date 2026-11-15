@@ -23,8 +23,10 @@ Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md
 | `fat` | fat | food/fat | 1 | 10 | barrel | 6 | light | `%` | `tallow_yellow` | rendered to tallow |
 | `tallow` | tallow | food/tallow | 1 | 20 | bin | 0 | light | `%` | `tallow_yellow` | trade good; candles are not in version 1 |
 | `salt` | salt | food/salt | 1 | 20 | bag | 0 | light | `:` | `salt_white` | material `salt`; a meal ingredient |
+| `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | material `<species>_meat`; smoked, salted or dried: never rots |
+| `cured_fish` | cured fish | food/fish/cured | 2 | 10 | barrel | 0 | light | `%` | material | material `<fish>_meat`; smoked, salted or dried: never rots |
 
-Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour and salt are not edible raw.
+Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour and salt are not edible raw. Cured meat and fish are worth twice their raw form and never rot ([13](../02-systems/13-items-and-storage.md) § Curing); they are eaten as raw meat is, and cook as it does. An item of a cured or salted form names itself so: "cured boar meat", "salted boar hide".
 
 ## Drink
 
@@ -58,13 +60,17 @@ A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `
 
 ## Wood and bars
 
-| id | name | category | mult | stack | container | weight | glyph | fg |
-|---|---|---|---|---|---|---|---|---|
-| `log` | log | wood/log | 1 | 1 | none | heavy | `≡` | material |
-| `wood_block` | wooden block | wood/block | 1.5 | 5 | none | medium | `▪` | material |
-| `bar` | bar | bar/metal | 1 | 5 | bin | medium | `▬` | material |
-| `coal_bar` | coal | bar/coal | 1 | 5 | bin | medium | `▬` | `coal_black` |
-| `charcoal_bar` | charcoal | bar/charcoal | 1 | 5 | bin | medium | `▬` | `charcoal_gray` |
+| id | name | category | mult | stack | container | weight | glyph | fg | tags |
+|---|---|---|---|---|---|---|---|---|---|
+| `log` | log | wood/log | 1 | 1 | none | heavy | `≡` | material | |
+| `wood_block` | wooden block | wood/block | 1.5 | 5 | none | medium | `▪` | material | |
+| `bar` | bar | bar/metal | 1 | 5 | bin | medium | `▬` | material | |
+| `coal_bar` | coal | bar/coal | 1 | 5 | bin | medium | `▬` | `coal_black` | |
+| `charcoal_bar` | charcoal | bar/charcoal | 1 | 5 | bin | medium | `▬` | `charcoal_gray` | |
+| `peat_brick` | peat brick | bar/peat | 1 | 5 | bin | medium | `▬` | `peat_black` | `fuel_half`, `smoky` |
+| `dung_cake` | dung cake | bar/dung | 1 | 5 | bin | medium | `▬` | `dung_brown` | `fuel_half`, `smoky` |
+
+Coal and charcoal carry the tag `fuel`. A peat brick (of `peat`, a peat load dried on a rack) and a dung cake (of `dung`, three dung dried) are half fuels: a fuel job burns two of them in place of one bar, and their smoke fills the hall ([12](../02-systems/12-workshops-and-professions.md) § Fuel, [05](../02-systems/05-materials-and-temperature.md) § Smoke).
 
 ## Furniture (items that become buildings when placed)
 
@@ -151,8 +157,9 @@ A basket is a container of class `bin` that holds 15 items, woven of reeds at th
 | `feather` | feather | textile/feather | 1 | 20 | bin | 0 | light | `'` | `feather_white` | `stuffing` |
 | `straw` | straw | textile/straw | 1 | 10 | bin | 0 | | `"` | material | `stuffing` |
 | `reed` | reed | textile/reed | 1 | 10 | bin | 0 | | `\|` | `reed_green` | |
+| `salted_hide` | salted hide | textile/hide | 1 | 5 | bin | 0 | light | `≈` | material | |
 
-A `horn` is of `horn`, a `tusk` of `ivory`, a `feather` of `feather`: the butcher parts of [creatures.md](creatures.md) § Butcher parts.
+A `horn` is of `horn`, a `tusk` of `ivory`, a `feather` of `feather`: the butcher parts of [creatures.md](creatures.md) § Butcher parts. A `salted_hide` keeps its raw hide's material: a hide salted on a drying rack, which never rots and tans as a raw hide does.
 
 `straw` is dropped by a grain harvest in its crop's material (`plants.md` § Surface crops, `straw`); `reed` is gathered from reed beds, of `reed`. The tag `stuffing` marks what fills a bed or a pallet.
 
@@ -213,8 +220,21 @@ What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draugh
 |---|---|---|---|---|---|---|---|---|---|---|
 | `bone_ash` | bone ash | farm/bone_ash | 1 | 10 | bag | 0 | light | `:` | `bone_white` | `fertilizer`, `flux` |
 | `potash` | potash | farm/potash | 1 | 10 | bag | 0 | light | `:` | `ash_gray` | |
+| `dung` | dung | farm/dung | 1 | 10 | bag | 0 | light | `%` | `dung_brown` | `fertilizer` |
 
-Both are burned at the kiln: bone ash, of `bone`, from bone piles or a crushed fossil; potash, of `potash`, from a log. Bone ash stands in for the flux stone in steel (`make_steel_bone_ash`); potash doubles a glass batch.
+Bone ash and potash are burned at the kiln: bone ash, of `bone`, from bone piles or a crushed fossil; potash, of `potash`, from a log. Bone ash stands in for the flux stone in steel (`make_steel_bone_ash`); potash doubles a glass batch. Dung, of `dung`, is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung); three of it dry to a dung cake on a rack.
+
+## Drying
+
+What a drying rack turns its items into ([14](../02-systems/14-buildings-and-rooms.md) § The drying rack). `count` units are dried together; `with` is a second input held on the same rack and consumed with them. Days are under a roof; outdoors a clear day counts twice and a wet one not at all.
+
+| id | input | count | with | output | days |
+|---|---|---|---|---|---|
+| `dry_peat` | `soil_load` (peat) | 1 | — | 1 `peat_brick` | 7 |
+| `dry_dung` | `dung` | 3 | — | 1 `dung_cake` | 7 |
+| `dry_fish` | `raw_fish` | 1 | — | 1 `cured_fish` (its material) | 5 |
+| `dry_meat` | `raw_meat` | 1 | — | 1 `cured_meat` (its material) | 7 |
+| `salt_hide` | `raw_hide` | 1 | 1 `salt` | 1 `salted_hide` (its material) | 5 |
 
 ## Refuse
 
@@ -230,7 +250,7 @@ The wagon is a building (see [buildings-and-furniture.md](buildings-and-furnitur
 
 ## Meal ingredients
 
-Any item in `food/meat/raw`, `food/fish/raw`, `food/plant/raw` (species `cookable: true`), `food/egg`, `food/cheese`, `food/plant/processed`, `food/fat`, `food/salt` is an ingredient. Meals inherit the quality roll of the cook; their names in the UI are generated as "{ingredient} {dish}" from the first ingredient ("turnip stew", "boar roast", "dimcap pie") using the dish word table in [names.md](names.md).
+Any item in `food/meat/raw`, `food/fish/raw`, `food/meat/cured`, `food/fish/cured`, `food/plant/raw` (species `cookable: true`), `food/egg`, `food/cheese`, `food/plant/processed`, `food/fat`, `food/salt` is an ingredient. Meals inherit the quality roll of the cook; their names in the UI are generated as "{ingredient} {dish}" from the first ingredient ("turnip stew", "boar roast", "dimcap pie") using the dish word table in [names.md](names.md).
 
 ## Value examples
 
@@ -252,12 +272,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Food | `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<species>_meat`; tag `ingredient` | T-552 |
-| Food | `cured_fish` | cured fish | food/fish/cured | 2 | 10 | barrel | 0 | light | `%` | material | `<fish>_meat`; tag `ingredient` | T-552 |
-| Textiles and animal parts | `salted_hide` | salted hide | textile/hide | 1 | 5 | bin | 0 | light | `≈` | material | `<species>_hide`; tans as a raw hide | T-552 |
-| Wood and bars | `peat_brick` | peat brick | bar/peat | 1 | 5 | bin | 0 | medium | `▬` | `peat_black` | `peat`; tags `fuel_half`, `smoky` | T-552 |
-| Wood and bars | `dung_cake` | dung cake | bar/dung | 1 | 5 | bin | 0 | medium | `▬` | `dung_brown` | `dung`; tags `fuel_half`, `smoky` | T-552 |
-| Farm goods (a new section) | `dung` | dung | farm/dung | 1 | 10 | bin | 0 | light | `%` | `dung_brown` | `dung`; tag `fertilizer` | T-552 |
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
 | Farm goods (a new section) | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `compost`; tag `fertilizer` | T-564 |
 | Furniture | `beehive` | beehive | furniture/beehive | 3 | 1 | none | 0 | medium | `∩` | material | wood, stone (earthenware), plant (reed) | T-555 |
@@ -273,22 +287,9 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colors.md) § Glyph set); a task may choose another from the set.
 
-### Drying (a new table)
-
-What a drying rack turns its items into ([14](../02-systems/14-buildings-and-rooms.md) § Planned, The drying rack). `count` units are dried together; `with` is a second input held on the same rack and consumed with them. Days are under a roof; outdoors a clear day counts twice and a wet one not at all.
-
-| id | input | count | with | output | days | task |
-|---|---|---|---|---|---|---|
-| `dry_peat` | `soil_load` (peat) | 1 | — | 1 `peat_brick` | 7 | T-552 |
-| `dry_dung` | `dung` | 3 | — | 1 `dung_cake` | 7 | T-552 |
-| `dry_fish` | `raw_fish` | 1 | — | 1 `cured_fish` (its material) | 5 | T-552 |
-| `dry_meat` | `raw_meat` | 1 | — | 1 `cured_meat` (its material) | 7 | T-552 |
-| `salt_hide` | `raw_hide` | 1 | 1 `salt` | 1 `salted_hide` (its material) | 5 | T-552 |
-
 ### Planned edits to existing rows
 
 - `statue` materials gain bone (bone and ivory statues, T-557).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
 - `drink` gains `mead` in `drink/wine` (§ Drink's categories line) (T-555).
-- § Meal ingredients gains `food/meat/cured`, `food/fish/cured` and `food/honey` (T-552, T-555).
-- An item of a cured or salted form names itself so: "cured boar meat" (T-552).
+- § Meal ingredients gains `food/honey` (T-555).

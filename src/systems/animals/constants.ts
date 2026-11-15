@@ -164,3 +164,8 @@ export const ADOPTING_SPECIES: readonly string[] = Object.freeze(['cat']);
 export const PASTURE_ZONE = 'pasture';
 /** `NameAnimal`: the same 1-24 characters `RenameDwarf` allows. */
 export const ANIMAL_NAME_MAX = 24;
+
+/** `08` § Dung: a pastured tame grazer drops one dung every this many days. */
+export const DUNG_DAYS = 7;
+/** `08` § Dung: the item (and material) a grazer drops. */
+export const DUNG_ITEM = 'dung';

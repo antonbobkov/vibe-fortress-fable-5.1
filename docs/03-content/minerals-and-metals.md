@@ -140,6 +140,8 @@ Metal tier for weapon and armor purposes: `wood`, `bone` and `obsidian` items ar
 
 Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel additionally consumes 1 fuel as an input (carbon). Both fuels carry the item tag `fuel`.
 
+Half fuels: a `peat_brick` (a peat load dried on a rack) and a `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`. A fuel job burns two of them in place of one bar when no bar is to be had, and the hall around the workshop fills with smoke ([12](../02-systems/12-workshops-and-professions.md) § Fuel, [05](../02-systems/05-materials-and-temperature.md) § Smoke). A half fuel is never steel's carbon.
+
 ## Flux
 
 Stones tagged `flux`: `limestone`, `dolomite`, `marble`, `chalk`. One raw stone per steel bar.
@@ -169,7 +171,3 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | id | name | tier | value (bar) | density | weaponMult | armorMult | bluntBonus | runeMult | summon | runePressure | meltsAtC | color | alloy inputs (→ output) | notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `star_steel` | star steel | 4 | 90 | 780 | 1.30 | 1.25 | 0 | 1.4 | `stone_warden` | — | 1600 | `star_silver` | — | magma-safe; never sold; merchants pay 200% | T-560 |
-
-### Planned fuel and flux
-
-- Half fuels (T-552): `peat_brick` (a peat load dried on a rack) and `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`: a fuel job burns two of them in place of one bar (12 § Planned).

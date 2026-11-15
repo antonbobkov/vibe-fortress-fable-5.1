@@ -1,6 +1,6 @@
 # T-563 — Making Do B3b: candles, candle stands, lanterns and what light does
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (candles, stands and lanterns)); T-546, split from T-553 · **Size:** M · **Needs:** T-552 · **Status:** blocked (needs T-552)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (candles, stands and lanterns)); T-546, split from T-553 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

@@ -76,7 +76,7 @@ interface Brain { behavior: 'flee' | 'retreat' | 'patient' | 'need' | 'duty' | '
                   fireFlight?: Tick /* last tick in danger from fire or fleeing it; absent before the first flight and in older saves */ }
 interface Labors { enabled: Uint8Array /* bitset over labor indices */ }
 interface Worker { jobId: number; phase: number; carrying: EntityId; toolId: EntityId }
-interface ActiveThought { thought: Idx<ThoughtDef>; startTick: Tick; baseValue: number }
+interface ActiveThought { thought: Idx<ThoughtDef>; startTick: Tick; baseValue: number; detail?: string /* the word the thought's text names: `smelled_smokehouse`'s `{meat}` (15); absent: none */ }
 interface Mood { value: number; tier: MoodTier; thoughts: ActiveThought[]; sulkCounterDays: number }
 interface Equipment { weapon: EntityId; shield: EntityId; armor: Record<'head'|'body'|'arms'|'legs'|'feet', EntityId>;
                       clothing: Record<'body'|'legs'|'feet'|'over', EntityId>; quiver: EntityId }
@@ -100,7 +100,8 @@ interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 
                      origin: TileIndex; footprint: TileIndex[]; orientation: 0|1|2|3; itemId: EntityId;
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;
                      settings: Record<string, unknown>; toggled: boolean /* bridge raised, floodgate open, lever on */;
-                     held?: EntityId[] /* the items a building with wants holds, each Installed (14 § Building wants); absent: none */ }
+                     held?: EntityId[] /* the items a building with wants holds, each Installed (14 § Building wants); absent: none */;
+                     dryDays?: [EntityId, number][] /* a drying rack's held items and the drying days each has gained (14 § The drying rack); absent: none */ }
 interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
                       targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }

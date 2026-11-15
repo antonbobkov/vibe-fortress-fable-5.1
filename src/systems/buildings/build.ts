@@ -275,6 +275,8 @@ export class BuildingStore {
     const b = this.get(id);
     if (b === undefined || b.state !== 'built') return [];
     const row = this.row(b.type);
+    // A drying rack's wants are its setting's rows (14 § The drying rack): `racks.wants`, not a view.
+    if (row.wants?.some((w) => w.match === 'drying') === true) return [];
     const held = this.heldOf(b);
     const used = new Set<EntityId>();
     return (row.wants ?? []).map((want) => {
@@ -332,12 +334,18 @@ export class BuildingStore {
     if (b.state !== 'built' || this.heldOf(b).length === 0) return reject('precondition_failed');
     const anchor = this.anchorOf(b);
     for (const it of this.heldOf(b)) this.host.services.items?.uninstall?.(it, anchor);
-    this.write(id as EntityId, { held: [] });
+    const next = { ...this.write(id as EntityId, { held: [] }) };
+    // A drying rack's days go with its items (14 § The drying rack).
+    if (next.dryDays !== undefined) {
+      delete next.dryDays;
+      this.host.entities.add(id as EntityId, C.Building, next);
+    }
     this.onFootprintChanged(b.footprint);
     return OK;
   }
 
-  private write(id: EntityId, patch: Partial<Building>): Building {
+  /** Rewrites a building record with the patch (every change of a building goes through here). */
+  write(id: EntityId, patch: Partial<Building>): Building {
     const b = { ...(this.get(id) as Building), ...patch };
     this.host.entities.add(id, C.Building, b);
     return b;

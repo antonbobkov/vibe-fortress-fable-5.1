@@ -39,7 +39,7 @@ function materials(cell) {
 
 /** items.md § Meal ingredients. */
 const INGREDIENT_CATEGORIES = [
-  'food/meat/raw', 'food/fish/raw', 'food/plant/raw', 'food/egg', 'food/cheese',
+  'food/meat/raw', 'food/fish/raw', 'food/meat/cured', 'food/fish/cured', 'food/plant/raw', 'food/egg', 'food/cheese',
   'food/plant/processed', 'food/fat', 'food/salt',
 ];
 
@@ -304,6 +304,29 @@ export function exportDraughts() {
       effects: Array.from(String(row.effects ?? '').matchAll(/`([a-z_]+)`\s*(\d+)?/g), (m) => ({ kind: m[1], value: m[2] === undefined ? 1 : Number(m[2]) })),
       trigger: id(row.trigger),
     })),
+  );
+}
+
+/** items.md § Drying: what a drying rack turns its items into (14 § The drying rack). */
+export function exportDrying() {
+  const tables = readTables(join(CONTENT_DIR, 'items.md'));
+  const counted = (cell) => {
+    const m = /(\d+)\s+`?([a-z_]+)`?/.exec(plain(cell));
+    return m === null ? undefined : { item: m[2], count: Number(m[1]) };
+  };
+  return byId(
+    asObjects(findTable(tables, 'Drying', 'days')).map((row) => {
+      const material = /\(([a-z_]+)\)/.exec(plain(row.input));
+      return compact({
+        id: id(row.id),
+        input: id(row.input),
+        material: material === null ? undefined : material[1],
+        count: int(row.count, 1),
+        with: isBlank(row.with) ? undefined : counted(row.with),
+        output: counted(row.output),
+        days: int(row.days),
+      });
+    }),
   );
 }
 

@@ -42,6 +42,8 @@ interface FluidsLike {
 interface MaterialsLike {
   isBurning(i: TileIndex): boolean;
   temperatureAt(i: TileIndex): number;
+  /** `05` § Smoke. */
+  isSmoky?(i: TileIndex): boolean;
 }
 
 /** The fluid ramp band of a level: 1–2, 3–4, 5–6, 7. */
@@ -58,6 +60,7 @@ export class EnvironmentLayers {
   private readonly magmaBg: Rgb;
   private readonly magmaFullBg: Rgb;
   private readonly mistBg: Rgb;
+  private readonly smokeBg: Rgb;
   private readonly fireA: Rgb;
   private readonly fireB: Rgb;
   private readonly rain: Rgb;
@@ -86,6 +89,7 @@ export class EnvironmentLayers {
     this.magmaBg = c('magma_bg');
     this.magmaFullBg = c('dark_red');
     this.mistBg = c('mist_bg');
+    this.smokeBg = c('smoke_bg');
     this.fireA = c('yellow');
     this.fireB = c('red');
     this.rain = c('water_1');
@@ -110,7 +114,7 @@ export class EnvironmentLayers {
   /**
    * Step 3: water `~` (1–2) or `≈` (3–7) in the ramp colour of its band on `water_bg` (level 7 on
    * `blue`); magma the same on `magma_bg` (7: `dark_red`); an active tile swaps the two glyphs on
-   * odd phases; frozen water is ice, drawn by step 2. Mist gives `mist_bg`; a burning tile
+   * odd phases; frozen water is ice, drawn by step 2. Mist gives `mist_bg`, smoke `smoke_bg`; a burning tile
    * alternates `^` yellow and `‼` red.
    */
   fluidOver(cell: Cell, i: TileIndex): Cell {
@@ -130,6 +134,8 @@ export class EnvironmentLayers {
       c = { glyph, fg, bg };
     }
     if (this.fluids?.isMisty(i) === true) c = { glyph: c.glyph, fg: c.fg, bg: this.mistBg };
+    // § Compositor steps, 3: a smoky workshop's tiles take `smoke_bg`, as mist does (05 § Smoke).
+    if (this.materials?.isSmoky?.(i) === true) c = { glyph: c.glyph, fg: c.fg, bg: this.smokeBg };
     if (this.materials?.isBurning(i) === true || (readers.map.flagsAt(i) & TileFlag.Burning) !== 0) {
       c = this.slowPhase === 0 ? { glyph: GLYPH_FIRE_A, fg: this.fireA, bg: c.bg } : { glyph: GLYPH_FIRE_B, fg: this.fireB, bg: c.bg };
     }

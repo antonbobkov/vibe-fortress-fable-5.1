@@ -84,6 +84,8 @@ Sundries: raw materials in small lots, ordinary entries of the weighted draw aft
 | Leather | `leather_piece` | leather | 5–10 | 6 |
 | Salt | `salt` ×10 in `bag` | salt | 1–2 bags | 6 |
 | Clay | `soil_load` | clay | 5–10 | 6 |
+| Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 |
+| Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 |
 
 ## Wildwood (autumn, from year 1)
 
@@ -137,6 +139,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | `furniture/*` | 100 | 110 | 80 (wood: 20) |
 | material `pewter` | 110 | | |
 | material `glass` | | 130 | |
+| `food/meat/cured`, `food/fish/cured` | | 120 | |
 | material `reed` | | | 100 |
 | material `salt` | | 150 | |
 | material class `bone` | | | 60 |
@@ -176,8 +179,6 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 
 | civ | Entry | Item | Material pool | Count | Weight | task |
 |---|---|---|---|---|---|---|
-| Hillfolk | Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 | T-552 |
-| Hillfolk | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 | T-552 |
 | Hillfolk | Candles | `candle` | tallow | 5–10 | 6 | T-563 |
 | Hillfolk | Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
 | Wildwood | Honey | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
@@ -190,7 +191,6 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 |---|---|---|---|---|
 | material `silk_cloth` | 150 | | 140 | T-556 |
 | `craft` of `giant_bone` | 150 | | | T-557 |
-| `food/meat/cured`, `food/fish/cured` | | 120 | | T-552 |
 | `food/honey`, `food/wax` | | | 100 | T-555 |
 | material `star_steel` | 200 | 200 | 200 | T-560 |
 

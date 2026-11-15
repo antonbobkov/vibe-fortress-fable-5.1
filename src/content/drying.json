@@ -1,0 +1,57 @@
+[
+  {
+    "id": "dry_dung",
+    "input": "dung",
+    "count": 3,
+    "output": {
+      "item": "dung_cake",
+      "count": 1
+    },
+    "days": 7
+  },
+  {
+    "id": "dry_fish",
+    "input": "raw_fish",
+    "count": 1,
+    "output": {
+      "item": "cured_fish",
+      "count": 1
+    },
+    "days": 5
+  },
+  {
+    "id": "dry_meat",
+    "input": "raw_meat",
+    "count": 1,
+    "output": {
+      "item": "cured_meat",
+      "count": 1
+    },
+    "days": 7
+  },
+  {
+    "id": "dry_peat",
+    "input": "soil_load",
+    "material": "peat",
+    "count": 1,
+    "output": {
+      "item": "peat_brick",
+      "count": 1
+    },
+    "days": 7
+  },
+  {
+    "id": "salt_hide",
+    "input": "raw_hide",
+    "count": 1,
+    "with": {
+      "item": "salt",
+      "count": 1
+    },
+    "output": {
+      "item": "salted_hide",
+      "count": 1
+    },
+    "days": 5
+  }
+]

@@ -31,4 +31,6 @@ export interface MaterialsStateV1 {
   forced: [TileIndex, number][];
   itemBurn: [EntityId, number][];
   pendingIgnite: TileIndex[];
+  /** `05` § Smoke: each smoky workshop's centre tile and the tick its smoke clears, ascending; omitted when none. */
+  smoke?: [TileIndex, number][];
 }

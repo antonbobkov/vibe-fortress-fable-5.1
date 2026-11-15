@@ -22,13 +22,13 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 ### Category tree (fixed by this design; leaves in `03-content/items.md`)
 
 ```
-food/      meat/{raw, cooked}  fish/raw  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow  salt
+food/      meat/{raw, cooked, cured}  fish/{raw, cured}  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow  salt
 drink/     ale  beer  wine  spirits
 seed/
 stone/     raw  block  gem_rough  gem_cut  soil  fossil
 ore/
 wood/      log  block
-bar/       metal  coal  charcoal
+bar/       metal  coal  charcoal  peat  dung
 furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow
 container/ barrel  bag  bin  bucket  pot  basket
 weapon/    melee  ranged
@@ -39,7 +39,7 @@ tool/      pick  axe  fishing_rod  crutch
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather  straw  reed
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland
-farm/      bone_ash  potash
+farm/      bone_ash  potash  dung
 refuse/    corpse  skeleton  rotten  part
 ```
 
@@ -113,6 +113,7 @@ A building row may have `wants` (`buildings-and-furniture.md`): item matches wit
 - At the items tick, before the stockpile hauls and within `HAUL_JOBS_PER_TICK`, each built building with wants (14's `buildings.withWants()`, ascending), for each want not met by the items it holds and those on their way, gets a `haul_to_stockpile` job (labor `hauling`, priority `HAUL_PRIORITY`, keyed by the item as any haul is) for the nearest available item that answers it (§ Searching, from the building's tile), worked from a tile beside the building; the job's `data.holder` names the building. An item that has a haul job already is passed over. A want is looked at only while an item of its types is available, and what is on its way is read from the haul jobs only then.
 - On delivery the item is *held* by the building (`Building.held`, 14): flagged `installed`, off every search and count of available stock, still in the totals and in wealth. If the building is gone, not built, or has meanwhile been given as many as it wants, the item stays where it was brought and finds another home.
 - A held item leaves the building only when the player takes it out (`ReleaseHeld { buildingId }`, which releases every held item to the building's tile) or when the building is taken apart or removed (its held items drop on its tile, unflagged). Later rows that consume what they hold say so.
+- A want may count units, not items, and wants may share one count (a drying rack's: up to `RACK_CAPACITY` units over all its drying rows, a stack brought whole, so the last may take it over), and may name the material it takes (a rack's peat load is of `peat`): 14's `buildings.holderWants(id)` gives them as item types, counts and materials.
 - No new job type: the haul is `haul_to_stockpile`. Save: `Building.held` (14); the wants are content.
 
 ### Forbid, dump, melt, claim
@@ -140,7 +141,13 @@ Types with `rotDays > 0` (raw meat, raw fish, raw plants, meals, eggs, cheese, m
 
 Rot speed: full speed on the ground and in a workshop; `ROT_CONTAINER_PERCENT` when the item is inside a container that is inside a stockpile; `0` for raw plants and seeds in bags (they are dry goods: `rotDays` 0 for seeds anyway); double speed on a tile with temperature above `ROT_HOT_C`; halved below `ROT_COLD_C`; stopped below `FREEZE_C` (a frozen larder is a legitimate design). The stage fractions and the speed factors are *unmeasured*.
 
+A held item (flagged `installed`) does not rot: a raw item on a drying rack keeps while it dries (14 § The drying rack). Its rot is sampled again when it is released.
+
 Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits miasma to its tile and the 8 neighbors: `miasmaTiles: Map<TileIndex, expiresTick>` with `MIASMA_DURATION`. Dwarves entering a miasma tile get the `miasma` thought (10 checks `items.isMiasma(i)` on entering, like mist). Refuse stockpiles outdoors are the answer; so are burial and butchering promptly.
+
+### Curing
+
+`cured_meat`, `cured_fish` and `salted_hide` have `rotDays` 0: they never rot. A cured item is worth twice its raw form (its type's `mult` 2). Meat and fish are cured at the smokehouse, at the kitchen with salt, or on a drying rack (12 § Smoke, salt and the smokehouse; 14 § The drying rack); a hide is salted on a rack. `tan_hide` takes a `salted_hide` as it takes a `raw_hide`. An item of a cured or salted form names itself so: "cured boar meat", "cured trout", "salted boar hide".
 
 ### Aging in a cellar
 
@@ -269,19 +276,14 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### The category tree grows (each leaf with the task that brings its first item)
 
 ```
-food/      meat/cured (T-552)  fish/cured (T-552)  honey honeycomb wax (T-555)  meal/feast (T-565)
-bar/       peat  dung (T-552)
+food/      honey honeycomb wax (T-555)  meal/feast (T-565)
 furniture/ lantern (T-563)  beehive (T-555)
 medical/   soap (T-564)
 tool/      candle (T-563)  firebrand (T-559)
-farm/      dung (T-552)  compost (T-564)  guano (T-556)
+farm/      compost (T-564)  guano (T-556)
 ```
 
-The Food preset takes the new food leaves; Ore and bars takes `bar/peat` and `bar/dung`; Furniture and Cloth and leather take theirs by their nodes.
-
-### Curing (T-552)
-
-`cured_meat`, `cured_fish` and `salted_hide` have `rotDays` 0: they never rot. A cured item is worth twice its raw form (its type's `mult` 2). `tan_hide` takes a `salted_hide` as it takes a `raw_hide`.
+The Food preset takes the new food leaves; Furniture and Cloth and leather take theirs by their nodes.
 
 ### Ice blocks melt (T-559)
 

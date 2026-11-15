@@ -131,13 +131,21 @@ A masterwork that is later destroyed (melted, burned, sold is fine) gives its cr
 - A `maintain` order counts deepfire (§ Work orders). Deepfire is the `drink/spirits` group (13 § Category tree; `items.md`), the Mountainhome's favourite (20, `caravan-goods.md` § Preferences), and makes its drinker tipsy (10 § Tipsy).
 ### Substitutes
 
-A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel); `make_steel_bone_ash` for `alloy_steel` (4 units against 4, 200 ticks against 200: as dear as the stone, after a kiln job and a fuel for the ash); at the kiln, `fire_bricks` for `make_stone_block` (2 units a block against half a stone), `make_pot` for `make_barrel` (2 units against 1, the same 100 ticks, for a container of the same class that holds half), `make_jug` for `make_bucket` and `make_mugs_clay` for `make_mug_stone` (a fuel beside the one input). Of reeds, bones and scraps: `spin_coarse_thread` for `spin_thread` (2 fiber a thread against 1, 100 ticks against 80); `weave_basket` for `make_bin` (3 reeds against a log, the same 100 ticks, for a bin of half the room); `twist_reed_rope` and `cut_leather_rope` for `make_rope` (3 reeds, a rope worth a third of a linen one; 2 leather in 120 ticks against 2 thread in 100); `weave_wicker_shield` for `make_buckler_wood` (3 reeds against a log, 120 ticks against 100); `make_splint_bone` for `make_splint` (2 splints a bone pile against 4 a log); `make_crutch_bone` and `forge_crutch` for `make_crutch` (2 bone piles, or a bar and a fuel, against a log, and slower). A pot is compared with a barrel, and a basket with a bin, as containers of one class. `make_stone_bed` and `make_stone_bed_straw` stand in for `make_bed` with an item of their own: a stone bed is judged by its rest (75 against the wooden bed's 100, 14 § Beds) and its worth (a `mult` of 2 against 5), so the check holds it to resting less and being worth less, whatever its inputs.
+A recipe that stands in for a regular one when its input is missing (shells for the flux stone, and the Making Do recipes after it) is a *substitute*, and stays worse than the recipe it stands in for. Per unit of its first output, a substitute takes at least as many input units (the job's own fuel counted as one) and at least as many ticks, or its output is worth less (the output item's `mult` × its material's value); it is never better on all three. A unit test holds each pair to it; every substitute recipe adds its pair to the test's list. The pairs: `make_steel_shell` for `alloy_steel` (6 units against 4, 200 ticks against 200, the same steel); `make_steel_bone_ash` for `alloy_steel` (4 units against 4, 200 ticks against 200: as dear as the stone, after a kiln job and a fuel for the ash); at the kiln, `fire_bricks` for `make_stone_block` (2 units a block against half a stone), `make_pot` for `make_barrel` (2 units against 1, the same 100 ticks, for a container of the same class that holds half), `make_jug` for `make_bucket` and `make_mugs_clay` for `make_mug_stone` (a fuel beside the one input). Of reeds, bones and scraps: `spin_coarse_thread` for `spin_thread` (2 fiber a thread against 1, 100 ticks against 80); `weave_basket` for `make_bin` (3 reeds against a log, the same 100 ticks, for a bin of half the room); `twist_reed_rope` and `cut_leather_rope` for `make_rope` (3 reeds, a rope worth a third of a linen one; 2 leather in 120 ticks against 2 thread in 100); `weave_wicker_shield` for `make_buckler_wood` (3 reeds against a log, 120 ticks against 100); `make_splint_bone` for `make_splint` (2 splints a bone pile against 4 a log); `make_crutch_bone` and `forge_crutch` for `make_crutch` (2 bone piles, or a bar and a fuel, against a log, and slower). The half fuels stand in for charcoal (§ Fuel and charcoal): they are dried on a rack, not made at a workshop, and the test holds the drying row to the rule per fuel burned: a peat brick is 2 peat loads and 14 rack-days a fuel (`dry_peat`), a dung cake 6 dung and 14 rack-days (`dry_dung`), against `make_charcoal`'s 1 log in 100 ticks, and both smoke. A pot is compared with a barrel, and a basket with a bin, as containers of one class. `make_stone_bed` and `make_stone_bed_straw` stand in for `make_bed` with an item of their own: a stone bed is judged by its rest (75 against the wooden bed's 100, 14 § Beds) and its worth (a `mult` of 2 against 5), so the check holds it to resting less and being worth less, whatever its inputs.
 
 ### Fuel and charcoal
 
 - `wood_furnace`: `make_charcoal`: logs to charcoal bars, with the input and output counts of the recipe's content row, no fuel, no quality.
 - Coal: `bituminous_coal` and `lignite` are minerals; `smelt` recipes for them produce `coal` bars in the count of the mineral's `yields` row, which count as fuel. A coal seam is worth finding.
 - Fuel bars are consumed one per fuel job. Magma workshops never consume fuel, including for the steel reaction's workshop fuel (the reaction's own fuel input is still required: steel needs carbon).
+- **Half fuels.** A fuel job takes one item tagged `fuel` (a coal or charcoal bar) beyond the bars the recipe takes into its product, or, when there is none, `HALF_FUELS_PER_JOB` items tagged `fuel_half` (a `peat_brick`, a `dung_cake`, dried on a rack: 14 § The drying rack). An order is runnable when either is; the job reserves what it takes, bars first. A half fuel is never steel's carbon. The automatic melt burns its fuel by the same rule.
+- **Smoke.** A job that burns an item tagged `smoky` (both half fuels) emits `SmokyFuelBurned { workshopId, tile }` on completion, `tile` the workshop's centre: 05 makes the workshop smoky and 15 gives everyone within `SMOKE_RADIUS` `smoky_hall` (05 § Smoke).
+
+### Smoke, salt and the smokehouse
+
+- Workshop `smokehouse`: 3 `stone_block`, masonry, skill `cooking`, fuel. `smoke_meat`: 5 raw meat (one material) and a fuel → 5 `cured_meat` of that material; `smoke_fish` the same for raw fish → `cured_fish`. On the completion of either, every fortress dwarf within `SMOKE_RADIUS` (Chebyshev, same level) of the smokehouse's centre who is not its worker gets `smelled_smokehouse` ("Smells of smoked {meat}. Hungry now.", `{meat}` the species of the meat: the thought's `detail`) from 15, and `SMOKEHOUSE_HUNGER` hunger from 10.
+- Kitchen: `salt_meat` (5 raw meat of one material + 1 salt → 5 cured meat, no fuel) and `salt_fish` (the same for fish), beside `crush_halite`. Cured meat and fish never rot and are worth twice the raw (13 § Curing); they are ingredients.
+- `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (§ Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt, beside the meal's own thought: a salted meal is worth a thought a tier up, an easy meal's +2 becoming +3.
 
 ### Professions
 
@@ -160,7 +168,7 @@ A recipe that stands in for a regular one when its input is missing (shells for 
 - `workshops.professionOf(dwarfId)`, `workshops.militaryTitle(dwarfId)`
 - `workshops.stockOf(recipeOutput)` (delegates to 13)
 - `workshops.isMagmaPowered(workshopId)`
-- `workshops.mealName(itemId)` — the dish name of a prepared meal, from its tier and its first ingredient; null for any other item
+- `workshops.mealName(itemId)` — the dish name of a prepared meal, from its tier and its first ingredient, "salted" before a salted one; null for any other item
 
 ### Commands
 
@@ -172,7 +180,7 @@ A recipe that stands in for a regular one when its input is missing (shells for 
 
 ### Events emitted
 
-`ItemCrafted`, `MasterworkCreated { itemId, crafterId }`, `StoneSet { itemId, enchantId, tier, smithId }` (a transform recipe), `DeepsilverWorked { amount, tile }` (a `rune_work` building consumed a metal with `runePressure`; 25 § Deepsilver), `WorkOrderCompleted { workshopId, recipeId }`, `WorkshopBlocked { workshopId, reason[, container, input] }`, `WorkshopIdle { workshopId }`.
+`ItemCrafted`, `SmokyFuelBurned { workshopId, tile }` (§ Fuel and charcoal), `MasterworkCreated { itemId, crafterId }`, `StoneSet { itemId, enchantId, tier, smithId }` (a transform recipe), `DeepsilverWorked { amount, tile }` (a `rune_work` building consumed a metal with `runePressure`; 25 § Deepsilver), `WorkOrderCompleted { workshopId, recipeId }`, `WorkshopBlocked { workshopId, reason[, container, input] }`, `WorkshopIdle { workshopId }`.
 
 ### Registrations
 
@@ -197,6 +205,8 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 | `MAGMA_POWER_LEVEL` | 4 | Magma level required below a magma workshop tile (*unmeasured*) |
 | `MELT_RETURN_PERCENT` | 60 | Of the item's bar cost returned (*unmeasured*) |
 | `ORDER_AHEAD_TICKS` | 100 | How often a workshop's untaken current job looks for a runnable order ahead of it (*unmeasured*) |
+| `HALF_FUELS_PER_JOB` | 2 | Half fuels (`fuel_half`) a fuel job burns in place of one bar (*unmeasured*) |
+| `SMOKEHOUSE_HUNGER` | 5 | Hunger a dwarf near a smokehouse gains when it finishes a batch (*unmeasured*) |
 
 Recipe times, bar costs per item and profession names are content.
 
@@ -209,19 +219,6 @@ Recipe times, bar costs per item and profession names are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `workshops-and-recipes.md` § Planned rows and the other content documents' § Planned rows.
-
-### Half fuels and smoke (T-552)
-
-- A fuel job takes one item tagged `fuel` (a coal or charcoal bar), or, when none is available, two items tagged `fuel_half` (`peat_brick`, `dung_cake`). An order is runnable when either is; the job reserves what it takes, bars first.
-- A job that burns an item tagged `smoky` emits `SmokyFuelBurned { workshopId, tile }` (05 § Planned, Smoke), on completion.
-- Magma workshops burn nothing, as before.
-
-### Smoke, salt and the smokehouse (T-552)
-
-- Workshop `smokehouse`: 3 `stone_block`, masonry, skill `cooking`, fuel. `smoke_meat`: 1 fuel + 5 raw meat or raw fish (same material) → 5 `cured_meat` or `cured_fish` of that material. On its completion every fortress dwarf within `SMOKE_RADIUS` of the smokehouse who is not its worker gets `smelled_smokehouse` ("Smells of smoked {meat}. Hungry now.", the material's name) and hunger +`SMOKEHOUSE_HUNGER`.
-- Kitchen: `salt_meat` (1 salt + 5 raw meat or raw fish → 5 cured, no fuel, T-552), beside `crush_halite`.
-- `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (12 § Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt.
-- Constants: `SMOKEHOUSE_HUNGER` 5.
 
 ### Fletching at the bowyer (T-562)
 

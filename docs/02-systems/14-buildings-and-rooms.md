@@ -50,6 +50,14 @@ A building row's `wants` (`buildings-and-furniture.md`) makes a built building o
 - A held item leaves the building when the player takes it out (`ReleaseHeld { buildingId }`: every held item drops on the building's tile, unflagged), or when the building is taken apart or removed (its held items drop on its tile, unflagged). Taken out, the wants are filled again from the nearest available items, the same ones unless the player forbids them.
 - The building panel lists what it holds and wants, a bed's rest and whether it is made up ("Made up: linen bedding, feather pillow"), and offers `[h] take out` (`t`, the first choice, is the Threats panel's letter).
 
+### The drying rack
+
+`drying_rack` (1×1, 2 `log`, `stone_block` or `bone_pile`, labor `construction`, tag `rack`, impassable; its materials return when it is taken apart) wants `RACK_CAPACITY` units of the items its setting dries, over all its rows (`items.md` § Drying; by default every row). `SetRackDrying { buildingId, rows }` sets which drying rows it takes; a held item no row of it now takes drops on its tile. Nobody works it. 13 hauls to it by § Building wants: each row's input (a load of `peat`, not of any soil), up to `RACK_CAPACITY` units in all, a stack brought whole; and for a row with a second input, as many of that as the units of the row's input it holds need (a `salt` a hide). `buildings.holderWants(id)` gives these wants as item types, counts and materials.
+
+- **An item on a rack becomes its dried form after its drying days.** On each `DayPassed`, each held item of a row gains drying days: under a roof one; outdoors (an `outdoor` tile) two on a day whose weather was `clear` all day, none on a day with `rain`, `storm` or `snow` at any hour, and one otherwise (06's state, followed through the day by `WeatherChanged`: the rack's day record, kept only while a rack is built). At the row's days it is dry. The dry units of a row are consumed `count` at a time (3 dung for a cake; for a row of count 1, each unit), with the second input the row names (1 `salt` a hide, held on the same rack: a dry hide with no salt waits), and the output is spawned on the rack's tile, released, of the input's material: `soil_load` of peat → `peat_brick`; 3 `dung` → 1 `dung_cake`; raw fish → `cured_fish`; raw meat → `cured_meat`; `raw_hide` + 1 `salt` → `salted_hide`. A dry remainder waits on the rack for the rest of its group. A held raw item does not rot while it dries (13 § Rot).
+- `Building.dryDays` records each held item's drying days (saved; absent: none). `ReleaseHeld` drops everything and forgets the days.
+- The rack's panel lists each held item with its days left ("boar meat: 3 days left", "dung: dry, waiting for the rest", "salt: to salt with"), then its drying rows as a checklist, one line a row, which `Enter` or a click turns on or off (`SetRackDrying`). The first rack built raises `hint_rack`.
+
 ### Constructions
 
 | Type | Result | Notes |
@@ -157,9 +165,9 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 
 ## State
 
-- `Building` components (`type, material, state, origin, footprint, orientation, itemId, mode, linkedIds, ownerId, settings`, and `held` for a building with wants), `buildingAt` map (in `Map3D`), `Zone` components with `tiles` sorted, `zoneAt: Map<TileIndex, zoneId>` (one per tile), `Room` components (`zoneId, score, tier, ownerId, enclosed`), `hearthId`, `depots[]`, `coffins[]`, `dirtyRooms`.
+- `Building` components (`type, material, state, origin, footprint, orientation, itemId, mode, linkedIds, ownerId, settings`, `held` for a building with wants, and `dryDays` for a drying rack), `buildingAt` map (in `Map3D`), `Zone` components with `tiles` sorted, `zoneAt: Map<TileIndex, zoneId>` (one per tile), `Room` components (`zoneId, score, tier, ownerId, enclosed`), `hearthId`, `depots[]`, `coffins[]`, `dirtyRooms`.
 - Rng stream (auto-assignment ties; reserved).
-- Superset fields of `BuildingsState` (schemas/system-state.md): `pendingJobs`, the buildings waiting for a build or deconstruct job, and `magmaTouched`.
+- Superset fields of `BuildingsState` (schemas/system-state.md): `pendingJobs`, the buildings waiting for a build or deconstruct job, and `magmaTouched`; `rackDay`, the day's weather so far for the drying racks (`notClear`, `wet`), saved only while a rack is built.
 
 ## Interfaces
 
@@ -186,14 +194,15 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.value(id)` — a building's contribution to wealth when built (material value plus the per-type bonus)
 - `buildings.wants(id)` — each want of a built building with its `count`, the `held` items that answer it and those `coming` (13's hauls to it); `buildings.held(id)` — the living items it holds; `buildings.withWants()` — the built buildings whose type has wants, ascending (§ Building wants)
 - `buildings.restPercent(id)` — the percent a built `sleep` building rests at (`MADE_UP_REST_PERCENT` made up), 0 for anything else; `buildings.bedding(id)` — `none`, `soft` or `feather` (§ Beds)
+- `buildings.holderWants(id)` — the wants 13 hauls to a built building that holds items, as item types, counts, materials and shared pools (§ Building wants, § The drying rack); `buildings.dryingRows()` — every drying row; `buildings.rackDrying(id)` — the rows a rack takes; `buildings.rackItems(id)` — a rack's held items with their row, days and days left
 
 ### Commands
 
-`PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`, `SetBuildingPriority`, `CreateZone`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`, `AssignRoom`, `LinkMechanism`, `UnlinkMechanism`, `SetDoorMode`, `SetHatchMode`, `SetPlateTrigger`, `ReleaseCage`, `AssignCoffin`, `ReleaseHeld` (§ Building wants).
+`PlaceBuilding`, `CancelBuilding`, `DeconstructBuilding`, `SetBuildingPriority`, `CreateZone`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`, `AssignRoom`, `LinkMechanism`, `UnlinkMechanism`, `SetDoorMode`, `SetHatchMode`, `SetPlateTrigger`, `ReleaseCage`, `AssignCoffin`, `ReleaseHeld` (§ Building wants), `SetRackDrying` (§ The drying rack).
 
 ### Events consumed
 
-`JobCompleted`, `JobCancelled`, `TilesChanged` (validity of planned buildings; room recompute), `CorpseCreated`, `CreatureDied` (release bedroom ownership, preserving reserved coffins), `MechanismTriggered` (from 19 for plates and levers: this system applies the state change), `AlertChanged` (lock-on-alert doors), `DoorBreakAttempt` (from 18), `MagmaContact` (04 also emits it for a magma tile that holds a building, with the creatures there, possibly none; this system queues the tile and at its next tick removes each non-construction building on it whose material melts at or below `MAGMA_C`, destroying its linked item as `melted`; constructions are terrain, and 05's fire takes wooden ones), `SulkHappened` (a `break` sulk from 15 names a building: this system queues it, saves the queue, and in its own tick removes the building and destroys its linked item as `sulk`), `FireOut` (wooden building burned: 05 asks through `terrain.setKind`; this system removes the entity on `TilesChanged` when its tile no longer matches), `Mishap` (25's `scorched_circle` names a built rune circle: this system removes it at once, and nothing comes back, since a circle links no item).
+`JobCompleted`, `JobCancelled`, `DayPassed` (rooms; the drying racks), `WeatherChanged` (a drying rack's day), `TilesChanged` (validity of planned buildings; room recompute), `CorpseCreated`, `CreatureDied` (release bedroom ownership, preserving reserved coffins), `MechanismTriggered` (from 19 for plates and levers: this system applies the state change), `AlertChanged` (lock-on-alert doors), `DoorBreakAttempt` (from 18), `MagmaContact` (04 also emits it for a magma tile that holds a building, with the creatures there, possibly none; this system queues the tile and at its next tick removes each non-construction building on it whose material melts at or below `MAGMA_C`, destroying its linked item as `melted`; constructions are terrain, and 05's fire takes wooden ones), `SulkHappened` (a `break` sulk from 15 names a building: this system queues it, saves the queue, and in its own tick removes the building and destroys its linked item as `sulk`), `FireOut` (wooden building burned: 05 asks through `terrain.setKind`; this system removes the entity on `TilesChanged` when its tile no longer matches), `Mishap` (25's `scorched_circle` names a built rune circle: this system removes it at once, and nothing comes back, since a circle links no item).
 
 ### Events emitted
 
@@ -218,6 +227,7 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
   - A bed gives the bedroom zone it stands in an owner from the list of dwarves, or nobody; a coffin is kept for a dwarf, or for anyone.
   - A cage shows its occupant, with release (confirmed) and tame.
   - A bed says what it rests at and whether it is made up; a building with wants lists what it holds and wants, with `[h] take out` (§ Building wants).
+  - A drying rack lists its items with their days left and its drying checklist (§ The drying rack).
 - Lever panel: linked targets with their states; a Pull button (creates the job); link, which picks the target on the map or from a list of the buildings that can be linked; unlink. A pressure plate has the same links and its trigger (19).
 - Hints: "A room needs walls or doors around it to count as enclosed", "Smooth and engrave the walls to raise room quality", "Lock doors on alert to keep raiders out".
 
@@ -239,6 +249,7 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 | `HEARTH_WARMTH_C` | 2 | °C added inside that square (05) (*unmeasured*) |
 | `STONE_WORKSHOP_TICKS_PERCENT` | 150 | Build time of a workshop of blocks against its logs (*unmeasured*) |
 | `MADE_UP_REST_PERCENT` | 125 | The percent a made-up bed rests at (§ Beds) (*unmeasured*) |
+| `RACK_CAPACITY` | 5 | The units a drying rack holds over its rows (*unmeasured*) |
 
 Material and item requirements, value bonuses and footprints are content.
 
@@ -252,12 +263,6 @@ Material and item requirements, value bonuses and footprints are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `buildings-and-furniture.md` § Planned rows and the other content documents' § Planned rows.
-
-### The drying rack (T-552)
-
-- `drying_rack` (1×1, 2 `log`, `stone_block` or `bone_pile`, labor `construction`, tag `rack`, impassable) wants `RACK_CAPACITY` units of the items its setting dries (default: every row of `items.md` § Planned rows, Drying). `SetRackDrying { buildingId, rows }` sets which drying rows it takes. Nobody works it.
-- **An item on a rack becomes its dried form after its drying days.** On each `DayPassed`, each held stack (or, for a row with a count above one, each group of that many units) gains one drying day: under a roof always; outdoors (`outdoor` tile) two in a day whose weather was `clear` all day, and none in a day with `rain`, `storm` or `snow` (06's weather of the day). At the row's days it is consumed with any second input the row names (a `salt` for a salted hide, which must be held on the same rack), and its output is spawned on the rack's tile, released: `soil_load` of peat → `peat_brick`; 3 `dung` → 1 `dung_cake`; raw fish → `cured_fish`; raw meat → `cured_meat`; `raw_hide` + 1 `salt` → `salted_hide`. A held raw item does not rot while it dries.
-- Constants: `RACK_CAPACITY` 5. Commands: `SetRackDrying`. Save: `Building.dryDays` (per held stack, with `held`). UI: the rack's panel shows each held item with its days left, and the setting's checklist.
 
 ### Comfort light, candle stands and lanterns (T-563)
 

@@ -38,6 +38,8 @@ export class RotQueue {
   private speed(id: EntityId, type: number): number {
     const it = this.core.get(id);
     if (it === undefined) return 0;
+    // 14 § The drying rack: a raw item held on a rack (installed) does not rot while it dries.
+    if ((it.flags & ItemFlag.Installed) !== 0) return 0;
     const tile = this.core.tileOf(id);
     if (tile < 0) return 1;
     let speed = 1;
@@ -83,7 +85,9 @@ export class RotQueue {
       if (this.records.has(id)) { this.unqueue(id); this.records.delete(id); }
       return;
     }
-    if (change !== 'created' && change !== 'placed' && change !== 'lifted' && change !== 'contained') return;
+    // 14 § The drying rack: an item a rack takes in (flagged installed) stops rotting; nothing else re-samples on a flag.
+    const installed = change === 'flags' && ((this.core.get(id)?.flags ?? 0) & ItemFlag.Installed) !== 0 && (this.records.get(id)?.speed ?? 0) > 0;
+    if (change !== 'created' && change !== 'placed' && change !== 'lifted' && change !== 'contained' && !installed) return;
     const it = this.core.get(id);
     if (it === undefined) return;
     const now = this.core.host.tick();

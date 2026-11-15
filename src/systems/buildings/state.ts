@@ -28,6 +28,8 @@ export interface BuildingsStateV1 {
   doorBreakProgress?: [EntityId, number][];
   deadDwarves?: DeadDwarf[];
   burialAssignments?: [EntityId, EntityId][];
+  /** 14 § The drying rack: the day's weather so far (not clear at some hour; wet), kept while a rack is built. */
+  rackDay?: { notClear: boolean; wet: boolean };
 }
 
 /** Binary search: the insertion point of `value` in an ascending array. */

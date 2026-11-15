@@ -53,9 +53,22 @@ export interface HaulHost {
   /** 14's built buildings whose type has wants, ascending (13 § Buildings that want items); absent: none. */
   holders?(): readonly EntityId[];
   /** A building's wants (its row's `wants`) and the tile its hauls are worked beside; null when it holds nothing. */
-  holderWants?(id: EntityId): { readonly wants: readonly { readonly types: readonly number[]; readonly count: number }[]; readonly tile: TileIndex } | null;
-  /** The nearest available items of any of these types, from a tile, nearest first (13 § Searching). */
-  nearestOf?(types: readonly number[], from: TileIndex, count: number): readonly EntityId[];
+  holderWants?(id: EntityId): { readonly wants: readonly HolderWant[]; readonly tile: TileIndex } | null;
+  /** The nearest available items of any of these types (of these materials, when named), from a tile, nearest first (13 § Searching). */
+  nearestOf?(types: readonly number[], from: TileIndex, count: number, materials?: readonly number[]): readonly EntityId[];
+}
+
+/**
+ * One want of a building that holds items (13 § Buildings that want items): `count` items of the
+ * types (of the materials, when named). A want with `units` counts units, not items (a drying rack's
+ * stacks); wants with the same `pool` share their count (a rack's 5 units over its drying rows).
+ */
+export interface HolderWant {
+  readonly types: readonly number[];
+  readonly count: number;
+  readonly materials?: readonly number[];
+  readonly pool?: number;
+  readonly units?: boolean;
 }
 
 export function haulKey(itemId: EntityId): string {
@@ -570,15 +583,18 @@ export class Hauling {
       const held = (entities.get(id, C.Building)?.held ?? []).filter((it) => core.isItem(it));
       for (const want of spec.wants) {
         if (made >= budget) break;
-        const answers = (it: EntityId): boolean => want.types.includes(core.get(it)?.type ?? 0);
-        const have = held.filter(answers).length;
+        const group = want.pool === undefined ? [want] : spec.wants.filter((w) => w.pool === want.pool);
+        const answers = (it: EntityId): boolean => group.some((w) => this.answersWant(w, it));
+        const size = (it: EntityId): number => (want.units === true ? (core.get(it)?.count ?? 1) : 1);
+        const sum = (ids: readonly EntityId[]): number => ids.filter(answers).reduce((n, it) => n + size(it), 0);
+        const have = sum(held);
         if (have >= want.count) continue;
         if (!want.types.some((t) => core.counts.available(t) > 0)) continue;
         if (coming === null) coming = this.holderHauls();
-        const onWay = (coming.get(id) ?? []).filter(answers).length;
+        const onWay = sum(coming.get(id) ?? []);
         let short = want.count - have - onWay;
         if (short <= 0) continue;
-        for (const it of this.host.nearestOf?.(want.types, spec.tile, short + 4) ?? []) {
+        for (const it of this.host.nearestOf?.(want.types, spec.tile, short + 4, want.materials) ?? []) {
           if (short <= 0 || made >= budget) break;
           if (this.hasJob(it)) continue;
           this.host.jobs().create(haulKey(it), {
@@ -592,12 +608,18 @@ export class Hauling {
           const list = coming.get(id) ?? [];
           list.push(it);
           coming.set(id, list);
-          short -= 1;
+          short -= size(it);
           made += 1;
         }
       }
     }
     return made;
+  }
+
+  /** The item answers the want: one of its types, of one of its materials when it names them. */
+  private answersWant(want: HolderWant, it: EntityId): boolean {
+    const item = this.core.get(it);
+    return item !== undefined && want.types.includes(item.type) && (want.materials === undefined || want.materials.includes(item.material));
   }
 
   /** The items on their way to each building that holds items: 13's haul jobs with `data.holder`. */
@@ -797,10 +819,11 @@ export class Hauling {
     const b = entities.get(holder, C.Building);
     const spec = this.host.holderWants?.(holder) ?? null;
     const held = (b?.held ?? []).filter((it) => core.isItem(it));
-    const type = core.get(id)?.type ?? 0;
-    const want = spec?.wants.find((w) => w.types.includes(type));
-    if (b === undefined || b.state !== 'built' || want === undefined ||
-      held.filter((it) => want.types.includes(core.get(it)?.type ?? 0)).length >= want.count) {
+    const want = spec?.wants.find((w) => this.answersWant(w, id));
+    const group = want === undefined ? [] : want.pool === undefined ? [want] : (spec?.wants ?? []).filter((w) => w.pool === want.pool);
+    const have = held.filter((it) => group.some((w) => this.answersWant(w, it)))
+      .reduce((n, it) => n + (want?.units === true ? (core.get(it)?.count ?? 1) : 1), 0);
+    if (b === undefined || b.state !== 'built' || want === undefined || have >= want.count) {
       this.examine(id);
       return;
     }

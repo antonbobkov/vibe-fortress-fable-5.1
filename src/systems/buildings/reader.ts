@@ -8,6 +8,7 @@ import { TileFlag } from '@core/map3d';
 import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { Bedding, BuildingRow, BuildingStore, WantView } from './build';
+import type { DryingRow, HolderWantView, RackItemView, RackStore } from './racks';
 import type { RoomStore, RoomScore, RoomDiagnostics } from './rooms';
 import type { ZoneStore } from './zones';
 
@@ -121,12 +122,21 @@ export interface BuildingsReader {
   restPercent(id: EntityId): number;
   /** `buildings.bedding(id)`: `none`, `soft` or `feather` (14 § Beds). */
   bedding(id: EntityId): Bedding;
+  /** The wants 13 hauls to a built building that holds items, as item types and counts (13 § Buildings that want items); [] for none. */
+  holderWants(id: EntityId): HolderWantView[];
+  /** Every row of `items.md` § Drying, in table order (14 § The drying rack). */
+  dryingRows(): readonly DryingRow[];
+  /** The drying rows a rack takes (its `SetRackDrying` setting; every row by default); [] for anything else. */
+  rackDrying(id: EntityId): string[];
+  /** A rack's held items with their drying row, days and days left (14 § The drying rack). */
+  rackItems(id: EntityId): RackItemView[];
 }
 
 export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: RoomStore,
   memorialEligible: (id: EntityId) => boolean = () => false,
   /** The items on their way to a building that holds items (13's hauls to it). */
-  coming: (id: EntityId) => readonly EntityId[] = () => []): BuildingsReader {
+  coming: (id: EntityId) => readonly EntityId[] = () => [],
+  racks: RackStore | null = null): BuildingsReader {
   let wantsCache: { revision: number; ids: EntityId[] } | null = null;
   const view = (id: EntityId): ZoneView | undefined => {
     const z = zones.zone(id);
@@ -240,5 +250,17 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     },
     restPercent: (id) => buildings.restPercent(id),
     bedding: (id) => buildings.bedding(id),
+    holderWants: (id) => {
+      const b = buildings.get(id);
+      if (b === undefined || b.state !== 'built') return [];
+      if (racks !== null && racks.isRack(b)) return racks.wants(id);
+      return (buildings.row(b.type).wants ?? []).map((w) => ({ types: buildings.typesOf(w.match), count: w.count }));
+    },
+    dryingRows: () => racks?.rows() ?? [],
+    rackDrying: (id) => {
+      const b = buildings.get(id);
+      return racks === null || !racks.isRack(b) ? [] : racks.enabled(b).map((r) => r.id);
+    },
+    rackItems: (id) => racks?.view(id) ?? [],
   };
 }

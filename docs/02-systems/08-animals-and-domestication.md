@@ -218,11 +218,6 @@ Species values (size, speed, products, intervals, gestation, litter, growth) are
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, or on this system's stream only where the new content is present, so a game without it draws the same numbers as before.
 
-### Dung (T-552)
-
-- Every tame grazer assigned to a pasture drops one `dung` on its tile every `DUNG_DAYS` days, on the `DayPassed` whose day number plus the animal's id is a multiple of `DUNG_DAYS` (no draw, no state). Dung is an ordinary item: haulers take it to a stockpile or compost heap that accepts `farm/dung`, or leave it.
-- Constants: `DUNG_DAYS` 7.
-
 ### Hives (T-555)
 
 - A built `beehive` (14 § Planned) stands on an outdoor soil floor. On each `DayPassed` from spring to autumn whose day number plus the hive's id is a multiple of `HIVE_DAYS`, a hive with at least `HIVE_FLOWERS_MIN` flower tiles (07's `plants.flowerAt`) within `HIVE_FLOWER_RADIUS` (Chebyshev, same level) adds one `honeycomb` to itself, up to `HIVE_CAPACITY`. The comb lies in the hive reserved, as an egg lies in its nest box (13 keeps it out of hauling). A hive in winter makes nothing; a hive short of flowers makes nothing and its panel says "Too few flowers: {n} of {HIVE_FLOWERS_MIN} within {HIVE_FLOWER_RADIUS} tiles."

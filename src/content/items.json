@@ -718,6 +718,40 @@
     "quality": false
   },
   {
+    "id": "cured_fish",
+    "name": "cured fish",
+    "category": "food/fish/cured",
+    "mult": 2000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "cured_meat",
+    "name": "cured meat",
+    "category": "food/meat/cured",
+    "mult": 2000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
     "id": "cut_gem",
     "name": "cut gem",
     "category": "stone/gem_cut",
@@ -781,6 +815,41 @@
     "glyph": "☼",
     "drinkable": true,
     "quality": false
+  },
+  {
+    "id": "dung",
+    "name": "dung",
+    "category": "farm/dung",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "dung_brown",
+    "quality": false,
+    "tags": [
+      "fertilizer"
+    ]
+  },
+  {
+    "id": "dung_cake",
+    "name": "dung cake",
+    "category": "bar/dung",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "▬",
+    "fg": "dung_brown",
+    "quality": false,
+    "tags": [
+      "fuel_half",
+      "smoky"
+    ]
   },
   {
     "id": "easy_meal",
@@ -1450,6 +1519,24 @@
     "quality": false
   },
   {
+    "id": "peat_brick",
+    "name": "peat brick",
+    "category": "bar/peat",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": "any",
+    "glyph": "▬",
+    "fg": "peat_black",
+    "quality": false,
+    "tags": [
+      "fuel_half",
+      "smoky"
+    ]
+  },
+  {
     "id": "pick",
     "name": "pick",
     "category": "tool/pick",
@@ -1774,6 +1861,19 @@
     "tags": [
       "ingredient"
     ]
+  },
+  {
+    "id": "salted_hide",
+    "name": "salted hide",
+    "category": "textile/hide",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "≈",
+    "quality": false
   },
   {
     "id": "seed",

@@ -532,6 +532,39 @@
     "glyph": "═"
   },
   {
+    "id": "drying_rack",
+    "name": "drying rack",
+    "category": "special",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "log|stone_block|bone_pile",
+        "count": 2
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 60,
+    "tags": [
+      "rack"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 3,
+    "wants": [
+      {
+        "match": "drying",
+        "count": 5
+      }
+    ],
+    "glyph": "╤"
+  },
+  {
     "id": "farmers_workshop",
     "name": "farmer's workshop",
     "category": "workshop",
@@ -1369,6 +1402,33 @@
       6,
       8
     ],
+    "workTile": 4,
+    "outputTile": 7
+  },
+  {
+    "id": "smokehouse",
+    "name": "smokehouse",
+    "category": "workshop",
+    "footprint": {
+      "w": 3,
+      "h": 3,
+      "rotatable": false
+    },
+    "on": "",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 3
+      }
+    ],
+    "labor": "masonry",
+    "buildTicks": 250,
+    "tags": [],
+    "roomValue": 0,
+    "passable": true,
+    "blocksFluid": false,
+    "value": 0,
+    "pattern": "smokehouse",
     "workTile": 4,
     "outputTile": 7
   },
