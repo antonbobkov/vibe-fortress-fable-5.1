@@ -1,8 +1,9 @@
 /**
  * T-567: two of the fixtures' hands. The three-year script gives the mason's workshop the builder
  * as its worker, so its routine orders (the halls' chairs and tables among them) are not left open
- * for months behind the food work and the smoothing; and the defence year's script trains
- * immigrants in place of the founding miners and woodcutter, who keep their picks and axe at work.
+ * for months behind the food work and the smoothing; and the defence year's script takes mining and
+ * woodcutting from a squad on duty, so that the picks and the axe its soldiers held go to the dwarves
+ * outside it.
  */
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
@@ -11,7 +12,7 @@ import type { CombatReader, SquadWithId } from '@systems/combat';
 import type { JobsReader } from '@systems/jobs';
 import { keepMasonAtWork, type EconomyState } from '../scenarios/three_years_economy';
 import { Z, type FortressState } from '../scenarios/three_years_fortress';
-import { keepToolsOutOfTheSquad, type DefenceYearState } from '../scenarios/defence_year_fortress';
+import { keepToolLaborsOffTheSquad, type DefenceYearState } from '../scenarios/defence_year_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
 import { TestWorld } from '../scenarios/test-world';
 
@@ -66,7 +67,7 @@ describe('T-567 the mason has a worker', () => {
   });
 });
 
-describe('T-567 a training squad leaves the founding miners and woodcutter to their tools', () => {
+describe('T-567 a squad on duty leaves its picks and axe to the dwarves outside it', () => {
   function squadOf(w: TestWorld, members: readonly number[]): SquadWithId {
     expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' }).ok).toBe(true);
     const squad = w.readers.of<CombatReader>('16').squads()[0] as SquadWithId;
@@ -83,51 +84,47 @@ describe('T-567 a training squad leaves the founding miners and woodcutter to th
     w.setLabor(founders[0]!, 'mining', true);
     w.setLabor(founders[1]!, 'mining', true);
     w.setLabor(founders[2]!, 'woodcutting', true);
-    // Immigrants come with every labor, digging and felling among them.
-    for (const id of all.slice(7)) { w.setLabor(id, 'mining', true); w.setLabor(id, 'woodcutting', true); }
     return { founders, arrived: all.slice(7) };
   }
 
-  it('while the squad trains, an immigrant takes each tool founder\'s place, and a soldier holds no tool labor', () => {
-    const w = ground('t567-tool-founders');
-    const { founders, arrived } = fort(w, 4);
-    const [f0, f1, f2, mason, , , smith] = founders;
-    const [i1, i2, i3, i4] = arrived;
-    const squad = squadOf(w, [f2!, mason!, smith!, f0!, f1!]);
+  it('the soldiers lose mining and woodcutting, and an immigrant outside the squad takes each up', () => {
+    const w = ground('t567-tool-labors');
+    const { founders, arrived } = fort(w, 2);
+    const [f0, f1, f2, mason, farmer] = founders;
+    const [smith, hand] = arrived;
+    const soldiers = [f2!, mason!, f0!, f1!];
+    squadOf(w, soldiers);
     w.step(1);
-    const state = { fortress: fortress({ forge: i1! }) } as unknown as DefenceYearState;
-    keepToolsOutOfTheSquad(w, state, squad.id);
-    const combat = w.readers.of<CombatReader>('16');
-    expect(combat.squad(squad.id)?.members, 'the specialist stays out; the earliest immigrants stand').toEqual([i2, mason, smith, i3, i4]);
+    const state = { fortress: fortress({ forge: smith! }) } as unknown as DefenceYearState;
+    keepToolLaborsOffTheSquad(w, state, soldiers);
     const jobs = w.readers.of<JobsReader>('11');
-    expect([f0, f1].map((id) => jobs.laborEnabled(id!, 'mining')), 'the miners mine').toEqual([true, true]);
-    expect(jobs.laborEnabled(f2!, 'woodcutting'), 'the woodcutter fells').toBe(true);
-    for (const id of [i2, i3, i4]) {
-      expect(jobs.laborEnabled(id!, 'mining'), `soldier ${id} mining`).toBe(false);
-      expect(jobs.laborEnabled(id!, 'woodcutting'), `soldier ${id} woodcutting`).toBe(false);
+    for (const id of soldiers) {
+      expect(jobs.laborEnabled(id, 'mining'), `soldier ${id} mining`).toBe(false);
+      expect(jobs.laborEnabled(id, 'woodcutting'), `soldier ${id} woodcutting`).toBe(false);
     }
+    expect([jobs.laborEnabled(hand!, 'mining'), jobs.laborEnabled(hand!, 'woodcutting')], 'the immigrant no specialist role holds').toEqual([true, true]);
+    expect([smith, farmer].map((id) => jobs.laborEnabled(id!, 'mining')), 'not a specialist, not a founder at its trade').toEqual([false, false]);
     // A second look sends nothing.
-    const sent = (scriptRecord(w).accepted.get('SetSquadMembers') ?? 0) + (scriptRecord(w).accepted.get('SetLabor') ?? 0);
-    keepToolsOutOfTheSquad(w, state, squad.id);
-    expect((scriptRecord(w).accepted.get('SetSquadMembers') ?? 0) + (scriptRecord(w).accepted.get('SetLabor') ?? 0)).toBe(sent);
+    const sent = scriptRecord(w).accepted.get('SetLabor') ?? 0;
+    keepToolLaborsOffTheSquad(w, state, soldiers);
+    expect(scriptRecord(w).accepted.get('SetLabor') ?? 0).toBe(sent);
   });
 
-  it('no swap under an alert; a tool founder with no immigrant to stand for it keeps its place and its labor', () => {
-    const w = ground('t567-tool-founders-short');
-    const { founders, arrived } = fort(w, 1);
-    const [f0, f1, f2, mason] = founders;
-    const squad = squadOf(w, [f2!, mason!, f0!, f1!]);
+  it('a dwarf outside the squad that mines already is enough', () => {
+    const w = ground('t567-tool-labors-kept');
+    const { founders, arrived } = fort(w, 2);
+    const [f0, f1, f2] = founders;
+    const [miner, other] = arrived;
+    w.setLabor(miner!, 'mining', true);
+    w.setLabor(f2!, 'woodcutting', false);
+    w.setLabor(other!, 'woodcutting', true);
+    const soldiers = [f0!, f1!];
+    squadOf(w, soldiers);
     w.step(1);
-    const state = { fortress: fortress({}) } as unknown as DefenceYearState;
-    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' }).ok).toBe(true);
-    keepToolsOutOfTheSquad(w, state, squad.id);
-    const combat = w.readers.of<CombatReader>('16');
-    expect(combat.squad(squad.id)?.members, 'none under the alert').toEqual([f2, mason, f0, f1]);
-    expect(w.game.world.applyCommand({ type: 'SetAlert', level: 'calm' }).ok).toBe(true);
-    keepToolsOutOfTheSquad(w, state, squad.id);
-    expect(combat.squad(squad.id)?.members).toEqual([arrived[0], mason, f0, f1]);
+    keepToolLaborsOffTheSquad(w, { fortress: fortress({}) } as unknown as DefenceYearState, soldiers);
     const jobs = w.readers.of<JobsReader>('11');
-    expect([f0, f1].map((id) => jobs.laborEnabled(id!, 'mining'))).toEqual([true, true]);
+    expect(jobs.workersWithLabor('mining')).toEqual([miner]);
+    expect(jobs.workersWithLabor('woodcutting')).toEqual([other]);
   });
 });
 

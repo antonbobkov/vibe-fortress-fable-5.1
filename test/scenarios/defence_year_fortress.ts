@@ -17,6 +17,7 @@ import type { Command } from '@core/commands';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
+import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { TestWorld } from './test-world';
@@ -371,41 +372,38 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
   }
   const want = w.game.world.fortress.alert !== 'calm' ? 'active' : state.barracksZoneId ? 'train' : 'off';
   if (squad.mode !== want) command(w, { type: 'SetSquadMode', squadId: squad.id, mode: want });
-  if (want !== 'off') keepToolsOutOfTheSquad(w, state, squad.id);
+  if (want !== 'off') keepToolLaborsOffTheSquad(w, state, squad.members);
 }
-
-/** T-567: the founders the fortress digs and fells with (three_years_fortress.ts): the two miners and the woodcutter. */
-const TOOL_FOUNDERS = [0, 1, 2] as const;
 
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */
 const TOOL_LABORS = ['mining', 'woodcutting'] as const;
 
 /**
- * T-567: a squad that trains does no civilian work, and a soldier keeps the pick or axe of a tool
- * labor it holds (11 § Assignment). The fortress script stands the founding miners and the
- * woodcutter in its squad, which in the three-year runs is off duty but under an alert; here it
- * trains from the first barracks, so from about day 28 the fortress's two picks and its axe were
- * held by soldiers at drill, and no room was dug until about day 120. A player trains the dwarves
- * the fortress can spare: while the squad trains and the alert is down, each of those founders in
- * it gives its place to an immigrant that no specialist role, brewer or broker holds (the earliest
- * arrived first) and goes back to its tools. A soldier other than those founders holds no tool
- * labor, so a recruit who had been digging or felling leaves its tool on the next stockpile (11).
+ * T-567: a squad that trains or stands to arms does no civilian work, and a soldier keeps the pick or
+ * axe of a tool labor it holds (11 § Assignment). The fortress script stands the founding miners and
+ * the woodcutter in its squad, which in the three-year runs is off duty but under an alert; here it
+ * trains from the first barracks, so from about day 28 the fortress's two picks and its axe were held
+ * by soldiers at drill, and no room was dug until about day 120. As a player does, the script takes
+ * mining and woodcutting from the soldiers whenever the squad is on duty (T-547 did it for the
+ * archery range's room alone), so they leave their picks and axe on the next stockpile they pass
+ * (11), and gives each labor to a dwarf outside the squad when none there has it: an immigrant no
+ * specialist role, brewer or broker holds if there is one, the most skilled first, then the lowest id.
  */
-export function keepToolsOutOfTheSquad(w: TestWorld, state: DefenceYearState, squadId: number): void {
+export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
   const ent = w.game.world.entities;
   const jobs = w.readers.of<JobsReader>('11');
-  const members = w.readers.of<CombatReader>('16').squads().find((s) => s.id === squadId)?.members ?? [];
-  const founders = w.game.arrival?.dwarves ?? [];
-  const toolFounders = TOOL_FOUNDERS.map((i) => founders[i]).filter((id): id is number => id !== undefined);
-  if (w.game.world.fortress.alert === 'calm') {
-    const recruits = specialistCandidates(w, state.fortress).filter((id) => !members.includes(id)).sort((a, b) => a - b);
-    const swapped = members.map((id) => (toolFounders.includes(id) && ent.alive(id) && recruits.length > 0 ? recruits.shift()! : id));
-    if (swapped.some((id, k) => id !== members[k])) command(w, { type: 'SetSquadMembers', squadId, members: swapped });
-  }
-  const now = w.readers.of<CombatReader>('16').squads().find((s) => s.id === squadId)?.members ?? [];
-  for (const id of now) {
-    if (toolFounders.includes(id) || !ent.alive(id)) continue;
-    for (const labor of TOOL_LABORS) if (jobs.laborEnabled(id, labor)) command(w, { type: 'SetLabor', dwarfId: id, labor, on: false });
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  const civilians = dwarves.adults().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id));
+  const free = new Set(specialistCandidates(w, state.fortress));
+  for (const labor of TOOL_LABORS) {
+    if (!civilians.some((id) => jobs.laborEnabled(id, labor))) {
+      const pick = civilians.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) ||
+        dwarves.skill(b, labor) - dwarves.skill(a, labor) || a - b)[0];
+      if (pick !== undefined) command(w, { type: 'SetLabor', dwarfId: pick, labor, on: true });
+    }
+    for (const id of members) {
+      if (ent.alive(id) && jobs.laborEnabled(id, labor)) command(w, { type: 'SetLabor', dwarfId: id, labor, on: false });
+    }
   }
 }
 
