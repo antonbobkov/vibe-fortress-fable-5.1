@@ -101,6 +101,18 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   if wyrm_roost: carve 9x9 floor at the bottom of cavern 3 with two levels of headroom at a random interior point; vein starts in the east wall if the deepsilver magma-distance rule holds; sleeping wyrm spawn list
   if old_battlefield: ch = stream(S, 'terrain.battlefield_channel'); if ch.chance(BATTLEFIELD_CHANNEL_PERMILLE): type = ch.pick(weapons rows with a launcher and no ammo); tile = ch.pick(band, after the traits above)
     metal row: iron, quality 0, no stone; wooden row: material = ch.pick(materials of class wood), stone = ch.pick(spells' stones), quality 0; recorded in the spawn list
+  conversions (03 stage 10, before only the crater): one pass per plants row with a conversion, each on stream(S, 'terrain.convert.<id>')
+  if starfall: st = stream(S, 'terrain.starfall')   // last, so every other stream draws what it drew without the crater
+    r = st.int(CRATER_RADIUS_MIN, CRATER_RADIUS_MAX)
+    centres = columns in column order, CRATER_RADIUS_MAX + 2 from every edge and CRATER_EDGE_DISTANCE inward from the arrival edge, whose surface is a dry Floor,
+      every column within r + 2 dry with no fluid from zc - 2 up, every column within r at height >= zc - 1 with a natural surface (floor, ramp, tree, sapling, shrub, boulder) and Wall from zc - 2 to below it
+    while centres empty and r > CRATER_RADIUS_MIN: r -= 1, recompute; none: no crater
+    c = st.pick(centres); zf = surface(c) - 1
+    each column within r (dx² + dy² <= r²): open every tile above zf; tile zf = Floor of ash_soil, flags cleared; surface = zf
+    ramps: a crater tile beside a column whose surface is zf + 1 becomes a Ramp; a Floor beside the crater at zf - 1 becomes a Ramp
+    each crater Floor (not Ramp) in column order: if st.chance(CRATER_WYRMTONGUE_PERMILLE): Shrub of wild_wyrmtongue
+    tile (c, zf - 1) = Boulder of star_iron; craterTiles = the crater's tiles at zf, ascending
+    a spawn-list entry above zf in a crater column moves down to its floor
   // 9. discovery, outdoor, lit
   for x,y: top = highest non-Open z; for z: outdoor = z >= top ... (outdoor is true for tiles at or above the surface: the surface Floor tile and open tiles above it)
   discovered = outdoor tiles and their 26 neighbors; lit = outdoor or within LIGHT_SPREAD horizontally of an outdoor open tile on the same level with no wall between

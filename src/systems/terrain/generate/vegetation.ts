@@ -161,7 +161,7 @@ function nearWaterColumns(g: LocalGen): Uint8Array {
 }
 
 /**
- * `03` § Local map generation, the conversions that end stage 10; `plants.md` § Conversions. After
+ * `03` § Local map generation, the conversions of stage 10 (before only the crater); `plants.md` § Conversions. After
  * every other stage but lighting, one pass per conversion row, each on its own stream
  * (`terrain.convert.<id>`): every eligible surface tile, in column order, turns into the row's
  * plant with the row's permille. A converted tile is not eligible again. The main stage-9 stream

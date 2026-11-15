@@ -147,7 +147,7 @@ export function generateLocal(
     traits: () => {
       stageTraits(g);
       stageBattlefieldChannel(g);
-      // 03 § Local map generation, stage 10's end: the conversions, so no other stage reads them.
+      // 03 § Local map generation, stage 10: the conversions, so no other trait feature reads them.
       stageConversions(g);
       // The crater last: every other stream of the map draws on the ground as it was.
       stageStarfall(g);

@@ -7,7 +7,8 @@
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_LAYERS, FLAT_TEST_SPEC, HeadlessGame, regionSpec } from '@app/headless';
 import { contentRegistry } from '@content/loader';
-import { WORLD_SIZE_STANDARD } from '@core/constants';
+import { C, ItemFlag } from '@core/components';
+import { TICKS_PER_DAY, WORLD_SIZE_STANDARD } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import { RngStream } from '@core/rng';
 import { StateHasher } from '@core/serialize';
@@ -20,8 +21,10 @@ import { CRATER_EDGE_DISTANCE, CRATER_RADIUS_MAX, CRATER_RADIUS_MIN, CRATER_WYRM
 import { generateGoods } from '@systems/trade/goods';
 import { preferencePercent } from '@systems/trade/valuation';
 import type { TradeReader } from '@systems/trade';
+import type { TerrainReader } from '@systems/terrain';
 import { generate } from '@systems/worldgen';
 import { TestWorld } from '../scenarios/test-world';
+import { roundTrip } from '@app/game-save';
 
 const registry = contentRegistry();
 const materials = registry.table('materials');
@@ -213,13 +216,28 @@ describe('T-560 standing in the crater (10 § Movement, 15 § Thoughts)', () => 
     expect(terrain.craterTiles).toEqual(tiles);
     const dwarves = w.game.world.scheduler.byId('10')?.serialize() as { craterEntered?: boolean };
     expect(dwarves.craterEntered).toBe(true);
+    const before = w.game.hash();
+    const loaded = roundTrip(w.game).game;
+    expect(loaded.hash()).toBe(before);
+    w.replaceGame(loaded);
+    const entered = w.events('CraterEntered').length;
+    // Out of the crater and back in: an entry, but not the first.
+    expect(w.game.world.applyCommand({ type: 'SetSquadStation', squadId: squad, tile: w.index(10, 20, 32) }).ok).toBe(true);
+    w.until((v) => { const p = v.game.world.entities.get(dwarf, C.Position)!; return p.x <= 15; }, 300);
+    expect(w.game.world.applyCommand({ type: 'SetSquadStation', squadId: squad, tile: centre(20, 20) }).ok).toBe(true);
+    w.until((v) => v.events('CraterEntered').length > entered, 300);
+    expect(w.events('CraterEntered').slice(entered)[0]).toEqual(expect.objectContaining({ id: dwarf, first: false }));
   });
 
-  it('a map with no crater saves no crater fields', () => {
+  it('a map with no crater saves no crater fields, and such a save (an older one) loads with no crater', () => {
     const w = new TestWorld({ seed: 't560-none', world: 'flat-test', embark: 'none' });
     w.step(1);
     expect('craterTiles' in (w.game.world.scheduler.byId('03')?.serialize() as object)).toBe(false);
     expect('craterEntered' in (w.game.world.scheduler.byId('10')?.serialize() as object)).toBe(false);
+    const loaded = roundTrip(w.game).game;
+    expect(loaded.hash()).toBe(w.game.hash());
+    w.replaceGame(loaded);
+    expect(w.readers.of<TerrainReader>('03').isCrater(w.index(20, 20, 32))).toBe(false);
   });
 });
 
@@ -239,6 +257,34 @@ describe('T-560 star steel is never sold, and merchants pay 200% (20)', () => {
         expect(goods.some((g) => g.material === steel), `${civ} ${k}`).toBe(false);
       }
     }
+  });
+
+  it('a merchant offered star steel asks where it came from, once a session', () => {
+    const w = new TestWorld({ seed: 't560-depot', world: 'flat-test', embark: 'none', spec: { ...FLAT_TEST_SPEC, traits: [] }, startTick: 31 * TICKS_PER_DAY });
+    const depot = w.build('trade_depot', w.index(45, 8, 32), 'granite');
+    w.until((world) => world.events('CaravanAtDepot').length > 0, 20 * TICKS_PER_DAY);
+    const trade = w.readers.of<TradeReader>('20');
+    const civ = trade.activeCaravan()!.civ;
+    const tile = w.game.world.entities.get(depot, C.Building)!.footprint[0]!;
+    const broker = w.spawnDwarf({ at: tile });
+    w.submit({ type: 'AssignTitle', dwarfId: broker, title: 'broker' });
+    w.step(1);
+    const chair = w.spawnItem('chair', 'granite', tile);
+    const bar = w.spawnItem('bar', 'star_steel', tile);
+    w.submit({ type: 'MoveToDepot', itemIds: [chair, bar] });
+    const atDepot = (id: number): boolean => ((w.game.world.entities.get(id, C.Item)?.flags ?? 0) & ItemFlag.AtDepot) !== 0;
+    w.until(() => atDepot(chair) && atDepot(bar), 600);
+    // Merchants pay 200% for it: twice what they pay for a steel bar.
+    const steel = w.spawnItem('bar', 'steel', w.index(40, 20, 32));
+    expect(trade.valuation(civ, bar)).toBeGreaterThan(trade.valuation(civ, steel) * 2);
+    w.submit({ type: 'TradeOpen', depotId: depot });
+    w.until(() => trade.sessionOpen(), 300);
+    w.submit({ type: 'TradeOffer', give: [{ itemId: chair, count: 1 }], take: [] });
+    w.step(1);
+    expect(trade.session()?.starSteelAsked).toBeUndefined();
+    w.submit({ type: 'TradeOffer', give: [{ itemId: bar, count: 1 }], take: [] });
+    w.step(1);
+    expect(trade.session()?.starSteelAsked).toBe(true);
   });
 
   it('a request for star steel is refused', () => {

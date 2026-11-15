@@ -57,12 +57,12 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 - The screen: left, merchant goods with *their price* (merchant valuation × `MERCHANT_MARKUP`, and × `SCARCITY_MARKUP` for a good the site lacks, marked "scarce here": § The scarcity price); right, fortress goods at the depot with *their valuation* of each; the player marks quantities on both sides; totals; the margin line "The merchant wants at least 12% profit"; Offer.
 - `TradeOffer { give, take }` lists unique `{ itemId, count }` lines (a bare item id means its whole stack, and a count of zero means the whole stack); both sides are validated before anything changes owner, and only an accepted partial line splits its stack. It is accepted when `Σ valuation(give) ≥ ceil(Σ price(take) × (100 + margin) / 100)` (the margin is not rounded); else `TradeRefused { shortfall }` and the merchant's line "Not enough. Add {shortfall} marks of goods." Accepted: items change owner (bought goods lose `merchant`, sold goods gain it), `TradeCompleted`, trading skill xp `TRADE_XP × (1 + value / 1000)`, reputation `+ clamp(1, 5, floor(Σ price(take) / 500))`.
 - An offer with an empty `take` is a gift: reputation `+ value / 100` (max +10 per caravan), `GiftGiven`.
-- Selling items the civ dislikes (Wildwood: any item with material class `wood`, and any `furniture` made of wood; a channel, 25's wand or staff, counts as wooden whatever its shoe, for this and for its preference): each such item offered gives reputation −2, once per item per session, also when the offer is refused and also when the trade then succeeds; the successful trade's own reputation is a separate event. The merchant's line says so once per session. Killing a caravan member gives −50 and a ban (see § Movement, step 5).
+- Selling items the civ dislikes (Wildwood: any item with material class `wood`, and any `furniture` made of wood; a channel, 25's wand or staff, counts as wooden whatever its shoe, for this and for its preference): each such item offered gives reputation −2, once per item per session, also when the offer is refused and also when the trade then succeeds; the successful trade's own reputation is a separate event. The merchant's line says so once per session. A merchant of any civilization who is offered star steel asks "Where did you get this?" once per session (the session's `starSteelAsked`, set by the first offer whose `give` holds an item of `star_steel`, also when it is refused; the trade screen shows the line in place of the verdict until the next change). Killing a caravan member gives −50 and a ban (see § Movement, step 5).
 - The session can be reopened as long as the caravan is at the depot.
 
 ### Valuation
 
-`valuation(civ, item) = value(item) × preference(civ, item.category or item.material class) / 100`, where `preference` rows are content (a `material <id>` row, such as the Mountainhome's pewter at 110, applies to every item of that material before the category and class rows): defaults 100; Hillfolk metal 150, food 80, stone crafts 90; Mountainhome crafts 130, gems 140, deepsilver items 300, food 70, drink 120, spirits 150 (a drink is judged by its material's group, `drink/spirits` before `drink/*`); Wildwood wood 20, cloth 120, herbs 130, animals 150, stone 80. A `material class <class>` row (the Wildwood's bone at 60) comes after the material rows and before the category rows. Hillfolk pay 150 for salt and 130 for glass; the Wildwood 60 for bone, and 100 for reed and its baskets and wicker (reed is not wood: the elves have thought about it and decided reeds are fine).
+`valuation(civ, item) = value(item) × preference(civ, item.category or item.material class) / 100`, where `preference` rows are content (a `material <id>` row, such as the Mountainhome's pewter at 110, applies to every item of that material before the category and class rows): defaults 100; Hillfolk metal 150, food 80, stone crafts 90; Mountainhome crafts 130, gems 140, deepsilver items 300, food 70, drink 120, spirits 150 (a drink is judged by its material's group, `drink/spirits` before `drink/*`); Wildwood wood 20, cloth 120, herbs 130, animals 150, stone 80. A `material class <class>` row (the Wildwood's bone at 60) comes after the material rows and before the category rows. Hillfolk pay 150 for salt and 130 for glass; the Wildwood 60 for bone, and 100 for reed and its baskets and wicker (reed is not wood: the elves have thought about it and decided reeds are fine). Every civilization pays 200 for star steel (`material star_steel`): there are three bars of it in the world, and none for sale.
 
 ### The scarcity price
 
@@ -76,7 +76,7 @@ A merchant good whose material the site lacks (02 § What a site has and lacks: 
 
 ### Never sold
 
-Never in any list or request: deepsilver below reputation 75 (`DEEPSILVER_SALE_REP`), star steel, anything aged or vintage (a list names no age), silk cloth (they buy it), giant skulls, wyrmscale and hollow ichor (`NEVER_SOLD_ITEMS`, `NEVER_SOLD_MATERIALS`). `SetRequests` naming one is refused with `not_traded`, and the requests editor refuses it with "The {civ} do not trade in that."; a request for deepsilver made at reputation 75 that has fallen below it is not brought.
+Never in any list or request: deepsilver below reputation 75 (`DEEPSILVER_SALE_REP`), star steel, anything aged or vintage (a list names no age), silk cloth (they buy it), giant skulls, wyrmscale and hollow ichor (`NEVER_SOLD_ITEMS`, `NEVER_SOLD_MATERIALS`). A goods entry whose material pool is a class (`metal` crafts) never draws a never-sold material from it, so no caravan brings star steel. `SetRequests` naming one is refused with `not_traded`, and the requests editor refuses it with "The {civ} do not trade in that."; a request for deepsilver made at reputation 75 that has fallen below it is not brought.
 
 ### Reputation effects
 
@@ -93,7 +93,7 @@ Reputation drifts toward 0 by `REP_DRIFT_PER_YEAR` each year (grudges and favors
 
 ## State
 
-- `schedule: Record<Civ, { nextArrivalTick, banUntilYear }>`, `activeCaravan: partyId | 0` (one at a time; if two would overlap, the second waits a day at the edge), `reputation` in `fortress`, `requests: Record<Civ, Request[]>`, `depotItems: Set<EntityId>` (fortress items at the depot), `merchantItems: Set<EntityId>`, `session: { depotId, traderId, merchantId, give, take } | null`, `lastBrought: Record<Civ, itemType[]>`.
+- `schedule: Record<Civ, { nextArrivalTick, banUntilYear }>`, `activeCaravan: partyId | 0` (one at a time; if two would overlap, the second waits a day at the edge), `reputation` in `fortress`, `requests: Record<Civ, Request[]>`, `depotItems: Set<EntityId>` (fortress items at the depot), `merchantItems: Set<EntityId>`, `session: { depotId, traderId, merchantId, give, take, woodOffered, woodWarning, starSteelAsked? } | null` (`starSteelAsked` omitted while false), `lastBrought: Record<Civ, itemType[]>`.
 - Rng stream.
 
 ## Interfaces
@@ -171,11 +171,11 @@ Goods lists and preferences are content.
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `caravan-goods.md` § Planned rows.
 
-### Later sundries, never-sold goods and preferences (T-551, T-555, T-556, T-557, T-560, T-563)
+### Later sundries, never-sold goods and preferences (T-551, T-555, T-556, T-557, T-563)
 
 - Sundries of later goods go into their civilization's Sundries table, each with the task that brings its good (`caravan-goods.md` § Planned sundries): Hillfolk bedding (T-551), candles (T-563), and honey when the Wildwood's home is farther than the Hillfolk's (T-555); Wildwood honey and beeswax (T-555).
-- § Never sold is in; the tasks that bring silk cloth (T-556), giant skulls (T-557) and star steel (T-560) keep them out of every list. `NEVER_SOLD_ITEMS` and `NEVER_SOLD_MATERIALS` name them already.
-- Preferences (`caravan-goods.md` § Planned preferences): Mountainhome silk cloth 150 (T-556), carved fossils 150 (T-557); Wildwood honey and beeswax 100 (T-555), silk cloth 140 (T-556). Every civilization: star steel 200, with the merchant's line "Where did you get this?" once a session (T-560).
+- § Never sold is in; the tasks that bring silk cloth (T-556) and giant skulls (T-557) keep them out of every list. `NEVER_SOLD_ITEMS` and `NEVER_SOLD_MATERIALS` name them already.
+- Preferences (`caravan-goods.md` § Planned preferences): Mountainhome silk cloth 150 (T-556), carved fossils 150 (T-557); Wildwood honey and beeswax 100 (T-555), silk cloth 140 (T-556).
 
 ### Camels from the Hillfolk (T-561)
 

@@ -181,7 +181,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.trait.beastwood': 'more beasts; wolves and bears in double packs.',
   'ui.site.trait.twilight_pass': 'on the Gloam road: raids twice as often, more thieves.',
   'ui.site.trait.deep_well': 'the first cavern is mostly a lake.',
-  'ui.site.trait.starfall': 'a star fell here: a crater of ash, and one boulder of star iron under it, three bars of star steel.',
+  'ui.site.trait.starfall': 'a star fell here: a crater of ash where wyrmtongue grows wild, and under it one boulder of star iron, three bars of star steel.',
   'ui.edge.n': 'north',
   'ui.edge.e': 'east',
   'ui.edge.s': 'south',
