@@ -247,7 +247,11 @@ export class TradeSessionScreen implements Screen {
         // The buttons are measured on the caption as drawn: a rebound `-` or `+` has another name.
         const caption = `[-] ${q} [+]`;
         const captionOptions = { fg: t.text, width: width - 2 };
-        label(surface, col + 2, y + 1, caption, captionOptions);
+        const drawn = label(surface, col + 2, y + 1, caption, captionOptions);
+        // 20 § The scarcity price: a merchant good the site lacks says so beside its quantity.
+        const scarce = side === 'merchant' && row.members.some((member) => this.trade().isScarce(member.id));
+        const scarceCol = col + 2 + drawn + 2;
+        if (scarce && scarceCol < col + width - 1) label(surface, scarceCol, y + 1, this.strings.get('ui.trade.scarce'), { fg: t.alert, width: col + width - 1 - scarceCol });
         const cells = keyCells(surface, caption, captionOptions);
         const minus = cells.find((c) => c.key === '-');
         const plus = cells.find((c) => c.key === '+');

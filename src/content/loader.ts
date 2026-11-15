@@ -98,6 +98,7 @@ import preferencesJson from './preferences.json';
 import ratingThresholdsJson from './ratingThresholds.json';
 import recipesJson from './recipes.json';
 import regionTraitsJson from './regionTraits.json';
+import signaturesJson from './signatures.json';
 import reputationEventsJson from './reputationEvents.json';
 import roomTiersJson from './roomTiers.json';
 import rowOrderJson from './rowOrder.json';
@@ -172,6 +173,7 @@ export function rawTables(): Record<string, unknown> {
     ratingThresholds: ratingThresholdsJson,
     recipes: recipesJson,
     regionTraits: regionTraitsJson,
+    signatures: signaturesJson,
     reputationEvents: reputationEventsJson,
     roomTiers: roomTiersJson,
     rowOrder: rowOrderJson,

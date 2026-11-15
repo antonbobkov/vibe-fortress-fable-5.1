@@ -1,4 +1,4 @@
-# T-NEW — Seven pallets from one stack of cloth are laid one after another
+# T-568 — Seven pallets from one stack of cloth are laid one after another
 
 **Source:** T-551's test of the founders' pallets (`test/unit/t551-making-do-beds.test.ts`) · **Size:** S · **Needs:** — · **Status:** open
 

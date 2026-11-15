@@ -65,7 +65,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `TradeOpen` | `depotId` | 20 | caravan at this depot (`no_caravan`) | `JobCreated` (trade job) |
 | `TradeOffer` | `give[], take[]` | 20 | session open; items are at the depot / merchant's | `TradeCompleted` or `TradeRefused`, `ReputationChanged` |
 | `TradeCancel` | — | 20 | session open | — |
-| `SetRequests` | `civ, entries[]` | 20 | at most `REQUEST_MAX` | — |
+| `SetRequests` | `civ, entries[]` | 20 | at most `REQUEST_MAX`; no entry names a never-sold item type or material, or deepsilver below `DEEPSILVER_SALE_REP` (20 § Never sold; `not_traded`) | — |
 | `SetPopulationCap` | `n` | 21 | integer 20–200; outside range rejects out_of_range without changing the cap | — |
 | `NameAnimal` | `animalId, name` | 08 | tame, not a summon (`not_found`); name 1–24 characters | — |
 | `RenameSquad` | `squadId, name` | 16 | 1–32 characters | — |
@@ -78,6 +78,6 @@ App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress
 
 ## Rejection reasons
 
-`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `light_mismatch`, `not_tame`, `not_grazer`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`, `not_on_ash`.
+`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `light_mismatch`, `not_tame`, `not_grazer`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`, `not_on_ash`, `not_traded`.
 
 Each reason has a string key `reject.<reason>` in the strings table; the UI shows it in the status bar for `STATUS_HINT_SECONDS`.

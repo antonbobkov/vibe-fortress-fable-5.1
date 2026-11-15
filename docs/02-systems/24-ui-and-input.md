@@ -137,9 +137,9 @@ Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) 
 - **Main menu**: `New world`, `Tutorial`, `Continue` (loads the newest save), `Load`, `Legends`, `Settings`, `About`, `Intro`. Arrow keys and mouse. The first `New world` ever chosen offers the tutorial first.
 - **Tutorial**: a fortress on a friendly site of a fixed world, with a box over the map view that gives one step at a time, highlights the part of the UI the step uses, and goes on when the step's check holds; any step can be skipped and the tutorial ended at any time (`ui-screens/menus-and-world.md` § Tutorial; the steps are content, `03-content/ui-keymap-and-screens.md` § Tutorial).
 - **World generation** (01): seed text field, size dropdown, `Generate`, progress with the preview, `Continue`.
-- **World map** (01): the map with the cursor; the region panel on the right, with the site summary of 02 and its missing essentials in the alert colour, scrolled by `PageUp` `PageDown` and the wheel when it is longer than the window; the filter panel (`f`); `Embark` (`Enter` on a valid region). Legend of biome glyphs (`?`).
+- **World map** (01): the map with the cursor; the region panel on the right, with the site summary of 02 and its missing essentials in the alert colour, and after it the rows **This site has:** and **This site lacks:** (02 § What a site has and lacks), the lacks in the alert colour, scrolled by `PageUp` `PageDown` and the wheel when it is longer than the window; the filter panel (`f`); `Embark` (`Enter` on a valid region). Legend of biome glyphs (`?`).
 - **Embark** (02): three tabs (a fourth, Items, in testing mode), footer with budget and `Embark`, and the testing mode switch below it (off by default); Balanced is applied on opening. Missing pick or food/drink asks the default-No confirmation before embarking.
-- **Trade session** (20): modal two-column table.
+- **Trade session** (20): modal two-column table; a merchant good priced at the scarcity price says "scarce here" (20 § The scarcity price).
 - **Legend**: the record of a fortress (see 24 › Legend record below); `Back`.
 - **Settings**: keybindings (rebind by selecting a row and pressing a key), auto-pause toggles per severity, hints on/off, zoom, colorblind palette, edge scrolling, autosave on/off, music volume, music on/off, intro at launch (first time, always, off), intro style (deep, hall), `Reset to defaults`.
 - **Load**: manual saves and autosaves with thumbnails; `Load`, `Delete` (confirm), `Export`, `Import`.
@@ -282,6 +282,4 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - **Designations** (T-559): `harvest ice` and `ignite` in the designation menu. The first `ignite` box of a fortress opens the confirmation `c_first_ignite` (default No); Yes sends `ConfirmIgnite` and then the designation, No drops it. Later ones need none.
 - **Building panel** (T-563, T-555): a candle stand its candles and days left; a hive its combs and its flowers in reach.
 - **Farm plot panel** (T-564): `Fertilize: on/off` with the fertilizer in stock.
-- **World map** (T-550): the region panel's **This site has:** and **This site lacks:** rows (02 § Planned).
-- **Trade screen** (T-550): a merchant good priced at the scarcity price says "scarce here".
 - **Units panel** (T-565): the Thane's line shows the whim of the season and whether it is met.

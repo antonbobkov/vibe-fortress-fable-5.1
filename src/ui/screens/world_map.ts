@@ -15,7 +15,7 @@ import type { Registry } from '@core/registry';
 import type { Civ, Edge } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { WorldMapCompositor } from '@render/world-map';
-import { localMapSpec, siteSummary, type SiteSummary } from '@systems/embark';
+import { localMapSpec, SIGNATURE_LIKELY, siteSummary, type SiteSummary } from '@systems/embark';
 import { CIVS, hasLandRoute, matchesFilter, type RegionFilter, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { SITE_LABEL_COLS, SITE_LIST_NAMES } from '../constants';
 import type { KeyContext, Keymap } from '../keymap';
@@ -291,6 +291,23 @@ export class WorldMapScreen implements Screen {
   }
 
   /**
+   * The summary's two rows after Wildlife (`02` § What a site has and lacks): "This site has:" and
+   * "This site lacks:", each its goods in table order, a good the map gets only by a roll "likely".
+   */
+  signatureRows(site: SiteSummary): [string, string] {
+    const s = this.strings;
+    const name = (good: string): string => {
+      const word = s.has(`ui.site.good.${good}`) ? s.get(`ui.site.good.${good}`) : (this.materialNames.get(good) ?? good);
+      return SIGNATURE_LIKELY.includes(good) ? s.get('ui.site.likely', { good: word }) : word;
+    };
+    const list = (goods: readonly string[]): string => (goods.length > 0 ? goods.map(name).join(', ') : s.get('ui.site.none'));
+    return [
+      s.get('ui.site.has', { list: list(site.signature.has) }),
+      s.get('ui.site.lacks', { list: list(site.signature.lacks) }),
+    ];
+  }
+
+  /**
    * The region panel's lines, in words (`01` § Player-facing behavior; menus-and-world.md § World
    * map): the name and biome, the missing essentials in the alert colour, the site summary, the
    * ratings and traits, and each civilization's distance.
@@ -317,6 +334,9 @@ export class WorldMapScreen implements Screen {
     for (const [name, value] of this.siteRows(site)) {
       for (const t of wrapHang(`${name.padEnd(SITE_LABEL_COLS - 1)} ${value}`, width, SITE_LABEL_COLS)) text(t);
     }
+    const [has, lacks] = this.signatureRows(site);
+    for (const t of wrapHang(has, width, 2)) text(t);
+    for (const t of wrapHang(lacks, width, 2)) text(t, 'alert');
     out.push({ text: '', fg: 'text' });
     out.push({ rating: 'ui.worldmap.wealth', value: r.wealth });
     out.push({ rating: 'ui.worldmap.peril', value: r.peril });

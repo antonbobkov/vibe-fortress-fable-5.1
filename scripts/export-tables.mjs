@@ -45,6 +45,7 @@ import {
   exportCivilizations,
   exportRatingThresholds,
   exportRegionTraits,
+  exportSignatures,
   exportWeatherStates,
   exportWeatherTables,
 } from './lib/export/world.mjs';
@@ -135,6 +136,7 @@ function build() {
     biomeLookup: exportBiomeLookup(),
     ratingThresholds: exportRatingThresholds(),
     regionTraits: exportRegionTraits(),
+    signatures: exportSignatures(),
     civilizations: exportCivilizations(),
     weatherStates: exportWeatherStates(),
     weatherTables: exportWeatherTables(),

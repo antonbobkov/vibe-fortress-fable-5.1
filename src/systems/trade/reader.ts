@@ -10,6 +10,8 @@ export interface TradeReader {
   marginPercent(civ: Civ): number;
   valuation(civ: Civ, itemId: EntityId): number;
   price(civ: Civ, itemId: EntityId): number;
+  /** A merchant good priced at the scarcity price: its material the site lacks (20 § The scarcity price). */
+  isScarce(itemId: EntityId): boolean;
   depotItems(): readonly EntityId[];
   merchantItems(): readonly EntityId[];
   requests(civ: Civ): readonly TradeRequest[];

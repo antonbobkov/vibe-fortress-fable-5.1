@@ -123,8 +123,8 @@ describe('T-552 the rows', () => {
 
   it('the Hillfolk bring dung in sacks and cured meat, and pay 120% for cured meat and fish', () => {
     const hillfolk = (caravanGoods as { civ: string; entries: { item: unknown; materials: { material: string }[]; container?: string }[] }[]).find((g) => g.civ === 'hillfolk');
-    expect(hillfolk?.entries.find((e) => Array.isArray(e.item) && e.item[0] === 'dung')).toMatchObject({ materials: [{ material: 'dung' }], weight: 6 });
-    expect(hillfolk?.entries.find((e) => e.item === 'cured_meat')).toMatchObject({ weight: 6 });
+    expect(hillfolk?.entries.find((e) => e.item === 'dung')).toMatchObject({ materials: [{ material: 'dung' }], weight: 6, container: 'bag', sundries: true, units: 10 });
+    expect(hillfolk?.entries.find((e) => e.item === 'cured_meat')).toMatchObject({ weight: 6, sundries: true, units: 10 });
     expect(preferencePercent(registry, 'hillfolk', 'food/meat/cured', 'cow_meat', 'meat')).toBe(120);
     expect(preferencePercent(registry, 'hillfolk', 'food/fish/cured', 'trout_meat', 'meat')).toBe(120);
     expect(preferencePercent(registry, 'hillfolk', 'food/meat/raw', 'cow_meat', 'meat')).toBe(80);

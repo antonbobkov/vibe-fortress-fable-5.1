@@ -488,7 +488,7 @@ The Wildlife section lists one row per dangerous species on the map (08 § Regis
 │ [S-d] depot  [S-t] trade now        │
 ```
 
-Depot panel (from a selected depot): items at the depot with values, `[S-m] move` opens the stocks tree in selection mode, `[S-t] trade` (enabled when a caravan is present). In selection mode `Space` or `Enter` marks the eligible stacks under the tree row, `[S-t]` submits one `MoveToDepot` command for everything marked, and `Esc` discards the selection. The requests editor lists the item ids of the content registry in registry order (the UI never invents an id) and submits only on `Enter`.
+Depot panel (from a selected depot): items at the depot with values, `[S-m] move` opens the stocks tree in selection mode, `[S-t] trade` (enabled when a caravan is present). In selection mode `Space` or `Enter` marks the eligible stacks under the tree row, `[S-t]` submits one `MoveToDepot` command for everything marked, and `Esc` discards the selection. The requests editor lists the item ids of the content registry in registry order (the UI never invents an id) and submits only on `Enter`. An item the civilizations never sell (20 § Never sold) is refused on `Enter` with the status line "The {civ} do not trade in that." (`ui.trade.not_traded`), and nothing is submitted.
 
 ## Population (p)
 

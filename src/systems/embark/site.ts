@@ -19,6 +19,7 @@ import { expectedOreCount } from '@systems/terrain/generate/minerals';
 import { carvesLake, carvesRiver } from '@systems/terrain/generate/rivers';
 import { surfaceTreeDensity } from '@systems/terrain/generate/vegetation';
 import { SUMMER, WINTER, seasonBase, temperSpread, type Climate } from '@systems/weather/transitions';
+import { siteSignature, type SiteSignature } from './signatures';
 import type { LocalMapSpec } from './spec';
 
 export type TemperatureBand = 'frozen' | 'cold' | 'temperate' | 'warm' | 'hot';
@@ -62,6 +63,8 @@ export interface SiteSummary {
   readonly wildlife: { readonly dangerous: readonly string[]; readonly other: readonly string[] };
   /** The missing essentials, in this order. */
   readonly lacks: readonly ('soil' | 'trees' | 'water')[];
+  /** What the site has and lacks (§ What a site has and lacks): the rows after Wildlife. */
+  readonly signature: SiteSignature;
 }
 
 interface BiomeRow {
@@ -321,5 +324,6 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
     },
     wildlife: { dangerous: byWeight(dangerous), other: byWeight(other) },
     lacks,
+    signature: siteSignature(spec, registry),
   };
 }
