@@ -26,7 +26,7 @@ describe('T-M5-01 wood furnace and smelter fuel and ore yields', () => {
       })));
       expect(recipe.fuel).toBe(!row.yields.some((y) => y.metal === 'coal'));
       // Bog iron is "the wetland's iron, half a hematite's" (minerals-and-metals.md § Ores).
-      if (row.yields.length === 1 && row.yields[0]?.permille === undefined && row.yields[0]?.metal !== 'coal' && ore !== 'deepsilver_ore' && ore !== 'bog_iron') {
+      if (row.yields.length === 1 && row.yields[0]?.permille === undefined && row.yields[0]?.metal !== 'coal' && ore !== 'deepsilver_ore' && ore !== 'bog_iron' && ore !== 'star_iron') {
         expect(recipe.outputs[0]?.count).toBe(2);
       }
     }

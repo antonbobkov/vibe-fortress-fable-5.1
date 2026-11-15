@@ -74,10 +74,11 @@ Columns: `hosts` are the layer materials a vein or cluster may start in; `shape`
 | `halite` | rock salt | `limestone`, `shale`, `sandstone`, `chalk` | cluster | 2 | 2 | — | 2 | `salt_white` | no smelt recipe (no yields); the kitchen crushes 1 → 5 `salt` |
 | `bog_iron` | bog iron | `peat` | cluster | 3 | 2 | 1 `iron` | 4 | `limonite_yellow` | the wetland's iron, half a hematite's |
 | `giant_bone` | giant bone | `sandstone`, `shale`, `limestone`, `siltstone`, `chalk`, `conglomerate` | cluster | 3 | 2 | — | 3 | `bone_white` | class `bone`, density 140, hardness 70, melts at 1600 (magma-safe); a dug tile always drops a `fossil` |
+| `star_iron` | star iron | — | cluster | 0 | 0 | 3 `star_steel` | 30 | `star_silver` | placed only by `starfall` (03 stage 10), one boulder a map; smelted without flux |
 
 `bismuth` is a metal used only in `bismuth_bronze` (below); it is not a bar players use directly.
 
-An ore with no yields (`halite`, `giant_bone`) has no smelt recipe. A row's notes may give its material another class, density, hardness and melting point than an ore's (`giant_bone` is of class `bone`: a fossil, not an ore). Fossils lie only in the sedimentary layers: an igneous or metamorphic map has fossils only where its mixed template holds a sedimentary layer. Every row's clusters are placed by 03 stage 7.
+An ore with no yields (`halite`, `giant_bone`) has no smelt recipe. A row's notes may give its material another class, density, hardness and melting point than an ore's (`giant_bone` is of class `bone`: a fossil, not an ore). Fossils lie only in the sedimentary layers: an igneous or metamorphic map has fossils only where its mixed template holds a sedimentary layer. Every row's clusters are placed by 03 stage 7 but `star_iron`'s, whose one boulder is the `starfall` crater's (03 stage 10).
 
 ### Wealth multiplier
 
@@ -128,6 +129,7 @@ Columns: `tier` for weapons and armor (0 wood and bone, 1 copper, 2 bronze, 3 ir
 | `bismuth` | bismuth | 0 | 10 | 980 | 0.30 | 0.30 | 0 | 0.7 | — | — | 271 | `bismuth_pink` | — | alloy input |
 | `deepsilver` | deepsilver | 5 | 250 | 600 | 1.60 | 1.60 | 0 | 1.6 | `deep_shade` | 10 | 2400 | `deepsilver_blue` | — | magma-safe; light: armor weight halved |
 | `pewter` | pewter | 0 | 9 | 730 | 0.40 | 0.40 | 0 | 0.7 | — | — | 300 | `pewter_gray` | 1 `tin` + 1 `lead` → 2 | mugs, crafts, tableware |
+| `star_steel` | star steel | 4 | 90 | 780 | 1.30 | 1.25 | 0 | 1.4 | `stone_warden` | — | 1600 | `star_silver` | — | magma-safe; never sold; merchants pay 200% |
 
 Metal tier for weapon and armor purposes: `wood`, `bone` and `obsidian` items are tier 0 with `weaponMult` 0.40, 0.50 and 0.70. Obsidian and bone are knapped into daggers and short swords at the craftsdwarf's workshop ([workshops-and-recipes.md](workshops-and-recipes.md) § Craftsdwarf): an obsidian short sword deals 12.6 and a bone one 9 against a copper one's 14.4 and an iron one's 18, and a bone dagger's 6 is a dwarf's punch with an edge.
 
@@ -150,25 +152,13 @@ Shells stand in for the flux stone: 3 `shell_piece` of any shell material (`chit
 
 From the tables above the loader generates, per 12:
 
-- `smelt_hematite` … `smelt_bog_iron` (1 ore → yields; fuel true except coal ores), one per ore with yields.
+- `smelt_hematite` … `smelt_bog_iron`, `smelt_star_iron` (1 ore → yields; fuel true except coal ores), one per ore with yields. None takes flux: `smelt_star_iron` is 1 star iron and 1 fuel → 3 `star_steel`.
 - `alloy_bronze`, `alloy_bismuth_bronze`, `alloy_brass`, `alloy_electrum`, `alloy_steel` (steel is listed as an alloy for uniformity: 1 iron bar + 1 flux + 1 fuel → 1 steel), `alloy_pewter`.
 - `melt_metal_item` (any `melt`-flagged metal item → 60% of its bar cost in bars).
 
 ## Planned rows
 
 Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules that use them are in the § Planned sections of the system documents. Every number is *unmeasured*.
-
-### Planned ores and bone
-
-| id | name | hosts | shape | count | length / radius | yields | value | color | notes | task |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `star_iron` | star iron | — | cluster | 0 | 0 | 3 `star_steel` | 30 | `star_silver` | placed only by `starfall` (03 § Planned); smelted without flux | T-560 |
-
-### Planned metals
-
-| id | name | tier | value (bar) | density | weaponMult | armorMult | bluntBonus | runeMult | summon | runePressure | meltsAtC | color | alloy inputs (→ output) | notes | task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `star_steel` | star steel | 4 | 90 | 780 | 1.30 | 1.25 | 0 | 1.4 | `stone_warden` | — | 1600 | `star_silver` | — | magma-safe; never sold; merchants pay 200% | T-560 |
 
 ### Planned fuel and flux
 

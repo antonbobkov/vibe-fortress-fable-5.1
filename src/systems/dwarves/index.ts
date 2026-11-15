@@ -100,6 +100,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly activities = new Activities();
   readonly idleAnnounced = new Set<EntityId>();
   readonly sawMasterworks = new Set<string>();
+  /** `10` § Movement: a fortress dwarf has stood in the `starfall` crater (saved; absent while false). */
+  craterEntered = false;
 
   hasInterrupt(id: EntityId): boolean { return this.interruptFlags.has(id); }
   takeInterrupt(id: EntityId): boolean { return this.interruptFlags.delete(id); }
@@ -339,6 +341,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     ctx.register.announcement('TitleAssigned', { severity: 'note', stringKey: 'announce.title_assigned' });
     ctx.register.announcement('DwarfBecameAdult', { severity: 'note', stringKey: 'announce.came_of_age' });
     ctx.register.announcement('LegendaryReached', { severity: 'note', stringKey: 'announce.legendary' });
+    // `10` § Movement: the first dwarf in a `starfall` crater makes a note, once a fortress.
+    ctx.register.announcement('CraterEntered', { severity: 'note', stringKey: 'announce.crater_entered', oneOf: { field: 'first', values: [true] } });
     // `15` § Thoughts: relationship-dependent triggers are facts of 10, not inferred from event ids.
     const source: ThoughtSource = {
       on: ['CreatureDied', 'Buried'],
@@ -541,6 +545,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const map = ctx.world.map;
     const fluids = readers.has('04') ? readers.of<{ isMisty(i: TileIndex): boolean }>('04') : null;
     const materials = readers.has('05') ? readers.of<{ isWarmSpring(i: TileIndex): boolean }>('05') : null;
+    const terrain = readers.has('03') ? readers.of<{ isCrater?(i: TileIndex): boolean }>('03') : null;
     const weather = readers.has('06') ? readers.of<{ state(): string }>('06') : null;
     const items = readers.has('13') ? readers.of<ItemsReader>('13') : null;
     const buildings = readers.has('14') ? readers.of<BuildingsReader>('14') : null;
@@ -567,6 +572,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (brain === undefined) continue;
       const next = movementEffects(id, from, to, ctx.tick, brain, facts, (e) => ctx.emit(e));
       if (next !== brain) entities.add(id, C.Brain, next);
+      // `10` § Movement: stepping into the `starfall` crater from outside it; the first of the
+      // fortress is a note (15's `saw_the_star` keeps itself from repeating while it lasts).
+      if (terrain?.isCrater?.(to) === true && (from < 0 || terrain.isCrater?.(from) !== true)) {
+        ctx.emit({ type: 'CraterEntered', id, first: !this.craterEntered });
+        this.craterEntered = true;
+      }
       if (items !== null && buildings !== null) {
         const oldRooms = new Set(buildings.zonesAt(from).filter((zone) => buildings.room(zone) !== undefined));
         const entered = buildings.zonesAt(to).filter((zone) => buildings.room(zone) !== undefined && !oldRooms.has(zone));
@@ -665,6 +676,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         (!this.shelterRestored && this.connectivityRevision() !== this.shelterRevision)) ? { shelterCheckPending: true } : {}),
       ...(this.sawMasterworks.size > 0 ? { sawMasterworks: Array.from(this.sawMasterworks).sort()
         .map((key) => key.split(':').map(Number) as [EntityId, EntityId]) } : {}),
+      ...(this.craterEntered ? { craterEntered: true } : {}),
       ...(this.activities.serializeRetryUntil().length > 0 ? { needRetryUntil: this.activities.serializeRetryUntil() } : {}),
       ...(this.activities.talks.size > 0 ? { talks: this.activities.serializeTalks() } : {}),
       ...(this.activities.hearthTicks.size > 0 ? { hearthTicks: Array.from(this.activities.hearthTicks).sort((a, b) => a[0] - b[0]) } : {}),
@@ -705,6 +717,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     for (const id of state.idleAnnounced ?? []) this.idleAnnounced.add(id);
     this.sawMasterworks.clear();
     for (const [id, itemId] of state.sawMasterworks ?? []) this.sawMasterworks.add(`${id}:${itemId}`);
+    this.craterEntered = state.craterEntered === true;
     this.activities.retryUntil.clear();
     for (const [id, need, until] of state.needRetryUntil ?? []) {
       this.activities.setRetryUntil(id, need, until);

@@ -10,6 +10,10 @@ import type { DwarvesReader } from '@systems/dwarves';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import type { JobsReader } from '@systems/jobs';
+import type { ItemsReader } from '@systems/items';
+
+/** `15` § Thoughts: the metal of `forged_the_star`. */
+export const STAR_STEEL = 'star_steel';
 
 export interface ThoughtDef {
   readonly id: string;
@@ -149,6 +153,9 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'rune_sick': return event['sick'] === true;
     case 'saw_wisp': return true;
     case 'put_to_flight': return true;
+    // Making Do: the `starfall` crater (10) and a piece forged of its steel (the item, in `worldPredicate`).
+    case 'saw_the_star': return true;
+    case 'forged_the_star': return n(event, 'itemId') !== 0;
     // Making Do: the nettle's sting (09), a cactus drunk (10), a meal seasoned with wyrmtongue (12).
     case 'nettles': return s(event, 'source') === 'nettle';
     case 'drank_cactus': return true;
@@ -173,7 +180,7 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   if (def.id === 'finished_big_job') return ctx.readers.of<JobsReader>('11').workersWithLabor('mining');
   if (def.id === 'talked_with_friend' || def.id === 'talked_with_someone') return [n(event, 'a'), n(event, 'b')].filter((id) => all.includes(id));
   if (def.id === 'argued') return [n(event, 'id'), n(event, 'partnerId')].filter((id) => all.includes(id));
-  const target = def.id === 'made_masterwork' || def.id === 'made_fine_item' || def.id === 'masterwork_lost' ? n(event, 'crafterId')
+  const target = def.id === 'made_masterwork' || def.id === 'made_fine_item' || def.id === 'masterwork_lost' || def.id === 'forged_the_star' ? n(event, 'crafterId')
     : def.id === 'first_vein' ? n(event, 'finderId')
       : def.id === 'first_fossil' ? n(event, 'dwarfId')
       : def.id === 'harvest_in' ? n(event, 'farmerId')
@@ -198,6 +205,14 @@ function sees(ctx: TickContext, dwarf: EntityId, to: number, tiles: number): boo
 /** A row's fixed condition has an existing event but may need world facts not present in the event. */
 export function worldPredicate(def: ThoughtDef, event: GameEvent, ctx: TickContext, dwarf: EntityId): boolean {
   if (def.id === 'harvest_in') return true;
+  // `15` § Thoughts: a piece forged of star steel, not the bars smelted from the meteorite.
+  if (def.id === 'forged_the_star') {
+    if (!ctx.readers.has('13')) return false;
+    const item = ctx.readers.of<ItemsReader>('13').get(n(event, 'itemId'));
+    if (item === undefined) return false;
+    return ctx.registry.table('materials').byIndex(item.material)?.id === STAR_STEEL
+      && ctx.registry.table('items').byIndex(item.type)?.id !== 'bar';
+  }
   if (def.id === 'saw_death' || def.id === 'saw_wisp') {
     const subject = ctx.world.entities.get(n(event, 'id'), C.Position);
     const to = n(event, 'tile') || (subject === undefined ? -1 : ctx.world.map.index(subject.x, subject.y, subject.z));

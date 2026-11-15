@@ -1,9 +1,9 @@
 {
   "$note": "01-testing-strategy.md Golden tests. Rewrite only through `npm run golden:update -- world-hashes`; the commit message must start with `golden:` and say why.",
   "worldMaps": {
-    "test-1|64": "1bb32794cf837f0d",
-    "test-2|64": "821944a3b03e2f9d",
-    "test-3|64": "01d22ac05b29cd63"
+    "test-1|64": "924826c0d42651b0",
+    "test-2|64": "032ad6edb36f28d7",
+    "test-3|64": "9022d4050d078e78"
   },
   "flatTest": {
     "embark": "default",

@@ -129,6 +129,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `attuned` | "Felt the rune answer." | +2 | 12 | linear | 1 | pride | `AttuneSession` with no mishap |
 | `singed` | "Singed my beard in the sanctum." | −3 | 24 | halflife | 1 | none | `Mishap` `singed` |
 | `rune_sick` | "Too much rune. My teeth hum." | −4 | 24 | halflife | 1 | none | `VialDrunk` a fourth vial in a day |
+| `forged_the_star` | "I forged the steel the sky made." | +6 | 168 | linear | 1 | craft | `ItemCrafted` of a piece of `star_steel` (not a bar), the crafter |
 
 ### Weather
 
@@ -182,6 +183,7 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `mended_by_rune` | "The rune closed my wound." | +3 | 48 | linear | 1 | none | `Mended` |
 | `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | `DraughtDrunk` of a calming draught; half, +4, for one within 7 days of the last |
 | `dosed_again` | "Another draught. I am tired of draughts." | −4 | 72 | halflife | 1 | none | `DraughtDrunk` of a calming draught within 7 days of the last |
+| `saw_the_star` | "Stood where the star fell." | +3 | 168 | linear | 1 | pride | `CraterEntered` the dwarf |
 
 ## Announcement flags
 
@@ -205,8 +207,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees | T-555 |
 | `stood_in_the_ribs` | "Stood inside the ribs of something enormous." | +2 | 72 | linear | 1 | pride | `RibsEntered` | T-557 |
 | `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |
-| `saw_the_star` | "Stood where the star fell." | +3 | 168 | linear | 1 | pride | `CraterEntered` | T-560 |
-| `forged_the_star` | "I forged the steel the sky made." | +6 | 168 | linear | 1 | craft | `ItemCrafted` of `star_steel`, the crafter | T-560 |
 | `spat_on` | "The camel spat on me." | −1 | 12 | halflife | 1 | comfort | `SpatOn` | T-561 |
 | `ate_by_candlelight` | "Ate by candlelight." | +1 | 24 | linear | 1 | room | `MealEaten` candlelit | T-563 |
 | `feasted` | "Ate at a feast." | +8 | 48 | linear | 1 | comfort | `MealEaten` feast | T-565 |
@@ -215,7 +215,7 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `thane_pleased` | "The Thane got what the Thane wanted." | +3 | 72 | linear | 1 | social | `WhimJudged` met (everyone) | T-565 |
 | `thane_grumbled` | "Nobody listens to the Thane." | −1 | 72 | linear | 1 | none | `WhimJudged` missed (the Thane) | T-565 |
 
-`stood_in_the_ribs` and `saw_the_star` are announced (`announce: true`), as `first_vein` is not.
+`stood_in_the_ribs` is announced (`announce: true`), as `first_vein` is not.
 
 ### Whims (a new table)
 

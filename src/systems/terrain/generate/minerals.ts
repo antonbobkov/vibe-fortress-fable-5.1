@@ -210,6 +210,8 @@ export function stageMinerals(g: LocalGen): void {
     : new Set<string>();
   const placeOre = (id: string, st: RngStream): void => {
     const m = minerals.byId(id) as MineralRow;
+    // A row of count 0 (`star_iron`) is placed by a trait, never here: no record, no draw.
+    if (m.count === 0) return;
     const expected = expectedOreCount(m, mult.ore, g.spec.traits);
     const record = { mineral: id, expected, placed: 0 };
     g.veins.push(record);

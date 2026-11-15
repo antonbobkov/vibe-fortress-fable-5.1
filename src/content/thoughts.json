@@ -619,6 +619,21 @@
     "announce": false
   },
   {
+    "id": "forged_the_star",
+    "name": "forged the star",
+    "text": "I forged the steel the sky made.",
+    "value": 6,
+    "hours": 168,
+    "decay": "linear",
+    "cap": 1,
+    "group": "craft",
+    "trigger": {
+      "event": "ItemCrafted",
+      "target": "of a piece of star_steel (not a bar), the crafter"
+    },
+    "announce": false
+  },
+  {
     "id": "friend_died",
     "name": "friend died",
     "text": "My friend is dead.",
@@ -1167,6 +1182,21 @@
     "group": "comfort",
     "trigger": {
       "condition": "first outdoor tile after 7+ days underground"
+    },
+    "announce": false
+  },
+  {
+    "id": "saw_the_star",
+    "name": "saw the star",
+    "text": "Stood where the star fell.",
+    "value": 3,
+    "hours": 168,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "CraterEntered",
+      "target": "the dwarf"
     },
     "announce": false
   },

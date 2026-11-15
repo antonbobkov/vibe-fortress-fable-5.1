@@ -325,3 +325,12 @@ Every new row of every table goes at the end of this table, including generated 
 | signatures | geology:sedimentary |
 | signatures | geology:igneous |
 | signatures | geology:metamorphic |
+| palette | star_silver |
+| materials | star_iron |
+| materials | star_steel |
+| minerals | star_iron |
+| metals | star_steel |
+| recipes | smelt_star_iron |
+| regionTraits | starfall |
+| thoughts | forged_the_star |
+| thoughts | saw_the_star |

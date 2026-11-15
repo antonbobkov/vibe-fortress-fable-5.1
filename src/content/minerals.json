@@ -381,6 +381,23 @@
     "color": "sphalerite_brown"
   },
   {
+    "id": "star_iron",
+    "name": "star iron",
+    "class": "ore",
+    "hosts": [],
+    "shape": "cluster",
+    "count": 0,
+    "radius": 0,
+    "yields": [
+      {
+        "metal": "star_steel",
+        "count": 3
+      }
+    ],
+    "value": 30,
+    "color": "star_silver"
+  },
+  {
     "id": "tetrahedrite",
     "name": "tetrahedrite",
     "class": "ore",

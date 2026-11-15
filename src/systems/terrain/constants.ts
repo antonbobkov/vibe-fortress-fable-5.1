@@ -31,6 +31,13 @@ export const BATTLEFIELD_ITEM_COUNT = 30;
 export const BATTLEFIELD_CHANNEL_PERMILLE = 333;
 /** Deepsilver items in a sunken hall vault. */
 export const VAULT_TREASURE = 3;
+/** `starfall`: the crater's radius, drawn uniformly (*unmeasured*). */
+export const CRATER_RADIUS_MIN = 3;
+export const CRATER_RADIUS_MAX = 5;
+/** `starfall`: least distance of the crater's centre from the arrival edge (*unmeasured*). */
+export const CRATER_EDGE_DISTANCE = 20;
+/** `starfall`: chance per mille that a crater floor tile grows wild wyrmtongue (*unmeasured*). */
+export const CRATER_WYRMTONGUE_PERMILLE = 150;
 /** By species. */
 export const TREE_LOGS_MIN = 1;
 export const TREE_LOGS_MAX = 4;

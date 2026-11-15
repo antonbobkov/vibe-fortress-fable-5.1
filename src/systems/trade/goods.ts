@@ -86,7 +86,9 @@ function resolveType(registry: Registry, key: string, rng: RngStream): number {
 function resolveMaterial(registry: Registry, key: string, reputation: number, rng: RngStream): number {
   const materials = registry.table<MaterialRow>('materials');
   if (materials.has(key)) return materials.index(key);
-  const byClass = materials.ids().filter((id) => materials.byId(id)?.class === key && (id !== 'deepsilver' || reputation >= DEEPSILVER_SALE_REP));
+  // 20 § Never sold: a class pool (`metal` crafts) never draws a never-sold material (star steel).
+  const byClass = materials.ids().filter((id) => materials.byId(id)?.class === key && (id !== 'deepsilver' || reputation >= DEEPSILVER_SALE_REP)
+    && !NEVER_SOLD_MATERIALS.includes(id));
   return byClass.length > 0 ? materials.index(rng.pick(byClass)) : 0;
 }
 

@@ -279,5 +279,20 @@
     "civ": "wildwood",
     "key": "material class bone",
     "percent": 60
+  },
+  {
+    "civ": "mountainhome",
+    "key": "material star_steel",
+    "percent": 200
+  },
+  {
+    "civ": "hillfolk",
+    "key": "material star_steel",
+    "percent": 200
+  },
+  {
+    "civ": "wildwood",
+    "key": "material star_steel",
+    "percent": 200
   }
 ]

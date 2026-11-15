@@ -61,5 +61,7 @@ export const CARAVAN_BUNDLE_UNITS: Readonly<Record<string, number>> = {
  */
 export const NEVER_SOLD_ITEMS: readonly string[] = ['wyrmscale', 'hollow_ichor', 'giant_skull'];
 export const NEVER_SOLD_MATERIALS: readonly string[] = ['star_steel', 'silk_cloth', 'wyrmscale', 'hollow_ichor'];
+/** 20 § Trading: the metal a merchant asks about ("Where did you get this?"), once a session. */
+export const STAR_STEEL = 'star_steel';
 /** The reputation at which deepsilver is drawn and may be requested. */
 export const DEEPSILVER_SALE_REP = 75;

@@ -247,6 +247,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `horn_gray` | #A89A86 |  |  | `ivory_cream` | #F2E8CF |  |
 | `feather_white` | #F4F1EA |  |  | `pewter_gray` | #8E949A |  |
 | `brick_red` | #A0482E |  |  | `glass_pale` | #BFE3E6 |  |
+| `star_silver` | #D8E4F0 |  |  |  |  |  |
 
 ## Glyphs by thing
 
@@ -341,7 +342,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 | `honey_amber` | #D49A2A | T-555 |
 | `wax_yellow` | #E8D27A | T-555 |
 | `soap_white` | #EEF0F2 | T-564 |
-| `star_silver` | #D8E4F0 | T-560 |
 | `reindeer_brown` | #8A6A4A | T-561 |
 | `camel_tan` | #C8A472 | T-561 |
 

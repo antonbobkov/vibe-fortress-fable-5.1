@@ -24,6 +24,7 @@ import { stageConversions, stageRarePatches, stageVegetation } from './vegetatio
 import { stageBoulders, stageRamps, stageSnow } from './surface';
 import { stageBattlefieldChannel, stageTraits } from './traits';
 import { stageLight } from './light';
+import { stageStarfall } from './starfall';
 
 export type { SpawnEntry, StackLayer, VeinRecord } from './common';
 
@@ -69,6 +70,8 @@ export interface LocalMapResult {
   readonly spawns: readonly SpawnEntry[];
   /** `gemsprings` warm spring tiles, for 05. */
   readonly warmSprings: readonly TileIndex[];
+  /** `starfall` crater tiles, ascending, for 03's state (`craterTiles`); empty on any other map. */
+  readonly craterTiles: readonly TileIndex[];
   /** Centre column of the volcano pipe, or -1. */
   readonly volcano: number;
 }
@@ -96,6 +99,7 @@ export function newLocalGen(spec: LocalMapSpec, map: Map3D, registry: Registry):
     veins: [],
     spawns: [],
     warmSprings: [],
+    craterTiles: [],
     volcano: -1,
   };
 }
@@ -143,8 +147,10 @@ export function generateLocal(
     traits: () => {
       stageTraits(g);
       stageBattlefieldChannel(g);
-      // 03 § Local map generation, stage 10's end: the conversions, last, so no other stage reads them.
+      // 03 § Local map generation, stage 10's end: the conversions, so no other stage reads them.
       stageConversions(g);
+      // The crater last: every other stream of the map draws on the ground as it was.
+      stageStarfall(g);
     },
     light: () => stageLight(map),
   };
@@ -166,6 +172,7 @@ export function generateLocal(
     veins: g.veins,
     spawns: g.spawns,
     warmSprings: g.warmSprings,
+    craterTiles: g.craterTiles,
     volcano: g.volcano,
   };
 }
