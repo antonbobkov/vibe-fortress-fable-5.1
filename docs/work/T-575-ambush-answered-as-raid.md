@@ -1,4 +1,4 @@
-# T-NEW — The three-year script answers a sprung ambush as a raid
+# T-575 — The three-year script answers a sprung ambush as a raid
 
 **Source:** [T-574's replay of three-years-p4-1](../../reports/data/2026-11-16-t574-ambush-day-297.md) · **Size:** M · **Needs:** — · **Status:** open
 
