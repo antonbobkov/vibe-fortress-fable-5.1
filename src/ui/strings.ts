@@ -621,6 +621,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stockpile.priority': 'Priority {n}',
   'ui.stockpile.links': 'Links: {names}',
   'ui.units.tipsy': '{activity} · Tipsy',
+  'ui.units.whim_met': 'The Thane wishes for {whim}: met',
+  'ui.units.whim_unmet': 'The Thane wishes for {whim}: not yet',
   'ui.item.aged': 'aged',
   'ui.item.vintage': 'vintage',
   'ui.item.age_note': '{stage}, {n} years in the cellar',

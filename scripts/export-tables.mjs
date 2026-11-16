@@ -49,7 +49,7 @@ import {
   exportWeatherStates,
   exportWeatherTables,
 } from './lib/export/world.mjs';
-import { exportNames, exportPersonality, exportThoughts } from './lib/export/social.mjs';
+import { exportNames, exportPersonality, exportThoughts, exportWhims } from './lib/export/social.mjs';
 import {
   exportCaravanGoods,
   exportCavernSpawns,
@@ -142,6 +142,7 @@ function build() {
     weatherTables: exportWeatherTables(),
     personality: exportPersonality(),
     thoughts,
+    whims: exportWhims(),
     names: exportNames(),
     embarkCatalog: exportEmbarkCatalog(),
     embarkPresets: exportEmbarkPresets(),

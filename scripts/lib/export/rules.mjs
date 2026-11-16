@@ -218,7 +218,10 @@ function buildingRow(row, category, extra = {}) {
     wants: isBlank(row.wants) || plain(row.wants ?? '') === '' ? undefined
       // § Special: a drying rack's "5 units of its drying rows" is one want of its setting's rows (`items.md` § Drying).
       : /drying rows/.test(plain(row.wants)) ? [{ match: 'drying', count: int(plain(row.wants)) }]
-        : parseInputs(row.wants).map((w) => ({ match: w.match, count: w.count })),
+        // § Furniture placements: a table's "1 `mug` per adjacent chair, up to 4" (14 § Mugs at the table).
+        : /per adjacent chair/.test(plain(row.wants))
+          ? parseInputs(row.wants).map((w) => ({ match: w.match, count: w.count, per: 'chair', max: Number(/up to (\d+)/.exec(plain(row.wants))?.[1] ?? 4) }))
+          : parseInputs(row.wants).map((w) => ({ match: w.match, count: w.count })),
     glyph: patternMatch === null ? (glyph(row.glyph) ?? undefined) : undefined,
     pattern: patternMatch === null ? extra.pattern : patternMatch[1],
     impassableTiles: extra.impassableTiles,
@@ -364,8 +367,12 @@ function parseOutputs(cell) {
     const note = paren === null ? '' : paren[1];
     const head = note.split(';')[0].trim();
     const tick = /^`([a-z_]+)`$/.exec(head);
+    // "(…; from input 2)": the material of another input than the first (the feast's ingredients).
+    const fromInput = /from input (\d+)/.exec(note);
     let material = { from: 'input', index: 0 };
-    if (m[2] === 'charcoal_bar') {
+    if (fromInput !== null) {
+      material = { from: 'input', index: Number(fromInput[1]) - 1 };
+    } else if (m[2] === 'charcoal_bar') {
       material = { fixed: 'charcoal' };
     } else if (/matching\s+.*material/.test(note)) {
       material = { from: 'input', index: 0, stage: 'next' };

@@ -983,6 +983,21 @@
     ]
   },
   {
+    "id": "feast",
+    "name": "feast",
+    "category": "food/meal/feast",
+    "mult": 60000,
+    "stack": 20,
+    "container": "barrel",
+    "rotDays": 1,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "meal_red",
+    "edible": true,
+    "quality": true
+  },
+  {
     "id": "feather",
     "name": "feather",
     "category": "textile/feather",

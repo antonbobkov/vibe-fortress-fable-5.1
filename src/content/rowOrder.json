@@ -1596,6 +1596,7 @@
     "id": "stood_in_the_ribs"
   },
   {
+<<<<<<< HEAD
     "table": "weapons",
     "id": "horn_bow"
   },
@@ -1638,5 +1639,65 @@
   {
     "table": "recipes",
     "id": "set_ammo_fletched"
+=======
+    "table": "items",
+    "id": "feast"
+  },
+  {
+    "table": "recipes",
+    "id": "cook_feast"
+  },
+  {
+    "table": "thoughts",
+    "id": "feasted"
+  },
+  {
+    "table": "thoughts",
+    "id": "drank_from_a_mug"
+  },
+  {
+    "table": "thoughts",
+    "id": "held_a_feast"
+  },
+  {
+    "table": "thoughts",
+    "id": "thane_pleased"
+  },
+  {
+    "table": "thoughts",
+    "id": "thane_grumbled"
+  },
+  {
+    "table": "whims",
+    "id": "whim_lantern"
+  },
+  {
+    "table": "whims",
+    "id": "whim_mead"
+  },
+  {
+    "table": "whims",
+    "id": "whim_ivory_statue"
+  },
+  {
+    "table": "whims",
+    "id": "whim_fine_meal"
+  },
+  {
+    "table": "whims",
+    "id": "whim_cheese"
+  },
+  {
+    "table": "whims",
+    "id": "whim_spirits"
+  },
+  {
+    "table": "whims",
+    "id": "whim_masterwork"
+  },
+  {
+    "table": "whims",
+    "id": "whim_featherbed"
+>>>>>>> origin/t565-making-do-hall-life
   }
 ]

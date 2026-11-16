@@ -1,0 +1,67 @@
+[
+  {
+    "id": "whim_cheese",
+    "kind": "stock",
+    "item": "cheese",
+    "count": 10,
+    "text": "a store of cheese"
+  },
+  {
+    "id": "whim_featherbed",
+    "kind": "room",
+    "item": "bed",
+    "bedding": "feather",
+    "zone": "bedroom",
+    "thane": true,
+    "count": 1,
+    "text": "a featherbed"
+  },
+  {
+    "id": "whim_fine_meal",
+    "kind": "stock",
+    "item": "fine_meal",
+    "count": 20,
+    "text": "fine meals for everyone"
+  },
+  {
+    "id": "whim_ivory_statue",
+    "kind": "room",
+    "item": "statue",
+    "material": "ivory",
+    "zone": "hearth_hall",
+    "count": 1,
+    "text": "a statue of ivory in the hall"
+  },
+  {
+    "id": "whim_lantern",
+    "kind": "room",
+    "item": "lantern",
+    "zone": "dining_hall",
+    "count": 1,
+    "text": "a lantern in the dining hall"
+  },
+  {
+    "id": "whim_masterwork",
+    "kind": "stock",
+    "item": "any",
+    "quality": 5,
+    "count": 1,
+    "text": "a masterwork, any masterwork"
+  },
+  {
+    "id": "whim_mead",
+    "kind": "stock",
+    "item": "drink",
+    "material": "mead",
+    "count": 20,
+    "text": "a barrel of mead"
+  },
+  {
+    "id": "whim_spirits",
+    "kind": "stock",
+    "item": "drink",
+    "material": "deepfire",
+    "count": 10,
+    "text": "something strong"
+  }
+]

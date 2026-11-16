@@ -29,7 +29,7 @@ export const WANTED_CLASSES: readonly ('barrel' | 'bag' | 'bin')[] = ['barrel', 
  */
 export const CATEGORY_TREE: readonly string[] = [
   'food', 'food/meat', 'food/meat/raw', 'food/meat/cooked', 'food/meat/cured', 'food/fish', 'food/fish/raw', 'food/fish/cured', 'food/plant', 'food/plant/raw',
-  'food/plant/processed', 'food/meal', 'food/meal/easy', 'food/meal/fine', 'food/meal/lavish', 'food/egg', 'food/cheese',
+  'food/plant/processed', 'food/meal', 'food/meal/easy', 'food/meal/fine', 'food/meal/lavish', 'food/meal/feast', 'food/egg', 'food/cheese',
   'food/milk', 'food/fat', 'food/tallow', 'food/salt', 'food/honey', 'food/honeycomb', 'food/wax',
   'drink', 'drink/ale', 'drink/beer', 'drink/wine', 'drink/spirits',
   'seed',
