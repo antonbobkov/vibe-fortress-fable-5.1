@@ -28,7 +28,7 @@ Quality interactions used elsewhere: weapon damage multiplier by metal tier (16)
 
 ```
 (x, y, z) = unpack(i)
-if outdoor(i) or lit(i):        base = surface                                  // cached 06 temperature, or fallback
+if outdoor(i) or (lit(i) and not skylit(i)):  base = surface                    // cached 06 temperature, or fallback
 else:
   depthBelowSurface = surfaceZ(x, y) − z
   if depthBelowSurface ≤ NEAR_SURFACE_DEPTH:
@@ -38,7 +38,7 @@ else:
 return base + tempOverride(i) × 5 + (HEARTH_WARMTH_C if i is inside the built hearth's HEARTH_HALL_SIDE square (14))
 ```
 
-`surface` is 06's cached surface temperature, or `SURFACE_FALLBACK_C = UNDERGROUND_BASE_C` when 06 is absent. A covered tile one or two levels below its column's surface follows the surface: in a −12 °C winter it is −5 °C one level down and 2 °C two levels down, and on a −18 °C night −9 °C and 0 °C. From `NEAR_SURFACE_DEPTH` levels down a tile is `UNDERGROUND_BASE_C` in every climate and every season, which is the depth a cave crop needs to grow through a cold winter (07 § Growth). A forced tile temperature, set by the test/debug `forceTemperature(tile, c)`, takes precedence over the model and is saved; `null` releases it.
+`surface` is 06's cached surface temperature, or `SURFACE_FALLBACK_C = UNDERGROUND_BASE_C` when 06 is absent. A covered tile one or two levels below its column's surface follows the surface: in a −12 °C winter it is −5 °C one level down and 2 °C two levels down, and on a −18 °C night −9 °C and 0 °C. From `NEAR_SURFACE_DEPTH` levels down a tile is `UNDERGROUND_BASE_C` in every climate and every season, which is the depth a cave crop needs to grow through a cold winter (07 § Growth). A `skylit` tile (03 § Outdoor and lit: daylight through glass floors) is lit but covered: it follows the near-surface blend and the deep base like any covered tile, its depth counted from the glass floor, the column's highest solid tile. So a greenhouse one level under a skylight in a −12 °C winter is −5 °C, two levels down 2 °C, and from `NEAR_SURFACE_DEPTH` down `UNDERGROUND_BASE_C`; the day's swing of the surface reaches it in the same proportion; the hearth's square adds `HEARTH_WARMTH_C` and a magma channel its override, as anywhere. Every other `lit` tile (a cave mouth, a hall lit through an opening) takes the surface temperature. A forced tile temperature, set by the test/debug `forceTemperature(tile, c)`, takes precedence over the model and is saved; `null` releases it.
 
 `tempOverride` is an `Int8` per tile written only by this system: the sum of source contributions in units of 5 °C, clamped to ±120 °C. Sources:
 
@@ -164,10 +164,6 @@ Burn durations per material (`burnTicks`) and all property values are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
-
-### A skylit tile is lit but not outdoors (T-558)
-
-`temperatureAt` takes the surface temperature for a tile that is `outdoor`, or `lit` and not `skylit` (03 § Planned, Glass passes light). A `skylit` tile is covered: it follows the near-surface blend and the deep base like any covered tile. So a greenhouse one level under a skylight in a −12 °C winter is −5 °C, two levels down 2 °C, and from `NEAR_SURFACE_DEPTH` down `UNDERGROUND_BASE_C`; the hearth's square adds `HEARTH_WARMTH_C` and a magma channel its override, as anywhere. Every tile that is `lit` today stays as it is: only a skylit tile is new.
 
 ### Ice constructions cool (T-559)
 

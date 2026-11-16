@@ -479,6 +479,7 @@ export class Compositor {
         }
         return this.hillCell(map, i) ?? { glyph: GLYPH_ROUGH_WALL, fg: material, bg: this.black };
       case TileKind.Floor:
+        if ((flags & TileFlag.Constructed) !== 0 && map.isGlass(i)) return this.glassFloorCell(map, i, material);
         return this.floorCell(map, i, flags, material);
       case TileKind.Ramp:
         return { glyph: GLYPH_RAMP, fg: material, bg: this.black };
@@ -582,6 +583,24 @@ export class Compositor {
       ? this.cropFlash
       : this.palette.dim(this.cropGreen, 3 - Math.min(3, crop.stage));
     return { glyph, fg, bg: cell.bg };
+  }
+
+  /**
+   * § Terrain, glass: a glass floor draws `+` in its material's colour over what lies below, dimmed:
+   * magma or water under it shows through. The first level below that is not empty air is seen,
+   * as the look-down sees it; with none, the floor lies on black.
+   */
+  private glassFloorCell(map: MapReader, i: TileIndex, material: Rgb): Cell {
+    const plane = map.w * map.h;
+    for (let k = 1; k <= LEVELS_VISIBLE_BELOW; k += 1) {
+      const j = i - k * plane;
+      if (j < 0) break;
+      if (map.kindAt(j) !== TileKind.Open || map.fluidLevelAt(j) > 0) {
+        const below = this.dim(this.fluidOver(this.terrainCell(map, j), j), k + 1);
+        return { glyph: GLYPH_SMOOTH_FLOOR, fg: material, bg: below.bg !== this.black ? below.bg : below.fg };
+      }
+    }
+    return { glyph: GLYPH_SMOOTH_FLOOR, fg: material, bg: this.black };
   }
 
   /**

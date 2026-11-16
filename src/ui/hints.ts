@@ -2,7 +2,7 @@
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { GameEvent } from '@core/events';
-import { Designation } from '@core/map3d';
+import { Designation, TileFlag, TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { AnimalsReader } from '@systems/animals';
@@ -47,6 +47,8 @@ export interface HintFacts {
   palletMaterials?: boolean;
   /** 14 § The drying rack: the first drying rack was built. */
   rackBuilt?: boolean;
+  /** 14 § Glass: the first glass floor was built over open space (a skylight). */
+  skylightBuilt?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -90,6 +92,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_cellar': return f.cellarFailing === true;
     case 'hint_pallet': return f.palletMaterials === true;
     case 'hint_rack': return f.rackBuilt === true;
+    case 'hint_skylight': return f.skylightBuilt === true;
     default: return false;
   }
 }
@@ -172,6 +175,7 @@ export class HintEngine {
       this.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(fields['material'])?.deepsilver === true) this.markId('hint_deep');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'cage_trap') this.markId('hint_cage');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'drying_rack') this.markId('hint_rack');
+    if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'floor' && this.skylight(readers, Number(fields['id']))) this.markId('hint_skylight');
     // The hospital is for the fortress's own dwarves: a wounded beast or invader does not call for one.
     if (event.type === 'WoundInflicted' && (fields['severity'] === 'serious' || fields['severity'] === 'grievous') && this.fortressDwarf(readers, Number(fields['id']))) this.markId('hint_hospital');
     if (event.type === 'CommandRejected') {
@@ -188,6 +192,16 @@ export class HintEngine {
       const type = readers.of<BuildingsReader>('14').get(id)?.typeId;
       if (fuel && (type === 'smelter' || type === 'forge')) this.markId('hint_fuel');
     }
+  }
+
+  /** A finished glass floor with a skylit room under it, not a wall: a skylight built over open space (`hint_skylight`). */
+  private skylight(readers: ReaderSet, id: number): boolean {
+    if (!readers.has('14')) return false;
+    const origin = readers.of<BuildingsReader>('14').get(id)?.origin;
+    const map = readers.map;
+    if (origin === undefined || !map.isGlass(origin)) return false;
+    const below = origin - map.w * map.h;
+    return below >= 0 && (map.flagsAt(below) & TileFlag.Skylit) !== 0 && map.kindAt(below) !== TileKind.Wall;
   }
 
   /** Units of a pallet's materials in stock: cloth, wool, straw or reeds (`hint_pallet`). */
@@ -313,6 +327,7 @@ export class HintEngine {
       }),
       palletMaterials: this.pending('hint_pallet'),
       rackBuilt: this.pending('hint_rack'),
+      skylightBuilt: this.pending('hint_skylight'),
     };
   }
 }

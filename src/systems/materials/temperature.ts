@@ -22,13 +22,15 @@ import {
 } from './constants';
 
 /**
- * `temperatureAt(i)` without the override: the surface temperature outdoors or in the light;
+ * `temperatureAt(i)` without the override: the surface temperature outdoors or in the light (a
+ * skylit tile is covered);
  * underground, blended into `UNDERGROUND_BASE_C` over `NEAR_SURFACE_DEPTH` levels (truncating),
  * then rising by `DEEP_HEAT_PER_Z` per level below `DEEP_HEAT_START_Z`.
  */
 export function baseTemperature(map: Map3D, i: TileIndex, surfaceC: number): number {
   const f = map.flagsAt(i);
-  if ((f & (TileFlag.Outdoor | TileFlag.Lit)) !== 0) return surfaceC;
+  // A skylit tile is lit but covered: only daylight through glass reaches it (`05` § Temperature model).
+  if ((f & TileFlag.Outdoor) !== 0 || (f & (TileFlag.Lit | TileFlag.Skylit)) === TileFlag.Lit) return surfaceC;
   const x = map.xOf(i);
   const y = map.yOf(i);
   const z = map.zOf(i);

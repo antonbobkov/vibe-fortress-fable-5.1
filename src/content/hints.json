@@ -188,5 +188,10 @@
     "id": "hint_rack",
     "trigger": "first drying_rack built",
     "text": "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain."
+  },
+  {
+    "id": "hint_skylight",
+    "trigger": "first glass floor built over open space",
+    "text": "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them."
   }
 ]

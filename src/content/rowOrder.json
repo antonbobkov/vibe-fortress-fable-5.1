@@ -1402,5 +1402,9 @@
   {
     "table": "thoughts",
     "id": "saw_the_star"
+  },
+  {
+    "table": "hints",
+    "id": "hint_skylight"
   }
 ]

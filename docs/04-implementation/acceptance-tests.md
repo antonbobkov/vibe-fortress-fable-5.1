@@ -73,6 +73,7 @@ Malformed commands for an unknown huntable species, null work order or patch, an
 | `pl_cave_cycle` | 4×4 dimcap plot, 10 seeds, 1 farmer | first harvest at 16 ± 1 days; yield 3–5 per tile; seeds ≥ 10 after harvest |
 | `pl_light_rule` | dimcap on a lit tile; barley on a dark tile | neither grows; UI refuses mixed plots (`light_mismatch`) |
 | `pl_frost` | winter barley crop, temp forced to −5 | `CropDied { frost }` |
+| `pl_greenhouse` | temperate winter, clear: soil plots one level under glass floors (cabbage, barley), one in the hearth's square (barley), a mud plot three levels under glass (strawberry), and an outdoor cabbage; the rest of winter | the plots are skylit surface plots; cabbage ripens and barley grows under half the hours and does not; the hearth's barley grows over half the hours; the strawberry grows every hour; the outdoor cabbage does not grow |
 | `pl_regrowth` | clear a 20×20 grass area of trees; count saplings at 2 years and trees 30 days later | ≥ 5 saplings at the second anniversary, ≥ 2 trees after the additional 30 days |
 
 ## 08 Animals

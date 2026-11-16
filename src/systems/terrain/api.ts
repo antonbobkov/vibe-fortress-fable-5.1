@@ -15,7 +15,7 @@ import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { CoreServices, TerrainApi } from '@core/system';
 import type { EntityId, Priority, TileIndex } from '@core/types';
-import { computeLitLevel } from './generate/light';
+import { computeLitLevel, nextLight } from './generate/light';
 import type { TerrainFacts } from './facts';
 import { constructionItem, isStructuralKind, isSupportKind, precondition } from './rules/transitions';
 import { sortedIndexOf, sortedInsert, sortedRemove, type PendingTerrain } from './state';
@@ -127,6 +127,8 @@ export class TerrainCore implements TerrainApi {
     if (this.map.hasFlag(i, flag) === value) return;
     this.map.setFlag(i, flag, value);
     this.changed.push(i);
+    // A glass tile passes light only once it is constructed (`03` § Outdoor and lit).
+    if (flag === TileFlag.Constructed && this.map.glassMaterials[this.map.materialAt(i)] === 1) this.recomputeColumn(i);
     if (flag === TileFlag.Constructed) {
       this.queueSupport(i);
       this.settle();
@@ -187,6 +189,9 @@ export class TerrainCore implements TerrainApi {
   private write(i: TileIndex, kind: TileKind, material: number, set: number, clear: number): void {
     const map = this.map;
     const kindChanged = map.kindAt(i) !== kind;
+    const oldMaterial = map.materialAt(i);
+    // A tile that turns to or from glass changes the light below it (`03` § Outdoor and lit).
+    const glassChanged = oldMaterial !== material && (map.glassMaterials[oldMaterial] === 1 || map.glassMaterials[material] === 1);
     map.setKind(i, kind, material);
     if (set !== 0 || clear !== 0) {
       const before = map.flagsAt(i);
@@ -201,6 +206,8 @@ export class TerrainCore implements TerrainApi {
       this.recomputeColumn(i);
       for (const n of map.neighbors6(i)) this.queueSupport(n);
       this.queueSupport(i);
+    } else if (glassChanged) {
+      this.recomputeColumn(i);
     }
     this.revalidateDesignation(i);
     const below = map.below(i);
@@ -213,22 +220,27 @@ export class TerrainCore implements TerrainApi {
     if (!precondition(this.map, i, d, this.host.facts)) this.clearDesignation(i);
   }
 
-  /** `03` § Outdoor and lit: "Recomputed for the whole column when any tile in the column changes kind." */
+  /**
+   * `03` § Outdoor and lit: `outdoor` and `skylit` are "recomputed for the whole column when any tile
+   * in the column changes kind", or changes to or from glass. One pass down from the sky, as at
+   * generation (`computeOutdoorColumn`); a level whose flags moved is marked for the `lit` pass.
+   */
   private recomputeColumn(i: TileIndex): void {
     const map = this.map;
     const x = map.xOf(i);
     const y = map.yOf(i);
-    let sky = true;
+    let light = 0;
     for (let z = map.d - 1; z >= 0; z -= 1) {
       const t = map.index(x, y, z);
       const f = map.flags[t] as number;
-      const next = sky ? f | TileFlag.Outdoor : f & ~TileFlag.Outdoor;
+      const set = light === 0 ? TileFlag.Outdoor : light === 1 ? TileFlag.Skylit : 0;
+      const next = (f & ~(TileFlag.Outdoor | TileFlag.Skylit)) | set;
       if (next !== f) {
         map.flags[t] = next;
         map.markChunkDirty(t, true, false);
         this.litDirty[z] = 1;
       }
-      if (map.kind[t] !== TileKind.Open) sky = false;
+      light = nextLight(map, t, light);
     }
     this.litDirty[map.zOf(i)] = 1;
   }

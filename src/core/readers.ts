@@ -28,6 +28,8 @@ export interface MapReader {
   fluidLevelAt(i: TileIndex): number;
   isWalkable(i: TileIndex, movementClass: MovementClass): boolean;
   isOutdoor(i: TileIndex): boolean;
+  /** A constructed tile of glass (`14` § Glass): `Map3D.isGlassAt`. */
+  isGlass(i: TileIndex): boolean;
   /** A fresh array of the six face neighbours that exist. */
   neighbors(i: TileIndex): TileIndex[];
   columnSurfaceZ(x: number, y: number): number;
@@ -135,6 +137,7 @@ export class ReaderSet {
       fluidLevelAt: (i) => map.fluidLevelAt(i),
       isWalkable: (i, movementClass) => walkable(i, movementClass),
       isOutdoor: (i) => map.hasFlag(i, 1 << 9),
+      isGlass: (i) => map.isGlassAt(i),
       neighbors: (i) => map.neighbors6(i),
       columnSurfaceZ: (x, y) => map.columnSurfaceZ(x, y),
       chunkOf: (i) => map.chunkOf(i),

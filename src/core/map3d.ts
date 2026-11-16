@@ -47,7 +47,7 @@ export enum Designation {
   Harvest = 12,
 }
 
-/** `data-model.md` § Flags. Bits 14-15 are reserved. */
+/** `data-model.md` § Flags. Bit 15 is reserved. */
 export enum TileFlag {
   Discovered = 1 << 0,
   Constructed = 1 << 1,
@@ -63,10 +63,12 @@ export enum TileFlag {
   Restricted = 1 << 11,
   Web = 1 << 12,
   Wet = 1 << 13,
+  /** 03 § Outdoor and lit: daylight reaches the covered tile through glass floors (a skylight). */
+  Skylit = 1 << 14,
 }
 
-/** Every flag bit that is defined; bits 14-15 are reserved and always clear. */
-export const TILE_FLAG_MASK = 0x3fff;
+/** Every flag bit that is defined; bit 15 is reserved and always clear. */
+export const TILE_FLAG_MASK = 0x7fff;
 
 /** Fluid type, the fluid byte's bit 3. */
 export enum FluidType {
@@ -181,6 +183,13 @@ export class Map3D {
   readonly chunkLayers: number;
 
   private readonly wh: number;
+
+  /**
+   * 1 at the index of every material of class `glass` (`materials.md`), set once by the game from
+   * the registry; empty on a bare map, which then has no glass. 03's light, 22's sight and 23 read
+   * it through {@link isGlassAt}.
+   */
+  glassMaterials: Uint8Array = new Uint8Array(0);
 
   /**
    * Maps smaller than the standard size are used by tests and by the hand-built fixtures of
@@ -348,6 +357,14 @@ export class Map3D {
       if (this.kind[this.index(x, y, z)] !== TileKind.Open) return z;
     }
     return -1;
+  }
+
+  /**
+   * A constructed tile of glass (`14` § Glass): its material is of class `glass` and it is
+   * `constructed`. The kind is the caller's to check (a glass wall passes sight, a glass floor light).
+   */
+  isGlassAt(i: TileIndex): boolean {
+    return this.glassMaterials[this.material[i] ?? 0] === 1 && ((this.flags[i] ?? 0) & TileFlag.Constructed) !== 0;
   }
 
   // ---------- flags ----------

@@ -9,24 +9,39 @@
 import { TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import { LIGHT_SPREAD } from '../constants';
 
+/** The light a column scan carries down: open sky, daylight through glass floors, or none. */
+const SKY = 0;
+const GLASS = 1;
+const DARK = 2;
+
 /**
- * `outdoor` for one column: a tile is outdoor when every tile above it is `open`, so scanning down
- * from the sky, the open tiles and the first non-open tile are outdoor.
+ * `outdoor` and `skylit` for one column, in one pass down from the sky. A tile is outdoor when every
+ * tile above it is `open`, so the open tiles and the first non-open tile are outdoor. A constructed
+ * glass floor keeps the light going as an open tile does: the tiles below it that are reached
+ * before the first other non-open tile (that one included) are `skylit`, not outdoor.
  */
 export function computeOutdoorColumn(map: Map3D, x: number, y: number): void {
-  let sky = true;
+  let light = SKY;
   for (let z = map.d - 1; z >= 0; z -= 1) {
     const i = map.index(x, y, z);
     const f = map.flags[i] as number;
-    map.flags[i] = sky ? f | TileFlag.Outdoor : f & ~TileFlag.Outdoor;
-    if (map.kind[i] !== TileKind.Open) sky = false;
+    const set = light === SKY ? TileFlag.Outdoor : light === GLASS ? TileFlag.Skylit : 0;
+    map.flags[i] = (f & ~(TileFlag.Outdoor | TileFlag.Skylit)) | set;
+    light = nextLight(map, i, light);
   }
 }
 
+/** The light below tile `i`, given the light that reached it. */
+export function nextLight(map: Map3D, i: number, light: number): number {
+  const kind = map.kind[i];
+  if (kind === TileKind.Open || light === DARK) return light;
+  return kind === TileKind.Floor && map.isGlassAt(i) ? GLASS : DARK;
+}
+
 /**
- * `lit` for one level: outdoor tiles, and open or walkable tiles within `LIGHT_SPREAD` tiles
- * horizontally (8-neighbourhood steps) of an outdoor open tile on the same level, the light
- * passing through anything that is not a wall.
+ * `lit` for one level: outdoor and skylit tiles, and open or walkable tiles within `LIGHT_SPREAD`
+ * tiles horizontally (8-neighbourhood steps) of an outdoor open tile on the same level, the light
+ * passing through anything that is not a wall, and through a constructed glass wall.
  */
 export function computeLitLevel(map: Map3D, z: number): void {
   const n = map.w * map.h;
@@ -50,7 +65,8 @@ export function computeLitLevel(map: Map3D, z: number): void {
           const ny = y + dy;
           if (nx < 0 || ny < 0 || nx >= map.w || ny >= map.h) continue;
           const nc = ny * map.w + nx;
-          if (dist[nc] !== -1 || map.kind[z * n + nc] === TileKind.Wall) continue;
+          // A constructed glass wall does not stop the light (03 § Outdoor and lit).
+          if (dist[nc] !== -1 || (map.kind[z * n + nc] === TileKind.Wall && !map.isGlassAt(z * n + nc))) continue;
           dist[nc] = step;
           next.push(nc);
         }
@@ -62,7 +78,7 @@ export function computeLitLevel(map: Map3D, z: number): void {
     const i = z * n + c;
     const f = map.flags[i] as number;
     const kind = map.kind[i] as TileKind;
-    const lit = (f & TileFlag.Outdoor) !== 0 || (dist[c] !== -1 && (kind === TileKind.Open || isSolidBottomed(kind)));
+    const lit = (f & (TileFlag.Outdoor | TileFlag.Skylit)) !== 0 || (dist[c] !== -1 && (kind === TileKind.Open || isSolidBottomed(kind)));
     map.flags[i] = lit ? f | TileFlag.Lit : f & ~TileFlag.Lit;
   }
 }

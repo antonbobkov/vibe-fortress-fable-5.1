@@ -359,3 +359,4 @@ Every new row of every table goes at the end of this table, including generated 
 | regionTraits | starfall |
 | thoughts | forged_the_star |
 | thoughts | saw_the_star |
+| hints | hint_skylight |
