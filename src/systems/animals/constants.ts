@@ -29,6 +29,14 @@ export const SPAWN_PERMILLE = 150;
 export const DANGEROUS_QUIET_DAYS = 28;
 /** Tiles from any dwarf. */
 export const SPAWN_MIN_DISTANCE = 25;
+/** `08` § Wild herds: a herd's spawn chance a day at weight 100, below its cap (*unmeasured*). */
+export const HERD_SPAWN_PERMILLE = 30;
+/** `08` § Wild herds: the stream the herds draw on, so the ordinary wild spawning draws as before. */
+export const HERDS_STREAM = '08.herds';
+/** `08` § Products, The camel spits: a milking or shearing of a spitting species ends in a spit this often (*unmeasured*). */
+export const SPIT_PERMILLE = 50;
+/** `08` § Products, The camel spits: the species that spit. */
+export const SPITTING_SPECIES: readonly string[] = ['camel'];
 /** Growing-season capacity allowance; winter needs accessible cave moss. */
 export const GRASS_PER_GRAZER = 48;
 /** `08` § Grazing shrubs: a grazable shrub counts as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile in a pasture's capacity. */

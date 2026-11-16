@@ -1594,5 +1594,41 @@
   {
     "table": "thoughts",
     "id": "stood_in_the_ribs"
+  },
+  {
+    "table": "palette",
+    "id": "reindeer_brown"
+  },
+  {
+    "table": "palette",
+    "id": "camel_tan"
+  },
+  {
+    "table": "creatures",
+    "id": "reindeer"
+  },
+  {
+    "table": "creatures",
+    "id": "camel"
+  },
+  {
+    "table": "thoughts",
+    "id": "spat_on"
+  },
+  {
+    "table": "materials",
+    "id": "reindeer_meat"
+  },
+  {
+    "table": "materials",
+    "id": "reindeer_hide"
+  },
+  {
+    "table": "materials",
+    "id": "camel_meat"
+  },
+  {
+    "table": "materials",
+    "id": "camel_hide"
   }
 ]

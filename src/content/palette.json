@@ -117,6 +117,10 @@
     "hex": "#5E8C4A"
   },
   {
+    "id": "camel_tan",
+    "hex": "#C8A472"
+  },
+  {
     "id": "cat_gray",
     "hex": "#A0A0A0"
   },
@@ -812,6 +816,10 @@
   {
     "id": "reed_green",
     "hex": "#9AA65A"
+  },
+  {
+    "id": "reindeer_brown",
+    "hex": "#8A6A4A"
   },
   {
     "id": "root_amber",

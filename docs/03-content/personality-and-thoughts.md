@@ -117,6 +117,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `lab_stink` | "The laboratory stinks." | −1 | 12 | halflife | 1 | comfort | passing within 3 tiles of a laboratory that spoiled a batch today |
 | `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle |
 | `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees |
+| `spat_on` | "The camel spat on me." | −1 | 12 | linear | 1 | comfort | `SpatOn` |
 | `smoky_hall` | "The hall is full of smoke." | −1 | 12 | linear | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS` of the workshop, or the dwarf it names (tallow smoke) |
 | `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `ItemCrafted` of `smoke_meat` or `smoke_fish` within `SMOKE_RADIUS` of the smokehouse, not its worker; `{meat}` is the meat's species |
 
@@ -209,7 +210,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
 | `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |
-| `spat_on` | "The camel spat on me." | −1 | 12 | halflife | 1 | comfort | `SpatOn` | T-561 |
 | `feasted` | "Ate at a feast." | +8 | 48 | linear | 1 | comfort | `MealEaten` feast | T-565 |
 | `held_a_feast` | "We held a feast." | +3 | 72 | linear | 1 | social | `ItemCrafted` of a feast (everyone) | T-565 |
 | `drank_from_a_mug` | "Drank from a proper mug." | +1 | 24 | linear | 1 | room | `MealEaten` at a seat with its mug | T-565 |

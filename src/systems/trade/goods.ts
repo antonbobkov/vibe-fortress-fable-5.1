@@ -24,6 +24,8 @@ export interface GoodsEntry {
   container?: string;
   /** Units per drawn count, in place of `CARAVAN_BUNDLE_UNITS` (a sundries entry names its own). */
   units?: number;
+  /** The biomes the entry is offered in ("Camels (in `desert`, …)"); absent means every site. */
+  biomes?: string[];
 }
 interface CivGoods { civ: Civ; entries: GoodsEntry[] }
 interface ItemRow { id: string; mult: number; quality: boolean; tags?: string[] }
@@ -63,6 +65,8 @@ function entriesFor(registry: Registry, civ: Civ): GoodsEntry[] {
 export interface GoodsSite {
   /** The Wildwood's home is farther from the site than the Hillfolk's: the Hillfolk bring honey. */
   readonly wildwoodFarther?: boolean;
+  /** The site's biome: an entry with `biomes` is offered only in one of them (the Hillfolk's camels). */
+  readonly biome?: string;
 }
 
 export function eligibleGoodsEntries(registry: Registry, civ: Civ, reputation: number, site: GoodsSite = {}): GoodsEntry[] {
@@ -70,6 +74,8 @@ export function eligibleGoodsEntries(registry: Registry, civ: Civ, reputation: n
     if (entry.materials.length === 1 && entry.materials[0]?.material === 'deepsilver') return reputation >= DEEPSILVER_SALE_REP;
     // "Honey (when the Wildwood's home is farther than the Hillfolk's)".
     if (civ === 'hillfolk' && entry.sundries === true && entry.item === HILLFOLK_HONEY) return site.wildwoodFarther === true;
+    // "Camels (in `desert`, `badlands`, `savanna`)": only where the site's biome is one of them.
+    if (entry.biomes !== undefined) return site.biome !== undefined && entry.biomes.includes(site.biome);
     return true;
   }).map((entry) => {
     const keys = Array.isArray(entry.item) ? entry.item : [entry.item];

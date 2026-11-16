@@ -42,6 +42,7 @@ interface PlantsState { stateVersion: 1; cropAtTile: [TileIndex, EntityId][]; pl
 
 interface AnimalsState { stateVersion: 1; breedingCaps: [Idx<SpeciesDef>, number][]; speciesCounts: [Idx<SpeciesDef>, { wild: number; tame: number }][];
   nestBoxes: EntityId[]; caged: [EntityId /* cage item */, EntityId /* creature, kept as a dormant entity */][]; initializedCaverns?: number[]; lastDangerousTick?: Tick /* T-545 */;
+  spatOnDay?: number /* the day of the last camel spit's note; omitted while none */;
   hives?: EntityId[] /* built hives, ascending; omitted when none */; combs?: [EntityId /* comb item */, EntityId /* its hive */][] /* omitted when none */; rng: RngState }
 
 interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAssignments: [EntityId, EntityId][];

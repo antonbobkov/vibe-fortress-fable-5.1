@@ -208,10 +208,24 @@ function exportButcherParts(tables) {
   return bySpecies;
 }
 
+/** creatures.md § Wild herds: one row per species -> { species: { biomes, group, season? } }. */
+function exportHerds(tables) {
+  const bySpecies = new Map();
+  for (const row of asObjects(findTable(tables, 'Wild herds', 'group'))) {
+    bySpecies.set(id(row.species), compact({
+      biomes: weighted(row['biomes (weight)']).map((w) => ({ biome: w.key, weight: w.weight })),
+      group: range(row.group) ?? [1, 1],
+      season: seasons(row.season) ?? undefined,
+    }));
+  }
+  return bySpecies;
+}
+
 export function exportCreatures() {
   const tables = readTables(join(CONTENT_DIR, 'creatures.md'));
   const remains = exportRemains(tables);
   const butcherParts = exportButcherParts(tables);
+  const herds = exportHerds(tables);
   const out = [];
   for (const section of SECTIONS) {
     const table = findTable(tables, section, 'plan');
@@ -257,6 +271,7 @@ export function exportCreatures() {
             : plain(row['gear (see caravan-goods and threat-schedules)']),
           remains: remains.get(sid),
           butcherParts: butcherParts.get(sid),
+          herd: herds.get(sid),
           glyph: glyph(row.glyph),
           fg: plain(row.fg) === 'state color' ? 'dwarf_normal' : id(row.fg),
         }),

@@ -407,3 +407,12 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | carve_fossil |
 | recipes | carve_ivory_statue |
 | thoughts | stood_in_the_ribs |
+| palette | reindeer_brown |
+| palette | camel_tan |
+| creatures | reindeer |
+| creatures | camel |
+| thoughts | spat_on |
+| materials | reindeer_meat |
+| materials | reindeer_hide |
+| materials | camel_meat |
+| materials | camel_hide |

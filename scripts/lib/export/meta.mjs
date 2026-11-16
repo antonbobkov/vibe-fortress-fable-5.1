@@ -409,6 +409,14 @@ export function exportDeepThresholds() {
 
 const CARAVAN_CIVS = ['mountainhome', 'hillfolk', 'wildwood'];
 
+/** An entry named "Camels (in `desert`, `badlands`, `savanna`)" is offered only in those biomes (20 § Sundries). */
+function entryBiomes(cell) {
+  const m = /\(in ([^)]*)\)/.exec(String(cell ?? ''));
+  if (m === null) return undefined;
+  const biomes = ticked(m[1]);
+  return biomes.length > 0 ? biomes : undefined;
+}
+
 export function exportCaravanGoods() {
   const tables = readTables(join(CONTENT_DIR, 'caravan-goods.md'));
   return CARAVAN_CIVS.map((civ) => {
@@ -439,6 +447,7 @@ export function exportCaravanGoods() {
         container: inContainer?.[1],
         rare: rareCell.length > 0 ? true : undefined,
         rareAdds: rareAdds.length > 0 ? rareAdds : undefined,
+        biomes: entryBiomes(row.Entry),
       });
     });
     // The Sundries table (20 § Sundries): a lot names its own units ("`salt` ×10 in `bag`").
@@ -459,6 +468,7 @@ export function exportCaravanGoods() {
         container: inContainer?.[1],
         sundries: true,
         units: units === null ? 1 : Number(units[1]),
+        biomes: entryBiomes(row.Sundries),
       }));
     }
     const extraTable = tables.find(
