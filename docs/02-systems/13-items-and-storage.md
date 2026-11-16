@@ -38,8 +38,8 @@ clothing/  body  legs  feet
 tool/      pick  axe  fishing_rod  crutch  candle
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather  straw  reed
-medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland
-farm/      bone_ash  potash  dung
+medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland  soap
+farm/      bone_ash  potash  dung  compost
 refuse/    corpse  skeleton  rotten  part
 ```
 
@@ -156,6 +156,12 @@ Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits m
 - The stage is part of the value (§ Value: wealth is re-accounted on the change of stage). An aged or vintage cheese leaves the rot queue and rots no more. The name says the stage before the material: "a barrel of aged bellwine", "a wheel of vintage cheese" (24). Stacks merge only at the same stage, and a merged stack keeps the fewer cellar days of the two; a split part keeps both.
 - Wealth from a cellar raises renown, and renown sizes raids (18): a fortress that hoards vintage is worth raiding, and a thief takes the most valuable thing it can reach.
 
+### The compost heap
+
+- Zone type `compost` (a compost heap, 14): 13 gives it a `Stockpile` record with a fixed filter, `refuse/rotten` and `farm/dung` with rot allowed, no wanted containers and priority `HAUL_PRIORITY`. Its tiles are slots for those items, filled by hauling as a stockpile's are, one item to a tile: an item goes onto an empty tile whatever container its type wants (dung needs no bag on a heap), and joins no stack. The stockpile commands (`SetStockpileFilter`, `SetStockpileContainers`, `SetStockpilePriority`, `LinkStockpile`, `SetStockpileCellar`) refuse a heap with `not_found`, and it is no link source. Straw is not composted: it is a stuffing and a pallet's material.
+- Each `HourPassed`, every item lying on a heap tile (not in a container, not carried) of category `refuse/rotten` or `farm/dung` that has no count yet gets one: `Item.compostAt`, the tick it turns, `COMPOST_DAYS_ROTTEN` days on for rotten food and `COMPOST_DAYS_DUNG` for dung. An item whose tick has come is destroyed (`ItemDestroyed { reason: 'composted' }`) and as many `compost` (of material `compost`) as it had units take its place on the same tile, in ascending id order. An item picked up or put in a container loses its count, and so does an item on a tile the heap no longer covers; it starts again on a heap. No rng.
+- Rotten food on a heap does not rot further: its rot stops there (speed 0), so it is not destroyed at its "gone" stage while it waits. It is still rotting, so indoors it emits miasma as a refuse pile does: put the heap outside. Compost is a fertilizer (07 § Fertilizer): a heap turns the fortress's spoiled food and its pastures' dung into a bigger harvest.
+
 ### Corpses
 
 A corpse is an item of type `refuse/corpse` with `Corpse { species, diedTick, wornItems[] }`, created on `CreatureDied` at the death tile with the creature's size as its weight (heavier than most things: hauling a troll corpse is slow). A species with `remains` ([creatures.md](../03-content/creatures.md) § Remains) leaves them on its corpse: each is spawned at the death tile in the material that shares its id, flagged `foreign`, and joins `wornItems`, so `strip_corpse` recovers it as it recovers gear (25 § Rare materials). No rng. Dwarf corpses use `skull_bone` as material, preserving species and dwarf name on the `Corpse` component; they want hauling to a coffin (14 burial job) before a refuse stockpile. Sapient hostile corpses can be dumped or hauled to refuse; they cannot be butchered.
@@ -181,7 +187,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ## State
 
-- `Item` (with `cellarDays` and `age`, both omitted when 0), `Container`, `Corpse` components; `itemsAtTile` via the spatial index; `wantsHauling`, `noHome`; `slotReservations`; `rotQueue`; `miasmaTiles`; `counts`; `wealthCached`; `Stockpile` components (with `cellar`, `cellarOk`, `cellarReason` and `cellarC`, each omitted when off or absent) and `stockpileTiles: Map<TileIndex, stockpileId>`.
+- `Item` (with `cellarDays`, `age` and `compostAt`, each omitted when 0), `Container`, `Corpse` components; `itemsAtTile` via the spatial index; `wantsHauling`, `noHome`; `slotReservations`; `rotQueue`; `miasmaTiles`; `counts`; `wealthCached`; `Stockpile` components (with `cellar`, `cellarOk`, `cellarReason` and `cellarC`, each omitted when off or absent) and `stockpileTiles: Map<TileIndex, stockpileId>`.
 - `dirtyTypes`, `fullStockpiles` and `buildingWealth`; queued `pendingDeaths` retain foreign origin.
 - Rng stream (ammunition breakage, not used here; reserved).
 
@@ -216,11 +222,11 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Events consumed
 
-`CreatureDied` (release the creature's item ownership; create corpse), `DayPassed` (judge the cellars and age what lies in the working ones), `ZoneChanged` (stockpiles), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `AttackResolved` (a pot or a clay jug its defender carries breaks, § Containers in play), `TemperatureTick` (rot speed sampling for the head bucket).
+`CreatureDied` (release the creature's item ownership; create corpse), `DayPassed` (judge the cellars and age what lies in the working ones), `HourPassed` (the compost heaps), `ZoneChanged` (stockpiles, hospitals and compost heaps), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `AttackResolved` (a pot or a clay jug its defender carries breaks, § Containers in play), `TemperatureTick` (rot speed sampling for the head bucket).
 
 ### Events emitted
 
-`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `ItemAged { id, stage }`, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`, and `ItemReleased { itemId, jobId }` when creature-removal cleanup releases a personal reservation.
+`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `ItemAged { id, stage }`, `ItemDestroyed { reason: 'composted' }` for an item turned on a compost heap, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`, and `ItemReleased { itemId, jobId }` when creature-removal cleanup releases a personal reservation.
 
 ### Registrations
 
@@ -237,6 +243,7 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 - Stocks panel: category tree with counts and values; stocked category leaves expand to type rows and individual item stacks. An aged stack names its stage and its years in the cellar: "aged bellwine ×20 (aged, 1 year in the cellar)". Forbid, dump and melt act on the selected scope. With mixed materials in a type, melt addresses only its metal stacks.
 - Item inspection: every field.
 - Glyphs: `%` food and corpses (corpses in dark red), `☼` drink barrels... the full glyph table is in `03-content/glyphs-and-colors.md`; the rule is one glyph per category node at depth 2.
+- Zones menu › Compost heap (`[S-k]`): drag a rectangle; the heap has no settings. Its inspector counts the items on it waiting to turn ("Turning: 4 items").
 - Hints: "Stockpiles need barrels for drink and bags for seeds", "Refuse rots: keep the refuse pile outside", and `hint_cellar` while a stockpile with the cellar setting on is not a working cellar.
 
 ## Tuning constants
@@ -259,6 +266,7 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 | `CELLAR_MIN_C` / `CELLAR_MAX_C` | 2 / 14 | °C: a working cellar's tiles all lie in this range (*unmeasured*) |
 | `AGED_VALUE_PERCENT` | 150 | An aged item's value, percent of its young value (*unmeasured*) |
 | `VINTAGE_VALUE_PERCENT` | 250 | A vintage item's value, percent of its young value (*unmeasured*) |
+| `COMPOST_DAYS_ROTTEN` / `COMPOST_DAYS_DUNG` | 14 / 7 | Days rotten food or dung lies on a compost heap before it turns to compost (*unmeasured*) |
 
 Rot days per type, stack sizes and value multipliers are content.
 
@@ -277,9 +285,8 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 
 ```
 food/      meal/feast (T-565)
-medical/   soap (T-564)
 tool/      firebrand (T-559)
-farm/      compost (T-564)  guano (T-556)
+farm/      guano (T-556)
 ```
 
 The Food preset takes the new food leaves (as it took honey, honeycomb and wax); Furniture and Cloth and leather take theirs by their nodes.
@@ -289,9 +296,3 @@ The Food preset takes the new food leaves (as it took honey, honeycomb and wax);
 An item of material class `ice` (a `stone_block` of `ice`, cut by `harvest_ice`) melts: it rots on the rot queue with `ICE_MELT_DAYS` in place of its type's `rotDays`, with every speed factor of § Rot (stopped below `FREEZE_C`, so it keeps outdoors in winter and in an ice larder), and at 100% it is destroyed (`ItemDestroyed { reason: 'melted' }`) with no stale or rotting stage and no miasma. Ice blocks are cut in winter and used in winter.
 
 - Constants: `ICE_MELT_DAYS` 7.
-
-### The compost heap (T-564)
-
-- Zone type `compost` (a heap): its tiles are slots for `refuse/rotten` and `farm/dung`, filled by hauling as a stockpile's are, at `HAUL_PRIORITY`. Allows rot. Like a refuse pile it emits miasma indoors: put it outside.
-- An item on a compost tile turns to `compost` after `COMPOST_DAYS_ROTTEN` days (rotten food) or `COMPOST_DAYS_DUNG` (dung), counted from its arrival (`Item.compostAt`, a tick): one `compost` for each unit, on the same tile. Rotten food there is not destroyed at its "gone" stage while it waits.
-- Constants: `COMPOST_DAYS_ROTTEN` 14, `COMPOST_DAYS_DUNG` 7. Save: `Item.compostAt` (omitted when 0).

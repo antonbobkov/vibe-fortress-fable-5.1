@@ -7,8 +7,10 @@
  * plots (hourly): for each plot, species = settings.cropBySeason[season]
  *   for each tile with no crop and no job: a seed in stock → plant job, else PlotNeedsSeeds once
  * harvest: crops at stage 3 with `autoHarvest` (11) or a `harvest` designation
- * plant  onComplete: consume the delivered seed, create the Crop at stage 0, CropPlanted
- * harvest onComplete: yieldCount of yieldItem (rolled, +1 per 5 farming levels, capped at max + 2),
+ *   a plot with `fertilize` on: one item tagged `fertilizer` as a second input while one is to be had
+ * plant  onComplete: consume the delivered seed (and fertilizer), create the Crop at stage 0, CropPlanted
+ * harvest onComplete: yieldCount of yieldItem (rolled, +1 per 5 farming levels, capped at max + 2;
+ *                     FERTILIZER_YIELD_BONUS more for a fertilized crop),
  *                     SEEDS_PER_HARVEST seeds, the secondary yield, destroy the crop, CropHarvested
  * ```
  *
@@ -26,10 +28,10 @@ import type { ItemFilter, Job, JobSink, JobsReader } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import { rollQuality } from '@systems/terrain/rules/engrave';
-import { HARVEST_TICKS, PLANT_TICKS, SEEDS_PER_HARVEST } from './constants';
+import { FERTILIZER_YIELD_BONUS, HARVEST_TICKS, PLANT_TICKS, SEEDS_PER_HARVEST } from './constants';
 import type { PlantFacts } from './facts';
 import { harvestCount, isMature, stageLength } from './growth';
-import { cropsOf, isAshTile } from './plots';
+import { cropsOf, fertilizeOf, isAshTile } from './plots';
 
 /** `11` § Standing orders: "`autoHarvest` (07)". */
 export const AUTO_HARVEST = 'autoHarvest';
@@ -40,6 +42,14 @@ export function plantKey(tile: TileIndex): string {
 
 export function harvestKey(tile: TileIndex): string {
   return `harvest:${tile}`;
+}
+
+/** `07` § Fertilizer: the second input of a `plant` job on a plot with `fertilize` on. */
+export const FERTILIZER_FILTER: ItemFilter = Object.freeze({ tag: 'fertilizer' });
+
+/** Whether a `plant` job takes fertilizer: its second input. */
+function takesFertilizer(job: Job): boolean {
+  return job.inputs.length > 1 && job.inputs[1]?.filter.tag === FERTILIZER_FILTER.tag;
 }
 
 /** What the producer needs from the system that owns the crops. */
@@ -53,7 +63,7 @@ export interface PlantsProducerHost {
   /** Farm plot zone ids, ascending. */
   plots(): readonly EntityId[];
   /** Create the crop entity at stage 0 and emit `CropPlanted`. */
-  plantCrop(ctx: TickContext, tile: TileIndex, plant: number, zoneId: EntityId): EntityId;
+  plantCrop(ctx: TickContext, tile: TileIndex, plant: number, zoneId: EntityId, fertilized?: boolean): EntityId;
   /** Remove a crop entity (no event). */
   removeCrop(id: EntityId): void;
   /** `PlotNeedsSeeds` once per plot per season. */
@@ -90,9 +100,30 @@ export class PlantsProducer implements JobProducer {
     if (!this.due) return;
     this.due = false;
     const sink = sinkIn as JobSink;
+    this.fertilizerLeft = null;
     this.cancelStale(sink);
     this.plantJobs(ctx, sink);
     this.harvestJobs(ctx, sink);
+  }
+
+  /** The fertilizer this scan may still give to new `plant` jobs, counted when a plot first asks; null before. */
+  private fertilizerLeft: number | null = null;
+
+  /**
+   * `07` § Fertilizer: the units tagged `fertilizer` to be had (not forbidden, reserved, owned or carried), less those
+   * promised to `plant` jobs that have not reserved theirs yet.
+   */
+  private fertilizer(): number {
+    if (this.fertilizerLeft !== null) return this.fertilizerLeft;
+    const items = this.items();
+    let left = items === null ? 0 : items.countAvailable(FERTILIZER_FILTER);
+    if (left > 0 && this.host.readers.has('11')) {
+      for (const job of this.host.readers.of<JobsReader>('11').list()) {
+        if (job.producer === this.id && job.key.startsWith('plant:') && takesFertilizer(job) && (job.inputs[1]?.reserved.length ?? 0) === 0) left -= 1;
+      }
+    }
+    this.fertilizerLeft = Math.max(0, left);
+    return this.fertilizerLeft;
   }
 
   /** Jobs whose tile grew a crop, left its plot, or whose crop is gone. */
@@ -105,6 +136,8 @@ export class PlantsProducer implements JobProducer {
         const zone = typeof job.data['zone'] === 'number' ? (job.data['zone'] as EntityId) : 0;
         const stillInPlot = this.buildings()?.zoneAt(tile) === zone;
         if (this.host.cropAtTile.has(tile) || !stillInPlot || this.underBuilding(tile)) sink.cancel(job.id, 'target_invalid');
+        // `07` § Fertilizer: the job does not wait for fertilizer; it is made again without it.
+        else if (takesFertilizer(job) && job.workerId === 0 && job.blockedReason === 'missing_input' && this.fertilizer() <= 0) sink.cancel(job.id, 'no_fertilizer');
       } else if (job.key.startsWith('harvest:')) {
         const tile = typeof job.data['tile'] === 'number' ? (job.data['tile'] as TileIndex) : -1;
         if (this.host.cropAtTile.get(tile) !== job.target.ref) sink.cancel(job.id, 'target_invalid');
@@ -133,6 +166,7 @@ export class PlantsProducer implements JobProducer {
       let available = items === null ? 0 : items.countAvailable(filter);
       let short = false;
       const ashOnly = this.facts.ashOnly(plant);
+      const fertilize = fertilizeOf(zone.settings);
       for (const tile of zone.tiles) {
         if (this.host.cropAtTile.has(tile) || this.underBuilding(tile)) continue;
         // `07` § Ash: wyrmtongue is sown only on an ash tile; every other crop never on one with `ash`.
@@ -147,11 +181,14 @@ export class PlantsProducer implements JobProducer {
           continue;
         }
         available -= 1;
+        // `07` § Fertilizer: a second input while fertilizer is to be had; without it otherwise.
+        const fertilized = fertilize && this.fertilizer() > 0;
+        if (fertilized) this.fertilizerLeft = this.fertilizer() - 1;
         sink.create(key, {
           type: 'plant',
           target: { kind: 'tile', ref: tile },
           workTile: 'at',
-          inputs: [{ filter, count: 1 }],
+          inputs: fertilized ? [{ filter, count: 1 }, { filter: { ...FERTILIZER_FILTER }, count: 1 }] : [{ filter, count: 1 }],
           data: { species: plant, zone: zoneId, deliveryTile: tile },
         });
       }
@@ -206,7 +243,9 @@ export class PlantsProducer implements JobProducer {
         if (ctx.world.entities.alive(it)) api?.consume(it, 1);
       }
     }
-    this.host.plantCrop(ctx, tile, plant, zone);
+    // `07` § Fertilizer: the crop records that it was planted with fertilizer.
+    const fertilized = takesFertilizer(job) && (job.inputs[1]?.delivered.length ?? 0) > 0;
+    this.host.plantCrop(ctx, tile, plant, zone, fertilized);
   }
 
   /**
@@ -227,7 +266,8 @@ export class PlantsProducer implements JobProducer {
       ? ((ctx.world.entities.get(job.workerId, C.Skills)?.level[ctx.registry.table('skills').index('farming')] ?? 0) as number)
       : 0;
     const [lo, hi] = row.yield ?? [1, 1];
-    const count = harvestCount(row, this.host.rng.int(lo, hi), skill);
+    // `07` § Fertilizer: a fertilized crop yields `FERTILIZER_YIELD_BONUS` more, beyond the skill cap too.
+    const count = harvestCount(row, this.host.rng.int(lo, hi), skill) + (crop.fertilized === true ? FERTILIZER_YIELD_BONUS : 0);
     const quality = rollQuality(skill, this.host.rng);
     const yieldItem = facts.yieldItemOf(crop.plant);
     if (yieldItem !== 0 && count > 0) ctx.spawn.item(yieldItem, facts.yieldMaterialOf(crop.plant), tile, count, quality);

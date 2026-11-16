@@ -55,9 +55,15 @@ A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accu
 - A plot tile that a built building covers is not plantable: the producer creates no `plant` job for it and cancels one it made.
 - Each hour, for each plantable plot tile without a crop, if the season's species is set and a seed exists in a stockpile or on the ground (13 `findItem(seedItem)`), the plants job producer creates `plant { tile, species }` (labor `farming`, skill `farming`); if no seed exists, the plot is marked `needsSeeds` once per season with a note.
 - `plant` job: fetch the seed, walk to the tile, work `PLANT_TICKS` (skill-scaled), consume the seed, create the `Crop` entity at stage 0.
+- Fertilizer: a plot's `fertilize` setting (§ Fertilizer).
 - `harvest` job: created for crops with their fourth stage complete when `autoHarvest` (11 standing order) is on, or when the player designates harvest. Work `HARVEST_TICKS`; spawn `yieldCount` of `yieldItem` (rolled, +1 per 5 farming skill levels, capped at `yieldMax + 2`) and exactly `SEEDS_PER_HARVEST` seeds, plus the secondary yield only when no registry recipe produces that item (workshop conversions such as flour are not free harvest drops), and, for a crop row with a `straw` count (barley, rye, cavewheat: 1), that many `straw` of the crop's own material beside the seed, whatever recipes exist; destroy the crop. Straw is a `stuffing` and pallet material. Harvest by a skilled farmer gives the produce a quality tier used only for meal quality (13).
 - A crop on a tile that stops qualifying (construction placed, tile dug, flooded to level ≥ 4) dies.
 - Removing the zone kills its crops and returns nothing.
+
+### Fertilizer
+
+- Farm plot setting `fertilize` (boolean under `Zone.settings.fertilize`, absent or false: off; set by `SetZoneSetting` and the plot panel). While it is on, each `plant` job takes one item tagged `fertilizer` (`dung`, `compost`, `bone_ash`, and any later item with the tag) as a second input when one is available, and plants without one when none is: the job does not wait. The hourly scan counts the fertilizer to be had (not forbidden, reserved, owned or carried) and gives that many of the plot's new `plant` jobs the second input. A `plant` job that has one, has no worker and is blocked for want of an input while no fertilizer is to be had is cancelled (`no_fertilizer`) and made again without it on the next scan. A job made while the setting was on keeps its input when it is turned off.
+- The crop records that it was planted with fertilizer (`Crop.fertilized`), and its harvest yields `FERTILIZER_YIELD_BONUS` more of its `yieldItem`, beyond the skill cap too. Fertilizer adds to the yield, not to growth: a fertilized plot of ten by ten takes a hundred fertilizer a cycle and gives about a hundred more plants.
 
 ### Seeds
 
@@ -96,7 +102,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ## State
 
-- `crops`: entities with `Crop`; index `cropAtTile: Map<TileIndex, EntityId>`.
+- `crops`: entities with `Crop`; index `cropAtTile: Map<TileIndex, EntityId>`. `Crop.fertilized` is true for a crop planted with fertilizer (absent: false).
 - `plots`: zone ids indexed here. `SetPlotCrop` is applied by 07 and stores four plant indices (0 = none) in the zone's `crop_per_season` setting; it rejects a light mismatch. This system stores `plotIndex` and `needsSeedsAnnounced`, not a second copy of the zone's choices.
 - `saplings: Map<TileIndex, plantedTick>`, `shrubTimers: Map<TileIndex, matureTick>`, `bareSoil: SortedSet<TileIndex>`, `ashTiles: Map<TileIndex, clearTick>`.
 - Rng stream.
@@ -111,6 +117,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 - `plants.hasGrass(i)`
 - `plants.flowerAt(i)` — the tile carries a flower (§ Flowers)
 - `plants.def(speciesId)`
+- `plants.plotFertilize(zoneId)` — the plot's `fertilize` setting
 - `plants.crops()` — every crop, ascending id; `plants.cropReady(i)` — the crop on the tile is ready to harvest
 - `plants.plots()` — the farm plot zones, ascending id
 - `plants.saplings()` — the sapling tiles, ascending
@@ -119,7 +126,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ### Commands
 
-`SetPlotCrop { zoneId, season, speciesId | none }` (refusals `not_found`, `light_mismatch`, `not_on_ash`), `DesignateHarvest { tiles }` (also reachable through 03's designation menu as `harvest`).
+`SetPlotCrop { zoneId, season, speciesId | none }` (refusals `not_found`, `light_mismatch`, `not_on_ash`), `DesignateHarvest { tiles }` (also reachable through 03's designation menu as `harvest`). The `fertilize` setting is a zone setting of 14's (§ Fertilizer); a value that is not a boolean is `bad_setting`.
 
 ### Events consumed
 
@@ -135,7 +142,7 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 
 ## Player-facing behavior
 
-- Zones menu › Farm plot: drag a rectangle; qualifying tiles highlight green, others red; confirm. The plot panel shows four season slots with species drop-downs filtered by light, a seed count per species, and the crops on the plot by stage. When tiles of the plot are below the minimum temperature of the crop growing or chosen there for the current season, a note under the crop counts them ("Too cold to grow: 4 of 9 tiles are under 2°C for dimcap.") and, under it, says that rock `NEAR_SURFACE_DEPTH` levels below the surface stays warm all year.
+- Zones menu › Farm plot: drag a rectangle; qualifying tiles highlight green, others red; confirm. The plot panel shows four season slots with species drop-downs filtered by light, a seed count per species, the crops on the plot by stage, and `Fertilize: on` or `off` with the fertilizer in stock (`[w]` turns it on or off). When tiles of the plot are below the minimum temperature of the crop growing or chosen there for the current season, a note under the crop counts them ("Too cold to grow: 4 of 9 tiles are under 2°C for dimcap.") and, under it, says that rock `NEAR_SURFACE_DEPTH` levels below the surface stays warm all year.
 - On a surface plot, a red note under those says when a season's crop cannot ripen before its growing seasons end, so that winter's frost would kill it and its seed: the current season's crop sown today ("Sown now, strawberry cannot ripen before its seasons end: it needs 28 days, 9 are left."), and each other season's crop sown on that season's first day ("Sown in summer, strawberry cannot ripen before its seasons end: it needs 28 days, 25 are left at most."), which covers a `Shift+A` that gives a crop a season it cannot ripen in. A crop needs four stages of `stageDays`; the days left are its growing seasons' days to winter, the first less `SOWING_MARGIN_DAYS` (3) for the sowing, each counted at the season's growth percent as if overcast (06 § Seasons: spring 100, summer 120, autumn 80, × 90), rounded down. A temperate reckoning: `frostmarrow`'s colder seasons are not counted. The choice stays the player's.
 - A frost that kills crops is a note in the log, one line per plot and crop ("Frost killed 12 plants of strawberry on Farm plot #3.").
 - Crops draw as the species glyph with foreground `grass_green` dimmed by 3, 2, 1, 0 for stages 0–3. Once ready, the foreground is `green` for one 500 ms frame per four-frame (two-second) cycle until harvested.
@@ -155,12 +162,12 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 | `GRASS_REGROW_PERMILLE` | 120 | Per bare tile per day with a grass neighbor |
 | `SAPLING_YEARS` | 2 | Default; species may override (*unmeasured*) |
 | `CLEAR_PLANT_TICKS` | 20 | Work added to a build job per sapling or shrub on its footprint (*unmeasured*) |
+| `FERTILIZER_YIELD_BONUS` | 1 | More of a fertilized crop's yield item at harvest, beyond the skill cap (*unmeasured*) |
 
 Species stage lengths, yields, seasons, temperatures and biome weights are content.
 
 ## Extension points
 
-- Fertilizer: a plot setting and an item; multiply growth. The growth formula has one place to add it.
 - Multi-tile trees: see 03.
 - Crop rotation or soil exhaustion: a per-tile counter in this system's state and a factor in the growth formula.
 - Orchards: trees as a crop kind with yearly yields; the harvest job already handles per-tile yields.
@@ -181,9 +188,3 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - `lightOk` for a `glow` crop on a dark tile with no lamp and no worn light: the tile is beetle-lit when one of its four cardinal neighbours on its level holds a built cage building whose occupant's species has the flag `glows` (the `glow_beetle`). A beetle-lit tile grows at `BEETLE_GROWTH_PERCENT` of the rate. Beetle light is crop light only: no `lit`, no comfort.
 - A plot is a glow plot when every tile is under a lamp or beetle-lit (`buildings.beetleLitAt`, 14 § Planned).
 - Constants: `BEETLE_GROWTH_PERCENT` 50.
-
-### Fertilizer (T-564)
-
-- Farm plot setting `fertilize` (boolean, default off; `SetZoneSetting` and the plot panel). While it is on, each `plant` job takes one item tagged `fertilizer` (`dung`, `compost`, `guano`, `bone_ash`) as a second input when one is available, and plants without one when none is (the job does not wait). The crop records it (`Crop.fertilized`), and its harvest yields `FERTILIZER_YIELD_BONUS` more, beyond the skill cap too.
-- Constants: `FERTILIZER_YIELD_BONUS` 1. Save: `Crop.fertilized` (absent: false). UI: the plot panel's `Fertilize: on/off` and the count of fertilizer in stock.
-- The extension point "Fertilizer" is taken: a plot setting and an item, adding to the yield, not to growth.

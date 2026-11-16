@@ -86,6 +86,7 @@ For up or up/down stairs, the terrain producer's `extraStandTiles` also permits 
 | `diagnose` | Diagnose | medicine | medicine | entity | entity | `TREAT_TICKS / 2` | — | 20 | no |
 | `give_crutch` | Give crutch | medicine | medicine | entity | entity | 30 | — | 4 | no |
 | `bandage_animal` | Bandage animal | animal_care | animal_care | entity | entity | 100 | — | 6 | no |
+| `wash_patient` | Wash patient | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 4 | no |
 
 
 ## Defense (producer `defense`)
@@ -128,6 +129,5 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | terrain | `harvest_ice` | Cut ice | mining | mining | tile | adjacent, or above | `ICE_HARVEST_TICKS` | pick | 6 | yes | T-559 |
 | terrain | `ignite` | Set a fire | woodcutting | — | tile | adjacent | `IGNITE_TICKS` | firebrand (consumed) | 0 | yes | T-559 |
-| health | `wash_patient` | Wash patient | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 4 | no | T-564 |
 
 Hauling into a building that wants items is `haul_to_stockpile`; a pallet is laid by the `build` job with the row's labor `hauling`: no other job is new.

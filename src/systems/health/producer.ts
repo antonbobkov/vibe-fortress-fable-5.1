@@ -33,6 +33,9 @@ const REGULAR_SUPPLY: Readonly<Record<string, { readonly category: string }>> = 
   dress_burn: { category: 'textile/cloth' },
 });
 
+/** 17 § Patients and hospitals: the soap `wash_patient` takes. */
+const SOAP_FILTER = { category: 'medical/soap' } as const;
+
 /** The treatments a wound asks for (`woundTreatmentNeeds`). */
 const WOUND_TREATMENTS = ['stop_bleeding', 'set_bone', 'suture', 'clean_wound', 'dress_burn'];
 
@@ -74,6 +77,7 @@ export class HealthProducer implements JobProducer {
       case 'suture':
       case 'clean_wound':
       case 'dress_burn':
+      case 'wash_patient':
         return TREAT_TICKS * 100;
       case 'set_bone':
         return Math.floor(TREAT_TICKS * 1.5) * 100;
@@ -125,6 +129,12 @@ export class HealthProducer implements JobProducer {
     const items = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13') : null;
     let honeyLeft = items === null || !ctx.registry.table('items').has('honey') ? 0 : items.countAvailable(HONEY_FILTER);
     const regularOut = new Map<string, boolean>();
+    // 17 § Patients and hospitals: a patient is washed once an admission while a soap is to be had, one soap a job.
+    let soapLeft: number | null = null;
+    const soapToHave = (): number => {
+      soapLeft ??= items === null || !ctx.registry.table('items').has('soap') ? 0 : items.countAvailable(SOAP_FILTER);
+      return soapLeft;
+    };
     const byHoney = (need: string): boolean => {
       const regular = REGULAR_SUPPLY[need];
       if (honeyLeft <= 0 || regular === undefined || items === null) return false;
@@ -221,6 +231,19 @@ export class HealthProducer implements JobProducer {
           } else if (sink.exists(waterKey)) {
             sink.cancelKey(waterKey, 'not_thirsty');
           }
+        }
+
+        const washKey = `wash_patient:${patientId}`;
+        if (patient.washed !== true && !sink.exists(washKey) && soapToHave() > 0) {
+          soapLeft = soapToHave() - 1;
+          sink.create(washKey, {
+            type: 'wash_patient',
+            target: { kind: 'entity', ref: patientId },
+            workTile: 'adjacent',
+            priority: 3,
+            inputs: [{ filter: { ...SOAP_FILTER }, count: 1 }],
+            data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
+          });
         }
 
       }
@@ -398,6 +421,8 @@ export class HealthProducer implements JobProducer {
     if (ctx.tick % HEALTH_CADENCE === 0) {
       for (const id of entities.with(C.Attributes, C.Body).sort((a, b) => a - b)) {
         if (entities.has(id, C.Patient) || !entities.alive(id)) continue;
+        // A wash belongs to its admission: discharged, the dwarf is washed no more.
+        if (sink.exists(`wash_patient:${id}`)) sink.cancelKey(`wash_patient:${id}`, 'need_cleared');
         const keys = [...WOUND_TREATMENTS, 'diagnose'].filter(kind => sink.exists(`${kind}:${id}`));
         if (keys.length === 0) continue;
         const wounds = entities.get(id, C.Body)?.parts.flatMap(part => part.wounds) ?? [];
@@ -620,6 +645,14 @@ export class HealthProducer implements JobProducer {
           b.diagnosed = true;
         }
         ctx.emit({ type: 'TreatmentDone', patientId, medicId: job.workerId, kind: 'diagnose' });
+        break;
+      }
+      case 'wash_patient': {
+        // 17 § Patients and hospitals: a washed patient has no wound rolled for infection this admission.
+        this.consumeDelivered(job, ctx);
+        const admitted = ctx.world.entities.get(patientId, C.Patient);
+        if (admitted !== undefined) ctx.world.entities.add(patientId, C.Patient, { ...admitted, washed: true });
+        ctx.emit({ type: 'TreatmentDone', patientId, medicId: job.workerId, kind: 'wash_patient' });
         break;
       }
       case 'give_crutch': {

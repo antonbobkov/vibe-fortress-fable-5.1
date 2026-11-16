@@ -387,3 +387,12 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | make_candles_tallow |
 | recipes | make_lantern |
 | thoughts | ate_by_candlelight |
+| palette | soap_white |
+| palette | zone_compost |
+| materials | compost |
+| materials | soap |
+| items | compost |
+| items | soap |
+| jobTypes | wash_patient |
+| zoneTypes | compost |
+| recipes | make_soap |

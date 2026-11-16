@@ -42,6 +42,16 @@
     ]
   },
   {
+    "id": "compost",
+    "name": "compost heap",
+    "room": false,
+    "requirements": [],
+    "settings": [],
+    "consumers": [
+      "13"
+    ]
+  },
+  {
     "id": "dining_hall",
     "name": "dining hall",
     "room": true,
@@ -73,7 +83,8 @@
       "mud or cave loam tiles"
     ],
     "settings": [
-      "crop per season"
+      "crop per season",
+      "fertilize"
     ],
     "consumers": [
       "07"

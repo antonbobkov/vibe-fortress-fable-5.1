@@ -3905,6 +3905,35 @@
     "xp": 2
   },
   {
+    "id": "make_soap",
+    "name": "Soap",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "tallow",
+        "count": 1
+      },
+      {
+        "match": "potash",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "soap",
+        "count": 2,
+        "material": {
+          "fixed": "soap"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "make_spike_wood",
     "name": "Wooden spikes",
     "workshop": "carpenter",

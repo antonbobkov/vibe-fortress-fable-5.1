@@ -1514,5 +1514,41 @@
   {
     "table": "thoughts",
     "id": "ate_by_candlelight"
+  },
+  {
+    "table": "palette",
+    "id": "soap_white"
+  },
+  {
+    "table": "palette",
+    "id": "zone_compost"
+  },
+  {
+    "table": "materials",
+    "id": "compost"
+  },
+  {
+    "table": "materials",
+    "id": "soap"
+  },
+  {
+    "table": "items",
+    "id": "compost"
+  },
+  {
+    "table": "items",
+    "id": "soap"
+  },
+  {
+    "table": "jobTypes",
+    "id": "wash_patient"
+  },
+  {
+    "table": "zoneTypes",
+    "id": "compost"
+  },
+  {
+    "table": "recipes",
+    "id": "make_soap"
   }
 ]

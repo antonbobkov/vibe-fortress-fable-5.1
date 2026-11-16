@@ -77,13 +77,14 @@ All wood is burnable and melts (burns) at 300 °C for the melting rule. Wood's w
 | `skull_bone` | skull | bone | 2 | 120 | `bone_white` | totems |
 | `leather` | leather | leather | 6 | 90 | `leather_brown` | one material for all tanned hides; the hide's species affects only the raw hide value |
 | `wool` | wool | cloth | 4 | 30 | `wool_cream` | fiber |
-| `tallow` | tallow | liquid | 2 | 90 | `tallow_yellow` | soapless; sold |
+| `tallow` | tallow | liquid | 2 | 90 | `tallow_yellow` | soap, with potash; sold |
 | `milk` | milk | liquid | 2 | 100 | `milk_white` | |
 | `cheese` | cheese | meat | 5 | 110 | `cheese_yellow` | food; rots slowly |
 | `egg` | egg | meat | 2 | 100 | `egg_cream` | food |
 | `chitin` | chitin | shell | 4 | 130 | `chitin_brown` | a cave crawler's shell; flux at 3 a steel bar |
 | `horn` | horn | bone | 3 | 120 | `horn_gray` | horn bows, drinking horns, scale |
 | `ivory` | ivory | bone | 13 | 180 | `ivory_cream` | a craft of it is worth about 40 |
+| `soap` | soap | liquid | 3 | 100 | `soap_white` | tallow and potash boiled at the kitchen; a hospital supply |
 
 ## Salt
 
@@ -107,6 +108,7 @@ Made at the kiln from clay, sand, logs and bones ([workshops-and-recipes.md](wor
 | id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes |
 |---|---|---|---|---|---|---|---|---|---|
 | `dung` | dung | plant | 0 | 60 | | `dung_brown` | 300 | 200 | `fertilizer`; dries to a half fuel |
+| `compost` | compost | soil | 0 | 80 | | `loam_brown` | | | `fertilizer`; rotten food or dung turned on a compost heap |
 
 Dung is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung) and burns as peat does; three of it dry on a rack into a dung cake, a smoky half fuel ([items.md](items.md) § Wood and bars).
 
@@ -215,8 +217,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `guano` | guano | soil | 1 | 70 | — | `dung_brown` | — | — | `fertilizer` | T-556 |
-| `compost` | compost | soil | 0 | 80 | — | `loam_brown` | — | — | `fertilizer` | T-564 |
-| `soap` | soap | liquid | 3 | 100 | — | `soap_white` | — | — | a hospital supply | T-564 |
 
 ### Planned cloth and fiber
 

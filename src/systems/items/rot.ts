@@ -42,6 +42,8 @@ export class RotQueue {
     if ((it.flags & ItemFlag.Installed) !== 0) return 0;
     const tile = this.core.tileOf(id);
     if (tile < 0) return 1;
+    // 13 § The compost heap: rotten food lying on a heap rots no further while it turns.
+    if (it.rotStage >= 2 && it.containerId === 0 && it.carriedBy === 0 && this.store.isCompost(this.store.stockpileAt(tile))) return 0;
     let speed = 1;
     if (it.containerId !== 0) {
       const container = this.core.container(it.containerId);

@@ -713,6 +713,23 @@
     "quality": true
   },
   {
+    "id": "compost",
+    "name": "compost",
+    "category": "farm/compost",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "loam_brown",
+    "quality": false,
+    "tags": [
+      "fertilizer"
+    ]
+  },
+  {
     "id": "corpse",
     "name": "corpse",
     "category": "refuse/corpse",
@@ -2102,6 +2119,20 @@
     "tags": [
       "ammo"
     ]
+  },
+  {
+    "id": "soap",
+    "name": "soap",
+    "category": "medical/soap",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "▪",
+    "fg": "soap_white",
+    "quality": false
   },
   {
     "id": "soil_load",

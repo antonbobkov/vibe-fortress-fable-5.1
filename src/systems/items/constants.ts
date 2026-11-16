@@ -36,6 +36,10 @@ export const CELLAR_MAX_C = 14;
 export const AGED_VALUE_PERCENT = 150;
 /** A vintage item's value, percent of its young value. */
 export const VINTAGE_VALUE_PERCENT = 250;
+/** 13 § The compost heap: days rotten food lies on a heap before it turns to compost. */
+export const COMPOST_DAYS_ROTTEN = 14;
+/** 13 § The compost heap: days dung lies on a heap before it turns to compost. */
+export const COMPOST_DAYS_DUNG = 7;
 
 /**
  * `12-workshops-and-professions.md` § Quality, "Value multiplier" column, in permille, by quality

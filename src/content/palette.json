@@ -910,6 +910,10 @@
     "hex": "#F4F8FF"
   },
   {
+    "id": "soap_white",
+    "hex": "#EEF0F2"
+  },
+  {
     "id": "sphalerite_brown",
     "hex": "#7A5A3A"
   },
@@ -1089,6 +1093,10 @@
   {
     "id": "zone_bedroom",
     "hex": "#35203F"
+  },
+  {
+    "id": "zone_compost",
+    "hex": "#33301A"
   },
   {
     "id": "zone_dining",

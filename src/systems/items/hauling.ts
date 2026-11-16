@@ -90,6 +90,7 @@ export function stripKey(corpseId: EntityId): string {
  */
 interface StockpileCache {
   readonly byKind: boolean;
+  /** A hospital or a compost heap: its slots are found item by item (`store.findSlot`), not from the shared scans. */
   readonly hospital: boolean;
   readonly accepts: Map<number, boolean>;
   readonly slots: Map<string, Slot | ContainerNeeded | null>;
@@ -356,7 +357,7 @@ export class Hauling {
     let spc = cache.bySp.get(sp);
     if (spc === undefined) {
       const store = this.host.store;
-      spc = { byKind: store.acceptsByKind(sp), hospital: store.isHospital(sp), accepts: new Map(), slots: new Map(), tiles: null, containers: new Map() };
+      spc = { byKind: store.acceptsByKind(sp), hospital: store.isHospital(sp) || store.isCompost(sp), accepts: new Map(), slots: new Map(), tiles: null, containers: new Map() };
       cache.bySp.set(sp, spc);
     }
     return spc;

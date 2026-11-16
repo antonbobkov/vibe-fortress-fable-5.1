@@ -216,6 +216,8 @@ export interface Patient {
   /** Job kinds. */
   needs: string[];
   admittedTick: Tick;
+  /** Washed with soap this admission (`17` § Patients and hospitals): no wound is rolled for infection; absent: not. */
+  washed?: true;
 }
 
 /** `components.md` § ItemFlag. */
@@ -264,6 +266,8 @@ export interface Item {
   seasoned?: Idx<'MaterialDef'>[];
   /** A `stuffed` item's stuffing: the material of its last input (`12` § Operation); absent: none. */
   stuffing?: Idx<'MaterialDef'>;
+  /** The tick it turns to compost on a compost heap (`13` § The compost heap); absent: no count. */
+  compostAt?: Tick;
 }
 
 /** An item's enchantment: the `enchants` row and the runesmith's quality roll, which scales its numbers. */
@@ -511,6 +515,8 @@ export interface Crop {
   stage: 0 | 1 | 2 | 3;
   growth: number;
   tile: TileIndex;
+  /** Planted with fertilizer (`07` § Fertilizer): its harvest yields `FERTILIZER_YIELD_BONUS` more; absent: not. */
+  fertilized?: true;
 }
 
 export interface Merchant {
