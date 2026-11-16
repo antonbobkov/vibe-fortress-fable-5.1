@@ -51,8 +51,7 @@ describe('T-306 an open bandage job does not wait for a worker to finish its own
     expect(world.entities.get(thread, C.Item)?.carriedBy).toBe(0);
     a.w.until(() => a.w.events('TreatmentDone').some((e) => e['patientId'] === patient && e['kind'] === 'stop_bleeding'), 800);
     // Somebody takes the haul up again and finishes it.
-    // T-551: the dwarves have no beds and sleep on the floor at 50, twice as long as in a bed.
-    a.w.until(() => world.entities.get(thread, C.Item)?.containerId === a.chestItem, 2400);
+    a.w.until(() => world.entities.get(thread, C.Item)?.containerId === a.chestItem, 1200);
   });
 
   it('does not call a worker off a job for another patient', () => {

@@ -1263,6 +1263,21 @@
     "announce": false
   },
   {
+    "id": "slept_in_a_bed",
+    "name": "slept in a bed",
+    "text": "Slept in a proper bed.",
+    "value": 1,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "Slept",
+      "target": "in a wooden bed not made up (bedType bed, bedding none)"
+    },
+    "announce": false
+  },
+  {
     "id": "slept_in_a_featherbed",
     "name": "slept in a featherbed",
     "text": "Slept in a featherbed.",
@@ -1416,7 +1431,7 @@
     "name": "slept on floor",
     "text": "Slept on the floor.",
     "value": {
-      "formula": "−4"
+      "formula": "−2"
     },
     "hours": 24,
     "decay": "linear",
@@ -1432,15 +1447,13 @@
     "id": "slept_on_floor_last_night",
     "name": "slept on floor last night",
     "text": "Slept on the floor last night.",
-    "value": {
-      "formula": "−3"
-    },
+    "value": 0,
     "hours": null,
     "decay": "standing",
     "cap": 1,
     "group": "room",
     "trigger": {
-      "condition": "last sleep was on the floor; cleared by the next sleep in a bed"
+      "condition": "(no thought: slept_on_floor carries the floor, T-572)"
     },
     "announce": false
   },

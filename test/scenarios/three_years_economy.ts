@@ -11,6 +11,7 @@ import type { PlantsReader } from '@systems/plants';
 import { ripensInTime } from '@systems/plants/growth';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { TradeReader } from '@systems/trade/reader';
+import type { WorkshopsReader } from '@systems/workshops';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
@@ -1282,13 +1283,32 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // Beds come before barrels until every dwarf and the hospital has one.
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
     const beds = Math.min(state.bedroomPlans.filter((bp) => bp.designated).length, population + 1) - owned(w, 'bed');
-    const bedOrder = orders().findIndex((o) => o.recipe === recipes.index('make_bed'));
-    if (beds > 0 && bedOrder < 0) {
-      const added = command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_bed', mode: 'once', remaining: beds, priority: ROUTINE } });
+    // T-572: a wooden bed takes a pallet's materials beside its log: the wagon's linen while it lasts
+    // (make_bed), then the barley's straw or gathered fiber (make_bed_straw). An order that waits for its
+    // stuffing while the other's is in stock is swapped for the other, with what it had left to make.
+    const BED_RECIPES = ['make_bed', 'make_bed_straw'] as const;
+    const runnable = (id: string): boolean => w.readers.of<WorkshopsReader>('12').isRunnable(id, carpenter).runnable;
+    const bedRecipe = runnable('make_bed') || !runnable('make_bed_straw') ? 'make_bed' : 'make_bed_straw';
+    const bedOrder = orders().findIndex((o) => BED_RECIPES.some((id) => o.recipe === recipes.index(id)));
+    const addBeds = (remaining: number): void => {
+      const added = command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: bedRecipe, mode: 'once', remaining, priority: ROUTINE } });
       const at = standing();
       if (added.ok && at >= 0) command(w, { type: 'ReorderWorkOrder', workshopId: carpenter, from: orders().length - 1, to: at });
-    } else if (bedOrder >= 0 && beds > orders()[bedOrder]!.remaining + 1) {
-      command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: bedOrder, patch: { remaining: beds } });
+    };
+    if (beds > 0 && bedOrder < 0) {
+      addBeds(beds);
+    } else if (bedOrder >= 0) {
+      const held = orders()[bedOrder]!;
+      const heldId = held.recipe === recipes.index('make_bed') ? 'make_bed' : 'make_bed_straw';
+      // Never while the carpenter is at a bed: a job holds its stuffing, so its own recipe reads as waiting.
+      const current = w.game.world.entities.get(carpenter, C.Workshop)?.currentJobId ?? 0;
+      const atBed = current !== 0 && BED_RECIPES.some((id) => w.readers.of<JobsReader>('11').get(current)?.data?.['recipe'] === id);
+      if (heldId !== bedRecipe && !runnable(heldId) && !atBed) {
+        command(w, { type: 'RemoveWorkOrder', workshopId: carpenter, index: bedOrder });
+        addBeds(Math.max(held.remaining, beds));
+      } else if (beds > held.remaining + 1) {
+        command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: bedOrder, patch: { remaining: beds } });
+      }
     }
   }
   const kitchen = state.placedIds['kitchen'];

@@ -1402,5 +1402,13 @@
   {
     "table": "thoughts",
     "id": "saw_the_star"
+  },
+  {
+    "table": "recipes",
+    "id": "make_bed_straw"
+  },
+  {
+    "table": "thoughts",
+    "id": "slept_in_a_bed"
   }
 ]

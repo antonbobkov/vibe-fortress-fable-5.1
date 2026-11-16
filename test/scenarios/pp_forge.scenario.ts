@@ -52,13 +52,13 @@ function nearestOre(w: TestWorld, x: number, y: number): Ore {
 const scenario: Scenario = {
   id: 'pp_forge',
   milestone: 8,
-  // T-551: dwarves without a bed sleep on the floor at 50, twice as long; on 'pp-forge' (and 5, 6) the
-  // forge then waited for stone past day 28. On 'pp-forge-7' the crafts are forged by day 5.
-  seed: 'pp-forge-7',
+  // T-551 moved it to 'pp-forge-7' with the floor at 50 (the forge waited for stone past day 28); T-572's
+  // floor at 85 meets the goal on this seed again.
+  seed: 'pp-forge',
   world: 'flat-test',
   timeoutMs: 300_000,
   run: () => {
-    const w = pathWorld('pp-forge-7', { preset: 'miner_s_guild' });
+    const w = pathWorld('pp-forge', { preset: 'miner_s_guild' });
     const { x: cx, y: cy } = wagon(w);
     const ent = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');

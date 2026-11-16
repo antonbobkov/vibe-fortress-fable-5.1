@@ -24,6 +24,8 @@ const scenario: Scenario = {
         w.spawnItem('log', 'oak', tile, 1);
       }
     }
+    // T-572: a wooden bed takes 2 cloth beside its log: 200 cloth, ten to a tile, south of the logs.
+    for (let dx = 0; dx < 20; dx += 1) w.spawnItem('cloth', 'flax_cloth', w.index(14 + dx, 26, 32), 10);
     const pile = w.zone('stockpile', pileTiles);
     w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'wood' });
     w.spawnItem('drink', 'ale', w.index(18, 17, 32), 200);

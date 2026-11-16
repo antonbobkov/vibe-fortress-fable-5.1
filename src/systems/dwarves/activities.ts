@@ -635,7 +635,7 @@ export class Activities {
 
   /**
    * 10 § Sleeping: the percent a dwarf on the sleep errand rests at, read live: the bed it holds
-   * (`buildings.restPercent`, 125 for a made-up bed), or `FLOOR_REST_PERCENT` on the floor; 100 when
+   * (`buildings.restPercent`, 110 for a made-up bed), or `FLOOR_REST_PERCENT` on the floor; 100 when
    * it is on no sleep errand.
    */
   restPercent(ctx: TickContext, id: EntityId): number {
