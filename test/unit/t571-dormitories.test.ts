@@ -4,7 +4,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import { DORMITORY_H, DORMITORY_W, dormitorySite, keepDormitories, setupThreeYearsFortress, threeYearsWorld } from '../scenarios/three_years_fortress';
 
 /**
- * T-571: since T-551 a dwarf on the floor sleeps twice as long as one in a bed, and the three-year
+ * T-571: a dwarf on the floor rests less than one in a bed (10 § Sleeping), and the three-year
  * script's bedroom plans (16 to 20 rooms) are spent long before its fortress stops growing: by the
  * third year two dwarves in five slept on the floor. A player digs a dormitory and fills it with
  * beds; the script now does, beside a corridor of the hall level, once the bedroom plans are spent.

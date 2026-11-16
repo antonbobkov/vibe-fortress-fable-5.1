@@ -279,6 +279,7 @@ describe('T-175 transient entities and destroyed inputs do not linger', () => {
     const workshopId = w.build('carpenter', w.index(20, 20, 32), 'oak');
     w.step(1);
     const log = w.spawnItem('log', 'oak', w.index(20, 20, 32));
+    w.spawnItem('cloth', 'flax_cloth', w.index(20, 20, 32), 2); // T-572: a bed's bedding stuff
     expect(
       apply({ type: 'AddWorkOrder', workshopId, order: { recipe: 'make_bed', count: 1 } }),
     ).toEqual({ ok: true });

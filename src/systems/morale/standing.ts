@@ -29,7 +29,8 @@ export function standingThoughts(id: EntityId, ctx: TickContext, floorSleepers: 
   }
   if (ctx.tick >= 14 * TICKS_PER_DAY && buildings.bedroomOf(id) === 0) add('no_bedroom', -2);
   if (dwarves.isUnclothed(id)) add('unclothed', -3);
-  if (floorSleepers.has(id)) add('slept_on_floor_last_night', -3);
+  // T-572: the row is 0 (no thought): the floor's thought is `slept_on_floor`, as a pallet's and a bed's are.
+  if (floorSleepers.has(id)) { const def = defs.get('slept_on_floor_last_night'); if (def !== undefined) add('slept_on_floor_last_night', baseValue(def)); }
   const body = entities.get(id, C.Body);
   if (body !== undefined && body.pain >= 20) add('in_pain', -Math.min(8, body.pain / 10));
   if (entities.get(id, C.Patient)?.bedId) add('bedridden', -6);

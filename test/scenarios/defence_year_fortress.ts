@@ -141,12 +141,24 @@ function rangeRoom(w: TestWorld, state: DefenceYearState, sites: readonly number
 }
 
 /** Tiles on the halls' level, not in a zone, that a zone of this type may take, nearest the gate stair first. */
+/**
+ * T-572: the tiles the fortress script keeps for its own rooms: the dining hall (T-518), every
+ * bedroom plan with its door and the dormitories. On `defence-year-5` the range was zoned across a
+ * bedroom plan that was dug but not yet set up, and the bedroom was refused its zone (overlap).
+ */
+function plannedRooms(w: TestWorld, state: DefenceYearState): Set<number> {
+  const f = state.fortress;
+  return new Set<number>([...f.diningHallTiles, ...f.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, f.hallZ)]),
+    ...(f.dormitories ?? []).flatMap((d) => d.tiles)]);
+}
+
 function zoneTiles(w: TestWorld, state: DefenceYearState, type: string, count: number): number[] {
   const buildings = w.readers.of<BuildingsReader>('14');
   const { cx, cy } = state.fortress;
   // T-518: the dining hall the fortress script has planned stays its own: a barracks, a target or a
   // range put there while the hall waits for its kitchen refuses the hall its zone and its chairs later.
-  const planned = new Set(state.fortress.diningHallTiles);
+  // T-572: so do the planned bedrooms and dormitories.
+  const planned = plannedRooms(w, state);
   const found: { t: number; d: number }[] = [];
   for (let y = 1; y < w.map.h - 1; y += 1) {
     for (let x = 1; x < w.map.w - 1; x += 1) {
@@ -345,8 +357,9 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
       state.archeryTargetId = 0;
       return;
     }
+    const planned = plannedRooms(w, state);
     const tiles = [origin, ...[-1, 1, -2, 2].map((d) => w.map.offset(origin, d, 0, 0))]
-      .filter((t) => t >= 0 && (t === origin || (buildings.zoneAt(t) === 0 && !state.fortress.diningHallTiles.includes(t) && buildings.zoneTileQualifies('archery_range', t))));
+      .filter((t) => t >= 0 && (t === origin || (buildings.zoneAt(t) === 0 && !planned.has(t) && buildings.zoneTileQualifies('archery_range', t))));
     if (command(w, { type: 'CreateZone', zoneType: 'archery_range', tiles }).ok) {
       state.archeryRangeZoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
     }

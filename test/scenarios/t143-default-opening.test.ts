@@ -7,13 +7,12 @@ import { threeYearsWorld, setupThreeYearsFortress, checkFortressWorkOrders,
 import { stepThreeYears } from './three_years_measurements';
 
 /** Days from placing the carpenter to its completion at default priorities. */
-const CARPENTER_DAYS = 25;
+const CARPENTER_DAYS = 10;
 
 describe('T-143 three-year fixture opening at default priorities', () => {
-  // T-551: the founders sleep on the floor at 50 until their bedrooms have beds, twice as long as in a
-  // bed, and at default priorities the two carpentry dwarves reach the carpenter later: 22 days on
-  // 'three-years' (ten before). The bound is the measured time with a margin.
-  it('builds the carpenter within twenty-five days of placement through ordinary jobs', () => {
+  // T-551 relaxed this to 25 days with the floor at 50 (22 measured); T-572's floor at 85 brings it back
+  // to its old bound: 4,400 ticks (under four days) on 'three-years'.
+  it('builds the carpenter within ten days of placement through ordinary jobs', () => {
     const w = threeYearsWorld('three-years');
     const apply = w.game.world.applyCommand.bind(w.game.world);
     let placedTick: number | undefined;
@@ -52,7 +51,7 @@ describe('T-143 three-year fixture opening at default priorities', () => {
     expect(buildings.get(carpenter)?.settings['priority']).toBe(PRIORITY_DEFAULT);
     for (const row of w.game.registry.table('labors').rows.slice(1))
       expect(jobs.laborPriority(row.id), row.id).toBe(PRIORITY_DEFAULT);
-    expect(buildings.get(carpenter)?.state, 'carpenter built within twenty-five days of placement at defaults').toBe('built');
+    expect(buildings.get(carpenter)?.state, 'carpenter built within ten days of placement at defaults').toBe('built');
     expect(w.tick - placedTick!).toBeLessThanOrEqual(CARPENTER_DAYS * TICKS_PER_DAY);
     console.log(`T-143 default-priority carpenter: ${w.tick - placedTick!} ticks after placement`);
   });

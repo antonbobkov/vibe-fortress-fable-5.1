@@ -96,9 +96,7 @@ describe('T-487 a failed fetch walk is retried on the timer', () => {
     // It waits for a trigger, and claims nothing while it waits.
     w.step(FAILED_WALK_RETRY_TICKS - BLOCKED_RETRY_TICKS);
     expect(claims()).toBe(1);
-    // No trigger comes: the job is claimed again once the wait is over, well within a day. (T-551: the
-    // dwarf has no bed; it is kept awake, since a floor sleep is twice as long.)
-    w.setNeed(dwarf, 'rest', 0);
+    // No trigger comes: the job is claimed again once the wait is over, well within a day.
     w.until(() => claims() > 1, 2 * BLOCKED_RETRY_TICKS);
     expect(w.tick - blockedAt).toBeLessThan(TICKS_PER_DAY);
   });

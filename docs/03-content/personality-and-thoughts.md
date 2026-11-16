@@ -49,7 +49,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `in_miasma` | "The stench is unbearable." | −5 | comfort | standing in miasma |
 | `in_pain` | "It hurts." | −(pain / 10), min −8 | none | pain ≥ 20 |
 | `bedridden` | "I cannot leave my bed." | −6 | none | bedridden |
-| `slept_on_floor_last_night` | "Slept on the floor last night." | −3 | room | last sleep was on the floor; cleared by the next sleep in a bed |
+| `slept_on_floor_last_night` | "Slept on the floor last night." | 0 | room | (no thought: `slept_on_floor` carries the floor, T-572) |
 
 ### Food and drink
 
@@ -87,10 +87,11 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `slept_in_grand_room` | "Slept in my grand room." | +8 | 48 | linear | 1 | room | grand |
 | `slept_in_royal_room` | "Slept in my royal room." | +10 | 48 | linear | 1 | room | royal |
 | `slept_in_shared_bed_room` | "Slept in someone else's bed." | −1 | 12 | linear | 1 | room | `Slept` unassigned bed |
-| `slept_on_floor` | "Slept on the floor." | −4 | 24 | linear | 1 | room | `Slept` onFloor |
+| `slept_on_floor` | "Slept on the floor." | −2 | 24 | linear | 1 | room | `Slept` onFloor |
 | `slept_outdoors` | "Slept under the sky." | −5 | 24 | linear | 1 | weather | `Slept` outdoor tile |
 | `well_rested` | "Feel well rested." | +2 | 12 | linear | 1 | comfort | `Slept` with rest reaching 0 |
 | `slept_on_a_pallet` | "Slept on a pallet." | −1 | 24 | linear | 1 | room | `Slept` on a pallet (`bedType` `pallet` or `straw_pallet`) |
+| `slept_in_a_bed` | "Slept in a proper bed." | +1 | 24 | linear | 1 | comfort | `Slept` in a wooden bed not made up (`bedType` `bed`, bedding `none`) |
 | `slept_in_a_soft_bed` | "Slept in a soft bed." | +3 | 24 | linear | 1 | comfort | `Slept` bedding `soft` |
 | `slept_in_a_featherbed` | "Slept in a featherbed." | +5 | 36 | linear | 1 | comfort | `Slept` bedding `feather` |
 

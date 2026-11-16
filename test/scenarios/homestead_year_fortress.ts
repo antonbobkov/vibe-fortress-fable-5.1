@@ -438,7 +438,9 @@ export function runHomesteadYear(w: TestWorld): void {
       w.game.world.applyCommand({
         type: 'AddWorkOrder',
         workshopId: workshopIds['carpenter']!,
-        order: { recipeId: 'make_bed', mode: 'once', remaining: 4 },
+        // T-572: a wooden bed takes bedding stuff beside its log; this homestead brought no cloth and
+        // weaves its own for clothes, so its beds are stuffed with the barley's straw.
+        order: { recipeId: 'make_bed_straw', mode: 'once', remaining: 4 },
       });
     }
 

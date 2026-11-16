@@ -59,14 +59,13 @@ const scenario: Scenario = {
   // T-545: dangerous arrivals keep a quiet spell of DANGEROUS_QUIET_DAYS, so two seasons see one or
   // two. On 'pp-defence' the first pair of boars killed a soldier and fled, and the next dangerous
   // group came on day 43, after the wagon's food had run out; on this seed a badger is met and killed
-  // on day 7, with or without the spell. T-551: dwarves without a bed sleep on the floor at 50, twice as
-  // long, and on 'pp-defence-4' (and 5, 7) no dangerous animal was killed before the wagon's food ran
-  // out on day 38; on 'pp-defence-6' one is met and killed on day 11.
-  seed: 'pp-defence-6',
+  // on day 7, with or without the spell. (T-551 moved it to 'pp-defence-6' with the floor at 50; T-572's
+  // floor at 85 meets the goal on this seed again.)
+  seed: 'pp-defence-4',
   world: 'flat-test',
   timeoutMs: 300_000,
   run: () => {
-    const w = pathWorld('pp-defence-6', { preset: 'warband' }, { traits: [] });
+    const w = pathWorld('pp-defence-4', { preset: 'warband' }, { traits: [] });
     const { x: cx, y: cy } = wagon(w);
     const ent = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');

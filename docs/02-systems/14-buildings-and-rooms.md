@@ -36,10 +36,11 @@ A build input of more than one unit is counted in units, not stacks: a hearth's 
 
 ### Beds
 
-Every building tagged `sleep` is a bed: for a bedroom's and a hospital's requirement, for the bed search (10 § Sleeping) and for `freeBeds`. Its row's `rest` is the percent it rests at (10 § Sleeping): `pallet` and `straw_pallet` 60, `stone_bed` 75, `bed` 100. `buildings.restPercent(id)` reads it, and gives `MADE_UP_REST_PERCENT` for a made-up bed.
+Every building tagged `sleep` is a bed: for a bedroom's and a hospital's requirement, for the bed search (10 § Sleeping) and for `freeBeds`. Its row's `rest` is the percent it rests at (10 § Sleeping): `pallet` and `straw_pallet` 90, `stone_bed` 95, `bed` 100: a narrow band (T-572), since a bed's worth is mostly its sleeper's thought (10 § Sleeping). `buildings.restPercent(id)` reads it, and gives `MADE_UP_REST_PERCENT` for a made-up bed.
 
 - **A pallet is a dwarf lying down under a cloth.** `pallet` (2 `cloth` or `wool_raw`) and `straw_pallet` (3 `fiber`, `straw` or `reed`) are laid straight from their materials, with no item and no workshop: the player places one on a floor like a chair, and a `build` job of labor `hauling` (any dwarf, children too) carries the materials to the tile and spreads them in `buildTicks` 20, the shortest build there is. The job uses no skill (the worker's `building` level does not speed it) and gives no experience. Taking it apart returns the materials. A pallet adds no room value, and its sleeper thinks `slept_on_a_pallet`.
-- **A stone bed is a mason's job.** `make_stone_bed` and `make_stone_bed_straw` at the mason (`masonry`): 1 `raw_stone` and a pallet's materials make 1 `stone_bed` item of the stone, with no quality. It is placed as a bed is (labor `masonry`) and rests at 75. It takes no bedding.
+- **A stone bed is a mason's job.** `make_stone_bed` and `make_stone_bed_straw` at the mason (`masonry`): 1 `raw_stone` and a pallet's materials make 1 `stone_bed` item of the stone, with no quality. It is placed as a bed is (labor `masonry`) and rests at 95. It takes no bedding, and its sleeper has no thought for it.
+- **A wooden bed needs bedding stuff.** `make_bed` at the carpenter takes 1 `log` and a pallet's materials (2 `cloth` or `wool_raw`), and `make_bed_straw` 1 `log` and 3 `fiber`, `straw` or `reed`: 1 `bed` of the log's wood either way. It rests at 100 and its sleeper thinks `slept_in_a_bed` (+1). A bed bought at embark or from a caravan comes made.
 - **A dressed bed.** A built `bed` (the wooden bed) wants 1 `bedding` and 1 `pillow` (§ Building wants). A bed holding its bedding is *made up*: it rests at `MADE_UP_REST_PERCENT`. `buildings.bedding(id)` is `soft` for a bed holding both, `feather` when both were stuffed with feathers (`Item.stuffing`, recorded at the clothier, 12 § Operation), and `none` otherwise: bedding with no pillow rests as a made-up bed and gives no thought. 10's `Slept` carries it, and 15's thoughts follow. The bedding and pillow add their value to the room as a linked item does (§ Rooms and quality), a featherbed's at its doubled value (13 § Value).
 - So a fortress on day one, with no carpenter, puts its seven dwarves on pallets of the wagon's cloth that afternoon (about five hours for seven from two stacks, since a build carries a whole stack: [T-NEW](../work/T-568-pallets-from-one-stack.md)), and on stone beds once the mason has stone.
 
@@ -248,7 +249,7 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 | `HEARTH_HALL_SIDE` | 5 | Side of the square around the hearth that is its stand-in hall and comfort light (*unmeasured*) |
 | `HEARTH_WARMTH_C` | 2 | °C added inside that square (05) (*unmeasured*) |
 | `STONE_WORKSHOP_TICKS_PERCENT` | 150 | Build time of a workshop of blocks against its logs (*unmeasured*) |
-| `MADE_UP_REST_PERCENT` | 125 | The percent a made-up bed rests at (§ Beds) (*unmeasured*) |
+| `MADE_UP_REST_PERCENT` | 110 | The percent a made-up bed rests at (§ Beds) (*unmeasured*) |
 | `RACK_CAPACITY` | 5 | The units a drying rack holds over its rows (*unmeasured*) |
 
 Material and item requirements, value bonuses and footprints are content.
