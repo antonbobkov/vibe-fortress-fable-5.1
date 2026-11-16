@@ -81,6 +81,8 @@ export interface LocalGen {
   readonly veins: VeinRecord[];
   readonly spawns: SpawnEntry[];
   readonly warmSprings: TileIndex[];
+  /** `starfall`: the crater's walkable tiles (its floor, ramps and wild wyrmtongue), ascending. */
+  readonly craterTiles: TileIndex[];
   /** Centre column of the volcano pipe, or -1. */
   volcano: number;
 }

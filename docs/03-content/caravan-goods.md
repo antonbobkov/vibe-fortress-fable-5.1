@@ -143,6 +143,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | material `reed` | | | 100 |
 | material `salt` | | 150 | |
 | material class `bone` | | | 60 |
+| material `star_steel` | 200 | 200 | 200 |
 
 ## Scarcity and never sold
 
@@ -192,5 +193,4 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 | material `silk_cloth` | 150 | | 140 | T-556 |
 | `craft` of `giant_bone` | 150 | | | T-557 |
 | `food/honey`, `food/wax` | | | 100 | T-555 |
-| material `star_steel` | 200 | 200 | 200 | T-560 |
 

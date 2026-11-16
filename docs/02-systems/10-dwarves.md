@@ -134,7 +134,7 @@ Every target a need activity walks to must be reachable (connectivity labels). I
 
 Dwarves move with the movement helper at `speedFixed = species speed × (50 + Agility) / 100 × wound modifier (17) × tipsy modifier (§ Tipsy) × carry modifier (a carried item heavier than `HEAVY_ITEM_DENSITY × size` halves speed)`. They avoid `restricted` tiles when a path without them exists (22 cost) and never enter `forbidden` tiles. A dwarf entering a misty tile emits `DwarfFeltMist` (once per `MIST_THOUGHT_COOLDOWN`); entering an outdoor tile during rain, storm, snow, heatwave or cold snap emits `DwarfOutdoorsIn { weather }` once per hour.
 
-The `EntitiesMoved` handler observes entries using the batch’s from/to tiles. It writes the dwarf’s `Brain` for mist and outdoor thought memory, and `Needs` for masterwork joy relief; it never changes a tile. A zero `lastMistTick` means mist has never been felt; otherwise the cooldown must have elapsed. `lastOutdoorThoughtHour` stores the hour index so the weather thought fires only once per hour. `DwarfNearSpring` fires when the destination is on or 8-adjacent to a spring on the same level and the origin was not. Miasma is a standing thought checked by 15, rather than a movement event.
+The `EntitiesMoved` handler observes entries using the batch’s from/to tiles. It writes the dwarf’s `Brain` for mist and outdoor thought memory, and `Needs` for masterwork joy relief; it never changes a tile. A zero `lastMistTick` means mist has never been felt; otherwise the cooldown must have elapsed. `lastOutdoorThoughtHour` stores the hour index so the weather thought fires only once per hour. `DwarfNearSpring` fires when the destination is on or 8-adjacent to a spring on the same level and the origin was not. `CraterEntered { id, first }` fires when the destination is one of a `starfall` crater's tiles and the origin was not, checked against 03's sorted `craterTiles` (`terrain.isCrater`), as a spring is; `first` is true for the fortress's first such entry (the saved flag `craterEntered`), whose note is "{dwarf} stood where the star fell." (`announce.crater_entered`); 15's `saw_the_star` keeps itself from repeating while it lasts. Miasma is a standing thought checked by 15, rather than a movement event.
 
 ### Relationships
 
@@ -165,7 +165,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 - Components: `Attributes`, `Skills`, `Needs`, `Personality`, `Schedule`, `Relationships`, `Title`, plus private `Brain { behavior, behaviorUntilTick, targetTile, activity, lastMistTick, lastOutdoorThoughtHour }`.
 - `titles: Record<Title, EntityId | 0>`, `populationCached`, `children: EntityId[]`.
-- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id, last scan tick and last seen tile, and `caught` while the hostile holds a civilian it caught fleeing); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; talks in passing (the two dwarves and the end tick), per-dwarf hearth-hall ticks, per-dwarf hall-errand retry ticks and `tipsyUntil` (per tipsy dwarf, the tick its tipsiness ends), each omitted when empty and empty in older saves; `idleAnnounced`; per-dwarf `sawMasterworks`; `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
+- `wagonTile` (−1 without an arrival); `interruptFlags`; `threatened` records (dwarf id, hostile id, last scan tick and last seen tile, and `caught` while the hostile holds a civilian it caught fleeing); hunger/thirst maximum-duration clocks and daily `starvingAnnounced` records; activity plans; talks in passing (the two dwarves and the end tick), per-dwarf hearth-hall ticks, per-dwarf hall-errand retry ticks and `tipsyUntil` (per tipsy dwarf, the tick its tipsiness ends), each omitted when empty and empty in older saves; `idleAnnounced`; per-dwarf `sawMasterworks`; `craterEntered` (a dwarf has stood in the `starfall` crater; omitted while false); `needRetryUntil`; `shutOut` ids and `shelterCheckPending`.
 - Rng stream.
 
 ## Interfaces
@@ -195,11 +195,11 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Events emitted
 
-`ItemReleased { itemId, jobId: dwarfId }`, `MealEaten` (with `seasoned`, the meal's seasonings, when it has any), `DrankAlcohol`, `DrankWater`, `DrankFromPlant { id, material }`, `Slept { id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType }` (§ Sleeping), `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
+`ItemReleased { itemId, jobId: dwarfId }`, `MealEaten` (with `seasoned`, the meal's seasonings, when it has any), `DrankAlcohol`, `DrankWater`, `DrankFromPlant { id, material }`, `Slept { id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType }` (§ Sleeping), `Talked`, `Sat { id, roomTier }`, `HearthVisited { id }`, `DwarfFeltMist { id }`, `DwarfNearSpring { id }`, `CraterEntered { id, first }` (§ Movement), `DwarfOutdoorsIn { id, weather }`, `SawMasterwork { id, itemId }`, `NeedCritical { id, need }`, `Starving { id, need }`, `SkillLevelUp { id, skill, level }`, `LegendaryReached { id, skill }`, `DwarfIdle { id }`, `TitleAssigned { dwarfId, title }`, `DwarfBecameAdult { id }`, `Starvation { id }` (hunger or thirst has reached the point of death; 17 applies it).
 
 ### Registrations
 
-Panel `units`; inspector sections `creature › dwarf` (attributes, skills with tiers and progress bars, needs, personality, title, relationships, activity, productivity); announcements: starving (alert), passed out (note), title assigned (note), came of age (note), legendary (note).
+Panel `units`; inspector sections `creature › dwarf` (attributes, skills with tiers and progress bars, needs, personality, title, relationships, activity, productivity); announcements: starving (alert), passed out (note), title assigned (note), came of age (note), legendary (note), the first dwarf in the `starfall` crater (note, `CraterEntered` with `first`).
 
 ## Player-facing behavior
 
@@ -264,9 +264,9 @@ Need rates and thresholds above follow the balance model; the consumption arithm
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
 
 
-### Places that make a face (T-557, T-560)
+### Places that make a face (T-557)
 
-- On `EntitiesMoved`, a fortress dwarf entering a tile of a boneyard's ribs whose skeleton no dwarf has entered emits `RibsEntered { id, boneyard }` and 03's record is marked (T-557); one entering a crater tile emits `CraterEntered { id }` (T-560). Both are checked from the batch's tiles against 03's sorted tile lists, as a spring is.
+- On `EntitiesMoved`, a fortress dwarf entering a tile of a boneyard's ribs whose skeleton no dwarf has entered emits `RibsEntered { id, boneyard }` and 03's record is marked (T-557), checked from the batch's tiles against 03's sorted tile lists, as a spring and the crater are (§ Movement).
 
 ### Feasts, mugs and the Thane's whim (T-565)
 

@@ -113,7 +113,7 @@ Each is computed as an integer score then bucketed into 0–4 by fixed threshold
 
 ### Traits
 
-For each region whose biome is embarkable (neither ocean nor glacier), in id order, roll once for a trait from the trait table filtered by requirements (biome list, rating ranges, river or volcano requirements). Each trait has a permille frequency. A region gets at most two traits; a second roll happens only if the first succeeded and the trait allows a companion. The trait list, fixed here with its intent (effects are specified in the systems that implement them and quantified in `03-content/regions-biomes-and-traits.md`):
+For each region whose biome is embarkable (neither ocean nor glacier), in id order, roll once for a trait from the trait table filtered by requirements (biome list, rating ranges, river or volcano requirements). Each trait has a permille frequency. A region gets at most two traits; a second roll happens only if the first succeeded and the trait allows a companion. `starfall` is not rolled with the others: after them, each embarkable region that has fewer than `TRAIT_MAX_PER_REGION` traits, all of which allow a companion, and that meets its requirements, rolls once more for it, in id order, with its permille, on a stream of its own (`worldgen.starfall`). No other stream draws for it, so every other trait of every region is what it would be without it, and about one region in seventy gains a crater. The trait list, fixed here with its intent (effects are specified in the systems that implement them and quantified in `03-content/regions-biomes-and-traits.md`):
 
 | Trait | Requirement | Effect summary |
 |---|---|---|
@@ -130,6 +130,7 @@ For each region whose biome is embarkable (neither ocean nor glacier), in id ord
 | `beastwood` | forest biomes | Dense and aggressive wildlife; bears and wolves in packs |
 | `twilight_pass` | peril ≥ 3 | On the Gloam road: raids twice as frequent, thieves constant |
 | `deep_well` | deepness ≥ 120 | Cavern one is mostly a lake; water is everywhere below |
+| `starfall` | any land biome; rolled last, on its own stream | A crater of ash where a star fell, wild wyrmtongue in it, and under its centre one boulder of star iron: three bars of star steel |
 
 ### Names
 
@@ -192,11 +193,3 @@ Values follow the balance model (see [`../03-content/balance.md`](../03-content/
 - New trait: a row with requirements and hooks; the hooks are implemented by 03, 06, 07, 08 and 18 as documented there.
 - New civilization: a row in the civilization table and a placement rule here; 20 and 18 read the table for schedules and behavior.
 - Different world shapes: the continental mask is one function.
-
-## Planned: Making Do
-
-Not yet in the game. The block below names the task that builds it; that task moves it into the sections above as plain specification and deletes it here, and this section with it. Its numbers are *unmeasured*.
-
-### Starfall (T-560)
-
-`starfall` (`regions-biomes-and-traits.md` § Planned rows) is not rolled with the other traits: after § Traits has run, each embarkable region that has fewer than `TRAIT_MAX_PER_REGION` traits, whose traits all allow a companion, rolls once more on its own stream (`worldgen.starfall`), in id order, with the trait's permille. So every other trait of every region is what it was, and a world gains a crater in about one region in seventy. The trait list of § Traits gains its row: any land biome; a crater of bare rock with one meteorite of star iron (03 § Planned).

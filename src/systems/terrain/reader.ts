@@ -41,6 +41,8 @@ export interface TerrainReader {
   materialClassAt(i: TileIndex): MaterialClass;
   spec(): LocalMapSpec | null;
   isForbidden(i: TileIndex): boolean;
+  /** The tile is one of a `starfall` map's crater tiles (`03` § State `craterTiles`). */
+  isCrater(i: TileIndex): boolean;
   /** The forbidden set, ascending (a copy). */
   forbiddenTiles(): TileIndex[];
   /** Items 03 owes the world until the item system exists (M2); a fresh copy. */
@@ -92,6 +94,7 @@ export function makeReader(
     materialClassAt,
     spec,
     isForbidden: (i) => core.isForbidden(i),
+    isCrater: (i) => core.isCrater(i),
     forbiddenTiles: () => core.forbidden.slice(),
     intendedDrops: () => core.drops.slice(),
     designationWork: (i) => workOf(i),

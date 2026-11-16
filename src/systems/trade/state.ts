@@ -12,6 +12,8 @@ export interface TradeSession {
   take: OfferLine[];
   woodOffered: EntityId[];
   woodWarning: boolean;
+  /** 20 § Trading: an offer of this session has held star steel, and the merchant asked (absent: no). */
+  starSteelAsked?: boolean;
 }
 export interface ReputationEntry { tick: number; civ: Civ; delta: number; reason: string }
 

@@ -168,6 +168,23 @@
     }
   },
   {
+    "id": "starfall",
+    "name": "Starfall",
+    "order": 13,
+    "requirements": {
+      "notBiomes": [
+        "ocean",
+        "glacier"
+      ]
+    },
+    "freq": 15,
+    "companion": true,
+    "hooks": {
+      "01": "rolled on its own stream after the other traits",
+      "03": "a crater of radius 3–5, its floor one level down and of ash_soil, wild wyrmtongue on it, one star_iron boulder one level below its centre"
+    }
+  },
+  {
     "id": "sunken_halls",
     "name": "Sunken Halls",
     "order": 6,

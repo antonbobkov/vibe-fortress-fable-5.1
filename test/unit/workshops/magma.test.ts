@@ -39,7 +39,7 @@ describe('T-M5-04 magma workshops', () => {
   it("exposes the magma smelter's, forge's and kiln's recipes", () => {
     const w = new TestWorld({ seed: 'm5-magma-recipes', world: 'flat-test', embark: 'none' });
     const reader = w.readers.of<WorkshopsReader>('12');
-    expect(reader.recipesFor('magma_smelter')).toHaveLength(26);
+    expect(reader.recipesFor('magma_smelter')).toHaveLength(27);
     expect(reader.recipesFor('magma_forge')).toHaveLength(41);
     expect(reader.recipesFor('magma_kiln')).toHaveLength(10);
   });

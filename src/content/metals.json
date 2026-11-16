@@ -278,6 +278,24 @@
     "color": "silver_white"
   },
   {
+    "id": "star_steel",
+    "name": "star steel",
+    "class": "metal",
+    "tier": 4,
+    "value": 90,
+    "density": 780,
+    "weaponMult": 1300,
+    "armorMult": 1250,
+    "bluntBonus": 0,
+    "runeMult": 1400,
+    "summon": "stone_warden",
+    "meltsAtC": 1600,
+    "color": "star_silver",
+    "tags": [
+      "magma_safe"
+    ]
+  },
+  {
     "id": "steel",
     "name": "steel",
     "class": "metal",

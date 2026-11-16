@@ -90,9 +90,13 @@ generate(seed: string, size: number, progress: (stage, pct) => void): WorldMap
   // 8. traits
   st = stream(S, 'worldgen.traits')
   for each region with an embarkable biome in id order:
-    eligible = traits.filter(t => meets(t.requirements, r))
+    eligible = traits.filter(t => t != starfall && meets(t.requirements, r))
     for t in eligible (table order): if st.chance(t.freq): r.traits.push(t); if not t.companion: break; if r.traits.length == TRAIT_MAX_PER_REGION: break
     apply trait rating overrides (serene_vale: peril = 0; ironheart: wealth += 1; glasslands: temper += 1)
+  st = stream(S, 'worldgen.starfall')   // rolled last, so every other trait is what it was without it
+  for each region with an embarkable biome in id order:
+    if r.traits.length < TRAIT_MAX_PER_REGION and every trait of r allows a companion and meets(starfall.requirements, r):
+      if st.chance(starfall.freq): r.traits.push(starfall)
   // 9. names
   st = stream(S, 'worldgen.names'); for each r: r.name = regionName(st, r)
   return { size, seed, regions, civHomes: homes, rivers }

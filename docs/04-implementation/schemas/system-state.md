@@ -18,7 +18,7 @@ interface LocalMapSpec { seed: string; regionId: number; biome: Id<BiomeDef>; el
 
 interface TerrainState { stateVersion: 1; designations: { tile: TileIndex; kind: Designation; priority: Priority; progress: Fixed }[];
   engravings: [TileIndex, { quality: Quality; engraverId: EntityId; motif: number }][]; forbiddenTiles: TileIndex[];
-  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; fossilFound?: boolean /* omitted while false */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number;
+  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; fossilFound?: boolean /* omitted while false */; craterTiles?: TileIndex[] /* a starfall map's crater tiles, ascending; omitted on any other map */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number;
   pendingTerrain?: { changed: TileIndex[]; discovered: TileIndex[]; litDirty: number[] /* z levels */ } }
 // pendingTerrain arrays are sorted and unique; absent means no deferred batch. Serialization and loading do not flush terrain work.
 
@@ -50,7 +50,7 @@ interface ActivityPlan { need: string; phase: 'travel'|'seat'|'use'; itemId: Ent
   ownBed: boolean; atTable: boolean; roomTier: number; startedRest: number; hall?: true /* a hall errand taken at LEISURE_MARK; its `partner` is the talk partner found from the seat */ }
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
   wagonTile: TileIndex; interruptFlags: EntityId[]; hungerMaxSince: [EntityId, Tick][]; thirstMaxSince: [EntityId, Tick][];
-  starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][];
+  starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][]; craterEntered?: true /* a dwarf has stood in the starfall crater; omitted while false */;
   needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; threatened?: [EntityId, { hostileId: EntityId; tick: Tick; tile?: TileIndex; caught?: true }][];
   talks?: [EntityId, EntityId, Tick][] /* talks in passing: lower id, higher id, end tick; absent means none */; hearthTicks?: [EntityId, number][] /* ticks eaten, drunk and sat in the hearth hall toward the next hearth visit; absent means none */; hallRetryUntil?: [EntityId, Tick][] /* no hall errand before this tick; absent means none */; tipsyUntil?: [EntityId, Tick][] /* 10 § Tipsy: the tick a tipsy dwarf's tipsiness ends; absent means none */; rng: RngState }
 // A rest activity's itemId holds its chosen bed during travel/use; 0 means floor sleep. Patient.bedId is the corresponding hospital hold.
@@ -94,7 +94,7 @@ interface DefenseState { stateVersion: 1; traps: [EntityId, { kind: string; mode
 
 interface TradeState { stateVersion: 1; schedule: Record<Civ, { nextArrivalTick: Tick; banUntilYear: number }>; activeCaravan: EntityId;
   requests: Record<Civ, { item: Idx<ItemTypeDef>; material: Idx<MaterialDef> | 0; priority: 1|2|3 }[]>; depotItems: EntityId[]; merchantItems: EntityId[];
-  session: { depotId: EntityId; traderId: EntityId; merchantId: EntityId; give: [EntityId, number][]; take: [EntityId, number][] } | null;
+  session: { depotId: EntityId; traderId: EntityId; merchantId: EntityId; give: [EntityId, number][]; take: [EntityId, number][]; woodOffered: EntityId[]; woodWarning: boolean; starSteelAsked?: boolean /* omitted while false */ } | null;
   lastBrought: Record<Civ, Idx<ItemTypeDef>[]>; reputationLog: { civ: Civ; delta: number; reason: string; tick: Tick }[]; rng: RngState }
 
 interface MagicState { stateVersion: 1; sessionsToday?: [EntityId, number][]; firstRunecasterDone?: boolean; lastMishaps?: [EntityId, { kind: string; dwarfId: EntityId; tick: Tick }][]; pendingBlooms?: { tile: TileIndex; at: Tick; casterId: EntityId; raw: number }[]; bloomAlertsToday?: EntityId[] }   // 25: attune sessions today by dwarf, sorted by id; the last mishap of each sanctum zone, sorted by zone id; the Fireblooms cast and not yet bloomed, in cast order; the casters whose bloom caught one of their own today, sorted; each omitted when empty or false, absent in older saves means none. Stream `25` is saved in the `rng` section only, since 20's caravan extras draw on it too

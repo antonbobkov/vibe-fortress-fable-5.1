@@ -181,6 +181,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.trait.beastwood': 'more beasts; wolves and bears in double packs.',
   'ui.site.trait.twilight_pass': 'on the Gloam road: raids twice as often, more thieves.',
   'ui.site.trait.deep_well': 'the first cavern is mostly a lake.',
+  'ui.site.trait.starfall': 'a star fell here: a crater of ash where wyrmtongue grows wild, and under it one boulder of star iron, three bars of star steel.',
   'ui.edge.n': 'north',
   'ui.edge.e': 'east',
   'ui.edge.s': 'south',
@@ -400,6 +401,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.trade.choose_goods': 'Choose goods to offer.',
   'ui.trade.scarce': 'scarce here',
   'ui.trade.not_traded': 'The {civ} do not trade in that.',
+  'ui.trade.star_steel': 'Where did you get this?',
   // Build tool (`fortress-screen.md` § Build tool; T-M2-09).
   'ui.status.build': '{tool} · click to place · [r] rotate  [x] material  [Esc] cancel',
   'ui.status.build_blocked': '{tool} · blocked: {reason} · [Esc] cancel',

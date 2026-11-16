@@ -155,7 +155,7 @@ interface Conversion {
 /**
  * The conversions of 03 (end of stage 10) that may place a plant here (`plants.md` § Conversions): a
  * row that names the biome, or an every-region row whose tiles lie by surface water when the site
- * has a river or a lake. A row on `ash_soil` alone never applies: no generated surface is ash.
+ * has a river or a lake. A row on `ash_soil` alone never applies: no surface the conversions see is ash (a `starfall` crater comes after them).
  */
 function conversionsOf(registry: Registry, biome: string, wet: boolean): Conversion[] {
   const plants = registry.table<PlantRow>('plants');

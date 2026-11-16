@@ -57,6 +57,8 @@ export interface DwarvesStateV1 {
   idleAnnounced?: EntityId[];
   /** T-M5-07: each dwarf remembers individual masterwork items seen on room entry. */
   sawMasterworks?: [EntityId, EntityId][];
+  /** A fortress dwarf has stood in the `starfall` crater (`10` § Movement). Absent while false. */
+  craterEntered?: true;
   needRetryUntil?: [EntityId, NeedName, number][];
   shutOut?: EntityId[];
   shelterCheckPending?: boolean;

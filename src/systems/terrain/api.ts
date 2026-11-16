@@ -77,6 +77,8 @@ export class TerrainCore implements TerrainApi {
   readonly veinsFound: number[] = [];
   /** `03` § State: the first tile of class `bone` has been dug (`FossilFound` is emitted once). */
   fossilFound = false;
+  /** `03` § State: a `starfall` map's crater tiles, ascending (empty on any other map). */
+  readonly craterTiles: number[] = [];
   /** Drops recorded for the M2 item system (and read by tests). */
   readonly drops: IntendedDrop[] = [];
 
@@ -427,6 +429,11 @@ export class TerrainCore implements TerrainApi {
   /** Record a vein as found; true the first time. */
   findVein(i: TileIndex): boolean {
     return sortedInsert(this.veinsFound, this.veinKey(i));
+  }
+
+  /** `03` § State: the tile is one of the `starfall` crater's. */
+  isCrater(i: TileIndex): boolean {
+    return sortedIndexOf(this.craterTiles, i) >= 0;
   }
 
   // ---------- traffic ----------
