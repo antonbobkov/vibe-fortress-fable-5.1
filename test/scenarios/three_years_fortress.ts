@@ -261,6 +261,10 @@ export interface FortressState {
   wildCalmTick?: number;
   /** T-539: under this alert the squad has mustered at its post, and hunts the wild animals together. */
   mustered?: boolean;
+  /** T-575: the ambushes on the map that have sprung, counted for the journal's census until they are gone. */
+  ambushes?: AmbushCount[];
+  /** T-575: the soldiers stood down from the squad for an ambush that outnumbers them, put back once the alert is down. */
+  stoodDown?: number[];
   hospitalSetup: boolean;
   /**
    * T-571: dormitories dug once the bedroom plans are spent, each a block of free beds, so a dwarf
@@ -1382,6 +1386,70 @@ function keepInnerLine(w: TestWorld, state: FortressState): void {
   }
 }
 
+/**
+ * T-575: one sprung ambush, as the journal's census counts it: its size and who was outdoors when
+ * it sprang, the squad's armed members then, and the deaths on both sides until the party is gone.
+ */
+export interface AmbushCount {
+  party: number;
+  day: number;
+  size: number;
+  /** Fortress dwarves on the surface when the script saw it spring (it looks every few hundred ticks). */
+  outdoors: number;
+  /** Squad members holding a weapon when it sprang, those stood down for it included. */
+  armed: number;
+  /** Fortress dwarves dead since it sprang, and how many of them were in the squad. */
+  deaths: number;
+  soldiers: number;
+  /** Its members dead. */
+  fell: number;
+  /** Fortress dwarves on the surface when the gate's first door locked, or -1 before it did. */
+  outsideAtLock: number;
+  /** Every dwarf seen in the squad since it sprang. */
+  squad: number[];
+}
+
+/**
+ * T-575: the census of sprung ambushes, read from the events the script has not read yet. Each is
+ * noted (`three_years_ambush`) when its party is gone; it changes nothing in the game.
+ */
+function countAmbushes(w: TestWorld, state: FortressState, events: readonly { type: string; [k: string]: unknown }[]): void {
+  const ent = w.game.world.entities;
+  const combat = w.readers.of<CombatReader>('16');
+  const counts = state.ambushes ?? (state.ambushes = []);
+  const fortress = (): number[] => ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress');
+  const onSurface = (): number => fortress().filter((id) => (ent.get(id, C.Position)?.z ?? -1) >= state.z).length;
+  const squad = [...(combat.squads().find((sq) => sq.id === state.squadId)?.members ?? []), ...(state.stoodDown ?? [])];
+  const dwarf = w.game.registry.table('creatures').index('dwarf');
+  for (const e of events) {
+    if (e.type === 'AmbushSprung') {
+      const party = Number(e['partyId']);
+      const p = ent.get(party, C.Party);
+      if (!p || counts.some((c) => c.party === party)) continue;
+      counts.push({ party, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, size: p.size, outdoors: onSurface(),
+        armed: squad.filter((id) => combat.weaponOf(id) !== 0).length, deaths: 0, soldiers: 0, fell: 0, outsideAtLock: -1, squad: [...squad] });
+    } else if (e.type === 'CreatureDied') {
+      const id = Number(e['id']);
+      for (const c of counts) {
+        if (e['faction'] === 'fortress' && e['species'] === dwarf) {
+          c.deaths += 1;
+          if (c.squad.includes(id)) c.soldiers += 1;
+        } else if (ent.get(c.party, C.Party)?.members.includes(id) === true) c.fell += 1;
+      }
+    } else if (e.type === 'BuildingStateChanged' && e['state'] === 'locked' && [state.gateDoorId, state.gateDoorId2].includes(Number(e['id']))) {
+      for (const c of counts) if (c.outsideAtLock < 0) c.outsideAtLock = onSurface();
+    }
+  }
+  for (const c of [...counts]) {
+    for (const id of squad) if (!c.squad.includes(id)) c.squad.push(id);
+    const p = ent.get(c.party, C.Party);
+    if (p !== undefined && p.state !== 'gone') continue;
+    const { squad: _seen, ...row } = c;
+    note('three_years_ambush', { ...row, ended: Math.floor(w.tick / TICKS_PER_DAY) + 1 });
+    counts.splice(counts.indexOf(c), 1);
+  }
+}
+
 export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const { cx, cy } = state;
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -1471,6 +1539,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       assignBroker(w, state);
     }
   }
+  // T-575: soldiers stood down for an ambush are put back in the squad once the alert is down.
+  if (w.game.world.fortress.alert === 'calm') standUp(w, state, adults);
   const squad = combat.squads().find((sq) => sq.id === state.squadId);
   const arming0 = armingSquad(state);
   if (squad) {
@@ -1501,6 +1571,9 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const intruders: number[] = [];
   let raid = false;
   let siege = false;
+  // T-575: an ambush, and how many it is: those of its members alive and those still to arrive.
+  let atGate = false;
+  let ambushSize = 0;
   for (const pId of ent.with(C.Party)) {
     const p = ent.get(pId, C.Party);
     if (!p || !hostilePurposes.has(p.purpose) || p.state === 'gone' || p.state === 'retreat') continue;
@@ -1508,11 +1581,14 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     if (p.purpose === 'thief') intruders.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Hostile)?.stealthed !== true));
     else raid = true;
     if (p.purpose === 'siege') siege = true;
+    if (p.purpose === 'ambush') ambushSize += p.members.filter((m) => ent.alive(m)).length + Math.max(0, p.size - p.members.length);
+    else if (p.purpose !== 'thief') atGate = true;
   }
   // T-387: a threat warning (18) is answered as a player answers its announcement, which pauses
   // the game: the fortress shelters and the squad takes its post until the party comes, instead
   // of the raiders finding the dwarves at work on the surface.
   const seen = w.allEvents();
+  countAmbushes(w, state, seen.slice(state.eventsRead ?? seen.length));
   for (let i = state.eventsRead ?? seen.length; i < seen.length; i += 1) {
     if (seen[i]!.type === 'ThreatWarning') {
       state.warnedUntil = w.tick + WARNED_TICKS;
@@ -1523,6 +1599,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   if (raid) state.warnedUntil = -1;
   else if (w.tick < (state.warnedUntil ?? -1)) {
     raid = true;
+    atGate = true;
     siege = state.siegeWarned === true;
   }
   // T-387: once the alert for wild animals alone has been lifted (below), the fortress works for
@@ -1616,6 +1693,23 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       command(w, { type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
     }
+    // T-575: an ambush does not come to the gate: it springs on the dwarves at work outdoors and
+    // hunts them, and loiters by the gate once they are in (18 § Party AI). Answered as a raid, the
+    // squad went for the gate stair; its soldiers, on duty under the alert, do not flee as the
+    // civilians do, and those caught outdoors fought the ambush on their way in, a few at a time.
+    // On day 297 of `three-years-p4-1` three of them were shut between the gate's doors and struck
+    // no blow; the probe of 36 peril-4 ambushes (T-575's report) found the squad, at the stair or
+    // sent out against the ambush, dying faster than the civilians: an ambush there is six to ten
+    // Gloam in steel, the squad three to five. So an ambush larger than the squad's armed soldiers
+    // (the only kind at peril 4) is sheltered from: the soldiers are stood down for the alert, leave
+    // the squad and go in with the civilians, and are put back once the alert is down, or at once
+    // should a raid, a siege, a thief or a hostile indoors need the squad. The gate locks as it does
+    // for any alert, once nobody is outside it or after its grace. An ambush no larger than the
+    // squad's armed soldiers (a few, at peril 2) is met as a raid is, at the gate stair.
+    const ambushOnly = raid && !atGate && indoors.length === 0 && intruders.length === 0;
+    const standingDown = ambushOnly && ambushSize > armedSoldiers(w, state, adults);
+    if (standingDown) standDown(w, state);
+    else standUp(w, state, adults);
     // T-539: wild animals alone are hunted by the squad together. It first musters at the gatehouse
     // stair, and sets out once SQUAD_SIZE of its armed members stand there. Sent out at once, each
     // soldier walked to the pack from wherever the alert found it, and since a struck wolf fights
@@ -1637,7 +1731,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       if (withWeapons.length < members.length) command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: withWeapons });
     }
     const mustering = muster && state.mustered !== true;
-    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}:${armed}:${mustering ? 'muster' : ''}:${targets.join(',')}`;
+    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}${standingDown ? ' stood down' : ''}:${armed}:${mustering ? 'muster' : ''}:${targets.join(',')}`;
     if (state.squadId !== 0 && state.answered !== answer) {
       state.answered = answer;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
@@ -1662,6 +1756,31 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     state.answered = '';
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
   }
+}
+
+/** T-575: the squad's members and the soldiers stood down from it who are alive and hold a weapon. */
+function armedSoldiers(w: TestWorld, state: FortressState, adults: readonly number[]): number {
+  const combat = w.readers.of<CombatReader>('16');
+  const members = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  return [...new Set([...members, ...(state.stoodDown ?? [])])].filter((id) => adults.includes(id) && combat.weaponOf(id) !== 0).length;
+}
+
+/** T-575: the squad's members leave it for the alert, as civilians, and are kept to be put back. */
+function standDown(w: TestWorld, state: FortressState): void {
+  const members = w.readers.of<CombatReader>('16').squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  if (members.length === 0) return;
+  state.stoodDown = [...new Set([...(state.stoodDown ?? []), ...members])];
+  command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: [] });
+}
+
+/** T-575: the soldiers stood down who are still alive are put back in the squad, with its members. */
+function standUp(w: TestWorld, state: FortressState, adults: readonly number[]): void {
+  const down = state.stoodDown ?? [];
+  if (down.length === 0) return;
+  state.stoodDown = [];
+  const members = w.readers.of<CombatReader>('16').squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  const back = [...new Set([...members, ...down])].filter((id) => adults.includes(id));
+  if (back.length !== members.length) command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: back });
 }
 
 /**
