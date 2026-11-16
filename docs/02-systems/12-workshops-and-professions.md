@@ -104,6 +104,7 @@ WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintai
 - Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; a global order goes to the first idle workshop of the type, in entity order).
 - Applying AddWorkOrder or EditWorkOrder normalises materialFilter: a known material id becomes its registry index; another string must be a material class; null means no filter. Numeric filters must be valid integer material indices. Invalid filters reject with bad_setting before changing orders or cancelling work. The same form is held by local and global orders and survives save/load. A brewing maintain order counts the selected plant's drink output for either id or index input. With no filter, a maintain order of a recipe whose first output is `drink` of a `fixed` material counts that material alone (`distill` counts deepfire, `brew_hopped` hopped ale).
 - `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`, or the recipe has no outputs.
+- A transform recipe is a setting generated from a row of `enchants` (25 § Setting stones), at the runeforge, or at the workshop the row names with that workshop's skill. The one such row is `fletched` (`weapons-and-armor.md` § Enchantments): the bowyer's `set_ammo_fletched`, 25 bolts or arrows + 1 feather, by `carpentry`, to-hit +5. It is a transform recipe by every rule here, and it emits `DeepsilverWorked` only at a `rune_work` building, as every recipe. A fletched set holds its one enchantment, so it never takes a rune setting after: seeking (emerald, +10) and fletching are a choice.
 - A transform recipe's order is `once` only, since there is no output to count: AddWorkOrder or EditWorkOrder with `maintain` rejects with `precondition_failed`. Its input 0 takes only an item with no enchantment (the filter's `noEnchant`), so an enchanted item is never set again. `targetType` (an item id, normalised to its index, or null) narrows input 0 to one of its alternatives; any other value, or a target on a recipe that is not a transform, rejects with `bad_setting`. There is no order for one exact item: the search takes the nearest match.
 
 ### Quality
@@ -219,11 +220,6 @@ Recipe times, bar costs per item and profession names are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `workshops-and-recipes.md` § Planned rows and the other content documents' § Planned rows.
-
-### Fletching at the bowyer (T-562)
-
-- An `enchants` row may name a `workshop` (`weapons-and-armor.md` § Enchantments gains the column; empty means the runeforge). Its generated `set_<slot>_<id>` recipe is offered at that workshop, with that workshop's skill (the bowyer's `carpentry`), and is a transform recipe by every rule of § Work orders. It emits `DeepsilverWorked` only at a `rune_work` building, as now.
-- `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5) is the one such row: 25 bolts or arrows + 1 feather → fletched. A fletched set cannot take a rune setting (one enchantment per item), so seeking (emerald, +10) and fletching are a choice.
 
 ### The feast (T-565)
 

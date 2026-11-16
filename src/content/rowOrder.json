@@ -1550,5 +1550,49 @@
   {
     "table": "recipes",
     "id": "make_soap"
+  },
+  {
+    "table": "weapons",
+    "id": "horn_bow"
+  },
+  {
+    "table": "items",
+    "id": "horn_bow"
+  },
+  {
+    "table": "armor",
+    "id": "scale_shirt"
+  },
+  {
+    "table": "armor",
+    "id": "scale_skirt"
+  },
+  {
+    "table": "items",
+    "id": "scale_shirt"
+  },
+  {
+    "table": "items",
+    "id": "scale_skirt"
+  },
+  {
+    "table": "enchants",
+    "id": "fletched"
+  },
+  {
+    "table": "recipes",
+    "id": "make_scale_shirt"
+  },
+  {
+    "table": "recipes",
+    "id": "make_scale_skirt"
+  },
+  {
+    "table": "recipes",
+    "id": "make_horn_bow"
+  },
+  {
+    "table": "recipes",
+    "id": "set_ammo_fletched"
   }
 ]
