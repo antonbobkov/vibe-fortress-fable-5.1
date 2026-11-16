@@ -169,6 +169,8 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'ate_salted_meal': return Array.isArray(event['seasoned']) && (event['seasoned'] as unknown[]).includes('salt');
     case 'smelled_smokehouse': return SMOKEHOUSE_RECIPES.includes(s(event, 'recipeId'));
     case 'smoky_hall': return true;
+    // 14 § Candle stands and lanterns: a meal at a table in comfort light.
+    case 'ate_by_candlelight': return event['candlelit'] === true;
     default: return true;
   }
 }
@@ -212,6 +214,8 @@ export function thoughtDetail(def: ThoughtDef, event: GameEvent, ctx: TickContex
 export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext): EntityId[] {
   const dwarves = ctx.readers.of<DwarvesReader>('10');
   // 05 § Smoke: everyone within `SMOKE_RADIUS` of the smoky workshop; 12: of a smokehouse's batch, but its worker.
+  // 14 § Candle stands and lanterns: tallow smoke names the one dwarf standing in it.
+  if (def.id === 'smoky_hall' && n(event, 'dwarfId') !== 0) return dwarves.list().includes(n(event, 'dwarfId')) ? [n(event, 'dwarfId')] : [];
   if (def.id === 'smoky_hall') return dwarvesNear(ctx, n(event, 'tile'), SMOKE_RADIUS);
   if (def.id === 'smelled_smokehouse') return dwarvesNear(ctx, workshopCentre(ctx, n(event, 'workshopId')), SMOKE_RADIUS).filter((id) => id !== n(event, 'crafterId'));
   const all = dwarves.list();

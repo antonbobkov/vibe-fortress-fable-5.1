@@ -379,3 +379,11 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | brew_mead |
 | thoughts | stung |
 | hints | hint_hive |
+| items | candle |
+| items | lantern |
+| buildings | candle_stand |
+| buildings | lantern |
+| recipes | make_candles_wax |
+| recipes | make_candles_tallow |
+| recipes | make_lantern |
+| thoughts | ate_by_candlelight |

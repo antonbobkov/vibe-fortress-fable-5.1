@@ -972,6 +972,22 @@
         "container": "barrel",
         "sundries": true,
         "units": 10
+      },
+      {
+        "item": "candle",
+        "materials": [
+          {
+            "material": "tallow",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
       }
     ]
   },

@@ -311,6 +311,8 @@ export interface Building {
   held?: EntityId[];
   /** A drying rack's held items with the drying days each has gained (`14` § The drying rack); absent: none. */
   dryDays?: [EntityId, number][];
+  /** A candle stand's days burned of its burning candle (`14` § Candle stands and lanterns); absent: none. */
+  burnDays?: number;
 }
 
 export interface WorkOrder {

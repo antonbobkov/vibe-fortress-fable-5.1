@@ -765,8 +765,11 @@ export class Activities {
         // `12` § Operation: `seasoned`, the seasonings' material ids (only when there are any), for 15's thoughts.
         const materials = ctx.registry.table('materials');
         const seasoned = (item.seasoned ?? []).map((m) => materials.byIndex(m)?.id ?? '').filter((m) => m !== '');
+        // 14 § Candle stands and lanterns: a meal at a table on a comfort-lit tile is eaten by candlelight.
+        const candlelit = p.atTable && (buildings(ctx)?.comfortLightAt(at) ?? false);
         ctx.emit({ type: 'MealEaten', id, quality: item.quality, atTable: p.atTable, roomTier: p.roomTier,
-          stage: item.rotStage, kind: meal ? 'meal' : 'raw', mealType: def?.id ?? '', ...(seasoned.length > 0 ? { seasoned } : {}) });
+          stage: item.rotStage, kind: meal ? 'meal' : 'raw', mealType: def?.id ?? '', ...(seasoned.length > 0 ? { seasoned } : {}),
+          ...(candlelit ? { candlelit: true } : {}) });
         if (meal && item.quality >= 4) change('joy', 20);
         if (p.atTable) {
           // A meal at a table is also a sit in that room.

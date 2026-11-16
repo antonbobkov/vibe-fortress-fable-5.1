@@ -43,6 +43,7 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | `straw_pallet` | straw pallet | 1×1 | floor | 3 `fiber`, `straw` or `reed` | hauling | 20 | sleep | 0 | yes | `≈` material | 90 | — |
 | `stone_bed` | stone bed | 1×1 | floor | `stone_bed` | masonry | 40 | sleep | item | yes | `Θ` item | 95 | — |
 | `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | `∩` item | — | — |
+| `lantern` | lantern | 1×1 | floor | `lantern` | construction | 30 | light | item | no | `¥` item | — | — |
 | `anvil_stand` | — | not a building; the anvil is an input of the forge | | | | | | | | | | |
 
 "By material" labor: wood → carpentry, stone → masonry, metal → smithing (metalcrafting).
@@ -77,6 +78,9 @@ A pallet and a straw pallet are laid from their materials, not from an item: the
 | `wagon` | wagon | 3×3 | placed at embark only | — | — | — | container | yes | 0 | pattern `wagon` | — |
 | `rune_circle` | rune circle | 1×1 | floor | 3 `stone_block` + 1 `rune_vial` | masonry | 200 | rune_circle | no | 20 | `○` `rune_cyan` | — |
 | `drying_rack` | drying rack | 1×1 | floor | 2 `log`, `stone_block` or `bone_pile` | construction | 60 | rack | no | 3 | `╤` material | 5 units of its drying rows |
+| `candle_stand` | candle stand | 1×1 | floor | 1 `stone_block` or `bar` | construction | 40 | light | no | 2 | `ì` material | 5 `candle` |
+
+A candle stand is built of its block or bar (returned when it is taken apart) and is impassable. It wants 5 candles, counted in units (a stack of candles is brought whole), burns the first and lights its 3×3 while it holds one; the candles it holds add their value to its room as furniture does ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns). A lantern is placed from its item, links it, and lights its 3×3 forever.
 
 A drying rack is built of its materials (consumed, and returned when it is taken apart) and is impassable. Its `wants` are the inputs of the drying rows its setting takes ([items.md](items.md) § Drying), 5 units in all, and the salt a hide it holds needs ([14](../02-systems/14-buildings-and-rooms.md) § The drying rack).
 
@@ -128,14 +132,7 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 ### Planned buildings
 
-The columns `rest` and `wants` are those of § Furniture placements. `table` gains wants 1 `mug` per adjacent chair, up to 4 (T-565).
-
-| table | id | name | footprint | on | inputs | labor | ticks | tags | room | pass | rest | wants | glyph | task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Special | `candle_stand` | candle stand | 1×1 | floor | 1 `stone_block` or `bar` | construction | 40 | light | its candles' value / 10 | no | — | 5 `candle` | `ì` material | T-563 |
-| Furniture placements | `lantern` | lantern | 1×1 | floor | `lantern` | construction | 30 | light | item | no | — | — | `¥` item | T-563 |
-
-The candle stand has the value 2 as a special building does (`value` column), and the lantern its item's.
+No new building row is left to add. `table` gains wants 1 `mug` per adjacent chair, up to 4 (T-565): the `wants` column of § Furniture placements.
 
 ### Planned zone types and settings
 
