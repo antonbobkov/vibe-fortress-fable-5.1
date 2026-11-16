@@ -604,6 +604,19 @@
     "interruptible": true
   },
   {
+    "id": "wash_patient",
+    "name": "Wash patient",
+    "labor": "medicine",
+    "skill": "medicine",
+    "target": "entity",
+    "workTile": "entity",
+    "baseTicks": "TREAT_TICKS",
+    "tool": null,
+    "xp": 4,
+    "producer": "health",
+    "interruptible": false
+  },
+  {
     "id": "water_patient",
     "name": "Water patient",
     "labor": "hauling",

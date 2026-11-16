@@ -1,6 +1,6 @@
 # T-565 — Making Do C6: feasts, the Thane's whims and mugs at the table
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 11); the flavour report's item 26; T-546, split from T-561 · **Size:** M · **Needs:** T-557, T-563 · **Status:** blocked (needs T-557, T-563)
+**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 11); the flavour report's item 26; T-546, split from T-561 · **Size:** M · **Needs:** T-557 · **Status:** blocked (needs T-557)
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

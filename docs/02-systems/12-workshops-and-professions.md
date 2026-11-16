@@ -31,7 +31,7 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `alchemist` | alchemy | the laboratory: rune vials from glowcap and glowstone, and draughts ([25](25-runecraft.md) § Draughts) |
 | `runeforge` | smithing | wands and staffs, one recipe of each per stone that carries a spell ([25](25-runecraft.md) § Channels); the runed robe and the circlet; a setting recipe per enchantment (25 § Setting stones) |
 | `forge` | smithing | weapons, armor, picks, axes, anvils, chains, metal cages, bolts, metal blocks, metal furniture, metal crutches |
-| `kitchen` | cooking | meals (easy 2 ingredients, fine 3, lavish 4), tallow from fat |
+| `kitchen` | cooking | meals (easy 2 ingredients, fine 3, lavish 4), tallow from fat, soap |
 | `still` | brewing | drinks from brewable plants (needs an empty barrel) |
 | `tannery` | leather | leather from raw hide |
 | `leatherworks` | leather | leather armor, bags, quivers, backpacks, leather rope |
@@ -62,7 +62,7 @@ Generated at load from the minerals and metals tables:
 - `melt_<class>`: a marked metal item → `floor(stackCount × itemBarValue × MELT_RETURN_PERCENT / 100)` bars of its metal, fuel, no quality.
 - `forge_<weapon|armor|tool>`: bars → the item; bar counts per item type; material from input; quality.
 
-Authored beside them at the smelter: `make_steel_shell`, 1 iron bar + 3 `shell_piece` of any shell material (`chitin` included) + 1 fuel → 1 steel, and `make_steel_bone_ash`, 1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel, both fuel and no quality as the alloy: shells and bone ash from the kiln stand in for the flux stone. At the kitchen, `crush_halite` crushes 1 `ore` of halite (rock salt) into 5 `salt`.
+Authored beside them at the smelter: `make_steel_shell`, 1 iron bar + 3 `shell_piece` of any shell material (`chitin` included) + 1 fuel → 1 steel, and `make_steel_bone_ash`, 1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel, both fuel and no quality as the alloy: shells and bone ash from the kiln stand in for the flux stone. At the kitchen, `crush_halite` crushes 1 `ore` of halite (rock salt) into 5 `salt`, and `make_soap` boils 1 tallow and 1 `potash` into 2 `soap` (a hospital supply, 17 § Patients and hospitals).
 
 Melting takes the whole marked stack. Its bar cost comes from the weapon or armor row, else the matching metal recipe's bar inputs divided by its output units, else one bar. Explicit work orders run first; `autoMeltMarked` starts only when none starts and the smelter is idle.
 
@@ -225,7 +225,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - An `enchants` row may name a `workshop` (`weapons-and-armor.md` § Enchantments gains the column; empty means the runeforge). Its generated `set_<slot>_<id>` recipe is offered at that workshop, with that workshop's skill (the bowyer's `carpentry`), and is a transform recipe by every rule of § Work orders. It emits `DeepsilverWorked` only at a `rune_work` building, as now.
 - `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5) is the one such row: 25 bolts or arrows + 1 feather → fletched. A fletched set cannot take a rune setting (one enchantment per item), so seeking (emerald, +10) and fletching are a choice.
 
-### Soap and the feast (T-564, T-565)
+### The feast (T-565)
 
-- Kitchen `make_soap`: 1 tallow + 1 `potash` → 2 `soap` (T-564).
 - Kitchen `cook_feast`: 6 distinct ingredients + 1 `salt`, `honey` or `plant_food` of wyrmtongue → 1 `feast` (a stack of `FEAST_SERVINGS`), `Q` yes; its `ItemCrafted` gives everyone `held_a_feast` (10 § Planned) (T-565).

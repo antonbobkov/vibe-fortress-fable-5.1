@@ -41,6 +41,8 @@ export const HARVEST_PRIORITY = 5;
 export const YIELD_LEVELS_PER_BONUS = 5;
 /** "capped at `yieldMax + 2`". */
 export const YIELD_BONUS_MAX = 2;
+/** `07` § Fertilizer: a fertilized crop's harvest yields this many more, beyond the skill cap too. */
+export const FERTILIZER_YIELD_BONUS = 1;
 
 /** `07` § Trees, § Regrowth: "no tree or sapling within 2 tiles". */
 export const SAPLING_CLEARANCE = 2;

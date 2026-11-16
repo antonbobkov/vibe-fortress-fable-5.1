@@ -52,7 +52,8 @@ export const CATEGORY_TREE: readonly string[] = [
   'textile/bone', 'textile/shell', 'textile/skull', 'textile/horn', 'textile/tusk', 'textile/feather', 'textile/straw', 'textile/reed',
   'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf', 'medical/glowcap', 'medical/vial', 'medical/draught',
   'medical/wyrmscale', 'medical/ichor', 'medical/venom', 'medical/gland',
-  'farm', 'farm/bone_ash', 'farm/potash', 'farm/dung',
+  'medical/soap',
+  'farm', 'farm/bone_ash', 'farm/potash', 'farm/dung', 'farm/compost',
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
 ];
 
@@ -109,6 +110,12 @@ export const STOCKPILE_PRESETS: Readonly<Record<string, { categories: readonly s
   },
 });
 
+/** 13 § The compost heap: what a heap's tiles take, rot allowed. */
+export const COMPOST_CATEGORIES: readonly string[] = Object.freeze(['refuse/rotten', 'farm/dung']);
+
+/** 17 § Patients and hospitals: supplies a hospital's chests take whatever filter its record was made with. */
+const HOSPITAL_EXTRA_CATEGORIES: readonly string[] = Object.freeze(['medical/soap']);
+
 /** A new stockpile's filter: nothing selected until the player picks (D-071). */
 export function emptyFilter(): StockpileFilter {
   return { categories: [], materialClasses: 'any', minQuality: 0, maxQuality: 5, allowRot: false };
@@ -131,6 +138,11 @@ export function hospitalFilter(): StockpileFilter {
   };
 }
 
+/** 13 § The compost heap: a heap's fixed filter. */
+export function compostFilter(): StockpileFilter {
+  return { categories: [...COMPOST_CATEGORIES], materialClasses: 'any', minQuality: 0, maxQuality: 5, allowRot: true };
+}
+
 export function presetFilter(name: string): StockpileFilter | null {
   const p = STOCKPILE_PRESETS[name];
   if (p === undefined) return null;
@@ -138,9 +150,9 @@ export function presetFilter(name: string): StockpileFilter | null {
 }
 
 /** Shared fresh record for command/event creation and a not-yet-dispatched zone's editor. */
-export function defaultStockpile(zoneType: 'stockpile' | 'hospital' = 'stockpile'): Stockpile {
+export function defaultStockpile(zoneType: 'stockpile' | 'hospital' | 'compost' = 'stockpile'): Stockpile {
   return {
-    filter: zoneType === 'hospital' ? hospitalFilter() : emptyFilter(),
+    filter: zoneType === 'hospital' ? hospitalFilter() : zoneType === 'compost' ? compostFilter() : emptyFilter(),
     containersWanted: { barrel: 0, bag: 0, bin: 0 },
     priority: HAUL_PRIORITY as Priority,
     linkedSources: [],
@@ -290,10 +302,10 @@ export class StockpileStore {
     return this.entities.with(C.Stockpile);
   }
 
-  /** Give a `stockpile` or `hospital` zone its component and tiles if it has none yet; false when it is neither. */
+  /** Give a `stockpile`, `hospital` or `compost` zone its component and tiles if it has none yet; false when it is none of them. */
   ensure(id: EntityId): boolean {
     const zone = this.zoneView(id);
-    if (zone === undefined || (zone.type !== 'stockpile' && zone.type !== 'hospital')) return false;
+    if (zone === undefined || (zone.type !== 'stockpile' && zone.type !== 'hospital' && zone.type !== 'compost')) return false;
     if (this.stockpile(id) === undefined) {
       this.entities.add(id, C.Stockpile, defaultStockpile(zone.type));
       this.syncTiles(id);
@@ -303,15 +315,25 @@ export class StockpileStore {
 
   /** Re-read a stockpile's tiles from its zone (created or resized). */
   syncTiles(id: EntityId): void {
-    for (const t of Array.from(this.tiles.keys())) if (this.tiles.get(t) === id) this.tiles.delete(t);
+    const old: TileIndex[] = [];
+    for (const t of Array.from(this.tiles.keys())) if (this.tiles.get(t) === id) { this.tiles.delete(t); old.push(t); }
     const zone = this.zoneView(id);
-    if (zone === undefined) return;
-    for (const t of zone.tiles) this.tiles.set(t, id);
+    if (zone !== undefined) for (const t of zone.tiles) this.tiles.set(t, id);
+    this.clearCompostCounts(old.filter((t) => this.tiles.get(t) !== id));
+  }
+
+  /** 13 § The compost heap: an item on a tile no heap covers any more loses its count. */
+  private clearCompostCounts(tiles: readonly TileIndex[]): void {
+    for (const t of tiles) {
+      for (const itemId of this.host.itemsOn(t)) if ((this.core.get(itemId)?.compostAt ?? 0) > 0) this.core.setCompostAt(itemId, 0);
+    }
   }
 
   /** A stockpile's zone went away: its tiles, reservations and links go with it. */
   removed(id: EntityId): void {
-    for (const t of Array.from(this.tiles.keys())) if (this.tiles.get(t) === id) this.tiles.delete(t);
+    const old: TileIndex[] = [];
+    for (const t of Array.from(this.tiles.keys())) if (this.tiles.get(t) === id) { this.tiles.delete(t); old.push(t); }
+    this.clearCompostCounts(old);
     const at = this.explicitPriority.indexOf(id);
     if (at >= 0) this.explicitPriority.splice(at, 1);
     for (const other of this.all()) {
@@ -352,6 +374,14 @@ export class StockpileStore {
     return cat;
   }
 
+  /** The filter part of `accept` for a stockpile: its filter, and a hospital's supplies added after its record was made. */
+  private spFilterAccepts(spId: EntityId, filter: StockpileFilter, it: Item): boolean {
+    if (this.filterAccepts(filter, it)) return true;
+    if (!this.isHospital(spId)) return false;
+    const cat = this.categoryOf(it);
+    return HOSPITAL_EXTRA_CATEGORIES.some((node) => categoryUnder(cat, node));
+  }
+
   /** The filter part of `accept`: category, material class, quality range, rot. */
   private filterAccepts(filter: StockpileFilter, it: Item): boolean {
     const facts = this.core.host.facts;
@@ -373,7 +403,7 @@ export class StockpileStore {
   /** `accepts` of an item without contents or the Forbidden flag, for a stockpile `acceptsByKind` names: the filter, and a hospital's supply. */
   acceptsKind(spId: EntityId, it: Item): boolean {
     const sp = this.stockpile(spId);
-    if (sp === undefined || !this.filterAccepts(sp.filter, it)) return false;
+    if (sp === undefined || !this.spFilterAccepts(spId, sp.filter, it)) return false;
     return this.hospitalAccepts(spId, it);
   }
 
@@ -390,11 +420,13 @@ export class StockpileStore {
     if ((it.flags & ItemFlag.Forbidden) !== 0) return false;
     const c = this.core.container(itemId);
     if (c !== undefined && c.contents.length > 0) {
+      // 13 § The compost heap: a heap takes loose items, never a container.
+      if (this.isCompost(spId)) return false;
       for (const inner of c.contents) {
         const x = this.core.get(inner);
-        if (x === undefined || !this.filterAccepts(sp.filter, x)) return false;
+        if (x === undefined || !this.spFilterAccepts(spId, sp.filter, x)) return false;
       }
-    } else if (!this.filterAccepts(sp.filter, it)) {
+    } else if (!this.spFilterAccepts(spId, sp.filter, it)) {
       return false;
     }
     if (sp.linkedSources.length > 0) {
@@ -538,6 +570,11 @@ export class StockpileStore {
     return this.zoneView(spId)?.type === 'hospital';
   }
 
+  /** Whether a stockpile is a compost heap (13 § The compost heap). */
+  isCompost(spId: EntityId): boolean {
+    return spId !== 0 && this.zoneView(spId)?.type === 'compost';
+  }
+
   /** Containers of a class present, counting those on their way in. */
   containersPresent(spId: EntityId, cls: string): number {
     return this.containersIn(spId, cls).length + this.incomingCount(spId, cls);
@@ -611,10 +648,13 @@ export class StockpileStore {
       const chest = this.chestSlot(spId, itemId);
       if (chest !== null) return chest;
     }
-    const cls = this.core.container(itemId) !== undefined ? 'none' : facts.row(it.type).container;
+    // 13 § The compost heap: one item to a tile, whatever container its type wants, and no stack to join.
+    const compost = this.isCompost(spId);
+    const cls = compost || this.core.container(itemId) !== undefined ? 'none' : facts.row(it.type).container;
     if (cls !== 'none') return this.slotInContainerScan(spId, itemId, cls, this.scanContainers(spId, cls));
     const t = this.emptyTile(spId);
     if (t >= 0) return { tile: t, container: 0, merge: 0, key: this.tileKey(t) };
+    if (compost) return null;
     for (const tile of this.tilesOf(spId)) {
       if (this.reservations.has(this.tileKey(tile))) continue;
       const on = this.host.itemsOn(tile);
