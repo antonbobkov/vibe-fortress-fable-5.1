@@ -32,6 +32,7 @@ const SUBSTITUTES: readonly (readonly [string, string, string?])[] = [
   ['forge_crutch', 'make_crutch', 'oak'],
   ['make_hive_clay', 'make_hive_wood', 'oak'],
   ['weave_hive', 'make_hive_wood', 'oak'],
+  ['cut_bone_blocks', 'make_stone_block', 'granite'],
 ];
 
 interface Cost {

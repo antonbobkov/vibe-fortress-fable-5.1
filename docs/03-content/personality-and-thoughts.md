@@ -190,10 +190,11 @@ The dwarf, friend and child loss rows match `CreatureDied` of a dwarf only. Frie
 | `eased` | "The draught quieted me." | +8 | 72 | linear | 1 | none | `DraughtDrunk` of a calming draught; half, +4, for one within 7 days of the last |
 | `dosed_again` | "Another draught. I am tired of draughts." | −4 | 72 | halflife | 1 | none | `DraughtDrunk` of a calming draught within 7 days of the last |
 | `saw_the_star` | "Stood where the star fell." | +3 | 168 | linear | 1 | pride | `CraterEntered` the dwarf |
+| `stood_in_the_ribs` | "Stood inside the ribs of something enormous." | +2 | 72 | linear | 1 | pride | `RibsEntered` the dwarf |
 
 ## Announcement flags
 
-`announce: true` for `made_masterwork`, `legendary`, `hearth_lit`, `raid_repelled`, `argued`, and every sulk. Everything else is visible only in the dwarf's thought list and the mood panel.
+`announce: true` for `made_masterwork`, `legendary`, `hearth_lit`, `raid_repelled`, `argued`, and every sulk. Everything else is visible only in the dwarf's thought list and the mood panel. `stood_in_the_ribs` is not flagged: its event, `RibsEntered`, is a note of its own ("{dwarf} stood inside the ribs of something enormous."), and the flag would say it twice.
 
 ## Consistency check with the mood formula
 
@@ -207,7 +208,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
-| `stood_in_the_ribs` | "Stood inside the ribs of something enormous." | +2 | 72 | linear | 1 | pride | `RibsEntered` | T-557 |
 | `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |
 | `spat_on` | "The camel spat on me." | −1 | 12 | halflife | 1 | comfort | `SpatOn` | T-561 |
 | `feasted` | "Ate at a feast." | +8 | 48 | linear | 1 | comfort | `MealEaten` feast | T-565 |
@@ -215,8 +215,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `drank_from_a_mug` | "Drank from a proper mug." | +1 | 24 | linear | 1 | room | `MealEaten` at a seat with its mug | T-565 |
 | `thane_pleased` | "The Thane got what the Thane wanted." | +3 | 72 | linear | 1 | social | `WhimJudged` met (everyone) | T-565 |
 | `thane_grumbled` | "Nobody listens to the Thane." | −1 | 72 | linear | 1 | none | `WhimJudged` missed (the Thane) | T-565 |
-
-`stood_in_the_ribs` is announced (`announce: true`), as `first_vein` is not.
 
 ### Whims (a new table)
 

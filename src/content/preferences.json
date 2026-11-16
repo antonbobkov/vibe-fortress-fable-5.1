@@ -304,5 +304,10 @@
     "civ": "wildwood",
     "key": "food/honey, food/wax",
     "percent": 100
+  },
+  {
+    "civ": "mountainhome",
+    "key": "craft/* of giant_bone",
+    "percent": 150
   }
 ]

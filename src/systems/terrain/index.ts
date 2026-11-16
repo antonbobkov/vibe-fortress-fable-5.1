@@ -52,6 +52,10 @@ export interface TerrainOptions {
   readonly layerStack?: readonly StackLayer[];
   /** A `starfall` map's crater tiles (`LocalMapResult.craterTiles`). */
   readonly craterTiles?: readonly TileIndex[];
+  /** A boneyard map's skull groups (`LocalMapResult.giantSkulls`). */
+  readonly giantSkulls?: readonly (readonly TileIndex[])[];
+  /** A boneyard map's cages (`LocalMapResult.boneyards`). */
+  readonly boneyards?: readonly (readonly TileIndex[])[];
 }
 
 type Move = readonly [EntityId, TileIndex, TileIndex];
@@ -69,7 +73,7 @@ const COMMAND_HANDLERS: Partial<Record<CommandType, (host: CommandHost, cmd: Com
 export class TerrainSystem extends BaseSystem<TerrainStateV1> {
   readonly id = TERRAIN_ID;
   readonly order = 3;
-  override readonly subscribes: readonly EventType[] = ['JobCompleted', 'JobCancelled', 'EntitiesMoved', 'BuildingCompleted'];
+  override readonly subscribes: readonly EventType[] = ['JobCompleted', 'JobCancelled', 'EntitiesMoved', 'BuildingCompleted', 'RibsEntered'];
   override readonly ownsCommands: readonly CommandType[] = [
     'Designate',
     'UndoDesignation',
@@ -134,6 +138,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     });
     this.coreRef = core;
     core.craterTiles.push(...[...(this.options.craterTiles ?? [])].sort((a, b) => a - b));
+    for (const group of this.options.giantSkulls ?? []) if (group.length > 0) core.giantSkulls.push([...group].sort((a, b) => a - b));
+    for (const cage of this.options.boneyards ?? []) core.boneyards.push([...cage].sort((a, b) => a - b));
     world.services.terrain = core;
     this.commandHost = { core, fortress: world.fortress, progressOf: (tile) => this.progressOf(tile) };
     this.readerRef = makeReader(core, () => this.specValue, (tile) => this.progressOf(tile), (tile) => this.producer?.workOf(tile) ?? null);
@@ -177,6 +183,10 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       for (const m of moves) this.pendingMoves.push(m);
     } else if (event.type === 'BuildingCompleted') {
       this.clearBlockedDesignations(event['id'] as EntityId, ctx);
+    } else if (event.type === 'RibsEntered') {
+      // `03` § State: 10 found the first dwarf in this boneyard's ribs; the record is marked.
+      const b = Number(event['boneyard']);
+      if (b >= 0 && b < this.core.boneyards.length) this.core.boneyardsEntered[b] = true;
     }
     // `JobCompleted` and `JobCancelled` reach 03's job producer (T-M1-10) through the jobs system;
     // `BuildingCompleted` re-checks support once 14 builds constructions (M2).
@@ -223,6 +233,9 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       veinsFound: core.veinsFound.slice(),
       ...(core.fossilFound ? { fossilFound: true } : {}),
       ...(core.craterTiles.length > 0 ? { craterTiles: core.craterTiles.slice() } : {}),
+      ...(core.giantSkulls.length > 0 ? { giantSkulls: core.giantSkulls.map((g) => g.slice()) } : {}),
+      ...(core.boneyards.length > 0 ? { boneyards: core.boneyards.map((b) => b.slice()) } : {}),
+      ...(core.boneyardsEntered.some((e) => e) ? { boneyardsEntered: core.boneyards.map((_, b) => core.boneyardsEntered[b] === true) } : {}),
       spec: this.specValue,
       pendingMoves: this.pendingMoves.map((m) => [m[0], m[1], m[2]] as [EntityId, TileIndex, TileIndex]),
       producerCurrent: this.producer?.current ?? false,
@@ -249,6 +262,12 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     core.fossilFound = state.fossilFound === true;
     core.craterTiles.length = 0;
     core.craterTiles.push(...(state.craterTiles ?? []));
+    core.giantSkulls.length = 0;
+    for (const group of state.giantSkulls ?? []) core.giantSkulls.push(group.slice());
+    core.boneyards.length = 0;
+    for (const cage of state.boneyards ?? []) core.boneyards.push(cage.slice());
+    core.boneyardsEntered.length = 0;
+    for (const entered of state.boneyardsEntered ?? []) core.boneyardsEntered.push(entered === true);
     this.layerStack = state.layerStack.map((l) => ({ ...l }));
     this.bigDigCounter = state.bigDigCounter;
     this.specValue = state.spec;

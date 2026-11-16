@@ -30,6 +30,7 @@ import {
 } from './constants';
 import { clearPlantTransition, precondition, transition, type TransitionRolls } from './rules/transitions';
 import { rollQuality } from './rules/engrave';
+import { GIANT_BONE } from './generate/boneyards';
 
 /** `03` § Digging as a job: the job type of each designation. */
 export const JOB_TYPE_OF: Readonly<Partial<Record<Designation, string>>> = Object.freeze({
@@ -326,6 +327,12 @@ export class TerrainProducer implements JobProducer {
     for (const d of result.drops) {
       const at = isSolidBottomed(map.kindAt(d.tile)) ? d.tile : core.landingTile(d.tile);
       core.drop(d.type, d.material, d.count, at, JOB_TYPE_OF[kind] ?? 'terrain');
+    }
+    // `03` § Tile transitions: the last wall of a boneyard's skull dug drops the `giant_skull` beside its fossil.
+    for (const c of result.changes) {
+      if (!core.skullDone(c.tile)) continue;
+      const at = isSolidBottomed(map.kindAt(c.tile)) ? c.tile : core.landingTile(c.tile);
+      core.drop('giant_skull', GIANT_BONE, 1, at, JOB_TYPE_OF[kind] ?? 'terrain');
     }
   }
 

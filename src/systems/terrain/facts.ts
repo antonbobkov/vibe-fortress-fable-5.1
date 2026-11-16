@@ -115,6 +115,11 @@ export class TerrainFacts implements MaterialFacts {
     return this.deepsilver[material] === true;
   }
 
+  /** `03` § Tile transitions: a dug tile of class `bone` drops a `fossil`, or a `tusk` when it is ivory (stage 9b). */
+  boneItem(material: number): string {
+    return this.materialIds[material] === 'ivory' ? 'tusk' : 'fossil';
+  }
+
   /** `materials.md` § Soil: a soil tagged `soil_drop` drops a `soil_load` when dug, half the time. */
   dropsSoil(material: number): boolean {
     return this.soilDrop[material] === true;

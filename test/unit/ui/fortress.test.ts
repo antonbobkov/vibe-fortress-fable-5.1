@@ -342,6 +342,7 @@ describe('T-M1-14 announcements', () => {
       DwarfBecameAdult: 'note',
       LegendaryReached: 'note',
       CraterEntered: 'note',
+      RibsEntered: 'note',
       // T-469: 25 § Registrations (a mishap's line per kind, the last an alert; the first runecaster).
       Mishap: 'alert',
       FirstRunecaster: 'note',

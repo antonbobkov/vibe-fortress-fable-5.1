@@ -79,6 +79,12 @@ export class TerrainCore implements TerrainApi {
   fossilFound = false;
   /** `03` § State: a `starfall` map's crater tiles, ascending (empty on any other map). */
   readonly craterTiles: number[] = [];
+  /** `03` § State: each boneyard's skull tiles still to dig, ascending (a group dropped when its last is dug). */
+  readonly giantSkulls: TileIndex[][] = [];
+  /** `03` § State: each boneyard's cage, the walkable tiles between its ribs, ascending. */
+  readonly boneyards: TileIndex[][] = [];
+  /** `03` § State: by boneyard, whether a fortress dwarf has stood in its ribs (`RibsEntered`). */
+  readonly boneyardsEntered: boolean[] = [];
   /** Drops recorded for the M2 item system (and read by tests). */
   readonly drops: IntendedDrop[] = [];
 
@@ -434,6 +440,27 @@ export class TerrainCore implements TerrainApi {
   /** `03` § State: the tile is one of the `starfall` crater's. */
   isCrater(i: TileIndex): boolean {
     return sortedIndexOf(this.craterTiles, i) >= 0;
+  }
+
+  /** `03` § State: the boneyard whose ribs hold the tile, or -1. */
+  boneyardAt(i: TileIndex): number {
+    for (let b = 0; b < this.boneyards.length; b += 1) if (sortedIndexOf(this.boneyards[b] as TileIndex[], i) >= 0) return b;
+    return -1;
+  }
+
+  /**
+   * `03` § Tile transitions: a dug skull tile. When the last of its group is no longer a wall, the
+   * group is done: it returns true once and leaves the list, so the `giant_skull` drops once.
+   */
+  skullDone(i: TileIndex): boolean {
+    for (let k = 0; k < this.giantSkulls.length; k += 1) {
+      const group = this.giantSkulls[k] as TileIndex[];
+      if (sortedIndexOf(group, i) < 0) continue;
+      if (group.some((t) => this.host.map.kindAt(t) === TileKind.Wall)) return false;
+      this.giantSkulls.splice(k, 1);
+      return true;
+    }
+    return false;
   }
 
   // ---------- traffic ----------

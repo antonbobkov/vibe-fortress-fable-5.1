@@ -439,10 +439,10 @@ export class HeadlessGame {
   static standardSystems(
     spec: LocalMapSpec,
     layerStack: readonly StackLayer[],
-    local: Pick<LocalMapResult, 'sinks' | 'warmSprings'> & Partial<Pick<LocalMapResult, 'craterTiles'>> | null = null,
+    local: Pick<LocalMapResult, 'sinks' | 'warmSprings'> & Partial<Pick<LocalMapResult, 'craterTiles' | 'giantSkulls' | 'boneyards'>> | null = null,
   ): GameSystem[] {
     return [
-      new TerrainSystem({ spec, layerStack, craterTiles: local?.craterTiles ?? [] }),
+      new TerrainSystem({ spec, layerStack, craterTiles: local?.craterTiles ?? [], giantSkulls: local?.giantSkulls ?? [], boneyards: local?.boneyards ?? [] }),
       new FluidsSystem({ sinks: local?.sinks ?? [] }),
       new MaterialsSystem({ warmSprings: local?.warmSprings ?? [] }),
       new WeatherSystem({ spec }),

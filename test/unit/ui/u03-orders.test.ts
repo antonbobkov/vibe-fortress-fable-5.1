@@ -246,7 +246,7 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(p.fixed).toBe(false);
     type(f.screen, 'door');
     // Every workshop type's recipes are offered: three doors (wood, stone, metal).
-    expect(f.screen.orders.pickerRecipes(f.screen.ctx).map((r) => r.id).sort()).toEqual(['forge_door', 'make_door_stone', 'make_door_wood']);
+    expect(f.screen.orders.pickerRecipes(f.screen.ctx).map((r) => r.id).sort()).toEqual(['forge_door', 'make_door_bone', 'make_door_stone', 'make_door_wood']);
     f.screen.orders.picker.list.selected = f.screen.orders.pickerRecipes(f.screen.ctx).findIndex((r) => r.id === 'make_door_wood');
     expect(f.screen.orders.whereOptions(f.screen.ctx)).toEqual([0, first, second]);
     // (The 33-cell row cuts the name; hovering shows it whole, U-08.)

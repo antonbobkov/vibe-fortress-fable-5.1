@@ -387,6 +387,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     ctx.register.announcement('LegendaryReached', { severity: 'note', stringKey: 'announce.legendary' });
     // `10` § Movement: the first dwarf in a `starfall` crater makes a note, once a fortress.
     ctx.register.announcement('CraterEntered', { severity: 'note', stringKey: 'announce.crater_entered', oneOf: { field: 'first', values: [true] } });
+    // `10` § Movement: the first dwarf in each boneyard's ribs makes a note.
+    ctx.register.announcement('RibsEntered', { severity: 'note', stringKey: 'announce.ribs_entered' });
     // `15` § Thoughts: relationship-dependent triggers are facts of 10, not inferred from event ids.
     const source: ThoughtSource = {
       on: ['CreatureDied', 'Buried'],
@@ -590,7 +592,11 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const map = ctx.world.map;
     const fluids = readers.has('04') ? readers.of<{ isMisty(i: TileIndex): boolean }>('04') : null;
     const materials = readers.has('05') ? readers.of<{ isWarmSpring(i: TileIndex): boolean }>('05') : null;
-    const terrain = readers.has('03') ? readers.of<{ isCrater?(i: TileIndex): boolean }>('03') : null;
+    const terrain = readers.has('03')
+      ? readers.of<{ isCrater?(i: TileIndex): boolean; boneyardAt?(i: TileIndex): number; boneyardEntered?(b: number): boolean }>('03')
+      : null;
+    // The boneyards whose ribs a dwarf entered in this batch: 03 marks its record on the event, next tick.
+    const ribs = new Set<number>();
     const weather = readers.has('06') ? readers.of<{ state(): string }>('06') : null;
     const items = readers.has('13') ? readers.of<ItemsReader>('13') : null;
     const buildings = readers.has('14') ? readers.of<BuildingsReader>('14') : null;
@@ -622,6 +628,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (terrain?.isCrater?.(to) === true && (from < 0 || terrain.isCrater?.(from) !== true)) {
         ctx.emit({ type: 'CraterEntered', id, first: !this.craterEntered });
         this.craterEntered = true;
+      }
+      // `10` § Movement: the first fortress dwarf to stand in a boneyard's ribs, once a boneyard.
+      const boneyard = terrain?.boneyardAt?.(to) ?? -1;
+      if (boneyard >= 0 && !ribs.has(boneyard) && terrain?.boneyardEntered?.(boneyard) !== true) {
+        ribs.add(boneyard);
+        ctx.emit({ type: 'RibsEntered', id, boneyard });
       }
       if (items !== null && buildings !== null) {
         const oldRooms = new Set(buildings.zonesAt(from).filter((zone) => buildings.room(zone) !== undefined));

@@ -58,8 +58,9 @@ Material = plant species (`barley`, `dimcap` …). Value 1 × species value.
 | `ore` | ore | ore | 1 | 1 | none | heavy | `£` | material |
 | `soil_load` | load | stone/soil | 1 | 5 | none | medium | `≈` | material |
 | `fossil` | fossil | stone/fossil | 1 | 1 | none | heavy | `•` | material |
+| `giant_skull` | giant skull | textile/skull | 10 | 1 | none | heavy | `☻` | `bone_white` |
 
-A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `peat`: the soils tagged `soil_drop`). A `fossil` is a dug tile of class `bone`, of its material (`giant_bone`) ([03](../02-systems/03-terrain-and-mining.md) § Tile transitions).
+A `soil_load` is a load of dug soil, of its tile's material (`clay`, `sand` or `peat`: the soils tagged `soil_drop`). A `fossil` is a dug tile of class `bone`, of its material (`giant_bone`) ([03](../02-systems/03-terrain-and-mining.md) § Tile transitions); a dug tusk of a tundra boneyard's skull, of `ivory`, drops a `tusk`. A `giant_skull`, of `giant_bone`, drops once from the last dug tile of a boneyard's skull, beside its fossil; the mason mounts it as a statue (`mount_skull`), and no merchant buys or sells one.
 
 ## Wood and bars
 
@@ -80,14 +81,14 @@ Coal and charcoal carry the tag `fuel`. A peat brick (of `peat`, a peat load dri
 | id | name | category | mult | stack | weight | glyph | fg | materials allowed | tags |
 |---|---|---|---|---|---|---|---|---|---|
 | `bed` | bed | furniture/bed | 5 | 1 | heavy | `Θ` | material | wood | — |
-| `table` | table | furniture/table | 4 | 1 | heavy | `╥` | material | wood, stone, metal | — |
-| `chair` | chair | furniture/chair | 3 | 1 | medium | `╫` | material | wood, stone, metal | — |
-| `door` | door | furniture/door | 4 | 1 | heavy | `+` | material | wood, stone, metal | — |
+| `table` | table | furniture/table | 4 | 1 | heavy | `╥` | material | wood, stone, metal, bone | — |
+| `chair` | chair | furniture/chair | 3 | 1 | medium | `╫` | material | wood, stone, metal, bone | — |
+| `door` | door | furniture/door | 4 | 1 | heavy | `+` | material | wood, stone, metal, bone | — |
 | `hatch` | hatch | furniture/hatch | 4 | 1 | medium | `¤` | material | wood, stone, metal | — |
 | `cabinet` | cabinet | furniture/cabinet | 6 | 1 | heavy | `π` | material | wood, stone, metal | — |
 | `chest` | chest | furniture/chest | 5 | 1 | medium | `▄` | material | wood, stone, metal; also a container (20) | — |
-| `coffin` | coffin | furniture/coffin | 6 | 1 | heavy | `▬` | material | wood, stone, metal | — |
-| `statue` | statue | furniture/statue | 12 | 1 | heavy | `Ω` | material | stone, metal, glowstone | — |
+| `coffin` | coffin | furniture/coffin | 6 | 1 | heavy | `▬` | material | wood, stone, metal, bone | — |
+| `statue` | statue | furniture/statue | 12 | 1 | heavy | `Ω` | material | stone, metal, glowstone, bone | — |
 | `cage` | cage | furniture/cage | 6 | 1 | medium | `▒` | material | wood, metal | — |
 | `mechanism` | mechanism | furniture/mechanism | 5 | 1 | medium | `‼` | material | stone, metal | — |
 | `floodgate` | floodgate | furniture/floodgate | 6 | 1 | heavy | `╪` | material | stone, metal | — |
@@ -285,10 +286,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
 | Tools | `firebrand` | firebrand | tool/firebrand | 1 | 5 | bin | 0 | light | `/` | material | wood, bone | T-559 |
 | Food | `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | `meal`; quality-bearing; eaten before any other meal | T-565 |
-| Stone, ore, gems | `giant_skull` | giant skull | textile/skull | 10 | 1 | none | 0 | heavy | `☻` | `bone_white` | `giant_bone` | T-557 |
 
 The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colors.md) § Glyph set); a task may choose another from the set.
 
-### Planned edits to existing rows
-
-- `statue` materials gain bone (bone and ivory statues, T-557).

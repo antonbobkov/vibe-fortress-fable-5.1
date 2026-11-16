@@ -46,6 +46,12 @@ export interface TerrainStateV1 {
   fossilFound?: boolean;
   /** A `starfall` map's crater tiles, ascending (`03` § State). Absent on any other map. */
   craterTiles?: TileIndex[];
+  /** Each boneyard's skull tiles still to dig, ascending (`03` § State). Absent on a map without one. */
+  giantSkulls?: TileIndex[][];
+  /** Each boneyard's cage tiles, ascending (`03` § State). Absent on a map without one. */
+  boneyards?: TileIndex[][];
+  /** By boneyard, whether a fortress dwarf has stood in its ribs (`03` § State). Absent while none has. */
+  boneyardsEntered?: boolean[];
   /** The `LocalMapSpec` of the map, for the legend and regeneration in tests (`03` § State). */
   spec: LocalMapSpec | null;
   /** `EntitiesMoved` batches handled but not yet ticked (discovery runs next tick; D-082). */

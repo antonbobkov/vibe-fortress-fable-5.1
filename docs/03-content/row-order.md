@@ -396,6 +396,17 @@ Every new row of every table goes at the end of this table, including generated 
 | jobTypes | wash_patient |
 | zoneTypes | compost |
 | recipes | make_soap |
+| items | giant_skull |
+| recipes | cut_bone_blocks |
+| recipes | make_table_bone |
+| recipes | make_chair_bone |
+| recipes | make_door_bone |
+| recipes | make_coffin_bone |
+| recipes | make_statue_bone |
+| recipes | mount_skull |
+| recipes | carve_fossil |
+| recipes | carve_ivory_statue |
+| thoughts | stood_in_the_ribs |
 | weapons | horn_bow |
 | items | horn_bow |
 | armor | scale_shirt |

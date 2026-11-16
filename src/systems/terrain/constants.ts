@@ -38,6 +38,22 @@ export const CRATER_RADIUS_MAX = 5;
 export const CRATER_EDGE_DISTANCE = 20;
 /** `starfall`: chance per mille that a crater floor tile grows wild wyrmtongue (*unmeasured*). */
 export const CRATER_WYRMTONGUE_PERMILLE = 150;
+/** Stage 9b, the boneyards: skeletons a desert, badlands, wetland or tundra map lays (*unmeasured*). */
+export const BONEYARD_MIN = 1;
+export const BONEYARD_MAX = 3;
+/** Stage 9b: tiles in a skeleton's spine (*unmeasured*). */
+export const BONEYARD_SPINE_MIN = 8;
+export const BONEYARD_SPINE_MAX = 14;
+/** Stage 9b: least distance of a spine's start from every edge and from the wagon search band (*unmeasured*). */
+export const BONEYARD_EDGE_MARGIN = 12;
+/** Stage 9b: starts tried per skeleton (*unmeasured*). */
+export const BONEYARD_TRIES = 20;
+/** Stage 9b: least distance of a spine's start from water, trees and the other skeletons (*unmeasured*). */
+export const BONEYARD_CLEARANCE = 3;
+/** Stage 9b: the deepest water a `wetland` rib stands in (*unmeasured*). */
+export const BONEYARD_RIB_WATER_MAX = 3;
+/** Stage 9b: the wagon search band, `02`'s `ARRIVAL_SEARCH_DEPTH` (a test holds the two equal). */
+export const BONEYARD_WAGON_BAND = 20;
 /** By species. */
 export const TREE_LOGS_MIN = 1;
 export const TREE_LOGS_MAX = 4;

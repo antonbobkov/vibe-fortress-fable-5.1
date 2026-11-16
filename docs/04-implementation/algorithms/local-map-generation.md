@@ -94,6 +94,17 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
   rare patches: rare = stream(S, 'terrain.rare_patches'); each cavern floor shrub, by tier in floor order: for each rare species, if rare.chance(its rarePermille[tier]): material = that species, next shrub
   if biome.surface.snow > 0: salt = stream(S, 'terrain.snow').u32()
     for dry surface Floor or Ramp: if noise(salt, x, y, [14, 5], [0.7, 0.3]) + 0.1 * max(0, z - base) >= 1 - snow: flags |= Snow
+  // 7b. boneyards (03 stage 9b): only desert, badlands, wetland, tundra, and a map at least 2 * BONEYARD_EDGE_MARGIN + 1 each way
+  if biome in those: st = stream(S, 'terrain.giant_bones'); n = st.int(BONEYARD_MIN, BONEYARD_MAX)
+    for each of n skeletons, up to BONEYARD_TRIES tries:
+      x = st.int(M, w-1-M); y = st.int(M, h-1-M); len = st.int(SPINE_MIN, SPINE_MAX); dir = st.int(0,3); bent = st.chance(500); at = st.int(3, len-4); turn = st.chance(500) ? cw : ccw
+      start fits: inward >= BONEYARD_WAGON_BAND + M, dry surface Floor, not bare (drinking step, glass), no water or taken column within BONEYARD_CLEARANCE, no Tree within 1
+      shape: spine of len from (x,y) heading dir, turning after column `at` if bent; ribs at spine columns 2, 4, ... up to len-2, one out each side;
+        cage beside spine columns 3, 5, ... between the ribs; skull 2x2 beyond spine[0] on its line and the clockwise column, the far two the tusks
+      shape fits: every column >= 2 from every edge, inward > BONEYARD_WAGON_BAND, > BONEYARD_CLEARANCE from every taken column; else next try
+      lay, column order: skip a column whose surface is not a dry Floor (wetland rib: water <= BONEYARD_RIB_WATER_MAX allowed), > 1 level from the start's, or bare
+        spine: Boulder of giant_bone; rib, skull: Wall of giant_bone at the surface tile (tusks: ivory in tundra); fluid 0; Grass and Snow cleared
+      giantSkulls += the skull's laid tiles (when any); boneyards += the cage's walkable tiles (Floor, Ramp, Shrub, Sapling, no fluid), ascending
   // 8. traits
   if old_battlefield: scatter BATTLEFIELD_ITEM_COUNT items on surface tiles in band 15..40 from arrival edge (spawned after entities exist: recorded as a spawn list applied by 02 arrival)
   if sunken_halls: site = highest dry floor in far half where the hall fits, ties by inward distance descending then column order; carve the layout in 03; record furniture and vault spawn list
