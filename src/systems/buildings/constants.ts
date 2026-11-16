@@ -42,3 +42,14 @@ export const WAGON_CAPACITY = Number.MAX_SAFE_INTEGER;
 
 /** 14 § The drying rack: the units a rack holds over its drying rows. */
 export const RACK_CAPACITY = 5;
+
+/** 14 § Candle stands and lanterns: the candles a stand holds. */
+export const STAND_CANDLES = 5;
+/** 14 § Candle stands and lanterns: the days a tallow candle burns. */
+export const CANDLE_DAYS_TALLOW = 7;
+/** 14 § Candle stands and lanterns: the days a beeswax candle burns. */
+export const CANDLE_DAYS_WAX = 14;
+/** 14 § Candle stands and lanterns, 18 § Stealth: how much farther a creature in comfort light spots, or is spotted. */
+export const CANDLE_SPOT_BONUS = 2;
+/** 14 § Candle stands and lanterns: per mille an hour, `smoky_hall` for a dwarf lit only by tallow (10's draw). */
+export const TALLOW_SMOKE_PERMILLE = 20;

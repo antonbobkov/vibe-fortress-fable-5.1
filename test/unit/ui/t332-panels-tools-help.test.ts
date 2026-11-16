@@ -63,12 +63,12 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     const s = surface(36, 32);
     drawOverlaysPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, game.fortress.overlayMenu, game.ui.overlays);
     const rows = rowsOf(s.lines());
-    expect(rows.slice(0, 8)).toEqual([
+    expect(rows.slice(0, 9)).toEqual([
       '[■] designations', '[ ] priority digits', '[■] zones', '[ ] fluid levels',
-      '[ ] temperature', '[ ] jobs', '[ ] squad stations', '[ ] stockpile usage',
+      '[ ] temperature', '[ ] jobs', '[ ] squad stations', '[ ] stockpile usage', '[ ] light',
     ]);
-    expect(rows[8]).toBe('Debug:');
-    expect(rows.slice(9, 12)).toEqual(['[ ] connectivity', '[ ] paths', '[ ] chunks']);
+    expect(rows[9]).toBe('Debug:');
+    expect(rows.slice(10, 13)).toEqual(['[ ] connectivity', '[ ] paths', '[ ] chunks']);
   });
 
   it('Help starts on the key list: it says what S- means, names each fortress panel with its key, then the global keys, wrapping what does not fit', () => {

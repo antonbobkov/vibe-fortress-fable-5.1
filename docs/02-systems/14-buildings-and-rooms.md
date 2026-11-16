@@ -59,6 +59,16 @@ A building row's `wants` (`buildings-and-furniture.md`) makes a built building o
 - `Building.dryDays` records each held item's drying days (saved; absent: none). `ReleaseHeld` drops everything and forgets the days.
 - The rack's panel lists each held item with its days left ("boar meat: 3 days left", "dung: dry, waiting for the rest", "salt: to salt with"), then its drying rows as a checklist, one line a row, which `Enter` or a click turns on or off (`SetRackDrying`). The first rack built raises `hint_rack`.
 
+### Candle stands and lanterns
+
+Comfort light is the light dwarves live by, not the light crops grow by: the built hearth's square (§ Special buildings), a built lamp's 3×3, a burning candle stand's 3×3 and a built lantern's 3×3. `buildings.comfortLightAt(i)` reads it. It sets no `lit` flag and gives no crop light.
+
+- `candle_stand` (1×1, 1 `stone_block` or `bar`, labor `construction`, tag `light`, impassable; its block or bar returns when it is taken apart) wants `STAND_CANDLES` `candle`s (§ Building wants), counted in units: a stack of candles is brought whole, so the last may take it over. While it holds a candle it burns the first: a candle burns the days of its material (beeswax `CANDLE_DAYS_WAX`, tallow and any other `CANDLE_DAYS_TALLOW`), counted on `DayPassed` (`Building.burnDays`, saved; absent: none), and when they are spent one unit of it is consumed and the next is lit. A stand holding a candle lights its 3×3 on its level. Its candles add their value to its room as held items do (§ Rooms and quality). Nobody works it: a `maintain` order for candles (12) keeps the stock that the haulers bring. `ReleaseHeld` drops its candles and forgets the days.
+- `lantern` (an item made at the kiln: 1 glass block + 1 candle; placed like furniture, it links its item, labor `construction`, tag `light`, impassable) lights its 3×3 forever: the permanent version, at the price of glass.
+- **What light does.** A meal eaten at a table on a comfort-lit tile (the eater's seat) carries `candlelit: true` on `MealEaten` (the hearth's square and lamps count), and 15 gives `ate_by_candlelight`. A fortress creature standing on a comfort-lit tile spots a hidden creature `CANDLE_SPOT_BONUS` tiles farther, and a hidden creature standing on one is spotted that much farther away (18 § Stealth): candles at the gate catch thieves. A cellar beside a burning stand is no cellar (13 § Aging in a cellar).
+- **Tallow smokes.** On each `HourPassed`, each fortress dwarf standing on a tile lit only by stands burning tallow candles (`buildings.tallowSmokeAt(i)`: no `lit` flag, hearth, lamp, lantern or beeswax stand reaches it) gets `smoky_hall` at `TALLOW_SMOKE_PERMILLE`: 10 makes the draw on its own stream, only for such a dwarf and only while a stand is built, and emits `SmokyFuelBurned { workshopId: 0, tile, dwarfId }`, which 15 gives to that dwarf alone and 05 does not draw. Beeswax does not smoke.
+- The stand's panel shows its candles and the days its burning one has left ("Candles: 5 of 5", "Burning: tallow, 3 days left", or "No candle: dark"). 23's `light` overlay tints comfort-lit tiles.
+
 ### Constructions
 
 | Type | Result | Notes |
@@ -167,7 +177,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 
 ## State
 
-- `Building` components (`type, material, state, origin, footprint, orientation, itemId, mode, linkedIds, ownerId, settings`, `held` for a building with wants, and `dryDays` for a drying rack), `buildingAt` map (in `Map3D`), `Zone` components with `tiles` sorted, `zoneAt: Map<TileIndex, zoneId>` (one per tile), `Room` components (`zoneId, score, tier, ownerId, enclosed`), `hearthId`, `depots[]`, `coffins[]`, `dirtyRooms`.
+- `Building` components (`type, material, state, origin, footprint, orientation, itemId, mode, linkedIds, ownerId, settings`, `held` for a building with wants, `dryDays` for a drying rack and `burnDays` for a candle stand), `buildingAt` map (in `Map3D`), `Zone` components with `tiles` sorted, `zoneAt: Map<TileIndex, zoneId>` (one per tile), `Room` components (`zoneId, score, tier, ownerId, enclosed`), `hearthId`, `depots[]`, `coffins[]`, `dirtyRooms`.
 - Rng stream (auto-assignment ties; reserved).
 - Superset fields of `BuildingsState` (schemas/system-state.md): `pendingJobs`, the buildings waiting for a build or deconstruct job, and `magmaTouched`; `rackDay`, the day's weather so far for the drying racks (`notClear`, `wet`), saved only while a rack is built.
 
@@ -192,7 +202,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.roomDiagnostics(zoneId)` — current missing furniture requirements and sorted, unique open border tiles; a read-only query, undefined for a non-room zone
 - `buildings.wellWorking(id)` — the well has water within `WELL_DEPTH` below; `buildings.cageOccupant(id)` — the creature held in a cage building, or 0; `buildings.memorialEligible(id)` — the dead dwarf has no intact body and can be named on a memorial slab
 - `buildings.wagon()` — the wagon, or 0; `buildings.holderTile(id)` — the tile a building's container contents lie on (the wagon), or −1
-- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp; `buildings.comfortLightAt(i)` — the tile is in comfort light, the built hearth's square or a built lamp's 3×3 (not crop light; it sets no `lit` flag; 13's cellars must be out of it)
+- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp; `buildings.comfortLightAt(i)` — the tile is in comfort light, the built hearth's square, a built lamp's 3×3, a burning candle stand's or a built lantern's 3×3 (not crop light; it sets no `lit` flag; 13's cellars must be out of it, 10's meals and 18's spotting read it); `buildings.tallowSmokeAt(i)` — the tile is lit only by stands burning tallow (§ Candle stands and lanterns); `buildings.standCandles(id)` — a candle stand's candles held, the burning one's material and its days left
 - `buildings.value(id)` — a building's contribution to wealth when built (material value plus the per-type bonus)
 - `buildings.wants(id)` — each want of a built building with its `count`, the `held` items that answer it and those `coming` (13's hauls to it); `buildings.held(id)` — the living items it holds; `buildings.withWants()` — the built buildings whose type has wants, ascending (§ Building wants)
 - `buildings.restPercent(id)` — the percent a built `sleep` building rests at (`MADE_UP_REST_PERCENT` made up), 0 for anything else; `buildings.bedding(id)` — `none`, `soft` or `feather` (§ Beds)
@@ -204,7 +214,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 
 ### Events consumed
 
-`JobCompleted`, `JobCancelled`, `DayPassed` (rooms; the drying racks), `WeatherChanged` (a drying rack's day), `TilesChanged` (validity of planned buildings; room recompute), `CorpseCreated`, `CreatureDied` (release bedroom ownership, preserving reserved coffins), `MechanismTriggered` (from 19 for plates and levers: this system applies the state change), `AlertChanged` (lock-on-alert doors), `DoorBreakAttempt` (from 18), `MagmaContact` (04 also emits it for a magma tile that holds a building, with the creatures there, possibly none; this system queues the tile and at its next tick removes each non-construction building on it whose material melts at or below `MAGMA_C`, destroying its linked item as `melted`; constructions are terrain, and 05's fire takes wooden ones), `SulkHappened` (a `break` sulk from 15 names a building: this system queues it, saves the queue, and in its own tick removes the building and destroys its linked item as `sulk`), `FireOut` (wooden building burned: 05 asks through `terrain.setKind`; this system removes the entity on `TilesChanged` when its tile no longer matches), `Mishap` (25's `scorched_circle` names a built rune circle: this system removes it at once, and nothing comes back, since a circle links no item).
+`JobCompleted`, `JobCancelled`, `DayPassed` (rooms; the drying racks; the candle stands), `WeatherChanged` (a drying rack's day), `TilesChanged` (validity of planned buildings; room recompute), `CorpseCreated`, `CreatureDied` (release bedroom ownership, preserving reserved coffins), `MechanismTriggered` (from 19 for plates and levers: this system applies the state change), `AlertChanged` (lock-on-alert doors), `DoorBreakAttempt` (from 18), `MagmaContact` (04 also emits it for a magma tile that holds a building, with the creatures there, possibly none; this system queues the tile and at its next tick removes each non-construction building on it whose material melts at or below `MAGMA_C`, destroying its linked item as `melted`; constructions are terrain, and 05's fire takes wooden ones), `SulkHappened` (a `break` sulk from 15 names a building: this system queues it, saves the queue, and in its own tick removes the building and destroys its linked item as `sulk`), `FireOut` (wooden building burned: 05 asks through `terrain.setKind`; this system removes the entity on `TilesChanged` when its tile no longer matches), `Mishap` (25's `scorched_circle` names a built rune circle: this system removes it at once, and nothing comes back, since a circle links no item).
 
 ### Events emitted
 
@@ -230,6 +240,7 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
   - A cage shows its occupant, with release (confirmed) and tame.
   - A bed says what it rests at and whether it is made up; a building with wants lists what it holds and wants, with `[h] take out` (§ Building wants).
   - A drying rack lists its items with their days left and its drying checklist (§ The drying rack).
+  - A candle stand shows its candles and the days its burning one has left (§ Candle stands and lanterns).
 - Lever panel: linked targets with their states; a Pull button (creates the job); link, which picks the target on the map or from a list of the buildings that can be linked; unlink. A pressure plate has the same links and its trigger (19).
 - Hints: "A room needs walls or doors around it to count as enclosed", "Smooth and engrave the walls to raise room quality", "Lock doors on alert to keep raiders out".
 
@@ -252,6 +263,11 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
 | `STONE_WORKSHOP_TICKS_PERCENT` | 150 | Build time of a workshop of blocks against its logs (*unmeasured*) |
 | `MADE_UP_REST_PERCENT` | 110 | The percent a made-up bed rests at (§ Beds) (*unmeasured*) |
 | `RACK_CAPACITY` | 5 | The units a drying rack holds over its rows (*unmeasured*) |
+| `STAND_CANDLES` | 5 | The candles a candle stand holds (*unmeasured*) |
+| `CANDLE_DAYS_TALLOW` | 7 | The days a tallow candle burns (*unmeasured*) |
+| `CANDLE_DAYS_WAX` | 14 | The days a beeswax candle burns (*unmeasured*) |
+| `CANDLE_SPOT_BONUS` | 2 | Tiles farther a creature in comfort light spots, or is spotted (18 § Stealth) (*unmeasured*) |
+| `TALLOW_SMOKE_PERMILLE` | 20 | Per mille an hour, `smoky_hall` for a dwarf lit only by tallow (*unmeasured*) |
 
 Material and item requirements, value bonuses and footprints are content.
 
@@ -265,15 +281,6 @@ Material and item requirements, value bonuses and footprints are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `buildings-and-furniture.md` § Planned rows and the other content documents' § Planned rows.
-
-### Comfort light, candle stands and lanterns (T-563)
-
-- `buildings.comfortLightAt(i)` (§ Interfaces) gains a burning candle stand's and a lantern's 3×3.
-- `candle_stand` (1×1, 1 `stone_block` or `bar`, labor `construction`, tag `light`, impassable): wants `STAND_CANDLES` `candle`s. While it holds a candle it burns the first: a candle burns `burnDays` of its material (tallow 7, beeswax 14: `CANDLE_DAYS_TALLOW`, `CANDLE_DAYS_WAX`), counted on `DayPassed` (`Building.burnDays`), and is consumed when they are spent; the next is lit. A stand with a burning candle lights its 3×3. It adds room value as furniture of its candles' value (the held candles count, § Building wants). A `maintain` order for candles keeps it fed.
-- `lantern` (an item made at the kiln: 1 glass + 1 candle; placed like furniture, labor `construction`, tag `light`) lights its 3×3 forever: the permanent version, at the price of glass.
-- **What light does.** A meal eaten at a table on a comfort-lit tile carries `candlelit: true` on `MealEaten` (the hearth's square and lamps count), and 15 gives `ate_by_candlelight`. A fortress creature standing on a comfort-lit tile spots a hidden creature `CANDLE_SPOT_BONUS` tiles farther, and a hidden creature standing on one is spotted that much farther away (18 § Planned): candles at the gate catch thieves.
-- **Tallow smokes.** On each `HourPassed`, each dwarf standing on a tile lit only by stands burning tallow candles (no daylight, hearth, lamp, lantern or beeswax stand reaching it) gets `smoky_hall` with `TALLOW_SMOKE_PERMILLE`, on 10's stream; the draw is made only for such a dwarf. Beeswax does not smoke.
-- Constants: `STAND_CANDLES` 5, `CANDLE_DAYS_TALLOW` / `CANDLE_DAYS_WAX` 7 / 14, `CANDLE_SPOT_BONUS` 2, `TALLOW_SMOKE_PERMILLE` 20. Save: `Building.burnDays`. UI: the stand's panel shows candles held and days left; the `light` overlay tints comfort-lit tiles.
 
 ### The beetle jar and the spider ranch (T-556)
 

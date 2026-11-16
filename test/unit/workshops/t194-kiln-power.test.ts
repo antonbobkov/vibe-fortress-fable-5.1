@@ -15,7 +15,7 @@ describe('T-194 the magma kiln recognizes its power source', () => {
     w.step(1);
     const reader = w.readers.of<WorkshopsReader>('12');
     expect(reader.recipesFor('magma_kiln')).toEqual(reader.recipesFor('kiln'));
-    expect(reader.recipesFor('kiln')).toHaveLength(11);
+    expect(reader.recipesFor('kiln')).toHaveLength(12);
     expect(reader.isMagmaPowered(kiln)).toBe(true);
     w.setFluid(below, MAGMA_POWER_LEVEL - 1, 'magma', true);
     expect(reader.isMagmaPowered(kiln)).toBe(false);

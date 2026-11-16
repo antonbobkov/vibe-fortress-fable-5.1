@@ -97,7 +97,7 @@ describe('T-550 sundries and preferences', () => {
     const goods = registry.derived<readonly { civ: string; entries: { item: string | string[]; sundries?: boolean; units?: number; container?: string; weight: number }[] }[]>('caravanGoods');
     const sundries = (civ: string): string[] => goods.find((g) => g.civ === civ)!.entries.filter((e) => e.sundries === true).map((e) => String(e.item));
     expect(sundries('mountainhome')).toEqual(['raw_stone', 'coal_bar', 'charcoal_bar', 'rough_gem', 'soil_load']);
-    expect(sundries('hillfolk')).toEqual(['log', 'leather_piece', 'salt', 'soil_load', 'dung', 'cured_meat', 'honey']);
+    expect(sundries('hillfolk')).toEqual(['log', 'leather_piece', 'salt', 'soil_load', 'dung', 'cured_meat', 'honey', 'candle']);
     expect(sundries('wildwood')).toEqual(['reed', 'fiber', 'feather', 'brightleaf', 'honey', 'beeswax']);
     for (const g of goods) for (const e of g.entries) if (e.sundries === true) expect(e.weight).toBe(6);
     const salt = goods.find((g) => g.civ === 'hillfolk')!.entries.find((e) => e.item === 'salt')!;

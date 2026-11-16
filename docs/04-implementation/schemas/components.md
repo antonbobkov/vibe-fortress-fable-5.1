@@ -101,7 +101,8 @@ interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;
                      settings: Record<string, unknown>; toggled: boolean /* bridge raised, floodgate open, lever on */;
                      held?: EntityId[] /* the items a building with wants holds, each Installed (14 § Building wants); absent: none */;
-                     dryDays?: [EntityId, number][] /* a drying rack's held items and the drying days each has gained (14 § The drying rack); absent: none */ }
+                     dryDays?: [EntityId, number][] /* a drying rack's held items and the drying days each has gained (14 § The drying rack); absent: none */,
+                     burnDays?: number /* a candle stand's days burned of its burning candle (14 § Candle stands and lanterns); absent: none */ }
 interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
                       targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }
