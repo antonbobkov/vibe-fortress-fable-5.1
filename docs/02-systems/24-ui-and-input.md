@@ -93,7 +93,7 @@ Panel conventions:
 - The stocks panel names an aged stack's stage before its material and its years in the cellar after its count: "aged bellwine ×20 (aged, 1 year in the cellar)"; the look panel's item lines name the stage too ("20 aged bellwine drink").
 - The units panel and the creature inspector say "Tipsy" after a tipsy dwarf's activity ("Hauling · Tipsy", 10 § Tipsy).
 - A drying rack's building panel lists its items with their days left and its drying checklist, one line a row that `Enter` or a click turns on or off (`SetRackDrying`, 14 § The drying rack).
-- A candle stand's building panel shows its candles ("Candles: 3 of 5") and its burning candle's days left ("A tallow candle burns: 4 days left"), or in the warning colour "No candle: the stand is dark" (14 § Candle stands and lanterns).
+- A candle stand's building panel shows its candles ("Candles: 3 of 5") and its burning candle's material and days left ("Burning: tallow, 4 days left"), or in the warning colour "No candle: dark" (14 § Candle stands and lanterns).
 - A hive's building panel shows its combs ("Combs: 1 of 2"), its flowers in reach ("Flowers in reach: 12 within 6 tiles", or in the warning colour "Too few flowers: 2 of 3 within 6 tiles.") and what the season does ("The bees fill a comb every 14 days", "Winter: the bees are silent") (08 § Hives).
 
 ### Inspection

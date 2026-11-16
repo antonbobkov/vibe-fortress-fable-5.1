@@ -62,11 +62,11 @@ async function buildStand(page: Page): Promise<{ id: number; at: [number, number
     if (site === null) throw new Error('no clear floor in view');
     const [x, y] = site;
     const at = map.index(x, y, u.z);
-    const r = world.applyCommand({ type: 'PlaceBuilding', buildingType: 'candle_stand', origin: at, orientation: 0, materialChoice: 0 });
+    const r = world.applyCommand({ type: 'PlaceBuilding', buildingType: 'candle_stand', origin: at, orientation: 0, materialChoice: 'granite' });
     if (!r.ok) throw new Error(`candle_stand: ${r.reason ?? ''}`);
     const system = world.scheduler.byId('14') as { lastPlacedBuilding: number; completeNow(id: number, material: number, linked?: number): void };
     const id = system.lastPlacedBuilding;
-    system.completeNow(id, 1, 0);
+    system.completeNow(id, world.registry.table('materials').index('granite'), 0);
     const candle = world.services.spawn.item(world.registry.table('items').index('candle'), world.registry.table('materials').index('tallow'), at, 5);
     world.services.items?.install(candle);
     const building = world.entities.componentTypes().find((t) => t.name === 'Building');
@@ -124,7 +124,7 @@ test('candle-stand', async ({ page }) => {
   // A click on the stand opens its panel: its candles and the burning one's days.
   await clickTile(page, stand.at);
   await expect.poll(() => textOf(page)).toContain('Candles: 5 of 5');
-  expect(await textOf(page)).toContain('A tallow candle burns: 7 days left');
+  expect(await textOf(page)).toContain('Burning: tallow, 7 days left');
   await page.keyboard.press('Escape');
 
   // `f` opens the overlays panel; the `light` row is the ninth; `Enter` turns it on.
