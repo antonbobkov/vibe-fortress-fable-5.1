@@ -105,6 +105,8 @@ export const OVERLAY_STOCKPILE_USAGE = 'stockpile_usage';
 /** The overlay id of the "priority digits" sub-toggle. */
 export const OVERLAY_PRIORITY_DIGITS = 'priority_digits';
 export const OVERLAY_SQUAD_STATIONS = 'squad_stations';
+/** The overlay id of `light`: tiles in comfort light take `glow_halo` (23 § Compositor step 8). */
+export const OVERLAY_LIGHT = 'light';
 
 // The overlay ids the other layer modules own, so the overlay menu reads one list (T-M7-08).
 export { OVERLAY_FLUID_LEVELS, OVERLAY_TEMPERATURE } from './environment';
@@ -829,6 +831,7 @@ export class Compositor {
     if (this.frameOverlays.includes('zones')) c = this.zoneOver(c, i);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_SQUAD_STATIONS)) c = this.stationOver(c, i);
     if (this.frameOverlays.includes(OVERLAY_STOCKPILE_USAGE)) c = this.usageOver(c, i);
+    if (!undiscovered && this.frameOverlays.includes(OVERLAY_LIGHT)) c = this.lightOver(c, i);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_FLUID_LEVELS)) c = this.env.fluidLevelsOver(c, i, creature);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_TEMPERATURE)) c = this.env.temperatureOver(c, i);
     if (!undiscovered && this.frameOverlays.includes(OVERLAY_JOBS)) c = this.debug.jobsOver(c, i);
@@ -836,6 +839,13 @@ export class Compositor {
     if (this.frameOverlays.includes(OVERLAY_PATHS)) c = this.debug.pathsOver(c, i);
     if (this.frameOverlays.includes(OVERLAY_CHUNKS)) c = this.debug.chunksOver(c, x, y);
     return c;
+  }
+
+  /** `light`: a tile in comfort light (14's `comfortLightAt`: the hearth's square, lamps, burning stands, lanterns) takes `glow_halo`. */
+  private lightOver(cell: Cell, i: TileIndex): Cell {
+    const readers = this.frameReaders;
+    if (readers === null || !readers.has('14') || !readers.of<BuildingsReader>('14').comfortLightAt(i)) return cell;
+    return { ...cell, bg: this.glowHalo };
   }
 
   private stationOver(cell: Cell, i: TileIndex): Cell {

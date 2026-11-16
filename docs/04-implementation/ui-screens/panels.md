@@ -543,7 +543,7 @@ Each row starts with its day in the dim text colour: the first two letters of th
 │ [■] zones         [□] fluid levels  │
 │ [□] temperature   [□] jobs          │
 │ [■] squad stations                  │
-│ [□] stockpile usage                 │
+│ [□] stockpile usage  [□] light      │
 │ Debug: [□] connectivity [□] paths   │
 │        [□] chunks                   │
 ```

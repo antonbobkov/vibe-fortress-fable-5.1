@@ -27,6 +27,7 @@ import { SLEEP_NEED_MIN, advanceNeeds, crossed, firstCritical, type NeedName } f
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS, TIPSY_SLOW_PERCENT } from './constants';
 import { Activities, hallStand } from './activities';
 import { SMOKE_RADIUS } from '@systems/materials/constants';
+import { TALLOW_SMOKE_PERMILLE } from '@systems/buildings/constants';
 import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
 import { SMOKEHOUSE_RECIPES, dwarvesNear } from '@systems/morale/thoughts';
 
@@ -239,6 +240,26 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (schedule?.sleepStartHour === hour && after.rest > SLEEP_NEED_MIN) this.interruptFlags.add(id);
       this.updateMaxSince(id, after, ctx.tick);
       this.announceStarving(id, after, day, (e) => ctx.emit(e));
+    }
+    this.tallowSmoke(ctx);
+  }
+
+  /**
+   * 14 § Candle stands and lanterns, Tallow smokes: each dwarf standing on a tile lit only by stands
+   * burning tallow gets `smoky_hall` at `TALLOW_SMOKE_PERMILLE`, on this stream; the draw is made only
+   * for such a dwarf, so a fortress with no tallow stand draws nothing new.
+   */
+  private tallowSmoke(ctx: TickContext): void {
+    if (!ctx.readers.has('14')) return;
+    const buildings = ctx.readers.of<BuildingsReader>('14');
+    if (buildings.byType('candle_stand').length === 0) return;
+    const map = ctx.world.map;
+    for (const id of this.reader().list()) {
+      const p = ctx.world.entities.get(id, C.Position);
+      if (p === undefined) continue;
+      const tile = map.index(p.x, p.y, p.z);
+      if (!buildings.tallowSmokeAt(tile)) continue;
+      if (this.stream.chance(TALLOW_SMOKE_PERMILLE)) ctx.emit({ type: 'SmokyFuelBurned', workshopId: 0, tile, dwarfId: id });
     }
   }
 

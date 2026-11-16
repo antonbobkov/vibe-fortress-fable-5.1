@@ -29,13 +29,13 @@ stone/     raw  block  gem_rough  gem_cut  soil  fossil
 ore/
 wood/      log  block
 bar/       metal  coal  charcoal  peat  dung
-furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow  beehive
+furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow  beehive  lantern
 container/ barrel  bag  bin  bucket  pot  basket
 weapon/    melee  ranged
 ammo/
 armor/     head  body  arms  legs  feet  shield
 clothing/  body  legs  feet
-tool/      pick  axe  fishing_rod  crutch
+tool/      pick  axe  fishing_rod  crutch  candle
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather  straw  reed
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland
@@ -113,7 +113,7 @@ A building row may have `wants` (`buildings-and-furniture.md`): item matches wit
 - At the items tick, before the stockpile hauls and within `HAUL_JOBS_PER_TICK`, each built building with wants (14's `buildings.withWants()`, ascending), for each want not met by the items it holds and those on their way, gets a `haul_to_stockpile` job (labor `hauling`, priority `HAUL_PRIORITY`, keyed by the item as any haul is) for the nearest available item that answers it (§ Searching, from the building's tile), worked from a tile beside the building; the job's `data.holder` names the building. An item that has a haul job already is passed over. A want is looked at only while an item of its types is available, and what is on its way is read from the haul jobs only then.
 - On delivery the item is *held* by the building (`Building.held`, 14): flagged `installed`, off every search and count of available stock, still in the totals and in wealth. If the building is gone, not built, or has meanwhile been given as many as it wants, the item stays where it was brought and finds another home.
 - A held item leaves the building only when the player takes it out (`ReleaseHeld { buildingId }`, which releases every held item to the building's tile) or when the building is taken apart or removed (its held items drop on its tile, unflagged). Later rows that consume what they hold say so.
-- A want may count units, not items, and wants may share one count (a drying rack's: up to `RACK_CAPACITY` units over all its drying rows, a stack brought whole, so the last may take it over), and may name the material it takes (a rack's peat load is of `peat`): 14's `buildings.holderWants(id)` gives them as item types, counts and materials.
+- A want counts units, not items (a candle stand's 5 candles: a stack is brought whole, so the last may take it over), and wants may share one count (a drying rack's: up to `RACK_CAPACITY` units over all its drying rows, a stack brought whole, so the last may take it over), and may name the material it takes (a rack's peat load is of `peat`): 14's `buildings.holderWants(id)` gives them as item types, counts and materials.
 - No new job type: the haul is `haul_to_stockpile`. Save: `Building.held` (14); the wants are content.
 
 ### Forbid, dump, melt, claim
@@ -151,8 +151,8 @@ Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits m
 
 ### Aging in a cellar
 
-- A stockpile zone has the setting `cellar` (`SetStockpileCellar { zoneId, on }`; a hospital has none, and the command refuses it with `not_found`; `on` that is not a boolean is `bad_setting`). A stockpile is a *working cellar* when the setting is on, every tile is dark (no `lit` flag, and in no comfort light: 14's `buildings.comfortLightAt`, the built hearth's square and a built lamp's 3×3) and every tile's temperature (05's `temperatureAt`) is from `CELLAR_MIN_C` to `CELLAR_MAX_C`. The judgement is cached on the record: `cellarOk`, or the first reason it fails, in this order: `lit`, `too_warm` with the warmest tile's temperature in `cellarC`, `too_cold` with the coldest's. It is made on each `DayPassed`, and at once when the setting is turned on, so the inspector and the hint know before the next day; turning it off clears the judgement. No rng.
-- On each `DayPassed`, after the judgement, every item in a working cellar that can age gains one cellar day (`Item.cellarDays`), in ascending id order: the items lying on its tiles and the contents of the containers there. What can age: a stack of `drink` in a container of class `barrel` of a `wood` material, and `cheese` (in a container or not). When its cellar days reach `DAYS_PER_YEAR` for a barrel whose material carries the tag `fine_cask` (oak) or for cheese, or twice that for any other wood, it gains one stage (`Item.age`: absent young, 1 aged, 2 vintage), its cellar days return to 0 and the system emits `ItemAged { id, stage }` (no announcement). A drink in a pot, a metal barrel or no barrel never ages, and vintage is the last stage. A cellar that stops working (a warm week, a lamp) only pauses: the days stay with the item, and with it when it leaves the cellar.
+- A stockpile zone has the setting `cellar` (`SetStockpileCellar { zoneId, on }`; a hospital has none, and the command refuses it with `not_found`; `on` that is not a boolean is `bad_setting`). A stockpile is a *working cellar* when the setting is on, every tile is dark (no `lit` flag, and in no comfort light: 14's `buildings.comfortLightAt`: the built hearth's square, a built lamp's 3×3, a burning candle stand's or a lantern's 3×3) and every tile's temperature (05's `temperatureAt`) is from `CELLAR_MIN_C` to `CELLAR_MAX_C`. The judgement is cached on the record: `cellarOk`, or the first reason it fails, in this order: `lit`, `too_warm` with the warmest tile's temperature in `cellarC`, `too_cold` with the coldest's. It is made on each `DayPassed`, and at once when the setting is turned on, so the inspector and the hint know before the next day; turning it off clears the judgement. No rng.
+- On each `DayPassed`, after the judgement, every item in a working cellar that can age gains one cellar day (`Item.cellarDays`), in ascending id order: the items lying on its tiles and the contents of the containers there. What can age: a stack of `drink` in a container of class `barrel` of a `wood` material, and `cheese` (in a container or not). When its cellar days reach `DAYS_PER_YEAR` for a barrel whose material carries the tag `fine_cask` (oak) or for cheese, or twice that for any other wood, it gains one stage (`Item.age`: absent young, 1 aged, 2 vintage), its cellar days return to 0 and the system emits `ItemAged { id, stage }` (no announcement). A drink in a pot, a metal barrel or no barrel never ages, and vintage is the last stage. A cellar that stops working (a warm week, a lamp, a candle stand lit beside it) only pauses: the days stay with the item, and with it when it leaves the cellar.
 - The stage is part of the value (§ Value: wealth is re-accounted on the change of stage). An aged or vintage cheese leaves the rot queue and rots no more. The name says the stage before the material: "a barrel of aged bellwine", "a wheel of vintage cheese" (24). Stacks merge only at the same stage, and a merged stack keeps the fewer cellar days of the two; a split part keeps both.
 - Wealth from a cellar raises renown, and renown sizes raids (18): a fortress that hoards vintage is worth raiding, and a thief takes the most valuable thing it can reach.
 
@@ -277,9 +277,8 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 
 ```
 food/      meal/feast (T-565)
-furniture/ lantern (T-563)
 medical/   soap (T-564)
-tool/      candle (T-563)  firebrand (T-559)
+tool/      firebrand (T-559)
 farm/      compost (T-564)  guano (T-556)
 ```
 

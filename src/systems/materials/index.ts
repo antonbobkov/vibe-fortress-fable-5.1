@@ -294,7 +294,9 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
    */
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'SmokyFuelBurned') {
-      // `05` § Smoke: the workshop is smoky for `SMOKE_TICKS` from the job's completion.
+      // `05` § Smoke: the workshop is smoky for `SMOKE_TICKS` from the job's completion. Tallow smoke
+      // (14 § Candle stands and lanterns, a `dwarfId` and no workshop) is that dwarf's alone, and not drawn.
+      if (typeof event['dwarfId'] === 'number') return;
       this.smoke.set(event['tile'] as TileIndex, ctx.tick + SMOKE_TICKS);
       return;
     }

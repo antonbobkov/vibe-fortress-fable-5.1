@@ -107,8 +107,8 @@ describe('T-555 the rows', () => {
     expect(recipes.byId('weave_hive')?.workshop).toBe('craftdwarf');
     expect(recipes.byId('press_honeycomb')).toMatchObject({ workshop: 'farmers_workshop', skill: 'animal_care' });
     expect(recipes.byId('brew_mead')).toMatchObject({ workshop: 'still', skill: 'brewing' });
-    // The wax candles make T-563's candle: they come with it.
-    expect(recipes.has('make_candles_wax')).toBe(false);
+    // The wax candles make T-563's candle: they came with it.
+    expect(recipes.byId('make_candles_wax')?.workshop).toBe('craftdwarf');
     expect(registry.table<{ id: string; labor: string; xp: number }>('jobTypes').byId('collect_honey')).toMatchObject({ labor: 'animal_care', xp: 4 });
     const thought = registry.table<ThoughtDef>('thoughts').byId('stung') as ThoughtDef;
     expect(thought.text).toBe('Stung. The bees were not consulted.');

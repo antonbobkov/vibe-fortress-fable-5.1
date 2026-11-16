@@ -9,6 +9,7 @@ import type { MoverOptions } from '@core/pathfinding';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { Bedding, BuildingRow, BuildingStore, WantView } from './build';
 import type { DryingRow, HolderWantView, RackItemView, RackStore } from './racks';
+import { TALLOW, type CandleStore, type StandView } from './candles';
 import type { RoomStore, RoomScore, RoomDiagnostics } from './rooms';
 import type { ZoneStore } from './zones';
 
@@ -100,8 +101,15 @@ export interface BuildingsReader {
     /** Crop light before glowstone lamps add comfort illumination. */
     cropLitAt(i: TileIndex): boolean;
     lampCoveredAt(i: TileIndex): boolean;
-    /** The tile is in comfort light: the built hearth's square or a built lamp's 3×3 (not crop light; 13's cellars read it). */
+    /**
+     * The tile is in comfort light: the built hearth's square, a built lamp's 3×3, a burning candle
+     * stand's or a built lantern's 3×3 (not crop light; 13's cellars, 10's meals and 18's spotting read it).
+     */
     comfortLightAt(i: TileIndex): boolean;
+    /** The tile is lit only by stands burning tallow candles: no `lit` flag, hearth, lamp, lantern or beeswax stand (14 § Candle stands and lanterns). */
+    tallowSmokeAt(i: TileIndex): boolean;
+    /** A candle stand's candles held, the burning one's material and its days left; undefined for anything else. */
+    standCandles(id: EntityId): StandView | undefined;
   /** The living patient or walking/sleeping dwarf holding a built bed, or 0. */
   bedHolder(bedId: EntityId): EntityId;
   /** Unassigned built beds with no hold by another dwarf. */
@@ -136,7 +144,8 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
   memorialEligible: (id: EntityId) => boolean = () => false,
   /** The items on their way to a building that holds items (13's hauls to it). */
   coming: (id: EntityId) => readonly EntityId[] = () => [],
-  racks: RackStore | null = null): BuildingsReader {
+  racks: RackStore | null = null,
+  candles: CandleStore | null = null): BuildingsReader {
   let wantsCache: { revision: number; ids: EntityId[] } | null = null;
   const view = (id: EntityId): ZoneView | undefined => {
     const z = zones.zone(id);
@@ -221,7 +230,10 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
       hearthLightAt: (i) => rooms.hearthLightAt(i),
       cropLitAt: (i) => buildings.lampLight.get(i)?.baseLit ?? buildings.host.map.hasFlag(i, TileFlag.Lit),
       lampCoveredAt: (i) => buildings.lampLight.has(i),
-      comfortLightAt: (i) => rooms.hearthLightAt(i) || buildings.lampLight.has(i),
+      comfortLightAt: (i) => rooms.hearthLightAt(i) || buildings.lampLight.has(i) || (candles !== null && candles.at(i) !== 0),
+      tallowSmokeAt: (i) => candles !== null && candles.at(i) === TALLOW && !buildings.host.map.hasFlag(i, TileFlag.Lit)
+        && !rooms.hearthLightAt(i) && !buildings.lampLight.has(i),
+      standCandles: (id) => candles?.view(id),
     bedHolder: (id) => rooms.bedHolder(id),
     freeBeds: (id) => rooms.freeBeds(id),
     diningSeats: () => rooms.seatsAmong(buildings.all().filter((id) => buildings.get(id)?.state === 'built')),
@@ -254,7 +266,8 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
       const b = buildings.get(id);
       if (b === undefined || b.state !== 'built') return [];
       if (racks !== null && racks.isRack(b)) return racks.wants(id);
-      return (buildings.row(b.type).wants ?? []).map((w) => ({ types: buildings.typesOf(w.match), count: w.count }));
+      // A want counts units: a stack of candles brought to a stand is that many candles (a bed's bedding is one).
+      return (buildings.row(b.type).wants ?? []).map((w) => ({ types: buildings.typesOf(w.match), count: w.count, units: true }));
     },
     dryingRows: () => racks?.rows() ?? [],
     rackDrying: (id) => {

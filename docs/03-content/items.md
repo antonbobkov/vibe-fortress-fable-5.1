@@ -21,7 +21,7 @@ Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md
 | `cheese` | cheese | food/cheese | 1 | 10 | barrel | 40 | light | `%` | `cheese_yellow` | |
 | `milk` | milk | food/milk | 1 | 10 | barrel | 5 | light | `≈` | `milk_white` | liquid |
 | `fat` | fat | food/fat | 1 | 10 | barrel | 6 | light | `%` | `tallow_yellow` | rendered to tallow |
-| `tallow` | tallow | food/tallow | 1 | 20 | bin | 0 | light | `%` | `tallow_yellow` | trade good; candles are not in version 1 |
+| `tallow` | tallow | food/tallow | 1 | 20 | bin | 0 | light | `%` | `tallow_yellow` | trade good; made into candles |
 | `salt` | salt | food/salt | 1 | 20 | bag | 0 | light | `:` | `salt_white` | material `salt`; a meal ingredient |
 | `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | material `<species>_meat`; smoked, salted or dried: never rots |
 | `cured_fish` | cured fish | food/fish/cured | 2 | 10 | barrel | 0 | light | `%` | material | material `<fish>_meat`; smoked, salted or dried: never rots |
@@ -104,6 +104,7 @@ Coal and charcoal carry the tag `fuel`. A peat brick (of `peat`, a peat load dri
 | `bedding` | bedding | furniture/bedding | 4 | 1 | medium | `≈` | material | cloth; records its stuffing | `stuffed` |
 | `pillow` | pillow | furniture/pillow | 2 | 1 | light | `≈` | material | cloth; records its stuffing | `stuffed` |
 | `beehive` | beehive | furniture/beehive | 3 | 1 | medium | `∩` | material | wood, stone (earthenware), plant (reed) | — |
+| `lantern` | lantern | furniture/lantern | 6 | 1 | medium | `¥` | material | glass | — |
 
 An item tagged `stuffed` records its stuffing, the material of its last input (`Item.stuffing`, [12](../02-systems/12-workshops-and-professions.md) § Operation); a stuffed item whose stuffing is `feather` is worth its type's `mult` × 2 ([13](../02-systems/13-items-and-storage.md) § Value). A built bed holds a bedding and a pillow ([14](../02-systems/14-buildings-and-rooms.md) § Beds).
 
@@ -124,14 +125,15 @@ A basket is a container of class `bin` that holds 15 items, woven of reeds at th
 
 ## Tools
 
-| id | name | category | mult | stack | weight | glyph | fg | materials | notes |
-|---|---|---|---|---|---|---|---|---|---|
-| `pick` | pick | tool/pick | 6 | 1 | medium | `¶` | material | metal (copper or better) | also a weapon of class `pick` |
-| `axe` | axe | tool/axe | 8 | 1 | medium | `Ρ` | material | metal | also a weapon of class `axe` (the same item as the battle axe) |
-| `fishing_rod` | fishing rod | tool/fishing_rod | 3 | 1 | light | `⌠` | material | wood | not required for fishing in version 1; trade good |
-| `crutch` | crutch | tool/crutch | 3 | 1 | light | `⌡` | material | wood, bone, metal | |
-| `splint` | splint | medical/splint | 2 | 5 | light | `‖` | material | wood, bone, metal | |
-| `quiver` | quiver | tool/quiver | 3 | 1 | light | `∫` | material | leather | holds up to 50 ammunition |
+| id | name | category | mult | stack | container | weight | glyph | fg | materials | notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `pick` | pick | tool/pick | 6 | 1 | — | medium | `¶` | material | metal (copper or better) | also a weapon of class `pick` |
+| `axe` | axe | tool/axe | 8 | 1 | — | medium | `Ρ` | material | metal | also a weapon of class `axe` (the same item as the battle axe) |
+| `fishing_rod` | fishing rod | tool/fishing_rod | 3 | 1 | — | light | `⌠` | material | wood | not required for fishing in version 1; trade good |
+| `crutch` | crutch | tool/crutch | 3 | 1 | — | light | `⌡` | material | wood, bone, metal | |
+| `splint` | splint | medical/splint | 2 | 5 | — | light | `‖` | material | wood, bone, metal | |
+| `quiver` | quiver | tool/quiver | 3 | 1 | — | light | `∫` | material | leather | holds up to 50 ammunition |
+| `candle` | candle | tool/candle | 1 | 10 | bin | light | `ì` | material | liquid (tallow, beeswax) | burns in a candle stand: tallow 7 days, beeswax 14 ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns) |
 
 ## Crafts and gems
 
@@ -278,8 +280,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
 | Farm goods (a new section) | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `compost`; tag `fertilizer` | T-564 |
-| Furniture | `lantern` | lantern | furniture/lantern | 6 | 1 | none | 0 | medium | `¥` | material | glass | T-563 |
-| Tools | `candle` | candle | tool/candle | 1 | 10 | bin | 0 | light | `ì` | material | tallow, beeswax | T-563 |
 | Tools | `firebrand` | firebrand | tool/firebrand | 1 | 5 | bin | 0 | light | `/` | material | wood, bone | T-559 |
 | Medical and herbs | `soap` | soap | medical/soap | 1 | 20 | bag | 0 | light | `▪` | `soap_white` | `soap` | T-564 |
 | Food | `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | `meal`; quality-bearing; eaten before any other meal | T-565 |
@@ -290,4 +290,3 @@ The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colo
 ### Planned edits to existing rows
 
 - `statue` materials gain bone (bone and ivory statues, T-557).
-- `tallow`'s note "candles are not in version 1" goes (T-563).
