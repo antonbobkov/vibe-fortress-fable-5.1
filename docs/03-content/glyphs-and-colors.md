@@ -151,6 +151,8 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `zone_sanctum` | #1E363A |
 | `zone_compost` | #33301A |
 
+A `harvest_ice` designation takes `des_dig` (it is a miner's work) and an `ignite` designation `des_remove`; harvest takes `des_gather`.
+
 ### Material and nature colors
 
 | id | hex | alternate | | id | hex | alternate |

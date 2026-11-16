@@ -246,6 +246,7 @@ const OWN: Record<string, string[]> = {
   DesignateStairwell: ['x', 'y', 'zTop', 'zBottom'],
   DesignateHarvest: ['tiles'],
   ConfirmDeepsilver: [],
+  ConfirmIgnite: [],
   SetPlotCrop: ['zoneId', 'season', 'speciesId'],
   AssignPasture: ['animalId', 'zoneId'],
   MarkSlaughter: ['animalId'],

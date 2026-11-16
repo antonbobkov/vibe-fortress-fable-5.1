@@ -49,6 +49,9 @@ export const DESIGNATE_KINDS: readonly DesignateKind[] = [
   { key: 'g', id: 'gather', designation: Designation.Gather },
   { key: 'h', id: 'harvest', designation: Designation.Harvest },
   { key: 'f', id: 'traffic', special: 'traffic' },
+  // 24 § Designations: cut ice from frozen water, and set a fire on purpose (`ui-keymap-and-screens.md` § Designate panel).
+  { key: 'q', id: 'harvest_ice', designation: Designation.HarvestIce },
+  { key: 'b', id: 'ignite', designation: Designation.Ignite },
 ];
 
 /**

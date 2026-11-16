@@ -1638,5 +1638,29 @@
   {
     "table": "recipes",
     "id": "set_ammo_fletched"
+  },
+  {
+    "table": "items",
+    "id": "firebrand"
+  },
+  {
+    "table": "jobTypes",
+    "id": "harvest_ice"
+  },
+  {
+    "table": "jobTypes",
+    "id": "ignite"
+  },
+  {
+    "table": "recipes",
+    "id": "make_firebrand"
+  },
+  {
+    "table": "thoughts",
+    "id": "set_a_fire"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_first_ignite"
   }
 ]

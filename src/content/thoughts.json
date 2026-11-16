@@ -1246,6 +1246,21 @@
     "announce": false
   },
   {
+    "id": "set_a_fire",
+    "name": "set a fire",
+    "text": "Set a fire. On purpose, this time.",
+    "value": 1,
+    "hours": 12,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "TileIgnited",
+      "target": "the dwarf"
+    },
+    "announce": false
+  },
+  {
     "id": "singed",
     "name": "singed",
     "text": "Singed my beard in the sanctum.",

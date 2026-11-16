@@ -52,6 +52,8 @@ export interface TerrainStateV1 {
   boneyards?: TileIndex[][];
   /** By boneyard, whether a fortress dwarf has stood in its ribs (`03` § State). Absent while none has. */
   boneyardsEntered?: boolean[];
+  /** `03` § Ice harvesting: each cut tile of frozen water and the tick it was cut, ascending. Absent while none waits. */
+  iceCut?: [TileIndex, number][];
   /** The `LocalMapSpec` of the map, for the legend and regeneration in tests (`03` § State). */
   spec: LocalMapSpec | null;
   /** `EntitiesMoved` batches handled but not yet ticked (discovery runs next tick; D-082). */

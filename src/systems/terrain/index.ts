@@ -18,7 +18,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { LocalMapSpec } from '@systems/embark';
 import { TerrainCore } from './api';
 import {
-  applyConfirmDeepsilver,
+  applyConfirmDeepsilver, applyConfirmIgnite,
   applyDesignate,
   applyPriority,
   applyStairwell,
@@ -68,6 +68,7 @@ const COMMAND_HANDLERS: Partial<Record<CommandType, (host: CommandHost, cmd: Com
   SetTraffic: applyTraffic,
   DesignateStairwell: applyStairwell,
   ConfirmDeepsilver: (host) => applyConfirmDeepsilver(host),
+  ConfirmIgnite: (host) => applyConfirmIgnite(host),
 };
 
 export class TerrainSystem extends BaseSystem<TerrainStateV1> {
@@ -81,6 +82,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     'SetTraffic',
     'DesignateStairwell',
     'ConfirmDeepsilver',
+    'ConfirmIgnite',
   ];
 
   private readonly options: TerrainOptions;
@@ -141,7 +143,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     for (const group of this.options.giantSkulls ?? []) if (group.length > 0) core.giantSkulls.push([...group].sort((a, b) => a - b));
     for (const cage of this.options.boneyards ?? []) core.boneyards.push([...cage].sort((a, b) => a - b));
     world.services.terrain = core;
-    this.commandHost = { core, fortress: world.fortress, progressOf: (tile) => this.progressOf(tile) };
+    this.commandHost = { core, fortress: world.fortress, progressOf: (tile) => this.progressOf(tile), now: () => world.calendar.tick };
     this.readerRef = makeReader(core, () => this.specValue, (tile) => this.progressOf(tile), (tile) => this.producer?.workOf(tile) ?? null);
     // `03` § Registrations: job producer `terrain` (designation jobs, T-M1-10).
     const producer = new TerrainProducer(core, ctx.readers, ctx.rng, () => world.rngFor(SOIL_DROP_STREAM));
@@ -236,6 +238,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       ...(core.giantSkulls.length > 0 ? { giantSkulls: core.giantSkulls.map((g) => g.slice()) } : {}),
       ...(core.boneyards.length > 0 ? { boneyards: core.boneyards.map((b) => b.slice()) } : {}),
       ...(core.boneyardsEntered.some((e) => e) ? { boneyardsEntered: core.boneyards.map((_, b) => core.boneyardsEntered[b] === true) } : {}),
+      ...(core.iceCut.size > 0 ? { iceCut: Array.from(core.iceCut).sort((a, b) => a[0] - b[0]) } : {}),
       spec: this.specValue,
       pendingMoves: this.pendingMoves.map((m) => [m[0], m[1], m[2]] as [EntityId, TileIndex, TileIndex]),
       producerCurrent: this.producer?.current ?? false,
@@ -268,6 +271,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     for (const cage of state.boneyards ?? []) core.boneyards.push(cage.slice());
     core.boneyardsEntered.length = 0;
     for (const entered of state.boneyardsEntered ?? []) core.boneyardsEntered.push(entered === true);
+    core.iceCut.clear();
+    for (const [tile, at] of state.iceCut ?? []) core.iceCut.set(tile, at);
     this.layerStack = state.layerStack.map((l) => ({ ...l }));
     this.bigDigCounter = state.bigDigCounter;
     this.specValue = state.spec;

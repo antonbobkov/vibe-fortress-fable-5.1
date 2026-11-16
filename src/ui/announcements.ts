@@ -164,6 +164,7 @@ export class AnnouncementLog {
       out['workshop'] = buildingName({ readers, registry: this.registry }, e['workshopId']);
       out['input'] = typeof e['input'] === 'string' ? e['input'].split('|').map(id => itemName(this.registry, id)).join(' or ') : this.strings.get('ui.workshop.input_unspecified');
     }
+    if (event.type === 'IceMelted') out['place'] = this.icePlace(readers, (e['tiles'] as readonly TileIndex[] | undefined) ?? []);
     if (event.type === 'PlotNeedsSeeds') out['plot'] = zoneName({ readers, strings: this.strings }, Number(e['zoneId'])) || this.strings.get('ui.zone.type.farm_plot');
     // A workshop waiting for an empty container names the container class (12 § Operation 3).
     if (event.type === 'WorkshopBlocked' && typeof e['container'] === 'string') out['container'] = itemName(this.registry, e['container']);
@@ -239,6 +240,31 @@ export class AnnouncementLog {
       out['victim'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'victim';
     }
     return out;
+  }
+
+  /**
+   * `IceMelted`'s `{place}` (05 § Ice constructions): the zone on or beside the first melted tile
+   * ("Stockpile #2"), else "the surface" for ice that stood outdoors, else "the halls".
+   */
+  private icePlace(readers: ReaderSet, tiles: readonly TileIndex[]): string {
+    const first = tiles[0];
+    const map = readers.map;
+    if (first === undefined || first < 0 || first >= map.w * map.h * map.d) return this.strings.get('announce.ice_melted.place.halls');
+    if (readers.has('14')) {
+      const zones = readers.of<BuildingsReader>('14');
+      const { x, y, z } = map.unpack(first);
+      for (let dy = -1; dy <= 1; dy += 1) {
+        for (let dx = -1; dx <= 1; dx += 1) {
+          if (!map.inBounds(x + dx, y + dy, z)) continue;
+          const zone = zones.zoneAt(map.index(x + dx, y + dy, z));
+          if (zone !== 0) return zoneName({ readers, strings: this.strings }, zone);
+        }
+      }
+    }
+    // The melted tile is open now: outdoors when the sky reaches it.
+    return map.isOutdoor(first)
+      ? this.strings.get('announce.ice_melted.place.surface')
+      : this.strings.get('announce.ice_melted.place.halls');
   }
 
   private formatCreatureName(name: string | undefined, speciesIndex: number | undefined): string {

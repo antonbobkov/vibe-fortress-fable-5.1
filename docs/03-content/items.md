@@ -135,6 +135,7 @@ A basket is a container of class `bin` that holds 15 items, woven of reeds at th
 | `splint` | splint | medical/splint | 2 | 5 | — | light | `‖` | material | wood, bone, metal | |
 | `quiver` | quiver | tool/quiver | 3 | 1 | — | light | `∫` | material | leather | holds up to 50 ammunition |
 | `candle` | candle | tool/candle | 1 | 10 | bin | light | `ì` | material | liquid (tallow, beeswax) | burns in a candle stand: tallow 7 days, beeswax 14 ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns) |
+| `firebrand` | firebrand | tool/firebrand | 1 | 5 | bin | light | `/` | material | wood, bone | a brand dipped in tallow or wax: the `ignite` job carries one to the tile and spends it ([03](../02-systems/03-terrain-and-mining.md) § Setting a fire) |
 
 ## Crafts and gems
 
@@ -284,7 +285,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
-| Tools | `firebrand` | firebrand | tool/firebrand | 1 | 5 | bin | 0 | light | `/` | material | wood, bone | T-559 |
 | Food | `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | `meal`; quality-bearing; eaten before any other meal | T-565 |
 
 The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colors.md) § Glyph set); a task may choose another from the set.

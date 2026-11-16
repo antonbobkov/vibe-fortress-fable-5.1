@@ -136,6 +136,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `singed` | "Singed my beard in the sanctum." | −3 | 24 | halflife | 1 | none | `Mishap` `singed` |
 | `rune_sick` | "Too much rune. My teeth hum." | −4 | 24 | halflife | 1 | none | `VialDrunk` a fourth vial in a day |
 | `forged_the_star` | "I forged the steel the sky made." | +6 | 168 | linear | 1 | craft | `ItemCrafted` of a piece of `star_steel` (not a bar), the crafter |
+| `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf |
 
 ### Weather
 
@@ -208,7 +209,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
-| `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |
 | `spat_on` | "The camel spat on me." | −1 | 12 | halflife | 1 | comfort | `SpatOn` | T-561 |
 | `feasted` | "Ate at a feast." | +8 | 48 | linear | 1 | comfort | `MealEaten` feast | T-565 |
 | `held_a_feast` | "We held a feast." | +3 | 72 | linear | 1 | social | `ItemCrafted` of a feast (everyone) | T-565 |

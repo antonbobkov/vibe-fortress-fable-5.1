@@ -138,6 +138,8 @@ export const DESIGNATION_TINTS: Readonly<Partial<Record<Designation, string>>> =
   [Designation.Chop]: 'des_chop',
   [Designation.Gather]: 'des_gather',
   [Designation.Harvest]: 'des_gather',
+  [Designation.HarvestIce]: 'des_dig',
+  [Designation.Ignite]: 'des_remove',
 });
 
 interface SpeciesRow {

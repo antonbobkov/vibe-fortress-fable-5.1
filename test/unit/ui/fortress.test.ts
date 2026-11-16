@@ -330,6 +330,8 @@ describe('T-M1-14 announcements', () => {
       // 04 § Player-facing behavior, 05 § Player-facing behavior.
       MistProduced: 'note',
       FireOut: 'note',
+      // T-559: 05 § Ice constructions (`IceMelted`, a note, at most once a day).
+      IceMelted: 'note',
       // 08 § Player-facing behavior ("A pack of wolves has arrived from the north").
       AnimalSpawned: 'note',
       // 09 § Registrations ("`HuntKill` note … `HuntAbandoned { no_ammo }` alert").

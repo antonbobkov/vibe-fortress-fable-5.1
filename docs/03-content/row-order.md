@@ -418,3 +418,9 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | make_scale_skirt |
 | recipes | make_horn_bow |
 | recipes | set_ammo_fletched |
+| items | firebrand |
+| jobTypes | harvest_ice |
+| jobTypes | ignite |
+| recipes | make_firebrand |
+| thoughts | set_a_fire |
+| confirmations | c_first_ignite |

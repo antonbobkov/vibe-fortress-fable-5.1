@@ -146,3 +146,10 @@ export const SNOW_PERIODS: readonly number[] = [14, 5];
 export const CONVERT_WATER_RADIUS = 2;
 /** `03` stage 10 conversions: the deepest water a `shallow` tile stands in. */
 export const CONVERT_SHALLOW_MAX = 2;
+
+/** `03` § Ice harvesting: days before a cut tile of frozen water can be designated again (*unmeasured*). */
+export const ICE_RECUT_DAYS = 3;
+/** `03` § Ice harvesting: the work of cutting one ice block, skill-scaled as digging (*unmeasured*). */
+export const ICE_HARVEST_TICKS = 80;
+/** `03` § Setting a fire: the work of lighting a tile with a firebrand (*unmeasured*). */
+export const IGNITE_TICKS = 30;

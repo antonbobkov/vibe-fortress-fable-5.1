@@ -234,6 +234,7 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   const target = def.id === 'made_masterwork' || def.id === 'made_fine_item' || def.id === 'masterwork_lost' || def.id === 'forged_the_star' ? n(event, 'crafterId')
     : def.id === 'first_vein' ? n(event, 'finderId')
       : def.id === 'first_fossil' ? n(event, 'dwarfId')
+      : def.id === 'set_a_fire' ? n(event, 'dwarfId')
       : def.id === 'harvest_in' ? n(event, 'farmerId')
         : def.id === 'killed_hostile' ? n(event, 'killerId')
           : def.id === 'thief_escaped_with_my_things' ? (ctx.world.entities.get(n(event, 'itemId'), C.Item)?.ownerId ?? n(event, 'ownerId')) : n(event, 'id');

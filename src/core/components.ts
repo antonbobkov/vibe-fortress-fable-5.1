@@ -585,6 +585,8 @@ export interface FortressState {
   milestones: { id: string; tick: Tick }[];
   hintsShown: string[];
   deepsilverConfirmed: boolean;
+  /** The first `ignite` designation was confirmed (`03` § Setting a fire); absent is false. */
+  igniteConfirmed?: boolean;
   /** Started in the embark's testing mode (`02` § Testing mode); absent is a normal fortress. */
   testing?: boolean;
 }

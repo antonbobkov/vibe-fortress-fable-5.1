@@ -13,6 +13,7 @@ import {
   DEEP_HEAT_PER_Z,
   DEEP_HEAT_START_Z,
   FIRE_OVERRIDE,
+  ICE_OVERRIDE,
   MAGMA_OVERRIDE,
   NEAR_SURFACE_DEPTH,
   SNOW_OVERRIDE,
@@ -46,6 +47,8 @@ export function temperatureOf(map: Map3D, i: TileIndex, surfaceC: number): numbe
 export interface OverrideSources {
   isBurning(i: TileIndex): boolean;
   isWarmSpring(i: TileIndex): boolean;
+  /** A constructed wall or floor of `ice` (`05` § Ice constructions); null while none stands. */
+  readonly isIce?: ((i: TileIndex) => boolean) | null;
 }
 
 function isMagma(map: Map3D, i: TileIndex): boolean {
@@ -61,13 +64,15 @@ const FIRE_BY_DISTANCE: readonly number[] = [FIRE_OVERRIDE, FIRE_OVERRIDE / 2];
 /**
  * The override of one tile: the sum over magma tiles within Chebyshev 2 (in x and y) on its own
  * level and the level below (a source warms "the same level and the level above"), burning tiles
- * within 1 likewise, a warm spring on the tile and snow on the tile, clamped to ±24.
+ * within 1 likewise, ice constructions within 1 on its own level (−`ICE_OVERRIDE` each), a warm
+ * spring on the tile and snow on the tile, clamped to ±24.
  */
 export function overrideAt(map: Map3D, i: TileIndex, sources: OverrideSources): number {
   const x = map.xOf(i);
   const y = map.yOf(i);
   const z = map.zOf(i);
   let sum = 0;
+  const isIce = sources.isIce ?? null;
   for (let dz = -1; dz <= 0; dz += 1) {
     const zz = z + dz;
     if (zz < 0) continue;
@@ -81,6 +86,7 @@ export function overrideAt(map: Map3D, i: TileIndex, sources: OverrideSources): 
         const d = Math.max(Math.abs(dx), Math.abs(dy));
         if (isMagma(map, j)) sum += MAGMA_BY_DISTANCE[d] as number;
         if (d <= 1 && sources.isBurning(j)) sum += FIRE_BY_DISTANCE[d] as number;
+        if (isIce !== null && dz === 0 && d <= 1 && isIce(j)) sum -= ICE_OVERRIDE;
       }
     }
   }

@@ -311,6 +311,16 @@
   },
   {
     "context": "designate_panel",
+    "key": "[q]",
+    "action": "harvest ice"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-b]",
+    "action": "ignite (set a fire)"
+  },
+  {
+    "context": "designate_panel",
     "key": "[S-f]",
     "action": "traffic (again: the next traffic mode)"
   },
