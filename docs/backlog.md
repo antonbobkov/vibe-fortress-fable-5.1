@@ -19,7 +19,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-562 | [Making Do A3b: scale armour, horn bows and fletching](work/T-562-making-do-scale-armour-and-bows.md) | T-546's re-cut of Making Do | — | open |
 | T-563 | [Making Do B3b: candles, candle stands, lanterns and what light does](work/T-563-making-do-candles-and-lanterns.md) | T-546's re-cut of Making Do | — | open |
 | T-564 | [Making Do B5b: the compost heap, fertilizer and soap](work/T-564-making-do-compost-fertilizer-soap.md) | T-546's re-cut of Making Do | — | open |
-| T-565 | [Making Do C6: feasts, the Thane's whims and mugs at the table](work/T-565-making-do-hall-life.md) | T-546's re-cut of Making Do | T-555, T-557, T-563 | blocked (needs T-555, T-557, T-563) |
+| T-565 | [Making Do C6: feasts, the Thane's whims and mugs at the table](work/T-565-making-do-hall-life.md) | T-546's re-cut of Making Do | T-557, T-563 | blocked (needs T-557, T-563) |
 | T-566 | [Making Do: salt crusts, after T-547's salt](work/T-566-making-do-salt-crust.md) | T-548's runs | — | open |
 | T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
 | T-569 | [A −1 thought that decays by halflife is gone at the next hour](work/T-569-minus-one-halflife-thoughts.md) | T-552's runs | — | open |
