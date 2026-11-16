@@ -1,6 +1,8 @@
 # T-571 — Fortresses grow slower since Making Do: attribute it, then fix or accept
 
-**Source:** the orchestrator, 2026-11-15, from [T-567](../archive/tasks/T-567-fixture-picks-and-chairs.md)'s runs ([data](../../reports/data/2026-11-15-t567-sweeps.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-15, in 241465eb.
+
+**Source:** the orchestrator, 2026-11-15, from [T-567](T-567-fixture-picks-and-chairs.md)'s runs ([data](../../../reports/data/2026-11-15-t567-sweeps.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
