@@ -324,6 +324,58 @@
     "xp": 3
   },
   {
+    "id": "carve_fossil",
+    "name": "Carve fossil",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "figurine",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "carve_ivory_statue",
+    "name": "Ivory statue",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "tusk",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
     "id": "cook_easy_meal",
     "name": "Easy meal",
     "workshop": "kitchen",
@@ -579,6 +631,32 @@
       }
     ],
     "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "cut_bone_blocks",
+    "name": "Bone blocks",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_block",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
     "fuel": false,
     "quality": false,
     "xp": 3
@@ -2616,6 +2694,32 @@
     "xp": 6
   },
   {
+    "id": "make_chair_bone",
+    "name": "Bone chair (a throne)",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chair",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
     "id": "make_chair_stone",
     "name": "Chair",
     "workshop": "mason",
@@ -2865,6 +2969,32 @@
     "xp": 3
   },
   {
+    "id": "make_coffin_bone",
+    "name": "Bone coffin",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "coffin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
     "id": "make_coffin_stone",
     "name": "Coffin",
     "workshop": "mason",
@@ -2993,6 +3123,32 @@
     "fuel": false,
     "quality": false,
     "xp": 4
+  },
+  {
+    "id": "make_door_bone",
+    "name": "Bone door",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "door",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
   },
   {
     "id": "make_door_stone",
@@ -4009,6 +4165,32 @@
     "xp": 15
   },
   {
+    "id": "make_statue_bone",
+    "name": "Bone statue",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
     "id": "make_steel_bone_ash",
     "name": "Steel (bone ash flux)",
     "workshop": "smelter",
@@ -4163,6 +4345,32 @@
     "fuel": false,
     "quality": false,
     "xp": 3
+  },
+  {
+    "id": "make_table_bone",
+    "name": "Bone table",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "table",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
   },
   {
     "id": "make_table_stone",
@@ -4507,6 +4715,32 @@
     "quality": false,
     "container": "bag",
     "xp": 5
+  },
+  {
+    "id": "mount_skull",
+    "name": "Mount the skull",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "giant_skull",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 300,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
   },
   {
     "id": "press_honeycomb",

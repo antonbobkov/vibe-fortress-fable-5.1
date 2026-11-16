@@ -23,6 +23,8 @@ export interface MaterialFacts {
   isDeepsilver(material: number): boolean;
   /** True for a soil tagged `soil_drop` (`materials.md` § Soil: clay, sand, peat). Absent: none. */
   dropsSoil?(material: number): boolean;
+  /** The item a dug tile of class `bone` drops: a `tusk` of `ivory`, a `fossil` of any other. Absent: a fossil. */
+  boneItem?(material: number): string;
 }
 
 /** An item a transition owes the world: `type` and `material` are content ids. */
@@ -187,7 +189,7 @@ export interface TransitionRolls {
 /**
  * "Item produced" of `dig` (and every row that says "As dig"): "Per material class: `stone` and
  * `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always
- * `rough_gem`; `bone`: always `fossil`; `soil` tagged `soil_drop`: `soil_load` with
+ * `rough_gem`; `bone`: always `fossil` (a `tusk` for `ivory`, stage 9b's tusks); `soil` tagged `soil_drop`: `soil_load` with
  * `SOIL_DROP_PERMILLE`; every other class: none" (docs/02-systems/03-terrain-and-mining.md
  * § Tile transitions).
  */
@@ -196,7 +198,7 @@ export function digDrop(map: Map3D, i: TileIndex, facts: MaterialFacts, rolls: T
   const cls = facts.classOf(material);
   if (cls === 'ore') return { type: 'ore', material, count: 1, tile: i };
   if (cls === 'gem') return { type: 'rough_gem', material, count: 1, tile: i };
-  if (cls === 'bone') return { type: 'fossil', material, count: 1, tile: i };
+  if (cls === 'bone') return { type: facts.boneItem?.(material) ?? 'fossil', material, count: 1, tile: i };
   if (cls === 'stone') return rolls.stoneDrops() ? { type: 'raw_stone', material, count: 1, tile: i } : null;
   if (cls === 'soil' && facts.dropsSoil?.(material) === true && rolls.soilDrops !== undefined) {
     return rolls.soilDrops() ? { type: 'soil_load', material, count: 1, tile: i } : null;

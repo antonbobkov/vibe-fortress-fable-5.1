@@ -1538,6 +1538,21 @@
     "announce": false
   },
   {
+    "id": "stood_in_the_ribs",
+    "name": "stood in the ribs",
+    "text": "Stood inside the ribs of something enormous.",
+    "value": 2,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "pride",
+    "trigger": {
+      "event": "RibsEntered",
+      "target": "the dwarf"
+    },
+    "announce": false
+  },
+  {
     "id": "stung",
     "name": "stung",
     "text": "Stung. The bees were not consulted.",

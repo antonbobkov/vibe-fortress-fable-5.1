@@ -60,6 +60,8 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   tallow: 'tallow',
   beeswax: 'beeswax',
   candle: 'tallow',
+  // T-557: a boneyard's skull, mounted at the mason.
+  giant_skull: 'giant_bone',
 });
 
 const INGREDIENTS = [
@@ -194,12 +196,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 249', () => {
+  it('the recipe count over all types is 258', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(249);
+    expect(total).toBe(258);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

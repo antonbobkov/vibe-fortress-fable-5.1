@@ -98,6 +98,15 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `make_sling_stones` | Sling stones | 1 raw_stone | 30 sling_stone | 60 | no | 2 |
 | `make_stone_bed` | Stone bed | 1 raw_stone + 2 cloth or wool_raw | 1 stone_bed (from_input) | 120 | no | 5 |
 | `make_stone_bed_straw` | Stone bed (straw) | 1 raw_stone + 3 fiber or straw or reed | 1 stone_bed (from_input) | 120 | no | 5 |
+| `cut_bone_blocks` | Bone blocks | 1 fossil | 2 stone_block (from_input) | 80 | no | 3 |
+| `make_table_bone` | Bone table | 1 fossil | 1 table (from_input) | 150 | yes | 6 |
+| `make_chair_bone` | Bone chair (a throne) | 1 fossil | 1 chair (from_input) | 120 | yes | 6 |
+| `make_door_bone` | Bone door | 1 fossil | 1 door (from_input) | 150 | yes | 6 |
+| `make_coffin_bone` | Bone coffin | 2 fossil | 1 coffin (from_input) | 200 | yes | 6 |
+| `make_statue_bone` | Bone statue | 3 fossil | 1 statue (from_input) | 400 | yes | 15 |
+| `mount_skull` | Mount the skull | 1 giant_skull | 1 statue (from_input) | 300 | yes | 15 |
+
+Bone is the treeless site's first building stuff: a fossil, dug from a boneyard's spine and ribs on the surface of a desert, badlands, wetland or tundra map or from the fossil clusters of the sedimentary rock ([03](../02-systems/03-terrain-and-mining.md) § Local map generation, stage 9b), is cut into two blocks of `giant_bone` or made into furniture and statues of bone. Bone blocks are a substitute ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): one fossil for two blocks in 80 ticks against one stone for two in 60 (`make_stone_block`), and the skeleton runs out. A boneyard's skull, dug to its last tile, drops one `giant_skull`, which the mason mounts as a statue of bone: the largest piece of room value a surface site finds lying about.
 
 ## Craftsdwarf (`crafting`)
 
@@ -126,8 +135,12 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `weave_hive` | Wicker beehive | 3 reed (reed) | 1 beehive (from_input) | 100 | no | 4 |
 | `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (`tallow`) | 80 | no | 3 |
 | `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (`beeswax`) | 80 | no | 3 |
+| `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | yes | 8 |
+| `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | yes | 15 |
 
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
+
+A carved fossil is a figurine of `giant_bone`, of a beast no one has seen: the Mountainhome pays 150% for one ([caravan-goods.md](caravan-goods.md) § Preferences). An ivory statue takes three tusks, from a tundra boneyard's skull or a butchered mammoth.
 
 Candles are tallow or beeswax, four to a lump, of its material: a tallow candle burns 7 days in a candle stand and smokes now and then, a beeswax one 14 and clean ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns). A `maintain` order for candles keeps the stands fed.
 
@@ -394,7 +407,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 29, mason 15, craftsdwarf 23, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 7, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 249.
+Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 7, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 258.
 
 ## Time arithmetic
 
@@ -411,15 +424,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
 | leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
 | bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
-| mason | `cut_bone_blocks` | Bone blocks | 1 fossil | 2 stone_block (from_input) | 80 | no | no | 3 | `make_stone_block` | T-557 |
-| mason | `make_table_bone` | Bone table | 1 fossil | 1 table (from_input) | 150 | no | yes | 6 | — | T-557 |
-| mason | `make_chair_bone` | Bone chair (a throne) | 1 fossil | 1 chair (from_input) | 120 | no | yes | 6 | — | T-557 |
-| mason | `make_door_bone` | Bone door | 1 fossil | 1 door (from_input) | 150 | no | yes | 6 | — | T-557 |
-| mason | `make_coffin_bone` | Bone coffin | 2 fossil | 1 coffin (from_input) | 200 | no | yes | 6 | — | T-557 |
-| mason | `make_statue_bone` | Bone statue | 3 fossil | 1 statue (from_input) | 400 | no | yes | 15 | — | T-557 |
-| mason | `mount_skull` | Mount the skull | 1 giant_skull | 1 statue (from_input) | 300 | no | yes | 15 | — | T-557 |
-| craftsdwarf | `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | no | yes | 8 | — | T-557 |
-| craftsdwarf | `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | no | yes | 15 | — | T-557 |
 | craftsdwarf | `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | no | 2 | — | T-559 |
 | kitchen | `make_soap` | Soap | 1 tallow + 1 potash | 2 soap | 100 | no | no | 4 | — | T-564 |
 | kitchen | `cook_feast` | Feast | 6 ingredient (distinct stacks) + 1 salt or honey or plant_food (wyrmtongue) | 1 feast (20 servings) | 400 | no | yes | 20 | — | T-565 |

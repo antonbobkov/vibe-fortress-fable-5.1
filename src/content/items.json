@@ -555,7 +555,8 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "╫",
     "quality": true
@@ -707,7 +708,8 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "▬",
     "quality": true
@@ -843,7 +845,8 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "+",
     "quality": true
@@ -1127,6 +1130,20 @@
     "tags": [
       "armor"
     ]
+  },
+  {
+    "id": "giant_skull",
+    "name": "giant skull",
+    "category": "textile/skull",
+    "mult": 10000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": "any",
+    "glyph": "☻",
+    "fg": "bone_white",
+    "quality": false
   },
   {
     "id": "glowcap",
@@ -2210,7 +2227,8 @@
     "weight": "heavy",
     "materials": [
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "Ω",
     "quality": true
@@ -2291,7 +2309,8 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "╥",
     "quality": true

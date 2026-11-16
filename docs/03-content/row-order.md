@@ -387,3 +387,14 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | make_candles_tallow |
 | recipes | make_lantern |
 | thoughts | ate_by_candlelight |
+| items | giant_skull |
+| recipes | cut_bone_blocks |
+| recipes | make_table_bone |
+| recipes | make_chair_bone |
+| recipes | make_door_bone |
+| recipes | make_coffin_bone |
+| recipes | make_statue_bone |
+| recipes | mount_skull |
+| recipes | carve_fossil |
+| recipes | carve_ivory_statue |
+| thoughts | stood_in_the_ribs |

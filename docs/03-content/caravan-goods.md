@@ -120,7 +120,7 @@ Sundries: raw materials in small lots, ordinary entries of the weighted draw aft
 
 ## Preferences (valuation multipliers, percent)
 
-Applied to `value(item)` to get the merchant's valuation when buying from the fortress, and inversely when selling to it (`price = value × preference / 100 × MERCHANT_MARKUP / 100`, so a civ that values metal at 150% also charges 150% for it). A `material <id>` row applies to every item of that material, before the category and class rows; a civilization with an empty cell has no such row. A drink is judged by its material's group (`drink/ale`, `drink/wine`, `drink/spirits`): a group's own row comes before `drink/*`.
+Applied to `value(item)` to get the merchant's valuation when buying from the fortress, and inversely when selling to it (`price = value × preference / 100 × MERCHANT_MARKUP / 100`, so a civ that values metal at 150% also charges 150% for it). A `<group>/* of <material>` row (carved fossils) applies to the group's items of that material, before every other row; a `material <id>` row applies to every item of that material, before the category and class rows; a civilization with an empty cell has no such row. A drink is judged by its material's group (`drink/ale`, `drink/wine`, `drink/spirits`): a group's own row comes before `drink/*`.
 
 | Category or material class | Mountainhome | Hillfolk | Wildwood |
 |---|---|---|---|
@@ -149,6 +149,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | material class `bone` | | | 60 |
 | material `star_steel` | 200 | 200 | 200 |
 | `food/honey`, `food/wax` | | | 100 |
+| `craft/*` of `giant_bone` | 150 | | |
 
 ## Scarcity and never sold
 
@@ -192,5 +193,4 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 | Category or material class | Mountainhome | Hillfolk | Wildwood | task |
 |---|---|---|---|---|
 | material `silk_cloth` | 150 | | 140 | T-556 |
-| `craft` of `giant_bone` | 150 | | | T-557 |
 
