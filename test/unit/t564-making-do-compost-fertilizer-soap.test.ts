@@ -96,7 +96,7 @@ describe('T-564 the rows', () => {
     expect(HOSPITAL_DEFAULT_SUPPLIES['soap']).toBe(0);
     const keys = registry.derived<readonly KeymapRow[]>('keymap');
     expect(keys.find((k) => k.context === 'zones_panel' && k.action === 'compost heap')?.key).toBe('[S-k]');
-    expect(keys.find((k) => k.context === 'zone_inspector' && k.action === 'a farm plot: turn fertilize on or off')?.key).toBe('[S-f]');
+    expect(keys.find((k) => k.context === 'zone_inspector' && k.action === 'a farm plot: turn fertilize on or off')?.key).toBe('[w]');
   });
 });
 

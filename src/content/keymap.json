@@ -491,7 +491,7 @@
   },
   {
     "context": "zone_inspector",
-    "key": "[S-f]",
+    "key": "[w]",
     "action": "a farm plot: turn fertilize on or off"
   },
   {

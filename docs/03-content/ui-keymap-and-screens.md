@@ -203,7 +203,7 @@ The keys of a selected zone, before the zone types; letters that open panels req
 | `[S-o]` | open the bedroom's owner picker, or the sanctum's apprentice picker | owner or apprentices button |
 | `[S-c]` | a stockpile: turn the cellar setting on or off | the `[S-c] cellar` caption |
 | `Shift+A` | a farm plot: the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
-| `[S-f]` | a farm plot: turn fertilize on or off | the `[S-f] fertilize` caption |
+| `[w]` | a farm plot: turn fertilize on or off | the `[w] fertilize` caption |
 | `Space` | toggle the checkbox (category tree, material classes) | the checkbox |
 | `+` `=` `-` | adjust the focused value | minus or plus button |
 

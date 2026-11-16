@@ -559,7 +559,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.zone.farm_late_season': 'Sown in {season}, {name} cannot ripen before its seasons end: it needs {need} days, {left|is|are} left at most.',
   'ui.zone.farm_keys1': '↑↓ season · Enter choose crop',
   'ui.zone.farm_keys2': '[S-a] all seasons',
-  'ui.zone.farm_keys3': '[S-f] fertilize',
+  'ui.zone.farm_keys3': '[w] fertilize',
   'ui.zone.farm_fertilize_on': 'Fertilize: on ({n} in stock)',
   'ui.zone.farm_fertilize_off': 'Fertilize: off ({n} in stock)',
   'ui.zone.compost_turning': 'Turning: {n|item|items}',

@@ -214,7 +214,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[16]).toBe('Fertilize: off (0 in stock)');
     expect(rows[17]).toBe('↑↓ season · Enter choose crop');
     expect(rows[18]).toBe('[S-a] all seasons');
-    expect(rows[19]).toBe('[S-f] fertilize');
+    expect(rows[19]).toBe('[w] fertilize');
     expect(rows[31]).toBe('[x] remove zone  [S-e] resize');
   });
 });

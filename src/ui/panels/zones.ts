@@ -273,11 +273,11 @@ export class ZoneTool {
       return true;
     }
     if (key.shift && accel(ctx, key) === 'a') { this.farmAllSeasons(ctx, season); return true; }
-    if (key.shift && accel(ctx, key) === 'f') { this.farmFertilize(ctx); return true; }
+    if (accel(ctx, key) === 'w') { this.farmFertilize(ctx); return true; }
     return false;
   }
 
-  /** `[S-f]`: `07` § Fertilizer, the plot's `fertilize` setting on or off (`SetZoneSetting`). */
+  /** `[w]`: `07` § Fertilizer, the plot's `fertilize` setting on or off (`SetZoneSetting`). */
   farmFertilize(ctx: PanelContext): void {
     const on = ctx.readers.has('07') && ctx.readers.of<PlantsReader>('07').plotFertilize(this.selected);
     ctx.submit({ type: 'SetZoneSetting', zoneId: this.selected, key: 'fertilize', value: !on });
@@ -505,7 +505,7 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     const text = ctx.strings.get(key);
     label(s, rect.col + 1, row, text, { fg: t.dim, width: rect.cols - 2 });
     accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
-    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-f', () => tool.farmFertilize(ctx));
+    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'w', () => tool.farmFertilize(ctx));
     row += 1;
   }
   return row;
