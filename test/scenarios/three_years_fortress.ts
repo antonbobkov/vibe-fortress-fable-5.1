@@ -261,6 +261,8 @@ export interface FortressState {
   wildCalmTick?: number;
   /** T-539: under this alert the squad has mustered at its post, and hunts the wild animals together. */
   mustered?: boolean;
+  /** T-575: the ambushes on the map that have sprung, counted for the journal's census until they are gone. */
+  ambushes?: AmbushCount[];
   hospitalSetup: boolean;
   /**
    * T-571: dormitories dug once the bedroom plans are spent, each a block of free beds, so a dwarf
@@ -1382,6 +1384,70 @@ function keepInnerLine(w: TestWorld, state: FortressState): void {
   }
 }
 
+/**
+ * T-575: one sprung ambush, as the journal's census counts it: its size and who was outdoors when
+ * it sprang, the squad's armed members then, and the deaths on both sides until the party is gone.
+ */
+export interface AmbushCount {
+  party: number;
+  day: number;
+  size: number;
+  /** Fortress dwarves on the surface when the script saw it spring (it looks every few hundred ticks). */
+  outdoors: number;
+  /** Squad members holding a weapon when it sprang. */
+  armed: number;
+  /** Fortress dwarves dead since it sprang, and how many of them were in the squad. */
+  deaths: number;
+  soldiers: number;
+  /** Its members dead. */
+  fell: number;
+  /** Fortress dwarves on the surface when the gate's first door locked, or -1 before it did. */
+  outsideAtLock: number;
+  /** Every dwarf seen in the squad since it sprang. */
+  squad: number[];
+}
+
+/**
+ * T-575: the census of sprung ambushes, read from the events the script has not read yet. Each is
+ * noted (`three_years_ambush`) when its party is gone; it changes nothing in the game.
+ */
+function countAmbushes(w: TestWorld, state: FortressState, events: readonly { type: string; [k: string]: unknown }[]): void {
+  const ent = w.game.world.entities;
+  const combat = w.readers.of<CombatReader>('16');
+  const counts = state.ambushes ?? (state.ambushes = []);
+  const fortress = (): number[] => ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress');
+  const onSurface = (): number => fortress().filter((id) => (ent.get(id, C.Position)?.z ?? -1) >= state.z).length;
+  const squad = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  const dwarf = w.game.registry.table('creatures').index('dwarf');
+  for (const e of events) {
+    if (e.type === 'AmbushSprung') {
+      const party = Number(e['partyId']);
+      const p = ent.get(party, C.Party);
+      if (!p || counts.some((c) => c.party === party)) continue;
+      counts.push({ party, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, size: p.size, outdoors: onSurface(),
+        armed: squad.filter((id) => combat.weaponOf(id) !== 0).length, deaths: 0, soldiers: 0, fell: 0, outsideAtLock: -1, squad: [...squad] });
+    } else if (e.type === 'CreatureDied') {
+      const id = Number(e['id']);
+      for (const c of counts) {
+        if (e['faction'] === 'fortress' && e['species'] === dwarf) {
+          c.deaths += 1;
+          if (c.squad.includes(id)) c.soldiers += 1;
+        } else if (ent.get(c.party, C.Party)?.members.includes(id) === true) c.fell += 1;
+      }
+    } else if (e.type === 'BuildingStateChanged' && e['state'] === 'locked' && [state.gateDoorId, state.gateDoorId2].includes(Number(e['id']))) {
+      for (const c of counts) if (c.outsideAtLock < 0) c.outsideAtLock = onSurface();
+    }
+  }
+  for (const c of [...counts]) {
+    for (const id of squad) if (!c.squad.includes(id)) c.squad.push(id);
+    const p = ent.get(c.party, C.Party);
+    if (p !== undefined && p.state !== 'gone') continue;
+    const { squad: _seen, ...row } = c;
+    note('three_years_ambush', { ...row, ended: Math.floor(w.tick / TICKS_PER_DAY) + 1 });
+    counts.splice(counts.indexOf(c), 1);
+  }
+}
+
 export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const { cx, cy } = state;
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -1513,6 +1579,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // the game: the fortress shelters and the squad takes its post until the party comes, instead
   // of the raiders finding the dwarves at work on the surface.
   const seen = w.allEvents();
+  countAmbushes(w, state, seen.slice(state.eventsRead ?? seen.length));
   for (let i = state.eventsRead ?? seen.length; i < seen.length; i += 1) {
     if (seen[i]!.type === 'ThreatWarning') {
       state.warnedUntil = w.tick + WARNED_TICKS;
