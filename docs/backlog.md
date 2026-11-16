@@ -19,11 +19,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-562 | [Making Do A3b: scale armour, horn bows and fletching](work/T-562-making-do-scale-armour-and-bows.md) | T-546's re-cut of Making Do | — | open |
 | T-563 | [Making Do B3b: candles, candle stands, lanterns and what light does](work/T-563-making-do-candles-and-lanterns.md) | T-546's re-cut of Making Do | — | open |
 | T-564 | [Making Do B5b: the compost heap, fertilizer and soap](work/T-564-making-do-compost-fertilizer-soap.md) | T-546's re-cut of Making Do | — | open |
-| T-565 | [Making Do C6: feasts, the Thane's whims and mugs at the table](work/T-565-making-do-hall-life.md) | T-546's re-cut of Making Do | T-555, T-557, T-563 | blocked (needs T-555, T-557, T-563) |
+| T-565 | [Making Do C6: feasts, the Thane's whims and mugs at the table](work/T-565-making-do-hall-life.md) | T-546's re-cut of Making Do | T-557, T-563 | blocked (needs T-557, T-563) |
 | T-566 | [Making Do: salt crusts, after T-547's salt](work/T-566-making-do-salt-crust.md) | T-548's runs | — | open |
 | T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
 | T-569 | [A −1 thought that decays by halflife is gone at the next hour](work/T-569-minus-one-halflife-thoughts.md) | T-552's runs | — | open |
 | T-570 | [The fixtures' routine work waits behind the food step](work/T-570-fixture-routine-work-waits.md) | T-567's runs | — | open |
-| T-574 | [One raid kills over thirty dwarves on three-years-p4-1](work/T-574-p4-1-raid-kills-thirty.md) | the orchestrator, 2026-11-16 | — | open |
+| T-575 | [The three-year script answers a sprung ambush as a raid](work/T-575-ambush-answered-as-raid.md) | T-574's runs | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
