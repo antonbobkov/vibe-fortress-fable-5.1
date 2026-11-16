@@ -56,6 +56,11 @@ function fixture(def: ThoughtDef): GameEvent | null {
   if (id === 'stung') e.source = 'bees';
   if (id === 'ate_salted_meal') e.seasoned = ['salt'];
   if (id === 'ate_by_candlelight') e.candlelit = true;
+  if (id === 'feasted') e.feast = true;
+  if (id === 'drank_from_a_mug') e.mug = true;
+  if (id === 'held_a_feast') e.recipeId = 'cook_feast';
+  if (id === 'thane_pleased') e.met = true;
+  if (id === 'thane_grumbled') e.met = false;
   if (id === 'smelled_smokehouse') e.recipeId = 'smoke_meat';
   if (id === 'drank_strong_drink') { e.material = registry.table('materials').index('deepfire'); e.group = 'spirits'; }
   if (id === 'drank_aged_drink') e.aged = 1;

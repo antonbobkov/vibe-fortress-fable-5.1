@@ -47,6 +47,10 @@ function activityTargets(ctx: TickContext): ActivityTargets {
   return value;
 }
 
+/** 10 § Eating and drinking, Feasts: the feast's item type and its category leaf (13 § Category tree). */
+const FEAST = 'feast';
+const FEAST_CATEGORY = 'food/meal/feast';
+
 const clamp = (n: number): number => Math.max(0, Math.min(NEED_MAX, n));
 
 function tile(ctx: TickContext, id: EntityId): TileIndex {
@@ -558,7 +562,10 @@ export class Activities {
     const searchOptions = { reservable: true, ...(allowTarget === undefined ? {} : { allowedTile: allowTarget }) };
     let p: ActivityPlan | null = null;
     if (need === 'hunger' && its !== null && ctx.world.services.items !== null) {
-      const food = its.findItem({ edible: true, category: 'food/meal' }, from, 'walker', searchOptions)
+      // A feast's serving is taken before any other meal (10 § Eating and drinking, Feasts).
+      const feast = its.available(FEAST) > 0 ? its.findItem({ edible: true, category: FEAST_CATEGORY }, from, 'walker', searchOptions) : 0;
+      const food = feast
+        || its.findItem({ edible: true, category: 'food/meal' }, from, 'walker', searchOptions)
         || its.findItem({ edible: true }, from, 'walker', searchOptions);
       if (food !== 0) {
         const record = its.get(food);
@@ -767,9 +774,13 @@ export class Activities {
         const seasoned = (item.seasoned ?? []).map((m) => materials.byIndex(m)?.id ?? '').filter((m) => m !== '');
         // 14 § Candle stands and lanterns: a meal at a table on a comfort-lit tile is eaten by candlelight.
         const candlelit = p.atTable && (buildings(ctx)?.comfortLightAt(at) ?? false);
+        // 14 § Mugs at the table: a seat whose table holds its mug; a feast's serving (§ Feasts).
+        const b14 = buildings(ctx);
+        const mug = p.atTable && b14 !== null && b14.seatHasMug(b14.at(at));
+        const feast = def?.category === FEAST_CATEGORY;
         ctx.emit({ type: 'MealEaten', id, quality: item.quality, atTable: p.atTable, roomTier: p.roomTier,
           stage: item.rotStage, kind: meal ? 'meal' : 'raw', mealType: def?.id ?? '', ...(seasoned.length > 0 ? { seasoned } : {}),
-          ...(candlelit ? { candlelit: true } : {}) });
+          ...(candlelit ? { candlelit: true } : {}), ...(feast ? { feast: true } : {}), ...(mug ? { mug: true } : {}) });
         if (meal && item.quality >= 4) change('joy', 20);
         if (p.atTable) {
           // A meal at a table is also a sit in that room.

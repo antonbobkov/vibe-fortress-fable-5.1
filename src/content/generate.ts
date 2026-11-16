@@ -164,6 +164,8 @@ export interface EnchantDef {
   effects: EnchantEffect[];
   /** An armor row of this slot only. */
   only?: string;
+  /** The workshop its setting is made at, with that workshop's skill; absent: the runeforge. */
+  workshop?: string;
 }
 
 /** The rows of `weapons` and `armor` the setting recipes read. */
@@ -196,12 +198,16 @@ function stoneInput(stone: string, cls: string | undefined): RecipeDef['inputs']
 /**
  * `workshops-and-recipes.md` § Runeforge: one `set_<slot>_<enchant>` per row of `enchants`. A row
  * whose slot and suffix an earlier row already has names its stone too: "Weapon of embers (ember gland)".
+ * A row that names a `workshop` has its setting there, with the skill of that workshop's authored
+ * recipes (`25` § Setting stones: the bowyer's fletching, `carpentry`); a setting of 0 vials takes no
+ * vial input.
  */
 export function settingRecipes(
   enchants: readonly EnchantDef[],
   weapons: readonly WeaponGenRow[],
   armor: readonly ArmorGenRow[],
   materialClass: (id: string) => string | undefined,
+  workshopSkill: (workshop: string) => string | undefined = () => undefined,
 ): RecipeDef[] {
   const melee = weapons.filter((w) => w.launcher === undefined && w.training !== true).map((w) => w.id);
   const out: RecipeDef[] = [];
@@ -214,15 +220,18 @@ export function settingRecipes(
     const base = withSuffix(SLOT_WORDS[e.slot], e.suffix);
     const name = named.has(base) ? `${base} (${e.stone.replace(/_/g, ' ')})` : base;
     named.add(base);
+    const workshop = e.workshop ?? 'runeforge';
+    const skill = workshop === 'runeforge' ? 'runesmithing' : workshopSkill(workshop);
+    if (skill === undefined) throw new Error(`enchants ${e.id}: workshop ${workshop} has no authored recipe to take its skill from`);
     out.push({
       id: `set_${e.slot}_${e.id}`,
       name: name.charAt(0).toUpperCase() + name.slice(1),
-      workshop: 'runeforge',
-      skill: 'runesmithing',
+      workshop,
+      skill,
       inputs: [
         { match: targets.join('|'), count: e.slot === 'ammo' ? ENCHANT_AMMO_SET : 1 },
         stoneInput(e.stone, materialClass(e.stone)),
-        { match: RUNE_VIAL, count: e.vials },
+        ...(e.vials > 0 ? [{ match: RUNE_VIAL, count: e.vials }] : []),
       ],
       outputs: [],
       baseTicks: e.slot === 'ammo' ? 200 : 300,
@@ -471,7 +480,8 @@ export function applyGenerated(data: Record<string, unknown>): void {
   const armor = (data['armor'] ?? []) as ArmorGenRow[];
   const materialClasses = new Map((data['materials'] as MaterialDef[]).map((m) => [m.id, m.class as string]));
   data['recipes'] = [...recipes, ...generatedRecipes(minerals, metals, spells),
-    ...settingRecipes(enchants, weapons, armor, (id) => materialClasses.get(id))];
+    ...settingRecipes(enchants, weapons, armor, (id) => materialClasses.get(id),
+      (workshop) => recipes.find((r) => r.workshop === workshop)?.skill)];
 
   for (const m of data['materials'] as MaterialDef[]) m.magmaSafe = m.meltsAtC > MAGMA_C;
 }

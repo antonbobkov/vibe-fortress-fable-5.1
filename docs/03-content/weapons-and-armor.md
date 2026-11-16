@@ -31,6 +31,7 @@ Columns: `skill` is the combat skill used; `type` the damage type; `damage` the 
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `crossbow` | crossbow | crossbow | `crossbow` | 12 | 1.20 | `bolt` | 6 | 2 | wood (1 log), metal (1 bar) | 10 | metal crossbows: power 1.30 |
 | `bow` | bow | bow | `bow` | 14 | 1.00 | `arrow` | 5 | 2 | wood (1 log) | 8 | yew: power 1.10 |
+| `horn_bow` | horn bow | bow | `bow` | 14 | 1.10 | `arrow` | 5 | 2 | wood (1 log) | 8 | any wood, with 1 horn; a yew horn bow is no better |
 | `sling` | sling | sling | `sling` | 8 | 0.80 | `sling_stone` | 2 | 1 | leather | 2 | |
 
 Launchers used in melee (no ammunition) attack as a `club` at half damage with the `hammer` skill.
@@ -66,11 +67,13 @@ Columns: `slot`; `covers` lists body parts with coverage percent; `layer`; `armo
 | `helm` | helm | head | head 100 | plate | 8 | 6 | 1 | metal | 6 | |
 | `gambeson` | gambeson | body | torso 100, arms 40 | padding | 3 | 3 | 3 cloth | cloth | 4 | |
 | `leather_jerkin` | leather jerkin | body | torso 100, arms 30 | leather | 5 | 4 | 3 leather | leather | 6 | |
+| `scale_shirt` | scale shirt | body | torso 100, arms 40 | scale | 8 | 7 | 3 plates + 1 leather or cloth | shell, bone (horn, chitin) | 8 | |
 | `mail_shirt` | mail shirt | body | torso 100, arms 60 | mail | 12 | 12 | 3 | metal | 15 | |
 | `breastplate` | breastplate | body | torso 100 | plate | 18 | 16 | 4 | metal | 20 | |
 | `bracers` | bracers | arms | arms 80 | leather | 3 | 2 | 1 leather | leather | 3 | |
 | `gauntlets` | gauntlets | arms | arms 60 | plate | 6 | 4 | 1 | metal | 5 | |
 | `leggings` | leather leggings | legs | legs 100 | leather | 4 | 3 | 2 leather | leather | 4 | |
+| `scale_skirt` | scale skirt | legs | legs 100 | scale | 6 | 5 | 2 plates + 1 leather or cloth | shell, bone (horn, chitin) | 6 | |
 | `greaves` | greaves | legs | legs 100 | plate | 10 | 10 | 2 | metal | 10 | |
 | `leather_boots` | leather boots | feet | legs 20 | leather | 2 | 1 | 1 leather | leather | 2 | |
 | `metal_boots` | metal boots | feet | legs 30 | plate | 4 | 4 | 1 | metal | 5 | |
@@ -83,21 +86,23 @@ The runed robe and the circlet are made at the runeforge ([workshops-and-recipes
 
 Clothing (`tunic`, `trousers`, `boots`, `cloak`) counts as a `padding` layer with armor 1 for the parts it covers (tunic: torso 100, arms 50; trousers: legs 100; boots: legs 10; cloak: torso 50).
 
-`armorValue(piece, part) = armor × armorMult(material) × coverage / 100 × qualityArmorMult`, where `qualityArmorMult` is poor 0.8, common 1.0, fine 1.1, superior 1.2, exceptional 1.35, masterwork 1.5. Leather and cloth pieces use `armorMult` 1.0.
+Scale is plates sewn on leather or cloth: a plate is a `shell_piece`, a `bone_pile` or a `horn`, so shell, chitin, bone and horn all make it. A scale piece is made at the leatherworks ([workshops-and-recipes.md](workshops-and-recipes.md) § Leatherworks) and takes the material of its plates. It is the line of a hunter's fortress with no metal: heavier than leather, weaker than mail against an edge or a point.
+
+`armorValue(piece, part) = armor × armorMult(material) × coverage / 100 × qualityArmorMult`, where `qualityArmorMult` is poor 0.8, common 1.0, fine 1.1, superior 1.2, exceptional 1.35, masterwork 1.5. Leather, cloth and scale pieces use `armorMult` 1.0, whatever their material; a scale piece's material is not a metal, so it never counts toward the metal penalty.
 
 ## Damage type versus layer
 
 Multiplier applied to a layer's armor value when reducing damage of the given type:
 
-| Type \ Layer | padding | leather | mail | plate | ward |
-|---|---|---|---|---|---|
-| edge | 0.6 | 0.8 | 1.2 | 1.1 | 1.0 |
-| pierce | 0.4 | 0.6 | 0.8 | 1.2 | 1.0 |
-| blunt | 1.2 | 1.0 | 0.5 | 0.9 | 1.0 |
-| ember | 0.3 | 0.6 | 0.4 | 0.8 | 2.0 |
-| frost | 1.0 | 0.8 | 0.3 | 0.5 | 2.0 |
+| Type \ Layer | padding | leather | scale | mail | plate | ward |
+|---|---|---|---|---|---|---|
+| edge | 0.6 | 0.8 | 1.0 | 1.2 | 1.1 | 1.0 |
+| pierce | 0.4 | 0.6 | 0.7 | 0.8 | 1.2 | 1.0 |
+| blunt | 1.2 | 1.0 | 0.8 | 0.5 | 0.9 | 1.0 |
+| ember | 0.3 | 0.6 | 0.6 | 0.4 | 0.8 | 2.0 |
+| frost | 1.0 | 0.8 | 0.7 | 0.3 | 0.5 | 2.0 |
 
-`ember` is rune fire and its wound is a `burn`; `frost` makes a `frost` wound. Mail is a poor answer to rune, plate a fair one, a ward the best. A type with no row multiplies by 1.0: the magma wyrm's breath is `burn`, which has none. The `ward` column is read by a ward's armor ([25-runecraft.md](../02-systems/25-runecraft.md) § Effects).
+`ember` is rune fire and its wound is a `burn`; `frost` makes a `frost` wound. Mail is a poor answer to rune, plate a fair one, a ward the best. Scale sits between leather and mail against edge and pierce, and takes a blow and rune fire better than mail. A type with no row multiplies by 1.0: the magma wyrm's breath is `burn`, which has none. The `ward` column is read by a ward's armor ([25-runecraft.md](../02-systems/25-runecraft.md) § Effects).
 
 ## Spells
 
@@ -118,34 +123,35 @@ A `bolt` flies as a missile. A `burst` blooms on the 3×3 around its target afte
 
 ## Enchantments
 
-A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arrows at the runeforge ([25-runecraft.md](../02-systems/25-runecraft.md) § Setting stones). One row per enchantment. `slot` is what it is set in; `stone` is a gem material (set as a `cut_gem` of it), a metal (set as a `bar` of it) or an item id; `vials` the rune vials the setting burns; `suffix` the name it gives the item: a suffix that begins with "of" follows the name ("iron battle axe of embers"), any other goes before it ("keen iron battle axe"); `only` limits an armor row to one slot. `effects` are what it does, at the common tier: `kind value`, with a damage type, a chance and a duration where the kind has them. `scales` says what the item's tier scales by `QUALITY_COMBAT_MULT[tier]`, rounded: `value`, `ticks` or `none`. The kinds are read in combat as 25 § Enchantments in combat says; a kind none reads does nothing. Every number is *unmeasured*.
+A runesmith sets a stone in a weapon, an armor piece or a set of 25 bolts or arrows at the runeforge ([25-runecraft.md](../02-systems/25-runecraft.md) § Setting stones); a row that names a `workshop` is set there instead, by that workshop's skill (the bowyer fletches with `carpentry`). One row per enchantment. `slot` is what it is set in; `stone` is a gem material (set as a `cut_gem` of it), a metal (set as a `bar` of it) or an item id; `vials` the rune vials the setting burns; `suffix` the name it gives the item: a suffix that begins with "of" follows the name ("iron battle axe of embers"), any other goes before it ("keen iron battle axe"); `only` limits an armor row to one slot; `workshop` is where it is set, blank for the runeforge. `effects` are what it does, at the common tier: `kind value`, with a damage type, a chance and a duration where the kind has them. `scales` says what the item's tier scales by `QUALITY_COMBAT_MULT[tier]`, rounded: `value`, `ticks` or `none`. The kinds are read in combat as 25 § Enchantments in combat says; a kind none reads does nothing. Every number is *unmeasured*.
 
-| stone | id | slot | vials | suffix | effects | scales | only |
-|---|---|---|---|---|---|---|---|
-| `quartz` | `keen` | weapon | 4 | keen | `damage_percent` 10 | value | |
-| `garnet` | `ember` | weapon | 6 | of embers | `extra_damage` 8 ember | value | |
-| `amethyst` | `rime` | weapon | 6 | of rime | `slow` 30 for 200 ticks | ticks | |
-| `emerald` | `sure` | weapon | 6 | sure | `to_hit` 10 | value | |
-| `sapphire` | `fearsome` | weapon | 8 | fearsome | `flee` 1, 25% for 200 ticks | none | |
-| `ruby` | `blaze` | weapon | 10 | of blaze | `extra_damage` 14 ember; `ignite` 1, 2% | value | |
-| `diamond` | `sunder` | weapon | 12 | sundering | `armor_percent` 50 | none | |
-| `deepsilver` | `deep` | weapon | 12 | of the deep | `damage_percent` 25; `vs_deep_percent` 50 | none | |
-| `hollow_ichor` | `hollowbane` | weapon | 8 | hollowbane | `vs_deep_percent` 100 | none | |
-| `spider_venom` | `venomed` | weapon | 4 | venomed | `pain` 20 for 300 ticks | ticks | |
-| `ember_gland` | `ember_gland` | weapon | 4 | of embers | `extra_damage` 8 ember | value | |
-| `quartz` | `stout` | armor | 4 | stout | `armor` 2 | value | |
-| `garnet` | `emberward` | armor | 6 | of embers warded | `fire_percent` 50 | none | |
-| `amethyst` | `rimeward` | armor | 6 | of rime warded | `frost_percent` 50; `slow_immune` 1 | none | |
-| `diamond` | `adamant` | armor | 12 | adamant | `armor` 4 | value | |
-| `glowstone` | `glowing` | armor | 6 | glowing | `spot_radius` 2; `light` 1 | none | |
-| `wyrmscale` | `wyrmhide` | armor | 8 | wyrmhide | `fire_percent` 0 | none | |
-| `hollow_ichor` | `hollowsight` | armor | 8 | of hollow sight | `spot_radius` 4 | none | head |
-| `sapphire` | `calm` | armor | 8 | calm | `flee_immune` 1; `daze_resist` 25 | none | |
-| `garnet` | `ember_ammo` | ammo | 4 | of embers | `extra_damage` 6 ember | value | |
-| `amethyst` | `rime_ammo` | ammo | 4 | of rime | `slow` 30 for 200 ticks | ticks | |
-| `emerald` | `seeking` | ammo | 4 | seeking | `to_hit` 10 | value | |
+| stone | id | slot | vials | suffix | effects | scales | only | workshop |
+|---|---|---|---|---|---|---|---|---|
+| `quartz` | `keen` | weapon | 4 | keen | `damage_percent` 10 | value | | |
+| `garnet` | `ember` | weapon | 6 | of embers | `extra_damage` 8 ember | value | | |
+| `amethyst` | `rime` | weapon | 6 | of rime | `slow` 30 for 200 ticks | ticks | | |
+| `emerald` | `sure` | weapon | 6 | sure | `to_hit` 10 | value | | |
+| `sapphire` | `fearsome` | weapon | 8 | fearsome | `flee` 1, 25% for 200 ticks | none | | |
+| `ruby` | `blaze` | weapon | 10 | of blaze | `extra_damage` 14 ember; `ignite` 1, 2% | value | | |
+| `diamond` | `sunder` | weapon | 12 | sundering | `armor_percent` 50 | none | | |
+| `deepsilver` | `deep` | weapon | 12 | of the deep | `damage_percent` 25; `vs_deep_percent` 50 | none | | |
+| `hollow_ichor` | `hollowbane` | weapon | 8 | hollowbane | `vs_deep_percent` 100 | none | | |
+| `spider_venom` | `venomed` | weapon | 4 | venomed | `pain` 20 for 300 ticks | ticks | | |
+| `ember_gland` | `ember_gland` | weapon | 4 | of embers | `extra_damage` 8 ember | value | | |
+| `quartz` | `stout` | armor | 4 | stout | `armor` 2 | value | | |
+| `garnet` | `emberward` | armor | 6 | of embers warded | `fire_percent` 50 | none | | |
+| `amethyst` | `rimeward` | armor | 6 | of rime warded | `frost_percent` 50; `slow_immune` 1 | none | | |
+| `diamond` | `adamant` | armor | 12 | adamant | `armor` 4 | value | | |
+| `glowstone` | `glowing` | armor | 6 | glowing | `spot_radius` 2; `light` 1 | none | | |
+| `wyrmscale` | `wyrmhide` | armor | 8 | wyrmhide | `fire_percent` 0 | none | | |
+| `hollow_ichor` | `hollowsight` | armor | 8 | of hollow sight | `spot_radius` 4 | none | head | |
+| `sapphire` | `calm` | armor | 8 | calm | `flee_immune` 1; `daze_resist` 25 | none | | |
+| `garnet` | `ember_ammo` | ammo | 4 | of embers | `extra_damage` 6 ember | value | | |
+| `amethyst` | `rime_ammo` | ammo | 4 | of rime | `slow` 30 for 200 ticks | ticks | | |
+| `emerald` | `seeking` | ammo | 4 | seeking | `to_hit` 10 | value | | |
+| `feather` | `fletched` | ammo | 0 | fletched | `to_hit` 5 | value | | `bowyer` |
 
-What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `flee_immune` keeps the wearer from being put to flight, by Dread or a fearsome blow; `daze_resist` adds to the wearer's resist roll against Daze, in percent; `ignite` sets the struck creature's tile alight, on a roll of its chance, when that tile can burn; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum); `light` lights the 3×3 around the wearer as a glowstone lamp does for a `glow` crop (07 § Growth); `pain` is a timed pain on the target, added to its wounds' pain while it lasts (17 § Bleeding, pain, consciousness). The `ember_gland` row is the setting of embers with an ember newt's gland for its stone, at fewer vials than a garnet: the same effect and the same name.
+What each kind means: `damage_percent` adds to the blow's damage before armor, and `vs_deep_percent` adds more against a creature of the Deep (the Hollow-born); `extra_damage` is a second hit of its type on the same part; `slow` and `flee` are timed effects on the target, `flee` only on a roll of its chance; `to_hit` adds to the hit chance; `armor_percent` is the share of the target's armor that counts; `armor` adds to the piece's own armor; `fire_percent` and `frost_percent` are the share of a fire or frost hit that gets through the pieces covering the part; `slow_immune` keeps the wearer from being slowed; `flee_immune` keeps the wearer from being put to flight, by Dread or a fearsome blow; `daze_resist` adds to the wearer's resist roll against Daze, in percent; `ignite` sets the struck creature's tile alight, on a roll of its chance, when that tile can burn; `spot_radius` adds tiles to how far the wearer spots a hidden creature (the largest among the pieces worn, not their sum); `light` lights the 3×3 around the wearer as a glowstone lamp does for a `glow` crop (07 § Growth); `pain` is a timed pain on the target, added to its wounds' pain while it lasts (17 § Bleeding, pain, consciousness). The `ember_gland` row is the setting of embers with an ember newt's gland for its stone, at fewer vials than a garnet: the same effect and the same name. The `fletched` row is no rune: a feather and no vials, at the bowyer, half the to-hit of seeking. A set holds one enchantment, so fletched and seeking are a choice.
 
 ## Shields
 
@@ -161,45 +167,7 @@ The battle axe uses the item id `axe`, shared with the woodcutting tool, and car
 
 - **Iron battle axe vs unarmored goblin torso**: raw = 22 × 1.0 × 1.0 × (50 + 50)/100 = 22; the goblin's Toughness is the default 50, so damage round(22 × 0.95) = 21; goblin torso maxHp = 55; ratio 0.38 → serious cut. Bleed 3 per health tick; the goblin (blood 550) is unconscious after 330 / 3 = 110 health ticks = 550 ticks, dead after 733 ticks …
 - **Same axe vs dwarf in a common iron mail shirt and tunic**: reduction = mail 12 × 1.0 × 1.0 × 1.2 (edge vs mail) + padding 1 × 0.6 = 15; damage = 7; ratio 7/60 = 0.12 → light cut. Bleed 1.
+- **Same axe vs dwarf in a common shell scale shirt and tunic**: reduction = scale 8 × 1.0 × 1.0 × 1.0 (edge vs scale) + padding 1 × 0.6 = 8.6; damage = round(13.4 × 0.95) = 13; ratio 13/60 = 0.22 → serious cut, at the edge of light. In a leather jerkin: 5 × 0.8 + 0.6 = 4.6, damage 17, ratio 0.28. The scale shirt stops 8.6 of the edge, between the jerkin's 4.6 and the mail's 15.
 - **Steel warhammer (common) vs trollkin (natural armor 4, size 150)**: raw = 24 × 1.25 × 1.0 × (50 + 60)/100 = 33; natural plate 4 × 0.9 = 3.6; 29.4 × 0.95 (Toughness 50) = 27.9 → 28; trollkin torso 150 → ratio 0.19 → light bruise, no fracture (45); a limb (maxHp 90): 28 ≥ 27 → a fracture in one hit.
 - **Magma wyrm bite (damage 45, edge) vs steel breastplate (superior)**: reduction 18 × 1.25 × 1.0 × 1.2 × 1.1 = 29.7; damage 15.3; ratio 0.26 → serious cut. Deepsilver breastplate: 18 × 1.6 × 1.2 × 1.1 = 38 → 7 → light.
 - **Crossbow (wood, iron bolt) at range 8 by a skill-6 hunter vs a deer (size 40, dodge 2)**: hit = 40 + 18 − 16 + (40 − 60)/4 − 4 = 33%; damage 20 × 1.2 × 1.0 = 24 × 0.95 = 22.8 → 23 vs deer torso 40 → ratio 0.575 → grievous puncture, bleed 8: the deer (blood 400) is unconscious after 150 ticks and dead within 200 ticks of a torso hit.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [16](../02-systems/16-combat.md) § Planned and [25](../02-systems/25-runecraft.md) § Planned. Every number is *unmeasured*.
-
-### Planned launcher
-
-| id | name | as | power | notes | task |
-|---|---|---|---|---|---|
-| `horn_bow` | horn bow | the `bow` row in every other column | 1.10 | any wood; no `yewPower`; made at the bowyer from 1 log + 1 horn | T-562 |
-
-### Planned armor
-
-| id | name | slot | covers | layer | armor | weight | bars | materials | mult | rune | task |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| `scale_shirt` | scale shirt | body | torso 100, arms 40 | scale | 8 | 7 | 3 plates + 1 leather or cloth | shell, bone (horn, chitin) | 8 | | T-562 |
-| `scale_skirt` | scale skirt | legs | legs 100 | scale | 6 | 5 | 2 plates + 1 leather or cloth | shell, bone | 6 | | T-562 |
-
-A plate is a `shell_piece`, a `bone_pile` or a `horn`.
-
-### Planned damage column
-
-The table of § Damage type versus layer gains the column `scale`, between leather and mail (T-562):
-
-| Type | scale |
-|---|---|
-| edge | 1.0 |
-| pierce | 0.7 |
-| blunt | 0.8 |
-| ember | 0.6 |
-| frost | 0.7 |
-
-### Planned enchantment
-
-The table of § Enchantments gains the column `workshop` (empty for every row of today: the runeforge) and the row (T-562):
-
-| stone | id | slot | vials | suffix | effects | scales | only | workshop |
-|---|---|---|---|---|---|---|---|---|
-| `feather` | `fletched` | ammo | 0 | fletched | `to_hit` 5 | value | | `bowyer` |

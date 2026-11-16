@@ -479,6 +479,21 @@
     "announce": false
   },
   {
+    "id": "drank_from_a_mug",
+    "name": "drank from a mug",
+    "text": "Drank from a proper mug.",
+    "value": 1,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "at a seat with its mug"
+    },
+    "announce": false
+  },
+  {
     "id": "drank_from_puddle",
     "name": "drank from puddle",
     "text": "Drank from a puddle.",
@@ -571,6 +586,21 @@
     "trigger": {
       "event": "DraughtDrunk",
       "target": "of a calming draught; half, +4, for one within 7 days of the last"
+    },
+    "announce": false
+  },
+  {
+    "id": "feasted",
+    "name": "feasted",
+    "text": "Ate at a feast.",
+    "value": 8,
+    "hours": 48,
+    "decay": "linear",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "feast"
     },
     "announce": false
   },
@@ -754,6 +784,21 @@
     "trigger": {
       "event": "HearthVisited",
       "target": "self"
+    },
+    "announce": false
+  },
+  {
+    "id": "held_a_feast",
+    "name": "held a feast",
+    "text": "We held a feast.",
+    "value": 3,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "social",
+    "trigger": {
+      "event": "ItemCrafted",
+      "target": "of a feast (everyone)"
     },
     "announce": false
   },
@@ -1650,6 +1695,23 @@
     "announce": false
   },
   {
+    "id": "thane_grumbled",
+    "name": "thane grumbled",
+    "text": "Nobody listens to the Thane.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "none",
+    "trigger": {
+      "event": "WhimJudged",
+      "target": "missed (the Thane)"
+    },
+    "announce": false
+  },
+  {
     "id": "thane_hall_bare",
     "name": "thane hall bare",
     "text": "The Thane sleeps in a hovel.",
@@ -1678,6 +1740,21 @@
     "trigger": {
       "event": "Thane",
       "target": "bedroom tier ≥ grand"
+    },
+    "announce": false
+  },
+  {
+    "id": "thane_pleased",
+    "name": "thane pleased",
+    "text": "The Thane got what the Thane wanted.",
+    "value": 3,
+    "hours": 72,
+    "decay": "linear",
+    "cap": 1,
+    "group": "social",
+    "trigger": {
+      "event": "WhimJudged",
+      "target": "met (everyone)"
     },
     "announce": false
   },

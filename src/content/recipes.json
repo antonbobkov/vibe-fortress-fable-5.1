@@ -403,6 +403,42 @@
     "xp": 6
   },
   {
+    "id": "cook_feast",
+    "name": "Feast",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "salt|honey|plant_food",
+        "count": 1,
+        "materials": [
+          "salt",
+          "honey",
+          "wyrmtongue"
+        ]
+      },
+      {
+        "match": "ingredient",
+        "count": 6,
+        "distinct": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "feast",
+        "count": 20,
+        "material": {
+          "from": "input",
+          "index": 1
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 20
+  },
+  {
     "id": "cook_fine_meal",
     "name": "Fine meal",
     "workshop": "kitchen",
@@ -3445,6 +3481,36 @@
     "xp": 4
   },
   {
+    "id": "make_horn_bow",
+    "name": "Horn bow",
+    "workshop": "bowyer",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      },
+      {
+        "match": "horn",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "horn_bow",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": false,
+    "quality": true,
+    "xp": 9
+  },
+  {
     "id": "make_jug",
     "name": "Clay jug",
     "workshop": "kiln",
@@ -3977,6 +4043,68 @@
     "fuel": false,
     "quality": true,
     "xp": 12
+  },
+  {
+    "id": "make_scale_shirt",
+    "name": "Scale shirt",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "shell_piece|bone_pile|horn",
+        "count": 3,
+        "sameMaterial": true
+      },
+      {
+        "match": "leather_piece|cloth",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "scale_shirt",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 330,
+    "fuel": false,
+    "quality": true,
+    "xp": 12
+  },
+  {
+    "id": "make_scale_skirt",
+    "name": "Scale skirt",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "shell_piece|bone_pile|horn",
+        "count": 2,
+        "sameMaterial": true
+      },
+      {
+        "match": "leather_piece|cloth",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "scale_skirt",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 270,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
   },
   {
     "id": "make_shield_wood",

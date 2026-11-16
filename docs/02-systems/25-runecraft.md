@@ -276,7 +276,9 @@ The enchantments are rows of `enchants` ([weapons-and-armor.md](../03-content/we
 
 `Item.enchant { id: Idx<'EnchantDef'>, tier: Quality }`, optional; absent is none. One per item, permanent. `tier` is the runesmith's quality roll, and `QUALITY_COMBAT_MULT[tier]`, rounded, scales what the row's `scales` names: its `value` or its `ticks`.
 
-**Settings.** `applyGenerated` (`settingRecipes` in `content/generate.ts`) makes one recipe `set_<slot>_<enchant>` per row of `enchants`: input 0, kept, is 1 of every melee weapon type (`weapons` rows with no launcher and no `training`), 1 of every `armor` row with a layer (of the row's `only` slot when it has one) or 25 units of `bolt|arrow`, as one alternation; then the stone (a gem stone is 1 `cut_gem` of its material, another stone 1 of its item) and the row's vials in `rune_vial`. Weapon and armor 300 ticks, xp 15; ammunition 200 ticks, xp 10; quality yes, no fuel. A set of ammunition is exactly 25 units: the job search splits a larger stack.
+**Settings.** `applyGenerated` (`settingRecipes` in `content/generate.ts`) makes one recipe `set_<slot>_<enchant>` per row of `enchants`: input 0, kept, is 1 of every melee weapon type (`weapons` rows with no launcher and no `training`), 1 of every `armor` row with a layer (of the row's `only` slot when it has one) or 25 units of `bolt|arrow`, as one alternation; then the stone (a gem stone is 1 `cut_gem` of its material, another stone 1 of its item) and the row's vials in `rune_vial`. Weapon and armor 300 ticks, xp 15; ammunition 200 ticks, xp 10; quality yes, no fuel; a row of 0 vials takes no vial input. A set of ammunition is exactly 25 units: the job search splits a larger stack.
+
+**Settings at another workshop.** The `enchants` table has an optional `workshop` column (`EnchantDef.workshop`). A row that names one has its `set_<slot>_<id>` recipe generated at that workshop, with the skill of that workshop's authored recipes, not at the runeforge with `runesmithing`; a workshop with no authored recipe fails the load. `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5, workshop `bowyer`) is the one such row: the bowyer fletches 25 bolts or arrows with a feather, by `carpentry` (12 § Work orders). Seeking (emerald, +10) stays the rune version. Every rule of this section holds for it: one enchantment per item, transform, `once` orders, value by the stone and the vials; it raises no deepsilver pressure, since the bowyer is no `rune_work` building.
 
 `RecipeDef` has `transform: true` and `enchant` (the row it sets), and such a recipe has no outputs (content check: a transform recipe has none and names its row; every other recipe has at least one output). 12 runs it (12 § Operation, § Work orders): input 0 is not consumed; its delivered items get `enchant` through 13's `items.setEnchant(id, enchant)`, which re-accounts value as every mutation does; they are left at the output tile and released with the job; `StoneSet { itemId, enchantId, tier, smithId }` is emitted per item, and `ItemCrafted` is not. An order for it is `once` only, since there is no output to count.
 
@@ -548,11 +550,3 @@ The rules above are pinned by the tests named beside them, and together by these
 
 - More stones: a row in `spells` and `enchants`.
 - A sanctum chest: the zone setting and 13's hospital rule, if attunement ever needs to be supplied in place.
-
-## Planned: Making Do
-
-Not yet in the game. The block below names the task that builds it; that task moves it into the sections above and deletes it here, and this section with it.
-
-### Settings at another workshop (T-562)
-
-The `enchants` table gains an optional `workshop` column (`weapons-and-armor.md` § Enchantments). A row that names one has its `set_<slot>_<id>` recipe generated at that workshop with that workshop's skill, not at the runeforge with `runesmithing` (12 § Planned, Fletching at the bowyer). `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5, workshop `bowyer`) is the one such row. "seeking" (emerald, +10) stays the rune version. Every rule of § Setting stones holds: one enchantment per item, transform, `once` orders, value by the stone and the vials.

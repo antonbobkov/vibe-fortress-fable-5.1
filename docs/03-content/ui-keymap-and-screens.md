@@ -609,6 +609,9 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.plot_needs_seeds` | "{plot} has no {species} seeds." |
 | `announce.crater_entered` | "{dwarf} stood where the star fell." |
 | `announce.ribs_entered` | "{dwarf} stood inside the ribs of something enormous." |
+| `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." |
+| `announce.thane_whim_met` | "The Thane's wish was met: {whim}." |
+| `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." |
 | `announce.spat_on` | "The camel spat on {dwarf}." |
 
 
@@ -773,9 +776,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
 | `announce.ice_melted` | "The ice walls of {place} have melted." | T-559 |
-| `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." | T-565 |
-| `announce.thane_whim_met` | "The Thane's wish was met: {whim}." | T-565 |
-| `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." | T-565 |
 
 ### Planned confirmation
 

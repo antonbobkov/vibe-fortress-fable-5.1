@@ -983,6 +983,21 @@
     ]
   },
   {
+    "id": "feast",
+    "name": "feast",
+    "category": "food/meal/feast",
+    "mult": 60000,
+    "stack": 20,
+    "container": "barrel",
+    "rotDays": 1,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "meal_red",
+    "edible": true,
+    "quality": true
+  },
+  {
     "id": "feather",
     "name": "feather",
     "category": "textile/feather",
@@ -1327,6 +1342,25 @@
     "glyph": "%",
     "fg": "horn_gray",
     "quality": false
+  },
+  {
+    "id": "horn_bow",
+    "name": "horn bow",
+    "category": "weapon/ranged",
+    "mult": 8000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": ")",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
   },
   {
     "id": "lantern",
@@ -2002,6 +2036,46 @@
     "materials": "any",
     "glyph": "≈",
     "quality": false
+  },
+  {
+    "id": "scale_shirt",
+    "name": "scale shirt",
+    "category": "armor/body",
+    "mult": 8000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "shell",
+      "bone"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "scale_skirt",
+    "name": "scale skirt",
+    "category": "armor/legs",
+    "mult": 6000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "shell",
+      "bone"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "legs",
+    "tags": [
+      "armor"
+    ]
   },
   {
     "id": "seed",

@@ -349,7 +349,8 @@ describe('T-472 enchanted ammunition', () => {
   }
 
   it('to_hit (seeking): +10 on the shot\'s hit chance, from the ammunition', () => {
-    for (const [enchant, offset, hitRoll] of [['', 0, 0], ['seeking', 0, 1], ['seeking', 10, 0]] as const) {
+    // T-562: fletched bolts (a feather, at the bowyer) add 5.
+    for (const [enchant, offset, hitRoll] of [['', 0, 0], ['seeking', 0, 1], ['seeking', 10, 0], ['fletched', 0, 1], ['fletched', 4, 1], ['fletched', 5, 0]] as const) {
       const { w, dwarf, foe } = range(`t472-seek-${enchant}-${offset}`, enchant);
       const base = calculateRangedHit(w.game.world.entities, registry, dwarf, foe, 'crossbow', 10);
       expect(fireRanged(ctxOf(w, [], fixedRng(base + offset)), dwarf, foe, new Map())).toBe(true);

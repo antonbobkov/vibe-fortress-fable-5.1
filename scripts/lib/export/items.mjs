@@ -468,6 +468,8 @@ export function exportEnchants() {
         suffix: plain(row.suffix),
         effects: enchantEffects(row.effects, scales),
         only: isBlank(row.only) ? undefined : plain(row.only),
+        // 25 § Setting stones: a row that names a workshop has its setting there; blank is the runeforge.
+        workshop: isBlank(row.workshop) ? undefined : id(row.workshop),
       });
     }),
   );
@@ -480,6 +482,7 @@ export function exportDamageVsLayer() {
     type: plain(row['Type \\ Layer']),
     padding: fixed(row.padding),
     leather: fixed(row.leather),
+    scale: fixed(row.scale),
     mail: fixed(row.mail),
     plate: fixed(row.plate),
     ward: fixed(row.ward),

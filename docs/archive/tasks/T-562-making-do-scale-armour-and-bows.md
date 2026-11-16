@@ -1,26 +1,20 @@
-# T-565 — Making Do C6: feasts, the Thane's whims and mugs at the table
+# T-562 — Making Do A3b: scale armour, horn bows and fletching
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 11); the flavour report's item 26; T-546, split from T-561 · **Size:** M · **Needs:** T-557 · **Status:** blocked (needs T-557)
+**Closed:** 2026-11-16, in 1bef6d05,f6627d8e.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 3, 7 (armor between leather and mail, fletching)); T-546, split from T-549 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
-In the spec this task is `T-565`. It is the last of the bundle: its whims name a lantern, mead, an ivory statue, spirits and a featherbed, and its mugs use T-551's building wants.
+In the spec this task is `T-562`.
 
 ## What to do
 
-The blocks and rows marked T-565:
+The blocks and rows marked T-562:
 
-- **10 § Planned:** Feasts, mugs and the Thane's whim (the feast eaten first, `MealEaten`'s `feast` and `mug`, the whim drawn on `rngFor('10.whims')` each season and judged at the next, `WhimSet`, `WhimJudged`, `whim`).
-- **12 § Planned:** `cook_feast`; **14 § Planned:** a dining table wants a mug per adjacent chair (the `table` row's `wants`).
-- **15 § Planned:** the whim is all face.
-- **24 § Planned:** the units panel's Thane line.
-- **Rows:** `feast`, `cook_feast`, the Whims table, the thoughts `feasted`, `held_a_feast`, `drank_from_a_mug`, `thane_pleased`, `thane_grumbled`, the three whim announcements.
-
-## Decisions
-
-- A feast is a stack of servings eaten before any other meal; it is hauled and served as meals are, with no placement of its own.
-- Mugs are held by the dining tables, one per chair beside them, through the building wants mechanism.
-- A missed whim grumbles once, for the Thane alone: no spiral.
+- **16 § Planned:** The scale layer (the layer enumeration, the damage column, `armorMult` 1.0, no metal penalty); The horn bow.
+- **12 § Planned** and **25 § Planned:** Fletching at the bowyer (the `enchants` table's `workshop` column; the `set_ammo_fletched` setting generated at the bowyer with `carpentry`).
+- **Rows:** `scale_shirt`, `scale_skirt`, the `scale` column of § Damage type versus layer, `horn_bow`, `make_scale_shirt`, `make_scale_skirt`, `make_horn_bow`, the `fletched` enchantment and the `workshop` column.
 
 
 ## Common rules for every Making Do task
@@ -35,5 +29,5 @@ The blocks and rows marked T-565:
 
 ## Done
 
-- A feast at midwinter feeds the hall for a day and lifts everyone; a hall with its mugs gives its thought; the Thane wishes for a lantern in spring, and the hall is pleased in summer when it is there.
-- The sweep and instrument verdicts pass (mood moves a little).
+- A hunter's fortress with no metal makes scale shirts of shell or horn: they stop an edge better than leather and worse than mail; a horn bow of pine shoots as a yew bow; 25 fletched bolts hit 5 more often and cannot also take a rune.
+- The `armorReduction` worked numbers in 16 gain a scale line. The defence-seeds verdict passes if scale reaches the scripts' squads; the sweep verdict passes.

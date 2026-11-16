@@ -43,17 +43,18 @@ interface WeaponDef extends ItemTypeDef {
 interface AmmoDef extends ItemTypeDef { damageType: DamageType; damage: number; perBar: number; perLog: number; perBone: number }
 interface ArmorDef extends ItemTypeDef {
   armorSlot: 'head'|'body'|'arms'|'legs'|'feet'|'shield'; covers: { part: BodySlot; coverage: Percent }[];
-  layer: 'padding'|'leather'|'mail'|'plate'|'none'; armor: number; weight: number; bars?: number; leather?: number; cloth?: number;
+  layer: 'padding'|'leather'|'scale'|'mail'|'plate'|'none'; armor: number; weight: number; bars?: number; leather?: number; cloth?: number;
   rune?: { regenPercent?: Percent; maxBonus?: number } /* a runed robe, a circlet (25); never counts toward the metal penalty */;
 }
-interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; mail: Fixed; plate: Fixed; ward: Fixed }
+interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; scale: Fixed; mail: Fixed; plate: Fixed; ward: Fixed }
 interface SpellDef { id: string; name: string; stone: Id<MaterialDef>; kind: 'bolt'|'burst'|'single'|'ward'|'mend'|'dread'|'call';
                      cost: number /* whole rune */; range?: number /* absent: the channel's */; base?: number; type?: DamageType;
                      ticks?: number; suffix: string }
 interface EnchantDef { id: string; slot: 'weapon'|'armor'|'ammo'; stone: Id<MaterialDef> | Id<ItemTypeDef> /* a gem, set as a cut_gem of it; a metal, as a bar of it; or an item */;
                        vials: number; suffix: string /* "of …" follows the name, any other goes before it */;
                        effects: { kind: string; value: number; type?: DamageType; chance?: Percent; ticks?: number; scales: 'value'|'ticks'|'none' }[] /* at least 1 */;
-                       only?: 'head'|'body'|'arms'|'legs'|'feet' }
+                       only?: 'head'|'body'|'arms'|'legs'|'feet';
+                       workshop?: Id<BuildingDef> /* where its setting is made, with that workshop's skill; absent: the runeforge (25) */ }
 interface DraughtDef { id: Id<ItemTypeDef> /* the draught's item */; effects: { kind: 'mend'|'ease'|'heal_rate'|'pain_half'|'haste'|'fire_immune'|'spot_radius'; value: number }[];
                        trigger: 'wounded'|'raid'|'deep'|'fire'|'miserable'|'never' }   // items.md § Draughts; 25 § Draughts
 
@@ -100,7 +101,8 @@ interface BuildingDef extends RowBase {
   on: string; inputs: { match: Id<ItemTypeDef> | string; material?: MaterialClass[] | 'any'; count: number | 'tiles' }[];
   labor: Id<LaborDef> | 'by_material'; buildTicks: number; tags: string[]; roomValue: 'item' | 'item_x2' | number; passable: boolean | 'rules';
   blocksFluid: boolean | 'rules'; value: number; pattern?: Id<PatternDef>; impassableTiles?: number[]; workTile?: number; outputTile?: number;
-  magmaVariantOf?: Id<BuildingDef>;
+  magmaVariantOf?: Id<BuildingDef>; rest?: number;
+  wants?: { match: Id<ItemTypeDef> | string; count: number; per?: 'chair'; max?: number }[]; // 14 § Building wants; per chair beside it, up to max (14 § Mugs at the table)
 }
 interface ZoneTypeDef extends RowBase { room: boolean; requirements: string[]; settings: string[]; consumers: string[] }
 interface RecipeDef extends RowBase {
@@ -142,6 +144,10 @@ interface TraitDef extends RowBase { pair: string; freq: number; base: number; s
 interface ThoughtDef extends RowBase {
   text: string; value: number | { formula: string }; hours: number | null; decay: 'linear'|'halflife'|'standing'; cap: number;
   group: string; trigger: { event: string; where?: Record<string, unknown>; target: string } | { condition: string }; announce: boolean;
+}
+interface WhimDef extends RowBase { // personality-and-thoughts.md § Whims (10 § The Thane's whim)
+  kind: 'stock' | 'room'; item: Id<ItemTypeDef> | 'any'; material?: Id<MaterialDef>; quality?: number; bedding?: 'feather';
+  zone?: Id<ZoneTypeDef>; thane?: boolean; count: number; text: string;
 }
 interface NamesDef { givenA: string[]; givenB: string[]; shared: string[]; hallFirst: string[]; hallSecond: string[];
   fortressPrefix: string[]; fortressSuffix: string[]; needsSpace: string[]; regionFlavor: Record<string, string[]>;

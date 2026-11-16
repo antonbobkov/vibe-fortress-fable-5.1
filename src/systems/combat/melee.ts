@@ -35,7 +35,7 @@ export interface MeleeResult {
 
 export interface ArmorPiece {
   id: EntityId;
-  layer: 'plate' | 'mail' | 'leather' | 'padding';
+  layer: 'plate' | 'mail' | 'scale' | 'leather' | 'padding';
   armor: number;
   armorMult: number;
   coverage: number;
@@ -64,7 +64,7 @@ interface ArmorRow {
   readonly name: string;
   readonly armorSlot: 'head' | 'body' | 'arms' | 'legs' | 'feet' | 'shield';
   readonly covers: readonly { part: BodySlot; coverage: number }[];
-  readonly layer: 'plate' | 'mail' | 'leather' | 'padding' | 'none';
+  readonly layer: 'plate' | 'mail' | 'scale' | 'leather' | 'padding' | 'none';
   readonly armor: number;
   readonly weight: number;
 }
@@ -108,25 +108,27 @@ interface BodyPlanRow {
   readonly parts: Record<BodySlot, { hit: number; hpFactor: number }>;
 }
 
+/** Outer layer first: plate, mail, scale (between leather and mail, 16 § Concepts), leather, padding. */
 const LAYER_RANK: Record<string, number> = {
-  plate: 4,
-  mail: 3,
+  plate: 5,
+  mail: 4,
+  scale: 3,
   leather: 2,
   padding: 1,
 };
 
-export type ArmorLayer = 'padding' | 'leather' | 'mail' | 'plate' | 'ward';
+export type ArmorLayer = 'padding' | 'leather' | 'scale' | 'mail' | 'plate' | 'ward';
 
 /**
  * `03-content/weapons-and-armor.md` § Damage type versus layer; a test compares it with
  * `damageVsLayer.json`. A type with no row (the wyrm's `burn`) multiplies by 1.0.
  */
 export const DAMAGE_VS_LAYER: Readonly<Record<DamageType, Readonly<Record<ArmorLayer, number>>>> = {
-  edge: { padding: 0.6, leather: 0.8, mail: 1.2, plate: 1.1, ward: 1.0 },
-  pierce: { padding: 0.4, leather: 0.6, mail: 0.8, plate: 1.2, ward: 1.0 },
-  blunt: { padding: 1.2, leather: 1.0, mail: 0.5, plate: 0.9, ward: 1.0 },
-  ember: { padding: 0.3, leather: 0.6, mail: 0.4, plate: 0.8, ward: 2.0 },
-  frost: { padding: 1.0, leather: 0.8, mail: 0.3, plate: 0.5, ward: 2.0 },
+  edge: { padding: 0.6, leather: 0.8, scale: 1.0, mail: 1.2, plate: 1.1, ward: 1.0 },
+  pierce: { padding: 0.4, leather: 0.6, scale: 0.7, mail: 0.8, plate: 1.2, ward: 1.0 },
+  blunt: { padding: 1.2, leather: 1.0, scale: 0.8, mail: 0.5, plate: 0.9, ward: 1.0 },
+  ember: { padding: 0.3, leather: 0.6, scale: 0.6, mail: 0.4, plate: 0.8, ward: 2.0 },
+  frost: { padding: 1.0, leather: 0.8, scale: 0.7, mail: 0.3, plate: 0.5, ward: 2.0 },
 };
 
 export function getDamageVsLayer(type: DamageType | string, layer: ArmorLayer): number {
@@ -275,7 +277,7 @@ export function shieldIsBuckler(registry: Registry, entities: EntityStore, shiel
 
 /**
  * Collects all armor and clothing pieces covering `part` on defender `d`,
- * sorted outer layer first (plate > mail > leather > padding).
+ * sorted outer layer first (plate > mail > scale > leather > padding).
  */
 export function armorCovering(
   entities: EntityStore,
@@ -349,7 +351,7 @@ export function armorCovering(
     }
   }
 
-  // Order outer layer first: plate > mail > leather > padding
+  // Order outer layer first: plate > mail > scale > leather > padding
   pieces.sort((a, b) => (LAYER_RANK[b.layer] ?? 0) - (LAYER_RANK[a.layer] ?? 0));
   return pieces;
 }

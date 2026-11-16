@@ -58,8 +58,19 @@ export interface BuildingRow {
   readonly impassableTiles?: readonly number[];
   /** 14 § Beds: the percent a `sleep` building rests at. */
   readonly rest?: number;
-  /** 14 § Building wants: the items a built one holds. */
-  readonly wants?: readonly { readonly match: string; readonly count: number }[];
+  /**
+   * 14 § Building wants: the items a built one holds; `per: 'chair'` wants `count` for each chair
+   * beside the building, up to `max` chairs (14 § Mugs at the table).
+   */
+  readonly wants?: readonly BuildingWant[];
+}
+
+/** One want of a building row (`buildings-and-furniture.md` `wants`). */
+export interface BuildingWant {
+  readonly match: string;
+  readonly count: number;
+  readonly per?: 'chair';
+  readonly max?: number;
 }
 
 /** One of a building's wants with what it holds of it (`buildings.wants(id)`). */
@@ -283,14 +294,69 @@ export class BuildingStore {
     const held = this.heldOf(b);
     const used = new Set<EntityId>();
     return (row.wants ?? []).map((want) => {
+      const count = this.wantCount(b, want);
+      // A want per chair counts units: a stack of mugs is that many mugs (14 § Mugs at the table).
+      const size = (it: EntityId): number => (want.per === undefined ? 1 : (this.host.entities.get(it, C.Item)?.count ?? 1));
       let n = 0;
       for (const it of held) {
-        if (n >= want.count || used.has(it) || !this.answers(it, want.match)) continue;
+        if (n >= count || used.has(it) || !this.answers(it, want.match)) continue;
         used.add(it);
-        n += 1;
+        n += size(it);
       }
-      return { match: want.match, count: want.count, held: n, coming: coming(want.match) };
+      return { match: want.match, count, held: n, coming: coming(want.match) };
     });
+  }
+
+  /** A want's count for a built building: per chair beside it, up to its `max`, or its row's count. */
+  wantCount(b: Building, want: BuildingWant): number {
+    if (want.per !== 'chair') return want.count;
+    return Math.min(want.max ?? Number.POSITIVE_INFINITY, this.chairsBeside(b).length) * want.count;
+  }
+
+  /** 14 § Mugs at the table: the built chairs (`sit`) beside a building, ascending id. */
+  chairsBeside(b: Building): EntityId[] {
+    return this.beside(b, (row) => row.tags.includes('sit'));
+  }
+
+  /**
+   * `buildings.seatHasMug(chairId)` (14 § Mugs at the table): a table beside the chair holds a mug for
+   * it. Each table counts its chairs in id order, up to its want's `max`; the chair has its mug at a
+   * table whose held mugs (in units) number more than the chair's place in that order.
+   */
+  seatHasMug(chairId: EntityId): boolean {
+    const chair = this.get(chairId);
+    if (chair === undefined || chair.state !== 'built') return false;
+    for (const tableId of this.beside(chair, (row) => row.wants?.some((w) => w.per === 'chair') === true)) {
+      const table = this.get(tableId) as Building;
+      const want = this.row(table.type).wants?.find((w) => w.per === 'chair');
+      if (want === undefined) continue;
+      const place = this.chairsBeside(table).indexOf(chairId);
+      if (place < 0 || place >= (want.max ?? Number.POSITIVE_INFINITY)) continue;
+      const mugs = this.heldOf(table).filter((it) => this.answers(it, want.match))
+        .reduce((n, it) => n + (this.host.entities.get(it, C.Item)?.count ?? 1), 0);
+      if (mugs > place * want.count) return true;
+    }
+    return false;
+  }
+
+  /** The built buildings whose row passes `test` on a tile 8-adjacent to a building's footprint on its level, ascending id. */
+  private beside(b: Building, test: (row: BuildingRow) => boolean): EntityId[] {
+    const map = this.map;
+    const own = new Set(b.footprint);
+    const out = new Set<EntityId>();
+    for (const t of b.footprint) {
+      for (let dy = -1; dy <= 1; dy += 1) {
+        for (let dx = -1; dx <= 1; dx += 1) {
+          if (dx === 0 && dy === 0) continue;
+          const n = map.offset(t, dx, dy, 0);
+          if (n < 0 || own.has(n)) continue;
+          const other = map.buildingAtTile(n);
+          const v = other === 0 ? undefined : this.get(other);
+          if (v !== undefined && v.state === 'built' && test(this.row(v.type))) out.add(other);
+        }
+      }
+    }
+    return Array.from(out).sort((x, y) => x - y);
   }
 
   /** A bed holding an item of its first want (its bedding) is made up (14 § Beds). */
