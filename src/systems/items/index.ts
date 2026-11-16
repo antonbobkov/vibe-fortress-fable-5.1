@@ -35,6 +35,7 @@ import { C, ItemFlag } from '@core/components';
 import type { MaterialsReader } from '@systems/materials/reader';
 import { RotQueue } from './rot';
 import { cellarDay, judgeCellar, type CellarHost } from './cellar';
+import { compostHour } from './compost';
 import { ItemFacts } from './facts';
 import { makeReader, type ItemsReader } from './reader';
 import { ItemSearch } from './search';
@@ -86,7 +87,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped', 'AttackResolved', 'DayPassed'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped', 'AttackResolved', 'DayPassed', 'HourPassed'];
   override readonly ownsCommands: readonly CommandType[] = [
     'ForbidItem',
     'ClaimItem',
@@ -248,6 +249,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     this.haulingRef = hauling;
     core.listen((id, change) => hauling.onChange(id, change));
     core.listen((id, change) => {
+      // 13 § The compost heap: an item picked up or put in a container loses its count.
+      if ((change === 'lifted' || change === 'contained') && (core.get(id)?.compostAt ?? 0) > 0) core.setCompostAt(id, 0);
       this.rotRef?.changed(id, change);
       if (change === 'placed' || change === 'lifted' || change === 'contained')
         for (const child of core.container(id)?.contents ?? []) this.rotRef?.changed(child, 'placed');
@@ -366,6 +369,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       }
     } else if (event.type === 'DayPassed') {
       if (this.cellarRef !== null) cellarDay(this.cellarRef);
+    } else if (event.type === 'HourPassed') {
+      compostHour(core, this.stockpiles, ctx);
     } else if (event.type === 'SeasonChanged') {
       this.rotRef?.resample();
     } else if (event.type === 'TilesChanged') {
@@ -388,7 +393,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     } else if (event.type === 'BuildingRemoved') {
       core.buildingWealth -= typeof event['value'] === 'number' ? (event['value'] as number) : 0;
     } else if (event.type === 'ZoneChanged') {
-      if (event['zoneType'] !== 'stockpile' && event['zoneType'] !== 'hospital') return;
+      if (event['zoneType'] !== 'stockpile' && event['zoneType'] !== 'hospital' && event['zoneType'] !== 'compost') return;
       const id = event['zoneId'] as number;
       const change = event['change'];
       const tiles = (event['tiles'] as readonly TileIndex[] | undefined) ?? [];

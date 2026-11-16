@@ -183,6 +183,7 @@ The zone types; `Enter` with no tool selects the zone at the map cursor or centr
 | `[i]` | fishing zone |
 | `[g]` | gather zone |
 | `[S-c]` | sanctum |
+| `[S-k]` | compost heap |
 
 ### Zone inspector
 
@@ -202,6 +203,7 @@ The keys of a selected zone, before the zone types; letters that open panels req
 | `[S-o]` | open the bedroom's owner picker, or the sanctum's apprentice picker | owner or apprentices button |
 | `[S-c]` | a stockpile: turn the cellar setting on or off | the `[S-c] cellar` caption |
 | `Shift+A` | a farm plot: the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
+| `[S-f]` | a farm plot: turn fertilize on or off | the `[S-f] fertilize` caption |
 | `Space` | toggle the checkbox (category tree, material classes) | the checkbox |
 | `+` `=` `-` | adjust the focused value | minus or plus button |
 
@@ -793,6 +795,5 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|---|
 | Designate panel | `I` | harvest ice | T-559 |
 | Designate panel | `F` | ignite (set a fire) | T-559 |
-| Zone inspector | `f` | toggle fertilize (farm plot) | T-564 |
 
 The keys are first choices; the task checks them against the existing bindings of each context and the fixed keys.

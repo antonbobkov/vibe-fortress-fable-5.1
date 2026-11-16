@@ -10,7 +10,7 @@ Let the player shape the fortress: constructions, furniture, workshops, mechanis
 
 - **Building**: an entity occupying one or more tiles with a type from `buildings-and-furniture.md`. Categories: `construction` (wall, floor, ramp, stairs, fortification, paved floor), `furniture` (placed from a crafted item), `workshop`, `mechanism` (lever, pressure plate, floodgate, hatch, drawbridge, door), `trap`, `special` (hearth, trade depot, well, nest box, cage, chain, coffin, memorial slab, archery target).
 - **Function tag**: what a building does, read by systems: `sleep`, `sit`, `eat_at`, `door`, `hatch`, `bridge`, `floodgate`, `lever`, `plate`, `trap:*`, `container`, `well`, `depot`, `hearth`, `workshop`, `training`, `archery_target`, `coffin`, `memorial`, `cage`, `chain`, `nest_box`, `hive`, `store` (cabinet, chest), `blocks_fluid`, `light`.
-- **Zone**: a set of tiles with a type and settings. Types: `stockpile`, `farm_plot`, `pasture`, `bedroom`, `dining_hall`, `hearth_hall`, `hospital`, `barracks`, `archery_range`, `meeting_area`, `tomb`, `dump`, `fishing`, `gather`.
+- **Zone**: a set of tiles with a type and settings. Types: `stockpile`, `farm_plot`, `pasture`, `bedroom`, `dining_hall`, `hearth_hall`, `hospital`, `barracks`, `archery_range`, `meeting_area`, `tomb`, `dump`, `fishing`, `gather`, `sanctum`, `compost`.
 - **Room**: a zone of a room type with a computed quality. Room types: `bedroom`, `dining_hall`, `hearth_hall`, `hospital`, `barracks`, `tomb`.
 - **Quality tier**: bare, modest, decent, fine, grand, royal.
 - **Ownership**: a bedroom's owner; a tomb's occupant.
@@ -115,14 +115,14 @@ A lamp is a placed glowstone statue. It lights the 3×3 around it for comfort. T
 
 ### Zones
 
-`SetZoneSetting` checks the setting's value type before changing state and rejects an invalid value with `bad_setting`. `desired supplies` is a record of 17's supply kinds with integer counts from 0 to `HOSPITAL_SUPPLY_MAX`, stored under `desired supplies` as by `SetHospitalSupplies`; `squad` is 0 or a living squad id. `owner` is an integer dwarf id or 0 and uses `AssignRoom`'s checks and assignment. `crop per season` is the four season slots, each 0 or a known farmed plant id/index with the plot's light requirement, using `SetPlotCrop`'s validation and stored as plant indices. Check every slot before storing any. `priority` is an integer from `PRIORITY_MIN` to `PRIORITY_MAX`. Stockpile settings use 13's dedicated commands.
+`SetZoneSetting` checks the setting's value type before changing state and rejects an invalid value with `bad_setting`. `desired supplies` is a record of 17's supply kinds with integer counts from 0 to `HOSPITAL_SUPPLY_MAX`, stored under `desired supplies` as by `SetHospitalSupplies`; `squad` is 0 or a living squad id. `owner` is an integer dwarf id or 0 and uses `AssignRoom`'s checks and assignment. `crop per season` is the four season slots, each 0 or a known farmed plant id/index with the plot's light requirement, using `SetPlotCrop`'s validation and stored as plant indices. Check every slot before storing any. `fertilize` (a farm plot, 07 § Fertilizer) is a boolean. `priority` is an integer from `PRIORITY_MIN` to `PRIORITY_MAX`. Stockpile settings use 13's dedicated commands.
 
 `CreateZone { zoneType, tiles }`, `ResizeZone`, `RemoveZone`, `SetZoneSetting`. Rules:
 
 - Tiles must be walkable floors (gather zones may also include shrubs as described in 09). A tile that holds a building on a floor also qualifies, so furniture, the hearth and doors may lie inside zones. A farm plot's tiles must also be all lit or all dark (07). A fishing bank uses 09's shared shore lookup: one of its four same-level cardinal neighbours contains deep, unfrozen water, or is open air above a straight drop through only open air to deep, unfrozen water no more than `FISH_BANK_DROP` levels below the bank. Intervening floors, solid tiles or shallow fluid stop the lookup; water beside magma does not qualify. The catch comes from the body at the bottom of that drop, with water-body connectivity still confined to one level.
 - A command whose tiles do not all qualify is rejected whole (`bad_zone_tiles`) and changes nothing; the zone tool submits only the tiles that qualify.
 - No two zones share a tile, whatever their types, except `meeting_area` over a `hearth_hall` or `dining_hall` (it only adds a gathering spot; two meeting areas never overlap). `zoneAt` names the hall there and `zonesAt(i)` lists both, ascending; removing the hall hands its tiles back to the meeting area.
-- Each zone type has settings (`plants`, `animals`, `items`, `health`, `combat` read theirs): farm plot crops, pasture nothing, stockpile filter, hospital desired supplies, barracks squad assignment, bedroom owner, tomb occupant, dump nothing, sanctum apprentices (set by 25's `SetSanctumApprentices` only). `SetZoneSetting` stores any other key of the zone-type table (in words or snake_case) on the zone; a stockpile's `filter`, `containers`, `priority` and `links` are 13's and are rejected (`bad_setting`).
+- Each zone type has settings (`plants`, `animals`, `items`, `health`, `combat` read theirs): farm plot crops, pasture nothing, stockpile filter, hospital desired supplies, barracks squad assignment, bedroom owner, tomb occupant, dump nothing, compost heap nothing (a compost heap is no room; 13 gives it a stockpile record with a fixed filter, 13 § The compost heap), sanctum apprentices (set by 25's `SetSanctumApprentices` only). `SetZoneSetting` stores any other key of the zone-type table (in words or snake_case) on the zone; a stockpile's `filter`, `containers`, `priority` and `links` are 13's and are rejected (`bad_setting`).
 - A new stockpile accepts nothing until a filter is set. Its priority is `HAUL_PRIORITY`, or `HAUL_PRIORITY_FOOD` while its filter selects only food, until the player sets one. 13 defines the presets (§ Stockpiles).
 - `ZoneChanged { zoneId, zoneType, change: created | resized | removed | settings, tiles }`: `tiles` is the zone's tiles after the change (before it, for `removed`).
 
@@ -289,7 +289,3 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### Ice (T-559)
 
 A wall or floor built of `stone_block` of `ice` is an ice construction: 05 cools and melts it (05 § Planned). It is magma-unsafe as ice is. A gate of ice holds a raid in winter and opens itself in spring.
-
-### The compost heap (T-564)
-
-Zone type `compost` (13 § Planned) is a row of `buildings-and-furniture.md` § Zone types; a compost heap is no room. (The stockpile setting `cellar` is in that table's `stockpile` row, 13 § Aging in a cellar.)

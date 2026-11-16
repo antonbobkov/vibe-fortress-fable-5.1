@@ -35,15 +35,15 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetWorkshopWorker` | `workshopId, dwarfId \| 0` | 12 | dwarf has any enabled recipe labor for the workshop type | — |
 | `SuspendWorkshop` | `workshopId, on` | 12 | — | `JobCancelled` if running |
 | `ForbidItem` / `ClaimItem` / `DumpItem` / `MeltItem` | `itemId \| tiles[] \| typeId, on` | 13 | items exist; melt only metal items | `ItemReleased` when forbidding a reserved item cancels its job |
-| `SetStockpileFilter` | `zoneId, filter` | 13 | zone is a stockpile; category nodes exist | — |
-| `SetStockpileContainers` / `SetStockpilePriority` / `LinkStockpile` | `zoneId, …` | 13 | — | — |
+| `SetStockpileFilter` | `zoneId, filter` | 13 | zone is a stockpile or a hospital, not a compost heap (`not_found`); category nodes exist | — |
+| `SetStockpileContainers` / `SetStockpilePriority` / `LinkStockpile` | `zoneId, …` | 13 | not a compost heap (`not_found`) | — |
 | `SetStockpileCellar` | `zoneId, on` | 13 | zone is a stockpile (not a hospital); `on` is a boolean (`bad_setting`) | — |
 | `PlaceBuilding` | `buildingType, origin, orientation, materialChoice, priority, width?, height?` | 14 | optional integer dimensions only for a variable footprint (`fixed_footprint` names a fixed type); footprint rules; `materialChoice` a material, or `'blocks'` for a workshop of blocks in place of its logs (not one tagged `logs_only`; otherwise `not_found`); materials exist in the fortress (`no_materials` is a warning, not a rejection: the job blocks); magma safety (`not_magma_safe`); one hearth (`hearth_exists`); a workshop that no recipe names and no job is worked at is refused (`precondition_failed`, "Nothing can be made there yet."); depot reachability is checked at caravan time | `BuildingPlaced`, `JobCreated` |
 | `CancelBuilding` | `buildingId` | 14 | planned or constructing | `BuildingRemoved`, `JobCancelled` |
 | `DeconstructBuilding` | `buildingId` | 14 | built; not the hearth while dwarves live (`hearth_is_home`) | `JobCreated` |
 | `SetBuildingPriority` | `buildingId, priority` | 14 | planned | — |
 | `CreateZone` | `zoneType, tiles[]` | 14 | tiles walkable (type-specific), no overlap (`overlap`), fishing and farm tile rules; a command with any bad tile is rejected whole (`bad_zone_tiles`) | `ZoneChanged` |
-| `ResizeZone` / `RemoveZone` / `SetZoneSetting` | `zoneId, …` | 14 | zone exists; setting key and typed value valid for the type (`bad_setting` otherwise); owner uses AssignRoom checks; seasonal crops use SetPlotCrop checks | `ZoneChanged` |
+| `ResizeZone` / `RemoveZone` / `SetZoneSetting` | `zoneId, …` | 14 | zone exists; setting key and typed value valid for the type (`bad_setting` otherwise); owner uses AssignRoom checks; seasonal crops use SetPlotCrop checks; a farm plot's `fertilize` is a boolean | `ZoneChanged` |
 | `AssignRoom` | `zoneId, dwarfId \| 0` | 14 | bedroom with a bed | `RoomAssigned` |
 | `LinkMechanism` / `UnlinkMechanism` | `sourceId, targetId` | 14 | source is a lever or plate; target is linkable; mechanism available (blocks otherwise) | `JobCreated` |
 | `SetDoorMode` / `SetHatchMode` | `buildingId, mode` | 14 | building has the tag | `BuildingStateChanged` |

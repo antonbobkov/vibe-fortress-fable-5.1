@@ -164,7 +164,8 @@ export function stockpilePreset(filter: StockpileFilter): string | null {
 export function stockpileName(env: Omit<MessageEnv, 'registry'>, zoneId: EntityId): string {
   const name = zoneName(env, zoneId);
   const f = env.readers.has('13') ? env.readers.of<ItemsReader>('13').stockpile(zoneId)?.filter : undefined;
-  if (f === undefined) return name;
+  // 13 § The compost heap: a heap's fixed filter names no preset; its name says what it is.
+  if (f === undefined || buildingsOf(env.readers)?.zone(zoneId)?.type === 'compost') return name;
   const preset = stockpilePreset(f);
   return env.strings.get('ui.stockpile.name', { name, preset: env.strings.get(preset === null ? 'ui.stockpile.custom' : `ui.stockpile.preset.${preset}`) });
 }

@@ -558,10 +558,12 @@ export function handleDailyInfection(
     const tile = pos ? map.index(pos.x, pos.y, pos.z) : -1;
     const inMiasma = tile >= 0 && itemsReader?.isMiasma(tile) === true;
     const sleptOnFloor = floorSleepers?.has(id) === true;
+    // 17 § Infection: no wound of a patient washed with soap is rolled while it stays admitted.
+    const washed = entities.get(id, C.Patient)?.washed === true;
 
     for (const part of b.parts) {
       for (const w of part.wounds) {
-        if (exposed(w) && !w.infected && ctx.tick - w.createdTick >= TICKS_PER_DAY) {
+        if (!washed && exposed(w) && !w.infected && ctx.tick - w.createdTick >= TICKS_PER_DAY) {
           const permille = (inMiasma || sleptOnFloor) ? INFECTION_PERMILLE * 2 : INFECTION_PERMILLE;
           if (rng.int(0, 999) < permille) {
             w.infected = true;

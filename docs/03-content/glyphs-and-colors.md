@@ -149,6 +149,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `zone_fishing` | #1E2E3F |
 | `zone_gather` | #2E3A1E |
 | `zone_sanctum` | #1E363A |
+| `zone_compost` | #33301A |
 
 ### Material and nature colors
 
@@ -250,6 +251,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `brick_red` | #A0482E |  |  | `glass_pale` | #BFE3E6 |  |
 | `dung_brown` | #5C4A30 |  |  | `star_silver` | #D8E4F0 |  |
 | `honey_amber` | #D49A2A |  |  | `wax_yellow` | #E8D27A |  |
+| `soap_white` | #EEF0F2 |  |  |  |  |  |
 
 ## Glyphs by thing
 
@@ -295,7 +297,7 @@ Dwarves `☺` with state colors; traders `☺` in civ colors; animals by species
 
 ### Items
 
-By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage) `♠` (glowcap) `¡` (rune vial, hollow ichor, spider venom) `§` (wyrmscale) `♥` (ember gland), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
+By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage) `♠` (glowcap) `¡` (rune vial, hollow ichor, spider venom) `§` (wyrmscale) `♥` (ember gland) `▪` (soap), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
 
 ### Buildings
 
@@ -339,7 +341,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 
 | id | hex | task |
 |---|---|---|
-| `soap_white` | #EEF0F2 | T-564 |
 | `reindeer_brown` | #8A6A4A | T-561 |
 | `camel_tan` | #C8A472 | T-561 |
 

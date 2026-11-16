@@ -28,7 +28,8 @@ export interface StockpileCommandHost {
 function stockpileOf(host: StockpileCommandHost, cmd: Command): EntityId | null {
   const id = cmd['zoneId'];
   if (typeof id !== 'number') return null;
-  return host.store.ensure(id) ? id : null;
+  // 13 § The compost heap: a heap has a stockpile record with fixed slots, and none of these commands.
+  return host.store.ensure(id) && !host.store.isCompost(id) ? id : null;
 }
 
 function parseFilter(host: StockpileCommandHost, raw: unknown): StockpileFilter | 'bad_category' | 'out_of_range' {

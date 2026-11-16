@@ -199,7 +199,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
       '[S-t] Tomb       [S-u] Dump',
     ]);
     expect(rows[6]).toBe('[i] Fishing      [g] Gather');
-    expect(rows[7]).toBe('[S-c] Sanctum');
+    expect(rows[7]).toBe('[S-c] Sanctum    [S-k] Compost');
     expect(rows[8]).toBe('─ Drag a rectangle.');
     expect(rows[9]).toBe('Qualifying tiles show ▒, others x.');
     expect(rows[10]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
@@ -211,8 +211,10 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
       'Winter  [ none         ▼ ]',
     ]);
     expect(rows[15]).toBe('Crops: 0 growing, 0 ready, 2 empty');
-    expect(rows[16]).toBe('↑↓ season · Enter choose crop');
-    expect(rows[17]).toBe('[S-a] all seasons');
+    expect(rows[16]).toBe('Fertilize: off (0 in stock)');
+    expect(rows[17]).toBe('↑↓ season · Enter choose crop');
+    expect(rows[18]).toBe('[S-a] all seasons');
+    expect(rows[19]).toBe('[S-f] fertilize');
     expect(rows[31]).toBe('[x] remove zone  [S-e] resize');
   });
 });

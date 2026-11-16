@@ -59,6 +59,7 @@ export const ZONE_KINDS: readonly { readonly key: string; readonly id: string }[
   { key: 'i', id: 'fishing' },
   { key: 'g', id: 'gather' },
   { key: 'c', id: 'sanctum' },
+  { key: 'k', id: 'compost' },
 ];
 
 /** The presets in the order 13 lists them. */
@@ -272,7 +273,14 @@ export class ZoneTool {
       return true;
     }
     if (key.shift && accel(ctx, key) === 'a') { this.farmAllSeasons(ctx, season); return true; }
+    if (key.shift && accel(ctx, key) === 'f') { this.farmFertilize(ctx); return true; }
     return false;
+  }
+
+  /** `[S-f]`: `07` § Fertilizer, the plot's `fertilize` setting on or off (`SetZoneSetting`). */
+  farmFertilize(ctx: PanelContext): void {
+    const on = ctx.readers.has('07') && ctx.readers.of<PlantsReader>('07').plotFertilize(this.selected);
+    ctx.submit({ type: 'SetZoneSetting', zoneId: this.selected, key: 'fertilize', value: !on });
   }
 
   /** The crop set for a season of the selected plot, if any. */
@@ -361,6 +369,20 @@ export class ZoneTool {
   }
 }
 
+/** 13 § The compost heap: the items lying on a heap that will turn to compost. */
+function compostWaiting(ctx: PanelContext, zone: ZoneView): number {
+  if (!ctx.readers.has('13')) return 0;
+  const items = ctx.readers.of<ItemsReader>('13');
+  let n = 0;
+  for (const tile of zone.tiles) {
+    for (const id of items.at(tile)) {
+      const cat = items.itemCategory(id);
+      if (cat.startsWith('refuse/rotten') || cat.startsWith('farm/dung')) n += 1;
+    }
+  }
+  return n;
+}
+
 /** "Farm plot #3": the zone's ordinal among the zones of its type. */
 function zoneName(ctx: PanelContext, zone: ZoneView): string {
   const n = (buildings(ctx)?.zonesOfType(zone.type) ?? []).indexOf(zone.id) + 1;
@@ -421,6 +443,10 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   } else if (zone.type === 'sanctum') {
     row = drawSanctumSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
+  } else if (zone.type === 'compost') {
+    // 13 § The compost heap: what lies on it waiting to turn.
+    if (row <= bottom) label(s, rect.col + 1, row, strings.get('ui.zone.compost_turning', { n: compostWaiting(ctx, zone) }), { fg: t.value, width: rect.cols - 2 });
+    row += 1;
   } else {
     row = drawRoomSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   }
@@ -464,13 +490,22 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   const ready = cropIds.filter((id) => (plants.cropInfo(id)?.stage ?? 0) === 3).length;
   if (row < rect.row + rect.rows) label(s, rect.col + 1, row, `Crops: ${cropIds.length - ready} growing, ${ready} ready, ${Math.max(0, zone.tiles.length - cropIds.length)} empty`, { width: rect.cols - 2 });
   row += 1;
+  // `07` § Fertilizer: the plot's setting and the fertilizer in stock; a click turns it on or off.
+  if (row < rect.row + rect.rows) {
+    const on = plants.plotFertilize(zone.id);
+    const stock = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13').countMatching({ tag: 'fertilizer' }) : 0;
+    const n = label(s, rect.col + 1, row, ctx.strings.get(on ? 'ui.zone.farm_fertilize_on' : 'ui.zone.farm_fertilize_off', { n: stock }), { fg: on ? t.value : t.dim, width: rect.cols - 2 });
+    s.hit({ col: rect.col + 1, row, cols: n, rows: 1 }, () => tool.farmFertilize(ctx));
+  }
+  row += 1;
   row = drawFarmCold(s, { col: rect.col, row, cols: rect.cols, rows: rect.row + rect.rows - row }, ctx, zone, plants);
   row = drawFarmLate(s, { col: rect.col, row, cols: rect.cols, rows: rect.row + rect.rows - row }, ctx, zone, plants);
-  for (const key of ['ui.zone.farm_keys1', 'ui.zone.farm_keys2']) {
+  for (const key of ['ui.zone.farm_keys1', 'ui.zone.farm_keys2', 'ui.zone.farm_keys3']) {
     if (row >= rect.row + rect.rows) break;
     const text = ctx.strings.get(key);
     label(s, rect.col + 1, row, text, { fg: t.dim, width: rect.cols - 2 });
     accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
+    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-f', () => tool.farmFertilize(ctx));
     row += 1;
   }
   return row;
@@ -672,6 +707,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
     { key: 'brightleaf', item: 'brightleaf', label: 'Brightleaf' },
     { key: 'buckets', item: 'bucket', label: 'Buckets' },
     { key: 'honey', item: 'honey', label: 'Honey' },
+    { key: 'soap', item: 'soap', label: 'Soap' },
   ];
 
   if (row < bottom) {

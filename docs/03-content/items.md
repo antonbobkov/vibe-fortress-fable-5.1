@@ -195,8 +195,11 @@ A `horn` is of `horn`, a `tusk` of `ivory`, a `feather` of `feather`: the butche
 | `ember_gland` | ember gland | medical/gland | 1 | 10 | bag | 0 | `♥` | `ember_orange` | |
 | `hollowsight_draught` | draught of hollowsight | medical/draught | 2 | 5 | bag | 0 | `!` | `hollow_violet` | `draught` |
 | `wyrmblood_draught` | draught of wyrmblood | medical/draught | 2 | 5 | bag | 0 | `!` | `wyrm_red` | `draught` |
+| `soap` | soap | medical/soap | 1 | 20 | bag | 0 | `▪` | `soap_white` | |
 
 Bandages are cloth cut at the clothier (1 cloth → 4 bandages); `stop_bleeding` and `dress_burn` accept a bandage or a cloth.
+
+Soap, of `soap`, is boiled at the kitchen from tallow and potash; a medic washes a patient with it, and a washed patient takes no infection for the rest of the admission ([17](../02-systems/17-health-and-medicine.md) § Patients and hospitals).
 
 Glowcap is its own item and not `plant_food`, because `plant_food` of any material is eaten and is an ingredient. So no dwarf eats a glowcap and no kitchen takes one. A rune vial holds the material `rune`.
 
@@ -225,8 +228,9 @@ What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draugh
 | `bone_ash` | bone ash | farm/bone_ash | 1 | 10 | bag | 0 | light | `:` | `bone_white` | `fertilizer`, `flux` |
 | `potash` | potash | farm/potash | 1 | 10 | bag | 0 | light | `:` | `ash_gray` | |
 | `dung` | dung | farm/dung | 1 | 10 | bag | 0 | light | `%` | `dung_brown` | `fertilizer` |
+| `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `fertilizer` |
 
-Bone ash and potash are burned at the kiln: bone ash, of `bone`, from bone piles or a crushed fossil; potash, of `potash`, from a log. Bone ash stands in for the flux stone in steel (`make_steel_bone_ash`); potash doubles a glass batch. Dung, of `dung`, is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung); three of it dry to a dung cake on a rack.
+Bone ash and potash are burned at the kiln: bone ash, of `bone`, from bone piles or a crushed fossil; potash, of `potash`, from a log. Bone ash stands in for the flux stone in steel (`make_steel_bone_ash`); potash doubles a glass batch. Dung, of `dung`, is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung); three of it dry to a dung cake on a rack. Compost, of `compost`, is rotten food or dung turned on a compost heap ([13](../02-systems/13-items-and-storage.md) § The compost heap). An item tagged `fertilizer` is what a fertilized farm plot plants with ([07](../02-systems/07-plants-and-farming.md) § Fertilizer).
 
 ## Drying
 
@@ -277,11 +281,9 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
-| Farm goods (a new section) | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `compost`; tag `fertilizer` | T-564 |
 | Furniture | `lantern` | lantern | furniture/lantern | 6 | 1 | none | 0 | medium | `¥` | material | glass | T-563 |
 | Tools | `candle` | candle | tool/candle | 1 | 10 | bin | 0 | light | `ì` | material | tallow, beeswax | T-563 |
 | Tools | `firebrand` | firebrand | tool/firebrand | 1 | 5 | bin | 0 | light | `/` | material | wood, bone | T-559 |
-| Medical and herbs | `soap` | soap | medical/soap | 1 | 20 | bag | 0 | light | `▪` | `soap_white` | `soap` | T-564 |
 | Food | `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | `meal`; quality-bearing; eaten before any other meal | T-565 |
 | Stone, ore, gems | `giant_skull` | giant skull | textile/skull | 10 | 1 | none | 0 | heavy | `☻` | `bone_white` | `giant_bone` | T-557 |
 

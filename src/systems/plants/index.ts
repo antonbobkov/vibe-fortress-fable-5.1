@@ -34,7 +34,7 @@ import { WILT_PERMILLE } from '@systems/weather/constants';
 import { CROP_DROWN_LEVEL, HARVEST_PRIORITY, PLANTS_CADENCE, PLANTS_PHASE } from './constants';
 import { PlantFacts, type PlantRow } from './facts';
 import { advance, growthPerHour, isMature, progressPercent, seasonAllows, stageLength } from './growth';
-import { FARM_PLOT, cropsOf, cropChoice, isAshTile, plotKindOf, withCrop, type PlotKind } from './plots';
+import { FARM_PLOT, cropsOf, cropChoice, fertilizeOf, isAshTile, plotKindOf, withCrop, type PlotKind } from './plots';
 import { PlantsProducer } from './producer';
 import type { CropInfo, PlantsReader } from './reader';
 import type { PlantsStateV1 } from './state';
@@ -163,7 +163,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       rng: ctx.rng,
       cropAtTile: this.cropAtTile,
       plots: () => this.plotIndex,
-      plantCrop: (c, tile, plant, zoneId) => this.plantCrop(c, tile, plant, zoneId),
+      plantCrop: (c, tile, plant, zoneId, fertilized) => this.plantCrop(c, tile, plant, zoneId, fertilized),
       removeCrop: (id) => this.removeCrop(id),
       announceNeedsSeeds: (c, zoneId, plant) => this.announceNeedsSeeds(c, zoneId, plant),
       renewAsh: (tile, tick) => this.renewAsh(tile, tick),
@@ -415,9 +415,9 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   // ---------- crops ----------
 
   /** `plant` completion: the `Crop` entity at stage 0, and `CropPlanted`. */
-  plantCrop(ctx: TickContext, tile: TileIndex, plant: number, zoneId: EntityId): EntityId {
+  plantCrop(ctx: TickContext, tile: TileIndex, plant: number, zoneId: EntityId, fertilized = false): EntityId {
     const id = ctx.world.entities.create('crop');
-    ctx.world.entities.add(id, C.Crop, { plotZoneId: zoneId, plant, stage: 0, growth: 0, tile });
+    ctx.world.entities.add(id, C.Crop, { plotZoneId: zoneId, plant, stage: 0, growth: 0, tile, ...(fertilized ? { fertilized: true as const } : {}) });
     this.cropAtTile.set(tile, id);
     ctx.emit({ type: 'CropPlanted', tile, species: this.facts.row(plant)?.id ?? '' });
     return id;
@@ -613,6 +613,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
         return zone !== 0 && this.plotIndex.includes(zone) ? zone : 0;
       },
       plotSettings: (zoneId) => cropsOf(this.buildings()?.zone(zoneId)?.settings ?? {}),
+      plotFertilize: (zoneId) => fertilizeOf(this.buildings()?.zone(zoneId)?.settings ?? {}),
       plotKind: (zoneId) => this.plotKind(zoneId),
       plots: () => this.plotIndex.slice(),
       speciesAt: (i) => {
@@ -653,6 +654,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       percent: row === undefined ? 0 : progressPercent({ stage: crop.stage, growth: crop.growth }, stageLength(row)),
       tile: crop.tile,
       plotZoneId: crop.plotZoneId,
+      fertilized: crop.fertilized === true,
     };
   }
 

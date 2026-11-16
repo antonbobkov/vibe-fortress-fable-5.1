@@ -13,7 +13,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `WorldGenerated` | `seed, size` | 01 (via app) | ui |
 | `Embarked` | `fortressName, regionId` | 02 | ui, 18 (schedule roll), 20 (schedule roll) |
 | `CommandRejected` | `command, reason` | core | ui |
-| `HourPassed` | `hour` | core calendar | 06, 07, 10, 15, 16, 17, 18, 24 (hints) |
+| `HourPassed` | `hour` | core calendar | 06, 07, 10, 13 (compost heaps), 15, 16, 17, 18, 24 (hints) |
 | `DayPassed` | `dayOfSeason, season, year` | core | 07, 08, 09, 14, 15, 16, 17, 18, 20, 21 |
 | `SeasonChanged` | `season, year` | core | 06, 08, 13 (rot sampling), 20, 21, app (autosave), ui |
 | `YearPassed` | `year` | core | 10, 20 |
