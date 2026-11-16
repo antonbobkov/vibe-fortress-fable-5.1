@@ -76,6 +76,7 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `make_club` | Club | 1 log | 1 club | 60 | no | 3 |
 | `make_spike_wood` | Wooden spikes | 1 log | 3 spike (wood) | 100 | no | 4 |
 | `make_bolts_wood` | Wooden bolts | 1 log | 20 bolt (wood) | 80 | no | 4 |
+| `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | 4 |
 
 ## Mason (`masonry`)
 
@@ -121,10 +122,11 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `weave_wicker_shield` | Wicker buckler | 3 reed (reed) | 1 buckler (from_input) | 120 | yes | 5 |
 | `make_splint_bone` | Bone splints | 1 bone_pile | 2 splint (from_input) | 80 | no | 4 |
 | `make_crutch_bone` | Bone crutch | 2 bone_pile | 1 crutch (from_input) | 100 | no | 4 |
+| `weave_hive` | Wicker beehive | 3 reed (reed) | 1 beehive (from_input) | 100 | no | 4 |
 
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
 
-Reeds and bones stand in for wood ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a basket is a bin of reed that holds 15 (`make_bin`), reed rope a rope of reed (`make_rope`), a wicker buckler a buckler of reed that blocks as a wooden one and burns (`make_buckler_wood`), and bone splints and crutches serve a hospital as wooden ones do (`make_splint`, `make_crutch`).
+Reeds and bones stand in for wood ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a basket is a bin of reed that holds 15 (`make_bin`), reed rope a rope of reed (`make_rope`), a wicker buckler a buckler of reed that blocks as a wooden one and burns (`make_buckler_wood`), bone splints and crutches serve a hospital as wooden ones do (`make_splint`, `make_crutch`), and a wicker beehive is a hive of reed (`make_hive_wood`).
 
 ## Jeweler (`gem_cutting`)
 
@@ -228,6 +230,7 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 | `brew` | Brew drink | 4 plant_food (brewable species) + container barrel | 20 drink (species' drink material) in the barrel | 200 | no | no | 8 |
 | `brew_hopped` | Brew hopped ale | 4 plant_food (barley) + 1 plant_food (hops) + container barrel | 20 drink (hopped_ale) | 220 | no | no | 10 |
 | `distill` | Distil spirits | 20 drink (ale or wine group; same material) + container barrel | 10 drink (deepfire) in the barrel | 250 | yes | no | 10 |
+| `brew_mead` | Brew mead | 4 honey + container barrel | 20 drink (mead) in the barrel | 200 | no | no | 8 |
 
 `fuel`: the recipe burns one fuel bar. "(ale or wine group)" takes a drink whose material is of the `drink/ale` or `drink/wine` group ([items.md](items.md) § Drink); distilling leaves the source barrel a free container ([12](../02-systems/12-workshops-and-professions.md) § Spirits).
 
@@ -335,6 +338,7 @@ A salted hide tans as a raw hide does ([13](../02-systems/13-items-and-storage.m
 | `process_sporecloth` | Process sporecloth | farming | 1 plant_food (sporecloth) | 2 fiber (sporecloth_fiber) | 100 | no | 4 |
 | `mill_flour` | Mill flour | farming | 2 plant_food (barley, cavewheat or rye) + container bag | 3 flour in the bag | 120 | no | 5 |
 | `make_cheese` | Make cheese | animal_care | 3 milk | 2 cheese | 150 | yes | 6 |
+| `press_honeycomb` | Press honeycomb | animal_care | 1 honeycomb | 1 honey + 1 beeswax (`beeswax`) | 80 | no | 4 |
 | (`milk_animal`, `shear_animal` are jobs, not recipes) | | | | | | | |
 
 ## Butcher (`butchery`)
@@ -369,8 +373,9 @@ Every kiln recipe burns a fuel, unless the kiln is the magma kiln. A brick is a 
 | `burn_potash` | Potash | 1 log | 2 potash (`potash`) | 80 | no | 3 |
 | `burn_bone_ash` | Bone ash | 2 bone_pile | 1 bone_ash (`bone`) | 80 | no | 3 |
 | `crush_fossil` | Crush fossil | 1 fossil | 2 bone_ash (`bone`) | 100 | no | 4 |
+| `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (`earthenware`) | 100 | no | 4 |
 
-Four are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug and clay mugs take a fuel beside the input that a bucket and stone mugs take alone (`make_bucket`, `make_mug_stone`).
+Five are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug, clay mugs and a clay beehive take a fuel beside the input that a bucket, stone mugs and a wooden hive take alone (`make_bucket`, `make_mug_stone`, `make_hive_wood`).
 
 ## Smokehouse (`cooking`)
 
@@ -383,7 +388,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 27, mason 15, craftsdwarf 20, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 7, still 3, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 4, bowyer 3, kiln 10, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 240.
+Carpenter 28, mason 15, craftsdwarf 21, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 7, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 11, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 245.
 
 ## Time arithmetic
 
@@ -400,12 +405,7 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
 | leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
 | bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
-| carpenter | `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | no | 4 | — | T-555 |
-| kiln | `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (earthenware) | 100 | yes | no | 4 | `make_hive_wood` | T-555 |
-| craftsdwarf | `weave_hive` | Wicker beehive | 3 reed | 1 beehive (from_input) | 100 | no | no | 4 | `make_hive_wood` | T-555 |
-| farmer's workshop | `press_honeycomb` | Press honeycomb | 1 honeycomb | 1 honey + 1 beeswax | 80 | no | no | 4 | — | T-555 |
-| still | `brew_mead` | Brew mead | 4 honey + container barrel | 20 drink (mead) in the barrel | 200 | no | no | 8 | — | T-555 |
-| craftsdwarf | `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (from_input) | 80 | no | no | 3 | — | T-555 |
+| craftsdwarf | `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (from_input) | 80 | no | no | 3 | — | T-563 |
 | craftsdwarf | `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (from_input) | 80 | no | no | 3 | — | T-563 |
 | kiln | `make_lantern` | Lantern | 1 stone_block (glass) + 1 candle | 1 lantern (from_input) | 150 | yes | yes | 8 | — | T-563 |
 | mason | `cut_bone_blocks` | Bone blocks | 1 fossil | 2 stone_block (from_input) | 80 | no | no | 3 | `make_stone_block` | T-557 |

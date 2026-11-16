@@ -233,6 +233,7 @@ export function regionSpec(seed: string, region: Partial<RegionRecord> & { reado
     civEdges: Object.freeze({ ...edges }),
     arrivalEdge: edges.mountainhome,
     ...(region.tempC === undefined ? {} : { tempC: region.tempC }),
+    ...(region.civDistance === undefined ? {} : { civDistance: Object.freeze({ ...region.civDistance }) }),
   });
 }
 

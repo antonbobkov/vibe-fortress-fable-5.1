@@ -215,6 +215,37 @@
     ]
   },
   {
+    "id": "beehive",
+    "name": "beehive",
+    "category": "furniture/beehive",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "stone",
+      "plant"
+    ],
+    "glyph": "∩",
+    "quality": false
+  },
+  {
+    "id": "beeswax",
+    "name": "beeswax",
+    "category": "food/wax",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "wax_yellow",
+    "quality": false
+  },
+  {
     "id": "bin",
     "name": "bin",
     "category": "container/bin",
@@ -1200,6 +1231,39 @@
     "tags": [
       "draught"
     ]
+  },
+  {
+    "id": "honey",
+    "name": "honey",
+    "category": "food/honey",
+    "mult": 1000,
+    "stack": 20,
+    "container": "barrel",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "≈",
+    "fg": "honey_amber",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "honeycomb",
+    "name": "honeycomb",
+    "category": "food/honeycomb",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "#",
+    "fg": "honey_amber",
+    "edible": true,
+    "quality": false
   },
   {
     "id": "horn",

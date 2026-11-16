@@ -170,6 +170,19 @@
     "interruptible": false
   },
   {
+    "id": "collect_honey",
+    "name": "Collect honey",
+    "labor": "animal_care",
+    "skill": "animal_care",
+    "target": "building",
+    "workTile": "adjacent",
+    "baseTicks": "COLLECT_HONEY_TICKS",
+    "tool": null,
+    "xp": 4,
+    "producer": "animals",
+    "interruptible": false
+  },
+  {
     "id": "craft",
     "name": "Craft (recipe)",
     "labor": "recipe",

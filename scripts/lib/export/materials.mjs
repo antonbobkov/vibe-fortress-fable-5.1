@@ -96,6 +96,11 @@ export function exportMaterials() {
     const burn = isBlank(row.burnTicks) ? 0 : int(row.burnTicks);
     out.push(material(row, burn > 0 ? { burnable: true, burnTicks: burn } : {}));
   }
+  // materials.md § Hive products: honey, and beeswax that burns as cloth does.
+  for (const row of asObjects(findTable(tables, 'Hive products'))) {
+    const burn = isBlank(row.burnTicks) ? 0 : int(row.burnTicks);
+    out.push(material(row, burn > 0 ? { burnable: true, burnTicks: burn } : {}));
+  }
   for (const row of asObjects(findTable(tables, 'Cloth and fiber'))) {
     // materials.md: "Cloth burns (300 ticks, unless its row gives `burnTicks`) and melts at 300 C."
     out.push(material(row, { burnable: true, burnTicks: isBlank(row.burnTicks) ? 300 : int(row.burnTicks), meltsAtC: 300 }));
@@ -157,10 +162,12 @@ export function exportMaterials() {
     ['black_ale', 'black ale', 3, 'rye_gold'],
     ['cactus_wine', 'cactus wine', 3, 'cactus_green'],
     ['emberwine', 'emberwine', 6, 'wyrmtongue_red'],
+    // Mead, brewed from honey at the still (materials.md; a wine).
+    ['mead', 'mead', 5, 'honey_amber'],
     // Spirits, distilled at the still (materials.md; 12 § Spirits).
     ['deepfire', 'deepfire', 8, 'ember_orange'],
   ];
-  const WINES = new Set(['bellwine', 'rootwine', 'strawberry_wine', 'cactus_wine', 'emberwine']);
+  const WINES = new Set(['bellwine', 'rootwine', 'strawberry_wine', 'cactus_wine', 'emberwine', 'mead']);
   const SPIRITS = new Set(['deepfire']);
   for (const [did, dname, dvalue, dcolor] of drinks) {
     out.push(

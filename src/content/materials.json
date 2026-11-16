@@ -80,6 +80,18 @@
     "burnTicks": 0
   },
   {
+    "id": "beeswax",
+    "name": "beeswax",
+    "class": "liquid",
+    "value": 4,
+    "density": 95,
+    "hardness": 100,
+    "color": "wax_yellow",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300
+  },
+  {
     "id": "bellwine",
     "name": "bellwine",
     "class": "liquid",
@@ -840,6 +852,18 @@
     "burnTicks": 0
   },
   {
+    "id": "honey",
+    "name": "honey",
+    "class": "liquid",
+    "value": 6,
+    "density": 140,
+    "hardness": 100,
+    "color": "honey_amber",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
     "id": "hopped_ale",
     "name": "hopped ale",
     "class": "liquid",
@@ -1049,6 +1073,22 @@
     "burnTicks": 0,
     "tags": [
       "flux"
+    ]
+  },
+  {
+    "id": "mead",
+    "name": "mead",
+    "class": "liquid",
+    "value": 5,
+    "density": 100,
+    "hardness": 100,
+    "color": "honey_amber",
+    "meltsAtC": 300,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "drink",
+      "wine"
     ]
   },
   {

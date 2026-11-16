@@ -671,6 +671,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
     { key: 'crutches', item: 'crutch', label: 'Crutches' },
     { key: 'brightleaf', item: 'brightleaf', label: 'Brightleaf' },
     { key: 'buckets', item: 'bucket', label: 'Buckets' },
+    { key: 'honey', item: 'honey', label: 'Honey' },
   ];
 
   if (row < bottom) {

@@ -114,6 +114,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `saw_wisp` | "Saw a light that was not a lamp." | +2 | 24 | linear | 1 | comfort | `WispAppeared` within 8 tiles and line of sight, once a day (everyone) |
 | `lab_stink` | "The laboratory stinks." | −1 | 12 | halflife | 1 | comfort | passing within 3 tiles of a laboratory that spoiled a batch today |
 | `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle |
+| `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees |
 | `smoky_hall` | "The hall is full of smoke." | −1 | 12 | linear | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS` of the workshop |
 | `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `ItemCrafted` of `smoke_meat` or `smoke_fish` within `SMOKE_RADIUS` of the smokehouse, not its worker; `{meat}` is the meat's species |
 
@@ -204,7 +205,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | id | text | value | hours | decay | cap | group | trigger | task |
 |---|---|---|---|---|---|---|---|---|
-| `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees | T-555 |
 | `stood_in_the_ribs` | "Stood inside the ribs of something enormous." | +2 | 72 | linear | 1 | pride | `RibsEntered` | T-557 |
 | `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |
 | `spat_on` | "The camel spat on me." | −1 | 12 | halflife | 1 | comfort | `SpatOn` | T-561 |

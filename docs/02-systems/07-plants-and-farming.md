@@ -84,6 +84,10 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 - Grazing (08) clears the flag; one tile feeds one grazer, and 08 holds the tile as claimed until the flag is gone, so the tile cannot be eaten twice. Regrowth: each `DayPassed`, every tile in `bareSoil` (a sorted set maintained from grazing events and construction removal) with at least one cardinal `grass` neighbor regrows with `GRASS_REGROW_PERMILLE`, except outdoors in winter and on `ash` or `snow` tiles.
 - Constructions, roads and farm plots clear `grass` permanently while they exist.
 
+### Flowers
+
+`plants.flowerAt(i)`: the tile is an outdoor floor with grass, not constructed, engraved or smoothed, and with no mud, snow or ash, whose position the biome's `flowers` share picks (`regions-biomes-and-traits.md` § Biome surface): a hash of the tile against the share. 23's compositor draws a flower with the same test, a pure helper in `core/` (`core/flowers.ts`) that both call, so the simulation never reads the renderer. A grazed tile has no flower while it lacks grass, a snowed one while it carries snow. A biome with no `flowers` share (desert, tundra, alpine and the other bare ones) has none. Beehives count flowers (08 § Hives).
+
 ### Ash
 
 05 sets `ash`; this system clears it after `ASH_DURATION_DAYS` (checked daily on the `ashTiles` set) and restores nothing else; grass regrows afterwards by the normal rule.
@@ -105,6 +109,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 - `plants.plotAt(i)`, `plants.plotSettings(zoneId)`, `plants.plotKind(zoneId)` (`surface | cave | glow | mixed`)
 - `plants.speciesAt(i)` for tree, sapling, shrub tiles; `plants.shrubReady(i)`
 - `plants.hasGrass(i)`
+- `plants.flowerAt(i)` — the tile carries a flower (§ Flowers)
 - `plants.def(speciesId)`
 - `plants.crops()` — every crop, ascending id; `plants.cropReady(i)` — the crop on the tile is ready to harvest
 - `plants.plots()` — the farm plot zones, ascending id
@@ -164,11 +169,6 @@ Species stage lengths, yields, seasons, temperatures and biome weights are conte
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `plants.md` § Planned rows and the other content documents' § Planned rows.
-
-### Flowers (T-555)
-
-- `plants.flowerAt(i)` — the tile is an outdoor grass floor that carries a flower: the same test 23's compositor uses to draw one (a hash of the tile against the biome's `flowers` share, `regions-biomes-and-traits.md` § Biome surface). The test moves into a pure helper in `core/` that both call, so the simulation never reads the renderer. A grazed or snowed tile has no flower while it lacks grass or carries snow.
-- Beehives count flowers (08 § Planned).
 
 ### Under a skylight (T-558)
 

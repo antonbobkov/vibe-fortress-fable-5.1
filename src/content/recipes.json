@@ -122,6 +122,32 @@
     "xp": 10
   },
   {
+    "id": "brew_mead",
+    "name": "Brew mead",
+    "workshop": "still",
+    "skill": "brewing",
+    "inputs": [
+      {
+        "match": "honey",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "item": "drink",
+        "count": 20,
+        "material": {
+          "fixed": "mead"
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": false,
+    "container": "barrel",
+    "xp": 8
+  },
+  {
     "id": "brew_mending_draught",
     "name": "Brew draught of mending",
     "workshop": "alchemist",
@@ -3127,6 +3153,58 @@
     "xp": 6
   },
   {
+    "id": "make_hive_clay",
+    "name": "Clay beehive",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 1,
+        "material": "clay"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "beehive",
+        "count": 1,
+        "material": {
+          "fixed": "earthenware"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": true,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_hive_wood",
+    "name": "Beehive",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "beehive",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "make_jug",
     "name": "Clay jug",
     "workshop": "kiln",
@@ -4317,6 +4395,39 @@
     "xp": 5
   },
   {
+    "id": "press_honeycomb",
+    "name": "Press honeycomb",
+    "workshop": "farmers_workshop",
+    "skill": "animal_care",
+    "inputs": [
+      {
+        "match": "honeycomb",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "honey",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      },
+      {
+        "item": "beeswax",
+        "count": 1,
+        "material": {
+          "fixed": "beeswax"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
     "id": "process_flax",
     "name": "Process flax",
     "workshop": "farmers_workshop",
@@ -4732,6 +4843,33 @@
     "fuel": false,
     "quality": false,
     "xp": 6
+  },
+  {
+    "id": "weave_hive",
+    "name": "Wicker beehive",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "reed",
+        "count": 3,
+        "material": "reed"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "beehive",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
   },
   {
     "id": "weave_wicker_shield",

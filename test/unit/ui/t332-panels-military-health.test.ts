@@ -162,12 +162,12 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(fgOfText(s, 2, 'Room:')).not.toBe(hexOf(theme.bad));
     expect(rows[7]).toBe('Beds: 0  Traction: 0  Chests: 0');
     expect(rows[8]).toBe('Supplies (current / wanted):');
-    expect(rows.slice(9, 15).map((row) => row.replace(/ +\[-\]\[\+\]$/, ''))).toEqual([
-      'Cloth: 0/10', 'Thread: 0/5', 'Splints: 0/4', 'Crutches: 0/2', 'Brightleaf: 0/6', 'Buckets: 0/2',
+    expect(rows.slice(9, 16).map((row) => row.replace(/ +\[-\]\[\+\]$/, ''))).toEqual([
+      'Cloth: 0/10', 'Thread: 0/5', 'Splints: 0/4', 'Crutches: 0/2', 'Brightleaf: 0/6', 'Buckets: 0/2', 'Honey: 0/0',
     ]);
-    for (const row of rows.slice(9, 15)) expect(row).toMatch(/\[-\]\[\+\]$/);
-    expect(rows[15]).toBe('Patients:');
-    expect(rows[16]).toContain(`${patientName}: suture`);
+    for (const row of rows.slice(9, 16)) expect(row).toMatch(/\[-\]\[\+\]$/);
+    expect(rows[16]).toBe('Patients:');
+    expect(rows[17]).toContain(`${patientName}: suture`);
     expect(rows[31]).toBe('[x] remove zone  [S-e] resize');
   });
 

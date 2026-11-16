@@ -133,6 +133,7 @@ One `grass` flag species per surface; drawn `grass_green` outdoors and `moss_tea
 | `rye` | `black_ale` | 3 |
 | `barrel_cactus` (`cactus_pulp`) | `cactus_wine` | 3 |
 | `wyrmtongue` | `emberwine` | 6 |
+| `honey` (not a plant: `brew_mead`, 4 honey) | `mead` | 5 |
 
 Every still recipe: 4 plant units + 1 empty barrel → 20 units of drink in the barrel; skill `brewing`; 200 ticks base.
 
@@ -155,9 +156,3 @@ The salt crust is the one T-548 plant left out: its product is T-547's `salt` it
 | id | eligible | biomes | permille | task |
 |---|---|---|---|---|
 | `salt_crust` | `dry_soil`, `rock` | `desert`, `badlands` | 2 | T-NEW salt crusts |
-
-### Planned brewing
-
-| Plant | Drink | Value per unit | task |
-|---|---|---|---|
-| `honey` (at the still, 4 honey → 20) | `mead` | 5 | T-555 |

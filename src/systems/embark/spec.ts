@@ -36,6 +36,12 @@ export interface LocalMapSpec {
    * where 06 uses the biome's `referenceTempC`.
    */
   readonly tempC?: number;
+  /**
+   * The region's travel distance from each civilization's home (`01` § Regions `civDistance`):
+   * 20 reads it for the Hillfolk's honey (`caravan-goods.md`, Hillfolk sundries). A superset of
+   * the schema's `LocalMapSpec`; absent in older saves and test specs, where the Hillfolk bring none.
+   */
+  readonly civDistance?: Readonly<Record<Civ, number>>;
 }
 
 export interface EmbarkState {
@@ -98,5 +104,6 @@ export function localMapSpec(world: WorldMap, regionId: number, registry: Regist
     civEdges: Object.freeze({ ...r.nearestEdgeTo }),
     arrivalEdge: r.nearestEdgeTo.mountainhome,
     tempC: r.tempC,
+    civDistance: Object.freeze({ ...r.civDistance }),
   });
 }

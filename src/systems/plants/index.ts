@@ -17,6 +17,7 @@ import { SEASONS_PER_YEAR } from '@core/constants';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { EntityStore } from '@core/entities';
+import { flowerTile } from '@core/flowers';
 import { TICKS_PER_DAY } from '@core/constants';
 import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { RngStream } from '@core/rng';
@@ -58,6 +59,8 @@ export interface PlantsOptions {
 interface BiomeRow {
   readonly id: string;
   readonly treeDensity: number;
+  /** `regions-biomes-and-traits.md` § Biome surface: the share of outdoor grass that flowers. */
+  readonly surface?: { readonly flowers?: number };
 }
 
 /** `CropDied { tile, reason }`: the reasons this system uses. */
@@ -104,6 +107,8 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   private readonly pendingBare: TileIndex[] = [];
   private readonly pendingPlotTiles: TileIndex[] = [];
   private treeDensity = 0;
+  /** The biome's `flowers` share (`07` § Flowers). */
+  private flowerShare = 0;
   private treeWeights: (readonly [number, number])[] = [];
   private fungusByTier: (readonly [number, number])[][] = [];
   private caveLoam = -1;
@@ -186,6 +191,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     const spec = this.options.spec;
     const biome = ctx.registry.table<BiomeRow>('biomes').byId(spec.biome);
     this.treeDensity = spec.traits.includes('glasslands') ? GLASSLANDS_TREE_DENSITY : (biome?.treeDensity ?? 0);
+    this.flowerShare = biome?.surface?.flowers ?? 0;
     this.treeWeights = [];
     this.fungusByTier = [[], [], [], []];
     for (let p = 1; p <= facts.size; p += 1) {
@@ -617,12 +623,25 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       },
       shrubReady: (i) => map.validIndex(i) && map.kindAt(i) === TileKind.Shrub && !this.shrubTimers.has(i),
       hasGrass: (i) => map.validIndex(i) && map.hasFlag(i, TileFlag.Grass),
+      flowerAt: (i) => this.flowerAt(i),
       grassIsDry: () => this.options.spec.biome === 'cold_steppe' || this.options.spec.biome === 'tundra' || this.options.spec.biome === 'savanna' || this.options.spec.biome === 'desert' || this.options.spec.biome === 'badlands',
       def: (speciesId) => (typeof speciesId === 'number' ? facts.row(speciesId) : facts.row(facts.indexOf(speciesId))),
       bareSoil: () => this.bareSoil.slice(),
       ashTiles: () => Array.from(this.ashTiles.keys()).sort((a, b) => a - b),
       saplings: () => Array.from(this.saplings.keys()).sort((a, b) => a - b),
     };
+  }
+
+  /**
+   * `07` § Flowers: an outdoor natural grass floor, not snowed, muddy or ashen, whose tile the
+   * biome's `flowers` share picks (`core/flowers`, the compositor's own test).
+   */
+  private flowerAt(i: TileIndex): boolean {
+    const map = this.map;
+    if (this.flowerShare <= 0 || !map.validIndex(i) || map.kindAt(i) !== TileKind.Floor) return false;
+    const bare = TileFlag.Constructed | TileFlag.Engraved | TileFlag.Smoothed | TileFlag.Mud | TileFlag.Snow | TileFlag.Ash;
+    if (!map.hasFlag(i, TileFlag.Grass) || (map.flagsAt(i) & bare) !== 0 || !map.hasFlag(i, TileFlag.Outdoor)) return false;
+    return flowerTile(this.flowerShare, map.xOf(i), map.yOf(i), map.zOf(i));
   }
 
   private cropInfoOf(crop: Crop): CropInfo {

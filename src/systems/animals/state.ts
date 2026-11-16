@@ -50,4 +50,8 @@ export interface AnimalsStateV1 {
   lastTameThink: [EntityId, number][];
   pendingTrain?: [EntityId, 'war' | 'hunting'][];
   pendingTame?: [EntityId, EntityId][];
+  /** `08` § Hives: built hives, ascending; omitted when there are none (older saves too). */
+  hives?: EntityId[];
+  /** `08` § Hives: each comb lying in a hive, `[comb, hive]` by comb; omitted when none. */
+  combs?: [EntityId, EntityId][];
 }

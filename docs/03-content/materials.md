@@ -110,6 +110,15 @@ Made at the kiln from clay, sand, logs and bones ([workshops-and-recipes.md](wor
 
 Dung is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung) and burns as peat does; three of it dry on a rack into a dung cake, a smoky half fuel ([items.md](items.md) § Wood and bars).
 
+## Hive products
+
+| id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes |
+|---|---|---|---|---|---|---|---|---|---|
+| `honey` | honey | liquid | 6 | 140 | | `honey_amber` | | | an ingredient; brews mead; dresses wounds |
+| `beeswax` | beeswax | liquid | 4 | 95 | | `wax_yellow` | 300 | 300 | candles that burn twice as long and do not smoke |
+
+A hive's comb is pressed at the farmer's workshop into a honey and a beeswax ([08](../02-systems/08-animals-and-domestication.md) § Hives). Beeswax burns as cloth does.
+
 ## Cloth and fiber
 
 | id | name | class | value | density | color | burnTicks | notes |
@@ -167,7 +176,7 @@ Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3
 ## Meal, drink and plant materials
 
 - `meal` — class `meat` (edible), value 1; meal item types carry the value multiplier.
-- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3, `black_ale` 3 (rye, an ale), `cactus_wine` 3 (a wine), `emberwine` 6 (wyrmtongue, a wine), `deepfire` 8 (spirits, distilled from an ale or a wine at the still; group `drink/spirits`, colour `ember_orange`).
+- Drink materials, class `liquid`, value per unit: `ale` 2, `dimcap_ale` 2, `cavewheat_beer` 2, `bellwine` 4, `rootwine` 3, `strawberry_wine` 4, `hopped_ale` 3, `black_ale` 3 (rye, an ale), `cactus_wine` 3 (a wine), `emberwine` 6 (wyrmtongue, a wine), `mead` 5 (honey, a wine), `deepfire` 8 (spirits, distilled from an ale or a wine at the still; group `drink/spirits`, colour `ember_orange`).
 - `flour` — class `plant`, value 2 (from barley or cavewheat at the farmer's workshop).
 - Each plant species is a material of class `plant` with the value in [plants.md](plants.md), and so is a shrub's product material that no table above defines (`bramble_berry`, `reed`, `cactus_pulp`, `lichen`). A plant row's material tags go on it: `wyrmtongue` carries `seasoning`, `cactus_pulp` `drinkable`. A product material whose `<id>_thread` exists has it as its next stage (`reed`), and burns as cloth does (300 ticks): a basket or a wicker buckler of reed burns.
 
@@ -208,8 +217,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `guano` | guano | soil | 1 | 70 | — | `dung_brown` | — | — | `fertilizer` | T-556 |
 | `compost` | compost | soil | 0 | 80 | — | `loam_brown` | — | — | `fertilizer` | T-564 |
 | `soap` | soap | liquid | 3 | 100 | — | `soap_white` | — | — | a hospital supply | T-564 |
-| `honey` | honey | liquid | 6 | 140 | — | `honey_amber` | — | — | an ingredient; brews mead; dresses wounds | T-555 |
-| `beeswax` | beeswax | liquid | 4 | 95 | — | `wax_yellow` | 300 | 300 | candles that burn twice as long and do not smoke | T-555 |
 
 ### Planned cloth and fiber
 
@@ -218,7 +225,3 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | `silk_cloth` | silk | cloth | 20 | 20 | `silk_white` | the finest cloth: a silk gambeson weighs 1 | T-556 |
 
 Stages (T-556): `silk_web` → `silk_cloth`.
-
-### Planned drinks, tags and edits
-
-- Drink materials, class `liquid`, value per unit: `mead` 5 (honey, `drink/wine`, T-555).

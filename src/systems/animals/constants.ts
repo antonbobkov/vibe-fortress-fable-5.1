@@ -169,3 +169,28 @@ export const ANIMAL_NAME_MAX = 24;
 export const DUNG_DAYS = 7;
 /** `08` § Dung: the item (and material) a grazer drops. */
 export const DUNG_ITEM = 'dung';
+
+/** `08` § Hives: a hive adds a comb on the day whose number plus its id is a multiple of this. */
+export const HIVE_DAYS = 14;
+/** `08` § Hives: the flower tiles a hive needs within `HIVE_FLOWER_RADIUS` to make anything. */
+export const HIVE_FLOWERS_MIN = 3;
+/** `08` § Hives: the reach of a hive's bees, Chebyshev on its level. */
+export const HIVE_FLOWER_RADIUS = 6;
+/** `08` § Hives: the combs a hive holds at most. */
+export const HIVE_CAPACITY = 2;
+/** `08` § Hives: the work of `collect_honey`. */
+export const COLLECT_HONEY_TICKS = 60;
+/** `08` § Hives: the collector is stung this often (permille). */
+export const STING_PERMILLE = 100;
+/** `08` § Hives: a dwarf this near a hive (Chebyshev, its level) may be stung in summer. */
+export const HIVE_STING_RADIUS = 3;
+/** `08` § Hives: a passer-by's chance an hour (permille). */
+export const HIVE_PASSER_PERMILLE = 20;
+/** `08` § Hives: the function tag of a hive building (`buildings-and-furniture.md`). */
+export const HIVE_TAG = 'hive';
+/** `08` § Hives: the item a hive fills with, of material `honey`. */
+export const HONEYCOMB_ITEM = 'honeycomb';
+/** `08` § Hives: the material of a comb. */
+export const HONEY_MATERIAL = 'honey';
+/** `Stung.source` of a bee sting (09's nettle is `nettle`). */
+export const STING_SOURCE_BEES = 'bees';

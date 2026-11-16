@@ -6,6 +6,9 @@ import type { Registry } from '@core/registry';
 import type { RngStream } from '@core/rng';
 import { itemValue } from '@systems/items/value';
 
+/** The Hillfolk's honey sundries entry, offered only when the Wildwood is the farther home. */
+const HILLFOLK_HONEY = 'honey';
+
 interface MaterialChoice { material: string; weight: number }
 export interface GoodsEntry {
   item: string | string[];
@@ -56,9 +59,17 @@ function entriesFor(registry: Registry, civ: Civ): GoodsEntry[] {
   return (registry.derived<readonly CivGoods[]>('caravanGoods').find((row) => row.civ === civ)?.entries ?? []);
 }
 
-export function eligibleGoodsEntries(registry: Registry, civ: Civ, reputation: number): GoodsEntry[] {
+/** What the site's place in the world decides about a list (`caravan-goods.md`, Hillfolk sundries). */
+export interface GoodsSite {
+  /** The Wildwood's home is farther from the site than the Hillfolk's: the Hillfolk bring honey. */
+  readonly wildwoodFarther?: boolean;
+}
+
+export function eligibleGoodsEntries(registry: Registry, civ: Civ, reputation: number, site: GoodsSite = {}): GoodsEntry[] {
   return entriesFor(registry, civ).filter((entry) => {
     if (entry.materials.length === 1 && entry.materials[0]?.material === 'deepsilver') return reputation >= DEEPSILVER_SALE_REP;
+    // "Honey (when the Wildwood's home is farther than the Hillfolk's)".
+    if (civ === 'hillfolk' && entry.sundries === true && entry.item === HILLFOLK_HONEY) return site.wildwoodFarther === true;
     return true;
   }).map((entry) => {
     const keys = Array.isArray(entry.item) ? entry.item : [entry.item];
@@ -153,8 +164,8 @@ function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng
  * `extra` entry then rolls once on `extraRng` and adds one good past the budget, so the budget and
  * the ordinary draws are what they would be without it.
  */
-export function generateGoods(registry: Registry, civ: Civ, renown: number, reputation: number, requests: readonly TradeRequest[], rng: RngStream, extraRng: RngStream): PlannedGood[] {
-  const entries = eligibleGoodsEntries(registry, civ, reputation);
+export function generateGoods(registry: Registry, civ: Civ, renown: number, reputation: number, requests: readonly TradeRequest[], rng: RngStream, extraRng: RngStream, site: GoodsSite = {}): PlannedGood[] {
+  const entries = eligibleGoodsEntries(registry, civ, reputation, site);
   const result: PlannedGood[] = [];
   const budget = caravanBudget(renown, reputation);
   let requestRemaining = Math.floor(budget * REQUEST_SHARE / 100);

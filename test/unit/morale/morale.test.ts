@@ -52,6 +52,7 @@ function fixture(def: ThoughtDef): GameEvent | null {
   if (id === 'rune_sick') e.sick = true;
   if (id === 'ate_wyrmtongue') e.seasoned = ['wyrmtongue'];
   if (id === 'nettles') e.source = 'nettle';
+  if (id === 'stung') e.source = 'bees';
   if (id === 'ate_salted_meal') e.seasoned = ['salt'];
   if (id === 'smelled_smokehouse') e.recipeId = 'smoke_meat';
   if (id === 'drank_strong_drink') { e.material = registry.table('materials').index('deepfire'); e.group = 'spirits'; }

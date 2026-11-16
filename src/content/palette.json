@@ -496,6 +496,10 @@
     "hex": "#B266FF"
   },
   {
+    "id": "honey_amber",
+    "hex": "#D49A2A"
+  },
+  {
     "id": "hops_green",
     "hex": "#6AB04C"
   },
@@ -1024,6 +1028,10 @@
   {
     "id": "water_bg",
     "hex": "#0A1840"
+  },
+  {
+    "id": "wax_yellow",
+    "hex": "#E8D27A"
   },
   {
     "id": "well_blue",

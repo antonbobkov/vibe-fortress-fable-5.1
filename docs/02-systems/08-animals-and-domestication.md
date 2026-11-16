@@ -90,6 +90,14 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 - `eggs`: chickens lay every `eggDays` in a `nest_box` building; if no nest box exists, nothing is laid. An egg is reserved while it stays in its nest box, keeping it out of ordinary item hauling. With `autoCollectProducts` on, the `collect_egg` job lifts it to the worker's tile and releases it for ordinary stockpile hauling; a nest box with an egg left for `HATCH_DAYS` hatches a chick if a rooster exists (this is how chickens breed instead of the pregnancy rule).
 - Products are announced as notes only when they are the first of their kind.
 
+### Hives
+
+- A built `beehive` (14 § Special buildings) stands on an outdoor soil floor. On each `DayPassed` from spring to autumn whose day number plus the hive's id is a multiple of `HIVE_DAYS`, a hive with at least `HIVE_FLOWERS_MIN` flower tiles (07's `plants.flowerAt`) within `HIVE_FLOWER_RADIUS` (Chebyshev, same level) adds one `honeycomb` (material `honey`) to itself, up to `HIVE_CAPACITY`. The comb lies in the hive reserved, as an egg lies in its nest box, so no hauler takes it. A hive in winter makes nothing; a hive short of flowers makes nothing and its panel says "Too few flowers: {n} of 3 within 6 tiles." A hive that is taken apart lets its combs go to ordinary hauling.
+- With `autoCollectProducts` on, a hive holding a comb gets a `collect_honey` job (labor `animal_care`, skill `animal_care`, work tile beside the hive, `COLLECT_HONEY_TICKS`, xp 4): it lifts every comb to the worker's tile and releases it for hauling, as `collect_egg` does. The collector is then stung with `STING_PERMILLE`: `Stung { id, source: bees }`, and 15 gives `stung`.
+- Passers-by: on each `HourPassed` in summer, every fortress dwarf within `HIVE_STING_RADIUS` (Chebyshev, same level) of a built hive is stung with `HIVE_PASSER_PERMILLE`, in ascending dwarf id: one draw a dwarf, however many hives are near. Place a hive away from the walking lines.
+- Draws: the collector's and the passers-by's on this system's stream, made only where a hive is: a fortress with no hive draws as before.
+- The farmer's workshop turns 1 `honeycomb` into 1 `honey` and 1 `beeswax` (`press_honeycomb`, 12). Honey is an ingredient, brews mead and dresses wounds (17 § Patients and hospitals); beeswax is a trade good until candles come.
+
 ### Slaughter
 
 `MarkSlaughter { animalId }` sets a flag; the `slaughter` job (labor `butchery`, skill `butchery`) leads the animal to a butcher's workshop and kills it there (no combat; the animal becomes a corpse item at the workshop) and emits `CorpseCreated`; 09 produces the butcher job for that corpse. Slaughter saves an optional `juvenile` marker on the corpse. Juvenile meat is `max(1, floor(adultMeat / 2))`; every other yield uses the species' full size. Animals marked while assigned to a pasture leave the pasture with the butcher. War and hunting animals cannot be marked while assigned to a dwarf.
@@ -117,6 +125,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 - Per wild animal: `Wild { state, homeChunk, stateUntil, hungry, lastThinkTick, arrivedTick, defendFrom?, unseenSince?, pendingMeal?, mealId?, heavySleeper? }`. `defendFrom` is the defended tile, present only during that attack. A saved attack without it is a defence of the animal's current tile unless hungry. `unseenSince` is the first lost-perception tick; `pendingMeal` awaits the killed creature's corpse notification; `mealId` is the corpse being approached or eaten. `stateUntil` is 0 during meal travel and the deadline while eating. Absent fields in older saves mean no grace or meal, and a light sleeper.
 - Per tame animal: `Tame { pastureId, condition, trained, assignedTo, pregnantUntil, lastProductTick[], juvenileUntil, slaughter, pet }`.
 - `breedingCaps: Map<species, number>`, `speciesCounts` (recomputed daily), `nestBoxes: EntityId[]`.
+- `hives: EntityId[]` (built hives, ascending) and `combs: [comb, hive][]` (each comb lying in a hive), both omitted when empty; older saves have none.
 - `initializedCaverns`: sorted tiers whose nonzero initial fauna has been attempted. Omitted when empty; older saves without it have no completed initial attempt.
 - Rng stream.
 
@@ -132,6 +141,9 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 - `animals.capOf(species)` — the live cap of a wild species in this region
 - `animals.breedingCap(species)` — the player's breeding cap for a species (`BREEDING_CAP_DEFAULT` until set)
 - `animals.nestBoxes()` — the nest box buildings, ascending id
+- `animals.hives()` — the built hives, ascending id
+- `animals.hiveFlowers(id)` — the flower tiles within `HIVE_FLOWER_RADIUS` of a hive on its level (0 for no hive)
+- `animals.hiveCombs(id)` — the combs lying in a hive
 - `animals.isDangerous(species)` — whether the species is dangerous (§ Registrations)
 
 ### Commands
@@ -144,11 +156,11 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ### Events emitted
 
-`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`. This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
+`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`, `Stung { id, source }` (a dwarf stung by bees, `source: bees`; § Hives). This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
 
 ### Registrations
 
-Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption and the arrival of a dangerous species.
+Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`, `collect_honey`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption and the arrival of a dangerous species.
 
 A *dangerous* species is a surface species (it has biomes) that is not `timid` and is a carnivore, `aggressive` or `territorial`; the content row decides, no species id appears in code. `AnimalSpawned` for a dangerous species is announced as an alert, in the same batch as one line per species ("A bear has come to the valley.", "3 wolves have come to the valley."); any other species keeps the note ("A deer has arrived.").
 
@@ -157,6 +169,7 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 - Animals panel: tabs Tame (species, name if any, pasture, condition bar, trained, pregnant, actions) and Wild (species, count, huntable toggle from 09, "seen near" location); breeding caps per species. Tame offers a clickable train action (`Shift+T`): War/Hunting, arrows and Enter or a click, Esc to cancel. Training status is shown while a job exists (also for retraining), otherwise war, hunting or blank. A non-trainable species is explained on the status row; a missing kennel refusal says to build one.
 - Pasture zone: capacity line; assigning by selecting animals in the panel or by clicking an animal and choosing "Pasture".
 - Glyphs: lowercase letters by species (`d` dog, `c` cat, `C` cow is uppercase to read as large; the convention is lowercase for small and medium, uppercase for large animals; hostiles are uppercase in red).
+- A hive's building panel shows its combs, its flowers in reach and what the season does (24 § Building panel).
 - Announcements: "A bear has come to the valley." (alert, a dangerous species), "A deer has arrived." (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note).
 
 ## Tuning constants
@@ -204,6 +217,14 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 | `ADOPT_PERMILLE` | 250 | Per cat per season (*unmeasured*) |
 | `PET_PILE_MAX` | 4 | Pets heaped on the pets' spot by the hearth, and cats on the cats' corner (T-482, T-510, fun features; *unmeasured*) |
 | `PET_PILE_SIZE_MAX` | 35 | Largest species size that heaps as a pet: a wolf's (*unmeasured*) |
+| `HIVE_DAYS` | 14 | Days between a hive's combs, spring to autumn (*unmeasured*) |
+| `HIVE_FLOWERS_MIN` | 3 | Flower tiles a hive needs in reach. The design's 8 met only 6% of soil tiles in a temperate grassland (flowers 3% of grass) and almost none elsewhere; at 3 a hive works on about 73% of a grassland's soil tiles, 45% of the hills', 28% of a tropical forest's or a wetland's, 19% of a temperate forest's, 18% of a savanna's or a tundra's, 5% of a taiga's and none of a desert's (two generated maps a biome; *unmeasured* in play) |
+| `HIVE_FLOWER_RADIUS` | 6 | A hive's reach, Chebyshev on its level (*unmeasured*) |
+| `HIVE_CAPACITY` | 2 | Combs a hive holds (*unmeasured*) |
+| `COLLECT_HONEY_TICKS` | 60 | The work of `collect_honey` (*unmeasured*) |
+| `STING_PERMILLE` | 100 | The collector is stung (*unmeasured*) |
+| `HIVE_STING_RADIUS` | 3 | A dwarf this near a hive may be stung in summer (*unmeasured*) |
+| `HIVE_PASSER_PERMILLE` | 20 | A passer-by's sting an hour in summer (*unmeasured*) |
 
 Species values (size, speed, products, intervals, gestation, litter, growth) are content.
 
@@ -212,20 +233,11 @@ Species values (size, speed, products, intervals, gestation, litter, growth) are
 - Herding behavior (animals keeping together) is a wander bias toward the group centroid.
 - Milking and shearing at pasture instead of at a workshop: change the job target.
 - Animal happiness (pastured animals happier, affects products): a field on `Tame`.
-- New products (honey, silk) are product rows with a job type.
+- New products (silk) are product rows with a job type; honey came as a building (§ Hives).
 
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, or on this system's stream only where the new content is present, so a game without it draws the same numbers as before.
-
-### Hives (T-555)
-
-- A built `beehive` (14 § Planned) stands on an outdoor soil floor. On each `DayPassed` from spring to autumn whose day number plus the hive's id is a multiple of `HIVE_DAYS`, a hive with at least `HIVE_FLOWERS_MIN` flower tiles (07's `plants.flowerAt`) within `HIVE_FLOWER_RADIUS` (Chebyshev, same level) adds one `honeycomb` to itself, up to `HIVE_CAPACITY`. The comb lies in the hive reserved, as an egg lies in its nest box (13 keeps it out of hauling). A hive in winter makes nothing; a hive short of flowers makes nothing and its panel says "Too few flowers: {n} of {HIVE_FLOWERS_MIN} within {HIVE_FLOWER_RADIUS} tiles."
-- With `autoCollectProducts` on, a hive holding a comb gets a `collect_honey` job (labor `animal_care`, skill `animal_care`, work tile beside the hive, `COLLECT_HONEY_TICKS`, xp 4): it lifts every comb to the worker's tile and releases it for hauling, as `collect_egg` does. The collector is stung with `STING_PERMILLE`: thought `stung` (15).
-- Passers-by: on each `HourPassed` in summer, every fortress dwarf within `HIVE_STING_RADIUS` (Chebyshev, same level) of a built hive is stung with `HIVE_PASSER_PERMILLE`, in ascending dwarf id. Place a hive away from the walking lines.
-- Draws: the collector's and the passers-by's on this system's stream, made only where a hive is: a fortress with no hive draws as before.
-- The farmer's workshop turns 1 `honeycomb` into 1 `honey` and 1 `beeswax` (`press_honeycomb`).
-- Constants: `HIVE_DAYS` 14, `HIVE_FLOWERS_MIN` 8, `HIVE_FLOWER_RADIUS` 6, `HIVE_CAPACITY` 2, `COLLECT_HONEY_TICKS` 60, `STING_PERMILLE` 100, `HIVE_STING_RADIUS` 3, `HIVE_PASSER_PERMILLE` 20. Events: `Stung { id }` (15's thought; 08 emits it for the collector and passers-by). Save: `hives: EntityId[]`, as `nestBoxes`. Reader: `animals.hives()`, `animals.hiveFlowers(id)`. UI: the hive's building panel shows combs, flowers in reach and the season.
 
 ### The spider ranch and the beetle jar (T-556)
 

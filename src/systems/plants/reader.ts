@@ -39,6 +39,8 @@ export interface PlantsReader {
   /** A mature (not regrowing) shrub tile. */
   shrubReady(i: TileIndex): boolean;
   hasGrass(i: TileIndex): boolean;
+  /** The tile carries a flower: an outdoor grass floor the biome's `flowers` share picks (`07` § Flowers). */
+  flowerAt(i: TileIndex): boolean;
   /** The dry-grass biomes of `03-content/plants.md` § Grass. */
   grassIsDry(): boolean;
   /** The `plants` row by content id or `plants` index. */

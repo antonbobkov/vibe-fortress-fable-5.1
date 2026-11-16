@@ -42,6 +42,7 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | `pallet` | cloth pallet | 1×1 | floor | 2 `cloth` or `wool_raw` | hauling | 20 | sleep | 0 | yes | `≈` material | 60 | — |
 | `straw_pallet` | straw pallet | 1×1 | floor | 3 `fiber`, `straw` or `reed` | hauling | 20 | sleep | 0 | yes | `≈` material | 60 | — |
 | `stone_bed` | stone bed | 1×1 | floor | `stone_bed` | masonry | 40 | sleep | item | yes | `Θ` item | 75 | — |
+| `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | `∩` item | — | — |
 | `anvil_stand` | — | not a building; the anvil is an input of the forge | | | | | | | | | | |
 
 "By material" labor: wood → carpentry, stone → masonry, metal → smithing (metalcrafting).
@@ -133,7 +134,6 @@ The columns `rest` and `wants` are those of § Furniture placements. `table` gai
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Special | `candle_stand` | candle stand | 1×1 | floor | 1 `stone_block` or `bar` | construction | 40 | light | its candles' value / 10 | no | — | 5 `candle` | `ì` material | T-563 |
 | Furniture placements | `lantern` | lantern | 1×1 | floor | `lantern` | construction | 30 | light | item | no | — | — | `¥` item | T-563 |
-| Furniture placements | `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | — | — | `∩` item | T-555 |
 
 The candle stand has the value 2 as a special building does (`value` column), and the lantern its item's.
 
