@@ -191,6 +191,16 @@ export interface BedroomPlan {
   setupDay?: number;
 }
 
+/** T-571: a dormitory: its rock, dug as one designation, and the beds placed in it so far. */
+export interface Dormitory {
+  readonly tiles: number[];
+  readonly beds: number[];
+}
+
+/** T-571: a dormitory is four tiles by five, every tile a free bed (beds do not block a walk). */
+export const DORMITORY_W = 4;
+export const DORMITORY_H = 5;
+
 export interface FortressState {
   readonly economy: EconomyState;
   readonly cx: number;
@@ -252,6 +262,11 @@ export interface FortressState {
   /** T-539: under this alert the squad has mustered at its post, and hunts the wild animals together. */
   mustered?: boolean;
   hospitalSetup: boolean;
+  /**
+   * T-571: dormitories dug once the bedroom plans are spent, each a block of free beds, so a dwarf
+   * without a room of its own sleeps in a bed and not on the floor (10 § Sleeping: the floor rests less and thinks worse of it).
+   */
+  dormitories?: Dormitory[];
   forgePlaced: boolean;
   /** Trees around the settlement, felled in batches as the log stock runs down. */
   readonly timberTiles: number[];
@@ -932,7 +947,7 @@ export function designateSmoothTiles(w: TestWorld, tiles: readonly number[], pri
 
 /**
  * T-488: a hearth, table or chair of the halls that is gone (a miserable dwarf breaks the nearest
- * poor chair or table, 15 � Sulks) is placed again where it stood, as a player replaces it; the
+ * poor chair or table, 15 � Sulks) is placed again where it stood, as a player replaces it; the
  * builders bring a new one from stock. In `three-years-p2-7` (master 37da07a4) sulks of year 3
  * broke the dining hall's table and all four chairs and the 68-dwarf fortress ended without one.
  */
@@ -1112,6 +1127,93 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
       if (rock.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: rock });
     }
   }
+  keepDormitories(w, state, livingPop);
+}
+
+/**
+ * T-571: when the bedroom plans are spent and the fortress outgrows them, a player digs a
+ * dormitory and fills it with beds: a dwarf on the floor rests less than one in a bed and thinks worse
+ * of it (10 § Sleeping), and by the third year two dwarves in five have no room of their own. Each
+ * dormitory is a block of rock beside a dug corridor or drift of the hall level; once dug, a bed goes
+ * on each of its tiles while a dwarf is without one. The carpenter's bed order counts them
+ * (three_years_economy.ts, `bedPlaces`).
+ */
+export function keepDormitories(w: TestWorld, state: FortressState, livingPop: number): void {
+  const dorms = state.dormitories ?? (state.dormitories = []);
+  if (state.bedroomPlans.some((bp) => !bp.designated)) return;
+  const places = state.bedroomPlans.length + dorms.reduce((n, d) => n + d.tiles.length, 0);
+  if (livingPop + 2 > places) {
+    const tiles = dormitorySite(w, state);
+    if (tiles !== null) {
+      dorms.push({ tiles, beds: [] });
+      command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles });
+    }
+  }
+  const buildings = w.readers.of<BuildingsReader>('14');
+  let wanted = livingPop + 1 - buildings.byTag('sleep').length;
+  for (const dorm of dorms) {
+    if (wanted <= 0) break;
+    if (!dorm.tiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
+      // A designation lost before it was dug is asked for again.
+      const rock = dorm.tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall && w.map.designationAt(t) === 0);
+      if (rock.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: rock });
+      continue;
+    }
+    for (const t of dorm.tiles) {
+      if (wanted <= 0) break;
+      if (dorm.beds.includes(t) || buildings.at(t) !== 0) continue;
+      // A tile something else has taken meanwhile (a boulder left by a cave-in, a pile) is passed over.
+      if (command(w, { type: 'PlaceBuilding', buildingType: 'bed', origin: t, orientation: 0, materialChoice: 0, priority: ROUTINE }, ['bad_placement', 'not_discovered']).ok) {
+        dorm.beds.push(t);
+        wanted -= 1;
+      }
+    }
+  }
+}
+
+/**
+ * T-571: the dormitory's rock, `DORMITORY_W` by `DORMITORY_H` either way round on the hall level,
+ * nearest the stair's foot, reached from the south corridor below it: every tile undug, undesignated, dry rock that opens to no hillside and
+ * belongs to no plan of the script, every tile around it rock or a dug tile of no zone that the
+ * halls reach (a corridor, a mine drift), and at least one of those beside a side. Null when the
+ * level has no such block.
+ */
+export function dormitorySite(w: TestWorld, state: FortressState): number[] | null {
+  const map = w.map, z = state.hallZ;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const hallLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
+  const planned = new Set<number>([...state.economy.workings, ...(state.dormitories ?? []).flatMap((d) => d.tiles),
+    ...state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, z)]), ...(state.economy.larder?.tiles ?? []),
+    ...(state.economy.larder?.drinkTiles ?? [])]);
+  const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) &&
+    map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t);
+  const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
+    w.readers.pathing.labelOf(t, 'walker') === hallLabel;
+  let best: number[] | null = null, bestDistance = Infinity;
+  for (const [rw, rh] of [[DORMITORY_W, DORMITORY_H], [DORMITORY_H, DORMITORY_W]] as const) {
+    for (let y0 = 2; y0 + rh <= map.h - 2; y0 += 1) for (let x0 = 2; x0 + rw <= map.w - 2; x0 += 1) {
+      const distance = Math.abs(x0 + rw / 2 - state.cx - 6) + Math.abs(y0 + rh / 2 - state.cy - 6);
+      if (distance >= bestDistance) continue;
+      const tiles: number[] = [];
+      let ok = true;
+      for (let y = y0; ok && y < y0 + rh; y += 1) for (let x = x0; ok && x < x0 + rw; x += 1) {
+        const t = w.index(x, y, z);
+        ok = rock(t) && !opensToHillside(w, t);
+        tiles.push(t);
+      }
+      if (!ok) continue;
+      let entries = 0;
+      for (let y = y0 - 1; ok && y <= y0 + rh; y += 1) for (let x = x0 - 1; ok && x <= x0 + rw; x += 1) {
+        if (x >= x0 && x < x0 + rw && y >= y0 && y < y0 + rh) continue;
+        const t = w.index(x, y, z);
+        const side = (x >= x0 && x < x0 + rw) || (y >= y0 && y < y0 + rh);
+        if (corridor(t)) entries += side ? 1 : 0;
+        else ok = map.kindAt(t) === TileKind.Wall && map.fluidLevelAt(t) === 0;
+      }
+      if (ok && entries > 0) { best = tiles; bestDistance = distance; }
+    }
+  }
+  return best;
 }
 
 export function checkFortressCaveFarm(w: TestWorld, state: FortressState): void {

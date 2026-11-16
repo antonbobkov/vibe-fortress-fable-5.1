@@ -1280,9 +1280,11 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // on top of those the stockpiles want, or the drink stockpiles are left with none.
     const threshold = day < 2 * 28 ? 20 : Math.min(200, Math.max(20, foodBarrels + Math.ceil(Math.max(items.count('drink'), population0 * 0.77 * DRINK_DAYS) / 20) + 10));
     if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
-    // Beds come before barrels until every dwarf and the hospital has one.
+    // Beds come before barrels until every dwarf and the hospital has one: in a bedroom, or once the
+    // bedrooms are spent in a dormitory (T-571).
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const beds = Math.min(state.bedroomPlans.filter((bp) => bp.designated).length, population + 1) - owned(w, 'bed');
+    const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0);
+    const beds = Math.min(bedPlaces, population + 1) - owned(w, 'bed');
     // T-572: a wooden bed takes a pallet's materials beside its log: the wagon's linen while it lasts
     // (make_bed), then the barley's straw or gathered fiber (make_bed_straw). An order that waits for its
     // stuffing while the other's is in stock is swapped for the other, with what it had left to make.
