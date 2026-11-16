@@ -33,6 +33,7 @@ function fixture(def: ThoughtDef): GameEvent | null {
   if (id === 'slept_in_shared_bed_room') e.ownBed = false;
   if (id === 'slept_on_floor') e.onFloor = true;
   if (id === 'slept_on_a_pallet') { e.onFloor = false; e.bedType = 'pallet'; }
+  if (id === 'slept_in_a_bed') { e.onFloor = false; e.bedType = 'bed'; e.bedding = 'none'; }
   if (id === 'slept_in_a_soft_bed') e.bedding = 'soft';
   if (id === 'slept_in_a_featherbed') e.bedding = 'feather';
   if (id === 'talked_with_friend') e.friends = true;

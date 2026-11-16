@@ -264,7 +264,7 @@ export interface FortressState {
   hospitalSetup: boolean;
   /**
    * T-571: dormitories dug once the bedroom plans are spent, each a block of free beds, so a dwarf
-   * without a room of its own sleeps in a bed and not on the floor (10 § Sleeping: the floor rests at half).
+   * without a room of its own sleeps in a bed and not on the floor (10 § Sleeping: the floor rests less and thinks worse of it).
    */
   dormitories?: Dormitory[];
   forgePlaced: boolean;
@@ -1132,8 +1132,8 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 
 /**
  * T-571: when the bedroom plans are spent and the fortress outgrows them, a player digs a
- * dormitory and fills it with beds: since T-551 a dwarf on the floor sleeps twice as long as one in
- * a bed (10 § Sleeping), and by the third year two dwarves in five have no room of their own. Each
+ * dormitory and fills it with beds: a dwarf on the floor rests less than one in a bed and thinks worse
+ * of it (10 § Sleeping), and by the third year two dwarves in five have no room of their own. Each
  * dormitory is a block of rock beside a dug corridor or drift of the hall level; once dug, a bed goes
  * on each of its tiles while a dwarf is without one. The carpenter's bed order counts them
  * (three_years_economy.ts, `bedPlaces`).

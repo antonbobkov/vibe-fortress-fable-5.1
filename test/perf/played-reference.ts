@@ -129,6 +129,8 @@ export function buildPlayedReference(observe?: (w: TestWorld) => void): { world:
       w.spawnItem('log', 'oak', tile);
       w.spawnItem('plant_food', 'barley', tile);
     }
+    // T-572: the carpenter's beds take 2 cloth beside the log.
+    if (buildings.get(id)?.type === w.game.registry.table('buildings').index('carpenter')) w.spawnItem('cloth', 'flax_cloth', tile, 24);
   }
   let settledAt = 0;
   for (let t = 1; t <= PLAY_TICKS; t += 1) {

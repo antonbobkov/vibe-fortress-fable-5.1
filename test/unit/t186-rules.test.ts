@@ -73,6 +73,7 @@ describe('T-186 the remaining rules have matching code', () => {
     const workshop = w.build('carpenter', at);
     const worker = w.spawnDwarf({ at: w.index(16, 12, 32), skills: { carpentry: 10 } });
     w.spawnItem('log', 'oak', w.index(16, 12, 32), 2);
+    w.spawnItem('cloth', 'flax_cloth', w.index(16, 12, 32), 4); // T-572: a bed's bedding stuff
     w.step(1);
     expect(w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: workshop, dwarfId: worker }).ok).toBe(true);
     expect(w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: workshop,

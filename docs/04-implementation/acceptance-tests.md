@@ -173,7 +173,7 @@ The hauling hint is checked on a delivered `DayPassed`: a backlog above its warn
 
 | id | Scenario | Expected |
 |---|---|---|
-| `ws_bed` | carpenter level 6, 1 log, order bed ×1 | bed item in 90–110 ticks of work; quality distribution over 200 runs matches the roll table ±3% |
+| `ws_bed` | carpenter level 6, 1 log and 2 cloth, order bed ×1 | bed item in 90–110 ticks of work; quality distribution over 200 runs matches the roll table ±3% |
 | `ws_maintain` | maintain ≥ 10 meals, cook, ingredients | meals rise to ≥ 10 and the order stays; no job when ≥ 10 |
 | `ws_idle` | carpenter, bed order without logs; remove the blocked order | one delivered `WorkshopBlocked`, then one `WorkshopIdle`; further idle ticks repeat neither and create no job |
 | `ws_fuel` | smelter, ore, no fuel | `WorkshopBlocked { missing_input }`; charcoal arrives → smelts |

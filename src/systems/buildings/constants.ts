@@ -26,7 +26,7 @@ export const HEARTH_HALL_SIDE = 5;
 /** Temperature added inside the hearth's 5×5 comfort area. */
 export const HEARTH_WARMTH_C = 2;
 /** 14 § Beds: the percent a made-up bed (one holding its bedding) rests at. */
-export const MADE_UP_REST_PERCENT = 125;
+export const MADE_UP_REST_PERCENT = 110;
 /** Build time of a workshop of blocks against its logs, percent (14 § Placement, Workshops of stone). */
 export const STONE_WORKSHOP_TICKS_PERCENT = 150;
 

@@ -114,8 +114,10 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     }
     case 'slept_in_shared_bed_room': return event['onFloor'] === false && event['ownBed'] === false;
     case 'slept_on_floor': return event['onFloor'] === true;
-    // 10 § Sleeping: a pallet's sleeper, and a bed made up with bedding and a pillow (feathers in both: a featherbed).
+    // 10 § Sleeping: a pallet's sleeper, a wooden bed's that is not dressed, and a bed made up with bedding and a
+    // pillow (feathers in both: a featherbed).
     case 'slept_on_a_pallet': return event['onFloor'] === false && PALLETS.includes(s(event, 'bedType'));
+    case 'slept_in_a_bed': return event['onFloor'] === false && s(event, 'bedType') === 'bed' && s(event, 'bedding') === 'none';
     case 'slept_in_a_soft_bed': return s(event, 'bedding') === 'soft';
     case 'slept_in_a_featherbed': return s(event, 'bedding') === 'feather';
     case 'slept_outdoors': return event['outdoors'] === true;

@@ -66,6 +66,8 @@ const scenario: Scenario = {
     w.spawnItem('log', 'oak', supplyTile, 25);
     w.spawnItem('raw_stone', 'granite', supplyTile, 30);
     w.spawnItem('rope', 'flax_cloth', supplyTile, 2);
+    // T-572: the carpenter's four beds take 2 cloth each beside the log.
+    w.spawnItem('cloth', 'flax_cloth', supplyTile, 8);
     // Raw plant materials for kitchen and still
     w.spawnItem('plant_food', 'dimcap', supplyTile, 50);
     w.spawnItem('plant_food', 'turnip', supplyTile, 50);

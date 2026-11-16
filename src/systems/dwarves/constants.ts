@@ -13,7 +13,7 @@ export const EAT_TICKS = 60;
 export const DRINK_TICKS = 40;
 export const SLEEP_HOURS = 7;
 /** 10 § Sleeping: the percent sleeping on the floor rests at, below every bed's. */
-export const FLOOR_REST_PERCENT = 50;
+export const FLOOR_REST_PERCENT = 85;
 export const TALK_TICKS = 80;
 /** Ticks between two scans for talks in passing. */
 export const TALK_CHECK_TICKS = 10;
