@@ -496,7 +496,21 @@ describe('T-M0-09 pathfinding: the path cache', () => {
     }
   });
 
-  it('T-574: a requester ahead of the cached route\'s first tile joins it ahead, and is not sent back', () => {
+  it('a dirty chunk drops the routes that cross it', () => {
+    const map = solidMap(16, 16, 1);
+    fillRect(map, 0, 0, 15, 15, 0, TileKind.Floor);
+    const graph = graphOf(map);
+    const cached = new Pathfinder(map, graph, null, { cache: true });
+    cached.requestPath(1, map.index(1, 1, 0), map.index(14, 14, 0), 'walker');
+    cached.tick();
+    expect(cached.cacheSize).toBe(1);
+    cached.invalidateChunks([map.chunkOf(map.index(8, 8, 0))]);
+    expect(cached.cacheSize).toBe(0);
+  });
+});
+
+describe('T-574 pathfinding: a cached route is joined ahead of its first tile', () => {
+  it('a requester ahead of the cached route\'s first tile joins it ahead, and is not sent back', () => {
     // A corridor three tiles wide across three chunks; the route is cached from its west end.
     const map = solidMap(48, 3, 1);
     fillRect(map, 0, 0, 47, 2, 0, TileKind.Floor);
@@ -527,18 +541,6 @@ describe('T-M0-09 pathfinding: the path cache', () => {
       expect(result.path[result.path.length - 1]).toBe(to);
       expect(steps(result.path)).toBeLessThanOrEqual(46 - 12 + 2);
     }
-  });
-
-  it('a dirty chunk drops the routes that cross it', () => {
-    const map = solidMap(16, 16, 1);
-    fillRect(map, 0, 0, 15, 15, 0, TileKind.Floor);
-    const graph = graphOf(map);
-    const cached = new Pathfinder(map, graph, null, { cache: true });
-    cached.requestPath(1, map.index(1, 1, 0), map.index(14, 14, 0), 'walker');
-    cached.tick();
-    expect(cached.cacheSize).toBe(1);
-    cached.invalidateChunks([map.chunkOf(map.index(8, 8, 0))]);
-    expect(cached.cacheSize).toBe(0);
   });
 });
 

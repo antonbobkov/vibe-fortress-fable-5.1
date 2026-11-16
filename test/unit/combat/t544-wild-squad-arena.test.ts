@@ -14,7 +14,12 @@ import { describe, expect, it } from 'vitest';
 import { wildArenaTrial, type ArenaFoe, type ArenaResult, type ArenaSquad } from '../../scenarios/wild-squad-arena';
 
 const STEEL_FIGHTS = 24;
-const COPPER_FIGHTS = 8;
+/**
+ * T-574: 24 fights, as balance.md measures them. Eight left the third on one fight: after a change
+ * to 22's path cache, seeds 0 to 7 lost a copper fighter to the bear in 2 fights, while 120 fights
+ * lost one in 69 (76 before the change).
+ */
+const COPPER_FIGHTS = 24;
 
 function fights(squad: ArenaSquad, foe: ArenaFoe, n: number): ArenaResult[] {
   return Array.from({ length: n }, (_, seed) => wildArenaTrial(squad, foe, seed));
