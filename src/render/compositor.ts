@@ -214,6 +214,9 @@ export class Compositor {
   private hillView = false;
   /** Per material index: 1 natural rock (stone, obsidian), 0 otherwise. */
   private readonly rockMaterial: Uint8Array;
+  /** Materials of class `bone` (`giant_bone`, `ivory`): a boulder of one draws `•` (23 § Compositor). */
+  private readonly boneMaterial: Uint8Array;
+  private readonly boneGlyph: number;
   /** Each stockpile's fullness this frame (the `stockpile usage` overlay). */
   private readonly usage = new Map<EntityId, number>();
   private animFrame = 0;
@@ -298,6 +301,11 @@ export class Compositor {
       const cls = (materials.byId(id) as MaterialColorRow & { class?: string }).class;
       if (cls === 'stone' || cls === 'obsidian') this.rockMaterial[materials.index(id)] = 1;
     }
+    this.boneMaterial = new Uint8Array(ids.length + 1);
+    for (const id of ids) {
+      if ((materials.byId(id) as MaterialColorRow & { class?: string }).class === 'bone') this.boneMaterial[materials.index(id)] = 1;
+    }
+    this.boneGlyph = indexOf('•');
   }
 
   /** The biome of the map in view, for step 2's surface variety. */
@@ -499,7 +507,8 @@ export class Compositor {
       case TileKind.Shrub:
         return this.shaded(map, i, this.wildPlantCell(map, i, GLYPH_GRASS, material));
       case TileKind.Boulder:
-        return { glyph: GLYPH_BOULDER, fg: material, bg: this.black };
+        // 23 § Compositor step 2: a boulder of bone (a boneyard's spine) draws `•`.
+        return { glyph: this.boneMaterial[map.materialAt(i)] === 1 ? this.boneGlyph : GLYPH_BOULDER, fg: material, bg: this.black };
       case TileKind.Open:
         // Reached through `fullCell` for an open tile that holds a fluid; the fluid layer (M3)
         // paints over it. On its own an open tile has no terrain of its own to draw.

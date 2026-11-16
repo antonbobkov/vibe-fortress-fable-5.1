@@ -280,7 +280,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | tree | species glyph | species color | `black` |
 | sapling | `τ` | species color | `black` |
 | shrub | `"` (species may override) | species color | `black` |
-| boulder | `○` | material | `black` |
+| boulder | `○` (`•` of class `bone`) | material | `black` |
 | higher ground (a natural wall under the outdoor surface, 1–3 levels up) | the surface's glyph | the surface's | the surface's, blended toward the ground's tone (23 § Compositor step 2) |
 | open, floor visible below | below's glyph | dimmed | dimmed |
 | open sky | ` ` | — | `sky_day` / `sky_night` |

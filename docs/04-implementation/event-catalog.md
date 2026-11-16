@@ -64,6 +64,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `HearthVisited` | `id` | 10 | 15 |
 | `DwarfFeltMist` / `DwarfNearSpring` | `id` | 10 | 15 |
 | `CraterEntered` | `id, first` | 10 (a dwarf steps into a `starfall` crater tile from outside it; `first` for the fortress's first) | 15, ui |
+| `RibsEntered` | `id, boneyard` | 10 (the first fortress dwarf to stand in a boneyard's ribs, once a boneyard; `boneyard` its index in 03's `boneyards`) | 03 (marks `boneyardsEntered`), 15, ui |
 | `DwarfOutdoorsIn` | `id, weather` | 10 | 15 |
 | `SawMasterwork` | `id, itemId` | 10 | 15 |
 | `NeedCritical` | `id, need` | 10 | 11 |

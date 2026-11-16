@@ -64,7 +64,9 @@ describe('T-M0-11 property: determinism under commands', () => {
 describe('T-M7-12 property: M7 command families', () => {
   /** The refusals `command-catalog.md` documents for the trade and immigration commands. */
   const ALLOWED = new Set(['no_depot', 'no_caravan', 'no_session', 'not_at_depot', 'not_found',
-    'precondition_failed', 'out_of_range', 'request_limit', 'caravan_absent']);
+    'precondition_failed', 'out_of_range', 'request_limit', 'caravan_absent',
+    // `SetRequests` naming a never-sold item type (20 § Never sold; command-catalog.md).
+    'not_traded']);
 
   it('samples trade, request and population-cap commands, refusing only for documented reasons', () => {
     const w = new TestWorld({ seed: SEED, world: 'flat-test', embark: 'default' });

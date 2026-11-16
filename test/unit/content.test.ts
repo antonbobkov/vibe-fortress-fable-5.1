@@ -87,8 +87,8 @@ describe('T-M0-06 content: every table loads', () => {
     const byWorkshop = registry.derived<ReadonlyMap<string, readonly RecipeDef[]>>('recipesByWorkshop');
     const expected: Record<string, number> = {
       carpenter: 29,
-      mason: 15,
-      craftdwarf: 23,
+      mason: 22,
+      craftdwarf: 25,
       jeweler: 2,
       mechanic: 2,
       wood_furnace: 1,
@@ -110,7 +110,7 @@ describe('T-M0-06 content: every table loads', () => {
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(250);
+    expect(registry.table('recipes').size).toBe(259);
   });
 
   it('the content hash is a stable hex string', () => {

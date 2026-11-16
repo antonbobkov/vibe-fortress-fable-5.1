@@ -43,6 +43,10 @@ export interface TerrainReader {
   isForbidden(i: TileIndex): boolean;
   /** The tile is one of a `starfall` map's crater tiles (`03` § State `craterTiles`). */
   isCrater(i: TileIndex): boolean;
+  /** The boneyard whose ribs hold the tile, or -1 (`03` § State `boneyards`). */
+  boneyardAt(i: TileIndex): number;
+  /** A fortress dwarf has stood in the boneyard's ribs (`03` § State `boneyardsEntered`). */
+  boneyardEntered(boneyard: number): boolean;
   /** The forbidden set, ascending (a copy). */
   forbiddenTiles(): TileIndex[];
   /** Items 03 owes the world until the item system exists (M2); a fresh copy. */
@@ -95,6 +99,8 @@ export function makeReader(
     spec,
     isForbidden: (i) => core.isForbidden(i),
     isCrater: (i) => core.isCrater(i),
+    boneyardAt: (i) => core.boneyardAt(i),
+    boneyardEntered: (b) => core.boneyardsEntered[b] === true,
     forbiddenTiles: () => core.forbidden.slice(),
     intendedDrops: () => core.drops.slice(),
     designationWork: (i) => workOf(i),

@@ -1550,5 +1550,49 @@
   {
     "table": "recipes",
     "id": "make_soap"
+  },
+  {
+    "table": "items",
+    "id": "giant_skull"
+  },
+  {
+    "table": "recipes",
+    "id": "cut_bone_blocks"
+  },
+  {
+    "table": "recipes",
+    "id": "make_table_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_chair_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_door_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_coffin_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_statue_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "mount_skull"
+  },
+  {
+    "table": "recipes",
+    "id": "carve_fossil"
+  },
+  {
+    "table": "recipes",
+    "id": "carve_ivory_statue"
+  },
+  {
+    "table": "thoughts",
+    "id": "stood_in_the_ribs"
   }
 ]

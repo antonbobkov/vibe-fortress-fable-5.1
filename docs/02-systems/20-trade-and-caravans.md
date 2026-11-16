@@ -62,7 +62,7 @@ No caravan in winter. A civilization with reputation ≤ `CARAVAN_BAN_REP` or un
 
 ### Valuation
 
-`valuation(civ, item) = value(item) × preference(civ, item.category or item.material class) / 100`, where `preference` rows are content (a `material <id>` row, such as the Mountainhome's pewter at 110, applies to every item of that material before the category and class rows): defaults 100; Hillfolk metal 150, food 80, stone crafts 90; Mountainhome crafts 130, gems 140, deepsilver items 300, food 70, drink 120, spirits 150 (a drink is judged by its material's group, `drink/spirits` before `drink/*`); Wildwood wood 20, cloth 120, herbs 130, animals 150, stone 80. A `material class <class>` row (the Wildwood's bone at 60) comes after the material rows and before the category rows. Hillfolk pay 150 for salt and 130 for glass; the Wildwood 60 for bone, and 100 for reed and its baskets and wicker (reed is not wood: the elves have thought about it and decided reeds are fine). Every civilization pays 200 for star steel (`material star_steel`): there are three bars of it in the world, and none for sale. The Wildwood pay 100 for honey and beeswax (`food/honey`, `food/wax`), below their 110 for food.
+`valuation(civ, item) = value(item) × preference(civ, item.category or item.material class) / 100`, where `preference` rows are content (a `<group>/* of <material>` row, the Mountainhome's carved fossils at 150 (`craft/*` of `giant_bone`), applies to that group's items of that material before every other row; a `material <id>` row, such as the Mountainhome's pewter at 110, applies to every item of that material before the category and class rows): defaults 100; Hillfolk metal 150, food 80, stone crafts 90; Mountainhome crafts 130, gems 140, deepsilver items 300, food 70, drink 120, spirits 150 (a drink is judged by its material's group, `drink/spirits` before `drink/*`); Wildwood wood 20, cloth 120, herbs 130, animals 150, stone 80. A `material class <class>` row (the Wildwood's bone at 60) comes after the material rows and before the category rows. Hillfolk pay 150 for salt and 130 for glass; the Wildwood 60 for bone, and 100 for reed and its baskets and wicker (reed is not wood: the elves have thought about it and decided reeds are fine). Every civilization pays 200 for star steel (`material star_steel`): there are three bars of it in the world, and none for sale. The Wildwood pay 100 for honey and beeswax (`food/honey`, `food/wax`), below their 110 for food.
 
 ### The scarcity price
 
@@ -171,11 +171,11 @@ Goods lists and preferences are content.
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `caravan-goods.md` § Planned rows.
 
-### Later sundries, never-sold goods and preferences (T-551, T-556, T-557)
+### Later sundries, never-sold goods and preferences (T-551, T-556)
 
 - Sundries of later goods go into their civilization's Sundries table, each with the task that brings its good (`caravan-goods.md` § Planned sundries): Hillfolk bedding (T-551).
-- § Never sold is in; the tasks that bring silk cloth (T-556) and giant skulls (T-557) keep them out of every list. `NEVER_SOLD_ITEMS` and `NEVER_SOLD_MATERIALS` name them already.
-- Preferences (`caravan-goods.md` § Planned preferences): Mountainhome silk cloth 150 (T-556), carved fossils 150 (T-557); Wildwood silk cloth 140 (T-556).
+- § Never sold is in; the task that brings silk cloth (T-556) keeps it out of every list (giant skulls are in the game, and out of every list). `NEVER_SOLD_ITEMS` and `NEVER_SOLD_MATERIALS` name them already.
+- Preferences (`caravan-goods.md` § Planned preferences): Mountainhome silk cloth 150 (T-556); Wildwood silk cloth 140 (T-556).
 
 ### Camels from the Hillfolk (T-561)
 

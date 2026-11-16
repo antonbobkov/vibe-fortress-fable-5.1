@@ -83,6 +83,10 @@ export interface LocalGen {
   readonly warmSprings: TileIndex[];
   /** `starfall`: the crater's walkable tiles (its floor, ramps and wild wyrmtongue), ascending. */
   readonly craterTiles: TileIndex[];
+  /** Stage 9b: each skeleton's skull tiles, ascending (a group of up to four). */
+  readonly giantSkulls: TileIndex[][];
+  /** Stage 9b: each skeleton's cage, the walkable tiles between its ribs, ascending. */
+  readonly boneyards: TileIndex[][];
   /** Centre column of the volcano pipe, or -1. */
   volcano: number;
 }
