@@ -30,6 +30,21 @@
     "announce": true
   },
   {
+    "id": "ate_by_candlelight",
+    "name": "ate by candlelight",
+    "text": "Ate by candlelight.",
+    "value": 1,
+    "hours": 24,
+    "decay": "linear",
+    "cap": 1,
+    "group": "room",
+    "trigger": {
+      "event": "MealEaten",
+      "target": "candlelit"
+    },
+    "announce": false
+  },
+  {
     "id": "ate_easy_meal",
     "name": "ate easy meal",
     "text": "Had a decent meal.",
@@ -1502,7 +1517,7 @@
     "group": "comfort",
     "trigger": {
       "event": "SmokyFuelBurned",
-      "target": "within SMOKE_RADIUS of the workshop"
+      "target": "within SMOKE_RADIUS of the workshop, or the dwarf it names (tallow smoke)"
     },
     "announce": false
   },

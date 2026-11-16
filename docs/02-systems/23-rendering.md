@@ -68,6 +68,7 @@ For each viewport cell, tile `t = (camX + col, camY + row, z)`:
    - `jobs`: tints claimed jobs' target tiles `alert` and their workers' remaining routes `text_value`.
    - `squad stations`: station tiles take the `zone_barracks` tint and patrol tiles the `zone_range` tint, blended into the `bg` at `ZONE_TINT_ALPHA`.
    - `stockpile usage`: a stockpile's fullness is its used slots over its tiles, `(tiles − freeSlots) / tiles`; each of its tiles blends `green` (below one half), `yellow` (below full) or `red` (full) into its `bg` at `ZONE_TINT_ALPHA`.
+   - `light`: a tile in comfort light (14's `comfortLightAt`: the hearth's square, lamps, burning candle stands, lanterns) takes the `glow_halo` background (discovered tiles only).
    - Debug `paths` tints every mover's remaining route `text_value`; `connectivity` tints walker labels through a cycle of base palette colours, leaving label 0 untinted; `chunks` tints chunk-edge cells `panel_border`. All four jobs/debug overlays change only `bg` through `blend` at `ZONE_TINT_ALPHA`. Claimed jobs and movers are indexed once per frame, never per cell.
    Overlays alter `bg` or replace the glyph but never hide a creature; when an overlay glyph would cover a creature, the creature wins.
 9. **Lighting**: outdoor tiles at night are dimmed one step (two under storm); fog dims the surface one step; underground tiles are not dimmed (the player sees what the dwarves know). A cell whose look-down found only sky keeps the colour step 2 gave it (`sky_night` at night) and is not dimmed again.
@@ -166,6 +167,5 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 
 - **Glass** (T-558): a constructed wall of glass draws the smooth wall glyph in `glass_pale`, and the tile beyond it on the view's level is drawn as seen (the fog of war follows 22's sight). A glass floor draws `+` in `glass_pale` over what lies below, dimmed: magma or water under a glass floor shows through.
 - **Skylit tiles** (T-558) are drawn lit, as `lit` tiles are.
-- **Comfort light** (T-563): the `light` overlay tints tiles in comfort light (the hearth's square, lamps, burning stands, lanterns) in `glow_halo`.
 - **Bone** (T-557): a boulder of bone draws `•` and a wall of bone the rough wall glyph, in `bone_white`; ivory in `ivory_cream`.
 - Roosts are never drawn (T-556).

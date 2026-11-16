@@ -2540,6 +2540,56 @@
     "xp": 6
   },
   {
+    "id": "make_candles_tallow",
+    "name": "Tallow candles",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "tallow",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "candle",
+        "count": 4,
+        "material": {
+          "fixed": "tallow"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "make_candles_wax",
+    "name": "Wax candles",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "beeswax",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "candle",
+        "count": 4,
+        "material": {
+          "fixed": "beeswax"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
     "id": "make_cap",
     "name": "Cap",
     "workshop": "leatherworks",
@@ -3263,6 +3313,36 @@
     "fuel": true,
     "quality": false,
     "xp": 4
+  },
+  {
+    "id": "make_lantern",
+    "name": "Lantern",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 1,
+        "material": "glass"
+      },
+      {
+        "match": "candle",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "lantern",
+        "count": 1,
+        "material": {
+          "fixed": "glass"
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
   },
   {
     "id": "make_leather_boots",

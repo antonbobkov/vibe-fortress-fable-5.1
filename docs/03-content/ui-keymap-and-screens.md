@@ -582,6 +582,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | jobs | off | 11 |
 | squad stations | on while the military panel is open | 16 |
 | stockpile usage | off | 13 |
+| light | off | 14 |
 | connectivity (debug) | off | 22 |
 | paths (debug) | off | 22 |
 | chunks (debug) | off | core |

@@ -297,6 +297,39 @@
     "glyph": "^"
   },
   {
+    "id": "candle_stand",
+    "name": "candle stand",
+    "category": "special",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "stone_block|bar",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 40,
+    "tags": [
+      "light"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 2,
+    "wants": [
+      {
+        "match": "candle",
+        "count": 5
+      }
+    ],
+    "glyph": "ì"
+  },
+  {
     "id": "carpenter",
     "name": "carpenter's workshop",
     "category": "workshop",
@@ -911,6 +944,33 @@
     "pattern": "kitchen",
     "workTile": 4,
     "outputTile": 7
+  },
+  {
+    "id": "lantern",
+    "name": "lantern",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "lantern",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 30,
+    "tags": [
+      "light"
+    ],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "¥"
   },
   {
     "id": "leatherworks",

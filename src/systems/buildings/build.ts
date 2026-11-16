@@ -338,9 +338,10 @@ export class BuildingStore {
     const anchor = this.anchorOf(b);
     for (const it of this.heldOf(b)) this.host.services.items?.uninstall?.(it, anchor);
     const next = { ...this.write(id as EntityId, { held: [] }) };
-    // A drying rack's days go with its items (14 § The drying rack).
-    if (next.dryDays !== undefined) {
+    // A drying rack's days go with its items (14 § The drying rack), and a stand's burning candle's.
+    if (next.dryDays !== undefined || next.burnDays !== undefined) {
       delete next.dryDays;
+      delete next.burnDays;
       this.host.entities.add(id as EntityId, C.Building, next);
     }
     this.onFootprintChanged(b.footprint);

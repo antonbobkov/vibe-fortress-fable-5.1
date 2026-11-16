@@ -15,6 +15,7 @@ import type { BuildingsReader } from '@systems/buildings/reader';
 import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import { PERCEPTION_RADIUS } from '@systems/combat/constants';
+import { CANDLE_SPOT_BONUS } from '@systems/buildings/constants';
 import type { CombatReader } from '@systems/combat/reader';
 import { wornSpotRadius } from '@systems/magic/enchant';
 import {
@@ -198,6 +199,11 @@ export function checkSpotted(m: EntityId, pos: TileIndex, ctx: TickContext, targ
   const mz = map.zOf(pos);
   const mx = map.xOf(pos);
   const my = map.yOf(pos);
+  // 18 § Stealth: comfort light (14) adds `CANDLE_SPOT_BONUS` when either creature stands in it; read
+  // only for a spotter just out of its own reach.
+  const buildings = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null;
+  let hiddenLit: boolean | null = null;
+  const lit = (tile: TileIndex): boolean => buildings !== null && buildings.comfortLightAt(tile);
 
   for (const target of targets) {
     if (target.spotRadius === 0 || target.id === unseenBy) continue;
@@ -207,7 +213,12 @@ export function checkSpotted(m: EntityId, pos: TileIndex, ctx: TickContext, targ
     const dy = Math.abs(target.y - my);
     const dist = Math.max(dx, dy);
 
-    if (dist <= target.spotRadius) {
+    let within = dist <= target.spotRadius;
+    if (!within && dist <= target.spotRadius + CANDLE_SPOT_BONUS) {
+      if (hiddenLit === null) hiddenLit = lit(pos);
+      within = hiddenLit || lit(target.tile);
+    }
+    if (within) {
       if (pathing.lineOfSight(target.tile, pos)) {
         return true;
       }

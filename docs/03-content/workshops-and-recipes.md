@@ -124,8 +124,12 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `make_splint_bone` | Bone splints | 1 bone_pile | 2 splint (from_input) | 80 | no | 4 |
 | `make_crutch_bone` | Bone crutch | 2 bone_pile | 1 crutch (from_input) | 100 | no | 4 |
 | `weave_hive` | Wicker beehive | 3 reed (reed) | 1 beehive (from_input) | 100 | no | 4 |
+| `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (`tallow`) | 80 | no | 3 |
+| `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (`beeswax`) | 80 | no | 3 |
 
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
+
+Candles are tallow or beeswax, four to a lump, of its material: a tallow candle burns 7 days in a candle stand and smokes now and then, a beeswax one 14 and clean ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns). A `maintain` order for candles keeps the stands fed.
 
 Reeds and bones stand in for wood ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a basket is a bin of reed that holds 15 (`make_bin`), reed rope a rope of reed (`make_rope`), a wicker buckler a buckler of reed that blocks as a wooden one and burns (`make_buckler_wood`), bone splints and crutches serve a hospital as wooden ones do (`make_splint`, `make_crutch`), and a wicker beehive is a hive of reed (`make_hive_wood`).
 
@@ -376,8 +380,9 @@ Every kiln recipe burns a fuel, unless the kiln is the magma kiln. A brick is a 
 | `burn_bone_ash` | Bone ash | 2 bone_pile | 1 bone_ash (`bone`) | 80 | no | 3 |
 | `crush_fossil` | Crush fossil | 1 fossil | 2 bone_ash (`bone`) | 100 | no | 4 |
 | `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (`earthenware`) | 100 | no | 4 |
+| `make_lantern` | Lantern | 1 stone_block (glass) + 1 candle | 1 lantern (`glass`) | 150 | yes | 8 |
 
-Five are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug, clay mugs and a clay beehive take a fuel beside the input that a bucket, stone mugs and a wooden hive take alone (`make_bucket`, `make_mug_stone`, `make_hive_wood`).
+A lantern is a glass block and a candle: a light that never burns out, at the price of glass. Five are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug, clay mugs and a clay beehive take a fuel beside the input that a bucket, stone mugs and a wooden hive take alone (`make_bucket`, `make_mug_stone`, `make_hive_wood`).
 
 ## Smokehouse (`cooking`)
 
@@ -390,7 +395,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 29, mason 15, craftsdwarf 21, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 8, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 11, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 247.
+Carpenter 29, mason 15, craftsdwarf 23, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 8, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 250.
 
 ## Time arithmetic
 
@@ -407,9 +412,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
 | leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
 | bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
-| craftsdwarf | `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (from_input) | 80 | no | no | 3 | — | T-563 |
-| craftsdwarf | `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (from_input) | 80 | no | no | 3 | — | T-563 |
-| kiln | `make_lantern` | Lantern | 1 stone_block (glass) + 1 candle | 1 lantern (from_input) | 150 | yes | yes | 8 | — | T-563 |
 | mason | `cut_bone_blocks` | Bone blocks | 1 fossil | 2 stone_block (from_input) | 80 | no | no | 3 | `make_stone_block` | T-557 |
 | mason | `make_table_bone` | Bone table | 1 fossil | 1 table (from_input) | 150 | no | yes | 6 | — | T-557 |
 | mason | `make_chair_bone` | Bone chair (a throne) | 1 fossil | 1 chair (from_input) | 120 | no | yes | 6 | — | T-557 |

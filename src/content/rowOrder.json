@@ -1484,6 +1484,38 @@
     "id": "hint_hive"
   },
   {
+    "table": "items",
+    "id": "candle"
+  },
+  {
+    "table": "items",
+    "id": "lantern"
+  },
+  {
+    "table": "buildings",
+    "id": "candle_stand"
+  },
+  {
+    "table": "buildings",
+    "id": "lantern"
+  },
+  {
+    "table": "recipes",
+    "id": "make_candles_wax"
+  },
+  {
+    "table": "recipes",
+    "id": "make_candles_tallow"
+  },
+  {
+    "table": "recipes",
+    "id": "make_lantern"
+  },
+  {
+    "table": "thoughts",
+    "id": "ate_by_candlelight"
+  },
+  {
     "table": "palette",
     "id": "soap_white"
   },

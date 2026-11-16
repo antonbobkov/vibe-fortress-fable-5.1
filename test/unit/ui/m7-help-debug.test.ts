@@ -167,9 +167,9 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
     it('lists every overlay the compositor draws, the debug three last', () => {
       expect(OVERLAY_ROWS.map((row) => row.id)).toEqual([
         'designations', 'priority_digits', 'zones', 'fluid_levels', 'temperature',
-        OVERLAY_JOBS, 'squad_stations', 'stockpile_usage', OVERLAY_CONNECTIVITY, OVERLAY_PATHS, OVERLAY_CHUNKS,
+        OVERLAY_JOBS, 'squad_stations', 'stockpile_usage', 'light', OVERLAY_CONNECTIVITY, OVERLAY_PATHS, OVERLAY_CHUNKS,
       ]);
-      expect(FIRST_DEBUG_ROW).toBe(8);
+      expect(FIRST_DEBUG_ROW).toBe(9);
       expect(OVERLAY_ROWS.filter((row) => row.debug === true)).toHaveLength(3);
     });
 

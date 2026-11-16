@@ -17,7 +17,8 @@ import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
 import type { AnimalsReader } from '@systems/animals';
 import { HIVE_CAPACITY, HIVE_DAYS, HIVE_FLOWERS_MIN, HIVE_FLOWER_RADIUS } from '@systems/animals/constants';
-import type { BuildingView } from '@systems/buildings';
+import type { BuildingView, StandView } from '@systems/buildings';
+import { STAND_CANDLES } from '@systems/buildings/constants';
 import type { DefenseReader } from '@systems/defense';
 import type { JobsReader } from '@systems/jobs';
 import { LINKABLE_TAGS, PLATE_LEVEL_MAX, PLATE_SIZE_MAX, PLATE_SIZE_STEP } from '../constants';
@@ -421,7 +422,9 @@ export class BuildingPanel {
       const n = w.count - w.held;
       return n === 1 ? matchName(ctx.registry, w.match) : `${n} ${matchName(ctx.registry, w.match, n)}`;
     });
+    const stand = reader.standCandles(this.id);
     if (tags.includes('rack')) out.push(...this.rackLines(ctx));
+    else if (stand !== undefined) out.push(...this.standLines(ctx, stand));
     else if (tags.includes('sleep')) {
       if (wants.length > 0) {
         const made = reader.restPercent(this.id) > (reader.types().find((row) => row.id === this.view(ctx)?.typeId)?.rest ?? 100);
@@ -629,6 +632,18 @@ export class BuildingPanel {
     out.push({ id: 'look', text: s.get('ui.building.look'), run: () => ctx.look(view.origin), help: s.get('ui.building.look_help') });
     if (takeApart !== undefined && !doomed) out.push({ id: 'take_apart', text: key('x', s.get('ui.building.take_apart')), key: 'x', run: () => takeApart(this.id), help: s.get('ui.building.take_apart_help') });
     return out;
+  }
+
+  /** 24 § Building panel: a candle stand's candles and the days its burning one has left (14 § Candle stands and lanterns). */
+  private standLines(ctx: PanelContext, stand: StandView): BuildingLine[] {
+    const s = ctx.strings;
+    const material = ctx.registry.table<{ id: string; name: string }>('materials').byId(stand.burning)?.name ?? stand.burning;
+    return [
+      { id: 'stand:candles', text: s.get('ui.building.stand_candles', { n: stand.candles, max: STAND_CANDLES }), tone: stand.candles > 0 ? 'value' : 'dim', help: s.get('ui.building.stand_help') },
+      stand.burning === ''
+        ? { id: 'stand:burning', text: s.get('ui.building.stand_dark'), tone: 'alert', help: s.get('ui.building.stand_help') }
+        : { id: 'stand:burning', text: s.get('ui.building.stand_burning', { material, n: stand.daysLeft }), tone: 'dim', help: s.get('ui.building.stand_help') },
+    ];
   }
 
   /** 24 § Building panel: a hive's combs, its flowers in reach and what the season does (08 § Hives). */

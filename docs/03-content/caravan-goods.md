@@ -87,6 +87,7 @@ Sundries: raw materials in small lots, ordinary entries of the weighted draw aft
 | Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 |
 | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 |
 | Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 |
+| Candles | `candle` | tallow | 5–10 | 6 |
 
 ## Wildwood (autumn, from year 1)
 
@@ -184,7 +185,6 @@ A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
 
 | civ | Entry | Item | Material pool | Count | Weight | task |
 |---|---|---|---|---|---|---|
-| Hillfolk | Candles | `candle` | tallow | 5–10 | 6 | T-563 |
 | Hillfolk | Camels (in `desert`, `badlands`, `savanna`) | `camel` | — | 1–2 | 6 | T-561 |
 
 ### Planned preferences
