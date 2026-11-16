@@ -407,7 +407,6 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | carve_fossil |
 | recipes | carve_ivory_statue |
 | thoughts | stood_in_the_ribs |
-<<<<<<< HEAD
 | weapons | horn_bow |
 | items | horn_bow |
 | armor | scale_shirt |
@@ -419,7 +418,6 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | make_scale_skirt |
 | recipes | make_horn_bow |
 | recipes | set_ammo_fletched |
-=======
 | items | feast |
 | recipes | cook_feast |
 | thoughts | feasted |
@@ -435,4 +433,3 @@ Every new row of every table goes at the end of this table, including generated 
 | whims | whim_spirits |
 | whims | whim_masterwork |
 | whims | whim_featherbed |
->>>>>>> origin/t565-making-do-hall-life

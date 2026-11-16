@@ -110,11 +110,7 @@ describe('T-M0-06 content: every table loads', () => {
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-<<<<<<< HEAD
-    expect(registry.table('recipes').size).toBe(263);
-=======
-    expect(registry.table('recipes').size).toBe(260);
->>>>>>> origin/t565-making-do-hall-life
+    expect(registry.table('recipes').size).toBe(264);
   });
 
   it('the content hash is a stable hex string', () => {

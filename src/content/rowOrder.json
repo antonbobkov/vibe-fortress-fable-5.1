@@ -1596,7 +1596,6 @@
     "id": "stood_in_the_ribs"
   },
   {
-<<<<<<< HEAD
     "table": "weapons",
     "id": "horn_bow"
   },
@@ -1639,7 +1638,8 @@
   {
     "table": "recipes",
     "id": "set_ammo_fletched"
-=======
+  },
+  {
     "table": "items",
     "id": "feast"
   },
@@ -1698,6 +1698,5 @@
   {
     "table": "whims",
     "id": "whim_featherbed"
->>>>>>> origin/t565-making-do-hall-life
   }
 ]

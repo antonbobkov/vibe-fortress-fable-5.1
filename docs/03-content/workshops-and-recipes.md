@@ -416,11 +416,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-<<<<<<< HEAD
-Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 8, still 4, tannery 1, leatherworks 14, loom 3, clothier 10, farmer's workshop 5, bowyer 4 (and generated: 1 fletching), kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment with no workshop = 22). Total 263.
-=======
-Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 9, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 260.
->>>>>>> origin/t565-making-do-hall-life
+Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 9, still 4, tannery 1, leatherworks 14, loom 3, clothier 10, farmer's workshop 5, bowyer 4 (and generated: 1 fletching), kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment with no workshop = 22). Total 264.
 
 ## Time arithmetic
 
