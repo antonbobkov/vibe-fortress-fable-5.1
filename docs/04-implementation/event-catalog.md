@@ -121,7 +121,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `TrainingSession` | `squadId, members[]` | 16 | 15 (barracks thought) |
 | `WoundInflicted` | `id, part, type, severity` | 17 | 15 |
 | `LimbLost` | `id, part, name, species` | 17 | 15, 16, ui |
-| `CreatureUnconscious` / `CreatureConscious` | `id` | 17 | 10, 16, 18, ui |
+| `CreatureUnconscious` / `CreatureConscious` | `id` | 17 | 10, 11 (`CreatureUnconscious`), 16, 18, ui |
 | `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 14, 15, 16, 18, 20, ui |
 | `PatientAdmitted` / `PatientDischarged` / `PatientHealed` | `id[, hospitalTier]` | 17 | 10, 15, ui |
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
@@ -150,7 +150,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
 | `AttuneSession` | `id, xp, mishap` | 25 | 15 |
 | `Mishap` | `id, kind, buildingId, tile` | 25 | 05 (a mishap with a tile: `fire`, `blaze`), 14 (`scorched_circle`), 15, ui |
-| `CreatureStunned` | `id, until` | 25 | 17 |
+| `CreatureStunned` | `id, until` | 25 | 11, 17 |
 | `FirstRunecaster` | `id` | 25 | 15, 24 (legend), ui |
 | `SpellCast` | `casterId, spellId, targetId, tile, burned` | 25 (casts ride 16's loop; a firebloom's bloom) | ui (a bloom that burned a fortress creature) |
 | `SpellBloomed` | `casterId, tile` | 25 (a firebloom's bloom) | ui (the compositor's flash) |
