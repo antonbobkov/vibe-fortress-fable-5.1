@@ -1,0 +1,74 @@
+/**
+ * T-571 probe (observation only): where a three-year fortress's dwarf-time goes, by 28-day month.
+ * Each tick, for every fortress dwarf: working (a job in hand while behaving 'work'), on the sleep
+ * errand (walking or in bed), on an eat or drink errand; each sleep ends as Slept (on the floor, a
+ * pallet, a bed) or is abandoned (woken). It reads the world and changes nothing.
+ */
+import { TICKS_PER_DAY } from '@core/constants';
+import { C } from '@core/components';
+import type { ActivityPlan } from '@systems/dwarves/state';
+import type { TestWorld } from '../scenarios/test-world';
+
+export interface GrowthMonth {
+  dwarfTicks: number;
+  work: number;
+  sleepWalk: number;
+  sleepBed: number;
+  eatDrink: number;
+  slept: number;
+  floor: number;
+  pallet: number;
+  bed: number;
+  woken: number;
+}
+
+const empty = (): GrowthMonth => ({ dwarfTicks: 0, work: 0, sleepWalk: 0, sleepBed: 0, eatDrink: 0, slept: 0, floor: 0, pallet: 0, bed: 0, woken: 0 });
+
+export class GrowthWatch {
+  readonly months: GrowthMonth[] = [];
+  private readonly sleeping = new Set<number>();
+  private readonly sleptNow = new Set<number>();
+
+  constructor(private readonly w: TestWorld) {
+    const plans = (w.game.world.scheduler.byId('10') as unknown as { activities: { plans: Map<number, ActivityPlan> } }).activities.plans;
+    const ent = w.game.world.entities;
+    w.game.world.onEvents((events) => {
+      for (const e of events) {
+        if (e.type !== 'Slept') continue;
+        const m = this.month();
+        m.slept += 1;
+        const type = String(e['bedType'] ?? '');
+        if (e['onFloor'] === true) m.floor += 1;
+        else if (type.includes('pallet')) m.pallet += 1;
+        else m.bed += 1;
+        this.sleptNow.add(Number(e['id']));
+      }
+    });
+    const original = w.game.world.step.bind(w.game.world);
+    w.game.world.step = () => {
+      original();
+      const m = this.month();
+      for (const id of ent.with(C.Labors)) {
+        if (ent.get(id, C.Creature)?.faction !== 'fortress') continue;
+        m.dwarfTicks += 1;
+        if ((ent.get(id, C.Worker)?.jobId ?? 0) !== 0 && ent.get(id, C.Brain)?.behavior === 'work') m.work += 1;
+        const p = plans.get(id);
+        if (p !== undefined && p.need === 'rest') {
+          this.sleeping.add(id);
+          if (p.phase === 'use') m.sleepBed += 1; else m.sleepWalk += 1;
+        } else {
+          if (this.sleeping.has(id) && !this.sleptNow.has(id)) m.woken += 1;
+          this.sleeping.delete(id);
+          if (p !== undefined && (p.need === 'hunger' || p.need === 'thirst')) m.eatDrink += 1;
+        }
+      }
+      this.sleptNow.clear();
+    };
+  }
+
+  private month(): GrowthMonth {
+    const i = Math.floor(this.w.tick / (28 * TICKS_PER_DAY));
+    while (this.months.length <= i) this.months.push(empty());
+    return this.months[i] as GrowthMonth;
+  }
+}

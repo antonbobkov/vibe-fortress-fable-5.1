@@ -1279,9 +1279,11 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // on top of those the stockpiles want, or the drink stockpiles are left with none.
     const threshold = day < 2 * 28 ? 20 : Math.min(200, Math.max(20, foodBarrels + Math.ceil(Math.max(items.count('drink'), population0 * 0.77 * DRINK_DAYS) / 20) + 10));
     if (barrels >= 0 && orders()[barrels]!.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: barrels, patch: { threshold } });
-    // Beds come before barrels until every dwarf and the hospital has one.
+    // Beds come before barrels until every dwarf and the hospital has one: in a bedroom, or once the
+    // bedrooms are spent in a dormitory (T-571).
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const beds = Math.min(state.bedroomPlans.filter((bp) => bp.designated).length, population + 1) - owned(w, 'bed');
+    const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0);
+    const beds = Math.min(bedPlaces, population + 1) - owned(w, 'bed');
     const bedOrder = orders().findIndex((o) => o.recipe === recipes.index('make_bed'));
     if (beds > 0 && bedOrder < 0) {
       const added = command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_bed', mode: 'once', remaining: beds, priority: ROUTINE } });
