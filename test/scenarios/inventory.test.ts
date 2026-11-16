@@ -95,7 +95,7 @@ const exceptions: Readonly<Record<'commands' | 'events' | 'jobs' | 'buildings', 
   },
   buildings: {
     straw_pallet: { test: 'test/unit/t551-making-do-beds.test.ts', reason: 'A child lays a straw pallet of three straw through the stepped build job, with no skill and no experience.' },
-    stone_bed: { test: 'test/unit/t551-making-do-beds.test.ts', reason: 'A built stone bed rests at 75 and wants nothing; both mason recipes run in recipe-smoke.' },
+    stone_bed: { test: 'test/unit/t551-making-do-beds.test.ts', reason: 'A built stone bed rests at 95 and wants nothing; both mason recipes run in recipe-smoke.' },
     rune_circle: { test: 'test/unit/runecraft/t469-sanctum-attunement.test.ts', reason: 'A sanctum counts as a room with a built circle, and apprentices attune at it.' },
     alchemist: { test: 'test/unit/runecraft/t468-glowcap-laboratory.test.ts', reason: 'A built laboratory turns two glowcap into a rune vial through a work order and a dwarf; recipe-smoke runs both recipes.' },
     runeforge: { test: 'test/unit/runecraft/t470-runeforge-channels.test.ts', reason: 'A built runeforge makes a silver staff of embers through a work order and a runesmith; recipe-smoke runs every generated wand and staff recipe.' },
