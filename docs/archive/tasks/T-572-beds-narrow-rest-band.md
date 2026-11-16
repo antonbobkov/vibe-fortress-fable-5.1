@@ -1,5 +1,7 @@
 # T-572 — Beds: a narrow rest band, mood by bed, and a wooden bed that needs bedding stuff
 
+**Closed:** 2026-11-15, in 5fe81539,ed5636c1,39879181,df8a7333,424378bc,cb41d40f,a2b95523.
+
 **Source:** the owner, 2026-11-15 · **Size:** M · **Needs:** — · **Status:** open
 
 ## The owner's decision

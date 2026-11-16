@@ -2145,6 +2145,40 @@
       {
         "match": "log",
         "count": 1
+      },
+      {
+        "match": "cloth|wool_raw",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "bed",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "make_bed_straw",
+    "name": "Bed (straw)",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      },
+      {
+        "match": "fiber|straw|reed",
+        "count": 3
       }
     ],
     "outputs": [

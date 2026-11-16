@@ -116,19 +116,37 @@ describe('12 § Substitutes: a substitute recipe stays worse than the recipe it 
 
   // A substitute with an item of its own (T-551): the stone bed stands in for the wooden bed. It is
   // judged by what a bed is for, its rest (14 § Beds), and by its worth: it rests less and is worth less.
-  for (const subId of ['make_stone_bed', 'make_stone_bed_straw']) {
-    it(`${subId} makes a bed that rests less and is worth less than make_bed's`, () => {
+  // T-572: the wooden bed takes a pallet's materials beside its log, as the stone bed does beside its
+  // stone, so each stone bed is held against the wooden bed of the same stuffing.
+  for (const [subId, regularId] of [['make_stone_bed', 'make_bed'], ['make_stone_bed_straw', 'make_bed_straw']] as const) {
+    it(`${subId} makes a bed that rests less and is worth less than ${regularId}'s`, () => {
       const buildings = registry.table<{ id: string; rest?: number }>('buildings');
       // In the commonest stone and wood: granite against pine.
       const sub = cost(recipes.byId(subId) as RecipeDef, 'granite');
-      const regular = cost(recipes.byId('make_bed') as RecipeDef, 'pine');
+      const regular = cost(recipes.byId(regularId) as RecipeDef, 'pine');
       expect(recipes.byId(subId)?.outputs[0]?.item).toBe('stone_bed');
+      expect(recipes.byId(regularId)?.outputs[0]?.item).toBe('bed');
       expect(buildings.byId('stone_bed')?.rest ?? 0).toBeLessThan(buildings.byId('bed')?.rest ?? 0);
       expect(sub.value).toBeLessThan(regular.value);
-      // And it takes more units of input than the wooden bed's one log.
-      expect(sub.units).toBeGreaterThan(regular.units);
+      // And it takes as many units of input as the wooden bed: the stone for the log, the same stuffing.
+      expect(sub.units).toBeGreaterThanOrEqual(regular.units);
     });
   }
+
+  // T-572: the pallets, which no workshop makes, stay worse than the wooden bed too: they rest less,
+  // and their sleeper's thought is worse (the stone bed's is none, the wooden bed's +1).
+  it('the pallets and the stone bed rest less than the wooden bed, and their sleepers think worse of them', () => {
+    const buildings = registry.table<{ id: string; rest?: number }>('buildings');
+    const thoughts = registry.table<{ id: string; value: { formula: string } | number }>('thoughts');
+    const value = (id: string): number => {
+      const v = thoughts.byId(id)?.value;
+      return typeof v === 'number' ? v : Number(/([+\-−]\d+)/u.exec(v?.formula ?? '0')?.[1]?.replace('−', '-') ?? 0);
+    };
+    const bed = buildings.byId('bed')?.rest ?? 0;
+    for (const id of ['pallet', 'straw_pallet', 'stone_bed']) expect(buildings.byId(id)?.rest ?? 0, id).toBeLessThan(bed);
+    expect(value('slept_on_a_pallet')).toBeLessThan(0);
+    expect(value('slept_in_a_bed')).toBeGreaterThan(0);
+  });
 
   it('bone ash takes the 4 units of the flux stone, in the same 200 ticks, for the same steel', () => {
     const ash = cost(recipes.byId('make_steel_bone_ash') as RecipeDef);

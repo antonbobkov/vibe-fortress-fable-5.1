@@ -60,9 +60,9 @@ describe('T-551 the bed rows', () => {
   const buildings = registry.table<{ id: string; labor: string; buildTicks: number; tags: string[]; rest?: number; wants?: { match: string; count: number }[]; inputs: { match: string; count: number }[] }>('buildings');
 
   it('pallets are laid by hauling in 20 ticks from counted materials; a stone bed is a mason\'s; every bed has its rest', () => {
-    expect(buildings.byId('pallet')).toMatchObject({ labor: 'hauling', buildTicks: 20, rest: 60, inputs: [{ match: 'cloth|wool_raw', count: 2 }] });
-    expect(buildings.byId('straw_pallet')).toMatchObject({ labor: 'hauling', buildTicks: 20, rest: 60, inputs: [{ match: 'fiber|straw|reed', count: 3 }] });
-    expect(buildings.byId('stone_bed')).toMatchObject({ labor: 'masonry', rest: 75, inputs: [{ match: 'stone_bed', count: 1 }] });
+    expect(buildings.byId('pallet')).toMatchObject({ labor: 'hauling', buildTicks: 20, rest: 90, inputs: [{ match: 'cloth|wool_raw', count: 2 }] });
+    expect(buildings.byId('straw_pallet')).toMatchObject({ labor: 'hauling', buildTicks: 20, rest: 90, inputs: [{ match: 'fiber|straw|reed', count: 3 }] });
+    expect(buildings.byId('stone_bed')).toMatchObject({ labor: 'masonry', rest: 95, inputs: [{ match: 'stone_bed', count: 1 }] });
     expect(buildings.byId('bed')).toMatchObject({ rest: 100, wants: [{ match: 'bedding', count: 1 }, { match: 'pillow', count: 1 }] });
     for (const id of ['pallet', 'straw_pallet', 'stone_bed', 'bed']) expect(buildings.byId(id)?.tags).toContain('sleep');
     // The floor rests below every bed, a made-up bed above.
@@ -122,12 +122,12 @@ describe('T-551 rest falls by the bed', () => {
   it('rest falls 15 × rest / 100 an hour asleep', () => {
     const zero = { hunger: 0, thirst: 0, rest: 60, social: 0, comfort: 0, purpose: 0, joy: 0 };
     expect(advanceNeeds(zero, 50, 100, true, false).rest).toBe(60 + REST_ASLEEP_PER_HOUR);
-    expect(advanceNeeds(zero, 50, 100, true, false, FLOOR_REST_PERCENT).rest).toBe(60 + REST_ASLEEP_PER_HOUR / 2);
+    expect(advanceNeeds(zero, 50, 100, true, false, FLOOR_REST_PERCENT).rest).toBe(60 + REST_ASLEEP_PER_HOUR * FLOOR_REST_PERCENT / 100);
     expect(advanceNeeds(zero, 50, 100, true, false, 60).rest).toBe(51);
-    expect(advanceNeeds(zero, 50, 100, true, false, MADE_UP_REST_PERCENT).rest).toBe(60 - 18.75);
+    expect(advanceNeeds(zero, 50, 100, true, false, MADE_UP_REST_PERCENT).rest).toBe(60 + REST_ASLEEP_PER_HOUR * MADE_UP_REST_PERCENT / 100);
   });
 
-  it('a dwarf with no bed sleeps on the floor at 50: twice as long as in a bed', () => {
+  it('a dwarf with no bed sleeps on the floor at FLOOR_REST_PERCENT: longer than in a bed (T-572: about a sixth)', () => {
     const run = (withBed: boolean): { ticks: number; event: GameEvent } => {
       const w = new TestWorld({ seed: 't551-floor', world: 'flat-test', embark: 'none' });
       const tiles = room(w, 10, 30, 3, 2);
@@ -144,8 +144,9 @@ describe('T-551 rest falls by the bed', () => {
     const bed = run(true);
     expect(floor.event).toMatchObject({ onFloor: true, rest: FLOOR_REST_PERCENT, bedding: 'none', bedType: '' });
     expect(bed.event).toMatchObject({ onFloor: false, rest: 100, bedding: 'none', bedType: 'bed' });
-    // From 89, rest 0 is 89 / 7.5 hours on the floor and 89 / 15 in a bed, within the hour's rounding.
-    expect(floor.ticks).toBeGreaterThan(1.8 * bed.ticks);
+    // From 89, rest 0 is 89 / 12.75 hours on the floor and 89 / 15 in a bed, within the hour's rounding (T-572).
+    expect(floor.ticks).toBeGreaterThan(bed.ticks);
+    expect(floor.ticks).toBeLessThan(1.5 * bed.ticks);
     expect(floor.ticks).toBeLessThan(SLEEP_HOURS * TICKS_PER_HOUR * 100 / FLOOR_REST_PERCENT);
   });
 });
@@ -178,12 +179,12 @@ describe('T-551 pallets', () => {
     expect(laid).toBeLessThanOrEqual(6 * TICKS_PER_HOUR);
     // Laid from materials: no linked item, two cloth consumed and kept for taking apart; no xp for the layer.
     expect(reader.get(pallets[0] as EntityId)?.settings['inputs']).toEqual([{ type: 'cloth', material: registry.table('materials').index('flax_cloth') }, { type: 'cloth', material: registry.table('materials').index('flax_cloth') }]);
-    expect(reader.restPercent(pallets[0] as EntityId)).toBe(60);
+    expect(reader.restPercent(pallets[0] as EntityId)).toBe(90);
     // The night: every founder sleeps on a pallet and thinks so.
     w.until((v) => dwarves.every((id) => slept(v, id).length > 0), 2 * 1200);
     for (const id of dwarves) {
       const event = slept(w, id)[0] as GameEvent;
-      expect(event).toMatchObject({ onFloor: false, rest: 60, bedType: 'pallet', bedding: 'none' });
+      expect(event).toMatchObject({ onFloor: false, rest: 90, bedType: 'pallet', bedding: 'none' });
     }
     expect(dwarves.some((id) => thoughtIds(w, id).includes('slept_on_a_pallet'))).toBe(true);
     // Taking one apart returns its two cloth.
@@ -222,7 +223,7 @@ describe('T-551 a bed wants its bedding and pillow', () => {
     return { w, bed, dwarf, tiles };
   }
 
-  it('haulers make a bed up: the held items are installed, the bed rests at 125 and its sleeper thinks soft', () => {
+  it('haulers make a bed up: the held items are installed, the bed rests at MADE_UP_REST_PERCENT and its sleeper thinks soft', () => {
     const { w, bed, dwarf, tiles } = bedroom('t551-made-up');
     expect(b14(w).wants(bed)).toEqual([{ match: 'bedding', count: 1, held: 0, coming: 0 }, { match: 'pillow', count: 1, held: 0, coming: 0 }]);
     const bedding = stuffed(w, 'bedding', tiles[11] as TileIndex, 'wool');
@@ -268,7 +269,7 @@ describe('T-551 a bed wants its bedding and pillow', () => {
     expect(w.game.world.applyCommand({ type: 'ReleaseHeld', buildingId: bed })).toMatchObject({ ok: false, reason: 'precondition_failed' });
   });
 
-  it('feathers in both make a featherbed: its thought, double worth; bedding alone rests at 125 with no thought; the bed taken apart drops what it holds', () => {
+  it('feathers in both make a featherbed: its thought, double worth; bedding alone rests at MADE_UP_REST_PERCENT with no bedding thought; the bed taken apart drops what it holds', () => {
     const { w, bed, dwarf, tiles } = bedroom('t551-featherbed');
     const bedding = stuffed(w, 'bedding', tiles[11] as TileIndex, 'feather');
     const plain = w.spawnItem('bedding', 'flax_cloth', tiles[9] as TileIndex, 1, 2);
@@ -299,13 +300,13 @@ describe('T-551 a bed wants its bedding and pillow', () => {
     }
   });
 
-  it('a stone bed wants nothing and rests at 75', () => {
+  it('a stone bed wants nothing and rests at 95', () => {
     const w = new TestWorld({ seed: 't551-stone-bed', world: 'flat-test', embark: 'none' });
     const tiles = room(w, 10, 30, 3, 2);
     const bed = w.build('stone_bed', tiles[0] as TileIndex, 'granite');
     expect(b14(w).wants(bed)).toEqual([]);
     expect(b14(w).withWants()).toEqual([]);
-    expect(b14(w).restPercent(bed)).toBe(75);
+    expect(b14(w).restPercent(bed)).toBe(95);
     expect(b14(w).bedding(bed)).toBe('none');
   });
 });

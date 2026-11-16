@@ -1,5 +1,5 @@
 /**
- * T-551 sleep audit probe: the first 112 days of the three-year economy fixture, played as
+ * T-551 sleep audit probe (T-572: with the wooden beds crafted by recipe): the first 112 days of the three-year economy fixture, played as
  * three_years_seeds plays it, journalling every sleep errand (rest at its start, on lying down and
  * at its end, ticks walking and in bed, floor or bed and the bed's rest percent) and the share of
  * dwarf-time spent on a job (the working time). The same measurement as the T-369 audit
@@ -38,7 +38,14 @@ describe('T-551 sleep audit', () => {
     const open = new Map<number, Episode>();
     const episodes: Episode[] = [];
     const slept = new Map<number, { onFloor: boolean; rest: number }>();
+    const crafted: Record<string, number> = {};
+    let firstBedDay = -1;
     w.game.world.onEvents((events) => {
+      for (const e of events) if (e.type === 'ItemCrafted' && String(e['recipeId']).startsWith('make_bed')) {
+        // T-572: the wooden beds made, by recipe, and the day of the first.
+        const recipe = String(e['recipeId']);
+        if (recipe === 'make_bed' || recipe === 'make_bed_straw') { crafted[recipe] = (crafted[recipe] ?? 0) + 1; if (firstBedDay < 0) firstBedDay = Math.floor(w.tick / TICKS_PER_DAY); }
+      }
       for (const e of events) if (e.type === 'Slept') slept.set(Number(e['id']), { onFloor: e['onFloor'] === true, rest: Number(e['rest'] ?? (e['onFloor'] === true ? 100 : 100)) });
     });
     let dwarfTicks = 0, walkTicks = 0, bedTicks = 0, workTicks = 0;
@@ -117,6 +124,7 @@ describe('T-551 sleep audit', () => {
       bedTicksMedianBed: med(done.filter((e) => e.slept && !e.onFloor).map((e) => e.bedTicks)),
       bedTicksMedianMadeUp: med(done.filter((e) => e.restPercent > 100).map((e) => e.bedTicks)),
       endedAtRestZero: eps.filter((e) => e.restEnd === 0).length,
+      bedsCrafted: crafted, firstBedDay,
     };
     console.log(`SLEEP_AUDIT ${JSON.stringify(summary)}`);
     writeFileSync(`${OUT}/${seed}${dress ? '-dressed' : ''}.json`, `${JSON.stringify({ summary, episodes: eps.length }, null, 1)}\n`);

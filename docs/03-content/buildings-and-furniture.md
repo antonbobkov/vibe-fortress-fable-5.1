@@ -39,9 +39,9 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | `memorial_slab` | memorial slab | 1×1 | floor | `memorial_slab` | masonry | 60 | memorial | item | no | `╤` item | — | — |
 | `archery_target` | archery target | 1×1 | floor | `archery_target` | carpentry | 30 | archery_target | 0 | no | `◙` item | — | — |
 | `chain_post` | chain | 1×1 | floor | `chain` or `rope` | construction | 30 | chain | 0 | yes | `§` item | — | — |
-| `pallet` | cloth pallet | 1×1 | floor | 2 `cloth` or `wool_raw` | hauling | 20 | sleep | 0 | yes | `≈` material | 60 | — |
-| `straw_pallet` | straw pallet | 1×1 | floor | 3 `fiber`, `straw` or `reed` | hauling | 20 | sleep | 0 | yes | `≈` material | 60 | — |
-| `stone_bed` | stone bed | 1×1 | floor | `stone_bed` | masonry | 40 | sleep | item | yes | `Θ` item | 75 | — |
+| `pallet` | cloth pallet | 1×1 | floor | 2 `cloth` or `wool_raw` | hauling | 20 | sleep | 0 | yes | `≈` material | 90 | — |
+| `straw_pallet` | straw pallet | 1×1 | floor | 3 `fiber`, `straw` or `reed` | hauling | 20 | sleep | 0 | yes | `≈` material | 90 | — |
+| `stone_bed` | stone bed | 1×1 | floor | `stone_bed` | masonry | 40 | sleep | item | yes | `Θ` item | 95 | — |
 | `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | `∩` item | — | — |
 | `anvil_stand` | — | not a building; the anvil is an input of the forge | | | | | | | | | | |
 

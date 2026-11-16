@@ -570,7 +570,7 @@ describe('U-05 the building panel (M4)', () => {
 });
 
 describe('T-551 a bed\'s panel: its rest, what it is made up with, and [h] take out (ReleaseHeld)', () => {
-  it('T-551 a made-up bed names its bedding and pillow, rests at 125%, and [h] takes them out; a pallet rests at 60%', () => {
+  it('T-551 a made-up bed names its bedding and pillow, rests at 110%, and [h] takes them out; a pallet rests at 90%', () => {
     const f = setup('t551-bed-panel');
     const bed = f.w.build('bed', f.w.index(30, 30, z), 'oak');
     const pallet = f.w.build('pallet', f.w.index(34, 30, z), 'flax_cloth');
@@ -589,7 +589,7 @@ describe('T-551 a bed\'s panel: its rest, what it is made up with, and [h] take 
     f.w.until((v) => v.readers.of<BuildingsReader>('14').held(bed).length === 2, 1200);
     const text = panel(f).text;
     expect(text).toContain('Made up: linen bedding, feather pillow');
-    expect(text).toContain('Rests at 125%');
+    expect(text).toContain('Rests at 110%');
     expect(text).not.toContain('Wants:');
     f.screen.key(press('h'));
     expect(f.sent).toEqual([{ type: 'ReleaseHeld', buildingId: bed }]);
@@ -597,7 +597,7 @@ describe('T-551 a bed\'s panel: its rest, what it is made up with, and [h] take 
     f.w.step(1);
     expect(f.w.readers.of<BuildingsReader>('14').held(bed)).toEqual([]);
     open(f, pallet);
-    expect(panel(f).text).toContain('Rests at 60%');
+    expect(panel(f).text).toContain('Rests at 90%');
     expect(panel(f).text).not.toContain('made up');
   });
 });

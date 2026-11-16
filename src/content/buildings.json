@@ -1245,7 +1245,7 @@
     "passable": true,
     "blocksFluid": false,
     "value": 0,
-    "rest": 60,
+    "rest": 90,
     "glyph": "≈"
   },
   {
@@ -1646,7 +1646,7 @@
     "passable": true,
     "blocksFluid": false,
     "value": 0,
-    "rest": 75,
+    "rest": 95,
     "glyph": "Θ"
   },
   {
@@ -1705,7 +1705,7 @@
     "passable": true,
     "blocksFluid": false,
     "value": 0,
-    "rest": 60,
+    "rest": 90,
     "glyph": "≈"
   },
   {

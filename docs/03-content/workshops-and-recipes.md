@@ -49,7 +49,8 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
-| `make_bed` | Bed | 1 log | 1 bed (from_input) | 150 | yes | 8 |
+| `make_bed` | Bed | 1 log + 2 cloth or wool_raw | 1 bed (from_input) | 150 | yes | 8 |
+| `make_bed_straw` | Bed (straw) | 1 log + 3 fiber or straw or reed | 1 bed (from_input) | 150 | yes | 8 |
 | `make_table_wood` | Table | 1 log | 1 table | 120 | yes | 6 |
 | `make_chair_wood` | Chair | 1 log | 1 chair | 100 | yes | 6 |
 | `make_door_wood` | Door | 1 log | 1 door | 120 | yes | 6 |
@@ -388,7 +389,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 28, mason 15, craftsdwarf 21, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 7, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 11, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 245.
+Carpenter 29, mason 15, craftsdwarf 21, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 7, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 11, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 246.
 
 ## Time arithmetic
 

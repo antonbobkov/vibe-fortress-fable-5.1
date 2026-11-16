@@ -11,6 +11,7 @@ import type { PlantsReader } from '@systems/plants';
 import { ripensInTime } from '@systems/plants/growth';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { TradeReader } from '@systems/trade/reader';
+import type { WorkshopsReader } from '@systems/workshops';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
@@ -128,6 +129,8 @@ const MEAL_RESERVE_DAYS = 56;
  * The crops a surface strip may sow in spring, summer and autumn, food first (`plants.md`): a
  * player sows what the seed in stock allows. Cave plots sow one cave crop in every season.
  */
+/** T-572: the cloth and wool the beds leave for the hospital (17's `HOSPITAL_DEFAULT_SUPPLIES` cloth 10). */
+const BED_CLOTH_KEPT = 10;
 const SURFACE_CROPS: readonly (readonly string[])[] = [['turnip', 'strawberry', 'barley', 'cabbage'], ['turnip', 'strawberry', 'barley', 'pumpkin'], ['turnip', 'cabbage', 'pumpkin']];
 const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cavewheat'];
 /** Cave strips dug beside the first cave farm on its soil level for bought cave seed (x0, x1, y0, y1 from the centre). */
@@ -1284,13 +1287,36 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
     const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0);
     const beds = Math.min(bedPlaces, population + 1) - owned(w, 'bed');
-    const bedOrder = orders().findIndex((o) => o.recipe === recipes.index('make_bed'));
-    if (beds > 0 && bedOrder < 0) {
-      const added = command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_bed', mode: 'once', remaining: beds, priority: ROUTINE } });
+    // T-572: a wooden bed takes a pallet's materials beside its log. The cloth is the hospital's: a
+    // bleeding wound is bandaged with one (17 § Treatment), and the wagon brings five, so the beds are
+    // stuffed with the barley's and the cavewheat's straw (make_bed_straw), and of cloth or wool
+    // (make_bed) only from what the hospital's ten leave over. An order that cannot run while the other
+    // can is swapped for the other, with what it had left to make.
+    const BED_RECIPES = ['make_bed', 'make_bed_straw'] as const;
+    const runnable = (id: string): boolean => w.readers.of<WorkshopsReader>('12').isRunnable(id, carpenter).runnable;
+    const spareCloth = items.available('cloth') + items.available('wool_raw') >= BED_CLOTH_KEPT + 2;
+    const allowed = (id: string): boolean => runnable(id) && (id !== 'make_bed' || spareCloth);
+    const bedRecipe = allowed('make_bed') && !runnable('make_bed_straw') ? 'make_bed' : 'make_bed_straw';
+    const bedOrder = orders().findIndex((o) => BED_RECIPES.some((id) => o.recipe === recipes.index(id)));
+    const addBeds = (remaining: number): void => {
+      const added = command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: bedRecipe, mode: 'once', remaining, priority: ROUTINE } });
       const at = standing();
       if (added.ok && at >= 0) command(w, { type: 'ReorderWorkOrder', workshopId: carpenter, from: orders().length - 1, to: at });
-    } else if (bedOrder >= 0 && beds > orders()[bedOrder]!.remaining + 1) {
-      command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: bedOrder, patch: { remaining: beds } });
+    };
+    if (beds > 0 && bedOrder < 0) {
+      addBeds(beds);
+    } else if (bedOrder >= 0) {
+      const held = orders()[bedOrder]!;
+      const heldId = held.recipe === recipes.index('make_bed') ? 'make_bed' : 'make_bed_straw';
+      // Never while the carpenter is at a bed: a job holds its stuffing, so its own recipe reads as waiting.
+      const current = w.game.world.entities.get(carpenter, C.Workshop)?.currentJobId ?? 0;
+      const atBed = current !== 0 && BED_RECIPES.some((id) => w.readers.of<JobsReader>('11').get(current)?.data?.['recipe'] === id);
+      if (heldId !== bedRecipe && !allowed(heldId) && !atBed) {
+        command(w, { type: 'RemoveWorkOrder', workshopId: carpenter, index: bedOrder });
+        addBeds(Math.max(held.remaining, beds));
+      } else if (beds > held.remaining + 1) {
+        command(w, { type: 'EditWorkOrder', workshopId: carpenter, index: bedOrder, patch: { remaining: beds } });
+      }
     }
   }
   const kitchen = state.placedIds['kitchen'];
