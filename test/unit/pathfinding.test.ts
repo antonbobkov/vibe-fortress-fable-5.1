@@ -509,6 +509,41 @@ describe('T-M0-09 pathfinding: the path cache', () => {
   });
 });
 
+describe('T-574 pathfinding: a cached route is joined ahead of its first tile', () => {
+  it('a requester ahead of the cached route\'s first tile joins it ahead, and is not sent back', () => {
+    // A corridor three tiles wide across three chunks; the route is cached from its west end.
+    const map = solidMap(48, 3, 1);
+    fillRect(map, 0, 0, 47, 2, 0, TileKind.Floor);
+    const graph = graphOf(map);
+    const cached = new Pathfinder(map, graph, null, { cache: true });
+    const head = map.index(1, 1, 0);
+    const to = map.index(46, 1, 0);
+    const first = cached.requestPath(1, head, to, 'walker');
+    cached.tick();
+    // A route holds the steps after its start.
+    const route = cached.path(first) as TileIndex[];
+    expect(route[route.length - 1]).toBe(to);
+    const steps = (path: readonly TileIndex[]): number => path.length;
+    // On the route: the rest of it from there.
+    const on = route[9] as TileIndex;
+    const second = cached.requestPath(2, on, to, 'walker');
+    cached.tick();
+    expect(cached.pathResult(second)).toEqual({ state: 'ready', path: route.slice(10) });
+    // Beside it, ahead of its first tile: never back to its start or first tile, and no longer than a walk.
+    const beside = map.index(12, 0, 0);
+    const third = cached.requestPath(3, beside, to, 'walker');
+    cached.tick();
+    const result = cached.pathResult(third);
+    expect(result.state).toBe('ready');
+    if (result.state === 'ready') {
+      expect(result.path).not.toContain(head);
+      expect(result.path).not.toContain(route[0]);
+      expect(result.path[result.path.length - 1]).toBe(to);
+      expect(steps(result.path)).toBeLessThanOrEqual(46 - 12 + 2);
+    }
+  });
+});
+
 describe('T-M0-09 pathfinding: line of sight', () => {
   it('sees along an open row and is blocked by a wall between', () => {
     const map = emptyMap(40, 4, 1);

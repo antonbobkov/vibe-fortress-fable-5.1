@@ -936,8 +936,9 @@ export class Pathfinder {
   }
 
   /**
-   * `22` § Path cache: a hit is spliced with a short A* from the requester's tile to the cached
-   * path's first tile. Returns the spliced path, or null when there is no usable entry.
+   * `22` § Path cache: a hit is spliced with a short A* from the requester's tile to the cached path's
+   * tile nearest it in the path's leading run in the requester's chunk, or taken from the requester's
+   * tile when it lies on that run. Returns the spliced path, or null when there is no usable entry.
    */
   private cacheLookup(r: PathRequest): TileIndex[] | null {
     if (!this.cacheEnabled) return null;
@@ -947,17 +948,30 @@ export class Pathfinder {
     const key = this.cacheKey(r.from, r.to, r.cls);
     this.cache.delete(key);
     this.cache.set(key, entry);
-    const head = entry.path[0] as TileIndex;
-    if (r.from === head) return entry.path.slice();
-    const splice = this.searchImmediate(
-      r.from,
-      head,
-      r.cls,
-      PATH_CACHE_SPLICE_NODE_LIMIT,
-      r.mover,
-    );
+    // T-574: the route is joined at its tile nearest the requester, among the tiles of its leading run
+    // in the requester's chunk (the later of equals), and taken from the requester's own tile when it
+    // lies on that run. Spliced to the route's first tile, a requester ahead of it walked back to it and
+    // forward again over the same tiles: a fleeing dwarf, asking again at each threat scan, walked
+    // back towards the raiders.
+    const path = entry.path;
+    const map = this.map;
+    const chunk = map.chunkOf(r.from);
+    const [fx, fy, fz] = [map.xOf(r.from), map.yOf(r.from), map.zOf(r.from)];
+    let join = 0;
+    let best = Infinity;
+    for (let k = 0; k < path.length; k += 1) {
+      const t = path[k] as TileIndex;
+      if (k > 0 && map.chunkOf(t) !== chunk) break;
+      if (t === r.from) return path.slice(k + 1);
+      const d = Math.max(Math.abs(map.xOf(t) - fx), Math.abs(map.yOf(t) - fy)) + Math.abs(map.zOf(t) - fz);
+      if (d <= best) {
+        best = d;
+        join = k;
+      }
+    }
+    const splice = this.searchImmediate(r.from, path[join] as TileIndex, r.cls, PATH_CACHE_SPLICE_NODE_LIMIT, r.mover);
     if (splice === null) return null;
-    return splice.concat(entry.path.slice(1));
+    return splice.concat(path.slice(join + 1));
   }
 
   /** Drop every cached route that crosses one of the given chunks. */

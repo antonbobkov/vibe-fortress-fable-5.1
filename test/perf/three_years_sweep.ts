@@ -87,17 +87,16 @@ export function poolSweeps(samples: readonly SweepFigures[]): SweepFigures {
  */
 export const SWEEP_TOLERANCE = { living: 100, deaths: 30 };
 
-// T-555: shifts 0, 50, 100 and 150 of `4b9c52f9` (T-555's hives, honey and the Wildwood's new sundries,
-// on master `df68548f`); Measure run 43826997913. The best figures are the means of its eight shifts
-// (0 to 350, runs 43826997913 and 43843562286, the second pooling 984 living and 125.5 deaths), as T-543
-// set them. The deaths rose by 17.1 a sweep over master's same eight shifts, all of it one seed's
-// timeline (three-years-p4-1) moved by the Wildwood's new list entries; accepted as a timeline shift
-// (reports/data/2026-11-16-t555-sweep-deaths.md). The row before, of `4ab37734` (T-544 with T-545,
-// run 43573320107), was 20/7/0/1024.25/130.75, best 998.25 and 113.75.
+// T-574: shifts 0, 50, 100 and 150 of `d79a1f4f` (T-574's path cache, which joins a cached route at its
+// tile nearest the requester, on master `baf8da3d`); Measure run 43869964046. The best figures are the
+// means of its eight shifts (0 to 350, runs 43869964046 and 43878798775, the second pooling 1080.25 living
+// and 90.5 deaths), as T-543 set them. Dwarves fleeing an ambush walked back towards it along a cached
+// route, and walks everywhere doubled back to a route's first tile (reports/data/2026-11-16-t574-ambush-day-297.md).
+// The row before, of `4b9c52f9` (T-555, run 43826997913), was 19.75/7/0/972.5/161.25, best 978.25 and 143.38.
 /** The best accepted pooled figures, which set the bounds; a tolerated loss is not ratcheted down. */
-export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 978.25, deaths: 143.38 };
+export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 1075.25, deaths: 100 };
 /** The latest accepted pooled row. */
-export const SWEEP_REFERENCE: SweepFigures = { alive: 19.75, grown: 7, hungry: 0, living: 972.5, deaths: 161.25, extinct: 1, needDeaths: 3 };
+export const SWEEP_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1070.25, deaths: 109.5, extinct: 0.5, needDeaths: 1 };
 
 export interface SweepCheck {
   readonly allowed: boolean;
