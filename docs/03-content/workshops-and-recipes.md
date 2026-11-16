@@ -290,13 +290,13 @@ No fuel. Authored:
 
 Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § Spells): `make_wand_<stone>` is 1 log + 1 cut_gem (the stone) → 1 wand of the log's wood, 200 ticks, `Q` yes, xp 10; `make_staff_<stone>` is 1 log + 1 cut_gem (the stone) + 1 bar → 1 staff of the bar's metal, 300 ticks, `Q` yes, xp 12. The output's stone is the gem's material. A work order's material filter picks the wand's wood and the staff's metal.
 
-Generated per row of `enchants` ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments): `set_<slot>_<enchant>` sets the row's stone in an item, `Q` yes. It is a transform recipe: it has no outputs, input 0 is kept and gains the enchantment, and an order for it is `once` only ([12-workshops-and-professions.md](../02-systems/12-workshops-and-professions.md) § Work orders). Its name is the slot's word with the row's suffix ("Keen weapon", "Ammunition of rime"); a row whose slot and suffix an earlier row in the table already has adds its stone in brackets, with spaces for underscores ("Weapon of embers (ember gland)").
+Generated per row of `enchants` ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments) with no `workshop`: `set_<slot>_<enchant>` sets the row's stone in an item, `Q` yes. A row that names a workshop has its setting there, with the skill of that workshop's recipes and by the same rules (the bowyer's fletching, § Bowyer). It is a transform recipe: it has no outputs, input 0 is kept and gains the enchantment, and an order for it is `once` only ([12-workshops-and-professions.md](../02-systems/12-workshops-and-professions.md) § Work orders). Its name is the slot's word with the row's suffix ("Keen weapon", "Ammunition of rime"); a row whose slot and suffix an earlier row in the table already has adds its stone in brackets, with spaces for underscores ("Weapon of embers (ember gland)").
 
 | slot | input 0, kept | then | ticks | xp |
 |---|---|---|---|---|
 | weapon | 1 of every melee weapon type (`weapons` rows with no launcher that are not for training), as alternatives | the stone + the row's vials in rune_vial | 300 | 15 |
 | armor | 1 of every `armor` row with a layer (of the row's `only` slot when it has one), as alternatives | the same | 300 | 15 |
-| ammo | 25 of bolt or arrow (units) | the same | 200 | 10 |
+| ammo | 25 of bolt or arrow (units) | the same (a row of 0 vials takes no vial input) | 200 | 10 |
 
 The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver bar) and 1 of the item for an item id (`wyrmscale`, `hollow_ichor`, `spider_venom`, `ember_gland`).
 
@@ -324,6 +324,10 @@ A salted hide tans as a raw hide does ([13](../02-systems/13-items-and-storage.m
 | `make_trousers_leather` | Leather trousers | 2 leather_piece | 1 trousers | 150 | yes | 6 |
 | `make_boots_leather` | Boots | 1 leather_piece | 1 boots | 100 | yes | 5 |
 | `cut_leather_rope` | Leather rope | 2 leather_piece | 1 rope (from_input) | 120 | no | 3 |
+| `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | yes | 12 |
+| `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | yes | 10 |
+
+A scale piece takes the material of its plates: shell, chitin, bone or horn ([weapons-and-armor.md](weapons-and-armor.md) § Armor).
 
 ## Loom (`weaving`)
 
@@ -373,8 +377,11 @@ A salted hide tans as a raw hide does ([13](../02-systems/13-items-and-storage.m
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
 | `make_bow` | Bow | 1 log | 1 bow (from_input; yew: power 1.10) | 180 | yes | 8 |
+| `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | yes | 9 |
 | `make_crossbow_wood` | Crossbow | 1 log | 1 crossbow (wood) | 220 | yes | 10 |
 | `make_arrows_wood` | Wooden arrows | 1 log | 20 arrow (wood) | 80 | no | 4 |
+
+A horn bow shoots as a yew bow (power 1.10) whatever its wood, and a yew horn bow is no better: the horn stands in for the yew, at a horn and 40 ticks more. Generated: `set_ammo_fletched`, "Fletched ammunition", from the `fletched` enchantment, which names the bowyer ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments): 25 bolts or arrows, kept, + 1 feather, no vials, 200 ticks, `Q` yes, xp 10, skill `carpentry`. It is a setting by every rule of § Runeforge: a transform recipe, `once` orders only, and a fletched set takes no stone after.
 
 ## Kiln (`pottery`)
 
@@ -408,7 +415,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 8, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 259.
+Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 8, still 4, tannery 1, leatherworks 14, loom 3, clothier 10, farmer's workshop 5, bowyer 4 (and generated: 1 fletching), kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment with no workshop = 22). Total 263.
 
 ## Time arithmetic
 
@@ -422,12 +429,9 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 | workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
 |---|---|---|---|---|---|---|---|---|---|---|
-| leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
-| leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
-| bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
 | craftsdwarf | `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | no | 2 | — | T-559 |
 | kitchen | `cook_feast` | Feast | 6 ingredient (distinct stacks) + 1 salt or honey or plant_food (wyrmtongue) | 1 feast (20 servings) | 400 | no | yes | 20 | — | T-565 |
 
-The smokehouse's skill is `cooking`. The fletching recipe `set_ammo_fletched` is generated at the bowyer from the `fletched` enchantment ([weapons-and-armor.md](weapons-and-armor.md) § Planned rows). Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
+The smokehouse's skill is `cooking`. Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
 
 A substitute pair the check reads: a basket 3 reeds for 15 against a log for 30; a bone splint 1 bone for 2 against a log for 4; coarse thread 2 fiber against 1.

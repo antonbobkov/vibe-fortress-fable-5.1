@@ -670,7 +670,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     name: str,
     armorSlot: enumOf(['head', 'body', 'arms', 'legs', 'feet', 'shield']),
     covers: arr(obj({ part: enumOf(BODY_SLOTS), coverage: int })),
-    layer: enumOf(['padding', 'leather', 'mail', 'plate', 'none']),
+    layer: enumOf(['padding', 'leather', 'scale', 'mail', 'plate', 'none']),
     armor: int,
     weight: int,
     bars: opt(int),
@@ -685,6 +685,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     type: enumOf(DAMAGE_TYPES),
     padding: fixed,
     leather: fixed,
+    scale: fixed,
     mail: fixed,
     plate: fixed,
     ward: fixed,
@@ -722,6 +723,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
       1,
     ),
     only: opt(enumOf(['head', 'body', 'arms', 'legs', 'feet'])),
+    /** The workshop its setting is made at; absent: the runeforge (`25` § Setting stones). */
+    workshop: opt(ref('buildings')),
   }),
 
   bodyPlans: rows({

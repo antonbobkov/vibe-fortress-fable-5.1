@@ -87,12 +87,12 @@ function cellGoblin(w: TestWorld, x: number, y: number, ring = false): EntityId 
 const magic = (w: TestWorld): MagicReader => w.readers.of<MagicReader>('25');
 
 describe('T-470 damage types and the layer table', () => {
-  it('the layer table in content is the constant 16 reads, ward column included; burn has no row', () => {
-    const json = registry.derived<{ type: string; padding: number; leather: number; mail: number; plate: number; ward: number }[]>('damageVsLayer');
+  it('the layer table in content is the constant 16 reads, scale and ward columns included; burn has no row', () => {
+    const json = registry.derived<{ type: string; padding: number; leather: number; scale: number; mail: number; plate: number; ward: number }[]>('damageVsLayer');
     expect(json.map((r) => r.type)).toEqual(['edge', 'pierce', 'blunt', 'ember', 'frost']);
     for (const row of json) {
       const c = DAMAGE_VS_LAYER[row.type as keyof typeof DAMAGE_VS_LAYER];
-      expect([row.padding, row.leather, row.mail, row.plate, row.ward].map((v) => v / 1000)).toEqual([c.padding, c.leather, c.mail, c.plate, c.ward]);
+      expect([row.padding, row.leather, row.scale, row.mail, row.plate, row.ward].map((v) => v / 1000)).toEqual([c.padding, c.leather, c.scale, c.mail, c.plate, c.ward]);
     }
     expect(json.some((r) => r.type === 'burn')).toBe(false);
   });

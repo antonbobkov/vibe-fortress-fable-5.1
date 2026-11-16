@@ -279,7 +279,8 @@ export function scoreArmorPiece(
   const matClass = matRow?.class ?? '';
 
   if (preference === 'metal' && matClass !== 'metal') return -1;
-  if (preference === 'leather' && matClass !== 'leather') return -1;
+  // 16 § Equipment: `leather` is the line with no metal, leather pieces and scale (plates sewn on leather).
+  if (preference === 'leather' && matClass !== 'leather' && aRow.layer !== 'scale') return -1;
 
   let armorMult = 1.0;
   if (matRow && matRow.class === 'metal') {

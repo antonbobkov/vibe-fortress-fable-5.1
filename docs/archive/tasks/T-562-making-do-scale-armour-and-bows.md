@@ -1,6 +1,8 @@
 # T-562 — Making Do A3b: scale armour, horn bows and fletching
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 3, 7 (armor between leather and mail, fletching)); T-546, split from T-549 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in 1bef6d05,f6627d8e.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 3, 7 (armor between leather and mail, fletching)); T-546, split from T-549 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

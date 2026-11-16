@@ -407,3 +407,14 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | carve_fossil |
 | recipes | carve_ivory_statue |
 | thoughts | stood_in_the_ribs |
+| weapons | horn_bow |
+| items | horn_bow |
+| armor | scale_shirt |
+| armor | scale_skirt |
+| items | scale_shirt |
+| items | scale_skirt |
+| enchants | fletched |
+| recipes | make_scale_shirt |
+| recipes | make_scale_skirt |
+| recipes | make_horn_bow |
+| recipes | set_ammo_fletched |

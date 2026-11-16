@@ -43,17 +43,18 @@ interface WeaponDef extends ItemTypeDef {
 interface AmmoDef extends ItemTypeDef { damageType: DamageType; damage: number; perBar: number; perLog: number; perBone: number }
 interface ArmorDef extends ItemTypeDef {
   armorSlot: 'head'|'body'|'arms'|'legs'|'feet'|'shield'; covers: { part: BodySlot; coverage: Percent }[];
-  layer: 'padding'|'leather'|'mail'|'plate'|'none'; armor: number; weight: number; bars?: number; leather?: number; cloth?: number;
+  layer: 'padding'|'leather'|'scale'|'mail'|'plate'|'none'; armor: number; weight: number; bars?: number; leather?: number; cloth?: number;
   rune?: { regenPercent?: Percent; maxBonus?: number } /* a runed robe, a circlet (25); never counts toward the metal penalty */;
 }
-interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; mail: Fixed; plate: Fixed; ward: Fixed }
+interface DamageVsLayerDef { type: DamageType; padding: Fixed; leather: Fixed; scale: Fixed; mail: Fixed; plate: Fixed; ward: Fixed }
 interface SpellDef { id: string; name: string; stone: Id<MaterialDef>; kind: 'bolt'|'burst'|'single'|'ward'|'mend'|'dread'|'call';
                      cost: number /* whole rune */; range?: number /* absent: the channel's */; base?: number; type?: DamageType;
                      ticks?: number; suffix: string }
 interface EnchantDef { id: string; slot: 'weapon'|'armor'|'ammo'; stone: Id<MaterialDef> | Id<ItemTypeDef> /* a gem, set as a cut_gem of it; a metal, as a bar of it; or an item */;
                        vials: number; suffix: string /* "of …" follows the name, any other goes before it */;
                        effects: { kind: string; value: number; type?: DamageType; chance?: Percent; ticks?: number; scales: 'value'|'ticks'|'none' }[] /* at least 1 */;
-                       only?: 'head'|'body'|'arms'|'legs'|'feet' }
+                       only?: 'head'|'body'|'arms'|'legs'|'feet';
+                       workshop?: Id<BuildingDef> /* where its setting is made, with that workshop's skill; absent: the runeforge (25) */ }
 interface DraughtDef { id: Id<ItemTypeDef> /* the draught's item */; effects: { kind: 'mend'|'ease'|'heal_rate'|'pain_half'|'haste'|'fire_immune'|'spot_radius'; value: number }[];
                        trigger: 'wounded'|'raid'|'deep'|'fire'|'miserable'|'never' }   // items.md § Draughts; 25 § Draughts
 
