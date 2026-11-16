@@ -129,6 +129,8 @@ const MEAL_RESERVE_DAYS = 56;
  * The crops a surface strip may sow in spring, summer and autumn, food first (`plants.md`): a
  * player sows what the seed in stock allows. Cave plots sow one cave crop in every season.
  */
+/** T-572: the cloth and wool the beds leave for the hospital (17's `HOSPITAL_DEFAULT_SUPPLIES` cloth 10). */
+const BED_CLOTH_KEPT = 10;
 const SURFACE_CROPS: readonly (readonly string[])[] = [['turnip', 'strawberry', 'barley', 'cabbage'], ['turnip', 'strawberry', 'barley', 'pumpkin'], ['turnip', 'cabbage', 'pumpkin']];
 const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cavewheat'];
 /** Cave strips dug beside the first cave farm on its soil level for bought cave seed (x0, x1, y0, y1 from the centre). */
@@ -1285,12 +1287,16 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
     const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0);
     const beds = Math.min(bedPlaces, population + 1) - owned(w, 'bed');
-    // T-572: a wooden bed takes a pallet's materials beside its log: the wagon's linen while it lasts
-    // (make_bed), then the barley's straw or gathered fiber (make_bed_straw). An order that waits for its
-    // stuffing while the other's is in stock is swapped for the other, with what it had left to make.
+    // T-572: a wooden bed takes a pallet's materials beside its log. The cloth is the hospital's: a
+    // bleeding wound is bandaged with one (17 § Treatment), and the wagon brings five, so the beds are
+    // stuffed with the barley's and the cavewheat's straw (make_bed_straw), and of cloth or wool
+    // (make_bed) only from what the hospital's ten leave over. An order that cannot run while the other
+    // can is swapped for the other, with what it had left to make.
     const BED_RECIPES = ['make_bed', 'make_bed_straw'] as const;
     const runnable = (id: string): boolean => w.readers.of<WorkshopsReader>('12').isRunnable(id, carpenter).runnable;
-    const bedRecipe = runnable('make_bed') || !runnable('make_bed_straw') ? 'make_bed' : 'make_bed_straw';
+    const spareCloth = items.available('cloth') + items.available('wool_raw') >= BED_CLOTH_KEPT + 2;
+    const allowed = (id: string): boolean => runnable(id) && (id !== 'make_bed' || spareCloth);
+    const bedRecipe = allowed('make_bed') && !runnable('make_bed_straw') ? 'make_bed' : 'make_bed_straw';
     const bedOrder = orders().findIndex((o) => BED_RECIPES.some((id) => o.recipe === recipes.index(id)));
     const addBeds = (remaining: number): void => {
       const added = command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: bedRecipe, mode: 'once', remaining, priority: ROUTINE } });
@@ -1305,7 +1311,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       // Never while the carpenter is at a bed: a job holds its stuffing, so its own recipe reads as waiting.
       const current = w.game.world.entities.get(carpenter, C.Workshop)?.currentJobId ?? 0;
       const atBed = current !== 0 && BED_RECIPES.some((id) => w.readers.of<JobsReader>('11').get(current)?.data?.['recipe'] === id);
-      if (heldId !== bedRecipe && !runnable(heldId) && !atBed) {
+      if (heldId !== bedRecipe && !allowed(heldId) && !atBed) {
         command(w, { type: 'RemoveWorkOrder', workshopId: carpenter, index: bedOrder });
         addBeds(Math.max(held.remaining, beds));
       } else if (beds > held.remaining + 1) {
