@@ -7,6 +7,7 @@
  * `register.jobProducer` are polled every tick in registration order; 10 queues and steps workers.
  */
 
+import { C } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { CommandType } from '@core/command-types';
 import type { EventType } from '@core/event-types';
@@ -60,6 +61,8 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     'ItemReleased',
     'StocksChanged',
     'CreatureDied',
+    'CreatureUnconscious',
+    'CreatureStunned',
     'CorpseCreated',
     'ImmigrantsArrived',
     'NeedCritical',
@@ -156,6 +159,17 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
       board.trigger('no_worker');
     } else if (type === 'CreatureDied') {
       board.workerDied(event['id'] as EntityId);
+    } else if (type === 'CreatureUnconscious') {
+      // § Job steps, interruptions: a worker that goes down gives its job back in the same tick.
+      board.releaseDown(event['id'] as EntityId);
+    } else if (type === 'CreatureStunned') {
+      // 17 knocks a stunned creature out in this same dispatch, after 11 has seen the event, and its
+      // `CreatureUnconscious` comes a tick later: the job is given back now.
+      const id = event['id'] as EntityId;
+      const until = event['until'];
+      if (typeof until === 'number' && until > ctx.tick && ctx.world.entities.alive(id) && ctx.world.entities.has(id, C.Body)) {
+        board.releaseDown(id, true);
+      }
     } else if (type === 'CorpseCreated') {
       // A hunt job hauls the corpse of the creature it hunted (09 § Hunting).
       for (const id of board.ids) {
