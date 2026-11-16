@@ -100,7 +100,8 @@ interface BuildingDef extends RowBase {
   on: string; inputs: { match: Id<ItemTypeDef> | string; material?: MaterialClass[] | 'any'; count: number | 'tiles' }[];
   labor: Id<LaborDef> | 'by_material'; buildTicks: number; tags: string[]; roomValue: 'item' | 'item_x2' | number; passable: boolean | 'rules';
   blocksFluid: boolean | 'rules'; value: number; pattern?: Id<PatternDef>; impassableTiles?: number[]; workTile?: number; outputTile?: number;
-  magmaVariantOf?: Id<BuildingDef>;
+  magmaVariantOf?: Id<BuildingDef>; rest?: number;
+  wants?: { match: Id<ItemTypeDef> | string; count: number; per?: 'chair'; max?: number }[]; // 14 § Building wants; per chair beside it, up to max (14 § Mugs at the table)
 }
 interface ZoneTypeDef extends RowBase { room: boolean; requirements: string[]; settings: string[]; consumers: string[] }
 interface RecipeDef extends RowBase {
@@ -142,6 +143,10 @@ interface TraitDef extends RowBase { pair: string; freq: number; base: number; s
 interface ThoughtDef extends RowBase {
   text: string; value: number | { formula: string }; hours: number | null; decay: 'linear'|'halflife'|'standing'; cap: number;
   group: string; trigger: { event: string; where?: Record<string, unknown>; target: string } | { condition: string }; announce: boolean;
+}
+interface WhimDef extends RowBase { // personality-and-thoughts.md § Whims (10 § The Thane's whim)
+  kind: 'stock' | 'room'; item: Id<ItemTypeDef> | 'any'; material?: Id<MaterialDef>; quality?: number; bedding?: 'feather';
+  zone?: Id<ZoneTypeDef>; thane?: boolean; count: number; text: string;
 }
 interface NamesDef { givenA: string[]; givenB: string[]; shared: string[]; hallFirst: string[]; hallSecond: string[];
   fortressPrefix: string[]; fortressSuffix: string[]; needsSpace: string[]; regionFlavor: Record<string, string[]>;

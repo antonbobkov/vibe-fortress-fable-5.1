@@ -108,6 +108,35 @@ export function exportThoughts() {
   return byId(out);
 }
 
+/**
+ * personality-and-thoughts.md § Whims: what the Thane may wish for in a season (10 § The Thane's
+ * whim). The `what` cell names the item or building type first ("any item" for any), then "of
+ * `material`", "of masterwork quality", "made up with feathers" and "in a `zone`" or "in the
+ * Thane's `zone`".
+ */
+export function exportWhims() {
+  const tables = readTables(join(CONTENT_DIR, 'personality-and-thoughts.md'));
+  return byId(
+    asObjects(findTable(tables, 'Whims', 'kind')).map((row) => {
+      const what = String(row.what ?? '');
+      const type = /^\s*any item/.test(plain(what)) ? 'any' : /^\s*`([a-z_]+)`/.exec(what)?.[1];
+      if (type === undefined) throw new Error('personality-and-thoughts.md § Whims: no type in ' + what);
+      return compact({
+        id: id(row.id),
+        kind: plain(row.kind),
+        item: type,
+        material: /of `([a-z_]+)`/.exec(what)?.[1],
+        quality: /masterwork quality/.test(what) ? 5 : undefined,
+        bedding: /made up with feathers/.test(what) ? 'feather' : undefined,
+        zone: /in (?:a|the Thane's) `([a-z_]+)`/.exec(what)?.[1],
+        thane: /the Thane's/.test(what) ? true : undefined,
+        count: int(row.count),
+        text: unquote(row.text),
+      });
+    }),
+  );
+}
+
 // ---------- names ----------
 
 function listAfter(text, label) {

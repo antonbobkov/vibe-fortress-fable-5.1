@@ -239,8 +239,9 @@ Wooden crossbows, bows and shields are made at the bowyer and carpenter. Leather
 | `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | 5 |
 | `salt_fish` | Salt fish | 5 raw_fish (same material) + 1 salt | 5 cured_fish (from_input) | 100 | no | 5 |
 | `make_soap` | Soap | 1 tallow + 1 potash | 2 soap (`soap`) | 100 | no | 4 |
+| `cook_feast` | Feast | 1 salt or honey or plant_food (salt, honey, wyrmtongue) + 6 ingredient (distinct stacks) | 20 feast (a stack of servings; from input 2) | 400 | yes | 20 |
 
-Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack. A meal with salt among its ingredients is salted: "salted boar stew", and `ate_salted_meal` beside its own thought ([12](../02-systems/12-workshops-and-professions.md) § Smoke, salt and the smokehouse). Salting meat or fish burns no fuel: the desert's way of keeping meat.
+A feast is a stack of 20 servings of the first of its six ingredients, seasoned with salt, honey or wyrmtongue; the seasoning is named first so that the six ingredients are fetched from what is left ([12](../02-systems/12-workshops-and-professions.md) § Feasts). Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack. A meal with salt among its ingredients is salted: "salted boar stew", and `ate_salted_meal` beside its own thought ([12](../02-systems/12-workshops-and-professions.md) § Smoke, salt and the smokehouse). Salting meat or fish burns no fuel: the desert's way of keeping meat.
 
 ## Still (`brewing`)
 
@@ -408,7 +409,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 8, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 259.
+Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 9, still 4, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 5, bowyer 3, kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 260.
 
 ## Time arithmetic
 
@@ -426,7 +427,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
 | bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
 | craftsdwarf | `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | no | 2 | — | T-559 |
-| kitchen | `cook_feast` | Feast | 6 ingredient (distinct stacks) + 1 salt or honey or plant_food (wyrmtongue) | 1 feast (20 servings) | 400 | no | yes | 20 | — | T-565 |
 
 The smokehouse's skill is `cooking`. The fletching recipe `set_ammo_fletched` is generated at the bowyer from the `fletched` enchantment ([weapons-and-armor.md](weapons-and-armor.md) § Planned rows). Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
 

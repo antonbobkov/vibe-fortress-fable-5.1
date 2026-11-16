@@ -147,6 +147,11 @@ A recipe that stands in for a regular one when its input is missing (shells for 
 - Kitchen: `salt_meat` (5 raw meat of one material + 1 salt → 5 cured meat, no fuel) and `salt_fish` (the same for fish), beside `crush_halite`. Cured meat and fish never rot and are worth twice the raw (13 § Curing); they are ingredients.
 - `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (§ Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt, beside the meal's own thought: a salted meal is worth a thought a tier up, an easy meal's +2 becoming +3.
 
+### Feasts
+
+- Kitchen `cook_feast`: 1 `salt`, `honey` or `plant_food` of wyrmtongue (the seasoning) + 6 ingredients from distinct stacks → 20 `feast` (one stack of 20 servings, of the first ingredient's material), `Q` yes, 400 ticks, no fuel. The seasoning is the first input so that the job fetches it before the six ingredients, which would otherwise take the only salt as one of their own; a salt or wyrmtongue feast is seasoned as a meal is (§ Operation).
+- Its `ItemCrafted` (`recipeId` `cook_feast`) gives everyone `held_a_feast` (15); each serving eaten gives its eater `feasted` (10 § Feasts).
+
 ### Professions
 
 - `professionOf(dwarf)`: the profession name of the dwarf's highest skill (ties: the most recently raised); `Settler` if all skills are 0; `Child` for children; for a dwarf in a squad and on duty, the military title of their weapon skill (`Axedwarf`, `Hammerdwarf`, `Swordsdwarf`, `Speardwarf`, `Crossbowdwarf`, `Bowdwarf`, `Recruit` if none ≥ 1).
@@ -224,7 +229,3 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 
 - An `enchants` row may name a `workshop` (`weapons-and-armor.md` § Enchantments gains the column; empty means the runeforge). Its generated `set_<slot>_<id>` recipe is offered at that workshop, with that workshop's skill (the bowyer's `carpentry`), and is a transform recipe by every rule of § Work orders. It emits `DeepsilverWorked` only at a `rune_work` building, as now.
 - `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5) is the one such row: 25 bolts or arrows + 1 feather → fletched. A fletched set cannot take a rune setting (one enchantment per item), so seeking (emerald, +10) and fletching are a choice.
-
-### The feast (T-565)
-
-- Kitchen `cook_feast`: 6 distinct ingredients + 1 `salt`, `honey` or `plant_food` of wyrmtongue → 1 `feast` (a stack of `FEAST_SERVINGS`), `Q` yes; its `ItemCrafted` gives everyone `held_a_feast` (10 § Planned) (T-565).

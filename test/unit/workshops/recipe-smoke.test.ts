@@ -196,12 +196,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 259', () => {
+  it('the recipe count over all types is 260', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(259);
+    expect(total).toBe(260);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {

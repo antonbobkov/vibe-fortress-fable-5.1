@@ -403,6 +403,42 @@
     "xp": 6
   },
   {
+    "id": "cook_feast",
+    "name": "Feast",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "salt|honey|plant_food",
+        "count": 1,
+        "materials": [
+          "salt",
+          "honey",
+          "wyrmtongue"
+        ]
+      },
+      {
+        "match": "ingredient",
+        "count": 6,
+        "distinct": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "feast",
+        "count": 20,
+        "material": {
+          "from": "input",
+          "index": 1
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 20
+  },
+  {
     "id": "cook_fine_meal",
     "name": "Fine meal",
     "workshop": "kitchen",
