@@ -37,6 +37,7 @@ For up or up/down stairs, the terrain producer's `extraStandTiles` also permits 
 | `slaughter` | Slaughter | butchery | butchery | entity | workshop (butcher) | 60 | — | 4 | yes |
 | `train_animal` | Train animal | animal_training | animal_training | entity | workshop (kennel) | `TRAIN_TICKS` | — | 20 | yes |
 | `tame_animal` | Tame animal | animal_training | animal_training | entity (caged) | workshop (kennel) | `TRAIN_TICKS` | — | 25 | yes |
+| `collect_honey` | Collect honey | animal_care | animal_care | building (hive) | adjacent | `COLLECT_HONEY_TICKS` | — | 4 | no |
 
 ## Foraging (producer `foraging`)
 
@@ -127,7 +128,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | terrain | `harvest_ice` | Cut ice | mining | mining | tile | adjacent, or above | `ICE_HARVEST_TICKS` | pick | 6 | yes | T-559 |
 | terrain | `ignite` | Set a fire | woodcutting | — | tile | adjacent | `IGNITE_TICKS` | firebrand (consumed) | 0 | yes | T-559 |
-| animals | `collect_honey` | Collect honey | animal_care | animal_care | building (hive) | adjacent | `COLLECT_HONEY_TICKS` | — | 4 | no | T-555 |
 | health | `wash_patient` | Wash patient | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 4 | no | T-564 |
 
 Hauling into a building that wants items is `haul_to_stockpile`; a pallet is laid by the `build` job with the row's labor `hauling`: no other job is new.

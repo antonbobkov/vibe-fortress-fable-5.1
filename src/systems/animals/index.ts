@@ -21,6 +21,8 @@ import { BaseSystem, type InitContext, type TickContext, type WorldLike } from '
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { JobsReader } from '@systems/jobs';
+import type { DwarvesReader } from '@systems/dwarves';
+import type { PlantsReader } from '@systems/plants';
 import { arrivalTame, type LocalMapSpec } from '@systems/embark';
 import type { TerrainReader } from '@systems/terrain';
 import {
@@ -51,6 +53,7 @@ import { AnimalFacts } from './facts';
 import { chunkCentre, fightNoise, hearsNoise, isHeavySleeperId, packOf, strikeBack, tickAnimal, tileOf, wakeStruck, type BrainHost } from './brain';
 import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isDoorTile, stepOffDoor, thinkTame, type TameHost } from './tame';
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
+import { Hives } from './hives';
 import type { AnimalsReader } from './reader';
 import { initialCavernSpawn, dailySpawn, leavers, regionSurfaceSpecies, surfaceCap, cavernCap, type SpawnHost } from './spawn';
 import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
@@ -58,7 +61,8 @@ import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
 export * from './constants';
 export * from './brain';
 export * from './tame';
-export { AnimalsProducer, trainKey, type AnimalsProducerHost } from './producer';
+export { AnimalsProducer, honeyKey, trainKey, type AnimalsProducerHost } from './producer';
+export { Hives, type HivesHost } from './hives';
 export { AnimalFacts, type SpeciesRow, type Diet, type Temperament } from './facts';
 export { cavernCap, dailySpawn, dangerousQuiet, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, leavers, regionSurfaceSpecies, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
 export type { AnimalsReader } from './reader';
@@ -151,6 +155,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   seasonDue = false;
   private tameHostRef: TameHost | null = null;
   private producerRef: AnimalsProducer | null = null;
+  private hivesRef: Hives | null = null;
 
   constructor(options: AnimalsOptions = { spec: { biome: '', traits: [] } }) {
     super();
@@ -200,6 +205,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     return this.producerRef;
   }
 
+  /** `08` § Hives: the built hives and the combs in them. */
+  get hives(): Hives {
+    if (this.hivesRef === null) throw new Error('08 animals: used before init');
+    return this.hivesRef;
+  }
+
   /** The spawner's host. */
   get spawner(): SpawnHost {
     if (this.spawnRef === null) throw new Error('08 animals: used before init');
@@ -220,6 +231,12 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.brainRef = this.makeBrainHost();
     this.tameHostRef = this.makeTameHost();
     this.spawnRef = this.makeSpawnHost();
+    this.hivesRef = new Hives({
+      rng: this.rng,
+      buildings: () => (this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null),
+      plants: () => (this.readers.has('07') ? this.readers.of<PlantsReader>('07') : null),
+      dwarves: () => (this.readers.has('10') ? this.readers.of<DwarvesReader>('10') : null),
+    });
     this.producerRef = new AnimalsProducer(this.makeProducerHost());
     this.readerRef = this.makeReader();
     ctx.register.jobProducer(this.producer);
@@ -404,6 +421,14 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       buildings: () => (this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null),
       jobs: () => (this.readers.has('11') ? this.readers.of<JobsReader>('11') : null),
       alive: (id) => this.entities.alive(id),
+      hives: () => this.hives.ids,
+      hiveCombs: (hive) => this.hives.combsOf(hive, (id) => this.entities.alive(id)),
+      takeCombs: (hive) => {
+        const combs = this.hives.combsOf(hive, (id) => this.entities.alive(id));
+        for (const comb of combs) this.hives.combs.delete(comb);
+        return combs;
+      },
+      stingCollector: (workerId, emit) => this.hives.stingCollector(workerId, emit),
       animalNear: (id, tile) => {
         const at = this.tileOf(id);
         return at >= 0 && Math.max(Math.abs(this.map.xOf(at) - this.map.xOf(tile)), Math.abs(this.map.yOf(at) - this.map.yOf(tile))) <= 1 && this.map.zOf(at) === this.map.zOf(tile);
@@ -708,6 +733,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         ctx.emit({ type: 'Starvation', id });
       }
     }
+    // `08` § Hives: passers-by in summer.
+    this.hives.hourly(ctx);
   }
 
   /** `08` § Pets: "Each season, each `cat` not already a pet adopts a random dwarf with `ADOPT_PERMILLE`." */
@@ -812,6 +839,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.breeding(ctx);
     this.products(ctx);
     this.dung(ctx);
+    this.hives.daily(ctx);
     this.recount();
   }
 
@@ -1159,6 +1187,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         this.nestBoxes.push(id);
         this.nestBoxes.sort((a, b) => a - b);
       }
+      this.hives.built(id);
       return;
     }
     if (event.type === 'HourPassed') {
@@ -1189,6 +1218,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       for (const egg of Array.from(this.eggs.keys())) if (this.eggs.get(egg)?.box === removed) this.eggs.delete(egg);
       const at = this.nestBoxes.indexOf(removed);
       if (at >= 0) this.nestBoxes.splice(at, 1);
+      this.hives.removed(removed, ctx);
       return;
     }
     if (event.type === 'CorpseCreated') {
@@ -1484,6 +1514,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       breedingCap: (s) => this.breedingCaps.get(asSpecies(s)) ?? BREEDING_CAP_DEFAULT,
       isDangerous: (s) => this.facts.isDangerous(asSpecies(s)),
       nestBoxes: () => this.readers.has('14') ? this.readers.of<BuildingsReader>('14').byTag(NEST_BOX_TAG).filter((id) => this.readers.of<BuildingsReader>('14').get(id)?.state === 'built') : [],
+      hives: () => this.hives.ids.slice(),
+      hiveFlowers: (id) => (this.hives.ids.includes(id) ? this.hives.flowers(id, this.map) : 0),
+      hiveCombs: (id) => this.hives.combsOf(id, (item) => this.entities.alive(item)).length,
     };
   }
 
@@ -1534,6 +1567,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       pendingTame: Array.from(this.pendingTame.entries())
         .sort((a, b) => a[0] - b[0])
         .map(([k, v]): [EntityId, EntityId] => [k, v]),
+      ...this.hives.serialize(),
     };
   }
 
@@ -1579,6 +1613,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     for (const [a, b] of state.starvingAnnounced ?? []) this.starvingAnnounced.set(a, b);
     this.lastTameThink.clear();
     for (const [a, b] of state.lastTameThink ?? []) this.lastTameThink.set(a, b);
+    this.hives.deserialize(state);
     this.cavernTileCache = [null, null, null, null];
   }
 }

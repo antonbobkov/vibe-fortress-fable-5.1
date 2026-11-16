@@ -188,5 +188,10 @@
     "id": "hint_rack",
     "trigger": "first drying_rack built",
     "text": "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain."
+  },
+  {
+    "id": "hint_hive",
+    "trigger": "a built hive with too few flowers in reach",
+    "text": "Bees need flowers: three within six tiles of the hive. Look for a meadow."
   }
 ]

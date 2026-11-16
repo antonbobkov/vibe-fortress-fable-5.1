@@ -36,15 +36,15 @@ describe('T-550 what a site has and lacks', () => {
     // The Glasslands have obsidian and ash soil whatever the biome says; the mixed geology has no row.
     const glass = siteSignature(spec({ biome: 'mountain', geology: 'mixed', traits: ['glasslands'] }), registry);
     expect(glass.has).toEqual(['stone', 'sand', 'lichen', 'horn', 'ice', 'obsidian', 'ash_soil', 'wyrmtongue']);
-    expect(glass.lacks).toEqual(['wood', 'soil', 'clay']);
+    expect(glass.lacks).toEqual(['wood', 'soil', 'clay', 'honey']);
   });
 
   it('leaves out the goods the game does not have yet', () => {
-    // No honey, camels or reindeer yet (T-555, T-561): they are kept in the rows and left out here.
-    for (const id of ['honey', 'camel', 'reindeer']) expect(registry.table('items').has(id) || registry.table('creatures').has(id)).toBe(false);
+    // No camels or reindeer yet (T-561): they are kept in the rows and left out here. Honey came with T-555.
+    for (const id of ['camel', 'reindeer']) expect(registry.table('items').has(id) || registry.table('creatures').has(id)).toBe(false);
     const desert = siteSignature(spec({ biome: 'desert', geology: 'igneous' }), registry);
     expect(desert.has).toEqual(['sand', 'salt', 'cactus_fiber', 'giant_bones', 'copper', 'gem', 'basalt']);
-    expect(desert.lacks).toEqual(['wood', 'clay', 'peat', 'flux']);
+    expect(desert.lacks).toEqual(['wood', 'clay', 'honey', 'peat', 'flux']);
     expect(siteSignature(spec({ biome: 'taiga' }), registry).has).not.toContain('reindeer');
   });
 
@@ -80,7 +80,7 @@ describe('T-550 what a site has and lacks', () => {
     const screen = new WorldMapScreen(world, { embark: () => {}, back: () => {} }, keymap, strings, new WorldMapCompositor(registry, palette), registry);
     screen.cursor = { x: desert!.id % world.size, y: Math.floor(desert!.id / world.size) };
     const text = screen.regionLines().join(' ').replace(/\s+/g, ' ');
-    expect(text).toMatch(/Wildlife .* This site has: sand, salt, cactus fiber, likely giant bones, .*\. This site lacks: wood, clay, peat/);
+    expect(text).toMatch(/Wildlife .* This site has: sand, salt, cactus fiber, likely giant bones, .*\. This site lacks: wood, clay, honey, peat/);
     const s = surface(100, 60);
     screen.draw(s);
     const rows = s.lines();
@@ -97,8 +97,8 @@ describe('T-550 sundries and preferences', () => {
     const goods = registry.derived<readonly { civ: string; entries: { item: string | string[]; sundries?: boolean; units?: number; container?: string; weight: number }[] }[]>('caravanGoods');
     const sundries = (civ: string): string[] => goods.find((g) => g.civ === civ)!.entries.filter((e) => e.sundries === true).map((e) => String(e.item));
     expect(sundries('mountainhome')).toEqual(['raw_stone', 'coal_bar', 'charcoal_bar', 'rough_gem', 'soil_load']);
-    expect(sundries('hillfolk')).toEqual(['log', 'leather_piece', 'salt', 'soil_load', 'dung', 'cured_meat']);
-    expect(sundries('wildwood')).toEqual(['reed', 'fiber', 'feather', 'brightleaf']);
+    expect(sundries('hillfolk')).toEqual(['log', 'leather_piece', 'salt', 'soil_load', 'dung', 'cured_meat', 'honey']);
+    expect(sundries('wildwood')).toEqual(['reed', 'fiber', 'feather', 'brightleaf', 'honey', 'beeswax']);
     for (const g of goods) for (const e of g.entries) if (e.sundries === true) expect(e.weight).toBe(6);
     const salt = goods.find((g) => g.civ === 'hillfolk')!.entries.find((e) => e.item === 'salt')!;
     expect(salt).toMatchObject({ container: 'bag', units: 10 });

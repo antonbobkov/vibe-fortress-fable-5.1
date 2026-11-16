@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-555 | [Making Do B5: hives, honey, beeswax and mead](work/T-555-making-do-farm-hive-and-medicine.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-556 | [Making Do B6: the spider ranch, the beetle jar and bat roosts](work/T-556-making-do-cages-and-roosts.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-557 | [Making Do C1: boneyards and the bone recipes](work/T-557-making-do-boneyards.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-558 | [Making Do C2: glass walls, skylights and greenhouses](work/T-558-making-do-glass-and-skylights.md) | Making Do design; the owner, 2026-11-13 | — | open |

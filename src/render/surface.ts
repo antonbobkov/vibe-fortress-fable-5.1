@@ -9,7 +9,8 @@
  */
 
 import { FIXED_SCALE, type Fixed } from '@core/fixed';
-import { hashInts, valueNoise2 } from '@core/noise';
+import { flowerByHash, surfaceTileHash } from '@core/flowers';
+import { valueNoise2 } from '@core/noise';
 import type { Registry } from '@core/registry';
 import type { Cell } from './cellbuffer';
 import {
@@ -33,8 +34,7 @@ import {
   SURFACE_PATCH_PERIOD,
 } from './constants';
 
-/** Salts of the per-tile hash and the patch field (presentation only). */
-const SALT_TILE = 0x5f3759df;
+/** The salt of the patch field (presentation only); the per-tile hash is `core/flowers`'s, which 07 counts flowers with. */
 const SALT_PATCH = 0x2c1b3c6d;
 
 interface SurfaceRow {
@@ -107,7 +107,7 @@ export class SurfaceVariety {
   }
 
   private tileHash(x: number, y: number, z: number): number {
-    return hashInts(SALT_TILE, x, y, z);
+    return surfaceTileHash(x, y, z);
   }
 
   /** The patch field at a column: `Fixed` 0 … 1000. */
@@ -123,7 +123,7 @@ export class SurfaceVariety {
   grass(base: Rgb, x: number, y: number, z: number): Cell {
     const h = this.tileHash(x, y, z);
     const look = this.look;
-    if (look.flowers > 0 && look.flowerColors.length > 0 && (h >>> 8) % FIXED_SCALE < look.flowers) {
+    if (look.flowerColors.length > 0 && flowerByHash(look.flowers, h)) {
       return { glyph: GLYPH_FLOWER, fg: look.flowerColors[(h >>> 20) % look.flowerColors.length] as Rgb, bg: this.black };
     }
     const g = h % 8;

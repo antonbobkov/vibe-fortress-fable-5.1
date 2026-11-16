@@ -22,14 +22,14 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 ### Category tree (fixed by this design; leaves in `03-content/items.md`)
 
 ```
-food/      meat/{raw, cooked, cured}  fish/{raw, cured}  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow  salt
+food/      meat/{raw, cooked, cured}  fish/{raw, cured}  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow  salt  honey  honeycomb  wax
 drink/     ale  beer  wine  spirits
 seed/
 stone/     raw  block  gem_rough  gem_cut  soil  fossil
 ore/
 wood/      log  block
 bar/       metal  coal  charcoal  peat  dung
-furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow
+furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow  beehive
 container/ barrel  bag  bin  bucket  pot  basket
 weapon/    melee  ranged
 ammo/
@@ -276,14 +276,14 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### The category tree grows (each leaf with the task that brings its first item)
 
 ```
-food/      honey honeycomb wax (T-555)  meal/feast (T-565)
-furniture/ lantern (T-563)  beehive (T-555)
+food/      meal/feast (T-565)
+furniture/ lantern (T-563)
 medical/   soap (T-564)
 tool/      candle (T-563)  firebrand (T-559)
 farm/      compost (T-564)  guano (T-556)
 ```
 
-The Food preset takes the new food leaves; Furniture and Cloth and leather take theirs by their nodes.
+The Food preset takes the new food leaves (as it took honey, honeycomb and wax); Furniture and Cloth and leather take theirs by their nodes.
 
 ### Ice blocks melt (T-559)
 

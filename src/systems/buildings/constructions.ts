@@ -30,6 +30,7 @@ export type OnRule =
   | 'stairs_down_or_ramp_top'
   | 'open_water_below'
   | 'bridge'
+  | 'outdoor_soil_floor'
   | 'never';
 
 const ON_RULES: Readonly<Record<string, OnRule>> = Object.freeze({
@@ -47,6 +48,8 @@ const ON_RULES: Readonly<Record<string, OnRule>> = Object.freeze({
   // "placed at embark only".
   wagon: 'never',
   drawbridge: 'bridge',
+  // 14 § Beehives: "an outdoor floor of class `soil`".
+  beehive: 'outdoor_soil_floor',
 });
 
 export function onRuleOf(id: string): OnRule {
@@ -84,7 +87,11 @@ export function treeRefuses(map: Map3D, rule: OnRule, i: TileIndex): boolean {
 }
 
 /** Whether one footprint tile satisfies the type's `on` rule. */
-export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex): boolean {
+/**
+ * Whether a tile satisfies a placement rule. `soil` says whether a material index is of class
+ * `soil` (the rule `outdoor_soil_floor` asks it; with none given that rule never holds).
+ */
+export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex, soil?: (material: number) => boolean): boolean {
   const raw = map.kindAt(i);
   const kind = isClearablePlant(raw) ? TileKind.Floor : raw;
   switch (rule) {
@@ -125,6 +132,8 @@ export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex): boolean {
       }
       return false;
     }
+    case 'outdoor_soil_floor':
+      return kind === TileKind.Floor && map.hasFlag(i, TileFlag.Outdoor) && soil !== undefined && soil(map.materialAt(i));
     case 'never':
       return false;
     default:

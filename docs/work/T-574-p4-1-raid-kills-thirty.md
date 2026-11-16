@@ -1,6 +1,6 @@
 # T-574 — One raid kills over thirty dwarves on three-years-p4-1
 
-**Source:** the orchestrator, 2026-11-16, from [T-555](T-555-making-do-farm-hive-and-medicine.md)'s runs ([data](../../reports/data/2026-11-16-t555-sweep-deaths.md)) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** the orchestrator, 2026-11-16, from [T-555](../archive/tasks/T-555-making-do-farm-hive-and-medicine.md)'s runs ([data](../../reports/data/2026-11-16-t555-sweep-deaths.md)) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

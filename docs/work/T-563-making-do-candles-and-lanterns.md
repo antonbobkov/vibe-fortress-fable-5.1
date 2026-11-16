@@ -13,7 +13,7 @@ The blocks and rows marked T-563:
 - **14 § Planned:** Comfort light, candle stands and lanterns (stands want candles and burn them by days; lanterns forever; `comfortLightAt` gains both; `ate_by_candlelight`; the spotting bonus; tallow smoke on 10's stream, drawn only for a dwarf in tallow light).
 - **18 § Planned:** Candle light shows the thief (`CANDLE_SPOT_BONUS` both ways).
 - **23 § Planned:** the `light` overlay.
-- **Rows:** `candle`, `lantern`, `candle_stand`, `make_candles_tallow`, `make_lantern`, `ate_by_candlelight`, the Hillfolk's candles, the item edit to `tallow`'s note.
+- **Rows:** `candle`, `lantern`, `candle_stand`, `make_candles_tallow`, `make_candles_wax` (T-555 handed it on: it makes T-563's `candle`; T-555 brought `beeswax`), `make_lantern`, `ate_by_candlelight`, the Hillfolk's candles, the item edit to `tallow`'s note.
 
 
 ## Common rules for every Making Do task

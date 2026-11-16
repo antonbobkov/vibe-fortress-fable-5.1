@@ -1523,6 +1523,23 @@
     "announce": false
   },
   {
+    "id": "stung",
+    "name": "stung",
+    "text": "Stung. The bees were not consulted.",
+    "value": {
+      "formula": "−2"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "Stung",
+      "target": "by bees"
+    },
+    "announce": false
+  },
+  {
     "id": "summon_turned",
     "name": "summon turned",
     "text": "Something came through that was not called.",

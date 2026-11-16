@@ -161,6 +161,8 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'forged_the_star': return n(event, 'itemId') !== 0;
     // Making Do: the nettle's sting (09), a cactus drunk (10), a meal seasoned with wyrmtongue (12).
     case 'nettles': return s(event, 'source') === 'nettle';
+    // 08 § Hives: the collector's sting and a passer-by's.
+    case 'stung': return s(event, 'source') === 'bees';
     case 'drank_cactus': return true;
     case 'ate_wyrmtongue': return Array.isArray(event['seasoned']) && (event['seasoned'] as unknown[]).includes('wyrmtongue');
     // 12 § Smoke, salt and the smokehouse: a salted meal; a smokehouse's batch done; 05 § Smoke.

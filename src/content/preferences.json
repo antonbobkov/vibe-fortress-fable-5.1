@@ -299,5 +299,10 @@
     "civ": "wildwood",
     "key": "material star_steel",
     "percent": 200
+  },
+  {
+    "civ": "wildwood",
+    "key": "food/honey, food/wax",
+    "percent": 100
   }
 ]

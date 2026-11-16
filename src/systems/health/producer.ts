@@ -12,6 +12,7 @@ import type { RngStream } from '@core/rng';
 import type { JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
+import type { ItemsReader } from '@systems/items/reader';
 import { grantXp } from '@systems/dwarves/skills';
 import type { Job, JobSink } from '@systems/jobs';
 import {
@@ -23,6 +24,14 @@ import {
 } from './constants';
 import { updatePatient } from './tick';
 import { awaitsBandage, needsCleaning, woundTreatmentNeeds } from './wounds';
+
+/** 17 § Patients and hospitals: the honey a medic takes in place of a bucket or a cloth, when they are not to be had. */
+const HONEY_FILTER = { category: 'food/honey' } as const;
+/** The supply a treatment takes before honey: `clean_wound`'s bucket of water, `dress_burn`'s cloth. */
+const REGULAR_SUPPLY: Readonly<Record<string, { readonly category: string }>> = Object.freeze({
+  clean_wound: { category: 'container/bucket' },
+  dress_burn: { category: 'textile/cloth' },
+});
 
 /** The treatments a wound asks for (`woundTreatmentNeeds`). */
 const WOUND_TREATMENTS = ['stop_bleeding', 'set_bone', 'suture', 'clean_wound', 'dress_burn'];
@@ -112,6 +121,20 @@ export class HealthProducer implements JobProducer {
       !entities.has(id, C.Patient) && entities.alive(id) &&
       entities.get(id, C.Body)?.parts.some(p => p.wounds.some(w => w.type === 'burn' && !w.dressed)) === true));
     const targets = new Set([...entities.with(C.Patient), ...this.host.pendingTreatments.keys(), ...burned]);
+    // 17 § Patients and hospitals: honey stands in for the bucket and the cloth only when they are not to be had.
+    const items = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13') : null;
+    let honeyLeft = items === null || !ctx.registry.table('items').has('honey') ? 0 : items.countAvailable(HONEY_FILTER);
+    const regularOut = new Map<string, boolean>();
+    const byHoney = (need: string): boolean => {
+      const regular = REGULAR_SUPPLY[need];
+      if (honeyLeft <= 0 || regular === undefined || items === null) return false;
+      let out = regularOut.get(need);
+      if (out === undefined) {
+        out = items.countAvailable(regular) === 0;
+        regularOut.set(need, out);
+      }
+      return out;
+    };
     for (const patientId of Array.from(targets).sort((a, b) => a - b)) {
       if (!entities.alive(patientId)) {
         this.host.pendingTreatments.delete(patientId);
@@ -208,6 +231,9 @@ export class HealthProducer implements JobProducer {
         const existing = sink.byKey(key);
         if (existing && need === 'clean_wound' && !this.canComplete(existing)) {
           sink.cancelKey(key, 'infection_requires_brightleaf');
+        } else if (existing && existing.workerId === 0 && existing.data['honey'] !== true && byHoney(need)) {
+          // A waiting treatment with no bucket or cloth to be had takes honey instead.
+          sink.cancelKey(key, 'honey_in_place');
         }
         if (sink.exists(key)) continue;
 
@@ -265,7 +291,7 @@ export class HealthProducer implements JobProducer {
             break;
           case 'clean_wound': {
             const anyInfected = b.parts.some((p) => p.wounds.some((w) => w.infected && needsCleaning(w)));
-            const inputs = anyInfected
+            const inputs: { filter: Record<string, unknown>; count: number }[] = anyInfected
               ? [
                   {
                     filter: {
@@ -275,17 +301,27 @@ export class HealthProducer implements JobProducer {
                   },
                 ]
               : [];
+            // A fortress with no bucket cleans its wounds with honey: no tool, a honey as an input.
+            const honey = byHoney(need);
+            if (honey) {
+              inputs.push({ filter: { ...HONEY_FILTER }, count: 1 });
+              honeyLeft -= 1;
+            }
             sink.create(key, {
               type: 'clean_wound',
               target: { kind: 'entity', ref: patientId },
               workTile: 'adjacent',
               priority: 3,
               inputs,
-              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
+              ...(honey ? { tool: null } : {}),
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId, ...(honey ? { honey: true } : {}) },
             });
             break;
           }
-          case 'dress_burn':
+          case 'dress_burn': {
+            // Cloth first; honey when no cloth is to be had, and a honeyed burn is cleaned as well.
+            const honey = byHoney(need);
+            if (honey) honeyLeft -= 1;
             sink.create(key, {
               type: 'dress_burn',
               target: { kind: 'entity', ref: patientId },
@@ -293,15 +329,16 @@ export class HealthProducer implements JobProducer {
               priority: 3,
               inputs: [
                 {
-                  filter: {
+                  filter: honey ? { ...HONEY_FILTER } : {
                     category: 'textile/cloth',
                   },
                   count: 1,
                 },
               ],
-              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId, ...(honey ? { honey: true } : {}) },
             });
             break;
+          }
           case 'diagnose': {
             const data: Record<string, unknown> = { patient: patientId, excludeWorker: patientId };
             if (chiefMedicId !== 0) {
@@ -568,6 +605,8 @@ export class HealthProducer implements JobProducer {
             if (w) {
               w.dressed = true;
               w.pain = Math.floor(w.pain / 2);
+              // 17 § Patients and hospitals: a burn dressed with honey is cleaned too, never rolled for infection.
+              if (job.data['honey'] === true) w.cleaned = true;
               break;
             }
           }

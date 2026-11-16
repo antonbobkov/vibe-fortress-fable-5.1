@@ -15,6 +15,8 @@ import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
+import type { AnimalsReader } from '@systems/animals';
+import { HIVE_CAPACITY, HIVE_DAYS, HIVE_FLOWERS_MIN, HIVE_FLOWER_RADIUS } from '@systems/animals/constants';
 import type { BuildingView } from '@systems/buildings';
 import type { DefenseReader } from '@systems/defense';
 import type { JobsReader } from '@systems/jobs';
@@ -622,10 +624,29 @@ export class BuildingPanel {
       out.push({ id: 'owner', text, tone: owner === 0 ? 'dim' : 'value' });
       out.push({ id: 'choose', text: key('w', s.get(coffin ? 'ui.building.coffin_caption' : 'ui.building.owner_caption')), key: 'w', run: () => void this.startOwner(ctx), help: s.get(coffin ? 'ui.building.coffin_help' : 'ui.building.owner_caption_help') });
     }
+    if (tags.includes('hive')) out.push(...this.hiveLines(ctx, view));
     out.push(...this.heldLines(ctx, key));
     out.push({ id: 'look', text: s.get('ui.building.look'), run: () => ctx.look(view.origin), help: s.get('ui.building.look_help') });
     if (takeApart !== undefined && !doomed) out.push({ id: 'take_apart', text: key('x', s.get('ui.building.take_apart')), key: 'x', run: () => takeApart(this.id), help: s.get('ui.building.take_apart_help') });
     return out;
+  }
+
+  /** 24 § Building panel: a hive's combs, its flowers in reach and what the season does (08 § Hives). */
+  private hiveLines(ctx: PanelContext, view: BuildingView): BuildingLine[] {
+    if (view.state !== 'built' || !ctx.readers.has('08')) return [];
+    const animals = ctx.readers.of<AnimalsReader>('08');
+    const s = ctx.strings;
+    const flowers = animals.hiveFlowers(this.id);
+    const combs = animals.hiveCombs(this.id);
+    const short = flowers < HIVE_FLOWERS_MIN;
+    const winter = ctx.readers.calendar.season === 3;
+    return [
+      { id: 'hive:combs', text: s.get('ui.building.hive_combs', { n: combs, max: HIVE_CAPACITY }), tone: combs > 0 ? 'value' : 'dim' },
+      short
+        ? { id: 'hive:flowers', text: s.get('ui.building.hive_short', { n: flowers, min: HIVE_FLOWERS_MIN, r: HIVE_FLOWER_RADIUS }), tone: 'alert', help: s.get('ui.building.hive_help') }
+        : { id: 'hive:flowers', text: s.get('ui.building.hive_flowers', { n: flowers, r: HIVE_FLOWER_RADIUS }), tone: 'dim', help: s.get('ui.building.hive_help') },
+      { id: 'hive:season', text: s.get(winter ? 'ui.building.hive_winter' : 'ui.building.hive_season', { days: HIVE_DAYS }), tone: 'dim' },
+    ];
   }
 
   /** The links a mechanic has still to make from this lever or plate. */

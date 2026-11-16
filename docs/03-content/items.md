@@ -25,8 +25,11 @@ Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md
 | `salt` | salt | food/salt | 1 | 20 | bag | 0 | light | `:` | `salt_white` | material `salt`; a meal ingredient |
 | `cured_meat` | cured meat | food/meat/cured | 2 | 10 | barrel | 0 | light | `%` | material | material `<species>_meat`; smoked, salted or dried: never rots |
 | `cured_fish` | cured fish | food/fish/cured | 2 | 10 | barrel | 0 | light | `%` | material | material `<fish>_meat`; smoked, salted or dried: never rots |
+| `honeycomb` | honeycomb | food/honeycomb | 1 | 10 | barrel | 0 | light | `#` | `honey_amber` | material `honey`; pressed to honey and beeswax |
+| `honey` | honey | food/honey | 1 | 20 | barrel | 0 | light | `≈` | `honey_amber` | material `honey`; a meal ingredient; brews mead; a wound dressing |
+| `beeswax` | beeswax | food/wax | 1 | 20 | bin | 0 | light | `%` | `wax_yellow` | material `beeswax`; not edible |
 
-Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour and salt are not edible raw. Cured meat and fish are worth twice their raw form and never rot ([13](../02-systems/13-items-and-storage.md) § Curing); they are eaten as raw meat is, and cook as it does. An item of a cured or salted form names itself so: "cured boar meat", "salted boar hide".
+Raw meat, fish and plants are edible (`ate_raw_food` thought), and so are honey and a honeycomb. Flour, salt and beeswax are not edible raw. Cured meat and fish are worth twice their raw form and never rot ([13](../02-systems/13-items-and-storage.md) § Curing); they are eaten as raw meat is, and cook as it does. An item of a cured or salted form names itself so: "cured boar meat", "salted boar hide".
 
 ## Drink
 
@@ -34,7 +37,7 @@ Raw meat, fish and plants are edible (`ate_raw_food` thought). Flour and salt ar
 |---|---|---|---|---|---|---|---|---|
 | `drink` | drink | drink | 1 | 20 | barrel | 0 | `☼` | material |
 
-One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`, `black_ale`, `cactus_wine`, `emberwine`, `deepfire`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale, black_ale), `drink/wine` (bellwine, rootwine, strawberry_wine, cactus_wine, emberwine), `drink/spirits` (deepfire). A drink aged in a cellar names its stage before its material: "a barrel of aged bellwine", "vintage deepfire"; so does a cheese, "a wheel of vintage cheese" ([13](../02-systems/13-items-and-storage.md) § Aging in a cellar).
+One item type; the material (`ale`, `dimcap_ale`, `cavewheat_beer`, `bellwine`, `rootwine`, `strawberry_wine`, `hopped_ale`, `black_ale`, `cactus_wine`, `emberwine`, `mead`, `deepfire`) gives name and value. `drink` is always inside a barrel; a unit is one drink. Categories for stockpile filters: `drink/ale` (ale, dimcap_ale, cavewheat_beer, hopped_ale, black_ale), `drink/wine` (bellwine, rootwine, strawberry_wine, cactus_wine, emberwine, mead), `drink/spirits` (deepfire). A drink aged in a cellar names its stage before its material: "a barrel of aged bellwine", "vintage deepfire"; so does a cheese, "a wheel of vintage cheese" ([13](../02-systems/13-items-and-storage.md) § Aging in a cellar).
 
 ## Seeds
 
@@ -100,6 +103,7 @@ Coal and charcoal carry the tag `fuel`. A peat brick (of `peat`, a peat load dri
 | `stone_bed` | stone bed | furniture/stone_bed | 2 | 1 | heavy | `Θ` | material | stone | — |
 | `bedding` | bedding | furniture/bedding | 4 | 1 | medium | `≈` | material | cloth; records its stuffing | `stuffed` |
 | `pillow` | pillow | furniture/pillow | 2 | 1 | light | `≈` | material | cloth; records its stuffing | `stuffed` |
+| `beehive` | beehive | furniture/beehive | 3 | 1 | medium | `∩` | material | wood, stone (earthenware), plant (reed) | — |
 
 An item tagged `stuffed` records its stuffing, the material of its last input (`Item.stuffing`, [12](../02-systems/12-workshops-and-professions.md) § Operation); a stuffed item whose stuffing is `feather` is worth its type's `mult` × 2 ([13](../02-systems/13-items-and-storage.md) § Value). A built bed holds a bedding and a pillow ([14](../02-systems/14-buildings-and-rooms.md) § Beds).
 
@@ -250,7 +254,7 @@ The wagon is a building (see [buildings-and-furniture.md](buildings-and-furnitur
 
 ## Meal ingredients
 
-Any item in `food/meat/raw`, `food/fish/raw`, `food/meat/cured`, `food/fish/cured`, `food/plant/raw` (species `cookable: true`), `food/egg`, `food/cheese`, `food/plant/processed`, `food/fat`, `food/salt` is an ingredient. Meals inherit the quality roll of the cook; their names in the UI are generated as "{ingredient} {dish}" from the first ingredient ("turnip stew", "boar roast", "dimcap pie") using the dish word table in [names.md](names.md).
+Any item in `food/meat/raw`, `food/fish/raw`, `food/meat/cured`, `food/fish/cured`, `food/plant/raw` (species `cookable: true`), `food/egg`, `food/cheese`, `food/plant/processed`, `food/fat`, `food/salt`, `food/honey` is an ingredient. Meals inherit the quality roll of the cook; their names in the UI are generated as "{ingredient} {dish}" from the first ingredient ("turnip stew", "boar roast", "dimcap pie") using the dish word table in [names.md](names.md).
 
 ## Value examples
 
@@ -274,13 +278,9 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
 | Farm goods (a new section) | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `compost`; tag `fertilizer` | T-564 |
-| Furniture | `beehive` | beehive | furniture/beehive | 3 | 1 | none | 0 | medium | `∩` | material | wood, stone (earthenware), plant (reed) | T-555 |
 | Furniture | `lantern` | lantern | furniture/lantern | 6 | 1 | none | 0 | medium | `¥` | material | glass | T-563 |
 | Tools | `candle` | candle | tool/candle | 1 | 10 | bin | 0 | light | `ì` | material | tallow, beeswax | T-563 |
 | Tools | `firebrand` | firebrand | tool/firebrand | 1 | 5 | bin | 0 | light | `/` | material | wood, bone | T-559 |
-| Food | `honeycomb` | honeycomb | food/honeycomb | 1 | 10 | barrel | 0 | light | `#` | `honey_amber` | `honey` | T-555 |
-| Food | `honey` | honey | food/honey | 1 | 20 | barrel | 0 | light | `≈` | `honey_amber` | `honey`; tag `ingredient` | T-555 |
-| Food | `beeswax` | beeswax | food/wax | 1 | 20 | bin | 0 | light | `%` | `wax_yellow` | `beeswax` | T-555 |
 | Medical and herbs | `soap` | soap | medical/soap | 1 | 20 | bag | 0 | light | `▪` | `soap_white` | `soap` | T-564 |
 | Food | `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | `meal`; quality-bearing; eaten before any other meal | T-565 |
 | Stone, ore, gems | `giant_skull` | giant skull | textile/skull | 10 | 1 | none | 0 | heavy | `☻` | `bone_white` | `giant_bone` | T-557 |
@@ -291,5 +291,3 @@ The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colo
 
 - `statue` materials gain bone (bone and ivory statues, T-557).
 - `tallow`'s note "candles are not in version 1" goes (T-563).
-- `drink` gains `mead` in `drink/wine` (§ Drink's categories line) (T-555).
-- § Meal ingredients gains `food/honey` (T-555).

@@ -87,15 +87,17 @@ export function poolSweeps(samples: readonly SweepFigures[]): SweepFigures {
  */
 export const SWEEP_TOLERANCE = { living: 100, deaths: 30 };
 
-// T-544: shifts 0, 50, 100 and 150 of `4ab37734`, T-544 (the three-year squad hunts wolves and bears
-// in metal) merged with T-545 (a quiet season between dangerous wild arrivals); Measure run 43573320107.
-// The best figures are the means of its eight shifts (0 to 350, runs 43573320107 and 43573322208, the
-// second pooling 972.25 living and 96.75 deaths), as T-543 set them. The row before, of master
-// `6e6a6ec3` (T-543, run 42872065870), was 19.75/7/0.25/886/147, best 882.25 and 146.38.
+// T-555: shifts 0, 50, 100 and 150 of `4b9c52f9` (T-555's hives, honey and the Wildwood's new sundries,
+// on master `df68548f`); Measure run 43826997913. The best figures are the means of its eight shifts
+// (0 to 350, runs 43826997913 and 43843562286, the second pooling 984 living and 125.5 deaths), as T-543
+// set them. The deaths rose by 17.1 a sweep over master's same eight shifts, all of it one seed's
+// timeline (three-years-p4-1) moved by the Wildwood's new list entries; accepted as a timeline shift
+// (reports/data/2026-11-16-t555-sweep-deaths.md). The row before, of `4ab37734` (T-544 with T-545,
+// run 43573320107), was 20/7/0/1024.25/130.75, best 998.25 and 113.75.
 /** The best accepted pooled figures, which set the bounds; a tolerated loss is not ratcheted down. */
-export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 998.25, deaths: 113.75 };
+export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 978.25, deaths: 143.38 };
 /** The latest accepted pooled row. */
-export const SWEEP_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1024.25, deaths: 130.75, extinct: 0.5, needDeaths: 3 };
+export const SWEEP_REFERENCE: SweepFigures = { alive: 19.75, grown: 7, hungry: 0, living: 972.5, deaths: 161.25, extinct: 1, needDeaths: 3 };
 
 export interface SweepCheck {
   readonly allowed: boolean;

@@ -200,6 +200,9 @@ export class BuildingStore {
       if (!this.map.hasFlag(tile, TileFlag.Lit)) this.host.services.terrain.setFlag(tile, TileFlag.Lit, true);
     }
   }
+  /** A material index of class `soil`: the `outdoor_soil_floor` placement rule (14 § Beehives). */
+  private readonly soilMaterial = (material: number): boolean => this.materials[material]?.class === 'soil';
+
   /** Told the footprint of every building that completes or goes (rooms recompute, T-M2-07). */
   onFootprintChanged: (tiles: readonly TileIndex[]) => void = () => {};
 
@@ -509,7 +512,7 @@ export class BuildingStore {
       } else if (map.buildingAtTile(t) !== 0) {
         bad.push(t);
         note('footprint_blocked');
-      } else if (!onRuleHolds(map, rule, t)) {
+      } else if (!onRuleHolds(map, rule, t, this.soilMaterial)) {
         bad.push(t);
         note('bad_placement');
       }
@@ -563,7 +566,7 @@ export class BuildingStore {
     for (const t of tiles) if (!map.hasFlag(t, TileFlag.Discovered)) return reject('not_discovered');
     for (const t of tiles) if (map.buildingAtTile(t) !== 0) return reject('footprint_blocked');
     const rule = onRuleOf(row.id);
-    for (const t of tiles) if (!onRuleHolds(map, rule, t)) return reject('bad_placement');
+    for (const t of tiles) if (!onRuleHolds(map, rule, t, this.soilMaterial)) return reject('bad_placement');
     if (row.tags.includes('bridge') && !this.bridgeHinge(tiles, orientation)) return reject('bad_placement');
     if (row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) return reject('bad_placement');
     if (!this.magmaSafe(tiles, material)) return reject('not_magma_safe');

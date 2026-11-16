@@ -127,6 +127,33 @@
     "glyph": "Θ"
   },
   {
+    "id": "beehive",
+    "name": "beehive",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "an outdoor soil floor",
+    "inputs": [
+      {
+        "match": "beehive",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 30,
+    "tags": [
+      "hive"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "∩"
+  },
+  {
     "id": "bowyer",
     "name": "bowyer's workshop",
     "category": "workshop",

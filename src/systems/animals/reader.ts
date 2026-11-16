@@ -29,6 +29,12 @@ export interface AnimalsReader {
   breedingCap(species: number | string): number;
   /** Nest box buildings, ascending id. */
   nestBoxes(): EntityId[];
+  /** Built hives, ascending id (`08` § Hives). */
+  hives(): EntityId[];
+  /** The flower tiles within `HIVE_FLOWER_RADIUS` of a hive on its level (0 for no hive). */
+  hiveFlowers(id: EntityId): number;
+  /** The combs lying in a hive. */
+  hiveCombs(id: EntityId): number;
   /** Whether a species is dangerous: a surface species that is not timid and hunts or attacks dwarves. */
   isDangerous(species: number | string): boolean;
 }

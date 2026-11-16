@@ -39,4 +39,5 @@ export const HOSPITAL_DEFAULT_SUPPLIES: Readonly<Record<string, number>> = Objec
   crutches: 2,
   brightleaf: 6,
   buckets: 2,
+  honey: 0,
 });

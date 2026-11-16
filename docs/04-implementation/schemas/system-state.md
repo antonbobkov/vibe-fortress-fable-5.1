@@ -14,7 +14,8 @@ interface RegionRecord { id: number; elevation: number; tempC: number; rain: num
 interface EmbarkState { stateVersion: 1; spec: LocalMapSpec }   // the session state is not part of the world
 interface LocalMapSpec { seed: string; regionId: number; biome: Id<BiomeDef>; elevation: number; relief: 0|1|2|3; soilDepth: number; geology: string;
   wealth: number; peril: number; temper: number; deepness: number; traits: Id<RegionTraitDef>[]; volcano: boolean;
-  river: { inflowEdges: Edge[]; outflowEdge: Edge | null; class: string } | null; lake: boolean; civEdges: Record<Civ, Edge>; arrivalEdge: Edge }
+  river: { inflowEdges: Edge[]; outflowEdge: Edge | null; class: string } | null; lake: boolean; civEdges: Record<Civ, Edge>; arrivalEdge: Edge;
+  tempC?: number; civDistance?: Record<Civ, number> /* the region's, 01; absent in older saves */ }
 
 interface TerrainState { stateVersion: 1; designations: { tile: TileIndex; kind: Designation; priority: Priority; progress: Fixed }[];
   engravings: [TileIndex, { quality: Quality; engraverId: EntityId; motif: number }][]; forbiddenTiles: TileIndex[];
@@ -40,7 +41,8 @@ interface PlantsState { stateVersion: 1; cropAtTile: [TileIndex, EntityId][]; pl
   shrubTimers: [TileIndex, Tick][]; bareSoil: TileIndex[]; ashTiles: [TileIndex, Tick][]; needsSeedsAnnounced: [EntityId, Season][]; rng: RngState }
 
 interface AnimalsState { stateVersion: 1; breedingCaps: [Idx<SpeciesDef>, number][]; speciesCounts: [Idx<SpeciesDef>, { wild: number; tame: number }][];
-  nestBoxes: EntityId[]; caged: [EntityId /* cage item */, EntityId /* creature, kept as a dormant entity */][]; initializedCaverns?: number[]; lastDangerousTick?: Tick /* T-545 */; rng: RngState }
+  nestBoxes: EntityId[]; caged: [EntityId /* cage item */, EntityId /* creature, kept as a dormant entity */][]; initializedCaverns?: number[]; lastDangerousTick?: Tick /* T-545 */;
+  hives?: EntityId[] /* built hives, ascending; omitted when none */; combs?: [EntityId /* comb item */, EntityId /* its hive */][] /* omitted when none */; rng: RngState }
 
 interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAssignments: [EntityId, EntityId][];
   waterBodies: { id: number; version: number; tileCount: number; fishPool: Fixed; kind: 'river'|'lake'|'cavern' }[]; bodyOfTile: [TileIndex, number][];

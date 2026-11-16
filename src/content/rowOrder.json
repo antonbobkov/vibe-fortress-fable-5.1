@@ -1410,5 +1410,77 @@
   {
     "table": "thoughts",
     "id": "slept_in_a_bed"
+  },
+  {
+    "table": "palette",
+    "id": "honey_amber"
+  },
+  {
+    "table": "palette",
+    "id": "wax_yellow"
+  },
+  {
+    "table": "materials",
+    "id": "honey"
+  },
+  {
+    "table": "materials",
+    "id": "beeswax"
+  },
+  {
+    "table": "materials",
+    "id": "mead"
+  },
+  {
+    "table": "items",
+    "id": "beehive"
+  },
+  {
+    "table": "items",
+    "id": "honeycomb"
+  },
+  {
+    "table": "items",
+    "id": "honey"
+  },
+  {
+    "table": "items",
+    "id": "beeswax"
+  },
+  {
+    "table": "jobTypes",
+    "id": "collect_honey"
+  },
+  {
+    "table": "buildings",
+    "id": "beehive"
+  },
+  {
+    "table": "recipes",
+    "id": "make_hive_wood"
+  },
+  {
+    "table": "recipes",
+    "id": "make_hive_clay"
+  },
+  {
+    "table": "recipes",
+    "id": "weave_hive"
+  },
+  {
+    "table": "recipes",
+    "id": "press_honeycomb"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_mead"
+  },
+  {
+    "table": "thoughts",
+    "id": "stung"
+  },
+  {
+    "table": "hints",
+    "id": "hint_hive"
   }
 ]
