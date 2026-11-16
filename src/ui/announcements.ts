@@ -109,7 +109,7 @@ export class AnnouncementLog {
       if (creature !== undefined) out['species'] = this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
     }
     if (out['dwarf'] === undefined) {
-      for (const key of ['finderId', 'minerId', 'dwarfId', 'id'] as const) {
+      for (const key of ['finderId', 'minerId', 'dwarfId', 'thaneId', 'id'] as const) {
         const who = e[key];
         if (typeof who === 'number') {
           const creature = readers.entities.get(who, C.Creature);
@@ -152,6 +152,12 @@ export class AnnouncementLog {
       const species = typeof speciesOf === 'number' ? speciesOf : readers.entities.get(Number(e['id']), C.Creature)?.species;
       const name = this.formatCreatureName(undefined, species);
       out['raider'] = name.charAt(0).toUpperCase() + name.slice(1);
+    }
+    // 10 § The Thane's whim: `{whim}` is the whim row's text.
+    const whimId = e['whimId'];
+    if (whimId !== undefined) {
+      const row = typeof whimId === 'string' && this.registry.hasTable('whims') ? this.registry.table<{ id: string; text: string }>('whims').byId(whimId) : undefined;
+      out['whim'] = row?.text ?? String(whimId);
     }
     const skill = e['skill'];
     if (typeof skill === 'string' && this.registry.hasTable('skills')) {

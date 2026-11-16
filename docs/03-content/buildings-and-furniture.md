@@ -24,7 +24,7 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | id | name | footprint | on | inputs | labor | ticks | tags | room | pass | glyph | rest | wants |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `bed` | bed | 1×1 | floor | `bed` | carpentry | 40 | sleep | item | yes | `Θ` item | 100 | 1 `bedding` + 1 `pillow` |
-| `table` | table | 1×1 | floor | `table` | by material | 40 | eat_at | item | yes | `╥` item | — | — |
+| `table` | table | 1×1 | floor | `table` | by material | 40 | eat_at | item | yes | `╥` item | — | 1 `mug` per adjacent chair, up to 4 |
 | `chair` | chair | 1×1 | floor | `chair` | by material | 30 | sit | item | yes | `╫` item | — | — |
 | `door` | door | 1×1 | floor between two walls | `door` | by material | 60 | door | item | yes (rules) | `+`/`/` item | — | — |
 | `hatch` | hatch | 1×1 | stairs_down or ramp top | `hatch` | by material | 60 | hatch | item | yes (rules) | `¤` item | — | — |
@@ -47,6 +47,8 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | `anvil_stand` | — | not a building; the anvil is an input of the forge | | | | | | | | | | |
 
 "By material" labor: wood → carpentry, stone → masonry, metal → smithing (metalcrafting).
+
+A table wants one mug for each chair beside it (a dining seat), up to four, counted in units: a stack of mugs is brought whole, so a stack may give it more than its chairs. A meal at a seat whose table holds its mug is drunk from a mug ([14](../02-systems/14-buildings-and-rooms.md) § Mugs at the table).
 
 A pallet and a straw pallet are laid from their materials, not from an item: their counted input is consumed and returns when they are taken apart, as a construction's does, and they link no item ([14](../02-systems/14-buildings-and-rooms.md) § Beds). Their glyph takes the material's color.
 
@@ -126,12 +128,3 @@ Worked examples:
 
 - A 2×3 bedroom dug in granite, unsmoothed, with a common pine bed (value 10): tiles 6 × 1 = 6; walls 0; furniture 1; size 6; enclosed ×1.5 → 19.5 → **bare**. Smooth the six floor tiles and ten bordering walls: 18 + 20 + 1 + 6 = 45 × 1.5 = 67 → **decent**. Add a fine oak cabinet (27) and a common granite chest (10): +3.7 → 74 → decent; engrave the walls (quality 5: 2 + 2.5 each = 45): 18 + 45 + 4.7 + 6 = 74 × 1.5 = 110 → decent; to reach **fine** the bedroom needs a masterwork bed (75 → 7.5) and engraved floors (8 × 6 = 48): 48 + 45 + 11 + 6 = 110 × 1.5 = 165 → fine.
 - A 7×7 hearth hall with the hearth (value 50 → 5), four granite tables (8 → 0.8 each), eight chairs, smoothed floors and walls, two fine statues (36 → 7.2 each): tiles 49 × 3 = 147; walls 28 × 2 = 56; furniture 5 + 3.2 + 4.8 + 14.4 = 27; size 40 (cap); ×1.5 → 405 → **grand** (hearth bonus 4 × 2 = +8 mood to everyone).
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `table` and `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [14](../02-systems/14-buildings-and-rooms.md) § Planned. Every number is *unmeasured*.
-
-### Planned buildings
-
-No new building row is left to add. `table` gains wants 1 `mug` per adjacent chair, up to 4 (T-565): the `wants` column of § Furniture placements.
-

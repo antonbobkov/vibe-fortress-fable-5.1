@@ -106,6 +106,7 @@ import skillsJson from './skills.json';
 import spellsJson from './spells.json';
 import stringsJson from './strings.json';
 import thoughtsJson from './thoughts.json';
+import whimsJson from './whims.json';
 import tunesJson from './tunes.json';
 import tutorialJson from './tutorial.json';
 import threatSchedulesJson from './threatSchedules.json';
@@ -181,6 +182,7 @@ export function rawTables(): Record<string, unknown> {
     spells: spellsJson,
     strings: stringsJson,
     thoughts: thoughtsJson,
+    whims: whimsJson,
     tunes: tunesJson,
     tutorial: tutorialJson,
     threatSchedules: threatSchedulesJson,

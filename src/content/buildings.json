@@ -1793,6 +1793,14 @@
     "passable": true,
     "blocksFluid": false,
     "value": 0,
+    "wants": [
+      {
+        "match": "mug",
+        "count": 1,
+        "per": "chair",
+        "max": 4
+      }
+    ],
     "glyph": "╥"
   },
   {

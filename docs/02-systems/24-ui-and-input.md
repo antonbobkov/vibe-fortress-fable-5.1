@@ -94,6 +94,7 @@ Panel conventions:
 - The farm plot inspector's fertilize line toggles the plot's `fertilize` setting with `[w]` or a click (`SetZoneSetting`) and counts the fertilizer in stock (units of items tagged `fertilizer`, whatever their flags): "Fertilize: on (12 in stock)", "Fertilize: off (0 in stock)" (07 § Fertilizer). The compost heap's inspector counts the items on it waiting to turn: "Turning: 4 items" (13 § The compost heap).
 - The stocks panel names an aged stack's stage before its material and its years in the cellar after its count: "aged bellwine ×20 (aged, 1 year in the cellar)"; the look panel's item lines name the stage too ("20 aged bellwine drink").
 - The units panel and the creature inspector say "Tipsy" after a tipsy dwarf's activity ("Hauling · Tipsy", 10 § Tipsy).
+- The units panel's Thane line: while the season has a whim, a line under the filter says it and whether it is met now, "The Thane wishes for a lantern in the dining hall: not yet" (dim) or "…: met" (10 § The Thane's whim).
 - A drying rack's building panel lists its items with their days left and its drying checklist, one line a row that `Enter` or a click turns on or off (`SetRackDrying`, 14 § The drying rack).
 - A candle stand's building panel shows its candles ("Candles: 3 of 5") and its burning candle's material and days left ("Burning: tallow, 4 days left"), or in the warning colour "No candle: dark" (14 § Candle stands and lanterns).
 - A hive's building panel shows its combs ("Combs: 1 of 2"), its flowers in reach ("Flowers in reach: 12 within 6 tiles", or in the warning colour "Too few flowers: 2 of 3 within 6 tiles.") and what the season does ("The bees fill a comb every 14 days", "Winter: the bees are silent") (08 § Hives).
@@ -278,9 +279,3 @@ The complete default keymap, the screen and panel lists with hotkeys, the mouse 
 - Localization: the strings table.
 - Touch: a gesture layer producing the same actions.
 - Macros and command scripting: commands are data; a panel that records and replays them fits the command log.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification and deletes it here; the last one deletes this section. Keys, strings, hints and confirmations are in `ui-keymap-and-screens.md` § Planned rows.
-
-- **Units panel** (T-565): the Thane's line shows the whim of the season and whether it is met.

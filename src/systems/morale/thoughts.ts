@@ -171,9 +171,18 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'smoky_hall': return true;
     // 14 § Candle stands and lanterns: a meal at a table in comfort light.
     case 'ate_by_candlelight': return event['candlelit'] === true;
+    // 10 § Feasts and the Thane's whim; 14 § Mugs at the table.
+    case 'feasted': return event['feast'] === true;
+    case 'drank_from_a_mug': return event['mug'] === true;
+    case 'held_a_feast': return s(event, 'recipeId') === FEAST_RECIPE;
+    case 'thane_pleased': return event['met'] === true;
+    case 'thane_grumbled': return event['met'] === false;
     default: return true;
   }
 }
+
+/** 12 § Feasts: the kitchen's feast, whose `ItemCrafted` gives everyone `held_a_feast`. */
+export const FEAST_RECIPE = 'cook_feast';
 
 /** 12 § Smoke, salt and the smokehouse: the recipes whose batch a dwarf nearby smells. */
 export const SMOKEHOUSE_RECIPES: readonly string[] = ['smoke_meat', 'smoke_fish'];
@@ -222,7 +231,9 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   const dead = n(event, 'id') || n(event, 'dwarfId');
   if (def.id === 'dwarf_died' || def.id === 'child_died') return all.filter((id) => id !== dead);
   if (['hearth_lit', 'new_hearth_hall_tier', 'raid_arrived', 'raid_repelled', 'caravan_arrived',
-    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster', 'summon_turned', 'saw_wisp'].includes(def.id)) return all;
+    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster', 'summon_turned', 'saw_wisp', 'held_a_feast', 'thane_pleased'].includes(def.id)) return all;
+  // 10 § The Thane's whim: a whim missed grumbles the Thane alone.
+  if (def.id === 'thane_grumbled') return all.includes(n(event, 'thaneId')) ? [n(event, 'thaneId')] : [];
   if (def.id === 'saw_death') return all.filter((id) => id !== dead);
   if (['friend_died', 'buried_friend', 'memorial_placed'].includes(def.id)) return all.filter((id) => dwarves.isFriend(id, dead));
   if (def.id === 'pet_died') return all.filter((id) => ctx.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true);

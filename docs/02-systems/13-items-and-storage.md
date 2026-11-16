@@ -22,7 +22,7 @@ Track every object in the fortress: what it is, what it is made of, how good it 
 ### Category tree (fixed by this design; leaves in `03-content/items.md`)
 
 ```
-food/      meat/{raw, cooked, cured}  fish/{raw, cured}  plant/{raw, processed}  meal/{easy, fine, lavish}  egg  cheese  milk  fat  tallow  salt  honey  honeycomb  wax
+food/      meat/{raw, cooked, cured}  fish/{raw, cured}  plant/{raw, processed}  meal/{easy, fine, lavish, feast}  egg  cheese  milk  fat  tallow  salt  honey  honeycomb  wax
 drink/     ale  beer  wine  spirits
 seed/
 stone/     raw  block  gem_rough  gem_cut  soil  fossil
@@ -287,7 +287,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### The category tree grows (each leaf with the task that brings its first item)
 
 ```
-food/      meal/feast (T-565)
 farm/      guano (T-556)
 ```
 

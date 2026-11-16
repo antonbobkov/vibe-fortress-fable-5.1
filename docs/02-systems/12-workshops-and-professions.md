@@ -148,6 +148,11 @@ A recipe that stands in for a regular one when its input is missing (shells for 
 - Kitchen: `salt_meat` (5 raw meat of one material + 1 salt → 5 cured meat, no fuel) and `salt_fish` (the same for fish), beside `crush_halite`. Cured meat and fish never rot and are worth twice the raw (13 § Curing); they are ingredients.
 - `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (§ Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt, beside the meal's own thought: a salted meal is worth a thought a tier up, an easy meal's +2 becoming +3.
 
+### Feasts
+
+- Kitchen `cook_feast`: 1 `salt`, `honey` or `plant_food` of wyrmtongue (the seasoning) + 6 ingredients from distinct stacks → 20 `feast` (one stack of 20 servings, of the first ingredient's material), `Q` yes, 400 ticks, no fuel. The seasoning is the first input so that the job fetches it before the six ingredients, which would otherwise take the only salt as one of their own; a salt or wyrmtongue feast is seasoned as a meal is (§ Operation).
+- Its `ItemCrafted` (`recipeId` `cook_feast`) gives everyone `held_a_feast` (15); each serving eaten gives its eater `feasted` (10 § Feasts).
+
 ### Professions
 
 - `professionOf(dwarf)`: the profession name of the dwarf's highest skill (ties: the most recently raised); `Settler` if all skills are 0; `Child` for children; for a dwarf in a squad and on duty, the military title of their weapon skill (`Axedwarf`, `Hammerdwarf`, `Swordsdwarf`, `Speardwarf`, `Crossbowdwarf`, `Bowdwarf`, `Recruit` if none ≥ 1).
@@ -216,11 +221,3 @@ Recipe times, bar costs per item and profession names are content.
 - Reaction chains with by-products (slag): additional outputs in the recipe row.
 - Worker preferences (a workshop preferring the most skilled dwarf): the assignment bonus in 11 already favors skill; a `preferBest` flag could raise it.
 - Custom player recipes: not planned; the recipe table is the extension point.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `workshops-and-recipes.md` § Planned rows and the other content documents' § Planned rows.
-
-### The feast (T-565)
-
-- Kitchen `cook_feast`: 6 distinct ingredients + 1 `salt`, `honey` or `plant_food` of wyrmtongue → 1 `feast` (a stack of `FEAST_SERVINGS`), `Q` yes; its `ItemCrafted` gives everyone `held_a_feast` (10 § Planned) (T-565).

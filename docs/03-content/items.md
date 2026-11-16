@@ -17,6 +17,7 @@ Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md
 | `easy_meal` | easy meal | food/meal/easy | 10 | 10 | barrel | 14 | light | `%` | `meal_brown` | quality-bearing |
 | `fine_meal` | fine meal | food/meal/fine | 25 | 10 | barrel | 14 | light | `%` | `meal_gold` | quality-bearing |
 | `lavish_meal` | lavish meal | food/meal/lavish | 60 | 10 | barrel | 14 | light | `%` | `meal_red` | quality-bearing |
+| `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | quality-bearing; a stack of servings, eaten before any other meal ([10](../02-systems/10-dwarves.md) § Eating and drinking) |
 | `egg` | egg | food/egg | 1 | 10 | barrel | 12 | light | `o` | `egg_cream` | |
 | `cheese` | cheese | food/cheese | 1 | 10 | barrel | 40 | light | `%` | `cheese_yellow` | |
 | `milk` | milk | food/milk | 1 | 10 | barrel | 5 | light | `≈` | `milk_white` | liquid |
@@ -285,7 +286,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 | section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
-| Food | `feast` | feast | food/meal/feast | 60 | 20 | barrel | 1 | light | `%` | `meal_red` | `meal`; quality-bearing; eaten before any other meal | T-565 |
 
 The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colors.md) § Glyph set); a task may choose another from the set.
 

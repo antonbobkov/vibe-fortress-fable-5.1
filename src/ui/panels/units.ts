@@ -36,6 +36,7 @@ interface DwarvesReaderLike {
   list(): EntityId[];
   activityText(id: EntityId): string;
   isTipsy?(id: EntityId): boolean;
+  whim?(): { readonly text: string; readonly met: boolean } | null;
   skill(id: EntityId, skill: string): number;
   isChild?(id: EntityId): boolean;
   holder?(title: TitleId): EntityId;
@@ -382,8 +383,15 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
   const rows = panel.rows(ctx);
   const dwarves = ctx.readers.has('10') ? ctx.readers.of<DwarvesReaderLike>('10') : null;
   const morale = ctx.readers.has('15') ? ctx.readers.of<MoraleReader>('15') : null;
-  const height = Math.max(2, rect.rows - 2 - ACTION_ROWS);
-  const area = { col: rect.col + 1, row: rect.row + 1, cols: rect.cols - 2, rows: height };
+  // 10 § The Thane's whim: the Thane's line, under the filter, while the season has a whim.
+  const whim = dwarves?.whim?.() ?? null;
+  const top = whim === null ? 0 : 1;
+  if (whim !== null) {
+    label(s, rect.col + 1, rect.row + 1, strings.get(whim.met ? 'ui.units.whim_met' : 'ui.units.whim_unmet', { whim: whim.text }),
+      { fg: whim.met ? t.value : t.dim, width: rect.cols - 2, keys: false });
+  }
+  const height = Math.max(2, rect.rows - 2 - ACTION_ROWS - top);
+  const area = { col: rect.col + 1, row: rect.row + 1 + top, cols: rect.cols - 2, rows: height };
   table(
     s,
     area,
@@ -423,7 +431,7 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
     s.tooltip(cells, strings.get('ui.units.row_tip', { name: nameOf(ctx, id), profession: professionOf(ctx, id) }));
     if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, strings.get('ui.units.idle'), { fg: t.dim, width: area.cols - NAME_COLS - MOOD_COLS, keys: false });
   }
-  const row = rect.row + 1 + height;
+  const row = rect.row + 1 + top + height;
   const col = rect.col + 1;
   const width = rect.cols - 2;
   separator(s, col, row, width);

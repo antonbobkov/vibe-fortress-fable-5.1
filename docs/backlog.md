@@ -15,11 +15,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-558 | [Making Do C2: glass walls, skylights and greenhouses](work/T-558-making-do-glass-and-skylights.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-559 | [Making Do C3: ice harvesting, ice walls and fire on purpose](work/T-559-making-do-ice-and-fire.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-561 | [Making Do C5: reindeer and camels](work/T-561-making-do-animals-and-hall-life.md) | Making Do design; the owner, 2026-11-13 | — | open |
-| T-565 | [Making Do C6: feasts, the Thane's whims and mugs at the table](work/T-565-making-do-hall-life.md) | T-546's re-cut of Making Do | — | open |
 | T-566 | [Making Do: salt crusts, after T-547's salt](work/T-566-making-do-salt-crust.md) | T-548's runs | — | open |
 | T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
 | T-569 | [A −1 thought that decays by halflife is gone at the next hour](work/T-569-minus-one-halflife-thoughts.md) | T-552's runs | — | open |
 | T-570 | [The fixtures' routine work waits behind the food step](work/T-570-fixture-routine-work-waits.md) | T-567's runs | — | open |
 | T-576 | [The three-year script sees an ambush before it springs](work/T-576-script-sees-hidden-ambush.md) | T-575's runs | — | open |
+| T-577 | [p4-4 at shift 100 ends without a dining hall](work/T-577-p4-4-dining-hall-witness.md) | T-565's runs | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

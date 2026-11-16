@@ -124,6 +124,8 @@ export interface BuildingsReader {
   wants(id: EntityId): WantView[];
   /** The items a building holds (`Building.held`), living ones only. */
   held(id: EntityId): EntityId[];
+  /** `buildings.seatHasMug(chairId)`: a table beside the chair holds a mug for it (14 § Mugs at the table). */
+  seatHasMug(chairId: EntityId): boolean;
   /** Built buildings whose type has wants, ascending id. */
   withWants(): EntityId[];
   /** `buildings.restPercent(id)`: the percent a built `sleep` building rests at (125 made up), 0 for anything else (14 § Beds). */
@@ -246,6 +248,7 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
       const on = coming(id);
       return buildings.wants(id, (match) => on.filter((it) => buildings.answers(it, match)).length);
     },
+    seatHasMug: (id) => buildings.seatHasMug(id),
     held: (id) => {
       const b = buildings.get(id);
       return b === undefined ? [] : buildings.heldOf(b);
@@ -267,7 +270,7 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
       if (b === undefined || b.state !== 'built') return [];
       if (racks !== null && racks.isRack(b)) return racks.wants(id);
       // A want counts units: a stack of candles brought to a stand is that many candles (a bed's bedding is one).
-      return (buildings.row(b.type).wants ?? []).map((w) => ({ types: buildings.typesOf(w.match), count: w.count, units: true }));
+      return (buildings.row(b.type).wants ?? []).map((w) => ({ types: buildings.typesOf(w.match), count: buildings.wantCount(b, w), units: true }));
     },
     dryingRows: () => racks?.rows() ?? [],
     rackDrying: (id) => {

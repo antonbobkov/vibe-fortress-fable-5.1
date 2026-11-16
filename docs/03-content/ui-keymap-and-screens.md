@@ -611,6 +611,9 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.plot_needs_seeds` | "{plot} has no {species} seeds." |
 | `announce.crater_entered` | "{dwarf} stood where the star fell." |
 | `announce.ribs_entered` | "{dwarf} stood inside the ribs of something enormous." |
+| `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." |
+| `announce.thane_whim_met` | "The Thane's wish was met: {whim}." |
+| `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." |
 | `announce.ice_melted` | "The ice walls of {place} have melted." |
 
 
@@ -768,7 +771,7 @@ Player-facing text uses string keys. The UI reads `strings.json` together with t
 
 ## Planned rows
 
-Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The screens are in [24](../02-systems/24-ui-and-input.md) § Planned.
+Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The rules that use them are in the § Planned sections of the system documents.
 
 ### Planned announcement strings
 
@@ -776,9 +779,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
 | `announce.spat_on` | "The camel spat on {dwarf}." | T-561 |
-| `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." | T-565 |
-| `announce.thane_whim_met` | "The Thane's wish was met: {whim}." | T-565 |
-| `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." | T-565 |
 
 ### Planned hints
 
