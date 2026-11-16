@@ -16,7 +16,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-557 | [Making Do C1: boneyards and the bone recipes](work/T-557-making-do-boneyards.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-558 | [Making Do C2: glass walls, skylights and greenhouses](work/T-558-making-do-glass-and-skylights.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-559 | [Making Do C3: ice harvesting, ice walls and fire on purpose](work/T-559-making-do-ice-and-fire.md) | Making Do design; the owner, 2026-11-13 | — | open |
-| T-560 | [Making Do C4: the Starfall region trait and star steel](work/T-560-making-do-starfall.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-561 | [Making Do C5: reindeer and camels](work/T-561-making-do-animals-and-hall-life.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-562 | [Making Do A3b: scale armour, horn bows and fletching](work/T-562-making-do-scale-armour-and-bows.md) | T-546's re-cut of Making Do | — | open |
 | T-563 | [Making Do B3b: candles, candle stands, lanterns and what light does](work/T-563-making-do-candles-and-lanterns.md) | T-546's re-cut of Making Do | — | open |
@@ -27,5 +26,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-569 | [A −1 thought that decays by halflife is gone at the next hour](work/T-569-minus-one-halflife-thoughts.md) | T-552's runs | — | open |
 | T-570 | [The fixtures' routine work waits behind the food step](work/T-570-fixture-routine-work-waits.md) | T-567's runs | — | open |
 | T-571 | [Fortresses grow slower since Making Do: attribute it, then fix or accept](work/T-571-making-do-growth-slowdown.md) | the orchestrator, 2026-11-15 | — | open |
+| T-572 | [Beds: a narrow rest band, mood by bed, and a wooden bed that needs bedding stuff](work/T-572-beds-narrow-rest-band.md) | the owner, 2026-11-15 | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

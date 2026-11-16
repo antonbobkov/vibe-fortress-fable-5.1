@@ -158,9 +158,9 @@ Gems melt at 1600 °C or above (magma-safe).
 
 Ids fixed here; properties in [minerals-and-metals.md](minerals-and-metals.md).
 
-Ores: `hematite`, `magnetite`, `limonite`, `malachite`, `native_copper`, `cassiterite`, `galena`, `sphalerite`, `tetrahedrite`, `native_gold`, `native_silver`, `native_platinum`, `bismuthinite`, `bituminous_coal`, `lignite`, `deepsilver_ore`, `halite`, `bog_iron`, and the fossil `giant_bone` (class `bone`).
+Ores: `hematite`, `magnetite`, `limonite`, `malachite`, `native_copper`, `cassiterite`, `galena`, `sphalerite`, `tetrahedrite`, `native_gold`, `native_silver`, `native_platinum`, `bismuthinite`, `bituminous_coal`, `lignite`, `deepsilver_ore`, `halite`, `bog_iron`, `star_iron`, and the fossil `giant_bone` (class `bone`).
 
-Metals: `copper`, `tin`, `bronze`, `iron`, `steel`, `silver`, `gold`, `lead`, `zinc`, `brass`, `platinum`, `electrum`, `bismuth_bronze`, `deepsilver`, `pewter`.
+Metals: `copper`, `tin`, `bronze`, `iron`, `steel`, `silver`, `gold`, `lead`, `zinc`, `brass`, `platinum`, `electrum`, `bismuth_bronze`, `deepsilver`, `pewter`, `star_steel`.
 
 Fuels (bar materials): `coal` (value 5, density 130, burns), `charcoal` (value 3, density 60, burns).
 

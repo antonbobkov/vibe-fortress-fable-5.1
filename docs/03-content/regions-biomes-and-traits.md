@@ -93,6 +93,7 @@ Columns: `freq` permille among eligible regions; `companion` whether a second tr
 | `beastwood` | Beastwood | `temperate_forest`, `taiga`, `dark_forest`, `tropical_forest` | 100 | yes | 08: `wolf` and `bear` groups ×2, caps ×2; all wildlife caps ×1.5; no quiet spell between dangerous arrivals (08 § Wild spawning) |
 | `twilight_pass` | Twilight Pass | peril ≥ 3 | 150 | yes | 18: all intervals halved; thief frequency ×2; caravans bring +1 guard |
 | `deep_well` | Deep Well | deepness ≥ 120 | 80 | yes | 03: cavern 1 open fraction 0.7 with 60% of its floor as lake; 09: cavern 1 lake fish ×2 |
+| `starfall` | Starfall | any land biome; not `ocean`, `glacier` | 15 | yes | 01: rolled on its own stream after the other traits; 03: a crater of radius 3–5, its floor one level down and of `ash_soil`, wild wyrmtongue on it, one `star_iron` boulder one level below its centre |
 
 ## Civilizations
 
@@ -206,13 +207,3 @@ In the lists, a word such as `wood`, `stone`, `soil` or `gem` is a material clas
 ## Names of places
 
 Region names are generated from [names.md](names.md) with the biome's flavor list.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (without `task`), or makes the new table, adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`. Every number is *unmeasured*.
-
-### Planned region trait
-
-| id | name | requirements | freq | companion | hooks | task |
-|---|---|---|---|---|---|---|
-| `starfall` | Starfall | any land biome (not `ocean`, `glacier`) | 15 | yes | 01: rolled on its own stream after the other traits; 03: a crater of radius 3–5, its floor one level down and of `ash_soil`, wild wyrmtongue on it, one `star_iron` boulder one level below its centre | T-560 |

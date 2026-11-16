@@ -1615,6 +1615,33 @@
     "sharpness": 400
   },
   {
+    "id": "star_iron",
+    "name": "star iron",
+    "class": "ore",
+    "value": 30,
+    "density": 100,
+    "hardness": 100,
+    "color": "star_silver",
+    "meltsAtC": 1300,
+    "burnable": false,
+    "burnTicks": 0
+  },
+  {
+    "id": "star_steel",
+    "name": "star steel",
+    "class": "metal",
+    "value": 90,
+    "density": 780,
+    "hardness": 100,
+    "color": "star_silver",
+    "meltsAtC": 1600,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "magma_safe"
+    ]
+  },
+  {
     "id": "steel",
     "name": "steel",
     "class": "metal",

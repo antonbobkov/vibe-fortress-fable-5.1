@@ -44,6 +44,8 @@ export interface TerrainStateV1 {
   veinsFound: TileIndex[];
   /** The first tile of class `bone` has been dug (`03` § State). Absent in older saves and while false. */
   fossilFound?: boolean;
+  /** A `starfall` map's crater tiles, ascending (`03` § State). Absent on any other map. */
+  craterTiles?: TileIndex[];
   /** The `LocalMapSpec` of the map, for the legend and regeneration in tests (`03` § State). */
   spec: LocalMapSpec | null;
   /** `EntitiesMoved` batches handled but not yet ticked (discovery runs next tick; D-082). */

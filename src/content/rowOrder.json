@@ -1366,5 +1366,41 @@
   {
     "table": "hints",
     "id": "hint_rack"
+  },
+  {
+    "table": "palette",
+    "id": "star_silver"
+  },
+  {
+    "table": "materials",
+    "id": "star_iron"
+  },
+  {
+    "table": "materials",
+    "id": "star_steel"
+  },
+  {
+    "table": "minerals",
+    "id": "star_iron"
+  },
+  {
+    "table": "metals",
+    "id": "star_steel"
+  },
+  {
+    "table": "recipes",
+    "id": "smelt_star_iron"
+  },
+  {
+    "table": "regionTraits",
+    "id": "starfall"
+  },
+  {
+    "table": "thoughts",
+    "id": "forged_the_star"
+  },
+  {
+    "table": "thoughts",
+    "id": "saw_the_star"
   }
 ]

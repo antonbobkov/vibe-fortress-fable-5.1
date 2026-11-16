@@ -91,7 +91,7 @@ Tropical forest and savanna use `oak` (as "broadleaf") with weight 40 and `ash` 
 
 ## Conversions
 
-What 03's conversion passes turn into the plants that no biome weight places (03 § Local map generation, the conversions that end stage 10), each pass on its own stream, `terrain.convert.<id>`. Only a column's surface tile is ever eligible, and a tile one pass converted is not eligible for another. *eligible* names what the tile must be now:
+What 03's conversion passes turn into the plants that no biome weight places (03 § Local map generation, the conversions of stage 10, before only the `starfall` crater), each pass on its own stream, `terrain.convert.<id>`. Only a column's surface tile is ever eligible, and a tile one pass converted is not eligible for another. *eligible* names what the tile must be now:
 
 - `shrub`: an existing shrub.
 - `tree`: an existing tree.

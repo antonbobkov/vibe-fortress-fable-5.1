@@ -109,10 +109,36 @@ export function rollTraits(
  */
 export function stageTraits(g: GenWorld, registry: Registry): void {
   const st = stageStream(g.s, 'worldgen.traits');
-  const traits = traitsInTableOrder(registry);
+  const all = traitsInTableOrder(registry);
+  // `01` § Traits: `starfall` is not rolled with the others, so their rolls are what they were.
+  const traits = all.filter((t) => t.id !== STARFALL_TRAIT);
   const biomes = registry.table<BiomeRow>('biomes');
   for (const r of g.regions) {
     if (biomes.byId(r.biome)?.embarkable !== true) continue;
     rollTraits(r, traits, (permille) => st.chance(permille));
+  }
+  const starfall = all.find((t) => t.id === STARFALL_TRAIT);
+  if (starfall !== undefined) rollStarfall(g, registry, starfall, all);
+}
+
+/** `01` § Traits: the trait rolled last, on its own stream (`worldgen.starfall`). */
+export const STARFALL_TRAIT = 'starfall';
+
+/**
+ * `01` § Traits, Starfall: after the other traits, each embarkable region with fewer than
+ * `TRAIT_MAX_PER_REGION` traits, all of which allow a companion, that meets the trait's
+ * requirements rolls its permille once more, in id order, on `worldgen.starfall`. No other stream
+ * draws, so every other trait of every region is what it was.
+ */
+export function rollStarfall(g: GenWorld, registry: Registry, starfall: RegionTraitRow, traits: readonly RegionTraitRow[]): void {
+  const st = stageStream(g.s, 'worldgen.starfall');
+  const biomes = registry.table<BiomeRow>('biomes');
+  const companion = new Map(traits.map((t) => [t.id, t.companion]));
+  for (const r of g.regions) {
+    if (biomes.byId(r.biome)?.embarkable !== true) continue;
+    if (r.traits.length >= TRAIT_MAX_PER_REGION) continue;
+    if (!r.traits.every((id) => companion.get(id) === true)) continue;
+    if (!meets(starfall.requirements, r)) continue;
+    if (st.chance(starfall.freq)) r.traits.push(starfall.id);
   }
 }

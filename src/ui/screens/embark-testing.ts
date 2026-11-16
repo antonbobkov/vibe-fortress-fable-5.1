@@ -174,11 +174,14 @@ export class TestingDraft {
     };
   }
 
-  /** A typed filter moves the selected field to its first match. */
+  /** A typed filter moves the selected field to the choice it names exactly, else to its first match. */
   refilter(row: number, needle: string): void {
     if (row !== ITEM && row !== MATERIAL && row !== EXTRA) return;
     const shown = this.visible(row, needle);
-    if (needle.trim().length > 0 && !shown.some((o) => o.id === this.value(row)) && shown[0] !== undefined) this.set(row, shown[0].id);
+    const n = needle.trim().toLowerCase();
+    const exact = n.length > 0 ? shown.find((o) => o.id === n || o.label.toLowerCase() === n) : undefined;
+    if (exact !== undefined) this.set(row, exact.id);
+    else if (n.length > 0 && !shown.some((o) => o.id === this.value(row)) && shown[0] !== undefined) this.set(row, shown[0].id);
   }
 
   /** `←` `→` `+` `-` on a row: the next choice, quality or count; on a line, its count. */

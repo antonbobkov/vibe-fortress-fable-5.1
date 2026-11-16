@@ -50,6 +50,8 @@ export interface TerrainOptions {
   readonly spec?: LocalMapSpec | null;
   /** The rolled rock stack of generation, top first. */
   readonly layerStack?: readonly StackLayer[];
+  /** A `starfall` map's crater tiles (`LocalMapResult.craterTiles`). */
+  readonly craterTiles?: readonly TileIndex[];
 }
 
 type Move = readonly [EntityId, TileIndex, TileIndex];
@@ -131,6 +133,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       },
     });
     this.coreRef = core;
+    core.craterTiles.push(...[...(this.options.craterTiles ?? [])].sort((a, b) => a - b));
     world.services.terrain = core;
     this.commandHost = { core, fortress: world.fortress, progressOf: (tile) => this.progressOf(tile) };
     this.readerRef = makeReader(core, () => this.specValue, (tile) => this.progressOf(tile), (tile) => this.producer?.workOf(tile) ?? null);
@@ -219,6 +222,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       bigDigCounter: this.bigDigCounter,
       veinsFound: core.veinsFound.slice(),
       ...(core.fossilFound ? { fossilFound: true } : {}),
+      ...(core.craterTiles.length > 0 ? { craterTiles: core.craterTiles.slice() } : {}),
       spec: this.specValue,
       pendingMoves: this.pendingMoves.map((m) => [m[0], m[1], m[2]] as [EntityId, TileIndex, TileIndex]),
       producerCurrent: this.producer?.current ?? false,
@@ -243,6 +247,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     core.veinsFound.length = 0;
     core.veinsFound.push(...state.veinsFound);
     core.fossilFound = state.fossilFound === true;
+    core.craterTiles.length = 0;
+    core.craterTiles.push(...(state.craterTiles ?? []));
     this.layerStack = state.layerStack.map((l) => ({ ...l }));
     this.bigDigCounter = state.bigDigCounter;
     this.specValue = state.spec;

@@ -161,9 +161,12 @@ export class TradeSessionScreen implements Screen {
       const count = this.take.get(row.id) ?? 0;
       return count > 0 ? [{ itemId: row.id, count }] : [];
     });
+    const asked = this.trade().session()?.starSteelAsked === true;
     this.host.submit({ type: 'TradeOffer', give, take });
     this.host.commandTick();
     const session = this.trade().session();
+    // 20 § Trading: the merchant's line, once a session, at the first offer that holds star steel.
+    if (!asked && session?.starSteelAsked === true) this.notice = this.strings.get('ui.trade.star_steel');
     if (session !== null && session.give.length === 0 && session.take.length === 0) {
       this.take.clear();
       this.give.clear();

@@ -18,7 +18,7 @@ import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
-import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP } from './constants';
+import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
 import { spawnCaravan } from './caravan';
 import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
@@ -267,6 +267,10 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
           this.reputation(ctx, a.civ, -2, 'wood_offered');
         }
       }
+    }
+    // 20 § Trading: a merchant who sees star steel asks where it came from, once a session.
+    if (session.starSteelAsked !== true && give.some((line) => ctx.registry.table('materials').byIndex(items.get(line.itemId)?.material ?? -1)?.id === STAR_STEEL)) {
+      session.starSteelAsked = true;
     }
     if (take.length > 0 && givenValue < required) {
       ctx.emit({ type: 'TradeRefused', civ: a.civ, shortfall: Math.ceil(required - givenValue) });

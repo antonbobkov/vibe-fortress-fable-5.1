@@ -604,6 +604,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.reputation_changed` | "Our standing with {civ} has fallen: {reason}." |
 | `announce.workshop_missing_input` | "{workshop} is idle: no {input}." |
 | `announce.plot_needs_seeds` | "{plot} has no {species} seeds." |
+| `announce.crater_entered` | "{dwarf} stood where the star fell." |
 
 
 ## Hints
@@ -765,7 +766,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 | Key | Text | task |
 |---|---|---|
 | `announce.ribs_entered` | "{dwarf} stood inside the ribs of something enormous." | T-557 |
-| `announce.crater_entered` | "{dwarf} stood where the star fell." | T-560 |
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
 | `announce.spat_on` | "The camel spat on {dwarf}." | T-561 |
 | `announce.ice_melted` | "The ice walls of {place} have melted." | T-559 |
