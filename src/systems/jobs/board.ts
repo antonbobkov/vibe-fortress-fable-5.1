@@ -255,6 +255,25 @@ export class JobBoard implements JobsApi, JobSink {
     return this.world.map.index(p.x, p.y, p.z);
   }
 
+  /**
+   * `11` § Job steps, interruptions: a worker is down when it is unconscious (17: wounds, blood loss, a
+   * stun) or has no tile (a dwarf a cage trap caught, 19). A worker that is down holds no job and is
+   * offered none.
+   */
+  isDown(workerId: EntityId): boolean {
+    return this.world.entities.get(workerId, C.Body)?.conscious === false || this.workerTile(workerId) < 0;
+  }
+
+  /**
+   * A worker that is down gives its job back as an interruption does, progress kept; true when it held
+   * one. `knockedOut` says it is going down in this dispatch (a stun) though its body does not say so yet.
+   */
+  releaseDown(workerId: EntityId, knockedOut = false): boolean {
+    if (this.workerOf(workerId).jobId === 0 || (!knockedOut && !this.isDown(workerId))) return false;
+    this.interrupt(workerId, true);
+    return true;
+  }
+
   workerOf(workerId: EntityId): Worker {
     return this.world.entities.get(workerId, C.Worker) ?? { jobId: 0, phase: 0, carrying: 0, toolId: 0 };
   }
@@ -993,7 +1012,7 @@ export class JobBoard implements JobsApi, JobSink {
     for (const id of this.ids) {
       const job = this.jobs.get(id);
       if (job === undefined || job.state !== 'open' || job.priority !== PATIENT_SUMMON_PRIORITY || !this.isPatientCare(job)) continue;
-      if (this.assignQueue.some((w) => this.workerOf(w).jobId === 0 && this.eligible(job, w))) continue;
+      if (this.assignQueue.some((w) => this.workerOf(w).jobId === 0 && !this.isDown(w) && this.eligible(job, w))) continue;
       // Nearest to the patient itself (a `carry_patient` job's anchor is the bed).
       const patientTile = job.target.kind === 'entity' ? this.workerTile(job.target.ref) : -1;
       const anchor = map.unpack(patientTile >= 0 ? patientTile : this.anchorTile(job));
@@ -1195,8 +1214,8 @@ export class JobBoard implements JobsApi, JobSink {
   assignOne(workerId: EntityId): number {
     if (!this.world.entities.alive(workerId)) return 0;
     if (this.workerOf(workerId).jobId !== 0) return 0;
+    if (this.isDown(workerId)) return 0;
     const from = this.workerTile(workerId);
-    if (from < 0) return 0;
     const map = this.world.map;
     const at = map.unpack(from);
     const candidates: Candidate[] = [];
@@ -1340,6 +1359,8 @@ export class JobBoard implements JobsApi, JobSink {
     for (const id of this.ids) {
       const job = this.jobs.get(id) as Job;
       if (job.workerId === 0) continue;
+      // A worker that went down by a path that told 11 nothing (an older save, a cage) gives the job back now.
+      if (this.workerOf(job.workerId).jobId === job.id && this.releaseDown(job.workerId)) continue;
       const behavior = this.world.entities.get(job.workerId, C.Brain)?.behavior;
       if (behavior === undefined || behavior === 'work') {
         if (job.data['awaySince'] === undefined) continue;
