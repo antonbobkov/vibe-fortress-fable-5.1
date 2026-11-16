@@ -56,6 +56,10 @@ const DEFAULT_MATERIALS: Readonly<Record<string, string>> = Object.freeze({
   // T-555: the hive's comb and its honey.
   honeycomb: 'honey',
   honey: 'honey',
+  // T-563: candles of tallow or beeswax, and the candle a lantern takes.
+  tallow: 'tallow',
+  beeswax: 'beeswax',
+  candle: 'tallow',
 });
 
 const INGREDIENTS = [
@@ -190,12 +194,12 @@ describe('F-06 every recipe through the real loop', () => {
   });
   const reader = refWorld.readers.of<WorkshopsReader>('12');
 
-  it('the recipe count over all types is 246', () => {
+  it('the recipe count over all types is 249', () => {
     let total = 0;
     for (const type of WORKSHOP_TYPES) {
       total += reader.recipesFor(type).length;
     }
-    expect(total).toBe(246);
+    expect(total).toBe(249);
   });
 
   for (const workshopType of WORKSHOP_TYPES) {
