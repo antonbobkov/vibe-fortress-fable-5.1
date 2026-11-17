@@ -28,7 +28,7 @@ export interface MapReader {
   fluidLevelAt(i: TileIndex): number;
   isWalkable(i: TileIndex, movementClass: MovementClass): boolean;
   isOutdoor(i: TileIndex): boolean;
-  /** A constructed tile of glass (`14` § Glass): `Map3D.isGlassAt`. */
+  /** A constructed tile of glass (`14` § Constructions, Glass): `Map3D.isGlassAt`. */
   isGlass(i: TileIndex): boolean;
   /** A fresh array of the six face neighbours that exist. */
   neighbors(i: TileIndex): TileIndex[];

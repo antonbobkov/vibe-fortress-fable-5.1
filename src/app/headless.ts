@@ -73,7 +73,7 @@ export const FLAT_TEST_SOIL = 'loam';
 /** The shell of the Sea of Fire (`local-map-generation.md` § 3). */
 export const FLAT_TEST_MAGMA_SHELL = 'basalt';
 
-/** `Map3D.glassMaterials`: 1 at every material of class `glass` (`14` § Glass). */
+/** `Map3D.glassMaterials`: 1 at every material of class `glass` (`14` § Constructions, Glass). */
 export function glassMaterialMask(registry: Registry): Uint8Array {
   const materials = registry.table<{ id: string; class: string }>('materials');
   const ids = materials.ids();

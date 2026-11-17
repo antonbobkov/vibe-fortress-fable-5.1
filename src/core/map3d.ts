@@ -360,8 +360,8 @@ export class Map3D {
   }
 
   /**
-   * A constructed tile of glass (`14` § Glass): its material is of class `glass` and it is
-   * `constructed`. The kind is the caller's to check (a glass wall passes sight, a glass floor light).
+   * A constructed tile of glass (`14` § Constructions, Glass): its material is of class `glass`
+   * and it is `constructed`. The kind is the caller's to check (a glass wall passes sight, a glass floor light).
    */
   isGlassAt(i: TileIndex): boolean {
     return this.glassMaterials[this.material[i] ?? 0] === 1 && ((this.flags[i] ?? 0) & TileFlag.Constructed) !== 0;

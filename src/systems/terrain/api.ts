@@ -15,7 +15,7 @@ import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { CoreServices, TerrainApi } from '@core/system';
 import type { EntityId, Priority, TileIndex } from '@core/types';
-import { computeLitLevel, nextLight } from './generate/light';
+import { computeLitLevel, GLASS, nextLight, SKY } from './generate/light';
 import type { TerrainFacts } from './facts';
 import { constructionItem, isStructuralKind, isSupportKind, precondition } from './rules/transitions';
 import { sortedIndexOf, sortedInsert, sortedRemove, type PendingTerrain } from './state';
@@ -229,11 +229,11 @@ export class TerrainCore implements TerrainApi {
     const map = this.map;
     const x = map.xOf(i);
     const y = map.yOf(i);
-    let light = 0;
+    let light = SKY;
     for (let z = map.d - 1; z >= 0; z -= 1) {
       const t = map.index(x, y, z);
       const f = map.flags[t] as number;
-      const set = light === 0 ? TileFlag.Outdoor : light === 1 ? TileFlag.Skylit : 0;
+      const set = light === SKY ? TileFlag.Outdoor : light === GLASS ? TileFlag.Skylit : 0;
       const next = (f & ~(TileFlag.Outdoor | TileFlag.Skylit)) | set;
       if (next !== f) {
         map.flags[t] = next;

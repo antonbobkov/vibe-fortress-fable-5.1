@@ -47,7 +47,7 @@ export interface HintFacts {
   palletMaterials?: boolean;
   /** 14 § The drying rack: the first drying rack was built. */
   rackBuilt?: boolean;
-  /** 14 § Glass: the first glass floor was built over open space (a skylight). */
+  /** 14 § Constructions, Glass: the first glass floor was built over open space (a skylight). */
   skylightBuilt?: boolean;
 }
 

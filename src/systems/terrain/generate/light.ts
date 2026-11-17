@@ -10,8 +10,8 @@ import { TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import { LIGHT_SPREAD } from '../constants';
 
 /** The light a column scan carries down: open sky, daylight through glass floors, or none. */
-const SKY = 0;
-const GLASS = 1;
+export const SKY = 0;
+export const GLASS = 1;
 const DARK = 2;
 
 /**
