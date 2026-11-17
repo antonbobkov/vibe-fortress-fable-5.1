@@ -1,4 +1,4 @@
-# T-NEW — How many dwarves the defence year ends with, over its seeds
+# T-581 — How many dwarves the defence year ends with, over its seeds
 
 **Source:** [T-578](T-578-defence-smith-at-drill.md) · **Size:** S · **Needs:** — · **Status:** open
 
