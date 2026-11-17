@@ -140,10 +140,13 @@ export function blocksProjectile(
   from: TileIndex,
   to: TileIndex,
   buildings?: BuildingsReader,
+  throughGlass = false,
 ): boolean {
   if (!map.validIndex(tile)) return true;
   const kind = map.kindAt(tile);
-  if (kind === TileKind.Wall || kind === TileKind.Tree || kind === TileKind.Boulder) return true;
+  // Sight passes a constructed glass wall (`22` § Line of sight); a projectile never does.
+  if (kind === TileKind.Wall) return !(throughGlass && map.isGlassAt(tile));
+  if (kind === TileKind.Tree || kind === TileKind.Boulder) return true;
   if (buildings && buildings.blocksSightAt(tile)) return true;
   if (kind === TileKind.Fortification) {
     const nearFrom = chebyshevBetween(map, tile, from) <= 1;
@@ -165,6 +168,7 @@ export function lineOfSightRanged(
   to: TileIndex,
   range: number,
   buildings?: BuildingsReader,
+  throughGlass = false,
 ): boolean {
   if (!map.validIndex(from) || !map.validIndex(to)) return false;
   if (from === to) return true;
@@ -188,7 +192,7 @@ export function lineOfSightRanged(
       const pt = line[i];
       if (!pt) continue;
       const tile = map.index(pt.x, pt.y, zFrom);
-      if (blocksProjectile(map, tile, from, to, buildings)) return false;
+      if (blocksProjectile(map, tile, from, to, buildings, throughGlass)) return false;
     }
     return true;
   }
@@ -213,7 +217,7 @@ export function lineOfSightRanged(
     const pt = line[i];
     if (!pt) continue;
     const tileBelow = map.index(pt.x, pt.y, zTo);
-    if (blocksProjectile(map, tileBelow, from, to, buildings)) return false;
+    if (blocksProjectile(map, tileBelow, from, to, buildings, throughGlass)) return false;
   }
 
   return true;

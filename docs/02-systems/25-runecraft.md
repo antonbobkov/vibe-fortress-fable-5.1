@@ -202,7 +202,7 @@ Power scales `base` and `ticks`: `round(base × power)`, `round(ticks × power)`
 
 Frostbind's hit, with damage above 0, adds a `slow` effect of `FROSTBIND_SLOW_PERCENT` for `round(300 × power)` ticks. A creature that wears a piece with `slow_immune` (`rimeward`) is not slowed: `addEffect` refuses a `slow` for it, so spells and enchantments both respect it (§ Enchantments in combat).
 
-When each support spell casts (`castSupport` evaluates these for a held target with the cooldown elapsed; a bolt, burst or single goes by 16's ranged branch). Distance is the casting distance (Chebyshev, each level between counting two) and line of sight is 16's:
+When each support spell casts (`castSupport` evaluates these for a held target with the cooldown elapsed; a bolt, burst or single goes by 16's ranged branch). Distance is the casting distance (Chebyshev, each level between counting two) and line of sight is 16's line of fire (22's `lineOfFire`: a spell does not pass a glass wall, 14 § Constructions):
 
 | Spell | Cast when | Does |
 |---|---|---|

@@ -73,6 +73,15 @@ export const FLAT_TEST_SOIL = 'loam';
 /** The shell of the Sea of Fire (`local-map-generation.md` § 3). */
 export const FLAT_TEST_MAGMA_SHELL = 'basalt';
 
+/** `Map3D.glassMaterials`: 1 at every material of class `glass` (`14` § Constructions, Glass). */
+export function glassMaterialMask(registry: Registry): Uint8Array {
+  const materials = registry.table<{ id: string; class: string }>('materials');
+  const ids = materials.ids();
+  const mask = new Uint8Array(ids.length + 1);
+  for (const id of ids) if (materials.byId(id)?.class === 'glass') mask[materials.index(id)] = 1;
+  return mask;
+}
+
 function materialIndex(registry: Registry, id: string): number {
   return registry.table('materials').index(id);
 }
@@ -316,6 +325,7 @@ export class HeadlessGame {
       map = buildFlatTestMap(this.registry);
     }
     this.local = local;
+    map.glassMaterials = glassMaterialMask(this.registry);
     const worldOptions: WorldOptions = {
       seed: options.seed,
       registry: this.registry,

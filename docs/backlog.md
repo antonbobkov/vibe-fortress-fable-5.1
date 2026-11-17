@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-556 | [Making Do B6: the spider ranch, the beetle jar and bat roosts](work/T-556-making-do-cages-and-roosts.md) | Making Do design; the owner, 2026-11-13 | — | open |
-| T-558 | [Making Do C2: glass walls, skylights and greenhouses](work/T-558-making-do-glass-and-skylights.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
 | T-570 | [The fixtures' routine work waits behind the food step](work/T-570-fixture-routine-work-waits.md) | T-567's runs | — | open |
 | T-576 | [The three-year script sees an ambush before it springs](work/T-576-script-sees-hidden-ambush.md) | T-575's runs | — | open |

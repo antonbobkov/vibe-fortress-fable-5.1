@@ -90,6 +90,8 @@ Comfort light is the light dwarves live by, not the light crops grow by: the bui
 
 Deconstruct (`DeconstructBuilding` → `remove` designation for constructions, `deconstruct` job for others): returns the material item(s); constructions revert per 03's `remove` rule.
 
+**Glass.** A wall, floor or fortification built of `stone_block` of `glass` is a glass construction (material class `glass`); the construction rows take a glass block as they take any block, and glass has no building row of its own. A glass wall blocks movement and fluids as any wall, and passes light (03 § Outdoor and lit) and sight (22 § Line of sight): archers and watchers see through it, and nothing passes it, arrows and spells included. A glass floor is a skylight wherever it stands over open space (03's `skylit`), and a floor one can see through over magma or water (23): it is magma-safe (glass melts at 1400 °C), with the room value of a constructed floor of its material. The first glass floor built over open space raises `hint_skylight`.
+
 A built construction keeps its building entity on its tile and remembers the items it was built from; the first is the item 03's `remove` and collapse return (`setConstructionItemSource`). This system removes the building on the `TilesChanged` that shows the tile no longer matches the construction (the flag cleared or the kind changed).
 
 A wall or floor built of `stone_block` of `ice` (cut by `harvest_ice`, 03 § Ice harvesting) is an ice construction: no new row, the construction rows take an ice block as they take any block. 05 cools the tiles around it and melts it (05 § Ice constructions: underground after `ICE_CONSTRUCTION_DAYS`, outdoors at the thaw), and the building goes with its tile as any construction's does. It is magma-unsafe, as ice is. A gate of ice holds a raid in winter and opens itself in spring.
@@ -297,8 +299,3 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - `buildings.beetleLitAt(i)` — a cardinal neighbour on the tile's level holds a built cage building whose occupant's species has the flag `glows`. 07 reads it for growth and for a glow plot.
 - A cage building's panel says what its occupant does: "Lights the four tiles beside its cage for glowcap." or "Spins webs around its cage every day."
 
-### Glass (T-558)
-
-- A wall, floor or fortification built of `stone_block` of `glass` is a glass construction (material class `glass`). A glass wall blocks movement and fluids as any wall, passes light (03) and sight (22 § Planned): archers and watchers see through it, and nothing passes it, arrows included.
-- A glass floor is a skylight wherever it stands over open space (03's `skylit`), and a floor one can see through over magma or water: magma-safe (glass melts at 1400), with the room value of a constructed floor of its material.
-- No new building row: the construction rows take a glass block as they take any block.

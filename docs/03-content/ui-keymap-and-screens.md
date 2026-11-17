@@ -663,6 +663,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_pallet` | first `Slept` on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." |
 | `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." |
 | `hint_hive` | a built hive with too few flowers in reach | "Bees need flowers: three within six tiles of the hive. Look for a meadow." |
+| `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." |
 
 ## Tutorial
 
@@ -785,4 +786,3 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 | id | Trigger | Text | task |
 |---|---|---|---|
 | `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
-| `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." | T-558 |

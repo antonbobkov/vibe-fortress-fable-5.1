@@ -306,8 +306,10 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       if (crop === undefined) continue;
       const row = this.facts.row(crop.plant);
       if (row === undefined) continue;
-      const cave = this.facts.isCave(crop.plant);
       const tile = crop.tile;
+      // `07` § Under a skylight: a surface crop under glass keeps the seasons and weather out, as a
+      // cave crop does; it still needs its temperature range.
+      const cave = this.facts.isCave(crop.plant) || map.hasFlag(tile, TileFlag.Skylit);
       const tempC = materials?.temperatureAt(tile) ?? weather?.surfaceTempC() ?? 0;
       if (!seasonAllows(row, cave, season)) {
         // "Winter with `surfaceTempC < FROST_KILL_C` at the crop's tile kills surface crops";

@@ -151,6 +151,8 @@ export interface CombatApi {
   clearTarget(id: EntityId): void;
   fireAt(shooterId: EntityId, targetId: EntityId): boolean;
   lineOfSight(from: TileIndex, to: TileIndex): boolean;
+  /** The sight line with glass walls blocking: what a shot needs (`22` § Line of sight). */
+  lineOfFire(from: TileIndex, to: TileIndex): boolean;
 }
 
 /**
