@@ -131,7 +131,7 @@ describe('T-575 the three-year script answers an ambush', () => {
 
   it('counts the members of an ambush still to arrive', () => {
     const { w, state, squadId } = gatehouse('t575-arriving', true);
-    const { party } = ambush(w, 2, false);
+    const { party } = ambush(w, 2, true);
     const ent = w.game.world.entities;
     ent.add(party, C.Party, { ...ent.get(party, C.Party)!, size: 5 });
     checkFortressDefense(w, state);
@@ -150,5 +150,26 @@ describe('T-575 the three-year script answers an ambush', () => {
     checkFortressDefense(w, state);
     expect(members(w, squadId)).toHaveLength(3);
     expect(post(w, squadId)).toBe(w.index(sx, sy, Z));
+  });
+});
+
+describe('T-576 the three-year script sees an ambush only once it has sprung', () => {
+  it('raises no alert and keeps the squad for a hidden ambush, and answers it on the tick it springs', () => {
+    const { w, state, squadId } = gatehouse('t576-hidden', true);
+    const soldiers = [...members(w, squadId)];
+    const { party, members: gloam } = ambush(w, 4, false);
+    checkFortressDefense(w, state);
+    // Hidden: no announcement, not on the threats panel; the player does not know it is there.
+    expect(w.game.world.fortress.alert).toBe('calm');
+    expect(members(w, squadId)).toEqual(soldiers);
+    expect(state.stoodDown ?? []).toEqual([]);
+    // It springs (18 § Stealth: `AmbushSprung`, a danger announcement): the answer of T-575.
+    const ent = w.game.world.entities;
+    ent.add(party, C.Party, { ...ent.get(party, C.Party)!, ambushSprung: true, state: 'engage' });
+    for (const id of gloam) ent.add(id, C.Hostile, { ...ent.get(id, C.Hostile)!, stealthed: false, spotted: true });
+    checkFortressDefense(w, state);
+    expect(w.game.world.fortress.alert).toBe('hearth');
+    expect(members(w, squadId)).toEqual([]);
+    expect(state.stoodDown).toEqual(soldiers);
   });
 });
