@@ -448,3 +448,5 @@ Every new row of every table goes at the end of this table, including generated 
 | recipes | make_firebrand |
 | thoughts | set_a_fire |
 | confirmations | c_first_ignite |
+| plants | salt_crust |
+| materials | salt_crust |

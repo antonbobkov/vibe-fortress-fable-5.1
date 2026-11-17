@@ -53,6 +53,17 @@ function materialTags(list) {
   return tags.length > 0 ? tags : undefined;
 }
 
+/**
+ * A wild shrub's row tags, written in its product cell: "stings the gatherer" is `stings` (09
+ * § Gathering), "burns not" is `fireproof` (05 § Fire: the salt crust).
+ */
+function tagsOfProduct(product) {
+  const tags = [];
+  if (/stings/.test(product)) tags.push('stings');
+  if (/burns not/.test(product)) tags.push('fireproof');
+  return tags.length > 0 ? tags : undefined;
+}
+
 function cropRow(row, kind) {
   const yieldItemCell = plain(row.yieldItem);
   const marks = ticked(row.yieldItem);
@@ -167,7 +178,7 @@ export function exportPlants() {
         caverns,
         rarePermille,
         graze: bool(row.graze) ? true : undefined,
-        tags: /stings/.test(product) ? ['stings'] : undefined,
+        tags: tagsOfProduct(product),
         materialTags: /\bdrinkable\b/.test(product) ? ['drinkable'] : undefined,
         convert: conversions.get(sid),
         glyph: glyph(row.glyph),
