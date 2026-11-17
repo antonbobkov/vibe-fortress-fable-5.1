@@ -17,7 +17,7 @@ import type { CoreServices, TerrainApi } from '@core/system';
 import type { EntityId, Priority, TileIndex } from '@core/types';
 import { computeLitLevel, GLASS, nextLight, SKY } from './generate/light';
 import type { TerrainFacts } from './facts';
-import { constructionItem, isStructuralKind, isSupportKind, precondition } from './rules/transitions';
+import { constructionItem, iceDesignationHolds, isStructuralKind, isSupportKind, precondition } from './rules/transitions';
 import { sortedIndexOf, sortedInsert, sortedRemove, type PendingTerrain } from './state';
 
 /** The cavern bands of `constants.md`, index 1-3. */
@@ -225,6 +225,13 @@ export class TerrainCore implements TerrainApi {
   private revalidateDesignation(i: TileIndex): void {
     const d = this.map.designationAt(i);
     if (d === Designation.None || d === Designation.Harvest) return;
+    if (d === Designation.HarvestIce) {
+      // `03` § Ice harvesting: a thaw keeps the designation, and its job waits for the ice; the
+      // version moves so 03's producer cancels the job at a thaw and makes it again at a freeze.
+      if (!iceDesignationHolds(this.map, i, this.host.facts)) this.clearDesignation(i);
+      else this.designationsVersion += 1;
+      return;
+    }
     if (!precondition(this.map, i, d, this.host.facts)) this.clearDesignation(i);
   }
 

@@ -15,7 +15,7 @@ export interface WorkshopsReader {
   militaryTitle(id: EntityId): string;
   /**
    * The stock a `maintain` order compares with its threshold, as the operator counts it (12 § Work
-   * orders): its recipe's first output type, of the order's material filter, or of a drink's fixed material.
+   * orders): its recipe's first output type, of the material the recipe sets, else of the order's material filter.
    */
   orderStock(order: WorkOrder): number;
   isMagmaPowered(id: EntityId): boolean;

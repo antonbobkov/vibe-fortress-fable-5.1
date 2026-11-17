@@ -57,7 +57,7 @@ export interface TerrainReader {
   designationWork(i: TileIndex): DesignationWork | null;
 }
 
-/** `queued`: its job is open or not made yet; `assigned`: a worker holds it; `blocked`: its job is blocked. */
+/** `queued`: its job is open or not made yet; `assigned`: a worker holds it; `blocked`: its job is blocked, or ice waits to refreeze. */
 export type DesignationWork = 'queued' | 'assigned' | 'blocked';
 
 export function makeReader(
