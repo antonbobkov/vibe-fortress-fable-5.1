@@ -206,7 +206,7 @@ describe('F-01 unit-counted build inputs', () => {
     expect(inputs.filter((i) => i.type === 'log')).toHaveLength(1);
   });
 
-  it('a hearth builds from two stacks of 2 and leaves one block on the site', () => {
+  it('a hearth builds from two stacks of 2 and leaves the one block it does not need where it lay (T-568)', () => {
     const w = new TestWorld({ seed: 'hearth-stacks-4', world: 'flat-test', embark: 'default' });
     w.spawnItem('stone_block', 'granite', w.index(44, 14, Z), 2);
     w.spawnItem('stone_block', 'granite', w.index(45, 14, Z), 2);
@@ -228,8 +228,8 @@ describe('F-01 unit-counted build inputs', () => {
     expect(blocks).toHaveLength(1);
     const remItem = items(w).get(blocks[0]!);
     expect(remItem?.count).toBe(1);
+    // The build split the second stack where it lay and carried one block of it (T-568).
     const remTile = items(w).tileOf(blocks[0]!);
-    const allowedTiles = [origin, ...w.map.neighbors8(origin)];
-    expect(allowedTiles).toContain(remTile);
+    expect([w.index(44, 14, Z), w.index(45, 14, Z)]).toContain(remTile);
   });
 });
