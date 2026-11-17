@@ -138,5 +138,10 @@
     "id": "c_release_cage",
     "text": "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was.",
     "default": "no"
+  },
+  {
+    "id": "c_first_ignite",
+    "text": "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out.",
+    "default": "no"
   }
 ]

@@ -185,7 +185,7 @@ interface FortressState {
   alert: Alert; deepPressure: number; deepLevel: number;
   reputation: Record<Civ, number>; populationCap: number;
   milestones: { id: string; tick: Tick }[];
-  hintsShown: string[]; deepsilverConfirmed: boolean;
+  hintsShown: string[]; deepsilverConfirmed: boolean; igniteConfirmed?: boolean /* the first fire set on purpose was confirmed (03 § Setting a fire); absent: false */;
 }
 ```
 

@@ -85,6 +85,8 @@ export class TerrainCore implements TerrainApi {
   readonly boneyards: TileIndex[][] = [];
   /** `03` § State: by boneyard, whether a fortress dwarf has stood in its ribs (`RibsEntered`). */
   readonly boneyardsEntered: boolean[] = [];
+  /** `03` § State `iceCut`: each tile of frozen water cut by `harvest_ice`, and the tick it was cut. */
+  readonly iceCut = new Map<TileIndex, number>();
   /** Drops recorded for the M2 item system (and read by tests). */
   readonly drops: IntendedDrop[] = [];
 

@@ -17,8 +17,10 @@ Every job type the game creates. Columns: `labor` required; `skill` used (— no
 | `remove_construction` | Remove construction | mining | mining | tile | adjacent | `DIG_BASE_TICKS / 2` | pick | 4 | yes |
 | `chop` | Chop tree | woodcutting | woodcutting | tile | adjacent | `CHOP_BASE_TICKS × max(100, hardness)/100` | axe | 10 | yes |
 | `gather` | Gather plant | herbalism | herbalism | tile | adjacent | `GATHER_BASE_TICKS` | — | 5 | no |
+| `harvest_ice` | Cut ice | mining | mining | tile | adjacent, or above | `ICE_HARVEST_TICKS` | pick | 6 | yes |
+| `ignite` | Set a fire | woodcutting | — | tile | adjacent | `IGNITE_TICKS` | firebrand (consumed) | 0 | yes |
 
-For up or up/down stairs, the terrain producer's `extraStandTiles` also permits the tile directly above when it is a down or up/down stair. Floor smoothing and engraving, channel and down stairs work at the target; the other terrain rows work adjacent.
+For up or up/down stairs, the terrain producer's `extraStandTiles` also permits the tile directly above when it is a down or up/down stair; for `harvest_ice`, an ice floor itself (standing on the ice), the tile directly above the ice and its eight neighbours (the bank above). An `ignite` job fetches one `firebrand` as its input and spends it; it takes the woodcutting labor, so children never light fires. Floor smoothing and engraving, channel and down stairs work at the target; the other terrain rows work adjacent.
 
 ## Plants (producer `plants`)
 
@@ -118,16 +120,3 @@ An `attune` job's xp is granted by the producer at completion, scaled by the san
 - Every job's work rate is `1000 / baseTicks` per tick × skill factor `(100 + SKILL_TIME_BONUS_PERCENT × level) / 100` × productivity (mood and wounds), as defined in 11.
 - Tool jobs require the tool in the weapon slot; the fetch step happens before the job's travel step.
 - Interruptible `no` means the job is short enough that a critical need waits for it; the need is served immediately after.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. The task named adds the row to its producer's table above (without `producer` and `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in the § Planned sections of the system documents.
-
-### Planned job types
-
-| producer | id | name | labor | skill | target | workTile | baseTicks | tool | xp | interruptible | task |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| terrain | `harvest_ice` | Cut ice | mining | mining | tile | adjacent, or above | `ICE_HARVEST_TICKS` | pick | 6 | yes | T-559 |
-| terrain | `ignite` | Set a fire | woodcutting | — | tile | adjacent | `IGNITE_TICKS` | firebrand (consumed) | 0 | yes | T-559 |
-
-Hauling into a building that wants items is `haul_to_stockpile`; a pallet is laid by the `build` job with the row's labor `hauling`: no other job is new.

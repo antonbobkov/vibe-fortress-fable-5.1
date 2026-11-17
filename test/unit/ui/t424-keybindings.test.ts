@@ -84,7 +84,8 @@ describe('T-424 conflicts', () => {
     const keys = fresh();
     expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('k'))?.id).toBe('look');
     expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('<'))?.id).toBe('z_down');
-    expect(keys.rebind(at(keys, 'map', 'look'), key('q'))?.context).toBe('zone_inspector');
+    // `q` is the zone inspector's and the designate panel's (cut ice, T-559).
+    expect(['zone_inspector', 'designate_panel']).toContain(keys.rebind(at(keys, 'map', 'look'), key('q'))?.context);
     expect(keys.rebind(at(keys, 'map', 'look'), key('/'))?.id).toBe('filter_focus');
     expect(keys.rebind(at(keys, 'map', 'look'), key(';'))).toBeNull();
     expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('z'))).toBeNull();

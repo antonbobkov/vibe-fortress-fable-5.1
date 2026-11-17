@@ -35,7 +35,7 @@ weapon/    melee  ranged
 ammo/
 armor/     head  body  arms  legs  feet  shield
 clothing/  body  legs  feet
-tool/      pick  axe  fishing_rod  crutch  candle
+tool/      pick  axe  fishing_rod  crutch  candle  firebrand
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather  straw  reed
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland  soap
@@ -141,6 +141,8 @@ Types with `rotDays > 0` (raw meat, raw fish, raw plants, meals, eggs, cheese, m
 
 Rot speed: full speed on the ground and in a workshop; `ROT_CONTAINER_PERCENT` when the item is inside a container that is inside a stockpile; `0` for raw plants and seeds in bags (they are dry goods: `rotDays` 0 for seeds anyway); double speed on a tile with temperature above `ROT_HOT_C`; halved below `ROT_COLD_C`; stopped below `FREEZE_C` (a frozen larder is a legitimate design). The stage fractions and the speed factors are *unmeasured*.
 
+An item of material class `ice` (a `stone_block` of `ice`, cut by `harvest_ice`, 03 § Ice harvesting) melts: it rots on the rot queue with `ICE_MELT_DAYS` in place of its type's `rotDays`, with every speed factor above (stopped below `FREEZE_C`, so it keeps outdoors in winter and in an ice larder), and at 100% it is destroyed (`ItemDestroyed { reason: 'melted' }`) with no stale or rotting stage and no miasma. Ice blocks are cut in winter and used in winter. The rot speeds are read again at each season's change and on `IceMelted` (05: a larder's ice walls gone).
+
 A held item (flagged `installed`) does not rot: a raw item on a drying rack keeps while it dries (14 § The drying rack). Its rot is sampled again when it is released.
 
 Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits miasma to its tile and the 8 neighbors: `miasmaTiles: Map<TileIndex, expiresTick>` with `MIASMA_DURATION`. Dwarves entering a miasma tile get the `miasma` thought (10 checks `items.isMiasma(i)` on entering, like mist). Refuse stockpiles outdoors are the answer; so are burial and butchering promptly.
@@ -222,7 +224,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Events consumed
 
-`CreatureDied` (release the creature's item ownership; create corpse), `DayPassed` (judge the cellars and age what lies in the working ones), `HourPassed` (the compost heaps), `ZoneChanged` (stockpiles, hospitals and compost heaps), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `AttackResolved` (a pot or a clay jug its defender carries breaks, § Containers in play), `TemperatureTick` (rot speed sampling for the head bucket).
+`CreatureDied` (release the creature's item ownership; create corpse), `DayPassed` (judge the cellars and age what lies in the working ones), `HourPassed` (the compost heaps), `ZoneChanged` (stockpiles, hospitals and compost heaps), `MagmaContact`, `ItemMelted`, `FireStarted`/`FireSpread` (burn timers), `TilesChanged` (items on tiles that became open fall; hauls to a stockpile or dump tile nobody can stand on any more are cancelled, § Stockpiles), `BuildingCompleted`/`BuildingRemoved` (wealth; a building that blocks walkers on a stockpile tile cancels the hauls to it, § Stockpiles), `ThiefEscaped` (wealth), `AttackResolved` (a pot or a clay jug its defender carries breaks, § Containers in play), `TemperatureTick` (rot speed sampling for the head bucket), `SeasonChanged` and `IceMelted` (every rot speed read again).
 
 ### Events emitted
 
@@ -257,6 +259,7 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
 | `HAUL_JOBS_PER_TICK` | 20 | New haul jobs created per items tick (*unmeasured*) |
 | `ROT_CONTAINER_PERCENT` | 25 | Rot speed inside a container in a stockpile (*unmeasured*) |
 | `ROT_HOT_C` / `ROT_COLD_C` | 30 / 5 | *unmeasured* |
+| `ICE_MELT_DAYS` | 7 | Days an item of `ice` takes to melt at full speed, on the rot queue (*unmeasured*) |
 | `MIASMA_DURATION` | 300 | Ticks (*unmeasured*) |
 | `FIND_RADIUS_MAX` | 48 | Tiles (*unmeasured*) |
 | `WEALTH_EVENT_STEP` | 250 | Marks (*unmeasured*) |
@@ -284,14 +287,7 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 ### The category tree grows (each leaf with the task that brings its first item)
 
 ```
-tool/      firebrand (T-559)
 farm/      guano (T-556)
 ```
 
 The Food preset takes the new food leaves (as it took honey, honeycomb and wax); Furniture and Cloth and leather take theirs by their nodes.
-
-### Ice blocks melt (T-559)
-
-An item of material class `ice` (a `stone_block` of `ice`, cut by `harvest_ice`) melts: it rots on the rot queue with `ICE_MELT_DAYS` in place of its type's `rotDays`, with every speed factor of § Rot (stopped below `FREEZE_C`, so it keeps outdoors in winter and in an ice larder), and at 100% it is destroyed (`ItemDestroyed { reason: 'melted' }`) with no stale or rotting stage and no miasma. Ice blocks are cut in winter and used in winter.
-
-- Constants: `ICE_MELT_DAYS` 7.

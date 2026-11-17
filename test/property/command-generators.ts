@@ -46,8 +46,11 @@ function tiles(w: TestWorld, z: fc.Arbitrary<number> = fc.integer(Z_RANGE)): fc.
 
 const priority = fc.integer({ min: PRIORITY_MIN, max: PRIORITY_MAX });
 
-/** The terrain designations of 03 (`harvest` is 07's, M4). */
-const TERRAIN_KINDS = Object.keys(DESIGNATION_NAMES).filter((k) => k !== 'harvest');
+/**
+ * The terrain designations of 03 (`harvest` is 07's, M4). `harvest_ice` and `ignite` (T-559) are
+ * left out: an `ignite` waits for `ConfirmIgnite`, and the M1 draws stay the ones they were.
+ */
+const TERRAIN_KINDS = Object.keys(DESIGNATION_NAMES).filter((k) => k !== 'harvest' && k !== 'harvest_ice' && k !== 'ignite');
 
 /**
  * `Designate` (03, M1): a kind, the tiles that pass its precondition or are undiscovered in the

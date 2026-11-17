@@ -135,6 +135,7 @@ Bone is the treeless site's first building stuff: a fossil, dug from a boneyard'
 | `weave_hive` | Wicker beehive | 3 reed (reed) | 1 beehive (from_input) | 100 | no | 4 |
 | `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (`tallow`) | 80 | no | 3 |
 | `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (`beeswax`) | 80 | no | 3 |
+| `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | 2 |
 | `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | yes | 8 |
 | `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | yes | 15 |
 
@@ -142,7 +143,7 @@ The knapped blades are the primitive tier of the dagger and the short sword, for
 
 A carved fossil is a figurine of `giant_bone`, of a beast no one has seen: the Mountainhome pays 150% for one ([caravan-goods.md](caravan-goods.md) § Preferences). An ivory statue takes three tusks, from a tundra boneyard's skull or a butchered mammoth.
 
-Candles are tallow or beeswax, four to a lump, of its material: a tallow candle burns 7 days in a candle stand and smokes now and then, a beeswax one 14 and clean ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns). A `maintain` order for candles keeps the stands fed.
+Candles are tallow or beeswax, four to a lump, of its material: a tallow candle burns 7 days in a candle stand and smokes now and then, a beeswax one 14 and clean ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns). A `maintain` order for candles keeps the stands fed. Firebrands are a stick or a bone dipped in tallow or wax, two to a dip, of the stick's material: the `ignite` job spends one ([03](../02-systems/03-terrain-and-mining.md) § Setting a fire).
 
 Reeds and bones stand in for wood ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a basket is a bin of reed that holds 15 (`make_bin`), reed rope a rope of reed (`make_rope`), a wicker buckler a buckler of reed that blocks as a wooden one and burns (`make_buckler_wood`), bone splints and crutches serve a hospital as wooden ones do (`make_splint`, `make_crutch`), and a wicker beehive is a hive of reed (`make_hive_wood`).
 
@@ -416,7 +417,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 29, mason 22, craftsdwarf 25, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 9, still 4, tannery 1, leatherworks 14, loom 3, clothier 10, farmer's workshop 5, bowyer 4 (and generated: 1 fletching), kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment with no workshop = 22). Total 264.
+Carpenter 29, mason 22, craftsdwarf 26, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 9, still 4, tannery 1, leatherworks 14, loom 3, clothier 10, farmer's workshop 5, bowyer 4 (and generated: 1 fletching), kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment with no workshop = 22). Total 265.
 
 ## Time arithmetic
 
@@ -427,10 +428,6 @@ A level-6 carpenter (factor 148%) makes a bed in 150 × 100/148 ≈ 101 ticks, a
 Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its workshop's table above (in that table's columns, without `workshop`, `substitute for` and `task`; a new workshop gets its own section and its line in `RECIPE_SECTIONS`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [12](../02-systems/12-workshops-and-professions.md) § Planned. Every number is *unmeasured*. *Substitute for* names the regular recipe a substitute must stay worse than (12 § Planned, Substitutes are worse).
 
 ### Planned recipes
-
-| workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
-|---|---|---|---|---|---|---|---|---|---|---|
-| craftsdwarf | `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | no | 2 | — | T-559 |
 
 The smokehouse's skill is `cooking`. Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
 

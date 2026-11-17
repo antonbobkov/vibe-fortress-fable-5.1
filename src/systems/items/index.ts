@@ -87,7 +87,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
   readonly order = 13;
   override readonly cadence = 10;
   override readonly phase = 1;
-  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped', 'AttackResolved', 'DayPassed', 'HourPassed'];
+  override readonly subscribes: readonly EventType[] = ['TilesChanged', 'BuildingCompleted', 'BuildingRemoved', 'ZoneChanged', 'ItemMelted', 'CreatureDied', 'CorpseCreated', 'SeasonChanged', 'ThiefEscaped', 'AttackResolved', 'DayPassed', 'HourPassed', 'IceMelted'];
   override readonly ownsCommands: readonly CommandType[] = [
     'ForbidItem',
     'ClaimItem',
@@ -371,7 +371,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       if (this.cellarRef !== null) cellarDay(this.cellarRef);
     } else if (event.type === 'HourPassed') {
       compostHour(core, this.stockpiles, ctx);
-    } else if (event.type === 'SeasonChanged') {
+    } else if (event.type === 'SeasonChanged' || event.type === 'IceMelted') {
+      // 13 § Rot: a season's weather, or an ice larder's walls gone (05), changes rot speeds.
       this.rotRef?.resample();
     } else if (event.type === 'TilesChanged') {
       for (const t of event['tiles'] as readonly TileIndex[]) core.settleTile(t, this.entitiesAt);

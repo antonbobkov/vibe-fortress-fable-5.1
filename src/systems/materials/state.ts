@@ -33,4 +33,10 @@ export interface MaterialsStateV1 {
   pendingIgnite: TileIndex[];
   /** `05` § Smoke: each smoky workshop's centre tile and the tick its smoke clears, ascending; omitted when none. */
   smoke?: [TileIndex, number][];
+  /** `05` § Ice constructions: each ice wall or floor and the tick it was built, ascending; omitted when none. */
+  iceBuilt?: [TileIndex, number][];
+  /** A `DayPassed` came: the next materials tick melts the underground ice whose days are up. Omitted when false. */
+  iceDayDue?: true;
+  /** The day of the last `IceMelted` (one a day); omitted before the first. */
+  iceMeltedDay?: number;
 }

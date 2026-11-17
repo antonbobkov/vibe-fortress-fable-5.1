@@ -442,3 +442,9 @@ Every new row of every table goes at the end of this table, including generated 
 | materials | reindeer_hide |
 | materials | camel_meat |
 | materials | camel_hide |
+| items | firebrand |
+| jobTypes | harvest_ice |
+| jobTypes | ignite |
+| recipes | make_firebrand |
+| thoughts | set_a_fire |
+| confirmations | c_first_ignite |

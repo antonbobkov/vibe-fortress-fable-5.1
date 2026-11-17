@@ -36,6 +36,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `FireStarted` / `FireSpread` / `FireOut` | `tile` / `tiles[]` / `tiles[]` | 05 | 13, 14, 23, ui |
 | `BurnDamage` | `id, amount` | 05 | 17 |
 | `ItemMelted` | `id` | 05 | 13 |
+| `TileIgnited` | `tile, dwarfId` | 03 (an `ignite` job done: the firebrand spent) | 05 (queues the ignition), 15 |
+| `IceMelted` | `tiles[]` | 05 (ice walls and floors melted, at most once a day) | 13 (re-reads rot speeds), ui |
 | `WeatherChanged` | `from, to` | 06 | 05, 14 (a drying rack's day), 18, ui |
 | `LightningStrike` | `tile` | 06 | 05, 17 |
 | `SnowCoverChanged` | `chunks[]` | 06 | 05, 23 |

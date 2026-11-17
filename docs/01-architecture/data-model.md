@@ -68,6 +68,8 @@ Clarification of the surface: for a column, the highest tile whose kind is not `
 | 10 | `chop` | tree | logs; tile becomes floor |
 | 11 | `gather` | shrub | product; shrub regrows |
 | 12 | `harvest` | crop at stage 3 (07) | the crop is harvested; the tile stays a farm plot tile |
+| 13 | `harvest_ice` | frozen outdoor water (an ice wall or floor) | one `stone_block` of `ice`; the tile stays as it was and cannot be designated again for `ICE_RECUT_DAYS` (03) |
+| 14 | `ignite` | a burnable tile (05), not wet, not snow, not burning | the tile is lit by 05's ignition (03 § Setting a fire) |
 
 ### Flags
 
