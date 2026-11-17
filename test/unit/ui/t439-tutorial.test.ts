@@ -239,7 +239,7 @@ describe('T-439 tutorial: the box', () => {
     const keys = new Keymap(keymap.bindings);
     expect(keys.rebind(bindingIndex(keys, 'fortress_panel', 'designate'), spec('q'))).toBeNull();
     expect(keys.rebind(bindingIndex(keys, 'map', 'z_down'), spec('F7'))).toBeNull();
-    expect(keys.rebind(bindingIndex(keys, 'designate_panel', 'stairs_down'), spec('v'))).toBeNull();
+    expect(keys.rebind(bindingIndex(keys, 'designate_panel', 'stairs'), spec('v'))).toBeNull();
     expect(keys.rebind(bindingIndex(keys, 'global', 'tutorial_skip'), spec('F3'))).toBeNull();
     const t = new Tutorial(steps, strings, keys);
     expect(t.text()).toContain('[F7]');
@@ -247,7 +247,7 @@ describe('T-439 tutorial: the box', () => {
     t.index = 2;
     expect(t.text()).toContain('Open Designate with [q]');
     t.index = 3;
-    expect(t.text()).toContain('[v] chooses down stairs');
+    expect(t.text()).toContain('[v] chooses stairs');
     const s = surface(80, 40);
     t.draw(s, map, () => null);
     expect(s.lines().join('\n')).toContain('[F3] skip step');

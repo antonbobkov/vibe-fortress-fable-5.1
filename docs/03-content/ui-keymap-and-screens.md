@@ -135,11 +135,8 @@ The keys of a rectangle dragged with no tool (§ Mouse); `Delete` is the Map con
 |---|---|
 | `[S-d]` | dig |
 | `[S-c]` | channel |
-| `[S-u]` | stairs up |
-| `[S-j]` | stairs down |
-| `[i]` | up/down stairs |
+| `[w]` | stairs (the kind chosen per tile) |
 | `[r]` | ramp |
-| `[w]` | stairwell |
 | `[S-s]` | smooth |
 | `[S-e]` | engrave |
 | `[x]` | remove a construction |
@@ -676,7 +673,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `view` | `view_moved` | `z` | "Welcome to your hall. Move the view with ←→ ↑↓ (or drag with the middle button), and change the level with [<] and [>] (or the wheel). Do both: the z field below shows the level." |
 | `look` | `looked` | `look` | "Look at things with [k], or a click on the map. The look panel's Tile tab lists all that lies on the tile, and the status row names what is under the pointer. Look at a tile, then at one of your dwarves." |
 | `dig` | `dig_designated` | `designate` | "Open Designate with [d]: Dig is chosen. Go down a level with [<] into the rock, click one corner of a box, then the opposite corner (or Enter twice). The marked tiles blink while the work waits for a miner." |
-| `stairs` | `stairs_designated` | `designate` | "Stairs lead down. In Designate, [S-j] chooses down stairs: click a floor tile twice. Change the level between the two clicks and the box makes a stair column, down stairs on top and up stairs below." |
+| `stairs` | `stairs_designated` | `designate` | "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft." |
 | `stockpile` | `stockpile_made` | `zones` | "Hauled goods need a place. Open Zones with [z], choose a stockpile with [S-s], and drag a rectangle over open floor (or Enter at two corners)." |
 | `workshop` | `workshop_placed` | `build` | "Open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs." |
 | `order` | `order_queued` | `orders` | "Workshops make what is ordered. Open Orders with [o]: [S-n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it." |

@@ -256,28 +256,13 @@
   },
   {
     "context": "designate_panel",
-    "key": "[S-u]",
-    "action": "stairs up"
-  },
-  {
-    "context": "designate_panel",
-    "key": "[S-j]",
-    "action": "stairs down"
-  },
-  {
-    "context": "designate_panel",
-    "key": "[i]",
-    "action": "up/down stairs"
+    "key": "[w]",
+    "action": "stairs (the kind chosen per tile)"
   },
   {
     "context": "designate_panel",
     "key": "[r]",
     "action": "ramp"
-  },
-  {
-    "context": "designate_panel",
-    "key": "[w]",
-    "action": "stairwell"
   },
   {
     "context": "designate_panel",

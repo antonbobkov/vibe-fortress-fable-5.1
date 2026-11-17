@@ -170,8 +170,12 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
         k === TileKind.StairsDown
       );
     case Designation.StairsUp:
+      // Carved from a wall, or cut into a floor.
+      return k === TileKind.Wall || k === TileKind.Floor;
     case Designation.StairsUpDown:
-      return k === TileKind.Wall;
+      // As up stairs, or a natural stair re-carved to lead both ways.
+      return k === TileKind.Wall || k === TileKind.Floor ||
+        ((k === TileKind.StairsUp || k === TileKind.StairsDown) && !constructed(map, i));
     case Designation.StairsDown:
       return k === TileKind.Floor;
     case Designation.Ramp: {
@@ -301,14 +305,16 @@ export function transition(
       break;
     }
     case Designation.StairsUp:
-      addDrop(digDrop(map, i, facts, rolls));
+      // "As dig from a `wall`; none from a `floor`".
+      if (map.kindAt(i) === TileKind.Wall) addDrop(digDrop(map, i, facts, rolls));
       changes.push({ tile: i, kind: TileKind.StairsUp, material });
       break;
     case Designation.StairsDown:
       changes.push({ tile: i, kind: TileKind.StairsDown, material });
       break;
     case Designation.StairsUpDown:
-      addDrop(digDrop(map, i, facts, rolls));
+      // "As dig from a `wall`; none otherwise" (a floor, or a stair re-carved).
+      if (map.kindAt(i) === TileKind.Wall) addDrop(digDrop(map, i, facts, rolls));
       changes.push({ tile: i, kind: TileKind.StairsUpDown, material });
       break;
     case Designation.Ramp: {

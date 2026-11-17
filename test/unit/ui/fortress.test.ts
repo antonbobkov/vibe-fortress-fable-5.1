@@ -8,7 +8,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { loadContent } from '@content/loader';
 import type { Command } from '@core/commands';
-import { Designation, TileFlag } from '@core/map3d';
+import { Designation, TileFlag, TileKind } from '@core/map3d';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { Game } from '@app/game';
 import { readJsonSection } from '@app/save-manager';
@@ -107,6 +107,7 @@ describe('T-M1-14 designate tool: drag rectangle → Designate', () => {
       index: (x: number) => x,
       flagsAt: (i: number) => flags.get(i) ?? 0,
       designationAt: () => Designation.None,
+      kindAt: () => TileKind.Floor,
     } as unknown as Parameters<DesignateTool['commands']>[0]['map'];
     const cmds = tool.commands({ map, precondition: (i) => i === 2 }, { x: 0, y: 0, z: 0 }, { x: 2, y: 0, z: 0 });
     expect(cmds).toEqual([{ type: 'Designate', tiles: [1, 2], kind: 'dig', priority: 5 }]);

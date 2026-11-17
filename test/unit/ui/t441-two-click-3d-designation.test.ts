@@ -91,7 +91,7 @@ describe('T-441 two-click designation in 3D', () => {
     expect(sent.filter((cmd) => cmd.type === 'Designate')[0]?.['tiles']).toHaveLength(6);
   });
 
-  it('the stair tool over ten levels is one stair column: down stairs on top, up/down between, up stairs at the bottom', async () => {
+  it('the stairs tool over ten levels is one stair column: down stairs on top, up/down between, up stairs at the bottom (T-589: one Designate per kind)', async () => {
     const { game, sent } = await fortress();
     key(game, 'd');
     key(game, 'w');
@@ -99,31 +99,42 @@ describe('T-441 two-click designation in 3D', () => {
     key(game, 'Enter');
     for (let k = 0; k < 9; k += 1) key(game, '<');
     key(game, 'Enter');
-    expect(sent.filter((cmd) => cmd.type === 'DesignateStairwell')).toEqual([{ type: 'DesignateStairwell', x: c.x, y: c.y, zTop: Z, zBottom: Z - 9, priority: 5 }]);
     const map = game.host.readers.map;
+    const middle: number[] = [];
+    for (let z = Z - 1; z > Z - 9; z -= 1) middle.push(map.index(c.x, c.y, z));
+    expect(sent.filter((cmd) => cmd.type === 'Designate')).toEqual([
+      { type: 'Designate', tiles: [map.index(c.x, c.y, Z)], kind: 'stairs_down', priority: 5 },
+      { type: 'Designate', tiles: middle, kind: 'stairs_updown', priority: 5 },
+      { type: 'Designate', tiles: [map.index(c.x, c.y, Z - 9)], kind: 'stairs_up', priority: 5 },
+    ]);
     expect(map.designationAt(map.index(c.x, c.y, Z))).toBe(Designation.StairsDown);
     for (let z = Z - 1; z > Z - 9; z -= 1) expect(map.designationAt(map.index(c.x, c.y, z))).toBe(Designation.StairsUpDown);
     expect(map.designationAt(map.index(c.x, c.y, Z - 9))).toBe(Designation.StairsUp);
   });
 
-  it('a down-stairs box over several levels makes a column on each of its tiles; on one level it is plain down stairs', async () => {
+  it('a stairs box over several levels makes a column on each of its tiles; on one level a floor takes down stairs and the up stairs beneath', async () => {
     const { game, sent } = await fortress();
     key(game, 'd');
-    key(game, 'J', true);
+    key(game, 'w');
+    const c = game.ui.cursor as { x: number; y: number };
     key(game, 'Enter');
     key(game, '→');
     key(game, '<');
     key(game, '<');
     key(game, 'Enter');
-    const columns = sent.filter((cmd) => cmd.type === 'DesignateStairwell');
-    expect(columns).toHaveLength(2);
-    expect(columns.every((cmd) => cmd['zTop'] === Z && cmd['zBottom'] === Z - 2)).toBe(true);
+    const map = game.host.readers.map;
+    const kinds = sent.filter((cmd) => cmd.type === 'Designate').map((cmd) => [cmd['kind'], (cmd['tiles'] as number[]).length]);
+    expect(kinds).toEqual([['stairs_down', 2], ['stairs_updown', 2], ['stairs_up', 2]]);
     sent.length = 0;
     key(game, '>');
     key(game, '>');
     key(game, '→');
     key(game, 'Enter');
+    expect(game.fortress.statusRow2()).toContain(`Stairs from z ${Z}: click again`);
     key(game, 'Enter');
-    expect(sent.map((cmd) => [cmd.type, cmd['kind']])).toEqual([['Designate', 'stairs_down']]);
+    expect(sent).toEqual([
+      { type: 'Designate', tiles: [map.index(c.x + 2, c.y, Z)], kind: 'stairs_down', priority: 5 },
+      { type: 'Designate', tiles: [map.index(c.x + 2, c.y, Z - 1)], kind: 'stairs_up', priority: 5 },
+    ]);
   });
 });

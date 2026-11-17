@@ -313,8 +313,10 @@ export class TerrainProducer implements JobProducer {
     const material = map.materialAt(tile);
     const materialId = facts.materialId(material);
     const cls = facts.classOf(material);
+    // Stairs mine only when carved from rock: cut into a floor or re-carved from stairs, they mine nothing (`03` § Digging as a job).
     const mines =
-      kind === Designation.Dig || kind === Designation.StairsUp || kind === Designation.StairsUpDown || kind === Designation.Ramp;
+      kind === Designation.Dig || kind === Designation.Ramp ||
+      ((kind === Designation.StairsUp || kind === Designation.StairsUpDown) && map.kindAt(tile) === TileKind.Wall);
     const raw = transition(map, tile, kind, facts, this.rolls(), (m) => facts.isMetal(m));
     // `remove` returns the item 14 recorded the construction was built from (D-050, T-M2-05).
     const result =
