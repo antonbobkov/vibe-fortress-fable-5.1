@@ -1583,6 +1583,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   for (const pId of ent.with(C.Party)) {
     const p = ent.get(pId, C.Party);
     if (!p || !hostilePurposes.has(p.purpose) || p.state === 'gone' || p.state === 'retreat') continue;
+    if (p.purpose === 'ambush' && p.ambushSprung !== true && process.env['T576_SEES'] !== '1') continue;
     // A thief is a threat from the moment it is spotted; until then the player does not see it.
     if (p.purpose === 'thief') intruders.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Hostile)?.stealthed !== true));
     else raid = true;
