@@ -8,6 +8,8 @@
  * on the job timeline (testing-strategy.md § What may be a gate), so the rule is over the set: at
  * least DEFENCE_SET_RULE of the seeds end every announced raid `repelled` or `wiped`, and on at least
  * DEFENCE_KILL_RULE a soldier kills a hostile; T-522 judges both on the mean over several cadences.
+ * T-581: a row also carries the living dwarves at the end, the dwarf deaths, and the immigrant waves
+ * and seasonal skips, which the verdict prints and does not judge.
  */
 
 import { execFileSync } from 'node:child_process';
@@ -49,6 +51,18 @@ export interface DefenceSeedRow {
   raidKilled?: number;
   raidKilledSoldiers?: number;
   lineAtRaid?: boolean[];
+  /**
+   * T-581: the fortress's living dwarves at the end, its dwarves that died, the immigrant waves that
+   * arrived (and the dwarves they brought), and each seasonal skip as `day:reason` with the last
+   * reason (21's `ImmigrationSkipped`; null when the last evaluation brought a wave or none skipped).
+   * Report columns; absent in rows before T-581.
+   */
+  living?: number;
+  dwarfDeaths?: number;
+  waves?: number;
+  immigrants?: number;
+  skips?: string[];
+  lastSkip?: string | null;
 }
 
 /** Whether a seed ended every announced raid `repelled` or `wiped`. */
@@ -65,6 +79,11 @@ export function playDefenceSeed(seed: string, watchEvery: number): DefenceSeedRo
   const lineAtRaid: boolean[] = [];
   let raidKilled = 0;
   let raidKilledSoldiers = 0;
+  let waves = 0;
+  let immigrants = 0;
+  let dwarfDeaths = 0;
+  const skips: string[] = [];
+  let lastSkip: string | null = null;
   const { w, state } = playDefenceYear({
     seed,
     watchEvery,
@@ -73,6 +92,10 @@ export function playDefenceSeed(seed: string, watchEvery: number): DefenceSeedRo
       tw.game.world.onEvents((batch) => {
         const ent = tw.game.world.entities;
         for (const e of batch) {
+          const day = Math.floor(tw.tick / TICKS_PER_DAY) + 1;
+          if (e.type === 'ImmigrantsArrived') { waves += 1; immigrants += Number(e['count']); lastSkip = null; }
+          if (e.type === 'ImmigrationSkipped') { lastSkip = String(e['reason']); skips.push(`${day}:${lastSkip}`); }
+          if (e.type === 'CreatureDied' && e['faction'] === 'fortress' && e['species'] === dwarf) dwarfDeaths += 1;
           if (e.type === 'RaidArrived' && e['kind'] === 'raid') lineAtRaid.push(innerLineBuilt(tw, st.fortress));
           if (e.type === 'CreatureDied' && e['faction'] === 'fortress' && e['species'] === dwarf && raidMembers.has(e['killerId'] as number)) {
             raidKilled += 1;
@@ -107,5 +130,7 @@ export function playDefenceSeed(seed: string, watchEvery: number): DefenceSeedRo
   return { seed, watch: watchEvery, runtimeCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raids, others, soldierKills,
     trapTriggers: w.events('TrapTriggered').length, caged: w.events('CreatureCaged').length, trial: state.trial,
-    raidKilled, raidKilledSoldiers, lineAtRaid };
+    raidKilled, raidKilledSoldiers, lineAtRaid,
+    living: w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length,
+    dwarfDeaths, waves, immigrants, skips, lastSkip };
 }
