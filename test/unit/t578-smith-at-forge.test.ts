@@ -1,0 +1,82 @@
+/**
+ * T-578: the defence year's squad drills without the forge's named worker. A soldier at drill does
+ * no civilian work (16) and a workshop with a named worker offers its job to nobody else (12), so a
+ * smith who trained full time left the squad's kit open at the forge for the rest of the run. The
+ * script takes the forge's worker out of the squad while the alert is down, and fills the squad to
+ * SQUAD_SIZE from the newest adults outside it, those no role holds first.
+ */
+import { describe, expect, it } from 'vitest';
+import { TileFlag, TileKind } from '@core/map3d';
+import type { CombatReader } from '@systems/combat';
+import { SQUAD_SIZE, type EconomyState } from '../scenarios/three_years_economy';
+import { Z, type FortressState } from '../scenarios/three_years_fortress';
+import { checkDefenceSquad, keepTheSmithAtTheForge, type DefenceYearState } from '../scenarios/defence_year_fortress';
+import { scriptRecord } from '../scenarios/script-commands';
+import { TestWorld } from '../scenarios/test-world';
+
+function ground(seed: string): TestWorld {
+  const w = new TestWorld({ seed, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+  const granite = w.game.registry.table('materials').index('granite');
+  for (let y = 10; y <= 30; y += 1) for (let x = 10; x <= 30; x += 1) {
+    const t = w.index(x, y, Z);
+    w.carve(t, TileKind.Floor, granite);
+    w.map.setFlag(t, TileFlag.Grass, false);
+  }
+  return w;
+}
+
+/** Seven founders (the seventh the smith) and `immigrants` more; a forge whose worker is the smith; a squad of `members`. */
+function fort(w: TestWorld, immigrants: number, members: (founders: number[]) => number[]): { state: DefenceYearState; founders: number[]; arrived: number[]; squadId: number } {
+  const all = Array.from({ length: 7 + immigrants }, (_, k) => w.spawnDwarf({ at: w.index(12 + k, 12, Z) }));
+  const founders = all.slice(0, 7);
+  (w.game as unknown as { arrival: { dwarves: number[] } }).arrival = { dwarves: founders };
+  const forge = w.build('forge', w.index(20, 20, Z), 'granite');
+  w.step(1);
+  expect(w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: forge, dwarfId: founders[6]! }).ok).toBe(true);
+  expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' }).ok).toBe(true);
+  const squadId = w.readers.of<CombatReader>('16').squads()[0]!.id;
+  expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: members(founders) }).ok).toBe(true);
+  const fortress = { cx: 20, cy: 20, z: Z, hallZ: Z - 5, placedIds: { forge },
+    economy: { phases: new Set<string>(['arming']), specialists: { forge: founders[6]!, smelter: founders[3]! } } as unknown as EconomyState,
+    gateDoorId: 0, gateDoorId2: 0, gateWallLostTick: 0, squadId } as unknown as FortressState;
+  const state = { fortress, notes: [], barracksZoneId: 0, archeryRangeZoneId: 0 } as unknown as DefenceYearState;
+  return { state, founders, arrived: all.slice(7), squadId };
+}
+
+const membersOf = (w: TestWorld, squadId: number): readonly number[] =>
+  w.readers.of<CombatReader>('16').squads().find((s) => s.id === squadId)?.members ?? [];
+
+describe('T-578 the forge\'s worker does not drill', () => {
+  it('the smith leaves the squad, which keeps its other soldiers, and a second look sends nothing', () => {
+    const w = ground('t578-smith');
+    // The fixture's militia: the woodcutter, the mason, the smith and the two miners.
+    const { state, founders, squadId } = fort(w, 1, (f) => [f[2]!, f[3]!, f[6]!, f[0]!, f[1]!]);
+    const after = keepTheSmithAtTheForge(w, state, membersOf(w, squadId));
+    expect([...membersOf(w, squadId)].sort()).toEqual([founders[0]!, founders[1]!, founders[2]!, founders[3]!].sort());
+    expect(after).toEqual(membersOf(w, squadId));
+    const sent = scriptRecord(w).accepted.get('SetSquadMembers') ?? 0;
+    keepTheSmithAtTheForge(w, state, membersOf(w, squadId));
+    expect(scriptRecord(w).accepted.get('SetSquadMembers') ?? 0).toBe(sent);
+  });
+
+  it('a squad left under SQUAD_SIZE takes the newest free immigrant, never the smith', () => {
+    const w = ground('t578-smith-refill');
+    const { state, founders, arrived, squadId } = fort(w, 2, (f) => [f[6]!, f[0]!]);
+    keepTheSmithAtTheForge(w, state, membersOf(w, squadId));
+    const members = membersOf(w, squadId);
+    expect(members.length).toBe(SQUAD_SIZE);
+    expect(members).not.toContain(founders[6]);
+    expect(members).toEqual([founders[0]!, arrived[1]!, arrived[0]!]);
+  });
+
+  it('not in a fight: under an alert the squad goes active with the smith in it', () => {
+    const w = ground('t578-smith-alert');
+    const { state, founders, squadId } = fort(w, 0, (f) => [f[2]!, f[6]!, f[0]!]);
+    w.game.world.fortress.alert = 'hearth';
+    checkDefenceSquad(w, state);
+    expect(membersOf(w, squadId)).toContain(founders[6]);
+    w.game.world.fortress.alert = 'calm';
+    checkDefenceSquad(w, state);
+    expect(membersOf(w, squadId)).not.toContain(founders[6]);
+  });
+});
