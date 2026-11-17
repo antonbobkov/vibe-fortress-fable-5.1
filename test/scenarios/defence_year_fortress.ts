@@ -413,8 +413,10 @@ export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearSta
   if (out.length === 0) return members;
   const fortress = state.fortress;
   const kept = members.filter((id) => !named.has(id));
+  // T-580: nor the gate's watchman, who stands in a squad of his own.
+  const onWatch = new Set((fortress.watch ?? []).map((post) => post.dwarfId));
   const adults = w.readers.of<DwarvesReader>('10').adults()
-    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !named.has(id) && !members.includes(id));
+    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !named.has(id) && !members.includes(id) && !onWatch.has(id));
   const free = new Set(specialistCandidates(w, fortress));
   const recruits = adults.sort((a, b) => Number(free.has(b)) - Number(free.has(a)) || b - a).slice(0, Math.max(0, SQUAD_SIZE - kept.length));
   const next = [...kept, ...recruits];
