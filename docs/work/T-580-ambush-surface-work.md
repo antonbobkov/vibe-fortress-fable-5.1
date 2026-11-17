@@ -1,4 +1,4 @@
-# T-NEW — The three-year fortress works on the surface where ambushes spring
+# T-580 — The three-year fortress works on the surface where ambushes spring
 
 **Source:** [T-576's probe and sweeps](../../reports/data/2026-11-17-t576-hidden-ambush.md) · **Size:** L · **Needs:** — · **Status:** open
 

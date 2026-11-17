@@ -1,5 +1,5 @@
 /** Player economy for T-M8-06. All changes go through commands and ordinary jobs. */
-import { C, ItemFlag } from '@core/components';
+import { C, ItemFlag, type WorkOrder } from '@core/components';
 import { CAVERN_1_Z_MIN, CAVERN_1_Z_MAX, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
@@ -10,10 +10,11 @@ import type { JobsReader } from '@systems/jobs';
 import type { PlantsReader } from '@systems/plants';
 import { ripensInTime } from '@systems/plants/growth';
 import type { TerrainReader } from '@systems/terrain/reader';
+import type { ThreatsReader } from '@systems/threats/reader';
 import type { TradeReader } from '@systems/trade/reader';
 import type { WorkshopsReader } from '@systems/workshops';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
-import { onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
+import { designateDig, onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
 import { command } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
@@ -44,6 +45,13 @@ export interface EconomyState {
   readonly cavePlans: { tiles: number[]; zoneId: number }[];
   /** The larder beside the pantry: its tiles, and its stockpile once dug. */
   larder?: { tiles: number[]; zoneId: number; drinkTiles: number[]; drinkZoneId: number };
+  /**
+   * T-580: where ambushes are possible, the workshop hall on the hall level: its tiles (with the
+   * passage to the west corridor) and the origins of its workshop sites; and the workshops being
+   * built there to replace a surface one, by key.
+   */
+  workHall?: { stair: number; tiles: number[]; slots: number[] };
+  moving?: Record<string, { twin: number; type: string; orders: WorkOrder[]; worker: number; old?: number }>;
 }
 
 /**
@@ -165,6 +173,18 @@ const CAVE_STRIP_SEED = 12;
 const USEFUL_SEED: ReadonlySet<string> = new Set([...SURFACE_CROPS.flat(), ...CAVE_CROPS]);
 /** The larder beside the pantry, on the hall level (x0, x1, y0, y1 from the centre): 72 tiles of food, then 12 of drink; every tile holds a barrel. */
 const LARDER: readonly (readonly [number, number, number, number])[] = [[-12, -1, -3, 2], [-12, -9, 3, 5]];
+/**
+ * T-580: the workshop hall is dug this many days before ambushes are possible (18's schedule
+ * preview), so its workshops stand when the first one may come.
+ */
+const WORK_HALL_LEAD_DAYS = 56;
+/** T-580: the workshop hall's digging and its workshops go a step ahead of routine work. */
+const WORK_HALL_PRIORITY = METAL_BUILD;
+/** T-580: the workshop hall's sites (3 x 3 each), columns by rows. */
+const WORK_HALL_COLUMNS = 4;
+const WORK_HALL_ROWS = 3;
+/** T-580: the workshop hall's stair goes down from the west corridor this many tiles west of the centre, or the corridor tile nearest it. */
+const WORK_HALL_STAIR_X = -10;
 /** The empty barrels the opening's two drink stockpiles want: a third of their twelve tiles. */
 const DRINK_STOCKPILE_TILES = 4;
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
@@ -407,6 +427,15 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
     return;
   }
   const buildings = w.readers.of<BuildingsReader>('14');
+  // T-580: once the workshop hall is dug, a workshop goes up below ground.
+  if (type !== 'trade_depot') {
+    const below = placeBelow(w, state, type, priority);
+    if (below !== 0) {
+      state.placedIds[key] = below;
+      state.economy.phases.add(`traffic:${key}`);
+      return;
+    }
+  }
   const candidates: number[] = [];
   for (let y = Math.max(2, state.cy + dy - 12); y <= Math.min(w.map.h - 4, state.cy + dy + 12); y += 1) {
     for (let x = Math.max(2, state.cx + dx - 12); x <= Math.min(w.map.w - 4, state.cx + dx + 12); x += 1) candidates.push(w.index(x, y, state.z));
@@ -483,6 +512,171 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
       state.economy.phases.add(`traffic:${key}`);
     }
   }
+}
+
+/**
+ * T-580: the day ambushes are first possible, as the threats panel's schedule preview gives it
+ * (18: "possible from Autumn, Year 1"), or null where they never come.
+ */
+export function ambushFromDay(w: TestWorld): number | null {
+  const preview = w.readers.of<ThreatsReader>('18').schedulePreview()['ambush'];
+  const m = preview === undefined ? null : /possible from (\w+), Year (\d+)/.exec(preview);
+  if (!m) return null;
+  const season = ['Spring', 'Summer', 'Autumn', 'Winter'].indexOf(m[1]!);
+  return (Number(m[2]) - 1) * DAYS_PER_YEAR + Math.max(0, season) * (DAYS_PER_YEAR / 4);
+}
+
+/**
+ * T-580: the workshop hall, one level below the halls, where no room of the halls' plan lies: a
+ * stair down from the west corridor (`WORK_HALL_STAIR_X`, or the nearest corridor tile that is no
+ * bedroom's door), and around its foot `WORK_HALL_COLUMNS` by `WORK_HALL_ROWS` workshop sites
+ * packed side by side, a lane along every side of each row, the stair's foot on the top lane.
+ * Only rock that opens to no hillside is planned.
+ */
+function planWorkHall(w: TestWorld, state: FortressState): { stair: number; tiles: number[]; slots: number[] } | null {
+  const { cx, cy, hallZ } = state;
+  const z = hallZ - 1;
+  const doors = new Set(state.bedroomPlans.map((bp) => w.index(bp.doorX, bp.doorY, hallZ)));
+  const width = 3 * WORK_HALL_COLUMNS + 2, height = 4 * WORK_HALL_ROWS + 1;
+  const sy = cy + 6;
+  let sx = -1;
+  for (let x = Math.max(2, cx - 13); x <= cx - 1; x += 1) {
+    if (doors.has(w.index(x, sy, hallZ)) || x - 6 < 1 || x + width - 7 > w.map.w - 2 || sy + height - 1 > w.map.h - 2) continue;
+    if (sx < 0 || Math.abs(x - cx - WORK_HALL_STAIR_X) < Math.abs(sx - cx - WORK_HALL_STAIR_X)) sx = x;
+  }
+  if (sx < 0) return null;
+  const x0 = sx - 6, y0 = sy;
+  const tiles: number[] = [];
+  for (let y = y0; y < y0 + height; y += 1) for (let x = x0; x < x0 + width; x += 1) if (x !== sx || y !== sy) tiles.push(w.index(x, y, z));
+  const slots: number[] = [];
+  for (let r = 0; r < WORK_HALL_ROWS; r += 1) for (let c = 0; c < WORK_HALL_COLUMNS; c += 1) slots.push(w.index(x0 + 1 + 3 * c, y0 + 1 + 4 * r, z));
+  // The sites nearest the stair first.
+  const far = (t: number): number => Math.abs(w.map.xOf(t) + 1 - sx) + Math.abs(w.map.yOf(t) + 1 - sy);
+  slots.sort((a, b) => far(a) - far(b) || a - b);
+  return { stair: w.index(sx, sy, hallZ), tiles: tiles.filter((t) => !opensToHillside(w, t)), slots };
+}
+
+/** T-580: whether the hall has a free, dug site for `type`. */
+function hasFreeSite(w: TestWorld, state: FortressState, type: string): boolean {
+  return (state.economy.workHall?.slots ?? []).some((origin) => siteFree(w, type, origin));
+}
+
+function siteFree(w: TestWorld, type: string, origin: number): boolean {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const ghost = buildings.ghost(type, origin, 0);
+  if (ghost.reason !== null || ghost.tiles.some((t) => w.map.kindAt(t) !== TileKind.Floor || buildings.zoneAt(t) !== 0 || w.map.designationAt(t) !== 0)) return false;
+  return !w.game.world.entities.with(C.Creature).some((id) => {
+    const p = w.game.world.entities.get(id, C.Position);
+    return p !== undefined && ghost.tiles.includes(w.index(p.x, p.y, p.z));
+  });
+}
+
+/** T-580: a free, dug workshop site of the hall that takes `type`; the new building's id, or 0. */
+function placeBelow(w: TestWorld, state: FortressState, type: string, priority: number): number {
+  const hall = state.economy.workHall;
+  if (!hall) return 0;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  for (const origin of hall.slots) {
+    if (!siteFree(w, type, origin)) continue;
+    if (!command(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority }).ok) continue;
+    const id = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
+    const b = buildings.get(id);
+    if (b && b.footprint.length === 9) command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
+    return id;
+  }
+  return 0;
+}
+
+/**
+ * T-580: a fortress where ambushes are possible works below ground once they are. An ambush
+ * springs on the dwarves at work outdoors, and Gloam outrun a dwarf, so a player who reads the
+ * schedule preview digs a workshop hall `WORK_HALL_LEAD_DAYS` before the first possible ambush,
+ * builds each surface workshop again there and takes the surface one down once its twin stands,
+ * with its orders and its worker; and once ambushes are possible, the dwarves eat, drink and meet
+ * below: the surface stockpile takes no food or drink, and the surface drink stockpile and
+ * meeting area are removed. The trade depot stays on the surface for the caravans.
+ */
+function keepWorkBelow(w: TestWorld, state: FortressState, day: number): void {
+  const from = process.env['T580_OFF'] === '1' ? null : ambushFromDay(w); // TEMP
+  if (from === null || day < from - WORK_HALL_LEAD_DAYS) return;
+  const { economy } = state;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  if (!economy.workHall) {
+    const plan = planWorkHall(w, state);
+    // The stair goes down from the dug corridor, so nothing is designated into unreached rock.
+    if (plan === null || w.map.kindAt(plan.stair) !== TileKind.Floor) return;
+    if (!command(w, { type: 'DesignateStairwell', x: w.map.xOf(plan.stair), y: w.map.yOf(plan.stair), zTop: state.hallZ, zBottom: state.hallZ - 1, priority: WORK_HALL_PRIORITY }, ['bad_designation']).ok) return;
+    economy.workHall = plan;
+    designateDig(w, plan.tiles, WORK_HALL_PRIORITY);
+    for (const t of plan.tiles) economy.workings.add(t);
+  }
+  const moving = (economy.moving ??= {});
+  const recipes = w.game.registry.table<{ id: string }>('recipes');
+  const items = w.readers.of<ItemsReader>('13');
+  const entities = w.game.world.entities;
+  for (const [key, id] of Object.entries(state.placedIds)) {
+    const b = buildings.get(id);
+    const move = moving[key];
+    if (move === undefined) {
+      if (!b || b.state !== 'built' || b.typeId === 'trade_depot' || !w.map.hasFlag(b.footprint[0]!, TileFlag.Outdoor)) continue;
+      const shop = entities.get(id, C.Workshop);
+      const orders = (shop?.orders ?? []).map((o) => ({ ...o }));
+      // The forge takes the fortress's anvil: with no spare one the surface forge is taken down
+      // first, and its anvil goes into the new one.
+      if (b.typeId === 'forge' && items.available('anvil') === 0) {
+        if (!hasFreeSite(w, state, 'forge')) continue;
+        command(w, { type: 'DeconstructBuilding', buildingId: id });
+        moving[key] = { twin: 0, type: b.typeId, orders, worker: shop?.assignedWorker ?? 0 };
+        continue;
+      }
+      const twin = placeBelow(w, state, b.typeId, WORK_HALL_PRIORITY);
+      if (twin !== 0) moving[key] = { twin, type: b.typeId, orders: [], worker: 0, old: id };
+      continue;
+    }
+    if (move.twin === 0) {
+      if (b !== undefined) continue;
+      move.twin = placeBelow(w, state, move.type, WORK_HALL_PRIORITY);
+      if (move.twin !== 0) state.placedIds[key] = move.twin;
+      continue;
+    }
+    const twin = buildings.get(move.twin);
+    if (twin === undefined) {
+      // The new site was lost: start again.
+      if (move.old === undefined) move.twin = 0;
+      else delete moving[key];
+      continue;
+    }
+    if (twin.state !== 'built') continue;
+    // The twin stands: it takes the surface workshop's orders, in their order, and its worker.
+    const old = move.old === undefined ? undefined : entities.get(move.old, C.Workshop);
+    const orders = old ? old.orders : move.orders;
+    for (const o of orders) {
+      const recipeId = recipes.byIndex(o.recipe)?.id;
+      if (recipeId === undefined) continue;
+      command(w, { type: 'AddWorkOrder', workshopId: move.twin, order: { recipeId, mode: o.mode, ...(o.mode === 'once' ? { remaining: o.remaining } : { threshold: o.threshold }),
+        priority: o.priority, ...(o.materialFilter === null ? {} : { materialFilter: o.materialFilter }), ...(o.targetType === undefined ? {} : { targetType: o.targetType }) } });
+    }
+    const worker = old ? old.assignedWorker : move.worker;
+    if (worker !== 0) command(w, { type: 'SetWorkshopWorker', workshopId: move.twin, dwarfId: worker }, ['not_found', 'no_labor']);
+    command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => twin.footprint[i]!), mode: 'normal' });
+    if (move.old !== undefined && buildings.get(move.old)?.state === 'built') command(w, { type: 'DeconstructBuilding', buildingId: move.old });
+    state.placedIds[key] = move.twin;
+    economy.phases.delete(`traffic:${key}`);
+    delete moving[key];
+  }
+  if (day < from || economy.phases.has('fed below')) return;
+  economy.phases.add('fed below');
+  const surface = (type: string, x: number, y: number): number => {
+    const zid = buildings.zoneAt(w.index(state.cx + x, state.cy + y, state.z));
+    return zid !== 0 && buildings.zone(zid)?.type === type ? zid : 0;
+  };
+  const store = surface('stockpile', -1, 6);
+  const nodes = ['seed', 'stone', 'ore', 'wood', 'bar', 'furniture', 'container', 'weapon', 'ammo', 'armor', 'clothing', 'tool', 'craft', 'textile', 'medical', 'farm', 'refuse'];
+  if (store !== 0) command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { preset: 'everything', categories: nodes } });
+  const drink = surface('stockpile', 1, 13);
+  if (drink !== 0) command(w, { type: 'RemoveZone', zoneId: drink });
+  const meet = surface('meeting_area', 3, 11);
+  if (meet !== 0) command(w, { type: 'RemoveZone', zoneId: meet });
 }
 
 /** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */
@@ -1483,6 +1677,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   checkCaveStrips(w, state);
   checkCrops(w);
   checkKitchens(w, state);
+  keepWorkBelow(w, state, day);
   // Nobody hunts: an immigrant hunter arrives with a crossbow, and a bolt that misses its quarry
   // hits whoever stands behind it (16 § Ranged).
   for (const id of fortressDwarves(w)) {

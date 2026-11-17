@@ -28,7 +28,7 @@ What remains is the ambush itself: dwarves caught far out by faster Gloam. Light
 
 ## Where the dwarves were
 
-At the spring the probe noted every dwarf on an outdoor tile and what it was doing: most were crafting at the surface workshops (0 to 25 tiles from the gate), eating or drinking outdoors, or hauling. That is the exposure an honest answer has to remove, and it is a change to how the fortress works, filed as [T-NEW](../../docs/work/T-NEW-ambush-surface-work.md).
+At the spring the probe noted every dwarf on an outdoor tile and what it was doing: most were crafting at the surface workshops (0 to 25 tiles from the gate), eating or drinking outdoors, or hauling. That is the exposure an honest answer has to remove, and it is a change to how the fortress works, filed as [T-580](../../docs/work/T-580-ambush-surface-work.md).
 
 ## The sweeps
 

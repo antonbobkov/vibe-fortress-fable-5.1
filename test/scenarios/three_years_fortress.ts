@@ -393,7 +393,7 @@ function caveSite(w: TestWorld, cx: number, cy: number, z: number): { near: numb
 }
 
 /** T-448: designate the diggable tiles of `tiles`; nothing when none is. */
-function designateDig(w: TestWorld, tiles: readonly number[], priority: number): void {
+export function designateDig(w: TestWorld, tiles: readonly number[], priority: number): void {
   const ok = tiles.filter((t) => diggable(w, t) && !opensToHillside(w, t));
   if (ok.length > 0) command(w, { type: 'Designate', kind: 'dig', priority, tiles: ok });
 }
@@ -1194,7 +1194,7 @@ export function dormitorySite(w: TestWorld, state: FortressState): number[] | nu
   const hallLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
   const planned = new Set<number>([...state.economy.workings, ...(state.dormitories ?? []).flatMap((d) => d.tiles),
     ...state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, z)]), ...(state.economy.larder?.tiles ?? []),
-    ...(state.economy.larder?.drinkTiles ?? [])]);
+    ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? [])]);
   const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) &&
     map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t);
   const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
