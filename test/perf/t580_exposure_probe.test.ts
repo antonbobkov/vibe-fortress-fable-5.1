@@ -45,6 +45,27 @@ describe('T-580 probe: who works outdoors once ambushes are possible', () => {
     const farBand = new Map<number, number>();
     let samples = 0;
     const census: string[] = [];
+    const drank = { water: 0, alcohol: 0 };
+    const springs: string[] = [];
+    w.game.world.onEvents((events) => {
+      if (w.tick < FROM_DAY * TICKS_PER_DAY) return;
+      for (const e of events) {
+        if (e.type === 'DrankWater') drank.water += 1; else if (e.type === 'DrankAlcohol') drank.alcohol += 1;
+        else if (e.type === 'AmbushSprung') {
+          // Where the party stands when it springs: its members' levels against the surface, and the dwarves outdoors.
+          const p = ent.get(Number(e['partyId']), C.Party);
+          const zs = (p?.members ?? []).map((m) => ent.get(m, C.Position)).filter((q) => q !== undefined).map((q) => q.z - state.z);
+          const out = ent.with(C.Labors).filter((id) => { const q = ent.get(id, C.Position); return ent.alive(id) && q !== undefined && w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor); }).length;
+          const gate = { x: state.cx + 6, y: state.cy + 6 };
+          const watch = (state.watch ?? []).map((wt) => {
+            const q = ent.get(wt.dwarfId, C.Position);
+            return `${wt.dwarfId}${q ? `@${q.x - gate.x},${q.y - gate.y},${q.z - state.z}:${ent.get(wt.dwarfId, C.Brain)?.behavior ?? ''}` : ''}`;
+          });
+          const ms = (p?.members ?? []).map((m) => ent.get(m, C.Position)).filter((q) => q !== undefined).map((q) => `${q.x - gate.x},${q.y - gate.y},${q.z - state.z}`);
+          springs.push(`day ${Math.floor(w.tick / TICKS_PER_DAY)} z[${zs.join(',')}] outdoors ${out} alert ${w.game.world.fortress.alert} watch[${watch.join(' ')}] at[${ms.join(' ')}]`);
+        }
+      }
+    });
     const log = console.log;
     console.log = (...a: unknown[]): void => {
       const s = a.map(String).join(' ');
@@ -101,13 +122,14 @@ describe('T-580 probe: who works outdoors once ambushes are possible', () => {
     });
     const hall = state.economy.workHall?.tiles ?? [];
     const out = [
-      `[t580] ${seed} shift ${SHIFT} day ${DAYS} living ${living} ambushes ${census.length} ambush deaths ${deaths}`,
+      `[t580] ${seed} shift ${SHIFT} day ${DAYS} living ${living} ambushes ${census.length} ambush deaths ${deaths} drank water ${drank.water} alcohol ${drank.alcohol}`,
       `  hall dug ${hall.filter((t) => w.map.kindAt(t) === TileKind.Floor).length}/${hall.length}, moved on days ${JSON.stringify(moves)}; shops ${shops.join(' ')}`,
       `  outdoors per sample: near ${sum(near).toFixed(2)} far ${sum(far).toFixed(2)}`,
       `  far by band: ${[...farBand].sort((a, b) => a[0] - b[0]).map(([k, v]) => `${k}+ ${(v / Math.max(1, samples)).toFixed(2)}`).join(', ')}`,
       `  far: ${fmt(far)}`,
       `  near: ${fmt(near)}`,
       ...census.map((c) => `  ${c}`),
+      ...springs.map((c) => `  sprang ${c}`),
     ];
     log(out.join('\n'));
     expect(samples).toBeGreaterThan(0);

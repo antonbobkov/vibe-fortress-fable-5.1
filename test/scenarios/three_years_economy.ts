@@ -185,6 +185,12 @@ const WORK_HALL_COLUMNS = 4;
 const WORK_HALL_ROWS = 3;
 /** T-580: the workshop hall's stair goes down from the west corridor this many tiles west of the centre, or the corridor tile nearest it. */
 const WORK_HALL_STAIR_X = -10;
+/**
+ * T-580: a workshop whose site is no farther than this from the gate stair (tiles, Chebyshev, from
+ * the centre) stays on the surface: its workers are a step from the stair, and they are the eyes
+ * that spot an ambush before it reaches the farther dwarves or walks in at the gate.
+ */
+const WORK_NEAR_GATE = 6;
 /** The empty barrels the opening's two drink stockpiles want: a third of their twelve tiles. */
 const DRINK_STOCKPILE_TILES = 4;
 /** Easy meals in stock before the kitchen turns to lavish meals first. */
@@ -428,7 +434,7 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
   }
   const buildings = w.readers.of<BuildingsReader>('14');
   // T-580: once the workshop hall is dug, a workshop goes up below ground.
-  if (type !== 'trade_depot') {
+  if (type !== 'trade_depot' && Math.max(Math.abs(dx - 6), Math.abs(dy - 6)) > WORK_NEAR_GATE) {
     const below = placeBelow(w, state, type, priority);
     if (below !== 0) {
       state.placedIds[key] = below;
@@ -619,6 +625,8 @@ export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): 
     const move = moving[key];
     if (move === undefined) {
       if (!b || b.state !== 'built' || b.typeId === 'trade_depot' || !w.map.hasFlag(b.footprint[0]!, TileFlag.Outdoor)) continue;
+      const centre = b.footprint[Math.floor(b.footprint.length / 2)]!;
+      if (Math.max(Math.abs(w.map.xOf(centre) - state.cx - 6), Math.abs(w.map.yOf(centre) - state.cy - 6)) <= WORK_NEAR_GATE) continue;
       const shop = entities.get(id, C.Workshop);
       const orders = (shop?.orders ?? []).map((o) => ({ ...o }));
       // The forge takes the fortress's anvil: with no spare one the surface forge is taken down
@@ -675,8 +683,6 @@ export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): 
   if (store !== 0) command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { preset: 'everything', categories: nodes } });
   const drink = surface('stockpile', 1, 13);
   if (drink !== 0) command(w, { type: 'RemoveZone', zoneId: drink });
-  const meet = surface('meeting_area', 3, 11);
-  if (meet !== 0) command(w, { type: 'RemoveZone', zoneId: meet });
 }
 
 /** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */
@@ -1046,7 +1052,8 @@ export function raiseWaitingWork(w: TestWorld, state: FortressState): void {
 export function specialistCandidates(w: TestWorld, state: FortressState): number[] {
   const founders = new Set(w.game.arrival?.dwarves ?? []);
   const taken = new Set(Object.values(state.economy.specialists));
-  return fortressDwarves(w).filter((id) => !founders.has(id) && !taken.has(id) && id !== state.economy.broker?.id && id !== state.economy.brewer);
+  const watchmen = new Set((state.watch ?? []).map((wt) => wt.dwarfId));
+  return fortressDwarves(w).filter((id) => !founders.has(id) && !taken.has(id) && id !== state.economy.broker?.id && id !== state.economy.brewer && !watchmen.has(id));
 }
 
 /**
