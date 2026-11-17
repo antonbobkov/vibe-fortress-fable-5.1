@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
 | T-576 | [The three-year script sees an ambush before it springs](work/T-576-script-sees-hidden-ambush.md) | T-575's runs | — | open |
 | T-578 | [The defence year's smith drills while the squad's kit waits at the forge](work/T-578-defence-smith-at-drill.md) | T-570's runs | — | open |
 
