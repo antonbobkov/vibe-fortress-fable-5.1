@@ -202,15 +202,20 @@ export class Surface {
     }
   }
 
-  /** Swap `fg` and `bg` over a rectangle: the selection and cursor style. */
-  invert(rect: Rect): void {
+  /**
+   * Swap `fg` and `bg` over a rectangle: the selection and cursor style. With `visible`, a cell
+   * whose colours are nearly alike (unexplored rock on the map) takes the text colour as its
+   * background instead, so a map selection always shows (23 § Step 10).
+   */
+  invert(rect: Rect, visible = false): void {
     for (let r = 0; r < rect.rows; r += 1) {
       for (let c = 0; c < rect.cols; c += 1) {
         const col = rect.col + c;
         const row = rect.row + r;
         if (!this.inside(col, row)) continue;
         const cell = this.cells.get(col, row);
-        this.cells.set(col, row, cell.glyph, cell.bg, cell.fg);
+        if (visible && lumaGap(cell.fg, cell.bg) < INVERT_MIN_GAP) this.cells.set(col, row, cell.glyph, this.theme.black, this.theme.text);
+        else this.cells.set(col, row, cell.glyph, cell.bg, cell.fg);
       }
     }
   }
@@ -276,4 +281,12 @@ export function rowText(cells: CellBuffer, glyphs: GlyphMap, row: number): strin
     s += g === 0 ? ' ' : glyphs.char(g);
   }
   return s;
+}
+
+/** The smallest luma gap (0-255) between a cell's colours at which swapping them still shows. */
+const INVERT_MIN_GAP = 48;
+
+function lumaGap(a: Rgb, b: Rgb): number {
+  const luma = (c: Rgb): number => 0.299 * ((c >> 16) & 255) + 0.587 * ((c >> 8) & 255) + 0.114 * (c & 255);
+  return Math.abs(luma(a) - luma(b));
 }

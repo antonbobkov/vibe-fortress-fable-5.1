@@ -63,14 +63,5 @@ export const PLANT_SHADE_LIGHT = 1.25;
 /** A tree's or shrub's darker shade: blended this far toward black. */
 export const PLANT_SHADE_DARK = 0.3;
 
-/** Higher ground one level up: its background leans this far from the surface's own toward the ground's tone; a quarter as much again per further level. */
-export const HILL_BG_ALPHA = 0.3;
-
-/** Walls are drawn as the ground above them up to this many levels below it. */
-export const HILL_LEVELS_ABOVE = 3;
-
-/** The tone of higher soil ground in a biome with no soil row. */
-export const HILL_SOIL_TONE = 'loam_brown';
-
 /** The bundled square bitmap font, loaded before the browser builds any atlas. */
 export const BUNDLED_FONT_FAMILY = 'DeepholmMono';

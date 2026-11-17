@@ -586,7 +586,7 @@ export class FortressScreen implements Screen {
     const c1 = Math.min(map.cols - 1, x1);
     const r1 = Math.min(map.rows - 1, y1);
     if (c1 < c0 || r1 < r0) return;
-    surface.invert({ col: map.col + c0, row: map.row + r0, cols: c1 - c0 + 1, rows: r1 - r0 + 1 });
+    surface.invert({ col: map.col + c0, row: map.row + r0, cols: c1 - c0 + 1, rows: r1 - r0 + 1 }, true);
   }
 
   /** 23 § Compositor step 10: "a selection rectangle inverts its border cells". */
@@ -601,7 +601,7 @@ export class FortressScreen implements Screen {
       for (let x = x0; x <= x1; x += 1) {
         if (x !== x0 && x !== x1 && y !== y0 && y !== y1) continue;
         if (x < 0 || y < 0 || x >= map.cols || y >= map.rows) continue;
-        surface.invert({ col: map.col + x, row: map.row + y, cols: 1, rows: 1 });
+        surface.invert({ col: map.col + x, row: map.row + y, cols: 1, rows: 1 }, true);
       }
     }
   }
