@@ -15,3 +15,9 @@ Decide what happens to loot inside a raider's container when the raider leaves: 
 ## Done
 
 - p4-5 at shift 0 passes its invariants in the pooled sweep, and the verdict passes. The fix moves no golden, or names the ones it moves.
+
+## Found (T-579's agent)
+
+The orphans in master's run 44035076684 were not raider loot: their holder `83887481` "is not an item", and they are a Hillfolk caravan's goods (rings, cages, a bow, bags) inside a pack animal's own `Container`. A mule killed on the map is removed by 18 on `CreatureDied` (it has no attributes, nor `Tame` or `Wild`), and its load was left pointing at it. Escaped loot already left with its raider (13, T-302); the raider case is now covered by a test too.
+
+Rule (13 § Containers in play, 20 § Movement step 4): whatever leaves the map takes everything inside it, loot or not; a dead pack animal drops its load on its death tile, no longer the merchants'. Fixed in `dropLoad` (`items/index.ts`) and `removeLeavingEquipment` (`items/leaving.ts`); the unload moves only goods still the merchants'.
