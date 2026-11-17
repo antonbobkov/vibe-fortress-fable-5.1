@@ -37,7 +37,7 @@ describe('T-583 every listed good can come', () => {
   });
 
   it('a load of sand, clay or peat is worth a mark, a brightleaf four', () => {
-    for (const id of ['sand', 'clay', 'peat']) expect(registry.table<{ value: number }>('materials').byId(id)?.value, id).toBe(1);
-    expect(registry.table<{ value: number }>('materials').byId('brightleaf')?.value).toBe(1);
+    for (const id of ['sand', 'clay', 'peat']) expect(registry.table<{ id: string; value: number }>('materials').byId(id)?.value, id).toBe(1);
+    expect(registry.table<{ id: string; value: number }>('materials').byId('brightleaf')?.value).toBe(1);
   });
 });

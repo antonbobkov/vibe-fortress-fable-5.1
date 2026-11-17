@@ -632,12 +632,15 @@ export class Compositor {
     } else if ((flags & TileFlag.Smoothed) !== 0) glyph = GLYPH_SMOOTH_FLOOR;
 
     const natural = (flags & (TileFlag.Constructed | TileFlag.Engraved | TileFlag.Smoothed)) === 0;
-    const plain = natural && (flags & (TileFlag.Mud | TileFlag.Snow | TileFlag.Ash)) === 0 && map.isOutdoor(i);
+    // Grass outdoors draws its varied surface and its flowers through mud, which the first rain leaves
+    // on every soil floor for good (04 § Mud): mud tints a bare floor only. 07 counts flowers the same way.
+    const plainGrass = natural && (flags & (TileFlag.Snow | TileFlag.Ash)) === 0 && map.isOutdoor(i);
+    const plain = plainGrass && (flags & TileFlag.Mud) === 0;
     if ((flags & TileFlag.Grass) !== 0) {
       glyph = GLYPH_GRASS;
       const plants = this.frameReaders?.has('07') === true ? this.frameReaders.of<PlantsReader>('07') : null;
       fg = map.isOutdoor(i) ? (plants?.grassIsDry() === true ? this.grassDry : this.grass) : this.moss;
-      if (plain) return this.surface.grass(fg, i % map.w, Math.floor(i / map.w) % map.h, Math.floor(i / (map.w * map.h)));
+      if (plainGrass) return this.surface.grass(fg, i % map.w, Math.floor(i / map.w) % map.h, Math.floor(i / (map.w * map.h)));
     } else if (plain) {
       return this.surface.bareFloor(material, this.rockMaterial[map.materialAt(i)] === 1, i % map.w, Math.floor(i / map.w) % map.h, Math.floor(i / (map.w * map.h)));
     }

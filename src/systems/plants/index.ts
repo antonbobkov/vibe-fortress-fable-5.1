@@ -639,13 +639,14 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   }
 
   /**
-   * `07` § Flowers: an outdoor natural grass floor, not snowed, muddy or ashen, whose tile the
-   * biome's `flowers` share picks (`core/flowers`, the compositor's own test).
+   * `07` § Flowers: an outdoor natural grass floor, not snowed or ashen, whose tile the biome's
+   * `flowers` share picks (`core/flowers`, the compositor's own test). Mud does not hide a flower:
+   * the first rain leaves it on every outdoor soil floor for good (04 § Mud).
    */
   private flowerAt(i: TileIndex): boolean {
     const map = this.map;
     if (this.flowerShare <= 0 || !map.validIndex(i) || map.kindAt(i) !== TileKind.Floor) return false;
-    const bare = TileFlag.Constructed | TileFlag.Engraved | TileFlag.Smoothed | TileFlag.Mud | TileFlag.Snow | TileFlag.Ash;
+    const bare = TileFlag.Constructed | TileFlag.Engraved | TileFlag.Smoothed | TileFlag.Snow | TileFlag.Ash;
     if (!map.hasFlag(i, TileFlag.Grass) || (map.flagsAt(i) & bare) !== 0 || !map.hasFlag(i, TileFlag.Outdoor)) return false;
     return flowerTile(this.flowerShare, map.xOf(i), map.yOf(i), map.zOf(i));
   }
