@@ -1,16 +1,16 @@
 /**
- * T-578: the defence year's squad drills without the forge's named worker. A soldier at drill does
+ * T-578: the defence year's squad drills without a workshop's named worker. A soldier at drill does
  * no civilian work (16) and a workshop with a named worker offers its job to nobody else (12), so a
  * smith who trained full time left the squad's kit open at the forge for the rest of the run. The
- * script takes the forge's worker out of the squad while the alert is down, and fills the squad to
- * SQUAD_SIZE from the newest adults outside it, those no role holds first.
+ * script takes every workshop's named worker out of the squad while the alert is down, and fills the
+ * squad to SQUAD_SIZE from the newest adults outside it whom no workshop names, those no role holds first.
  */
 import { describe, expect, it } from 'vitest';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { CombatReader } from '@systems/combat';
 import { SQUAD_SIZE, type EconomyState } from '../scenarios/three_years_economy';
 import { Z, type FortressState } from '../scenarios/three_years_fortress';
-import { checkDefenceSquad, keepTheSmithAtTheForge, type DefenceYearState } from '../scenarios/defence_year_fortress';
+import { checkDefenceSquad, keepNamedWorkersAtTheirShops, type DefenceYearState } from '../scenarios/defence_year_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
 import { TestWorld } from '../scenarios/test-world';
 
@@ -51,22 +51,36 @@ describe('T-578 the forge\'s worker does not drill', () => {
     const w = ground('t578-smith');
     // The fixture's militia: the woodcutter, the mason, the smith and the two miners.
     const { state, founders, squadId } = fort(w, 1, (f) => [f[2]!, f[3]!, f[6]!, f[0]!, f[1]!]);
-    const after = keepTheSmithAtTheForge(w, state, membersOf(w, squadId));
+    const after = keepNamedWorkersAtTheirShops(w, state, membersOf(w, squadId));
     expect([...membersOf(w, squadId)].sort()).toEqual([founders[0]!, founders[1]!, founders[2]!, founders[3]!].sort());
     expect(after).toEqual(membersOf(w, squadId));
     const sent = scriptRecord(w).accepted.get('SetSquadMembers') ?? 0;
-    keepTheSmithAtTheForge(w, state, membersOf(w, squadId));
+    keepNamedWorkersAtTheirShops(w, state, membersOf(w, squadId));
     expect(scriptRecord(w).accepted.get('SetSquadMembers') ?? 0).toBe(sent);
   });
 
   it('a squad left under SQUAD_SIZE takes the newest free immigrant, never the smith', () => {
     const w = ground('t578-smith-refill');
     const { state, founders, arrived, squadId } = fort(w, 2, (f) => [f[6]!, f[0]!]);
-    keepTheSmithAtTheForge(w, state, membersOf(w, squadId));
+    keepNamedWorkersAtTheirShops(w, state, membersOf(w, squadId));
     const members = membersOf(w, squadId);
     expect(members.length).toBe(SQUAD_SIZE);
     expect(members).not.toContain(founders[6]);
     expect(members).toEqual([founders[0]!, arrived[1]!, arrived[0]!]);
+  });
+
+  it('the craftdwarf\'s named worker leaves it too, and the recruit is no workshop\'s worker', () => {
+    const w = ground('t578-crafter');
+    const { state, founders, arrived, squadId } = fort(w, 2, (f) => [f[3]!, f[6]!, f[0]!, f[1]!]);
+    const shop = w.build('craftdwarf', w.index(24, 24, Z), 'granite');
+    w.step(1);
+    // The mason is the craftdwarf's worker; the newest immigrant is the fuel worker at another shop.
+    expect(w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: shop, dwarfId: founders[3]! }).ok).toBe(true);
+    const mason = w.build('mason', w.index(14, 24, Z), 'granite');
+    w.step(1);
+    expect(w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: mason, dwarfId: arrived[1]! }).ok).toBe(true);
+    keepNamedWorkersAtTheirShops(w, state, membersOf(w, squadId));
+    expect(membersOf(w, squadId)).toEqual([founders[0]!, founders[1]!, arrived[0]!]);
   });
 
   it('not in a fight: under an alert the squad goes active with the smith in it', () => {

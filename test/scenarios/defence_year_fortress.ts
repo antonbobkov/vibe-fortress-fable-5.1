@@ -384,36 +384,38 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
     if (zoneId && buildings.zone(zoneId)?.settings['squad'] !== squad.id) command(w, { type: 'SetZoneSetting', zoneId, key: 'squad', value: squad.id });
   }
   const want = w.game.world.fortress.alert !== 'calm' ? 'active' : state.barracksZoneId ? 'train' : 'off';
-  const members = want === 'active' ? squad.members : keepTheSmithAtTheForge(w, state, squad.members);
+  const members = want === 'active' ? squad.members : keepNamedWorkersAtTheirShops(w, state, squad.members);
   if (squad.mode !== want) command(w, { type: 'SetSquadMode', squadId: squad.id, mode: want });
   if (want !== 'off') keepToolLaborsOffTheSquad(w, state, members);
 }
 
 /**
- * T-578: the forge's named worker does not drill. The fortress script stands the seventh founder,
- * its smith, in its squad from day 1, which in the three-year runs is off duty but under an alert;
- * here the squad trains full time from the first barracks, and a soldier at drill does no civilian
- * work (16) while a workshop with a named worker offers its job to nobody else (12), so the forge's
- * job for the squad's kit stood open from about day 35 to the end of the run and the economy never
- * left its arming phase. As a player does, the script takes the forge's worker out of the squad
- * while the alert is down (never in a fight), and, if that leaves the squad under SQUAD_SIZE, puts
- * in the newest adults outside it, those no role holds first, so that the fixture's own refill
- * never puts the smith back. Returns the squad's members after it.
+ * T-578: a workshop's named worker does not drill. The fortress script stands the seventh founder,
+ * its smith, and the founding mason in its squad from day 1, which in the three-year runs is off
+ * duty but under an alert; here the squad trains full time from the first barracks, and a soldier
+ * at drill does no civilian work (16) while a workshop with a named worker offers its job to nobody
+ * else (12). So the forge's job for the squad's kit stood open from about day 27 to the end of the
+ * run and the economy never left its arming phase; with the smith freed the kit was forged, and the
+ * mason, then named to the craftdwarf's workshop for the stone crafts, left its jobs open for weeks
+ * at a time in turn. As a player does, the script takes every workshop's named worker out of the
+ * squad while the alert is down (never in a fight), and, if that leaves the squad under SQUAD_SIZE,
+ * puts in the newest adults outside it whom no workshop names, those no role holds first, so that
+ * the fixture's own refill never puts one back. Returns the squad's members after it.
  */
-export function keepTheSmithAtTheForge(w: TestWorld, state: DefenceYearState, members: readonly number[]): readonly number[] {
-  const fortress = state.fortress;
-  const forge = fortress.placedIds['forge'];
-  const smith = forge ? w.game.world.entities.get(forge, C.Workshop)?.assignedWorker ?? 0 : 0;
-  if (smith === 0 || !members.includes(smith)) return members;
+export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearState, members: readonly number[]): readonly number[] {
   const ent = w.game.world.entities;
-  const kept = members.filter((id) => id !== smith);
+  const named = new Set(ent.with(C.Workshop).map((id) => ent.get(id, C.Workshop)?.assignedWorker ?? 0).filter((id) => id !== 0));
+  const out = members.filter((id) => named.has(id));
+  if (out.length === 0) return members;
+  const fortress = state.fortress;
+  const kept = members.filter((id) => !named.has(id));
   const adults = w.readers.of<DwarvesReader>('10').adults()
-    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && id !== smith && !kept.includes(id));
+    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !named.has(id) && !members.includes(id));
   const free = new Set(specialistCandidates(w, fortress));
   const recruits = adults.sort((a, b) => Number(free.has(b)) - Number(free.has(a)) || b - a).slice(0, Math.max(0, SQUAD_SIZE - kept.length));
   const next = [...kept, ...recruits];
   command(w, { type: 'SetSquadMembers', squadId: fortress.squadId, members: next });
-  note(state, w, `the smith ${smith} leaves the squad for the forge${recruits.length ? `; ${recruits.join(', ')} join it` : ''}`);
+  note(state, w, `${out.join(', ')} leave the squad for their workshops${recruits.length ? `; ${recruits.join(', ')} join it` : ''}`);
   return next;
 }
 
