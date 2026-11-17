@@ -102,6 +102,11 @@ export interface BuildingsReader {
     cropLitAt(i: TileIndex): boolean;
     lampCoveredAt(i: TileIndex): boolean;
     /**
+     * `buildings.beetleLitAt(i)`: a cardinal neighbour on the tile's level holds a built cage building
+     * whose occupant's species has the flag `glows` (14 § Cages, the beetle jar). Crop light only.
+     */
+    beetleLitAt(i: TileIndex): boolean;
+    /**
      * The tile is in comfort light: the built hearth's square, a built lamp's 3×3, a burning candle
      * stand's or a built lantern's 3×3 (not crop light; 13's cellars, 10's meals and 18's spotting read it).
      */
@@ -141,6 +146,9 @@ export interface BuildingsReader {
   /** A rack's held items with their drying row, days and days left (14 § The drying rack). */
   rackItems(id: EntityId): RackItemView[];
 }
+
+/** The four cardinal steps on a level. */
+const CARDINALS: readonly (readonly [number, number])[] = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 
 export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: RoomStore,
   memorialEligible: (id: EntityId) => boolean = () => false,
@@ -232,6 +240,26 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
       hearthLightAt: (i) => rooms.hearthLightAt(i),
       cropLitAt: (i) => buildings.lampLight.get(i)?.baseLit ?? buildings.host.map.hasFlag(i, TileFlag.Lit),
       lampCoveredAt: (i) => buildings.lampLight.has(i),
+      beetleLitAt: (i) => {
+        const map = buildings.host.map;
+        if (!map.validIndex(i)) return false;
+        const x = map.xOf(i), y = map.yOf(i), z = map.zOf(i);
+        for (const [dx, dy] of CARDINALS) {
+          const nx = x + dx, ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= map.w || ny >= map.h) continue;
+          const id = map.buildingAtTile(map.index(nx, ny, z));
+          if (id === 0) continue;
+          const b = buildings.get(id);
+          if (b === undefined || b.state !== 'built' || !buildings.row(b.type).tags.includes('cage')) continue;
+          const occupant = (b.settings['occupantId'] as number | undefined) ?? 0;
+          if (occupant === 0 || !buildings.host.entities.alive(occupant)) continue;
+          const species = buildings.host.entities.get(occupant, C.Creature)?.species;
+          if (species === undefined) continue;
+          const row = buildings.host.registry.table<{ id: string; flags?: { glows?: boolean } }>('creatures').byIndex(species);
+          if (row?.flags?.glows === true) return true;
+        }
+        return false;
+      },
       comfortLightAt: (i) => rooms.hearthLightAt(i) || buildings.lampLight.has(i) || (candles !== null && candles.at(i) !== 0),
       tallowSmokeAt: (i) => candles !== null && candles.at(i) === TALLOW && !buildings.host.map.hasFlag(i, TileFlag.Lit)
         && !rooms.hearthLightAt(i) && !buildings.lampLight.has(i),

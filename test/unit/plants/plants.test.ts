@@ -45,7 +45,7 @@ const ok = { season: 0, lit: true, lamped: false, tempC: 20, growthModifier: 100
 describe('T-M4-01 plants: tuning constants', () => {
   it('every row of 07 § Tuning constants is in src/systems/plants/constants.ts', () => {
     const rows = tuningConstants('02-systems/07-plants-and-farming.md');
-    expect(rows.length).toBe(10);
+    expect(rows.length).toBe(11); // T-556 adds BEETLE_GROWTH_PERCENT
     const values = K as unknown as Record<string, number>;
     for (const r of rows) expect([r.name, values[r.name]]).toEqual([r.name, r.value]);
   });

@@ -74,6 +74,8 @@ For each viewport cell, tile `t = (camX + col, camY + row, z)`:
 9. **Lighting**: outdoor tiles at night are dimmed one step (two under storm); fog dims the surface one step; underground tiles are not dimmed (the player sees what the dwarves know). A cell whose look-down found only sky keeps the colour step 2 gave it (`sky_night` at night) and is not dimmed again.
 10. **Cursor and selection**: the look cursor is drawn as an inverted cell (`fg`/`bg` swapped); a selection rectangle inverts its border cells; a building ghost draws a black `▒` on `ghost_ok` or `x` on `ghost_bad` as `bg` by validity. Clipped UI text has a full-text tooltip in the status row and a box above the hovered cell.
 
+Bat roosts (08 § Bat roosts) are never drawn: a roost is not a tile kind and its bats are not creatures; only the guano it drops shows.
+
 The world-map compositor draws a biome cell, replaces it with blue `~` for a river region, then with the civilization home glyph and color if present. A rejected filter region dims one step via `dim(c, 1)`; matching regions retain full color. The cursor inverts foreground and background after filtering.
 
 ### Animation
@@ -167,4 +169,3 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 
 - **Glass** (T-558): a constructed wall of glass draws the smooth wall glyph in `glass_pale`, and the tile beyond it on the view's level is drawn as seen (the fog of war follows 22's sight). A glass floor draws `+` in `glass_pale` over what lies below, dimmed: magma or water under a glass floor shows through.
 - **Skylit tiles** (T-558) are drawn lit, as `lit` tiles are.
-- Roosts are never drawn (T-556).

@@ -138,6 +138,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       assignRoom: (zoneId, dwarfId) => this.rooms.assign({ type: 'AssignRoom', zoneId, dwarfId }),
       cropLitAt: (tile) => this.reader().cropLitAt(tile),
       lampCoveredAt: (tile) => this.reader().lampCoveredAt(tile),
+      beetleLitAt: (tile) => this.reader().beetleLitAt(tile),
       emit: (event) => world.emit(event),
     });
     const store = new BuildingStore({

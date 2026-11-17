@@ -14,6 +14,7 @@ import { PERCEPTION_RADIUS } from '@systems/combat/constants';
 import { CAVERN_BANDS } from '@systems/terrain/api';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { PathingReader } from '@core/readers';
+import type { BuildingsReader } from '@systems/buildings/reader';
 import { SEASON_NAMES, seasonOf } from '@core/calendar';
 import {
   CAVE_RETURN_TICKS,
@@ -312,7 +313,7 @@ export function dailyCavernRespawn(
       // Count living monsters of this species in this tier
       let currentCount = 0;
       for (const [id, info] of monsterInfo) {
-        if (ctx.world.entities.alive(id) && info.tier === tier && info.species === r.species) {
+        if (ctx.world.entities.alive(id) && !isCaged(ctx.world, id) && info.tier === tier && info.species === r.species) {
           currentCount++;
         }
       }
@@ -382,21 +383,45 @@ export function spinSpiderWebs(
 ): void {
   for (const [id, info] of monsterInfo) {
     if (!ctx.world.entities.alive(id) || info.species !== 'giant_cave_spider') continue;
+    // A caged spider spins only around a built cage (below), never around its old lair.
+    if (isCaged(ctx.world, id)) continue;
     const pos = ctx.world.entities.get(id, C.Position);
     const center = pos ? ctx.world.map.index(pos.x, pos.y, pos.z) : info.lairTile;
-    const webbed: TileIndex[] = [];
+    spinAround(ctx, id, center, webs);
+  }
+  // 18 § Cavern monsters, A caged spider's lair is its cage: a living spider held in a built cage
+  // building spins on the 8 tiles around the cage, ascending building id.
+  if (!ctx.readers.has('14')) return;
+  const buildings = ctx.readers.of<BuildingsReader>('14');
+  const spider = ctx.registry.table<{ id: string }>('creatures').index(SPIDER);
+  for (const cage of buildings.byTag('cage')) {
+    const b = buildings.get(cage);
+    if (b === undefined || b.state !== 'built') continue;
+    const occupant = buildings.cageOccupant(cage);
+    if (occupant === 0 || !ctx.world.entities.alive(occupant)) continue;
+    if (ctx.world.entities.get(occupant, C.Creature)?.species !== spider) continue;
+    spinAround(ctx, occupant, b.origin, webs);
+  }
+}
 
-    for (const n of ctx.world.map.neighbors8(center)) {
-      if (ctx.world.map.kindAt(n) === TileKind.Floor && ctx.world.map.fluidLevelAt(n) === 0) {
-        ctx.world.map.setFlag(n, TileFlag.Web, true);
-        webs.set(n, id);
-        webbed.push(n);
-      }
-    }
-    if (webbed.length > 0) {
-      ctx.emit({ type: 'WebSpun', tiles: webbed });
+const SPIDER = 'giant_cave_spider';
+
+/** Held in a cage (an item or a building): out of the cavern's count, its respawn and its lair. */
+export function isCaged(world: WorldLike, id: EntityId): boolean {
+  return (world.entities.get(id, C.Creature)?.cagedIn ?? 0) !== 0;
+}
+
+/** Web the dry floors among the 8 tiles around `center`, owned by `owner`. */
+function spinAround(ctx: TickContext, owner: EntityId, center: TileIndex, webs: Map<TileIndex, EntityId>): void {
+  const webbed: TileIndex[] = [];
+  for (const n of ctx.world.map.neighbors8(center)) {
+    if (ctx.world.map.kindAt(n) === TileKind.Floor && ctx.world.map.fluidLevelAt(n) === 0) {
+      ctx.world.map.setFlag(n, TileFlag.Web, true);
+      webs.set(n, owner);
+      webbed.push(n);
     }
   }
+  if (webbed.length > 0) ctx.emit({ type: 'WebSpun', tiles: webbed });
 }
 
 /**

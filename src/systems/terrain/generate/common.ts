@@ -87,6 +87,8 @@ export interface LocalGen {
   readonly giantSkulls: TileIndex[][];
   /** Stage 9b: each skeleton's cage, the walkable tiles between its ribs, ascending. */
   readonly boneyards: TileIndex[][];
+  /** After stage 6: the bat roosts' drop tiles in caverns one and two, ascending. */
+  readonly roosts: TileIndex[];
   /** Centre column of the volcano pipe, or -1. */
   volcano: number;
 }

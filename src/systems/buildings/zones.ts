@@ -58,6 +58,8 @@ export interface ZoneHost {
   assignRoom?(zoneId: EntityId, dwarfId: EntityId): CommandResult;
   cropLitAt?(tile: TileIndex): boolean;
   lampCoveredAt?(tile: TileIndex): boolean;
+  /** 14 § Cages, the beetle jar: a caged glowing creature's crop light beside its cage. */
+  beetleLitAt?(tile: TileIndex): boolean;
   emit(event: GameEvent): void;
 }
 
@@ -278,7 +280,7 @@ export class ZoneStore {
       if (!Array.isArray(value) || value.length !== SEASONS_PER_YEAR) return reject('bad_setting');
       const crops: number[] = [];
       const kind = plotKindOf(this.host.map, zone.tiles, (tile) => this.host.cropLitAt?.(tile) ?? this.host.map.hasFlag(tile, TileFlag.Lit),
-        (tile) => this.host.lampCoveredAt?.(tile) ?? false);
+        (tile) => (this.host.lampCoveredAt?.(tile) ?? false) || (this.host.beetleLitAt?.(tile) ?? false));
       const materials = this.host.registry.table('materials');
       const ashSoil = materials.has(ASH_SOIL) ? materials.index(ASH_SOIL) : -1;
       const allAsh = zone.tiles.length > 0 && zone.tiles.every((t) => isAshTile(this.host.map, t, ashSoil));

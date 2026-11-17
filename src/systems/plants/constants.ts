@@ -10,6 +10,8 @@ export const PLANTS_PHASE = 11;
 
 /** Growth units per hour at 100%. */
 export const BASE_GROWTH = 100;
+/** `07` § Growth, the beetle jar: a beetle-lit tile grows at this percent of the rate (*unmeasured*). */
+export const BEETLE_GROWTH_PERCENT = 50;
 /** Base work time. */
 export const PLANT_TICKS = 40;
 export const HARVEST_TICKS = 40;

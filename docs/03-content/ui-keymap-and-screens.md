@@ -616,6 +616,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." |
 | `announce.spat_on` | "The camel spat on {dwarf}." |
 | `announce.ice_melted` | "The ice walls of {place} have melted." |
+| `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." |
 
 
 ## Hints
@@ -663,6 +664,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_pallet` | first `Slept` on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." |
 | `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." |
 | `hint_hive` | a built hive with too few flowers in reach | "Bees need flowers: three within six tiles of the hive. Look for a meadow." |
+| `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." |
 
 ## Tutorial
 
@@ -774,15 +776,8 @@ Player-facing text uses string keys. The UI reads `strings.json` together with t
 
 Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The rules that use them are in the § Planned sections of the system documents.
 
-### Planned announcement strings
-
-| Key | Text | task |
-|---|---|---|
-| `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
-
 ### Planned hints
 
 | id | Trigger | Text | task |
 |---|---|---|---|
-| `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
 | `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." | T-558 |

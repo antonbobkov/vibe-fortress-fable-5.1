@@ -86,12 +86,12 @@ export function parseAttacks(cell) {
     .filter((a) => a !== null);
 }
 
-/** creatures.md § Column key: flags S D O M N B T W H. D-170: boar is tameable per acceptance-tests.md. */
+/** creatures.md § Column key: flags S D O M N B T W H G. D-170: boar is tameable per acceptance-tests.md. */
 function parseFlags(cell, sid) {
   const letters = new Set(
     plain(cell)
       .split(/[\s;,]+/)
-      .filter((t) => /^[SDOMNBTWH]$/.test(t)),
+      .filter((t) => /^[SDOMNBTWHG]$/.test(t)),
   );
   const war = letters.has('W');
   const hunting = letters.has('H');
@@ -108,6 +108,7 @@ function parseFlags(cell, sid) {
       butcherable: letters.has('B') ? true : undefined,
       tameable: letters.has('T') || sid === 'boar' ? true : undefined,
       trainable: war && hunting ? 'both' : war ? 'war' : hunting ? 'hunting' : 'none',
+      glows: letters.has('G') ? true : undefined,
     }),
     nocturnal: letters.has('N'),
   };

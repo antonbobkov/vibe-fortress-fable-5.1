@@ -3,7 +3,7 @@ import { C } from '@core/components';
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import type { CommandType } from '@core/command-types';
 import { PRIORITY_DEFAULT } from '@core/constants';
-import { Designation, type Map3D } from '@core/map3d';
+import { Designation, TileFlag, type Map3D } from '@core/map3d';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import { BaseSystem, type InitContext, type TickContext, type JobProducer, type WorldLike } from '@core/system';
@@ -148,7 +148,11 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
       const zone = this.buildings.zone(id);
       if (zone === undefined) continue;
       const priority = typeof zone.settings['priority'] === 'number' ? zone.settings['priority'] as number : PRIORITY_DEFAULT;
-      for (const tile of zone.tiles) if (this.plants.shrubReady(tile) && this.map.designationAt(tile) === Designation.None) ctx.terrain.setDesignation(tile, Designation.Gather, priority);
+      // 09 § Gathering: mature shrubs, and every web (a spider ranch's silk, collected daily).
+      for (const tile of zone.tiles) {
+        if (this.map.designationAt(tile) !== Designation.None) continue;
+        if (this.plants.shrubReady(tile) || this.map.hasFlag(tile, TileFlag.Web)) ctx.terrain.setDesignation(tile, Designation.Gather, priority);
+      }
     }
   }
 

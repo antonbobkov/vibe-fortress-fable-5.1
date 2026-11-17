@@ -340,6 +340,8 @@ A scale piece takes the material of its plates: shell, chitin, bone or horn ([we
 | `spin_coarse_thread` | Spin coarse thread | 2 fiber or reed (reed, cactus_fiber, nettle_fiber; same material) | 1 thread (matching thread material) | 100 | no | 4 |
 | `collect_web` | not a recipe: `gather` on a web tile yields 1 thread (`silk_web`) | | | | | |
 
+Silk needs no recipe of its own: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by its stage ([materials.md](materials.md) § Cloth and fiber). The webs come from a spider ranch, a caged giant cave spider in a built cage, gathered daily by a gather zone over its room ([09](../02-systems/09-hunting-gathering-fishing.md) § Gathering).
+
 ## Clothier (`clothesmaking`)
 
 | id | name | inputs | outputs | ticks | Q | xp |
@@ -422,13 +424,3 @@ Carpenter 29, mason 22, craftsdwarf 26, jeweler 2, mechanic 2, wood furnace 1, s
 ## Time arithmetic
 
 A level-6 carpenter (factor 148%) makes a bed in 150 × 100/148 ≈ 101 ticks, about five seconds at 1×; a legendary one in 58 ticks. A level-0 armorsmith needs 400 ticks for a breastplate; a level-12 one 205 ticks. Meals: a level-4 cook makes 4 easy meals in 91 ticks; twenty dwarves eat about 30 meals a day, which is 8 cooking jobs or 12 minutes of a cook's day.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its workshop's table above (in that table's columns, without `workshop`, `substitute for` and `task`; a new workshop gets its own section and its line in `RECIPE_SECTIONS`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [12](../02-systems/12-workshops-and-professions.md) § Planned. Every number is *unmeasured*. *Substitute for* names the regular recipe a substitute must stay worse than (12 § Planned, Substitutes are worse).
-
-### Planned recipes
-
-The smokehouse's skill is `cooking`. Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
-
-A substitute pair the check reads: a basket 3 reeds for 15 against a log for 30; a bone splint 1 bone for 2 against a log for 4; coarse thread 2 fiber against 1.

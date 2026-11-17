@@ -52,6 +52,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ProductReady` | `id, product` | 08 | ui (first only) |
 | `AnimalTamed` / `AnimalTrained` | `id[, kind]` | 08 | ui |
 | `PetAdopted` | `animalId, dwarfId` | 08 | 10, 15, ui |
+| `RoostFound` | `tile, dwarfId` | 08 (the first fortress dwarf within `ROOST_NOTICE_RADIUS` of a discovered bat roost's drop tile, once a fortress) | ui |
 | `HuntStarted` / `HuntKill` / `HuntAbandoned` | `hunterId, targetId[, reason]` | 09 | ui |
 | `FishCaught` | `fisherId, bodyId, species` | 09 | ui (first only) |
 | `ButcheryDone` | `workshopId, species, yields` | 09 | ui (none) |

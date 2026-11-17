@@ -177,6 +177,12 @@ export const ANIMAL_NAME_MAX = 24;
 export const DUNG_DAYS = 7;
 /** `08` § Dung: the item (and material) a grazer drops. */
 export const DUNG_ITEM = 'dung';
+/** `08` § Bat roosts: a roost drops one guano every this many days (*unmeasured*). */
+export const ROOST_DAYS = 7;
+/** `08` § Bat roosts: how near a fortress dwarf stands to a discovered roost to count the bats (*unmeasured*). */
+export const ROOST_NOTICE_RADIUS = 8;
+/** `08` § Bat roosts: the item (and material) a roost drops. */
+export const GUANO_ITEM = 'guano';
 
 /** `08` § Hives: a hive adds a comb on the day whose number plus its id is a multiple of this. */
 export const HIVE_DAYS = 14;

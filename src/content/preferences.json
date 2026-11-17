@@ -281,6 +281,16 @@
     "percent": 150
   },
   {
+    "civ": "mountainhome",
+    "key": "material silk_cloth",
+    "percent": 150
+  },
+  {
+    "civ": "wildwood",
+    "key": "material silk_cloth",
+    "percent": 140
+  },
+  {
     "civ": "wildwood",
     "key": "material class bone",
     "percent": 60

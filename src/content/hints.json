@@ -193,5 +193,10 @@
     "id": "hint_hive",
     "trigger": "a built hive with too few flowers in reach",
     "text": "Bees need flowers: three within six tiles of the hive. Look for a meadow."
+  },
+  {
+    "id": "hint_spider_ranch",
+    "trigger": "first caged spider placed in a cage building",
+    "text": "The spider does not need feeding. Nobody has asked it."
   }
 ]

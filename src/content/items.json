@@ -1246,6 +1246,23 @@
     ]
   },
   {
+    "id": "guano",
+    "name": "guano",
+    "category": "farm/guano",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": ":",
+    "fg": "dung_brown",
+    "quality": false,
+    "tags": [
+      "fertilizer"
+    ]
+  },
+  {
     "id": "hatch",
     "name": "hatch",
     "category": "furniture/hatch",

@@ -1758,5 +1758,21 @@
   {
     "table": "confirmations",
     "id": "c_first_ignite"
+  },
+  {
+    "table": "materials",
+    "id": "guano"
+  },
+  {
+    "table": "materials",
+    "id": "silk_cloth"
+  },
+  {
+    "table": "items",
+    "id": "guano"
+  },
+  {
+    "table": "hints",
+    "id": "hint_spider_ranch"
   }
 ]
