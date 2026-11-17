@@ -32,7 +32,7 @@ import {
   Z,
   type FortressState,
 } from './three_years_fortress';
-import { handOverSoldiersRoles, placeEconomyBuilding, specialistCandidates } from './three_years_economy';
+import { placeEconomyBuilding, specialistCandidates } from './three_years_economy';
 import { stepThreeYears } from './three_years_measurements';
 import { command } from './script-commands';
 
@@ -385,10 +385,7 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
   }
   const want = w.game.world.fortress.alert !== 'calm' ? 'active' : state.barracksZoneId ? 'train' : 'off';
   if (squad.mode !== want) command(w, { type: 'SetSquadMode', squadId: squad.id, mode: want });
-  if (want !== 'off') {
-    keepToolLaborsOffTheSquad(w, state, squad.members);
-    handOverSoldiersRoles(w, fortress, squad.members);
-  }
+  if (want !== 'off') keepToolLaborsOffTheSquad(w, state, squad.members);
 }
 
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */

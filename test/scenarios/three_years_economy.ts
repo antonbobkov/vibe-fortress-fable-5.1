@@ -520,9 +520,9 @@ export function takeBackStone(w: TestWorld, depot: number, short: number): void 
     back += ent.get(id, C.Item)!.count;
   }
   if (lying.length > 0) command(w, { type: 'RemoveFromDepot', depotId: depot, itemIds: lying });
-  for (const job of jobs.list('open')) {
+  for (const job of jobs.list()) {
     if (back >= short) break;
-    if (!job.key.startsWith('depot:') || !isStone(job.target.ref)) continue;
+    if ((job.state !== 'open' && job.state !== 'blocked') || !job.key.startsWith('depot:') || !isStone(job.target.ref)) continue;
     back += ent.get(job.target.ref, C.Item)!.count;
     command(w, { type: 'CancelJob', jobId: job.id });
   }
@@ -843,36 +843,6 @@ export function raiseWaitingWork(w: TestWorld, state: FortressState): void {
     if (job.priority - 1 + shift >= KIT_FIRST) command(w, { type: 'SetJobPriority', jobId: job.id, priority: job.priority - 1 });
   }
   for (const id of [...waiting.keys()]) if (!open.has(id)) waiting.delete(id);
-}
-
-/**
- * T-570: a specialist who stands in a squad on duty does no civilian work (16), and its workshop's
- * job waits for it: in `defence_year`, whose squad trains from about day 40, the smith (the forge's
- * worker) stood in it, and the squad's kit at KIT_FIRST stood open at the forge from day 35 to the
- * end. The player gives the role, its labors and its workshops to a free immigrant outside the squad,
- * the most skilled first, then the lowest id. Not while there is none.
- */
-export function handOverSoldiersRoles(w: TestWorld, state: FortressState, members: readonly number[]): void {
-  const buildings = w.readers.of<BuildingsReader>('14');
-  const dwarves = w.readers.of<DwarvesReader>('10');
-  const ent = w.game.world.entities;
-  const { specialists } = state.economy;
-  for (const spec of SPECIALISTS) {
-    const holder = specialists[spec.role];
-    if (holder === undefined || !members.includes(holder)) continue;
-    const free = specialistCandidates(w, state).filter((id) => !members.includes(id) && !ent.has(id, C.Soldier));
-    free.sort((a, b) => dwarves.skill(b, spec.skill) - dwarves.skill(a, spec.skill) || a - b);
-    const pick = free[0];
-    if (pick === undefined) continue;
-    specialists[spec.role] = pick;
-    dedicate(w, state, pick, spec.labors);
-    for (const shop of spec.shops) {
-      const id = state.placedIds[shop];
-      if (id !== undefined && buildings.get(id)?.state === 'built' && ent.get(id, C.Workshop)?.assignedWorker !== pick) {
-        command(w, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: pick });
-      }
-    }
-  }
 }
 
 /**
