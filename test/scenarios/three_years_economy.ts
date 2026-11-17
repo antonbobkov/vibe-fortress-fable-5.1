@@ -597,13 +597,14 @@ function placeBelow(w: TestWorld, state: FortressState, type: string, priority: 
  * T-580: a fortress where ambushes are possible works below ground once they are. An ambush
  * springs on the dwarves at work outdoors, and Gloam outrun a dwarf, so a player who reads the
  * schedule preview digs a workshop hall `WORK_HALL_LEAD_DAYS` before the first possible ambush,
- * builds each surface workshop again there and takes the surface one down once its twin stands,
- * with its orders and its worker; and once ambushes are possible, the dwarves eat, drink and meet
- * below: the surface stockpile takes no food or drink, and the surface drink stockpile and
- * meeting area are removed. The trade depot stays on the surface for the caravans.
+ * builds each surface workshop farther than `WORK_NEAR_GATE` from the gate again there and takes the
+ * surface one down once its twin stands, with its orders and its worker; and once ambushes are
+ * possible the surface stockpile takes no food or drink, so the dwarves eat and drink below, and the
+ * surface drink stockpile is removed. The workshops by the gate, the trade depot (for the caravans)
+ * and the meeting area by the gate stay on the surface.
  */
 export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): void {
-  const from = process.env['T580_OFF'] === '1' ? null : ambushFromDay(w); // TEMP
+  const from = ambushFromDay(w);
   if (from === null || day < from - WORK_HALL_LEAD_DAYS) return;
   const { economy } = state;
   const buildings = w.readers.of<BuildingsReader>('14');

@@ -1785,10 +1785,15 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
  * dwarves nearest it, a step from the stair. The watchmen are the latest adults who are not in the
  * squad, a specialist, the broker or the brewer; they go in with the civilians under any alert (they
  * leave their squads, which keep their posts) and come back once it is down, and a fallen watchman
- * is replaced then.
+ * is replaced then. A watchman is at his post about a quarter of the day (he eats, drinks and
+ * sleeps below), so the fortress trains its dogs for war: a kennel in the workshop hall, a chain
+ * forged ahead of the squad's kit, a trainer who does nothing else until each post has a dog, and
+ * every dog trained; a war dog is posted with the watch that has fewest, stays there whatever the
+ * alert, and spots at `SPOT_RADIUS_DOG`. A post with a dog has no watchman; one whose dogs have
+ * died has one again, and the training goes on.
  */
 function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly number[]): void {
-  const from = process.env['T580_OFF'] === '1' || process.env['T580_NOWATCH'] === '1' ? null : ambushFromDay(w); // TEMP
+  const from = ambushFromDay(w);
   if (from === null || w.tick < from * TICKS_PER_DAY) return;
   const buildings = w.readers.of<BuildingsReader>('14');
   const combat = w.readers.of<CombatReader>('16');
