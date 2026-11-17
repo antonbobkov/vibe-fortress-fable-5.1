@@ -200,12 +200,22 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     return this.alertState;
   }
 
+  /** Perception, targeting and spotting: a constructed glass wall does not block sight (`22`). */
   lineOfSight(from: TileIndex, to: TileIndex): boolean {
+    return this.line(from, to, true);
+  }
+
+  /** Firing: the sight line with glass walls blocking, as every wall blocks (`22` `lineOfFire`). */
+  lineOfFire(from: TileIndex, to: TileIndex): boolean {
+    return this.line(from, to, false);
+  }
+
+  private line(from: TileIndex, to: TileIndex, throughGlass: boolean): boolean {
     if (this.world === null) return false;
     const bReader = this.initCtx?.readers.has('14')
       ? this.initCtx.readers.of<BuildingsReader>('14')
       : undefined;
-    return lineOfSightRanged(this.world.map, from, to, 14, bReader);
+    return lineOfSightRanged(this.world.map, from, to, 14, bReader, throughGlass);
   }
 
   /**
@@ -248,7 +258,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     return {
       cooldownUntil: this.targets.cooldownUntil,
       isHostile: (a, b) => isCreatureHostile(ctx.world.entities, a, b, (e) => this.targets.targetOf(e)),
-      lineOfSight: (from, to) => this.lineOfSight(from, to),
+      // A spell is fired: it does not pass a glass wall.
+      lineOfSight: (from, to) => this.lineOfFire(from, to),
     };
   }
 
@@ -259,7 +270,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const p = ctx.world.entities.get(other, C.Position);
       if (p === undefined) return null;
       const tile = map.index(p.x, p.y, p.z);
-      if (!this.lineOfSight(from, tile)) return null;
+      if (!this.lineOfFire(from, tile)) return null;
       return { tile, ray: bresenhamRay(map, from, tile, range) };
     };
   }
@@ -371,7 +382,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
         const p = ctx.world.entities.get(o, C.Position);
         if (p === undefined) return null;
         const tile = map.index(p.x, p.y, p.z);
-        return this.lineOfSight(from, tile) ? { tile, ray: [] } : null;
+        return this.lineOfFire(from, tile) ? { tile, ray: [] } : null;
       });
       if (other !== 0) {
         this.targets.engagements.set(id, ctx.tick);
@@ -522,7 +533,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       } else if (
         isRanged &&
         dist <= maxRangedDist &&
-        this.lineOfSight(tileA, tileT)
+        this.lineOfFire(tileA, tileT)
       ) {
         this.targets.unreachableSince.delete(id);
         const cooldown = this.targets.cooldownUntil.get(id) ?? 0;

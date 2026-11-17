@@ -17,6 +17,7 @@ const FLAGS: TileFlag[] = [
   TileFlag.Restricted,
   TileFlag.Web,
   TileFlag.Wet,
+  TileFlag.Skylit,
 ];
 
 const W = 8;

@@ -26,6 +26,7 @@ const ALL_FLAGS: TileFlag[] = [
   TileFlag.Restricted,
   TileFlag.Web,
   TileFlag.Wet,
+  TileFlag.Skylit,
 ];
 
 describe('T-M0-04 map3d: grid sizes', () => {
@@ -189,9 +190,9 @@ describe('T-M0-04 map3d: flags', () => {
     expect(m.flagsAt(i)).toBe(0);
   });
 
-  it('every documented flag has a distinct bit inside the 14-bit mask', () => {
+  it('every documented flag has a distinct bit inside the 15-bit mask', () => {
     const bits = new Set(ALL_FLAGS);
-    expect(bits.size).toBe(14);
+    expect(bits.size).toBe(15);
     let all = 0;
     for (const f of ALL_FLAGS) {
       expect(f & TILE_FLAG_MASK).toBe(f);

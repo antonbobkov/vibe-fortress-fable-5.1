@@ -450,3 +450,4 @@ Every new row of every table goes at the end of this table, including generated 
 | confirmations | c_first_ignite |
 | plants | salt_crust |
 | materials | salt_crust |
+| hints | hint_skylight |

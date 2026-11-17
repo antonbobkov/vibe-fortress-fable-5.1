@@ -80,13 +80,15 @@ Creatures without `Attributes` use `CREATURE_ATTRIBUTE_DEFAULT` (50) for every a
 ### Ranged resolution
 
 ```
-if not lineOfSight(shooter, target): cannot fire (the brain moves instead)
+if not lineOfFire(shooter, target): cannot fire (the brain moves instead)
 distance = Chebyshev(shooter, target) + z difference × 2
 hit = 40 + skill(shooter, launcherSkill) × 3 − distance × 2 + (size(target) − 60) / 4 − skill(target, 'dodge') × 2 + (target unconscious ? 40 : 0)
     + to_hit of the ammunition's enchantment            // 25 § Enchantments in combat
 hit = clamp(3, 95, hit)
 spawn Projectile { itemId: one unit of ammunition (13 split), from, to, speed: PROJECTILE_SPEED, shooterId, hitRoll }
 ```
+
+Perception, targeting, spotting and kiting use 22's `lineOfSight`, which a glass wall does not block (14 § Constructions, Glass); firing uses 22's `lineOfFire`, which it does: the shot above, the clear-shot search of the held shot below, a channel's bolt, burst or single and the reach of a spell's effect (25), and 09's hunting shot. So an archer behind a glass wall sees the raid and holds it as a target but cannot shoot it, and the raid sees the hall; a civilian with a launcher does nothing, and any other shooter walks to find a line of fire.
 
 The ammunition unit is attached to the projectile through the item API while in flight, so it is not unattended stock on the shooter's tile. A channel fires a bolt instead (25 § Casting): no ammunition item, `raw = round(spell.base × power(channel))` of the spell's damage type, the holder's rune spent at the cast; skill `runecraft`, the channel's size for the cooldown, and everything after it as for a missile. A bolt that hits with damage above 0 may leave an effect (Frostbind's slow).
 
@@ -186,12 +188,12 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 - `combat.squads()`, `combat.squad(id)`, `combat.squadOf(dwarfId)`, `combat.onDuty(dwarfId)`
 - `combat.alert()`
 - `combat.weaponOf(id)`, `combat.armorOf(id)`, `combat.armorValue(id, part, damageType)` (for the inspector)
-- `combat.lineOfSight(from, to)` (delegates to 22)
+- `combat.lineOfSight(from, to)` (delegates to 22; a glass wall does not block it)
 - `combat.armorSpeedModifier(id)` — the percent of movement speed left by the weight of worn armor, after `armor_use`
 
 ### Combat API (mutation)
 
-`combat.setTarget(id, targetId | 0)` (08, 18), `combat.fireAt(shooterId, targetId)` (09 hunting): true when it shot; false when it cannot, or holds the shot (§ Ranged resolution, Held shot: a careless shooter shoots).
+`combat.setTarget(id, targetId | 0)` (08, 18), `combat.fireAt(shooterId, targetId)` (09 hunting): true when it shot; false when it cannot, or holds the shot (§ Ranged resolution, Held shot: a careless shooter shoots); `combat.lineOfFire(from, to)` (09 hunting: whether a shot from `from` has a line to `to`; a glass wall blocks it).
 
 ### Commands
 
@@ -255,11 +257,3 @@ Weapon and armor values, hit weights per body plan, and the damage-type-versus-l
 - Mounted combat, wrestling, grappling: new attack kinds in the resolution switch.
 - Morale for hostiles as a party stat is in 18; individual morale for dwarves (routing) is deliberately absent by pillar 2.
 - Siege weapons: a `siege` building with a fire job and the projectile path.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*.
-
-### Seeing through glass (T-558)
-
-Perception, targeting and spotting use 22's `lineOfSight`, which a glass wall does not block; firing uses 22's `lineOfFire`, which it does (the pseudocode's `if not lineOfSight(shooter, target)` becomes `lineOfFire`). An archer behind a glass wall sees the raid and cannot shoot it, and the raid sees the hall.

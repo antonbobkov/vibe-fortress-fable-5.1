@@ -351,9 +351,19 @@ export class TileGraph implements ConnectivityGraph {
 
   /**
    * `22` § Line of sight: Bresenham on one z-level. The tiles strictly between `a` and `b` are the
-   * ones that may block; the endpoints never block their own sight line.
+   * ones that may block; the endpoints never block their own sight line. A constructed glass wall
+   * does not block sight.
    */
   lineOfSight(a: TileIndex, b: TileIndex): boolean {
+    return this.line(a, b, true);
+  }
+
+  /** `22` § Line of sight, `lineOfFire`: the sight line with glass walls blocking, as every wall blocks. */
+  lineOfFire(a: TileIndex, b: TileIndex): boolean {
+    return this.line(a, b, false);
+  }
+
+  private line(a: TileIndex, b: TileIndex, throughGlass: boolean): boolean {
     const map = this.map;
     if (!map.validIndex(a) || !map.validIndex(b)) return false;
     const z = map.zOf(a);
@@ -382,7 +392,8 @@ export class TileGraph implements ConnectivityGraph {
       if (x === x1 && y === y1) return true;
       const i = map.index(x, y, z);
       const kind = map.kindAt(i);
-      if (kind === K_WALL || kind === K_TREE || kind === K_BOULDER) return false;
+      if (kind === K_WALL && !(throughGlass && map.isGlassAt(i))) return false;
+      if (kind === K_TREE || kind === K_BOULDER) return false;
       if (this.hooks.blocksSightAt(i)) return false;
       if (kind === K_FORTIFICATION) {
         const nearA = chebyshevBetween(map, i, a) <= 1;
@@ -1179,6 +1190,7 @@ export class PathingCore {
       cost: (i, cls, mover) => this.graph.cost(i, cls, mover),
       edges: (i, cls, mover) => this.graph.edges(i, cls, mover),
       lineOfSight: (a, b) => this.graph.lineOfSight(a, b),
+      lineOfFire: (a, b) => this.graph.lineOfFire(a, b),
       requestPath: (entity, from, to, cls, urgency, opts, mover) =>
         this.pathfinder.requestPath(entity, from, to, cls, urgency, opts, mover),
       pathResult: (id) => this.pathfinder.pathResult(id),
@@ -1199,7 +1211,10 @@ export interface PathingCoreReader {
   cost(i: TileIndex, cls: MovementClass, mover?: MoverOptions): number;
   /** A fresh copy of legal next steps, including stairs and ramps. */
   edges(i: TileIndex, cls: MovementClass, mover?: MoverOptions): [TileIndex, number][];
+  /** Sight: a constructed glass wall does not block it. */
   lineOfSight(a: TileIndex, b: TileIndex): boolean;
+  /** Fire: the sight line with glass walls blocking (`22` § Line of sight). */
+  lineOfFire(a: TileIndex, b: TileIndex): boolean;
   requestPath(
     entity: EntityId,
     from: TileIndex,

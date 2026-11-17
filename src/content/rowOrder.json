@@ -1766,5 +1766,9 @@
   {
     "table": "materials",
     "id": "salt_crust"
+  },
+  {
+    "table": "hints",
+    "id": "hint_skylight"
   }
 ]

@@ -119,7 +119,9 @@ Speed: `Motion.speed` is recomputed by the owning brain when its inputs change: 
 
 ### Line of sight
 
-`lineOfSight(a, b)`: same z; Bresenham from `a` to `b`; blocked by `wall`, `tree`, `boulder`, closed doors, raised bridges, closed floodgates, and `fortification` unless the fortification is adjacent to `a` or to `b`. Undiscovered tiles do not block (the player's knowledge is not the creatures'). Length cap `LOS_MAX`.
+`lineOfSight(a, b)`: same z; Bresenham from `a` to `b`; blocked by `wall`, `tree`, `boulder`, closed doors, raised bridges, closed floodgates, and `fortification` unless the fortification is adjacent to `a` or to `b`. A constructed `wall` whose material is of class `glass` (14 § Constructions, Glass) does not block it: perception, spotting and targeting see through it. Undiscovered tiles do not block (the player's knowledge is not the creatures'). Length cap `LOS_MAX`.
+
+`lineOfFire(a, b)` is `lineOfSight` with glass walls blocking, as every wall blocks: 16 fires only along it. A projectile in flight stops at a glass wall as at any wall. Movement and fluids are unchanged: a glass wall is a wall.
 
 ## State
 
@@ -138,7 +140,7 @@ When a command has dirtied connectivity and its normal pass has not run, a save 
 - `pathing.requestPath(id, from, to, class, urgency, options: { nearest?, avoidHostiles? }, mover?) → requestId`; `pathing.pathResult(requestId)` (`pending | ready(path) | failed(reason)`)
 - `pathing.passable(i, class, mover?)`, `pathing.cost(i, class, mover?)`
 - `pathing.edges(i, class, mover?)` — a fresh list of legal `[to, cost]` steps, horizontal then vertical, using the same mover restrictions as the pathfinder; at most the adjacent stair, ramp and horizontal edges
-- `pathing.lineOfSight(a, b)`, `pathing.labelOf(i, class)` (debug)
+- `pathing.lineOfSight(a, b)`, `pathing.lineOfFire(a, b)`, `pathing.labelOf(i, class)` (debug)
 - `pathing.requestsPending()`, `pathing.requestsServed()` — the requests waiting or in progress, and the requests settled so far (the debug panel)
 - `pathing.connectivityRevision()` — a counter that changes whenever the connectivity labels are rebuilt. It is derived and not saved; 10 uses it to recheck the shelter of shut-out civilians only when connectivity has changed
 - `spatial.inRadius`, `spatial.inBox`, `spatial.at`, `spatial.nearest`
@@ -185,13 +187,3 @@ None directly. Unreachable jobs are explained in the jobs panel; the connectivit
 - Swimming: `amphibious` already exists; a swimming skill would scale water cost.
 - Hierarchical pathfinding across chunks (using portals as waypoints) if profiles show A* dominating on large maps; the two-level labels already provide the abstraction.
 - Creature-blocking rules (single occupancy) would change `moveAlongPath` only; the crowd's constants are the softer form of the same thing.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section.
-
-### Sight through glass (T-558)
-
-- `lineOfSight(a, b)` is not blocked by a constructed `wall` whose material is of class `glass`: perception, spotting, targeting and the fog of war see through it.
-- `lineOfFire(a, b)` is `lineOfSight` with glass walls blocking, as every wall blocks: 16 fires only along it. A projectile in flight stops at a glass wall as at any wall.
-- Movement and fluids are unchanged: a glass wall is a wall.
