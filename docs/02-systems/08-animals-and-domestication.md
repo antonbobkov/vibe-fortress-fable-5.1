@@ -19,7 +19,7 @@ Populate the surface and the caverns with wildlife, let the fortress keep, breed
 
 ### Species fixed by this design
 
-Surface domestic (embark and caravans): `dog`, `cat`, `cow`, `sheep`, `goat`, `chicken`, `pig`, `mule`, `yak` (cold biomes), `horse` (Hillfolk caravans only).
+Surface domestic (embark and caravans): `dog`, `cat`, `cow`, `sheep`, `goat`, `chicken`, `pig`, `mule`, `yak` (cold biomes), `horse` (Hillfolk caravans only), `reindeer` and `camel` (wild herds of their biomes, § Wild herds; camels also from Hillfolk caravans in hot regions, 20 § Sundries).
 
 Surface wild by biome (weights in content): `deer`, `boar`, `wolf`, `bear`, `fox`, `rabbit`, `elk`, `mountain_goat`, `snow_leopard`, `giant_lizard`, `crocodile`, `wild_horse`, `badger`, `lynx`, `mammoth` (tundra, rare).
 
@@ -60,6 +60,11 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 - On the first breach of each cavern with nonzero fauna `cavern.initial`, spawn that many individuals of each eligible fauna species on random walkable cavern floor tiles in that species' movement class, limited by its remaining live cap and `MAX_CREATURES`. No fauna thinks in an unbreached cavern. Record the tier as initialized even when caps or lack of safe tiles prevent a spawn; repeated breach notifications and loading never retry the initial population. A zero initial count consumes no spawning randomness and needs no saved completion entry. After breach, fauna respawns by the existing daily rule.
 - The global `MAX_CREATURES` cap applies.
 
+### Wild herds
+
+- Some domestic species also live wild, in herds (`creatures.md` § Wild herds: `reindeer` in tundra and taiga, `camel` in desert, badlands and savanna). Each `DayPassed`, after the wild spawning above, for each herd row whose biome is the region's and whose season is the current one, ascending species, while the wild count of the species is under its cap (the cap rule and the region-trait hooks of § Wild spawning, with the herd's weight), a herd spawns with `min(1000, floor(HERD_SPAWN_PERMILLE × weight / 100))`: a group of the herd's size, limited by the room under the cap and `MAX_CREATURES`, at a walkable outdoor edge tile at least `SPAWN_MIN_DISTANCE` from any dwarf, as a group of the wild spawning. Every draw of it (the chance, the edge tile, the size) is on the herds' own stream (`08.herds`), which a map whose biome has no herd never makes, so the wild spawning draws the same numbers as on a map without herds.
+- A wild reindeer or camel is a wild grazer of its row's temper (`timid` and `neutral`): it grazes, wanders, flees and leaves as any wild animal, over its cap or after `WILD_LIFETIME_DAYS`. Tamed (a cage trap and a kennel, § Training and taming) or bought, it is a domestic animal of the fortress: it grazes a pasture, breeds, and is milked and, the camel, shorn (§ Products). Like every tame grazer it eats the grazable shrubs (§ Pastures and feeding): lichen and cactus.
+
 ### Tame behavior
 
 - Tame animals are `idle`/`wander` near their pasture (grazers) or near the hearth hall and meeting areas (others), or follow their assigned dwarf (war and hunting dogs, pets). One with no pasture stands on a tile of the hearth hall or beside it. It stays there unless another idle tame animal of a lower id shares the tile; then it takes the walkable tile of the hall, not a door, with the fewest creatures on it or walking to it, ties by lowest index, if that is fewer than it has, and a tile beside the hall only if that is fewer still. Passers-by do not move it. A walk that has arrived is over: one whose target is the animal's own tile is not a walk to that tile, and the animal stops it once it is home (T-482). A tame animal never stops on a door tile: when its movement would end on one, it continues to the nearest walkable non-door tile beside it, on the side it was heading to (14 does not lock a door on a creature in its doorway).
@@ -89,6 +94,7 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 - `wool`: shearing species every season; `shear_animal` job at the farmer's workshop yields `wool`.
 - `eggs`: chickens lay every `eggDays` in a `nest_box` building; if no nest box exists, nothing is laid. An egg is reserved while it stays in its nest box, keeping it out of ordinary item hauling. With `autoCollectProducts` on, the `collect_egg` job lifts it to the worker's tile and releases it for ordinary stockpile hauling; a nest box with an egg left for `HATCH_DAYS` hatches a chick if a rooster exists (this is how chickens breed instead of the pregnancy rule).
 - Products are announced as notes only when they are the first of their kind.
+- *The camel spits* (a [fun feature](../fun-features.md), removable). When a `milk_animal` or `shear_animal` job on a spitting species (`SPITTING_SPECIES`: the camel) completes and yields its product, the worker is spat on with `SPIT_PERMILLE`: `SpatOn { id, animalId, first }`, which gives the dwarf `spat_on` (15). The draw is on this system's stream and is made only for a spitting species, so a fortress without camels draws as before. The first spit of a day (`first`, against the saved `spatOnDay`) is the note "The camel spat on {dwarf}." (`announce.spat_on`); later spits that day give the thought alone.
 
 ### Hives
 
@@ -122,12 +128,13 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 ## State
 
 - `lastDangerousTick`: the tick the last dangerous surface group arrived (§ Wild spawning), omitted while none has; older saves without it have no quiet spell running.
+- `spatOnDay`: the day number of the last spit's note (§ Products), omitted while there has been none; older saves have none.
 - Per wild animal: `Wild { state, homeChunk, stateUntil, hungry, lastThinkTick, arrivedTick, defendFrom?, unseenSince?, pendingMeal?, mealId?, heavySleeper? }`. `defendFrom` is the defended tile, present only during that attack. A saved attack without it is a defence of the animal's current tile unless hungry. `unseenSince` is the first lost-perception tick; `pendingMeal` awaits the killed creature's corpse notification; `mealId` is the corpse being approached or eaten. `stateUntil` is 0 during meal travel and the deadline while eating. Absent fields in older saves mean no grace or meal, and a light sleeper.
 - Per tame animal: `Tame { pastureId, condition, trained, assignedTo, pregnantUntil, lastProductTick[], juvenileUntil, slaughter, pet }`.
 - `breedingCaps: Map<species, number>`, `speciesCounts` (recomputed daily), `nestBoxes: EntityId[]`.
 - `hives: EntityId[]` (built hives, ascending) and `combs: [comb, hive][]` (each comb lying in a hive), both omitted when empty; older saves have none.
 - `initializedCaverns`: sorted tiers whose nonzero initial fauna has been attempted. Omitted when empty; older saves without it have no completed initial attempt.
-- Rng stream.
+- Rng stream; and the herds' stream `08.herds` (§ Wild herds), saved with the world's streams once a herd map has made it.
 
 ## Interfaces
 
@@ -156,11 +163,11 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ### Events emitted
 
-`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`, `Stung { id, source }` (a dwarf stung by bees, `source: bees`; § Hives). This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
+`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`, `Stung { id, source }` (a dwarf stung by bees, `source: bees`; § Hives), `SpatOn { id, animalId, first }` (a camel spat on the dwarf who milked or shore it; § Products). This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
 
 ### Registrations
 
-Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`, `collect_honey`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption and the arrival of a dangerous species.
+Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`, `collect_honey`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption, the arrival of a dangerous species and the day's first spit of a camel (`SpatOn` with `first`).
 
 A *dangerous* species is a surface species (it has biomes) that is not `timid` and is a carnivore, `aggressive` or `territorial`; the content row decides, no species id appears in code. `AnimalSpawned` for a dangerous species is announced as an alert, in the same batch as one line per species ("A bear has come to the valley.", "3 wolves have come to the valley."); any other species keeps the note ("A deer has arrived.").
 
@@ -170,7 +177,7 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 - Pasture zone: capacity line; assigning by selecting animals in the panel or by clicking an animal and choosing "Pasture".
 - Glyphs: lowercase letters by species (`d` dog, `c` cat, `C` cow is uppercase to read as large; the convention is lowercase for small and medium, uppercase for large animals; hostiles are uppercase in red).
 - A hive's building panel shows its combs, its flowers in reach and what the season does (24 § Building panel).
-- Announcements: "A bear has come to the valley." (alert, a dangerous species), "A deer has arrived." (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note).
+- Announcements: "A bear has come to the valley." (alert, a dangerous species), "A deer has arrived." (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note), "The camel spat on Ketil Ironvein." (note, once a day).
 
 ## Tuning constants
 
@@ -201,6 +208,8 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 | `SPAWN_PERMILLE` | 150 | Per species per day when below cap |
 | `DANGEROUS_QUIET_DAYS` | 28 | Days after a dangerous group arrives in which no dangerous species spawns, except on `beastwood` (T-545): about one dangerous group a season in an ordinary biome; *unmeasured* in play |
 | `SPAWN_MIN_DISTANCE` | 25 | Tiles from any dwarf |
+| `HERD_SPAWN_PERMILLE` | 30 | A herd's chance a day at weight 100, below its cap (§ Wild herds; *unmeasured*) |
+| `SPIT_PERMILLE` | 50 | A milking or shearing of a camel ends in a spit (§ Products; *unmeasured*) |
 | `GRASS_PER_GRAZER` | 48 | Growing-season capacity allowance per grazer |
 | `SHRUB_GRAZE_WEIGHT` | 4 | A grazable shrub counts as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile in a pasture's capacity (*unmeasured*) |
 | `CONDITION_PER_HOUR` | 2 | |
@@ -249,10 +258,3 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - 08 keeps the roosts' drop tiles from `LocalMapResult.roosts` (03 § Planned) as `roosts: TileIndex[]`. On each `DayPassed` whose day number plus the roost's index in the list is a multiple of `ROOST_DAYS`, a roost whose drop tile is still a floor with an `open` tile above and a natural wall above that drops one `guano` on it. A roost whose ceiling has been dug away is gone.
 - The first time a roost's drop tile becomes discovered while a fortress dwarf stands within `ROOST_NOTICE_RADIUS` of it, the fortress emits `RoostFound { tile, dwarfId }` once (`roostFound`): the note "Bats. Hundreds of them. {dwarf} counted." (`announce.roost_found`). Bats are never drawn, never fought and never leave.
 - Constants: `ROOST_DAYS` 7, `ROOST_NOTICE_RADIUS` 8. Events: `RoostFound`. Save: `roosts`, `roostFound`.
-
-### Reindeer and camels (T-561)
-
-- `reindeer` and `camel` are domestic rows (creatures.md § Planned rows) with products, breeding and the `T` flag, and they live wild in their biomes as herds: each `DayPassed`, on their own stream (`rngFor('08.herds')`), for each row of `creatures.md` § Planned rows, Wild herds, whose biome is the region's, while the wild count of the species is under its cap, a herd of its group size spawns at an outdoor edge tile with `HERD_SPAWN_PERMILLE × weight / 100`, by the rules of wild spawning. The ordinary wild spawning stream draws the same numbers as before. A wild reindeer or camel is a wild grazer (`timid` and `neutral`); a tamed one (cage trap and kennel, or bought) is milked and, the camel, sheared.
-- Hillfolk caravans bring camels in hot regions (`caravan-goods.md` § Planned rows).
-- **The camel spits.** A `milk_animal` or `shear_animal` job on a camel completes, and then with `SPIT_PERMILLE` the worker gets `spat_on` (15) and the log the note "The camel spat on {dwarf}." (`announce.spat_on`, once a day). The draw is on this system's stream, made only for a camel.
-- Constants: `HERD_SPAWN_PERMILLE` 30, `SPIT_PERMILLE` 50. Events: `SpatOn { id, animalId }`.

@@ -14,7 +14,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-556 | [Making Do B6: the spider ranch, the beetle jar and bat roosts](work/T-556-making-do-cages-and-roosts.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-558 | [Making Do C2: glass walls, skylights and greenhouses](work/T-558-making-do-glass-and-skylights.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-559 | [Making Do C3: ice harvesting, ice walls and fire on purpose](work/T-559-making-do-ice-and-fire.md) | Making Do design; the owner, 2026-11-13 | — | open |
-| T-561 | [Making Do C5: reindeer and camels](work/T-561-making-do-animals-and-hall-life.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-566 | [Making Do: salt crusts, after T-547's salt](work/T-566-making-do-salt-crust.md) | T-548's runs | — | open |
 | T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
 | T-569 | [A −1 thought that decays by halflife is gone at the next hour](work/T-569-minus-one-halflife-thoughts.md) | T-552's runs | — | open |

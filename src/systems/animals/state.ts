@@ -27,6 +27,8 @@ export interface AnimalsStateV1 {
   initializedCaverns?: number[];
   /** T-545: the tick the last dangerous surface group arrived; omitted when none has (older saves too). */
   lastDangerousTick?: number;
+  /** `08` § Products, The camel spits: the day of the last spit's note; omitted while there has been none (older saves too). */
+  spatOnDay?: number;
   breedingCaps: [number, number][];
   speciesCounts: [number, SpeciesCount][];
   nestBoxes: EntityId[];

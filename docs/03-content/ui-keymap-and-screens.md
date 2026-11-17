@@ -614,6 +614,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." |
 | `announce.thane_whim_met` | "The Thane's wish was met: {whim}." |
 | `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." |
+| `announce.spat_on` | "The camel spat on {dwarf}." |
 | `announce.ice_melted` | "The ice walls of {place} have melted." |
 
 
@@ -778,7 +779,6 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 | Key | Text | task |
 |---|---|---|
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
-| `announce.spat_on` | "The camel spat on {dwarf}." | T-561 |
 
 ### Planned hints
 

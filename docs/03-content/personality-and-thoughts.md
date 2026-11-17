@@ -119,6 +119,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `lab_stink` | "The laboratory stinks." | −1 | 12 | halflife | 1 | comfort | passing within 3 tiles of a laboratory that spoiled a batch today |
 | `nettles` | "Nettles. Of course." | −1 | 12 | halflife | 1 | comfort | `Stung` by a nettle |
 | `stung` | "Stung. The bees were not consulted." | −2 | 12 | halflife | 1 | comfort | `Stung` by bees |
+| `spat_on` | "The camel spat on me." | −1 | 12 | linear | 1 | comfort | `SpatOn` |
 | `smoky_hall` | "The hall is full of smoke." | −1 | 12 | linear | 1 | comfort | `SmokyFuelBurned` within `SMOKE_RADIUS` of the workshop, or the dwarf it names (tallow smoke) |
 | `smelled_smokehouse` | "Smells of smoked {meat}. Hungry now." | +1 | 12 | linear | 1 | comfort | `ItemCrafted` of `smoke_meat` or `smoke_fish` within `SMOKE_RADIUS` of the smokehouse, not its worker; `{meat}` is the meat's species |
 | `held_a_feast` | "We held a feast." | +3 | 72 | linear | 1 | social | `ItemCrafted` of a feast (everyone) |
@@ -220,13 +221,3 @@ What the Thane may wish for in a season ([10](../02-systems/10-dwarves.md) § Th
 | `whim_spirits` | stock | `drink` of `deepfire` | 10 | "something strong" |
 | `whim_masterwork` | stock | any item of masterwork quality | 1 | "a masterwork, any masterwork" |
 | `whim_featherbed` | room | `bed` made up with feathers in the Thane's `bedroom` | 1 | "a featherbed" |
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into the table of its group above (without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The events are in the § Planned sections of the system documents. Every number is *unmeasured*.
-
-### Planned thoughts
-
-| id | text | value | hours | decay | cap | group | trigger | task |
-|---|---|---|---|---|---|---|---|---|
-| `spat_on` | "The camel spat on me." | −1 | 12 | halflife | 1 | comfort | `SpatOn` | T-561 |

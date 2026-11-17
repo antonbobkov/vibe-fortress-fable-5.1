@@ -286,6 +286,8 @@ describe('T-M1-14 announcements', () => {
       // T-M4-03: 08 § Registrations ("announcements for starving, pet death, adoption").
       AnimalStarving: 'alert',
       PetAdopted: 'note',
+      // T-561: 08 § Products, The camel spits (the day's first spit).
+      SpatOn: 'note',
       MasterworkCreated: 'note',
       WorkshopBlocked: 'alert',
       FishPoolDepleted: 'note',

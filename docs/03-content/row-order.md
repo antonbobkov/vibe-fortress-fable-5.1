@@ -433,6 +433,15 @@ Every new row of every table goes at the end of this table, including generated 
 | whims | whim_spirits |
 | whims | whim_masterwork |
 | whims | whim_featherbed |
+| palette | reindeer_brown |
+| palette | camel_tan |
+| creatures | reindeer |
+| creatures | camel |
+| thoughts | spat_on |
+| materials | reindeer_meat |
+| materials | reindeer_hide |
+| materials | camel_meat |
+| materials | camel_hide |
 | items | firebrand |
 | jobTypes | harvest_ice |
 | jobTypes | ignite |
