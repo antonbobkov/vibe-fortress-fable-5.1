@@ -1,5 +1,7 @@
 # T-568 — Seven pallets from one stack of cloth are laid one after another
 
+**Closed:** 2026-11-17, in 1e9847ec,0982ce3b.
+
 **Source:** T-551's test of the founders' pallets (`test/unit/t551-making-do-beds.test.ts`) · **Size:** S · **Needs:** — · **Status:** open
 
 The Making Do design and T-551's Done ask that the seven founders "sleep on pallets of the wagon's cloth within the hour". They do not: seven pallets placed beside the wagon on the default embark, with 15 units of cloth in two stacks, are all laid after about 236 ticks (some five hours), by two dwarves.

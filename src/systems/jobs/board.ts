@@ -788,11 +788,11 @@ export class JobBoard implements JobsApi, JobSink {
       const excluded = [...input.reserved, ...input.delivered];
       if (typeof avoid === 'number') excluded.push(avoid);
       const filter = { ...input.filter, excludeIds: excluded };
-      const isBuild = this.typeId(job) === 'build';
       // A sheltering civilian looks only at items inside its shelter, so it finds what `workedInside` saw.
       const allowed = inside ?? undefined;
+      // A partial stack is split, for a build as for a workshop (T-568): seven pallets share one stack of cloth.
       const found = units && this.items.findUnits !== undefined
-        ? this.items.findUnits(filter, needed, from, !isBuild, allowed)
+        ? this.items.findUnits(filter, needed, from, true, allowed)
         : this.items.findItems(filter, needed, from, allowed);
       if (found.reduce((sum, id) => sum + count(id), 0) < needed) return false;
       for (const it of found) {

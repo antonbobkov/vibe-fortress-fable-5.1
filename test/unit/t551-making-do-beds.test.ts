@@ -176,7 +176,8 @@ describe('T-551 pallets', () => {
     w.until((v) => pallets.every((id) => b14(v).get(id)?.state === 'built'), 12 * TICKS_PER_HOUR);
     const laid = w.tick - start;
     for (const id of pallets) expect(reader.get(id)).toMatchObject({ state: 'built', itemId: 0 });
-    expect(laid).toBeLessThanOrEqual(6 * TICKS_PER_HOUR);
+    // T-568: the seven are laid at once (about 100 ticks, most of it walking), not one after another (about 240).
+    expect(laid).toBeLessThanOrEqual(5 * TICKS_PER_HOUR / 2);
     // Laid from materials: no linked item, two cloth consumed and kept for taking apart; no xp for the layer.
     expect(reader.get(pallets[0] as EntityId)?.settings['inputs']).toEqual([{ type: 'cloth', material: registry.table('materials').index('flax_cloth') }, { type: 'cloth', material: registry.table('materials').index('flax_cloth') }]);
     expect(reader.restPercent(pallets[0] as EntityId)).toBe(90);
@@ -193,6 +194,43 @@ describe('T-551 pallets', () => {
     w.until((v) => b14(v).get(pallets[6] as EntityId) === undefined, 1200);
     expect(reader.get(pallets[6] as EntityId)).toBeUndefined();
     expect(items13(w).count('cloth')).toBe(clothBefore + 2);
+  });
+
+  it('T-568: seven pallets from one heap of cloth are laid by seven dwarves at once', () => {
+    const w = new TestWorld({ seed: 't568-one-stack', world: 'flat-test', embark: 'default' });
+    const reader = b14(w);
+    const origin = reader.get(reader.wagon())?.origin as TileIndex;
+    const [wx, wy, wz] = [w.map.xOf(origin), w.map.yOf(origin), w.map.zOf(origin)];
+    // The wagon's cloth goes; 14 units lie on one tile beside the pallets' row: a stack of 10 (a stack's most) and one of 4.
+    const cloth = registry.table('items').index('cloth');
+    for (const id of w.game.world.entities.with(C.Item)) {
+      if (items13(w).get(id)?.type === cloth) w.items.destroy(id, 'consumed');
+    }
+    expect(items13(w).count('cloth')).toBe(0);
+    const heap = w.index(wx + 1, wy + 3, wz);
+    w.spawnItem('cloth', 'flax_cloth', heap, 14);
+    const stacks = w.game.world.entities.with(C.Item).filter((id) => items13(w).get(id)?.type === cloth);
+    expect(stacks.map((id) => items13(w).get(id)?.count).sort((a, b) => (a ?? 0) - (b ?? 0))).toEqual([4, 10]);
+    const pallets: EntityId[] = [];
+    for (let k = 0; k < 7; k += 1) {
+      const at = w.index(wx - 3 + k, wy + 4, wz);
+      expect(w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: 'pallet', origin: at, orientation: 0, materialChoice: 0, priority: 4 })).toEqual({ ok: true });
+      pallets.push(reader.at(at));
+    }
+    const start = w.tick;
+    // A build claims only the units it needs from a stack (`11` § Assignment step 4), so seven jobs share the heap:
+    // all seven are claimed, by seven dwarves, in the first ticks, where whole stacks let two at a time.
+    w.step(5);
+    const claimers = new Set(w.events('JobClaimed').filter((e) => pallets.includes(e['target'] as EntityId)).map((e) => e['workerId']));
+    expect(claimers.size).toBe(7);
+    w.until((v) => pallets.every((id) => b14(v).get(id)?.state === 'built'), 12 * TICKS_PER_HOUR);
+    // About 80 ticks: a pallet alone is some 50, walking and laying, and the seven crowd the heap (`22` § Crowding).
+    expect(w.tick - start).toBeLessThanOrEqual(2 * TICKS_PER_HOUR);
+    const layers = new Set(w.events('JobCompleted').filter((e) => pallets.includes(e['target'] as EntityId)).map((e) => e['workerId']));
+    expect(layers.size).toBe(7);
+    // Every unit is accounted for: 14 cloth in seven pallets, none left on the ground.
+    expect(items13(w).count('cloth')).toBe(0);
+    for (const id of pallets) expect(reader.get(id)?.settings['inputs']).toHaveLength(2);
   });
 
   it('a child lays a pallet: its labor is hauling, which children have', () => {
