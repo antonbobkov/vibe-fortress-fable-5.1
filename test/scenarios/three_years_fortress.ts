@@ -795,30 +795,27 @@ export interface StandingOrder { readonly recipeId: string; readonly threshold: 
 
 /**
  * The carpenter's standing orders, after the first barrels, the chest and the bucklers. T-577: it
- * keeps two wooden chairs in stock, so a hall's chair never waits for stone. They come before the
- * barrels, whose order grows with the fortress and is seldom met: the tables behind it were made
- * six times in three years. Two chairs are two logs.
+ * keeps two wooden chairs and two wooden tables in stock ahead of the barrels, so the halls'
+ * furniture never waits for stone. Only the mason made chairs, and the carpenter's tables stood
+ * behind the barrels, whose order grows with the fortress and is seldom met. In `three-years-p4-4`
+ * at shift 100 the mason cut ten stone tables and four chairs (the hearth hall's) in the first year
+ * while 60 stones lay in stock; the stone went to the depot and a caravan took it about day 130,
+ * and the mine's few stones then went to blocks and stone crafts: the dining hall's four chairs
+ * waited from day 28 to the end of year 3. With the mason's chairs put before its tables instead,
+ * `three-years-p4-1` at shift 50 made 26 chairs and 2 tables and ended with one table, in a bedroom.
  */
 export const CARPENTER_ORDERS: readonly StandingOrder[] = [
   { recipeId: 'make_chair_wood', threshold: 2 },
+  { recipeId: 'make_table_wood', threshold: 2 },
   { recipeId: 'make_barrel', threshold: 20 },
-  { recipeId: 'make_table_wood', threshold: 6 },
 ];
 
-/**
- * The mason's standing orders, in the order the workshop walks them (12 § Operation). Stone blocks
- * maintain 30: vital for the hearth, constructions and workshops. T-577: the chairs come before the
- * tables. A dining seat is a chair beside a table, the carpenter makes tables too, and only the
- * mason made chairs: in `three-years-p4-4` at shift 100 the mason cut ten stone tables and four
- * chairs (the hearth hall's) in the first year while 60 stones lay in stock, the stone went to the
- * depot and a caravan took it about day 130, and the mine's few stones then went to blocks and stone
- * crafts; the dining hall's four chairs waited from day 28 to the end of year 3.
- */
+/** The mason's standing orders, in the order the workshop walks them (12 § Operation). Stone blocks maintain 30: vital for the hearth, constructions and workshops. */
 export const MASON_ORDERS: readonly StandingOrder[] = [
   { recipeId: 'make_stone_block', threshold: 30 },
   { recipeId: 'make_door_stone', threshold: 4 },
-  { recipeId: 'make_chair_stone', threshold: 14 },
   { recipeId: 'make_table_stone', threshold: 6 },
+  { recipeId: 'make_chair_stone', threshold: 14 },
 ];
 
 /** Adds a workshop's standing orders at ROUTINE, or at the priority `priorities` gives a recipe. */
