@@ -39,7 +39,7 @@ The hall spirit follows the dead. Rows by their dwarf deaths:
 | 1 or 2 | 32, 29.1, 4.75, 0.66 | 23, 26.8, 4.61, 0.74 |
 | 3 or more | 29, 29.0, 5.28, 0.86 | 23, 24.4, 4.65, 1.22 |
 
-On `defence-year` at cadence 20 after T-578 (a local run of the same commit; 17 living, waves on days 29, 57 and 169): one dwarf died before day 84, and from then to day 140 every adult held `unburied_dead` (the adults' sum −46.8) and the spirit stood at 50 to 54 at the evaluations of days 85 and 113. The fixture's script never makes a coffin, so a dwarf's body lies unburied to the end of the run and the thought never leaves (15 § Grief); left to [T-NEW](../../docs/work/T-NEW-fixture-buries-its-dead.md). Before T-578 the same seed and cadence had no death to day 140, and from day 56 its spirit stood at 56 to 64.
+On `defence-year` at cadence 20 after T-578 (a local run of the same commit; 17 living, waves on days 29, 57 and 169): one dwarf died before day 84, and from then to day 140 every adult held `unburied_dead` (the adults' sum −46.8) and the spirit stood at 50 to 54 at the evaluations of days 85 and 113. The fixture's script never makes a coffin, so a dwarf's body lies unburied to the end of the run and the thought never leaves (15 § Grief); left to [T-582](../../docs/work/T-582-fixture-buries-its-dead.md). Before T-578 the same seed and cadence had no death to day 140, and from day 56 its spirit stood at 56 to 64.
 
 ## The carpenter's 87 days
 
