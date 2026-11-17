@@ -59,6 +59,8 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
       let alertAt = -1;
       let inside = -1;
       const atSpring = new Map<number, string>();
+      let sampled = false;
+      const outside: string[] = [];
       const deaths: string[] = [];
       let read = w.allEvents().length;
       const watch = (): void => {
@@ -84,6 +86,11 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
                 const mp = ent.get(m, C.Position);
                 if (mp && Math.abs(q.z - mp.z) <= 1) near = Math.min(near, Math.max(Math.abs(q.x - mp.x), Math.abs(q.y - mp.y)));
               }
+              if (q.z >= gate.z) {
+                const jid = ent.get(did, C.Worker)?.jobId ?? 0;
+                const jt = jid !== 0 ? w.readers.of<JobsReader>('11').typeOf(jid) : null;
+                outside.push(`${Math.max(Math.abs(q.x - gate.x), Math.abs(q.y - gate.y))}:${jt ?? ent.get(did, C.Brain)?.activity ?? '?'}`);
+              }
               atSpring.set(did, `${Math.max(Math.abs(q.x - gate.x), Math.abs(q.y - gate.y))}${q.z === gate.z ? '' : `z${q.z - gate.z}`}a${near === Infinity ? '-' : near}`);
             }
           } else if (e.type === 'AlertChanged' && e['to'] === 'hearth' && alertAt < 0 && sprung >= 0) {
@@ -102,6 +109,15 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
           }
         }
         read = ev.length;
+        if (sprung >= 0 && !sampled && w.tick - sprung >= 40) {
+          sampled = true;
+          for (const did of ent.with(C.Labors)) {
+            if (!ent.alive(did) || !atSpring.has(did)) continue;
+            const carry = ent.get(did, C.Worker)?.carrying ?? 0;
+            const kind = carry !== 0 ? w.game.registry.table<{ id: string }>('items').byIndex(ent.get(carry, C.Item)?.type ?? -1)?.id ?? 'item' : '';
+            atSpring.set(did, `${atSpring.get(did)}s${ent.get(did, C.Motion)?.speed ?? '?'}${kind ? `c:${kind}` : ''}:${ent.get(did, C.Brain)?.behavior ?? ''}`);
+          }
+        }
         if (TRACE && sprung >= 0) {
           const health = w.readers.of<HealthReader>('17');
           const jobs = w.readers.of<JobsReader>('11');
@@ -141,7 +157,7 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
       }
       const census = lines.map((l) => l.replace(/^\[three_years_ambush\] \S+ /, ''));
       const open = state.ambushes.map((c) => `[open] ${JSON.stringify(c)}`);
-      rows.push(`${name} sprang+${sprung < 0 ? '-' : sprung - from} spot ${spotDist} alert+${alertAt < 0 ? '-' : alertAt - sprung} in+${inside} deaths [${deaths.join(' ')}] ${[...census, ...open].join(' | ')}`);
+      rows.push(`${name} sprang+${sprung < 0 ? '-' : sprung - from} spot ${spotDist} alert+${alertAt < 0 ? '-' : alertAt - sprung} in+${inside} out[${outside.join(',')}] deaths [${deaths.join(' ')}] ${[...census, ...open].join(' | ')}`);
     }
     writeFileSync(OUT, rows.join('\n') + '\n');
     console.log(rows.join('\n'));
