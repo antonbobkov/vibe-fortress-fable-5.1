@@ -26,9 +26,10 @@ import type { ItemsReader } from '@systems/items';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { AnimalsReader } from '@systems/animals';
 import type { DwarvesReader } from '@systems/dwarves';
+import type { JobsReader } from '@systems/jobs';
 import { TestWorld } from './test-world';
 import { command } from './script-commands';
-import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, hasFreeSite, specialistCandidates, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
+import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, specialistCandidates, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 
 export const Z = FLAT_TEST_SURFACE_Z;
@@ -1786,15 +1787,19 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
  * squad, a specialist, the broker or the brewer; they go in with the civilians under any alert (they
  * leave their squads, which keep their posts) and come back once it is down, and a fallen watchman
  * is replaced then. A watchman is at his post about a quarter of the day (he eats, drinks and
- * sleeps below), so the fortress trains its dogs for war: a kennel in the workshop hall, a chain
+ * sleeps below), so the fortress trains its dogs for war from `WATCH_LEAD_DAYS` before: a kennel by the gate, a chain
  * forged ahead of the squad's kit, a trainer who does nothing else until each post has a dog, and
  * every dog trained; a war dog is posted with the watch that has fewest, stays there whatever the
  * alert, and spots at `SPOT_RADIUS_DOG`. A post with a dog has no watchman; one whose dogs have
  * died has one again, and the training goes on.
  */
+/** T-580: the kennel, the dogs' training and the watch's posts begin this many days before ambushes are possible. */
+const WATCH_LEAD_DAYS = 42;
+
 function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly number[]): void {
   const from = ambushFromDay(w);
-  if (from === null || w.tick < from * TICKS_PER_DAY) return;
+  if (from === null || w.tick < (from - WATCH_LEAD_DAYS) * TICKS_PER_DAY) return;
+  const staffed = w.tick >= from * TICKS_PER_DAY;
   const buildings = w.readers.of<BuildingsReader>('14');
   const combat = w.readers.of<CombatReader>('16');
   const calm = w.game.world.fortress.alert === 'calm';
@@ -1810,7 +1815,8 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
   const ent = w.game.world.entities;
   const dogs = animals.tameList().filter((id) => ent.get(id, C.Creature)?.species === dogSpecies);
   const { phases } = state.economy;
-  if (dogs.length > 0 && state.placedIds['kennel'] === undefined && hasFreeSite(w, state, 'kennel')) placeEconomyBuilding(w, state, 'kennel', -12, 14);
+  // The kennel goes up by the gate, where it stays (WORK_NEAR_GATE), so the dogs are trained before the first ambush may come.
+  if (dogs.length > 0 && state.placedIds['kennel'] === undefined) placeEconomyBuilding(w, state, 'kennel', 2, 10);
   const forge = state.placedIds['forge'];
   if (state.placedIds['kennel'] !== undefined && !phases.has('kennel chain') && forge !== undefined && buildings.get(forge)?.state === 'built') {
     phases.add('kennel chain');
@@ -1821,17 +1827,29 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
     }
   }
   if (buildings.get(state.placedIds['kennel'] ?? 0)?.state === 'built') {
-    // A trainer does nothing else until each post has its dog, then goes back to the general labors.
+    // Until each post has its dog the training goes ahead of all routine work: an immigrant does
+    // nothing else, or, with none yet, the farmer and the cook (civilians who tend the wounded) take
+    // it up beside their work. Then the trainer goes back to the general labors.
     const untrained = dogs.filter((id) => ent.get(id, C.Tame)?.trained === 'none').length;
     const done = watch.length === 2 && watch.every((wt) => dogs.some((id) => animals.assignedTo(id) === wt.squadId));
+    const training = !done && untrained > 0;
+    if (training !== phases.has('training dogs')) {
+      if (training) phases.add('training dogs'); else phases.delete('training dogs');
+      command(w, { type: 'SetLaborPriority', labor: 'animal_training', priority: training ? KIT_FIRST : ROUTINE });
+    }
     const trainer = state.economy.specialists['trainer'];
-    if (!done && untrained > 0 && (trainer === undefined || !adults.includes(trainer))) {
+    const labors = w.readers.of<JobsReader>('11');
+    if (training && (trainer === undefined || !adults.includes(trainer))) {
       const pick = specialistCandidates(w, state)[0];
       if (pick !== undefined) {
         state.economy.specialists['trainer'] = pick;
         dedicate(w, state, pick, ['animal_training'], false);
+      } else {
+        for (const id of [founders[4], founders[5]]) {
+          if (id !== undefined && adults.includes(id) && !labors.laborEnabled(id, 'animal_training')) command(w, { type: 'SetLabor', dwarfId: id, labor: 'animal_training', on: true });
+        }
       }
-    } else if (done && trainer !== undefined) {
+    } else if (!training && trainer !== undefined) {
       delete state.economy.specialists['trainer'];
       const general = w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
         .filter((r) => r.defaultOn && !['mining', 'woodcutting'].includes(r.id)).map((r) => r.id);
@@ -1875,7 +1893,7 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
       if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
       continue;
     }
-    if (!calm) {
+    if (!calm || !staffed) {
       if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
       continue;
     }
