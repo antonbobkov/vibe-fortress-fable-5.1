@@ -30,7 +30,7 @@ import {
   SMOOTH_BASE_TICKS,
   SOIL_DROP_PERMILLE,
 } from './constants';
-import { clearPlantTransition, precondition, transition, type TransitionRolls } from './rules/transitions';
+import { clearPlantTransition, iceDesignationHolds, precondition, transition, type TransitionRolls } from './rules/transitions';
 import { rollQuality } from './rules/engrave';
 import { GIANT_BONE } from './generate/boneyards';
 
@@ -147,6 +147,8 @@ export class TerrainProducer implements JobProducer {
     const kind = this.map.designationAt(tile);
     if (kind === Designation.None) return null;
     if (!this.readers.has('11')) return 'queued';
+    // `03` § Ice harvesting: a designation on thawed water has no job; it waits for the ice.
+    if (this.iceWaiting(tile)) return 'blocked';
     const state = this.readers.of<JobsReader>('11').stateByKey(jobKey(kind, tile));
     if (state === 'blocked') return 'blocked';
     return state !== null && ASSIGNED_STATES.has(state) ? 'assigned' : 'queued';
@@ -170,7 +172,7 @@ export class TerrainProducer implements JobProducer {
     for (const job of jobs) {
       const tile = job.target.ref;
       const kind = map.designationAt(tile);
-      if (kind === Designation.None || kind !== designationOfJob(job)) {
+      if (kind === Designation.None || kind !== designationOfJob(job) || this.iceWaiting(tile)) {
         sink.cancel(job.id, 'target_invalid');
         continue;
       }
@@ -186,6 +188,14 @@ export class TerrainProducer implements JobProducer {
       if (type === undefined) continue;
       const key = jobKey(kind, tile);
       if (sink.exists(key)) continue;
+      if (this.iceWaiting(tile)) {
+        // Water gone from under a waiting designation (drained, dried) takes the designation with it.
+        if (!iceDesignationHolds(map, tile, this.core.host.facts)) {
+          this.core.clearDesignation(tile);
+          dropped = true;
+        }
+        continue;
+      }
       // `03` § Tile transitions: designated where a built building already blocks the stand.
       if (this.standBlocked(tile)) {
         this.core.clearDesignation(tile);
@@ -205,6 +215,11 @@ export class TerrainProducer implements JobProducer {
     }
     // The dropped designations had no job: nothing is left for a rescan to do.
     if (dropped) this.seenVersion = this.core.designationsVersion;
+  }
+
+  /** `03` § Ice harvesting: a `harvest_ice` designation whose water is thawed, waiting for the ice. */
+  iceWaiting(tile: TileIndex): boolean {
+    return this.map.designationAt(tile) === Designation.HarvestIce && !precondition(this.map, tile, Designation.HarvestIce, this.core.host.facts);
   }
 
   /**
@@ -298,7 +313,8 @@ export class TerrainProducer implements JobProducer {
     // "When a designation is applied to a tile that no longer matches its precondition …, the
     // designation is cleared silently."
     if (!precondition(map, tile, kind, facts)) {
-      core.clearDesignation(tile);
+      // `03` § Ice harvesting: ice that thawed under the pick leaves the designation waiting for it.
+      if (kind !== Designation.HarvestIce || !iceDesignationHolds(map, tile, facts)) core.clearDesignation(tile);
       return;
     }
     if (kind === Designation.HarvestIce) {

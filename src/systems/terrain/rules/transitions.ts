@@ -137,6 +137,20 @@ export function frozenOutdoorWater(map: Map3D, i: TileIndex, facts: MaterialFact
 }
 
 /**
+ * `03` § Ice harvesting: a `harvest_ice` designation is kept while its tile is outdoor water, frozen
+ * or thawed (an `open` or `floor` tile whose fluid byte holds water, on an `outdoor` tile); its job waits for the
+ * ice while the tile is thawed. The frozen bit is not read for the thawed case: 04's thaw writes the
+ * tile before it clears the bit.
+ */
+export function iceDesignationHolds(map: Map3D, i: TileIndex, facts: MaterialFacts): boolean {
+  if (frozenOutdoorWater(map, i, facts)) return true;
+  const k = map.kindAt(i);
+  if ((k !== TileKind.Open && k !== TileKind.Floor) || constructed(map, i) || !map.hasFlag(i, TileFlag.Outdoor)) return false;
+  const f = (map.fluid[i] ?? 0) as number;
+  return (f & FLUID_LEVEL_MASK) !== 0 && (f & FLUID_TYPE_BIT) === 0;
+}
+
+/**
  * 05's `burnableTile(T)` over the map and the material facts (`05` § Fire, Ignition): a constructed
  * tile of wood anywhere; outdoors a tree, sapling or shrub (not of a `fireproof` species: the salt
  * crust), a grass floor, or a floor or wall of a burnable soil (peat). The same rule as `Fire.burnableTile` (the terrain test holds them equal).
