@@ -41,7 +41,7 @@ const DAYS = Number(process.env['PROBE_DAYS'] ?? String(3 * DAYS_PER_YEAR));
 /** Ticks between two looks at the board: a twelfth of a day. */
 const SAMPLE_TICKS = 100;
 
-interface Spell { readonly cat: string; readonly start: number; readonly end: number; readonly how: string; readonly prio: number }
+interface Spell { readonly cat: string; readonly start: number; readonly end: number; readonly how: string; readonly prio: number; readonly note: string }
 
 export interface CategoryFigures {
   readonly spells: number;
@@ -58,7 +58,7 @@ export interface CategoryFigures {
 }
 
 export class JobWaitWatch {
-  private readonly since = new Map<number, { start: number; cat: string; prio: number }>();
+  private readonly since = new Map<number, { start: number; cat: string; prio: number; note: string }>();
   readonly spells: Spell[] = [];
   readonly stone: { day: number; owned: number; available: number; depot: number; depotHaul: number; reserved: Record<string, number>; forbidden: number }[] = [];
 
@@ -81,6 +81,17 @@ export class JobWaitWatch {
     if (this.w.tick - this.lastSample >= SAMPLE_TICKS) this.sample();
   }
 
+  /** A craft job's workshop worker (and whether a soldier), or a job's labor and how many have it. */
+  private note(job: { id: number; type: number; target: { kind: string; ref: number }; data: Record<string, unknown> }): string {
+    const ent = this.w.game.world.entities;
+    const jobs = this.w.readers.of<JobsReader>('11');
+    const labor = typeof job.data['labor'] === 'string' ? job.data['labor'] : this.w.game.registry.table<{ id: string; labor: string }>('jobTypes').byIndex(job.type)?.labor ?? '';
+    const workers = labor ? jobs.workersWithLabor(labor).length : -1;
+    const ws = job.target.kind === 'building' ? ent.get(job.target.ref, C.Workshop) : undefined;
+    const assigned = ws?.assignedWorker ?? 0;
+    return `${labor}:${workers}` + (assigned ? ` worker ${assigned}${ent.has(assigned, C.Soldier) ? ' (soldier)' : ''}` : '');
+  }
+
   sample(): void {
     this.lastSample = this.w.tick;
     const jobs = this.w.readers.of<JobsReader>('11');
@@ -92,13 +103,13 @@ export class JobWaitWatch {
       if (!this.since.has(job.id)) {
         const labor = typeof job.data['labor'] === 'string' ? job.data['labor'] : jobTypes.byIndex(job.type)?.labor;
         const shift = labor && labors.index(labor) > 0 ? jobs.laborPriority(labor) - 5 : 0;
-        this.since.set(job.id, { start: this.w.tick, cat: this.category(job), prio: job.priority + shift });
+        this.since.set(job.id, { start: this.w.tick, cat: this.category(job), prio: job.priority + shift, note: this.note(job) });
       }
     }
     for (const [id, s] of this.since) {
       if (open.has(id)) continue;
       const job = jobs.get(id);
-      this.spells.push({ cat: s.cat, start: s.start, end: this.w.tick, how: job ? job.state : 'gone', prio: s.prio });
+      this.spells.push({ cat: s.cat, start: s.start, end: this.w.tick, how: job ? job.state : 'gone', prio: s.prio, note: s.note });
       this.since.delete(id);
     }
     const day = Math.floor(this.w.tick / TICKS_PER_DAY);
@@ -129,7 +140,7 @@ export class JobWaitWatch {
 
   /** Closes every spell still open at the end, as `open`. */
   finish(): void {
-    for (const [id, s] of this.since) this.spells.push({ cat: s.cat, start: s.start, end: this.w.tick, how: `still open (job ${id})`, prio: s.prio });
+    for (const [id, s] of this.since) this.spells.push({ cat: s.cat, start: s.start, end: this.w.tick, how: `still open (job ${id})`, prio: s.prio, note: s.note });
     this.since.clear();
   }
 
@@ -189,13 +200,15 @@ describe('T-570 probe: how long routine jobs wait', () => {
     const figures = watch.figures();
     const ent = w.game.world.entities;
     const population = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
-    const longest = watch.spells.filter((s) => s.end - s.start >= 20 * TICKS_PER_DAY)
-      .map((s) => ({ cat: s.cat, fromDay: Math.floor(s.start / TICKS_PER_DAY) + 1, days: Math.round((s.end - s.start) / TICKS_PER_DAY), how: s.how, prio: s.prio }))
-      .sort((a, b) => b.days - a.days).slice(0, 40);
+    // The longest spells of every kind but the backlogs (digging, smoothing, felling, gathering, hauling to stockpiles).
+    const backlog = new Set(['dig', 'smooth', 'chop', 'gather', 'haul_to_stockpile']);
+    const longest = watch.spells.filter((s) => s.end - s.start >= 10 * TICKS_PER_DAY && !backlog.has(s.cat))
+      .map((s) => ({ cat: s.cat, fromDay: Math.floor(s.start / TICKS_PER_DAY) + 1, days: Math.round((s.end - s.start) / TICKS_PER_DAY), how: s.how, prio: s.prio, note: s.note }))
+      .sort((a, b) => b.days - a.days).slice(0, 60);
     const result = { seed: SEED, shift: SHIFT, days: DAYS, population, figures, longest, stone: watch.stone.filter((s) => s.day % 7 === 0) };
     const table = Object.entries(figures).filter(([, f]) => f.maxWait >= 5)
       .map(([cat, f]) => `${cat.padEnd(34)} n=${f.spells} mean=${f.meanWait} p90=${f.p90Wait} max=${f.maxWait} >10d=${f.over10} prio=${f.prio}`).join('\n');
-    console.log(`[t570] ${SEED} shift ${SHIFT}, population ${population}\n${table}\nlongest: ${JSON.stringify(longest)}`);
+    console.log(`[t570] ${SEED} shift ${SHIFT}, population ${population}\n${table}\nlongest:\n${longest.map((l) => JSON.stringify(l)).join('\n')}`);
     console.log(`[t570 stone] ${JSON.stringify(result.stone)}`);
     if (OUT) {
       mkdirSync(dirname(OUT), { recursive: true });
