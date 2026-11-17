@@ -202,17 +202,19 @@ export class Surface {
     }
   }
 
-  /** Swap `fg` and `bg` over a rectangle: the selection and cursor style. */
-  invert(rect: Rect): void {
+  /**
+   * Swap `fg` and `bg` over a rectangle: the selection and cursor style. With `visible`, a cell
+   * whose colours are nearly alike (unexplored rock on the map) takes the text colour as its
+   * background instead, so a map selection always shows (23 § Step 10).
+   */
+  invert(rect: Rect, visible = false): void {
     for (let r = 0; r < rect.rows; r += 1) {
       for (let c = 0; c < rect.cols; c += 1) {
         const col = rect.col + c;
         const row = rect.row + r;
         if (!this.inside(col, row)) continue;
         const cell = this.cells.get(col, row);
-        // A cell whose colours are (nearly) alike, as unexplored rock is, would not change when
-        // swapped: it takes the text colour as its background instead, so the selection shows.
-        if (lumaGap(cell.fg, cell.bg) < INVERT_MIN_GAP) this.cells.set(col, row, cell.glyph, this.theme.black, this.theme.text);
+        if (visible && lumaGap(cell.fg, cell.bg) < INVERT_MIN_GAP) this.cells.set(col, row, cell.glyph, this.theme.black, this.theme.text);
         else this.cells.set(col, row, cell.glyph, cell.bg, cell.fg);
       }
     }

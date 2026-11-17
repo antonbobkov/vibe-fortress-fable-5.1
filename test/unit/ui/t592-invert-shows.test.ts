@@ -17,16 +17,23 @@ describe('T-592: an inverted cell always changes', () => {
   it('a one-colour cell takes the text colour as its background', () => {
     const s = fresh();
     s.put(0, 0, 32, 0x101010, 0x101010);
-    s.invert({ col: 0, row: 0, cols: 1, rows: 1 });
+    s.invert({ col: 0, row: 0, cols: 1, rows: 1 }, true);
     const c = s.cells.get(0, 0);
     expect(c.bg).toBe(theme.text);
     expect(c.fg).toBe(theme.black);
   });
 
+  it('without visible (a list row), a one-colour cell swaps as before', () => {
+    const s = fresh();
+    s.put(2, 0, 32, 0x101010, 0x101010);
+    s.invert({ col: 2, row: 0, cols: 1, rows: 1 });
+    expect(s.cells.get(2, 0).bg).toBe(0x101010);
+  });
+
   it('a cell with contrast still swaps its colours', () => {
     const s = fresh();
     s.put(1, 0, 35, 0xc0c0c0, 0x000000);
-    s.invert({ col: 1, row: 0, cols: 1, rows: 1 });
+    s.invert({ col: 1, row: 0, cols: 1, rows: 1 }, true);
     const c = s.cells.get(1, 0);
     expect(c.fg).toBe(0x000000);
     expect(c.bg).toBe(0xc0c0c0);
