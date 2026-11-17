@@ -13,7 +13,7 @@ import { C, ItemFlag } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { RngStream } from '@core/rng';
 import { WorldMapCompositor } from '@render/world-map';
-import { lacksMaterial, localMapSpec, siteSignature, siteSummary, type LocalMapSpec } from '@systems/embark';
+import { lacksMaterial, localMapSpec, signatureGoodExists, siteSignature, siteSummary, type LocalMapSpec } from '@systems/embark';
 import { generateGoods, neverSold, preferencePercent, SCARCITY_MARKUP, type TradeReader } from '@systems/trade';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { generate } from '@systems/worldgen';
@@ -40,12 +40,15 @@ describe('T-550 what a site has and lacks', () => {
   });
 
   it('leaves out the goods the game does not have yet', () => {
-    // No camels or reindeer yet (T-561): they are kept in the rows and left out here. Honey came with T-555.
-    for (const id of ['camel', 'reindeer']) expect(registry.table('items').has(id) || registry.table('creatures').has(id)).toBe(false);
+    // Camels and reindeer came with T-561, honey with T-555: every word of the rows is in the game now.
     const desert = siteSignature(spec({ biome: 'desert', geology: 'igneous' }), registry);
-    expect(desert.has).toEqual(['sand', 'salt', 'cactus_fiber', 'giant_bones', 'copper', 'gem', 'basalt']);
+    expect(desert.has).toEqual(['sand', 'salt', 'cactus_fiber', 'camels', 'giant_bones', 'copper', 'gem', 'basalt']);
     expect(desert.lacks).toEqual(['wood', 'clay', 'honey', 'peat', 'flux']);
-    expect(siteSignature(spec({ biome: 'taiga' }), registry).has).not.toContain('reindeer');
+    expect(siteSignature(spec({ biome: 'taiga' }), registry).has).toContain('reindeer');
+    // A word whose species is not in the content is left out.
+    const noCamels = { ...registry, table: (name: string) => (name === 'creatures' ? { has: () => false } : registry.table(name)) } as unknown as typeof registry;
+    expect(signatureGoodExists(noCamels, 'camels')).toBe(false);
+    expect(signatureGoodExists(registry, 'camels')).toBe(true);
   });
 
   it('a material is lacking when a lacks good names it and no has good does', () => {
@@ -80,7 +83,7 @@ describe('T-550 what a site has and lacks', () => {
     const screen = new WorldMapScreen(world, { embark: () => {}, back: () => {} }, keymap, strings, new WorldMapCompositor(registry, palette), registry);
     screen.cursor = { x: desert!.id % world.size, y: Math.floor(desert!.id / world.size) };
     const text = screen.regionLines().join(' ').replace(/\s+/g, ' ');
-    expect(text).toMatch(/Wildlife .* This site has: sand, salt, cactus fiber, likely giant bones, .*\. This site lacks: wood, clay, honey, peat/);
+    expect(text).toMatch(/Wildlife .* This site has: sand, salt, cactus fiber, camels, likely giant bones, .*\. This site lacks: wood, clay, honey, peat/);
     const s = surface(100, 60);
     screen.draw(s);
     const rows = s.lines();
@@ -97,7 +100,7 @@ describe('T-550 sundries and preferences', () => {
     const goods = registry.derived<readonly { civ: string; entries: { item: string | string[]; sundries?: boolean; units?: number; container?: string; weight: number }[] }[]>('caravanGoods');
     const sundries = (civ: string): string[] => goods.find((g) => g.civ === civ)!.entries.filter((e) => e.sundries === true).map((e) => String(e.item));
     expect(sundries('mountainhome')).toEqual(['raw_stone', 'coal_bar', 'charcoal_bar', 'rough_gem', 'soil_load']);
-    expect(sundries('hillfolk')).toEqual(['log', 'leather_piece', 'salt', 'soil_load', 'dung', 'cured_meat', 'honey', 'candle']);
+    expect(sundries('hillfolk')).toEqual(['log', 'leather_piece', 'salt', 'soil_load', 'dung', 'cured_meat', 'honey', 'candle', 'camel']);
     expect(sundries('wildwood')).toEqual(['reed', 'fiber', 'feather', 'brightleaf', 'honey', 'beeswax']);
     for (const g of goods) for (const e of g.entries) if (e.sundries === true) expect(e.weight).toBe(6);
     const salt = goods.find((g) => g.civ === 'hillfolk')!.entries.find((e) => e.item === 'salt')!;

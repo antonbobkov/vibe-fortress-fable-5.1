@@ -58,6 +58,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `DrankAlcohol` / `DrankWater` | `id, material, quality, group, aged` / `id, outdoors` | 10 | 15 |
 | `DrankFromPlant` | `id, material` | 10 | 15 |
 | `Stung` | `id, source` | 09, 08 | 15 |
+| `SpatOn` | `id, animalId, first` | 08 (a camel spits on the dwarf `id` who milked or shore it; `first` for the day's first spit) | 15, ui |
 | `Slept` | `id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType` | 10 | 15, 24 |
 | `Talked` | `a, b, friends` | 10 | 15 |
 | `Sat` | `id, roomTier` | 10 | 15 |

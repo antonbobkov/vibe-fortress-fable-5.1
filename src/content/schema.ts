@@ -789,6 +789,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     gear: opt(str),
     remains: opt(arr(obj({ item: itemRef, count: int }), 1)),
     butcherParts: opt(arr(obj({ item: itemRef, material: materialRef, count: int }), 1)),
+    herd: opt(obj({ biomes: arr(obj({ biome: biomeRef, weight: int }), 1), group: tupleOf(2, int), season: opt(arr(int)) })),
   }),
 
   plants: rows({
@@ -1163,6 +1164,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
         extra: opt(obj({ permille: int, minReputation: opt(int) })),
         sundries: opt(bool),
         units: opt(int),
+        biomes: opt(arr(biomeRef, 1)),
       }),
     ),
   }),
