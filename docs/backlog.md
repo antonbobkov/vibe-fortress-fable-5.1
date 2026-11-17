@@ -13,5 +13,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-576 | [The three-year script sees an ambush before it springs](work/T-576-script-sees-hidden-ambush.md) | T-575's runs | — | open |
 | T-582 | [The three-year fixture buries its dead](work/T-582-fixture-buries-its-dead.md) | [T-581](archive/tasks/T-581-defence-population.md) | T-580 | blocked (needs T-580) |
+| T-583 | [How much of Making Do a real game reaches](work/T-583-making-do-reach.md) | orchestrator | — | open |
+| T-584 | [Caravans bring the sand, clay and brightleaf they list](work/T-584-caravans-bring-worthless-goods.md) | [T-583](work/T-583-making-do-reach.md) | — | open |
+| T-585 | [A keep order of glass blocks counts glass](work/T-585-keep-order-fixed-material.md) | [T-583](work/T-583-making-do-reach.md) | — | open |
+| T-586 | [An ice designation survives the afternoon thaw](work/T-586-ice-designation-daily-thaw.md) | [T-583](work/T-583-making-do-reach.md) | — | open |
+| T-587 | [A site one soil level deep yields no sand, clay or peat](work/T-587-shallow-soil-loads.md) | [T-583](work/T-583-making-do-reach.md) | — | open |
+| T-588 | [The long fixtures play some of Making Do](work/T-588-fixture-makes-do.md) | [T-583](work/T-583-making-do-reach.md) | T-580, T-582 | blocked (needs T-580, T-582) |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

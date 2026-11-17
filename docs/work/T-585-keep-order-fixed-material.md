@@ -1,4 +1,4 @@
-# T-NEW — A keep order of glass blocks counts glass
+# T-585 — A keep order of glass blocks counts glass
 
 **Source:** [T-583's audit of Making Do's reach](../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 3 · **Size:** S · **Needs:** — · **Status:** open
 
