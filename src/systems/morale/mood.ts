@@ -26,6 +26,12 @@ export function currentValue(thought: ActiveThought, def: ThoughtDef, tick: numb
   if (def.decay === 'linear') return ageHours >= def.hours ? 0 : thought.baseValue * (1 - ageHours / def.hours);
   const halfHours = def.hours / 3;
   const value = thought.baseValue * 2 ** (-ageHours / halfHours);
+  // T-569: within its hours a halflife thought keeps at least 1 (or its whole value, if smaller),
+  // so a −1 row lasts its hours; after them it is removed once under 1.
+  if (ageHours < def.hours) {
+    const floor = Math.min(1, Math.abs(thought.baseValue));
+    return Math.abs(value) < floor ? Math.sign(value) * floor : value;
+  }
   return Math.abs(value) < 1 ? 0 : value;
 }
 

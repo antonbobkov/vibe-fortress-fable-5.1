@@ -49,7 +49,7 @@ Thought triggers are declarative: `{ event: EventType, where?: predicate on fiel
 
 Value scaling: `value × personalityMultiplier(dwarf, thought) × stageMultiplier` where `stageMultiplier` handles meal staleness (13) and room tiers (14) through the `where` predicate selecting a specific row per tier.
 
-Decay: `linear` (value falls to 0 over `durationHours`) or `halflife` (value halves every `durationHours / 3`, removed under 1). Negative event thoughts use `halflife` with shorter durations than positive ones of similar weight, so bad days fade faster than good ones.
+Decay: `linear` (value falls to 0 over `durationHours`) or `halflife` (value halves every `durationHours / 3`). A `halflife` thought keeps at least 1, or its whole value when that is smaller (a stoic's halved −1), until `durationHours` have passed, so a ±1 row lasts its hours instead of rounding away within the first (T-569); after its hours it is removed once under 1, so a large one (−15 over 336 hours) runs on past them as before. Negative event thoughts use `halflife` with shorter durations than positive ones of similar weight, so bad days fade faster than good ones; the small −1 annoyances (`lab_stink`, `nettles`, `drank_cactus`, `smoky_hall`, `spat_on`) are all `halflife` and hold their −1 for their 12 hours.
 
 Caps: a thought with `cap = 1` refreshes its start tick instead of stacking; `cap = n` allows n instances (for example `saw_masterwork` cap 3). No thought stacks without limit.
 
