@@ -18,5 +18,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-586 | [An ice designation survives the afternoon thaw](work/T-586-ice-designation-daily-thaw.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | — | open |
 | T-587 | [A site one soil level deep yields no sand, clay or peat](work/T-587-shallow-soil-loads.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | — | open |
 | T-588 | [The long fixtures play some of Making Do](work/T-588-fixture-makes-do.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | T-580, T-582 | blocked (needs T-580, T-582) |
+| T-590 | [A level shows nothing above it](work/T-590-no-view-above.md) | the owner's playtest | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

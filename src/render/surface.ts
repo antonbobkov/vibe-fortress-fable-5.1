@@ -25,8 +25,6 @@ import {
 import { blend, brighten, type Palette, type Rgb } from './palette';
 import {
   GRASS_TINT_ALPHA,
-  HILL_BG_ALPHA,
-  HILL_SOIL_TONE,
   PLANT_SHADE_DARK,
   PLANT_SHADE_LIGHT,
   ROCK_TINT_ALPHA,
@@ -65,10 +63,7 @@ export class SurfaceVariety {
 
   constructor(registry: Registry, palette: Palette) {
     this.black = palette.color('black');
-    this.defaultTone = palette.color(HILL_SOIL_TONE);
-    this.soilTone = this.defaultTone;
     const biomes = registry.table<SurfaceRow>('biomes');
-    const materials = registry.table<{ id: string; color: string }>('materials');
     const color = (id: string): Rgb | null => (palette.has(id) ? palette.color(id) : null);
     const colors = (ids: readonly string[] | undefined): Rgb[] => (ids ?? []).map(color).filter((c): c is Rgb => c !== null);
     for (const id of biomes.ids()) {
@@ -79,22 +74,13 @@ export class SurfaceVariety {
         flowerColors: colors(s?.flowerColors),
         rockTints: colors(s?.rockTints),
       });
-      const soil = [...(biomes.byId(id)?.soil ?? [])].sort((a, b) => b.weight - a.weight)[0];
-      const soilColor = soil === undefined ? undefined : materials.byId(soil.material)?.color;
-      if (soilColor !== undefined && palette.has(soilColor)) this.tones.set(id, palette.color(soilColor));
     }
   }
 
   /** The biome of the map in view (null: no variety but the plant shades). */
   setBiome(biome: string | null): void {
     this.look = biome === null ? NO_LOOK : (this.looks.get(biome) ?? NO_LOOK);
-    this.soilTone = biome === null ? this.defaultTone : (this.tones.get(biome) ?? this.defaultTone);
   }
-
-  /** The tone of higher ground of soil: the colour of the biome's commonest soil. */
-  soilTone: Rgb;
-  private readonly tones = new Map<string, Rgb>();
-  private readonly defaultTone: Rgb;
 
   private mix(base: Rgb, tint: Rgb, alpha: number): Rgb {
     const key = `${base}:${tint}:${alpha}`;
@@ -158,11 +144,6 @@ export class SurfaceVariety {
       fg = this.mix(material, this.black, PLANT_SHADE_DARK / 2);
     }
     return { glyph, fg, bg: this.black };
-  }
-
-  /** The background of ground `levels` up: the surface's own leaning toward the ground's tone, more for each level. */
-  hillBg(surfaceBg: Rgb, tone: Rgb, levels: number): Rgb {
-    return this.mix(surfaceBg, tone, HILL_BG_ALPHA * (1 + (levels - 1) / 4));
   }
 
   /** A tree's or shrub's shade: its species colour, a lighter one or a darker one, by tile. */
