@@ -18,6 +18,10 @@ export const MAGMA_OVERRIDE = 16;
 export const FIRE_OVERRIDE = 12;
 /** +25. */
 export const SPRING_OVERRIDE = 5;
+/** −10 at an ice wall or floor and at Chebyshev distance 1 on its level (`05` § Ice constructions; *unmeasured*). */
+export const ICE_OVERRIDE = 2;
+/** Days an ice construction stands underground before it melts (`05` § Ice constructions; *unmeasured*). */
+export const ICE_CONSTRUCTION_DAYS = 84;
 /** −5. */
 export const SNOW_OVERRIDE = 1;
 /** Per neighbor per attempt. */

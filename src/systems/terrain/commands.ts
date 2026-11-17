@@ -1,6 +1,6 @@
 /**
  * 03's commands: `04-implementation/command-catalog.md` rows `Designate`, `UndoDesignation`,
- * `SetDesignationPriority`, `SetTraffic`, `DesignateStairwell`, `ConfirmDeepsilver`, and
+ * `SetDesignationPriority`, `SetTraffic`, `DesignateStairwell`, `ConfirmDeepsilver`, `ConfirmIgnite`, and
  * `02-systems/03-terrain-and-mining.md` § Interfaces › Commands, § Restricted traffic.
  *
  * A command is validated as a whole before anything changes, so a rejected command changes nothing
@@ -9,12 +9,13 @@
  */
 
 import { OK, reject, type Command, type CommandResult } from '@core/commands';
-import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
+import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN, TICKS_PER_DAY } from '@core/constants';
 import { Designation, TileFlag, type Map3D } from '@core/map3d';
 import type { FortressState } from '@core/components';
 import type { TileIndex } from '@core/types';
 import type { TerrainCore } from './api';
 import { DESIGNATION_NAMES, TERRAIN_DESIGNATIONS, precondition } from './rules/transitions';
+import { ICE_RECUT_DAYS } from './constants';
 
 /** The traffic modes of `SetTraffic`. */
 export type TrafficMode = 'normal' | 'restricted' | 'forbidden';
@@ -50,6 +51,20 @@ export interface CommandHost {
   readonly fortress: FortressState;
   /** The progress (`Fixed`) of the job carrying a designation, 0 when none. */
   progressOf(tile: TileIndex): number;
+  /** The current tick (the recut wait of `harvest_ice`). Absent: tick 0. */
+  now?(): number;
+}
+
+/**
+ * `03` § Ice harvesting: a tile cut less than `ICE_RECUT_DAYS` ago cannot be designated again. The
+ * entries whose wait is over are dropped as they are found.
+ */
+export function iceRecutWaiting(host: CommandHost, tile: TileIndex): boolean {
+  const cut = host.core.iceCut.get(tile);
+  if (cut === undefined) return false;
+  if ((host.now?.() ?? 0) - cut < ICE_RECUT_DAYS * TICKS_PER_DAY) return true;
+  host.core.iceCut.delete(tile);
+  return false;
 }
 
 /**
@@ -84,10 +99,15 @@ export function applyDesignate(host: CommandHost, cmd: Command): CommandResult {
   if (kind === null) return reject('precondition_failed');
   const priority = priorityOf(cmd['priority']);
   if (priority === null) return reject('out_of_range');
-  const items = tiles.map((tile) => ({ tile, kind }));
+  // `03` § Ice harvesting: a tile still waiting to be cut again is left out; none left is refused.
+  const chosen = kind === Designation.HarvestIce ? tiles.filter((tile) => !iceRecutWaiting(host, tile)) : tiles;
+  if (chosen.length === 0 && tiles.length > 0) return reject('precondition_failed');
+  const items = chosen.map((tile) => ({ tile, kind }));
   const ok = validateDesignations(host, items);
   if (!ok.ok) return ok;
-  for (const tile of tiles) host.core.setDesignation(tile, kind, priority);
+  // `03` § Setting a fire: the first `ignite` of a fortress waits for `ConfirmIgnite`.
+  if (kind === Designation.Ignite && chosen.length > 0 && host.fortress.igniteConfirmed !== true) return reject('ignite_unconfirmed');
+  for (const tile of chosen) host.core.setDesignation(tile, kind, priority);
   return OK;
 }
 
@@ -172,6 +192,12 @@ export function applyTraffic(host: CommandHost, cmd: Command): CommandResult {
     host.core.setFlag(tile, TileFlag.Restricted, mode !== 'normal');
     if (host.core.setForbidden(tile, mode === 'forbidden')) host.core.markChanged(tile);
   }
+  return OK;
+}
+
+/** `ConfirmIgnite`: sets the fortress's `igniteConfirmed` (`03` § Setting a fire). */
+export function applyConfirmIgnite(host: CommandHost): CommandResult {
+  host.fortress.igniteConfirmed = true;
   return OK;
 }
 

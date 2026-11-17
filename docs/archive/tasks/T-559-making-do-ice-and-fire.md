@@ -1,6 +1,8 @@
 # T-559 — Making Do C3: ice harvesting, ice walls and fire on purpose
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (ice, fire on purpose)); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in 400ab28f,acafdc2d,55e6cae5.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (ice, fire on purpose)); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

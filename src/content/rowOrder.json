@@ -1734,5 +1734,29 @@
   {
     "table": "materials",
     "id": "camel_hide"
+  },
+  {
+    "table": "items",
+    "id": "firebrand"
+  },
+  {
+    "table": "jobTypes",
+    "id": "harvest_ice"
+  },
+  {
+    "table": "jobTypes",
+    "id": "ignite"
+  },
+  {
+    "table": "recipes",
+    "id": "make_firebrand"
+  },
+  {
+    "table": "thoughts",
+    "id": "set_a_fire"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_first_ignite"
   }
 ]

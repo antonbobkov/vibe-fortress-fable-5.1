@@ -58,6 +58,8 @@ The generator runs synchronously with progress callbacks after each stage; budge
 | `remove` | `constructed` tile | the construction's material returns as an item; `wall` or `floor` becomes `open`, except a constructed floor over natural rock becomes the natural floor; stairs and ramps become `open` | The block, log or bar used |
 | `chop` | `tree` or `sapling` | `floor` (grass if soil); logs by species size for a tree | A tree: 1–4 logs; a sapling: none |
 | `gather` | `shrub` | shrub stays; regrowth timer set (07) | The shrub's product, and its second product if its row has one (09 § Gathering) |
+| `harvest_ice` | frozen outdoor water: an ice `wall` or ice `floor` of 04's frozen record, on an `outdoor` tile; not cut in the last `ICE_RECUT_DAYS` | the tile stays as it was: ice is cut, not dug out, and the water under it stays | One `stone_block` of `ice`, on the worker's tile |
+| `ignite` | a tile 05 calls burnable (`materials.burnableTile`), not `wet`, not `snow`, not `burning` | none here: `TileIgnited` and 05 light it | None (a `firebrand` is spent) |
 
 Every drop is of the dug tile's material. When a terrain job leaves the last tile of a boneyard's skull group (`giantSkulls`) no longer a `wall`, a `giant_skull` of `giant_bone` drops beside that tile's fossil, once: the group leaves the list. The soil drop's roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for a tile of such a soil, so digging stone, ore and every other soil draws the same numbers as before.
 
@@ -69,7 +71,7 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 ### Digging as a job
 
-- A designation creates a job of type `dig`, `channel`, `carve_stairs`, `carve_ramp`, `smooth`, `engrave`, `remove_construction`, `chop` or `gather` with the designation's priority, through the `terrain` job producer.
+- A designation creates a job of type `dig`, `channel`, `carve_stairs`, `carve_ramp`, `smooth`, `engrave`, `remove_construction`, `chop`, `gather`, `harvest_ice` or `ignite` with the designation's priority, through the `terrain` job producer.
 - `dig`, `channel`, carving and `remove_construction` require the `mining` labor and a pick in hand (the worker fetches one from a stockpile if not carrying one; picks are tools that a miner keeps until the labor is disabled). `chop` requires `woodcutting` and an axe. `smooth` and `engrave` require `masonry` (smoothing) and `engraving` (engraving) labors and no tool. `gather` requires `herbalism` and no tool.
 - Work time: `baseTicks × hardness(material) / (100 + SKILL_TIME_BONUS_PERCENT × skillLevel)`, then the mood multiplier (15). Progress is stored on the job and survives interruption.
 - The worker stands on the target for channel, down stairs, or floor smoothing and engraving; other jobs use an adjacent walkable tile in the same-level 8-neighborhood. Up and up/down stairs also allow the tile directly above when it is a down or up/down stair, supplied by the producer's `extraStandTiles`. With no valid stand tile, the job is `blocked: unreachable`.
@@ -78,6 +80,19 @@ When a designation is applied to a tile that no longer matches its precondition 
 - A vein is the face-connected set of tiles of one mineral material, searched with a 4,096-tile bound and keyed by its lowest tile index. Dug tiles retain material, so digging preserves the identity. Only the first mined tile whose key is absent from `veinsFound` emits `VeinFound`.
 - A player `CancelJob` clears its designation so it cannot recreate the job. Removing or changing a designation cancels its job with `target_invalid`.
 - Deepsilver: each deepsilver tile dug emits `DeepsilverMined { tile }` (18 raises Deep pressure). Before the first deepsilver designation is applied, the UI shows a one-time confirmation (24) explaining the consequence.
+
+### Ice harvesting
+
+- Designation `harvest_ice` on a tile of frozen outdoor water (04's frozen record: an ice `wall` or ice `floor` whose fluid byte holds water with the `frozen` bit, on an `outdoor` tile). The job `harvest_ice` (labor `mining`, skill `mining`, a pick) is worked from a walkable tile beside it on its level, standing on it when it is an ice floor, or from above: the tile directly above it and that tile's eight neighbours, the bank a miner reaches down from (the producer's `extraStandTiles`; an open tile is no stand, so the middle of a frozen lake whose ice is all walls is out of reach until a shore of ice floor leads to it).
+- Work time `ICE_HARVEST_TICKS × 100 / (100 + SKILL_TIME_BONUS_PERCENT × skillLevel)`, as digging, with no hardness factor.
+- On completion it drops one `stone_block` of `ice` on the worker's tile and leaves the tile as it was: ice is cut, not dug out, and the water under it stays. The tile is recorded in `iceCut` with the tick, and cannot be designated again for `ICE_RECUT_DAYS`: `Designate` leaves such a tile out of its batch, and refuses with `precondition_failed` when no tile is left (an entry whose wait is over is dropped when it is next looked at). A tile that thaws clears its designation (its precondition no longer holds). No rng.
+- An ice block is a `stone_block` of `ice`, so the construction rows take it with no new row: 05 cools and melts what is built of it (05 § Ice constructions), and 13 melts the block itself (13 § Rot).
+
+### Setting a fire
+
+- Designation `ignite` on a tile 05 calls burnable (`materials.burnableTile`: a constructed tile of wood anywhere; outdoors a tree, sapling or shrub, a grass floor, or a floor or wall of a burnable soil), not `wet`, not `snow` and not `burning`. 03's precondition applies the same rule to the map and the material rows, so the designate tool can filter a box without 05.
+- The job `ignite` (labor `woodcutting`, no skill, xp 0) fetches one `firebrand` as its input, walks to a tile beside the target, works `IGNITE_TICKS`, spends the firebrand and emits `TileIgnited { tile, dwarfId }`; 05 queues the ignition as it queues a lightning strike's (05 § Fire on purpose). The dwarf gets `set_a_fire` (15). Woodcutting is the labor because clearing land is a woodcutter's work, and children never light fires. A tile that stopped being burnable before the work is done clears its designation, and the firebrand is not spent.
+- The first `ignite` designation of a fortress asks for the confirmation `c_first_ignite` (24), as the first deepsilver designation does: `Designate` with kind `ignite` is refused with `ignite_unconfirmed` while the fortress's `igniteConfirmed` is false, and `ConfirmIgnite` (no payload) sets it.
 
 ### Support and collapse
 
@@ -103,7 +118,7 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 - 04 calls `terrain.setKind` for obsidian, ice and thaw.
 - 14 calls `terrain.setKind` for constructions and `terrain.setFlag(constructed)`.
-- 05 calls `terrain.setKind` when a burning tree or wooden construction burns away.
+- 05 calls `terrain.setKind` when a burning tree or wooden construction burns away, and when an ice construction melts.
 - Every such call goes through the same support and discovery updates as designation work.
 
 ## State
@@ -118,6 +133,8 @@ When a designation is applied to a tile that no longer matches its precondition 
 - `giantSkulls: TileIndex[][]`: each boneyard's skull tiles still to dig, ascending, from generation; a group leaves when its `giant_skull` drops (absent on a map without one).
 - `boneyards: TileIndex[][]`: each boneyard's cage tiles, ascending, from generation (absent on a map without one). 10 reads them for `RibsEntered`.
 - `boneyardsEntered: boolean[]`: by boneyard, whether a fortress dwarf has stood in its ribs; marked on `RibsEntered` (absent while none has).
+- `iceCut: Map<TileIndex, tick>`: each tile of frozen water cut by `harvest_ice` and the tick it was cut, saved as ascending pairs (absent while none waits).
+- The fortress record's `igniteConfirmed` (`ConfirmIgnite`; absent: false).
 - `layerStack` and `LocalMapSpec` for the legend and for regeneration in tests.
 
 The soil drop's stream `03.soil_drop` is saved in the `rng` section with every other stream; a game that has dug no such soil has none. The saved state retains the changed and discovered tile batches and the levels awaiting relighting until the normal terrain flush. Saving and loading neither dispatch these notifications nor recompute light. An older save without these pending fields starts with empty batches.
@@ -148,7 +165,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 
 ### Commands
 
-`Designate { tiles: TileIndex[], kind, priority }`, `UndoDesignation { tiles }`, `SetDesignationPriority { tiles, priority }`, `SetTraffic { tiles, mode }`, `DesignateStairwell { x, y, zTop, zBottom }` (expands to `stairs_updown` on intermediate levels, `stairs_down` at top, `stairs_up` at bottom), `ConfirmDeepsilver` (no payload; sets the fortress's `deepsilverConfirmed` when the player accepts the one-time confirmation).
+`Designate { tiles: TileIndex[], kind, priority }`, `UndoDesignation { tiles }`, `SetDesignationPriority { tiles, priority }`, `SetTraffic { tiles, mode }`, `DesignateStairwell { x, y, zTop, zBottom }` (expands to `stairs_updown` on intermediate levels, `stairs_down` at top, `stairs_up` at bottom), `ConfirmDeepsilver` (no payload; sets the fortress's `deepsilverConfirmed` when the player accepts the one-time confirmation), `ConfirmIgnite` (no payload; sets the fortress's `igniteConfirmed` when the player accepts the first fire's confirmation).
 
 ### Events consumed
 
@@ -156,7 +173,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 
 ### Events emitted
 
-`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `FossilFound { dwarfId, tile }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`.
+`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `FossilFound { dwarfId, tile }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`, `TileIgnited { tile, dwarfId }` (an `ignite` job done).
 
 ### Registrations
 
@@ -169,7 +186,7 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 
 ## Player-facing behavior
 
-- Designation menu (hotkey `d`): dig, channel, up stairs, down stairs, up/down stairs, ramp, stairwell, smooth, engrave, remove construction, chop, gather, traffic; then a box by two clicks (or two presses of `Enter`) that may span levels, every level between its two corners, or by a drag on one level; with a stair tool a box over several levels is a stair column on each of its tiles (24 § Input model). A priority key 1–9 while designating sets the priority; the current priority is shown in the menu. Designations render as overlay glyphs colored by priority. Shift+P or a click on the reprioritize row gives the current priority to the still-designated tiles of the last batch, also kept for Undo; with no batch or no remaining designation, the status row explains why nothing changed.
+- Designation menu (hotkey `d`): dig, channel, up stairs, down stairs, up/down stairs, ramp, stairwell, smooth, engrave, remove construction, chop, gather, harvest, traffic, cut ice, set a fire; then a box by two clicks (or two presses of `Enter`) that may span levels, every level between its two corners, or by a drag on one level; with a stair tool a box over several levels is a stair column on each of its tiles (24 § Input model). A priority key 1–9 while designating sets the priority; the current priority is shown in the menu. Designations render as overlay glyphs colored by priority. Shift+P or a click on the reprioritize row gives the current priority to the still-designated tiles of the last batch, also kept for Undo; with no batch or no remaining designation, the status row explains why nothing changed.
 - Undo: the last designation batch (or a selected rectangle) is cleared if no work has begun; tiles with progress are kept and the UI says how many.
 - Announcements: `VeinFound` as a note naming the finder and the material; `FossilFound` as a note naming the finder, once; `CavernBreached` as an alert; `DeepsilverMined` first occurrence as a danger-severity announcement that pauses; `ConstructionCollapsed` as an alert.
 - The look cursor shows the material, whether smoothed or engraved, the designation, and "undiscovered" where applicable.
@@ -185,6 +202,9 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 | `SMOOTH_BASE_TICKS` | 120 | Measured: 368 tiles smoothed in the first year of the economy fixture, 115 ticks normalised to skill 0 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `ENGRAVE_BASE_TICKS` | 300 | *unmeasured* |
 | `CHOP_BASE_TICKS` | 90 | Scaled by the tree's wood, `× max(100, hardness) / 100`: every wood but ironwood (200) at the base. Measured in play: 113 ticks normalised to skill 0 at a mean productivity of 88%, a tenth over what the formula gives, the pauses of needs included ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
+| `ICE_HARVEST_TICKS` | 80 | The work of cutting one ice block, skill-scaled as digging (*unmeasured*) |
+| `ICE_RECUT_DAYS` | 3 | Days before a cut tile of frozen water can be designated again (*unmeasured*) |
+| `IGNITE_TICKS` | 30 | The work of lighting a tile with a firebrand (*unmeasured*) |
 | `GATHER_BASE_TICKS` | 40 | Measured: 40 ticks normalised to skill 0 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `SKILL_TIME_BONUS_PERCENT` | 8 | Per skill level; level 20 works at 100/(100+160) ≈ 38% of base time. Measured: a granite tile takes 90, 69 and 50 ticks at skills 0, 4 and 10, a smelt 150, 114 and 84 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `CAVERN_OPEN_FRACTION` | 0.25–0.55 | By deepness; see stage 6 (*unmeasured*) |
@@ -228,19 +248,6 @@ Not yet in the game. Each block below is a rule of the Making Do content and nam
 - `lit` spread: a constructed glass wall does not stop daylight spreading (§ Outdoor and lit: "with no wall between"), so light reaches `LIGHT_SPREAD` tiles through it into the hall behind. The wall tile itself is not `lit`.
 - 05 reads `skylit` (05 § Planned), 07 reads it (07 § Planned), 22 reads glass for sight (22 § Planned).
 - Save: none; the flag is recomputed with `lit` on load as the other light flags are.
-
-### Ice harvesting (T-559)
-
-- Designation `harvest_ice` on a tile of frozen outdoor water (04's frozen record, an ice `wall` or ice `floor`). The job `harvest_ice` (labor `mining`, skill `mining`, a pick) is worked from a walkable tile beside it on its level or from the walkable tile directly above it (standing on the ice, through the producer's `extraStandTiles`). On completion it drops one `stone_block` of `ice` on the worker's tile and leaves the tile as it was: ice is cut, not dug out, and the water under it stays. The tile cannot be designated again for `ICE_RECUT_DAYS` (`iceCut: Map<TileIndex, tick>`). A tile that thaws clears its designation.
-- Work time `ICE_HARVEST_TICKS`, skill-scaled as digging.
-- Constants: `ICE_RECUT_DAYS` 3, `ICE_HARVEST_TICKS` 80. Save: `iceCut`.
-- UI: the designation menu's `harvest ice` entry (key in `ui-keymap-and-screens.md` § Planned rows).
-
-### Setting a fire (T-559)
-
-- Designation `ignite` on a tile 05 calls burnable (`materials.burnableTile`), not `wet` and not `snow`. The job `ignite` (labor `woodcutting`, no skill, xp 0, a `firebrand` fetched and consumed) walks to a tile beside it, works `IGNITE_TICKS` and emits `TileIgnited { tile, dwarfId }`; 05 queues the ignition as it queues a lightning strike's (05 § Planned). The dwarf gets `set_a_fire` (15).
-- The first `ignite` designation of a fortress asks for the confirmation `c_first_ignite` (24), as the first deepsilver designation does; `ConfirmIgnite` (no payload) sets the fortress's `igniteConfirmed`.
-- Constants: `IGNITE_TICKS` 30. Events: `TileIgnited { tile, dwarfId }`. Commands: `ConfirmIgnite`. Save: `igniteConfirmed` on the fortress record (absent: false).
 
 ### Bat roosts (T-556)
 
