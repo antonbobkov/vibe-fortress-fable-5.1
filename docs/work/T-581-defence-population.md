@@ -7,3 +7,7 @@ T-578 lets the defence year's squad drill without the forge's smith, so the kit 
 ## Done
 
 `defence_seeds` rows carry the living count and the immigration waves (with the last skip reason); the verdict prints their mean over the cadences; master before T-578 and after are compared. If the armed economy costs dwarves, the cause is found and fixed in the script, or written down as the trade-off it is.
+
+## Found
+
+Over `defence_seeds`' 64 timelines the armed economy costs no dwarves: 29.19 living a seed and 4.97 waves on master before T-578 (run 44105783275), 29.00 and 4.88 after (run 44105791134); `defence-year`'s own mean fell from 27.9 to 21.5 while `-3`'s and `-4`'s rose by 6.5 and 9.6 ([data](../../reports/data/2026-11-17-t581-defence-population.md)). Missed waves were `luck` or `spirit`, never `wealth` once armed; the spirit follows the deaths, whose bodies the fixture never buries (left to [T-NEW](T-NEW-fixture-buries-its-dead.md)). The carpenter's 87-day wait was the armed squad of five holding every carpentry labor; the script now gives carpentry to a civilian as it does mechanics.

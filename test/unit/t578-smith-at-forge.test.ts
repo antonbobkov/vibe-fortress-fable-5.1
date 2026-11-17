@@ -103,6 +103,20 @@ describe('T-578 the forge\'s worker does not drill', () => {
     expect(scriptRecord(w).accepted.get('SetLabor') ?? 0).toBe(sent);
   });
 
+  it('T-581: a dwarf outside the squad is given carpentry when only soldiers have it', () => {
+    const w = ground('t581-carpenter');
+    const { state, founders, arrived, squadId } = fort(w, 2, (f) => [f[2]!, f[0]!, f[1]!]);
+    const members = membersOf(w, squadId);
+    for (const id of [...founders, ...arrived]) w.setLabor(id, 'carpentry', members.includes(id));
+    // The newest immigrant is the brewer.
+    state.fortress.economy.brewer = arrived[1]!;
+    w.step(1);
+    keepToolLaborsOffTheSquad(w, state, members);
+    const jobs = w.readers.of<JobsReader>('11');
+    expect(jobs.workersWithLabor('carpentry').filter((id) => !members.includes(id))).toEqual([arrived[0]!]);
+    expect(members.every((id) => jobs.laborEnabled(id, 'carpentry')), 'the soldiers keep it').toBe(true);
+  });
+
   it('not in a fight: under an alert the squad goes active with the smith in it', () => {
     const w = ground('t578-smith-alert');
     const { state, founders, squadId } = fort(w, 0, (f) => [f[2]!, f[6]!, f[0]!]);
