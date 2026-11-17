@@ -27,8 +27,9 @@ import {
 const SEEDS = (process.env['T580_SEEDS'] ?? 'three-years-p4-1').split(',');
 const DAYS = Number(process.env['T580_DAYS'] ?? String(DAYS_PER_YEAR));
 const SHIFT = Number(process.env['THREE_YEARS_SHIFT'] ?? '0');
-const FROM_DAY = DAYS_PER_YEAR / 2;
+const FROM_DAY = Number(process.env['T580_FROM'] ?? String(DAYS_PER_YEAR / 2));
 const NEAR = 8;
+const DETAIL = process.env['T580_DETAIL'] === '1';
 const peril = (seed: string): number => Number(/-p(\d)-/.exec(seed)?.[1] ?? '4');
 
 describe('T-580 probe: who works outdoors once ambushes are possible', () => {
@@ -62,8 +63,17 @@ describe('T-580 probe: who works outdoors once ambushes are possible', () => {
         const q = ent.get(id, C.Position);
         if (!q || !w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor)) continue;
         const jid = ent.get(id, C.Worker)?.jobId ?? 0;
-        const what = (jid !== 0 ? jobs.typeOf(jid) : null) ?? `${ent.get(id, C.Brain)?.behavior ?? '?'}:${ent.get(id, C.Brain)?.activity ?? '?'}`;
+        let what = (jid !== 0 ? jobs.typeOf(jid) : null) ?? `${ent.get(id, C.Brain)?.behavior ?? '?'}:${ent.get(id, C.Brain)?.activity ?? '?'}`;
         const d = Math.max(Math.abs(q.x - gate.x), Math.abs(q.y - gate.y));
+        if (DETAIL && d >= NEAR) {
+          // Where the work or the need takes the dwarf: a workshop's type, or the target tile indoors or out.
+          const job = jid !== 0 ? jobs.get(jid) : undefined;
+          if (job?.target.kind === 'building') what += `@${w.readers.of<BuildingsReader>('14').get(job.target.ref)?.typeId ?? '?'}`;
+          else {
+            const t = ent.get(id, C.Brain)?.targetTile ?? -1;
+            if (t >= 0) what += w.map.hasFlag(t, TileFlag.Outdoor) ? `>out${Math.max(Math.abs(w.map.xOf(t) - gate.x), Math.abs(w.map.yOf(t) - gate.y))}` : '>in';
+          }
+        }
         const m = d < NEAR ? near : far;
         m.set(what, (m.get(what) ?? 0) + 1);
         if (d >= NEAR) farBand.set(Math.floor(d / 4) * 4, (farBand.get(Math.floor(d / 4) * 4) ?? 0) + 1);

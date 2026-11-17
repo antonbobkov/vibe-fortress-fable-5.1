@@ -596,7 +596,7 @@ function placeBelow(w: TestWorld, state: FortressState, type: string, priority: 
  * below: the surface stockpile takes no food or drink, and the surface drink stockpile and
  * meeting area are removed. The trade depot stays on the surface for the caravans.
  */
-function keepWorkBelow(w: TestWorld, state: FortressState, day: number): void {
+export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): void {
   const from = process.env['T580_OFF'] === '1' ? null : ambushFromDay(w); // TEMP
   if (from === null || day < from - WORK_HALL_LEAD_DAYS) return;
   const { economy } = state;
@@ -1137,6 +1137,17 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   if (stripTiles >= FARM_STRIP.max * FARM_STRIP.width * FARM_STRIP.rows || plans.length >= 2 * FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
   // T-455: the fortress's level, since a cave on a slope may lie more than one level below it.
   const z = state.z;
+  // T-580: where ambushes are possible, a strip goes on the open ground nearest the gate.
+  if (state.economy.workHall !== undefined) {
+    const near = nearGateStrip(w, state);
+    const plan = { tiles: near, zoneId: -1 };
+    plans.push(plan);
+    if (near.length < FARM_STRIP.width || !command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: near }).ok) { plan.tiles = []; return; }
+    plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
+    const crops = plans.length % 2 === 1 ? ['turnip', 'turnip', 'turnip'] : ['barley', 'barley', 'turnip'];
+    for (const [season, speciesId] of crops.entries()) command(w, { type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
+    return;
+  }
   // Strips run west of the first field, then in a second row south of it.
   const column = (plans.length % FARM_STRIP.columns) + 1;
   const row = Math.floor(plans.length / FARM_STRIP.columns);
@@ -1161,6 +1172,42 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
   const crops = plans.length % 2 === 1 ? ['turnip', 'turnip', 'turnip'] : ['barley', 'barley', 'turnip'];
   for (const [season, speciesId] of crops.entries()) command(w, { type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
+}
+
+/**
+ * T-580: the farm strip nearest the gate stair at the fortress's level: a `FARM_STRIP` rectangle
+ * of free, sunlit soil wholly outside the gate's clearance and the depot's ring, its centre nearest
+ * the stair (ties by tile index). Empty when the level has none.
+ */
+function nearGateStrip(w: TestWorld, state: FortressState): number[] {
+  const map = w.map, z = state.z;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const gx = state.cx + 6, gy = state.cy + 6;
+  const depot = buildings.get(state.placedIds['trade_depot'] ?? 0);
+  const ok = new Map<number, boolean>();
+  const good = (x: number, y: number): boolean => {
+    const t = w.index(x, y, z);
+    let v = ok.get(t);
+    if (v === undefined) {
+      v = Math.max(Math.abs(x - gx), Math.abs(y - gy)) > ENTRANCE_CLEARANCE + 1 && buildings.zoneAt(t) === 0 &&
+        buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t) && onWagonSide(w, t) &&
+        !(depot?.footprint.some((d) => Math.max(Math.abs(map.xOf(d) - x), Math.abs(map.yOf(d) - y)) <= DEPOT_CLEARANCE + 1) ?? false);
+      ok.set(t, v);
+    }
+    return v;
+  };
+  let best: number[] = [], bestDistance = Infinity;
+  for (let y0 = 2; y0 + FARM_STRIP.rows <= map.h - 2; y0 += 1) for (let x0 = 2; x0 + FARM_STRIP.width <= map.w - 2; x0 += 1) {
+    const distance = Math.max(Math.abs(x0 + (FARM_STRIP.width - 1) / 2 - gx), Math.abs(y0 + (FARM_STRIP.rows - 1) / 2 - gy));
+    if (distance >= bestDistance) continue;
+    const tiles: number[] = [];
+    for (let y = y0; y < y0 + FARM_STRIP.rows && tiles.length >= (y - y0) * FARM_STRIP.width; y += 1) for (let x = x0; x < x0 + FARM_STRIP.width; x += 1) {
+      if (!good(x, y)) break;
+      tiles.push(w.index(x, y, z));
+    }
+    if (tiles.length === FARM_STRIP.width * FARM_STRIP.rows) { best = tiles; bestDistance = distance; }
+  }
+  return best;
 }
 
 /** Seed of each crop species the fortress owns, plus its crops in the ground (each harvest returns its seed). */
