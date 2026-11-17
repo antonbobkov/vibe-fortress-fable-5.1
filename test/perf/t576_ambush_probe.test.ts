@@ -9,6 +9,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { C } from '@core/components';
+import { TileFlag } from '@core/map3d';
 import { TICKS_PER_DAY } from '@core/constants';
 import { loadGame } from '@app/game-save';
 import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
@@ -86,10 +87,10 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
                 const mp = ent.get(m, C.Position);
                 if (mp && Math.abs(q.z - mp.z) <= 1) near = Math.min(near, Math.max(Math.abs(q.x - mp.x), Math.abs(q.y - mp.y)));
               }
-              if (q.z >= gate.z) {
+              if (w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor)) {
                 const jid = ent.get(did, C.Worker)?.jobId ?? 0;
                 const jt = jid !== 0 ? w.readers.of<JobsReader>('11').typeOf(jid) : null;
-                outside.push(`${Math.max(Math.abs(q.x - gate.x), Math.abs(q.y - gate.y))}:${jt ?? ent.get(did, C.Brain)?.activity ?? '?'}`);
+                outside.push(`${Math.max(Math.abs(q.x - gate.x), Math.abs(q.y - gate.y))}:${jt ?? ent.get(did, C.Brain)?.activity ?? '?'}:${ent.get(did, C.Brain)?.behavior ?? '?'}`);
               }
               atSpring.set(did, `${Math.max(Math.abs(q.x - gate.x), Math.abs(q.y - gate.y))}${q.z === gate.z ? '' : `z${q.z - gate.z}`}a${near === Infinity ? '-' : near}`);
             }

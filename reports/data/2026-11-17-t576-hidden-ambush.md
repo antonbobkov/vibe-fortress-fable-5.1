@@ -26,6 +26,22 @@ Answered on the spring, 49 of the 56 bled out and 7 were killed outright. Most o
 
 What remains is the ambush itself: dwarves caught far out by faster Gloam. Lighting the gate (T-563's candles add `CANDLE_SPOT_BONUS` 2 to a spotter on a lit tile) would reach only the dwarves near the gate, and the victims were far from it; war dogs, which spot at 10, follow one dwarf each and need a kennel and a trainer the script does not have. Neither was tried.
 
-## The sweep
+## Where the dwarves were
 
-(Figures below.)
+At the spring the probe noted every dwarf on an outdoor tile and what it was doing: most were crafting at the surface workshops (0 to 25 tiles from the gate), eating or drinking outdoors, or hauling. That is the exposure an honest answer has to remove, and it is a change to how the fortress works, filed as [T-NEW](../../docs/work/T-NEW-ambush-surface-work.md).
+
+## The sweeps
+
+Rows exactly as the verdict jobs print them (shift, alive at year 1, peril-0 grown, peril-0 with need deaths, living at year 3, dwarf deaths, extinct, need deaths).
+
+| Code | Run | Living | Deaths | Extinct | Need deaths | Verdict |
+|---|---|---|---|---|---|---|
+| Master `df4d8df2` (before) | 44055026603 | 1038.5 | 104.75 | 0.75 | 1 | pass |
+| The bandage and the lifeline alone, the script answering on arrival (`t576-medical-only`) | 44082430807 | 1062 | 98.25 | 0.25 | 0.25 | pass |
+| The script answering on the spring alone, on `cfcda8af` (`9dc911cc`) | 44049557903 | 956.5 | 150.75 | 0.75 | 0.25 | blocked |
+| This change (`8172471c`) | 44055904735 | 922.5 | 165 | 1.5 | 0.5 | blocked |
+| This change, shifts 200 to 350 | 44084201333 | 973.25 | 139.25 | 0.5 | 0 | not judged |
+
+Over the eight shifts this change pools to 947.88 living and 152.13 deaths. The journal's census over shifts 0 to 150: 108 ambushes sprang on master and killed 174 dwarves; 250 sprang and killed 439 with this change (411 with the script's change alone, on the older base). The medical rules are worth some six deaths a sweep on their own and do not hold back what the honest answer costs; answering on the spring costs some 45 to 60 deaths a sweep, about twice T-575's estimate, at both perils (peril 2: 76 to 162 in the census; peril 4: 98 to 277).
+
+The instrument (run 44055916930) passes, pooled | 12.94 | 9.63 | 11 | 153.38 | 9.5 | 0 | 0 | 0 |; `defence_seeds` (run 44055928554) passes, 6.00 raids turned back of 8 and a soldier killed in 6.88; `ci.yml` (run 44055940912) is green, 4,077 tests and e2e 45 passed.
