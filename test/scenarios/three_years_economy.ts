@@ -255,7 +255,7 @@ function fortressDwarves(w: TestWorld): number[] {
  * Keep a dwarf on the given labors only, as a player does in the labor manager. Hauling stays on
  * for everybody but the miners, and the broker keeps trading whatever else it does.
  */
-function dedicate(w: TestWorld, state: FortressState, dwarfId: number, keep: readonly string[], haul = true): void {
+export function dedicate(w: TestWorld, state: FortressState, dwarfId: number, keep: readonly string[], haul = true): void {
   // The labor manager lists the living only.
   if (!w.game.world.entities.alive(dwarfId)) return;
   const jobs = w.readers.of<JobsReader>('11');
@@ -563,7 +563,7 @@ function planWorkHall(w: TestWorld, state: FortressState): { stair: number; tile
 }
 
 /** T-580: whether the hall has a free, dug site for `type`. */
-function hasFreeSite(w: TestWorld, state: FortressState, type: string): boolean {
+export function hasFreeSite(w: TestWorld, state: FortressState, type: string): boolean {
   return (state.economy.workHall?.slots ?? []).some((origin) => siteFree(w, type, origin));
 }
 

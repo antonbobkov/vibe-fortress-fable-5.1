@@ -28,7 +28,7 @@ import type { AnimalsReader } from '@systems/animals';
 import type { DwarvesReader } from '@systems/dwarves';
 import { TestWorld } from './test-world';
 import { command } from './script-commands';
-import { ambushFromDay, armingSquad, assignBroker, BUILD, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
+import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, hasFreeSite, specialistCandidates, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 
 export const Z = FLAT_TEST_SURFACE_Z;
@@ -1798,6 +1798,54 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
   const founders = w.game.arrival?.dwarves ?? [];
   const busy = new Set<number>([...squadMembers, ...(state.stoodDown ?? []), ...founders, ...Object.values(state.economy.specialists),
     state.economy.brewer ?? 0, state.economy.broker?.id ?? 0]);
+  // War dogs: a kennel in the workshop hall with a chain from the forge, every dog trained for war,
+  // and each war dog posted with the watch that has fewest.
+  const animals = w.readers.of<AnimalsReader>('08');
+  const dogSpecies = w.game.registry.table('creatures').index('dog');
+  const ent = w.game.world.entities;
+  const dogs = animals.tameList().filter((id) => ent.get(id, C.Creature)?.species === dogSpecies);
+  const { phases } = state.economy;
+  if (dogs.length > 0 && state.placedIds['kennel'] === undefined && hasFreeSite(w, state, 'kennel')) placeEconomyBuilding(w, state, 'kennel', -12, 14);
+  const forge = state.placedIds['forge'];
+  if (state.placedIds['kennel'] !== undefined && !phases.has('kennel chain') && forge !== undefined && buildings.get(forge)?.state === 'built') {
+    phases.add('kennel chain');
+    // One bar, ahead of the squad's kit: the dogs watch for everybody.
+    if (owned(w, 'chain') + owned(w, 'rope') === 0 && command(w, { type: 'AddWorkOrder', workshopId: forge, order: { recipeId: 'forge_chain', mode: 'once', remaining: 1, priority: KIT_FIRST } }).ok) {
+      const at = (ent.get(forge, C.Workshop)?.orders.length ?? 1) - 1;
+      if (at > 0) command(w, { type: 'ReorderWorkOrder', workshopId: forge, index: at, to: 0 });
+    }
+  }
+  if (buildings.get(state.placedIds['kennel'] ?? 0)?.state === 'built') {
+    // A trainer does nothing else until each post has its dog, then goes back to the general labors.
+    const untrained = dogs.filter((id) => ent.get(id, C.Tame)?.trained === 'none').length;
+    const done = watch.length === 2 && watch.every((wt) => dogs.some((id) => animals.assignedTo(id) === wt.squadId));
+    const trainer = state.economy.specialists['trainer'];
+    if (!done && untrained > 0 && (trainer === undefined || !adults.includes(trainer))) {
+      const pick = specialistCandidates(w, state)[0];
+      if (pick !== undefined) {
+        state.economy.specialists['trainer'] = pick;
+        dedicate(w, state, pick, ['animal_training'], false);
+      }
+    } else if (done && trainer !== undefined) {
+      delete state.economy.specialists['trainer'];
+      const general = w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
+        .filter((r) => r.defaultOn && !['mining', 'woodcutting'].includes(r.id)).map((r) => r.id);
+      dedicate(w, state, trainer, general);
+    }
+    for (const id of dogs) {
+      const t = ent.get(id, C.Tame);
+      if (t?.trained === 'none' && !phases.has(`train:${id}`)) {
+        phases.add(`train:${id}`);
+        command(w, { type: 'TrainAnimal', animalId: id, kind: 'war' }, ['not_trainable']);
+      }
+    }
+  }
+  const posted = (squadId: number): number => dogs.filter((id) => animals.assignedTo(id) === squadId).length;
+  for (const id of dogs) {
+    if (ent.get(id, C.Tame)?.trained !== 'war' || animals.assignedTo(id) !== 0 || watch.length === 0) continue;
+    const to = [...watch].sort((a, b) => posted(a.squadId) - posted(b.squadId))[0]!;
+    command(w, { type: 'AssignAnimal', animalId: id, squadId: to.squadId });
+  }
   // The north door and the south one; each post is the tile outside its door.
   const doors: [number, number][] = [[state.gateDoorId2, -1], [state.gateDoorId, 1]];
   for (const [i, [doorId, dy]] of doors.entries()) {
@@ -1816,6 +1864,12 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
       post = watch[i] = { squadId, dwarfId: 0 };
     }
     const members = combat.squads().find((sq) => sq.id === post!.squadId)?.members ?? [];
+    // A war dog holds the post once one is trained: it stays there, and a squad's dwarf would lead it away.
+    if (dogs.some((id) => animals.assignedTo(id) === post!.squadId)) {
+      post.dwarfId = 0;
+      if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
+      continue;
+    }
     if (!calm) {
       if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
       continue;

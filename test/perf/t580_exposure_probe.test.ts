@@ -14,6 +14,7 @@ import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader } from '@systems/buildings';
 import { TICKS_PER_DAY, DAYS_PER_YEAR } from '@core/constants';
 import type { JobsReader } from '@systems/jobs';
+import type { CombatReader } from '@systems/combat/reader';
 import {
   checkFortressCaveFarm,
   checkFortressDefense,
@@ -47,6 +48,7 @@ describe('T-580 probe: who works outdoors once ambushes are possible', () => {
     const census: string[] = [];
     const drank = { water: 0, alcohol: 0 };
     const springs: string[] = [];
+    let watchAt = 0;
     w.game.world.onEvents((events) => {
       if (w.tick < FROM_DAY * TICKS_PER_DAY) return;
       for (const e of events) {
@@ -79,6 +81,11 @@ describe('T-580 probe: who works outdoors once ambushes are possible', () => {
       }
       if (w.tick < FROM_DAY * TICKS_PER_DAY) return;
       samples += 1;
+      for (const wt of state.watch ?? []) {
+        const st = w.readers.of<CombatReader>('16').squad(wt.squadId)?.station ?? -1;
+        const q = ent.get(wt.dwarfId, C.Position);
+        if (st >= 0 && q && q.z === w.map.zOf(st) && Math.max(Math.abs(q.x - w.map.xOf(st)), Math.abs(q.y - w.map.yOf(st))) <= 1) watchAt += 1;
+      }
       for (const id of ent.with(C.Labors)) {
         if (!ent.alive(id) || ent.get(id, C.Creature)?.faction !== 'fortress') continue;
         const q = ent.get(id, C.Position);
@@ -122,7 +129,7 @@ describe('T-580 probe: who works outdoors once ambushes are possible', () => {
     });
     const hall = state.economy.workHall?.tiles ?? [];
     const out = [
-      `[t580] ${seed} shift ${SHIFT} day ${DAYS} living ${living} ambushes ${census.length} ambush deaths ${deaths} drank water ${drank.water} alcohol ${drank.alcohol}`,
+      `[t580] ${seed} shift ${SHIFT} day ${DAYS} living ${living} ambushes ${census.length} ambush deaths ${deaths} drank water ${drank.water} alcohol ${drank.alcohol} watch at post ${(watchAt / Math.max(1, samples)).toFixed(2)} war dogs ${ent.with(C.Tame).filter((id) => ent.get(id, C.Tame)?.trained === 'war').length} kennel ${w.readers.of<BuildingsReader>('14').get(state.placedIds['kennel'] ?? 0)?.state ?? '-'}`,
       `  hall dug ${hall.filter((t) => w.map.kindAt(t) === TileKind.Floor).length}/${hall.length}, moved on days ${JSON.stringify(moves)}; shops ${shops.join(' ')}`,
       `  outdoors per sample: near ${sum(near).toFixed(2)} far ${sum(far).toFixed(2)}`,
       `  far by band: ${[...farBand].sort((a, b) => a[0] - b[0]).map(([k, v]) => `${k}+ ${(v / Math.max(1, samples)).toFixed(2)}`).join(', ')}`,
