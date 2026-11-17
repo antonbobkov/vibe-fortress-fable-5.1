@@ -25,6 +25,8 @@ export const FALL_DAMAGE_PER_LEVEL_SQ = 6;
 export const STARVE_PERCENT = 8;
 export const PRODUCTIVITY_FLOOR = 30;
 export const TREAT_TICKS = 200;
+/** T-576: the work of `stop_bleeding`, first aid: a bandage is put on in an hour, not in the four of a suture. */
+export const BANDAGE_TICKS = 50;
 export const TREAT_FAIL_PERMILLE = 200;
 export const DIAGNOSE_XP = 20;
 export const PAIN_DISCHARGE = 30;

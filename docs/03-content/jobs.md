@@ -80,7 +80,7 @@ For up or up/down stairs, the terrain producer's `extraStandTiles` also permits 
 | `carry_patient` | Carry patient | hauling | — | entity (dwarf) | bed tile | 10 | — | 0 | yes |
 | `feed_patient` | Feed patient | hauling | — | entity | entity | 40 | — | 0 | no |
 | `water_patient` | Water patient | hauling | — | entity | entity | 30 | — | 0 | no |
-| `stop_bleeding` | Bandage | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 10 | no |
+| `stop_bleeding` | Bandage | medicine | medicine | entity | entity | `BANDAGE_TICKS` | — | 10 | no |
 | `set_bone` | Set bone | medicine | medicine | entity | entity | `TREAT_TICKS × 1.5` | — | 12 | no |
 | `suture` | Suture | medicine | medicine | entity | entity | `TREAT_TICKS` | — | 10 | no |
 | `clean_wound` | Clean wound | medicine | medicine | entity | entity | `TREAT_TICKS` | bucket (filled) | 10 | no |

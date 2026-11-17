@@ -556,7 +556,7 @@
     "skill": "medicine",
     "target": "entity",
     "workTile": "entity",
-    "baseTicks": "TREAT_TICKS",
+    "baseTicks": "BANDAGE_TICKS",
     "tool": null,
     "xp": 10,
     "producer": "health",

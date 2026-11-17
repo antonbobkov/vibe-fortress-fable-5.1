@@ -23,11 +23,14 @@ import {
 } from '../scenarios/three_years_fortress';
 import { setReviver } from './t574_save';
 import type { BuildingsReader } from '@systems/buildings';
+import type { HealthReader } from '@systems/health';
+import type { JobsReader } from '@systems/jobs';
 
 const REPLAY_DAYS = Number(process.env['REPLAY_DAYS'] ?? '4');
 const DIR = process.env['T575_SAVES'] ?? '.vite/t576/saves';
 const OUT = process.env['T576_OUT'] ?? `${DIR}/../replay.txt`;
 const ONLY = process.env['T576_ONLY'];
+const TRACE = process.env['T576_TRACE'] === '1';
 const peril = (seed: string): number => Number(/-p(\d)-/.exec(seed)?.[1] ?? '4');
 
 describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
@@ -55,6 +58,7 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
       let spotDist = -1;
       let alertAt = -1;
       let inside = -1;
+      const atSpring = new Map<number, string>();
       const deaths: string[] = [];
       let read = w.allEvents().length;
       const watch = (): void => {
@@ -72,6 +76,16 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
               for (const q of dwarves) if (Math.abs(q.z - mp.z) <= 1) best = Math.min(best, Math.max(Math.abs(q.x - mp.x), Math.abs(q.y - mp.y)));
             }
             spotDist = best;
+            for (const did of ent.with(C.Labors)) {
+              const q = ent.get(did, C.Position);
+              if (!ent.alive(did) || !q) continue;
+              let near = Infinity;
+              for (const m of p?.members ?? []) {
+                const mp = ent.get(m, C.Position);
+                if (mp && Math.abs(q.z - mp.z) <= 1) near = Math.min(near, Math.max(Math.abs(q.x - mp.x), Math.abs(q.y - mp.y)));
+              }
+              atSpring.set(did, `${Math.max(Math.abs(q.x - gate.x), Math.abs(q.y - gate.y))}${q.z === gate.z ? '' : `z${q.z - gate.z}`}a${near === Infinity ? '-' : near}`);
+            }
           } else if (e.type === 'AlertChanged' && e['to'] === 'hearth' && alertAt < 0 && sprung >= 0) {
             alertAt = w.tick;
           } else if (e.type === 'CreatureDied' && e['faction'] === 'fortress' && e['species'] === w.game.registry.table('creatures').index('dwarf')) {
@@ -84,10 +98,27 @@ describe('T-576 probe: sprung ambushes, where the dwarves die', () => {
             const killer = kp ? `${String(e['cause'])}:k${Math.max(Math.abs(kp.x - gate.x), Math.abs(kp.y - gate.y))}z${kp.z - gate.z}` : `${String(e['cause'])}:k?`;
             const b = w.readers.of<BuildingsReader>('14');
             const locks = [state.gateDoorId, state.gateDoorId2, ...(state.innerDoorIds ?? [])].map((id) => (b.get(id) === undefined ? '-' : b.mechanismState(id) === 'locked' ? 'L' : 'o')).join('');
-            deaths.push(`${sprung < 0 ? '?' : w.tick - sprung}t/${Math.max(Math.abs(x - gate.x), Math.abs(y - gate.y))}${z === gate.z ? '' : `z${z - gate.z}`}${squad}/${killer}/${locks}`);
+            deaths.push(`[${atSpring.get(Number(e['id'])) ?? '?'}]${sprung < 0 ? '?' : w.tick - sprung}t/${Math.max(Math.abs(x - gate.x), Math.abs(y - gate.y))}${z === gate.z ? '' : `z${z - gate.z}`}${squad}/${killer}/${locks}`);
           }
         }
         read = ev.length;
+        if (TRACE && sprung >= 0) {
+          const health = w.readers.of<HealthReader>('17');
+          const jobs = w.readers.of<JobsReader>('11');
+          const where = (e: number): string => {
+            const it = ent.get(e, C.Item);
+            const holder = it?.carriedBy ? it.carriedBy : it?.containerId ? it.containerId : e;
+            const q = ent.get(holder, C.Position);
+            return q ? `${q.x - gate.x},${q.y - gate.y},${q.z - gate.z}${it?.carriedBy ? 'c' : ''}` : '?';
+          };
+          for (const id of ent.with(C.Labors)) {
+            if (!ent.alive(id) || !health.isWounded(id) || health.bloodPercent(id) >= 99) continue;
+            const q = ent.get(id, C.Position);
+            const js = jobs.list().filter((j) => j.target.ref === id && jobs.typeOf(j.id) !== null).map((j) => `${jobs.typeOf(j.id)}:${j.state}${j.blockedReason ? `(${j.blockedReason})` : ''}${j.workerId ? `w${j.workerId}@${where(j.workerId)}:${ent.get(j.workerId, C.Brain)?.behavior ?? ''}:${ent.get(j.workerId, C.Brain)?.activity ?? ''}:r${Math.round(ent.get(j.workerId, C.Needs)?.rest ?? -1)}h${Math.round(ent.get(j.workerId, C.Needs)?.hunger ?? -1)}t${Math.round(ent.get(j.workerId, C.Needs)?.thirst ?? -1)}>${(() => { const t = ent.get(j.workerId, C.Brain)?.targetTile ?? -1; return t < 0 ? '' : `${w.map.xOf(t) - gate.x},${w.map.yOf(t) - gate.y},${w.map.zOf(t) - gate.z}`; })()}` : ''}${j.state === 'fetching' ? `<${j.inputs.flatMap((i) => i.reserved).map((it) => where(it)).join(';')}` : ''}`);
+            const own = jobs.forWorker(id);
+            console.warn(`[trace] +${w.tick - sprung} d${id} blood ${health.bloodPercent(id)} ${health.isConscious(id) ? 'c' : 'U'} at ${q ? `${q.x - gate.x},${q.y - gate.y},${q.z - gate.z}` : '?'} ${health.summaryText(id)} jobs [${js.join(' ')}] own ${own ? jobs.typeOf(own.id) : '-'} alert ${w.game.world.fortress.alert}`);
+          }
+        }
         if (sprung >= 0 && inside < 0) {
           for (const pId of ent.with(C.Party)) {
             const p = ent.get(pId, C.Party);

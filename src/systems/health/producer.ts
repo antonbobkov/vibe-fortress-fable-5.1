@@ -21,6 +21,7 @@ import {
   INFECTION_CURE_DAYS,
   TREAT_FAIL_PERMILLE,
   TREAT_TICKS,
+  BANDAGE_TICKS,
 } from './constants';
 import { updatePatient } from './tick';
 import { awaitsBandage, needsCleaning, woundTreatmentNeeds } from './wounds';
@@ -74,6 +75,7 @@ export class HealthProducer implements JobProducer {
         return typeof ticks === 'number' ? ticks * 100 : undefined;
       }
       case 'stop_bleeding':
+        return BANDAGE_TICKS * 100;
       case 'suture':
       case 'clean_wound':
       case 'dress_burn':

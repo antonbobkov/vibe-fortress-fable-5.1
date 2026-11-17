@@ -1374,11 +1374,14 @@ export class JobBoard implements JobsApi, JobSink {
       }
       delete job.data['awayBack'];
       const since = job.data['awaySince'];
-      if (typeof since !== 'number') {
+      // T-576: a patient's priority-1 job (its bandage, its carry) is not held for an absent worker:
+      // it goes back to the board on the first think it is seen away, for another medic to take.
+      const lifeline = job.priority <= PATIENT_SUMMON_PRIORITY && this.isPatientCare(job);
+      if (typeof since !== 'number' && !lifeline) {
         job.data['awaySince'] = this.now;
         continue;
       }
-      if (this.now - since < JOB_HOLD_TICKS) continue;
+      if (!lifeline && this.now - (since as number) < JOB_HOLD_TICKS) continue;
       delete job.data['awaySince'];
       delete job.data['awayBack'];
       if (this.workerOf(job.workerId).jobId === job.id) this.interrupt(job.workerId, true);
