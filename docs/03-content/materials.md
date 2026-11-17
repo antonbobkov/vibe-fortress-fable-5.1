@@ -109,8 +109,9 @@ Made at the kiln from clay, sand, logs and bones ([workshops-and-recipes.md](wor
 |---|---|---|---|---|---|---|---|---|---|
 | `dung` | dung | plant | 0 | 60 | | `dung_brown` | 300 | 200 | `fertilizer`; dries to a half fuel |
 | `compost` | compost | soil | 0 | 80 | | `loam_brown` | | | `fertilizer`; rotten food or dung turned on a compost heap |
+| `guano` | guano | soil | 1 | 70 | | `dung_brown` | | | `fertilizer`; dropped by bat roosts |
 
-Dung is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung) and burns as peat does; three of it dry on a rack into a dung cake, a smoky half fuel ([items.md](items.md) § Wood and bars).
+Guano is dropped by the bat roosts of caverns one and two ([08](../02-systems/08-animals-and-domestication.md) § Bat roosts). Dung is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung) and burns as peat does; three of it dry on a rack into a dung cake, a smoky half fuel ([items.md](items.md) § Wood and bars).
 
 ## Hive products
 
@@ -134,6 +135,7 @@ A hive's comb is pressed at the farmer's workshop into a honey and a beeswax ([0
 | `sporecloth_thread` | sporecloth thread | cloth | 4 | 25 | `spore_violet` | | |
 | `sporecloth_cloth` | sporecloth | cloth | 12 | 25 | `spore_violet` | | |
 | `silk_web` | web silk | cloth | 8 | 20 | `silk_white` | | collected from cave spider webs (`gather` on a web tile) |
+| `silk_cloth` | silk | cloth | 20 | 20 | `silk_white` | | the finest cloth: a silk gambeson weighs 1 |
 | `reed_thread` | reed thread | cloth | 2 | 30 | `reed_green` | | 2 reeds a thread |
 | `reed_cloth` | reed cloth | cloth | 6 | 35 | `reed_green` | | |
 | `cactus_fiber` | cactus fiber | cloth | 1 | 30 | `cactus_green` | | from barrel cacti |
@@ -146,7 +148,7 @@ A hive's comb is pressed at the farmer's workshop into a honey and a beeswax ([0
 
 Cloth burns (300 ticks, unless its row gives `burnTicks`) and melts at 300 °C.
 
-Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `reed` → `reed_thread` → `reed_cloth` (`reed` is the material of `plants.md`'s reed bed's product, generated from its row); `cactus_fiber` → `cactus_thread` → `cactus_cloth`; `nettle_fiber` → `nettle_thread` → `nettle_cloth`; `silk_web` has no further stage. The coarse fibers (reed, cactus and nettle) are spun at the loom by their own recipe, `spin_coarse_thread`, two to a thread.
+Stages: `flax_fiber` → `flax_thread` → `flax_cloth`; `sporecloth_fiber` → `sporecloth_thread` → `sporecloth_cloth`; `wool` → `wool_thread` → `wool_cloth`; `reed` → `reed_thread` → `reed_cloth` (`reed` is the material of `plants.md`'s reed bed's product, generated from its row); `cactus_fiber` → `cactus_thread` → `cactus_cloth`; `nettle_fiber` → `nettle_thread` → `nettle_cloth`; `silk_web` → `silk_cloth` (web silk is gathered as thread, so two of it weave a silk at the loom's `weave_cloth`). The coarse fibers (reed, cactus and nettle) are spun at the loom by their own recipe, `spin_coarse_thread`, two to a thread.
 
 ## Gems (rough and cut share the material; the item type differs)
 
@@ -207,21 +209,3 @@ For fish: `trout_meat`, `perch_meat`, `blindfish_meat` are created from the thre
 ## Material colors summary
 
 Every `color` value above must exist in [glyphs-and-colors.md](glyphs-and-colors.md).
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules that use them are in the § Planned sections of the system documents. Every number is *unmeasured*.
-
-### Planned materials
-
-| id | name | class | value | density | hardness | color | meltsAtC | burnTicks | notes | task |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `guano` | guano | soil | 1 | 70 | — | `dung_brown` | — | — | `fertilizer` | T-556 |
-
-### Planned cloth and fiber
-
-| id | name | class | value | density | color | notes | task |
-|---|---|---|---|---|---|---|---|
-| `silk_cloth` | silk | cloth | 20 | 20 | `silk_white` | the finest cloth: a silk gambeson weighs 1 | T-556 |
-
-Stages (T-556): `silk_web` → `silk_cloth`.

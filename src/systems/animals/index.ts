@@ -24,7 +24,7 @@ import type { JobsReader } from '@systems/jobs';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { PlantsReader } from '@systems/plants';
 import { arrivalTame, type LocalMapSpec } from '@systems/embark';
-import type { TerrainReader } from '@systems/terrain';
+import { roostCeilingOver, type TerrainReader } from '@systems/terrain';
 import {
   ADOPT_PERMILLE,
   ANIMALS_CADENCE,
@@ -48,6 +48,9 @@ import {
   TERRITORY_AVOID_RADIUS,
   DUNG_DAYS,
   DUNG_ITEM,
+  GUANO_ITEM,
+  ROOST_DAYS,
+  ROOST_NOTICE_RADIUS,
   HERDS_STREAM,
   SPIT_PERMILLE,
   SPITTING_SPECIES,
@@ -87,6 +90,8 @@ interface BiomeRow {
 
 export interface AnimalsOptions {
   readonly spec: Pick<LocalMapSpec, 'biome' | 'traits'>;
+  /** `08` § Bat roosts: the drop tiles 03 placed at generation (`LocalMapResult.roosts`). */
+  readonly roosts?: readonly TileIndex[];
 }
 
 export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
@@ -155,6 +160,10 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   readonly starvingSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
   private readonly lastTameThink = new Map<EntityId, number>();
+  /** `08` § Bat roosts: each roost's drop tile, in generation order (its index is its place here). */
+  readonly roosts: TileIndex[] = [];
+  /** `08` § Bat roosts: `RoostFound` has gone out. */
+  private roostFound = false;
   dailyDue = false;
   hourlyDue = false;
   seasonDue = false;
@@ -165,6 +174,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   constructor(options: AnimalsOptions = { spec: { biome: '', traits: [] } }) {
     super();
     this.options = options;
+    this.roosts.push(...(options.roosts ?? []));
   }
 
   get facts(): AnimalFacts {
@@ -250,6 +260,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     ctx.register.announcement('AnimalStarving', { severity: 'alert', stringKey: 'announce.animal_starving' });
     ctx.register.announcement('PetAdopted', { severity: 'note', stringKey: 'announce.pet_adopted' });
     ctx.register.announcement('SpatOn', { severity: 'note', stringKey: 'announce.spat_on', oneOf: { field: 'first', values: [true] } });
+    ctx.register.announcement('RoostFound', { severity: 'note', stringKey: 'announce.roost_found' });
     // `08` § Player-facing behavior: "A pack of wolves has arrived from the north" (note) (T-M7-10).
     // A dangerous surface species is an alert (08 § Player-facing behavior); the first row that matches wins.
     const dangerous: string[] = [];
@@ -715,6 +726,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
 
   /** `08` § Pastures and feeding: the hourly condition rise, the starving note and the death. */
   private hourly(ctx: TickContext): void {
+    this.noticeRoost(ctx);
     const entities = ctx.world.entities;
     const coldSnap = ctx.readers.has('06') && ctx.readers.of<{ state(): string }>('06').state() === 'cold_snap';
     const rise = conditionRise(coldSnap);
@@ -865,6 +877,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.breeding(ctx);
     this.products(ctx);
     this.dung(ctx);
+    this.guano(ctx);
     this.hives.daily(ctx);
     this.recount();
   }
@@ -887,6 +900,48 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       const at = this.tileOf(id);
       if (at < 0) continue;
       ctx.spawn.item(items.index(DUNG_ITEM), materials.index(DUNG_ITEM), at, 1, 1);
+    }
+  }
+
+  /**
+   * `08` § Bat roosts: on the day whose number plus a roost's index is a multiple of `ROOST_DAYS`, a
+   * roost whose drop tile is discovered and still under its ceiling drops one `guano` there (no
+   * draw). Content with no `guano` drops none.
+   */
+  private guano(ctx: TickContext): void {
+    if (this.roosts.length === 0) return;
+    const items = ctx.registry.table<{ id: string }>('items');
+    const materials = ctx.registry.table<{ id: string }>('materials');
+    if (!items.has(GUANO_ITEM) || !materials.has(GUANO_ITEM)) return;
+    const day = Math.floor(ctx.tick / TICKS_PER_DAY);
+    for (let k = 0; k < this.roosts.length; k += 1) {
+      if ((day + k) % ROOST_DAYS !== 0) continue;
+      const tile = this.roosts[k] as TileIndex;
+      // An undiscovered roost drops nothing: guano does not pile up unseen in a sealed cavern.
+      if (!this.map.hasFlag(tile, TileFlag.Discovered) || !roostCeilingOver(this.map, tile)) continue;
+      ctx.spawn.item(items.index(GUANO_ITEM), materials.index(GUANO_ITEM), tile, 1, 1);
+    }
+  }
+
+  /**
+   * `08` § Bat roosts: the first time a fortress dwarf stands within `ROOST_NOTICE_RADIUS` of a
+   * discovered roost's drop tile (checked each hour), `RoostFound` names the dwarf, once.
+   */
+  private noticeRoost(ctx: TickContext): void {
+    if (this.roostFound || this.roosts.length === 0 || !this.readers.has('10')) return;
+    const map = this.map;
+    const found = this.roosts.filter((t) => map.validIndex(t) && map.hasFlag(t, TileFlag.Discovered));
+    if (found.length === 0) return;
+    const dwarves = this.readers.of<DwarvesReader>('10').list().slice().sort((a, b) => a - b);
+    for (const id of dwarves) {
+      const at = this.tileOf(id);
+      if (at < 0) continue;
+      for (const tile of found) {
+        if (Math.max(Math.abs(map.xOf(at) - map.xOf(tile)), Math.abs(map.yOf(at) - map.yOf(tile)), Math.abs(map.zOf(at) - map.zOf(tile))) > ROOST_NOTICE_RADIUS) continue;
+        this.roostFound = true;
+        ctx.emit({ type: 'RoostFound', tile, dwarfId: id });
+        return;
+      }
     }
   }
 
@@ -1561,6 +1616,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       ...(this.initializedCaverns.size > 0 ? { initializedCaverns: Array.from(this.initializedCaverns).sort((a, b) => a - b) } : {}),
       ...(this.lastDangerousTick < 0 ? {} : { lastDangerousTick: this.lastDangerousTick }),
       ...(this.spatOnDay < 0 ? {} : { spatOnDay: this.spatOnDay }),
+      ...(this.roosts.length === 0 ? {} : { roosts: this.roosts.slice() }),
+      ...(this.roostFound ? { roostFound: true } : {}),
       breedingCaps: sortedPairs(this.breedingCaps),
       speciesCounts: sortedPairs(this.speciesCounts).map(([s, c]): [number, SpeciesCount] => [s, { ...c }]),
       nestBoxes: this.nestBoxes.slice(),
@@ -1605,6 +1662,9 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     for (const tier of state.initializedCaverns ?? []) this.initializedCaverns.add(tier);
     this.lastDangerousTick = state.lastDangerousTick ?? -1;
     this.spatOnDay = state.spatOnDay ?? -1;
+    this.roosts.length = 0;
+    this.roosts.push(...(state.roosts ?? []));
+    this.roostFound = state.roostFound === true;
     this.breedingCaps.clear();
     for (const [s, cap] of state.breedingCaps) this.breedingCaps.set(s, cap);
     this.speciesCounts.clear();

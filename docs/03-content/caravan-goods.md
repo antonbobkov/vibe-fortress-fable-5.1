@@ -147,6 +147,7 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | `food/meat/cured`, `food/fish/cured` | | 120 | |
 | material `reed` | | | 100 |
 | material `salt` | | 150 | |
+| material `silk_cloth` | 150 | | 140 |
 | material class `bone` | | | 60 |
 | material `star_steel` | 200 | 200 | 200 |
 | `food/honey`, `food/wax` | | | 100 |
@@ -176,14 +177,3 @@ Never in any list or request: star steel, aged and vintage goods, silk cloth, gi
 ## Immigration bonus
 
 Mountainhome reputation adds `reputation / 25` immigrants per wave (21) and `reputation × 2` permille to the wave chance.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its civilization's table above (a sundries row into its Sundries table; without `civ` and `task`), adds its line to [row-order.md](row-order.md) when the table numbers its entries, and runs `npm run content:export`. The rules are in [20](../02-systems/20-trade-and-caravans.md) § Planned. Every number is *unmeasured*.
-
-### Planned preferences
-
-| Category or material class | Mountainhome | Hillfolk | Wildwood | task |
-|---|---|---|---|---|
-| material `silk_cloth` | 150 | | 140 | T-556 |
-

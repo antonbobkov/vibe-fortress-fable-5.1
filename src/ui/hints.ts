@@ -52,6 +52,8 @@ export interface HintFacts {
   hiveShort?: boolean;
   /** 14 § Constructions, Glass: the first glass floor was built over open space (a skylight). */
   skylightBuilt?: boolean;
+  /** 08 § Cages: the first caged spider was placed in a cage building. */
+  spiderRanch?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -97,6 +99,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_rack': return f.rackBuilt === true;
     case 'hint_hive': return f.hiveShort === true;
     case 'hint_skylight': return f.skylightBuilt === true;
+    case 'hint_spider_ranch': return f.spiderRanch === true;
     default: return false;
   }
 }
@@ -180,6 +183,8 @@ export class HintEngine {
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'cage_trap') this.markId('hint_cage');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'drying_rack') this.markId('hint_rack');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'floor' && this.skylight(readers, Number(fields['id']))) this.markId('hint_skylight');
+    // 08 § Cages: the first caged spider placed in a cage building (a spider ranch).
+    if (event.type === 'BuildingCompleted' && this.spiderCaged(readers, Number(fields['id']))) this.markId('hint_spider_ranch');
     // The hospital is for the fortress's own dwarves: a wounded beast or invader does not call for one.
     if (event.type === 'WoundInflicted' && (fields['severity'] === 'serious' || fields['severity'] === 'grievous') && this.fortressDwarf(readers, Number(fields['id']))) this.markId('hint_hospital');
     if (event.type === 'CommandRejected') {
@@ -229,6 +234,16 @@ export class HintEngine {
   }
 
   /** Whether a creature is a dwarf of the fortress. */
+  /** A built cage building holding a living giant cave spider (`hint_spider_ranch`). */
+  private spiderCaged(readers: ReaderSet, id: number): boolean {
+    if (!readers.has('14')) return false;
+    const b14 = readers.of<BuildingsReader>('14');
+    if (b14.get(id)?.state !== 'built') return false;
+    const occupant = b14.cageOccupant(id);
+    const species = occupant === 0 ? undefined : readers.entities.get(occupant, C.Creature)?.species;
+    return species !== undefined && this.registry.table<{ id: string }>('creatures').byIndex(species)?.id === 'giant_cave_spider';
+  }
+
   private fortressDwarf(readers: ReaderSet, id: number): boolean {
     const creature = readers.entities.get(id, C.Creature);
     return creature !== undefined && creature.faction === 'fortress' && creature.species === this.registry.table('creatures').index('dwarf');
@@ -331,6 +346,7 @@ export class HintEngine {
       }),
       palletMaterials: this.pending('hint_pallet'),
       rackBuilt: this.pending('hint_rack'),
+      spiderRanch: this.pending('hint_spider_ranch'),
       hiveShort: readers.has('08') && readers.of<AnimalsReader>('08').hives()
         .some((id) => readers.of<AnimalsReader>('08').hiveFlowers(id) < HIVE_FLOWERS_MIN),
       skylightBuilt: this.pending('hint_skylight'),

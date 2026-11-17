@@ -104,6 +104,8 @@ Cavern spawn tables (content) per cavern tier:
 - During load bootstrap, initialization installs the threat reader and registrations without spawning initial monsters or spinning initial webs. Restore the saved monsters, web-owner records and Web flags; floors carved since generation receive no new initial population or webs. Ordinary new-world initialization still creates the initial population and lair webs.
 - Each `DayPassed` after breach, each species respawns toward its cap at a random cavern tile at least `SPAWN_MIN_DISTANCE` (08) from dwarves.
 - Monsters wander their cavern; aggressive ones seek fortress creatures within `CAVE_SEEK_RADIUS` of any cavern tile (they walk up a breach corridor into the fortress, from any distance on the same walkable region, until one is within perception (16 § Targeting) and combat takes over); they return to the cavern when no target is found for `CAVE_RETURN_TICKS`. Sealing the breach with a wall or a locked door (trolls break doors) stops them.
+- **A caged spider's lair is its cage** (the spider ranch, a [fun feature](../fun-features.md)). A living `giant_cave_spider` held in a built cage building (14's `cageOccupant`) spins its daily webs on the 8 tiles around the cage, as around a lair, by the web rules above (the `web` flag on each dry floor among them, `webs` with the spider as owner, `WEB_TICKS` for whoever walks in, the fortress's own haulers included), each `DayPassed` after the wild spiders, in ascending cage building id. One in a cage item that is not built spins nothing, and a caged spider never spins around its old lair. Its webs are gathered as silk (09 § Gathering). A caged spider is out of the cavern's monster count, its respawn and the saved `cavernSpawns`, as any caged member is out of its party; a released one is a wild monster again, and dangerous. A ranch wants its own room, its own door and its own dwarf.
+- A web gathered (09) is gone: the saved `webs` keep only the tiles whose `web` flag still stands.
 - `MonsterSpawned { id, cavern }` is a note, both when an initial sleeper wakes at breach and when a daily respawn creates a monster; visibility and proximity do not change its severity.
 
 ### The Deep
@@ -211,14 +213,3 @@ Schedules, compositions, gear tables and caps are content.
 - Diplomacy: a `demand` party purpose that leaves if paid.
 - Named enemies and vendettas: a legend record of party leaders that return.
 - More civilizations as raiders: a civ row with `raids: true` and a composition table.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*.
-
-### A caged spider's lair is its cage (T-556)
-
-- A living `giant_cave_spider` held in a built cage building (14's `cageOccupant`) spins its daily webs on the 8 tiles around the cage, as around a lair, by the web rules of § Cavern monsters (the `web` flag, `webs` with the spider as owner, `WEB_TICKS` for whoever walks in, the fortress's own haulers included). One in a cage item that is not built spins nothing. Its webs are gathered as silk (09 § Planned).
-- A caged spider is out of the cavern's monster count and its respawn, as any caged member is out of its party; a released one is a wild monster again, and dangerous.
-- A ranch wants its own room, its own door and its own dwarf.
-

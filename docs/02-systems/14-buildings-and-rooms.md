@@ -122,7 +122,7 @@ A lamp is a placed glowstone statue. It lights the 3×3 around it for comfort. T
 - `well`: 1×1 over an `open` tile with water within `WELL_DEPTH` below (04); provides drinking water and hospital water; `working` when 04's `waterBelow` finds liquid water through open tiles; rock or ice without liquid water ends that search.
 - `nest_box`: 1×1; chickens lay in it (08).
 - `beehive`: 1×1, a hive item from the carpenter, the kiln or the craftsdwarf, placed like furniture (labor by material); impassable. It must stand on an outdoor floor of class `soil`; elsewhere `PlaceBuilding` refuses it (`bad_placement`; the build tool says "a hive stands outdoors on soil"). 08 runs it (08 § Hives).
-- `cage`: a cage item placed as a building holds one creature (caught by a cage trap; the building's `occupantId` names it, 0 when empty); `release` through a lever link or the `ReleaseCage` command.
+- `cage`: a cage item placed as a building holds one creature (caught by a cage trap; the building's `occupantId` names it, 0 when empty); `release` through a lever link or the `ReleaseCage` command. A creature in a built cage keeps its species' nature (08 § Cages): a caged glowing creature (the `glow_beetle`) lights the four tiles beside the cage for a `glow` crop (`buildings.beetleLitAt`, 07 § Growth: the beetle jar), and a caged giant cave spider webs the eight tiles around it daily (18 § Cavern monsters: the spider ranch).
 - `wagon`: placed at embark only, a building with its own container (class `wagon`, unlimited capacity) holding the supplies; the contents lie at its centre, are found by search and want hauling like items on the ground. Deconstructing it uses `construction` labor, yields the `WAGON_LOGS` logs recorded at its placement and leaves the contents where they lie.
 - `chain`: a rope or chain item placed; `AssignAnimal` to a chain restrains a tame animal to within 1 tile (war dogs at the gate).
 - `coffin`: a coffin item placed; inside a `tomb` zone it accepts a burial; a coffin outside a tomb also works but gives no tomb thought.
@@ -213,7 +213,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.roomDiagnostics(zoneId)` — current missing furniture requirements and sorted, unique open border tiles; a read-only query, undefined for a non-room zone
 - `buildings.wellWorking(id)` — the well has water within `WELL_DEPTH` below; `buildings.cageOccupant(id)` — the creature held in a cage building, or 0; `buildings.memorialEligible(id)` — the dead dwarf has no intact body and can be named on a memorial slab
 - `buildings.wagon()` — the wagon, or 0; `buildings.holderTile(id)` — the tile a building's container contents lie on (the wagon), or −1
-- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp; `buildings.comfortLightAt(i)` — the tile is in comfort light, the built hearth's square, a built lamp's 3×3, a burning candle stand's or a built lantern's 3×3 (not crop light; it sets no `lit` flag; 13's cellars must be out of it, 10's meals and 18's spotting read it); `buildings.tallowSmokeAt(i)` — the tile is lit only by stands burning tallow (§ Candle stands and lanterns); `buildings.standCandles(id)` — a candle stand's candles held, the burning one's material and its days left
+- `buildings.hearthLightAt(i)` — the tile is in the built hearth's 5×5 comfort light (which is not crop light); `buildings.cropLitAt(i)` — the tile has crop light; `buildings.lampCoveredAt(i)` — the tile lies in the 3×3 of a built lamp; `buildings.beetleLitAt(i)` — a cardinal neighbour on the tile's level holds a built cage building whose occupant's species has the flag `glows` (07 reads it for growth and for a glow plot); `buildings.comfortLightAt(i)` — the tile is in comfort light, the built hearth's square, a built lamp's 3×3, a burning candle stand's or a built lantern's 3×3 (not crop light; it sets no `lit` flag; 13's cellars must be out of it, 10's meals and 18's spotting read it); `buildings.tallowSmokeAt(i)` — the tile is lit only by stands burning tallow (§ Candle stands and lanterns); `buildings.standCandles(id)` — a candle stand's candles held, the burning one's material and its days left
 - `buildings.value(id)` — a building's contribution to wealth when built (material value plus the per-type bonus)
 - `buildings.wants(id)` — each want of a built building with its `count`, the `held` items that answer it and those `coming` (13's hauls to it); `buildings.held(id)` — the living items it holds; `buildings.withWants()` — the built buildings whose type has wants, ascending (§ Building wants)
 - `buildings.seatHasMug(chairId)` — a table beside the chair holds a mug for it (§ Mugs at the table)
@@ -249,7 +249,7 @@ Job producer `buildings` (`build`, `deconstruct`, `pull_lever`, `link_mechanism`
   - Doors, hatches and traps list their modes with the current one marked.
   - A planned building shows what it waits for and takes a build priority (`1`–`9`).
   - A bed gives the bedroom zone it stands in an owner from the list of dwarves, or nobody; a coffin is kept for a dwarf, or for anyone.
-  - A cage shows its occupant, with release (confirmed) and tame.
+  - A cage shows its occupant, with release (confirmed) and tame. A built cage says what its occupant does there: "Lights the four tiles beside its cage for glowcap." or "Spins webs around its cage every day."
   - A bed says what it rests at and whether it is made up; a building with wants lists what it holds and wants, with `[h] take out` (§ Building wants).
   - A drying rack lists its items with their days left and its drying checklist (§ The drying rack).
   - A candle stand shows its candles and the days its burning one has left (§ Candle stands and lanterns).
@@ -289,13 +289,3 @@ Material and item requirements, value bonuses and footprints are content.
 - Multi-tile furniture (long tables): a footprint on the type; placement already supports it.
 - Room flood-fill detection from furniture: replace the zone-defined room with a fill from the bed; the quality formula is unchanged.
 - Ownership of dining seats or workshops: `ownerId` exists on every building.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `buildings-and-furniture.md` § Planned rows and the other content documents' § Planned rows.
-
-### The beetle jar and the spider ranch (T-556)
-
-- `buildings.beetleLitAt(i)` — a cardinal neighbour on the tile's level holds a built cage building whose occupant's species has the flag `glows`. 07 reads it for growth and for a glow plot.
-- A cage building's panel says what its occupant does: "Lights the four tiles beside its cage for glowcap." or "Spins webs around its cage every day."
-

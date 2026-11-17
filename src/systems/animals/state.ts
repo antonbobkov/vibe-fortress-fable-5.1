@@ -8,7 +8,7 @@
  */
 
 import type { RngState } from '@core/rng';
-import type { EntityId } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
 
 export interface SpeciesCount {
   wild: number;
@@ -52,6 +52,10 @@ export interface AnimalsStateV1 {
   lastTameThink: [EntityId, number][];
   pendingTrain?: [EntityId, 'war' | 'hunting'][];
   pendingTame?: [EntityId, EntityId][];
+  /** `08` § Bat roosts: the roosts' drop tiles, in generation order; omitted when the map has none (older saves too). */
+  roosts?: TileIndex[];
+  /** `08` § Bat roosts: the first roost has been found (`RoostFound`); omitted while it has not. */
+  roostFound?: boolean;
   /** `08` § Hives: built hives, ascending; omitted when there are none (older saves too). */
   hives?: EntityId[];
   /** `08` § Hives: each comb lying in a hive, `[comb, hive]` by comb; omitted when none. */

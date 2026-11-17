@@ -324,10 +324,13 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       if (row.light === 'glow' && !lit && !lamped) {
         lamped = wornLightAt(map, (i) => ctx.readers.entities.at(i), entities, ctx.registry, tile);
       }
+      // `07` § Growth, the beetle jar: asked last, only for a `glow` crop with no other light.
+      const beetle = row.light === 'glow' && !lit && !lamped && (this.buildings()?.beetleLitAt(tile) ?? false);
       const gained = growthPerHour(row, cave, {
         season,
         lit,
         lamped,
+        beetle,
         tempC,
         growthModifier: modifier,
       });
@@ -467,7 +470,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
 
   private kindOfTiles(tiles: readonly TileIndex[]): PlotKind {
     return plotKindOf(this.map, tiles, (tile) => this.buildings()?.cropLitAt(tile) ?? this.map.hasFlag(tile, TileFlag.Lit),
-      (tile) => this.buildings()?.lampCoveredAt(tile) ?? false);
+      (tile) => (this.buildings()?.lampCoveredAt(tile) ?? false) || (this.buildings()?.beetleLitAt(tile) ?? false));
   }
 
   plotKind(zoneId: EntityId): PlotKind | 'none' {

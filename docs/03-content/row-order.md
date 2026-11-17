@@ -451,3 +451,7 @@ Every new row of every table goes at the end of this table, including generated 
 | plants | salt_crust |
 | materials | salt_crust |
 | hints | hint_skylight |
+| materials | guano |
+| materials | silk_cloth |
+| items | guano |
+| hints | hint_spider_ranch |

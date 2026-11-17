@@ -234,8 +234,9 @@ What each draught does when drunk ([25](../02-systems/25-runecraft.md) § Draugh
 | `potash` | potash | farm/potash | 1 | 10 | bag | 0 | light | `:` | `ash_gray` | |
 | `dung` | dung | farm/dung | 1 | 10 | bag | 0 | light | `%` | `dung_brown` | `fertilizer` |
 | `compost` | compost | farm/compost | 1 | 10 | bag | 0 | light | `%` | `loam_brown` | `fertilizer` |
+| `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `fertilizer` |
 
-Bone ash and potash are burned at the kiln: bone ash, of `bone`, from bone piles or a crushed fossil; potash, of `potash`, from a log. Bone ash stands in for the flux stone in steel (`make_steel_bone_ash`); potash doubles a glass batch. Dung, of `dung`, is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung); three of it dry to a dung cake on a rack. Compost, of `compost`, is rotten food or dung turned on a compost heap ([13](../02-systems/13-items-and-storage.md) § The compost heap). An item tagged `fertilizer` is what a fertilized farm plot plants with ([07](../02-systems/07-plants-and-farming.md) § Fertilizer).
+Bone ash and potash are burned at the kiln: bone ash, of `bone`, from bone piles or a crushed fossil; potash, of `potash`, from a log. Bone ash stands in for the flux stone in steel (`make_steel_bone_ash`); potash doubles a glass batch. Dung, of `dung`, is dropped by pastured grazers ([08](../02-systems/08-animals-and-domestication.md) § Dung); three of it dry to a dung cake on a rack. Compost, of `compost`, is rotten food or dung turned on a compost heap ([13](../02-systems/13-items-and-storage.md) § The compost heap). Guano, of `guano`, falls from the bat roosts of caverns one and two ([08](../02-systems/08-animals-and-domestication.md) § Bat roosts); it is not composted. An item tagged `fertilizer` is what a fertilized farm plot plants with ([07](../02-systems/07-plants-and-farming.md) § Fertilizer).
 
 ## Drying
 
@@ -276,16 +277,3 @@ Any item in `food/meat/raw`, `food/fish/raw`, `food/meat/cured`, `food/fish/cure
 | Barrel of 20 dimcap ale | 2 × 1 × 20 | 40 |
 | Cut emerald | 40 × 3 | 120 |
 | Deepsilver bar | 250 | 250 |
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into the table of its section above (in that table's columns, without `section` and `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules that use them are in the § Planned sections of the system documents ([13](../02-systems/13-items-and-storage.md) for the category leaves). Every number is *unmeasured*.
-
-### Planned item types
-
-| section | id | name | category | mult | stack | container | rotDays | weight | glyph | fg | materials or notes | task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Farm goods (a new section) | `guano` | guano | farm/guano | 1 | 10 | bag | 0 | light | `:` | `dung_brown` | `guano`; tag `fertilizer` | T-556 |
-
-The glyphs are those the set already has ([glyphs-and-colors.md](glyphs-and-colors.md) § Glyph set); a task may choose another from the set.
-

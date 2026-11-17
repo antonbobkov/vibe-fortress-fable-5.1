@@ -11,9 +11,9 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-556 | [Making Do B6: the spider ranch, the beetle jar and bat roosts](work/T-556-making-do-cages-and-roosts.md) | Making Do design; the owner, 2026-11-13 | — | open |
 | T-568 | [Seven pallets from one stack of cloth are laid one after another](work/T-568-pallets-from-one-stack.md) | T-551's runs | — | open |
-| T-570 | [The fixtures' routine work waits behind the food step](work/T-570-fixture-routine-work-waits.md) | T-567's runs | — | open |
 | T-576 | [The three-year script sees an ambush before it springs](work/T-576-script-sees-hidden-ambush.md) | T-575's runs | — | open |
+| T-578 | [The defence year's smith drills while the squad's kit waits at the forge](work/T-578-defence-smith-at-drill.md) | T-570's runs | — | open |
+| T-579 | [Loot that escapes with a raider is left inside a container that no longer exists](work/T-579-escaped-loot-orphans.md) | T-556's runs | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

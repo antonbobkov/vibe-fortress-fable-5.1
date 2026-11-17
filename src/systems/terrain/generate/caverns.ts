@@ -28,9 +28,11 @@ import {
   MAGMA_POOL_PERMILLE,
   MAGMA_POOL_RADIUS_MAX,
   MAGMA_POOL_RADIUS_MIN,
+  ROOST_PERMILLE,
 } from '../constants';
 import { hasTrait, materialIndex, stageStream, type LocalGen } from './common';
 import { isRim } from './sea';
+import { roostCeilingOver } from '../rules/transitions';
 
 export const CAVERN_PERIODS: readonly number[] = [14, 6];
 export const CAVERN_AMPS: readonly number[] = [70, 30];
@@ -165,4 +167,21 @@ function carveTier(g: LocalGen, tier: number, st: RngStream): void {
 
 export function stageCaverns(g: LocalGen): void {
   for (let tier = 1; tier <= 3; tier += 1) carveTier(g, tier, stageStream(g.s, `terrain.cavern${tier}`));
+}
+
+
+/**
+ * After stage 6, on its own stream (`terrain.roosts`): each floor of cavern one and two under the
+ * cavern's ceiling becomes a bat roost's drop tile with `ROOST_PERMILLE` (doubled by `fungal_depths`).
+ * Nothing is drawn on the map, and no other stream draws differently.
+ */
+export function stageRoosts(g: LocalGen): void {
+  const st = stageStream(g.s, 'terrain.roosts');
+  const permille = ROOST_PERMILLE * (hasTrait(g, 'fungal_depths') ? 2 : 1);
+  for (const tier of [1, 2]) {
+    for (const i of g.cavernFloors[tier] ?? []) {
+      if (roostCeilingOver(g.map, i) && st.chance(permille)) g.roosts.push(i);
+    }
+  }
+  g.roosts.sort((a, b) => a - b);
 }

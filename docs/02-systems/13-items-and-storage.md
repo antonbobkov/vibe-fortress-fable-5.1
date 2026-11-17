@@ -39,7 +39,7 @@ tool/      pick  axe  fishing_rod  crutch  candle  firebrand
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather  straw  reed
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland  soap
-farm/      bone_ash  potash  dung  compost
+farm/      bone_ash  potash  dung  compost  guano
 refuse/    corpse  skeleton  rotten  part
 ```
 
@@ -279,15 +279,3 @@ Rot days per type, stack sizes and value multipliers are content.
 - Wear on clothing: `wear` exists on the record; a daily increment and a `tattered` threshold with a thought.
 - Quantum stockpiles through dumping into a pit are allowed by the fall rule; a rule capping items per tile would go in `dropAt`.
 - Minecarts and carts: a container class with movement; out of scope.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `items.md` § Planned rows and the other content documents' § Planned rows.
-
-### The category tree grows (each leaf with the task that brings its first item)
-
-```
-farm/      guano (T-556)
-```
-
-The Food preset takes the new food leaves (as it took honey, honeycomb and wax); Furniture and Cloth and leather take theirs by their nodes.

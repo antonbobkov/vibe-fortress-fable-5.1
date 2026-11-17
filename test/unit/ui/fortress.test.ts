@@ -288,6 +288,8 @@ describe('T-M1-14 announcements', () => {
       PetAdopted: 'note',
       // T-561: 08 § Products, The camel spits (the day's first spit).
       SpatOn: 'note',
+      // T-556: 08 § Bat roosts (the first roost found).
+      RoostFound: 'note',
       MasterworkCreated: 'note',
       WorkshopBlocked: 'alert',
       FishPoolDepleted: 'note',

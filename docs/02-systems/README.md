@@ -6,7 +6,7 @@ This page fixes the list of systems, their numbering, their tick order and caden
 
 Documents 22–24 describe a core service (pathfinding) and the presentation layer (rendering, UI). They are not L3 systems and do not tick in the order below, but they are specified with the same rigor and are listed here so that every part of the game has one home. Document 25 is an ordinary system that ticks after 21; its number follows the others because it came later.
 
-**Being built: Making Do.** The content of scarce materials, substitutes and longer chains is specified ahead of its code. Documents 01, 02, 03, 05, 07, 08, 09, 10, 12–18, 20 and 22–25 end with a `## Planned: Making Do` section, and the content documents with a `## Planned rows` section. Those sections describe nothing the game does yet: each block names the task that builds it, and that task moves it into the document as plain specification. The rest of every document is the game as it is. No new system is added: every rule belongs to one that exists, and the tick order does not change.
+**Built: Making Do.** The content of scarce materials, substitutes and longer chains ([design](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md)) was specified ahead of its code in `## Planned: Making Do` sections, and each task moved its block into its document as plain specification; the last (T-556) removed the last of those sections. No new system was added: every rule belongs to one that exists, and the tick order did not change.
 
 ## Order, cadence and ownership
 
