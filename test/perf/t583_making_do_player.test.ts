@@ -281,6 +281,9 @@ describe('T-583 probe: a Making Do player', () => {
           }
           case 'CropPlanted': bump(d('planted'), `${nameOf('plants', e['species'])}${e['fertilized'] ? ':fertilized' : ''}`, today); break;
           case 'TradeCompleted': bump(d('trade'), String(e['civ']), today); break;
+          case 'CreatureDied':
+            if (e['faction'] === 'fortress') bump(d('fortressDied'), `${nameOf('creatures', e['species'])}:${String(e['cause'] ?? 'unknown')}`, today);
+            break;
           case 'BuildingCompleted': bump(d('buildingCompleted'), String(e['buildingType']), today); break;
           case 'JobCompleted': bump(d('job'), nameOf('jobTypes', e['jobType']), today); break;
           case 'JobCancelled': bump(d('jobCancelled'), `${nameOf('jobTypes', e['jobType'])}:${String(e['reason'] ?? '')}`, today); break;

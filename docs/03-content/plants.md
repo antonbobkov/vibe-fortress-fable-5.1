@@ -37,7 +37,7 @@ Columns: `stageDays` are days per stage at 100% growth (crops have four stages; 
 | id | name | product | count | regrowDays | wildSeedPermille | seed of | biomes (weight) | graze | glyph | fg |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `bramble` | bramble | `plant_food` (`bramble_berry`, value 2, edible, cookable, brew `strawberry_wine`) | 2–4 | 28 | 0 | — | temperate_forest 30, temperate_hills 20, wetland 15, taiga 10, temperate_grassland 10 | no | `"` | `berry_red` |
-| `brightleaf` | brightleaf | `brightleaf` | 1–2 | 42 | 0 | — | temperate_forest 15, wetland 20, tropical_forest 25, dark_forest 20, temperate_hills 8 | no | `♣` | `bright_green` |
+| `brightleaf` | brightleaf | `brightleaf` (value 1, *unmeasured*: a leaf is worth 4, its item's multiplier 4000) | 1–2 | 42 | 0 | — | temperate_forest 15, wetland 20, tropical_forest 25, dark_forest 20, temperate_hills 8 | no | `♣` | `bright_green` |
 | `nutbush` | nutbush | `plant_food` (`nut`, value 2, edible, cookable) | 2–4 | 56 | 0 | — | temperate_forest 20, temperate_hills 15, savanna 10, tropical_forest 15 | no | `"` | `nut_brown` |
 | `wild_barley` | wild barley | `plant_food` (`barley`) | 1–2 | 28 | 400 | `barley` | temperate_grassland 30, cold_steppe 20, savanna 15, temperate_hills 10 | no | `"` | `barley_gold` |
 | `wild_strawberry` | wild strawberry | `plant_food` (`strawberry`) | 1–3 | 28 | 400 | `strawberry` | temperate_forest 20, temperate_grassland 15, temperate_hills 15 | no | `"` | `berry_red` |

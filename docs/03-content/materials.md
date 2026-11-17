@@ -36,10 +36,10 @@ Columns: `value` is marks per unit; `density` is relative (water 100; used for c
 | id | name | class | value | density | hardness | color | notes |
 |---|---|---|---|---|---|---|---|
 | `loam` | loam | soil | 0 | 150 | 30 | `loam_brown` | best farming soil |
-| `clay` | clay | soil | 0 | 180 | 40 | `clay_red` | `soil_drop` |
-| `sand` | sand | soil | 0 | 160 | 20 | `sand_yellow` | `soil_drop`; deserts, riverbanks |
+| `clay` | clay | soil | 1 | 180 | 40 | `clay_red` | `soil_drop`; value 1 (*unmeasured*), so a load is worth a mark and a caravan can sell it |
+| `sand` | sand | soil | 1 | 160 | 20 | `sand_yellow` | `soil_drop`; deserts, riverbanks; value 1 (*unmeasured*), as clay |
 | `silt` | silt | soil | 0 | 150 | 25 | `silt_gray` | wetlands |
-| `peat` | peat | soil | 0 | 100 | 20 | `peat_black` | `soil_drop`; burnable (tile burns 200 ticks, leaves ash) |
+| `peat` | peat | soil | 1 | 100 | 20 | `peat_black` | `soil_drop`; burnable (tile burns 200 ticks, leaves ash); value 1 (*unmeasured*), as clay |
 | `cave_loam` | cave loam | soil | 0 | 160 | 30 | `cave_umber` | cavern floors; grows cave moss |
 | `ash_soil` | ash | soil | 0 | 120 | 20 | `ash_gray` | `glasslands` surface patches |
 
