@@ -131,6 +131,13 @@ export function outputFilter(registry: Registry, recipe: RecipeRow, order: WorkO
   const items = registry.table<ItemRow>('items');
   const filter: ItemFilter = items.has(first.item) ? { type: items.index(first.item) } : { tag: first.item };
   const materials = registry.table<MaterialRow>('materials');
+  // 12 § Work orders: an output whose material the recipe sets (deepfire, glass blocks, iron bars,
+  // obsidian daggers) is counted by that material alone, whatever the order's filter.
+  const made = recipeMadeMaterial(recipe, first.material);
+  if (made !== undefined && materials.has(made)) {
+    filter.materialId = materials.index(made);
+    return filter;
+  }
   const selected = typeof order.materialFilter === 'number'
     ? materials.byIndex(order.materialFilter)?.id : order.materialFilter;
   const material = typeof selected === 'string' && 'plantDrink' in first.material
@@ -139,9 +146,19 @@ export function outputFilter(registry: Registry, recipe: RecipeRow, order: WorkO
   if (typeof material === 'number') filter.materialId = material;
   else if (typeof material === 'string' && materials.has(material)) filter.materialId = materials.index(material);
   else if (typeof material === 'string') filter.materialClass = material;
-  // 12 § Spirits: a drink of a fixed material (deepfire, hopped ale) is counted by that material alone.
-  else if (items.byId(first.item)?.drinkable === true && 'fixed' in first.material && materials.has(first.material.fixed)) filter.materialId = materials.index(first.material.fixed);
   return filter;
+}
+
+/**
+ * The material id an output always has, whatever is delivered: its `fixed` material, its alloy, or
+ * the one material its source input names (`knap_dagger_obsidian`'s obsidian). Undefined when the
+ * material comes from the input delivered (a bone from any fossil, a block of any stone).
+ */
+function recipeMadeMaterial(recipe: RecipeRow, rule: RecipeRow['outputs'][number]['material']): string | undefined {
+  if ('fixed' in rule) return rule.fixed;
+  if ('alloy' in rule) return rule.alloy;
+  if ('from' in rule && rule.stage === undefined) return recipe.inputs[rule.index]?.material;
+  return undefined;
 }
 
 /** `economy.md` § resolveMaterial; material indices of delivered inputs, in recipe order. */

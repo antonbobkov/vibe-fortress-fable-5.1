@@ -1,6 +1,8 @@
 # T-586 — An ice designation survives the afternoon thaw
 
-**Source:** [T-583's audit of Making Do's reach](../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 2 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-17, in 3c5f51d1.
+
+**Source:** [T-583's audit of Making Do's reach](../../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 2 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

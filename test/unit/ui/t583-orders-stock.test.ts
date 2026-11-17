@@ -78,7 +78,7 @@ describe('T-583 a keep order counts what its workshop counts', () => {
     expect(rows[1]?.panel).not.toMatch(/^stocked/);
   });
 
-  it('a glass block kept by its material counts glass; with no filter it counts every block, as the kiln does', () => {
+  it('a glass block kept by its material counts glass, and with no filter it counts glass too (T-585), as the kiln does', () => {
     const { w, screen } = setup('t583-orders-glass');
     const kiln = w.build('kiln', w.index(10, 10, z), 'granite');
     w.spawnItem('stone_block', 'granite', w.index(16, 12, z), 30);
@@ -87,9 +87,8 @@ describe('T-583 a keep order counts what its workshop counts', () => {
     w.submit({ type: 'AddWorkOrder', workshopId: kiln, order: { recipeId: 'make_glass_block', mode: 'maintain', threshold: 4, priority: 5 } });
     w.step(1);
     const rows = statuses(w, screen);
-    expect(rows.map((r) => r.stocked)).toEqual([false, true]);
-    expect(rows[0]?.panel).not.toMatch(/^stocked/);
-    expect(rows[1]?.panel).toBe('stocked (30)');
+    expect(rows.map((r) => r.stocked)).toEqual([false, false]);
+    for (const r of rows) expect(r.panel).not.toMatch(/^stocked/);
     expect(w.readers.of<WorkshopsReader>('12').orderStock(w.readers.of<WorkshopsReader>('12').ordersOf(kiln)[0]!)).toBe(0);
   });
 });

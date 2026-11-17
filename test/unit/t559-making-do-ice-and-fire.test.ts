@@ -75,12 +75,13 @@ describe('T-559 ice harvesting', () => {
     buildIce(w, built);
     expect(precondition(w.map, built, Designation.HarvestIce, facts)).toBe(false);
     expect(precondition(w.map, w.index(20, 20, 25), Designation.HarvestIce, facts)).toBe(false);
-    // Thawed, the pond takes none, and a designation on it is cleared.
+    // Thawed, the pond takes none, and a designation on it waits for the ice (T-586).
     expect(w.game.world.applyCommand({ type: 'Designate', tiles: [centre], kind: 'harvest_ice', priority: 5 }).ok).toBe(true);
     for (const t of pond) w.forceTemperature(t, 10);
     w.step(30);
     expect(w.fluids.sim.isFrozen(centre)).toBe(false);
-    expect(w.map.designationAt(centre)).toBe(Designation.None);
+    expect(w.map.designationAt(centre)).toBe(Designation.HarvestIce);
+    expect(w.game.world.applyCommand({ type: 'Designate', tiles: [pond[1] as TileIndex], kind: 'harvest_ice', priority: 5 }).ok).toBe(false);
   });
 
   it('a miner cuts an ice block from the bank above, the tile stays frozen, and waits ICE_RECUT_DAYS to be cut again', () => {

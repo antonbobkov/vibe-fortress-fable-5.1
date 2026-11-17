@@ -69,7 +69,7 @@ Digging a `wall` that has a `floor` above it (which is every underground wall) n
 
 A removed or collapsed construction returns 14's recorded input item type. When no record exists, its material class supplies a fallback: wood returns a `log`, metal a `bar`, anything else a `stone_block`. Drops are also recorded in `terrain.intendedDrops()`, and sent to the item spawn API when present.
 
-When a designation is applied to a tile that no longer matches its precondition (because something else changed it), the designation is cleared silently. A designation worked standing on its own tile (channel, down stairs, and smoothing or engraving a floor) is cleared in the same way, with its job, when a building other than a door that blocks walking on the tile is built there (14 `BuildingCompleted`), and is cleared when it is made on such a tile, before any job: nobody can stand there to do the work.
+When a designation is applied to a tile that no longer matches its precondition (because something else changed it), the designation is cleared silently, except a `harvest_ice` designation on thawed water, which waits for the ice (§ Ice harvesting). A designation worked standing on its own tile (channel, down stairs, and smoothing or engraving a floor) is cleared in the same way, with its job, when a building other than a door that blocks walking on the tile is built there (14 `BuildingCompleted`), and is cleared when it is made on such a tile, before any job: nobody can stand there to do the work.
 
 ### Digging as a job
 
@@ -87,7 +87,8 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 - Designation `harvest_ice` on a tile of frozen outdoor water (04's frozen record: an ice `wall` or ice `floor` whose fluid byte holds water with the `frozen` bit, on an `outdoor` tile). The job `harvest_ice` (labor `mining`, skill `mining`, a pick) is worked from a walkable tile beside it on its level, standing on it when it is an ice floor, or from above: the tile directly above it and that tile's eight neighbours, the bank a miner reaches down from (the producer's `extraStandTiles`; an open tile is no stand, so the middle of a frozen lake whose ice is all walls is out of reach until a shore of ice floor leads to it).
 - Work time `ICE_HARVEST_TICKS × 100 / (100 + SKILL_TIME_BONUS_PERCENT × skillLevel)`, as digging, with no hardness factor.
-- On completion it drops one `stone_block` of `ice` on the worker's tile and leaves the tile as it was: ice is cut, not dug out, and the water under it stays. The tile is recorded in `iceCut` with the tick, and cannot be designated again for `ICE_RECUT_DAYS`: `Designate` leaves such a tile out of its batch, and refuses with `precondition_failed` when no tile is left (an entry whose wait is over is dropped when it is next looked at). A tile that thaws clears its designation (its precondition no longer holds). No rng.
+- On completion it drops one `stone_block` of `ice` on the worker's tile and leaves the tile as it was: ice is cut, not dug out, and the water under it stays. The tile is recorded in `iceCut` with the tick, and cannot be designated again for `ICE_RECUT_DAYS`: `Designate` leaves such a tile out of its batch, and refuses with `precondition_failed` when no tile is left (an entry whose wait is over is dropped when it is next looked at). No rng.
+- A designation outlives a thaw. Outdoor water in a temperate winter freezes by night and thaws by day, and a cut waits for the ice: while its tile is thawed water (an `open` or `floor` tile whose fluid byte holds water, on an `outdoor` tile) the designation stays, has no job (a job already made is cancelled, and ice that thaws under the pick completes nothing) and shows as `blocked` (`terrain.designationWork`); when the tile freezes again its job is made again. It is cleared only when its tile stops being outdoor water: filled or built over, or found drained dry at 03's next scan of its designations. A thawed tile takes no new `harvest_ice` designation.
 - An ice block is a `stone_block` of `ice`, so the construction rows take it with no new row: 05 cools and melts what is built of it (05 § Ice constructions), and 13 melts the block itself (13 § Rot).
 
 ### Setting a fire
@@ -161,7 +162,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 - `terrain.boneyardEntered(b)` — a fortress dwarf has stood in boneyard `b`'s ribs (`boneyardsEntered`)
 - `terrain.forbiddenTiles()` — the forbidden set, ascending (a copy)
 - `terrain.inspect(i)` — the look cursor's data for a tile (the inspector's `tile` section)
-- `terrain.designationWork(i)` — where a designated tile's work stands: `queued` (its job is open, or it has none yet), `assigned` (a worker holds its job), `blocked` (its job is blocked), or null with no designation (the map's blink, 23 § Animation)
+- `terrain.designationWork(i)` — where a designated tile's work stands: `queued` (its job is open, or it has none yet), `assigned` (a worker holds its job), `blocked` (its job is blocked, or it is a `harvest_ice` designation waiting for its water to freeze), or null with no designation (the map's blink, 23 § Animation)
 - `terrain.intendedDrops()` — the items mining owes the world while no item system is present to take them (a copy)
 
 ### Terrain API (mutation, called by other systems)
