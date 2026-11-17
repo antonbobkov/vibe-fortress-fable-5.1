@@ -790,6 +790,44 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
 }
 
 
+/** A standing `maintain` order of the script's: the recipe and the stock it keeps. */
+export interface StandingOrder { readonly recipeId: string; readonly threshold: number }
+
+/**
+ * The carpenter's standing orders, after the first barrels, the chest and the bucklers. T-577: it
+ * keeps two wooden chairs in stock, so a hall's chair never waits for stone. They come before the
+ * barrels, whose order grows with the fortress and is seldom met: the tables behind it were made
+ * six times in three years. Two chairs are two logs.
+ */
+export const CARPENTER_ORDERS: readonly StandingOrder[] = [
+  { recipeId: 'make_chair_wood', threshold: 2 },
+  { recipeId: 'make_barrel', threshold: 20 },
+  { recipeId: 'make_table_wood', threshold: 6 },
+];
+
+/**
+ * The mason's standing orders, in the order the workshop walks them (12 § Operation). Stone blocks
+ * maintain 30: vital for the hearth, constructions and workshops. T-577: the chairs come before the
+ * tables. A dining seat is a chair beside a table, the carpenter makes tables too, and only the
+ * mason made chairs: in `three-years-p4-4` at shift 100 the mason cut ten stone tables and four
+ * chairs (the hearth hall's) in the first year while 60 stones lay in stock, the stone went to the
+ * depot and a caravan took it about day 130, and the mine's few stones then went to blocks and stone
+ * crafts; the dining hall's four chairs waited from day 28 to the end of year 3.
+ */
+export const MASON_ORDERS: readonly StandingOrder[] = [
+  { recipeId: 'make_stone_block', threshold: 30 },
+  { recipeId: 'make_door_stone', threshold: 4 },
+  { recipeId: 'make_chair_stone', threshold: 14 },
+  { recipeId: 'make_table_stone', threshold: 6 },
+];
+
+/** Adds a workshop's standing orders at ROUTINE, or at the priority `priorities` gives a recipe. */
+export function standingOrders(w: TestWorld, workshopId: number, orders: readonly StandingOrder[], priorities: Readonly<Record<string, number>> = {}): void {
+  for (const { recipeId, threshold } of orders) {
+    command(w, { type: 'AddWorkOrder', workshopId, order: { recipeId, mode: 'maintain', threshold, priority: priorities[recipeId] ?? ROUTINE } });
+  }
+}
+
 export function checkFortressWorkOrders(w: TestWorld, state: FortressState): void {
   checkEconomy(w, state);
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -805,41 +843,12 @@ export function checkFortressWorkOrders(w: TestWorld, state: FortressState): voi
       command(w, { type: 'AddWorkOrder', workshopId: placedIds['carpenter'],
         order: { recipeId, mode: 'once', remaining, priority: ROUTINE } });
     }
-    command(w, {
-      type: 'AddWorkOrder',
-      workshopId: placedIds['carpenter'],
-      order: { recipeId: 'make_barrel', mode: 'maintain', threshold: 20, priority: ROUTINE },
-    });
-    command(w, {
-      type: 'AddWorkOrder',
-      workshopId: placedIds['carpenter'],
-      order: { recipeId: 'make_table_wood', mode: 'maintain', threshold: 6, priority: ROUTINE },
-    });
+    standingOrders(w, placedIds['carpenter']!, CARPENTER_ORDERS);
   }
   if (!ordered.has('mason') && buildings.get(placedIds['mason']!)?.state === 'built') {
     ordered.add('mason');
-    // Stone blocks maintain 30: vital for hearth, constructions, and workshop building.
     // F-17h: while the squad waits for its kit the forge's blocks go a step ahead.
-    command(w, {
-      type: 'AddWorkOrder',
-      workshopId: placedIds['mason'],
-      order: { recipeId: 'make_stone_block', mode: 'maintain', threshold: 30, priority: armingSquad(state) ? KIT_FIRST : ROUTINE },
-    });
-    command(w, {
-      type: 'AddWorkOrder',
-      workshopId: placedIds['mason'],
-      order: { recipeId: 'make_door_stone', mode: 'maintain', threshold: 4, priority: ROUTINE },
-    });
-    command(w, {
-      type: 'AddWorkOrder',
-      workshopId: placedIds['mason'],
-      order: { recipeId: 'make_table_stone', mode: 'maintain', threshold: 6, priority: ROUTINE },
-    });
-    command(w, {
-      type: 'AddWorkOrder',
-      workshopId: placedIds['mason'],
-      order: { recipeId: 'make_chair_stone', mode: 'maintain', threshold: 14, priority: ROUTINE },
-    });
+    standingOrders(w, placedIds['mason']!, MASON_ORDERS, armingSquad(state) ? { make_stone_block: KIT_FIRST } : {});
   }
   if (!ordered.has('craftdwarf') && buildings.get(placedIds['craftdwarf']!)?.state === 'built') {
     ordered.add('craftdwarf');
