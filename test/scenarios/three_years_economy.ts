@@ -38,6 +38,8 @@ export interface EconomyState {
   readonly farmPlans: { tiles: number[]; zoneId: number }[];
   /** The dwarf kept on the still. */
   brewer?: number;
+  /** T-570: the workshops' and buildings' jobs found open at the daily look, by job id: the tick first found so (or last raised). */
+  waiting?: Map<number, number>;
   /** Cave plots dug for bought cave seed, and whether each is zoned yet. */
   readonly cavePlans: { tiles: number[]; zoneId: number }[];
   /** The larder beside the pantry: its tiles, and its stockpile once dug. */
@@ -67,6 +69,20 @@ export const METAL_BUILD = 4;
  * It stays above NEED_DEFER_PRIORITY: nobody skips a meal for it.
  */
 export const KIT_FIRST = 3;
+/**
+ * T-570: the days a workshop's job or a building's job stands open before the player raises it one
+ * step, and again after as many more, up to KIT_FIRST. Priority is strict and a job does not age (11
+ * § Assignment: the player raises a job that waits), and the script keeps the food labors a step
+ * ahead of all routine work with every immigrant on them, so in a growing fortress the routine jobs
+ * waited for good. T-570's probe (`test/perf/t570_job_waits_probe.test.ts`): in `defence_year` the
+ * carpenter's job stood open 44 days at a time, the craftdwarf's 28, the mason's 26, the halls'
+ * chairs and tables 39, the weapon trap 38; in `three-years-p4-4` the carpenter's, the craftdwarf's
+ * and the mason's for months. A workshop holds one job at a time and the halls a few pieces of
+ * furniture, so raising them takes little from the food work.
+ */
+export const RAISE_AFTER_DAYS = 5;
+/** T-570: the job types the player raises when they wait: a workshop's job and a building's. */
+const RAISED_JOB_TYPES: ReadonlySet<string> = new Set(['craft', 'build']);
 
 /** The founder who is Broker from the first day: the mason, who works beside the depot. */
 const BROKER_FOUNDER = 3;
@@ -483,6 +499,35 @@ export function assignBroker(w: TestWorld, state: FortressState): void {
   if (!w.readers.of<JobsReader>('11').laborEnabled(trader, 'trading')) command(w, { type: 'SetLabor', dwarfId: trader, labor: 'trading', on: true });
 }
 
+/**
+ * T-570: takes back at least `short` units of raw stone bound for the depot: the stones lying there
+ * (`RemoveFromDepot`), then the hauls of stone still waiting for a hauler (`CancelJob`).
+ */
+export function takeBackStone(w: TestWorld, depot: number, short: number): void {
+  const ent = w.game.world.entities;
+  const jobs = w.readers.of<JobsReader>('11');
+  const stone = w.game.registry.table('items').index('raw_stone');
+  const isStone = (id: number): boolean => {
+    const it = ent.get(id, C.Item);
+    return it !== undefined && it.type === stone && (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) === 0;
+  };
+  let back = 0;
+  const lying: number[] = [];
+  for (const id of w.readers.of<TradeReader>('20').depotItems()) {
+    if (back >= short) break;
+    if (!isStone(id) || (ent.get(id, C.Item)!.flags & ItemFlag.AtDepot) === 0) continue;
+    lying.push(id);
+    back += ent.get(id, C.Item)!.count;
+  }
+  if (lying.length > 0) command(w, { type: 'RemoveFromDepot', depotId: depot, itemIds: lying });
+  for (const job of jobs.list('open')) {
+    if (back >= short) break;
+    if (!job.key.startsWith('depot:') || !isStone(job.target.ref)) continue;
+    back += ent.get(job.target.ref, C.Item)!.count;
+    command(w, { type: 'CancelJob', jobId: job.id });
+  }
+}
+
 export function trade(w: TestWorld, state: FortressState): void {
   const reader = w.readers.of<TradeReader>('20');
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -515,6 +560,11 @@ export function trade(w: TestWorld, state: FortressState): void {
   // A full stock of blocks/furniture does not still need another forty input stones.
   const stoneReserve = Math.ceil(Math.max(0, 30 - items.count('stone_block')) / 2) +
     Math.max(0, 14 - items.count('chair')) + Math.max(0, 6 - items.count('table')) + Math.max(0, 4 - items.count('door'));
+  // T-570: between visits the player takes back from the depot the stone the mason's orders want:
+  // goods at the depot are kept from every other job (20), and nothing else ever brought them back.
+  // In `defence_year` 15 stones stood at the depot from day 77 to the end while the fortress's
+  // available stone fell to none; in `three-years-p4-4` 42 of its 72 from day 126.
+  if (active === null && items.available('raw_stone') < stoneReserve) takeBackStone(w, depot, stoneReserve - items.available('raw_stone'));
   let stoneSurplus = items.available('raw_stone') - stoneReserve;
   let logSurplus = items.available('log') - TIMBER_RESERVE;
   // Stone and logs go to the depot while the anvil is still to be paid for, and whenever a
@@ -767,6 +817,62 @@ export function keepMasonAtWork(w: TestWorld, state: FortressState): void {
   if (builder === undefined || shop === undefined || armingSquad(state) || !w.game.world.entities.alive(builder)) return;
   if (w.readers.of<BuildingsReader>('14').get(shop)?.state !== 'built') return;
   if (w.game.world.entities.get(shop, C.Workshop)?.assignedWorker !== builder) command(w, { type: 'SetWorkshopWorker', workshopId: shop, dwarfId: builder });
+}
+
+/**
+ * T-570: the player looks at the board once a day and raises a workshop's or a building's job that
+ * has stood open (unclaimed and not blocked) for RAISE_AFTER_DAYS, one step, and again after as many
+ * more days, while the step keeps it at KIT_FIRST or behind (with its labor's priority: the kitchen's
+ * and the still's jobs are already a step ahead). A job that is claimed, blocked or gone is forgotten,
+ * so its next job starts at its order's priority again.
+ */
+export function raiseWaitingWork(w: TestWorld, state: FortressState): void {
+  const jobs = w.readers.of<JobsReader>('11');
+  const types = w.game.registry.table<{ id: string; labor: string }>('jobTypes');
+  const waiting = (state.economy.waiting ??= new Map<number, number>());
+  const open = new Set<number>();
+  for (const job of jobs.list('open')) {
+    if (!RAISED_JOB_TYPES.has(jobs.typeOf(job.id) ?? '')) continue;
+    open.add(job.id);
+    const since = waiting.get(job.id);
+    if (since === undefined) { waiting.set(job.id, w.tick); continue; }
+    if (w.tick - since < RAISE_AFTER_DAYS * TICKS_PER_DAY) continue;
+    waiting.set(job.id, w.tick);
+    const labor = typeof job.data['labor'] === 'string' ? job.data['labor'] : types.byIndex(job.type)?.labor ?? '';
+    const shift = labor === '' ? 0 : jobs.laborPriority(labor) - ROUTINE;
+    if (job.priority - 1 + shift >= KIT_FIRST) command(w, { type: 'SetJobPriority', jobId: job.id, priority: job.priority - 1 });
+  }
+  for (const id of [...waiting.keys()]) if (!open.has(id)) waiting.delete(id);
+}
+
+/**
+ * T-570: a specialist who stands in a squad on duty does no civilian work (16), and its workshop's
+ * job waits for it: in `defence_year`, whose squad trains from about day 40, the smith (the forge's
+ * worker) stood in it, and the squad's kit at KIT_FIRST stood open at the forge from day 35 to the
+ * end. The player gives the role, its labors and its workshops to a free immigrant outside the squad,
+ * the most skilled first, then the lowest id. Not while there is none.
+ */
+export function handOverSoldiersRoles(w: TestWorld, state: FortressState, members: readonly number[]): void {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  const ent = w.game.world.entities;
+  const { specialists } = state.economy;
+  for (const spec of SPECIALISTS) {
+    const holder = specialists[spec.role];
+    if (holder === undefined || !members.includes(holder)) continue;
+    const free = specialistCandidates(w, state).filter((id) => !members.includes(id) && !ent.has(id, C.Soldier));
+    free.sort((a, b) => dwarves.skill(b, spec.skill) - dwarves.skill(a, spec.skill) || a - b);
+    const pick = free[0];
+    if (pick === undefined) continue;
+    specialists[spec.role] = pick;
+    dedicate(w, state, pick, spec.labors);
+    for (const shop of spec.shops) {
+      const id = state.placedIds[shop];
+      if (id !== undefined && buildings.get(id)?.state === 'built' && ent.get(id, C.Workshop)?.assignedWorker !== pick) {
+        command(w, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: pick });
+      }
+    }
+  }
 }
 
 /**
@@ -1104,6 +1210,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     }
   }
   keepMasonAtWork(w, state);
+  raiseWaitingWork(w, state);
   // Masonry includes hundreds of room-finishing jobs. Keep a separate furnace worker on fuel,
   // iron and alloy rather than asking the builder to smelt after every nearby smoothing job.
   if (fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && !armingSquad(state)) {
