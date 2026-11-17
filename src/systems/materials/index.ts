@@ -72,6 +72,8 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   hardnessOf = new Int32Array(0);
   meltsAtOf = new Int32Array(0);
   burnableOf = new Uint8Array(0);
+  /** By material index: a plant species whose `plants` row is tagged `fireproof` (the salt crust). */
+  fireproofOf = new Uint8Array(0);
   valueTable = new Int32Array(0);
   burnTicksOf = new Int32Array(0);
   private rows: (MaterialRow | undefined)[] = [];
@@ -145,6 +147,14 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       this.valueTable[m] = row.value;
       this.burnTicksOf[m] = row.burnTicks;
     }
+    // `plants.md`: a species tagged `fireproof` (the salt crust) is a tile that never burns (05 § Fire).
+    this.fireproofOf = new Uint8Array(n);
+    if (ctx.registry.hasTable('plants')) {
+      const plants = ctx.registry.table<{ id: string; tags?: readonly string[] }>('plants');
+      for (const id of plants.ids()) {
+        if (table.has(id) && plants.byId(id)?.tags?.includes('fireproof') === true) this.fireproofOf[table.index(id)] = 1;
+      }
+    }
     // Derived tables: `oreYields` and `alloyInputs` (`05` § Material properties).
     this.yields = new Map();
     this.alloys = new Map();
@@ -182,6 +192,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       burnable: (m) => this.burnableOf[m] === 1,
       burnTicks: (m) => this.burnTicksOf[m] ?? 0,
       fireResistant: (m) => this.rows[m]?.tags?.includes('fire_resistant') === true,
+      fireproof: (m) => this.fireproofOf[m] === 1,
       entitiesAt: (i) => readers.entities.at(i),
       raining: () => {
         const state = this.weather()?.state?.();

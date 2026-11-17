@@ -32,7 +32,7 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 - 03 owns the `gather` designation and job. This system adds the `gather` zone type: each `DayPassed`, every mature shrub and every `web` tile inside a gather zone without a designation gets a `gather` designation at the zone's priority, so a zone over a spider ranch's room collects its silk daily (18 § Cavern monsters).
 - `gather` on a web tile (a `floor` with the `web` flag; 03 § Tile transitions) yields one `thread` of `silk_web` and clears the web; it draws nothing. The gatherer still works from a tile beside the web, and a web it walks into entangles it (18). Two silk threads weave a `silk_cloth` at the loom (`weave_cloth`).
 - Gathering wild crop species may yield a seed (07).
-- A shrub row with a second product gives it with the first at each gathering: `barrel_cactus` its pulp and its fiber. `reed_bed` yields `reed`.
+- A shrub row with a second product gives it with the first at each gathering: `barrel_cactus` its pulp and its fiber. `reed_bed` yields `reed`; `salt_crust` yields 2 `salt`.
 - `gather` on a shrub whose row is tagged `stings` (`wild_nettle`) stings the gatherer with `NETTLE_STING_PERMILLE`: `Stung { id, source: nettle }`, and 15 gives `nettles`. The draw is on its own stream, `rngFor('09.stings')`, made only for such a shrub, so a game without nettles draws the same numbers.
 - Brightleaf (the medicine herb) is what hospitals use for infection treatment (17); it is the reason to gather in the woods.
 

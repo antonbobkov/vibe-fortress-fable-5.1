@@ -942,6 +942,51 @@
     "fg": "rye_gold"
   },
   {
+    "id": "salt_crust",
+    "name": "salt crust",
+    "kind": "shrub",
+    "light": "sun",
+    "minC": -100,
+    "maxC": 100,
+    "yield": [
+      2,
+      2
+    ],
+    "yieldItem": "salt",
+    "yieldMaterial": "salt",
+    "value": 0,
+    "edible": false,
+    "cookable": false,
+    "regrowDays": 28,
+    "wildSeedPermille": 0,
+    "graze": true,
+    "tags": [
+      "fireproof"
+    ],
+    "convert": {
+      "tiles": [
+        {
+          "tile": "dry_soil",
+          "permille": 2
+        },
+        {
+          "tile": "rock",
+          "permille": 2
+        }
+      ],
+      "biomes": [
+        {
+          "biome": "desert"
+        },
+        {
+          "biome": "badlands"
+        }
+      ]
+    },
+    "glyph": "∙",
+    "fg": "salt_white"
+  },
+  {
     "id": "sporecloth",
     "name": "sporecloth",
     "kind": "cave_crop",

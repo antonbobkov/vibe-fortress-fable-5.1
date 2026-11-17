@@ -27,6 +27,8 @@ export interface MaterialFacts {
   boneItem?(material: number): string;
   /** The material's `burnable` column (`materials.md`). Absent: nothing burns, so `ignite` never passes. */
   burnable?(material: number): boolean;
+  /** A plant species whose `plants` row is tagged `fireproof` (the salt crust). Absent: none. */
+  fireproof?(material: number): boolean;
 }
 
 /** An item a transition owes the world: `type` and `material` are content ids. */
@@ -136,15 +138,15 @@ export function frozenOutdoorWater(map: Map3D, i: TileIndex, facts: MaterialFact
 
 /**
  * 05's `burnableTile(T)` over the map and the material facts (`05` § Fire, Ignition): a constructed
- * tile of wood anywhere; outdoors a tree, sapling or shrub, a grass floor, or a floor or wall of a
- * burnable soil (peat). The same rule as `Fire.burnableTile` (the terrain test holds them equal).
+ * tile of wood anywhere; outdoors a tree, sapling or shrub (not of a `fireproof` species: the salt
+ * crust), a grass floor, or a floor or wall of a burnable soil (peat). The same rule as `Fire.burnableTile` (the terrain test holds them equal).
  */
 export function burnableTile(map: Map3D, i: TileIndex, facts: MaterialFacts): boolean {
   const kind = map.kindAt(i);
   const material = map.materialAt(i);
   if (constructed(map, i)) return facts.classOf(material) === 'wood' && kind !== TileKind.Open;
   if (!map.hasFlag(i, TileFlag.Outdoor)) return false;
-  if (kind === TileKind.Tree || kind === TileKind.Sapling || kind === TileKind.Shrub) return true;
+  if (kind === TileKind.Tree || kind === TileKind.Sapling || kind === TileKind.Shrub) return facts.fireproof?.(material) !== true;
   if (kind === TileKind.Floor && map.hasFlag(i, TileFlag.Grass)) return true;
   return (kind === TileKind.Floor || kind === TileKind.Wall) && facts.classOf(material) === 'soil' && facts.burnable?.(material) === true;
 }
