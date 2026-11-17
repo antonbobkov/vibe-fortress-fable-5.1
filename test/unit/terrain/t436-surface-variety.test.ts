@@ -3,7 +3,7 @@
  * stages 1, 3 and 9; `23-rendering.md` § Compositor step 2; `regions-biomes-and-traits.md`
  * § Biome surface). Relief and slopes at every relief, outcrops of bare rock, crags and scree,
  * boulders by biome, snow on alpine ground, and on screen grass, flower, rock and plant variety and
- * higher ground drawn as the ground it is. Resources keep their kind.
+ * nothing above the level in view drawn (23 § Step 2). Resources keep their kind.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -178,7 +178,7 @@ describe('T-436 the surface on screen', () => {
     expect(flowers).toBeGreaterThan(0);
   });
 
-  it('higher ground draws as the ground above it on a tinted background; it does not show where the level has no sky', () => {
+  it('nothing above the level in view is drawn: a wall under open ground draws as a wall', () => {
     const s = spec('temperate_grassland', 2, 't436-hills');
     const w = new TestWorld({ seed: 't436-hills', world: 'local', spec: s, embark: 'none' });
     w.step(1);
@@ -196,8 +196,9 @@ describe('T-436 the surface on screen', () => {
     expect(hill).not.toBeNull();
     const cells = compose(w.readers, view(z), 60, 40);
     const cell = cells.get(hill!.col, hill!.row);
-    expect(cell.glyph).not.toBe(GLYPH_ROUGH_WALL);
-    expect(cell.bg).not.toBe(0);
+    const g = cell.glyph;
+    expect(g === GLYPH_GRASS || g === GLYPH_GRASS_SHORT || g === GLYPH_GRASS_TUFT || g === GLYPH_FLOWER).toBe(false);
+    if ((map.flagsAt(map.index(20 + hill!.col, 20 + hill!.row, z)) & TileFlag.Discovered) !== 0) expect(g).toBe(GLYPH_ROUGH_WALL);
     // Six levels down there is no sky in view: nothing of the ground above shows there.
     const deep = compose(w.readers, view(z - 6), 60, 40);
     let leaked = 0;

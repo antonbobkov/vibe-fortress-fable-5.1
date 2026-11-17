@@ -61,7 +61,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
 import type { CombatReader } from '@systems/combat';
 import { blend, brighten } from './palette';
-import { DESIGNATION_PULSE_FACTOR, HILL_LEVELS_ABOVE, ZONE_TINT_ALPHA } from './constants';
+import { DESIGNATION_PULSE_FACTOR, ZONE_TINT_ALPHA } from './constants';
 import type { TerrainReader } from '@systems/terrain';
 import { wearsLight } from '@systems/magic/enchant';
 
@@ -213,7 +213,6 @@ export class Compositor {
   /** Step 2's variety of natural outdoor surfaces and plants (T-436). */
   private readonly surface: SurfaceVariety;
   /** The level in view has open sky, so walls under the surface draw as the higher ground they are. */
-  private hillView = false;
   /** Per material index: 1 natural rock (stone, obsidian), 0 otherwise. */
   private readonly rockMaterial: Uint8Array;
   /** Materials of class `bone` (`giant_bone`, `ivory`): a boulder of one draws `•` (23 § Compositor). */
@@ -354,7 +353,6 @@ export class Compositor {
     const map = readers.map;
     const daylight = readers.calendar.isDaylight;
     const rect = layout.map;
-    this.hillView = this.viewHasSky(map, ui, rect.cols, rect.rows);
     for (let row = 0; row < rect.rows; row += 1) {
       const y = ui.camY + row;
       for (let col = 0; col < rect.cols; col += 1) {
@@ -388,14 +386,11 @@ export class Compositor {
       this.env.beginFrame(readers, 0);
       this.debug.beginFrame(readers, this.frameOverlays);
       this.setFrameBiome(readers);
-      this.hillView = false;
       this.animFrame = 0;
       this.indexProjectiles(readers);
     }
     // Step 1: undiscovered tiles show nothing but the overlays the player placed.
     if ((map.flagsAt(i) & TileFlag.Discovered) === 0) {
-      const hill = map.kindAt(i) === TileKind.Wall ? this.hillCell(map, i) : null;
-      if (hill !== null) return this.overlays(hill, i, x, y, true, false);
       return this.overlays({ glyph: GLYPH_NONE, fg: this.undiscovered, bg: this.undiscovered }, i, x, y, true, false);
     }
 
@@ -489,7 +484,7 @@ export class Compositor {
         if ((flags & TileFlag.Smoothed) !== 0) {
           return { glyph: GLYPH_SOLID_WALL, fg: material, bg: this.black };
         }
-        return this.hillCell(map, i) ?? { glyph: GLYPH_ROUGH_WALL, fg: material, bg: this.black };
+        return { glyph: GLYPH_ROUGH_WALL, fg: material, bg: this.black };
       case TileKind.Floor:
         if ((flags & TileFlag.Constructed) !== 0 && map.isGlass(i)) return this.glassFloorCell(map, i, material);
         return this.floorCell(map, i, flags, material);
@@ -519,54 +514,6 @@ export class Compositor {
       default:
         return { glyph: GLYPH_NONE, fg: this.black, bg: this.black };
     }
-  }
-
-  /**
-   * Step 2, higher ground: while the level in view has open sky, a natural wall whose column rises
-   * through natural wall to an outdoor surface (floor, ramp, plant or boulder) at most
-   * `HILL_LEVELS_ABOVE` levels up is the body of that higher ground. It is drawn as that surface,
-   * on its background leaning toward the ground's tone, more for each level up (step 1 draws an
-   * undiscovered one so as well: the ground above it is in plain sight).
-   */
-  private hillCell(map: MapReader, i: TileIndex): Cell | null {
-    if (!this.hillView) return null;
-    const plane = map.w * map.h;
-    const end = plane * map.d;
-    let up = i;
-    for (let k = 1; k <= HILL_LEVELS_ABOVE; k += 1) {
-      up += plane;
-      if (up >= end) return null;
-      const kind = map.kindAt(up);
-      if (kind === TileKind.Wall) {
-        if ((map.flagsAt(up) & TileFlag.Constructed) !== 0) return null;
-        continue;
-      }
-      if (!map.isOutdoor(up)) return null;
-      if (kind !== TileKind.Floor && kind !== TileKind.Ramp && kind !== TileKind.Tree && kind !== TileKind.Shrub
-        && kind !== TileKind.Sapling && kind !== TileKind.Boulder) return null;
-      const top = this.cropOver(this.terrainCell(map, up), up);
-      const material = map.materialAt(up - plane);
-      const tone = this.rockMaterial[material] === 1 ? this.materialColor(material) : this.surface.soilTone;
-      const cell = { glyph: top.glyph, fg: top.fg, bg: this.surface.hillBg(top.bg, tone, k) };
-      // Step 9 for the ground it shows: the wall itself is not outdoor, the surface above is.
-      const night = this.env.dimSteps(up);
-      return night > 0 ? this.dim(cell, night) : cell;
-    }
-    return null;
-  }
-
-  /** Whether the level in view has open sky: an outdoor tile that is not a wall. */
-  private viewHasSky(map: MapReader, ui: ViewState, cols: number, rows: number): boolean {
-    for (let row = 0; row < rows; row += 1) {
-      for (let col = 0; col < cols; col += 1) {
-        const x = ui.camX + col;
-        const y = ui.camY + row;
-        if (!map.inBounds(x, y, ui.z)) continue;
-        const i = map.index(x, y, ui.z);
-        if (map.kindAt(i) !== TileKind.Wall && map.isOutdoor(i)) return true;
-      }
-    }
-    return false;
   }
 
   /** Step 2: a tree or shrub in its species colour, or a lighter or darker shade of it, by tile. */
