@@ -7,6 +7,8 @@ name: Measure
 #   gh workflow run measure.yml --ref <branch> -f suite=spirits         (T-554's probe: three-year seeds with and without a still making spirits)
 #   gh workflow run measure.yml --ref <branch> -f suite=sleep_audit     (the sleep audit: three seeds' first 112 days, plain and with dressed beds)
 #   gh workflow run measure.yml --ref <branch> -f suite=job_waits       (T-570's probe: how long the fixtures' jobs wait open, and what holds the raw stone)
+#   gh workflow run measure.yml --ref <branch> -f suite=making_do       (T-583's probe: which of Making Do's content the twenty three-year seeds reach)
+#   gh workflow run measure.yml --ref <branch> -f suite=making_do_player (T-583's probe: the three-year script with a player ordering Making Do on top)
 # Results: gh run download <run-id>   (one folder per job; the verdicts are in "sweep", "instrument" and "defence")
 # How to run it and read it: docs/04-implementation/tooling.md § Running tests on GitHub.
 on:
@@ -16,7 +18,7 @@ on:
         description: What to measure
         type: choice
         default: sweep
-        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds, spirits, sleep_audit, job_waits]
+        options: [sweep, instrument, three_years_main, scenario, timing, defence_seeds, spirits, sleep_audit, job_waits, making_do, making_do_player]
       scenario:
         description: For suite=scenario, the scenario id (its file name without .scenario.ts)
         type: string
@@ -30,7 +32,7 @@ on:
         type: string
         default: ''
       probe_seeds:
-        description: "For suite=spirits or job_waits, the three-year seeds, quoted and comma-separated (empty = the suite's own; job_waits also takes \"defence\" for defence_year)"
+        description: "For suite=spirits, job_waits, making_do or making_do_player, the three-year seeds, quoted and comma-separated (empty = the suite's own; job_waits also takes \"defence\" for defence_year)"
         type: string
         default: ''
       snapshots:
@@ -316,8 +318,41 @@ jobs:
           path: out/
           retention-days: 14
 
+  making_do:
+    if: inputs.suite == 'making_do' || inputs.suite == 'making_do_player'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: ${{ fromJSON(format('[{0}]', inputs.probe_seeds || (inputs.suite == 'making_do_player' && '"three-years-p0-1","three-years-p0-3","three-years-p0-5","three-years-p2-1","three-years-p2-4","three-years-p4-2"' || '"three-years-p0-1","three-years-p0-2","three-years-p0-3","three-years-p0-4","three-years-p0-5","three-years-p0-6","three-years-p0-7","three-years-p2-1","three-years-p2-2","three-years-p2-3","three-years-p2-4","three-years-p2-5","three-years-p2-6","three-years-p2-7","three-years-p4-1","three-years-p4-2","three-years-p4-3","three-years-p4-4","three-years-p4-5","three-years-p4-6"'))) }}
+        shift: ${{ fromJSON(format('[{0}]', inputs.shifts || '0')) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Making Do probe (${{ inputs.suite }}), ${{ matrix.seed }}, shift ${{ matrix.shift }}
+        env:
+          PROBE_SEED: ${{ matrix.seed }}
+          PROBE_SHIFT: ${{ matrix.shift }}
+          PROBE_OUT: out/${{ matrix.seed }}-shift-${{ matrix.shift }}.json
+          PROBE_FILE: ${{ inputs.suite == 'making_do_player' && 'test/perf/t583_making_do_player.test.ts' || 'test/perf/t583_making_do_reach.test.ts' }}
+        run: mkdir -p out && npx vitest run -c vitest.perf.config.ts $PROBE_FILE 2>&1 | tee out/${{ matrix.seed }}-shift-${{ matrix.shift }}.log; exit ${PIPESTATUS[0]}
+        shell: bash
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.suite }}-${{ matrix.seed }}-shift-${{ matrix.shift }}
+          path: out/
+          retention-days: 14
+
   single:
-    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'instrument' && inputs.suite != 'spirits' && inputs.suite != 'job_waits'
+    if: inputs.suite != 'sweep' && inputs.suite != 'defence_seeds' && inputs.suite != 'instrument' && inputs.suite != 'spirits' && inputs.suite != 'job_waits' && inputs.suite != 'making_do' && inputs.suite != 'making_do_player'
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
