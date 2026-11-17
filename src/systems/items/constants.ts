@@ -24,6 +24,8 @@ export const FIND_RADIUS_MAX = 48;
 export const WEALTH_EVENT_STEP = 250;
 /** Default; species may override. */
 export const CORPSE_ROT_DAYS = 14;
+/** `13` § Rot: days an item of material class `ice` takes to melt at full speed (*unmeasured*). */
+export const ICE_MELT_DAYS = 7;
 /** An enchanted item's value adds its stone's value times this. */
 export const ENCHANT_STONE_VALUE_MULT = 3;
 /** An enchanted item's value adds this for each rune vial its setting burned. */

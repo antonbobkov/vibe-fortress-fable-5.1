@@ -12,13 +12,15 @@ import type { Map3D } from '@core/map3d';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import type { ChunkIndex, TileIndex } from '@core/types';
 import { C } from '@core/components';
-import { MAGMA_C } from '@systems/fluids/constants';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileFlag, TileKind } from '@core/map3d';
+import { MAGMA_C, THAW_C } from '@systems/fluids/constants';
 import { HEARTH_WARMTH_C } from '@systems/buildings/constants';
 import { Fire } from './fire';
-import { MATERIALS_CADENCE, MATERIALS_PHASE, SMOKE_RADIUS, SMOKE_TICKS, UNDERGROUND_BASE_C } from './constants';
+import { ICE_CONSTRUCTION_DAYS, MATERIALS_CADENCE, MATERIALS_PHASE, SMOKE_RADIUS, SMOKE_TICKS, UNDERGROUND_BASE_C } from './constants';
 import type { AlloyInput, MaterialsReader, OreYield } from './reader';
 import type { BurningState, MaterialsStateV1 } from './state';
-import { chunkTiles, magmaSignature, reachOf, recomputeChunk, temperatureOf, type OverrideSources } from './temperature';
+import { baseTemperature, chunkTiles, magmaSignature, overrideAt, reachOf, recomputeChunk, temperatureOf, type OverrideSources } from './temperature';
 
 export type { MaterialsReader, MaterialProperty, OreYield, AlloyInput } from './reader';
 
@@ -57,7 +59,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   readonly order = 5;
   override readonly cadence = MATERIALS_CADENCE;
   override readonly phase = MATERIALS_PHASE;
-  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike', 'SnowCoverChanged', 'Mishap', 'SmokyFuelBurned'];
+  override readonly subscribes: readonly EventType[] = ['FluidsChanged', 'MagmaContact', 'LightningStrike', 'SnowCoverChanged', 'Mishap', 'SmokyFuelBurned', 'TileIgnited', 'TilesChanged', 'DayPassed'];
 
   private readonly options: MaterialsOptions;
   private mapRef: Map3D | null = null;
@@ -89,6 +91,14 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
   private now: () => number = () => 0;
   readonly pendingChunks = new Set<ChunkIndex>();
   readonly forced = new Map<TileIndex, number>();
+  /** `05` § Ice constructions: each standing ice wall or floor and the tick it was built (`iceBuilt`). */
+  readonly iceBuilt = new Map<TileIndex, number>();
+  /** A `DayPassed` came since the last materials tick: the underground ice is checked. */
+  iceDayDue = false;
+  /** The day of the last `IceMelted` (one a day), or -1. */
+  iceMeltedDay = -1;
+  /** The material index of `ice`, 0 without one. */
+  private iceMaterial = 0;
   /** How many chunk recomputes ran (a debug counter for the tests; not state). */
   recomputes = 0;
 
@@ -124,6 +134,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     this.valueTable = new Int32Array(n);
     this.burnTicksOf = new Int32Array(n);
     this.rows = [];
+    this.iceMaterial = table.has('ice') ? table.index('ice') : 0;
     for (let m = 1; m < n; m += 1) {
       const row = table.byIndex(m);
       this.rows[m] = row;
@@ -186,6 +197,8 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     ctx.register.announcement('FireStarted', { severity: 'alert', stringKey: 'announce.fire_started' });
     // `05` § Player-facing behavior: "fire out as a note" (T-M7-10).
     ctx.register.announcement('FireOut', { severity: 'note', stringKey: 'announce.fire_out' });
+    // `05` § Ice constructions: "The ice walls of {place} have melted.", a note, at most once a day.
+    ctx.register.announcement('IceMelted', { severity: 'note', stringKey: 'announce.ice_melted' });
   }
 
   // ---------- temperature ----------
@@ -211,7 +224,79 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     return {
       isBurning: (i) => this.burning.has(i),
       isWarmSpring: (i) => this.springSet.has(i),
+      isIce: this.iceBuilt.size === 0 ? null : (i) => this.isIceConstruction(i),
     };
+  }
+
+  /** A constructed wall or floor of `ice` (`05` § Ice constructions). */
+  isIceConstruction(i: TileIndex): boolean {
+    const map = this.map;
+    if (this.iceMaterial === 0 || map.materialAt(i) !== this.iceMaterial || !map.hasFlag(i, TileFlag.Constructed)) return false;
+    const kind = map.kindAt(i);
+    return kind === TileKind.Wall || kind === TileKind.Floor;
+  }
+
+  /**
+   * The temperature a tile would have without the cold of the ice constructions: an outdoor ice
+   * wall melts by the weather, not by its own cold (`05` § Ice constructions).
+   */
+  private warmthWithoutIce(i: TileIndex): number {
+    const forced = this.forced.get(i);
+    if (forced !== undefined) return forced;
+    const sources: OverrideSources = { isBurning: (j) => this.burning.has(j), isWarmSpring: (j) => this.springSet.has(j), isIce: null };
+    return baseTemperature(this.map, i, this.surfaceTempC()) + overrideAt(this.map, i, sources) * 5 + (this.hearthLightAt(i) ? HEARTH_WARMTH_C : 0);
+  }
+
+  /**
+   * `TilesChanged`: an ice wall or floor built joins `iceBuilt`, one gone leaves it; either way its
+   * reach is queued for override work, as a fire's is.
+   */
+  private iceChanged(tiles: readonly TileIndex[], tick: number): void {
+    if (this.iceMaterial === 0) return;
+    for (const t of tiles) {
+      const ice = this.isIceConstruction(t);
+      if (ice === this.iceBuilt.has(t)) continue;
+      if (ice) this.iceBuilt.set(t, tick);
+      else this.iceBuilt.delete(t);
+      this.markSourceChanged(t);
+    }
+  }
+
+  /**
+   * `05` § Ice constructions: an outdoor ice wall or floor melts on the first materials tick its
+   * tile is above `THAW_C` (without the ice's own cold); an underground one on the first materials
+   * tick after the `DayPassed` that reaches `ICE_CONSTRUCTION_DAYS` from its building. It is removed
+   * as a burned wooden construction is, with no item and no water.
+   */
+  private meltIce(ctx: TickContext): void {
+    const dayDue = this.iceDayDue;
+    this.iceDayDue = false;
+    if (this.iceBuilt.size === 0) return;
+    const map = this.map;
+    const melted: TileIndex[] = [];
+    for (const t of Array.from(this.iceBuilt.keys()).sort((a, b) => a - b)) {
+      const built = this.iceBuilt.get(t) as number;
+      const outdoor = map.hasFlag(t, TileFlag.Outdoor);
+      const melts = outdoor ? this.warmthWithoutIce(t) > THAW_C : dayDue && ctx.tick - built >= ICE_CONSTRUCTION_DAYS * TICKS_PER_DAY;
+      if (melts) melted.push(t);
+    }
+    if (melted.length === 0) return;
+    const terrain = ctx.terrain;
+    for (const t of melted) {
+      const below = map.below(t);
+      const naturalRockBelow = below >= 0 && map.kindAt(below) === TileKind.Wall && !map.hasFlag(below, TileFlag.Constructed);
+      const floor = map.kindAt(t) === TileKind.Floor;
+      terrain.setFlag(t, TileFlag.Constructed, false);
+      if (floor && naturalRockBelow) terrain.setKind(t, TileKind.Floor, map.materialAt(below));
+      else terrain.setKind(t, TileKind.Open, 0);
+      this.iceBuilt.delete(t);
+      this.markSourceChanged(t);
+    }
+    const day = Math.floor(ctx.tick / TICKS_PER_DAY);
+    if (day !== this.iceMeltedDay) {
+      this.iceMeltedDay = day;
+      ctx.emit({ type: 'IceMelted', tiles: melted });
+    }
   }
 
   /** Recompute a set of chunks, ascending. */
@@ -254,6 +339,7 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     if (!this.started) this.start();
     for (const [tile, until] of Array.from(this.smoke)) if (until <= ctx.tick) this.smoke.delete(tile);
     this.tickFire(ctx);
+    this.meltIce(ctx);
     if (this.pendingChunks.size > 0) {
       const due = Array.from(this.pendingChunks);
       this.pendingChunks.clear();
@@ -298,6 +384,19 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       // (14 § Candle stands and lanterns, a `dwarfId` and no workshop) is that dwarf's alone, and not drawn.
       if (typeof event['dwarfId'] === 'number') return;
       this.smoke.set(event['tile'] as TileIndex, ctx.tick + SMOKE_TICKS);
+      return;
+    }
+    if (event.type === 'TileIgnited') {
+      // `05` § Fire, Fire on purpose: a dwarf's firebrand lights the tile at the next materials tick, as lightning does.
+      this.fire.pendingIgnite.add(event['tile'] as TileIndex);
+      return;
+    }
+    if (event.type === 'TilesChanged') {
+      this.iceChanged(event['tiles'] as readonly TileIndex[], ctx.tick);
+      return;
+    }
+    if (event.type === 'DayPassed') {
+      if (this.iceBuilt.size > 0) this.iceDayDue = true;
       return;
     }
     if (event.type === 'LightningStrike') {
@@ -419,6 +518,9 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
       itemBurn: this.serializeItemBurn(),
       pendingIgnite: this.serializePendingIgnite(),
       ...(this.smoke.size === 0 ? {} : { smoke: Array.from(this.smoke).sort((a, b) => a[0] - b[0]) }),
+      ...(this.iceBuilt.size === 0 ? {} : { iceBuilt: Array.from(this.iceBuilt).sort((a, b) => a[0] - b[0]) }),
+      ...(this.iceDayDue ? { iceDayDue: true as const } : {}),
+      ...(this.iceMeltedDay < 0 ? {} : { iceMeltedDay: this.iceMeltedDay }),
     };
   }
 
@@ -452,6 +554,10 @@ export class MaterialsSystem extends BaseSystem<MaterialsStateV1> {
     this.deserializeFire(state);
     this.smoke.clear();
     for (const [t, until] of state.smoke ?? []) this.smoke.set(t, until);
+    this.iceBuilt.clear();
+    for (const [t, built] of state.iceBuilt ?? []) this.iceBuilt.set(t, built);
+    this.iceDayDue = state.iceDayDue === true;
+    this.iceMeltedDay = state.iceMeltedDay ?? -1;
     this.rng?.setState(state.rng);
   }
 

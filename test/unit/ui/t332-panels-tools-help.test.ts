@@ -37,13 +37,13 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     await game.start({ embark: 'default' });
   });
 
-  it('Designate offers the fourteen designations with whole captions, a priority control, undo, and tells how to mark an area', () => {
+  it('Designate offers the sixteen designations with whole captions, a priority control, undo, and tells how to mark an area', () => {
     const s = surface(36, 32);
     game.fortress.tool.choose('d');
     drawDesignatePanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, game.fortress.tool, strings);
     const rows = rowsOf(s.lines());
     // T-280: no caption is cut at 36 columns.
-    expect(rows.slice(0, 7)).toEqual([
+    expect(rows.slice(0, 8)).toEqual([
       '[S-d] Dig        [S-c] Channel',
       '[S-u] Up stair   [S-j] Down stair',
       '[i] Up/down      [r] Ramp',
@@ -51,12 +51,14 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
       '[S-e] Engrave    [x] Remove',
       '[S-t] Chop trees [g] Gather',
       '[h] Harvest      [S-f] Traffic',
+      // T-559: cutting ice and setting a fire.
+      '[q] Cut ice      [S-b] Set a fire',
     ]);
     for (const row of rows) expect(row).not.toContain('»');
-    expect(rows[7]).toBe('Priority [-] 5 [+]   (1-9)');
-    expect(rows[8]).toBe('[Ctrl+Z] undo  [Del] clear');
-    expect(rows[9]).toBe('[S-p] last batch to priority 5');
-    expect(rows[10]).toBe('Click 2 corners; [<] [>] levels.');
+    expect(rows[8]).toBe('Priority [-] 5 [+]   (1-9)');
+    expect(rows[9]).toBe('[Ctrl+Z] undo  [Del] clear');
+    expect(rows[10]).toBe('[S-p] last batch to priority 5');
+    expect(rows[11]).toBe('Click 2 corners; [<] [>] levels.');
   });
 
   it('Overlays lists the map layers with a tick for the two that are on, and the debug layers apart', () => {

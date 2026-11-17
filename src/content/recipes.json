@@ -3239,6 +3239,36 @@
     "xp": 6
   },
   {
+    "id": "make_firebrand",
+    "name": "Firebrands",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "log|bone_pile",
+        "count": 1
+      },
+      {
+        "match": "tallow|beeswax",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "firebrand",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 2
+  },
+  {
     "id": "make_floodgate",
     "name": "Floodgate",
     "workshop": "mason",

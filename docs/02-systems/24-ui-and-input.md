@@ -87,6 +87,7 @@ Panel conventions:
 - Clicking a location reference (a job target, an announcement) centers the map.
 - Numbers are shown with units; percentages as `71%`; marks as `1,250 ☼`.
 - Opening Designate chooses Dig when no designation tool is chosen; `[S-d]` is its Dig accelerator.
+- The designation menu has `Cut ice` (`harvest_ice`, `[q]`) and `Set a fire` (`ignite`, `[S-b]`) after Traffic; their tints are dig's and remove's (`glyphs-and-colors.md` § Designation and zone tints).
 - New squads use the first unused UI preset name; choosing their members is a separate action.
 - Help and Debug use the global keymap bindings (`?` and `F12` by default). Debug is a sidebar panel, not a screen.
 - The stockpile inspector's cellar line toggles the setting with `[S-c]` or a click (`SetStockpileCellar`) and says whether the cellar works and why not: "Cellar: off", "Cellar: working", "Cellar: lit", "Cellar: too warm (16 °C)", "Cellar: too cold (1 °C)" (13 § Aging in a cellar).
@@ -133,7 +134,7 @@ Shown and pending hints belong to `UiState`, not fortress simulation state. The 
 
 ### Confirmations
 
-Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) use the shared `confirmThen` helper for destructive panel actions. Every default is No. They ask for: mining deepsilver (once per fortress), retiring, quick load, removing any zone or work order, disbanding, taking apart any built building, suspending a workshop, marking items for melt or dump, marking an animal for slaughter, releasing a caged creature, loading a snapshot, deleting a save, and embarking without a pick or without food or drink; the first `New world` also asks whether to play the tutorial. Crop and occupied-stockpile removals show their specific counts. Clearing marks or resuming does not ask; neither do forbidding, returning depot goods to stock, removing a trade request, opening the squad member removal chooser, cancelling a job or cancelling a building plan. Dialog rows and texts are in the content table.
+Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) use the shared `confirmThen` helper for destructive panel actions. Every default is No. They ask for: mining deepsilver (once per fortress), the first fire set on purpose (once per fortress: the first `ignite` box opens `c_first_ignite`; Yes sends `ConfirmIgnite` and then the designation, No drops it; later ones need none), retiring, quick load, removing any zone or work order, disbanding, taking apart any built building, suspending a workshop, marking items for melt or dump, marking an animal for slaughter, releasing a caged creature, loading a snapshot, deleting a save, and embarking without a pick or without food or drink; the first `New world` also asks whether to play the tutorial. Crop and occupied-stockpile removals show their specific counts. Clearing marks or resuming does not ask; neither do forbidding, returning depot goods to stock, removing a trade request, opening the squad member removal chooser, cancelling a job or cancelling a building plan. Dialog rows and texts are in the content table.
 
 ### Screens outside the fortress
 
@@ -278,9 +279,3 @@ The complete default keymap, the screen and panel lists with hotkeys, the mouse 
 - Localization: the strings table.
 - Touch: a gesture layer producing the same actions.
 - Macros and command scripting: commands are data; a panel that records and replays them fits the command log.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification and deletes it here; the last one deletes this section. Keys, strings, hints and confirmations are in `ui-keymap-and-screens.md` § Planned rows.
-
-- **Designations** (T-559): `harvest ice` and `ignite` in the designation menu. The first `ignite` box of a fortress opens the confirmation `c_first_ignite` (default No); Yes sends `ConfirmIgnite` and then the designation, No drops it. Later ones need none.

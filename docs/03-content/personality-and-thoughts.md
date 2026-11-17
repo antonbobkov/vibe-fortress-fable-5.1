@@ -142,6 +142,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `singed` | "Singed my beard in the sanctum." | −3 | 24 | halflife | 1 | none | `Mishap` `singed` |
 | `rune_sick` | "Too much rune. My teeth hum." | −4 | 24 | halflife | 1 | none | `VialDrunk` a fourth vial in a day |
 | `forged_the_star` | "I forged the steel the sky made." | +6 | 168 | linear | 1 | craft | `ItemCrafted` of a piece of `star_steel` (not a bar), the crafter |
+| `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf |
 
 ### Weather
 
@@ -220,13 +221,3 @@ What the Thane may wish for in a season ([10](../02-systems/10-dwarves.md) § Th
 | `whim_spirits` | stock | `drink` of `deepfire` | 10 | "something strong" |
 | `whim_masterwork` | stock | any item of masterwork quality | 1 | "a masterwork, any masterwork" |
 | `whim_featherbed` | room | `bed` made up with feathers in the Thane's `bedroom` | 1 | "a featherbed" |
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into the table of its group above (without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The events are in the § Planned sections of the system documents. Every number is *unmeasured*.
-
-### Planned thoughts
-
-| id | text | value | hours | decay | cap | group | trigger | task |
-|---|---|---|---|---|---|---|---|---|
-| `set_a_fire` | "Set a fire. On purpose, this time." | +1 | 12 | linear | 1 | none | `TileIgnited` the dwarf | T-559 |

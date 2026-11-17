@@ -339,6 +339,19 @@
     "interruptible": false
   },
   {
+    "id": "harvest_ice",
+    "name": "Cut ice",
+    "labor": "mining",
+    "skill": "mining",
+    "target": "tile",
+    "workTile": "adjacent",
+    "baseTicks": "ICE_HARVEST_TICKS",
+    "tool": "pick",
+    "xp": 6,
+    "producer": "terrain",
+    "interruptible": true
+  },
+  {
     "id": "haul_to_depot",
     "name": "Haul to depot",
     "labor": "hauling",
@@ -388,6 +401,19 @@
     "tool": "ranged",
     "xp": 5,
     "producer": "foraging",
+    "interruptible": true
+  },
+  {
+    "id": "ignite",
+    "name": "Set a fire",
+    "labor": "woodcutting",
+    "skill": null,
+    "target": "tile",
+    "workTile": "adjacent",
+    "baseTicks": "IGNITE_TICKS",
+    "tool": null,
+    "xp": 0,
+    "producer": "terrain",
     "interruptible": true
   },
   {

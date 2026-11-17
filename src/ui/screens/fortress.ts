@@ -1358,6 +1358,21 @@ export class FortressScreen implements Screen {
         return minRow?.deepsilver === true;
       });
     });
+    // 24 § Designations: the first `ignite` box of a fortress asks first (`c_first_ignite`, default No).
+    const firstIgnite = this.host.readers.fortress.state.igniteConfirmed !== true &&
+      commands.some((cmd) => cmd.type === 'Designate' && cmd['kind'] === 'ignite');
+    if (firstIgnite && this.host.confirm !== undefined) {
+      this.host.confirm('c_first_ignite', {}, (yes) => {
+        if (yes) {
+          this.host.submit({ type: 'ConfirmIgnite' });
+          for (const c of commands) this.host.submit(c);
+          this.tool.remember(commands);
+        }
+      });
+      this.tool.anchor = null;
+      this.tool.end = null;
+      return [];
+    }
     if (hasUnconfirmedDeepsilver && this.host.confirm !== undefined) {
       this.host.confirm('c_deepsilver', {}, (yes) => {
         if (yes) {

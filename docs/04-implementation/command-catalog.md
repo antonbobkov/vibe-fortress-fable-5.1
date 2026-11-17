@@ -6,13 +6,14 @@ Every command, its fields, its owning system, its validation and the events its 
 
 | Command | Fields | Owner | Validation (reject reason) | Emits |
 |---|---|---|---|---|
-| `Designate` | `tiles[], kind, priority` | 03 | each tile in bounds; kind precondition per 03's transition table for tiles that are discovered (undiscovered tiles accepted blind); `deepsilver_unconfirmed` if any tile is known deepsilver and `deepsilverConfirmed` is false | `JobCreated` via producer |
+| `Designate` | `tiles[], kind, priority` | 03 | each tile in bounds; kind precondition per 03's transition table for tiles that are discovered (undiscovered tiles accepted blind); `deepsilver_unconfirmed` if any tile is known deepsilver and `deepsilverConfirmed` is false; `harvest_ice` leaves out tiles cut less than `ICE_RECUT_DAYS` ago (`precondition_failed` when none is left); `ignite_unconfirmed` for an `ignite` while `igniteConfirmed` is false | `JobCreated` via producer |
 | `UndoDesignation` | `tiles[]` | 03 | tiles have designations without progress (`has_progress` otherwise, partial) | `JobCancelled` |
 | `SetDesignationPriority` | `tiles[], priority` | 03 | designations exist; Designate tool applies it to the still-designated tiles of its last batch | — |
 | `SetTraffic` | `tiles[], mode` | 03 | in bounds | `TilesChanged` |
 | `DesignateStairwell` | `x, y, zTop, zBottom` | 03 | integer coordinates in the map (`out_of_bounds`); `zTop > zBottom` | as Designate |
 | `DesignateHarvest` | `tiles[]` | 07 | crops at stage 3 | `JobCreated` |
 | `ConfirmDeepsilver` | — | 03 | — | — (sets `deepsilverConfirmed`) |
+| `ConfirmIgnite` | — | 03 | — | — (sets `igniteConfirmed`) |
 | `SetPlotCrop` | `zoneId, season, speciesId \| 0` | 07 | zone is a farm plot; species is 0 or a known farmed plant id/integer index (`not_found` otherwise); light matches the plot kind (`light_mismatch`); a crop sown only on ash (wyrmtongue) needs every plot tile an ash tile (`not_on_ash`) | — |
 | `AssignPasture` | `animalId, zoneId \| 0` | 08 | tame grazer, not a summon (`not_found`); zone is a pasture | — |
 | `MarkSlaughter` / `UnmarkSlaughter` | `animalId` | 08 | tame, not a summon (`not_found`); not assigned as war or hunting animal (`assigned`) | `JobCreated` |
@@ -78,6 +79,6 @@ App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress
 
 ## Rejection reasons
 
-`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `light_mismatch`, `not_tame`, `not_grazer`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`, `not_on_ash`, `not_traded`.
+`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `ignite_unconfirmed`, `light_mismatch`, `not_tame`, `not_grazer`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`, `not_on_ash`, `not_traded`.
 
 Each reason has a string key `reject.<reason>` in the strings table; the UI shows it in the status bar for `STATUS_HINT_SECONDS`.

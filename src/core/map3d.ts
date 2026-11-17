@@ -45,6 +45,8 @@ export enum Designation {
   Chop = 10,
   Gather = 11,
   Harvest = 12,
+  HarvestIce = 13,
+  Ignite = 14,
 }
 
 /** `data-model.md` § Flags. Bits 14-15 are reserved. */

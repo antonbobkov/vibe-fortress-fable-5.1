@@ -146,6 +146,8 @@ The keys of a rectangle dragged with no tool (§ Mouse); `Delete` is the Map con
 | `[S-t]` | chop trees |
 | `[g]` | gather plants |
 | `[h]` | harvest |
+| `[q]` | harvest ice |
+| `[S-b]` | ignite (set a fire) |
 | `[S-f]` | traffic (again: the next traffic mode) |
 | `[S-p]` | give the tool's priority to the last batch |
 
@@ -613,6 +615,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.thane_whim_met` | "The Thane's wish was met: {whim}." |
 | `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." |
 | `announce.spat_on` | "The camel spat on {dwarf}." |
+| `announce.ice_melted` | "The ice walls of {place} have melted." |
 
 
 ## Hints
@@ -734,6 +737,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `c_remove_order` | "Remove the order for {recipe}? Work in progress on it stops." | No |
 | `c_tutorial` | "Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?" | No |
 | `c_release_cage` | "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was." | No |
+| `c_first_ignite` | "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out." | No |
 
 ## Settings
 
@@ -768,20 +772,13 @@ Player-facing text uses string keys. The UI reads `strings.json` together with t
 
 ## Planned rows
 
-Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The screens are in [24](../02-systems/24-ui-and-input.md) § Planned.
+Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The rules that use them are in the § Planned sections of the system documents.
 
 ### Planned announcement strings
 
 | Key | Text | task |
 |---|---|---|
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
-| `announce.ice_melted` | "The ice walls of {place} have melted." | T-559 |
-
-### Planned confirmation
-
-| id | Text | Default | task |
-|---|---|---|---|
-| `c_first_ignite` | "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out." | No | T-559 |
 
 ### Planned hints
 
@@ -789,12 +786,3 @@ Rows of the Making Do content, not yet in the game and not exported. The task na
 |---|---|---|---|
 | `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
 | `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." | T-558 |
-
-### Planned keys
-
-| Context | Key | Action | task |
-|---|---|---|---|
-| Designate panel | `I` | harvest ice | T-559 |
-| Designate panel | `F` | ignite (set a fire) | T-559 |
-
-The keys are first choices; the task checks them against the existing bindings of each context and the fixed keys.

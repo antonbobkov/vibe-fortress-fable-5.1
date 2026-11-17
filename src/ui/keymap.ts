@@ -272,6 +272,8 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'gather plants': 'gather',
   harvest: 'harvest',
   'traffic (again: the next traffic mode)': 'traffic',
+  'harvest ice': 'harvest_ice',
+  'ignite (set a fire)': 'ignite',
   "give the tool's priority to the last batch": 'reprioritize',
   constructions: 'construction',
   furniture: 'furniture',

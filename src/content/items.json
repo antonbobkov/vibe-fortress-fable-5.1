@@ -1065,6 +1065,22 @@
     "quality": true
   },
   {
+    "id": "firebrand",
+    "name": "firebrand",
+    "category": "tool/firebrand",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "wood",
+      "bone"
+    ],
+    "glyph": "/",
+    "quality": false
+  },
+  {
     "id": "fishing_rod",
     "name": "fishing rod",
     "category": "tool/fishing_rod",
