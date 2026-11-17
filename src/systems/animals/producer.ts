@@ -78,6 +78,8 @@ export interface AnimalsProducerHost {
   takeCombs(hive: EntityId): EntityId[];
   /** The collector's sting roll, on 08's stream. */
   stingCollector(workerId: EntityId, emit: TickContext['emit']): void;
+  /** `08` § Products, The camel spits: the worker's spit roll after a milking or shearing, on 08's stream. */
+  spit(workerId: EntityId, animalId: EntityId, tick: number, emit: TickContext['emit']): void;
   animalNear(id: EntityId, tile: TileIndex): boolean;
 }
 
@@ -301,6 +303,7 @@ export class AnimalsProducer implements JobProducer {
         if (item !== '' && material !== '') ctx.spawn.item(ctx.registry.table('items').index(item),
           ctx.registry.table('materials').index(material), tile, 1);
         this.host.ready.delete(productKey(animal, product));
+        this.host.spit(job.workerId, animal, ctx.tick, (e) => ctx.emit(e));
       }
     }
     const hive = job.data['hive'];

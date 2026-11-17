@@ -1583,6 +1583,23 @@
     "announce": false
   },
   {
+    "id": "spat_on",
+    "name": "spat on",
+    "text": "The camel spat on me.",
+    "value": {
+      "formula": "−1"
+    },
+    "hours": 12,
+    "decay": "halflife",
+    "cap": 1,
+    "group": "comfort",
+    "trigger": {
+      "event": "SpatOn",
+      "target": "self"
+    },
+    "announce": false
+  },
+  {
     "id": "stood_in_the_ribs",
     "name": "stood in the ribs",
     "text": "Stood inside the ribs of something enormous.",

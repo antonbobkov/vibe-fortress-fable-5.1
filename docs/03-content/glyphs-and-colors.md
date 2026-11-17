@@ -251,7 +251,8 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `brick_red` | #A0482E |  |  | `glass_pale` | #BFE3E6 |  |
 | `dung_brown` | #5C4A30 |  |  | `star_silver` | #D8E4F0 |  |
 | `honey_amber` | #D49A2A |  |  | `wax_yellow` | #E8D27A |  |
-| `soap_white` | #EEF0F2 |  |  |  |  |  |
+| `soap_white` | #EEF0F2 |  |  | `reindeer_brown` | #8A6A4A |  |
+| `camel_tan` | #C8A472 |  |  |  |  |  |
 
 ## Glyphs by thing
 
@@ -332,15 +333,3 @@ The center `┼` is the work tile; the south-center tile is the output tile. Imp
 ### Status bar glyphs
 
 Sun `☼` day, moon `C` night (CP437 lacks a moon; `C` in `dark_cyan` is the convention), weather: clear `☼`, overcast `≡`, rain `'`, storm `↯`, snow `*`, fog `≡` dim, heatwave `☼` red, cold snap `*` cyan; population `☺`; hall spirit `♥`; patients `+` red; hostiles `!` red; caravan `$`; speed `►`, `►►`, `►►►`, paused `║`.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. The task named adds each colour to § Material and nature colors (the hex here is a first choice; it may change if it clashes) adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`.
-
-### Planned colours
-
-| id | hex | task |
-|---|---|---|
-| `reindeer_brown` | #8A6A4A | T-561 |
-| `camel_tan` | #C8A472 | T-561 |
-

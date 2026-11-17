@@ -41,6 +41,8 @@ export interface SpeciesRow {
   readonly shell?: boolean;
   /** `creatures.md` § Butcher parts: what the corpse gives besides meat, hide, bone, fat, skull and shell. */
   readonly butcherParts?: readonly { readonly item: string; readonly material: string; readonly count: number }[];
+  /** `creatures.md` § Wild herds: a domestic species that also lives wild, in herds on their own stream. */
+  readonly herd?: { readonly biomes: readonly { readonly biome: string; readonly weight: number }[]; readonly group: readonly [number, number]; readonly season?: readonly number[] };
   readonly value: number;
   readonly naturalArmor: number;
   readonly fleeBloodPercent: number;
@@ -167,6 +169,20 @@ export class AnimalFacts {
       const weight = row.biomes?.reduce((acc, b) => (b.biome === biome ? acc + b.weight : acc), 0) ?? 0;
       if (weight <= 0) continue;
       if (row.season !== undefined && !row.season.includes(season)) continue;
+      out.push([s, weight]);
+    }
+    return out;
+  }
+
+  /** `creatures.md` § Wild herds: the herd species of a biome in a season, `[species, weight]`, ascending species. */
+  herdSpecies(biome: string, season: number): (readonly [number, number])[] {
+    const out: (readonly [number, number])[] = [];
+    for (let s = 1; s <= this.size; s += 1) {
+      const herd = this.rows[s]?.herd;
+      if (herd === undefined) continue;
+      const weight = herd.biomes.reduce((acc, b) => (b.biome === biome ? acc + b.weight : acc), 0);
+      if (weight <= 0) continue;
+      if (herd.season !== undefined && !herd.season.includes(season)) continue;
       out.push([s, weight]);
     }
     return out;

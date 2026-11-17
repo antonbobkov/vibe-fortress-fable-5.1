@@ -12,6 +12,8 @@
  * cavern fauna respawns by the same rule at random walkable cavern tiles once breached
  * the global MAX_CREATURES cap applies
  * leaving: over the species cap, or longer on the map than WILD_LIFETIME_DAYS
+ * wild herds (domestic species that also live wild): the same rule with HERD_SPAWN_PERMILLE and the
+ *   herd's group, on a stream of their own, after the ordinary spawning
  * ```
  */
 
@@ -32,6 +34,7 @@ import {
   FROSTMARROW_YAK_GROUP,
   FROSTMARROW_YAK_WEIGHT,
   FUNGAL_DEPTHS_CAVERN_FACTOR_PERCENT,
+  HERD_SPAWN_PERMILLE,
   SERENE_VALE_BANNED,
   SERENE_VALE_HERBIVORE_FACTOR_PERCENT,
   SPAWN_MIN_DISTANCE,
@@ -248,6 +251,44 @@ export function dailySpawn(host: SpawnHost, season: number, tick: number): Spawn
   return out.filter((g) => g.ids.length > 0);
 }
 
+/** `08` § Wild herds: `HERD_SPAWN_PERMILLE` at weight 100, scaled by the herd's weight in the biome. */
+export function herdPermille(weight: number): number {
+  return Math.min(1000, Math.floor((HERD_SPAWN_PERMILLE * weight) / 100));
+}
+
+/**
+ * `08` § Wild herds: one day's herds (`creatures.md` § Wild herds) by the rules of wild spawning,
+ * every draw on the herds' own stream. `stream` is called only on a map whose biome has a herd, so
+ * a map without one never makes the stream.
+ */
+export function dailyHerds(host: SpawnHost, stream: () => RngStream, season: number): SpawnedGroup[] {
+  const herds = host.facts.herdSpecies(host.biome, season);
+  if (herds.length === 0) return [];
+  const rng = stream();
+  const out: SpawnedGroup[] = [];
+  for (const [species, weight] of herds) {
+    const cap = surfaceCap(host, species, weight);
+    if (cap <= 0 || host.countWild(species) >= cap) continue;
+    if (host.creatureCount() >= MAX_CREATURES) break;
+    if (!rng.chance(herdPermille(weight))) continue;
+    const row = host.facts.row(species);
+    const cls = (row?.movementClass ?? 'walker') as MovementClass;
+    const pool = edgeSpawnTiles(host, cls);
+    if (pool.length === 0) continue;
+    const anchor = pool[rng.int(0, pool.length - 1)] as TileIndex;
+    const [lo, hi] = row?.herd?.group ?? [1, 1];
+    const room = Math.max(0, cap - host.countWild(species));
+    const n = Math.min(rng.int(lo, hi), room, Math.max(0, MAX_CREATURES - host.creatureCount()));
+    const ids: EntityId[] = [];
+    for (const tile of groupTiles(host, anchor, n, cls)) {
+      if (ids.length >= n) break;
+      ids.push(host.spawn(species, tile));
+    }
+    if (ids.length > 0) out.push({ species, ids });
+  }
+  return out;
+}
+
 function spawnGroup(host: SpawnHost, species: number, anchor: TileIndex, cls: MovementClass, cap: number): SpawnedGroup {
   const room = Math.max(0, cap - host.countWild(species));
   const n = Math.min(groupSize(host, species), room, Math.max(0, MAX_CREATURES - host.creatureCount()));
@@ -266,6 +307,7 @@ function spawnGroup(host: SpawnHost, species: number, anchor: TileIndex, cls: Mo
 export function leavers(host: SpawnHost, season: number, tick: number, wild: readonly EntityId[], entities: { get(id: EntityId): { species: number; arrivedTick: number } | undefined }): EntityId[] {
   const caps = new Map<number, number>();
   for (const [species, weight] of regionSurfaceSpecies(host, season)) caps.set(species, surfaceCap(host, species, weight));
+  for (const [species, weight] of host.facts.herdSpecies(host.biome, season)) caps.set(species, surfaceCap(host, species, weight));
   const over = new Map<number, number>();
   const out: EntityId[] = [];
   const lifetime = WILD_LIFETIME_DAYS * TICKS_PER_DAY;

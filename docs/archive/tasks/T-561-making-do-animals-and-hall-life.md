@@ -1,6 +1,8 @@
 # T-561 — Making Do C5: reindeer and camels
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 6); the owner, 2026-11-13 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in 0b1b12b8,5c92d312,34994da7.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 6); the owner, 2026-11-13 · **Size:** S · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 

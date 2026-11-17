@@ -988,6 +988,22 @@
         "weight": 6,
         "sundries": true,
         "units": 1
+      },
+      {
+        "item": "camel",
+        "materials": [],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1,
+        "biomes": [
+          "desert",
+          "badlands",
+          "savanna"
+        ]
       }
     ]
   },

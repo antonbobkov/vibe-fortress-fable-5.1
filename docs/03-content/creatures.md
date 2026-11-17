@@ -49,8 +49,21 @@ Traders and guards wear civ gear (see [caravan-goods.md](caravan-goods.md)).
 | `mule` | mule | quadruped | 90 | 0.15 | grazer | timid | walker | — | 3 | 7 | 50 | kick blunt 12 size 6 | 0 | 60 | — (mules do not breed) | B T | `m` | `mule_brown` |
 | `yak` | yak | quadruped | 120 | 0.12 | grazer | neutral | walker | milk 5, wool 28 | 4 | 10 | 70 | gore pierce 14 size 7 | 1 | 55 | 65 / 1 / 140 | B T | `Y` | `yak_black` |
 | `horse` | horse | quadruped | 110 | 0.24 | grazer | timid | walker | — | 3 | 8 | 120 | kick blunt 14 size 6 | 0 | 65 | 70 / 1 / 120 | B T | `H` | `horse_brown` |
+| `reindeer` | reindeer | quadruped | 70 | 0.195 | grazer | timid | walker | milk 6 | 4 | 7 | 45 | butt blunt 8 size 5 | 0 | 65 | 50 / 1 / 100 | B T | `R` | `reindeer_brown` |
+| `camel` | camel | quadruped | 110 | 0.15 | grazer | neutral | walker | milk 5, wool 28 | 4 | 8 | 80 | kick blunt 12 size 6 | 0 | 60 | 70 / 1 / 140 | B T | `K` | `camel_tan` |
 
 Horses come only from Hillfolk caravans at reputation ≥ 50. Yaks from the Mountainhome and in `frostmarrow` embarks.
+
+Reindeer and camels also live wild, in herds (§ Wild herds); a camel spits now and then when it is milked or shorn ([08](../02-systems/08-animals-and-domestication.md) § Products). The Hillfolk sell camels in hot regions ([caravan-goods.md](caravan-goods.md)).
+
+## Wild herds
+
+Domestic species that also live wild, in herds that spawn on a stream of their own ([08](../02-systems/08-animals-and-domestication.md) § Wild herds), so these weights are not in the biome lists of the ordinary wild spawning. A herd's cap follows the cap rule below; its group is the herd's, not the row's. Every number in the table is *unmeasured*.
+
+| species | biomes (weight) | group | season |
+|---|---|---|---|
+| `reindeer` | tundra 20, taiga 15 | 4–8 | all |
+| `camel` | desert 20, badlands 15, savanna 8 | 2–4 | all |
 
 ## Wild surface animals
 
@@ -156,6 +169,7 @@ What a butchered corpse gives besides meat, hide, bone, fat, skull and shell ([0
 | `goat` | `horn` | `horn` | 1 |
 | `elk` | `horn` | `horn` | 2 |
 | `cave_ox` | `horn` | `horn` | 2 |
+| `reindeer` | `horn` | `horn` | 2 |
 | `mammoth` | `tusk` | `ivory` | 2 |
 | `chicken` | `feather` | `feather` | 2 |
 | `cave_crawler` | `shell_piece` | `chitin` | 2 |
@@ -171,30 +185,6 @@ At `SIM_TICKS_PER_SECOND` = 20 and 1×, a dwarf at 0.15 crosses 3 tiles per seco
 ## Planned rows
 
 Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [08](../02-systems/08-animals-and-domestication.md) and [09](../02-systems/09-hunting-gathering-fishing.md) § Planned. Every number is *unmeasured*.
-
-### Planned domestic animals
-
-| id | name | plan | size | speed | diet | temper | class | products | meat | hide | value | attacks | armor | flee | gestation / litter / grow (days) | flags | glyph | fg | task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `reindeer` | reindeer | quadruped | 70 | 0.195 | grazer | timid | walker | milk 6 | 4 | 7 | 45 | butt blunt 8 size 5 | 0 | 65 | 50 / 1 / 100 | B T | `R` | `reindeer_brown` | T-561 |
-| `camel` | camel | quadruped | 110 | 0.15 | grazer | neutral | walker | milk 5, wool 28 | 4 | 8 | 80 | kick blunt 12 size 6 | 0 | 60 | 70 / 1 / 140 | B T | `K` | `camel_tan` | T-561 |
-
-### Planned wild herds
-
-The new herd species spawn wild on their own stream (08 § Planned, Reindeer and camels), so these weights are not in the biome lists of the ordinary wild spawning.
-
-| species | biomes (weight) | group | season | task |
-|---|---|---|---|---|
-| `reindeer` | tundra 20, taiga 15 | 4–8 | all | T-561 |
-| `camel` | desert 20, badlands 15, savanna 8 | 2–4 | all | T-561 |
-
-### Planned butcher parts
-
-Rows for § Butcher parts above.
-
-| species | item | material | count | task |
-|---|---|---|---|---|
-| `reindeer` | `horn` | `horn` | 2 | T-561 |
 
 ### Planned edits to existing rows
 

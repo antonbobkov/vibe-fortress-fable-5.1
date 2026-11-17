@@ -48,6 +48,9 @@ import {
   TERRITORY_AVOID_RADIUS,
   DUNG_DAYS,
   DUNG_ITEM,
+  HERDS_STREAM,
+  SPIT_PERMILLE,
+  SPITTING_SPECIES,
 } from './constants';
 import { AnimalFacts } from './facts';
 import { chunkCentre, fightNoise, hearsNoise, isHeavySleeperId, packOf, strikeBack, tickAnimal, tileOf, wakeStruck, type BrainHost } from './brain';
@@ -55,7 +58,7 @@ import { CONDITION_MAX, STARVE_TICKS, breedRadiusOk, conditionRise, isAdult, isD
 import { AnimalsProducer, productKey, slaughterKey, trainKey, type AnimalsProducerHost } from './producer';
 import { Hives } from './hives';
 import type { AnimalsReader } from './reader';
-import { initialCavernSpawn, dailySpawn, leavers, regionSurfaceSpecies, surfaceCap, cavernCap, type SpawnHost } from './spawn';
+import { initialCavernSpawn, dailySpawn, dailyHerds, leavers, regionSurfaceSpecies, surfaceCap, cavernCap, type SpawnHost } from './spawn';
 import type { AnimalsStateV1, EggRecord, SpeciesCount } from './state';
 
 export * from './constants';
@@ -64,7 +67,7 @@ export * from './tame';
 export { AnimalsProducer, honeyKey, trainKey, type AnimalsProducerHost } from './producer';
 export { Hives, type HivesHost } from './hives';
 export { AnimalFacts, type SpeciesRow, type Diet, type Temperament } from './facts';
-export { cavernCap, dailySpawn, dangerousQuiet, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, leavers, regionSurfaceSpecies, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
+export { cavernCap, dailyHerds, dailySpawn, dangerousQuiet, edgeSpawnTiles, farFromDwarves, groupSize, groupTiles, herdPermille, leavers, regionSurfaceSpecies, spawnPermille, surfaceCap, type SpawnHost } from './spawn';
 export type { AnimalsReader } from './reader';
 
 /** The id 08 registers its reader under. */
@@ -120,6 +123,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
   private readonly initializedCaverns = new Set<number>();
   /** T-545: the tick the last dangerous surface group arrived, -1 for none (`08` § Wild spawning). */
   private lastDangerousTick = -1;
+  /** `08` § Products, The camel spits: the day whose first spit made the note, -1 for none. */
+  private spatOnDay = -1;
   private wildlifeDensity = 1000;
   private cavernTileCache: (TileIndex[] | null)[] = [null, null, null, null];
 
@@ -244,6 +249,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     // `08` § Registrations (the job producer and the panel arrive with T-M4-04 and T-M4-17).
     ctx.register.announcement('AnimalStarving', { severity: 'alert', stringKey: 'announce.animal_starving' });
     ctx.register.announcement('PetAdopted', { severity: 'note', stringKey: 'announce.pet_adopted' });
+    ctx.register.announcement('SpatOn', { severity: 'note', stringKey: 'announce.spat_on', oneOf: { field: 'first', values: [true] } });
     // `08` § Player-facing behavior: "A pack of wolves has arrived from the north" (note) (T-M7-10).
     // A dangerous surface species is an alert (08 § Player-facing behavior); the first row that matches wins.
     const dangerous: string[] = [];
@@ -429,6 +435,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return combs;
       },
       stingCollector: (workerId, emit) => this.hives.stingCollector(workerId, emit),
+      spit: (workerId, animalId, tick, emit) => this.spit(workerId, animalId, tick, emit),
       animalNear: (id, tile) => {
         const at = this.tileOf(id);
         return at >= 0 && Math.max(Math.abs(this.map.xOf(at) - this.map.xOf(tile)), Math.abs(this.map.yOf(at) - this.map.yOf(tile))) <= 1 && this.map.zOf(at) === this.map.zOf(tile);
@@ -803,11 +810,30 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     }
   }
 
+  /**
+   * `08` § Products, The camel spits: a milking or shearing of a spitting species done, the worker is
+   * spat on with `SPIT_PERMILLE`, on 08's stream, drawn only for such a species. The day's first spit
+   * is a note.
+   */
+  spit(workerId: EntityId, animalId: EntityId, tick: number, emit: TickContext['emit']): void {
+    const species = this.entities.get(animalId, C.Creature)?.species ?? 0;
+    if (!SPITTING_SPECIES.includes(this.facts.idOf(species))) return;
+    if (!this.rng.chance(SPIT_PERMILLE)) return;
+    const day = Math.floor(tick / TICKS_PER_DAY);
+    const first = this.spatOnDay !== day;
+    this.spatOnDay = day;
+    emit({ type: 'SpatOn', id: workerId, animalId, first });
+  }
+
   /** `creature-brains.md`: "Daily: spawning per 08 …, lifetime and cap checks (`leave`)." */
   private daily(ctx: TickContext): void {
     const season = ctx.readers.calendar.season;
     this.cavernTileCache = [null, null, null, null];
     for (const group of dailySpawn(this.spawner, season, ctx.tick)) {
+      for (const id of group.ids) ctx.emit({ type: 'AnimalSpawned', id, species: this.facts.idOf(group.species) });
+    }
+    // `08` § Wild herds: after the ordinary spawning, on their own stream.
+    for (const group of dailyHerds(this.spawner, () => ctx.world.rngFor(HERDS_STREAM), season)) {
       for (const id of group.ids) ctx.emit({ type: 'AnimalSpawned', id, species: this.facts.idOf(group.species) });
     }
     const wild = ctx.world.entities.with(C.Wild);
@@ -1534,6 +1560,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       stateVersion: 1,
       ...(this.initializedCaverns.size > 0 ? { initializedCaverns: Array.from(this.initializedCaverns).sort((a, b) => a - b) } : {}),
       ...(this.lastDangerousTick < 0 ? {} : { lastDangerousTick: this.lastDangerousTick }),
+      ...(this.spatOnDay < 0 ? {} : { spatOnDay: this.spatOnDay }),
       breedingCaps: sortedPairs(this.breedingCaps),
       speciesCounts: sortedPairs(this.speciesCounts).map(([s, c]): [number, SpeciesCount] => [s, { ...c }]),
       nestBoxes: this.nestBoxes.slice(),
@@ -1577,6 +1604,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
     this.initializedCaverns.clear();
     for (const tier of state.initializedCaverns ?? []) this.initializedCaverns.add(tier);
     this.lastDangerousTick = state.lastDangerousTick ?? -1;
+    this.spatOnDay = state.spatOnDay ?? -1;
     this.breedingCaps.clear();
     for (const [s, cap] of state.breedingCaps) this.breedingCaps.set(s, cap);
     this.speciesCounts.clear();

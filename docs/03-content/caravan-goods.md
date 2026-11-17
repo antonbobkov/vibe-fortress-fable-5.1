@@ -88,6 +88,7 @@ Sundries: raw materials in small lots, ordinary entries of the weighted draw aft
 | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 |
 | Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 |
 | Candles | `candle` | tallow | 5–10 | 6 |
+| Camels (in `desert`, `badlands`, `savanna`) | `camel` | — | 1–2 | 6 |
 
 ## Wildwood (autumn, from year 1)
 
@@ -179,14 +180,6 @@ Mountainhome reputation adds `reputation / 25` immigrants per wave (21) and `rep
 ## Planned rows
 
 Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its civilization's table above (a sundries row into its Sundries table; without `civ` and `task`), adds its line to [row-order.md](row-order.md) when the table numbers its entries, and runs `npm run content:export`. The rules are in [20](../02-systems/20-trade-and-caravans.md) § Planned. Every number is *unmeasured*.
-
-### Planned sundries
-
-A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
-
-| civ | Entry | Item | Material pool | Count | Weight | task |
-|---|---|---|---|---|---|---|
-| Hillfolk | Camels (in `desert`, `badlands`, `savanna`) | `camel` | — | 1–2 | 6 | T-561 |
 
 ### Planned preferences
 
