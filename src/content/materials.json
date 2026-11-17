@@ -831,6 +831,21 @@
     "burnTicks": 0
   },
   {
+    "id": "guano",
+    "name": "guano",
+    "class": "soil",
+    "value": 1,
+    "density": 70,
+    "hardness": 100,
+    "color": "dung_brown",
+    "meltsAtC": 1300,
+    "burnable": false,
+    "burnTicks": 0,
+    "tags": [
+      "fertilizer"
+    ]
+  },
+  {
     "id": "halite",
     "name": "rock salt",
     "class": "ore",
@@ -1519,6 +1534,18 @@
     "burnTicks": 0
   },
   {
+    "id": "silk_cloth",
+    "name": "silk",
+    "class": "cloth",
+    "value": 20,
+    "density": 20,
+    "hardness": 100,
+    "color": "silk_white",
+    "meltsAtC": 300,
+    "burnable": true,
+    "burnTicks": 300
+  },
+  {
     "id": "silk_web",
     "name": "web silk",
     "class": "cloth",
@@ -1531,7 +1558,8 @@
     "burnTicks": 300,
     "tags": [
       "gather"
-    ]
+    ],
+    "nextStage": "silk_cloth"
   },
   {
     "id": "silt",

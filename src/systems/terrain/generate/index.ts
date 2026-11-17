@@ -17,7 +17,7 @@ import { stageHeight } from './height';
 import { fillWater, stageRivers } from './rivers';
 import { stageColumns } from './layers';
 import { stageSea } from './sea';
-import { stageCaverns } from './caverns';
+import { stageCaverns, stageRoosts } from './caverns';
 import { stageMinerals } from './minerals';
 import { stageVolcano } from './volcano';
 import { stageConversions, stageRarePatches, stageVegetation } from './vegetation';
@@ -77,6 +77,8 @@ export interface LocalMapResult {
   readonly giantSkulls: readonly (readonly TileIndex[])[];
   /** Stage 9b: each boneyard's cage tiles, ascending, for 03's state (`boneyards`); empty on any other map. */
   readonly boneyards: readonly (readonly TileIndex[])[];
+  /** After stage 6, on its own stream: the bat roosts' drop tiles, ascending, for 08's state (`roosts`). */
+  readonly roosts: readonly TileIndex[];
   /** Centre column of the volcano pipe, or -1. */
   readonly volcano: number;
 }
@@ -107,6 +109,7 @@ export function newLocalGen(spec: LocalMapSpec, map: Map3D, registry: Registry):
     craterTiles: [],
     giantSkulls: [],
     boneyards: [],
+    roosts: [],
     volcano: -1,
   };
 }
@@ -141,7 +144,11 @@ export function generateLocal(
       fillWater(g);
     },
     sea: () => stageSea(g),
-    caverns: () => stageCaverns(g),
+    caverns: () => {
+      stageCaverns(g);
+      // 03 § Local map generation, after stage 6: the bat roosts, on their own stream.
+      stageRoosts(g);
+    },
     minerals: () => stageMinerals(g),
     volcano: () => stageVolcano(g),
     vegetation: () => {
@@ -184,6 +191,7 @@ export function generateLocal(
     craterTiles: g.craterTiles,
     giantSkulls: g.giantSkulls,
     boneyards: g.boneyards,
+    roosts: g.roosts,
     volcano: g.volcano,
   };
 }

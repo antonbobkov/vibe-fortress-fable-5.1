@@ -20,7 +20,7 @@ Parts with hit weight 0 are never hit. Head and torso destruction kill every pla
 
 ## Column key
 
-`speed` in tiles per tick; `diet` `grazer` / `carnivore` / `omnivore` / `none`; `temper` `timid` / `neutral` / `territorial` / `aggressive`; `class` movement class; `products` with intervals in days; `meat`/`hide` values for generated materials (0 = none); `value` in marks (embark and trade); `attacks` as `name type damage size`, with an optional bracket `(venom: pain +V for T ticks)`: a hit of that attack that does damage pains its target by V for T ticks (16 § Melee resolution; 25 § Effects, `pain`); `armor` natural armor; `flee` blood percent at which the creature flees (`—` never); `group` spawn group size; `season` when the species is seasonal; flags: `S` stealth, `D` breaks doors, `O` opens doors, `M` magma-safe, `N` nocturnal, `B` butcherable, `T` tameable, `W`/`H` trainable war/hunting.
+`speed` in tiles per tick; `diet` `grazer` / `carnivore` / `omnivore` / `none`; `temper` `timid` / `neutral` / `territorial` / `aggressive`; `class` movement class; `products` with intervals in days; `meat`/`hide` values for generated materials (0 = none); `value` in marks (embark and trade); `attacks` as `name type damage size`, with an optional bracket `(venom: pain +V for T ticks)`: a hit of that attack that does damage pains its target by V for T ticks (16 § Melee resolution; 25 § Effects, `pain`); `armor` natural armor; `flee` blood percent at which the creature flees (`—` never); `group` spawn group size; `season` when the species is seasonal; flags: `S` stealth, `D` breaks doors, `O` opens doors, `M` magma-safe, `N` nocturnal, `B` butcherable, `T` tameable, `W`/`H` trainable war/hunting, `G` glows (lights its tile, and from a built cage the four tiles beside it for a `glow` crop: [07](../02-systems/07-plants-and-farming.md) § Growth).
 
 Species defaults follow their section: dwarves and domestic animals are `fortress`; humans are `trader:hillfolk`, elves and Wildwood bearers `trader:wildwood`; wild surface animals, cavern fauna, cavern monsters and the restless dead are `wild`; Hollow-born are `deep`; the Gloam and trollkin are `hostile:gloam`, and the Hillfolk bandit is `hostile:hillfolk`. Perception uses the default of [08 Animals](../02-systems/08-animals-and-domestication.md).
 
@@ -95,7 +95,7 @@ The fauna cavern cell accepts an optional `initial N` after its weight and cap. 
 
 | id | name | plan | size | speed | diet | temper | class | meat | hide/shell | value | attacks | armor | flee | group | cavern (weight, cap) | flags | glyph | fg |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `glow_beetle` | glow beetle | crawler | 5 | 0.12 | none | timid | small | 1 | shell 4 | 8 | — | 1 | 90 | 2–6 | 1 (40, cap 12) | B; lights its tile | `i` | `glow_green` |
+| `glow_beetle` | glow beetle | crawler | 5 | 0.12 | none | timid | small | 1 | shell 4 | 8 | — | 1 | 90 | 2–6 | 1 (40, cap 12) | B G; lights its tile | `i` | `glow_green` |
 | `cave_crab` | cave crab | crawler | 12 | 0.105 | none | timid | small | 2 | shell 4 | 12 | pinch blunt 4 size 2 | 3 | 60 | 2–4 | 1 (30, cap 8) | B | `k` | `crab_pale` |
 | `blind_fish` | blind fish | fish | 3 | 0.15 | none | timid | aquatic | 3 | 0 | 5 | — | 0 | 100 | 4–8 | cavern lakes (fish pool species, not spawned as creatures) | B | `f` | `fish_pale` |
 | `cave_ox` | cave ox | quadruped | 100 | 0.12 | grazer | neutral | walker | 5 | 9 | 70 | gore pierce 14 size 7 | 1 | 55 | 2–4 | 2 (25, cap 6) | B T | `O` | `ox_gray` |
@@ -107,7 +107,7 @@ The fauna cavern cell accepts an optional `initial N` after its weight and cap. 
 | id | name | plan | size | speed | temper | class | attacks | armor | flee | group | cavern (initial, cap, respawn) | flags | glyph | fg |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `cave_crawler` | cave crawler | crawler | 45 | 0.21 | aggressive | walker | bite edge 12 size 3; claw edge 8 size 2 | 2 | 30 | 3–5 | 1 (2 packs, cap 10, daily 80‰) | B N | `C` | `hostile` |
-| `giant_cave_spider` | giant cave spider | crawler | 70 | 0.165 | territorial | walker | bite pierce 16 size 4 (venom: pain +20 for 300 ticks) | 3 | 40 | 1 | 1 (2, cap 3, daily 30‰); spins `web` on 8 tiles around its lair each day | B S | `S` | `hostile` |
+| `giant_cave_spider` | giant cave spider | crawler | 70 | 0.165 | territorial | walker | bite pierce 16 size 4 (venom: pain +20 for 300 ticks) | 3 | 40 | 1 | 1 (2, cap 3, daily 30‰); spins `web` on 8 tiles around its lair each day; in a built cage, spins around the cage | B S | `S` | `hostile` |
 | `blind_stalker` | blind stalker | humanoid | 65 | 0.18 | aggressive | walker | claw edge 14 size 3; bite edge 10 size 3 | 2 | 25 | 1–2 | 2 (3, cap 6, daily 60‰) | S N | `S` | `hostile` |
 | `troll` | troll | humanoid | 140 | 0.135 | aggressive | large | slam blunt 26 size 8; bite edge 14 size 5 | 4 | 30 | 1–2 | 2 (2, cap 4, daily 40‰) | D B | `T` | `hostile` |
 | `magma_wyrm` | magma wyrm | serpent | 220 | 0.12 | aggressive | large | bite edge 45 size 9; tail blunt 30 size 8; fire breath burn 40 ranged 6 size 10 | 12 | — | 1 | 3 (1 in `wyrm_roost`, else 0; cap 1; no respawn; the Deep may send one) | M D | `W` | `wyrm_red` |
@@ -181,12 +181,3 @@ Water body kinds and their fish material: river → `trout`, lake → `perch`, c
 ## Speeds in play
 
 At `SIM_TICKS_PER_SECOND` = 20 and 1×, a dwarf at 0.15 crosses 3 tiles per second; a deer at 0.24 outruns a dwarf; a wolf at 0.225 nearly matches a deer; trolls at 0.135 are slower than dwarves, which is why sealing a breach is possible.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [08](../02-systems/08-animals-and-domestication.md) and [09](../02-systems/09-hunting-gathering-fishing.md) § Planned. Every number is *unmeasured*.
-
-### Planned edits to existing rows
-
-- `glow_beetle`'s flags gain `G` (glows: lights its tile, and from a cage the four tiles beside it for glowcap; 07 § Planned) (T-556). The column key gains `G`.
-- `giant_cave_spider`'s note gains "in a built cage, spins around the cage" (T-556).

@@ -198,5 +198,10 @@
     "id": "hint_skylight",
     "trigger": "first glass floor built over open space",
     "text": "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them."
+  },
+  {
+    "id": "hint_spider_ranch",
+    "trigger": "first caged spider placed in a cage building",
+    "text": "The spider does not need feeding. Nobody has asked it."
   }
 ]

@@ -310,6 +310,16 @@ export class BuildingPanel {
     return species === undefined ? '' : `a ${species.name}`;
   }
 
+  /** The string key of what a caged creature does in a built cage, or '' (14 § Cages). */
+  private cageWork(ctx: PanelContext, occupant: EntityId): string {
+    const creature = occupant === 0 ? undefined : ctx.readers.entities.get(occupant, C.Creature);
+    if (creature === undefined) return '';
+    const row = ctx.registry.table<{ id: string; flags?: { glows?: boolean } }>('creatures').byIndex(creature.species);
+    if (row?.flags?.glows === true) return 'ui.building.cage_glows';
+    if (row?.id === 'giant_cave_spider') return 'ui.building.cage_webs';
+    return '';
+  }
+
   /** `ReleaseCage`, after `c_release_cage`. */
   release(ctx: PanelContext): void {
     const occupant = this.occupant(ctx);
@@ -612,6 +622,9 @@ export class BuildingPanel {
     if (tags.includes('cage')) {
       const occupant = this.occupant(ctx);
       out.push({ id: 'cage', text: occupant === 0 ? s.get('ui.building.cage_holds_none') : s.get('ui.building.cage_holds', { creature: this.creatureName(ctx, occupant) }), tone: occupant === 0 ? 'dim' : 'value' });
+      // 14 § Cages: what a built cage's occupant does there (the beetle jar, the spider ranch).
+      const doing = view.state === 'built' ? this.cageWork(ctx, occupant) : '';
+      if (doing !== '') out.push({ id: 'cage_work', text: s.get(doing), tone: 'dim' });
       out.push({ id: 'release', text: key('r', s.get('ui.building.release_caption')), key: 'r', run: () => this.release(ctx), help: s.get('ui.building.release_help') });
       out.push({ id: 'tame', text: key('g', s.get('ui.building.tame_caption')), key: 'g', run: () => void this.tame(ctx), help: s.get('ui.building.tame_help') });
     }

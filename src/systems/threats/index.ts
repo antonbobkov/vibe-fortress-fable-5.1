@@ -62,7 +62,7 @@ export * from './ai';
 export * from './caverns';
 export * from './deep';
 
-import { TileFlag } from '@core/map3d';
+import { TileFlag, type Map3D } from '@core/map3d';
 import type { EntityStore } from '@core/entities';
 import type { Registry } from '@core/registry';
 import { cavernAt } from '@systems/terrain/api';
@@ -144,6 +144,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   private registry!: Registry;
   private monsterInfo = new Map<EntityId, CavernMonsterInfo>();
   private webs = new Map<TileIndex, EntityId>();
+  /** The map, to keep only the webs still spun when saving. */
+  private webMap: Map3D | null = null;
   private wasDaylight = true;
   private hollowBorn = new Set<EntityId>();
   private deepState: DeepState = {
@@ -161,6 +163,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     this.releaseDestroyObserver?.();
     this.releaseDestroyObserver = ctx.world.entities.onBeforeDestroy((id) => forgetDestroyedLoot(ctx.world.entities, id));
     this.entities = ctx.world.entities;
+    this.webMap = ctx.world.map;
     this.registry = ctx.registry;
     this.rng = ctx.rng;
     this.spec = this.options.spec ?? null;
@@ -181,7 +184,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       (n: number) => {
         let count = 0;
         for (const [id, info] of this.monsterInfo) {
-          if (this.entities.alive(id) && info.tier === n) {
+          if (this.entities.alive(id) && (this.entities.get(id, C.Creature)?.cagedIn ?? 0) === 0 && info.tier === n) {
             count++;
           }
         }
@@ -575,7 +578,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     if (speciesTable) {
       const speciesCounts = new Map<number, number>();
       for (const [id, info] of this.monsterInfo) {
-        if (this.entities.alive(id)) {
+        if (this.entities.alive(id) && (this.entities.get(id, C.Creature)?.cagedIn ?? 0) === 0) {
           const idx = speciesTable.index(info.species);
           if (idx >= 0) {
             speciesCounts.set(idx, (speciesCounts.get(idx) ?? 0) + 1);
@@ -593,7 +596,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       renown: this.renownVal,
       deepsilverTiles: [...this.deepsilverTiles],
       cavernSpawnCounts,
-      webs: Array.from(this.webs.entries()),
+      // A web gathered (09) is gone from the map; only the webs still spun are kept.
+      webs: Array.from(this.webs.entries()).filter(([tile]) => this.webMap?.hasFlag(tile, TileFlag.Web) !== false),
       namedCaptains: [],
       pendingArrivals: [...this.pendingArrivals],
       pendingSpawns: [...this.pendingSpawns],

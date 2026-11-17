@@ -780,6 +780,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
       trainable: enumOf(['none', 'war', 'hunting', 'both']),
       summoned: opt(bool),
       turns: opt(bool),
+      glows: opt(bool),
     }),
     breeding: opt(
       obj({ gestationDays: int, litter: tupleOf(2, int), growDays: int, hatch: opt(bool) }),

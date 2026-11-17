@@ -616,6 +616,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." |
 | `announce.spat_on` | "The camel spat on {dwarf}." |
 | `announce.ice_melted` | "The ice walls of {place} have melted." |
+| `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." |
 
 
 ## Hints
@@ -664,6 +665,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." |
 | `hint_hive` | a built hive with too few flowers in reach | "Bees need flowers: three within six tiles of the hive. Look for a meadow." |
 | `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." |
+| `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." |
 
 ## Tutorial
 
@@ -770,19 +772,3 @@ A refused fixed-footprint placement names the building and explains that width a
 Pasture rejection defaults include `reject.not_tame` ("that animal is not tame") and `reject.not_grazer` ("that animal does not graze").
 
 Player-facing text uses string keys. The UI reads `strings.json` together with the `UI_STRINGS` defaults in `ui/strings.ts`; a content row wins over a default of the same key. Screen wireframes list the keys per screen; announcement, thought, hint, milestone and confirmation texts above are their canonical values. Count placeholders in strings support plural forms `{count|singular|plural}` (such as `{n|table|tables}`), evaluating to `{count} singular` when `count` is 1 and `{count} plural` otherwise; prefixing the singular form with `!` (`{count|!singular|!plural}`) outputs only the chosen noun without the count number. The strings check audits both tables, used keys, and the bidirectional text mirrors for confirmations, hints, milestones and thoughts.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The rules that use them are in the § Planned sections of the system documents.
-
-### Planned announcement strings
-
-| Key | Text | task |
-|---|---|---|
-| `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
-
-### Planned hints
-
-| id | Trigger | Text | task |
-|---|---|---|---|
-| `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |

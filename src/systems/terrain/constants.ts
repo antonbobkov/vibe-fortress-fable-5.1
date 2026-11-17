@@ -64,6 +64,8 @@ export const TREE_LOGS_MAX = 4;
 export const FUNGAL_DEPTHS_OPEN_BONUS: Fixed = 150;
 /** `deep_well`: "cavern 1 open fraction 0.7". */
 export const DEEP_WELL_OPEN_FRACTION: Fixed = 700;
+/** After stage 6: the chance a cavern-one or cavern-two floor under the ceiling holds a bat roost (`fungal_depths` doubles it; *unmeasured*). */
+export const ROOST_PERMILLE = 1;
 /** Cavern floors: "if st.chance(600): material = cave_loam". */
 export const CAVE_LOAM_PERMILLE = 600;
 /** Cavern lakes: "noise3(..., [10], [100]) < 18"; `deep_well` cavern 1: 60. */

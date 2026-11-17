@@ -113,6 +113,16 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 - `TrainAnimal { animalId, kind: war | hunting }` for `trainable` species: a `train_animal` job (labor `animal_training`, skill `animal_training`) at a kennel; work `TRAIN_TICKS`; success with `TRAIN_BASE_PERMILLE + skill × TRAIN_PER_SKILL`; failure just retries. Trained animals get bigger attacks (`war`: +50% damage, `naturalArmor + 1`) and follow their assigned dwarf (`AssignAnimal { animalId, dwarfId | stationZone }`).
 - Taming: a wild animal caught in a cage trap (19) is an item-like caged creature; `TameCaged { cageId }` for `tameable` species creates a `tame_animal` job at a kennel; success by the same formula; on success the creature becomes `Tame` and is released next to the kennel; on failure it stays caged and can be retried. Untameable creatures stay in the cage forever, can be sold to caravans (Mountainhome buys exotic beasts), or be released (which is dangerous).
 
+### Cages
+
+- A creature held in a built cage building (14 § Special buildings) keeps its species' nature. A `giant_cave_spider` in one spins its webs around the cage (18 § Cavern monsters: the spider ranch). A creature whose species has the flag `glows` (`glow_beetle`) lights the four tiles beside its cage for a `glow` crop (07 § Growth: the beetle jar).
+- A caged creature is never fed, never tamed by being kept, and never unhappy; `TameCaged` still refuses an untameable one. A caged beetle lives as long as it lives now. "The spider does not need feeding. Nobody has asked it." is the hint `hint_spider_ranch`, on the first caged spider placed in a cage building (a [fun feature](../fun-features.md)).
+
+### Bat roosts
+
+- 08 keeps the roosts' drop tiles from `LocalMapResult.roosts` (03 § Local map generation, after stage 6) as `roosts: TileIndex[]`, in generation order; a roost's index is its place in the list. On each `DayPassed` whose day number (`tick / TICKS_PER_DAY`) plus the roost's index is a multiple of `ROOST_DAYS`, a roost whose drop tile is discovered and is still a floor with an `open` tile above and a natural wall above that drops one `guano` (of `guano`) on it. No draw. A roost whose ceiling has been dug away is gone; one in a cavern no dwarf has seen drops nothing, so guano does not pile up unseen.
+- The first time a fortress dwarf stands within `ROOST_NOTICE_RADIUS` (Chebyshev, across levels) of a discovered roost's drop tile, checked each `HourPassed` in ascending dwarf id and roost order, the fortress emits `RoostFound { tile, dwarfId }` once (`roostFound`): the note "Bats. Hundreds of them. {dwarf} counted." (`announce.roost_found`). Bats are never drawn, never fought and never leave. A fun feature: "Faces of the land" in [fun-features.md](../fun-features.md).
+
 ### Pets
 
 - Each season, each `cat` not already a pet adopts a random dwarf with `ADOPT_PERMILLE` (`PetAdopted`, a thought for the dwarf). Dogs can be assigned as pets by the player. A pet follows its dwarf loosely (within 5 tiles) and its death gives the owner grief (15). While its dwarf stands in the hearth hall or beside it, a pet (a dog or hunting animal following its dwarf too, but not a war animal at its station) is idle in the hall like any tame animal with no pasture (§ Tame behavior): it takes its tile by the spreading rule, or heaps on the pets' spot or the cats' corner, so pets that came in with their dwarves do not stop together on the hall's way in (T-510); once its dwarf is elsewhere it follows again. On the owner's `CreatureDied`, the pet's `petOf` becomes 0 in the same tick, so it can be adopted again.
@@ -129,6 +139,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 - `lastDangerousTick`: the tick the last dangerous surface group arrived (§ Wild spawning), omitted while none has; older saves without it have no quiet spell running.
 - `spatOnDay`: the day number of the last spit's note (§ Products), omitted while there has been none; older saves have none.
+- `roosts: TileIndex[]`: the bat roosts' drop tiles, in generation order (§ Bat roosts), omitted on a map without one; `roostFound`: the first roost has been announced, omitted while it has not. Older saves have neither.
 - Per wild animal: `Wild { state, homeChunk, stateUntil, hungry, lastThinkTick, arrivedTick, defendFrom?, unseenSince?, pendingMeal?, mealId?, heavySleeper? }`. `defendFrom` is the defended tile, present only during that attack. A saved attack without it is a defence of the animal's current tile unless hungry. `unseenSince` is the first lost-perception tick; `pendingMeal` awaits the killed creature's corpse notification; `mealId` is the corpse being approached or eaten. `stateUntil` is 0 during meal travel and the deadline while eating. Absent fields in older saves mean no grace or meal, and a light sleeper.
 - Per tame animal: `Tame { pastureId, condition, trained, assignedTo, pregnantUntil, lastProductTick[], juvenileUntil, slaughter, pet }`.
 - `breedingCaps: Map<species, number>`, `speciesCounts` (recomputed daily), `nestBoxes: EntityId[]`.
@@ -163,11 +174,11 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ### Events emitted
 
-`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `AnimalLeft { id }`, `Stung { id, source }` (a dwarf stung by bees, `source: bees`; § Hives), `SpatOn { id, animalId, first }` (a camel spat on the dwarf who milked or shore it; § Products). This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
+`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `RoostFound { tile, dwarfId }`, `AnimalLeft { id }`, `Stung { id, source }` (a dwarf stung by bees, `source: bees`; § Hives), `SpatOn { id, animalId, first }` (a camel spat on the dwarf who milked or shore it; § Products). This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
 
 ### Registrations
 
-Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`, `collect_honey`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption, the arrival of a dangerous species and the day's first spit of a camel (`SpatOn` with `first`).
+Job producer `animals` (`milk_animal`, `shear_animal`, `slaughter`, `train_animal`, `tame_animal`, `collect_egg`, `collect_honey`); panel `animals` (hotkey in 24); inspector section `creature › animal`; announcements for starving, pet death (via 17), adoption, the arrival of a dangerous species, the day's first spit of a camel (`SpatOn` with `first`) and the first bat roost found (`RoostFound`).
 
 A *dangerous* species is a surface species (it has biomes) that is not `timid` and is a carnivore, `aggressive` or `territorial`; the content row decides, no species id appears in code. `AnimalSpawned` for a dangerous species is announced as an alert, in the same batch as one line per species ("A bear has come to the valley.", "3 wolves have come to the valley."); any other species keeps the note ("A deer has arrived.").
 
@@ -177,7 +188,7 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 - Pasture zone: capacity line; assigning by selecting animals in the panel or by clicking an animal and choosing "Pasture".
 - Glyphs: lowercase letters by species (`d` dog, `c` cat, `C` cow is uppercase to read as large; the convention is lowercase for small and medium, uppercase for large animals; hostiles are uppercase in red).
 - A hive's building panel shows its combs, its flowers in reach and what the season does (24 § Building panel).
-- Announcements: "A bear has come to the valley." (alert, a dangerous species), "A deer has arrived." (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note), "The camel spat on Ketil Ironvein." (note, once a day).
+- Announcements: "A bear has come to the valley." (alert, a dangerous species), "A deer has arrived." (note), "The cow is starving" (alert), "The cat has adopted Ketil Ironvein" (note), "The camel spat on Ketil Ironvein." (note, once a day), "Bats. Hundreds of them. Brynja Coldhammer counted." (note, once a fortress).
 
 ## Tuning constants
 
@@ -226,6 +237,8 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 | `ADOPT_PERMILLE` | 250 | Per cat per season (*unmeasured*) |
 | `PET_PILE_MAX` | 4 | Pets heaped on the pets' spot by the hearth, and cats on the cats' corner (T-482, T-510, fun features; *unmeasured*) |
 | `PET_PILE_SIZE_MAX` | 35 | Largest species size that heaps as a pet: a wolf's (*unmeasured*) |
+| `ROOST_DAYS` | 7 | Days between a bat roost's guano (§ Bat roosts; *unmeasured*) |
+| `ROOST_NOTICE_RADIUS` | 8 | How near a fortress dwarf stands to a discovered roost to count the bats (§ Bat roosts; *unmeasured*) |
 | `HIVE_DAYS` | 14 | Days between a hive's combs, spring to autumn (*unmeasured*) |
 | `HIVE_FLOWERS_MIN` | 3 | Flower tiles a hive needs in reach. The design's 8 met only 6% of soil tiles in a temperate grassland (flowers 3% of grass) and almost none elsewhere; at 3 a hive works on about 73% of a grassland's soil tiles, 45% of the hills', 28% of a tropical forest's or a wetland's, 19% of a temperate forest's, 18% of a savanna's or a tundra's, 5% of a taiga's and none of a desert's (two generated maps a biome; *unmeasured* in play) |
 | `HIVE_FLOWER_RADIUS` | 6 | A hive's reach, Chebyshev on its level (*unmeasured*) |
@@ -243,18 +256,3 @@ Species values (size, speed, products, intervals, gestation, litter, growth) are
 - Milking and shearing at pasture instead of at a workshop: change the job target.
 - Animal happiness (pastured animals happier, affects products): a field on `Tame`.
 - New products (silk) are product rows with a job type; honey came as a building (§ Hives).
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, or on this system's stream only where the new content is present, so a game without it draws the same numbers as before.
-
-### The spider ranch and the beetle jar (T-556)
-
-- A creature held in a built cage building keeps its species' nature. A `giant_cave_spider` in one spins its webs around the cage (18 § Planned). A creature whose species has the flag `glows` (`glow_beetle`) lights the four tiles beside its cage for a `glow` crop (07 § Planned).
-- A caged creature is never fed, never tamed by being kept, and never unhappy; `TameCaged` still refuses an untameable one. A caged beetle lives as long as it lives now. "The spider does not need feeding. Nobody has asked it." is the hint `hint_spider_ranch` on the first caged spider placed in a cage building.
-
-### Bat roosts (T-556)
-
-- 08 keeps the roosts' drop tiles from `LocalMapResult.roosts` (03 § Planned) as `roosts: TileIndex[]`. On each `DayPassed` whose day number plus the roost's index in the list is a multiple of `ROOST_DAYS`, a roost whose drop tile is still a floor with an `open` tile above and a natural wall above that drops one `guano` on it. A roost whose ceiling has been dug away is gone.
-- The first time a roost's drop tile becomes discovered while a fortress dwarf stands within `ROOST_NOTICE_RADIUS` of it, the fortress emits `RoostFound { tile, dwarfId }` once (`roostFound`): the note "Bats. Hundreds of them. {dwarf} counted." (`announce.roost_found`). Bats are never drawn, never fought and never leave.
-- Constants: `ROOST_DAYS` 7, `ROOST_NOTICE_RADIUS` 8. Events: `RoostFound`. Save: `roosts`, `roostFound`.

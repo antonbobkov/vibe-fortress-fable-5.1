@@ -63,6 +63,11 @@ generateLocal(spec: LocalMapSpec, map: Map3D, registry, progress): void
       fill from the floor through lowestOpenZ+1, bounded by the band ceiling and fluid-passable kinds
     magma pools (tier >= 2): for each dry floor tile: if st.chance(2): circle radius st.int(2,4) of magma level 7 (no source) at floor level (tile becomes Open with magma; floor below stays)
     if 'deep_well' and tier == 1: lake fraction 60% instead of 18%
+  // 4b. bat roosts (03, after stage 6): their own stream; nothing is written to the map
+  st = stream(S, 'terrain.roosts'); permille = ROOST_PERMILLE * (2 if 'fungal_depths' else 1)
+  for tier in [1, 2]: for f in cavernFloors[tier] ascending:
+    if kind(f) == Floor and kind(f+z1) == Open and kind(f+z2) == Wall and not constructed(f+z2) and st.chance(permille): roosts += f
+  roosts sorted ascending (LocalMapResult.roosts, for 08)
   progress('caverns')
   // 5. veins and clusters
   st = stream(S, 'terrain.minerals'); mult = wealthMultiplier[spec.wealth]

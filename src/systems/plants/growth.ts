@@ -15,7 +15,7 @@
 
 import { DAYS_PER_SEASON, HOURS_PER_DAY } from '@core/constants';
 import { OVERCAST_GROWTH_PERCENT, SEASON_GROWTH_PERCENT } from '@systems/weather/constants';
-import { BASE_GROWTH, CROP_STAGE_MAX, SOWING_MARGIN_DAYS, YIELD_BONUS_MAX, YIELD_LEVELS_PER_BONUS } from './constants';
+import { BASE_GROWTH, BEETLE_GROWTH_PERCENT, CROP_STAGE_MAX, SOWING_MARGIN_DAYS, YIELD_BONUS_MAX, YIELD_LEVELS_PER_BONUS } from './constants';
 import type { PlantRow } from './facts';
 
 export interface GrowthConditions {
@@ -23,6 +23,8 @@ export interface GrowthConditions {
   readonly lit: boolean;
   /** The tile lies under a glowstone lamp (`buildings.lampCoveredAt`). */
   readonly lamped: boolean;
+  /** The tile is lit for a `glow` crop only by a caged glowing creature beside it (`buildings.beetleLitAt`). */
+  readonly beetle?: boolean;
   readonly tempC: number;
   /** `weather.growthModifier()`; ignored by cave crops. */
   readonly growthModifier: number;
@@ -51,10 +53,13 @@ export function tempOk(row: PlantRow, tempC: number): boolean {
 /** The growth units a crop gains this hour, 0 when any condition blocks it. */
 export function growthPerHour(row: PlantRow, cave: boolean, c: GrowthConditions): number {
   if (!seasonAllows(row, cave, c.season)) return 0;
-  if (!lightOk(row, c.lit, c.lamped)) return 0;
+  const beetle = c.beetle === true && !c.lamped;
+  if (!lightOk(row, c.lit, c.lamped || beetle)) return 0;
   if (!tempOk(row, c.tempC)) return 0;
   const modifier = cave ? 100 : c.growthModifier;
-  return Math.floor((BASE_GROWTH * modifier) / 100);
+  const rate = Math.floor((BASE_GROWTH * modifier) / 100);
+  // `07` § Growth: a beetle-lit tile grows at `BEETLE_GROWTH_PERCENT` of the rate.
+  return beetle ? Math.floor((rate * BEETLE_GROWTH_PERCENT) / 100) : rate;
 }
 
 /** `stageDays × HOURS_PER_DAY × BASE_GROWTH`. */

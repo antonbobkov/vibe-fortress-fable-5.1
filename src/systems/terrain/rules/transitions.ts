@@ -50,6 +50,10 @@ export interface TileChange {
   readonly clear?: number;
 }
 
+/** 09 § Gathering webs: what `gather` on a web tile yields. */
+export const WEB_ITEM = 'thread';
+export const WEB_MATERIAL = 'silk_web';
+
 /** The designation kinds 03 owns (`harvest` is 07's `DesignateHarvest`). */
 export const TERRAIN_DESIGNATIONS: readonly Designation[] = [
   Designation.Dig,
@@ -186,7 +190,8 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
     case Designation.Chop:
       return k === TileKind.Tree || k === TileKind.Sapling;
     case Designation.Gather:
-      return k === TileKind.Shrub;
+      // A shrub, or a web on a floor (09 § Gathering webs).
+      return k === TileKind.Shrub || (k === TileKind.Floor && map.hasFlag(i, TileFlag.Web));
     case Designation.HarvestIce:
       return frozenOutdoorWater(map, i, facts);
     case Designation.Ignite:
@@ -345,6 +350,12 @@ export function transition(
       break;
     }
     case Designation.Gather: {
+      // 09 § Gathering webs: a web yields one `thread` of `silk_web` and is gone; no draw.
+      if (k === TileKind.Floor) {
+        drops.push({ type: WEB_ITEM, material: WEB_MATERIAL, count: 1, tile: i });
+        changes.push({ tile: i, clear: TileFlag.Web });
+        break;
+      }
       // "shrub stays; regrowth timer set (07)"; the product drops.
       const product = rolls.gather(material);
       if (product !== null && product.count > 0) {
@@ -382,4 +393,16 @@ export function clearPlantTransition(map: Map3D, i: TileIndex, facts: MaterialFa
     if (product?.extra !== undefined && product.extra.count > 0) drops.push({ ...product.extra, tile: i });
   }
   return { changes: [{ tile: i, kind: TileKind.Floor, material: ground, ...(soil ? { set: TileFlag.Grass } : {}) }], drops };
+}
+
+/**
+ * A floor tile under a roost's ceiling: a `floor` with an `open` tile above it and a natural `wall`
+ * above that (`03` § Local map generation, after stage 6; 08 checks it again before each drop).
+ */
+export function roostCeilingOver(map: Map3D, i: TileIndex): boolean {
+  if (!map.validIndex(i) || map.kindAt(i) !== TileKind.Floor) return false;
+  const air = map.above(i);
+  if (air < 0 || map.kindAt(air) !== TileKind.Open) return false;
+  const ceiling = map.above(air);
+  return ceiling >= 0 && map.kindAt(ceiling) === TileKind.Wall && !map.hasFlag(ceiling, TileFlag.Constructed);
 }

@@ -937,6 +937,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.building.unlinked': '{building} is no longer linked to {target}.',
   'ui.building.cage_holds': 'Holds {creature}',
   'ui.building.cage_holds_none': 'Empty',
+  'ui.building.cage_glows': 'Lights the four tiles beside its cage for glowcap.',
+  'ui.building.cage_webs': 'Spins webs around its cage every day.',
   'ui.building.cage_empty': '{building} is empty.',
   'ui.building.release_caption': 'release',
   'ui.building.release_help': 'Sets the creature down beside the cage, as wild or hostile as it was. Asks first.',

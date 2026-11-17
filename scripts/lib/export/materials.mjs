@@ -250,6 +250,9 @@ export function exportMaterials() {
       if (byMatId.has(next)) m.nextStage = next;
     } else if (m.id === 'wool') {
       if (byMatId.has('wool_thread')) m.nextStage = 'wool_thread';
+    } else if (m.id === 'silk_web') {
+      // materials.md § Cloth and fiber: web silk is gathered as thread and woven straight to silk.
+      if (byMatId.has('silk_cloth')) m.nextStage = 'silk_cloth';
     }
   }
 

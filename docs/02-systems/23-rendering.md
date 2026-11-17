@@ -75,6 +75,8 @@ For each viewport cell, tile `t = (camX + col, camY + row, z)`:
 9. **Lighting**: outdoor tiles at night are dimmed one step (two under storm); fog dims the surface one step; underground tiles are not dimmed (the player sees what the dwarves know). A cell whose look-down found only sky keeps the colour step 2 gave it (`sky_night` at night) and is not dimmed again.
 10. **Cursor and selection**: the look cursor is drawn as an inverted cell (`fg`/`bg` swapped); a selection rectangle inverts its border cells; a building ghost draws a black `▒` on `ghost_ok` or `x` on `ghost_bad` as `bg` by validity. Clipped UI text has a full-text tooltip in the status row and a box above the hovered cell.
 
+Bat roosts (08 § Bat roosts) are never drawn: a roost is not a tile kind and its bats are not creatures; only the guano it drops shows.
+
 The world-map compositor draws a biome cell, replaces it with blue `~` for a river region, then with the civilization home glyph and color if present. A rejected filter region dims one step via `dim(c, 1)`; matching regions retain full color. The cursor inverts foreground and background after filtering.
 
 ### Animation
@@ -161,9 +163,3 @@ Glyphs and colors per thing are content.
 - WebGL renderer: implement `draw(cellBuffer)` with instanced quads; the compositor is unchanged.
 - Multi-level view (drawing several levels at once, transparency): the compositor's step 2 already walks levels below; a mode could draw levels above at low alpha.
 - Smooth camera scrolling: presentation-only interpolation of the camera between frames.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Glyphs and colours are in `glyphs-and-colors.md` § Planned rows.
-
-- Roosts are never drawn (T-556).

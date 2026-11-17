@@ -53,7 +53,7 @@ export const CATEGORY_TREE: readonly string[] = [
   'medical', 'medical/splint', 'medical/bandage', 'medical/brightleaf', 'medical/glowcap', 'medical/vial', 'medical/draught',
   'medical/wyrmscale', 'medical/ichor', 'medical/venom', 'medical/gland',
   'medical/soap',
-  'farm', 'farm/bone_ash', 'farm/potash', 'farm/dung', 'farm/compost',
+  'farm', 'farm/bone_ash', 'farm/potash', 'farm/dung', 'farm/compost', 'farm/guano',
   'refuse', 'refuse/corpse', 'refuse/skeleton', 'refuse/rotten', 'refuse/part',
 ];
 
