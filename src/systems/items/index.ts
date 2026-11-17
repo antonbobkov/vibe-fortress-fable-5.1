@@ -312,6 +312,28 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     return out;
   }
 
+  /**
+   * 13 § Containers in play (T-579): a creature that holds a load in its own `Container` (a caravan's
+   * pack animal, 20) and dies drops it on its death tile, where it lies as unowned stock that is no
+   * longer the merchants'; a load with no tile to fall on goes with the creature, as `left_map`.
+   */
+  private dropLoad(ctx: TickContext, creature: EntityId, tile: TileIndex): void {
+    const core = this.core;
+    const load = core.container(creature)?.contents;
+    if (load === undefined || load.length === 0) return;
+    const onMap = ctx.world.map.validIndex(tile);
+    for (const itemId of load.slice()) {
+      if (!core.isItem(itemId)) continue;
+      if (!onMap) {
+        core.destroy(itemId, 'left_map');
+        continue;
+      }
+      core.setFlag(itemId, ItemFlag.Merchant, false);
+      core.setFlag(itemId, ItemFlag.AtDepot, false);
+      core.dropAt(itemId, tile);
+    }
+  }
+
   /** The `fragile` material indices (derived from content, never saved). */
   private fragile: ReadonlySet<number> | null = null;
 
@@ -321,6 +343,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       const id = event['id']; const tile = event['tile'];
       const species = event['species'] ?? (typeof id === 'number' ? core.host.entities.get(id, C.Creature)?.species : undefined);
       const faction = event['faction'] ?? (typeof id === 'number' ? core.host.entities.get(id, C.Creature)?.faction : undefined);
+      if (typeof id === 'number' && !core.isItem(id)) this.dropLoad(ctx, id, typeof tile === 'number' ? tile : -1);
       if (typeof id === 'number') {
         for (const itemId of core.host.entities.with(C.Item)) {
           const item = core.get(itemId);

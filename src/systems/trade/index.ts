@@ -475,7 +475,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       ctx.world.entities.add(a.depotId, C.Container, { contents: [], capacity: Number.MAX_SAFE_INTEGER, classId: 'wagon' });
     }
     for (const id of a.goods) {
-      if (ctx.world.entities.alive(id)) ctx.world.services.items?.putIn(id, a.depotId);
+      // A dead pack animal's load lies where it fell and is no longer the merchants' (13, T-579).
+      const it = ctx.world.entities.get(id, C.Item);
+      if (it !== undefined && (it.flags & ItemFlag.Merchant) !== 0) ctx.world.services.items?.putIn(id, a.depotId);
     }
     a.state = 'atDepot';
     a.stateSince = ctx.tick;
