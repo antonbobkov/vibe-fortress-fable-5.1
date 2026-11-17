@@ -1572,7 +1572,7 @@
       "formula": "−1"
     },
     "hours": 12,
-    "decay": "linear",
+    "decay": "halflife",
     "cap": 1,
     "group": "comfort",
     "trigger": {
@@ -1605,7 +1605,7 @@
       "formula": "−1"
     },
     "hours": 12,
-    "decay": "linear",
+    "decay": "halflife",
     "cap": 1,
     "group": "comfort",
     "trigger": {
