@@ -8,9 +8,10 @@
 import { describe, expect, it } from 'vitest';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { CombatReader } from '@systems/combat';
+import type { JobsReader } from '@systems/jobs';
 import { SQUAD_SIZE, type EconomyState } from '../scenarios/three_years_economy';
 import { Z, type FortressState } from '../scenarios/three_years_fortress';
-import { checkDefenceSquad, keepNamedWorkersAtTheirShops, type DefenceYearState } from '../scenarios/defence_year_fortress';
+import { checkDefenceSquad, keepNamedWorkersAtTheirShops, keepToolLaborsOffTheSquad, type DefenceYearState } from '../scenarios/defence_year_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
 import { TestWorld } from '../scenarios/test-world';
 
@@ -81,6 +82,25 @@ describe('T-578 the forge\'s worker does not drill', () => {
     expect(w.game.world.applyCommand({ type: 'SetWorkshopWorker', workshopId: mason, dwarfId: arrived[1]! }).ok).toBe(true);
     keepNamedWorkersAtTheirShops(w, state, membersOf(w, squadId));
     expect(membersOf(w, squadId)).toEqual([founders[0]!, founders[1]!, arrived[0]!]);
+  });
+
+  it('a dwarf outside the squad is given mechanics when none there has it, never one the economy dedicates', () => {
+    const w = ground('t578-mechanic');
+    const { state, founders, arrived, squadId } = fort(w, 3, (f) => [f[0]!, f[1]!, f[2]!]);
+    const members = membersOf(w, squadId);
+    const all = [...founders, ...arrived];
+    for (const id of all) w.setLabor(id, 'mechanics', members.includes(id));
+    // The newest immigrant is the brewer, and the mason the craftdwarf.
+    state.fortress.economy.brewer = arrived[2]!;
+    (state.fortress.economy.specialists as Record<string, number>)['craftdwarf'] = founders[3]!;
+    w.step(1);
+    keepToolLaborsOffTheSquad(w, state, members);
+    const jobs = w.readers.of<JobsReader>('11');
+    expect(jobs.workersWithLabor('mechanics').filter((id) => !members.includes(id))).toEqual([arrived[0]!]);
+    expect(members.every((id) => jobs.laborEnabled(id, 'mechanics')), 'the soldiers keep it').toBe(true);
+    const sent = scriptRecord(w).accepted.get('SetLabor') ?? 0;
+    keepToolLaborsOffTheSquad(w, state, members);
+    expect(scriptRecord(w).accepted.get('SetLabor') ?? 0).toBe(sent);
   });
 
   it('not in a fight: under an alert the squad goes active with the smith in it', () => {

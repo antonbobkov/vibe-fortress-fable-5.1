@@ -421,6 +421,8 @@ export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearSta
 
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */
 const TOOL_LABORS = ['mining', 'woodcutting'] as const;
+/** T-578: labors the defence's works need from a dwarf outside a squad on duty (19: rearming, cleaning). */
+const CIVILIAN_LABORS = ['mechanics'] as const;
 
 /**
  * T-567: a squad that trains or stands to arms does no civilian work, and a soldier keeps the pick or
@@ -432,6 +434,12 @@ const TOOL_LABORS = ['mining', 'woodcutting'] as const;
  * archery range's room alone), so they leave their picks and axe on the next stockpile they pass
  * (11), and gives each labor to a dwarf outside the squad when none there has it: an immigrant no
  * specialist role, brewer or broker holds if there is one, the most skilled first, then the lowest id.
+ *
+ * T-578: the same for mechanics, the labor of the traps' rearming and cleaning (19), which needs no
+ * tool, so the soldiers keep it. Once the squad's kit was forged the economy dedicated the founding
+ * mason, the fortress's mechanic, to the stone crafts, and the only dwarves left with mechanics were
+ * immigrants at drill: the cage trap that caught a raider on day 116 stood spent, its rearm job
+ * open with an empty cage in stock, to the end of the run.
  */
 export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
   const ent = w.game.world.entities;
@@ -439,12 +447,17 @@ export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState,
   const dwarves = w.readers.of<DwarvesReader>('10');
   const civilians = dwarves.adults().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id));
   const free = new Set(specialistCandidates(w, state.fortress));
-  for (const labor of TOOL_LABORS) {
+  const { economy } = state.fortress;
+  const dedicated = new Set([...Object.values(economy.specialists), economy.brewer ?? 0]);
+  for (const labor of [...TOOL_LABORS, ...CIVILIAN_LABORS]) {
     if (!civilians.some((id) => jobs.laborEnabled(id, labor))) {
-      const pick = civilians.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) ||
+      // A dwarf the economy dedicates would have mechanics taken back at its next look.
+      const pool = (TOOL_LABORS as readonly string[]).includes(labor) ? civilians : civilians.filter((id) => !dedicated.has(id));
+      const pick = pool.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) ||
         dwarves.skill(b, labor) - dwarves.skill(a, labor) || a - b)[0];
       if (pick !== undefined) command(w, { type: 'SetLabor', dwarfId: pick, labor, on: true });
     }
+    if (!(TOOL_LABORS as readonly string[]).includes(labor)) continue;
     for (const id of members) {
       if (ent.alive(id) && jobs.laborEnabled(id, labor)) command(w, { type: 'SetLabor', dwarfId: id, labor, on: false });
     }
