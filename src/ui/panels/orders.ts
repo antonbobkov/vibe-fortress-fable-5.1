@@ -756,7 +756,7 @@ export class OrdersPanel {
       })();
     if (working) return plain('in_progress');
     if (order.mode === 'maintain') {
-      const n = reader.stockOf(recipe.outputs[0]?.item ?? '');
+      const n = reader.orderStock(order);
       if (n >= order.threshold) return { kind: 'stocked', short: s.get('ui.orders.status.stocked', { n }), long: s.get('ui.orders.long.stocked', { n, threshold: order.threshold }) };
     }
     let reason: string | null = null;

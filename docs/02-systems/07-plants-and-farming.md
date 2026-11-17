@@ -97,7 +97,7 @@ Seeds come from: harvest (always `SEEDS_PER_HARVEST`), gathering wild shrubs of 
 
 ### Flowers
 
-`plants.flowerAt(i)`: the tile is an outdoor floor with grass, not constructed, engraved or smoothed, and with no mud, snow or ash, whose position the biome's `flowers` share picks (`regions-biomes-and-traits.md` § Biome surface): a hash of the tile against the share. 23's compositor draws a flower with the same test, a pure helper in `core/` (`core/flowers.ts`) that both call, so the simulation never reads the renderer. A grazed tile has no flower while it lacks grass, a snowed one while it carries snow. A biome with no `flowers` share (desert, tundra, alpine and the other bare ones) has none. Beehives count flowers (08 § Hives).
+`plants.flowerAt(i)`: the tile is an outdoor floor with grass, not constructed, engraved or smoothed, and with no snow or ash, whose position the biome's `flowers` share picks (`regions-biomes-and-traits.md` § Biome surface): a hash of the tile against the share. 23's compositor draws a flower with the same test, a pure helper in `core/` (`core/flowers.ts`) that both call, so the simulation never reads the renderer. A grazed tile has no flower while it lacks grass, a snowed one while it carries snow. Mud does not hide one: the first rain leaves mud on every outdoor soil floor for good (04 § Mud), and the flowers stand in it. A biome with no `flowers` share (desert, tundra, alpine and the other bare ones) has none. Beehives count flowers (08 § Hives).
 
 ### Ash
 

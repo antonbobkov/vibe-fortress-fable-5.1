@@ -1,6 +1,6 @@
 import { C, type WorkOrder } from '@core/components';
 import type { EntityId } from '@core/types';
-import type { WorkshopOperator, RecipeRow } from './operate';
+import { outputFilter, type WorkshopOperator, type RecipeRow } from './operate';
 import { civilianProfession, militaryTitle } from './professions';
 import { mealName } from './meals';
 
@@ -13,7 +13,11 @@ export interface WorkshopsReader {
   isRunnable(recipeId: string, workshopId: EntityId): { runnable: boolean; reason: string | null };
   professionOf(id: EntityId): string;
   militaryTitle(id: EntityId): string;
-  stockOf(recipeOutput: string): number;
+  /**
+   * The stock a `maintain` order compares with its threshold, as the operator counts it (12 § Work
+   * orders): its recipe's first output type, of the order's material filter, or of a drink's fixed material.
+   */
+  orderStock(order: WorkOrder): number;
   isMagmaPowered(id: EntityId): boolean;
   mealName(itemId: EntityId): string | null;
 }
@@ -42,7 +46,10 @@ export function makeReader(op: WorkshopOperator): WorkshopsReader {
       return civilianProfession(entities, registry, id);
     },
     militaryTitle: (id) => militaryTitle(entities, registry, id),
-    stockOf: (recipeOutput) => op.items.count(recipeOutput),
+    orderStock: (order) => {
+      const recipe = op.recipe(order.recipe);
+      return recipe === undefined ? 0 : op.items.countAvailable(outputFilter(registry, recipe, order));
+    },
     isMagmaPowered: (id) => op.isMagmaPowered(id),
     mealName: (id) => mealName(entities, registry, id),
   };

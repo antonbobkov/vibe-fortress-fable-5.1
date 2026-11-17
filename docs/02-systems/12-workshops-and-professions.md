@@ -172,7 +172,7 @@ A recipe that stands in for a regular one when its input is missing (shells for 
 - `workshops.ordersOf(workshopId)`, `workshops.allOrders()`, `workshops.globalOrders()`
 - `workshops.recipe(id)`, `workshops.recipesFor(workshopType)`, `workshops.isRunnable(recipeId, workshopId)` with the missing input named
 - `workshops.professionOf(dwarfId)`, `workshops.militaryTitle(dwarfId)`
-- `workshops.stockOf(recipeOutput)` (delegates to 13)
+- `workshops.orderStock(order)` — the stock a `maintain` order compares with its threshold, counted as the operator counts it (§ Work orders; delegates to 13)
 - `workshops.isMagmaPowered(workshopId)`
 - `workshops.mealName(itemId)` — the dish name of a prepared meal, from its tier and its first ingredient, "salted" before a salted one; null for any other item
 
