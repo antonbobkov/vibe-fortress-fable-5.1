@@ -32,7 +32,7 @@ import {
   Z,
   type FortressState,
 } from './three_years_fortress';
-import { placeEconomyBuilding, specialistCandidates } from './three_years_economy';
+import { placeEconomyBuilding, specialistCandidates, SQUAD_SIZE } from './three_years_economy';
 import { stepThreeYears } from './three_years_measurements';
 import { command } from './script-commands';
 
@@ -384,12 +384,48 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
     if (zoneId && buildings.zone(zoneId)?.settings['squad'] !== squad.id) command(w, { type: 'SetZoneSetting', zoneId, key: 'squad', value: squad.id });
   }
   const want = w.game.world.fortress.alert !== 'calm' ? 'active' : state.barracksZoneId ? 'train' : 'off';
+  const members = want === 'active' ? squad.members : keepNamedWorkersAtTheirShops(w, state, squad.members);
   if (squad.mode !== want) command(w, { type: 'SetSquadMode', squadId: squad.id, mode: want });
-  if (want !== 'off') keepToolLaborsOffTheSquad(w, state, squad.members);
+  if (want !== 'off') keepToolLaborsOffTheSquad(w, state, members);
+}
+
+/**
+ * T-578: a workshop's named worker does not drill. The fortress script stands the seventh founder,
+ * its smith, and the founding mason in its squad from day 1, which in the three-year runs is off
+ * duty but under an alert; here the squad trains full time from the first barracks, and a soldier
+ * at drill does no civilian work (16) while a workshop with a named worker offers its job to nobody
+ * else (12). So the forge's job for the squad's kit stood open from about day 27 to the end of the
+ * run and the economy never left its arming phase; with the smith freed the kit was forged, and the
+ * mason, then named to the craftdwarf's workshop for the stone crafts, left its jobs open for weeks
+ * at a time in turn. As a player does, the script takes every workshop's named worker out of the
+ * squad while the alert is down (never in a fight), and, if that leaves the squad under SQUAD_SIZE,
+ * puts in the newest adults outside it whom no workshop names, those no role holds first, so that
+ * the fixture's own refill never puts one back. Returns the squad's members after it.
+ */
+export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearState, members: readonly number[]): readonly number[] {
+  const ent = w.game.world.entities;
+  const named = new Set(ent.with(C.Workshop).map((id) => ent.get(id, C.Workshop)?.assignedWorker ?? 0).filter((id) => id !== 0));
+  const out = members.filter((id) => named.has(id));
+  if (out.length === 0) return members;
+  const fortress = state.fortress;
+  const kept = members.filter((id) => !named.has(id));
+  const adults = w.readers.of<DwarvesReader>('10').adults()
+    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !named.has(id) && !members.includes(id));
+  const free = new Set(specialistCandidates(w, fortress));
+  const recruits = adults.sort((a, b) => Number(free.has(b)) - Number(free.has(a)) || b - a).slice(0, Math.max(0, SQUAD_SIZE - kept.length));
+  const next = [...kept, ...recruits];
+  command(w, { type: 'SetSquadMembers', squadId: fortress.squadId, members: next });
+  note(state, w, `${out.join(', ')} leave the squad for their workshops${recruits.length ? `; ${recruits.join(', ')} join it` : ''}`);
+  return next;
 }
 
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */
 const TOOL_LABORS = ['mining', 'woodcutting'] as const;
+/**
+ * Labors a dwarf outside a squad on duty must hold: T-578's mechanics, for the traps' rearming and
+ * cleaning (19), and T-581's carpentry, for the carpenter's workshop (its beds, barrels and bins).
+ */
+const CIVILIAN_LABORS = ['mechanics', 'carpentry'] as const;
 
 /**
  * T-567: a squad that trains or stands to arms does no civilian work, and a soldier keeps the pick or
@@ -401,6 +437,18 @@ const TOOL_LABORS = ['mining', 'woodcutting'] as const;
  * archery range's room alone), so they leave their picks and axe on the next stockpile they pass
  * (11), and gives each labor to a dwarf outside the squad when none there has it: an immigrant no
  * specialist role, brewer or broker holds if there is one, the most skilled first, then the lowest id.
+ *
+ * T-578: the same for mechanics, the labor of the traps' rearming and cleaning (19), which needs no
+ * tool, so the soldiers keep it. Once the squad's kit was forged the economy dedicated the founding
+ * mason, the fortress's mechanic, to the stone crafts, and the only dwarves left with mechanics were
+ * immigrants at drill: the cage trap that caught a raider on day 116 stood spent, its rearm job
+ * open with an empty cage in stock, to the end of the run.
+ *
+ * T-581: and for carpentry. The founders' labors follow their professions and the economy keeps its
+ * specialists, brewer and builder on their own crafts, so once the armed squad stood at five the
+ * founding woodcutter and the two immigrants with carpentry were all at drill: on `defence-year` at
+ * cadence 20 a carpenter's job stood open from day 82 for 87 days, nobody outside the squad able to
+ * take it.
  */
 export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
   const ent = w.game.world.entities;
@@ -408,12 +456,17 @@ export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState,
   const dwarves = w.readers.of<DwarvesReader>('10');
   const civilians = dwarves.adults().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id));
   const free = new Set(specialistCandidates(w, state.fortress));
-  for (const labor of TOOL_LABORS) {
+  const { economy } = state.fortress;
+  const dedicated = new Set([...Object.values(economy.specialists), economy.brewer ?? 0]);
+  for (const labor of [...TOOL_LABORS, ...CIVILIAN_LABORS]) {
     if (!civilians.some((id) => jobs.laborEnabled(id, labor))) {
-      const pick = civilians.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) ||
+      // A dwarf the economy dedicates would have the labor taken back at its next look.
+      const pool = (TOOL_LABORS as readonly string[]).includes(labor) ? civilians : civilians.filter((id) => !dedicated.has(id));
+      const pick = pool.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) ||
         dwarves.skill(b, labor) - dwarves.skill(a, labor) || a - b)[0];
       if (pick !== undefined) command(w, { type: 'SetLabor', dwarfId: pick, labor, on: true });
     }
+    if (!(TOOL_LABORS as readonly string[]).includes(labor)) continue;
     for (const id of members) {
       if (ent.alive(id) && jobs.laborEnabled(id, labor)) command(w, { type: 'SetLabor', dwarfId: id, labor, on: false });
     }
