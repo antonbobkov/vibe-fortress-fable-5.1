@@ -55,10 +55,11 @@ Columns: `stageDays` are days per stage at 100% growth (crops have four stages; 
 | `wild_rye` | wild rye | `plant_food` (`rye`) | 1–2 | 28 | 300 | `rye` | — (converted) | no | `"` | `rye_gold` |
 | `rock_lichen` | rock lichen | `plant_food` (`lichen`, value 1, edible) | 1 | 56 | 0 | — | — (converted) | yes | `"` | `lichen_orange` |
 | `wild_wyrmtongue` | wild wyrmtongue | `plant_food` (`wyrmtongue`) | 1–2 | 28 | 300 | `wyrmtongue` | — (converted) | no | `"` | `wyrmtongue_red` |
+| `salt_crust` | salt crust | `salt` (`salt`); burns not | 2 | 28 | 0 | — | — (converted) | yes | `∙` | `salt_white` |
 
 Wild shrub density per biome is in [regions-biomes-and-traits.md](regions-biomes-and-traits.md) (`shrubDensity`); the weights above choose the species. A shrub with no weights, `— (converted)`, is never placed by them: generation places it by converting tiles (§ Conversions), and it never regrows anywhere else.
 
-`graze`: a tame grazer may eat the shrub when it is mature (08 § Pastures and feeding). A product written "and 1 `fiber` (`cactus_fiber`)" is a second product, given with the first at each gathering. `drinkable` puts the tag on the product's material: a thirsty dwarf with nothing else drinks it (10). "stings the gatherer" is the tag `stings` (09 § Gathering).
+`graze`: a tame grazer may eat the shrub when it is mature (08 § Pastures and feeding). A product written "and 1 `fiber` (`cactus_fiber`)" is a second product, given with the first at each gathering. `drinkable` puts the tag on the product's material: a thirsty dwarf with nothing else drinks it (10). "stings the gatherer" is the tag `stings` (09 § Gathering). "burns not" is the tag `fireproof`: the tile is not burnable (05 § Fire). A salt crust is a shrub that is not a plant: it reuses gathering and regrowth whole, burns not, and is grazed by camels (and any tame grazer).
 
 ## Rare cave patches
 
@@ -113,6 +114,7 @@ What 03's conversion passes turn into the plants that no biome weight places (03
 | `wild_rye` | `shrub`, `grass` | `taiga`, `tundra`, `cold_steppe`, `alpine` | 150 `shrub`, 5 `grass` |
 | `rock_lichen` | `rock` | `tundra`, `alpine`, `mountain`, `glacier`, `taiga`, `cold_steppe` | 80 |
 | `wild_wyrmtongue` | `ash_soil` | any | 30 |
+| `salt_crust` | `dry_soil`, `rock` | `desert`, `badlands` | 2 |
 | `ironwood` | `tree` | `dark_forest` 60, `temperate_forest` 30 | by biome |
 
 ## Grass
@@ -140,19 +142,3 @@ Every still recipe: 4 plant units + 1 empty barrel → 20 units of drink in the 
 ## Growth arithmetic
 
 A dimcap plot tile at 100% growth completes a cycle in 16 days and yields on average 4 plants plus 1 seed. Twenty dwarves consume about 25 raw plant units per day for food and drink combined (see [balance.md](balance.md)); a 10×10 cave plot of dimcaps yields 100 tiles × 4 / 16 = 25 per day at skill 0. Surface plots produce nothing in winter. A cave plot grows in every season where its tiles are at or above the crop's `minC` (2 °C for dimcap and cavewheat): three levels or more below the surface that is all year in every region, but in a cold region a plot one or two levels down freezes in winter and produces nothing until spring (05 § Temperature model).
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [07](../02-systems/07-plants-and-farming.md) § Planned. Every number is *unmeasured*.
-
-### Planned salt crust (waits for T-547's `salt`)
-
-The salt crust is the one T-548 plant left out: its product is T-547's `salt` item and material and its colour T-547's `salt_white`, and T-547 had not landed. The task that adds it ([T-NEW salt crusts](../work/T-566-making-do-salt-crust.md)) moves these rows into § Wild shrubs (columns of that table: `biomes (weight)` `— (converted)`, `graze` yes) and § Conversions.
-
-| id | name | product | count | regrowDays | wildSeedPermille | seed of | graze | glyph | fg | task |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `salt_crust` | salt crust | `salt` (`salt`) | 2 | 28 | 0 | — | yes | `∙` | `salt_white` | T-NEW salt crusts |
-
-| id | eligible | biomes | permille | task |
-|---|---|---|---|---|
-| `salt_crust` | `dry_soil`, `rock` | `desert`, `badlands` | 2 | T-NEW salt crusts |

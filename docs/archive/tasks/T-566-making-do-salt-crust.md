@@ -1,6 +1,8 @@
 # T-566 — Making Do: salt crusts, after T-547's salt
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 5); split from [T-548](../archive/tasks/T-548-making-do-plants.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in d189203c,75ff8202.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 5); split from [T-548](T-548-making-do-plants.md) · **Size:** S · **Needs:** — · **Status:** open
 
 T-548 built every plant of Making Do but the salt crust: its product is T-547's `salt` (item, material) and its colour T-547's `salt_white`, and T-547 had not landed when T-548 finished. Everything else it needs is in the game: conversions (03, the end of stage 10), grazable shrubs (08), a shrub's product gathered (09).
 

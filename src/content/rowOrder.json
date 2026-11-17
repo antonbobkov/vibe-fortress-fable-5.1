@@ -1758,5 +1758,13 @@
   {
     "table": "confirmations",
     "id": "c_first_ignite"
+  },
+  {
+    "table": "plants",
+    "id": "salt_crust"
+  },
+  {
+    "table": "materials",
+    "id": "salt_crust"
   }
 ]

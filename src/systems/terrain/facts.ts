@@ -38,6 +38,8 @@ interface PlantRow {
   readonly seedOf?: string;
   /** A second product, given with the first at each gathering (`plants.md`: "and 1 `fiber`"). */
   readonly secondary?: { readonly item: string; readonly material?: string; readonly count: number };
+  /** Row tags: `fireproof`, the tile never burns (`05` § Fire). */
+  readonly tags?: readonly string[];
 }
 
 function classOfRow(cls: string): MaterialClass {
@@ -145,6 +147,11 @@ export class TerrainFacts implements MaterialFacts {
 
   materialId(material: number): string {
     return this.materialIds[material] ?? '';
+  }
+
+  /** `plants.md`: a species whose row is tagged `fireproof` (the salt crust) never burns (`05` § Fire). */
+  fireproof(material: number): boolean {
+    return this.plants[material]?.tags?.includes('fireproof') === true;
   }
 
   /** The `plants` row of a species material index (a tree, sapling or shrub tile's material). */
