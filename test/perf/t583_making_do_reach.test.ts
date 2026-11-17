@@ -86,7 +86,13 @@ describe('T-583 probe: Making Do reach', () => {
       for (const e of evs) {
         bump(events, e.type, today);
         switch (e.type as string) {
-          case 'ItemCreated': bump(d('itemCreated'), `${String(e['itemType'])}:${String(e['material'])}`, today, Number(e['count'] ?? 1)); break;
+          case 'ItemCreated': {
+            // A caravan's goods are created at its arrival: they are counted apart from what the fortress made.
+            const flags = ent.get(Number(e['id']), C.Item)?.flags ?? 0;
+            const where = (flags & (ItemFlag.Merchant | ItemFlag.Foreign)) !== 0 ? 'merchantCreated' : 'itemCreated';
+            bump(d(where), `${String(e['itemType'])}:${String(e['material'])}`, today, Number(e['count'] ?? 1));
+            break;
+          }
           case 'ItemCrafted': bump(d('recipe'), String(e['recipeId']), today); break;
           case 'BuildingPlaced': bump(d('buildingPlaced'), String(e['buildingType']), today); break;
           case 'BuildingCompleted': bump(d('buildingCompleted'), String(e['buildingType']), today); break;
