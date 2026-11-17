@@ -31,3 +31,10 @@ Steps 1 to 3 cut the ambush census's peril-2 deaths from 136 to 123 over the fou
 With the dogs in the workshop hall's kennel (`07781a7c`, posted from about day 110; its verdict job cancelled, pooled from its 80 seed results) the sweep pooled to 970.5 living and 135.25 deaths. With the kennel by the gate, trained before the first possible ambush (`43590fdb`), it passes on the living, 1012.5 against 983.5 before, and stays blocked on the deaths, 142.75 against 138 before and the bound of 130. The ambush census over its four shifts: 235 ambushes sprang and killed 387 dwarves (394 before): at peril 2, 116 (136 before); at peril 4, 271 (258 before). The watch and the dogs halved the dwarves outdoors when an ambush arrived (668 against 1,150) and the soldiers among its dead (72 against 127); what remains is peril 4's ambushes of six to ten Gloam on the dwarves still at work in the fields and woods, and the war dogs that die fighting them and leave a post to a watchman until another is trained.
 
 The instrument on `43590fdb` (run 44153200039) passes: `| **Pooled** | 12.88 | 10 | 10.75 | 153.75 | 9.5 | 0 | 0 | 0 | | |`.
+
+## Gates on `de7c0568` (master `50f90bc7` merged)
+
+- Sweep (run 44184857348): `| **Pooled** | 19.5 | 7 | 0 | 1012.5 | 142.75 | 1.75 | 6.25 |`, **blocked** on the dwarf deaths (bound 130); the living pass (bound 975.25). `SWEEP_REFERENCE` unchanged.
+- Instrument (run 44184862654): `| **Pooled** | 12.88 | 10 | 10.75 | 153.75 | 9.5 | 0 | 0 | 0 | | |`, pass.
+- `defence_seeds` (run 44184852441): `| **Mean** | **6.88** | **7.25** | 0.38 | 0.25 | 23.14 | 4.48 | 4.03 |`, pass.
+- `ci.yml` (run 44184867655): green, 4,093 tests (921 + 1,103 + 1,008 + 1,061) and e2e 45 passed.
