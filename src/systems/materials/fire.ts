@@ -38,6 +38,8 @@ export interface FireHost {
   burnTicks(material: number): number;
   /** The material carries the tag `fire_resistant` (ironwood). */
   fireResistant(material: number): boolean;
+  /** A plant species whose `plants` row is tagged `fireproof` (the salt crust): its tile never burns. */
+  fireproof(material: number): boolean;
   /** Everything standing or lying on a tile. */
   entitiesAt(i: TileIndex): readonly EntityId[];
   /** 06's state is `rain` or `storm`. */
@@ -85,9 +87,10 @@ export class Fire {
   }
 
   /**
-   * `burnableTile(T)`: a `tree`, `sapling` or `shrub`, a `floor` with `grass`, or a burnable soil
-   * (peat) outdoors, since "Cave flora is not burnable" and "Fire never burns underground except on
-   * wooden constructions and items"; a constructed tile of wood anywhere.
+   * `burnableTile(T)`: a `tree`, `sapling` or `shrub` (but not one of a `fireproof` species, the salt
+   * crust), a `floor` with `grass`, or a burnable soil (peat) outdoors, since "Cave flora is not
+   * burnable" and "Fire never burns underground except on wooden constructions and items"; a
+   * constructed tile of wood anywhere.
    */
   burnableTile(i: TileIndex): boolean {
     const map = this.map;
@@ -95,7 +98,7 @@ export class Fire {
     const material = map.materialAt(i);
     if (map.hasFlag(i, TileFlag.Constructed)) return this.host.classOf(material) === 'wood' && kind !== TileKind.Open;
     if (!map.hasFlag(i, TileFlag.Outdoor)) return false;
-    if (kind === TileKind.Tree || kind === TileKind.Sapling || kind === TileKind.Shrub) return true;
+    if (kind === TileKind.Tree || kind === TileKind.Sapling || kind === TileKind.Shrub) return !this.host.fireproof(material);
     if (kind === TileKind.Floor && map.hasFlag(i, TileFlag.Grass)) return true;
     return (kind === TileKind.Floor || kind === TileKind.Wall) && this.host.classOf(material) === 'soil' && this.host.burnable(material);
   }

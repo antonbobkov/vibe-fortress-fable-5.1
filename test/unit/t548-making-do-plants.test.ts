@@ -14,7 +14,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
-import type { LocalMapSpec } from '@systems/embark';
+import { siteSignature, type LocalMapSpec } from '@systems/embark';
 import { siteSummary } from '@systems/embark/site';
 import { CACTUS_THIRST_RELIEF } from '@systems/dwarves/constants';
 import { STINGS_STREAM } from '@systems/foraging';
@@ -22,6 +22,8 @@ import { FIRE_RESIST_DIVISOR } from '@systems/materials/constants';
 import { ASH_DURATION_DAYS } from '@systems/materials/constants';
 import { PlantFacts, growthPerHour, stageLength, type PlantRow, type PlantsReader } from '@systems/plants';
 import { generateLocalMap } from '@systems/terrain/generate';
+import { TerrainFacts } from '@systems/terrain/facts';
+import { burnableTile, precondition } from '@systems/terrain/rules/transitions';
 import { workCentiTicksFor } from '@systems/terrain/producer';
 import { Designation } from '@core/map3d';
 import { CHOP_BASE_TICKS } from '@systems/terrain/constants';
@@ -52,14 +54,14 @@ function spec(biome: string): LocalMapSpec {
   return { ...regionSpec(`t548-${biome}`, { biome, peril: 2, traits: [] }, registry), relief: 1 };
 }
 
-const CONVERTED = ['reed_bed', 'barrel_cactus', 'wild_nettle', 'wild_rye', 'rock_lichen', 'wild_wyrmtongue', 'ironwood'];
+const CONVERTED = ['reed_bed', 'barrel_cactus', 'wild_nettle', 'wild_rye', 'rock_lichen', 'wild_wyrmtongue', 'ironwood', 'salt_crust'];
 
 describe('T-548 stage 10 conversions', () => {
   const before = withoutConversions();
   const species = new Map(CONVERTED.map((id) => [materials.index(id), id] as const));
 
   /** Every tile that differs from the map without conversions, as `[species, was]`. */
-  function converted(biome: string): Map<string, number> {
+  function converted(biome: string, salt?: Map<string, number>): Map<string, number> {
     const s = spec(biome);
     const now = generateLocalMap(s, registry);
     const old = generateLocalMap(s, before);
@@ -78,6 +80,12 @@ describe('T-548 stage 10 conversions', () => {
       if (id === 'ironwood') expect([i, was, map.kind[i]]).toEqual([i, TileKind.Tree, TileKind.Tree]);
       else expect([i, [TileKind.Floor, TileKind.Shrub].includes(was), map.kind[i]]).toEqual([i, true, TileKind.Shrub]);
       counts.set(id as string, (counts.get(id as string) ?? 0) + 1);
+      // T-566: a salt crust turns a dry floor of soil or of bare rock, never a shrub, never in water.
+      if (id === 'salt_crust') {
+        const cls = materials.byIndex(old.map.material[i] as number)?.class ?? '';
+        expect([i, was, old.map.fluid[i], ['soil', 'stone'].includes(cls)]).toEqual([i, TileKind.Floor, 0, true]);
+        salt?.set(cls, (salt.get(cls) ?? 0) + 1);
+      }
     }
     // The rest of the result is the same.
     expect(now.result.spawns).toEqual(old.result.spawns);
@@ -100,6 +108,22 @@ describe('T-548 stage 10 conversions', () => {
     expect((taiga.get('wild_rye') ?? 0) + (taiga.get('rock_lichen') ?? 0)).toBeGreaterThan(0);
   });
 
+  it('T-566: desert and badlands grow salt crusts on dry soil and bare rock; no other biome does', () => {
+    const on = new Map<string, number>();
+    const desert = converted('desert', on);
+    const badlands = converted('badlands', on);
+    expect(desert.get('salt_crust') ?? 0).toBeGreaterThan(0);
+    expect(badlands.get('salt_crust') ?? 0).toBeGreaterThan(0);
+    // 2 per mille of the open floors: far fewer than the cacti's 15.
+    expect(desert.get('salt_crust') ?? 0).toBeLessThan(desert.get('barrel_cactus') ?? 0);
+    expect(on.get('soil') ?? 0).toBeGreaterThan(0);
+    const raw = (rawTables()['plants'] as { id: string; convert?: { tiles: { tile: string }[] } }[]).find((p) => p.id === 'salt_crust');
+    expect(raw?.convert?.tiles.map((t) => t.tile)).toEqual(['dry_soil', 'rock']);
+    for (const biome of ['dark_forest', 'alpine', 'taiga', 'savanna', 'temperate_grassland']) {
+      expect([biome, converted(biome).get('salt_crust') ?? 0]).toEqual([biome, 0]);
+    }
+  });
+
   it('a grassland no conversion names changes only where reeds grow by the water', () => {
     const counts = converted('temperate_grassland');
     expect(Array.from(counts.keys()).every((id) => id === 'reed_bed')).toBe(true);
@@ -111,6 +135,15 @@ describe('T-548 stage 10 conversions', () => {
     expect(dark.shrubs?.species).toContain('wild_nettle');
     const grass = siteSummary(spec('temperate_grassland'), registry);
     expect(grass.trees?.species ?? []).not.toContain('ironwood');
+    // T-566: salt where it is: the desert's and the badlands' shrubs name the salt crust, and the
+    // site has salt; a forest and a grassland have no crust.
+    for (const biome of ['desert', 'badlands']) {
+      const s = siteSummary(spec(biome), registry);
+      expect([biome, s.shrubs?.species ?? []]).toEqual([biome, expect.arrayContaining(['salt_crust'])]);
+      expect([biome, siteSignature(spec(biome), registry).has]).toEqual([biome, expect.arrayContaining(['salt'])]);
+    }
+    expect(dark.shrubs?.species ?? []).not.toContain('salt_crust');
+    expect(grass.shrubs?.species ?? []).not.toContain('salt_crust');
   });
 
   it('no converted plant is placed by biome weights or regrows', () => {
@@ -294,6 +327,62 @@ describe('T-548 the wild shrubs at work', () => {
     w.step(60);
     expect(w.readers.of<PlantsReader>('07').shrubReady(grazed)).toBe(false);
     expect(world.entities.get(yak, C.Tame)?.condition ?? 100).toBeLessThan(80);
+  });
+});
+
+describe('T-566 the salt crust', () => {
+  it('a gathered salt crust gives 2 salt', () => {
+    const w = new TestWorld({ seed: 't566-gather', world: 'flat-test', embark: 'none' });
+    const tile = w.index(20, 20, Z);
+    w.game.world.services.terrain.setKind(tile, TileKind.Shrub, materials.index('salt_crust'));
+    const terrain = w.game.world.scheduler.byId('03') as unknown as { producer: { rolls(): { gather(m: number): unknown } } };
+    for (let k = 0; k < 5; k += 1) {
+      expect(terrain.producer.rolls().gather(materials.index('salt_crust'))).toEqual({ type: 'salt', material: 'salt', count: 2 });
+    }
+    // The generator adds no `salt`: the crust gives T-547's salt, a seasoning.
+    expect(materials.byId('salt')?.tags).toContain('seasoning');
+    expect(row('salt_crust').regrowDays).toBe(28);
+  });
+
+  it('a salt crust does not burn, by 05 and by 03 alike, and no one can set it alight', () => {
+    const w = new TestWorld({ seed: 't566-fire', world: 'flat-test', embark: 'none' });
+    const map = w.map;
+    const at = w.index(30, 30, Z);
+    const terrainFacts = new TerrainFacts(registry);
+    for (const [species, burns] of [['salt_crust', false], ['barrel_cactus', true], ['bramble', true]] as const) {
+      map.setKind(at, TileKind.Shrub, materials.index(species));
+      map.flags[at] = TileFlag.Outdoor;
+      expect([species, w.materials.fire.burnableTile(at)]).toEqual([species, burns]);
+      expect([species, burnableTile(map, at, terrainFacts)]).toEqual([species, burns]);
+      expect([species, precondition(map, at, Designation.Ignite, terrainFacts)]).toEqual([species, burns]);
+    }
+    // Lightning on a crust: it never catches.
+    map.setKind(at, TileKind.Shrub, materials.index('salt_crust'));
+    map.flags[at] = TileFlag.Outdoor;
+    w.game.world.emit({ type: 'LightningStrike', tile: at } as never);
+    w.step(30);
+    expect(w.materials.fire.burning.has(at)).toBe(false);
+    expect(map.kindAt(at)).toBe(TileKind.Shrub);
+  });
+
+  it('a hungry tame camel with no grass grazes a salt crust, which then regrows', () => {
+    const w = new TestWorld({ seed: 't566-camel', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const world = w.game.world;
+    const tiles: TileIndex[] = [];
+    for (let y = 60; y < 64; y += 1) for (let x = 60; x < 64; x += 1) tiles.push(w.index(x, y, Z));
+    for (const t of tiles) world.services.terrain.setFlag(t, TileFlag.Grass, false);
+    const crusts = tiles.slice(0, 4);
+    for (const t of crusts) world.services.terrain.setKind(t, TileKind.Shrub, materials.index('salt_crust'));
+    const pasture = w.zone('pasture', tiles);
+    const camel = w.spawnTame('camel', tiles[10] as TileIndex);
+    expect(world.applyCommand({ type: 'AssignPasture', animalId: camel, zoneId: pasture }).ok).toBe(true);
+    const tame = world.entities.get(camel, C.Tame);
+    world.entities.add(camel, C.Tame, { ...(tame as NonNullable<typeof tame>), condition: 80 });
+    w.until(() => w.events('ShrubGrazed').length > 0, 3000);
+    const grazed = w.events('ShrubGrazed')[0]?.['tile'] as TileIndex;
+    expect(crusts).toContain(grazed);
+    w.step(60);
+    expect(w.readers.of<PlantsReader>('07').shrubReady(grazed)).toBe(false);
   });
 });
 

@@ -1,5 +1,7 @@
 # T-577 — p4-4 at shift 100 ends without a dining hall
 
+**Closed:** 2026-11-16, in 5cd6cfa4,83cfec9d,a4afc3e3.
+
 **Source:** T-565's sweep 43956170681 (seed job `sweep (p4-4, 100)`) · **Size:** S · **Needs:** — · **Status:** open
 
 ## What was seen

@@ -1,5 +1,7 @@
 # T-569 — A −1 thought that decays by halflife is gone at the next hour
 
+**Closed:** 2026-11-16, in 72e2f8e8,43b7eefc,79ecbd95.
+
 **Source:** T-552's `smoky_hall` (`test/unit/t552-making-do-drying.test.ts`) · **Size:** S · **Needs:** — · **Status:** open
 
 15's `currentValue` (`src/systems/morale/mood.ts`) rounds a `halflife` thought to 0 once its magnitude falls under 1. A thought of value −1 that decays by halflife is under 1 as soon as any time has passed, so the next hourly recompute drops it: it never shows in the mood panel and moves no mood. `lab_stink` and `nettles` (both −1, 12 hours, `halflife`) are such rows today, and T-552's `smoky_hall` was until it was made `linear`.
