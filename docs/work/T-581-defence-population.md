@@ -11,3 +11,5 @@ T-578 lets the defence year's squad drill without the forge's smith, so the kit 
 ## Found
 
 Over `defence_seeds`' 64 timelines the armed economy costs no dwarves: 29.19 living a seed and 4.97 waves on master before T-578 (run 44105783275), 29.00 and 4.88 after (run 44105791134); `defence-year`'s own mean fell from 27.9 to 21.5 while `-3`'s and `-4`'s rose by 6.5 and 9.6 ([data](../../reports/data/2026-11-17-t581-defence-population.md)). Missed waves were `luck` or `spirit`, never `wealth` once armed; the spirit follows the deaths, whose bodies the fixture never buries (left to [T-NEW](T-NEW-fixture-buries-its-dead.md)). The carpenter's 87-day wait was the armed squad of five holding every carpentry labor; the script now gives carpentry to a civilian as it does mechanics.
+
+With carpentry given to a civilian (75742554): `defence_seeds` run 44123558423 passes with 30.30 living a seed, 4.92 waves and 2.39 deaths; the job-wait probe of `defence-year` at shift 0 (run 44123570011) has the carpenter's longest open spell at 11.6 days, against 87 (run 44105796691).
