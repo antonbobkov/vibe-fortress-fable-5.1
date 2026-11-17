@@ -421,8 +421,11 @@ export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearSta
 
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */
 const TOOL_LABORS = ['mining', 'woodcutting'] as const;
-/** T-578: labors the defence's works need from a dwarf outside a squad on duty (19: rearming, cleaning). */
-const CIVILIAN_LABORS = ['mechanics'] as const;
+/**
+ * Labors a dwarf outside a squad on duty must hold: T-578's mechanics, for the traps' rearming and
+ * cleaning (19), and T-581's carpentry, for the carpenter's workshop (its beds, barrels and bins).
+ */
+const CIVILIAN_LABORS = ['mechanics', 'carpentry'] as const;
 
 /**
  * T-567: a squad that trains or stands to arms does no civilian work, and a soldier keeps the pick or
@@ -440,6 +443,12 @@ const CIVILIAN_LABORS = ['mechanics'] as const;
  * mason, the fortress's mechanic, to the stone crafts, and the only dwarves left with mechanics were
  * immigrants at drill: the cage trap that caught a raider on day 116 stood spent, its rearm job
  * open with an empty cage in stock, to the end of the run.
+ *
+ * T-581: and for carpentry. The founders' labors follow their professions and the economy keeps its
+ * specialists, brewer and builder on their own crafts, so once the armed squad stood at five the
+ * founding woodcutter and the two immigrants with carpentry were all at drill: on `defence-year` at
+ * cadence 20 a carpenter's job stood open from day 82 for 87 days, nobody outside the squad able to
+ * take it.
  */
 export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
   const ent = w.game.world.entities;
@@ -451,7 +460,7 @@ export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState,
   const dedicated = new Set([...Object.values(economy.specialists), economy.brewer ?? 0]);
   for (const labor of [...TOOL_LABORS, ...CIVILIAN_LABORS]) {
     if (!civilians.some((id) => jobs.laborEnabled(id, labor))) {
-      // A dwarf the economy dedicates would have mechanics taken back at its next look.
+      // A dwarf the economy dedicates would have the labor taken back at its next look.
       const pool = (TOOL_LABORS as readonly string[]).includes(labor) ? civilians : civilians.filter((id) => !dedicated.has(id));
       const pick = pool.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) ||
         dwarves.skill(b, labor) - dwarves.skill(a, labor) || a - b)[0];
