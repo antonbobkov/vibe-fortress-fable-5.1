@@ -13,6 +13,7 @@
 
 import type { Command } from '@core/commands';
 import type { StockpileFilter } from '@core/components';
+import { TileFlag } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { ZoneView } from '@systems/buildings';
@@ -292,8 +293,10 @@ export class ZoneTool {
   /** `Shift+A`: the crop of a season, for every season in which that crop can grow. */
   farmAllSeasons(ctx: PanelContext, season: number): void {
     const plant = this.cropOf(ctx, season);
+    const zone = buildings(ctx)?.zone(this.selected);
+    const covered = zone !== undefined && allSkylit(ctx.readers.map, zone.tiles);
     for (let target = 0; target < 4; target += 1) {
-      if (target === season || (plant !== undefined && !seasonAllows(plant, plant.kind === 'cave_crop', target))) continue;
+      if (target === season || (plant !== undefined && !seasonAllows(plant, plant.kind === 'cave_crop' || covered, target))) continue;
       ctx.submit({ type: 'SetPlotCrop', zoneId: this.selected, season: target, speciesId: plant === undefined ? 0 : plant.id });
     }
   }
@@ -553,8 +556,16 @@ function drawFarmCold(s: Surface, rect: Rect, ctx: PanelContext, zone: ZoneView,
  * season's first day, so a `Shift+A` that gives summer strawberries or autumn turnips says so.
  * Draws nothing when every chosen crop ripens.
  */
+/** 07 § Under a skylight: every tile of the plot is skylit, so its crops keep no seasons. */
+function allSkylit(map: { flagsAt(i: TileIndex): number }, tiles: readonly TileIndex[]): boolean {
+  return tiles.length > 0 && tiles.every((t) => (map.flagsAt(t) & TileFlag.Skylit) !== 0);
+}
+
 function drawFarmLate(s: Surface, rect: Rect, ctx: PanelContext, zone: ZoneView, plants: PlantsReader): number {
   if (plants.plotKind(zone.id) !== 'surface') return rect.row;
+  // 07 § Under a skylight: a plot all under glass keeps no seasons, so nothing is late.
+  const map = ctx.readers.map;
+  if (allSkylit(map, zone.tiles)) return rect.row;
   const settings = plants.plotSettings(zone.id);
   const calendar = ctx.readers.calendar;
   const seasonNames = ['spring', 'summer', 'autumn', 'winter'];

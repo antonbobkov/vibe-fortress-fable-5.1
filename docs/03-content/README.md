@@ -4,7 +4,7 @@
 
 This folder holds every table of game content. Systems refer to content only by `snake_case` id and by the properties in these tables. Nothing in a system document may name a specific piece of content that is not a row here. The JSON files in `src/content/` mirror these tables one to one.
 
-A `## Planned rows` section at the end of a document holds rows that are specified but not yet in the game (the Making Do content). The export does not read it: its tables come after the tables they belong to, under headings of their own. Each row names the task that moves it into its table, with its line in [row-order.md](row-order.md).
+A `## Planned rows` section at the end of a document holds rows that are specified but not yet in the game (the Making Do content used them; every one has since moved into its table, and no document holds such a section now). The export does not read it: its tables come after the tables they belong to, under headings of their own. Each row names the task that moves it into its table, with its line in [row-order.md](row-order.md).
 
 ## Tables
 

@@ -1768,6 +1768,10 @@
     "id": "salt_crust"
   },
   {
+    "table": "hints",
+    "id": "hint_skylight"
+  },
+  {
     "table": "materials",
     "id": "guano"
   },

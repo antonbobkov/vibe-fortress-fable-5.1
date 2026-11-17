@@ -35,7 +35,7 @@ const enum Designation { None=0, Dig=1, Channel=2, StairsUp=3, StairsDown=4, Sta
                          Smooth=7, Engrave=8, Remove=9, Chop=10, Gather=11, Harvest=12 }
 const enum TileFlag { Discovered=1<<0, Constructed=1<<1, Smoothed=1<<2, Engraved=1<<3, Mud=1<<4,
                       Snow=1<<5, Grass=1<<6, Ash=1<<7, Burning=1<<8, Outdoor=1<<9, Lit=1<<10,
-                      Restricted=1<<11, Web=1<<12, Wet=1<<13 }
+                      Restricted=1<<11, Web=1<<12, Wet=1<<13, Skylit=1<<14 }
 // fluid byte: bits 0-2 level, bit 3 type (0 water 1 magma), bit 4 settled, bit 5 source, bit 6 frozen, bit 7 reserved
 interface Map3D {
   w: number; h: number; d: number;

@@ -47,6 +47,11 @@ A stage is `stageDays × HOURS_PER_DAY × BASE_GROWTH` units long; when the accu
 - `tempOk`: `minC ≤ temperatureAt(tile) ≤ maxC`.
 - Heatwave wilting (06): each heatwave hour a surface crop at stage ≥ 1 loses one stage with `WILT_PERMILLE`.
 
+### Under a skylight
+
+- A surface (`sun`) crop on a `skylit` tile (03 § Outdoor and lit: under glass floors) ignores `seasonAllows`, uses a growth modifier of 100 and ignores weather, as a cave crop does; it still needs `minC ≤ temperatureAt ≤ maxC`. Outside its seasons it is not killed by frost, and heatwave wilting passes it by. The plot of such tiles is a surface plot (its tiles are `lit`), and `Shift+A` on it fills every season.
+- The greenhouse is these rules with 05's. One level under a skylight in a temperate winter a plot is 3 °C on the day's mean and −1 to 7 °C over the day: cabbage (`minC` 0) grows nearly every hour and ripens before spring; barley and flax (`minC` 4) grow only in the warm afternoons, under half the hours, and do not ripen in the winter. Inside the hearth's square it is 2 °C warmer and barley grows most hours. Beside a magma channel anything grows. Three levels down every surface crop grows every hour of the year at `UNDERGROUND_BASE_C` (strawberries in winter). The scenario `pl_greenhouse` holds these.
+
 ### Farm plots
 
 - A `farm_plot` zone can be drawn over tiles that are `floor` with material class `soil`, or with the `mud` flag, or cavern `cave_loam`. Tiles that do not qualify are excluded from the zone and shown in red during placement.
@@ -143,7 +148,7 @@ Job producer `plants` (`plant`, `harvest`); inspector sections `tile › plant` 
 ## Player-facing behavior
 
 - Zones menu › Farm plot: drag a rectangle; qualifying tiles highlight green, others red; confirm. The plot panel shows four season slots with species drop-downs filtered by light, a seed count per species, the crops on the plot by stage, and `Fertilize: on` or `off` with the fertilizer in stock (`[w]` turns it on or off). When tiles of the plot are below the minimum temperature of the crop growing or chosen there for the current season, a note under the crop counts them ("Too cold to grow: 4 of 9 tiles are under 2°C for dimcap.") and, under it, says that rock `NEAR_SURFACE_DEPTH` levels below the surface stays warm all year.
-- On a surface plot, a red note under those says when a season's crop cannot ripen before its growing seasons end, so that winter's frost would kill it and its seed: the current season's crop sown today ("Sown now, strawberry cannot ripen before its seasons end: it needs 28 days, 9 are left."), and each other season's crop sown on that season's first day ("Sown in summer, strawberry cannot ripen before its seasons end: it needs 28 days, 25 are left at most."), which covers a `Shift+A` that gives a crop a season it cannot ripen in. A crop needs four stages of `stageDays`; the days left are its growing seasons' days to winter, the first less `SOWING_MARGIN_DAYS` (3) for the sowing, each counted at the season's growth percent as if overcast (06 § Seasons: spring 100, summer 120, autumn 80, × 90), rounded down. A temperate reckoning: `frostmarrow`'s colder seasons are not counted. The choice stays the player's.
+- On a surface plot, a red note under those says when a season's crop cannot ripen before its growing seasons end, so that winter's frost would kill it and its seed: the current season's crop sown today ("Sown now, strawberry cannot ripen before its seasons end: it needs 28 days, 9 are left."), and each other season's crop sown on that season's first day ("Sown in summer, strawberry cannot ripen before its seasons end: it needs 28 days, 25 are left at most."), which covers a `Shift+A` that gives a crop a season it cannot ripen in. A crop needs four stages of `stageDays`; the days left are its growing seasons' days to winter, the first less `SOWING_MARGIN_DAYS` (3) for the sowing, each counted at the season's growth percent as if overcast (06 § Seasons: spring 100, summer 120, autumn 80, × 90), rounded down. A temperate reckoning: `frostmarrow`'s colder seasons are not counted. The choice stays the player's. The note says nothing for a plot whose tiles are all skylit (§ Under a skylight).
 - A frost that kills crops is a note in the log, one line per plot and crop ("Frost killed 12 plants of strawberry on Farm plot #3.").
 - Crops draw as the species glyph with foreground `grass_green` dimmed by 3, 2, 1, 0 for stages 0–3. Once ready, the foreground is `green` for one 500 ms frame per four-frame (two-second) cycle until harvested.
 - Trees `♣`, `♠` and `↑` by species; saplings `τ`; shrubs `"` in species color; grass as a `grass_green` foreground on the floor glyph; cave moss uses `moss_teal`. Grass in `cold_steppe`, `tundra`, `savanna`, `desert` and `badlands` uses `grass_dry` foreground; outdoors its glyph, tint and flowers vary by tile (23 § Compositor step 2).
@@ -172,14 +177,3 @@ Species stage lengths, yields, seasons, temperatures and biome weights are conte
 - Multi-tile trees: see 03.
 - Crop rotation or soil exhaustion: a per-tile counter in this system's state and a factor in the growth formula.
 - Orchards: trees as a crop kind with yearly yields; the harvest job already handles per-tile yields.
-
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `plants.md` § Planned rows and the other content documents' § Planned rows.
-
-### Under a skylight (T-558)
-
-- A surface (`sun`) crop on a `skylit` tile (03 § Planned) ignores `seasonAllows`, uses a growth modifier of 100 and ignores weather, as a cave crop does; it still needs `minC ≤ temperatureAt ≤ maxC`. Outside its seasons it is not killed by frost, and heatwave wilting passes it by. The plot of such tiles is a surface plot (its tiles are `lit`).
-- The greenhouse is these rules with 05's: one level under a skylight in a temperate winter a plot is 3 °C (cabbage grows, barley does not); inside the hearth's square 5 °C (barley and flax grow); beside a magma channel anything grows; three levels down every surface crop grows all year at `UNDERGROUND_BASE_C`.
-- The ripening note of § Player-facing behavior says nothing for a plot whose tiles are all skylit.

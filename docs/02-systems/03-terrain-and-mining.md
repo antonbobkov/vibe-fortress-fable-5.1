@@ -109,8 +109,11 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 ### Outdoor and lit
 
-- `outdoor` for tile `i` at `(x, y, z)`: every tile above it in the column is `open`. Recomputed for the whole column when any tile in the column changes kind.
-- `lit`: `outdoor`, or an `open` or walkable tile that is within `LIGHT_SPREAD` tiles horizontally of an outdoor open tile on the same level with no wall between. Recomputed per chunk when the chunk changes. Surface crops need `lit`; cave crops need not `lit`.
+- `outdoor` for tile `i` at `(x, y, z)`: every tile above it in the column is `open`. Recomputed for the whole column when any tile in the column changes kind, or when a tile in it turns to or from glass (its material changes to or from one of class `glass`, or a glass tile becomes `constructed`).
+- Glass: a constructed `wall` or `floor` whose material is of class `glass` (the material `glass`, 14 § Constructions) passes daylight. Natural `obsidian` is class `obsidian` and passes nothing.
+- `skylit` (flag bit 14): a tile that is not `outdoor` and whose every tile above in the column is `open` or a constructed glass floor, with at least one glass floor among them. It is computed with `outdoor`, in the same column pass: scanning down from the sky, a glass floor keeps the light going as an open tile does, and the first other non-open tile is the last tile reached, as for `outdoor` (it is `skylit` too). So any glass floor over open space is a skylight; there is no skylight building. A tile that is `skylit` is `lit`. Light does not spread sideways from a skylit tile. 05 reads `skylit` (a skylit tile is covered), 07 reads it (§ Under a skylight).
+- `lit`: `outdoor`, `skylit`, or an `open` or walkable tile that is within `LIGHT_SPREAD` tiles horizontally of an outdoor open tile on the same level with no wall between; a constructed glass wall does not stop the spread, so daylight reaches `LIGHT_SPREAD` tiles through it into the hall behind (the wall tile itself is not `lit`). Recomputed per chunk when the chunk changes. Surface crops need `lit`; cave crops need not `lit`.
+- The light flags are flags of the map's `flags` grid and are saved with it; nothing else of the light is saved.
 
 ### Restricted traffic
 
@@ -239,15 +242,3 @@ Hardness per material and layer templates are content.
 - Aquifers: a stage between 3 and 4 that marks a layer as `source` water walls (04 already supports source tiles).
 - Cave-ins of natural rock: a support rule for natural tiles is the only change.
 - New designation kinds: a row in the transition table, a job type in `jobs.md`, and a menu entry.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, so a map or a game without the new content draws the same numbers as before.
-
-### Glass passes light (T-558)
-
-- A constructed `wall` or `floor` whose material is of class `glass` (the material `glass`) passes daylight. Natural `obsidian` is class `obsidian` and passes nothing.
-- `skylit` (flag bit 14): a tile that is not `outdoor` and whose every tile above in the column is `open` or a constructed glass floor, with at least one glass floor among them. It is computed with `outdoor`, in the same column pass: scanning down from the sky, a glass floor keeps the light going as an open tile does, and the first other solid tile is the last tile reached, as for `outdoor`. A column is recomputed when any tile in it changes kind or material, as `outdoor` is. A tile that is `skylit` is `lit`.
-- `lit` spread: a constructed glass wall does not stop daylight spreading (§ Outdoor and lit: "with no wall between"), so light reaches `LIGHT_SPREAD` tiles through it into the hall behind. The wall tile itself is not `lit`.
-- 05 reads `skylit` (05 § Planned), 07 reads it (07 § Planned), 22 reads glass for sight (22 § Planned).
-- Save: none; the flag is recomputed with `lit` on load as the other light flags are.

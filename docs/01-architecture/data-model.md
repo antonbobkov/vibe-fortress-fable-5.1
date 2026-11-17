@@ -85,11 +85,12 @@ Clarification of the surface: for a column, the highest tile whose kind is not `
 | 7 | `ash` | 05 | Left by fire; prevents regrowth for a season |
 | 8 | `burning` | 05 | On fire |
 | 9 | `outdoor` | 03 | No solid tile above in the column; recomputed on change |
-| 10 | `lit` | 03 | Daylight reaches it (outdoor, or within 1 tile of an outdoor open tile horizontally) |
+| 10 | `lit` | 03 | Daylight reaches it (outdoor, skylit, or within `LIGHT_SPREAD` tiles of an outdoor open tile horizontally) |
 | 11 | `restricted` | 24 via 03 | Player traffic restriction: dwarves avoid |
 | 12 | `web` | 08 | Cave spider web; entangles |
 | 13 | `wet` | 06 | Rained on this hour; decorative and slows fire |
-| 14–15 | reserved | | |
+| 14 | `skylit` | 03 | Covered, with daylight through glass floors above it (a skylight); recomputed with `outdoor` |
+| 15 | reserved | | |
 
 ### Chunks
 

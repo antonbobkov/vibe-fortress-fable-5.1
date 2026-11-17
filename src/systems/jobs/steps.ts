@@ -370,7 +370,7 @@ function stepHunt(board: JobBoard, job: Job, workerId: EntityId, ctx: TickContex
       Math.abs(map.yOf(workerTile) - posT.y),
     ) + Math.abs(map.zOf(workerTile) - posT.z) * 2;
 
-  const hasLos = board.world.services.combat?.lineOfSight(workerTile, targetTile) ?? false;
+  const hasLos = board.world.services.combat?.lineOfFire(workerTile, targetTile) ?? false;
 
   if (dist <= range && hasLos) {
     movement?.stopWalking(workerId);
