@@ -670,7 +670,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     name: str,
     armorSlot: enumOf(['head', 'body', 'arms', 'legs', 'feet', 'shield']),
     covers: arr(obj({ part: enumOf(BODY_SLOTS), coverage: int })),
-    layer: enumOf(['padding', 'leather', 'mail', 'plate', 'none']),
+    layer: enumOf(['padding', 'leather', 'scale', 'mail', 'plate', 'none']),
     armor: int,
     weight: int,
     bars: opt(int),
@@ -685,6 +685,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     type: enumOf(DAMAGE_TYPES),
     padding: fixed,
     leather: fixed,
+    scale: fixed,
     mail: fixed,
     plate: fixed,
     ward: fixed,
@@ -722,6 +723,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
       1,
     ),
     only: opt(enumOf(['head', 'body', 'arms', 'legs', 'feet'])),
+    /** The workshop its setting is made at; absent: the runeforge (`25` § Setting stones). */
+    workshop: opt(ref('buildings')),
   }),
 
   bodyPlans: rows({
@@ -786,6 +789,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
     gear: opt(str),
     remains: opt(arr(obj({ item: itemRef, count: int }), 1)),
     butcherParts: opt(arr(obj({ item: itemRef, material: materialRef, count: int }), 1)),
+    herd: opt(obj({ biomes: arr(obj({ biome: biomeRef, weight: int }), 1), group: tupleOf(2, int), season: opt(arr(int)) })),
   }),
 
   plants: rows({
@@ -875,7 +879,8 @@ export const SCHEMAS: Record<string, TableSchema> = {
     magmaVariantOf: opt(ref('buildings')),
     rest: opt(int),
     // 14 § The drying rack: `drying` is the rack's setting's rows (`items.md` § Drying).
-    wants: opt(arr(obj({ match: ref('items', { allowTag: true, alternation: true, allowWords: ['any', 'drying'] }), count: int }))),
+    // 14 § Mugs at the table: `per: 'chair'` wants `count` for each chair beside the building, up to `max` chairs.
+    wants: opt(arr(obj({ match: ref('items', { allowTag: true, alternation: true, allowWords: ['any', 'drying'] }), count: int, per: opt(enumOf(['chair'])), max: opt(int) }))),
     glyph: opt(str),
   }),
 
@@ -1045,6 +1050,20 @@ export const SCHEMAS: Record<string, TableSchema> = {
     announce: bool,
   }),
 
+  // personality-and-thoughts.md § Whims: what the Thane may wish for in a season (10 § The Thane's whim).
+  whims: rows({
+    id: nonEmptyStr,
+    kind: enumOf(['stock', 'room']),
+    item: ref('items', { allowWords: ['any'] }),
+    material: opt(materialRef),
+    quality: opt(int),
+    bedding: opt(enumOf(['feather'])),
+    zone: opt(ref('zoneTypes')),
+    thane: opt(bool),
+    count: int,
+    text: nonEmptyStr,
+  }),
+
   names: {
     shape: 'map',
     row: obj({
@@ -1145,6 +1164,7 @@ export const SCHEMAS: Record<string, TableSchema> = {
         extra: opt(obj({ permille: int, minReputation: opt(int) })),
         sundries: opt(bool),
         units: opt(int),
+        biomes: opt(arr(biomeRef, 1)),
       }),
     ),
   }),

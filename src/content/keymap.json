@@ -311,6 +311,16 @@
   },
   {
     "context": "designate_panel",
+    "key": "[q]",
+    "action": "harvest ice"
+  },
+  {
+    "context": "designate_panel",
+    "key": "[S-b]",
+    "action": "ignite (set a fire)"
+  },
+  {
+    "context": "designate_panel",
     "key": "[S-f]",
     "action": "traffic (again: the next traffic mode)"
   },
@@ -425,6 +435,11 @@
     "action": "sanctum"
   },
   {
+    "context": "zones_panel",
+    "key": "[S-k]",
+    "action": "compost heap"
+  },
+  {
     "context": "zone_inspector",
     "key": "[y]",
     "action": "back to the zone types"
@@ -483,6 +498,11 @@
     "context": "zone_inspector",
     "key": "Shift+A",
     "action": "a farm plot: the highlighted row's crop for every season in which that crop can grow"
+  },
+  {
+    "context": "zone_inspector",
+    "key": "[w]",
+    "action": "a farm plot: turn fertilize on or off"
   },
   {
     "context": "zone_inspector",

@@ -9,7 +9,7 @@
  * discovery updates as designation work").
  */
 
-import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
+import { Designation, FLUID_FROZEN_BIT, FLUID_LEVEL_MASK, FLUID_TYPE_BIT, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { TileIndex } from '@core/types';
 
 /** `03` § Reader `materialClassAt`: stone, soil, ore, gem, bone, ice, wood, constructed. */
@@ -23,6 +23,10 @@ export interface MaterialFacts {
   isDeepsilver(material: number): boolean;
   /** True for a soil tagged `soil_drop` (`materials.md` § Soil: clay, sand, peat). Absent: none. */
   dropsSoil?(material: number): boolean;
+  /** The item a dug tile of class `bone` drops: a `tusk` of `ivory`, a `fossil` of any other. Absent: a fossil. */
+  boneItem?(material: number): string;
+  /** The material's `burnable` column (`materials.md`). Absent: nothing burns, so `ignite` never passes. */
+  burnable?(material: number): boolean;
 }
 
 /** An item a transition owes the world: `type` and `material` are content ids. */
@@ -57,6 +61,8 @@ export const TERRAIN_DESIGNATIONS: readonly Designation[] = [
   Designation.Remove,
   Designation.Chop,
   Designation.Gather,
+  Designation.HarvestIce,
+  Designation.Ignite,
 ];
 
 /** The names the UI and scenarios use for designation kinds (`data-model.md` § Designations). */
@@ -73,6 +79,8 @@ export const DESIGNATION_NAMES: Readonly<Record<string, Designation>> = Object.f
   chop: Designation.Chop,
   gather: Designation.Gather,
   harvest: Designation.Harvest,
+  harvest_ice: Designation.HarvestIce,
+  ignite: Designation.Ignite,
 });
 
 /** The kinds a `remove` or the support rule treats as constructions (`03` § Support and collapse). */
@@ -106,6 +114,35 @@ function smoothable(map: Map3D, i: TileIndex, facts: MaterialFacts): boolean {
   if (kind !== TileKind.Wall && kind !== TileKind.Floor) return false;
   if (constructed(map, i) || map.hasFlag(i, TileFlag.Smoothed)) return false;
   return facts.classOf(map.materialAt(i)) === 'stone';
+}
+
+/**
+ * `harvest_ice`: frozen outdoor water (04's frozen record): an ice `wall` or ice `floor` whose fluid
+ * byte holds water with the `frozen` bit, on an `outdoor` tile (`03` § Ice harvesting). The
+ * recut wait (`iceCut`) is 03's state and is checked by `Designate`, not here.
+ */
+export function frozenOutdoorWater(map: Map3D, i: TileIndex, facts: MaterialFacts): boolean {
+  const k = map.kindAt(i);
+  if (k !== TileKind.Wall && k !== TileKind.Floor) return false;
+  if (constructed(map, i) || !map.hasFlag(i, TileFlag.Outdoor)) return false;
+  const f = (map.fluid[i] ?? 0) as number;
+  if ((f & FLUID_LEVEL_MASK) === 0 || (f & FLUID_TYPE_BIT) !== 0 || (f & FLUID_FROZEN_BIT) === 0) return false;
+  return facts.classOf(map.materialAt(i)) === 'ice';
+}
+
+/**
+ * 05's `burnableTile(T)` over the map and the material facts (`05` § Fire, Ignition): a constructed
+ * tile of wood anywhere; outdoors a tree, sapling or shrub, a grass floor, or a floor or wall of a
+ * burnable soil (peat). The same rule as `Fire.burnableTile` (the terrain test holds them equal).
+ */
+export function burnableTile(map: Map3D, i: TileIndex, facts: MaterialFacts): boolean {
+  const kind = map.kindAt(i);
+  const material = map.materialAt(i);
+  if (constructed(map, i)) return facts.classOf(material) === 'wood' && kind !== TileKind.Open;
+  if (!map.hasFlag(i, TileFlag.Outdoor)) return false;
+  if (kind === TileKind.Tree || kind === TileKind.Sapling || kind === TileKind.Shrub) return true;
+  if (kind === TileKind.Floor && map.hasFlag(i, TileFlag.Grass)) return true;
+  return (kind === TileKind.Floor || kind === TileKind.Wall) && facts.classOf(material) === 'soil' && facts.burnable?.(material) === true;
 }
 
 /**
@@ -148,6 +185,11 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
       return k === TileKind.Tree || k === TileKind.Sapling;
     case Designation.Gather:
       return k === TileKind.Shrub;
+    case Designation.HarvestIce:
+      return frozenOutdoorWater(map, i, facts);
+    case Designation.Ignite:
+      // `03` § Setting a fire: a tile 05 calls burnable, not wet, not under snow, not already burning.
+      return burnableTile(map, i, facts) && !map.hasFlag(i, TileFlag.Wet) && !map.hasFlag(i, TileFlag.Snow) && !map.hasFlag(i, TileFlag.Burning);
     case Designation.None:
     case Designation.Harvest:
       return false;
@@ -187,7 +229,7 @@ export interface TransitionRolls {
 /**
  * "Item produced" of `dig` (and every row that says "As dig"): "Per material class: `stone` and
  * `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always
- * `rough_gem`; `bone`: always `fossil`; `soil` tagged `soil_drop`: `soil_load` with
+ * `rough_gem`; `bone`: always `fossil` (a `tusk` for `ivory`, stage 9b's tusks); `soil` tagged `soil_drop`: `soil_load` with
  * `SOIL_DROP_PERMILLE`; every other class: none" (docs/02-systems/03-terrain-and-mining.md
  * § Tile transitions).
  */
@@ -196,7 +238,7 @@ export function digDrop(map: Map3D, i: TileIndex, facts: MaterialFacts, rolls: T
   const cls = facts.classOf(material);
   if (cls === 'ore') return { type: 'ore', material, count: 1, tile: i };
   if (cls === 'gem') return { type: 'rough_gem', material, count: 1, tile: i };
-  if (cls === 'bone') return { type: 'fossil', material, count: 1, tile: i };
+  if (cls === 'bone') return { type: facts.boneItem?.(material) ?? 'fossil', material, count: 1, tile: i };
   if (cls === 'stone') return rolls.stoneDrops() ? { type: 'raw_stone', material, count: 1, tile: i } : null;
   if (cls === 'soil' && facts.dropsSoil?.(material) === true && rolls.soilDrops !== undefined) {
     return rolls.soilDrops() ? { type: 'soil_load', material, count: 1, tile: i } : null;
@@ -312,6 +354,9 @@ export function transition(
     }
     case Designation.None:
     case Designation.Harvest:
+    case Designation.HarvestIce:
+    case Designation.Ignite:
+      // `harvest_ice` and `ignite` change no tile here: 03's producer drops the block or emits `TileIgnited`.
       break;
     default:
       break;

@@ -70,15 +70,15 @@ function order(w: TestWorld, workshopId: EntityId, recipeId: string, extra: Reco
 }
 
 describe('T-471 content: enchantments, settings, the robe and the circlet', () => {
-  it('twenty-two enchantments, each a row with a slot, a stone, vials, a suffix and effects; numbered last', () => {
-    expect(enchants.size).toBe(22);
+  it('twenty-three enchantments, each a row with a slot, a stone, vials, a suffix and effects; numbered last', () => {
+    expect(enchants.size).toBe(23);
     expect(enchants.byId('ember')).toEqual({ id: 'ember', slot: 'weapon', stone: 'garnet', vials: 6, suffix: 'of embers',
       effects: [{ kind: 'extra_damage', value: 8, type: 'ember', scales: 'value' }] });
     expect(enchants.byId('fearsome')?.effects).toEqual([{ kind: 'flee', value: 1, chance: 25, ticks: 200, scales: 'none' }]);
     expect(enchants.byId('rime')?.effects).toEqual([{ kind: 'slow', value: 30, ticks: 200, scales: 'ticks' }]);
     // A row, never an id: the rimeward's "never slowed" is a kind of its own.
     expect(enchants.byId('rimeward')?.effects.map((e) => e.kind)).toEqual(['frost_percent', 'slow_immune']);
-    expect(enchants.ids().filter((id) => enchants.byId(id)?.slot === 'ammo')).toEqual(['ember_ammo', 'rime_ammo', 'seeking']);
+    expect(enchants.ids().filter((id) => enchants.byId(id)?.slot === 'ammo')).toEqual(['ember_ammo', 'rime_ammo', 'seeking', 'fletched']);
     // Rows added after version 1 number after every older row (row-order.md).
     const order = registry.table<{ table: string; id: string }>('items');
     expect(order.index('circlet')).toBeGreaterThan(order.index('rune_vial'));
@@ -97,7 +97,9 @@ describe('T-471 content: enchantments, settings, the robe and the circlet', () =
     const ammo = recipes.byId('set_ammo_seeking')!;
     expect(ammo).toMatchObject({ baseTicks: 200, xp: 10, name: 'Seeking ammunition' });
     expect(ammo.inputs[0]).toEqual({ match: 'bolt|arrow', count: 25 });
-    expect(recipes.where('t471-transform', (r) => r.transform === true).length).toBe(22);
+    // 22 at the runeforge and T-562's fletching at the bowyer.
+    expect(recipes.where('t471-transform', (r) => r.transform === true).length).toBe(23);
+    expect(recipes.where('t471-transform-runeforge', (r) => r.transform === true && r.workshop === 'runeforge').length).toBe(22);
     expect(withSuffix('iron axe', 'keen')).toBe('keen iron axe');
     expect(withSuffix('iron axe', 'of embers')).toBe('iron axe of embers');
   });

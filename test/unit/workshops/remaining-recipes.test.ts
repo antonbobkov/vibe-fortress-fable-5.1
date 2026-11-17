@@ -15,10 +15,15 @@ function sourceMaterial(type: string, recipe: RecipeRow): string {
   if (type === 'thread') return 'flax_thread';
   if (type === 'cloth') return recipe.id === 'make_cloak' ? 'wool_cloth' : 'flax_cloth';
   if (type === 'log') return recipe.id === 'make_bow' ? 'yew' : 'oak';
+  // T-562: a scale piece's plates.
+  if (type === 'shell_piece') return 'shell';
   return 'leather';
 }
 
-/** One world per workshop exercises every authored recipe; no world per row. */
+/**
+ * One world per workshop exercises every recipe that makes an item; no world per row. A setting (the
+ * bowyer's fletching, T-562) makes none: `t562-scale-horn-fletching.test.ts` and the recipe smoke run it.
+ */
 function executeShop(workshopType: string): { world: TestWorld; products: Map<string, number[]> } {
   const w = new TestWorld({ seed: `m4-rest-${workshopType}`, world: 'flat-test', embark: 'none' });
   const at = w.index(15, 15, 32);
@@ -26,7 +31,7 @@ function executeShop(workshopType: string): { world: TestWorld; products: Map<st
   const maker = w.spawnDwarf({ at: w.index(18, 16, 32) });
   w.step(1);
   const system = w.game.world.scheduler.byId('12') as WorkshopsSystem;
-  const recipes = w.readers.of<WorkshopsReader>('12').recipesFor(workshopType);
+  const recipes = w.readers.of<WorkshopsReader>('12').recipesFor(workshopType).filter((r) => r.transform !== true);
   const items = w.readers.of<ItemsReader>('13');
   const itemTable = w.game.registry.table<{ id: string; tags?: readonly string[] }>('items');
   const materials = w.game.registry.table('materials');
@@ -70,7 +75,7 @@ describe('T-M4-10 remaining non-metal workshops', () => {
   for (const workshop of CRAFT_SHOPS) {
     it(`executes every ${workshop} recipe with exact inputs, outputs and materials`, () => {
       const { world, products } = executeShop(workshop);
-      const rows = world.game.registry.table<RecipeRow>('recipes').where(`workshop:${workshop}`, (r) => r.workshop === workshop);
+      const rows = world.game.registry.table<RecipeRow>('recipes').where(`workshop:${workshop}:made`, (r) => r.workshop === workshop && r.transform !== true);
       expect(products.size).toBe(rows.length);
     });
   }

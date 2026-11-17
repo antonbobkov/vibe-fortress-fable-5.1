@@ -6,13 +6,14 @@ Every command, its fields, its owning system, its validation and the events its 
 
 | Command | Fields | Owner | Validation (reject reason) | Emits |
 |---|---|---|---|---|
-| `Designate` | `tiles[], kind, priority` | 03 | each tile in bounds; kind precondition per 03's transition table for tiles that are discovered (undiscovered tiles accepted blind); `deepsilver_unconfirmed` if any tile is known deepsilver and `deepsilverConfirmed` is false | `JobCreated` via producer |
+| `Designate` | `tiles[], kind, priority` | 03 | each tile in bounds; kind precondition per 03's transition table for tiles that are discovered (undiscovered tiles accepted blind); `deepsilver_unconfirmed` if any tile is known deepsilver and `deepsilverConfirmed` is false; `harvest_ice` leaves out tiles cut less than `ICE_RECUT_DAYS` ago (`precondition_failed` when none is left); `ignite_unconfirmed` for an `ignite` while `igniteConfirmed` is false | `JobCreated` via producer |
 | `UndoDesignation` | `tiles[]` | 03 | tiles have designations without progress (`has_progress` otherwise, partial) | `JobCancelled` |
 | `SetDesignationPriority` | `tiles[], priority` | 03 | designations exist; Designate tool applies it to the still-designated tiles of its last batch | — |
 | `SetTraffic` | `tiles[], mode` | 03 | in bounds | `TilesChanged` |
 | `DesignateStairwell` | `x, y, zTop, zBottom` | 03 | integer coordinates in the map (`out_of_bounds`); `zTop > zBottom` | as Designate |
 | `DesignateHarvest` | `tiles[]` | 07 | crops at stage 3 | `JobCreated` |
 | `ConfirmDeepsilver` | — | 03 | — | — (sets `deepsilverConfirmed`) |
+| `ConfirmIgnite` | — | 03 | — | — (sets `igniteConfirmed`) |
 | `SetPlotCrop` | `zoneId, season, speciesId \| 0` | 07 | zone is a farm plot; species is 0 or a known farmed plant id/integer index (`not_found` otherwise); light matches the plot kind (`light_mismatch`); a crop sown only on ash (wyrmtongue) needs every plot tile an ash tile (`not_on_ash`) | — |
 | `AssignPasture` | `animalId, zoneId \| 0` | 08 | tame grazer, not a summon (`not_found`); zone is a pasture | — |
 | `MarkSlaughter` / `UnmarkSlaughter` | `animalId` | 08 | tame, not a summon (`not_found`); not assigned as war or hunting animal (`assigned`) | `JobCreated` |
@@ -35,15 +36,15 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SetWorkshopWorker` | `workshopId, dwarfId \| 0` | 12 | dwarf has any enabled recipe labor for the workshop type | — |
 | `SuspendWorkshop` | `workshopId, on` | 12 | — | `JobCancelled` if running |
 | `ForbidItem` / `ClaimItem` / `DumpItem` / `MeltItem` | `itemId \| tiles[] \| typeId, on` | 13 | items exist; melt only metal items | `ItemReleased` when forbidding a reserved item cancels its job |
-| `SetStockpileFilter` | `zoneId, filter` | 13 | zone is a stockpile; category nodes exist | — |
-| `SetStockpileContainers` / `SetStockpilePriority` / `LinkStockpile` | `zoneId, …` | 13 | — | — |
+| `SetStockpileFilter` | `zoneId, filter` | 13 | zone is a stockpile or a hospital, not a compost heap (`not_found`); category nodes exist | — |
+| `SetStockpileContainers` / `SetStockpilePriority` / `LinkStockpile` | `zoneId, …` | 13 | not a compost heap (`not_found`) | — |
 | `SetStockpileCellar` | `zoneId, on` | 13 | zone is a stockpile (not a hospital); `on` is a boolean (`bad_setting`) | — |
 | `PlaceBuilding` | `buildingType, origin, orientation, materialChoice, priority, width?, height?` | 14 | optional integer dimensions only for a variable footprint (`fixed_footprint` names a fixed type); footprint rules; `materialChoice` a material, or `'blocks'` for a workshop of blocks in place of its logs (not one tagged `logs_only`; otherwise `not_found`); materials exist in the fortress (`no_materials` is a warning, not a rejection: the job blocks); magma safety (`not_magma_safe`); one hearth (`hearth_exists`); a workshop that no recipe names and no job is worked at is refused (`precondition_failed`, "Nothing can be made there yet."); depot reachability is checked at caravan time | `BuildingPlaced`, `JobCreated` |
 | `CancelBuilding` | `buildingId` | 14 | planned or constructing | `BuildingRemoved`, `JobCancelled` |
 | `DeconstructBuilding` | `buildingId` | 14 | built; not the hearth while dwarves live (`hearth_is_home`) | `JobCreated` |
 | `SetBuildingPriority` | `buildingId, priority` | 14 | planned | — |
 | `CreateZone` | `zoneType, tiles[]` | 14 | tiles walkable (type-specific), no overlap (`overlap`), fishing and farm tile rules; a command with any bad tile is rejected whole (`bad_zone_tiles`) | `ZoneChanged` |
-| `ResizeZone` / `RemoveZone` / `SetZoneSetting` | `zoneId, …` | 14 | zone exists; setting key and typed value valid for the type (`bad_setting` otherwise); owner uses AssignRoom checks; seasonal crops use SetPlotCrop checks | `ZoneChanged` |
+| `ResizeZone` / `RemoveZone` / `SetZoneSetting` | `zoneId, …` | 14 | zone exists; setting key and typed value valid for the type (`bad_setting` otherwise); owner uses AssignRoom checks; seasonal crops use SetPlotCrop checks; a farm plot's `fertilize` is a boolean | `ZoneChanged` |
 | `AssignRoom` | `zoneId, dwarfId \| 0` | 14 | bedroom with a bed | `RoomAssigned` |
 | `LinkMechanism` / `UnlinkMechanism` | `sourceId, targetId` | 14 | source is a lever or plate; target is linkable; mechanism available (blocks otherwise) | `JobCreated` |
 | `SetDoorMode` / `SetHatchMode` | `buildingId, mode` | 14 | building has the tag | `BuildingStateChanged` |
@@ -78,6 +79,6 @@ App-level (not simulation commands, not logged): `Save`, `Load`, `RetireFortress
 
 ## Rejection reasons
 
-`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `light_mismatch`, `not_tame`, `not_grazer`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`, `not_on_ash`, `not_traded`.
+`out_of_bounds`, `not_discovered`, `precondition_failed`, `has_progress`, `deepsilver_unconfirmed`, `ignite_unconfirmed`, `light_mismatch`, `not_tame`, `not_grazer`, `assigned`, `no_kennel`, `not_trainable`, `child_labor`, `not_found`, `not_cancellable`, `invalid_index`, `no_labor`, `not_metal`, `bad_category`, `footprint_blocked`, `bad_placement`, `fixed_footprint`, `not_magma_safe`, `hearth_exists`, `hearth_is_home`, `overlap`, `bad_zone_tiles`, `bad_setting`, `no_bed`, `not_linkable`, `no_tag`, `squad_limit`, `member_limit`, `already_in_squad`, `not_adult`, `no_depot`, `no_caravan`, `no_session`, `not_at_depot`, `request_limit`, `out_of_range`, `bad_name`, `caravan_absent`, `not_on_ash`, `not_traded`.
 
 Each reason has a string key `reject.<reason>` in the strings table; the UI shows it in the status bar for `STATUS_HINT_SECONDS`.

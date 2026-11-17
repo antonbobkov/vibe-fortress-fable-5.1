@@ -17,11 +17,11 @@ temperatureAt(i):
 recomputeOverrides(chunk c):
   for i in tiles(c): tempOverride[i] = 0
   for src in sourcesTouching(c):   // magma tiles in c and its 8 neighbors and the chunk below/above; burning tiles; springs; snow tiles in c
-    for i in tiles(c) within Chebyshev 2 (same z or z+1) of src: add contribution (magma at distances 0/1/2: MAGMA_OVERRIDE, /2, /4; fire at 0/1 only: FIRE_OVERRIDE, /2; springs and snow only on their own tile)
+    for i in tiles(c) within Chebyshev 2 (same z or z+1) of src: add contribution (magma at distances 0/1/2: MAGMA_OVERRIDE, /2, /4; fire at 0/1 only: FIRE_OVERRIDE, /2; an ice construction −ICE_OVERRIDE at 0/1 on its own level only; springs and snow only on their own tile)
   clamp each to [-24, 24]   // ×5 °C = ±120
 ```
 
-At the first materials tick, compute magma and warm spring source reach and save `started`. A `FluidsChanged` chunk queues override work only when its magma index signature changes: itself, eight same-level neighbours and the nine above. Water alone does not queue work. Fire changes queue their reach; `SnowCoverChanged` queues named chunks. Process `pendingChunks` at the next materials tick. `forceTemperature(i, c)` sets a saved override that bypasses the model; `null` releases it.
+At the first materials tick, compute magma and warm spring source reach and save `started`. A `FluidsChanged` chunk queues override work only when its magma index signature changes: itself, eight same-level neighbours and the nine above. Water alone does not queue work. Fire changes, and an ice construction built or removed (`TilesChanged`), queue their reach; `SnowCoverChanged` queues named chunks. Process `pendingChunks` at the next materials tick. `forceTemperature(i, c)` sets a saved override that bypasses the model; `null` releases it.
 
 ## Fire (materials tick, every 10 ticks)
 

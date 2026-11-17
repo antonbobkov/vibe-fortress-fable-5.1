@@ -43,9 +43,11 @@ export interface DwarvesReader {
   bedHolder(bedId: EntityId): EntityId;
   /** Whether the dwarf drank spirits within `TIPSY_TICKS` (`10` § Tipsy). */
   isTipsy(id: EntityId): boolean;
+  /** `dwarves.whim()`: the Thane's whim of the season, its text and whether it is met now, or null (`10` § The Thane's whim). */
+  whim(): { readonly id: string; readonly text: string; readonly met: boolean } | null;
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false): DwarvesReader {
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => { id: string; text: string; met: boolean } | null = () => null): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {
@@ -79,5 +81,6 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     avoidsFire: (id) => avoidsFire(entities.get(id, C.Brain)?.fireFlight, tick()),
     bedHolder,
     isTipsy: tipsy,
+    whim,
   };
 }

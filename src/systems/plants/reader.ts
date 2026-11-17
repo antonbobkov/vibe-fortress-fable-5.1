@@ -17,6 +17,8 @@ export interface CropInfo {
   readonly percent: number;
   readonly tile: TileIndex;
   readonly plotZoneId: EntityId;
+  /** Planted with fertilizer (`07` § Fertilizer). */
+  readonly fertilized: boolean;
 }
 
 export interface PlantsReader {
@@ -32,6 +34,8 @@ export interface PlantsReader {
   /** The four season slots of a plot, as `plants` indices (0 = none). */
   plotSettings(zoneId: EntityId): number[];
   plotKind(zoneId: EntityId): PlotKind | 'none';
+  /** The plot's `fertilize` setting (`07` § Fertilizer). */
+  plotFertilize(zoneId: EntityId): boolean;
   /** Farm plot zones, ascending id. */
   plots(): EntityId[];
   /** The species content id of a tree, sapling or shrub tile, or ''. */
@@ -39,6 +43,8 @@ export interface PlantsReader {
   /** A mature (not regrowing) shrub tile. */
   shrubReady(i: TileIndex): boolean;
   hasGrass(i: TileIndex): boolean;
+  /** The tile carries a flower: an outdoor grass floor the biome's `flowers` share picks (`07` § Flowers). */
+  flowerAt(i: TileIndex): boolean;
   /** The dry-grass biomes of `03-content/plants.md` § Grass. */
   grassIsDry(): boolean;
   /** The `plants` row by content id or `plants` index. */

@@ -25,6 +25,7 @@ import { stageBoulders, stageRamps, stageSnow } from './surface';
 import { stageBattlefieldChannel, stageTraits } from './traits';
 import { stageLight } from './light';
 import { stageStarfall } from './starfall';
+import { stageBoneyards } from './boneyards';
 
 export type { SpawnEntry, StackLayer, VeinRecord } from './common';
 
@@ -72,6 +73,10 @@ export interface LocalMapResult {
   readonly warmSprings: readonly TileIndex[];
   /** `starfall` crater tiles, ascending, for 03's state (`craterTiles`); empty on any other map. */
   readonly craterTiles: readonly TileIndex[];
+  /** Stage 9b: each boneyard's skull tiles, ascending, for 03's state (`giantSkulls`); empty on any other map. */
+  readonly giantSkulls: readonly (readonly TileIndex[])[];
+  /** Stage 9b: each boneyard's cage tiles, ascending, for 03's state (`boneyards`); empty on any other map. */
+  readonly boneyards: readonly (readonly TileIndex[])[];
   /** Centre column of the volcano pipe, or -1. */
   readonly volcano: number;
 }
@@ -100,6 +105,8 @@ export function newLocalGen(spec: LocalMapSpec, map: Map3D, registry: Registry):
     spawns: [],
     warmSprings: [],
     craterTiles: [],
+    giantSkulls: [],
+    boneyards: [],
     volcano: -1,
   };
 }
@@ -143,6 +150,8 @@ export function generateLocal(
       stageVegetation(g);
       stageRarePatches(g);
       stageSnow(g);
+      // 03 § Local map generation, stage 9b: the boneyards, on their own stream.
+      stageBoneyards(g);
     },
     traits: () => {
       stageTraits(g);
@@ -173,6 +182,8 @@ export function generateLocal(
     spawns: g.spawns,
     warmSprings: g.warmSprings,
     craterTiles: g.craterTiles,
+    giantSkulls: g.giantSkulls,
+    boneyards: g.boneyards,
     volcano: g.volcano,
   };
 }

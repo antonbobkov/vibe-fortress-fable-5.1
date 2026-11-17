@@ -5,7 +5,8 @@
  * worth less (the output item's `mult` × its material's value); it is never better on all three.
  *
  * Every substitute recipe adds its pair to {@link SUBSTITUTES} when its row lands. The two make the
- * same item, or containers of one class (a pot of 10 stands in for a barrel of 20).
+ * same item, or containers of one class (a pot of 10 stands in for a barrel of 20). A substitute that
+ * makes an item of its own (the stone bed, the horn bow, scale armour) has a test of its own below.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -29,6 +30,9 @@ const SUBSTITUTES: readonly (readonly [string, string, string?])[] = [
   ['make_splint_bone', 'make_splint', 'oak'],
   ['make_crutch_bone', 'make_crutch', 'oak'],
   ['forge_crutch', 'make_crutch', 'oak'],
+  ['make_hive_clay', 'make_hive_wood', 'oak'],
+  ['weave_hive', 'make_hive_wood', 'oak'],
+  ['cut_bone_blocks', 'make_stone_block', 'granite'],
 ];
 
 interface Cost {
@@ -145,6 +149,53 @@ describe('12 § Substitutes: a substitute recipe stays worse than the recipe it 
     expect(value('slept_on_a_pallet')).toBeLessThan(0);
     expect(value('slept_in_a_bed')).toBeGreaterThan(0);
   });
+
+  // T-562: the horn bow stands in for the yew bow. It is an item of its own, so it is judged by what a
+  // bow is for, its power: a horn bow of any wood shoots as a yew bow and no better, and it takes a
+  // horn beside its log and 40 ticks more, so a fortress with yew loses nothing by it.
+  it('make_horn_bow is worse than make_bow of yew: the same power, more input and more time', () => {
+    const weapons = registry.table<{ id: string; launcher?: { power: number; yewPower?: number } }>('weapons');
+    const horn = weapons.byId('horn_bow')?.launcher;
+    const bow = weapons.byId('bow')?.launcher;
+    expect(horn?.power).toBe(bow?.yewPower);
+    expect(horn?.yewPower).toBeUndefined();
+    expect(recipes.byId('make_horn_bow')?.outputs[0]?.item).toBe('horn_bow');
+    const sub = cost(recipes.byId('make_horn_bow') as RecipeDef, 'pine');
+    const regular = cost(recipes.byId('make_bow') as RecipeDef, 'yew');
+    expect(sub).toMatchObject({ units: 2, ticks: 220 });
+    expect(regular).toMatchObject({ units: 1, ticks: 180 });
+    expect(substituteIsWorse(sub, regular), `${JSON.stringify(sub)} against ${JSON.stringify(regular)}`).toBe(true);
+    // In the same yew, too: the horn bow is no better and costs more.
+    expect(substituteIsWorse(cost(recipes.byId('make_horn_bow') as RecipeDef, 'yew'), regular)).toBe(true);
+  });
+
+  // T-562: scale armour has its place between leather and mail. Against an edge and a point it
+  // stops more than leather and less than iron mail, it weighs more than leather and less than mail,
+  // and it takes more input and more time than the leather piece of its slot.
+  for (const [scaleId, leatherId, mailId, recipe, leatherRecipe] of [
+    ['scale_shirt', 'leather_jerkin', 'mail_shirt', 'make_scale_shirt', 'make_leather_jerkin'],
+    ['scale_skirt', 'leggings', 'greaves', 'make_scale_skirt', 'make_leggings'],
+  ] as const) {
+    it(`${scaleId} sits between ${leatherId} and ${mailId}`, () => {
+      const armor = registry.table<{ id: string; layer: 'leather' | 'scale' | 'mail' | 'plate'; armor: number; weight: number }>('armor');
+      const layers = registry.derived<readonly ({ type: string } & Record<string, number>)[]>('damageVsLayer');
+      const [scale, leather, mail] = [armor.byId(scaleId)!, armor.byId(leatherId)!, armor.byId(mailId)!];
+      for (const type of ['edge', 'pierce']) {
+        const row = layers.find((r) => r.type === type)!;
+        // Common pieces; iron's armorMult is 1.0, and leather's and scale's always are.
+        const stops = (piece: typeof scale): number => piece.armor * (row[piece.layer] ?? 0);
+        expect(stops(scale), type).toBeGreaterThan(stops(leather));
+        expect(stops(scale), type).toBeLessThan(stops(mail));
+      }
+      expect(scale.weight).toBeGreaterThan(leather.weight);
+      expect(scale.weight).toBeLessThan(mail.weight);
+      const sub = recipes.byId(recipe) as RecipeDef;
+      const regular = recipes.byId(leatherRecipe) as RecipeDef;
+      const units = (r: RecipeDef): number => r.inputs.reduce((n, input) => n + input.count, 0);
+      expect(units(sub)).toBeGreaterThan(units(regular));
+      expect(sub.baseTicks).toBeGreaterThan(regular.baseTicks);
+    });
+  }
 
   it('bone ash takes the 4 units of the flux stone, in the same 200 ticks, for the same steel', () => {
     const ash = cost(recipes.byId('make_steel_bone_ash') as RecipeDef);

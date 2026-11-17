@@ -161,15 +161,28 @@ export function eventPredicate(def: ThoughtDef, event: GameEvent, registry: Regi
     case 'forged_the_star': return n(event, 'itemId') !== 0;
     // Making Do: the nettle's sting (09), a cactus drunk (10), a meal seasoned with wyrmtongue (12).
     case 'nettles': return s(event, 'source') === 'nettle';
+    // 08 § Hives: the collector's sting and a passer-by's.
+    case 'stung': return s(event, 'source') === 'bees';
     case 'drank_cactus': return true;
     case 'ate_wyrmtongue': return Array.isArray(event['seasoned']) && (event['seasoned'] as unknown[]).includes('wyrmtongue');
     // 12 § Smoke, salt and the smokehouse: a salted meal; a smokehouse's batch done; 05 § Smoke.
     case 'ate_salted_meal': return Array.isArray(event['seasoned']) && (event['seasoned'] as unknown[]).includes('salt');
     case 'smelled_smokehouse': return SMOKEHOUSE_RECIPES.includes(s(event, 'recipeId'));
     case 'smoky_hall': return true;
+    // 14 § Candle stands and lanterns: a meal at a table in comfort light.
+    case 'ate_by_candlelight': return event['candlelit'] === true;
+    // 10 § Feasts and the Thane's whim; 14 § Mugs at the table.
+    case 'feasted': return event['feast'] === true;
+    case 'drank_from_a_mug': return event['mug'] === true;
+    case 'held_a_feast': return s(event, 'recipeId') === FEAST_RECIPE;
+    case 'thane_pleased': return event['met'] === true;
+    case 'thane_grumbled': return event['met'] === false;
     default: return true;
   }
 }
+
+/** 12 § Feasts: the kitchen's feast, whose `ItemCrafted` gives everyone `held_a_feast`. */
+export const FEAST_RECIPE = 'cook_feast';
 
 /** 12 § Smoke, salt and the smokehouse: the recipes whose batch a dwarf nearby smells. */
 export const SMOKEHOUSE_RECIPES: readonly string[] = ['smoke_meat', 'smoke_fish'];
@@ -210,13 +223,17 @@ export function thoughtDetail(def: ThoughtDef, event: GameEvent, ctx: TickContex
 export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext): EntityId[] {
   const dwarves = ctx.readers.of<DwarvesReader>('10');
   // 05 § Smoke: everyone within `SMOKE_RADIUS` of the smoky workshop; 12: of a smokehouse's batch, but its worker.
+  // 14 § Candle stands and lanterns: tallow smoke names the one dwarf standing in it.
+  if (def.id === 'smoky_hall' && n(event, 'dwarfId') !== 0) return dwarves.list().includes(n(event, 'dwarfId')) ? [n(event, 'dwarfId')] : [];
   if (def.id === 'smoky_hall') return dwarvesNear(ctx, n(event, 'tile'), SMOKE_RADIUS);
   if (def.id === 'smelled_smokehouse') return dwarvesNear(ctx, workshopCentre(ctx, n(event, 'workshopId')), SMOKE_RADIUS).filter((id) => id !== n(event, 'crafterId'));
   const all = dwarves.list();
   const dead = n(event, 'id') || n(event, 'dwarfId');
   if (def.id === 'dwarf_died' || def.id === 'child_died') return all.filter((id) => id !== dead);
   if (['hearth_lit', 'new_hearth_hall_tier', 'raid_arrived', 'raid_repelled', 'caravan_arrived',
-    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster', 'summon_turned', 'saw_wisp'].includes(def.id)) return all;
+    'immigrants_arrived', 'deep_stirred_dread', 'first_runecaster', 'summon_turned', 'saw_wisp', 'held_a_feast', 'thane_pleased'].includes(def.id)) return all;
+  // 10 § The Thane's whim: a whim missed grumbles the Thane alone.
+  if (def.id === 'thane_grumbled') return all.includes(n(event, 'thaneId')) ? [n(event, 'thaneId')] : [];
   if (def.id === 'saw_death') return all.filter((id) => id !== dead);
   if (['friend_died', 'buried_friend', 'memorial_placed'].includes(def.id)) return all.filter((id) => dwarves.isFriend(id, dead));
   if (def.id === 'pet_died') return all.filter((id) => ctx.world.entities.get(id, C.Relationships)?.pets.includes(dead) === true);
@@ -228,6 +245,7 @@ export function eventTargets(def: ThoughtDef, event: GameEvent, ctx: TickContext
   const target = def.id === 'made_masterwork' || def.id === 'made_fine_item' || def.id === 'masterwork_lost' || def.id === 'forged_the_star' ? n(event, 'crafterId')
     : def.id === 'first_vein' ? n(event, 'finderId')
       : def.id === 'first_fossil' ? n(event, 'dwarfId')
+      : def.id === 'set_a_fire' ? n(event, 'dwarfId')
       : def.id === 'harvest_in' ? n(event, 'farmerId')
         : def.id === 'killed_hostile' ? n(event, 'killerId')
           : def.id === 'thief_escaped_with_my_things' ? (ctx.world.entities.get(n(event, 'itemId'), C.Item)?.ownerId ?? n(event, 'ownerId')) : n(event, 'id');

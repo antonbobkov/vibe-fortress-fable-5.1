@@ -24,7 +24,7 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | id | name | footprint | on | inputs | labor | ticks | tags | room | pass | glyph | rest | wants |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | `bed` | bed | 1×1 | floor | `bed` | carpentry | 40 | sleep | item | yes | `Θ` item | 100 | 1 `bedding` + 1 `pillow` |
-| `table` | table | 1×1 | floor | `table` | by material | 40 | eat_at | item | yes | `╥` item | — | — |
+| `table` | table | 1×1 | floor | `table` | by material | 40 | eat_at | item | yes | `╥` item | — | 1 `mug` per adjacent chair, up to 4 |
 | `chair` | chair | 1×1 | floor | `chair` | by material | 30 | sit | item | yes | `╫` item | — | — |
 | `door` | door | 1×1 | floor between two walls | `door` | by material | 60 | door | item | yes (rules) | `+`/`/` item | — | — |
 | `hatch` | hatch | 1×1 | stairs_down or ramp top | `hatch` | by material | 60 | hatch | item | yes (rules) | `¤` item | — | — |
@@ -42,9 +42,13 @@ Blocks give constructed walls the smooth glyph; logs and raw stone give the roug
 | `pallet` | cloth pallet | 1×1 | floor | 2 `cloth` or `wool_raw` | hauling | 20 | sleep | 0 | yes | `≈` material | 90 | — |
 | `straw_pallet` | straw pallet | 1×1 | floor | 3 `fiber`, `straw` or `reed` | hauling | 20 | sleep | 0 | yes | `≈` material | 90 | — |
 | `stone_bed` | stone bed | 1×1 | floor | `stone_bed` | masonry | 40 | sleep | item | yes | `Θ` item | 95 | — |
+| `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | `∩` item | — | — |
+| `lantern` | lantern | 1×1 | floor | `lantern` | construction | 30 | light | item | no | `¥` item | — | — |
 | `anvil_stand` | — | not a building; the anvil is an input of the forge | | | | | | | | | | |
 
 "By material" labor: wood → carpentry, stone → masonry, metal → smithing (metalcrafting).
+
+A table wants one mug for each chair beside it (a dining seat), up to four, counted in units: a stack of mugs is brought whole, so a stack may give it more than its chairs. A meal at a seat whose table holds its mug is drunk from a mug ([14](../02-systems/14-buildings-and-rooms.md) § Mugs at the table).
 
 A pallet and a straw pallet are laid from their materials, not from an item: their counted input is consumed and returns when they are taken apart, as a construction's does, and they link no item ([14](../02-systems/14-buildings-and-rooms.md) § Beds). Their glyph takes the material's color.
 
@@ -76,6 +80,9 @@ A pallet and a straw pallet are laid from their materials, not from an item: the
 | `wagon` | wagon | 3×3 | placed at embark only | — | — | — | container | yes | 0 | pattern `wagon` | — |
 | `rune_circle` | rune circle | 1×1 | floor | 3 `stone_block` + 1 `rune_vial` | masonry | 200 | rune_circle | no | 20 | `○` `rune_cyan` | — |
 | `drying_rack` | drying rack | 1×1 | floor | 2 `log`, `stone_block` or `bone_pile` | construction | 60 | rack | no | 3 | `╤` material | 5 units of its drying rows |
+| `candle_stand` | candle stand | 1×1 | floor | 1 `stone_block` or `bar` | construction | 40 | light | no | 2 | `ì` material | 5 `candle` |
+
+A candle stand is built of its block or bar (returned when it is taken apart) and is impassable. It wants 5 candles, counted in units (a stack of candles is brought whole), burns the first and lights its 3×3 while it holds one; the candles it holds add their value to its room as furniture does ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns). A lantern is placed from its item, links it, and lights its 3×3 forever.
 
 A drying rack is built of its materials (consumed, and returned when it is taken apart) and is impassable. Its `wants` are the inputs of the drying rows its setting takes ([items.md](items.md) § Drying), 5 units in all, and the salt a hide it holds needs ([14](../02-systems/14-buildings-and-rooms.md) § The drying rack).
 
@@ -88,7 +95,7 @@ See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes.
 | id | name | room | requirements to count | settings | consumers | value types |
 |---|---|---|---|---|---|---|
 | `stockpile` | stockpile | no | — | filter, containers, priority, links, cellar | 13 | 13's dedicated commands; filter tree, container counts, priority, links and the cellar (`SetStockpileCellar`) |
-| `farm_plot` | farm plot | no | soil, mud or cave loam tiles | crop per season | 07 | four season slots: 0 or a farmed plant id/index matching plot light |
+| `farm_plot` | farm plot | no | soil, mud or cave loam tiles | crop per season, fertilize | 07 | four season slots: 0 or a farmed plant id/index matching plot light; fertilize a boolean (absent: off) |
 | `pasture` | pasture | no | walkable | — | 08 | — |
 | `bedroom` | bedroom | yes | a bed | owner | 14, 10, 15 | 0 or a living dwarf, with AssignRoom checks |
 | `dining_hall` | dining hall | yes | a table with an adjacent chair | — | 10, 15 | — |
@@ -102,6 +109,7 @@ See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes.
 | `fishing` | fishing | no | tiles adjacent to deep water | — | 09 | — |
 | `gather` | gather zone | no | — | priority | 09 | integer 1 to 9 |
 | `sanctum` | sanctum | yes | a rune circle | apprentices | 25 | 25's `SetSanctumApprentices` only; at most `SANCTUM_APPRENTICES` living adult dwarves |
+| `compost` | compost heap | no | — | — | 13 | — |
 
 "A bed" in a requirement is any built building tagged `sleep`: a bed, a stone bed or a pallet.
 
@@ -120,27 +128,3 @@ Worked examples:
 
 - A 2×3 bedroom dug in granite, unsmoothed, with a common pine bed (value 10): tiles 6 × 1 = 6; walls 0; furniture 1; size 6; enclosed ×1.5 → 19.5 → **bare**. Smooth the six floor tiles and ten bordering walls: 18 + 20 + 1 + 6 = 45 × 1.5 = 67 → **decent**. Add a fine oak cabinet (27) and a common granite chest (10): +3.7 → 74 → decent; engrave the walls (quality 5: 2 + 2.5 each = 45): 18 + 45 + 4.7 + 6 = 74 × 1.5 = 110 → decent; to reach **fine** the bedroom needs a masterwork bed (75 → 7.5) and engraved floors (8 × 6 = 48): 48 + 45 + 11 + 6 = 110 × 1.5 = 165 → fine.
 - A 7×7 hearth hall with the hearth (value 50 → 5), four granite tables (8 → 0.8 each), eight chairs, smoothed floors and walls, two fine statues (36 → 7.2 each): tiles 49 × 3 = 147; walls 28 × 2 = 56; furniture 5 + 3.2 + 4.8 + 14.4 = 27; size 40 (cap); ×1.5 → 405 → **grand** (hearth bonus 4 × 2 = +8 mood to everyone).
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its table above (in that table's columns, without `table` and `task`), adds its line to [row-order.md](row-order.md) and runs `npm run content:export`. The rules are in [14](../02-systems/14-buildings-and-rooms.md) § Planned. Every number is *unmeasured*.
-
-### Planned buildings
-
-The columns `rest` and `wants` are those of § Furniture placements. `table` gains wants 1 `mug` per adjacent chair, up to 4 (T-565).
-
-| table | id | name | footprint | on | inputs | labor | ticks | tags | room | pass | rest | wants | glyph | task |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Special | `candle_stand` | candle stand | 1×1 | floor | 1 `stone_block` or `bar` | construction | 40 | light | its candles' value / 10 | no | — | 5 `candle` | `ì` material | T-563 |
-| Furniture placements | `lantern` | lantern | 1×1 | floor | `lantern` | construction | 30 | light | item | no | — | — | `¥` item | T-563 |
-| Furniture placements | `beehive` | beehive | 1×1 | an outdoor soil floor | `beehive` | by material | 30 | hive | 0 | no | — | — | `∩` item | T-555 |
-
-The candle stand has the value 2 as a special building does (`value` column), and the lantern its item's.
-
-### Planned zone types and settings
-
-| id | name | room | requirements to count | settings | consumers | value types | task |
-|---|---|---|---|---|---|---|---|
-| `compost` | compost heap | no | — | — | 13 | — | T-564 |
-
-Edits: `farm_plot` settings gain `fertilize` (boolean) (T-564).

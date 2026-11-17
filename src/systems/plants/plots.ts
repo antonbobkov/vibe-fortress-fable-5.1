@@ -45,6 +45,14 @@ export function lightMatches(row: PlantRow, kind: PlotKind): boolean {
   return kind !== 'mixed';
 }
 
+/** The zone setting key of `07` § Fertilizer. */
+export const FERTILIZE_SETTING = 'fertilize';
+
+/** `07` § Fertilizer: the plot's `fertilize` setting (absent or anything but true: off). */
+export function fertilizeOf(settings: Readonly<Record<string, unknown>>): boolean {
+  return settings[FERTILIZE_SETTING] === true;
+}
+
 /** The four season slots of a plot's settings, as plant indices (0 = none). */
 export function cropsOf(settings: Readonly<Record<string, unknown>>): number[] {
   const raw = settings[CROP_SETTING];

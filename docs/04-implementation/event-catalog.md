@@ -13,7 +13,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `WorldGenerated` | `seed, size` | 01 (via app) | ui |
 | `Embarked` | `fortressName, regionId` | 02 | ui, 18 (schedule roll), 20 (schedule roll) |
 | `CommandRejected` | `command, reason` | core | ui |
-| `HourPassed` | `hour` | core calendar | 06, 07, 10, 15, 16, 17, 18, 24 (hints) |
+| `HourPassed` | `hour` | core calendar | 06, 07, 10, 13 (compost heaps), 15, 16, 17, 18, 24 (hints) |
 | `DayPassed` | `dayOfSeason, season, year` | core | 07, 08, 09, 14, 15, 16, 17, 18, 20, 21 |
 | `SeasonChanged` | `season, year` | core | 06, 08, 13 (rot sampling), 20, 21, app (autosave), ui |
 | `YearPassed` | `year` | core | 10, 20 |
@@ -36,6 +36,8 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `FireStarted` / `FireSpread` / `FireOut` | `tile` / `tiles[]` / `tiles[]` | 05 | 13, 14, 23, ui |
 | `BurnDamage` | `id, amount` | 05 | 17 |
 | `ItemMelted` | `id` | 05 | 13 |
+| `TileIgnited` | `tile, dwarfId` | 03 (an `ignite` job done: the firebrand spent) | 05 (queues the ignition), 15 |
+| `IceMelted` | `tiles[]` | 05 (ice walls and floors melted, at most once a day) | 13 (re-reads rot speeds), ui |
 | `WeatherChanged` | `from, to` | 06 | 05, 14 (a drying rack's day), 18, ui |
 | `LightningStrike` | `tile` | 06 | 05, 17 |
 | `SnowCoverChanged` | `chunks[]` | 06 | 05, 23 |
@@ -57,13 +59,17 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `MealEaten` | `id, quality, atTable, roomTier, stage, kind` | 10 | 15 |
 | `DrankAlcohol` / `DrankWater` | `id, material, quality, group, aged` / `id, outdoors` | 10 | 15 |
 | `DrankFromPlant` | `id, material` | 10 | 15 |
-| `Stung` | `id, source` | 09 | 15 |
+| `Stung` | `id, source` | 09, 08 | 15 |
+| `SpatOn` | `id, animalId, first` | 08 (a camel spits on the dwarf `id` who milked or shore it; `first` for the day's first spit) | 15, ui |
 | `Slept` | `id, bedQuality, roomTier, onFloor, outdoors, ownBed, restored, rest, bedding, bedType` | 10 | 15, 24 |
 | `Talked` | `a, b, friends` | 10 | 15 |
 | `Sat` | `id, roomTier` | 10 | 15 |
 | `HearthVisited` | `id` | 10 | 15 |
 | `DwarfFeltMist` / `DwarfNearSpring` | `id` | 10 | 15 |
 | `CraterEntered` | `id, first` | 10 (a dwarf steps into a `starfall` crater tile from outside it; `first` for the fortress's first) | 15, ui |
+| `RibsEntered` | `id, boneyard` | 10 (the first fortress dwarf to stand in a boneyard's ribs, once a boneyard; `boneyard` its index in 03's `boneyards`) | 03 (marks `boneyardsEntered`), 15, ui |
+| `WhimSet` | `thaneId, whimId` | 10 (on `SeasonChanged`, the Thane's whim of the season: a `whims` row id) | ui |
+| `WhimJudged` | `thaneId, whimId, met` | 10 (on the next `SeasonChanged`, before the next draw; `thaneId` the Thane then, 0 for none) | 15, ui |
 | `DwarfOutdoorsIn` | `id, weather` | 10 | 15 |
 | `SawMasterwork` | `id, itemId` | 10 | 15 |
 | `NeedCritical` | `id, need` | 10 | 11 |
@@ -82,7 +88,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `MasterworkCreated` | `itemId, crafterId` | 12 | 15, ui |
 | `WorkOrderCompleted` | `workshopId, recipeId` | 12 | ui (none) |
 | `StoneSet` | `itemId, enchantId, tier, smithId` | 12 | 24 (legend), ui (a masterwork setting: 25's announcement) |
-| `SmokyFuelBurned` | `workshopId, tile` | 12 | 05 (smoke), 15 (`smoky_hall`) |
+| `SmokyFuelBurned` | `workshopId, tile` | 12, 10 | 05 (smoke), 15 (`smoky_hall`) |
 | `DeepsilverWorked` | `amount, tile` | 12 (a `rune_work` building consumed a metal with `runePressure`) | 18 |
 | `WorkshopBlocked` / `WorkshopIdle` | `workshopId, reason[, container, input]` / `workshopId` | 12 | ui |
 | `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |
@@ -173,6 +179,6 @@ For `WorkshopBlocked`, `input` names the missing recipe input match when reason 
 
 - Subscribers listed as "ui (none)" exist for the log's optional verbose filter and the debug panel; they need no announcement row.
 - Events carrying `ids` of destroyed entities are still delivered; handlers check `alive`.
-- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `wildState` (a wild victim's behavior state, absent for others), `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `KillRecorded` carries the names and species of both creatures because the victim is gone when a line is drawn; `hostile` is whether the victim was an enemy of the killer, and `hunted` is true when the victim was the quarry of a claimed hunt job, which `HuntKill` announces; a trap's kill names the trap building as `killerName`. `HuntKill` also carries `targetSpecies`, the quarry's species index, for the same reason. `MealEaten` also carries `mealType`, and `seasoned` (the material ids of the meal's seasonings) when it has any, and `ItemDestroyed` also carries `quality`. `DamageDealt` from 25 also carries `clean: true`: 17 makes that wound already cleaned. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
+- A row lists the fields every emitter sets; an emitter may add the fields its subscribers read. `ZoneChanged` names the zone's type `zoneType` and carries the zone's `tiles`. `BuildingPlaced`, `BuildingCompleted` and `BuildingRemoved` name the type `buildingType`; `BuildingPlaced` also carries `tiles`, and the other two carry the building's wealth `value`. `CreatureDied` also carries `tile`, `species`, `name`, `faction`, `wildState` (a wild victim's behavior state, absent for others), `ageTicks` and `wornItems`: the dwarf-death thoughts read `species`, `faction` and `ageTicks`. `KillRecorded` carries the names and species of both creatures because the victim is gone when a line is drawn; `hostile` is whether the victim was an enemy of the killer, and `hunted` is true when the victim was the quarry of a claimed hunt job, which `HuntKill` announces; a trap's kill names the trap building as `killerName`. `HuntKill` also carries `targetSpecies`, the quarry's species index, for the same reason. `MealEaten` also carries `mealType`, `seasoned` (the material ids of the meal's seasonings) when it has any, `candlelit: true` for a meal at a table in comfort light (14 § Candle stands and lanterns), `feast: true` for a feast's serving (10 § Feasts) and `mug: true` for a meal at a seat whose table holds its mug (14 § Mugs at the table); `SmokyFuelBurned` from 10 is a candle's tallow smoke, with `workshopId` 0 and the `dwarfId` it is given to, and `ItemDestroyed` also carries `quality`. `DamageDealt` from 25 also carries `clean: true`: 17 makes that wound already cleaned. `SulkHappened` also carries what the sulk chose: `partnerId` (argue), `targetTile` (weep), `itemId` (hoard) or `buildingId` (break).
 - `TilesChanged` is emitted by 03 only. When 04, 05 or 14 change tiles through the terrain API, 03 batches them into the same tick's event.
 - The announcement registry (24) has one row per event marked `ui` with a severity from the system document that emits it.

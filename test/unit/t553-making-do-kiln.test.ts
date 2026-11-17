@@ -60,7 +60,7 @@ describe('T-553 the rows', () => {
     const reader = w.readers.of<WorkshopsReader>('12');
     const kiln = reader.recipesFor('kiln').map((r) => r.id).sort();
     expect(kiln).toEqual(['burn_bone_ash', 'burn_potash', 'crush_fossil', 'fire_bricks', 'make_glass_block', 'make_glass_block_potash',
-      'make_jug', 'make_mugs_clay', 'make_mugs_glass', 'make_pot']);
+      'make_hive_clay', 'make_jug', 'make_lantern', 'make_mugs_clay', 'make_mugs_glass', 'make_pot']);
     expect(reader.recipesFor('magma_kiln').map((r) => r.id).sort()).toEqual(kiln);
     for (const id of kiln) expect(reader.recipe(id), id).toMatchObject({ skill: 'pottery', fuel: true });
   });

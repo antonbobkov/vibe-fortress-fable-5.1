@@ -27,8 +27,10 @@ import { SLEEP_NEED_MIN, advanceNeeds, crossed, firstCritical, type NeedName } f
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS, TIPSY_SLOW_PERCENT } from './constants';
 import { Activities, hallStand } from './activities';
 import { SMOKE_RADIUS } from '@systems/materials/constants';
+import { TALLOW_SMOKE_PERMILLE } from '@systems/buildings/constants';
 import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
 import { SMOKEHOUSE_RECIPES, dwarvesNear } from '@systems/morale/thoughts';
+import { WHIMS_STREAM, whimMet, whimPossible, whimRows, type Whim } from './whims';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
@@ -77,13 +79,15 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'PatientAdmitted', 'PatientDischarged', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged', 'ItemCrafted'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'PatientAdmitted', 'PatientDischarged', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged', 'ItemCrafted', 'SeasonChanged'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
   private rng: RngStream | null = null;
   private readerRef: DwarvesReader | null = null;
   private host: BrainHost | null = null;
+  private readersRef: InitContext['readers'] | null = null;
+  private registryRef: InitContext['registry'] | null = null;
   private titles: Record<TitleName, EntityId> = { thane: 0, warden: 0, broker: 0, chief_medic: 0 };
   private titlesSeeded = false;
   private populationCached = 0;
@@ -105,6 +109,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly sawMasterworks = new Set<string>();
   /** `10` § Movement: a fortress dwarf has stood in the `starfall` crater (saved; absent while false). */
   craterEntered = false;
+  /** `10` § The Thane's whim: the whim of the season, judged at the next `SeasonChanged` (saved; absent: none). */
+  whim: Whim | null = null;
 
   hasInterrupt(id: EntityId): boolean { return this.interruptFlags.has(id); }
   takeInterrupt(id: EntityId): boolean { return this.interruptFlags.delete(id); }
@@ -190,6 +196,39 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     }
   }
 
+  /**
+   * `10` § The Thane's whim: on `SeasonChanged`, the whim of the season ending is judged
+   * (`WhimJudged`; 15 gives everyone `thane_pleased` or the Thane alone `thane_grumbled`), then, if the
+   * fortress has a Thane, one possible whim is drawn on `WHIMS_STREAM` (`WhimSet`).
+   */
+  private seasonWhim(ctx: TickContext): void {
+    this.seedTitles();
+    const thane = this.titles.thane !== 0 && ctx.world.entities.alive(this.titles.thane) ? this.titles.thane : 0;
+    const rows = whimRows(ctx.registry);
+    if (this.whim !== null) {
+      const row = rows.find((r) => r.id === this.whim?.id);
+      const met = row !== undefined && whimMet(ctx.readers, ctx.registry, row, thane);
+      ctx.emit({ type: 'WhimJudged', thaneId: thane, whimId: this.whim.id, met });
+      this.whim = null;
+    }
+    if (thane === 0) return;
+    const possible = rows.filter((row) => whimPossible(ctx.readers, ctx.registry, row));
+    if (possible.length === 0) return;
+    const row = possible[ctx.world.rngFor(WHIMS_STREAM).int(0, possible.length - 1)] as (typeof possible)[number];
+    this.whim = { id: row.id, setTick: ctx.tick };
+    ctx.emit({ type: 'WhimSet', thaneId: thane, whimId: row.id });
+  }
+
+  /** The whim of the season and whether it is met now (the units panel's Thane line), or null. */
+  private whimView(): { id: string; text: string; met: boolean } | null {
+    const world = this.world;
+    if (this.whim === null || world === null || this.readersRef === null || this.registryRef === null) return null;
+    const row = whimRows(this.registryRef).find((r) => r.id === this.whim?.id);
+    if (row === undefined) return null;
+    this.seedTitles();
+    return { id: row.id, text: row.text, met: whimMet(this.readersRef, this.registryRef, row, this.titles.thane) };
+  }
+
   /** TestWorld's direct setup helper uses the same crossing rule as an hourly update. */
   setNeed(id: EntityId, name: NeedName, value: number): void {
     if (this.world === null) throw new Error('10 dwarves: used before init');
@@ -239,6 +278,26 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (schedule?.sleepStartHour === hour && after.rest > SLEEP_NEED_MIN) this.interruptFlags.add(id);
       this.updateMaxSince(id, after, ctx.tick);
       this.announceStarving(id, after, day, (e) => ctx.emit(e));
+    }
+    this.tallowSmoke(ctx);
+  }
+
+  /**
+   * 14 § Candle stands and lanterns, Tallow smokes: each dwarf standing on a tile lit only by stands
+   * burning tallow gets `smoky_hall` at `TALLOW_SMOKE_PERMILLE`, on this stream; the draw is made only
+   * for such a dwarf, so a fortress with no tallow stand draws nothing new.
+   */
+  private tallowSmoke(ctx: TickContext): void {
+    if (!ctx.readers.has('14')) return;
+    const buildings = ctx.readers.of<BuildingsReader>('14');
+    if (buildings.byType('candle_stand').length === 0) return;
+    const map = ctx.world.map;
+    for (const id of this.reader().list()) {
+      const p = ctx.world.entities.get(id, C.Position);
+      if (p === undefined) continue;
+      const tile = map.index(p.x, p.y, p.z);
+      if (!buildings.tallowSmokeAt(tile)) continue;
+      if (this.stream.chance(TALLOW_SMOKE_PERMILLE)) ctx.emit({ type: 'SmokyFuelBurned', workshopId: 0, tile, dwarfId: id });
     }
   }
 
@@ -297,6 +356,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     this.world = ctx.world;
     this.connectivityRevision = () => ctx.readers.pathing.connectivityRevision();
     this.rng = ctx.rng;
+    this.readersRef = ctx.readers;
+    this.registryRef = ctx.registry;
     this.readerRef = makeReader(ctx.world.entities, ctx.registry, () => { this.seedTitles(); return this.titles; },
       (id) => {
         const mood = ctx.readers.has('15') ? ctx.readers.of<{ productivity(id: EntityId): number }>('15').productivity(id) : 100;
@@ -312,7 +373,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
               ctx.world.entities.get(id, C.Brain)?.behavior === 'need' && (holder === 0 || id < holder)) holder = id;
         }
         return holder;
-      }, () => ctx.world.calendar.tick, (id) => this.activities.isTipsy(id, ctx.world.calendar.tick));
+      }, () => ctx.world.calendar.tick, (id) => this.activities.isTipsy(id, ctx.world.calendar.tick), () => this.whimView());
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {
@@ -366,6 +427,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     ctx.register.announcement('LegendaryReached', { severity: 'note', stringKey: 'announce.legendary' });
     // `10` § Movement: the first dwarf in a `starfall` crater makes a note, once a fortress.
     ctx.register.announcement('CraterEntered', { severity: 'note', stringKey: 'announce.crater_entered', oneOf: { field: 'first', values: [true] } });
+    // `10` § Movement: the first dwarf in each boneyard's ribs makes a note.
+    ctx.register.announcement('RibsEntered', { severity: 'note', stringKey: 'announce.ribs_entered' });
+    // `10` § The Thane's whim: the wish and its judgement are notes.
+    ctx.register.announcement('WhimSet', { severity: 'note', stringKey: 'announce.thane_whim' });
+    ctx.register.announcement('WhimJudged', { severity: 'note', stringKey: 'announce.thane_whim_met', oneOf: { field: 'met', values: [true] } });
+    ctx.register.announcement('WhimJudged', { severity: 'note', stringKey: 'announce.thane_whim_missed', oneOf: { field: 'met', values: [false] } });
     // `15` § Thoughts: relationship-dependent triggers are facts of 10, not inferred from event ids.
     const source: ThoughtSource = {
       on: ['CreatureDied', 'Buried'],
@@ -455,6 +522,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (event.type === 'HourPassed') { this.hourly(ctx, event['hour'] as number); return; }
     if (event.type === 'DayPassed') { this.daily(ctx); return; }
     if (event.type === 'YearPassed') { this.yearly(ctx); return; }
+    if (event.type === 'SeasonChanged') { this.seasonWhim(ctx); return; }
     if (event.type === 'SulkHappened') {
       const id = event['id'];
       if (typeof id !== 'number') return;
@@ -569,7 +637,11 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const map = ctx.world.map;
     const fluids = readers.has('04') ? readers.of<{ isMisty(i: TileIndex): boolean }>('04') : null;
     const materials = readers.has('05') ? readers.of<{ isWarmSpring(i: TileIndex): boolean }>('05') : null;
-    const terrain = readers.has('03') ? readers.of<{ isCrater?(i: TileIndex): boolean }>('03') : null;
+    const terrain = readers.has('03')
+      ? readers.of<{ isCrater?(i: TileIndex): boolean; boneyardAt?(i: TileIndex): number; boneyardEntered?(b: number): boolean }>('03')
+      : null;
+    // The boneyards whose ribs a dwarf entered in this batch: 03 marks its record on the event, next tick.
+    const ribs = new Set<number>();
     const weather = readers.has('06') ? readers.of<{ state(): string }>('06') : null;
     const items = readers.has('13') ? readers.of<ItemsReader>('13') : null;
     const buildings = readers.has('14') ? readers.of<BuildingsReader>('14') : null;
@@ -601,6 +673,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       if (terrain?.isCrater?.(to) === true && (from < 0 || terrain.isCrater?.(from) !== true)) {
         ctx.emit({ type: 'CraterEntered', id, first: !this.craterEntered });
         this.craterEntered = true;
+      }
+      // `10` § Movement: the first fortress dwarf to stand in a boneyard's ribs, once a boneyard.
+      const boneyard = terrain?.boneyardAt?.(to) ?? -1;
+      if (boneyard >= 0 && !ribs.has(boneyard) && terrain?.boneyardEntered?.(boneyard) !== true) {
+        ribs.add(boneyard);
+        ctx.emit({ type: 'RibsEntered', id, boneyard });
       }
       if (items !== null && buildings !== null) {
         const oldRooms = new Set(buildings.zonesAt(from).filter((zone) => buildings.room(zone) !== undefined));
@@ -701,6 +779,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       ...(this.sawMasterworks.size > 0 ? { sawMasterworks: Array.from(this.sawMasterworks).sort()
         .map((key) => key.split(':').map(Number) as [EntityId, EntityId]) } : {}),
       ...(this.craterEntered ? { craterEntered: true } : {}),
+      ...(this.whim !== null ? { whim: { ...this.whim } } : {}),
       ...(this.activities.serializeRetryUntil().length > 0 ? { needRetryUntil: this.activities.serializeRetryUntil() } : {}),
       ...(this.activities.talks.size > 0 ? { talks: this.activities.serializeTalks() } : {}),
       ...(this.activities.hearthTicks.size > 0 ? { hearthTicks: Array.from(this.activities.hearthTicks).sort((a, b) => a[0] - b[0]) } : {}),
@@ -742,6 +821,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     this.sawMasterworks.clear();
     for (const [id, itemId] of state.sawMasterworks ?? []) this.sawMasterworks.add(`${id}:${itemId}`);
     this.craterEntered = state.craterEntered === true;
+    this.whim = state.whim === undefined ? null : { ...state.whim };
     this.activities.retryUntil.clear();
     for (const [id, need, until] of state.needRetryUntil ?? []) {
       this.activities.setRetryUntil(id, need, until);

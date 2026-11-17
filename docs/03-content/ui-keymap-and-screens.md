@@ -146,6 +146,8 @@ The keys of a rectangle dragged with no tool (§ Mouse); `Delete` is the Map con
 | `[S-t]` | chop trees |
 | `[g]` | gather plants |
 | `[h]` | harvest |
+| `[q]` | harvest ice |
+| `[S-b]` | ignite (set a fire) |
 | `[S-f]` | traffic (again: the next traffic mode) |
 | `[S-p]` | give the tool's priority to the last batch |
 
@@ -183,6 +185,7 @@ The zone types; `Enter` with no tool selects the zone at the map cursor or centr
 | `[i]` | fishing zone |
 | `[g]` | gather zone |
 | `[S-c]` | sanctum |
+| `[S-k]` | compost heap |
 
 ### Zone inspector
 
@@ -202,6 +205,7 @@ The keys of a selected zone, before the zone types; letters that open panels req
 | `[S-o]` | open the bedroom's owner picker, or the sanctum's apprentice picker | owner or apprentices button |
 | `[S-c]` | a stockpile: turn the cellar setting on or off | the `[S-c] cellar` caption |
 | `Shift+A` | a farm plot: the highlighted row's crop for every season in which that crop can grow | the `[S-a] all seasons` caption |
+| `[w]` | a farm plot: turn fertilize on or off | the `[w] fertilize` caption |
 | `Space` | toggle the checkbox (category tree, material classes) | the checkbox |
 | `+` `=` `-` | adjust the focused value | minus or plus button |
 
@@ -580,6 +584,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | jobs | off | 11 |
 | squad stations | on while the military panel is open | 16 |
 | stockpile usage | off | 13 |
+| light | off | 14 |
 | connectivity (debug) | off | 22 |
 | paths (debug) | off | 22 |
 | chunks (debug) | off | core |
@@ -605,6 +610,12 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.workshop_missing_input` | "{workshop} is idle: no {input}." |
 | `announce.plot_needs_seeds` | "{plot} has no {species} seeds." |
 | `announce.crater_entered` | "{dwarf} stood where the star fell." |
+| `announce.ribs_entered` | "{dwarf} stood inside the ribs of something enormous." |
+| `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." |
+| `announce.thane_whim_met` | "The Thane's wish was met: {whim}." |
+| `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." |
+| `announce.spat_on` | "The camel spat on {dwarf}." |
+| `announce.ice_melted` | "The ice walls of {place} have melted." |
 
 
 ## Hints
@@ -651,6 +662,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_cellar` | a stockpile with the cellar setting on is not a working cellar (hourly) | "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two." |
 | `hint_pallet` | first `Slept` on the floor with a pallet's materials (cloth, wool, fiber, straw or reeds) in stock | "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor." |
 | `hint_rack` | first `drying_rack` built | "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain." |
+| `hint_hive` | a built hive with too few flowers in reach | "Bees need flowers: three within six tiles of the hive. Look for a meadow." |
 | `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." |
 
 ## Tutorial
@@ -726,6 +738,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `c_remove_order` | "Remove the order for {recipe}? Work in progress on it stops." | No |
 | `c_tutorial` | "Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?" | No |
 | `c_release_cage` | "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was." | No |
+| `c_first_ignite` | "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out." | No |
 
 ## Settings
 
@@ -760,39 +773,16 @@ Player-facing text uses string keys. The UI reads `strings.json` together with t
 
 ## Planned rows
 
-Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The screens are in [24](../02-systems/24-ui-and-input.md) § Planned.
+Rows of the Making Do content, not yet in the game and not exported. The task named adds each row to its table above (without `task`), adds its lines to [row-order.md](row-order.md) where the table numbers its rows, and runs `npm run content:export`; `npm run strings:check` then holds it to its use. The rules that use them are in the § Planned sections of the system documents.
 
 ### Planned announcement strings
 
 | Key | Text | task |
 |---|---|---|
-| `announce.ribs_entered` | "{dwarf} stood inside the ribs of something enormous." | T-557 |
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." | T-556 |
-| `announce.spat_on` | "The camel spat on {dwarf}." | T-561 |
-| `announce.ice_melted` | "The ice walls of {place} have melted." | T-559 |
-| `announce.thane_whim` | "{dwarf}, Thane, wishes for {whim} by the end of the season." | T-565 |
-| `announce.thane_whim_met` | "The Thane's wish was met: {whim}." | T-565 |
-| `announce.thane_whim_missed` | "The Thane wished for {whim}, and did not get it." | T-565 |
-
-### Planned confirmation
-
-| id | Text | Default | task |
-|---|---|---|---|
-| `c_first_ignite` | "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out." | No | T-559 |
 
 ### Planned hints
 
 | id | Trigger | Text | task |
 |---|---|---|---|
-| `hint_hive` | first hive with too few flowers | "Bees need flowers: eight within six tiles of the hive." | T-555 |
 | `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." | T-556 |
-
-### Planned keys
-
-| Context | Key | Action | task |
-|---|---|---|---|
-| Designate panel | `I` | harvest ice | T-559 |
-| Designate panel | `F` | ignite (set a fire) | T-559 |
-| Zone inspector | `f` | toggle fertilize (farm plot) | T-564 |
-
-The keys are first choices; the task checks them against the existing bindings of each context and the fixed keys.

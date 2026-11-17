@@ -1412,6 +1412,354 @@
     "id": "slept_in_a_bed"
   },
   {
+    "table": "palette",
+    "id": "honey_amber"
+  },
+  {
+    "table": "palette",
+    "id": "wax_yellow"
+  },
+  {
+    "table": "materials",
+    "id": "honey"
+  },
+  {
+    "table": "materials",
+    "id": "beeswax"
+  },
+  {
+    "table": "materials",
+    "id": "mead"
+  },
+  {
+    "table": "items",
+    "id": "beehive"
+  },
+  {
+    "table": "items",
+    "id": "honeycomb"
+  },
+  {
+    "table": "items",
+    "id": "honey"
+  },
+  {
+    "table": "items",
+    "id": "beeswax"
+  },
+  {
+    "table": "jobTypes",
+    "id": "collect_honey"
+  },
+  {
+    "table": "buildings",
+    "id": "beehive"
+  },
+  {
+    "table": "recipes",
+    "id": "make_hive_wood"
+  },
+  {
+    "table": "recipes",
+    "id": "make_hive_clay"
+  },
+  {
+    "table": "recipes",
+    "id": "weave_hive"
+  },
+  {
+    "table": "recipes",
+    "id": "press_honeycomb"
+  },
+  {
+    "table": "recipes",
+    "id": "brew_mead"
+  },
+  {
+    "table": "thoughts",
+    "id": "stung"
+  },
+  {
+    "table": "hints",
+    "id": "hint_hive"
+  },
+  {
+    "table": "items",
+    "id": "candle"
+  },
+  {
+    "table": "items",
+    "id": "lantern"
+  },
+  {
+    "table": "buildings",
+    "id": "candle_stand"
+  },
+  {
+    "table": "buildings",
+    "id": "lantern"
+  },
+  {
+    "table": "recipes",
+    "id": "make_candles_wax"
+  },
+  {
+    "table": "recipes",
+    "id": "make_candles_tallow"
+  },
+  {
+    "table": "recipes",
+    "id": "make_lantern"
+  },
+  {
+    "table": "thoughts",
+    "id": "ate_by_candlelight"
+  },
+  {
+    "table": "palette",
+    "id": "soap_white"
+  },
+  {
+    "table": "palette",
+    "id": "zone_compost"
+  },
+  {
+    "table": "materials",
+    "id": "compost"
+  },
+  {
+    "table": "materials",
+    "id": "soap"
+  },
+  {
+    "table": "items",
+    "id": "compost"
+  },
+  {
+    "table": "items",
+    "id": "soap"
+  },
+  {
+    "table": "jobTypes",
+    "id": "wash_patient"
+  },
+  {
+    "table": "zoneTypes",
+    "id": "compost"
+  },
+  {
+    "table": "recipes",
+    "id": "make_soap"
+  },
+  {
+    "table": "items",
+    "id": "giant_skull"
+  },
+  {
+    "table": "recipes",
+    "id": "cut_bone_blocks"
+  },
+  {
+    "table": "recipes",
+    "id": "make_table_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_chair_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_door_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_coffin_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "make_statue_bone"
+  },
+  {
+    "table": "recipes",
+    "id": "mount_skull"
+  },
+  {
+    "table": "recipes",
+    "id": "carve_fossil"
+  },
+  {
+    "table": "recipes",
+    "id": "carve_ivory_statue"
+  },
+  {
+    "table": "thoughts",
+    "id": "stood_in_the_ribs"
+  },
+  {
+    "table": "weapons",
+    "id": "horn_bow"
+  },
+  {
+    "table": "items",
+    "id": "horn_bow"
+  },
+  {
+    "table": "armor",
+    "id": "scale_shirt"
+  },
+  {
+    "table": "armor",
+    "id": "scale_skirt"
+  },
+  {
+    "table": "items",
+    "id": "scale_shirt"
+  },
+  {
+    "table": "items",
+    "id": "scale_skirt"
+  },
+  {
+    "table": "enchants",
+    "id": "fletched"
+  },
+  {
+    "table": "recipes",
+    "id": "make_scale_shirt"
+  },
+  {
+    "table": "recipes",
+    "id": "make_scale_skirt"
+  },
+  {
+    "table": "recipes",
+    "id": "make_horn_bow"
+  },
+  {
+    "table": "recipes",
+    "id": "set_ammo_fletched"
+  },
+  {
+    "table": "items",
+    "id": "feast"
+  },
+  {
+    "table": "recipes",
+    "id": "cook_feast"
+  },
+  {
+    "table": "thoughts",
+    "id": "feasted"
+  },
+  {
+    "table": "thoughts",
+    "id": "drank_from_a_mug"
+  },
+  {
+    "table": "thoughts",
+    "id": "held_a_feast"
+  },
+  {
+    "table": "thoughts",
+    "id": "thane_pleased"
+  },
+  {
+    "table": "thoughts",
+    "id": "thane_grumbled"
+  },
+  {
+    "table": "whims",
+    "id": "whim_lantern"
+  },
+  {
+    "table": "whims",
+    "id": "whim_mead"
+  },
+  {
+    "table": "whims",
+    "id": "whim_ivory_statue"
+  },
+  {
+    "table": "whims",
+    "id": "whim_fine_meal"
+  },
+  {
+    "table": "whims",
+    "id": "whim_cheese"
+  },
+  {
+    "table": "whims",
+    "id": "whim_spirits"
+  },
+  {
+    "table": "whims",
+    "id": "whim_masterwork"
+  },
+  {
+    "table": "whims",
+    "id": "whim_featherbed"
+  },
+  {
+    "table": "palette",
+    "id": "reindeer_brown"
+  },
+  {
+    "table": "palette",
+    "id": "camel_tan"
+  },
+  {
+    "table": "creatures",
+    "id": "reindeer"
+  },
+  {
+    "table": "creatures",
+    "id": "camel"
+  },
+  {
+    "table": "thoughts",
+    "id": "spat_on"
+  },
+  {
+    "table": "materials",
+    "id": "reindeer_meat"
+  },
+  {
+    "table": "materials",
+    "id": "reindeer_hide"
+  },
+  {
+    "table": "materials",
+    "id": "camel_meat"
+  },
+  {
+    "table": "materials",
+    "id": "camel_hide"
+  },
+  {
+    "table": "items",
+    "id": "firebrand"
+  },
+  {
+    "table": "jobTypes",
+    "id": "harvest_ice"
+  },
+  {
+    "table": "jobTypes",
+    "id": "ignite"
+  },
+  {
+    "table": "recipes",
+    "id": "make_firebrand"
+  },
+  {
+    "table": "thoughts",
+    "id": "set_a_fire"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_first_ignite"
+  },
+  {
     "table": "hints",
     "id": "hint_skylight"
   }

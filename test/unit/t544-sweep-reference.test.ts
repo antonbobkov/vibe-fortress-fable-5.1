@@ -5,8 +5,12 @@
  * (reports/audits/2026-11-13-t544-wild-squad-arena.md).
  */
 import { describe, expect, it } from 'vitest';
-import { poolSweeps, sweepCheck, SWEEP_MEASURED, SWEEP_REFERENCE, type SweepFigures } from '../perf/three_years_sweep';
+import { poolSweeps, sweepCheck, type SweepFigures } from '../perf/three_years_sweep';
 import { WILDLIFE_MEASURED, WILDLIFE_REFERENCE } from '../perf/wildlife_year_constants';
+
+/** T-544's reference and best figures, since refreshed by T-555 (t555-sweep-reference.test.ts). */
+const T544_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1024.25, deaths: 130.75, extinct: 0.5, needDeaths: 3 };
+const T544_MEASURED = { living: 998.25, deaths: 113.75 };
 
 /** The pooled rows of `4ab37734` at shifts 0 to 150 (run 43573320107) and 200 to 350 (run 43573322208). */
 const MERGED_0_150: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1024.25, deaths: 130.75, extinct: 0.5, needDeaths: 3 };
@@ -17,15 +21,15 @@ const T545_ALONE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1014.
 
 describe('T-544 the sweep and instrument references', () => {
   it('the sweep reference is the merged head\'s standard shifts, and the best figures its eight-shift means', () => {
-    expect(SWEEP_REFERENCE).toEqual(MERGED_0_150);
+    expect(T544_REFERENCE).toEqual(MERGED_0_150);
     const eight = poolSweeps([MERGED_0_150, MERGED_200_350]);
-    expect({ living: eight.living, deaths: eight.deaths }).toEqual(SWEEP_MEASURED);
-    expect(sweepCheck(SWEEP_REFERENCE).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 898.25, deaths: 143.75 });
+    expect({ living: eight.living, deaths: eight.deaths }).toEqual(T544_MEASURED);
+    expect(sweepCheck(T544_REFERENCE, T544_MEASURED).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 898.25, deaths: 143.75 });
   });
 
   it('both halves of the merged head and T-545 alone pass; T-544 alone, before T-545, would not', () => {
-    for (const row of [MERGED_0_150, MERGED_200_350, T545_ALONE]) expect(sweepCheck(row).exceeded).toEqual([]);
-    expect(sweepCheck(T544_ALONE).exceeded).toEqual(['living at year 3', 'dwarf deaths']);
+    for (const row of [MERGED_0_150, MERGED_200_350, T545_ALONE]) expect(sweepCheck(row, T544_MEASURED).exceeded).toEqual([]);
+    expect(sweepCheck(T544_ALONE, T544_MEASURED).exceeded).toEqual(['living at year 3', 'dwarf deaths']);
   });
 
   it('the instrument\'s reference and best figures are run 43573353421\'s pooled row', () => {

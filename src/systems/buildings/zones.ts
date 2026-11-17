@@ -288,6 +288,9 @@ export class ZoneStore {
         crops.push(choice.plant);
       }
       value = crops;
+    } else if (key === 'fertilize') {
+      // `07` § Fertilizer: a farm plot's setting is a boolean.
+      if (typeof value !== 'boolean') return reject('bad_setting');
     } else if (key === 'priority') {
       if (typeof value !== 'number' || !Number.isInteger(value) || value < PRIORITY_MIN || value > PRIORITY_MAX) return reject('bad_setting');
     } else return reject('bad_setting');

@@ -16,6 +16,7 @@ interface MaterialRow {
   readonly class: string;
   readonly hardness: number;
   readonly name: string;
+  readonly burnable?: boolean;
   readonly tags?: readonly string[];
 }
 
@@ -66,6 +67,7 @@ export class TerrainFacts implements MaterialFacts {
   private readonly metal: boolean[];
   private readonly deepsilver: boolean[];
   private readonly soilDrop: boolean[];
+  private readonly burnables: boolean[];
   private readonly hardness: number[];
   private readonly names: string[];
   private readonly plants: (PlantRow | undefined)[];
@@ -79,6 +81,7 @@ export class TerrainFacts implements MaterialFacts {
     this.metal = [];
     this.deepsilver = [];
     this.soilDrop = [];
+    this.burnables = [];
     this.hardness = [];
     this.names = [];
     const ids: string[] = [''];
@@ -89,6 +92,7 @@ export class TerrainFacts implements MaterialFacts {
       this.deepsilver[m] = minerals.byId(row.id)?.deepsilver === true;
       this.soilDrop[m] = row.class === 'soil' && row.tags?.includes('soil_drop') === true;
       this.hardness[m] = row.hardness;
+      this.burnables[m] = row.burnable === true;
       this.names[m] = row.name;
       ids[m] = row.id;
     }
@@ -115,9 +119,19 @@ export class TerrainFacts implements MaterialFacts {
     return this.deepsilver[material] === true;
   }
 
+  /** `03` § Tile transitions: a dug tile of class `bone` drops a `fossil`, or a `tusk` when it is ivory (stage 9b). */
+  boneItem(material: number): string {
+    return this.materialIds[material] === 'ivory' ? 'tusk' : 'fossil';
+  }
+
   /** `materials.md` § Soil: a soil tagged `soil_drop` drops a `soil_load` when dug, half the time. */
   dropsSoil(material: number): boolean {
     return this.soilDrop[material] === true;
+  }
+
+  /** `materials.md` `burnable` (`05` § Fire: peat burns, other soils do not). */
+  burnable(material: number): boolean {
+    return this.burnables[material] === true;
   }
 
   /** `materials.md` `hardness`: 100 is one `DIG_BASE_TICKS`. */

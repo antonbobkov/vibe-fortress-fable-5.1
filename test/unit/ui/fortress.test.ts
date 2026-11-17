@@ -286,6 +286,8 @@ describe('T-M1-14 announcements', () => {
       // T-M4-03: 08 § Registrations ("announcements for starving, pet death, adoption").
       AnimalStarving: 'alert',
       PetAdopted: 'note',
+      // T-561: 08 § Products, The camel spits (the day's first spit).
+      SpatOn: 'note',
       MasterworkCreated: 'note',
       WorkshopBlocked: 'alert',
       FishPoolDepleted: 'note',
@@ -330,6 +332,8 @@ describe('T-M1-14 announcements', () => {
       // 04 § Player-facing behavior, 05 § Player-facing behavior.
       MistProduced: 'note',
       FireOut: 'note',
+      // T-559: 05 § Ice constructions (`IceMelted`, a note, at most once a day).
+      IceMelted: 'note',
       // 08 § Player-facing behavior ("A pack of wolves has arrived from the north").
       AnimalSpawned: 'note',
       // 09 § Registrations ("`HuntKill` note … `HuntAbandoned { no_ammo }` alert").
@@ -342,6 +346,9 @@ describe('T-M1-14 announcements', () => {
       DwarfBecameAdult: 'note',
       LegendaryReached: 'note',
       CraterEntered: 'note',
+      RibsEntered: 'note',
+      WhimSet: 'note',
+      WhimJudged: 'note',
       // T-469: 25 § Registrations (a mishap's line per kind, the last an alert; the first runecaster).
       Mishap: 'alert',
       FirstRunecaster: 'note',

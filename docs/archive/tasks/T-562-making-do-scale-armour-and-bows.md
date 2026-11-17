@@ -1,18 +1,20 @@
-# T-561 — Making Do C5: reindeer and camels
+# T-562 — Making Do A3b: scale armour, horn bows and fletching
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 6); the owner, 2026-11-13 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in 1bef6d05,f6627d8e.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 3, 7 (armor between leather and mail, fletching)); T-546, split from T-549 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
-Feasts, the Thane's whims and mugs moved to T-565.
+In the spec this task is `T-562`.
 
 ## What to do
 
-The blocks and rows marked T-561:
+The blocks and rows marked T-562:
 
-- **08 § Planned:** Reindeer and camels (domestic rows; wild herds on their own stream, `rngFor('08.herds')`; the camel's spit, `SpatOn`).
-- **20 § Planned:** camels from the Hillfolk in hot regions.
-- **Rows:** `reindeer`, `camel`, the Wild herds table, the reindeer's horns (butcher parts), `spat_on`, `announce.spat_on`, the colours.
+- **16 § Planned:** The scale layer (the layer enumeration, the damage column, `armorMult` 1.0, no metal penalty); The horn bow.
+- **12 § Planned** and **25 § Planned:** Fletching at the bowyer (the `enchants` table's `workshop` column; the `set_ammo_fletched` setting generated at the bowyer with `carpentry`).
+- **Rows:** `scale_shirt`, `scale_skirt`, the `scale` column of § Damage type versus layer, `horn_bow`, `make_scale_shirt`, `make_scale_skirt`, `make_horn_bow`, the `fletched` enchantment and the `workshop` column.
 
 
 ## Common rules for every Making Do task
@@ -27,5 +29,5 @@ The blocks and rows marked T-561:
 
 ## Done
 
-- Reindeer herds walk into a tundra map and camels into a desert one; tamed, they are milked (and the camel sheared), and the camel spits now and then; both graze lichen, salt crust and cactus (T-548's rule).
-- The ordinary wild spawning draws as before. The instrument verdict passes; its taiga row may move by the reindeer, which the report explains.
+- A hunter's fortress with no metal makes scale shirts of shell or horn: they stop an edge better than leather and worse than mail; a horn bow of pine shoots as a yew bow; 25 fletched bolts hit 5 more often and cannot also take a rune.
+- The `armorReduction` worked numbers in 16 gain a scale line. The defence-seeds verdict passes if scale reaches the scripts' squads; the sweep verdict passes.

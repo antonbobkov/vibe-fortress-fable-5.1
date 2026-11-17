@@ -31,6 +31,8 @@ Stages, each with its own rng stream (`terrain.<stage>`), run in order:
 7. **Veins and clusters.** For each mineral row in the content table, the expected count per map is `base × wealthMultiplier[wealth]` with `ironheart` and `gemsprings` adding to specific minerals. Veins: choose a random start tile in a host layer (the mineral lists host materials), random-walk `length` steps with 6-direction moves biased horizontally, painting a 1–2 tile radius; clusters: a blob of radius 1–3. Deepsilver: only at `z ≤ DEEPSILVER_Z_MAX`, only in walls adjacent (within 2) to the Sea of Fire rim or to a magma pool, count by wealth (0 at wealth 0–1). `wyrm_roost` guarantees one deepsilver vein next to the wyrm's chamber in cavern three. Ores, gems and deepsilver draw on the stage's stream in that order; a mineral row added after version 1 (a row of `row-order.md`: `halite`, `bog_iron`, `giant_bone`) is placed after the deepsilver, each on its own stream (`terrain.minerals.<id>`), so the older minerals of a map lie where they did. A row of count 0 (`star_iron`) is placed by no stage-7 draw: the `starfall` crater places it (stage 10). `giant_bone` is a mineral of class `bone` (a fossil), placed in the sedimentary layers as any mineral is.
 8. **Volcano.** If `volcano`: a magma pipe of radius 1–2 from the Sea of Fire to the surface at a random location at least 20 tiles from the arrival edge; the surface around it for radius 6 is obsidian and bare. On `glasslands` the whole surface soil layer is replaced by obsidian and the pipe radius is 3, with two more shallow magma pools at cavern one depth.
 9. **Slopes, boulders, trees and vegetation.** First the slopes: every dry surface `floor` one level below a cardinal neighbour's dry surface `floor` or `ramp` (the neighbour's tile on its level is `wall`) becomes a `ramp` of its own material, so every one-level step of the surface can be walked, up a slope of several steps as up one (the neighbour may itself be a ramp); two levels or more stay a cliff. Then, from relief 1, loose boulders (stream `terrain.boulders`): each dry surface `floor` outside the volcano's bare ground and the drinking steps becomes a `boulder` with the biome's `boulders` probability (`regions-biomes-and-traits.md` § Biome surface), three times that on bare rock and at least 250‰ in a crag's scree; a boulder is of the first rock under its column's soil. Then, on soil surface tiles, place trees by the biome's tree density and species weights (trees are `tree` kind at the surface tile; trees occupy one tile and are 1 tile tall in version 1); shrubs by shrub density; grass flag on remaining soil floors. Trees are not placed within 2 tiles of the river bed except willows. Cave shrubs follow on cavern floors, and then, on their own stream (`terrain.rare_patches`), each cave shrub may turn into a rare species with its `rarePermille` by cavern tier (`plants.md` § Rare cave patches). Only a tile that is already a cave shrub changes, and the other streams draw the same numbers. Last, lying snow, where the biome has a `snow` share: a dry surface `floor` or `ramp` carries `snow` where a patch field (two octaves, periods 14 and 5, weights 0.7 and 0.3, from stream `terrain.snow`), raised a tenth for each level its surface stands above the base surface, lies in the top `snow` of its range; 06 treats it as snow cover. The surface keeps its kind of resources: soil, trees, shrubs and grass only where the biome has them.
+
+    **The boneyards** (stage 9b) follow, after stage 9 and before stage 10, on their own stream (`terrain.giant_bones`): a map whose biome is `desert`, `badlands`, `wetland` or `tundra` lays `BONEYARD_MIN`–`BONEYARD_MAX` skeletons of `giant_bone`, the bones of something enormous. Every other biome draws nothing from the stream, so its map is unchanged; the stages after it draw on the four biomes' ground as the skeletons left it. A map narrower or shorter than twice `BONEYARD_EDGE_MARGIN` (a test fixture) lays none. Each skeleton is tried from up to `BONEYARD_TRIES` starts; each try draws, in order, the start's column (`x`, then `y`, each uniform from `BONEYARD_EDGE_MARGIN` to the far side less it), the spine's length (`BONEYARD_SPINE_MIN`–`BONEYARD_SPINE_MAX`), its heading (one of the four cardinals), whether it bends (500‰), after which column (from the fourth to its fifth from last) and which way (500‰ clockwise), so a try that fails draws what one that fits does. A start fits when it lies at least `BONEYARD_EDGE_MARGIN` inward of the arrival edge's wagon search band (02 § Arrival: `ARRIVAL_SEARCH_DEPTH` + `BONEYARD_EDGE_MARGIN` from that edge), its surface tile is a dry `floor` that is not a drinking step or volcanic glass, no column within `BONEYARD_CLEARANCE` holds water or another skeleton, and no tree stands beside it (only beside it: a wooded wetland has a tree within three tiles of nearly every column). The shape: a spine from the start, a straight or once-bent line of columns, turning a quarter after the drawn column when it bends; a pair of ribs, one column out on each side, at every second spine column from the third to the last but one; the cage, the columns beside the spine between its ribs; and a skull, a 2×2 just beyond the spine's first column, on the spine's line and the column clockwise of it, whose two columns farthest from the spine are its tusks. Where two parts claim a column the skull wins, then the spine, then a rib. The shape fits when every column of it lies at least two from every edge, outside the wagon search band, and more than `BONEYARD_CLEARANCE` from every column of another skeleton; otherwise the try fails. A fitting shape is laid on each column's surface tile: the spine's tiles become `boulder`s of `giant_bone`, the ribs' and the skull's `wall`s of `giant_bone` one level tall in place of the surface tile (where the surface is soil, the soil floor becomes the bone wall, so the skeleton lies half sunk), their `grass` and `snow` cleared. A column whose surface tile is not a dry `floor`, stands more than one level from the start's, or is a drinking step is left as it was: the skeleton is laid with a gap. In `wetland` a rib whose surface `floor` holds water no deeper than `BONEYARD_RIB_WATER_MAX` becomes a wall all the same, standing in the bog. In `tundra` the skull's two tusk tiles are `ivory` walls in place of bone: dug, each drops a `tusk`. The skull's laid tiles are recorded as one group (`giantSkulls`, ascending); the cage's walkable tiles (a floor, ramp, shrub or sapling with no fluid) are recorded per skeleton (`boneyards`, ascending), even for a skeleton whose cage is empty, so a skeleton's index is its place in the list. The site summary (02) already lists giant bones for these biomes as likely, not certain (`regions-biomes-and-traits.md` § Signatures).
 10. **Trait features.** `old_battlefield`: scatter `BATTLEFIELD_ITEM_COUNT` rusted iron weapons and armor, choosing uniformly among the metal-made rows of those tables, at quality 0; scatter the bone piles and skulls of the region trait as bone. All lie on dry surface floors 15–40 tiles from the arrival edge. After the other traits, on its own stream (`terrain.battlefield_channel`), an `old_battlefield` map holds a dead runecaster's channel with `BATTLEFIELD_CHANNEL_PERMILLE`: one row drawn uniformly among the `weapons` rows with a launcher and no ammunition, at quality 0, on a tile of the same band. A metal one lies in iron with no stone; a wooden one is of a material of class `wood` drawn uniformly and keeps a stone drawn uniformly among the `stone`s of the `spells` table ([25-runecraft.md](25-runecraft.md) § Channels). There is at most one, the trait's other picks draw the same numbers, and no other map holds one. `sunken_halls`: choose the highest dry surface floor in the far half of the map where the footprint fits (every column from one west of the entrance to 16 east of it, and 4 rows each side, is dry and stands above the hall level, so the hall lies in rock); among equal heights prefer greater inward distance from the arrival edge, then column order. Two levels below that entrance, carve an 11-tile corridor east, six 3×3 rooms (three on each side, each with a one-tile opening to the corridor), and a stairwell at the corridor’s end down two further levels. A 5×5 vault begins two tiles east of the foot of the stair, sealed by the intervening rock. A stair shaft joins the surface entrance to the corridor. Spawn 12 common furniture items in the rooms’ own stone, drawn from `bed`, `table`, `chair`, `chest`, `cabinet`, `door`; the vault holds `VAULT_TREASURE` deepsilver items (axe, helm, breastplate) and a sleeping `blind_stalker`. `gemsprings`: choose three dry surface-soil patches of 2×2 tiles nearest a river tile drawn by the stream, or nearest the map centre when there is no river; keep the patches one tile apart. Their tiles are `open` with water level 7, recorded as warm springs for 05 so they never freeze. `wyrm_roost`: carve a 9×9 floor at the bottom of cavern three with two levels of headroom; start its deepsilver vein in the wall immediately east when that wall meets the deepsilver magma-distance rule; record the sleeping wyrm. Item and creature entries are recorded in `LocalMapResult.spawns` for arrival.
 
     **The conversions** follow every other trait feature, so no other stage reads what they place: they place the wild plants no biome weight places (`plants.md` § Conversions): one pass per conversion row, in the `plants` table's order, each on its own stream (`terrain.convert.<plant id>`), and only for a region its row names (or every region, for a row marked `any`). Each pass takes every column's surface tile, in column order (row by row, `y` then `x`), that is eligible by the row (an existing shrub, an existing tree, a grass floor, a dry sand or soil floor, a bare rock floor, a floor of soil or a shrub within `CONVERT_WATER_RADIUS` columns of a water column, a floor of soil in water no deeper than `CONVERT_SHALLOW_MAX`, or a floor of `ash_soil`), and turns it with the row's permille. A turned floor becomes a `shrub` of the plant and loses its `grass` and `snow`; a turned tree keeps its tile and changes only its species (`ironwood`). A tile one pass turned is not eligible for another. The main stage-9 stream draws the same numbers, so the rock, the trees and the shrubs of a map are those it had, and only a turned tile changes; a region no row names draws nothing. The site summary (02) lists the converted plants with the trees and the shrubs.
@@ -45,7 +47,7 @@ The generator runs synchronously with progress callbacks after each stage; budge
 
 | Designation | Precondition | Result | Item produced |
 |---|---|---|---|
-| `dig` | `wall` or `boulder`, not `constructed` | `floor` with the same material; the tile above is unchanged | Per material class: `stone` and `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always `rough_gem`; `bone`: always a `fossil`; `soil` whose material carries the tag `soil_drop` (`clay`, `sand`, `peat`): a `soil_load` with `SOIL_DROP_PERMILLE`; every other class, and every other soil: none |
+| `dig` | `wall` or `boulder`, not `constructed` | `floor` with the same material; the tile above is unchanged | Per material class: `stone` and `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always `rough_gem`; `bone`: always a `fossil` (a `tusk` for `ivory`, a tundra boneyard's tusks); `soil` whose material carries the tag `soil_drop` (`clay`, `sand`, `peat`): a `soil_load` with `SOIL_DROP_PERMILLE`; every other class, and every other soil: none |
 | `channel` | `floor`, `ramp`, `sapling`, `shrub`, or `stairs_down` | Tile becomes `open`; if the tile below is `wall`, it becomes `ramp`; if it is `floor` it stays; if it is `open` nothing more | Drops from the tile below as if dug when it becomes a ramp |
 | `stairs_up` | `wall` | `stairs_up` | As dig |
 | `stairs_down` | `floor` | `stairs_down` | None |
@@ -56,8 +58,10 @@ The generator runs synchronously with progress callbacks after each stage; budge
 | `remove` | `constructed` tile | the construction's material returns as an item; `wall` or `floor` becomes `open`, except a constructed floor over natural rock becomes the natural floor; stairs and ramps become `open` | The block, log or bar used |
 | `chop` | `tree` or `sapling` | `floor` (grass if soil); logs by species size for a tree | A tree: 1–4 logs; a sapling: none |
 | `gather` | `shrub` | shrub stays; regrowth timer set (07) | The shrub's product, and its second product if its row has one (09 § Gathering) |
+| `harvest_ice` | frozen outdoor water: an ice `wall` or ice `floor` of 04's frozen record, on an `outdoor` tile; not cut in the last `ICE_RECUT_DAYS` | the tile stays as it was: ice is cut, not dug out, and the water under it stays | One `stone_block` of `ice`, on the worker's tile |
+| `ignite` | a tile 05 calls burnable (`materials.burnableTile`), not `wet`, not `snow`, not `burning` | none here: `TileIgnited` and 05 light it | None (a `firebrand` is spent) |
 
-Every drop is of the dug tile's material. The soil drop's roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for a tile of such a soil, so digging stone, ore and every other soil draws the same numbers as before.
+Every drop is of the dug tile's material. When a terrain job leaves the last tile of a boneyard's skull group (`giantSkulls`) no longer a `wall`, a `giant_skull` of `giant_bone` drops beside that tile's fossil, once: the group leaves the list. The soil drop's roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for a tile of such a soil, so digging stone, ore and every other soil draws the same numbers as before.
 
 Digging a `wall` that has a `floor` above it (which is every underground wall) never affects the tile above. Digging removes the last support of nothing, because natural rock is never subject to support.
 
@@ -67,7 +71,7 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 ### Digging as a job
 
-- A designation creates a job of type `dig`, `channel`, `carve_stairs`, `carve_ramp`, `smooth`, `engrave`, `remove_construction`, `chop` or `gather` with the designation's priority, through the `terrain` job producer.
+- A designation creates a job of type `dig`, `channel`, `carve_stairs`, `carve_ramp`, `smooth`, `engrave`, `remove_construction`, `chop`, `gather`, `harvest_ice` or `ignite` with the designation's priority, through the `terrain` job producer.
 - `dig`, `channel`, carving and `remove_construction` require the `mining` labor and a pick in hand (the worker fetches one from a stockpile if not carrying one; picks are tools that a miner keeps until the labor is disabled). `chop` requires `woodcutting` and an axe. `smooth` and `engrave` require `masonry` (smoothing) and `engraving` (engraving) labors and no tool. `gather` requires `herbalism` and no tool.
 - Work time: `baseTicks × hardness(material) / (100 + SKILL_TIME_BONUS_PERCENT × skillLevel)`, then the mood multiplier (15). Progress is stored on the job and survives interruption.
 - The worker stands on the target for channel, down stairs, or floor smoothing and engraving; other jobs use an adjacent walkable tile in the same-level 8-neighborhood. Up and up/down stairs also allow the tile directly above when it is a down or up/down stair, supplied by the producer's `extraStandTiles`. With no valid stand tile, the job is `blocked: unreachable`.
@@ -76,6 +80,19 @@ When a designation is applied to a tile that no longer matches its precondition 
 - A vein is the face-connected set of tiles of one mineral material, searched with a 4,096-tile bound and keyed by its lowest tile index. Dug tiles retain material, so digging preserves the identity. Only the first mined tile whose key is absent from `veinsFound` emits `VeinFound`.
 - A player `CancelJob` clears its designation so it cannot recreate the job. Removing or changing a designation cancels its job with `target_invalid`.
 - Deepsilver: each deepsilver tile dug emits `DeepsilverMined { tile }` (18 raises Deep pressure). Before the first deepsilver designation is applied, the UI shows a one-time confirmation (24) explaining the consequence.
+
+### Ice harvesting
+
+- Designation `harvest_ice` on a tile of frozen outdoor water (04's frozen record: an ice `wall` or ice `floor` whose fluid byte holds water with the `frozen` bit, on an `outdoor` tile). The job `harvest_ice` (labor `mining`, skill `mining`, a pick) is worked from a walkable tile beside it on its level, standing on it when it is an ice floor, or from above: the tile directly above it and that tile's eight neighbours, the bank a miner reaches down from (the producer's `extraStandTiles`; an open tile is no stand, so the middle of a frozen lake whose ice is all walls is out of reach until a shore of ice floor leads to it).
+- Work time `ICE_HARVEST_TICKS × 100 / (100 + SKILL_TIME_BONUS_PERCENT × skillLevel)`, as digging, with no hardness factor.
+- On completion it drops one `stone_block` of `ice` on the worker's tile and leaves the tile as it was: ice is cut, not dug out, and the water under it stays. The tile is recorded in `iceCut` with the tick, and cannot be designated again for `ICE_RECUT_DAYS`: `Designate` leaves such a tile out of its batch, and refuses with `precondition_failed` when no tile is left (an entry whose wait is over is dropped when it is next looked at). A tile that thaws clears its designation (its precondition no longer holds). No rng.
+- An ice block is a `stone_block` of `ice`, so the construction rows take it with no new row: 05 cools and melts what is built of it (05 § Ice constructions), and 13 melts the block itself (13 § Rot).
+
+### Setting a fire
+
+- Designation `ignite` on a tile 05 calls burnable (`materials.burnableTile`: a constructed tile of wood anywhere; outdoors a tree, sapling or shrub, a grass floor, or a floor or wall of a burnable soil), not `wet`, not `snow` and not `burning`. 03's precondition applies the same rule to the map and the material rows, so the designate tool can filter a box without 05.
+- The job `ignite` (labor `woodcutting`, no skill, xp 0) fetches one `firebrand` as its input, walks to a tile beside the target, works `IGNITE_TICKS`, spends the firebrand and emits `TileIgnited { tile, dwarfId }`; 05 queues the ignition as it queues a lightning strike's (05 § Fire on purpose). The dwarf gets `set_a_fire` (15). Woodcutting is the labor because clearing land is a woodcutter's work, and children never light fires. A tile that stopped being burnable before the work is done clears its designation, and the firebrand is not spent.
+- The first `ignite` designation of a fortress asks for the confirmation `c_first_ignite` (24), as the first deepsilver designation does: `Designate` with kind `ignite` is refused with `ignite_unconfirmed` while the fortress's `igniteConfirmed` is false, and `ConfirmIgnite` (no payload) sets it.
 
 ### Support and collapse
 
@@ -104,7 +121,7 @@ When a designation is applied to a tile that no longer matches its precondition 
 
 - 04 calls `terrain.setKind` for obsidian, ice and thaw.
 - 14 calls `terrain.setKind` for constructions and `terrain.setFlag(constructed)`.
-- 05 calls `terrain.setKind` when a burning tree or wooden construction burns away.
+- 05 calls `terrain.setKind` when a burning tree or wooden construction burns away, and when an ice construction melts.
 - Every such call goes through the same support and discovery updates as designation work.
 
 ## State
@@ -116,6 +133,11 @@ When a designation is applied to a tile that no longer matches its precondition 
 - `veinsFound: TileIndex[]`: sorted keys of veins already announced.
 - `fossilFound: boolean`: the first tile of class `bone` has been dug (absent in older saves and while false).
 - `craterTiles: TileIndex[]`: a `starfall` map's crater tiles, ascending, from generation (absent on any other map). 10 reads them for `CraterEntered`.
+- `giantSkulls: TileIndex[][]`: each boneyard's skull tiles still to dig, ascending, from generation; a group leaves when its `giant_skull` drops (absent on a map without one).
+- `boneyards: TileIndex[][]`: each boneyard's cage tiles, ascending, from generation (absent on a map without one). 10 reads them for `RibsEntered`.
+- `boneyardsEntered: boolean[]`: by boneyard, whether a fortress dwarf has stood in its ribs; marked on `RibsEntered` (absent while none has).
+- `iceCut: Map<TileIndex, tick>`: each tile of frozen water cut by `harvest_ice` and the tick it was cut, saved as ascending pairs (absent while none waits).
+- The fortress record's `igniteConfirmed` (`ConfirmIgnite`; absent: false).
 - `layerStack` and `LocalMapSpec` for the legend and for regeneration in tests.
 
 The soil drop's stream `03.soil_drop` is saved in the `rng` section with every other stream; a game that has dug no such soil has none. The saved state retains the changed and discovered tile batches and the levels awaiting relighting until the normal terrain flush. Saving and loading neither dispatch these notifications nor recompute light. An older save without these pending fields starts with empty batches.
@@ -133,6 +155,8 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 - `terrain.spec()` — the `LocalMapSpec`
 - `terrain.isForbidden(i)` — the tile's traffic mode is `forbidden`
 - `terrain.isCrater(i)` — the tile is one of the `starfall` crater's (`craterTiles`)
+- `terrain.boneyardAt(i)` — the boneyard whose ribs hold the tile (its index in `boneyards`), or -1
+- `terrain.boneyardEntered(b)` — a fortress dwarf has stood in boneyard `b`'s ribs (`boneyardsEntered`)
 - `terrain.forbiddenTiles()` — the forbidden set, ascending (a copy)
 - `terrain.inspect(i)` — the look cursor's data for a tile (the inspector's `tile` section)
 - `terrain.designationWork(i)` — where a designated tile's work stands: `queued` (its job is open, or it has none yet), `assigned` (a worker holds its job), `blocked` (its job is blocked), or null with no designation (the map's blink, 23 § Animation)
@@ -144,15 +168,15 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 
 ### Commands
 
-`Designate { tiles: TileIndex[], kind, priority }`, `UndoDesignation { tiles }`, `SetDesignationPriority { tiles, priority }`, `SetTraffic { tiles, mode }`, `DesignateStairwell { x, y, zTop, zBottom }` (expands to `stairs_updown` on intermediate levels, `stairs_down` at top, `stairs_up` at bottom), `ConfirmDeepsilver` (no payload; sets the fortress's `deepsilverConfirmed` when the player accepts the one-time confirmation).
+`Designate { tiles: TileIndex[], kind, priority }`, `UndoDesignation { tiles }`, `SetDesignationPriority { tiles, priority }`, `SetTraffic { tiles, mode }`, `DesignateStairwell { x, y, zTop, zBottom }` (expands to `stairs_updown` on intermediate levels, `stairs_down` at top, `stairs_up` at bottom), `ConfirmDeepsilver` (no payload; sets the fortress's `deepsilverConfirmed` when the player accepts the one-time confirmation), `ConfirmIgnite` (no payload; sets the fortress's `igniteConfirmed` when the player accepts the first fire's confirmation).
 
 ### Events consumed
 
-`JobCompleted` (for its own job types), `JobCancelled`, `EntitiesMoved` (discovery), `BuildingCompleted` (support check; the designations worked from a footprint tile the building blocks).
+`JobCompleted` (for its own job types), `JobCancelled`, `EntitiesMoved` (discovery), `BuildingCompleted` (support check; the designations worked from a footprint tile the building blocks), `RibsEntered` (marks the boneyard's `boneyardsEntered`).
 
 ### Events emitted
 
-`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `FossilFound { dwarfId, tile }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`.
+`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `FossilFound { dwarfId, tile }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`, `TileIgnited { tile, dwarfId }` (an `ignite` job done).
 
 ### Registrations
 
@@ -165,7 +189,7 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 
 ## Player-facing behavior
 
-- Designation menu (hotkey `d`): dig, channel, up stairs, down stairs, up/down stairs, ramp, stairwell, smooth, engrave, remove construction, chop, gather, traffic; then a box by two clicks (or two presses of `Enter`) that may span levels, every level between its two corners, or by a drag on one level; with a stair tool a box over several levels is a stair column on each of its tiles (24 § Input model). A priority key 1–9 while designating sets the priority; the current priority is shown in the menu. Designations render as overlay glyphs colored by priority. Shift+P or a click on the reprioritize row gives the current priority to the still-designated tiles of the last batch, also kept for Undo; with no batch or no remaining designation, the status row explains why nothing changed.
+- Designation menu (hotkey `d`): dig, channel, up stairs, down stairs, up/down stairs, ramp, stairwell, smooth, engrave, remove construction, chop, gather, harvest, traffic, cut ice, set a fire; then a box by two clicks (or two presses of `Enter`) that may span levels, every level between its two corners, or by a drag on one level; with a stair tool a box over several levels is a stair column on each of its tiles (24 § Input model). A priority key 1–9 while designating sets the priority; the current priority is shown in the menu. Designations render as overlay glyphs colored by priority. Shift+P or a click on the reprioritize row gives the current priority to the still-designated tiles of the last batch, also kept for Undo; with no batch or no remaining designation, the status row explains why nothing changed.
 - Undo: the last designation batch (or a selected rectangle) is cleared if no work has begun; tiles with progress are kept and the UI says how many.
 - Announcements: `VeinFound` as a note naming the finder and the material; `FossilFound` as a note naming the finder, once; `CavernBreached` as an alert; `DeepsilverMined` first occurrence as a danger-severity announcement that pauses; `ConstructionCollapsed` as an alert.
 - The look cursor shows the material, whether smoothed or engraved, the designation, and "undiscovered" where applicable.
@@ -181,6 +205,9 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 | `SMOOTH_BASE_TICKS` | 120 | Measured: 368 tiles smoothed in the first year of the economy fixture, 115 ticks normalised to skill 0 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `ENGRAVE_BASE_TICKS` | 300 | *unmeasured* |
 | `CHOP_BASE_TICKS` | 90 | Scaled by the tree's wood, `× max(100, hardness) / 100`: every wood but ironwood (200) at the base. Measured in play: 113 ticks normalised to skill 0 at a mean productivity of 88%, a tenth over what the formula gives, the pauses of needs included ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
+| `ICE_HARVEST_TICKS` | 80 | The work of cutting one ice block, skill-scaled as digging (*unmeasured*) |
+| `ICE_RECUT_DAYS` | 3 | Days before a cut tile of frozen water can be designated again (*unmeasured*) |
+| `IGNITE_TICKS` | 30 | The work of lighting a tile with a firebrand (*unmeasured*) |
 | `GATHER_BASE_TICKS` | 40 | Measured: 40 ticks normalised to skill 0 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `SKILL_TIME_BONUS_PERCENT` | 8 | Per skill level; level 20 works at 100/(100+160) ≈ 38% of base time. Measured: a granite tile takes 90, 69 and 50 ticks at skills 0, 4 and 10, a smelt 150, 114 and 84 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `CAVERN_OPEN_FRACTION` | 0.25–0.55 | By deepness; see stage 6 (*unmeasured*) |
@@ -196,6 +223,13 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 | `CRATER_RADIUS_MIN` / `CRATER_RADIUS_MAX` | 3 / 5 | The `starfall` crater's radius, stage 10 (*unmeasured*) |
 | `CRATER_EDGE_DISTANCE` | 20 | Least distance of the crater's centre from the arrival edge, stage 10 (*unmeasured*) |
 | `CRATER_WYRMTONGUE_PERMILLE` | 150 | Chance a crater floor tile grows wild wyrmtongue, stage 10 (*unmeasured*) |
+| `BONEYARD_MIN` / `BONEYARD_MAX` | 1 / 3 | Skeletons a desert, badlands, wetland or tundra map lays, stage 9b (*unmeasured*) |
+| `BONEYARD_SPINE_MIN` / `BONEYARD_SPINE_MAX` | 8 / 14 | Columns in a skeleton's spine, stage 9b (*unmeasured*) |
+| `BONEYARD_EDGE_MARGIN` | 12 | Least distance of a spine's start from every edge and from the wagon search band, stage 9b (*unmeasured*) |
+| `BONEYARD_TRIES` | 20 | Starts tried per skeleton, stage 9b (*unmeasured*) |
+| `BONEYARD_CLEARANCE` | 3 | Least distance of a spine's start from water and other skeletons, and of a skeleton from another, stage 9b (*unmeasured*) |
+| `BONEYARD_RIB_WATER_MAX` | 3 | Deepest water a `wetland` rib stands in, stage 9b (*unmeasured*) |
+| `BONEYARD_WAGON_BAND` | 20 | The wagon search band a skeleton keeps out of: 02's `ARRIVAL_SEARCH_DEPTH`, stage 9b |
 
 Hardness per material and layer templates are content.
 
@@ -209,31 +243,6 @@ Hardness per material and layer templates are content.
 ## Planned: Making Do
 
 Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows. A new rng draw goes on a stream of its own, so a map or a game without the new content draws the same numbers as before.
-
-### Stage 9b: the boneyards (T-557)
-
-- After stage 9 and before stage 10, on its own stream (`terrain.giant_bones`), a map whose biome is `desert`, `badlands`, `wetland` or `tundra` lays `BONEYARD_MIN`–`BONEYARD_MAX` skeletons. Every other biome draws nothing from the stream, so its map is unchanged.
-- A skeleton: a spine, a straight or once-bent line of `BONEYARD_SPINE_MIN`–`BONEYARD_SPINE_MAX` dry surface floor tiles, each made a `boulder` of `giant_bone`; at every second spine tile a pair of ribs, one tile out on each side, made `wall` of `giant_bone` one level tall; at one end a skull, a 2×2 of `giant_bone` walls. A spine starts at least `BONEYARD_EDGE_MARGIN` tiles from every edge and from the arrival edge's wagon search band (02 § Arrival), and keeps 3 tiles from water, trees and the other skeletons; a tile that fails (water, a tree, a cliff, a drinking step) is left as it was and the skeleton is laid with a gap. Up to `BONEYARD_TRIES` starts are tried per skeleton.
-- Where the surface is soil, the walls are dug into it (the soil tile becomes the bone wall), so the skeleton lies half sunk. In `wetland` a rib whose tile is shallow water (level ≤ 3) stays a wall in the water. In `tundra` the skull's two outer tiles are `ivory` walls in place of bone (the tusks): they drop a `tusk` when dug.
-- The skull's four tiles are recorded (`giantSkulls`, a list of four-tile groups). When the last tile of a group is dug, a `giant_skull` drops beside its fossil.
-- The ribs' cage, the tiles between a skeleton's ribs and beside its spine, is recorded per skeleton (`boneyards`, the tile lists). The first fortress dwarf to stand on one emits `RibsEntered { id, boneyard }` once per skeleton (thought `stood_in_the_ribs`, 15), checked by 10 on `EntitiesMoved`.
-- The site summary (02) lists "the bones of something enormous" for these biomes as likely, not certain.
-- Constants: `BONEYARD_MIN` / `BONEYARD_MAX` 1 / 3, `BONEYARD_SPINE_MIN` / `BONEYARD_SPINE_MAX` 8 / 14, `BONEYARD_EDGE_MARGIN` 12, `BONEYARD_TRIES` 20.
-- Events: `RibsEntered { id, boneyard }` (10 emits it). Save: `giantSkulls`, `boneyards` and the per-skeleton entered flag (`boneyardsEntered`).
-- Golden: the local-map hash of the four biomes' seeds moves; no other.
-
-### Ice harvesting (T-559)
-
-- Designation `harvest_ice` on a tile of frozen outdoor water (04's frozen record, an ice `wall` or ice `floor`). The job `harvest_ice` (labor `mining`, skill `mining`, a pick) is worked from a walkable tile beside it on its level or from the walkable tile directly above it (standing on the ice, through the producer's `extraStandTiles`). On completion it drops one `stone_block` of `ice` on the worker's tile and leaves the tile as it was: ice is cut, not dug out, and the water under it stays. The tile cannot be designated again for `ICE_RECUT_DAYS` (`iceCut: Map<TileIndex, tick>`). A tile that thaws clears its designation.
-- Work time `ICE_HARVEST_TICKS`, skill-scaled as digging.
-- Constants: `ICE_RECUT_DAYS` 3, `ICE_HARVEST_TICKS` 80. Save: `iceCut`.
-- UI: the designation menu's `harvest ice` entry (key in `ui-keymap-and-screens.md` § Planned rows).
-
-### Setting a fire (T-559)
-
-- Designation `ignite` on a tile 05 calls burnable (`materials.burnableTile`), not `wet` and not `snow`. The job `ignite` (labor `woodcutting`, no skill, xp 0, a `firebrand` fetched and consumed) walks to a tile beside it, works `IGNITE_TICKS` and emits `TileIgnited { tile, dwarfId }`; 05 queues the ignition as it queues a lightning strike's (05 § Planned). The dwarf gets `set_a_fire` (15).
-- The first `ignite` designation of a fortress asks for the confirmation `c_first_ignite` (24), as the first deepsilver designation does; `ConfirmIgnite` (no payload) sets the fortress's `igniteConfirmed`.
-- Constants: `IGNITE_TICKS` 30. Events: `TileIgnited { tile, dwarfId }`. Commands: `ConfirmIgnite`. Save: `igniteConfirmed` on the fortress record (absent: false).
 
 ### Bat roosts (T-556)
 

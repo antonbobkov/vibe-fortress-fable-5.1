@@ -41,7 +41,7 @@ describe('T-M5-04 magma workshops', () => {
     const reader = w.readers.of<WorkshopsReader>('12');
     expect(reader.recipesFor('magma_smelter')).toHaveLength(27);
     expect(reader.recipesFor('magma_forge')).toHaveLength(41);
-    expect(reader.recipesFor('magma_kiln')).toHaveLength(10);
+    expect(reader.recipesFor('magma_kiln')).toHaveLength(12);
   });
 
   it('forges a steel dagger over magma without consuming a fuel bar', () => {

@@ -352,6 +352,58 @@
     }
   },
   {
+    "id": "scale_shirt",
+    "name": "scale shirt",
+    "armorSlot": "body",
+    "covers": [
+      {
+        "part": "torso",
+        "coverage": 100
+      },
+      {
+        "part": "left_arm",
+        "coverage": 40
+      },
+      {
+        "part": "right_arm",
+        "coverage": 40
+      }
+    ],
+    "layer": "scale",
+    "armor": 8,
+    "weight": 7,
+    "leather": 1,
+    "mult": 8000,
+    "materials": [
+      "shell",
+      "bone"
+    ]
+  },
+  {
+    "id": "scale_skirt",
+    "name": "scale skirt",
+    "armorSlot": "legs",
+    "covers": [
+      {
+        "part": "left_leg",
+        "coverage": 100
+      },
+      {
+        "part": "right_leg",
+        "coverage": 100
+      }
+    ],
+    "layer": "scale",
+    "armor": 6,
+    "weight": 5,
+    "leather": 1,
+    "mult": 6000,
+    "materials": [
+      "shell",
+      "bone"
+    ]
+  },
+  {
     "id": "shield",
     "name": "shield",
     "armorSlot": "shield",

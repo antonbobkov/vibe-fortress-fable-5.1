@@ -122,6 +122,32 @@
     "xp": 10
   },
   {
+    "id": "brew_mead",
+    "name": "Brew mead",
+    "workshop": "still",
+    "skill": "brewing",
+    "inputs": [
+      {
+        "match": "honey",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "item": "drink",
+        "count": 20,
+        "material": {
+          "fixed": "mead"
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": false,
+    "container": "barrel",
+    "xp": 8
+  },
+  {
     "id": "brew_mending_draught",
     "name": "Brew draught of mending",
     "workshop": "alchemist",
@@ -298,6 +324,58 @@
     "xp": 3
   },
   {
+    "id": "carve_fossil",
+    "name": "Carve fossil",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "figurine",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 8
+  },
+  {
+    "id": "carve_ivory_statue",
+    "name": "Ivory statue",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "tusk",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
     "id": "cook_easy_meal",
     "name": "Easy meal",
     "workshop": "kitchen",
@@ -323,6 +401,42 @@
     "fuel": false,
     "quality": true,
     "xp": 6
+  },
+  {
+    "id": "cook_feast",
+    "name": "Feast",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "salt|honey|plant_food",
+        "count": 1,
+        "materials": [
+          "salt",
+          "honey",
+          "wyrmtongue"
+        ]
+      },
+      {
+        "match": "ingredient",
+        "count": 6,
+        "distinct": true
+      }
+    ],
+    "outputs": [
+      {
+        "item": "feast",
+        "count": 20,
+        "material": {
+          "from": "input",
+          "index": 1
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 20
   },
   {
     "id": "cook_fine_meal",
@@ -553,6 +667,32 @@
       }
     ],
     "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "cut_bone_blocks",
+    "name": "Bone blocks",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "stone_block",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 80,
     "fuel": false,
     "quality": false,
     "xp": 3
@@ -2514,6 +2654,56 @@
     "xp": 6
   },
   {
+    "id": "make_candles_tallow",
+    "name": "Tallow candles",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "tallow",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "candle",
+        "count": 4,
+        "material": {
+          "fixed": "tallow"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
+    "id": "make_candles_wax",
+    "name": "Wax candles",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "beeswax",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "candle",
+        "count": 4,
+        "material": {
+          "fixed": "beeswax"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 3
+  },
+  {
     "id": "make_cap",
     "name": "Cap",
     "workshop": "leatherworks",
@@ -2527,6 +2717,32 @@
     "outputs": [
       {
         "item": "cap",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 120,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
+    "id": "make_chair_bone",
+    "name": "Bone chair (a throne)",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "chair",
         "count": 1,
         "material": {
           "from": "input",
@@ -2789,6 +3005,32 @@
     "xp": 3
   },
   {
+    "id": "make_coffin_bone",
+    "name": "Bone coffin",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "item": "coffin",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 200,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
     "id": "make_coffin_stone",
     "name": "Coffin",
     "workshop": "mason",
@@ -2919,6 +3161,32 @@
     "xp": 4
   },
   {
+    "id": "make_door_bone",
+    "name": "Bone door",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "door",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
+  },
+  {
     "id": "make_door_stone",
     "name": "Door",
     "workshop": "mason",
@@ -2969,6 +3237,36 @@
     "fuel": false,
     "quality": true,
     "xp": 6
+  },
+  {
+    "id": "make_firebrand",
+    "name": "Firebrands",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "log|bone_pile",
+        "count": 1
+      },
+      {
+        "match": "tallow|beeswax",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "firebrand",
+        "count": 2,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 60,
+    "fuel": false,
+    "quality": false,
+    "xp": 2
   },
   {
     "id": "make_floodgate",
@@ -3161,6 +3459,88 @@
     "xp": 6
   },
   {
+    "id": "make_hive_clay",
+    "name": "Clay beehive",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "soil_load",
+        "count": 1,
+        "material": "clay"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "beehive",
+        "count": 1,
+        "material": {
+          "fixed": "earthenware"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": true,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_hive_wood",
+    "name": "Beehive",
+    "workshop": "carpenter",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "beehive",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
+  },
+  {
+    "id": "make_horn_bow",
+    "name": "Horn bow",
+    "workshop": "bowyer",
+    "skill": "carpentry",
+    "inputs": [
+      {
+        "match": "log",
+        "count": 1
+      },
+      {
+        "match": "horn",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "horn_bow",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 220,
+    "fuel": false,
+    "quality": true,
+    "xp": 9
+  },
+  {
     "id": "make_jug",
     "name": "Clay jug",
     "workshop": "kiln",
@@ -3185,6 +3565,36 @@
     "fuel": true,
     "quality": false,
     "xp": 4
+  },
+  {
+    "id": "make_lantern",
+    "name": "Lantern",
+    "workshop": "kiln",
+    "skill": "pottery",
+    "inputs": [
+      {
+        "match": "stone_block",
+        "count": 1,
+        "material": "glass"
+      },
+      {
+        "match": "candle",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "lantern",
+        "count": 1,
+        "material": {
+          "fixed": "glass"
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": true,
+    "quality": true,
+    "xp": 8
   },
   {
     "id": "make_leather_boots",
@@ -3665,6 +4075,68 @@
     "xp": 12
   },
   {
+    "id": "make_scale_shirt",
+    "name": "Scale shirt",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "shell_piece|bone_pile|horn",
+        "count": 3,
+        "sameMaterial": true
+      },
+      {
+        "match": "leather_piece|cloth",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "scale_shirt",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 330,
+    "fuel": false,
+    "quality": true,
+    "xp": 12
+  },
+  {
+    "id": "make_scale_skirt",
+    "name": "Scale skirt",
+    "workshop": "leatherworks",
+    "skill": "leatherworking",
+    "inputs": [
+      {
+        "match": "shell_piece|bone_pile|horn",
+        "count": 2,
+        "sameMaterial": true
+      },
+      {
+        "match": "leather_piece|cloth",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "scale_skirt",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 270,
+    "fuel": false,
+    "quality": true,
+    "xp": 10
+  },
+  {
     "id": "make_shield_wood",
     "name": "Shield",
     "workshop": "carpenter",
@@ -3745,6 +4217,35 @@
     "fuel": false,
     "quality": false,
     "xp": 2
+  },
+  {
+    "id": "make_soap",
+    "name": "Soap",
+    "workshop": "kitchen",
+    "skill": "cooking",
+    "inputs": [
+      {
+        "match": "tallow",
+        "count": 1
+      },
+      {
+        "match": "potash",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "soap",
+        "count": 2,
+        "material": {
+          "fixed": "soap"
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
   },
   {
     "id": "make_spike_wood",
@@ -3832,6 +4333,32 @@
     "inputs": [
       {
         "match": "raw_stone",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 400,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "make_statue_bone",
+    "name": "Bone statue",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
         "count": 3
       }
     ],
@@ -4005,6 +4532,32 @@
     "fuel": false,
     "quality": false,
     "xp": 3
+  },
+  {
+    "id": "make_table_bone",
+    "name": "Bone table",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "fossil",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "table",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 150,
+    "fuel": false,
+    "quality": true,
+    "xp": 6
   },
   {
     "id": "make_table_stone",
@@ -4349,6 +4902,65 @@
     "quality": false,
     "container": "bag",
     "xp": 5
+  },
+  {
+    "id": "mount_skull",
+    "name": "Mount the skull",
+    "workshop": "mason",
+    "skill": "masonry",
+    "inputs": [
+      {
+        "match": "giant_skull",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "statue",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 300,
+    "fuel": false,
+    "quality": true,
+    "xp": 15
+  },
+  {
+    "id": "press_honeycomb",
+    "name": "Press honeycomb",
+    "workshop": "farmers_workshop",
+    "skill": "animal_care",
+    "inputs": [
+      {
+        "match": "honeycomb",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "item": "honey",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      },
+      {
+        "item": "beeswax",
+        "count": 1,
+        "material": {
+          "fixed": "beeswax"
+        }
+      }
+    ],
+    "baseTicks": 80,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
   },
   {
     "id": "process_flax",
@@ -4766,6 +5378,33 @@
     "fuel": false,
     "quality": false,
     "xp": 6
+  },
+  {
+    "id": "weave_hive",
+    "name": "Wicker beehive",
+    "workshop": "craftdwarf",
+    "skill": "crafting",
+    "inputs": [
+      {
+        "match": "reed",
+        "count": 3,
+        "material": "reed"
+      }
+    ],
+    "outputs": [
+      {
+        "item": "beehive",
+        "count": 1,
+        "material": {
+          "from": "input",
+          "index": 0
+        }
+      }
+    ],
+    "baseTicks": 100,
+    "fuel": false,
+    "quality": false,
+    "xp": 4
   },
   {
     "id": "weave_wicker_shield",

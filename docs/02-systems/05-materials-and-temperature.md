@@ -46,8 +46,9 @@ return base + tempOverride(i) × 5 + (HEARTH_WARMTH_C if i is inside the built h
 - Burning tile: +`FIRE_OVERRIDE` at the tile, half at distance 1, on its own level and the level above; no distance-2 fire contribution.
 - Warm spring (`gemsprings`): +`SPRING_OVERRIDE` on its tiles.
 - Snow-covered tile: −`SNOW_OVERRIDE` at the tile.
+- Ice construction (a constructed `wall` or `floor` of material `ice`, § Ice constructions): −`ICE_OVERRIDE` at the tile and at Chebyshev distance 1, on its own level only. Two ice walls beside a tile make it `ICE_OVERRIDE × 2 × 5` °C colder.
 
-On the first materials tick, compute the reach of all magma and warm spring source chunks and save `started`. On `FluidsChanged`, compare the named chunks' magma index signatures; only a changed magma signature queues recomputation of that chunk, its eight same-level neighbours and the nine above. Water alone queues nothing. Fire changes queue their reach; `SnowCoverChanged` queues its named chunks. At the next materials tick, clear and rebuild each queued chunk's summed contributions, clamped to ±24 override units (±120 °C).
+On the first materials tick, compute the reach of all magma and warm spring source chunks and save `started`. On `FluidsChanged`, compare the named chunks' magma index signatures; only a changed magma signature queues recomputation of that chunk, its eight same-level neighbours and the nine above. Water alone queues nothing. Fire changes queue their reach; an ice construction built or removed (`TilesChanged`) queues its reach the same way; `SnowCoverChanged` queues its named chunks. At the next materials tick, clear and rebuild each queued chunk's summed contributions, clamped to ±24 override units (±120 °C).
 
 ### Uses of temperature
 
@@ -64,7 +65,7 @@ On the first materials tick, compute the reach of all magma and warm spring sour
 
 State: `burning: Map<TileIndex, { remainingTicks, spreadCooldown }>`; the `burning` flag mirrors membership.
 
-- **Ignition.** Event handlers queue magma or lightning ignition for the next materials tick, ignoring wet/snow for those sources. A changed magma chunk queues its burnable cardinal neighbours and the tile above each magma tile. A burnable tile ignites when: it is adjacent (cardinal or below) to a magma tile with level ≥ 1; a `LightningStrike` names it (06); a `Mishap` names it (25: a sanctum's `fire` beside its rune circle, or the tile of a creature struck by a `blaze` weapon; queued like lightning); a burning neighbor spreads to it; a creature carrying a burning status enters it (not in version 1); or a magma-adjacent wooden construction is built (14 warns and refuses unless the player confirms).
+- **Ignition.** Event handlers queue magma, lightning or a dwarf's ignition for the next materials tick, ignoring wet/snow for those sources. A changed magma chunk queues its burnable cardinal neighbours and the tile above each magma tile. A burnable tile ignites when: it is adjacent (cardinal or below) to a magma tile with level ≥ 1; a `LightningStrike` names it (06); a `TileIgnited` names it (03's `ignite` job, § Fire on purpose); a `Mishap` names it (25: a sanctum's `fire` beside its rune circle, or the tile of a creature struck by a `blaze` weapon; queued like lightning); a burning neighbor spreads to it; a creature carrying a burning status enters it (not in version 1); or a magma-adjacent wooden construction is built (14 warns and refuses unless the player confirms).
 - **Burnable tiles.** Natural `tree`, `sapling`, `shrub`, grass floors and peat burn only outdoors. Constructed wood burns anywhere. Items on a burning tile burn individually but do not make the tile burnable; cave flora is not burnable. Tiles with `wet` or `snow` flags are not ignitable by spread, only by magma or lightning.
 - **Burning.** All burning-flag changes happen in the materials tick and mark connectivity dirty. A tile that is no longer burnable goes out without ash. A plant tile whose material has no burn duration uses `PLANT_BURN_TICKS = 300`; wood keeps its own material duration. Each materials tick (every 10 ticks): `remainingTicks −= 10`. When it reaches 0: a tree becomes `floor` with `ash` (grass cleared); a sapling or shrub becomes `floor` with `ash`; a grass floor loses `grass` and gains `ash`; a wooden construction is removed through `terrain.setKind` as if deconstructed with no item returned (support re-check follows). `ash` blocks grass regrowth and planting for `ASH_DURATION_DAYS` (07 clears it).
 - **Spread.** Each materials tick, each burning tile with `spreadCooldown == 0` tries each cardinal neighbor and the tile above: if burnable and not burning, ignite with `FIRE_SPREAD_PERMILLE` (`FIRE_SPREAD_WET_PERMILLE` under rain). A tile whose material carries the tag `fire_resistant` (`ironwood`) is ignited with that chance divided by `FIRE_RESIST_DIVISOR` (rounded down); it burns for its material's `burnTicks` (1200), so once alight it burns long. After trying, `spreadCooldown = FIRE_SPREAD_COOLDOWN`.
@@ -72,7 +73,19 @@ State: `burning: Map<TileIndex, { remainingTicks, spreadCooldown }>`; the `burni
 - **Creatures.** A creature on a burning tile receives `BurnDamage { id, amount }` every materials tick (17 applies it as burn wounds to random parts). Creatures avoid burning tiles in pathfinding (22 reads the flag). Dwarves leave a burning tile, and burnable ground beside one, for ground that cannot burn (10 § Behavior selection); other creatures do not.
 - **Extinguish.** Rain (06 weather is `rain` or `storm`) gives each outdoor burning tile a `RAIN_EXTINGUISH_PERMILLE × MATERIALS_CADENCE` draw per materials tick to go out early with no ash. Water at level ≥ 1 on a burning tile puts it out immediately. Fire never burns underground except on wooden constructions and items, which spread only along other wooden constructions.
 
-Fire is meant to be a hazard of magma, lightning and carelessness, not a weapon system; there is no way for the player to start a fire deliberately in version 1 except by channeling magma to wood.
+Fire is a hazard of magma, lightning and carelessness, and since Making Do a tool: a dwarf with a firebrand can set one on purpose (§ Fire on purpose). It is not a weapon system: the fire is not choosy.
+
+### Fire on purpose
+
+- `TileIgnited { tile, dwarfId }` (03's `ignite` job) queues the tile for ignition at the next materials tick, as a `LightningStrike` does, and it burns by every rule of § Fire: spread, rain, ash, dwarves stepping off burning ground. A tile that stopped being burnable before the tick does not ignite.
+- The announcement is the ordinary `FireStarted` alert.
+
+### Ice constructions
+
+- A constructed `wall` or `floor` of material `ice` (built of a `stone_block` of `ice`, 03 § Ice harvesting) is a cold source (§ Temperature model). This system keeps `iceBuilt: Map<TileIndex, builtTick>`: on `TilesChanged`, a tile that is now an ice construction and not in it joins it with the current tick, and a tile in it that no longer is one leaves it; either way its reach is queued for override work, as a fire's is.
+- Underground (not `outdoor`) an ice construction melts `ICE_CONSTRUCTION_DAYS` days after it was built: a `DayPassed` marks the day due, and the next materials tick removes every underground ice construction whose days are up. Outdoors it melts on the first materials tick its tile is above `THAW_C`, measured without the cold of the ice constructions (the weather melts a wall of ice; its own cold does not keep it). It is removed through `terrain.setKind` as a burned wooden construction is: a floor over natural rock becomes the natural floor, anything else `open`, with no item and no water. 14 drops the construction with its tile.
+- Rot stops below `FREEZE_C` (13), so a larder walled in ice keeps its meat until the walls melt, and a gate walled shut with winter ice holds a raid until spring opens it.
+- When ice melts, `IceMelted { tiles[] }` names the tiles of that materials tick, at most once a day (the day of the last one is saved as `iceMeltedDay`): the note "The ice walls of {place} have melted.", `{place}` the zone on or beside the first tile, else "the surface" or "the halls". 13 re-reads its rot speeds on it.
 
 ### Melting
 
@@ -84,7 +97,7 @@ On `MagmaContact { entities }`, for each item: if `meltsAtOf[material] ≤ MAGMA
 
 ### Smoke
 
-A craft job that burns a fuel tagged `smoky` (`peat_brick`, `dung_cake`: 12 § Fuel) makes its workshop smoky for `SMOKE_TICKS`: 12 emits `SmokyFuelBurned { workshopId, tile }` when the job completes, `tile` the workshop's centre, and this system records `smoke: Map<TileIndex, untilTick>` keyed by that tile (a later job renews it). Every fortress dwarf within `SMOKE_RADIUS` (Chebyshev, same level) of the centre when the job completes gets `smoky_hall` (15). `materials.isSmoky(i)` holds for the tiles within `SMOKE_RADIUS` of a smoky workshop on its level while the smoke lasts, and 23 draws them with the `smoke_bg` tint, as it draws mist. The record is per workshop, not a per-chunk counter; an expired entry is dropped on the next materials tick.
+A craft job that burns a fuel tagged `smoky` (`peat_brick`, `dung_cake`: 12 § Fuel) makes its workshop smoky for `SMOKE_TICKS`: 12 emits `SmokyFuelBurned { workshopId, tile }` when the job completes, `tile` the workshop's centre, and this system records `smoke: Map<TileIndex, untilTick>` keyed by that tile (a later job renews it). Every fortress dwarf within `SMOKE_RADIUS` (Chebyshev, same level) of the centre when the job completes gets `smoky_hall` (15). `materials.isSmoky(i)` holds for the tiles within `SMOKE_RADIUS` of a smoky workshop on its level while the smoke lasts, and 23 draws them with the `smoke_bg` tint, as it draws mist. The record is per workshop, not a per-chunk counter; an expired entry is dropped on the next materials tick. A `SmokyFuelBurned` with a `dwarfId` is a candle's tallow smoke (10, 14 § Candle stands and lanterns): it is that dwarf's thought alone, and this system records nothing for it.
 
 ## State
 
@@ -92,6 +105,7 @@ A craft job that burns a fuel tagged `smoky` (`peat_brick`, `dung_cake`: 12 § F
 - `burning` map; `warmSprings`; `magmaSourceChunks` (chunks containing magma, maintained from `FluidsChanged`).
 - `magmaSignatures` per source chunk; `pendingChunks` for override work; `started` for initial source computation; `forced` tile temperatures; `pendingIgnite` tiles and `itemBurn` timers.
 - `smoke`: each smoky workshop's centre tile and the tick its smoke clears (§ Smoke); omitted from the save when empty.
+- `iceBuilt`: each ice construction and the tick it was built, ascending pairs; `iceDayDue` (a `DayPassed` came and the next materials tick checks the underground ice); `iceMeltedDay` (§ Ice constructions). Each omitted when empty, false or unset.
 - Property typed arrays (rebuilt from the registry on load; not saved).
 
 ## Interfaces
@@ -112,15 +126,15 @@ None.
 
 ### Events consumed
 
-`FluidsChanged` (override recompute, ignition by magma), `LightningStrike`, `MagmaContact`, `Mishap` (one with a `tile`: 25's `fire` and `blaze`), `SmokyFuelBurned` (§ Smoke), `SnowCoverChanged`, `TilesChanged` (a burning tile that stops being burnable stops burning), `WeatherChanged` (rain state for spread and extinguish).
+`FluidsChanged` (override recompute, ignition by magma), `LightningStrike`, `MagmaContact`, `Mishap` (one with a `tile`: 25's `fire` and `blaze`), `SmokyFuelBurned` (§ Smoke), `SnowCoverChanged`, `TilesChanged` (a burning tile that stops being burnable stops burning; ice constructions built and gone), `TileIgnited` (§ Fire on purpose), `DayPassed` (the underground ice's days), `WeatherChanged` (rain state for spread and extinguish).
 
 ### Events emitted
 
-`TemperatureTick { }` (each materials tick; 04 processes freeze and thaw on it), `FireStarted { tile }`, `FireSpread { tiles[] }`, `FireOut { tiles[] }`, `BurnDamage { id, amount }`, `ItemMelted { id }`.
+`TemperatureTick { }` (each materials tick; 04 processes freeze and thaw on it), `FireStarted { tile }`, `FireSpread { tiles[] }`, `FireOut { tiles[] }`, `BurnDamage { id, amount }`, `ItemMelted { id }`, `IceMelted { tiles[] }` (§ Ice constructions).
 
 ### Registrations
 
-Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles only); inspector section `tile › temperature`; announcements for `FireStarted` (alert, "A fire has started.").
+Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles only); inspector section `tile › temperature`; announcements for `FireStarted` (alert, "A fire has started."), `FireOut` (note) and `IceMelted` (note, `announce.ice_melted`).
 
 ## Player-facing behavior
 
@@ -140,6 +154,8 @@ Overlay `temperature` (a color ramp per tile, computed lazily for visible tiles 
 | `FIRE_OVERRIDE` | 12 | +60 at the burning tile (*unmeasured*) |
 | `SPRING_OVERRIDE` | 5 | +25 (*unmeasured*) |
 | `SNOW_OVERRIDE` | 1 | −5 (*unmeasured*) |
+| `ICE_OVERRIDE` | 2 | −10 at an ice construction and at Chebyshev distance 1 on its level (*unmeasured*) |
+| `ICE_CONSTRUCTION_DAYS` | 84 | Days an ice construction stands underground before it melts (*unmeasured*) |
 | `FIRE_SPREAD_PERMILLE` | 150 | Per neighbor per attempt (*unmeasured*) |
 | `FIRE_SPREAD_WET_PERMILLE` | 20 | Under rain (*unmeasured*) |
 | `FIRE_RESIST_DIVISOR` | 4 | A `fire_resistant` material catches spread fire at this fraction of the chance (*unmeasured*) |
@@ -159,22 +175,3 @@ Burn durations per material (`burnTicks`) and all property values are content.
 ## Extension points
 
 - Stored temperature grid: if a future feature needs heat diffusion (a heated hall), replace `temperatureAt` with a grid updated by diffusion at this system's cadence; consumers do not change.
-- Deliberate fire: a `torch` item or an `ignite` designation calls the same ignition path.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in the content documents' § Planned rows.
-
-### Ice constructions cool (T-559)
-
-- A constructed `wall` or `floor` of material `ice` is a cold source: −`ICE_OVERRIDE` at the tile and at Chebyshev distance 1 on its level, summed with every other source and clamped as they are. Two ice walls beside a tile make it `ICE_OVERRIDE × 2 × 5` °C colder. Such a tile is queued for override work when it is built or removed (`TilesChanged` with an ice construction), as a fire's reach is.
-- Underground (not `outdoor`) an ice construction melts `ICE_CONSTRUCTION_DAYS` days after it was built: on the `DayPassed` that reaches it, 05 removes it through `terrain.setKind` as a burned wooden construction is removed, with no item and no water. Outdoors it melts on the first materials tick its tile is above `THAW_C`, the same way. The record is `iceBuilt: Map<TileIndex, builtTick>`.
-- Rot stops below `FREEZE_C` (13), so a larder walled in ice keeps its meat until the walls melt.
-- Constants: `ICE_OVERRIDE` 2, `ICE_CONSTRUCTION_DAYS` 84. Save: `iceBuilt`. Events: `IceMelted { tiles[] }` (a note "The ice walls of {place} have melted." once per day).
-
-### Fire on purpose (T-559)
-
-- `TileIgnited { tile, dwarfId }` (03's `ignite` job) queues the tile for ignition at the next materials tick, as a `LightningStrike` does, and it burns by every rule of § Fire: spread, rain, ash, dwarves stepping off burning ground. A tile that stopped being burnable before the tick does not ignite.
-- The announcement is the ordinary `FireStarted` alert.
-- The extension point "Deliberate fire" is taken by this rule.
-

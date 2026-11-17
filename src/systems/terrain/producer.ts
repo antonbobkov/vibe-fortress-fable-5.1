@@ -24,12 +24,15 @@ import {
   DIG_BASE_TICKS,
   ENGRAVE_BASE_TICKS,
   GATHER_BASE_TICKS,
+  ICE_HARVEST_TICKS,
+  IGNITE_TICKS,
   MINING_STONE_DROP_PERMILLE,
   SMOOTH_BASE_TICKS,
   SOIL_DROP_PERMILLE,
 } from './constants';
 import { clearPlantTransition, precondition, transition, type TransitionRolls } from './rules/transitions';
 import { rollQuality } from './rules/engrave';
+import { GIANT_BONE } from './generate/boneyards';
 
 /** `03` § Digging as a job: the job type of each designation. */
 export const JOB_TYPE_OF: Readonly<Partial<Record<Designation, string>>> = Object.freeze({
@@ -44,7 +47,12 @@ export const JOB_TYPE_OF: Readonly<Partial<Record<Designation, string>>> = Objec
   [Designation.Remove]: 'remove_construction',
   [Designation.Chop]: 'chop',
   [Designation.Gather]: 'gather',
+  [Designation.HarvestIce]: 'harvest_ice',
+  [Designation.Ignite]: 'ignite',
 });
+
+/** `03` § Setting a fire: the item an `ignite` job fetches and spends. */
+const FIREBRAND = 'firebrand';
 
 /** The job states in which a worker holds the job. */
 const ASSIGNED_STATES: ReadonlySet<string> = new Set(['claimed', 'fetching', 'travelling', 'working', 'completing']);
@@ -88,6 +96,10 @@ export function workCentiTicksFor(kind: Designation, hardness: number): number {
       return CHOP_BASE_TICKS * Math.max(100, hardness);
     case Designation.Gather:
       return GATHER_BASE_TICKS * 100;
+    case Designation.HarvestIce:
+      return ICE_HARVEST_TICKS * 100;
+    case Designation.Ignite:
+      return IGNITE_TICKS * 100;
     case Designation.None:
     case Designation.Harvest:
       return 100;
@@ -148,7 +160,7 @@ export class TerrainProducer implements JobProducer {
     return this.readers.of<JobsReader>('11').byKey(jobKey(kind, tile))?.progress ?? 0;
   }
 
-  produce(_ctx: TickContext, sinkIn: unknown): void {
+  produce(ctx: TickContext, sinkIn: unknown): void {
     if (this.core.designationsVersion === this.seenVersion) return;
     this.seenVersion = this.core.designationsVersion;
     const sink = sinkIn as JobSink;
@@ -166,6 +178,8 @@ export class TerrainProducer implements JobProducer {
       if (priority !== job.priority) sink.setPriority(job.id, priority);
     }
     let dropped = false;
+    const items = ctx.registry.table('items');
+    const firebrandType = items.has(FIREBRAND) ? items.index(FIREBRAND) : 0;
     for (const tile of this.core.designated.slice()) {
       const kind = map.designationAt(tile);
       const type = JOB_TYPE_OF[kind];
@@ -178,12 +192,15 @@ export class TerrainProducer implements JobProducer {
         dropped = true;
         continue;
       }
+      // `03` § Setting a fire: an `ignite` job fetches one firebrand, which it spends.
+      const firebrand = kind === Designation.Ignite ? firebrandType : 0;
       sink.create(key, {
         type,
         priority: map.designationPriorityAt(tile),
         target: { kind: 'tile', ref: tile },
         workTile: workTileOf(kind, map.kindAt(tile)),
-        data: { designation: kind },
+        ...(firebrand === 0 ? {} : { inputs: [{ filter: { type: firebrand }, count: 1 }] }),
+        data: firebrand === 0 ? { designation: kind } : { designation: kind, inputUnits: true },
       });
     }
     // The dropped designations had no job: nothing is left for a rescan to do.
@@ -224,6 +241,16 @@ export class TerrainProducer implements JobProducer {
   extraStandTiles(jobIn: unknown): readonly TileIndex[] {
     const job = jobIn as Job;
     const kind = designationOfJob(job);
+    // `03` § Ice harvesting: standing on an ice floor, or from above: the tile directly above the
+    // ice and its eight neighbours on that level (the bank a miner reaches down from).
+    if (kind === Designation.HarvestIce) {
+      const tile = job.target.ref;
+      const up = this.map.above(tile);
+      const out: TileIndex[] = [];
+      if (this.map.kindAt(tile) === TileKind.Floor) out.push(tile);
+      if (up >= 0) out.push(up, ...this.map.neighbors8(up));
+      return out;
+    }
     if (kind !== Designation.StairsUp && kind !== Designation.StairsUpDown) return [];
     const up = this.map.above(job.target.ref);
     if (up < 0) return [];
@@ -272,6 +299,14 @@ export class TerrainProducer implements JobProducer {
     // designation is cleared silently."
     if (!precondition(map, tile, kind, facts)) {
       core.clearDesignation(tile);
+      return;
+    }
+    if (kind === Designation.HarvestIce) {
+      this.cutIce(tile, worker, ctx);
+      return;
+    }
+    if (kind === Designation.Ignite) {
+      this.lightFire(job, ctx);
       return;
     }
     const wasTree = map.kindAt(tile) === TileKind.Tree;
@@ -327,6 +362,44 @@ export class TerrainProducer implements JobProducer {
       const at = isSolidBottomed(map.kindAt(d.tile)) ? d.tile : core.landingTile(d.tile);
       core.drop(d.type, d.material, d.count, at, JOB_TYPE_OF[kind] ?? 'terrain');
     }
+    // `03` § Tile transitions: the last wall of a boneyard's skull dug drops the `giant_skull` beside its fossil.
+    for (const c of result.changes) {
+      if (!core.skullDone(c.tile)) continue;
+      const at = isSolidBottomed(map.kindAt(c.tile)) ? c.tile : core.landingTile(c.tile);
+      core.drop('giant_skull', GIANT_BONE, 1, at, JOB_TYPE_OF[kind] ?? 'terrain');
+    }
+  }
+
+  /**
+   * `03` § Ice harvesting: one `stone_block` of `ice` on the worker's tile; the tile stays frozen
+   * water as it was, and waits `ICE_RECUT_DAYS` before it can be designated again.
+   */
+  private cutIce(tile: TileIndex, worker: EntityId, ctx: TickContext): void {
+    const core = this.core;
+    core.clearDesignation(tile);
+    core.iceCut.set(tile, ctx.tick);
+    const movement = ctx.world.services.movement;
+    const at = movement?.tileOf(worker) ?? -1;
+    // With no worker on the map (a test's direct completion), the block lands where the tile above lets it.
+    const drop = at >= 0 ? at : core.landingTile(this.map.above(tile) >= 0 ? this.map.above(tile) : tile);
+    core.drop('stone_block', this.map.materialAt(tile), 1, drop, 'harvest_ice');
+  }
+
+  /**
+   * `03` § Setting a fire: the firebrand is spent and `TileIgnited` names the tile and the dwarf;
+   * 05 lights it at its next materials tick by its ordinary ignition.
+   */
+  private lightFire(job: Job, ctx: TickContext): void {
+    const tile = job.target.ref;
+    this.core.clearDesignation(tile);
+    const items = ctx.world.services.items;
+    for (const input of job.inputs) {
+      for (const id of input.delivered) {
+        if (items !== null) items.consume(id, 1);
+        else ctx.world.entities.destroy(id);
+      }
+    }
+    ctx.emit({ type: 'TileIgnited', tile, dwarfId: job.workerId });
   }
 
   /** 14 § Placement step 4 through the terrain API: uproot a sapling or shrub, dropping a ripe shrub's product. */

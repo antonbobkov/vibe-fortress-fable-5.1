@@ -148,6 +148,21 @@
     ]
   },
   {
+    "id": "fletched",
+    "slot": "ammo",
+    "stone": "feather",
+    "vials": 0,
+    "suffix": "fletched",
+    "effects": [
+      {
+        "kind": "to_hit",
+        "value": 5,
+        "scales": "value"
+      }
+    ],
+    "workshop": "bowyer"
+  },
+  {
     "id": "glowing",
     "slot": "armor",
     "stone": "glowstone",

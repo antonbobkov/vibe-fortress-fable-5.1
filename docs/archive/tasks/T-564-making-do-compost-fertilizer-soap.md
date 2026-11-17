@@ -1,18 +1,27 @@
-# T-562 — Making Do A3b: scale armour, horn bows and fletching
+# T-564 — Making Do B5b: the compost heap, fertilizer and soap
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§§ 3, 7 (armor between leather and mail, fletching)); T-546, split from T-549 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in c803eb96,e02ee1a6,3c24c474,ff851c49.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (compost heap, fertilizer, soap)); T-546, split from T-555 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
-In the spec this task is `T-562`.
+In the spec this task is `T-564`. It needs T-552's dung and T-553's potash and bone ash. Guano (T-556) is one more fertilizer when it lands: the rule reads the tag.
 
 ## What to do
 
-The blocks and rows marked T-562:
+The blocks and rows marked T-564:
 
-- **16 § Planned:** The scale layer (the layer enumeration, the damage column, `armorMult` 1.0, no metal penalty); The horn bow.
-- **12 § Planned** and **25 § Planned:** Fletching at the bowyer (the `enchants` table's `workshop` column; the `set_ammo_fletched` setting generated at the bowyer with `carpentry`).
-- **Rows:** `scale_shirt`, `scale_skirt`, the `scale` column of § Damage type versus layer, `horn_bow`, `make_scale_shirt`, `make_scale_skirt`, `make_horn_bow`, the `fletched` enchantment and the `workshop` column.
+- **13 § Planned:** The compost heap (a zone with fixed slots for rotten food and dung, `compostAt`, one compost a unit).
+- **07 § Planned:** Fertilizer (the plot setting, the optional second input of `plant`, `Crop.fertilized`, `FERTILIZER_YIELD_BONUS`).
+- **17 § Planned:** Soap (`wash_patient`, `Patient.washed`, the supply kind); **12 § Planned:** `make_soap`.
+- **24 § Planned:** the plot panel's toggle.
+- **Rows:** `compost` (material, item and zone type), `soap` (material and item), `make_soap`, `wash_patient`, the `fertilize` setting, the `f` key, the colour.
+
+## Decisions
+
+- Straw is not composted: it is a stuffing and a pallet's material. The heap takes rotten food and dung.
+- Fertilizer adds to the yield, not to growth, and a plot whose fertilizer runs out keeps planting without it.
 
 
 ## Common rules for every Making Do task
@@ -27,5 +36,5 @@ The blocks and rows marked T-562:
 
 ## Done
 
-- A hunter's fortress with no metal makes scale shirts of shell or horn: they stop an edge better than leather and worse than mail; a horn bow of pine shoots as a yew bow; 25 fletched bolts hit 5 more often and cannot also take a rune.
-- The `armorReduction` worked numbers in 16 gain a scale line. The defence-seeds verdict passes if scale reaches the scripts' squads; the sweep verdict passes.
+- Rotten food on a heap outdoors turns to compost in two weeks; a fertilized plot of ten by ten gives about a hundred more plants a cycle; a patient washed with soap takes no infection for the admission.
+- The three-year fixture's food margin before and after; the sweep and instrument verdicts pass.

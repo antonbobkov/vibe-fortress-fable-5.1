@@ -6,6 +6,7 @@ import { Designation, TileFlag, TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { AnimalsReader } from '@systems/animals';
+import { HIVE_FLOWERS_MIN } from '@systems/animals/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
 import type { ItemsReader } from '@systems/items';
@@ -47,6 +48,8 @@ export interface HintFacts {
   palletMaterials?: boolean;
   /** 14 § The drying rack: the first drying rack was built. */
   rackBuilt?: boolean;
+  /** 08 § Hives: a built hive has too few flowers in reach. */
+  hiveShort?: boolean;
   /** 14 § Constructions, Glass: the first glass floor was built over open space (a skylight). */
   skylightBuilt?: boolean;
 }
@@ -92,6 +95,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_cellar': return f.cellarFailing === true;
     case 'hint_pallet': return f.palletMaterials === true;
     case 'hint_rack': return f.rackBuilt === true;
+    case 'hint_hive': return f.hiveShort === true;
     case 'hint_skylight': return f.skylightBuilt === true;
     default: return false;
   }
@@ -327,6 +331,8 @@ export class HintEngine {
       }),
       palletMaterials: this.pending('hint_pallet'),
       rackBuilt: this.pending('hint_rack'),
+      hiveShort: readers.has('08') && readers.of<AnimalsReader>('08').hives()
+        .some((id) => readers.of<AnimalsReader>('08').hiveFlowers(id) < HIVE_FLOWERS_MIN),
       skylightBuilt: this.pending('hint_skylight'),
     };
   }

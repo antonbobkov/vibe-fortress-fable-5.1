@@ -170,6 +170,19 @@
     "interruptible": false
   },
   {
+    "id": "collect_honey",
+    "name": "Collect honey",
+    "labor": "animal_care",
+    "skill": "animal_care",
+    "target": "building",
+    "workTile": "adjacent",
+    "baseTicks": "COLLECT_HONEY_TICKS",
+    "tool": null,
+    "xp": 4,
+    "producer": "animals",
+    "interruptible": false
+  },
+  {
     "id": "craft",
     "name": "Craft (recipe)",
     "labor": "recipe",
@@ -326,6 +339,19 @@
     "interruptible": false
   },
   {
+    "id": "harvest_ice",
+    "name": "Cut ice",
+    "labor": "mining",
+    "skill": "mining",
+    "target": "tile",
+    "workTile": "adjacent",
+    "baseTicks": "ICE_HARVEST_TICKS",
+    "tool": "pick",
+    "xp": 6,
+    "producer": "terrain",
+    "interruptible": true
+  },
+  {
     "id": "haul_to_depot",
     "name": "Haul to depot",
     "labor": "hauling",
@@ -375,6 +401,19 @@
     "tool": "ranged",
     "xp": 5,
     "producer": "foraging",
+    "interruptible": true
+  },
+  {
+    "id": "ignite",
+    "name": "Set a fire",
+    "labor": "woodcutting",
+    "skill": null,
+    "target": "tile",
+    "workTile": "adjacent",
+    "baseTicks": "IGNITE_TICKS",
+    "tool": null,
+    "xp": 0,
+    "producer": "terrain",
     "interruptible": true
   },
   {
@@ -589,6 +628,19 @@
     "xp": 20,
     "producer": "animals",
     "interruptible": true
+  },
+  {
+    "id": "wash_patient",
+    "name": "Wash patient",
+    "labor": "medicine",
+    "skill": "medicine",
+    "target": "entity",
+    "workTile": "entity",
+    "baseTicks": "TREAT_TICKS",
+    "tool": null,
+    "xp": 4,
+    "producer": "health",
+    "interruptible": false
   },
   {
     "id": "water_patient",

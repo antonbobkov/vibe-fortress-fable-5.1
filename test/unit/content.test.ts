@@ -79,38 +79,38 @@ describe('T-M0-06 content: every table loads', () => {
     const byClass = registry.derived<ReadonlyMap<string, readonly MaterialDef[]>>('materialsByClass');
     expect((byClass.get('stone') ?? []).length).toBeGreaterThan(10);
     const byWorkshop = registry.derived<ReadonlyMap<string, readonly RecipeDef[]>>('recipesByWorkshop');
-    expect((byWorkshop.get('carpenter') ?? []).length).toBe(28); // workshops-and-recipes.md § Recipe counts
+    expect((byWorkshop.get('carpenter') ?? []).length).toBe(29); // workshops-and-recipes.md § Recipe counts
     expect((byWorkshop.get('smelter') ?? []).length).toBe(27);
   });
 
   it('the recipe counts match workshops-and-recipes.md § Recipe counts', () => {
     const byWorkshop = registry.derived<ReadonlyMap<string, readonly RecipeDef[]>>('recipesByWorkshop');
     const expected: Record<string, number> = {
-      carpenter: 28,
-      mason: 15,
-      craftdwarf: 20,
+      carpenter: 29,
+      mason: 22,
+      craftdwarf: 26,
       jeweler: 2,
       mechanic: 2,
       wood_furnace: 1,
       smelter: 27,
       forge: 41,
-      kitchen: 7,
-      still: 3,
+      kitchen: 9,
+      still: 4,
       tannery: 1,
-      leatherworks: 12,
+      leatherworks: 14,
       loom: 3,
       clothier: 10,
-      farmers_workshop: 4,
-      bowyer: 3,
+      farmers_workshop: 5,
+      bowyer: 5,
       alchemist: 10,
       runeforge: 40,
-      kiln: 10,
+      kiln: 12,
       smokehouse: 2,
     };
     for (const [workshop, count] of Object.entries(expected)) {
       expect((byWorkshop.get(workshop) ?? []).length, workshop).toBe(count);
     }
-    expect(registry.table('recipes').size).toBe(241);
+    expect(registry.table('recipes').size).toBe(265);
   });
 
   it('the content hash is a stable hex string', () => {
@@ -218,9 +218,10 @@ describe('T-M0-06 content: generated recipes', () => {
     expect(recipe?.xp).toBe(3);
   });
 
-  it('18 ores + 6 alloys + 1 melt = 25 generated recipes at the smelter; 2 per spell and 1 per enchantment at the runeforge', () => {
+  it('18 ores + 6 alloys + 1 melt = 25 generated recipes at the smelter; 2 per spell and 1 per enchantment at the runeforge, and the fletching at the bowyer', () => {
     expect(recipes.where('generated:smelter', (r) => r.generated === true && r.workshop === 'smelter').length).toBe(25);
-    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(63);
+    expect(recipes.where('generated:bowyer', (r) => r.generated === true && r.workshop === 'bowyer').map((r) => r.id)).toEqual(['set_ammo_fletched']);
+    expect(recipes.where('generated', (r) => r.generated === true).length).toBe(64);
   });
 });
 

@@ -215,6 +215,37 @@
     ]
   },
   {
+    "id": "beehive",
+    "name": "beehive",
+    "category": "furniture/beehive",
+    "mult": 3000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood",
+      "stone",
+      "plant"
+    ],
+    "glyph": "∩",
+    "quality": false
+  },
+  {
+    "id": "beeswax",
+    "name": "beeswax",
+    "category": "food/wax",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "wax_yellow",
+    "quality": false
+  },
+  {
     "id": "bin",
     "name": "bin",
     "category": "container/bin",
@@ -464,6 +495,21 @@
     ]
   },
   {
+    "id": "candle",
+    "name": "candle",
+    "category": "tool/candle",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "liquid"
+    ],
+    "glyph": "ì",
+    "quality": false
+  },
+  {
     "id": "cap",
     "name": "cap",
     "category": "armor/head",
@@ -509,7 +555,8 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "╫",
     "quality": true
@@ -661,10 +708,28 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "▬",
     "quality": true
+  },
+  {
+    "id": "compost",
+    "name": "compost",
+    "category": "farm/compost",
+    "mult": 1000,
+    "stack": 10,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "loam_brown",
+    "quality": false,
+    "tags": [
+      "fertilizer"
+    ]
   },
   {
     "id": "corpse",
@@ -797,7 +862,8 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "+",
     "quality": true
@@ -917,6 +983,21 @@
     ]
   },
   {
+    "id": "feast",
+    "name": "feast",
+    "category": "food/meal/feast",
+    "mult": 60000,
+    "stack": 20,
+    "container": "barrel",
+    "rotDays": 1,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "%",
+    "fg": "meal_red",
+    "edible": true,
+    "quality": true
+  },
+  {
     "id": "feather",
     "name": "feather",
     "category": "textile/feather",
@@ -982,6 +1063,22 @@
     "fg": "meal_gold",
     "edible": true,
     "quality": true
+  },
+  {
+    "id": "firebrand",
+    "name": "firebrand",
+    "category": "tool/firebrand",
+    "mult": 1000,
+    "stack": 5,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": [
+      "wood",
+      "bone"
+    ],
+    "glyph": "/",
+    "quality": false
   },
   {
     "id": "fishing_rod",
@@ -1081,6 +1178,20 @@
     "tags": [
       "armor"
     ]
+  },
+  {
+    "id": "giant_skull",
+    "name": "giant skull",
+    "category": "textile/skull",
+    "mult": 10000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "heavy",
+    "materials": "any",
+    "glyph": "☻",
+    "fg": "bone_white",
+    "quality": false
   },
   {
     "id": "glowcap",
@@ -1202,6 +1313,39 @@
     ]
   },
   {
+    "id": "honey",
+    "name": "honey",
+    "category": "food/honey",
+    "mult": 1000,
+    "stack": 20,
+    "container": "barrel",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "≈",
+    "fg": "honey_amber",
+    "edible": true,
+    "quality": false,
+    "tags": [
+      "ingredient"
+    ]
+  },
+  {
+    "id": "honeycomb",
+    "name": "honeycomb",
+    "category": "food/honeycomb",
+    "mult": 1000,
+    "stack": 10,
+    "container": "barrel",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "#",
+    "fg": "honey_amber",
+    "edible": true,
+    "quality": false
+  },
+  {
     "id": "horn",
     "name": "horn",
     "category": "textile/horn",
@@ -1214,6 +1358,40 @@
     "glyph": "%",
     "fg": "horn_gray",
     "quality": false
+  },
+  {
+    "id": "horn_bow",
+    "name": "horn bow",
+    "category": "weapon/ranged",
+    "mult": 8000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "wood"
+    ],
+    "glyph": ")",
+    "quality": true,
+    "slot": "weapon",
+    "tags": [
+      "weapon"
+    ]
+  },
+  {
+    "id": "lantern",
+    "name": "lantern",
+    "category": "furniture/lantern",
+    "mult": 6000,
+    "stack": 1,
+    "container": "none",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "glass"
+    ],
+    "glyph": "¥",
+    "quality": true
   },
   {
     "id": "lavish_meal",
@@ -1876,6 +2054,46 @@
     "quality": false
   },
   {
+    "id": "scale_shirt",
+    "name": "scale shirt",
+    "category": "armor/body",
+    "mult": 8000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "shell",
+      "bone"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "body",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
+    "id": "scale_skirt",
+    "name": "scale skirt",
+    "category": "armor/legs",
+    "mult": 6000,
+    "stack": 1,
+    "container": "bin",
+    "rotDays": 0,
+    "weight": "medium",
+    "materials": [
+      "shell",
+      "bone"
+    ],
+    "glyph": "[",
+    "quality": true,
+    "slot": "legs",
+    "tags": [
+      "armor"
+    ]
+  },
+  {
     "id": "seed",
     "name": "seed",
     "category": "seed",
@@ -2010,6 +2228,20 @@
     ]
   },
   {
+    "id": "soap",
+    "name": "soap",
+    "category": "medical/soap",
+    "mult": 1000,
+    "stack": 20,
+    "container": "bag",
+    "rotDays": 0,
+    "weight": "light",
+    "materials": "any",
+    "glyph": "▪",
+    "fg": "soap_white",
+    "quality": false
+  },
+  {
     "id": "soil_load",
     "name": "load",
     "category": "stone/soil",
@@ -2116,7 +2348,8 @@
     "weight": "heavy",
     "materials": [
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "Ω",
     "quality": true
@@ -2197,7 +2430,8 @@
     "materials": [
       "wood",
       "stone",
-      "metal"
+      "metal",
+      "bone"
     ],
     "glyph": "╥",
     "quality": true

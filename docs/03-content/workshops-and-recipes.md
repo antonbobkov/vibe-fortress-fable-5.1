@@ -77,6 +77,7 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `make_club` | Club | 1 log | 1 club | 60 | no | 3 |
 | `make_spike_wood` | Wooden spikes | 1 log | 3 spike (wood) | 100 | no | 4 |
 | `make_bolts_wood` | Wooden bolts | 1 log | 20 bolt (wood) | 80 | no | 4 |
+| `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | 4 |
 
 ## Mason (`masonry`)
 
@@ -97,6 +98,15 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `make_sling_stones` | Sling stones | 1 raw_stone | 30 sling_stone | 60 | no | 2 |
 | `make_stone_bed` | Stone bed | 1 raw_stone + 2 cloth or wool_raw | 1 stone_bed (from_input) | 120 | no | 5 |
 | `make_stone_bed_straw` | Stone bed (straw) | 1 raw_stone + 3 fiber or straw or reed | 1 stone_bed (from_input) | 120 | no | 5 |
+| `cut_bone_blocks` | Bone blocks | 1 fossil | 2 stone_block (from_input) | 80 | no | 3 |
+| `make_table_bone` | Bone table | 1 fossil | 1 table (from_input) | 150 | yes | 6 |
+| `make_chair_bone` | Bone chair (a throne) | 1 fossil | 1 chair (from_input) | 120 | yes | 6 |
+| `make_door_bone` | Bone door | 1 fossil | 1 door (from_input) | 150 | yes | 6 |
+| `make_coffin_bone` | Bone coffin | 2 fossil | 1 coffin (from_input) | 200 | yes | 6 |
+| `make_statue_bone` | Bone statue | 3 fossil | 1 statue (from_input) | 400 | yes | 15 |
+| `mount_skull` | Mount the skull | 1 giant_skull | 1 statue (from_input) | 300 | yes | 15 |
+
+Bone is the treeless site's first building stuff: a fossil, dug from a boneyard's spine and ribs on the surface of a desert, badlands, wetland or tundra map or from the fossil clusters of the sedimentary rock ([03](../02-systems/03-terrain-and-mining.md) § Local map generation, stage 9b), is cut into two blocks of `giant_bone` or made into furniture and statues of bone. Bone blocks are a substitute ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): one fossil for two blocks in 80 ticks against one stone for two in 60 (`make_stone_block`), and the skeleton runs out. A boneyard's skull, dug to its last tile, drops one `giant_skull`, which the mason mounts as a statue of bone: the largest piece of room value a surface site finds lying about.
 
 ## Craftsdwarf (`crafting`)
 
@@ -122,10 +132,20 @@ A workshop built of logs may be built of stone blocks instead, two blocks a log,
 | `weave_wicker_shield` | Wicker buckler | 3 reed (reed) | 1 buckler (from_input) | 120 | yes | 5 |
 | `make_splint_bone` | Bone splints | 1 bone_pile | 2 splint (from_input) | 80 | no | 4 |
 | `make_crutch_bone` | Bone crutch | 2 bone_pile | 1 crutch (from_input) | 100 | no | 4 |
+| `weave_hive` | Wicker beehive | 3 reed (reed) | 1 beehive (from_input) | 100 | no | 4 |
+| `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (`tallow`) | 80 | no | 3 |
+| `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (`beeswax`) | 80 | no | 3 |
+| `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | 2 |
+| `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | yes | 8 |
+| `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | yes | 15 |
 
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
 
-Reeds and bones stand in for wood ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a basket is a bin of reed that holds 15 (`make_bin`), reed rope a rope of reed (`make_rope`), a wicker buckler a buckler of reed that blocks as a wooden one and burns (`make_buckler_wood`), and bone splints and crutches serve a hospital as wooden ones do (`make_splint`, `make_crutch`).
+A carved fossil is a figurine of `giant_bone`, of a beast no one has seen: the Mountainhome pays 150% for one ([caravan-goods.md](caravan-goods.md) § Preferences). An ivory statue takes three tusks, from a tundra boneyard's skull or a butchered mammoth.
+
+Candles are tallow or beeswax, four to a lump, of its material: a tallow candle burns 7 days in a candle stand and smokes now and then, a beeswax one 14 and clean ([14](../02-systems/14-buildings-and-rooms.md) § Candle stands and lanterns). A `maintain` order for candles keeps the stands fed. Firebrands are a stick or a bone dipped in tallow or wax, two to a dip, of the stick's material: the `ignite` job spends one ([03](../02-systems/03-terrain-and-mining.md) § Setting a fire).
+
+Reeds and bones stand in for wood ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a basket is a bin of reed that holds 15 (`make_bin`), reed rope a rope of reed (`make_rope`), a wicker buckler a buckler of reed that blocks as a wooden one and burns (`make_buckler_wood`), bone splints and crutches serve a hospital as wooden ones do (`make_splint`, `make_crutch`), and a wicker beehive is a hive of reed (`make_hive_wood`).
 
 ## Jeweler (`gem_cutting`)
 
@@ -219,8 +239,10 @@ Wooden crossbows, bows and shields are made at the bowyer and carpenter. Leather
 | `crush_halite` | Crush rock salt | 1 ore (halite) | 5 salt (`salt`) | 60 | no | 3 |
 | `salt_meat` | Salt meat | 5 raw_meat (same material) + 1 salt | 5 cured_meat (from_input) | 100 | no | 5 |
 | `salt_fish` | Salt fish | 5 raw_fish (same material) + 1 salt | 5 cured_fish (from_input) | 100 | no | 5 |
+| `make_soap` | Soap | 1 tallow + 1 potash | 2 soap (`soap`) | 100 | no | 4 |
+| `cook_feast` | Feast | 1 salt or honey or plant_food (salt, honey, wyrmtongue) + 6 ingredient (distinct stacks) | 20 feast (a stack of servings; from input 2) | 400 | yes | 20 |
 
-Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack. A meal with salt among its ingredients is salted: "salted boar stew", and `ate_salted_meal` beside its own thought ([12](../02-systems/12-workshops-and-professions.md) § Smoke, salt and the smokehouse). Salting meat or fish burns no fuel: the desert's way of keeping meat.
+A feast is a stack of 20 servings of the first of its six ingredients, seasoned with salt, honey or wyrmtongue; the seasoning is named first so that the six ingredients are fetched from what is left ([12](../02-systems/12-workshops-and-professions.md) § Feasts). Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredients), which leaves out meals, tallow and milk. Each recipe consumes one unit from each input stack. A meal with salt among its ingredients is salted: "salted boar stew", and `ate_salted_meal` beside its own thought ([12](../02-systems/12-workshops-and-professions.md) § Smoke, salt and the smokehouse). Salting meat or fish burns no fuel: the desert's way of keeping meat.
 
 ## Still (`brewing`)
 
@@ -229,6 +251,7 @@ Ingredients: the items tagged `ingredient` ([items.md](items.md) § Meal ingredi
 | `brew` | Brew drink | 4 plant_food (brewable species) + container barrel | 20 drink (species' drink material) in the barrel | 200 | no | no | 8 |
 | `brew_hopped` | Brew hopped ale | 4 plant_food (barley) + 1 plant_food (hops) + container barrel | 20 drink (hopped_ale) | 220 | no | no | 10 |
 | `distill` | Distil spirits | 20 drink (ale or wine group; same material) + container barrel | 10 drink (deepfire) in the barrel | 250 | yes | no | 10 |
+| `brew_mead` | Brew mead | 4 honey + container barrel | 20 drink (mead) in the barrel | 200 | no | no | 8 |
 
 `fuel`: the recipe burns one fuel bar. "(ale or wine group)" takes a drink whose material is of the `drink/ale` or `drink/wine` group ([items.md](items.md) § Drink); distilling leaves the source barrel a free container ([12](../02-systems/12-workshops-and-professions.md) § Spirits).
 
@@ -269,13 +292,13 @@ No fuel. Authored:
 
 Generated per row of `spells` ([weapons-and-armor.md](weapons-and-armor.md) § Spells): `make_wand_<stone>` is 1 log + 1 cut_gem (the stone) → 1 wand of the log's wood, 200 ticks, `Q` yes, xp 10; `make_staff_<stone>` is 1 log + 1 cut_gem (the stone) + 1 bar → 1 staff of the bar's metal, 300 ticks, `Q` yes, xp 12. The output's stone is the gem's material. A work order's material filter picks the wand's wood and the staff's metal.
 
-Generated per row of `enchants` ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments): `set_<slot>_<enchant>` sets the row's stone in an item, `Q` yes. It is a transform recipe: it has no outputs, input 0 is kept and gains the enchantment, and an order for it is `once` only ([12-workshops-and-professions.md](../02-systems/12-workshops-and-professions.md) § Work orders). Its name is the slot's word with the row's suffix ("Keen weapon", "Ammunition of rime"); a row whose slot and suffix an earlier row in the table already has adds its stone in brackets, with spaces for underscores ("Weapon of embers (ember gland)").
+Generated per row of `enchants` ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments) with no `workshop`: `set_<slot>_<enchant>` sets the row's stone in an item, `Q` yes. A row that names a workshop has its setting there, with the skill of that workshop's recipes and by the same rules (the bowyer's fletching, § Bowyer). It is a transform recipe: it has no outputs, input 0 is kept and gains the enchantment, and an order for it is `once` only ([12-workshops-and-professions.md](../02-systems/12-workshops-and-professions.md) § Work orders). Its name is the slot's word with the row's suffix ("Keen weapon", "Ammunition of rime"); a row whose slot and suffix an earlier row in the table already has adds its stone in brackets, with spaces for underscores ("Weapon of embers (ember gland)").
 
 | slot | input 0, kept | then | ticks | xp |
 |---|---|---|---|---|
 | weapon | 1 of every melee weapon type (`weapons` rows with no launcher that are not for training), as alternatives | the stone + the row's vials in rune_vial | 300 | 15 |
 | armor | 1 of every `armor` row with a layer (of the row's `only` slot when it has one), as alternatives | the same | 300 | 15 |
-| ammo | 25 of bolt or arrow (units) | the same | 200 | 10 |
+| ammo | 25 of bolt or arrow (units) | the same (a row of 0 vials takes no vial input) | 200 | 10 |
 
 The stone is 1 cut_gem of a gem material, 1 bar of a metal (`deep`: a deepsilver bar) and 1 of the item for an item id (`wyrmscale`, `hollow_ichor`, `spider_venom`, `ember_gland`).
 
@@ -303,6 +326,10 @@ A salted hide tans as a raw hide does ([13](../02-systems/13-items-and-storage.m
 | `make_trousers_leather` | Leather trousers | 2 leather_piece | 1 trousers | 150 | yes | 6 |
 | `make_boots_leather` | Boots | 1 leather_piece | 1 boots | 100 | yes | 5 |
 | `cut_leather_rope` | Leather rope | 2 leather_piece | 1 rope (from_input) | 120 | no | 3 |
+| `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | yes | 12 |
+| `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | yes | 10 |
+
+A scale piece takes the material of its plates: shell, chitin, bone or horn ([weapons-and-armor.md](weapons-and-armor.md) § Armor).
 
 ## Loom (`weaving`)
 
@@ -336,6 +363,7 @@ A salted hide tans as a raw hide does ([13](../02-systems/13-items-and-storage.m
 | `process_sporecloth` | Process sporecloth | farming | 1 plant_food (sporecloth) | 2 fiber (sporecloth_fiber) | 100 | no | 4 |
 | `mill_flour` | Mill flour | farming | 2 plant_food (barley, cavewheat or rye) + container bag | 3 flour in the bag | 120 | no | 5 |
 | `make_cheese` | Make cheese | animal_care | 3 milk | 2 cheese | 150 | yes | 6 |
+| `press_honeycomb` | Press honeycomb | animal_care | 1 honeycomb | 1 honey + 1 beeswax (`beeswax`) | 80 | no | 4 |
 | (`milk_animal`, `shear_animal` are jobs, not recipes) | | | | | | | |
 
 ## Butcher (`butchery`)
@@ -351,8 +379,11 @@ A salted hide tans as a raw hide does ([13](../02-systems/13-items-and-storage.m
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
 | `make_bow` | Bow | 1 log | 1 bow (from_input; yew: power 1.10) | 180 | yes | 8 |
+| `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | yes | 9 |
 | `make_crossbow_wood` | Crossbow | 1 log | 1 crossbow (wood) | 220 | yes | 10 |
 | `make_arrows_wood` | Wooden arrows | 1 log | 20 arrow (wood) | 80 | no | 4 |
+
+A horn bow shoots as a yew bow (power 1.10) whatever its wood, and a yew horn bow is no better: the horn stands in for the yew, at a horn and 40 ticks more. Generated: `set_ammo_fletched`, "Fletched ammunition", from the `fletched` enchantment, which names the bowyer ([weapons-and-armor.md](weapons-and-armor.md) § Enchantments): 25 bolts or arrows, kept, + 1 feather, no vials, 200 ticks, `Q` yes, xp 10, skill `carpentry`. It is a setting by every rule of § Runeforge: a transform recipe, `once` orders only, and a fletched set takes no stone after.
 
 ## Kiln (`pottery`)
 
@@ -370,8 +401,10 @@ Every kiln recipe burns a fuel, unless the kiln is the magma kiln. A brick is a 
 | `burn_potash` | Potash | 1 log | 2 potash (`potash`) | 80 | no | 3 |
 | `burn_bone_ash` | Bone ash | 2 bone_pile | 1 bone_ash (`bone`) | 80 | no | 3 |
 | `crush_fossil` | Crush fossil | 1 fossil | 2 bone_ash (`bone`) | 100 | no | 4 |
+| `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (`earthenware`) | 100 | no | 4 |
+| `make_lantern` | Lantern | 1 stone_block (glass) + 1 candle | 1 lantern (`glass`) | 150 | yes | 8 |
 
-Four are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug and clay mugs take a fuel beside the input that a bucket and stone mugs take alone (`make_bucket`, `make_mug_stone`).
+A lantern is a glass block and a candle: a light that never burns out, at the price of glass. Five are substitutes ([12](../02-systems/12-workshops-and-professions.md) § Substitutes): a brick is 1 clay load and a fuel for one block against the mason's 1 stone for two (`make_stone_block`); a pot holds 10 against a barrel's 20 for one input and a fuel (`make_barrel`); a clay jug, clay mugs and a clay beehive take a fuel beside the input that a bucket, stone mugs and a wooden hive take alone (`make_bucket`, `make_mug_stone`, `make_hive_wood`).
 
 ## Smokehouse (`cooking`)
 
@@ -384,7 +417,7 @@ Every smokehouse recipe burns a fuel: a coal or charcoal bar, or two half fuels.
 
 ## Recipe counts
 
-Carpenter 28, mason 15, craftsdwarf 20, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 7, still 3, tannery 1, leatherworks 12, loom 3, clothier 10, farmer's workshop 4, bowyer 3, kiln 10, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment = 22). Total 241.
+Carpenter 29, mason 22, craftsdwarf 26, jeweler 2, mechanic 2, wood furnace 1, smelter (generated: 18 ores + 6 alloys + 1 melt = 25; authored 2), forge 41, kitchen 9, still 4, tannery 1, leatherworks 14, loom 3, clothier 10, farmer's workshop 5, bowyer 4 (and generated: 1 fletching), kiln 12, smokehouse 2, laboratory 10 (6 of them draughts), runeforge 2 (and generated: 2 per spell = 16, and 1 per enchantment with no workshop = 22). Total 265.
 
 ## Time arithmetic
 
@@ -396,32 +429,6 @@ Rows of the Making Do content, not yet in the game and not exported. Each names 
 
 ### Planned recipes
 
-| workshop | id | name | inputs | outputs | ticks | fuel | Q | xp | substitute for | task |
-|---|---|---|---|---|---|---|---|---|---|---|
-| leatherworks | `make_scale_shirt` | Scale shirt | 3 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_shirt (from_input) | 330 | no | yes | 12 | — | T-562 |
-| leatherworks | `make_scale_skirt` | Scale skirt | 2 shell_piece or bone_pile or horn (same material) + 1 leather_piece or cloth | 1 scale_skirt (from_input) | 270 | no | yes | 10 | — | T-562 |
-| bowyer | `make_horn_bow` | Horn bow | 1 log + 1 horn | 1 horn_bow (from_input) | 220 | no | yes | 9 | `make_bow` | T-562 |
-| carpenter | `make_hive_wood` | Beehive | 1 log | 1 beehive (from_input) | 100 | no | no | 4 | — | T-555 |
-| kiln | `make_hive_clay` | Clay beehive | 1 soil_load (clay) | 1 beehive (earthenware) | 100 | yes | no | 4 | `make_hive_wood` | T-555 |
-| craftsdwarf | `weave_hive` | Wicker beehive | 3 reed | 1 beehive (from_input) | 100 | no | no | 4 | `make_hive_wood` | T-555 |
-| farmer's workshop | `press_honeycomb` | Press honeycomb | 1 honeycomb | 1 honey + 1 beeswax | 80 | no | no | 4 | — | T-555 |
-| still | `brew_mead` | Brew mead | 4 honey + container barrel | 20 drink (mead) in the barrel | 200 | no | no | 8 | — | T-555 |
-| craftsdwarf | `make_candles_wax` | Wax candles | 1 beeswax | 4 candle (from_input) | 80 | no | no | 3 | — | T-555 |
-| craftsdwarf | `make_candles_tallow` | Tallow candles | 1 tallow | 4 candle (from_input) | 80 | no | no | 3 | — | T-563 |
-| kiln | `make_lantern` | Lantern | 1 stone_block (glass) + 1 candle | 1 lantern (from_input) | 150 | yes | yes | 8 | — | T-563 |
-| mason | `cut_bone_blocks` | Bone blocks | 1 fossil | 2 stone_block (from_input) | 80 | no | no | 3 | `make_stone_block` | T-557 |
-| mason | `make_table_bone` | Bone table | 1 fossil | 1 table (from_input) | 150 | no | yes | 6 | — | T-557 |
-| mason | `make_chair_bone` | Bone chair (a throne) | 1 fossil | 1 chair (from_input) | 120 | no | yes | 6 | — | T-557 |
-| mason | `make_door_bone` | Bone door | 1 fossil | 1 door (from_input) | 150 | no | yes | 6 | — | T-557 |
-| mason | `make_coffin_bone` | Bone coffin | 2 fossil | 1 coffin (from_input) | 200 | no | yes | 6 | — | T-557 |
-| mason | `make_statue_bone` | Bone statue | 3 fossil | 1 statue (from_input) | 400 | no | yes | 15 | — | T-557 |
-| mason | `mount_skull` | Mount the skull | 1 giant_skull | 1 statue (from_input) | 300 | no | yes | 15 | — | T-557 |
-| craftsdwarf | `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | no | yes | 8 | — | T-557 |
-| craftsdwarf | `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | no | yes | 15 | — | T-557 |
-| craftsdwarf | `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | no | 2 | — | T-559 |
-| kitchen | `make_soap` | Soap | 1 tallow + 1 potash | 2 soap | 100 | no | no | 4 | — | T-564 |
-| kitchen | `cook_feast` | Feast | 6 ingredient (distinct stacks) + 1 salt or honey or plant_food (wyrmtongue) | 1 feast (20 servings) | 400 | no | yes | 20 | — | T-565 |
-
-The smokehouse's skill is `cooking`. The fletching recipe `set_ammo_fletched` is generated at the bowyer from the `fletched` enchantment ([weapons-and-armor.md](weapons-and-armor.md) § Planned rows). Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
+The smokehouse's skill is `cooking`. Silk needs no recipe: `weave_cloth` takes 2 `silk_web` thread to 1 `silk_cloth` by the new stage (T-556).
 
 A substitute pair the check reads: a basket 3 reeds for 15 against a log for 30; a bone splint 1 bone for 2 against a log for 4; coarse thread 2 fiber against 1.

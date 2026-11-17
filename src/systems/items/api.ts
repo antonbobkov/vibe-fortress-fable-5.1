@@ -15,7 +15,7 @@ import { TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import { entityIndex, type EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import type { ItemsApi, SpatialWriter } from '@core/system';
-import type { EntityId, Idx, Quality, TileIndex } from '@core/types';
+import type { EntityId, Idx, Quality, Tick, TileIndex } from '@core/types';
 import { StockCounts, isAvailable, type Contribution } from './counts';
 import type { ItemFacts } from './facts';
 import { itemValue } from './value';
@@ -845,6 +845,17 @@ export class ItemCore implements ItemsApi {
     this.entities.add(itemId, C.Item, next);
     this.account(next, 1);
     this.notify(itemId, 'flags');
+  }
+
+  /**
+   * 13 § The compost heap: the tick the item turns to compost, or 0 to clear its count. It changes no count and
+   * no value, so it is written without accounting or notice.
+   */
+  setCompostAt(itemId: EntityId, tick: number): void {
+    const it = this.get(itemId);
+    if (it === undefined || (it.compostAt ?? 0) === tick) return;
+    const { compostAt: _at, ...rest } = it;
+    this.entities.add(itemId, C.Item, tick > 0 ? { ...rest, compostAt: tick as Tick } : rest);
   }
 
   setRot(itemId: EntityId, stage: 0 | 1 | 2 | 3, type?: number, material?: number): void {

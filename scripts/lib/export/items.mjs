@@ -40,11 +40,11 @@ function materials(cell) {
 /** items.md § Meal ingredients. */
 const INGREDIENT_CATEGORIES = [
   'food/meat/raw', 'food/fish/raw', 'food/meat/cured', 'food/fish/cured', 'food/plant/raw', 'food/egg', 'food/cheese',
-  'food/plant/processed', 'food/fat', 'food/salt',
+  'food/plant/processed', 'food/fat', 'food/salt', 'food/honey',
 ];
 
-/** items.md § Food: "Flour and salt are not edible raw." */
-const NOT_EDIBLE = new Set(['flour', 'salt']);
+/** items.md § Food: "Flour, salt and beeswax are not edible raw." */
+const NOT_EDIBLE = new Set(['flour', 'salt', 'beeswax']);
 
 /** workshops-and-recipes.md: "3 craft (random of figurine, ring, amulet)". */
 const CRAFT_ITEMS = new Set(['figurine', 'ring', 'amulet']);
@@ -468,6 +468,8 @@ export function exportEnchants() {
         suffix: plain(row.suffix),
         effects: enchantEffects(row.effects, scales),
         only: isBlank(row.only) ? undefined : plain(row.only),
+        // 25 § Setting stones: a row that names a workshop has its setting there; blank is the runeforge.
+        workshop: isBlank(row.workshop) ? undefined : id(row.workshop),
       });
     }),
   );
@@ -480,6 +482,7 @@ export function exportDamageVsLayer() {
     type: plain(row['Type \\ Layer']),
     padding: fixed(row.padding),
     leather: fixed(row.leather),
+    scale: fixed(row.scale),
     mail: fixed(row.mail),
     plate: fixed(row.plate),
     ward: fixed(row.ward),

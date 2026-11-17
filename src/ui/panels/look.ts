@@ -68,7 +68,7 @@ function capitalize(text: string): string {
   return text.length === 0 ? text : text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-const DESIGNATION_IDS = ['', 'dig', 'channel', 'stairs_up', 'stairs_down', 'stairs_updown', 'ramp', 'smooth', 'engrave', 'remove', 'chop', 'gather', 'harvest'];
+const DESIGNATION_IDS = ['', 'dig', 'channel', 'stairs_up', 'stairs_down', 'stairs_updown', 'ramp', 'smooth', 'engrave', 'remove', 'chop', 'gather', 'harvest', 'harvest_ice', 'ignite'];
 
 /** "Granite wall, smoothed": the one-line summary of a tile (the status bar's hover line too). */
 export function tileSummary(readers: ReaderSet, strings: Strings, i: TileIndex): string {

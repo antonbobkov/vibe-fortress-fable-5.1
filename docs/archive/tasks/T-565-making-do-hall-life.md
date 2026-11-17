@@ -1,25 +1,28 @@
-# T-564 — Making Do B5b: the compost heap, fertilizer and soap
+# T-565 — Making Do C6: feasts, the Thane's whims and mugs at the table
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (compost heap, fertilizer, soap)); T-546, split from T-555 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in 41fc4770,67cf2d65,ca2d68e2.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 11); the flavour report's item 26; T-546, split from T-561 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
-In the spec this task is `T-564`. It needs T-552's dung and T-553's potash and bone ash. Guano (T-556) is one more fertilizer when it lands: the rule reads the tag.
+In the spec this task is `T-565`. It is the last of the bundle: its whims name a lantern, mead, an ivory statue, spirits and a featherbed, and its mugs use T-551's building wants.
 
 ## What to do
 
-The blocks and rows marked T-564:
+The blocks and rows marked T-565:
 
-- **13 § Planned:** The compost heap (a zone with fixed slots for rotten food and dung, `compostAt`, one compost a unit).
-- **07 § Planned:** Fertilizer (the plot setting, the optional second input of `plant`, `Crop.fertilized`, `FERTILIZER_YIELD_BONUS`).
-- **17 § Planned:** Soap (`wash_patient`, `Patient.washed`, the supply kind); **12 § Planned:** `make_soap`.
-- **24 § Planned:** the plot panel's toggle.
-- **Rows:** `compost` (material, item and zone type), `soap` (material and item), `make_soap`, `wash_patient`, the `fertilize` setting, the `f` key, the colour.
+- **10 § Planned:** Feasts, mugs and the Thane's whim (the feast eaten first, `MealEaten`'s `feast` and `mug`, the whim drawn on `rngFor('10.whims')` each season and judged at the next, `WhimSet`, `WhimJudged`, `whim`).
+- **12 § Planned:** `cook_feast`; **14 § Planned:** a dining table wants a mug per adjacent chair (the `table` row's `wants`).
+- **15 § Planned:** the whim is all face.
+- **24 § Planned:** the units panel's Thane line.
+- **Rows:** `feast`, `cook_feast`, the Whims table, the thoughts `feasted`, `held_a_feast`, `drank_from_a_mug`, `thane_pleased`, `thane_grumbled`, the three whim announcements.
 
 ## Decisions
 
-- Straw is not composted: it is a stuffing and a pallet's material. The heap takes rotten food and dung.
-- Fertilizer adds to the yield, not to growth, and a plot whose fertilizer runs out keeps planting without it.
+- A feast is a stack of servings eaten before any other meal; it is hauled and served as meals are, with no placement of its own.
+- Mugs are held by the dining tables, one per chair beside them, through the building wants mechanism.
+- A missed whim grumbles once, for the Thane alone: no spiral.
 
 
 ## Common rules for every Making Do task
@@ -34,5 +37,5 @@ The blocks and rows marked T-564:
 
 ## Done
 
-- Rotten food on a heap outdoors turns to compost in two weeks; a fertilized plot of ten by ten gives about a hundred more plants a cycle; a patient washed with soap takes no infection for the admission.
-- The three-year fixture's food margin before and after; the sweep and instrument verdicts pass.
+- A feast at midwinter feeds the hall for a day and lifts everyone; a hall with its mugs gives its thought; the Thane wishes for a lantern in spring, and the hall is pleased in summer when it is there.
+- The sweep and instrument verdicts pass (mood moves a little).

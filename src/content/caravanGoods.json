@@ -955,6 +955,55 @@
         "weight": 6,
         "sundries": true,
         "units": 10
+      },
+      {
+        "item": "honey",
+        "materials": [
+          {
+            "material": "honey",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          1
+        ],
+        "weight": 6,
+        "container": "barrel",
+        "sundries": true,
+        "units": 10
+      },
+      {
+        "item": "candle",
+        "materials": [
+          {
+            "material": "tallow",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "camel",
+        "materials": [],
+        "count": [
+          1,
+          2
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1,
+        "biomes": [
+          "desert",
+          "badlands",
+          "savanna"
+        ]
       }
     ]
   },
@@ -1224,6 +1273,39 @@
         "materials": [
           {
             "material": "brightleaf",
+            "weight": 1
+          }
+        ],
+        "count": [
+          5,
+          10
+        ],
+        "weight": 6,
+        "sundries": true,
+        "units": 1
+      },
+      {
+        "item": "honey",
+        "materials": [
+          {
+            "material": "honey",
+            "weight": 1
+          }
+        ],
+        "count": [
+          1,
+          1
+        ],
+        "weight": 6,
+        "container": "barrel",
+        "sundries": true,
+        "units": 10
+      },
+      {
+        "item": "beeswax",
+        "materials": [
+          {
+            "material": "beeswax",
             "weight": 1
           }
         ],

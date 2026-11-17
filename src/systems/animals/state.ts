@@ -27,6 +27,8 @@ export interface AnimalsStateV1 {
   initializedCaverns?: number[];
   /** T-545: the tick the last dangerous surface group arrived; omitted when none has (older saves too). */
   lastDangerousTick?: number;
+  /** `08` § Products, The camel spits: the day of the last spit's note; omitted while there has been none (older saves too). */
+  spatOnDay?: number;
   breedingCaps: [number, number][];
   speciesCounts: [number, SpeciesCount][];
   nestBoxes: EntityId[];
@@ -50,4 +52,8 @@ export interface AnimalsStateV1 {
   lastTameThink: [EntityId, number][];
   pendingTrain?: [EntityId, 'war' | 'hunting'][];
   pendingTame?: [EntityId, EntityId][];
+  /** `08` § Hives: built hives, ascending; omitted when there are none (older saves too). */
+  hives?: EntityId[];
+  /** `08` § Hives: each comb lying in a hive, `[comb, hive]` by comb; omitted when none. */
+  combs?: [EntityId, EntityId][];
 }

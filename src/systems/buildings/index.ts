@@ -24,6 +24,7 @@ import type { BuildingsStateV1 } from './state';
 import { ZoneStore } from './zones';
 import { RoomStore } from './rooms';
 import { RackStore } from './racks';
+import { CandleStore } from './candles';
 import { MOOD_BASELINE } from '@core/constants';
 import { DOOR_BREAK_TICKS } from './constants';
 import { LINK_DELAY_TICKS } from './constants';
@@ -35,6 +36,7 @@ export { CONSTRUCTION_KIND, onRuleOf, onRuleHolds, type OnRule } from './constru
 export { RoomStore, ROOM_TYPES, type RoomScore, type RoomDiagnostics } from './rooms';
 export type { BuildingsReader, ZoneView, BuildingView } from './reader';
 export { RackStore, RACK_TAG, type DryingRow, type HolderWantView, type RackItemView } from './racks';
+export { CandleStore, CANDLE_STAND, LANTERN, type StandView } from './candles';
 
 export const BUILDINGS_ID = '14';
 
@@ -87,6 +89,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   private rng: RngStream | null = null;
   private burialRef: BurialStore | null = null;
   private racksRef: RackStore | null = null;
+  private candlesRef: CandleStore | null = null;
   readonly brokenFurniture: EntityId[] = [];
   readonly doorBreakProgress = new Map<EntityId, number>();
   /** The id of the zone the last accepted `CreateZone` made (for setup helpers and the UI). */
@@ -112,6 +115,11 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
   get racks(): RackStore {
     if (this.racksRef === null) throw new Error('14 buildings: racks before init');
     return this.racksRef;
+  }
+
+  get candles(): CandleStore {
+    if (this.candlesRef === null) throw new Error('14 buildings: candles before init');
+    return this.candlesRef;
   }
 
   get rooms(): RoomStore {
@@ -183,6 +191,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
     this.burialRef = new BurialStore(store, this.roomsRef, this.zones);
     this.racksRef = new RackStore(store, () => (readers.has('06') ? readers.of<{ state(): string }>('06').state() : null));
     const racks = this.racksRef;
+    this.candlesRef = new CandleStore(store);
     const buildProducer = store.producer();
     const burial = this.burialRef;
     ctx.register.jobProducer({ ...buildProducer,
@@ -202,7 +211,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       if (!readers.has('11')) return [];
       return readers.of<{ list(): readonly { readonly target: { readonly ref: number }; readonly data: Readonly<Record<string, unknown>> }[] }>('11').list()
         .filter((job) => job.data['holder'] === id).map((job) => job.target.ref);
-    }, racks);
+    }, racks, this.candlesRef);
   }
 
   override handle(event: GameEvent, _ctx: TickContext): void {
@@ -231,6 +240,7 @@ export class BuildingsSystem extends BaseSystem<BuildingsStateV1> {
       this.racks.weatherChanged(String(event['from']), String(event['to']));
     } else if (event.type === 'DayPassed') {
       this.racks.dayPassed(_ctx);
+      this.candles.dayPassed(_ctx);
       rooms.markAll();
       rooms.recompute();
       rooms.autoAssign();

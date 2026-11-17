@@ -442,7 +442,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   private arrive(ctx: TickContext, civ: Civ): void {
     const renown = ctx.readers.of<ThreatsReader>('18').renown();
     const rep = ctx.world.fortress.reputation[civ] ?? 0;
-    const goods = generateGoods(ctx.registry, civ, renown, rep, this.requestsState[civ] ?? [], this.rng, ctx.world.rngFor('25'));
+    const distance = this.spec?.civDistance;
+    const goods = generateGoods(ctx.registry, civ, renown, rep, this.requestsState[civ] ?? [], this.rng, ctx.world.rngFor('25'),
+      { wildwoodFarther: distance !== undefined && distance.wildwood > distance.hillfolk, ...(this.spec ? { biome: this.spec.biome } : {}) });
     const edge = this.spec?.civEdges[civ] ?? 'n';
     this.active = spawnCaravan(ctx, civ, edge, this.spec?.peril ?? 0, this.spec?.traits.includes('twilight_pass') ?? false, rep, goods, this.rng);
     this.sessionState = null;

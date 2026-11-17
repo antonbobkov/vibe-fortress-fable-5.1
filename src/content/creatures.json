@@ -265,6 +265,87 @@
     "fg": "boar_brown"
   },
   {
+    "id": "camel",
+    "name": "camel",
+    "plan": "quadruped",
+    "size": 110,
+    "speed": 150,
+    "diet": "grazer",
+    "temper": "neutral",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "products": [
+      {
+        "kind": "milk",
+        "intervalDays": 5
+      },
+      {
+        "kind": "wool",
+        "intervalDays": 28
+      }
+    ],
+    "meatValue": 4,
+    "hideValue": 8,
+    "value": 80,
+    "attacks": [
+      {
+        "name": "kick",
+        "type": "blunt",
+        "damage": 12,
+        "size": 6
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 60,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 70,
+      "litter": [
+        1,
+        1
+      ],
+      "growDays": 140
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "herd": {
+      "biomes": [
+        {
+          "biome": "desert",
+          "weight": 20
+        },
+        {
+          "biome": "badlands",
+          "weight": 15
+        },
+        {
+          "biome": "savanna",
+          "weight": 8
+        }
+      ],
+      "group": [
+        2,
+        4
+      ],
+      "season": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "glyph": "K",
+    "fg": "camel_tan"
+  },
+  {
     "id": "cat",
     "name": "cat",
     "plan": "quadruped",
@@ -2084,6 +2165,86 @@
     "perception": 12,
     "glyph": "r",
     "fg": "rabbit_gray"
+  },
+  {
+    "id": "reindeer",
+    "name": "reindeer",
+    "plan": "quadruped",
+    "size": 70,
+    "speed": 195,
+    "diet": "grazer",
+    "temper": "timid",
+    "movementClass": "walker",
+    "nocturnal": false,
+    "products": [
+      {
+        "kind": "milk",
+        "intervalDays": 6
+      }
+    ],
+    "meatValue": 4,
+    "hideValue": 7,
+    "value": 45,
+    "attacks": [
+      {
+        "name": "butt",
+        "type": "blunt",
+        "damage": 8,
+        "size": 5
+      }
+    ],
+    "naturalArmor": 0,
+    "fleeBloodPercent": 65,
+    "group": [
+      1,
+      1
+    ],
+    "flags": {
+      "butcherable": true,
+      "tameable": true,
+      "trainable": "none"
+    },
+    "breeding": {
+      "gestationDays": 50,
+      "litter": [
+        1,
+        1
+      ],
+      "growDays": 100
+    },
+    "factionDefault": "fortress",
+    "perception": 12,
+    "butcherParts": [
+      {
+        "item": "horn",
+        "material": "horn",
+        "count": 2
+      }
+    ],
+    "herd": {
+      "biomes": [
+        {
+          "biome": "tundra",
+          "weight": 20
+        },
+        {
+          "biome": "taiga",
+          "weight": 15
+        }
+      ],
+      "group": [
+        4,
+        8
+      ],
+      "season": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "glyph": "R",
+    "fg": "reindeer_brown"
   },
   {
     "id": "restless_dead",

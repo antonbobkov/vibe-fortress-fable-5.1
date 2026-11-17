@@ -117,6 +117,10 @@
     "hex": "#5E8C4A"
   },
   {
+    "id": "camel_tan",
+    "hex": "#C8A472"
+  },
+  {
     "id": "cat_gray",
     "hex": "#A0A0A0"
   },
@@ -496,6 +500,10 @@
     "hex": "#B266FF"
   },
   {
+    "id": "honey_amber",
+    "hex": "#D49A2A"
+  },
+  {
     "id": "hops_green",
     "hex": "#6AB04C"
   },
@@ -810,6 +818,10 @@
     "hex": "#9AA65A"
   },
   {
+    "id": "reindeer_brown",
+    "hex": "#8A6A4A"
+  },
+  {
     "id": "root_amber",
     "hex": "#C8783C"
   },
@@ -904,6 +916,10 @@
   {
     "id": "snow_white",
     "hex": "#F4F8FF"
+  },
+  {
+    "id": "soap_white",
+    "hex": "#EEF0F2"
   },
   {
     "id": "sphalerite_brown",
@@ -1026,6 +1042,10 @@
     "hex": "#0A1840"
   },
   {
+    "id": "wax_yellow",
+    "hex": "#E8D27A"
+  },
+  {
     "id": "well_blue",
     "hex": "#6AA6FF"
   },
@@ -1081,6 +1101,10 @@
   {
     "id": "zone_bedroom",
     "hex": "#35203F"
+  },
+  {
+    "id": "zone_compost",
+    "hex": "#33301A"
   },
   {
     "id": "zone_dining",

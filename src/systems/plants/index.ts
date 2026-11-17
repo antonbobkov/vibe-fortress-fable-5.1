@@ -17,6 +17,7 @@ import { SEASONS_PER_YEAR } from '@core/constants';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { EntityStore } from '@core/entities';
+import { flowerTile } from '@core/flowers';
 import { TICKS_PER_DAY } from '@core/constants';
 import { Designation, TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { RngStream } from '@core/rng';
@@ -33,7 +34,7 @@ import { WILT_PERMILLE } from '@systems/weather/constants';
 import { CROP_DROWN_LEVEL, HARVEST_PRIORITY, PLANTS_CADENCE, PLANTS_PHASE } from './constants';
 import { PlantFacts, type PlantRow } from './facts';
 import { advance, growthPerHour, isMature, progressPercent, seasonAllows, stageLength } from './growth';
-import { FARM_PLOT, cropsOf, cropChoice, isAshTile, plotKindOf, withCrop, type PlotKind } from './plots';
+import { FARM_PLOT, cropsOf, cropChoice, fertilizeOf, isAshTile, plotKindOf, withCrop, type PlotKind } from './plots';
 import { PlantsProducer } from './producer';
 import type { CropInfo, PlantsReader } from './reader';
 import type { PlantsStateV1 } from './state';
@@ -58,6 +59,8 @@ export interface PlantsOptions {
 interface BiomeRow {
   readonly id: string;
   readonly treeDensity: number;
+  /** `regions-biomes-and-traits.md` § Biome surface: the share of outdoor grass that flowers. */
+  readonly surface?: { readonly flowers?: number };
 }
 
 /** `CropDied { tile, reason }`: the reasons this system uses. */
@@ -104,6 +107,8 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   private readonly pendingBare: TileIndex[] = [];
   private readonly pendingPlotTiles: TileIndex[] = [];
   private treeDensity = 0;
+  /** The biome's `flowers` share (`07` § Flowers). */
+  private flowerShare = 0;
   private treeWeights: (readonly [number, number])[] = [];
   private fungusByTier: (readonly [number, number])[][] = [];
   private caveLoam = -1;
@@ -158,7 +163,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       rng: ctx.rng,
       cropAtTile: this.cropAtTile,
       plots: () => this.plotIndex,
-      plantCrop: (c, tile, plant, zoneId) => this.plantCrop(c, tile, plant, zoneId),
+      plantCrop: (c, tile, plant, zoneId, fertilized) => this.plantCrop(c, tile, plant, zoneId, fertilized),
       removeCrop: (id) => this.removeCrop(id),
       announceNeedsSeeds: (c, zoneId, plant) => this.announceNeedsSeeds(c, zoneId, plant),
       renewAsh: (tile, tick) => this.renewAsh(tile, tick),
@@ -186,6 +191,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
     const spec = this.options.spec;
     const biome = ctx.registry.table<BiomeRow>('biomes').byId(spec.biome);
     this.treeDensity = spec.traits.includes('glasslands') ? GLASSLANDS_TREE_DENSITY : (biome?.treeDensity ?? 0);
+    this.flowerShare = biome?.surface?.flowers ?? 0;
     this.treeWeights = [];
     this.fungusByTier = [[], [], [], []];
     for (let p = 1; p <= facts.size; p += 1) {
@@ -411,9 +417,9 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
   // ---------- crops ----------
 
   /** `plant` completion: the `Crop` entity at stage 0, and `CropPlanted`. */
-  plantCrop(ctx: TickContext, tile: TileIndex, plant: number, zoneId: EntityId): EntityId {
+  plantCrop(ctx: TickContext, tile: TileIndex, plant: number, zoneId: EntityId, fertilized = false): EntityId {
     const id = ctx.world.entities.create('crop');
-    ctx.world.entities.add(id, C.Crop, { plotZoneId: zoneId, plant, stage: 0, growth: 0, tile });
+    ctx.world.entities.add(id, C.Crop, { plotZoneId: zoneId, plant, stage: 0, growth: 0, tile, ...(fertilized ? { fertilized: true as const } : {}) });
     this.cropAtTile.set(tile, id);
     ctx.emit({ type: 'CropPlanted', tile, species: this.facts.row(plant)?.id ?? '' });
     return id;
@@ -609,6 +615,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
         return zone !== 0 && this.plotIndex.includes(zone) ? zone : 0;
       },
       plotSettings: (zoneId) => cropsOf(this.buildings()?.zone(zoneId)?.settings ?? {}),
+      plotFertilize: (zoneId) => fertilizeOf(this.buildings()?.zone(zoneId)?.settings ?? {}),
       plotKind: (zoneId) => this.plotKind(zoneId),
       plots: () => this.plotIndex.slice(),
       speciesAt: (i) => {
@@ -619,12 +626,25 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       },
       shrubReady: (i) => map.validIndex(i) && map.kindAt(i) === TileKind.Shrub && !this.shrubTimers.has(i),
       hasGrass: (i) => map.validIndex(i) && map.hasFlag(i, TileFlag.Grass),
+      flowerAt: (i) => this.flowerAt(i),
       grassIsDry: () => this.options.spec.biome === 'cold_steppe' || this.options.spec.biome === 'tundra' || this.options.spec.biome === 'savanna' || this.options.spec.biome === 'desert' || this.options.spec.biome === 'badlands',
       def: (speciesId) => (typeof speciesId === 'number' ? facts.row(speciesId) : facts.row(facts.indexOf(speciesId))),
       bareSoil: () => this.bareSoil.slice(),
       ashTiles: () => Array.from(this.ashTiles.keys()).sort((a, b) => a - b),
       saplings: () => Array.from(this.saplings.keys()).sort((a, b) => a - b),
     };
+  }
+
+  /**
+   * `07` § Flowers: an outdoor natural grass floor, not snowed, muddy or ashen, whose tile the
+   * biome's `flowers` share picks (`core/flowers`, the compositor's own test).
+   */
+  private flowerAt(i: TileIndex): boolean {
+    const map = this.map;
+    if (this.flowerShare <= 0 || !map.validIndex(i) || map.kindAt(i) !== TileKind.Floor) return false;
+    const bare = TileFlag.Constructed | TileFlag.Engraved | TileFlag.Smoothed | TileFlag.Mud | TileFlag.Snow | TileFlag.Ash;
+    if (!map.hasFlag(i, TileFlag.Grass) || (map.flagsAt(i) & bare) !== 0 || !map.hasFlag(i, TileFlag.Outdoor)) return false;
+    return flowerTile(this.flowerShare, map.xOf(i), map.yOf(i), map.zOf(i));
   }
 
   private cropInfoOf(crop: Crop): CropInfo {
@@ -636,6 +656,7 @@ export class PlantsSystem extends BaseSystem<PlantsStateV1> {
       percent: row === undefined ? 0 : progressPercent({ stage: crop.stage, growth: crop.growth }, stageLength(row)),
       tile: crop.tile,
       plotZoneId: crop.plotZoneId,
+      fertilized: crop.fertilized === true,
     };
   }
 

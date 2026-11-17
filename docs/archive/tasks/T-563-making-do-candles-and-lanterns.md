@@ -1,19 +1,21 @@
-# T-557 — Making Do C1: boneyards and the bone recipes
+# T-563 — Making Do B3b: candles, candle stands, lanterns and what light does
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 4.1); the owner, 2026-11-13 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-16, in 2e3a137e,0d41755a,c7190beb,ecc55f26.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 7 (candles, stands and lanterns)); T-546, split from T-553 · **Size:** M · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
-The fossil drop and `first_fossil` are T-547's; `crush_fossil` is T-553's.
+In the spec this task is `T-563`. It needs T-551's building wants, T-552's `smoky_hall`, T-553's glass and kiln, and T-554's `comfortLightAt`, which it extends.
 
 ## What to do
 
-The blocks and rows marked T-557:
+The blocks and rows marked T-563:
 
-- **03 § Planned:** Stage 9b, the boneyards (`terrain.giant_bones`; spine, ribs, skull; half sunk in soil, ribs in the bog, tusks of ivory in tundra; `giantSkulls`, `boneyards`, `RibsEntered`).
-- **10 § Planned:** Places that make a face (the ribs).
-- **23 § Planned:** bone's glyphs.
-- **Rows:** `giant_skull`, the bone recipes (`cut_bone_blocks`, the bone table, chair, door, coffin and statue, `mount_skull`, `carve_fossil`, `carve_ivory_statue`), the item edit (statues of bone), `stood_in_the_ribs`, `announce.ribs_entered`, the fossil-craft preference.
+- **14 § Planned:** Comfort light, candle stands and lanterns (stands want candles and burn them by days; lanterns forever; `comfortLightAt` gains both; `ate_by_candlelight`; the spotting bonus; tallow smoke on 10's stream, drawn only for a dwarf in tallow light).
+- **18 § Planned:** Candle light shows the thief (`CANDLE_SPOT_BONUS` both ways).
+- **23 § Planned:** the `light` overlay.
+- **Rows:** `candle`, `lantern`, `candle_stand`, `make_candles_tallow`, `make_candles_wax` (T-555 handed it on: it makes T-563's `candle`; T-555 brought `beeswax`), `make_lantern`, `ate_by_candlelight`, the Hillfolk's candles, the item edit to `tallow`'s note.
 
 
 ## Common rules for every Making Do task
@@ -28,5 +30,5 @@ The blocks and rows marked T-557:
 
 ## Done
 
-- A desert, badlands, wetland or tundra map has one to three skeletons; a dwarf standing in the ribs is pleased once; the skull mounts as a statue.
-- Only the four biomes' maps change: their local-map hashes move, named in `golden:`. The annual instrument's rows do not move (it plays forest, taiga and grassland).
+- A stand keeps five candles fed by a `maintain` order and lights its 3×3; a meal in its light gives its thought; a thief at a candle-lit gate is spotted two tiles sooner; a room lit only by tallow is smoky now and then; a cellar beside a stand stops working.
+- E2e: build a candle stand and see it lit. The sweep and instrument verdicts pass.

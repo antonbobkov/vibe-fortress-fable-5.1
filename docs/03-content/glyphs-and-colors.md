@@ -149,6 +149,9 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `zone_fishing` | #1E2E3F |
 | `zone_gather` | #2E3A1E |
 | `zone_sanctum` | #1E363A |
+| `zone_compost` | #33301A |
+
+A `harvest_ice` designation takes `des_dig` (it is a miner's work) and an `ignite` designation `des_remove`; harvest takes `des_gather`.
 
 ### Material and nature colors
 
@@ -249,6 +252,9 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `feather_white` | #F4F1EA |  |  | `pewter_gray` | #8E949A |  |
 | `brick_red` | #A0482E |  |  | `glass_pale` | #BFE3E6 |  |
 | `dung_brown` | #5C4A30 |  |  | `star_silver` | #D8E4F0 |  |
+| `honey_amber` | #D49A2A |  |  | `wax_yellow` | #E8D27A |  |
+| `soap_white` | #EEF0F2 |  |  | `reindeer_brown` | #8A6A4A |  |
+| `camel_tan` | #C8A472 |  |  |  |  |  |
 
 ## Glyphs by thing
 
@@ -277,7 +283,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | tree | species glyph | species color | `black` |
 | sapling | `τ` | species color | `black` |
 | shrub | `"` (species may override) | species color | `black` |
-| boulder | `○` | material | `black` |
+| boulder | `○` (`•` of class `bone`) | material | `black` |
 | higher ground (a natural wall under the outdoor surface, 1–3 levels up) | the surface's glyph | the surface's | the surface's, blended toward the ground's tone (23 § Compositor step 2) |
 | open, floor visible below | below's glyph | dimmed | dimmed |
 | open sky | ` ` | — | `sky_day` / `sky_night` |
@@ -294,7 +300,7 @@ Dwarves `☺` with state colors; traders `☺` in civ colors; animals by species
 
 ### Items
 
-By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage) `♠` (glowcap) `¡` (rune vial, hollow ichor, spider venom) `§` (wyrmscale) `♥` (ember gland), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
+By category (depth 2): food `%`, drink `☼`, seed `,`, stone raw `•`, block `▪`, gem rough `*`, gem cut `♦`, ore `£`, log `≡`, bar `▬`, furniture per item, container per item, weapon `/` (melee) `)` (ranged), ammo `↑`, armor `[`, clothing `[`, tool per item, craft `♀` (mug `∂`), textile `~` (cloth `≈`), medical `♣` (brightleaf) `~` (bandage) `♠` (glowcap) `¡` (rune vial, hollow ichor, spider venom) `§` (wyrmscale) `♥` (ember gland) `▪` (soap), refuse `%` in `corpse_red` / `bone_white` / `rot_green`. Color is the material's.
 
 ### Buildings
 
@@ -329,18 +335,3 @@ The center `┼` is the work tile; the south-center tile is the output tile. Imp
 ### Status bar glyphs
 
 Sun `☼` day, moon `C` night (CP437 lacks a moon; `C` in `dark_cyan` is the convention), weather: clear `☼`, overcast `≡`, rain `'`, storm `↯`, snow `*`, fog `≡` dim, heatwave `☼` red, cold snap `*` cyan; population `☺`; hall spirit `♥`; patients `+` red; hostiles `!` red; caravan `$`; speed `►`, `►►`, `►►►`, paused `║`.
-
-## Planned rows
-
-Rows of the Making Do content, not yet in the game and not exported. The task named adds each colour to § Material and nature colors (the hex here is a first choice; it may change if it clashes) adds its lines to [row-order.md](row-order.md) and runs `npm run content:export`.
-
-### Planned colours
-
-| id | hex | task |
-|---|---|---|
-| `honey_amber` | #D49A2A | T-555 |
-| `wax_yellow` | #E8D27A | T-555 |
-| `soap_white` | #EEF0F2 | T-564 |
-| `reindeer_brown` | #8A6A4A | T-561 |
-| `camel_tan` | #C8A472 | T-561 |
-

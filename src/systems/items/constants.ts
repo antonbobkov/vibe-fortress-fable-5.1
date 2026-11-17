@@ -24,6 +24,8 @@ export const FIND_RADIUS_MAX = 48;
 export const WEALTH_EVENT_STEP = 250;
 /** Default; species may override. */
 export const CORPSE_ROT_DAYS = 14;
+/** `13` § Rot: days an item of material class `ice` takes to melt at full speed (*unmeasured*). */
+export const ICE_MELT_DAYS = 7;
 /** An enchanted item's value adds its stone's value times this. */
 export const ENCHANT_STONE_VALUE_MULT = 3;
 /** An enchanted item's value adds this for each rune vial its setting burned. */
@@ -36,6 +38,10 @@ export const CELLAR_MAX_C = 14;
 export const AGED_VALUE_PERCENT = 150;
 /** A vintage item's value, percent of its young value. */
 export const VINTAGE_VALUE_PERCENT = 250;
+/** 13 § The compost heap: days rotten food lies on a heap before it turns to compost. */
+export const COMPOST_DAYS_ROTTEN = 14;
+/** 13 § The compost heap: days dung lies on a heap before it turns to compost. */
+export const COMPOST_DAYS_DUNG = 7;
 
 /**
  * `12-workshops-and-professions.md` § Quality, "Value multiplier" column, in permille, by quality

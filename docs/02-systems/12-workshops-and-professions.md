@@ -31,7 +31,7 @@ Convert materials into goods. Own workshop operation, recipes, work orders, qual
 | `alchemist` | alchemy | the laboratory: rune vials from glowcap and glowstone, and draughts ([25](25-runecraft.md) § Draughts) |
 | `runeforge` | smithing | wands and staffs, one recipe of each per stone that carries a spell ([25](25-runecraft.md) § Channels); the runed robe and the circlet; a setting recipe per enchantment (25 § Setting stones) |
 | `forge` | smithing | weapons, armor, picks, axes, anvils, chains, metal cages, bolts, metal blocks, metal furniture, metal crutches |
-| `kitchen` | cooking | meals (easy 2 ingredients, fine 3, lavish 4), tallow from fat |
+| `kitchen` | cooking | meals (easy 2 ingredients, fine 3, lavish 4), tallow from fat, soap |
 | `still` | brewing | drinks from brewable plants (needs an empty barrel) |
 | `tannery` | leather | leather from raw hide |
 | `leatherworks` | leather | leather armor, bags, quivers, backpacks, leather rope |
@@ -62,7 +62,7 @@ Generated at load from the minerals and metals tables:
 - `melt_<class>`: a marked metal item → `floor(stackCount × itemBarValue × MELT_RETURN_PERCENT / 100)` bars of its metal, fuel, no quality.
 - `forge_<weapon|armor|tool>`: bars → the item; bar counts per item type; material from input; quality.
 
-Authored beside them at the smelter: `make_steel_shell`, 1 iron bar + 3 `shell_piece` of any shell material (`chitin` included) + 1 fuel → 1 steel, and `make_steel_bone_ash`, 1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel, both fuel and no quality as the alloy: shells and bone ash from the kiln stand in for the flux stone. At the kitchen, `crush_halite` crushes 1 `ore` of halite (rock salt) into 5 `salt`.
+Authored beside them at the smelter: `make_steel_shell`, 1 iron bar + 3 `shell_piece` of any shell material (`chitin` included) + 1 fuel → 1 steel, and `make_steel_bone_ash`, 1 iron bar + 1 `bone_ash` + 1 fuel → 1 steel, both fuel and no quality as the alloy: shells and bone ash from the kiln stand in for the flux stone. At the kitchen, `crush_halite` crushes 1 `ore` of halite (rock salt) into 5 `salt`, and `make_soap` boils 1 tallow and 1 `potash` into 2 `soap` (a hospital supply, 17 § Patients and hospitals).
 
 Melting takes the whole marked stack. Its bar cost comes from the weapon or armor row, else the matching metal recipe's bar inputs divided by its output units, else one bar. Explicit work orders run first; `autoMeltMarked` starts only when none starts and the smelter is idle.
 
@@ -104,6 +104,7 @@ WorkOrder { recipeId, serial? (global identity), remaining, mode: once | maintai
 - Orders can be placed at a workshop or from the global orders panel (which picks any workshop of the type; a global order goes to the first idle workshop of the type, in entity order).
 - Applying AddWorkOrder or EditWorkOrder normalises materialFilter: a known material id becomes its registry index; another string must be a material class; null means no filter. Numeric filters must be valid integer material indices. Invalid filters reject with bad_setting before changing orders or cancelling work. The same form is held by local and global orders and survives save/load. A brewing maintain order counts the selected plant's drink output for either id or index input. With no filter, a maintain order of a recipe whose first output is `drink` of a `fixed` material counts that material alone (`distill` counts deepfire, `brew_hopped` hopped ale).
 - `materialFilter` restricts inputs (make steel axes, oak beds). A work order's material filter constrains only the input the first output takes its material from (`material.from.index`), or input 0 when that output's material is `fixed`, `alloy` or `plantDrink`, or the recipe has no outputs.
+- A transform recipe is a setting generated from a row of `enchants` (25 § Setting stones), at the runeforge, or at the workshop the row names with that workshop's skill. The one such row is `fletched` (`weapons-and-armor.md` § Enchantments): the bowyer's `set_ammo_fletched`, 25 bolts or arrows + 1 feather, by `carpentry`, to-hit +5. It is a transform recipe by every rule here, and it emits `DeepsilverWorked` only at a `rune_work` building, as every recipe. A fletched set holds its one enchantment, so it never takes a rune setting after: seeking (emerald, +10) and fletching are a choice.
 - A transform recipe's order is `once` only, since there is no output to count: AddWorkOrder or EditWorkOrder with `maintain` rejects with `precondition_failed`. Its input 0 takes only an item with no enchantment (the filter's `noEnchant`), so an enchanted item is never set again. `targetType` (an item id, normalised to its index, or null) narrows input 0 to one of its alternatives; any other value, or a target on a recipe that is not a transform, rejects with `bad_setting`. There is no order for one exact item: the search takes the nearest match.
 
 ### Quality
@@ -146,6 +147,11 @@ A recipe that stands in for a regular one when its input is missing (shells for 
 - Workshop `smokehouse`: 3 `stone_block`, masonry, skill `cooking`, fuel. `smoke_meat`: 5 raw meat (one material) and a fuel → 5 `cured_meat` of that material; `smoke_fish` the same for raw fish → `cured_fish`. On the completion of either, every fortress dwarf within `SMOKE_RADIUS` (Chebyshev, same level) of the smokehouse's centre who is not its worker gets `smelled_smokehouse` ("Smells of smoked {meat}. Hungry now.", `{meat}` the species of the meat: the thought's `detail`) from 15, and `SMOKEHOUSE_HUNGER` hunger from 10.
 - Kitchen: `salt_meat` (5 raw meat of one material + 1 salt → 5 cured meat, no fuel) and `salt_fish` (the same for fish), beside `crush_halite`. Cured meat and fish never rot and are worth twice the raw (13 § Curing); they are ingredients.
 - `salt` carries the tag `seasoning`, so a meal with it records it in `Item.seasoned` (§ Operation). `workshops.mealName` puts "salted" before the name of a salted meal ("salted boar stew"), and 15 gives `ate_salted_meal` on a `MealEaten` seasoned with salt, beside the meal's own thought: a salted meal is worth a thought a tier up, an easy meal's +2 becoming +3.
+
+### Feasts
+
+- Kitchen `cook_feast`: 1 `salt`, `honey` or `plant_food` of wyrmtongue (the seasoning) + 6 ingredients from distinct stacks → 20 `feast` (one stack of 20 servings, of the first ingredient's material), `Q` yes, 400 ticks, no fuel. The seasoning is the first input so that the job fetches it before the six ingredients, which would otherwise take the only salt as one of their own; a salt or wyrmtongue feast is seasoned as a meal is (§ Operation).
+- Its `ItemCrafted` (`recipeId` `cook_feast`) gives everyone `held_a_feast` (15); each serving eaten gives its eater `feasted` (10 § Feasts).
 
 ### Professions
 
@@ -215,17 +221,3 @@ Recipe times, bar costs per item and profession names are content.
 - Reaction chains with by-products (slag): additional outputs in the recipe row.
 - Worker preferences (a workshop preferring the most skilled dwarf): the assignment bonus in 11 already favors skill; a `preferBest` flag could raise it.
 - Custom player recipes: not planned; the recipe table is the extension point.
-
-## Planned: Making Do
-
-Not yet in the game. Each block below is a rule of the Making Do content and names the task that builds it. That task moves its block into the sections above as plain specification (its constants into § Tuning constants, its events, commands and readers into § Interfaces) and deletes it here; the last one deletes this section. Every number here is *unmeasured*. The rows named are in `workshops-and-recipes.md` § Planned rows and the other content documents' § Planned rows.
-
-### Fletching at the bowyer (T-562)
-
-- An `enchants` row may name a `workshop` (`weapons-and-armor.md` § Enchantments gains the column; empty means the runeforge). Its generated `set_<slot>_<id>` recipe is offered at that workshop, with that workshop's skill (the bowyer's `carpentry`), and is a transform recipe by every rule of § Work orders. It emits `DeepsilverWorked` only at a `rune_work` building, as now.
-- `fletched` (ammo, stone `feather`, 0 vials, `to_hit` 5) is the one such row: 25 bolts or arrows + 1 feather → fletched. A fletched set cannot take a rune setting (one enchantment per item), so seeking (emerald, +10) and fletching are a choice.
-
-### Soap and the feast (T-564, T-565)
-
-- Kitchen `make_soap`: 1 tallow + 1 `potash` → 2 `soap` (T-564).
-- Kitchen `cook_feast`: 6 distinct ingredients + 1 `salt`, `honey` or `plant_food` of wyrmtongue → 1 `feast` (a stack of `FEAST_SERVINGS`), `Q` yes; its `ItemCrafted` gives everyone `held_a_feast` (10 § Planned) (T-565).

@@ -4,7 +4,7 @@ import { TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import { TileFlag } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
-import { CORPSE_ROT_DAYS, MIASMA_DURATION, ROT_COLD_C, ROT_CONTAINER_PERCENT, ROT_HOT_C } from './constants';
+import { CORPSE_ROT_DAYS, ICE_MELT_DAYS, MIASMA_DURATION, ROT_COLD_C, ROT_CONTAINER_PERCENT, ROT_HOT_C } from './constants';
 import type { ItemCore, ItemChange } from './api';
 import type { StockpileStore } from './stockpiles';
 import { FREEZE_C } from '@systems/fluids/constants';
@@ -30,9 +30,17 @@ export class RotQueue {
   constructor(private readonly core: ItemCore, private readonly store: StockpileStore,
     private readonly temperature: (tile: TileIndex) => number) {}
 
-  private days(type: number): number {
+  /** The rot days of an item: `ICE_MELT_DAYS` for one of material class `ice` (13 § Rot, ice melts), else its type's. */
+  private days(type: number, id: EntityId): number {
+    if (this.melts(id)) return ICE_MELT_DAYS;
     const row = this.core.host.facts.row(type);
     return row.category === 'refuse/corpse' ? CORPSE_ROT_DAYS : row.rotDays;
+  }
+
+  /** 13 § Rot: an item of material class `ice` melts on the rot queue, with no stale or rotting stage. */
+  private melts(id: EntityId): boolean {
+    const it = this.core.get(id);
+    return it !== undefined && this.core.host.facts.materialClass(it.material) === 'ice';
   }
 
   private speed(id: EntityId, type: number): number {
@@ -42,6 +50,8 @@ export class RotQueue {
     if ((it.flags & ItemFlag.Installed) !== 0) return 0;
     const tile = this.core.tileOf(id);
     if (tile < 0) return 1;
+    // 13 § The compost heap: rotten food lying on a heap rots no further while it turns.
+    if (it.rotStage >= 2 && it.containerId === 0 && it.carriedBy === 0 && this.store.isCompost(this.store.stockpileAt(tile))) return 0;
     let speed = 1;
     if (it.containerId !== 0) {
       const container = this.core.container(it.containerId);
@@ -66,8 +76,9 @@ export class RotQueue {
 
   private queue(record: RotRecord): void {
     if (record.speed <= 0) { record.due = 0; return; }
-    const stage = this.core.get(record.id)?.rotStage ?? 0;
-    const span = this.days(record.type) * TICKS_PER_DAY / 2;
+    // Ice skips the stale stage: its next look is at 100%, when it is gone.
+    const stage = this.melts(record.id) ? 1 : this.core.get(record.id)?.rotStage ?? 0;
+    const span = this.days(record.type, record.id) * TICKS_PER_DAY / 2;
     const remaining = Math.max(0, (stage + 1) * span - record.progress);
     record.due = Math.ceil((record.sampledTick + remaining / record.speed) / TICKS_PER_HOUR) * TICKS_PER_HOUR;
     const bucket = this.buckets.get(record.due) ?? [];
@@ -93,8 +104,8 @@ export class RotQueue {
     const now = this.core.host.tick();
     let rec = this.records.get(id);
     if (rec === undefined) {
-      if (this.days(it.type) <= 0) return;
-      rec = { id, type: it.type, progress: it.rotStage * this.days(it.type) * TICKS_PER_DAY / 2,
+      if (this.days(it.type, id) <= 0) return;
+      rec = { id, type: it.type, progress: it.rotStage * this.days(it.type, id) * TICKS_PER_DAY / 2,
         sampledTick: now, speed: 0, due: 0 };
       this.records.set(id, rec);
     } else {
@@ -119,8 +130,19 @@ export class RotQueue {
         if (rec === undefined || it === undefined || rec.due !== bucket) continue;
         rec.progress += Math.max(0, ctx.tick - rec.sampledTick) * rec.speed;
         rec.sampledTick = ctx.tick;
-        const span = this.days(rec.type) * TICKS_PER_DAY / 2;
+        const span = this.days(rec.type, id) * TICKS_PER_DAY / 2;
         const stage = Math.min(3, Math.floor(rec.progress / span)) as 0 | 1 | 2 | 3;
+        // 13 § Rot: ice at 100% is gone, melted, with no stage and no miasma.
+        if (this.melts(id)) {
+          if (stage >= 2) {
+            this.records.delete(id);
+            this.core.destroy(id, 'melted');
+            continue;
+          }
+          rec.speed = this.speed(id, rec.type);
+          this.queue(rec);
+          continue;
+        }
         if (stage > it.rotStage) {
           const corpse = ctx.world.entities.has(id, C.Corpse);
           if (stage === 3 && corpse) {

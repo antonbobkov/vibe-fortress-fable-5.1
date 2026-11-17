@@ -1,26 +1,20 @@
-# T-565 — Making Do C6: feasts, the Thane's whims and mugs at the table
+# T-561 — Making Do C5: reindeer and camels
 
-**Source:** [Making Do](../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 11); the flavour report's item 26; T-546, split from T-561 · **Size:** M · **Needs:** T-555, T-557, T-563 · **Status:** blocked (needs T-555, T-557, T-563)
+**Closed:** 2026-11-16, in 0b1b12b8,5c92d312,34994da7.
+
+**Source:** [Making Do](../../../reports/designs/2026-11-06-making-do-content-and-scarcity.md) (§ 6); the owner, 2026-11-13 · **Size:** S · **Needs:** — · **Status:** open
 
 The owner (2026-11-13): "let's implement reports\designs\2026-11-06-making-do-content-and-scarcity.md ! As before, schedule tasks including more a detailed low-level design".
 
-In the spec this task is `T-565`. It is the last of the bundle: its whims name a lantern, mead, an ivory statue, spirits and a featherbed, and its mugs use T-551's building wants.
+Feasts, the Thane's whims and mugs moved to T-565.
 
 ## What to do
 
-The blocks and rows marked T-565:
+The blocks and rows marked T-561:
 
-- **10 § Planned:** Feasts, mugs and the Thane's whim (the feast eaten first, `MealEaten`'s `feast` and `mug`, the whim drawn on `rngFor('10.whims')` each season and judged at the next, `WhimSet`, `WhimJudged`, `whim`).
-- **12 § Planned:** `cook_feast`; **14 § Planned:** a dining table wants a mug per adjacent chair (the `table` row's `wants`).
-- **15 § Planned:** the whim is all face.
-- **24 § Planned:** the units panel's Thane line.
-- **Rows:** `feast`, `cook_feast`, the Whims table, the thoughts `feasted`, `held_a_feast`, `drank_from_a_mug`, `thane_pleased`, `thane_grumbled`, the three whim announcements.
-
-## Decisions
-
-- A feast is a stack of servings eaten before any other meal; it is hauled and served as meals are, with no placement of its own.
-- Mugs are held by the dining tables, one per chair beside them, through the building wants mechanism.
-- A missed whim grumbles once, for the Thane alone: no spiral.
+- **08 § Planned:** Reindeer and camels (domestic rows; wild herds on their own stream, `rngFor('08.herds')`; the camel's spit, `SpatOn`).
+- **20 § Planned:** camels from the Hillfolk in hot regions.
+- **Rows:** `reindeer`, `camel`, the Wild herds table, the reindeer's horns (butcher parts), `spat_on`, `announce.spat_on`, the colours.
 
 
 ## Common rules for every Making Do task
@@ -35,5 +29,5 @@ The blocks and rows marked T-565:
 
 ## Done
 
-- A feast at midwinter feeds the hall for a day and lifts everyone; a hall with its mugs gives its thought; the Thane wishes for a lantern in spring, and the hall is pleased in summer when it is there.
-- The sweep and instrument verdicts pass (mood moves a little).
+- Reindeer herds walk into a tundra map and camels into a desert one; tamed, they are milked (and the camel sheared), and the camel spits now and then; both graze lichen, salt crust and cactus (T-548's rule).
+- The ordinary wild spawning draws as before. The instrument verdict passes; its taiga row may move by the reindeer, which the report explains.

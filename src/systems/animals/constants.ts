@@ -29,6 +29,14 @@ export const SPAWN_PERMILLE = 150;
 export const DANGEROUS_QUIET_DAYS = 28;
 /** Tiles from any dwarf. */
 export const SPAWN_MIN_DISTANCE = 25;
+/** `08` § Wild herds: a herd's spawn chance a day at weight 100, below its cap (*unmeasured*). */
+export const HERD_SPAWN_PERMILLE = 30;
+/** `08` § Wild herds: the stream the herds draw on, so the ordinary wild spawning draws as before. */
+export const HERDS_STREAM = '08.herds';
+/** `08` § Products, The camel spits: a milking or shearing of a spitting species ends in a spit this often (*unmeasured*). */
+export const SPIT_PERMILLE = 50;
+/** `08` § Products, The camel spits: the species that spit. */
+export const SPITTING_SPECIES: readonly string[] = ['camel'];
 /** Growing-season capacity allowance; winter needs accessible cave moss. */
 export const GRASS_PER_GRAZER = 48;
 /** `08` § Grazing shrubs: a grazable shrub counts as `1 / SHRUB_GRAZE_WEIGHT` of a grass tile in a pasture's capacity. */
@@ -169,3 +177,28 @@ export const ANIMAL_NAME_MAX = 24;
 export const DUNG_DAYS = 7;
 /** `08` § Dung: the item (and material) a grazer drops. */
 export const DUNG_ITEM = 'dung';
+
+/** `08` § Hives: a hive adds a comb on the day whose number plus its id is a multiple of this. */
+export const HIVE_DAYS = 14;
+/** `08` § Hives: the flower tiles a hive needs within `HIVE_FLOWER_RADIUS` to make anything. */
+export const HIVE_FLOWERS_MIN = 3;
+/** `08` § Hives: the reach of a hive's bees, Chebyshev on its level. */
+export const HIVE_FLOWER_RADIUS = 6;
+/** `08` § Hives: the combs a hive holds at most. */
+export const HIVE_CAPACITY = 2;
+/** `08` § Hives: the work of `collect_honey`. */
+export const COLLECT_HONEY_TICKS = 60;
+/** `08` § Hives: the collector is stung this often (permille). */
+export const STING_PERMILLE = 100;
+/** `08` § Hives: a dwarf this near a hive (Chebyshev, its level) may be stung in summer. */
+export const HIVE_STING_RADIUS = 3;
+/** `08` § Hives: a passer-by's chance an hour (permille). */
+export const HIVE_PASSER_PERMILLE = 20;
+/** `08` § Hives: the function tag of a hive building (`buildings-and-furniture.md`). */
+export const HIVE_TAG = 'hive';
+/** `08` § Hives: the item a hive fills with, of material `honey`. */
+export const HONEYCOMB_ITEM = 'honeycomb';
+/** `08` § Hives: the material of a comb. */
+export const HONEY_MATERIAL = 'honey';
+/** `Stung.source` of a bee sting (09's nettle is `nettle`). */
+export const STING_SOURCE_BEES = 'bees';

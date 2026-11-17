@@ -127,6 +127,33 @@
     "glyph": "Θ"
   },
   {
+    "id": "beehive",
+    "name": "beehive",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "an outdoor soil floor",
+    "inputs": [
+      {
+        "match": "beehive",
+        "count": 1
+      }
+    ],
+    "labor": "by_material",
+    "buildTicks": 30,
+    "tags": [
+      "hive"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "∩"
+  },
+  {
     "id": "bowyer",
     "name": "bowyer's workshop",
     "category": "workshop",
@@ -268,6 +295,39 @@
     "blocksFluid": false,
     "value": 0,
     "glyph": "^"
+  },
+  {
+    "id": "candle_stand",
+    "name": "candle stand",
+    "category": "special",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "stone_block|bar",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 40,
+    "tags": [
+      "light"
+    ],
+    "roomValue": 0,
+    "passable": false,
+    "blocksFluid": false,
+    "value": 2,
+    "wants": [
+      {
+        "match": "candle",
+        "count": 5
+      }
+    ],
+    "glyph": "ì"
   },
   {
     "id": "carpenter",
@@ -884,6 +944,33 @@
     "pattern": "kitchen",
     "workTile": 4,
     "outputTile": 7
+  },
+  {
+    "id": "lantern",
+    "name": "lantern",
+    "category": "furniture",
+    "footprint": {
+      "w": 1,
+      "h": 1,
+      "rotatable": false
+    },
+    "on": "floor",
+    "inputs": [
+      {
+        "match": "lantern",
+        "count": 1
+      }
+    ],
+    "labor": "construction",
+    "buildTicks": 30,
+    "tags": [
+      "light"
+    ],
+    "roomValue": "item",
+    "passable": false,
+    "blocksFluid": false,
+    "value": 0,
+    "glyph": "¥"
   },
   {
     "id": "leatherworks",
@@ -1706,6 +1793,14 @@
     "passable": true,
     "blocksFluid": false,
     "value": 0,
+    "wants": [
+      {
+        "match": "mug",
+        "count": 1,
+        "per": "chair",
+        "max": 4
+      }
+    ],
     "glyph": "╥"
   },
   {

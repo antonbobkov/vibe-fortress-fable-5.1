@@ -190,6 +190,11 @@
     "text": "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain."
   },
   {
+    "id": "hint_hive",
+    "trigger": "a built hive with too few flowers in reach",
+    "text": "Bees need flowers: three within six tiles of the hive. Look for a meadow."
+  },
+  {
     "id": "hint_skylight",
     "trigger": "first glass floor built over open space",
     "text": "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them."

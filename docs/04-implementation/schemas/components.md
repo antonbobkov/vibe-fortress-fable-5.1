@@ -82,7 +82,8 @@ interface Equipment { weapon: EntityId; shield: EntityId; armor: Record<'head'|'
                       clothing: Record<'body'|'legs'|'feet'|'over', EntityId>; quiver: EntityId }
 interface Soldier { squadId: EntityId; onDuty: boolean; stance: 'hold' | 'pursue'; targetId: EntityId;
                     cooldownUntil: Tick; lastShiftTick: Tick }
-interface Patient { hospitalZoneId: EntityId; bedId: EntityId; needs: string[] /* job kinds */; admittedTick: Tick }
+interface Patient { hospitalZoneId: EntityId; bedId: EntityId; needs: string[] /* job kinds */; admittedTick: Tick;
+                    washed?: true /* washed with soap this admission (17); absent: not */ }
 const enum ItemFlag { Forbidden=1, Dump=2, Melt=4, Reserved=8, Owned=16, AtDepot=32, Merchant=64, Installed=128 }
 interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Quality; wear: number; count: number;
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;
@@ -92,7 +93,8 @@ interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Qu
                  seasoned?: Idx<MaterialDef>[] /* a meal's seasonings, ascending (12 § Operation); absent: none */;
                  stuffing?: Idx<MaterialDef> /* a `stuffed` item's stuffing, the material of its last input (12 § Operation); absent: none */;
                  cellarDays?: number /* days aged in a working cellar toward the next stage (13 § Aging in a cellar); absent: 0 */;
-                 age?: 1|2 /* aged, vintage; absent: young */ }
+                 age?: 1|2 /* aged, vintage; absent: young */;
+                 compostAt?: Tick /* the tick it turns to compost on a compost heap (13 § The compost heap); absent: no count */ }
 interface ItemEnchant { id: Idx<EnchantDef>; tier: Quality /* the setting's quality roll; scales the row's numbers */ }
 interface Container { contents: EntityId[]; capacity: number; classId: 'barrel'|'bag'|'bin'|'chest'|'bucket'|'cage'|'wagon' }
 interface Corpse { species: Idx<SpeciesDef>; diedTick: Tick; wornItems: EntityId[]; dwarfName: string | null; juvenile?: boolean }
@@ -101,7 +103,8 @@ interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 
                      mode: string; /* door mode, hatch mode, trap mode */ linkedIds: EntityId[]; ownerId: EntityId;
                      settings: Record<string, unknown>; toggled: boolean /* bridge raised, floodgate open, lever on */;
                      held?: EntityId[] /* the items a building with wants holds, each Installed (14 § Building wants); absent: none */;
-                     dryDays?: [EntityId, number][] /* a drying rack's held items and the drying days each has gained (14 § The drying rack); absent: none */ }
+                     dryDays?: [EntityId, number][] /* a drying rack's held items and the drying days each has gained (14 § The drying rack); absent: none */,
+                     burnDays?: number /* a candle stand's days burned of its burning candle (14 § Candle stands and lanterns); absent: none */ }
 interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
                       targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }
@@ -137,7 +140,8 @@ interface Projectile { itemId: EntityId; from: TileIndex; to: TileIndex; progres
                        targetId: EntityId; hitRoll: number; damage: number; damageType: DamageType; line: TileIndex[];
                        spell?: Idx<SpellDef> /* a bolt's spell (25); absent: a missile */;
                        spellPower?: number /* the casting channel's power in thousandths */ }
-interface Crop { plotZoneId: EntityId; plant: Idx<PlantDef>; stage: 0|1|2|3; growth: number; tile: TileIndex }
+interface Crop { plotZoneId: EntityId; plant: Idx<PlantDef>; stage: 0|1|2|3; growth: number; tile: TileIndex;
+                 fertilized?: true /* planted with fertilizer (07 § Fertilizer); absent: not */ }
 interface Merchant { partyId: EntityId; goods: EntityId[] }
 interface Rune { current: number /* milli-rune; max and regen are derived, never stored */;
                  vialsToday?: number /* vials drunk today, cleared on DayPassed */; nextDreadTick?: Tick /* Dread waits until this tick */;
@@ -181,7 +185,7 @@ interface FortressState {
   alert: Alert; deepPressure: number; deepLevel: number;
   reputation: Record<Civ, number>; populationCap: number;
   milestones: { id: string; tick: Tick }[];
-  hintsShown: string[]; deepsilverConfirmed: boolean;
+  hintsShown: string[]; deepsilverConfirmed: boolean; igniteConfirmed?: boolean /* the first fire set on purpose was confirmed (03 § Setting a fire); absent: false */;
 }
 ```
 

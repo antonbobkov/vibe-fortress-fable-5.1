@@ -216,6 +216,8 @@ export interface Patient {
   /** Job kinds. */
   needs: string[];
   admittedTick: Tick;
+  /** Washed with soap this admission (`17` § Patients and hospitals): no wound is rolled for infection; absent: not. */
+  washed?: true;
 }
 
 /** `components.md` § ItemFlag. */
@@ -264,6 +266,8 @@ export interface Item {
   seasoned?: Idx<'MaterialDef'>[];
   /** A `stuffed` item's stuffing: the material of its last input (`12` § Operation); absent: none. */
   stuffing?: Idx<'MaterialDef'>;
+  /** The tick it turns to compost on a compost heap (`13` § The compost heap); absent: no count. */
+  compostAt?: Tick;
 }
 
 /** An item's enchantment: the `enchants` row and the runesmith's quality roll, which scales its numbers. */
@@ -311,6 +315,8 @@ export interface Building {
   held?: EntityId[];
   /** A drying rack's held items with the drying days each has gained (`14` § The drying rack); absent: none. */
   dryDays?: [EntityId, number][];
+  /** A candle stand's days burned of its burning candle (`14` § Candle stands and lanterns); absent: none. */
+  burnDays?: number;
 }
 
 export interface WorkOrder {
@@ -509,6 +515,8 @@ export interface Crop {
   stage: 0 | 1 | 2 | 3;
   growth: number;
   tile: TileIndex;
+  /** Planted with fertilizer (`07` § Fertilizer): its harvest yields `FERTILIZER_YIELD_BONUS` more; absent: not. */
+  fertilized?: true;
 }
 
 export interface Merchant {
@@ -577,6 +585,8 @@ export interface FortressState {
   milestones: { id: string; tick: Tick }[];
   hintsShown: string[];
   deepsilverConfirmed: boolean;
+  /** The first `ignite` designation was confirmed (`03` § Setting a fire); absent is false. */
+  igniteConfirmed?: boolean;
   /** Started in the embark's testing mode (`02` § Testing mode); absent is a normal fortress. */
   testing?: boolean;
 }

@@ -323,7 +323,7 @@ export class TestWorld {
     if (!r.ok) throw new Error(`zone(${type}): ${r.reason}`);
     const buildings = world.scheduler.byId('14') as BuildingsSystem;
     const id = buildings.lastCreatedZone;
-    if (type === 'stockpile' || type === 'hospital') (world.scheduler.byId('13') as ItemsSystem).stockpiles.ensure(id);
+    if (type === 'stockpile' || type === 'hospital' || type === 'compost') (world.scheduler.byId('13') as ItemsSystem).stockpiles.ensure(id);
     return id;
   }
 

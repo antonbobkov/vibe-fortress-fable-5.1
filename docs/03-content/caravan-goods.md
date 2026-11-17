@@ -86,6 +86,9 @@ Sundries: raw materials in small lots, ordinary entries of the weighted draw aft
 | Clay | `soil_load` | clay | 5–10 | 6 |
 | Dung in sacks | `dung` ×10 in `bag` | dung | 1–2 bags | 6 |
 | Cured meat | `cured_meat` ×10 | cow_meat, pig_meat, sheep_meat | 1–2 | 6 |
+| Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 |
+| Candles | `candle` | tallow | 5–10 | 6 |
+| Camels (in `desert`, `badlands`, `savanna`) | `camel` | — | 1–2 | 6 |
 
 ## Wildwood (autumn, from year 1)
 
@@ -113,10 +116,12 @@ Sundries: raw materials in small lots, ordinary entries of the weighted draw aft
 | Nettle fiber | `fiber` | nettle_fiber | 5–10 | 6 |
 | Feathers | `feather` | feather | 5–10 | 6 |
 | Brightleaf | `brightleaf` | brightleaf | 5–10 | 6 |
+| Honey | `honey` ×10 in `barrel` | honey | 1 barrel | 6 |
+| Beeswax | `beeswax` | beeswax | 5–10 | 6 |
 
 ## Preferences (valuation multipliers, percent)
 
-Applied to `value(item)` to get the merchant's valuation when buying from the fortress, and inversely when selling to it (`price = value × preference / 100 × MERCHANT_MARKUP / 100`, so a civ that values metal at 150% also charges 150% for it). A `material <id>` row applies to every item of that material, before the category and class rows; a civilization with an empty cell has no such row. A drink is judged by its material's group (`drink/ale`, `drink/wine`, `drink/spirits`): a group's own row comes before `drink/*`.
+Applied to `value(item)` to get the merchant's valuation when buying from the fortress, and inversely when selling to it (`price = value × preference / 100 × MERCHANT_MARKUP / 100`, so a civ that values metal at 150% also charges 150% for it). A `<group>/* of <material>` row (carved fossils) applies to the group's items of that material, before every other row; a `material <id>` row applies to every item of that material, before the category and class rows; a civilization with an empty cell has no such row. A drink is judged by its material's group (`drink/ale`, `drink/wine`, `drink/spirits`): a group's own row comes before `drink/*`.
 
 | Category or material class | Mountainhome | Hillfolk | Wildwood |
 |---|---|---|---|
@@ -144,6 +149,8 @@ Applied to `value(item)` to get the merchant's valuation when buying from the fo
 | material `salt` | | 150 | |
 | material class `bone` | | | 60 |
 | material `star_steel` | 200 | 200 | 200 |
+| `food/honey`, `food/wax` | | | 100 |
+| `craft/*` of `giant_bone` | 150 | | |
 
 ## Scarcity and never sold
 
@@ -174,23 +181,9 @@ Mountainhome reputation adds `reputation / 25` immigrants per wave (21) and `rep
 
 Rows of the Making Do content, not yet in the game and not exported. Each names the task that adds it: that task moves the row into its civilization's table above (a sundries row into its Sundries table; without `civ` and `task`), adds its line to [row-order.md](row-order.md) when the table numbers its entries, and runs `npm run content:export`. The rules are in [20](../02-systems/20-trade-and-caravans.md) § Planned. Every number is *unmeasured*.
 
-### Planned sundries
-
-A sundries entry is an ordinary weighted entry: a lot of 5–10 units, weight 6.
-
-| civ | Entry | Item | Material pool | Count | Weight | task |
-|---|---|---|---|---|---|---|
-| Hillfolk | Candles | `candle` | tallow | 5–10 | 6 | T-563 |
-| Hillfolk | Honey (when the Wildwood's home is farther than the Hillfolk's) | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
-| Wildwood | Honey | `honey` ×10 in `barrel` | honey | 1 barrel | 6 | T-555 |
-| Wildwood | Beeswax | `beeswax` | beeswax | 5–10 | 6 | T-555 |
-| Hillfolk | Camels (in `desert`, `badlands`, `savanna`) | `camel` | — | 1–2 | 6 | T-561 |
-
 ### Planned preferences
 
 | Category or material class | Mountainhome | Hillfolk | Wildwood | task |
 |---|---|---|---|---|
 | material `silk_cloth` | 150 | | 140 | T-556 |
-| `craft` of `giant_bone` | 150 | | | T-557 |
-| `food/honey`, `food/wax` | | | 100 | T-555 |
 

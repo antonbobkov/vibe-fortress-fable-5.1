@@ -17,6 +17,7 @@ import { arrivalTame } from '@systems/embark';
 import type { Job, JobSink, JobsReader } from '@systems/jobs';
 import type { BuildingsReader } from '@systems/buildings';
 import {
+  COLLECT_HONEY_TICKS,
   KENNEL_WORKSHOP,
   TRAIN_TICKS,
   trainingSuccessChance,
@@ -39,6 +40,11 @@ export function slaughterKey(animalId: EntityId): string {
 
 export function eggKey(itemId: EntityId): string {
   return `collect_egg:${itemId}`;
+}
+
+/** `08` § Hives: the `collect_honey` job of a hive. */
+export function honeyKey(hiveId: EntityId): string {
+  return `collect_honey:${hiveId}`;
 }
 
 export function trainKey(animalId: EntityId): string {
@@ -64,6 +70,16 @@ export interface AnimalsProducerHost {
   buildings(): BuildingsReader | null;
   jobs(): JobsReader | null;
   alive(id: EntityId): boolean;
+  /** Built hives, ascending (`08` § Hives). */
+  hives(): readonly EntityId[];
+  /** The combs lying in a hive, ascending. */
+  hiveCombs(hive: EntityId): EntityId[];
+  /** The combs of a hive, no longer held by it. */
+  takeCombs(hive: EntityId): EntityId[];
+  /** The collector's sting roll, on 08's stream. */
+  stingCollector(workerId: EntityId, emit: TickContext['emit']): void;
+  /** `08` § Products, The camel spits: the worker's spit roll after a milking or shearing, on 08's stream. */
+  spit(workerId: EntityId, animalId: EntityId, tick: number, emit: TickContext['emit']): void;
   animalNear(id: EntityId, tile: TileIndex): boolean;
 }
 
@@ -95,6 +111,7 @@ export class AnimalsProducer implements JobProducer {
     if (job.key.startsWith('train_animal:') || job.key.startsWith('tame_animal:')) {
       return TRAIN_TICKS * 100;
     }
+    if (job.key.startsWith('collect_honey:')) return COLLECT_HONEY_TICKS * 100;
     return undefined;
   }
 
@@ -174,6 +191,19 @@ export class AnimalsProducer implements JobProducer {
         target: { kind: 'building', ref: record.box },
         workTile: 'adjacent',
         data: { egg: itemId, anchorTile: box.origin },
+      });
+    }
+    // `08` § Hives: a hive holding a comb is emptied by `collect_honey`.
+    for (const hive of this.host.hives()) {
+      const b = buildings.get(hive);
+      if (b === undefined || b.state !== 'built' || this.host.hiveCombs(hive).length === 0) continue;
+      const key = honeyKey(hive);
+      if (sink.exists(key)) continue;
+      sink.create(key, {
+        type: 'collect_honey',
+        target: { kind: 'building', ref: hive },
+        workTile: 'adjacent',
+        data: { hive, anchorTile: b.origin },
       });
     }
   }
@@ -273,7 +303,25 @@ export class AnimalsProducer implements JobProducer {
         if (item !== '' && material !== '') ctx.spawn.item(ctx.registry.table('items').index(item),
           ctx.registry.table('materials').index(material), tile, 1);
         this.host.ready.delete(productKey(animal, product));
+        this.host.spit(job.workerId, animal, ctx.tick, (e) => ctx.emit(e));
       }
+    }
+    const hive = job.data['hive'];
+    if (job.key.startsWith('collect_honey:') && typeof hive === 'number') {
+      // Every comb to the collector's tile, released for hauling, as `collect_egg` does; then the sting.
+      const items = ctx.world.services.items;
+      const worker = ctx.world.entities.get(job.workerId, C.Position);
+      const combs = this.host.takeCombs(hive);
+      if (items !== null && worker !== undefined) {
+        const tile = ctx.world.map.index(worker.x, worker.y, worker.z);
+        for (const comb of combs) {
+          items.attachToCarrier(comb, job.workerId);
+          items.dropAt(comb, tile);
+          items.release(comb);
+        }
+      } else if (items !== null) for (const comb of combs) items.release(comb);
+      this.host.stingCollector(job.workerId, (e) => ctx.emit(e));
+      return;
     }
     const egg = job.data['egg'];
     if (typeof egg === 'number') {

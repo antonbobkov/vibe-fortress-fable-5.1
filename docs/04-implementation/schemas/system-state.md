@@ -14,11 +14,12 @@ interface RegionRecord { id: number; elevation: number; tempC: number; rain: num
 interface EmbarkState { stateVersion: 1; spec: LocalMapSpec }   // the session state is not part of the world
 interface LocalMapSpec { seed: string; regionId: number; biome: Id<BiomeDef>; elevation: number; relief: 0|1|2|3; soilDepth: number; geology: string;
   wealth: number; peril: number; temper: number; deepness: number; traits: Id<RegionTraitDef>[]; volcano: boolean;
-  river: { inflowEdges: Edge[]; outflowEdge: Edge | null; class: string } | null; lake: boolean; civEdges: Record<Civ, Edge>; arrivalEdge: Edge }
+  river: { inflowEdges: Edge[]; outflowEdge: Edge | null; class: string } | null; lake: boolean; civEdges: Record<Civ, Edge>; arrivalEdge: Edge;
+  tempC?: number; civDistance?: Record<Civ, number> /* the region's, 01; absent in older saves */ }
 
 interface TerrainState { stateVersion: 1; designations: { tile: TileIndex; kind: Designation; priority: Priority; progress: Fixed }[];
   engravings: [TileIndex, { quality: Quality; engraverId: EntityId; motif: number }][]; forbiddenTiles: TileIndex[];
-  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; fossilFound?: boolean /* omitted while false */; craterTiles?: TileIndex[] /* a starfall map's crater tiles, ascending; omitted on any other map */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number;
+  cavernBreached: [boolean, boolean, boolean]; veinsFound: TileIndex[] /* sorted vein keys */; fossilFound?: boolean /* omitted while false */; craterTiles?: TileIndex[] /* a starfall map's crater tiles, ascending; omitted on any other map */; giantSkulls?: TileIndex[][] /* each boneyard's skull tiles still to dig, ascending; omitted on a map without one */; boneyards?: TileIndex[][] /* each boneyard's cage tiles, ascending */; boneyardsEntered?: boolean[] /* by boneyard, a dwarf has stood in its ribs; omitted while none has */; iceCut?: [TileIndex, Tick][] /* each tile of frozen water cut by harvest_ice and the tick it was cut, ascending (03 § Ice harvesting); omitted while none waits */; layerStack: { material: Idx<MaterialDef>; thickness: number }[]; rng: RngState; bigDigCounter: number;
   pendingTerrain?: { changed: TileIndex[]; discovered: TileIndex[]; litDirty: number[] /* z levels */ } }
 // pendingTerrain arrays are sorted and unique; absent means no deferred batch. Serialization and loading do not flush terrain work.
 
@@ -30,7 +31,10 @@ interface FluidsState { stateVersion: 1; active: Uint32Array /* tile indices, al
 interface MaterialsState { stateVersion: 1; burning: [TileIndex, { remainingTicks: number; spreadCooldown: number }][]; warmSprings: TileIndex[];
   magmaSourceChunks: ChunkIndex[]; magmaSignatures: [ChunkIndex, number][]; started: boolean; pendingChunks: ChunkIndex[];
   forced: [TileIndex, number][]; pendingIgnite: TileIndex[]; itemBurn: [EntityId, number][]; rng: RngState;
-  smoke?: [TileIndex, Tick][] /* each smoky workshop's centre tile and the tick its smoke clears, ascending (05 § Smoke); omitted when none */ }
+  smoke?: [TileIndex, Tick][] /* each smoky workshop's centre tile and the tick its smoke clears, ascending (05 § Smoke); omitted when none */
+  iceBuilt?: [TileIndex, Tick][] /* each ice wall or floor and the tick it was built, ascending (05 § Ice constructions); omitted when none */
+  iceDayDue?: true /* a DayPassed came: the next materials tick checks the underground ice; omitted when false */
+  iceMeltedDay?: number /* the day of the last IceMelted; omitted before the first */ }
 
 interface WeatherState { stateVersion: 1; state: string; stateEndsTick: Tick; surfaceTempCached: number; growthModifierCached: Percent;
   snowCoveredChunks: ChunkIndex[]; wetChunks: [ChunkIndex, Tick][]; started: boolean; forced: string | null;
@@ -40,7 +44,9 @@ interface PlantsState { stateVersion: 1; cropAtTile: [TileIndex, EntityId][]; pl
   shrubTimers: [TileIndex, Tick][]; bareSoil: TileIndex[]; ashTiles: [TileIndex, Tick][]; needsSeedsAnnounced: [EntityId, Season][]; rng: RngState }
 
 interface AnimalsState { stateVersion: 1; breedingCaps: [Idx<SpeciesDef>, number][]; speciesCounts: [Idx<SpeciesDef>, { wild: number; tame: number }][];
-  nestBoxes: EntityId[]; caged: [EntityId /* cage item */, EntityId /* creature, kept as a dormant entity */][]; initializedCaverns?: number[]; lastDangerousTick?: Tick /* T-545 */; rng: RngState }
+  nestBoxes: EntityId[]; caged: [EntityId /* cage item */, EntityId /* creature, kept as a dormant entity */][]; initializedCaverns?: number[]; lastDangerousTick?: Tick /* T-545 */;
+  spatOnDay?: number /* the day of the last camel spit's note; omitted while none */;
+  hives?: EntityId[] /* built hives, ascending; omitted when none */; combs?: [EntityId /* comb item */, EntityId /* its hive */][] /* omitted when none */; rng: RngState }
 
 interface ForagingState { stateVersion: 1; huntable: Idx<SpeciesDef>[]; hunterAssignments: [EntityId, EntityId][];
   waterBodies: { id: number; version: number; tileCount: number; fishPool: Fixed; kind: 'river'|'lake'|'cavern' }[]; bodyOfTile: [TileIndex, number][];
@@ -50,7 +56,7 @@ interface ActivityPlan { need: string; phase: 'travel'|'seat'|'use'; itemId: Ent
   ownBed: boolean; atTable: boolean; roomTier: number; startedRest: number; hall?: true /* a hall errand taken at LEISURE_MARK; its `partner` is the talk partner found from the seat */ }
 interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broker'|'chief_medic', EntityId>; populationCached: number; children: EntityId[];
   wagonTile: TileIndex; interruptFlags: EntityId[]; hungerMaxSince: [EntityId, Tick][]; thirstMaxSince: [EntityId, Tick][];
-  starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][]; craterEntered?: true /* a dwarf has stood in the starfall crater; omitted while false */;
+  starvingAnnounced: [EntityId, number][]; activities?: [EntityId, ActivityPlan][]; idleAnnounced?: EntityId[]; sawMasterworks?: [EntityId, EntityId][]; craterEntered?: true /* a dwarf has stood in the starfall crater; omitted while false */; whim?: { id: string; setTick: Tick } /* 10 § The Thane's whim: the whim of the season; absent: none */;
   needRetryUntil?: [EntityId, NeedName, Tick][]; shutOut?: EntityId[]; shelterCheckPending?: boolean; threatened?: [EntityId, { hostileId: EntityId; tick: Tick; tile?: TileIndex; caught?: true }][];
   talks?: [EntityId, EntityId, Tick][] /* talks in passing: lower id, higher id, end tick; absent means none */; hearthTicks?: [EntityId, number][] /* ticks eaten, drunk and sat in the hearth hall toward the next hearth visit; absent means none */; hallRetryUntil?: [EntityId, Tick][] /* no hall errand before this tick; absent means none */; tipsyUntil?: [EntityId, Tick][] /* 10 § Tipsy: the tick a tipsy dwarf's tipsiness ends; absent means none */; rng: RngState }
 // A rest activity's itemId holds its chosen bed during travel/use; 0 means floor sleep. Patient.bedId is the corresponding hospital hold.

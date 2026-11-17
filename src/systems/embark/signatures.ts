@@ -54,8 +54,8 @@ function rowsOf(spec: LocalMapSpec, registry: Registry): SignatureRow[] {
 
 /**
  * Whether the game has a good yet: a material id or class with a material, a word whose item,
- * material or species exists. A word whose content is still to come (`honey` before there is
- * honey, `camels` before camels) is left out of the summary and the price.
+ * material or species exists. A word whose content is still to come (`honey` before there was
+ * honey, `camels` before there were camels) is left out of the summary and the price.
  */
 export function signatureGoodExists(registry: Registry, good: string): boolean {
   const species = WORD_SPECIES[good];
