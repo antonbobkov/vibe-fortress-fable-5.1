@@ -268,6 +268,8 @@ export interface FortressState {
   stoodDown?: number[];
   /** T-580: the gate's two watch squads, north door and south, each with its one watchman (0 while none). */
   watch?: { squadId: number; dwarfId: number }[];
+  /** T-580: false where no watch is posted at the north door and no dog is trained: the defence fortress, whose kill corridor and traps lie before that door. */
+  northWatch?: boolean;
   hospitalSetup: boolean;
   /**
    * T-571: dormitories dug once the bedroom plans are spent, each a block of free beds, so a dwarf
@@ -1808,12 +1810,15 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
   const founders = w.game.arrival?.dwarves ?? [];
   const busy = new Set<number>([...squadMembers, ...(state.stoodDown ?? []), ...founders, ...Object.values(state.economy.specialists),
     state.economy.brewer ?? 0, state.economy.broker?.id ?? 0]);
+  // The north door and the south one (the south alone where the north opens on a kill corridor).
+  const doors: [number, number][] = state.northWatch === false ? [[state.gateDoorId, 1]] : [[state.gateDoorId2, -1], [state.gateDoorId, 1]];
   // War dogs: a kennel in the workshop hall with a chain from the forge, every dog trained for war,
   // and each war dog posted with the watch that has fewest.
   const animals = w.readers.of<AnimalsReader>('08');
   const dogSpecies = w.game.registry.table('creatures').index('dog');
   const ent = w.game.world.entities;
-  const dogs = animals.tameList().filter((id) => ent.get(id, C.Creature)?.species === dogSpecies);
+  // The defence fortress's carpenter and forge work for its own works at the north door: it keeps no war dogs.
+  const dogs = state.northWatch === false ? [] : animals.tameList().filter((id) => ent.get(id, C.Creature)?.species === dogSpecies);
   const { phases } = state.economy;
   // The kennel goes up by the gate, where it stays (WORK_NEAR_GATE), so the dogs are trained before the first ambush may come.
   if (dogs.length > 0 && state.placedIds['kennel'] === undefined) placeEconomyBuilding(w, state, 'kennel', 2, 10);
@@ -1831,7 +1836,7 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
     // nothing else, or, with none yet, the farmer and the cook (civilians who tend the wounded) take
     // it up beside their work. Then the trainer goes back to the general labors.
     const untrained = dogs.filter((id) => ent.get(id, C.Tame)?.trained === 'none').length;
-    const done = watch.length === 2 && watch.every((wt) => dogs.some((id) => animals.assignedTo(id) === wt.squadId));
+    const done = watch.length === doors.length && watch.every((wt) => dogs.some((id) => animals.assignedTo(id) === wt.squadId));
     const training = !done && untrained > 0;
     if (training !== phases.has('training dogs')) {
       if (training) phases.add('training dogs'); else phases.delete('training dogs');
@@ -1870,13 +1875,12 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
     command(w, { type: 'AssignAnimal', animalId: id, squadId: to.squadId });
   }
   // The north door and the south one; each post is the tile outside its door.
-  const doors: [number, number][] = [[state.gateDoorId2, -1], [state.gateDoorId, 1]];
   for (const [i, [doorId, dy]] of doors.entries()) {
     const door = buildings.get(doorId);
     if (door === undefined || door.state !== 'built') continue;
     let post = watch[i];
     if (post === undefined) {
-      const name = i === 0 ? 'North Watch' : 'South Watch';
+      const name = doors[i]![1] < 0 ? 'North Watch' : 'South Watch';
       if (!command(w, { type: 'CreateSquad', name }).ok) continue;
       const squadId = combat.squads().find((sq) => sq.name === name)!.id;
       // The tile outside the door, or the door's own where that one is no standing ground.

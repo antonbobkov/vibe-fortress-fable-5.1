@@ -173,6 +173,10 @@ function zoneTiles(w: TestWorld, state: DefenceYearState, type: string, count: n
 
 export function createDefenceYear(w: TestWorld, fortress: FortressState): DefenceYearState {
   const { cx, cy } = fortress;
+  // T-580: the kill corridor before the north door is watched by its traps; a watchman or a war dog
+  // posted at that door would stand on their sites, so only the south door has a watch, a dwarf: the
+  // carpenter and the forge work for the corridor's works first, and no kennel is built.
+  fortress.northWatch = false;
   // The kill corridor before the north door (cx + 6, cy + 5): one tile wide on cy + 2 .. cy + 4,
   // walls to the west, fortifications to the east, a trap on each tile, and a drawbridge of two
   // tiles at its mouth (cy, cy + 1) hinged on the outer one. The sites are read from the ground, as
@@ -454,7 +458,9 @@ export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState,
   const ent = w.game.world.entities;
   const jobs = w.readers.of<JobsReader>('11');
   const dwarves = w.readers.of<DwarvesReader>('10');
-  const civilians = dwarves.adults().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id));
+  // T-580: a watchman at the gate is on duty, as a soldier is, and does no civilian work either.
+  const onWatch = new Set((state.fortress.watch ?? []).map((post) => post.dwarfId));
+  const civilians = dwarves.adults().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id) && !onWatch.has(id));
   const free = new Set(specialistCandidates(w, state.fortress));
   const { economy } = state.fortress;
   const dedicated = new Set([...Object.values(economy.specialists), economy.brewer ?? 0]);

@@ -99,13 +99,16 @@ const scenario: Scenario = {
     // The squad: a leader, its barracks, training in peace, and a weapon skill that rose.
     const combat = w.readers.of<CombatReader>('16');
     const squad = combat.squads().find((s) => s.id === state.fortress.squadId);
-    expect(squad?.members.length ?? 0).toBeGreaterThanOrEqual(3);
-    expect(squad?.members).toContain(squad?.leaderId);
+    // T-580: a run that ends under an ambush's alert has its soldiers stood down from the squad
+    // (T-575), to be put back once the alert is down: they count as the squad's.
+    const standing = [...(squad?.members ?? []), ...(state.fortress.stoodDown ?? [])];
+    expect(standing.length).toBeGreaterThanOrEqual(3);
+    if ((squad?.members.length ?? 0) > 0) expect(squad?.members).toContain(squad?.leaderId);
     expect(buildings.zone(state.barracksZoneId)?.settings['squad']).toBe(squad?.id);
     expect(w.events('TrainingSession').length).toBeGreaterThan(0);
     const skills = w.game.registry.table('skills');
     const weaponSkills = ['sword', 'spear', 'axe', 'mace', 'hammer'].map((s) => skills.index(s)).filter((k) => k > 0);
-    expect((squad?.members ?? []).some((m) => weaponSkills.some((k) => (w.game.world.entities.get(m, C.Skills)?.xp[k] ?? 0) > 0 ||
+    expect(standing.some((m) => weaponSkills.some((k) => (w.game.world.entities.get(m, C.Skills)?.xp[k] ?? 0) > 0 ||
       (w.game.world.entities.get(m, C.Skills)?.level[k] ?? 0) > 0))).toBe(true);
 
     // The defence at work.
