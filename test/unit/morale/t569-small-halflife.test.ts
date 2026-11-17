@@ -20,7 +20,7 @@ describe('T-569 small halflife thoughts', () => {
   const nettles = thoughts.byId('nettles')!;
 
   it('the −1 rows are halflife over 12 hours', () => {
-    for (const id of ['nettles', 'lab_stink', 'drank_cactus', 'smoky_hall']) {
+    for (const id of ['nettles', 'lab_stink', 'drank_cactus', 'smoky_hall', 'spat_on']) {
       expect(thoughts.byId(id), id).toMatchObject({ value: { formula: '−1' }, hours: 12, decay: 'halflife' });
     }
   });
