@@ -69,6 +69,8 @@ const FINE_MEALS_FOR_WHIM = 25;
 /** Honey a mead brew takes, and the honey bought for a mead whim. */
 const MEAD_HONEY = 4;
 const HONEY_KEPT = 10;
+/** Clay loads bought (the merchants ask nothing for them) while the fortress has fewer: the peril-0 maps have none. */
+const CLAY_KEPT = 10;
 /** Candles bought while the fortress has fewer: two fillings of the stand. */
 const CANDLES_KEPT = 10;
 /** Fertilizer (dung, compost, bone ash) under which the Hillfolk's dung is bought. */
@@ -89,18 +91,43 @@ export function makingDo(state: FortressState): boolean {
 }
 
 /**
- * The goods the strand buys from a caravan, by item type, with the trade's wish-list priority: tallow
- * candles for the stand while fewer than CANDLES_KEPT, dung while the fertilizer runs low, and honey
- * for the Thane's mead (first, while a mead whim stands).
+ * The goods the strand buys from a caravan, by item type (or type and material), with the trade's
+ * wish-list priority: tallow candles for the stand while fewer than CANDLES_KEPT, with the cloth;
+ * dung while the fertilizer runs low; clay for the kiln; and honey for the Thane's mead (first, while
+ * a mead whim stands).
  */
 export function makingDoPurchases(w: TestWorld, state: FortressState): Map<string, number> {
   const wants = new Map<string, number>();
   if (!makingDo(state)) return wants;
-  if (owned(w, 'candle') < CANDLES_KEPT) wants.set('candle', 5);
+  if (owned(w, 'candle') < CANDLES_KEPT) wants.set('candle', 4);
   if (owned(w, 'dung') + owned(w, 'compost') + owned(w, 'bone_ash') < FERTILIZER_KEPT) wants.set('dung', 5);
   if (w.readers.of<DwarvesReader>('10').whim()?.id === 'whim_mead') wants.set('honey', 3);
   else if (owned(w, 'honey') < HONEY_KEPT) wants.set('honey', 5);
+  const clay = w.readers.of<ItemsReader>('13').countAvailable({ type: w.game.registry.table('items').index('soil_load'), materialId: w.game.registry.table('materials').index('clay') });
+  if (clay < CLAY_KEPT) wants.set('soil_load:clay', 5);
   return wants;
+}
+
+/**
+ * The wish-list priority of a merchant's good among the strand's purchases, or undefined: by its type,
+ * or its type and material (`soil_load:clay`); a container (a barrel of honey, a bag of dung) by its
+ * contents, as a sundry comes packed.
+ */
+export function makingDoWant(w: TestWorld, wants: ReadonlyMap<string, number>, itemId: number): number | undefined {
+  if (wants.size === 0) return undefined;
+  const ent = w.game.world.entities;
+  const types = w.game.registry.table<{ id: string }>('items');
+  const materials = w.game.registry.table<{ id: string }>('materials');
+  const want = (id: number): number | undefined => {
+    const it = ent.get(id, C.Item);
+    if (!it) return undefined;
+    const type = types.byIndex(it.type)?.id ?? '';
+    return wants.get(`${type}:${materials.byIndex(it.material)?.id ?? ''}`) ?? wants.get(type);
+  };
+  const own = want(itemId);
+  if (own !== undefined) return own;
+  const inside = ent.get(itemId, C.Container)?.contents ?? [];
+  return inside.length > 0 ? want(inside[0]!) : undefined;
 }
 
 function orderIndex(w: TestWorld, workshopId: number, recipeId: string): number {

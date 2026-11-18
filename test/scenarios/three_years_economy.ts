@@ -18,7 +18,7 @@ import { designateDig, onWagonSide, opensToHillside, siteTiles, type FortressSta
 import type { TestWorld } from './test-world';
 import { command } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
-import { checkMakingDo, keepThanesShare, makingDoPurchases } from './three_years_making_do';
+import { checkMakingDo, keepThanesShare, makingDoPurchases, makingDoWant } from './three_years_making_do';
 
 export interface EconomyState {
   lastDay: number;
@@ -837,7 +837,7 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (type === 'plant_food') return 3;
     if (type === 'cloth' || type === 'thread') return 4;
     if (type === 'rough_gem') return 5;
-    return makingDoWants.get(type) ?? 6;
+    return makingDoWant(w, makingDoWants, id) ?? 6;
   };
   const onOffer = reader.merchantItems().filter((id) => ent.get(id, C.Item)?.containerId === depot && !ent.get(id, C.Item)?.occupantId);
   // One anvil is enough: the first on offer.

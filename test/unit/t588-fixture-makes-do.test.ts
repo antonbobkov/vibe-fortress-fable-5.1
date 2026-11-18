@@ -38,7 +38,8 @@ describe('T-588 the three-year fortress makes do', () => {
     const plots = buildings.zonesOfType('farm_plot');
     expect(plots.length).toBeGreaterThan(0);
     for (const plot of plots) expect(w.readers.of<PlantsReader>('07').plotFertilize(plot)).toBe(true);
-    expect(makingDoPurchases(w, state).get('candle')).toBe(5);
+    expect(makingDoPurchases(w, state).get('candle')).toBe(4);
+    expect(makingDoPurchases(w, state).get('soil_load:clay')).toBe(5);
   });
 
   it('sets the spirits the Thane wished for aside, and gives them back when the whim is gone; fine meals rot, and are not set aside', () => {
