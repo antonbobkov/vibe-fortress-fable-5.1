@@ -69,9 +69,9 @@ async function showTile(page: Page, t: { x: number; y: number; z: number }): Pro
     const u = await ui(page);
     const col = t.x - u.camX;
     const row = t.y - u.camY;
-    if (col >= 3 && col < 40 && row >= 3 && row < 40) break;
+    if (col >= 3 && col < 40 && row >= 3 && row < 30) break;
     if (col < 3 || col >= 40) await page.keyboard.press(col < 3 ? 'ArrowLeft' : 'ArrowRight');
-    if (row < 3 || row >= 40) await page.keyboard.press(row < 3 ? 'ArrowUp' : 'ArrowDown');
+    if (row < 3 || row >= 30) await page.keyboard.press(row < 3 ? 'ArrowUp' : 'ArrowDown');
     const after = await ui(page);
     if (after.camX === u.camX && after.camY === u.camY) break;
   }
