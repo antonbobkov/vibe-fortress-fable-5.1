@@ -1,6 +1,6 @@
-# T-NEW — The three-year script fights a sprung ambush with a strong squad
+# T-601 — The three-year script fights a sprung ambush with a strong squad
 
-**Source:** [T-600's ambush arena](../../reports/audits/2026-11-18-t600-ambush-arena.md) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** [T-600's ambush arena](../../reports/audits/2026-11-18-t600-ambush-arena.md) · **Size:** M · **Needs:** T-588 · **Status:** blocked (needs T-588)
 
 ## Decided
 
