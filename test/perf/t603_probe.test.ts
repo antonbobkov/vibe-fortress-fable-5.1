@@ -8,11 +8,18 @@ import {
   checkFortressCaveFarm, checkFortressDefense, checkFortressRooms, checkFortressWorkOrders, playThreeYears, setupThreeYearsFortress, threeYearsWorld,
 } from '../scenarios/three_years_fortress';
 
+/**
+ * T-603: a probe of the strong squad on one three-year seed: every third day from day 110 its squads'
+ * members (weapon, duty, behaviour, place, sword skill), the swords in stock and the barracks. A
+ * measurement, not a gate: it runs only with `T603_PROBE=1`, e.g.
+ *   T603_PROBE=1 T603_SEED=three-years-p4-1 T603_PERIL=4 T603_DAYS=230 npx vitest run -c vitest.perf.config.ts test/perf/t603_probe.test.ts
+ */
+const RUN = process.env['T603_PROBE'] === '1';
 const SEED = process.env['T603_SEED'] ?? 'three-years-p2-1';
 const PERIL = Number(process.env['T603_PERIL'] ?? '2');
 const DAYS = Number(process.env['T603_DAYS'] ?? '130');
 
-describe('T-603 probe', () => {
+describe.skipIf(!RUN)('T-603 probe', () => {
   it(`plays ${SEED} to day ${DAYS} and prints the strong squad`, () => {
     const w = threeYearsWorld(SEED, PERIL);
     const state = setupThreeYearsFortress(w);

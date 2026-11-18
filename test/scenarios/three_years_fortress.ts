@@ -2502,8 +2502,8 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   for (const id of strong.trained) for (const labor of ['mining', 'woodcutting']) {
     if (jobs.laborEnabled(id, labor)) command(w, { type: 'SetLabor', dwarfId: id, labor, on: false });
   }
-  // A Warden leads the squad, and its training goes a quarter faster (10 § Titles).
-  if (soldiers.length > 0 && !soldiers.includes(squadOf(state.squadId)?.leaderId ?? 0)) command(w, { type: 'SetSquadLeader', squadId: state.squadId, leaderId: soldiers[0]! });
+  // A soldier is the Warden, and the squads' training goes a quarter faster (10 § Titles). The squad
+  // keeps no leader: one stood down for an ambush would stay its leader outside it.
   const warden = dwarves.holder('warden');
   if (soldiers.length > 0 && !soldiers.includes(warden)) command(w, { type: 'AssignTitle', title: 'warden', dwarfId: soldiers[0]! });
   const barracks = (strong.barracks?.zoneId ?? 0) !== 0;
