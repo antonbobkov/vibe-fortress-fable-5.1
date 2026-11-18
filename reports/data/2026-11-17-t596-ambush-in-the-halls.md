@@ -20,3 +20,10 @@ A player who sees an enemy in the hearth hall sends the squad. An ambush member 
 On the fixed script the seed's timeline changes before day 321 (an earlier ambush is answered differently), and the probe's run to day 338 has the day-321 ambush spring on the surface by the gate, kill three, loiter and withdraw on day 323.
 
 Test: `test/unit/t575-ambush-answer.test.ts`, T-596: an ambush of six with its leader in the hearth hall keeps the squad up, orders the leader killed and posts the squad below; with the leader dead the squad stands down for the five outside. It fails on master (the squad is stood down).
+
+## Gates on `1448cf9d`
+
+- Sweep (run 44231450950): `| **Pooled** | 19.5 | 7 | 0 | 1057.25 | 100.75 | 1 | 5.75 |`, **pass** against the reference `| 19.5 | 7 | 0 | 1010.5 | 137 | 1.75 | 6.25 |` (bounds 887.75 and 161.88). All 80 seed jobs passed, `three-years-p2-3` at shift 50 among them (4 deaths). By shift, living and deaths: 0, 962 and 110; 50, 978 and 123; 100, 1210 and 69; 150, 1079 and 101. `SWEEP_REFERENCE` unchanged.
+- Instrument (run 44231455410): `| **Pooled** | 12.88 | 10 | 10.75 | 153.75 | 9.5 | 0 | 0 | 0 | | |`, pass.
+- `defence_seeds` (run 44231458836): `| **Mean** | **6.88** | **7.25** | 0.38 | 0.25 | 23.72 | 4.53 | 3.88 |`, pass.
+- `ci.yml` (run 44231462164): green, 4,137 tests (1,020 + 924 + 1,141 + 1,052) and e2e 45 passed.
