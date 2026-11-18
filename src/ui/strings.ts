@@ -348,6 +348,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.status.skip.built_stairs': 'built stairs',
   'ui.status.skip.building': 'under a building',
   'ui.status.skip.built_floor': 'built floor',
+  'ui.status.skip.built_wall': 'built wall',
   'ui.status.drag_box': '{tool} {w}×{h}×{d} levels ({n} tiles), priority {priority}',
   'ui.status.selection': 'Selection {w}×{h} ({n} tiles)  [Del] clear  [S-f] forbid  [S-d] dump  [S-t] to depot  [Esc] cancel',
   'ui.trade.heading.merchant': 'Their goods',
@@ -365,8 +366,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // §4.2: a gesture that sends nothing says why (D-U4).
   'ui.status.none.dig': 'No tile here can be dug: dig marks rock walls and boulders.',
   'ui.status.none.channel': 'No tile here can be channelled: channel marks floor, ramps and down stairs with no building on them.',
-  'ui.status.none.stairs': 'No tile here can take stairs: they are carved from a wall or cut into a floor with no building on it.',
-  'ui.status.none.ramp': 'No tile here can take a ramp: a ramp is carved from a wall with open space above, or a floor with no building on it.',
+  'ui.status.none.stairs': 'No tile here can take stairs: they are carved from a rock wall or cut into a floor with no building on it.',
+  'ui.status.none.ramp': 'No tile here can take a ramp: a ramp is carved from a rock wall with open space above, or a floor with no building on it.',
   'ui.status.none.smooth': 'No tile here can be smoothed: only rough natural stone can.',
   'ui.status.none.engrave': 'No tile here can be engraved: only smoothed stone can.',
   'ui.status.none.remove': 'No construction here to remove.',

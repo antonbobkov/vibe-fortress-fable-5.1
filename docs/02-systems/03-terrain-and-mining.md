@@ -50,11 +50,11 @@ The generator runs synchronously with progress callbacks after each stage; budge
 | Designation | Precondition | Result | Item produced |
 |---|---|---|---|
 | `dig` | `wall` or `boulder`, not `constructed` | `floor` with the same material; the tile above is unchanged | Per material class: `stone` and `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always `rough_gem`; `bone`: always a `fossil` (a `tusk` for `ivory`, a tundra boneyard's tusks); `soil` whose material carries the tag `soil_drop` (`clay`, `sand`, `peat`): a `soil_load` with `SOIL_DROP_PERMILLE`; every other class, and every other soil: none |
-| `channel` | `floor`, `ramp`, `sapling`, `shrub`, or `stairs_down`, that holds no building | Tile becomes `open`; if the tile below is `wall`, it becomes `ramp`; if it is `floor` it stays; if it is `open` nothing more | Drops from the tile below as if dug when it becomes a ramp |
-| `stairs_up` | `wall`, or a `floor` that holds no building | `stairs_up` | As dig from a `wall`; none from a `floor` |
+| `channel` | `floor`, `ramp`, `sapling`, `shrub`, or `stairs_down`, that holds no building | Tile becomes `open`; if the tile below is a `wall` that is not `constructed`, it becomes `ramp`; if it is a `constructed` wall or a `floor` it stays; if it is `open` nothing more | Drops from the tile below as if dug when it becomes a ramp |
+| `stairs_up` | `wall`, not `constructed`, or a `floor` that holds no building | `stairs_up` | As dig from a `wall`; none from a `floor` |
 | `stairs_down` | a `floor` that holds no building | `stairs_down` | None |
-| `stairs_updown` | `wall`, or a `floor` that holds no building, or a `stairs_up` or `stairs_down` that is not `constructed` (re-carved to lead both ways) | `stairs_updown` | As dig from a `wall`; none otherwise |
-| `ramp` | `wall` with an `open` tile above, or a `floor` that holds no building | `ramp`; the tile above becomes `open` if it was `floor` | As dig |
+| `stairs_updown` | `wall`, not `constructed`, or a `floor` that holds no building, or a `stairs_up` or `stairs_down` that is not `constructed` (re-carved to lead both ways) | `stairs_updown` | As dig from a `wall`; none otherwise |
+| `ramp` | `wall`, not `constructed`, with an `open` tile above, or a `floor` that holds no building | `ramp`; the tile above becomes `open` if it was `floor` | As dig |
 | `smooth` | natural `wall` or `floor` of stone | sets `smoothed` | None |
 | `engrave` | `smoothed` tile | sets `engraved`; quality from the economy `rollQuality(engraving skill)` using 03's stream, with motif 0, is stored in a side table | None |
 | `remove` | `constructed` tile | the construction's material returns as an item; `wall` or `floor` becomes `open`, except a constructed floor over natural rock becomes the natural floor; stairs and ramps become `open` | The block, log or bar used |
@@ -64,6 +64,8 @@ The generator runs synchronously with progress callbacks after each stage; budge
 | `ignite` | a tile 05 calls burnable (`materials.burnableTile`), not `wet`, not `snow`, not `burning` | none here: `TileIgnited` and 05 light it | None (a `firebrand` is spent) |
 
 Every drop is of the dug tile's material. When a terrain job leaves the last tile of a boneyard's skull group (`giantSkulls`) no longer a `wall`, a `giant_skull` of `giant_bone` drops beside that tile's fossil, once: the group leaves the list. The soil drop's roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for a tile of such a soil, so digging stone, ore and every other soil draws the same numbers as before.
+
+A `constructed` wall is never carved: `dig`, stairs and `ramp` refuse it, and a channel above it leaves it standing. It comes down only by `remove`, which returns what it was built of.
 
 Digging a `wall` that has a `floor` above it (which is every underground wall) never affects the tile above. Digging removes the last support of nothing, because natural rock is never subject to support.
 

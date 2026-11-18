@@ -173,6 +173,14 @@ export function stairFloor(map: Map3D, i: TileIndex): boolean {
   return map.kindAt(i) === TileKind.Floor && map.buildingAtTile(i) === 0;
 }
 
+/**
+ * `03` § Tile transitions: a `wall` that is not `constructed`. Dig, stairs and ramps carve only
+ * natural rock; a built wall comes down by `remove`, which returns its blocks.
+ */
+export function naturalWall(map: Map3D, i: TileIndex): boolean {
+  return map.kindAt(i) === TileKind.Wall && !constructed(map, i);
+}
+
 /** A stair designation (up, down or up/down). */
 export function isStairDesignation(kind: Designation): boolean {
   return kind === Designation.StairsUp || kind === Designation.StairsDown || kind === Designation.StairsUpDown;
@@ -213,16 +221,16 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
         map.buildingAtTile(i) === 0
       );
     case Designation.StairsUp:
-      // Carved from a wall, or cut into a floor that holds no building.
-      return k === TileKind.Wall || stairFloor(map, i);
+      // Carved from a natural wall, or cut into a floor that holds no building.
+      return naturalWall(map, i) || stairFloor(map, i);
     case Designation.StairsUpDown:
       // As up stairs, or a natural stair re-carved to lead both ways.
-      return k === TileKind.Wall || stairFloor(map, i) ||
+      return naturalWall(map, i) || stairFloor(map, i) ||
         ((k === TileKind.StairsUp || k === TileKind.StairsDown) && !constructed(map, i));
     case Designation.StairsDown:
       return stairFloor(map, i);
     case Designation.Ramp: {
-      if (k !== TileKind.Wall) return false;
+      if (!naturalWall(map, i)) return false;
       const up = map.above(i);
       if (up < 0) return false;
       const ku = map.kindAt(up);
@@ -338,11 +346,12 @@ export function transition(
       changes.push({ tile: i, kind: TileKind.Floor, material });
       break;
     case Designation.Channel: {
-      // "Tile becomes `open`; if the tile below is `wall`, it becomes `ramp`; if it is `floor` it
-      // stays; if it is `open` nothing more." Drops come from the tile below when it becomes a ramp.
+      // "Tile becomes `open`; if the tile below is a natural `wall`, it becomes `ramp`; a built wall,
+      // or a `floor`, stays; if it is `open` nothing more." Drops come from the tile below when it
+      // becomes a ramp.
       changes.push({ tile: i, kind: TileKind.Open, material: 0, clear: TileFlag.Smoothed | TileFlag.Engraved | TileFlag.Grass });
       const below = map.below(i);
-      if (below >= 0 && map.kindAt(below) === TileKind.Wall) {
+      if (below >= 0 && naturalWall(map, below)) {
         addDrop(digDrop(map, below, facts, rolls));
         changes.push({ tile: below, kind: TileKind.Ramp, material: map.materialAt(below) });
       }

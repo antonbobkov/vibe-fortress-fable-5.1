@@ -152,9 +152,10 @@ class Skips {
 
 /**
  * Why a discovered tile could not take a designation: its kind, or for stairs "already open" and
- * "built stairs". 03 cuts no stairs and no channel under a building: for those a constructed floor
- * (or stair) reads "built floor" ("built stairs"), and a tile under any other building "under a
- * building", as does the wall a ramp would carve from under a floor that holds one.
+ * "built stairs". 03 carves no constructed wall: for dig, stairs and ramps it reads "built wall".
+ * 03 cuts no stairs and no channel under a building: for those a constructed floor (or stair)
+ * reads "built floor" ("built stairs"), and a tile under any other building "under a building", as
+ * does the wall a ramp would carve from under a floor that holds one.
  */
 function skipReason(map: MapReader, i: TileIndex, d: Designation): string {
   const kind = map.kindAt(i);
@@ -162,6 +163,7 @@ function skipReason(map: MapReader, i: TileIndex, d: Designation): string {
   const built = (map.flagsAt(i) & TileFlag.Constructed) !== 0;
   if (stairs && kind === TileKind.Open) return 'ui.status.skip.open';
   if (stairs && stairWays(kind) !== 0) return 'ui.status.skip.built_stairs';
+  if (built && kind === TileKind.Wall && (stairs || d === Designation.Dig || d === Designation.Ramp)) return 'ui.status.skip.built_wall';
   if ((stairs || d === Designation.Channel) && map.buildingAt(i) !== 0) {
     if (built && kind === TileKind.Floor) return 'ui.status.skip.built_floor';
     if (built && stairWays(kind) !== 0) return 'ui.status.skip.built_stairs';
