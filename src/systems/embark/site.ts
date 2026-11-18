@@ -19,7 +19,7 @@ import { expectedOreCount } from '@systems/terrain/generate/minerals';
 import { carvesLake, carvesRiver } from '@systems/terrain/generate/rivers';
 import { surfaceTreeDensity } from '@systems/terrain/generate/vegetation';
 import { SUMMER, WINTER, seasonBase, temperSpread, type Climate } from '@systems/weather/transitions';
-import { siteSignature, type SiteSignature } from './signatures';
+import { siteSignature, siteSoilMaterials, type SiteSignature } from './signatures';
 import type { LocalMapSpec } from './spec';
 
 export type TemperatureBand = 'frozen' | 'cold' | 'temperate' | 'warm' | 'hot';
@@ -224,8 +224,8 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
 
   // 03 stage 3: soil depth by biome (+2 serene_vale, loam only); glasslands lays obsidian instead.
   const depth = specSoilDepth(spec);
-  const materials = serene ? ['loam'] : byWeight(biome.soil.map((s) => [s.material, s.weight] as const));
-  const hasSoil = !glass && depth > 0 && materials.length > 0;
+  const materials = siteSoilMaterials(spec, registry);
+  const hasSoil = materials.length > 0;
   const soil = hasSoil ? { depth, materials } : null;
 
   // 03 stage 9: trees and shrubs only on soil; grass on the soil that is left.

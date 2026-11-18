@@ -54,7 +54,7 @@ test('embark-site-goods', async ({ page }) => {
   // The two rows follow Wildlife; on a short window the panel scrolls to them.
   if (!(await textOf(page)).includes('This site lacks:')) await page.keyboard.press('PageDown');
   const text = await textOf(page);
-  expect(text).toContain('This site has: stone, sand,');
+  expect(text).toContain('This site has: stone, lichen,');
   expect(text).toContain('This site lacks: wood, soil, clay,');
   const rows = text.split('\n');
   const wildlife = rows.findIndex((line) => line.includes('Wildlife'));
