@@ -151,16 +151,26 @@ class Skips {
 }
 
 /**
- * Why a discovered tile could not take a designation: its kind, or for stairs "already open",
- * "built stairs", and for a floor that holds a building (03 cuts no stairs under one) "built floor"
- * when the floor is itself a construction and "under a building" otherwise.
+ * Why a discovered tile could not take a designation: its kind, or for stairs "already open" and
+ * "built stairs". 03 cuts no stairs and no channel under a building: for those a constructed floor
+ * (or stair) reads "built floor" ("built stairs"), and a tile under any other building "under a
+ * building", as does the wall a ramp would carve from under a floor that holds one.
  */
-function skipReason(map: MapReader, i: TileIndex, stairs: boolean): string {
+function skipReason(map: MapReader, i: TileIndex, d: Designation): string {
   const kind = map.kindAt(i);
+  const stairs = d === Designation.StairsUp || d === Designation.StairsDown || d === Designation.StairsUpDown;
+  const built = (map.flagsAt(i) & TileFlag.Constructed) !== 0;
   if (stairs && kind === TileKind.Open) return 'ui.status.skip.open';
   if (stairs && stairWays(kind) !== 0) return 'ui.status.skip.built_stairs';
-  if (stairs && kind === TileKind.Floor && map.buildingAt(i) !== 0) {
-    return (map.flagsAt(i) & TileFlag.Constructed) !== 0 ? 'ui.status.skip.built_floor' : 'ui.status.skip.building';
+  if ((stairs || d === Designation.Channel) && map.buildingAt(i) !== 0) {
+    if (built && kind === TileKind.Floor) return 'ui.status.skip.built_floor';
+    if (built && stairWays(kind) !== 0) return 'ui.status.skip.built_stairs';
+    return 'ui.status.skip.building';
+  }
+  if (d === Designation.Ramp && kind === TileKind.Wall) {
+    const { x, y, z } = map.unpack(i);
+    const up = map.inBounds(x, y, z + 1) ? map.index(x, y, z + 1) : -1;
+    if (up >= 0 && map.kindAt(up) === TileKind.Floor && map.buildingAt(up) !== 0) return 'ui.status.skip.building';
   }
   return `ui.kind.${kind}`;
 }
@@ -201,7 +211,7 @@ function stairNeeds(map: MapReader, a: TilePoint, b: TilePoint, skips: Skips): M
     const kind = discovered(top) ? map.kindAt(top) : TileKind.Wall;
     if (kind === TileKind.Wall) column(x, y, zTop, zTop, true);
     else if (kind === TileKind.Floor || stairWays(kind) !== 0) column(x, y, zTop, Math.max(0, zTop - 1), false);
-    else skips.add(skipReason(map, top, true));
+    else skips.add(skipReason(map, top, Designation.StairsUpDown));
   }
   return needs;
 }
@@ -292,7 +302,7 @@ export class DesignateTool {
       for (const [i, need] of stairNeeds(map, a, b, skips)) {
         const d = stairFor(discovered(i) ? map.kindAt(i) : null, need);
         if (d === null) already += 1;
-        else if (discovered(i) && !ctx.precondition(i, d)) skips.add(skipReason(map, i, true));
+        else if (discovered(i) && !ctx.precondition(i, d)) skips.add(skipReason(map, i, d));
         else {
           const list = byKind.get(d) ?? [];
           list.push(i);
@@ -316,7 +326,7 @@ export class DesignateTool {
     const tiles: TileIndex[] = [];
     for (const i of boxTiles(map, a, b)) {
       if (!discovered(i) || ctx.precondition(i, designation)) tiles.push(i);
-      else skips.add(skipReason(map, i, false));
+      else skips.add(skipReason(map, i, designation));
     }
     const commands: Command[] = tiles.length === 0 ? [] : [{ type: 'Designate', tiles, kind: kind.id, priority: this.priority }];
     return { commands, designated: tiles.length, skipped: skips.list(), already: 0 };

@@ -179,6 +179,20 @@ export function isStairDesignation(kind: Designation): boolean {
 }
 
 /**
+ * `03` § Tile transitions: a designation that is refused on a tile that holds a building, and
+ * cleared when one is placed there: the stairs, and `channel`, which opens the tile.
+ */
+export function cutsUnderBuilding(kind: Designation): boolean {
+  return isStairDesignation(kind) || kind === Designation.Channel;
+}
+
+/** The floor above a wall that a `ramp` would open holds a building (`03` § Tile transitions). */
+export function rampOpensBuilding(map: Map3D, i: TileIndex): boolean {
+  const up = map.above(i);
+  return up >= 0 && map.kindAt(up) === TileKind.Floor && map.buildingAtTile(up) !== 0;
+}
+
+/**
  * The precondition column of the table. `harvest` is not a terrain designation (07), so it never
  * passes here.
  */
@@ -189,12 +203,14 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
     case Designation.Dig:
       return (k === TileKind.Wall || k === TileKind.Boulder) && !constructed(map, i);
     case Designation.Channel:
+      // Opens the tile, so never one that holds a building.
       return (
-        k === TileKind.Floor ||
-        k === TileKind.Ramp ||
-        k === TileKind.Sapling ||
-        k === TileKind.Shrub ||
-        k === TileKind.StairsDown
+        (k === TileKind.Floor ||
+          k === TileKind.Ramp ||
+          k === TileKind.Sapling ||
+          k === TileKind.Shrub ||
+          k === TileKind.StairsDown) &&
+        map.buildingAtTile(i) === 0
       );
     case Designation.StairsUp:
       // Carved from a wall, or cut into a floor that holds no building.
@@ -210,7 +226,8 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
       const up = map.above(i);
       if (up < 0) return false;
       const ku = map.kindAt(up);
-      return ku === TileKind.Open || ku === TileKind.Floor;
+      // The floor above is opened, so it must hold no building.
+      return ku === TileKind.Open || (ku === TileKind.Floor && !rampOpensBuilding(map, i));
     }
     case Designation.Smooth:
       return smoothable(map, i, facts);
