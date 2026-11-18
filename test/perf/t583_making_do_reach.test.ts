@@ -10,6 +10,7 @@
  *   in, a treatment, a drink) the count and first day of each thing;
  * - every thought a dwarf held, sampled every 100 ticks, counted once per gain;
  * - what each caravan brought to the depot;
+ * - each of the Thane's whims as judged: its row, the day and whether it was met (T-604: by year);
  * - at the end: the fortress's items by type and material, its buildings, zones and tame animals.
  *
  * Run on GitHub: `gh workflow run measure.yml --ref <branch> -f suite=making_do` (one job per seed;
@@ -79,6 +80,7 @@ describe('T-583 probe: Making Do reach', () => {
     const detail: Record<string, Tally> = {};
     const d = (k: string): Tally => (detail[k] ??= {});
     const caravanGoods: Record<string, Tally> = {};
+    const whims: { whim: string; day: number; met: boolean }[] = [];
     const ent = w.game.world.entities;
 
     const unsub = w.game.world.onEvents((evs) => {
@@ -121,7 +123,10 @@ describe('T-583 probe: Making Do reach', () => {
           case 'AnimalTamed': bump(d('tamed'), nameOf('creatures', ent.get(Number(e['id']), C.Creature)?.species ?? -1), today); break;
           case 'CreatureCaged': bump(d('caged'), nameOf('creatures', ent.get(Number(e['creatureId']), C.Creature)?.species ?? -1), today); break;
           case 'WhimSet': bump(d('whimSet'), String(e['whimId']), today); break;
-          case 'WhimJudged': bump(d('whimJudged'), `${String(e['whimId'])}:${e['met'] ? 'met' : 'missed'}`, today); break;
+          case 'WhimJudged':
+            bump(d('whimJudged'), `${String(e['whimId'])}:${e['met'] ? 'met' : 'missed'}`, today);
+            whims.push({ whim: String(e['whimId']), day: today, met: e['met'] === true });
+            break;
           case 'ItemAged': bump(d('aged'), String(e['stage']), today); break;
           case 'TradeCompleted': bump(d('trade'), String(e['civ']), today); break;
           case 'CaravanAtDepot': {
@@ -194,8 +199,8 @@ describe('T-583 probe: Making Do reach', () => {
     }
     const population = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
 
-    const result = { seed: SEED, shift: SHIFT, days: DAYS, population, map, events, detail, thoughts, caravanGoods, end: { items, buildings, zones, creatures } };
-    console.log(`[t583] ${SEED} shift ${SHIFT}: population ${population}, ${Object.keys(events).length} event types, ${Object.keys(detail['recipe'] ?? {}).length} recipes, ${Object.keys(thoughts).length} thoughts`);
+    const result = { seed: SEED, shift: SHIFT, days: DAYS, population, map, events, detail, thoughts, caravanGoods, whims, end: { items, buildings, zones, creatures } };
+    console.log(`[t583] ${SEED} shift ${SHIFT}: population ${population}, ${Object.keys(events).length} event types, ${Object.keys(detail['recipe'] ?? {}).length} recipes, ${Object.keys(thoughts).length} thoughts; whims met ${whims.filter((j) => j.met).map((j) => `${j.whim}@${j.day}`).join(' ') || 'none'} of ${whims.length}`);
     if (OUT) {
       mkdirSync(dirname(OUT), { recursive: true });
       writeFileSync(OUT, JSON.stringify(result, null, 1) + '\n');
