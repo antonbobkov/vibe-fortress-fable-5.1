@@ -111,6 +111,11 @@ const DEEP_BOTTOM_YEAR_2 = 19;
 const DEEP_BOTTOM_YEAR_3 = 15;
 /** Steel bars ordered at a time in year 3 (F-17i: the order is renewed when it runs out). */
 const STEEL_BATCH = 30;
+/**
+ * T-603: where the squad is built toward the ambush bars, steel is smelted from the middle of year 2,
+ * for the squad's five steel kits (50 bars) ahead of the steel crafts; elsewhere from year 3 (day 224).
+ */
+export const STRONG_STEEL_DAY = 168;
 /** Logs kept in stock, and the trees designated at a time to keep them. */
 const TIMBER_RESERVE = 40;
 const TIMBER_BATCH = 8;
@@ -134,6 +139,8 @@ const CRAFTS_PER_DWARF = 6;
 const DRIFT_EVERY_DAYS = 28;
 /** What the squad wants from a caravan: body armour, a shield, a helm, and bandages for the hospital. */
 const SQUAD_PURCHASES: readonly string[] = ['mail_shirt', 'shield', 'helm', 'bandage'];
+/** T-603: the strong squad's steel kit, bought from a caravan as it is forged. */
+const STRONG_KIT_ITEMS: readonly string[] = ['short_sword', 'shield', 'helm', 'mail_shirt', 'greaves'];
 const FIRST_IRON_CRAFTS = 10;
 /** Seed bought from one caravan: enough for six new strips or three cave strips. */
 const SEED_PER_VISIT = 96;
@@ -829,6 +836,12 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (type === 'anvil' && awaitingAnvil && id === anvil) return 0;
     if (type === 'log' && items.available('log') < 40) return 1;
     if (type === 'bar' || type === 'charcoal_bar') return 2;
+    // T-603: steel bars and the steel kit for the squad that trains for the ambushes, and flux for the smelter's own steel.
+    if (state.strong?.since !== undefined) {
+      const material = w.game.registry.table<{ id: string; tags?: string[] }>('materials').byIndex(it?.material ?? -1);
+      if (material?.id === 'steel' && (type === 'bar' || STRONG_KIT_ITEMS.includes(type))) return 1;
+      if (type === 'raw_stone' && material?.tags?.includes('flux') === true) return 2;
+    }
     // Armour and bandages for the squad that meets the boars, ahead of everything but the anvil.
     if (SQUAD_PURCHASES.includes(type)) return 1;
     // Seed of a crop the plots sow, and drink for the winter; hops, flax and sporecloth feed nobody.
@@ -965,7 +978,7 @@ function checkSpecialists(w: TestWorld, state: FortressState): void {
     if (spec.role === 'craftdwarf' && chosen[spec.role] === undefined && !state.economy.phases.has('stone craft staffed')) continue;
     // The gem-skilled miner opens the deposits before leaving mining for a supplied bench.
     if (spec.role === 'jeweler' && chosen[spec.role] === undefined && w.readers.of<ItemsReader>('13').count('rough_gem') === 0) continue;
-    const taken = new Set(Object.entries(chosen).filter(([role]) => role !== spec.role).map(([, id]) => id));
+    const taken = new Set([...Object.entries(chosen).filter(([role]) => role !== spec.role).map(([, id]) => id), ...(state.strong?.trained ?? [])]);
     if (state.economy.brewer !== undefined) taken.add(state.economy.brewer);
     let current = chosen[spec.role];
     if (current === undefined) {
@@ -1012,8 +1025,10 @@ export function keepAMiner(w: TestWorld, state: FortressState): void {
   const jobs = w.readers.of<JobsReader>('11');
   if (adults.length === 0 || adults.some((id) => jobs.laborEnabled(id, 'mining'))) return;
   const benched = new Set(Object.values(state.economy.specialists));
+  // T-603: a soldier of the strong squad is the last choice of all: training keeps it from the mine.
+  const trained = new Set(state.strong?.trained ?? []);
   const dwarves = w.readers.of<DwarvesReader>('10');
-  const miner = adults.slice().sort((a, b) => Number(benched.has(a)) - Number(benched.has(b)) ||
+  const miner = adults.slice().sort((a, b) => Number(trained.has(a)) - Number(trained.has(b)) || Number(benched.has(a)) - Number(benched.has(b)) ||
     dwarves.skill(b, 'mining') - dwarves.skill(a, 'mining') || a - b)[0]!;
   command(w, { type: 'SetLabor', dwarfId: miner, labor: 'mining', on: true });
 }
@@ -1069,7 +1084,9 @@ export function specialistCandidates(w: TestWorld, state: FortressState): number
   const founders = new Set(w.game.arrival?.dwarves ?? []);
   const taken = new Set(Object.values(state.economy.specialists));
   const watchmen = new Set((state.watch ?? []).map((wt) => wt.dwarfId));
-  return fortressDwarves(w).filter((id) => !founders.has(id) && !taken.has(id) && id !== state.economy.broker?.id && id !== state.economy.brewer && !watchmen.has(id));
+  // T-603: nor a soldier or marksdwarf of the strong squad, whom training keeps from any craft.
+  const trained = new Set(state.strong?.trained ?? []);
+  return fortressDwarves(w).filter((id) => !founders.has(id) && !taken.has(id) && id !== state.economy.broker?.id && id !== state.economy.brewer && !watchmen.has(id) && !trained.has(id));
 }
 
 /**
@@ -1687,7 +1704,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   // F-17i: the alloy order is kept running through year 3, with flux mined for each new batch.
   const smelter = state.placedIds['smelter'];
-  if (day >= 224 && smelter && state.orderedWorkshops.has('smelter')) {
+  if (day >= (state.strongSquad === true ? STRONG_STEEL_DAY : 224) && smelter && state.orderedWorkshops.has('smelter')) {
     const alloy = w.game.registry.table('recipes').index('alloy_steel');
     const ws = w.game.world.entities.get(smelter, C.Workshop);
     if (ws && !ws.orders.some((o) => o.recipe === alloy)) {
