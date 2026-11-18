@@ -1,4 +1,4 @@
-# T-NEW — An ambush stays engaged in the fortress for more than ten days
+# T-596 — An ambush stays engaged in the fortress for more than ten days
 
 **Source:** [T-580's sweeps](../../reports/data/2026-11-17-t580-ambush-surface-work.md) · **Size:** M · **Needs:** — · **Status:** open
 
