@@ -13,6 +13,8 @@ export const CARAVAN_VALUE_BASE = 2500;
 export const CARAVAN_VALUE_PER_RENOWN = 150;
 export const CARAVAN_VALUE_PER_REP = 20;
 export const REQUEST_SHARE = 30;
+/** Marks a unit that a good worth nothing counts for in a caravan's draw and requests (20 § Party). */
+export const CARAVAN_GOOD_VALUE_MIN = 1;
 export const REQUEST_MAX = 8;
 export const DEPOT_WAIT_DAYS = 3;
 export const CARAVAN_STAY_DAYS = 5;

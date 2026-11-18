@@ -1,6 +1,8 @@
 # T-584 — Caravans bring the sand, clay and brightleaf they list
 
-**Source:** [T-583's audit of Making Do's reach](../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 2 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-17, in a1c12c5a.
+
+**Source:** [T-583's audit of Making Do's reach](../../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 2 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

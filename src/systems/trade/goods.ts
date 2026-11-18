@@ -1,5 +1,5 @@
 /** Caravan cargo from the authored `caravanGoods` table. */
-import { CARAVAN_BUNDLE_UNITS, CARAVAN_VALUE_BASE, CARAVAN_VALUE_PER_RENOWN, CARAVAN_VALUE_PER_REP, DEEPSILVER_SALE_REP, NEVER_SOLD_ITEMS, NEVER_SOLD_MATERIALS, REQUEST_SHARE } from './constants';
+import { CARAVAN_BUNDLE_UNITS, CARAVAN_GOOD_VALUE_MIN, CARAVAN_VALUE_BASE, CARAVAN_VALUE_PER_RENOWN, CARAVAN_VALUE_PER_REP, DEEPSILVER_SALE_REP, NEVER_SOLD_ITEMS, NEVER_SOLD_MATERIALS, REQUEST_SHARE } from './constants';
 import type { TradeRequest } from './state';
 import type { Civ } from '@core/types';
 import type { Registry } from '@core/registry';
@@ -162,6 +162,9 @@ function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng
       if (otherRow && otherMaterial) value += itemValue(otherMaterial.value, otherRow.mult, 1, otherRow.quality, otherCount);
     }
   }
+  // 20 § Party, Goods: a good worth nothing (sand, clay, brightleaf) counts `CARAVAN_GOOD_VALUE_MIN`
+  // a unit in the draw and the requests; it stays worth nothing in the fortress and at the depot.
+  if (value <= 0) value = count * CARAVAN_GOOD_VALUE_MIN;
   return { type, material, count, value, ...(container ? { container } : {}), ...(companion ? { companion } : {}), ...(entry.units !== undefined ? { units: entry.units } : {}) };
 }
 
