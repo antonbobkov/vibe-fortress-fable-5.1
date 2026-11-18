@@ -36,5 +36,5 @@ By peril, v3 against master over the same four shifts (means a sweep): peril 0 4
 
 ## Follow-ups
 
-- `docs/work/T-NEW-strong-squad-pace.md`: the squad does not reach Proficient in three years at the measured pace; measure the pace and decide whether training or the bar's timing changes.
-- `docs/work/T-NEW-barracks-post-on-a-blocked-tile.md`: a training member's barracks post can be the archery target's tile; one marksdwarf stood at 0 for 140 days in a probe.
+- `docs/work/T-606-strong-squad-pace.md`: the squad does not reach Proficient in three years at the measured pace; measure the pace and decide whether training or the bar's timing changes.
+- `docs/work/T-607-barracks-post-on-a-blocked-tile.md`: a training member's barracks post can be the archery target's tile; one marksdwarf stood at 0 for 140 days in a probe.
