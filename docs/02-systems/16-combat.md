@@ -144,7 +144,7 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 - Barracks zone with `squadId` setting; sparring: pairs of present members who are currently in `duty` behavior (not satisfying a need, fleeing, or hospitalized), `SPAR_TICKS` per session, grant `TRAIN_XP` to the weapon skill, `dodge`, `shield` (if held) and `armor_use` (if armored); solo drills grant half. Sparring uses the members' real weapons; each session has `SPAR_INJURY_PERMILLE` chance of a `light` bruise (never with training weapons, which are wooden items of the weapon class with `training: true` and 0 damage).
 - Archery range: a zone with an `archery_target` building at one end; ranged members shoot `TRAIN_SHOTS` bolts or arrows per session at the target (ammunition drops and is recovered by hauling; training uses the cheapest ammunition available).
 - A member holding a channel never spars and never shoots at the range: it takes the solo drill, its weapon skill `runecraft`, and spends no rune (25 § Channels).
-- `WARDEN_TRAINING_BONUS_PERCENT` (10) applies when a Warden exists. Barracks room tier gives a thought per session.
+- A Warden adds `WARDEN_TRAINING_BONUS_PERCENT` (defined in 10) to the experience of every session while one exists. Barracks room tier gives a thought per session.
 
 An explicit barracks zone setting takes precedence over a cached training zone. On `ZoneChanged` when a barracks setting changes, refresh each squad’s saved `barracksZoneId` from current assignments, or the first barracks when none is assigned. A squad that has already trained moves its training to a newly assigned zone; its next sessions require members to be present there.
 

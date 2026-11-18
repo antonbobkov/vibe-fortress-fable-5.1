@@ -2426,14 +2426,12 @@ function keepBarracks(w: TestWorld, state: FortressState, strong: StrongSquad, d
   if (b.targetId !== 0 && buildings.get(b.targetId) === undefined) b.targetId = 0;
   if (b.targetId !== 0 || strong.marksSquadId === 0 || w.readers.of<ItemsReader>('13').available('archery_target') === 0) return;
   // The target blocks its tile: a corner of the room with no way in beside it, the farthest from the
-  // stair, and none of the zone's first tiles, where the squads' members stand to train (16 § Squads
-  // gives a member the zone's tile of its place in the squad, whatever stands on it).
-  const posts = new Set((buildings.zone(b.zoneId)?.tiles ?? b.tiles).slice(0, STRONG_SOLDIERS));
+  // stair (16 § Squads posts the members on the zone's other tiles).
   const inside = new Set(b.tiles);
   const xs = b.tiles.map((u) => w.map.xOf(u));
   const ys = b.tiles.map((u) => w.map.yOf(u));
   const far = (t: number): number => Math.abs(w.map.xOf(t) - state.cx - 6) + Math.abs(w.map.yOf(t) - state.cy - 6);
-  const corners = b.tiles.filter((t) => !posts.has(t) && [Math.min(...xs), Math.max(...xs)].includes(w.map.xOf(t)) && [Math.min(...ys), Math.max(...ys)].includes(w.map.yOf(t)))
+  const corners = b.tiles.filter((t) => [Math.min(...xs), Math.max(...xs)].includes(w.map.xOf(t)) && [Math.min(...ys), Math.max(...ys)].includes(w.map.yOf(t)))
     .filter((t) => [-1, 0, 1].every((dy) => [-1, 0, 1].every((dx) => {
       const n = w.map.offset(t, dx, dy, 0);
       return n < 0 || inside.has(n) || w.map.kindAt(n) === TileKind.Wall;
