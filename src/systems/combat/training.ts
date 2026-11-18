@@ -191,6 +191,9 @@ export function stepTraining(
                 if (ammoItem) {
                   const items = ctx.world.services.items;
                   if (items === null) continue;
+                  // The last unit leaves the soldier: a quiver slot that names the stack is cleared, as a shot clears it (ranged.ts).
+                  const equip = entities.get(m, C.Equipment);
+                  if (ammoItem.count <= 1 && equip?.quiver === ammoItemId) equip.quiver = 0;
                   if (ammoItem.count > 1) {
                     items.consume(ammoItemId, 1);
                     if (!rng.chance(AMMO_BREAK_PERMILLE)) {

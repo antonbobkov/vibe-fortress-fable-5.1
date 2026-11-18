@@ -23,6 +23,9 @@ interface SeedFile {
 interface SquadFile {
   best: { day: number; inMetal: number; metals: string[]; skills: number[]; steel: number; marks: number; bar: string } | null;
   answers: Record<string, number>;
+  /** T-603: the first day each bar was cleared, and each answer's toll. */
+  barDays?: Record<string, number>;
+  toll?: Record<string, { ambushes: number; deaths: number; soldiers: number; fell: number }>;
 }
 interface Sample { shift: number; commits: string[]; rows: SweepSeedRow[]; figures: SweepFigures; invariants: string[]; squads: Map<string, SquadFile> }
 
@@ -47,6 +50,20 @@ const samples: Sample[] = shiftDirs.map((name) => {
 function squadLines(samples: readonly Sample[]): string[] {
   const all = samples.flatMap((s) => [...s.squads.values()]);
   if (all.length === 0) return [];
+  // T-603: by peril, the fortress-timelines that cleared each bar and the days they first did; the ambushes' toll by answer.
+  const perilOf = (seed: string): number => Number(/-p(\d)-/.exec(seed)?.[1] ?? -1);
+  const reach = [2, 4].map((peril) => {
+    const fortresses = samples.flatMap((s) => [...s.squads.entries()].filter(([seed]) => perilOf(seed) === peril).map(([, q]) => q));
+    const days = (bar: string): number[] => fortresses.map((q) => q.barDays?.[bar]).filter((d): d is number => d !== undefined).sort((a, b) => a - b);
+    const span = (d: number[]): string => (d.length ? `${d.length} (day ${d[Math.floor(d.length / 2)]} median, ${d[0]} to ${d[d.length - 1]})` : '0');
+    return `peril ${peril}, ${fortresses.length} fortress-timelines: the soldiers' bar ${span(days('soldiers alone'))}, the full squad's ${span(days('full squad'))}`;
+  });
+  const toll: Record<string, { ambushes: number; deaths: number; soldiers: number; fell: number }> = {};
+  for (const q of all) for (const [k, v] of Object.entries(q.toll ?? {})) {
+    const t = (toll[k] ??= { ambushes: 0, deaths: 0, soldiers: 0, fell: 0 });
+    t.ambushes += v.ambushes; t.deaths += v.deaths; t.soldiers += v.soldiers; t.fell += v.fell;
+  }
+  const tollLine = Object.entries(toll).map(([k, t]) => `${k}: ${t.ambushes} ambushes, ${t.deaths} dwarves dead (${t.soldiers} of the squad), ${t.fell} of the ambush felled`).join('; ') || 'none';
   const bars = (bar: string): number => all.filter((q) => q.best?.bar === bar).length;
   const answers: Record<string, number> = {};
   for (const q of all) for (const [k, n] of Object.entries(q.answers)) answers[k] = (answers[k] ?? 0) + n;
@@ -61,6 +78,8 @@ function squadLines(samples: readonly Sample[]): string[] {
   return [
     `**Squad against ambushes (T-601)**, over ${all.length} fortress-timelines: cleared the full squad's bar ${bars('full squad')}, the soldiers' bar ${bars('soldiers alone')}; most soldiers in steel at Proficient in one fortress ${steel}, marksdwarves ${marks}.`,
     `Sprung ambushes by the script's first answer: ${list(answers)}.`,
+    `Bars cleared (T-603), by peril: ${reach.join('; ')}.`,
+    `Ambushes ended, by first answer, and their toll from the spring until the party was gone: ${tollLine}.`,
     `Strongest squad by day 336, members armed in metal (fortress-timelines): ${list(inMetal)}; their body armour's metal (soldiers): ${list(metals)}; their weapon skill: ${skills.length ? `median ${skills[Math.floor(skills.length / 2)]}, best ${skills[skills.length - 1]}` : 'none'}.`,
     '',
   ];

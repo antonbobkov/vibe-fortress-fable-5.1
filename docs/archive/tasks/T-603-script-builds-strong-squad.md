@@ -1,10 +1,12 @@
 # T-603 — The three-year script builds a squad that can fight an ambush
 
-**Source:** [T-601's report](../../reports/data/2026-11-18-t601-script-fights-ambushes.md) (the script fights a sprung ambush when its squad clears the arena's bars; no fortress of the sweep reached one) · **Size:** L · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 6da1fba8.
+
+**Source:** [T-601's report](../../../reports/data/2026-11-18-t601-script-fights-ambushes.md) (the script fights a sprung ambush when its squad clears the arena's bars; no fortress of the sweep reached one) · **Size:** L · **Needs:** — · **Status:** open
 
 ## Why
 
-T-601 gave the three-year script the owner's answer to a sprung ambush: five soldiers in steel at Proficient with two Proficient marksdwarves and cloth for the medics fight one of up to 10, the five alone one of up to 6 ([arena](../../reports/audits/2026-11-18-t600-ambush-arena.md)). The script never fields that squad, so the sweep still measures a fortress that hides from every peril-4 ambush. Its squad is three (`SQUAD_SIZE`), armed in iron from the forge's `maintain` orders, never trains (it works its civilian labors and learns only in fights), and it sells the wagon's crossbow; its steel, from year 3, goes to crafts. A player at peril 4 who means to fight would raise that squad over the three years.
+T-601 gave the three-year script the owner's answer to a sprung ambush: five soldiers in steel at Proficient with two Proficient marksdwarves and cloth for the medics fight one of up to 10, the five alone one of up to 6 ([arena](../../../reports/audits/2026-11-18-t600-ambush-arena.md)). The script never fields that squad, so the sweep still measures a fortress that hides from every peril-4 ambush. Its squad is three (`SQUAD_SIZE`), armed in iron from the forge's `maintain` orders, never trains (it works its civilian labors and learns only in fights), and it sells the wagon's crossbow; its steel, from year 3, goes to crafts. A player at peril 4 who means to fight would raise that squad over the three years.
 
 It was not done in T-601 because it is not cheap: every part takes dwarves from the economy (soldiers who train do no civilian work; `defence_year` takes the miners' and woodcutter's labors from its squad, T-567), steel for five kits is some 40 bars of a stock that reaches year 3 thin, and each moves the sweep's living and deaths.
 

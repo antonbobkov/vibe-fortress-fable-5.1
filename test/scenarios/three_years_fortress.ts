@@ -14,15 +14,16 @@ import { HeadlessGame, regionSpec, FLAT_TEST_SURFACE_Z, type HeadlessEmbark } fr
 import { contentRegistry } from '@content/loader';
 import { Map3D } from '@core/map3d';
 import { generateLocal } from '@systems/terrain/generate';
-import { LOCAL_MAP_Z, TICKS_PER_DAY } from '@core/constants';
+import { DAYS_PER_YEAR, LOCAL_MAP_Z, TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import { C, ItemFlag } from '@core/components';
 import type { Registry } from '@core/registry';
 import type { TileIndex } from '@core/types';
 import { EmbarkSession } from '@systems/embark';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
-import type { CombatReader } from '@systems/combat/reader';
+import type { CombatReader, SquadWithId } from '@systems/combat/reader';
 import { getSkill, weaponOf as wieldedWeapon } from '@systems/combat/melee';
+import { findAmmoForShooter } from '@systems/combat/ranged';
 import type { ItemsReader } from '@systems/items';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { AnimalsReader } from '@systems/animals';
@@ -30,7 +31,7 @@ import type { DwarvesReader } from '@systems/dwarves';
 import type { JobsReader } from '@systems/jobs';
 import { TestWorld } from './test-world';
 import { command } from './script-commands';
-import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, specialistCandidates, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
+import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, specialistCandidates, checkEconomy, KIT_FIRST, METAL_BUILD, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 
 export const Z = FLAT_TEST_SURFACE_Z;
@@ -301,8 +302,18 @@ export interface FortressState {
   /** T-601: the strongest squad the fortress has fielded, looked at once a day (journal only). */
   bestSquad?: SquadReach;
   squadSeenDay?: number;
+  /** T-603: the first day the squad cleared each ambush bar (journal only). */
+  barDays?: Partial<Record<'full squad' | 'soldiers alone', number>>;
   /** T-580: the gate's two watch squads, north door and south, each with its one watchman (0 while none). */
   watch?: { squadId: number; dwarfId: number }[];
+  /** T-603: the squad is built toward the ambush bars (perils 2 and 4, where ambushes come); false in the defence fortress, which trains its own. */
+  strongSquad?: boolean;
+  /** T-603: the strong squad's barracks, its marksdwarves' squad and the dwarves it has taken from civilian work. */
+  strong?: StrongSquad;
+  /** T-603: a squad that fought a sprung ambush under the current alert; the alert is lowered as soon as the danger is gone. */
+  ambushFought?: boolean;
+  /** T-603: each sprung ambush's toll by its first answer (journal only). */
+  ambushToll?: Record<string, { ambushes: number; deaths: number; soldiers: number; fell: number }>;
   /** T-580: false where no watch is posted at the north door and no dog is trained: the defence fortress, whose kill corridor and traps lie before that door. */
   northWatch?: boolean;
   hospitalSetup: boolean;
@@ -828,6 +839,8 @@ export function setupThreeYearsFortress(w: TestWorld): FortressState {
     hospitalSetup: false,
     forgePlaced: false,
     timberTiles: treeTiles.filter((t) => !roadTrees.includes(t)),
+    // T-603: where ambushes come the squad is built toward the ambush bars.
+    strongSquad: ambushFromDay(w) !== null,
   };
 }
 
@@ -1242,7 +1255,8 @@ export function hallBlockSite(w: TestWorld, state: FortressState, width: number,
   const hallLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
   const planned = new Set<number>([...state.economy.workings, ...(state.dormitories ?? []).flatMap((d) => d.tiles),
     ...state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, z)]), ...(state.economy.larder?.tiles ?? []),
-    ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? []), ...(state.burial?.tombs ?? []).flatMap((t) => t.tiles)]);
+    ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? []), ...(state.burial?.tombs ?? []).flatMap((t) => t.tiles),
+    ...(state.strong?.barracks?.tiles ?? [])]);
   const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) &&
     map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t);
   const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
@@ -1655,7 +1669,7 @@ function countAmbushes(w: TestWorld, state: FortressState, events: readonly { ty
   const counts = state.ambushes ?? (state.ambushes = []);
   const fortress = (): number[] => ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress');
   const onSurface = (): number => fortress().filter((id) => (ent.get(id, C.Position)?.z ?? -1) >= state.z).length;
-  const squad = [...(combat.squads().find((sq) => sq.id === state.squadId)?.members ?? []), ...(state.stoodDown ?? [])];
+  const squad = fielded(w, state);
   const dwarf = w.game.registry.table('creatures').index('dwarf');
   for (const e of events) {
     if (e.type === 'AmbushSprung') {
@@ -1683,6 +1697,11 @@ function countAmbushes(w: TestWorld, state: FortressState, events: readonly { ty
     if (p !== undefined && p.state !== 'gone') continue;
     const { squad: _seen, ...row } = c;
     note('three_years_ambush', { ...row, ended: Math.floor(w.tick / TICKS_PER_DAY) + 1 });
+    const toll = (state.ambushToll ??= {})[c.answer ?? 'unanswered'] ??= { ambushes: 0, deaths: 0, soldiers: 0, fell: 0 };
+    toll.ambushes += 1;
+    toll.deaths += c.deaths;
+    toll.soldiers += c.soldiers;
+    toll.fell += c.fell;
     counts.splice(counts.indexOf(c), 1);
   }
 }
@@ -1780,7 +1799,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   if (w.game.world.fortress.alert === 'calm') standUp(w, state, adults);
   const squad = combat.squads().find((sq) => sq.id === state.squadId);
   const arming0 = armingSquad(state);
-  if (squad) {
+  // T-603: where ambushes come, the squad of five that trains is kept by its own rules once it has formed.
+  if (squad && !keepStrongSquad(w, state, adults)) {
     // Everybody with a weapon stands: the mason, the seventh founder and the woodcutter take the
     // spears, and the miners fight with their picks. The farmer and the cook stay civilians and
     // tend the wounded; immigrants replace the fallen. Where the anvil came in the wagon the
@@ -1879,7 +1899,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
     state.answered = '';
-    if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    cancelSquadOrders(w, state);
     return;
   }
   if (state.shutOut && positions.some((p) => p.z < state.z && (!line || p.z <= state.hallZ))) state.shutOut = false;
@@ -1914,7 +1934,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, wildQuiet: true });
     state.answered = '';
-    if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    cancelSquadOrders(w, state);
   };
   const wildSince = hunts ? state.alertSince : (state.wildEpisodeSince ?? state.alertSince);
   // T-567: a hunt is called off after WILD_HUNT_TICKS of its alert, as a wait after WILD_ALERT_TICKS.
@@ -2007,6 +2027,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const ambushMuster = fights && state.mustered !== true;
     if (ambushMuster && musteredAt(w, state, gatehouseStairsTile, (id) => ambushKit(w, id) === 'steel', AMBUSH_SOLDIERS)) {
       state.mustered = true;
+      state.ambushFought = true;
       const members = squad?.members ?? [];
       const fit = members.filter((id) => ambushKit(w, id) !== '');
       note('three_years_ambush_fight', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, size: ambushSize, bar: ambushBar(strength!).bar, ...strength });
@@ -2030,14 +2051,28 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       const outdoors = (raid && !(siege && line) && !(ambushOnly && ambushIn.length > 0)) || hunted.length > indoors.length + ambushIn.length || mustering;
       const post = outdoors || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
+      // T-603: the marksdwarves go with a squad that fights an ambush, and are sent after the same
+      // members; under any other alert they wait in their barracks, below.
+      const marks = state.strong?.marksSquadId ?? 0;
+      if (marks !== 0) {
+        command(w, { type: 'SquadOrder', squadId: marks, order: { kind: 'cancel' } });
+        if (fights) {
+          for (const targetId of fought) command(w, { type: 'SquadOrder', squadId: marks, order: { kind: 'kill', targetId } });
+          command(w, { type: 'SquadOrder', squadId: marks, order: { kind: 'station', tile: gatehouseStairsTile } });
+        }
+      }
     }
-  } else if (curAlert === 'hearth' && w.tick - state.lastDangerTick >= ALL_CLEAR_TICKS) {
+  // T-603: once an ambush the squad went out to fight has broken and nothing else threatens, the
+  // alert comes down at once: the gate's doors lock on the alert (`lock_on_alert`), and the medics
+  // reach the wounded outside only through them (in T-600's arena most of the dead bled out after
+  // the fight). Otherwise it waits ALL_CLEAR_TICKS with no danger near.
+  } else if (curAlert === 'hearth' && (w.tick - state.lastDangerTick >= ALL_CLEAR_TICKS || state.ambushFought === true)) {
     if (state.wildEpisodeSince !== undefined) state.wildCalmTick = w.tick;
     state.mustered = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true });
     state.answered = '';
-    if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+    cancelSquadOrders(w, state);
   }
 }
 
@@ -2063,6 +2098,14 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
 /** T-580: the kennel, the dogs' training and the watch's posts begin this many days before ambushes are possible. */
 const WATCH_LEAD_DAYS = 42;
 
+/** T-603: the squads' orders are cancelled as the alert comes down, the marksdwarves' too. */
+function cancelSquadOrders(w: TestWorld, state: FortressState): void {
+  state.ambushFought = false;
+  for (const squadId of [state.squadId, state.strong?.marksSquadId ?? 0]) {
+    if (squadId !== 0) command(w, { type: 'SquadOrder', squadId, order: { kind: 'cancel' } });
+  }
+}
+
 function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly number[]): void {
   const from = ambushFromDay(w);
   if (from === null || w.tick < (from - WATCH_LEAD_DAYS) * TICKS_PER_DAY) return;
@@ -2073,7 +2116,7 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
   const watch = (state.watch ??= []);
   const squadMembers = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
   const founders = w.game.arrival?.dwarves ?? [];
-  const busy = new Set<number>([...squadMembers, ...(state.stoodDown ?? []), ...founders, ...Object.values(state.economy.specialists),
+  const busy = new Set<number>([...squadMembers, ...(state.stoodDown ?? []), ...(state.strong?.trained ?? []), ...founders, ...Object.values(state.economy.specialists),
     state.economy.brewer ?? 0, state.economy.broker?.id ?? 0]);
   // The north door and the south one (the south alone where the north opens on a kill corridor).
   const doors: [number, number][] = state.northWatch === false ? [[state.gateDoorId, 1]] : [[state.gateDoorId2, -1], [state.gateDoorId, 1]];
@@ -2262,6 +2305,311 @@ function squadInMetal(w: TestWorld, state: FortressState): boolean {
   return members.filter((id) => armedInMetal(w, id)).length >= SQUAD_SIZE;
 }
 
+/**
+ * T-603: where ambushes come (perils 2 and 4) a player builds toward the squad the ambush bars ask
+ * for (T-601). Once the fortress is big enough (`StrongPlan`), the squad is STRONG_SOLDIERS soldiers
+ * taken from the immigrants nobody else needs, short swords their weapon (wooden ones from the
+ * carpenter until a metal one is free), who train full time in a barracks dug off the hall level's
+ * corridors with a Warden among them (16 § Training) until each is Proficient (AMBUSH_SKILL), and
+ * then go back to civilian work: there is no skill rust (10). With more adults, AMBUSH_MARKS
+ * marksdwarves join them in a ranged squad of their own, with crossbows and bolts from the forge,
+ * and shoot at an archery target in the same barracks. Below a floor of adults nobody trains. The
+ * forge makes each soldier a steel sword, shield, helm, mail shirt and greaves ahead of its other
+ * orders once there is steel, which such a fortress smelts from STRONG_STEEL_DAY and asks the
+ * Mountainhome for (three_years_economy.ts).
+ */
+export interface StrongPlan {
+  /** The first day the squad of soldiers trains, and the adults it needs. */
+  readonly day: number;
+  readonly adults: number;
+  /** The adults with which the marksdwarves join it. */
+  readonly marksAdults: number;
+  /** Below this many adults nobody trains. */
+  readonly floor: number;
+}
+
+/**
+ * T-603: from the second year with 24 adults, the marksdwarves at 30, nobody below 20, at both perils.
+ * Earlier and smaller cost more than it gave: with 16 adults from day 84 (the marksdwarves at 22,
+ * nobody below 12) the peril-4 fortresses lost 25 living dwarves a timeline and gained 6 deaths in a
+ * partial sweep, and with that plan at peril 2 alone the sweep's living fell from 1046.25 to 980,
+ * neither reaching a bar (reports/data/2026-11-18-t603-strong-squad.md).
+ */
+export const STRONG_PLAN: StrongPlan = { day: DAYS_PER_YEAR, adults: 24, marksAdults: 30, floor: 20 };
+
+/**
+ * T-603: the squad is one soldier more than the bar's five, so that every soldier has a sparring
+ * partner (16 § Training: the odd one drills alone at half the experience; in `three-years-p2-3`
+ * the fifth of five stood at Novice when the others were Skilled) and a fallen one does not drop the squad under the bar.
+ */
+export const STRONG_SOLDIERS = AMBUSH_SOLDIERS + 1;
+
+/** T-603: the barracks is a block of rock this size, dug this many days before the squad trains. */
+export const BARRACKS_W = 4;
+export const BARRACKS_H = 5;
+const BARRACKS_LEAD_DAYS = 14;
+/** T-603: the standing metal-craft orders' stock (three_years_economy.ts, the 'iron goods'), paused while the steel kits are owed. */
+const CRAFT_BARS_KEPT = 60;
+/** T-603: the wooden bolts the carpenter keeps for the range (a practice shot breaks one bolt in five, 16 § Training). */
+const TRAINING_BOLTS = 40;
+/** T-603: each soldier's steel kit: the forge's recipe, the item and the slot it fills. */
+const STEEL_KIT: readonly (readonly [string, string, 'weapon' | 'shield' | 'head' | 'body' | 'legs'])[] = [
+  ['forge_short_sword', 'short_sword', 'weapon'], ['forge_shield', 'shield', 'shield'], ['forge_helm', 'helm', 'head'],
+  ['forge_mail_shirt', 'mail_shirt', 'body'], ['forge_greaves', 'greaves', 'legs'],
+];
+
+/** T-603: the metals whose standing craft orders the forge has had taken off while the steel kits are owed. */
+function strongPaused(state: FortressState): Set<string> {
+  const strong = state.strong!;
+  return (strong.pausedCrafts ??= new Set<string>());
+}
+
+/** T-603: the strong squad's state. */
+export interface StrongSquad {
+  /** The metals ('iron', 'steel') whose standing craft orders are off while the kits are owed. */
+  pausedCrafts?: Set<string>;
+  /** The barracks: its rock, its zone once dug (0 before) and its archery target (0 before). */
+  barracks?: { tiles: number[]; zoneId: number; targetId: number };
+  /** The day the squad of five first formed (undefined before). */
+  since?: number;
+  /** The marksdwarves' squad (0 before). */
+  marksSquadId: number;
+  /** The soldiers and marksdwarves taken from civilian work. */
+  trained: number[];
+  /** The last day the roster and the forge were looked at. */
+  day: number;
+}
+
+/** T-601, T-603: the squad's members, the soldiers stood down from it, and the marksdwarves. */
+function fielded(w: TestWorld, state: FortressState): number[] {
+  const squads = w.readers.of<CombatReader>('16').squads();
+  const members = (id: number): number[] => (id === 0 ? [] : squads.find((sq) => sq.id === id)?.members ?? []);
+  return [...new Set([...members(state.squadId), ...(state.stoodDown ?? []), ...members(state.strong?.marksSquadId ?? 0)])];
+}
+
+/** T-603: the skill a dwarf has in the weapon it holds (0 with none). */
+function heldSkill(w: TestWorld, id: number): number {
+  const weapon = wieldedWeapon(w.game.world.entities, w.game.registry, id);
+  return weapon === null ? 0 : getSkill(w.game.world.entities, w.game.registry, id, weapon.weaponDef.skill);
+}
+
+/**
+ * T-603: the barracks, dug BARRACKS_LEAD_DAYS before the squad's first day as a block of rock off a
+ * corridor of the hall level (`hallBlockSite`), zoned for the squad once dug, and the archery target
+ * set up in a corner with no way in beside it, the farthest from the stair, once the marksdwarves
+ * have a squad.
+ */
+function keepBarracks(w: TestWorld, state: FortressState, strong: StrongSquad, day: number): void {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  if (strong.barracks === undefined) {
+    if (day < STRONG_PLAN.day - BARRACKS_LEAD_DAYS) return;
+    const tiles = hallBlockSite(w, state, BARRACKS_W, BARRACKS_H);
+    if (tiles === null) return;
+    strong.barracks = { tiles, zoneId: 0, targetId: 0 };
+    designateDig(w, tiles, METAL_BUILD);
+    return;
+  }
+  const b = strong.barracks;
+  if (b.zoneId !== 0 && buildings.zone(b.zoneId) === undefined) b.zoneId = 0;
+  if (b.zoneId === 0) {
+    if (!b.tiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
+      const rock = b.tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall && w.map.designationAt(t) === 0);
+      if (rock.length > 0) designateDig(w, rock, METAL_BUILD);
+      return;
+    }
+    const tiles = b.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('barracks', t));
+    if (tiles.length < b.tiles.length / 2 || !command(w, { type: 'CreateZone', zoneType: 'barracks', tiles }, ['bad_zone_tiles']).ok) return;
+    b.zoneId = bSystem.lastCreatedZone;
+  }
+  if (buildings.zone(b.zoneId)?.settings['squad'] !== state.squadId) command(w, { type: 'SetZoneSetting', zoneId: b.zoneId, key: 'squad', value: state.squadId });
+  if (b.targetId !== 0 && buildings.get(b.targetId) === undefined) b.targetId = 0;
+  if (b.targetId !== 0 || strong.marksSquadId === 0 || w.readers.of<ItemsReader>('13').available('archery_target') === 0) return;
+  // The target blocks its tile: a corner of the room with no way in beside it, the farthest from the
+  // stair, and none of the zone's first tiles, where the squads' members stand to train (16 § Squads
+  // gives a member the zone's tile of its place in the squad, whatever stands on it).
+  const posts = new Set((buildings.zone(b.zoneId)?.tiles ?? b.tiles).slice(0, STRONG_SOLDIERS));
+  const inside = new Set(b.tiles);
+  const xs = b.tiles.map((u) => w.map.xOf(u));
+  const ys = b.tiles.map((u) => w.map.yOf(u));
+  const far = (t: number): number => Math.abs(w.map.xOf(t) - state.cx - 6) + Math.abs(w.map.yOf(t) - state.cy - 6);
+  const corners = b.tiles.filter((t) => !posts.has(t) && [Math.min(...xs), Math.max(...xs)].includes(w.map.xOf(t)) && [Math.min(...ys), Math.max(...ys)].includes(w.map.yOf(t)))
+    .filter((t) => [-1, 0, 1].every((dy) => [-1, 0, 1].every((dx) => {
+      const n = w.map.offset(t, dx, dy, 0);
+      return n < 0 || inside.has(n) || w.map.kindAt(n) === TileKind.Wall;
+    }))).sort((a, c) => far(c) - far(a) || a - c);
+  for (const t of corners) {
+    if (buildings.at(t) !== 0 || buildings.ghost('archery_target', t, 0).reason !== null) continue;
+    if (command(w, { type: 'PlaceBuilding', buildingType: 'archery_target', origin: t, orientation: 0, materialChoice: 0, priority: METAL_BUILD }, ['bad_placement']).ok) {
+      b.targetId = bSystem.lastPlacedBuilding;
+      return;
+    }
+  }
+}
+
+/**
+ * T-603: who stands in a squad of `size`: its living members still in `pool` (the adults no role
+ * holds), then the others of the pool with the highest `score`, the lowest id first; none in `taken`.
+ */
+export function pickSquad(current: readonly number[], pool: readonly number[], size: number, score: (id: number) => number, taken: ReadonlySet<number>): number[] {
+  const kept = current.filter((id) => pool.includes(id) && !taken.has(id)).slice(0, size);
+  const others = pool.filter((id) => !kept.includes(id) && !taken.has(id)).sort((a, b) => score(b) - score(a) || a - b);
+  return [...kept, ...others].slice(0, size);
+}
+
+/** T-603: a squad trains while one of it is short of Proficient in its weapon, the barracks is dug and the fortress has its plan's floor of adults. */
+export function squadTrains(skills: readonly number[], adults: number, barracks: boolean, plan: StrongPlan): boolean {
+  return barracks && adults >= plan.floor && skills.some((k) => k < AMBUSH_SKILL);
+}
+
+/**
+ * T-603: the strong squad's roster, training and kit, looked at once a day while the alert is down.
+ * Returns true once the squad of five has formed: from then on its roster is kept here, not by the
+ * militia's refill.
+ */
+function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly number[]): boolean {
+  if (state.strongSquad !== true || state.squadId === 0) return false;
+  const day = Math.floor(w.tick / TICKS_PER_DAY);
+  const strong = (state.strong ??= { marksSquadId: 0, trained: [], day: -1 });
+  if (strong.day === day || w.game.world.fortress.alert !== 'calm') return strong.since !== undefined;
+  strong.day = day;
+  const plan = STRONG_PLAN;
+  keepBarracks(w, state, strong, day);
+  if (strong.since === undefined) {
+    if (day < plan.day || armingSquad(state) || adults.length < plan.adults || (strong.barracks?.zoneId ?? 0) === 0) return false;
+    strong.since = day;
+    command(w, { type: 'SetSquadEquipment', squadId: state.squadId, equipment: { weaponClass: 'sword' } });
+    // The Mountainhome's next caravans bring steel and its kit, and flux for the fortress's own (20 § Requests).
+    command(w, { type: 'SetRequests', civ: 'mountainhome', entries: [
+      { itemType: 'bar', material: 'steel', priority: 3 }, { itemType: 'mail_shirt', material: 'steel', priority: 2 }, { itemType: 'shield', material: 'steel', priority: 2 },
+      { itemType: 'helm', material: 'steel', priority: 1 }, { itemType: 'greaves', material: 'steel', priority: 1 }, { itemType: 'short_sword', material: 'steel', priority: 1 },
+      { itemType: 'raw_stone', material: 'limestone', priority: 1 }, { itemType: 'seed', material: 'dimcap', priority: 2 }] });
+    note('three_years_strong_squad', { day: day + 1, adults: adults.length });
+  }
+  const combat = w.readers.of<CombatReader>('16');
+  const jobs = w.readers.of<JobsReader>('11');
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  const founders = new Set(w.game.arrival?.dwarves ?? []);
+  const { economy } = state;
+  const watchmen = new Set((state.watch ?? []).map((wt) => wt.dwarfId));
+  const eligible = (id: number): boolean => adults.includes(id) && !founders.has(id) && !Object.values(economy.specialists).includes(id) &&
+    id !== economy.broker?.id && id !== economy.brewer && !watchmen.has(id);
+  const squadOf = (id: number): SquadWithId | undefined => combat.squads().find((sq) => sq.id === id);
+  // The marksdwarves' squad, once the fortress can spare two more.
+  if (strong.marksSquadId === 0 && adults.length >= plan.marksAdults && command(w, { type: 'CreateSquad', name: 'Bolts' }).ok) {
+    strong.marksSquadId = combat.squads().find((sq) => sq.name === 'Bolts')?.id ?? 0;
+    command(w, { type: 'SetSquadEquipment', squadId: strong.marksSquadId, equipment: { weaponClass: 'crossbow', armor: 'any', ranged: true } });
+    command(w, { type: 'SetSquadMode', squadId: strong.marksSquadId, mode: 'off' });
+  }
+  const main = squadOf(state.squadId);
+  const marksSquad = strong.marksSquadId === 0 ? undefined : squadOf(strong.marksSquadId);
+  const pool = adults.filter(eligible);
+  const score = (skills: readonly string[]) => (id: number): number => skills.reduce((n, sk) => n + dwarves.skill(id, sk), 0);
+  const marksNow = marksSquad?.members ?? [];
+  const soldiers = pickSquad(main?.members ?? [], pool, STRONG_SOLDIERS, score(['sword', 'shield', 'dodge', 'armor_use']), new Set(marksNow));
+  const marks = marksSquad ? pickSquad(marksNow, pool, AMBUSH_MARKS, score(['crossbow', 'dodge']), new Set(soldiers)) : [];
+  if (main && (soldiers.length !== main.members.length || soldiers.some((id) => !main.members.includes(id)))) {
+    command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: soldiers });
+  }
+  if (marksSquad && (marks.length !== marksSquad.members.length || marks.some((id) => !marksSquad.members.includes(id)))) {
+    command(w, { type: 'SetSquadMembers', squadId: strong.marksSquadId, members: marks });
+  }
+  strong.trained = [...soldiers, ...marks];
+  // A soldier keeps no pick or axe (11 § Assignment): it leaves them to the miners and woodcutters.
+  for (const id of strong.trained) for (const labor of ['mining', 'woodcutting']) {
+    if (jobs.laborEnabled(id, labor)) command(w, { type: 'SetLabor', dwarfId: id, labor, on: false });
+  }
+  // A soldier is the Warden, and the squads' training goes a quarter faster (10 § Titles). The squad
+  // keeps no leader: one stood down for an ambush would stay its leader outside it.
+  const warden = dwarves.holder('warden');
+  if (soldiers.length > 0 && !soldiers.includes(warden)) command(w, { type: 'AssignTitle', title: 'warden', dwarfId: soldiers[0]! });
+  const barracks = (strong.barracks?.zoneId ?? 0) !== 0;
+  const mode = (ids: readonly number[]): 'train' | 'off' => (squadTrains(ids.map((id) => heldSkill(w, id)), adults.length, barracks, plan) ? 'train' : 'off');
+  const mainNow = squadOf(state.squadId);
+  if (mainNow && mainNow.mode !== mode(soldiers)) command(w, { type: 'SetSquadMode', squadId: state.squadId, mode: mode(soldiers) });
+  const marksNowSquad = strong.marksSquadId === 0 ? undefined : squadOf(strong.marksSquadId);
+  if (marksNowSquad && marksNowSquad.mode !== mode(marks)) command(w, { type: 'SetSquadMode', squadId: strong.marksSquadId, mode: mode(marks) });
+  keepStrongKit(w, state, soldiers, marks);
+  return true;
+}
+
+/**
+ * T-603: the strong squad's kit. The forge makes each soldier who lacks one a steel sword, shield,
+ * helm, mail shirt and greaves, put first among its orders (a workshop works its first runnable
+ * order, 12 § Operation, and these wait for steel); a crossbow for each marksdwarf without one, and
+ * fifty iron bolts once; the carpenter the archery target and the wooden bolts the range uses up.
+ */
+function keepStrongKit(w: TestWorld, state: FortressState, soldiers: readonly number[], marks: readonly number[]): void {
+  const ent = w.game.world.entities;
+  const reg = w.game.registry;
+  const recipes = reg.table('recipes');
+  const steel = reg.table('materials').index('steel');
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const forge = state.placedIds['forge'] ?? 0;
+  const carpenter = state.placedIds['carpenter'] ?? 0;
+  const ready = (id: number, type: string): boolean => id !== 0 && state.orderedWorkshops.has(type) && buildings.get(id)?.state === 'built';
+  const orders = (id: number): readonly { recipe: number; mode: string; materialFilter: number | string | null }[] => ent.get(id, C.Workshop)?.orders ?? [];
+  // The script's own once orders: a standing order of the same recipe keeps stock, not this squad.
+  const hasOrder = (id: number, recipeId: string, material?: number): boolean =>
+    orders(id).some((o) => o.recipe === recipes.index(recipeId) && o.mode === 'once' && (material === undefined || o.materialFilter === material));
+  const first = (id: number): void => {
+    const last = orders(id).length - 1;
+    if (last > 0) command(w, { type: 'ReorderWorkOrder', workshopId: id, from: last, to: 0 });
+  };
+  const add = (id: number, order: Record<string, unknown>): boolean => command(w, { type: 'AddWorkOrder', workshopId: id, order: { priority: ROUTINE, ...order } }).ok;
+  const { phases } = state.economy;
+  const paused = (strongPaused(state));
+  if (ready(forge, 'forge')) {
+    const slotOf = (id: number, slot: 'weapon' | 'shield' | 'head' | 'body' | 'legs'): number => {
+      const eq = ent.get(id, C.Equipment);
+      return eq === undefined ? 0 : slot === 'weapon' ? eq.weapon : slot === 'shield' ? eq.shield : eq.armor[slot];
+    };
+    const inSteel = (item: number): boolean => item !== 0 && ent.alive(item) && ent.get(item, C.Item)?.material === steel;
+    const standing = [...new Set([...soldiers, ...(state.stoodDown ?? [])])].slice(0, AMBUSH_SOLDIERS);
+    let owed = standing.length < AMBUSH_SOLDIERS;
+    for (const [recipeId, type, slot] of STEEL_KIT) {
+      const lacking = standing.filter((id) => !inSteel(slotOf(id, slot))).length;
+      if (lacking > 0) owed = true;
+      const want = lacking - steelStock(w, type);
+      if (want > 0 && !hasOrder(forge, recipeId, steel) && add(forge, { recipeId, mode: 'once', remaining: want, materialFilter: 'steel' })) first(forge);
+    }
+    // While the kits are owed the forge makes no crafts for the caravans of iron or steel: the iron
+    // goes to the smelter's steel, and the steel to the kits.
+    // The standing craft orders are taken off and put back (an order keeps at least one in stock, 12).
+    const crafts = (): number => (ent.get(forge, C.Workshop)?.orders ?? []).findIndex((o) => o.recipe === recipes.index('forge_crafts') && o.mode === 'maintain');
+    if (owed) {
+      for (let at = crafts(); at >= 0; at = crafts()) {
+        const o = ent.get(forge, C.Workshop)!.orders[at]!;
+        paused.add(o.materialFilter === steel ? 'steel' : 'iron');
+        command(w, { type: 'RemoveWorkOrder', workshopId: forge, index: at });
+      }
+    } else if (paused.size > 0) {
+      for (const material of [...paused].sort().reverse()) add(forge, { recipeId: 'forge_crafts', mode: 'maintain', threshold: CRAFT_BARS_KEPT, materialFilter: material });
+      paused.clear();
+    }
+    const crossbows = marks.filter((id) => wieldedWeapon(ent, reg, id)?.weaponDef.id !== 'crossbow').length - w.readers.of<ItemsReader>('13').available('crossbow');
+    if (crossbows > 0 && !hasOrder(forge, 'forge_crossbow') && add(forge, { recipeId: 'forge_crossbow', mode: 'once', remaining: crossbows, materialFilter: 'iron' })) first(forge);
+    if (marks.length > 0 && !phases.has('marks bolts') && add(forge, { recipeId: 'forge_bolts', mode: 'once', remaining: AMBUSH_MARKS, materialFilter: 'iron' })) {
+      phases.add('marks bolts');
+      first(forge);
+    }
+  }
+  // A soldier with no sword trains with a wooden one, as the skill it learns is its weapon's and
+  // carries over to the steel sword (16 § Training): the fortress's iron goes to its steel, and the
+  // militia it replaces keep the swords and spears they held.
+  const swords = soldiers.filter((id) => wieldedWeapon(ent, reg, id)?.weaponDef.weaponClass !== 'sword').length -
+    w.readers.of<ItemsReader>('13').available('short_sword') - w.readers.of<ItemsReader>('13').available('training_sword');
+  if (ready(carpenter, 'carpenter') && swords > 0 && !hasOrder(carpenter, 'make_training_sword') &&
+    add(carpenter, { recipeId: 'make_training_sword', mode: 'once', remaining: swords })) first(carpenter);
+  if (ready(carpenter, 'carpenter') && marks.length > 0) {
+    if (!phases.has('archery target') && owned(w, 'archery_target') === 0 && add(carpenter, { recipeId: 'make_archery_target', mode: 'once', remaining: 1 })) {
+      phases.add('archery target');
+      first(carpenter);
+    }
+    if (!phases.has('training bolts') && add(carpenter, { recipeId: 'make_bolts_wood', mode: 'maintain', threshold: TRAINING_BOLTS })) phases.add('training bolts');
+  }
+}
+
 /** T-601: the squad as a sprung ambush finds it. */
 export interface AmbushSquad {
   /** Soldiers in a steel helm, body armour and greaves with a steel weapon and shield, at AMBUSH_SKILL in the weapon's skill. */
@@ -2292,8 +2640,8 @@ export function ambushKit(w: TestWorld, id: number): 'steel' | 'marks' | '' {
   if (eq === undefined || weapon === null || eq.weapon !== weapon.item) return '';
   const skilled = getSkill(ent, reg, id, weapon.weaponDef.skill) >= AMBUSH_SKILL;
   if (weapon.weaponDef.id === 'crossbow') {
-    const bolts = eq.quiver !== 0 && ent.alive(eq.quiver) ? (ent.get(eq.quiver, C.Item)?.count ?? 0) : 0;
-    return skilled && bolts > 0 ? 'marks' : '';
+    // T-603: the bolts a marksdwarf shoots, carried beside its quiver (16 § Equipment) or, as the arena gives them, in it.
+    return skilled && findAmmoForShooter(ent, reg, id, weapon.weaponDef.launcher?.ammo ?? 'bolt') !== 0 ? 'marks' : '';
   }
   const steel = reg.table('materials').index('steel');
   const inSteel = (item: number): boolean => item !== 0 && ent.alive(item) && ent.get(item, C.Item)?.material === steel;
@@ -2303,8 +2651,7 @@ export function ambushKit(w: TestWorld, id: number): 'steel' | 'marks' | '' {
 /** T-601: the squad's members and the soldiers stood down from it, counted against the ambush bars, and the cloth in stock. */
 export function ambushSquad(w: TestWorld, state: FortressState): AmbushSquad {
   const ent = w.game.world.entities;
-  const members = w.readers.of<CombatReader>('16').squads().find((sq) => sq.id === state.squadId)?.members ?? [];
-  const kits = [...new Set([...members, ...(state.stoodDown ?? [])])].filter((id) => ent.alive(id)).map((id) => ambushKit(w, id));
+  const kits = fielded(w, state).filter((id) => ent.alive(id)).map((id) => ambushKit(w, id));
   return { steel: kits.filter((k) => k === 'steel').length, marks: kits.filter((k) => k === 'marks').length,
     cloth: w.readers.of<ItemsReader>('13').countAvailable({ category: 'textile/cloth' }) };
 }
@@ -2348,7 +2695,7 @@ function trackSquad(w: TestWorld, state: FortressState): void {
   state.squadSeenDay = day;
   const ent = w.game.world.entities;
   const combat = w.readers.of<CombatReader>('16');
-  const members = [...new Set([...(combat.squads().find((sq) => sq.id === state.squadId)?.members ?? []), ...(state.stoodDown ?? [])])].filter((id) => ent.alive(id));
+  const members = fielded(w, state).filter((id) => ent.alive(id));
   const materials = w.game.registry.table<{ id: string }>('materials');
   const metal = members.filter((id) => armedInMetal(w, id)).map((id) => {
     const weapon = wieldedWeapon(ent, w.game.registry, id);
@@ -2366,11 +2713,55 @@ function trackSquad(w: TestWorld, state: FortressState): void {
     return i >= 0 && a[i]! > b[i]!;
   })();
   if (better) state.bestSquad = now;
+  // T-603: the first day the squad cleared each bar, and once a week what it is on its way there.
+  if (now.bar !== 'none') (state.barDays ??= {})[now.bar] ??= day;
+  if (now.bar === 'full squad') state.barDays!['soldiers alone'] ??= day;
+  if (state.strongSquad === true && day % 7 === 0) {
+    const reg = w.game.registry;
+    const skillOf = (id: number): string => {
+      const weapon = wieldedWeapon(ent, reg, id);
+      return weapon === null ? 'unarmed' : `${weapon.weaponDef.id}:${getSkill(ent, reg, id, weapon.weaponDef.skill)}`;
+    };
+    const squadOf = (id: number): { mode: string; members: number[] } | undefined => combat.squads().find((sq) => sq.id === id);
+    const main = squadOf(state.squadId);
+    const marks = state.strong?.marksSquadId ? squadOf(state.strong.marksSquadId) : undefined;
+    note('three_years_squad', { day, adults: w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length,
+      mode: main?.mode ?? null, soldiers: (main?.members ?? []).map((id) => `${skillOf(id)}${ambushKit(w, id) === 'steel' ? 'S' : armedInMetal(w, id) ? 'M' : ''}`),
+      marks: (marks?.members ?? []).map((id) => `${skillOf(id)}${ambushKit(w, id) === 'marks' ? 'B' : ''}`), steelBars: steelStock(w, 'bar'),
+      cloth: strength.cloth, bar: now.bar });
+  }
+}
+
+/** T-603: available units of `type` in steel (fortress stock, not owned or claimed). */
+function steelStock(w: TestWorld, type: string): number {
+  const ent = w.game.world.entities;
+  const t = w.game.registry.table('items').index(type);
+  const steel = w.game.registry.table('materials').index('steel');
+  let n = 0;
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (it.type !== t || it.material !== steel || it.carriedBy || (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Owned | ItemFlag.Forbidden | ItemFlag.Reserved)) !== 0) continue;
+    n += it.count;
+  }
+  return n;
 }
 
 /** T-601: the journal's record of the squad against ambushes: the strongest squad fielded and how each sprung ambush was answered. */
-export function squadRecord(state: FortressState): { best: SquadReach | null; answers: Record<string, number> } {
-  return { best: state.bestSquad ?? null, answers: { ...(state.ambushAnswers ?? {}) } };
+export function squadRecord(state: FortressState): SquadRecord {
+  return { best: state.bestSquad ?? null, answers: { ...(state.ambushAnswers ?? {}) }, barDays: { ...(state.barDays ?? {}) },
+    toll: Object.fromEntries(Object.entries(state.ambushToll ?? {}).map(([k, v]) => [k, { ...v }])) };
+}
+
+/**
+ * T-601, T-603: the strongest squad fielded, each sprung ambush by its first answer, the first day
+ * each ambush bar was cleared, and the toll of the ambushes by answer (deaths of the fortress and of
+ * its squad, members of the ambush felled).
+ */
+export interface SquadRecord {
+  best: SquadReach | null;
+  answers: Record<string, number>;
+  barDays: Partial<Record<'full squad' | 'soldiers alone', number>>;
+  toll: Record<string, { ambushes: number; deaths: number; soldiers: number; fell: number }>;
 }
 
 function speciesName(w: TestWorld, id: number): string {

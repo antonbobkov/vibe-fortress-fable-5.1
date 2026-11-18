@@ -35,7 +35,7 @@ import {
   threeYearsWorld,
   fortressWitnesses,
   squadRecord,
-  type SquadReach,
+  type SquadRecord,
 } from '../scenarios/three_years_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
 import { CrowdWatch, type CrowdFigures } from '../scenarios/crowd-watch';
@@ -111,8 +111,8 @@ export interface ThreeYearsSeedResult {
   readonly drinksPerDwarfDay: string;
   readonly parties: PartyFigures;
   readonly crowds: { readonly doors: CrowdFigures; readonly hall: CrowdFigures; readonly stations: CrowdFigures; readonly fighting: CrowdFigures };
-  /** T-601: the strongest squad the fortress fielded, and how its sprung ambushes were answered. */
-  readonly squad: { readonly best: SquadReach | null; readonly answers: Readonly<Record<string, number>> };
+  /** T-601, T-603: the strongest squad the fortress fielded, how its sprung ambushes were answered and what they cost, and when it cleared each bar. */
+  readonly squad: SquadRecord;
 }
 
 export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHIFT): ThreeYearsSeedResult {
