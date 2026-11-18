@@ -1,4 +1,4 @@
-# T-NEW — Look names some items twice ("boar meat raw meat")
+# T-595 — Look names some items twice ("boar meat raw meat")
 
 **Source:** T-591 (the wagon's goods in Look's `Items` tab) · **Size:** S · **Needs:** — · **Status:** open
 
