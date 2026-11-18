@@ -587,7 +587,11 @@ function placeBelow(w: TestWorld, state: FortressState, type: string, priority: 
     if (!command(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority }).ok) continue;
     const id = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
     const b = buildings.get(id);
-    if (b && b.footprint.length === 9) command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
+    // T-582: not while the hall is still being dug: a corner forbidden beside a tile just dug can
+    // close it off (on `three-years-p4-1` at shift 50 the mason's corner shut a dug tile in, and the
+    // dig beside it stood blocked as unreachable for two days, a T-176 fault).
+    const dug = hall.tiles.every((t) => w.map.kindAt(t) !== TileKind.Wall);
+    if (b && b.footprint.length === 9 && dug) command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
     return id;
   }
   return 0;
@@ -661,9 +665,11 @@ export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): 
     const orders = old ? old.orders : move.orders;
     for (const o of orders) {
       const recipeId = recipes.byIndex(o.recipe)?.id;
-      if (recipeId === undefined) continue;
+      // T-582: a memorial slab's order for a dwarf since buried in a coffin names nobody it may.
+      if (recipeId === undefined || (o.memorialDwarfId !== undefined && !buildings.memorialEligible(o.memorialDwarfId))) continue;
       command(w, { type: 'AddWorkOrder', workshopId: move.twin, order: { recipeId, mode: o.mode, ...(o.mode === 'once' ? { remaining: o.remaining } : { threshold: o.threshold }),
-        priority: o.priority, ...(o.materialFilter === null ? {} : { materialFilter: o.materialFilter }), ...(o.targetType === undefined ? {} : { targetType: o.targetType }) } });
+        priority: o.priority, ...(o.materialFilter === null ? {} : { materialFilter: o.materialFilter }), ...(o.targetType === undefined ? {} : { targetType: o.targetType }),
+        ...(o.memorialDwarfId === undefined ? {} : { memorialDwarfId: o.memorialDwarfId }) } });
     }
     const worker = old ? old.assignedWorker : move.worker;
     if (worker !== 0) command(w, { type: 'SetWorkshopWorker', workshopId: move.twin, dwarfId: worker }, ['not_found', 'no_labor']);

@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-582 | [The three-year fixture buries its dead](work/T-582-fixture-buries-its-dead.md) | [T-581](archive/tasks/T-581-defence-population.md) | — | open |
 | T-588 | [The long fixtures play some of Making Do](work/T-588-fixture-makes-do.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | T-582 | blocked (needs T-582) |
 | T-600 | [Can a strong squad meet a peril-4 ambush?](work/T-600-peril4-ambush-arena.md) | [T-593](archive/tasks/T-593-peril4-ambush-deaths.md) | — | open |
 
