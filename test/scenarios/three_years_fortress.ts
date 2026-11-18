@@ -2329,20 +2329,13 @@ export interface StrongPlan {
 }
 
 /**
- * T-603: the plan by peril. At peril 2 from the winter of year 1 with 16 adults, the marksdwarves at
- * 22, nobody below 12. At peril 4 from year 2 with 24, the marksdwarves at 30, nobody below 20: with
- * peril 2's plan the peril-4 fortresses, which raids and ambushes keep smaller and busier, lost 25
- * living dwarves a timeline and gained 6 deaths in a partial sweep (the soldiers and marksdwarves were
- * half of 16 adults), where those at peril 2 lost 7 living and 2.7 deaths.
+ * T-603: from the second year with 24 adults, the marksdwarves at 30, nobody below 20, at both perils.
+ * Earlier and smaller cost more than it gave: with 16 adults from day 84 (the marksdwarves at 22,
+ * nobody below 12) the peril-4 fortresses lost 25 living dwarves a timeline and gained 6 deaths in a
+ * partial sweep, and with that plan at peril 2 alone the sweep's living fell from 1046.25 to 980,
+ * neither reaching a bar (reports/data/2026-11-18-t603-strong-squad.md).
  */
-export function strongPlan(peril: number): StrongPlan {
-  return peril >= 4 ? { day: DAYS_PER_YEAR, adults: 24, marksAdults: 30, floor: 20 } : { day: 3 * DAYS_PER_YEAR / 4, adults: 16, marksAdults: 22, floor: 12 };
-}
-
-/** T-603: the region's peril, as the threats system holds it (its schedule is set by it, 18). */
-function perilOf(w: TestWorld): number {
-  return (w.game.world.scheduler.byId('18') as unknown as { peril?: number } | undefined)?.peril ?? 0;
-}
+export const STRONG_PLAN: StrongPlan = { day: DAYS_PER_YEAR, adults: 24, marksAdults: 30, floor: 20 };
 
 /**
  * T-603: the squad is one soldier more than the bar's five, so that every soldier has a sparring
@@ -2410,7 +2403,7 @@ function keepBarracks(w: TestWorld, state: FortressState, strong: StrongSquad, d
   const buildings = w.readers.of<BuildingsReader>('14');
   const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
   if (strong.barracks === undefined) {
-    if (day < strongPlan(perilOf(w)).day - BARRACKS_LEAD_DAYS) return;
+    if (day < STRONG_PLAN.day - BARRACKS_LEAD_DAYS) return;
     const tiles = hallBlockSite(w, state, BARRACKS_W, BARRACKS_H);
     if (tiles === null) return;
     strong.barracks = { tiles, zoneId: 0, targetId: 0 };
@@ -2480,7 +2473,7 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   const strong = (state.strong ??= { marksSquadId: 0, trained: [], day: -1 });
   if (strong.day === day || w.game.world.fortress.alert !== 'calm') return strong.since !== undefined;
   strong.day = day;
-  const plan = strongPlan(perilOf(w));
+  const plan = STRONG_PLAN;
   keepBarracks(w, state, strong, day);
   if (strong.since === undefined) {
     if (day < plan.day || armingSquad(state) || adults.length < plan.adults || (strong.barracks?.zoneId ?? 0) === 0) return false;

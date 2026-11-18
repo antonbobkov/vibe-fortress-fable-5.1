@@ -6,7 +6,7 @@ import { contentRegistry } from '@content/loader';
 import type { CombatReader } from '@systems/combat/reader';
 import { TestWorld } from '../scenarios/test-world';
 import {
-  AMBUSH_MARKS, AMBUSH_SKILL, AMBUSH_SOLDIERS, HALL_Z, Z, strongPlan, ambushKit, ambushSquad, checkFortressDefense, pickSquad, squadTrains,
+  AMBUSH_MARKS, AMBUSH_SKILL, AMBUSH_SOLDIERS, HALL_Z, STRONG_PLAN, Z, ambushKit, ambushSquad, checkFortressDefense, pickSquad, squadTrains,
   type FortressState,
 } from '../scenarios/three_years_fortress';
 
@@ -30,13 +30,12 @@ describe('T-603 the strong squad\'s roster and training', () => {
   });
 
   it('trains while one of it is short of Proficient, with a barracks and enough adults', () => {
-    const plan = strongPlan(4);
+    const plan = STRONG_PLAN;
     expect(squadTrains([AMBUSH_SKILL, 3], 30, true, plan)).toBe(true);
     expect(squadTrains([AMBUSH_SKILL, AMBUSH_SKILL + 2], 30, true, plan), 'all Proficient: back to work').toBe(false);
     expect(squadTrains([0], 30, false, plan), 'no barracks').toBe(false);
     expect(squadTrains([0], plan.floor - 1, true, plan), 'too few adults').toBe(false);
     expect(squadTrains([0], plan.floor, true, plan)).toBe(true);
-    expect(strongPlan(2).adults, 'peril 2 starts smaller').toBeLessThan(plan.adults);
   });
 });
 
