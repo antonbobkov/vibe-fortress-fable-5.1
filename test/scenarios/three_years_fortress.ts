@@ -2308,7 +2308,7 @@ function squadInMetal(w: TestWorld, state: FortressState): boolean {
 /**
  * T-603: where ambushes come (perils 2 and 4) a player builds toward the squad the ambush bars ask
  * for (T-601): from the winter of the first year, once the fortress has STRONG_SQUAD_ADULTS adults, the squad is
- * AMBUSH_SOLDIERS soldiers taken from the immigrants nobody else needs, short swords their weapon
+ * STRONG_SOLDIERS soldiers taken from the immigrants nobody else needs, short swords their weapon
  * (wooden ones from the carpenter until the forge has steel),
  * who train full time in a barracks dug off the hall level's corridors under a Warden (16 §
  * Training) until each is Proficient (AMBUSH_SKILL), and then go back to civilian work: there is no
@@ -2320,6 +2320,12 @@ function squadInMetal(w: TestWorld, state: FortressState): boolean {
  */
 export const STRONG_SQUAD_DAY = 3 * DAYS_PER_YEAR / 4;
 export const STRONG_SQUAD_ADULTS = 16;
+/**
+ * T-603: the squad is one soldier more than the bar's five, so that every soldier has a sparring
+ * partner (16 § Training: the odd one drills alone at half the experience; in `three-years-p2-3`
+ * the fifth of five stood at Novice when the others were Skilled) and a fallen one does not drop the squad under the bar.
+ */
+export const STRONG_SOLDIERS = AMBUSH_SOLDIERS + 1;
 export const MARKS_ADULTS = 22;
 export const TRAIN_FLOOR_ADULTS = 12;
 /** T-603: the barracks is a block of rock this size, dug this many days before the squad trains. */
@@ -2336,8 +2342,16 @@ const STEEL_KIT: readonly (readonly [string, string, 'weapon' | 'shield' | 'head
   ['forge_mail_shirt', 'mail_shirt', 'body'], ['forge_greaves', 'greaves', 'legs'],
 ];
 
+/** T-603: the metals whose standing craft orders the forge has had taken off while the steel kits are owed. */
+function strongPaused(state: FortressState): Set<string> {
+  const strong = state.strong!;
+  return (strong.pausedCrafts ??= new Set<string>());
+}
+
 /** T-603: the strong squad's state. */
 export interface StrongSquad {
+  /** The metals ('iron', 'steel') whose standing craft orders are off while the kits are owed. */
+  pausedCrafts?: Set<string>;
   /** The barracks: its rock, its zone once dug (0 before) and its archery target (0 before). */
   barracks?: { tiles: number[]; zoneId: number; targetId: number };
   /** The day the squad of five first formed (undefined before). */
@@ -2395,12 +2409,15 @@ function keepBarracks(w: TestWorld, state: FortressState, strong: StrongSquad, d
   if (buildings.zone(b.zoneId)?.settings['squad'] !== state.squadId) command(w, { type: 'SetZoneSetting', zoneId: b.zoneId, key: 'squad', value: state.squadId });
   if (b.targetId !== 0 && buildings.get(b.targetId) === undefined) b.targetId = 0;
   if (b.targetId !== 0 || strong.marksSquadId === 0 || w.readers.of<ItemsReader>('13').available('archery_target') === 0) return;
-  // The target blocks its tile: a corner of the room with no way in beside it, the farthest from the stair.
+  // The target blocks its tile: a corner of the room with no way in beside it, the farthest from the
+  // stair, and none of the zone's first tiles, where the squads' members stand to train (16 § Squads
+  // gives a member the zone's tile of its place in the squad, whatever stands on it).
+  const posts = new Set((buildings.zone(b.zoneId)?.tiles ?? b.tiles).slice(0, STRONG_SOLDIERS));
   const inside = new Set(b.tiles);
   const xs = b.tiles.map((u) => w.map.xOf(u));
   const ys = b.tiles.map((u) => w.map.yOf(u));
   const far = (t: number): number => Math.abs(w.map.xOf(t) - state.cx - 6) + Math.abs(w.map.yOf(t) - state.cy - 6);
-  const corners = b.tiles.filter((t) => [Math.min(...xs), Math.max(...xs)].includes(w.map.xOf(t)) && [Math.min(...ys), Math.max(...ys)].includes(w.map.yOf(t)))
+  const corners = b.tiles.filter((t) => !posts.has(t) && [Math.min(...xs), Math.max(...xs)].includes(w.map.xOf(t)) && [Math.min(...ys), Math.max(...ys)].includes(w.map.yOf(t)))
     .filter((t) => [-1, 0, 1].every((dy) => [-1, 0, 1].every((dx) => {
       const n = w.map.offset(t, dx, dy, 0);
       return n < 0 || inside.has(n) || w.map.kindAt(n) === TileKind.Wall;
@@ -2472,7 +2489,7 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   const pool = adults.filter(eligible);
   const score = (skills: readonly string[]) => (id: number): number => skills.reduce((n, sk) => n + dwarves.skill(id, sk), 0);
   const marksNow = marksSquad?.members ?? [];
-  const soldiers = pickSquad(main?.members ?? [], pool, AMBUSH_SOLDIERS, score(['sword', 'shield', 'dodge', 'armor_use']), new Set(marksNow));
+  const soldiers = pickSquad(main?.members ?? [], pool, STRONG_SOLDIERS, score(['sword', 'shield', 'dodge', 'armor_use']), new Set(marksNow));
   const marks = marksSquad ? pickSquad(marksNow, pool, AMBUSH_MARKS, score(['crossbow', 'dodge']), new Set(soldiers)) : [];
   if (main && (soldiers.length !== main.members.length || soldiers.some((id) => !main.members.includes(id)))) {
     command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: soldiers });
@@ -2524,6 +2541,7 @@ function keepStrongKit(w: TestWorld, state: FortressState, soldiers: readonly nu
   };
   const add = (id: number, order: Record<string, unknown>): boolean => command(w, { type: 'AddWorkOrder', workshopId: id, order: { priority: ROUTINE, ...order } }).ok;
   const { phases } = state.economy;
+  const paused = (strongPaused(state));
   if (ready(forge, 'forge')) {
     const slotOf = (id: number, slot: 'weapon' | 'shield' | 'head' | 'body' | 'legs'): number => {
       const eq = ent.get(id, C.Equipment);
@@ -2540,10 +2558,17 @@ function keepStrongKit(w: TestWorld, state: FortressState, soldiers: readonly nu
     }
     // While the kits are owed the forge makes no crafts for the caravans of iron or steel: the iron
     // goes to the smelter's steel, and the steel to the kits.
-    for (const [index, o] of (ent.get(forge, C.Workshop)?.orders ?? []).entries()) {
-      if (o.recipe !== recipes.index('forge_crafts') || o.mode !== 'maintain') continue;
-      const threshold = owed ? 0 : CRAFT_BARS_KEPT;
-      if (o.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: forge, index, patch: { threshold } });
+    // The standing craft orders are taken off and put back (an order keeps at least one in stock, 12).
+    const crafts = (): number => (ent.get(forge, C.Workshop)?.orders ?? []).findIndex((o) => o.recipe === recipes.index('forge_crafts') && o.mode === 'maintain');
+    if (owed) {
+      for (let at = crafts(); at >= 0; at = crafts()) {
+        const o = ent.get(forge, C.Workshop)!.orders[at]!;
+        paused.add(o.materialFilter === steel ? 'steel' : 'iron');
+        command(w, { type: 'RemoveWorkOrder', workshopId: forge, index: at });
+      }
+    } else if (paused.size > 0) {
+      for (const material of [...paused].sort().reverse()) add(forge, { recipeId: 'forge_crafts', mode: 'maintain', threshold: CRAFT_BARS_KEPT, materialFilter: material });
+      paused.clear();
     }
     const crossbows = marks.filter((id) => wieldedWeapon(ent, reg, id)?.weaponDef.id !== 'crossbow').length - w.readers.of<ItemsReader>('13').available('crossbow');
     if (crossbows > 0 && !hasOrder(forge, 'forge_crossbow') && add(forge, { recipeId: 'forge_crossbow', mode: 'once', remaining: crossbows, materialFilter: 'iron' })) first(forge);
