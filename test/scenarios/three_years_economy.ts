@@ -853,11 +853,14 @@ export function trade(w: TestWorld, state: FortressState): void {
   const spending = Math.max(0, budget - capital);
   const take: { itemId: number; count: number }[] = [];
   let cost = 0;
-  const wanted = goods.some((id) => priority(id) !== 6);
+  // T-588: a good the merchants ask nothing for (sand, clay, dung: 20 § Goods) is no trade of its own,
+  // since an offer must give something; the wanted ones go along with an offer that buys anything else.
+  const free = (id: number): boolean => reader.price(caravan.civ, id) <= 0;
+  const wanted = goods.some((id) => priority(id) !== 6 && !free(id));
   let seedTaken = 0;
   for (const id of goods) {
     // A visit that carries nothing on the wish list still trades: the first affordable goods.
-    if (wanted ? priority(id) === 6 : take.length > 0) continue;
+    if (free(id) || (wanted ? priority(id) === 6 : take.length > 0)) continue;
     const it = ent.get(id, C.Item)!;
     const unitPrice = reader.price(caravan.civ, id) / it.count;
     // Seed is bought for the strips still to be sown, not by the hundred.
@@ -866,6 +869,7 @@ export function trade(w: TestWorld, state: FortressState): void {
     const count = Math.min(it.count, wantedUnits, Math.floor((Math.floor(spending) / (1 + reader.marginPercent(caravan.civ) / 100) - cost) / unitPrice));
     if (count > 0) { take.push({ itemId: id, count }); cost += unitPrice * count; if (isSeed) seedTaken += count; }
   }
+  if (take.length > 0) for (const id of goods) if (free(id) && priority(id) !== 6) take.push({ itemId: id, count: ent.get(id, C.Item)!.count });
   if (!take.length || requiredValue(cost, reader.marginPercent(caravan.civ)) > budget) {
     if (state.economy.lastTradeNote !== key) {
       state.economy.lastTradeNote = key;
