@@ -17,3 +17,13 @@ Measure, over a sweep, which peril-4 ambushes kill and where (the census with T-
 ## Done
 
 The decision in the spec or the balance tables, with its measurement.
+
+## Found
+
+[The measurement](../../reports/data/2026-11-18-t593-peril4-ambushes.md): the census of T-587's sweep (run 44254295856, master with T-596) and a probe of where the victims stood on master `8d022dd9` (`test/perf/t593_ambush_victims_probe.test.ts`, eight peril-4 timelines).
+
+- Over four shifts 150 peril-4 ambushes sprang (6.3 a fortress, 7.4 Gloam each) and 135 dwarves died while one was on the map: **0.90 an ambush**, against **0.88** for peril 2's 96 ambushes of 4.8. Size does not predict the toll; peril 4 costs more because ambushes come twice as often, as 18 asks. A peril-4 fortress loses about 5.5 dwarves to them in three years; 55% of ambushes kill nobody; the ten worst killed 60 of the 135. The census's peril-4 deaths were 277 on T-576 and 271 on T-580.
+- Every death began with a wound outdoors (23 dwarves wounded indoors, none died); ten of eleven wounded 13 or more tiles from the gate died. Most victims had seen the ambush and were fleeing: a dwarf spots at 6, a war dog at 10, a bow reaches 14, and the Gloam outrun a dwarf. Archers did 155 of the Gloam's 277 kills. Every war dog the members wounded died.
+- The script's squad of five stands down for every peril-4 ambush (all are six or more), so the census measures a fortress that never fights one.
+
+**Recommendation: (c), leave peril 4's ambushes as they are.** Smaller ambushes would not help; a warning would undo the ambush and add a nuisance alert every 45 days; a longer interval would save about 30% of ambush deaths at the cost of 18's *frequent*. What would settle it is an arena of the owner's strong squad against a peril-4 ambush, filed as a follow-up; if the squad loses, the lever is the ambush's share of archers. Recorded in [balance-status.md](../balance-status.md) (Ambush deaths, peril 4).
