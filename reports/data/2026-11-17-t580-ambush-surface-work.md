@@ -38,3 +38,12 @@ The instrument on `43590fdb` (run 44153200039) passes: `| **Pooled** | 12.88 | 1
 - Instrument (run 44184862654): `| **Pooled** | 12.88 | 10 | 10.75 | 153.75 | 9.5 | 0 | 0 | 0 | | |`, pass.
 - `defence_seeds` (run 44184852441): `| **Mean** | **6.88** | **7.25** | 0.38 | 0.25 | 23.14 | 4.48 | 4.03 |`, pass.
 - `ci.yml` (run 44184867655): green, 4,093 tests (921 + 1,103 + 1,008 + 1,061) and e2e 45 passed.
+
+## The reference moved
+
+By the orchestrator's decision the cost of honest ambushes is accepted and the sweep's reference moves to T-580's (T-593 asks whether peril-4 ambushes are too deadly for a sensible player). On `2e36fb6d` (master `0c2e88b7`, T-585's keep orders and T-586's ice merged):
+
+- Shifts 0 to 150 (run 44200076970): `| **Pooled** | 19.5 | 7 | 0 | 1010.5 | 137 | 1.75 | 6.25 |`, blocked against the old bounds on the dwarf deaths.
+- Shifts 200 to 350 (run 44200119366): `| **Pooled** | 19.75 | 7 | 0 | 965 | 126.75 | 1.75 | 6 |`, not judged (other shifts).
+
+`SWEEP_REFERENCE` is the first row; `SWEEP_MEASURED`, the eight-shift means, is 987.75 living and 131.88 deaths, so the bounds are 887.75 and 161.88 (before: reference `| **Pooled** | 20 | 7 | 0 | 1070.25 | 109.5 | 0.5 | 1 |` of `d79a1f4f`, best 1075.25 and 100, bounds 975.25 and 130).
