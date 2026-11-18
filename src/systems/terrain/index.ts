@@ -14,6 +14,7 @@ import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
+import { Designation } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { LocalMapSpec } from '@systems/embark';
 import { TerrainCore } from './api';
@@ -29,7 +30,7 @@ import {
 import { TerrainFacts } from './facts';
 import { TerrainProducer } from './producer';
 import { makeReader, type TerrainReader } from './reader';
-import { isStairDesignation, precondition } from './rules/transitions';
+import { cutsUnderBuilding, precondition } from './rules/transitions';
 import type { Engraving, TerrainStateV1 } from './state';
 import type { StackLayer } from './generate/common';
 
@@ -185,7 +186,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       const moves = event['moves'] as readonly Move[];
       for (const m of moves) this.pendingMoves.push(m);
     } else if (event.type === 'BuildingPlaced') {
-      this.clearStairsUnder(event['tiles'] as readonly TileIndex[]);
+      this.clearCutsUnder(event['tiles'] as readonly TileIndex[]);
     } else if (event.type === 'BuildingCompleted') {
       this.clearBlockedDesignations(event['id'] as EntityId, ctx);
     } else if (event.type === 'RibsEntered') {
@@ -198,14 +199,21 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
   }
 
   /**
-   * `03` § Tile transitions: a building placed on a floor that holds a stair designation clears it,
-   * with its job (the producer cancels it on its next scan): stairs are not cut under a building.
+   * `03` § Tile transitions: a building placed on a tile that holds a stair or channel designation
+   * clears it, and a ramp designation on the wall beneath it, with its job (the producer cancels it
+   * on its next scan): nothing is cut under a building.
    */
-  private clearStairsUnder(tiles: readonly TileIndex[]): void {
+  private clearCutsUnder(tiles: readonly TileIndex[]): void {
     const map = this.core.host.map;
+    const facts = this.core.host.facts;
     for (const tile of tiles) {
-      if (!map.validIndex(tile) || !isStairDesignation(map.designationAt(tile))) continue;
-      if (!precondition(map, tile, map.designationAt(tile), this.core.host.facts)) this.core.clearDesignation(tile);
+      if (!map.validIndex(tile)) continue;
+      const d = map.designationAt(tile);
+      if (cutsUnderBuilding(d) && !precondition(map, tile, d, facts)) this.core.clearDesignation(tile);
+      const below = map.below(tile);
+      if (below >= 0 && map.designationAt(below) === Designation.Ramp && !precondition(map, below, Designation.Ramp, facts)) {
+        this.core.clearDesignation(below);
+      }
     }
   }
 

@@ -50,11 +50,11 @@ The generator runs synchronously with progress callbacks after each stage; budge
 | Designation | Precondition | Result | Item produced |
 |---|---|---|---|
 | `dig` | `wall` or `boulder`, not `constructed` | `floor` with the same material; the tile above is unchanged | Per material class: `stone` and `obsidian`: `raw_stone` with `MINING_STONE_DROP_PERMILLE`; `ore`: always `ore`; `gem`: always `rough_gem`; `bone`: always a `fossil` (a `tusk` for `ivory`, a tundra boneyard's tusks); `soil` whose material carries the tag `soil_drop` (`clay`, `sand`, `peat`): a `soil_load` with `SOIL_DROP_PERMILLE`; every other class, and every other soil: none |
-| `channel` | `floor`, `ramp`, `sapling`, `shrub`, or `stairs_down` | Tile becomes `open`; if the tile below is `wall`, it becomes `ramp`; if it is `floor` it stays; if it is `open` nothing more | Drops from the tile below as if dug when it becomes a ramp |
-| `stairs_up` | `wall`, or a `floor` that holds no building | `stairs_up` | As dig from a `wall`; none from a `floor` |
+| `channel` | `floor`, `ramp`, `sapling`, `shrub`, or `stairs_down`, that holds no building | Tile becomes `open`; if the tile below is a `wall` that is not `constructed`, it becomes `ramp`; if it is a `constructed` wall or a `floor` it stays; if it is `open` nothing more | Drops from the tile below as if dug when it becomes a ramp |
+| `stairs_up` | `wall`, not `constructed`, or a `floor` that holds no building | `stairs_up` | As dig from a `wall`; none from a `floor` |
 | `stairs_down` | a `floor` that holds no building | `stairs_down` | None |
-| `stairs_updown` | `wall`, or a `floor` that holds no building, or a `stairs_up` or `stairs_down` that is not `constructed` (re-carved to lead both ways) | `stairs_updown` | As dig from a `wall`; none otherwise |
-| `ramp` | `wall` with an `open` or `floor` tile above | `ramp`; the tile above becomes `open` if it was `floor` | As dig |
+| `stairs_updown` | `wall`, not `constructed`, or a `floor` that holds no building, or a `stairs_up` or `stairs_down` that is not `constructed` (re-carved to lead both ways) | `stairs_updown` | As dig from a `wall`; none otherwise |
+| `ramp` | `wall`, not `constructed`, with an `open` tile above, or a `floor` that holds no building | `ramp`; the tile above becomes `open` if it was `floor` | As dig |
 | `smooth` | natural `wall` or `floor` of stone | sets `smoothed` | None |
 | `engrave` | `smoothed` tile | sets `engraved`; quality from the economy `rollQuality(engraving skill)` using 03's stream, with motif 0, is stored in a side table | None |
 | `remove` | `constructed` tile | the construction's material returns as an item; `wall` or `floor` becomes `open`, except a constructed floor over natural rock becomes the natural floor; stairs and ramps become `open` | The block, log or bar used |
@@ -65,13 +65,15 @@ The generator runs synchronously with progress callbacks after each stage; budge
 
 Every drop is of the dug tile's material. When a terrain job leaves the last tile of a boneyard's skull group (`giantSkulls`) no longer a `wall`, a `giant_skull` of `giant_bone` drops beside that tile's fossil, once: the group leaves the list. The soil drop's roll is on its own stream, `rngFor('03.soil_drop')`, drawn only for a tile of such a soil, so digging stone, ore and every other soil draws the same numbers as before.
 
+A `constructed` wall is never carved: `dig`, stairs and `ramp` refuse it, and a channel above it leaves it standing. It comes down only by `remove`, which returns what it was built of.
+
 Digging a `wall` that has a `floor` above it (which is every underground wall) never affects the tile above. Digging removes the last support of nothing, because natural rock is never subject to support.
 
 A removed or collapsed construction returns 14's recorded input item type. When no record exists, its material class supplies a fallback: wood returns a `log`, metal a `bar`, anything else a `stone_block`. Drops are also recorded in `terrain.intendedDrops()`, and sent to the item spawn API when present.
 
 When a designation is applied to a tile that no longer matches its precondition (because something else changed it), the designation is cleared silently, except a `harvest_ice` designation on thawed water, which waits for the ice (§ Ice harvesting). A designation worked standing on its own tile (channel, down stairs, and smoothing or engraving a floor) is cleared in the same way, with its job, when a building other than a door that blocks walking on the tile is built there (14 `BuildingCompleted`), and is cleared when it is made on such a tile, before any job: nobody can stand there to do the work.
 
-Stairs are never cut under a building. A `floor` that holds a building of any kind, planned or built (furniture, a workshop, a door, a construction, the wagon), fails the precondition of every stair designation, so `Designate` refuses it and the stairs tool skips it (24 § Input model). A building placed on a floor that holds a stair designation clears the designation, with its job, when it is placed (14 `BuildingPlaced`); a stair job that completes under a building placed since finds its precondition failed and carves nothing. A natural stair re-carved to up/down stairs is not a floor, so a hatch over it does not stop that.
+Nothing is cut under a building: no stairs, no channel and no ramp. A `floor` that holds a building of any kind, planned or built (furniture, a workshop, a door, a construction, the wagon), fails the precondition of every stair designation; a tile that holds one (a floor, or a hatch's down stairs) fails `channel`, which would open it; and a `wall` under a floor that holds one fails `ramp`, which would open that floor. `Designate` refuses such a tile and the tools skip it (24 § Input model). A building placed on a tile that holds a stair or channel designation clears the designation, and one placed on the floor above a wall designated for a ramp clears the ramp's, each with its job, when it is placed (14 `BuildingPlaced`); a stair, channel or ramp job that completes under a building placed since finds its precondition failed and carves nothing. A natural stair re-carved to up/down stairs is not a floor, so a hatch over it does not stop that. Nothing else opens a tile under a building that is not a construction: natural tiles never collapse (§ Support and collapse), fluids change no tile's kind, and a construction that collapses, melts or burns holds no other building on its tile.
 
 ### Digging as a job
 
@@ -177,7 +179,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 
 ### Events consumed
 
-`JobCompleted` (for its own job types), `JobCancelled`, `EntitiesMoved` (discovery), `BuildingPlaced` (clears the stair designations on its footprint's floors), `BuildingCompleted` (support check; the designations worked from a footprint tile the building blocks), `RibsEntered` (marks the boneyard's `boneyardsEntered`).
+`JobCompleted` (for its own job types), `JobCancelled`, `EntitiesMoved` (discovery), `BuildingPlaced` (clears the stair and channel designations on its footprint, and a ramp designation beneath it), `BuildingCompleted` (support check; the designations worked from a footprint tile the building blocks), `RibsEntered` (marks the boneyard's `boneyardsEntered`).
 
 ### Events emitted
 

@@ -1,5 +1,7 @@
 # T-597 — A channel dug under a bed or a door
 
+**Closed:** 2026-11-17, in 7ee3dd96.
+
 **Source:** T-594 (stairs are not cut under a building) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
