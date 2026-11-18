@@ -2307,27 +2307,50 @@ function squadInMetal(w: TestWorld, state: FortressState): boolean {
 
 /**
  * T-603: where ambushes come (perils 2 and 4) a player builds toward the squad the ambush bars ask
- * for (T-601): from the second year, once the fortress has STRONG_SQUAD_ADULTS adults, the squad is
- * STRONG_SOLDIERS soldiers taken from the immigrants nobody else needs, short swords their weapon
- * (wooden ones from the carpenter until the forge has steel),
- * who train full time in a barracks dug off the hall level's corridors under a Warden (16 §
- * Training) until each is Proficient (AMBUSH_SKILL), and then go back to civilian work: there is no
- * skill rust (10). With MARKS_ADULTS adults, AMBUSH_MARKS marksdwarves join them in a ranged squad of
- * their own, with crossbows and bolts from the forge, and shoot at an archery target in the same
- * barracks. Below TRAIN_FLOOR_ADULTS adults nobody trains. The forge makes each soldier a steel
- * sword, shield, helm, mail shirt and greaves ahead of its other orders once steel is smelted, which
- * such a fortress starts from STRONG_STEEL_DAY (three_years_economy.ts).
+ * for (T-601). Once the fortress is big enough (`StrongPlan`), the squad is STRONG_SOLDIERS soldiers
+ * taken from the immigrants nobody else needs, short swords their weapon (wooden ones from the
+ * carpenter until a metal one is free), who train full time in a barracks dug off the hall level's
+ * corridors with a Warden among them (16 § Training) until each is Proficient (AMBUSH_SKILL), and
+ * then go back to civilian work: there is no skill rust (10). With more adults, AMBUSH_MARKS
+ * marksdwarves join them in a ranged squad of their own, with crossbows and bolts from the forge,
+ * and shoot at an archery target in the same barracks. Below a floor of adults nobody trains. The
+ * forge makes each soldier a steel sword, shield, helm, mail shirt and greaves ahead of its other
+ * orders once there is steel, which such a fortress smelts from STRONG_STEEL_DAY and asks the
+ * Mountainhome for (three_years_economy.ts).
  */
-export const STRONG_SQUAD_DAY = DAYS_PER_YEAR;
-export const STRONG_SQUAD_ADULTS = 24;
+export interface StrongPlan {
+  /** The first day the squad of soldiers trains, and the adults it needs. */
+  readonly day: number;
+  readonly adults: number;
+  /** The adults with which the marksdwarves join it. */
+  readonly marksAdults: number;
+  /** Below this many adults nobody trains. */
+  readonly floor: number;
+}
+
+/**
+ * T-603: the plan by peril. At peril 2 from the winter of year 1 with 16 adults, the marksdwarves at
+ * 22, nobody below 12. At peril 4 from year 2 with 24, the marksdwarves at 30, nobody below 20: with
+ * peril 2's plan the peril-4 fortresses, which raids and ambushes keep smaller and busier, lost 25
+ * living dwarves a timeline and gained 6 deaths in a partial sweep (the soldiers and marksdwarves were
+ * half of 16 adults), where those at peril 2 lost 7 living and 2.7 deaths.
+ */
+export function strongPlan(peril: number): StrongPlan {
+  return peril >= 4 ? { day: DAYS_PER_YEAR, adults: 24, marksAdults: 30, floor: 20 } : { day: 3 * DAYS_PER_YEAR / 4, adults: 16, marksAdults: 22, floor: 12 };
+}
+
+/** T-603: the region's peril, as the threats system holds it (its schedule is set by it, 18). */
+function perilOf(w: TestWorld): number {
+  return (w.game.world.scheduler.byId('18') as unknown as { peril?: number } | undefined)?.peril ?? 0;
+}
+
 /**
  * T-603: the squad is one soldier more than the bar's five, so that every soldier has a sparring
  * partner (16 § Training: the odd one drills alone at half the experience; in `three-years-p2-3`
  * the fifth of five stood at Novice when the others were Skilled) and a fallen one does not drop the squad under the bar.
  */
 export const STRONG_SOLDIERS = AMBUSH_SOLDIERS + 1;
-export const MARKS_ADULTS = 30;
-export const TRAIN_FLOOR_ADULTS = 20;
+
 /** T-603: the barracks is a block of rock this size, dug this many days before the squad trains. */
 export const BARRACKS_W = 4;
 export const BARRACKS_H = 5;
@@ -2378,7 +2401,7 @@ function heldSkill(w: TestWorld, id: number): number {
 }
 
 /**
- * T-603: the barracks, dug from BARRACKS_LEAD_DAYS before STRONG_SQUAD_DAY as a block of rock off a
+ * T-603: the barracks, dug BARRACKS_LEAD_DAYS before the squad's first day as a block of rock off a
  * corridor of the hall level (`hallBlockSite`), zoned for the squad once dug, and the archery target
  * set up in a corner with no way in beside it, the farthest from the stair, once the marksdwarves
  * have a squad.
@@ -2387,7 +2410,7 @@ function keepBarracks(w: TestWorld, state: FortressState, strong: StrongSquad, d
   const buildings = w.readers.of<BuildingsReader>('14');
   const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
   if (strong.barracks === undefined) {
-    if (day < STRONG_SQUAD_DAY - BARRACKS_LEAD_DAYS) return;
+    if (day < strongPlan(perilOf(w)).day - BARRACKS_LEAD_DAYS) return;
     const tiles = hallBlockSite(w, state, BARRACKS_W, BARRACKS_H);
     if (tiles === null) return;
     strong.barracks = { tiles, zoneId: 0, targetId: 0 };
@@ -2441,9 +2464,9 @@ export function pickSquad(current: readonly number[], pool: readonly number[], s
   return [...kept, ...others].slice(0, size);
 }
 
-/** T-603: a squad trains while one of it is short of Proficient in its weapon, the barracks is dug and the fortress has TRAIN_FLOOR_ADULTS adults. */
-export function squadTrains(skills: readonly number[], adults: number, barracks: boolean): boolean {
-  return barracks && adults >= TRAIN_FLOOR_ADULTS && skills.some((k) => k < AMBUSH_SKILL);
+/** T-603: a squad trains while one of it is short of Proficient in its weapon, the barracks is dug and the fortress has its plan's floor of adults. */
+export function squadTrains(skills: readonly number[], adults: number, barracks: boolean, plan: StrongPlan): boolean {
+  return barracks && adults >= plan.floor && skills.some((k) => k < AMBUSH_SKILL);
 }
 
 /**
@@ -2457,9 +2480,10 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   const strong = (state.strong ??= { marksSquadId: 0, trained: [], day: -1 });
   if (strong.day === day || w.game.world.fortress.alert !== 'calm') return strong.since !== undefined;
   strong.day = day;
+  const plan = strongPlan(perilOf(w));
   keepBarracks(w, state, strong, day);
   if (strong.since === undefined) {
-    if (day < STRONG_SQUAD_DAY || armingSquad(state) || adults.length < STRONG_SQUAD_ADULTS || (strong.barracks?.zoneId ?? 0) === 0) return false;
+    if (day < plan.day || armingSquad(state) || adults.length < plan.adults || (strong.barracks?.zoneId ?? 0) === 0) return false;
     strong.since = day;
     command(w, { type: 'SetSquadEquipment', squadId: state.squadId, equipment: { weaponClass: 'sword' } });
     // The Mountainhome's next caravans bring steel and its kit, and flux for the fortress's own (20 § Requests).
@@ -2479,7 +2503,7 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
     id !== economy.broker?.id && id !== economy.brewer && !watchmen.has(id);
   const squadOf = (id: number): SquadWithId | undefined => combat.squads().find((sq) => sq.id === id);
   // The marksdwarves' squad, once the fortress can spare two more.
-  if (strong.marksSquadId === 0 && adults.length >= MARKS_ADULTS && command(w, { type: 'CreateSquad', name: 'Bolts' }).ok) {
+  if (strong.marksSquadId === 0 && adults.length >= plan.marksAdults && command(w, { type: 'CreateSquad', name: 'Bolts' }).ok) {
     strong.marksSquadId = combat.squads().find((sq) => sq.name === 'Bolts')?.id ?? 0;
     command(w, { type: 'SetSquadEquipment', squadId: strong.marksSquadId, equipment: { weaponClass: 'crossbow', armor: 'any', ranged: true } });
     command(w, { type: 'SetSquadMode', squadId: strong.marksSquadId, mode: 'off' });
@@ -2507,7 +2531,7 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   const warden = dwarves.holder('warden');
   if (soldiers.length > 0 && !soldiers.includes(warden)) command(w, { type: 'AssignTitle', title: 'warden', dwarfId: soldiers[0]! });
   const barracks = (strong.barracks?.zoneId ?? 0) !== 0;
-  const mode = (ids: readonly number[]): 'train' | 'off' => (squadTrains(ids.map((id) => heldSkill(w, id)), adults.length, barracks) ? 'train' : 'off');
+  const mode = (ids: readonly number[]): 'train' | 'off' => (squadTrains(ids.map((id) => heldSkill(w, id)), adults.length, barracks, plan) ? 'train' : 'off');
   const mainNow = squadOf(state.squadId);
   if (mainNow && mainNow.mode !== mode(soldiers)) command(w, { type: 'SetSquadMode', squadId: state.squadId, mode: mode(soldiers) });
   const marksNowSquad = strong.marksSquadId === 0 ? undefined : squadOf(strong.marksSquadId);
