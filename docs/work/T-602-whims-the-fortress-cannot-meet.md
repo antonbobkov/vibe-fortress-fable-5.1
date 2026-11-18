@@ -1,4 +1,4 @@
-# T-NEW — The Thane wishes for what the fortress cannot make
+# T-602 — The Thane wishes for what the fortress cannot make
 
 **Source:** [T-588](T-588-fixture-makes-do.md) (the three-year script's Making Do strand; its reach probe, Measure run 44311051943, the twenty sweep seeds at shift 0) · **Size:** S · **Needs:** — · **Status:** open
 
