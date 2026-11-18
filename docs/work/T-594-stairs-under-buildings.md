@@ -1,4 +1,4 @@
-# T-NEW — Stairs cut into a floor that holds a building
+# T-594 — Stairs cut into a floor that holds a building
 
 **Source:** T-589 (one Stairs tool; 03 lets up and up/down stairs be cut into a `floor`) · **Size:** S · **Needs:** — · **Status:** open
 
