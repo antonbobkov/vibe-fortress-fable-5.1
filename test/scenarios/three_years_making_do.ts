@@ -13,14 +13,20 @@
  * - the still distils spirits behind its brew, and the larder's drink stockpile is a cellar;
  * - a compost heap beside the pasture, every farm plot fertilized, and the Hillfolk's dung bought;
  * - a candle stand in the dining hall, burning the Hillfolk's tallow candles (asked for and bought);
- * - the Thane's whim answered when it is something the fortress makes: fine meals, spirits, or mead
- *   from the honey it buys. Once the fortress has the spirits or the mead the Thane asked for, the
- *   player sets them aside (forbids them) so the dwarves do not drink them, and gives them back to the
- *   stocks just before the season's end, when the whim is judged on what is in stock. Fine meals are
- *   not set aside: forbidden, they are hauled to no barrel, and rot (T-588's probe: 23 set aside on day
- *   143 of `three-years-p2-1`, 5 left on day 157); the kitchen keeps them in stock instead.
+ * - honey bought for the Thane's mead.
  * The strand's orders stand behind the script's own at a workshop they share (the still's distilling
  * behind its brew), except single jobs: one chest for the clothier, and a whim's fine meals or mead.
+ *
+ * From the first day (T-604: the year-one whims, drawn in the third and fourth seasons, were missed on
+ * nearly every seed), the Thane's whim is answered when it is something the fortress makes
+ * (`answerTheThane`): fine meals, spirits, or mead from the honey it has. While it stands, the kitchen's
+ * fine meals go first, and a single batch of spirits or a single brew of mead goes ahead of the still's
+ * brew. Once the fortress has the spirits or the mead the Thane asked for, the player sets them aside
+ * (forbids them) so the dwarves do not drink them, and gives them back to the stocks just before the
+ * season's end, when the whim is judged on what is in stock. Fine meals are not set aside: forbidden,
+ * they are hauled to no barrel, and rot (T-588's probe: 23 set aside on day 143 of `three-years-p2-1`,
+ * 5 left on day 157); the kitchen keeps them in stock instead. In the first year that is all: a batch
+ * of spirits costs twenty drink and a bar of fuel, and fine meals feed as many per ingredient as easy ones.
  */
 import { C, ItemFlag } from '@core/components';
 import { DAYS_PER_SEASON, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
@@ -178,12 +184,11 @@ function forbid(w: TestWorld, ids: readonly number[], on: boolean): void {
 }
 
 /**
- * The Thane's share, at every look of the script: once the fortress has what an answered whim asks
- * for, it is set aside (forbidden), and it goes back to the stocks RELEASE_TICKS before the season
- * ends, so the judgement finds it in stock. Only what does not rot is set aside.
+ * The Thane's share, at every look of the script from the first day: once the fortress has what an
+ * answered whim asks for, it is set aside (forbidden), and it goes back to the stocks RELEASE_TICKS
+ * before the season ends, so the judgement finds it in stock. Only what does not rot is set aside.
  */
 export function keepThanesShare(w: TestWorld, state: FortressState): void {
-  if (!makingDo(state)) return;
   const economy = state.economy;
   const whim = w.readers.of<DwarvesReader>('10').whim();
   const closing = (Math.floor(w.tick / SEASON_TICKS) + 1) * SEASON_TICKS - w.tick <= RELEASE_TICKS;
@@ -208,6 +213,54 @@ export function keepThanesShare(w: TestWorld, state: FortressState): void {
   economy.thaneShare = { whim: whim.id, items };
 }
 
+/** A workshop of the script's that is built, or 0. */
+function builtId(w: TestWorld, state: FortressState, key: string): number {
+  const id = state.placedIds[key];
+  return id !== undefined && w.readers.of<BuildingsReader>('14').get(id)?.state === 'built' ? id : 0;
+}
+
+/** Whether the Thane wishes for this whim and its share is not yet set aside. */
+function wanting(w: TestWorld, state: FortressState, whimId: string): boolean {
+  return w.readers.of<DwarvesReader>('10').whim()?.id === whimId && state.economy.thaneShare === undefined;
+}
+
+/**
+ * The Thane's whim, from the first day, when it is something the fortress makes: until its share is
+ * set aside, a batch of spirits, or a brew to mead of the honey at hand, ahead of the still's brew, or
+ * the kitchen's fine meals first.
+ */
+function answerTheThane(w: TestWorld, state: FortressState): void {
+  const items = w.readers.of<ItemsReader>('13');
+  const still = builtId(w, state, 'still');
+  if (still !== 0) {
+    // T-602: a batch for the Thane ahead of the brew (the brew keeps the still busy all season, and
+    // the strand's distilling stands behind it), once, while the fortress has less than the whim asks
+    // for. Removed once the share is set aside or the whim has passed.
+    const distill = w.game.registry.table('recipes').index('distill');
+    const once = (w.game.world.entities.get(still, C.Workshop)?.orders ?? []).findIndex((o) => o.mode === 'once' && o.recipe === distill);
+    const deepfire = items.countAvailable({ type: w.game.registry.table('items').index('drink'), materialId: w.game.registry.table('materials').index('deepfire') });
+    if (!wanting(w, state, 'whim_spirits')) {
+      if (once >= 0) command(w, { type: 'RemoveWorkOrder', workshopId: still, index: once });
+    } else if (once < 0 && deepfire < (w.game.registry.table<{ id: string; count: number }>('whims').byId('whim_spirits')?.count ?? 0)) {
+      if (command(w, { type: 'AddWorkOrder', workshopId: still, order: { recipeId: 'distill', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveLast(w, still, 0);
+    }
+    if (wanting(w, state, 'whim_mead') && items.available('honey') >= MEAD_HONEY && orderIndex(w, still, 'brew_mead') < 0) {
+      if (command(w, { type: 'AddWorkOrder', workshopId: still, order: { recipeId: 'brew_mead', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveOrder(w, still, 'brew_mead', true);
+    }
+  }
+  const kitchen = builtId(w, state, 'kitchen');
+  if (kitchen !== 0) {
+    const { phases } = state.economy;
+    const fine = wanting(w, state, 'whim_fine_meal');
+    keepThreshold(w, kitchen, 'cook_fine_meal', fine ? FINE_MEALS_FOR_WHIM : FINE_MEALS_KEPT);
+    if (fine !== phases.has('fine meals first')) {
+      moveOrder(w, kitchen, 'cook_fine_meal', fine);
+      if (fine) phases.add('fine meals first');
+      else phases.delete('fine meals first');
+    }
+  }
+}
+
 export function checkMakingDo(w: TestWorld, state: FortressState, day: number): void {
   const { phases } = state.economy;
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -219,12 +272,10 @@ export function checkMakingDo(w: TestWorld, state: FortressState, day: number): 
     phases.add('cellar');
     command(w, { type: 'SetStockpileCellar', zoneId: larder.drinkZoneId, on: true });
   }
+  answerTheThane(w, state);
   if (day < MAKING_DO_FROM_DAY) return;
   const items = w.readers.of<ItemsReader>('13');
-  const built = (key: string): number => {
-    const id = state.placedIds[key];
-    return id !== undefined && buildings.get(id)?.state === 'built' ? id : 0;
-  };
+  const built = (key: string): number => builtId(w, state, key);
   if (!phases.has('making do')) {
     phases.add('making do');
     // Clay for the kiln, which the peril-0 maps lack, and tallow candles for the stand.
@@ -262,41 +313,15 @@ export function checkMakingDo(w: TestWorld, state: FortressState, day: number): 
     }
   }
 
-  // Spirits behind the brew, and the Thane's whim when it is something the fortress makes: until its
-  // share is set aside, more spirits, the kitchen's fine meals first, or the honey bought brewed to mead.
+  // Spirits behind the brew; while the Thane wishes for something strong, more of them.
   const whim = w.readers.of<DwarvesReader>('10').whim();
-  const wanting = (id: string): boolean => whim?.id === id && state.economy.thaneShare === undefined;
   const still = built('still');
   if (still !== 0) {
     if (!state.orderedWorkshops.has('distill')) {
       state.orderedWorkshops.add('distill');
       standingOrders(w, still, [{ recipeId: 'distill', threshold: SPIRITS_KEPT }]);
     }
-    keepThreshold(w, still, 'distill', wanting('whim_spirits') ? SPIRITS_FOR_WHIM : SPIRITS_KEPT);
-    // T-602: a batch for the Thane ahead of the brew (its maintain order stands behind the brew, which
-    // keeps the still busy all season), once, while the fortress has less than the whim asks for.
-    // Removed once the share is set aside or the whim has passed.
-    const distill = w.game.registry.table('recipes').index('distill');
-    const once = (w.game.world.entities.get(still, C.Workshop)?.orders ?? []).findIndex((o) => o.mode === 'once' && o.recipe === distill);
-    const deepfire = items.countAvailable({ type: w.game.registry.table('items').index('drink'), materialId: w.game.registry.table('materials').index('deepfire') });
-    if (!wanting('whim_spirits')) {
-      if (once >= 0) command(w, { type: 'RemoveWorkOrder', workshopId: still, index: once });
-    } else if (once < 0 && deepfire < (w.game.registry.table<{ id: string; count: number }>('whims').byId('whim_spirits')?.count ?? 0)) {
-      if (command(w, { type: 'AddWorkOrder', workshopId: still, order: { recipeId: 'distill', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveLast(w, still, 0);
-    }
-    if (wanting('whim_mead') && items.available('honey') >= MEAD_HONEY && orderIndex(w, still, 'brew_mead') < 0) {
-      if (command(w, { type: 'AddWorkOrder', workshopId: still, order: { recipeId: 'brew_mead', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveOrder(w, still, 'brew_mead', true);
-    }
-  }
-  const kitchen = built('kitchen');
-  if (kitchen !== 0) {
-    const fine = wanting('whim_fine_meal');
-    keepThreshold(w, kitchen, 'cook_fine_meal', fine ? FINE_MEALS_FOR_WHIM : FINE_MEALS_KEPT);
-    if (fine !== phases.has('fine meals first')) {
-      moveOrder(w, kitchen, 'cook_fine_meal', fine);
-      if (fine) phases.add('fine meals first');
-      else phases.delete('fine meals first');
-    }
+    keepThreshold(w, still, 'distill', wanting(w, state, 'whim_spirits') ? SPIRITS_FOR_WHIM : SPIRITS_KEPT);
   }
 
   // A compost heap beside the pasture, for its dung and the fortress's spoiled food; every plot fertilized.
