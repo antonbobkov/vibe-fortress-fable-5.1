@@ -101,7 +101,7 @@ These are shared by fluids, pathfinding, terrain, rendering, health and defense.
 | `MIN_VIEW_COLS` | 80 | Below this the canvas scales down instead of hiding cells |
 | `MIN_VIEW_ROWS` | 45 | |
 | `SIDEBAR_COLS` | 36 | Width of the right-hand panel when open |
-| `STATUS_ROWS` | 2 | Height of the bottom status bar |
+| `STATUS_ROWS` | 3 | Height of the bottom status bar: the fields row, the tool and hotkey row, the hover line |
 | `TARGET_FPS` | 60 | Render loop target; rendering is decoupled from simulation |
 | `LEVELS_VISIBLE_BELOW` | 2 | How many z-levels below the slice show through open tiles, each dimmer |
 

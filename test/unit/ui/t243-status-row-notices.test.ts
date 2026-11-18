@@ -70,10 +70,10 @@ describe('T-243 status row notices and counts', () => {
     const lastCell = s.cells.get(layout.cols - 1, statusRow2Idx);
     expect(lastCell.glyph).toBe(s.glyphs.index('…'));
 
-    // textRows also includes the ellipsis in the last row (mapped to » in CP437 surface)
+    // textRows also includes the ellipsis at the end of status row 2, above the hover line (mapped to » in CP437 surface)
     game.render();
     const rows = game.textRows();
-    expect(rows[rows.length - 1]).toMatch(/[…»]$/);
+    expect(rows[rows.length - 2]).toMatch(/[…»]$/);
   });
 
   it('1 table: singular and plural forms for counts in stock and string templates', () => {

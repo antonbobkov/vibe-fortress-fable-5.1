@@ -24,7 +24,8 @@ While the tutorial runs, its box covers the top left corner of the map view and 
 │ ! Gloam scouts have been seen at the eastern edge. They will come tomorrow.                                          │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Day 12 of Summer, Year 2   ☼ clear 21°C   ☺ 23   ♥ Content   +1   $   z 31   ►► 2×              [Esc] menu  [?] help     │
-│ Granite wall, smoothed · 14°C · [d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look│
+│ [d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look       │
+│ Sand floor · water 5/7 · 1 trout                                                                                     │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -32,7 +33,9 @@ Status row 1 fields left to right: date (a click on it, or `Shift+Y`, opens the 
 
 Every field of row 1 is a button. A click on the date or the weather opens the Calendar; on `☺` Units; on `♥` Mood; on `+n` Units with the wounded first; on `!n` Threats; on `$` Civilizations; on `z` nothing. A click on the speed glyph pauses or resumes at the last speed, and a right click on it steps the speed 1× → 2× → 4× → 1× (a paused game stays paused and resumes at the new speed). Hovering `+n` shows "n wounded" and `!n` "n hostile creatures on the map". `[Esc] menu` opens the game menu and `[?] help` the Help panel.
 
-Status row 2: the tile summary under the mouse (or the cursor), then as many complete hotkey entries as fit (each is a button that does what its key does), in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. The tile summary keeps its place on the left; with a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
+Status row 2: as many complete hotkey entries as fit (each is a button that does what its key does), in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. With a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`; with a selection, its size. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
+
+Status row 3, the hover line: the tile summary (24 § Inspection) of the tile under the mouse, or of the map cursor when the mouse is off the map, in every mode, menu and panel: `Granite wall`, `Sand floor · water 5/7 · 1 trout`, `Ketil Ironvein, Digging · 2 more here`. It is blank when there is neither. Text that does not fit ends with `…` and registers its full text as a tooltip on the row.
 
 The log strip shows the last three announcements; danger lines are prefixed `!!`, alerts `!`. A line that does not fit ends with `»` and has a tooltip with the whole text. A hint (the `☼` lines) that does not fit one line is wrapped over two of the strip's three lines, and is drawn in `text_value`, not in the announcements' grey.
 
@@ -91,12 +94,13 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 │ Labors   [l] edit                         │
 ```
 
-On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes first, then the designation, traffic, building and zone lines, then `Here:` and one line for each item (`1 granite stone · 3 ☼`) and each creature (`Ketil Ironvein, Digging`) on the tile:
+On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes first, then the fluid line (`Water 5/7`, `Magma 2/7`, `Ice 5/7`; none on a dry tile), the designation, traffic, building and zone lines, then `Here:` and one line for each item (`1 granite stone · 3 ☼`) and each creature (`Ketil Ironvein, Digging`) on the tile, the goods a `container` building holds there among the items:
 
 ```
 │ Look · (21, 20, z32)                 [x] │
 │ Tabs: [1]Tile [2]Items(1) [3]Creatures(0) │
 │ Granite floor                             │
+│ Water 2/7                                 │
 │ Here:                                     │
 │   1 granite stone · 3 ☼                   │
 ```

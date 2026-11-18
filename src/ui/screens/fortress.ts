@@ -232,10 +232,10 @@ export class FortressScreen implements Screen {
       strings: this.strings,
       submit: (c) => host.submit(c),
       focusOn: (t) => this.focusOn(t),
-      look: (t) => {
+      look: (t, tab) => {
         const map = host.readers.map;
         this.focusOn(t);
-        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) });
+        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) }, tab);
       },
       openPanel: (id) => this.openPanel(id),
       shiftClick: () => this.clickShift,
@@ -808,6 +808,19 @@ export class FortressScreen implements Screen {
       }
       this.hitStrip(surface, rect, chars.length > rect.cols ? `${chars.slice(0, rect.cols - 1).join('')}…` : full);
     }
+    if (rect.rows > 2) {
+      // The hover line: always the tile under the mouse (or the cursor), whatever row 2 shows.
+      const hover = this.hoverLine();
+      const full = ` ${hover}`;
+      const chars = Array.from(full);
+      const row = rect.row + 2;
+      if (chars.length > rect.cols && rect.cols > 0) {
+        surface.tooltip({ col: rect.col, row, cols: rect.cols, rows: 1 }, hover);
+        labelRow(surface, rect.col, row, rect.cols, `${chars.slice(0, rect.cols - 1).join('')}…`, { fg: t.text, relabel: false });
+      } else {
+        labelRow(surface, rect.col, row, rect.cols, full, { fg: t.text, relabel: false });
+      }
+    }
   }
 
   /**
@@ -856,10 +869,10 @@ export class FortressScreen implements Screen {
   }
 
   /**
-   * Row 2: "the tile summary under the mouse (or the cursor), then the hotkey strip …; with a tool
-   * active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc]
-   * cancel`." A rejection reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier
-   * by starting a drag, a new ghost state or a new notice (T-243).
+   * Row 2: "the hotkey strip …; with a tool active it shows the tool name, the priority, the
+   * rectangle size while dragging, and `[Esc] cancel`." A rejection reason takes the row for
+   * `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new
+   * notice (T-243). The tile under the mouse is on row 3, the hover line ({@link hoverLine}).
    */
   statusRow2(cols = Infinity): string {
     // Each key the row names is the key its binding has now (24 § Settings).
@@ -959,12 +972,18 @@ export class FortressScreen implements Screen {
       const h = Math.abs(sel.a.y - sel.b.y) + 1;
       return s.get('ui.status.selection', { w, h, n: w * h });
     }
-    const tile = this.hover ?? this.cursorTile();
-    if (tile === null) return statusPanelStrip(s, cols);
-    const summary = tileContents(this.host.readers, this.host.registry, s, tile);
-    const prefix = `${summary} · `;
-    const strip = statusPanelStrip(s, cols - Array.from(prefix).length);
-    return strip.length === 0 ? summary : `${prefix}${strip}`;
+    return statusPanelStrip(s, cols);
+  }
+
+  /**
+   * Status row 3, the hover line (24 § Fortress screen layout): the tile summary of the tile under the
+   * mouse, or of the map cursor when the mouse is off the map, whatever tool or panel is active; ''
+   * with neither.
+   */
+  hoverLine(): string {
+    const p = this.hoverPoint();
+    const tile = (p === null ? null : this.tileOf(p)) ?? this.cursorTile();
+    return tile === null ? '' : tileContents(this.host.readers, this.host.registry, this.strings, tile);
   }
 
   // ---------- tiles and points ----------
@@ -1208,10 +1227,10 @@ export class FortressScreen implements Screen {
     this.depot.trade(this.ctx, this.host.speed() === 0);
   }
 
-  /** Look at a tile: the look panel with the cursor on it. */
-  look(p: TilePoint): void {
+  /** Look at a tile: the look panel with the cursor on it, at the `Tile` tab or the one asked for. */
+  look(p: TilePoint, tab: LookTab = 0): void {
     this.ui.cursor = { x: p.x, y: p.y };
-    this.lookTab = 0;
+    this.lookTab = tab;
     this.openPanel('look');
   }
 

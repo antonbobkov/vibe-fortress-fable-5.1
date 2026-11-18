@@ -291,6 +291,7 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 | `[g]` | tame the caged creature |
 | `[w]` | the owner of a bed's bedroom, or whom a coffin is kept for |
 | `[h]` | take out what the building holds (its bedding and pillow): they drop on its tile |
+| `[v]` | a `container` building (the wagon, a chest): Look on the tile where its goods lie, at the `Items` tab |
 | `[x]` | cancel the plan, or take the building apart (confirm) |
 
 ### Stocks panel
@@ -563,7 +564,7 @@ The mouse is not rebindable; § Mouse lists its gestures.
 | `Ctrl` + wheel | zoom | zoom |
 | `Shift` + wheel | pan vertically | pan vertically |
 | Middle drag | pan | pan |
-| Hover | tile summary in the status bar | ghost footprint / rectangle size |
+| Hover | tile summary on the hover line (the status bar's last row) | ghost footprint / rectangle size; the hover line still names the tile |
 | Click on a panel row | select | select |
 | Double-click a unit or job row | center the map on it | same |
 

@@ -21,8 +21,8 @@ export interface PanelContext {
   submit(command: Command): void;
   /** Centre the view on a tile ("Clicking a location reference … centers the map"). */
   focusOn(tile: TileIndex): void;
-  /** Open the look panel on a tile. */
-  look(tile: TileIndex): void;
+  /** Open the look panel on a tile, at a tab (the `Tile` tab when absent; `1` is `Items`). */
+  look(tile: TileIndex, tab?: 0 | 1 | 2): void;
   /** Open another panel. */
   openPanel(id: string): void;
   /** Whether the pointer's `Shift` was down for the click being handled. */

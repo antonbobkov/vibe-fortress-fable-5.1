@@ -20,6 +20,7 @@ import { HIVE_CAPACITY, HIVE_DAYS, HIVE_FLOWERS_MIN, HIVE_FLOWER_RADIUS } from '
 import type { BuildingView, StandView } from '@systems/buildings';
 import { STAND_CANDLES } from '@systems/buildings/constants';
 import type { DefenseReader } from '@systems/defense';
+import { CATEGORY_TREE } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import { LINKABLE_TAGS, PLATE_LEVEL_MAX, PLATE_SIZE_MAX, PLATE_SIZE_STEP } from '../constants';
 import { acceleratorLabel } from '../keymap';
@@ -642,8 +643,56 @@ export class BuildingPanel {
     }
     if (tags.includes('hive')) out.push(...this.hiveLines(ctx, view));
     out.push(...this.heldLines(ctx, key));
+    if (tags.includes('container')) out.push(...this.containerLines(ctx, view, key));
     out.push({ id: 'look', text: s.get('ui.building.look'), run: () => ctx.look(view.origin), help: s.get('ui.building.look_help') });
     if (takeApart !== undefined && !doomed) out.push({ id: 'take_apart', text: key('x', s.get('ui.building.take_apart')), key: 'x', run: () => takeApart(this.id), help: s.get('ui.building.take_apart_help') });
+    return out;
+  }
+
+  /**
+   * 24 § Building panel: what a `container` building (the wagon, a chest) holds, with what lies in
+   * the barrels and bags it holds: units by item type, one line per top category of the stocks tree
+   * in its order; then `[v] see the items`, Look at the `Items` tab on the tile where they lie.
+   */
+  private containerLines(ctx: PanelContext, view: BuildingView, key: (letter: string, caption: string) => string): BuildingLine[] {
+    const it = items(ctx);
+    if (it === null) return [];
+    const s = ctx.strings;
+    const held = new Set<EntityId>();
+    const walk = (holder: EntityId): void => {
+      for (const id of it.inContainer(holder)) {
+        if (held.has(id)) continue;
+        held.add(id);
+        walk(id);
+      }
+    };
+    walk(this.id);
+    if (view.itemId !== 0) walk(view.itemId);
+    const groups = new Map<string, Map<number, number>>();
+    for (const id of held) {
+      const rec = it.get(id);
+      if (rec === undefined) continue;
+      const top = it.itemCategory(id).split('/')[0] ?? '';
+      const types = groups.get(top) ?? new Map<number, number>();
+      types.set(rec.type, (types.get(rec.type) ?? 0) + rec.count);
+      groups.set(top, types);
+    }
+    if (groups.size === 0) return [{ id: 'contents', text: s.get('ui.building.contents_none'), tone: 'dim' }];
+    const rank = (category: string): number => {
+      const k = CATEGORY_TREE.indexOf(category);
+      return k < 0 ? CATEGORY_TREE.length : k;
+    };
+    const out: BuildingLine[] = [{ id: 'contents', text: s.get('ui.building.contents'), tone: 'key' }];
+    for (const top of [...groups.keys()].sort((a, b) => rank(a) - rank(b) || (a < b ? -1 : a > b ? 1 : 0))) {
+      const types = [...(groups.get(top) ?? new Map<number, number>())].sort((a, b) => a[0] - b[0]);
+      const n = types.reduce((sum, [, count]) => sum + count, 0);
+      const only = types.length === 1 && it.def(types[0]?.[0] ?? -1)?.name === top;
+      const list = types.map(([type, count]) => s.get('ui.building.contents_type', { name: it.def(type)?.name ?? '', n: count })).join(', ');
+      out.push({ id: `contents:${top}`, text: only ? s.get('ui.building.contents_one', { category: top, n }) : s.get('ui.building.contents_row', { category: top, n, types: list }) });
+    }
+    const where = it.tileOf([...held][0] ?? 0);
+    const tile = where >= 0 ? where : view.origin;
+    out.push({ id: 'see_items', text: key('v', s.get('ui.building.see_items')), key: 'v', run: () => ctx.look(tile, 1), help: s.get('ui.building.see_items_help') });
     return out;
   }
 
