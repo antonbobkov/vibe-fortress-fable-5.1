@@ -207,14 +207,28 @@ export function itemName(registry: Registry, id: string, n = 1): string {
 const CURED_WORDS: readonly string[] = ['cured', 'salted'];
 
 /**
+ * Whether an item type is named by its material alone (`items.md` § Food): raw food (category
+ * `food/<kind>/raw`: raw meat, raw fish, plants) and drink, whose type names only say what the
+ * material already does ("boar meat", "turnip", "ale").
+ */
+function namedByMaterial(category: string | undefined): boolean {
+  if (category === undefined) return false;
+  if (category === 'drink') return true;
+  const parts = category.split('/');
+  return parts.length === 3 && parts[0] === 'food' && parts[2] === 'raw';
+}
+
+/**
  * An item as the lists name it: the material, then the item type's name ("oak log", "3 iron bars"). A word is
  * never said twice: a material that ends with the type's name ("wool cloth" for cloth) is the whole name; a type
  * whose name starts or ends with the material's ("easy meal" of meal, "leather boots" of leather) is named by the
- * type alone.
+ * type alone. Raw food and drink are named by the material alone, with no plural ("10 boar meat", "20 turnip",
+ * "20 ale"), as the stocks panel names their stacks.
  */
-export function materialItemName(material: string, type: { readonly name: string; readonly plural?: string | undefined }, n = 1): string {
+export function materialItemName(material: string, type: { readonly name: string; readonly plural?: string | undefined; readonly category?: string | undefined }, n = 1): string {
   const typeName = n === 1 ? type.name : type.plural ?? `${type.name}s`;
   if (material === '') return typeName;
+  if (namedByMaterial(type.category)) return material;
   const m = material.split(' ');
   const t = type.name.split(' ');
   // items.md § Food: an item of a cured or salted form names itself so: "cured boar meat", "cured trout", "salted boar hide".

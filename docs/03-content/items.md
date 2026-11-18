@@ -30,7 +30,7 @@ Weapons, ammunition and armor are in [weapons-and-armor.md](weapons-and-armor.md
 | `honey` | honey | food/honey | 1 | 20 | barrel | 0 | light | `≈` | `honey_amber` | material `honey`; a meal ingredient; brews mead; a wound dressing |
 | `beeswax` | beeswax | food/wax | 1 | 20 | bin | 0 | light | `%` | `wax_yellow` | material `beeswax`; not edible |
 
-Raw meat, fish and plants are edible (`ate_raw_food` thought), and so are honey and a honeycomb. Flour, salt and beeswax are not edible raw. Cured meat and fish are worth twice their raw form and never rot ([13](../02-systems/13-items-and-storage.md) § Curing); they are eaten as raw meat is, and cook as it does. An item of a cured or salted form names itself so: "cured boar meat", "salted boar hide".
+Raw meat, fish and plants are edible (`ate_raw_food` thought), and so are honey and a honeycomb. Flour, salt and beeswax are not edible raw. Cured meat and fish are worth twice their raw form and never rot ([13](../02-systems/13-items-and-storage.md) § Curing); they are eaten as raw meat is, and cook as it does. An item of a cured or salted form names itself so: "cured boar meat", "salted boar hide". Raw meat, raw fish, plants and drink are named by their material alone ("boar meat", "turnip", "ale"; [24](../02-systems/24-ui-and-input.md) § Announcements and the log).
 
 ## Drink
 

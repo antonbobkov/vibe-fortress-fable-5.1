@@ -186,7 +186,7 @@ export class AnnouncementLog {
       if (item !== undefined && event.type === 'StoneSet') {
         const material = this.registry.table<NamedRow>('materials').byIndex(item.material)?.name ?? '';
         const type = this.registry.table<NamedRow>('items').byIndex(item.type);
-        out['item'] = enchantedName(readers, itemId, materialItemName(material, { name: type?.name ?? '' }));
+        out['item'] = enchantedName(readers, itemId, materialItemName(material, type ?? { name: '' }));
       }
     }
     const tier = e['tier'];
