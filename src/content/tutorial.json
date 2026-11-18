@@ -21,7 +21,7 @@
     "id": "stairs",
     "check": "stairs_designated",
     "highlight": "designate",
-    "text": "Stairs lead down. In Designate, [S-j] chooses down stairs: click a floor tile twice. Change the level between the two clicks and the box makes a stair column, down stairs on top and up stairs below."
+    "text": "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft."
   },
   {
     "id": "stockpile",

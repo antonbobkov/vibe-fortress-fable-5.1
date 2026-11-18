@@ -127,12 +127,12 @@ Sections come from the inspector registry in this order: identity, activity, nee
 ```
 │ Designate                          [x]  │
 │ [S-d] Dig        [S-c] Channel          │
-│ [S-u] Up stair   [S-j] Down stair       │
-│ [i] Up/down      [r] Ramp               │
-│ [w] Stairwell    [S-s] Smooth           │
-│ [S-e] Engrave    [x] Remove             │
-│ [S-t] Chop trees [g] Gather             │
-│ [h] Harvest      [S-f] Traffic          │
+│ [w] Stairs       [r] Ramp               │
+│ [S-s] Smooth     [S-e] Engrave          │
+│ [x] Remove       [S-t] Chop trees       │
+│ [g] Gather       [h] Harvest            │
+│ [S-f] Traffic    [q] Cut ice            │
+│ [S-b] Set a fire                        │
 │ Priority [-] 5 [+]   (1–9)              │
 │ [Ctrl+Z] undo  [Del] clear              │
 │ [S-p] last batch to priority 5          │
@@ -147,6 +147,8 @@ The captions are short so that none is cut at the 36-column sidebar; the tool's 
 `[S-p]` (or a click on its row) gives the tool's priority to the tiles of the last batch that are still designated (`SetDesignationPriority`); with no batch, or no remaining designation in it, it says so.
 
 After the first corner, or while dragging, the box's slice on the current level is inverted on the map and the status bar reads `Dig 12×4 (48 tiles), priority 5`, or `Dig 12×4×3 levels (144 tiles), priority 5` once the level differs from the first corner's (24 § Input model).
+
+Stairs is the only stair tool: it chooses up, down or up/down stairs for each tile (24 § Input model). Hovering its caption shows "Stairs: click a floor for a down stair and the stair beneath it, or a wall for up/down; change level between the two clicks for a whole shaft." With the first corner set and the cursor still on it, the status bar reads `Stairs from z 12: click again, or change level ([<] [>]) for a shaft · [Esc] cancel`. A box that skipped tiles says how many and why, as every designation does: `Stairs: 14 designated, 3 skipped (3 already open).`
 
 ## Build tool
 

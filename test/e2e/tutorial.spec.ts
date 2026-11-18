@@ -141,9 +141,9 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('stairs');
 
-  // 4. Down stairs on a floor tile of the surface: two clicks on it.
+  // 4. Stairs on a floor tile of the surface: two clicks on it (down stairs, and up stairs beneath).
   await page.keyboard.press('>');
-  await page.keyboard.press('Shift+J');
+  await page.keyboard.press('w');
   const stairs = await patchNear(page, 1, 1, 'floor');
   await cursorTo(page, stairs.x, stairs.y);
   const stairsAt = await tilePixel(page, stairs.x, stairs.y);

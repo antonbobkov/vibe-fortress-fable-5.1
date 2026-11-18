@@ -64,7 +64,7 @@ test('T-441 two-click-3d-designation: a ten-level shaft and a three-level room b
   // A click on top, nine levels down, a click on the same tile.
   await page.keyboard.press('w');
   await clickTile(page, s.x, s.y);
-  await expect.poll(() => textOf(page)).toContain(`Stairwell from z ${SURFACE}`);
+  await expect.poll(() => textOf(page)).toContain(`Stairs from z ${SURFACE}`);
   await toLevel(page, SURFACE - 9);
   await expect.poll(() => textOf(page)).toContain('1x1x10 levels');
   await clickTile(page, s.x, s.y);

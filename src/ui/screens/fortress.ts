@@ -24,7 +24,7 @@ import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
-import { boxLevels, drawDesignatePanel, DesignateTool, rectTiles, type TilePoint } from '../panels/designate';
+import { boxLevels, drawDesignatePanel, DesignateTool, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
 import { buildings, confirmThen, type PanelContext } from '../panels/context';
@@ -941,7 +941,8 @@ export class FortressScreen implements Screen {
       const name = this.tool.name(s);
       const a = this.tool.anchor;
       const b = this.tool.end ?? this.aimPoint();
-      if (this.tool.kind === 'stairwell' && a !== null && (b === null || b.z === a.z)) return s.get('ui.status.stairwell_top', { z: a.z });
+      // The stairs tool's first corner: one more click there, or a level change for a shaft.
+      if (this.tool.kind === 'stairs' && !this.tool.clearing && a !== null && (b === null || (b.x === a.x && b.y === a.y && b.z === a.z))) return s.get('ui.status.stairs_top', { z: a.z });
       if (a !== null && b !== null) {
         const w = Math.abs(a.x - b.x) + 1;
         const h = Math.abs(a.y - b.y) + 1;
@@ -1343,7 +1344,8 @@ export class FortressScreen implements Screen {
   commit(a: TilePoint, b: TilePoint): Command[] {
     const map = this.host.readers.map;
     // A harvest rectangle holding no ripe crop sends nothing and says so.
-    const commands = this.tool.commands({ map, precondition: (i, k) => this.host.precondition(i, k) }, a, b)
+    const plan = this.tool.plan({ map, precondition: (i, k) => this.host.precondition(i, k) }, a, b);
+    const commands = plan.commands
       .filter((cmd) => cmd.type !== 'DesignateHarvest' || this.anyRipe(cmd['tiles'] as readonly TileIndex[]));
     const hasUnconfirmedDeepsilver = !this.host.readers.fortress.state.deepsilverConfirmed && commands.some((cmd) => {
       if (cmd.type !== 'Designate') return false;
@@ -1385,7 +1387,8 @@ export class FortressScreen implements Screen {
       this.tool.end = null;
       return [];
     }
-    if (commands.length === 0) this.notice(this.emptyRectText());
+    if (commands.length === 0) this.notice(plan.already > 0 && plan.skipped.length === 0 ? this.strings.get('ui.status.stairs_already') : this.emptyRectText());
+    else if (plan.skipped.length > 0) this.notice(this.skippedText(plan));
     for (const c of commands) this.host.submit(c);
     this.tool.remember(commands);
     this.tool.anchor = null;
@@ -1413,6 +1416,13 @@ export class FortressScreen implements Screen {
     if (!this.host.readers.has('07')) return true;
     const plants = this.host.readers.of<import('@systems/plants').PlantsReader>('07');
     return tiles.some((tile) => plants.cropReady(tile));
+  }
+
+  /** 24 § Input model: a box that skipped tiles says how many, with the reasons counted per tile kind. */
+  private skippedText(plan: DesignatePlan): string {
+    const reasons = plan.skipped.map((r) => this.strings.get('ui.status.skip_reason', { n: r.n, reason: this.strings.get(r.reason) })).join(', ');
+    const skipped = plan.skipped.reduce((sum, r) => sum + r.n, 0);
+    return this.strings.get('ui.status.designated_skipped', { tool: this.tool.name(this.strings), n: plan.designated, skipped, reasons });
   }
 
   /** §4.2: why a designation rectangle sent nothing ("No tile here can be dug: …"). */

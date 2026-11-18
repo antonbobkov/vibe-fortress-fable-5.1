@@ -350,7 +350,7 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     expect(shown((f) => f.screen.openPanel('military'))).toContain('[S-p] add [y] clear');
     expect(shown((f) => f.screen.openPanel('animals'))).toContain('[S-p] pasture  [S-s] slaughter');
     expect(shown((f) => f.screen.openPanel('designate'))).toContain('[S-d] Dig');
-    expect(shown((f) => f.screen.openPanel('designate'))).toContain('[w] Stairwell');
+    expect(shown((f) => f.screen.openPanel('designate'))).toContain('[w] Stairs');
     expect(shown((f) => f.screen.openPanel('build'))).toContain('[S-m] Mechan');
     expect(shown((f) => f.screen.openPanel('zones'))).toContain('[S-s] Stockpile');
     expect(shown((f) => { f.screen.workshopId = shared.shop; f.screen.openPanel('workshop'); })).toContain('[S-s] suspend  [x] take apart');

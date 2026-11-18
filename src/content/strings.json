@@ -253,7 +253,7 @@
   "tutorial.order": "Workshops make what is ordered. Open Orders with [o]: [S-n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it.",
   "tutorial.save": "Save your fortress: [F5] makes a quick save, and Esc opens the game menu, which has Save. Saves are kept in this browser.",
   "tutorial.speed": "Time stands still while the game is paused. [Space] pauses and resumes, and [+] and [-] change the speed. Run the fortress at 2× or 4×, then pause it again.",
-  "tutorial.stairs": "Stairs lead down. In Designate, [S-j] chooses down stairs: click a floor tile twice. Change the level between the two clicks and the box makes a stair column, down stairs on top and up stairs below.",
+  "tutorial.stairs": "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft.",
   "tutorial.stockpile": "Hauled goods need a place. Open Zones with [z], choose a stockpile with [S-s], and drag a rectangle over open floor (or Enter at two corners).",
   "tutorial.view": "Welcome to your hall. Move the view with ←→ ↑↓ (or drag with the middle button), and change the level with [<] and [>] (or the wheel). Do both: the z field below shows the level.",
   "tutorial.workshop": "Open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
