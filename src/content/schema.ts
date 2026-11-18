@@ -1405,6 +1405,8 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
   // `regions-biomes-and-traits.md` § Signatures: a row is a biome, `geology:<template>` or
   // `trait:<trait>`; a good is a material id, a material class or one of the words.
   const materialClasses = new Set(((data['materials'] ?? []) as { class?: string }[]).map((m) => String(m.class)));
+  const soilDropIds = new Set(((data['materials'] ?? []) as { id: string; class?: string; tags?: string[] }[]).filter((m) => m.class === 'soil' && m.tags?.includes('soil_drop') === true).map((m) => m.id));
+  const biomeSoil = new Map(((data['biomes'] ?? []) as { id: string; soilDepth?: number; soil?: { material: string }[] }[]).map((b) => [b.id, (b.soilDepth ?? 0) > 0 ? (b.soil ?? []).map((s) => s.material) : []]));
   for (const sig of (data['signatures'] ?? []) as { id: string; has: string[]; lacks: string[] }[]) {
     const [kind, rest] = sig.id.includes(':') ? sig.id.split(':', 2) as [string, string] : ['biome', sig.id];
     const table = kind === 'geology' ? 'geologyTemplates' : kind === 'trait' ? 'regionTraits' : kind === 'biome' ? 'biomes' : '';
@@ -1412,6 +1414,15 @@ export function validateAll(data: Readonly<Record<string, unknown>>): Validation
     for (const good of [...sig.has, ...sig.lacks]) {
       if (SIGNATURE_WORDS.includes(good) || materialIds?.has(good) === true || materialClasses.has(good)) continue;
       issues.push({ table: 'signatures', row: sig.id, field: 'has', message: `"${good}" is not a material, a material class or a signature word` });
+    }
+    // A site's soil goods come from its soil: no row names a `soil_drop` soil as had, and a
+    // biome's row names none of its own soil materials as lacking.
+    for (const good of sig.has) {
+      if (soilDropIds.has(good)) issues.push({ table: 'signatures', row: sig.id, field: 'has', message: `"${good}" is a soil_drop soil: a site has it when its soil does` });
+    }
+    const soil = kind === 'biome' ? biomeSoil.get(rest) : undefined;
+    for (const good of sig.lacks) {
+      if (soil?.includes(good) === true) issues.push({ table: 'signatures', row: sig.id, field: 'lacks', message: `"${good}" is in the biome's soil` });
     }
   }
 

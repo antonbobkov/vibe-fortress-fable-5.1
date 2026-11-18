@@ -179,24 +179,24 @@ The initial state at embark is `clear`.
 
 ## Signatures
 
-What a site has and lacks, for the site summary and the scarcity price ([02](../02-systems/02-embark-and-loadout.md) § What a site has and lacks, [20](../02-systems/20-trade-and-caravans.md) § The scarcity price). A row is a biome, a geology class (`geology:`) or a trait (`trait:`). Goods are material ids, material classes, or the words `honey`, `flux`, `fossils`, `giant_bones`, `horses`, `camels`, `reindeer`, `ice`. Every site has caverns, so the caverns have no row; nor has the `mixed` geology, whose layers are of every class.
+What a site has and lacks, for the site summary and the scarcity price ([02](../02-systems/02-embark-and-loadout.md) § What a site has and lacks, [20](../02-systems/20-trade-and-caravans.md) § The scarcity price). A row is a biome, a geology class (`geology:`) or a trait (`trait:`). Goods are material ids, material classes, or the words `honey`, `flux`, `fossils`, `giant_bones`, `horses`, `camels`, `reindeer`, `ice`. Every site has caverns, so the caverns have no row; nor has the `mixed` geology, whose layers are of every class. The soils a site yields (the materials tagged `soil_drop`: sand, clay, peat) are not written on a *has* line: a site has those of its surface soil, as 03 stage 3 lays it from § Biomes (loam alone on a `serene_vale`, none at soil depth 0 or in the Glasslands), and a biome's *lacks* line names none of its own soil materials.
 
 | id | has | lacks |
 |---|---|---|
-| `temperate_forest` | wood, honey, `nettle_fiber`, clay | salt, sand |
-| `temperate_hills` | wood, honey, `nettle_fiber`, clay | salt, sand |
-| `dark_forest` | wood, `ironwood`, `yew`, peat, honey | sand, salt |
-| `temperate_grassland` | honey, flax, barley, clay, horses | wood, sand |
-| `wetland` | `reed`, peat, `bog_iron`, clay, giant_bones | stone, flux |
-| `taiga` | peat, rye, ice, horn, `bog_iron`, reindeer | honey, sand |
-| `tundra` | ice, rye, lichen, `ivory`, reindeer, peat, giant_bones | wood, honey, clay |
-| `cold_steppe` | rye, horses, sand, horn | wood, honey |
-| `mountain` | stone, sand, lichen, horn, ice | wood, soil, clay, honey |
-| `alpine` | stone, sand, lichen, horn, ice | wood, soil, clay, honey |
-| `savanna` | honey, `sunfruit`, clay, camels | peat, ice |
-| `desert` | sand, salt, `cactus_fiber`, camels, giant_bones | wood, clay, honey, peat |
-| `badlands` | salt, clay, sand, giant_bones | wood, honey, peat |
-| `tropical_forest` | wood, honey, clay | salt, peat, ice |
+| `temperate_forest` | wood, honey, `nettle_fiber` | salt, sand |
+| `temperate_hills` | wood, honey, `nettle_fiber` | salt |
+| `dark_forest` | wood, `ironwood`, `yew`, honey | sand, salt |
+| `temperate_grassland` | honey, flax, barley, horses | wood, sand |
+| `wetland` | `reed`, `bog_iron`, giant_bones | stone, flux |
+| `taiga` | rye, ice, horn, `bog_iron`, reindeer | honey, sand |
+| `tundra` | ice, rye, lichen, `ivory`, reindeer, giant_bones | wood, honey, clay |
+| `cold_steppe` | rye, horses, horn | wood, honey |
+| `mountain` | stone, lichen, horn, ice | wood, soil, clay, honey |
+| `alpine` | stone, lichen, horn, ice | wood, soil, clay, honey |
+| `savanna` | honey, `sunfruit`, camels | peat, ice |
+| `desert` | salt, `cactus_fiber`, camels, giant_bones | wood, clay, honey, peat |
+| `badlands` | salt, giant_bones | wood, honey, peat |
+| `tropical_forest` | wood, honey | salt, peat, ice |
 | `trait:glasslands` | `obsidian`, `ash_soil`, wyrmtongue | wood, soil |
 | `geology:sedimentary` | flux, coal, `halite`, fossils | gold, gem |
 | `geology:igneous` | copper, gem, `basalt` | flux |

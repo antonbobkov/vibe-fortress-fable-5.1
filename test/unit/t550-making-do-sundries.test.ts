@@ -29,13 +29,15 @@ describe('T-550 what a site has and lacks', () => {
   it('unions the biome, geology and trait rows, and a good the site has is not lacking', () => {
     // A sedimentary wetland: the wetland lacks flux, the sedimentary layers have it.
     const wet = siteSignature(spec({ biome: 'wetland', geology: 'sedimentary' }), registry);
-    expect(wet.has).toEqual(['reed', 'peat', 'bog_iron', 'clay', 'giant_bones', 'flux', 'coal', 'halite', 'fossils']);
+    // Its soil goods come first, most common first (T-599).
+    expect(wet.has).toEqual(['peat', 'clay', 'reed', 'bog_iron', 'giant_bones', 'flux', 'coal', 'halite', 'fossils']);
     expect(wet.lacks).toEqual(['stone', 'gold', 'gem']);
     // An igneous wetland lacks it twice over, and lists it once.
     expect(siteSignature(spec({ biome: 'wetland', geology: 'igneous' }), registry).lacks).toEqual(['stone', 'flux']);
-    // The Glasslands have obsidian and ash soil whatever the biome says; the mixed geology has no row.
+    // The Glasslands have obsidian and ash soil whatever the biome says, and no sand: obsidian
+    // covers the mountain's soil (T-599). The mixed geology has no row.
     const glass = siteSignature(spec({ biome: 'mountain', geology: 'mixed', traits: ['glasslands'] }), registry);
-    expect(glass.has).toEqual(['stone', 'sand', 'lichen', 'horn', 'ice', 'obsidian', 'ash_soil', 'wyrmtongue']);
+    expect(glass.has).toEqual(['stone', 'lichen', 'horn', 'ice', 'obsidian', 'ash_soil', 'wyrmtongue']);
     expect(glass.lacks).toEqual(['wood', 'soil', 'clay', 'honey']);
   });
 

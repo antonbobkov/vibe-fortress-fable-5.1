@@ -3,7 +3,6 @@
     "id": "alpine",
     "has": [
       "stone",
-      "sand",
       "lichen",
       "horn",
       "ice"
@@ -19,8 +18,6 @@
     "id": "badlands",
     "has": [
       "salt",
-      "clay",
-      "sand",
       "giant_bones"
     ],
     "lacks": [
@@ -34,7 +31,6 @@
     "has": [
       "rye",
       "horses",
-      "sand",
       "horn"
     ],
     "lacks": [
@@ -48,7 +44,6 @@
       "wood",
       "ironwood",
       "yew",
-      "peat",
       "honey"
     ],
     "lacks": [
@@ -59,7 +54,6 @@
   {
     "id": "desert",
     "has": [
-      "sand",
       "salt",
       "cactus_fiber",
       "camels",
@@ -110,7 +104,6 @@
     "id": "mountain",
     "has": [
       "stone",
-      "sand",
       "lichen",
       "horn",
       "ice"
@@ -127,7 +120,6 @@
     "has": [
       "honey",
       "sunfruit",
-      "clay",
       "camels"
     ],
     "lacks": [
@@ -138,7 +130,6 @@
   {
     "id": "taiga",
     "has": [
-      "peat",
       "rye",
       "ice",
       "horn",
@@ -155,8 +146,7 @@
     "has": [
       "wood",
       "honey",
-      "nettle_fiber",
-      "clay"
+      "nettle_fiber"
     ],
     "lacks": [
       "salt",
@@ -169,7 +159,6 @@
       "honey",
       "flax",
       "barley",
-      "clay",
       "horses"
     ],
     "lacks": [
@@ -182,12 +171,10 @@
     "has": [
       "wood",
       "honey",
-      "nettle_fiber",
-      "clay"
+      "nettle_fiber"
     ],
     "lacks": [
-      "salt",
-      "sand"
+      "salt"
     ]
   },
   {
@@ -206,8 +193,7 @@
     "id": "tropical_forest",
     "has": [
       "wood",
-      "honey",
-      "clay"
+      "honey"
     ],
     "lacks": [
       "salt",
@@ -223,7 +209,6 @@
       "lichen",
       "ivory",
       "reindeer",
-      "peat",
       "giant_bones"
     ],
     "lacks": [
@@ -236,9 +221,7 @@
     "id": "wetland",
     "has": [
       "reed",
-      "peat",
       "bog_iron",
-      "clay",
       "giant_bones"
     ],
     "lacks": [

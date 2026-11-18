@@ -1,6 +1,8 @@
 # T-599 — Two site signatures disagree with their biome's soil
 
-**Source:** [T-587-shallow-soil-loads](../archive/tasks/T-587-shallow-soil-loads.md) (its sites probe, `test/perf/t583_making_do_sites.test.ts`, counting the soil floors and walls of each biome) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 301b4a47.
+
+**Source:** [T-587-shallow-soil-loads](T-587-shallow-soil-loads.md) (its sites probe, `test/perf/t583_making_do_sites.test.ts`, counting the soil floors and walls of each biome) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

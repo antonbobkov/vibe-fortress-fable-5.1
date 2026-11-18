@@ -8,6 +8,7 @@
  */
 
 import type { Registry } from '@core/registry';
+import { specSoilDepth } from '@systems/terrain/generate/layers';
 import type { LocalMapSpec } from './spec';
 
 interface SignatureRow {
@@ -22,7 +23,15 @@ interface MaterialRow {
   readonly tags?: readonly string[];
 }
 
-/** A site's goods: material ids, material classes and the signature words, in table order. */
+interface BiomeSoilRow {
+  readonly id: string;
+  readonly soil: readonly { readonly material: string; readonly weight: number }[];
+}
+
+/** The tag of the soils a dug wall or a channelled floor drops as a `soil_load` (`materials.md` § Soil). */
+export const SOIL_DROP_TAG = 'soil_drop';
+
+/** A site's goods: material ids, material classes and the signature words; its soil goods first, then table order. */
 export interface SiteSignature {
   readonly has: readonly string[];
   readonly lacks: readonly string[];
@@ -53,6 +62,24 @@ function rowsOf(spec: LocalMapSpec, registry: Registry): SignatureRow[] {
 }
 
 /**
+ * The surface soil the local map is laid with (03 § Local map generation, stage 3): the biome's
+ * soil materials, most common first (ties by id); `loam` alone on a `serene_vale`; none at soil
+ * depth 0 or in the `glasslands`, whose surface is obsidian.
+ */
+export function siteSoilMaterials(spec: LocalMapSpec, registry: Registry): string[] {
+  const biome = registry.table<BiomeSoilRow>('biomes').byId(spec.biome);
+  if (biome === undefined || spec.traits.includes('glasslands') || specSoilDepth(spec) <= 0) return [];
+  if (spec.traits.includes('serene_vale')) return ['loam'];
+  return [...biome.soil].sort((a, b) => b.weight - a.weight || (a.material < b.material ? -1 : a.material > b.material ? 1 : 0)).map((s) => s.material);
+}
+
+/** The site's soil goods: the materials of its surface soil tagged `soil_drop`, most common first. */
+export function siteSoilGoods(spec: LocalMapSpec, registry: Registry): string[] {
+  const materials = registry.table<MaterialRow>('materials');
+  return siteSoilMaterials(spec, registry).filter((id) => materials.byId(id)?.tags?.includes(SOIL_DROP_TAG) === true);
+}
+
+/**
  * Whether the game has a good yet: a material id or class with a material, a word whose item,
  * material or species exists. A word whose content is still to come (`honey` before there was
  * honey, `camels` before there were camels) is left out of the summary and the price.
@@ -69,12 +96,13 @@ export function signatureGoodExists(registry: Registry, good: string): boolean {
 }
 
 /**
- * A site's has and lacks: the union of its biome's, its geology's and its traits' has; the union of
- * their lacks less anything in its has. Goods the game does not have yet are left out.
+ * A site's has and lacks: its soil goods (the rows name none), then the union of its biome's, its
+ * geology's and its traits' has; the union of their lacks less anything in its has. Goods the game
+ * does not have yet are left out.
  */
 export function siteSignature(spec: LocalMapSpec, registry: Registry): SiteSignature {
   const rows = rowsOf(spec, registry);
-  const has: string[] = [];
+  const has: string[] = siteSoilGoods(spec, registry);
   const lacks: string[] = [];
   for (const row of rows) for (const good of row.has) if (!has.includes(good)) has.push(good);
   for (const row of rows) for (const good of row.lacks) if (!lacks.includes(good) && !has.includes(good)) lacks.push(good);
