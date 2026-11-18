@@ -1,6 +1,6 @@
 # T-588 — The long fixtures play some of Making Do
 
-**Source:** [T-583's audit of Making Do's reach](../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 4 · **Size:** M · **Needs:** T-582 · **Status:** blocked (needs T-582)
+**Source:** [T-583's audit of Making Do's reach](../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 4 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
