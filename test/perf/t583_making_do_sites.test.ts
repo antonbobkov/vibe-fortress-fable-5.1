@@ -3,7 +3,8 @@
  *
  * Generates a 48 × 48 site per land biome and geology (three seeds each), as the three-year fixture
  * does for its temperate forest, and counts the Making Do wild plants, soils and minerals in walls,
- * the giant bones on the surface, bat roosts and flowers; then plays the first two days to see which
+ * the soil floors a channel digs for a load (T-587: sand, clay and peat), the giant bones on the surface, bat roosts and
+ * flowers; then plays the first two days to see which
  * wild animals arrive. With `starfall` and `glasslands` as traits on a temperate forest too.
  *
  * Runs locally in about a minute: `npx vitest run -c vitest.perf.config.ts test/perf/t583_making_do_sites.test.ts`
@@ -28,9 +29,11 @@ const BIOMES = ['temperate_forest', 'temperate_hills', 'dark_forest', 'temperate
   'mountain', 'alpine', 'savanna', 'desert', 'badlands', 'tropical_forest'] as const;
 const MAKING_DO_PLANTS = new Set(['reed_bed', 'barrel_cactus', 'wild_nettle', 'wild_rye', 'rock_lichen', 'wild_wyrmtongue', 'ironwood', 'salt_crust']);
 const MAKING_DO_WALLS = new Set(['sand', 'clay', 'peat', 'halite', 'bog_iron', 'giant_bone', 'star_iron']);
+/** The soils tagged `soil_drop`: a channelled floor of one drops a load (03 § Tile transitions). */
+const SOIL_DROP = new Set(['sand', 'clay', 'peat']);
 const MAKING_DO_ANIMALS = new Set(['reindeer', 'camel', 'glow_beetle', 'giant_cave_spider', 'mammoth', 'yak', 'mountain_goat', 'elk', 'cave_ox', 'chicken', 'cave_crawler']);
 
-interface SiteFigures { plants: Record<string, number>; walls: Record<string, number>; surfaceBone: number; roosts: number; flowers: number; animals: Record<string, number> }
+interface SiteFigures { plants: Record<string, number>; walls: Record<string, number>; soilFloors: Record<string, number>; surfaceBone: number; roosts: number; flowers: number; animals: Record<string, number> }
 
 function site(seed: string, biome: string, geology: string, traits: string[], days = 2): SiteFigures {
   const registry = contentRegistry();
@@ -41,7 +44,7 @@ function site(seed: string, biome: string, geology: string, traits: string[], da
   const w = new TestWorld({ seed, registry, map, spec, systems, embark: threeYearsEmbark(registry, seed, 0) });
   const mat = (i: number): string => registry.table<{ id: string }>('materials').byIndex(i)?.id ?? `#${i}`;
   const plants = w.readers.of<PlantsReader>('07');
-  const f: SiteFigures = { plants: {}, walls: {}, surfaceBone: 0, roosts: w.animals.roosts.length, flowers: 0, animals: {} };
+  const f: SiteFigures = { plants: {}, walls: {}, soilFloors: {}, surfaceBone: 0, roosts: w.animals.roosts.length, flowers: 0, animals: {} };
   for (let t = 0; t < map.tileCount; t += 1) {
     const sp = plants.speciesAt(t);
     if (MAKING_DO_PLANTS.has(sp)) f.plants[sp] = (f.plants[sp] ?? 0) + 1;
@@ -52,6 +55,7 @@ function site(seed: string, biome: string, geology: string, traits: string[], da
       f.walls[m] = (f.walls[m] ?? 0) + 1;
       if (m === 'giant_bone' && map.zOf(t) >= map.columnSurfaceZ(map.xOf(t), map.yOf(t)) - 1) f.surfaceBone += 1;
     }
+    if (k === TileKind.Floor && SOIL_DROP.has(m)) f.soilFloors[m] = (f.soilFloors[m] ?? 0) + 1;
   }
   const ent = w.game.world.entities;
   const unsub = w.game.world.onEvents((evs) => {

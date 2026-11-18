@@ -1,6 +1,8 @@
 # T-587 — A site one soil level deep yields no sand, clay or peat
 
-**Source:** [T-583's audit of Making Do's reach](../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 1 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 0cdf16bb.
+
+**Source:** [T-583's audit of Making Do's reach](../../../reports/audits/2026-11-17-t583-making-do-reach.md) § Issues, 1 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

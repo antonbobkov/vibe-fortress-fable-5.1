@@ -18,7 +18,7 @@ Rows are temperature bands, columns rain bands; the elevation band overrides: `o
 
 ## Biomes
 
-Columns: `seasonTemp` spring / summer / autumn / winter in °C at the biome's `referenceTempC`; `soil` depth in z-levels and materials with weights; `trees`, `shrubs` densities as probability per eligible surface tile at generation; `wildlife` multiplier on species caps; `glyph`/`color` for the world map.
+Columns: `seasonTemp` spring / summer / autumn / winter in °C at the biome's `referenceTempC`; `soil` depth in z-levels, the surface floor being the first ([03](../02-systems/03-terrain-and-mining.md) § Local map generation, stage 3), and materials with weights; `trees`, `shrubs` densities as probability per eligible surface tile at generation; `wildlife` multiplier on species caps; `glyph`/`color` for the world map.
 
 | id | name | referenceTempC | seasonTemp | soil depth | soil materials | trees | shrubs | wildlife | glyph | color | embark |
 |---|---|---|---|---|---|---|---|---|---|---|---|
