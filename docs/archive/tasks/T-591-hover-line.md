@@ -1,5 +1,7 @@
 # T-591 — An always-on hover line, with water depth
 
+**Closed:** 2026-11-17, in e8a0fa52.
+
 **Source:** the owner's playtest, 2026-11-17 · **Size:** S · **Needs:** — · **Status:** open
 
 Two things the owner hit while playing:

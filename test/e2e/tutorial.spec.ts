@@ -168,7 +168,7 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   const origin = await page.evaluate(() => {
     const k = (window as unknown as { __deepholm: TutorialHook }).__deepholm;
     const rows = k.text();
-    const status = (rows[rows.length - 1] ?? '').toLowerCase();
+    const status = (rows[rows.length - 2] ?? '').toLowerCase();
     const table = k.host.headless.registry.table('buildings');
     const type = table.ids().find((id) => table.byId(id)?.category === 'workshop' && status.includes((table.byId(id)?.name ?? '?').toLowerCase()));
     if (type === undefined) return null;

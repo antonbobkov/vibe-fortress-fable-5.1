@@ -61,8 +61,8 @@ describe('T-M0-12 layout: the fortress screen regions', () => {
       cols: SIDEBAR_COLS,
       rows: 50 - STATUS_ROWS - LOG_ROWS,
     });
-    expect(layout.log).toEqual({ col: 0, row: 45, cols: 120, rows: LOG_ROWS });
-    expect(layout.status).toEqual({ col: 0, row: 48, cols: 120, rows: STATUS_ROWS });
+    expect(layout.log).toEqual({ col: 0, row: 44, cols: 120, rows: LOG_ROWS });
+    expect(layout.status).toEqual({ col: 0, row: 47, cols: 120, rows: STATUS_ROWS });
   });
 
   it('gives the whole width to the map when the sidebar is closed', () => {
@@ -76,8 +76,8 @@ describe('T-M0-12 layout: the fortress screen regions', () => {
     const layout = computeLayout(10, 3, true);
     expect(layout.map.rows).toBe(0);
     expect(layout.map.cols).toBe(0);
-    expect(layout.status.rows).toBe(2);
-    expect(layout.log.rows).toBe(1);
+    expect(layout.status.rows).toBe(3);
+    expect(layout.log.rows).toBe(0);
   });
 });
 

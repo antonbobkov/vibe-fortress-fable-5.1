@@ -77,13 +77,14 @@ describe('T-244 complete text at eighty columns', () => {
     expect(row).toMatch(/\[d\] dig  \[b\] build  \[z\] zones  \[o\] orders  \[m\] military  \[l\] labors/);
     expect(row.trimEnd()).toMatch(/\[[a-z]\] [a-z]+$/);
   });
-  it('keeps the tile summary left of a complete prefix of shortcuts', async () => {
+  it('keeps a complete prefix of shortcuts on row 2 and the tile summary on the hover line under it', async () => {
     const g = await fortress(), s = surface(80, 50); g.fortress.draw(s);
     const point = g.cellCenter(4, 4);
     g.pointerMove({ ...point, button: 0, shift: false, ctrl: false, alt: false, meta: false }); g.fortress.draw(s);
     const row = s.lines()[g.compositor.layout.status.row + 1]!.trim();
-    expect(row).toContain(' · [d] dig');
-    const entries = row.slice(row.indexOf(' · ') + 3).split('  ');
+    expect(s.lines()[g.compositor.layout.status.row + 2]!.trim()).toBe(g.fortress.hoverLine());
+    expect(g.fortress.hoverLine()).not.toBe('');
+    const entries = row.split('  ');
     expect(entries).toEqual(['[d] dig', '[b] build', '[z] zones', '[o] orders', '[m] military', '[l] labors', '[u] units', '[j] jobs', '[s] stocks', '[k] look'].slice(0, entries.length));
   });
 

@@ -143,8 +143,8 @@ export const MIN_VIEW_COLS = 80;
 export const MIN_VIEW_ROWS = 45;
 /** Width of the right-hand panel when open. */
 export const SIDEBAR_COLS = 36;
-/** Height of the bottom status bar. */
-export const STATUS_ROWS = 2;
+/** Height of the bottom status bar: the fields row, the tool and hotkey row, the hover line. */
+export const STATUS_ROWS = 3;
 /** Render loop target; rendering is decoupled from simulation. */
 export const TARGET_FPS = 60;
 /** How many z-levels below the slice show through open tiles, each dimmer. */

@@ -181,7 +181,8 @@ describe('T-M1-14 mouse model', () => {
   it('the hover line names the tile under the mouse', async () => {
     const game = await fortressGame();
     game.pointerMove(cell(game, 5, 6));
-    expect(game.fortress.statusRow2()).toMatch(/^Loam floor · \[d\] dig/);
+    expect(game.fortress.hoverLine()).toBe('Loam floor');
+    expect(game.fortress.statusRow2()).toMatch(/^\[d\] dig/);
   });
 });
 
@@ -245,7 +246,7 @@ describe('T-M1-14 status bar', () => {
     expect(speedText(1)).toBe('► 1×');
     expect(speedText(4)).toBe('►►► 4×');
     const rows = game.textRows();
-    expect(rows[rows.length - 2]).toContain('Day 1 of Spring, Year 1');
+    expect(rows[rows.length - 3]).toContain('Day 1 of Spring, Year 1');
   });
 
   it('row 2 shows a refused command for STATUS_HINT_SECONDS', async () => {

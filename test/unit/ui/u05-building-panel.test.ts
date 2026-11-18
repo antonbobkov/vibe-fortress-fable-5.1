@@ -551,7 +551,7 @@ describe('U-05 the building panel (M4)', () => {
     const rows = helpKeyRows(keymap, strings).map((row) => row.text);
     const from = rows.indexOf('Building panel');
     expect(from).toBeGreaterThanOrEqual(0);
-    expect(rows.slice(from + 1, from + 10)).toEqual([
+    expect(rows.slice(from + 1, from + 11)).toEqual([
       '1–9  a planned building\'s build priority',
       '[i]  link a lever or a plate',
       '[r]  unlink the target under the cursor, or release a caged creature (confirm)',
@@ -559,6 +559,7 @@ describe('U-05 the building panel (M4)', () => {
       '[g]  tame the caged creature',
       '[w]  the owner of a bed\'s bedroom, or whom a coffin is kept for',
       '[h]  take out what the building holds (its bedding and pillow): they drop on its tile',
+      '[v]  a container building (the wagon, a chest): Look on the tile where its goods lie, at the Items tab',
       '[x]  cancel the plan, or take the building apart (confirm)',
       '↑↓ Enter  choose a mode, an owner, a link',
     ]);

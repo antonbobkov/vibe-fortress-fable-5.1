@@ -731,6 +731,11 @@
   },
   {
     "context": "building_panel",
+    "key": "[v]",
+    "action": "a container building (the wagon, a chest): Look on the tile where its goods lie, at the Items tab"
+  },
+  {
+    "context": "building_panel",
     "key": "[x]",
     "action": "cancel the plan, or take the building apart (confirm)"
   },

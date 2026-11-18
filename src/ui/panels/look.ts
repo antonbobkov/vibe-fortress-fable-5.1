@@ -11,7 +11,7 @@
  */
 
 import { C } from '@core/components';
-import { TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
+import { FLUID_MAX_LEVEL, TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
@@ -21,6 +21,7 @@ import { agedMaterial, buildingName, enchantedName, filterText, materialItemName
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
+import type { FluidsReader } from '@systems/fluids';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { MagicReader, SpellView } from '@systems/magic';
@@ -99,13 +100,29 @@ export function creatureSummary(readers: ReaderSet, id: EntityId): string {
 }
 
 /**
- * The status row's hover summary (24 § Inspection): the first creature on the tile, or the terrain,
- * then what else is there: the one other thing by name, or how many.
+ * "water 5/7", "magma 2/7", "ice 5/7": the fluid on a discovered tile (24 § Inspection, 04's
+ * `levelAt` of `FLUID_MAX_LEVEL`; frozen water keeps its level), or '' for none.
+ */
+export function fluidText(readers: ReaderSet, strings: Strings, i: TileIndex): string {
+  if (!has(readers, '04')) return '';
+  if (has(readers, '03') && !readers.of<TerrainReaderLike>('03').inspect(i).discovered) return '';
+  const fluids = readers.of<FluidsReader>('04');
+  const level = fluids.levelAt(i);
+  if (level === 0) return '';
+  const key = fluids.isFrozen(i) ? 'ui.look.fluid_ice' : fluids.typeAt(i) === 'magma' ? 'ui.look.fluid_magma' : 'ui.look.fluid_water';
+  return strings.get(key, { level, max: FLUID_MAX_LEVEL });
+}
+
+/**
+ * The hover line's tile summary (24 § Inspection): the first creature on the tile, or the terrain,
+ * then the fluid, then what else is there: the one other thing by name, or how many.
  */
 export function tileContents(readers: ReaderSet, registry: Registry, strings: Strings, i: TileIndex): string {
   const creatures = creaturesAt(readers, i);
   const items = itemsAt(readers, i);
-  const summary = creatures.length > 0 ? creatureSummary(readers, creatures[0] as EntityId) : tileSummary(readers, strings, i);
+  const first = creatures.length > 0 ? creatureSummary(readers, creatures[0] as EntityId) : tileSummary(readers, strings, i);
+  const fluid = fluidText(readers, strings, i);
+  const summary = fluid === '' ? first : `${first} · ${fluid}`;
   const others = creatures.length - (creatures.length > 0 ? 1 : 0) + items.length;
   if (others === 0) return summary;
   if (others > 1) return strings.get('ui.status.here_more', { summary, n: others });
@@ -230,6 +247,8 @@ export function drawLookPanel(
   line(strings.get('ui.look.tabs', { items: itemIds.length, creatures: creatures.length }));
   if (tab === 0) {
     line(tileSummary(readers, strings, tile));
+    const fluid = fluidText(readers, strings, tile);
+    if (fluid !== '') line(capitalize(fluid));
     if (has(readers, '03')) {
       const info = readers.of<TerrainReaderLike>('03').inspect(tile);
       if (info.designation !== null) {
@@ -565,9 +584,13 @@ interface ItemsReaderLike {
   value(id: EntityId): number;
   def(type: number): { name: string; quality: boolean } | undefined;
   inContainer(id: EntityId): EntityId[];
+  tileOf(id: EntityId): TileIndex;
 }
 
-/** The items on a tile and in the containers there, ascending. */
+/**
+ * The items on a tile and in the containers there, ascending: what lies on it, what a building on
+ * it holds there (the wagon's goods lie at its centre, 02 § Arrival), and what is inside those.
+ */
 export function itemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
   if (!has(readers, '13')) return [];
   const it = readers.of<ItemsReaderLike>('13');
@@ -577,7 +600,15 @@ export function itemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
     out.push(id);
     out.push(...it.inContainer(id));
   }
-  return out.sort((a, b) => a - b);
+  const building = has(readers, '14') ? readers.of<BuildingsReaderLike>('14').at(i) : 0;
+  if (building !== 0) {
+    for (const id of it.inContainer(building)) {
+      if (it.tileOf(id) !== i || it.get(id) === undefined) continue;
+      out.push(id);
+      out.push(...it.inContainer(id));
+    }
+  }
+  return [...new Set(out)].sort((a, b) => a - b);
 }
 
 const QUALITY_WORDS = ['poor', 'common', 'fine', 'superior', 'exceptional', 'masterwork'];
