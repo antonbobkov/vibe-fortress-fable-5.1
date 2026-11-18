@@ -11,12 +11,13 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-576 | [The three-year script sees an ambush before it springs](work/T-576-script-sees-hidden-ambush.md) | T-575's runs | — | open |
-| T-582 | [The three-year fixture buries its dead](work/T-582-fixture-buries-its-dead.md) | [T-581](archive/tasks/T-581-defence-population.md) | T-580 | blocked (needs T-580) |
+| T-582 | [The three-year fixture buries its dead](work/T-582-fixture-buries-its-dead.md) | [T-581](archive/tasks/T-581-defence-population.md) | — | open |
 | T-584 | [Caravans bring the sand, clay and brightleaf they list](work/T-584-caravans-bring-worthless-goods.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | — | open |
 | T-587 | [A site one soil level deep yields no sand, clay or peat](work/T-587-shallow-soil-loads.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | — | open |
-| T-588 | [The long fixtures play some of Making Do](work/T-588-fixture-makes-do.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | T-580, T-582 | blocked (needs T-580, T-582) |
+| T-588 | [The long fixtures play some of Making Do](work/T-588-fixture-makes-do.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | T-582 | blocked (needs T-582) |
 | T-594 | [Stairs cut into a floor that holds a building](work/T-594-stairs-under-buildings.md) | [T-589](archive/tasks/T-589-stairwell-feedback.md) | — | open |
 | T-595 | [Look names some items twice ("boar meat raw meat")](work/T-595-look-item-names.md) | [T-591](archive/tasks/T-591-hover-line.md) | — | open |
+| T-593 | [Are peril-4 ambushes too deadly for a sensible player?](work/T-593-peril4-ambush-deaths.md) | [T-580](archive/tasks/T-580-ambush-surface-work.md) | — | open |
+| T-596 | [An ambush stays engaged in the fortress for more than ten days](work/T-596-ambush-engaged-ten-days.md) | [T-580](archive/tasks/T-580-ambush-surface-work.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

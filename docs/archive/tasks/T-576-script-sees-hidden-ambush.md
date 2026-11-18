@@ -1,6 +1,8 @@
 # T-576 — The three-year script sees an ambush before it springs
 
-**Source:** [T-575's probe of 36 peril-4 ambushes](../../reports/data/2026-11-16-t575-ambush-answer.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-17, in bfe96b6b.
+
+**Source:** [T-575's probe of 36 peril-4 ambushes](../../../reports/data/2026-11-16-t575-ambush-answer.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

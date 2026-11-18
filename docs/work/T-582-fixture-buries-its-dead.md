@@ -1,6 +1,6 @@
 # T-582 — The three-year fixture buries its dead
 
-**Source:** [T-581's data](../../reports/data/2026-11-17-t581-defence-population.md) · **Size:** M · **Needs:** T-580 · **Status:** blocked (needs T-580)
+**Source:** [T-581's data](../../reports/data/2026-11-17-t581-defence-population.md) · **Size:** M · **Needs:** — · **Status:** open
 
 The three-year fixture's script (`test/scenarios/three_years_fortress.ts`, `three_years_economy.ts`), and with it `defence_year`, never makes a coffin or a memorial slab. A dead dwarf's body lies where it fell to the end of the run, and every adult holds the standing thought `unburied_dead` (−4) from three days after the first death (15 § Grief, 14 § Burial). On `defence-year` at cadence 20 after T-578 one death before day 84 kept the hall spirit at 50 to 54 at the next two seasonal evaluations, under the 55 that immigration needs (21), and no wave came from day 57 to day 169. Over `defence_seeds`' 64 timelines after T-578, the rows with no dwarf death ended with 37.7 living and 0.06 spirit skips a row, those with three deaths or more with 24.4 and 1.22 (a death also costs its dwarf directly, so the gap is not all the thought's).
 

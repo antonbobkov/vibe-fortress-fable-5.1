@@ -16,9 +16,9 @@ function lightCut(seed: string) {
   const world = w.game.world;
   const patient = w.spawnDwarf({ at: w.index(10, 10, Z) });
   for (const l of w.game.registry.table<{ id: string }>('labors').ids()) w.setLabor(patient, l, false);
-  const medic = w.spawnDwarf({ at: w.index(30, 30, Z), skills: { medicine: 20 } });
+  const medic = w.spawnDwarf({ at: w.index(50, 50, Z), skills: { medicine: 20 } });
   for (const l of w.game.registry.table<{ id: string }>('labors').ids()) w.setLabor(medic, l, l === 'medicine');
-  w.spawnItem('cloth', 'flax_cloth', w.index(31, 31, Z), 3);
+  w.spawnItem('cloth', 'flax_cloth', w.index(51, 51, Z), 3);
   for (const id of [patient, medic]) for (const need of ['hunger', 'thirst', 'rest', 'social', 'comfort', 'purpose', 'joy'] as const) w.setNeed(id, need, 0);
   world.emit({ type: 'DamageDealt', defenderId: patient, attackerId: 0, part: 'torso', damageType: 'edge', amount: 9 });
   w.step(2);

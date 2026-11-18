@@ -4,7 +4,11 @@
  * eight shifts, as T-543 set them (reports/data/2026-11-16-t574-ambush-day-297.md).
  */
 import { describe, expect, it } from 'vitest';
-import { poolSweeps, sweepCheck, SWEEP_MEASURED, SWEEP_REFERENCE, type SweepFigures } from '../perf/three_years_sweep';
+import { poolSweeps, sweepCheck, type SweepFigures } from '../perf/three_years_sweep';
+
+/** T-574's reference and best figures, since moved by T-580 (t580-sweep-reference.test.ts). */
+const T574_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1070.25, deaths: 109.5, extinct: 0.5, needDeaths: 1 };
+const T574_MEASURED = { living: 1075.25, deaths: 100 };
 
 /** The pooled rows of `d79a1f4f` at shifts 0 to 150 (run 43869964046) and 200 to 350 (run 43878798775). */
 const T574_0_150: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1070.25, deaths: 109.5, extinct: 0.5, needDeaths: 1 };
@@ -15,14 +19,14 @@ const T555_200_350: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 984
 
 describe('T-574 the sweep reference', () => {
   it('is the standard shifts of T-574, and the best figures its eight-shift means', () => {
-    expect(SWEEP_REFERENCE).toEqual(T574_0_150);
+    expect(T574_REFERENCE).toEqual(T574_0_150);
     const eight = poolSweeps([T574_0_150, T574_200_350]);
-    expect({ living: eight.living, deaths: eight.deaths }).toEqual(SWEEP_MEASURED);
-    expect(sweepCheck(SWEEP_REFERENCE).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 975.25, deaths: 130 });
+    expect({ living: eight.living, deaths: eight.deaths }).toEqual(T574_MEASURED);
+    expect(sweepCheck(T574_REFERENCE, T574_MEASURED).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 975.25, deaths: 130 });
   });
 
   it('both halves of T-574 pass; T-555\'s eight shifts lived 97 fewer and died 43.38 more a sweep', () => {
-    for (const row of [T574_0_150, T574_200_350]) expect(sweepCheck(row).exceeded).toEqual([]);
+    for (const row of [T574_0_150, T574_200_350]) expect(sweepCheck(row, T574_MEASURED).exceeded).toEqual([]);
     const before = poolSweeps([T555_0_150, T555_200_350]);
     const after = poolSweeps([T574_0_150, T574_200_350]);
     expect(after.living - before.living).toBeCloseTo(97, 2);

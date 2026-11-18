@@ -26,9 +26,10 @@ import type { ItemsReader } from '@systems/items';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { AnimalsReader } from '@systems/animals';
 import type { DwarvesReader } from '@systems/dwarves';
+import type { JobsReader } from '@systems/jobs';
 import { TestWorld } from './test-world';
 import { command } from './script-commands';
-import { armingSquad, assignBroker, BUILD, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
+import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, specialistCandidates, checkEconomy, KIT_FIRST, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 
 export const Z = FLAT_TEST_SURFACE_Z;
@@ -265,6 +266,10 @@ export interface FortressState {
   ambushes?: AmbushCount[];
   /** T-575: the soldiers stood down from the squad for an ambush that outnumbers them, put back once the alert is down. */
   stoodDown?: number[];
+  /** T-580: the gate's two watch squads, north door and south, each with its one watchman (0 while none). */
+  watch?: { squadId: number; dwarfId: number }[];
+  /** T-580: false where no watch is posted at the north door and no dog is trained: the defence fortress, whose kill corridor and traps lie before that door. */
+  northWatch?: boolean;
   hospitalSetup: boolean;
   /**
    * T-571: dormitories dug once the bedroom plans are spent, each a block of free beds, so a dwarf
@@ -393,7 +398,7 @@ function caveSite(w: TestWorld, cx: number, cy: number, z: number): { near: numb
 }
 
 /** T-448: designate the diggable tiles of `tiles`; nothing when none is. */
-function designateDig(w: TestWorld, tiles: readonly number[], priority: number): void {
+export function designateDig(w: TestWorld, tiles: readonly number[], priority: number): void {
   const ok = tiles.filter((t) => diggable(w, t) && !opensToHillside(w, t));
   if (ok.length > 0) command(w, { type: 'Designate', kind: 'dig', priority, tiles: ok });
 }
@@ -1194,7 +1199,7 @@ export function dormitorySite(w: TestWorld, state: FortressState): number[] | nu
   const hallLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
   const planned = new Set<number>([...state.economy.workings, ...(state.dormitories ?? []).flatMap((d) => d.tiles),
     ...state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, z)]), ...(state.economy.larder?.tiles ?? []),
-    ...(state.economy.larder?.drinkTiles ?? [])]);
+    ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? [])]);
   const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) &&
     map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t);
   const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
@@ -1562,13 +1567,16 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       const arming = armingSquad(state);
       const kept = new Set<number>([founders[4]!, founders[5]!, ...Object.values(state.economy.specialists), state.economy.brewer ?? 0]);
       const order = arming ? [...adults].reverse() : [...MILITIA.map((i) => founders[i]!), ...adults.filter((id) => !founders.includes(id))];
-      const recruits = order.filter((id, i) => adults.includes(id) && !living.includes(id) && order.indexOf(id) === i && (arming || !kept.has(id)));
+      const watchmen = new Set((state.watch ?? []).map((wt) => wt.dwarfId));
+      const recruits = order.filter((id, i) => adults.includes(id) && !living.includes(id) && order.indexOf(id) === i && (arming || !kept.has(id)) && !watchmen.has(id));
       const members = [...living, ...recruits].slice(0, size);
       if (members.length !== squad.members.length || members.some((id) => !squad.members.includes(id))) {
         command(w, { type: 'SetSquadMembers', squadId: state.squadId, members });
       }
     }
   }
+
+  keepGateWatch(w, state, adults);
 
   // 4. Danger: a raid, a spotted thief, or a dangerous wild animal near the gate or a dwarf.
   // Each raises the hearth alert (civilians go in, the gate locks) and sends the squad.
@@ -1583,6 +1591,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   for (const pId of ent.with(C.Party)) {
     const p = ent.get(pId, C.Party);
     if (!p || !hostilePurposes.has(p.purpose) || p.state === 'gone' || p.state === 'retreat') continue;
+    // T-576: an ambush is a threat from the moment it springs (18 § Stealth: `AmbushSprung`, a danger
+    // announcement); until then its members are hidden, no announcement names it and the threats
+    // panel does not list it, so the player does not know it is there.
+    if (p.purpose === 'ambush' && p.ambushSprung !== true) continue;
     // A thief is a threat from the moment it is spotted; until then the player does not see it.
     if (p.purpose === 'thief') intruders.push(...p.members.filter((m) => ent.alive(m) && ent.get(m, C.Hostile)?.stealthed !== true));
     else raid = true;
@@ -1761,6 +1773,140 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true });
     state.answered = '';
     if (state.squadId !== 0) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
+  }
+}
+
+/**
+ * T-580: where ambushes are possible, the gate is watched from the first day they are. An ambush
+ * makes for the nearest dwarf outdoors and, with nobody outdoors, for the hearth (18 § Party AI):
+ * hidden, through the gate's open doors, down the stair and into the halls, where it springs among
+ * the dwarves at work below ground. With the workshops below, nobody was outdoors for most of the
+ * day, and in `three-years-p4-1` at shift 150 and `three-years-p4-3` at shift 0 four ambushes of
+ * five sprang on the stair or in the halls and both fortresses died out. So a player keeps a lookout
+ * at the gate, as the military panel's hint says: a squad of one outside each of the gate's two
+ * doors, on duty there, which spots an ambush at `SPOT_RADIUS` as it comes to the gate or to the
+ * dwarves nearest it, a step from the stair. The watchmen are the latest adults who are not in the
+ * squad, a specialist, the broker or the brewer; they go in with the civilians under any alert (they
+ * leave their squads, which keep their posts) and come back once it is down, and a fallen watchman
+ * is replaced then. A watchman is at his post about a quarter of the day (he eats, drinks and
+ * sleeps below), so the fortress trains its dogs for war from `WATCH_LEAD_DAYS` before: a kennel by the gate, a chain
+ * forged ahead of the squad's kit, a trainer who does nothing else until each post has a dog, and
+ * every dog trained; a war dog is posted with the watch that has fewest, stays there whatever the
+ * alert, and spots at `SPOT_RADIUS_DOG`. A post with a dog has no watchman; one whose dogs have
+ * died has one again, and the training goes on.
+ */
+/** T-580: the kennel, the dogs' training and the watch's posts begin this many days before ambushes are possible. */
+const WATCH_LEAD_DAYS = 42;
+
+function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly number[]): void {
+  const from = ambushFromDay(w);
+  if (from === null || w.tick < (from - WATCH_LEAD_DAYS) * TICKS_PER_DAY) return;
+  const staffed = w.tick >= from * TICKS_PER_DAY;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const combat = w.readers.of<CombatReader>('16');
+  const calm = w.game.world.fortress.alert === 'calm';
+  const watch = (state.watch ??= []);
+  const squadMembers = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  const founders = w.game.arrival?.dwarves ?? [];
+  const busy = new Set<number>([...squadMembers, ...(state.stoodDown ?? []), ...founders, ...Object.values(state.economy.specialists),
+    state.economy.brewer ?? 0, state.economy.broker?.id ?? 0]);
+  // The north door and the south one (the south alone where the north opens on a kill corridor).
+  const doors: [number, number][] = state.northWatch === false ? [[state.gateDoorId, 1]] : [[state.gateDoorId2, -1], [state.gateDoorId, 1]];
+  // War dogs: a kennel in the workshop hall with a chain from the forge, every dog trained for war,
+  // and each war dog posted with the watch that has fewest.
+  const animals = w.readers.of<AnimalsReader>('08');
+  const dogSpecies = w.game.registry.table('creatures').index('dog');
+  const ent = w.game.world.entities;
+  // The defence fortress's carpenter and forge work for its own works at the north door: it keeps no war dogs.
+  const dogs = state.northWatch === false ? [] : animals.tameList().filter((id) => ent.get(id, C.Creature)?.species === dogSpecies);
+  const { phases } = state.economy;
+  // The kennel goes up by the gate, where it stays (WORK_NEAR_GATE), so the dogs are trained before the first ambush may come.
+  if (dogs.length > 0 && state.placedIds['kennel'] === undefined) placeEconomyBuilding(w, state, 'kennel', 2, 10);
+  const forge = state.placedIds['forge'];
+  if (state.placedIds['kennel'] !== undefined && !phases.has('kennel chain') && forge !== undefined && buildings.get(forge)?.state === 'built') {
+    phases.add('kennel chain');
+    // One bar, ahead of the squad's kit: the dogs watch for everybody.
+    if (owned(w, 'chain') + owned(w, 'rope') === 0 && command(w, { type: 'AddWorkOrder', workshopId: forge, order: { recipeId: 'forge_chain', mode: 'once', remaining: 1, priority: KIT_FIRST } }).ok) {
+      const at = (ent.get(forge, C.Workshop)?.orders.length ?? 1) - 1;
+      if (at > 0) command(w, { type: 'ReorderWorkOrder', workshopId: forge, index: at, to: 0 });
+    }
+  }
+  if (buildings.get(state.placedIds['kennel'] ?? 0)?.state === 'built') {
+    // Until each post has its dog the training goes ahead of all routine work: an immigrant does
+    // nothing else, or, with none yet, the farmer and the cook (civilians who tend the wounded) take
+    // it up beside their work. Then the trainer goes back to the general labors.
+    const untrained = dogs.filter((id) => ent.get(id, C.Tame)?.trained === 'none').length;
+    const done = watch.length === doors.length && watch.every((wt) => dogs.some((id) => animals.assignedTo(id) === wt.squadId));
+    const training = !done && untrained > 0;
+    if (training !== phases.has('training dogs')) {
+      if (training) phases.add('training dogs'); else phases.delete('training dogs');
+      command(w, { type: 'SetLaborPriority', labor: 'animal_training', priority: training ? KIT_FIRST : ROUTINE });
+    }
+    const trainer = state.economy.specialists['trainer'];
+    const labors = w.readers.of<JobsReader>('11');
+    if (training && (trainer === undefined || !adults.includes(trainer))) {
+      const pick = specialistCandidates(w, state)[0];
+      if (pick !== undefined) {
+        state.economy.specialists['trainer'] = pick;
+        dedicate(w, state, pick, ['animal_training'], false);
+      } else {
+        for (const id of [founders[4], founders[5]]) {
+          if (id !== undefined && adults.includes(id) && !labors.laborEnabled(id, 'animal_training')) command(w, { type: 'SetLabor', dwarfId: id, labor: 'animal_training', on: true });
+        }
+      }
+    } else if (!training && trainer !== undefined) {
+      delete state.economy.specialists['trainer'];
+      const general = w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
+        .filter((r) => r.defaultOn && !['mining', 'woodcutting'].includes(r.id)).map((r) => r.id);
+      dedicate(w, state, trainer, general);
+    }
+    for (const id of dogs) {
+      const t = ent.get(id, C.Tame);
+      if (t?.trained === 'none' && !phases.has(`train:${id}`)) {
+        phases.add(`train:${id}`);
+        command(w, { type: 'TrainAnimal', animalId: id, kind: 'war' }, ['not_trainable']);
+      }
+    }
+  }
+  const posted = (squadId: number): number => dogs.filter((id) => animals.assignedTo(id) === squadId).length;
+  for (const id of dogs) {
+    if (ent.get(id, C.Tame)?.trained !== 'war' || animals.assignedTo(id) !== 0 || watch.length === 0) continue;
+    const to = [...watch].sort((a, b) => posted(a.squadId) - posted(b.squadId))[0]!;
+    command(w, { type: 'AssignAnimal', animalId: id, squadId: to.squadId });
+  }
+  // The north door and the south one; each post is the tile outside its door.
+  for (const [i, [doorId, dy]] of doors.entries()) {
+    const door = buildings.get(doorId);
+    if (door === undefined || door.state !== 'built') continue;
+    let post = watch[i];
+    if (post === undefined) {
+      const name = doors[i]![1] < 0 ? 'North Watch' : 'South Watch';
+      if (!command(w, { type: 'CreateSquad', name }).ok) continue;
+      const squadId = combat.squads().find((sq) => sq.name === name)!.id;
+      // The tile outside the door, or the door's own where that one is no standing ground.
+      if (!command(w, { type: 'SetSquadStation', squadId, tile: w.map.offset(door.footprint[0]!, 0, dy, 0) }, ['bad_placement', 'out_of_bounds']).ok) {
+        command(w, { type: 'SetSquadStation', squadId, tile: door.footprint[0]! });
+      }
+      command(w, { type: 'SetSquadMode', squadId, mode: 'active' });
+      post = watch[i] = { squadId, dwarfId: 0 };
+    }
+    const members = combat.squads().find((sq) => sq.id === post!.squadId)?.members ?? [];
+    // A war dog holds the post once one is trained: it stays there, and a squad's dwarf would lead it away.
+    if (dogs.some((id) => animals.assignedTo(id) === post!.squadId)) {
+      post.dwarfId = 0;
+      if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
+      continue;
+    }
+    if (!calm || !staffed) {
+      if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
+      continue;
+    }
+    if (!adults.includes(post.dwarfId) || busy.has(post.dwarfId)) {
+      const others = new Set(watch.map((wt) => wt.dwarfId));
+      post.dwarfId = [...adults].reverse().find((id) => !busy.has(id) && !others.has(id)) ?? 0;
+    }
+    const want = post.dwarfId === 0 ? [] : [post.dwarfId];
+    if (members.length !== want.length || members.some((id) => !want.includes(id))) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: want });
   }
 }
 

@@ -87,16 +87,16 @@ export function poolSweeps(samples: readonly SweepFigures[]): SweepFigures {
  */
 export const SWEEP_TOLERANCE = { living: 100, deaths: 30 };
 
-// T-574: shifts 0, 50, 100 and 150 of `d79a1f4f` (T-574's path cache, which joins a cached route at its
-// tile nearest the requester, on master `baf8da3d`); Measure run 43869964046. The best figures are the
-// means of its eight shifts (0 to 350, runs 43869964046 and 43878798775, the second pooling 1080.25 living
-// and 90.5 deaths), as T-543 set them. Dwarves fleeing an ambush walked back towards it along a cached
-// route, and walks everywhere doubled back to a route's first tile (reports/data/2026-11-16-t574-ambush-day-297.md).
-// The row before, of `4b9c52f9` (T-555, run 43826997913), was 19.75/7/0/972.5/161.25, best 978.25 and 143.38.
+// T-580: shifts 0, 50, 100 and 150 of `2e36fb6d` (T-576's honest answer to ambushes and T-580's work
+// below ground or by the gate, with a watch and war dogs there, on master `0c2e88b7`); Measure run
+// 44200076970. The best figures are the means of its eight shifts (0 to 350, runs 44200076970 and
+// 44200119366, the second pooling 965 living and 126.75 deaths), as T-543 set them. The reference moved
+// by decision: the dwarves an honest answer costs are the game's (reports/data/2026-11-17-t580-ambush-surface-work.md).
+// The row before, of `d79a1f4f` (T-574, run 43869964046), was 20/7/0/1070.25/109.5, best 1075.25 and 100.
 /** The best accepted pooled figures, which set the bounds; a tolerated loss is not ratcheted down. */
-export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 1075.25, deaths: 100 };
+export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 987.75, deaths: 131.88 };
 /** The latest accepted pooled row. */
-export const SWEEP_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1070.25, deaths: 109.5, extinct: 0.5, needDeaths: 1 };
+export const SWEEP_REFERENCE: SweepFigures = { alive: 19.5, grown: 7, hungry: 0, living: 1010.5, deaths: 137, extinct: 1.75, needDeaths: 6.25 };
 
 export interface SweepCheck {
   readonly allowed: boolean;
