@@ -587,7 +587,11 @@ function placeBelow(w: TestWorld, state: FortressState, type: string, priority: 
     if (!command(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0, priority }).ok) continue;
     const id = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
     const b = buildings.get(id);
-    if (b && b.footprint.length === 9) command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
+    // T-582: not while the hall is still being dug: a corner forbidden beside a tile just dug can
+    // close it off (on `three-years-p4-1` at shift 50 the mason's corner shut a dug tile in, and the
+    // dig beside it stood blocked as unreachable for two days, a T-176 fault).
+    const dug = hall.tiles.every((t) => w.map.kindAt(t) !== TileKind.Wall);
+    if (b && b.footprint.length === 9 && dug) command(w, { type: 'SetTraffic', tiles: [0, 2, 6, 8].map((i) => b.footprint[i]!), mode: 'forbidden' });
     return id;
   }
   return 0;

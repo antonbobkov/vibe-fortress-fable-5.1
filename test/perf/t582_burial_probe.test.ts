@@ -71,6 +71,23 @@ function journal(w: TestWorld, state: FortressState, out: string[]): void {
     return `${id}:${ent.get(id, C.Brain)?.activity ?? '?'}${jid ? `/${jobs.typeOf(jid)}` : ''}${sq && sq.squadId !== 0 ? `[sq${sq.squadId}${sq.onDuty ? ' duty' : ''}]` : ''}${watch.has(id) ? '[watch]' : ''}${state.economy.brewer === id ? '[brewer]' : ''}${Object.entries(state.economy.specialists).filter(([, v]) => v === id).map(([k]) => `[${k}]`).join('')}`;
   });
   const day = Math.floor(w.tick / TICKS_PER_DAY);
+  const tile = Number(process.env['T582_TILE'] ?? '-1');
+  if (tile >= 0) {
+    const m = w.map;
+    const near = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]].map(([dx, dy]) => m.offset(tile, dx!, dy!, 0)).filter((n) => n >= 0)
+      .map((n) => `${m.xOf(n)},${m.yOf(n)}:k${m.kindAt(n)}d${m.designationAt(n)}l${w.readers.pathing.labelOf(n, 'walker')}b${buildings.at(n)}`);
+    out.push(`   tile ${m.xOf(tile)},${m.yOf(tile)},${m.zOf(tile)} hallZ ${state.hallZ} z ${state.z} kind ${m.kindAt(tile)} des ${m.designationAt(tile)} tomb ${(state.burial?.tombs ?? []).some((t) => t.tiles.includes(tile))} ` +
+      `tombs ${JSON.stringify((state.burial?.tombs ?? []).map((t) => t.tiles.map((x) => `${m.xOf(x)},${m.yOf(x)},${m.zOf(x)}`)))} workHall ${state.economy.workHall?.tiles.includes(tile)} workings ${state.economy.workings.has(tile)} near ${near.join(' ')}`);
+  }
+  if (tile >= 0 && w.tick >= Number(process.env['T582_TILE_FROM'] ?? '0') * TICKS_PER_DAY) {
+    const board = (w.game.world.scheduler.byId('11') as unknown as { board: { jobs: Map<number, { id: number; state: string; blockedReason?: string | null; target: { ref: number } }>; pocketOf(t: number): number; anchorTile(j: unknown): number } }).board;
+    const forb = new Set(w.readers.of<{ forbiddenTiles(): readonly number[] }>('03').forbiddenTiles());
+    const js = [...board.jobs.values()].filter((j) => board.anchorTile(j) === tile).map((j) => `${j.id}:${j.state}:${j.blockedReason ?? ''}`);
+    const m = w.map;
+    const near = m.neighbors8(tile).map((n) => `${m.xOf(n)},${m.yOf(n)}:k${m.kindAt(n)}l${w.readers.pathing.labelOf(n, 'walker')}p${board.pocketOf(n)}${forb.has(n) ? 'F' : ''}b${buildings.at(n) ? buildings.get(buildings.at(n))?.typeId : ''}`);
+    const forbidNear = [...forb].filter((f) => m.zOf(f) === m.zOf(tile) && Math.abs(m.xOf(f) - m.xOf(tile)) <= 4 && Math.abs(m.yOf(f) - m.yOf(tile)) <= 4).map((f) => `${m.xOf(f)},${m.yOf(f)}`);
+    out.push(`   T${w.tick} jobs ${js.join(' ')} near ${near.join(' ')} forbidden ${forbidNear.join(' ')}`);
+  }
   out.push(`d${day} living ${adults.length} bodies ${bodies} unburiedHeld ${holders} spirit ${morale.hallSpirit()} tombs ${JSON.stringify((state.burial?.tombs ?? []).map((t) => t.zoneId))} ` +
     `coffins ${states('coffin')} loose ${items.available('coffin')} slabs ${states('memorial_slab')} memorials ${JSON.stringify(state.burial?.memorials ?? [])}`);
   const buries = [...jobs.list('open'), ...jobs.list('claimed'), ...jobs.list('blocked'), ...jobs.list('working'), ...jobs.list('fetching')]
