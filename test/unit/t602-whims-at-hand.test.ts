@@ -62,6 +62,15 @@ describe('T-602 a whim the fortress can reach', () => {
     expect(possible(raw)).not.toContain('whim_lantern');
     raw.build('craftdwarf', raw.index(18, 11, Z), 'granite');
     expect(possible(raw)).toContain('whim_lantern');
+
+    // A mason's blocks are of the stone cut, never glass: stone and a mason are no lantern's glass.
+    const stone = world('t602-lantern-stone');
+    stone.spawnDwarf({ at: at(stone, 12) });
+    stone.build('kiln', stone.index(14, 11, Z), 'granite');
+    stone.build('mason', stone.index(18, 11, Z), 'granite');
+    stone.spawnItem('raw_stone', 'granite', at(stone, 14), 3);
+    stone.spawnItem('candle', 'tallow', at(stone, 15));
+    expect(possible(stone)).not.toContain('whim_lantern');
   }, 60_000);
 
   it('mead takes the honey a brew needs; a still alone is not enough', () => {

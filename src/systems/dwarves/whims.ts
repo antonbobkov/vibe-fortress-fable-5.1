@@ -48,7 +48,10 @@ interface RecipeRow {
   readonly skill: string;
   readonly quality: boolean;
   readonly inputs: readonly RecipeInput[];
-  readonly outputs: readonly { readonly item: string; readonly material: { readonly fixed?: string; readonly from?: string; readonly index?: number } }[];
+  readonly outputs: readonly {
+    readonly item: string;
+    readonly material: { readonly fixed?: string; readonly alloy?: string; readonly plantDrink?: boolean; readonly from?: string; readonly index?: number; readonly stage?: string };
+  }[];
 }
 
 /** The whims of the content, in registry order; [] without the table. */
@@ -180,23 +183,52 @@ function inStock(hand: Hand, input: RecipeInput): boolean {
   return ids.some((m) => hand.items.countAvailable({ ...one, materialId: m }) >= input.count);
 }
 
-/** A recipe's output answers an input: its type answers the match, and a material it fixes is one the input takes. */
-function answers(hand: Hand, out: RecipeRow['outputs'][number], input: RecipeInput): boolean {
-  const items = hand.registry.table<ItemRow>('items');
-  if (!items.has(out.item) || !answering(hand.registry, input.match).includes(items.index(out.item))) return false;
-  if (out.material.fixed === undefined) return true;
-  const materials = hand.registry.table('materials');
-  if (!materials.has(out.material.fixed)) return false;
-  const made = materials.index(out.material.fixed);
-  const filter = recipeInputFilter(hand.registry, input, NO_ORDER);
-  return (filter.materialId === undefined || filter.materialId === made) && (filter.materialIds === undefined || filter.materialIds.includes(made));
+/** The material ids an item filter takes (its material, materials or class), or null for any. */
+function filterMaterials(registry: Registry, filter: ItemFilter): number[] | null {
+  const materials = registry.table<{ id: string; class: string }>('materials');
+  let ids: number[] | null = null;
+  const keep = (next: number[]): void => { ids = ids === null ? next : ids.filter((m) => next.includes(m)); };
+  if (filter.materialId !== undefined) keep([filter.materialId]);
+  if (filter.materialIds !== undefined) keep([...filter.materialIds]);
+  if (filter.materialClass !== undefined) keep(materials.ids().filter((id) => materials.byId(id)?.class === filter.materialClass).map((id) => materials.index(id)));
+  return ids;
+}
+
+/**
+ * A recipe's output answers an input: its type answers the match, and its material is one the input
+ * takes. The recipe as it must run for that: unchanged when it fixes the output's material or the
+ * input takes any; with its source input held to the materials the input takes when the output's
+ * material comes from it; a brew's drink, the plant's, is taken as it is. Null when it does not answer.
+ */
+function madeFor(hand: Hand, recipe: RecipeRow, out: RecipeRow['outputs'][number], input: RecipeInput): RecipeRow | null {
+  const registry = hand.registry;
+  const items = registry.table<ItemRow>('items');
+  if (!items.has(out.item) || !answering(registry, input.match).includes(items.index(out.item))) return null;
+  const takes = filterMaterials(registry, recipeInputFilter(registry, input, NO_ORDER));
+  if (takes === null) return recipe;
+  const materials = registry.table('materials');
+  const fixed = out.material.fixed ?? out.material.alloy;
+  if (fixed !== undefined) return materials.has(fixed) && takes.includes(materials.index(fixed)) ? recipe : null;
+  if (out.material.plantDrink === true) return recipe;
+  if (out.material.from !== 'input' || out.material.stage !== undefined) return null;
+  const index = out.material.index ?? 0;
+  const source = recipe.inputs[index];
+  if (source === undefined) return null;
+  const own = filterMaterials(registry, recipeInputFilter(registry, source, NO_ORDER));
+  const allowed = own === null ? takes : takes.filter((m) => own.includes(m));
+  if (allowed.length === 0) return null;
+  const held: RecipeInput = { match: source.match, count: source.count, materials: allowed.map((m) => materials.byIndex(m)?.id ?? ''), ...(source.sameMaterial === undefined ? {} : { sameMaterial: source.sameMaterial }) };
+  return { ...recipe, inputs: recipe.inputs.map((i, k) => (k === index ? held : i)) };
 }
 
 /** An input is at hand: in stock, or (`depth` 1) made at a built workshop by a recipe whose own inputs are in stock. */
 function inputAtHand(hand: Hand, input: RecipeInput, depth: number): boolean {
   if (inStock(hand, input)) return true;
   if (depth === 0) return false;
-  return hand.recipes.some((r) => r.outputs.some((out) => answers(hand, out, input)) && recipeAtHand(hand, r, depth - 1));
+  return hand.recipes.some((r) => r.outputs.some((out) => {
+    const made = madeFor(hand, r, out, input);
+    return made !== null && recipeAtHand(hand, made, depth - 1);
+  }));
 }
 
 /** Every input of a recipe is at hand; `stuffing`, a material its last input (the stuffing, 12 § Operation) must be of. */
