@@ -1,0 +1,27 @@
+// T-600: summarises 2026-11-18-t600-ambush-arena.jsonl, one markdown row per squad, site, ambush and medics.
+// node 2026-11-18-t600-arena-summary.cjs.txt 2026-11-18-t600-ambush-arena.jsonl   (copy to .cjs first)
+const fs = require('fs');
+const rows = fs.readFileSync(process.argv[2], 'utf8').trim().split('\n').map(JSON.parse);
+const groups = new Map();
+for (const r of rows) {
+  const k = `${r.squad}|${r.site}|${r.size}|${r.archerShare}|${r.medics}`;
+  if (!groups.has(k)) groups.set(k, []);
+  groups.get(k).push(r);
+}
+console.log('| Squad | Site | Ambush (archers) | Medics | Fights | Won | Dead a day later | Fights with a death | Dead a fight | Dead when it broke | Wounded survivors a fight | Killed by archers / warriors / own side | Members felled | Ticks to break, median (max) |');
+console.log('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
+for (const [, rs] of groups) {
+  const r0 = rs[0];
+  const n = rs.length;
+  const sum = (f) => rs.reduce((a, r) => a + f(r), 0);
+  const by = { archers: 0, warriors: 0, own: 0 };
+  for (const r of rs) for (const d of r.deaths) {
+    if (d.killer === 'archers') by.archers += 1;
+    else if (d.killer === 'warriors') by.warriors += 1;
+    else by.own += 1;
+  }
+  const t = rs.filter((r) => r.outcome === 'won').map((r) => r.fightTicks).sort((a, b) => a - b);
+  const med = t.length > 0 ? t[Math.floor(t.length / 2)] : '—';
+  const max = t.length > 0 ? t[t.length - 1] : '—';
+  console.log(`| ${r0.squad} | ${r0.site} | ${r0.size} (${r0.archers}) | ${r0.medics} | ${n} | ${sum((r) => r.outcome === 'won')} | ${sum((r) => r.dead)} | ${sum((r) => r.dead > 0)} | ${(sum((r) => r.dead) / n).toFixed(2)} | ${sum((r) => r.deadAtEnd)} | ${(sum((r) => r.wounded) / n).toFixed(1)} | ${by.archers} / ${by.warriors} / ${by.own} | ${(sum((r) => r.membersKilled) / n).toFixed(1)} | ${med} (${max}) |`);
+}
