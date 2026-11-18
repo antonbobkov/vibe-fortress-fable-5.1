@@ -47,3 +47,10 @@ By the orchestrator's decision the cost of honest ambushes is accepted and the s
 - Shifts 200 to 350 (run 44200119366): `| **Pooled** | 19.75 | 7 | 0 | 965 | 126.75 | 1.75 | 6 |`, not judged (other shifts).
 
 `SWEEP_REFERENCE` is the first row; `SWEEP_MEASURED`, the eight-shift means, is 987.75 living and 131.88 deaths, so the bounds are 887.75 and 161.88 (before: reference `| **Pooled** | 20 | 7 | 0 | 1070.25 | 109.5 | 0.5 | 1 |` of `d79a1f4f`, best 1075.25 and 100, bounds 975.25 and 130).
+
+## Gates on `a7cff6fc` (the moved reference)
+
+- Sweep (run 44215426824): `| **Pooled** | 19.5 | 7 | 0 | 1010.5 | 137 | 1.75 | 6.25 |`, **pass** against the new reference. Its seed job `three-years-p2-3` at shift 50 fails its own T-176 invariant (`party.active-over-10d`: an ambush engaged in the fortress from day 321 to 332, killing 20), as on every sweep of T-580's script and on none of T-576's head; filed as a new work file.
+- Instrument (run 44215430605): `| **Pooled** | 12.88 | 10 | 10.75 | 153.75 | 9.5 | 0 | 0 | 0 | | |`, pass.
+- `defence_seeds` (run 44215434553): `| **Mean** | **6.88** | **7.25** | 0.38 | 0.25 | 23.31 | 4.50 | 4.02 |`, pass.
+- `ci.yml` (run 44215439002): green, 4,102 tests (1,057 + 1,011 + 1,111 + 923) and e2e 45 passed.
