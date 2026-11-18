@@ -2,15 +2,18 @@
  * T-602: the Thane wishes only for what the fortress could make from what it has (`10` § The Thane's
  * whim, possible): a recipe counts when its inputs are at hand (in stock, or made at a built workshop
  * from what is in stock), a masterwork when a dwarf could roll one, a featherbed when its bedding and
- * pillow could be stuffed with feathers.
+ * pillow could be stuffed with feathers. The three-year script answers a lantern and spirits.
  */
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
 import { DAYS_PER_SEASON, TICKS_PER_DAY } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
+import type { BuildingsReader } from '@systems/buildings';
 import type { DwarvesReader } from '@systems/dwarves';
 import { whimFacts, whimPossible, whimRows } from '@systems/dwarves/whims';
 import { TestWorld } from '../scenarios/test-world';
+import { setupThreeYearsFortress, threeYearsWorld } from '../scenarios/three_years_fortress';
+import { checkMakingDo, MAKING_DO_FROM_DAY } from '../scenarios/three_years_making_do';
 
 const Z = 25;
 const SEASON = TICKS_PER_DAY * DAYS_PER_SEASON;
@@ -133,4 +136,53 @@ describe('T-602 a whim the fortress can reach', () => {
     w.step(10);
     expect(w.events('WhimSet')).toEqual([expect.objectContaining({ thaneId: thane, whimId: 'whim_lantern' })]);
   }, 60_000);
+});
+
+describe('T-602 the three-year script answers a lantern and spirits', () => {
+  it('a batch of spirits ahead of the brew while the Thane wishes for them; a glass block and a lantern at the kiln', () => {
+    const w = threeYearsWorld('three-years-p0-1', 0);
+    const state = setupThreeYearsFortress(w);
+    const wagon = w.game.arrival!.wagon;
+    const dwarves = w.game.world.scheduler.byId('10') as unknown as { whim: { id: string; setTick: number } | null };
+    const recipes = w.game.registry.table('recipes');
+    const orders = (id: number): { recipe: number; mode: string }[] => w.game.world.entities.get(id, C.Workshop)?.orders ?? [];
+    const b14 = w.readers.of<BuildingsReader>('14');
+    const site = (type: string): TileIndex => {
+      for (let r = 4; r < 30; r += 1) {
+        for (let dy = -r; dy <= r; dy += 4) {
+          for (let dx = -r; dx <= r; dx += 4) {
+            const origin = w.index(wagon.x + dx, wagon.y + dy, wagon.z);
+            if (b14.ghost(type, origin, 0).reason === null) return origin;
+          }
+        }
+      }
+      throw new Error(`no site for ${type}`);
+    };
+    const still = w.build('still', site('still'), 'oak');
+    const kiln = w.build('kiln', site('kiln'), 'granite');
+    state.placedIds['still'] = still;
+    state.placedIds['kiln'] = kiln;
+    w.step(1);
+    state.economy.phases.add('making do');
+    state.diningHallSetup = true;
+
+    dwarves.whim = { id: 'whim_spirits', setTick: w.tick };
+    checkMakingDo(w, state, MAKING_DO_FROM_DAY);
+    expect(orders(still)[0]).toMatchObject({ recipe: recipes.index('distill'), mode: 'once' });
+    // Not twice.
+    checkMakingDo(w, state, MAKING_DO_FROM_DAY);
+    expect(orders(still).filter((o) => o.mode === 'once').length).toBe(1);
+    dwarves.whim = null;
+    checkMakingDo(w, state, MAKING_DO_FROM_DAY);
+    expect(orders(still).some((o) => o.mode === 'once')).toBe(false);
+
+    dwarves.whim = { id: 'whim_lantern', setTick: w.tick };
+    checkMakingDo(w, state, MAKING_DO_FROM_DAY);
+    expect(orders(kiln).slice(0, 2)).toEqual([
+      expect.objectContaining({ recipe: recipes.index('make_glass_block'), mode: 'once' }),
+      expect.objectContaining({ recipe: recipes.index('make_lantern'), mode: 'once' }),
+    ]);
+    checkMakingDo(w, state, MAKING_DO_FROM_DAY);
+    expect(orders(kiln).filter((o) => o.mode === 'once').length).toBe(2);
+  }, 120_000);
 });
