@@ -111,7 +111,12 @@ describe('T-583 probe: Making Do reach', () => {
           case 'MealEaten': bump(d('meal'), String(e['kind'] ?? ''), today); break;
           case 'MineralMined': bump(d('mineral'), nameOf('materials', e['material']), today); break;
           case 'CropHarvested': bump(d('harvest'), nameOf('plants', e['species']), today); break;
-          case 'CropPlanted': bump(d('planted'), nameOf('plants', e['species']), today); break;
+          case 'CropPlanted': {
+            // T-588: whether the crop was planted with fertilizer (07 § Fertilizer), read off the crop.
+            const fertilized = plants.cropInfo(plants.cropAt(Number(e['tile'])))?.fertilized === true;
+            bump(d('planted'), `${nameOf('plants', e['species'])}${fertilized ? ':fertilized' : ''}`, today);
+            break;
+          }
           case 'AnimalSpawned': bump(d('animalSpawned'), nameOf('creatures', e['species']), today); break;
           case 'AnimalTamed': bump(d('tamed'), nameOf('creatures', ent.get(Number(e['id']), C.Creature)?.species ?? -1), today); break;
           case 'CreatureCaged': bump(d('caged'), nameOf('creatures', ent.get(Number(e['creatureId']), C.Creature)?.species ?? -1), today); break;
