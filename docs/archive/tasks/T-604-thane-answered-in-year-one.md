@@ -1,6 +1,8 @@
 # T-604 — The three-year script answers the Thane in its first year
 
-**Source:** [T-602](../archive/tasks/T-602-whims-the-fortress-cannot-meet.md) (the reach probe on its branch at 0e82a55c, Measure run 44364933808, the twenty sweep seeds at shift 0: 85 of 177 whims met, all of them from the second year) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 8b87d014.
+
+**Source:** [T-602](T-602-whims-the-fortress-cannot-meet.md) (the reach probe on its branch at 0e82a55c, Measure run 44364933808, the twenty sweep seeds at shift 0: 85 of 177 whims met, all of them from the second year) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -13,3 +15,7 @@ Answer the whims of fine meals and spirits from the first day (the kitchen's fin
 ## Done
 
 The script answers the first year's whims, the probe's whims met before and after, and the sweep's verdict.
+
+## Measured
+
+The reach probe (`making_do`, the twenty sweep seeds at shift 0; it now lists each whim judged with its day): whims met 85 of 177 before (run 44388633222, on d53e9a0b, the probe change alone), 0 of the 56 judged by the second year's first day; 132 of 192 after (run 44389430549, on 8b87d014), 34 of 59 by then (17 of 28 fine meals, 17 of 31 spirits), and a whim met in all 20 fortresses (18 before). The sweep's year-one rows did not move beyond their noise: alive at year 1 pooled 20 (19.5 on T-602's 0e82a55c), the twenty fortresses' dwarves at year 1 295.75 a sweep (285.5).

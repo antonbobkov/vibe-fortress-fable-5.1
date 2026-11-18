@@ -3,7 +3,8 @@
  * it ordered nothing of Making Do but the straw bed). Before the strand's day it sends nothing; on it,
  * it asks the Hillfolk for clay and tallow candles and the Wildwood for honey, places the kiln, the loom and the clothier, zones a
  * compost heap and fertilizes every farm plot, and the trade wants the candles. Once the fortress has
- * the spirits or mead an answered whim asks for, it sets them aside until the whim is about to be judged.
+ * the spirits or mead an answered whim asks for, it sets them aside until the whim is about to be judged
+ * (from the first day, T-604).
  */
 import { describe, expect, it } from 'vitest';
 import type { BuildingsReader } from '@systems/buildings';
@@ -56,11 +57,8 @@ describe('T-588 the three-year fortress makes do', () => {
     const before = items.countAvailable(deepfire);
     dwarves.whim = { id: 'whim_spirits', setTick: w.tick };
 
-    // Before the strand nothing is set aside.
-    keepThanesShare(w, state);
-    expect(state.economy.thaneShare).toBeUndefined();
-
-    state.economy.phases.add('making do');
+    // From the first day, before the strand (T-604).
+    expect(makingDo(state)).toBe(false);
     keepThanesShare(w, state);
     expect(state.economy.thaneShare?.whim).toBe('whim_spirits');
     expect(before - items.countAvailable(deepfire)).toBeGreaterThanOrEqual(10);
