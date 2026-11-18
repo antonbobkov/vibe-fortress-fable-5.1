@@ -8,6 +8,11 @@ import type { ReaderSetLike } from '@core/system';
 import type { EntityId } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemFilter, ItemsReader } from '@systems/items';
+import { C, ItemFlag, type WorkOrder } from '@core/components';
+import type { EntityStore } from '@core/entities';
+import type { DwarvesReader } from './reader';
+import { recipeInputFilter, type RecipeRow as OperateRecipe } from '@systems/workshops/operate';
+import { bestQuality } from '@systems/workshops/quality';
 
 /** The whim's draw: a stream of its own, so a game without a Thane draws the same numbers. */
 export const WHIMS_STREAM = '10.whims';
@@ -35,11 +40,14 @@ export interface Whim {
 }
 
 interface ItemRow { readonly id: string; readonly tags?: readonly string[] }
+type RecipeInput = OperateRecipe['inputs'][number];
+/** A recipe row as the draw reads it: 12's, with its outputs' material rule read as one shape. */
 interface RecipeRow {
   readonly id: string;
   readonly workshop: string;
+  readonly skill: string;
   readonly quality: boolean;
-  readonly inputs: readonly { readonly match: string }[];
+  readonly inputs: readonly RecipeInput[];
   readonly outputs: readonly { readonly item: string; readonly material: { readonly fixed?: string; readonly from?: string; readonly index?: number } }[];
 }
 
@@ -108,48 +116,159 @@ function answering(registry: Registry, match: string): number[] {
     .map((id) => items.index(id));
 }
 
-/**
- * `10` § The Thane's whim, possible: its item type is in the content, and one such item (of its
- * material and quality) is in stock, or a built workshop has a recipe that makes the type, of the
- * named material when there is one (the recipe fixes its output's material to it, or makes it from an
- * input of which an item of that material is in stock); `any` item with any built workshop that has a
- * quality recipe.
- */
-export function whimPossible(readers: ReaderSetLike, registry: Registry, row: WhimRow): boolean {
-  const filter = stockFilter(registry, row);
-  if (filter === null || !readers.has('13') || !readers.has('14')) return false;
-  const items13 = readers.of<ItemsReader>('13');
-  if (items13.countAvailable(filter) > 0) return true;
+/** What the draw reads beyond the readers: the dwarves' skills and the stuffing of the fortress's items. */
+export interface WhimFacts {
+  /** The highest level of a skill among the fortress's dwarves (0 with none). */
+  bestSkill(skillId: string): number;
+  /** Units of an item type stuffed with a material (`Item.stuffing`) in stock (available). */
+  stuffedInStock(type: number, material: number): number;
+}
+
+const HELD = ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed;
+
+/** The draw's facts from the dwarves' reader and the entities. */
+export function whimFacts(dwarves: Pick<DwarvesReader, 'list' | 'skill'>, entities: Pick<EntityStore, 'with' | 'get'>): WhimFacts {
+  return {
+    bestSkill: (skillId) => dwarves.list().reduce((best, id) => Math.max(best, dwarves.skill(id, skillId)), 0),
+    stuffedInStock: (type, material) => {
+      let n = 0;
+      for (const id of entities.with(C.Item)) {
+        const it = entities.get(id, C.Item);
+        if (it === undefined || it.type !== type || it.stuffing !== material || (it.flags & HELD) !== 0 || it.carriedBy !== 0) continue;
+        n += it.count;
+      }
+      return n;
+    },
+  };
+}
+
+/** An order for nothing in particular: a recipe input's filter with no material chosen. */
+const NO_ORDER: WorkOrder = { recipe: 0, remaining: 1, mode: 'once', threshold: 0, priority: 5, materialFilter: null };
+
+/** One look at the fortress for the draw: its stock, its built workshops' recipes and its dwarves. */
+interface Hand {
+  readonly registry: Registry;
+  readonly items: ItemsReader;
+  readonly recipes: readonly RecipeRow[];
+  readonly facts: WhimFacts;
+}
+
+/** The recipes of the built workshops (a magma variant counts as its workshop), in registry order. */
+function builtRecipes(readers: ReaderSetLike, registry: Registry): RecipeRow[] {
   const b14 = readers.of<BuildingsReader>('14');
   const builtTypes = new Set<string>();
   for (const type of b14.types()) {
     if (type.category !== 'workshop') continue;
-    const made = (b14.byType(type.id)).some((id) => b14.get(id)?.state === 'built');
-    if (!made) continue;
+    if (!b14.byType(type.id).some((id) => b14.get(id)?.state === 'built')) continue;
     builtTypes.add(type.id);
     const variantOf = (type as { magmaVariantOf?: string }).magmaVariantOf;
     if (variantOf !== undefined) builtTypes.add(variantOf);
   }
-  if (builtTypes.size === 0) return false;
+  if (builtTypes.size === 0) return [];
   const recipes = registry.table<RecipeRow>('recipes');
+  return recipes.ids().map((id) => recipes.byId(id) as RecipeRow).filter((r) => builtTypes.has(r.workshop));
+}
+
+/** `count` units answering a recipe input are in stock (available), of one material when it asks for the same. */
+function inStock(hand: Hand, input: RecipeInput): boolean {
+  const filter = recipeInputFilter(hand.registry, input, NO_ORDER);
+  if (input.sameMaterial !== true) return hand.items.countAvailable(filter) >= input.count;
+  const materials = hand.registry.table('materials');
+  const ids = filter.materialIds ?? (filter.materialId !== undefined ? [filter.materialId] : materials.ids().map((id) => materials.index(id)));
+  const one: ItemFilter = { ...filter };
+  delete one.materialIds;
+  return ids.some((m) => hand.items.countAvailable({ ...one, materialId: m }) >= input.count);
+}
+
+/** A recipe's output answers an input: its type answers the match, and a material it fixes is one the input takes. */
+function answers(hand: Hand, out: RecipeRow['outputs'][number], input: RecipeInput): boolean {
+  const items = hand.registry.table<ItemRow>('items');
+  if (!items.has(out.item) || !answering(hand.registry, input.match).includes(items.index(out.item))) return false;
+  if (out.material.fixed === undefined) return true;
+  const materials = hand.registry.table('materials');
+  if (!materials.has(out.material.fixed)) return false;
+  const made = materials.index(out.material.fixed);
+  const filter = recipeInputFilter(hand.registry, input, NO_ORDER);
+  return (filter.materialId === undefined || filter.materialId === made) && (filter.materialIds === undefined || filter.materialIds.includes(made));
+}
+
+/** An input is at hand: in stock, or (`depth` 1) made at a built workshop by a recipe whose own inputs are in stock. */
+function inputAtHand(hand: Hand, input: RecipeInput, depth: number): boolean {
+  if (inStock(hand, input)) return true;
+  if (depth === 0) return false;
+  return hand.recipes.some((r) => r.outputs.some((out) => answers(hand, out, input)) && recipeAtHand(hand, r, depth - 1));
+}
+
+/** Every input of a recipe is at hand; `stuffing`, a material its last input (the stuffing, 12 § Operation) must be of. */
+function recipeAtHand(hand: Hand, recipe: RecipeRow, depth: number, stuffing?: string): boolean {
+  const last = recipe.inputs.length - 1;
+  return recipe.inputs.every((input, i) => {
+    if (stuffing === undefined || i !== last) return inputAtHand(hand, input, depth);
+    const stuffed: RecipeInput = { match: input.match, count: input.count, material: stuffing, ...(input.sameMaterial === undefined ? {} : { sameMaterial: input.sameMaterial }) };
+    return inputAtHand(hand, stuffed, depth);
+  });
+}
+
+/** A row of a quality takes a quality recipe and a dwarf whose highest roll there reaches it (`12` § Quality). */
+function skilled(hand: Hand, recipe: RecipeRow, quality: number | undefined): boolean {
+  if (quality === undefined) return true;
+  return recipe.quality && bestQuality(hand.facts.bestSkill(recipe.skill)) >= quality;
+}
+
+/**
+ * A room whim made up with a stuffing (a featherbed): each item its building wants (a bedding, a
+ * pillow) is in stock stuffed with it, or a built workshop makes it from inputs at hand, its stuffing
+ * of that material.
+ */
+function stuffingAtHand(hand: Hand, readers: ReaderSetLike, row: WhimRow): boolean {
+  if (row.bedding === undefined) return true;
+  const materials = hand.registry.table('materials');
+  if (!materials.has(row.bedding)) return false;
+  const stuffing = materials.index(row.bedding);
+  const items = hand.registry.table<ItemRow>('items');
+  const type = readers.of<BuildingsReader>('14').types().find((t) => t.id === row.item) as { wants?: readonly { match: string; count: number }[] } | undefined;
+  return (type?.wants ?? []).every((want) => {
+    if (!items.has(want.match)) return false;
+    if (hand.facts.stuffedInStock(items.index(want.match), stuffing) >= want.count) return true;
+    return hand.recipes.some((r) => r.outputs.some((out) => out.item === want.match) && recipeAtHand(hand, r, 1, row.bedding));
+  });
+}
+
+/**
+ * `10` § The Thane's whim, possible: its item type is in the content, and one such item (of its
+ * material and quality) is in stock, or a built workshop has a recipe that makes the type, of the
+ * named material when there is one (the recipe fixes its output's material to it, or makes it from an
+ * input of which an item of that material is in stock), whose inputs are at hand: each in stock, or
+ * made at a built workshop from what is in stock. `any` item takes any quality recipe; a row of a
+ * quality takes a quality recipe and a dwarf whose skill could roll that quality. A room whim made up
+ * with a stuffing also needs the bedding and pillow of that stuffing at hand, and a bed already built
+ * counts as its bed.
+ */
+export function whimPossible(readers: ReaderSetLike, registry: Registry, row: WhimRow, facts: WhimFacts): boolean {
+  const filter = stockFilter(registry, row);
+  if (filter === null || !readers.has('13') || !readers.has('14')) return false;
+  const items13 = readers.of<ItemsReader>('13');
+  const b14 = readers.of<BuildingsReader>('14');
+  const hand: Hand = { registry, items: items13, recipes: builtRecipes(readers, registry), facts };
+  if (!stuffingAtHand(hand, readers, row)) return false;
+  if (items13.countAvailable(filter) > 0) return true;
+  if (row.bedding !== undefined && b14.byType(row.item).some((id) => b14.get(id)?.state === 'built')) return true;
   const materials = registry.table('materials');
-  for (const id of recipes.ids()) {
-    const recipe = recipes.byId(id) as RecipeRow;
-    if (!builtTypes.has(recipe.workshop)) continue;
+  for (const recipe of hand.recipes) {
+    if (!skilled(hand, recipe, row.quality)) continue;
     if (row.item === 'any') {
-      if (recipe.quality) return true;
+      if (recipe.quality && recipeAtHand(hand, recipe, 1)) return true;
       continue;
     }
     for (const out of recipe.outputs) {
       if (out.item !== row.item) continue;
-      if (row.material === undefined) return true;
-      if (out.material.fixed === row.material) return true;
-      if (out.material.from === 'input') {
+      let ofMaterial = row.material === undefined || out.material.fixed === row.material;
+      if (!ofMaterial && row.material !== undefined && out.material.from === 'input' && materials.has(row.material)) {
         const input = recipe.inputs[out.material.index ?? 0];
-        if (input === undefined || !materials.has(row.material)) continue;
-        const types = answering(registry, input.match);
-        if (types.length > 0 && items13.countAvailable({ types, materialId: materials.index(row.material) }) > 0) return true;
+        const types = input === undefined ? [] : answering(registry, input.match);
+        ofMaterial = types.length > 0 && items13.countAvailable({ types, materialId: materials.index(row.material) }) > 0;
       }
+      if (ofMaterial && recipeAtHand(hand, recipe, 1)) return true;
     }
   }
   return false;
