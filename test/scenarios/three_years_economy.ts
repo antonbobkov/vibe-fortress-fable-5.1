@@ -18,6 +18,7 @@ import { designateDig, onWagonSide, opensToHillside, siteTiles, type FortressSta
 import type { TestWorld } from './test-world';
 import { command } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
+import { checkMakingDo, keepThanesShare, makingDoPurchases, makingDoWant } from './three_years_making_do';
 
 export interface EconomyState {
   lastDay: number;
@@ -52,6 +53,8 @@ export interface EconomyState {
    */
   workHall?: { stair: number; tiles: number[]; slots: number[] };
   moving?: Record<string, { twin: number; type: string; orders: WorkOrder[]; worker: number; old?: number }>;
+  /** T-588: what the fortress has set aside (forbidden) for the Thane's whim of the season, until just before it is judged. */
+  thaneShare?: { whim: string; items: number[] };
 }
 
 /**
@@ -154,7 +157,7 @@ const MEAL_RESERVE_DAYS = 56;
  * player sows what the seed in stock allows. Cave plots sow one cave crop in every season.
  */
 /** T-572: the cloth and wool the beds leave for the hospital (17's `HOSPITAL_DEFAULT_SUPPLIES` cloth 10). */
-const BED_CLOTH_KEPT = 10;
+export const BED_CLOTH_KEPT = 10;
 const SURFACE_CROPS: readonly (readonly string[])[] = [['turnip', 'strawberry', 'barley', 'cabbage'], ['turnip', 'strawberry', 'barley', 'pumpkin'], ['turnip', 'cabbage', 'pumpkin']];
 const CAVE_CROPS: readonly string[] = ['dimcap', 'pale_bell', 'sweetroot', 'cavewheat'];
 /** Cave strips dug beside the first cave farm on its soil level for bought cave seed (x0, x1, y0, y1 from the centre). */
@@ -818,6 +821,8 @@ export function trade(w: TestWorld, state: FortressState): void {
   });
   const budget = give.reduce((s, id) => s + reader.valuation(caravan.civ, id), 0);
   if (budget === 0) return;
+  // T-588: from year 2, Making Do's tallow candles for the dining hall, and honey for the Thane's mead.
+  const makingDoWants = makingDoPurchases(w, state);
   const priority = (id: number): number => {
     const it = ent.get(id, C.Item);
     const type = types.byIndex(it?.type ?? -1)?.id ?? '';
@@ -832,7 +837,7 @@ export function trade(w: TestWorld, state: FortressState): void {
     if (type === 'plant_food') return 3;
     if (type === 'cloth' || type === 'thread') return 4;
     if (type === 'rough_gem') return 5;
-    return 6;
+    return makingDoWant(w, makingDoWants, id) ?? 6;
   };
   const onOffer = reader.merchantItems().filter((id) => ent.get(id, C.Item)?.containerId === depot && !ent.get(id, C.Item)?.occupantId);
   // One anvil is enough: the first on offer.
@@ -848,11 +853,14 @@ export function trade(w: TestWorld, state: FortressState): void {
   const spending = Math.max(0, budget - capital);
   const take: { itemId: number; count: number }[] = [];
   let cost = 0;
-  const wanted = goods.some((id) => priority(id) !== 6);
+  // T-588: a good the merchants ask nothing for (sand, clay, dung: 20 § Goods) is no trade of its own,
+  // since an offer must give something; the wanted ones go along with an offer that buys anything else.
+  const free = (id: number): boolean => reader.price(caravan.civ, id) <= 0;
+  const wanted = goods.some((id) => priority(id) !== 6 && !free(id));
   let seedTaken = 0;
   for (const id of goods) {
     // A visit that carries nothing on the wish list still trades: the first affordable goods.
-    if (wanted ? priority(id) === 6 : take.length > 0) continue;
+    if (free(id) || (wanted ? priority(id) === 6 : take.length > 0)) continue;
     const it = ent.get(id, C.Item)!;
     const unitPrice = reader.price(caravan.civ, id) / it.count;
     // Seed is bought for the strips still to be sown, not by the hundred.
@@ -861,6 +869,7 @@ export function trade(w: TestWorld, state: FortressState): void {
     const count = Math.min(it.count, wantedUnits, Math.floor((Math.floor(spending) / (1 + reader.marginPercent(caravan.civ) / 100) - cost) / unitPrice));
     if (count > 0) { take.push({ itemId: id, count }); cost += unitPrice * count; if (isSeed) seedTaken += count; }
   }
+  if (take.length > 0) for (const id of goods) if (free(id) && priority(id) !== 6) take.push({ itemId: id, count: ent.get(id, C.Item)!.count });
   if (!take.length || requiredValue(cost, reader.marginPercent(caravan.civ)) > budget) {
     if (state.economy.lastTradeNote !== key) {
       state.economy.lastTradeNote = key;
@@ -1415,6 +1424,7 @@ function checkLarder(w: TestWorld, state: FortressState): number {
 
 export function checkEconomy(w: TestWorld, state: FortressState): void {
   const day = Math.floor(w.tick / TICKS_PER_DAY);
+  keepThanesShare(w, state);
   if (state.economy.lastDay === day) return;
   const first = state.economy.lastDay < 0;
   state.economy.lastDay = day;
@@ -1739,6 +1749,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   checkCrops(w);
   checkKitchens(w, state);
   keepWorkBelow(w, state, day);
+  checkMakingDo(w, state, day);
   // Nobody hunts: an immigrant hunter arrives with a crossbow, and a bolt that misses its quarry
   // hits whoever stands behind it (16 § Ranged).
   for (const id of fortressDwarves(w)) {
