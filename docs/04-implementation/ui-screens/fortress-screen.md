@@ -152,7 +152,7 @@ The captions are short so that none is cut at the 36-column sidebar; the tool's 
 
 After the first corner, or while dragging, the box's slice on the current level is inverted on the map and the status bar reads `Dig 12×4 (48 tiles), priority 5`, or `Dig 12×4×3 levels (144 tiles), priority 5` once the level differs from the first corner's (24 § Input model).
 
-Stairs is the only stair tool: it chooses up, down or up/down stairs for each tile (24 § Input model). Hovering its caption shows "Stairs: click a floor for a down stair and the stair beneath it, or a wall for up/down; change level between the two clicks for a whole shaft." With the first corner set and the cursor still on it, the status bar reads `Stairs from z 12: click again, or change level ([<] [>]) for a shaft · [Esc] cancel`. A box that skipped tiles says how many and why, as every designation does: `Stairs: 14 designated, 3 skipped (3 already open).`
+Stairs is the only stair tool: it chooses up, down or up/down stairs for each tile (24 § Input model). Hovering its caption shows "Stairs: click a floor for a down stair and the stair beneath it, or a wall for up/down; change level between the two clicks for a whole shaft." With the first corner set and the cursor still on it, the status bar reads `Stairs from z 12: click again, or change level ([<] [>]) for a shaft · [Esc] cancel`. A box that skipped tiles says how many and why, as every designation does: `Stairs: 14 designated, 3 skipped (2 already open, 1 under a building).`
 
 ## Build tool
 
