@@ -1,6 +1,6 @@
 # T-NEW — The three-year script answers the Thane in its first year
 
-**Source:** [T-602](T-602-whims-the-fortress-cannot-meet.md) (the reach probe on its branch, the twenty sweep seeds at shift 0) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** [T-602](T-602-whims-the-fortress-cannot-meet.md) (the reach probe on its branch at 0e82a55c, Measure run 44364933808, the twenty sweep seeds at shift 0: 85 of 177 whims met, all of them from the second year) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
