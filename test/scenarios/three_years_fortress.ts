@@ -1629,6 +1629,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // T-461: a cavern monster or a Hollow-born that can walk to a dwarf: the breach, the attack and the
   // death are all announced, and the alert and the squad are how a player answers them.
   const indoors = hostilesIndoors(w, adults);
+  // T-596: the members of an ambush in the halls, which the squad is sent against (below).
+  const ambushIn = raid && !atGate ? hostilesIndoors(w, adults, true) : [];
   const targets = [...indoors, ...intruders, ...wild];
   const danger = raid || targets.length > 0;
   if (danger) state.lastDangerTick = w.tick;
@@ -1724,8 +1726,16 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     // should a raid, a siege, a thief or a hostile indoors need the squad. The gate locks as it does
     // for any alert, once nobody is outside it or after its grace. An ambush no larger than the
     // squad's armed soldiers (a few, at peril 2) is met as a raid is, at the gate stair.
+    // T-596: an ambush that walked in at the gate unseen and sprang in the halls is not sheltered
+    // from: the halls are the shelter. On day 321 of `three-years-p2-3` at shift 50 an ambush's
+    // leader, hidden, came down the stair alone to the hearth and sprang there, and the alert locked
+    // its five others out at the gate; the squad stood down for an ambush of six, and the civilians,
+    // sheltering in the hearth hall, came to it one at a time and fought it bare-handed. It killed
+    // 28 in ten days, its morale at the top of the scale, and no soldier struck it. So the
+    // squad stays up and hunts the ambush's members indoors, the nearest first, from its post below,
+    // however large the ambush outside.
     const ambushOnly = raid && !atGate && indoors.length === 0 && intruders.length === 0;
-    const standingDown = ambushOnly && ambushSize > armedSoldiers(w, state, adults);
+    const standingDown = ambushOnly && ambushIn.length === 0 && ambushSize > armedSoldiers(w, state, adults);
     if (standingDown) standDown(w, state);
     else standUp(w, state, adults);
     // T-539: wild animals alone are hunted by the squad together. It first musters at the gatehouse
@@ -1749,7 +1759,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       if (withWeapons.length < members.length) command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: withWeapons });
     }
     const mustering = muster && state.mustered !== true;
-    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}${standingDown ? ' stood down' : ''}:${armed}:${mustering ? 'muster' : ''}:${targets.join(',')}`;
+    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}${standingDown ? ' stood down' : ''}:${armed}:${mustering ? 'muster' : ''}:${targets.join(',')}:${ambushIn.join(',')}`;
     if (state.squadId !== 0 && state.answered !== answer) {
       state.answered = answer;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
@@ -1759,10 +1769,10 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       // T-518: below is behind the second line once it stands, and a siege, whose trollkin break
       // doors, is waited for there: a squad in the gatehouse, locked between the gate and the
       // vestibule, has no drink and no way back, and a siege outnumbers it at a broken gate.
-      const hunted = raid || mustering ? indoors : armed ? huntable : indoors;
+      const hunted = raid || mustering ? [...indoors, ...ambushIn] : armed ? huntable : indoors;
       for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
       const below = line ? behindTheLine(w, state) : w.index(cx + 6, cy + 6, state.hallZ);
-      const outdoors = (raid && !(siege && line)) || hunted.length > indoors.length || mustering;
+      const outdoors = (raid && !(siege && line) && !(ambushOnly && ambushIn.length > 0)) || hunted.length > indoors.length + ambushIn.length || mustering;
       const post = outdoors || !w.readers.pathing.passable(below, 'walker') ? gatehouseStairsTile : below;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'station', tile: post } });
     }
@@ -2039,12 +2049,19 @@ export function dangerousWildlife(w: TestWorld, state: FortressState, dwarves: r
   return found.sort((a, b) => a.d - b.d || a.id - b.id).map((f) => f.id);
 }
 
+/** T-596: the party is an ambush that has sprung and is not on its way out. */
+function sprungAmbusher(w: TestWorld, partyId: number): boolean {
+  const p = partyId === 0 ? undefined : w.game.world.entities.get(partyId, C.Party);
+  return p !== undefined && p.purpose === 'ambush' && p.ambushSprung === true && p.state !== 'retreat' && p.state !== 'gone';
+}
+
 /**
  * T-461: the hostiles of no party a player answers: each one awake and in sight that can walk to a
  * dwarf within WILD_NEAR of it, the nearest first. Monsters in a cavern the fortress has no way into
- * do not count.
+ * do not count. T-596: with `ambush`, instead the members of a sprung ambush that stand indoors (in
+ * the halls or on the stair) and can walk to a dwarf within WILD_NEAR of them.
  */
-function hostilesIndoors(w: TestWorld, dwarves: readonly number[]): number[] {
+function hostilesIndoors(w: TestWorld, dwarves: readonly number[], ambush = false): number[] {
   const ent = w.game.world.entities;
   const label = (p: { x: number; y: number; z: number }): number => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker');
   const places = dwarves.map((id) => ent.get(id, C.Position)).filter((p) => p !== undefined);
@@ -2052,7 +2069,8 @@ function hostilesIndoors(w: TestWorld, dwarves: readonly number[]): number[] {
   for (const id of ent.with(C.Hostile)) {
     const h = ent.get(id, C.Hostile);
     const p = ent.get(id, C.Position);
-    if (!h || !p || h.partyId !== 0 || h.behaviorState === 'asleep' || h.stealthed === true) continue;
+    if (!h || !p || h.behaviorState === 'asleep' || h.stealthed === true) continue;
+    if (ambush ? !sprungAmbusher(w, h.partyId) || w.map.hasFlag(w.index(p.x, p.y, p.z), TileFlag.Outdoor) : h.partyId !== 0) continue;
     const own = label(p);
     let d = Infinity;
     for (const q of places) {

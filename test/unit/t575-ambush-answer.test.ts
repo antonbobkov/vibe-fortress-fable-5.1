@@ -173,3 +173,32 @@ describe('T-576 the three-year script sees an ambush only once it has sprung', (
     expect(state.stoodDown).toEqual(soldiers);
   });
 });
+
+/**
+ * T-596: an ambush whose leader came down the stair hidden, sprang in the hearth hall, and had its
+ * others locked out at the gate by the alert. Stood down for an ambush of six, the squad left the
+ * leader to the civilians sheltering in the hall, who came to it one at a time: 28 died.
+ */
+describe('T-596 the three-year script sends the squad against an ambush in the halls', () => {
+  it('keeps the squad up and hunts an ambush member indoors from its post below, however large the ambush', () => {
+    const { w, state, squadId } = gatehouse('t596-in-the-halls', true);
+    const soldiers = [...members(w, squadId)];
+    const ent = w.game.world.entities;
+    const { party, members: outside } = ambush(w, 5, true);
+    const leader = w.spawnCreature('gloam_warrior', w.index(sx + 4, sy - 1, HALL_Z), 'hostile:gloam');
+    ent.add(leader, C.Hostile, { partyId: party, role: 'warrior', behaviorState: 'engage', stealthed: false, spotted: true, breakingDoorId: 0, breakingSince: 0 } as never);
+    ent.add(party, C.Party, { ...ent.get(party, C.Party)!, members: [leader, ...outside], leaderId: leader, size: 6 });
+    for (const id of outside) ent.add(id, C.Hostile, { ...ent.get(id, C.Hostile)!, partyId: party });
+    checkFortressDefense(w, state);
+    expect(w.game.world.fortress.alert).toBe('hearth');
+    expect([...members(w, squadId)].sort(), 'the soldiers are not stood down').toEqual([...soldiers].sort());
+    expect(state.stoodDown ?? []).toEqual([]);
+    expect(orders(w, squadId).filter((o) => o.kind === 'kill').map((o) => o.targetId), 'the member in the halls is hunted').toEqual([leader]);
+    expect(post(w, squadId), 'from below, not the gate stair').toBe(w.index(sx, sy + 2, HALL_Z));
+    // Once it is dead the ambush outside is sheltered from, as before.
+    w.game.world.entities.destroy(leader);
+    checkFortressDefense(w, state);
+    expect(members(w, squadId)).toEqual([]);
+    expect(state.stoodDown).toEqual(soldiers);
+  });
+});
