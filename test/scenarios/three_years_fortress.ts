@@ -1349,6 +1349,12 @@ export function keepTheDead(w: TestWorld, state: FortressState): void {
   let onOrder = 0;
   const named = new Set<number>(slabs);
   for (const id of shops) {
+    const orders = ent.get(id, C.Workshop)?.orders ?? [];
+    // A slab ordered for a dwarf since buried in a coffin is no longer wanted.
+    for (let i = orders.length - 1; i >= 0; i -= 1) {
+      const o = orders[i]!;
+      if (o.recipe === slabRecipe && o.memorialDwarfId !== undefined && !buildings.memorialEligible(o.memorialDwarfId)) command(w, { type: 'RemoveWorkOrder', workshopId: id, index: i });
+    }
     for (const o of ent.get(id, C.Workshop)?.orders ?? []) {
       if (coffinRecipes.has(o.recipe)) onOrder += o.remaining;
       if (o.recipe === slabRecipe && o.memorialDwarfId !== undefined) named.add(o.memorialDwarfId);

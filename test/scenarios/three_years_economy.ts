@@ -661,7 +661,8 @@ export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): 
     const orders = old ? old.orders : move.orders;
     for (const o of orders) {
       const recipeId = recipes.byIndex(o.recipe)?.id;
-      if (recipeId === undefined) continue;
+      // T-582: a memorial slab's order for a dwarf since buried in a coffin names nobody it may.
+      if (recipeId === undefined || (o.memorialDwarfId !== undefined && !buildings.memorialEligible(o.memorialDwarfId))) continue;
       command(w, { type: 'AddWorkOrder', workshopId: move.twin, order: { recipeId, mode: o.mode, ...(o.mode === 'once' ? { remaining: o.remaining } : { threshold: o.threshold }),
         priority: o.priority, ...(o.materialFilter === null ? {} : { materialFilter: o.materialFilter }), ...(o.targetType === undefined ? {} : { targetType: o.targetType }),
         ...(o.memorialDwarfId === undefined ? {} : { memorialDwarfId: o.memorialDwarfId }) } });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
 import { Designation, TileKind } from '@core/map3d';
-import type { BuildingsReader } from '@systems/buildings';
+import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import { keepTheDead, setupThreeYearsFortress, threeYearsWorld, TOMB_H, TOMB_W } from '../scenarios/three_years_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
 
@@ -96,6 +96,12 @@ describe('T-582 the three-year script buries its dead', () => {
     state.burial!.day = -1;
     keepTheDead(w, state);
     expect(orders().filter((o) => o.startsWith('make_memorial_slab')).length).toBe(1);
+    // Once the dwarf is laid to rest another way, its slab is no longer ordered.
+    (w.game.world.scheduler.byId('14') as BuildingsSystem).burial.dead.get(victim)!.buried = true;
+    expect(buildings.memorialEligible(victim)).toBe(false);
+    state.burial!.day = -1;
+    keepTheDead(w, state);
+    expect(orders().filter((o) => o.startsWith('make_memorial_slab'))).toEqual([]);
     expect([...scriptRecord(w).rejected]).toEqual([]);
   }, 120_000);
 });
