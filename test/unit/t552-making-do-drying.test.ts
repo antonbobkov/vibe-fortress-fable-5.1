@@ -134,7 +134,7 @@ describe('T-552 the rows', () => {
     expect(materialItemName('boar meat', { name: 'cured meat' })).toBe('cured boar meat');
     expect(materialItemName('trout', { name: 'cured fish' })).toBe('cured trout');
     expect(materialItemName('boar hide', { name: 'salted hide' })).toBe('salted boar hide');
-    expect(materialItemName('boar meat', { name: 'raw meat' })).toBe('boar meat raw meat');
+    expect(materialItemName('boar meat', { name: 'raw meat', category: 'food/meat/raw' })).toBe('boar meat');
   });
 });
 

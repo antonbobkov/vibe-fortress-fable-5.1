@@ -150,11 +150,18 @@ class Skips {
   }
 }
 
-/** Why a discovered tile could not take a designation: its kind, or for stairs "already open" and "built stairs". */
+/**
+ * Why a discovered tile could not take a designation: its kind, or for stairs "already open",
+ * "built stairs", and for a floor that holds a building (03 cuts no stairs under one) "built floor"
+ * when the floor is itself a construction and "under a building" otherwise.
+ */
 function skipReason(map: MapReader, i: TileIndex, stairs: boolean): string {
   const kind = map.kindAt(i);
   if (stairs && kind === TileKind.Open) return 'ui.status.skip.open';
   if (stairs && stairWays(kind) !== 0) return 'ui.status.skip.built_stairs';
+  if (stairs && kind === TileKind.Floor && map.buildingAt(i) !== 0) {
+    return (map.flagsAt(i) & TileFlag.Constructed) !== 0 ? 'ui.status.skip.built_floor' : 'ui.status.skip.building';
+  }
   return `ui.kind.${kind}`;
 }
 

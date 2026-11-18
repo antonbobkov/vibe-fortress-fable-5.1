@@ -29,6 +29,7 @@ import {
 import { TerrainFacts } from './facts';
 import { TerrainProducer } from './producer';
 import { makeReader, type TerrainReader } from './reader';
+import { isStairDesignation, precondition } from './rules/transitions';
 import type { Engraving, TerrainStateV1 } from './state';
 import type { StackLayer } from './generate/common';
 
@@ -74,7 +75,7 @@ const COMMAND_HANDLERS: Partial<Record<CommandType, (host: CommandHost, cmd: Com
 export class TerrainSystem extends BaseSystem<TerrainStateV1> {
   readonly id = TERRAIN_ID;
   readonly order = 3;
-  override readonly subscribes: readonly EventType[] = ['JobCompleted', 'JobCancelled', 'EntitiesMoved', 'BuildingCompleted', 'RibsEntered'];
+  override readonly subscribes: readonly EventType[] = ['JobCompleted', 'JobCancelled', 'EntitiesMoved', 'BuildingPlaced', 'BuildingCompleted', 'RibsEntered'];
   override readonly ownsCommands: readonly CommandType[] = [
     'Designate',
     'UndoDesignation',
@@ -183,6 +184,8 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     if (event.type === 'EntitiesMoved') {
       const moves = event['moves'] as readonly Move[];
       for (const m of moves) this.pendingMoves.push(m);
+    } else if (event.type === 'BuildingPlaced') {
+      this.clearStairsUnder(event['tiles'] as readonly TileIndex[]);
     } else if (event.type === 'BuildingCompleted') {
       this.clearBlockedDesignations(event['id'] as EntityId, ctx);
     } else if (event.type === 'RibsEntered') {
@@ -192,6 +195,18 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     }
     // `JobCompleted` and `JobCancelled` reach 03's job producer (T-M1-10) through the jobs system;
     // `BuildingCompleted` re-checks support once 14 builds constructions (M2).
+  }
+
+  /**
+   * `03` § Tile transitions: a building placed on a floor that holds a stair designation clears it,
+   * with its job (the producer cancels it on its next scan): stairs are not cut under a building.
+   */
+  private clearStairsUnder(tiles: readonly TileIndex[]): void {
+    const map = this.core.host.map;
+    for (const tile of tiles) {
+      if (!map.validIndex(tile) || !isStairDesignation(map.designationAt(tile))) continue;
+      if (!precondition(map, tile, map.designationAt(tile), this.core.host.facts)) this.core.clearDesignation(tile);
+    }
   }
 
   /**

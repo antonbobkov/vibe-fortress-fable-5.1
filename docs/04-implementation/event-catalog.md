@@ -101,7 +101,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `StockpileFull` | `id` | 13 | ui |
 | `WealthChanged` | `wealth` | 13 | 18, 20, 21 |
 | `CorpseCreated` | `itemId, creatureId` | 13 | 08, 09, 14, 15 |
-| `BuildingPlaced` | `id, buildingType, tiles[]` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
+| `BuildingPlaced` | `id, buildingType, tiles[]` | 14 | 03, 12, 13, 19, 20, 22, 24 (milestones), ui |
 | `BuildingCompleted` | `id, buildingType, value` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
 | `BuildingRemoved` | `id, buildingType, value` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
 | `BuildingStateChanged` | `id, state` | 14 | 04, 11, 22, 23 |

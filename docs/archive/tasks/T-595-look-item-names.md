@@ -1,5 +1,7 @@
 # T-595 — Look names some items twice ("boar meat raw meat")
 
+**Closed:** 2026-11-17, in 5a7835e7.
+
 **Source:** T-591 (the wagon's goods in Look's `Items` tab) · **Size:** S · **Needs:** — · **Status:** open
 
 The look panel names an item by `materialItemName(material, type)` (`src/ui/panels/look.ts`, `itemName`). For several of the default embark's goods the material and the type name overlap only partly, and the name repeats a word or reads backwards:

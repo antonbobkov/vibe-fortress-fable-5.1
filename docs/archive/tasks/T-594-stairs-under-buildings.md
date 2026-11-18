@@ -1,5 +1,7 @@
 # T-594 — Stairs cut into a floor that holds a building
 
+**Closed:** 2026-11-17, in eb43fb87.
+
 **Source:** T-589 (one Stairs tool; 03 lets up and up/down stairs be cut into a `floor`) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

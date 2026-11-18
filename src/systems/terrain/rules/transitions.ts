@@ -166,6 +166,19 @@ export function burnableTile(map: Map3D, i: TileIndex, facts: MaterialFacts): bo
 }
 
 /**
+ * `03` § Tile transitions: stairs are cut only into a `floor` that holds no building, planned or
+ * built, of any kind (furniture, a workshop, a door, a construction): nothing is carved under one.
+ */
+export function stairFloor(map: Map3D, i: TileIndex): boolean {
+  return map.kindAt(i) === TileKind.Floor && map.buildingAtTile(i) === 0;
+}
+
+/** A stair designation (up, down or up/down). */
+export function isStairDesignation(kind: Designation): boolean {
+  return kind === Designation.StairsUp || kind === Designation.StairsDown || kind === Designation.StairsUpDown;
+}
+
+/**
  * The precondition column of the table. `harvest` is not a terrain designation (07), so it never
  * passes here.
  */
@@ -184,14 +197,14 @@ export function precondition(map: Map3D, i: TileIndex, kind: Designation, facts:
         k === TileKind.StairsDown
       );
     case Designation.StairsUp:
-      // Carved from a wall, or cut into a floor.
-      return k === TileKind.Wall || k === TileKind.Floor;
+      // Carved from a wall, or cut into a floor that holds no building.
+      return k === TileKind.Wall || stairFloor(map, i);
     case Designation.StairsUpDown:
       // As up stairs, or a natural stair re-carved to lead both ways.
-      return k === TileKind.Wall || k === TileKind.Floor ||
+      return k === TileKind.Wall || stairFloor(map, i) ||
         ((k === TileKind.StairsUp || k === TileKind.StairsDown) && !constructed(map, i));
     case Designation.StairsDown:
-      return k === TileKind.Floor;
+      return stairFloor(map, i);
     case Designation.Ramp: {
       if (k !== TileKind.Wall) return false;
       const up = map.above(i);

@@ -426,7 +426,7 @@ export function runeLine(readers: ReaderSet, registry: Registry, strings: String
   const materials = registry.table<{ id: string; name: string }>('materials');
   const pieces = rune.metalPieces.map((piece) => {
     const item = readers.entities.get(piece, C.Item);
-    const name = item === undefined ? '' : materialItemName(materials.byIndex(item.material)?.name ?? '', { name: items.byIndex(item.type)?.name ?? '' });
+    const name = item === undefined ? '' : materialItemName(materials.byIndex(item.material)?.name ?? '', items.byIndex(item.type) ?? { name: '' });
     return strings.get('ui.look.rune_metal_piece', { item: name, n: METAL_RUNE_PENALTY_PERCENT });
   });
   const hours = rune.hoursToFull;
@@ -574,7 +574,7 @@ function channelName(readers: ReaderSet, registry: Registry, id: EntityId): stri
   const rec = it.get(id);
   if (rec === undefined) return '';
   const material = registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
-  const name = materialItemName(material, { name: it.def(rec.type)?.name ?? '' });
+  const name = materialItemName(material, it.def(rec.type) ?? { name: '' });
   const suffix = has(readers, '25') ? readers.of<MagicReader>('25').spellOf(id)?.suffix : undefined;
   return suffix === undefined ? name : `${name} ${suffix}`;
 }
@@ -582,7 +582,7 @@ function channelName(readers: ReaderSet, registry: Registry, id: EntityId): stri
 interface ItemsReaderLike {
   get(id: EntityId): { type: number; material: number; quality: number; count: number; flags: number; containerId: EntityId; age?: 1 | 2 } | undefined;
   value(id: EntityId): number;
-  def(type: number): { name: string; quality: boolean } | undefined;
+  def(type: number): { name: string; quality: boolean; category?: string } | undefined;
   inContainer(id: EntityId): EntityId[];
   tileOf(id: EntityId): TileIndex;
 }
@@ -630,7 +630,7 @@ function itemName(readers: ReaderSet, registry: Registry, id: EntityId): string 
   const material = agedMaterial(null, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
   const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
   const suffix = has(readers, '25') ? readers.of<MagicReader>('25').spellOf(id)?.suffix : undefined;
-  const name = enchantedName(readers, id, meal ?? materialItemName(material, { name: def?.name ?? '' }));
+  const name = enchantedName(readers, id, meal ?? materialItemName(material, def ?? { name: '' }));
   return `${rec.count} ${suffix === undefined ? name : `${name} ${suffix}`}`.trim();
 }
 
