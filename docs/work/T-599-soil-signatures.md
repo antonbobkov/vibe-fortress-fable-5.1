@@ -1,4 +1,4 @@
-# T-NEW — Two site signatures disagree with their biome's soil
+# T-599 — Two site signatures disagree with their biome's soil
 
 **Source:** [T-587-shallow-soil-loads](T-587-shallow-soil-loads.md) (its sites probe, `test/perf/t583_making_do_sites.test.ts`, counting the soil floors and walls of each biome) · **Size:** S · **Needs:** — · **Status:** open
 
