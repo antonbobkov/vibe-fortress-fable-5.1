@@ -1,4 +1,4 @@
-# T-NEW — Long log lines and hints can be read in full
+# T-608 — Long log lines and hints can be read in full
 
 **Source:** [T-605's audit](../../reports/audits/2026-11-18-t605-first-hour-ux.md), finding 2 · **Size:** M · **Needs:** — · **Status:** open
 
