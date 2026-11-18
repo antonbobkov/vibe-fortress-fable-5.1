@@ -34,6 +34,8 @@ import {
   checkFortressDefense,
   threeYearsWorld,
   fortressWitnesses,
+  squadRecord,
+  type SquadReach,
 } from '../scenarios/three_years_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
 import { CrowdWatch, type CrowdFigures } from '../scenarios/crowd-watch';
@@ -109,6 +111,8 @@ export interface ThreeYearsSeedResult {
   readonly drinksPerDwarfDay: string;
   readonly parties: PartyFigures;
   readonly crowds: { readonly doors: CrowdFigures; readonly hall: CrowdFigures; readonly stations: CrowdFigures; readonly fighting: CrowdFigures };
+  /** T-601: the strongest squad the fortress fielded, and how its sprung ambushes were answered. */
+  readonly squad: { readonly best: SquadReach | null; readonly answers: Readonly<Record<string, number>> };
 }
 
 export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHIFT): ThreeYearsSeedResult {
@@ -308,6 +312,7 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
     drinksPerDwarfDay,
     crowds: { doors: crowdWatch.doors, hall: crowdWatch.hall, stations: crowdWatch.stations, fighting: crowdWatch.fighting },
     parties: partyWatch.figures,
+    squad: squadRecord(state),
   };
   // Preserve the measurement even when a deterministic guarantee fails.
   console.log(`[three_years_seeds_detail] ${JSON.stringify(result)}`);

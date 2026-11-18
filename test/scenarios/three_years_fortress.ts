@@ -22,6 +22,7 @@ import type { TileIndex } from '@core/types';
 import { EmbarkSession } from '@systems/embark';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
+import { getSkill, weaponOf as wieldedWeapon } from '@systems/combat/melee';
 import type { ItemsReader } from '@systems/items';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { AnimalsReader } from '@systems/animals';
@@ -77,6 +78,22 @@ const WILD_QUIET_TICKS = TICKS_PER_DAY;
 const WILD_EPISODE_GAP_TICKS = TICKS_PER_DAY / 2;
 /** T-539: the squad sets out after wild animals once this many of its armed members stand this near its post. */
 const MUSTER_RADIUS = 3;
+/**
+ * T-601: the bars a squad clears to fight a sprung ambush larger than its armed soldiers, set from
+ * the ambush arena's rows with two medics (reports/audits/2026-11-18-t600-ambush-arena.md). The full
+ * squad, AMBUSH_SOLDIERS soldiers in steel at AMBUSH_SKILL (Proficient) and AMBUSH_MARKS marksdwarves,
+ * won 144 of 144 against 6 to 10 and lost 0.21 to 0.50 a fight; the soldiers alone won 24 of 24
+ * against 6 and lost 0.46, but 0.96 against 8, more than the 0.9 an ambush kills when the fortress
+ * hides. Both need cloth for the medics: without a medic the full squad loses 0.75 to 1.46 a fight.
+ */
+export const AMBUSH_SKILL = 10;
+export const AMBUSH_SOLDIERS = 5;
+export const AMBUSH_MARKS = 2;
+/** T-601: units of cloth in stock that the bars ask for: bandages for the one or two a fight wounds. */
+export const AMBUSH_CLOTH = 2;
+/** T-601: the largest ambush the full squad fights, and the soldiers alone. */
+export const AMBUSH_FULL_SIZE = 10;
+export const AMBUSH_SOLDIERS_SIZE = 6;
 /** The founders who stand in the squad: the woodcutter, the mason, the seventh, and the two miners. */
 const MILITIA: readonly number[] = [2, 3, 6, 0, 1];
 /** Barrels made before anything else at the carpenter's. */
@@ -279,6 +296,11 @@ export interface FortressState {
   ambushes?: AmbushCount[];
   /** T-575: the soldiers stood down from the squad for an ambush that outnumbers them, put back once the alert is down. */
   stoodDown?: number[];
+  /** T-601: how the sprung ambushes were answered, each by its first answer (journal only). */
+  ambushAnswers?: Record<string, number>;
+  /** T-601: the strongest squad the fortress has fielded, looked at once a day (journal only). */
+  bestSquad?: SquadReach;
+  squadSeenDay?: number;
   /** T-580: the gate's two watch squads, north door and south, each with its one watchman (0 while none). */
   watch?: { squadId: number; dwarfId: number }[];
   /** T-580: false where no watch is posted at the north door and no dog is trained: the defence fortress, whose kill corridor and traps lie before that door. */
@@ -1618,6 +1640,9 @@ export interface AmbushCount {
   outsideAtLock: number;
   /** Every dwarf seen in the squad since it sprang. */
   squad: number[];
+  /** T-601: the squad as the ambush found it, and the script's first answer to it. */
+  strength?: AmbushSquad;
+  answer?: string;
 }
 
 /**
@@ -1638,7 +1663,8 @@ function countAmbushes(w: TestWorld, state: FortressState, events: readonly { ty
       const p = ent.get(party, C.Party);
       if (!p || counts.some((c) => c.party === party)) continue;
       counts.push({ party, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, size: p.size, outdoors: onSurface(),
-        armed: squad.filter((id) => combat.weaponOf(id) !== 0).length, deaths: 0, soldiers: 0, fell: 0, outsideAtLock: -1, squad: [...squad] });
+        armed: squad.filter((id) => combat.weaponOf(id) !== 0).length, deaths: 0, soldiers: 0, fell: 0, outsideAtLock: -1, squad: [...squad],
+        strength: ambushSquad(w, state) });
     } else if (e.type === 'CreatureDied') {
       const id = Number(e['id']);
       for (const c of counts) {
@@ -1777,6 +1803,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   }
 
   keepGateWatch(w, state, adults);
+  trackSquad(w, state);
 
   // 4. Danger: a raid, a spotted thief, or a dangerous wild animal near the gate or a dwarf.
   // Each raises the hearth alert (civilians go in, the gate locks) and sends the squad.
@@ -1934,10 +1961,26 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     // 28 in ten days, its morale at the top of the scale, and no soldier struck it. So the
     // squad stays up and hunts the ambush's members indoors, the nearest first, from its post below,
     // however large the ambush outside.
+    // T-601: a squad that clears one of the ambush bars (AMBUSH_SOLDIERS soldiers in steel at
+    // Proficient, AMBUSH_MARKS marksdwarves, cloth for the medics) fights a sprung ambush outside of
+    // up to its bar's size instead: it musters at the gatehouse stair and is sent after every member,
+    // the nearest first, as a hunt after wolves is. In the ambush arena that squad won every fight
+    // against six to ten at a fraction of what the ambush kills while the fortress hides.
     const ambushOnly = raid && !atGate && indoors.length === 0 && intruders.length === 0;
-    const standingDown = ambushOnly && ambushIn.length === 0 && ambushSize > armedSoldiers(w, state, adults);
+    const ambushOutside = ambushOnly && ambushIn.length === 0;
+    const strength = ambushOutside ? ambushSquad(w, state) : undefined;
+    const fights = strength !== undefined && fightsAmbush(strength, ambushSize);
+    const standingDown = ambushOutside && !fights && ambushSize > armedSoldiers(w, state, adults);
     if (standingDown) standDown(w, state);
     else standUp(w, state, adults);
+    const answered = !ambushOnly ? 'with another threat' : ambushIn.length > 0 ? 'in the halls' : fights ? `fought (${ambushBar(strength!).bar})`
+      : standingDown ? 'stood down' : 'met at the gate';
+    for (const c of state.ambushes ?? []) {
+      if (c.answer !== undefined) continue;
+      c.answer = answered;
+      const tally = state.ambushAnswers ?? (state.ambushAnswers = {});
+      tally[answered] = (tally[answered] ?? 0) + 1;
+    }
     // T-539: wild animals alone are hunted by the squad together. It first musters at the gatehouse
     // stair, and sets out once SQUAD_SIZE of its armed members stand there. Sent out at once, each
     // soldier walked to the pack from wherever the alert found it, and since a struck wolf fights
@@ -1958,8 +2001,20 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       }
       if (withWeapons.length < members.length) command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: withWeapons });
     }
-    const mustering = muster && state.mustered !== true;
-    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}${standingDown ? ' stood down' : ''}:${armed}:${mustering ? 'muster' : ''}:${targets.join(',')}:${ambushIn.join(',')}`;
+    // T-601: the squad that fights an ambush musters as a hunt in metal does, until AMBUSH_SOLDIERS
+    // of its soldiers in steel stand at the post, and only its soldiers in steel and its
+    // marksdwarves set out; the rest shelter with the civilians and are put back once the alert is down.
+    const ambushMuster = fights && state.mustered !== true;
+    if (ambushMuster && musteredAt(w, state, gatehouseStairsTile, (id) => ambushKit(w, id) === 'steel', AMBUSH_SOLDIERS)) {
+      state.mustered = true;
+      const members = squad?.members ?? [];
+      const fit = members.filter((id) => ambushKit(w, id) !== '');
+      note('three_years_ambush_fight', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, size: ambushSize, bar: ambushBar(strength!).bar, ...strength });
+      if (fit.length < members.length) command(w, { type: 'SetSquadMembers', squadId: state.squadId, members: fit });
+    }
+    const mustering = (muster || ambushMuster) && state.mustered !== true;
+    const fought = fights && state.mustered === true ? sprungAmbushersOutside(w, gatehouseStairsTile) : [];
+    const answer = `${raid ? 'raid' : ''}${siege ? ' siege' : ''}${standingDown ? ' stood down' : ''}:${armed}:${mustering ? 'muster' : ''}:${targets.join(',')}:${ambushIn.join(',')}:${fought.join(',')}`;
     if (state.squadId !== 0 && state.answered !== answer) {
       state.answered = answer;
       command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'cancel' } });
@@ -1969,7 +2024,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       // T-518: below is behind the second line once it stands, and a siege, whose trollkin break
       // doors, is waited for there: a squad in the gatehouse, locked between the gate and the
       // vestibule, has no drink and no way back, and a siege outnumbers it at a broken gate.
-      const hunted = raid || mustering ? [...indoors, ...ambushIn] : armed ? huntable : indoors;
+      const hunted = raid || mustering ? [...indoors, ...ambushIn, ...fought] : armed ? huntable : indoors;
       for (const targetId of hunted) command(w, { type: 'SquadOrder', squadId: state.squadId, order: { kind: 'kill', targetId } });
       const below = line ? behindTheLine(w, state) : w.index(cx + 6, cy + 6, state.hallZ);
       const outdoors = (raid && !(siege && line) && !(ambushOnly && ambushIn.length > 0)) || hunted.length > indoors.length + ambushIn.length || mustering;
@@ -2148,9 +2203,10 @@ function standUp(w: TestWorld, state: FortressState, adults: readonly number[]):
 /**
  * T-539: at least SQUAD_SIZE of the squad's armed members stand within MUSTER_RADIUS of its post
  * (and a level of it), so it sets out after wild animals together. T-544: after a wolf or a bear
- * (`inMetal`), members armed in metal.
+ * (`inMetal`), members armed in metal. T-601: against an ambush, `need` members that pass `inMetal`
+ * (the soldiers in steel).
  */
-export function musteredAt(w: TestWorld, state: FortressState, post: number, inMetal = false): boolean {
+export function musteredAt(w: TestWorld, state: FortressState, post: number, inMetal: boolean | ((id: number) => boolean) = false, need = SQUAD_SIZE): boolean {
   const combat = w.readers.of<CombatReader>('16');
   const ent = w.game.world.entities;
   const members = combat.squads().find((sq) => sq.id === state.squadId)?.members ?? [];
@@ -2159,10 +2215,10 @@ export function musteredAt(w: TestWorld, state: FortressState, post: number, inM
   const pz = w.map.zOf(post);
   const there = members.filter((id) => {
     const p = ent.get(id, C.Position);
-    return p !== undefined && (inMetal ? armedInMetal(w, id) : combat.weaponOf(id) !== 0) && Math.abs(p.z - pz) <= 1 &&
-      Math.max(Math.abs(p.x - px), Math.abs(p.y - py)) <= MUSTER_RADIUS;
+    const fit = typeof inMetal === 'function' ? inMetal(id) : inMetal ? armedInMetal(w, id) : combat.weaponOf(id) !== 0;
+    return p !== undefined && fit && Math.abs(p.z - pz) <= 1 && Math.max(Math.abs(p.x - px), Math.abs(p.y - py)) <= MUSTER_RADIUS;
   });
-  return there.length >= SQUAD_SIZE;
+  return there.length >= need;
 }
 
 /** T-539: a wild animal in `attack` whose target is a creature of the fortress. */
@@ -2204,6 +2260,117 @@ export function armedInMetal(w: TestWorld, id: number): boolean {
 function squadInMetal(w: TestWorld, state: FortressState): boolean {
   const members = w.readers.of<CombatReader>('16').squads().find((sq) => sq.id === state.squadId)?.members ?? [];
   return members.filter((id) => armedInMetal(w, id)).length >= SQUAD_SIZE;
+}
+
+/** T-601: the squad as a sprung ambush finds it. */
+export interface AmbushSquad {
+  /** Soldiers in a steel helm, body armour and greaves with a steel weapon and shield, at AMBUSH_SKILL in the weapon's skill. */
+  steel: number;
+  /** Marksdwarves at AMBUSH_SKILL in the crossbow with a crossbow and bolts. */
+  marks: number;
+  /** Units of cloth in stock for the medics' bandages. */
+  cloth: number;
+}
+
+/** T-601: the bar the squad clears and the largest sprung ambush it fights (none and 0: it fights none). */
+export function ambushBar(s: AmbushSquad): { bar: 'full squad' | 'soldiers alone' | 'none'; size: number } {
+  if (s.steel < AMBUSH_SOLDIERS || s.cloth < AMBUSH_CLOTH) return { bar: 'none', size: 0 };
+  return s.marks >= AMBUSH_MARKS ? { bar: 'full squad', size: AMBUSH_FULL_SIZE } : { bar: 'soldiers alone', size: AMBUSH_SOLDIERS_SIZE };
+}
+
+/** T-601: the squad fights a sprung ambush of `size` (its members alive and still to come) outside. */
+export function fightsAmbush(s: AmbushSquad, size: number): boolean {
+  return size > 0 && size <= ambushBar(s).size;
+}
+
+/** T-601: what a dwarf brings to the ambush bars: a soldier in steel, a marksdwarf, or nothing (''). */
+export function ambushKit(w: TestWorld, id: number): 'steel' | 'marks' | '' {
+  const ent = w.game.world.entities;
+  const reg = w.game.registry;
+  const eq = ent.get(id, C.Equipment);
+  const weapon = wieldedWeapon(ent, reg, id);
+  if (eq === undefined || weapon === null || eq.weapon !== weapon.item) return '';
+  const skilled = getSkill(ent, reg, id, weapon.weaponDef.skill) >= AMBUSH_SKILL;
+  if (weapon.weaponDef.id === 'crossbow') {
+    const bolts = eq.quiver !== 0 && ent.alive(eq.quiver) ? (ent.get(eq.quiver, C.Item)?.count ?? 0) : 0;
+    return skilled && bolts > 0 ? 'marks' : '';
+  }
+  const steel = reg.table('materials').index('steel');
+  const inSteel = (item: number): boolean => item !== 0 && ent.alive(item) && ent.get(item, C.Item)?.material === steel;
+  return skilled && weapon.weaponDef.launcher === undefined && [eq.weapon, eq.shield, eq.armor.head, eq.armor.body, eq.armor.legs].every(inSteel) ? 'steel' : '';
+}
+
+/** T-601: the squad's members and the soldiers stood down from it, counted against the ambush bars, and the cloth in stock. */
+export function ambushSquad(w: TestWorld, state: FortressState): AmbushSquad {
+  const ent = w.game.world.entities;
+  const members = w.readers.of<CombatReader>('16').squads().find((sq) => sq.id === state.squadId)?.members ?? [];
+  const kits = [...new Set([...members, ...(state.stoodDown ?? [])])].filter((id) => ent.alive(id)).map((id) => ambushKit(w, id));
+  return { steel: kits.filter((k) => k === 'steel').length, marks: kits.filter((k) => k === 'marks').length,
+    cloth: w.readers.of<ItemsReader>('13').countAvailable({ category: 'textile/cloth' }) };
+}
+
+/** T-601: the living members of every sprung ambush on the map that stand outdoors, the nearest to `from` first. */
+function sprungAmbushersOutside(w: TestWorld, from: number): number[] {
+  const ent = w.game.world.entities;
+  const fx = w.map.xOf(from);
+  const fy = w.map.yOf(from);
+  const found: { id: number; d: number }[] = [];
+  for (const id of ent.with(C.Hostile)) {
+    const h = ent.get(id, C.Hostile);
+    const p = ent.get(id, C.Position);
+    if (!h || !p || !ent.alive(id) || h.stealthed === true || !sprungAmbusher(w, h.partyId)) continue;
+    if (!w.map.hasFlag(w.index(p.x, p.y, p.z), TileFlag.Outdoor)) continue;
+    found.push({ id, d: Math.max(Math.abs(p.x - fx), Math.abs(p.y - fy)) });
+  }
+  return found.sort((a, b) => a.d - b.d || a.id - b.id).map((f) => f.id);
+}
+
+/**
+ * T-601: the strongest squad a fortress fields, for the sweep's report: its members armed in metal
+ * (a metal weapon, helm, body armour and greaves), the metal of their body armour, their skill in
+ * their weapon, and its count against the ambush bars.
+ */
+export interface SquadReach {
+  day: number;
+  inMetal: number;
+  /** The body armour's metal of each member armed in metal, and its weapon skill, best first. */
+  metals: string[];
+  skills: number[];
+  steel: number;
+  marks: number;
+  bar: 'full squad' | 'soldiers alone' | 'none';
+}
+
+/** T-601: once a day, the squad is weighed and kept when it is the strongest yet (the bar, then steel, metal and skill). */
+function trackSquad(w: TestWorld, state: FortressState): void {
+  const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+  if (state.squadSeenDay === day) return;
+  state.squadSeenDay = day;
+  const ent = w.game.world.entities;
+  const combat = w.readers.of<CombatReader>('16');
+  const members = [...new Set([...(combat.squads().find((sq) => sq.id === state.squadId)?.members ?? []), ...(state.stoodDown ?? [])])].filter((id) => ent.alive(id));
+  const materials = w.game.registry.table<{ id: string }>('materials');
+  const metal = members.filter((id) => armedInMetal(w, id)).map((id) => {
+    const weapon = wieldedWeapon(ent, w.game.registry, id);
+    return { metal: materials.byIndex(ent.get(combat.armorOf(id).body, C.Item)?.material ?? -1)?.id ?? '?',
+      skill: weapon === null ? 0 : getSkill(ent, w.game.registry, id, weapon.weaponDef.skill) };
+  }).sort((a, b) => b.skill - a.skill);
+  const strength = ambushSquad(w, state);
+  const now: SquadReach = { day, inMetal: metal.length, metals: metal.map((m) => m.metal), skills: metal.map((m) => m.skill),
+    steel: strength.steel, marks: strength.marks, bar: ambushBar(strength).bar };
+  const rank = (s: SquadReach): number[] => [{ none: 0, 'soldiers alone': 1, 'full squad': 2 }[s.bar], s.steel, s.inMetal, s.skills.reduce((a, b) => a + b, 0)];
+  const best = state.bestSquad;
+  const better = best === undefined || (() => {
+    const [a, b] = [rank(now), rank(best)];
+    const i = a.findIndex((v, k) => v !== b[k]);
+    return i >= 0 && a[i]! > b[i]!;
+  })();
+  if (better) state.bestSquad = now;
+}
+
+/** T-601: the journal's record of the squad against ambushes: the strongest squad fielded and how each sprung ambush was answered. */
+export function squadRecord(state: FortressState): { best: SquadReach | null; answers: Record<string, number> } {
+  return { best: state.bestSquad ?? null, answers: { ...(state.ambushAnswers ?? {}) } };
 }
 
 function speciesName(w: TestWorld, id: number): string {

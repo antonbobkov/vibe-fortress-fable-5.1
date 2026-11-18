@@ -17,9 +17,14 @@ interface SeedFile {
   runtimeCommit?: string;
   needDeaths?: number;
   invariants?: string[];
-  result: { seed: string; peril: number; y1Pop: number; y3Pop: number; dwarfDeaths: number; extinctDay: number | null };
+  result: { seed: string; peril: number; y1Pop: number; y3Pop: number; dwarfDeaths: number; extinctDay: number | null; squad?: SquadFile };
 }
-interface Sample { shift: number; commits: string[]; rows: SweepSeedRow[]; figures: SweepFigures; invariants: string[] }
+/** T-601: the strongest squad a fortress fielded and how its sprung ambushes were answered (three_years_seeds.test.ts). */
+interface SquadFile {
+  best: { day: number; inMetal: number; metals: string[]; skills: number[]; steel: number; marks: number; bar: string } | null;
+  answers: Record<string, number>;
+}
+interface Sample { shift: number; commits: string[]; rows: SweepSeedRow[]; figures: SweepFigures; invariants: string[]; squads: Map<string, SquadFile> }
 
 const dir = process.env['THREE_YEARS_SWEEP_SAMPLES'] ?? '.vite/three-years-sweep';
 const shiftDirs = existsSync(dir) ? readdirSync(dir).filter((name) => /^shift-\d+$/.test(name)) : [];
@@ -31,8 +36,35 @@ const samples: Sample[] = shiftDirs.map((name) => {
     needDeaths: needDeaths ?? 0, extinctDay: result.extinctDay ?? null,
   })).sort((a, b) => a.seed.localeCompare(b.seed, 'en', { numeric: true }));
   const invariants = files.flatMap((f) => (f.invariants ?? []).map((text) => `${f.result.seed}: ${text}`));
-  return { shift: Number(name.slice('shift-'.length)), commits: [...new Set(files.map((f) => f.runtimeCommit ?? '?'))], rows, figures: sweepFigures(rows), invariants };
+  const squads = new Map(files.filter((f) => f.result.squad !== undefined).map((f) => [f.result.seed, f.result.squad!] as const));
+  return { shift: Number(name.slice('shift-'.length)), commits: [...new Set(files.map((f) => f.runtimeCommit ?? '?'))], rows, figures: sweepFigures(rows), invariants, squads };
 }).sort((a, b) => a.shift - b.shift);
+
+/**
+ * T-601: the squad against ambushes, pooled over the sweeps: how many fortress-timelines cleared each
+ * ambush bar, how their sprung ambushes were answered, and the strongest squads they fielded.
+ */
+function squadLines(samples: readonly Sample[]): string[] {
+  const all = samples.flatMap((s) => [...s.squads.values()]);
+  if (all.length === 0) return [];
+  const bars = (bar: string): number => all.filter((q) => q.best?.bar === bar).length;
+  const answers: Record<string, number> = {};
+  for (const q of all) for (const [k, n] of Object.entries(q.answers)) answers[k] = (answers[k] ?? 0) + n;
+  const inMetal: Record<number, number> = {};
+  for (const q of all) inMetal[q.best?.inMetal ?? 0] = (inMetal[q.best?.inMetal ?? 0] ?? 0) + 1;
+  const metals: Record<string, number> = {};
+  for (const q of all) for (const m of q.best?.metals ?? []) metals[m] = (metals[m] ?? 0) + 1;
+  const skills = all.flatMap((q) => q.best?.skills ?? []).sort((a, b) => a - b);
+  const steel = Math.max(0, ...all.map((q) => q.best?.steel ?? 0));
+  const marks = Math.max(0, ...all.map((q) => q.best?.marks ?? 0));
+  const list = (r: Record<string | number, number>): string => Object.entries(r).map(([k, n]) => `${k}: ${n}`).join(', ') || 'none';
+  return [
+    `**Squad against ambushes (T-601)**, over ${all.length} fortress-timelines: cleared the full squad's bar ${bars('full squad')}, the soldiers' bar ${bars('soldiers alone')}; most soldiers in steel at Proficient in one fortress ${steel}, marksdwarves ${marks}.`,
+    `Sprung ambushes by the script's first answer: ${list(answers)}.`,
+    `Strongest squad by day 336, members armed in metal (fortress-timelines): ${list(inMetal)}; their body armour's metal (soldiers): ${list(metals)}; their weapon skill: ${skills.length ? `median ${skills[Math.floor(skills.length / 2)]}, best ${skills[skills.length - 1]}` : 'none'}.`,
+    '',
+  ];
+}
 
 const row = (f: SweepFigures): string => [f.alive, f.grown, f.hungry, f.living, f.deaths, f.extinct, f.needDeaths].join(' | ');
 
@@ -48,6 +80,10 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
     const cell = (seed: string, f: (r: SweepSeedRow) => string): string => samples.map((s) => {
       const r = s.rows.find((x) => x.seed === seed);
       return r ? f(r) : '–';
+    }).join(', ');
+    const squadCell = (seed: string): string => samples.map((s) => {
+      const best = s.squads.get(seed)?.best;
+      return best ? `${best.inMetal} ${best.metals[0] ?? ''} ${best.skills[0] ?? ''}`.replace(/\s+/g, ' ').trim() : '–';
     }).join(', ');
     const extinct = (seed: string): string => samples.flatMap((s) => s.rows.filter((r) => r.seed === seed && r.extinctDay !== null)
       .map((r) => `${s.shift}: ${r.extinctDay}`)).join('; ');
@@ -67,16 +103,17 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
       '',
       `If accepted: \`SWEEP_REFERENCE\` = \`${JSON.stringify(pooled)}\`; \`SWEEP_MEASURED\` = \`${JSON.stringify(improvedSweep(MEASURED, pooled))}\`.`,
       '',
-      '| Seed | Year 1 by shift | Year 3 by shift | Deaths by shift | Need deaths by shift | Extinct (shift: day) |',
-      '|---|---|---|---|---|---|',
-      ...seeds.map((seed) => `| ${seed} | ${cell(seed, (r) => String(r.y1))} | ${cell(seed, (r) => String(r.y3))} | ${cell(seed, (r) => String(r.deaths))} | ${cell(seed, (r) => String(r.needDeaths))} | ${extinct(seed)} |`),
+      '| Seed | Year 1 by shift | Year 3 by shift | Deaths by shift | Need deaths by shift | Extinct (shift: day) | Strongest squad by shift (in metal, best skill) |',
+      '|---|---|---|---|---|---|---|',
+      ...seeds.map((seed) => `| ${seed} | ${cell(seed, (r) => String(r.y1))} | ${cell(seed, (r) => String(r.y3))} | ${cell(seed, (r) => String(r.deaths))} | ${cell(seed, (r) => String(r.needDeaths))} | ${extinct(seed)} | ${squadCell(seed)} |`),
       '',
       `Invariant findings (each fails its seed's job, not the verdict): ${samples.flatMap((s) => s.invariants.map((text) => `shift ${s.shift}, ${text}`)).join('; ') || 'none'}.`,
       '',
+      ...squadLines(samples),
     ];
     writeFileSync(join(dir, 'verdict.md'), lines.join('\n'));
     writeFileSync(join(dir, 'verdict.json'), JSON.stringify({ pooled, reference: REFERENCE, measured: MEASURED, check, improved: improvedSweep(MEASURED, pooled),
-      samples: samples.map((s) => ({ shift: s.shift, commits: s.commits, figures: s.figures, rows: s.rows, invariants: s.invariants })) }, null, 2) + '\n');
+      samples: samples.map((s) => ({ shift: s.shift, commits: s.commits, figures: s.figures, rows: s.rows, invariants: s.invariants, squads: Object.fromEntries(s.squads) })) }, null, 2) + '\n');
     console.log(lines.join('\n'));
     // The sweeps are one commit's, shifted 0 to N-1, every seed in each, so two verdicts compare like with like.
     expect(commits, 'one commit').toHaveLength(1);
