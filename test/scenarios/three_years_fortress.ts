@@ -2307,7 +2307,7 @@ function squadInMetal(w: TestWorld, state: FortressState): boolean {
 
 /**
  * T-603: where ambushes come (perils 2 and 4) a player builds toward the squad the ambush bars ask
- * for (T-601): from the winter of the first year, once the fortress has STRONG_SQUAD_ADULTS adults, the squad is
+ * for (T-601): from the second year, once the fortress has STRONG_SQUAD_ADULTS adults, the squad is
  * STRONG_SOLDIERS soldiers taken from the immigrants nobody else needs, short swords their weapon
  * (wooden ones from the carpenter until the forge has steel),
  * who train full time in a barracks dug off the hall level's corridors under a Warden (16 §
@@ -2318,16 +2318,16 @@ function squadInMetal(w: TestWorld, state: FortressState): boolean {
  * sword, shield, helm, mail shirt and greaves ahead of its other orders once steel is smelted, which
  * such a fortress starts from STRONG_STEEL_DAY (three_years_economy.ts).
  */
-export const STRONG_SQUAD_DAY = 3 * DAYS_PER_YEAR / 4;
-export const STRONG_SQUAD_ADULTS = 16;
+export const STRONG_SQUAD_DAY = DAYS_PER_YEAR;
+export const STRONG_SQUAD_ADULTS = 24;
 /**
  * T-603: the squad is one soldier more than the bar's five, so that every soldier has a sparring
  * partner (16 § Training: the odd one drills alone at half the experience; in `three-years-p2-3`
  * the fifth of five stood at Novice when the others were Skilled) and a fallen one does not drop the squad under the bar.
  */
 export const STRONG_SOLDIERS = AMBUSH_SOLDIERS + 1;
-export const MARKS_ADULTS = 22;
-export const TRAIN_FLOOR_ADULTS = 12;
+export const MARKS_ADULTS = 30;
+export const TRAIN_FLOOR_ADULTS = 20;
 /** T-603: the barracks is a block of rock this size, dug this many days before the squad trains. */
 export const BARRACKS_W = 4;
 export const BARRACKS_H = 5;

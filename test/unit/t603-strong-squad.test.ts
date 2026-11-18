@@ -179,3 +179,37 @@ describe('T-603 the alert after a fought ambush', () => {
     expect(w.game.world.fortress.alert).toBe('hearth');
   });
 });
+
+describe('T-603 a marksdwarf shoots its last bolt at the range', () => {
+  it('clears the quiver slot that names the stack, as a shot does (16 § Equipment)', () => {
+    // An immigrant hunter arrives with its bolts in its quiver slot (21); trained as a marksdwarf, its
+    // practice dropped the last bolt at the target while the slot still named it.
+    const w = new TestWorld({ seed: 't603-last-bolt', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const ent = w.game.world.entities;
+    // Five marksdwarves with one bolt each in the quiver slot: a practice shot breaks one bolt in five and drops the others at the target.
+    const tiles = Array.from({ length: 6 }, (_, i) => w.index(10 + i, 10, Z));
+    expect(w.game.world.applyCommand({ type: 'CreateZone', zoneType: 'barracks', tiles }).ok).toBe(true);
+    w.build('archery_target', tiles[5]!);
+    const marks = tiles.slice(0, 5).map((at) => {
+      const id = w.spawnDwarf({ at, skills: { crossbow: 2 } });
+      equip(w, id, at, { weapon: ['crossbow', 'iron'] });
+      const bolt = w.spawnItem('bolt', 'iron', at, 1, 1);
+      w.items.attachToCarrier(bolt, id);
+      w.items.setOwner(bolt, id);
+      ent.add(id, C.Equipment, { ...ent.get(id, C.Equipment)!, quiver: bolt });
+      return id;
+    });
+    expect(w.game.world.applyCommand({ type: 'CreateSquad', name: 'Bolts' }).ok).toBe(true);
+    const squadId = w.readers.of<CombatReader>('16').squads()[0]!.id;
+    expect(w.game.world.applyCommand({ type: 'SetSquadEquipment', squadId, equipment: { ranged: true, weaponClass: 'crossbow' } }).ok).toBe(true);
+    expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: marks }).ok).toBe(true);
+    expect(w.game.world.applyCommand({ type: 'SetSquadMode', squadId, mode: 'train' }).ok).toBe(true);
+    w.until(() => w.events('TrainingSession').length >= marks.length, 2000);
+    // Each slot is empty or names a bolt its marksdwarf carries: not one dropped at the target, nor one
+    // another marksdwarf has since picked up there.
+    for (const id of marks) {
+      const slot = ent.get(id, C.Equipment)!.quiver;
+      expect(slot === 0 || (ent.get(slot, C.Item)?.carriedBy === id && ent.get(slot, C.Position) === undefined), `marksdwarf ${id}'s quiver slot`).toBe(true);
+    }
+  }, 60_000);
+});
