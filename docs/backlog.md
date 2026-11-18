@@ -13,5 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-601 | [The three-year script fights a sprung ambush with a strong squad](work/T-601-script-fights-ambushes.md) | [T-600](archive/tasks/T-600-peril4-ambush-arena.md) | — | open |
 | T-602 | [The Thane wishes for what the fortress cannot make](work/T-602-whims-the-fortress-cannot-meet.md) | [T-588](archive/tasks/T-588-fixture-makes-do.md) | — | open |
+| T-603 | [The three-year script builds a squad that can fight an ambush](work/T-603-script-builds-strong-squad.md) | [T-601](work/T-601-script-fights-ambushes.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

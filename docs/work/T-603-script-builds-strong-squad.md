@@ -1,4 +1,4 @@
-# T-NEW — The three-year script builds a squad that can fight an ambush
+# T-603 — The three-year script builds a squad that can fight an ambush
 
 **Source:** [T-601's report](../../reports/data/2026-11-18-t601-script-fights-ambushes.md) (the script fights a sprung ambush when its squad clears the arena's bars; no fortress of the sweep reached one) · **Size:** L · **Needs:** — · **Status:** open
 
