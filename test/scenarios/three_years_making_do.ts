@@ -77,6 +77,8 @@ const CANDLES_KEPT = 10;
 const FERTILIZER_KEPT = 20;
 /** The whims the strand answers: things the fortress makes. */
 const ANSWERED_WHIMS: ReadonlySet<string> = new Set(['whim_fine_meal', 'whim_spirits', 'whim_mead']);
+/** The dining hall's corners, from the fortress centre, where a lantern stands out of the way (the hall is cx..cx+4, cy+4..cy+8). */
+const LANTERN_CORNERS: readonly (readonly [number, number])[] = [[0, 4], [4, 4], [0, 8], [4, 8]];
 const SEASON_TICKS = DAYS_PER_SEASON * TICKS_PER_DAY;
 /**
  * The Thane's share goes back to the stocks this many ticks before the season ends and the whim is
@@ -148,6 +150,12 @@ function moveOrder(w: TestWorld, workshopId: number, recipeId: string, first: bo
   const last = (w.game.world.entities.get(workshopId, C.Workshop)?.orders.length ?? 0) - 1;
   const to = first ? 0 : last;
   if (at >= 0 && at !== to) command(w, { type: 'ReorderWorkOrder', workshopId, from: at, to });
+}
+
+/** Moves a workshop's last order (one just added) to `to`. */
+function moveLast(w: TestWorld, workshopId: number, to: number): void {
+  const last = (w.game.world.entities.get(workshopId, C.Workshop)?.orders.length ?? 0) - 1;
+  if (last > to) command(w, { type: 'ReorderWorkOrder', workshopId, from: last, to });
 }
 
 /** The fortress's own items of a type (and material) that nothing holds: not forbidden, reserved, owned, installed or carried. */
@@ -265,6 +273,17 @@ export function checkMakingDo(w: TestWorld, state: FortressState, day: number): 
       standingOrders(w, still, [{ recipeId: 'distill', threshold: SPIRITS_KEPT }]);
     }
     keepThreshold(w, still, 'distill', wanting('whim_spirits') ? SPIRITS_FOR_WHIM : SPIRITS_KEPT);
+    // T-602: a batch for the Thane ahead of the brew (its maintain order stands behind the brew, which
+    // keeps the still busy all season), once, while the fortress has less than the whim asks for.
+    // Removed once the share is set aside or the whim has passed.
+    const distill = w.game.registry.table('recipes').index('distill');
+    const once = (w.game.world.entities.get(still, C.Workshop)?.orders ?? []).findIndex((o) => o.mode === 'once' && o.recipe === distill);
+    const deepfire = items.countAvailable({ type: w.game.registry.table('items').index('drink'), materialId: w.game.registry.table('materials').index('deepfire') });
+    if (!wanting('whim_spirits')) {
+      if (once >= 0) command(w, { type: 'RemoveWorkOrder', workshopId: still, index: once });
+    } else if (once < 0 && deepfire < (w.game.registry.table<{ id: string; count: number }>('whims').byId('whim_spirits')?.count ?? 0)) {
+      if (command(w, { type: 'AddWorkOrder', workshopId: still, order: { recipeId: 'distill', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveLast(w, still, 0);
+    }
     if (wanting('whim_mead') && items.available('honey') >= MEAD_HONEY && orderIndex(w, still, 'brew_mead') < 0) {
       if (command(w, { type: 'AddWorkOrder', workshopId: still, order: { recipeId: 'brew_mead', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveOrder(w, still, 'brew_mead', true);
     }
@@ -288,6 +307,28 @@ export function checkMakingDo(w: TestWorld, state: FortressState, day: number): 
   const plants = w.readers.of<PlantsReader>('07');
   for (const zoneId of buildings.zonesOfType('farm_plot')) {
     if (!plants.plotFertilize(zoneId)) command(w, { type: 'SetZoneSetting', zoneId, key: 'fertilize', value: true });
+  }
+
+  // T-602: a lantern in the dining hall when the Thane wishes for one (the draw asks for its glass
+  // block or sand and its candle at hand): the kiln fires the glass, then the lantern, which goes in a
+  // corner of the hall. It stays, so a later lantern whim is met as it is drawn.
+  const kiln = built('kiln');
+  if (whim?.id === 'whim_lantern' && kiln !== 0 && state.diningHallSetup && buildings.byType('lantern').length === 0) {
+    if (items.available('lantern') > 0) {
+      for (const [dx, dy] of LANTERN_CORNERS) {
+        const origin = w.index(state.cx + dx, state.cy + dy, state.hallZ);
+        if (buildings.at(origin) !== 0 || buildings.ghost('lantern', origin, 0).reason !== null) continue;
+        if (command(w, { type: 'PlaceBuilding', buildingType: 'lantern', origin, orientation: 0, materialChoice: 0, priority: BUILD }).ok) {
+          (state.hallFurniture ??= []).push({ type: 'lantern', origin, priority: BUILD });
+          break;
+        }
+      }
+    } else if (orderIndex(w, kiln, 'make_lantern') < 0) {
+      if (command(w, { type: 'AddWorkOrder', workshopId: kiln, order: { recipeId: 'make_lantern', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveLast(w, kiln, 0);
+      const glass = items.countAvailable({ type: w.game.registry.table('items').index('stone_block'), materialId: w.game.registry.table('materials').index('glass') });
+      if (glass === 0 && orderIndex(w, kiln, 'make_glass_block') < 0 &&
+          command(w, { type: 'AddWorkOrder', workshopId: kiln, order: { recipeId: 'make_glass_block', mode: 'once', remaining: 1, priority: ROUTINE } }).ok) moveLast(w, kiln, 0);
+    }
   }
 
   // A candle stand between the dining hall's two tables lights every seat.

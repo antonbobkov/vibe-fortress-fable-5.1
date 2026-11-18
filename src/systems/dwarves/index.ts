@@ -30,7 +30,7 @@ import { SMOKE_RADIUS } from '@systems/materials/constants';
 import { TALLOW_SMOKE_PERMILLE } from '@systems/buildings/constants';
 import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
 import { SMOKEHOUSE_RECIPES, dwarvesNear } from '@systems/morale/thoughts';
-import { WHIMS_STREAM, whimMet, whimPossible, whimRows, type Whim } from './whims';
+import { WHIMS_STREAM, whimFacts, whimMet, whimPossible, whimRows, type Whim } from './whims';
 
 export { makeReader, type DwarvesReader } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
@@ -212,7 +212,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       this.whim = null;
     }
     if (thane === 0) return;
-    const possible = rows.filter((row) => whimPossible(ctx.readers, ctx.registry, row));
+    const facts = whimFacts(this.reader(), ctx.world.entities);
+    const possible = rows.filter((row) => whimPossible(ctx.readers, ctx.registry, row, facts));
     if (possible.length === 0) return;
     const row = possible[ctx.world.rngFor(WHIMS_STREAM).int(0, possible.length - 1)] as (typeof possible)[number];
     this.whim = { id: row.id, setTick: ctx.tick };

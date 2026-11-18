@@ -176,6 +176,8 @@ describe('T-565 the Thane\'s whim', () => {
     room(none, 10, 10, 8, 5);
     dwarf(none, none.index(12, 12, Z));
     none.build('kiln', none.index(14, 11, Z), 'granite');
+    none.spawnItem('stone_block', 'glass', none.index(16, 13, Z));
+    none.spawnItem('candle', 'tallow', none.index(17, 13, Z));
     none.step(10);
     expect(none.events('SeasonChanged').length).toBe(1);
     expect(none.events('WhimSet')).toEqual([]);
@@ -186,12 +188,16 @@ describe('T-565 the Thane\'s whim', () => {
     const thane = dwarf(w, w.index(12, 12, Z));
     thaneOf(w, thane);
     w.build('kiln', w.index(14, 11, Z), 'granite');
+    // The glass block and the candle a lantern takes (10 § The Thane's whim: its inputs at hand).
+    w.spawnItem('stone_block', 'glass', w.index(16, 13, Z));
+    w.spawnItem('candle', 'tallow', w.index(17, 13, Z));
     w.step(10);
     const set = w.events('WhimSet');
     expect(set.length).toBe(1);
     expect(set[0]).toMatchObject({ thaneId: thane });
-    // A kiln makes lanterns and quality goods; nothing it makes is mead, ivory or a meal.
-    expect(['whim_lantern', 'whim_masterwork']).toContain(set[0]?.['whimId']);
+    // A kiln makes lanterns and quality goods; nothing it makes is mead, ivory or a meal, and no
+    // dwarf of level 0 could roll a masterwork.
+    expect(set[0]?.['whimId']).toBe('whim_lantern');
     expect(w.readers.of<DwarvesReader>('10').whim()).toMatchObject({ id: set[0]?.['whimId'], met: false });
   }, 60_000);
 
