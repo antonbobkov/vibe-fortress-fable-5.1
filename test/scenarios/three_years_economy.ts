@@ -663,7 +663,8 @@ export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): 
       const recipeId = recipes.byIndex(o.recipe)?.id;
       if (recipeId === undefined) continue;
       command(w, { type: 'AddWorkOrder', workshopId: move.twin, order: { recipeId, mode: o.mode, ...(o.mode === 'once' ? { remaining: o.remaining } : { threshold: o.threshold }),
-        priority: o.priority, ...(o.materialFilter === null ? {} : { materialFilter: o.materialFilter }), ...(o.targetType === undefined ? {} : { targetType: o.targetType }) } });
+        priority: o.priority, ...(o.materialFilter === null ? {} : { materialFilter: o.materialFilter }), ...(o.targetType === undefined ? {} : { targetType: o.targetType }),
+        ...(o.memorialDwarfId === undefined ? {} : { memorialDwarfId: o.memorialDwarfId }) } });
     }
     const worker = old ? old.assignedWorker : move.worker;
     if (worker !== 0) command(w, { type: 'SetWorkshopWorker', workshopId: move.twin, dwarfId: worker }, ['not_found', 'no_labor']);

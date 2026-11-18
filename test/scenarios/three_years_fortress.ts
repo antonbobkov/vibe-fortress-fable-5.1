@@ -16,7 +16,7 @@ import { Map3D } from '@core/map3d';
 import { generateLocal } from '@systems/terrain/generate';
 import { LOCAL_MAP_Z, TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import type { Registry } from '@core/registry';
 import type { TileIndex } from '@core/types';
 import { EmbarkSession } from '@systems/embark';
@@ -202,6 +202,19 @@ export interface Dormitory {
 export const DORMITORY_W = 4;
 export const DORMITORY_H = 5;
 
+/** T-582: a tomb is three tiles by four, dug off a corridor of the hall level once a dwarf has died. */
+export const TOMB_W = 3;
+export const TOMB_H = 4;
+
+/** T-582: the fortress's dead: its tombs, the deaths read so far, and the dead a slab was ordered for. */
+export interface Burial {
+  day: number;
+  eventsRead: number;
+  readonly dead: number[];
+  readonly tombs: { readonly tiles: number[]; zoneId: number }[];
+  readonly memorials: number[];
+}
+
 export interface FortressState {
   readonly economy: EconomyState;
   readonly cx: number;
@@ -276,6 +289,8 @@ export interface FortressState {
    * without a room of its own sleeps in a bed and not on the floor (10 § Sleeping: the floor rests less and thinks worse of it).
    */
   dormitories?: Dormitory[];
+  /** T-582: the tombs dug once a dwarf has died, and the dead a memorial slab has been ordered for. */
+  burial?: Burial;
   forgePlaced: boolean;
   /** Trees around the settlement, felled in batches as the log stock runs down. */
   readonly timberTiles: number[];
@@ -1143,6 +1158,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
     }
   }
   keepDormitories(w, state, livingPop);
+  keepTheDead(w, state);
 }
 
 /**
@@ -1194,18 +1210,23 @@ export function keepDormitories(w: TestWorld, state: FortressState, livingPop: n
  * level has no such block.
  */
 export function dormitorySite(w: TestWorld, state: FortressState): number[] | null {
+  return hallBlockSite(w, state, DORMITORY_W, DORMITORY_H);
+}
+
+/** T-582: a block of rock `width` by `height`, either way round, chosen as `dormitorySite` chooses a dormitory's. */
+export function hallBlockSite(w: TestWorld, state: FortressState, width: number, height: number): number[] | null {
   const map = w.map, z = state.hallZ;
   const buildings = w.readers.of<BuildingsReader>('14');
   const hallLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
   const planned = new Set<number>([...state.economy.workings, ...(state.dormitories ?? []).flatMap((d) => d.tiles),
     ...state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, z)]), ...(state.economy.larder?.tiles ?? []),
-    ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? [])]);
+    ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? []), ...(state.burial?.tombs ?? []).flatMap((t) => t.tiles)]);
   const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) &&
     map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t);
   const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
     w.readers.pathing.labelOf(t, 'walker') === hallLabel;
   let best: number[] | null = null, bestDistance = Infinity;
-  for (const [rw, rh] of [[DORMITORY_W, DORMITORY_H], [DORMITORY_H, DORMITORY_W]] as const) {
+  for (const [rw, rh] of [[width, height], [height, width]] as const) {
     for (let y0 = 2; y0 + rh <= map.h - 2; y0 += 1) for (let x0 = 2; x0 + rw <= map.w - 2; x0 += 1) {
       const distance = Math.abs(x0 + rw / 2 - state.cx - 6) + Math.abs(y0 + rh / 2 - state.cy - 6);
       if (distance >= bestDistance) continue;
@@ -1229,6 +1250,179 @@ export function dormitorySite(w: TestWorld, state: FortressState): number[] | nu
     }
   }
   return best;
+}
+
+/**
+ * T-582: the fortress buries its dead, as a player does. A body left unburied gives every dwarf the
+ * standing `unburied_dead` (15 § Grief) and holds the hall spirit under what immigration asks
+ * (21); the script made no coffin, and every body lay where it fell to the end of the run. Once a
+ * dwarf has died the script digs a tomb off a corridor of the hall level, a step ahead of routine
+ * work, and keeps a free coffin ahead of the unburied dead: placed in the tomb, made at the mason's
+ * of stone (or at the carpenter's of wood when no stone is free) when none is in stock, and 14's
+ * `bury` job, a step ahead of routine hauling, carries the body there. A dead dwarf with no intact body (rotted to a skeleton, or gone) gets a memorial slab
+ * that names it, placed in the tomb (14 § Burial), whichever comes first.
+ */
+export function keepTheDead(w: TestWorld, state: FortressState): void {
+  const day = Math.floor(w.tick / TICKS_PER_DAY);
+  const burial = state.burial ??= { day: -1, eventsRead: 0, dead: [], tombs: [], memorials: [] };
+  if (burial.day === day) return;
+  burial.day = day;
+  const events = w.allEvents();
+  const dwarf = w.game.registry.table('creatures').index('dwarf');
+  for (; burial.eventsRead < events.length; burial.eventsRead += 1) {
+    const e = events[burial.eventsRead]!;
+    if (e.type === 'CreatureDied' && e['species'] === dwarf) burial.dead.push(e['id'] as number);
+  }
+  if (burial.dead.length === 0) return;
+  const ent = w.game.world.entities;
+  const map = w.map;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+
+  // The tombs: dug, then zoned once every tile is open.
+  for (const tomb of burial.tombs) {
+    if (tomb.zoneId !== 0) continue;
+    if (!tomb.tiles.every((t) => map.kindAt(t) === TileKind.Floor)) {
+      // A designation lost before it was dug is asked for again.
+      const rock = tomb.tiles.filter((t) => map.kindAt(t) === TileKind.Wall && map.designationAt(t) === 0);
+      if (rock.length > 0) command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE - 1, tiles: rock });
+      continue;
+    }
+    const free = tomb.tiles.filter((t) => buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('tomb', t));
+    if (free.length > 0 && command(w, { type: 'CreateZone', zoneType: 'tomb', tiles: free }).ok) tomb.zoneId = bSystem.lastCreatedZone;
+  }
+  const site = (): number => {
+    for (const tomb of burial.tombs) {
+      if (tomb.zoneId === 0) continue;
+      const t = tombSite(w, state, tomb.tiles);
+      if (t >= 0) return t;
+    }
+    return -1;
+  };
+
+  // The unburied bodies, and the coffins standing or placed for them, with one more ahead.
+  let bodies = 0;
+  for (const id of ent.with(C.Corpse, C.Item)) {
+    const corpse = ent.get(id, C.Corpse)!;
+    if (corpse.dwarfName !== null && corpse.memorialized !== true) bodies += 1;
+  }
+  const coffins = buildings.byType('coffin');
+  const placed = coffins.filter((id) => buildings.get(id)?.state !== 'built').length;
+  const free = buildings.freeCoffins().length;
+  let wanted = bodies + 1 - free - placed;
+  for (let t = wanted > 0 ? site() : -1; wanted > 0 && t >= 0; t = site()) {
+    if (buildings.ghost('coffin', t, 0).reason !== null) break;
+    if (!command(w, { type: 'PlaceBuilding', buildingType: 'coffin', origin: t, orientation: 0, materialChoice: 0, priority: ROUTINE }).ok) break;
+    wanted -= 1;
+  }
+  // A body waiting for its hauler goes a step ahead of routine hauling, with the food chain: on
+  // `three-years-p4-1` the first coffin stood on day 184 and the body, at the stair's foot, was
+  // carried to it on day 194. The tomb is dug a step ahead too.
+  const jobs = w.readers.of<JobsReader>('11');
+  for (const job of jobs.list('open')) {
+    if (jobs.typeOf(job.id) === 'bury' && job.priority > ROUTINE - 1) command(w, { type: 'SetJobPriority', jobId: job.id, priority: ROUTINE - 1 });
+  }
+  // Every tomb full (or none yet): another is dug, one at a time.
+  if (wanted > 0 && burial.tombs.every((tomb) => tomb.zoneId !== 0)) {
+    const tiles = hallBlockSite(w, state, TOMB_W, TOMB_H);
+    if (tiles !== null) {
+      burial.tombs.push({ tiles, zoneId: 0 });
+      command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE - 1, tiles });
+    }
+  }
+
+  // The coffins still to make: those the free ones fall short of, less those in stock and on order.
+  const types = w.game.registry.table('items');
+  const recipes = w.game.registry.table('recipes');
+  const coffin = types.index('coffin'), slab = types.index('memorial_slab');
+  let loose = 0;
+  const slabs: number[] = [];
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if ((it.flags & (ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) continue;
+    if (it.type === coffin) loose += it.count;
+    else if (it.type === slab && it.memorialDwarfId !== undefined) slabs.push(it.memorialDwarfId);
+  }
+  const shops = ['mason', 'carpenter'].map((key) => state.placedIds[key] ?? 0).filter((id) => buildings.get(id)?.state === 'built');
+  const coffinRecipes = new Set([recipes.index('make_coffin_stone'), recipes.index('make_coffin_wood')]);
+  const slabRecipe = recipes.index('make_memorial_slab');
+  let onOrder = 0;
+  const named = new Set<number>(slabs);
+  for (const id of shops) {
+    for (const o of ent.get(id, C.Workshop)?.orders ?? []) {
+      if (coffinRecipes.has(o.recipe)) onOrder += o.remaining;
+      if (o.recipe === slabRecipe && o.memorialDwarfId !== undefined) named.add(o.memorialDwarfId);
+    }
+  }
+  const short = bodies + 1 - free - loose - onOrder;
+  const first = (workshopId: number): void => {
+    const last = (ent.get(workshopId, C.Workshop)?.orders.length ?? 1) - 1;
+    if (last > 0) command(w, { type: 'ReorderWorkOrder', workshopId, from: last, to: 0 });
+  };
+  const mason = state.placedIds['mason'] ?? 0, carpenter = state.placedIds['carpenter'] ?? 0;
+  const masonBuilt = buildings.get(mason)?.state === 'built', carpenterBuilt = buildings.get(carpenter)?.state === 'built';
+  const items = w.readers.of<ItemsReader>('13');
+  if (short > 0 && (masonBuilt || carpenterBuilt)) {
+    const stone = masonBuilt && (items.available('raw_stone') >= 2 || !carpenterBuilt || items.available('log') < 2);
+    const shop = stone ? mason : carpenter;
+    command(w, { type: 'AddWorkOrder', workshopId: shop, order: { recipeId: stone ? 'make_coffin_stone' : 'make_coffin_wood', mode: 'once', remaining: short, priority: ROUTINE } });
+    first(shop);
+  }
+
+  // A memorial slab for each dead dwarf with no intact body, ordered once and placed in a tomb.
+  if (masonBuilt) {
+    for (const id of burial.dead) {
+      if (named.has(id) || !buildings.memorialEligible(id)) continue;
+      command(w, { type: 'AddWorkOrder', workshopId: mason, order: { recipeId: 'make_memorial_slab', mode: 'once', remaining: 1, priority: ROUTINE, memorialDwarfId: id } });
+      first(mason);
+      named.add(id);
+      if (!burial.memorials.includes(id)) burial.memorials.push(id);
+    }
+  }
+  let unplaced = slabs.filter((id) => buildings.memorialEligible(id)).length - buildings.byType('memorial_slab').filter((id) => buildings.get(id)?.state !== 'built').length;
+  for (let t = unplaced > 0 ? site() : -1; unplaced > 0 && t >= 0; t = site()) {
+    if (buildings.ghost('memorial_slab', t, 0).reason !== null) break;
+    if (!command(w, { type: 'PlaceBuilding', buildingType: 'memorial_slab', origin: t, orientation: 0, materialChoice: 0, priority: ROUTINE }).ok) break;
+    unplaced -= 1;
+  }
+}
+
+/**
+ * T-582: the tile of a tomb where the next coffin or slab goes, or -1: the open tile farthest from
+ * the corridor whose taking leaves every other open tile of the tomb joined to the corridor, and
+ * every coffin and slab beside one of them or the corridor (a coffin blocks the way, 14).
+ */
+export function tombSite(w: TestWorld, state: FortressState, tiles: readonly number[]): number {
+  const map = w.map;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const hallLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
+  const inTomb = new Set(tiles);
+  const sides = (t: number): number[] => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => map.offset(t, dx!, dy!, 0)).filter((n) => n >= 0);
+  const entries = new Set<number>();
+  for (const t of tiles) for (const n of sides(t)) if (!inTomb.has(n) && hallLabel !== 0 && w.readers.pathing.labelOf(n, 'walker') === hallLabel) entries.add(n);
+  if (entries.size === 0) return -1;
+  const open = tiles.filter((t) => map.kindAt(t) === TileKind.Floor && buildings.at(t) === 0);
+  const taken = tiles.filter((t) => buildings.at(t) !== 0);
+  // Distance of each open tile from the corridor, walking the tomb's open tiles.
+  const reach = (without: number): Map<number, number> => {
+    const free = new Set(open.filter((t) => t !== without));
+    const dist = new Map<number, number>();
+    let frontier = [...entries];
+    for (let d = 1; frontier.length > 0; d += 1) {
+      const next: number[] = [];
+      for (const f of frontier) for (const n of sides(f)) if (free.has(n) && !dist.has(n)) { dist.set(n, d); next.push(n); }
+      frontier = next;
+    }
+    return dist;
+  };
+  const full = reach(-1);
+  const order = open.filter((t) => full.has(t)).sort((a, b) => full.get(b)! - full.get(a)! || a - b);
+  for (const t of order) {
+    const dist = reach(t);
+    if (open.some((o) => o !== t && !dist.has(o))) continue;
+    if ([...taken, t].every((b) => sides(b).some((n) => entries.has(n) || dist.has(n)))) return t;
+  }
+  return -1;
 }
 
 export function checkFortressCaveFarm(w: TestWorld, state: FortressState): void {

@@ -32,7 +32,7 @@ import {
   Z,
   type FortressState,
 } from './three_years_fortress';
-import { placeEconomyBuilding, specialistCandidates, SQUAD_SIZE } from './three_years_economy';
+import { dedicate, placeEconomyBuilding, specialistCandidates, SQUAD_SIZE } from './three_years_economy';
 import { stepThreeYears } from './three_years_measurements';
 import { command } from './script-commands';
 
@@ -149,7 +149,7 @@ function rangeRoom(w: TestWorld, state: DefenceYearState, sites: readonly number
 function plannedRooms(w: TestWorld, state: DefenceYearState): Set<number> {
   const f = state.fortress;
   return new Set<number>([...f.diningHallTiles, ...f.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, f.hallZ)]),
-    ...(f.dormitories ?? []).flatMap((d) => d.tiles)]);
+    ...(f.dormitories ?? []).flatMap((d) => d.tiles), ...(f.burial?.tombs ?? []).flatMap((t) => t.tiles)]);
 }
 
 function zoneTiles(w: TestWorld, state: DefenceYearState, type: string, count: number): number[] {
@@ -388,6 +388,7 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
     if (zoneId && buildings.zone(zoneId)?.settings['squad'] !== squad.id) command(w, { type: 'SetZoneSetting', zoneId, key: 'squad', value: squad.id });
   }
   const want = w.game.world.fortress.alert !== 'calm' ? 'active' : state.barracksZoneId ? 'train' : 'off';
+  if (want === 'train') keepACarpenter(w, state, squad.members);
   const members = want === 'active' ? squad.members : keepNamedWorkersAtTheirShops(w, state, squad.members);
   if (squad.mode !== want) command(w, { type: 'SetSquadMode', squadId: squad.id, mode: want });
   if (want !== 'off') keepToolLaborsOffTheSquad(w, state, members);
@@ -479,6 +480,42 @@ export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState,
       if (ent.alive(id) && jobs.laborEnabled(id, labor)) command(w, { type: 'SetLabor', dwarfId: id, labor, on: false });
     }
   }
+}
+
+/** T-582: the fewest adults with which the defence fortress keeps a dwarf at the carpenter's workshop. */
+const CARPENTER_POPULATION = 9;
+
+/**
+ * T-582: a dwarf kept at the carpenter's workshop, its named worker, with carpentry (and hauling) its
+ * only labors. T-581's civilian with carpentry was, on `defence-year` at cadence 20, the founding
+ * farmer, whose planting and brewing are a step ahead of a workshop's job (11 § Assignment): with
+ * the squad at drill and the woodcutter in it, the carpenter's chair job stood open from day 35 to
+ * day 91 with beds ordered behind it, and the fortress slept 10 to 12 dwarves on its first three
+ * beds to day 98, with straw in stock. As a player does once the squad trains, the script names a
+ * carpenter: an immigrant no role holds, outside the squad if one is, the most skilled first, then
+ * the lowest id; the economy counts it among its specialists, so no other role takes it, and a
+ * named worker leaves the squad (`keepNamedWorkersAtTheirShops`). Below CARPENTER_POPULATION
+ * adults, or once it dies, none is kept, and the economy gives a released specialist its labors back.
+ */
+export function keepACarpenter(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
+  const fortress = state.fortress;
+  const ent = w.game.world.entities;
+  const shop = fortress.placedIds['carpenter'] ?? 0;
+  const { specialists } = fortress.economy;
+  if (w.readers.of<BuildingsReader>('14').get(shop)?.state !== 'built') return;
+  let carpenter = specialists['carpenter'];
+  if (carpenter !== undefined && !ent.alive(carpenter)) { delete specialists['carpenter']; carpenter = undefined; }
+  const adults = w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+  if (carpenter === undefined) {
+    if (adults.length < CARPENTER_POPULATION) return;
+    const dwarves = w.readers.of<DwarvesReader>('10');
+    carpenter = specialistCandidates(w, fortress).sort((a, b) => Number(members.includes(a)) - Number(members.includes(b)) ||
+      dwarves.skill(b, 'carpentry') - dwarves.skill(a, 'carpentry') || a - b)[0];
+    if (carpenter === undefined) return;
+    specialists['carpenter'] = carpenter;
+  }
+  dedicate(w, fortress, carpenter, ['carpentry']);
+  if (ent.get(shop, C.Workshop)?.assignedWorker !== carpenter) command(w, { type: 'SetWorkshopWorker', workshopId: shop, dwarfId: carpenter });
 }
 
 /** Living hostiles of the parties that are on the map. */
