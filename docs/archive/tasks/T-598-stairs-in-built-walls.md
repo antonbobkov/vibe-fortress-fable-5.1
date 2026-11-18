@@ -1,5 +1,7 @@
 # T-598 — Stairs carved into a constructed wall
 
+**Closed:** 2026-11-17, in 1b1f8cef.
+
 **Source:** T-594 (stairs are not cut under a building) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
