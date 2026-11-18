@@ -310,6 +310,18 @@ export function digDrop(map: Map3D, i: TileIndex, facts: MaterialFacts, rolls: T
 }
 
 /**
+ * `03` § Tile transitions, `channel`: a natural `floor` of a soil tagged `soil_drop` (clay, sand,
+ * peat), whose soil the channel digs out, so it rolls the soil's own drop as `dig` would. A surface
+ * soil floor is the top level of its column's soil, so a site whose soil is one level deep has its
+ * soil only in such floors.
+ */
+export function soilFloor(map: Map3D, i: TileIndex, facts: MaterialFacts): boolean {
+  if (map.kindAt(i) !== TileKind.Floor || constructed(map, i)) return false;
+  const material = map.materialAt(i);
+  return facts.classOf(material) === 'soil' && facts.dropsSoil?.(material) === true;
+}
+
+/**
  * The item a removed or collapsed construction returns: "The block, log or bar used". 14 records
  * which one in M2; until then the material's class decides (D-050): wood gives a `log`, metal a
  * `bar`, anything else a `stone_block`.
@@ -347,8 +359,10 @@ export function transition(
       break;
     case Designation.Channel: {
       // "Tile becomes `open`; if the tile below is a natural `wall`, it becomes `ramp`; a built wall,
-      // or a `floor`, stays; if it is `open` nothing more." Drops come from the tile below when it
+      // or a `floor`, stays; if it is `open` nothing more." A natural `floor` of a soil tagged
+      // `soil_drop` rolls its own soil drop first; then drops come from the tile below when it
       // becomes a ramp.
+      if (soilFloor(map, i, facts)) addDrop(digDrop(map, i, facts, rolls));
       changes.push({ tile: i, kind: TileKind.Open, material: 0, clear: TileFlag.Smoothed | TileFlag.Engraved | TileFlag.Grass });
       const below = map.below(i);
       if (below >= 0 && naturalWall(map, below)) {

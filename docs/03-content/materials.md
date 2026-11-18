@@ -43,7 +43,7 @@ Columns: `value` is marks per unit; `density` is relative (water 100; used for c
 | `cave_loam` | cave loam | soil | 0 | 160 | 30 | `cave_umber` | cavern floors; grows cave moss |
 | `ash_soil` | ash | soil | 0 | 120 | 20 | `ash_gray` | `glasslands` surface patches |
 
-Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a `soil_load` half the time ([03](../02-systems/03-terrain-and-mining.md) § Tile transitions).
+Soil tiles drop nothing when dug, except those tagged `soil_drop`, which drop a `soil_load` half the time, whether a wall is dug or a floor is channelled ([03](../02-systems/03-terrain-and-mining.md) § Tile transitions).
 
 ## Ice
 
