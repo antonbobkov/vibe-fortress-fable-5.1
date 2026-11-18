@@ -1,4 +1,4 @@
-# T-NEW — Stairs carved into a constructed wall
+# T-598 — Stairs carved into a constructed wall
 
 **Source:** T-594 (stairs are not cut under a building) · **Size:** S · **Needs:** — · **Status:** open
 

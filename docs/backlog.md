@@ -18,5 +18,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-588 | [The long fixtures play some of Making Do](work/T-588-fixture-makes-do.md) | [T-583](archive/tasks/T-583-making-do-reach.md) | T-580, T-582 | blocked (needs T-580, T-582) |
 | T-594 | [Stairs cut into a floor that holds a building](work/T-594-stairs-under-buildings.md) | [T-589](archive/tasks/T-589-stairwell-feedback.md) | — | open |
 | T-595 | [Look names some items twice ("boar meat raw meat")](work/T-595-look-item-names.md) | [T-591](archive/tasks/T-591-hover-line.md) | — | open |
+| T-597 | [A channel dug under a bed or a door](work/T-597-channel-under-buildings.md) | [T-594](work/T-594-stairs-under-buildings.md) | — | open |
+| T-598 | [Stairs carved into a constructed wall](work/T-598-stairs-in-built-walls.md) | [T-594](work/T-594-stairs-under-buildings.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

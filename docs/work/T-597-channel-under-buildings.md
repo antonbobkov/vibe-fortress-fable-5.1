@@ -1,4 +1,4 @@
-# T-NEW — A channel dug under a bed or a door
+# T-597 — A channel dug under a bed or a door
 
 **Source:** T-594 (stairs are not cut under a building) · **Size:** S · **Needs:** — · **Status:** open
 
