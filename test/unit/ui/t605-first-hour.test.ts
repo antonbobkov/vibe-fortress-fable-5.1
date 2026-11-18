@@ -115,5 +115,17 @@ describe('T-605 a new player\'s first hour', () => {
     expect(g.ui.camX).toBe(map.w - g.compositor.layout.map.cols);
     expect(g.ui.camX).toBeLessThan(open);
     expect(g.ui.camX + g.compositor.layout.map.cols).toBe(map.w);
+    // Opened again with the camera unmoved, the view is back where it was.
+    g.fortress.openPanel('units');
+    g.render();
+    expect(g.ui.camX).toBe(open);
+    // A pan while the sidebar is shut keeps the player's camera.
+    g.fortress.openPanel(null);
+    g.render();
+    g.pan(-3, 0);
+    const panned = g.ui.camX;
+    g.fortress.openPanel('units');
+    g.render();
+    expect(g.ui.camX).toBe(panned);
   });
 });
