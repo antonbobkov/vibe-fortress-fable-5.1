@@ -78,13 +78,16 @@ export function visibleHostiles(readers: ReaderSet): number {
 
 /**
  * The right edge of row 1: `[Esc] menu  [?] help`. When the row is too narrow for the word the
- * menu entry shrinks to `[Esc]`, never a cut word.
+ * menu entry shrinks to `[Esc]`, and then the help entry to `[?]`, never a cut word.
  */
 export function statusRight(strings: Strings, leftLength: number, cols: number): { menu: string; help: string; text: string } {
-  const help = strings.get('ui.status.help');
+  const fits = (menu: string, help: string): boolean => leftLength + Array.from(menu).length + 2 + Array.from(help).length + 3 <= cols;
   const full = strings.get('ui.status.menu');
-  const menu = leftLength + Array.from(full).length + 2 + Array.from(help).length + 3 <= cols ? full : strings.get('ui.status.menu_short');
-  return { menu, help, text: `${menu}  ${help} ` };
+  const short = strings.get('ui.status.menu_short');
+  const help = strings.get('ui.status.help');
+  const menu = fits(full, help) ? full : short;
+  const helpShown = fits(menu, help) ? help : strings.get('ui.status.help_short');
+  return { menu, help: helpShown, text: `${menu}  ${helpShown} ` };
 }
 
 /** Row 1 as one line of `cols` cells: the fields three spaces apart, `[Esc] menu  [?] help` at the right edge. */

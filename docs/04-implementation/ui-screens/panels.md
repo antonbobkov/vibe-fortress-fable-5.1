@@ -19,7 +19,7 @@ A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-scre
 │ [i] Fishing     [g] Gather          │
 │ [S-c] Sanctum   [S-k] Compost       │
 │ ─ Drag a rectangle.                │
-│ Qualifying tiles show ▒, others x. │
+│ Usable tiles show ▒, others x.     │
 │ ── Selected: Farm plot #3 (24 t)   │
 │►Spring  [dimcap      ▾]  14 seeds   │
 │ Summer  [dimcap      ▾]  14 seeds   │
@@ -67,7 +67,7 @@ Selecting a stockpile or room replaces the type list with its inspector; `[y] zo
 │ [x] remove zone  [S-e] resize      │
 ```
 
-The preset header opens a dropdown rather than cycling with the thirteen presets. Arrows highlight and Enter chooses; letters jump to the next matching preset without accelerator captions; the help line says "letters jump". A click chooses the same option. Esc closes without applying.
+The preset header names the preset the filter equals; a filter that equals none reads `Custom`, and an empty filter, which a new stockpile has, reads `Nothing`, with the line "Takes nothing: choose a Preset." under the header in the alert colour (13 § Stockpiles: a new stockpile accepts nothing). A stockpile's name in the log uses the same word ("Stockpile #1 (Nothing)"). The preset header opens a dropdown rather than cycling with the thirteen presets. Arrows highlight and Enter chooses; letters jump to the next matching preset without accelerator captions; the help line says "letters jump". A click chooses the same option. Esc closes without applying.
 
 The links line names source stockpiles (for example `Links: Stockpile #2, Stockpile #4`) with `[i] link` and `[x] unlink` on the following line when needed to fit the sidebar. Link enters map picking: the status says "Link Stockpile #1: click the stockpile it takes from · [Esc] cancel". Click another stockpile or press Enter at its map cursor tile to submit `LinkStockpile` with `on: true`; any other tile, the same stockpile or a non-stockpile zone explains that only another stockpile can be a source, and leaves picking active. Esc or right click cancels. Unlink opens the linked-source list; arrows or a click select and centre on a source. Enter or its unlink button submits `LinkStockpile` with `on: false` for that source only; Esc or Cancel returns without changing links. Panel letters still switch panels in both modes. An empty source list explains that there are no links.
 
@@ -559,7 +559,7 @@ Three tabs: `Keys` (the keymap table grouped by context, live from the keymap; u
 
 Nothing in Help is cut: a line that does not fit the panel wraps, with a hanging indent under its description. `Keys` writes a Shift key the way the panels do (`[S-n]`) and starts with the line "S- is Shift". `PageDown` and `PageUp` move a page less one line, and the foot of the panel reads "page 2/7".
 
-`Start` reads, wrapped: "1. Dig in: [d], drag over a rock face. Dwarves dig from the side. 2. Storage: [z] Stockpile, drag on floor. 3. Wood: [d] Chop tree. 4. Workshops: [b] Workshops; then orders with [o]. Build a carpenter's workshop and a still first. 5. Food: [z] Farm plot on soil; pick a crop for each season. 6. Beds: order beds, place them [b], draw a Bedroom over each. 7. Safety: a door on your hall set to Lock on alert, and a squad [m] with clubs. 8. Space pauses. [?] opens this help."
+`Start` reads, wrapped: "1. Dig in: [d], drag over a rock face. Dwarves dig from the side. 2. Storage: [z] Stockpile, drag on floor, then choose its Preset: a new stockpile takes nothing. 3. Wood: [d] Chop tree. 4. Workshops: [b] Workshops; then orders with [o]. Build a carpenter's workshop and a still first. 5. Food: [z] Farm plot on soil; pick a crop for each season. 6. Beds: order beds, place them [b], draw a Bedroom over each. 7. Safety: a door on your hall set to Lock on alert, and a squad [m] with iron spears. 8. Space pauses. [?] opens this help."
 
 Every panel that shows an `[S-x]` caption ends with one dim line, "S- is Shift", when its last row is free.
 

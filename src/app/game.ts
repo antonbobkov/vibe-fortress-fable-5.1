@@ -175,6 +175,8 @@ export class Game {
   readonly loadouts: LoadoutStore;
   private readonly legends: LegendStore | null;
   readonly ui: UiState = defaultUiState(START_Z);
+  /** The camera a shutting sidebar clamped (`x`, `y`) and where it stood before (`wasX`, `wasY`); presentation only. */
+  private widenedCamera: { x: number; y: number; wasX: number; wasY: number } | null = null;
   /** The fortress screen's tools, panels, log and status bar (T-M1-14). */
   readonly fortress: FortressScreen;
   /** The music (24 § Music): it follows the events always, and plays once {@link boot} gives it an output. */
@@ -840,6 +842,7 @@ export class Game {
   /** The loaded game on screen: its `ui` section restored, the log tail back, paused. */
   enterLoaded(loaded: LoadedGame): void {
     this.fortress.tool.clearHistory();
+    this.widenedCamera = null;
     this.subscribe();
     this.finished = loaded.header.kind === 'final';
     this.autosaveDue = null;
@@ -1390,12 +1393,23 @@ export class Game {
       return;
     }
     if (!this.host.started) return;
+    const sidebarOpen = this.ui.panel !== null && this.ui.sidebar;
+    // The sidebar opens again over a camera that its shutting moved and nothing has moved since:
+    // the view goes back to where it was, so a panel shut and opened keeps the player's place.
+    if (sidebarOpen && this.widenedCamera !== null) {
+      const w = this.widenedCamera;
+      if (this.ui.camX === w.x && this.ui.camY === w.y) {
+        this.ui.camX = w.wasX;
+        this.ui.camY = w.wasY;
+      }
+      this.widenedCamera = null;
+    }
     const view: ViewState = {
       camX: this.ui.camX,
       camY: this.ui.camY,
       z: this.ui.z,
       // "`Tab` toggles it without changing the panel" (24 § Fortress screen layout).
-      sidebarOpen: this.ui.panel !== null && this.ui.sidebar,
+      sidebarOpen,
       cursor: this.ui.cursor,
       overlays: this.ui.overlays,
       selectedZone: this.ui.panel === 'zones' ? this.fortress.zones.selected : 0,
@@ -1403,7 +1417,16 @@ export class Game {
       animFrame: Math.floor(Date.now() / FLUID_ANIM_MS),
       reducedMotion: this.userSettings.reducedMotion || this.forceReducedMotion,
     };
-    const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
+    let cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
+    // A frame whose map view is wider than the last one's (the sidebar has shut) could show past the
+    // map's edge: "the camera is clamped so the viewport never shows outside the map".
+    const camX = this.ui.camX;
+    const camY = this.ui.camY;
+    this.clampCamera();
+    if (this.ui.camX !== camX || this.ui.camY !== camY) {
+      if (!sidebarOpen) this.widenedCamera = { x: this.ui.camX, y: this.ui.camY, wasX: camX, wasY: camY };
+      cells = this.compositor.compose(this.host.readers, { ...view, camX: this.ui.camX, camY: this.ui.camY }, this.cols, this.rows);
+    }
     const surface = new Surface(cells, this.glyphs, this.theme, this.palette);
     this.fortress.draw(surface);
     this.checkTutorial();

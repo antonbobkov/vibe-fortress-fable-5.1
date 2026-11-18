@@ -94,7 +94,7 @@ Only presentation state animates; the simulation is discrete:
 
 ### Viewport and camera
 
-- The camera is clamped so the viewport never shows outside the map; the map is not wrapped.
+- The camera is clamped so the viewport never shows outside the map, also on the frame where the sidebar shuts and the map view widens; when the sidebar opens again and the camera has not moved since, the view goes back to where it was before the sidebar shut. The map is not wrapped.
 - `centerOn(tile)` sets the camera so the tile is centered and switches `z`.
 - Changing `z` keeps `camX, camY`.
 - Zoom changes keep the tile under the mouse cursor fixed.

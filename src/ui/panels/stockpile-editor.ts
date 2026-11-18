@@ -6,7 +6,7 @@ import type { Rect } from '@render/cellbuffer';
 import { CATEGORY_TREE, STOCKPILE_PRESETS, defaultStockpile } from '@systems/items';
 import { STOCKPILE_QUALITY_MIN, STOCKPILE_QUALITY_MAX } from '../constants';
 import { acceleratorLabel } from '../keymap';
-import { capitalize, stockpilePreset, zoneEditorMessage, zoneName } from '../messages';
+import { capitalize, stockpilePreset, stockpilePresetName, zoneEditorMessage, zoneName } from '../messages';
 import type { Surface } from '../surface';
 import { buildTree, button, dropdown, dropdownKey, label, list, nodeState, numberField, tree, toggleNode, visibleRows, type DropdownState, type ListState, type TreeNode, type TreeState } from '../widgets';
 import { accel, buildings, items, type PanelContext } from './context';
@@ -293,14 +293,15 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
     label(s, col, rect.row + rect.rows - 1, strings.get('ui.stockpile.material_help'), { width, fg: s.theme.dim });
     return;
   }
-  const preset = stockpilePreset(sp.filter);
-  const value = strings.get(preset === null ? 'ui.stockpile.custom' : `ui.stockpile.preset.${preset}`);
+  const value = stockpilePresetName(strings, sp.filter);
   const options = editor.presetOptions(ctx);
   dropdown(s, col, row, width, value, options, editor.preset,
     (id) => editor.choosePreset(ctx, zoneId, id), () => editor.openPreset(ctx, zoneId));
   // Keep the existing compact header; label supplies its truncation tooltip.
   s.fill({ col, row, cols: width, rows: 1 }, s.theme.black);
   label(s, col, row++, `${acceleratorLabel('p', ctx.panelLetters)} ${strings.get('ui.stockpile.preset', { preset: value })}`, { width });
+  // A new stockpile takes nothing until a preset or a category is chosen (13 § Stockpiles): say so.
+  if (!editor.preset.open && sp.filter.categories.length === 0) label(s, col, row++, strings.get('ui.stockpile.empty'), { width, fg: s.theme.alert });
   if (editor.preset.open) {
     label(s, col, rect.row + rect.rows - 1, strings.get('ui.stockpile.preset_help'), { width, fg: s.theme.dim });
     return;

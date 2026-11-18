@@ -49,7 +49,7 @@ export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): 
   }
   if (ctx.readers.has('15')) {
     const morale = ctx.readers.of<MoraleReader>('15');
-    label(s, col, rect.row + 2, `Hall spirit: ${MOOD_TIER_NAMES[morale.hallSpiritTier()]} (${morale.hallSpirit()})`, { width });
+    label(s, col, rect.row + 2, `Hall spirit: ${MOOD_TIER_NAMES[morale.hallSpiritTier()]} (${Math.round(morale.hallSpirit())})`, { width });
   }
   const next = immigration.nextEvaluation();
   label(s, col, rect.row + 3, `Next evaluation: ${next.charAt(0).toUpperCase()}${next.slice(1)}`, { width });

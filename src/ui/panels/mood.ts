@@ -21,13 +21,19 @@ export class MoodPanel {
   move(delta: number, ctx: PanelContext): void { this.list.selected = Math.max(0, Math.min(Math.max(0, this.rows(ctx).length - 1), this.list.selected + delta)); }
 }
 
+/** "+5 Had a meal.": a thought's weight as a whole number with its sign, as the creature inspector writes it. */
+export function thoughtText(t: { readonly value: number; readonly text: string }): string {
+  const value = Math.round(t.value);
+  return `${value > 0 ? '+' : ''}${value} ${t.text}`;
+}
+
 export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: PanelContext): void {
   if (!ctx.readers.has('15')) return;
   const r = ctx.readers.of<MoraleReader>('15'); const col = rect.col + 1; const width = rect.cols - 2;
-  label(s, col, rect.row, `Hall spirit ♥ ${MOOD_TIER_NAMES[r.hallSpiritTier()]} (${r.hallSpirit()})`, { fg: s.theme.value, width });
+  label(s, col, rect.row, `Hall spirit ♥ ${MOOD_TIER_NAMES[r.hallSpiritTier()]} (${Math.round(r.hallSpirit())})`, { fg: s.theme.value, width });
   const rows = panel.rows(ctx); const height = Math.max(2, rect.rows - 5);
   table(s, { col, row: rect.row + 1, cols: width, rows: height }, [{ title: 'Name', width: 13 }, { title: 'Tier', width: 9 }, { title: 'Top thoughts', width: 12 }],
-    rows.map((id) => [nameOf(ctx, id), MOOD_TIER_NAMES[r.tier(id)], r.thoughts(id).slice().sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).slice(0, 3).map((t) => `${t.value > 0 ? '+' : ''}${t.value} ${t.text}`).join(', ')]), panel.list,
+    rows.map((id) => [nameOf(ctx, id), MOOD_TIER_NAMES[r.tier(id)], r.thoughts(id).slice().sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).slice(0, 3).map(thoughtText).join(', ')]), panel.list,
     (i) => { panel.list.selected = i; });
   separator(s, col, rect.row + height + 1, width);
   label(s, col, rect.row + height + 2, ctx.strings.get('ui.mood.actions'), { width });
