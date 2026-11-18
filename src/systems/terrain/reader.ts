@@ -14,6 +14,11 @@ import type { DesignationEntry } from './state';
 /** `03` § Discovery: "the material is shown as 'unknown rock'". */
 export const UNKNOWN_ROCK = 'unknown rock';
 
+/** A tree, sapling or shrub tile's material: its species' name ("wild nettle"), never the content id. */
+function plantName(row: { readonly id: string; readonly name?: string } | undefined): string {
+  return row === undefined ? '' : row.name ?? row.id.replace(/_/g, ' ');
+}
+
 export interface TileInspection {
   readonly tile: TileIndex;
   readonly discovered: boolean;
@@ -112,7 +117,7 @@ export function makeReader(
         tile: i,
         discovered,
         kind,
-        material: !discovered ? UNKNOWN_ROCK : plant ? (facts.plant(map.materialAt(i))?.id ?? '') : facts.materialName(map.materialAt(i)),
+        material: !discovered ? UNKNOWN_ROCK : plant ? plantName(facts.plant(map.materialAt(i))) : facts.materialName(map.materialAt(i)),
         materialClass: discovered ? materialClassAt(i) : 'unknown',
         smoothed: map.hasFlag(i, TileFlag.Smoothed),
         engraved: map.hasFlag(i, TileFlag.Engraved),

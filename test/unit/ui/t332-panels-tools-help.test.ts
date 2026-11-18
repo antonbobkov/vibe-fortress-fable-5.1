@@ -151,7 +151,7 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[2]).toBe('   Dwarves dig from the side.');
     const text = rows.join(' ').replace(/\s+/g, ' ');
     expect(text).toContain("4. Workshops: [b] Workshops; then orders with [o]. Build a carpenter's workshop and a still first.");
-    expect(text).toContain('7. Safety: a door on your hall set to Lock on alert, and a squad [m] with clubs.');
+    expect(text).toContain('7. Safety: a door on your hall set to Lock on alert, and a squad [m] with iron spears.');
     expect(text).toContain('8. Space pauses. [?] opens this help.');
     for (const row of rows) expect(row).not.toContain('»');
   });

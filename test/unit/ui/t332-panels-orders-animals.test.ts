@@ -166,13 +166,13 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
   it('Mood gives the hall spirit and one row per dwarf with a tier and the top thought', () => {
     const rows = render('mood');
     const dwarves = game.host.readers.of<{ list(): number[] }>('10').list();
-    expect(rows[0]).toMatch(/^Hall spirit \S Fine \(\d+(\.\d+)?\)$/);
+    expect(rows[0]).toMatch(/^Hall spirit \S Fine \(\d+\)$/);
     expect(rows[1]).toMatch(/^Name +Tier +Top thoughts$/);
     const listed = rows.slice(2, 28).filter((row) => row !== '');
     expect(listed).toHaveLength(dwarves.length);
-    for (const row of listed) expect(row).toMatch(/^\S+ \S+ +Fine +-?\d+(\.\d+)? /);
+    for (const row of listed) expect(row).toMatch(/^\S+ \S+ +Fine +[+-]?\d+ /);
     // Each dwarf's top thought is the weight and the start of its text.
-    expect(listed[0]).toBe('Ludin Grimfe Fine     -0.65 The Th');
+    expect(listed[0]).toBe('Ludin Grimfe Fine     -1 The Thane');
     expect(rows[29]).toBe('[Enter] inspect  [S-s] sort tier');
   });
 
@@ -181,7 +181,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     const dwarves = game.host.readers.of<{ list(): number[] }>('10').list();
     expect(rows[0]).toBe(`${dwarves.length} dwarves (0 children)`);
     expect(rows[1]).toBe('Cap [-] 80 [+]');
-    expect(rows[2]).toMatch(/^Hall spirit: Fine \(\d+(\.\d+)?\)$/);
+    expect(rows[2]).toMatch(/^Hall spirit: Fine \(\d+\)$/);
     expect(rows[3]).toBe('Next evaluation: Summer');
     expect(rows[4]).toMatch(/^Eligible: no · hall spirit below /);
     expect(rows[5]).toBe('Last wave: none');
@@ -201,7 +201,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[6]).toBe('[i] Fishing      [g] Gather');
     expect(rows[7]).toBe('[S-c] Sanctum    [S-k] Compost');
     expect(rows[8]).toBe('─ Drag a rectangle.');
-    expect(rows[9]).toBe('Qualifying tiles show ▒, others x.');
+    expect(rows[9]).toBe('Usable tiles show ▒, others x.');
     expect(rows[10]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
     // The highlight (►) starts on the current season; each row ends with the seeds in stock when a crop is set.
     expect(rows.slice(11, 15)).toEqual([

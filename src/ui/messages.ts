@@ -160,14 +160,23 @@ export function stockpilePreset(filter: StockpileFilter): string | null {
   return null;
 }
 
+/**
+ * The preset as the editor and the announcements name it: the preset the filter equals, "Nothing"
+ * for an empty filter (a new stockpile takes nothing, 13 § Stockpiles), otherwise "Custom".
+ */
+export function stockpilePresetName(strings: Strings, filter: StockpileFilter): string {
+  const preset = stockpilePreset(filter);
+  if (preset !== null) return strings.get(`ui.stockpile.preset.${preset}`);
+  return strings.get(filter.categories.length === 0 ? 'ui.stockpile.nothing' : 'ui.stockpile.custom');
+}
+
 /** U-07 §4.4: identify a full stockpile by ordinal and the player's preset name. */
 export function stockpileName(env: Omit<MessageEnv, 'registry'>, zoneId: EntityId): string {
   const name = zoneName(env, zoneId);
   const f = env.readers.has('13') ? env.readers.of<ItemsReader>('13').stockpile(zoneId)?.filter : undefined;
   // 13 § The compost heap: a heap's fixed filter names no preset; its name says what it is.
   if (f === undefined || buildingsOf(env.readers)?.zone(zoneId)?.type === 'compost') return name;
-  const preset = stockpilePreset(f);
-  return env.strings.get('ui.stockpile.name', { name, preset: env.strings.get(preset === null ? 'ui.stockpile.custom' : `ui.stockpile.preset.${preset}`) });
+  return env.strings.get('ui.stockpile.name', { name, preset: stockpilePresetName(env.strings, f) });
 }
 
 /** The presentation-only reasons a zone editor action can do nothing. */
@@ -513,8 +522,10 @@ export function waitingFor(env: Omit<MessageEnv, 'strings'>, reason: string | nu
   const match = waiting[1] as string;
   const items = env.readers.has('13') ? env.readers.of<ItemsReader>('13') : null;
   const table = env.registry.table<NamedRow>('items');
-  const n = items !== null && table.has(match) ? items.countAvailable({ type: table.index(match) }) : 0;
-  return { match, item: itemName(env.registry, match), n };
+  // An input with alternatives ("fiber|straw|reed") is named "fiber or straw or reed", and counts them all.
+  let n = 0;
+  for (const part of match.split('|')) if (items !== null && table.has(part)) n += items.countAvailable({ type: table.index(part) });
+  return { match, item: matchName(env.registry, match), n };
 }
 
 /**
@@ -528,7 +539,7 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
   const waiting = waitingFor(env, reason);
   if (waiting !== null) {
     const text = s.get('ui.block.waiting_for', { item: waiting.item, n: waiting.n });
-    const where = whereMade(env.registry, [waiting.match]);
+    const where = whereMade(env.registry, waiting.match.split('|'));
     return where === '' ? text : s.get('ui.block.order_at', { text, where });
   }
   if (reason === 'missing_input') {

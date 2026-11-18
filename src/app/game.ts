@@ -1403,7 +1403,13 @@ export class Game {
       animFrame: Math.floor(Date.now() / FLUID_ANIM_MS),
       reducedMotion: this.userSettings.reducedMotion || this.forceReducedMotion,
     };
-    const cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
+    let cells = this.compositor.compose(this.host.readers, view, this.cols, this.rows);
+    // A frame whose map view is wider than the last one's (the sidebar has shut) could show past the
+    // map's edge: "the camera is clamped so the viewport never shows outside the map".
+    const camX = this.ui.camX;
+    const camY = this.ui.camY;
+    this.clampCamera();
+    if (this.ui.camX !== camX || this.ui.camY !== camY) cells = this.compositor.compose(this.host.readers, { ...view, camX: this.ui.camX, camY: this.ui.camY }, this.cols, this.rows);
     const surface = new Surface(cells, this.glyphs, this.theme, this.palette);
     this.fortress.draw(surface);
     this.checkTutorial();

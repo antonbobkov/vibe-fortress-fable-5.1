@@ -27,6 +27,8 @@ interface MineralRow {
 
 interface PlantRow {
   readonly id: string;
+  /** The species as players read it ("wild nettle"). */
+  readonly name?: string;
   readonly kind: string;
   readonly logs?: readonly [number, number];
   readonly yield?: readonly [number, number];
