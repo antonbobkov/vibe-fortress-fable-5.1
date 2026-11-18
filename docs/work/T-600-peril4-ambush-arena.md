@@ -1,4 +1,4 @@
-# T-NEW — Can a strong squad meet a peril-4 ambush?
+# T-600 — Can a strong squad meet a peril-4 ambush?
 
 **Source:** [T-593's measurement](../../reports/data/2026-11-18-t593-peril4-ambushes.md) · **Size:** M · **Needs:** — · **Status:** open
 
