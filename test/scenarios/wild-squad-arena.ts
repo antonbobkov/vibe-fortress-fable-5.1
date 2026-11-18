@@ -26,7 +26,7 @@ import type { EntityId } from '@core/types';
 import type { CombatReader, SquadWithId } from '@systems/combat/reader';
 import { TestWorld } from './test-world';
 
-export type ArenaSquad = 'steel' | 'steel-tunic' | 'copper' | 'iron3' | 'iron3-full';
+export type ArenaSquad = 'steel' | 'steel-tunic' | 'copper' | 'iron3' | 'iron3-full' | 'steel5' | 'iron5' | 'iron5-skilled';
 
 interface SquadSpec {
   readonly level: number;
@@ -46,6 +46,9 @@ interface SquadSpec {
  * copper. `iron3`: the three-year script's squad once its kit is forged, three Novices with iron
  * short swords, shields and mail shirts (`three_years_economy.ts` SQUAD_KIT); `iron3-full`: the same
  * with the iron helms and greaves its forge makes next, armed in metal (`three_years_fortress.ts`).
+ * T-600's steps between them: `steel5`, the owner's five soldiers alone, with no marksdwarf and no
+ * caster; `iron5`, five Novice axedwarves in iron helm, mail shirt and greaves, alone; `iron5-skilled`,
+ * the same at Skilled (8) with two Skilled marksdwarves.
  */
 export const SQUADS: Record<ArenaSquad, SquadSpec> = {
   'steel': { level: 10, metal: 'steel', soldiers: 5, weapon: 'axe', weaponSkill: 'axe', fullKit: true, marks: 3, caster: 'armoured' },
@@ -53,6 +56,9 @@ export const SQUADS: Record<ArenaSquad, SquadSpec> = {
   'copper': { level: 2, metal: 'copper', soldiers: 5, weapon: 'axe', weaponSkill: 'axe', fullKit: true, marks: 3, caster: 'armoured' },
   'iron3': { level: 2, metal: 'iron', soldiers: 3, weapon: 'short_sword', weaponSkill: 'sword', fullKit: false, marks: 0, caster: 'none' },
   'iron3-full': { level: 2, metal: 'iron', soldiers: 3, weapon: 'short_sword', weaponSkill: 'sword', fullKit: true, marks: 0, caster: 'none' },
+  'steel5': { level: 10, metal: 'steel', soldiers: 5, weapon: 'axe', weaponSkill: 'axe', fullKit: true, marks: 0, caster: 'none' },
+  'iron5': { level: 2, metal: 'iron', soldiers: 5, weapon: 'axe', weaponSkill: 'axe', fullKit: true, marks: 0, caster: 'none' },
+  'iron5-skilled': { level: 8, metal: 'iron', soldiers: 5, weapon: 'axe', weaponSkill: 'axe', fullKit: true, marks: 2, caster: 'none' },
 };
 export type ArenaFoe = 'pack' | 'bear' | 'beast-pack' | 'beast-bears';
 
@@ -90,9 +96,9 @@ export interface ArenaResult {
   readonly deaths: readonly { role: string; cause: string; killer: string; byAnimal: number; byFortress: number }[];
 }
 
-interface Kit { weapon?: [string, string]; shield?: [string, string]; body?: [string, string]; head?: [string, string]; legs?: [string, string] }
+export interface Kit { weapon?: [string, string]; shield?: [string, string]; body?: [string, string]; head?: [string, string]; legs?: [string, string] }
 
-function equip(w: TestWorld, id: EntityId, at: number, kit: Kit): void {
+export function equip(w: TestWorld, id: EntityId, at: number, kit: Kit): void {
   const make = (k?: [string, string]): EntityId => (k ? w.spawnItem(k[0], k[1], at, 1, 1) : 0);
   const old = w.game.world.entities.get(id, C.Equipment);
   const eq: Equipment = {
@@ -108,57 +114,67 @@ function equip(w: TestWorld, id: EntityId, at: number, kit: Kit): void {
   w.game.world.entities.add(id, C.Equipment, eq);
 }
 
-function makeSquad(w: TestWorld, name: string, members: EntityId[], ranged: boolean): number {
+export function makeSquad(w: TestWorld, name: string, members: EntityId[], ranged: boolean, station: number): number {
   w.game.world.applyCommand({ type: 'CreateSquad', name });
   const all = w.readers.of<CombatReader>('16').squads();
   const s = all[all.length - 1] as SquadWithId;
   w.game.world.applyCommand({ type: 'SetSquadMembers', squadId: s.id, members });
   if (ranged) w.game.world.applyCommand({ type: 'SetSquadEquipment', squadId: s.id, equipment: { weaponClass: 'any', armor: 'any', ranged: true } });
-  w.game.world.applyCommand({ type: 'SetSquadStation', squadId: s.id, tile: w.index(SX, SY, Z) });
+  w.game.world.applyCommand({ type: 'SetSquadStation', squadId: s.id, tile: station });
   w.game.world.applyCommand({ type: 'SetSquadMode', squadId: s.id, mode: 'active' });
   return s.id;
 }
 
-function standing(w: TestWorld, id: EntityId): boolean {
+export function standing(w: TestWorld, id: EntityId): boolean {
   const ent = w.game.world.entities;
   if (!ent.alive(id) || !ent.get(id, C.Position)) return false;
   return ent.get(id, C.Body)?.conscious !== false;
 }
 
-function onMap(w: TestWorld, id: EntityId): boolean {
+export function onMap(w: TestWorld, id: EntityId): boolean {
   return w.game.world.entities.alive(id) && w.game.world.entities.get(id, C.Position) !== undefined;
 }
 
-/** One fight of `squad` against `foe` on seed `t544-arena-<seed>`. */
-export function wildArenaTrial(squad: ArenaSquad, foe: ArenaFoe, seed: number): ArenaResult {
-  const w = new TestWorld({ seed: `t544-arena-${seed}`, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+/** The fighters of an arena squad and their two squads (`bolts` 0 when it has no marksdwarves). */
+export interface FieldedSquad {
+  readonly soldiers: EntityId[];
+  readonly casters: EntityId[];
+  readonly marks: EntityId[];
+  readonly guard: number;
+  readonly bolts: number;
+}
+
+/**
+ * Field `squad` with its station at (`sx`, `sy`, `z`): the soldiers in a row on the station, the
+ * caster two tiles behind and the marksdwarves three behind, armed as `SQUADS` says. Steps one tick.
+ */
+export function fieldSquad(w: TestWorld, squad: ArenaSquad, sx: number, sy: number, z: number): FieldedSquad {
   const ent = w.game.world.entities;
   const spec = SQUADS[squad];
   const level = spec.level;
   const metal = spec.metal;
-
   const soldiers: EntityId[] = [];
   for (let k = 0; k < spec.soldiers; k += 1) {
-    soldiers.push(w.spawnDwarf({ at: w.index(SX - 2 + k, SY, Z), skills: { [spec.weaponSkill]: level, shield: level, dodge: level, armor_use: level, hammer: 2 } }));
+    soldiers.push(w.spawnDwarf({ at: w.index(sx - 2 + k, sy, z), skills: { [spec.weaponSkill]: level, shield: level, dodge: level, armor_use: level, hammer: 2 } }));
   }
   const casters: EntityId[] = [];
   if (spec.caster !== 'none') {
-    const id = w.spawnDwarf({ at: w.index(SX, SY + 2, Z), skills: { runecraft: level, dodge: level, armor_use: level, hammer: 2 } });
+    const id = w.spawnDwarf({ at: w.index(sx, sy + 2, z), skills: { runecraft: level, dodge: level, armor_use: level, hammer: 2 } });
     ent.add(id, C.Rune, { current: 50_000 });
     casters.push(id);
   }
   const marks: EntityId[] = [];
   for (let k = 0; k < spec.marks; k += 1) {
-    marks.push(w.spawnDwarf({ at: w.index(SX - 1 + k, SY + 3, Z), skills: { crossbow: level, dodge: level, armor_use: level, hammer: 2 } }));
+    marks.push(w.spawnDwarf({ at: w.index(sx - 1 + k, sy + 3, z), skills: { crossbow: level, dodge: level, armor_use: level, hammer: 2 } }));
   }
-  const guard = makeSquad(w, 'Guard', [...soldiers, ...casters], false);
-  const bolts = marks.length > 0 ? makeSquad(w, 'Bolts', marks, true) : 0;
+  const guard = makeSquad(w, 'Guard', [...soldiers, ...casters], false, w.index(sx, sy, z));
+  const bolts = marks.length > 0 ? makeSquad(w, 'Bolts', marks, true, w.index(sx, sy, z)) : 0;
   w.step(1);
 
   const armour = spec.fullKit ? { head: ['helm', metal], body: ['mail_shirt', metal], legs: ['greaves', metal] } as Kit : { body: ['mail_shirt', metal] } as Kit;
-  soldiers.forEach((id, k) => equip(w, id, w.index(SX - 2 + k, SY, Z), { weapon: [spec.weapon, metal], shield: ['shield', metal], ...armour }));
+  soldiers.forEach((id, k) => equip(w, id, w.index(sx - 2 + k, sy, z), { weapon: [spec.weapon, metal], shield: ['shield', metal], ...armour }));
   marks.forEach((id, k) => {
-    const at = w.index(SX - 1 + k, SY + 3, Z);
+    const at = w.index(sx - 1 + k, sy + 3, z);
     equip(w, id, at, { weapon: ['crossbow', 'oak'], ...armour });
     const quiver = w.spawnItem('bolt', metal, at, 25, 1);
     w.items.attachToCarrier(quiver, id);
@@ -166,7 +182,7 @@ export function wildArenaTrial(squad: ArenaSquad, foe: ArenaFoe, seed: number): 
     ent.add(id, C.Equipment, { ...ent.get(id, C.Equipment)!, quiver });
   });
   for (const id of casters) {
-    const at = w.index(SX, SY + 2, Z);
+    const at = w.index(sx, sy + 2, z);
     equip(w, id, at, spec.caster === 'armoured' ? armour : {});
     const staff = w.spawnItem('staff', 'iron', at, 1, 1);
     ent.add(staff, C.Item, { ...ent.get(staff, C.Item)!, stone: w.game.registry.table('materials').index('garnet') });
@@ -174,6 +190,14 @@ export function wildArenaTrial(squad: ArenaSquad, foe: ArenaFoe, seed: number): 
     w.items.setOwner(staff, id);
     ent.add(id, C.Equipment, { ...ent.get(id, C.Equipment)!, weapon: staff });
   }
+  return { soldiers, casters, marks, guard, bolts };
+}
+
+/** One fight of `squad` against `foe` on seed `t544-arena-<seed>`. */
+export function wildArenaTrial(squad: ArenaSquad, foe: ArenaFoe, seed: number): ArenaResult {
+  const w = new TestWorld({ seed: `t544-arena-${seed}`, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+  const ent = w.game.world.entities;
+  const { soldiers, casters, marks, guard, bolts } = fieldSquad(w, squad, SX, SY, Z);
 
   // The group, in one tick (one pack), around a point FOE_DISTANCE north of the station.
   const species = foe === 'pack' || foe === 'beast-pack' ? 'wolf' : 'bear';
