@@ -16,7 +16,7 @@ import type { KeyPress } from '@platform/input';
 import type { EntityId } from '@core/types';
 import { visibleHostileIds } from '../status';
 import { pluralName } from '../messages';
-import { comingText } from '../raid-lines';
+import { comingText, partyActiveText } from '../raid-lines';
 
 export function deepQuote(level: number): string {
   switch (level) {
@@ -157,11 +157,14 @@ export function drawThreatsPanel(
       if (row >= rect.row + rect.rows) break;
       const p = threats?.party(pId);
       if (p) {
-        label(s, col, row, `Active: ${p.purpose} (${p.members.length}, ${p.state})`, { fg: t.bad, width });
         // A click centres on the party's leader, or on its first member still on the map.
         const lead = [p.leaderId, ...p.members].map((m) => (ctx.readers.entities.alive(m) ? tileOf(ctx, m) : null)).find((at) => at !== null);
-        if (lead !== undefined && lead !== null) s.hit({ col, row, cols: width, rows: 1 }, () => ctx.focusOn(lead));
-        row += 1;
+        for (const part of wrapHang(partyActiveText(ctx.strings, ctx.registry, ctx.readers, p), width, 2)) {
+          if (row >= rect.row + rect.rows) break;
+          label(s, col, row, part, { fg: t.bad, width, keys: false });
+          if (lead !== undefined && lead !== null) s.hit({ col, row, cols: width, rows: 1 }, () => ctx.focusOn(lead));
+          row += 1;
+        }
         // 18 § Morale: the party's morale in words, on a line of its own, while it has not broken.
         const morale = p.state === 'retreat' ? '' : threats?.moraleWord(pId) ?? '';
         if (morale !== '' && row < rect.row + rect.rows) {
