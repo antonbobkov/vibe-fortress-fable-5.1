@@ -114,6 +114,7 @@ Job producer `defense` (`rearm_trap`, `clean_trap`); inspector section `building
 
 ## Player-facing behavior
 
+- Military panel: under a `hearth` alert, while some civilian has no retreat tile (10's `dwarves.unsheltered()`), the alert line says how many, in the alert colour, and that a hearth hall or a room behind a door gives them one (`ui-screens/panels.md` § Military); 10 shows such a dwarf's activity as "Sheltering (no shelter)".
 - Build menu › Traps: the four kinds; placing shows required items and counts available. Mode toggle in the trap panel.
 - Plate panel: trigger condition editor; links list.
 - Hints: "A drawbridge over a channel is the surest gate", "Cage traps catch anything smaller than a wyrm", "Trollkin break doors; walls and bridges hold".

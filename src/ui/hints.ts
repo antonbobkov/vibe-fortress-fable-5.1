@@ -30,6 +30,8 @@ export interface HintFacts {
   haulingPressure?: boolean;
   squadExists?: boolean;
   predatorArrived?: boolean;
+  /** A beast that hunts dwarves came while the fortress had no shelter for the Hearth alert. */
+  predatorNoShelter?: boolean;
   foodShort?: boolean;
   noMiners?: boolean;
   noPath?: boolean;
@@ -65,6 +67,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
   switch (id) {
     case 'hint_shelter': return f.year === 1 && f.season === 0 && f.day >= 3 && f.squadExists === false;
     case 'hint_predator': return f.predatorArrived === true;
+    case 'hint_predator_open': return f.predatorNoShelter === true;
     case 'hint_food': return f.foodShort === true;
     case 'hint_no_miners': return f.noMiners === true;
     case 'hint_no_path': return f.noPath === true;
@@ -173,7 +176,10 @@ export class HintEngine {
     // A beast that hunts dwarves has come (08 § Registrations), or one has wounded a fortress dwarf.
     if (event.type === 'AnimalSpawned' && typeof fields['species'] === 'string') {
       const creatures = this.registry.table<{ id: string }>('creatures');
-      if (creatures.has(fields['species']) && readers.has('08') && readers.of<AnimalsReader>('08').isDangerous(fields['species'])) this.markId('hint_predator');
+      if (creatures.has(fields['species']) && readers.has('08') && readers.of<AnimalsReader>('08').isDangerous(fields['species'])) {
+        // With no shelter yet the alert would only stop the work (19 § Hearth alert retreat): the hint says a hall comes first.
+        this.markId(this.hasShelter(readers) ? 'hint_predator' : 'hint_predator_open');
+      }
     }
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && this.animalWoundedDwarf(readers, Number(fields['attackerId']), Number(fields['defenderId']))) this.markId('hint_alert');
     if (event.type === 'ImmigrationSkipped') this.markId('hint_immigration');
@@ -210,6 +216,17 @@ export class HintEngine {
       const type = readers.of<BuildingsReader>('14').get(id)?.typeId;
       if (fuel && (type === 'smelter' || type === 'forge')) this.markId('hint_fuel');
     }
+  }
+
+  /**
+   * Whether the Hearth alert has somewhere to send civilians (19 § Hearth alert retreat): a hearth
+   * hall, a built door (a room behind it) or a bedroom.
+   */
+  private hasShelter(readers: ReaderSet): boolean {
+    if (!readers.has('14')) return false;
+    const buildings = readers.of<BuildingsReader>('14');
+    return buildings.hearthHallTiles().length > 0 || buildings.zonesOfType('bedroom').length > 0 ||
+      buildings.byTag('door').some((id) => buildings.get(id)?.state === 'built');
   }
 
   /** A finished glass floor with a skylit room under it, not a wall: a skylight built over open space (`hint_skylight`). */
@@ -334,6 +351,7 @@ export class HintEngine {
       noMiners: this.noMiners(readers), noPath: this.noPath(readers),
       squadExists: readers.has('16') && readers.of<CombatReader>('16').squads().length > 0,
       predatorArrived: this.pending('hint_predator'),
+      predatorNoShelter: this.pending('hint_predator_open'),
       foodShort: readers.has('10') && items !== null &&
         items.countMatching({ edible: true }) < Math.ceil((readers.of<{ population(): number }>('10').population() * HINT_FOOD_DAYS) / HINT_FOOD_DAYS_PER_ITEM),
       tick: cal.tick, year: cal.year, season: cal.season, day: cal.dayOfSeason,

@@ -32,6 +32,7 @@ import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
+import { activityLabel } from './units';
 import { equipmentText, identityLine, isDwarf, needCells, needCellWidth, relationsText, skillBar, titleText, wearingText } from './look-dwarf';
 
 interface TileInspection {
@@ -108,9 +109,9 @@ export function creaturesAt(readers: ReaderSet, i: TileIndex): EntityId[] {
 }
 
 /** "Ketil Ironvein, Digging": a creature's summary for the status bar. */
-export function creatureSummary(readers: ReaderSet, id: EntityId): string {
+export function creatureSummary(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string {
   const name = readers.entities.get(id, C.Creature)?.name ?? '';
-  const activity = has(readers, '10') ? readers.of<DwarvesReaderLike>('10').activityText(id) : '';
+  const activity = activityLabel({ readers, registry, strings }, id);
   return activity.length > 0 ? `${name}, ${activity}` : name;
 }
 
@@ -135,7 +136,7 @@ export function fluidText(readers: ReaderSet, strings: Strings, i: TileIndex): s
 export function tileContents(readers: ReaderSet, registry: Registry, strings: Strings, i: TileIndex): string {
   const creatures = creaturesAt(readers, i);
   const items = itemsAt(readers, i);
-  const first = creatures.length > 0 ? creatureSummary(readers, creatures[0] as EntityId) : tileSummary(readers, strings, i);
+  const first = creatures.length > 0 ? creatureSummary(readers, registry, strings, creatures[0] as EntityId) : tileSummary(readers, strings, i);
   const fluid = fluidText(readers, strings, i);
   const summary = fluid === '' ? first : `${first} · ${fluid}`;
   const others = creatures.length - (creatures.length > 0 ? 1 : 0) + items.length;
@@ -304,7 +305,7 @@ export function drawLookPanel(
         const enchant = enchantLine(readers, strings, id);
         if (enchant !== null) wrapped('    ', enchant, t.dim);
       }
-      for (const id of creatures) line(`  ${creatureSummary(readers, id)}`);
+      for (const id of creatures) line(`  ${creatureSummary(readers, registry, strings, id)}`);
     }
     if (has(readers, '14')) {
       const b = readers.of<BuildingsReader>('14');
@@ -364,7 +365,8 @@ export function drawLookPanel(
     if (has(readers, '10')) {
       const dwarves = readers.of<DwarvesReaderLike>('10');
       // 10 § Tipsy: the inspector says "Tipsy" beside the activity.
-      const activity = dwarves.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: dwarves.activityText(id) }) : dwarves.activityText(id);
+      const words = activityLabel({ readers, registry, strings }, id);
+      const activity = dwarves.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: words }) : words;
       const job = has(readers, '11') ? readers.of<JobsReaderLike>('11').forWorker(id) : undefined;
       line(
         job === undefined

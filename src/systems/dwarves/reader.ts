@@ -45,9 +45,15 @@ export interface DwarvesReader {
   isTipsy(id: EntityId): boolean;
   /** `dwarves.whim()`: the Thane's whim of the season, its text and whether it is met now, or null (`10` § The Thane's whim). */
   whim(): { readonly id: string; readonly text: string; readonly met: boolean } | null;
+  /**
+   * `dwarves.unsheltered()`: the living civilians the `hearth` alert finds no shelter for (19 `retreatTile`
+   * gave none at their last ask: the watched shut-out ids of § Behavior selection, step 2), ascending; empty
+   * under another alert.
+   */
+  unsheltered(): EntityId[];
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => { id: string; text: string; met: boolean } | null = () => null): DwarvesReader {
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => { id: string; text: string; met: boolean } | null = () => null, unsheltered: () => EntityId[] = () => []): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {
@@ -82,5 +88,6 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     bedHolder,
     isTipsy: tipsy,
     whim,
+    unsheltered,
   };
 }

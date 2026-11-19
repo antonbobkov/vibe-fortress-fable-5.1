@@ -1798,5 +1798,9 @@
   {
     "table": "hints",
     "id": "hint_breach"
+  },
+  {
+    "table": "hints",
+    "id": "hint_predator_open"
   }
 ]

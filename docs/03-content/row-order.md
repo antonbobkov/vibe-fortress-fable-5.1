@@ -458,3 +458,4 @@ Every new row of every table goes at the end of this table, including generated 
 | palette | world_cursor |
 | hints | hint_rot |
 | hints | hint_breach |
+| hints | hint_predator_open |
