@@ -1,4 +1,4 @@
-# T-NEW — A desert site's salt is not called sea salt
+# T-617 — A desert site's salt is not called sea salt
 
 **Source:** T-613 (the world map's words) · **Size:** S · **Needs:** — · **Status:** open
 
