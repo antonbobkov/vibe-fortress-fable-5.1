@@ -1704,7 +1704,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // Beds come before barrels until every dwarf and the hospital has one: in a bedroom, or once the
     // bedrooms are spent in a dormitory (T-571).
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0);
+    const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0) +
+      (state.strong?.quarters?.tiles.length ?? 0);
     const beds = Math.min(bedPlaces, population + 1) - owned(w, 'bed');
     // T-572: a wooden bed takes a pallet's materials beside its log. The cloth is the hospital's: a
     // bleeding wound is bandaged with one (17 § Treatment), and the wagon brings five, so the beds are

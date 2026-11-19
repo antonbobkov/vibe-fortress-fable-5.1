@@ -26,6 +26,8 @@ interface Tally {
   samples: number; sessions: number; xp: number; buckets: Record<string, number>; firstDay: number; lastLevel: number; reached10: number;
   /** T-615: need errands begun, by need; sleeps on the floor and in a bed; and sums of speed, armour, health speed and mood over the samples. */
   errands: Record<string, number>; last: string; floor: number; bed: number; talks: number; speed: number; armor: number; health: number; mood: number;
+  /** T-619: how far from the barracks (steps: horizontal Chebyshev plus levels) each sleep, meal and drink ended, summed with its count, and the sleeps in an own bed. */
+  far: Record<string, [number, number]>; ownBed: number;
 }
 
 describe.skipIf(!RUN)('T-606 pace probe', () => {
@@ -40,11 +42,25 @@ describe.skipIf(!RUN)('T-606 pace probe', () => {
     const tallies = new Map<number, Tally>();
     const training = new Set<number>();
     const lastXp = new Map<number, number>();
+    const barracksOf = new Map<number, number>();
+    const away = (id: number): number => {
+      const zone = buildings.zone(barracksOf.get(id) ?? 0);
+      const p = ent.get(id, C.Position);
+      if (zone === undefined || zone.tiles.length === 0 || p === undefined) return -1;
+      const c = zone.tiles[Math.floor(zone.tiles.length / 2)]!;
+      return Math.max(Math.abs(w.map.xOf(c) - p.x), Math.abs(w.map.yOf(c) - p.y)) + Math.abs(w.map.zOf(c) - p.z);
+    };
     w.game.world.onEvents((batch) => {
       for (const e of batch) {
+        const kind = e.type === 'Slept' ? 'sleep' : e.type === 'MealEaten' ? 'eat' : e.type === 'DrankAlcohol' || e.type === 'DrankWater' ? 'drink' : '';
+        if (kind !== '' && training.has(Number(e['id']))) {
+          const t = tallies.get(Number(e['id']));
+          const d = away(Number(e['id']));
+          if (t !== undefined && d >= 0) { const f = (t.far[kind] ??= [0, 0]); f[0] += d; f[1] += 1; }
+        }
         if (e.type === 'Slept') {
           const t = tallies.get(Number(e['id']));
-          if (t !== undefined && training.has(Number(e['id']))) { if (e['onFloor'] === true) t.floor += 1; else t.bed += 1; }
+          if (t !== undefined && training.has(Number(e['id']))) { if (e['onFloor'] === true) t.floor += 1; else t.bed += 1; if (e['ownBed'] === true) t.ownBed += 1; }
         }
         if (e.type === 'Talked') for (const k of ['a', 'b']) { const t = tallies.get(Number(e[k])); if (t !== undefined && training.has(Number(e[k]))) t.talks += 1; }
         if (e.type !== 'TrainingSession') continue;
@@ -64,8 +80,9 @@ describe.skipIf(!RUN)('T-606 pace probe', () => {
         for (const m of sq.members) {
           if (!ent.alive(m)) continue;
           training.add(m);
+          barracksOf.set(m, zone?.id ?? 0);
           let t = tallies.get(m);
-          if (t === undefined) { t = { samples: 0, sessions: 0, xp: 0, buckets: {}, firstDay: day, lastLevel: 0, reached10: -1, errands: {}, last: '', floor: 0, bed: 0, talks: 0, speed: 0, armor: 0, health: 0, mood: 0 }; tallies.set(m, t); }
+          if (t === undefined) { t = { samples: 0, sessions: 0, xp: 0, buckets: {}, firstDay: day, lastLevel: 0, reached10: -1, errands: {}, last: '', floor: 0, bed: 0, talks: 0, speed: 0, armor: 0, health: 0, mood: 0, far: {}, ownBed: 0 }; tallies.set(m, t); }
           t.samples += 1;
           const wp = weaponOf(ent, reg, m);
           const sk = ent.get(m, C.Skills);
@@ -109,20 +126,22 @@ describe.skipIf(!RUN)('T-606 pace probe', () => {
       checkFortressRooms(w, state);
       checkFortressCaveFarm(w, state);
     }
-    const all: Tally = { samples: 0, sessions: 0, xp: 0, buckets: {}, firstDay: 0, lastLevel: 0, reached10: 0, errands: {}, last: '', floor: 0, bed: 0, talks: 0, speed: 0, armor: 0, health: 0, mood: 0 };
+    const all: Tally = { samples: 0, sessions: 0, xp: 0, buckets: {}, firstDay: 0, lastLevel: 0, reached10: 0, errands: {}, last: '', floor: 0, bed: 0, talks: 0, speed: 0, armor: 0, health: 0, mood: 0, far: {}, ownBed: 0 };
     for (const [id, t] of tallies) {
       const days = (t.samples * 20) / TICKS_PER_DAY;
       const frac = Object.fromEntries(Object.entries(t.buckets).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, Math.round((1000 * v) / t.samples) / 10]));
       const attrs = ent.get(id, C.Attributes);
       const per = (n: number): number => Math.round((10 * n) / days) / 10;
       console.log(`[t615] ${SEED} ${JSON.stringify({ id, agi: attrs?.agi, end: attrs?.end, speed: Math.round(t.speed / t.samples), armor: Math.round(t.armor / t.samples), health: Math.round(t.health / t.samples),
-        mood: Math.round(t.mood / t.samples), floorSleeps: t.floor, bedSleeps: t.bed, talksPerDay: per(t.talks), errandsPerDay: Object.fromEntries(Object.entries(t.errands).map(([k, v]) => [k, per(v)])) })}`);
+        mood: Math.round(t.mood / t.samples), floorSleeps: t.floor, bedSleeps: t.bed, ownBedSleeps: t.ownBed,
+        stepsFromBarracks: Object.fromEntries(Object.entries(t.far).map(([k, [sum, n]]) => [k, Math.round(sum / n)])), talksPerDay: per(t.talks), errandsPerDay: Object.fromEntries(Object.entries(t.errands).map(([k, v]) => [k, per(v)])) })}`);
       console.log(`[t606] ${SEED} ${JSON.stringify({ id, weapon: weaponOf(ent, reg, id)?.weaponDef.id ?? null, from: Math.floor(t.firstDay), daysTraining: Math.round(days), sessionsPerDay: Math.round((100 * t.sessions) / days) / 100, xpPerDay: Math.round((10 * t.xp) / days) / 10, level: t.lastLevel, reached10: Math.floor(t.reached10), frac })}`);
       all.samples += t.samples; all.sessions += t.sessions; all.xp += t.xp;
       for (const [k, v] of Object.entries(t.buckets)) all.buckets[k] = (all.buckets[k] ?? 0) + v;
+      for (const [k, [sum, n]] of Object.entries(t.far)) { const f = (all.far[k] ??= [0, 0]); f[0] += sum; f[1] += n; }
     }
     const days = (all.samples * 20) / TICKS_PER_DAY;
     const frac = Object.fromEntries(Object.entries(all.buckets).sort((a, b) => b[1] - a[1]).map(([k, v]) => [k, Math.round((1000 * v) / all.samples) / 10]));
-    console.log(`[t606] ${SEED} ALL ${JSON.stringify({ soldierDays: Math.round(days), sessionsPerDay: Math.round((100 * all.sessions) / Math.max(1, days)) / 100, xpPerDay: Math.round((10 * all.xp) / Math.max(1, days)) / 10, frac })}`);
+    console.log(`[t606] ${SEED} ALL ${JSON.stringify({ soldierDays: Math.round(days), stepsFromBarracks: Object.fromEntries(Object.entries(all.far).map(([k, [sum, n]]) => [k, Math.round(sum / n)])), sessionsPerDay: Math.round((100 * all.sessions) / Math.max(1, days)) / 100, xpPerDay: Math.round((10 * all.xp) / Math.max(1, days)) / 10, frac })}`);
   }, 3_600_000);
 });
