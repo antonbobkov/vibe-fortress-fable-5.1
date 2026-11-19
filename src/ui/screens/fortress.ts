@@ -1,4 +1,5 @@
 import type { BuildingsReader } from '@systems/buildings';
+import type { TerrainReader } from '@systems/terrain';
 /**
  * The fortress screen: `ui-screens/fortress-screen.md`, `02-systems/24-ui-and-input.md`
  * § Fortress screen layout, § Input model, § Inspection, § Announcements and the log, and
@@ -24,7 +25,7 @@ import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
-import { batchReach, boxLevels, drawDesignatePanel, DesignateTool, rampTopped, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
+import { batchReach, boxLevels, DESIGNATION_IDS, drawDesignatePanel, DesignateTool, rampTopped, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
 import { buildings, confirmThen, type PanelContext } from '../panels/context';
@@ -1502,10 +1503,17 @@ export class FortressScreen implements Screen {
       if (label !== 0) labels.add(label);
     }
     if (labels.size === 0) return false;
+    // The designations already made are worked with the batch: a room under a shaft not yet carved is in reach.
+    const pending = readers.has('03')
+      ? readers.of<TerrainReader>('03').designations().flatMap((d) => {
+        const id = DESIGNATION_IDS[d.kind];
+        return id === undefined ? [] : [[d.tile, id] as const];
+      })
+      : [];
     const reach = batchReach(readers.map, {
       reached: (i) => labels.has(pathing.labelOf(i, 'walker')),
       passable: (i) => pathing.passable(i, 'walker'),
-    }, commands);
+    }, commands, pending);
     const first = reach.unreachable[0];
     if (first === undefined) return false;
     const tool = this.tool.name(this.strings);

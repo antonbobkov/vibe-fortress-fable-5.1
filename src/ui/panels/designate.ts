@@ -270,14 +270,19 @@ const leadsDown = (k: TileKind): boolean => k === TileKind.StairsDown || k === T
  * stairs a down or up/down stair directly above); a worked tile a dwarf can stand on is reached when
  * a step leads into it from a reached tile (a side, a diagonal that cuts past no solid corner, stairs
  * that meet, a ramp). What is never worked is out of reach. A corner is not a side: a box that meets
- * the open only at a corner has its corner tile dug from the diagonal and nothing more.
+ * the open only at a corner has its corner tile dug from the diagonal and nothing more. The tiles
+ * already designated (`pending`, by designation id) are worked through with the batch, so a room
+ * designated under a shaft that is designated but not yet carved is in reach; only the batch's own
+ * tiles are counted.
  */
-export function batchReach(map: MapReader, probe: ReachProbe, commands: readonly Command[]): BatchReach {
+export function batchReach(map: MapReader, probe: ReachProbe, commands: readonly Command[], pending: readonly (readonly [TileIndex, string])[] = []): BatchReach {
   const batch = new Map<TileIndex, string>();
   for (const c of commands) {
     if (c.type !== 'Designate') continue;
     for (const t of c['tiles'] as readonly TileIndex[]) batch.set(t, c['kind'] as string);
   }
+  const own = [...batch.keys()].sort((a, b) => a - b);
+  for (const [t, designation] of pending) if (!batch.has(t)) batch.set(t, designation);
   const worked = new Set<TileIndex>();
   /** Worked tiles whose kind the job changes, with that kind. */
   const after = new Map<TileIndex, TileKind>();
@@ -354,9 +359,25 @@ export function batchReach(map: MapReader, probe: ReachProbe, commands: readonly
       wake(t);
     }
   }
-  const unreachable = [...batch.keys()].filter((t) => !worked.has(t)).sort((a, b) => a - b);
-  return { unreachable, total: batch.size };
+  return { unreachable: own.filter((t) => !worked.has(t)), total: own.length };
 }
+
+/** The `Designate` id of each designation a tile can hold (`command-catalog.md`). */
+export const DESIGNATION_IDS: Readonly<Partial<Record<Designation, string>>> = {
+  [Designation.Dig]: 'dig',
+  [Designation.Channel]: 'channel',
+  [Designation.StairsUp]: 'stairs_up',
+  [Designation.StairsDown]: 'stairs_down',
+  [Designation.StairsUpDown]: 'stairs_updown',
+  [Designation.Ramp]: 'ramp',
+  [Designation.Smooth]: 'smooth',
+  [Designation.Engrave]: 'engrave',
+  [Designation.Remove]: 'remove',
+  [Designation.Chop]: 'chop',
+  [Designation.Gather]: 'gather',
+  [Designation.HarvestIce]: 'harvest_ice',
+  [Designation.Ignite]: 'ignite',
+};
 
 /**
  * The stairs tool over several levels (24 § Input model): whether a column of the box left out of

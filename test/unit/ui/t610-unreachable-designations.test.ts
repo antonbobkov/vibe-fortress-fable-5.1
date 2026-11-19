@@ -129,6 +129,23 @@ describe('T-610 a designation no dwarf can reach says so', () => {
     expect(f.log.lines.at(-1)?.focus).toBe(w.index(x, y, Z - 5));
   });
 
+  it('a room under a shaft designated but not yet carved is in reach; under no shaft it is not', () => {
+    const { w, f } = fixture();
+    const { x, y } = eastOfParty(w);
+    for (let z = Z - 3; z <= Z; z += 1) for (let dx = 0; dx <= 3; dx += 1) for (let dy = 0; dy <= 2; dy += 1) w.discover(w.index(x + dx, y + dy, z));
+    const room = (): Command[] => designate(f, 'd', { x: x + 1, y, z: Z - 3 }, { x: x + 3, y: y + 2, z: Z - 3 });
+    room();
+    expect(f.statusRow2()).toBe('Dig: 9 designated · no dwarf can reach it yet: open a side or a stair above.');
+    const undo = f.tool.undo();
+    if (undo !== null) w.game.world.applyCommand(undo);
+    f.clearNotice();
+    designate(f, 'w', { x, y, z: Z }, { x, y, z: Z - 3 });
+    expect(f.statusRow2()).not.toContain('reach');
+    f.clearNotice();
+    room();
+    expect(f.statusRow2()).not.toContain('reach');
+  });
+
   it('a shaft from a floor beside the ramp reaches every level and says only what it skipped', () => {
     const { w, f } = fixture();
     const { x, y } = eastOfParty(w);
