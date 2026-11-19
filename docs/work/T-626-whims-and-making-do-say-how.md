@@ -1,4 +1,4 @@
-# T-NEW — The Thane's whim, the pallet and the candle stand say how much and where from
+# T-626 — The Thane's whim, the pallet and the candle stand say how much and where from
 
 **Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 21–24 · **Size:** S · **Needs:** — · **Status:** open
 

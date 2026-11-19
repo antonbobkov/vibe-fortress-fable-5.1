@@ -1,4 +1,4 @@
-# T-NEW — The starting food rots unseen and the fortress starves in its first summer
+# T-621 — The starting food rots unseen and the fortress starves in its first summer
 
 **Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 1–3 · **Size:** M · **Needs:** — · **Status:** open
 

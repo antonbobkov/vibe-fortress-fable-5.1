@@ -13,5 +13,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-615 | [Some soldiers at drill spend three-quarters of the day on needs and barely train](work/T-615-soldiers-needs-keep-them-from-drill.md) | [T-606](archive/tasks/T-606-strong-squad-pace.md) | — | open |
 | T-616 | [The three-year fortress has too little steel for the strong squad](work/T-616-strong-squad-steel.md) | [T-606](archive/tasks/T-606-strong-squad-pace.md) | — | open |
+| T-621 | [The starting food rots unseen and the fortress starves in its first summer](work/T-621-food-rot-unseen.md) | [T-618](work/T-618-first-year-ux.md) | — | open |
+| T-622 | [Show what a soldier carries, and the dwarf inspector's missing sections](work/T-622-soldier-gear-and-dwarf-inspector.md) | [T-618](work/T-618-first-year-ux.md) | — | open |
+| T-623 | [The caravan waits "for a trade depot" when the depot it cannot reach stands built](work/T-623-caravan-depot-unreachable.md) | [T-618](work/T-618-first-year-ux.md) | — | open |
+| T-624 | [The Hearth alert with no shelter, training with no barracks, and what "Idle" means](work/T-624-alert-and-training-feedback.md) | [T-618](work/T-618-first-year-ux.md) | — | open |
+| T-625 | [Log lines that say why: deaths, immigrants, miasma, a breach](work/T-625-log-lines-that-explain.md) | [T-618](work/T-618-first-year-ux.md) | — | open |
+| T-626 | [The Thane's whim, the pallet and the candle stand say how much and where from](work/T-626-whims-and-making-do-say-how.md) | [T-618](work/T-618-first-year-ux.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

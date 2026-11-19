@@ -1,4 +1,4 @@
-# T-NEW — Log lines that say why: deaths, immigrants, miasma, a breach
+# T-625 — Log lines that say why: deaths, immigrants, miasma, a breach
 
 **Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 16–20 · **Size:** M · **Needs:** — · **Status:** open
 
