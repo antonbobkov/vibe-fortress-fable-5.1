@@ -59,7 +59,7 @@ describe('T-274 the message after a zone drag', () => {
     f.drag('s', 10, 10, 13, 12);
     f.drag('b', 10, 10, 13, 12);
     const text = f.screen.statusRow2();
-    expect(text).toBe('Bedroom: none of the 12 tiles qualify (floor that no other zone holds).');
+    expect(text).toBe('Bedroom: none of the 12 tiles qualify (12 belong to another zone).');
     expect(Array.from(text).length).toBeLessThanOrEqual(80);
   });
 

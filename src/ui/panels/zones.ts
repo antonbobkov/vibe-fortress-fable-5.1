@@ -102,6 +102,11 @@ export class ZoneTool {
   selected: EntityId = 0;
   /** `e`: the next rectangle resizes the selected zone. */
   resizing = false;
+  /**
+   * After a zone is made the tool stays chosen but idles (`panels.md` § Zones): the inspector takes
+   * `Enter`, the arrows and the digits until the pointer is pressed on the map or the type key again.
+   */
+  idle = false;
   anchor: TilePoint | null = null;
   end: TilePoint | null = null;
   readonly stockpile = new StockpileEditor();
@@ -113,12 +118,29 @@ export class ZoneTool {
   farmSeason = 0;
   private farmFor: EntityId = 0;
 
+  /** The tool takes the map: a type is chosen and not idle, or a resize is armed. */
   get active(): boolean {
+    return (this.kind !== null && !this.idle) || this.resizing;
+  }
+
+  /** A type is chosen or a resize armed, idle or not: `Esc` and a right click drop it. */
+  get chosen(): boolean {
     return this.kind !== null || this.resizing;
+  }
+
+  /** A zone was made: the tool idles, unless the next rectangle is already being drawn. */
+  rest(): void {
+    if (this.kind !== null && this.anchor === null) this.idle = true;
+  }
+
+  /** A press on the map: an idle tool starts the next rectangle. */
+  wake(): void {
+    this.idle = false;
   }
 
   cancel(): void {
     this.kind = null;
+    this.idle = false;
     this.resizing = false;
     this.anchor = null;
     this.end = null;
@@ -214,6 +236,7 @@ export class ZoneTool {
     const k = ZONE_KINDS.find((z) => z.key === key);
     if (k === undefined) return false;
     this.kind = k.id;
+    this.idle = false;
     this.resizing = false;
     this.anchor = null;
     this.end = null;
