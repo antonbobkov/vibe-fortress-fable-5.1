@@ -318,6 +318,12 @@ export interface FortressState {
   northWatch?: boolean;
   hospitalSetup: boolean;
   /**
+   * The last tick, as `checkFortressRooms` saw it, that the fortress had fewer than
+   * ROOMS_WITNESS_POPULATION adults; undefined while it never has. The rooms witness waits
+   * ROOMS_WITNESS_DAYS after it (T-629).
+   */
+  roomsShortTick?: number;
+  /**
    * T-571: dormitories dug once the bedroom plans are spent, each a block of free beds, so a dwarf
    * without a room of its own sleeps in a bed and not on the floor (10 § Sleeping: the floor rests less and thinks worse of it).
    */
@@ -1027,6 +1033,7 @@ export function keepHallFurniture(w: TestWorld, state: FortressState): void {
 }
 
 export function checkFortressRooms(w: TestWorld, state: FortressState): void {
+  noteRoomsPopulation(w, state);
   const buildings = w.readers.of<BuildingsReader>('14');
   const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
   const { cx, cy } = state;
@@ -2868,9 +2875,32 @@ export function playThreeYears(w: TestWorld, state: FortressState, ticks: number
 export const ROOMS_WITNESS_POPULATION = 7;
 
 /**
+ * T-629: the days a fortress must have held ROOMS_WITNESS_POPULATION adults before the end to be
+ * asked for its halls and bedrooms. The script digs and furnishes rooms for the dwarves it has
+ * (`checkFortressRooms`: bedrooms two ahead of the population, beds for the population and one),
+ * so a remnant that grows again late has not had the time to make them: `three-years-p2-4` at
+ * shift 50 (T-629) was four dwarves from day 173, six immigrants came on day 309, and it ended on
+ * day 336 with ten adults, twelve bedrooms dug and two furnished, the carpenter still at the beds.
+ * Two seasons are time to dig and furnish rooms for a wave.
+ */
+export const ROOMS_WITNESS_DAYS = 56;
+
+/** The fortress's living adults, as the rooms witness counts them. */
+function fortressAdults(w: TestWorld): number {
+  const ent = w.game.world.entities;
+  return w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+}
+
+/** T-629: notes a tick at which the fortress has fewer than ROOMS_WITNESS_POPULATION adults (called by `checkFortressRooms`). */
+export function noteRoomsPopulation(w: TestWorld, state: FortressState): void {
+  if (fortressAdults(w) < ROOMS_WITNESS_POPULATION) state.roomsShortTick = w.tick;
+}
+
+/**
  * T-156: what the script exists to exercise, each of which must have happened by the end of a
  * run. Returns the witnesses that are missing. The gate and the squad hold at every peril; the
- * halls and bedrooms in a fortress of at least ROOMS_WITNESS_POPULATION dwarves (T-488); at perils
+ * halls and bedrooms in a fortress of at least ROOMS_WITNESS_POPULATION dwarves (T-488) that has
+ * held that many for the last ROOMS_WITNESS_DAYS (T-629); at perils
  * 2 and 4 a living fortress has also raised the hearth alert and lowered it, and traded.
  */
 export function fortressWitnesses(w: TestWorld, state: FortressState, peril: number): string[] {
@@ -2885,9 +2915,8 @@ export function fortressWitnesses(w: TestWorld, state: FortressState, peril: num
   if (!rebuilding && !walls.every((id) => id !== 0 && buildings.get(id)?.typeId === 'wall' && built(id))) missing.push('gate walls built');
   if (!built(state.gateDoorId) || !built(state.gateDoorId2)) missing.push('gate doors built');
   const rooms = (type: string): number => buildings.zonesOfType(type).filter((id) => buildings.roomScore(id)?.requirementsMet === true).length;
-  const ent = w.game.world.entities;
-  const living = w.readers.of<DwarvesReader>('10').adults().filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
-  if (living >= ROOMS_WITNESS_POPULATION) {
+  const regrown = state.roomsShortTick !== undefined && w.tick - state.roomsShortTick < ROOMS_WITNESS_DAYS * TICKS_PER_DAY;
+  if (fortressAdults(w) >= ROOMS_WITNESS_POPULATION && !regrown) {
     if (rooms('hearth_hall') < 1) missing.push('a hearth hall');
     if (rooms('dining_hall') < 1) missing.push('a dining hall');
     if (rooms('bedroom') < 7) missing.push(`seven bedrooms (${rooms('bedroom')})`);
