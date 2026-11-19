@@ -85,6 +85,13 @@ function clampCount(n: number): number {
   return Math.max(ORDER_COUNT_MIN, Math.min(ORDER_COUNT_MAX, n));
 }
 
+/** A `○` recipe's missing input, from its workshop's waiting reason: "· no tallow", "· no fuel"; '' for any other reason. */
+function missingNote(ctx: PanelContext, reason: string | null): string {
+  if (reason === 'missing_input') return ctx.strings.get('ui.orders.pick.no_fuel');
+  const waiting = waitingFor(ctx, reason);
+  return waiting === null ? '' : ctx.strings.get('ui.orders.pick.no_input', { item: waiting.item });
+}
+
 /** `+`/`=` and `-`/`_` as a count step, ±10 with `Shift` (D-U5); 0 for any other key. */
 export function countStep(press: KeyPress): number {
   const up = press.key === '+' || press.key === '=';
@@ -263,6 +270,22 @@ export class OrdersPanel {
     const where = this.picker.fixed ? [this.picker.workshopId] : this.workshopsOfType(ctx, recipe.workshop);
     if (reader !== null && where.some((id) => reader.isRunnable(recipe.id, id).runnable)) return 0;
     return where.length > 0 ? 1 : 2;
+  }
+
+  /**
+   * What the picker says after a recipe no workshop can run now (`panels.md` § Add order): with no
+   * workshop of its type built, "· no kitchen", or "· kitchen not built yet" while one is placed;
+   * with one built, the input it lacks, "· no tallow", or "· no fuel".
+   */
+  pickerNote(ctx: PanelContext, recipe: RecipeRow): string {
+    const s = ctx.strings;
+    const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(recipe.workshop)?.name ?? recipe.workshop.replace(/_/g, ' ')).toLowerCase();
+    const rank = this.rank(ctx, recipe);
+    if (rank === 2) return s.get((this.buildings(ctx)?.byType(recipe.workshop).length ?? 0) > 0 ? 'ui.orders.pick.not_built' : 'ui.orders.pick.no_workshop', { workshop });
+    const reader = this.reader(ctx);
+    if (rank === 0 || reader === null || this.makeable(ctx, recipe)) return '';
+    const where = this.picker.fixed ? [this.picker.workshopId] : this.workshopsOfType(ctx, recipe.workshop);
+    return missingNote(ctx, reader.isRunnable(recipe.id, where[0] as EntityId).reason);
   }
 
   /** Whether some workshop the order could go to can run the recipe now. */
@@ -944,7 +967,10 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
   } else {
     groupedList(s, { col, row: rect.row + 2, cols: width, rows: height }, rows.map((row): GroupRow => ('heading' in row
       ? { heading: row.heading }
-      : { text: () => `${panel.makeable(ctx, row.recipe) ? '●' : '○'} ${row.recipe.name}${twins.has(row.recipe.name) ? ` · ${workshopOf(row.recipe)}` : ''}${panel.rank(ctx, row.recipe) === 2 ? ` · no ${workshopOf(row.recipe).toLowerCase()}` : ''}`, ...(panel.rank(ctx, row.recipe) === 2 ? { fg: t.dim } : {}) })), p.list, (index) => {
+      : { text: () => {
+        const note = panel.pickerNote(ctx, row.recipe);
+        return `${panel.makeable(ctx, row.recipe) ? '●' : '○'} ${row.recipe.name}${twins.has(row.recipe.name) ? ` · ${workshopOf(row.recipe)}` : ''}${note === '' ? '' : ` ${note}`}`;
+      }, ...(panel.rank(ctx, row.recipe) === 2 ? { fg: t.dim } : {}) })), p.list, (index) => {
       // A click selects; a click on the selected recipe adds it.
       if (index === p.list.selected) panel.pickerAdd(ctx);
       else { p.list.selected = index; p.typing = false; p.chosen = true; panel.move(0, ctx); }
@@ -1130,8 +1156,10 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
   groupedList(s, recipeRect, grouped.map((row): GroupRow => {
     if ('heading' in row) return row;
     const recipe = row.recipe;
-    const can = reader.isRunnable(recipe.id, id).runnable;
-    return { text: () => `${can ? '●' : '○'} ${recipe.name}`, fg: can ? t.good : t.dim };
+    const runnable = reader.isRunnable(recipe.id, id);
+    const can = runnable.runnable;
+    const note = can ? '' : missingNote(ctx, runnable.reason);
+    return { text: () => `${can ? '●' : '○'} ${recipe.name}${note === '' ? '' : ` ${note}`}`, fg: can ? t.good : t.dim };
   }), stateList, (index) => {
     stateList.selected = index;
     const recipe = ordered[index];

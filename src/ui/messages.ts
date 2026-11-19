@@ -308,6 +308,71 @@ export function matchName(registry: Registry, match: string, n = 1): string {
   return match.split('|').map((part) => itemName(registry, part, n)).join(' or ');
 }
 
+/**
+ * A building input with its alternatives as the build tool names it (`fortress-screen.md` § Build
+ * tool): one item in the plural of `n` ("2 logs" names "logs"), several in the singular, every one
+ * of them: "fiber, straw or reed".
+ */
+export function alternativesName(registry: Registry, match: string, n = 1): string {
+  const parts = match.split('|');
+  if (parts.length === 1) return itemName(registry, parts[0] as string, n);
+  const names = parts.map((part) => itemName(registry, part, 1));
+  return `${names.slice(0, -1).join(', ')} or ${names[names.length - 1] as string}`;
+}
+
+/** A row of the `whims` table as the UI names it (`personality-and-thoughts.md` § Whims). */
+interface WhimRowLike {
+  readonly id: string;
+  readonly kind: 'stock' | 'room';
+  readonly item: string;
+  readonly material?: string;
+  readonly count: number;
+  readonly text: string;
+}
+
+function whimRow(registry: Registry, whimId: string): WhimRowLike | undefined {
+  return registry.hasTable('whims') ? registry.table<WhimRowLike>('whims').byId(whimId) : undefined;
+}
+
+/**
+ * How far the fortress is with a whim (`10` § The Thane's whim): a `stock` whim by the units in stock
+ * and its count of its item ("3 of 20 fine meals in stock", "0 of 20 mead in stock"; "0 of 1 in stock"
+ * for any item), a `room` whim by the buildings in place ("0 of 1 in place").
+ */
+export function whimProgressText(strings: Strings, registry: Registry, whimId: string, have: number): string {
+  const row = whimRow(registry, whimId);
+  if (row === undefined) return strings.get('ui.whim.in_stock', { n: have, goal: '?' });
+  if (row.kind === 'room') return strings.get('ui.whim.in_place', { n: have, count: row.count });
+  const type = registry.table<NamedRow & { category?: string }>('items').byId(row.item);
+  const material = row.material === undefined ? '' : registry.table<NamedRow>('materials').byId(row.material)?.name ?? row.material;
+  const goal = type === undefined ? `${row.count}` : `${row.count} ${materialItemName(material, type, row.count)}`;
+  return strings.get('ui.whim.in_stock', { n: have, goal });
+}
+
+/**
+ * Where a whim's item is made (`10` § The Thane's whim): the workshops of the recipes that make its
+ * item type, of its material when it names one; '' for any item, or none or more than three.
+ */
+export function whimWhereMade(registry: Registry, whimId: string): string {
+  const row = whimRow(registry, whimId);
+  if (row === undefined || row.item === 'any') return '';
+  const recipes = registry.table<{ id: string; workshop: string; outputs: readonly { item: string; material?: { fixed?: string } }[] }>('recipes');
+  const workshops = new Set<string>();
+  for (const id of recipes.ids()) {
+    const recipe = recipes.byId(id);
+    if (recipe?.outputs.some((o) => o.item === row.item && (row.material === undefined || o.material?.fixed === row.material)) === true) workshops.add(recipe.workshop);
+  }
+  const buildings = registry.table<NamedRow>('buildings');
+  return workshopList(buildings.ids().filter((id) => workshops.has(id)).map((id) => buildings.byId(id)?.name ?? id));
+}
+
+/** "a carpenter's workshop", "a carpenter's workshop or a forge"; empty for none or more than three. */
+function workshopList(names: readonly string[]): string {
+  if (names.length === 0 || names.length > 3) return '';
+  const each = names.map((n) => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`);
+  return each.length === 1 ? (each[0] as string) : `${each.slice(0, -1).join(', ')} or ${each[each.length - 1] as string}`;
+}
+
 /** The building types whose recipes make an item type, in the buildings table's order. */
 export function producersOf(registry: Registry, itemId: string): string[] {
   const recipes = registry.table<RecipeRow>('recipes');
@@ -322,10 +387,7 @@ export function producersOf(registry: Registry, itemId: string): string[] {
 
 /** "a carpenter's workshop", "a carpenter's workshop or a forge"; empty for none or more than three. */
 export function whereMade(registry: Registry, itemIds: readonly string[]): string {
-  const names = Array.from(new Set(itemIds.flatMap((id) => producersOf(registry, id))));
-  if (names.length === 0 || names.length > 3) return '';
-  const each = names.map((n) => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`);
-  return each.length === 1 ? (each[0] as string) : `${each.slice(0, -1).join(', ')} or ${each[each.length - 1] as string}`;
+  return workshopList(Array.from(new Set(itemIds.flatMap((id) => producersOf(registry, id)))));
 }
 
 /** The tile a command is about, for the log line's focus (24 § Announcements: "jumps to the focus"). */
@@ -458,7 +520,12 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
   };
   let name = '';
   if (typeof filter['type'] === 'number') name = nameOf(filter['type']);
-  else if (Array.isArray(filter['types'])) name = (filter['types'] as number[]).slice(0, 2).map(nameOf).filter((x) => x !== '').join(' or ');
+  else if (Array.isArray(filter['types'])) {
+    // Several alternatives are each named, in the singular, as the build tool names them: "3 fiber, straw or reed".
+    const types = filter['types'] as number[];
+    const names = types.map((t) => (types.length === 1 ? nameOf(t) : items.byIndex(t)?.name ?? '')).filter((x) => x !== '');
+    name = names.length <= 1 ? (names[0] ?? '') : `${names.slice(0, -1).join(', ')} or ${names[names.length - 1] as string}`;
+  }
   else if (typeof filter['emptyContainer'] === 'string') name = `empty ${itemName(registry, filter['emptyContainer'], n)}`;
   else if (typeof filter['category'] === 'string') name = (filter['category'].split('/').pop() ?? '').replace(/_/g, ' ');
   else if (filter['edible'] === true) name = 'food';

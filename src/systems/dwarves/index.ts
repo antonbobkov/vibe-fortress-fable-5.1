@@ -30,9 +30,10 @@ import { SMOKE_RADIUS } from '@systems/materials/constants';
 import { TALLOW_SMOKE_PERMILLE } from '@systems/buildings/constants';
 import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
 import { SMOKEHOUSE_RECIPES, dwarvesNear } from '@systems/morale/thoughts';
-import { WHIMS_STREAM, whimFacts, whimMet, whimPossible, whimRows, type Whim } from './whims';
+import { WHIMS_STREAM, whimFacts, whimMet, whimPossible, whimProgress, whimRows, type Whim } from './whims';
+import type { WhimView } from './reader';
 
-export { makeReader, type DwarvesReader } from './reader';
+export { makeReader, type DwarvesReader, type WhimView } from './reader';
 export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
 export { grantXp } from './skills';
 export {
@@ -220,14 +221,15 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     ctx.emit({ type: 'WhimSet', thaneId: thane, whimId: row.id });
   }
 
-  /** The whim of the season and whether it is met now (the units panel's Thane line), or null. */
-  private whimView(): { id: string; text: string; met: boolean } | null {
+  /** The whim of the season, how much of it there is now and whether it is met (the units panel's Thane line), or null. */
+  private whimView(): WhimView | null {
     const world = this.world;
     if (this.whim === null || world === null || this.readersRef === null || this.registryRef === null) return null;
     const row = whimRows(this.registryRef).find((r) => r.id === this.whim?.id);
     if (row === undefined) return null;
     this.seedTitles();
-    return { id: row.id, text: row.text, met: whimMet(this.readersRef, this.registryRef, row, this.titles.thane) };
+    const have = whimProgress(this.readersRef, this.registryRef, row, this.titles.thane);
+    return { id: row.id, text: row.text, met: have >= row.count, kind: row.kind, count: row.count, have };
   }
 
   /** TestWorld's direct setup helper uses the same crossing rule as an hourly update. */

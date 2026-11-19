@@ -29,6 +29,7 @@ import type { MoraleReader } from '@systems/morale';
 import { TITLE_IDS } from '../constants';
 import type { Surface } from '../surface';
 import { clampList, label, Marks, separator, table, type ListState } from '../widgets';
+import { whimProgressText, whimWhereMade, wrapText } from '../messages';
 import { accel, type PanelContext } from './context';
 
 type TitleId = (typeof TITLE_IDS)[number];
@@ -37,7 +38,7 @@ interface DwarvesReaderLike {
   list(): EntityId[];
   activityText(id: EntityId): string;
   isTipsy?(id: EntityId): boolean;
-  whim?(): { readonly text: string; readonly met: boolean } | null;
+  whim?(): { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number } | null;
   skill(id: EntityId, skill: string): number;
   isChild?(id: EntityId): boolean;
   holder?(title: TitleId): EntityId;
@@ -55,6 +56,22 @@ const MOOD_COLS = 2;
 
 /** Rows under the table: the six action rows. */
 const ACTION_ROWS = 6;
+
+/** Rows the Thane line may wrap to. */
+const WHIM_ROWS = 4;
+
+/**
+ * 24 § Panels, the units panel's Thane line (10 § The Thane's whim): what the Thane wishes for, by
+ * the end of which season, how far the fortress is with it and whether it is met now, then, while it
+ * is not, where its item is made.
+ */
+export function whimLine(ctx: PanelContext, whim: { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number }): string {
+  const s = ctx.strings;
+  const progress = whimProgressText(s, ctx.registry, whim.id, whim.have);
+  const text = s.get(whim.met ? 'ui.units.whim_met' : 'ui.units.whim_unmet', { whim: whim.text, season: ctx.readers.calendar.seasonName, progress });
+  const where = whim.met ? '' : whimWhereMade(ctx.registry, whim.id);
+  return where === '' ? text : s.get('ui.units.whim_where', { text, where });
+}
 
 export function dwarvesOf(ctx: PanelContext): EntityId[] {
   return ctx.readers.has('10') ? ctx.readers.of<DwarvesReaderLike>('10').list() : [];
@@ -419,11 +436,11 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
   const morale = ctx.readers.has('15') ? ctx.readers.of<MoraleReader>('15') : null;
   // 10 § The Thane's whim: the Thane's line, under the filter, while the season has a whim.
   const whim = dwarves?.whim?.() ?? null;
-  const top = whim === null ? 0 : 1;
-  if (whim !== null) {
-    label(s, rect.col + 1, rect.row + 1, strings.get(whim.met ? 'ui.units.whim_met' : 'ui.units.whim_unmet', { whim: whim.text }),
-      { fg: whim.met ? t.value : t.dim, width: rect.cols - 2, keys: false });
-  }
+  const whimRows = whim === null ? [] : wrapText(whimLine(ctx, whim), rect.cols - 2, WHIM_ROWS);
+  const top = whimRows.length;
+  whimRows.forEach((text, k) => {
+    label(s, rect.col + 1, rect.row + 1 + k, text, { fg: whim?.met === true ? t.value : t.dim, width: rect.cols - 2, keys: false });
+  });
   const height = Math.max(2, rect.rows - 2 - ACTION_ROWS - top);
   const area = { col: rect.col + 1, row: rect.row + 1 + top, cols: rect.cols - 2, rows: height };
   table(

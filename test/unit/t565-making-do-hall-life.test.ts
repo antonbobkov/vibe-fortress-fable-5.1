@@ -211,7 +211,7 @@ describe('T-565 the Thane\'s whim', () => {
     const other = dwarf(w, w.index(16, 13, Z));
     thaneOf(w, thane);
     w.dwarves.whim = { id: 'whim_lantern', setTick: SEASON };
-    expect(w.readers.of<DwarvesReader>('10').whim()).toEqual({ id: 'whim_lantern', text: 'a lantern in the dining hall', met: false });
+    expect(w.readers.of<DwarvesReader>('10').whim()).toEqual({ id: 'whim_lantern', text: 'a lantern in the dining hall', met: false, kind: 'room', count: 1, have: 0 });
     w.build('lantern', w.index(16, 11, Z), 'glass');
     expect(w.readers.of<DwarvesReader>('10').whim()?.met).toBe(true);
     const loaded = roundTrip(w.game).game;

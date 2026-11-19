@@ -105,10 +105,18 @@ function roomMatches(readers: ReaderSetLike, registry: Registry, row: WhimRow, t
  * of its type in a zone of its type (the Thane's own when it says so).
  */
 export function whimMet(readers: ReaderSetLike, registry: Registry, row: WhimRow, thaneId: EntityId): boolean {
-  if (row.kind === 'room') return roomMatches(readers, registry, row, thaneId) >= row.count;
+  return whimProgress(readers, registry, row, thaneId) >= row.count;
+}
+
+/**
+ * How much of a whim the fortress has now, as the judgement counts it: units of its item in stock
+ * (available) for a `stock` whim, built buildings that answer it for a `room` whim.
+ */
+export function whimProgress(readers: ReaderSetLike, registry: Registry, row: WhimRow, thaneId: EntityId): number {
+  if (row.kind === 'room') return roomMatches(readers, registry, row, thaneId);
   const filter = stockFilter(registry, row);
-  if (filter === null || !readers.has('13')) return false;
-  return readers.of<ItemsReader>('13').countAvailable(filter) >= row.count;
+  if (filter === null || !readers.has('13')) return 0;
+  return readers.of<ItemsReader>('13').countAvailable(filter);
 }
 
 /** The item types whose id or tags answer a recipe input's `match` (alternatives split on `|`). */

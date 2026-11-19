@@ -22,7 +22,8 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
-import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, stackName } from './messages';
+import type { DwarvesReader } from '@systems/dwarves';
+import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, stackName, whimProgressText } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -178,6 +179,9 @@ export class AnnouncementLog {
     if (whimId !== undefined) {
       const row = typeof whimId === 'string' && this.registry.hasTable('whims') ? this.registry.table<{ id: string; text: string }>('whims').byId(whimId) : undefined;
       out['whim'] = row?.text ?? String(whimId);
+      // The wish says how far the fortress is with it: "3 of 20 fine meals in stock", "0 of 1 in place".
+      const view = readers.has('10') ? readers.of<DwarvesReader>('10').whim() : null;
+      out['progress'] = whimProgressText(this.strings, this.registry, String(whimId), view?.id === whimId ? view.have : 0);
     }
     const skill = e['skill'];
     if (typeof skill === 'string' && this.registry.hasTable('skills')) {
