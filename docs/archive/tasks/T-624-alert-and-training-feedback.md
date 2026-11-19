@@ -1,6 +1,8 @@
 # T-624 — The Hearth alert with no shelter, training with no barracks, and what "Idle" means
 
-**Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 12–15 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in b436dca5.
+
+**Source:** [T-618's first-year audit](../../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 12–15 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -102,7 +102,8 @@ describe('T-273 hints', () => {
     hints.onEvents([spawned('deer'), { type: 'HourPassed', hour: 0 }], f.w.readers);
     expect(ui.hintsShown).not.toContain('hint_predator');
     hints.onEvents([spawned('bear'), { type: 'HourPassed', hour: 0 }], f.w.readers);
-    expect(ui.hintsShown).toContain('hint_predator');
+    // The flat fortress has no shelter: the hint that asks for a hall first (T-624).
+    expect(ui.hintsShown).toContain('hint_predator_open');
     expect(log(f).lines.some((l) => l.text.includes('A beast that hunts dwarves is near.'))).toBe(true);
   });
 
@@ -188,7 +189,7 @@ describe('T-273 panels and screens', () => {
     f.w.submit({ type: 'SetAlert', level: 'hearth' });
     f.w.step(1);
     text = f.draw().join('\n');
-    expect(text).toContain('Hearth: civilians go to the');
+    expect(text).toContain('Hearth: civilians stop work and');
   });
 
   it('the embark hint alternates every five seconds of real time and on a tab change', () => {
