@@ -1313,6 +1313,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.fluid_ice': 'ice {level}/{max}',
   'ui.look.smoothed': 'smoothed',
   'ui.look.engraved': 'engraved',
+  // 24 § Inspection: what grows on a floor, after the terrain.
+  'ui.look.grass': 'grass',
+  'ui.look.flowers': 'flowers',
+  'ui.look.moss': 'moss',
   'ui.look.designation': 'Designated: {kind} (priority {priority})',
   'ui.look.forbidden': 'Traffic: forbidden',
   'ui.look.restricted': 'Traffic: restricted',

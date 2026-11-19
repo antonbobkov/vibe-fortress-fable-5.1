@@ -116,7 +116,7 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       }
       // The fluid ramps name palette rows, so the legend can draw them in their own colour.
       const fluids = rows.filter((row) => row.category === 'Fluids' && row.heading === undefined);
-      expect(fluids).toHaveLength(7);
+      expect(fluids).toHaveLength(6);
       expect(fluids.every((row) => palette.has(row.fg as string))).toBe(true);
       // The overlay rows are the overlay menu's, so the two lists cannot drift.
       expect(rows.filter((row) => row.category === 'Overlays' && row.heading === undefined)).toHaveLength(OVERLAY_ROWS.length);

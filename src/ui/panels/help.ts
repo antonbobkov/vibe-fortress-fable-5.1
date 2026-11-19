@@ -16,8 +16,11 @@ import type { Rect } from '@render/cellbuffer';
 import {
   GLYPH_BOULDER,
   GLYPH_ENGRAVED,
+  GLYPH_FLOWER,
   GLYPH_FORTIFICATION,
   GLYPH_GRASS,
+  GLYPH_GRASS_SHORT,
+  GLYPH_GRASS_TUFT,
   GLYPH_PAVED_FLOOR,
   GLYPH_RAMP,
   GLYPH_ROUGH_FLOOR,
@@ -28,7 +31,6 @@ import {
   GLYPH_STAIRS_DOWN,
   GLYPH_STAIRS_UP,
   GLYPH_STAIRS_UPDOWN,
-  GLYPH_TREE,
 } from '@render/glyphs';
 import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, contextTitle as keyContextTitle, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
 import { wrapHang } from '../messages';
@@ -58,26 +60,68 @@ const WORDING: Readonly<Record<string, string>> = Object.freeze(
   }, {}),
 );
 
-/** § Terrain, the solid rows: the glyph the compositor draws and the thing it draws. */
-const TERRAIN_LEGEND: readonly { readonly glyph: number; readonly name: string }[] = [
-  { glyph: GLYPH_ROUGH_WALL, name: 'rough wall' },
-  { glyph: GLYPH_SOLID_WALL, name: 'smoothed or block wall' },
-  { glyph: GLYPH_ENGRAVED, name: 'engraved wall or floor' },
-  { glyph: GLYPH_ROUGH_FLOOR, name: 'rough floor, mud, ash' },
-  { glyph: GLYPH_SMOOTH_FLOOR, name: 'smoothed floor' },
-  { glyph: GLYPH_PAVED_FLOOR, name: 'paved floor' },
-  { glyph: GLYPH_GRASS, name: 'grass, moss, shrub' },
-  { glyph: GLYPH_RAMP, name: 'ramp' },
-  { glyph: GLYPH_STAIRS_UP, name: 'stairs up' },
-  { glyph: GLYPH_STAIRS_DOWN, name: 'stairs down' },
-  { glyph: GLYPH_STAIRS_UPDOWN, name: 'stairs up and down' },
-  { glyph: GLYPH_FORTIFICATION, name: 'fortification' },
-  { glyph: GLYPH_TREE, name: 'tree' },
-  { glyph: GLYPH_SAPLING, name: 'sapling' },
-  { glyph: GLYPH_BOULDER, name: 'boulder' },
+/**
+ * § Terrain, the solid rows: the glyphs the compositor draws and the thing they draw, in a typical
+ * colour where the thing has one. `'trees'` stands for the tree rows, one per species glyph.
+ */
+const TERRAIN_LEGEND: readonly ({ readonly glyphs: readonly number[]; readonly name: string; readonly fg?: string } | 'trees')[] = [
+  { glyphs: [GLYPH_ROUGH_WALL], name: 'rough wall' },
+  { glyphs: [GLYPH_SOLID_WALL], name: 'smoothed or block wall' },
+  { glyphs: [GLYPH_ENGRAVED], name: 'engraved wall or floor' },
+  { glyphs: [GLYPH_ROUGH_FLOOR], name: 'rough floor, mud, ash' },
+  { glyphs: [GLYPH_SMOOTH_FLOOR], name: 'smoothed floor' },
+  { glyphs: [GLYPH_PAVED_FLOOR], name: 'paved floor' },
+  { glyphs: [GLYPH_GRASS], name: 'grass, moss, shrub' },
+  { glyphs: [GLYPH_GRASS_SHORT, GLYPH_GRASS_TUFT], name: 'grass (outdoors)', fg: 'grass_green' },
+  { glyphs: [GLYPH_FLOWER], name: 'flowers on grass (outdoors)', fg: 'flower_yellow' },
+  { glyphs: [GLYPH_FLOWER], name: 'web (white)', fg: 'silk_white' },
+  { glyphs: [GLYPH_RAMP], name: 'ramp' },
+  { glyphs: [GLYPH_STAIRS_UP], name: 'stairs up' },
+  { glyphs: [GLYPH_STAIRS_DOWN], name: 'stairs down' },
+  { glyphs: [GLYPH_STAIRS_UPDOWN], name: 'stairs up and down' },
+  { glyphs: [GLYPH_FORTIFICATION], name: 'fortification' },
+  'trees',
+  { glyphs: [GLYPH_SAPLING], name: 'sapling' },
+  { glyphs: [GLYPH_BOULDER], name: 'boulder' },
 ];
 
-/** § Terrain, the fluid and hazard rows, with their ramp colours. */
+/** The plant kinds a tree tile is drawn from (`plants.md`): each species takes its own glyph. */
+const TREE_KINDS: ReadonlySet<string> = new Set(['tree', 'fungus_tree']);
+
+interface PlantGlyphRow {
+  readonly id: string;
+  readonly name?: string;
+  readonly kind: string;
+  readonly glyph?: string;
+  readonly fg?: string;
+}
+
+/**
+ * One row per tree glyph of the plants table, naming the species drawn with it in table order
+ * ("↑  tree: ash, birch, stalk fern"), in the colour of its first species.
+ */
+export function treeLegendRows(registry: Registry): HelpRow[] {
+  const byGlyph = new Map<string, { names: string[]; fg?: string }>();
+  const plants = registry.table<PlantGlyphRow>('plants');
+  for (const id of plants.ids()) {
+    const row = plants.byId(id) as PlantGlyphRow;
+    const glyph = Array.from(row.glyph ?? '')[0];
+    if (!TREE_KINDS.has(row.kind) || glyph === undefined) continue;
+    let entry = byGlyph.get(glyph);
+    if (entry === undefined) {
+      entry = row.fg === undefined ? { names: [] } : { names: [], fg: row.fg };
+      byGlyph.set(glyph, entry);
+    }
+    entry.names.push(row.name ?? id.replaceAll('_', ' '));
+  }
+  return [...byGlyph].map(([glyph, entry]) => ({
+    category: 'Terrain',
+    text: `${glyph}  tree: ${entry.names.join(', ')}`,
+    ...(entry.fg === undefined ? {} : { fg: entry.fg }),
+  }));
+}
+
+/** § Terrain, the fluid rows and fire, with their ramp colours. */
 const FLUID_LEGEND: readonly { readonly glyph: string; readonly name: string; readonly fg: string }[] = [
   { glyph: '~', name: 'water, levels 1-2', fg: 'water_1' },
   { glyph: '≈', name: 'water, levels 3-7', fg: 'water_7' },
@@ -85,7 +129,6 @@ const FLUID_LEGEND: readonly { readonly glyph: string; readonly name: string; re
   { glyph: '≈', name: 'magma, levels 3-7', fg: 'magma_7' },
   { glyph: '▒', name: 'ice', fg: 'ice_blue' },
   { glyph: '^', name: 'fire', fg: 'yellow' },
-  { glyph: '*', name: 'web', fg: 'silk_white' },
 ];
 
 interface GlyphRow {
@@ -219,7 +262,10 @@ export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => str
   };
 
   heading('Terrain');
-  for (const row of TERRAIN_LEGEND) out.push({ category: 'Terrain', text: `${charOf(row.glyph)}  ${row.name}` });
+  for (const row of TERRAIN_LEGEND) {
+    if (row === 'trees') out.push(...treeLegendRows(registry));
+    else out.push({ category: 'Terrain', text: `${row.glyphs.map(charOf).join(' ')}  ${row.name}`, ...(row.fg === undefined ? {} : { fg: row.fg }) });
+  }
   heading('Fluids');
   for (const row of FLUID_LEGEND) out.push({ category: 'Fluids', text: `${row.glyph}  ${row.name}`, fg: row.fg });
   fromTable('Creatures', 'creatures');
