@@ -94,7 +94,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
       }
     }
 
-    // 4. Add the first attack of an engagement to the combat tab.
+    // 4. Add a blow to the combat tab.
     game.host.world.emit({
       type: 'AttackResolved',
       attackerId: dwarfId,
@@ -210,11 +210,11 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[27]).toBe('    serious cut (bandaged, infect»');
   });
 
-  it('the combat log names the tabs and shows the first attack of the engagement with its sender, damage and kind', () => {
+  it('the combat log names the tabs and shows a blow with its sender, damage and kind', () => {
     const rows = render('combat_log');
     expect(rows[0]).toBe('[1] All  [2] Alerts  [3] Combat');
-    expect(rows[2]).toMatch(/^Sp 1 ! \S+ hits \S+: 5 edge\.$/);
-    // The first attack of an engagement is an alert line: its mark is in the alert colour.
-    expect(fgOfText(draw('combat_log'), 2, '! ')).toBe(hexOf(theme.alert));
+    expect(rows[2]).toMatch(/^Sp 1 \S+ hits \S+: 5 edge\.$/);
+    // A blow is a note, in the note colour; a blow between two dwarves is no engagement of the fortress.
+    expect(fgOfText(draw('combat_log'), 2, ' hits ')).toBe(hexOf(theme.note));
   });
 });

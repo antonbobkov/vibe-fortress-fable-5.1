@@ -24,6 +24,9 @@ export const LOG_SAVED_LINES = 200;
 /** Repeated identical announcements within this many ticks merge with a count. */
 export const LOG_DEDUP_TICKS = 100;
 
+/** The fortress's engagement line stays open while its blows come within this many ticks of each other; a blow after a longer quiet opens a new one. */
+export const LOG_ENGAGEMENT_TICKS = 300;
+
 /** The immigrants line names each newcomer, with their best skill, in a wave of at most this many; a larger wave is counted. */
 export const LOG_IMMIGRANT_NAMES = 4;
 

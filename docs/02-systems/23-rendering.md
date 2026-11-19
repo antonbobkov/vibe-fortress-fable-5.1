@@ -91,7 +91,7 @@ Only presentation state animates; the simulation is discrete:
 - Rain (and storm) draws `'` on a few random outdoor cells per frame; snow draws `*`. The cells are the outdoor `open` cells with no creature, one in `PARTICLE_ONE_IN` chosen by a hash of the cell and the frame, so that a golden stays reproducible.
 - A designated tile whose job is not done blinks on the fast phase (about 2 Hz), as 03's `terrain.designationWork(i)` says: **queued** (no worker has its job yet, or it has no job yet) alternates between the designation tint and the bare tile; **assigned** (a worker holds its job) keeps the tint and alternates between it and the tint brightened by `DESIGNATION_PULSE_FACTOR`; **blocked** keeps the steady tint. An undiscovered designation's outline does not blink. Phase 0 of the fast clock draws the steady tint, so a still frame (`animFrame` 0) shows every designation steady. With `ViewState.reducedMotion` (the Reduced motion setting, and always in a test build: e2e and screenshots) no designation blinks.
 - The world map's cursor blinks with the designation blink: phase 0 of the fast clock draws the cursor, phase 1 the region's own cell; with reduced motion it is steady.
-- Unconscious creatures blink; danger-flagged creatures (a dwarf being attacked) get a red `bg` flash for one second on the first attack of an attacker and defender pair; later attacks of the same pair do not flash again (the engagement boundary of 16's combat announcements).
+- Unconscious creatures blink; danger-flagged creatures (a dwarf being attacked) get a red `bg` flash for one second on the first attack of an attacker and defender pair; later attacks of the same pair do not flash again.
 
 ### Viewport and camera
 

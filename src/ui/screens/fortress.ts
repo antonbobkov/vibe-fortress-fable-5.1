@@ -352,7 +352,6 @@ export class FortressScreen implements Screen {
     const arrivals = new Map<string, { line: LogLine; count: number; name: string }>();
     for (const event of events) {
       this.orders.onEvent(event);
-      if (event.type === 'AttackResolved' && (this.settings.combatLog === 'off' || (this.settings.combatLog === 'hits only' && event['outcome'] !== 'hit'))) continue;
       if (event.type === 'VeinFound') {
         const material = (event as unknown as { material?: string }).material;
         if (material !== undefined && this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(material)?.deepsilver === true) this.ui.deepFound = true;
@@ -384,7 +383,13 @@ export class FortressScreen implements Screen {
         this.zoneMade(Number(event['zoneId']));
       }
       // 13 § Rot: once a day, the alert before food rots (24 § Announcements and the log).
-      const done = event.type === 'DayPassed' ? this.log.rotAlert(readers, readers.calendar.tick) : this.log.announce(event, readers, readers.calendar.tick);
+      // 16 § Combat log: a blow opens or refreshes the fortress's engagement line, whatever the
+      // combat log setting, which chooses only the blows the Combat tab lists.
+      const fight = this.log.engage(event, readers, readers.calendar.tick);
+      const blows = event.type !== 'AttackResolved' || this.settings.combatLog === 'all' || (this.settings.combatLog === 'hits only' && event['outcome'] === 'hit');
+      const line = !blows ? null
+        : event.type === 'DayPassed' ? this.log.rotAlert(readers, readers.calendar.tick) : this.log.announce(event, readers, readers.calendar.tick);
+      const done = fight ?? line;
       if (done === null) continue;
       // 03 § Caverns: a breach marks its tile on the map, and the threats panel says where it is.
       if (event.type === 'CavernBreached' && typeof event['tile'] === 'number') {
@@ -1745,14 +1750,23 @@ export class FortressScreen implements Screen {
       this.stocks.toggleDepot(this.ctx);
       return true;
     }
-    if (this.pinned !== null) {
-      // "the strip shows the line until dismissed by any key".
+    // "the strip shows the line until dismissed by any key; the key then acts, but Space and Esc
+    // only dismiss": a player who presses Space to read the line does not unpause by it.
+    const dismissed = this.pinned !== null;
+    if (dismissed) {
       this.pinned = null;
-      return true;
+      if (this.dismissOnly(press)) return true;
     }
     // The order picker is a text field too: letters are its type-ahead filter, digits its quantity.
     if (this.ui.panel === 'orders' && this.orders.picker.open && !this.orders.materialOpen && this.orders.key(this.ctx, press)) return true;
-    return this.keyOwn(press, own);
+    return this.keyOwn(press, own) || dismissed;
+  }
+
+  /** `Space` and `Esc`, or whatever key pauses or cancels: after a danger line they only dismiss it (24 § Announcements and the log). */
+  private dismissOnly(press: KeyPress): boolean {
+    if (['Space', ' ', 'Esc', 'Escape'].includes(press.key)) return true;
+    const global = this.keymap.resolve('global', press);
+    return global !== null && (global.id === 'pause' || global.id === 'cancel');
   }
 
   /** The keys after the text fields: `press` as it was for the global, panel-letter and map keys, `own` for the panels'. */

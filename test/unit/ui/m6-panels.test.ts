@@ -360,16 +360,16 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       expect(log.announce({ type: 'RaidEnded', partyId: 2, outcome: 'looted' }, w.readers, 4)?.severity).toBe('alert');
       expect(log.announce({ type: 'MonsterSpawned', id: animal, cavern: 1 }, w.readers, 5)?.severity).toBe('note');
     });
-    it('D-176: only the first attack of a pair alerts; combat category survives save', () => {
+    it('a blow is a combat note, the first of a pair as the later ones; combat category survives save', () => {
       const w = new TestWorld({ seed: 'm6-combat-log', world: 'flat-test', embark: 'none' });
       const attackerId = w.spawnDwarf({ at: w.index(10, 10, 32) });
       const defenderId = w.spawnDwarf({ at: w.index(11, 10, 32) });
       const log = new AnnouncementLog(strings, w.game.registry);
       log.register(w.game.world.registrations.announcements);
       const attack = { type: 'AttackResolved', attackerId, defenderId, part: 'torso', damageType: 'blunt', amount: 1, outcome: 'hit' } as const;
-      expect(log.announce(attack, w.readers, 1)?.severity).toBe('alert');
+      expect(log.announce(attack, w.readers, 1)?.severity).toBe('note');
       expect(log.lines[0]?.text).toContain(': 1 blunt.');
-      expect(log.announce(attack, w.readers, 2)?.severity).toBe('note');
+      expect(log.announce({ ...attack, amount: 2 }, w.readers, 2)?.severity).toBe('note');
       const saved = toSaved(defaultUiState(32), log.lines);
       const restored = fromSaved(defaultUiState(32), saved);
       expect(filterLines(restored, 2)).toHaveLength(2);
@@ -381,7 +381,8 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
         { text: 'Raid arrived!!', severity: 'danger', tick: 3, count: 1 },
       ];
 
-      expect(filterLines(lines, 0)).toHaveLength(3);
+      // The combat note is the Combat tab's alone (16 § Combat log).
+      expect(filterLines(lines, 0)).toHaveLength(2);
       expect(filterLines(lines, 1)).toHaveLength(1);
       const combatLines = filterLines(lines, 2);
       expect(combatLines).toHaveLength(1);

@@ -76,8 +76,8 @@ const DOCUMENTED: readonly { event: string; severity: 'note' | 'alert' | 'danger
   { event: 'SulkHappened', severity: 'note', doc: '15' },
   { event: 'SulkHappened', severity: 'alert', doc: '15' },
   { event: 'MoodTierChanged', severity: 'note', doc: '15' },
-  // `16` § Registrations; the first attack of an engagement is the alert on `AttackResolved`.
-  { event: 'AttackResolved', severity: 'alert', doc: '16' },
+  // `16` § Registrations; a blow is a note of the Combat tab, and the fortress's engagement line (the UI's) the alert.
+  { event: 'AttackResolved', severity: 'note', doc: '16' },
   { event: 'AlertChanged', severity: 'note', doc: '16' },
   { event: 'KillRecorded', severity: 'note', doc: '16' },
   // `17` § Registrations.

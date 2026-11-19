@@ -37,7 +37,7 @@ Status row 2: as many complete hotkey entries as fit (each is a button that does
 
 Status row 3, the hover line: the tile summary (24 § Inspection) of the tile under the mouse, or of the map cursor when the mouse is off the map, in every mode, menu and panel: `Granite wall`, `Sand floor · water 5/7 · 1 trout`, `Ketil Ironvein, Digging · 2 more here`. It is blank when there is neither. Text that does not fit ends with `…` and registers its full text as a tooltip on the row.
 
-The log strip shows the last three announcements; danger lines are prefixed `!!`, alerts `!`. A line that does not fit ends with `»` and has a tooltip with the whole text. A hint (the `☼` lines) that does not fit one line is wrapped over two of the strip's three lines, and is drawn in `text_value`, not in the announcements' grey.
+The log strip shows the last three announcements, leaving out the combat notes (blows and kills), which only the log's Combat tab lists; danger lines are prefixed `!!`, alerts `!`. A line that does not fit ends with `»` and has a tooltip with the whole text. A hint (the `☼` lines) that does not fit one line is wrapped over two of the strip's three lines, and is drawn in `text_value`, not in the announcements' grey.
 
 ## Sidebar open (units panel)
 

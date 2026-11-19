@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-637 | [The first key after a danger acts, and combat does not drown the Alerts tab](work/T-637-danger-key-and-combat-alerts.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
 | T-638 | [The Threats panel shows the coming raid, and the end of a raid says what happened](work/T-638-raid-aftermath-and-threats-panel.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
 | T-639 | [The Mood and Units panels at thirty dwarves and more](work/T-639-mood-and-units-at-thirty-dwarves.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
 | T-640 | [Animals, Jobs, Stocks and trade requests with many rows](work/T-640-long-lists-animals-jobs-requests.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |

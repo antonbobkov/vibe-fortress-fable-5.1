@@ -171,8 +171,9 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       category: 'combat',
       oneOf: { field: 'hunted', values: [false] },
     });
+    // A blow is a note of the Combat tab; the fortress's engagement line is the alert (16 § Combat log).
     ctx.register.announcement('AttackResolved', {
-      severity: 'alert',
+      severity: 'note',
       stringKey: 'announce.attack_resolved',
       keyField: 'outcome',
       category: 'combat',

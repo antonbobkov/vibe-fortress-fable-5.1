@@ -11,7 +11,7 @@ import { dayOfSeasonOf, seasonOf, yearOf } from '@core/calendar';
 import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
-import { lineText, type LogLine, type Severity } from '../announcements';
+import { combatOnly, lineText, type LogLine, type Severity } from '../announcements';
 import type { Strings } from '../strings';
 import type { Surface, Theme } from '../surface';
 import { label, type ListState } from '../widgets';
@@ -34,7 +34,7 @@ export interface LogCreatures {
   readonly open: (id: EntityId) => void;
 }
 
-/** `0` all, `1` alerts and danger, `2` combat. */
+/** `0` all but the combat notes, `1` alerts and danger, `2` combat. */
 export type LogFilter = 0 | 1 | 2;
 
 export function colorOf(theme: Theme, severity: Severity): Rgb {
@@ -42,7 +42,8 @@ export function colorOf(theme: Theme, severity: Severity): Rgb {
 }
 
 export function filterLines(lines: readonly LogLine[], filter: LogFilter): LogLine[] {
-  if (filter === 0) return lines.slice();
+  // The blows and kills are the Combat tab's alone (16 § Combat log).
+  if (filter === 0) return lines.filter((l) => !combatOnly(l));
   if (filter === 1) return lines.filter((l) => l.severity !== 'note');
   return lines.filter((l) => l.category === 'combat');
 }
@@ -272,14 +273,19 @@ function drawLogScrollbar(s: Surface, track: Rect, view: LogView, count: number)
 }
 
 /**
- * The strip: the last `rect.rows` lines, newest at the bottom; a pinned danger line (shown until
+ * The strip: the last `rect.rows` lines but the combat notes, newest at the bottom; a pinned danger line (shown until
  * any key) takes the bottom row; `flash` draws the strip on the panel background for the alert's
  * second.
  */
 export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], pinned: LogLine | null, flash: boolean): void {
   const bg = flash ? s.theme.panelBg : s.theme.black;
   s.fill(rect, bg);
-  const tail = lines.slice(Math.max(0, lines.length - rect.rows));
+  // The newest lines but the combat notes, which only the Combat tab lists (16 § Combat log).
+  const tail: LogLine[] = [];
+  for (let k = lines.length - 1; k >= 0 && tail.length < rect.rows; k -= 1) {
+    const line = lines[k] as LogLine;
+    if (!combatOnly(line)) tail.unshift(line);
+  }
   const shown = pinned !== null && !tail.includes(pinned) ? [...tail.slice(1), pinned] : tail;
   // Fill from the newest line back. A hint that does not fit one line takes two of the strip's lines when
   // both fit, and is one line cut with `»` when only one is left; every other line is one line, cut with `»`.

@@ -1661,6 +1661,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.attack_resolved.miss': '{attacker} misses {defender}.',
   'announce.attack_resolved.parried': '{defender} parries {attacker}.',
   'announce.attack_resolved.blocked': '{defender} blocks {attacker}.',
+  'announce.attack_harmless': '{attacker} hits {defender} but does no harm.',
+  // 16 § Combat log: the fortress's engagement line, refreshed while its blows come.
+  'announce.engagement.one': '{ours} is fighting {foes}.',
+  'announce.engagement.many': '{ours} are fighting {foes}.',
   'announce.alert_changed': 'The fortress alert is now {to}.',
   'announce.kill_recorded': '{killer} has slain {victim}.',
   // 18 Threats announcements

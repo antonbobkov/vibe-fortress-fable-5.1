@@ -729,12 +729,12 @@ function brokerFor(env: MessageEnv): EntityId {
   return env.readers.has('16') && env.readers.of<CombatReader>('16').onDuty(broker) ? 0 : broker;
 }
 
-/** The plural of a lower-case creature name: wolf to wolves, lynx to lynxes, bear to bears. */
+/** The plural of a lower-case creature name: wolf to wolves, dwarf to dwarves, lynx to lynxes, bear to bears. */
 export function pluralName(name: string): string {
   const words = name.split(' ');
   const last = words[words.length - 1] ?? '';
   let plural: string;
-  if (/(?:lf|fe)$/.test(last)) plural = last.replace(/f(e?)$/, 'ves');
+  if (/(?:lf|fe)$/.test(last) || last === 'dwarf') plural = last.replace(/f(e?)$/, 'ves');
   else if (/(?:s|x|z|ch|sh)$/.test(last)) plural = `${last}es`;
   else if (/[^aeiou]y$/.test(last)) plural = `${last.slice(0, -1)}ies`;
   else plural = `${last}s`;
