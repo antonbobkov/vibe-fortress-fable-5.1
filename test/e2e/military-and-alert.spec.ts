@@ -63,6 +63,8 @@ test('military-and-alert', async ({ page }) => {
   await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as { __deepholm: MilitaryHook }).__deepholm.step(1));
   expect(await page.evaluate((id) => (window as unknown as { __deepholm: MilitaryHook }).__deepholm.readers.of<{ squad(id: number): { members: number[] } }>('16').squad(id)?.members.length, squadId)).toBe(1);
+  // T-622: under the members, the squad says whether its member holds a weapon.
+  await expect.poll(() => textOf(page)).toMatch(/Armed [01] of 1/);
   await page.keyboard.press('Shift+S');
   const clickAt = await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: MilitaryHook }).__deepholm;

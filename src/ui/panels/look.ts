@@ -32,6 +32,7 @@ import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
+import { equipmentText, identityLine, isDwarf, needCells, needCellWidth, relationsText, skillBar, titleText, wearingText } from './look-dwarf';
 
 interface TileInspection {
   readonly discovered: boolean;
@@ -348,6 +349,9 @@ export function drawLookPanel(
     const name = readers.entities.get(id, C.Creature)?.name ?? '';
     separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.look.creature', { name }).replace(/^── /, '').trim());
     row += 1;
+    const dwarf = isDwarf(readers, id);
+    // 10 § Registrations, `creature › dwarf`: the identity line, then the activity, the needs and the skills.
+    if (dwarf) line(identityLine(readers, registry, strings, id));
     if (has(readers, '10')) {
       const dwarves = readers.of<DwarvesReaderLike>('10');
       // 10 § Tipsy: the inspector says "Tipsy" beside the activity.
@@ -358,6 +362,19 @@ export function drawLookPanel(
           ? strings.get('ui.look.activity', { activity })
           : strings.get('ui.look.activity_priority', { activity, priority: job.priority }),
       );
+      if (dwarf) {
+        // Two needs to a row where the panel is wide enough, each in the colour of how pressing it is.
+        line(strings.get('ui.look.dwarf.needs'), t.key);
+        const cellWidth = needCellWidth(strings);
+        const perRow = rect.cols - 2 >= 2 * cellWidth + 1 ? 2 : 1;
+        const cells = needCells(readers, strings, id);
+        for (let k = 0; k < cells.length && row < rect.row + rect.rows; k += perRow) {
+          cells.slice(k, k + perRow).forEach((cell, n) => {
+            label(s, rect.col + 1 + n * (cellWidth + 1), row, cell.text, { fg: cell.level === 2 ? t.bad : cell.level === 1 ? t.alert : t.text, width: cellWidth, keys: false });
+          });
+          row += 1;
+        }
+      }
       const known = skills
         .ids()
         .map((sid) => ({ sid, level: dwarves.skill(id, sid) }))
@@ -365,7 +382,7 @@ export function drawLookPanel(
       if (known.length > 0) {
         line(strings.get('ui.look.skills'), t.key);
         for (const k of known) {
-          line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)})`);
+          line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)}) ${skillBar(readers, registry, id, k.sid)}`);
         }
       }
       if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
@@ -432,6 +449,16 @@ export function drawLookPanel(
           }
         }
       }
+    }
+    // What the creature holds and wears, then a dwarf's relations and titles (fortress-screen.md § Inspection panel).
+    const equipment = equipmentText(readers, registry, strings, id, dwarf);
+    if (equipment !== null) for (const text of hangingRows(equipment, rect.cols - 2)) line(text);
+    const wearing = dwarf ? wearingText(readers, registry, strings, id) : null;
+    if (wearing !== null) for (const text of hangingRows(wearing, rect.cols - 2)) line(text);
+    if (dwarf) {
+      for (const text of hangingRows(relationsText(readers, strings, id), rect.cols - 2)) line(text);
+      const title = titleText(readers, strings, id);
+      if (title !== null) line(title);
     }
   }
 }

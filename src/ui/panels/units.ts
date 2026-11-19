@@ -74,8 +74,8 @@ export function idleCount(ctx: PanelContext): number {
   return dwarvesOf(ctx).filter((id) => isIdle(ctx, id)).length;
 }
 
-/** The profession of the highest skill. */
-export function professionOf(ctx: PanelContext, id: EntityId): string {
+/** The profession of the highest skill (the units panel and the creature inspector's identity line). */
+export function professionOf(ctx: Pick<PanelContext, 'readers' | 'registry' | 'strings'>, id: EntityId): string {
   if (!ctx.readers.has('10')) return '';
   const dwarves = ctx.readers.of<DwarvesReaderLike>('10');
   const skills = ctx.registry.table<SkillRow>('skills');
