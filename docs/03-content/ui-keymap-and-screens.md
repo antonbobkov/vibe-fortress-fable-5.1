@@ -593,7 +593,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Announcements
 
-`MiasmaSpread` uses alert severity and the line "Miasma spreads."
+`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines are one (`announce.starving_many`), and the alert before food rots is `announce.rot_soon` (24 § Announcements and the log).
 
 ### Announcement strings
 
@@ -619,6 +619,23 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.spat_on` | "The camel spat on {dwarf}." |
 | `announce.ice_melted` | "The ice walls of {place} have melted." |
 | `announce.roost_found` | "Bats. Hundreds of them. {dwarf} counted." |
+| `announce.miasma_from` | "Miasma spreads from {what} in {place}." |
+| `announce.miasma_rotten` | "{n} rotten {material}" |
+| `announce.miasma_corpse` | "a rotting {species} corpse" |
+| `announce.miasma_corpses` | "{n} rotting {species} corpses" |
+| `announce.miasma_advice` | "A refuse stockpile outdoors, or a dump, takes rotten food away." |
+| `announce.rot_soon` | "{n} food will rot within {days\|day\|days}; the largest stack is {stack} in {place}." |
+| `announce.starving_many` | "{n} dwarves are starving: {names}." |
+| `ui.rot.fresh` | "fresh" |
+| `ui.rot.stale` | "stale" |
+| `ui.rot.rotten` | "rotten" |
+| `ui.rot.rots_in` | "{stage}, rots in {n\|day\|days}" |
+| `ui.rot.gone_in` | "{stage}, gone in {n\|day\|days}" |
+| `ui.rot.not_now` | "{stage}, not rotting here" |
+| `ui.rot.keeps` | "keeps, never rots" |
+| `ui.stocks.rot_soon` | "{n} rot within {days\|day\|days}" |
+| `ui.place.open` | "the open" |
+| `ui.place.halls` | "the halls" |
 
 
 ## Hints

@@ -17,7 +17,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { agedMaterial, buildingName, enchantedName, filterText, materialItemName, wrapHang, zoneName } from '../messages';
+import { agedMaterial, buildingName, enchantedName, filterText, itemRotText, materialItemName, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
@@ -269,6 +269,13 @@ export function drawLookPanel(
   const wrapped = (prefix: string, text: string, fg = t.text): void => {
     for (const part of wrapHang(text, rect.cols - 2 - prefix.length, 2)) line(`${prefix}${part}`, fg);
   };
+  // 13 § Rot: under a perishable item, its stage and the days it has left, in the alert colour once stale.
+  const rot = (prefix: string, id: EntityId): void => {
+    const text = itemRotText({ readers, strings }, id);
+    if (text === '') return;
+    const stage = has(readers, '13') ? readers.of<ItemsReader>('13').rotStage(id) : 0;
+    wrapped(prefix, text, stage >= 1 ? t.alert : t.dim);
+  };
   line(strings.get('ui.look.header', { x, y, z }), t.value);
   line(tabsLine(strings, rect.cols - 2, itemIds.length, creatures.length));
   if (tab === 0) {
@@ -290,6 +297,7 @@ export function drawLookPanel(
       line(strings.get('ui.look.here'), t.key);
       for (const id of itemIds) {
         line(`  ${itemLine(readers, registry, id)}`);
+        rot('    ', id);
         const spell = spellLine(readers, strings, id, true);
         if (spell !== null) wrapped('    ', spell, t.dim);
         const enchant = enchantLine(readers, strings, id);
@@ -332,6 +340,7 @@ export function drawLookPanel(
     }
     for (const id of itemIds) {
       line(itemLine(readers, registry, id));
+      rot('  ', id);
       const spell = spellLine(readers, strings, id, true);
       if (spell !== null) wrapped('  ', spell, t.dim);
       const enchant = enchantLine(readers, strings, id);

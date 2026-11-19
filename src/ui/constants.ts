@@ -49,6 +49,8 @@ export const EMBARK_LOADOUT_NAME_MAX = 32;
 export const HINT_FOOD_DAYS = 2;
 /** Days one edible item feeds one dwarf at the base hunger rate (a meal takes 100 of the 24 hunger a day brings, rounded down to four). */
 export const HINT_FOOD_DAYS_PER_ITEM = 4;
+/** 13 § Rot: the stocks panel counts, and the alert warns of, food that rots within this many days (24 § Panels). */
+export const ROT_ALERT_DAYS = 3;
 
 /** Width of a body part's health meter in the creature inspector. */
 export const HEALTH_PART_BAR_CELLS = 5;

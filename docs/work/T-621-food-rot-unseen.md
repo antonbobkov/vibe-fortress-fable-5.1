@@ -18,6 +18,11 @@ Nothing on screen said the food was going. The stocks panel shows no rot stage o
 
 Spec: 13 § Rot (the reader numbers the panels read), 24 § Panels (stocks and Look lines), `ui-keymap-and-screens.md` (strings and the alert), 15 or 10 for the starving line.
 
+## Found while doing it
+
+- **The testing fortress with 600 cured meat starved because of where the hook put the meat, not because of a game rule.** The audit's script spawned it at the first dwarf's tile two rows south, (91, 48, 30) at Cloudhowe, which is a boulder: no walker can stand there, so the meat was unreachable and nobody ever looked at it. Replayed in the browser (world `t618-year`, Cloudhowe, Testing preset), the fortress falls on Summer 23 with all 600 untouched, as in the audit; with the meat one row north, on a reachable floor, the dwarves eat it once the preset's food has rotted (about Spring 22) and all 15 are alive into autumn with 326 left. Cured meat is eaten as any food (10 § Eating and drinking), so no code changed for this.
+- Item 5 waits for the owner as D-252 in `docs/decisions.md`, with the days each option feeds seven dwarves.
+
 ## Done
 
 The stocks panel and Look show rot; the alert fires in a scenario where the Balanced loadout's food would rot unattended; tests pin the lines; the e2e `full-year` still passes.

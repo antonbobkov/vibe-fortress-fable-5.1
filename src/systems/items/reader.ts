@@ -18,6 +18,17 @@ export interface StockCountView {
   readonly byQuality: readonly number[];
 }
 
+/**
+ * 13 § Rot: where a perishable item stands. `toRot` and `toGone` are the ticks until it reaches the
+ * rotting stage (100% of its rot days) and is gone (150%) at the speed it rots at now; 0 once
+ * there; null while it does not rot where it lies (frozen, held on a rack, dry in a bag).
+ */
+export interface RotOutlook {
+  readonly stage: number;
+  readonly toRot: number | null;
+  readonly toGone: number | null;
+}
+
 export interface ItemsReader {
   /** The `Item` record (a copy). */
   get(id: EntityId): Item | undefined;
@@ -25,6 +36,8 @@ export interface ItemsReader {
   value(id: EntityId): number;
   /** Rot stage 0 … 3 (rot arrives with T-M4-15; 0 until then). */
   rotStage(id: EntityId): number;
+  /** A perishable item's rot stage and the ticks it has left ({@link RotOutlook}); null for one that never rots. */
+  rotOutlook(id: EntityId): RotOutlook | null;
   /** Miasma on a tile (T-M4-15; false until then). */
   isMiasma(i: TileIndex): boolean;
   /** Any unburied dwarf remains older than 15's UNBURIED_DAYS. */
@@ -97,6 +110,7 @@ export function makeReader(
   wantsCount: () => number = () => 0,
   isMiasma: (i: TileIndex) => boolean = () => false,
   unburiedDead: (tick: number) => boolean = () => false,
+  rotOutlook: (id: EntityId) => RotOutlook | null = () => null,
 ): ItemsReader {
   const facts = core.host.facts;
   const typeOf = (typeId: string | number): number => (typeof typeId === 'number' ? typeId : facts.typeIndex(typeId));
@@ -107,6 +121,7 @@ export function makeReader(
     },
     value: (id) => core.value(id),
     rotStage: (id) => core.get(id)?.rotStage ?? 0,
+    rotOutlook,
     isMiasma,
     unburiedDead,
     at: (i) => entities.at(i).filter((id) => core.isItem(id)),

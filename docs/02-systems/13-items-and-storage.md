@@ -147,6 +147,8 @@ A held item (flagged `installed`) does not rot: a raw item on a drying rack keep
 
 Miasma: each 13 tick, every rotting item on a tile that is not `outdoor` emits miasma to its tile and the 8 neighbors: `miasmaTiles: Map<TileIndex, expiresTick>` with `MIASMA_DURATION`. Dwarves entering a miasma tile get the `miasma` thought (10 checks `items.isMiasma(i)` on entering, like mist). Refuse stockpiles outdoors are the answer; so are burial and butchering promptly.
 
+The reader tells how long a perishable item keeps: `items.rotOutlook(id)` is its stage and the ticks until it reaches the rotting stage (100%) and until it is gone (150%; for ice, both are its melting), counted from the rot it has gathered at the speed it rots at now, the speed last sampled. Each is 0 once reached and null while the item does not rot where it lies (frozen, held on a rack, raw plants in a bag); the outlook is null for an item with no rot timer (`rotDays` 0, an aged cheese). Reading it changes nothing. The stocks panel, Look and the alert before food rots (24) read it.
+
 ### Curing
 
 `cured_meat`, `cured_fish` and `salted_hide` have `rotDays` 0: they never rot. A cured item is worth twice its raw form (its type's `mult` 2). Meat and fish are cured at the smokehouse, at the kitchen with salt, or on a drying rack (12 § Smoke, salt and the smokehouse; 14 § The drying rack); a hide is salted on a rack. `tan_hide` takes a `salted_hide` as it takes a `raw_hide`. An item of a cured or salted form names itself so: "cured boar meat", "cured trout", "salted boar hide".
@@ -198,6 +200,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 ### Reader
 
 - `items.get(id)` (the `Item` record), `items.value(id)`, `items.rotStage(id)`, `items.isMiasma(i)`
+- `items.rotOutlook(id)` — a perishable item's stage and the ticks it has left to the rotting stage and to gone, at its present speed (§ Rot); null for an item that never rots
 - `items.at(i)` (ids on a tile), `items.inContainer(id)`, `items.containerOf(id)`
 - `items.findItem`, `items.findItems`, `items.countAvailable`, `items.count(typeId)`
 - `items.stockpileAt(i)`, `items.stockpileAccepts(stockpileId, itemId)`, `items.freeSlots(stockpileId)`
@@ -232,7 +235,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Registrations
 
-Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, owner, flags, container) and `zone › stockpile` (filter, containers, usage, priority, links, cellar); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day, "Miasma spreads.").
+Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, owner, flags, container) and `zone › stockpile` (filter, containers, usage, priority, links, cellar); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day, naming the rotting thing and its place: "Miasma spreads from 20 rotten turnip in Stockpile #2 (Food).", 24 § Announcements and the log).
 
 ## Player-facing behavior
 
@@ -242,7 +245,8 @@ Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); pane
   - `g` returns to the category tree. `v` opens the material-class checklist; arrows select and `Space` toggles, as does a click. The Any row switches between all classes and none. `Esc` returns without another change. All these actions are buttons or fields as well as keys, and are listed in Help. Truncated values have full-text tooltips.
   - `Shift+C` turns the cellar setting on or off, as does a click on its line; the line says whether the cellar works and why not: "Cellar: working", "Cellar: too warm (16 °C)", "Cellar: lit" (24 § Panels).
   - A full-stockpile announcement names its ordinal and category preset, or Custom, and focuses the stockpile: "Stockpile #2 (Wood) is full."
-- Stocks panel: category tree with counts and values; stocked category leaves expand to type rows and individual item stacks. An aged stack names its stage and its years in the cellar: "aged bellwine ×20 (aged, 1 year in the cellar)". Forbid, dump and melt act on the selected scope. With mixed materials in a type, melt addresses only its metal stacks.
+- Stocks panel: category tree with counts and values; stocked category leaves expand to type rows and individual item stacks. An aged stack names its stage and its years in the cellar: "aged bellwine ×20 (aged, 1 year in the cellar)". A perishable stack says its rot stage and the days it has left ("turnip ×20 · stale, rots in 4 days"), and a row that holds perishable stacks counts the units that rot within `ROT_ALERT_DAYS` (24 § Panels). Forbid, dump and melt act on the selected scope. With mixed materials in a type, melt addresses only its metal stacks.
+- Before food rots: an alert when the food that will rot within `ROT_ALERT_DAYS` would feed the fortress for a day, naming the largest such stack and its place (24 § Announcements and the log).
 - Item inspection: every field.
 - Glyphs: `%` food and corpses (corpses in dark red), `☼` drink barrels... the full glyph table is in `03-content/glyphs-and-colors.md`; the rule is one glyph per category node at depth 2.
 - Zones menu › Compost heap (`[S-k]`): drag a rectangle; the heap has no settings. Its inspector counts the items on it waiting to turn ("Turning: 4 items").

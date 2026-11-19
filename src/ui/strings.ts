@@ -665,6 +665,17 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stocks.depot_pick': '[Space] pick  [S-t] move {n}  [Esc]',
   'ui.stocks.nothing_selected': 'Nothing is selected in the stocks list.',
   'ui.stocks.no_metal': 'Nothing here is metal: only metal items melt.',
+  // 13 § Rot: the stage and the days left, in Stocks and Look; the count of a row's food that rots soon.
+  'ui.rot.fresh': 'fresh',
+  'ui.rot.stale': 'stale',
+  'ui.rot.rotten': 'rotten',
+  'ui.rot.rots_in': '{stage}, rots in {n|day|days}',
+  'ui.rot.gone_in': '{stage}, gone in {n|day|days}',
+  'ui.rot.not_now': '{stage}, not rotting here',
+  'ui.rot.keeps': 'keeps, never rots',
+  'ui.stocks.rot_soon': '{n} rot within {days|day|days}',
+  'ui.place.open': 'the open',
+  'ui.place.halls': 'the halls',
   // Units panel (`fortress-screen.md` § Sidebar open).
   'ui.units.filter': '/filter: {filter}',
   'ui.units.name': 'Name',
@@ -1478,6 +1489,12 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.room_quality': 'A room has become {tierName}.',
   'announce.stockpile_full': '{zone} is full.',
   'announce.miasma': 'Miasma spreads.',
+  'announce.miasma_from': 'Miasma spreads from {what} in {place}.',
+  'announce.miasma_rotten': '{n} rotten {material}',
+  'announce.miasma_corpse': 'a rotting {species} corpse',
+  'announce.miasma_corpses': '{n} rotting {species} corpses',
+  'announce.miasma_advice': 'A refuse stockpile outdoors, or a dump, takes rotten food away.',
+  'announce.rot_soon': '{n} food will rot within {days|day|days}; the largest stack is {stack} in {place}.',
   // 07 § Registrations ("announcement `PlotNeedsSeeds` as a note"); text D-065.
   // 07 § Registrations (T-516): a frost's kills on one plot, merged into one line per crop.
   'announce.crop_frost': 'Frost killed {n|plant|plants} of {crop} on {plot}.',
@@ -1521,6 +1538,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.hunt_no_ammo': '{hunter} has no ammunition for the hunt.',
   // 10 § Registrations: starving, title assigned, came of age, legendary.
   'announce.starving': '{dwarf} is starving.',
+  'announce.starving_many': '{n} dwarves are starving: {names}.',
   'announce.title_assigned': '{dwarf} is now the {title}.',
   'announce.came_of_age': '{dwarf} has come of age.',
   'announce.legendary': '{dwarf} is a legendary {skill}.',

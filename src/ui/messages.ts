@@ -22,10 +22,10 @@ import type { Command } from '@core/commands';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
-import { DAYS_PER_YEAR } from '@core/constants';
+import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
-import type { ItemsReader } from '@systems/items';
+import type { ItemsReader, RotOutlook } from '@systems/items';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import type { TradeReader } from '@systems/trade';
 import type { MagicReader } from '@systems/magic';
@@ -550,4 +550,60 @@ export function pluralName(name: string): string {
   else if (/[^aeiou]y$/.test(last)) plural = `${last.slice(0, -1)}ies`;
   else plural = `${last}s`;
   return [...words.slice(0, -1), plural].join(' ');
+}
+
+/**
+ * 13 § Rot as the stocks panel and Look say it: the stage and the days left at the speed the item
+ * rots now ("stale, rots in 4 days", "rotten, gone in 2 days", "fresh, not rotting here" when it
+ * lies frozen, on a rack or dry in a bag); "keeps, never rots" for food with no rot timer (cured
+ * meat, honey, aged cheese); '' for anything else with no rot timer.
+ */
+export function rotText(strings: Strings, outlook: RotOutlook | null, edible: boolean): string {
+  if (outlook === null) return edible ? strings.get('ui.rot.keeps') : '';
+  const stage = strings.get(outlook.stage >= 2 ? 'ui.rot.rotten' : outlook.stage === 1 ? 'ui.rot.stale' : 'ui.rot.fresh');
+  const left = outlook.stage >= 2 ? outlook.toGone : outlook.toRot;
+  if (left === null) return strings.get('ui.rot.not_now', { stage });
+  const n = Math.max(1, Math.ceil(left / TICKS_PER_DAY));
+  return strings.get(outlook.stage >= 2 ? 'ui.rot.gone_in' : 'ui.rot.rots_in', { stage, n });
+}
+
+/** An item's rot as {@link rotText} says it, read from 13. */
+export function itemRotText(env: Omit<MessageEnv, 'registry'>, id: EntityId): string {
+  if (!env.readers.has('13')) return '';
+  const items = env.readers.of<ItemsReader>('13');
+  const it = items.get(id);
+  if (it === undefined) return '';
+  return rotText(env.strings, items.rotOutlook(id), items.def(it.type)?.edible === true);
+}
+
+/** A stack as the log names it: its count and its name ("20 turnip", "10 turnip stew", "3 oak logs"). */
+export function stackName(env: MessageEnv, id: EntityId): string {
+  if (!env.readers.has('13')) return '';
+  const items = env.readers.of<ItemsReader>('13');
+  const it = items.get(id);
+  if (it === undefined) return '';
+  const meal = env.readers.has('12') ? env.readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
+  const material = env.registry.table<NamedRow>('materials').byIndex(it.material)?.name ?? '';
+  return `${it.count} ${meal ?? materialItemName(material, items.def(it.type) ?? { name: '' }, it.count)}`;
+}
+
+/**
+ * Where an item lies, as a log line names it after "in": its stockpile ("Stockpile #2 (Food)"),
+ * another zone ("Dining hall #1"), the building on the tile ("Wagon #1"), else "the open" outdoors
+ * and "the halls" indoors.
+ */
+export function itemPlace(env: MessageEnv, tile: TileIndex): string {
+  const map = env.readers.map;
+  if (tile < 0 || tile >= map.w * map.h * map.d) return env.strings.get('ui.place.halls');
+  const b = buildingsOf(env.readers);
+  if (b !== null) {
+    const zone = b.zoneAt(tile);
+    if (zone !== 0) {
+      const type = b.zone(zone)?.type;
+      return type === 'stockpile' ? stockpileName(env, zone) : zoneName(env, zone);
+    }
+    const building = b.at(tile);
+    if (building !== 0) return buildingName(env, building);
+  }
+  return env.strings.get(map.isOutdoor(tile) ? 'ui.place.open' : 'ui.place.halls');
 }

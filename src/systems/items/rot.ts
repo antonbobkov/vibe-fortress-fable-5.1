@@ -6,6 +6,7 @@ import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { CORPSE_ROT_DAYS, ICE_MELT_DAYS, MIASMA_DURATION, ROT_COLD_C, ROT_CONTAINER_PERCENT, ROT_HOT_C } from './constants';
 import type { ItemCore, ItemChange } from './api';
+import type { RotOutlook } from './reader';
 import type { StockpileStore } from './stockpiles';
 import { FREEZE_C } from '@systems/fluids/constants';
 import { entityIndex } from '@core/entities';
@@ -115,6 +116,28 @@ export class RotQueue {
     }
     rec.speed = this.speed(id, rec.type);
     this.queue(rec);
+  }
+
+  /**
+   * 13 § Rot, the reader's outlook: the stage and the ticks to the rotting stage and to gone at the
+   * speed sampled last. Reads the record and changes nothing; null for an item with no rot timer.
+   */
+  outlook(id: EntityId, now: number): RotOutlook | null {
+    const rec = this.records.get(id);
+    const it = this.core.get(id);
+    if (rec === undefined || it === undefined) return null;
+    const span = this.days(rec.type, id) * TICKS_PER_DAY / 2;
+    const progress = rec.progress + Math.max(0, now - rec.sampledTick) * rec.speed;
+    const left = (at: number): number | null => {
+      if (progress >= at) return 0;
+      return rec.speed > 0 ? Math.ceil((at - progress) / rec.speed) : null;
+    };
+    // Ice melts at 100%, with no rotting stage: its "gone" is its melting.
+    if (this.melts(id)) {
+      const gone = left(2 * span);
+      return { stage: it.rotStage, toRot: gone, toGone: gone };
+    }
+    return { stage: it.rotStage, toRot: left(2 * span), toGone: left(3 * span) };
   }
 
   resample(): void { for (const id of Array.from(this.records.keys()).sort((a, b) => a - b)) this.changed(id, 'placed'); }
