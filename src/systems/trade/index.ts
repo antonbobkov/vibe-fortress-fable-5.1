@@ -14,6 +14,7 @@ import { lacksMaterial, siteSignature, type SiteSignature } from '@systems/embar
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ThreatsReader } from '@systems/threats/reader';
 import type { DwarvesReader } from '@systems/dwarves/reader';
+import type { CombatReader } from '@systems/combat/reader';
 import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
@@ -125,6 +126,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     ctx.register.announcement('CaravanDeparted', { severity: 'note', stringKey: 'announce.caravan_departed' });
     ctx.register.announcement('CaravanLost', { severity: 'alert', stringKey: 'announce.caravan_lost' });
     ctx.register.announcement('TradeCompleted', { severity: 'note', stringKey: 'announce.trade_completed' });
+    ctx.register.announcement('TradeMissed', { severity: 'alert', stringKey: 'announce.trade_missed' });
     ctx.register.announcement('ReputationChanged', { severity: 'note', stringKey: 'announce.reputation_changed', atMost: { field: 'delta', value: 0 } });
   }
 
@@ -177,9 +179,14 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     return marginPercent(skill, ctx.world.fortress.reputation[civ] ?? 0);
   }
 
+  /**
+   * The Broker the trade job is for: alive, with `trading` enabled and not a soldier on duty (a soldier
+   * on duty works no job, 10 § Behavior selection step 5); else 0, and any trading dwarf takes it.
+   */
   private broker(ctx: TickContext): EntityId {
     const id = ctx.readers.of<DwarvesReader>('10').holder('broker');
-    return ctx.world.entities.alive(id) && ctx.readers.of<JobsReader>('11').laborEnabled(id, 'trading') ? id : 0;
+    if (!ctx.world.entities.alive(id) || !ctx.readers.of<JobsReader>('11').laborEnabled(id, 'trading')) return 0;
+    return ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').onDuty(id) ? 0 : id;
   }
 
   private cancelTradeJob(ctx: TickContext, depotId: EntityId): void {
@@ -518,6 +525,18 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     ctx.emit({ type: 'CaravanAtDepot', civ: a.civ, partyId: a.partyId, depotId: a.depotId });
   }
 
+  /**
+   * § The session: a stay that ends with a trade request still waiting (its job not done, no session
+   * open) says so, naming the dwarf the job waited for (its worker, else the Broker it was for, else 0).
+   */
+  private missed(ctx: TickContext, a: ActiveCaravan): void {
+    const job = ctx.readers.of<JobsReader>('11').byKey(`trade:${a.depotId}`);
+    if (!job || this.sessionState) return;
+    const assigned = job.data['assignedWorker'];
+    const traderId = job.workerId !== 0 ? job.workerId : typeof assigned === 'number' ? assigned : 0;
+    ctx.emit({ type: 'TradeMissed', civ: a.civ, depotId: a.depotId, traderId });
+  }
+
   private pack(ctx: TickContext, a: ActiveCaravan): void {
     this.cancelTradeJob(ctx, a.depotId);
     this.sessionState = null;
@@ -587,7 +606,10 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       return;
     }
     if (a.state === 'atDepot') {
-      if (ctx.tick - a.stateSince >= CARAVAN_STAY_DAYS * TICKS_PER_DAY) this.pack(ctx, a);
+      if (ctx.tick - a.stateSince >= CARAVAN_STAY_DAYS * TICKS_PER_DAY) {
+        this.missed(ctx, a);
+        this.pack(ctx, a);
+      }
       return;
     }
     if (a.state === 'unload') { this.unload(ctx, a); return; }

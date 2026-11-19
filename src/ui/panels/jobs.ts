@@ -16,7 +16,7 @@ import { acceleratorLabel } from '../keymap';
 import { PanelFilter, drawPanelFilter } from './filter';
 import { jobBlockText, wrapText } from '../messages';
 import { clampList, label, separator, table, type ListState } from '../widgets';
-import { tileXyz, type PanelContext } from './context';
+import { buildings, tileXyz, type PanelContext } from './context';
 
 type JobLike = ReturnType<JobsReader['list']>[number];
 
@@ -184,6 +184,9 @@ function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
   const type = ctx.readers.of<JobsReader>('11').typeOf(j.id) ?? '';
   const name = jobTypeName(ctx, type);
   if (j.target.kind !== 'tile') {
+    // A trade names its depot by the depot's number, to fit the column: "Trade, depot #1".
+    const depot = type === 'trade' ? buildings(ctx)?.get(j.target.ref) : undefined;
+    if (depot !== undefined) return ctx.strings.get('ui.jobs.trade_at', { n: (buildings(ctx)?.byType(depot.typeId).indexOf(j.target.ref) ?? 0) + 1 });
     const building = ctx.readers.entities.get(j.target.ref, C.Building);
     const item = ctx.readers.entities.get(j.target.ref, C.Item);
     const target = building ? ctx.registry.table<{ id: string; name: string }>('buildings').byIndex(building.type)?.name.toLowerCase()

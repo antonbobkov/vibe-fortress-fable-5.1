@@ -23,7 +23,7 @@ import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
-import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, stackName, whimProgressText } from './messages';
+import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, stackName, tradeWaitFor, whimProgressText } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -165,6 +165,10 @@ export class AnnouncementLog {
     // 20 § Movement: a caravan's lines name its depot ("Trade depot #1") and its edge ("west").
     if ((event.type === 'CaravanWaiting' || event.type === 'CaravanAtDepot') && typeof e['depotId'] === 'number') {
       out['depot'] = buildingName({ readers, registry: this.registry }, e['depotId']) || this.strings.get('ui.depot.a_depot');
+    }
+    // 20 § The session: a caravan leaving with a trade request unserved says why, as the depot's line would.
+    if (event.type === 'TradeMissed' && readers.has('10') && readers.has('11')) {
+      out['why'] = tradeWaitFor({ readers, registry: this.registry, strings: this.strings }, 0, Number(e['traderId'] ?? 0), -1, true);
     }
     const edge = e['edge'];
     if ((event.type === 'CaravanWaiting' || event.type === 'RaidArrived') && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);

@@ -28,6 +28,10 @@ import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import type { ItemsReader, RotOutlook } from '@systems/items';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import type { TradeReader } from '@systems/trade';
+import type { JobsReader } from '@systems/jobs';
+import type { DwarvesReader } from '@systems/dwarves';
+import type { CombatReader } from '@systems/combat';
+import type { HealthReader } from '@systems/health';
 import type { MagicReader } from '@systems/magic';
 import { withSuffix } from '@content/generate';
 import type { Strings } from './strings';
@@ -635,10 +639,94 @@ export function militaryNoSquad(env: MessageEnv): string {
   return env.strings.get('ui.military.no_squad');
 }
 
-/** An accepted trade request waits for the broker to walk to the depot. */
-export function brokerOnWay(env: MessageEnv, paused: boolean): string {
-  const text = env.strings.get('ui.depot.broker_on_way');
+/**
+ * An accepted trade request as the status line says it: who the trade waits for and why
+ * ({@link tradeWait}, before the job exists: the dwarf it will be for), and, while paused,
+ * "· [Space] resumes".
+ */
+export function brokerOnWay(env: MessageEnv, depotId: EntityId, paused: boolean): string {
+  const text = tradeWait(env, depotId, true) ?? env.strings.get('ui.trade.wait.on_way', { who: env.strings.get('ui.trade.wait.the_broker') });
   return paused ? `${text} · ${env.strings.get('ui.depot.resume')}` : text;
+}
+
+/**
+ * Who a waiting trade request waits for and why (`panels.md` § Depot, 20 § The session): the
+ * depot's `trade` job's worker on the way, else the Broker it is for and what keeps them (asleep,
+ * eating, at another job, a patient, sheltering, out of reach), else why no Broker holds it (on duty
+ * with a squad, the trading labor off, none appointed) and whether any other dwarf can trade.
+ * `null` when no request waits at the depot (no job, or the session is open). With `prospective`,
+ * a request about to be sent is read as its job will be: for the Broker unless the Broker is on
+ * duty or has the labor off.
+ */
+export function tradeWait(env: MessageEnv, depotId: EntityId, prospective = false): string | null {
+  if (!env.readers.has('11') || !env.readers.has('20') || !env.readers.has('10')) return null;
+  if (env.readers.of<TradeReader>('20').sessionOpen()) return null;
+  const job = env.readers.of<JobsReader>('11').byKey(`trade:${depotId}`);
+  if (job === undefined && !prospective) return null;
+  const assigned = job === undefined ? brokerFor(env) : typeof job.data['assignedWorker'] === 'number' ? job.data['assignedWorker'] : 0;
+  return tradeWaitFor(env, job?.workerId ?? 0, assigned, typeof job?.workTile === 'number' ? job.workTile : -1, false);
+}
+
+/**
+ * The words of {@link tradeWait} for a worker on the way (`workerId`), else the dwarf the job is
+ * for (`assigned`, 0 for any trading dwarf). `late` reads them as the caravan leaves (20,
+ * `TradeMissed`): a dwarf that was coming "did not reach the depot in time".
+ */
+export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: EntityId, workTile: TileIndex, late: boolean): string {
+  const s = env.strings;
+  const dwarves = env.readers.of<DwarvesReader>('10');
+  const broker = dwarves.holder('broker');
+  const who = (id: EntityId): string => {
+    const name = env.readers.entities.get(id, C.Creature)?.name ?? '';
+    return id === broker ? s.get('ui.trade.wait.named_broker', { name }) : name;
+  };
+  if (workerId !== 0) {
+    if (late) return s.get('ui.trade.wait.late', { who: who(workerId) });
+    return s.get(broker !== 0 && broker !== workerId ? 'ui.trade.wait.stand_in_on_way' : 'ui.trade.wait.on_way', { who: who(workerId) });
+  }
+  if (assigned !== 0 && env.readers.entities.alive(assigned)) return dwarfWait(env, assigned, who(assigned), workTile, late);
+  // No Broker holds the job: why not, and whether another dwarf can trade.
+  const combat = env.readers.has('16') ? env.readers.of<CombatReader>('16') : null;
+  const free = (id: EntityId): boolean => id !== broker && combat?.onDuty(id) !== true && !dwarves.isChild(id);
+  const others = env.readers.of<JobsReader>('11').workersWithLabor('trading').some(free);
+  if (late && others) return s.get('ui.trade.wait.late_any');
+  if (broker !== 0 && env.readers.entities.alive(broker)) {
+    const squad = combat?.onDuty(broker) === true ? combat.squadOf(broker) : undefined;
+    if (squad !== undefined) return s.get(others ? 'ui.trade.wait.on_duty_stand_in' : 'ui.trade.wait.on_duty_nobody', { who: who(broker), squad: squad.name });
+    if (!env.readers.of<JobsReader>('11').laborEnabled(broker, 'trading')) return s.get(others ? 'ui.trade.wait.labor_off_stand_in' : 'ui.trade.wait.labor_off_nobody', { who: who(broker) });
+  }
+  if (!others) return s.get('ui.trade.wait.nobody');
+  return s.get(broker !== 0 ? 'ui.trade.wait.stand_in' : 'ui.trade.wait.no_broker');
+}
+
+/** What keeps the dwarf a trade job is for from the depot, from its brain and health. */
+function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileIndex, late: boolean): string {
+  const s = env.strings;
+  const dwarves = env.readers.of<DwarvesReader>('10');
+  const health = env.readers.has('17') ? env.readers.of<HealthReader>('17') : null;
+  if (health !== null && !health.isConscious(id)) return s.get('ui.trade.wait.down', { who });
+  const behavior = dwarves.behavior(id);
+  if (behavior === 'patient' || health?.isPatient(id) === true) return s.get('ui.trade.wait.patient', { who });
+  const pos = env.readers.entities.get(id, C.Position);
+  if (workTile >= 0 && pos !== undefined && env.readers.has('pathing') &&
+      !env.readers.pathing.reachable(env.readers.map.index(pos.x, pos.y, pos.z), workTile, 'walker')) return s.get('ui.trade.wait.unreachable', { who });
+  if (behavior === 'retreat') return s.get('ui.trade.wait.sheltering', { who });
+  if (behavior === 'flee') return s.get('ui.trade.wait.fleeing', { who });
+  if (behavior === 'need' || behavior === 'social') {
+    const activity = dwarves.activityText(id);
+    const key = activity === 'sleep' ? 'asleep' : activity === 'hunger' ? 'eating' : activity === 'thirst' ? 'drinking' : 'break';
+    return s.get(late ? 'ui.trade.wait.late' : `ui.trade.wait.${key}`, { who });
+  }
+  if (late) return s.get('ui.trade.wait.late', { who });
+  if (behavior === 'work' && env.readers.has('11') && env.readers.of<JobsReader>('11').forWorker(id) !== undefined) return s.get('ui.trade.wait.job', { who });
+  return s.get('ui.trade.wait.on_way', { who });
+}
+
+/** The Broker a trade job would be for now (20 § The session): alive, trading on, not on duty; else 0. */
+function brokerFor(env: MessageEnv): EntityId {
+  const broker = env.readers.of<DwarvesReader>('10').holder('broker');
+  if (broker === 0 || !env.readers.entities.alive(broker) || !env.readers.of<JobsReader>('11').laborEnabled(broker, 'trading')) return 0;
+  return env.readers.has('16') && env.readers.of<CombatReader>('16').onDuty(broker) ? 0 : broker;
 }
 
 /** The plural of a lower-case creature name: wolf to wolves, lynx to lynxes, bear to bears. */

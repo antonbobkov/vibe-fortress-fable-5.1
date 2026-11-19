@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-619 | [The three-year script's soldiers live far from their barracks](work/T-619-soldiers-quarters-by-the-barracks.md) | [T-615](archive/tasks/T-615-soldiers-needs-keep-them-from-drill.md) | — | open |
 | T-620 | [Charcoal binds the three-year squad's steel](work/T-620-fuel-for-the-squads-steel.md) | [T-616](archive/tasks/T-616-strong-squad-steel.md) | — | open |
-| T-636 | [A trade request says why the Broker does not come](work/T-636-trade-waits-for-a-broker-on-duty.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
 | T-637 | [The first key after a danger acts, and combat does not drown the Alerts tab](work/T-637-danger-key-and-combat-alerts.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
 | T-638 | [The Threats panel shows the coming raid, and the end of a raid says what happened](work/T-638-raid-aftermath-and-threats-panel.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
 | T-639 | [The Mood and Units panels at thirty dwarves and more](work/T-639-mood-and-units-at-thirty-dwarves.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |

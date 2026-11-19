@@ -1,6 +1,8 @@
 # T-636 — A trade request says why the Broker does not come
 
-**Source:** [T-635's mid-game audit](../../reports/audits/2026-11-19-t635-midgame-ux.md), finding 1 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 8f75e187,741baa3d.
+
+**Source:** [T-635's mid-game audit](../../../reports/audits/2026-11-19-t635-midgame-ux.md), finding 1 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

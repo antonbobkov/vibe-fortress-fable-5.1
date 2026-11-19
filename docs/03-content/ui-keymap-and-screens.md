@@ -606,6 +606,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.caravan_unreachable` | "The {civ} caravan cannot reach {depot} from the {edge} edge: its pack animals need a way on foot, with no deep water or drop. Bridge the gap, or build a depot on their side." |
 | `announce.caravan_at_depot` | "The {civ} caravan is at {depot}: [c] or the depot to trade." |
 | `announce.trade_completed` | "A trade with the {civ} is complete." |
+| `announce.trade_missed` | "The {civ} caravan is leaving without trading. {why}" |
 | `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children\|of them a child\|of them children}." |
 | `announce.immigration_skipped` | "No immigrants this season: {reason}." |
 | `announce.dangerous_arrived` | "A {species} has come to the valley." |
