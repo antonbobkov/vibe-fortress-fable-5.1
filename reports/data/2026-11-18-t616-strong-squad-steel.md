@@ -1,6 +1,6 @@
 # T-615 and T-616: steel for the strong squad, and the sweep
 
-**Tasks:** T-615, T-616 · **Date:** 2026-11-18 · **Code:** `b149a964` on branch `t615-t616-squad` (master `e843d79e` with T-615's sparring company and quick soldiers, and T-616's steel) · **Source:** [the T-616 work file](../../docs/work/T-616-strong-squad-steel.md), [T-606's sweep](2026-11-18-t606-sweep.md), [T-615's measurement](../audits/2026-11-18-t615-soldiers-needs.md)
+**Tasks:** T-615, T-616 · **Date:** 2026-11-18 · **Code:** `b149a964` on branch `t615-t616-squad` (master `e843d79e` with T-615's sparring company and quick soldiers, and T-616's steel) · **Source:** [the T-616 work file](../../docs/archive/tasks/T-616-strong-squad-steel.md), [T-606's sweep](2026-11-18-t606-sweep.md), [T-615's measurement](../audits/2026-11-18-t615-soldiers-needs.md)
 
 ## Where the steel went (before)
 
