@@ -23,6 +23,8 @@ export const FOLLOW_RADIUS = 4;
 export const ENGAGE_IDLE_TICKS = 150;
 /** 18 § Engage: an engaged party none of whose members strikes a blow this long loiters, and stays out of the fight (unmeasured). */
 export const ENGAGE_STALL_TICKS = 600;
+/** 18 § Engage: a fight in which no one on either side falls this long is a stalemate, and the party stalls (unmeasured). */
+export const ENGAGE_STALEMATE_TICKS = 1200;
 export const LOOT_RADIUS = 6;
 export const LOITER_DAYS_RAID = 2;
 export const LOITER_DAYS_SIEGE = 5;

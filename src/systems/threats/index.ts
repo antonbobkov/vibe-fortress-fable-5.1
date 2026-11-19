@@ -468,7 +468,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         if (P) {
           if (event.type === 'CreatureDied') releaseStolenAnimals(cId, event['tile'] as TileIndex, P, ctx);
           // 18 § Morale: a member killed or downed costs its party morale (its worst counts once).
-          if (H !== undefined) countCasualty(P, H, event.type === 'CreatureDied' ? 'dead' : 'down');
+          if (H !== undefined) countCasualty(P, H, event.type === 'CreatureDied' ? 'dead' : 'down', ctx.tick);
           checkPartyCasualties(partyId, P, ctx);
         }
       } else if (event['faction'] === 'fortress' || ctx.world.entities.get(cId, C.Creature)?.faction === 'fortress') {
@@ -508,7 +508,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
           if (P !== undefined) {
             const outcome = event['outcome'];
             if (outcome !== 'miss' && outcome !== 'parried' && outcome !== 'blocked') shakeByTrap(P);
-            if (outcome === 'caged') countCasualty(P, H, 'caged');
+            if (outcome === 'caged') countCasualty(P, H, 'caged', ctx.tick);
             checkPartyCasualties(H.partyId, P, ctx);
           }
         }

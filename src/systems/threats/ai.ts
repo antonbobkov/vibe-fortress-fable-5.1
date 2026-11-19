@@ -20,6 +20,7 @@ import type { CombatReader } from '@systems/combat/reader';
 import { wornSpotRadius } from '@systems/magic/enchant';
 import {
   ENGAGE_IDLE_TICKS,
+  ENGAGE_STALEMATE_TICKS,
   ENGAGE_STALL_TICKS,
   FOLLOW_RADIUS,
   LOITER_DAYS_RAID,
@@ -830,8 +831,8 @@ function broken(P: Party, standing: readonly EntityId[], ctx: TickContext): bool
   for (const m of P.members) {
     const H = entities.get(m, C.Hostile);
     if (H === undefined || standing.includes(m)) continue;
-    if ((entities.get(m, C.Creature)?.cagedIn ?? 0) !== 0) countCasualty(P, H, 'caged');
-    else if (entities.get(m, C.Body)?.conscious === false) countCasualty(P, H, 'down');
+    if ((entities.get(m, C.Creature)?.cagedIn ?? 0) !== 0) countCasualty(P, H, 'caged', ctx.tick);
+    else if (entities.get(m, C.Body)?.conscious === false) countCasualty(P, H, 'down', ctx.tick);
   }
   const leaderless = captainsLost(P, standing);
   countCaptainLoss(P, leaderless);
@@ -999,6 +1000,16 @@ export function partyThink(partyId: EntityId, P: Party, ctx: TickContext, target
       break;
     }
     case 'engage': {
+      // A stalemate: no one on either side has fallen since its first think in engage, through
+      // every return to approach or loiter and back. It stalls as a party that strikes nothing does.
+      P.foughtSince ??= ctx.tick;
+      if (P.purpose !== 'restless' && ctx.tick - P.foughtSince >= ENGAGE_STALEMATE_TICKS) {
+        P.state = 'loiter';
+        P.stateSince = ctx.tick;
+        P.stalled = true;
+        delete P.blowSince;
+        break;
+      }
       let hasTarget = false;
       for (const m of alive) {
         const mPos = positionOf(m, ctx);
@@ -1115,7 +1126,7 @@ function loseNerve(m: EntityId, H: Hostile, P: Party, pos: TileIndex, ctx: TickC
   ctx.world.services.combat?.clearTarget(m);
   ctx.emit({ type: 'HostileFled', id: m, nerve: true, species: entities.get(m, C.Creature)?.species ?? 0 });
   H.behaviorState = 'flee';
-  countCasualty(P, H, 'fled');
+  countCasualty(P, H, 'fled', ctx.tick);
   checkPartyCasualties(H.partyId, P, ctx);
 }
 
@@ -1170,7 +1181,7 @@ export function memberThink(m: EntityId, H: Hostile, P: Party | undefined, ctx: 
           H.behaviorState = 'flee';
           ctx.emit({ type: 'HostileFled', id: m });
           if (P !== undefined) {
-            countCasualty(P, H, 'fled');
+            countCasualty(P, H, 'fled', ctx.tick);
             checkPartyCasualties(H.partyId, P, ctx);
             if (P.state === 'retreat') {
               retreatMember(m, H, P, pos, ctx);

@@ -437,6 +437,8 @@ export interface Party {
   ambushSprung?: boolean;
   /** 18 § Engage: the tick from which an engaged party's stall is counted (its last blow); absent out of engage. */
   blowSince?: Tick;
+  /** 18 § Engage: the tick from which a stalemate is counted (its first think in engage, moved on by each casualty on either side); absent before it first engages. */
+  foughtSince?: Tick;
   /** 18 § Engage: the party stalled in engage; sight no longer brings it back to the fight. Absent: no. */
   stalled?: boolean;
 }

@@ -10,7 +10,7 @@
  */
 
 import { C, type Hostile, type Party } from '@core/components';
-import type { EntityId } from '@core/types';
+import type { EntityId, Tick } from '@core/types';
 import type { TickContext } from '@core/system';
 import {
   MORALE_BREAK,
@@ -57,13 +57,15 @@ export function shake(P: Party, amount: number): void {
 
 /**
  * A member's casualty, by its worst so far: a member that falls and then dies costs the death's
- * share, not both. The share is for a party of ten, scaled by the party's size.
+ * share, not both. The share is for a party of ten, scaled by the party's size. A casualty moves a
+ * fight on: the party's stalemate is counted again from it (18 § Engage).
  */
-export function countCasualty(P: Party, H: Hostile, kind: Casualty): void {
+export function countCasualty(P: Party, H: Hostile, kind: Casualty, tick: Tick): void {
   const weight = MORALE_CASUALTY[kind];
   const counted = H.moraleLoss ?? 0;
   if (weight <= counted) return;
   H.moraleLoss = weight;
+  fightMoved(P, tick);
   const size = Math.max(1, P.members.length);
   shake(P, -((weight - counted) * 10) / size);
 }
@@ -72,6 +74,11 @@ export function shakeByTrap(P: Party): void { shake(P, -MORALE_TRAP); }
 export function shakeByOwnFire(P: Party): void { shake(P, -MORALE_OWN_FIRE); }
 export function steadyByLoot(P: Party): void { shake(P, MORALE_LOOT); }
 export function steadyByFoeFelled(P: Party): void { shake(P, MORALE_FOE_FELLED); }
+
+/** 18 § Engage: someone fell on either side; a party that has engaged counts its stalemate from now. */
+export function fightMoved(P: Party, tick: Tick): void {
+  if (P.foughtSince !== undefined) P.foughtSince = tick;
+}
 
 /** The captains are gone: one large drop, once (`captainLost` is saved). */
 export function countCaptainLoss(P: Party, lost: boolean): void {
@@ -99,7 +106,10 @@ export function steadyPartiesThatFelled(ctx: TickContext, victim: EntityId, kill
     if (P === undefined || !hasMorale(P) || P.state === 'retreat' || P.state === 'gone') continue;
     const felled = partyId === killerParty ||
       P.members.some((m) => entities.alive(m) && ctx.world.services.combat?.targetOf(m) === victim);
-    if (felled) steadyByFoeFelled(P);
+    if (felled) {
+      steadyByFoeFelled(P);
+      fightMoved(P, ctx.tick);
+    }
   }
 }
 
