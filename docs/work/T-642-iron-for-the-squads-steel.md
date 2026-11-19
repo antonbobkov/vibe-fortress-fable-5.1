@@ -1,4 +1,4 @@
-# T-NEW — Iron binds the three-year squad's steel once the fuel is there
+# T-642 — Iron binds the three-year squad's steel once the fuel is there
 
 **Source:** [T-619 and T-620's sweep](../../reports/data/2026-11-19-t619-t620-squad-quarters-and-fuel.md) · **Size:** M · **Needs:** — · **Status:** open
 
