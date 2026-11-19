@@ -1,4 +1,4 @@
-# T-NEW — A pet's death is an alert that says it was a pet
+# T-634 — A pet's death is an alert that says it was a pet
 
 **Source:** [T-633's work file](T-633-slaughter-and-restless-dead-death-fields.md), found while checking each `CreatureDied` subscriber · **Size:** S · **Needs:** — · **Status:** open
 
