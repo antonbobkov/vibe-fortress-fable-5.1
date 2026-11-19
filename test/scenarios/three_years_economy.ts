@@ -122,6 +122,50 @@ const STEEL_DAY = 224;
 function smeltsSteel(state: FortressState, day: number): boolean {
   return state.strong?.since !== undefined || day >= STEEL_DAY;
 }
+/**
+ * T-620: the coal a player digs and smelts for the steel. Every peril-2 and peril-4 map of the sweep
+ * has 200 to 550 tiles of bituminous coal and lignite in the sedimentary rock between the halls and
+ * the soil (levels 26 to 30), which no mine of the script reached (2.8 tiles a fortress-timeline,
+ * dug in passing, and none smelted); a coal smelt burns no fuel and gives two bars of coal (lignite
+ * one). From the day the smelter makes steel, the miners drift to the nearest COAL_FACES faces off
+ * the gate's stair above the halls (none that would open to the hillside), and as many again, once
+ * a season at most, when the ore runs under COAL_ORE_LOW; the smelter keeps COAL_STOCK bars of coal,
+ * after the steel and before the iron.
+ */
+export const COAL_FACES = 20;
+const COAL_ORE_LOW = 6;
+export const COAL_STOCK = 30;
+const COAL_ORES: readonly string[] = ['bituminous_coal', 'lignite'];
+
+/** T-620: the coal's mine and its smelt orders, once the smelter makes steel. */
+export function keepCoal(w: TestWorld, state: FortressState, smelter: number, day: number): void {
+  const { phases } = state.economy;
+  const ent = w.game.world.entities;
+  const recipes = w.game.registry.table('recipes');
+  const orders = (): readonly { recipe: number }[] => ent.get(smelter, C.Workshop)?.orders ?? [];
+  for (const ore of COAL_ORES) {
+    const recipe = recipes.index(`smelt_${ore}`);
+    if (orders().some((o) => o.recipe === recipe)) continue;
+    order(w, smelter, `smelt_${ore}`, COAL_STOCK);
+    // After the alloy and the coal ordered before it, ahead of the iron: the iron smelts burn the
+    // fuel a coal smelt makes without any.
+    const ahead = new Set([recipes.index('alloy_steel'), ...COAL_ORES.map((id) => recipes.index(`smelt_${id}`))]);
+    const last = orders().length - 1;
+    const after = orders().slice(0, last).reduce((at, o, i) => (ahead.has(o.recipe) ? i : at), -1);
+    if (after + 1 < last) command(w, { type: 'ReorderWorkOrder', workshopId: smelter, from: last, to: after + 1 });
+  }
+  const materials = w.game.registry.table<{ id: string }>('materials');
+  const items = w.readers.of<ItemsReader>('13');
+  const oreType = w.game.registry.table('items').index('ore');
+  const ore = COAL_ORES.reduce((n, id) => n + items.countAvailable({ type: oreType, materialId: materials.index(id) }), 0);
+  const season = `coal ${Math.floor(day / DRIFT_EVERY_DAYS)}`;
+  if (phases.has('coal') && (ore >= COAL_ORE_LOW || phases.has(season))) return;
+  phases.add('coal');
+  phases.add(season);
+  const band: MineBand = { x: state.cx + 6, y: state.cy + 6, zMin: state.hallZ + 1, zMax: state.z - 2, deep: false, walled: true };
+  if (mine(w, state, band, (id) => COAL_ORES.includes(id), COAL_FACES) === 0) mine(w, state, upperBand(w, state), (id) => COAL_ORES.includes(id), COAL_FACES);
+}
+
 /** Logs kept in stock, and the trees designated at a time to keep them. */
 const TIMBER_RESERVE = 40;
 const TIMBER_BATCH = 8;
@@ -307,7 +351,8 @@ export function armingSquad(state: FortressState): boolean {
   return state.economy.phases.has('arming');
 }
 
-interface MineBand { readonly x: number; readonly y: number; readonly zMin: number; readonly zMax: number; readonly deep: boolean }
+/** T-620: `walled`: no drift or face of the band may open to the hillside (`opensToHillside`), as off the gate's stair above the halls. */
+interface MineBand { readonly x: number; readonly y: number; readonly zMin: number; readonly zMax: number; readonly deep: boolean; readonly walled?: boolean }
 
 /** The upper-rock mine, above the cavern bands, off its own shaft south of the entrance. */
 export function upperBand(w: TestWorld, state: FortressState): MineBand {
@@ -383,6 +428,7 @@ function mine(w: TestWorld, state: FortressState, band: MineBand, wanted: (id: s
     const drift = newRock(horizontal) <= newRock(vertical) ? horizontal : vertical;
     const fresh = drift.filter((d) => map.kindAt(d) === TileKind.Wall && !(map.xOf(d) === band.x && map.yOf(d) === band.y));
     if (band.deep && !fresh.every((d) => dig.has(d) || sealed(w, state, d))) continue;
+    if (band.walled && [...fresh, t].some((d) => opensToHillside(w, d))) continue;
     for (const d of fresh) { dig.add(d); economy.workings.add(d); }
     economy.mined.add(t);
     taken += 1;
@@ -644,6 +690,9 @@ function placeBelow(w: TestWorld, state: FortressState, type: string, priority: 
  * surface drink stockpile is removed. The workshops by the gate, the trade depot (for the caravans)
  * and the meeting area by the gate stay on the surface.
  */
+/** T-580: what the surface stockpile keeps once the dwarves eat and drink below: everything but food and drink. */
+const SURFACE_GOODS_BELOW: readonly string[] = ['seed', 'stone', 'ore', 'wood', 'bar', 'furniture', 'container', 'weapon', 'ammo', 'armor', 'clothing', 'tool', 'craft', 'textile', 'medical', 'farm', 'refuse'];
+
 export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): void {
   const from = ambushFromDay(w);
   if (from === null || day < from - WORK_HALL_LEAD_DAYS) return;
@@ -723,10 +772,47 @@ export function keepWorkBelow(w: TestWorld, state: FortressState, day: number): 
     return zid !== 0 && buildings.zone(zid)?.type === type ? zid : 0;
   };
   const store = surface('stockpile', -1, 6);
-  const nodes = ['seed', 'stone', 'ore', 'wood', 'bar', 'furniture', 'container', 'weapon', 'ammo', 'armor', 'clothing', 'tool', 'craft', 'textile', 'medical', 'farm', 'refuse'];
-  if (store !== 0) command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { preset: 'everything', categories: nodes } });
+  if (store !== 0) command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { preset: 'everything', categories: [...SURFACE_GOODS_BELOW] } });
   const drink = surface('stockpile', 1, 13);
   if (drink !== 0) command(w, { type: 'RemoveZone', zoneId: drink });
+}
+
+/**
+ * T-620: the furnaces' store below. Once the fortress works below (`keepWorkBelow`) the wood furnace
+ * and the smelter stand in the workshop hall while logs, ore and bars went to the surface stockpile,
+ * so their workers fetched every log and bar from beyond the gate and back: in `three-years-p4-6` at
+ * shift 50 the charcoal burner was at its job a third of the day and made 4 to 9 charcoal in ten
+ * (100 ticks each), and none while an alert locked the gate. As a player keeps the fuel by the
+ * furnace, up to FUEL_STORE_SLOTS free sites of the hall nearest the wood furnace become a stockpile
+ * of wood, ore and bars (the coal and charcoal too), leaving FUEL_STORE_SPARE sites for workshops, and
+ * the surface stockpile takes none of them: haulers bring each to the nearest stockpile that takes it.
+ */
+const FUEL_STORE_SLOTS = 3;
+const FUEL_STORE_SPARE = 2;
+const FUEL_STORE_GOODS: readonly string[] = ['wood', 'ore', 'bar'];
+
+function keepFuelStore(w: TestWorld, state: FortressState): void {
+  const { economy } = state;
+  const hall = economy.workHall;
+  if (hall === undefined || !economy.phases.has('fed below') || economy.phases.has('fuel store')) return;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const furnace = buildings.get(state.placedIds['wood_furnace'] ?? 0);
+  if (furnace?.state !== 'built' || w.map.hasFlag(furnace.footprint[0]!, TileFlag.Outdoor)) return;
+  const at = furnace.footprint[4]!;
+  const free = hall.slots.filter((origin) => siteFree(w, 'wood_furnace', origin))
+    .sort((a, b) => Math.abs(w.map.xOf(a) - w.map.xOf(at)) + Math.abs(w.map.yOf(a) - w.map.yOf(at)) - Math.abs(w.map.xOf(b) - w.map.xOf(at)) - Math.abs(w.map.yOf(b) - w.map.yOf(at)) || a - b);
+  const take = free.slice(0, Math.min(FUEL_STORE_SLOTS, free.length - FUEL_STORE_SPARE));
+  if (take.length === 0) return;
+  const tiles = take.flatMap((origin) => buildings.ghost('wood_furnace', origin, 0).tiles).sort((a, b) => a - b);
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  if (!command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles }, ['bad_zone_tiles']).ok) return;
+  economy.phases.add('fuel store');
+  const store = bSystem.lastCreatedZone;
+  command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { categories: [...FUEL_STORE_GOODS] } });
+  const surface = buildings.zoneAt(w.index(state.cx - 1, state.cy + 6, state.z));
+  if (surface !== 0 && buildings.zone(surface)?.type === 'stockpile') {
+    command(w, { type: 'SetStockpileFilter', zoneId: surface, filter: { preset: 'everything', categories: SURFACE_GOODS_BELOW.filter((c) => !FUEL_STORE_GOODS.includes(c)) } });
+  }
 }
 
 /** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */
@@ -1704,7 +1790,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // Beds come before barrels until every dwarf and the hospital has one: in a bedroom, or once the
     // bedrooms are spent in a dormitory (T-571).
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0);
+    const bedPlaces = state.bedroomPlans.filter((bp) => bp.designated).length + (state.dormitories ?? []).reduce((n, d) => n + d.tiles.length, 0) +
+      (state.strong?.quarters?.tiles.length ?? 0);
     const beds = Math.min(bedPlaces, population + 1) - owned(w, 'bed');
     // T-572: a wooden bed takes a pallet's materials beside its log. The cloth is the hospital's: a
     // bleeding wound is bandaged with one (17 § Treatment), and the wagon brings five, so the beds are
@@ -1779,6 +1866,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       if (phases.has('steel')) mine(w, state, upper, isFlux, STEEL_BATCH);
       phases.add('steel');
     }
+    keepCoal(w, state, smelter, day);
   }
   // The steel chain's inputs, journalled weekly from the alloy order's day (observation only).
   if (day >= (state.strong?.since ?? 217) && day % 7 === 0 && smelter) {
@@ -1846,6 +1934,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   checkCrops(w);
   checkKitchens(w, state);
   keepWorkBelow(w, state, day);
+  keepFuelStore(w, state);
   checkMakingDo(w, state, day);
   // Nobody hunts: an immigrant hunter arrives with a crossbow, and a bolt that misses its quarry
   // hits whoever stands behind it (16 § Ranged).

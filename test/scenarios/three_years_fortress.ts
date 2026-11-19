@@ -1214,7 +1214,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 export function keepDormitories(w: TestWorld, state: FortressState, livingPop: number): void {
   const dorms = state.dormitories ?? (state.dormitories = []);
   if (state.bedroomPlans.some((bp) => !bp.designated)) return;
-  const places = state.bedroomPlans.length + dorms.reduce((n, d) => n + d.tiles.length, 0);
+  const places = state.bedroomPlans.length + dorms.reduce((n, d) => n + d.tiles.length, 0) + (state.strong?.quarters?.tiles.length ?? 0);
   if (livingPop + 2 > places) {
     const tiles = dormitorySite(w, state);
     if (tiles !== null) {
@@ -1255,23 +1255,27 @@ export function dormitorySite(w: TestWorld, state: FortressState): number[] | nu
   return hallBlockSite(w, state, DORMITORY_W, DORMITORY_H);
 }
 
-/** T-582: a block of rock `width` by `height`, either way round, chosen as `dormitorySite` chooses a dormitory's. */
-export function hallBlockSite(w: TestWorld, state: FortressState, width: number, height: number): number[] | null {
+/**
+ * T-582: a block of rock `width` by `height`, either way round, chosen as `dormitorySite` chooses a
+ * dormitory's; T-619: nearest `near` (where the block's centre is measured to) when given, else the
+ * stair's foot, and entered through the room of zone `through` as through a corridor when given.
+ */
+export function hallBlockSite(w: TestWorld, state: FortressState, width: number, height: number, near?: { readonly x: number; readonly y: number }, through = 0): number[] | null {
   const map = w.map, z = state.hallZ;
   const buildings = w.readers.of<BuildingsReader>('14');
   const hallLabel = w.readers.pathing.labelOf(behindTheLine(w, state), 'walker');
   const planned = new Set<number>([...state.economy.workings, ...(state.dormitories ?? []).flatMap((d) => d.tiles),
     ...state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, z)]), ...(state.economy.larder?.tiles ?? []),
     ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? []), ...(state.burial?.tombs ?? []).flatMap((t) => t.tiles),
-    ...(state.strong?.barracks?.tiles ?? [])]);
+    ...(state.strong?.barracks?.tiles ?? []), ...(state.strong?.quarters?.tiles ?? [])]);
   const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) &&
     map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t);
-  const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
+  const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && (buildings.zoneAt(t) === 0 || (through !== 0 && buildings.zoneAt(t) === through)) &&
     w.readers.pathing.labelOf(t, 'walker') === hallLabel;
   let best: number[] | null = null, bestDistance = Infinity;
   for (const [rw, rh] of [[width, height], [height, width]] as const) {
     for (let y0 = 2; y0 + rh <= map.h - 2; y0 += 1) for (let x0 = 2; x0 + rw <= map.w - 2; x0 += 1) {
-      const distance = Math.abs(x0 + rw / 2 - state.cx - 6) + Math.abs(y0 + rh / 2 - state.cy - 6);
+      const distance = Math.abs(x0 + rw / 2 - (near?.x ?? state.cx + 6)) + Math.abs(y0 + rh / 2 - (near?.y ?? state.cy + 6));
       if (distance >= bestDistance) continue;
       const tiles: number[] = [];
       let ok = true;
@@ -2355,6 +2359,15 @@ export const STRONG_SOLDIERS = AMBUSH_SOLDIERS + 1;
 export const BARRACKS_W = 4;
 export const BARRACKS_H = 5;
 const BARRACKS_LEAD_DAYS = 14;
+/**
+ * T-619: the squad's quarters, a block of rock nearest the barracks, entered from it or a corridor,
+ * dug once the barracks is: one single-bed bedroom on each tile (beds do not block a walk), one for each soldier
+ * and marksdwarf, as a player gives the soldiers their beds by the barracks. In `three-years-p4-4` the
+ * bedrooms lay 40 to 70 steps from the barracks, and a slow soldier spent the night walking to its
+ * bed and stood at drill 1 to 4% of the day (reports/audits/2026-11-18-t615-soldiers-needs.md).
+ */
+export const QUARTERS_W = 2;
+export const QUARTERS_H = 4;
 /** T-603: the wooden bolts the carpenter keeps for the range (a practice shot breaks one bolt in five, 16 § Training). */
 const TRAINING_BOLTS = 40;
 /** T-603: each soldier's steel kit: the forge's recipe, the item and the slot it fills. */
@@ -2374,6 +2387,8 @@ export interface StrongSquad {
   steelOwed?: boolean;
   /** The barracks: its rock, its zone once dug (0 before) and its archery target (0 before). */
   barracks?: { tiles: number[]; zoneId: number; targetId: number };
+  /** T-619: the squad's quarters beside the barracks: its rock, one single-bed room on each tile. */
+  quarters?: { tiles: number[] };
   /** The day the squad of five first formed (undefined before). */
   since?: number;
   /** The marksdwarves' squad (0 before). */
@@ -2449,6 +2464,57 @@ function keepBarracks(w: TestWorld, state: FortressState, strong: StrongSquad, d
   }
 }
 
+/** T-619: the middle tile of the barracks, which the quarters are dug nearest. */
+function barracksMiddle(w: TestWorld, strong: StrongSquad): { x: number; y: number } | null {
+  const tiles = strong.barracks?.tiles ?? [];
+  if (tiles.length === 0) return null;
+  const xs = tiles.map((t) => w.map.xOf(t)), ys = tiles.map((t) => w.map.yOf(t));
+  return { x: (Math.min(...xs) + Math.max(...xs) + 1) / 2, y: (Math.min(...ys) + Math.max(...ys) + 1) / 2 };
+}
+
+/**
+ * T-619: the squad's quarters (QUARTERS_W by QUARTERS_H), dug once the barracks is zoned: a bed and
+ * a bedroom on each tile, and each soldier and marksdwarf given one of them (14 § Rooms: the room it
+ * owned goes back to the daily assignment). A room whose owner has left the squads is given to the
+ * next who has none here.
+ */
+export function keepQuarters(w: TestWorld, state: FortressState, strong: StrongSquad): void {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  if ((strong.barracks?.zoneId ?? 0) === 0) return;
+  if (strong.quarters === undefined) {
+    const middle = barracksMiddle(w, strong);
+    const tiles = middle === null ? null : hallBlockSite(w, state, QUARTERS_W, QUARTERS_H, middle, strong.barracks!.zoneId);
+    if (tiles === null) return;
+    strong.quarters = { tiles };
+    designateDig(w, tiles, METAL_BUILD);
+    return;
+  }
+  const q = strong.quarters;
+  if (!q.tiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
+    const rock = q.tiles.filter((t) => w.map.kindAt(t) === TileKind.Wall && w.map.designationAt(t) === 0);
+    if (rock.length > 0) designateDig(w, rock, METAL_BUILD);
+    return;
+  }
+  const rooms: number[] = [];
+  for (const t of q.tiles) {
+    const zone = buildings.zoneAt(t);
+    if (zone === 0) {
+      if (buildings.at(t) === 0) command(w, { type: 'PlaceBuilding', buildingType: 'bed', origin: t, orientation: 0, materialChoice: 0, priority: METAL_BUILD }, ['bad_placement', 'not_discovered']);
+      if (buildings.zoneTileQualifies('bedroom', t) && command(w, { type: 'CreateZone', zoneType: 'bedroom', tiles: [t] }, ['bad_zone_tiles']).ok) rooms.push(bSystem.lastCreatedZone);
+    } else if (buildings.zone(zone)?.type === 'bedroom') rooms.push(zone);
+  }
+  const ent = w.game.world.entities;
+  const squad = strong.trained.filter((id) => ent.alive(id));
+  const furnished = (zone: number): boolean => buildings.zone(zone)?.tiles.some((t) => { const b = buildings.get(buildings.at(t)); return b?.state === 'built' && b.typeId === 'bed'; }) === true;
+  for (const id of squad) {
+    if (rooms.includes(buildings.bedroomOf(id))) continue;
+    const free = rooms.find((zone) => furnished(zone) && !squad.includes(buildings.ownerOf(zone)));
+    if (free === undefined) break;
+    command(w, { type: 'AssignRoom', zoneId: free, dwarfId: id });
+  }
+}
+
 /**
  * T-603: who stands in a squad of `size`: its living members still in `pool` (the adults no role
  * holds), then the others of the pool with the highest `score`, the lowest id first; none in `taken`.
@@ -2477,14 +2543,17 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   strong.day = day;
   const plan = STRONG_PLAN;
   keepBarracks(w, state, strong, day);
+  keepQuarters(w, state, strong);
   if (strong.since === undefined) {
     if (day < plan.day || armingSquad(state) || adults.length < plan.adults || (strong.barracks?.zoneId ?? 0) === 0) return false;
     strong.since = day;
     command(w, { type: 'SetSquadEquipment', squadId: state.squadId, equipment: { weaponClass: 'sword' } });
-    // The Mountainhome's next caravans bring steel and its kit, and flux for the fortress's own (20 § Requests).
+    // The Mountainhome's next caravans bring steel and its body armour and shield, flux for the
+    // fortress's own, and coal and charcoal to burn it with (20 § Requests). T-620: the helm, greaves
+    // and sword asked for in their place came 0.5 pieces a fortress-timeline in T-616's sweep.
     command(w, { type: 'SetRequests', civ: 'mountainhome', entries: [
       { itemType: 'bar', material: 'steel', priority: 3 }, { itemType: 'mail_shirt', material: 'steel', priority: 2 }, { itemType: 'shield', material: 'steel', priority: 2 },
-      { itemType: 'helm', material: 'steel', priority: 1 }, { itemType: 'greaves', material: 'steel', priority: 1 }, { itemType: 'short_sword', material: 'steel', priority: 1 },
+      { itemType: 'coal_bar', priority: 2 }, { itemType: 'charcoal_bar', priority: 1 },
       { itemType: 'raw_stone', material: 'limestone', priority: 1 }, { itemType: 'seed', material: 'dimcap', priority: 2 }] });
     note('three_years_strong_squad', { day: day + 1, adults: adults.length });
   }

@@ -1,6 +1,8 @@
 # T-620 — Charcoal binds the three-year squad's steel
 
-**Source:** [T-616's sweep](../../reports/data/2026-11-18-t616-strong-squad-steel.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 2b57e3da.
+
+**Source:** [T-616's sweep](../../../reports/data/2026-11-18-t616-strong-squad-steel.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

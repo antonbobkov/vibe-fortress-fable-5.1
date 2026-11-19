@@ -1,6 +1,8 @@
 # T-619 — The three-year script's soldiers live far from their barracks
 
-**Source:** [T-615's measurement](../../reports/audits/2026-11-18-t615-soldiers-needs.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in e09118d0.
+
+**Source:** [T-615's measurement](../../../reports/audits/2026-11-18-t615-soldiers-needs.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
