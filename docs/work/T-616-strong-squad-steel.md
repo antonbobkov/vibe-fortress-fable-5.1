@@ -1,4 +1,4 @@
-# T-NEW — The three-year fortress has too little steel for the strong squad
+# T-616 — The three-year fortress has too little steel for the strong squad
 
 **Source:** [T-606's sweep](../../reports/data/2026-11-18-t606-sweep.md) · **Size:** M · **Needs:** — · **Status:** open
 
