@@ -21,9 +21,9 @@ import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
-import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
+import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
-import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, stackName, whimProgressText } from './messages';
+import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, pluralName, stackName, whimProgressText } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -44,6 +44,14 @@ export function prefixOf(severity: Severity): string {
   return severity === 'danger' ? '!! ' : severity === 'alert' ? '! ' : '';
 }
 
+/**
+ * A line only the Combat tab lists: a combat note, a blow or a kill (16 § Combat log). The All tab
+ * and the strip leave them out, so a fight does not bury the rest of the log.
+ */
+export function combatOnly(line: LogLine): boolean {
+  return line.category === 'combat' && line.severity === 'note';
+}
+
 /** A line as the strip and the log panel print it, with its merge count. */
 export function lineText(line: LogLine): string {
   return `${prefixOf(line.severity)}${line.text}${line.count > 1 ? ` ×${line.count}` : ''}`;
@@ -54,6 +62,21 @@ interface NamedRow {
   readonly name: string;
 }
 
+/** A creature in the fortress's engagement, as it was when it first fought in it. */
+interface Fighter {
+  readonly id: number;
+  readonly species: number;
+  readonly name: string;
+}
+
+/** The fortress's open engagement (16 § Combat log): its line, who has fought in it on each side, and its last blow. */
+interface Engagement {
+  readonly line: LogLine;
+  readonly ours: Fighter[];
+  readonly foes: Fighter[];
+  last: number;
+}
+
 /** What announcing one event produced. */
 export interface Announced {
   readonly line: LogLine;
@@ -62,7 +85,10 @@ export interface Announced {
 }
 
 export class AnnouncementLog {
-  private readonly combatPairs = new Set<string>();
+  /** The fortress's engagement line while its blows keep coming (presentation state, not saved). */
+  private engagement: Engagement | null = null;
+  /** Fortress dwarves whose death line named the killer: their `KillRecorded` makes no line. */
+  private readonly killsTold = new Set<number>();
   readonly lines: LogLine[] = [];
   private readonly specs = new Map<string, AnnouncementSpec[]>();
   private readonly seen = new Set<string>();
@@ -346,9 +372,14 @@ export class AnnouncementLog {
     return creatureWords(this.registry, name, speciesIndex);
   }
 
-  /** Map an event through the registry and append it; `null` when the event has no row. */
+  /**
+   * Map an event through the registry and append it; `null` when the event has no row. A blow
+   * (`AttackResolved`) is its own line, a note; the fortress's engagement line is {@link engage}'s.
+   */
   announce(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
     const fields = event as unknown as Record<string, unknown>;
+    // 16 § Kills and loot: a fortress dwarf's death line that named its killer is the kill's only line.
+    if (event.type === 'KillRecorded' && typeof fields['victimId'] === 'number' && this.killsTold.delete(fields['victimId'])) return null;
     // Completion/removal must clear suppression even when the event has no announcement.
     const finished = event.type === 'JobCompleted' && fields['jobType'] === 'craft' ? fields['target']
       : event.type === 'BuildingRemoved' ? fields['id'] : undefined;
@@ -392,26 +423,118 @@ export class AnnouncementLog {
     const params = this.params(event, readers);
     // 17 § Registrations: a death says how it came, by its cause ("Ketil Ironvein has bled to death.").
     if (event.type === 'CreatureDied' && key !== 'announce.summon_faded') key = this.deathKey(fields['cause'], params['killer']) ?? key;
+    // A fortress dwarf killed by a creature: the death line names the killer and is a combat line too.
+    const killTold = dwarfDeath && key === 'announce.died.killed_by' && typeof creatureId === 'number';
+    if (killTold) this.killsTold.add(creatureId);
     if (event.type === 'ImmigrantsArrived') key = this.immigrantsLine(fields, readers, params) ?? key;
     const text = this.strings.get(key, params);
     const focus = focusOf(event, readers) ?? (event.type === 'StockpileFull' ? zoneFocus(readers, fields['id']) : undefined);
-    const category = spec.category;
+    const category = killTold ? 'combat' : spec.category;
     let severity = spec.severity;
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
       severity = petDeath ? 'alert' : 'note';
     }
     if (event.type === 'RaidEnded' && fields['outcome'] === 'looted') severity = 'alert';
-    if (event.type === 'AttackResolved') {
-      const attacker = fields['attackerId'];
-      const defender = fields['defenderId'];
-      if (typeof attacker === 'number' && typeof defender === 'number') {
-        const pair = `${attacker}:${defender}`;
-        if (this.combatPairs.has(pair)) severity = 'note';
-        else this.combatPairs.add(pair);
-      }
+    // A blow that does no damage says so, rather than "0 edge".
+    if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && fields['amount'] === 0) {
+      return this.done(this.append(severity, this.strings.get('announce.attack_harmless', params), tick, focus, category));
     }
     const line = this.append(severity, text, tick, focus, category);
     return { line, severity, focus };
+  }
+
+  private done(line: LogLine): Announced {
+    return { line, severity: line.severity, focus: line.focus };
+  }
+
+  /**
+   * 16 § Combat log: a blow between a fortress creature and a foe opens the fortress's engagement
+   * line, an alert ("4 dwarves and a dog are fighting 9 gloam warriors and a gloam captain."), or
+   * refreshes the open one: its text counts everyone who has fought in it, it takes the time and the
+   * place of the latest blow, and it keeps its place in the log. A foe is a raider or a creature of
+   * the Deep, a wild animal that attacks, or anything that strikes a fortress creature (a fortress
+   * creature hunting a deer is no engagement). The engagement ends when no blow of it has come for
+   * `LOG_ENGAGEMENT_TICKS`. Returns the line it opened; null when it refreshed one or the blow is
+   * none of the fortress's.
+   */
+  engage(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
+    if (event.type !== 'AttackResolved') return null;
+    const fields = event as unknown as Record<string, unknown>;
+    const attacker = fields['attackerId'];
+    const defender = fields['defenderId'];
+    if (typeof attacker !== 'number' || typeof defender !== 'number') return null;
+    const prior = this.engagement;
+    const open = prior !== null && tick - prior.last <= LOG_ENGAGEMENT_TICKS && this.lines.includes(prior.line) ? prior : null;
+    const side = (id: number): 'ours' | 'foe' | 'other' | null => {
+      if (open?.ours.some((f) => f.id === id) === true) return 'ours';
+      if (open?.foes.some((f) => f.id === id) === true) return 'foe';
+      const creature = readers.entities.get(id, C.Creature);
+      if (creature === undefined) return null;
+      if (creature.faction === 'fortress') return 'ours';
+      if (creature.faction.startsWith('hostile') || creature.faction === 'deep') return 'foe';
+      if (creature.faction === 'wild' && readers.entities.get(id, C.Wild)?.state === 'attack') return 'foe';
+      return 'other';
+    };
+    const a = side(attacker);
+    const d = side(defender);
+    let ours: number;
+    let foe: number;
+    if (a === 'ours' && d === 'foe') {
+      ours = attacker;
+      foe = defender;
+    } else if (d === 'ours' && (a === 'foe' || a === 'other')) {
+      ours = defender;
+      foe = attacker;
+    } else {
+      // A blow of the open engagement on a creature already gone (a killing blow) only keeps it open.
+      const known = (s: typeof a): boolean => s === 'ours' || s === 'foe';
+      if (open !== null && ((known(a) && d === null) || (known(d) && a === null))) open.last = tick;
+      return null;
+    }
+    const focus = focusOf({ type: 'AttackResolved', defenderId: defender, attackerId: attacker } as unknown as GameEvent, readers);
+    const fight: Engagement = open ?? { line: { tick, severity: 'alert', text: '', count: 1 }, ours: [], foes: [], last: tick };
+    this.enlist(fight.ours, ours, readers);
+    this.enlist(fight.foes, foe, readers);
+    fight.last = tick;
+    const text = capitalize(this.engagementText(fight));
+    if (open !== null) {
+      open.line.text = text;
+      open.line.tick = tick;
+      if (focus !== undefined) open.line.focus = focus;
+      return null;
+    }
+    const line = this.append('alert', text, tick, focus, 'combat');
+    this.engagement = { line, ours: fight.ours, foes: fight.foes, last: tick };
+    return this.done(line);
+  }
+
+  private enlist(side: Fighter[], id: number, readers: ReaderSet): void {
+    if (side.some((f) => f.id === id)) return;
+    const creature = readers.entities.get(id, C.Creature);
+    if (creature === undefined) return;
+    side.push({ id, species: creature.species, name: creature.name });
+  }
+
+  /** "Halvar Ironfell is fighting a wolf.", "4 dwarves and a dog are fighting 9 gloam warriors and a gloam captain." */
+  private engagementText(fight: Engagement): string {
+    const ours = this.fightersText(fight.ours);
+    const foes = this.fightersText(fight.foes);
+    return this.strings.get(fight.ours.length === 1 ? 'announce.engagement.one' : 'announce.engagement.many', { ours, foes });
+  }
+
+  /** A side of an engagement by species, in the order they joined: one by its name or "a dog", more counted ("4 dwarves"). */
+  private fightersText(fighters: readonly Fighter[]): string {
+    const groups = new Map<number, Fighter[]>();
+    for (const f of fighters) groups.set(f.species, [...groups.get(f.species) ?? [], f]);
+    const table = this.registry.table<NamedRow>('creatures');
+    const parts = [...groups.values()].map((group) => {
+      const first = group[0] as Fighter;
+      if (group.length === 1) return creatureWords(this.registry, first.name, first.species);
+      const species = (table.byIndex(first.species)?.name ?? 'creature').toLowerCase();
+      return `${group.length} ${pluralName(species)}`;
+    });
+    if (parts.length <= 1) return parts[0] ?? '';
+    return this.strings.get('announce.list_and', { list: parts.slice(0, -1).join(', '), last: parts[parts.length - 1] as string });
   }
 
   /**

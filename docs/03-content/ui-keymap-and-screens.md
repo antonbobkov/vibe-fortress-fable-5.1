@@ -552,7 +552,7 @@ These keys act as described and cannot be rebound. The editor lists the `Esc` ro
 | Every key in Settings › Keybindings | the editor itself | The editor must work whatever the bindings are: `↑` `↓` `PageUp` `PageDown` move, `Enter` or a click captures the next key, `Delete` or `Backspace` restores the row's default, `[d]` restores every default, `Esc` backs out. |
 | `[letter]` and labor manager letters | panel accelerators, the labor manager's jump to a labor, a preset's first letter | They stand for every letter; each accelerator that a panel shows is its own row above. |
 | Any key, or a click | the intro | Whoever did not ask to watch it must be able to leave at once with whatever key the hand finds; a skip that had to be learned or could be rebound away would hold the player in front of a film of most of a minute. A modifier pressed alone does not count. |
-| Any key | a danger line pinned to the log strip | "Dismissed by any key" (`02-systems/24-ui-and-input.md` § Announcements and the log). |
+| Any key | a danger line pinned to the log strip | "Dismissed by any key", which then acts as it would have; `Space` and `Esc` (the pause and cancel keys, however bound) only dismiss, so reading the line does not unpause the game (`02-systems/24-ui-and-input.md` § Announcements and the log). |
 | `Shift` held with a bound key | arrows, `+` `-`, `Shift+Enter` | A modifier of the key's own action (ten at a time, mark the rows passed, a corner), not a key of its own. |
 
 The mouse is not rebindable; § Mouse lists its gestures.

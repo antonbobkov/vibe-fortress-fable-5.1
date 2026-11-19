@@ -171,11 +171,13 @@ An `AttackResolved` with `outcome: 'hit'`, melee or ranged, on a creature that c
 
 ### Combat log
 
-Every `AttackResolved` is rendered by the announcement registry into a combat log line from the strings table ("Orm Ashbrow hits the gloam warrior in the torso with his iron axe (18 damage)" or "The wolf bites Brynja Coldhammer in the left leg"). A creature with a name of its own is named by the first word of it ("Halvar hits a gloam archer: 13 edge."); any other by its species with an article ("A hillfolk bandit hits Halvar: 3 blunt."), never by its content id; one that is gone when the line is drawn is "a creature". The combat log is a separate tab of the log panel and does not raise alerts except for the first attack of an engagement, which is an alert that centers the view: the first observed attack of an attacker and defender pair is the alert, and later attacks of that pair are notes. A log line is saved with its category, so the combat tab works after a load.
+Every `AttackResolved` is rendered by the announcement registry into a combat log line from the strings table ("Orm Ashbrow hits the gloam warrior in the torso with his iron axe (18 damage)" or "The wolf bites Brynja Coldhammer in the left leg"). A creature with a name of its own is named by the first word of it ("Halvar hits a gloam archer: 13 edge."); any other by its species with an article ("A hillfolk bandit hits Halvar: 3 blunt."), never by its content id; one that is gone when the line is drawn is "a creature". A hit that does no damage reads "A gloam archer hits Halvar but does no harm.". The combat log is a separate tab of the log panel; its blow and kill lines are notes, which only that tab lists (24 § Announcements and the log), and the combat log setting (all, hits only, off) chooses which blows it lists.
+
+The alert is the fortress's **engagement line**, one at a time. A blow between a fortress creature and a foe opens it when none is open: "Halvar Ironfell is fighting a wolf.", "4 dwarves and a dog are fighting 9 gloam warriors and a gloam captain.". A foe is a creature of a hostile faction or of the Deep, a wild animal in its `attack` state, or any creature that strikes a fortress creature; a fortress creature hunting a deer that does not fight back is no engagement, and a fight that has no fortress creature in it (a caravan's guards against raiders) none either. Each later blow of it refreshes the line rather than adding one: the line counts everyone who has fought in it on each side, by species in the order they joined (one creature by its own name, else "a dog"; more counted, "4 dwarves"), takes the time and the place of the latest blow, and keeps its place in the log; it does not flash again. The engagement ends when none of its blows has come for `LOG_ENGAGEMENT_TICKS` (24), and the next blow opens a new line. The open engagement is presentation state and is not saved: after a load the next blow opens a line. A log line is saved with its category, so the combat tab works after a load.
 
 ## State
 
-- `Soldier` components (`squadId, onDuty, stance, targetId, cooldownUntil, lastShiftTick`), `Squad` entities, `Equipment` components (all creatures that can carry: dwarves, hostiles, traders), `Projectile` entities, `alert`, `engagements: Map<EntityId, lastAttackTick>` (for "first attack" announcements), `targets: Map<EntityId, EntityId>` for non-dwarf creatures (animals and hostiles set targets through `combat.setTarget`).
+- `Soldier` components (`squadId, onDuty, stance, targetId, cooldownUntil, lastShiftTick`), `Squad` entities, `Equipment` components (all creatures that can carry: dwarves, hostiles, traders), `Projectile` entities, `alert`, `engagements: Map<EntityId, lastAttackTick>` (`combat.lastEngagementTick`), `targets: Map<EntityId, EntityId>` for non-dwarf creatures (animals and hostiles set targets through `combat.setTarget`).
 - `threatThrottles: Map<EntityId, Tick>` records each fortress creature's last threat notification.
 - Rng stream.
 
@@ -209,7 +211,7 @@ Every `AttackResolved` is rendered by the announcement registry into a combat lo
 
 ### Registrations
 
-Panel `military`; inspector section `creature › combat` (weapon, armor per part with values, skills, squad, target); overlay `squad stations`; announcements: first attack of an attacker and defender pair (alert), `AlertChanged` (note), `KillRecorded` for every kill that is not a hunt's (note).
+Panel `military`; inspector section `creature › combat` (weapon, armor per part with values, skills, squad, target); overlay `squad stations`; announcements: `AttackResolved` (a note of the Combat tab; the UI makes the fortress's engagement line, an alert, from the blows, § Combat log), `AlertChanged` (note), `KillRecorded` for every kill that is not a hunt's (note; none for a fortress dwarf whose death line names the killer, 24 § Announcements and the log).
 
 ## Player-facing behavior
 
