@@ -9,7 +9,7 @@ Columns: `footprint` `w×h` (rotatable when noted); `on` placement requirement; 
 | id | name | footprint | on | inputs | labor | ticks | tags | pass | fluid | value | glyph |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `wall` | wall | 1×1 | floor or open (supported) | 1 block, log, bar or raw stone | construction | 100 | — | no | yes | 2 | `█` material |
-| `floor` | floor | 1×1 | open (supported) or floor | 1 block, log, bar or raw stone | construction | 60 | — | yes | no | 1 | `+` material |
+| `floor` | floor | 1×1 | open (supported, or beside a planned floor) or floor | 1 block, log, bar or raw stone | construction | 60 | — | yes | no | 1 | `+` material |
 | `paved_floor` | paved floor | 1×1 | floor | 1 block | construction | 60 | — | yes | no | 1 | `≡` material |
 | `ramp` | ramp | 1×1 | floor with an adjacent wall | 1 block or log | construction | 80 | — | yes | no | 1 | `▲` material |
 | `stairs_up` | up stairs | 1×1 | floor | 1 block or log | construction | 80 | — | yes | no | 1 | `<` material |

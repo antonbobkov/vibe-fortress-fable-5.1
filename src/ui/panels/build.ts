@@ -15,7 +15,7 @@ import type { Command } from '@core/commands';
 import { PRIORITY_DEFAULT } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { buildTicksOf, inputsOf, mayBeOfBlocks, type BuildingRow } from '@systems/buildings';
+import { buildTicksOf, inputsOf, mayBeOfBlocks, onRuleOf, type BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
 import { workshopHasWork } from '@core/workshop-use';
@@ -377,7 +377,7 @@ export class BuildTool {
     return row !== undefined && row.footprint.w === 1 && row.footprint.h === 1 && row.footprint.variable === undefined && row.category !== 'special';
   }
 
-  /** The tiles of a drag: the valid ones, ascending, and why the others are skipped. */
+  /** The tiles of a drag: the valid ones, ascending, then a span's floors outward from their held end; why the others are skipped. */
   plan(ctx: PanelContext, a: TilePoint, b: TilePoint): DragPlan {
     const row = this.current(ctx);
     const reader = buildings(ctx);
@@ -385,13 +385,30 @@ export class BuildTool {
     const rules = new Map<string, number>();
     let blocked = 0;
     if (row === undefined || reader === null) return { ok, blocked, rules: [] };
+    const failed = new Map<TileIndex, string>();
     for (const tile of rectTiles(ctx.readers.map, a, b)) {
       const text = blockedText(ctx, row.id, reader.ghost(row.id, tile, this.orientation));
       if (text === null) ok.push(tile);
-      else {
-        blocked += 1;
-        rules.set(text, (rules.get(text) ?? 0) + 1);
+      else failed.set(tile, text);
+    }
+    // 14 § Constructions: a floor over open space beside one this drag plans first is held by it, so a
+    // span grows out from its held end; the tiles are placed in that order, each after its holder.
+    if (onRuleOf(row.id) === 'floor_or_open_spanned' && failed.size > 0) {
+      const planned = new Set(ok);
+      const w = ctx.readers.map.w;
+      for (let k = 0; k < ok.length && failed.size > 0; k += 1) {
+        const from = ok[k] as TileIndex;
+        for (const next of [from - w, from + 1, from + w, from - 1]) {
+          if (!failed.has(next) || blockedText(ctx, row.id, reader.ghost(row.id, next, this.orientation, undefined, undefined, planned)) !== null) continue;
+          failed.delete(next);
+          planned.add(next);
+          ok.push(next);
+        }
       }
+    }
+    for (const text of failed.values()) {
+      blocked += 1;
+      rules.set(text, (rules.get(text) ?? 0) + 1);
     }
     return { ok, blocked, rules: Array.from(rules.keys()).sort((x, y) => (rules.get(y) as number) - (rules.get(x) as number) || (x < y ? -1 : 1)) };
   }

@@ -37,7 +37,7 @@ import type { CoreServices, JobProducer, TickContext } from '@core/system';
 import { BODY_SLOTS, type EntityId, type Idx, type MovementClass, type TileIndex } from '@core/types';
 import { killCreature } from '@systems/health/tick';
 import { CLEAR_PLANT_TICKS } from '@systems/plants/constants';
-import { CONSTRUCTION_KIND, constructionFlags, isClearablePlant, onRuleHolds, onRuleOf, standsAt, treeRefuses, type OnRule } from './constructions';
+import { CONSTRUCTION_KIND, constructionFlags, isClearablePlant, onRuleHolds, onRuleOf, standsAt, supported, treeRefuses, type OnRule } from './constructions';
 import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, MADE_UP_REST_PERCENT, STONE_WORKSHOP_TICKS_PERCENT, WAGON_CAPACITY, WELL_DEPTH } from './constants';
 import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 
@@ -551,12 +551,38 @@ export class BuildingStore {
   // ---------- commands ----------
 
   /**
+   * 14 § Constructions: whether a tile holds a planned floor that will hold an open tile beside it:
+   * a floor not yet built, or one of `extra` (the tiles a drag places before this one).
+   */
+  private plannedFloor(extra?: ReadonlySet<TileIndex>): (tile: TileIndex) => boolean {
+    return (tile) => {
+      if (extra?.has(tile) === true) return true;
+      const id = this.map.buildingAtTile(tile);
+      const b = id === 0 ? undefined : this.get(id);
+      return b !== undefined && b.state !== 'built' && onRuleOf(this.row(b.type).id) === 'floor_or_open_spanned';
+    };
+  }
+
+  /**
+   * 14 § Constructions: a wall or floor over open space that nothing holds yet (the middle of a
+   * planned span) is not started: its build job is made once one of its six neighbours holds it.
+   */
+  private awaitsSupport(b: Building, row: BuildingRow): boolean {
+    if (row.category !== 'construction') return false;
+    const rule = onRuleOf(row.id);
+    if (rule !== 'floor_or_open_spanned' && rule !== 'floor_or_open_supported') return false;
+    return b.footprint.some((t) => this.map.kindAt(t) === TileKind.Open && !supported(this.map, t));
+  }
+
+  /**
    * The build tool's ghost (`fortress-screen.md` § Build tool: "green ok, red blocked" with the
    * reason): the footprint at an origin, the tiles that fail, and the first reason `PlaceBuilding`
-   * would give, or null when it would be accepted.
+   * would give, or null when it would be accepted. `planned` are tiles to count as planned floors
+   * (a drag's tiles placed before this one).
    */
-  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number): BuildGhost {
+  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number, planned?: ReadonlySet<TileIndex>): BuildGhost {
     const map = this.map;
+    const held = this.plannedFloor(planned);
     const type = this.typeOf(typeId);
     const rule = onRuleOf(typeId);
     if (type === 0 || !map.validIndex(origin)) return { tiles: [], bad: [], clears: [], reason: 'not_found', rule };
@@ -579,7 +605,7 @@ export class BuildingStore {
       } else if (map.buildingAtTile(t) !== 0) {
         bad.push(t);
         note('footprint_blocked');
-      } else if (!onRuleHolds(map, rule, t, this.soilMaterial)) {
+      } else if (!onRuleHolds(map, rule, t, this.soilMaterial, held)) {
         bad.push(t);
         note('bad_placement');
       }
@@ -633,7 +659,8 @@ export class BuildingStore {
     for (const t of tiles) if (!map.hasFlag(t, TileFlag.Discovered)) return reject('not_discovered');
     for (const t of tiles) if (map.buildingAtTile(t) !== 0) return reject('footprint_blocked');
     const rule = onRuleOf(row.id);
-    for (const t of tiles) if (!onRuleHolds(map, rule, t, this.soilMaterial)) return reject('bad_placement');
+    const held = this.plannedFloor();
+    for (const t of tiles) if (!onRuleHolds(map, rule, t, this.soilMaterial, held)) return reject('bad_placement');
     if (row.tags.includes('bridge') && !this.bridgeHinge(tiles, orientation)) return reject('bad_placement');
     if (row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) return reject('bad_placement');
     if (!this.magmaSafe(tiles, material)) return reject('not_magma_safe');
@@ -800,6 +827,7 @@ export class BuildingStore {
   private produce(ctx: TickContext): void {
     if (this.pending.length === 0) return;
     const jobs = ctx.jobs;
+    const waiting: EntityId[] = [];
     for (const id of this.pending.splice(0)) {
       const b = this.get(id);
       if (b === undefined) continue;
@@ -809,6 +837,7 @@ export class BuildingStore {
       const material = (b.settings['materialChoice'] as number | undefined) ?? 0;
       if (b.state !== 'built') {
         if (jobs.exists(buildKey(id))) continue;
+        if (this.awaitsSupport(b, row)) { waiting.push(id); continue; }
         const inputs = this.inputsFor(row, b.footprint.length, material, isOfBlocks(b));
         const plants = b.footprint.filter((t) => isClearablePlant(this.map.kindAt(t))).length;
         jobs.create(buildKey(id), {
@@ -839,6 +868,8 @@ export class BuildingStore {
         });
       }
     }
+    // A span's unheld floors wait in the list and are looked at again each tick, until a neighbour holds them.
+    for (const id of waiting) this.addPending(id);
   }
 
   /** Plan clearance before consuming inputs; a wall may not entomb leftover ground items. */

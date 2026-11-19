@@ -161,6 +161,12 @@ export class AnnouncementLog {
       const name = this.registry.table<NamedRow>('civilizations').byId(civ)?.name ?? civ;
       out['civ'] = capitalize(name.replace(/^the /, ''));
     }
+    // 20 § Movement: a caravan's lines name its depot ("Trade depot #1") and its edge ("west").
+    if ((event.type === 'CaravanWaiting' || event.type === 'CaravanAtDepot') && typeof e['depotId'] === 'number') {
+      out['depot'] = buildingName({ readers, registry: this.registry }, e['depotId']) || this.strings.get('ui.depot.a_depot');
+    }
+    const edge = e['edge'];
+    if (event.type === 'CaravanWaiting' && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);
     // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs."
     if (event.type === 'HostileFled') {
       const species = typeof speciesOf === 'number' ? speciesOf : readers.entities.get(Number(e['id']), C.Creature)?.species;
@@ -565,6 +571,12 @@ export function focusOf(event: GameEvent, readers?: ReaderSet): TileIndex | unde
     const workshopId = e['workshopId'];
     if (typeof workshopId === 'number' && readers.has('14')) {
       const tile = readers.of<BuildingsReader>('14').get(workshopId)?.footprint[0];
+      if (tile !== undefined) return tile;
+    }
+    // A caravan's line about its depot shows the depot (20 § Registrations).
+    const depotId = e['depotId'];
+    if (typeof depotId === 'number' && readers.has('14')) {
+      const tile = readers.of<BuildingsReader>('14').get(depotId)?.footprint[0];
       if (tile !== undefined) return tile;
     }
     const partyId = e['partyId'];
