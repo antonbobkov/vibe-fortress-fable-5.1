@@ -1,4 +1,4 @@
-# T-NEW — Animals, Jobs, Stocks and trade requests with many rows
+# T-640 — Animals, Jobs, Stocks and trade requests with many rows
 
 **Source:** [T-635's mid-game audit](../../reports/audits/2026-11-19-t635-midgame-ux.md), findings 16–19 · **Size:** M · **Needs:** — · **Status:** open
 

@@ -1,4 +1,4 @@
-# T-NEW — The Mood and Units panels at thirty dwarves and more
+# T-639 — The Mood and Units panels at thirty dwarves and more
 
 **Source:** [T-635's mid-game audit](../../reports/audits/2026-11-19-t635-midgame-ux.md), findings 13–15 · **Size:** M · **Needs:** — · **Status:** open
 

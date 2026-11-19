@@ -1,4 +1,4 @@
-# T-NEW — The Making Do recipes say where their inputs come from
+# T-641 — The Making Do recipes say where their inputs come from
 
 **Source:** [T-635's mid-game audit](../../reports/audits/2026-11-19-t635-midgame-ux.md), finding 21 · **Size:** S · **Needs:** — · **Status:** open
 

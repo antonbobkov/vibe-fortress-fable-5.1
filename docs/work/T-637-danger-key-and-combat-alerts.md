@@ -1,4 +1,4 @@
-# T-NEW — The first key after a danger acts, and combat does not drown the Alerts tab
+# T-637 — The first key after a danger acts, and combat does not drown the Alerts tab
 
 **Source:** [T-635's mid-game audit](../../reports/audits/2026-11-19-t635-midgame-ux.md), findings 2, 7 and 8 · **Size:** M · **Needs:** — · **Status:** open
 
