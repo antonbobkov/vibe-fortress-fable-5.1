@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
-import { TileKind } from '@core/map3d';
+import { Designation, TileKind } from '@core/map3d';
 import type { BuildingsReader } from '@systems/buildings/reader';
-import { COAL_STOCK, FUEL_SHORT, keepCoal, keepOreStore, ORE_STORE_TILES } from '../scenarios/three_years_economy';
+import { COAL_STOCK, FUEL_SHORT, growWorkHall, keepCoal, keepOreStore, ORE_STORE_TILES } from '../scenarios/three_years_economy';
 import { setupThreeYearsFortress, threeYearsWorld } from '../scenarios/three_years_fortress';
 
 /**
@@ -70,5 +70,26 @@ describe('T-642 the three-year script keeps the iron coming to the smelter', () 
     // Once only.
     keepOreStore(w, state);
     expect(new Set(state.economy.workHall!.tiles.map((t) => buildings.zoneAt(t)).filter((id) => id !== 0)).size).toBe(1);
+  }, 120_000);
+  it('digs the full workshop hall a row of sites longer, once, and none while a site is free', () => {
+    const { w, state, slots } = setup();
+    const hall = state.economy.workHall!;
+    growWorkHall(w, state);
+    expect(state.economy.phases.has('work hall grown'), 'a site is free').toBe(false);
+    w.build('smelter', slots[1]!);
+    w.step(1);
+    const before = hall.slots.length;
+    growWorkHall(w, state);
+    expect(state.economy.phases.has('work hall grown')).toBe(true);
+    expect(hall.slots.length, 'two sites across the eight-tile hall').toBe(before + 2);
+    const fresh = hall.slots.slice(before);
+    for (const origin of fresh) {
+      expect(w.map.zOf(origin)).toBe(w.map.zOf(slots[0]!));
+      for (const t of w.readers.of<BuildingsReader>('14').ghost('smelter', origin, 0).tiles) {
+        expect(w.map.kindAt(t) === TileKind.Floor || w.map.designationAt(t) === Designation.Dig, 'dug or to dig').toBe(true);
+      }
+    }
+    growWorkHall(w, state);
+    expect(hall.slots.length, 'once').toBe(before + 2);
   }, 120_000);
 });
