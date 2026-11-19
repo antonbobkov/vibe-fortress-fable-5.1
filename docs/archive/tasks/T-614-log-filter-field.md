@@ -1,5 +1,7 @@
 # T-614 — The log panel's filter field
 
+**Closed:** 2026-11-18, in 265ebfff.
+
 **Source:** T-608 (the log panel wraps; `04-implementation/ui-screens/panels.md` § Log) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

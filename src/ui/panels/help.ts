@@ -163,6 +163,7 @@ const PANEL_NOTES: Readonly<Partial<Record<KeyContext, PanelNotes>>> = Object.fr
   orders_panel: { typing: ['ui.help.orders.picker'], contexts: ['orders_panel', 'panel', 'global', 'fortress_panel'] },
   building_panel: { notes: ['ui.help.building.rows'], contexts: ['building_panel', 'designate_panel', 'panel', 'look_panel'] },
   stocks_panel: { typing: ['ui.help.stocks.filter'], contexts: ['stocks_panel', 'panel'] },
+  log_panel: { typing: ['ui.help.log.filter'], contexts: ['log_panel', 'panel'] },
   animals_panel: { notes: ['ui.help.animals.train', 'ui.help.animals.cap'], contexts: ['animals_panel', 'panel'] },
   game_menu: { notes: ['ui.help.game_menu.rename'], contexts: ['game_menu', 'fortress_panel'] },
 });

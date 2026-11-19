@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-614 | [The log panel's filter field](work/T-614-log-filter-field.md) | [T-608](archive/tasks/T-608-readable-log-and-hints.md) | — | open |
 | T-615 | [Some soldiers at drill spend three-quarters of the day on needs and barely train](work/T-615-soldiers-needs-keep-them-from-drill.md) | [T-606](archive/tasks/T-606-strong-squad-pace.md) | — | open |
 | T-616 | [The three-year fortress has too little steel for the strong squad](work/T-616-strong-squad-steel.md) | [T-606](archive/tasks/T-606-strong-squad-pace.md) | — | open |
 | T-617 | [A desert site's salt is not called sea salt](work/T-617-salt-word-on-dry-sites.md) | [T-613](archive/tasks/T-613-world-map-readability.md) | — | open |

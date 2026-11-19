@@ -48,6 +48,7 @@ const REMAINING: Readonly<Record<string, readonly { readonly id: string; readonl
   orders_panel: [{ id: 'ui.help.orders.picker', why: 'typing in the order picker' }],
   building_panel: [{ id: 'ui.help.building.rows', why: 'what the list keys choose in this panel' }],
   stocks_panel: [{ id: 'ui.help.stocks.filter', why: 'typing in the filter field, and how it ends' }],
+  log_panel: [{ id: 'ui.help.log.filter', why: 'typing in the filter field, and how it ends' }],
   animals_panel: [
     { id: 'ui.help.animals.train', why: 'the War or Hunting choice that training opens' },
     { id: 'ui.help.animals.cap', why: 'the number field of the breeding cap: digits, steps, range, buttons' },

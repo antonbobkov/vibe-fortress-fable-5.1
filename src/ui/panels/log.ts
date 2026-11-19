@@ -15,6 +15,7 @@ import { lineText, type LogLine, type Severity } from '../announcements';
 import type { Strings } from '../strings';
 import type { Surface, Theme } from '../surface';
 import { label, type ListState } from '../widgets';
+import { PanelFilter, drawPanelFilter } from './filter';
 import { wrapHang, wrapText } from '../messages';
 import type { KeyContext } from '../keymap';
 
@@ -46,6 +47,14 @@ export function filterLines(lines: readonly LogLine[], filter: LogFilter): LogLi
   return lines.filter((l) => l.category === 'combat');
 }
 
+/** The lines of a tab whose text as the panel shows it contains `text`, ignoring case (panels.md § Log: the filter field). */
+export function matchLines(s: Surface, lines: readonly LogLine[], filter: LogFilter, text: string): LogLine[] {
+  const tab = filterLines(lines, filter);
+  if (text === '') return tab;
+  const needle = text.toLowerCase();
+  return tab.filter((line) => shownText(s, line).toLowerCase().includes(needle));
+}
+
 /** A log row's date: "Sp 8", with the year ("Y2 Sp 8") for a line of an earlier year than `now`. */
 export function logDate(strings: Strings, tick: number, now: number): string {
   const season = strings.get(`ui.log.season.${seasonOf(tick)}`);
@@ -68,6 +77,8 @@ export class LogView implements ListState {
   visible = 1;
   /** Whether the player has chosen an entry: until then nothing is inverted and the newest is the selected one. */
   chosen = false;
+  /** The `/filter` field under the tabs: only the entries containing its text are listed. */
+  readonly filter = new PanelFilter();
 
   /** Move the selection by `delta` entries; the draw clamps it to the entries that exist. The first `↑` or `↓` marks the selected entry. */
   move(delta: number): void {
@@ -83,7 +94,7 @@ export class LogView implements ListState {
     this.move(direction * Math.max(1, this.visible - 1));
   }
 
-  /** Back to the newest entry (another filter). */
+  /** Back to the newest entry (another tab, or another filter text). */
   reset(): void {
     this.selected = 0;
     this.scroll = 0;
@@ -143,10 +154,12 @@ export function drawLogPanel(
   creatures?: LogCreatures,
 ): void {
   label(s, rect.col + 1, rect.row, strings.get('ui.log.filter'), { width: rect.cols - 2 });
-  const shown = filterLines(lines, filter).reverse();
+  if (rect.rows > 1) drawPanelFilter(s, rect.col + 1, rect.row + 1, rect.cols - 2, view.filter, { strings });
+  const shown = matchLines(s, lines, filter, view.filter.value).reverse();
   if (shown.length === 0) {
     view.reset();
-    label(s, rect.col + 1, rect.row + 2, strings.get('ui.log.empty'), { fg: s.theme.dim });
+    const empty = view.filter.value === '' ? 'ui.log.empty' : 'ui.log.no_match';
+    label(s, rect.col + 1, rect.row + 2, strings.get(empty), { fg: s.theme.dim, width: rect.cols - 2 });
     return;
   }
   // A selection below the newest entry stays on its line while newer lines arrive above it.

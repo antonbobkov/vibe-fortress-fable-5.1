@@ -165,8 +165,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.good.camels': 'camels',
   'ui.site.good.reindeer': 'reindeer',
   'ui.site.good.ice': 'ice',
-  // The `salt` material, named apart from rock salt (halite) in the site lists.
-  'ui.site.good.salt': 'sea salt',
+  // The `salt` material, named in the site lists for the salt crusts that give it, apart from rock salt (halite).
+  'ui.site.good.salt': 'salt crust',
   'ui.site.lack.soil': 'No surface soil: no farms or grass up here. Farm in a cavern or on mud; graze in a cavern.',
   'ui.site.lack.trees': 'No trees: wood only from the wagon, logs you bring, caravans and cavern fungus.',
   'ui.site.lack.water': 'No water on the surface: drink what you bring or brew; dig down to a cavern lake.',
@@ -692,6 +692,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.help.jobs.waiting': 'On a waiting order, ↑↓ choose and Enter opens Orders on it',
   'ui.help.jobs.filter': '[/] filter jobs by target name or worker; click the field. Enter or Esc finishes typing.',
   'ui.help.stocks.filter': '[/] filter stocks by category, item or material; click the field. Enter or Esc finishes typing.',
+  'ui.help.log.filter': '[/] filter entries by their text; click the field. Enter or Esc finishes typing.',
   'ui.jobs.orders_waiting': 'Orders waiting ({n}) [Tab]',
   'ui.jobs.counts': '{open} open · {claimed} claimed · {blocked} blocked',
   'ui.jobs.pri': 'Pri',
@@ -1416,6 +1417,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.care.job.give_crutch': 'crutch fitting',
   'ui.log.filter': '[1] All  [2] Alerts  [3] Combat',
   'ui.log.empty': 'Nothing has happened yet.',
+  'ui.log.no_match': 'No entry matches the filter.',
   'ui.log.actions': '[Enter] center on it',
   'ui.log.date': '{season} {day}',
   'ui.log.date_year': 'Y{year} {season} {day}',

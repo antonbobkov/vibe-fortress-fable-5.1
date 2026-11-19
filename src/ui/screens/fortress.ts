@@ -44,7 +44,7 @@ import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizati
 import { DepotPanel, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
 import { drawLookPanel, tileContents, type LookTab } from '../panels/look';
-import { drawLogPanel, drawLogStrip, LogView, type LogFilter } from '../panels/log';
+import { drawLogPanel, drawLogStrip, filterLines, LogView, matchLines, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import { statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
 import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../panels/calendar';
@@ -702,7 +702,7 @@ export class FortressScreen implements Screen {
     this.landmarks.set(`panel:${panel.id}`, { col: inner.col, row: inner.row, cols: inner.cols, rows: 1 });
     // The title row ends with `[x]`, a button that closes the panel as `Esc` does with no tool armed.
     const key = this.strings.get('ui.panel.close');
-    label(surface, inner.col + 1, inner.row, this.panelTitle(panel.id, panel.title), { fg: t.key, width: inner.cols - key.length - 2 });
+    label(surface, inner.col + 1, inner.row, this.panelTitle(panel.id, panel.title, surface), { fg: t.key, width: inner.cols - key.length - 2 });
     const closeAt = inner.col + inner.cols - key.length - 1;
     label(surface, closeAt, inner.row, key, { relabel: false });
     const closeCells = { col: closeAt, row: inner.row, cols: key.length, rows: 1 };
@@ -1133,6 +1133,9 @@ export class FortressScreen implements Screen {
     this.jobs.filter.focused = false;
     this.stocks.filter.value = '';
     this.stocks.filter.focused = false;
+    if (this.logView.filter.value !== '') this.logView.reset();
+    this.logView.filter.value = '';
+    this.logView.filter.focused = false;
   }
 
   /** The Units filter field: it types every printable key, `Space` included, before any command key. */
@@ -1150,7 +1153,7 @@ export class FortressScreen implements Screen {
   }
 
   /** A panel's title, with the filter in use: `Units · filter: xxx (3 of 80)`. */
-  private panelTitle(id: string, panelName: string): string {
+  private panelTitle(id: string, panelName: string, surface: Surface): string {
     let title = panelName;
     const ctx = this.ctx;
     let filter = '';
@@ -1168,6 +1171,9 @@ export class FortressScreen implements Screen {
     } else if (id === 'jobs' && this.jobs.filter.value !== '') {
       filter = this.jobs.filter.value;
       counts = { shown: this.jobs.jobs(ctx).length, total: this.jobs.allJobs(ctx).length };
+    } else if (id === 'log' && this.logView.filter.value !== '') {
+      filter = this.logView.filter.value;
+      counts = { shown: matchLines(surface, this.log.lines, this.logFilter, filter).length, total: filterLines(this.log.lines, this.logFilter).length };
     } else if (id === 'stocks' && this.stocks.filter.value !== '') filter = this.stocks.filter.value;
     if (filter === '') return title;
     return counts === null
@@ -1657,6 +1663,14 @@ export class FortressScreen implements Screen {
     if (this.ui.sidebar && this.ui.panel === 'animals' && this.animals.name.focused && this.panelKey('animals', press)) return true;
     if (this.ui.sidebar && this.ui.panel === 'jobs' && this.jobs.filter.key(press)) { this.jobs.resetSelection(); return true; }
     if (this.ui.sidebar && this.ui.panel === 'stocks' && this.stocks.filter.key(press)) { this.stocks.tree.selected = 0; this.stocks.tree.scroll = 0; return true; }
+    if (this.ui.sidebar && this.ui.panel === 'log') {
+      // Each change to the text selects the newest matching entry, unmarked (panels.md § Log).
+      const before = this.logView.filter.value;
+      if (this.logView.filter.key(press)) {
+        if (this.logView.filter.value !== before) this.logView.reset();
+        return true;
+      }
+    }
     if (this.ui.panel === 'stocks' && this.stocks.depotSelection && (press.key === 'Esc' || press.key === 'Escape')) {
       this.stocks.cancelDepot();
       this.openPanel('depot');
@@ -1883,7 +1897,7 @@ export class FortressScreen implements Screen {
   /** A text field of the open panel has the keyboard: letters are text, not hotkeys. */
   private textFocused(): boolean {
     if (!this.ui.sidebar) return false;
-    return (this.ui.panel === 'jobs' && this.jobs.filter.focused) || (this.ui.panel === 'stocks' && this.stocks.filter.focused) || (this.ui.panel === 'units' && this.units.editing) || (this.ui.panel === 'animals' && this.animals.name.focused);
+    return (this.ui.panel === 'jobs' && this.jobs.filter.focused) || (this.ui.panel === 'stocks' && this.stocks.filter.focused) || (this.ui.panel === 'log' && this.logView.filter.focused) || (this.ui.panel === 'units' && this.units.editing) || (this.ui.panel === 'animals' && this.animals.name.focused);
   }
 
   /**
@@ -2132,6 +2146,7 @@ export class FortressScreen implements Screen {
         return false;
       }
       case 'log': {
+        if (k === '/') { this.logView.filter.focused = true; return true; }
         // Entries, not rows: an entry wraps over as many rows as it needs.
         if (!press.shift && (up || down)) { this.logView.move(up ? -1 : 1); return true; }
         if (k === 'PageUp' || k === 'PageDown') { this.logView.page(k === 'PageUp' ? -1 : 1); return true; }
