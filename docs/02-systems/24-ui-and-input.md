@@ -248,7 +248,7 @@ This entire document.
 | `LOG_IMMIGRANT_NAMES` | 4 | Largest wave the immigrants line names one by one; a larger one is counted (*unmeasured*) |
 | `CURSOR_SCROLL_MARGIN` | 3 | Tiles the keyboard cursor keeps from the edge of the map view; the camera scrolls to keep it (*unmeasured*) |
 | `STATUS_HINT_SECONDS` | 4 | Rejection reason display time (*unmeasured*) |
-| `DEPOT_WARNING_ROWS` | 6 | Rows the depot panel gives its warning that caravans cannot reach the depot (*unmeasured*) |
+| `DEPOT_WARNING_ROWS` | 6 | Rows the depot panel gives its warning that caravans cannot reach the depot, and the depot and Civilizations panels a waiting trade request's line (*unmeasured*) |
 | `GAME_MENU_MESSAGE_MS` | 3000 | How long the game menu shows what saving did (*unmeasured*) |
 | `HINT_CHECK_HOURS` | 1 | *unmeasured* |
 | `HINT_FOOD_DAYS` | 2 | `hint_food`: the edible stock is below this many days of eating for the population (*unmeasured*) |

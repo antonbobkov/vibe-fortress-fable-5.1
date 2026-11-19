@@ -3,7 +3,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { TradeReader } from '@systems/trade';
 import type { ItemsReader } from '@systems/items';
-import { brokerOnWay, buildingName, caravanUnreachable, materialItemName, tradeBlocked, unreachableFrom, wrapHang } from '../messages';
+import { brokerOnWay, buildingName, caravanUnreachable, materialItemName, tradeBlocked, tradeWait, unreachableFrom, wrapHang } from '../messages';
 import { DEPOT_WARNING_ROWS } from '../constants';
 import type { Surface } from '../surface';
 import { label, type ListState, clampList } from '../widgets';
@@ -76,7 +76,7 @@ export class DepotPanel {
     const depotId = this.selectedDepot(ctx);
     const why = tradeBlocked(ctx, depotId);
     if (why === null) {
-      ctx.notice?.(brokerOnWay(ctx, paused));
+      ctx.notice?.(brokerOnWay(ctx, depotId, paused));
       ctx.submit({ type: 'TradeOpen', depotId });
     }
     else ctx.notice?.(why);
@@ -132,6 +132,15 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
     // A click on the warning centres the map where the way breaks, on the caravan's side.
     const gap = depotGaps(ctx, depotId)[0];
     if (gap !== undefined) s.hit({ col, row: top, cols: width, rows: shown.length }, () => ctx.focusOn(gap.tile));
+    top += shown.length;
+  }
+  // A waiting trade request says who it waits for and why, wrapped as the warning is.
+  const wait = tradeWait(ctx, depotId);
+  if (wait !== null) {
+    const lines = wrapHang(wait, width, 0);
+    const shown = lines.slice(0, DEPOT_WARNING_ROWS);
+    shown.forEach((line, k) => label(s, col, top + k, k === shown.length - 1 && lines.length > shown.length ? `${line}…` : line, { fg: s.theme.key, width }));
+    if (lines.length > shown.length) s.tooltip({ col, row: top, cols: width, rows: shown.length }, wait);
     top += shown.length;
   }
   const rows = panel.rows(ctx);

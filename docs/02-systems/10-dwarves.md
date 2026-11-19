@@ -152,7 +152,7 @@ The `EntitiesMoved` handler observes entries using the batch’s from/to tiles. 
 - `AssignTitle { dwarfId, title }` and `AssignTitle { dwarfId: 0, title }` to vacate. One dwarf per title; a dwarf may hold several. The saved per-role holder record is authoritative; reassigning or vacating one role preserves other roles. The singular `Title` component caches the first held role in title-table order, while `dwarves.titles(id)` returns them all.
 - Thane: the fortress-wide thought `thane_hall_grand` or `thane_hall_bare` depending on the Thane's bedroom tier (15, recomputed daily); the Thane's presence in the hearth hall lets talking relieve `THANE_SOCIAL_BONUS` more; and once a season the Thane has a whim (§ The Thane's whim).
 - Warden: squads gain `WARDEN_TRAINING_BONUS_PERCENT` training experience; the Warden is the default squad leader.
-- Broker: their `trading` skill is used at the depot; without a Broker any dwarf with the `trading` labor trades at skill 0.
+- Broker: their `trading` skill is used at the depot; without a Broker free to trade (none, their `trading` labor off, or on duty with a squad: 20 § The session) any dwarf with the `trading` labor trades, at their own skill.
 - Chief Medic: their `medicine` skill is used for diagnosis quality; care and treatment use the treating dwarf's skill.
 
 ### The Thane's whim

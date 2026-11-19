@@ -215,7 +215,7 @@ describe('T-M0-07 catalogs: the type unions contain every catalog name', () => {
 
   it('every event of the catalog is an EventType, in document order', () => {
     expect([...EVENT_TYPES]).toEqual(events.map((e) => e.name));
-    expect(EVENT_TYPES.length).toBe(200); // T-565, T-561, T-559 (TileIgnited, IceMelted) and T-556 (RoostFound)
+    expect(EVENT_TYPES.length).toBe(201); // T-636 (TradeMissed), T-565, T-561, T-559 (TileIgnited, IceMelted) and T-556 (RoostFound)
   });
 
   it('every event keeps its documented field list', () => {

@@ -5,10 +5,11 @@ import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
 import { neverSold, REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
 import type { Registry } from '@core/registry';
-import { itemName } from '../messages';
+import { itemName, tradeWait, wrapHang } from '../messages';
+import { DEPOT_WARNING_ROWS } from '../constants';
 import type { Surface } from '../surface';
 import { captionButtons, label } from '../widgets';
-import { accel, type PanelContext } from './context';
+import { accel, buildings, type PanelContext } from './context';
 
 export const TRADE_CIVILIZATIONS: readonly Civ[] = ['mountainhome', 'hillfolk', 'wildwood'];
 
@@ -113,6 +114,15 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   row += 1;
   const civ = panel.civ();
   label(s, col, row++, `── ${CIV_NAMES[civ]} ──`, { fg: s.theme.key, width });
+  // The caravan here: a waiting trade request says who it waits for and why, wrapped as the depot's warning.
+  const wait = active?.civ === civ ? civilizationsTradeWait(ctx) : null;
+  if (wait !== null) {
+    const lines = wrapHang(wait, width, 0);
+    const shown = lines.slice(0, DEPOT_WARNING_ROWS);
+    shown.forEach((line, k) => label(s, col, row + k, k === shown.length - 1 && lines.length > shown.length ? `${line}…` : line, { fg: s.theme.key, width }));
+    if (lines.length > shown.length) s.tooltip({ col, row, cols: width, rows: shown.length }, wait);
+    row += shown.length;
+  }
   label(s, col, row++, `Last brought: ${lastBroughtText(ctx.registry, trade.lastBrought(civ)) || 'none'}`, { width });
   const requestsWidth = label(s, col, row++, 'Requests [+]', { fg: s.theme.key, width });
   s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => { panel.choosingRequest = true; panel.candidate = 0; });
@@ -137,4 +147,13 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   }
   const footer = rect.row + rect.rows - 1;
   captionButtons(s, col, footer, '[S-d] depot  [S-t] trade now', [() => ctx.openPanel('depot'), openTrade], { fg: s.theme.key, width });
+}
+
+/** The first depot's waiting trade request in words (`panels.md` § Civilizations), or null. */
+export function civilizationsTradeWait(ctx: PanelContext): string | null {
+  for (const depotId of buildings(ctx)?.depots() ?? []) {
+    const wait = tradeWait(ctx, depotId);
+    if (wait !== null) return wait;
+  }
+  return null;
 }

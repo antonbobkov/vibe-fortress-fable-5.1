@@ -62,7 +62,8 @@ describe('T-251 placement and trade feedback', () => {
   const trade = g.host.readers.of<TradeReader>('20'); vi.spyOn(trade, 'activeCaravan').mockReturnValue({ civ: 'hillfolk', state: 'atDepot', daysRemaining: 3 });
   vi.spyOn(g.host, 'submit').mockImplementation(() => true); g.host.setSpeed(0);
   g.fortress.depot.select(g.fortress.ctx, depot); g.fortress.openPanel('depot'); g.fortress.key(press('T', { shift: true }));
-  expect(g.fortress.statusRow2()).toContain('The broker is on the way to the depot.');
+  // T-636: this fortress has no dwarves, so nobody can come, and the request says so.
+  expect(g.fortress.statusRow2()).toContain('No dwarf free to trade has the trading labor: turn it on [l], or appoint a Broker [u].');
   expect(g.fortress.statusRow2()).toContain('[Space] resumes');
   const s = surface(80, 20); drawDepotPanel(s, { col: 0, row: 0, cols: 80, rows: 20 }, g.fortress.depot, g.fortress.ctx, () => {});
   expect(s.lines().join('\n')).toContain('[S-t] trade');
