@@ -203,5 +203,15 @@
     "id": "hint_spider_ranch",
     "trigger": "first caged spider placed in a cage building",
     "text": "The spider does not need feeding. Nobody has asked it."
+  },
+  {
+    "id": "hint_rot",
+    "trigger": "the first food item of the fortress turns stale",
+    "text": "Food rots: meals and raw food keep two or three weeks. Barrels in a food stockpile slow it four times; smoked or salted meat keeps. Cook, farm and fish for more."
+  },
+  {
+    "id": "hint_breach",
+    "trigger": "first cavern breach",
+    "text": "A cavern lies open to the fortress, and what lives there can walk in. Wall the opening off [b > Constructions] or hang a door in it set to Lock on alert."
   }
 ]

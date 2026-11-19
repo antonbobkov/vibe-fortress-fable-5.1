@@ -456,3 +456,5 @@ Every new row of every table goes at the end of this table, including generated 
 | items | guano |
 | hints | hint_spider_ranch |
 | palette | world_cursor |
+| hints | hint_rot |
+| hints | hint_breach |

@@ -142,7 +142,7 @@ describe('U-01 announcements and keys read as words, not codes (§4.5, Q3)', () 
       .toMatch(/^No immigrants this season: hall spirit must be Content \(now [A-Z][a-z]+\)\.$/);
     expect(log.announce({ type: 'ImmigrationSkipped', reason: 'luck' } as never, w.readers, 200)?.line.text).toBe('No immigrants this season: no one set out this time.');
     expect(log.announce({ type: 'ReputationChanged', civ: 'wildwood', delta: -2, reason: 'wood_offered' } as never, w.readers, 400)?.line.text)
-      .toBe('Our standing with wildwood has fallen: they were offered wooden goods.');
+      .toBe('Our standing with the Wildwood has fallen: they were offered wooden goods.');
     expect(log.announce({ type: 'ImmigrantsArrived', ids: [], count: 5, children: 0 } as never, w.readers, 600)?.line.text).toBe('5 dwarves have come to join the hall.');
     expect(log.announce({ type: 'ImmigrantsArrived', ids: [], count: 5, children: 2 } as never, w.readers, 800)?.line.text).toBe('5 dwarves have come to join the hall, 2 of them children.');
   });

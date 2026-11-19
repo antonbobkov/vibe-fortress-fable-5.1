@@ -20,7 +20,7 @@ import type { AnnouncementSpec } from '@core/system';
 import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import { LOG_DEDUP_TICKS, LOG_MAX_LINES } from './constants';
-import { enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName } from './messages';
+import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -140,12 +140,22 @@ export class AnnouncementLog {
       const species = readers.entities.get(prey, C.Creature)?.species ?? (typeof e['targetSpecies'] === 'number' ? e['targetSpecies'] : undefined);
       out['prey'] = this.formatCreatureName(undefined, species);
     }
-    // A species field, as an index or a content id, reads as the species' name.
+    // A species field, as an index or a content id, reads as the species' name (a creature's, or a
+    // plant's for a farm plot's seeds); the event's raw field was copied above, so it is replaced
+    // unless a caught creature already named it.
     const speciesOf = e['species'];
-    if (out['species'] === undefined) {
+    if (!(typeof trapped === 'number' && readers.entities.get(trapped, C.Creature) !== undefined)) {
       const table = this.registry.table<NamedRow>('creatures');
+      const plants = this.registry.hasTable('plants') ? this.registry.table<NamedRow>('plants') : null;
       if (typeof speciesOf === 'number') out['species'] = table.byIndex(speciesOf)?.name ?? '';
-      else if (typeof speciesOf === 'string') out['species'] = table.byId(speciesOf)?.name ?? speciesOf;
+      else if (typeof speciesOf === 'string') out['species'] = table.byId(speciesOf)?.name ?? plants?.byId(speciesOf)?.name ?? speciesOf.replace(/_/g, ' ');
+    }
+    // A civilization reads as its name without the article, as the panels write it ("Hillfolk");
+    // the strings put "the" before it where the sentence wants one.
+    const civ = e['civ'];
+    if (typeof civ === 'string' && this.registry.hasTable('civilizations')) {
+      const name = this.registry.table<NamedRow>('civilizations').byId(civ)?.name ?? civ;
+      out['civ'] = capitalize(name.replace(/^the /, ''));
     }
     // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs."
     if (event.type === 'HostileFled') {
