@@ -17,6 +17,8 @@ export const REQUEST_SHARE = 30;
 export const CARAVAN_GOOD_VALUE_MIN = 1;
 export const REQUEST_MAX = 8;
 export const DEPOT_WAIT_DAYS = 3;
+/** Tiles the search for where a caravan's way to the depot breaks visits at most (20 § Movement step 6). */
+export const CARAVAN_GAP_SEARCH_TILES = 40000;
 export const CARAVAN_STAY_DAYS = 5;
 /** T-517: a leave's limit, and how long within it a guard keeps fighting. */
 export const CARAVAN_LEAVE_DAYS = 2;

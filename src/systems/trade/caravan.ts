@@ -1,5 +1,5 @@
 import { C, ItemFlag, type Equipment } from '@core/components';
-import type { Map3D } from '@core/map3d';
+import { TileKind, type Map3D } from '@core/map3d';
 import type { PathingReader } from '@core/readers';
 import type { RngStream } from '@core/rng';
 import type { TickContext } from '@core/system';
@@ -7,7 +7,7 @@ import type { Civ, Edge, EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import { ARRIVAL_SPREAD } from '@systems/threats/constants';
 import { findEdgeTiles } from '@systems/threats/parties';
-import { GUARDS_BASE, GUARDS_PER_PERIL, MERCHANTS_MAX, MERCHANTS_MIN, PACK_VALUE } from './constants';
+import { CARAVAN_GAP_SEARCH_TILES, GUARDS_BASE, GUARDS_PER_PERIL, MERCHANTS_MAX, MERCHANTS_MIN, PACK_VALUE } from './constants';
 import { CARAVAN_BUNDLE_UNITS } from './constants';
 import type { ActiveCaravan } from './state';
 import type { PlannedGood } from './goods';
@@ -82,6 +82,106 @@ export function packAnimalsFor(planned: readonly PlannedGood[]): number {
 export function edgeReaches(map: Map3D, pathing: PathingReader, edge: Edge, tiles: readonly TileIndex[]): boolean {
   if (tiles.length === 0) return false;
   return findEdgeTiles(map, edge, 1, ARRIVAL_SPREAD, (t) => pathing.passable(t, 'walker') && tiles.some((d) => pathing.reachable(t, d, 'walker'))).length > 0;
+}
+
+/** Every surface floor tile of `edge`, the tiles step 1 may arrive on (20 § Movement step 6). */
+export function edgeSurface(map: Map3D, edge: Edge): TileIndex[] {
+  const out: TileIndex[] = [];
+  const n = edge === 'n' || edge === 's' ? map.w : map.h;
+  for (let k = 0; k < n; k += 1) {
+    const x = edge === 'w' ? 0 : edge === 'e' ? map.w - 1 : k;
+    const y = edge === 'n' ? 0 : edge === 's' ? map.h - 1 : k;
+    const t = map.index(x, y, map.columnSurfaceZ(x, y));
+    if (map.kindAt(t) === TileKind.Floor) out.push(t);
+  }
+  return out;
+}
+
+/** Where a caravan's way to a depot breaks: its last tile toward the depot, and the depot's side of the gap. */
+export interface WayGap {
+  /** The tile a walker from the caravan's tiles reaches that lies nearest the depot. */
+  readonly tile: TileIndex;
+  /** The tile of the depot's own walkable area nearest that one: the gap's other side. */
+  readonly depotSide: TileIndex;
+}
+
+/** A tile the gap search never crosses: rock, a tree, a boulder, a fortification. */
+function solid(kind: TileKind): boolean {
+  return kind === TileKind.Wall || kind === TileKind.Tree || kind === TileKind.Boulder || kind === TileKind.Fortification;
+}
+
+/**
+ * 20 § Movement step 6, the gap: a search outward from the depot's tiles (26 neighbours, ring by
+ * ring) until a ring holds tiles walkers share with one of `from` (the caravan's tiles). It walks any
+ * walkable tile, and crosses a tile no walker stands on (air, deep water, a blocking building) only
+ * level or down, never through rock and never up into the sky. Of that ring's tiles, the one nearest
+ * the depot in a straight line is the caravan's end of the gap; of the depot's walkable tiles the
+ * search passed, the one nearest that end is the other. Null when the caravan reaches the depot, or
+ * nothing is found within `CARAVAN_GAP_SEARCH_TILES`.
+ */
+export function wayGap(map: Map3D, pathing: PathingReader, from: readonly TileIndex[], tiles: readonly TileIndex[], limit = CARAVAN_GAP_SEARCH_TILES): WayGap | null {
+  const labels = new Set<number>();
+  for (const t of from) {
+    const label = pathing.passable(t, 'walker') ? pathing.labelOf(t, 'walker') : 0;
+    if (label !== 0) labels.add(label);
+  }
+  const sources = tiles.filter((t) => pathing.labelOf(t, 'walker') !== 0).sort((a, b) => a - b);
+  const first = sources[0];
+  if (labels.size === 0 || first === undefined) return null;
+  if (sources.some((t) => labels.has(pathing.labelOf(t, 'walker')))) return null;
+  const home = pathing.labelOf(first, 'walker');
+  const d2 = (a: TileIndex, b: TileIndex): number => {
+    const dx = map.xOf(a) - map.xOf(b);
+    const dy = map.yOf(a) - map.yOf(b);
+    const dz = map.zOf(a) - map.zOf(b);
+    return dx * dx + dy * dy + dz * dz;
+  };
+  /** The tile of `among` nearest any of `to` in a straight line, ties to the lowest index. */
+  const nearest = (among: readonly TileIndex[], to: readonly TileIndex[]): TileIndex => {
+    let best = among[0] as TileIndex;
+    let bestD = Infinity;
+    for (const t of among) {
+      let d = Infinity;
+      for (const u of to) d = Math.min(d, d2(t, u));
+      if (d < bestD || (d === bestD && t < best)) { best = t; bestD = d; }
+    }
+    return best;
+  };
+  const seen = new Set<TileIndex>(sources);
+  const homeSide: TileIndex[] = sources.slice();
+  let frontier: TileIndex[] = sources;
+  let visited = 0;
+  const around: TileIndex[] = [];
+  while (frontier.length > 0 && visited < limit) {
+    const next: TileIndex[] = [];
+    const found: TileIndex[] = [];
+    for (let k = 0; k < frontier.length && visited < limit; k += 1) {
+      const cur = frontier[k] as TileIndex;
+      visited += 1;
+      const z = map.zOf(cur);
+      around.length = 0;
+      map.neighbors26(cur, around);
+      for (let n = 0; n < around.length; n += 1) {
+        const j = around[n] as TileIndex;
+        if (seen.has(j)) continue;
+        const walkable = pathing.passable(j, 'walker');
+        if (!walkable && (solid(map.kindAt(j)) || map.zOf(j) > z)) continue;
+        seen.add(j);
+        const label = walkable ? pathing.labelOf(j, 'walker') : 0;
+        if (labels.has(label)) found.push(j);
+        else {
+          if (label === home) homeSide.push(j);
+          next.push(j);
+        }
+      }
+    }
+    if (found.length > 0) {
+      const tile = nearest(found, sources);
+      return { tile, depotSide: nearest(homeSide, [tile]) };
+    }
+    frontier = next;
+  }
+  return null;
 }
 
 /**

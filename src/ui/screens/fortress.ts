@@ -41,7 +41,7 @@ import { changePopulationCap, drawPopulationPanel, POPULATION_CAP_STEP } from '.
 import { drawMilitaryPanel, MilitaryPanel } from '../panels/military';
 import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
-import { DepotPanel, drawDepotPanel } from '../panels/depot';
+import { DepotPanel, depotGaps, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
 import { drawLookPanel, tileContents, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, filterLines, LogView, matchLines, type LogFilter } from '../panels/log';
@@ -608,6 +608,7 @@ export class FortressScreen implements Screen {
     this.drawSelection(surface, layout.map);
     this.drawSelectionBorder(surface, layout.map);
     this.drawRoomBorder(surface, layout.map);
+    this.drawDepotGaps(surface, layout.map);
     this.drawGhost(surface, layout.map);
     if (layout.sidebar !== null) this.drawSidebar(surface, layout.sidebar);
     drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil);
@@ -670,6 +671,22 @@ export class FortressScreen implements Screen {
       const row = Math.floor(tile / map.w) % map.h - this.ui.camY;
       if (col < 0 || row < 0 || col >= rect.cols || row >= rect.rows) continue;
       surface.put(rect.col + col, rect.row + row, surface.glyphs.index('x'), surface.theme.black, surface.theme.bad);
+    }
+  }
+
+  /** The depot panel marks where caravans' ways to its depot break with x on the alert colour (`panels.md` § Depot). */
+  private drawDepotGaps(surface: Surface, rect: Rect): void {
+    if (this.ui.panel !== 'depot') return;
+    const map = this.host.readers.map;
+    for (const gap of depotGaps(this.ctx, this.depot.selectedDepot(this.ctx))) {
+      for (const tile of [gap.tile, gap.depotSide]) {
+        const at = map.unpack(tile);
+        if (at.z !== this.ui.z) continue;
+        const col = at.x - this.ui.camX;
+        const row = at.y - this.ui.camY;
+        if (col < 0 || row < 0 || col >= rect.cols || row >= rect.rows) continue;
+        surface.put(rect.col + col, rect.row + row, surface.glyphs.index('x'), surface.theme.black, surface.theme.alert);
+      }
     }
   }
 

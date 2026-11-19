@@ -149,7 +149,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `CreatureCaged` | `creatureId, cageItemId` | 19 | 08, 13, 18, ui |
 | `MechanismTriggered` | `sourceId, on` | 19 | 14 |
 | `CaravanArrived` | `civ[, …]` | 20 | 15, ui |
-| `CaravanWaiting` | `civ, partyId, edge, reason[, depotId]` | 20 | ui |
+| `CaravanWaiting` | `civ, partyId, edge, reason[, depotId, tile, depotSide]` | 20 | ui |
 | `CaravanAtDepot` | `civ, partyId, depotId` | 20 | ui |
 | `CaravanDeparted` / `CaravanLost` / `CaravanAttacked` | `civ[, …]` | 20 | 18 (attacked → nothing; reputation in 20), ui |
 | `TradeCompleted` / `TradeRefused` / `GiftGiven` | `civ, givenValue, receivedValue` / `shortfall` / `civ, value` | 20 | 10 (xp), ui |

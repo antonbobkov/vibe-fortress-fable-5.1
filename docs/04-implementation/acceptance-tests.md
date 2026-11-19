@@ -303,7 +303,7 @@ A scheduled ambush on a flat-test map gives no edge arrival announcement; its wa
 |---|---|---|
 | `td_schedule` | 2 years | Hillfolk day 5–18 of summer year 1; Wildwood autumn year 1; Mountainhome spring year 2 |
 | `td_no_depot` | no depot | `CaravanWaiting`; leaves after 3 days; reputation −2 |
-| `td_depot_across_channel` | a depot across a channel two levels deep from the caravan's edge; then a floor span planned across it in one go, and a builder on the depot's bank | `CaravanWaiting { reason: unreachable }` naming the depot and the edge, focus the depot; the span's middle refused out of order, accepted in order; its floors built from the builder's bank, none unheld; the caravan reaches the depot, and its `CaravanAtDepot` note names it |
+| `td_depot_across_channel` | a depot across a channel two levels deep from the caravan's edge; then a floor span planned across it in one go, and a builder on the depot's bank | `CaravanWaiting { reason: unreachable }` naming the depot and the edge, its focus the channel's edge on the caravan's side across from the depot and its `depotSide` the depot's bank; the span's middle refused out of order, accepted in order; its floors built from the builder's bank, none unheld; the caravan reaches the depot, and its `CaravanAtDepot` note names it |
 | `td_offer` | the worked example in `balance.md` (30 fine stone crafts and 42 lavish meals for goods priced 2,000) | accepted; reputation +4; with 41 meals refused, shortfall 12 |
 | `td_wood_penalty` | offer 3 oak chairs to the Wildwood | reputation −6; trade still accepted if value suffices |
 | `td_attack` | kill a merchant | `CaravanLost`; reputation −60 (−50 for the killing, −10 for the lost caravan); no caravan for 2 years |
