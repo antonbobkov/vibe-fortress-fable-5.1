@@ -1,4 +1,4 @@
-# T-NEW — Show where a caravan's way to the depot ends
+# T-628 — Show where a caravan's way to the depot ends
 
 **Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), finding 8, and T-623 · **Size:** M · **Needs:** — · **Status:** open
 
