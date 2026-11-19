@@ -75,12 +75,12 @@ interface Fight { digest: string; attacks: number; hits: number; shots: number; 
 function fight(w: TestWorld, fighters: EntityId[], foes: EntityId[], dwarf: EntityId, ticks: number): Fight {
   const seen: string[] = [];
   w.game.world.onEvents((batch) => {
-    // LimbLost's name and species, and CreatureDied's killerName and killerSpecies (taken for the log line), came after
+    // LimbLost's name and species, and CreatureDied's killerName, killerSpecies and petOf (taken for the log line), came after
     // the pins; they are left out of the digest.
     for (const e of batch) {
       if (!COMBAT_EVENTS.has(e.type)) continue;
       const shown = e.type === 'LimbLost' ? { ...e, name: undefined, species: undefined }
-        : e.type === 'CreatureDied' ? { ...e, killerName: undefined, killerSpecies: undefined } : e;
+        : e.type === 'CreatureDied' ? { ...e, killerName: undefined, killerSpecies: undefined, petOf: undefined } : e;
       seen.push(`${w.tick} ${JSON.stringify(shown)}`);
     }
   });
