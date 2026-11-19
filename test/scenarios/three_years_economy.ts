@@ -202,10 +202,12 @@ export function keepCoal(w: TestWorld, state: FortressState, smelter: number, da
  * and its job stood open while that worker slept, ate or drank. As a player who sees ore pile by a
  * busy smelter builds another, once the steel is owed and IRON_ORE_PILE iron ore stand free a
  * second smelter goes up (in the workshop hall where the fortress works below), with a worker of
- * its own, and smelts the iron ore only. The burner was tried at it and left: its furnace then made
+ * its own, and keeps SECOND_SMELTER_STEEL steel bars, and the iron for them. The burner was tried at it and left: its furnace then made
  * too little charcoal, and the steel waited on the fuel instead.
  */
 export const IRON_ORE_PILE = 10;
+/** T-642: the steel bars the second smelter keeps in stock, ahead of its iron. */
+const SECOND_SMELTER_STEEL = 20;
 const IRON_ORES: readonly string[] = ['hematite', 'limonite', 'magnetite'];
 
 /** T-642: the free iron ore in stock. */
@@ -225,6 +227,8 @@ export function keepSecondSmelter(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   if (id === undefined || buildings.get(id)?.state !== 'built' || state.orderedWorkshops.has('smelter_2')) return;
   state.orderedWorkshops.add('smelter_2');
+  // The steel first, then the iron for it: the first smelter's alloy waited on its worker too.
+  order(w, id, 'alloy_steel', SECOND_SMELTER_STEEL);
   for (const ore of IRON_ORES) order(w, id, `smelt_${ore}`, 40);
 }
 
@@ -885,7 +889,7 @@ function keepFuelStore(w: TestWorld, state: FortressState): void {
  * below, up to ORE_STORE_TILES tiles of the workshop hall's lanes nearest it (no workshop site's,
  * so the sites stay free) are a stockpile of ore, and the haulers bring the ore down.
  */
-export const ORE_STORE_TILES = 16;
+export const ORE_STORE_TILES = 24;
 
 export function keepOreStore(w: TestWorld, state: FortressState): void {
   const { economy } = state;
