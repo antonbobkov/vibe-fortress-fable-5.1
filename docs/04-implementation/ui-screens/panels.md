@@ -418,8 +418,11 @@ A caravan whose stay ends with the request still waiting (`TradeMissed`) raises 
 │         [S-s] set  [S-c] clear      │
 │ Patrol none [S-p] add [y] clear     │
 │ Orders [S-k] kill [S-f] follow      │
+│        [q] cancel orders            │
 │ Barracks #2  [S-b] change           │
 ```
+
+While the squad has a kill or a follow order, the Orders row names it in the value colour, wrapped, and the keys move to the row under it: "Orders kill: a gloam captain", "Orders kill: a gloam captain and 2 more; follow: Liv H." (the first kill target by its name or its species with an article, and how many more are queued; the dwarf followed by the short name). A target gone from the map is not named. `[q] cancel orders` clears them.
 
 Choosing a station, a patrol point, or the creature or dwarf of a kill or follow order waits for the map: a click picks the tile, or the arrows move the map cursor and `Enter` picks the tile at it. `Enter` on a tile with no creature says "No creature there." ("No dwarf there." for a follow order). A kill order on a tile that holds several creatures takes the most hostile: a raider or monster before a wild animal, a wild animal before any other, and a fortress creature (the dog fighting the raider it stands on) only when nothing else is there.
 
@@ -479,6 +482,8 @@ The clickable `[S-c] cap` action opens an inline number field for the selected s
 │ Threats                        [x]  │
 │ Peril 2 · Renown 14.6               │
 │ Active: none                        │
+│ Coming: a horde of Gloam from the   │
+│   north, tomorrow.                  │
 │ Raids possible from Spring, Year 2  │
 │ Ambushes possible from Autumn, Yr 1 │
 │ Thieves: frequent                   │
@@ -495,7 +500,9 @@ The clickable `[S-c] cap` action opens an inline number field for the selected s
 │  noticed."                          │
 ```
 
-The Wildlife section lists one row per dangerous species on the map (08 § Registrations) with its count and "near the hall" when one of them is within `NEAR_DWARF_RADIUS` of a dwarf on its level, else "far"; it is absent when none is on the map. With a row there, "Active: none" reads "Active: wildlife" (a hostile creature in view still reads "Active: n hostile creatures").
+The Wildlife section lists one row per dangerous species on the map (08 § Registrations) with its count and "near the hall" when one of them is within `NEAR_DWARF_RADIUS` of a dwarf on its level, else "far"; it is absent when none is on the map. With a row there, "Active: none" reads "Active: wildlife" (a hostile creature in view still reads as the hostiles it names).
+
+With no party in view, a hostile creature in view makes the Active line name what is there, by species in the order first seen ("Active: 3 cave crabs", "Active: 2 gloam warriors and a blind stalker"; three kinds and then "and 2 more"), wrapped under itself; a click on it centres the view on the first. A party's line ("Active: raid (10, approach)") centres on its leader when clicked. Under the Active lines, each party a warning announced is listed in the alert colour until it arrives (18's `threats.coming()`), wrapped: "Coming: a horde of Gloam from the north, tomorrow.", "Coming: a Gloam siege from the east, in 2 days." (today, tomorrow, in n days).
 
 ## Civilizations (c)
 

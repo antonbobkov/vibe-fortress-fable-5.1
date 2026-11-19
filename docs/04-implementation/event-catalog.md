@@ -136,7 +136,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `ThreatWarning` | `kind, civ, sizeBand, edge` | 18 | 24 (hint), ui |
 | `RaidArrived` | `partyId, kind, size, edge` | 18 | 15, 16, 20, 21, 25, ui |
 | `RaidEnded` | `partyId, outcome` | 18 | 15, 21, 24 (milestone), ui |
-| `ThiefSpotted` / `ThiefEscaped` | `id` / `id, itemId, animalId` | 18 | 13 (wealth), 15, ui |
+| `ThiefSpotted` / `ThiefEscaped` | `id` / `id, partyId, itemId, ownerId, itemType, material, count` or `id, partyId, animalId, species` | 18 | 13 (wealth), 15, ui |
 | `AmbushSprung` | `partyId` | 18 | 21, 25, ui |
 | `HostileSpawned` | `id, partyId` | 18 | 16 |
 | `MonsterSpawned` / `MonsterEmerged` | `id, cavern` / `ids[], tile` | 18 | ui; 25 (`MonsterEmerged`: the `deep` draughts) |

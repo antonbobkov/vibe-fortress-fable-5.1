@@ -506,11 +506,16 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
     const it = entities.get(lootId, C.Item);
     if (it && it.carriedBy === m) {
       const ownerId = it.ownerId;
+      // What was taken, by content id, for the line that names it: the item is gone when it is read.
       ctx.emit({
         type: 'ThiefEscaped',
         id: m,
+        partyId,
         itemId: lootId,
         ownerId,
+        itemType: ctx.registry.table<{ id: string }>('items').byIndex(it.type)?.id ?? '',
+        material: ctx.registry.table<{ id: string }>('materials').byIndex(it.material)?.id ?? '',
+        count: it.count,
       });
       P.escapedLootCount = (P.escapedLootCount ?? 0) + 1;
       P.loot = P.loot.filter((id) => id !== lootId);
@@ -520,7 +525,9 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
         ctx.emit({
           type: 'ThiefEscaped',
           id: m,
+          partyId,
           animalId: lootId,
+          species: ctx.registry.table<{ id: string }>('creatures').byIndex(animal.species)?.id ?? '',
         });
         entities.destroy(lootId);
         P.escapedLootCount = (P.escapedLootCount ?? 0) + 1;

@@ -22,6 +22,7 @@ import { accel, type PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
+import { creatureWords } from '../announcements';
 import { militaryNoSquad, wrapHang, wrapText, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import type { BuildingsReader } from '@systems/buildings';
@@ -131,6 +132,27 @@ export function bestCombatSkill(ctx: PanelContext, id: EntityId): string {
     }
   });
   return level === 0 ? '' : `${best} ${level}`;
+}
+
+/**
+ * A squad's kill and follow orders in words, the kill first: "kill: a gloam captain", "kill: a
+ * gloam captain and 2 more; follow: Liv H."; '' with neither. A target gone from the map is not
+ * named (16 drops its order).
+ */
+export function squadOrdersText(ctx: PanelContext, squad: Pick<SquadWithId, 'orders'>): string {
+  const alive = (id: EntityId): boolean => ctx.readers.entities.alive(id) && ctx.readers.entities.get(id, C.Creature) !== undefined;
+  const kills = squad.orders.flatMap((o) => (o.kind === 'kill' && alive(o.targetId) ? [o.targetId] : []));
+  const follow = squad.orders.flatMap((o) => (o.kind === 'follow' && alive(o.dwarfId) ? [o.dwarfId] : []));
+  const parts: string[] = [];
+  const first = kills[0];
+  if (first !== undefined) {
+    const c = ctx.readers.entities.get(first, C.Creature);
+    const target = creatureWords(ctx.registry, c?.name, c?.species);
+    parts.push(kills.length === 1 ? ctx.strings.get('ui.military.orders_kill', { target }) : ctx.strings.get('ui.military.orders_kill_more', { target, n: kills.length - 1 }));
+  }
+  const whom = follow[follow.length - 1];
+  if (whom !== undefined) parts.push(ctx.strings.get('ui.military.orders_follow', { dwarf: shortDwarfName(ctx.readers.entities.get(whom, C.Creature)?.name ?? '') }));
+  return parts.join('; ');
 }
 
 export function shortDwarfName(fullName: string): string {
@@ -780,7 +802,15 @@ export function drawMilitaryPanel(
   ], { width });
   row += 1;
 
-  captionButtons(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : 'Orders [S-k] kill [S-f] follow', [
+  // The squad's current kill and follow orders, named, over the keys that give them.
+  const ordersNow = panel.settingKill || panel.settingFollow ? '' : squadOrdersText(ctx, squad);
+  if (ordersNow !== '') {
+    for (const part of wrapHang(ctx.strings.get('ui.military.orders_now', { list: ordersNow }), width, 7)) {
+      label(s, col, row, part, { fg: t.value, width, keys: false });
+      row += 1;
+    }
+  }
+  captionButtons(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : ordersNow !== '' ? '       [S-k] kill [S-f] follow' : 'Orders [S-k] kill [S-f] follow', [
     () => panel.arm(ctx, 'kill'),
     () => panel.arm(ctx, 'follow'),
   ], { width });
