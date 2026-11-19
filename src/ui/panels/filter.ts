@@ -1,4 +1,4 @@
-/** Text filtering shared by Jobs and Stocks (panels.md). */
+/** Text filtering shared by Jobs, Stocks and the Log (panels.md). */
 import type { KeyPress } from '@platform/input';
 import type { Surface } from '../surface';
 import { label, textField, typedChar } from '../widgets';
@@ -22,7 +22,7 @@ export class PanelFilter {
   }
 }
 
-export function drawPanelFilter(s: Surface, col: number, row: number, width: number, filter: PanelFilter, ctx: PanelContext): void {
+export function drawPanelFilter(s: Surface, col: number, row: number, width: number, filter: PanelFilter, ctx: Pick<PanelContext, 'strings'>): void {
   const caption = ctx.strings.get('ui.panel.filter');
   const n = label(s, col, row, caption, { width });
   textField(s, col + n + 1, row, Math.max(1, width - n - 5), { value: filter.value, focused: filter.focused, maxLength: width }, () => { filter.focused = true; });

@@ -2,7 +2,7 @@
 
 **Owner:** `ui/panels/*` · **Depends on:** [`fortress-screen.md`](fortress-screen.md), the owning system documents
 
-All panels are `SIDEBAR_COLS` (36) wide; shown here at that width. Each has a title row that ends with `[x]`, a button that closes the panel as `Esc` does with no tool armed (the key that opens each panel is in the Hotkey column of the fortress panels table, and Help lists it), an optional filter row, content, a separator and an action row. While a filter is in use the title row shows it, `Units · filter: xxx (3 of 80)` (Jobs the same with its job counts, Stocks without counts); the filter ends when the panel closes.
+All panels are `SIDEBAR_COLS` (36) wide; shown here at that width. Each has a title row that ends with `[x]`, a button that closes the panel as `Esc` does with no tool armed (the key that opens each panel is in the Hotkey column of the fortress panels table, and Help lists it), an optional filter row, content, a separator and an action row. While a filter is in use the title row shows it, `Units · filter: xxx (3 of 80)` (Jobs the same with its job counts, Log with the entries of its tab, Stocks without counts); the filter ends when the panel closes.
 
 A panel letter ([`ui-keymap-and-screens.md`](../../03-content/ui-keymap-and-screens.md) § Fortress panels) always opens or closes its panel, whatever panel is open. An accelerator on one of those letters is therefore `Shift`+letter, written `[S-m]`; an accelerator on a free letter is written `[w]`. Every action row is clickable.
 
@@ -544,6 +544,8 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 ```
 
 Each entry starts with its day in the dim text colour: the first two letters of the season and the day of the season ("Sp 8"), with the year before them ("Y1 Sp 8") for a line of an earlier year than the present one. The dates are padded to the width of the longest one on the screen so that the texts line up. An entry wraps under its own text, never under the date column, over as many rows as it needs: the hint above is one entry of eight rows. `↑` `↓` select an entry and `PageUp` `PageDown` move a page of entries; a chosen entry is inverted over all its rows (none is until the first key or click), and `Enter` or a click on any of its rows centres the map on its focus. When the entries do not all fit, the last column is a scrollbar over the entries. The log strip at the bottom of the fortress screen shows no dates.
+
+`/` or a click on the `/filter` field focuses it; while it has focus letters, digits and `Space` are text, `Backspace` deletes, and `Enter` or `Esc` finishes typing without closing the panel, as in Jobs and Stocks. The list keeps the entries of the chosen tab whose text, as the panel shows it (with the `!` prefix and the `×n` count), contains the typed text, ignoring case; the title reads `Log · filter: wolf (2 of 41)`, counting the tab's entries. Each change to the text selects the newest matching entry, unmarked. With no match the list reads "No entry matches the filter." The text is cleared when the panel closes.
 
 ## Overlays (f)
 
