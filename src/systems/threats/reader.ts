@@ -6,7 +6,23 @@ import { C, type Party } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { EntityId } from '@core/types';
 import type { ThreatScheduleEntry } from './schedule';
+import type { PendingArrivalState } from './state';
 import { hasMorale, moraleOf, moraleWord, type MoraleWord } from './morale';
+
+/** A party that a `ThreatWarning` has announced and that has not arrived yet (18 § Arrival and warning). */
+export interface ComingParty {
+  readonly kind: string;
+  readonly civ: string;
+  /** As the warning words it: "a few", "a band", "a horde"; never the exact count. */
+  readonly sizeBand: string;
+  readonly edge: 'n' | 'e' | 's' | 'w';
+  readonly arrivalTick: number;
+}
+
+/** The warning's size band of a party of `size` (18 § Arrival and warning). */
+export function sizeBandOf(size: number): string {
+  return size < 6 ? 'a few' : size <= 15 ? 'a band' : 'a horde';
+}
 
 export interface ThreatsReader {
   activeParties(): readonly EntityId[];
@@ -23,6 +39,8 @@ export interface ThreatsReader {
   deepLevel(): number;
   deepNextThreshold(): number;
   monstersInCavern(n: number): number;
+  /** The warned parties still to come, soonest first. */
+  coming(): readonly ComingParty[];
 }
 
 export function makeThreatsReader(
@@ -33,6 +51,7 @@ export function makeThreatsReader(
   getDeepLevel: () => number,
   getMonstersInCavern?: (n: number) => number,
   getDeepNextThreshold?: () => number,
+  getPendingArrivals?: () => readonly PendingArrivalState[],
 ): ThreatsReader {
   return {
     activeParties: () => {
@@ -77,5 +96,9 @@ export function makeThreatsReader(
     deepLevel: getDeepLevel,
     deepNextThreshold: () => getDeepNextThreshold?.() ?? 50,
     monstersInCavern: (n: number) => getMonstersInCavern?.(n) ?? 0,
+    coming: () => (getPendingArrivals?.() ?? [])
+      .filter((a) => a.warningEmitted)
+      .map((a) => ({ kind: a.kind, civ: a.civ, sizeBand: sizeBandOf(a.size), edge: a.edge, arrivalTick: a.arrivalTick }))
+      .sort((a, b) => a.arrivalTick - b.arrivalTick),
   };
 }

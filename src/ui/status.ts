@@ -64,7 +64,12 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
  * A creature in a sealed cavern far below is not counted; the threats panel's "Active" agrees.
  */
 export function visibleHostiles(readers: ReaderSet): number {
-  if (!readers.has('18')) return 0;
+  return visibleHostileIds(readers).length;
+}
+
+/** The hostiles {@link visibleHostiles} counts, in entity order. */
+export function visibleHostileIds(readers: ReaderSet): readonly number[] {
+  if (!readers.has('18')) return [];
   const threats = readers.of<ThreatsReader>('18');
   const map = readers.map;
   return readers.entities.with(C.Creature, C.Position).filter((id) => {
@@ -73,7 +78,7 @@ export function visibleHostiles(readers: ReaderSet): number {
     const p = readers.entities.get(id, C.Position);
     if (p === undefined || threats.isStealthed(id)) return false;
     return (map.flagsAt(map.index(p.x, p.y, p.z)) & TileFlag.Discovered) !== 0;
-  }).length;
+  });
 }
 
 /**

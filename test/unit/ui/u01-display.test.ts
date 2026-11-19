@@ -64,7 +64,7 @@ describe('U-01 the hostile counter counts what the player can know of (D-U8, Q8,
     // The threats panel's "Active" line agrees with the counter.
     const s = surface(40, 30);
     drawThreatsPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, new ThreatsPanel(), ctxOf(w));
-    expect(s.lines().join('\n')).toContain('Active: 2 hostile creatures');
+    expect(s.lines().join('\n')).toContain('Active: 2 gloam warriors');
   });
 });
 
