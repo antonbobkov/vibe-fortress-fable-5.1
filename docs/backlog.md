@@ -18,5 +18,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-625 | [Log lines that say why: deaths, immigrants, miasma, a breach](work/T-625-log-lines-that-explain.md) | [T-618](archive/tasks/T-618-first-year-ux.md) | — | open |
 | T-626 | [The Thane's whim, the pallet and the candle stand say how much and where from](work/T-626-whims-and-making-do-say-how.md) | [T-618](archive/tasks/T-618-first-year-ux.md) | — | open |
 | T-627 | [The dwarf inspector scrolls, and its last sections](work/T-627-dwarf-inspector-scroll-and-rest.md) | [T-622](archive/tasks/T-622-soldier-gear-and-dwarf-inspector.md) | — | open |
+| T-629 | [The Hearth alert with no shelter anywhere stops all work for nothing](work/T-629-hearth-alert-without-shelter.md) | [T-624](work/T-624-alert-and-training-feedback.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
