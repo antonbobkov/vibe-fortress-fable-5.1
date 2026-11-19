@@ -82,7 +82,7 @@ export interface ItemsReader {
   findItem(filter: ItemFilter, from: TileIndex, movementClass?: MovementClass, opts?: SearchOptions): EntityId;
   /** `items.findItems(filter, count, fromTile, movementClass)`: up to `count` items, nearest first. */
   findItems(filter: ItemFilter, count: number, from: TileIndex, movementClass?: MovementClass, opts?: SearchOptions): EntityId[];
-  /** `items.countAvailable(filter)`: units not forbidden, reserved, owned, carried, installed or at the trade depot. */
+  /** `items.countAvailable(filter)`: units not forbidden, reserved or owned. */
   countAvailable(filter: ItemFilter): number;
   /** Units of matching items whatever their flags. */
   countMatching(filter: ItemFilter): number;

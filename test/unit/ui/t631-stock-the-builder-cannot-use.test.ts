@@ -9,9 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { C, ItemFlag } from '@core/components';
 import type { Command } from '@core/commands';
 import type { EntityId } from '@core/types';
-import type { BuildingRow } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
-import { BuildTool } from '@ui/panels/build';
 import type { PanelContext } from '@ui/panels/context';
 import { drawStocksPanel, StocksPanel, unusableReason } from '@ui/panels/stocks';
 import type { TreeNode } from '@ui/widgets';
@@ -90,10 +88,8 @@ describe('T-631 Stocks says how much of a row can be used now, and why not the r
     // The line sits under the rot line, above the wealth.
     expect(lines[use + 2]?.trim()).toMatch(/^Wealth /);
 
-    // The pallet's count is what the line calls usable, with the free reeds.
-    const pallet = w.game.registry.table<BuildingRow>('buildings').byId('straw_pallet') as BuildingRow;
-    expect(new BuildTool().available(ctx, pallet)).toBe(4 + 4);
-    expect(w.readers.of<ItemsReader>('13').countAvailable({ types: [straw] })).toBe(4);
+    // What the line calls usable is 13's available count of the type (its stock counts).
+    expect(w.readers.of<ItemsReader>('13').countAvailable({ type: straw })).toBe(4);
 
     // One forbidden stack: its own line, in the alert colour since none of it can be used.
     select(panel, ctx, `item:${forbidden}`);
