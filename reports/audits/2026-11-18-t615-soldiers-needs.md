@@ -49,4 +49,4 @@ Both changes, the same seeds (the timelines differ from the squad's forming on):
 
 **The stated share:** a soldier at drill stands at the barracks 10 to 40% of the calm day. One below 10% walks slowly (Agility under 60) or sleeps 50 steps or more from the barracks: 10 § Movement and § Sleeping, the walk to bed counted as rest. Picking the quick soldiers leaves two such soldiers in the two peril-4 fortresses, against eight.
 
-The layout is the rest of it: in `p4-4` even the quickest soldier spends 13 to 17% of the day walking back to the barracks. A player would put the soldiers' beds, food and drink near the barracks; the follow-up [soldiers' quarters by the barracks](../../docs/work/T-NEW-soldiers-quarters-by-the-barracks.md) measures whether the script should.
+The layout is the rest of it: in `p4-4` even the quickest soldier spends 13 to 17% of the day walking back to the barracks. A player would put the soldiers' beds, food and drink near the barracks; the follow-up [soldiers' quarters by the barracks](../../docs/work/T-619-soldiers-quarters-by-the-barracks.md) measures whether the script should.

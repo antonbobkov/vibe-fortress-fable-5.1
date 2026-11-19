@@ -42,7 +42,7 @@ Verdict: pass (bounds 887.75 living, 161.88 deaths). The reference is not moved.
 
 ## The decision
 
-Five steel kits in three years are within reach of a fortress rich in wood and iron and out of reach of most; the rest is the economy (charcoal from a small map's trees, iron ore), not the script. T-601's bar stays at steel: T-600's arena has five Skilled soldiers in iron with two marksdwarves losing 1.1 to 2.6 fighters a fight against 6 to 10 Gloam, more than the 0.9 dwarves an ambush kills while the fortress hides. Recorded in the [testing strategy's three-year section](../../docs/process/testing-strategy.md#the-long-scenarios). Charcoal for the steel is a follow-up: [fuel for the squad's steel](../../docs/work/T-NEW-fuel-for-the-squads-steel.md).
+Five steel kits in three years are within reach of a fortress rich in wood and iron and out of reach of most; the rest is the economy (charcoal from a small map's trees, iron ore), not the script. T-601's bar stays at steel: T-600's arena has five Skilled soldiers in iron with two marksdwarves losing 1.1 to 2.6 fighters a fight against 6 to 10 Gloam, more than the 0.9 dwarves an ambush kills while the fortress hides. Recorded in the [testing strategy's three-year section](../../docs/process/testing-strategy.md#the-long-scenarios). Charcoal for the steel is a follow-up: [fuel for the squad's steel](../../docs/work/T-620-fuel-for-the-squads-steel.md).
 
 ## The other gates
 
