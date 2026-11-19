@@ -79,7 +79,7 @@ interface JobTypeRow {
 export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly id = DWARVES_ID;
   readonly order = 10;
-  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'PatientAdmitted', 'PatientDischarged', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged', 'ItemCrafted', 'SeasonChanged'];
+  override readonly subscribes: readonly EventType[] = ['HourPassed', 'DayPassed', 'YearPassed', 'JobCompleted', 'CreatureDied', 'CreatureUnconscious', 'PatientAdmitted', 'PatientDischarged', 'EntitiesMoved', 'SulkHappened', 'ThreatNearby', 'AttackResolved', 'AlertChanged', 'BuildingStateChanged', 'ItemCrafted', 'SeasonChanged', 'TrainingSession'];
   override readonly ownsCommands: readonly CommandType[] = ['AssignTitle', 'RenameDwarf', 'SetSchedule'];
 
   private world: WorldLike | null = null;
@@ -579,6 +579,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     }
     if (event.type === 'BuildingStateChanged') { this.checkShelters(ctx); return; }
     if (event.type === 'ItemCrafted') { this.smelledSmokehouse(event, ctx); return; }
+    if (event.type === 'TrainingSession') {
+      // `10` § Social, comfort, joy: a sparring pair's session is a talk between the two.
+      const members = event['members'];
+      if (Array.isArray(members) && members.length === 2) this.activities.sparred(ctx, members[0] as EntityId, members[1] as EntityId);
+      return;
+    }
     if (event.type === 'PatientAdmitted' || event.type === 'PatientDischarged') {
       this.interruptFlags.add(event['id'] as EntityId);
       return;

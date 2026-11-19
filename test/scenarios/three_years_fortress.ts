@@ -2502,7 +2502,12 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   const main = squadOf(state.squadId);
   const marksSquad = strong.marksSquadId === 0 ? undefined : squadOf(strong.marksSquadId);
   const pool = adults.filter(eligible);
-  const score = (skills: readonly string[]) => (id: number): number => skills.reduce((n, sk) => n + dwarves.skill(id, sk), 0);
+  // T-615: the skills first, then the quickest and most enduring: Agility sets a dwarf's pace and
+  // Endurance slows its hunger and tiredness (10 § Attributes). Picked by skill alone (by id among
+  // immigrants with none), one to three soldiers a squad walked so slowly between bed, food and
+  // barracks that they stood at drill 1 to 6% of the day (Agility 44 to 60 against 82 to 100).
+  const score = (skills: readonly string[]) => (id: number): number =>
+    skills.reduce((n, sk) => n + dwarves.skill(id, sk), 0) * 1000 + dwarves.attribute(id, 'agi') + dwarves.attribute(id, 'end');
   const marksNow = marksSquad?.members ?? [];
   const soldiers = pickSquad(main?.members ?? [], pool, STRONG_SOLDIERS, score(['sword', 'shield', 'dodge', 'armor_use']), new Set(marksNow));
   const marks = marksSquad ? pickSquad(marksNow, pool, AMBUSH_MARKS, score(['crossbow', 'dodge']), new Set(soldiers)) : [];

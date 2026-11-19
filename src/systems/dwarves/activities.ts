@@ -481,6 +481,16 @@ export class Activities {
     return true;
   }
 
+  /**
+   * `10` § Social, comfort, joy: two soldiers who spar are in company. A pair's training session
+   * (16 § Training) is a talk between them, with its relief, its count toward friendship and `Talked`.
+   */
+  sparred(ctx: TickContext, a: EntityId, b: EntityId): void {
+    const entities = ctx.world.entities;
+    if (a === b || !entities.alive(a) || !entities.alive(b) || !entities.has(a, C.Needs) || !entities.has(b, C.Needs)) return;
+    this.talked(ctx, a, b);
+  }
+
   /** Both dwarves are relieved, their talk counts rise, and `Talked` is emitted. */
   private talked(ctx: TickContext, id: EntityId, partner: EntityId): void {
     const friends = (ctx.world.entities.get(id, C.Relationships)?.friends ?? []).includes(partner);
