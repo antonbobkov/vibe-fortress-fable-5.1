@@ -24,7 +24,7 @@ import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
-import { boxLevels, drawDesignatePanel, DesignateTool, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
+import { batchReach, boxLevels, drawDesignatePanel, DesignateTool, rampTopped, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
 import { buildings, confirmThen, type PanelContext } from '../panels/context';
@@ -1456,7 +1456,7 @@ export class FortressScreen implements Screen {
       return [];
     }
     if (commands.length === 0) this.notice(plan.already > 0 && plan.skipped.length === 0 ? this.strings.get('ui.status.stairs_already') : this.emptyRectText());
-    else if (plan.skipped.length > 0) this.notice(this.skippedText(plan));
+    else if (!this.reachNotice(plan, commands, a, b) && plan.skipped.length > 0) this.notice(this.skippedText(plan));
     for (const c of commands) this.host.submit(c);
     this.tool.remember(commands);
     this.tool.anchor = null;
@@ -1484,6 +1484,40 @@ export class FortressScreen implements Screen {
     if (!this.host.readers.has('07')) return true;
     const plants = this.host.readers.of<import('@systems/plants').PlantsReader>('07');
     return tiles.some((tile) => plants.cropReady(tile));
+  }
+
+  /**
+   * 24 § Input model: a batch with tiles no fortress dwarf can reach, by 22's walker labels and 03's
+   * stand tiles, says so on the status row and as a note in the log at its first tile. False when
+   * every tile can be reached (or there is no dwarf or no pathing to ask).
+   */
+  private reachNotice(plan: DesignatePlan, commands: readonly Command[], a: TilePoint, b: TilePoint): boolean {
+    const readers = this.host.readers;
+    if (!readers.has('pathing') || !commands.some((c) => c.type === 'Designate')) return false;
+    const pathing = readers.pathing;
+    const labels = new Set<number>();
+    for (const id of dwarvesOf(this.ctx)) {
+      const p = readers.entities.get(id, C.Position);
+      const label = p === undefined ? 0 : pathing.labelOf(readers.map.index(p.x, p.y, p.z), 'walker');
+      if (label !== 0) labels.add(label);
+    }
+    if (labels.size === 0) return false;
+    const reach = batchReach(readers.map, {
+      reached: (i) => labels.has(pathing.labelOf(i, 'walker')),
+      passable: (i) => pathing.passable(i, 'walker'),
+    }, commands);
+    const first = reach.unreachable[0];
+    if (first === undefined) return false;
+    const tool = this.tool.name(this.strings);
+    const base = plan.skipped.length > 0 ? this.skippedText(plan) : this.strings.get('ui.status.designated', { tool, n: plan.designated });
+    const text = this.tool.kind === 'stairs' && rampTopped(readers.map, a, b, reach.unreachable)
+      ? this.strings.get('ui.status.unreachable.ramp_top', { tool, n: plan.designated })
+      : reach.unreachable.length === reach.total
+        ? this.strings.get('ui.status.unreachable.all', { text: base.replace(/\.$/, '') })
+        : this.strings.get('ui.status.unreachable.some', { text: base.replace(/\.$/, ''), n: reach.unreachable.length });
+    this.notice(text);
+    this.log.append('note', text, readers.calendar.tick, first);
+    return true;
   }
 
   /** 24 § Input model: a box that skipped tiles says how many, with the reasons counted per tile kind. */
@@ -2041,6 +2075,8 @@ export class FortressScreen implements Screen {
         if (letter === 'x') return submit(this.jobs.cancel(ctx));
         const j = this.jobs.selected(ctx);
         if (k === 'Enter' && j !== undefined) {
+          // A blocked batch opens to its rows (`panels.md` § Jobs); the view goes to its first job.
+          this.jobs.openBatch(ctx);
           const t = this.jobs.tileOf(ctx, j);
           if (t !== null) this.focusOn(t);
           return true;
