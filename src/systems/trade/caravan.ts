@@ -1,4 +1,6 @@
 import { C, ItemFlag, type Equipment } from '@core/components';
+import type { Map3D } from '@core/map3d';
+import type { PathingReader } from '@core/readers';
 import type { RngStream } from '@core/rng';
 import type { TickContext } from '@core/system';
 import type { Civ, Edge, EntityId, TileIndex } from '@core/types';
@@ -70,6 +72,16 @@ export function caravanGuardCount(peril: number, twilightPass: boolean): number 
 export function packAnimalsFor(planned: readonly PlannedGood[]): number {
   const value = planned.reduce((sum, good) => sum + (good.extra ? 0 : good.value), 0);
   return Math.max(1, Math.ceil(value / PACK_VALUE));
+}
+
+/**
+ * 20 § Movement step 2: whether a walker on the surface of `edge` reaches any of `tiles` (the edge
+ * tiles a caravan may arrive on, as step 1 picks them). A depot no caravan from its civilization's
+ * edge reaches is one it waits for in vain.
+ */
+export function edgeReaches(map: Map3D, pathing: PathingReader, edge: Edge, tiles: readonly TileIndex[]): boolean {
+  if (tiles.length === 0) return false;
+  return findEdgeTiles(map, edge, 1, ARRIVAL_SPREAD, (t) => pathing.passable(t, 'walker') && tiles.some((d) => pathing.reachable(t, d, 'walker'))).length > 0;
 }
 
 /**

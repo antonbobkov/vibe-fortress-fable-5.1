@@ -692,7 +692,7 @@
       "h": 1,
       "rotatable": false
     },
-    "on": "open (supported) or floor",
+    "on": "open (supported, or beside a planned floor) or floor",
     "inputs": [
       {
         "match": "block|log|bar|raw_stone",

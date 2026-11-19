@@ -148,7 +148,10 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `TrapTriggered` / `TrapSpent` / `TrapJammed` / `TrapRearmed` | `trapId[, creatureId, kind, outcome]` | 19 | 08 (cage), 18 (spotting, morale), ui |
 | `CreatureCaged` | `creatureId, cageItemId` | 19 | 08, 13, 18, ui |
 | `MechanismTriggered` | `sourceId, on` | 19 | 14 |
-| `CaravanArrived` / `CaravanWaiting` / `CaravanAtDepot` / `CaravanDeparted` / `CaravanLost` / `CaravanAttacked` | `civ[, …]` | 20 | 15 (arrived), 18 (attacked → nothing; reputation in 20), ui |
+| `CaravanArrived` | `civ[, …]` | 20 | 15, ui |
+| `CaravanWaiting` | `civ, partyId, edge, reason[, depotId]` | 20 | ui |
+| `CaravanAtDepot` | `civ, partyId, depotId` | 20 | ui |
+| `CaravanDeparted` / `CaravanLost` / `CaravanAttacked` | `civ[, …]` | 20 | 18 (attacked → nothing; reputation in 20), ui |
 | `TradeCompleted` / `TradeRefused` / `GiftGiven` | `civ, givenValue, receivedValue` / `shortfall` / `civ, value` | 20 | 10 (xp), ui |
 | `ReputationChanged` | `civ, delta, reason` | 20 | 21 (Mountainhome), ui |
 | `ImmigrantsArrived` | `ids[], count, children, guaranteed` | 21 | 11, 15, 18 (renown), ui |

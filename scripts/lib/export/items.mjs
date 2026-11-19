@@ -124,6 +124,14 @@ export function exportItems() {
   for (const item of out) {
     if (!byKey.has(item.id)) byKey.set(item.id, item);
   }
+  // items.md § Plurals: the rows that name their own plural (mass nouns, "draughts of mending").
+  for (const row of asObjects(findTable(tables, 'Plurals', 'plural'))) {
+    const iid = plain(row.id);
+    const item = byKey.get(iid);
+    if (item === undefined) throw new Error(`items.md § Plurals: unknown item ${iid}`);
+    const { id: itemId, name, ...rest } = item;
+    byKey.set(iid, { id: itemId, name, plural: plain(row.plural), ...rest });
+  }
   return byId(Array.from(byKey.values()));
 }
 

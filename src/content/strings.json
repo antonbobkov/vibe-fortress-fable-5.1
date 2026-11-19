@@ -3,6 +3,8 @@
   "announce.caravan_departed": "The {civ} caravan has departed.",
   "announce.caravan_lost": "The {civ} caravan has been lost.",
   "announce.caravan_waiting": "The {civ} caravan waits at the edge for a trade depot.",
+  "announce.caravan_unreachable": "The {civ} caravan cannot reach {depot} from the {edge} edge: its pack animals need a way on foot, with no deep water or drop. Bridge the gap, or build a depot on their side.",
+  "announce.caravan_at_depot": "The {civ} caravan is at {depot}: [c] or the depot to trade.",
   "announce.trade_completed": "A trade with the {civ} is complete.",
   "announce.immigrants_arrived": "{count} dwarves have come to join the hall, {children} of them children.",
   "announce.immigration_skipped": "No immigrants this season: {reason}.",

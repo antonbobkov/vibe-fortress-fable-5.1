@@ -55,7 +55,7 @@ import type { Strings } from '../strings';
 import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
-import { blockedText, buildingName, commandFocus, pluralName, rejectionText, zoneName, zoneEditorMessage } from '../messages';
+import { blockedText, buildingName, commandFocus, pluralName, rejectionText, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -1350,6 +1350,12 @@ export class FortressScreen implements Screen {
         this.build.placed(ctx, 1);
         const stock = this.stockText(0);
         let text = this.strings.get('ui.status.build_placed_one', { tool: this.build.name(ctx) });
+        // 20 § Movement step 6: a depot placed where a caravan cannot come from its edge says so, in the log too.
+        const who = this.build.current(ctx)?.tags.includes('depot') === true ? unreachableFrom(ctx, ghost.tiles) : '';
+        if (who !== '') {
+          text = this.strings.get('ui.depot.placed_unreachable', { tool: this.build.name(ctx), who });
+          this.log.append('alert', text, ctx.readers.calendar.tick, ghost.tiles[0]);
+        }
         if (stock !== '') text = `${text} · ${stock}`;
         this.notice(text);
         this.build.rememberPlacement(ghost.tiles, text);

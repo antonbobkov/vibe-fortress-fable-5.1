@@ -375,7 +375,9 @@ Stocks actions apply to the selected category, type or individual stack. Forbid 
 
 ## Depot
 
-The selected built depot keeps its goods list and action row (`[S-m] move`, `[r] remove`, `[S-t] trade`) while a trade request waits. When a caravan is at the depot, requesting trade by key or click says "The broker is on the way to the depot."; while paused it adds "· [Space] resumes". The request sends `TradeOpen`; the modal opens only when the broker reaches the depot. A refused request keeps its specific refusal message.
+The selected built depot keeps its goods list and action row (`[S-m] move`, `[r] remove`, `[S-t] trade`) while a trade request waits. When a caravan is at the depot, requesting trade by key or click says "The broker is on the way to the depot."; while paused it adds "· [Space] resumes". The request sends `TradeOpen`; the modal opens only when the broker reaches the depot. A refused request keeps its specific refusal message; while a caravan waits at its edge and cannot reach the depot, the refusal is the waiting caravan's line ("The Hillfolk caravan cannot reach Trade depot #1 from the west edge: …", 20 § Movement step 2).
+
+The goods list groups the stacks at the depot as the trade session's merchant column does: one row per item type, material and quality, with the summed count and value ("11 barley straw  11 ☼"), named in the plural above one; `[r] remove` takes every stack of the selected row back. Under the title, in the alert colour, a line says when caravans cannot reach the depot: the waiting caravan's line while one waits for it in vain, else "Hillfolk caravans from the west edge cannot reach it: a caravan needs a way on foot, with no deep water or drop." naming each civilization whose edge reaches none of its tiles (20 § Movement step 6). The warning wraps over at most `DEPOT_WARNING_ROWS` rows (24 § Tuning constants); a longer one ends with `…` and has its full text as a tooltip.
 
 ## Military (m)
 

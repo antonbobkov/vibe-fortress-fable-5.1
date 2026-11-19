@@ -19,7 +19,7 @@ import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
 import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
-import { spawnCaravan } from './caravan';
+import { edgeReaches, spawnCaravan } from './caravan';
 import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
 import type { TradeReader } from './reader';
@@ -83,6 +83,10 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       merchantItems: () => this.active?.goods.filter((id) => (ctx.world.entities.get(id, C.Item)?.flags ?? 0) & ItemFlag.Merchant) ?? [],
       requests: (civ) => (this.requestsState[civ] ?? []).map((r) => ({ ...r })),
       lastBrought: (civ) => (this.lastBroughtState[civ] ?? []).slice(),
+      caravanReach: (tiles) => TRADE_CIVS.map((civ) => {
+        const edge = this.spec?.civEdges[civ] ?? 'n';
+        return { civ, edge, reaches: edgeReaches(ctx.world.map, ctx.readers.pathing, edge, tiles) };
+      }),
       sessionOpen: () => this.sessionState !== null,
       session: () => this.sessionState && structuredClone(this.sessionState),
     };
@@ -97,7 +101,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       workCentiTicks: (job) => (job as Job).key.startsWith('trade:') ? 100 : undefined,
     });
     ctx.register.announcement('CaravanArrived', { severity: 'alert', stringKey: 'announce.caravan_arrived' });
+    ctx.register.announcement('CaravanWaiting', { severity: 'alert', stringKey: 'announce.caravan_unreachable', oneOf: { field: 'reason', values: ['unreachable'] } });
     ctx.register.announcement('CaravanWaiting', { severity: 'alert', stringKey: 'announce.caravan_waiting' });
+    ctx.register.announcement('CaravanAtDepot', { severity: 'note', stringKey: 'announce.caravan_at_depot' });
     ctx.register.announcement('CaravanDeparted', { severity: 'note', stringKey: 'announce.caravan_departed' });
     ctx.register.announcement('CaravanLost', { severity: 'alert', stringKey: 'announce.caravan_lost' });
     ctx.register.announcement('TradeCompleted', { severity: 'note', stringKey: 'announce.trade_completed' });
@@ -435,7 +441,12 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       a.stateSince = ctx.tick;
       const party = ctx.world.entities.get(a.partyId, C.Party);
       if (party) party.state = 'waiting';
-      ctx.emit({ type: 'CaravanWaiting', civ: a.civ, partyId: a.partyId });
+      // § Movement step 2: with a depot built that the caravan cannot reach, the line names it and the edge.
+      const built = ctx.readers.of<BuildingsReader>('14').depots()[0];
+      const edge = ctx.world.entities.get(a.partyId, C.Party)?.edge ?? this.spec?.civEdges[a.civ] ?? 'n';
+      ctx.emit(built === undefined
+        ? { type: 'CaravanWaiting', civ: a.civ, partyId: a.partyId, reason: 'no_depot', edge }
+        : { type: 'CaravanWaiting', civ: a.civ, partyId: a.partyId, reason: 'unreachable', edge, depotId: built });
     }
   }
 
