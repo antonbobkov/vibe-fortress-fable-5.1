@@ -1,6 +1,8 @@
 # T-609 — A zone answers at once, and its inspector has the keys it names
 
-**Source:** [T-605's audit](../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 3 and 4 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in bdf58770,17aba431.
+
+**Source:** [T-605's audit](../../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 3 and 4 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

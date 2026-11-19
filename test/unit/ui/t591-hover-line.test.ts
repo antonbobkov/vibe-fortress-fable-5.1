@@ -175,7 +175,7 @@ describe('T-591 what a container building holds', () => {
       for (const inner of it.inContainer(id)) expect(listed).toContain(inner);
     }
     game.render();
-    expect(game.textRows().join('\n')).toMatch(/Items\(\d+\)/);
+    expect(game.textRows().join('\n')).toMatch(/\[2\]Items \d+/);
     expect(game.textRows().join('\n')).toMatch(/1 pine barrel \(common\) · \d+ ☼/);
   });
 });

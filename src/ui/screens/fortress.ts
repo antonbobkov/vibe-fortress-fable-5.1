@@ -165,6 +165,8 @@ export class FortressScreen implements Screen {
   readonly hints: HintEngine;
   readonly settings: FortressSettings = { autoPauseDanger: true, autoPauseAlert: false, hintsEnabled: true, edgeScrolling: false, combatLog: 'hits only' };
   lookTab: LookTab = 0;
+  /** The creature whose sub-tab Look shows first (0: the tile's order); set by inspecting a creature. */
+  lookCreature: EntityId = 0;
   logFilter: LogFilter = 0;
   /** The log panel's selected entry and scroll, in entries. */
   readonly logView = new LogView();
@@ -234,10 +236,10 @@ export class FortressScreen implements Screen {
       strings: this.strings,
       submit: (c) => host.submit(c),
       focusOn: (t) => this.focusOn(t),
-      look: (t, tab) => {
+      look: (t, tab, creature) => {
         const map = host.readers.map;
         this.focusOn(t);
-        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) }, tab);
+        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) }, tab, creature);
       },
       openPanel: (id) => this.openPanel(id),
       shiftClick: () => this.clickShift,
@@ -373,15 +375,10 @@ export class FortressScreen implements Screen {
         group.line.text = this.strings.get('announce.dangerous_arrived_many', { count: group.count, species: pluralName(group.name) });
         continue;
       }
-      if (event.type === 'ZoneChanged' && event['change'] === 'created' && this.pendingZone !== null && event['zoneType'] === this.pendingZone.type) {
-        // A zone made by a drag says so, names the tiles left out, and is selected at once (T-274).
-        const zoneId = Number(event['zoneId']);
-        const made = this.pendingZone;
-        this.pendingZone = null;
-        const name = zoneName(this.ctx, zoneId);
-        this.notice(made.left === 0 ? this.strings.get('ui.status.zone_made', { name, n: made.made }) : this.strings.get('ui.status.zone_made_left', { name, n: made.made, left: made.left, reasons: made.reasons }));
-        this.zones.selected = zoneId;
-        this.zones.stockpile.reset();
+      if (event.type === 'ZoneChanged' && event['change'] === 'created' && this.pendingZone !== null && event['zoneType'] === this.pendingZone.type &&
+        !this.pendingZone.known.has(Number(event['zoneId']))) {
+        // A drag made while time runs: its zone exists from this tick's command phase.
+        this.zoneMade(Number(event['zoneId']));
       }
       const done = this.log.announce(event, readers, readers.calendar.tick);
       if (done === null) continue;
@@ -514,9 +511,8 @@ export class FortressScreen implements Screen {
   private centerOnPanelRow(): void {
     const ctx = this.ctx;
     if (this.ui.panel === 'units') {
-      const id = this.units.selectedId(ctx);
-      const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
-      if (p !== undefined) this.focusOn(this.host.readers.map.index(p.x, p.y, p.z));
+      // 24 § Inspection: a double click on a unit row inspects that unit, as `Enter` does.
+      this.inspectCreature(this.units.selectedId(ctx));
       return;
     }
     if (this.ui.panel === 'jobs') {
@@ -524,6 +520,28 @@ export class FortressScreen implements Screen {
       const tile = job === undefined ? null : this.jobs.tileOf(ctx, job);
       if (tile !== null) this.focusOn(tile);
     }
+  }
+
+  /**
+   * Inspect a creature (24 § Inspection): centre on it and open Look on its tile at the
+   * `Creatures` tab, with its sub-tab first.
+   */
+  inspectCreature(id: EntityId): void {
+    const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
+    if (p !== undefined) this.ctx.look(this.host.readers.map.index(p.x, p.y, p.z), 2, id);
+  }
+
+  /** The creatures a log line can name: those with a name of their own (an unnamed one is called by its species). */
+  private namedCreatures(): { id: EntityId; name: string }[] {
+    const readers = this.host.readers;
+    const species = this.host.registry.table<{ id: string }>('creatures');
+    const out: { id: EntityId; name: string }[] = [];
+    for (const id of readers.entities.with(C.Creature, C.Position)) {
+      const c = readers.entities.get(id, C.Creature);
+      if (c === undefined || c.name === '' || c.name === species.byIndex(c.species)?.id) continue;
+      out.push({ id, name: c.name });
+    }
+    return out;
   }
 
   /** Centre the view on a tile (a danger's focus, a log line's). */
@@ -707,7 +725,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab,
-      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId));
+      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId), this.lookCreature);
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
@@ -718,7 +736,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods(), this.host.speed() === 0);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
-    }, this.logView);
+    }, this.logView, { names: this.namedCreatures(), open: (id) => this.inspectCreature(id) });
     if (panel.id !== 'help') this.drawShiftNote(surface, body);
   }
 
@@ -891,7 +909,9 @@ export class FortressScreen implements Screen {
       const placed = this.build.placementAt(this.ctx, this.actionPoint());
       if (placed !== null) return placed;
     }
-    if (this.build.active && this.noticeGhost !== null && this.ghostKey() !== this.noticeGhost) {
+    // A ghost that differs from the one the notice was written over, or that appeared since a notice
+    // written with no build tool (a zone's made line, then a workshop picked), is a new ghost state.
+    if (this.build.active && this.message !== null && this.ghostKey() !== (this.noticeGhost ?? '')) {
       this.clearNotice();
     }
     const notice = this.currentNotice;
@@ -1229,10 +1249,14 @@ export class FortressScreen implements Screen {
     this.depot.trade(this.ctx, this.host.speed() === 0);
   }
 
-  /** Look at a tile: the look panel with the cursor on it, at the `Tile` tab or the one asked for. */
-  look(p: TilePoint, tab: LookTab = 0): void {
+  /**
+   * Look at a tile: the look panel with the cursor on it, at the `Tile` tab or the one asked for,
+   * with a creature's sub-tab first when one is being inspected.
+   */
+  look(p: TilePoint, tab: LookTab = 0, creature: EntityId = 0): void {
     this.ui.cursor = { x: p.x, y: p.y };
     this.lookTab = tab;
+    this.lookCreature = creature;
     this.openPanel('look');
   }
 
@@ -1240,39 +1264,62 @@ export class FortressScreen implements Screen {
   commitZone(a: TilePoint, b: TilePoint): Command[] {
     const resized = this.zones.resizing ? this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').zone(this.zones.selected)?.type : undefined : undefined;
     const type = resized ?? this.zones.kind ?? '';
+    const except = this.zones.resizing ? this.zones.selected : 0;
     const commands = this.zones.commands(this.ctx, a, b);
     if (commands.length === 0 && type !== '') {
-      // §4.2: a rectangle where no tile qualifies says which rule failed; a farm plot also
-      // brings up `hint_farm` (Q12: the zone tool never sends the rectangle that refusal needed).
+      // §4.2: a rectangle where no tile qualifies says why: the tiles another zone holds, counted
+      // per reason, or else the rule that failed; a farm plot also brings up `hint_farm` (Q12: the
+      // zone tool never sends the rectangle that refusal needed).
       const s = this.strings;
-      const rule = s.has(`ui.zone.rule.${type}`) ? s.get(`ui.zone.rule.${type}`) : s.get('ui.zone.rule.default');
+      const out = this.zoneOutcome(type, a, b, 0, except);
+      const rule = out.another > 0 ? out.reasons : s.has(`ui.zone.rule.${type}`) ? s.get(`ui.zone.rule.${type}`) : s.get('ui.zone.rule.default');
       this.notice(s.get('ui.status.zone_none', { tool: s.get(`ui.zone.type.${type}`), n: rectTiles(this.host.readers.map, a, b).length, rule }));
       if (type === 'farm_plot') this.hints.show('hint_farm', this.host.readers.calendar.tick, this.settings.hintsEnabled);
     }
-    if (commands.length > 0 && type !== '' && !this.zones.resizing && commands[0]?.type === 'CreateZone') this.pendingZone = this.zoneOutcome(type, a, b, ((commands[0] as Command)['tiles'] as readonly number[]).length);
+    const create = commands.length > 0 && type !== '' && commands[0]?.type === 'CreateZone';
+    const reader = this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14') : null;
+    const known = new Set(reader?.zonesOfType(type) ?? []);
+    if (create) this.pendingZone = { ...this.zoneOutcome(type, a, b, ((commands[0] as Command)['tiles'] as readonly number[]).length), known };
     for (const c of commands) this.host.submit(c);
     this.zones.anchor = null;
     this.zones.end = null;
+    // 24 § Input model: a command sent while paused takes effect at once, so the zone it made is
+    // there now; while time runs it appears in the next tick's command phase (`onEvents`).
+    const made = create && this.pendingZone !== null ? (reader?.zonesOfType(type) ?? []).find((id) => !known.has(id)) : undefined;
+    if (made !== undefined) this.zoneMade(made);
     return commands;
   }
 
+  /** A zone made by a drag says so, names the tiles left out, is selected, and the tool idles. */
+  private zoneMade(zoneId: EntityId): void {
+    const made = this.pendingZone;
+    if (made === null) return;
+    this.pendingZone = null;
+    const name = zoneName(this.ctx, zoneId);
+    this.notice(made.left === 0 ? this.strings.get('ui.status.zone_made', { name, n: made.made }) : this.strings.get('ui.status.zone_made_left', { name, n: made.made, left: made.left, reasons: made.reasons }));
+    this.zones.selected = zoneId;
+    this.zones.stockpile.reset();
+    this.zones.rest();
+  }
+
   /** What a finished zone drag left out of the rectangle, by reason (a trimmed zone says so). */
-  private zoneOutcome(type: string, a: TilePoint, b: TilePoint, made: number): { type: string; made: number; left: number; reasons: string } {
+  private zoneOutcome(type: string, a: TilePoint, b: TilePoint, made: number, except: EntityId = 0): { type: string; made: number; left: number; another: number; reasons: string } {
     const buildings = this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14') : null;
     const counts = { another: 0, other: 0 };
     for (const i of rectTiles(this.host.readers.map, a, b)) {
-      if (this.zones.tileOk(this.ctx, type, i)) continue;
-      if ((buildings?.zoneAt(i) ?? 0) !== 0) counts.another += 1;
+      if (this.zones.tileOk(this.ctx, type, i, except)) continue;
+      const holder = buildings?.zoneAt(i) ?? 0;
+      if (holder !== 0 && holder !== except) counts.another += 1;
       else counts.other += 1;
     }
     const s = this.strings;
     const other = type === 'farm_plot' ? 'soil' : type === 'fishing' ? 'water' : 'walkable';
     const parts = [counts.another > 0 ? s.get('ui.zone.left.another', { n: counts.another }) : '', counts.other > 0 ? s.get(`ui.zone.left.${other}`, { n: counts.other }) : ''].filter((t) => t !== '');
-    return { type, made, left: counts.another + counts.other, reasons: parts.join(', ') };
+    return { type, made, left: counts.another + counts.other, another: counts.another, reasons: parts.join(', ') };
   }
 
-  /** The zone a drag just asked for: its message and selection wait for the zone to exist. */
-  private pendingZone: { type: string; made: number; left: number; reasons: string } | null = null;
+  /** The zone a drag just asked for, and the zones of its type before it: its message and selection wait for the zone to exist. */
+  private pendingZone: { type: string; made: number; left: number; reasons: string; known: ReadonlySet<EntityId> } | null = null;
 
   /** Place the build tool's building at a point ("Placing keeps the tool active until `Esc`"). */
   place(p: TilePoint): Command | null {
@@ -1500,7 +1547,7 @@ export class FortressScreen implements Screen {
       this.zones.end = null;
       return;
     }
-    if (this.zones.active) {
+    if (this.zones.chosen) {
       this.zones.cancel();
       return;
     }
@@ -1969,7 +2016,7 @@ export class FortressScreen implements Screen {
         const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
         const at = p === undefined ? null : this.host.readers.map.index(p.x, p.y, p.z);
         if (k === 'Enter' && at !== null) {
-          ctx.look(at);
+          this.inspectCreature(id);
           return true;
         }
         if (letter === 'c' && at !== null) {
@@ -2055,9 +2102,7 @@ export class FortressScreen implements Screen {
         if (!press.shift && (up || down)) { this.mood.move(up ? -1 : 1, ctx); return true; }
         if (letter === 's') { this.mood.sorted = !this.mood.sorted; this.mood.list.selected = 0; return true; }
         if (k === 'Enter') {
-          const id = this.mood.selected(ctx);
-          const p = ctx.readers.entities.get(id, C.Position);
-          if (p !== undefined) ctx.look(ctx.readers.map.index(p.x, p.y, p.z));
+          this.inspectCreature(this.mood.selected(ctx));
           return true;
         }
         return false;
@@ -2154,7 +2199,7 @@ export class FortressScreen implements Screen {
       else if (this.ui.panel === 'zones' && this.zones.stockpile.linkingFor !== 0) this.zones.stockpile.cancel();
       else if (this.ui.panel === 'building' && this.building.linking) this.building.cancel();
       else if (this.build.listing) this.build.cancel();
-      else if (this.zones.active) this.zones.cancel();
+      else if (this.zones.chosen) this.zones.cancel();
       else if (this.tool.active) this.tool.cancel();
       else this.look(at);
       return;
@@ -2179,7 +2224,9 @@ export class FortressScreen implements Screen {
       } else this.place(at);
       return;
     }
-    if (this.zones.active) {
+    if (this.zones.chosen) {
+      // An idle zone tool starts the next rectangle at a press on the map (`panels.md` § Zones).
+      this.zones.wake();
       this.zones.anchor = at;
       this.zones.end = at;
       this.dragging = true;

@@ -33,7 +33,7 @@ Status row 1 fields left to right: date (a click on it, or `Shift+Y`, opens the 
 
 Every field of row 1 is a button. A click on the date or the weather opens the Calendar; on `☺` Units; on `♥` Mood; on `+n` Units with the wounded first; on `!n` Threats; on `$` Civilizations; on `z` nothing. A click on the speed glyph pauses or resumes at the last speed, and a right click on it steps the speed 1× → 2× → 4× → 1× (a paused game stays paused and resumes at the new speed). Hovering `+n` shows "n wounded" and `!n` "n hostile creatures on the map". `[Esc] menu` opens the game menu and `[?] help` the Help panel.
 
-Status row 2: as many complete hotkey entries as fit (each is a button that does what its key does), in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. With a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`; with a selection, its size. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
+Status row 2: as many complete hotkey entries as fit (each is a button that does what its key does), in order `[d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look`; omit a trailing entry that does not fit, never clip its key or caption. With a tool active it shows the tool name, the priority, the rectangle size while dragging, and `[Esc] cancel`; with a selection, its size. A notice or refusal reason takes the row for `STATUS_HINT_SECONDS` or until replaced earlier by starting a drag, a new ghost state (a build ghost that appears after a notice written with none, such as a building picked after a zone's made line, is one) or a new notice. Other status row text that does not fit ends with `…` and registers its full text as a tooltip on the row, like any clipped label.
 
 Status row 3, the hover line: the tile summary (24 § Inspection) of the tile under the mouse, or of the map cursor when the mouse is off the map, in every mode, menu and panel: `Granite wall`, `Sand floor · water 5/7 · 1 trout`, `Ketil Ironvein, Digging · 2 more here`. It is blank when there is neither. Text that does not fit ends with `…` and registers its full text as a tooltip on the row.
 
@@ -55,10 +55,11 @@ The log strip shows the last three announcements; danger lines are prefixed `!!`
 │                                                                                  │ [S-c] center [i] idle [S-w] hurt  │
 │                                                                                  │ [Space] mark  [*] all  1 marked  │
 │                                                                                  │ [S-t] title  [S-n] rename        │
-│                                                                                  │ [S-m] squad  sleep 22h  [[]  []] │
+│                                                                                  │ [S-m] squad                      │
+│                                                                                  │ sleep 22h  [[] earlier  []] later│
 ```
 
-Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier); activity from `dwarves.activityText`. In the 36-column sidebar the name column is 14 cells (the cursor mark and twelve letters of the name), the mood glyph takes 2 (the glyph and a blank) and the activity the rest (16 or more). The profession is not a column: hovering a row shows "name, profession", and Look shows it too. A dwarf with no activity reads "Idle" in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
+Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name in its own column (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier on the status row); activity from `dwarves.activityText`, always in its column. The list's tooltips (the mood tier, a row's "name, profession") show on the status row only, with no box, since a box would cover the row above. In the 36-column sidebar the name column is 14 cells (the cursor mark and twelve letters of the name), the mood glyph takes 2 (the glyph and a blank) and the activity the rest (16 or more). The profession is not a column: hovering a row shows "name, profession" on the status row, and Look shows it too. `Enter`, or a double click on a row, inspects the dwarf: Look on its tile at the `Creatures` tab with its sub-tab first (24 § Inspection). A dwarf with no activity reads "Idle" in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
 
 - **Idle filter and order**: `i` shows only the idle dwarves, and the title row then reads "Units · idle (n)"; `Shift+W` puts the wounded dwarves first, in list order. Both are kept while the fortress is open and are not saved.
 - **To the labors**: the labors key `l` over the Units list opens the Labors panel with its cursor on the dwarf under the Units cursor, at its first labor column; the Units filters are dropped. The key row still reads `[l] labors`.
@@ -104,6 +105,8 @@ On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes fir
 │ Here:                                     │
 │   1 granite stone · 3 ☼                   │
 ```
+
+The wireframes are drawn wider than the sidebar; in the 36-column sidebar the tabs line reads `[1]Tile [2]Items 3 [3]Who 1`, the short form 24 § Inspection gives for a line that does not fit. Inspecting a creature (from Units, Mood or a log line) opens the `Creatures` tab with its sub-tab first.
 
 The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do.
 

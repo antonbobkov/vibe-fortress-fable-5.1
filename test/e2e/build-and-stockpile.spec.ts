@@ -115,6 +115,9 @@ test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
   }, [pile.x, pile.y, sites.z]);
   expect(pausedZone.tick).toBe(initialTick);
   expect(pausedZone.id).not.toBe(0);
+  // T-609: the made line and the inspector come at once while paused, before any tick.
+  await expect.poll(() => textOf(page)).toContain('Stockpile #1 made: 9 tiles.');
+  await expect.poll(() => textOf(page)).toContain('Selected: Stockpile #1 (9 t)');
   await page.evaluate(() => (window as unknown as { __deepholm: BuildHook }).__deepholm.step(1));
   await page.keyboard.press('Escape');
   await page.mouse.click(a.x, a.y);

@@ -8,6 +8,7 @@
  */
 
 import { dayOfSeasonOf, seasonOf, yearOf } from '@core/calendar';
+import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import { lineText, type LogLine, type Severity } from '../announcements';
@@ -24,6 +25,12 @@ export const HINT_KEY_CONTEXTS: readonly KeyContext[] = ['global', 'fortress_pan
 function shownText(s: Surface, line: LogLine): string {
   const text = lineText(line);
   return line.category === 'hint' && s.keyNames !== null ? s.keyNames(text, HINT_KEY_CONTEXTS) : text;
+}
+
+/** The creatures a log line may name, and what a click on a name does. */
+export interface LogCreatures {
+  readonly names: readonly { readonly id: EntityId; readonly name: string }[];
+  readonly open: (id: EntityId) => void;
 }
 
 /** `0` all, `1` alerts and danger, `2` combat. */
@@ -132,6 +139,8 @@ export function drawLogPanel(
   now: number,
   onFocus: (line: LogLine) => void,
   view: LogView = new LogView(),
+  /** The creatures a line may name, and what a click on a name does (24 § Inspection: inspect that creature). */
+  creatures?: LogCreatures,
 ): void {
   label(s, rect.col + 1, rect.row, strings.get('ui.log.filter'), { width: rect.cols - 2 });
   const shown = filterLines(lines, filter).reverse();
@@ -208,10 +217,28 @@ export function drawLogPanel(
       view.chosen = true;
       if (line.focus !== undefined) onFocus(line);
     });
+    if (creatures !== undefined) {
+      for (let k = 0; k < entry.rows; k += 1) {
+        const text = k === entry.rows - 1 && !whole(entry) ? entry.parts.slice(k).join(' ') : entry.parts[k] as string;
+        nameHits(s, rect.col + 1 + layout.dateCols, row + k, layout.textCols, text, creatures);
+      }
+    }
     row += entry.rows;
   }
   if (bar) drawLogScrollbar(s, { col: rect.col + rect.cols - 2, row: top, cols: 1, rows: height }, view, shown.length);
   if (footer === 1) label(s, rect.col + 1, rect.row + rect.rows - 1, strings.get('ui.log.actions'), { width: rect.cols - 2 });
+}
+
+/** A click on a creature's name in a log row inspects it; a longer name wins over a shorter one inside it. */
+function nameHits(s: Surface, col: number, row: number, width: number, text: string, creatures: LogCreatures): void {
+  const byLength = creatures.names.slice().sort((a, b) => a.name.length - b.name.length);
+  for (const { id, name } of byLength) {
+    for (let at = text.indexOf(name); at >= 0; at = text.indexOf(name, at + name.length)) {
+      const from = Array.from(text.slice(0, at)).length;
+      const cols = Math.min(Array.from(name).length, width - from);
+      if (cols > 0) s.hit({ col: col + from, row, cols, rows: 1 }, () => creatures.open(id));
+    }
+  }
 }
 
 /** The scrollbar of the log panel, over entries: a press or a drag on the track scrolls to that place. */

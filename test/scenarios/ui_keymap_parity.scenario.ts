@@ -358,6 +358,8 @@ const scenario: Scenario = {
         const at = (row as NonNullable<typeof row>).rect;
         screen.pointerDown({ col: at.col, row: at.row, button: 0, clicks: 2, shift: false, ctrl: false, alt: false, meta: false });
         expect(centered, 'a double-clicked unit row centres the map').not.toBeNull();
+        expect(ui.panel, 'and inspects the unit').toBe('look');
+        expect(screen.lookTab).toBe(2);
         screen.openPanel(null);
       },
     };

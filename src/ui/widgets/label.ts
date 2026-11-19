@@ -190,7 +190,7 @@ export function labelRow(s: Surface, col: number, row: number, width: number, te
 export function drawTooltip(s: Surface, pointer: { col: number; row: number } | null, maxRows = s.rows): void {
   if (pointer === null) return;
   const tip = s.tooltipAt(pointer.col, pointer.row);
-  if (tip === null || s.cols < 3) return;
+  if (tip === null || tip.box === false || s.cols < 3) return;
   const t = s.theme;
   const length = (text: string): number => Array.from(text).length;
   const lines = length(tip.text) + 2 <= s.cols ? [tip.text] : wrapHang(tip.text, s.cols - 2, 0);

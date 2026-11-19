@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-606 | [The strong squad does not reach Proficient in three years](work/T-606-strong-squad-pace.md) | [T-603](archive/tasks/T-603-script-builds-strong-squad.md) | — | open |
 | T-607 | [A training soldier's barracks post can be a tile nobody can stand on](work/T-607-barracks-post-on-a-blocked-tile.md) | [T-603](archive/tasks/T-603-script-builds-strong-squad.md) | — | open |
-| T-609 | [A zone answers at once, and its inspector has the keys it names](work/T-609-zone-tool-feedback.md) | [T-605](archive/tasks/T-605-first-hour-ux.md) | — | open |
 | T-610 | [A designation no dwarf can reach says so when it is made](work/T-610-unreachable-designations.md) | [T-605](archive/tasks/T-605-first-hour-ux.md) | — | open |
 | T-611 | [Inspecting a dwarf from Units shows that dwarf](work/T-611-units-inspect-dwarf.md) | [T-605](archive/tasks/T-605-first-hour-ux.md) | — | open |
 | T-612 | [The legend and the hover line explain the surface](work/T-612-surface-legend.md) | [T-605](archive/tasks/T-605-first-hour-ux.md) | — | open |

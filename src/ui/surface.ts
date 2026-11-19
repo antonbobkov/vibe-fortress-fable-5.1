@@ -134,6 +134,8 @@ export interface ScrollRegion {
 export interface TooltipRegion {
   readonly rect: Rect;
   readonly text: string;
+  /** False: the text shows on the status row only, with no box over the row above (a table's rows). */
+  readonly box?: boolean;
 }
 
 export class Surface {
@@ -250,9 +252,9 @@ export class Surface {
     return null;
   }
 
-  /** Record a tooltip for a truncated cell or label. */
-  tooltip(rect: Rect, text: string): void {
-    this.tooltips.push({ rect, text });
+  /** Record a tooltip for a truncated cell or label; `box: false` keeps it to the status row. */
+  tooltip(rect: Rect, text: string, options: { box?: boolean } = {}): void {
+    this.tooltips.push(options.box === false ? { rect, text, box: false } : { rect, text });
   }
 
   /** The topmost tooltip under a cell (the last recorded wins). */

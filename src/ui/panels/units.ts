@@ -51,8 +51,8 @@ interface SkillRow {
 const NAME_COLS = 14;
 const MOOD_COLS = 2;
 
-/** Rows under the table: the five action rows. */
-const ACTION_ROWS = 5;
+/** Rows under the table: the six action rows. */
+const ACTION_ROWS = 6;
 
 export function dwarvesOf(ctx: PanelContext): EntityId[] {
   return ctx.readers.has('10') ? ctx.readers.of<DwarvesReaderLike>('10').list() : [];
@@ -419,7 +419,8 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
       const here = index === panel.list.selected;
       const cell = { col: area.col + NAME_COLS, row: area.row + 1 + r, cols: 1, rows: 1 };
       s.put(cell.col, cell.row, s.glyphs.index(mood.glyph), here ? t.black : fg, here ? fg : t.black);
-      s.tooltip(cell, strings.get(`ui.units.mood.${tier}`));
+      // On the status row only: a box would cover the activity of the row above.
+      s.tooltip(cell, strings.get(`ui.units.mood.${tier}`), { box: false });
     }
   }
   // An idle dwarf's activity is dim, and a row's tooltip carries what the list no longer shows.
@@ -428,7 +429,7 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
     const index = panel.list.scroll + r;
     const id = rows[index] as EntityId;
     const cells = { col: area.col, row: area.row + 1 + r, cols: NAME_COLS - 1, rows: 1 };
-    s.tooltip(cells, strings.get('ui.units.row_tip', { name: nameOf(ctx, id), profession: professionOf(ctx, id) }));
+    s.tooltip(cells, strings.get('ui.units.row_tip', { name: nameOf(ctx, id), profession: professionOf(ctx, id) }), { box: false });
     if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, strings.get('ui.units.idle'), { fg: t.dim, width: area.cols - NAME_COLS - MOOD_COLS, keys: false });
   }
   const row = rect.row + 1 + top + height;
@@ -448,8 +449,8 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
   ]);
   const selected = panel.selectedId(ctx);
   const hour = selected === 0 ? null : panel.sleepHour(ctx, selected);
-  actionRow(s, col, row + 5, width, [
-    [strings.get('ui.units.to_squad'), () => panel.openSquads(ctx)],
+  actionRow(s, col, row + 5, width, [[strings.get('ui.units.to_squad'), () => panel.openSquads(ctx)]]);
+  actionRow(s, col, row + 6, width, [
     [strings.get('ui.units.sleep', { hour: hour === null ? '--' : String(hour).padStart(2, '0') }), null],
     [strings.get('ui.units.sleep_earlier'), () => { for (const c of panel.shiftSleep(ctx, -1)) ctx.submit(c); }],
     [strings.get('ui.units.sleep_later'), () => { for (const c of panel.shiftSleep(ctx, 1)) ctx.submit(c); }],
