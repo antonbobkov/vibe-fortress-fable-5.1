@@ -55,10 +55,44 @@ export function comingText(strings: Strings, registry: Registry, coming: ComingP
   return strings.get('ui.threats.coming', { party: strings.get(`ui.threats.band_${band}`, { civ }), edge, when });
 }
 
-/** A party by its purpose in a line: "Gloam raid", "Gloam siege", "bandit raid", "ambush". */
+/** A party by its purpose in a line: "Gloam raid", "Gloam siege", "bandit raid", "ambush", "thief", "restless dead". */
 function partyWords(strings: Strings, registry: Registry, party: Party): string {
   const key = `announce.party.${party.purpose}`;
   return strings.has(key) ? strings.get(key, { civ: civWords(registry, party.civ) }) : strings.get('announce.party.raid', { civ: civWords(registry, party.civ) });
+}
+
+/** A member still on the map: alive and not caught in a cage (18 § Party AI). */
+function onMap(readers: ReaderSet, m: number): boolean {
+  return readers.entities.alive(m) && (readers.entities.get(m, C.Creature)?.cagedIn ?? 0) === 0;
+}
+
+/**
+ * What a party is doing, in words: approach "coming", engage "attacking", loiter "waiting" (or
+ * "looting" while a member on the map holds some of its loot), retreat "leaving". A state with no
+ * word reads as itself.
+ */
+export function partyDoingWords(strings: Strings, readers: ReaderSet, party: Party): string {
+  if (party.state === 'loiter') {
+    const holding = party.loot.some((id) => {
+      const carrier = readers.entities.get(id, C.Item)?.carriedBy ?? party.animalCarriers?.[id] ?? 0;
+      return carrier !== 0 && party.members.includes(carrier) && onMap(readers, carrier);
+    });
+    if (holding) return strings.get('ui.threats.doing.looting');
+  }
+  const key = `ui.threats.doing.${party.state}`;
+  return strings.has(key) ? strings.get(key) : party.state;
+}
+
+/**
+ * The threats panel's line for a party in view, named as the log names it, with the members still
+ * on the map ("7 of 10" when some are dead, fled or caged) and what it is doing: "Active: Gloam
+ * raid, 7 of 10, attacking", "Active: bandit raid, 4, looting".
+ */
+export function partyActiveText(strings: Strings, registry: Registry, readers: ReaderSet, party: Party): string {
+  const total = party.members.length;
+  const here = party.members.filter((m) => onMap(readers, m)).length;
+  const count = here === total ? String(total) : strings.get('ui.threats.party_of', { n: here, total });
+  return strings.get('ui.threats.active_party', { party: partyWords(strings, registry, party), count, doing: partyDoingWords(strings, readers, party) });
 }
 
 /** "14 goods", "a stolen item". */

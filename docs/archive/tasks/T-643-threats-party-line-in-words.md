@@ -1,5 +1,7 @@
 # T-643 — The Threats panel's party line in words
 
+**Closed:** 2026-11-19, in 58131ea0.
+
 **Source:** T-638 (the raid aftermath and the Threats panel), seen while naming the hostiles in view · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -15,4 +17,4 @@ Spec: `ui-screens/panels.md` § Threats, 18 § Player-facing behavior.
 
 ## Done
 
-A test draws the panel with a party in each state and reads the line.
+- [x] A test draws the panel with a party in each state and reads the line (`test/unit/ui/t643-threats-party-line.test.ts`).
