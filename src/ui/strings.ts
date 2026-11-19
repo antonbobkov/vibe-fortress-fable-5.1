@@ -667,6 +667,15 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stockpile.usage': 'Usage {used}/{n} tiles',
   // Stocks panel (`panels.md` § Stocks).
   'ui.stocks.wealth': 'Wealth {wealth}   (buildings {buildings})',
+  // The selected row's units that a build or an order cannot have now, and why.
+  'ui.stocks.usable': 'Usable {usable} of {n}: {reasons}',
+  'ui.stocks.why.depot': '{n} at the depot',
+  'ui.stocks.why.forbidden': '{n} forbidden',
+  'ui.stocks.why.in_use': '{n} in use',
+  'ui.stocks.why.owned': '{n} owned',
+  'ui.stocks.why.carried': '{n} carried',
+  'ui.stocks.why.reserved': '{n} reserved',
+  'ui.stocks.why.foreign': '{n} not recovered',
   // `f`, `d`, `m` and `t` open panels: the stocks actions take `Shift` (D-U2).
   'ui.stocks.forbid': '[S-f] forbid',
   'ui.stocks.dump': '[S-d] dump',

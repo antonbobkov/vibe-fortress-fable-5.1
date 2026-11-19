@@ -57,6 +57,8 @@ export const HINT_FOOD_DAYS = 2;
 export const HINT_FOOD_DAYS_PER_ITEM = 4;
 /** 13 § Rot: the stocks panel counts, and the alert warns of, food that rots within this many days (24 § Panels). */
 export const ROT_ALERT_DAYS = 3;
+/** Rows under the stocks tree for the selected row's usable line (`panels.md` § Stocks). */
+export const STOCKS_USE_ROWS = 2;
 
 /** Width of a body part's health meter in the creature inspector. */
 export const HEALTH_PART_BAR_CELLS = 5;

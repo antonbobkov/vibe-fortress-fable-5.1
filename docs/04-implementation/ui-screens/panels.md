@@ -362,12 +362,16 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 │ ▸ weapon        9   1,120 ☼         │
 │ …                                   │
 │ 52 rot within 3 days                │
+│ Usable 396 of 412: 12 reserved,     │
+│   4 carried                         │
 │ Wealth 18,450 ☼   (buildings 3,200) │
 │ [S-f] forbid  [S-d] dump            │
 │ [S-m] melt  [S-t] to depot          │
 ```
 
 The line under the tree speaks of the selected row's rot (24 § Panels): a stack by its name, stage and days left, `turnip ×20 · stale, rots in 4 days`; a type or category that holds perishable stacks by the units under it that rot within `ROT_ALERT_DAYS`, `52 rot within 3 days`, in the alert colour when there are any; empty for anything else. A stack that is stale or rots within `ROT_ALERT_DAYS` has its name in the alert colour.
+
+The `STOCKS_USE_ROWS` rows under it say how many units of the selected row (a stack, a type, or every type under a category) a build, an order or a workshop can have now, which is 13's available count, and why the rest cannot, each reason with its units: `Usable 4 of 21: 11 at the depot, 3 forbidden, 1 carried, 2 reserved`. The reasons are, in this order, at the trade depot (`11 at the depot`), forbidden, in use (installed furniture, a cage that holds a creature), owned, carried, reserved and not recovered (foreign loot); a unit with several counts under the first. The line wraps with a two-cell indent; one longer than its rows ends with `»` and has the rest as a tooltip. It is dim, in the alert colour when none of the row can be used, and empty when all of it can. It reads the items as they are now, so a forbid made while paused shows at once, while the tree's counts and values are taken once a tick.
 
 `/` or clicking the filter field focuses a case-insensitive search of category paths, item names and material labels. Enter or Esc finishes typing. Matching descendants keep their ancestors visible and expand while the filter is set; clearing the filter restores the saved tree expansion. Filtering changes visible rows, while category actions keep applying to their selected category.
 
