@@ -114,13 +114,6 @@ export function fitName(name: string, room: number, names: readonly string[]): s
   return cut(name, room);
 }
 
-/** Every title the dwarf holds, in the title table's order. */
-export function titlesOf(ctx: PanelContext, id: EntityId): TitleId[] {
-  if (!ctx.readers.has('10')) return [];
-  const dwarves = ctx.readers.of<DwarvesReaderLike>('10');
-  return TITLE_IDS.filter((title) => dwarves.holder?.(title) === id);
-}
-
 /** A dwarf with no activity text: the units list calls it idle. */
 export function isIdle(ctx: PanelContext, id: EntityId): boolean {
   if (!ctx.readers.has('10')) return false;
