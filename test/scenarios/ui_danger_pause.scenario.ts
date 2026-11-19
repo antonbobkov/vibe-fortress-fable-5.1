@@ -51,6 +51,7 @@ const scenario: Scenario = {
     w.game.world.emit({
       type: 'RaidArrived',
       partyId: 1,
+      kind: 'raid',
       faction: 'goblin',
       count: 5,
       edge: 'west',

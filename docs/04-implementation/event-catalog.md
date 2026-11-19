@@ -134,7 +134,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
 | `TreatmentDone` | `patientId, medicId, kind` | 17 | 10 (xp) |
 | `ThreatWarning` | `kind, civ, sizeBand, edge` | 18 | 24 (hint), ui |
-| `RaidArrived` | `partyId, kind, size` | 18 | 15, 16, 20, 21, 25, ui |
+| `RaidArrived` | `partyId, kind, size, edge` | 18 | 15, 16, 20, 21, 25, ui |
 | `RaidEnded` | `partyId, outcome` | 18 | 15, 21, 24 (milestone), ui |
 | `ThiefSpotted` / `ThiefEscaped` | `id` / `id, itemId, animalId` | 18 | 13 (wealth), 15, ui |
 | `AmbushSprung` | `partyId` | 18 | 21, 25, ui |

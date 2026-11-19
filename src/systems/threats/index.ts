@@ -197,9 +197,13 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       severity: 'alert',
       stringKey: 'announce.threat_warning',
     });
+    // A raid, a siege or bandits say who came and from where; a thief comes unseen and is
+    // announced when spotted (`ThiefSpotted`), an ambush when sprung.
     ctx.register.announcement('RaidArrived', {
       severity: 'danger',
       stringKey: 'announce.raid_arrived',
+      keyField: 'kind',
+      oneOf: { field: 'kind', values: ['raid', 'siege', 'bandits'] },
     });
     ctx.register.announcement('RaidEnded', {
       severity: 'note',

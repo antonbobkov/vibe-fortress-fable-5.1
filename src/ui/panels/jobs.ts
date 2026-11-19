@@ -182,14 +182,14 @@ export class JobsPanel {
 
 function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
   const type = ctx.readers.of<JobsReader>('11').typeOf(j.id) ?? '';
-  const name = ctx.strings.has(`ui.jobs.type.${type}`) ? ctx.strings.get(`ui.jobs.type.${type}`) : type.replace(/_/g, ' ');
+  const name = jobTypeName(ctx, type);
   if (j.target.kind !== 'tile') {
     const building = ctx.readers.entities.get(j.target.ref, C.Building);
     const item = ctx.readers.entities.get(j.target.ref, C.Item);
-    const target = building ? ctx.registry.table<{ id: string; name: string }>('buildings').byIndex(building.type)?.name
-      : item ? ctx.registry.table<{ id: string; name: string }>('items').byIndex(item.type)?.name
-        : ctx.readers.entities.get(j.target.ref, C.Creature)?.name;
-    return target ? `${name} ${target.toLowerCase()}` : name;
+    const target = building ? ctx.registry.table<{ id: string; name: string }>('buildings').byIndex(building.type)?.name.toLowerCase()
+      : item ? ctx.registry.table<{ id: string; name: string }>('items').byIndex(item.type)?.name.toLowerCase()
+        : creatureTargetName(ctx, j.target.ref);
+    return target ? `${name} ${target}` : name;
   }
   const tile = panel.tileOf(ctx, j);
   if (tile === null) return name;
@@ -201,8 +201,23 @@ function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
 function batchText(ctx: PanelContext, row: JobRow): string {
   const first = row.jobs[0] as JobLike;
   const type = ctx.readers.of<JobsReader>('11').typeOf(first.id) ?? '';
-  const name = ctx.strings.has(`ui.jobs.type.${type}`) ? ctx.strings.get(`ui.jobs.type.${type}`) : type.replace(/_/g, ' ');
-  return ctx.strings.get('ui.jobs.batch', { name, n: row.jobs.length });
+  return ctx.strings.get('ui.jobs.batch', { name: jobTypeName(ctx, type), n: row.jobs.length });
+}
+
+/** A job type's name: its string ("Haul"), else its id in words with a capital ("Plant", "Carry patient"). */
+export function jobTypeName(ctx: PanelContext, type: string): string {
+  if (ctx.strings.has(`ui.jobs.type.${type}`)) return ctx.strings.get(`ui.jobs.type.${type}`);
+  const words = type.replace(/_/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** A creature a job targets: a dwarf or a named animal by its name, any other by its species ("Hunt wild horse"). */
+export function creatureTargetName(ctx: PanelContext, id: EntityId): string | undefined {
+  const creature = ctx.readers.entities.get(id, C.Creature);
+  if (creature === undefined) return undefined;
+  const species = ctx.registry.table<{ id: string; name: string }>('creatures').byIndex(creature.species);
+  const own = creature.name !== '' && creature.name !== species?.id && creature.name !== species?.name;
+  return own ? creature.name : species?.name ?? creature.name;
 }
 
 /**

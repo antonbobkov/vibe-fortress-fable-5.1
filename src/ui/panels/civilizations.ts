@@ -1,5 +1,5 @@
 /** Trade relationships and next-caravan requests (T-M7-03, panels.md § Civilizations). */
-import { formatDate } from '@core/calendar';
+import { logDate } from './log';
 import type { Civ } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
@@ -11,6 +11,13 @@ import { captionButtons, label } from '../widgets';
 import { accel, type PanelContext } from './context';
 
 export const TRADE_CIVILIZATIONS: readonly Civ[] = ['mountainhome', 'hillfolk', 'wildwood'];
+
+/** A reputation log row: the change, its reason in words and its date as the log writes it ("+3 trade (Su 1)"). */
+export function reputationEntryText(ctx: PanelContext, entry: { readonly delta: number; readonly reason: string; readonly tick: number }): string {
+  const key = ctx.strings.has(`ui.civ.rep_reason.${entry.reason}`) ? `ui.civ.rep_reason.${entry.reason}` : 'ui.civ.rep_reason.other';
+  const date = logDate(ctx.strings, entry.tick, ctx.readers.calendar.tick);
+  return `${entry.delta >= 0 ? '+' : ''}${entry.delta} ${ctx.strings.get(key)} (${date})`;
+}
 const CIV_NAMES: Readonly<Record<Civ, string>> = { mountainhome: 'Mountainhome', hillfolk: 'Hillfolk', wildwood: 'Wildwood', gloam: 'Gloam' };
 
 /**
@@ -123,9 +130,10 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   }
   if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←→] pick [S-p] prio [x] remove', { fg: s.theme.dim, width });
   if (row < rect.row + rect.rows - 3) label(s, col, row++, 'Reputation log', { fg: s.theme.key, width });
-  for (const entry of trade.reputationLog(civ).slice(-2).reverse()) {
+  // Newest first, as many as fit above the footer, each reason in words ("−50 caravan member killed (Au 3)").
+  for (const entry of [...trade.reputationLog(civ)].reverse()) {
     if (row >= rect.row + rect.rows - 2) break;
-    label(s, col, row++, `${entry.delta >= 0 ? '+' : ''}${entry.delta} ${entry.reason} (${formatDate(entry.tick)})`, { width });
+    label(s, col, row++, reputationEntryText(ctx, entry), { width });
   }
   const footer = rect.row + rect.rows - 1;
   captionButtons(s, col, footer, '[S-d] depot  [S-t] trade now', [() => ctx.openPanel('depot'), openTrade], { fg: s.theme.key, width });

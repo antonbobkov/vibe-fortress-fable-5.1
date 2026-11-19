@@ -52,7 +52,8 @@ export function composeLegend(
     name: fortress.name,
     seed: game.world.seed,
     region: region?.name ?? `Region ${fortress.regionId}`,
-    biome: region?.biome ?? spec?.biome ?? 'unknown',
+    // The biome by its name ("forest"), never its content id.
+    biome: biomeName(registry, region?.biome ?? spec?.biome),
     wealthRating: region?.wealth ?? spec?.wealth ?? 0,
     perilRating: region?.peril ?? spec?.peril ?? 0,
     foundedTick: fortress.embarkTick,
@@ -68,12 +69,17 @@ export function composeLegend(
       text: milestoneTable.byId(entry.id)?.text ?? entry.id,
     })),
     killsOfNote: journal.kills().filter((entry) => entry.count > 0)
-      .slice(0, LEGEND_NOTABLE_KILLS).map((entry) => `${entry.name} slew ${entry.count} enemies.`),
+      .slice(0, LEGEND_NOTABLE_KILLS).map((entry) => `${entry.name} slew ${entry.count} ${entry.count === 1 ? 'enemy' : 'enemies'}.`),
     lastWords: log.filter((line) => line.severity === 'alert' || line.severity === 'danger')
       .slice(-LEGEND_LOG_LINES).map(lineText),
     cause: endText(tick, fortress.populationCached, reason, new Strings(registry)),
     ...(fortress.testing === true ? { testing: true } : {}),
   };
+}
+
+function biomeName(registry: Registry, id: string | undefined): string {
+  if (id === undefined) return 'unknown';
+  return registry.hasTable('biomes') ? registry.table<{ id: string; name: string }>('biomes').byId(id)?.name ?? id : id;
 }
 
 /** IndexedDB's `legends` store, with the same adapter as saves and settings. */

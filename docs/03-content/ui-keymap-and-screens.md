@@ -606,7 +606,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.caravan_unreachable` | "The {civ} caravan cannot reach {depot} from the {edge} edge: its pack animals need a way on foot, with no deep water or drop. Bridge the gap, or build a depot on their side." |
 | `announce.caravan_at_depot` | "The {civ} caravan is at {depot}: [c] or the depot to trade." |
 | `announce.trade_completed` | "A trade with the {civ} is complete." |
-| `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children} of them children." |
+| `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children\|of them a child\|of them children}." |
 | `announce.immigration_skipped` | "No immigrants this season: {reason}." |
 | `announce.dangerous_arrived` | "A {species} has come to the valley." |
 | `announce.dangerous_arrived_many` | "{count} {species} have come to the valley." |
@@ -647,7 +647,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.immigrant_child` | "{name} (a child)" |
 | `announce.list_and` | "{list} and {last}" |
 | `announce.immigrants_counted` | "{count} dwarves have come to join the hall. [u] lists them." |
-| `announce.immigrants_counted_children` | "{count} dwarves have come to join the hall, {children} of them children. [u] lists them." |
+| `announce.immigrants_counted_children` | "{count} dwarves have come to join the hall, {children\|of them a child\|of them children}. [u] lists them." |
 | `ui.threats.cavern_breached_at` | "{n}: breached at ({x},{y},z{z})" |
 | `ui.threats.cavern_monsters` | "monsters {n}" |
 | `ui.rot.fresh` | "fresh" |
