@@ -163,17 +163,22 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[27]).toBe('[h] hunt toggle');
   });
 
-  it('Mood gives the hall spirit and one row per dwarf with a tier and the top thought', () => {
+  it('Mood gives the hall spirit, the thoughts held by most, and each dwarf with its tier and its top thought', () => {
     const rows = render('mood');
     const dwarves = game.host.readers.of<{ list(): number[] }>('10').list();
     expect(rows[0]).toMatch(/^Hall spirit \S Fine \(\d+\)$/);
-    expect(rows[1]).toMatch(/^Name +Tier +Top thoughts$/);
-    const listed = rows.slice(2, 28).filter((row) => row !== '');
+    // T-639: the summary, its count drawn `x` (the glyph set has no `×`).
+    expect(rows[1]).toBe('Thoughts held by most');
+    expect(rows[2]).toBe(' -1 The Thane sleeps in a hove» x6');
+    expect(rows[3]).toMatch(/^Name +Tier$/);
+    const listed = rows.slice(4, 28).filter((row) => row !== '' && !row.startsWith('  '));
     expect(listed).toHaveLength(dwarves.length);
-    for (const row of listed) expect(row).toMatch(/^\S+ \S+ +Fine +[+-]?\d+ /);
-    // Each dwarf's top thought is the weight and the start of its text.
-    expect(listed[0]).toBe('Ludin Grimfe Fine     -1 The Than»');
-    expect(rows[29]).toBe('[Enter] inspect  [S-s] sort tier');
+    for (const row of listed) expect(row).toMatch(/^\S+ \S+ +Fine$/);
+    // Each dwarf's whole name, and its top thought whole on the row under it.
+    expect(rows[4]).toBe('Ludin Grimfell   Fine');
+    expect(rows[5]).toBe('  -1 The Thane sleeps in a hovel.');
+    expect(rows[28]).toMatch(/^─+$/);
+    expect(rows[29]).toBe('[Enter] holders  [S-s] sort tier');
   });
 
   it('Population gives the count, the cap, the hall spirit, the next evaluation and the last wave', () => {

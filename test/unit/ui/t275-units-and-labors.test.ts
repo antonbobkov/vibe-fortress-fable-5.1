@@ -51,9 +51,9 @@ describe('T-275 Units: columns, idle filter, wounded first', () => {
     expect(text).toContain('Idle');
     expect(text).not.toContain('No job');
     const row = sidebar(f.draw()).find((l) => l.includes('Dwarf01')) as string;
-    // Marker and name in 14 cells, the mood glyph, then the activity.
-    expect(row.indexOf('Idle')).toBeGreaterThanOrEqual(15);
-    expect(row.indexOf('Idle')).toBeLessThanOrEqual(18);
+    // The marker, the whole name (13 letters) and a blank in 15 cells, the mood glyph and a blank, then the activity.
+    expect(row.indexOf('Dwarf01 Stone')).toBe(3);
+    expect(row.indexOf('Idle')).toBe(19);
   });
 
   it('puts the dwarf count and the idle count in the title, and i filters to the idle ones', () => {

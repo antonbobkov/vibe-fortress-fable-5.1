@@ -139,15 +139,18 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[1]).toMatch(/^Name +Act\.$/);
     const listed = rows.slice(2, 33).filter((row) => row !== '');
     expect(listed).toHaveLength(dwarves.length);
-    expect(listed[0]).toMatch(/^► ?\S+ \S+ ☺ Dig$/);
-    for (const row of listed.slice(1)) expect(row).toMatch(/^ \S+ \S+ ☺ Idle$/);
+    // The name column is as wide as the longest name needs: whole names, the Thane's with `♦`, the glyphs in one column.
+    expect(listed[0]).toMatch(/^► ?\S+ \S+(?: ♦)? +☺ Dig$/);
+    for (const row of listed.slice(1)) expect(row).toMatch(/^ \S+ \S+(?: ♦)? +☺ Idle$/);
+    expect(listed.filter((row) => row.includes('♦'))).toHaveLength(1);
+    expect(new Set(listed.map((row) => row.indexOf('☺'))).size).toBe(1);
     expect(rows[33]).toMatch(/^─+$/);
     expect(rows[34]).toBe('[Enter] inspect  [l] labors');
     // T-424: `c` is the Civilizations letter; the centre accelerator takes Shift.
-    expect(rows[35]).toBe('[S-c] center [i] idle [S-w] hurt');
+    expect(rows[35]).toBe('[S-c] center  [i] idle');
     expect(rows[36]).toMatch(/^\[Space\] mark {2}\[\*\] all {2}0 marked$/);
     expect(rows[37]).toBe('[S-t] title  [S-n] rename');
-    expect(rows[38]).toBe('[S-m] squad');
+    expect(rows[38]).toBe('[S-m] squad  [S-w] hurt');
     expect(rows[39]).toMatch(/^sleep \d+h {2}\[\[\] earlier {2}\[\]\] later$/);
   });
 

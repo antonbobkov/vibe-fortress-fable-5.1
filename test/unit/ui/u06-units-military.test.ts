@@ -133,7 +133,7 @@ describe('U-06 units: marks and the mood glyph (M10)', () => {
     const f = setup('u06-units-mood', 3);
     f.screen.openPanel('units');
     const line = f.draw().find((l) => l.includes('Dwarf01 Ston')) ?? '';
-    expect(line).toMatch(/Dwarf01 Ston\s+[☺☻‼] /);
+    expect(line).toMatch(/Dwarf01 Stone\s+[☺☻‼] /);
     expect([moodGlyph(0), moodGlyph(1), moodGlyph(2), moodGlyph(4)]).toEqual([
       { glyph: '‼', color: 'danger' },
       { glyph: '☻', color: 'alert' },

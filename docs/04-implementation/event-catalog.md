@@ -79,7 +79,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `SkillLevelUp` | `id, skill, level` | 10 | 12, 15 |
 | `LegendaryReached` | `id, skill` | 10 | 15, 24 (milestone), ui |
 | `DwarfIdle` | `id` | 10 | ui (none) |
-| `TitleAssigned` | `dwarfId, title` | 10 | 16, 20, ui |
+| `TitleAssigned` | `dwarfId, title, previousId` | 10 | 16, 20, ui |
 | `DwarfBecameAdult` | `id` | 10 | 11, 15, ui |
 | `JobCreated` / `JobClaimed` / `JobStarted` / `JobCompleted` / `JobCancelled` / `JobBlocked` / `JobUnblocked` | `jobId, jobType[, workerId, target, reason]` | 11 | producers (03, 07, 08, 09, 12, 13, 14, 17, 19, 20), 10 (xp on completed), ui |
 | `ItemReserved` | `itemId, jobId` | 11 | 13 |

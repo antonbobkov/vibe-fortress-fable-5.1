@@ -140,7 +140,7 @@ export class AnnouncementLog {
       if (creature !== undefined) out['species'] = this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '';
     }
     if (out['dwarf'] === undefined) {
-      for (const key of ['finderId', 'minerId', 'dwarfId', 'thaneId', 'id'] as const) {
+      for (const key of ['finderId', 'minerId', 'dwarfId', 'thaneId', 'id', 'previousId'] as const) {
         const who = e[key];
         if (typeof who === 'number') {
           const creature = readers.entities.get(who, C.Creature);
@@ -213,6 +213,8 @@ export class AnnouncementLog {
       const view = readers.has('10') ? readers.of<DwarvesReader>('10').whim() : null;
       out['progress'] = whimProgressText(this.strings, this.registry, String(whimId), view?.id === whimId ? view.have : 0);
     }
+    // 10 § Titles: a title reads by its name ("is now the Thane"); the line of a title taken away names who held it.
+    if (event.type === 'TitleAssigned' && typeof e['title'] === 'string' && this.strings.has(`ui.title.${e['title']}`)) out['title'] = this.strings.get(`ui.title.${e['title']}`);
     const skill = e['skill'];
     if (typeof skill === 'string' && this.registry.hasTable('skills')) {
       out['skill'] = this.registry.table<NamedRow>('skills').byId(skill)?.name ?? skill;

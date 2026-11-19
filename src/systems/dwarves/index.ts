@@ -427,7 +427,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     // (note), came of age (note), legendary (note)"; 17 owns "passed out" (`CreatureUnconscious`),
     // whose severity its own document gives (D-201).
     ctx.register.announcement('Starving', { severity: 'alert', stringKey: 'announce.starving' });
-    ctx.register.announcement('TitleAssigned', { severity: 'note', stringKey: 'announce.title_assigned' });
+    ctx.register.announcement('TitleAssigned', { severity: 'note', stringKey: 'announce.title_assigned', atLeast: { field: 'dwarfId', value: 1 } });
+    ctx.register.announcement('TitleAssigned', { severity: 'note', stringKey: 'announce.title_vacated', atLeast: { field: 'previousId', value: 1 } });
     ctx.register.announcement('DwarfBecameAdult', { severity: 'note', stringKey: 'announce.came_of_age' });
     ctx.register.announcement('LegendaryReached', { severity: 'note', stringKey: 'announce.legendary' });
     // `10` § Movement: the first dwarf in a `starfall` crater makes a note, once a fortress.
@@ -729,7 +730,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         const holder = this.titles[title as TitleName];
         this.titles[title as TitleName] = 0;
         if (holder !== 0) this.refreshTitleCache(holder);
-        ctx.emit({ type: 'TitleAssigned', dwarfId: 0, title });
+        ctx.emit({ type: 'TitleAssigned', dwarfId: 0, title, previousId: holder });
         return OK;
       }
       if (!isDwarf(dwarfId)) return reject('not_found');
@@ -739,7 +740,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
       this.titles[title as TitleName] = dwarfId;
       if (previous !== 0 && previous !== dwarfId) this.refreshTitleCache(previous);
       this.refreshTitleCache(dwarfId);
-      ctx.emit({ type: 'TitleAssigned', dwarfId, title });
+      ctx.emit({ type: 'TitleAssigned', dwarfId, title, previousId: previous === dwarfId ? 0 : previous });
       return OK;
     }
     if (cmd.type === 'RenameDwarf') {

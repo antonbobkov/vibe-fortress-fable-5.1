@@ -294,7 +294,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   SkillLevelUp: "id, skill, level",
   LegendaryReached: "id, skill",
   DwarfIdle: "id",
-  TitleAssigned: "dwarfId, title",
+  TitleAssigned: "dwarfId, title, previousId",
   DwarfBecameAdult: "id",
   JobCreated: "jobId, jobType[, workerId, target, reason]",
   JobClaimed: "jobId, jobType[, workerId, target, reason]",

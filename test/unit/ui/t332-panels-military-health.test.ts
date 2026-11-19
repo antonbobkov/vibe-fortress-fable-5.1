@@ -200,14 +200,15 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[17]).toMatch(/^ {12}\w/);
     expect(rows[18]).toMatch(/^Productivity \d+%$/);
     expect(rows[19]).toMatch(/^Mood: Fine \(\d+\)$/);
-    expect(rows[21]).toMatch(/^Health: Blood 100%, Pain \d+$/);
-    expect(rows[22]).toBe('Care: no free hospital bed.');
-    expect(rows[23]).toBe('  Conscious');
-    expect(rows[24]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
-    expect(rows[25]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
-    expect(rows[26]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
+    // A thought that rounds to 0 ("0 The Thane sleeps in a hovel.") is not listed: the health follows the mood.
+    expect(rows[20]).toMatch(/^Health: Blood 100%, Pain \d+$/);
+    expect(rows[21]).toBe('Care: no free hospital bed.');
+    expect(rows[22]).toBe('  Conscious');
+    expect(rows[23]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
+    expect(rows[24]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
+    expect(rows[25]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
     // The wound is listed under the part it is on, with its dressing and its infection.
-    expect(rows[27]).toBe('    serious cut (bandaged, infect»');
+    expect(rows[26]).toBe('    serious cut (bandaged, infect»');
   });
 
   it('the combat log names the tabs and shows a blow with its sender, damage and kind', () => {

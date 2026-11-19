@@ -26,7 +26,7 @@ import { DWARF_NAME_MAX, NO_JOB } from '@systems/dwarves';
 import type { HealthReader } from '@systems/health';
 import type { JobsReader } from '@systems/jobs';
 import type { MoraleReader } from '@systems/morale';
-import { TITLE_IDS } from '../constants';
+import { TITLE_IDS, UNITS_ACTIVITY_MIN_COLS } from '../constants';
 import type { Surface } from '../surface';
 import { clampList, label, Marks, separator, table, type ListState } from '../widgets';
 import { whimProgressText, whimWhereMade, wrapText } from '../messages';
@@ -50,7 +50,11 @@ interface SkillRow {
   readonly profession?: string;
 }
 
-/** The cells of the name column (cursor mark and name) and of the mood glyph after it; the activity takes the rest. */
+/**
+ * The fewest cells of the name column (the cursor mark, the name and a blank) and the cells of the
+ * mood glyph after it; the name column widens to the longest name shown while the activity keeps
+ * `UNITS_ACTIVITY_MIN_COLS`.
+ */
 const NAME_COLS = 14;
 const MOOD_COLS = 2;
 
@@ -79,6 +83,42 @@ export function dwarvesOf(ctx: PanelContext): EntityId[] {
 
 export function nameOf(ctx: PanelContext, id: EntityId): string {
   return ctx.readers.entities.get(id, C.Creature)?.name ?? '';
+}
+
+/** The mark after the name of a dwarf who holds a title, in the Units list (`fortress-screen.md` § Sidebar open). */
+export const TITLE_MARK = '♦';
+
+/** "R. Brightvein": the given name's initial and the rest of the name; null for a name of one word. */
+function initialForm(name: string): string | null {
+  const at = name.indexOf(' ');
+  return at <= 0 ? null : `${Array.from(name)[0] ?? ''}. ${name.slice(at + 1)}`;
+}
+
+/** `text` in `room` cells, its last cell `»` when it is cut. */
+function cut(text: string, room: number): string {
+  const chars = Array.from(text);
+  if (chars.length <= room) return text;
+  return room <= 0 ? '' : `${chars.slice(0, room - 1).join('')}»`;
+}
+
+/**
+ * A dwarf's name in `room` cells, told apart from the other names of the list (`names`)
+ * (`fortress-screen.md` § Sidebar open): the whole name when it fits; else, when no other name of
+ * the list shortens the same way, the given name's initial and the rest ("R. Brightvein"), cut
+ * with `»` if even that does not fit; else the whole name cut with `»`.
+ */
+export function fitName(name: string, room: number, names: readonly string[]): string {
+  if (Array.from(name).length <= room) return name;
+  const short = initialForm(name);
+  if (short !== null && !names.some((other) => other !== name && initialForm(other) === short)) return cut(short, room);
+  return cut(name, room);
+}
+
+/** Every title the dwarf holds, in the title table's order. */
+export function titlesOf(ctx: PanelContext, id: EntityId): TitleId[] {
+  if (!ctx.readers.has('10')) return [];
+  const dwarves = ctx.readers.of<DwarvesReaderLike>('10');
+  return TITLE_IDS.filter((title) => dwarves.holder?.(title) === id);
 }
 
 /** A dwarf with no activity text: the units list calls it idle. */
@@ -208,6 +248,13 @@ export class UnitsPanel {
 
   private isChild(ctx: PanelContext, id: EntityId): boolean {
     return ctx.readers.has('10') && ctx.readers.of<DwarvesReaderLike>('10').isChild?.(id) === true;
+  }
+
+  /** `Shift+W`: the wounded dwarves first, or the list order again. */
+  toggleWounded(): void {
+    this.woundedFirst = !this.woundedFirst;
+    this.list.selected = 0;
+    this.list.scroll = 0;
   }
 
   // ---------- titles ----------
@@ -349,9 +396,7 @@ export class UnitsPanel {
       return true;
     }
     if (letter === 'w' && press.shift) {
-      this.woundedFirst = !this.woundedFirst;
-      this.list.selected = 0;
-      this.list.scroll = 0;
+      this.toggleWounded();
       return true;
     }
     if (letter === 't' && press.shift) {
@@ -443,19 +488,29 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
   });
   const height = Math.max(2, rect.rows - 2 - ACTION_ROWS - top);
   const area = { col: rect.col + 1, row: rect.row + 1 + top, cols: rect.cols - 2, rows: height };
+  // The name column widens to the longest name shown (with its title mark), as far as the activity
+  // keeps `UNITS_ACTIVITY_MIN_COLS`; a name that still does not fit is shortened, told apart from the others.
+  const listCols = area.cols - (rows.length > height - 1 ? 1 : 0);
+  const holders = new Map<EntityId, TitleId[]>();
+  for (const { id: title, holder } of panel.titleRows(ctx)) if (holder !== 0) holders.set(holder, [...(holders.get(holder) ?? []), title]);
+  const names = rows.map((id) => nameOf(ctx, id));
+  const markCols = (id: EntityId): number => (holders.has(id) ? 2 : 0);
+  const longest = rows.reduce((most, id, k) => Math.max(most, Array.from(names[k] as string).length + markCols(id)), 0);
+  const nameCols = Math.max(NAME_COLS, Math.min(longest + 2, listCols - MOOD_COLS - UNITS_ACTIVITY_MIN_COLS));
   table(
     s,
     area,
     [
-      { title: strings.get('ui.units.name'), width: NAME_COLS },
+      { title: strings.get('ui.units.name'), width: nameCols },
       { title: '', width: MOOD_COLS },
-      { title: strings.get('ui.units.activity'), width: 16 },
+      { title: strings.get('ui.units.activity'), width: UNITS_ACTIVITY_MIN_COLS, mark: true },
     ],
     rows.map((id, k) => {
       // 10 § Tipsy: "Tipsy" beside the activity.
       const activity = isIdle(ctx, id) ? idleLabel(ctx, id) : activityLabel(ctx, id);
       const tipsy = dwarves?.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity }) : activity;
-      return [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${nameOf(ctx, id)}`, '', tipsy];
+      const name = fitName(names[k] as string, nameCols - 2 - markCols(id), names);
+      return [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${name}${holders.has(id) ? ` ${TITLE_MARK}` : ''}`, '', tipsy];
     }),
     panel.list,
     (index) => panel.clickRow(ctx, index),
@@ -468,20 +523,23 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
       const mood = moodGlyph(tier);
       const fg = mood.color === 'danger' ? t.danger : mood.color === 'alert' ? t.alert : t.text;
       const here = index === panel.list.selected;
-      const cell = { col: area.col + NAME_COLS, row: area.row + 1 + r, cols: 1, rows: 1 };
+      const cell = { col: area.col + nameCols, row: area.row + 1 + r, cols: 1, rows: 1 };
       s.put(cell.col, cell.row, s.glyphs.index(mood.glyph), here ? t.black : fg, here ? fg : t.black);
       // On the status row only: a box would cover the activity of the row above.
       s.tooltip(cell, strings.get(`ui.units.mood.${tier}`), { box: false });
     }
   }
-  // An idle dwarf's activity is dim, and a row's tooltip carries what the list no longer shows.
-  const activityCol = area.col + NAME_COLS + MOOD_COLS;
+  // An idle dwarf's activity is dim, and a row's tooltip carries what the list no longer shows:
+  // the whole name, the profession and the titles.
+  const activityCol = area.col + nameCols + MOOD_COLS;
   for (let r = 0; r < height - 1 && panel.list.scroll + r < rows.length; r += 1) {
     const index = panel.list.scroll + r;
     const id = rows[index] as EntityId;
-    const cells = { col: area.col, row: area.row + 1 + r, cols: NAME_COLS - 1, rows: 1 };
-    s.tooltip(cells, strings.get('ui.units.row_tip', { name: nameOf(ctx, id), profession: professionOf(ctx, id) }), { box: false });
-    if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, idleLabel(ctx, id), { fg: t.dim, width: area.cols - NAME_COLS - MOOD_COLS, keys: false });
+    const cells = { col: area.col, row: area.row + 1 + r, cols: nameCols - 1, rows: 1 };
+    const titles = holders.get(id) ?? [];
+    const tip = { name: names[index] as string, profession: professionOf(ctx, id), titles: titles.map((title) => strings.get(`ui.title.${title}`)).join(', ') };
+    s.tooltip(cells, strings.get(titles.length > 0 ? 'ui.units.row_tip_titled' : 'ui.units.row_tip', tip), { box: false });
+    if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, idleLabel(ctx, id), { fg: t.dim, width: listCols - nameCols - MOOD_COLS, keys: false });
   }
   const row = rect.row + 1 + top + height;
   const col = rect.col + 1;
@@ -500,7 +558,11 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
   ]);
   const selected = panel.selectedId(ctx);
   const hour = selected === 0 ? null : panel.sleepHour(ctx, selected);
-  actionRow(s, col, row + 5, width, [[strings.get('ui.units.to_squad'), () => panel.openSquads(ctx)]]);
+  // `■` after `[S-w] hurt` while the wounded come first.
+  actionRow(s, col, row + 5, width, [
+    [strings.get('ui.units.to_squad'), () => panel.openSquads(ctx)],
+    [strings.get(panel.woundedFirst ? 'ui.units.hurt_on' : 'ui.units.hurt'), () => panel.toggleWounded()],
+  ]);
   actionRow(s, col, row + 6, width, [
     [strings.get('ui.units.sleep', { hour: hour === null ? '--' : String(hour).padStart(2, '0') }), null],
     [strings.get('ui.units.sleep_earlier'), () => { for (const c of panel.shiftSleep(ctx, -1)) ctx.submit(c); }],
