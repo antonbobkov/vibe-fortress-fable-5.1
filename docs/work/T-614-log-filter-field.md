@@ -1,4 +1,4 @@
-# T-NEW — The log panel's filter field
+# T-614 — The log panel's filter field
 
 **Source:** T-608 (the log panel wraps; `04-implementation/ui-screens/panels.md` § Log) · **Size:** S · **Needs:** — · **Status:** open
 
