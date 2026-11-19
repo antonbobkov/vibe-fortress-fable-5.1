@@ -82,7 +82,7 @@ export interface ItemsReader {
   findItem(filter: ItemFilter, from: TileIndex, movementClass?: MovementClass, opts?: SearchOptions): EntityId;
   /** `items.findItems(filter, count, fromTile, movementClass)`: up to `count` items, nearest first. */
   findItems(filter: ItemFilter, count: number, from: TileIndex, movementClass?: MovementClass, opts?: SearchOptions): EntityId[];
-  /** `items.countAvailable(filter)`: units not forbidden, reserved or owned. */
+  /** `items.countAvailable(filter)`: available units (the stock counts' rule, under any filter). */
   countAvailable(filter: ItemFilter): number;
   /** Units of matching items whatever their flags. */
   countMatching(filter: ItemFilter): number;

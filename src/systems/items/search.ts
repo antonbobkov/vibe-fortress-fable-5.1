@@ -27,6 +27,7 @@ import type { EntityReader, PathingReader, SpatialReader } from '@core/readers';
 import type { EntityId, MovementClass, TileIndex } from '@core/types';
 import type { ItemCore } from './api';
 import { FIND_RADII } from './constants';
+import { isAvailable } from './counts';
 import { categoryUnder } from './facts';
 // Tiles of horizontal distance one z-level counts as: 11's `Z_DISTANCE_WEIGHT`, which the algorithm uses.
 import { Z_DISTANCE_WEIGHT } from '@systems/jobs/constants';
@@ -319,8 +320,10 @@ export class ItemSearch {
   }
 
   /**
-   * `items.countAvailable(filter)`: units of matching items that are not forbidden, reserved or
-   * owned or carried. A filter of one type reads the stock counts; any other filter counts the items.
+   * `items.countAvailable(filter)`: units of matching items that are available as the stock counts
+   * say (`isAvailable`: not forbidden, reserved, owned, carried, installed, at the trade depot or a
+   * merchant's, nor a cage with a creature in it), and not foreign. A filter of one type reads the
+   * stock counts; any other filter counts the items by the same rule.
    */
   countAvailable(filter: ItemFilter): number {
     const core = this.host.core;
@@ -331,8 +334,7 @@ export class ItemSearch {
     const count = (id: EntityId): void => {
       const it = core.get(id);
       if (it === undefined) return;
-      if ((it.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Installed)) !== 0) return;
-      if ((it.occupantId ?? 0) !== 0 || it.carriedBy !== 0) return;
+      if ((it.flags & ItemFlag.Foreign) !== 0 || !isAvailable(it.flags, it.occupantId ?? 0, it.carriedBy)) return;
       if (matches(core, id, it, filter)) n += it.count;
     };
     // A filter that names a type, a tag, a category, a food or drink kind or a container class only
