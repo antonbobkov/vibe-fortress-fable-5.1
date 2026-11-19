@@ -111,11 +111,17 @@ const DEEP_BOTTOM_YEAR_2 = 19;
 const DEEP_BOTTOM_YEAR_3 = 15;
 /** Steel bars ordered at a time in year 3 (F-17i: the order is renewed when it runs out). */
 const STEEL_BATCH = 30;
+/** Steel is smelted from year 3 (F-17i), or where the squad is built toward the ambush bars from the day it forms. */
+const STEEL_DAY = 224;
+
 /**
- * T-603: where the squad is built toward the ambush bars, steel is smelted from the middle of year 2,
- * for the squad's five steel kits (50 bars) ahead of the steel crafts; elsewhere from year 3 (day 224).
+ * T-603, T-616: where the squad is built toward the ambush bars, steel is smelted from the day the
+ * squad forms, for its five steel kits (50 bars) ahead of the steel crafts: from day 168 the
+ * smelter made 0 to 10 steel bars in T-606's sweep.
  */
-export const STRONG_STEEL_DAY = 168;
+function smeltsSteel(state: FortressState, day: number): boolean {
+  return state.strong?.since !== undefined || day >= STEEL_DAY;
+}
 /** Logs kept in stock, and the trees designated at a time to keep them. */
 const TIMBER_RESERVE = 40;
 const TIMBER_BATCH = 8;
@@ -242,6 +248,27 @@ function order(w: TestWorld, workshopId: number, recipeId: string, threshold: nu
   const result = command(w, { type: 'AddWorkOrder', workshopId,
     order: { recipeId, mode: 'maintain', threshold, priority, ...(materialFilter ? { materialFilter } : {}) } });
   if (!result.ok) throw new Error(`economy order ${recipeId}: ${result.reason}`);
+}
+
+/** T-616: the material is a flux stone (`flux` tag, 05). */
+function isFluxStone(w: TestWorld, material: number): boolean {
+  return w.game.registry.table<{ id: string; tags?: readonly string[] }>('materials').byIndex(material)?.tags?.includes('flux') === true;
+}
+
+/** T-616: the stone crafts keep to one stone while this many of it are to hand. */
+const STONE_KEPT_FOR_CRAFTS = 5;
+
+/** T-616: the raw stone to hand by material, flux stones left out. */
+function stoneToHand(w: TestWorld): Map<number, number> {
+  const ent = w.game.world.entities;
+  const rawStone = w.game.registry.table('items').index('raw_stone');
+  const counts = new Map<number, number>();
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (it.type !== rawStone || it.carriedBy || (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.AtDepot)) !== 0) continue;
+    if (!isFluxStone(w, it.material)) counts.set(it.material, (counts.get(it.material) ?? 0) + it.count);
+  }
+  return counts;
 }
 
 /** Units of an item type the fortress owns: a visiting merchant's goods are not stock. */
@@ -794,7 +821,8 @@ export function trade(w: TestWorld, state: FortressState): void {
     const type = types.byIndex(it.type);
     if (type?.category.startsWith('craft/')) { committed += reader.valuation('mountainhome', id); return true; }
     if (type?.id === 'lavish_meal' && reader.activeCaravan() && mealSurplus >= it.count) { mealSurplus -= it.count; return true; }
-    if (type?.id === 'raw_stone' && stoneSurplus >= it.count && thinCargo()) { stoneSurplus -= it.count; committed += reader.valuation('mountainhome', id); return true; }
+    // T-616: the flux stone stays home while the squad's steel is owed.
+    if (type?.id === 'raw_stone' && stoneSurplus >= it.count && thinCargo() && !(state.strong?.steelOwed === true && isFluxStone(w, it.material))) { stoneSurplus -= it.count; committed += reader.valuation('mountainhome', id); return true; }
     if (type?.id === 'log' && logSurplus >= it.count && thinCargo()) { logSurplus -= it.count; committed += reader.valuation('mountainhome', id); return true; }
     return false;
   }).sort((a, b) => Number(types.byIndex(ent.get(a, C.Item)!.type)?.id === 'raw_stone') - Number(types.byIndex(ent.get(b, C.Item)!.type)?.id === 'raw_stone') || a - b).slice(0, 20);
@@ -853,6 +881,11 @@ export function trade(w: TestWorld, state: FortressState): void {
     return makingDoWant(w, makingDoWants, id) ?? 6;
   };
   const onOffer = reader.merchantItems().filter((id) => ent.get(id, C.Item)?.containerId === depot && !ent.get(id, C.Item)?.occupantId);
+  /** T-616: `:<metal>` for a good of a metal or a flux stone, for the journal. */
+  const metalOf = (id: number): string => {
+    const material = w.game.registry.table<{ id: string; class?: string; tags?: readonly string[] }>('materials').byIndex(ent.get(id, C.Item)?.material ?? -1);
+    return material !== undefined && (material.class === 'metal' || material.tags?.includes('flux') === true) ? `:${material.id}` : '';
+  };
   // One anvil is enough: the first on offer.
   const anvil = onOffer.find((id) => types.byIndex(ent.get(id, C.Item)!.type)?.id === 'anvil') ?? 0;
   const goods = [...onOffer]
@@ -904,7 +937,9 @@ export function trade(w: TestWorld, state: FortressState): void {
   // T-455: a good may be claimed for a haul or a guard between the script's look and its offer; it offers again next look.
   const result = command(w, { type: 'TradeOffer', give: selected, take }, ['not_at_depot']);
   note('three_years_trade', { day, civ: caravan.civ, ok: result.ok, reason: result.ok ? null : result.reason, budget: Math.floor(budget), cost: Math.floor(cost),
-    take: take.map((t) => `${types.byIndex(ent.get(t.itemId, C.Item)?.type ?? -1)?.id ?? 'gone'}x${t.count}`) });
+    take: take.map((t) => `${types.byIndex(ent.get(t.itemId, C.Item)?.type ?? -1)?.id ?? 'gone'}${metalOf(t.itemId)}x${t.count}`),
+    // T-616: the steel the caravan brought, bars and kit pieces, whether bought or not.
+    steelOnOffer: onOffer.filter((id) => metalOf(id) === ':steel').map((id) => `${types.byIndex(ent.get(id, C.Item)!.type)?.id}x${ent.get(id, C.Item)!.count}`) });
   const acquired = w.game.world.entities.with(C.Item).filter((id) => (foreign.has(id) && (ent.get(id, C.Item)!.flags & ItemFlag.Merchant) === 0) ||
     (!foreign.has(id) && !give.includes(id) && ent.get(id, C.Item)?.containerId === depot));
   if (result.ok && acquired.length > 0) {
@@ -1466,24 +1501,35 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   // Masonry includes hundreds of room-finishing jobs. Keep a separate furnace worker on fuel,
   // iron and alloy rather than asking the builder to smelt after every nearby smoothing job.
   if (fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && !armingSquad(state)) {
-    let fuel = state.economy.specialists['fuel'];
-    if (fuel === undefined) {
-      const available = specialistCandidates(w, state);
-      const dwarves = w.readers.of<DwarvesReader>('10');
-      available.sort((a, b) => dwarves.skill(b, 'smelting') - dwarves.skill(a, 'smelting') || a - b);
-      fuel = available[0];
-      if (fuel !== undefined) state.economy.specialists['fuel'] = fuel;
-    }
-    if (fuel !== undefined) {
+    const { specialists } = state.economy;
+    const ent = w.game.world.entities;
+    const pick = (role: string): number | undefined => {
+      // T-616: a furnace worker who died is replaced, as a player replaces one.
+      if (specialists[role] !== undefined && !ent.alive(specialists[role]!)) delete specialists[role];
+      if (specialists[role] === undefined) {
+        const available = specialistCandidates(w, state);
+        const dwarves = w.readers.of<DwarvesReader>('10');
+        available.sort((a, b) => dwarves.skill(b, 'smelting') - dwarves.skill(a, 'smelting') || a - b);
+        if (available[0] !== undefined) specialists[role] = available[0];
+      }
+      return specialists[role];
+    };
+    const fuel = pick('fuel');
+    // T-616: while the squad's steel kits are owed, a second
+    // worker burns the charcoal and the first smelts: five kits are 50 steel bars, which take some 150
+    // charcoal (an alloy burns two, the ore's smelt and the forge's job one each), and one worker for
+    // both furnaces made 120 to 290 charcoal and 26 to 100 smelts in three years (T-606's sweep).
+    const steel = state.strong?.since !== undefined && state.strong.steelOwed === true;
+    const burner = steel || specialists['charcoal'] !== undefined ? pick('charcoal') : undefined;
+    for (const [type, worker] of [['wood_furnace', burner ?? fuel], ['smelter', fuel]] as const) {
+      if (worker === undefined || !ent.alive(worker)) continue;
       // T-362: no hauling. The furnaces lie far from where its needs take it, and an assigned
       // worker's 500-point bonus (11 § Assignment) is fifty tiles: with hauling on it took the
       // haul jobs beside the halls and left the smelter's job open for weeks.
-      dedicate(w, state, fuel, ['smelting'], false);
-      for (const type of ['wood_furnace', 'smelter']) {
-        const id = state.placedIds[type];
-        if (id && buildings.get(id)?.state === 'built' && w.game.world.entities.alive(fuel) && w.game.world.entities.get(id, C.Workshop)?.assignedWorker !== fuel) {
-          command(w, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: fuel });
-        }
+      dedicate(w, state, worker, ['smelting'], false);
+      const id = state.placedIds[type];
+      if (id && buildings.get(id)?.state === 'built' && ent.get(id, C.Workshop)?.assignedWorker !== worker) {
+        command(w, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: worker });
       }
     }
   }
@@ -1704,7 +1750,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   // F-17i: the alloy order is kept running through year 3, with flux mined for each new batch.
   const smelter = state.placedIds['smelter'];
-  if (day >= (state.strongSquad === true ? STRONG_STEEL_DAY : 224) && smelter && state.orderedWorkshops.has('smelter')) {
+  if (smeltsSteel(state, day) && smelter && state.orderedWorkshops.has('smelter')) {
     const alloy = w.game.registry.table('recipes').index('alloy_steel');
     const ws = w.game.world.entities.get(smelter, C.Workshop);
     if (ws && !ws.orders.some((o) => o.recipe === alloy)) {
@@ -1721,7 +1767,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     }
   }
   // The steel chain's inputs, journalled weekly from the alloy order's day (observation only).
-  if (day >= 217 && day % 7 === 0 && smelter) {
+  if (day >= (state.strong?.since ?? 217) && day % 7 === 0 && smelter) {
     const ent = w.game.world.entities;
     const mats = w.game.registry.table<{ id: string }>('materials');
     const types = w.game.registry.table<{ id: string }>('items');
@@ -1732,7 +1778,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       if ((it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) !== 0) continue;
       const t = types.byIndex(it.type)?.id ?? '';
       const m = mats.byIndex(it.material)?.id ?? '';
-      const key = t === 'bar' ? `bar:${m}` : t === 'raw_stone' && flux.has(m) ? 'flux' : t === 'charcoal_bar' || m.endsWith('coal') || m === 'lignite' ? `fuel:${t}` : '';
+      const key = t === 'bar' ? `bar:${m}` : t === 'raw_stone' && flux.has(m) ? 'flux' : t === 'charcoal_bar' || m.endsWith('coal') || m === 'lignite' ? `fuel:${t}` :
+        t === 'ore' && ['hematite', 'limonite', 'magnetite'].includes(m) ? 'ore:iron' : t === 'log' ? 'log' : '';
       if (!key) continue;
       const free = (it.flags & (ItemFlag.Reserved | ItemFlag.Forbidden)) === 0;
       stock[key] = (stock[key] ?? 0) + it.count;
@@ -1753,6 +1800,16 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     if (w.game.world.entities.get(craftdwarf, C.Workshop)?.orders[0]?.threshold !== threshold) {
       command(w, { type: 'EditWorkOrder', workshopId: craftdwarf, index: 0, patch: { threshold } });
     }
+    // T-616: while the squad's steel is owed the stone crafts are made of the commonest stone that is
+    // no flux, and the flux goes to the smelter: the crafts took any stone, flux too.
+    // The stone chosen is kept while a few of it are left, so the order is not edited every day.
+    const held = w.game.world.entities.get(craftdwarf, C.Workshop)?.orders[0]?.materialFilter ?? null;
+    const counts = state.strong?.steelOwed === true ? stoneToHand(w) : new Map<number, number>();
+    const keep = typeof held === 'number' && (counts.get(held) ?? 0) >= STONE_KEPT_FOR_CRAFTS;
+    const best = [...counts].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]?.[0] ?? null;
+    const wanted = state.strong?.steelOwed !== true ? null : keep ? held : best;
+    if (held !== wanted) command(w, { type: 'EditWorkOrder', workshopId: craftdwarf, index: 0,
+      patch: { materialFilter: wanted === null ? null : w.game.registry.table<{ id: string }>('materials').byIndex(wanted)?.id ?? null } });
   }
   // Work follows the population: a new ore drift every season of years 2 and 3.
   if (day >= 112 + DRIFT_EVERY_DAYS && phases.has('shaft')) {
