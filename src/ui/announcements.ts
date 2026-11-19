@@ -11,7 +11,7 @@
  */
 
 import { dayIndexOf } from '@core/calendar';
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import type { ReaderSet } from '@core/readers';
@@ -19,8 +19,10 @@ import type { Registry } from '@core/registry';
 import type { AnnouncementSpec } from '@core/system';
 import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
-import { LOG_DEDUP_TICKS, LOG_MAX_LINES } from './constants';
-import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName } from './messages';
+import type { ItemsReader } from '@systems/items';
+import { TICKS_PER_DAY } from '@core/constants';
+import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
+import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, stackName } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import type { Strings } from './strings';
 
@@ -65,11 +67,13 @@ export class AnnouncementLog {
   private readonly seen = new Set<string>();
   /** The open frost line of each plot and crop (`announceFrost`). */
   private readonly frostLines = new Map<string, { line: LogLine; n: number }>();
+  /** The day's starving line and the dwarves it names (`announceStarving`). */
+  private starving: { line: LogLine; ids: number[]; names: string[] } | null = null;
 
   constructor(
     private readonly strings: Strings,
     private readonly registry: Registry,
-    private readonly history: { workshopIdleNotes: number[] } = { workshopIdleNotes: [] },
+    private readonly history: { workshopIdleNotes: number[]; miasmaAdvised?: boolean } = { workshopIdleNotes: [] },
   ) {}
 
   /** Load the rows systems registered (`register.announcement`). */
@@ -317,6 +321,8 @@ export class AnnouncementLog {
     });
     if (spec === undefined) return null;
     if (event.type === 'CropDied') return this.announceFrost(fields, readers, tick, spec);
+    if (event.type === 'Starving') return this.announceStarving(event, readers, tick, spec);
+    if (event.type === 'MiasmaSpread') return this.announceMiasma(fields, readers, tick, spec);
     if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
@@ -382,6 +388,119 @@ export class AnnouncementLog {
     const line = this.append(spec.severity, text, tick, tile, spec.category);
     this.frostLines.set(key, { line, n });
     return { line, severity: spec.severity, focus: tile };
+  }
+
+  /**
+   * 10 § Needs: one `Starving` comes for each starving dwarf each day. A day's are one line, which
+   * names each dwarf once as it comes: "Asa Forgehall is starving.", then "3 dwarves are starving:
+   * Asa, Njal, Liv." (first names). Its focus is the first dwarf's tile; a new day starts a new line.
+   */
+  private announceStarving(event: GameEvent, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
+    const id = Number((event as unknown as Record<string, unknown>)['id']);
+    const name = String(this.params(event, readers)['dwarf'] ?? '');
+    const open = this.starving;
+    if (open !== null && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
+      if (!open.ids.includes(id)) { open.ids.push(id); open.names.push(name); }
+      open.line.text = this.starvingText(open.names, spec);
+      open.line.tick = tick;
+      return { line: open.line, severity: open.line.severity, focus: open.line.focus };
+    }
+    const focus = focusOf(event, readers);
+    const line = this.append(spec.severity, this.starvingText([name], spec), tick, focus, spec.category);
+    this.starving = { line, ids: [id], names: [name] };
+    return { line, severity: spec.severity, focus };
+  }
+
+  private starvingText(names: readonly string[], spec: AnnouncementSpec): string {
+    if (names.length === 1) return capitalize(this.strings.get(spec.stringKey, { dwarf: names[0] ?? '' }));
+    const first = names.map((n) => n.split(' ')[0] ?? n).join(', ');
+    return this.strings.get('announce.starving_many', { n: names.length, names: first });
+  }
+
+  /**
+   * 13 § Rot, miasma: the line names what rots and where, from the rotting stacks on the event's
+   * tiles (the largest, summed by material within its place): "Miasma spreads from 20 rotten turnip
+   * in Stockpile #2 (Food)." The fortress's first such line adds where rotten food belongs; with no
+   * rotting item found there, the line is the plain "Miasma spreads.".
+   */
+  private announceMiasma(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
+    const tiles = Array.isArray(fields['tiles']) ? fields['tiles'] as TileIndex[] : [];
+    const source = readers.has('13') ? this.miasmaSource(readers, tiles) : null;
+    let text = this.strings.get(spec.stringKey);
+    let focus = tiles[0];
+    if (source !== null) {
+      text = this.strings.get('announce.miasma_from', { what: source.what, place: source.place });
+      focus = source.tile;
+      if (this.history.miasmaAdvised !== true) {
+        this.history.miasmaAdvised = true;
+        text = `${text} ${this.strings.get('announce.miasma_advice')}`;
+      }
+    }
+    const line = this.append(spec.severity, text, tick, focus, spec.category);
+    return { line, severity: spec.severity, focus };
+  }
+
+  /** The largest group of rotting units on the tiles, by place and by material (or corpse species), with its first tile. */
+  private miasmaSource(readers: ReaderSet, tiles: readonly TileIndex[]): { what: string; place: string; tile: TileIndex } | null {
+    const items = readers.of<ItemsReader>('13');
+    const env = { readers, registry: this.registry, strings: this.strings };
+    const groups = new Map<string, { place: string; tile: TileIndex; n: number; material: string; species: string | null }>();
+    const seen = new Set<number>();
+    for (const tile of tiles) {
+      for (const id of items.at(tile)) {
+        if (seen.has(id)) continue;
+        seen.add(id);
+        const it = items.get(id);
+        if (it === undefined || it.rotStage !== 2 || it.containerId !== 0) continue;
+        const corpse = readers.entities.get(id, C.Corpse);
+        const species = corpse === undefined ? null : this.registry.table<NamedRow>('creatures').byIndex(corpse.species)?.name ?? '';
+        const material = this.registry.table<NamedRow>('materials').byIndex(it.material)?.name ?? '';
+        const place = itemPlace(env, tile);
+        const key = `${place}|${species === null ? `m:${material}` : `c:${species}`}`;
+        const g = groups.get(key) ?? { place, tile, n: 0, material, species };
+        g.n += it.count;
+        groups.set(key, g);
+      }
+    }
+    let best: { place: string; tile: TileIndex; n: number; material: string; species: string | null } | null = null;
+    for (const g of groups.values()) if (best === null || g.n > best.n) best = g;
+    if (best === null) return null;
+    const what = best.species === null
+      ? this.strings.get('announce.miasma_rotten', { n: best.n, material: best.material })
+      : this.strings.get(best.n === 1 ? 'announce.miasma_corpse' : 'announce.miasma_corpses', { n: best.n, species: best.species });
+    return { what, place: best.place, tile: best.tile };
+  }
+
+  /**
+   * 13 § Rot, the alert before food rots: the caller asks once a day, on `DayPassed`. When the edible
+   * units that will rot within `ROT_ALERT_DAYS` at the speed they rot now would feed the fortress
+   * for a day (a unit for each `HINT_FOOD_DAYS_PER_ITEM` dwarves), an alert names the units, the
+   * largest such stack and its place, and focuses that stack's tile. Merchants' goods are not the
+   * fortress's. Returns what it appended, or null when no alert is due.
+   */
+  rotAlert(readers: ReaderSet, tick: number): Announced | null {
+    if (!readers.has('13') || !readers.has('10')) return null;
+    const items = readers.of<ItemsReader>('13');
+    const population = readers.of<{ population(): number }>('10').population();
+    if (population <= 0) return null;
+    const within = ROT_ALERT_DAYS * TICKS_PER_DAY;
+    let n = 0;
+    let largest: { id: number; count: number } | null = null;
+    for (const id of readers.entities.with(C.Item)) {
+      const it = items.get(id);
+      if (it === undefined || it.rotStage >= 2 || (it.flags & ItemFlag.Merchant) !== 0 || items.def(it.type)?.edible !== true) continue;
+      const outlook = items.rotOutlook(id);
+      if (outlook === null || outlook.toRot === null || outlook.toRot > within) continue;
+      n += it.count;
+      if (largest === null || it.count > largest.count) largest = { id, count: it.count };
+    }
+    if (largest === null || n * HINT_FOOD_DAYS_PER_ITEM < population) return null;
+    const tile = items.tileOf(largest.id);
+    const env = { readers, registry: this.registry, strings: this.strings };
+    const text = this.strings.get('announce.rot_soon', { n, days: ROT_ALERT_DAYS, stack: stackName(env, largest.id), place: itemPlace(env, tile) });
+    const focus = tile >= 0 ? tile : undefined;
+    const line = this.append('alert', text, tick, focus);
+    return { line, severity: 'alert', focus };
   }
 
   /** `ui.announce(severity, text, focus?, category?)`, with the dedup rule. */

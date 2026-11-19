@@ -381,7 +381,8 @@ export class FortressScreen implements Screen {
         // A drag made while time runs: its zone exists from this tick's command phase.
         this.zoneMade(Number(event['zoneId']));
       }
-      const done = this.log.announce(event, readers, readers.calendar.tick);
+      // 13 § Rot: once a day, the alert before food rots (24 § Announcements and the log).
+      const done = event.type === 'DayPassed' ? this.log.rotAlert(readers, readers.calendar.tick) : this.log.announce(event, readers, readers.calendar.tick);
       if (done === null) continue;
       if (event.type === 'AnimalSpawned' && done.severity === 'alert') {
         arrivals.set(species, { line: done.line, count: 1, name: String(this.host.registry.table<{ id: string; name: string }>('creatures').byId(species)?.name ?? species).toLowerCase() });
@@ -466,6 +467,7 @@ export class FortressScreen implements Screen {
     this.ui.hintUnreachableSince = [];
     this.ui.workshopIdleNotes = [];
     this.ui.wildlifeAlerted = false;
+    this.ui.miasmaAdvised = false;
   }
 
   /** The tiles of the current selection, or an empty list. */

@@ -21,6 +21,8 @@ export interface TreeNode {
   readonly id: string;
   readonly name: string;
   readonly children: readonly TreeNode[];
+  /** Draw the name in the alert colour (a stocks row whose food is stale or rots soon). */
+  readonly alert?: boolean;
 }
 
 /** A forest from category paths (`food`, `food/meat`, …), in the order the paths are given. */
@@ -157,7 +159,7 @@ export function tree(
     const arrow = n.children.length === 0 ? ' ' : state.expanded.has(n.id) ? '▾' : '▸';
     const head = `${'  '.repeat(item.depth)}${arrow} ${n.name}`;
     const nameWidth = Math.max(4, Math.min(rect.cols - 6, 18));
-    label(s, rect.col, row, head, { width: nameWidth, keys: false });
+    label(s, rect.col, row, head, { width: nameWidth, keys: false, ...(n.alert === true ? { fg: s.theme.alert } : {}) });
     let col = rect.col + nameWidth;
     if (checked !== null) {
       const box = `[${stateGlyph(checked(n))}]`;

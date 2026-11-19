@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-619 | [The three-year script's soldiers live far from their barracks](work/T-619-soldiers-quarters-by-the-barracks.md) | [T-615](archive/tasks/T-615-soldiers-needs-keep-them-from-drill.md) | — | open |
 | T-620 | [Charcoal binds the three-year squad's steel](work/T-620-fuel-for-the-squads-steel.md) | [T-616](archive/tasks/T-616-strong-squad-steel.md) | — | open |
-| T-621 | [The starting food rots unseen and the fortress starves in its first summer](work/T-621-food-rot-unseen.md) | [T-618](archive/tasks/T-618-first-year-ux.md) | — | open |
 | T-623 | [The caravan waits "for a trade depot" when the depot it cannot reach stands built](work/T-623-caravan-depot-unreachable.md) | [T-618](archive/tasks/T-618-first-year-ux.md) | — | open |
 | T-624 | [The Hearth alert with no shelter, training with no barracks, and what "Idle" means](work/T-624-alert-and-training-feedback.md) | [T-618](archive/tasks/T-618-first-year-ux.md) | — | open |
 | T-625 | [Log lines that say why: deaths, immigrants, miasma, a breach](work/T-625-log-lines-that-explain.md) | [T-618](archive/tasks/T-618-first-year-ux.md) | — | open |

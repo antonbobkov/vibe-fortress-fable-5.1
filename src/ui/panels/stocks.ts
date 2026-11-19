@@ -17,11 +17,18 @@ import { CATEGORY_TREE, categoryUnder } from '@systems/items';
 import type { Surface } from '../surface';
 import { buildTree, label, tree, type TreeNode, type TreeState } from '../widgets';
 import { buildings, confirmThen, items, marks, type PanelContext } from './context';
-import { ageNote, agedMaterial, enchantedName } from '../messages';
+import { ageNote, agedMaterial, enchantedName, rotText } from '../messages';
+import { TICKS_PER_DAY } from '@core/constants';
+import { ROT_ALERT_DAYS } from '../constants';
 
 interface NodeTotals {
   count: number;
   value: number;
+}
+
+/** 13 § Rot under a row: whether it holds anything with a rot timer, and the units that rot within `ROT_ALERT_DAYS`. */
+interface NodeRot {
+  soon: number;
 }
 
 export class StocksPanel {
@@ -30,7 +37,7 @@ export class StocksPanel {
   depotSelection = 0;
   readonly depotChosen = new Set<EntityId>();
   private forest: TreeNode[] | null = null;
-  private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]> } | null = null;
+  private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]>; rot: Map<string, NodeRot> } | null = null;
 
   categories(): TreeNode[] {
     if (this.forest === null) this.forest = buildTree(CATEGORY_TREE);
@@ -38,13 +45,15 @@ export class StocksPanel {
   }
 
   /** Count and value per node, from the items (cached per tick). */
-  totals(ctx: PanelContext): { totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]> } {
+  totals(ctx: PanelContext): { totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]>; rot: Map<string, NodeRot> } {
     const tick = ctx.readers.calendar.tick;
     if (this.cache?.tick === tick) return this.cache;
     const it = items(ctx);
     const totals = new Map<string, NodeTotals>();
     const types = new Map<string, number[]>();
     const itemIds = new Map<number, EntityId[]>();
+    const rot = new Map<string, NodeRot>();
+    const within = ROT_ALERT_DAYS * TICKS_PER_DAY;
     if (it !== null) {
       for (const id of ctx.readers.entities.with(C.Item)) {
         const rec = it.get(id as EntityId);
@@ -54,6 +63,16 @@ export class StocksPanel {
         itemIds.set(rec.type, ids);
         const cat = it.categoryOf(rec.type);
         const parts = cat.split('/');
+        // A perishable stack not yet rotting counts toward every row above it.
+        const outlook = rec.rotStage >= 2 ? null : it.rotOutlook(id as EntityId);
+        if (outlook !== null) {
+          const soon = outlook.toRot !== null && outlook.toRot <= within ? rec.count : 0;
+          for (const node of [`type:${rec.type}`, ...parts.map((_, k) => parts.slice(0, k + 1).join('/'))]) {
+            const r = rot.get(node) ?? { soon: 0 };
+            r.soon += soon;
+            rot.set(node, r);
+          }
+        }
         for (let k = 1; k <= parts.length; k += 1) {
           const node = parts.slice(0, k).join('/');
           const t = totals.get(node) ?? { count: 0, value: 0 };
@@ -66,7 +85,7 @@ export class StocksPanel {
         }
       }
     }
-    this.cache = { tick, totals, types, itemIds };
+    this.cache = { tick, totals, types, itemIds, rot };
     return this.cache;
   }
 
@@ -91,7 +110,10 @@ export class StocksPanel {
             const material = agedMaterial(ctx.strings, plain, rec?.age);
             const note = rec === undefined ? '' : ageNote(ctx.strings, ctx.registry, rec, rec.containerId === 0 ? undefined : it.get(rec.containerId));
             // An enchanted stack carries its suffix (25 § Setting stones): "keen iron ×1".
-            return { id: `item:${id}`, name: `${enchantedName(ctx.readers, id, material)} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, children: [] };
+            // 13 § Rot: a stale stack, or one that rots within `ROT_ALERT_DAYS`, is drawn in the alert colour.
+            const outlook = rec === undefined ? null : it.rotOutlook(id);
+            const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
+            return { id: `item:${id}`, name: `${enchantedName(ctx.readers, id, material)} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, children: [], ...(alert ? { alert } : {}) };
           }) });
         }
         return { ...n, children };
@@ -172,6 +194,29 @@ export class StocksPanel {
     ctx.openPanel('depot');
   }
 
+  /**
+   * 13 § Rot, the line under the tree for the selected row: a stack's name, stage and days left
+   * ("turnip ×20 · stale, rots in 4 days"); a type or category that holds perishable stacks counts
+   * the units that rot within `ROT_ALERT_DAYS` ("52 rot within 3 days"); '' for anything else.
+   */
+  rotLine(ctx: PanelContext): { text: string; alert: boolean } {
+    const node = this.selectedNode(ctx);
+    const it = items(ctx);
+    if (node === null || it === null) return { text: '', alert: false };
+    if (node.startsWith('item:')) {
+      const id = Number(node.slice(5));
+      const rec = it.get(id);
+      if (rec === undefined) return { text: '', alert: false };
+      const outlook = it.rotOutlook(id);
+      const text = rotText(ctx.strings, outlook, it.def(rec.type)?.edible === true);
+      const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
+      return text === '' ? { text: '', alert: false } : { text: `${this.selectedName(ctx)} · ${text}`, alert };
+    }
+    const r = this.totals(ctx).rot.get(node);
+    if (r === undefined) return { text: '', alert: false };
+    return { text: ctx.strings.get('ui.stocks.rot_soon', { n: r.soon, days: ROT_ALERT_DAYS }), alert: r.soon > 0 };
+  }
+
   /** The selected row's name as the tree shows it ("Weapons", "sword", "iron ×3"). */
   selectedName(ctx: PanelContext): string {
     const id = this.selectedNode(ctx);
@@ -242,7 +287,7 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   const strings = ctx.strings;
   const { totals } = panel.totals(ctx);
   drawPanelFilter(s, rect.col + 1, rect.row, rect.cols - 2, panel.filter, ctx);
-  const height = Math.max(1, rect.rows - 4);
+  const height = Math.max(1, rect.rows - 5);
   const state = panel.filter.value === '' ? panel.tree : { ...panel.tree, expanded: new Set<string>() };
   if (panel.filter.value !== '') {
     const expand = (nodes: readonly TreeNode[]): void => { for (const n of nodes) { state.expanded.add(n.id); expand(n.children); } };
@@ -268,6 +313,9 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   panel.tree.selected = state.selected;
   panel.tree.scroll = state.scroll;
   let row = rect.row + 1 + height;
+  const rot = panel.rotLine(ctx);
+  label(s, rect.col + 1, row, rot.text, { fg: rot.alert ? t.alert : t.dim, width: rect.cols - 2 });
+  row += 1;
   const it = items(ctx);
   const b = buildings(ctx);
   let built = 0;

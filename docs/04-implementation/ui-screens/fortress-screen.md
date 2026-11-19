@@ -110,7 +110,11 @@ On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes fir
 │ Water 2/7                                 │
 │ Here:                                     │
 │   1 granite stone · 3 ☼                   │
+│   20 turnip · 20 ☼                        │
+│     stale, rots in 4 days                 │
 ```
+
+Under each perishable item, and each item of food, a line of its own gives its rot (24 § Panels): `stale, rots in 4 days`, `fresh, not rotting here`, `keeps, never rots`; in the alert colour from the stale stage, dim before it. The `Items` tab writes it the same way.
 
 The wireframes are drawn wider than the sidebar; in the 36-column sidebar the tabs line reads `[1]Tile [2]Items 3 [3]Who 1`, the short form 24 § Inspection gives for a line that does not fit. Inspecting a creature (from Units, Mood or a log line) opens the `Creatures` tab with its sub-tab first.
 

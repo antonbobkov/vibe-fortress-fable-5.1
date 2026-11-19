@@ -361,10 +361,13 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 │   ▸ metal  iron 30 · copper 8       │
 │ ▸ weapon        9   1,120 ☼         │
 │ …                                   │
+│ 52 rot within 3 days                │
 │ Wealth 18,450 ☼   (buildings 3,200) │
 │ [S-f] forbid  [S-d] dump            │
 │ [S-m] melt  [S-t] to depot          │
 ```
+
+The line under the tree speaks of the selected row's rot (24 § Panels): a stack by its name, stage and days left, `turnip ×20 · stale, rots in 4 days`; a type or category that holds perishable stacks by the units under it that rot within `ROT_ALERT_DAYS`, `52 rot within 3 days`, in the alert colour when there are any; empty for anything else. A stack that is stale or rots within `ROT_ALERT_DAYS` has its name in the alert colour.
 
 `/` or clicking the filter field focuses a case-insensitive search of category paths, item names and material labels. Enter or Esc finishes typing. Matching descendants keep their ancestors visible and expand while the filter is set; clearing the filter restores the saved tree expansion. Filtering changes visible rows, while category actions keep applying to their selected category.
 

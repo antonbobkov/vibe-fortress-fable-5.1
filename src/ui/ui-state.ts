@@ -29,6 +29,8 @@ export interface UiState {
   wildlifeAlerted: boolean;
   /** First deepsilver vein discovery unlocks the Deep gauge. */
   deepFound: boolean;
+  /** The fortress's first named miasma line has said where rotten food belongs (24 § Announcements). */
+  miasmaAdvised: boolean;
   cursor: { x: number; y: number } | null;
 }
 
@@ -47,12 +49,13 @@ export interface SavedUiState {
   readonly workshopIdleNotes?: readonly number[];
   readonly wildlifeAlerted?: boolean;
   readonly deepFound?: boolean;
+  readonly miasmaAdvised?: boolean;
   readonly logTail: readonly { tick: number; severity: string; text: string; focus?: number; category?: string }[];
 }
 
 export function defaultUiState(z: number): UiState {
   return { camX: 0, camY: 0, z, zoom: 1, panel: null, sidebar: true, overlays: ['designations', 'zones'],
-    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, cursor: null };
+    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, miasmaAdvised: false, cursor: null };
 }
 
 /** The saved form: the state's persistent fields and the last `LOG_SAVED_LINES` log lines. */
@@ -72,6 +75,7 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
     ...(ui.workshopIdleNotes.length === 0 ? {} : { workshopIdleNotes: [...ui.workshopIdleNotes] }),
     ...(ui.wildlifeAlerted ? { wildlifeAlerted: true } : {}),
     deepFound: ui.deepFound,
+    ...(ui.miasmaAdvised ? { miasmaAdvised: true } : {}),
     logTail: tail.map((l) => ({ tick: l.tick, severity: l.severity, text: l.text,
       ...(l.focus === undefined ? {} : { focus: l.focus }),
       ...(l.category === undefined ? {} : { category: l.category }) })),
@@ -94,6 +98,7 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
   ui.workshopIdleNotes = [...(saved.workshopIdleNotes ?? [])];
   ui.wildlifeAlerted = saved.wildlifeAlerted === true;
   ui.deepFound = saved.deepFound ?? false;
+  ui.miasmaAdvised = saved.miasmaAdvised === true;
   ui.cursor = null;
   return saved.logTail.map((l) => ({
     tick: l.tick,
