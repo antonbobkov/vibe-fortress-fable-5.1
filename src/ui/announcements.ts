@@ -21,7 +21,7 @@ import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
-import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
+import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, stackName, whimProgressText } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
@@ -162,6 +162,12 @@ export class AnnouncementLog {
       const name = this.registry.table<NamedRow>('civilizations').byId(civ)?.name ?? civ;
       out['civ'] = capitalize(name.replace(/^the /, ''));
     }
+    // 20 § Movement: a caravan's lines name its depot ("Trade depot #1") and its edge ("west").
+    if ((event.type === 'CaravanWaiting' || event.type === 'CaravanAtDepot') && typeof e['depotId'] === 'number') {
+      out['depot'] = buildingName({ readers, registry: this.registry }, e['depotId']) || this.strings.get('ui.depot.a_depot');
+    }
+    const edge = e['edge'];
+    if (event.type === 'CaravanWaiting' && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);
     // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs."
     if (event.type === 'HostileFled') {
       const species = typeof speciesOf === 'number' ? speciesOf : readers.entities.get(Number(e['id']), C.Creature)?.species;
@@ -245,7 +251,14 @@ export class AnnouncementLog {
       out['victim'] = named(e['victimName'], e['victimSpecies']);
       return out;
     }
-    if (typeof killerId === 'number' && killerId !== 0) {
+    if (event.type === 'CreatureDied' && typeof killerId === 'number' && killerId !== 0) {
+      // A death names its killer from the event, which carries the name taken when it happened ("a boar", a trap by its building).
+      const creature = readers.entities.get(killerId, C.Creature);
+      const name = typeof e['killerName'] === 'string' && e['killerName'].length > 0 ? e['killerName'] : creature?.name;
+      const species = typeof e['killerSpecies'] === 'number' ? e['killerSpecies'] : creature?.species;
+      if (species === undefined) out['killer'] = name === undefined || name === '' ? '' : withArticle(name.toLowerCase());
+      else out['killer'] = this.formatCreatureName(name, species);
+    } else if (typeof killerId === 'number' && killerId !== 0) {
       const creature = readers.entities.get(killerId, C.Creature);
       out['killer'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'killer';
     }
@@ -289,6 +302,50 @@ export class AnnouncementLog {
     return map.isOutdoor(first)
       ? this.strings.get('announce.ice_melted.place.surface')
       : this.strings.get('announce.ice_melted.place.halls');
+  }
+
+  /**
+   * 17 § Registrations: a death's line by its cause (`announce.died.<cause>`): "has bled to death",
+   * "has starved to death", "has been killed by a boar"; a blow with no killer known "has died of
+   * wounds". A cause with no line of its own keeps the plain "has died." (null).
+   */
+  private deathKey(cause: unknown, killer: unknown): string | null {
+    if (typeof cause !== 'string') return null;
+    if (cause === 'killed') return typeof killer === 'string' && killer !== '' ? 'announce.died.killed_by' : 'announce.died.killed';
+    const key = `announce.died.${cause}`;
+    return this.strings.has(key) ? key : null;
+  }
+
+  /**
+   * 21 § Registrations: the immigrants line names a wave of up to `LOG_IMMIGRANT_NAMES` newcomers,
+   * each with their best skill and its level, a child as a child: "Vigga Pinegate (Farming 5), Ivar
+   * Coaleye (Woodcutting 3) and Ottar Brightfist have come to join the hall." A larger wave is
+   * counted, with where to see them ("[u] lists them"). Sets `{names}` and returns the key; null
+   * when the event names nobody, which keeps the plain count.
+   */
+  private immigrantsLine(fields: Record<string, unknown>, readers: ReaderSet, params: Record<string, string | number>): string | null {
+    const ids = Array.isArray(fields['ids']) ? (fields['ids'] as unknown[]).filter((id): id is number => typeof id === 'number') : [];
+    if (ids.length === 0) return null;
+    const children = typeof fields['children'] === 'number' ? fields['children'] : 0;
+    const counted = children === 0 ? 'announce.immigrants_counted' : 'announce.immigrants_counted_children';
+    if (ids.length > LOG_IMMIGRANT_NAMES) return counted;
+    const dwarves = readers.has('10') ? readers.of<{ isChild(id: number): boolean }>('10') : null;
+    const skills = this.registry.hasTable('skills') ? this.registry.table<NamedRow>('skills') : null;
+    const names: string[] = [];
+    for (const id of ids) {
+      const name = readers.entities.get(id, C.Creature)?.name;
+      if (name === undefined || name === '') return counted;
+      if (dwarves?.isChild(id) === true) { names.push(this.strings.get('announce.immigrant_child', { name })); continue; }
+      // The highest level, ties by the skill table's order (the units panel's profession rule).
+      const levels = readers.entities.get(id, C.Skills)?.level ?? [];
+      let best = -1;
+      levels.forEach((level, index) => { if (level > 0 && (best < 0 || level > (levels[best] ?? 0))) best = index; });
+      const skill = best < 0 ? undefined : skills?.byIndex(best)?.name;
+      names.push(skill === undefined ? name : this.strings.get('announce.immigrant_skilled', { name, skill, level: levels[best] ?? 0 }));
+    }
+    params['names'] = names.length === 1 ? names[0] as string
+      : this.strings.get('announce.list_and', { list: names.slice(0, -1).join(', '), last: names[names.length - 1] as string });
+    return names.length === 1 ? 'announce.immigrant_named' : 'announce.immigrants_named';
   }
 
   private formatCreatureName(name: string | undefined, speciesIndex: number | undefined): string {
@@ -344,7 +401,11 @@ export class AnnouncementLog {
       key = fields['cause'] === 'faded' ? 'announce.summon_faded'
         : readers.entities.get(creatureId, C.Tame)?.petOf ? 'announce.pet_died' : 'announce.creature_died';
     }
-    const text = this.strings.get(key, this.params(event, readers));
+    const params = this.params(event, readers);
+    // 17 § Registrations: a death says how it came, by its cause ("Ketil Ironvein has bled to death.").
+    if (event.type === 'CreatureDied' && key !== 'announce.summon_faded') key = this.deathKey(fields['cause'], params['killer']) ?? key;
+    if (event.type === 'ImmigrantsArrived') key = this.immigrantsLine(fields, readers, params) ?? key;
+    const text = this.strings.get(key, params);
     const focus = focusOf(event, readers) ?? (event.type === 'StockpileFull' ? zoneFocus(readers, fields['id']) : undefined);
     const category = spec.category;
     let severity = spec.severity;
@@ -548,6 +609,11 @@ export class AnnouncementLog {
   }
 }
 
+/** "a boar", "an ember newt": a lower-case noun with its indefinite article. */
+function withArticle(noun: string): string {
+  return `${'aeiou'.includes(noun.charAt(0)) ? 'an' : 'a'} ${noun}`;
+}
+
 /** A zone's first tile, for a line about the zone. */
 function zoneFocus(readers: ReaderSet, id: unknown): TileIndex | undefined {
   if (typeof id !== 'number' || !readers.has('14')) return undefined;
@@ -569,6 +635,12 @@ export function focusOf(event: GameEvent, readers?: ReaderSet): TileIndex | unde
     const workshopId = e['workshopId'];
     if (typeof workshopId === 'number' && readers.has('14')) {
       const tile = readers.of<BuildingsReader>('14').get(workshopId)?.footprint[0];
+      if (tile !== undefined) return tile;
+    }
+    // A caravan's line about its depot shows the depot (20 § Registrations).
+    const depotId = e['depotId'];
+    if (typeof depotId === 'number' && readers.has('14')) {
+      const tile = readers.of<BuildingsReader>('14').get(depotId)?.footprint[0];
       if (tile !== undefined) return tile;
     }
     const partyId = e['partyId'];

@@ -1,6 +1,8 @@
 # T-623 — The caravan waits "for a trade depot" when the depot it cannot reach stands built
 
-**Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 8–11 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 2d561d97.
+
+**Source:** [T-618's first-year audit](../../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 8–11 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -206,17 +206,23 @@ export class TradeSessionScreen implements Screen {
     const footer = Math.max(5, surface.rows - 5);
     const visible = Math.max(1, Math.floor((footer - 4) / 2));
     const traderId = trade.session()?.traderId ?? 0;
-    const broker = traderId ? this.host.readers.entities.get(traderId, C.Creature)?.name ?? 'a trader' : 'a trader';
-    const skill = traderId && this.host.readers.has('10') ? this.host.readers.of<DwarvesReader>('10').skill(traderId, 'trading') : 0;
+    const trader = traderId ? this.host.readers.entities.get(traderId, C.Creature)?.name ?? 'a trader' : 'a trader';
+    const dwarves = this.host.readers.has('10') ? this.host.readers.of<DwarvesReader>('10') : null;
+    const skill = traderId && dwarves !== null ? dwarves.skill(traderId, 'trading') : 0;
+    // The Broker is the dwarf who holds the title; one who trades without it is named apart.
+    const holder = typeof dwarves?.holder === 'function' ? dwarves.holder('broker') : 0;
+    const standIn = traderId !== 0 && holder !== traderId;
+    const broker = !standIn ? trader
+      : holder !== 0 ? this.host.readers.entities.get(holder, C.Creature)?.name ?? this.strings.get('ui.trade.no_broker') : this.strings.get('ui.trade.no_broker');
     const reputation = `${trade.reputation(civ) >= 0 ? '+' : ''}${trade.reputation(civ)}`;
-    const params = { civ: CIV_NAMES[civ], broker, skill, reputation };
-    const title = this.strings.get('ui.trade.title', params);
+    const params = { civ: CIV_NAMES[civ], broker, trader, skill, reputation };
+    const title = this.strings.get(standIn ? 'ui.trade.title_stand_in' : 'ui.trade.title', params);
     const available = surface.cols - 4;
     if (Array.from(title).length <= available) label(surface, 2, 1, title, { fg: t.key, width: available });
     else {
       const stats = this.strings.get('ui.trade.title_stats', params);
       const statsCol = surface.cols - 2 - Array.from(stats).length;
-      label(surface, 2, 1, this.strings.get('ui.trade.title_left', params), { fg: t.key, width: statsCol - 3 });
+      label(surface, 2, 1, this.strings.get(standIn ? 'ui.trade.title_left_stand_in' : 'ui.trade.title_left', params), { fg: t.key, width: statsCol - 3 });
       label(surface, statsCol, 1, stats, { fg: t.key });
       surface.tooltip({ col: 2, row: 1, cols: available, rows: 1 }, title);
     }

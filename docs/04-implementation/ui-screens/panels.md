@@ -375,7 +375,9 @@ Stocks actions apply to the selected category, type or individual stack. Forbid 
 
 ## Depot
 
-The selected built depot keeps its goods list and action row (`[S-m] move`, `[r] remove`, `[S-t] trade`) while a trade request waits. When a caravan is at the depot, requesting trade by key or click says "The broker is on the way to the depot."; while paused it adds "· [Space] resumes". The request sends `TradeOpen`; the modal opens only when the broker reaches the depot. A refused request keeps its specific refusal message.
+The selected built depot keeps its goods list and action row (`[S-m] move`, `[r] remove`, `[S-t] trade`) while a trade request waits. When a caravan is at the depot, requesting trade by key or click says "The broker is on the way to the depot."; while paused it adds "· [Space] resumes". The request sends `TradeOpen`; the modal opens only when the broker reaches the depot. A refused request keeps its specific refusal message; while a caravan waits at its edge and cannot reach the depot, the refusal is the waiting caravan's line ("The Hillfolk caravan cannot reach Trade depot #1 from the west edge: …", 20 § Movement step 2).
+
+The goods list groups the stacks at the depot as the trade session's merchant column does: one row per item type, material and quality, with the summed count and value ("11 barley straw  11 ☼"), named in the plural above one; `[r] remove` takes every stack of the selected row back. Under the title, in the alert colour, a line says when caravans cannot reach the depot: the waiting caravan's line while one waits for it in vain, else "Hillfolk caravans from the west edge cannot reach it: a caravan needs a way on foot, with no deep water or drop." naming each civilization whose edge reaches none of its tiles (20 § Movement step 6). The warning wraps over at most `DEPOT_WARNING_ROWS` rows (24 § Tuning constants); a longer one ends with `…` and has its full text as a tooltip.
 
 ## Military (m)
 
@@ -472,7 +474,8 @@ The clickable `[S-c] cap` action opens an inline number field for the selected s
 │ bear ×1  near the hall              │
 │ wolf ×3  far                        │
 │ ── Caverns ─────────────────────── │
-│ 1: breached · crawlers 4 · spiders 1│
+│ 1: breached at (84,73,z22)          │
+│    monsters 4                       │
 │ 2: sealed                           │
 │ ── The Deep ────────────────────── │
 │ Pressure ▓▓▓░░░░░░░ 30 / 50 (lvl 0) │
@@ -523,15 +526,14 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 ```
 │ Mood                           [x]  │
 │ Hall spirit ♥ Content (71)          │
-│ Name             Tier   Top thoughts│
-│ ▶Ketil I.        Fine   +5 meal,    │
-│                         −4 enemy    │
-│  Brynja C.       Content +8 room,   │
-│                         +5 friend   │
-│  Halvar G.       Unhappy −15 friend │
-│                         died, −4 …  │
+│ Name         Tier     Top thoughts  │
+│ Ketil Ironve Fine     +5 Had a fi»  │
+│ Brynja Coalb Content  +8 Slept in»  │
+│ Halvar Grimf Unhappy  -15 Lost a »  │
 │ [Enter] inspect  [S-s] sort tier    │
 ```
+
+Top thoughts that do not fit their column end with `»`, and the cell's tooltip has them all.
 
 ## Log (a)
 
@@ -554,7 +556,7 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 │ [Enter] center on it                │
 ```
 
-Each entry starts with its day in the dim text colour: the first two letters of the season and the day of the season ("Sp 8"), with the year before them ("Y1 Sp 8") for a line of an earlier year than the present one. The dates are padded to the width of the longest one on the screen so that the texts line up. An entry wraps under its own text, never under the date column, over as many rows as it needs: the hint above is one entry of eight rows. `↑` `↓` select an entry and `PageUp` `PageDown` move a page of entries; a chosen entry is inverted over all its rows (none is until the first key or click), and `Enter` or a click on any of its rows centres the map on its focus. When the entries do not all fit, the last column is a scrollbar over the entries. The log strip at the bottom of the fortress screen shows no dates.
+Each entry starts with its day in the dim text colour: the first two letters of the season and the day of the season ("Sp 8"), with the year before them ("Y1 Sp 8") for a line of an earlier year than the present one. The dates are padded to the width of the longest one on the screen so that the texts line up. An entry wraps under its own text, never under the date column, over as many rows as it needs: the hint above is one entry of eight rows. The panel opens on the newest entry. `↑` `↓` select an entry and `PageUp` `PageDown` move a page of entries; a chosen entry is inverted over all its rows (none is until the first key or click), and `Enter` or a click on any of its rows centres the map on its focus and marks that tile (24 § Announcements and the log). When the entries do not all fit, the last column is a scrollbar over the entries. The log strip at the bottom of the fortress screen shows no dates.
 
 `/` or a click on the `/filter` field focuses it; while it has focus letters, digits and `Space` are text, `Backspace` deletes, and `Enter` or `Esc` finishes typing without closing the panel, as in Jobs and Stocks. The list keeps the entries of the chosen tab whose text, as the panel shows it (with the `!` prefix and the `×n` count), contains the typed text, ignoring case; the title reads `Log · filter: wolf (2 of 41)`, counting the tab's entries. Each change to the text selects the newest matching entry, unmarked. With no match the list reads "No entry matches the filter." The text is cleared when the panel closes.
 

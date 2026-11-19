@@ -258,6 +258,45 @@ What a drying rack turns its items into ([14](../02-systems/14-buildings-and-roo
 | `skeleton` | skeleton | refuse/skeleton | 1 | 0 | `%` | `bone_white` | from a rotted corpse; animal skeletons yield `bone_pile` when butchered |
 | `rotten` | rotten food | refuse/rotten | 10 | 0 | `%` | `rot_green` | any food past rotting; destroyed at "gone" |
 
+## Plurals
+
+More than one of an item is named by its name with an `s`, and a name that already ends in `s` ("boots", "bones") is its own plural. The rows below name their own plural: a mass noun is its own ("40 dung", "50 flour", "70 salt"), and a draught of something puts the `s` on the draught.
+
+| id | plural |
+|---|---|
+| `flour` | flour |
+| `milk` | milk |
+| `fat` | fat |
+| `tallow` | tallow |
+| `salt` | salt |
+| `honey` | honey |
+| `beeswax` | beeswax |
+| `cheese` | cheese |
+| `charcoal_bar` | charcoal |
+| `coal_bar` | coal |
+| `fiber` | fiber |
+| `thread` | thread |
+| `cloth` | cloth |
+| `wool_raw` | wool |
+| `leather_piece` | leather |
+| `straw` | straw |
+| `brightleaf` | brightleaf |
+| `soap` | soap |
+| `wyrmscale` | wyrmscale |
+| `hollow_ichor` | hollow ichor |
+| `spider_venom` | spider venom |
+| `mending_draught` | draughts of mending |
+| `stout_draught` | draughts of stoutness |
+| `quick_draught` | draughts of quickness |
+| `hollowsight_draught` | draughts of hollowsight |
+| `wyrmblood_draught` | draughts of wyrmblood |
+| `bone_ash` | bone ash |
+| `potash` | potash |
+| `dung` | dung |
+| `compost` | compost |
+| `guano` | guano |
+| `rotten` | rotten food |
+
 ## Wagon
 
 The wagon is a building (see [buildings-and-furniture.md](buildings-and-furniture.md)); it is not an item.

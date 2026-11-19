@@ -79,6 +79,8 @@ export function drawThreatsPanel(
   _panel: ThreatsPanel,
   ctx: PanelContext,
   deepFound = false,
+  /** The breach tile of each breached cavern, `[cavern, tile]`, as the UI saw it (`UiState.breaches`). */
+  breaches: readonly (readonly [number, number])[] = [],
 ): void {
   const t = s.theme;
   const col = rect.col + 1;
@@ -154,7 +156,16 @@ export function drawThreatsPanel(
     const breached = terrain ? terrain.cavernBreached(c) : false;
     if (breached) {
       const monsterCount = threats ? threats.monstersInCavern(c) : 0;
-      label(s, col, row, `${c}: breached · monsters ${monsterCount}`, { width });
+      // Where the cavern lies open, "1: breached at (84,73,z22)", and its monsters on the row under it.
+      const tile = breaches.find(([cavern]) => cavern === c)?.[1];
+      const at = tile === undefined ? null : ctx.readers.map.unpack(tile);
+      if (at === null) label(s, col, row, `${c}: breached · monsters ${monsterCount}`, { width });
+      else {
+        label(s, col, row, ctx.strings.get('ui.threats.cavern_breached_at', { n: c, x: at.x, y: at.y, z: at.z }), { width });
+        row += 1;
+        if (row >= rect.row + rect.rows) break;
+        label(s, col + 3, row, ctx.strings.get('ui.threats.cavern_monsters', { n: monsterCount }), { width: width - 3 });
+      }
     } else {
       label(s, col, row, `${c}: sealed`, { fg: t.dim, width });
     }

@@ -177,9 +177,43 @@ export function tradeBlocked(env: MessageEnv, depotId: EntityId): string | null 
   const trade = env.readers.of<TradeReader>('20');
   const active = trade.activeCaravan();
   if (active?.state === 'atDepot') return null;
-  if (active !== null) return s.get('ui.status.caravan_coming', { civ: civName(active.civ) });
+  if (active !== null) return caravanUnreachable(env, depotId) ?? s.get('ui.status.caravan_coming', { civ: civName(active.civ) });
   const when = Object.entries(trade.schedule()).map(([civ, season]) => s.get('ui.status.caravan_when', { civ: civName(civ), season }));
   return when.length === 0 ? s.get('ui.status.no_caravan_soon') : s.get('ui.status.no_caravan', { when: when.join(', ') });
+}
+
+/**
+ * 20 § Movement step 2: the waiting caravan's line when it cannot reach this depot from its edge
+ * ("The Hillfolk caravan cannot reach Trade depot #1 from the west edge: …"), or null.
+ */
+export function caravanUnreachable(env: MessageEnv, depotId: EntityId): string | null {
+  if (!env.readers.has('20')) return null;
+  const trade = env.readers.of<TradeReader>('20');
+  const active = trade.activeCaravan();
+  const footprint = buildingsOf(env.readers)?.get(depotId)?.footprint;
+  if (active?.state !== 'waiting' || footprint === undefined) return null;
+  const reach = trade.caravanReach(footprint).find((r) => r.civ === active.civ);
+  if (reach === undefined || reach.reaches) return null;
+  return env.strings.get('announce.caravan_unreachable', {
+    civ: civName(active.civ), depot: buildingName(env, depotId), edge: env.strings.get(`ui.edge.${reach.edge}`),
+  });
+}
+
+/**
+ * The caravans that cannot reach `tiles` (a depot's footprint), by edge: "Hillfolk and Wildwood
+ * caravans from the west edge", or '' when every caravan can (20 § Movement step 2).
+ */
+export function unreachableFrom(env: MessageEnv, tiles: readonly TileIndex[]): string {
+  if (!env.readers.has('20') || tiles.length === 0) return '';
+  const byEdge = new Map<string, string[]>();
+  for (const r of env.readers.of<TradeReader>('20').caravanReach(tiles)) {
+    if (r.reaches) continue;
+    byEdge.set(r.edge, [...(byEdge.get(r.edge) ?? []), civName(r.civ)]);
+  }
+  return Array.from(byEdge, ([edge, civs]) => env.strings.get('ui.depot.unreachable_from', {
+    civs: civs.length > 1 ? `${civs.slice(0, -1).join(', ')} and ${civs[civs.length - 1] as string}` : civs[0] as string,
+    edge: env.strings.get(`ui.edge.${edge}`),
+  })).join('; ');
 }
 
 /** An item type's name, singular or plural ("door", "doors"); a raw match word reads as words. */
@@ -482,7 +516,7 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
   const items = registry.table<NamedRow>('items');
   const nameOf = (index: number): string => {
     const row = items.byIndex(index);
-    return row === undefined ? '' : n === 1 ? row.name : row.plural ?? `${row.name}s`;
+    return row === undefined ? '' : n === 1 ? row.name : row.plural ?? (row.name.endsWith('s') ? row.name : `${row.name}s`);
   };
   let name = '';
   if (typeof filter['type'] === 'number') name = nameOf(filter['type']);

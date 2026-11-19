@@ -24,11 +24,17 @@ export const LOG_SAVED_LINES = 200;
 /** Repeated identical announcements within this many ticks merge with a count. */
 export const LOG_DEDUP_TICKS = 100;
 
+/** The immigrants line names each newcomer, with their best skill, in a wave of at most this many; a larger wave is counted. */
+export const LOG_IMMIGRANT_NAMES = 4;
+
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
 export const CURSOR_SCROLL_MARGIN = 3;
 
 /** Rejection reason display time in the status bar (D-U4: four seconds). */
 export const STATUS_HINT_SECONDS = 4;
+
+/** Rows the depot panel gives its warning that caravans cannot reach the depot (`panels.md` § Depot). */
+export const DEPOT_WARNING_ROWS = 6;
 
 /** How long the game menu shows what saving did (24 § Game menu). */
 export const GAME_MENU_MESSAGE_MS = 3000;

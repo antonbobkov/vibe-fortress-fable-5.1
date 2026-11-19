@@ -84,7 +84,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 
 ### Registrations
 
-Panel `population` (population, cap editor, hall spirit, eligibility reasons, last wave, next evaluation); announcements: `ImmigrantsArrived` (alert), `ImmigrationSkipped` (note, once per season).
+Panel `population` (population, cap editor, hall spirit, eligibility reasons, last wave, next evaluation); announcements: `ImmigrantsArrived` (alert), `ImmigrationSkipped` (note, once per season). The `ImmigrantsArrived` line names a wave of up to `LOG_IMMIGRANT_NAMES` (24) dwarves, each with their best skill and its level (the highest, ties by the skill table's order; none at level 0) and a child as a child: "Vigga Pinegate (Farming 5), Ivar Coaleye (Woodcutting 3) and Ottar Brightfist have come to join the hall.", "Asa Forgehall (a child) has come to join the hall." A larger wave is counted and says where to see them: "6 dwarves have come to join the hall, 2 of them children. [u] lists them."
 
 ## Player-facing behavior
 

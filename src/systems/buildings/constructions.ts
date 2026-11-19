@@ -24,6 +24,7 @@ export const CONSTRUCTION_KIND: Readonly<Record<string, TileKind>> = Object.free
 export type OnRule =
   | 'floor'
   | 'floor_or_open_supported'
+  | 'floor_or_open_spanned'
   | 'floor_adjacent_wall'
   | 'floor_over_open'
   | 'floor_between_walls'
@@ -35,7 +36,8 @@ export type OnRule =
 
 const ON_RULES: Readonly<Record<string, OnRule>> = Object.freeze({
   wall: 'floor_or_open_supported',
-  floor: 'floor_or_open_supported',
+  // 14 § Constructions: a floor over open space may also be held by a planned floor beside it (a bridge).
+  floor: 'floor_or_open_spanned',
   paved_floor: 'floor',
   ramp: 'floor_adjacent_wall',
   stairs_up: 'floor',
@@ -57,7 +59,7 @@ export function onRuleOf(id: string): OnRule {
 }
 
 /** "any of its six face-adjacent tiles is `wall`, `floor`, `ramp`, `stairs_*`, `fortification` or `tree`". */
-function supported(map: Map3D, i: TileIndex): boolean {
+export function supported(map: Map3D, i: TileIndex): boolean {
   for (const n of map.neighbors6(i)) if (isSupportKind(map.kindAt(n))) return true;
   return false;
 }
@@ -86,12 +88,13 @@ export function treeRefuses(map: Map3D, rule: OnRule, i: TileIndex): boolean {
   return map.kindAt(i) === TileKind.Tree && rule !== 'stairs_down_or_ramp_top' && rule !== 'open_water_below' && rule !== 'never';
 }
 
-/** Whether one footprint tile satisfies the type's `on` rule. */
 /**
  * Whether a tile satisfies a placement rule. `soil` says whether a material index is of class
- * `soil` (the rule `outdoor_soil_floor` asks it; with none given that rule never holds).
+ * `soil` (the rule `outdoor_soil_floor` asks it; with none given that rule never holds). `planned`
+ * says whether a tile holds a planned floor (the rule `floor_or_open_spanned` asks it of the four
+ * tiles beside an open one; with none given only the terrain holds a floor).
  */
-export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex, soil?: (material: number) => boolean): boolean {
+export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex, soil?: (material: number) => boolean, planned?: (tile: TileIndex) => boolean): boolean {
   const raw = map.kindAt(i);
   const kind = isClearablePlant(raw) ? TileKind.Floor : raw;
   switch (rule) {
@@ -101,6 +104,9 @@ export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex, soil?: (mate
       return kind === TileKind.Floor || kind === TileKind.Open;
     case 'floor_or_open_supported':
       return kind === TileKind.Floor || (kind === TileKind.Open && supported(map, i));
+    case 'floor_or_open_spanned':
+      return kind === TileKind.Floor || (kind === TileKind.Open &&
+        (supported(map, i) || (planned !== undefined && sameLevelNeighbours4(map, i).some(planned))));
     case 'floor_adjacent_wall':
       return kind === TileKind.Floor && sameLevelNeighbours4(map, i).some((n) => map.kindAt(n) === TileKind.Wall);
     case 'floor_over_open': {

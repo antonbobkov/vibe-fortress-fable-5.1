@@ -77,8 +77,11 @@ export interface BuildingsReader {
   holderTile(id: EntityId): TileIndex;
   /** The wagon, or 0. */
   wagon(): EntityId;
-  /** The build tool's ghost: footprint, failing tiles, the reason `PlaceBuilding` would give (or null), the `on` rule. */
-  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number): { tiles: TileIndex[]; bad: TileIndex[]; clears: TileIndex[]; reason: string | null; rule: string };
+  /**
+   * The build tool's ghost: footprint, failing tiles, the reason `PlaceBuilding` would give (or null), the `on` rule.
+   * `planned` are tiles counted as planned floors (the tiles of a drag placed before this one).
+   */
+  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number, planned?: ReadonlySet<TileIndex>): { tiles: TileIndex[]; bad: TileIndex[]; clears: TileIndex[]; reason: string | null; rule: string };
   /** Every building type row (for the build menu). */
   types(): readonly BuildingRow[];
   /** The item types an input's `match` names (by id or tag; D-012). */
@@ -216,7 +219,7 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     cageOccupant: (id) => (buildings.get(id)?.settings['occupantId'] as number | undefined) ?? 0,
     holderTile: (id) => buildings.holderTile(id),
     wagon: () => buildings.all().find((id) => buildings.typeIdOf(id) === 'wagon') ?? 0,
-    ghost: (typeId, origin, orientation, width, height) => buildings.ghost(typeId, origin, orientation, width, height),
+    ghost: (typeId, origin, orientation, width, height, planned) => buildings.ghost(typeId, origin, orientation, width, height, planned),
     types: () => buildings.rowsList(),
     inputTypes: (match) => buildings.typesOf(match),
     room: (zoneId) => {

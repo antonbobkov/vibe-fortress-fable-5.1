@@ -234,6 +234,7 @@
   {
     "id": "beeswax",
     "name": "beeswax",
+    "plural": "beeswax",
     "category": "food/wax",
     "mult": 1000,
     "stack": 20,
@@ -287,6 +288,7 @@
   {
     "id": "bone_ash",
     "name": "bone ash",
+    "plural": "bone ash",
     "category": "farm/bone_ash",
     "mult": 1000,
     "stack": 10,
@@ -393,6 +395,7 @@
   {
     "id": "brightleaf",
     "name": "brightleaf",
+    "plural": "brightleaf",
     "category": "medical/brightleaf",
     "mult": 4000,
     "stack": 20,
@@ -564,6 +567,7 @@
   {
     "id": "charcoal_bar",
     "name": "charcoal",
+    "plural": "charcoal",
     "category": "bar/charcoal",
     "mult": 1000,
     "stack": 5,
@@ -581,6 +585,7 @@
   {
     "id": "cheese",
     "name": "cheese",
+    "plural": "cheese",
     "category": "food/cheese",
     "mult": 1000,
     "stack": 10,
@@ -650,6 +655,7 @@
   {
     "id": "cloth",
     "name": "cloth",
+    "plural": "cloth",
     "category": "textile/cloth",
     "mult": 1000,
     "stack": 10,
@@ -682,6 +688,7 @@
   {
     "id": "coal_bar",
     "name": "coal",
+    "plural": "coal",
     "category": "bar/coal",
     "mult": 1000,
     "stack": 5,
@@ -717,6 +724,7 @@
   {
     "id": "compost",
     "name": "compost",
+    "plural": "compost",
     "category": "farm/compost",
     "mult": 1000,
     "stack": 10,
@@ -885,6 +893,7 @@
   {
     "id": "dung",
     "name": "dung",
+    "plural": "dung",
     "category": "farm/dung",
     "mult": 1000,
     "stack": 10,
@@ -967,6 +976,7 @@
   {
     "id": "fat",
     "name": "fat",
+    "plural": "fat",
     "category": "food/fat",
     "mult": 1000,
     "stack": 10,
@@ -1017,6 +1027,7 @@
   {
     "id": "fiber",
     "name": "fiber",
+    "plural": "fiber",
     "category": "textile/fiber",
     "mult": 1000,
     "stack": 10,
@@ -1114,6 +1125,7 @@
   {
     "id": "flour",
     "name": "flour",
+    "plural": "flour",
     "category": "food/plant/processed",
     "mult": 1000,
     "stack": 20,
@@ -1248,6 +1260,7 @@
   {
     "id": "guano",
     "name": "guano",
+    "plural": "guano",
     "category": "farm/guano",
     "mult": 1000,
     "stack": 10,
@@ -1301,6 +1314,7 @@
   {
     "id": "hollow_ichor",
     "name": "hollow ichor",
+    "plural": "hollow ichor",
     "category": "medical/ichor",
     "mult": 1000,
     "stack": 5,
@@ -1315,6 +1329,7 @@
   {
     "id": "hollowsight_draught",
     "name": "draught of hollowsight",
+    "plural": "draughts of hollowsight",
     "category": "medical/draught",
     "mult": 2000,
     "stack": 5,
@@ -1332,6 +1347,7 @@
   {
     "id": "honey",
     "name": "honey",
+    "plural": "honey",
     "category": "food/honey",
     "mult": 1000,
     "stack": 20,
@@ -1466,6 +1482,7 @@
   {
     "id": "leather_piece",
     "name": "leather",
+    "plural": "leather",
     "category": "textile/leather",
     "mult": 1000,
     "stack": 10,
@@ -1600,6 +1617,7 @@
   {
     "id": "mending_draught",
     "name": "draught of mending",
+    "plural": "draughts of mending",
     "category": "medical/draught",
     "mult": 2000,
     "stack": 5,
@@ -1636,6 +1654,7 @@
   {
     "id": "milk",
     "name": "milk",
+    "plural": "milk",
     "category": "food/milk",
     "mult": 1000,
     "stack": 10,
@@ -1820,6 +1839,7 @@
   {
     "id": "potash",
     "name": "potash",
+    "plural": "potash",
     "category": "farm/potash",
     "mult": 1000,
     "stack": 10,
@@ -1834,6 +1854,7 @@
   {
     "id": "quick_draught",
     "name": "draught of quickness",
+    "plural": "draughts of quickness",
     "category": "medical/draught",
     "mult": 2000,
     "stack": 5,
@@ -1980,6 +2001,7 @@
   {
     "id": "rotten",
     "name": "rotten food",
+    "plural": "rotten food",
     "category": "refuse/rotten",
     "mult": 1000,
     "stack": 10,
@@ -2043,6 +2065,7 @@
   {
     "id": "salt",
     "name": "salt",
+    "plural": "salt",
     "category": "food/salt",
     "mult": 1000,
     "stack": 20,
@@ -2247,6 +2270,7 @@
   {
     "id": "soap",
     "name": "soap",
+    "plural": "soap",
     "category": "medical/soap",
     "mult": 1000,
     "stack": 20,
@@ -2293,6 +2317,7 @@
   {
     "id": "spider_venom",
     "name": "spider venom",
+    "plural": "spider venom",
     "category": "medical/venom",
     "mult": 1000,
     "stack": 5,
@@ -2405,6 +2430,7 @@
   {
     "id": "stout_draught",
     "name": "draught of stoutness",
+    "plural": "draughts of stoutness",
     "category": "medical/draught",
     "mult": 2000,
     "stack": 5,
@@ -2422,6 +2448,7 @@
   {
     "id": "straw",
     "name": "straw",
+    "plural": "straw",
     "category": "textile/straw",
     "mult": 1000,
     "stack": 10,
@@ -2456,6 +2483,7 @@
   {
     "id": "tallow",
     "name": "tallow",
+    "plural": "tallow",
     "category": "food/tallow",
     "mult": 1000,
     "stack": 20,
@@ -2471,6 +2499,7 @@
   {
     "id": "thread",
     "name": "thread",
+    "plural": "thread",
     "category": "textile/thread",
     "mult": 1000,
     "stack": 10,
@@ -2670,6 +2699,7 @@
   {
     "id": "wool_raw",
     "name": "wool",
+    "plural": "wool",
     "category": "textile/wool",
     "mult": 1000,
     "stack": 10,
@@ -2684,6 +2714,7 @@
   {
     "id": "wyrmblood_draught",
     "name": "draught of wyrmblood",
+    "plural": "draughts of wyrmblood",
     "category": "medical/draught",
     "mult": 2000,
     "stack": 5,
@@ -2701,6 +2732,7 @@
   {
     "id": "wyrmscale",
     "name": "wyrmscale",
+    "plural": "wyrmscale",
     "category": "medical/wyrmscale",
     "mult": 1000,
     "stack": 10,

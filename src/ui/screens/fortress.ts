@@ -55,7 +55,7 @@ import type { Strings } from '../strings';
 import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
-import { blockedText, buildingName, commandFocus, pluralName, rejectionText, zoneName, zoneEditorMessage } from '../messages';
+import { blockedText, buildingName, commandFocus, pluralName, rejectionText, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -384,6 +384,13 @@ export class FortressScreen implements Screen {
       // 13 § Rot: once a day, the alert before food rots (24 § Announcements and the log).
       const done = event.type === 'DayPassed' ? this.log.rotAlert(readers, readers.calendar.tick) : this.log.announce(event, readers, readers.calendar.tick);
       if (done === null) continue;
+      // 03 § Caverns: a breach marks its tile on the map, and the threats panel says where it is.
+      if (event.type === 'CavernBreached' && typeof event['tile'] === 'number') {
+        const cavern = Number(event['cavern']);
+        const breaches: [number, number][] = [...this.ui.breaches.filter(([c]) => c !== cavern), [cavern, event['tile']]];
+        this.ui.breaches = breaches.sort((a, b) => a[0] - b[0]);
+        this.markTile(event['tile']);
+      }
       if (event.type === 'AnimalSpawned' && done.severity === 'alert') {
         arrivals.set(species, { line: done.line, count: 1, name: String(this.host.registry.table<{ id: string; name: string }>('creatures').byId(species)?.name ?? species).toLowerCase() });
         // The first sighting pauses once per fortress, as a first raid does; later ones never do.
@@ -399,7 +406,7 @@ export class FortressScreen implements Screen {
       if (done.severity === 'danger') {
         this.pinned = done.line;
         if (this.settings.autoPauseDanger) this.host.setSpeed(0);
-        if (done.focus !== undefined) this.focusOn(done.focus);
+        if (done.focus !== undefined) this.focusLine(done.focus);
       }
     }
     this.hints.onEvents(events, readers, this.settings.hintsEnabled);
@@ -458,6 +465,7 @@ export class FortressScreen implements Screen {
   resetSession(): void {
     this.log.lines.length = 0;
     this.orders.reset();
+    this.ui.mark = null;
   }
 
   resetHints(): void {
@@ -468,6 +476,7 @@ export class FortressScreen implements Screen {
     this.ui.workshopIdleNotes = [];
     this.ui.wildlifeAlerted = false;
     this.ui.miasmaAdvised = false;
+    this.ui.breaches = [];
   }
 
   /** The tiles of the current selection, or an empty list. */
@@ -563,6 +572,18 @@ export class FortressScreen implements Screen {
     const y = Math.floor(tile / map.w) % map.h;
     const z = Math.floor(tile / (map.w * map.h));
     this.host.centerOn(x, y, z);
+  }
+
+  /** A log line's tile marked on the map: drawn as the cursor is, on its own level, until `Esc` or the cursor shows (24 § Announcements and the log). */
+  markTile(tile: TileIndex): void {
+    const map = this.host.readers.map;
+    this.ui.mark = { x: tile % map.w, y: Math.floor(tile / map.w) % map.h, z: Math.floor(tile / (map.w * map.h)) };
+  }
+
+  /** The view goes to a log line's focus, which is marked. */
+  focusLine(tile: TileIndex): void {
+    this.focusOn(tile);
+    this.markTile(tile);
   }
 
   // ---------- drawing ----------
@@ -743,11 +764,11 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
     else if (panel.id === 'debug' && this.host.debug !== undefined) drawDebugPanel(surface, body, this.debugPanel, ctx, this.host.debug);
     else if (panel.id === 'military') drawMilitaryPanel(surface, body, this.military, ctx, this.host);
-    else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound);
+    else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound, this.ui.breaches);
     else if (panel.id === 'civilizations') drawCivilizationsPanel(surface, body, this.civilizations, ctx, () => this.openTrade());
     else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods(), this.host.speed() === 0);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line) => {
-      if (line.focus !== undefined) this.focusOn(line.focus);
+      if (line.focus !== undefined) this.focusLine(line.focus);
     }, this.logView, { names: this.namedCreatures(), open: (id) => this.inspectCreature(id) });
     if (panel.id !== 'help') this.drawShiftNote(surface, body);
   }
@@ -1201,6 +1222,8 @@ export class FortressScreen implements Screen {
     if (id !== 'zones') this.zones.cancel();
     if (id !== 'building') this.building.cancel();
     if (id !== this.ui.panel) this.clearFilters();
+    // The log opens on its newest entry, unmarked: a choice holds while the panel stays open (24 § Announcements and the log).
+    if (id === 'log' && (id !== this.ui.panel || !this.ui.sidebar)) this.logView.reset();
     // Help opens on the Start tab the first time in a fortress.
     if (id === 'help' && !this.ui.hintsShown.includes(HELP_START)) { this.help.setTab(2); this.ui.hintsShown.push(HELP_START); this.ui.hintsShown.sort(); }
     this.ui.panel = id;
@@ -1350,6 +1373,12 @@ export class FortressScreen implements Screen {
         this.build.placed(ctx, 1);
         const stock = this.stockText(0);
         let text = this.strings.get('ui.status.build_placed_one', { tool: this.build.name(ctx) });
+        // 20 § Movement step 6: a depot placed where a caravan cannot come from its edge says so, in the log too.
+        const who = this.build.current(ctx)?.tags.includes('depot') === true ? unreachableFrom(ctx, ghost.tiles) : '';
+        if (who !== '') {
+          text = this.strings.get('ui.depot.placed_unreachable', { tool: this.build.name(ctx), who });
+          this.log.append('alert', text, ctx.readers.calendar.tick, ghost.tiles[0]);
+        }
         if (stock !== '') text = `${text} · ${stock}`;
         this.notice(text);
         this.build.rememberPlacement(ghost.tiles, text);
@@ -1637,6 +1666,7 @@ export class FortressScreen implements Screen {
         this.clearFilters();
         this.ui.panel = null;
         if (this.ui.cursor !== null) this.ui.cursor = null;
+        this.ui.mark = null;
         return;
       }
       this.host.gameMenu?.();
@@ -2163,7 +2193,7 @@ export class FortressScreen implements Screen {
         if (k === 'PageUp' || k === 'PageDown') { this.logView.page(k === 'PageUp' ? -1 : 1); return true; }
         if (k === 'Enter') {
           const focus = this.logView.line?.focus;
-          if (focus !== undefined) this.focusOn(focus);
+          if (focus !== undefined) this.focusLine(focus);
           return true;
         }
         return false;

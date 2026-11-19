@@ -104,6 +104,7 @@ const DOCUMENTED: readonly { event: string; severity: 'note' | 'alert' | 'danger
   // `20` § Registrations.
   { event: 'CaravanArrived', severity: 'alert', doc: '20' },
   { event: 'CaravanWaiting', severity: 'alert', doc: '20' },
+  { event: 'CaravanAtDepot', severity: 'note', doc: '20' },
   { event: 'CaravanDeparted', severity: 'note', doc: '20' },
   { event: 'CaravanLost', severity: 'alert', doc: '20' },
   { event: 'TradeCompleted', severity: 'note', doc: '20' },

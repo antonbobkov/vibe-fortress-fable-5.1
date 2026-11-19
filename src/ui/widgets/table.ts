@@ -13,6 +13,8 @@ export interface Column {
   /** Cells; the last column takes what is left. */
   readonly width: number;
   readonly align?: 'left' | 'right';
+  /** A cell that does not fit ends with `»` (its tooltip has the whole text). */
+  readonly mark?: boolean;
 }
 
 /** One row's cells laid out in the columns (padded or clipped). */
@@ -22,7 +24,9 @@ export function tableRow(columns: readonly Column[], cells: readonly string[], t
     const last = k === columns.length - 1;
     const width = last ? Math.max(0, total - out.length) : c.width;
     // A column keeps one blank before the next.
-    const text = Array.from(cells[k] ?? '').slice(0, last ? width : Math.max(0, width - 1)).join('');
+    const room = last ? width : Math.max(0, width - 1);
+    const chars = Array.from(cells[k] ?? '');
+    const text = c.mark === true && chars.length > room && room > 0 ? `${chars.slice(0, room - 1).join('')}»` : chars.slice(0, room).join('');
     const pad = ' '.repeat(Math.max(0, width - Array.from(text).length));
     out += c.align === 'right' ? pad + text : text + pad;
   });

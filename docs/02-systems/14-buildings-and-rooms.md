@@ -81,12 +81,14 @@ Comfort light is the light dwarves live by, not the light crops grow by: the bui
 | Type | Result | Notes |
 |---|---|---|
 | `wall` | `wall` tile, `constructed` | Blocks everything; support rule (03) |
-| `floor` | `floor` tile, `constructed` | Over `open`; needs support |
+| `floor` | `floor` tile, `constructed` | Over `open`; needs support, or a planned floor beside it (a span, below) |
 | `paved_floor` | `floor` with `paved` material property | On existing floor; clears grass and mud; blocks regrowth; no room value |
 | `ramp` | `ramp` | On a floor with a wall among its four same-level neighbours |
 | `stairs_up` / `stairs_down` / `stairs_updown` | as named | Up stairs on a floor; down and up/down stairs on a floor whose tile below is `open` |
 | `fortification` | `fortification` | Blocks movement, passes projectiles and fluids; ranged units adjacent can shoot through |
 | `bridge` (fixed) | `floor` tiles over open | A plain constructed floor; the drawbridge is a mechanism below |
+
+**A span of floor.** A floor over `open` may be placed where nothing supports it yet, when one of its four same-level neighbours holds a planned floor (one not yet built): that floor will hold it. So a bridge over a river or a channel is planned in one go, by a drag across it (`fortress-screen.md` § Build tool), each tile beside one placed before it, out from the end the bank holds. A wall or floor over `open` that nothing supports is not started: its `build` job is made once one of its six face-adjacent tiles supports it (03's support rule), so a span is built from its held end, one tile after another, each builder standing on the floor built before. A span whose held end is cancelled waits until it is cancelled too or something holds it.
 
 Deconstruct (`DeconstructBuilding` → `remove` designation for constructions, `deconstruct` job for others): returns the material item(s); constructions revert per 03's `remove` rule.
 
@@ -208,7 +210,7 @@ Each built building contributes `materialValue + type.valueBonus` (plus the link
 - `buildings.doorAt(i)`, `buildings.lockedHatchAt(i)`, `buildings.blocksSightAt(i)` — 22's hooks for passability, falling and line of sight; `buildings.doorOpen(id)` — a creature stands in the doorway (for drawing)
 - `buildings.zonesAt(i)` — every zone on a tile, ascending (a meeting area may lie over a hall); `buildings.zoneTileQualifies(type, i)` — the tile qualifies for the zone type (the zone tool's green)
 - `buildings.types()` — every building type row (the build menu); `buildings.inputTypes(match)` — the item types an input's `match` names, by id or tag
-- `buildings.ghost(typeId, origin, orientation, width?, height?)` — the build tool's ghost: the footprint, the failing tiles, the reason `PlaceBuilding` would give (or null), and the `on` rule
+- `buildings.ghost(typeId, origin, orientation, width?, height?, planned?)` — the build tool's ghost: the footprint, the failing tiles, the reason `PlaceBuilding` would give (or null), and the `on` rule; `planned` is a set of tiles counted as planned floors (the tiles a drag places before this one, § Constructions, A span of floor)
 - `buildings.roomScore(zoneId)` — the score of a room right now, with its parts (the `zone › room` inspector)
 - `buildings.roomDiagnostics(zoneId)` — current missing furniture requirements and sorted, unique open border tiles; a read-only query, undefined for a non-room zone
 - `buildings.wellWorking(id)` — the well has water within `WELL_DEPTH` below; `buildings.cageOccupant(id)` — the creature held in a cage building, or 0; `buildings.memorialEligible(id)` — the dead dwarf has no intact body and can be named on a memorial slab

@@ -311,6 +311,7 @@ describe('T-M1-14 announcements', () => {
       TrapTriggered: 'note',
       CaravanArrived: 'alert',
       CaravanWaiting: 'alert',
+      CaravanAtDepot: 'note',
       CaravanDeparted: 'note',
         CaravanLost: 'alert',
         TradeCompleted: 'note',
