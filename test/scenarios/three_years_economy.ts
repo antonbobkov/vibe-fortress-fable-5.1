@@ -201,8 +201,9 @@ export function keepCoal(w: TestWorld, state: FortressState, smelter: number, da
  * held ten ore or more, T-620's sweep): the smelter works one job at a time with its one worker,
  * and its job stood open while that worker slept, ate or drank. As a player who sees ore pile by a
  * busy smelter builds another, once the steel is owed and IRON_ORE_PILE iron ore stand free a
- * second smelter goes up (in the workshop hall where the fortress works below), with a worker of
- * its own, and keeps SECOND_SMELTER_STEEL steel bars, and the iron for them. The burner was tried at it and left: its furnace then made
+ * second smelter goes up (in the workshop hall where the fortress works below), worked by the
+ * smith, whose forge waits on the steel, and keeps SECOND_SMELTER_STEEL steel bars, and the iron for
+ * them. The burner was tried at it and left: its furnace then made
  * too little charcoal, and the steel waited on the fuel instead.
  */
 export const IRON_ORE_PILE = 10;
@@ -1756,9 +1757,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     // both furnaces made 120 to 290 charcoal and 26 to 100 smelts in three years (T-606's sweep).
     const steel = state.strong?.since !== undefined && state.strong.steelOwed === true;
     const burner = steel || specialists['charcoal'] !== undefined ? pick('charcoal') : undefined;
-    // T-642: the second smelter has a worker of its own.
-    const second = state.placedIds['smelter_2'] !== undefined ? pick('smelter_2') : undefined;
-    for (const [type, worker] of [['wood_furnace', burner ?? fuel], ['smelter', fuel], ['smelter_2', second]] as const) {
+    for (const [type, worker] of [['wood_furnace', burner ?? fuel], ['smelter', fuel]] as const) {
       if (worker === undefined || !ent.alive(worker)) continue;
       // T-362: no hauling. The furnaces lie far from where its needs take it, and an assigned
       // worker's 500-point bonus (11 § Assignment) is fifty tiles: with hauling on it took the
@@ -1768,6 +1767,14 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       if (id && buildings.get(id)?.state === 'built' && ent.get(id, C.Workshop)?.assignedWorker !== worker) {
         command(w, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: worker });
       }
+    }
+    // T-642: the smith works the second smelter beside the forge, which waits on the steel while the
+    // kits are owed. A worker of its own took a hand from the fortress's other work, and with it the
+    // sweep's living fell (reports/data/2026-11-19-t642-iron-for-steel.md).
+    const smith = specialists['forge'];
+    const second = state.placedIds['smelter_2'] ?? 0;
+    if (smith !== undefined && ent.alive(smith) && buildings.get(second)?.state === 'built' && ent.get(second, C.Workshop)?.assignedWorker !== smith) {
+      command(w, { type: 'SetWorkshopWorker', workshopId: second, dwarfId: smith }, ['not_found', 'no_labor']);
     }
   }
   // Timber in small batches: the eight nearest trees whenever the log stock runs low.
