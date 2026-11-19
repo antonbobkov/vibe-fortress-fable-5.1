@@ -130,15 +130,18 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows).toContain('▲  ramp');
     expect(rows).toContain('<  stairs up');
     expect(rows).toContain('>  stairs down');
-    expect(rows).toContain('♣  tree');
-    expect(rows[17]).toBe('Fluids');
+    expect(rows).toContain('♣  tree: maple, oak, willow, ironwood');
+    expect(rows[22]).toBe('Fluids');
     expect(rows).toContain('~  water, levels 1-2');
     expect(rows).toContain('≈  water, levels 3-7');
     expect(rows).toContain('^  fire');
-    expect(rows[25]).toBe('Creatures');
-    expect(rows).toContain('b  badger');
-    expect(rows).toContain('B  bear');
-    expect(rows[29]).toMatch(/ page 1\/\d+$/);
+    expect(rows[29]).toMatch(/^Creatures +page 1\/\d+$/);
+    game.fortress.help.scroll = 28;
+    drawHelpPanel(s, { col: 0, row: 0, cols: 40, rows: 30 }, game.fortress.help);
+    const next = rowsOf(s.lines());
+    expect(next[1]).toBe('Creatures');
+    expect(next).toContain('b  badger');
+    expect(next).toContain('B  bear');
   });
 
   it('Help on the Start tab gives the eight steps of a first season, wrapped whole', () => {

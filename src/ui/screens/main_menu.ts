@@ -6,7 +6,8 @@
  *
  * "`Continue` loads the newest save of any kind; hidden when none exists." The screens behind
  * `Load`, `Legends`, `Settings` and `About` belong to later milestones (save/load T-M2-11, the rest
- * M7); until the host offers them their entries are drawn dim and cannot be chosen
+ * M7); until the host offers them their entries are drawn dim and cannot be chosen, and `About`,
+ * which has no screen yet, is hidden
  * (docs/archive/decisions-archive.md D-061).
  */
 
@@ -51,6 +52,8 @@ export class MainMenuScreen implements Screen {
       label: s.get(`ui.menu.${id}`),
       enabled: this.host.available(id),
     });
+    // `About` is hidden until the app has its screen; the others are drawn dim until then.
+    const about = entry('about', 'a');
     const cont: MenuItem =
       save === null
         ? { id: 'continue', key: 'c', label: s.get('ui.menu.continue'), hidden: true }
@@ -63,7 +66,7 @@ export class MainMenuScreen implements Screen {
       entry('load', 'l'),
       entry('legends', 'g'),
       entry('settings', 'o'),
-      entry('about', 'a'),
+      about.enabled === true ? about : { ...about, hidden: true },
       entry('intro', 'i'),
     ];
   }

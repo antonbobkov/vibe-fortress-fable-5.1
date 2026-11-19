@@ -1786,5 +1786,9 @@
   {
     "table": "hints",
     "id": "hint_spider_ranch"
+  },
+  {
+    "table": "palette",
+    "id": "world_cursor"
   }
 ]

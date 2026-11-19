@@ -12,7 +12,7 @@
 
 import { C } from '@core/components';
 import { FLUID_MAX_LEVEL, TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
-import { TileKind } from '@core/map3d';
+import { TileFlag, TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
@@ -25,6 +25,7 @@ import type { FluidsReader } from '@systems/fluids';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { MagicReader, SpellView } from '@systems/magic';
+import type { PlantsReader } from '@systems/plants';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES } from './mood';
 import type { Surface } from '../surface';
@@ -80,7 +81,20 @@ export function tileSummary(readers: ReaderSet, strings: Strings, i: TileIndex):
   const parts = [t.kind === TileKind.Open ? capitalize(kind) : capitalize(`${t.material} ${kind}`.trim())];
   if (t.smoothed) parts.push(strings.get('ui.look.smoothed'));
   if (t.engraved) parts.push(strings.get('ui.look.engraved'));
+  const cover = groundCover(readers, i, t.kind);
+  if (cover !== null) parts.push(strings.get(`ui.look.${cover}`));
   return parts.join(', ');
+}
+
+/**
+ * What grows on a floor (24 § Inspection): `flowers` where the map draws a flower (07's `flowerAt`,
+ * the compositor's own test), `grass` on any other outdoor floor with grass, `moss` below ground
+ * (the same flag, cave moss), or null.
+ */
+function groundCover(readers: ReaderSet, i: TileIndex, kind: TileKind): 'flowers' | 'grass' | 'moss' | null {
+  if (kind !== TileKind.Floor || (readers.map.flagsAt(i) & TileFlag.Grass) === 0) return null;
+  if (!readers.map.isOutdoor(i)) return 'moss';
+  return has(readers, '07') && readers.of<PlantsReader>('07').flowerAt(i) ? 'flowers' : 'grass';
 }
 
 /** The creatures on a tile, dwarves first (23 § Compositor step 6 order), then by id. */

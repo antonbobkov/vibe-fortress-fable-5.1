@@ -1070,6 +1070,10 @@
     "hex": "#F0E8D8"
   },
   {
+    "id": "world_cursor",
+    "hex": "#FFFF55"
+  },
+  {
     "id": "wyrm_red",
     "hex": "#FF2A00",
     "alt": "#E64500"

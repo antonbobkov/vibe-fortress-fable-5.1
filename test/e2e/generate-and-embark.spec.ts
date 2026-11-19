@@ -11,7 +11,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { findEmbarkableRegion, generateWorld, screenOf, textOf, type Hook } from './helpers';
 
-/** The map cell drawn inverted: the world-map cursor (every other map cell has a black bg). */
+/** The map cell drawn on the cursor colour: the world-map cursor (every other map cell has a black bg). */
 async function cursorCell(page: Page): Promise<number> {
   return page.evaluate(() => {
     const cells = (window as unknown as { __deepholm: Hook }).__deepholm.cells();

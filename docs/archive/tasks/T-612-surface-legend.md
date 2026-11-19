@@ -1,6 +1,8 @@
 # T-612 — The legend and the hover line explain the surface
 
-**Source:** [T-605's audit](../../reports/audits/2026-11-18-t605-first-hour-ux.md), finding 9 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 94008f88.
+
+**Source:** [T-605's audit](../../../reports/audits/2026-11-18-t605-first-hour-ux.md), finding 9 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

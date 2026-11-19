@@ -455,3 +455,4 @@ Every new row of every table goes at the end of this table, including generated 
 | materials | silk_cloth |
 | items | guano |
 | hints | hint_spider_ranch |
+| palette | world_cursor |

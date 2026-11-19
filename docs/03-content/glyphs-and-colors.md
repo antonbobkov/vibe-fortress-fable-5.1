@@ -96,6 +96,7 @@ Hex values for the light-on-dark default. The colorblind palette replaces every 
 | `alert` | #FFB700 | #FFB000 |
 | `danger` | #FF4040 | #FF7F00 |
 | `cursor` | inverted | |
+| `world_cursor` | #FFFF55 | |
 | `ghost_ok` | #358035 | #2B558C |
 | `ghost_bad` | #903535 | #8C4E2B |
 | `lever_gray` | #C0C0C0 | |
