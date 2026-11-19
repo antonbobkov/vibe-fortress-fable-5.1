@@ -469,7 +469,16 @@ export class MilitaryPanel {
     const squad = this.selectedSquad(ctx);
     if (!squad) return false;
     const dwarves = new Set(dwarvesOf(ctx));
-    const target = creaturesAt(ctx.readers, tile).find((id) => this.settingKill || dwarves.has(id));
+    // A kill order takes the most hostile creature on the tile: a raider before a wild animal, and
+    // a fortress creature (a dog fighting the raider it stands on) only when it is alone there.
+    const rank = (id: EntityId): number => {
+      const faction = ctx.readers.entities.get(id, C.Creature)?.faction ?? '';
+      return faction.startsWith('hostile') ? 0 : faction === 'wild' ? 1 : faction === 'fortress' ? 3 : 2;
+    };
+    const here = creaturesAt(ctx.readers, tile);
+    const target = this.settingKill
+      ? here.reduce<EntityId | undefined>((best, id) => (best === undefined || rank(id) < rank(best) ? id : best), undefined)
+      : here.find((id) => dwarves.has(id));
     if (target === undefined) return false;
     const order = this.settingKill ? { kind: 'kill', targetId: target } : { kind: 'follow', dwarfId: target };
     const cmd: Command = { type: 'SquadOrder', squadId: squad.id, order };

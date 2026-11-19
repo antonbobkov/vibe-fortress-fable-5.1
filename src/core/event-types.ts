@@ -361,7 +361,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   InfectionCured: "id",
   TreatmentDone: "patientId, medicId, kind",
   ThreatWarning: "kind, civ, sizeBand, edge",
-  RaidArrived: "partyId, kind, size",
+  RaidArrived: "partyId, kind, size, edge",
   RaidEnded: "partyId, outcome",
   ThiefSpotted: "id / id, itemId, animalId",
   ThiefEscaped: "id / id, itemId, animalId",

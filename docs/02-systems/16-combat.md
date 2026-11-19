@@ -171,7 +171,7 @@ An `AttackResolved` with `outcome: 'hit'`, melee or ranged, on a creature that c
 
 ### Combat log
 
-Every `AttackResolved` is rendered by the announcement registry into a combat log line from the strings table ("Orm Ashbrow hits the gloam warrior in the torso with his iron axe (18 damage)" or "The wolf bites Brynja Coldhammer in the left leg"). The combat log is a separate tab of the log panel and does not raise alerts except for the first attack of an engagement, which is an alert that centers the view: the first observed attack of an attacker and defender pair is the alert, and later attacks of that pair are notes. A log line is saved with its category, so the combat tab works after a load.
+Every `AttackResolved` is rendered by the announcement registry into a combat log line from the strings table ("Orm Ashbrow hits the gloam warrior in the torso with his iron axe (18 damage)" or "The wolf bites Brynja Coldhammer in the left leg"). A creature with a name of its own is named by the first word of it ("Halvar hits a gloam archer: 13 edge."); any other by its species with an article ("A hillfolk bandit hits Halvar: 3 blunt."), never by its content id; one that is gone when the line is drawn is "a creature". The combat log is a separate tab of the log panel and does not raise alerts except for the first attack of an engagement, which is an alert that centers the view: the first observed attack of an attacker and defender pair is the alert, and later attacks of that pair are notes. A log line is saved with its category, so the combat tab works after a load.
 
 ## State
 

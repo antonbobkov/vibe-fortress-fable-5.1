@@ -206,7 +206,7 @@ describe('T-M7-10 announcement registry and the strings audit', () => {
       if (keys === null) {
         // A `keyField` spec has one line per value; at least one must exist.
         const prefix = `${spec.stringKey}.`;
-        const any = ['0', '1', '2', '3', 'storm', 'snow', 'heatwave', 'cold_snap', 'hit', 'miss', 'parried', 'blocked', 'day_off', 'argue', 'weep']
+        const any = ['0', '1', '2', '3', 'storm', 'snow', 'heatwave', 'cold_snap', 'hit', 'miss', 'parried', 'blocked', 'day_off', 'argue', 'weep', 'raid']
           .some((value) => strings.has(`${prefix}${value}`));
         expect(any, `${type}: no line under ${spec.stringKey}`).toBe(true);
         continue;

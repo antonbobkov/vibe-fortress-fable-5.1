@@ -167,7 +167,7 @@ export class AnnouncementLog {
       out['depot'] = buildingName({ readers, registry: this.registry }, e['depotId']) || this.strings.get('ui.depot.a_depot');
     }
     const edge = e['edge'];
-    if (event.type === 'CaravanWaiting' && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);
+    if ((event.type === 'CaravanWaiting' || event.type === 'RaidArrived') && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);
     // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs."
     if (event.type === 'HostileFled') {
       const species = typeof speciesOf === 'number' ? speciesOf : readers.entities.get(Number(e['id']), C.Creature)?.species;
@@ -229,20 +229,14 @@ export class AnnouncementLog {
       const thoughtRow = this.registry.table<{ id: string; text?: string }>('thoughts').byId(thoughtId);
       if (thoughtRow?.text !== undefined) out['thought'] = thoughtRow.text;
     }
+    // A creature with a name of its own by that name (a blow by its first word: "Halvar hits a
+    // gloam archer"), any other by its species with an article, never its content id; one that is
+    // gone by the time the line is drawn is "a creature".
+    const short = event.type === 'AttackResolved';
     const attackerId = e['attackerId'] ?? e['attacker'];
-    if (typeof attackerId === 'number' && attackerId !== 0) {
-      const creature = readers.entities.get(attackerId, C.Creature);
-      out['attacker'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'attacker';
-    }
+    if (typeof attackerId === 'number' && attackerId !== 0) out['attacker'] = this.creatureLabel(readers, attackerId, short);
     const defenderId = e['defenderId'] ?? e['defender'];
-    if (typeof defenderId === 'number' && defenderId !== 0) {
-      const creature = readers.entities.get(defenderId, C.Creature);
-      out['defender'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'defender';
-    }
-    if (event.type === 'AttackResolved') {
-      if (typeof out['attacker'] === 'string') out['attacker'] = out['attacker'].split(' ')[0] ?? out['attacker'];
-      if (typeof out['defender'] === 'string') out['defender'] = out['defender'].split(' ')[0] ?? out['defender'];
-    }
+    if (typeof defenderId === 'number' && defenderId !== 0) out['defender'] = this.creatureLabel(readers, defenderId, short);
     const killerId = e['killerId'];
     if (event.type === 'KillRecorded') {
       // The event carries the names taken when the victim died; the creatures may be gone by now.
@@ -258,8 +252,7 @@ export class AnnouncementLog {
       const species = typeof e['killerSpecies'] === 'number' ? e['killerSpecies'] : creature?.species;
       out['killer'] = killerWords(this.registry, name, species);
     } else if (typeof killerId === 'number' && killerId !== 0) {
-      const creature = readers.entities.get(killerId, C.Creature);
-      out['killer'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'killer';
+      out['killer'] = this.creatureLabel(readers, killerId, false);
     }
     // §4.5: a reason code reads as words ("No immigrants this season: hall spirit must be
     // Content (now Unhappy)", "…fallen: they were offered wooden goods"); a stockpile by name.
@@ -271,11 +264,16 @@ export class AnnouncementLog {
     }
     if (event.type === 'StockpileFull' && typeof deadId === 'number') out['zone'] = stockpileName({ readers, strings: this.strings }, deadId) || this.strings.get('ui.zone.type.stockpile');
     const victimId = e['victimId'];
-    if (typeof victimId === 'number' && victimId !== 0) {
-      const creature = readers.entities.get(victimId, C.Creature);
-      out['victim'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'victim';
-    }
+    if (typeof victimId === 'number' && victimId !== 0) out['victim'] = this.creatureLabel(readers, victimId, false);
     return out;
+  }
+
+  /** A creature in a line: {@link creatureWords}, its own name's first word when `short`, "a creature" when it is gone. */
+  private creatureLabel(readers: ReaderSet, id: number, short: boolean): string {
+    const creature = readers.entities.get(id, C.Creature);
+    if (creature === undefined) return creatureWords(this.registry, undefined, undefined);
+    const words = creatureWords(this.registry, creature.name, creature.species);
+    return short && words === creature.name ? words.split(' ')[0] ?? words : words;
   }
 
   /**
