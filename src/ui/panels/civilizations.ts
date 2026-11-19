@@ -4,6 +4,7 @@ import type { Civ } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
 import { neverSold, REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
+import type { Registry } from '@core/registry';
 import { itemName } from '../messages';
 import type { Surface } from '../surface';
 import { captionButtons, label } from '../widgets';
@@ -11,6 +12,21 @@ import { accel, type PanelContext } from './context';
 
 export const TRADE_CIVILIZATIONS: readonly Civ[] = ['mountainhome', 'hillfolk', 'wildwood'];
 const CIV_NAMES: Readonly<Record<Civ, string>> = { mountainhome: 'Mountainhome', hillfolk: 'Hillfolk', wildwood: 'Wildwood', gloam: 'Gloam' };
+
+/**
+ * The goods of a civilization's last caravan as the panel names them: each kind once by its name,
+ * with its count when it came more than once ("leather ×4, goat, dung ×3"); an id is an item type
+ * or, for an animal, a creature.
+ */
+export function lastBroughtText(registry: Registry, ids: readonly string[]): string {
+  const counts = new Map<string, number>();
+  for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1);
+  const creatures = registry.hasTable('creatures') ? registry.table<{ id: string; name: string }>('creatures') : null;
+  return Array.from(counts, ([id, n]) => {
+    const name = registry.table('items').has(id) ? itemName(registry, id) : creatures?.byId(id)?.name ?? id.replace(/_/g, ' ');
+    return n > 1 ? `${name} ×${n}` : name;
+  }).join(', ');
+}
 
 export class CivilizationsPanel {
   selected = 0;
@@ -90,7 +106,7 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   row += 1;
   const civ = panel.civ();
   label(s, col, row++, `── ${CIV_NAMES[civ]} ──`, { fg: s.theme.key, width });
-  label(s, col, row++, `Last brought: ${trade.lastBrought(civ).join(', ') || 'none'}`, { width });
+  label(s, col, row++, `Last brought: ${lastBroughtText(ctx.registry, trade.lastBrought(civ)) || 'none'}`, { width });
   const requestsWidth = label(s, col, row++, 'Requests [+]', { fg: s.theme.key, width });
   s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => { panel.choosingRequest = true; panel.candidate = 0; });
   const entries = trade.requests(civ);

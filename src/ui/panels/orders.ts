@@ -241,6 +241,21 @@ export class OrdersPanel {
   }
   pickerRecipe(ctx: PanelContext): RecipeRow | undefined { return this.pickerRecipes(ctx)[this.picker.list.selected]; }
 
+  /**
+   * The highlight after the filter changes: the first listed recipe of the best rank, so that what a
+   * workshop can make now is chosen before what lacks an input, and that before what has no workshop.
+   */
+  private bestMatch(ctx: PanelContext): number {
+    const recipes = this.pickerRecipes(ctx);
+    let best = 0;
+    let bestRank = Number.POSITIVE_INFINITY;
+    recipes.forEach((recipe, index) => {
+      const rank = this.rank(ctx, recipe);
+      if (rank < bestRank) { bestRank = rank; best = index; }
+    });
+    return best;
+  }
+
   /** 0: a built workshop can make it now; 1: its workshop exists but lacks an input; 2: no such workshop is built. */
   rank(ctx: PanelContext, recipe: RecipeRow): number {
     // The order must not depend on the workshop chosen in the picker, or choosing one would move the recipe.
@@ -348,7 +363,7 @@ export class OrdersPanel {
     if (k === 'Backspace') {
       p.filter = p.filter.slice(0, -1);
       p.chosen = true;
-      p.list.selected = 0;
+      p.list.selected = this.bestMatch(ctx);
       this.syncWhere(ctx);
       return true;
     }
@@ -362,7 +377,7 @@ export class OrdersPanel {
     if (/^[a-zA-Z]$/.test(k)) {
       p.filter += k.toLowerCase();
       p.chosen = true;
-      p.list.selected = 0;
+      p.list.selected = this.bestMatch(ctx);
       this.syncWhere(ctx);
       return true;
     }
@@ -492,8 +507,37 @@ export class OrdersPanel {
     confirmThen(ctx, 'c_remove_order', { recipe: this.recipeName(ctx, entry.order.recipe) }, () => {
       const index = this.queuedIndex(ctx, entry);
       if (index === null) ctx.notice?.(ctx.strings.get('ui.orders.vanished'));
-      else ctx.submit({ type: 'RemoveWorkOrder', workshopId: entry.workshopId, index });
+      else {
+        ctx.submit({ type: 'RemoveWorkOrder', workshopId: entry.workshopId, index });
+        this.forget(ctx, entry.workshopId, entry.order, index);
+      }
     });
+  }
+
+  /**
+   * A removed `once` order is forgotten: its placed count goes, so that the next order of the same
+   * recipe that finishes is not written with the count the removed one was placed with. The counts
+   * are kept oldest first, as the orders of one recipe stand in the queue.
+   */
+  private forget(ctx: PanelContext, workshopId: EntityId, order: WorkOrder, index: number): void {
+    if (order.mode !== 'once') return;
+    const reader = this.reader(ctx);
+    const recipeId = reader?.recipe(order.recipe)?.id;
+    if (reader === null || recipeId === undefined) return;
+    const asks = this.placed.get(`${workshopId}:${recipeId}`);
+    if (asks === undefined || asks.length === 0) return;
+    const queue = workshopId === 0 ? reader.globalOrders() : reader.ordersOf(workshopId);
+    const before = queue.slice(0, index).filter((b) => b.recipe === order.recipe && b.mode === 'once').length;
+    asks.splice(Math.min(before, asks.length - 1), 1);
+  }
+
+  /** Forget everything this panel remembers of a fortress: a new or loaded fortress starts with none. */
+  reset(): void {
+    this.finished = [];
+    this.recent = [];
+    this.placed.clear();
+    this.workshopId = 0;
+    this.picker.open = false;
   }
 
   /**

@@ -516,7 +516,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.zone.room': 'Room: {tier} (score {score})',
   'ui.zone.room_parts': 'tiles {tiles} walls {walls} furn. {furniture} size {size}',
   'ui.zone.enclosed': 'Enclosed',
-  'ui.zone.open': 'Not enclosed: {n} open border tiles',
+  'ui.zone.open': 'Not enclosed: {n|open border tile|open border tiles}',
   'ui.zone.types_action': 'zone types',
   'ui.zone.needs.bed': 'Needs a bed',
   'ui.zone.needs.table_chair': 'Needs a table with a chair',
@@ -1525,7 +1525,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.came_of_age': '{dwarf} has come of age.',
   'announce.legendary': '{dwarf} is a legendary {skill}.',
   // 17 Health announcements
-  'announce.patient_admitted': '{dwarf} has been admitted to the hospital.',
+  'announce.patient_admitted': '{dwarf} is wounded and needs care.',
   'announce.dwarf_unconscious': '{dwarf} has lost consciousness.',
   'announce.dwarf_died': '{dwarf} has died.',
   'announce.pet_died': '{name} has died.',

@@ -416,7 +416,8 @@ export function drawLookPanel(
               continue;
             }
             const filled = barCells(part.hp, part.maxHp, HEALTH_PART_BAR_CELLS);
-            line(`  ${pName} ${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)} ${part.hp}/${part.maxHp} hp`);
+            // Wasting takes fractions of a hit point; the panel writes whole ones, as it writes the mood.
+            line(`  ${pName} ${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)} ${Math.round(part.hp)}/${Math.round(part.maxHp)} hp`);
             for (const w of part.wounds) {
               const flags: string[] = [];
               if (w.bandaged) flags.push('bandaged');

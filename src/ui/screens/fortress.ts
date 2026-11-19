@@ -450,6 +450,15 @@ export class FortressScreen implements Screen {
   /** 24 § Interfaces: future systems and content can add a hint through the UI registry. */
   registerHint(hint: HintRow): void { this.hints.hint(hint); }
 
+  /**
+   * A new or loaded fortress keeps nothing of the one before it: the log and the orders panel's
+   * finished and recent rows belong to the fortress they were made in (24 § Announcements and the log).
+   */
+  resetSession(): void {
+    this.log.lines.length = 0;
+    this.orders.reset();
+  }
+
   resetHints(): void {
     this.ui.hintsShown = [];
     this.ui.hintPending = [];

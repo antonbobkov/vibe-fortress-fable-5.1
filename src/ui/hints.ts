@@ -54,6 +54,10 @@ export interface HintFacts {
   skylightBuilt?: boolean;
   /** 08 § Cages: the first caged spider was placed in a cage building. */
   spiderRanch?: boolean;
+  /** 13 § Rot: the first food item of the fortress turned stale. */
+  foodStale?: boolean;
+  /** 03 § Caverns: the first cavern was breached. */
+  cavernBreached?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -100,6 +104,8 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_hive': return f.hiveShort === true;
     case 'hint_skylight': return f.skylightBuilt === true;
     case 'hint_spider_ranch': return f.spiderRanch === true;
+    case 'hint_rot': return f.foodStale === true;
+    case 'hint_breach': return f.cavernBreached === true;
     default: return false;
   }
 }
@@ -178,6 +184,9 @@ export class HintEngine {
     if (event.type === 'Slept' && fields['onFloor'] === true && this.palletMaterials(readers)) this.markId('hint_pallet');
     if (event.type === 'DoorBroken') this.markId('hint_troll');
     if (event.type === 'CavernBreached' && fields['cavern'] === 2) this.markId('hint_magma');
+    if (event.type === 'CavernBreached') this.markId('hint_breach');
+    // 13 § Rot: stage 1 is stale; a corpse is not food.
+    if (event.type === 'ItemRotStage' && fields['stage'] === 1 && this.isFood(readers, Number(fields['id']))) this.markId('hint_rot');
     if (event.type === 'VeinFound' && typeof fields['material'] === 'string' &&
       this.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(fields['material'])?.deepsilver === true) this.markId('hint_deep');
     if (event.type === 'BuildingCompleted' && fields['buildingType'] === 'cage_trap') this.markId('hint_cage');
@@ -242,6 +251,14 @@ export class HintEngine {
     const occupant = b14.cageOccupant(id);
     const species = occupant === 0 ? undefined : readers.entities.get(occupant, C.Creature)?.species;
     return species !== undefined && this.registry.table<{ id: string }>('creatures').byIndex(species)?.id === 'giant_cave_spider';
+  }
+
+  /** An item of the `food` category (13's category path), read while it is still there. */
+  private isFood(readers: ReaderSet, id: number): boolean {
+    const item = readers.entities.get(id, C.Item);
+    if (item === undefined) return false;
+    const category = this.registry.table<{ id: string; category?: string }>('items').byIndex(item.type)?.category ?? '';
+    return category === 'food' || category.startsWith('food/');
   }
 
   private fortressDwarf(readers: ReaderSet, id: number): boolean {
@@ -350,6 +367,8 @@ export class HintEngine {
       hiveShort: readers.has('08') && readers.of<AnimalsReader>('08').hives()
         .some((id) => readers.of<AnimalsReader>('08').hiveFlowers(id) < HIVE_FLOWERS_MIN),
       skylightBuilt: this.pending('hint_skylight'),
+      foodStale: this.pending('hint_rot'),
+      cavernBreached: this.pending('hint_breach'),
     };
   }
 }

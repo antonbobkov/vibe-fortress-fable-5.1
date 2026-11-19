@@ -186,7 +186,7 @@ export function tradeBlocked(env: MessageEnv, depotId: EntityId): string | null 
 export function itemName(registry: Registry, id: string, n = 1): string {
   const row = registry.table<NamedRow>('items').byId(id);
   if (row === undefined) return id.replace(/_/g, ' ');
-  return n === 1 ? row.name : row.plural ?? `${row.name}s`;
+  return n === 1 ? row.name : row.plural ?? (row.name.endsWith('s') ? row.name : `${row.name}s`);
 }
 
 /** The first words of an item type in a cured or salted form (`items.md` § Food). */
@@ -212,7 +212,8 @@ function namedByMaterial(category: string | undefined): boolean {
  * "20 ale"), as the stocks panel names their stacks.
  */
 export function materialItemName(material: string, type: { readonly name: string; readonly plural?: string | undefined; readonly category?: string | undefined }, n = 1): string {
-  const typeName = n === 1 ? type.name : type.plural ?? `${type.name}s`;
+  // A name that already ends in s ("boots") is its own plural when the table gives none.
+  const typeName = n === 1 ? type.name : type.plural ?? (type.name.endsWith('s') ? type.name : `${type.name}s`);
   if (material === '') return typeName;
   if (namedByMaterial(type.category)) return material;
   const m = material.split(' ');

@@ -846,7 +846,7 @@ export class Game {
     this.subscribe();
     this.finished = loaded.header.kind === 'final';
     this.autosaveDue = null;
-    this.fortress.log.lines.length = 0;
+    this.fortress.resetSession();
     if (loaded.ui !== null) {
       this.fortress.log.lines.push(...fromSaved(this.ui, loaded.ui as SavedUiState));
       // The saved zoom is the one that was in effect; the window fits again from the setting.
@@ -1034,6 +1034,7 @@ export class Game {
     await this.host.newGame({ seed: spec.seed ?? this.seed, ...(spec.embark === undefined ? {} : { embark: spec.embark }) });
     this.lastSaveCommands = 0;
     this.fortress.tool.clearHistory();
+    this.fortress.resetSession();
     this.fortress.resetHints();
     this.subscribe();
     this.resetTo(FORTRESS);
@@ -1286,6 +1287,7 @@ export class Game {
   enterFortress(): void {
     this.fortress.tool.clearHistory();
     this.busy = null;
+    this.fortress.resetSession();
     this.fortress.resetHints();
     this.resetTo(FORTRESS);
     this.host.setSpeed(0);

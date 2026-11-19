@@ -1790,5 +1790,13 @@
   {
     "table": "palette",
     "id": "world_cursor"
+  },
+  {
+    "table": "hints",
+    "id": "hint_rot"
+  },
+  {
+    "table": "hints",
+    "id": "hint_breach"
   }
 ]

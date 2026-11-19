@@ -269,7 +269,7 @@ export class TradeSessionScreen implements Screen {
       }
     }
     const totals = this.totals();
-    const totalsParams = { take: Math.round(totals.take), give: Math.round(totals.give), margin: trade.marginPercent(civ), required: totals.required };
+    const totalsParams = { take: Math.round(totals.take), give: Math.round(totals.give), margin: Math.round(trade.marginPercent(civ)), required: totals.required };
     const fullTotals = this.strings.get('ui.trade.totals', totalsParams);
     const totalsText = Array.from(fullTotals).length <= available ? fullTotals : this.strings.get('ui.trade.totals_short', totalsParams);
     label(surface, 2, footer, totalsText, { fg: t.value, width: available });

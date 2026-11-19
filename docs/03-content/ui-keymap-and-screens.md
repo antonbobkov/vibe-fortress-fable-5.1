@@ -599,16 +599,16 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 | Key | Text |
 |---|---|
-| `announce.caravan_arrived` | "A caravan has arrived from {civ}." |
+| `announce.caravan_arrived` | "A caravan has arrived from the {civ}." |
 | `announce.caravan_departed` | "The {civ} caravan has departed." |
 | `announce.caravan_lost` | "The {civ} caravan has been lost." |
 | `announce.caravan_waiting` | "The {civ} caravan waits at the edge for a trade depot." |
-| `announce.trade_completed` | "A trade with {civ} is complete." |
+| `announce.trade_completed` | "A trade with the {civ} is complete." |
 | `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children} of them children." |
 | `announce.immigration_skipped` | "No immigrants this season: {reason}." |
 | `announce.dangerous_arrived` | "A {species} has come to the valley." |
 | `announce.dangerous_arrived_many` | "{count} {species} have come to the valley." |
-| `announce.reputation_changed` | "Our standing with {civ} has fallen: {reason}." |
+| `announce.reputation_changed` | "Our standing with the {civ} has fallen: {reason}." |
 | `announce.workshop_missing_input` | "{workshop} is idle: no {input}." |
 | `announce.plot_needs_seeds` | "{plot} has no {species} seeds." |
 | `announce.crater_entered` | "{dwarf} stood where the star fell." |
@@ -668,6 +668,8 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_hive` | a built hive with too few flowers in reach | "Bees need flowers: three within six tiles of the hive. Look for a meadow." |
 | `hint_skylight` | first glass floor built over open space | "A glass floor is a skylight: crops below grow in every season, as warm as the rock around them." |
 | `hint_spider_ranch` | first caged spider placed in a cage building | "The spider does not need feeding. Nobody has asked it." |
+| `hint_rot` | the first food item of the fortress turns stale | "Food rots: meals and raw food keep two or three weeks. Barrels in a food stockpile slow it four times; smoked or salted meat keeps. Cook, farm and fish for more." |
+| `hint_breach` | first cavern breach | "A cavern lies open to the fortress, and what lives there can walk in. Wall the opening off [b > Constructions] or hang a door in it set to Lock on alert." |
 
 ## Tutorial
 
