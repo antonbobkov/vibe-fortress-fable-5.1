@@ -2548,10 +2548,12 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
     if (day < plan.day || armingSquad(state) || adults.length < plan.adults || (strong.barracks?.zoneId ?? 0) === 0) return false;
     strong.since = day;
     command(w, { type: 'SetSquadEquipment', squadId: state.squadId, equipment: { weaponClass: 'sword' } });
-    // The Mountainhome's next caravans bring steel and its kit, and flux for the fortress's own (20 § Requests).
+    // The Mountainhome's next caravans bring steel and its body armour and shield, flux for the
+    // fortress's own, and coal and charcoal to burn it with (20 § Requests). T-620: the helm, greaves
+    // and sword asked for in their place came 0.5 pieces a fortress-timeline in T-616's sweep.
     command(w, { type: 'SetRequests', civ: 'mountainhome', entries: [
       { itemType: 'bar', material: 'steel', priority: 3 }, { itemType: 'mail_shirt', material: 'steel', priority: 2 }, { itemType: 'shield', material: 'steel', priority: 2 },
-      { itemType: 'helm', material: 'steel', priority: 1 }, { itemType: 'greaves', material: 'steel', priority: 1 }, { itemType: 'short_sword', material: 'steel', priority: 1 },
+      { itemType: 'coal_bar', priority: 2 }, { itemType: 'charcoal_bar', priority: 1 },
       { itemType: 'raw_stone', material: 'limestone', priority: 1 }, { itemType: 'seed', material: 'dimcap', priority: 2 }] });
     note('three_years_strong_squad', { day: day + 1, adults: adults.length });
   }
