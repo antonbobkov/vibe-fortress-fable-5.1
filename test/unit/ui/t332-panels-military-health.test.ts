@@ -137,7 +137,9 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[23]).toBe('Patrol none [S-p] add [y] clear');
     expect(rows[24]).toBe('Orders [S-k] kill [S-f] follow');
     expect(rows[25]?.trim()).toBe('[q] cancel orders');
-    expect(rows[26]).toBe('No barracks  [S-b] assign');
+    // On Train with no barracks the row says the squad cannot train (T-624).
+    expect(rows[26]).toBe('No barracks: the squad cannot');
+    expect(rows[27]?.trim()).toBe('train. [z] Barracks, then [S-b].');
   });
 
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {

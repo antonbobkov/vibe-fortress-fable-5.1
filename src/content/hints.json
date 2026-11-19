@@ -121,8 +121,13 @@
   },
   {
     "id": "hint_predator",
-    "trigger": "first AnimalSpawned of a dangerous species",
+    "trigger": "first AnimalSpawned of a dangerous species while the fortress has a shelter (a hearth hall, a built door or a bedroom zone)",
     "text": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is."
+  },
+  {
+    "id": "hint_predator_open",
+    "trigger": "first AnimalSpawned of a dangerous species while the fortress has no shelter",
+    "text": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert once your hall has a door: before that there is nowhere to shelter, and the alert only stops the work. [n] then [2] shows where it is."
   },
   {
     "id": "hint_food",

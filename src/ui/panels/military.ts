@@ -181,6 +181,11 @@ export class MilitaryPanel {
     if (host !== undefined) host.submit(cmd);
     else ctx.submit(cmd);
     if (cmd.type === 'SetSquadMode' && cmd['mode'] !== 'off' && squad.members.length === 0) ctx.notice?.(ctx.strings.get('ui.military.mode_no_members', { squad: squad.name }));
+    else if (cmd.type === 'SetSquadMode' && cmd['mode'] === 'train') {
+      // 16 § Training: a squad trains only at a barracks, and an unarmed member drills its dodging alone.
+      if (this.barracksZones(ctx).length === 0) ctx.notice?.(ctx.strings.get('ui.military.train_no_barracks'));
+      else if (squad.members.some((id) => heldWeapon(ctx.readers, ctx.registry, id) === 0)) ctx.notice?.(ctx.strings.get('ui.military.train_unarmed'));
+    }
     return true;
   }
 
@@ -331,6 +336,16 @@ export class MilitaryPanel {
   /** Every barracks zone, in zone order. */
   barracksZones(ctx: PanelContext): EntityId[] {
     return ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14').zonesOfType('barracks') : [];
+  }
+
+  /**
+   * The barracks the squad trains at when none is assigned (16 § Training): the one it last trained
+   * at while that zone stands, else the first barracks; 0 with none. Read from the zones, so a zone
+   * made while paused shows at once.
+   */
+  defaultBarracks(ctx: PanelContext, squad: SquadWithId): EntityId {
+    const zones = this.barracksZones(ctx);
+    return zones.includes(squad.barracksZoneId) ? squad.barracksZoneId : zones[0] ?? 0;
   }
 
   /** The barracks zone whose `squad` setting names this squad, or 0. */
@@ -588,9 +603,18 @@ export function drawMilitaryPanel(
   ], { width });
   row += 1;
   // One line says what the current alert does.
-  for (const line of wrapText(ctx.strings.get(`ui.military.alert_${currentAlert}`), width, 2)) {
+  for (const line of wrapText(ctx.strings.get(`ui.military.alert_${currentAlert}`), width, 3)) {
     label(s, col, row, line, { fg: t.dim, width, keys: false });
     row += 1;
+  }
+  // 19 § Hearth alert retreat: the civilians the alert finds no shelter for wait where they are.
+  const unsheltered = currentAlert === 'hearth' && ctx.readers.has('10') ? ctx.readers.of<{ unsheltered(): EntityId[] }>('10').unsheltered().length : 0;
+  if (unsheltered > 0) {
+    const hall = ctx.readers.has('14') && ctx.readers.of<BuildingsReader>('14').hearthHallTiles().length > 0;
+    for (const line of wrapHang(ctx.strings.get(hall ? 'ui.military.no_shelter_reach' : 'ui.military.no_shelter_wagon', { n: unsheltered }), width, 2)) {
+      label(s, col, row, line, { fg: t.alert, width });
+      row += 1;
+    }
   }
 
   // Squads header
@@ -760,9 +784,18 @@ export function drawMilitaryPanel(
 
   // Barracks: the zone assigned to the squad (`SetZoneSetting`), and the one it trains at when
   // that differs (16 keeps the first barracks a squad trained in).
+  // With no barracks at all, a squad on Train trains nothing: the line says so in the alert colour.
   const strings = ctx.strings;
   const assigned = panel.assignedBarracks(ctx, squad.id);
-  const used = squad.barracksZoneId;
+  const used = assigned !== 0 ? 0 : panel.defaultBarracks(ctx, squad);
+  if (assigned === 0 && used === 0 && squad.mode === 'train') {
+    for (const line of wrapHang(strings.get('ui.military.train_no_barracks'), width, 2)) {
+      label(s, col, row, line, { fg: t.alert, width });
+      s.hit({ col, row, cols: width, rows: 1 }, () => panel.openChoice(ctx, 'barracks'));
+      row += 1;
+    }
+    return;
+  }
   const barracks = assigned !== 0
     ? strings.get('ui.military.barracks_assigned', { zone: zoneName(ctx, assigned) })
     : used !== 0 ? strings.get('ui.military.barracks_used', { zone: zoneName(ctx, used) }) : strings.get('ui.military.barracks_none');

@@ -24,6 +24,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { CombatReader, SquadWithId } from '@systems/combat';
 import { DWARF_NAME_MAX, NO_JOB } from '@systems/dwarves';
 import type { HealthReader } from '@systems/health';
+import type { JobsReader } from '@systems/jobs';
 import type { MoraleReader } from '@systems/morale';
 import { TITLE_IDS } from '../constants';
 import type { Surface } from '../surface';
@@ -40,6 +41,7 @@ interface DwarvesReaderLike {
   skill(id: EntityId, skill: string): number;
   isChild?(id: EntityId): boolean;
   holder?(title: TitleId): EntityId;
+  unsheltered?(): EntityId[];
 }
 
 interface SkillRow {
@@ -67,6 +69,38 @@ export function isIdle(ctx: PanelContext, id: EntityId): boolean {
   if (!ctx.readers.has('10')) return false;
   const text = ctx.readers.of<DwarvesReaderLike>('10').activityText(id);
   return text === '' || text === NO_JOB;
+}
+
+/** The need errands whose activity is the need's own name, read as verbs (10 § Player-facing behavior). */
+const NEED_ACTIVITIES = new Set(['hunger', 'thirst', 'sleep', 'social', 'comfort', 'joy']);
+
+/**
+ * The words for an activity wherever a panel shows one (10 § Player-facing behavior): an idle dwarf
+ * reads "Idle", or "Sheltering (no shelter)" while the hearth alert finds it no shelter; a need
+ * errand reads as a verb ("Eating"); a job named for its recipe ("Craft (recipe)") names the recipe
+ * ("Craft: wooden bolts"). Any other activity reads as 10 gives it; '' for a creature without one.
+ */
+export function activityLabel(ctx: Pick<PanelContext, 'readers' | 'registry' | 'strings'>, id: EntityId): string {
+  if (!ctx.readers.has('10')) return '';
+  const dwarves = ctx.readers.of<DwarvesReaderLike>('10');
+  const raw = dwarves.activityText(id);
+  if (raw === NO_JOB) return idleLabel(ctx, id);
+  if (NEED_ACTIVITIES.has(raw)) return ctx.strings.get(`ui.units.need.${raw}`);
+  const RECIPE = ' (recipe)';
+  if (raw.endsWith(RECIPE) && ctx.readers.has('11')) {
+    const recipe = ctx.readers.of<JobsReader>('11').forWorker(id)?.data['recipe'];
+    const name = typeof recipe === 'string' ? ctx.registry.table<{ id: string; name: string }>('recipes').byId(recipe)?.name : undefined;
+    if (name !== undefined && name !== '') {
+      return ctx.strings.get('ui.units.recipe_job', { job: raw.slice(0, -RECIPE.length), recipe: `${name.charAt(0).toLowerCase()}${name.slice(1)}` });
+    }
+  }
+  return raw;
+}
+
+/** An idle dwarf's activity: "Idle", or "Sheltering (no shelter)" while the hearth alert has no shelter for it. */
+export function idleLabel(ctx: Pick<PanelContext, 'readers' | 'strings'>, id: EntityId): string {
+  const unsheltered = ctx.readers.has('10') ? ctx.readers.of<DwarvesReaderLike>('10').unsheltered?.() ?? [] : [];
+  return ctx.strings.get(unsheltered.includes(id) ? 'ui.units.sheltering_none' : 'ui.units.idle');
 }
 
 /** How many dwarves are idle, for the panel title. */
@@ -402,7 +436,7 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
     ],
     rows.map((id, k) => {
       // 10 § Tipsy: "Tipsy" beside the activity.
-      const activity = isIdle(ctx, id) ? strings.get('ui.units.idle') : dwarves?.activityText(id) ?? '';
+      const activity = isIdle(ctx, id) ? idleLabel(ctx, id) : activityLabel(ctx, id);
       const tipsy = dwarves?.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity }) : activity;
       return [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${nameOf(ctx, id)}`, '', tipsy];
     }),
@@ -430,7 +464,7 @@ export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: P
     const id = rows[index] as EntityId;
     const cells = { col: area.col, row: area.row + 1 + r, cols: NAME_COLS - 1, rows: 1 };
     s.tooltip(cells, strings.get('ui.units.row_tip', { name: nameOf(ctx, id), profession: professionOf(ctx, id) }), { box: false });
-    if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, strings.get('ui.units.idle'), { fg: t.dim, width: area.cols - NAME_COLS - MOOD_COLS, keys: false });
+    if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, idleLabel(ctx, id), { fg: t.dim, width: area.cols - NAME_COLS - MOOD_COLS, keys: false });
   }
   const row = rect.row + 1 + top + height;
   const col = rect.col + 1;
