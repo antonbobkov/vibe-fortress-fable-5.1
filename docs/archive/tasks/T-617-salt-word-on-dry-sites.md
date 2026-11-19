@@ -1,5 +1,7 @@
 # T-617 — A desert site's salt is not called sea salt
 
+**Closed:** 2026-11-18, in 079f9032.
+
 **Source:** T-613 (the world map's words) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
