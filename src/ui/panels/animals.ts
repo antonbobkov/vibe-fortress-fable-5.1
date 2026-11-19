@@ -14,7 +14,27 @@ import { asWritten, button, captionButtons, label, normalizeName, numberField, s
 import { buildings, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 import { acceleratorLabel } from '../keymap';
-import { rejectionText } from '../messages';
+import { pluralName, rejectionText, wrapText } from '../messages';
+
+/**
+ * How fed a tame grazer is, from its condition (08: hunger, 0 fed to 100 starving): 3 (fed) to 0
+ * (starving); null for an animal that does not graze, whose condition does not change.
+ */
+export function fedLevel(r: AnimalsReader, id: EntityId, species: number): number | null {
+  if (r.def(species)?.diet !== 'grazer') return null;
+  const condition = r.condition(id);
+  return condition >= 100 ? 0 : condition >= 67 ? 1 : condition >= 34 ? 2 : 3;
+}
+
+/** The Fed column's bar: one `▓` a level, `░` for the rest; `—` for an animal that does not graze. */
+export function fedBar(level: number | null): string {
+  return level === null ? '—' : `${'▓'.repeat(level)}${'░'.repeat(3 - level)}`;
+}
+
+/** Whether a creature carries a name of its own (not its species' name or id). */
+function named(name: string, species: { readonly id: string; readonly name: string } | undefined): boolean {
+  return name !== '' && name !== species?.name && name !== species?.id;
+}
 
 export class AnimalsPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
@@ -23,26 +43,65 @@ export class AnimalsPanel {
   trainChoice: { animalId: EntityId; selected: 0 | 1 } | null = null;
   capEditor: { species: number; value: number; replace: boolean } | null = null;
   reader(ctx: PanelContext): AnimalsReader | null { return ctx.readers.has('08') ? ctx.readers.of<AnimalsReader>('08') : null; }
-  rows(ctx: PanelContext): EntityId[] {
+
+  /**
+   * The list's rows, each the animals it stands for (`panels.md` § Animals). Tame: unnamed animals
+   * of one species, pasture, hunger, training, owner and slaughter mark are one row ("cow ×6"); a
+   * named animal is a row of its own; by species, then the groups before the named, then pasture,
+   * the best fed first. Wild: one row per species, in the order they were first seen.
+   */
+  groups(ctx: PanelContext): EntityId[][] {
     const r = this.reader(ctx);
     if (r === null) return [];
-    if (this.tab === 0) return r.tameList();
-    const seen = new Set<number>();
-    return r.wildList().filter((id) => {
-      const species = ctx.readers.entities.get(id, C.Creature)?.species ?? 0;
-      if (seen.has(species)) return false;
-      seen.add(species);
-      return true;
-    });
+    if (this.tab === 1) {
+      const seen = new Set<number>();
+      return r.wildList().filter((id) => {
+        const species = ctx.readers.entities.get(id, C.Creature)?.species ?? 0;
+        if (seen.has(species)) return false;
+        seen.add(species);
+        return true;
+      }).map((id) => [id]);
+    }
+    const pastures = buildings(ctx)?.zonesOfType('pasture') ?? [];
+    const byKey = new Map<string, { ids: EntityId[]; sort: readonly (string | number)[] }>();
+    for (const id of r.tameList()) {
+      const creature = ctx.readers.entities.get(id, C.Creature);
+      const tame = ctx.readers.entities.get(id, C.Tame);
+      const species = creature?.species ?? 0;
+      const def = r.def(species);
+      const speciesName = def?.name ?? '?';
+      const pasture = pastures.indexOf(r.pastureOf(id)) + 1;
+      const fed = fedLevel(r, id, species) ?? 4;
+      const own = named(creature?.name ?? '', def);
+      const status = trainStatus(ctx, id, tame?.trained ?? 'none');
+      const key = own ? `id:${id}` : [species, pasture, fed, status, tame?.assignedTo ?? 0, tame?.slaughter === true ? 1 : 0].join(':');
+      const row = byKey.get(key);
+      if (row !== undefined) row.ids.push(id);
+      else byKey.set(key, { ids: [id], sort: [speciesName, own ? 1 : 0, own ? creature?.name ?? '' : '', pasture === 0 ? Infinity : pasture, -fed, id] });
+    }
+    const compare = (a: readonly (string | number)[], b: readonly (string | number)[]): number => {
+      for (let k = 0; k < a.length; k += 1) {
+        const x = a[k] as string | number; const y = b[k] as string | number;
+        if (x !== y) return x < y ? -1 : 1;
+      }
+      return 0;
+    };
+    return Array.from(byKey.values()).sort((a, b) => compare(a.sort, b.sort)).map((row) => row.ids);
   }
+  /** Each row's first animal: the one the row's actions name. */
+  rows(ctx: PanelContext): EntityId[] { return this.groups(ctx).map((ids) => ids[0] as EntityId); }
+  selectedGroup(ctx: PanelContext): EntityId[] { return this.groups(ctx)[this.list.selected] ?? []; }
   selected(ctx: PanelContext): EntityId { return this.rows(ctx)[this.list.selected] ?? 0; }
   move(delta: number, ctx: PanelContext): void { this.list.selected = Math.max(0, Math.min(Math.max(0, this.rows(ctx).length - 1), this.list.selected + delta)); }
-  pasture(ctx: PanelContext): Command | null {
-    const id = this.selected(ctx); const r = this.reader(ctx); const b = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null;
-    if (id === 0 || r === null || b === null) return null;
+  /** `[S-p]`: the row's animals to the next pasture, every animal of a group together. */
+  pasture(ctx: PanelContext): Command[] | null {
+    const ids = this.selectedGroup(ctx); const r = this.reader(ctx); const b = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null;
+    const id = ids[0];
+    if (id === undefined || r === null || b === null) return null;
     const options = [0, ...b.zonesOfType('pasture')];
     const at = options.indexOf(r.pastureOf(id));
-    return { type: 'AssignPasture', animalId: id, zoneId: options[(at + 1) % options.length] ?? 0 };
+    const zoneId = options[(at + 1) % options.length] ?? 0;
+    return ids.map((animalId) => ({ type: 'AssignPasture', animalId, zoneId }));
   }
   slaughter(ctx: PanelContext): Command | null {
     const id = this.selected(ctx); if (id === 0) return null;
@@ -155,33 +214,70 @@ function trainStatus(ctx: PanelContext, id: EntityId, trained: string): string {
   return '';
 }
 
+/**
+ * A tame row in words (`panels.md` § Animals): how many and of what, the pasture, how fed, how many
+ * are pregnant, the training, the dwarf they are with and the slaughter mark ("6 cows · pasture #1 ·
+ * fed · 2 pregnant").
+ */
+export function tameDetail(ctx: PanelContext, r: AnimalsReader, ids: readonly EntityId[]): string {
+  const s = ctx.strings;
+  const id = ids[0];
+  if (id === undefined) return '';
+  const creature = ctx.readers.entities.get(id, C.Creature);
+  const tame = ctx.readers.entities.get(id, C.Tame);
+  if (creature === undefined || tame === undefined) return '';
+  const def = r.def(creature.species);
+  const species = def?.name ?? '?';
+  const parts: string[] = [];
+  parts.push(named(creature.name, def) ? s.get('ui.animals.detail.named', { name: creature.name, species })
+    : ids.length > 1 ? `${ids.length} ${pluralName(species)}` : `1 ${species}`);
+  const pasture = r.pastureOf(id);
+  parts.push(pasture === 0 ? s.get('ui.animals.detail.no_pasture')
+    : s.get('ui.animals.detail.pasture', { n: (buildings(ctx)?.zonesOfType('pasture') ?? []).indexOf(pasture) + 1 }));
+  const fed = fedLevel(r, id, creature.species);
+  if (fed !== null) parts.push(s.get(`ui.animals.fed.${fed}`));
+  const now = ctx.readers.calendar.tick;
+  const pregnant = ids.filter((a) => (ctx.readers.entities.get(a, C.Tame)?.pregnantUntil ?? 0) > now).length;
+  if (pregnant > 0) parts.push(ids.length === 1 ? s.get('ui.animals.detail.pregnant') : s.get('ui.animals.detail.pregnant_n', { n: pregnant }));
+  const status = trainStatus(ctx, id, tame.trained);
+  if (status !== '') parts.push(s.get(status === s.get('ui.animals.training') ? 'ui.animals.detail.training' : tame.trained === 'war' ? 'ui.animals.detail.trained_war' : 'ui.animals.detail.trained_hunting'));
+  if (tame.assignedTo !== 0) parts.push(s.get('ui.animals.detail.with', { name: ctx.readers.entities.get(tame.assignedTo, C.Creature)?.name ?? '' }));
+  if (tame.slaughter) parts.push(s.get('ui.animals.detail.slaughter'));
+  return parts.join(' · ');
+}
+
 export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ctx: PanelContext): void {
   const r = panel.reader(ctx); if (r === null) return;
   const col = rect.col + 1; const width = rect.cols - 2;
   label(s, col, rect.row, `[1] Tame (${r.tameList().length})  [2] Wild (${r.wildList().length})`, { fg: s.theme.key, width });
-  const ids = panel.rows(ctx);
-  const height = Math.max(2, rect.rows - (panel.tab === 0 ? 8 : 7));
+  const groups = panel.groups(ctx);
+  const str = ctx.strings;
+  const pastures = buildings(ctx)?.zonesOfType('pasture') ?? [];
+  const pastureText = (id: EntityId): string => (r.pastureOf(id) === 0 ? '—' : `#${pastures.indexOf(r.pastureOf(id)) + 1}`);
+  // The selected tame row in words, under the list: what the columns say, and what they do not.
+  const chosen = panel.tab === 0 ? groups[Math.min(panel.list.selected, groups.length - 1)] : undefined;
+  const detail = chosen === undefined ? [] : wrapText(tameDetail(ctx, r, chosen), width, 2);
+  const height = Math.max(2, rect.rows - (panel.tab === 0 ? 8 : 7) - detail.length);
   table(s, { col, row: rect.row + 1, cols: width, rows: height },
     panel.tab === 0
-      ? [{ title: 'Species', width: 8 }, { title: 'Name', width: 7 }, { title: 'Pasture', width: 6 }, { title: 'Cond/Tr', width: 12 }]
-      : [{ title: 'Species', width: 10 }, { title: 'Name', width: 9 }, { title: 'Pasture', width: 8 }, { title: 'Cond/Tr', width: 9 }],
-    ids.map((id) => {
+      ? [{ title: str.get('ui.animals.col.animal'), width: 13, mark: true }, { title: str.get('ui.animals.col.pasture'), width: 8 }, { title: str.get('ui.animals.col.fed'), width: 4 }, { title: str.get('ui.animals.col.trained'), width: 9 }]
+      : [{ title: str.get('ui.animals.col.species'), width: 14, mark: true }, { title: str.get('ui.animals.col.hunt'), width: 6 }, { title: str.get('ui.animals.col.state'), width: 14 }],
+    groups.map((ids) => {
+      const id = ids[0] as EntityId;
       const creature = ctx.readers.entities.get(id, C.Creature);
       const tame = ctx.readers.entities.get(id, C.Tame);
-      const species = r.def(creature?.species ?? 0)?.name ?? '?';
+      const def = r.def(creature?.species ?? 0);
+      const species = def?.name ?? '?';
       if (tame === undefined) {
         const count = r.bySpecies(creature?.species ?? 0, true).length;
         const hunt = ctx.readers.has('09') && ctx.readers.of<ForagingReader>('09').isHuntable(creature?.species ?? 0);
-        return [`${species} ×${count}`, hunt ? 'hunt' : '—', '—', r.state(id)];
+        return [`${species} ×${count}`, str.get(hunt ? 'ui.animals.hunt_on' : 'ui.animals.hunt_off'), r.state(id)];
       }
-      const tr = trainStatus(ctx, id, tame.trained);
-      const cond = Math.round(r.condition(id));
-      const preg = tame.pregnantUntil > ctx.readers.calendar.tick ? ' P' : '';
-      const slaught = tame.slaughter ? ' S' : '';
-      const condTr = tr ? `${cond} ${tr}${preg}${slaught}` : `${cond}${preg}${slaught}`;
-      return [species, creature?.name === species ? '—' : creature?.name ?? '—', r.pastureOf(id) === 0 ? '—' : `#${(buildings(ctx)?.zonesOfType('pasture') ?? []).indexOf(r.pastureOf(id)) + 1}`, condTr];
+      const animal = named(creature?.name ?? '', def) ? `${species} ${creature?.name ?? ''}` : ids.length > 1 ? `${species} ×${ids.length}` : species;
+      return [animal, pastureText(id), fedBar(fedLevel(r, id, creature?.species ?? 0)), trainStatus(ctx, id, tame.trained)];
     }), panel.list, (i) => { panel.list.selected = i; });
   let row = rect.row + height + 1;
+  for (const line of detail) { label(s, col, row, line, { fg: s.theme.dim, width, keys: false }); row += 1; }
   separator(s, col, row, width); row += 1;
   if (panel.tab === 0) {
     if (panel.capEditor !== null) {

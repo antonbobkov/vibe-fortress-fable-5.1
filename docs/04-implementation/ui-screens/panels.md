@@ -126,7 +126,12 @@ A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in
 │  5  Build bed        waiting: 1 bed │
 │  5  Dig (60,40,z29)  no path        │
 │  5  Dig ×19          no path        │
-│  6  Haul stone ×12   —              │
+│  5  Plant ×16        —              │
+│  6  Build kiln       open 41 days   │
+│ Nobody takes it yet: 12 more urgent │
+│ jobs come first for the 3 dwarves   │
+│ with the masonry labor. Raise its   │
+│ priority to have it sooner.         │
 │ ─────────────────────────────────── │
 │ [Enter] center  [S-p] priority      │
 │ [x] cancel  [o] standing orders     │
@@ -136,9 +141,11 @@ A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in
 
 Below the job list, "Orders waiting (n) [Tab]" lists the work orders that no job serves, three rows at a time, one row each with the reason the Orders panel shows ("x1 Mail shirt · no forge", "x3 Door · waiting for log (0)"); the Jobs text filter applies to those rows, and a click on a row opens Orders with that order selected. By keyboard, `Tab` moves the cursor (`►`) between the job list and these rows when there are any (with none it is the sidebar key); `↑` `↓` move over them, scrolling the rest into view, and `Enter` opens Orders with the order selected, as the click does.
 
-Jobs names a building target by its type (Build bed, Build carpenter's workshop), a trade by its depot's number (Trade, depot #1), an item target by its item name (Haul log), and a creature target by its own name or else its species (Hunt wild horse, Carry patient Liv Hammerfall). A job type with no name of its own in the strings reads as its id in words with a capital (Plant, Carry patient). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. A blocked batch is one row: two or more jobs next to each other in the list, blocked for the same reason, of one type and priority, each on a bare tile, show as the job's name and their count (`Dig ×19`) with the reason. While it is selected, the line under the list gives the box their tiles span and the level or levels (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`) before the reason's long text. `Enter` on it opens it to its rows and centres the first; the opened rows stay open while their jobs last (presentation state, not saved). `[S-p]` and `[x]` on the batch's row act on every job of it. With no rows, the first table body row says "No jobs. Designate [d], build [b] or order [o]."
+Jobs names a building target by its type (Build bed, Build carpenter's workshop), a trade by its depot's number (Trade, depot #1), an item target by its item name (Haul log), and a creature target by its own name or else its species (Hunt wild horse, Carry patient Liv Hammerfall). A job type with no name of its own in the strings reads as its id in words with a capital (Plant, Carry patient). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. A batch is one row: two or more jobs next to each other in the list, of one type and priority, each on a bare tile, all open or all blocked for the same reason, show as the job's name and their count (`Dig ×19`, `Plant ×16`) with the reason. While it is selected, the line under the list gives the box their tiles span and the level or levels (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`) before the reason's long text. `Enter` on it opens it to its rows and centres the first; the opened rows stay open while their jobs last (presentation state, not saved). `[S-p]` and `[x]` on the batch's row act on every job of it. With no rows, the first table body row says "No jobs. Designate [d], build [b] or order [o]."
 
-The filter controls wrap onto three rows at sidebar width: `/filter`, `[S-l] labor: all`, `[S-s] state: all`. `/` or clicking the field focuses text matching the job name or worker, ignoring case. Enter or Esc finishes typing without closing the panel. Shift-L or clicking the labor row cycles all and the labors with jobs in registry order; Shift-S or clicking the state row cycles all, open, claimed, blocked. Claimed includes fetching, travelling, working and completing. Filters combine; changing one resets selection. The summary counts all current jobs. Labor priorities show only non-default priorities, using full names separated by dots. With all defaults, the line reads "All labors at priority 5: change them in the labor manager ([l], Enter)."
+An open job (or open batch, by its oldest job) that has been open more than a day shows its age in the Who column (`open 41 days`), and while it is selected the line under the list, over up to four rows, says why nobody has taken it, from the dwarves 11's assignment would offer it to: those with its labor, or the one dwarf it is for. In this order: no dwarf has the labor ("Nobody takes it: no dwarf has the masonry labor. Turn it on in Labors [l]."); every one of them is on duty with a squad, hurt, or in shelter under the Hearth alert, naming which and what to do; more urgent jobs are open to them, since priority is strict and a job does not age ("Nobody takes it yet: 12 more urgent jobs come first for the 3 dwarves with the masonry labor. Raise its priority to have it sooner.", counting the open jobs of a lower effective priority whose labor one of them has); every one of them is at another job ("… is busy with another job. It comes next."); no free one can walk to it or beside it; the free ones are eating, drinking or asleep; and otherwise that a free dwarf has not taken it, which a skill, a tool another dwarf holds or a nearby danger explains. The same words are given wherever a panel says why a job waits.
+
+The counts line and the blocked summary wrap onto a second row rather than cutting. The filter controls wrap onto three rows at sidebar width: `/filter`, `[S-l] labor: all`, `[S-s] state: all`. `/` or clicking the field focuses text matching the job name or worker, ignoring case. Enter or Esc finishes typing without closing the panel. Shift-L or clicking the labor row cycles all and the labors with jobs in registry order; Shift-S or clicking the state row cycles all, open, claimed, blocked. Claimed includes fetching, travelling, working and completing. Filters combine; changing one resets selection. The summary counts all current jobs. Labor priorities show only non-default priorities, using full names separated by dots. With all defaults, the line reads "All labors at priority 5: change them in the labor manager ([l], Enter)."
 
 ## Labors (l)
 
@@ -352,22 +359,25 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 ```
 │ Stocks                         [x]  │
 │ /filter: ____                       │
-│ ▸ food        412   1,880 ☼         │
-│   ▸ meal       96   2,400 ☼         │
-│   ▸ plant/raw 210     240 ☼         │
-│ ▸ drink       184     420 ☼         │
-│ ▸ stone       340     560 ☼         │
-│ ▸ bar          38     870 ☼         │
+│ ▸ food             8,570  43,928 ☼  │
+│   ▸ meal              96   2,400 ☼  │
+│   ▸ plant/raw        210     240 ☼  │
+│ ▸ drink              184     420 ☼  │
+│ ▸ stone            1,340     560 ☼  │
+│ ▸ bar                 38     870 ☼  │
 │   ▸ metal  iron 30 · copper 8       │
-│ ▸ weapon        9   1,120 ☼         │
+│ ▸ weapon               9   1,120 ☼  │
 │ …                                   │
 │ 52 rot within 3 days                │
 │ Usable 396 of 412: 12 reserved,     │
 │   4 carried                         │
-│ Wealth 18,450 ☼   (buildings 3,200) │
+│ Wealth 141,671 ☼                    │
+│   (buildings 13,200 ☼)              │
 │ [S-f] forbid  [S-d] dump            │
 │ [S-m] melt  [S-t] to depot          │
 ```
+
+Each row gives its units and their value, both with thousands separators (`8,570  43,928 ☼`). The wealth line, `Wealth 18,450 ☼   (buildings 3,200 ☼)`, puts the buildings' part on a second row, indented two cells, when it does not fit one.
 
 The line under the tree speaks of the selected row's rot (24 § Panels): a stack by its name, stage and days left, `turnip ×20 · stale, rots in 4 days`; a type or category that holds perishable stacks by the units under it that rot within `ROT_ALERT_DAYS`, `52 rot within 3 days`, in the alert colour when there are any; empty for anything else. A stack that is stale or rots within `ROT_ALERT_DAYS` has its name in the alert colour.
 
@@ -455,24 +465,26 @@ The line under the alert row says what the current alert does, wrapped in up to 
 ## Animals (n)
 
 ```
-│ Animals                                       [x]  │
-│ [1] Tame (14)  [2] Wild (23)                       │
-│ Species   Name    Pasture  Cond  Tr                │
-│ ▶ cow     —       #1       ▓▓░ 38                  │
-│   cow     —       #1       ▓░░ 12                  │
-│   dog     Bramble —        —    war                │
-│   cat     Sooty   —        —                       │
-│   chicken ×4      —        —                       │
-│ ────────────────────────────────────────────────── │
-│ [S-p] pasture  [S-s] slaughter                    │
-│ [S-c] cap [S-a] assign [S-n] name                  │
-│ [S-t] train                                        │
-│ ── Wild ────────────────────────────────────────── │
-│ deer ×5   [■] hunt   seen NE                       │
-│ wolf ×3   [□] hunt   seen N                        │
+│ Animals                        [x]  │
+│ [1] Tame (94)  [2] Wild (23)        │
+│ Animal       Pasture Fed Trained    │
+│ ▶ chicken ×23  —     —              │
+│   cow ×8       #1    ▓▓▓            │
+│   cow ×13      —     ▓▓░            │
+│   cow ×2       —     ░░░            │
+│   dog Bramble  —     —   war        │
+│   goat ×23     #2    ▓▓▓            │
+│ 8 cows · pasture #1 · fed ·         │
+│ 2 pregnant                          │
+│ ─────────────────────────────────── │
+│ [S-p] pasture  [S-s] slaughter      │
+│ [S-c] cap [S-a] assign [S-n] name   │
+│ [S-t] train                         │
 ```
 
-The Tame tab offers a clickable `[S-t] train` row below the existing actions, visible at the normal sidebar width. It opens War/Hunting; arrows select and Enter submits, or click a choice. Esc or its Cancel button returns to the list. The Tr status shows training while a job exists, including retraining an animal that already has a role, otherwise war, hunting or blank. With no selected tame animal, or a non-trainable species, the normal message path explains the refusal. All panel letters keep their usual behavior inside both choice rows; Help lists this action and its controls.
+The Tame tab has a row per kind of animal: unnamed animals of one species, pasture, hunger, training, owner and slaughter mark are one row with their count (`cow ×8`); an animal with a name of its own is a row of its own, its species then its name (`dog Bramble`). Rows go by species, the groups before the named animals, then by pasture (none last), the best fed first. The columns are `Animal`, `Pasture` (its number among the pastures, `—` for none), `Fed`, a bar of three cells for a grazer's hunger (08's condition: `▓▓▓` fed below 34, `▓▓░` hungry below 67, `▓░░` very hungry below 100, `░░░` starving; `—` for an animal that does not graze, whose condition does not change) and `Trained`. The line under the list, over up to two rows, says the selected row in words: how many and of what (`8 cows`, `1 cow`, `Bramble the dog`), the pasture, how fed, how many are pregnant, the training (`in training`, `trained for war`, `trained for hunting`), the dwarf it is with and `marked for slaughter`. On a group, `[S-p] pasture` moves every animal of it to the next pasture; slaughter, assign, name and train act on its first animal, which a slaughter mark or a name takes out of the group to a row of its own. The Wild tab has a row per species, in the order they were first seen, with its count, `Hunt` (`yes` or `no`, from 09) and what the first of them is doing (`Doing`).
+
+The Tame tab offers a clickable `[S-t] train` row below the existing actions, visible at the normal sidebar width. It opens War/Hunting; arrows select and Enter submits, or click a choice. Esc or its Cancel button returns to the list. The Trained column shows training while a job exists, including retraining an animal that already has a role, otherwise war, hunting or blank. With no selected tame animal, or a non-trainable species, the normal message path explains the refusal. All panel letters keep their usual behavior inside both choice rows; Help lists this action and its controls.
 
 The clickable `[S-c] cap` action opens an inline number field for the selected species. Digits replace its initial value and then append; Backspace removes the last digit. `+`/`-` step by one, or ten with Shift, clamped to 0–100 without wrapping. Enter or Set sends `SetBreedingCap`; Esc or Cancel discards the edit. The field's minus and plus controls are clickable. Letters still open panels, cancelling the cap edit when leaving Animals; the editor never changes game speed or tabs with its numeric keys. Help lists its controls.
 
@@ -516,8 +528,9 @@ With no party in view, a hostile creature in view makes the Active line name wha
 │ Last brought: cheese, wool cloth,   │
 │  seeds, 2 sheep                     │
 │ Requests [+]                        │
-│  1. iron bars  ★★★                  │
-│  2. wool cloth ★★                   │
+│ ▶ bar: iron                    high │
+│   seed: dimcap               medium │
+│   wool cloth                    low │
 │ Reputation log                      │
 │  +3 trade (Summer 1) · −2 wood…     │
 │ [S-d] depot  [S-t] trade now        │
@@ -529,7 +542,7 @@ Under the civilization's header, while its caravan is here and a trade request w
 
 "Last brought" names the goods of the civilization's last caravan, each kind once by its name and with its count when it came more than once ("leather ×4, goat, dung ×3"); an animal is named by its species.
 
-Depot panel (from a selected depot): items at the depot with values, `[S-m] move` opens the stocks tree in selection mode, `[S-t] trade` (enabled when a caravan is present). In selection mode `Space` or `Enter` marks the eligible stacks under the tree row, `[S-t]` submits one `MoveToDepot` command for everything marked, and `Esc` discards the selection. The requests editor lists the item ids of the content registry in registry order (the UI never invents an id) and submits only on `Enter`. An item the civilizations never sell (20 § Never sold) is refused on `Enter` with the status line "The {civ} do not trade in that." (`ui.trade.not_traded`), and nothing is submitted.
+Depot panel (from a selected depot): items at the depot with values, `[S-m] move` opens the stocks tree in selection mode, `[S-t] trade` (enabled when a caravan is present). In selection mode `Space` or `Enter` marks the eligible stacks under the tree row, `[S-t]` submits one `MoveToDepot` command for everything marked, and `Esc` discards the selection. Each request is a row of its item and, when it names one, its material (`bar: iron`, `seed: dimcap`; a material that already says the item is the whole name, `wool cloth`), an animal by its species (`cow`), with its priority as a word at the right: `high` (3), `medium` (2), `low` (1). Two requests of one item and material are one row, at the higher priority, and the panel's next change sends them as one. The requests editor lists the item ids of the content registry in registry order (the UI never invents an id): `↑` `↓` choose the item, `←` `→` its material, from any (`Add: bar: any`) through each material the selected civilization's list (20 § Requests) brings it in, never a never-sold one, and `Enter` adds it at `low`; a request of an item and material already asked for is not added again. It submits only on `Enter`. An item the civilizations never sell (20 § Never sold) is refused on `Enter` with the status line "The {civ} do not trade in that." (`ui.trade.not_traded`), and nothing is submitted.
 
 ## Population (p)
 

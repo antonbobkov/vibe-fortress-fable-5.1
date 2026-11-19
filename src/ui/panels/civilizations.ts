@@ -3,7 +3,7 @@ import { logDate } from './log';
 import type { Civ } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
-import { neverSold, REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
+import { eligibleGoodsEntries, neverSold, REQUEST_MAX, type TradeReader, type TradeRequest } from '@systems/trade';
 import type { Registry } from '@core/registry';
 import { itemName, tradeWait, wrapHang } from '../messages';
 import { DEPOT_WARNING_ROWS } from '../constants';
@@ -36,11 +36,59 @@ export function lastBroughtText(registry: Registry, ids: readonly string[]): str
   }).join(', ');
 }
 
+/**
+ * A request as the panel names it: the item, then its material or species when it has one
+ * ("seed: dimcap", "bar: iron"); an animal by its species ("cow").
+ */
+export function requestText(registry: Registry, entry: Pick<TradeRequest, 'itemType' | 'material'>): string {
+  const creatures = registry.hasTable('creatures') ? registry.table<{ id: string; name: string }>('creatures') : null;
+  const item = registry.table('items').has(entry.itemType) ? itemName(registry, entry.itemType) : creatures?.byId(entry.itemType)?.name ?? entry.itemType.replace(/_/g, ' ');
+  if (entry.material === undefined) return item;
+  const material = registry.table<{ id: string; name: string }>('materials').byId(entry.material)?.name ?? entry.material.replace(/_/g, ' ');
+  // A material that already says the item ("wool cloth", "coal") is the whole name.
+  return material === item || material.endsWith(` ${item}`) ? material : `${item}: ${material}`;
+}
+
+/**
+ * The requests as the panel lists them: two of one item and material are one row, at the higher
+ * priority, in the place of the first.
+ */
+export function mergedRequests(entries: readonly TradeRequest[]): TradeRequest[] {
+  const out: TradeRequest[] = [];
+  for (const entry of entries) {
+    const same = out.findIndex((e) => e.itemType === entry.itemType && e.material === entry.material);
+    const prev = out[same];
+    if (prev === undefined) out.push({ ...entry });
+    else out[same] = { ...prev, priority: Math.max(prev.priority, entry.priority) as 1 | 2 | 3 };
+  }
+  return out;
+}
+
+/**
+ * The materials a civilization's list brings an item in, for the requests editor: none named (any),
+ * then each material of its entries in their order (20 § Requests); a class pool ("metal" crafts)
+ * names no material, and a never-sold material is left out.
+ */
+export function requestMaterials(registry: Registry, civ: Civ, reputation: number, itemType: string): (string | undefined)[] {
+  const materials = registry.table('materials');
+  const out: (string | undefined)[] = [undefined];
+  for (const entry of eligibleGoodsEntries(registry, civ, reputation)) {
+    const keys = Array.isArray(entry.item) ? entry.item : [entry.item];
+    if (!keys.includes(itemType)) continue;
+    for (const choice of entry.materials) {
+      if (materials.has(choice.material) && !out.includes(choice.material) && !neverSold(itemType, choice.material, reputation)) out.push(choice.material);
+    }
+  }
+  return out;
+}
+
 export class CivilizationsPanel {
   selected = 0;
   requestSelected = 0;
   choosingRequest = false;
   candidate = 0;
+  /** The material of the candidate in the requests editor: an index into {@link requestMaterials}, 0 for any. */
+  candidateMaterial = 0;
 
   civ(): Civ { return TRADE_CIVILIZATIONS[this.selected] as Civ; }
 
@@ -49,8 +97,22 @@ export class CivilizationsPanel {
   /** The content registry supplies valid ids; the UI never invents an item id. */
   candidates(ctx: PanelContext): readonly string[] { return ctx.registry.table('items').ids(); }
 
+  /** The materials the selected civilization brings the candidate in, `undefined` (any) first. */
+  candidateMaterials(ctx: PanelContext): (string | undefined)[] {
+    const id = this.candidates(ctx)[this.candidate];
+    return id === undefined ? [undefined] : requestMaterials(ctx.registry, this.civ(), this.trade(ctx).reputation(this.civ()), id);
+  }
+
+  /** The request the editor would add: the candidate item in the chosen material. */
+  candidateRequest(ctx: PanelContext): { itemType: string; material?: string } | null {
+    const id = this.candidates(ctx)[this.candidate];
+    if (id === undefined) return null;
+    const material = this.candidateMaterials(ctx)[this.candidateMaterial];
+    return material === undefined ? { itemType: id } : { itemType: id, material };
+  }
+
   private update(ctx: PanelContext, entries: readonly TradeRequest[]): void {
-    ctx.submit({ type: 'SetRequests', civ: this.civ(), entries: entries.map((entry) => ({ ...entry })) });
+    ctx.submit({ type: 'SetRequests', civ: this.civ(), entries: mergedRequests(entries).map((entry) => ({ ...entry })) });
   }
 
   key(ctx: PanelContext, press: KeyPress, openTrade: () => void): boolean {
@@ -59,19 +121,27 @@ export class CivilizationsPanel {
     const letter = accel(ctx, press);
     if (this.choosingRequest) {
       const candidates = this.candidates(ctx);
-      if (k === 'ArrowUp' || k === '↑') { this.candidate = Math.max(0, this.candidate - 1); return true; }
-      if (k === 'ArrowDown' || k === '↓') { this.candidate = Math.min(candidates.length - 1, this.candidate + 1); return true; }
+      if (k === 'ArrowUp' || k === '↑') { this.candidate = Math.max(0, this.candidate - 1); this.candidateMaterial = 0; return true; }
+      if (k === 'ArrowDown' || k === '↓') { this.candidate = Math.min(candidates.length - 1, this.candidate + 1); this.candidateMaterial = 0; return true; }
+      if (k === 'ArrowLeft' || k === '←' || k === 'ArrowRight' || k === '→') {
+        const n = this.candidateMaterials(ctx).length;
+        this.candidateMaterial = (this.candidateMaterial + (k === 'ArrowLeft' || k === '←' ? n - 1 : 1)) % n;
+        return true;
+      }
       if (k === 'Esc' || k === 'Escape') { this.choosingRequest = false; return true; }
       if (k === 'Enter') {
-        const id = candidates[this.candidate];
-        const entries = this.trade(ctx).requests(this.civ());
+        const request = this.candidateRequest(ctx);
+        const entries = mergedRequests(this.trade(ctx).requests(this.civ()));
         // 20 § Never sold: refused here, with the reason.
-        if (id && neverSold(id, undefined, this.trade(ctx).reputation(this.civ()))) {
+        if (request !== null && neverSold(request.itemType, request.material, this.trade(ctx).reputation(this.civ()))) {
           ctx.notice?.(ctx.strings.get('ui.trade.not_traded', { civ: CIV_NAMES[this.civ()] }));
           this.choosingRequest = false;
           return true;
         }
-        if (id && entries.length < REQUEST_MAX && !entries.some((entry) => entry.itemType === id)) this.update(ctx, [...entries, { itemType: id, priority: 1 }]);
+        // A second request of one item and material would be the same row: it is not added.
+        if (request !== null && entries.length < REQUEST_MAX && !entries.some((entry) => entry.itemType === request.itemType && entry.material === request.material)) {
+          this.update(ctx, [...entries, { ...request, priority: 1 }]);
+        }
         this.choosingRequest = false;
         return true;
       }
@@ -81,8 +151,8 @@ export class CivilizationsPanel {
     if (k === 'ArrowDown' || k === '↓') { this.selected = Math.min(TRADE_CIVILIZATIONS.length - 1, this.selected + 1); this.requestSelected = 0; return true; }
     if (letter === 'd') { ctx.openPanel('depot'); return true; }
     if (letter === 't') { openTrade(); return true; }
-    const entries = this.trade(ctx).requests(this.civ());
-    if (k === '+' || letter === 'a') { this.choosingRequest = true; this.candidate = 0; return true; }
+    const entries = mergedRequests(this.trade(ctx).requests(this.civ()));
+    if (k === '+' || letter === 'a') { this.choosingRequest = true; this.candidate = 0; this.candidateMaterial = 0; return true; }
     if (k === 'ArrowLeft' || k === '←') { this.requestSelected = Math.max(0, this.requestSelected - 1); return true; }
     if (k === 'ArrowRight' || k === '→') { this.requestSelected = Math.min(entries.length - 1, this.requestSelected + 1); return true; }
     const entry = entries[this.requestSelected];
@@ -125,18 +195,27 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   }
   label(s, col, row++, `Last brought: ${lastBroughtText(ctx.registry, trade.lastBrought(civ)) || 'none'}`, { width });
   const requestsWidth = label(s, col, row++, 'Requests [+]', { fg: s.theme.key, width });
-  s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => { panel.choosingRequest = true; panel.candidate = 0; });
-  const entries = trade.requests(civ);
+  s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => { panel.choosingRequest = true; panel.candidate = 0; panel.candidateMaterial = 0; });
+  // One row per item and material, its priority as a word at the right ("seed: dimcap      high").
+  const entries = mergedRequests(trade.requests(civ));
   for (const [index, entry] of entries.entries()) {
     if (row >= rect.row + rect.rows - 5) break;
-    label(s, col, row, `${index === panel.requestSelected ? '▶' : ' '} ${itemName(ctx.registry, entry.itemType)} ${'★'.repeat(entry.priority)}`, { width });
+    const priority = ctx.strings.get(`ui.civ.priority.${entry.priority}`);
+    const name = `${index === panel.requestSelected ? '▶' : ' '} ${requestText(ctx.registry, entry)}`;
+    const room = Math.max(1, width - priority.length - 1);
+    const shown = Array.from(name).length > room ? `${Array.from(name).slice(0, room - 1).join('')}»` : name.padEnd(room);
+    label(s, col, row, `${shown} ${priority}`, { width, keys: false });
+    if (Array.from(name).length > room) s.tooltip({ col, row, cols: width, rows: 1 }, name.replace(/^[▶\s]+/, ''));
     s.hit({ col, row, cols: width, rows: 1 }, () => { panel.requestSelected = index; });
     row += 1;
   }
-  if (panel.choosingRequest && row < rect.row + rect.rows - 4) {
-    const candidates = panel.candidates(ctx);
-    label(s, col, row++, `Add: ${itemName(ctx.registry, candidates[panel.candidate] ?? '')}`, { fg: s.theme.key, width });
-    label(s, col, row++, '[↑/↓] item [Enter] add [Esc] cancel', { fg: s.theme.dim, width });
+  if (panel.choosingRequest && row < rect.row + rect.rows - 5) {
+    const request = panel.candidateRequest(ctx);
+    const any = request !== null && request.material === undefined && panel.candidateMaterials(ctx).length > 1;
+    const what = request === null ? '' : any ? ctx.strings.get('ui.civ.request_any', { item: requestText(ctx.registry, request) }) : requestText(ctx.registry, request);
+    label(s, col, row++, ctx.strings.get('ui.civ.request_add', { what }), { fg: s.theme.key, width });
+    label(s, col, row++, ctx.strings.get('ui.civ.request_keys1'), { fg: s.theme.dim, width });
+    label(s, col, row++, ctx.strings.get('ui.civ.request_keys2'), { fg: s.theme.dim, width });
   }
   if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←→] pick [S-p] prio [x] remove', { fg: s.theme.dim, width });
   if (row < rect.row + rect.rows - 3) label(s, col, row++, 'Reputation log', { fg: s.theme.key, width });

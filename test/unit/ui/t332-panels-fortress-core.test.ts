@@ -123,7 +123,7 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     for (const category of ['food', 'drink', 'seed', 'wood', 'bar', 'furniture', 'container', 'weapon', 'ammo', 'clothing', 'tool', 'textile', 'medical']) {
       expect(rows.some((row) => new RegExp(`^[► ] ${category} +\\d+ +\\d+ ☼$`).test(row)), category).toBe(true);
     }
-    expect(rows.find((row) => row.includes(' food '))).toBe('► food               60     190 ☼');
+    expect(rows.find((row) => row.includes(' food '))).toBe('► food                60     190 ☼');
     // A category with nothing inside has no arrow; the others can be opened.
     expect(rows.find((row) => row.includes(' ammo '))).toMatch(/^ {2}ammo/);
     expect(rows.find((row) => row.includes(' food '))).toMatch(/^► food/);

@@ -74,7 +74,7 @@ A merchant good whose material the site lacks (02 § What a site has and lacks: 
 
 ### Requests
 
-`SetRequests { civ, entries: { itemType, material?, priority: 1..3 }[] }` up to `REQUEST_MAX` entries; stored per civ; used by the next caravan's goods generation (`REQUEST_SHARE` of budget, priority weights 3, 2, 1). The civilizations panel shows the requests and what the last caravan brought. Requests can name a scarce good (logs to a desert, through the Hillfolk's sundries), and the request share brings it as any request; it is priced at the scarcity price.
+`SetRequests { civ, entries: { itemType, material?, priority: 1..3 }[] }` up to `REQUEST_MAX` entries; stored per civ; used by the next caravan's goods generation (`REQUEST_SHARE` of budget, priority weights 3, 2, 1). The civilizations panel shows the requests and what the last caravan brought: each request by its item and the material it names ("bar: iron", "seed: dimcap"), and its priority as a word, never the money sign; its editor offers, for an item, each material the civilization's list brings it in. Two requests of one item and material are one row at the higher priority (`panels.md` § Civilizations). Requests can name a scarce good (logs to a desert, through the Hillfolk's sundries), and the request share brings it as any request; it is priced at the scarcity price.
 
 ### Never sold
 
