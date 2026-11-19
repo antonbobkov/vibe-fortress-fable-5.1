@@ -67,7 +67,7 @@ describe('T-M3-08 render: fluids, fire and mist (23 § Compositor step 3)', () =
     // Frozen water is ice: step 2's terrain, not a fluid glyph.
     const frozen = w.index(24, 20, Z);
     w.setFluid(frozen, 5);
-    w.fluids.freezer.freeze(frozen, { terrain: w.game.world.services.terrain, emit: () => {} });
+    w.fluids.freezer.freeze(frozen, { terrain: w.game.world.services.terrain, emit: () => {}, kill: () => {} });
     expect(cellAt(w, 24, 20).glyph).not.toBe(GLYPH_WATER_HIGH);
     expect(cellAt(w, 24, 20).fg).toBe(palette.color('ice_blue'));
   });

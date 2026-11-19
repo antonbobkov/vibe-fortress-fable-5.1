@@ -7,18 +7,29 @@ import type { WorldMap } from '@systems/worldgen';
 import type { LegendReader } from '@systems/legend';
 import { LEGEND_LOG_LINES, LEGEND_NOTABLE_KILLS } from '@systems/legend/constants';
 import type { LogLine } from '@ui/announcements';
-import { lineText } from '@ui/announcements';
+import { deathLineKey, lineText } from '@ui/announcements';
+import { Strings } from '@ui/strings';
 import type { LegendRecord } from '@ui/screens/legend';
 import type { HeadlessGame } from './headless';
 import { finalSaveId } from './save-manager';
 
 export type EndReason = { readonly kind: 'retired' } | {
-  readonly kind: 'all_dead'; readonly lastName: string; readonly lastCause: string;
+  /** The last death's cause, and its killer as the death's line names it ('' when none). */
+  readonly kind: 'all_dead'; readonly lastName: string; readonly lastCause: string; readonly lastKiller?: string;
 };
 
-export function endText(tick: number, population: number, reason: EndReason): string {
+/**
+ * 24 § The legend record: the cause of the end. The last death is told in the words of its line
+ * (`announce.died.<cause>`): "The last dwarf, Solveig Deephand, has bled to death."; a cause with no
+ * line of its own "has died.".
+ */
+export function endText(tick: number, population: number, reason: EndReason, strings: Strings = new Strings()): string {
   if (reason.kind === 'retired') return `Retired in Year ${Math.floor(tick / TICKS_PER_YEAR) + 1} with ${population} dwarves.`;
-  return `The hall fell silent on ${formatDate(tick)}. The last dwarf, ${reason.lastName}, died of ${reason.lastCause.replaceAll('_', ' ')}.`;
+  const who = `The last dwarf, ${reason.lastName},`;
+  const killer = reason.lastKiller ?? '';
+  const key = deathLineKey(strings, reason.lastCause, killer);
+  const how = key === null ? strings.get('announce.dwarf_died', { dwarf: who }) : strings.get(key, { name: who, killer });
+  return `The hall fell silent on ${formatDate(tick)}. ${how}`;
 }
 
 export function composeLegend(
@@ -60,7 +71,7 @@ export function composeLegend(
       .slice(0, LEGEND_NOTABLE_KILLS).map((entry) => `${entry.name} slew ${entry.count} enemies.`),
     lastWords: log.filter((line) => line.severity === 'alert' || line.severity === 'danger')
       .slice(-LEGEND_LOG_LINES).map(lineText),
-    cause: endText(tick, fortress.populationCached, reason),
+    cause: endText(tick, fortress.populationCached, reason, new Strings(registry)),
     ...(fortress.testing === true ? { testing: true } : {}),
   };
 }

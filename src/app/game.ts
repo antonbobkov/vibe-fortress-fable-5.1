@@ -62,6 +62,7 @@ import { TextInputScreen, type TextInputSpec } from '@ui/screens/text_input';
 import { SettingsScreen } from '@ui/screens/settings';
 import { LegendScreen } from '@ui/screens/legend';
 import { GameMenuScreen } from '@ui/screens/game_menu';
+import { killerWords } from '@ui/announcements';
 import { composeLegend, LegendStore, type EndReason } from '@app/legend';
 import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
@@ -198,7 +199,7 @@ export class Game {
   /** The season an autosave is owed for, taken after the tick that announced it (D-083). */
   private autosaveDue: { year: number; season: number } | null = null;
   /** A fortress death is checked once after its event tick, when removals are complete. */
-  private lastDwarfDeath: { name: string; cause: string } | null = null;
+  private lastDwarfDeath: { name: string; cause: string; killer: string } | null = null;
   private finished = false;
   private menuSpeed: Speed = 0;
   /** The Load screen's list, refreshed from the headers after every change. */
@@ -363,7 +364,10 @@ export class Game {
       for (const e of events) {
         if (e.type === 'SeasonChanged') this.autosaveDue = { year: e['year'] as number, season: e['season'] as number };
         if (e.type === 'CreatureDied' && e['faction'] === 'fortress') {
-          this.lastDwarfDeath = { name: String(e['name'] ?? 'Unknown'), cause: String(e['cause'] ?? 'wounds') };
+          // The legend's last words name the killer as the death's line does (24 § The legend record).
+          const killer = Number(e['killerId'] ?? 0) === 0 ? '' : killerWords(this.registry,
+            typeof e['killerName'] === 'string' ? e['killerName'] : undefined, typeof e['killerSpecies'] === 'number' ? e['killerSpecies'] : undefined);
+          this.lastDwarfDeath = { name: String(e['name'] ?? 'Unknown'), cause: String(e['cause'] ?? 'wounds'), killer };
         }
       }
     });
@@ -637,7 +641,7 @@ export class Game {
     this.lastDwarfDeath = null;
     if (death === null || this.finished || !this.host.started) return;
     const population = this.host.readers.of<{ population(): number }>('10').population();
-    if (population === 0) void this.finishFortress({ kind: 'all_dead', lastName: death.name, lastCause: death.cause });
+    if (population === 0) void this.finishFortress({ kind: 'all_dead', lastName: death.name, lastCause: death.cause, lastKiller: death.killer });
   }
 
   /** `RetireFortress`: the c_retire confirmation defaults to No. */

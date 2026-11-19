@@ -33,6 +33,8 @@ export interface FreezeHost {
 export interface FreezeContext {
   readonly terrain: TerrainApi;
   emit(event: GameEvent): void;
+  /** 17's death, with the creature's fields every death carries (`CreatureDied` of the event catalog). */
+  kill(id: EntityId, cause: string): void;
 }
 
 export class Freezer {
@@ -166,7 +168,7 @@ export class Freezer {
       }
       const movement = this.host.movement();
       if (target >= 0 && movement !== null) movement.teleport(id, target);
-      else ctx.emit({ type: 'CreatureDied', id, cause: 'frozen', killerId: 0 });
+      else ctx.kill(id, 'frozen');
     }
   }
 }

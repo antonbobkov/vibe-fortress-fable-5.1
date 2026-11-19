@@ -12,6 +12,7 @@ import { C } from '@core/components';
 import type { TileIndex } from '@core/types';
 import { FLUID_TICK_CADENCE_WATER } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings/reader';
+import { killCreature } from '@systems/health/tick';
 import { makeReader, type FluidsReader } from './reader';
 import { FluidSim } from './step';
 import { Freezer } from './freeze';
@@ -120,7 +121,7 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
 
   override tick(ctx: TickContext): void {
     const sim = this.sim;
-    this.freezer.run({ terrain: ctx.terrain, emit: (e) => ctx.emit(e) });
+    this.freezer.run({ terrain: ctx.terrain, emit: (e) => ctx.emit(e), kill: (id, cause) => killCreature(ctx, id, cause) });
     sim.run(ctx.tick);
     const chunks = sim.takeTouchedChunks();
     if (chunks.length > 0) ctx.emit({ type: 'FluidsChanged', chunks });
