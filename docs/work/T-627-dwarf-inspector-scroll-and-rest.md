@@ -1,4 +1,4 @@
-# T-NEW — The dwarf inspector scrolls, and its last sections
+# T-627 — The dwarf inspector scrolls, and its last sections
 
 **Source:** T-622 (the dwarf inspector's identity, needs, skill bars, equipment, relations and title) · **Size:** M · **Needs:** — · **Status:** open
 
