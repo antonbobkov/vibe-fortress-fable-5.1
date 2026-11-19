@@ -377,6 +377,8 @@ export class AnnouncementLog {
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
       (readers.entities.has(creatureId, C.Brain) ||
         (fields['species'] === this.registry.table('creatures').index('dwarf') && fields['faction'] === 'fortress'));
+    // 08 § Death: a pet's death is an alert. The pet is gone when the line is drawn, so the event says whose it was.
+    const petDeath = event.type === 'CreatureDied' && typeof fields['petOf'] === 'number' && fields['petOf'] !== 0;
     if (event.type === 'CreatureUnconscious' && (typeof creatureId !== 'number' || !readers.entities.has(creatureId, C.Brain))) return null;
     if (spec.once === true) {
       if (this.seen.has(event.type)) return null;
@@ -387,7 +389,7 @@ export class AnnouncementLog {
     if (event.type === 'ImmigrantsArrived' && fields['children'] === 0) key = 'announce.immigrants_arrived_adults';
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
       key = fields['cause'] === 'faded' ? 'announce.summon_faded'
-        : readers.entities.get(creatureId, C.Tame)?.petOf ? 'announce.pet_died' : 'announce.creature_died';
+        : petDeath ? 'announce.pet_died' : 'announce.creature_died';
     }
     const params = this.params(event, readers);
     // 17 § Registrations: a death says how it came, by its cause ("Ketil Ironvein has bled to death.").
@@ -398,7 +400,7 @@ export class AnnouncementLog {
     const category = spec.category;
     let severity = spec.severity;
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
-      severity = readers.entities.get(creatureId, C.Tame)?.petOf ? 'alert' : 'note';
+      severity = petDeath ? 'alert' : 'note';
     }
     if (event.type === 'RaidEnded' && fields['outcome'] === 'looted') severity = 'alert';
     if (event.type === 'AttackResolved') {

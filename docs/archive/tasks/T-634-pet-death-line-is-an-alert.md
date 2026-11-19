@@ -1,6 +1,8 @@
 # T-634 — A pet's death is an alert that says it was a pet
 
-**Source:** [T-633's work file](../archive/tasks/T-633-slaughter-and-restless-dead-death-fields.md), found while checking each `CreatureDied` subscriber · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in c7469ffe,c320fe1a.
+
+**Source:** [T-633's work file](T-633-slaughter-and-restless-dead-death-fields.md), found while checking each `CreatureDied` subscriber · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
