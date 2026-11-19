@@ -19,9 +19,10 @@ import {
   SPAR_TICKS,
   TRAIN_SHIFT_HOURS,
   TRAIN_SHOTS,
+  TRAIN_TAPER_LEVEL,
   TRAIN_XP,
 } from './constants';
-import { weaponOf } from './melee';
+import { getSkill, weaponOf } from './melee';
 import { findAmmoForShooter } from './ranged';
 import { isChannelRow } from '@systems/magic/cast';
 
@@ -99,6 +100,16 @@ export function hasWarden(entities: EntityStore): boolean {
     }
   }
   return false;
+}
+
+/**
+ * Grants a session's experience to one skill: halved once the skill is at TRAIN_TAPER_LEVEL or above
+ * (16 § Training), so drill makes a soldier Proficient and fighting makes it more.
+ */
+function grantTrainingXp(ctx: TickContext, m: EntityId, skill: string, amount: number): void {
+  const entities = ctx.world.entities;
+  const xp = getSkill(entities, ctx.registry, m, skill) >= TRAIN_TAPER_LEVEL ? Math.floor(amount / 2) : amount;
+  grantXp(entities, ctx.registry, m, skill, xp, (e) => ctx.emit(e));
 }
 
 /**
@@ -210,7 +221,7 @@ export function stepTraining(
             }
 
             const skillName = w.weaponDef.skill;
-            grantXp(entities, registry, m, skillName, wardenBonus, (e) => ctx.emit(e));
+            grantTrainingXp(ctx, m, skillName, wardenBonus);
             ctx.emit({ type: 'TrainingSession', squadId, members: [m] });
           }
         }
@@ -238,16 +249,16 @@ export function stepTraining(
         for (const m of [m1, m2]) {
           const w = weaponOf(entities, registry, m);
           if (w) {
-            grantXp(entities, registry, m, w.weaponDef.skill, wardenBonus, (e) => ctx.emit(e));
+            grantTrainingXp(ctx, m, w.weaponDef.skill, wardenBonus);
           }
-          grantXp(entities, registry, m, 'dodge', wardenBonus, (e) => ctx.emit(e));
+          grantTrainingXp(ctx, m, 'dodge', wardenBonus);
 
           const equip = entities.get(m, C.Equipment);
           if (equip && equip.shield !== 0) {
-            grantXp(entities, registry, m, 'shield', wardenBonus, (e) => ctx.emit(e));
+            grantTrainingXp(ctx, m, 'shield', wardenBonus);
           }
           if (equip && Object.values(equip.armor).some((id) => id !== 0)) {
-            grantXp(entities, registry, m, 'armor_use', wardenBonus, (e) => ctx.emit(e));
+            grantTrainingXp(ctx, m, 'armor_use', wardenBonus);
           }
         }
 
@@ -298,16 +309,16 @@ export function stepTraining(
 
         const w = weaponOf(entities, registry, m);
         if (w) {
-          grantXp(entities, registry, m, w.weaponDef.skill, soloXp, (e) => ctx.emit(e));
+          grantTrainingXp(ctx, m, w.weaponDef.skill, soloXp);
         }
-        grantXp(entities, registry, m, 'dodge', soloXp, (e) => ctx.emit(e));
+        grantTrainingXp(ctx, m, 'dodge', soloXp);
 
         const equip = entities.get(m, C.Equipment);
         if (equip && equip.shield !== 0) {
-          grantXp(entities, registry, m, 'shield', soloXp, (e) => ctx.emit(e));
+          grantTrainingXp(ctx, m, 'shield', soloXp);
         }
         if (equip && Object.values(equip.armor).some((id) => id !== 0)) {
-          grantXp(entities, registry, m, 'armor_use', soloXp, (e) => ctx.emit(e));
+          grantTrainingXp(ctx, m, 'armor_use', soloXp);
         }
 
         ctx.emit({ type: 'TrainingSession', squadId, members: [m] });
