@@ -1,6 +1,8 @@
 # T-611 — Inspecting a dwarf from Units shows that dwarf
 
-**Source:** [T-605's audit](../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 7 and 8 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 4dee88ca.
+
+**Source:** [T-605's audit](../../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 7 and 8 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
