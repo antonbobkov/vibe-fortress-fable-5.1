@@ -1,6 +1,8 @@
 # T-622 — Show what a soldier carries, and the dwarf inspector's missing sections
 
-**Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 4–7 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 4eca0dbe.
+
+**Source:** [T-618's first-year audit](../../../reports/audits/2026-11-18-t618-first-year-ux.md), findings 4–7 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -51,7 +51,7 @@ describe('T-248 grouped recipes and single-choice gear', () => {
   it('lists every accepted weapon class and marks the current value', async () => {
     const g = await squad(); g.fortress.key(press('w'));
     const s = surface(36, 45); drawMilitaryPanel(s, { col: 0, row: 0, cols: 36, rows: 45 }, g.fortress.military, g.fortress.ctx);
-    const text = s.lines().join('\n'); expect(text).toContain('any (current)');
+    const text = s.lines().join('\n'); expect(text).toMatch(/any \(\d+[^)]*, current\)/);
     // A channel's class (25) is not a squad preference and is not offered.
     for (const value of new Set(registry.table<{ id: string; weaponClass?: string; launcher?: { ammo?: string } }>('weapons').rows
       .flatMap(r => r.weaponClass === undefined || (r.launcher !== undefined && r.launcher.ammo === undefined) ? [] : [r.weaponClass]))) expect(text).toContain(value);
@@ -60,7 +60,7 @@ describe('T-248 grouped recipes and single-choice gear', () => {
     const g = await squad(), spy = vi.spyOn(g.host, 'submit'); g.fortress.key(press('g')); g.fortress.key(press('ArrowDown')); g.fortress.key(press('Enter'));
     expect(spy.mock.lastCall?.[0]).toMatchObject({ type: 'SetSquadEquipment', equipment: { armor: 'metal', weaponClass: 'any' } });
     g.fortress.key(press('w')); const s = surface(36, 45); drawMilitaryPanel(s, { col: 0, row: 0, cols: 36, rows: 45 }, g.fortress.military, g.fortress.ctx);
-    const row = s.lines().findIndex(line => line.trim() === 'axe'); expect(row).toBeGreaterThan(0); clickHit(s, pointer(2, row));
+    const row = s.lines().findIndex(line => /^axe \(\d+/.test(line.trim())); expect(row).toBeGreaterThan(0); clickHit(s, pointer(2, row));
     expect(spy.mock.lastCall?.[0]).toMatchObject({ type: 'SetSquadEquipment', equipment: { armor: 'metal', weaponClass: 'axe' } }); expect(g.fortress.military.memberChoice).toBeNull();
   });
   it('browses workshop recipes beyond a short sidebar by keyboard and scrollbar', async () => {
@@ -82,13 +82,13 @@ describe('T-248 grouped recipes and single-choice gear', () => {
     const draw = () => { const s = surface(36, 45); drawMilitaryPanel(s, { col: 0, row: 0, cols: 36, rows: 45 }, g.fortress.military, g.fortress.ctx); return s; };
     let s = draw(); const armorRow = s.lines().findIndex(line => line.includes('[g] armor'));
     expect(clickHit(s, pointer(3, armorRow))).toBe(true); s = draw();
-    for (const value of ['any (current)', 'metal', 'leather']) expect(s.lines().join('\n')).toContain(value);
+    for (const value of [/any \(\d+, current\)/, /metal \(\d+\)/, /leather \(\d+\)/]) expect(s.lines().join('\n')).toMatch(value);
     clickHit(s, pointer(18, 44)); expect(g.fortress.military.memberChoice).toBeNull(); expect(spy).not.toHaveBeenCalled();
     g.fortress.key(press('w')); g.fortress.key(press('ArrowDown')); g.fortress.key(press('Enter'));
     const selected = g.fortress.military.selectedSquad(g.fortress.ctx)!.equipment.weaponClass;
     s = draw(); clickHit(s, pointer(8, s.lines().findIndex(line => line.includes('[w] weapon'))));
     expect(g.fortress.military.memberChoice?.selected).toBe(g.fortress.military.gearOptions(g.fortress.ctx, 'weapon').indexOf(selected));
-    expect(draw().lines().join('\n')).toContain(`${selected} (current)`);
+    expect(draw().lines().join('\n')).toMatch(new RegExp(`${selected} \\(\\d+[^)]*, current\\)`));
   });
 
 });

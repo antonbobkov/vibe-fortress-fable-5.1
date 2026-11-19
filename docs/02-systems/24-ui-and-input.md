@@ -257,6 +257,8 @@ This entire document.
 | `INTRO_STAGE_ROWS` | 16 | Height of the intro's stage, cells |
 | `INTRO_FRAME_MS` | 250 | How long an intro cue shows each frame when its row gives no step, ms (*unmeasured*) |
 | `INTRO_RISE_ROWS` | 6 | How far below its place each column of rising intro art starts, rows |
+| `NEED_BAR_CELLS` | 4 | Width of a need's bar in the creature inspector, cells: two needs share a row of the sidebar |
+| `SKILL_BAR_CELLS` | 5 | Width of a skill's bar (its progress to the next level) in the creature inspector, cells |
 | `DEEP_INTRO_STAGE_COLS` | 80 | Width of the deep intro's strip, art pixels |
 | `DEEP_INTRO_STAGE_ROWS` | 30 | Height of the deep intro's strip, art pixels |
 | `DEEP_INTRO_NOISE_MS` | 80 | How often the deep intro's static and speckle are drawn anew, ms (*unmeasured*) |

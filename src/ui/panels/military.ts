@@ -28,6 +28,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
 import type { MagicReader } from '@systems/magic';
 import { soldierTrigger } from '@systems/magic/draughts';
+import { armorStock, gearName, heldWeapon, isChannel, weaponRowOf, weaponStock, whereWeaponMade } from './gear';
 
 interface WeaponClassRow {
   readonly id: string;
@@ -60,6 +61,77 @@ export const SQUAD_PRESET_NAMES = [
   'The Shadowbanes',
   'The Gatekeepers',
 ];
+
+/**
+ * The squad's arms under its members (`ui-screens/panels.md` § Military): "Armed 1 of 3 · unarmed:
+ * Liv H., Hrolf S.", in the alert colour while a member holds no weapon or one that is not of the
+ * squad's choice; and, while a member lacks one, "No spear in stock: …" when none of the chosen
+ * class is free in stock but tools. Null for a squad with no members.
+ */
+export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly text: string; readonly alert: boolean; readonly stock: string | null } | null {
+  if (squad.members.length === 0) return null;
+  const { readers, registry, strings } = ctx;
+  const pref = squad.equipment.weaponClass;
+  const ranged = squad.equipment.ranged;
+  const launcherClass = (cls: string): boolean => registry.table<{ id: string; weaponClass?: string; launcher?: unknown }>('weapons').rows.some((row) => row?.weaponClass === cls && row.launcher !== undefined);
+  // A ranged squad takes a launcher whatever its class says when that class has none (16 § Equipment).
+  const wanted = pref !== 'any' && ranged && !launcherClass(pref) ? 'any' : pref;
+  const name = (id: EntityId): string => shortDwarfName(readers.entities.get(id, C.Creature)?.name ?? '');
+  const unarmed: EntityId[] = [];
+  const without: EntityId[] = [];
+  for (const id of squad.members) {
+    const weapon = heldWeapon(readers, registry, id);
+    const row = weapon === 0 ? undefined : weaponRowOf(readers, registry, weapon);
+    if (row === undefined) unarmed.push(id);
+    else if (!isChannel(row) && ((wanted !== 'any' && row.weaponClass !== wanted) || (ranged && row.launcher === undefined))) without.push(id);
+  }
+  const noun = wanted === 'any' ? strings.get(ranged ? 'ui.military.ranged_weapon_word' : 'ui.military.weapon_word') : wanted;
+  const parts = [strings.get('ui.military.armed', { n: squad.members.length - unarmed.length, m: squad.members.length })];
+  if (unarmed.length > 0) parts.push(strings.get('ui.military.unarmed', { names: unarmed.map(name).join(', ') }));
+  if (without.length > 0) parts.push(strings.get('ui.military.without', { weapon: noun, names: without.map(name).join(', ') }));
+  const lacking = unarmed.length + without.length > 0;
+  const stock = weaponStock(readers, registry, wanted, wanted === 'any' ? ranged : undefined);
+  let stockText: string | null = null;
+  if (lacking && stock.free - stock.tools <= 0) {
+    // Any class is made in too many places to name them: the line then names none.
+    const where = wanted === 'any' ? '' : whereWeaponMade(registry, wanted);
+    stockText = where === '' ? strings.get('ui.military.no_weapon_stock_any', { weapon: noun }) : strings.get('ui.military.no_weapon_stock', { weapon: noun, where });
+  }
+  return { text: parts.join(' · '), alert: lacking, stock: stockText };
+}
+
+/** A gear list's row: "spear (0)", "axe (1, a tool)", "any (4, current)" (`ui-screens/panels.md` § Military). */
+export function gearRow(ctx: PanelContext, squad: SquadWithId, kind: 'weapon' | 'armor', value: string): string {
+  const strings = ctx.strings;
+  const details: string[] = [];
+  if (kind === 'weapon') {
+    const stock = weaponStock(ctx.readers, ctx.registry, value, value === 'any' ? squad.equipment.ranged : undefined);
+    details.push(String(stock.free));
+    if (stock.tools > 0) {
+      details.push(stock.tools === stock.free
+        ? strings.get(stock.free === 1 ? 'ui.military.gear_tool' : 'ui.military.gear_tools_all')
+        : stock.tools === 1 ? strings.get('ui.military.gear_tool_one') : strings.get('ui.military.gear_tools_some', { n: stock.tools }));
+    }
+  } else details.push(String(armorStock(ctx.readers, ctx.registry, value)));
+  if (value === (kind === 'weapon' ? squad.equipment.weaponClass : squad.equipment.armor)) details.push(strings.get('ui.military.gear_current'));
+  return strings.get('ui.military.gear_row', { value, details: details.join(', ') });
+}
+
+/** A dwarf's best combat skill for the add list: "Crossbow 3"; '' with none (ties by the skill table's order). */
+export function bestCombatSkill(ctx: PanelContext, id: EntityId): string {
+  const skills = ctx.registry.table<{ id: string; name: string; military?: string | null }>('skills');
+  const levels = ctx.readers.entities.get(id, C.Skills)?.level;
+  let best = '';
+  let level = 0;
+  skills.rows.forEach((row, index) => {
+    const l = levels?.[index] ?? 0;
+    if (row !== undefined && typeof row.military === 'string' && l > level) {
+      level = l;
+      best = row.name;
+    }
+  });
+  return level === 0 ? '' : `${best} ${level}`;
+}
 
 export function shortDwarfName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
@@ -607,6 +679,20 @@ export function drawMilitaryPanel(
   row += 1;
   captionButtons(s, col, row, '        [S-a] add  [r] remove', [() => panel.openChoice(ctx, 'add'), () => panel.openChoice(ctx, 'remove')], { width });
   row += 1;
+  // What the members hold, and what to do when the stock has no weapon for them.
+  const armed = armedLines(ctx, squad);
+  if (armed !== null) {
+    for (const part of wrapHang(armed.text, width, 2)) {
+      label(s, col, row, part, { fg: armed.alert ? t.alert : t.text, width, keys: false });
+      row += 1;
+    }
+    if (armed.stock !== null) {
+      for (const part of wrapHang(armed.stock, width, 2)) {
+        label(s, col, row, part, { fg: t.alert, width });
+        row += 1;
+      }
+    }
+  }
 
   // Separate rows keep the dropdown marks and ranged control visible in a narrow sidebar.
   const rangedGlyph = squad.equipment.ranged ? '■' : '□';
@@ -720,9 +806,7 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
         order: at < 0 ? '' : ` (${at + 1})`,
       });
     } else if (choice.kind === 'weapon' || choice.kind === 'armor') {
-      const value = panel.gearOptions(ctx, choice.kind)[id] ?? '';
-      const current = choice.kind === 'weapon' ? squad.equipment.weaponClass : squad.equipment.armor;
-      text = value === current ? strings.get('ui.military.gear_current', { value }) : value;
+      text = gearRow(ctx, squad, choice.kind, panel.gearOptions(ctx, choice.kind)[id] ?? '');
     } else if (choice.kind === 'barracks') {
       const holder = id === 0 ? 0 : Number(b?.zone(id)?.settings['squad'] ?? 0);
       const other = holder === 0 || holder === squad.id ? undefined : panel.squads(ctx).find((sq) => sq.id === holder)?.name;
@@ -730,7 +814,15 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
       if (id !== 0 && id === panel.assignedBarracks(ctx, squad.id)) text = strings.get('ui.military.barracks_row_current', { zone: zoneName(ctx, id) });
     } else {
       const name = ctx.readers.entities.get(id, C.Creature)?.name ?? strings.get('ui.military.a_dwarf');
-      text = choice.kind === 'leader' && id === squad.leaderId ? strings.get('ui.military.leader_row_current', { dwarf: name }) : name;
+      if (choice.kind === 'leader' && id === squad.leaderId) text = strings.get('ui.military.leader_row_current', { dwarf: name });
+      else if (choice.kind === 'add') {
+        // Who is good at fighting: the best combat skill after the name.
+        const skill = bestCombatSkill(ctx, id);
+        text = skill === '' ? name : strings.get('ui.military.add_row', { dwarf: name, skill });
+      } else if (choice.kind === 'remove') {
+        const weapon = heldWeapon(ctx.readers, ctx.registry, id);
+        text = strings.get('ui.military.remove_row', { dwarf: name, weapon: weapon === 0 ? strings.get('ui.military.unarmed_word') : gearName(ctx.readers, ctx.registry, weapon) });
+      } else text = name;
     }
     const mark = choice.marks.has(id) ? '•' : ' ';
     const cells = { col, row: first + r, cols: width, rows: 1 };

@@ -52,6 +52,10 @@ export const HINT_FOOD_DAYS_PER_ITEM = 4;
 
 /** Width of a body part's health meter in the creature inspector. */
 export const HEALTH_PART_BAR_CELLS = 5;
+/** Width of a need's meter in the creature inspector: two needs share a row of the sidebar. */
+export const NEED_BAR_CELLS = 4;
+/** Width of a skill's meter (the progress to its next level) in the creature inspector. */
+export const SKILL_BAR_CELLS = 5;
 
 /** The values and defaults of ui-keymap-and-screens.md § Settings. */
 export const SETTINGS_ZOOM_OPTIONS = ['auto', 0.75, 1, 1.5, 2] as const;

@@ -77,22 +77,28 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 │ Look · (52, 31, z31)                 [x] │
 │ Tabs: [1]Tile [2]Items(3) [3]Creatures(1) │
 │ ── Creature: Ketil Ironvein ────────────  │
-│ Miner · adult · Fine (58)                 │
+│ Miner · adult · The Hearthguard           │
 │ Activity: Digging (priority 5)            │
-│ Needs   hunger ▓▓▓░░ 42  thirst ▓▓░░░ 30  │
-│         rest   ▓░░░░ 18  social ▓▓▓▓░ 71  │
-│ Skills  Mining 7 (Competent) ▓▓▓░░       │
-│         Masonry 2 (Novice)   ▓░░░░       │
-│ Thoughts  +5 Had a fine meal (1d)         │
-│           +3 Slept in my decent room      │
-│           −4 Saw an enemy (12h)           │
-│ Health   unhurt · blood 100%              │
-│ Care     resting until healed.            │
-│ Equipment iron pick (common)              │
-│ Wearing  linen tunic, trousers, boots     │
-│ Relations friends: Brynja Coldhammer     │
-│ Title    Thane            [t] change     │
-│ Labors   [l] edit                         │
+│ Needs                                     │
+│ hunger  ▓░░░  42 thirst  ▓░░░  30         │
+│ rest    ░░░░  18 social  ▓▓░░  71         │
+│ comfort ▓░░░  33 purpose ░░░░  12         │
+│ joy     ▓▓░░  55                          │
+│ Skills                                    │
+│   Mining 7 (Competent) ▓▓▓░░              │
+│   Masonry 2 (Novice) ▓░░░░                │
+│ Mood: Fine (58)                           │
+│   +5 Had a fine meal                      │
+│   +3 Slept in my decent room              │
+│   -4 Saw an enemy                         │
+│ Health: Blood 100%, Pain 0                │
+│ Care: resting until healed.               │
+│ Equipment iron spear (fine), iron pick,   │
+│           iron helm                       │
+│ Wearing linen tunic, linen trousers,      │
+│         leather boots                     │
+│ Relations friends: Brynja Coldhammer      │
+│ Title Thane                               │
 ```
 
 On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes first, then the fluid line (`Water 5/7`, `Magma 2/7`, `Ice 5/7`; none on a dry tile), the designation, traffic, building and zone lines, then `Here:` and one line for each item (`1 granite stone · 3 ☼`) and each creature (`Ketil Ironvein, Digging`) on the tile, the goods a `container` building holds there among the items:
@@ -126,6 +132,19 @@ A dwarf who is a patient has a `Care:` line under the Health line, on top of the
 8. with no need left: `Care: resting until healed.`
 
 The line reads 14's hospital zones and beds, 11's labor and job readers and 13's stock; it is broken at spaces to the panel width, the continuation rows indented under the text. A creature that is not a patient has no such line.
+
+A dwarf's view (10's `creature › dwarf`) has, under the creature's rule:
+
+- the identity line: the profession of the dwarf's highest skill as the units panel names it, `adult` or `child`, and the name of the squad it serves in (`Miner · adult · The Hearthguard`);
+- the activity line, then `Needs` and the seven needs in 10's order, two to a row where the panel holds two (one otherwise): the name, a bar of `NEED_BAR_CELLS` cells filled as the need stands of `NEED_MAX`, and the whole number, 0 being satisfied. A need is drawn in the warning colour at or above its critical threshold, in the alert colour at or above its want threshold, and in the normal colour below (10 § Needs);
+- `Skills`, each known skill with its level, its tier and a bar of `SKILL_BAR_CELLS` cells filled as the experience it has toward its next level stands of what that level needs (full at `SKILL_MAX_LEVEL`);
+- the mood, its thoughts and the health lines;
+- `Equipment`: what the creature holds, in this order: the weapon it fights with, the tool it works with, its shield, its armor from head to feet, its quiver and the ammunition of its launcher (`24 iron bolts`), each named by its material and type with its quality when that is not common, its enchantment's suffix part of its name; `Equipment none` when a dwarf holds nothing;
+- `Wearing`: its clothing, body, legs, feet and over; `Wearing nothing` with none;
+- `Relations`: its friends, then its grudges (`Relations friends: Brynja Coldhammer; grudges: Orm Ashbrow`), or `Relations none yet`;
+- `Title`, the titles it holds in the title table's order (`Title Thane, Warden`); no line without one.
+
+A long line wraps under its text. Another creature has the `Equipment` line when it holds something; the dwarf's other lines are a dwarf's alone.
 
 Sections come from the inspector registry in this order: identity, activity, needs, skills, thoughts, health, equipment, relationships, title, labors (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 

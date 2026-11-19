@@ -213,7 +213,7 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 
 ## Player-facing behavior
 
-- Military panel: squads list; per squad: members (add several at once from a multi-select list, or from the marked dwarves of the units panel), leader, name, barracks zone, mode, equipment preferences, station and patrol placement on the map, orders (kill: click a creature; station: click a tile; patrol: click several tiles), alert selector at the top.
+- Military panel: squads list; per squad: members (add several at once from a multi-select list, or from the marked dwarves of the units panel), how many hold a weapon and who holds none or one not of the squad's choice, with what to do when the stock has none of the chosen class (`ui-screens/panels.md` § Military), leader, name, barracks zone, mode, equipment preferences, station and patrol placement on the map, orders (kill: click a creature; station: click a tile; patrol: click several tiles), alert selector at the top.
 - Combat log tab.
 - Glyphs: soldiers on duty are `☺` in green; projectiles `-`, `|`, `/`, `\` by direction.
 - Hints: "Make a squad and give it a station at the gate", "Training weapons let recruits spar safely", "Fortifications let crossbows shoot without being reached".

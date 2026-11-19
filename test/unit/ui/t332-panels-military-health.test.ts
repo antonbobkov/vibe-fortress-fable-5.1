@@ -124,16 +124,20 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[11]).toBe('[S-o] Off [S-t] Train [v] Active');
     expect(rows[12]).toMatch(/^Members \S+ \S+\.$/);
     expect(rows[13]?.trim()).toBe('[S-a] add  [r] remove');
-    expect(rows[14]).toBe('Gear [w] weapon [any ▼]');
-    expect(rows[15]?.trim()).toBe('[g] armor [any ▼]');
-    expect(rows[16]?.trim()).toBe('[S-j] ranged');
-    expect(rows[17]?.trim()).toBe('[S-d] draughts: none');
-    expect(rows[18]).toBe('Station none');
-    expect(rows[19]?.trim()).toBe('[S-s] set  [S-c] clear');
-    expect(rows[20]).toBe('Patrol none [S-p] add [y] clear');
-    expect(rows[21]).toBe('Orders [S-k] kill [S-f] follow');
-    expect(rows[22]?.trim()).toBe('[q] cancel orders');
-    expect(rows[23]).toBe('No barracks  [S-b] assign');
+    // The member holds nothing, and the stock has no weapon but the tools the workers need.
+    expect(rows[14]).toMatch(/^Armed 0 of 1 · unarmed: \S+ \S+\.$/);
+    expect(rows[15]).toBe('No weapon in stock: order one [o]');
+    expect(rows[16]).toBe('  or buy one.');
+    expect(rows[17]).toBe('Gear [w] weapon [any ▼]');
+    expect(rows[18]?.trim()).toBe('[g] armor [any ▼]');
+    expect(rows[19]?.trim()).toBe('[S-j] ranged');
+    expect(rows[20]?.trim()).toBe('[S-d] draughts: none');
+    expect(rows[21]).toBe('Station none');
+    expect(rows[22]?.trim()).toBe('[S-s] set  [S-c] clear');
+    expect(rows[23]).toBe('Patrol none [S-p] add [y] clear');
+    expect(rows[24]).toBe('Orders [S-k] kill [S-f] follow');
+    expect(rows[25]?.trim()).toBe('[q] cancel orders');
+    expect(rows[26]).toBe('No barracks  [S-b] assign');
   });
 
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {
@@ -171,23 +175,30 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[31]).toBe('[x] remove zone  [S-e] resize');
   });
 
-  it('Look names the creature, its activity, skills, mood, blood and pain, the missing care, and every body part', () => {
+  it('Look names the creature, its activity, needs, skills, mood, blood and pain, the missing care, and every body part', () => {
     const rows = render('look');
     expect(rows[0]).toMatch(/^Look · \(\d+, \d+, z32\)$/);
     expect(rows[1]).toBe('[1]Tile [2]Items 0 [3]Who 1');
     expect(patientName).toMatch(/^\S+ \S+$/);
-    expect(rows[3]).toBe('Activity: Resting in hospital');
-    expect(rows[4]).toBe('Skills');
-    expect(rows.slice(5, 8)).toEqual(['  Axe 2 (Novice)', '  Building 3 (Novice)', '  Mining 5 (Adequate)']);
-    expect(rows[8]).toMatch(/^Mood: Fine \(\d+\)$/);
-    expect(rows[10]).toMatch(/^Health: Blood 100%, Pain \d+$/);
-    expect(rows[11]).toBe('Care: no free hospital bed.');
-    expect(rows[12]).toBe('  Conscious');
-    expect(rows[13]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
-    expect(rows[14]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
-    expect(rows[15]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
+    // The identity line: the profession of the best skill, the age and the squad.
+    expect(rows[3]).toBe('Miner · adult · The Hearthguard');
+    expect(rows[4]).toBe('Activity: Resting in hospital');
+    expect(rows[5]).toBe('Needs');
+    expect(rows.slice(6, 10)).toEqual([
+      'hunger  ░░░░  20 thirst  ░░░░  20', 'rest    ░░░░  20 social  ░░░░  20', 'comfort ░░░░  20 purpose ░░░░  20', 'joy     ░░░░  20',
+    ]);
+    expect(rows[10]).toBe('Skills');
+    // Each skill has its progress to the next level as a bar.
+    expect(rows.slice(11, 14)).toEqual(['  Axe 2 (Novice) ░░░░░', '  Building 3 (Novice) ░░░░░', '  Mining 5 (Adequate) ░░░░░']);
+    expect(rows[14]).toMatch(/^Mood: Fine \(\d+\)$/);
+    expect(rows[16]).toMatch(/^Health: Blood 100%, Pain \d+$/);
+    expect(rows[17]).toBe('Care: no free hospital bed.');
+    expect(rows[18]).toBe('  Conscious');
+    expect(rows[19]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
+    expect(rows[20]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
+    expect(rows[21]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
     // The wound is listed under the part it is on, with its dressing and its infection.
-    expect(rows[16]).toBe('    serious cut (bandaged, infect»');
+    expect(rows[22]).toBe('    serious cut (bandaged, infect»');
   });
 
   it('the combat log names the tabs and shows the first attack of the engagement with its sender, damage and kind', () => {
