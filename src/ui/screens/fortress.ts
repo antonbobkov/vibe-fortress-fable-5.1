@@ -43,7 +43,7 @@ import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizati
 import { DepotPanel, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
 import { drawLookPanel, tileContents, type LookTab } from '../panels/look';
-import { drawLogPanel, drawLogStrip, type LogFilter } from '../panels/log';
+import { drawLogPanel, drawLogStrip, LogView, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import { statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
 import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../panels/calendar';
@@ -166,6 +166,8 @@ export class FortressScreen implements Screen {
   readonly settings: FortressSettings = { autoPauseDanger: true, autoPauseAlert: false, hintsEnabled: true, edgeScrolling: false, combatLog: 'hits only' };
   lookTab: LookTab = 0;
   logFilter: LogFilter = 0;
+  /** The log panel's selected entry and scroll, in entries. */
+  readonly logView = new LogView();
   /** The overlays panel (T-M3-08). */
   readonly overlayMenu = new OverlayMenu();
   /** The help and debug panels (T-M7-08). */
@@ -561,7 +563,7 @@ export class FortressScreen implements Screen {
     // A pinned danger line is dismissed by a click on it, as by the first key.
     if (this.pinned !== null && layout.log.rows > 0) surface.hit({ col: layout.log.col, row: layout.log.row + layout.log.rows - 1, cols: layout.log.cols, rows: 1 }, () => { this.pinned = null; });
     this.drawStatus(surface, layout.status);
-    drawTooltip(surface, this.pointer);
+    drawTooltip(surface, this.pointer, layout.map.rows);
   }
 
   /** "While dragging: the rectangle is inverted on the map"; a zone rectangle shows valid tiles as ▒ on green and blocked tiles as x on red. */
@@ -716,7 +718,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods(), this.host.speed() === 0);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
-    });
+    }, this.logView);
     if (panel.id !== 'help') this.drawShiftNote(surface, body);
   }
 
@@ -1780,7 +1782,10 @@ export class FortressScreen implements Screen {
     if ((panel === 'look' || panel === 'log') && /^[1-3]$/.test(own.key) && !own.ctrl && !this.tool.active) {
       const n = Number(own.key) - 1;
       if (panel === 'look') this.lookTab = n as LookTab;
-      else this.logFilter = n as LogFilter;
+      else if (this.logFilter !== n) {
+        this.logFilter = n as LogFilter;
+        this.logView.reset();
+      }
       return true;
     }
     return false;
@@ -2032,6 +2037,17 @@ export class FortressScreen implements Screen {
           if (letter === 't') { this.animals.startTrain(ctx); return true; }
         } else {
           if (letter === 'h') return submit(this.animals.hunt(ctx));
+        }
+        return false;
+      }
+      case 'log': {
+        // Entries, not rows: an entry wraps over as many rows as it needs.
+        if (!press.shift && (up || down)) { this.logView.move(up ? -1 : 1); return true; }
+        if (k === 'PageUp' || k === 'PageDown') { this.logView.page(k === 'PageUp' ? -1 : 1); return true; }
+        if (k === 'Enter') {
+          const focus = this.logView.line?.focus;
+          if (focus !== undefined) this.focusOn(focus);
+          return true;
         }
         return false;
       }

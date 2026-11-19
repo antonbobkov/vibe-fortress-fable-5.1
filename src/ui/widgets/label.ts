@@ -149,6 +149,31 @@ export function asWritten(s: Surface, draw: () => void): void {
   }
 }
 
+/**
+ * `text` in lines of at most `width` cells, never cutting a word that fits: each line after the
+ * first starts `indent` cells in (a hanging indent under the description). A word longer than a line
+ * is cut at the line's end.
+ */
+export function wrapHang(text: string, width: number, indent: number): string[] {
+  if (width < 2) return [text];
+  const hang = ' '.repeat(Math.max(0, Math.min(indent, Math.floor(width / 2))));
+  const length = (t: string): number => Array.from(t).length;
+  const lines: string[] = [];
+  let line = '';
+  let fresh = true;
+  for (const word of text.split(' ')) {
+    if (fresh) { line = (lines.length === 0 ? '' : hang) + word; fresh = false; } else if (length(line) + 1 + length(word) <= width) line += ` ${word}`;
+    else { lines.push(line); line = hang + word; }
+    while (length(line) > width) {
+      const chars = Array.from(line);
+      lines.push(chars.slice(0, width).join(''));
+      line = hang + chars.slice(width).join('');
+    }
+  }
+  lines.push(line);
+  return lines;
+}
+
 /** A label padded with blanks to exactly `width` cells (so a row is fully repainted). */
 export function labelRow(s: Surface, col: number, row: number, width: number, text: string, options: LabelOptions = {}): void {
   const bg = options.bg ?? s.theme.black;
@@ -157,22 +182,39 @@ export function labelRow(s: Surface, col: number, row: number, width: number, te
 }
 
 /**
- * Draw a tooltip overlay if the pointer hovers over a truncated cell (24 § Input model).
+ * Draw a tooltip overlay if the pointer hovers over a truncated cell (24 § Input model): a box
+ * `[…]` with the whole text, one row when it fits the window's width, otherwise wrapped over as
+ * many rows as it needs and at most `maxRows` (the map view's height on the fortress screen),
+ * above the hovered cell when there is room and below it otherwise.
  */
-export function drawTooltip(s: Surface, pointer: { col: number; row: number } | null): void {
+export function drawTooltip(s: Surface, pointer: { col: number; row: number } | null, maxRows = s.rows): void {
   if (pointer === null) return;
   const tip = s.tooltipAt(pointer.col, pointer.row);
-  if (tip === null) return;
+  if (tip === null || s.cols < 3) return;
   const t = s.theme;
-  const text = tip.text;
-  const chars = Array.from(text);
-  const width = Math.min(s.cols, chars.length + 2);
-  if (width <= 0) return;
+  const length = (text: string): number => Array.from(text).length;
+  const lines = length(tip.text) + 2 <= s.cols ? [tip.text] : wrapHang(tip.text, s.cols - 2, 0);
+  const above = pointer.row;
+  const below = s.rows - pointer.row - 1;
+  let rows = Math.min(lines.length, Math.max(1, maxRows));
+  let boxRow: number;
+  if (rows <= above) boxRow = pointer.row - rows;
+  else if (rows <= below) boxRow = pointer.row + 1;
+  else {
+    // Neither side holds it: the side with more room, its last row cut with `»`.
+    rows = Math.max(above, below);
+    boxRow = above >= below ? 0 : pointer.row + 1;
+  }
+  if (rows <= 0) return;
+  const shown = lines.slice(0, rows);
+  if (lines.length > rows) {
+    const rest = Array.from(lines.slice(rows - 1).join(' '));
+    shown[rows - 1] = rest.length > s.cols - 2 ? `${rest.slice(0, s.cols - 3).join('')}»` : rest.join('');
+  }
+  const width = Math.min(s.cols, Math.max(...shown.map(length)) + 2);
   const boxCol = Math.max(0, Math.min(s.cols - width, tip.rect.col));
-  const boxRow = pointer.row > 0 ? pointer.row - 1 : pointer.row + 1;
-  if (boxRow < 0 || boxRow >= s.rows) return;
-  s.fill({ col: boxCol, row: boxRow, cols: width, rows: 1 }, t.panelBg);
+  s.fill({ col: boxCol, row: boxRow, cols: width, rows }, t.panelBg);
   s.put(boxCol, boxRow, s.glyphs.index('['), t.border, t.panelBg);
-  s.text(boxCol + 1, boxRow, text, t.value, t.panelBg, width - 2);
-  s.put(boxCol + width - 1, boxRow, s.glyphs.index(']'), t.border, t.panelBg);
+  shown.forEach((line, k) => s.text(boxCol + 1, boxRow + k, line, t.value, t.panelBg, width - 2));
+  s.put(boxCol + width - 1, boxRow + rows - 1, s.glyphs.index(']'), t.border, t.panelBg);
 }

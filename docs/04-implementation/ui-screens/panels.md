@@ -527,16 +527,22 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 │ Log                            [x]  │
 │ [1] All [2] Alerts [3] Combat       │
 │ /filter: ____                       │
-│ Su 12 ! Gloam scouts seen (E)       │
-│ Su 12   Ketil found hematite        │
-│ Su 11 ! The cow is starving         │
-│ Su 11   Hillfolk caravan arrived    │
-│ Su 10   Stockpile #2 is full ×3     │
-│ …                                   │
+│ Su 12 ! Gloam scouts seen (E)     █ │
+│ Su 12 ☼ Wild beasts will come. Dig│ │
+│       a hall into rock, put a door│ │
+│       on it, click the door and   │ │
+│       choose Lock on alert. Make a│ │
+│       squad in [m] and arm it with│ │
+│       iron spears: clubs lose to  │ │
+│       boars. Order a kill when a  │ │
+│       beast comes.                │ │
+│ Su 11 ! The cow is starving       │ │
+│ Su 10 Stockpile #2 is full ×3     │ │
+│ …                                 │ │
 │ [Enter] center on it                │
 ```
 
-Each row starts with its day in the dim text colour: the first two letters of the season and the day of the season ("Sp 8"), with the year before them ("Y1 Sp 8") for a line of an earlier year than the present one. The dates are padded to the width of the longest one on the screen so that the texts line up. The log strip at the bottom of the fortress screen shows no dates.
+Each entry starts with its day in the dim text colour: the first two letters of the season and the day of the season ("Sp 8"), with the year before them ("Y1 Sp 8") for a line of an earlier year than the present one. The dates are padded to the width of the longest one on the screen so that the texts line up. An entry wraps under its own text, never under the date column, over as many rows as it needs: the hint above is one entry of eight rows. `↑` `↓` select an entry and `PageUp` `PageDown` move a page of entries; a chosen entry is inverted over all its rows (none is until the first key or click), and `Enter` or a click on any of its rows centres the map on its focus. When the entries do not all fit, the last column is a scrollbar over the entries. The log strip at the bottom of the fortress screen shows no dates.
 
 ## Overlays (f)
 
