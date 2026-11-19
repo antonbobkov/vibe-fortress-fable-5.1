@@ -165,8 +165,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.good.camels': 'camels',
   'ui.site.good.reindeer': 'reindeer',
   'ui.site.good.ice': 'ice',
-  // The `salt` material, named apart from rock salt (halite) in the site lists.
-  'ui.site.good.salt': 'sea salt',
+  // The `salt` material, named in the site lists for the salt crusts that give it, apart from rock salt (halite).
+  'ui.site.good.salt': 'salt crust',
   'ui.site.lack.soil': 'No surface soil: no farms or grass up here. Farm in a cavern or on mud; graze in a cavern.',
   'ui.site.lack.trees': 'No trees: wood only from the wagon, logs you bring, caravans and cavern fungus.',
   'ui.site.lack.water': 'No water on the surface: drink what you bring or brew; dig down to a cavern lake.',

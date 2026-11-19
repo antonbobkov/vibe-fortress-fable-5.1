@@ -85,7 +85,7 @@ describe('T-550 what a site has and lacks', () => {
     const screen = new WorldMapScreen(world, { embark: () => {}, back: () => {} }, keymap, strings, new WorldMapCompositor(registry, palette), registry);
     screen.cursor = { x: desert!.id % world.size, y: Math.floor(desert!.id / world.size) };
     const text = screen.regionLines().join(' ').replace(/\s+/g, ' ');
-    expect(text).toMatch(/Wildlife .* This site has: sand, sea salt, cactus fiber, camels, likely giant bones, .*\. This site lacks: wood, clay, honey, peat/);
+    expect(text).toMatch(/Wildlife .* This site has: sand, salt crust, cactus fiber, camels, likely giant bones, .*\. This site lacks: wood, clay, honey, peat/);
     const s = surface(100, 60);
     screen.draw(s);
     const rows = s.lines();

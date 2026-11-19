@@ -1,7 +1,7 @@
 /**
  * T-613: the world map's cursor has its own colours on every biome and blinks with the designation
  * blink (steady with Reduced motion); Temper has a line saying what it is; the salt a site lacks is
- * "sea salt", apart from rock salt; the filter counts the sites where one can embark; and About is
+ * "salt crust" (T-617), apart from rock salt; the filter counts the sites where one can embark; and About is
  * hidden until it has a screen (`ui-screens/menus-and-world.md` § World map, § Main menu).
  */
 
@@ -68,13 +68,13 @@ describe('T-613 the world map shows where the cursor is and what its words mean'
     expect(next.every((l) => 'fg' in l && l.fg === 'dim')).toBe(true);
   });
 
-  it('names the salt a site lacks "sea salt", apart from rock salt', () => {
+  it('names the salt a site lacks "salt crust", apart from rock salt', () => {
     const screen = mapScreen();
     cursorOn(screen, 'temperate_forest');
     const text = screen.regionLines(200).join('\n');
     const lacks = text.split('\n').find((l) => l.startsWith('This site lacks:')) ?? '';
-    expect(lacks).toMatch(/^This site lacks: sea salt\b/);
-    expect(lacks).not.toMatch(/(lacks: |, )salt\b/);
+    expect(lacks).toMatch(/^This site lacks: salt crust\b/);
+    expect(lacks).not.toMatch(/(lacks: |, )salt\b(?! crust)/);
   });
 
   it('counts the sites that match, never an ocean or a glacier', () => {
