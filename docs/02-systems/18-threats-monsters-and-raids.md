@@ -183,7 +183,7 @@ Panel `threats` (active parties with size, state and morale in words, renown, sc
 | `FOLLOW_RADIUS` | 4 | *unmeasured* |
 | `ENGAGE_IDLE_TICKS` | 150 | *unmeasured* |
 | `ENGAGE_STALL_TICKS` | 600 | An engaged party with no blow and no door worked this long has stalled and loiters (§ Party AI, Engage; *unmeasured*) |
-| `ENGAGE_STALEMATE_TICKS` | 1200 | An engaged party in whose fight no one has fallen this long has stalled and loiters (§ Party AI, Engage; *unmeasured*) |
+| `ENGAGE_STALEMATE_TICKS` | 2400 | An engaged party in whose fight no one has fallen this long has stalled and loiters: two days, past the pauses of a real fight (§ Party AI, Engage; *unmeasured*) |
 | `LOOT_RADIUS` | 6 | *unmeasured* |
 | `LOITER_DAYS_RAID` / `LOITER_DAYS_SIEGE` | 2 / 5 | *unmeasured* |
 | `RETREAT_LOSS_PERCENT` | 50 | Half the party lost breaks it whatever its morale: the floor of the morale scale (*unmeasured*) |
