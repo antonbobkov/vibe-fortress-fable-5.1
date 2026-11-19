@@ -76,7 +76,7 @@ const NEED_ACTIVITIES = new Set(['hunger', 'thirst', 'sleep', 'social', 'comfort
 
 /**
  * The words for an activity wherever a panel shows one (10 § Player-facing behavior): an idle dwarf
- * reads "Idle", or "Sheltering (no shelter)" while the hearth alert finds it no shelter; a need
+ * reads "Idle", or "Idle (no shelter)" while the hearth alert finds it no shelter; a need
  * errand reads as a verb ("Eating"); a job named for its recipe ("Craft (recipe)") names the recipe
  * ("Craft: wooden bolts"). Any other activity reads as 10 gives it; '' for a creature without one.
  */
@@ -97,10 +97,10 @@ export function activityLabel(ctx: Pick<PanelContext, 'readers' | 'registry' | '
   return raw;
 }
 
-/** An idle dwarf's activity: "Idle", or "Sheltering (no shelter)" while the hearth alert has no shelter for it. */
+/** An idle dwarf's activity: "Idle", or "Idle (no shelter)" while the hearth alert has no shelter for it (it works as under a watchful alert). */
 export function idleLabel(ctx: Pick<PanelContext, 'readers' | 'strings'>, id: EntityId): string {
   const unsheltered = ctx.readers.has('10') ? ctx.readers.of<DwarvesReaderLike>('10').unsheltered?.() ?? [] : [];
-  return ctx.strings.get(unsheltered.includes(id) ? 'ui.units.sheltering_none' : 'ui.units.idle');
+  return ctx.strings.get(unsheltered.includes(id) ? 'ui.units.idle_no_shelter' : 'ui.units.idle');
 }
 
 /** How many dwarves are idle, for the panel title. */

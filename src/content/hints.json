@@ -127,7 +127,7 @@
   {
     "id": "hint_predator_open",
     "trigger": "first AnimalSpawned of a dangerous species while the fortress has no shelter",
-    "text": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert once your hall has a door: before that there is nowhere to shelter, and the alert only stops the work. [n] then [2] shows where it is."
+    "text": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert once your hall has a door: before that there is nowhere to shelter, and the dwarves work on in the open. [n] then [2] shows where it is."
   },
   {
     "id": "hint_food",

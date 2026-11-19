@@ -375,7 +375,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         }
         return holder;
       }, () => ctx.world.calendar.tick, (id) => this.activities.isTipsy(id, ctx.world.calendar.tick), () => this.whimView(),
-      () => ctx.world.fortress.alert !== 'hearth' ? [] : Array.from(this.shutOut).filter((id) => ctx.world.entities.alive(id)).sort((a, b) => a - b));
+      () => ctx.world.fortress.alert !== 'hearth' ? [] : Array.from(this.shutOut).filter((id) => ctx.world.entities.alive(id)).sort((a, b) => a - b),
+      (id) => ctx.world.fortress.alert === 'hearth' && this.shutOut.has(id));
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {
