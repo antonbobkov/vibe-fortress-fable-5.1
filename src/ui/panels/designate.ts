@@ -218,6 +218,181 @@ function stairNeeds(map: MapReader, a: TilePoint, b: TilePoint, skips: Skips): M
   return needs;
 }
 
+/**
+ * What the reach check reads of 22 and the fortress: whether a tile is joined now, by 22's walker
+ * labels, to a tile a fortress dwarf stands on, and whether a walker may stand on it.
+ */
+export interface ReachProbe {
+  reached(i: TileIndex): boolean;
+  passable(i: TileIndex): boolean;
+}
+
+/** What a batch leaves out of reach (24 § Input model). */
+export interface BatchReach {
+  /** The batch's tiles no dwarf reaches, even when every tile it can reach is worked, in index order. */
+  readonly unreachable: readonly TileIndex[];
+  /** Tiles in the batch. */
+  readonly total: number;
+}
+
+/** The tile kinds a diagonal step may not cut past (22 § Edges). */
+function blocksCorner(kind: TileKind): boolean {
+  return kind === TileKind.Wall || kind === TileKind.Tree || kind === TileKind.Boulder || kind === TileKind.Fortification;
+}
+
+/** What a finished job leaves a dwarf can stand on (03 § Tile transitions), or null when its walkability does not change. */
+function workedKind(designation: string): TileKind | null {
+  switch (designation) {
+    case 'dig':
+    case 'chop':
+      return TileKind.Floor;
+    case 'stairs_up':
+      return TileKind.StairsUp;
+    case 'stairs_down':
+      return TileKind.StairsDown;
+    case 'stairs_updown':
+      return TileKind.StairsUpDown;
+    case 'ramp':
+      return TileKind.Ramp;
+    default:
+      return null;
+  }
+}
+
+const leadsUp = (k: TileKind): boolean => k === TileKind.StairsUp || k === TileKind.StairsUpDown;
+const leadsDown = (k: TileKind): boolean => k === TileKind.StairsDown || k === TileKind.StairsUpDown;
+
+/**
+ * The tiles of a batch of `Designate` commands no fortress dwarf can reach (24 § Input model). The
+ * batch is worked through in thought, with 03's stand tiles and 22's edges: a tile is worked when a
+ * dwarf reaches one of its stand tiles (the tile itself for a channel, down stairs and a floor
+ * smoothed or engraved; else a walkable tile of its level's 8-neighbourhood, and for up and up/down
+ * stairs a down or up/down stair directly above); a worked tile a dwarf can stand on is reached when
+ * a step leads into it from a reached tile (a side, a diagonal that cuts past no solid corner, stairs
+ * that meet, a ramp). What is never worked is out of reach. A corner is not a side: a box that meets
+ * the open only at a corner has its corner tile dug from the diagonal and nothing more. The tiles
+ * already designated (`pending`, by designation id) are worked through with the batch, so a room
+ * designated under a shaft that is designated but not yet carved is in reach; only the batch's own
+ * tiles are counted.
+ */
+export function batchReach(map: MapReader, probe: ReachProbe, commands: readonly Command[], pending: readonly (readonly [TileIndex, string])[] = []): BatchReach {
+  const batch = new Map<TileIndex, string>();
+  for (const c of commands) {
+    if (c.type !== 'Designate') continue;
+    for (const t of c['tiles'] as readonly TileIndex[]) batch.set(t, c['kind'] as string);
+  }
+  const own = [...batch.keys()].sort((a, b) => a - b);
+  for (const [t, designation] of pending) if (!batch.has(t)) batch.set(t, designation);
+  const worked = new Set<TileIndex>();
+  /** Worked tiles whose kind the job changes, with that kind. */
+  const after = new Map<TileIndex, TileKind>();
+  const reachedNew = new Set<TileIndex>();
+  const kindOf = (i: TileIndex): TileKind => after.get(i) ?? map.kindAt(i);
+  const walkable = (i: TileIndex): boolean => after.has(i) || probe.passable(i);
+  const reached = (i: TileIndex): boolean => reachedNew.has(i) || (!after.has(i) && probe.reached(i));
+  const at = (x: number, y: number, z: number): TileIndex => (map.inBounds(x, y, z) ? map.index(x, y, z) : -1);
+
+  /** A step joins the two tiles (22 § Edges), read on the batch as worked so far. */
+  const step = (a: TileIndex, b: TileIndex): boolean => {
+    const p = map.unpack(a);
+    const q = map.unpack(b);
+    const dx = q.x - p.x;
+    const dy = q.y - p.y;
+    const dz = q.z - p.z;
+    if (!walkable(a) || !walkable(b)) return false;
+    if (dz === 0) {
+      if (dx === 0 || dy === 0) return true;
+      const c1 = at(p.x + dx, p.y, p.z);
+      const c2 = at(p.x, p.y + dy, p.z);
+      return c1 >= 0 && c2 >= 0 && !blocksCorner(kindOf(c1)) && !blocksCorner(kindOf(c2));
+    }
+    const [lo, hi, ox, oy] = dz > 0 ? [p, q, dx, dy] : [q, p, -dx, -dy];
+    const low = map.index(lo.x, lo.y, lo.z);
+    const high = map.index(hi.x, hi.y, hi.z);
+    if (ox === 0 && oy === 0) return leadsUp(kindOf(low)) && leadsDown(kindOf(high));
+    // A ramp leans on the solid tile beside it and leads to the tile above that one.
+    if (ox !== 0 && oy !== 0) return false;
+    const lean = at(lo.x + ox, lo.y + oy, lo.z);
+    return kindOf(low) === TileKind.Ramp && lean >= 0 && blocksCorner(kindOf(lean));
+  };
+
+  const around = (i: TileIndex, levels: readonly number[]): TileIndex[] => {
+    const { x, y, z } = map.unpack(i);
+    const out: TileIndex[] = [];
+    for (const dz of levels) for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+      if (dx === 0 && dy === 0 && dz === 0) continue;
+      const n = at(x + dx, y + dy, z + dz);
+      if (n >= 0) out.push(n);
+    }
+    return out;
+  };
+
+  const stands = (i: TileIndex, designation: string): TileIndex[] => {
+    const kind = map.kindAt(i);
+    const onIt = designation === 'channel' || designation === 'stairs_down' ||
+      ((designation === 'smooth' || designation === 'engrave') && kind !== TileKind.Wall);
+    if (onIt) return [i];
+    const out = around(i, [0]);
+    const { x, y, z } = map.unpack(i);
+    const above = at(x, y, z + 1);
+    if ((designation === 'stairs_up' || designation === 'stairs_updown') && above >= 0 && leadsDown(kindOf(above))) out.push(above);
+    // 03 § Ice harvesting: the bank above, a miner reaching down.
+    if (designation === 'harvest_ice' && above >= 0) out.push(above, ...around(above, [0]));
+    return out;
+  };
+
+  const queue: TileIndex[] = [...batch.keys()].sort((a, b) => a - b);
+  const wake = (i: TileIndex): void => {
+    for (const n of around(i, [-1, 0, 1])) if (batch.has(n)) queue.push(n);
+  };
+  for (let k = 0; k < queue.length; k += 1) {
+    const t = queue[k] as TileIndex;
+    const designation = batch.get(t) as string;
+    if (!worked.has(t) && stands(t, designation).some((s) => reached(s) && walkable(s))) {
+      worked.add(t);
+      const kind = workedKind(designation);
+      if (kind !== null) after.set(t, kind);
+      wake(t);
+    }
+    if (worked.has(t) && after.has(t) && !reachedNew.has(t) && around(t, [-1, 0, 1]).some((n) => reached(n) && step(n, t))) {
+      reachedNew.add(t);
+      wake(t);
+    }
+  }
+  return { unreachable: own.filter((t) => !worked.has(t)), total: own.length };
+}
+
+/** The `Designate` id of each designation a tile can hold (`command-catalog.md`). */
+export const DESIGNATION_IDS: Readonly<Partial<Record<Designation, string>>> = {
+  [Designation.Dig]: 'dig',
+  [Designation.Channel]: 'channel',
+  [Designation.StairsUp]: 'stairs_up',
+  [Designation.StairsDown]: 'stairs_down',
+  [Designation.StairsUpDown]: 'stairs_updown',
+  [Designation.Ramp]: 'ramp',
+  [Designation.Smooth]: 'smooth',
+  [Designation.Engrave]: 'engrave',
+  [Designation.Remove]: 'remove',
+  [Designation.Chop]: 'chop',
+  [Designation.Gather]: 'gather',
+  [Designation.HarvestIce]: 'harvest_ice',
+  [Designation.Ignite]: 'ignite',
+};
+
+/**
+ * The stairs tool over several levels (24 § Input model): whether a column of the box left out of
+ * reach is topped by a ramp, which takes no stairs.
+ */
+export function rampTopped(map: MapReader, a: TilePoint, b: TilePoint, unreachable: readonly TileIndex[]): boolean {
+  if (a.z === b.z) return false;
+  const zTop = Math.max(a.z, b.z);
+  return unreachable.some((t) => {
+    const { x, y } = map.unpack(t);
+    const top = map.index(x, y, zTop);
+    return (map.flagsAt(top) & TileFlag.Discovered) !== 0 && map.kindAt(top) === TileKind.Ramp;
+  });
+}
+
 export interface DesignateContext {
   readonly map: MapReader;
   /** 03's transition precondition for a tile and kind (`precondition()` of `@systems/terrain`). */

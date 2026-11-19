@@ -20,6 +20,19 @@ import { tileXyz, type PanelContext } from './context';
 
 type JobLike = ReturnType<JobsReader['list']>[number];
 
+/**
+ * A row of the job list: one job, or a blocked batch (`panels.md` § Jobs): two or more jobs next to
+ * each other in the list, blocked for the same reason, of one type and priority, each on a bare tile.
+ */
+export interface JobRow {
+  readonly jobs: readonly JobLike[];
+}
+
+/** The jobs of a blocked batch belong together: same type, priority and reason, each on a bare tile. */
+function batchable(j: JobLike): boolean {
+  return j.state === 'blocked' && j.blockedReason !== null && j.target.kind === 'tile';
+}
+
 export class JobsPanel {
   readonly list: ListState = { selected: 0, scroll: 0 };
 
@@ -30,6 +43,8 @@ export class JobsPanel {
   readonly waitingList: ListState = { selected: 0, scroll: 0 };
   labor = '';
   state: 'all' | 'open' | 'claimed' | 'blocked' = 'all';
+  /** Jobs whose blocked batch `Enter` has opened to its rows. Presentation state, not saved. */
+  private readonly opened = new Set<number>();
 
   allJobs(ctx: PanelContext): JobLike[] {
     if (!ctx.readers.has('11')) return [];
@@ -102,26 +117,55 @@ export class JobsPanel {
     this.resetSelection();
   }
 
+  /** The list's rows: each blocked batch one row until `Enter` opens it. */
+  rows(ctx: PanelContext): JobRow[] {
+    const rows: JobLike[][] = [];
+    for (const j of this.jobs(ctx)) {
+      const run = rows.at(-1);
+      const head = run?.[0];
+      if (run !== undefined && head !== undefined && batchable(j) && batchable(head) && j.type === head.type &&
+        j.priority === head.priority && j.blockedReason === head.blockedReason) run.push(j);
+      else rows.push([j]);
+    }
+    return rows.flatMap((run) => (run.length > 1 && run.some((j) => this.opened.has(j.id)) ? run.map((j) => [j]) : [run]))
+      .map((jobs) => ({ jobs }));
+  }
+
+  selectedRow(ctx: PanelContext): JobRow | undefined {
+    return this.rows(ctx)[this.list.selected];
+  }
+
+  /** The selected row's job, or a batch's first. */
   selected(ctx: PanelContext): JobLike | undefined {
-    return this.jobs(ctx)[this.list.selected];
+    return this.selectedRow(ctx)?.jobs[0];
+  }
+
+  /** `Enter` on a blocked batch opens it to its rows; false on a row of one job. */
+  openBatch(ctx: PanelContext): boolean {
+    const row = this.selectedRow(ctx);
+    if (row === undefined || row.jobs.length < 2) return false;
+    for (const j of row.jobs) this.opened.add(j.id);
+    return true;
   }
 
   move(delta: number, ctx: PanelContext): void {
-    const n = this.jobs(ctx).length;
+    const n = this.rows(ctx).length;
     this.list.selected = Math.max(0, Math.min(Math.max(0, n - 1), this.list.selected + delta));
   }
 
-  /** `[p]`: the next priority, wrapping. */
-  priority(ctx: PanelContext): Command | null {
-    const j = this.selected(ctx);
-    if (j === undefined) return null;
+  /** `[p]`: the next priority, wrapping; for every job of a blocked batch. */
+  priority(ctx: PanelContext): Command[] | null {
+    const row = this.selectedRow(ctx);
+    const j = row?.jobs[0];
+    if (row === undefined || j === undefined) return null;
     const next = j.priority >= PRIORITY_MAX ? PRIORITY_MIN : j.priority + 1;
-    return { type: 'SetJobPriority', jobId: j.id, priority: next };
+    return row.jobs.map((job) => ({ type: 'SetJobPriority', jobId: job.id, priority: next }));
   }
 
-  cancel(ctx: PanelContext): Command | null {
-    const j = this.selected(ctx);
-    return j === undefined ? null : { type: 'CancelJob', jobId: j.id };
+  /** `[x]`: cancel the job, or every job of a blocked batch. */
+  cancel(ctx: PanelContext): Command[] | null {
+    const row = this.selectedRow(ctx);
+    return row === undefined ? null : row.jobs.map((job) => ({ type: 'CancelJob', jobId: job.id }));
   }
 
   /** The tile a job is at: its target tile, or its target entity's tile. */
@@ -151,6 +195,27 @@ function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
   if (tile === null) return name;
   const p = tileXyz(ctx, tile);
   return `${name} (${p.x},${p.y},z${p.z})`;
+}
+
+/** A blocked batch's row: the job's name and how many (`Dig ×19`). */
+function batchText(ctx: PanelContext, row: JobRow): string {
+  const first = row.jobs[0] as JobLike;
+  const type = ctx.readers.of<JobsReader>('11').typeOf(first.id) ?? '';
+  const name = ctx.strings.has(`ui.jobs.type.${type}`) ? ctx.strings.get(`ui.jobs.type.${type}`) : type.replace(/_/g, ' ');
+  return ctx.strings.get('ui.jobs.batch', { name, n: row.jobs.length });
+}
+
+/**
+ * The line under the list for a selected blocked batch: the box its tiles span, and `Enter` to open
+ * it (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`).
+ */
+export function batchDetail(ctx: PanelContext, panel: JobsPanel, row: JobRow): string {
+  const at = row.jobs.map((j) => tileXyz(ctx, panel.tileOf(ctx, j) ?? 0));
+  const lo = (k: 'x' | 'y' | 'z'): number => Math.min(...at.map((p) => p[k]));
+  const hi = (k: 'x' | 'y' | 'z'): number => Math.max(...at.map((p) => p[k]));
+  const z = lo('z') === hi('z') ? `z${lo('z')}` : `z${hi('z')}–${lo('z')}`;
+  const box = lo('x') === hi('x') && lo('y') === hi('y') ? `(${lo('x')},${lo('y')})` : `(${lo('x')},${lo('y')})–(${hi('x')},${hi('y')})`;
+  return ctx.strings.get('ui.jobs.batch_detail', { n: row.jobs.length, box, z });
 }
 
 function whoText(ctx: PanelContext, j: JobLike): string {
@@ -209,8 +274,12 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const changed = labors.ids().filter(id => reader.laborPriority(id) !== PRIORITY_DEFAULT)
     .map(id => `${labors.byId(id)?.name ?? id} ${reader.laborPriority(id)}`);
   const priorities = wrapText(changed.length ? changed.join(' \u00b7 ') : strings.get('ui.jobs.priorities_default', { priority: PRIORITY_DEFAULT }), rect.cols - 2, rect.rows);
-  const chosen = panel.selected(ctx);
-  const detail = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? wrapText(jobBlockText(ctx, chosen).long, rect.cols - 2, 2) : [];
+  const rows = panel.rows(ctx);
+  const chosenRow = rows[panel.list.selected];
+  const chosen = chosenRow?.jobs[0];
+  const blockText = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? jobBlockText(ctx, chosen).long : '';
+  const detailText = chosenRow !== undefined && chosenRow.jobs.length > 1 ? `${batchDetail(ctx, panel, chosenRow)} ${blockText}` : blockText;
+  const detail = detailText === '' ? [] : wrapText(detailText, rect.cols - 2, chosenRow !== undefined && chosenRow.jobs.length > 1 ? 3 : 2);
   const needle = panel.filter.value.toLowerCase();
   const waiting = panel.waitingOf(orders);
   void needle;
@@ -224,7 +293,10 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
       { title: strings.get('ui.jobs.job'), width: 17 },
       { title: strings.get('ui.jobs.who'), width: 13 },
     ],
-    jobs.map((j) => [` ${j.priority}`, jobText(ctx, panel, j), whoText(ctx, j)]),
+    rows.map((r) => {
+      const j = r.jobs[0] as JobLike;
+      return [` ${j.priority}`, r.jobs.length > 1 ? batchText(ctx, r) : jobText(ctx, panel, j), whoText(ctx, j)];
+    }),
     panel.list,
     (index) => {
       panel.list.selected = index;
@@ -233,7 +305,7 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   if (jobs.length === 0) label(s, rect.col + 1, rect.row + top + 1, strings.get('ui.jobs.empty'), { fg: t.dim, width: rect.cols - 2 });
   for (let r = 0; r < height - 1; r += 1) {
     const index = panel.list.scroll + r;
-    const job = jobs[index];
+    const job = rows[index]?.jobs[0];
     if (!job) break;
     s.hit({ col: rect.col + 5, row: rect.row + top + 1 + r, cols: 17, rows: 1 }, () => {
       panel.list.selected = index;

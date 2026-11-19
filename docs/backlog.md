@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-610 | [A designation no dwarf can reach says so when it is made](work/T-610-unreachable-designations.md) | [T-605](archive/tasks/T-605-first-hour-ux.md) | — | open |
 | T-612 | [The legend and the hover line explain the surface](work/T-612-surface-legend.md) | [T-605](archive/tasks/T-605-first-hour-ux.md) | — | open |
 | T-613 | [The world map shows where the cursor is and what its words mean](work/T-613-world-map-readability.md) | [T-605](archive/tasks/T-605-first-hour-ux.md) | — | open |
 | T-614 | [The log panel's filter field](work/T-614-log-filter-field.md) | [T-608](archive/tasks/T-608-readable-log-and-hints.md) | — | open |

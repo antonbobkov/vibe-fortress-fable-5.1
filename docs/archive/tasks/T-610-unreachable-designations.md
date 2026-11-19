@@ -1,6 +1,8 @@
 # T-610 — A designation no dwarf can reach says so when it is made
 
-**Source:** [T-605's audit](../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 5 and 6 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 4341678d,a7cdb212.
+
+**Source:** [T-605's audit](../../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 5 and 6 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

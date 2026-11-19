@@ -125,6 +125,7 @@ A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in
 │  5  Haul turnip      —              │
 │  5  Build bed        waiting: 1 bed │
 │  5  Dig (60,40,z29)  no path        │
+│  5  Dig ×19          no path        │
 │  6  Haul stone ×12   —              │
 │ ─────────────────────────────────── │
 │ [Enter] center  [S-p] priority      │
@@ -135,7 +136,7 @@ A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in
 
 Below the job list, "Orders waiting (n) [Tab]" lists the work orders that no job serves, three rows at a time, one row each with the reason the Orders panel shows ("x1 Mail shirt · no forge", "x3 Door · waiting for log (0)"); the Jobs text filter applies to those rows, and a click on a row opens Orders with that order selected. By keyboard, `Tab` moves the cursor (`►`) between the job list and these rows when there are any (with none it is the sidebar key); `↑` `↓` move over them, scrolling the rest into view, and `Enter` opens Orders with the order selected, as the click does.
 
-Jobs names a building target by its type (Build bed, Build carpenter's workshop) and an item target by its item name (Haul log). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. With no rows, the first table body row says "No jobs. Designate [d], build [b] or order [o]."
+Jobs names a building target by its type (Build bed, Build carpenter's workshop) and an item target by its item name (Haul log). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. A blocked batch is one row: two or more jobs next to each other in the list, blocked for the same reason, of one type and priority, each on a bare tile, show as the job's name and their count (`Dig ×19`) with the reason. While it is selected, the line under the list gives the box their tiles span and the level or levels (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`) before the reason's long text. `Enter` on it opens it to its rows and centres the first; the opened rows stay open while their jobs last (presentation state, not saved). `[S-p]` and `[x]` on the batch's row act on every job of it. With no rows, the first table body row says "No jobs. Designate [d], build [b] or order [o]."
 
 The filter controls wrap onto three rows at sidebar width: `/filter`, `[S-l] labor: all`, `[S-s] state: all`. `/` or clicking the field focuses text matching the job name or worker, ignoring case. Enter or Esc finishes typing without closing the panel. Shift-L or clicking the labor row cycles all and the labors with jobs in registry order; Shift-S or clicking the state row cycles all, open, claimed, blocked. Claimed includes fetching, travelling, working and completing. Filters combine; changing one resets selection. The summary counts all current jobs. Labor priorities show only non-default priorities, using full names separated by dots. With all defaults, the line reads "All labors at priority 5: change them in the labor manager ([l], Enter)."
 
