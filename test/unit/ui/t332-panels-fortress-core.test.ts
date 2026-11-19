@@ -137,17 +137,18 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     const dwarves = game.host.readers.of<{ list(): number[] }>('10').list();
     expect(rows[0]).toBe('/filter:');
     expect(rows[1]).toMatch(/^Name +Act\.$/);
-    const listed = rows.slice(2, 34).filter((row) => row !== '');
+    const listed = rows.slice(2, 33).filter((row) => row !== '');
     expect(listed).toHaveLength(dwarves.length);
     expect(listed[0]).toMatch(/^► ?\S+ \S+ ☺ Dig$/);
     for (const row of listed.slice(1)) expect(row).toMatch(/^ \S+ \S+ ☺ Idle$/);
-    expect(rows[34]).toMatch(/^─+$/);
-    expect(rows[35]).toBe('[Enter] inspect  [l] labors');
+    expect(rows[33]).toMatch(/^─+$/);
+    expect(rows[34]).toBe('[Enter] inspect  [l] labors');
     // T-424: `c` is the Civilizations letter; the centre accelerator takes Shift.
-    expect(rows[36]).toBe('[S-c] center [i] idle [S-w] hurt');
-    expect(rows[37]).toMatch(/^\[Space\] mark {2}\[\*\] all {2}0 marked$/);
-    expect(rows[38]).toBe('[S-t] title  [S-n] rename');
-    expect(rows[39]).toMatch(/^\[S-m\] squad {2}sleep \d+h/);
+    expect(rows[35]).toBe('[S-c] center [i] idle [S-w] hurt');
+    expect(rows[36]).toMatch(/^\[Space\] mark {2}\[\*\] all {2}0 marked$/);
+    expect(rows[37]).toBe('[S-t] title  [S-n] rename');
+    expect(rows[38]).toBe('[S-m] squad');
+    expect(rows[39]).toMatch(/^sleep \d+h {2}\[\[\] earlier {2}\[\]\] later$/);
   });
 
   it('Jobs counts open, claimed and blocked jobs, and lists the dig order with its priority and who has it', () => {

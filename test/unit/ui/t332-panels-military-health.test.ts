@@ -174,7 +174,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
   it('Look names the creature, its activity, skills, mood, blood and pain, the missing care, and every body part', () => {
     const rows = render('look');
     expect(rows[0]).toMatch(/^Look · \(\d+, \d+, z32\)$/);
-    expect(rows[1]).toMatch(/^Tabs: \[1\]Tile \[2\]Items\(0\) \[3\]Crea»$/);
+    expect(rows[1]).toBe('[1]Tile [2]Items 0 [3]Who 1');
     expect(patientName).toMatch(/^\S+ \S+$/);
     expect(rows[3]).toBe('Activity: Resting in hospital');
     expect(rows[4]).toBe('Skills');

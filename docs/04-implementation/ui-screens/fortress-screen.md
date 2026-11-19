@@ -55,10 +55,11 @@ The log strip shows the last three announcements; danger lines are prefixed `!!`
 │                                                                                  │ [S-c] center [i] idle [S-w] hurt  │
 │                                                                                  │ [Space] mark  [*] all  1 marked  │
 │                                                                                  │ [S-t] title  [S-n] rename        │
-│                                                                                  │ [S-m] squad  sleep 22h  [[]  []] │
+│                                                                                  │ [S-m] squad                      │
+│                                                                                  │ sleep 22h  [[] earlier  []] later│
 ```
 
-Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier); activity from `dwarves.activityText`. In the 36-column sidebar the name column is 14 cells (the cursor mark and twelve letters of the name), the mood glyph takes 2 (the glyph and a blank) and the activity the rest (16 or more). The profession is not a column: hovering a row shows "name, profession", and Look shows it too. A dwarf with no activity reads "Idle" in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
+Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name in its own column (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier on the status row); activity from `dwarves.activityText`, always in its column. The list's tooltips (the mood tier, a row's "name, profession") show on the status row only, with no box, since a box would cover the row above. In the 36-column sidebar the name column is 14 cells (the cursor mark and twelve letters of the name), the mood glyph takes 2 (the glyph and a blank) and the activity the rest (16 or more). The profession is not a column: hovering a row shows "name, profession" on the status row, and Look shows it too. `Enter`, or a double click on a row, inspects the dwarf: Look on its tile at the `Creatures` tab with its sub-tab first (24 § Inspection). A dwarf with no activity reads "Idle" in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
 
 - **Idle filter and order**: `i` shows only the idle dwarves, and the title row then reads "Units · idle (n)"; `Shift+W` puts the wounded dwarves first, in list order. Both are kept while the fortress is open and are not saved.
 - **To the labors**: the labors key `l` over the Units list opens the Labors panel with its cursor on the dwarf under the Units cursor, at its first labor column; the Units filters are dropped. The key row still reads `[l] labors`.
@@ -104,6 +105,8 @@ On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes fir
 │ Here:                                     │
 │   1 granite stone · 3 ☼                   │
 ```
+
+The wireframes are drawn wider than the sidebar; in the 36-column sidebar the tabs line reads `[1]Tile [2]Items 3 [3]Who 1`, the short form 24 § Inspection gives for a line that does not fit. Inspecting a creature (from Units, Mood or a log line) opens the `Creatures` tab with its sub-tab first.
 
 The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do.
 

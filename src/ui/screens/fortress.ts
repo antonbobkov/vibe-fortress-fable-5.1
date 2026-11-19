@@ -165,6 +165,8 @@ export class FortressScreen implements Screen {
   readonly hints: HintEngine;
   readonly settings: FortressSettings = { autoPauseDanger: true, autoPauseAlert: false, hintsEnabled: true, edgeScrolling: false, combatLog: 'hits only' };
   lookTab: LookTab = 0;
+  /** The creature whose sub-tab Look shows first (0: the tile's order); set by inspecting a creature. */
+  lookCreature: EntityId = 0;
   logFilter: LogFilter = 0;
   /** The log panel's selected entry and scroll, in entries. */
   readonly logView = new LogView();
@@ -234,10 +236,10 @@ export class FortressScreen implements Screen {
       strings: this.strings,
       submit: (c) => host.submit(c),
       focusOn: (t) => this.focusOn(t),
-      look: (t, tab) => {
+      look: (t, tab, creature) => {
         const map = host.readers.map;
         this.focusOn(t);
-        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) }, tab);
+        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) }, tab, creature);
       },
       openPanel: (id) => this.openPanel(id),
       shiftClick: () => this.clickShift,
@@ -509,9 +511,8 @@ export class FortressScreen implements Screen {
   private centerOnPanelRow(): void {
     const ctx = this.ctx;
     if (this.ui.panel === 'units') {
-      const id = this.units.selectedId(ctx);
-      const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
-      if (p !== undefined) this.focusOn(this.host.readers.map.index(p.x, p.y, p.z));
+      // 24 § Inspection: a double click on a unit row inspects that unit, as `Enter` does.
+      this.inspectCreature(this.units.selectedId(ctx));
       return;
     }
     if (this.ui.panel === 'jobs') {
@@ -519,6 +520,28 @@ export class FortressScreen implements Screen {
       const tile = job === undefined ? null : this.jobs.tileOf(ctx, job);
       if (tile !== null) this.focusOn(tile);
     }
+  }
+
+  /**
+   * Inspect a creature (24 § Inspection): centre on it and open Look on its tile at the
+   * `Creatures` tab, with its sub-tab first.
+   */
+  inspectCreature(id: EntityId): void {
+    const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
+    if (p !== undefined) this.ctx.look(this.host.readers.map.index(p.x, p.y, p.z), 2, id);
+  }
+
+  /** The creatures a log line can name: those with a name of their own (an unnamed one is called by its species). */
+  private namedCreatures(): { id: EntityId; name: string }[] {
+    const readers = this.host.readers;
+    const species = this.host.registry.table<{ id: string }>('creatures');
+    const out: { id: EntityId; name: string }[] = [];
+    for (const id of readers.entities.with(C.Creature, C.Position)) {
+      const c = readers.entities.get(id, C.Creature);
+      if (c === undefined || c.name === '' || c.name === species.byIndex(c.species)?.id) continue;
+      out.push({ id, name: c.name });
+    }
+    return out;
   }
 
   /** Centre the view on a tile (a danger's focus, a log line's). */
@@ -702,7 +725,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab,
-      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId));
+      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId), this.lookCreature);
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
@@ -713,7 +736,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods(), this.host.speed() === 0);
     else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line) => {
       if (line.focus !== undefined) this.focusOn(line.focus);
-    }, this.logView);
+    }, this.logView, { names: this.namedCreatures(), open: (id) => this.inspectCreature(id) });
     if (panel.id !== 'help') this.drawShiftNote(surface, body);
   }
 
@@ -1224,10 +1247,14 @@ export class FortressScreen implements Screen {
     this.depot.trade(this.ctx, this.host.speed() === 0);
   }
 
-  /** Look at a tile: the look panel with the cursor on it, at the `Tile` tab or the one asked for. */
-  look(p: TilePoint, tab: LookTab = 0): void {
+  /**
+   * Look at a tile: the look panel with the cursor on it, at the `Tile` tab or the one asked for,
+   * with a creature's sub-tab first when one is being inspected.
+   */
+  look(p: TilePoint, tab: LookTab = 0, creature: EntityId = 0): void {
     this.ui.cursor = { x: p.x, y: p.y };
     this.lookTab = tab;
+    this.lookCreature = creature;
     this.openPanel('look');
   }
 
@@ -1987,7 +2014,7 @@ export class FortressScreen implements Screen {
         const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
         const at = p === undefined ? null : this.host.readers.map.index(p.x, p.y, p.z);
         if (k === 'Enter' && at !== null) {
-          ctx.look(at);
+          this.inspectCreature(id);
           return true;
         }
         if (letter === 'c' && at !== null) {
@@ -2073,9 +2100,7 @@ export class FortressScreen implements Screen {
         if (!press.shift && (up || down)) { this.mood.move(up ? -1 : 1, ctx); return true; }
         if (letter === 's') { this.mood.sorted = !this.mood.sorted; this.mood.list.selected = 0; return true; }
         if (k === 'Enter') {
-          const id = this.mood.selected(ctx);
-          const p = ctx.readers.entities.get(id, C.Position);
-          if (p !== undefined) ctx.look(ctx.readers.map.index(p.x, p.y, p.z));
+          this.inspectCreature(this.mood.selected(ctx));
           return true;
         }
         return false;

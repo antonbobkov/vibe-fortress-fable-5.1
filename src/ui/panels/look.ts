@@ -209,6 +209,15 @@ function hangingRows(text: string, width: number): string[] {
   return rows;
 }
 
+/**
+ * The tabs line, in the first form that fits the panel: "Tabs: [1]Tile [2]Items(52) [3]Creatures(7)",
+ * then without "Tabs:", then with the short labels "[1]Tile [2]Items 52 [3]Who 7" (24 § Inspection).
+ */
+export function tabsLine(strings: Strings, width: number, items: number, creatures: number): string {
+  const forms = ['ui.look.tabs', 'ui.look.tabs_bare', 'ui.look.tabs_short'].map((key) => strings.get(key, { items, creatures }));
+  return forms.find((text) => Array.from(text).length <= width) ?? (forms[forms.length - 1] as string);
+}
+
 export function drawLookPanel(
   s: Surface,
   rect: Rect,
@@ -222,6 +231,8 @@ export function drawLookPanel(
   deconstruct?: (id: EntityId) => void,
   /** U-05: the building's own panel (`Enter`). */
   open?: (id: EntityId) => void,
+  /** The creature whose sub-tab comes first (24 § Inspection: inspecting a creature from a list or a log line). */
+  first: EntityId = 0,
 ): void {
   const t = s.theme;
   if (tile === null) return;
@@ -231,7 +242,8 @@ export function drawLookPanel(
   const x = tile % w;
   const y = Math.floor(tile / w) % h;
   const z = Math.floor(tile / (w * h));
-  const creatures = creaturesAt(readers, tile);
+  const here = creaturesAt(readers, tile);
+  const creatures = here.includes(first) ? [first, ...here.filter((id) => id !== first)] : here;
   const itemIds = itemsAt(readers, tile);
   let row = rect.row;
   const line = (text: string, fg = t.text): void => {
@@ -244,7 +256,7 @@ export function drawLookPanel(
     for (const part of wrapHang(text, rect.cols - 2 - prefix.length, 2)) line(`${prefix}${part}`, fg);
   };
   line(strings.get('ui.look.header', { x, y, z }), t.value);
-  line(strings.get('ui.look.tabs', { items: itemIds.length, creatures: creatures.length }));
+  line(tabsLine(strings, rect.cols - 2, itemIds.length, creatures.length));
   if (tab === 0) {
     line(tileSummary(readers, strings, tile));
     const fluid = fluidText(readers, strings, tile);
