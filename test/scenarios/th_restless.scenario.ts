@@ -53,7 +53,7 @@ const scenario: Scenario = {
       );
     expect(remaining.length).toBe(0);
 
-    const died = w.events('CreatureDied').filter((e) => e['species'] === 'restless_dead');
+    const died = w.events('CreatureDied').filter((e) => e['cause'] === 'dawn');
     expect(died.length).toBe(count);
   },
 };

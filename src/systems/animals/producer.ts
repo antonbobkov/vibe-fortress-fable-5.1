@@ -16,6 +16,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import { arrivalTame } from '@systems/embark';
 import type { Job, JobSink, JobsReader } from '@systems/jobs';
 import type { BuildingsReader } from '@systems/buildings';
+import { killCreature } from '@systems/health/tick';
 import {
   COLLECT_HONEY_TICKS,
   KENNEL_WORKSHOP,
@@ -218,14 +219,15 @@ export class AnimalsProducer implements JobProducer {
     if (job.key.startsWith('slaughter:') && typeof animal === 'number') {
       const creature = ctx.world.entities.get(animal, C.Creature);
       const tile = job.data['anchorTile'];
-      if (creature !== undefined && typeof tile === 'number') {
+      // 08 § Slaughter: the animal dies by 17's death, with every field a death carries, and makes
+      // its own corpse at the workshop, so 13 makes none. An animal already dying this tick dies of that.
+      if (creature !== undefined && typeof tile === 'number' && killCreature(ctx, animal, 'slaughter', 0, { noCorpse: true })) {
         const corpse = ctx.spawn.item(ctx.registry.table('items').index('corpse'),
           ctx.registry.table('materials').index(`${ctx.registry.table('creatures').idOf(creature.species)}_meat`), tile, 1);
         const tame = ctx.world.entities.get(animal, C.Tame);
         ctx.world.entities.add(corpse, C.Corpse, { species: creature.species, diedTick: ctx.tick, wornItems: [], dwarfName: null,
           weight: (ctx.registry.table<{ id: string; size: number }>('creatures').byIndex(creature.species)?.size ?? 0),
           juvenile: tame !== undefined && tame.juvenileUntil > ctx.tick });
-        ctx.emit({ type: 'CreatureDied', id: animal, cause: 'slaughter', tile, faction: creature.faction, species: creature.species });
         ctx.emit({ type: 'CorpseCreated', id: corpse, creatureId: animal, species: creature.species });
         ctx.world.entities.destroy(animal);
       }
