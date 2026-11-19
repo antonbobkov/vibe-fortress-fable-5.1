@@ -1,4 +1,4 @@
-# T-NEW — Goods at the trade depot count as available under any filter but one type
+# T-632 — Goods at the trade depot count as available under any filter but one type
 
 **Source:** T-631 (Stocks says how much of a row can be used now) · **Size:** S · **Needs:** — · **Status:** open
 
