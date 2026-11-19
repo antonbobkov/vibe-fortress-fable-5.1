@@ -1047,14 +1047,23 @@ export class JobBoard implements JobsApi, JobSink {
   private sheltersWork(workerId: EntityId, job: Job): boolean {
     if (!this.readers.has('16') || this.isPatientCare(job) || this.typeId(job) === 'pull_lever') return false;
     const combat = this.readers.of<{ alert(): string; onDuty(id: EntityId): boolean }>('16');
-    return combat.alert() === 'hearth' && !combat.onDuty(workerId);
+    return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.unsheltered(workerId);
   }
 
-  /** Under a `hearth` alert a sheltering civilian takes patient care, the pulls of levers inside its shelter, and jobs done wholly inside it only. */
-  private shelteredFrom(job: Job, workerId: EntityId): boolean {
+  /**
+   * Under a `hearth` alert a sheltering civilian takes patient care, the pulls of levers inside its shelter, and
+   * jobs done wholly inside it only. A civilian the alert finds no shelter for (10's `dwarves.unsheltered()`) is
+   * offered every job, as under a `watchful` alert: holding it from work would leave it in the open for nothing.
+   */
+  shelteredFrom(job: Job, workerId: EntityId): boolean {
     if (!this.readers.has('16')) return false;
     const combat = this.readers.of<{ alert(): string; onDuty(id: EntityId): boolean }>('16');
-    return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.isShelterWork(job, workerId);
+    return combat.alert() === 'hearth' && !combat.onDuty(workerId) && !this.unsheltered(workerId) && !this.isShelterWork(job, workerId);
+  }
+
+  /** Whether 10 found the civilian no shelter under the `hearth` alert (19 `retreatTile` gave none at its last ask). */
+  private unsheltered(workerId: EntityId): boolean {
+    return this.readers.has('10') && this.readers.of<{ isUnsheltered?(id: EntityId): boolean }>('10').isUnsheltered?.(workerId) === true;
   }
 
   private shelterMemo = { tick: -1, byWorker: new Map<EntityId, ((tile: TileIndex) => boolean) | null>() };
@@ -1362,6 +1371,14 @@ export class JobBoard implements JobsApi, JobSink {
       // A worker that went down by a path that told 11 nothing (an older save, a cage) gives the job back now.
       if (this.workerOf(job.workerId).jobId === job.id && this.releaseDown(job.workerId)) continue;
       const behavior = this.world.entities.get(job.workerId, C.Brain)?.behavior;
+      // A civilian that a shelter takes in under the `hearth` alert (one appeared after it was found to have none)
+      // gives back an interruptible job outside the shelter at once, as the alert's start does.
+      if (behavior === 'retreat' && this.workerOf(job.workerId).jobId === job.id && this.typeRow(job).interruptible && this.shelteredFrom(job, job.workerId)) {
+        delete job.data['awaySince'];
+        delete job.data['awayBack'];
+        this.interrupt(job.workerId, true);
+        continue;
+      }
       if (behavior === undefined || behavior === 'work') {
         if (job.data['awaySince'] === undefined) continue;
         const back = job.data['awayBack'];

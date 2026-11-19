@@ -607,7 +607,7 @@ export function drawMilitaryPanel(
     label(s, col, row, line, { fg: t.dim, width, keys: false });
     row += 1;
   }
-  // 19 § Hearth alert retreat: the civilians the alert finds no shelter for wait where they are.
+  // 19 § Hearth alert retreat: the civilians the alert finds no shelter for keep working, as under a watchful alert.
   const unsheltered = currentAlert === 'hearth' && ctx.readers.has('10') ? ctx.readers.of<{ unsheltered(): EntityId[] }>('10').unsheltered().length : 0;
   if (unsheltered > 0) {
     const hall = ctx.readers.has('14') && ctx.readers.of<BuildingsReader>('14').hearthHallTiles().length > 0;
