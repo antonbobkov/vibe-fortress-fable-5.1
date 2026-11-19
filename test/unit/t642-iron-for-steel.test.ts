@@ -37,12 +37,12 @@ describe('T-642 the three-year script keeps the iron coming to the smelter', () 
     return { w, state, smelter, x0, y0, z, slots };
   };
 
-  it('smelts the coal after the iron while the fuel is in stock, and ahead of it while it is short', () => {
+  it('smelts the coal after the iron while the fuel is in stock, and first while it is short', () => {
     const { w, state, smelter, x0, y0, z } = setup();
     const recipes = w.game.registry.table<{ id: string }>('recipes');
     const orders = (): string[] => w.game.world.entities.get(smelter, C.Workshop)!.orders.map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode === 'once' ? o.remaining : o.threshold}`);
     keepCoal(w, state, smelter, 120);
-    expect(orders(), 'no fuel: the coal first').toEqual(['alloy_steel:30', `smelt_bituminous_coal:${COAL_STOCK}`, `smelt_lignite:${COAL_STOCK}`, 'smelt_hematite:40']);
+    expect(orders(), 'no fuel: the coal first').toEqual([`smelt_bituminous_coal:${COAL_STOCK}`, `smelt_lignite:${COAL_STOCK}`, 'alloy_steel:30', 'smelt_hematite:40']);
     w.spawnItem('charcoal_bar', 'charcoal', w.index(x0 + 7, y0 + 4, z), FUEL_SHORT);
     keepCoal(w, state, smelter, 121);
     expect(orders(), 'fuel in stock: the iron first').toEqual(['alloy_steel:30', 'smelt_hematite:40', `smelt_bituminous_coal:${COAL_STOCK}`, `smelt_lignite:${COAL_STOCK}`]);

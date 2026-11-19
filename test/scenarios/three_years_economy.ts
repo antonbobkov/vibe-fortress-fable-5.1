@@ -130,7 +130,7 @@ function smeltsSteel(state: FortressState, day: number): boolean {
  * one). From the day the smelter makes steel, the miners drift to the nearest COAL_FACES faces off
  * the gate's stair above the halls (none that would open to the hillside), and as many again, once
  * a season at most, when the ore runs under COAL_ORE_LOW; the smelter keeps COAL_STOCK bars of coal,
- * after the steel and before the iron.
+ * after the steel and the iron, and (T-642) first only while the fuel under a roof is short.
  */
 export const COAL_FACES = 20;
 const COAL_ORE_LOW = 6;
@@ -170,14 +170,15 @@ export function keepCoal(w: TestWorld, state: FortressState, smelter: number, da
     if (orders().some((o) => o.recipe === recipe)) continue;
     order(w, smelter, `smelt_${ore}`, COAL_STOCK);
   }
-  // T-642: the coal comes after the alloy and ahead of the iron while the fuel is short (the iron
-  // smelts burn the fuel a coal smelt makes without any), and after the iron while it is not: the
-  // smelter works one job at a time, and with 30 coal and 30 charcoal in stock its coal smelts held
-  // back the iron the steel waited for.
+  // T-642: the coal comes first while the fuel is short (the alloy and the iron smelts burn the fuel
+  // a coal smelt makes without any, and an alloy job that finds no fuel within reach waits blocked,
+  // holding the smelter), and after the alloy and the iron while it is not: the smelter works one job
+  // at a time, and with 30 coal and 30 charcoal in stock its coal smelts held back the iron the
+  // steel waited for.
   const coal = new Set(COAL_ORES.map((id) => recipes.index(`smelt_${id}`)));
   const alloy = recipes.index('alloy_steel');
   const short = fuelIndoors(w) < FUEL_SHORT;
-  const rank = (recipe: number): number => (recipe === alloy ? 0 : coal.has(recipe) === short ? 1 : 2);
+  const rank = (recipe: number): number => (coal.has(recipe) ? (short ? 0 : 3) : recipe === alloy ? 1 : 2);
   const wanted = orders().map((o, i) => ({ recipe: o.recipe, i })).sort((a, b) => rank(a.recipe) - rank(b.recipe) || a.i - b.i).map((o) => o.recipe);
   for (let to = 0; to < wanted.length; to += 1) {
     const from = orders().findIndex((o, i) => i >= to && o.recipe === wanted[to]);
