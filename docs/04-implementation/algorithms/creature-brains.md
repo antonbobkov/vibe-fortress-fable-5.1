@@ -225,7 +225,7 @@ Only a departing item holder emits its ThiefEscaped; other members' held items s
 
 Ambush arrival emits no `RaidArrived`; all members start stealthed, independent of species. Creature and trap spotting share one reveal: save `ambushSprung`, clear stealth and set spotted on every living member, enter engage, then emit one `AmbushSprung`. Trap triggering may clear the victim's stealth before its queued event is delivered; the party reveal guard uses `ambushSprung`, independent of that victim flag. Late spawns read the reveal flag and arrive already visible; a restored flag prevents another reveal announcement. Hidden ambush members cannot start an engagement by perception alone, including during loiter.
 
-Thief specifics: on reaching the goal item: pick up (`P.loot`), `P.state = 'retreat'`; if spotted before pickup: retreat empty. Restless dead: `approach` target = nearest fortress creature; never retreat; at dawn (`HourPassed` hour == sunrise) all `restless_dead` collapse: `CreatureDied { cause: dawn }` with no corpse (a `bone_pile` item instead).
+Thief specifics: on reaching the goal item: pick up (`P.loot`), `P.state = 'retreat'`; if spotted before pickup: retreat empty. Restless dead: `approach` target = nearest fortress creature; never retreat; at dawn (`HourPassed` hour == sunrise) all `restless_dead` collapse: each dies by 17's `killCreature` with `cause: dawn` and `noCorpse`, so 13 makes no corpse (a `bone_pile` item instead).
 
 On `CavernBreached`, change each living sleeping monster of that cavern to `wander` and emit `MonsterSpawned { id, cavern }` once for it; leave already-awake monsters and other caverns unchanged.
 

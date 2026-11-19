@@ -38,16 +38,23 @@ const LIMB_SLOTS: readonly BodySlot[] = ['left_arm', 'right_arm', 'left_leg', 'r
 // carry a pending death into a restored world.
 const emittedDeaths = new WeakMap<object, Set<EntityId>>();
 
+/**
+ * 17 § Death and corpses: the one death every creature dies, `CreatureDied` with every field of the
+ * event catalog's row. `options.noCorpse` marks a death whose emitter leaves its own remains (08's
+ * slaughter makes its corpse, 18's restless dead collapse to bones), for which 13 makes no corpse.
+ * False when the creature is gone or its death is already on its way this tick.
+ */
 export function killCreature(
   ctx: TickContext,
   id: EntityId,
   cause: string,
   killerId: EntityId = 0,
-): void {
+  options: { readonly noCorpse?: boolean } = {},
+): boolean {
   const entities = ctx.world.entities;
-  if (!entities.alive(id)) return;
+  if (!entities.alive(id)) return false;
   let emitted = emittedDeaths.get(entities);
-  if (emitted?.has(id)) return;
+  if (emitted?.has(id)) return false;
   if (emitted === undefined) {
     emitted = new Set<EntityId>();
     emittedDeaths.set(entities, emitted);
@@ -86,7 +93,9 @@ export function killCreature(
     wildState: entities.get(id, C.Wild)?.state,
     ageTicks: creature?.ageTicks,
     wornItems,
+    ...(options.noCorpse === true ? { noCorpse: true } : {}),
   });
+  return true;
 }
 
 function findHospitalOrFreeBed(ctx: TickContext, patientId: EntityId): { hospitalZoneId: EntityId; bedId: EntityId; hospitalTier: number } {

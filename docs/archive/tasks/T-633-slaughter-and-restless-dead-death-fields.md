@@ -1,6 +1,8 @@
 # T-633 — A slaughtered animal and a restless dead's end carry a death's fields
 
-**Source:** [T-630's work file](../archive/tasks/T-630-death-event-fields-and-legend-cause.md), found while routing the ice's death through 17's · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 63841927,fd571902.
+
+**Source:** [T-630's work file](T-630-death-event-fields-and-legend-cause.md), found while routing the ice's death through 17's · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

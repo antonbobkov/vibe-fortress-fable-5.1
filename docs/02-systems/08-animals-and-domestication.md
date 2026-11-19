@@ -106,7 +106,7 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 
 ### Slaughter
 
-`MarkSlaughter { animalId }` sets a flag; the `slaughter` job (labor `butchery`, skill `butchery`) leads the animal to a butcher's workshop and kills it there (no combat; the animal becomes a corpse item at the workshop) and emits `CorpseCreated`; 09 produces the butcher job for that corpse. Slaughter saves an optional `juvenile` marker on the corpse. Juvenile meat is `max(1, floor(adultMeat / 2))`; every other yield uses the species' full size. Animals marked while assigned to a pasture leave the pasture with the butcher. War and hunting animals cannot be marked while assigned to a dwarf.
+`MarkSlaughter { animalId }` sets a flag; the `slaughter` job (labor `butchery`, skill `butchery`) leads the animal to a butcher's workshop and kills it there (no combat; the animal becomes a corpse item at the workshop): it dies by 17's death with the cause `slaughter` and no killer, so its `CreatureDied` carries every field a death carries (its name among them, for the line "Moss has been slaughtered."), marked `noCorpse`, and this system makes the corpse itself and emits `CorpseCreated`. An animal whose death is already on its way that tick dies of that instead; 09 produces the butcher job for that corpse. Slaughter saves an optional `juvenile` marker on the corpse. Juvenile meat is `max(1, floor(adultMeat / 2))`; every other yield uses the species' full size. Animals marked while assigned to a pasture leave the pasture with the butcher. War and hunting animals cannot be marked while assigned to a dwarf.
 
 ### Training and taming
 
@@ -129,7 +129,7 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 
 ### Death
 
-Animals die through 17 like every creature. A dead animal leaves a corpse item (13), except a summon (§ Summons). Slaughter completion creates its own corpse, and `CorpseCreated` removes the pending general death-to-corpse transition so no second corpse is created. Tame deaths are announced as notes; pet deaths as alerts.
+Animals die through 17 like every creature. A dead animal leaves a corpse item (13), except a summon (§ Summons). Slaughter completion creates its own corpse, and its death is marked `noCorpse`, so 13 creates no second one. Tame deaths are announced as notes; pet deaths as alerts.
 
 ### Summons
 
@@ -174,7 +174,7 @@ Animals die through 17 like every creature. A dead animal leaves a corpse item (
 
 ### Events emitted
 
-`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `RoostFound { tile, dwarfId }`, `AnimalLeft { id }`, `Stung { id, source }` (a dwarf stung by bees, `source: bees`; § Hives), `SpatOn { id, animalId, first }` (a camel spat on the dwarf who milked or shore it; § Products). This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CreatureDied` with `CorpseCreated` (a slaughter kills the animal and makes its corpse directly).
+`AnimalSpawned { id, species }`, `AnimalBorn { id, species }`, `AnimalStarving { id }`, `GrassGrazed { tile }`, `ShrubGrazed { tile }`, `ProductReady { id, product }`, `AnimalTamed { id }`, `AnimalTrained { id, kind }`, `PetAdopted { animalId, dwarfId }`, `RoostFound { tile, dwarfId }`, `AnimalLeft { id }`, `Stung { id, source }` (a dwarf stung by bees, `source: bees`; § Hives), `SpatOn { id, animalId, first }` (a camel spat on the dwarf who milked or shore it; § Products). This system also emits events that other systems own: `CreatureFled` (a wild animal starts to flee), `Starvation` (an animal has starved to the point of death; 17 applies it), and `CorpseCreated` (a slaughter makes its corpse directly; the animal dies by 17's death, which emits its `CreatureDied`).
 
 ### Registrations
 

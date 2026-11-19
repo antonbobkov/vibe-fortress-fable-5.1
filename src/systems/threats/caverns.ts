@@ -24,6 +24,7 @@ import {
   WEB_TICKS,
 } from './constants';
 import { findAdjacentLockedDoor } from './ai';
+import { killCreature } from '@systems/health/tick';
 
 export interface CavernMonsterInfo {
   tier: number;
@@ -592,6 +593,9 @@ export function collapseRestlessDead(ctx: TickContext): void {
   const matIdx = materialsTable.index('bone');
 
   for (const id of toDestroy) {
+    // 18 § Restless dead: it returns to rest by 17's death, with every field a death carries; its
+    // bones are its remains, so 13 makes no corpse. One already slain this tick dies of its blow.
+    if (!killCreature(ctx, id, 'dawn', 0, { noCorpse: true })) continue;
     const pos = ctx.world.entities.get(id, C.Position);
     const tile = pos ? ctx.world.map.index(pos.x, pos.y, pos.z) : 0;
     if (tile >= 0 && boneIdx >= 0 && matIdx >= 0) {
@@ -606,7 +610,6 @@ export function collapseRestlessDead(ctx: TickContext): void {
       const carried = ctx.readers.has('13') ? ctx.readers.of<{ carriedItems(id: EntityId): EntityId[] }>('13').carriedItems(id) : [];
       for (const itemId of new Set([...worn, ...carried])) if (itemId !== 0) items.dropAt(itemId, tile);
     }
-    ctx.emit({ type: 'CreatureDied', id, species: 'restless_dead', tile });
     ctx.world.entities.destroy(id);
   }
 }

@@ -37,7 +37,7 @@ describe('T-351 the restless dead drop what they carry when they collapse at daw
     }
     const lastTile = new Map<number, number>();
     w.game.world.onEvents((events) => {
-      for (const e of events) if (e.type === 'CreatureDied' && e['species'] === 'restless_dead') lastTile.set(e['id'] as number, e['tile'] as number);
+      for (const e of events) if (e.type === 'CreatureDied' && e['cause'] === 'dawn') lastTile.set(e['id'] as number, e['tile'] as number);
     });
     w.step(14 * TICKS_PER_HOUR);
     const items = w.readers.of<ItemsReader>('13');

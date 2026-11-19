@@ -356,10 +356,11 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
           }
         }
       }
-      // 25 § Summons: a summoned species leaves no corpse.
+      // 25 § Summons: a summoned species leaves no corpse. Nor does a death whose emitter left its own
+      // remains (`noCorpse`: 08's slaughter made its corpse, 18's restless dead collapsed to bones).
       const summoned = typeof species === 'number' &&
         ctx.registry.table<{ id: string; flags?: { summoned?: boolean } }>('creatures').byIndex(species)?.flags?.summoned === true;
-      if (typeof id === 'number' && typeof tile === 'number' && typeof species === 'number' && !summoned) {
+      if (typeof id === 'number' && typeof tile === 'number' && typeof species === 'number' && !summoned && event['noCorpse'] !== true) {
         const equip = core.host.entities.get(id, C.Equipment);
         const wornItems = Array.isArray(event['wornItems']) ? (event['wornItems'] as number[]).slice() : equip === undefined ? [] :
           [equip.weapon, equip.shield, equip.quiver, ...Object.values(equip.armor), ...Object.values(equip.clothing)]
