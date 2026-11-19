@@ -211,7 +211,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 
 **Reads.** 11 jobs; 14 rooms; 15 mood; 16 orders. **Emits.** `NeedCritical`, `SkillLevelUp`, `DwarfIdle`, `TitleAssigned`.
 
-**Player touchpoints.** Units panel; dwarf inspection (attributes, skills, needs, thoughts, labors, equipment, relationships); position assignment; labor toggles.
+**Player touchpoints.** Units panel; dwarf inspection (attributes, skills, needs, personality, productivity, thoughts, equipment, relationships, titles); position assignment; labor toggles.
 
 ## 11 Jobs & Labor — [`11-jobs-and-labor.md`](11-jobs-and-labor.md)
 

@@ -17,9 +17,9 @@ import { CATEGORY_TREE, categoryUnder } from '@systems/items';
 import type { Surface } from '../surface';
 import { buildTree, label, tree, type TreeNode, type TreeState } from '../widgets';
 import { buildings, confirmThen, items, marks, type PanelContext } from './context';
-import { ageNote, agedMaterial, enchantedName, rotText } from '../messages';
+import { ageNote, agedMaterial, enchantedName, rotText, wrapHang } from '../messages';
 import { TICKS_PER_DAY } from '@core/constants';
-import { ROT_ALERT_DAYS } from '../constants';
+import { ROT_ALERT_DAYS, STOCKS_USE_ROWS } from '../constants';
 
 interface NodeTotals {
   count: number;
@@ -29,6 +29,26 @@ interface NodeTotals {
 /** 13 § Rot under a row: whether it holds anything with a rot timer, and the units that rot within `ROT_ALERT_DAYS`. */
 interface NodeRot {
   soon: number;
+}
+
+/**
+ * Why a unit in stock cannot be used now (13's available count leaves it out), in the order the
+ * line names them: taken to the trade depot, forbidden, in use (installed furniture, a full cage),
+ * owned by a dwarf, in a dwarf's hands, reserved by a job, or not yet recovered (foreign loot).
+ */
+export const UNUSABLE_REASONS = ['depot', 'forbidden', 'in_use', 'owned', 'carried', 'reserved', 'foreign'] as const;
+export type UnusableReason = (typeof UNUSABLE_REASONS)[number];
+
+/** The first reason that keeps an item out of 13's available count, or null for a usable item. */
+export function unusableReason(rec: { flags: number; carriedBy: EntityId; occupantId?: EntityId }): UnusableReason | null {
+  if ((rec.flags & ItemFlag.AtDepot) !== 0) return 'depot';
+  if ((rec.flags & ItemFlag.Forbidden) !== 0) return 'forbidden';
+  if ((rec.flags & ItemFlag.Installed) !== 0 || (rec.occupantId ?? 0) !== 0) return 'in_use';
+  if ((rec.flags & ItemFlag.Owned) !== 0) return 'owned';
+  if (rec.carriedBy !== 0) return 'carried';
+  if ((rec.flags & ItemFlag.Reserved) !== 0) return 'reserved';
+  if ((rec.flags & ItemFlag.Foreign) !== 0) return 'foreign';
+  return null;
 }
 
 export class StocksPanel {
@@ -217,6 +237,42 @@ export class StocksPanel {
     return { text: ctx.strings.get('ui.stocks.rot_soon', { n: r.soon, days: ROT_ALERT_DAYS }), alert: r.soon > 0 };
   }
 
+  /** The stacks under the selected row: the stack itself, a type's stacks, or every stack of a category's types. */
+  private selectedItems(ctx: PanelContext): EntityId[] {
+    const node = this.selectedNode(ctx);
+    if (node === null) return [];
+    const { types, itemIds } = this.totals(ctx);
+    if (node.startsWith('item:')) return [Number(node.slice(5))];
+    if (node.startsWith('type:')) return itemIds.get(Number(node.slice(5))) ?? [];
+    return (types.get(node) ?? []).flatMap((type) => itemIds.get(type) ?? []);
+  }
+
+  /**
+   * The line under the rot line, for the selected row: how many of its units can be used now and
+   * why the rest cannot, each reason with its units ("Usable 0 of 14: 11 at the depot, 3
+   * forbidden"); `alert` when none can. '' when every unit can. Read from the items as they are
+   * now, so a forbid made while paused shows at once.
+   */
+  useLine(ctx: PanelContext): { text: string; alert: boolean } {
+    const it = items(ctx);
+    if (it === null) return { text: '', alert: false };
+    const by: Partial<Record<UnusableReason, number>> = {};
+    let n = 0;
+    let unusable = 0;
+    for (const id of this.selectedItems(ctx)) {
+      const rec = it.get(id);
+      if (rec === undefined || (rec.flags & ItemFlag.Merchant) !== 0) continue;
+      n += rec.count;
+      const reason = unusableReason(rec);
+      if (reason === null) continue;
+      by[reason] = (by[reason] ?? 0) + rec.count;
+      unusable += rec.count;
+    }
+    if (unusable === 0) return { text: '', alert: false };
+    const reasons = UNUSABLE_REASONS.filter((reason) => (by[reason] ?? 0) > 0).map((reason) => ctx.strings.get(`ui.stocks.why.${reason}`, { n: by[reason] ?? 0 }));
+    return { text: ctx.strings.get('ui.stocks.usable', { usable: n - unusable, n, reasons: reasons.join(', ') }), alert: unusable === n };
+  }
+
   /** The selected row's name as the tree shows it ("Weapons", "sword", "iron ×3"). */
   selectedName(ctx: PanelContext): string {
     const id = this.selectedNode(ctx);
@@ -287,7 +343,8 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   const strings = ctx.strings;
   const { totals } = panel.totals(ctx);
   drawPanelFilter(s, rect.col + 1, rect.row, rect.cols - 2, panel.filter, ctx);
-  const height = Math.max(1, rect.rows - 5);
+  // Under the tree: the rot line, the usable line (two rows), the wealth and two rows of actions.
+  const height = Math.max(1, rect.rows - 4 - 1 - STOCKS_USE_ROWS);
   const state = panel.filter.value === '' ? panel.tree : { ...panel.tree, expanded: new Set<string>() };
   if (panel.filter.value !== '') {
     const expand = (nodes: readonly TreeNode[]): void => { for (const n of nodes) { state.expanded.add(n.id); expand(n.children); } };
@@ -316,6 +373,16 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   const rot = panel.rotLine(ctx);
   label(s, rect.col + 1, row, rot.text, { fg: rot.alert ? t.alert : t.dim, width: rect.cols - 2 });
   row += 1;
+  // 13's available count, beside the stock: what of the row a build or an order can have now, and why not the rest.
+  const use = panel.useLine(ctx);
+  const useRows = use.text === '' ? [] : wrapHang(use.text, rect.cols - 2, 2);
+  for (let k = 0; k < STOCKS_USE_ROWS; k += 1) {
+    const last = k === STOCKS_USE_ROWS - 1;
+    const text = last ? useRows.slice(k).map((part, n) => (n === 0 ? part : part.trim())).join(' ') : useRows[k] ?? '';
+    // A longer line ends its last row with `»`, the rest of it in the tooltip.
+    label(s, rect.col + 1, row, text, { fg: use.alert ? t.alert : t.dim, width: rect.cols - 2, keys: false });
+    row += 1;
+  }
   const it = items(ctx);
   const b = buildings(ctx);
   let built = 0;

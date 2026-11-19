@@ -397,7 +397,7 @@ A click on a line centres the map on its focus; a click on a creature's name in 
 
 ### Look panel
 
-`Enter` on a building's tile opens its panel.
+`Enter` on a building's tile opens its panel. On the `Creatures` tab `PageUp` `PageDown` scroll a page and the wheel three rows a notch; the arrows move the map cursor.
 
 | Key | Action |
 |---|---|

@@ -75,6 +75,39 @@ export function skillBar(readers: ReaderSet, registry: Registry, id: EntityId, s
   return meter(barCells(xp - cumulativeXp(level), xpToNext(level), SKILL_BAR_CELLS), SKILL_BAR_CELLS);
 }
 
+/** 10's seven attributes in the order of § Concepts. */
+const ATTRIBUTES = ['str', 'agi', 'tou', 'end', 'wil', 'wit', 'cha'] as const;
+
+/**
+ * The attributes, as many to a row as fit `width`: "Str 61 Agi 48 Tou 55 End 50 Wil 47", "Wit 52
+ * Cha 49" (10 § Attributes).
+ */
+export function attributeRows(readers: ReaderSet, strings: Strings, id: EntityId, width: number): string[] {
+  const dwarves = readers.of<DwarvesReader>('10');
+  const cells = ATTRIBUTES.map((attr) => strings.get('ui.look.dwarf.attribute', { name: strings.get(`ui.look.dwarf.attr.${attr}`), value: Math.round(dwarves.attribute(id, attr)) }));
+  const rows: string[] = [];
+  for (const cell of cells) {
+    const last = rows[rows.length - 1];
+    if (last !== undefined && Array.from(last).length + 1 + Array.from(cell).length <= width) rows[rows.length - 1] = `${last} ${cell}`;
+    else rows.push(cell);
+  }
+  return rows;
+}
+
+/** "Personality Stoic, Gregarious, Brave": the dwarf's three traits by name (10 § Concepts); null without a `Personality`. */
+export function personalityText(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string | null {
+  const personality = readers.entities.get(id, C.Personality);
+  if (personality === undefined) return null;
+  const table = registry.table<{ id: string; name: string }>('personality');
+  const names = personality.traits.map((trait) => table.byIndex(trait)?.name ?? '').filter((name) => name !== '');
+  return names.length === 0 ? null : strings.get('ui.look.dwarf.personality', { traits: names.join(', ') });
+}
+
+/** "Productivity 85%": 10's `dwarves.productivity`, the mood, the wounds and tipsiness together. */
+export function productivityText(readers: ReaderSet, strings: Strings, id: EntityId): string {
+  return strings.get('ui.look.dwarf.productivity', { n: readers.of<DwarvesReader>('10').productivity(id) });
+}
+
 /**
  * What a creature holds (16 § Equipment): its weapon, the tool it works with, its shield, its armor
  * from head to feet, its quiver and the ammunition of its launcher. "Equipment iron spear, iron

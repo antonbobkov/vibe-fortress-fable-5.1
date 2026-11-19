@@ -667,6 +667,15 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stockpile.usage': 'Usage {used}/{n} tiles',
   // Stocks panel (`panels.md` § Stocks).
   'ui.stocks.wealth': 'Wealth {wealth}   (buildings {buildings})',
+  // The selected row's units that a build or an order cannot have now, and why.
+  'ui.stocks.usable': 'Usable {usable} of {n}: {reasons}',
+  'ui.stocks.why.depot': '{n} at the depot',
+  'ui.stocks.why.forbidden': '{n} forbidden',
+  'ui.stocks.why.in_use': '{n} in use',
+  'ui.stocks.why.owned': '{n} owned',
+  'ui.stocks.why.carried': '{n} carried',
+  'ui.stocks.why.reserved': '{n} reserved',
+  'ui.stocks.why.foreign': '{n} not recovered',
   // `f`, `d`, `m` and `t` open panels: the stocks actions take `Shift` (D-U2).
   'ui.stocks.forbid': '[S-f] forbid',
   'ui.stocks.dump': '[S-d] dump',
@@ -1245,6 +1254,16 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.dwarf.friends': 'friends: {names}',
   'ui.look.dwarf.grudges': 'grudges: {names}',
   'ui.look.dwarf.title': 'Title {titles}',
+  'ui.look.dwarf.attribute': '{name} {value}',
+  'ui.look.dwarf.attr.str': 'Str',
+  'ui.look.dwarf.attr.agi': 'Agi',
+  'ui.look.dwarf.attr.tou': 'Tou',
+  'ui.look.dwarf.attr.end': 'End',
+  'ui.look.dwarf.attr.wil': 'Wil',
+  'ui.look.dwarf.attr.wit': 'Wit',
+  'ui.look.dwarf.attr.cha': 'Cha',
+  'ui.look.dwarf.personality': 'Personality {traits}',
+  'ui.look.dwarf.productivity': 'Productivity {n}%',
   // Debug panel (`panels.md` § Debug; `tooling.md` § Debug and replay).
   'ui.debug.hash': 'World hash {hash}.',
   'ui.debug.log_exported': 'The season log was written: {n} commands.',

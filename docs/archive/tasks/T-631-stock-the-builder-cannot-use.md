@@ -1,6 +1,8 @@
 # T-631 — Stocks counts goods that a build or an order cannot use, and nothing says which
 
-**Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), finding 22, after T-626 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 9040537a,53ddda00.
+
+**Source:** [T-618's first-year audit](../../../reports/audits/2026-11-18-t618-first-year-ux.md), finding 22, after T-626 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

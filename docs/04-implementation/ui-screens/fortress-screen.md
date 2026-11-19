@@ -87,6 +87,10 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 │ Skills                                    │
 │   Mining 7 (Competent) ▓▓▓░░              │
 │   Masonry 2 (Novice) ▓░░░░                │
+│ Str 61 Agi 48 Tou 55 End 50 Wil 47        │
+│ Wit 52 Cha 49                             │
+│ Personality Stoic, Gregarious, Brave      │
+│ Productivity 85%                          │
 │ Mood: Fine (58)                           │
 │   +5 Had a fine meal                      │
 │   +3 Slept in my decent room              │
@@ -142,15 +146,20 @@ A dwarf's view (10's `creature › dwarf`) has, under the creature's rule:
 - the identity line: the profession of the dwarf's highest skill as the units panel names it, `adult` or `child`, and the name of the squad it serves in (`Miner · adult · The Hearthguard`);
 - the activity line, then `Needs` and the seven needs in 10's order, two to a row where the panel holds two (one otherwise): the name, a bar of `NEED_BAR_CELLS` cells filled as the need stands of `NEED_MAX`, and the whole number, 0 being satisfied. A need is drawn in the warning colour at or above its critical threshold, in the alert colour at or above its want threshold, and in the normal colour below (10 § Needs);
 - `Skills`, each known skill with its level, its tier and a bar of `SKILL_BAR_CELLS` cells filled as the experience it has toward its next level stands of what that level needs (full at `SKILL_MAX_LEVEL`);
+- the seven attributes in 10's order, each a short name and its whole value (`Str 61`), as many to a row as the panel holds;
+- `Personality`, the dwarf's three traits by their names in the personality table (`Personality Stoic, Gregarious, Brave`);
+- `Productivity`, 10's `dwarves.productivity` as a percentage (`Productivity 85%`);
 - the mood, its thoughts and the health lines;
 - `Equipment`: what the creature holds, in this order: the weapon it fights with, the tool it works with, its shield, its armor from head to feet, its quiver and the ammunition of its launcher (`24 iron bolts`), each named by its material and type with its quality when that is not common, its enchantment's suffix part of its name; `Equipment none` when a dwarf holds nothing;
 - `Wearing`: its clothing, body, legs, feet and over; `Wearing nothing` with none;
 - `Relations`: its friends, then its grudges (`Relations friends: Brynja Coldhammer; grudges: Orm Ashbrow`), or `Relations none yet`;
 - `Title`, the titles it holds in the title table's order (`Title Thane, Warden`); no line without one.
 
-A long line wraps under its text. Another creature has the `Equipment` line when it holds something; the dwarf's other lines are a dwarf's alone.
+A long line wraps under its text. Another creature has the `Equipment` line when it holds something; the dwarf's other lines are a dwarf's alone. Look assigns no title and edits no labor: titles are given in the units panel (`[S-t] title`) and labors in the labor panel.
 
-Sections come from the inspector registry in this order: identity, activity, needs, skills, thoughts, health, equipment, relationships, title, labors (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
+The `Creatures` tab scrolls under the header and the tabs line, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch; the arrows stay the map cursor's. While rows lie above, a dim `▲` is drawn at the right edge of its first row, and while rows lie below, a dim `▼` at the right edge of the panel's last row. It starts at its top again when Look inspects a creature, when the creatures it shows change (another tile, another creature first) and when another tab is chosen.
+
+Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 
 ## Designate tool
 
