@@ -159,7 +159,7 @@ Panel `threats` (active parties with size, state and morale in words, renown, sc
 ## Player-facing behavior
 
 - Hostiles are uppercase letters in red (`G` goblin, `T` trollkin, `S` stalker, `W` wyrm, `H` Hollow-born, `Z` restless dead); stealthed creatures are invisible until spotted.
-- Threats panel as above. The Deep gauge is visible from the first deepsilver vein found (`VeinFound { deepsilver }` unlocks it). The unlock is saved with the UI state, so the gauge stays after a load; a positive pressure or level also shows it.
+- Threats panel as above. A breached cavern's row says where it was breached, from the UI's record of `CavernBreached`, and its monsters on the row under it ("1: breached at (84,73,z22)", "monsters 4"); a breach the UI did not see (an older save) reads "1: breached · monsters 4". The Deep gauge is visible from the first deepsilver vein found (`VeinFound { deepsilver }` unlocks it). The unlock is saved with the UI state, so the gauge stays after a load; a positive pressure or level also shows it.
 - The deepsilver confirmation dialog: "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?" with Yes and No; asked once per fortress.
 
 ## Tuning constants

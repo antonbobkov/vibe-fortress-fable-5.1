@@ -172,7 +172,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(listed).toHaveLength(dwarves.length);
     for (const row of listed) expect(row).toMatch(/^\S+ \S+ +Fine +[+-]?\d+ /);
     // Each dwarf's top thought is the weight and the start of its text.
-    expect(listed[0]).toBe('Ludin Grimfe Fine     -1 The Thane');
+    expect(listed[0]).toBe('Ludin Grimfe Fine     -1 The Than»');
     expect(rows[29]).toBe('[Enter] inspect  [S-s] sort tier');
   });
 

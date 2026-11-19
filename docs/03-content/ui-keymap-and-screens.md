@@ -593,7 +593,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Announcements
 
-`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines are one (`announce.starving_many`), and the alert before food rots is `announce.rot_soon` (24 § Announcements and the log).
+`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines are one (`announce.starving_many`), and the alert before food rots is `announce.rot_soon` (24 § Announcements and the log). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations).
 
 ### Announcement strings
 
@@ -628,6 +628,28 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.miasma_advice` | "A refuse stockpile outdoors, or a dump, takes rotten food away." |
 | `announce.rot_soon` | "{n} food will rot within {days\|day\|days}; the largest stack is {stack} in {place}." |
 | `announce.starving_many` | "{n} dwarves are starving: {names}." |
+| `announce.died.bled_out` | "{name} has bled to death." |
+| `announce.died.starvation` | "{name} has starved to death." |
+| `announce.died.infection` | "{name} has died of an infection." |
+| `announce.died.frozen` | "{name} has frozen to death in the ice." |
+| `announce.died.bridge_crush` | "{name} has been crushed by a bridge." |
+| `announce.died.killed_by` | "{name} has been killed by {killer}." |
+| `announce.died.killed` | "{name} has died of wounds." |
+| `announce.died.burnt` | "{name} has burned to death." |
+| `announce.died.magma` | "{name} has died in magma." |
+| `announce.died.drowned` | "{name} has drowned." |
+| `announce.died.lightning` | "{name} has been struck dead by lightning." |
+| `announce.died.fell` | "{name} has died in a fall." |
+| `announce.died.slaughter` | "{name} has been slaughtered." |
+| `announce.immigrant_named` | "{names} has come to join the hall." |
+| `announce.immigrants_named` | "{names} have come to join the hall." |
+| `announce.immigrant_skilled` | "{name} ({skill} {level})" |
+| `announce.immigrant_child` | "{name} (a child)" |
+| `announce.list_and` | "{list} and {last}" |
+| `announce.immigrants_counted` | "{count} dwarves have come to join the hall. [u] lists them." |
+| `announce.immigrants_counted_children` | "{count} dwarves have come to join the hall, {children} of them children. [u] lists them." |
+| `ui.threats.cavern_breached_at` | "{n}: breached at ({x},{y},z{z})" |
+| `ui.threats.cavern_monsters` | "monsters {n}" |
 | `ui.rot.fresh` | "fresh" |
 | `ui.rot.stale` | "stale" |
 | `ui.rot.rotten` | "rotten" |
