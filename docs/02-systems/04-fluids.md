@@ -62,7 +62,7 @@ This is how the player casts obsidian walls and how a water trap kills a magma l
 
 05 decides temperature. `TemperatureTick` from 05 sets `freezePending`; 04 processes it at the beginning of its next tick, before fluid steps. For outdoor water tiles (04 keeps the list `outdoorWaterTiles`), if the temperature is below `FREEZE_C` the tile freezes; frozen tiles above `THAW_C` thaw.
 
-- `freeze(i)`: level ≥ `ICE_WALL_LEVEL` → `terrain.setKind(i, wall, ice)`; otherwise `terrain.setKind(i, floor, ice)` if the tile below is solid-bottomed, else `wall`. The level is preserved in the `fluid` byte with the `frozen` bit set. Creatures move to the first walkable tile in the nearest Chebyshev ring, radius 1 then 2, visited in `(dz, dy, dx)` order. With none, emit `CreatureDied { id, cause: frozen, killerId: 0 }` for 17 to handle. Items on the tile stay (inside the ice, retrievable by digging).
+- `freeze(i)`: level ≥ `ICE_WALL_LEVEL` → `terrain.setKind(i, wall, ice)`; otherwise `terrain.setKind(i, floor, ice)` if the tile below is solid-bottomed, else `wall`. The level is preserved in the `fluid` byte with the `frozen` bit set. Creatures move to the first walkable tile in the nearest Chebyshev ring, radius 1 then 2, visited in `(dz, dy, dx)` order. With none, the creature dies by 17's death with the cause `frozen`: `CreatureDied { id, cause: frozen, killerId: 0 }` with every field a death carries (its tile, species, name, faction, age and worn items), so a dwarf frozen into the ice is announced by name and grieved as at any other death. Items on the tile stay (inside the ice, retrievable by digging).
 - `thaw(i)`: the tile restores its saved pre-freeze kind and material, clears `frozen`, and retains the stored water level; the tile is touched.
 - Digging an ice wall follows 03's transition: an ice `floor` with no drop. On `TilesChanged`, a frozen tile that no longer has its recorded ice kind or ice material loses its fluid and freeze records. Frozen fluid counts as ice rather than liquid water for passability and wells. Maintain `outdoorWaterTiles` for liquid or frozen outdoor water on every level write and for whole columns named by `TilesChanged`.
 - Underground water never freezes. `gemsprings` warm springs never freeze (their tiles carry a warm override in 05).
@@ -130,7 +130,7 @@ None directly. Channels, floodgates and bridges are 03 and 14 commands.
 
 ### Events emitted
 
-`FluidsChanged { chunks[] }`, `ObsidianFormed { tile }`, `CreatureSubmerged { id, tile }`, `MagmaContact { tile, entities[] }`, `TileFrozen { tile }`, `TileThawed { tile }`, `MistProduced { tiles[] }` (only when a new mist area starts, for the announcement "A waterfall's mist fills the hall"), `CreatureDied { id, cause }` with the cause `frozen` (a creature in water that freezes, when there is no walkable tile beside it to move it to).
+`FluidsChanged { chunks[] }`, `ObsidianFormed { tile }`, `CreatureSubmerged { id, tile }`, `MagmaContact { tile, entities[] }`, `TileFrozen { tile }`, `TileThawed { tile }`, `MistProduced { tiles[] }` (only when a new mist area starts, for the announcement "A waterfall's mist fills the hall"). A creature in water that freezes, with no walkable tile beside it to move it to, dies by 17's death with the cause frozen (§ Freezing and thawing), which emits its event.
 
 ### Registrations
 

@@ -1,6 +1,8 @@
 # T-630 — A death frozen into ice carries its creature, and the legend's last words say how
 
-**Source:** [T-625's work file](../archive/tasks/T-625-log-lines-that-explain.md), found while making death lines say their cause · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in e8bb3f49.
+
+**Source:** [T-625's work file](T-625-log-lines-that-explain.md), found while making death lines say their cause · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

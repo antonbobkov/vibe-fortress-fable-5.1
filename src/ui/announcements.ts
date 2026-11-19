@@ -256,8 +256,7 @@ export class AnnouncementLog {
       const creature = readers.entities.get(killerId, C.Creature);
       const name = typeof e['killerName'] === 'string' && e['killerName'].length > 0 ? e['killerName'] : creature?.name;
       const species = typeof e['killerSpecies'] === 'number' ? e['killerSpecies'] : creature?.species;
-      if (species === undefined) out['killer'] = name === undefined || name === '' ? '' : withArticle(name.toLowerCase());
-      else out['killer'] = this.formatCreatureName(name, species);
+      out['killer'] = killerWords(this.registry, name, species);
     } else if (typeof killerId === 'number' && killerId !== 0) {
       const creature = readers.entities.get(killerId, C.Creature);
       out['killer'] = creature?.name || (creature ? this.registry.table<NamedRow>('creatures').byIndex(creature.species)?.name ?? '' : '') || 'killer';
@@ -310,10 +309,7 @@ export class AnnouncementLog {
    * wounds". A cause with no line of its own keeps the plain "has died." (null).
    */
   private deathKey(cause: unknown, killer: unknown): string | null {
-    if (typeof cause !== 'string') return null;
-    if (cause === 'killed') return typeof killer === 'string' && killer !== '' ? 'announce.died.killed_by' : 'announce.died.killed';
-    const key = `announce.died.${cause}`;
-    return this.strings.has(key) ? key : null;
+    return deathLineKey(this.strings, cause, killer);
   }
 
   /**
@@ -349,15 +345,7 @@ export class AnnouncementLog {
   }
 
   private formatCreatureName(name: string | undefined, speciesIndex: number | undefined): string {
-    const table = this.registry.table<NamedRow>('creatures');
-    const speciesRow = typeof speciesIndex === 'number' ? table.byIndex(speciesIndex) : undefined;
-    if (name && (!speciesRow || (name !== speciesRow.id && name !== speciesRow.name))) {
-      return name;
-    }
-    const species = speciesRow?.name ?? speciesRow?.id ?? 'creature';
-    const first = species.charAt(0).toLowerCase();
-    const article = 'aeiou'.includes(first) ? 'an' : 'a';
-    return `${article} ${species}`;
+    return creatureWords(this.registry, name, speciesIndex);
   }
 
   /** Map an event through the registry and append it; `null` when the event has no row. */
@@ -607,6 +595,36 @@ export class AnnouncementLog {
   markSeen(type: string): void {
     this.seen.add(type);
   }
+}
+
+/**
+ * 17 § Registrations: the string key of a death's line by its cause (`announce.died.<cause>`); a
+ * blow names its killer when one is known. Null for a cause with no line of its own.
+ */
+export function deathLineKey(strings: Strings, cause: unknown, killer: unknown): string | null {
+  if (typeof cause !== 'string') return null;
+  if (cause === 'killed') return typeof killer === 'string' && killer !== '' ? 'announce.died.killed_by' : 'announce.died.killed';
+  const key = `announce.died.${cause}`;
+  return strings.has(key) ? key : null;
+}
+
+/** A creature as a line names it: its own name, else its species with an article ("a deer"). */
+export function creatureWords(registry: Registry, name: string | undefined, speciesIndex: number | undefined): string {
+  const table = registry.table<NamedRow>('creatures');
+  const speciesRow = typeof speciesIndex === 'number' ? table.byIndex(speciesIndex) : undefined;
+  if (name && (!speciesRow || (name !== speciesRow.id && name !== speciesRow.name))) {
+    return name;
+  }
+  const species = speciesRow?.name ?? speciesRow?.id ?? 'creature';
+  const first = species.charAt(0).toLowerCase();
+  const article = 'aeiou'.includes(first) ? 'an' : 'a';
+  return `${article} ${species}`;
+}
+
+/** A death's killer as its line names it: a creature by {@link creatureWords}, a trap by its building ("a stone-fall trap"), or ''. */
+export function killerWords(registry: Registry, name: string | undefined, species: number | undefined): string {
+  if (species === undefined) return name === undefined || name === '' ? '' : withArticle(name.toLowerCase());
+  return creatureWords(registry, name, species);
 }
 
 /** "a boar", "an ember newt": a lower-case noun with its indefinite article. */

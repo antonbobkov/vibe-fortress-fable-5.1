@@ -83,7 +83,7 @@ for T in outdoorWaterTiles: t = materials.temperatureAt(T)
   if not frozen(T) and t < FREEZE_C and level(T) > 0: freeze(T)
   else if frozen(T) and t > THAW_C: thaw(T)
 freeze(T): frozenOriginalKind[T] = kind(T); frozenOriginalMaterial[T] = material(T); terrain.setKind(T, level(T) >= ICE_WALL_LEVEL ? Wall : (solidBottomed(below(T)) ? Floor : Wall), ice)
-           fluid[T] |= FROZEN; deactivate(T); for creature on T: movement.teleport to first walkable in Chebyshev rings 1 then 2, (dz,dy,dx) order, else CreatureDied{id, cause:frozen, killerId:0}
+           fluid[T] |= FROZEN; deactivate(T); for creature on T: movement.teleport to first walkable in Chebyshev rings 1 then 2, (dz,dy,dx) order, else 17's death: killCreature(id, frozen), the CreatureDied with every field a death carries
 thaw(T):   terrain.setKind(T, frozenOriginalKind[T], frozenOriginalMaterial[T]); fluid[T] &= ~FROZEN; touch(T)
 ```
 

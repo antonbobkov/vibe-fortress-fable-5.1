@@ -1,5 +1,5 @@
 /** The selected trade depot's stock and actions (T-M7-03). */
-import type { EntityId } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { TradeReader } from '@systems/trade';
 import type { ItemsReader } from '@systems/items';
@@ -94,6 +94,27 @@ export function depotWarning(ctx: PanelContext, depotId: EntityId): string {
   return who === '' ? '' : ctx.strings.get('ui.depot.unreachable', { who });
 }
 
+/**
+ * Where caravans' ways to the depot break (20 § Movement step 6), as the panel marks them on the map:
+ * the waiting caravan's gap while it cannot reach the depot, else the gap of each civilization whose
+ * edge reaches none of the depot's tiles (`panels.md` § Depot).
+ */
+export function depotGaps(ctx: PanelContext, depotId: EntityId): { readonly tile: TileIndex; readonly depotSide: TileIndex }[] {
+  const footprint = buildings(ctx)?.get(depotId)?.footprint ?? [];
+  if (!ctx.readers.has('20') || footprint.length === 0) return [];
+  const trade = ctx.readers.of<TradeReader>('20');
+  const active = trade.activeCaravan();
+  const civs = active !== null && caravanUnreachable(ctx, depotId) !== null
+    ? [active.civ]
+    : trade.caravanReach(footprint).filter((r) => !r.reaches).map((r) => r.civ);
+  const out: { tile: TileIndex; depotSide: TileIndex }[] = [];
+  for (const civ of civs) {
+    const gap = trade.caravanGap(civ, footprint);
+    if (gap !== null && !out.some((g) => g.tile === gap.tile && g.depotSide === gap.depotSide)) out.push(gap);
+  }
+  return out;
+}
+
 export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: PanelContext, moveGoods: () => void, paused = false): void {
   const depotId = panel.selectedDepot(ctx);
   const col = rect.col + 1;
@@ -108,6 +129,9 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
     const shown = lines.slice(0, DEPOT_WARNING_ROWS);
     shown.forEach((line, k) => label(s, col, top + k, k === shown.length - 1 && lines.length > shown.length ? `${line}…` : line, { fg: s.theme.alert, width }));
     if (lines.length > shown.length) s.tooltip({ col, row: top, cols: width, rows: shown.length }, warning);
+    // A click on the warning centres the map where the way breaks, on the caravan's side.
+    const gap = depotGaps(ctx, depotId)[0];
+    if (gap !== undefined) s.hit({ col, row: top, cols: width, rows: shown.length }, () => ctx.focusOn(gap.tile));
     top += shown.length;
   }
   const rows = panel.rows(ctx);

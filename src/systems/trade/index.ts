@@ -19,7 +19,7 @@ import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
 import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
-import { edgeReaches, spawnCaravan } from './caravan';
+import { edgeReaches, edgeSurface, spawnCaravan, wayGap, type WayGap } from './caravan';
 import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
 import type { TradeReader } from './reader';
@@ -50,6 +50,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   // A completion rejected in 10 is retried in 11 after the old job is removed.
   // This flag is cleared in the same atomic tick, before any save can observe it.
   private retryTradeRequest = false;
+  /** The reader's gaps (20 § Movement step 6), kept while the connectivity labels stay the same; derived, never saved. */
+  private readonly gaps = new Map<string, WayGap | null>();
+  private gapsRevision = -1;
   /** What the site has and lacks, read once from the spec: the scarcity price's list. */
   private signature: SiteSignature | null = null;
 
@@ -87,6 +90,21 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
         const edge = this.spec?.civEdges[civ] ?? 'n';
         return { civ, edge, reaches: edgeReaches(ctx.world.map, ctx.readers.pathing, edge, tiles) };
       }),
+      caravanGap: (civ, tiles) => {
+        const revision = ctx.readers.pathing.connectivityRevision();
+        if (revision !== this.gapsRevision) { this.gaps.clear(); this.gapsRevision = revision; }
+        // A caravan waiting at its edge is where it stands; another civilization's is anywhere on its edge.
+        const a = this.active;
+        const waiting = a !== null && a.civ === civ && a.state === 'waiting' ? a.edgeTile : -1;
+        const key = `${civ}:${waiting}:${tiles.join(',')}`;
+        let gap = this.gaps.get(key);
+        if (gap === undefined) {
+          const from = waiting >= 0 ? [waiting] : edgeSurface(ctx.world.map, this.spec?.civEdges[civ] ?? 'n');
+          gap = wayGap(ctx.world.map, ctx.readers.pathing, from, tiles);
+          this.gaps.set(key, gap);
+        }
+        return gap;
+      },
       sessionOpen: () => this.sessionState !== null,
       session: () => this.sessionState && structuredClone(this.sessionState),
     };
@@ -442,11 +460,14 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       const party = ctx.world.entities.get(a.partyId, C.Party);
       if (party) party.state = 'waiting';
       // § Movement step 2: with a depot built that the caravan cannot reach, the line names it and the edge.
-      const built = ctx.readers.of<BuildingsReader>('14').depots()[0];
+      // § Movement step 6: it also carries where the way breaks, when the search finds it.
+      const buildings = ctx.readers.of<BuildingsReader>('14');
+      const built = buildings.depots()[0];
       const edge = ctx.world.entities.get(a.partyId, C.Party)?.edge ?? this.spec?.civEdges[a.civ] ?? 'n';
+      const gap = built === undefined ? null : wayGap(ctx.world.map, ctx.readers.pathing, [a.edgeTile], buildings.get(built)?.footprint ?? []);
       ctx.emit(built === undefined
         ? { type: 'CaravanWaiting', civ: a.civ, partyId: a.partyId, reason: 'no_depot', edge }
-        : { type: 'CaravanWaiting', civ: a.civ, partyId: a.partyId, reason: 'unreachable', edge, depotId: built });
+        : { type: 'CaravanWaiting', civ: a.civ, partyId: a.partyId, reason: 'unreachable', edge, depotId: built, ...(gap === null ? {} : { tile: gap.tile, depotSide: gap.depotSide }) });
     }
   }
 

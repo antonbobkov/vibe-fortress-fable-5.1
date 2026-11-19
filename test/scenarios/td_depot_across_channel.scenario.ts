@@ -1,7 +1,8 @@
 /**
  * T-623: a depot across a channel from the caravan's edge. The caravan waits, and its line names the
  * depot, the edge and why, with the depot as its focus; a floor span planned across the channel in
- * one go is built from its held end, and the caravan then comes on to the depot.
+ * one go is built from its held end, and the caravan then comes on to the depot. T-628: the line's
+ * focus is where the way breaks, the channel's edge on the caravan's side.
  */
 import { expect } from 'vitest';
 import { C } from '@core/components';
@@ -43,7 +44,16 @@ const scenario: Scenario = {
     const line = log.announce(waiting, w.readers, w.tick);
     expect(line?.line.text).toBe('The Hillfolk caravan cannot reach Trade depot #1 from the north edge: its pack animals need a way on foot, with no deep water or drop. Bridge the gap, or build a depot on their side.');
     expect(line?.severity).toBe('alert');
-    expect(line?.focus).toBe(footprint[0]);
+    // Its focus is where the way breaks: the channel's edge on the caravan's side, across from the depot.
+    const gap = waiting['tile'] as number;
+    const side = waiting['depotSide'] as number;
+    expect([w.map.yOf(gap), w.map.zOf(gap)]).toEqual([CHANNEL[0]! - 1, Z]);
+    expect([w.map.yOf(side), w.map.zOf(side)]).toEqual([CHANNEL[CHANNEL.length - 1]! + 1, Z]);
+    const xs = footprint.map((t) => w.map.xOf(t));
+    expect(w.map.xOf(gap)).toBeGreaterThanOrEqual(Math.min(...xs));
+    expect(w.map.xOf(gap)).toBeLessThanOrEqual(Math.max(...xs));
+    expect(w.map.xOf(side)).toBe(w.map.xOf(gap));
+    expect(line?.focus).toBe(gap);
 
     // The span in one go, as a drag sends it: each tile after the one beside it that holds it.
     // Out of order, the middle of the channel is held by nothing and is refused.

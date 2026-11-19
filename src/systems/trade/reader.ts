@@ -21,6 +21,12 @@ export interface TradeReader {
    * `tiles` (a depot's footprint, built or about to be placed): 20 § Movement step 2.
    */
   caravanReach(tiles: readonly TileIndex[]): readonly { civ: Civ; edge: Edge; reaches: boolean }[];
+  /**
+   * Where `civ`'s caravan's way to `tiles` breaks (20 § Movement step 6): the tile it reaches
+   * nearest them and the tile across the gap on their side; null when it reaches them or the search
+   * finds nothing. A caravan of `civ` waiting at its edge searches from where it stands.
+   */
+  caravanGap(civ: Civ, tiles: readonly TileIndex[]): { readonly tile: TileIndex; readonly depotSide: TileIndex } | null;
   sessionOpen(): boolean;
   session(): TradeSession | null;
 }

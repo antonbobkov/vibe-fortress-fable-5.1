@@ -381,7 +381,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   CreatureCaged: "creatureId, cageItemId",
   MechanismTriggered: "sourceId, on",
   CaravanArrived: "civ[, …]",
-  CaravanWaiting: "civ, partyId, edge, reason[, depotId]",
+  CaravanWaiting: "civ, partyId, edge, reason[, depotId, tile, depotSide]",
   CaravanAtDepot: "civ, partyId, depotId",
   CaravanDeparted: "civ[, …]",
   CaravanLost: "civ[, …]",

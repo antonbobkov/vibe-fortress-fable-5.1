@@ -13,8 +13,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-619 | [The three-year script's soldiers live far from their barracks](work/T-619-soldiers-quarters-by-the-barracks.md) | [T-615](archive/tasks/T-615-soldiers-needs-keep-them-from-drill.md) | — | open |
 | T-620 | [Charcoal binds the three-year squad's steel](work/T-620-fuel-for-the-squads-steel.md) | [T-616](archive/tasks/T-616-strong-squad-steel.md) | — | open |
-| T-628 | [Show where a caravan's way to the depot ends](work/T-628-where-the-caravans-way-ends.md) | [T-623](archive/tasks/T-623-caravan-depot-unreachable.md) | — | open |
-| T-630 | [A death frozen into ice carries its creature, and the legend's last words say how](work/T-630-death-event-fields-and-legend-cause.md) | [T-625](archive/tasks/T-625-log-lines-that-explain.md) | — | open |
 | T-632 | [Goods at the trade depot count as available under any filter but one type](work/T-632-depot-goods-counted-available.md) | [T-631](archive/tasks/T-631-stock-the-builder-cannot-use.md) | — | open |
+| T-633 | [A slaughtered animal and a restless dead's end carry a death's fields](work/T-633-slaughter-and-restless-dead-death-fields.md) | [T-630](archive/tasks/T-630-death-event-fields-and-legend-cause.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
