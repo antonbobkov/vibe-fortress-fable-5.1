@@ -190,13 +190,13 @@ describe('T-M1-12 world map screen', () => {
     expect(embarked).toEqual([land!.id]);
   });
 
-  it('draws the cursor inverted and the biome glyph of each region', () => {
+  it('draws the cursor in its own colours and the biome glyph of each region', () => {
     const { screen } = mapScreen();
     const s = surface(80, 45);
     screen.draw(s);
     const cell = s.cells.get(screen.cursor.x - screen.camX, screen.cursor.y - screen.camY);
     const plain = compositor.regionCell(world, screen.regionId);
-    expect(cell).toEqual({ glyph: plain.glyph, fg: plain.bg, bg: plain.fg });
+    expect(cell).toEqual({ glyph: plain.glyph, fg: palette.color('black'), bg: palette.color('world_cursor') });
   });
 
   it('filters regions: the panel toggles rows, matching regions keep their color, the rest dim', () => {
@@ -204,14 +204,14 @@ describe('T-M1-12 world map screen', () => {
     screen.key(press('f'));
     expect(screen.mode).toBe('filter');
     const all = screen.matchCount();
-    expect(all).toBe(world.regions.length);
+    expect(all).toBe(world.regions.filter((r) => screen.embarkable(r)).length);
     // The first row is the first biome; Enter excludes it.
     screen.key(press('Enter'));
     expect(screen.filter.excludedBiomes).toHaveLength(1);
     expect(screen.matchCount()).toBeLessThan(all);
     const s = surface(80, 45);
     screen.draw(s);
-    expect(s.lines().join('\n')).toContain('regions match');
+    expect(s.lines().join('\n')).toContain('sites match');
     const f = regionFilterOf(screen.filter, ['a', 'b']);
     expect(f.biomes).toBeDefined();
     expect(regionFilterOf(defaultFilter(), ['a']).biomes).toBeUndefined();

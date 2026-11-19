@@ -8,8 +8,9 @@
  * world map"); a home is its civilization row's `glyph`/`color`; the wireframe of
  * `ui-screens/menus-and-world.md` § World map draws rivers "in blue" and the cursor on its region.
  *
- * A river region draws `~` in `blue` over its biome; the cursor is an inverted cell (the look
- * cursor's style, 23 § Compositor step 10); a region the filter rejects is dimmed one step.
+ * A river region draws `~` in `blue` over its biome; a region the filter rejects is dimmed one
+ * step; the cursor has its own colours, the region's glyph in `black` on `world_cursor`, whatever
+ * the biome, and blinks with the designation blink (23 § Animation) unless motion is reduced.
  * docs/04-implementation/ui-screens/menus-and-world.md § World map.
  */
 
@@ -38,7 +39,14 @@ export interface WorldMapView {
   readonly cursor: { readonly x: number; readonly y: number } | null;
   /** When given, regions it rejects are dimmed. */
   readonly matches?: (regionId: number) => boolean;
+  /** The presentation clock in `FLUID_ANIM_MS` periods (23 § Animation); omitted is 0. */
+  readonly animFrame?: number;
+  /** The Reduced motion setting: the cursor does not blink. Omitted is false. */
+  readonly reducedMotion?: boolean;
 }
+
+/** The world map cursor's background (`glyphs-and-colors.md` § State and UI colors). */
+export const WORLD_CURSOR_COLOR = 'world_cursor';
 
 /** The river glyph and color. */
 export const WORLD_RIVER_CHAR = '~';
@@ -50,6 +58,7 @@ export class WorldMapCompositor {
   private readonly black: Rgb;
   private readonly river: { glyph: number; fg: Rgb };
   private readonly fallback: Rgb;
+  private readonly cursorBg: Rgb;
 
   constructor(
     registry: Registry,
@@ -73,6 +82,7 @@ export class WorldMapCompositor {
       this.civs.push({ id, glyph: index(row.glyph), fg: color(row.color) });
     }
     this.black = palette.color('black');
+    this.cursorBg = color(WORLD_CURSOR_COLOR);
     this.river = { glyph: index(WORLD_RIVER_CHAR), fg: color(WORLD_RIVER_COLOR) };
   }
 
@@ -100,6 +110,16 @@ export class WorldMapCompositor {
     return { glyph: biome.glyph, fg: biome.fg, bg: this.black };
   }
 
+  /** The cursor over a region's cell: its glyph in black on the cursor colour, whatever the biome. */
+  cursorCell(cell: Cell): Cell {
+    return { glyph: cell.glyph, fg: this.black, bg: this.cursorBg };
+  }
+
+  /** The designation blink (23 § Animation): the cursor shows on the clock's first phase, or always with reduced motion. */
+  private cursorShown(view: WorldMapView): boolean {
+    return view.reducedMotion === true || ((view.animFrame ?? 0) & 1) === 0;
+  }
+
   compose(cells: CellBuffer, rect: Rect, world: WorldMap, view: WorldMapView): void {
     for (let row = 0; row < rect.rows; row += 1) {
       for (let col = 0; col < rect.cols; col += 1) {
@@ -114,8 +134,8 @@ export class WorldMapCompositor {
         if (view.matches !== undefined && !view.matches(id)) {
           cell = { glyph: cell.glyph, fg: this.palette.dim(cell.fg, 1), bg: this.palette.dim(cell.bg, 1) };
         }
-        if (view.cursor !== null && view.cursor.x === x && view.cursor.y === y) {
-          cell = { glyph: cell.glyph, fg: cell.bg, bg: cell.fg };
+        if (view.cursor !== null && view.cursor.x === x && view.cursor.y === y && this.cursorShown(view)) {
+          cell = this.cursorCell(cell);
         }
         cells.setCell(rect.col + col, rect.row + row, cell);
       }

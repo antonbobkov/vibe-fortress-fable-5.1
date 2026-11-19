@@ -202,7 +202,7 @@ What a site has and lacks, for the site summary and the scarcity price ([02](../
 | `geology:igneous` | copper, gem, `basalt` | flux |
 | `geology:metamorphic` | copper, gem | flux |
 
-In the lists, a word such as `wood`, `stone`, `soil` or `gem` is a material class; `salt`, `sand`, `clay`, `peat` and the backticked ids are materials; the rest are the words above. A good on a *lacks* line that is also on a *has* line of the same site is not lacking (a sedimentary wetland has flux). The rows are written in the site summary's words: "This site lacks: salt, sand." A word whose content is not in the game yet (`honey` before there is a `honey` item, `camels` before there is a `camel` species) is kept in its row and left out of the summary and the price until it is.
+In the lists, a word such as `wood`, `stone`, `soil` or `gem` is a material class; `salt`, `sand`, `clay`, `peat` and the backticked ids are materials; the rest are the words above. A good on a *lacks* line that is also on a *has* line of the same site is not lacking (a sedimentary wetland has flux). The rows are written in the site summary's words: "This site lacks: salt, sand.", except that the summary names `salt` "sea salt", apart from rock salt. A word whose content is not in the game yet (`honey` before there is a `honey` item, `camels` before there is a `camel` species) is kept in its row and left out of the summary and the price until it is.
 
 ## Names of places
 

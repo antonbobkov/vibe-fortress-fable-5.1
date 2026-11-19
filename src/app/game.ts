@@ -1222,6 +1222,8 @@ export class Game {
         {
           embark: (w, regionId) => this.openEmbark(w, regionId),
           back: () => this.popScreen(),
+          // 23 § Animation: the cursor blinks on the presentation clock, steady with Reduced motion.
+          animation: () => ({ animFrame: Math.floor(Date.now() / FLUID_ANIM_MS), reducedMotion: this.userSettings.reducedMotion || this.forceReducedMotion }),
         },
         this.keymap,
         this.strings,

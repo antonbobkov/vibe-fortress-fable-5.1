@@ -38,6 +38,11 @@ const WHEEL_ROWS = 3;
 export interface WorldMapHost {
   embark(world: WorldMap, regionId: number): void;
   back(): void;
+  /**
+   * The presentation clock and the Reduced motion setting (23 § Animation), which blink the
+   * cursor; absent: a steady cursor.
+   */
+  animation?(): { readonly animFrame: number; readonly reducedMotion: boolean };
 }
 
 interface BiomeRow {
@@ -173,10 +178,10 @@ export class WorldMapScreen implements Screen {
     };
   }
 
-  /** The number of regions the filter keeps. */
+  /** The number of sites the filter keeps: the regions it keeps where a fortress can embark (no ocean). */
   matchCount(): number {
     const m = this.matches();
-    return m === undefined ? this.world.regions.length : this.world.regions.filter((r) => m(r.id)).length;
+    return this.world.regions.filter((r) => this.embarkable(r) && (m === undefined || m(r.id))).length;
   }
 
   moveCursor(dx: number, dy: number): void {
@@ -209,11 +214,12 @@ export class WorldMapScreen implements Screen {
     this.mapRows = surface.rows;
     this.follow();
     const matches = this.matches();
+    const animation = this.host.animation?.() ?? { animFrame: 0, reducedMotion: true };
     this.compositor.compose(
       surface.cells,
       { col: 0, row: 0, cols: this.mapCols, rows: this.mapRows },
       this.world,
-      matches === undefined ? { camX: this.camX, camY: this.camY, cursor: this.cursor } : { camX: this.camX, camY: this.camY, cursor: this.cursor, matches },
+      { camX: this.camX, camY: this.camY, cursor: this.cursor, animFrame: animation.animFrame, reducedMotion: animation.reducedMotion, ...(matches === undefined ? {} : { matches }) },
     );
     surface.hit({ col: 0, row: 0, cols: this.mapCols, rows: this.mapRows }, () => {});
     const rule = surface.glyphs.index('│');
@@ -342,6 +348,7 @@ export class WorldMapScreen implements Screen {
     out.push({ rating: 'ui.worldmap.peril', value: r.peril });
     for (const t of wrapText(s.get('ui.worldmap.peril_note'), width, 3)) text(t, 'dim');
     out.push({ rating: 'ui.worldmap.temper', value: r.temper });
+    for (const t of wrapText(s.get('ui.worldmap.temper_note'), width, 3)) text(t, 'dim');
     // Each trait on its own line, and under it what the trait does.
     for (const id of r.traits) {
       text(s.get('ui.worldmap.trait', { traits: this.traitNames.get(id) ?? id }));
