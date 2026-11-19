@@ -1,4 +1,4 @@
-# T-NEW — A death frozen into ice carries its creature, and the legend's last words say how
+# T-630 — A death frozen into ice carries its creature, and the legend's last words say how
 
 **Source:** [T-625's work file](T-625-log-lines-that-explain.md), found while making death lines say their cause · **Size:** S · **Needs:** — · **Status:** open
 
