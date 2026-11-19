@@ -43,8 +43,11 @@ export interface DwarvesReader {
   bedHolder(bedId: EntityId): EntityId;
   /** Whether the dwarf drank spirits within `TIPSY_TICKS` (`10` § Tipsy). */
   isTipsy(id: EntityId): boolean;
-  /** `dwarves.whim()`: the Thane's whim of the season, its text and whether it is met now, or null (`10` § The Thane's whim). */
-  whim(): { readonly id: string; readonly text: string; readonly met: boolean } | null;
+  /**
+   * `dwarves.whim()`: the Thane's whim of the season, its text, its kind, the count it asks for, how
+   * much of it the fortress has now and whether it is met now, or null (`10` § The Thane's whim).
+   */
+  whim(): WhimView | null;
   /**
    * `dwarves.unsheltered()`: the living civilians the `hearth` alert finds no shelter for (19 `retreatTile`
    * gave none at their last ask: the watched shut-out ids of § Behavior selection, step 2), ascending; empty
@@ -53,7 +56,19 @@ export interface DwarvesReader {
   unsheltered(): EntityId[];
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => { id: string; text: string; met: boolean } | null = () => null, unsheltered: () => EntityId[] = () => []): DwarvesReader {
+/** `dwarves.whim()`: the whim of the season as the units panel's Thane line reads it. */
+export interface WhimView {
+  readonly id: string;
+  readonly text: string;
+  readonly met: boolean;
+  readonly kind: 'stock' | 'room';
+  /** The units (`stock`) or buildings (`room`) the whim asks for. */
+  readonly count: number;
+  /** How many of them the fortress has now, as the judgement counts them. */
+  readonly have: number;
+}
+
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => WhimView | null = () => null, unsheltered: () => EntityId[] = () => []): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {

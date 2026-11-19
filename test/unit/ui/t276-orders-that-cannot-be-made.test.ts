@@ -58,7 +58,9 @@ describe('T-276 the picker', () => {
     expect(ids.indexOf('make_barrel')).toBeLessThan(ids.indexOf('forge_barrel'));
     const text = f.draw().join('\n');
     expect(text).toContain('Metal barrel · no forge');
-    expect(text).not.toContain('Barrel · no');
+    expect(text).not.toContain('Barrel · no carpenter');
+    // T-626: the barrel's workshop is built and lacks a log: the row names the input, not a workshop.
+    expect(text).toContain('○ Barrel · no log');
   });
 
   it('with no workshop at all, both barrels show their missing workshop', () => {

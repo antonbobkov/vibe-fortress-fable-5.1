@@ -435,7 +435,7 @@ export class BuildingPanel {
     });
     const stand = reader.standCandles(this.id);
     if (tags.includes('rack')) out.push(...this.rackLines(ctx));
-    else if (stand !== undefined) out.push(...this.standLines(ctx, stand));
+    else if (stand !== undefined) out.push(...this.standLines(ctx, stand, wants.flatMap((w) => w.match.split('|'))));
     else if (tags.includes('sleep')) {
       if (wants.length > 0) {
         const made = reader.restPercent(this.id) > (reader.types().find((row) => row.id === this.view(ctx)?.typeId)?.rest ?? 100);
@@ -697,13 +697,16 @@ export class BuildingPanel {
   }
 
   /** 24 § Building panel: a candle stand's candles and the days its burning one has left (14 § Candle stands and lanterns). */
-  private standLines(ctx: PanelContext, stand: StandView): BuildingLine[] {
+  private standLines(ctx: PanelContext, stand: StandView, wanted: readonly string[]): BuildingLine[] {
     const s = ctx.strings;
     const material = ctx.registry.table<{ id: string; name: string }>('materials').byId(stand.burning)?.name ?? stand.burning;
+    // A dark stand says where its candles come from: the workshops whose recipes make what it wants.
+    const where = whereMade(ctx.registry, wanted);
+    const dark = where === '' ? s.get('ui.building.stand_dark') : s.get('ui.building.stand_dark_where', { where });
     return [
       { id: 'stand:candles', text: s.get('ui.building.stand_candles', { n: stand.candles, max: STAND_CANDLES }), tone: stand.candles > 0 ? 'value' : 'dim', help: s.get('ui.building.stand_help') },
       stand.burning === ''
-        ? { id: 'stand:burning', text: s.get('ui.building.stand_dark'), tone: 'alert', help: s.get('ui.building.stand_help') }
+        ? { id: 'stand:burning', text: dark, tone: 'alert', help: s.get('ui.building.stand_help') }
         : { id: 'stand:burning', text: s.get('ui.building.stand_burning', { material, n: stand.daysLeft }), tone: 'dim', help: s.get('ui.building.stand_help') },
     ];
   }

@@ -20,7 +20,7 @@ import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
 import { workshopHasWork } from '@core/workshop-use';
 import { acceleratorLabel } from '../keymap';
-import { blockedText, capitalize, itemName, matchName, whereMade } from '../messages';
+import { alternativesName, blockedText, capitalize, itemName, whereMade } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, list, separator, type ListState } from '../widgets';
@@ -47,12 +47,12 @@ function listed(row: BuildingRow, ctx: PanelContext): boolean {
   return ctx.readers.has('12') && workshopHasWork(ctx.registry, row.id, ctx.readers.of<WorkshopsReader>('12').recipesFor(row.id).length);
 }
 
-/** The inputs as the menu shows them, by content name and the first alternative: "1 table+1 stone", "n blocks". */
+/** The inputs as the menu shows them, by content name with every alternative: "1 table+1 stone", "n blocks", "3 fiber, straw or reed". */
 export function inputText(row: BuildingRow, registry: Registry): string {
   if (row.inputs.length === 0) return '';
   return row.inputs.map((i) => {
     const n = i.count === 'tiles' ? 2 : i.count;
-    return `${i.count === 'tiles' ? 'n' : i.count} ${itemName(registry, i.match.split('|')[0] ?? '', n)}`;
+    return `${i.count === 'tiles' ? 'n' : i.count} ${alternativesName(registry, i.match, n)}`;
   }).join('+');
 }
 
@@ -477,9 +477,11 @@ export class BuildTool {
   /** "0 doors in stock: 5 will wait", then "[o] order 5" or the workshop to build first; `key` is the Orders key. */
   offerText(ctx: PanelContext, offer: StockOffer, key: string): { stock: string; action: string } {
     const s = ctx.strings;
-    const stock = s.get('ui.build.stock.short', { have: offer.have, items: matchName(ctx.registry, offer.match.split('|')[0] ?? '', offer.have), n: offer.waiting });
+    const stock = s.get('ui.build.stock.short', { have: offer.have, items: alternativesName(ctx.registry, offer.match, offer.have), n: offer.waiting });
     if (offer.itemId === null) return { stock, action: '' };
     if (offer.recipeId !== null) return { stock, action: s.get('ui.build.stock.order', { key, n: offer.waiting }) };
+    // An input with alternatives says which of them the workshop would make: "build a farmer's workshop to make fiber".
+    if (offer.match.includes('|')) return { stock, action: s.get('ui.build.stock.needs_workshop_item', { workshop: offer.workshops, item: itemName(ctx.registry, offer.itemId) }) };
     return { stock, action: s.get('ui.build.stock.needs_workshop', { workshop: offer.workshops }) };
   }
 
@@ -521,20 +523,27 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   row += 1;
   const rows = tool.rows(ctx);
   const height = Math.max(1, rect.rows - (row - rect.row) - (tool.current(ctx)?.footprint.variable === undefined ? 4 : 5));
+  // Each row whole ("Straw pallet 3 fiber, straw or reed (14)"), for the tooltip of a row whose inputs are shortened.
+  const whole = rows.map((r) => {
+    const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
+    const count = r.inputs.length === 0 ? '' : ` (${tool.available(ctx, r)})`;
+    const inputs = inputText(r, ctx.registry);
+    return { shown: buildRowText(name, inputs, count, rect.cols - 3), full: `${name} ${inputs}${count}` };
+  });
   list(
     s,
     { col: rect.col + 1, row, cols: rect.cols - 2, rows: height },
-    rows.map((r) => {
-      const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
-      const count = r.inputs.length === 0 ? '' : ` (${tool.available(ctx, r)})`;
-      return buildRowText(name, inputText(r, ctx.registry), count, rect.cols - 3);
-    }),
+    whole.map((r) => r.shown),
     tool.list,
     (index) => {
       tool.list.selected = index;
       tool.arm();
     },
   );
+  for (let r = 0; r < height && tool.list.scroll + r < whole.length; r += 1) {
+    const one = whole[tool.list.scroll + r];
+    if (one !== undefined && one.shown.includes('…')) s.tooltip({ col: rect.col + 1, row: row + r, cols: rect.cols - 2, rows: 1 }, one.full);
+  }
   row += height;
   const mats = tool.materials(ctx);
   const choice = mats[tool.materialIndex] ?? mats[0];

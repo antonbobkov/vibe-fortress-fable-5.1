@@ -79,9 +79,9 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     const names = listed.map((row) => row.replace(/ {2,}.*$/, '').replace(/ 1 .*$/, ''));
     expect(names[0]).toMatch(/^Bowyer's workshop/);
     expect(names[names.length - 1]).toMatch(/^Wood furnace/);
-    // The figure in brackets is how many of the first material the fortress holds.
+    // The figure in brackets is how many of the first input the fortress holds, every alternative of it named and counted.
     expect(listed.find((row) => row.startsWith('Carpenter'))).toBe("Carpenter's workshop   2 logs (5)");
-    expect(listed.find((row) => row.startsWith('Smelter'))).toMatch(/^Smelter +3 stones \(\d+\)$/);
+    expect(listed.find((row) => row.startsWith('Smelter'))).toMatch(/^Smelter +3 stone or block \(\d+\)$/);
     expect(rows[36]).toMatch(/^Material: \[x\] any \(\d+\)$/);
     // The bowyer may be built of blocks (T-549): the line says how it is built, where `[r] rotate` was.
     expect(rows[37]).toBe('Of logs: 2 logs, 200 ticks');
