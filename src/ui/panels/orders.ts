@@ -9,7 +9,7 @@
  */
 import { C, type WorkOrder, type Workshop } from '@core/components';
 import type { Command } from '@core/commands';
-import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
+import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN, TICKS_PER_DAY } from '@core/constants';
 import type { GameEvent } from '@core/events';
 import type { EntityId } from '@core/types';
 import { workshopHasWork } from '@core/workshop-use';
@@ -17,13 +17,15 @@ import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import type { KeyPress } from '@platform/input';
 import type { BuildingsReader } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
 import type { RecipeRow, WorkshopsReader } from '@systems/workshops';
 import type { JobsReader } from '@systems/jobs';
 import { STANDING_ORDERS } from '@systems/jobs/constants';
 import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
-import { buildingName, capitalize, waitingFor, workshopBlockText, wrapText } from '../messages';
+import { jobLabor, jobWait } from '../job-wait';
+import { buildingName, capitalize, itemName, jobBlockText, matchName, waitingFor, whereMade, workshopBlockText, wrapHang, wrapText } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -90,6 +92,53 @@ function missingNote(ctx: PanelContext, reason: string | null): string {
   if (reason === 'missing_input') return ctx.strings.get('ui.orders.pick.no_fuel');
   const waiting = waitingFor(ctx, reason);
   return waiting === null ? '' : ctx.strings.get('ui.orders.pick.no_input', { item: waiting.item });
+}
+
+/**
+ * Add order's note for a `○` recipe whose workshop is built (`panels.md` § Add order): the input it
+ * lacks and one step back. A recipe makes it: "· no tallow: render fat at a kitchen", with what that
+ * recipe's own inputs lack and where they come from ("(needs fat from butchering)"); several recipes
+ * make it: "· no thread: made at a loom"; none does: "· no fat (from butchering)". Nothing two steps away.
+ */
+function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null): string {
+  const s = ctx.strings;
+  const waiting = waitingFor(ctx, reason);
+  if (waiting === null) return missingNote(ctx, reason);
+  const parts = waiting.match.split('|');
+  const reader = ctx.readers.has('12') ? ctx.readers.of<WorkshopsReader>('12') : null;
+  const table = ctx.registry.table<RecipeRow>('recipes');
+  const makers = table.ids().filter((id) => id !== recipe.id && (table.byId(id)?.outputs.some((o) => parts.includes(o.item)) ?? false))
+    .map((id) => reader?.recipe(id))
+    .filter((r): r is RecipeRow => r !== undefined && (reader?.recipesFor(r.workshop).some((allowed) => allowed.id === r.id) ?? false));
+  const source = (id: string): string | null => (s.has(`ui.orders.pick.source.${id}`) ? s.get(`ui.orders.pick.source.${id}`) : null);
+  if (makers.length === 0) {
+    const from = parts.length === 1 ? source(parts[0] as string) : null;
+    return from === null ? s.get('ui.orders.pick.no_input', { item: waiting.item }) : s.get('ui.orders.pick.no_input_from', { item: waiting.item, source: from });
+  }
+  if (makers.length > 1) {
+    const where = whereMade(ctx.registry, parts);
+    return where === '' ? s.get('ui.orders.pick.no_input', { item: waiting.item }) : s.get('ui.orders.pick.made_at', { item: waiting.item, where });
+  }
+  const maker = makers[0] as RecipeRow;
+  const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(maker.workshop)?.name ?? maker.workshop.replace(/_/g, ' ')).toLowerCase();
+  const where = `${/^[aeiou]/.test(workshop) ? 'an' : 'a'} ${workshop}`;
+  const name = maker.name.charAt(0).toLowerCase() + maker.name.slice(1);
+  // What the maker's own inputs lack, as the whim's "at hand" counts stock: the units in stock (available).
+  const items = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13') : null;
+  const itemTable = ctx.registry.table<{ id: string }>('items');
+  const needs = maker.inputs.filter((input) => {
+    const known = input.match.split('|').filter((part) => itemTable.has(part));
+    if (known.length === 0 || items === null) return false;
+    return known.reduce((n, part) => n + items.countAvailable({ type: itemTable.index(part) }), 0) < input.count;
+  }).map((input) => {
+    const one = input.match.split('|');
+    const from = one.length === 1 ? source(one[0] as string) : null;
+    const item = one.length === 1 ? itemName(ctx.registry, one[0] as string) : matchName(ctx.registry, input.match);
+    return from === null ? item : s.get('ui.orders.pick.from', { item, source: from });
+  });
+  return needs.length === 0
+    ? s.get('ui.orders.pick.make_at', { item: waiting.item, recipe: name, where })
+    : s.get('ui.orders.pick.make_at_needs', { item: waiting.item, recipe: name, where, needs: needs.join(' and ') });
 }
 
 /** `+`/`=` and `-`/`_` as a count step, ±10 with `Shift` (D-U5); 0 for any other key. */
@@ -281,11 +330,44 @@ export class OrdersPanel {
     const s = ctx.strings;
     const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(recipe.workshop)?.name ?? recipe.workshop.replace(/_/g, ' ')).toLowerCase();
     const rank = this.rank(ctx, recipe);
-    if (rank === 2) return s.get((this.buildings(ctx)?.byType(recipe.workshop).length ?? 0) > 0 ? 'ui.orders.pick.not_built' : 'ui.orders.pick.no_workshop', { workshop });
+    if (rank === 2) {
+      const placed = this.buildings(ctx)?.byType(recipe.workshop) ?? [];
+      return placed.length > 0 ? this.buildWait(ctx, placed, workshop) : s.get('ui.orders.pick.no_workshop', { workshop });
+    }
     const reader = this.reader(ctx);
     if (rank === 0 || reader === null || this.makeable(ctx, recipe)) return '';
     const where = this.picker.fixed ? [this.picker.workshopId] : this.workshopsOfType(ctx, recipe.workshop);
-    return missingNote(ctx, reader.isRunnable(recipe.id, where[0] as EntityId).reason);
+    return chainNote(ctx, recipe, reader.isRunnable(recipe.id, where[0] as EntityId).reason);
+  }
+
+  /**
+   * A placed workshop that is not built: "· kiln not built yet", or, when its build job has waited
+   * more than a day unclaimed, how long and why ("· kiln not built: waiting 41 days for a builder"),
+   * from {@link jobWait} for an open job and the block's reason for a blocked one. Of several placed,
+   * the one waiting longest.
+   */
+  private buildWait(ctx: PanelContext, placed: readonly EntityId[], workshop: string): string {
+    const s = ctx.strings;
+    const plain = s.get('ui.orders.pick.not_built', { workshop });
+    if (!ctx.readers.has('11')) return plain;
+    const jobs = ctx.readers.of<JobsReader>('11');
+    const waiting = placed.map((id) => jobs.byKey(`build:${id}`))
+      .filter((job): job is NonNullable<typeof job> => job !== undefined && job.workerId === 0 && (job.state === 'open' || job.state === 'blocked'))
+      .sort((a, b) => a.createdTick - b.createdTick || a.id - b.id);
+    // Any placed one being built, or none waiting a day: no wait to tell.
+    const job = waiting[0];
+    if (job === undefined || waiting.length < placed.length) return plain;
+    const age = ctx.readers.calendar.tick - job.createdTick;
+    if (age <= TICKS_PER_DAY) return plain;
+    const n = Math.floor(age / TICKS_PER_DAY);
+    const days = s.get(n === 1 ? 'ui.orders.pick.days.one' : 'ui.orders.pick.days.many', { n });
+    if (job.state === 'blocked') {
+      return job.blockedReason === null ? plain : s.get('ui.orders.pick.build_wait.blocked', { workshop, days, why: jobBlockText(ctx, job).short });
+    }
+    const why = jobWait(ctx, job);
+    if (why === null) return plain;
+    const labor = ctx.registry.table<{ id: string; name: string }>('labors').byId(jobLabor(ctx, job))?.name.toLowerCase() ?? '';
+    return s.get(`ui.orders.pick.build_wait.${why.reason}`, { workshop, days, labor });
   }
 
   /** Whether some workshop the order could go to can run the recipe now. */
@@ -911,6 +993,71 @@ function groupedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: L
   });
 }
 
+/**
+ * {@link groupedList} whose rows wrap at the list's width rather than cutting (Add order's notes):
+ * a row's later lines hang under its name. `state.scroll` is the first row drawn; a row's text is
+ * asked for only when it is drawn or the scroll needs its height.
+ */
+function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: ListState, onSelect: (index: number) => void): void {
+  const items: number[] = [];
+  rows.forEach((row, k) => { if (row.heading === undefined) items.push(k); });
+  state.selected = Math.max(0, Math.min(items.length - 1, state.selected));
+  const at = items[state.selected] ?? 0;
+  const memo = new Map<string, string[]>();
+  const linesOf = (k: number, width: number): string[] => {
+    const row = rows[k];
+    if (row === undefined || row.heading !== undefined) return [''];
+    const key = `${k}:${width}`;
+    let lines = memo.get(key);
+    if (lines === undefined) { lines = wrapHang(row.text?.() ?? '', width, 2); memo.set(key, lines); }
+    return lines;
+  };
+  // Every row's lines are counted only when the rows are few; a long list has its scrollbar anyway.
+  let total = 0;
+  if (rows.length <= rect.rows) for (let k = 0; k < rows.length; k += 1) total += linesOf(k, rect.cols).length;
+  const scrollbar = rows.length > rect.rows || total > rect.rows;
+  const width = scrollbar ? rect.cols - 1 : rect.cols;
+  const span = (from: number, to: number): number => { let n = 0; for (let k = from; k <= to; k += 1) n += linesOf(k, width).length; return n; };
+  // The selected row and the heading over it stay in view; the list never ends above the window's foot.
+  if (at - 1 < state.scroll) state.scroll = Math.max(0, at - 1);
+  while (state.scroll < at && span(state.scroll, at) > rect.rows) state.scroll += 1;
+  state.scroll = Math.max(0, Math.min(Math.max(0, rows.length - 1), state.scroll));
+  let below = 0;
+  for (let k = state.scroll; k < rows.length && below < rect.rows; k += 1) below += linesOf(k, width).length;
+  while (state.scroll > 0 && below < rect.rows) {
+    const more = linesOf(state.scroll - 1, width).length;
+    if (below + more > rect.rows) break;
+    state.scroll -= 1; below += more;
+  }
+  let y = rect.row;
+  let k = state.scroll;
+  for (; y < rect.row + rect.rows; k += 1) {
+    const row = rows[k];
+    if (row === undefined) { s.fill({ col: rect.col, row: y, cols: width, rows: 1 }, s.theme.black); y += 1; continue; }
+    if (row.heading !== undefined) { s.fill({ col: rect.col, row: y, cols: width, rows: 1 }, s.theme.black); separator(s, rect.col, y, width, row.heading); y += 1; continue; }
+    const lines = linesOf(k, width).slice(0, rect.row + rect.rows - y);
+    const cells = { col: rect.col, row: y, cols: width, rows: lines.length };
+    s.fill(cells, s.theme.black);
+    lines.forEach((line, n) => label(s, rect.col, y + n, line, { width, keys: false, ...(row.fg === undefined ? {} : { fg: row.fg }) }));
+    if (k === at && items.length > 0) s.invert(cells);
+    const index = items.indexOf(k);
+    s.hit(cells, () => onSelect(index));
+    y += lines.length;
+  }
+  if (!scrollbar) return;
+  const shown = Math.max(1, k - state.scroll);
+  const thumbRow = Math.floor((state.scroll * (rect.rows - 1)) / Math.max(1, rows.length - shown));
+  for (let r = 0; r < rect.rows; r += 1) {
+    s.put(rect.col + rect.cols - 1, rect.row + r, s.glyphs.index(r === Math.min(rect.rows - 1, thumbRow) ? '█' : '│'), s.theme.border, s.theme.black);
+  }
+  s.scrollbar({ col: rect.col + rect.cols - 1, row: rect.row, cols: 1, rows: rect.rows }, (row) => {
+    const at = Math.max(0, Math.min(rect.rows - 1, row - rect.row));
+    const target = Math.round((at * (rows.length - 1)) / Math.max(1, rect.rows - 1));
+    const index = items.findIndex((k) => k >= target);
+    state.selected = index < 0 ? items.length - 1 : index;
+  });
+}
+
 /** A row of `[k] action` captions, each clickable at its own cells. */
 function actionRow(s: Surface, col: number, row: number, width: number, parts: readonly { readonly text: string; readonly run?: () => void; readonly fg?: Rgb }[], gap = 2): void {
   let c = col;
@@ -965,7 +1112,7 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
   if (!rows.some((row) => 'recipe' in row)) {
     label(s, col, rect.row + 2, p.filter === '' ? strings.get('ui.orders.no_recipes') : strings.get('ui.orders.no_recipe', { filter: p.filter }), { fg: t.dim, width, keys: false });
   } else {
-    groupedList(s, { col, row: rect.row + 2, cols: width, rows: height }, rows.map((row): GroupRow => ('heading' in row
+    wrappedList(s, { col, row: rect.row + 2, cols: width, rows: height }, rows.map((row): GroupRow => ('heading' in row
       ? { heading: row.heading }
       : { text: () => {
         const note = panel.pickerNote(ctx, row.recipe);
