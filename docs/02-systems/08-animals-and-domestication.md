@@ -184,7 +184,7 @@ A *dangerous* species is a surface species (it has biomes) that is not `timid` a
 
 ## Player-facing behavior
 
-- Animals panel: tabs Tame (species, name if any, pasture, condition bar, trained, pregnant, actions) and Wild (species, count, huntable toggle from 09, "seen near" location); breeding caps per species. Tame offers a clickable train action (`Shift+T`): War/Hunting, arrows and Enter or a click, Esc to cancel. Training status is shown while a job exists (also for retraining), otherwise war, hunting or blank. A non-trainable species is explained on the status row; a missing kennel refusal says to build one.
+- Animals panel: tabs Tame (one row per species, pasture, hunger and training of unnamed animals with their count, a row per named animal; pasture, condition as a fed bar, trained; the selected row in words with how many are pregnant; actions) and Wild (species, count, huntable toggle from 09, "seen near" location); breeding caps per species. Tame offers a clickable train action (`Shift+T`): War/Hunting, arrows and Enter or a click, Esc to cancel. Training status is shown while a job exists (also for retraining), otherwise war, hunting or blank. A non-trainable species is explained on the status row; a missing kennel refusal says to build one.
 - Pasture zone: capacity line; assigning by selecting animals in the panel or by clicking an animal and choosing "Pasture".
 - Glyphs: lowercase letters by species (`d` dog, `c` cat, `C` cow is uppercase to read as large; the convention is lowercase for small and medium, uppercase for large animals; hostiles are uppercase in red).
 - A hive's building panel shows its combs, its flowers in reach and what the season does (24 § Building panel).

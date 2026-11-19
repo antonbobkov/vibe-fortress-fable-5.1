@@ -31,7 +31,7 @@ import {
 } from './constants';
 import { arriveParty, forgetDestroyedLoot, spawnHostileMember } from './parties';
 import { countCasualty, shakeByOwnFire, shakeByTrap, steadyPartiesThatFelled } from './morale';
-import { makeThreatsReader, type ThreatsReader } from './reader';
+import { makeThreatsReader, sizeBandOf, type ThreatsReader } from './reader';
 import {
   calculatePartySize,
   calculateRenown,
@@ -191,6 +191,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         return count;
       },
       () => nextDeepThreshold(this.deepState.level),
+      () => this.pendingArrivals,
     );
     ctx.register.panel({ id: 'threats', title: 'Threats', hotkey: 't' });
     ctx.register.announcement('ThreatWarning', {
@@ -371,7 +372,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         const size = calculatePartySize(entry.base, entry.perRenown, entry.max, this.renownVal);
 
         if (entry.warningDays > 0) {
-          const sizeBand = size < 6 ? 'a few' : size <= 15 ? 'a band' : 'a horde';
+          const sizeBand = sizeBandOf(size);
           const edgeDescMap: Record<Edge, string> = {
             n: 'the northern edge',
             e: 'the eastern edge',

@@ -143,12 +143,13 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
   it('Animals lists the tame animals the tab counts, and names the keys that manage them', () => {
     const rows = render('animals');
     expect(rows[0]).toMatch(/^\[1\] Tame \((\d+)\) {2}\[2\] Wild \(0\)$/);
-    expect(rows[1]).toMatch(/^Species Name +Pastu\w* Cond\/Tr/);
+    expect(rows[1]).toMatch(/^Animal +Pasture Fed Trained$/);
     const count = Number(/Tame \((\d+)\)/.exec(rows[0] ?? '')?.[1]);
-    const listed = rows.slice(2, 25).filter((row) => row !== '');
-    expect(listed).toHaveLength(count);
-    expect(count).toBeGreaterThan(0);
-    expect(listed.map((row) => row.split(' ')[0])).toEqual(['dog', 'dog', 'cat']);
+    expect(count).toBe(3);
+    // T-640: the two unnamed dogs are one row, by species; the glyph set draws `×` as `x`.
+    const listed = rows.slice(2, 24).filter((row) => row !== '');
+    expect(listed.map((row) => row.split(/ {2,}/)[0])).toEqual(['cat', 'dog x2']);
+    expect(rows[24]).toBe('1 cat · no pasture');
     expect(rows[26]).toBe('[S-p] pasture  [S-s] slaughter');
     expect(rows[27]).toBe('[S-c] cap [S-a] assign [S-n] name');
     expect(rows[28]).toBe('[S-t] train');
@@ -158,7 +159,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
   it('Wild lists no wild animals while none are in view, and offers the hunt toggle', () => {
     const rows = render('wild');
     expect(rows[0]).toMatch(/\[2\] Wild \(0\)$/);
-    expect(rows[1]).toMatch(/^Species +Name +Pasture Cond\/Tr/);
+    expect(rows[1]).toMatch(/^Species +Hunt +Doing$/);
     expect(rows.slice(2, 26).filter((row) => row !== '')).toEqual([]);
     expect(rows[27]).toBe('[h] hunt toggle');
   });

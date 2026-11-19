@@ -7,7 +7,7 @@
 
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
-import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
+import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN, TICKS_PER_DAY } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { JobsReader } from '@systems/jobs';
@@ -15,22 +15,29 @@ import type { Surface } from '../surface';
 import { acceleratorLabel } from '../keymap';
 import { PanelFilter, drawPanelFilter } from './filter';
 import { jobBlockText, wrapText } from '../messages';
+import { jobWait } from '../job-wait';
 import { clampList, label, separator, table, type ListState } from '../widgets';
 import { buildings, tileXyz, type PanelContext } from './context';
 
 type JobLike = ReturnType<JobsReader['list']>[number];
 
 /**
- * A row of the job list: one job, or a blocked batch (`panels.md` § Jobs): two or more jobs next to
- * each other in the list, blocked for the same reason, of one type and priority, each on a bare tile.
+ * A row of the job list: one job, or a batch (`panels.md` § Jobs): two or more jobs next to each
+ * other in the list, of one type and priority, each on a bare tile, all open or all blocked for the
+ * same reason.
  */
 export interface JobRow {
   readonly jobs: readonly JobLike[];
 }
 
-/** The jobs of a blocked batch belong together: same type, priority and reason, each on a bare tile. */
+/** A job that can join a batch: open, or blocked with a reason, on a bare tile. */
 function batchable(j: JobLike): boolean {
-  return j.state === 'blocked' && j.blockedReason !== null && j.target.kind === 'tile';
+  return (j.state === 'open' || (j.state === 'blocked' && j.blockedReason !== null)) && j.target.kind === 'tile';
+}
+
+/** Two batchable jobs belong together: same type, priority and state, and the same reason when blocked. */
+function together(a: JobLike, b: JobLike): boolean {
+  return a.type === b.type && a.priority === b.priority && a.state === b.state && a.blockedReason === b.blockedReason;
 }
 
 export class JobsPanel {
@@ -43,8 +50,17 @@ export class JobsPanel {
   readonly waitingList: ListState = { selected: 0, scroll: 0 };
   labor = '';
   state: 'all' | 'open' | 'claimed' | 'blocked' = 'all';
-  /** Jobs whose blocked batch `Enter` has opened to its rows. Presentation state, not saved. */
+  /** Jobs whose batch `Enter` has opened to its rows. Presentation state, not saved. */
   private readonly opened = new Set<number>();
+  /**
+   * The line under the list for a job open more than a day: why nobody has taken it
+   * ({@link jobWait}); '' for any other job. Read each frame, so a labor turned on while paused
+   * shows at once.
+   */
+  waitLine(ctx: PanelContext, j: JobLike): string {
+    if (j.state !== 'open' || ctx.readers.calendar.tick - j.createdTick <= TICKS_PER_DAY) return '';
+    return jobWait(ctx, j)?.text ?? '';
+  }
 
   allJobs(ctx: PanelContext): JobLike[] {
     if (!ctx.readers.has('11')) return [];
@@ -117,14 +133,13 @@ export class JobsPanel {
     this.resetSelection();
   }
 
-  /** The list's rows: each blocked batch one row until `Enter` opens it. */
+  /** The list's rows: each batch one row until `Enter` opens it. */
   rows(ctx: PanelContext): JobRow[] {
     const rows: JobLike[][] = [];
     for (const j of this.jobs(ctx)) {
       const run = rows.at(-1);
       const head = run?.[0];
-      if (run !== undefined && head !== undefined && batchable(j) && batchable(head) && j.type === head.type &&
-        j.priority === head.priority && j.blockedReason === head.blockedReason) run.push(j);
+      if (run !== undefined && head !== undefined && batchable(j) && batchable(head) && together(j, head)) run.push(j);
       else rows.push([j]);
     }
     return rows.flatMap((run) => (run.length > 1 && run.some((j) => this.opened.has(j.id)) ? run.map((j) => [j]) : [run]))
@@ -140,7 +155,7 @@ export class JobsPanel {
     return this.selectedRow(ctx)?.jobs[0];
   }
 
-  /** `Enter` on a blocked batch opens it to its rows; false on a row of one job. */
+  /** `Enter` on a batch opens it to its rows; false on a row of one job. */
   openBatch(ctx: PanelContext): boolean {
     const row = this.selectedRow(ctx);
     if (row === undefined || row.jobs.length < 2) return false;
@@ -153,7 +168,7 @@ export class JobsPanel {
     this.list.selected = Math.max(0, Math.min(Math.max(0, n - 1), this.list.selected + delta));
   }
 
-  /** `[p]`: the next priority, wrapping; for every job of a blocked batch. */
+  /** `[p]`: the next priority, wrapping; for every job of a batch. */
   priority(ctx: PanelContext): Command[] | null {
     const row = this.selectedRow(ctx);
     const j = row?.jobs[0];
@@ -162,7 +177,7 @@ export class JobsPanel {
     return row.jobs.map((job) => ({ type: 'SetJobPriority', jobId: job.id, priority: next }));
   }
 
-  /** `[x]`: cancel the job, or every job of a blocked batch. */
+  /** `[x]`: cancel the job, or every job of a batch. */
   cancel(ctx: PanelContext): Command[] | null {
     const row = this.selectedRow(ctx);
     return row === undefined ? null : row.jobs.map((job) => ({ type: 'CancelJob', jobId: job.id }));
@@ -200,7 +215,7 @@ function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
   return `${name} (${p.x},${p.y},z${p.z})`;
 }
 
-/** A blocked batch's row: the job's name and how many (`Dig ×19`). */
+/** A batch's row: the job's name and how many (`Dig ×19`, `Plant ×16`). */
 function batchText(ctx: PanelContext, row: JobRow): string {
   const first = row.jobs[0] as JobLike;
   const type = ctx.readers.of<JobsReader>('11').typeOf(first.id) ?? '';
@@ -224,8 +239,8 @@ export function creatureTargetName(ctx: PanelContext, id: EntityId): string | un
 }
 
 /**
- * The line under the list for a selected blocked batch: the box its tiles span, and `Enter` to open
- * it (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`).
+ * The line under the list for a selected batch: the box its tiles span, and `Enter` to open it
+ * (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`).
  */
 export function batchDetail(ctx: PanelContext, panel: JobsPanel, row: JobRow): string {
   const at = row.jobs.map((j) => tileXyz(ctx, panel.tileOf(ctx, j) ?? 0));
@@ -236,9 +251,19 @@ export function batchDetail(ctx: PanelContext, panel: JobsPanel, row: JobRow): s
   return ctx.strings.get('ui.jobs.batch_detail', { n: row.jobs.length, box, z });
 }
 
-function whoText(ctx: PanelContext, j: JobLike): string {
+/** Who holds the job, why it is blocked, or how long it has been open when that is more than a day ("open 41 days"). */
+function whoText(ctx: PanelContext, row: JobRow): string {
+  const j = row.jobs[0] as JobLike;
   if (j.workerId !== 0) return ctx.readers.entities.get(j.workerId, C.Creature)?.name ?? '';
   if (j.state === 'blocked' && j.blockedReason !== null) return jobBlockText(ctx, j).short;
+  if (j.state === 'open') {
+    const since = Math.min(...row.jobs.map((job) => job.createdTick));
+    const age = ctx.readers.calendar.tick - since;
+    if (age > TICKS_PER_DAY) {
+      const days = Math.floor(age / TICKS_PER_DAY);
+      return ctx.strings.get(`ui.jobs.open_days.${days === 1 ? 'one' : 'many'}`, { n: days });
+    }
+  }
   return '—';
 }
 
@@ -275,32 +300,40 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   if (!ctx.readers.has('11')) return;
   const reader = ctx.readers.of<JobsReader>('11');
   const c = reader.counts();
-  drawPanelFilter(s, rect.col + 1, rect.row + 1, rect.cols - 2, panel.filter, ctx);
+  const width = rect.cols - 2;
+  // The counts and the blocked summary wrap: a large fortress's do not fit one row.
+  const counts = wrapText(strings.get('ui.jobs.counts', { open: c.open, claimed: c.claimed, blocked: c.blocked }), width, 2);
+  counts.forEach((line, k) => label(s, rect.col + 1, rect.row + k, line, { fg: t.value, width }));
+  const filterRow = rect.row + counts.length;
+  drawPanelFilter(s, rect.col + 1, filterRow, width, panel.filter, ctx);
   const labors = ctx.registry.table<{ id: string; name: string }>('labors');
   const labor = panel.labor === '' ? strings.get('ui.jobs.filter.all') : labors.byId(panel.labor)?.name ?? panel.labor;
   const cycle = (row: number, text: string, run: () => void): void => {
-    label(s, rect.col + 1, row, text, { width: rect.cols - 2 });
-    s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, run);
+    label(s, rect.col + 1, row, text, { width });
+    s.hit({ col: rect.col + 1, row, cols: width, rows: 1 }, run);
   };
-  cycle(rect.row + 2, strings.get('ui.jobs.filter.labor', { key: acceleratorLabel('l', ctx.panelLetters), labor }), () => panel.cycleLabor(ctx));
-  cycle(rect.row + 3, strings.get('ui.jobs.filter.state', { key: acceleratorLabel('s', ctx.panelLetters), state: strings.get(`ui.jobs.filter.${panel.state}`) }), () => panel.cycleState());
-  label(s, rect.col + 1, rect.row, strings.get('ui.jobs.counts', { open: c.open, claimed: c.claimed, blocked: c.blocked }), { fg: t.value, width: rect.cols - 2 });
+  cycle(filterRow + 1, strings.get('ui.jobs.filter.labor', { key: acceleratorLabel('l', ctx.panelLetters), labor }), () => panel.cycleLabor(ctx));
+  cycle(filterRow + 2, strings.get('ui.jobs.filter.state', { key: acceleratorLabel('s', ctx.panelLetters), state: strings.get(`ui.jobs.filter.${panel.state}`) }), () => panel.cycleState());
   const jobs = panel.jobs(ctx);
   const summary = blockedSummary(ctx, jobs);
-  const top = summary === '' ? 4 : 5;
-  if (summary !== '') label(s, rect.col + 1, rect.row + 4, summary, { fg: t.dim, width: rect.cols - 2 });
+  const summaryLines = summary === '' ? [] : wrapText(summary, width, 2);
+  summaryLines.forEach((line, k) => label(s, rect.col + 1, filterRow + 3 + k, line, { fg: t.dim, width }));
+  const top = counts.length + 3 + summaryLines.length;
   const changed = labors.ids().filter(id => reader.laborPriority(id) !== PRIORITY_DEFAULT)
     .map(id => `${labors.byId(id)?.name ?? id} ${reader.laborPriority(id)}`);
-  const priorities = wrapText(changed.length ? changed.join(' \u00b7 ') : strings.get('ui.jobs.priorities_default', { priority: PRIORITY_DEFAULT }), rect.cols - 2, rect.rows);
+  const priorities = wrapText(changed.length ? changed.join(' \u00b7 ') : strings.get('ui.jobs.priorities_default', { priority: PRIORITY_DEFAULT }), width, rect.rows);
   const rows = panel.rows(ctx);
   const chosenRow = rows[panel.list.selected];
   const chosen = chosenRow?.jobs[0];
   const blockText = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? jobBlockText(ctx, chosen).long : '';
-  const detailText = chosenRow !== undefined && chosenRow.jobs.length > 1 ? `${batchDetail(ctx, panel, chosenRow)} ${blockText}` : blockText;
-  const detail = detailText === '' ? [] : wrapText(detailText, rect.cols - 2, chosenRow !== undefined && chosenRow.jobs.length > 1 ? 3 : 2);
-  const needle = panel.filter.value.toLowerCase();
+  // A job open more than a day: why nobody has taken it.
+  const waitText = chosen === undefined ? '' : panel.waitLine(ctx, chosen);
+  const reason = blockText !== '' ? blockText : waitText;
+  const batch = chosenRow !== undefined && chosenRow.jobs.length > 1;
+  const detailText = batch ? `${batchDetail(ctx, panel, chosenRow)} ${reason}`.trim() : reason;
+  const detail = detailText === '' ? [] : wrapText(detailText, width, (batch ? 1 : 0) + (waitText !== '' ? 4 : 2));
+  const detailColor = waitText !== '' ? t.value : t.alert;
   const waiting = panel.waitingOf(orders);
-  void needle;
   const waitingRows = waiting.length === 0 ? 0 : Math.min(WAITING_ROWS, waiting.length) + 1;
   const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length - waitingRows);
   table(
@@ -313,7 +346,7 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
     ],
     rows.map((r) => {
       const j = r.jobs[0] as JobLike;
-      return [` ${j.priority}`, r.jobs.length > 1 ? batchText(ctx, r) : jobText(ctx, panel, j), whoText(ctx, j)];
+      return [` ${j.priority}`, r.jobs.length > 1 ? batchText(ctx, r) : jobText(ctx, panel, j), whoText(ctx, r)];
     }),
     panel.list,
     (index) => {
@@ -333,7 +366,7 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   }
   let row = rect.row + top + height;
   for (const line of detail) {
-    label(s, rect.col + 1, row, line, { fg: t.alert, width: rect.cols - 2, keys: false });
+    label(s, rect.col + 1, row, line, { fg: detailColor, width: rect.cols - 2, keys: false });
     row += 1;
   }
   if (waiting.length > 0 && orders !== undefined) {

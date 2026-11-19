@@ -361,7 +361,7 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 
 ### Civilizations panel
 
-`↑` `↓` choose the civilization and `←` `→` its request.
+`↑` `↓` choose the civilization and `←` `→` its request. While a request is being added, `↑` `↓` choose the item, `←` `→` its material, `Enter` adds it and `Esc` cancels.
 
 | Key | Action |
 |---|---|

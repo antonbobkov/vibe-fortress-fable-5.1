@@ -58,6 +58,7 @@ export class StocksPanel {
   readonly depotChosen = new Set<EntityId>();
   private forest: TreeNode[] | null = null;
   private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]>; rot: Map<string, NodeRot> } | null = null;
+  private forestCache: { totals: object; query: string; forest: TreeNode[] } | null = null;
 
   categories(): TreeNode[] {
     if (this.forest === null) this.forest = buildTree(CATEGORY_TREE);
@@ -114,9 +115,21 @@ export class StocksPanel {
     return rows[this.tree.selected] ?? null;
   }
 
-  /** The rows the tree shows: stocked categories, then types, then individual stacks. */
+  /**
+   * The rows the tree shows: stocked categories, then types, then individual stacks. Built once a
+   * tick and filter: with 25,000 items every stack's name is a row, and one frame asks for the tree
+   * several times (the selection, the rot and usable lines, the drawing).
+   */
   visibleForest(ctx: PanelContext): TreeNode[] {
-    const { totals, types, itemIds } = this.totals(ctx);
+    const totals = this.totals(ctx);
+    const query = this.filter.value.toLowerCase();
+    if (this.forestCache !== null && this.forestCache.totals === totals && this.forestCache.query === query) return this.forestCache.forest;
+    const forest = this.buildForest(ctx, totals, query);
+    this.forestCache = { totals, query, forest };
+    return forest;
+  }
+
+  private buildForest(ctx: PanelContext, { totals, types, itemIds }: ReturnType<StocksPanel['totals']>, query: string): TreeNode[] {
     const it = items(ctx);
     const keep = (nodes: readonly TreeNode[]): TreeNode[] =>
       nodes.filter((n) => (totals.get(n.id)?.count ?? 0) > 0).map((n) => {
@@ -139,7 +152,6 @@ export class StocksPanel {
         return { ...n, children };
       });
     const forest = keep(this.categories());
-    const query = this.filter.value.toLowerCase();
     if (query === '') return forest;
     const narrow = (nodes: readonly TreeNode[]): TreeNode[] => nodes.flatMap(n => {
       if (n.name.toLowerCase().includes(query) || (!n.id.includes(':') && n.id.toLowerCase().includes(query))) return [n];
@@ -338,13 +350,28 @@ export class StocksPanel {
   }
 }
 
+/**
+ * The wealth line, `Wealth 18,450 ☼   (buildings 3,200 ☼)`; when it is wider than the panel, the
+ * buildings' part goes to a second row, indented two cells.
+ */
+export function wealthLines(ctx: PanelContext, width: number): string[] {
+  const b = buildings(ctx);
+  let built = 0;
+  if (b !== null) for (const id of ctx.readers.entities.with(C.Building)) built += b.value(id as EntityId);
+  const wealth = ctx.strings.get('ui.stocks.wealth', { wealth: marks(items(ctx)?.wealth() ?? 0) });
+  const parts = ctx.strings.get('ui.stocks.wealth_buildings', { buildings: marks(built) });
+  const one = `${wealth}   ${parts}`;
+  return Array.from(one).length <= width ? [one] : [wealth, `  ${parts}`];
+}
+
 export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx: PanelContext): void {
   const t = s.theme;
   const strings = ctx.strings;
   const { totals } = panel.totals(ctx);
   drawPanelFilter(s, rect.col + 1, rect.row, rect.cols - 2, panel.filter, ctx);
-  // Under the tree: the rot line, the usable line (two rows), the wealth and two rows of actions.
-  const height = Math.max(1, rect.rows - 4 - 1 - STOCKS_USE_ROWS);
+  // Under the tree: the rot line, the usable line (two rows), the wealth (wrapped) and two rows of actions.
+  const wealth = wealthLines(ctx, rect.cols - 2);
+  const height = Math.max(1, rect.rows - 4 - wealth.length - STOCKS_USE_ROWS);
   const state = panel.filter.value === '' ? panel.tree : { ...panel.tree, expanded: new Set<string>() };
   if (panel.filter.value !== '') {
     const expand = (nodes: readonly TreeNode[]): void => { for (const n of nodes) { state.expanded.add(n.id); expand(n.children); } };
@@ -364,7 +391,7 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
         : n.id.startsWith('type:') && it !== null
           ? (panel.totals(ctx).itemIds.get(Number(n.id.slice(5))) ?? []).reduce((sum, id) => ({ count: sum.count + (it.get(id)?.count ?? 0), value: sum.value + it.value(id) }), { count: 0, value: 0 })
           : totals.get(n.id) ?? { count: 0, value: 0 };
-      return `${String(v.count).padStart(5)} ${marks(v.value).padStart(9)}`;
+      return `${v.count.toLocaleString('en-US').padStart(6)} ${marks(v.value).padStart(9)}`;
     },
   );
   panel.tree.selected = state.selected;
@@ -383,12 +410,10 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
     label(s, rect.col + 1, row, text, { fg: use.alert ? t.alert : t.dim, width: rect.cols - 2, keys: false });
     row += 1;
   }
-  const it = items(ctx);
-  const b = buildings(ctx);
-  let built = 0;
-  if (b !== null) for (const id of ctx.readers.entities.with(C.Building)) built += b.value(id as EntityId);
-  label(s, rect.col + 1, row, strings.get('ui.stocks.wealth', { wealth: marks(it?.wealth() ?? 0), buildings: marks(built) }), { fg: t.value, width: rect.cols - 2 });
-  row += 1;
+  for (const line of wealth) {
+    label(s, rect.col + 1, row, line, { fg: t.value, width: rect.cols - 2 });
+    row += 1;
+  }
   if (panel.depotSelection) {
     label(s, rect.col + 1, row, strings.get('ui.stocks.depot_pick', { n: panel.depotChosen.size }), { fg: t.key, width: rect.cols - 2 });
     s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => panel.confirmDepot(ctx));

@@ -1,6 +1,8 @@
 # T-638 — The Threats panel shows the coming raid, and the end of a raid says what happened
 
-**Source:** [T-635's mid-game audit](../../reports/audits/2026-11-19-t635-midgame-ux.md), findings 9–12 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in d1e628c0.
+
+**Source:** [T-635's mid-game audit](../../../reports/audits/2026-11-19-t635-midgame-ux.md), findings 9–12 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

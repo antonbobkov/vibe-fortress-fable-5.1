@@ -25,6 +25,7 @@ import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMM
 import type { DwarvesReader } from '@systems/dwarves';
 import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, pluralName, stackName, tradeWaitFor, whimProgressText } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
+import { raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
 import type { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
@@ -94,6 +95,8 @@ export class AnnouncementLog {
   private readonly seen = new Set<string>();
   /** The open frost line of each plot and crop (`announceFrost`). */
   private readonly frostLines = new Map<string, { line: LogLine; n: number }>();
+  /** The open line of what each party escaped with (`announceTheft`). */
+  private readonly theftLines = new Map<number, { line: LogLine; stolen: Stolen[] }>();
   /** The day's starving line and the dwarves it names (`announceStarving`). */
   private starving: { line: LogLine; ids: number[]; names: string[] } | null = null;
 
@@ -407,6 +410,8 @@ export class AnnouncementLog {
     if (event.type === 'CropDied') return this.announceFrost(fields, readers, tick, spec);
     if (event.type === 'Starving') return this.announceStarving(event, readers, tick, spec);
     if (event.type === 'MiasmaSpread') return this.announceMiasma(fields, readers, tick, spec);
+    if (event.type === 'ThiefEscaped') return this.announceTheft(fields, readers, tick, spec);
+    if (event.type === 'RaidEnded') return this.announceRaidEnded(fields, readers, tick, spec);
     if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
@@ -440,7 +445,6 @@ export class AnnouncementLog {
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
       severity = petDeath ? 'alert' : 'note';
     }
-    if (event.type === 'RaidEnded' && fields['outcome'] === 'looted') severity = 'alert';
     // A blow that does no damage says so, rather than "0 edge".
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && fields['amount'] === 0) {
       return this.done(this.append(severity, this.strings.get('announce.attack_harmless', params), tick, focus, category));
@@ -570,6 +574,52 @@ export class AnnouncementLog {
     const line = this.append(spec.severity, text, tick, tile, spec.category);
     this.frostLines.set(key, { line, n });
     return { line, severity: spec.severity, focus: tile };
+  }
+
+  /**
+   * 18 § Player-facing behavior: a `ThiefEscaped` names what was taken ("A thief has escaped with an
+   * iron short sword!"). The escapes of one party within the dedup window (`LOG_DEDUP_TICKS`, or the
+   * same day) are one line that counts and lists them ("Raiders have escaped with 14 goods: iron
+   * bars ×6, oak logs ×7 and an iron short sword!"); bandits and raiders are named as such.
+   */
+  private announceTheft(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
+    const partyId = typeof fields['partyId'] === 'number' ? fields['partyId'] : 0;
+    const stolen = stolenOf(this.registry, fields);
+    const prev = partyId === 0 ? undefined : this.theftLines.get(partyId);
+    const merges = prev !== undefined && stolen !== null && this.lines.includes(prev.line) &&
+      (tick - prev.line.tick <= LOG_DEDUP_TICKS || dayIndexOf(prev.line.tick) === dayIndexOf(tick));
+    const all = merges ? [...prev.stolen, stolen] : stolen === null ? [] : [stolen];
+    const goods = all.length === 0 ? this.strings.get('announce.goods_unknown') : stolenGoodsText(this.strings, all);
+    const text = this.strings.get(theftKey(readers, partyId), { goods });
+    if (merges) {
+      prev.stolen = all;
+      prev.line.text = capitalize(text);
+      prev.line.tick = tick;
+      return { line: prev.line, severity: prev.line.severity, focus: prev.line.focus };
+    }
+    // The thief has left the map with it: the line has no place to centre on.
+    const line = this.append(spec.severity, text, tick, undefined, spec.category);
+    if (partyId !== 0 && stolen !== null) this.theftLines.set(partyId, { line, stolen: all });
+    return { line, severity: line.severity, focus: undefined };
+  }
+
+  /**
+   * 18 § Player-facing behavior: a raid's end by its outcome with the party's counts ("The Gloam
+   * raid is over: 6 raiders fled with 14 goods, 3 fell."), an alert when it escaped with loot. When
+   * no other raid is left and the alert is still up, an alert says it can come down ("The raid is
+   * gone: [m] [1] lowers the alert.").
+   */
+  private announceRaidEnded(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const partyId = Number(fields['partyId']);
+    const outcome = String(fields['outcome'] ?? '');
+    const severity: Severity = outcome === 'looted' ? 'alert' : spec.severity;
+    const text = raidEndedText(this.strings, this.registry, readers, partyId, outcome);
+    const purpose = readers.has('18') ? readers.of<{ party(id: number): { purpose: string } | undefined }>('18').party(partyId)?.purpose : undefined;
+    // A thief that got away with something was told by its theft line.
+    const line = text === null && purpose === 'thief' ? null : this.append(severity, text ?? this.strings.get(spec.stringKey), tick, undefined, spec.category);
+    const gone = raidGone(readers, partyId) ? this.append('alert', this.strings.get('announce.raid_gone'), tick) : null;
+    const shown = gone ?? line;
+    return shown === null ? null : { line: shown, severity: shown.severity, focus: undefined };
   }
 
   /**

@@ -10,10 +10,13 @@ import { NEAR_DWARF_RADIUS } from '@systems/animals/constants';
 import type { ThreatsReader } from '@systems/threats';
 import type { TerrainReader } from '@systems/terrain';
 import type { Surface } from '../surface';
-import { label, separator } from '../widgets';
+import { label, separator, wrapHang } from '../widgets';
 import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
-import { visibleHostiles } from '../status';
+import type { EntityId } from '@core/types';
+import { visibleHostileIds } from '../status';
+import { pluralName } from '../messages';
+import { comingText, partyActiveText } from '../raid-lines';
 
 export function deepQuote(level: number): string {
   switch (level) {
@@ -56,6 +59,37 @@ export function wildlifeRows(ctx: PanelContext): WildlifeRow[] {
     rows.set(row.id, { count: old.count + 1, near: old.near || near });
   }
   return Array.from(rows, ([id, v]) => ({ name: (creatures.byId(id)?.name ?? id).toLowerCase(), ...v })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** How many kinds of hostile the Active line names before "and n more". */
+const ACTIVE_KINDS_NAMED = 3;
+
+/**
+ * What the hostiles in view are, by species in the order first seen: "a cave crab", "3 cave
+ * crabs", "2 gloam warriors and a blind stalker", "… and 2 more".
+ */
+export function hostilesText(ctx: PanelContext, ids: readonly EntityId[]): string {
+  const creatures = ctx.registry.table<{ id: string; name: string }>('creatures');
+  const groups = new Map<number, number>();
+  for (const id of ids) {
+    const species = ctx.readers.entities.get(id, C.Creature)?.species ?? -1;
+    groups.set(species, (groups.get(species) ?? 0) + 1);
+  }
+  const parts = [...groups].map(([species, n]) => {
+    const name = (creatures.byIndex(species)?.name ?? 'creature').toLowerCase();
+    return n === 1 ? `${/^[aeiou]/.test(name) ? 'an' : 'a'} ${name}` : `${n} ${pluralName(name)}`;
+  });
+  const shown = parts.slice(0, ACTIVE_KINDS_NAMED);
+  const rest = parts.length - shown.length;
+  if (rest > 0) return ctx.strings.get('announce.list_and', { list: shown.join(', '), last: ctx.strings.get('announce.theft.more', { n: rest }) });
+  if (shown.length <= 1) return shown[0] ?? '';
+  return ctx.strings.get('announce.list_and', { list: shown.slice(0, -1).join(', '), last: shown[shown.length - 1] as string });
+}
+
+/** The tile of a creature, for a click that centres on it. */
+function tileOf(ctx: PanelContext, id: EntityId): number | null {
+  const p = ctx.readers.entities.get(id, C.Position);
+  return p === undefined ? null : ctx.readers.map.index(p.x, p.y, p.z);
 }
 
 export class ThreatsPanel {
@@ -101,19 +135,36 @@ export function drawThreatsPanel(
   const active = threats ? visibleThreatParties(threats) : [];
   // D-U8: the status bar's `!n` and this line agree: hostiles in view without a party (a cavern
   // monster come up, a wild predator) are counted here too.
-  const seen = visibleHostiles(ctx.readers);
+  const seenIds = visibleHostileIds(ctx.readers);
   const wildlife = wildlifeRows(ctx);
   if (active.length === 0) {
     const none = wildlife.length > 0 ? ctx.strings.get('ui.threats.active_wildlife') : ctx.strings.get('ui.threats.active_none');
-    label(s, col, row, seen > 0 ? `Active: ${seen} hostile creature${seen === 1 ? '' : 's'}` : none, { fg: seen > 0 || wildlife.length > 0 ? t.bad : t.text, width });
-    row += 1;
+    if (seenIds.length === 0) {
+      label(s, col, row, none, { fg: wildlife.length > 0 ? t.bad : t.text, width });
+      row += 1;
+    } else {
+      // What the hostiles in view are; a click centres on the first.
+      const first = tileOf(ctx, seenIds[0] as EntityId);
+      for (const part of wrapHang(ctx.strings.get('ui.threats.active_named', { list: hostilesText(ctx, seenIds) }), width, 2)) {
+        if (row >= rect.row + rect.rows) break;
+        label(s, col, row, part, { fg: t.bad, width, keys: false });
+        if (first !== null) s.hit({ col, row, cols: width, rows: 1 }, () => ctx.focusOn(first));
+        row += 1;
+      }
+    }
   } else {
     for (const pId of active) {
       if (row >= rect.row + rect.rows) break;
       const p = threats?.party(pId);
       if (p) {
-        label(s, col, row, `Active: ${p.purpose} (${p.members.length}, ${p.state})`, { fg: t.bad, width });
-        row += 1;
+        // A click centres on the party's leader, or on its first member still on the map.
+        const lead = [p.leaderId, ...p.members].map((m) => (ctx.readers.entities.alive(m) ? tileOf(ctx, m) : null)).find((at) => at !== null);
+        for (const part of wrapHang(partyActiveText(ctx.strings, ctx.registry, ctx.readers, p), width, 2)) {
+          if (row >= rect.row + rect.rows) break;
+          label(s, col, row, part, { fg: t.bad, width, keys: false });
+          if (lead !== undefined && lead !== null) s.hit({ col, row, cols: width, rows: 1 }, () => ctx.focusOn(lead));
+          row += 1;
+        }
         // 18 § Morale: the party's morale in words, on a line of its own, while it has not broken.
         const morale = p.state === 'retreat' ? '' : threats?.moraleWord(pId) ?? '';
         if (morale !== '' && row < rect.row + rect.rows) {
@@ -121,6 +172,15 @@ export function drawThreatsPanel(
           row += 1;
         }
       }
+    }
+  }
+
+  // The parties a warning announced, until they come.
+  for (const coming of threats?.coming() ?? []) {
+    for (const part of wrapHang(comingText(ctx.strings, ctx.registry, coming, ctx.readers.calendar.tick), width, 2)) {
+      if (row >= rect.row + rect.rows) break;
+      label(s, col, row, part, { fg: t.alert, width, keys: false });
+      row += 1;
     }
   }
 

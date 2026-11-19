@@ -42,7 +42,7 @@ describe('T-504 morale in the Threats panel and the log', () => {
   it('the panel names an active raid\'s morale: steady, then wavering', () => {
     const f = setup('t504-panel');
     f.screen.openPanel('threats');
-    expect(f.draw().join('\n')).toMatch(/Active: raid \(5, \w+\)/);
+    expect(f.draw().join('\n')).toMatch(/Active: Gloam raid, 5, \w+/);
     expect(f.draw().join('\n')).toContain('Morale: steady');
     f.w.game.world.entities.get(f.partyId, C.Party)!.morale = 40;
     expect(f.draw().join('\n')).toContain('Morale: wavering');

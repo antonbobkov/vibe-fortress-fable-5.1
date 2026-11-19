@@ -117,11 +117,14 @@ test('animals-panel', async ({ page }) => {
   await expect.poll(panel).toBe('animals');
   expect(await textOf(page)).toContain('[1] Tame');
 
-  // Move selection down to the cow in the tame list.
-  const cowIndex = await page.evaluate((id) => {
-    const h = (window as unknown as { __deepholm: AnimalsHook }).__deepholm;
-    return h.readers.of<AnimalsReader>('08').tameList().indexOf(id);
-  }, cowId);
+  // Move selection down to the cow's row: the tame list is by species, unnamed animals of a kind
+  // in one row (T-640), so the row is read off the panel under its header.
+  const lines = (await textOf(page)).split('\n');
+  const header = lines.findIndex((line) => /Animal +Pasture +Fed +Trained/.test(line));
+  expect(header).toBeGreaterThanOrEqual(0);
+  const at = (lines[header] ?? '').indexOf('Animal');
+  const cowIndex = lines.slice(header + 1).findIndex((line) => /^cow\b/.test(line.slice(at)));
+  expect(cowIndex).toBeGreaterThanOrEqual(0);
   for (let i = 0; i < cowIndex; i += 1) {
     await page.keyboard.press('ArrowDown');
   }
