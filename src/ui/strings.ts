@@ -1401,6 +1401,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.care.job.give_crutch': 'crutch fitting',
   'ui.log.filter': '[1] All  [2] Alerts  [3] Combat',
   'ui.log.empty': 'Nothing has happened yet.',
+  'ui.log.actions': '[Enter] center on it',
   'ui.log.date': '{season} {day}',
   'ui.log.date_year': 'Y{year} {season} {day}',
   'ui.log.season.0': 'Sp',

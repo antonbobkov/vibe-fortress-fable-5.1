@@ -1,6 +1,8 @@
 # T-608 — Long log lines and hints can be read in full
 
-**Source:** [T-605's audit](../../reports/audits/2026-11-18-t605-first-hour-ux.md), finding 2 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 1c0d9de5.
+
+**Source:** [T-605's audit](../../../reports/audits/2026-11-18-t605-first-hour-ux.md), finding 2 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

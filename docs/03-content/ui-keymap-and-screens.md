@@ -387,6 +387,8 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 
 ### Log panel
 
+`↑` `↓` select an entry and `PageUp` `PageDown` move a page of entries, however many rows each entry wraps over; `Enter` centres the map on the selected entry.
+
 | Key | Action |
 |---|---|
 | `1` `2` `3` | log filter tabs |
