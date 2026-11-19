@@ -540,27 +540,20 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   row += 1;
   const rows = tool.rows(ctx);
   const height = Math.max(1, rect.rows - (row - rect.row) - (tool.current(ctx)?.footprint.variable === undefined ? 4 : 5));
-  // Each row whole ("Straw pallet 3 fiber, straw or reed (14)"), for the tooltip of a row whose inputs are shortened.
-  const whole = rows.map((r) => {
-    const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
-    const count = r.inputs.length === 0 ? '' : ` (${tool.available(ctx, r)})`;
-    const inputs = inputText(r, ctx.registry);
-    return { shown: buildRowText(name, inputs, count, rect.cols - 3), full: `${name} ${inputs}${count}` };
-  });
   list(
     s,
     { col: rect.col + 1, row, cols: rect.cols - 2, rows: height },
-    whole.map((r) => r.shown),
+    rows.map((r) => {
+      const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
+      const count = r.inputs.length === 0 ? '' : ` (${tool.available(ctx, r)})`;
+      return buildRowText(name, inputText(r, ctx.registry), count, rect.cols - 3);
+    }),
     tool.list,
     (index) => {
       tool.list.selected = index;
       tool.arm();
     },
   );
-  for (let r = 0; r < height && tool.list.scroll + r < whole.length; r += 1) {
-    const one = whole[tool.list.scroll + r];
-    if (one !== undefined && one.shown.includes('…')) s.tooltip({ col: rect.col + 1, row: row + r, cols: rect.cols - 2, rows: 1 }, one.full);
-  }
   row += height;
   const mats = tool.materials(ctx);
   const choice = mats[tool.materialIndex] ?? mats[0];

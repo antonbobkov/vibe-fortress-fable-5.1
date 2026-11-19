@@ -108,14 +108,12 @@ describe('T-626 the build tool and a waiting building name every alternative', (
     w.spawnItem('straw', 'barley', w.index(30, 30, 32), 5);
     w.spawnItem('reed', 'reed_bed', w.index(31, 30, 32), 4);
     expect(new BuildTool().available(ctx, row)).toBe(9);
-    // In the Furniture list the row is shortened to the sidebar; its tooltip has it whole.
+    // In the Furniture list the row counts every alternative.
     const tool = new BuildTool();
     tool.category = 'furniture';
     const s = surface(36, 60);
     drawBuildPanel(s, { col: 0, row: 0, cols: 36, rows: 60 }, tool, ctx);
-    const at = s.lines().findIndex((line) => line.trimStart().startsWith('Straw pallet'));
-    expect(s.lines()[at]).toContain('(9)');
-    expect(s.tooltipAt(5, at)?.text).toBe('Straw pallet 3 fiber, straw or reed (9)');
+    expect(s.lines().find((line) => line.trimStart().startsWith('Straw pallet'))?.trimEnd()).toMatch(/^ ?Straw pallet 3 fiber, straw ?[…»] \(9\)$/);
     const offer = { match: 'fiber|straw|reed', have: 0, waiting: 1, itemId: 'fiber', recipeId: null, workshops: 'a farmer\'s workshop' };
     expect(new BuildTool().offerText(ctx, offer, 'o')).toEqual({ stock: '0 fiber, straw or reed in stock: 1 will wait', action: 'build a farmer\'s workshop to make fiber' });
     // A single input reads as before.
