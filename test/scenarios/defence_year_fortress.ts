@@ -42,6 +42,8 @@ export const DEFENCE_YEAR_TICKS = 2 * 112 * TICKS_PER_DAY;
 const WATCH_EVERY = 20;
 /** Defence works go ahead of routine work (5) and behind the squad's kit (3). */
 const DEFENCE = 4;
+/** T-632: a jammed trap's cleaning, a step ahead of the food chain's labors (4 with their step). */
+const CLEAN_TRAP = 3;
 
 export interface DefenceYearState {
   readonly fortress: FortressState;
@@ -318,9 +320,15 @@ export function checkDefenceWorks(w: TestWorld, state: DefenceYearState): void {
     }
   }
   // The link and the pulls go ahead of the mechanic's standing order, as a player raises a job that has waited.
+  // T-632: and a jammed trap's cleaning goes a step ahead of the food chain (its labors' step, 4):
+  // on `defence-year` the one civilian with cleaning, the founding farmer, planted and harvested
+  // nearer jobs of the same effective priority, and a weapon trap that jammed on day 214 stood
+  // jammed to the end.
   const jobs = w.readers.of<JobsReader>('11');
   for (const job of jobs.list('open')) {
-    if (['link_mechanism', 'pull_lever'].includes(jobs.typeOf(job.id) ?? '') && job.priority !== 1) command(w, { type: 'SetJobPriority', jobId: job.id, priority: 1 });
+    const type = jobs.typeOf(job.id) ?? '';
+    if (['link_mechanism', 'pull_lever'].includes(type) && job.priority !== 1) command(w, { type: 'SetJobPriority', jobId: job.id, priority: 1 });
+    if (type === 'clean_trap' && job.priority > CLEAN_TRAP) command(w, { type: 'SetJobPriority', jobId: job.id, priority: CLEAN_TRAP });
   }
 
   // The barracks and the archery range below, for the squad.
@@ -431,10 +439,11 @@ export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearSta
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */
 const TOOL_LABORS = ['mining', 'woodcutting'] as const;
 /**
- * Labors a dwarf outside a squad on duty must hold: T-578's mechanics, for the traps' rearming and
- * cleaning (19), and T-581's carpentry, for the carpenter's workshop (its beds, barrels and bins).
+ * Labors a dwarf outside a squad on duty must hold: T-578's mechanics, for the traps' rearming,
+ * T-581's carpentry, for the carpenter's workshop (its beds, barrels and bins), and T-632's
+ * cleaning, for a jammed trap's cleaning (19).
  */
-const CIVILIAN_LABORS = ['mechanics', 'carpentry'] as const;
+const CIVILIAN_LABORS = ['mechanics', 'carpentry', 'cleaning'] as const;
 
 /**
  * T-567: a squad that trains or stands to arms does no civilian work, and a soldier keeps the pick or
@@ -447,7 +456,7 @@ const CIVILIAN_LABORS = ['mechanics', 'carpentry'] as const;
  * (11), and gives each labor to a dwarf outside the squad when none there has it: an immigrant no
  * specialist role, brewer or broker holds if there is one, the most skilled first, then the lowest id.
  *
- * T-578: the same for mechanics, the labor of the traps' rearming and cleaning (19), which needs no
+ * T-578: the same for mechanics, the labor of the traps' rearming (19), which needs no
  * tool, so the soldiers keep it. Once the squad's kit was forged the economy dedicated the founding
  * mason, the fortress's mechanic, to the stone crafts, and the only dwarves left with mechanics were
  * immigrants at drill: the cage trap that caught a raider on day 116 stood spent, its rearm job
@@ -458,6 +467,10 @@ const CIVILIAN_LABORS = ['mechanics', 'carpentry'] as const;
  * founding woodcutter and the two immigrants with carpentry were all at drill: on `defence-year` at
  * cadence 20 a carpenter's job stood open from day 82 for 87 days, nobody outside the squad able to
  * take it.
+ *
+ * T-632: and for cleaning, the labor of a jammed trap's `clean_trap` (19), which the economy's
+ * specialists do not keep: on `defence-year` a weapon trap jammed on day 214 and its clean job
+ * stood open to the end, the only dwarves with cleaning at drill or on watch.
  */
 export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
   const ent = w.game.world.entities;

@@ -772,6 +772,20 @@ export function takeBackStone(w: TestWorld, depot: number, short: number): void 
   }
 }
 
+/** T-632: units of the fortress's crafts lying at the depot, of one stone when `material` names one. */
+function craftsAtDepot(w: TestWorld, material: number | string | null): number {
+  const ent = w.game.world.entities;
+  const types = w.game.registry.table<{ id: string; category: string }>('items');
+  let units = 0;
+  for (const id of w.readers.of<TradeReader>('20').depotItems()) {
+    const it = ent.get(id, C.Item);
+    if (it === undefined || (it.flags & (ItemFlag.AtDepot | ItemFlag.Merchant)) !== ItemFlag.AtDepot) continue;
+    if (!types.byIndex(it.type)?.category.startsWith('craft/') || (typeof material === 'number' && it.material !== material)) continue;
+    units += it.count;
+  }
+  return units;
+}
+
 export function trade(w: TestWorld, state: FortressState): void {
   const reader = w.readers.of<TradeReader>('20');
   const buildings = w.readers.of<BuildingsReader>('14');
@@ -1796,8 +1810,17 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   // F-17i: export crafts keep running: the standing stone-craft order grows with the workforce.
   const craftdwarf = state.placedIds['craftdwarf'];
   if (craftdwarf && state.orderedWorkshops.has('craftdwarf')) {
-    const threshold = Math.min(999, Math.max(day >= 112 ? 120 : 60, CRAFTS_PER_DWARF * fortressDwarves(w).length));
-    if (w.game.world.entities.get(craftdwarf, C.Workshop)?.orders[0]?.threshold !== threshold) {
+    const crafts = Math.min(999, Math.max(day >= 112 ? 120 : 60, CRAFTS_PER_DWARF * fortressDwarves(w).length));
+    // T-632: the crafts are made for the caravans, and every one goes to the depot (trade), where
+    // the order's stock no longer sees it (13: goods at the depot are not available). As a player
+    // keeps a number of crafts in all, the order keeps at home what the depot lacks of it.
+    const ws = w.game.world.entities.get(craftdwarf, C.Workshop);
+    const order = ws?.orders[0];
+    const threshold = Math.max(1, crafts - craftsAtDepot(w, order?.materialFilter ?? null));
+    // An edit cancels the job in hand (12), so the stock is changed between jobs, or when the
+    // crafts at home already meet it and the job in hand would be the order's last.
+    const met = w.readers.of<ItemsReader>('13').countAvailable({ tag: 'craft', ...(typeof order?.materialFilter === 'number' ? { materialId: order.materialFilter } : {}) }) >= threshold;
+    if (order !== undefined && order.threshold !== threshold && (!ws?.currentJobId || met)) {
       command(w, { type: 'EditWorkOrder', workshopId: craftdwarf, index: 0, patch: { threshold } });
     }
     // T-616: while the squad's steel is owed the stone crafts are made of the commonest stone that is

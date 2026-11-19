@@ -1,5 +1,7 @@
 # T-632 — Goods at the trade depot count as available under any filter but one type
 
+**Closed:** 2026-11-19, in 8b6cea32,368624d3.
+
 **Source:** T-631 (Stocks says how much of a row can be used now) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

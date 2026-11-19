@@ -295,7 +295,7 @@ export class BuildTool {
     for (const id of ctx.readers.entities.with(C.Item)) {
       const rec = it.get(id as EntityId);
       if (rec === undefined || !types.has(rec.type)) continue;
-      if ((rec.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Merchant | ItemFlag.Installed)) !== 0) continue;
+      if ((rec.flags & (ItemFlag.Forbidden | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.AtDepot | ItemFlag.Merchant | ItemFlag.Installed)) !== 0) continue;
       per.set(rec.material, (per.get(rec.material) ?? 0) + rec.count);
       total += rec.count;
     }
