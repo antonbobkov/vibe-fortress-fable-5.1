@@ -154,7 +154,7 @@ describe('T-626 the candle stand and Add order say how to supply them', () => {
     expect(orders.pickerNote(ctx, recipe('cook_easy_meal'))).toBe('· kitchen not built yet');
     w.build('craftdwarf', w.index(16, 11, Z), 'granite');
     w.step(1);
-    expect(orders.pickerNote(ctx, recipe('make_candles_tallow'))).toBe('· no tallow');
+    expect(orders.pickerNote(ctx, recipe('make_candles_tallow'))).toBe('· no tallow: render fat at a kitchen (needs fat from butchering)');
     w.spawnItem('tallow', 'tallow', w.index(19, 15, Z), 1);
     expect(orders.pickerNote(ctx, recipe('make_candles_tallow'))).toBe('');
   });
