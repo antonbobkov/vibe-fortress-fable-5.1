@@ -126,4 +126,22 @@ describe('T-609 a zone answers at once, and its inspector has the keys it names'
     expect(g.fortress.zones.selected).toBe(stockpiles[1]);
     expect(g.ui.panel).toBe('zones');
   });
+
+  it('the made line gives way when a building is picked next, as a new ghost state', async () => {
+    const g = await paused('t609-then-build');
+    g.handleKey(press('z'));
+    g.handleKey(press('S', { shift: true }));
+    const at = rectFor(g, 'stockpile', 2, 2);
+    g.ui.cursor = { x: at.x, y: at.y };
+    g.handleKey(press('Enter'));
+    g.ui.cursor = { x: at.x + 1, y: at.y + 1 };
+    g.handleKey(press('Enter'));
+    expect(g.fortress.statusRow2()).toBe('Stockpile #1 made: 4 tiles.');
+    g.handleKey(press('b'));
+    g.handleKey(press('w'));
+    g.handleKey(press('Enter'));
+    expect(g.fortress.build.active).toBe(true);
+    expect(g.fortress.statusRow2()).not.toContain('made:');
+    expect(g.fortress.statusRow2().toLowerCase()).toContain(g.fortress.build.name(g.fortress.ctx).toLowerCase());
+  });
 });

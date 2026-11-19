@@ -909,7 +909,9 @@ export class FortressScreen implements Screen {
       const placed = this.build.placementAt(this.ctx, this.actionPoint());
       if (placed !== null) return placed;
     }
-    if (this.build.active && this.noticeGhost !== null && this.ghostKey() !== this.noticeGhost) {
+    // A ghost that differs from the one the notice was written over, or that appeared since a notice
+    // written with no build tool (a zone's made line, then a workshop picked), is a new ghost state.
+    if (this.build.active && this.message !== null && this.ghostKey() !== (this.noticeGhost ?? '')) {
       this.clearNotice();
     }
     const notice = this.currentNotice;
