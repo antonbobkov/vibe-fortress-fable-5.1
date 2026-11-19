@@ -1,6 +1,8 @@
 # T-613 — The world map shows where the cursor is and what its words mean
 
-**Source:** [T-605's audit](../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 17 and 18 · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in bdd05697,13d799d8.
+
+**Source:** [T-605's audit](../../../reports/audits/2026-11-18-t605-first-hour-ux.md), findings 17 and 18 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
