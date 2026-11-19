@@ -54,6 +54,8 @@ export interface DwarvesReader {
    * under another alert.
    */
   unsheltered(): EntityId[];
+  /** Whether the dwarf is one of `unsheltered()`: 11 offers it every job it would be offered under a `watchful` alert. */
+  isUnsheltered(id: EntityId): boolean;
 }
 
 /** `dwarves.whim()`: the whim of the season as the units panel's Thane line reads it. */
@@ -68,7 +70,7 @@ export interface WhimView {
   readonly have: number;
 }
 
-export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => WhimView | null = () => null, unsheltered: () => EntityId[] = () => []): DwarvesReader {
+export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => WhimView | null = () => null, unsheltered: () => EntityId[] = () => [], isUnsheltered: (id: EntityId) => boolean = () => false): DwarvesReader {
   const skills = registry.table('skills');
   const list = (): EntityId[] => entities.with(C.Brain, C.Creature).filter((id) => entities.alive(id));
   const isChild = (id: EntityId): boolean => {
@@ -104,5 +106,6 @@ export function makeReader(entities: EntityStore, registry: Registry, titles: ()
     isTipsy: tipsy,
     whim,
     unsheltered,
+    isUnsheltered,
   };
 }

@@ -1,6 +1,6 @@
 /**
  * T-624: the Hearth alert with no shelter says so (the military panel's alert line, the activity
- * "Sheltering (no shelter)"), the predator hint asks for a hall first while there is none, a squad
+ * "Idle (no shelter)" since T-629), the predator hint asks for a hall first while there is none, a squad
  * on Train with no barracks says it cannot train (and the barracks row reads a zone made while
  * paused), and activities read as words: need errands as verbs, a craft job with its recipe, and
  * "Idle" on the hover line as in Units (10 § Player-facing behavior, `ui-screens/panels.md` § Military).
@@ -57,15 +57,14 @@ describe('T-624 the Hearth alert with no shelter', () => {
     expect(reader.unsheltered()).toEqual(f.dwarves);
     const s = f.draw();
     expect(text(s)).toContain('Hearth: civilians stop work and');
-    expect(panel(s)).toContain('No shelter: 3 dwarves wait at the wagon, in the open. Make a Hearth hall [z] or a room behind a door.');
+    expect(panel(s)).toContain('No shelter: 3 dwarves keep working in the open. Make a Hearth hall [z] or a room behind a door.');
     const row = rowOf(s, 'No shelter:');
     expect(fgOfText(s, row, 'No shelter:')).toBe(hexOf(theme.alert));
-    // Units, the hover line and Look: "Sheltering (no shelter)", not "Idle".
+    // Units, the hover line and Look: an idle dwarf the alert has no shelter for reads "Idle (no shelter)" (T-629).
     f.screen.openPanel('units');
-    expect(text(f.draw())).toContain('Sheltering (no');
-    expect(text(f.draw())).not.toContain('Idle');
+    expect(text(f.draw())).toContain('Idle (no');
     const ctx = { readers: f.w.readers, registry: f.w.game.registry, strings };
-    expect(creatureSummary(f.w.readers, f.w.game.registry, strings, f.dwarves[0] as EntityId)).toBe('Dwarf00 Stone, Sheltering (no shelter)');
+    expect(creatureSummary(f.w.readers, f.w.game.registry, strings, f.dwarves[0] as EntityId)).toBe('Dwarf00 Stone, Idle (no shelter)');
     // Calm again: the line is gone and the dwarves are idle.
     f.screen.openPanel('military');
     f.screen.key(press('1'));
@@ -91,7 +90,7 @@ describe('T-624 the Hearth alert with no shelter', () => {
         ? (system: string) => system === '10' ? { ...target.of<DwarvesReader>('10'), unsheltered: () => [left] } : target.of(system)
         : Reflect.get(target, key) as unknown,
     });
-    expect(panel(f.draw())).toContain('No shelter: 1 dwarf cannot reach the hall or a room behind a door.');
+    expect(panel(f.draw())).toContain('No shelter: 1 dwarf keeps working, unable to reach the hall or a room behind a door.');
   });
 });
 

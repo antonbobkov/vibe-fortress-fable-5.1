@@ -1,6 +1,8 @@
 # T-629 — The Hearth alert with no shelter anywhere stops all work for nothing
 
-**Source:** [T-618's first-year audit](../../reports/audits/2026-11-18-t618-first-year-ux.md), finding 12, after T-624 (which made the panel say so) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in a2a8a491,d09b498f.
+
+**Source:** [T-618's first-year audit](../../../reports/audits/2026-11-18-t618-first-year-ux.md), finding 12, after T-624 (which made the panel say so) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
