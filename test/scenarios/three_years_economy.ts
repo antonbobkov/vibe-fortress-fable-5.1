@@ -222,6 +222,13 @@ export function keepSecondSmelter(w: TestWorld, state: FortressState): void {
   const strong = state.strong;
   const placed = state.placedIds['smelter_2'] !== undefined;
   if (!placed && (strong?.since === undefined || strong.steelOwed !== true || ironOre(w) < IRON_ORE_PILE)) return;
+  // Only on a free site of the workshop hall: ambushes spring on whoever works on the surface.
+  if (!placed) {
+    const below = placeBelow(w, state, 'smelter', METAL_BUILD);
+    if (below === 0) return;
+    state.placedIds['smelter_2'] = below;
+    state.economy.phases.add('traffic:smelter_2');
+  }
   placeEconomyBuilding(w, state, 'smelter', -20, 14, METAL_BUILD, 'smelter_2');
   const id = state.placedIds['smelter_2'];
   const buildings = w.readers.of<BuildingsReader>('14');

@@ -1,7 +1,7 @@
 import { describe, it } from 'vitest';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
-import { TileKind } from '@core/map3d';
+import { TileFlag, TileKind } from '@core/map3d';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { BuildingsReader } from '@systems/buildings/reader';
@@ -125,7 +125,8 @@ describe.skipIf(!RUN)('T-642 iron probe', () => {
         const ws = ent.get(id, C.Workshop);
         if (ws === undefined) return { key, state: buildings.get(id)?.state ?? 'none' };
         const job = ws.currentJobId ? w.readers.of<JobsReader>('11').get(ws.currentJobId) : undefined;
-        return { key, orders: ws.orders.map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode === 'maintain' ? o.threshold : o.remaining}`),
+        const at = buildings.get(id)?.footprint[4] ?? -1;
+        return { key, z: at < 0 ? null : w.map.zOf(at), outdoor: at >= 0 && w.map.hasFlag(at, TileFlag.Outdoor), orders: ws.orders.map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode === 'maintain' ? o.threshold : o.remaining}`),
           job: job ? `${String(job.data['recipe'] ?? job.key)}:${job.state}${job.blockedReason ? `:${job.blockedReason}` : ''}` : null, blocked: ws.lastBlockedReason ?? null, worker: ws.assignedWorker };
       };
       const coalOre = items.countAvailable({ type: oreType, materialIds: ['bituminous_coal', 'lignite'].map((id) => materials.index(id)) });
