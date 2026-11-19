@@ -1,6 +1,8 @@
 # T-615 — Some soldiers at drill spend three-quarters of the day on needs and barely train
 
-**Source:** [T-606's pace measurement](../../reports/audits/2026-11-18-t606-training-pace.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 429a3af6.
+
+**Source:** [T-606's pace measurement](../../../reports/audits/2026-11-18-t606-training-pace.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

@@ -2315,7 +2315,7 @@ function squadInMetal(w: TestWorld, state: FortressState): boolean {
  * marksdwarves join them in a ranged squad of their own, with crossbows and bolts from the forge,
  * and shoot at an archery target in the same barracks. Below a floor of adults nobody trains. The
  * forge makes each soldier a steel sword, shield, helm, mail shirt and greaves ahead of its other
- * orders once there is steel, which such a fortress smelts from STRONG_STEEL_DAY and asks the
+ * orders once there is steel, which such a fortress smelts from the squad's first day and asks the
  * Mountainhome for (three_years_economy.ts).
  */
 export interface StrongPlan {
@@ -2348,8 +2348,6 @@ export const STRONG_SOLDIERS = AMBUSH_SOLDIERS + 1;
 export const BARRACKS_W = 4;
 export const BARRACKS_H = 5;
 const BARRACKS_LEAD_DAYS = 14;
-/** T-603: the standing metal-craft orders' stock (three_years_economy.ts, the 'iron goods'), paused while the steel kits are owed. */
-const CRAFT_BARS_KEPT = 60;
 /** T-603: the wooden bolts the carpenter keeps for the range (a practice shot breaks one bolt in five, 16 § Training). */
 const TRAINING_BOLTS = 40;
 /** T-603: each soldier's steel kit: the forge's recipe, the item and the slot it fills. */
@@ -2358,16 +2356,15 @@ const STEEL_KIT: readonly (readonly [string, string, 'weapon' | 'shield' | 'head
   ['forge_mail_shirt', 'mail_shirt', 'body'], ['forge_greaves', 'greaves', 'legs'],
 ];
 
-/** T-603: the metals whose standing craft orders the forge has had taken off while the steel kits are owed. */
-function strongPaused(state: FortressState): Set<string> {
-  const strong = state.strong!;
-  return (strong.pausedCrafts ??= new Set<string>());
-}
+/** T-603, T-616: a standing order the forge has had taken off while the steel kits are owed, to put back after. */
+interface PausedOrder { readonly recipeId: string; readonly threshold: number; readonly materialFilter: string | null; readonly priority: number }
 
 /** T-603: the strong squad's state. */
 export interface StrongSquad {
-  /** The metals ('iron', 'steel') whose standing craft orders are off while the kits are owed. */
-  pausedCrafts?: Set<string>;
+  /** T-616: the forge's standing orders of iron and steel goods, taken off while the kits are owed. */
+  pausedOrders?: PausedOrder[];
+  /** T-616: true while a soldier of the squad still lacks a piece of its steel kit (the flux is kept for the smelter then). */
+  steelOwed?: boolean;
   /** The barracks: its rock, its zone once dug (0 before) and its archery target (0 before). */
   barracks?: { tiles: number[]; zoneId: number; targetId: number };
   /** The day the squad of five first formed (undefined before). */
@@ -2502,7 +2499,12 @@ function keepStrongSquad(w: TestWorld, state: FortressState, adults: readonly nu
   const main = squadOf(state.squadId);
   const marksSquad = strong.marksSquadId === 0 ? undefined : squadOf(strong.marksSquadId);
   const pool = adults.filter(eligible);
-  const score = (skills: readonly string[]) => (id: number): number => skills.reduce((n, sk) => n + dwarves.skill(id, sk), 0);
+  // T-615: the skills first, then the quickest and most enduring: Agility sets a dwarf's pace and
+  // Endurance slows its hunger and tiredness (10 § Attributes). Picked by skill alone (by id among
+  // immigrants with none), one to three soldiers a squad walked so slowly between bed, food and
+  // barracks that they stood at drill 1 to 6% of the day (Agility 44 to 60 against 82 to 100).
+  const score = (skills: readonly string[]) => (id: number): number =>
+    skills.reduce((n, sk) => n + dwarves.skill(id, sk), 0) * 1000 + dwarves.attribute(id, 'agi') + dwarves.attribute(id, 'end');
   const marksNow = marksSquad?.members ?? [];
   const soldiers = pickSquad(main?.members ?? [], pool, STRONG_SOLDIERS, score(['sword', 'shield', 'dodge', 'armor_use']), new Set(marksNow));
   const marks = marksSquad ? pickSquad(marksNow, pool, AMBUSH_MARKS, score(['crossbow', 'dodge']), new Set(soldiers)) : [];
@@ -2556,7 +2558,8 @@ function keepStrongKit(w: TestWorld, state: FortressState, soldiers: readonly nu
   };
   const add = (id: number, order: Record<string, unknown>): boolean => command(w, { type: 'AddWorkOrder', workshopId: id, order: { priority: ROUTINE, ...order } }).ok;
   const { phases } = state.economy;
-  const paused = (strongPaused(state));
+  const strong = state.strong!;
+  const materials = reg.table<{ id: string }>('materials');
   if (ready(forge, 'forge')) {
     const slotOf = (id: number, slot: 'weapon' | 'shield' | 'head' | 'body' | 'legs'): number => {
       const eq = ent.get(id, C.Equipment);
@@ -2571,19 +2574,24 @@ function keepStrongKit(w: TestWorld, state: FortressState, soldiers: readonly nu
       const want = lacking - steelStock(w, type);
       if (want > 0 && !hasOrder(forge, recipeId, steel) && add(forge, { recipeId, mode: 'once', remaining: want, materialFilter: 'steel' })) first(forge);
     }
-    // While the kits are owed the forge makes no crafts for the caravans of iron or steel: the iron
-    // goes to the smelter's steel, and the steel to the kits.
-    // The standing craft orders are taken off and put back (an order keeps at least one in stock, 12).
-    const crafts = (): number => (ent.get(forge, C.Workshop)?.orders ?? []).findIndex((o) => o.recipe === recipes.index('forge_crafts') && o.mode === 'maintain');
+    // T-603, T-616: while the kits are owed the forge makes no other goods of iron or steel, crafts
+    // for the caravans nor the standing armour and weapons: the iron goes to the smelter's steel, and
+    // the steel to the kits. The picks stay, for the miners. Iron armour forged meanwhile went to the
+    // soldiers who would wear steel and to the militia; in T-606's sweep the forge made 60 to 90 iron
+    // pieces in three years and the smelter 0 to 10 steel bars. The orders are taken off and put back
+    // as they were (an order keeps at least one in stock, 12).
+    strong.steelOwed = owed;
+    const pausable = (): number => (ent.get(forge, C.Workshop)?.orders ?? []).findIndex((o) => o.mode === 'maintain' && o.recipe !== recipes.index('forge_pick'));
     if (owed) {
-      for (let at = crafts(); at >= 0; at = crafts()) {
+      for (let at = pausable(); at >= 0; at = pausable()) {
         const o = ent.get(forge, C.Workshop)!.orders[at]!;
-        paused.add(o.materialFilter === steel ? 'steel' : 'iron');
+        const materialFilter = typeof o.materialFilter === 'number' ? materials.byIndex(o.materialFilter)?.id ?? null : o.materialFilter;
+        (strong.pausedOrders ??= []).push({ recipeId: recipes.byIndex(o.recipe)?.id ?? '', threshold: o.threshold, materialFilter, priority: o.priority });
         command(w, { type: 'RemoveWorkOrder', workshopId: forge, index: at });
       }
-    } else if (paused.size > 0) {
-      for (const material of [...paused].sort().reverse()) add(forge, { recipeId: 'forge_crafts', mode: 'maintain', threshold: CRAFT_BARS_KEPT, materialFilter: material });
-      paused.clear();
+    } else if ((strong.pausedOrders ?? []).length > 0) {
+      for (const o of strong.pausedOrders!) add(forge, { recipeId: o.recipeId, mode: 'maintain', threshold: o.threshold, priority: o.priority, ...(o.materialFilter === null ? {} : { materialFilter: o.materialFilter }) });
+      strong.pausedOrders = [];
     }
     const crossbows = marks.filter((id) => wieldedWeapon(ent, reg, id)?.weaponDef.id !== 'crossbow').length - w.readers.of<ItemsReader>('13').available('crossbow');
     if (crossbows > 0 && !hasOrder(forge, 'forge_crossbow') && add(forge, { recipeId: 'forge_crossbow', mode: 'once', remaining: crossbows, materialFilter: 'iron' })) first(forge);

@@ -82,6 +82,13 @@ export class ThreeYearsMeasurements {
   readonly immigration: ImmigrationEvaluation[] = [];
   readonly years: WealthSnapshot[] = [];
   readonly recipes: Record<string, number> = {};
+  /**
+   * T-616: the metal and flux ledger: crafted items of a metal or a flux stone by recipe and material
+   * (`forge_helm:steel`, `craft_stone:limestone`, `alloy_steel:steel`), and units bought by type and
+   * material (`bar:steel`, `raw_stone:limestone`, `charcoal_bar:`).
+   */
+  readonly metalRecipes: Record<string, number> = {};
+  readonly bought: Record<string, number> = {};
   readonly caravans: { day: number; civ: string; state: string; given?: number; received?: number }[] = [];
   readonly minerals: Record<string, number> = {};
   readonly deaths: { day: number; id: number; species: string; cause: string; killerId: number }[] = [];
@@ -150,6 +157,8 @@ export class ThreeYearsMeasurements {
       if (old && (old.item.flags & ItemFlag.Merchant) && !(item.flags & ItemFlag.Merchant)) {
         embark = 0; purchase = item.count;
         this.purchases.add(id);
+        const key = this.ledgerKey(item);
+        if (key !== null) this.bought[key] = (this.bought[key] ?? 0) + item.count;
       }
       this.origins.set(id, { item: { ...item }, embark, purchase });
     });
@@ -178,6 +187,10 @@ export class ThreeYearsMeasurements {
         if (e.type === 'ItemCrafted') {
           const recipe = String(e['recipeId']);
           this.recipes[recipe] = (this.recipes[recipe] ?? 0) + 1;
+          const made = w.game.world.entities.get(Number(e['itemId']), C.Item);
+          const key = made === undefined ? null : this.ledgerKey(made);
+          const row = key === null ? '' : `${recipe}:${key.slice(key.indexOf(':') + 1)}`;
+          if (row !== '') this.metalRecipes[row] = (this.metalRecipes[row] ?? 0) + 1;
         }
         if (e.type === 'MineralMined') {
           const material = String(e['material']);
@@ -189,6 +202,14 @@ export class ThreeYearsMeasurements {
         }
       }
     });
+  }
+
+  /** T-616: `type:material` for an item of a metal (charcoal and coal among them) or a flux stone, else null. */
+  private ledgerKey(item: Item): string | null {
+    const reg = this.w.game.registry;
+    const material = reg.table<{ id: string; tags?: readonly string[]; class?: string }>('materials').byIndex(item.material);
+    if (material === undefined || (material.class !== 'metal' && material.tags?.includes('flux') !== true)) return null;
+    return `${reg.table<{ id: string }>('items').byIndex(item.type)?.id ?? ''}:${material.id}`;
   }
 
   /** T-334: the dwarf deaths by cause, a printed figure of the long runs. */

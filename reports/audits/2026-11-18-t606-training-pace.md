@@ -47,4 +47,4 @@ The same seeds to day 280 (the timelines differ from day 113 on: squads are stro
 | p4-4 | 623 | 0.61 | 22.4 | 9.6% | 2 of 8: 97 and 104 (the others at 0 to 7) |
 | **All** | **4,353** | **1.18** | **44.4** | **19.7%** | |
 
-44.4 xp a day pooled: Proficient in 83 days at the pooled pace; the 30 soldiers who reached it took a median of 53 days. The soldiers who stand at the barracks reach it in five to ten weeks; the ones needs keep away (1 to 6% at the barracks) still do not, which is a follow-up ([T-615](../../docs/work/T-615-soldiers-needs-keep-them-from-drill.md)).
+44.4 xp a day pooled: Proficient in 83 days at the pooled pace; the 30 soldiers who reached it took a median of 53 days. The soldiers who stand at the barracks reach it in five to ten weeks; the ones needs keep away (1 to 6% at the barracks) still do not, which is a follow-up ([T-615](../../docs/archive/tasks/T-615-soldiers-needs-keep-them-from-drill.md)).

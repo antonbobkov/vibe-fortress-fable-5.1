@@ -11,7 +11,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-615 | [Some soldiers at drill spend three-quarters of the day on needs and barely train](work/T-615-soldiers-needs-keep-them-from-drill.md) | [T-606](archive/tasks/T-606-strong-squad-pace.md) | — | open |
 | T-616 | [The three-year fortress has too little steel for the strong squad](work/T-616-strong-squad-steel.md) | [T-606](archive/tasks/T-606-strong-squad-pace.md) | — | open |
+| T-619 | [The three-year script's soldiers live far from their barracks](work/T-619-soldiers-quarters-by-the-barracks.md) | [T-615](archive/tasks/T-615-soldiers-needs-keep-them-from-drill.md) | — | open |
+| T-620 | [Charcoal binds the three-year squad's steel](work/T-620-fuel-for-the-squads-steel.md) | [T-616](work/T-616-strong-squad-steel.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

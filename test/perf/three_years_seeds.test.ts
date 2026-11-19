@@ -271,7 +271,7 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
   const avgMood = moods.length > 0 ? (sumMood / moods.length).toFixed(1) : 'extinct';
 
   const economy = threeYearsMeasurements(w);
-  console.log(`[three_years_economy] ${JSON.stringify({ seed, peril, years: economy.years, deathsList, raids, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
+  console.log(`[three_years_economy] ${JSON.stringify({ seed, peril, years: economy.years, deathsList, raids, minerals: economy.minerals, fixture: economy.fixture, allDeaths: economy.deaths, allRaids: economy.raids, recipes: economy.recipes, immigration: economy.immigration, caravans: economy.caravans, metalRecipes: economy.metalRecipes, bought: economy.bought, dwarfDays: economy.dwarfTicks / TICKS_PER_DAY, food: economy.meals, alcohol: economy.alcohol, water: economy.water })}`);
 
   const totalDwarfDays = economy.dwarfTicks / TICKS_PER_DAY;
   mealsEaten = economy.meals;
