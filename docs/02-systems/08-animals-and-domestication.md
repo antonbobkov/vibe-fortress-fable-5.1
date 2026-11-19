@@ -129,7 +129,7 @@ Species eligibility uses the season of the year (`0` spring, `1` summer, `2` aut
 
 ### Death
 
-Animals die through 17 like every creature. A dead animal leaves a corpse item (13), except a summon (§ Summons). Slaughter completion creates its own corpse, and its death is marked `noCorpse`, so 13 creates no second one. Tame deaths are announced as notes; pet deaths as alerts.
+Animals die through 17 like every creature. A dead animal leaves a corpse item (13), except a summon (§ Summons). Slaughter completion creates its own corpse, and its death is marked `noCorpse`, so 13 creates no second one. Tame deaths are announced as notes; pet deaths as alerts (the death's `petOf`, its owner when it died, 17 § Death and corpses).
 
 ### Summons
 

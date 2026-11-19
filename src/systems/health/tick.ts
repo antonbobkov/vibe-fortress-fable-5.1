@@ -91,6 +91,8 @@ export function killCreature(
     faction: creature?.faction,
     // A wild animal is the killer's enemy while it attacks; combat reads this once the victim is gone.
     wildState: entities.get(id, C.Wild)?.state,
+    // A pet's owner (0 for none): the log draws a pet's death as an alert once the pet is gone.
+    petOf: entities.get(id, C.Tame)?.petOf ?? 0,
     ageTicks: creature?.ageTicks,
     wornItems,
     ...(options.noCorpse === true ? { noCorpse: true } : {}),
