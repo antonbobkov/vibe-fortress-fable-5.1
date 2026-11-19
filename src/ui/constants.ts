@@ -24,6 +24,9 @@ export const LOG_SAVED_LINES = 200;
 /** Repeated identical announcements within this many ticks merge with a count. */
 export const LOG_DEDUP_TICKS = 100;
 
+/** The immigrants line names each newcomer, with their best skill, in a wave of at most this many; a larger wave is counted. */
+export const LOG_IMMIGRANT_NAMES = 4;
+
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
 export const CURSOR_SCROLL_MARGIN = 3;
 

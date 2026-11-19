@@ -93,7 +93,7 @@ import { WorldMapScreen } from '@ui/screens/world_map';
 import { EmbarkScreen } from '@ui/screens/embark';
 import type { HeadlessEmbark } from '@app/headless';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
-import { defaultUiState, fromSaved, toSaved, type SavedUiState, type UiState } from '@ui/ui-state';
+import { defaultUiState, fromSaved, shownCursor, toSaved, type SavedUiState, type UiState } from '@ui/ui-state';
 import { TerrainFacts, precondition } from '@systems/terrain';
 import { jsonSection, type SaveSection } from '@app/save-manager';
 
@@ -1414,7 +1414,7 @@ export class Game {
       z: this.ui.z,
       // "`Tab` toggles it without changing the panel" (24 § Fortress screen layout).
       sidebarOpen,
-      cursor: this.ui.cursor,
+      cursor: shownCursor(this.ui),
       overlays: this.ui.overlays,
       selectedZone: this.ui.panel === 'zones' ? this.fortress.zones.selected : 0,
       // 23 § Animation: the presentation clock (`algorithms/compositor.md` `animPhase`).

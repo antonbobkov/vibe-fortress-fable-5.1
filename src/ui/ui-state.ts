@@ -31,7 +31,14 @@ export interface UiState {
   deepFound: boolean;
   /** The fortress's first named miasma line has said where rotten food belongs (24 § Announcements). */
   miasmaAdvised: boolean;
+  /** Each breached cavern and its breach tile, `[cavern, tile]`, from `CavernBreached` (the threats panel says where). */
+  breaches: [number, number][];
   cursor: { x: number; y: number } | null;
+  /**
+   * A tile a log line marked (a breach, or a line whose focus the view went to): drawn as the
+   * cursor is, on its own level, while the cursor is not shown. Not saved.
+   */
+  mark: { x: number; y: number; z: number } | null;
 }
 
 /** The `ui` save section (`save-format.md` § Sections: `ui`, JSON, `UiState`). */
@@ -50,12 +57,13 @@ export interface SavedUiState {
   readonly wildlifeAlerted?: boolean;
   readonly deepFound?: boolean;
   readonly miasmaAdvised?: boolean;
+  readonly breaches?: readonly [number, number][];
   readonly logTail: readonly { tick: number; severity: string; text: string; focus?: number; category?: string }[];
 }
 
 export function defaultUiState(z: number): UiState {
   return { camX: 0, camY: 0, z, zoom: 1, panel: null, sidebar: true, overlays: ['designations', 'zones'],
-    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, miasmaAdvised: false, cursor: null };
+    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, miasmaAdvised: false, breaches: [], cursor: null, mark: null };
 }
 
 /** The saved form: the state's persistent fields and the last `LOG_SAVED_LINES` log lines. */
@@ -76,6 +84,7 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
     ...(ui.wildlifeAlerted ? { wildlifeAlerted: true } : {}),
     deepFound: ui.deepFound,
     ...(ui.miasmaAdvised ? { miasmaAdvised: true } : {}),
+    ...(ui.breaches.length === 0 ? {} : { breaches: ui.breaches.map(([cavern, tile]): [number, number] => [cavern, tile]) }),
     logTail: tail.map((l) => ({ tick: l.tick, severity: l.severity, text: l.text,
       ...(l.focus === undefined ? {} : { focus: l.focus }),
       ...(l.category === undefined ? {} : { category: l.category }) })),
@@ -99,7 +108,9 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
   ui.wildlifeAlerted = saved.wildlifeAlerted === true;
   ui.deepFound = saved.deepFound ?? false;
   ui.miasmaAdvised = saved.miasmaAdvised === true;
+  ui.breaches = (saved.breaches ?? []).map(([cavern, tile]) => [cavern, tile]);
   ui.cursor = null;
+  ui.mark = null;
   return saved.logTail.map((l) => ({
     tick: l.tick,
     severity: l.severity === 'danger' || l.severity === 'alert' ? l.severity : 'note',
@@ -108,4 +119,10 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
     ...(l.focus === undefined ? {} : { focus: l.focus }),
     ...(l.category === undefined ? {} : { category: l.category }),
   }));
+}
+
+/** The map's cursor cell as drawn: the cursor, else a log line's mark when the view is on its level (24 § Announcements and the log). */
+export function shownCursor(ui: Readonly<UiState>): { x: number; y: number } | null {
+  if (ui.cursor !== null) return ui.cursor;
+  return ui.mark !== null && ui.mark.z === ui.z ? { x: ui.mark.x, y: ui.mark.y } : null;
 }

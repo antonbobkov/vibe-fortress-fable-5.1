@@ -66,12 +66,18 @@ export function killCreature(
         equip.quiver,
       ].filter((w) => w !== 0)
     : [];
+  // The killer's name and species go with the event, for a line drawn after the killer is gone too;
+  // a killer that is not a creature, a trap, is named by its building.
+  const killer = killerId === 0 ? undefined : entities.get(killerId, C.Creature);
+  const trap = killerId === 0 || killer !== undefined ? undefined : entities.get(killerId, C.Building);
+  const killerName = killer?.name ?? (trap === undefined ? '' : ctx.registry.table<{ id: string; name: string }>('buildings').byIndex(trap.type)?.name ?? '');
 
   ctx.emit({
     type: 'CreatureDied',
     id,
     cause,
     killerId,
+    ...(killerId === 0 ? {} : { killerName, ...(killer === undefined ? {} : { killerSpecies: killer.species }) }),
     tile,
     species: creature?.species,
     name: creature?.name,
@@ -485,10 +491,10 @@ export function handleFell(
     if (leg && !leg.destroyed) {
       // Limb damage capped at leg.hp - 1
       const cappedAmount = Math.max(0, Math.min(rawAmount, leg.hp - 1));
-      applyDamage(ctx, id, legSlot, 'blunt', cappedAmount, 0, woundedSet, lastAttacker);
+      applyDamage(ctx, id, legSlot, 'blunt', cappedAmount, 0, woundedSet, lastAttacker, 'fell');
     }
   } else {
-    applyDamage(ctx, id, 'torso', 'blunt', rawAmount, 0, woundedSet, lastAttacker);
+    applyDamage(ctx, id, 'torso', 'blunt', rawAmount, 0, woundedSet, lastAttacker, 'fell');
   }
 }
 

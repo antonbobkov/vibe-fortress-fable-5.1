@@ -32,7 +32,7 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
   const r = ctx.readers.of<MoraleReader>('15'); const col = rect.col + 1; const width = rect.cols - 2;
   label(s, col, rect.row, `Hall spirit ♥ ${MOOD_TIER_NAMES[r.hallSpiritTier()]} (${Math.round(r.hallSpirit())})`, { fg: s.theme.value, width });
   const rows = panel.rows(ctx); const height = Math.max(2, rect.rows - 5);
-  table(s, { col, row: rect.row + 1, cols: width, rows: height }, [{ title: 'Name', width: 13 }, { title: 'Tier', width: 9 }, { title: 'Top thoughts', width: 12 }],
+  table(s, { col, row: rect.row + 1, cols: width, rows: height }, [{ title: 'Name', width: 13 }, { title: 'Tier', width: 9 }, { title: 'Top thoughts', width: 12, mark: true }],
     rows.map((id) => [nameOf(ctx, id), MOOD_TIER_NAMES[r.tier(id)], r.thoughts(id).slice().sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).slice(0, 3).map(thoughtText).join(', ')]), panel.list,
     (i) => { panel.list.selected = i; });
   separator(s, col, rect.row + height + 1, width);
