@@ -192,15 +192,22 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[10]).toBe('Skills');
     // Each skill has its progress to the next level as a bar.
     expect(rows.slice(11, 14)).toEqual(['  Axe 2 (Novice) ░░░░░', '  Building 3 (Novice) ░░░░░', '  Mining 5 (Adequate) ░░░░░']);
-    expect(rows[14]).toMatch(/^Mood: Fine \(\d+\)$/);
-    expect(rows[16]).toMatch(/^Health: Blood 100%, Pain \d+$/);
-    expect(rows[17]).toBe('Care: no free hospital bed.');
-    expect(rows[18]).toBe('  Conscious');
-    expect(rows[19]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
-    expect(rows[20]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
-    expect(rows[21]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
+    // The attributes, the traits and the productivity follow the skills.
+    expect(rows[14]).toMatch(/^Str \d+ Agi \d+ Tou \d+ End \d+ Wil \d+$/);
+    expect(rows[15]).toMatch(/^Wit \d+ Cha \d+$/);
+    // Three traits wrap under the first word.
+    expect(`${rows[16]} ${rows[17]?.trim()}`).toMatch(/^Personality \w+, \w+, \w+$/);
+    expect(rows[17]).toMatch(/^ {12}\w/);
+    expect(rows[18]).toMatch(/^Productivity \d+%$/);
+    expect(rows[19]).toMatch(/^Mood: Fine \(\d+\)$/);
+    expect(rows[21]).toMatch(/^Health: Blood 100%, Pain \d+$/);
+    expect(rows[22]).toBe('Care: no free hospital bed.');
+    expect(rows[23]).toBe('  Conscious');
+    expect(rows[24]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
+    expect(rows[25]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
+    expect(rows[26]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
     // The wound is listed under the part it is on, with its dressing and its infection.
-    expect(rows[22]).toBe('    serious cut (bandaged, infect»');
+    expect(rows[27]).toBe('    serious cut (bandaged, infect»');
   });
 
   it('the combat log names the tabs and shows the first attack of the engagement with its sender, damage and kind', () => {

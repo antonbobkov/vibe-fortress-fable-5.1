@@ -33,7 +33,7 @@ import { label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { activityLabel } from './units';
-import { equipmentText, identityLine, isDwarf, needCells, needCellWidth, relationsText, skillBar, titleText, wearingText } from './look-dwarf';
+import { attributeRows, equipmentText, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsText, skillBar, titleText, wearingText } from './look-dwarf';
 
 interface TileInspection {
   readonly discovered: boolean;
@@ -234,6 +234,30 @@ export function tabsLine(strings: Strings, width: number, items: number, creatur
   return forms.find((text) => Array.from(text).length <= width) ?? (forms[forms.length - 1] as string);
 }
 
+/**
+ * How far the `Creatures` tab is scrolled (24 § Inspection): `PageUp` `PageDown` move it a page and
+ * the wheel three rows a notch. It starts at the top again when the creatures shown, the tile or
+ * the tab change.
+ */
+export class LookScroll {
+  /** The rows of the tab scrolled past. */
+  scroll = 0;
+  /** The rows the last draw showed under the tabs line; a page is this less one. */
+  visible = 10;
+  /** The most the tab can scroll: its rows less those shown, at the last draw. */
+  max = 0;
+  /** What the last draw showed (tile, tab and creatures); a change starts the tab at the top. */
+  key = '';
+
+  move(delta: number): void {
+    this.scroll = Math.max(0, Math.min(this.max, this.scroll + delta));
+  }
+
+  page(direction: 1 | -1): void {
+    this.move(direction * Math.max(1, this.visible - 1));
+  }
+}
+
 export function drawLookPanel(
   s: Surface,
   rect: Rect,
@@ -249,6 +273,8 @@ export function drawLookPanel(
   open?: (id: EntityId) => void,
   /** The creature whose sub-tab comes first (24 § Inspection: inspecting a creature from a list or a log line). */
   first: EntityId = 0,
+  /** The `Creatures` tab's scroll; without one the tab is drawn from its top. */
+  view?: LookScroll,
 ): void {
   const t = s.theme;
   if (tile === null) return;
@@ -262,11 +288,23 @@ export function drawLookPanel(
   const creatures = here.includes(first) ? [first, ...here.filter((id) => id !== first)] : here;
   const itemIds = itemsAt(readers, tile);
   let row = rect.row;
-  const line = (text: string, fg = t.text): void => {
-    if (row >= rect.row + rect.rows) return;
-    label(s, rect.col + 1, row, text, { fg, width: rect.cols - 2 });
+  const bottom = rect.row + rect.rows;
+  // The Creatures tab scrolls: `skip` rows are scrolled past above, `below` rows did not fit under it.
+  let skip = 0;
+  let below = 0;
+  const put = (draw: (r: number) => void): void => {
+    if (skip > 0) {
+      skip -= 1;
+      return;
+    }
+    if (row >= bottom) {
+      below += 1;
+      return;
+    }
+    draw(row);
     row += 1;
   };
+  const line = (text: string, fg = t.text): void => put((r) => label(s, rect.col + 1, r, text, { fg, width: rect.cols - 2 }));
   // A long line (a channel's spell, an enchantment, the rune lines) wraps under its prefix, so its end is read.
   const wrapped = (prefix: string, text: string, fg = t.text): void => {
     for (const part of wrapHang(text, rect.cols - 2 - prefix.length, 2)) line(`${prefix}${part}`, fg);
@@ -280,6 +318,7 @@ export function drawLookPanel(
   };
   line(strings.get('ui.look.header', { x, y, z }), t.value);
   line(tabsLine(strings, rect.cols - 2, itemIds.length, creatures.length));
+  if (view !== undefined && tab !== 2) view.key = '';
   if (tab === 0) {
     line(tileSummary(readers, strings, tile));
     const fluid = fluidText(readers, strings, tile);
@@ -354,11 +393,21 @@ export function drawLookPanel(
     line(strings.get('ui.look.no_creatures'), t.dim);
     return;
   }
+  const top = row;
+  if (view !== undefined) {
+    const key = `${tile}:${creatures.join(',')}`;
+    if (view.key !== key) {
+      view.key = key;
+      view.scroll = 0;
+    }
+    view.visible = Math.max(1, bottom - top);
+    view.scroll = Math.max(0, Math.min(view.max, view.scroll));
+    skip = view.scroll;
+  }
   const skills = registry.table<{ id: string; name: string }>('skills');
   for (const id of creatures) {
     const name = readers.entities.get(id, C.Creature)?.name ?? '';
-    separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.look.creature', { name }).replace(/^── /, '').trim());
-    row += 1;
+    put((r) => separator(s, rect.col + 1, r, rect.cols - 2, strings.get('ui.look.creature', { name }).replace(/^── /, '').trim()));
     const dwarf = isDwarf(readers, id);
     // 10 § Registrations, `creature › dwarf`: the identity line, then the activity, the needs and the skills.
     if (dwarf) line(identityLine(readers, registry, strings, id));
@@ -379,11 +428,10 @@ export function drawLookPanel(
         const cellWidth = needCellWidth(strings);
         const perRow = rect.cols - 2 >= 2 * cellWidth + 1 ? 2 : 1;
         const cells = needCells(readers, strings, id);
-        for (let k = 0; k < cells.length && row < rect.row + rect.rows; k += perRow) {
-          cells.slice(k, k + perRow).forEach((cell, n) => {
-            label(s, rect.col + 1 + n * (cellWidth + 1), row, cell.text, { fg: cell.level === 2 ? t.bad : cell.level === 1 ? t.alert : t.text, width: cellWidth, keys: false });
-          });
-          row += 1;
+        for (let k = 0; k < cells.length; k += perRow) {
+          put((r) => cells.slice(k, k + perRow).forEach((cell, n) => {
+            label(s, rect.col + 1 + n * (cellWidth + 1), r, cell.text, { fg: cell.level === 2 ? t.bad : cell.level === 1 ? t.alert : t.text, width: cellWidth, keys: false });
+          }));
         }
       }
       const known = skills
@@ -395,6 +443,13 @@ export function drawLookPanel(
         for (const k of known) {
           line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)}) ${skillBar(readers, registry, id, k.sid)}`);
         }
+      }
+      if (dwarf) {
+        // After the skills: the attributes, the three traits and the productivity.
+        for (const text of attributeRows(readers, strings, id, rect.cols - 2)) line(text);
+        const traits = personalityText(readers, registry, strings, id);
+        if (traits !== null) for (const text of hangingRows(traits, rect.cols - 2)) line(text);
+        line(productivityText(readers, strings, id));
       }
       if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
         const morale = readers.of<MoraleReader>('15');
@@ -472,6 +527,11 @@ export function drawLookPanel(
       if (title !== null) line(title);
     }
   }
+  if (view !== undefined) view.max = Math.max(0, view.scroll - skip + (row - top) + below - view.visible);
+  // More above or below: a dim mark at the right edge of the first or the last row.
+  const edge = rect.col + rect.cols - 1;
+  if (view !== undefined && view.scroll > 0) label(s, edge, top, '▲', { fg: t.dim, keys: false });
+  if (below > 0) label(s, edge, bottom - 1, '▼', { fg: t.dim, keys: false });
 }
 
 /** Milli-rune as the inspector shows it: "0.6", "1", "0.36". */

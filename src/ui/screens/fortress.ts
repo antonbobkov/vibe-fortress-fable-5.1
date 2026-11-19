@@ -43,7 +43,7 @@ import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
 import { DepotPanel, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
-import { drawLookPanel, tileContents, type LookTab } from '../panels/look';
+import { drawLookPanel, LookScroll, tileContents, type LookTab } from '../panels/look';
 import { drawLogPanel, drawLogStrip, filterLines, LogView, matchLines, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import { statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
@@ -168,6 +168,8 @@ export class FortressScreen implements Screen {
   lookTab: LookTab = 0;
   /** The creature whose sub-tab Look shows first (0: the tile's order); set by inspecting a creature. */
   lookCreature: EntityId = 0;
+  /** How far Look's `Creatures` tab is scrolled (24 § Inspection). */
+  readonly lookView = new LookScroll();
   logFilter: LogFilter = 0;
   /** The log panel's selected entry and scroll, in entries. */
   readonly logView = new LogView();
@@ -758,7 +760,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
     else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab,
-      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId), this.lookCreature);
+      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId), this.lookCreature, this.lookView);
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
@@ -1298,6 +1300,7 @@ export class FortressScreen implements Screen {
     this.ui.cursor = { x: p.x, y: p.y };
     this.lookTab = tab;
     this.lookCreature = creature;
+    this.lookView.key = '';
     this.openPanel('look');
   }
 
@@ -2009,6 +2012,10 @@ export class FortressScreen implements Screen {
             return true;
           }
           return false;
+      case 'look':
+        // 24 § Inspection: the Creatures tab scrolls a page; the arrows stay the map cursor's.
+        if (this.lookTab === 2 && (k === 'PageUp' || k === 'PageDown')) { this.lookView.page(k === 'PageUp' ? -1 : 1); return true; }
+        return false;
       case 'help':
         if (k === '1' || k === '2' || k === '3') { this.help.setTab((Number(k) - 1) as HelpTab); return true; }
         if (!press.shift && (up || down)) { this.help.move(up ? -1 : 1); return true; }
@@ -2446,6 +2453,11 @@ export class FortressScreen implements Screen {
     const side = this.host.layout().sidebar;
     if (side !== null && this.ui.sidebar && w.col >= side.col && w.col < side.col + side.cols && w.row >= side.row && w.row < side.row + side.rows) {
       const panel = this.ui.panel;
+      // Look's arrows move the map cursor: the wheel scrolls its Creatures tab itself.
+      if (panel === 'look') {
+        if (this.lookTab === 2) this.lookView.move(w.dy > 0 ? 3 : -3);
+        return;
+      }
       if (panel !== null) for (let k = 0; k < 3; k += 1) this.panelKey(panel, { key: w.dy > 0 ? 'ArrowDown' : 'ArrowUp', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
       return;
     }
