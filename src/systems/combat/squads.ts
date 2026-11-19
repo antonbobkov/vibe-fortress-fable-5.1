@@ -391,6 +391,17 @@ function stationPosts(ctx: TickContext, point: TileIndex, count: number): TileIn
   return posts.slice(0, count);
 }
 
+/**
+ * 16 § Squads: the posts of a squad at its barracks: the zone's tiles a walker can stand on, in the zone's
+ * order, so no member is posted to a tile an archery target or other blocking building fills.
+ */
+function barracksPosts(ctx: TickContext, tiles: readonly TileIndex[]): TileIndex[] {
+  const map = ctx.world.map;
+  const pathing = ctx.readers.pathing;
+  const doorAt = (t: TileIndex): boolean => ctx.readers.has('14') && ctx.readers.of<{ doorAt(i: TileIndex): boolean }>('14').doorAt(t);
+  return tiles.filter((t) => isSolidBottomed(map.kindAt(t)) && pathing.passable(t, 'walker', { faction: 'fortress' }) && !doorAt(t));
+}
+
 function advancePatrol(
   entityId: EntityId,
   tiles: readonly TileIndex[],
@@ -449,7 +460,8 @@ function fixedPost(
     if (onStation && squad.station !== null) return postOf(squad.station);
     if (barracks && barracks.tiles.length > 0) {
       if (barracks.tiles.includes(tileM)) return tileM;
-      return barracks.tiles[memberIndex % barracks.tiles.length] ?? barracks.tiles[0] ?? null;
+      const posts = barracksPosts(ctx, barracks.tiles);
+      return posts.length > 0 ? posts[memberIndex % posts.length] as TileIndex : null;
     }
     return null;
   }
@@ -457,7 +469,10 @@ function fixedPost(
   if (squad.patrol !== null && squad.patrol.length > 0) return null;
   if (ctx.readers.has('14')) {
     const barracks = getBarracksForSquad(ctx, squadId, squad.barracksZoneId);
-    if (barracks && barracks.tiles.length > 0) return barracks.tiles[memberIndex % barracks.tiles.length] ?? null;
+    if (barracks && barracks.tiles.length > 0) {
+      const posts = barracksPosts(ctx, barracks.tiles);
+      return posts.length > 0 ? posts[memberIndex % posts.length] as TileIndex : null;
+    }
   }
   return null;
 }

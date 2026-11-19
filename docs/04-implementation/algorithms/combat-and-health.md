@@ -95,7 +95,7 @@ on ZoneChanged for barracks settings: refresh each squad’s barracksZoneId from
 training(): resolve the explicit assigned zone before any cached/default zone and refresh the cache; for that barracks: present = members on zone tiles; pairs = present sorted by id, paired consecutively
   for pair: if sessionEnd[pair] <= tick: for each: xp(weaponSkill, TRAIN_XP*bonus); xp('dodge', TRAIN_XP); if shield: xp('shield'); if armored: xp('armor_use');
      if not trainingWeapons and rng.chance(SPAR_INJURY_PERMILLE): emit DamageDealt{light bruise}; sessionEnd = tick + SPAR_TICKS; emit TrainingSession
-  solo: half xp. Archery range: shooter at range tile shoots TRAIN_SHOTS at the target building; bolts drop around it.
+  solo: half xp. Every training grant is halved (rounded down) for a skill at TRAIN_TAPER_LEVEL or above. Archery range: shooter at range tile shoots TRAIN_SHOTS at the target building; bolts drop around it.
 ```
 
 ## Equipment availability and destruction

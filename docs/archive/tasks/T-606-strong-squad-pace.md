@@ -1,6 +1,8 @@
 # T-606 — The strong squad does not reach Proficient in three years
 
-**Source:** [T-603's report](../../reports/data/2026-11-18-t603-strong-squad.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-18, in 20f4297c,f1b073cd.
+
+**Source:** [T-603's report](../../../reports/data/2026-11-18-t603-strong-squad.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

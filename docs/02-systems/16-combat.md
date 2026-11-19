@@ -141,10 +141,10 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 
 ### Training
 
-- Barracks zone with `squadId` setting; sparring: pairs of present members who are currently in `duty` behavior (not satisfying a need, fleeing, or hospitalized), `SPAR_TICKS` per session, grant `TRAIN_XP` to the weapon skill, `dodge`, `shield` (if held) and `armor_use` (if armored); solo drills grant half. Sparring uses the members' real weapons; each session has `SPAR_INJURY_PERMILLE` chance of a `light` bruise (never with training weapons, which are wooden items of the weapon class with `training: true` and 0 damage).
+- Barracks zone with `squadId` setting; sparring: pairs of present members who are currently in `duty` behavior (not satisfying a need, fleeing, or hospitalized), `SPAR_TICKS` per session, grant `TRAIN_XP` to the weapon skill, `dodge`, `shield` (if held) and `armor_use` (if armored); solo drills grant half. A skill already at `TRAIN_TAPER_LEVEL` (Proficient) or above gains half of what a session grants it, rounded down: drill makes a soldier Proficient in about 84 days (§ Tuning constants), and past that fighting teaches faster than drill. Experience from combat is not halved. Sparring uses the members' real weapons; each session has `SPAR_INJURY_PERMILLE` chance of a `light` bruise (never with training weapons, which are wooden items of the weapon class with `training: true` and 0 damage).
 - Archery range: a zone with an `archery_target` building at one end; ranged members shoot `TRAIN_SHOTS` bolts or arrows per session at the target (ammunition drops and is recovered by hauling; training uses the cheapest ammunition available).
 - A member holding a channel never spars and never shoots at the range: it takes the solo drill, its weapon skill `runecraft`, and spends no rune (25 § Channels).
-- `WARDEN_TRAINING_BONUS_PERCENT` (10) applies when a Warden exists. Barracks room tier gives a thought per session.
+- A Warden adds `WARDEN_TRAINING_BONUS_PERCENT` (defined in 10) to the experience of every session while one exists. Barracks room tier gives a thought per session.
 
 An explicit barracks zone setting takes precedence over a cached training zone. On `ZoneChanged` when a barracks setting changes, refresh each squad’s saved `barracksZoneId` from current assignments, or the first barracks when none is assigned. A squad that has already trained moves its training to a newly assigned zone; its next sessions require members to be present there.
 
@@ -237,7 +237,8 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 | `THREAT_THROTTLE_TICKS` | 50 | *unmeasured* |
 | `TRAIN_SHIFT_HOURS` | 6 | *unmeasured* |
 | `SPAR_TICKS` | 300 | *unmeasured* |
-| `TRAIN_XP` | 12 | Per session per skill (*unmeasured*) |
+| `TRAIN_XP` | 54 | Per session per skill; measured: in the three-year fortress a soldier at drill stands at the barracks about a sixth of the day (needs take 60%, alerts 13%, walking back 10%) and trains about once a day, so 54 (67 with the Warden) brings it from 0 to Proficient (3,700 xp) in about 84 days, about 105 without a Warden ([training pace](../../reports/audits/2026-11-18-t606-training-pace.md)) |
+| `TRAIN_TAPER_LEVEL` | 10 | Skill level (Proficient) from which a session grants half (*unmeasured*) |
 | `SPAR_INJURY_PERMILLE` | 20 | *unmeasured* |
 | `TRAIN_SHOTS` | 5 | *unmeasured* |
 | `REEQUIP_CHECK_DAYS` | 3 | *unmeasured* |

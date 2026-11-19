@@ -1,5 +1,7 @@
 # T-607 — A training soldier's barracks post can be a tile nobody can stand on
 
+**Closed:** 2026-11-18, in 8156fb4c.
+
 **Source:** T-603 (the three-year script's strong squad; `test/perf/t603_probe.test.ts` on `three-years-p4-1`) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
