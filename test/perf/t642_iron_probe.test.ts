@@ -65,8 +65,15 @@ describe.skipIf(!RUN)('T-642 iron probe', () => {
       }
     });
     const hist: Record<string, number> = {};
+    // T-648: the samples at which a smelter skips an order as out of reach, by recipe and input.
+    const skips: Record<string, number> = {};
     const sample = (): void => {
       if (w.tick < FROM * TICKS_PER_DAY) return;
+      for (const key of ['smelter', 'smelter_2']) {
+        for (const e of ent.get(state.placedIds[key] ?? 0, C.Workshop)?.outOfReach ?? []) {
+          if (e.until > w.tick) skips[`${key}:${e.recipe}:${e.input}`] = (skips[`${key}:${e.recipe}:${e.input}`] ?? 0) + 1;
+        }
+      }
       const worker = ent.get(state.placedIds['smelter'] ?? 0, C.Workshop)?.assignedWorker ?? 0;
       const brain = worker ? ent.get(worker, C.Brain) : undefined;
       const job = ent.get(state.placedIds['smelter'] ?? 0, C.Workshop)?.currentJobId ? 'job' : 'idle';
@@ -118,6 +125,8 @@ describe.skipIf(!RUN)('T-642 iron probe', () => {
         bars: items.countAvailable({ type: barType, materialId: iron }), steel: items.countAvailable({ type: barType, materialId: steel }),
         oreLying: lying, steelOwed: state.strong?.steelOwed ?? null, since: state.strong?.since ?? null, miners, made })}`);
       console.log(`[t642smelter] day ${day} ${top}`);
+      console.log(`[t648skips] ${JSON.stringify({ day, samples: n, skips })}`);
+      for (const k of Object.keys(skips)) delete skips[k];
       // The fuel and flux, and each smelter's orders, job and worker.
       const recipes = reg.table<{ id: string }>('recipes');
       const shop = (key: string): unknown => {
@@ -127,7 +136,8 @@ describe.skipIf(!RUN)('T-642 iron probe', () => {
         const job = ws.currentJobId ? w.readers.of<JobsReader>('11').get(ws.currentJobId) : undefined;
         const at = buildings.get(id)?.footprint[4] ?? -1;
         return { key, z: at < 0 ? null : w.map.zOf(at), outdoor: at >= 0 && w.map.hasFlag(at, TileFlag.Outdoor), orders: ws.orders.map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode === 'maintain' ? o.threshold : o.remaining}`),
-          job: job ? `${String(job.data['recipe'] ?? job.key)}:${job.state}${job.blockedReason ? `:${job.blockedReason}` : ''}` : null, blocked: ws.lastBlockedReason ?? null, worker: ws.assignedWorker };
+          job: job ? `${String(job.data['recipe'] ?? job.key)}:${job.state}${job.blockedReason ? `:${job.blockedReason}` : ''}` : null, blocked: ws.lastBlockedReason ?? null, worker: ws.assignedWorker,
+          skipped: (ws.outOfReach ?? []).map((e) => `${e.recipe}:${e.input}`) };
       };
       const coalOre = items.countAvailable({ type: oreType, materialIds: ['bituminous_coal', 'lignite'].map((id) => materials.index(id)) });
       console.log(`[t642fuel] ${JSON.stringify({ day, charcoal: items.available('charcoal_bar'), coal: items.available('coal_bar'), coalOre, logs: items.available('log'),
