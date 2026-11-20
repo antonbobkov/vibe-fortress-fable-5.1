@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
-import { TileFlag } from '@core/map3d';
+import { TileFlag, TileKind } from '@core/map3d';
 import type { ItemsReader } from '@systems/items';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { JobsReader } from '@systems/jobs';
@@ -55,9 +55,11 @@ describe('T-656 probe: the drink in stock', () => {
     const out = (s: string): void => { lines.push(`d${day()} t${w.tick} ${s}`); };
     const fortress = (): number[] => ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress');
     let alc = 0, waterIn = 0, waterOut = 0;
+    let gone: Record<string, number> = {};
     w.game.world.onEvents((events) => {
       for (const e of events) {
         if (e.type === 'DrankAlcohol') alc += 1;
+        else if (e.type === 'ItemDestroyed' && e['itemType'] === 'barrel') { const k = String(e['reason']); gone[k] = (gone[k] ?? 0) + 1; }
         else if (e.type === 'DrankWater') {
           const q = ent.get(Number(e['id']), C.Position);
           if (q && w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor)) waterOut += 1; else waterIn += 1;
@@ -77,15 +79,39 @@ describe('T-656 probe: the drink in stock', () => {
       const o = ws.orders.map((x) => `${recipes.byIndex(x.recipe)?.id}>${x.threshold}`).join(',');
       return `${key}:[${o}] job ${j ? `${String((j['data'] as Record<string, unknown> | undefined)?.['recipe'] ?? '?')}/${String(j['state'])}` : '-'} blocked ${ws.lastBlockedReason ?? '-'}`;
     };
+    const carpenters = (): string => {
+      const ws = ent.get(state.placedIds['carpenter'] ?? 0, C.Workshop);
+      const holders = (jobs as unknown as { workersWithLabor: (l: string) => number[] }).workersWithLabor('carpentry');
+      return `assigned ${ws?.assignedWorker ?? '-'} ` + holders.map((id) => {
+        const sq = ent.get(id, C.Soldier);
+        return `${id}:${dwarves.activityText(id)}${sq && sq.squadId !== 0 ? `[sq${sq.squadId}]` : ''}`;
+      }).join(',');
+    };
+    const timber = (): string => {
+      const standing = state.timberTiles.filter((t) => w.map.kindAt(t) === TileKind.Tree);
+      let trees = 0;
+      for (let y = 0; y < w.map.h; y += 1) for (let x = 0; x < w.map.w; x += 1) {
+        const top = w.map.columnSurfaceZ(x, y);
+        for (const z of [top - 1, top, top + 1]) if (z >= 0 && z < w.map.d && w.map.kindAt(w.index(x, y, z)) === TileKind.Tree) trees += 1;
+      }
+      return `timber ${standing.length}/${state.timberTiles.length} chops ${standing.filter((t) => w.map.designationAt(t)).length} trees ${trees} charcoal ${items.count('charcoal_bar')}`;
+    };
     let lastDay = -1;
     const daily = (): void => {
       if (day() === lastDay) return;
       lastDay = day();
       let brew = 0, plantAll = 0, empty = 0;
+      const held: Record<string, number> = {};
       for (const id of ent.with(C.Item)) {
         const it = ent.get(id, C.Item)!;
         if (it.type === plantFood) { plantAll += it.count; if (brewable.has(it.material)) brew += it.count; }
-        else if (it.type === barrel && items.inContainer(id).length === 0) empty += 1;
+        else if (it.type === barrel) {
+          const inside = items.inContainer(id);
+          if (inside.length === 0) empty += 1;
+          const what = inside.length === 0 ? 'empty' : itemTypes.byIndex(ent.get(inside[0]!, C.Item)!.type)?.id ?? '?';
+          const k = `${what}${it.reservedBy ? '*' : ''}`;
+          held[k] = (held[k] ?? 0) + 1;
+        }
       }
       const f = fortress();
       const thirst = f.map((id) => dwarves.need(id, 'thirst'));
@@ -95,8 +121,9 @@ describe('T-656 probe: the drink in stock', () => {
       out(`pop ${f.length} drink ${items.count('drink')}/${items.available('drink')} brewable ${brew} plants ${plantAll} emptyBarrels ${empty} ` +
         `${shop('still')} ${shop('still2')} brewer ${brewer ?? '-'} ${brewer ? `${dwarves.activityText(brewer)}@${bq ? bq.z - state.z : '-'}` : ''} ` +
         `alert ${w.game.world.fortress.alert} thirst>=50 ${thirst.filter((t) => t >= 50).length} >=85 ${thirst.filter((t) => t >= 85).length} surface ${surface} ` +
-        `drank alc ${alc} waterIn ${waterIn} waterOut ${waterOut} meals ${items.count('lavish_meal') + items.count('easy_meal')}`);
-      alc = 0; waterIn = 0; waterOut = 0;
+        `drank alc ${alc} waterIn ${waterIn} waterOut ${waterOut} meals ${items.count('lavish_meal') + items.count('easy_meal')} ` +
+        `barrels ${JSON.stringify(held)} lost ${JSON.stringify(gone)} ${shop('carpenter')} logs ${items.available('log')} ${timber()} carpenters ${carpenters()}`);
+      alc = 0; waterIn = 0; waterOut = 0; gone = {};
     };
     const boot = 20 * TICKS_PER_DAY;
     while (w.tick < boot) {
