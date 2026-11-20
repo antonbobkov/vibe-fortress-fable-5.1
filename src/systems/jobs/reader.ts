@@ -39,11 +39,6 @@ export interface JobsReader {
   hasUrgent(dwarfId: EntityId, priority: number): boolean;
   /** True when an open job is available that this worker could take (F-11). */
   hasWork(dwarfId: EntityId): boolean;
-  /**
-   * True while the dwarf holds a job that is fetching its inputs, with nothing in hand (a trip done or
-   * not begun), less urgent than `deferPriority` and not for a patient (§ Job steps, T-660).
-   */
-  betweenTrips(dwarfId: EntityId, deferPriority: number): boolean;
   /** True while the dwarf holds a job for a patient (a health job whose target is a patient). */
   holdsPatientCare(dwarfId: EntityId): boolean;
   /** True while the dwarf holds a job a sheltering civilian works under a `hearth` alert: patient care, or a pull of a lever inside its shelter. */
@@ -108,7 +103,6 @@ export function makeReader(board: JobBoard): JobsReader {
     isQueued: (dwarfId) => board.isQueued(dwarfId),
     hasUrgent: (dwarfId, priority) => board.hasUrgent(dwarfId, priority),
     hasWork: (dwarfId) => board.hasWork(dwarfId),
-    betweenTrips: (dwarfId, deferPriority) => board.betweenTrips(dwarfId, deferPriority),
     isHuntQuarry: (creatureId) => board.isHuntQuarry(creatureId),
     holdsPatientCare: (dwarfId) => {
       const job = board.jobs.get(board.workerOf(dwarfId).jobId);
