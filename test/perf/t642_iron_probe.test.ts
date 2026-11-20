@@ -65,13 +65,14 @@ describe.skipIf(!RUN)('T-642 iron probe', () => {
       }
     });
     const hist: Record<string, number> = {};
-    // T-648: the samples at which a smelter skips an order as out of reach, by recipe and input.
+    // T-648: the samples at which a workshop skips an order as out of reach, by workshop type, recipe and input.
     const skips: Record<string, number> = {};
     const sample = (): void => {
       if (w.tick < FROM * TICKS_PER_DAY) return;
-      for (const key of ['smelter', 'smelter_2']) {
-        for (const e of ent.get(state.placedIds[key] ?? 0, C.Workshop)?.outOfReach ?? []) {
-          if (e.until > w.tick) skips[`${key}:${e.recipe}:${e.input}`] = (skips[`${key}:${e.recipe}:${e.input}`] ?? 0) + 1;
+      for (const id of ent.with(C.Workshop)) {
+        const type = reg.table<{ id: string }>('buildings').byIndex(ent.get(id, C.Building)?.type ?? -1)?.id ?? '?';
+        for (const e of ent.get(id, C.Workshop)?.outOfReach ?? []) {
+          if (e.until > w.tick) skips[`${type}:${e.recipe}:${e.input}`] = (skips[`${type}:${e.recipe}:${e.input}`] ?? 0) + 1;
         }
       }
       const worker = ent.get(state.placedIds['smelter'] ?? 0, C.Workshop)?.assignedWorker ?? 0;

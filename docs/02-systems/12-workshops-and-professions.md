@@ -211,7 +211,7 @@ Job producer `workshops` (`craft`); panel `orders`; inspector section `building 
 | `MAGMA_POWER_LEVEL` | 4 | Magma level required below a magma workshop tile (*unmeasured*) |
 | `MELT_RETURN_PERCENT` | 60 | Of the item's bar cost returned (*unmeasured*) |
 | `ORDER_AHEAD_TICKS` | 100 | How often a workshop's untaken current job looks for a runnable order ahead of it, and a blocked one at its inputs' reach (*unmeasured*) |
-| `OUT_OF_REACH_RETRY_TICKS` | 600 | How long a workshop skips an order whose inputs lie out of reach before it searches again (*unmeasured*) |
+| `OUT_OF_REACH_RETRY_TICKS` | 100 | How long a workshop skips an order whose inputs lie out of reach before it searches again; as 11's `BLOCKED_RETRY_TICKS`, so an order waits no longer for its inputs than a blocked job did (*unmeasured*) |
 | `HALF_FUELS_PER_JOB` | 2 | Half fuels (`fuel_half`) a fuel job burns in place of one bar (*unmeasured*) |
 | `SMOKEHOUSE_HUNGER` | 5 | Hunger a dwarf near a smokehouse gains when it finishes a batch (*unmeasured*) |
 
