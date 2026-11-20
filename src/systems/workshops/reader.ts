@@ -10,7 +10,11 @@ export interface WorkshopsReader {
   globalOrders(): readonly WorkOrder[];
   recipe(id: string | number): RecipeRow | undefined;
   recipesFor(workshopType: string): readonly RecipeRow[];
-  isRunnable(recipeId: string, workshopId: EntityId): { runnable: boolean; reason: string | null };
+  /**
+   * Whether an order of the recipe would run at the workshop, and else why (12 § Operation 2–3); with
+   * `order`, that order's material filter and target type, by which its inputs and a skip out of reach go.
+   */
+  isRunnable(recipeId: string, workshopId: EntityId, order?: WorkOrder): { runnable: boolean; reason: string | null };
   professionOf(id: EntityId): string;
   militaryTitle(id: EntityId): string;
   /**
@@ -34,10 +38,11 @@ export function makeReader(op: WorkshopOperator): WorkshopsReader {
     globalOrders: () => op.globalOrders.map((o) => ({ ...o })),
     recipe: (id) => op.recipe(id),
     recipesFor: (type) => op.recipesForType(type),
-    isRunnable: (recipeId, workshopId) => {
+    isRunnable: (recipeId, workshopId, of) => {
       const recipe = op.recipe(recipeId);
       if (recipe === undefined) return { runnable: false, reason: 'not_found' };
-      const order: WorkOrder = { recipe: op.recipeIndex(recipeId), remaining: 1, mode: 'once', threshold: 0, priority: 5, materialFilter: null };
+      const order: WorkOrder = { recipe: op.recipeIndex(recipeId), remaining: 1, mode: 'once', threshold: 0, priority: 5,
+        materialFilter: of?.materialFilter ?? null, ...(of?.targetType === undefined ? {} : { targetType: of.targetType }) };
       const reason = op.problem(order, workshopId);
       return { runnable: reason === null, reason };
     },
