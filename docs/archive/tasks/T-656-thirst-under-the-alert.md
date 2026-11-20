@@ -1,6 +1,8 @@
 # T-656 — The thirsty go out under the alert
 
-**Source:** [T-653's probe](../../reports/data/2026-11-20-t653-ambush-at-the-all-clear.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-20, in 7f363199,1c6fcc97,621bc9a0,6f67ed5b,4cdc55ef.
+
+**Source:** [T-653's probe](../../../reports/data/2026-11-20-t653-ambush-at-the-all-clear.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -14,4 +16,5 @@ Spec: testing-strategy.md § The long scenarios (the drink and the cave farm).
 
 ## Done
 
-The thirst at the end of each alert, and the dwarves outside under it, before and after, by run; the sweep's verdict.
+- [x] The thirst at the end of each alert, and the dwarves outside under it, before and after, by run ([T-656's report](../../../reports/data/2026-11-20-t656-thirst-under-the-alert.md)).
+- [x] The sweep's verdict: pass (`44796007697`).
