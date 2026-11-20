@@ -490,6 +490,36 @@ export class WorkshopOperator {
    * `reaction` bars the recipe takes into its product, or, when there is none, two items tagged
    * `fuel_half` (a peat brick, a dung cake); null when neither is available.
    */
+  /**
+   * `12` § Fuel (T-659): adds the fuel a job burns to its inputs. A bar goes into the recipe's own fuel
+   * input when the recipe takes fuel into its product (steel's carbon, whose filter is the same), and
+   * that input's index is returned (the job's `data.fuelWith`); otherwise the fuel is an input of its
+   * own, after the recipe's, and -1 is returned. A half fuel is never steel's carbon, so it is always
+   * an input of its own.
+   */
+  addFuel(recipe: RecipeRow, inputs: { filter: ItemFilter; count: number }[]): number {
+    const fuel = this.fuelInput(reactionFuelOf(recipe)) as { filter: ItemFilter; count: number };
+    const at = recipe.inputs.findIndex((input) => input.material === 'fuel');
+    const carbon = at >= 0 ? inputs[at] : undefined;
+    if (carbon !== undefined && JSON.stringify(carbon.filter) === JSON.stringify(fuel.filter)) {
+      inputs[at] = { ...carbon, count: carbon.count + fuel.count };
+      return at;
+    }
+    inputs.push(fuel);
+    return -1;
+  }
+
+  /**
+   * The units of a job's input `k` that its completion consumes: the recipe's count, or the job's own
+   * for the fuel it burns, and for the recipe's fuel input that took the burned bar in (`fuelWith`)
+   * unless the workshop is magma-powered by now.
+   */
+  private unitsOf(job: Job, recipe: RecipeRow, k: number, fuelIndex: number, powered: boolean): number {
+    if (k === fuelIndex) return job.inputs[k]?.count ?? 1;
+    if (k === job.data['fuelWith'] && !powered) return job.inputs[k]?.count ?? 0;
+    return recipe.inputs[k]?.count ?? 0;
+  }
+
   fuelInput(reaction = 0): { filter: ItemFilter; count: number } | null {
     if (this.items.countAvailable({ tag: 'fuel' }) >= reaction + 1) return { filter: { tag: 'fuel' }, count: 1 };
     if (this.items.countAvailable({ tag: HALF_FUEL_TAG }) >= HALF_FUELS_PER_JOB) return { filter: { tag: HALF_FUEL_TAG }, count: HALF_FUELS_PER_JOB };
@@ -657,12 +687,15 @@ export class WorkshopOperator {
           count: input.count,
           ...(input.flagged !== undefined ? { wholeItem: true as const } : {}),
         }));
-        if (recipe.fuel && !powered) inputs.push(this.fuelInput(reactionFuelOf(recipe)) as { filter: ItemFilter; count: number });
+        // 12 § Fuel (T-659): the bar a job burns is asked for with the bars its product takes (steel's
+        // carbon), one input of their units, so one stack of two comes in one trip.
+        const fuelWith = recipe.fuel && !powered ? this.addFuel(recipe, inputs) : -1;
         if (recipe.container) inputs.push({ filter: { emptyContainer: recipe.container }, count: 1 });
         const key = choice.global ? `craft:global:${choice.order.serial}` : `craft:${id}:${choice.index}`;
         const jobId = sink.create(key, { type: 'craft', target: { kind: 'building', ref: id }, workTile: this.workTile(b),
           priority: choice.order.priority, inputs, data: { recipe: recipe.id, orderIndex: choice.index, globalOrder: choice.global,
             ...(choice.global ? { orderSerial: choice.order.serial } : {}),
+            ...(fuelWith >= 0 ? { fuelWith } : {}),
             ...(choice.order.memorialDwarfId === undefined ? {} : { memorialDwarfId: choice.order.memorialDwarfId }),
             labor: ctx.registry.table<{ id: string; labor: string | null }>('skills').byId(recipe.skill)?.labor ?? 'crafts',
             skill: recipe.skill, assignedWorker: ws.assignedWorker, workshopWorker: ws.assignedWorker,
@@ -815,12 +848,12 @@ export class WorkshopOperator {
   }
 
   /** Every consumed input (and the fuel and the container, when the recipe has them) is still there. */
-  private holdsInputs(job: Job, recipe: RecipeRow, fuelIndex: number, container: EntityId): boolean {
+  private holdsInputs(job: Job, recipe: RecipeRow, fuelIndex: number, container: EntityId, powered = false): boolean {
     if (recipe.container && this.items.get(container) === undefined) return false;
     for (let k = 0; k < job.inputs.length; k += 1) {
       if (recipe.container && k === job.inputs.length - 1) continue;
       if (k !== fuelIndex && k >= recipe.inputs.length) continue;
-      const needed = k === fuelIndex ? (job.inputs[k]?.count ?? 1) : (recipe.inputs[k]?.count ?? 0);
+      const needed = this.unitsOf(job, recipe, k, fuelIndex, powered);
       let held = 0;
       for (const item of job.inputs[k]?.delivered ?? []) held += this.items.get(item)?.count ?? 0;
       if (held < needed) return false;
@@ -848,7 +881,10 @@ export class WorkshopOperator {
     const stones = recipe.outputs.map((out) => out.stone === undefined ? undefined
       : this.items.get(job.inputs[out.stone.index]?.delivered[0] ?? 0)?.material);
     const container = recipe.container ? (job.inputs[job.inputs.length - 1]?.delivered[0] ?? 0) : 0;
-    const fuelIndex = recipe.fuel && !this.isMagmaPowered(id) ? recipe.inputs.length : -1;
+    // 12 § Fuel (T-659): the burned bar is an input of its own, or within the recipe's fuel input (`fuelWith`).
+    const powered = this.isMagmaPowered(id);
+    const fuelWith = typeof job.data['fuelWith'] === 'number' ? job.data['fuelWith'] : -1;
+    const fuelIndex = recipe.fuel && !powered && fuelWith < 0 ? recipe.inputs.length : -1;
     const seasoned = this.seasoningsOf(job, recipe, fuelIndex);
     // `12` § Operation: a `stuffed` output records its stuffing, the material of the recipe's last input.
     const stuffing = recipe.inputs.length > 1 ? (this.items.get(job.inputs[recipe.inputs.length - 1]?.delivered[0] ?? 0)?.material ?? 0) : 0;
@@ -856,14 +892,15 @@ export class WorkshopOperator {
     // F-17b (`12` § Operation, onComplete: "consume inputs ... spawn outputs"): a job whose
     // delivered inputs no longer cover the recipe makes nothing. 11 revalidates before it gets
     // here, so this is the last line: no output is ever spawned from inputs that are not consumed.
-    if (!this.holdsInputs(job, recipe, fuelIndex, container)) return;
+    if (!this.holdsInputs(job, recipe, fuelIndex, container, powered)) return;
     // 12 § Fuel: a job that burns an item tagged `smoky` fills the hall (05 § Smoke). Read before the fuel is consumed.
-    const smoky = fuelIndex >= 0 && (job.inputs[fuelIndex]?.delivered ?? []).some((item) => this.tagged(item, SMOKY_TAG));
+    const burned = fuelIndex >= 0 ? fuelIndex : recipe.fuel && !powered ? fuelWith : -1;
+    const smoky = burned >= 0 && (job.inputs[burned]?.delivered ?? []).some((item) => this.tagged(item, SMOKY_TAG));
     const pressure = new RunePressure(this, b);
     for (let k = 0; k < job.inputs.length; k += 1) {
       if (recipe.container && k === job.inputs.length - 1) continue;
       if (k === fuelIndex || k < recipe.inputs.length) {
-        let remaining = k === fuelIndex ? (job.inputs[k]?.count ?? 1) : (recipe.inputs[k]?.count ?? 0);
+        let remaining = this.unitsOf(job, recipe, k, fuelIndex, powered);
         for (const item of job.inputs[k]?.delivered ?? []) {
           if (remaining <= 0) break;
           const take = Math.min(remaining, this.items.get(item)?.count ?? 0);
