@@ -551,6 +551,31 @@ export function select(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain
   leisureOrIdle(host, ctx, id, b, safeTarget, false);
 }
 
+/** 10 § Behavior selection step 6: the wants a dwarf serves before work (hunger, thirst and rest). */
+const WORK_WANTS: readonly NeedName[] = ['hunger', 'thirst', 'rest'];
+
+/**
+ * `10` § Behavior selection step 6, `11` § Job steps (T-660): a worker between two trips of a fetch
+ * (11's `betweenTrips`: nothing in hand, the job less urgent than `NEED_DEFER_PRIORITY`) with hunger,
+ * thirst or rest at its want threshold starts that need's errand, holding the job: it resumes the fetch
+ * on its return, and 11 gives the job back after `JOB_HOLD_TICKS` away. True when an errand started.
+ * Without this the need rose on through the fetch to its critical mark, which interrupted the job
+ * mid-carry: the smith's steel at the second smelter was interrupted 2.7 times a job, the item in hand
+ * dropped where it stood at half of them, and the undelivered inputs let go and reserved again.
+ */
+function breakForWant(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain): boolean {
+  if (!host.hasJobs) return false;
+  const n = ctx.world.entities.get(id, C.Needs);
+  if (n === undefined) return false;
+  const wants = ranked(n, false).filter((need) => WORK_WANTS.includes(need));
+  if (wants.length === 0 || !ctx.readers.of<JobsReader>('11').betweenTrips(id, NEED_DEFER_PRIORITY)) return false;
+  const safeTarget = safeTargetOf(ctx, host.threatTile?.(id) ?? -1, id);
+  for (const want of wants) {
+    if (host.activities.start(ctx, id, want, b, host.idleGoal(id), host.dwarfIds(), safeTarget)) return true;
+  }
+  return false;
+}
+
 /** First need above its threshold, ordered by excess over the threshold and then needs-table order. */
 function ranked(n: Needs, critical: boolean): NeedName[] {
   return NEED_NAMES.filter((name) => {
@@ -744,9 +769,13 @@ export function tickDwarf(host: BrainHost, ctx: TickContext, id: EntityId): void
       reselect = true;
     } else if (jobIdOf(ctx, id) !== 0) {
       host.clearIdle(id);
-      b.activity = host.jobName(id);
-      ctx.jobs.stepWorker(id, ctx);
-      reselect = jobIdOf(ctx, id) === 0;
+      // 10 § Behavior selection step 6, 11 § Job steps (T-660): between two trips of a fetch, a want-level
+      // hunger, thirst or rest is served now, the job held, rather than at its critical mark mid-carry.
+      if (!breakForWant(host, ctx, id, b)) {
+        b.activity = host.jobName(id);
+        ctx.jobs.stepWorker(id, ctx);
+        reselect = jobIdOf(ctx, id) === 0;
+      }
     } else if (!(host.hasJobs && ctx.jobs.isQueued(id))) {
       // 11 answered and had nothing for this dwarf.
       leisureOrIdle(host, ctx, id, b, safeTargetOf(ctx, host.threatTile?.(id) ?? -1, id),

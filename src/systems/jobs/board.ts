@@ -928,6 +928,19 @@ export class JobBoard implements JobsApi, JobSink {
     delete job.data['standTile'];
   }
 
+  /**
+   * `11` § Job steps, fetching (T-660): the worker holds a job that is fetching its inputs and has
+   * nothing in hand, so a trip is done or not begun, and the job is less urgent than `deferPriority`
+   * (10's `NEED_DEFER_PRIORITY`) and not for a patient. 10 serves a want-level need then, the job held.
+   */
+  betweenTrips(workerId: EntityId, deferPriority: number): boolean {
+    const worker = this.workerOf(workerId);
+    if (worker.jobId === 0 || worker.carrying !== 0) return false;
+    const job = this.jobs.get(worker.jobId);
+    if (job === undefined || job.workerId !== workerId || job.state !== 'fetching' || this.isPatientCare(job)) return false;
+    return effectivePriority(job.priority, this.laborPriorities[this.jobLabor(job)] ?? PRIORITY_DEFAULT) > deferPriority;
+  }
+
   /** `jobs.hasUrgent(id, p)`: an open job of priority ≤ p the worker could take. */
   hasUrgent(workerId: EntityId, priority: number): boolean {
     for (const id of this.ids) {
