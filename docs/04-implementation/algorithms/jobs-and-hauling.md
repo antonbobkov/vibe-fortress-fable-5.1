@@ -54,7 +54,7 @@ claim(w, job):
   job.state = claimed; job.workerId = w; job.claimedTick = tick; Worker[w].jobId = job.id
   for input in job.inputs:
      needed = input.count - delivered amount (units for unit-counted inputs, entities otherwise)
-     found = unit input ? find required units in as few stacks as possible (split a partial stack) : items.findItems(input.filter, needed, workTileOf(job), 'walker', {reservable:true})
+     found = unit input ? find required units in as few stacks as possible (split a partial stack) : items.findItems(input.filter, needed, inputOrigin(job, w), 'walker', {reservable:true})
              // either search excludes job.data.unreachableItem, which the claim then deletes
      if found amount < needed: unclaim(job, 'missing_input'); return
      for it in found: items.setFlag(it, Reserved, true); Item[it].reservedBy = job.id; input.reserved.push(it); emit ItemReserved
@@ -116,7 +116,7 @@ When interrupted reservations expire, retain delivered build and workshop inputs
 
 On a worker's death, call the board before destroying the creature. Return its job to open with progress kept, retain reservations on inputs the worker is not holding, and remove the worker from the assignment queue. Drop each distinct held tool/carried item not in `Equipment` at the recorded death tile through 13, clearing owner, reservation and forbidden flags; emit `ToolDropped` for a dropped tool and one `ItemReleased` for each released reservation. Remove dropped ids from the job's reserved and delivered input lists; its other inputs stay reserved. Remove dropped ids from the job's reserved and delivered input lists; its other inputs stay reserved. Clear the worker's job, phase, tool and carrying fields. The subsequent `CreatureDied` notification is idempotent.
 
-Each selected input stack is carried in one trip. Unit searches select largest stacks first, ties by ordinary item search order; delivery uses that search order. The job anchor is `data.anchorTile`, else a numeric work tile, else the target.
+Each selected input stack is carried in one trip. A unit search counts the trips it needs, `k`, as the fewest of the largest stacks that hold the units, and then walks the matches in ordinary search order, taking a stack while the `k − taken − 1` largest stacks after it still hold what remains after it; delivery uses that search order. The claim searches from `inputOrigin(job, w)`: `data.deliveryTile` when the worker's label and pocket join it, else the first stand tile the worker reaches, else the worker's tile; a sheltering civilian searches from its own tile inside its shelter. The job anchor is `data.anchorTile`, else a numeric work tile, else the target.
 
 Hauling jobs (`haul_to_stockpile`) are a special case of the same machine with one input (the item), delivery to the slot, and `working` of 5 ticks.
 

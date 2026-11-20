@@ -96,14 +96,39 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
         const count = reader.get(id)?.count ?? 0;
         if (count > 0) candidates.push({ id, count, order: candidates.length });
       }
-      // Largest stacks minimise trips; the search order breaks ties and orders the fetches.
-      const chosen = candidates.slice().sort((a, b) => b.count - a.count || a.order - b.order);
+      // The fewest stacks, one trip each: as many as the largest stacks need (11 § Assignment step 4).
+      const largest = candidates.map((c) => c.count).sort((a, b) => b - a);
+      let trips = 0;
+      for (let sum = 0; sum < n && trips < largest.length; trips += 1) sum += largest[trips] as number;
+      if (largest.slice(0, trips).reduce((s, c) => s + c, 0) < n) return [];
+      // Of those, the nearest: in search order, a stack is taken while the stacks after it can still
+      // make up the rest in the trips left (T-655: a far stack of five was fetched for one bar of fuel
+      // with one lying beside the furnace).
+      // best[k][s]: the units of the s largest stacks from the k-th on (s < trips).
+      const best: number[][] = new Array<number[]>(candidates.length + 1);
+      best[candidates.length] = new Array<number>(trips).fill(0);
+      const top: number[] = [];
+      for (let k = candidates.length - 1; k >= 0; k -= 1) {
+        if (trips > 1) {
+          const c = (candidates[k] as (typeof candidates)[number]).count;
+          let at = top.findIndex((x) => x < c);
+          if (at < 0) at = top.length;
+          top.splice(at, 0, c);
+          if (top.length > trips - 1) top.pop();
+        }
+        const sums = [0];
+        for (let s = 1; s < trips; s += 1) sums.push((sums[s - 1] as number) + (top[s - 1] ?? 0));
+        best[k] = sums;
+      }
       const selected: typeof candidates = [];
       let remaining = n;
-      for (const candidate of chosen) {
-        if (remaining <= 0) break;
+      for (let k = 0; k < candidates.length && remaining > 0; k += 1) {
+        const candidate = candidates[k] as (typeof candidates)[number];
+        const left = remaining - candidate.count;
+        const slots = trips - selected.length - 1;
+        if (left > 0 && (slots <= 0 || ((best[k + 1] as number[])[slots] as number) < left)) continue;
         selected.push(candidate);
-        remaining -= candidate.count;
+        remaining = left;
       }
       if (remaining > 0) return [];
       if (!split) {

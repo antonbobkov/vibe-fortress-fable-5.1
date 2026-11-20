@@ -52,6 +52,8 @@ export interface EconomyState {
    * built there to replace a surface one, by key.
    */
   workHall?: { stair: number; tiles: number[]; slots: number[] };
+  /** T-620: the furnaces' store in the workshop hall (its zone id). */
+  fuelStore?: number;
   moving?: Record<string, { twin: number; type: string; orders: WorkOrder[]; worker: number; old?: number }>;
   /** T-588: what the fortress has set aside (forbidden) for the Thane's whim of the season, until just before it is judged. */
   thaneShare?: { whim: string; items: number[] };
@@ -958,11 +960,22 @@ function keepFuelStore(w: TestWorld, state: FortressState): void {
   if (!command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles }, ['bad_zone_tiles']).ok) return;
   economy.phases.add('fuel store');
   const store = bSystem.lastCreatedZone;
-  command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { categories: [...FUEL_STORE_GOODS] } });
+  economy.fuelStore = store;
+  command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { categories: fuelStoreGoods(state) } });
   const surface = buildings.zoneAt(w.index(state.cx - 1, state.cy + 6, state.z));
   if (surface !== 0 && buildings.zone(surface)?.type === 'stockpile') {
     command(w, { type: 'SetStockpileFilter', zoneId: surface, filter: { preset: 'everything', categories: SURFACE_GOODS_BELOW.filter((c) => !FUEL_STORE_GOODS.includes(c)) } });
   }
+}
+
+/**
+ * T-655: what the fuel store takes. Once the ore store stands by the smelter the fuel store takes
+ * no more ore: with the ore it filled up (27 ore on its 27 tiles in `three-years-p4-6` at shift 50
+ * from day 210), the logs found no stockpile below and lay where they were felled, and the burner
+ * walked to the surface for each one, 17 to 22 steps from its furnace.
+ */
+function fuelStoreGoods(state: FortressState): string[] {
+  return FUEL_STORE_GOODS.filter((c) => c !== 'ore' || !state.economy.phases.has('ore store'));
 }
 
 /**
@@ -992,6 +1005,8 @@ export function keepOreStore(w: TestWorld, state: FortressState): void {
   if (!command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: lanes.sort((a, b) => a - b) }, ['bad_zone_tiles']).ok) return;
   economy.phases.add('ore store');
   command(w, { type: 'SetStockpileFilter', zoneId: bSystem.lastCreatedZone, filter: { categories: ['ore'] } });
+  const fuel = economy.fuelStore;
+  if (fuel !== undefined && buildings.zone(fuel)?.type === 'stockpile') command(w, { type: 'SetStockpileFilter', zoneId: fuel, filter: { categories: fuelStoreGoods(state) } });
 }
 
 /** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */

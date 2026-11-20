@@ -38,7 +38,8 @@ function forbiddenGap(seed: string) {
 describe('T-487 a failed fetch walk is retried on the timer', () => {
   it('reopens the job and takes another drink when the walk to the nearest one fails with the labels joined', () => {
     const { w, board, id, worker, beyond } = forbiddenGap('t487-forbidden-gap');
-    const near = w.spawnItem('drink', 'ale', w.index(40, 34, Z));
+    // T-655: farther from the patient than the drink beyond the gap, which the claim, looking from the job, takes first.
+    const near = w.spawnItem('drink', 'ale', w.index(40, 40, Z));
     expect(board.claim(worker, board.jobs.get(id)!)).toBe(true);
     expect(board.jobs.get(id)!.inputs[0]!.reserved).toEqual([beyond]);
     w.until(() => board.jobs.get(id)?.state === 'blocked', 600);

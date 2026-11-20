@@ -27,8 +27,9 @@ describe('T-406 a care job whose worker no longer reaches any stand tile does no
     const north = w.spawnDwarf({ at: w.index(46, 8, Z) });
     for (const id of [worker, patient, north])
       for (const need of ['hunger', 'thirst', 'rest', 'social', 'comfort', 'purpose', 'joy'] as const) w.setNeed(id, need, 0);
-    const south = w.spawnItem('drink', 'ale', w.index(40, 28, Z));
-    const beyond = w.spawnItem('drink', 'ale', w.index(48, 6, Z));
+    // T-655: the claim looks from the job, so the south drink lies nearer the patient than the one beyond.
+    const south = w.spawnItem('drink', 'ale', w.index(40, 24, Z));
+    const beyond = w.spawnItem('drink', 'ale', w.index(60, 4, Z));
     w.step(1);
     const board = world.services.jobs as JobBoard;
     const id = board.create('t406:water', { type: 'water_patient', target: { kind: 'entity', ref: patient }, workTile: 'adjacent',
