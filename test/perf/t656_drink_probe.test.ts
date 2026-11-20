@@ -56,10 +56,13 @@ describe('T-656 probe: the drink in stock', () => {
     const fortress = (): number[] => ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress');
     let alc = 0, waterIn = 0, waterOut = 0;
     let gone: Record<string, number> = {};
+    let brews = 0;
+    let doing: Record<string, number> = {};
     w.game.world.onEvents((events) => {
       for (const e of events) {
         if (e.type === 'DrankAlcohol') alc += 1;
         else if (e.type === 'ItemDestroyed' && e['itemType'] === 'barrel') { const k = String(e['reason']); gone[k] = (gone[k] ?? 0) + 1; }
+        else if (e.type === 'ItemCrafted' && e['recipeId'] === 'brew') brews += 1;
         else if (e.type === 'DrankWater') {
           const q = ent.get(Number(e['id']), C.Position);
           if (q && w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor)) waterOut += 1; else waterIn += 1;
@@ -97,7 +100,14 @@ describe('T-656 probe: the drink in stock', () => {
       return `timber ${standing.length}/${state.timberTiles.length} chops ${standing.filter((t) => w.map.designationAt(t)).length} trees ${trees} charcoal ${items.count('charcoal_bar')}`;
     };
     let lastDay = -1;
+    let lastSample = -1;
     const daily = (): void => {
+      const b = state.economy.brewer;
+      if (b !== undefined && w.tick - lastSample >= 50) {
+        lastSample = w.tick;
+        const k = dwarves.activityText(b).split(' ')[0]!;
+        doing[k] = (doing[k] ?? 0) + 1;
+      }
       if (day() === lastDay) return;
       lastDay = day();
       let brew = 0, plantAll = 0, empty = 0;
@@ -122,8 +132,8 @@ describe('T-656 probe: the drink in stock', () => {
         `${shop('still')} ${shop('still2')} brewer ${brewer ?? '-'} ${brewer ? `${dwarves.activityText(brewer)}@${bq ? bq.z - state.z : '-'}` : ''} ` +
         `alert ${w.game.world.fortress.alert} thirst>=50 ${thirst.filter((t) => t >= 50).length} >=85 ${thirst.filter((t) => t >= 85).length} surface ${surface} ` +
         `drank alc ${alc} waterIn ${waterIn} waterOut ${waterOut} meals ${items.count('lavish_meal') + items.count('easy_meal')} ` +
-        `barrels ${JSON.stringify(held)} lost ${JSON.stringify(gone)} ${shop('carpenter')} logs ${items.available('log')} ${timber()} carpenters ${carpenters()}`);
-      alc = 0; waterIn = 0; waterOut = 0; gone = {};
+        `brews ${brews} brewerDay ${JSON.stringify(doing)} barrels ${JSON.stringify(held)} lost ${JSON.stringify(gone)} ${shop('carpenter')} logs ${items.available('log')} ${timber()} carpenters ${carpenters()}`);
+      alc = 0; waterIn = 0; waterOut = 0; gone = {}; brews = 0; doing = {};
     };
     const boot = 20 * TICKS_PER_DAY;
     while (w.tick < boot) {

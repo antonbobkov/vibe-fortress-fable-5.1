@@ -468,14 +468,20 @@ export function dedicate(w: TestWorld, state: FortressState, dwarfId: number, ke
  * bed after day 56: a fortress of 24 slept in seven. Given an axe and logs, the carpenter's chair
  * still stood open seventy days. So the player gives the founder's trade to another dwarf, who fells,
  * works the carpenter's bench and hauls, and has the forge make an axe when he has none to take.
+ * T-656: and once the logs run short (under a quarter of TIMBER_RESERVE): the founder fells and works
+ * the carpenter's bench alone, between his drill, his meals and his sleep. In `three-years-p4-5` at
+ * shift 0 and `three-years-p4-4` at shift 150 the fortress had no log for weeks with 130 to 150 trees
+ * standing, a few felled a month, so the carpenter made no barrel, the stills waited for one and the
+ * fortress drank at the brook. The founder keeps his labors, so two dwarves fell.
  */
 export function keepWoodcutter(w: TestWorld, state: FortressState): void {
   const ent = w.game.world.entities;
   const { specialists } = state.economy;
   if (specialists['woodcutter'] !== undefined && !ent.alive(specialists['woodcutter'])) delete specialists['woodcutter'];
   const founder = w.game.arrival?.dwarves[2];
+  const short = w.readers.of<ItemsReader>('13').available('log') < TIMBER_RESERVE / 4;
   const able = founder !== undefined && ent.alive(founder) && ent.get(founder, C.Brain)?.behavior !== 'patient' &&
-    !(state.strong?.trained ?? []).includes(founder);
+    !(state.strong?.trained ?? []).includes(founder) && !short;
   if (specialists['woodcutter'] === undefined && !able && fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION) {
     const dwarves = w.readers.of<DwarvesReader>('10');
     const pick = specialistCandidates(w, state).sort((a, b) => dwarves.skill(b, 'woodcutting') - dwarves.skill(a, 'woodcutting') || a - b)[0];
@@ -1456,6 +1462,59 @@ export function releaseSpecialists(w: TestWorld, state: FortressState): void {
   }
 }
 
+/**
+ * T-656: the still's standing brew keeps `threshold` drink. It is found by its recipe and mode: the
+ * Thane's batch of spirits goes ahead of it (`three_years_making_do.ts`), and the threshold written to
+ * the first order went to that batch while the brew kept the stock of a smaller fortress.
+ */
+function keepBrewing(w: TestWorld, stillId: number, threshold: number): void {
+  const brew = w.game.registry.table('recipes').index('brew');
+  const orders = w.game.world.entities.get(stillId, C.Workshop)?.orders ?? [];
+  const index = orders.findIndex((o) => o.recipe === brew && o.mode === 'maintain');
+  if (index >= 0 && orders[index]!.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: stillId, index, patch: { threshold } });
+}
+
+/**
+ * T-656: the days of drink under which a fortress is short of it. A raid's alert holds the fortress
+ * inside for up to four days, and nobody brews while it shelters.
+ */
+export const DRINK_RESERVE_DAYS = 7;
+/** T-656: the barrels the carpenter makes first, ahead of its furniture and beds, while the stills wait for one. */
+export const BARRELS_AHEAD = 4;
+
+/**
+ * T-656: the stills wait for barrels while the drink runs out. A brew needs an empty barrel, and the
+ * carpenter's barrels stood behind its chairs, tables and beds, with the logs a few at a time and the
+ * wood furnace burning them to charcoal: at peril 4 the fortresses of `three-years-p4-4` and
+ * `three-years-p4-5` had 200 to 1,000 plants and a still idle for want of a barrel, no drink for weeks,
+ * and raids carrying off the barrels they had; the dwarves drank at the brook, where the ambushes
+ * waited, and the critically thirsty came up the stair together as each alert ended. So while the
+ * drink is under DRINK_RESERVE_DAYS for the dwarves and the stills have no free empty barrel, the
+ * player has BARRELS_AHEAD barrels made first, and holds the wood furnace while they want the logs
+ * (unless the squad's kit is being forged).
+ */
+function barrelsForDrink(w: TestWorld, state: FortressState, carpenter: number): void {
+  const ent = w.game.world.entities;
+  const items = w.readers.of<ItemsReader>('13');
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const population = fortressDwarves(w).length;
+  const stills = ['still', 'still2'].filter((k) => buildings.get(state.placedIds[k] ?? 0)?.state === 'built').length;
+  const short = items.available('drink') < population * 0.77 * DRINK_RESERVE_DAYS &&
+    items.countAvailable({ emptyContainer: 'barrel' }) < stills;
+  const barrel = w.game.registry.table('recipes').index('make_barrel');
+  const orders = (): readonly WorkOrder[] => ent.get(carpenter, C.Workshop)?.orders ?? [];
+  let ahead = orders().findIndex((o) => o.recipe === barrel && o.mode === 'once');
+  if (short && ahead < 0 && command(w, { type: 'AddWorkOrder', workshopId: carpenter, order: { recipeId: 'make_barrel', mode: 'once', remaining: BARRELS_AHEAD, priority: ROUTINE } }).ok) {
+    command(w, { type: 'ReorderWorkOrder', workshopId: carpenter, from: orders().length - 1, to: 0 });
+    ahead = 0;
+  }
+  const furnace = state.placedIds['wood_furnace'] ?? 0;
+  const ws = ent.get(furnace, C.Workshop);
+  if (ws === undefined) return;
+  const hold = ahead >= 0 && !armingSquad(state) && items.available('log') < (orders()[ahead]?.remaining ?? 0) + 1;
+  if (ws.suspended !== hold) command(w, { type: 'SuspendWorkshop', workshopId: furnace, on: hold });
+}
+
 /** Kitchens and stills follow the dwarf count, and the lavish order follows it too. */
 function checkKitchens(w: TestWorld, state: FortressState): void {
   const { phases } = state.economy;
@@ -1486,9 +1545,7 @@ function checkKitchens(w: TestWorld, state: FortressState): void {
       state.orderedWorkshops.add('still2');
       order(w, id, 'brew', drinkStock(population), undefined, ROUTINE - 1);
     }
-    const orders = id ? w.game.world.entities.get(id, C.Workshop)?.orders ?? [] : [];
-    const drink = drinkStock(population);
-    if (orders[0] !== undefined && orders[0].threshold !== drink) command(w, { type: 'EditWorkOrder', workshopId: id, index: 0, patch: { threshold: drink } });
+    if (id) keepBrewing(w, id, drinkStock(population));
   }
 }
 
@@ -1975,12 +2032,11 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const still = state.placedIds['still'];
   if (still && state.orderedWorkshops.has('still')) {
     const population = w.game.world.entities.with(C.Labors).filter((id) => w.game.world.entities.get(id, C.Creature)?.faction === 'fortress').length;
-    const threshold = drinkStock(population);
-    const ws = w.game.world.entities.get(still, C.Workshop);
-    if (ws?.orders[0]?.threshold !== threshold) command(w, { type: 'EditWorkOrder', workshopId: still, index: 0, patch: { threshold } });
+    keepBrewing(w, still, drinkStock(population));
   }
   const foodBarrels = checkLarder(w, state);
   const carpenter = state.placedIds['carpenter'];
+  if (carpenter && state.orderedWorkshops.has('carpenter')) barrelsForDrink(w, state, carpenter);
   if (carpenter && state.orderedWorkshops.has('carpenter')) {
     const recipes = w.game.registry.table('recipes');
     const orders = (): readonly { recipe: number; mode: string; threshold: number; remaining: number }[] => w.game.world.entities.get(carpenter, C.Workshop)?.orders ?? [];
