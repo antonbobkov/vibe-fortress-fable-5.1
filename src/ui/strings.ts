@@ -1349,6 +1349,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.military.armed': 'Armed {n} of {m}',
   'ui.military.unarmed': 'unarmed: {names}',
   'ui.military.without': 'no {weapon}: {names}',
+  'ui.military.harmless': 'wooden weapon, no harm done: {names}',
   'ui.military.weapon_word': 'weapon',
   'ui.military.ranged_weapon_word': 'ranged weapon',
   'ui.military.no_weapon_stock': 'No {weapon} in stock: order one at {where} [o] or buy one.',
