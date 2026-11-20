@@ -106,6 +106,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
     'ItemDestroyed',
     'LimbLost',
     'ZoneChanged',
+    'AttackResolved',
   ];
 
   private releaseDestroyObserver: (() => void) | null = null;
@@ -195,6 +196,10 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
 
   clearTarget(id: EntityId): void {
     this.setTarget(id, 0);
+  }
+
+  harmlessFor(id: EntityId): number {
+    return this.targets.harmlessFor(id, this.world?.calendar.tick ?? 0);
   }
 
   alert(): Alert {
@@ -417,6 +422,9 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
 
     // Step barracks & archery range training
     stepTraining(ctx, this.rng, this.sessionEnds, this.alertState);
+
+    // § Targeting: a fight that harms no one is counted from the tick a creature takes up its target.
+    this.targets.refreshHarmless(tick);
 
     for (const id of this.targets.allWithTarget()) {
       if (entities.get(id, C.Creature)?.cagedIn) { this.targets.clearTarget(id); continue; }
@@ -658,6 +666,14 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       }
       return;
     }
+    if (event.type === 'AttackResolved') {
+      // § Targeting: a blow that does damage makes the fight of both creatures a harmful one.
+      if (typeof event['amount'] === 'number' && event['amount'] > 0) {
+        this.targets.harmed(event['attackerId'] as EntityId, ctx.tick);
+        this.targets.harmed(event['defenderId'] as EntityId, ctx.tick);
+      }
+      return;
+    }
     if (event.type === 'CreatureDied') {
       const id = event['id'] as EntityId;
       const killer = (event['killer'] ?? event['killerId'] ?? 0) as EntityId;
@@ -781,6 +797,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       cooldownUntil: this.targetManager ? Array.from(this.targetManager.cooldownUntil.entries()) : [],
       engagements: this.targetManager ? Array.from(this.targetManager.engagements.entries()) : [],
       ...(this.targetManager?.unreachableSince.size ? { unreachableSince: Array.from(this.targetManager.unreachableSince) } : {}),
+      ...(this.targetManager?.harmless.size ? { harmless: Array.from(this.targetManager.harmless).sort((a, b) => a[0] - b[0]).map(([id, e]): [EntityId, EntityId, number] => [id, e.target, e.since]) } : {}),
     };
   }
 
@@ -799,6 +816,8 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       for (const [k, v] of state.engagements ?? []) this.targetManager.engagements.set(k, v);
       this.targetManager.unreachableSince.clear();
       for (const [k, v] of state.unreachableSince ?? []) this.targetManager.unreachableSince.set(k, v);
+      this.targetManager.harmless.clear();
+      for (const [k, target, since] of state.harmless ?? []) this.targetManager.harmless.set(k, { target, since });
     }
   }
 }
