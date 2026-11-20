@@ -312,6 +312,12 @@ export interface FortressState {
   strong?: StrongSquad;
   /** T-603: a squad that fought a sprung ambush under the current alert; the alert is lowered as soon as the danger is gone. */
   ambushFought?: boolean;
+  /** T-653: when the script last lowered the alert (journal only). */
+  calmTick?: number;
+  /** T-653: the current alert has answered a raid, a siege, an ambush or a threat warning. */
+  raidAlert?: boolean;
+  /** T-653: the gate is being looked at before the alert comes down: since when, and since when each watch post (by squad) has been held. */
+  looking?: { since: number; held: Record<string, number> } | undefined;
   /** T-603: each sprung ambush's toll by its first answer (journal only). */
   ambushToll?: Record<string, { ambushes: number; deaths: number; soldiers: number; fell: number }>;
   /** T-580: false where no watch is posted at the north door and no dog is trained: the defence fortress, whose kill corridor and traps lie before that door. */
@@ -1629,8 +1635,8 @@ function keepInnerLine(w: TestWorld, state: FortressState): void {
         command(w, { type: 'PlaceBuilding', buildingType: 'door', origin, orientation: 0, materialChoice: 0, priority: KIT_FIRST }).ok) {
         ids[k] = bSystem.lastPlacedBuilding;
       }
-    } else if (b.state === 'built' && b.mode !== 'lock_on_alert') {
-      command(w, { type: 'SetDoorMode', buildingId: id, mode: 'lock_on_alert' });
+    } else if (b.state === 'built' && b.mode !== (state.looking !== undefined ? 'open' : 'lock_on_alert')) {
+      command(w, { type: 'SetDoorMode', buildingId: id, mode: state.looking !== undefined ? 'open' : 'lock_on_alert' });
     }
   }
   const waiting = [...ids, state.gateDoorId, state.gateDoorId2].filter((id) => id !== 0 && buildings.get(id)?.state === 'planned').length;
@@ -1668,6 +1674,10 @@ export interface AmbushCount {
   /** T-601: the squad as the ambush found it, and the script's first answer to it. */
   strength?: AmbushSquad;
   answer?: string;
+  /** T-653: the tick it was seen to spring, whether an alert was up then, and the ticks since the script last lowered one. */
+  tick?: number;
+  alertUp?: boolean;
+  sinceCalm?: number;
 }
 
 /**
@@ -1689,7 +1699,8 @@ function countAmbushes(w: TestWorld, state: FortressState, events: readonly { ty
       if (!p || counts.some((c) => c.party === party)) continue;
       counts.push({ party, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, size: p.size, outdoors: onSurface(),
         armed: squad.filter((id) => combat.weaponOf(id) !== 0).length, deaths: 0, soldiers: 0, fell: 0, outsideAtLock: -1, squad: [...squad],
-        strength: ambushSquad(w, state) });
+        strength: ambushSquad(w, state), tick: w.tick, alertUp: w.game.world.fortress.alert !== 'calm',
+        ...(state.calmTick !== undefined ? { sinceCalm: w.tick - state.calmTick } : {}) });
     } else if (e.type === 'CreatureDied') {
       const id = Number(e['id']);
       for (const c of counts) {
@@ -1776,8 +1787,9 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     }
   }
 
-  // 2. Set door modes: lock_on_alert (19 § The airlock, ordinary player setting)
-  const wantDoorMode = 'lock_on_alert';
+  // 2. Set door modes: lock_on_alert (19 § The airlock, ordinary player setting); open while the
+  // watch looks at the gate before an alert comes down (T-653, `lookBeforeAllClear`).
+  const wantDoorMode = state.looking !== undefined ? 'open' : 'lock_on_alert';
   if (state.gateDoorPlaced && state.gateDoorId !== 0) {
     const b = buildings.get(state.gateDoorId);
     if (b?.state === 'built' && b.mode !== wantDoorMode) {
@@ -1892,6 +1904,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   const targets = [...indoors, ...intruders, ...wild];
   const danger = raid || targets.length > 0;
   if (danger) state.lastDangerTick = w.tick;
+  // T-653: whatever the look finds, or anything else that comes, ends it: the doors lock on the alert again.
+  if (danger && state.looking !== undefined) endLook(w, state);
   const curAlert = w.game.world.fortress.alert;
   // A gate locked on everybody shelters nobody (T-363): with every dwarf shut outside it, the
   // alert only keeps the fortress from its halls, stores and beds. The player lifts it, and
@@ -1907,6 +1921,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       !positions.some((p) => w.readers.pathing.labelOf(w.index(p.x, p.y, p.z), 'walker') === insideLabel)) {
     state.shutOut = true;
     state.mustered = false;
+    state.calmTick = w.tick;
+    state.raidAlert = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
     state.answered = '';
@@ -1942,6 +1958,8 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     state.wildQuietUntil = w.tick + WILD_QUIET_TICKS;
     state.wildEpisodeSince = undefined;
     state.mustered = false;
+    state.calmTick = w.tick;
+    state.raidAlert = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, wildQuiet: true });
     state.answered = '';
@@ -1968,6 +1986,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       state.wildEpisodeSince = !wildOnly ? undefined : episode ? since : w.tick;
       state.alertSince = w.tick;
       state.mustered = false;
+      state.raidAlert = false;
       command(w, { type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
     }
@@ -2002,6 +2021,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     const strength = ambushOutside ? ambushSquad(w, state) : undefined;
     const fights = strength !== undefined && fightsAmbush(strength, ambushSize);
     const standingDown = ambushOutside && !fights && ambushSize > armedSoldiers(w, state, adults);
+    if (raid) state.raidAlert = true;
     if (standingDown) standDown(w, state);
     else standUp(w, state, adults);
     const answered = !ambushOnly ? 'with another threat' : ambushIn.length > 0 ? 'in the halls' : fights ? `fought (${ambushBar(strength!).bar})`
@@ -2078,8 +2098,13 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // reach the wounded outside only through them (in T-600's arena most of the dead bled out after
   // the fight). Otherwise it waits ALL_CLEAR_TICKS with no danger near.
   } else if (curAlert === 'hearth' && (w.tick - state.lastDangerTick >= ALL_CLEAR_TICKS || state.ambushFought === true)) {
+    // T-653: after a raid, a siege or an ambush, where ambushes come, the watch looks before the
+    // alert comes down (`lookBeforeAllClear`).
+    if (state.ambushFought !== true && state.raidAlert === true && lookBeforeAllClear(w, state)) return;
     if (state.wildEpisodeSince !== undefined) state.wildCalmTick = w.tick;
     state.mustered = false;
+    state.calmTick = w.tick;
+    state.raidAlert = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true });
     state.answered = '';
@@ -2115,6 +2140,103 @@ function cancelSquadOrders(w: TestWorld, state: FortressState): void {
   for (const squadId of [state.squadId, state.strong?.marksSquadId ?? 0]) {
     if (squadId !== 0) command(w, { type: 'SquadOrder', squadId, order: { kind: 'cancel' } });
   }
+}
+
+/**
+ * T-653: the ticks each watch post must be held, its watchman or its war dog standing at it, before
+ * the gate counts as looked at: more than a threats tick (50), in which a hidden creature that a
+ * watcher stands near is spotted.
+ */
+export const LOOK_TICKS = 60;
+/** T-653: the longest the look holds the alert up, should a post find nobody to hold it. */
+export const LOOK_MAX_TICKS = 600;
+
+/** T-653: the gate's doors and the second line's, as they stand built. */
+function gateDoors(w: TestWorld, state: FortressState): number[] {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  return [state.gateDoorId, state.gateDoorId2, ...(state.innerDoorIds ?? [])]
+    .filter((id) => id !== 0 && buildings.get(id)?.state === 'built');
+}
+
+function setGateDoors(w: TestWorld, state: FortressState, mode: 'open' | 'lock_on_alert'): void {
+  const buildings = w.readers.of<BuildingsReader>('14');
+  for (const id of gateDoors(w, state)) {
+    if (buildings.get(id)?.mode !== mode) command(w, { type: 'SetDoorMode', buildingId: id, mode });
+  }
+}
+
+/**
+ * T-653: an ambush that arrives while the fortress shelters from a raid finds nobody outdoors and
+ * makes for the hearth (18 § Party AI): it comes to the gate, finds it locked and waits there,
+ * hidden, beside the watch's posts that the watchmen left for the alert. Nobody can see it: its
+ * members are not drawn and nothing announces them until a dwarf or a war dog spots one. On day 295
+ * of `three-years-p4-1` at shift 100 an ambush of nine waited so through the last day of a raid's
+ * alert, two tiles from the squad on the gatehouse stair with a locked door between; the alert came
+ * down, the fortress, short of drink after four days inside, came up the stair for the brook, and
+ * the ambush sprang 28 ticks later on the first of them. Thirty-one died. So where ambushes come, a
+ * player who lowers an alert raised for a raid, a siege, an ambush or a threat warning first sends
+ * the watch out to look: the gate's doors (and the second line's) are set open with the alert still
+ * up, so that the civilians stay below, the watchmen take their posts, and once each post has been
+ * held LOOK_TICKS (a war dog holds its post through any alert), or LOOK_MAX_TICKS have passed, the
+ * doors lock on the alert again and the alert comes down. Anything the watch spots springs on it,
+ * not on the fortress, and keeps the alert up. Returns whether the look still holds the alert.
+ */
+export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean {
+  const from = ambushFromDay(w);
+  const watch = state.watch ?? [];
+  if (from === null || w.tick < from * TICKS_PER_DAY || watch.length === 0) return false;
+  const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+  if (state.looking === undefined) {
+    state.looking = { since: w.tick, held: {} };
+    setGateDoors(w, state, 'open');
+    note('three_years_look', { tick: w.tick, day, look: true });
+    return true;
+  }
+  const ent = w.game.world.entities;
+  const combat = w.readers.of<CombatReader>('16');
+  const animals = w.readers.of<AnimalsReader>('08');
+  const dogSpecies = w.game.registry.table('creatures').index('dog');
+  const { since, held } = state.looking;
+  let done = true;
+  for (const post of watch) {
+    const squad = combat.squad(post.squadId);
+    const station = squad?.station ?? null;
+    const dogs = animals.tameList().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.species === dogSpecies && animals.assignedTo(id) === post.squadId);
+    const lookers = [...(squad?.members ?? []), ...dogs];
+    const key = String(post.squadId);
+    // The watchman is ordered to his post: under the alert a standing station alone does not keep a
+    // soldier from his meals and his bed (16 § Squads), and after days behind the gate he wants both.
+    if (station !== null && (squad?.members.length ?? 0) > 0 && !squad!.orders.some((o) => o.kind === 'station')) {
+      command(w, { type: 'SquadOrder', squadId: post.squadId, order: { kind: 'station', tile: station } });
+    }
+    // A post nobody can hold (no dog, no adult free to stand there) is not waited for.
+    if (station === null || lookers.length === 0) {
+      if (w.tick - since < LOOK_TICKS) done = false;
+      continue;
+    }
+    const at = lookers.some((id) => {
+      const q = ent.get(id, C.Position);
+      return q !== undefined && q.z === w.map.zOf(station) && Math.max(Math.abs(q.x - w.map.xOf(station)), Math.abs(q.y - w.map.yOf(station))) <= 1;
+    });
+    if (!at) {
+      delete held[key];
+      done = false;
+      continue;
+    }
+    held[key] ??= w.tick;
+    if (w.tick - held[key]! < LOOK_TICKS) done = false;
+  }
+  if (!done && w.tick - since < LOOK_MAX_TICKS) return true;
+  endLook(w, state);
+  note('three_years_look', { tick: w.tick, day, looked: w.tick - since });
+  return false;
+}
+
+/** T-653: the look is over (it found something, or the alert comes down): the doors lock on the alert again. */
+function endLook(w: TestWorld, state: FortressState): void {
+  state.looking = undefined;
+  setGateDoors(w, state, 'lock_on_alert');
+  for (const post of state.watch ?? []) command(w, { type: 'SquadOrder', squadId: post.squadId, order: { kind: 'cancel' } });
 }
 
 function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly number[]): void {
@@ -2216,13 +2338,18 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
       if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
       continue;
     }
-    if (!calm || !staffed) {
+    if ((!calm && state.looking === undefined) || !staffed) {
       if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
       continue;
     }
-    if (!adults.includes(post.dwarfId) || busy.has(post.dwarfId)) {
+    // T-653: for the look before an alert comes down, a watchman gone to eat, drink or sleep (after
+    // days behind the gate a need is often critical, and a critical need outranks any order) is
+    // replaced by one who is not.
+    const away = (id: number): boolean => state.looking !== undefined && ent.get(id, C.Brain)?.behavior === 'need';
+    if (!adults.includes(post.dwarfId) || busy.has(post.dwarfId) || away(post.dwarfId)) {
       const others = new Set(watch.map((wt) => wt.dwarfId));
-      post.dwarfId = [...adults].reverse().find((id) => !busy.has(id) && !others.has(id)) ?? 0;
+      post.dwarfId = [...adults].reverse().find((id) => !busy.has(id) && !others.has(id) && !away(id)) ??
+        (adults.includes(post.dwarfId) && !busy.has(post.dwarfId) ? post.dwarfId : 0);
     }
     const want = post.dwarfId === 0 ? [] : [post.dwarfId];
     if (members.length !== want.length || members.some((id) => !want.includes(id))) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: want });

@@ -1,6 +1,8 @@
 # T-653 — An ambush springs as the alert comes down
 
-**Source:** [T-650's measurement](../../reports/data/2026-11-20-t650-peril-4-immigration.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-20, in d348cddc,67fc7518,3b831ab6,f6b88c6a.
+
+**Source:** [T-650's measurement](../../../reports/data/2026-11-20-t650-peril-4-immigration.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -14,4 +16,5 @@ Spec: testing-strategy.md § The long scenarios (the gate's watch, the answer to
 
 ## Done
 
-The ambushes at the all-clear before and after, by run, and the sweep's verdict.
+- [x] The ambushes at the all-clear before and after, by run ([T-653's report](../../../reports/data/2026-11-20-t653-ambush-at-the-all-clear.md)).
+- [x] The sweep's verdict: pass (`44699425493`).
