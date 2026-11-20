@@ -1226,7 +1226,8 @@ export class FortressScreen implements Screen {
       counts = { shown: this.units.rows(ctx).length, total: dwarvesOf(ctx).length };
     } else if (id === 'jobs' && this.jobs.filter.value !== '') {
       filter = this.jobs.filter.value;
-      counts = { shown: this.jobs.jobs(ctx).length, total: this.jobs.allJobs(ctx).length };
+      const all = this.jobs.allJobs(ctx);
+      counts = { shown: this.jobs.jobs(ctx, all).length, total: all.length };
     } else if (id === 'log' && this.logView.filter.value !== '') {
       filter = this.logView.filter.value;
       counts = { shown: matchLines(surface, this.log.lines, this.logFilter, filter).length, total: filterLines(this.log.lines, this.logFilter).length };

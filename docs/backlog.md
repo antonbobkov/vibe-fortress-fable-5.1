@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-644 | [The requests editor finds a good without stepping through every item](work/T-644-requests-editor-finds-goods.md) | [T-640](archive/tasks/T-640-long-lists-animals-jobs-requests.md) | — | open |
-| T-645 | [Jobs and Stocks redo their whole lists every frame](work/T-645-jobs-and-stocks-panels-per-frame-work.md) | [T-640](archive/tasks/T-640-long-lists-animals-jobs-requests.md) | — | open |
 | T-646 | [The Workshop panel's recipes say where a missing input comes from](work/T-646-workshop-recipes-say-where-from.md) | [T-641](archive/tasks/T-641-making-do-chains-say-where-from.md) | — | open |
 | T-647 | [Soldiers at drill strike a raider for nothing](work/T-647-soldiers-at-drill-do-no-harm.md) | [T-639](archive/tasks/T-639-mood-and-units-at-thirty-dwarves.md) | — | open |
 | T-648 | [A workshop order is runnable on goods out of reach](work/T-648-workshop-order-runnable-out-of-reach.md) | [T-642](archive/tasks/T-642-iron-for-the-squads-steel.md) | — | open |
