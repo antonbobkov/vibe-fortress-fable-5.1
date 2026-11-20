@@ -2212,7 +2212,7 @@ export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean 
     if (station !== null && (squad?.members.length ?? 0) > 0 && !squad!.orders.some((o) => o.kind === 'station')) {
       command(w, { type: 'SquadOrder', squadId: post.squadId, order: { kind: 'station', tile: station } });
     }
-    // A post nobody can hold (no dog, no adult free to stand there) is not waited for.
+    // A post nobody can hold (no dog, no adult free to stand there, no ground to stand on) is not waited for.
     if (station === null || lookers.length === 0) {
       if (w.tick - since < LOOK_TICKS) done = false;
       continue;
