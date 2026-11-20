@@ -89,7 +89,8 @@ const scenario: Scenario = {
     const chestAfter = inChest().reduce((n, id) => n + (ent.get(id, C.Item)?.count ?? 0), 0);
 
     const admitted = w.events('PatientAdmitted').some((e) => e['id'] === patient);
-    const diagnosed = w.events('JobCompleted').some((e) => e['jobType'] === 'diagnose');
+    // By the diagnose job, or by the medic who diagnoses while it treats (17: the medic who diagnoses also diagnoses while it treats).
+    const diagnosed = w.events('JobCompleted').some((e) => e['jobType'] === 'diagnose') || treatments().includes('diagnose');
     const summary = `${trace(w, 'pp_hospital')}; hospital ${hospital}, bed ${built(w, bed)}, chest ${built(w, chest)}; ` +
       `chest built day ${chestDay}, stocked ${JSON.stringify(seen)}, wound day ${stockedDay}, units ${chestBefore} -> ${chestAfter}; patient ${patient} ` +
       `admitted ${admitted}, diagnosed ${diagnosed}, treated ${JSON.stringify(treatments())}, alive ${ent.alive(patient)}`;

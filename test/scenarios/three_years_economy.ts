@@ -52,6 +52,8 @@ export interface EconomyState {
    * built there to replace a surface one, by key.
    */
   workHall?: { stair: number; tiles: number[]; slots: number[] };
+  /** T-620: the furnaces' store in the workshop hall (its zone id). */
+  fuelStore?: number;
   moving?: Record<string, { twin: number; type: string; orders: WorkOrder[]; worker: number; old?: number }>;
   /** T-588: what the fortress has set aside (forbidden) for the Thane's whim of the season, until just before it is judged. */
   thaneShare?: { whim: string; items: number[] };
@@ -453,6 +455,46 @@ export function dedicate(w: TestWorld, state: FortressState, dwarfId: number, ke
   for (const row of w.game.registry.table<{ id: string }>('labors').rows.slice(1)) {
     const on = keep.includes(row.id) || (haul && row.id === 'hauling') || (row.id === 'trading' && state.economy.broker?.id === dwarfId);
     if (jobs.laborEnabled(dwarfId, row.id) !== on) command(w, { type: 'SetLabor', dwarfId, labor: row.id, on });
+  }
+}
+
+/**
+ * T-653: the fortress's woodcutter and carpenter is the founder who came with the axe, and he
+ * stands in the squad. While he lies in the hospital or once he is dead (or trains in the strong
+ * squad, which keeps no axe), nobody fells a tree and the carpenter's jobs wait: a dwarf with the
+ * labor but no axe leaves a chop to the one who carries it (11 § Assignment), and the others with
+ * the labors take their other work first. In `three-years-p4-2` at shift 150 the chops stood open
+ * from day 61 to the end, the wood furnace burnt the last logs on day 84, and the carpenter made no
+ * bed after day 56: a fortress of 24 slept in seven. Given an axe and logs, the carpenter's chair
+ * still stood open seventy days. So the player gives the founder's trade to another dwarf, who fells,
+ * works the carpenter's bench and hauls, and has the forge make an axe when he has none to take.
+ */
+export function keepWoodcutter(w: TestWorld, state: FortressState): void {
+  const ent = w.game.world.entities;
+  const { specialists } = state.economy;
+  if (specialists['woodcutter'] !== undefined && !ent.alive(specialists['woodcutter'])) delete specialists['woodcutter'];
+  const founder = w.game.arrival?.dwarves[2];
+  const able = founder !== undefined && ent.alive(founder) && ent.get(founder, C.Brain)?.behavior !== 'patient' &&
+    !(state.strong?.trained ?? []).includes(founder);
+  if (specialists['woodcutter'] === undefined && !able && fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION) {
+    const dwarves = w.readers.of<DwarvesReader>('10');
+    const pick = specialistCandidates(w, state).sort((a, b) => dwarves.skill(b, 'woodcutting') - dwarves.skill(a, 'woodcutting') || a - b)[0];
+    if (pick !== undefined) {
+      specialists['woodcutter'] = pick;
+      dedicate(w, state, pick, ['woodcutting', 'carpentry']);
+    }
+  }
+  const feller = specialists['woodcutter'];
+  const forge = state.placedIds['forge'] ?? 0;
+  if (feller === undefined || w.readers.of<BuildingsReader>('14').get(forge)?.state !== 'built') return;
+  const items = w.readers.of<ItemsReader>('13');
+  const axe = w.game.registry.table('items').index('axe');
+  if (items.available('axe') > 0 || items.carriedItems(feller).some((id) => ent.get(id, C.Item)?.type === axe)) return;
+  const recipe = w.game.registry.table('recipes').index('forge_battle_axe');
+  const orders = (): readonly WorkOrder[] => ent.get(forge, C.Workshop)?.orders ?? [];
+  if (orders().some((o) => o.recipe === recipe)) return;
+  if (command(w, { type: 'AddWorkOrder', workshopId: forge, order: { recipeId: 'forge_battle_axe', mode: 'once', remaining: 1, materialFilter: 'iron', priority: ROUTINE } }).ok) {
+    command(w, { type: 'ReorderWorkOrder', workshopId: forge, from: orders().length - 1, to: 0 });
   }
 }
 
@@ -918,11 +960,22 @@ function keepFuelStore(w: TestWorld, state: FortressState): void {
   if (!command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles }, ['bad_zone_tiles']).ok) return;
   economy.phases.add('fuel store');
   const store = bSystem.lastCreatedZone;
-  command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { categories: [...FUEL_STORE_GOODS] } });
+  economy.fuelStore = store;
+  command(w, { type: 'SetStockpileFilter', zoneId: store, filter: { categories: fuelStoreGoods(state) } });
   const surface = buildings.zoneAt(w.index(state.cx - 1, state.cy + 6, state.z));
   if (surface !== 0 && buildings.zone(surface)?.type === 'stockpile') {
     command(w, { type: 'SetStockpileFilter', zoneId: surface, filter: { preset: 'everything', categories: SURFACE_GOODS_BELOW.filter((c) => !FUEL_STORE_GOODS.includes(c)) } });
   }
+}
+
+/**
+ * T-655: what the fuel store takes. Once the ore store stands by the smelter the fuel store takes
+ * no more ore: with the ore it filled up (27 ore on its 27 tiles in `three-years-p4-6` at shift 50
+ * from day 210), the logs found no stockpile below and lay where they were felled, and the burner
+ * walked to the surface for each one, 17 to 22 steps from its furnace.
+ */
+function fuelStoreGoods(state: FortressState): string[] {
+  return FUEL_STORE_GOODS.filter((c) => c !== 'ore' || !state.economy.phases.has('ore store'));
 }
 
 /**
@@ -952,6 +1005,8 @@ export function keepOreStore(w: TestWorld, state: FortressState): void {
   if (!command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: lanes.sort((a, b) => a - b) }, ['bad_zone_tiles']).ok) return;
   economy.phases.add('ore store');
   command(w, { type: 'SetStockpileFilter', zoneId: bSystem.lastCreatedZone, filter: { categories: ['ore'] } });
+  const fuel = economy.fuelStore;
+  if (fuel !== undefined && buildings.zone(fuel)?.type === 'stockpile') command(w, { type: 'SetStockpileFilter', zoneId: fuel, filter: { categories: fuelStoreGoods(state) } });
 }
 
 /** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */
@@ -1378,10 +1433,13 @@ export function releaseSpecialists(w: TestWorld, state: FortressState): void {
   const { economy } = state;
   const arming = armingSquad(state);
   const released = new Set<number>();
+  const fellers = new Set<number>();
   for (const [role, id] of Object.entries(economy.specialists)) {
     if (arming && (role === 'forge' || role === 'smelter')) continue;
     delete economy.specialists[role];
     released.add(id);
+    // T-653: the woodcutter keeps his axe work beside the general labors.
+    if (role === 'woodcutter') fellers.add(id);
   }
   if (economy.brewer !== undefined) released.add(economy.brewer);
   delete economy.brewer;
@@ -1391,7 +1449,7 @@ export function releaseSpecialists(w: TestWorld, state: FortressState): void {
     .filter((r) => r.defaultOn && !['mining', 'woodcutting'].includes(r.id)).map((r) => r.id);
   for (const id of released) {
     if (!adults.includes(id)) continue;
-    dedicate(w, state, id, general);
+    dedicate(w, state, id, fellers.has(id) ? [...general, 'woodcutting'] : general);
     for (const shopId of Object.values(state.placedIds)) {
       if (w.game.world.entities.get(shopId, C.Workshop)?.assignedWorker === id) command(w, { type: 'SetWorkshopWorker', workshopId: shopId, dwarfId: 0 });
     }
@@ -1794,6 +1852,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     const batch = standing.filter((t) => !terrain.designationAt(t)).sort((a, b) => near(a) - near(b) || a - b).slice(0, TIMBER_BATCH);
     if (batch.length) command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: batch });
   }
+  keepWoodcutter(w, state);
   const arming = armingSquad(state);
   const metalWorker = w.game.arrival?.dwarves[6];
   if (!arming && items.count('anvil') > 0 && fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && metalWorker !== undefined && !phases.has('metal staffed') &&

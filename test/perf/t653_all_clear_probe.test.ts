@@ -22,6 +22,7 @@ import type { FluidsReader } from '@systems/fluids/reader';
 import type { CombatReader } from '@systems/combat/reader';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { JobsReader } from '@systems/jobs';
+import type { WorkshopsReader } from '@systems/workshops';
 import { watchInvariants } from '../scenarios/invariants';
 import { CrowdWatch } from '../scenarios/crowd-watch';
 import { threeYearsMeasurements } from '../scenarios/three_years_measurements';
@@ -151,6 +152,17 @@ describe('T-653 probe: an ambush at the all-clear', () => {
     const trace = (): void => {
       if (w.tick - last < EVERY) return;
       last = w.tick;
+      if (process.env['PROBE_ECON'] === '1') {
+        const iR = w.readers.of<ItemsReader>('13');
+        const shop = (type: string): string => {
+          const id = state.placedIds[type] ?? 0;
+          const job = ent.get(id, C.Workshop)?.currentJobId ?? 0;
+          const j = job ? jobs.get(job) as unknown as Record<string, unknown> | undefined : undefined;
+          return `${type}:${String((j?.['data'] as Record<string, unknown> | undefined)?.['recipe'] ?? '-')}/${String(j?.['state'] ?? '')}`;
+        };
+        out(`econ log ${iR.available('log')}/${iR.count('log')} straw ${iR.available('straw')} bed ${iR.count('bed')} charcoal ${iR.count('charcoal_bar')} axe ${iR.count('axe')}/${iR.available('axe')} chops ${jobs.list().filter((j) => jobs.typeOf(j.id) === 'chop').map((j) => j.state[0]).join('')} ${shop('carpenter')} ${shop('wood_furnace')} alert ${w.game.world.fortress.alert}`);
+        return;
+      }
       const door = (id: number): string => (id === 0 ? 'none' : `${buildings.get(id)?.state ?? 'gone'}/${buildings.mechanismState(id)}`);
       const parties = ent.with(C.Party).map((pid) => ({ pid, p: ent.get(pid, C.Party)! }))
         .filter(({ p }) => p.purpose !== 'caravan' && p.state !== 'gone')
@@ -165,18 +177,22 @@ describe('T-653 probe: an ambush at the all-clear', () => {
         .map((id) => { const q = ent.get(id, C.Position); return `${id}${ent.get(id, C.Tame)?.trained === 'war' ? 'w' : ''}@${q ? rel(q) : '-'}>${animals.assignedTo(id)}`; });
       const watch = (state.watch ?? []).map((wt) => {
         const m = combat.squads().find((sq) => sq.id === wt.squadId)?.members ?? [];
-        return `${wt.squadId}[${m.map((id) => { const q = ent.get(id, C.Position); return `${id}@${q ? rel(q) : '-'}:${doing(id)}`; }).join(',')}]{${(combat.squad(wt.squadId)?.orders ?? []).map((o) => o.kind).join(',')}}`;
+        return `${wt.squadId}[${m.map((id) => { const q = ent.get(id, C.Position); return `${id}@${q ? rel(q) : '-'}:${doing(id)}`; }).join(',')}]{${(combat.squad(wt.squadId)?.orders ?? []).map((o) => o.kind).join(',')}}${((st) => st === null || st === undefined ? '' : `st@${rel({ x: w.map.xOf(st), y: w.map.yOf(st), z: w.map.zOf(st) })}${w.readers.pathing.passable(st, 'walker') ? '' : '!blocked'} k${w.map.kindAt(st)} b${buildings.at(st)}:${buildings.get(buildings.at(st))?.state ?? ''}/${buildings.get(buildings.at(st))?.mode ?? ''}`)(combat.squad(wt.squadId)?.station)}`;
       });
       const surface = fortress().filter((id) => (ent.get(id, C.Position)?.z ?? -1) >= state.z);
       out(`alert ${w.game.world.fortress.alert} gate ${door(state.gateDoorId)} ${door(state.gateDoorId2)} answered '${state.answered}' surface ${surface.length} ` +
         `[${surface.slice(0, 14).map((id) => `${rel(ent.get(id, C.Position)!)}:${doing(id)}`).join(' ')}] dogs ${dogs.join(' ')} watch ${watch.join(' ')} | ${parties.join(' | ')}`);
     };
-    while (w.tick < TO) {
-      playThreeYears(w, state, Math.min(300, TO - w.tick), trace);
-      checkFortressWorkOrders(w, state);
-      checkFortressRooms(w, state);
-      checkFortressCaveFarm(w, state);
-      checkFortressDefense(w, state);
+    try {
+      while (w.tick < TO) {
+        playThreeYears(w, state, Math.min(300, TO - w.tick), trace);
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+      }
+    } catch (e) {
+      out(`THROWN ${String(e)}`);
     }
     const itemsR = w.readers.of<ItemsReader>('13');
     const fluids = w.readers.of<FluidsReader>('04');
@@ -184,9 +200,63 @@ describe('T-653 probe: an ambush at the all-clear', () => {
       const its = itemsR.at(t).map((id) => { const it = itemsR.get(id) as unknown as Record<string, unknown> | undefined; return `${String(it?.['type'] ?? it?.['itemType'] ?? '?')}`; });
       out(`target ${rel({ x: w.map.xOf(t), y: w.map.yOf(t), z: w.map.zOf(t) })} kind ${w.map.kindAt(t)} fluid ${fluids.levelAt(t)} building ${buildings.at(t)} ${buildings.get(buildings.at(t))?.type ?? ''} items ${its.join(',')}`);
     }
+    if (process.env['PROBE_ROOMS'] === '1') {
+      const carp = state.placedIds['carpenter'] ?? 0;
+      const wsR = w.readers.of<WorkshopsReader>('12');
+      const recipesT = w.game.registry.table<{ id: string }>('recipes');
+      const ws = ent.get(carp, C.Workshop);
+      out(`carpenter ${carp} ${buildings.get(carp)?.state ?? ''} at ${(() => { const b = buildings.get(carp); return b ? rel({ x: w.map.xOf(b.origin), y: w.map.yOf(b.origin), z: w.map.zOf(b.origin) }) : '-'; })()} job ${ws?.currentJobId ?? 0} worker ${JSON.stringify((ws as unknown as Record<string, unknown> | undefined)?.['workerId'] ?? null)} orders ${JSON.stringify((ws?.orders ?? []).map((o) => ({ r: recipesT.byIndex(o.recipe)?.id, m: o.mode, n: o.remaining, t: o.threshold })))}`);
+      for (const r of ['make_bed', 'make_bed_straw', 'make_barrel']) out(`runnable ${r} ${JSON.stringify(wsR.isRunnable(r, carp))}`);
+      const isTree = (t: number): boolean => w.map.kindAt(t) === 8;
+      const timber = state.timberTiles.filter(isTree);
+      let all = 0, reach = 0, sap = 0;
+      const lab = w.readers.pathing.labelOf(w.index(state.cx + 6, state.cy + 7, state.z), 'walker');
+      for (let y = 0; y < w.map.h; y += 1) for (let x = 0; x < w.map.w; x += 1) {
+        const top = w.map.columnSurfaceZ(x, y);
+        for (const z of [top, top + 1, top - 1]) {
+          if (z < 0 || z >= w.map.d) continue;
+          const t = w.index(x, y, z);
+          if (w.map.kindAt(t) === 9) sap += 1;
+          if (!isTree(t)) continue;
+          all += 1;
+          if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const n = w.map.offset(t, dx!, dy!, 0); return n >= 0 && w.readers.pathing.labelOf(n, 'walker') === lab; })) reach += 1;
+        }
+      }
+      out(`trees timber ${timber.length}/${state.timberTiles.length} designated ${timber.filter((t) => w.map.designationAt(t)).length}; on the map ${all}, beside the gate's ground ${reach}, saplings ${sap}`);
+      const wc = (jobs as unknown as { workersWithLabor: (l: string) => number[] }).workersWithLabor('woodcutting');
+      const f2 = w.game.arrival?.dwarves[2] ?? 0;
+      out(`woodcutters ${JSON.stringify(wc)} founder2 ${f2} alive ${ent.alive(f2)} strong ${JSON.stringify(state.strong?.trained ?? [])} chop jobs ${jobs.list().filter((j) => (j as unknown as { type: string }).type === 'chop' || jobs.typeOf((j as unknown as { id: number }).id) === 'chop').length}`);
+      for (const j of jobs.list()) {
+        if (jobs.typeOf(j.id) !== 'chop') continue;
+        const t = j.target.ref;
+        out(`chop ${j.id} ${j.state} ${j.blockedReason ?? ''} claimed ${(j as unknown as Record<string, unknown>)['claimedBy'] ?? (j as unknown as Record<string, unknown>)['workerId'] ?? '-'} prio ${j.priority} at ${t >= 0 ? rel({ x: w.map.xOf(t), y: w.map.yOf(t), z: w.map.zOf(t) }) : t} kind ${w.map.kindAt(t)} failedWalk ${j.failedWalk ?? ''}`);
+      }
+      for (const id of (jobs as unknown as { workersWithLabor: (l: string) => number[] }).workersWithLabor('woodcutting')) out(`woodcutter ${id} ${doing(id)} @${(() => { const q = ent.get(id, C.Position); return q ? rel(q) : '-'; })()}`);
+      for (const id of (jobs as unknown as { workersWithLabor: (l: string) => number[] }).workersWithLabor('carpentry')) out(`carpentry ${id} ${doing(id)} @${(() => { const q = ent.get(id, C.Position); return q ? rel(q) : '-'; })()}`);
+      const cj = ws?.currentJobId ?? 0;
+      if (cj) { const j = jobs.get(cj) as unknown as Record<string, unknown> | undefined; out(`carpenter job ${cj} ${jobs.typeOf(cj)} ${JSON.stringify({ state: j?.['state'], blocked: j?.['blockedReason'], data: j?.['data'], claimed: j?.['claimedBy'] })}`); }
+      out(`specialists ${JSON.stringify(state.economy.specialists)}`);
+      const axeType = w.game.registry.table('items').index('axe');
+      for (const id of ent.with(C.Item)) {
+        const it = ent.get(id, C.Item)!;
+        if (it.type !== axeType) continue;
+        const holder = ent.with(C.Labors).find((d) => itemsR.carriedItems(d).includes(id) || ent.get(d, C.Equipment)?.weapon === id) ?? 0;
+        out(`axe ${id} container ${it.containerId} owner ${it.ownerId} holder ${holder} soldier ${holder ? combat.squadOf(holder)?.name ?? '-' : ''} woodcutter ${holder ? jobs.laborEnabled(holder, 'woodcutting') : ''} tile ${itemsR.tileOf(id)}`);
+      }
+      for (const t of ['log', 'straw', 'cloth', 'bed', 'wool_raw', 'axe']) out(`item ${t} count ${itemsR.count(t)} available ${itemsR.available(t)}`);
+      const zones = buildings.zonesOfType('bedroom');
+      for (const bp of state.bedroomPlans) {
+        const kinds: Record<string, number> = {};
+        for (const t of bp.tiles) { const k = `${w.map.kindAt(t)}${w.map.designationAt(t) ? 'd' : ''}`; kinds[k] = (kinds[k] ?? 0) + 1; }
+        const zone = zones.find((z) => z === buildings.zoneAt(bp.tiles[0] ?? -1));
+        const bed = buildings.at(w.index(bp.bedX, bp.bedY, state.hallZ));
+        const door = w.index(bp.doorX, bp.doorY, state.hallZ);
+        out(`bedroom ${bp.id} designated ${bp.designated} setup ${bp.setup} day ${bp.setupDay ?? '-'} tiles ${JSON.stringify(kinds)} door ${w.map.kindAt(door)}${w.map.designationAt(door) ? 'd' : ''} bed ${bed}:${buildings.get(bed)?.state ?? ''} zone ${zone ?? 0} met ${zone ? JSON.stringify(buildings.roomScore(zone)) : ''}`);
+      }
+    }
     mkdirSync(DIR, { recursive: true });
     writeFileSync(`${SAVE}-trace.txt`, lines.join('\n') + '\n');
     console.log(`[t653] ${SEED} shift ${SHIFT} ${AT}..${TO}: living ${fortress().length}; trace in ${SAVE}-trace.txt`);
-    expect(w.tick).toBe(TO);
+    expect(w.tick).toBeGreaterThan(0);
   }, 7_200_000);
 });

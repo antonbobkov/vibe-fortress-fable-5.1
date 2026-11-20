@@ -401,6 +401,7 @@ export function runHomesteadYear(w: TestWorld): void {
   let dumpItemIssued = false;
   let hopsSpawned = false;
 
+  let quarryInReach = 0;
   while (w.tick < totalTicks) {
     // Add work orders as workshops finish construction
     if (!orderedWorkshops.has('carpenter') && buildings.get(workshopIds['carpenter']!)?.state === 'built') {
@@ -619,6 +620,14 @@ export function runHomesteadYear(w: TestWorld): void {
       if (needs && needs.thirst > 40) w.setNeed(d, 'thirst', 10);
     }
 
+    // T-655: whether a wild animal stands where the hunter can walk to it (a herd that spawns beyond
+    // the brook, which edge tile depends on where the dwarves stand, can be out of reach all year).
+    const hp = w.game.world.entities.get(hunter, C.Position);
+    if (hp !== undefined && w.animals.reader().wildList().some((id) => {
+      const p = w.game.world.entities.get(id, C.Position);
+      return p !== undefined && w.reachable(w.index(hp.x, hp.y, hp.z), w.index(p.x, p.y, p.z));
+    })) quarryInReach += 1;
+
     w.step(Math.min(600, totalTicks - w.tick));
   }
 
@@ -666,7 +675,11 @@ export function runHomesteadYear(w: TestWorld): void {
   expect(completedJobs.has('train_animal'), 'job: train_animal').toBe(true);
   expect(completedJobs.has('gather'), 'job: gather').toBe(true);
   expect(completedJobs.has('haul_to_dump'), 'job: haul_to_dump').toBe(true);
-  expect(completedJobs.has('hunt'), 'job: hunt').toBe(true);
+  // A hunt once a quarry has stood in reach for a day (three looks); with none in reach all year,
+  // the hunts wait blocked `unreachable` (11 § Blocking and retry).
+  const huntsBlocked = w.events('JobBlocked').filter((e) => e['jobType'] === 'hunt' && e['reason'] === 'unreachable').length;
+  if (quarryInReach >= 3) expect(completedJobs.has('hunt'), `job: hunt (a quarry in reach at ${quarryInReach} looks)`).toBe(true);
+  else expect(huntsBlocked, 'job: hunt, blocked out of reach').toBeGreaterThan(0);
   // Fishing is covered by the short T-191 bank/catch regressions; this fixture has no fishing zone.
 
   // 2. Ordered recipes crafted
@@ -685,7 +698,7 @@ export function runHomesteadYear(w: TestWorld): void {
   // 3. Events emitted
   expect(animalTrainedCount, 'event: AnimalTrained').toBeGreaterThanOrEqual(1);
   expect(butcheryDoneCount, 'event: ButcheryDone').toBeGreaterThanOrEqual(1);
-  expect(huntKillCount, 'event: HuntKill').toBeGreaterThanOrEqual(1);
+  if (quarryInReach >= 3) expect(huntKillCount, 'event: HuntKill').toBeGreaterThanOrEqual(1);
   // FishCaught is covered by the short T-191 regression, without adding a zone to this fixture.
 
   // 4. Invariants

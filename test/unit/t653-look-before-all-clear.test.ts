@@ -175,4 +175,21 @@ describe('T-653 the three-year script looks before an alert comes down', () => {
     expect(w.game.world.fortress.alert).toBe('calm');
     expect(state.looking).toBeUndefined();
   });
+
+  it('does not order a watchman onto a post a tree has grown on, has the tree felled, and lowers the alert on the other post', () => {
+    const { w, state } = gatehouse('t653-tree');
+    const combat = w.readers.of<CombatReader>('16');
+    const north = combat.squad(state.watch![0]!.squadId)!.station!;
+    w.carve(north, TileKind.Tree);
+    w.map.markChunkDirty(north, true, true);
+    w.step(1);
+    expect(w.readers.pathing.passable(north, 'walker')).toBe(false);
+    raidGone(w, state);
+    checkFortressDefense(w, state);
+    expect(state.looking).toBeDefined();
+    play(w, state, LOOK_MAX_TICKS + 100, () => w.game.world.fortress.alert === 'calm');
+    expect(w.game.world.fortress.alert).toBe('calm');
+    expect(w.map.designationAt(north), 'the tree on the post is to be felled').not.toBe(0);
+    expect(combat.squad(state.watch![0]!.squadId)!.orders.some((o) => o.kind === 'station' && o.tile === north)).toBe(false);
+  });
 });
