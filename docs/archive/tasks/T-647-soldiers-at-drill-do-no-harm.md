@@ -1,5 +1,7 @@
 # T-647 — Soldiers at drill strike a raider for nothing
 
+**Closed:** 2026-11-19, in 55765549,3022c491.
+
 **Source:** the T-639 branch's sweep, seed `three-years-p4-6` at shift 150 (measure.yml run 44595278154, job "sweep (p4-6, 150)"), traced on the branch · **Size:** S–M · **Needs:** — · **Status:** open
 
 ## Why

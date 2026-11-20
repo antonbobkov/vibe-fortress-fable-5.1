@@ -100,7 +100,7 @@ training(): resolve the explicit assigned zone before any cached/default zone an
 
 ## Equipment availability and destruction
 
-Re-equipping considers only fortress items: exclude `merchant`, `at_depot`, `foreign`, `forbidden`, installed, reserved, owned or carried items under 13's availability rules. On synchronous item destruction, clear every matching weapon, shield, armor, clothing and quiver slot to 0 before the caller can save. Subscribe to `ItemDestroyed` for the same idempotent cleanup; other slots remain unchanged. The observer is derived and is installed again when a world is loaded.
+Re-equipping considers only fortress items: exclude `merchant`, `at_depot`, `foreign`, `forbidden`, installed, reserved, owned or carried items under 13's availability rules. While the soldier holds a target, `scoreWeapon` gives a training weapon −1, the one held included. In the combat tick, before a soldier on duty with a target reads its weapon: if it holds a training weapon and `realWeaponFree` (a free, not foreign unit of a real weapon type of its squad's kind, through `items.countAvailable({ types })`) holds, re-equip it (16 § Training). On synchronous item destruction, clear every matching weapon, shield, armor, clothing and quiver slot to 0 before the caller can save. Subscribe to `ItemDestroyed` for the same idempotent cleanup; other slots remain unchanged. The observer is derived and is installed again when a world is loaded.
 
 ## Health tick (every 5 ticks)
 

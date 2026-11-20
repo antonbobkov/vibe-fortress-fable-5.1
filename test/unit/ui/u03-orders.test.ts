@@ -10,7 +10,6 @@ import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import { computeLayout } from '@render/cellbuffer';
-import type { BuildingsReader } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
 import { ORDER_COUNT_MAX } from '@ui/constants';
 import { helpKeyRows } from '@ui/panels/help';
@@ -478,10 +477,6 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     const shop = carpenter(f);
     const s = surface(RECT.cols, RECT.rows);
     const clicked: string[] = [];
-    // With no log in stock each recipe takes two lines (T-646): the list is scrolled to the door.
-    const type = f.w.readers.of<BuildingsReader>('14').get(shop)!.typeId;
-    const recipes = f.screen.orders.groupRecipes(f.screen.ctx, f.orders().recipesFor(type)).flatMap((row) => ('recipe' in row ? [row.recipe.id] : []));
-    f.screen.orders.workshopList(shop).selected = recipes.indexOf('make_door_wood');
     drawWorkshopPanel(s, RECT, shop, f.screen.orders, f.screen.ctx, (action, recipeId) => clicked.push(recipeId === undefined ? action : `${action}:${recipeId}`));
     const lines = s.lines();
     const text = lines.join('\n');

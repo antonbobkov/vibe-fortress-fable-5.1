@@ -1,6 +1,8 @@
 # T-650 — Fewer immigrants at peril 4 once the second smelter makes steel
 
-**Source:** [T-642's sweep](../../reports/data/2026-11-19-t642-iron-for-steel.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 7dc64b7d.
+
+**Source:** [T-642's sweep](../../../reports/data/2026-11-19-t642-iron-for-steel.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -14,4 +16,6 @@ Spec: testing-strategy.md § The long scenarios (the second smelter), 21 § Eval
 
 ## Done
 
-The peril-4 immigration before and after, the cause, and the sweep's verdict.
+- [x] The peril-4 immigration before and after: year 3, 526 immigrants against 398 (24 timelines), years 1 and 2 alike ([report](../../../reports/data/2026-11-20-t650-peril-4-immigration.md)).
+- [x] The cause: the rolls, not the steel. Master rolled waves at 81% of its eligible year-3 evaluations against a 70% chance, T-642 at 70%; a wave of a different size reshuffles every later roll of 21's one stream. Not the steel's price; nothing in T-642 to fix. Follow-up: the roll on a stream of its own.
+- [x] The sweep's verdict: no code changed; the merged master's sweep 44661428169 passed (1033 living, 121.75 deaths). Its rise in deaths is two ambushes sprung as the alert came down; follow-up filed.

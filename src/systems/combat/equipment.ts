@@ -10,6 +10,7 @@ import type { ItemsApi, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { HealthReader } from '@systems/health/reader';
+import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs/reader';
 import {
   ARMOR_MIN_SPEED_PERCENT,
@@ -169,7 +170,9 @@ export function isAvailableItem(entities: EntityStore, itemId: EntityId): boolea
 }
 
 /**
- * Score a weapon for claiming: highest metalTier * qualityMult.
+ * Score a weapon for claiming: highest metalTier * qualityMult. With `drill` false (16 § Training: a
+ * soldier with a hostile in hand), a training weapon scores -1: it is never claimed and any real
+ * weapon replaces it.
  */
 export function scoreWeapon(
   registry: Registry,
@@ -177,6 +180,7 @@ export function scoreWeapon(
   itemId: EntityId,
   preferredClass: string,
   isRanged: boolean,
+  drill = true,
 ): number {
   const item = entities.get(itemId, C.Item);
   if (!item) return -1;
@@ -190,6 +194,7 @@ export function scoreWeapon(
   if (!wRow) return -1;
   // A channel (25) is claimed only by a runecaster, before this score is asked for.
   if (isChannelRow(wRow)) return -1;
+  if (!drill && wRow.training === true) return -1;
 
   if (isRanged) {
     if (!wRow.launcher) return -1;
@@ -349,13 +354,45 @@ export function claimItemForSoldier(
   items.setOwner(itemId, soldierId);
 }
 
+/** Whether the creature's `Equipment` weapon is a training weapon (16 § Training: wooden, 0 damage). */
+export function holdsTrainingWeapon(entities: EntityStore, registry: Registry, id: EntityId): boolean {
+  const weapon = entities.get(id, C.Equipment)?.weapon ?? 0;
+  const item = weapon === 0 || !entities.alive(weapon) ? undefined : entities.get(weapon, C.Item);
+  const row = item === undefined ? undefined : registry.table<ItemDefRow>('items').byIndex(item.type);
+  return row !== undefined && registry.table<WeaponDefRow>('weapons').byId(row.id)?.training === true;
+}
+
+/**
+ * Whether stock holds a free real weapon a squad member could take up in a fight (16 § Training):
+ * a weapon type that is not a training weapon or a channel, a launcher for a ranged squad and not
+ * for a melee one, with a free unit, and, for a pick or an axe, no enabled civilian lacking one.
+ * Counted over the items of those types alone (not foreign, as a claim takes none), so that a
+ * soldier with a wooden weapon and nothing better to take does not look over the fortress's kit
+ * at every blow.
+ */
+export function realWeaponFree(ctx: TickContext, ranged: boolean): boolean {
+  if (!ctx.readers.has('13')) return false;
+  const items = ctx.registry.table<ItemDefRow>('items');
+  const types: number[] = [];
+  for (const row of ctx.registry.table<WeaponDefRow>('weapons').rows) {
+    if (row === undefined || row.training === true || isChannelRow(row) || (row.launcher !== undefined) !== ranged) continue;
+    if (!items.has(row.id) || civilianNeedsToolOf(ctx, items.byId(row.id)?.category)) continue;
+    types.push(items.index(row.id));
+  }
+  return types.length > 0 && ctx.readers.of<ItemsReader>('13').countAvailable({ types }) > 0;
+}
+
 /** An enabled civilian without this tool has first claim on picks and axes. */
 function neededCivilianTool(ctx: TickContext, itemId: EntityId): boolean {
+  const item = ctx.world.entities.get(itemId, C.Item);
+  return item !== undefined && civilianNeedsToolOf(ctx, ctx.registry.table<ItemDefRow>('items').byIndex(item.type)?.category);
+}
+
+/** Whether an enabled civilian lacks a held tool of this item category (a pick or an axe). */
+function civilianNeedsToolOf(ctx: TickContext, category: string | undefined): boolean {
   if (!ctx.readers.has('11')) return false;
   const entities = ctx.world.entities;
   const table = ctx.registry.table<ItemDefRow>('items');
-  const item = entities.get(itemId, C.Item);
-  const category = item === undefined ? '' : table.byIndex(item.type)?.category;
   const labor = category === 'tool/pick' ? 'mining' : category === 'tool/axe' ? 'woodcutting' : null;
   if (labor === null) return false;
   return ctx.readers.of<JobsReader>('11').workersWithLabor(labor).some((workerId) => {
@@ -448,6 +485,8 @@ export function reequipSoldier(
   const isRanged = squad.equipment.ranged;
   const preferredWeaponClass = squad.equipment.weaponClass;
   const armorPreference = squad.equipment.armor;
+  // 16 § Training: a training weapon is for drill; a soldier with a hostile in hand claims none.
+  const drill = (entities.get(soldierId, C.Soldier)?.targetId ?? 0) === 0;
 
   // A soldier hurt before this look, in an older save, has gear its arms cannot hold.
   dropWhatArmsCannotHold(ctx, soldierId);
@@ -456,14 +495,14 @@ export function reequipSoldier(
   // prefers (25 § Channels); holding one, it looks for no other weapon.
   const holdsChannel = runecasterClaimsChannel(ctx, squad, soldierId, equip, pool);
   const currentWeaponScore = equip.weapon !== 0 && entities.alive(equip.weapon)
-    ? scoreWeapon(registry, entities, equip.weapon, preferredWeaponClass, isRanged)
+    ? scoreWeapon(registry, entities, equip.weapon, preferredWeaponClass, isRanged, drill)
     : -1;
   let bestWeaponId = equip.weapon;
   let bestWeaponScore = currentWeaponScore;
 
   for (const itemId of holdsChannel ? [] : pool()) {
     if (!isAvailableItem(entities, itemId) || neededCivilianTool(ctx, itemId) || !canWieldWeapon(ctx, soldierId, itemId)) continue;
-    const sc = scoreWeapon(registry, entities, itemId, preferredWeaponClass, isRanged);
+    const sc = scoreWeapon(registry, entities, itemId, preferredWeaponClass, isRanged, drill);
     if (sc > bestWeaponScore) {
       bestWeaponScore = sc;
       bestWeaponId = itemId;

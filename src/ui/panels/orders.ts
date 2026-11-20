@@ -143,6 +143,30 @@ function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null):
     : s.get('ui.orders.pick.make_at_needs', { item: waiting.item, recipe: name, where, needs: needs.join(' and ') });
 }
 
+/**
+ * The step back that every `○` recipe of one workshop's list shares (`panels.md` § Workshop): two or
+ * more lacking the same input with the same {@link chainNote}, as a carpenter's with no log ("· no log
+ * (from felling trees)"). Said once above the list, each row keeps its short "· no log". '' when the
+ * notes differ, when fewer than two recipes lack anything, or when the note has no step back: null.
+ */
+function sharedNote(ctx: PanelContext, lacking: readonly { readonly recipe: RecipeRow; readonly reason: string | null }[]): { readonly note: string; readonly short: string } | null {
+  const first = lacking[0];
+  if (first === undefined || lacking.length < 2 || lacking.some((x) => x.reason !== first.reason)) return null;
+  const note = chainNote(ctx, first.recipe, first.reason);
+  const short = missingNote(ctx, first.reason);
+  if (note === '' || note === short) return null;
+  return lacking.every((x, k) => k === 0 || chainNote(ctx, x.recipe, x.reason) === note) ? { note, short } : null;
+}
+
+/** At most this many lines say a shared note; the last is cut at the list's width. */
+const SHARED_NOTE_LINES = 3;
+
+/** A shared note as the line above a list: "· no log (from felling trees)" → "No log (from felling trees)", wrapped. */
+function sharedLines(shared: { readonly note: string } | null, width: number): string[] {
+  return shared === null ? [] : wrapText(capitalize(shared.note.replace(/^·\s*/, '')), width, SHARED_NOTE_LINES);
+}
+
+
 /** `+`/`=` and `-`/`_` as a count step, ±10 with `Shift` (D-U5); 0 for any other key. */
 export function countStep(press: KeyPress): number {
   const up = press.key === '+' || press.key === '=';
@@ -1102,9 +1126,20 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
   // The workshop is shown for a workshop's own order too, where it cannot change.
   const fields: PickerField[] = ['quantity', 'mode', 'material', 'where'];
   const bottom = fields.length + 2;
-  const height = Math.max(1, rect.rows - 2 - bottom);
-  p.height = height;
   const rows = panel.pickerRows(ctx);
+  // Opened from a workshop, what every `○` recipe listed lacks alike is said once above the list, as the
+  // Workshop panel says it; the list from every workshop mixes their inputs and keeps each row's note.
+  const reader = panel.reader(ctx);
+  const shared = !p.fixed || reader === null ? null : sharedNote(ctx, Array.from(new Set(rows.flatMap((row) => ('recipe' in row ? [row.recipe] : []))))
+    .flatMap((recipe) => {
+      const r = reader.isRunnable(recipe.id, p.workshopId);
+      return r.runnable ? [] : [{ recipe, reason: r.reason }];
+    }));
+  const said = sharedLines(shared, width);
+  said.forEach((line, n) => label(s, col, rect.row + 2 + n, line, { fg: t.dim, width, keys: false }));
+  const top = rect.row + 2 + said.length;
+  const height = Math.max(1, rect.rows - 2 - said.length - bottom);
+  p.height = height;
   // Two workshop types can make a thing of the same name ("Door"): such rows say which one.
   const seen = new Map<string, string>();
   const twins = new Set<string>();
@@ -1118,10 +1153,11 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
   if (!rows.some((row) => 'recipe' in row)) {
     label(s, col, rect.row + 2, p.filter === '' ? strings.get('ui.orders.no_recipes') : strings.get('ui.orders.no_recipe', { filter: p.filter }), { fg: t.dim, width, keys: false });
   } else {
-    wrappedList(s, { col, row: rect.row + 2, cols: width, rows: height }, rows.map((row): GroupRow => ('heading' in row
+    wrappedList(s, { col, row: top, cols: width, rows: height }, rows.map((row): GroupRow => ('heading' in row
       ? { heading: row.heading }
       : { text: () => {
-        const note = panel.pickerNote(ctx, row.recipe);
+        const full = panel.pickerNote(ctx, row.recipe);
+        const note = shared !== null && full === shared.note ? shared.short : full;
         return `${panel.makeable(ctx, row.recipe) ? '●' : '○'} ${row.recipe.name}${twins.has(row.recipe.name) ? ` · ${workshopOf(row.recipe)}` : ''}${note === '' ? '' : ` ${note}`}`;
       }, ...(panel.rank(ctx, row.recipe) === 2 ? { fg: t.dim } : {}) })), p.list, (index) => {
       // A click selects; a click on the selected recipe adds it.
@@ -1129,7 +1165,7 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
       else { p.list.selected = index; p.typing = false; p.chosen = true; panel.move(0, ctx); }
     });
   }
-  let row = rect.row + 2 + height;
+  let row = top + height;
   separator(s, col, row, width); row += 1;
   const recipe = panel.pickerRecipe(ctx);
   const caption = (field: PickerField, name: string): number => label(s, col, row, `${p.field === field ? '▶' : ' '} ${name.padEnd(9)}`, { width, fg: p.field === field ? t.value : t.text });
@@ -1298,22 +1334,32 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
   const worker = workshop.assignedWorker === 0 ? strings.get('ui.workshop.any_worker') : ctx.readers.entities.get(workshop.assignedWorker, C.Creature)?.name ?? '?';
   label(s, col, rect.row + 1, strings.get('ui.workshop.worker', { name: worker }), { width });
   const state = [workshop.suspended ? strings.get('ui.workshop.suspended') : '', reader.isMagmaPowered(id) ? strings.get('ui.workshop.magma') : ''].filter((x) => x !== '').join(' · ');
-  label(s, col, rect.row + 2, state, { fg: workshop.suspended ? t.alert : t.dim, width, keys: false });
-  separator(s, col, rect.row + 3, width, strings.get('ui.workshop.recipes'));
   const recipes = reader.recipesFor(building.typeId);
+  const runnable = new Map(recipes.map((recipe) => [recipe.id, reader.isRunnable(recipe.id, id)]));
+  // What every `○` recipe lacks alike is said once, on the state row when it is free, and each row keeps "· no log".
+  const shared = sharedNote(ctx, recipes.flatMap((recipe) => {
+    const r = runnable.get(recipe.id);
+    return r === undefined || r.runnable ? [] : [{ recipe, reason: r.reason }];
+  }));
+  const said = sharedLines(shared, width);
+  const top = rect.row + 2 + (state === '' ? 0 : 1);
+  label(s, col, rect.row + 2, state, { fg: workshop.suspended ? t.alert : t.dim, width, keys: false });
+  said.forEach((line, n) => label(s, col, top + n, line, { fg: t.dim, width, keys: false }));
+  const rule = Math.max(rect.row + 3, top + said.length);
+  separator(s, col, rule, width, strings.get('ui.workshop.recipes'));
   const foot = rect.row + rect.rows - WORKSHOP_FOOT_ROWS;
   const grouped = panel.groupRecipes(ctx, recipes);
   const ordered = grouped.flatMap((row) => 'recipe' in row ? [row.recipe] : []);
   const stateList = panel.workshopList(id);
-  const recipeRect = { col, row: rect.row + 4, cols: width, rows: Math.max(1, foot - rect.row - 4) };
+  const recipeRect = { col, row: rule + 1, cols: width, rows: Math.max(1, foot - rule - 1) };
   // A `○` recipe says what this workshop lacks for it one step back, as Add order does, and wraps.
   const scrollbar = wrappedList(s, recipeRect, grouped.map((row): GroupRow => {
     if ('heading' in row) return row;
     const recipe = row.recipe;
-    const runnable = reader.isRunnable(recipe.id, id);
-    const can = runnable.runnable;
+    const r = runnable.get(recipe.id) ?? reader.isRunnable(recipe.id, id);
+    const can = r.runnable;
     return { text: () => {
-      const note = can ? '' : chainNote(ctx, recipe, runnable.reason);
+      const note = can ? '' : shared !== null ? shared.short : chainNote(ctx, recipe, r.reason);
       return `${can ? '●' : '○'} ${recipe.name}${note === '' ? '' : ` ${note}`}`;
     }, fg: can ? t.good : t.dim };
   }), stateList, (index) => {
