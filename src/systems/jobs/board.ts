@@ -890,6 +890,7 @@ export class JobBoard implements JobsApi, JobSink {
     job.workerId = 0;
     delete job.data['awaySince'];
     delete job.data['awayBack'];
+    delete job.data['interruptOnDelivery'];
   }
 
   // ---------- the worker side ----------
@@ -931,6 +932,17 @@ export class JobBoard implements JobsApi, JobSink {
     this.invalidateWorkAvailability();
     job.data['reserveUntil'] = this.now + RESERVE_KEEP_TICKS;
     delete job.data['standTile'];
+  }
+
+  /**
+   * `11` § Job steps, interruptions (T-660): the worker is fetching for a job at a building (a
+   * workshop's craft, a construction) and carries one of its inputs, which a critical need lets it
+   * deliver before the job is interrupted.
+   */
+  carriesInput(job: Job, workerId: EntityId): boolean {
+    const carrying = this.workerOf(workerId).carrying;
+    return carrying !== 0 && job.workerId === workerId && job.state === 'fetching' && job.target.kind === 'building' &&
+      job.inputs.some((input) => input.reserved.includes(carrying) && !input.delivered.includes(carrying));
   }
 
   /** `jobs.hasUrgent(id, p)`: an open job of priority ≤ p the worker could take. */

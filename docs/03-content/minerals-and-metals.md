@@ -140,7 +140,7 @@ Metal tier for weapon and armor purposes: `wood`, `bone` and `obsidian` items ar
 | `coal` | `bituminous_coal` ore (2 per ore), `lignite` (1 per ore) | smelted without fuel cost (the coal is its own fuel: the `smelt_coal` recipes have `fuel: false`) |
 | `charcoal` | 1 log at the wood furnace | 1 per log |
 
-Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel additionally consumes 1 fuel as an input (carbon). Both fuels carry the item tag `fuel`.
+Every smelter and forge job consumes 1 fuel bar unless magma-powered. Steel additionally consumes 1 fuel as an input (carbon). Both fuels carry the item tag `fuel`, and a steel job fetches the two bars as one input of two ([12](../02-systems/12-workshops-and-professions.md) § Fuel).
 
 Half fuels: a `peat_brick` (a peat load dried on a rack) and a `dung_cake` (3 dung dried) carry the item tag `fuel_half`, and `smoky`. A fuel job burns two of them in place of one bar when no bar is to be had, and the hall around the workshop fills with smoke ([12](../02-systems/12-workshops-and-professions.md) § Fuel, [05](../02-systems/05-materials-and-temperature.md) § Smoke). A half fuel is never steel's carbon.
 

@@ -104,6 +104,11 @@ export function stepWorker(board: JobBoard, workerId: EntityId, ctx: TickContext
   // A worker that is down (unconscious, or with no tile: a dwarf a cage trap caught, 19) keeps no job:
   // it goes back to the board as an interrupted job does, progress kept (T-537, T-573).
   if (board.releaseDown(workerId)) return;
+  // § Job steps, interruptions (T-660): a critical need waited for the input in hand to be put down.
+  if (job.data['interruptOnDelivery'] === true && worker.carrying === 0) {
+    board.interrupt(workerId, true);
+    return;
+  }
   const jobType = board.typeId(job);
   if (jobType === 'hunt' && job.state !== 'claimed' && job.state !== 'fetching') {
     stepHunt(board, job, workerId, ctx);

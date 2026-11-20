@@ -15,6 +15,7 @@ import type { GameEvent } from '@core/events';
 import { BaseSystem, Registrations, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
+import { estDistance } from './assign';
 import { JobBoard } from './board';
 import { dropStrandedTools, dropToolsOfTheUnable, dropUnusableLaunchers, dropUnusedTools, itemSourceOf } from './items-adapter';
 import { NO_ITEMS } from './producers';
@@ -112,7 +113,9 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     if (board.items !== NO_ITEMS) return;
     const api = ctx.world.services.items;
     if (api === null || !ctx.readers.has(ITEMS_READER)) return;
-    board.items = itemSourceOf(api, ctx.readers.of<ItemsReader>(ITEMS_READER), ctx.readers.entities, board.registry);
+    const map = board.world.map;
+    board.items = itemSourceOf(api, ctx.readers.of<ItemsReader>(ITEMS_READER), ctx.readers.entities, board.registry,
+      (a, b) => (a < 0 || b < 0 ? 0 : estDistance(map.unpack(a), map.unpack(b))));
   }
 
   override tick(ctx: TickContext): void {
@@ -183,7 +186,12 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
       const id = event['id'] as EntityId;
       const jobId = board.workerOf(id).jobId;
       const job = jobId === 0 ? undefined : board.jobs.get(jobId);
-      if (job !== undefined && (board.typeRow(job).interruptible || type === 'ThreatNearby')) board.interrupt(id, true);
+      if (job !== undefined && (board.typeRow(job).interruptible || type === 'ThreatNearby')) {
+        // § Job steps, interruptions (T-660): a critical need lets a worker carrying an input to a
+        // building deliver it first; the job is interrupted when it has been put down.
+        if (type === 'NeedCritical' && board.carriesInput(job, id)) job.data['interruptOnDelivery'] = true;
+        else board.interrupt(id, true);
+      }
     } else if (type === 'AlertChanged') {
       if (event['to'] === 'hearth') {
         const onDuty = ctx.readers.has('16')
