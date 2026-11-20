@@ -7,6 +7,7 @@ import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { JobBoard } from '@systems/jobs/board';
 import type { Job } from '@systems/jobs/state';
+import type { GameEvent } from '@core/events';
 import {
   checkFortressCaveFarm, checkFortressDefense, checkFortressRooms, checkFortressWorkOrders, playThreeYears, setupThreeYearsFortress, threeYearsWorld,
 } from '../scenarios/three_years_fortress';
@@ -120,6 +121,14 @@ describe.skipIf(!RUN)('T-660 smith steel probe', () => {
     /** A worker whose journalled job was interrupted: when, and the job, until it claims another. */
     const away = new Map<number, { tick: number; jobId: number; role: string }>();
 
+    // The event 11 is handling, so an interruption in its handler is told by the event (a critical need, a threat, an alert).
+    const jobsSystem = w.game.world.scheduler.byId('11') as unknown as { handle(event: GameEvent, ctx: unknown): void };
+    const handle = jobsSystem.handle.bind(jobsSystem);
+    let handling = '';
+    jobsSystem.handle = (event: GameEvent, ctx: unknown): void => {
+      handling = event.type === 'NeedCritical' ? `NeedCritical ${String(event['need'])}` : event.type === 'AlertChanged' ? `AlertChanged to ${String(event['to'])}` : event.type;
+      try { handle(event, ctx); } finally { handling = ''; }
+    };
     // The interruptions, wrapped: the board calls `this.interrupt`, the brain `ctx.jobs.interrupt`, both the board.
     const interrupt = board.interrupt.bind(board);
     board.interrupt = (workerId: number, keepProgress: boolean): void => {
@@ -132,7 +141,7 @@ describe.skipIf(!RUN)('T-660 smith steel probe', () => {
         const brain = ent.get(workerId, C.Brain);
         const carrying = board.workerOf(workerId).carrying;
         if (carrying !== 0) log.dropped += 1;
-        const cause = causeOf(stack);
+        const cause = handling !== '' ? handling : causeOf(stack);
         const why = `${cause}: ${brain?.behavior}/${brain?.activity}`;
         if (journalled(log)) {
           countCause(`${log.role} ${log.group}`, `${cause} [${brain?.behavior}]`);
@@ -242,6 +251,7 @@ describe.skipIf(!RUN)('T-660 smith steel probe', () => {
     };
     const shares = new Map<string, Record<string, number>>();
     const shopStates = new Map<string, Record<string, number>>();
+    const openDoing = new Map<string, Record<string, number>>();
     const sample = (): void => {
       if (!on()) return;
       for (const sid of ent.with(C.Workshop)) {
@@ -252,6 +262,16 @@ describe.skipIf(!RUN)('T-660 smith steel probe', () => {
         const k = job === undefined ? `none:${ws.lastBlockedReason ?? 'idle'}` : `${job.state}${job.state === 'blocked' ? `:${job.blockedReason}` : ''}`;
         const r = (shopStates.get(role) ?? shopStates.set(role, {}).get(role)!);
         r[k] = (r[k] ?? 0) + 1;
+        // While the job stands open (or the workshop waits), what its named worker is doing.
+        if (ws.assignedWorker !== 0 && ent.alive(ws.assignedWorker) && (job === undefined || job.state === 'open')) {
+          const brain = ent.get(ws.assignedWorker, C.Brain);
+          const held = ent.get(ws.assignedWorker, C.Worker)?.jobId ?? 0;
+          const heldJob = held === 0 ? undefined : board.jobs.get(held);
+          const heldRole = furnaceJob(heldJob);
+          const doing = heldJob !== undefined ? `job ${heldRole !== null ? `${heldRole} ${groupOf(String(heldJob.data['recipe']))}` : board.typeId(heldJob)}` : `${brain?.behavior}/${brain?.activity}`;
+          const o = (openDoing.get(`${role} ${job === undefined ? 'none' : 'open'}`) ?? openDoing.set(`${role} ${job === undefined ? 'none' : 'open'}`, {}).get(`${role} ${job === undefined ? 'none' : 'open'}`)!);
+          o[doing] = (o[doing] ?? 0) + 1;
+        }
       }
       for (const [dwarf, shop] of shopOf) {
         if (!ent.alive(dwarf)) continue;
@@ -284,6 +304,10 @@ describe.skipIf(!RUN)('T-660 smith steel probe', () => {
       for (const [role, rr] of [...shopStates].sort((x, y) => x[0].localeCompare(y[0]))) {
         const n = Object.values(rr).reduce((a, b) => a + b, 0);
         console.log(`[t660shop] ${SEED}@${SHIFT} ${label} ${role}: ${Object.entries(rr).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${Math.round((1000 * v) / n) / 10}%`).join(', ')}`);
+      }
+      for (const [k, c] of [...openDoing].sort((x, y) => x[0].localeCompare(y[0]))) {
+        const n = Object.values(c).reduce((a, b) => a + b, 0);
+        console.log(`[t660open] ${SEED}@${SHIFT} ${label} ${k} (${n} samples), its worker: ${Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([x, v]) => `${x} ${Math.round((1000 * v) / n) / 10}%`).join(', ')}`);
       }
       for (const [k, c] of [...causes].sort((x, y) => x[0].localeCompare(y[0]))) {
         console.log(`[t660why] ${SEED}@${SHIFT} ${label} ${k}: ${Object.entries(c).sort((a, b) => b[1] - a[1]).map(([x, v]) => `${x} ${v}`).join(', ')}`);
