@@ -66,7 +66,7 @@ export const SQUAD_PRESET_NAMES = [
 /**
  * The squad's arms under its members (`ui-screens/panels.md` § Military): "Armed 1 of 3 · unarmed:
  * Liv H., Hrolf S.", in the alert colour while a member holds no weapon or one that is not of the
- * squad's choice; and, while a member lacks one, "No spear in stock: …" when none of the chosen
+ * squad's choice, or fights with a training weapon ("wooden weapon, no harm done: …", 16 § Training); and, while a member lacks one, "No spear in stock: …" when none of the chosen
  * class is free in stock but tools. Null for a squad with no members.
  */
 export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly text: string; readonly alert: boolean; readonly stock: string | null } | null {
@@ -80,17 +80,21 @@ export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly te
   const name = (id: EntityId): string => shortDwarfName(readers.entities.get(id, C.Creature)?.name ?? '');
   const unarmed: EntityId[] = [];
   const without: EntityId[] = [];
+  const harmless: EntityId[] = [];
   for (const id of squad.members) {
     const weapon = heldWeapon(readers, registry, id);
     const row = weapon === 0 ? undefined : weaponRowOf(readers, registry, weapon);
     if (row === undefined) unarmed.push(id);
     else if (!isChannel(row) && ((wanted !== 'any' && row.weaponClass !== wanted) || (ranged && row.launcher === undefined))) without.push(id);
+    // 16 § Training: a member fighting with a training weapon found no real one to take up.
+    if (row?.training === true && (readers.entities.get(id, C.Soldier)?.targetId ?? 0) !== 0) harmless.push(id);
   }
   const noun = wanted === 'any' ? strings.get(ranged ? 'ui.military.ranged_weapon_word' : 'ui.military.weapon_word') : wanted;
   const parts = [strings.get('ui.military.armed', { n: squad.members.length - unarmed.length, m: squad.members.length })];
   if (unarmed.length > 0) parts.push(strings.get('ui.military.unarmed', { names: unarmed.map(name).join(', ') }));
   if (without.length > 0) parts.push(strings.get('ui.military.without', { weapon: noun, names: without.map(name).join(', ') }));
-  const lacking = unarmed.length + without.length > 0;
+  if (harmless.length > 0) parts.push(strings.get('ui.military.harmless', { names: harmless.map(name).join(', ') }));
+  const lacking = unarmed.length + without.length + harmless.length > 0;
   const stock = weaponStock(readers, registry, wanted, wanted === 'any' ? ranged : undefined);
   let stockText: string | null = null;
   if (lacking && stock.free - stock.tools <= 0) {

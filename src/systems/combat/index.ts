@@ -50,7 +50,7 @@ import type { JobsReader } from '@systems/jobs/reader';
 import { TargetManager } from './targets';
 import { threatScan } from './threats';
 import { clearLineTile, kitingTile } from './kiting';
-import { clearDestroyedEquipment, dropWhatArmsCannotHold, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
+import { clearDestroyedEquipment, dropWhatArmsCannotHold, holdsTrainingWeapon, realWeaponFree, reequipAllSquads, reequipSoldier, reequipSquad } from './equipment';
 import { getBarracksForSquad, stepTraining } from './training';
 import { canCastBolt, castSupport, drinkVial, heldSpellKind, otherBoltTarget, runeCovers, type CastHost } from '@systems/magic/cast';
 import { allyOnLine, carelessThisTime, nearestClearTarget, type RayTo } from './clear-shot';
@@ -490,6 +490,14 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
         continue;
       }
       const isAdjacent = dz === 0 && Math.max(dx, dy) <= 1;
+
+      // 16 § Training: a training weapon is for drill. A soldier on duty who holds one with a
+      // hostile in hand takes up a real weapon from stock, as a look at its kit claims one.
+      const onDuty = entities.get(id, C.Soldier);
+      if (onDuty?.onDuty === true && holdsTrainingWeapon(entities, ctx.registry, id)) {
+        const squad = entities.get(onDuty.squadId, C.Squad);
+        if (squad !== undefined && realWeaponFree(ctx, squad.equipment.ranged)) reequipSoldier(ctx, squad, id);
+      }
 
       const w = weaponOf(entities, ctx.registry, id);
       const creatureA = entities.get(id, C.Creature);
