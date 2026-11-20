@@ -2,7 +2,6 @@
 import { C, ItemFlag, type Item } from '@core/components';
 import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import { SEASON_NAMES } from '@core/calendar';
-import { RngStream } from '@core/rng';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { BuildingsReader } from '@systems/buildings';
 import type { DwarvesReader } from '@systems/dwarves';
@@ -13,6 +12,7 @@ import type { ThreatsReader } from '@systems/threats/reader';
 import { RENOWN_POP_WEIGHT, RENOWN_WEALTH_DIVISOR } from '@systems/threats/constants';
 import type { ImmigrationReader } from '@systems/immigration/reader';
 import { IMMIGRATION_PERMILLE, REP_PERMILLE_PER_POINT } from '@systems/immigration/constants';
+import { seasonRoll } from '@systems/immigration/waves';
 import type { GameEvent } from '@core/events';
 import type { GameSystem, TickContext } from '@core/system';
 import type { ImmigrationStateV1 } from '@systems/immigration';
@@ -247,7 +247,7 @@ export class ThreeYearsMeasurements {
       population: this.population(), wealth: w.readers.of<ItemsReader>('13').wealth(),
       spirit: w.readers.of<MoraleReader>('15').hallSpirit(), wavesSoFar: im.wavesSoFar(),
       eligible: eligibility.eligible, reasons: [...eligibility.reasons], guaranteed,
-      roll: eligibility.eligible && !guaranteed ? new RngStream(w.game.world.rngFor('21').state()).int(0, 999) : null,
+      roll: eligibility.eligible && !guaranteed ? seasonRoll(w.game.world.seed, year, season) : null,
       probability: IMMIGRATION_PERMILLE + (w.game.world.fortress.reputation.mountainhome ?? 0) * REP_PERMILLE_PER_POINT,
       outcome: 'pending' };
     system.handle(event, ctx);

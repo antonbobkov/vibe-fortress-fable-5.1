@@ -154,6 +154,7 @@ An event is a plain record with a `type` and typed fields. The event table in `0
 - `world.rngFor(systemId)` returns a persistent stream seeded from `hash(worldSeed, systemId)`. `hashString` is FNV-1a/32 over UTF-16 code units, and `seedFor(worldSeed, streamId) = hashString(streamId, hashString(worldSeed))`. The four state words of `xoshiro128**` come from `splitmix32` of that seed, replacing the all-zero state with the golden-ratio constant (`0x9e3779b9`). Its state is part of the system's saved state.
 - World generation uses `rngFor('worldgen.elevation')`, `rngFor('worldgen.climate')`, and so on, one stream per stage, so that changing one stage does not change the others.
 - Local map generation uses one stream per stage in the same way.
+- A rule whose draws must not move when another rule of the same system draws more or fewer times takes a named stream of its own, `<systemId>.<name>` (`08.herds`, `10.whims`, `03.soil_drop`): made on its first use from its seed, saved in the `rng` section with the others once made, so a save from before it starts it from its seed. A roll made once per a fixed key draws on a stream named for that key and made afresh for the draw (`RngStream.forStream(worldSeed, id)`), which nothing saves: 21's season roll, `21.roll.<year>.<season>`, is the same whatever any earlier draw was, so two versions of the code are compared on the same rolls.
 
 Stream API, all deterministic and integer-only:
 
