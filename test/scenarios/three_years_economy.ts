@@ -96,8 +96,13 @@ export const KIT_FIRST = 3;
  * furniture, so raising them takes little from the food work.
  */
 export const RAISE_AFTER_DAYS = 5;
-/** T-570: the job types the player raises when they wait: a workshop's job and a building's. */
-const RAISED_JOB_TYPES: ReadonlySet<string> = new Set(['craft', 'build']);
+/**
+ * T-570: the job types the player raises when they wait: a workshop's job and a building's. T-664:
+ * and a trap's rearming and cleaning (19), which the three-year fortress, with no traps, never has:
+ * in `defence_year` the only civilian with mechanics was a bench specialist whose raised crafts came
+ * first, and a weapon trap and the cage trap stood spent from day 75 to the end.
+ */
+const RAISED_JOB_TYPES: ReadonlySet<string> = new Set(['craft', 'build', 'rearm_trap', 'clean_trap']);
 
 /** The founder who is Broker from the first day: the mason, who works beside the depot. */
 const BROKER_FOUNDER = 3;
