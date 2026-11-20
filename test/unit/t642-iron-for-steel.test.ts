@@ -71,7 +71,7 @@ describe('T-642 the three-year script keeps the iron coming to the smelter', () 
     keepOreStore(w, state);
     expect(new Set(state.economy.workHall!.tiles.map((t) => buildings.zoneAt(t)).filter((id) => id !== 0)).size).toBe(1);
   }, 120_000);
-  it('digs the full workshop hall a row of sites longer, once, and none while a site is free', () => {
+  it('digs the full workshop hall a site more, once, and none while a site is free', () => {
     const { w, state, slots } = setup();
     const hall = state.economy.workHall!;
     growWorkHall(w, state);
@@ -81,7 +81,7 @@ describe('T-642 the three-year script keeps the iron coming to the smelter', () 
     const before = hall.slots.length;
     growWorkHall(w, state);
     expect(state.economy.phases.has('work hall grown')).toBe(true);
-    expect(hall.slots.length, 'two sites across the eight-tile hall').toBe(before + 2);
+    expect(hall.slots.length, 'one site').toBe(before + 1);
     const fresh = hall.slots.slice(before);
     for (const origin of fresh) {
       expect(w.map.zOf(origin)).toBe(w.map.zOf(slots[0]!));
@@ -90,6 +90,6 @@ describe('T-642 the three-year script keeps the iron coming to the smelter', () 
       }
     }
     growWorkHall(w, state);
-    expect(hall.slots.length, 'once').toBe(before + 2);
+    expect(hall.slots.length, 'once').toBe(before + 1);
   }, 120_000);
 });

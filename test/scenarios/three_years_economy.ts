@@ -242,12 +242,13 @@ export function keepSecondSmelter(w: TestWorld, state: FortressState): void {
 }
 
 /**
- * T-642: a row of WORK_HALL_COLUMNS more workshop sites and a lane beyond them, dug along the workshop hall's
- * south side (or its north side where the south does not fit), once. In the peril-4 fortresses the
- * hall's twelve sites were taken by the workshops, the fuel store and the second kitchen and still,
- * and the second smelter went up on the surface, where ambushes sprang on its worker and haulers.
- * Only rock that is dry, no construction and opens to no hillside is dug; a drift already there is
- * kept.
+ * T-642: one more workshop site, dug against the workshop hall's south lane (or its north lane where
+ * the south does not fit), the column nearest the smelter first, once, at routine priority. In the
+ * peril-4 fortresses the hall's twelve sites were taken by the workshops, the fuel store and the
+ * second kitchen and still, and the second smelter went up on the surface, where ambushes sprang on
+ * its worker and haulers. A row of four sites and a lane, dug ahead of routine work, was tried
+ * first, and the sweep's peril-2 living fell with it (T-642's report). Only rock that is dry, no
+ * construction and opens to no hillside is dug; a drift already there is kept.
  */
 export function growWorkHall(w: TestWorld, state: FortressState): void {
   const hall = state.economy.workHall;
@@ -256,19 +257,21 @@ export function growWorkHall(w: TestWorld, state: FortressState): void {
   const z = map.zOf(hall.slots[0]!);
   const xs = hall.tiles.map((t) => map.xOf(t)), ys = hall.tiles.map((t) => map.yOf(t));
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
-  for (const top of [y1 + 1, y0 - 4]) {
-    if (top < 2 || top + 3 > map.h - 2) continue;
+  const at = w.readers.of<BuildingsReader>('14').get(state.placedIds['smelter'] ?? 0)?.footprint[4] ?? hall.stair;
+  const columns = Array.from({ length: Math.min(WORK_HALL_COLUMNS, Math.floor((x1 - x0 - 1) / 3)) }, (_, c) => x0 + 1 + 3 * c)
+    .sort((a, b) => Math.abs(a + 1 - map.xOf(at)) - Math.abs(b + 1 - map.xOf(at)) || a - b);
+  const sound = (t: number): boolean => map.fluidLevelAt(t) === 0 && !map.hasFlag(t, TileFlag.Constructed) && !opensToHillside(w, t) &&
+    (map.kindAt(t) === TileKind.Wall || map.kindAt(t) === TileKind.Floor);
+  for (const top of [y1 + 1, y0 - 3]) for (const left of columns) {
+    if (top < 2 || top + 2 > map.h - 2) continue;
     const tiles: number[] = [];
-    for (let y = top; y < top + 4; y += 1) for (let x = x0; x <= x1; x += 1) tiles.push(w.index(x, y, z));
-    const sound = (t: number): boolean => map.fluidLevelAt(t) === 0 && !map.hasFlag(t, TileFlag.Constructed) && !opensToHillside(w, t) &&
-      (map.kindAt(t) === TileKind.Wall || map.kindAt(t) === TileKind.Floor);
+    for (let y = top; y < top + 3; y += 1) for (let x = left; x < left + 3; x += 1) tiles.push(w.index(x, y, z));
     if (!tiles.every(sound)) continue;
     state.economy.phases.add('work hall grown');
-    // Three rows of sites, then a lane: to the south the sites open on the old hall's lane, to the north their lane joins it.
-    for (let c = 0; c < Math.min(WORK_HALL_COLUMNS, Math.floor((x1 - x0 - 1) / 3)); c += 1) hall.slots.push(w.index(x0 + 1 + 3 * c, top, z));
+    hall.slots.push(w.index(left, top, z));
     hall.tiles.push(...tiles);
     for (const t of tiles) state.economy.workings.add(t);
-    designateDig(w, tiles.filter((t) => map.kindAt(t) === TileKind.Wall), WORK_HALL_PRIORITY);
+    designateDig(w, tiles.filter((t) => map.kindAt(t) === TileKind.Wall), ROUTINE);
     return;
   }
 }
