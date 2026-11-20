@@ -6,6 +6,8 @@
 
 In that timeline a gloam ambush archer walked into the fortress before its doors shut and stood beside the barracks for over ten days (ticks 232,800 to 246,000), fighting the squad at drill. Over the first 2,500 ticks the soldiers' blows on it landed 404 times, all for 0 damage. The archer's bow-bash did 2 to 6 damage now and then, which healed. No one fell on either side. T-639 ended the fight with a stalemate rule (18 § Engage, `ENGAGE_STALEMATE_TICKS`): the party now stalls and goes home. Still, a squad on duty cannot hurt one raider in its own barracks, and the player is not told why.
 
+Seen again on the T-648 branch's sweep (measure.yml run 44680250921, job "sweep (p2-7, 0)", failed on `dwarf.frozen-2d (idle/Fighting)` from tick 384,000), traced locally: an off-duty soldier, Melkorka Raventongue, with a maple `training_sword` in her weapon slot, fought a wild badger beside her from tick 381,176 for over two days. In 3,400 ticks her blows landed 152 times, all for 0 damage, and the badger's bites did 0 through her armour. Being in reach kept moving her civilian fight's deadline (10 § Behavior selection, `fightExpired`), so it never ran out, and neither side could end the fight.
+
 ## What to do
 
 Find why every blow did 0 damage: training weapons kept in hand once a real enemy comes (16 § Training: they are wooden and do 0 damage), the gloam archer's armour against the soldiers' weapons, or the soldiers' skill. Then decide the rule. One option: a soldier on duty who targets a hostile takes up its real weapon. Another: the Military panel says the squad cannot harm what it fights. Write the rule into 16, and add a test where a soldier with only a training weapon meets a raider.
