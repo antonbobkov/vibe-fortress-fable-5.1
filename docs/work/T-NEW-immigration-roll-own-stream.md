@@ -1,0 +1,17 @@
+# T-NEW — The immigration roll on a stream of its own
+
+**Source:** [T-650's measurement](../../reports/data/2026-11-20-t650-peril-4-immigration.md) · **Size:** S · **Needs:** — · **Status:** open
+
+## Why
+
+21's one rng stream rolls each eligible season's wave (`IMMIGRATION_PERMILLE + reputation × REP_PERMILLE_PER_POINT`) and plans each wave's members (professions, skills, families, pets). A wave one immigrant larger or smaller, from a wealth step crossed or not at that tick, draws a different number of times, and every later roll of that fortress differs. T-650 found the 128 fewer year-3 immigrants at peril 4 that T-642's sweep showed against master to be mostly this: master's rolls drew a wave at 81% of its eligible year-3 evaluations against a 70% chance (82 immigrants above the expectation), T-642's at 70%, and T-639's sweep, which kept master's rolls in 15 of 24 timelines, at 83%. The sweep's living, guarded at the best minus 100, reads a change through rolls that any change to a wave's size reshuffles.
+
+## What to do
+
+Draw the season's roll so that it does not depend on the draws of earlier waves' plans: a second stream for the rolls (`rngFor('21:roll')` or the world's way of naming a sub-stream), or a roll derived from the world seed, the year and the season. Saved state, load and the world hashes follow (save-format.md, the golden hashes move once, said in the commit). The odds and every other rule are unchanged. Then sweep it, and compare the peril-4 year-3 waves against the expectation as T-650's report does.
+
+Spec: 21 § Evaluation, § State; save-format.md (21's state); testing-strategy.md § The twenty-seed sweep (one sentence: two codes are compared on the same rolls).
+
+## Done
+
+A unit test that a wave of another size leaves the next season's roll unchanged; the sweep's verdict, and the peril-4 year-3 rolls against their chance.
