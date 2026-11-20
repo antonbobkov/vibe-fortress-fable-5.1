@@ -407,6 +407,21 @@ export class JobBoard implements JobsApi, JobSink {
     return this.readers.pathing.labelOf(t, 'walker') === label && this.pocketOf(t) === this.pocketOf(from);
   }
 
+  /**
+   * Where a claim searches for the job's inputs (`11` § Assignment step 4): the tile they are delivered
+   * to, or else a stand tile of the job, when the worker reaches it; else the worker's own tile. The
+   * inputs nearest the job, not the worker: a worker that claimed its workshop's job at the dining hall
+   * fetched what lay nearest the dining hall and carried it, heavy, the whole way back (T-655).
+   */
+  inputOrigin(job: Job, workerId: EntityId): TileIndex {
+    const from = this.workerTile(workerId);
+    if (from < 0) return from;
+    const label = this.readers.pathing.labelOf(from, 'walker');
+    const delivery = job.data['deliveryTile'];
+    if (typeof delivery === 'number' && this.world.map.validIndex(delivery) && this.joined(from, label, delivery)) return delivery;
+    return this.reachableStands(job, workerId)[0] ?? from;
+  }
+
   /** The stand tiles that share the worker's connectivity label (and pocket). */
   reachableStands(job: Job, workerId: EntityId): TileIndex[] {
     const from = this.workerTile(workerId);
@@ -810,7 +825,7 @@ export class JobBoard implements JobsApi, JobSink {
    * `missing_input`; it never completes without its inputs.
    */
   refetch(job: Job, workerId: EntityId): void {
-    if (!this.reserveInputs(job, this.workerTile(workerId))) {
+    if (!this.reserveInputs(job, this.inputOrigin(job, workerId))) {
       this.unclaim(job, 'missing_input');
       return;
     }
@@ -1268,7 +1283,8 @@ export class JobBoard implements JobsApi, JobSink {
     this.setWorker(workerId, { jobId: job.id, phase: 0 });
     const from = this.workerTile(workerId);
     this.revalidateDelivered(job);
-    if (!this.reserveInputs(job, from, this.sheltersWork(workerId, job) ? this.shelterInside(workerId) : null)) {
+    const sheltered = this.sheltersWork(workerId, job);
+    if (!this.reserveInputs(job, sheltered ? from : this.inputOrigin(job, workerId), sheltered ? this.shelterInside(workerId) : null)) {
       this.unclaim(job, 'missing_input');
       return false;
     }
