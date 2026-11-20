@@ -341,6 +341,11 @@ export interface Workshop {
   assignedWorker: EntityId;
   magmaPowered: boolean;
   lastBlockedReason: string | null;
+  /**
+   * `12` § Operation: the recipes whose inputs exist but lie out of reach of the work tile, the item
+   * ids named ('|'-joined) and the tick until which the workshop skips them; absent: none.
+   */
+  outOfReach?: { recipe: string; input: string; until: number }[];
 }
 
 export interface Zone {

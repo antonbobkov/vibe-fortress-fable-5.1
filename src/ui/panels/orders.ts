@@ -25,7 +25,7 @@ import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
 import { jobLabor, jobWait } from '../job-wait';
-import { buildingName, capitalize, itemName, jobBlockText, matchName, waitingFor, whereMade, workshopBlockText, wrapHang, wrapText } from '../messages';
+import { buildingName, capitalize, itemName, jobBlockText, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, wrapHang, wrapText } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -40,7 +40,7 @@ export type OrderRow = { readonly kind: 'live'; readonly entry: OrderEntry } | {
 
 /** What an order is doing now: `short` for its list row, `long` for the selected order's lines. */
 export interface OrderStatus {
-  readonly kind: 'in_progress' | 'queued' | 'done' | 'stocked' | 'waiting' | 'fuel' | 'no_workshop' | 'suspended' | 'no_magma' | 'no_worker' | 'other';
+  readonly kind: 'in_progress' | 'queued' | 'done' | 'stocked' | 'waiting' | 'out_of_reach' | 'fuel' | 'no_workshop' | 'suspended' | 'no_magma' | 'no_worker' | 'other';
   readonly short: string;
   readonly long: string;
 }
@@ -90,6 +90,8 @@ function clampCount(n: number): number {
 /** A `○` recipe's missing input, from its workshop's waiting reason: "· no tallow", "· no fuel"; '' for any other reason. */
 function missingNote(ctx: PanelContext, reason: string | null): string {
   if (reason === 'missing_input') return ctx.strings.get('ui.orders.pick.no_fuel');
+  const far = outOfReach(ctx, reason);
+  if (far !== null) return ctx.strings.get('ui.orders.pick.out_of_reach', { item: far.item });
   const waiting = waitingFor(ctx, reason);
   return waiting === null ? '' : ctx.strings.get('ui.orders.pick.no_input', { item: waiting.item });
 }
@@ -915,6 +917,8 @@ export class OrdersPanel {
       reason ??= why;
     }
     const long = workshopBlockText(ctx, reason);
+    const far = outOfReach(ctx, reason);
+    if (far !== null) return { kind: 'out_of_reach', short: s.get('ui.orders.status.out_of_reach', { item: far.item }), long };
     const waiting = waitingFor(ctx, reason);
     if (waiting !== null) return { kind: 'waiting', short: s.get('ui.orders.status.waiting', { item: waiting.item, n: waiting.n }), long };
     if (reason === 'missing_input') return plain('fuel', long);
@@ -1247,13 +1251,13 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
 
 /**
  * Why a workshop is idle, with the input named (`12` § Operation 3: "waiting for <input>"; D-U4).
- * The saved `lastBlockedReason` folds every missing input into `missing_input` (an empty container into `no_empty_container`); the reader's
+ * The saved `lastBlockedReason` folds every missing input into `missing_input` (an empty container into `no_empty_container`, an input out of reach into `out_of_reach`); the reader's
  * `isRunnable` of the orders in turn says which one.
  */
 export function workshopWaiting(reader: WorkshopsReader, id: EntityId, workshop: Workshop): string | null {
   const last = workshop.lastBlockedReason;
   if (last === null) return null;
-  if (last !== 'missing_input' && last !== 'no_empty_container') return last;
+  if (last !== 'missing_input' && last !== 'no_empty_container' && last !== 'out_of_reach') return last;
   for (const order of workshop.orders) {
     const recipe = reader.recipe(order.recipe);
     const why = recipe === undefined ? null : reader.isRunnable(recipe.id, id).reason;
