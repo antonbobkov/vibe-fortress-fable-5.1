@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { roundTrip } from '@app/game-save';
 import { C, type WorkOrder, type Workshop } from '@core/components';
 import { TileKind } from '@core/map3d';
 import type { EntityId } from '@core/types';
@@ -111,8 +112,12 @@ describe('T-657 an order skipped as out of reach is told in the log once', () =>
     w.step(2);
     const oak = w.game.registry.table('materials').index('oak');
     expect(skipped(w, shop)).toEqual([{ type: 'WorkOrderSkipped', workshopId: shop, recipeId: 'make_chair_wood', input: 'log' }]);
-    expect((w.game.world.entities.get(shop, C.Workshop) as Workshop).outOfReach)
-      .toEqual([{ recipe: 'make_chair_wood', material: oak, input: 'log', until: expect.any(Number) as number }]);
+    const remembered = (w.game.world.entities.get(shop, C.Workshop) as Workshop).outOfReach;
+    expect(remembered).toEqual([{ recipe: 'make_chair_wood', material: oak, input: 'log', until: expect.any(Number) as number }]);
+    // The filter is a content index, saved as its id and read back.
+    const loaded = roundTrip(w.game).game;
+    expect(loaded.hash()).toBe(w.game.hash());
+    expect(loaded.world.entities.get(shop, C.Workshop)?.outOfReach).toEqual(remembered);
     // The pine chair is made while the oak one stays skipped, and each Orders row says its own status.
     w.until((x) => crafted(x, 'make_chair_wood') > 0, 3_000);
     const ctx: PanelContext = {

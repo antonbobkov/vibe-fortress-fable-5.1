@@ -341,13 +341,22 @@ export interface Workshop {
   assignedWorker: EntityId;
   magmaPowered: boolean;
   lastBlockedReason: string | null;
-  /**
-   * `12` § Operation 2: the orders whose inputs exist but lie out of reach of the work tile, by recipe
-   * id with the order's material filter and target type (absent: none), the item ids named
-   * ('|'-joined) and the tick until which the workshop skips them. An entry whose time is over stays
-   * until an order of its kind starts or none is left, so the skip is told once; absent: none.
-   */
-  outOfReach?: { recipe: string; material?: Idx<'MaterialDef'> | string; target?: Idx<'ItemTypeDef'>; input: string; until: number }[];
+  /** `12` § Operation 2: the orders whose inputs exist but lie out of reach of the work tile; absent: none. */
+  outOfReach?: OutOfReach[];
+}
+
+/**
+ * `12` § Operation 2: an order remembered as out of reach, by its recipe id with its material filter
+ * and target type (absent: none), the item ids named ('|'-joined) and the tick until which the
+ * workshop skips orders of its kind. An entry whose time is over stays until an order of its kind
+ * starts or none is left, so the skip is told once.
+ */
+export interface OutOfReach {
+  recipe: string;
+  material?: Idx<'MaterialDef'> | string;
+  target?: Idx<'ItemTypeDef'>;
+  input: string;
+  until: number;
 }
 
 export interface Zone {

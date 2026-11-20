@@ -1,5 +1,5 @@
 /** `12` §§ Operation, Work orders; `economy.md` § Workshop operation. */
-import { C, ItemFlag, type Building, type WorkOrder, type Workshop } from '@core/components';
+import { C, ItemFlag, type Building, type OutOfReach, type WorkOrder, type Workshop } from '@core/components';
 import { FluidType } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import type { GameEvent } from '@core/events';
@@ -221,8 +221,6 @@ class RunePressure {
 
 /** `12` § Operation 2: the waiting reason of an order whose inputs lie out of reach, before the item ids. */
 export const OUT_OF_REACH = 'out of reach';
-
-type OutOfReach = NonNullable<Workshop['outOfReach']>[number];
 
 /**
  * `12` § Operation 2: whether a remembered order out of reach is of this order's kind: the same

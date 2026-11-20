@@ -108,11 +108,12 @@ interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 
 interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
                       targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }
+interface OutOfReach { recipe: string /* recipe id */; material?: Idx<MaterialDef> | string /* the order's materialFilter; absent: null */;
+                       target?: Idx<ItemTypeDef> /* the order's targetType; absent: none */; input: string /* item ids, '|'-joined */;
+                       until: Tick /* skipped until; kept after it until such an order starts or none is left */ }
 interface Workshop { orders: WorkOrder[]; currentJobId: number; suspended: boolean; assignedWorker: EntityId;
                      magmaPowered: boolean; lastBlockedReason: string | null;
-                     outOfReach?: { recipe: string /* recipe id */; material?: Idx<MaterialDef> | string /* the order's materialFilter; absent: null */;
-                                   target?: Idx<ItemTypeDef> /* the order's targetType */; input: string /* item ids, '|'-joined */;
-                                   until: Tick /* skipped until; kept after it until such an order starts or none is left */ }[] /* 12 § Operation 2; absent: none */ }
+                     outOfReach?: OutOfReach[] /* 12 § Operation 2; absent: none */ }
 interface Zone { type: Idx<ZoneTypeDef>; tiles: TileIndex[] /* sorted */; settings: Record<string, unknown> }
 interface StockpileFilter { categories: string[]; materialClasses: string[] | 'any'; minQuality: Quality; maxQuality: Quality; allowRot: boolean }
 interface Stockpile { filter: StockpileFilter; containersWanted: { barrel: number; bag: number; bin: number };
