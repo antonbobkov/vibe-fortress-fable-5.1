@@ -22,7 +22,7 @@ On every `SeasonChanged` (the first evaluation is the change to summer of year 1
 1. If the fortress has no living dwarves, nothing happens (the game is ending).
 2. If a battle is on the map, defer to the next day and re-check daily until clear (immigrants do not walk into a battle). A battle is an active raid or siege, or an ambush that has sprung (18 § Stealth); a hidden ambush, which nobody knows of, defers nothing.
 3. Guaranteed waves: at summer year 1 and autumn year 1, if `population < cap`, a wave of `GUARANTEED_SIZE_MIN..GUARANTEED_SIZE_MAX` arrives. These are "the cousins": their announcement says so.
-4. Otherwise, eligible if all hold: `hallSpirit ≥ IMMIGRATION_SPIRIT_MIN`; `population < cap`; `wealth ≥ WEALTH_PER_WAVE × wavesSoFar` (each wave asks a little more renown than the last); not winter at temper ≥ 2 (the passes are closed). When eligible, a wave arrives with probability `IMMIGRATION_PERMILLE + reputation(mountainhome) × REP_PERMILLE_PER_POINT`.
+4. Otherwise, eligible if all hold: `hallSpirit ≥ IMMIGRATION_SPIRIT_MIN`; `population < cap`; `wealth ≥ WEALTH_PER_WAVE × wavesSoFar` (each wave asks a little more renown than the last); not winter at temper ≥ 2 (the passes are closed). When eligible, a wave arrives with probability `IMMIGRATION_PERMILLE + reputation(mountainhome) × REP_PERMILLE_PER_POINT`. The season's roll is drawn on a stream of its own, `21.roll.<year>.<season>`, seeded from the world seed, the year and the season alone (`seasonRoll`): the first draw of that stream, `int(0, 999)`, brings the wave when it is under the chance. It is never drawn on 21's stream, which plans the waves (§ Composition) and draws a different number of times for a wave of another size, so no earlier wave, skip or deferral moves a later season's roll, and two versions of the code meet the same roll in every season both of them evaluate (T-652). A deferred evaluation rolls its own season's roll on the day it is made.
 5. `ImmigrationSkipped { reason }` is emitted when not eligible, so the panel can say why ("Hall spirit is Fine; immigrants come when it is Content").
 
 ### Wave size
@@ -59,7 +59,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 ## State
 
 - `wavesSoFar`, `guaranteedDone: [boolean, boolean]`, `lastWave: { tick, count }`, `deferredUntilTick`, `lastSkipReason`, the pending wave (its plan, the members already arrived and the tick of the next arrival) and whether a battle holds it, which are saved so that the remaining arrivals resume after a load.
-- Rng stream.
+- Rng stream, which plans the waves and sizes the guaranteed ones. The season's roll (§ Evaluation) is derived, not saved: nothing of it is in the state or in the `rng` section.
 
 ## Interfaces
 
