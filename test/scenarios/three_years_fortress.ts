@@ -14,7 +14,7 @@ import { HeadlessGame, regionSpec, FLAT_TEST_SURFACE_Z, type HeadlessEmbark } fr
 import { contentRegistry } from '@content/loader';
 import { Map3D } from '@core/map3d';
 import { generateLocal } from '@systems/terrain/generate';
-import { DAYS_PER_YEAR, LOCAL_MAP_Z, TICKS_PER_DAY } from '@core/constants';
+import { DAYS_PER_YEAR, LOCAL_MAP_Z, NEED_MAX, TICKS_PER_DAY } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import { C, ItemFlag } from '@core/components';
 import type { Registry } from '@core/registry';
@@ -28,6 +28,7 @@ import type { ItemsReader } from '@systems/items';
 import type { TerrainReader } from '@systems/terrain/reader';
 import type { AnimalsReader } from '@systems/animals';
 import type { DwarvesReader } from '@systems/dwarves';
+import { CRITICAL, WANT } from '@systems/dwarves/needs';
 import type { JobsReader } from '@systems/jobs';
 import { TestWorld } from './test-world';
 import { command } from './script-commands';
@@ -1681,6 +1682,99 @@ export interface AmbushCount {
 }
 
 /**
+ * T-656: the journal of thirst under the alert. What the script last saw of each dwarf (its thirst,
+ * whether it stood outdoors), the most dwarves it saw outdoors while the alert was up, and the
+ * drinks of water taken outdoors since the alert went up. Kept
+ * beside the state, not in it: it is read only for the notes and changes nothing in the game.
+ */
+const thirstSeen = new WeakMap<FortressState, { thirst: Map<number, number>; outdoors: Set<number>; maxOut: number; waterOut: number; week: number; brews: number; stolen: number }>();
+
+function thirstWatch(state: FortressState): { thirst: Map<number, number>; outdoors: Set<number>; maxOut: number; waterOut: number; week: number; brews: number; stolen: number } {
+  let seen = thirstSeen.get(state);
+  if (seen === undefined) thirstSeen.set(state, (seen = { thirst: new Map(), outdoors: new Set(), maxOut: 0, waterOut: 0, week: -1, brews: 0, stolen: 0 }));
+  return seen;
+}
+
+/** T-656: samples every living dwarf's thirst and place, and notes the fortress's dead as they fall (`three_years_thirst_death`). */
+function watchThirst(w: TestWorld, state: FortressState, events: readonly { type: string; [k: string]: unknown }[]): void {
+  const ent = w.game.world.entities;
+  const seen = thirstWatch(state);
+  const dwarf = w.game.registry.table('creatures').index('dwarf');
+  for (const e of events) {
+    if (e.type === 'DrankWater') {
+      const q = ent.get(Number(e['id']), C.Position);
+      if (q !== undefined && w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor)) seen.waterOut += 1;
+    }
+    if (e.type === 'ItemCrafted' && e['recipeId'] === 'brew') seen.brews += 1;
+    if (e.type === 'ItemDestroyed' && e['itemType'] === 'barrel' && e['reason'] === 'stolen') seen.stolen += 1;
+    if (e.type !== 'CreatureDied' || e['faction'] !== 'fortress' || e['species'] !== dwarf) continue;
+    const id = Number(e['id']);
+    note('three_years_thirst_death', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, cause: String(e['cause'] ?? ''), thirst: seen.thirst.get(id) ?? -1,
+      outdoors: seen.outdoors.has(id), alert: w.game.world.fortress.alert, ...(state.calmTick !== undefined ? { sinceCalm: w.tick - state.calmTick } : {}),
+      drink: w.readers.of<ItemsReader>('13').available('drink') });
+  }
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  seen.thirst.clear();
+  seen.outdoors.clear();
+  for (const id of ent.with(C.Labors)) {
+    if (!ent.alive(id) || ent.get(id, C.Creature)?.faction !== 'fortress') continue;
+    seen.thirst.set(id, dwarves.need(id, 'thirst'));
+    const q = ent.get(id, C.Position);
+    if (q !== undefined && w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor)) seen.outdoors.add(id);
+  }
+  if (w.game.world.fortress.alert === 'hearth') seen.maxOut = Math.max(seen.maxOut, seen.outdoors.size);
+  // Once a week, the drink against the dwarves (`three_years_drink`): the drink and the brewable
+  // plants in stock, the fortress's barrels and the empty ones, the logs, the brews and the barrels
+  // stolen that week, and what the brewer is doing.
+  const week = Math.floor(w.tick / (7 * TICKS_PER_DAY));
+  if (week === seen.week) return;
+  seen.week = week;
+  const types = w.game.registry.table('items');
+  const plantFood = types.index('plant_food'), barrel = types.index('barrel');
+  const plantRows = w.game.registry.table<{ id: string; brew?: string }>('plants');
+  const materials = w.game.registry.table('materials');
+  const brewable = new Set(plantRows.ids().filter((id) => plantRows.byId(id)?.brew !== undefined && materials.has(id)).map((id) => materials.index(id)));
+  const items = w.readers.of<ItemsReader>('13');
+  let plants = 0, brew = 0, empty = 0, barrels = 0;
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (it.type === plantFood) { plants += it.count; if (brewable.has(it.material)) brew += it.count; }
+    else if (it.type === barrel && (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) === 0) {
+      barrels += 1;
+      if (items.inContainer(id).length === 0) empty += 1;
+    }
+  }
+  const brewer = state.economy.brewer;
+  note('three_years_drink', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1, pop: seen.thirst.size, drink: items.count('drink'), available: items.available('drink'),
+    brewable: brew, plants, barrels, emptyBarrels: empty, logs: items.available('log'), brews: seen.brews, stolen: seen.stolen, brewer: brewer !== undefined && ent.alive(brewer) ? dwarves.activityText(brewer) : '-',
+    stills: ['still', 'still2'].filter((k) => (state.placedIds[k] ?? 0) !== 0).length });
+  seen.brews = 0;
+  seen.stolen = 0;
+}
+
+/**
+ * T-656: one line of the thirst journal (`three_years_thirst`) as the alert goes up (`raised`), as
+ * the watch goes out to look (`look`) and as it comes down (`clear`, `shutOut`, `wildQuiet`): the
+ * dwarves, the drink in stock (available), how many are at want and at critical thirst, how many
+ * stand outdoors, and at the end the most seen outdoors while it was up and the drinks of water
+ * taken outdoors since it went up.
+ */
+function noteThirst(w: TestWorld, state: FortressState, phase: string): void {
+  const ent = w.game.world.entities;
+  const dwarves = w.readers.of<DwarvesReader>('10');
+  const seen = thirstWatch(state);
+  const living = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress');
+  const thirst = living.map((id) => dwarves.need(id, 'thirst'));
+  const outdoors = living.filter((id) => { const q = ent.get(id, C.Position); return q !== undefined && w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor); }).length;
+  const raised = phase === 'raised';
+  note('three_years_thirst', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, phase, raid: state.raidAlert === true, pop: living.length,
+    drink: w.readers.of<ItemsReader>('13').available('drink'), want: thirst.filter((t) => t >= WANT.thirst).length,
+    critical: thirst.filter((t) => t >= (CRITICAL.thirst ?? NEED_MAX)).length, outdoors,
+    ...(raised ? {} : { maxOut: seen.maxOut, waterOut: seen.waterOut, since: w.tick - state.alertSince }) });
+  if (phase !== 'look') { seen.maxOut = 0; seen.waterOut = 0; }
+}
+
+/**
  * T-575: the census of sprung ambushes, read from the events the script has not read yet. Each is
  * noted (`three_years_ambush`) when its party is gone; it changes nothing in the game.
  */
@@ -1877,6 +1971,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   // of the raiders finding the dwarves at work on the surface.
   const seen = w.allEvents();
   countAmbushes(w, state, seen.slice(state.eventsRead ?? seen.length));
+  watchThirst(w, state, seen.slice(state.eventsRead ?? seen.length));
   for (let i = state.eventsRead ?? seen.length; i < seen.length; i += 1) {
     if (seen[i]!.type === 'ThreatWarning') {
       state.warnedUntil = w.tick + WARNED_TICKS;
@@ -1925,6 +2020,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     state.raidAlert = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, shutOut: true });
+    noteThirst(w, state, 'shutOut');
     state.answered = '';
     cancelSquadOrders(w, state);
     return;
@@ -1962,6 +2058,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     state.raidAlert = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true, wildQuiet: true });
+    noteThirst(w, state, 'wildQuiet');
     state.answered = '';
     cancelSquadOrders(w, state);
   };
@@ -1989,6 +2086,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       state.raidAlert = false;
       command(w, { type: 'SetAlert', level: 'hearth' });
       note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, raid, targets: targets.map((id) => speciesName(w, id)) });
+      noteThirst(w, state, 'raised');
     }
     // T-575: an ambush does not come to the gate: it springs on the dwarves at work outdoors and
     // hunts them, and loiters by the gate once they are in (18 § Party AI). Answered as a raid, the
@@ -2107,6 +2205,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
     state.raidAlert = false;
     command(w, { type: 'SetAlert', level: 'calm' });
     note('three_years_alert', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, calm: true });
+    noteThirst(w, state, 'clear');
     state.answered = '';
     cancelSquadOrders(w, state);
   }
@@ -2190,6 +2289,7 @@ export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean 
     state.looking = { since: w.tick, held: {} };
     setGateDoors(w, state, 'open');
     note('three_years_look', { tick: w.tick, day, look: true });
+    noteThirst(w, state, 'look');
     return true;
   }
   const ent = w.game.world.entities;

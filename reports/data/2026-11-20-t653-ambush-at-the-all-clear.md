@@ -18,7 +18,7 @@ Where ambushes come, an alert raised for a raid, a siege, an ambush or a threat 
 
 Tried and not kept: opening the gate for the dwarves the lock had left outside when an ambush springs (the `p4-4` case). In the replay from the day-259 save it let them in and let the ambush follow into the halls: 13 dead, as on master.
 
-In the `p4-1` replay from the day-292 save, the look made the ambush spring on the squad at the gatehouse stair 16 ticks after the doors opened, with no civilian out; but the thirsty came up through the open doors regardless (22 and 25 dead in two replays, against 31). That crowd is a matter of drink, not of the gate: [the thirsty go out under the alert](../../docs/work/T-656-thirst-under-the-alert.md).
+In the `p4-1` replay from the day-292 save, the look made the ambush spring on the squad at the gatehouse stair 16 ticks after the doors opened, with no civilian out; but the thirsty came up through the open doors regardless (22 and 25 dead in two replays, against 31). That crowd is a matter of drink, not of the gate: [the thirsty go out under the alert](../../docs/archive/tasks/T-656-thirst-under-the-alert.md).
 
 ## The ambushes at the all-clear, by run
 
