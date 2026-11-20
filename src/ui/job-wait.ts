@@ -5,7 +5,9 @@
  *
  * It reads the dwarves who could take the job, as 11's assignment offers it: those with its labor
  * (or the one dwarf it is for), less the soldiers on duty, the hurt and those sheltering under the
- * Hearth alert. Of the rest, priority is strict and a job does not age, so a job waits while more
+ * Hearth alert. When none of the rest holds the tool the job needs, no tool of that kind is free, and
+ * one who cannot use it now holds it, the job waits for that tool (11 § Assignment: a dwarf without
+ * the tool leaves the job to one who carries it). Of the rest, priority is strict and a job does not age, so a job waits while more
  * urgent jobs are open to them, or while every one of them is at another job. A free dwarf who has
  * not taken it is out of reach of it, at a need, or kept from it by something the panel does not see.
  *
@@ -18,11 +20,12 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { CombatReader } from '@systems/combat';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { HealthReader } from '@systems/health';
+import type { ItemsReader } from '@systems/items';
 import type { Job, JobsReader } from '@systems/jobs';
 import { jobBlockText, type MessageEnv } from './messages';
 
 /** Why an open job waits, most decisive first. */
-export type JobWaitReason = 'no_labor' | 'on_duty' | 'hurt' | 'sheltering' | 'away' | 'ahead' | 'busy' | 'unreachable' | 'needs' | 'not_taken';
+export type JobWaitReason = 'no_labor' | 'on_duty' | 'hurt' | 'sheltering' | 'away' | 'tool_held' | 'ahead' | 'busy' | 'unreachable' | 'needs' | 'not_taken';
 
 export interface JobWait {
   readonly reason: JobWaitReason;
@@ -131,6 +134,9 @@ export function jobWait(env: MessageEnv, job: Job): JobWait | null {
     return { reason: 'away', text: s.get('ui.job_wait.away', { whom, labor }) };
   }
 
+  const held = toolHeld(env, job, workers, available);
+  if (held !== null) return held;
+
   // Priority is strict (11 § Assignment): a job more urgent than this one, open to any of them, comes first.
   const effective = (j: Pick<Job, 'priority' | 'type' | 'data'>): number => {
     const l = jobLabor(env, j);
@@ -162,4 +168,48 @@ export function jobWait(env: MessageEnv, job: Job): JobWait | null {
   }
   const idle = free.length === 1 ? 'one' : 'many';
   return { reason: 'not_taken', text: s.get(`ui.job_wait.not_taken.${idle}`, { name: name(free[0] as EntityId), n: free.length, labor }) };
+}
+
+/** The item category of a job's tool, as 11 searches for it; absent for no tool or one the panel does not name. */
+const TOOL_CATEGORY: Readonly<Record<string, string>> = { pick: 'tool/pick', axe: 'tool/axe', ranged: 'weapon/ranged' };
+
+/** Whether a dwarf holds a tool of that category: its `Worker.toolId` or its weapon slot, in its hands. */
+function holdsTool(env: MessageEnv, items: ItemsReader, id: EntityId, category: string): boolean {
+  for (const itemId of [env.readers.entities.get(id, C.Worker)?.toolId ?? 0, env.readers.entities.get(id, C.Equipment)?.weapon ?? 0]) {
+    const item = itemId === 0 ? undefined : items.get(itemId);
+    if (item !== undefined && item.carriedBy === id && items.categoryOf(item.type) === category) return true;
+  }
+  return false;
+}
+
+/**
+ * T-661: a job that needs a tool waits on it when none of the dwarves who could take it holds one, none
+ * is free in stock, and a dwarf with its labor who cannot use it now (in the hospital, hurt, on duty, in
+ * shelter) holds one: "the only axe is with Urist, in the hospital". 11 puts such a tool down for the
+ * fortress after a while (§ Assignment), except a soldier's only weapon.
+ */
+function toolHeld(env: MessageEnv, job: Job, workers: readonly EntityId[], available: readonly EntityId[]): JobWait | null {
+  const category = job.tool === null ? undefined : TOOL_CATEGORY[job.tool];
+  if (category === undefined || job.tool === null || !env.readers.has('13')) return null;
+  const items = env.readers.of<ItemsReader>('13');
+  if (available.some((id) => holdsTool(env, items, id, category))) return null;
+  if (items.countAvailable({ category }) > 0) return null;
+  const holders = workers.filter((id) => !available.includes(id) && holdsTool(env, items, id, category));
+  const first = holders[0];
+  if (first === undefined) return null;
+  const s = env.strings;
+  const combat = env.readers.has('16') ? env.readers.of<CombatReader>('16') : null;
+  const health = env.readers.has('17') ? env.readers.of<HealthReader>('17') : null;
+  const patient = env.readers.entities.get(first, C.Patient);
+  const where = combat?.onDuty(first) === true ? 'duty'
+    : patient !== undefined && patient.hospitalZoneId !== 0 ? 'hospital'
+      : patient !== undefined || (health !== null && !health.isConscious(first)) ? 'hurt' : 'shelter';
+  const params = {
+    name: env.readers.entities.get(first, C.Creature)?.name ?? '',
+    where: s.get(`ui.job_wait.tool_where.${where}`),
+    tool: s.get(`ui.job_wait.tool.${job.tool}.one`),
+    tools: s.get(`ui.job_wait.tool.${job.tool}.many`),
+    n: holders.length,
+  };
+  return { reason: 'tool_held', text: s.get(`ui.job_wait.tool_held.${holders.length === 1 ? 'one' : 'many'}`, params) };
 }

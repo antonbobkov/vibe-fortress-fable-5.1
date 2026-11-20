@@ -17,7 +17,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
 import { estDistance } from './assign';
 import { JobBoard } from './board';
-import { dropStrandedTools, dropUnusableLaunchers, dropUnusedTools, itemSourceOf } from './items-adapter';
+import { dropStrandedTools, dropToolsOfTheUnable, dropUnusableLaunchers, dropUnusedTools, itemSourceOf } from './items-adapter';
 import { NO_ITEMS } from './producers';
 import {
   applyCancelJob,
@@ -124,6 +124,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     dropStrandedTools(this.board, ctx);
     dropUnusableLaunchers(this.board, ctx);
     dropUnusedTools(this.board, ctx);
+    dropToolsOfTheUnable(this.board, ctx);
     this.board.tick(ctx);
   }
 
