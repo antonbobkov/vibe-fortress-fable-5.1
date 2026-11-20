@@ -15,3 +15,7 @@ Spec: `ui-screens/panels.md` § Military (the `[w] weapon` list).
 ## Done
 
 A UI test: with a spare training sword free and no real sword, the list's sword row says the one sword is wooden; with an iron sword added, it counts two, one wooden.
+
+- [x] **Wooden note**, `test/unit/ui/t658-gear-list-wood.test.ts`: in the default embark with a squad preferring swords and a spare oak training sword free, the list reads `sword (1, wooden, current)` and `any (4, 3 tools, one wooden)`; with an iron short sword added, `sword (2, one wooden, current)` and `any (5, 3 tools, one wooden)`. The note follows the tool note's forms (`wooden`, `all wooden`, `one wooden`, `2 wooden`) and comes after it (`gearRow` in `src/ui/panels/military.ts`, from `weaponStock`'s `training` count).
+- [x] T-654's test `test/unit/ui/t654-armed-line-wood.test.ts` now expects `sword (1, wooden, current)` for its spare training sword (was `sword (1, current)`).
+- [x] Spec: `panels.md` § Military (the `[w] weapon` list's rows).
