@@ -29,7 +29,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
 import type { MagicReader } from '@systems/magic';
 import { soldierTrigger } from '@systems/magic/draughts';
-import { armorStock, gearName, heldWeapon, isChannel, weaponRowOf, weaponStock, whereWeaponMade } from './gear';
+import { armorStock, gearName, heldWeapon, isChannel, realWeaponFree, weaponRowOf, weaponStock, whereWeaponMade } from './gear';
 
 interface WeaponClassRow {
   readonly id: string;
@@ -65,9 +65,12 @@ export const SQUAD_PRESET_NAMES = [
 
 /**
  * The squad's arms under its members (`ui-screens/panels.md` § Military): "Armed 1 of 3 · unarmed:
- * Liv H., Hrolf S.", in the alert colour while a member holds no weapon or one that is not of the
- * squad's choice, or fights with a training weapon ("wooden weapon, no harm done: …", 16 § Training); and, while a member lacks one, "No spear in stock: …" when none of the chosen
- * class is free in stock but tools. Null for a squad with no members.
+ * Liv H., Hrolf S.", with the training weapons counted apart ("Armed 6 of 6 (6 wooden)"), in the
+ * alert colour while a member holds no weapon or one that is not of the squad's choice, or fights
+ * with a training weapon ("wooden weapon, no harm done: …", 16 § Training), or holds one with no
+ * real weapon free to take up in a fight; and, while the line is in the alert colour, "No spear in
+ * stock: …" when none of the chosen class is free in stock but tools and training weapons. Null
+ * for a squad with no members.
  */
 export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly text: string; readonly alert: boolean; readonly stock: string | null } | null {
   if (squad.members.length === 0) return null;
@@ -81,23 +84,28 @@ export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly te
   const unarmed: EntityId[] = [];
   const without: EntityId[] = [];
   const harmless: EntityId[] = [];
+  let wooden = 0;
   for (const id of squad.members) {
     const weapon = heldWeapon(readers, registry, id);
     const row = weapon === 0 ? undefined : weaponRowOf(readers, registry, weapon);
     if (row === undefined) unarmed.push(id);
     else if (!isChannel(row) && ((wanted !== 'any' && row.weaponClass !== wanted) || (ranged && row.launcher === undefined))) without.push(id);
+    if (row?.training === true) wooden += 1;
     // 16 § Training: a member fighting with a training weapon found no real one to take up.
     if (row?.training === true && (readers.entities.get(id, C.Soldier)?.targetId ?? 0) !== 0) harmless.push(id);
   }
   const noun = wanted === 'any' ? strings.get(ranged ? 'ui.military.ranged_weapon_word' : 'ui.military.weapon_word') : wanted;
-  const parts = [strings.get('ui.military.armed', { n: squad.members.length - unarmed.length, m: squad.members.length })];
+  const counts = { n: squad.members.length - unarmed.length, m: squad.members.length, k: wooden };
+  const parts = [strings.get(wooden > 0 ? 'ui.military.armed_wooden' : 'ui.military.armed', counts)];
   if (unarmed.length > 0) parts.push(strings.get('ui.military.unarmed', { names: unarmed.map(name).join(', ') }));
   if (without.length > 0) parts.push(strings.get('ui.military.without', { weapon: noun, names: without.map(name).join(', ') }));
   if (harmless.length > 0) parts.push(strings.get('ui.military.harmless', { names: harmless.map(name).join(', ') }));
-  const lacking = unarmed.length + without.length + harmless.length > 0;
+  // A member with wood takes up a real weapon in a fight while one is free (16 § Training); with none, the squad has nothing to fight with.
+  const woodOnly = wooden > 0 && !realWeaponFree(readers, registry, ranged);
+  const lacking = unarmed.length + without.length + harmless.length > 0 || woodOnly;
   const stock = weaponStock(readers, registry, wanted, wanted === 'any' ? ranged : undefined);
   let stockText: string | null = null;
-  if (lacking && stock.free - stock.tools <= 0) {
+  if (lacking && stock.free - stock.tools - stock.training <= 0) {
     // Any class is made in too many places to name them: the line then names none.
     const where = wanted === 'any' ? '' : whereWeaponMade(registry, wanted);
     stockText = where === '' ? strings.get('ui.military.no_weapon_stock_any', { weapon: noun }) : strings.get('ui.military.no_weapon_stock', { weapon: noun, where });
