@@ -2200,7 +2200,10 @@ export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean 
   let done = true;
   for (const post of watch) {
     const squad = combat.squad(post.squadId);
-    const station = squad?.station ?? null;
+    // A post whose tile nobody can stand on (a sapling grown into a tree there) is held by no one:
+    // 16 refuses a station order on it (`bad_placement`).
+    const post0 = squad?.station ?? null;
+    const station = post0 !== null && w.readers.pathing.passable(post0, 'walker') ? post0 : null;
     const dogs = animals.tameList().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.species === dogSpecies && animals.assignedTo(id) === post.squadId);
     const lookers = [...(squad?.members ?? []), ...dogs];
     const key = String(post.squadId);
@@ -2332,6 +2335,11 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
       post = watch[i] = { squadId, dwarfId: 0 };
     }
     const members = combat.squads().find((sq) => sq.id === post!.squadId)?.members ?? [];
+    // T-655: a sapling by the door grows into a tree on the post, where nobody can stand: it is felled.
+    const at = combat.squad(post.squadId)?.station ?? null;
+    if (at !== null && w.map.kindAt(at) === TileKind.Tree && w.map.designationAt(at) === 0) {
+      command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: [at] }, ['precondition_failed']);
+    }
     // A war dog holds the post once one is trained: it stays there, and a squad's dwarf would lead it away.
     if (dogs.some((id) => animals.assignedTo(id) === post!.squadId)) {
       post.dwarfId = 0;
