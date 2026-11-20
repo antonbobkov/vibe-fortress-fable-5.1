@@ -455,6 +455,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.civ.priority.3': 'high',
   'ui.civ.request_add': 'Add: {what}',
   'ui.civ.request_any': '{item}: any',
+  'ui.civ.request_none': 'no good matches the filter',
   'ui.civ.request_keys1': '[↑↓] item  [←→] material',
   'ui.civ.request_keys2': '[Enter] add  [Esc] cancel',
   'ui.trade.star_steel': 'Where did you get this?',

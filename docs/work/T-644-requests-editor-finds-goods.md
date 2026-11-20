@@ -1,6 +1,6 @@
 # T-644 — The requests editor finds a good without stepping through every item
 
-**Source:** [T-640](../archive/tasks/T-640-long-lists-animals-jobs-requests.md), found while adding the material choice · **Size:** S · **Needs:** — · **Status:** open
+**Source:** [T-640](../archive/tasks/T-640-long-lists-animals-jobs-requests.md), found while adding the material choice · **Size:** S · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -15,3 +15,7 @@ Spec: `ui-screens/panels.md` § Civilizations (the editor's sentence); `ui-keyma
 ## Done
 
 A test that the Mountainhome's editor starts on a good of its list and that typing "bar" leaves the bars.
+
+- [x] **Own goods first**, `test/unit/ui/t644-requests-editor.test.ts`: the Mountainhome's editor opens on `bar`, the first good of its list ("Add: bar: any"); its goods come once each in the list's order (`bar`, `pick`, `axe`, `short_sword`, …, animals such as `dog` included, since `SetRequests` takes a creature id), then every other item in registry order (167 goods in all). `requestCandidates` in `src/ui/panels/civilizations.ts`.
+- [x] **Filter**, the same file: `/` focuses the editor's `/filter` field (the shared `PanelFilter`, as Jobs, Stocks and Log), letters are text and not panel keys while it has focus, `Enter` or `Esc` finishes typing without closing the editor; "bar" leaves `bar` and `barrel`, the title reads `Civilizations · filter: bar (2 of 167)`, and `→` `Enter` then ask for iron bars. A filter matching nothing reads "Add: no good matches the filter" and `Enter` adds nothing; the text clears when the editor opens again or the panel closes. The never-sold refusal on `Enter` is unchanged.
+- [x] Spec: `panels.md` § Civilizations and `ui-keymap-and-screens.md` § Civilizations panel.
