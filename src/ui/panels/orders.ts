@@ -994,11 +994,12 @@ function groupedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: L
 }
 
 /**
- * {@link groupedList} whose rows wrap at the list's width rather than cutting (Add order's notes):
- * a row's later lines hang under its name. `state.scroll` is the first row drawn; a row's text is
- * asked for only when it is drawn or the scroll needs its height.
+ * {@link groupedList} whose rows wrap at the list's width rather than cutting (the notes of Add order
+ * and of the Workshop panel's recipes): a row's later lines hang under its name. `state.scroll` is
+ * the first row drawn; a row's text is asked for only when it is drawn or the scroll needs its
+ * height. Returns whether the list drew its scrollbar.
  */
-function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: ListState, onSelect: (index: number) => void): void {
+function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: ListState, onSelect: (index: number) => void): boolean {
   const items: number[] = [];
   rows.forEach((row, k) => { if (row.heading === undefined) items.push(k); });
   state.selected = Math.max(0, Math.min(items.length - 1, state.selected));
@@ -1044,7 +1045,7 @@ function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: L
     s.hit(cells, () => onSelect(index));
     y += lines.length;
   }
-  if (!scrollbar) return;
+  if (!scrollbar) return false;
   const shown = Math.max(1, k - state.scroll);
   const thumbRow = Math.floor((state.scroll * (rect.rows - 1)) / Math.max(1, rows.length - shown));
   for (let r = 0; r < rect.rows; r += 1) {
@@ -1056,6 +1057,7 @@ function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: L
     const index = items.findIndex((k) => k >= target);
     state.selected = index < 0 ? items.length - 1 : index;
   });
+  return true;
 }
 
 /** A row of `[k] action` captions, each clickable at its own cells. */
@@ -1300,20 +1302,23 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
   const ordered = grouped.flatMap((row) => 'recipe' in row ? [row.recipe] : []);
   const stateList = panel.workshopList(id);
   const recipeRect = { col, row: rect.row + 4, cols: width, rows: Math.max(1, foot - rect.row - 4) };
-  groupedList(s, recipeRect, grouped.map((row): GroupRow => {
+  // A `○` recipe says what this workshop lacks for it one step back, as Add order does, and wraps.
+  const scrollbar = wrappedList(s, recipeRect, grouped.map((row): GroupRow => {
     if ('heading' in row) return row;
     const recipe = row.recipe;
     const runnable = reader.isRunnable(recipe.id, id);
     const can = runnable.runnable;
-    const note = can ? '' : missingNote(ctx, runnable.reason);
-    return { text: () => `${can ? '●' : '○'} ${recipe.name}${note === '' ? '' : ` ${note}`}`, fg: can ? t.good : t.dim };
+    return { text: () => {
+      const note = can ? '' : chainNote(ctx, recipe, runnable.reason);
+      return `${can ? '●' : '○'} ${recipe.name}${note === '' ? '' : ` ${note}`}`;
+    }, fg: can ? t.good : t.dim };
   }), stateList, (index) => {
     stateList.selected = index;
     const recipe = ordered[index];
     if (recipe !== undefined) run('new', recipe.id)?.();
   });
   // Clicking the scrollbar browses later recipes without opening an order.
-  if (grouped.length > recipeRect.rows) for (let r = 0; r < recipeRect.rows; r += 1) {
+  if (scrollbar) for (let r = 0; r < recipeRect.rows; r += 1) {
     s.hit({ col: col + width - 1, row: recipeRect.row + r, cols: 1, rows: 1 }, () => {
       const at = Math.round(r * (grouped.length - 1) / Math.max(1, recipeRect.rows - 1));
       const recipe = grouped.slice(at).find((row) => 'recipe' in row);

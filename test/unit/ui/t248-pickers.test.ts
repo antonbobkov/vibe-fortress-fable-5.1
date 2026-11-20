@@ -30,7 +30,8 @@ describe('T-248 grouped recipes and single-choice gear', () => {
     panel.openPicker(g.fortress.ctx, { workshopId: id });
     const headings = panel.pickerRows(g.fortress.ctx).flatMap(row => 'heading' in row ? [row.heading] : []);
     expect(headings.length).toBeGreaterThan(1); panel.picker.open = false;
-    const s = surface(36, 60); drawWorkshopPanel(s, { col: 0, row: 0, cols: 36, rows: 60 }, id, panel, g.fortress.ctx);
+    // Tall enough for every heading: a recipe with no log in stock takes two lines (T-646).
+    const s = surface(36, 100); drawWorkshopPanel(s, { col: 0, row: 0, cols: 36, rows: 100 }, id, panel, g.fortress.ctx);
     const text = s.lines().filter(line => line.includes('──')).join('\n'); let previous = -1;
     for (const heading of headings) { const index = text.indexOf(heading); expect(index).toBeGreaterThan(previous); previous = index; }
   });
