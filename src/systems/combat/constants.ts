@@ -18,6 +18,8 @@ export const AMMO_BREAK_PERMILLE = 200;
 export const FLEE_BLOOD_PERCENT = 50;
 export const THREAT_RADIUS = 8;
 export const THREAT_THROTTLE_TICKS = 50;
+/** A fight in which no blow by or on a creature has done damage this long is harmless (§ Targeting). */
+export const HARMLESS_FIGHT_TICKS = 600;
 export const TRAIN_SHIFT_HOURS = 6;
 export const SPAR_TICKS = 300;
 export const TRAIN_XP = 54;

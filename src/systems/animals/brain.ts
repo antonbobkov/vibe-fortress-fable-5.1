@@ -39,6 +39,7 @@ import { C, type Wild } from '@core/components';
 import type { EntityStore } from '@core/entities';
 import type { GameEvent } from '@core/events';
 import { CHUNK_SIZE } from '@core/constants';
+import { HARMLESS_FIGHT_TICKS } from '@systems/combat/constants';
 import { TileFlag, type Map3D } from '@core/map3d';
 import { splitmix32, type RngStream } from '@core/rng';
 import type { MovementApi, ReaderSetLike, TickContext } from '@core/system';
@@ -112,6 +113,8 @@ export interface BrainHost {
   /** 16's targeting. A stub until M6 records the call (`08` § Wild behavior). */
   setTarget(id: EntityId, targetId: EntityId): void;
   targetOf?(id: EntityId): EntityId;
+  /** 16 § Targeting: ticks since a blow by or on the animal did damage in its fight with its target. */
+  harmlessFor?(id: EntityId): number;
   /** The creature that attacked this one, or 0 (a `neutral` animal fears only that). */
   provokedBy(id: EntityId): EntityId;
   /** 07 owns grass: the tile a grazer cleared is handed over, not written here. */
@@ -605,6 +608,14 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
           breakOff(host, ctx, id, next);
           break;
         }
+      }
+      // 08 § Wild behavior: a fight in which no blow has done damage for `HARMLESS_FIGHT_TICKS` (16)
+      // is let go, as a beaten intruder is: neither side can hurt the other (a wooden sword against a
+      // badger's bites on plate).
+      if ((host.harmlessFor?.(id) ?? 0) >= HARMLESS_FIGHT_TICKS) {
+        host.setTarget(id, 0);
+        breakOff(host, ctx, id, next);
+        break;
       }
       const seen = to >= 0 && host.map.zOf(to) === host.map.zOf(at) &&
         chebyshev(host, to, at) <= host.facts.perceptionOf(species) && visible(host, at, target);

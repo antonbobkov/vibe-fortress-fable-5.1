@@ -10,6 +10,8 @@ export interface CombatStateV1 {
   targets: [EntityId, EntityId][];
   cooldownUntil: [EntityId, Tick][];
   engagements: [EntityId, Tick][];
+  /** § Targeting: each creature with a target, that target and the tick its fight last did harm; absent when none. */
+  harmless?: [EntityId, EntityId, Tick][];
   unreachableSince?: [EntityId, Tick][];
   threatThrottles?: [EntityId, Tick][];
 }

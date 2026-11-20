@@ -179,6 +179,7 @@ The hauling hint is checked on a delivered `DayPassed`: a backlog above its warn
 | `ws_fuel` | smelter, ore, no fuel | `WorkshopBlocked { missing_input }`; charcoal arrives → smelts |
 | `ws_magma` | magma smelter over a channel to magma level 7 | smelts without fuel; drain the magma → `no_magma` |
 | `ws_steel` | iron bar + limestone + 2 fuel | 1 steel bar |
+| `ws_out_of_reach` | smelter, orders steel then a lignite smelt; iron bar and limestone at hand, the charcoal behind a locked door | the lignite is smelted and the steel skipped ("charcoal out of reach", `WorkshopBlocked { out_of_reach }`), still skipped after `OUT_OF_REACH_RETRY_TICKS`; the door opens → the steel starts in the next tick and is made |
 | `ws_masterwork` | legendary carpenter, 100 beds | ≥ 40 masterworks; `MasterworkCreated`; crafter gets `made_masterwork` |
 
 Local and global work orders added or edited with a material id hold its index at once and retain the same hash through the first load, a second load and subsequent ticks. Classes, valid indices and null survive unchanged; malformed filters reject before changing an order or its job. A filtered brewing maintain order counts its plant's drink output.

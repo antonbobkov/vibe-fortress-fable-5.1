@@ -22,6 +22,8 @@ Resolve violence between creatures with rules the player can read: six body part
 
 A creature attacks when it has a `targetId` (set by 08 for animals, 18 for hostiles, this system for soldiers under orders or on duty, and 10 for civilians only when cornered or caught: a civilian who cannot flee, or who has been caught (§ Fleeing and morale in combat), fights back with whatever they carry). Each tick a creature with a target: if adjacent (8-neighborhood, same level), perform a melee attack if its attack cooldown has elapsed; else if it has a ranged weapon with ammunition (for a channel, the rune to cast its bolt, burst or single and the target within the spell's range: 25 § Casting), range ≥ distance and line of sight, perform a ranged attack (held, or turned on another target, while one of its own stands on the ray, unless the shooter is careless this time; a soldier on duty with no clear target steps aside for one: § Ranged resolution); else path toward the target (movement helper). A channel holder first drinks a rune vial when it is below its spell's cost, and a ward, mend, dread or call staff casts for its held target when the spell's rule holds, each with the attack cooldown elapsed; a caster whose spell is no bolt stops `CASTER_HOLD_DISTANCE` (25) from its target instead of closing to club it (25 § Casting). A civilian (a dwarf that is not a soldier on duty) never paths toward its target: it fights only what is in reach. Targets that die, leave perception (`PERCEPTION_RADIUS`; a target more than two levels away is out of perception), or become unreachable for `TARGET_LOSE_TICKS` are dropped. A wild animal in `attack` uses 08's species perception and saved grace instead of this generic cutoff; 08 ends that held attack, including the earlier defended-ground and quarry-eligibility rules. Other creatures retain the generic perception cutoff. For other creatures, a target is not dropped for being out of sight: this system alone ends an acquired target, and 18's party AI leaves a held target alone. The `TARGET_LOSE_TICKS` count starts at the first failed approach and is not reset by a pending path retry, only by an actual step or an attack opportunity; the start tick is saved (`CombatState.unreachableSince`).
 
+A fight can harm no one: a wooden training weapon does 0 damage, and a weak bite may not get through steel. This system counts, for each creature that holds a target, the ticks since a blow by it or on it did damage (an `AttackResolved` with `amount > 0`, whoever struck), or since it took up that target (`combat.harmlessFor(id)`; a new target starts the count again). After `HARMLESS_FIGHT_TICKS` of such a fight, a wild animal lets go of its target (08 § Wild behavior) and a civilian leaves its cornered or caught fight (10 § Behavior selection). Soldiers on duty and hostile parties are not ended by it (18 § Engage has its own stalemate). The count is saved with the targets.
+
 Soldiers on duty with no order pick the nearest hostile within perception. An on-duty soldier with a loaded launcher keeps `RANGED_KEEP_DISTANCE` tiles away from melee threats when possible. If a visible, conscious melee threat on the same level is within `RANGED_KITE_TRIGGER_DISTANCE`, choose the nearest one (distance, then entity id), including while another target is held. Step to the first legal adjacent tile by tile index that is at least `RANGED_KEEP_DISTANCE` away and keeps line of sight to that threat. While making that step, retain the target and do not attack. If no such step exists, ordinary attack and approach continue. Launcher and natural-ranged opponents do not cause kiting.
 
 ### Attack cooldown
@@ -180,6 +182,7 @@ The alert is the fortress's **engagement line**, one at a time. A blow between a
 
 - `Soldier` components (`squadId, onDuty, stance, targetId, cooldownUntil, lastShiftTick`), `Squad` entities, `Equipment` components (all creatures that can carry: dwarves, hostiles, traders), `Projectile` entities, `alert`, `engagements: Map<EntityId, lastAttackTick>` (`combat.lastEngagementTick`), `targets: Map<EntityId, EntityId>` for non-dwarf creatures (animals and hostiles set targets through `combat.setTarget`).
 - `threatThrottles: Map<EntityId, Tick>` records each fortress creature's last threat notification.
+- `harmless: Map<EntityId, { target, since }>`: for each creature holding a target, that target and the tick its fight last did harm or began (§ Targeting); a creature with a new target, or one missing after an older save, starts at the current tick.
 - Rng stream.
 
 ## Interfaces
@@ -196,7 +199,7 @@ The alert is the fortress's **engagement line**, one at a time. A blow between a
 
 ### Combat API (mutation)
 
-`combat.setTarget(id, targetId | 0)` (08, 18), `combat.fireAt(shooterId, targetId)` (09 hunting): true when it shot; false when it cannot, or holds the shot (§ Ranged resolution, Held shot: a careless shooter shoots); `combat.lineOfFire(from, to)` (09 hunting: whether a shot from `from` has a line to `to`; a glass wall blocks it).
+`combat.setTarget(id, targetId | 0)` (08, 18), `combat.harmlessFor(id)` (08, 10: the ticks the creature's fight with its current target has harmed no one, § Targeting; 0 without a target), `combat.fireAt(shooterId, targetId)` (09 hunting): true when it shot; false when it cannot, or holds the shot (§ Ranged resolution, Held shot: a careless shooter shoots); `combat.lineOfFire(from, to)` (09 hunting: whether a shot from `from` has a line to `to`; a glass wall blocks it).
 
 ### Commands
 
@@ -204,7 +207,7 @@ The alert is the fortress's **engagement line**, one at a time. A blow between a
 
 ### Events consumed
 
-`CreatureDied`, `CreatureUnconscious`, `LimbLost` (what the arms left cannot hold), `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear; every squad once per tick), `ItemDestroyed` (clear equipment slots), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
+`CreatureDied`, `CreatureUnconscious`, `AttackResolved` (a blow that did damage, § Targeting), `LimbLost` (what the arms left cannot hold), `DayPassed` (re-equip), `HourPassed` (shifts), `ZoneChanged` (barracks), `ItemCreated` (better gear; every squad once per tick), `ItemDestroyed` (clear equipment slots), `AlertChanged` (own), `HostileSpawned`, `RaidArrived`.
 
 ### Events emitted
 
@@ -226,6 +229,7 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 | Name | Value | Meaning |
 |---|---|---|
 | `PERCEPTION_RADIUS` | 14 | *unmeasured* |
+| `HARMLESS_FIGHT_TICKS` | 600 | A fight in which no blow by or on a creature has done damage this long ends for a wild animal and a civilian (§ Targeting): half a day, far past the misses of a real fight (*unmeasured*) |
 | `TARGET_LOSE_TICKS` | 200 | *unmeasured* |
 | `RANGED_KEEP_DISTANCE` | 3 | *unmeasured* |
 | `RANGED_KITE_TRIGGER_DISTANCE` | 2 | Melee threat distance that triggers a possible adjacent retreat (*unmeasured*) |
