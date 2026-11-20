@@ -297,7 +297,7 @@ Opened by a click on a finished workshop.
 │ furnace                             │
 ```
 
-- The recipes use the Add order picker's output-category headings and alphabetical category order, with the content recipe order inside each category. The picker alone adds its Recent group. A `○` recipe names the input or fuel this workshop lacks for it ("○ Tallow candles · no tallow"), on one row and without the picker's step back. `↑↓` selects a recipe and scrolls the list; `Enter` opens Add order on it. Clicking the scrollbar browses the list.
+- The recipes use the Add order picker's output-category headings and alphabetical category order, with the content recipe order inside each category. The picker alone adds its Recent group. A `○` recipe names the input or fuel this workshop lacks for it with the picker's step back (§ Add order): "○ Soap · no tallow: render fat at a kitchen (needs fat from butchering)". A row too long for the list wraps as the picker's do, its later lines indented under the recipe's name and the highlight over all of them; the orders, actions and idle reason below keep their rows, and only the recipe list shows fewer recipes. `↑↓` selects a recipe and scrolls the list; `Enter` opens Add order on it. Clicking the scrollbar browses the list.
 - `[S-n]`, or a click on a recipe, opens "Add order" for this workshop (on the clicked recipe). `[S-o]` opens the Orders panel on this workshop's orders; `[S-f]` opens the material list of its first order.
 - `[S-s]` suspends after `c_suspend_workshop` and resumes without asking; `[x]` takes the workshop apart after `c_deconstruct_workshop` (it has orders) or `c_deconstruct_building`.
 - The last two lines say why the workshop is idle (`12` § Operation 3).

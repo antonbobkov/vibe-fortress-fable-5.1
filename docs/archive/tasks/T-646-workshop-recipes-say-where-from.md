@@ -1,6 +1,8 @@
 # T-646 — The Workshop panel's recipes say where a missing input comes from
 
-**Source:** [T-641](../archive/tasks/T-641-making-do-chains-say-where-from.md), found while giving Add order its step back · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 5fbae82d,af43069b.
+
+**Source:** [T-641](T-641-making-do-chains-say-where-from.md), found while giving Add order its step back · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -15,3 +17,6 @@ Spec: `ui-screens/panels.md` § Workshop (the sentence on `○` recipes).
 ## Done
 
 A test that a built kitchen's panel reads the soap row with its step back, whole at 36 cells.
+
+- [x] **Step back and wrap**, `test/unit/ui/t646-workshop-recipes-where-from.test.ts`: a built kitchen's panel at 36 cells reads "○ Soap · no tallow: render fat at a kitchen (needs fat from butchering)" over several lines of at most 34 cells, with no `»`; with fat in stock, "· no tallow: render fat at a kitchen"; the Orders rule and the action rows keep their rows. The panel calls Add order's `chainNote` and `wrappedList` in `src/ui/panels/orders.ts`, the same module, so nothing moved; `wrappedList` now says whether it drew its scrollbar, which keeps the panel's scrollbar click when rows fit but their lines do not.
+- [x] Spec: `panels.md` § Workshop.
