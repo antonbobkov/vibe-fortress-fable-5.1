@@ -14,4 +14,5 @@ Spec: testing-strategy.md § The long scenarios (the gate's watch, the answer to
 
 ## Done
 
-The ambushes at the all-clear before and after, by run, and the sweep's verdict.
+- [x] The ambushes at the all-clear before and after, by run ([T-653's report](../../reports/data/2026-11-20-t653-ambush-at-the-all-clear.md)).
+- [x] The sweep's verdict: pass (`44699425493`).
