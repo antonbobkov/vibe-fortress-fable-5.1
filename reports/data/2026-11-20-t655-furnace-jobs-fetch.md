@@ -109,5 +109,5 @@ The fuel binds less (7 timelines short of charcoal against 10, 13 short of logs 
 
 ## Follow-ups
 
-- [The steel's two fuels come in two trips](../../docs/work/T-659-steel-fuel-in-one-trip.md).
-- [The smith's steel jobs are fetched again and again](../../docs/work/T-660-smith-steel-refetched.md).
+- [The steel's two fuels come in two trips](../../docs/archive/tasks/T-659-steel-fuel-in-one-trip.md).
+- [The smith's steel jobs are fetched again and again](../../docs/archive/tasks/T-660-smith-steel-refetched.md).

@@ -36,7 +36,13 @@ export function toolFilter(tool: Tool): ItemFilter {
   }
 }
 
-export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: EntityReader, registry?: Registry): ItemSource {
+/**
+ * `distance(a, b)`, when given, is 11's estimated distance between two tiles (§ Assignment step 2):
+ * a unit input then takes more stacks than the fewest when the nearest stacks make it up in less
+ * walking (T-659).
+ */
+export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: EntityReader, registry?: Registry,
+  distance?: (a: TileIndex, b: TileIndex) => number): ItemSource {
   const matchesTool = (id: EntityId, tool: Tool): boolean => {
     const it = reader.get(id);
     if (it === undefined) return false;
@@ -120,7 +126,7 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
         for (let s = 1; s < trips; s += 1) sums.push((sums[s - 1] as number) + (top[s - 1] ?? 0));
         best[k] = sums;
       }
-      const selected: typeof candidates = [];
+      let selected: typeof candidates = [];
       let remaining = n;
       for (let k = 0; k < candidates.length && remaining > 0; k += 1) {
         const candidate = candidates[k] as (typeof candidates)[number];
@@ -131,6 +137,18 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
         remaining = left;
       }
       if (remaining > 0) return [];
+      // T-659: more trips to the nearest stacks when they walk less in all than the fewest stacks do,
+      // each trip going out from the job and back: two bars of fuel from the two single bars beside
+      // the smelter, not one stack of two across the hall.
+      if (distance !== undefined && selected.length < candidates.length) {
+        const nearest: typeof candidates = [];
+        for (let k = 0, units = 0; k < candidates.length && units < n; k += 1) {
+          nearest.push(candidates[k] as (typeof candidates)[number]);
+          units += (candidates[k] as (typeof candidates)[number]).count;
+        }
+        const walk = (set: typeof candidates): number => set.reduce((sum, c) => sum + distance(from, reader.tileOf(c.id)), 0);
+        if (nearest.length > selected.length && walk(nearest) < walk(selected)) selected = nearest;
+      }
       if (!split) {
         return selected.sort((a, b) => a.order - b.order).map((c) => c.id);
       }

@@ -436,6 +436,9 @@ export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearSta
   return next;
 }
 
+/** T-660: the founder the fortress script makes its farmer (`three_years_fortress.ts`, the professions). */
+const FOUNDING_FARMER = 4;
+
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */
 const TOOL_LABORS = ['mining', 'woodcutting'] as const;
 /**
@@ -471,6 +474,12 @@ const CIVILIAN_LABORS = ['mechanics', 'carpentry', 'cleaning'] as const;
  * T-632: and for cleaning, the labor of a jammed trap's `clean_trap` (19), which the economy's
  * specialists do not keep: on `defence-year` a weapon trap jammed on day 214 and its clean job
  * stood open to the end, the only dwarves with cleaning at drill or on watch.
+ *
+ * T-660: the founding farmer is the last choice for a labor. Given the pick when no immigrant was
+ * free, he dug the deep shaft's priority-4 drifts, as urgent to him as his own planting (farming's
+ * labor priority raises the plots' 5 to 4) and nearer, from day 106 to 155 of a timeline (48 digs a
+ * week, no planting); 84 plant and 30 harvest jobs stood open, the plants and meals ran out on day
+ * 134, and three dwarves starved. A player keeps the farmer on the farm.
  */
 export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
   const ent = w.game.world.entities;
@@ -482,11 +491,12 @@ export function keepToolLaborsOffTheSquad(w: TestWorld, state: DefenceYearState,
   const free = new Set(specialistCandidates(w, state.fortress));
   const { economy } = state.fortress;
   const dedicated = new Set([...Object.values(economy.specialists), economy.brewer ?? 0]);
+  const farmer = w.game.arrival?.dwarves[FOUNDING_FARMER] ?? 0;
   for (const labor of [...TOOL_LABORS, ...CIVILIAN_LABORS]) {
     if (!civilians.some((id) => jobs.laborEnabled(id, labor))) {
       // A dwarf the economy dedicates would have the labor taken back at its next look.
       const pool = (TOOL_LABORS as readonly string[]).includes(labor) ? civilians : civilians.filter((id) => !dedicated.has(id));
-      const pick = pool.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) ||
+      const pick = pool.slice().sort((a, b) => Number(free.has(b)) - Number(free.has(a)) || Number(a === farmer) - Number(b === farmer) ||
         dwarves.skill(b, labor) - dwarves.skill(a, labor) || a - b)[0];
       if (pick !== undefined) command(w, { type: 'SetLabor', dwarfId: pick, labor, on: true });
     }
