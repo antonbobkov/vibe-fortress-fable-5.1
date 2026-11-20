@@ -11,7 +11,7 @@ import { opensToHillside, setupThreeYearsFortress, threeYearsWorld } from '../sc
  * stair above the halls, and the smelter keeps bars of coal after the steel, before the iron.
  */
 describe('T-620 the three-year script digs and smelts the coal for the steel', () => {
-  it('three-years-p2-1: smelts coal after the steel, and drifts to coal above the halls, shut from the hillside', () => {
+  it('three-years-p2-1: smelts coal (first, with no fuel), and drifts to coal above the halls, shut from the hillside', () => {
     const w = threeYearsWorld('three-years-p2-1', 2);
     const state = setupThreeYearsFortress(w);
     const map = w.map;
@@ -33,7 +33,8 @@ describe('T-620 the three-year script digs and smelts the coal for the steel', (
 
     keepCoal(w, state, smelter, 120);
     const orders = w.game.world.entities.get(smelter, C.Workshop)!.orders.map((o) => `${recipes.byIndex(o.recipe)?.id}:${o.mode === 'once' ? o.remaining : o.threshold}`);
-    expect(orders).toEqual(['alloy_steel:30', `smelt_bituminous_coal:${COAL_STOCK}`, `smelt_lignite:${COAL_STOCK}`, 'smelt_hematite:40']);
+    // T-642: with no fuel in stock the coal goes first, ahead of the alloy too.
+    expect(orders).toEqual([`smelt_bituminous_coal:${COAL_STOCK}`, `smelt_lignite:${COAL_STOCK}`, 'alloy_steel:30', 'smelt_hematite:40']);
     const dug: number[] = [];
     for (let z = 0; z < map.d; z += 1) for (let y = 0; y < map.h; y += 1) for (let x = 0; x < map.w; x += 1) {
       const t = w.index(x, y, z);

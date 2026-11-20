@@ -130,12 +130,33 @@ function smeltsSteel(state: FortressState, day: number): boolean {
  * one). From the day the smelter makes steel, the miners drift to the nearest COAL_FACES faces off
  * the gate's stair above the halls (none that would open to the hillside), and as many again, once
  * a season at most, when the ore runs under COAL_ORE_LOW; the smelter keeps COAL_STOCK bars of coal,
- * after the steel and before the iron.
+ * after the steel and the iron, and (T-642) first only while the fuel under a roof is short.
  */
 export const COAL_FACES = 20;
 const COAL_ORE_LOW = 6;
 export const COAL_STOCK = 30;
+/** T-642: the charcoal and coal bars in stock under which the coal is smelted ahead of the iron. */
+export const FUEL_SHORT = 20;
 const COAL_ORES: readonly string[] = ['bituminous_coal', 'lignite'];
+
+/**
+ * T-642: the charcoal and coal bars free to take under a roof. Charcoal left on the surface counts
+ * for nothing while the gate is locked: in `three-years-p4-6` at shift 50, 16 charcoal lay on the
+ * surface stockpile from day 140 on while the smelter's alloy jobs below waited for fuel.
+ */
+function fuelIndoors(w: TestWorld): number {
+  const ent = w.game.world.entities;
+  const types = w.game.registry.table('items');
+  const fuel = new Set([types.index('charcoal_bar'), types.index('coal_bar')]);
+  let n = 0;
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (!fuel.has(it.type) || (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Reserved | ItemFlag.Forbidden)) !== 0) continue;
+    const p = ent.get(id, C.Position);
+    if (p !== undefined && !w.map.hasFlag(w.index(p.x, p.y, p.z), TileFlag.Outdoor)) n += it.count;
+  }
+  return n;
+}
 
 /** T-620: the coal's mine and its smelt orders, once the smelter makes steel. */
 export function keepCoal(w: TestWorld, state: FortressState, smelter: number, day: number): void {
@@ -143,19 +164,27 @@ export function keepCoal(w: TestWorld, state: FortressState, smelter: number, da
   const ent = w.game.world.entities;
   const recipes = w.game.registry.table('recipes');
   const orders = (): readonly { recipe: number }[] => ent.get(smelter, C.Workshop)?.orders ?? [];
+  const items = w.readers.of<ItemsReader>('13');
   for (const ore of COAL_ORES) {
     const recipe = recipes.index(`smelt_${ore}`);
     if (orders().some((o) => o.recipe === recipe)) continue;
     order(w, smelter, `smelt_${ore}`, COAL_STOCK);
-    // After the alloy and the coal ordered before it, ahead of the iron: the iron smelts burn the
-    // fuel a coal smelt makes without any.
-    const ahead = new Set([recipes.index('alloy_steel'), ...COAL_ORES.map((id) => recipes.index(`smelt_${id}`))]);
-    const last = orders().length - 1;
-    const after = orders().slice(0, last).reduce((at, o, i) => (ahead.has(o.recipe) ? i : at), -1);
-    if (after + 1 < last) command(w, { type: 'ReorderWorkOrder', workshopId: smelter, from: last, to: after + 1 });
+  }
+  // T-642: the coal comes first while the fuel is short (the alloy and the iron smelts burn the fuel
+  // a coal smelt makes without any, and an alloy job that finds no fuel within reach waits blocked,
+  // holding the smelter), and after the alloy and the iron while it is not: the smelter works one job
+  // at a time, and with 30 coal and 30 charcoal in stock its coal smelts held back the iron the
+  // steel waited for.
+  const coal = new Set(COAL_ORES.map((id) => recipes.index(`smelt_${id}`)));
+  const alloy = recipes.index('alloy_steel');
+  const short = fuelIndoors(w) < FUEL_SHORT;
+  const rank = (recipe: number): number => (coal.has(recipe) ? (short ? 0 : 3) : recipe === alloy ? 1 : 2);
+  const wanted = orders().map((o, i) => ({ recipe: o.recipe, i })).sort((a, b) => rank(a.recipe) - rank(b.recipe) || a.i - b.i).map((o) => o.recipe);
+  for (let to = 0; to < wanted.length; to += 1) {
+    const from = orders().findIndex((o, i) => i >= to && o.recipe === wanted[to]);
+    if (from > to) command(w, { type: 'ReorderWorkOrder', workshopId: smelter, from, to });
   }
   const materials = w.game.registry.table<{ id: string }>('materials');
-  const items = w.readers.of<ItemsReader>('13');
   const oreType = w.game.registry.table('items').index('ore');
   const ore = COAL_ORES.reduce((n, id) => n + items.countAvailable({ type: oreType, materialId: materials.index(id) }), 0);
   const season = `coal ${Math.floor(day / DRIFT_EVERY_DAYS)}`;
@@ -164,6 +193,87 @@ export function keepCoal(w: TestWorld, state: FortressState, smelter: number, da
   phases.add(season);
   const band: MineBand = { x: state.cx + 6, y: state.cy + 6, zMin: state.hallZ + 1, zMax: state.z - 2, deep: false, walled: true };
   if (mine(w, state, band, (id) => COAL_ORES.includes(id), COAL_FACES) === 0) mine(w, state, upperBand(w, state), (id) => COAL_ORES.includes(id), COAL_FACES);
+}
+
+/**
+ * T-642: the second smelter. With the coal smelted, the steel waited on the iron bars while iron
+ * ore piled up unsmelted (31 of the 38 fortress-timelines under five iron bars on a weekly average
+ * held ten ore or more, T-620's sweep): the smelter works one job at a time with its one worker,
+ * and its job stood open while that worker slept, ate or drank. As a player who sees ore pile by a
+ * busy smelter builds another, once the steel is owed and IRON_ORE_PILE iron ore stand free a
+ * second smelter goes up (in the workshop hall where the fortress works below), worked by the
+ * smith, whose forge waits on the steel, and keeps SECOND_SMELTER_STEEL steel bars, and the iron for
+ * them. The burner was tried at it and left: its furnace then made
+ * too little charcoal, and the steel waited on the fuel instead.
+ */
+export const IRON_ORE_PILE = 10;
+/** T-642: the steel bars the second smelter keeps in stock, ahead of its iron. */
+const SECOND_SMELTER_STEEL = 20;
+const IRON_ORES: readonly string[] = ['hematite', 'limonite', 'magnetite'];
+
+/** T-642: the free iron ore in stock. */
+function ironOre(w: TestWorld): number {
+  const materials = w.game.registry.table<{ id: string }>('materials');
+  const oreType = w.game.registry.table('items').index('ore');
+  const items = w.readers.of<ItemsReader>('13');
+  return items.countAvailable({ type: oreType, materialIds: IRON_ORES.map((id) => materials.index(id)) });
+}
+
+export function keepSecondSmelter(w: TestWorld, state: FortressState): void {
+  const strong = state.strong;
+  const placed = state.placedIds['smelter_2'] !== undefined;
+  if (!placed && (strong?.since === undefined || strong.steelOwed !== true || ironOre(w) < IRON_ORE_PILE)) return;
+  // Only on a free site of the workshop hall: ambushes spring on whoever works on the surface. A
+  // hall that is full is dug a row of sites longer.
+  if (!placed) {
+    const below = placeBelow(w, state, 'smelter', METAL_BUILD);
+    if (below === 0) { growWorkHall(w, state); return; }
+    state.placedIds['smelter_2'] = below;
+    state.economy.phases.add('traffic:smelter_2');
+  }
+  placeEconomyBuilding(w, state, 'smelter', -20, 14, METAL_BUILD, 'smelter_2');
+  const id = state.placedIds['smelter_2'];
+  const buildings = w.readers.of<BuildingsReader>('14');
+  if (id === undefined || buildings.get(id)?.state !== 'built' || state.orderedWorkshops.has('smelter_2')) return;
+  state.orderedWorkshops.add('smelter_2');
+  // The steel first, then the iron for it: the first smelter's alloy waited on its worker too.
+  order(w, id, 'alloy_steel', SECOND_SMELTER_STEEL);
+  for (const ore of IRON_ORES) order(w, id, `smelt_${ore}`, 40);
+}
+
+/**
+ * T-642: one more workshop site, dug against the workshop hall's south lane (or its north lane where
+ * the south does not fit), the column nearest the smelter first, once, at routine priority. In the
+ * peril-4 fortresses the hall's twelve sites were taken by the workshops, the fuel store and the
+ * second kitchen and still, and the second smelter went up on the surface, where ambushes sprang on
+ * its worker and haulers. A row of four sites and a lane, dug ahead of routine work, was tried
+ * first, and the sweep's peril-2 living fell with it (T-642's report). Only rock that is dry, no
+ * construction and opens to no hillside is dug; a drift already there is kept.
+ */
+export function growWorkHall(w: TestWorld, state: FortressState): void {
+  const hall = state.economy.workHall;
+  if (hall === undefined || state.economy.phases.has('work hall grown') || hasFreeSite(w, state, 'smelter')) return;
+  const map = w.map;
+  const z = map.zOf(hall.slots[0]!);
+  const xs = hall.tiles.map((t) => map.xOf(t)), ys = hall.tiles.map((t) => map.yOf(t));
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const at = w.readers.of<BuildingsReader>('14').get(state.placedIds['smelter'] ?? 0)?.footprint[4] ?? hall.stair;
+  const columns = Array.from({ length: Math.min(WORK_HALL_COLUMNS, Math.floor((x1 - x0 - 1) / 3)) }, (_, c) => x0 + 1 + 3 * c)
+    .sort((a, b) => Math.abs(a + 1 - map.xOf(at)) - Math.abs(b + 1 - map.xOf(at)) || a - b);
+  const sound = (t: number): boolean => map.fluidLevelAt(t) === 0 && !map.hasFlag(t, TileFlag.Constructed) && !opensToHillside(w, t) &&
+    (map.kindAt(t) === TileKind.Wall || map.kindAt(t) === TileKind.Floor);
+  for (const top of [y1 + 1, y0 - 3]) for (const left of columns) {
+    if (top < 2 || top + 2 > map.h - 2) continue;
+    const tiles: number[] = [];
+    for (let y = top; y < top + 3; y += 1) for (let x = left; x < left + 3; x += 1) tiles.push(w.index(x, y, z));
+    if (!tiles.every(sound)) continue;
+    state.economy.phases.add('work hall grown');
+    hall.slots.push(w.index(left, top, z));
+    hall.tiles.push(...tiles);
+    for (const t of tiles) state.economy.workings.add(t);
+    designateDig(w, tiles.filter((t) => map.kindAt(t) === TileKind.Wall), ROUTINE);
+    return;
+  }
 }
 
 /** Logs kept in stock, and the trees designated at a time to keep them. */
@@ -813,6 +923,35 @@ function keepFuelStore(w: TestWorld, state: FortressState): void {
   if (surface !== 0 && buildings.zone(surface)?.type === 'stockpile') {
     command(w, { type: 'SetStockpileFilter', zoneId: surface, filter: { preset: 'everything', categories: SURFACE_GOODS_BELOW.filter((c) => !FUEL_STORE_GOODS.includes(c)) } });
   }
+}
+
+/**
+ * T-642: the ore store by the smelter. Its worker fetched each ore from the drift where it was dug
+ * (the fuel store is full of logs, and no other stockpile below takes ore): in
+ * `three-years-p2-1` at shift 0 the worker was at its job a third of the day and made one smelt or
+ * alloy in about 1000 ticks of it, of 150 at the smelter. Once the smelter makes steel and stands
+ * below, up to ORE_STORE_TILES tiles of the workshop hall's lanes nearest it (no workshop site's,
+ * so the sites stay free) are a stockpile of ore, and the haulers bring the ore down.
+ */
+export const ORE_STORE_TILES = 24;
+
+export function keepOreStore(w: TestWorld, state: FortressState): void {
+  const { economy } = state;
+  const hall = economy.workHall;
+  if (hall === undefined || economy.phases.has('ore store')) return;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const smelter = buildings.get(state.placedIds['smelter'] ?? 0);
+  if (smelter?.state !== 'built' || w.map.hasFlag(smelter.footprint[0]!, TileFlag.Outdoor)) return;
+  const at = smelter.footprint[4]!;
+  const sites = new Set(hall.slots.flatMap((origin) => buildings.ghost('smelter', origin, 0).tiles));
+  const far = (t: number): number => Math.abs(w.map.xOf(t) - w.map.xOf(at)) + Math.abs(w.map.yOf(t) - w.map.yOf(at));
+  const lanes = hall.tiles.filter((t) => !sites.has(t) && w.map.zOf(t) === w.map.zOf(at) && w.map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
+    buildings.at(t) === 0 && w.map.designationAt(t) === 0).sort((a, b) => far(a) - far(b) || a - b).slice(0, ORE_STORE_TILES);
+  if (lanes.length === 0) return;
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  if (!command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: lanes.sort((a, b) => a - b) }, ['bad_zone_tiles']).ok) return;
+  economy.phases.add('ore store');
+  command(w, { type: 'SetStockpileFilter', zoneId: bSystem.lastCreatedZone, filter: { categories: ['ore'] } });
 }
 
 /** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */
@@ -1632,6 +1771,14 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
         command(w, { type: 'SetWorkshopWorker', workshopId: id, dwarfId: worker });
       }
     }
+    // T-642: the smith works the second smelter beside the forge, which waits on the steel while the
+    // kits are owed. A worker of its own took a hand from the fortress's other work, and with it the
+    // sweep's living fell (reports/data/2026-11-19-t642-iron-for-steel.md).
+    const smith = specialists['forge'];
+    const second = state.placedIds['smelter_2'] ?? 0;
+    if (smith !== undefined && ent.alive(smith) && buildings.get(second)?.state === 'built' && ent.get(second, C.Workshop)?.assignedWorker !== smith) {
+      command(w, { type: 'SetWorkshopWorker', workshopId: second, dwarfId: smith }, ['not_found', 'no_labor']);
+    }
   }
   // Timber in small batches: the eight nearest trees whenever the log stock runs low.
   const items = w.readers.of<ItemsReader>('13');
@@ -1867,6 +2014,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
       phases.add('steel');
     }
     keepCoal(w, state, smelter, day);
+    keepSecondSmelter(w, state);
+    keepOreStore(w, state);
   }
   // The steel chain's inputs, journalled weekly from the alloy order's day (observation only).
   if (day >= (state.strong?.since ?? 217) && day % 7 === 0 && smelter) {
