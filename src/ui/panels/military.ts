@@ -113,18 +113,19 @@ export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly te
   return { text: parts.join(' · '), alert: lacking, stock: stockText };
 }
 
-/** A gear list's row: "spear (0)", "axe (1, a tool)", "any (4, current)" (`ui-screens/panels.md` § Military). */
+/** A gear list's row: "spear (0)", "axe (1, a tool)", "sword (3, one wooden)", "any (4, 3 tools, one wooden)", "any (4, current)" (`ui-screens/panels.md` § Military). */
 export function gearRow(ctx: PanelContext, squad: SquadWithId, kind: 'weapon' | 'armor', value: string): string {
   const strings = ctx.strings;
   const details: string[] = [];
   if (kind === 'weapon') {
     const stock = weaponStock(ctx.readers, ctx.registry, value, value === 'any' ? squad.equipment.ranged : undefined);
     details.push(String(stock.free));
-    if (stock.tools > 0) {
-      details.push(stock.tools === stock.free
-        ? strings.get(stock.free === 1 ? 'ui.military.gear_tool' : 'ui.military.gear_tools_all')
-        : stock.tools === 1 ? strings.get('ui.military.gear_tool_one') : strings.get('ui.military.gear_tools_some', { n: stock.tools }));
-    }
+    // Which of them are tools (a worker lacking one takes it first) and which wooden (training weapons, 16 § Training).
+    const note = (n: number, keys: readonly [string, string, string, string]): void => {
+      if (n > 0) details.push(n === stock.free ? strings.get(n === 1 ? keys[0] : keys[1]) : n === 1 ? strings.get(keys[2]) : strings.get(keys[3], { n }));
+    };
+    note(stock.tools, ['ui.military.gear_tool', 'ui.military.gear_tools_all', 'ui.military.gear_tool_one', 'ui.military.gear_tools_some']);
+    note(stock.training, ['ui.military.gear_wooden', 'ui.military.gear_wooden_all', 'ui.military.gear_wooden_one', 'ui.military.gear_wooden_some']);
   } else details.push(String(armorStock(ctx.readers, ctx.registry, value)));
   if (value === (kind === 'weapon' ? squad.equipment.weaponClass : squad.equipment.armor)) details.push(strings.get('ui.military.gear_current'));
   return strings.get('ui.military.gear_row', { value, details: details.join(', ') });
