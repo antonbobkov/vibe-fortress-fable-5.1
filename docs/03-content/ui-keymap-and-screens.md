@@ -37,7 +37,7 @@
 | `t` | Threats | 18 | parties, renown, schedule preview, Deep gauge |
 | `c` | Civilizations | 20 | reputation, schedule, requests, depot |
 | `p` | Population | 21 | cap, eligibility |
-| `e` | Mood | 15 | every dwarf's tier and top thoughts |
+| `e` | Mood | 15 | the thoughts held by most dwarves, then every dwarf's tier and top thoughts |
 | `a` | Log | 24 | announcements with filters; combat tab |
 | `k` | Look | 24 | inspection of the tile under the cursor |
 | `f` | Overlays | 23 | overlay toggles |
@@ -379,7 +379,7 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 
 ### Mood panel
 
-`↑` `↓` choose a dwarf and `Enter` inspects it, as Units does.
+`↑` `↓` move over the summary's thoughts and then the dwarves; `Enter` on a thought lists the dwarves who hold it, and on a dwarf inspects it, as Units does; `Backspace` or `Esc` lists every dwarf again (`ui-screens/panels.md` § Mood).
 
 | Key | Action |
 |---|---|
@@ -606,6 +606,8 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.caravan_unreachable` | "The {civ} caravan cannot reach {depot} from the {edge} edge: its pack animals need a way on foot, with no deep water or drop. Bridge the gap, or build a depot on their side." |
 | `announce.caravan_at_depot` | "The {civ} caravan is at {depot}: [c] or the depot to trade." |
 | `announce.trade_completed` | "A trade with the {civ} is complete." |
+| `announce.title_assigned` | "{dwarf} is now the {title}." |
+| `announce.title_vacated` | "{dwarf} is no longer the {title}." |
 | `announce.trade_missed` | "The {civ} caravan is leaving without trading. {why}" |
 | `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children\|of them a child\|of them children}." |
 | `announce.immigration_skipped` | "No immigrants this season: {reason}." |

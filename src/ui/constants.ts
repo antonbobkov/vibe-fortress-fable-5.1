@@ -63,6 +63,11 @@ export const ROT_ALERT_DAYS = 3;
 /** Rows under the stocks tree for the selected row's usable line (`panels.md` § Stocks). */
 export const STOCKS_USE_ROWS = 2;
 
+/** The Mood panel's summary: how many of the thoughts held by most dwarves it lists (`panels.md` § Mood). */
+export const MOOD_SUMMARY_THOUGHTS = 5;
+/** The fewest cells the Units list leaves its activity column when it widens the name column (`fortress-screen.md` § Sidebar open). */
+export const UNITS_ACTIVITY_MIN_COLS = 10;
+
 /** Width of a body part's health meter in the creature inspector. */
 export const HEALTH_PART_BAR_CELLS = 5;
 /** Width of a need's meter in the creature inspector: two needs share a row of the sidebar. */

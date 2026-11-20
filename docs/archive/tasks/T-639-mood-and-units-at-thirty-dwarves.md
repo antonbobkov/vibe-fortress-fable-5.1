@@ -1,6 +1,8 @@
 # T-639 — The Mood and Units panels at thirty dwarves and more
 
-**Source:** [T-635's mid-game audit](../../reports/audits/2026-11-19-t635-midgame-ux.md), findings 13–15 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-19, in 839625b8,852ef0d1,974fa905,2a62662a.
+
+**Source:** [T-635's mid-game audit](../../../reports/audits/2026-11-19-t635-midgame-ux.md), findings 13–15 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

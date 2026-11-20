@@ -27,7 +27,7 @@ import type { JobsReader } from '@systems/jobs';
 import type { MagicReader, SpellView } from '@systems/magic';
 import type { PlantsReader } from '@systems/plants';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
-import { MOOD_TIER_NAMES } from './mood';
+import { MOOD_TIER_NAMES, thoughtText } from './mood';
 import type { Surface } from '../surface';
 import { label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
@@ -454,7 +454,8 @@ export function drawLookPanel(
       if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
         const morale = readers.of<MoraleReader>('15');
         line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${Math.round(morale.mood(id))})`, t.value);
-        for (const thought of morale.thoughts(id)) line(`  ${thought.value > 0 ? '+' : ''}${Math.round(thought.value)} ${thought.text}`);
+        // Only a thought that moves the mood by a whole point or more: one that rounds to 0 is not listed.
+        for (const thought of morale.thoughts(id)) if (Math.round(thought.value) !== 0) line(`  ${thoughtText(thought)}`);
       }
     }
     // 08 § Wild behavior, `sleep` (T-540): a wild animal that sleeps through noise.

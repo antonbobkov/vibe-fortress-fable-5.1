@@ -1654,6 +1654,8 @@ export class FortressScreen implements Screen {
       return;
     }
     if (this.units.choice !== null) { this.units.choice = null; return; }
+    // The Mood list back from one thought's holders to every dwarf.
+    if (this.ui.panel === 'mood' && this.mood.showAll(this.ctx)) return;
     if (this.ui.panel === 'building' && this.building.cancel()) return;
     if (this.zones.anchor !== null) {
       this.zones.anchor = null;
@@ -2238,11 +2240,14 @@ export class FortressScreen implements Screen {
       }
       case 'mood': {
         if (!press.shift && (up || down)) { this.mood.move(up ? -1 : 1, ctx); return true; }
-        if (letter === 's') { this.mood.sorted = !this.mood.sorted; this.mood.list.selected = 0; return true; }
+        if (letter === 's') { this.mood.toggleSort(ctx); return true; }
+        // `Enter` on a summary row lists who holds the thought; on a dwarf, inspects it.
         if (k === 'Enter') {
-          this.inspectCreature(this.mood.selected(ctx));
+          const id = this.mood.enter(ctx);
+          if (id !== 0) this.inspectCreature(id);
           return true;
         }
+        if (k === 'Backspace') return this.mood.showAll(ctx);
         return false;
       }
       case 'labors':

@@ -36,7 +36,7 @@ Columns: `value` signed; `hours` duration; `decay` `linear` or `halflife` or `st
 | `tired` | "I am tired." | −(rest − 60) / 5, min −8 | rest ≥ 60 |
 | `lonely` | "I have not talked to anyone in a while." | −(social − 50) / 10, min −5 | social ≥ 50 |
 | `uncomfortable` | "There is nowhere to sit." | −(comfort − 55) / 10, min −4 | comfort ≥ 55 |
-| `restless` | "I have nothing to do." | −(purpose − 60) / 10, min −4 | purpose ≥ 60 |
+| `restless` | "I have nothing to do." | −(purpose − 60) / 10, min −4 | purpose ≥ 60, not on duty with a squad |
 | `bored` | "Nothing lifts my spirits." | −(joy − 60) / 10, min −4 | joy ≥ 60 |
 
 ### Standing conditions

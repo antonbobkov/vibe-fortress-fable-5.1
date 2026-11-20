@@ -4,6 +4,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import type { TickContext } from '@core/system';
 import type { EntityId } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
+import type { CombatReader } from '@systems/combat';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
 import { baseValue, type ThoughtDef } from './thoughts';
@@ -24,7 +25,10 @@ export function standingThoughts(id: EntityId, ctx: TickContext, floorSleepers: 
   const result: { id: string; value: number }[] = [];
   const add = (name: string, value: number): void => { if (defs.has(name) && value !== 0) result.push({ id: name, value }); };
   const needs = entities.get(id, C.Needs);
+  // A soldier on duty (a squad in training or active, or any squad under an alert) has something to do: no `restless`.
+  const onDuty = ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').onDuty(id);
   if (needs !== undefined) for (const [name, need, threshold, divisor, limit] of NEEDS) {
+    if (name === 'restless' && onDuty) continue;
     if (needs[need] >= threshold) add(name, -Math.min(limit, (needs[need] - threshold) / divisor));
   }
   if (ctx.tick >= 14 * TICKS_PER_DAY && buildings.bedroomOf(id) === 0) add('no_bedroom', -2);

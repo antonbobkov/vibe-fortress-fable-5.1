@@ -1161,7 +1161,7 @@
     "cap": 1,
     "group": "need",
     "trigger": {
-      "condition": "purpose ≥ 60"
+      "condition": "purpose ≥ 60, not on duty with a squad"
     },
     "announce": false
   },

@@ -95,7 +95,7 @@ A corpse consumed by a predator is lost for burial. It no longer counts as prese
 
 ### Interaction with 10 needs
 
-Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are both the legible form of the pressure ("Hungry (−6)" in the dwarf's thought list) and its measure: all seven count among `negatives`, and `hungry`, `thirsty`, `tired` and `lonely` also make up `needPressure`. `uncomfortable`, `restless` and `bored` are ordinary standing negatives: a fortress without chairs or a meeting area is gloomier, not miserable.
+Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are both the legible form of the pressure ("Hungry (−6)" in the dwarf's thought list) and its measure: all seven count among `negatives`, and `hungry`, `thirsty`, `tired` and `lonely` also make up `needPressure`. `uncomfortable`, `restless` and `bored` are ordinary standing negatives: a fortress without chairs or a meeting area is gloomier, not miserable. A dwarf on duty with a squad (16 § Squads: its squad in `train` or `active`, or any squad under a `watchful` or `hearth` alert) is not `restless`, whatever its purpose: drill and guard are something to do.
 
 Masterwork sight thoughts consume 10's `SawMasterwork` event on room entry. Its visible objects are floor items and installed furniture, excluding container contents and the viewer's own work; 10 saves the per-dwarf seen-item memory.
 
@@ -135,7 +135,7 @@ Panel `mood`; inspector section `creature › mood` (mood, tier, thoughts sorted
 
 ## Player-facing behavior
 
-- Mood panel: every dwarf with tier glyph and the three strongest current thoughts; sortable; click to inspect.
+- Mood panel: a summary of the thoughts held by most dwarves, with their weights and how many hold each, which lists a thought's holders on demand; then every dwarf with its tier and its three strongest current thoughts; sortable; click to inspect.
 - Status bar: the hearth glyph colored by hall spirit tier; hovering shows "Hall spirit: Content (71)".
 - The thought list in a dwarf's inspection is the whole explanation of the number.
 

@@ -563,16 +563,28 @@ Depot panel (from a selected depot): items at the depot with values, `[S-m] move
 ## Mood (e)
 
 ```
-│ Mood                           [x]  │
-│ Hall spirit ♥ Content (71)          │
-│ Name         Tier     Top thoughts  │
-│ Ketil Ironve Fine     +5 Had a fi»  │
-│ Brynja Coalb Content  +8 Slept in»  │
-│ Halvar Grimf Unhappy  -15 Lost a »  │
-│ [Enter] inspect  [S-s] sort tier    │
+│ Mood                           [x] │
+│ Hall spirit ♥ Fine (49)            │
+│ Thoughts held by most              │
+│  -15 My friend is dead.        ×31 │
+│  +10 Had a lavish meal.        ×28 │
+│  -3 I am tired.                ×12 │
+│  +3 Had a chat.                 ×9 │
+│  -2 The food was stale.         ×4 │
+│ Name                Tier           │
+│ Ragnhild Brightvein Unhappy        │
+│   -15 My friend is dead. -3 I am » │
+│ Ragnhild Brimhammer Content        │
+│   +10 Had a lavish meal.           │
+│ ────────────────────────────────── │
+│ [Enter] holders  [S-s] sort tier   │
 ```
 
-Top thoughts that do not fit their column end with `»`, and the cell's tooltip has them all.
+The panel opens on a summary. Under the hall spirit, the `MOOD_SUMMARY_THOUGHTS` thoughts held by most dwarves, each with its weight and the number of dwarves who hold it (`×31`), most held first, then by the larger total weight, then by text. A thought is counted by its text; its weight is its holders' mean, rounded to a whole number; a thought whose weight rounds to 0 for a dwarf is not counted for that dwarf, and a dwarf holding one text twice counts once, at the stronger. "No dwarf holds a thought now." when none is held.
+
+The cursor runs over the summary's rows and then the dwarves. `Enter` on a summary row lists only the dwarves who hold that thought, its row marked `•` and the cursor on the first of them; `Enter` on the marked row, `Esc` or `Backspace` lists every dwarf again (`Esc` closes the panel only when every dwarf is listed). A click on a summary row does what `Enter` does. The listed thought stays in the summary while anyone holds it, in place of the fifth; when nobody holds it any more, the list is every dwarf again. The key row reads `[Enter] holders  [S-s] sort tier` on the summary, `[Enter] inspect  [Esc] all` while one thought's holders are listed, and `[Enter] inspect  [S-s] sort tier` otherwise.
+
+Under the summary, each dwarf has its name, its tier, and its three strongest thoughts (those that round to a whole point or more) after the tier when the first of them fits there, else on a second row, indented two cells and dim; thoughts that do not fit end with `»`, and their tooltip has them all. The name column is as wide as the longest name listed, as far as the tier column leaves room, and a name that does not fit is shortened as the Units list shortens it ([fortress-screen.md](fortress-screen.md) § Sidebar open), its tooltip the whole name. The cursor's dwarf is inverted over both its rows, and a click selects it. `Enter` on a dwarf inspects it, as Units does; `[S-s]` sorts the dwarves by mood, lowest first, or back to list order, the cursor on the first dwarf.
 
 ## Log (a)
 

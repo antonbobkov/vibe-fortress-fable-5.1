@@ -257,6 +257,8 @@ This entire document.
 | `HINT_FOOD_DAYS_PER_ITEM` | 4 | Days one edible unit is counted to feed one dwarf, by the UI's food lines (*unmeasured*) |
 | `ROT_ALERT_DAYS` | 3 | Days ahead the stocks panel counts, and the alert warns of, food that will rot (*unmeasured*) |
 | `STOCKS_USE_ROWS` | 2 | Rows under the stocks tree for the selected row's usable line (*unmeasured*) |
+| `MOOD_SUMMARY_THOUGHTS` | 5 | Thoughts the Mood panel's summary lists, those held by most dwarves (*unmeasured*) |
+| `UNITS_ACTIVITY_MIN_COLS` | 10 | Fewest cells the Units list leaves its activity column when it widens the name column (*unmeasured*) |
 | `UNDO_BATCHES_MAX` | 10 | Designation batches retained for undo (*unmeasured*) |
 | `BREEDING_CAP_MIN` | 0 | Animals cap editor lower bound |
 | `BREEDING_CAP_MAX` | 100 | Animals cap editor upper bound |

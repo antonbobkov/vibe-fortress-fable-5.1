@@ -192,7 +192,9 @@ partyThink(P):
               if not P.stalled and any revealed ambush member (or any member of another non-thief party) perceives a reachable fortress creature: clear goalIdleSince; P.state = 'engage'; P.stateSince = tick
               else if leader on or adjacent to goal (except thieves and restless dead): begin goalIdleSince if absent; after ENGAGE_IDLE_TICKS enter loiter
               else: clear goalIdleSince
-    engage:   if no member has a target for ENGAGE_IDLE_TICKS: P.state = 'approach'
+    engage:   P.foughtSince ??= tick   // moved on to the tick of each casualty of the fight, either side (18 § Morale's count); never cleared
+              if not the restless dead and tick - P.foughtSince >= ENGAGE_STALEMATE_TICKS: P.state = 'loiter'; P.stalled = true; return   // a stalemate
+              if no member has a target for ENGAGE_IDLE_TICKS: P.state = 'approach'
               else (not the restless dead): P.blowSince = max(P.blowSince ?? tick, each member's 16 lastEngagementTick, tick if a member breaks a door)
                 if tick - P.blowSince >= ENGAGE_STALL_TICKS: P.state = 'loiter'; P.stalled = true   // it sees what it cannot strike
               (out of engage, P.blowSince is cleared)
