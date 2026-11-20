@@ -1660,12 +1660,16 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   if (stripTiles >= FARM_STRIP.max * FARM_STRIP.width * FARM_STRIP.rows || plans.length >= 2 * FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
   // T-455: the fortress's level, since a cave on a slope may lie more than one level below it.
   const z = state.z;
-  // T-580: where ambushes are possible, a strip goes on the open ground nearest the gate.
-  if (state.economy.workHall !== undefined) {
-    const near = nearGateStrip(w, state);
+  // T-580: where ambushes are possible, a strip goes on the open ground nearest the gate. T-664: where
+  // no such ground is left the strip goes to its place west of the first field, as before. Each day
+  // the search found none it counted a try, and in `three-years-p2-4` at shift 0 the tries reached
+  // the cap within a month with one strip sown: the farm stayed at four plots of 51 tiles while the
+  // fortress grew from 11 dwarves to 58, and 22 starved.
+  const near = state.economy.workHall !== undefined ? nearGateStrip(w, state) : [];
+  if (near.length >= FARM_STRIP.width) {
     const plan = { tiles: near, zoneId: -1 };
     plans.push(plan);
-    if (near.length < FARM_STRIP.width || !command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: near }).ok) { plan.tiles = []; return; }
+    if (!command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: near }).ok) { plan.tiles = []; return; }
     plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
     const crops = plans.length % 2 === 1 ? ['turnip', 'turnip', 'turnip'] : ['barley', 'barley', 'turnip'];
     for (const [season, speciesId] of crops.entries()) command(w, { type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
