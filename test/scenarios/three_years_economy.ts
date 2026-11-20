@@ -57,6 +57,8 @@ export interface EconomyState {
   moving?: Record<string, { twin: number; type: string; orders: WorkOrder[]; worker: number; old?: number }>;
   /** T-588: what the fortress has set aside (forbidden) for the Thane's whim of the season, until just before it is judged. */
   thaneShare?: { whim: string; items: number[] };
+  /** T-664: a famine the player answers (`keepFoodFirst`): its first day and the dwarves given farming for it. */
+  famine?: { day: number; hands: number[] };
 }
 
 /**
@@ -453,7 +455,9 @@ export function dedicate(w: TestWorld, state: FortressState, dwarfId: number, ke
   if (!w.game.world.entities.alive(dwarfId)) return;
   const jobs = w.readers.of<JobsReader>('11');
   for (const row of w.game.registry.table<{ id: string }>('labors').rows.slice(1)) {
-    const on = keep.includes(row.id) || (haul && row.id === 'hauling') || (row.id === 'trading' && state.economy.broker?.id === dwarfId);
+    const on = keep.includes(row.id) || (haul && row.id === 'hauling') || (row.id === 'trading' && state.economy.broker?.id === dwarfId) ||
+      // T-664: a dwarf given farming for a famine keeps it until the famine is over.
+      (row.id === 'farming' && (state.economy.famine?.hands.includes(dwarfId) ?? false));
     if (jobs.laborEnabled(dwarfId, row.id) !== on) command(w, { type: 'SetLabor', dwarfId, labor: row.id, on });
   }
 }
@@ -1347,13 +1351,85 @@ function checkBrewer(w: TestWorld, state: FortressState): void {
   dedicate(w, state, free[0], ['brewing']);
 }
 
+/** T-664: the founder the fortress script makes its farmer (`three_years_fortress.ts`, the professions). */
+export const FOUNDING_FARMER = 4;
+/** T-664: food for fewer days than this (a unit a dwarf a day) with a ripe crop left a day in the field is a famine. */
+export const FAMINE_DAYS = 10;
+/** T-664: the famine is over once the stores hold food for this many days, or FAMINE_DAYS with no crop left waiting. */
+export const FAMINE_OVER_DAYS = 20;
+/** T-664: farming's labor priority in a famine: a step ahead of KIT_FIRST, where T-570 raises the work that waits. */
+export const FAMINE_FARMING_PRIORITY = KIT_FIRST - 1;
+/** T-664: farming's labor priority otherwise, the food chain's step (`three_years_fortress.ts`, STEP_LABORS). */
+const FARMING_PRIORITY = ROUTINE - 1;
+
+/** T-664: units of food the fortress owns, a visiting merchant's goods left out. */
+export function foodInStock(w: TestWorld): number {
+  const ent = w.game.world.entities;
+  const types = w.game.registry.table<{ id: string; edible?: boolean }>('items');
+  let units = 0;
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (types.byIndex(it.type)?.edible === true && (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) === 0) units += it.count;
+  }
+  return units;
+}
+
+/**
+ * T-664: the player answers a famine. Food for fewer than FAMINE_DAYS with a ripe crop left in the
+ * field for a day (a harvest job open, or with no worker, a day after it was made) is a famine: every
+ * adult is given farming (a soldier at drill does no civilian work, but farms once the squad stands down), and farming's labor priority goes a step ahead of
+ * KIT_FIRST, so the harvest and the sowing come before everything but the care of patients. Until
+ * then the script left the farm to the founding farmer and the immigrants, and a fortress that raids
+ * had cut to a dozen lost them: in `three-years-p4-1` at shift 50 the farmer died in the hospital on
+ * day 20 and no survivor held farming, so 37 ripe crops waited with no worker while three dwarves
+ * starved; in `three-years-p4-3` at shift 100 the farmer was killed on day 100 and the only dwarves
+ * with farming were soldiers at drill, which does no civilian work; in `three-years-p4-2` at shift
+ * 100 the two civilians with farming worked the craft and build jobs that T-570 raises to KIT_FIRST
+ * when they wait, a step ahead of the farm's, while thirty ripe crops stood in the field for eighty
+ * days and the fortress starved to the last. The famine is over once the stores hold
+ * FAMINE_OVER_DAYS of food, or FAMINE_DAYS with no crop left waiting: farming goes back to the food
+ * chain's step, and the dwarves given it for the famine lose it.
+ */
+export function keepFoodFirst(w: TestWorld, state: FortressState): void {
+  const ent = w.game.world.entities;
+  const jobs = w.readers.of<JobsReader>('11');
+  const harvest = w.game.registry.table<{ id: string }>('jobTypes').index('harvest');
+  const adults = fortressDwarves(w);
+  // The children eat too.
+  const mouths = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress').length;
+  const { economy } = state;
+  const food = foodInStock(w);
+  const waiting = jobs.list().some((j) => j.type === harvest && w.tick - j.createdTick >= TICKS_PER_DAY &&
+    (j.state === 'open' || (j.state === 'blocked' && j.blockedReason === 'no_worker')));
+  const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+  if (economy.famine === undefined) {
+    if (adults.length === 0 || food >= FAMINE_DAYS * mouths || !waiting) return;
+    economy.famine = { day, hands: [] };
+    command(w, { type: 'SetLaborPriority', labor: 'farming', priority: FAMINE_FARMING_PRIORITY });
+    note('three_years_famine', { day, phase: 'start', dwarves: mouths, food });
+  } else if (adults.length === 0 || food >= FAMINE_OVER_DAYS * mouths || (!waiting && food >= FAMINE_DAYS * mouths)) {
+    const { hands } = economy.famine;
+    delete economy.famine;
+    for (const id of hands) if (adults.includes(id) && jobs.laborEnabled(id, 'farming')) command(w, { type: 'SetLabor', dwarfId: id, labor: 'farming', on: false });
+    command(w, { type: 'SetLaborPriority', labor: 'farming', priority: FARMING_PRIORITY });
+    note('three_years_famine', { day, phase: 'end', dwarves: mouths, food, hands: hands.length });
+    return;
+  }
+  const famine = economy.famine;
+  for (const id of adults) {
+    if (jobs.laborEnabled(id, 'farming')) continue;
+    command(w, { type: 'SetLabor', dwarfId: id, labor: 'farming', on: true });
+    if (!famine.hands.includes(id)) famine.hands.push(id);
+  }
+}
+
 /**
  * T-488: when the last dwarf with the mining labor dies, the player gives it to another, so the
  * halls, bedrooms and drifts still designated are dug. Only the founders' two miners and the
  * immigrants nobody dedicated mine; a raid that kills them all left a fortress of survivors with
  * hundreds of dig jobs nobody could take, and no hearth or dining hall (`three-years-p2-4`,
- * shift 50). A dwarf the specialists keep at a bench is the last choice, then the most skilled
- * miner, then the lowest id.
+ * shift 50). A dwarf the specialists keep at a bench is the last choice but for the founding farmer
+ * (T-664) and a soldier of the strong squad, then the most skilled miner, then the lowest id.
  */
 export function keepAMiner(w: TestWorld, state: FortressState): void {
   const adults = fortressDwarves(w);
@@ -1363,9 +1439,27 @@ export function keepAMiner(w: TestWorld, state: FortressState): void {
   // T-603: a soldier of the strong squad is the last choice of all: training keeps it from the mine.
   const trained = new Set(state.strong?.trained ?? []);
   const dwarves = w.readers.of<DwarvesReader>('10');
-  const miner = adults.slice().sort((a, b) => Number(trained.has(a)) - Number(trained.has(b)) || Number(benched.has(a)) - Number(benched.has(b)) ||
-    dwarves.skill(b, 'mining') - dwarves.skill(a, 'mining') || a - b)[0]!;
+  // T-664: and the founding farmer is passed over before a bench: with the pick he would dig the
+  // drifts, as urgent to him as his planting and nearer, as the defence script's farmer did (T-660).
+  const farmer = w.game.arrival?.dwarves[FOUNDING_FARMER];
+  const miner = adults.slice().sort((a, b) => Number(trained.has(a)) - Number(trained.has(b)) || Number(a === farmer) - Number(b === farmer) ||
+    Number(benched.has(a)) - Number(benched.has(b)) || dwarves.skill(b, 'mining') - dwarves.skill(a, 'mining') || a - b)[0]!;
   command(w, { type: 'SetLabor', dwarfId: miner, labor: 'mining', on: true });
+}
+
+/**
+ * T-664: when no dwarf outside the hospital holds the hauling labor, the player gives it to every
+ * one of them. The founders' two miners do not haul, nor do the furnace workers, and a patient is fed
+ * and watered by a hauling job (17: `feed_patient`, `water_patient`). In `three-years-p4-1` at
+ * shift 50 the raids of the first week left the two miners on their feet and three dwarves in the
+ * hospital, and the three starved in their beds on day 32 with seventy plants in the stores.
+ */
+export function keepAHauler(w: TestWorld): void {
+  const ent = w.game.world.entities;
+  const jobs = w.readers.of<JobsReader>('11');
+  const able = fortressDwarves(w).filter((id) => ent.get(id, C.Brain)?.behavior !== 'patient');
+  if (able.length === 0 || able.some((id) => jobs.laborEnabled(id, 'hauling'))) return;
+  for (const id of able) command(w, { type: 'SetLabor', dwarfId: id, labor: 'hauling', on: true });
 }
 
 /**
@@ -1838,6 +1932,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   checkArming(w, state, first, day);
   releaseSpecialists(w, state);
+  keepFoodFirst(w, state);
   // Give the growing settlement a builder rather than leaving every immigrant on food and
   // hauling: those higher-priority supply jobs otherwise consume all of the spare workforce.
   if (fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && state.economy.specialists['builder'] === undefined) {
@@ -2193,6 +2288,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   checkBrewer(w, state);
   keepAMiner(w, state);
+  keepAHauler(w);
   checkFarm(w, state);
   checkCaveStrips(w, state);
   checkCrops(w);
