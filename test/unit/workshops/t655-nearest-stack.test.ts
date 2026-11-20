@@ -6,7 +6,8 @@ import { TestWorld } from '../../scenarios/test-world';
 /**
  * T-655 (11 § Assignment step 4): a unit input is reserved from the fewest stacks, and of the stacks
  * that make it up in that many trips, the nearest. A far stack of five was fetched for one bar of fuel
- * while one lay beside the furnace.
+ * while one lay beside the furnace. T-659: the nearest stacks instead, more trips, when they walk less
+ * in all.
  */
 function brewClaim(seed: string, stacks: { x: number; count: number }[], dwarfX = 11): { reserved: { x: number; count: number }[]; trips: number } {
   const w = new TestWorld({ seed, world: 'flat-test', embark: 'none' });
@@ -35,9 +36,15 @@ describe('T-655 the nearest stacks of the fewest', () => {
     expect(r.reserved).toEqual([{ x: 15, count: 4 }]);
   });
 
-  it('still goes once to a far stack of four rather than twice to two near stacks of two', () => {
+  it('goes twice to two near stacks of two rather than once to a far stack of four (T-659: less walking)', () => {
     const r = brewClaim('t655-fewest', [{ x: 13, count: 2 }, { x: 15, count: 2 }, { x: 40, count: 4 }]);
-    expect(r.reserved).toEqual([{ x: 40, count: 4 }]);
+    expect(r.reserved).toEqual([{ x: 13, count: 2 }, { x: 15, count: 2 }]);
+  });
+
+  it('still goes once to a stack of four when the nearest stacks would walk farther in all', () => {
+    // The nearest make-up is the 2 beside the still and two of the four: two trips, more walking than the one to the four.
+    const r = brewClaim('t659-fewest-nearer', [{ x: 13, count: 2 }, { x: 20, count: 4 }, { x: 44, count: 2 }]);
+    expect(r.reserved).toEqual([{ x: 20, count: 4 }]);
   });
 
   it('makes up two trips from the nearest stacks, not the two largest', () => {

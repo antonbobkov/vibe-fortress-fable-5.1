@@ -54,6 +54,14 @@ describe('T-659 the steel\'s two fuels in one trip', () => {
     expect(r.items.count('charcoal_bar') + r.items.count('coal_bar')).toBe(0);
   });
 
+  it('takes the two single bars beside the smelter rather than a stack of two across the map', () => {
+    const r = steel('t659-near-singles', [{ type: 'charcoal_bar', material: 'charcoal', x: 19, count: 1 },
+      { type: 'coal_bar', material: 'coal', x: 20, count: 1 }, { type: 'charcoal_bar', material: 'charcoal', x: 44, count: 2 }]);
+    expect(r.trips).toBe(4);
+    expect(r.items.count('charcoal_bar')).toBe(2);
+    expect(r.items.count('coal_bar')).toBe(0);
+  });
+
   it('leaves the third bar of a stack of three by the smelter', () => {
     const r = steel('t659-stack-of-three', [{ type: 'charcoal_bar', material: 'charcoal', x: 19, count: 3 }]);
     expect(r.trips).toBe(3);

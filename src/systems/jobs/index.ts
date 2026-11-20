@@ -15,6 +15,7 @@ import type { GameEvent } from '@core/events';
 import { BaseSystem, Registrations, type InitContext, type TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
+import { estDistance } from './assign';
 import { JobBoard } from './board';
 import { dropStrandedTools, dropUnusableLaunchers, dropUnusedTools, itemSourceOf } from './items-adapter';
 import { NO_ITEMS } from './producers';
@@ -112,7 +113,9 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     if (board.items !== NO_ITEMS) return;
     const api = ctx.world.services.items;
     if (api === null || !ctx.readers.has(ITEMS_READER)) return;
-    board.items = itemSourceOf(api, ctx.readers.of<ItemsReader>(ITEMS_READER), ctx.readers.entities, board.registry);
+    const map = board.world.map;
+    board.items = itemSourceOf(api, ctx.readers.of<ItemsReader>(ITEMS_READER), ctx.readers.entities, board.registry,
+      (a, b) => (a < 0 || b < 0 ? 0 : estDistance(map.unpack(a), map.unpack(b))));
   }
 
   override tick(ctx: TickContext): void {
