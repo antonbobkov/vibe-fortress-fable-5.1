@@ -849,6 +849,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.status.stocked': 'stocked ({n})',
   'ui.orders.status.waiting': 'waiting for {item} ({n})',
   'ui.orders.status.fuel': 'waiting for fuel',
+  'ui.orders.status.out_of_reach': '{item} out of reach',
   'ui.orders.status.no_workshop': 'no {workshop}',
   'ui.orders.status.suspended': 'suspended',
   'ui.orders.status.no_magma': 'no magma',
@@ -894,6 +895,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.pick.not_built': '· {workshop} not built yet',
   'ui.orders.pick.no_input': '· no {item}',
   'ui.orders.pick.no_fuel': '· no fuel',
+  'ui.orders.pick.out_of_reach': '· {item} out of reach',
   // One step back for a missing input (`panels.md` § Add order): the recipe that makes it, or where it comes from.
   'ui.orders.pick.make_at': '· no {item}: {recipe} at {where}',
   'ui.orders.pick.make_at_needs': '· no {item}: {recipe} at {where} (needs {needs})',
@@ -1210,6 +1212,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.block.waiting_for': 'Waiting for {item} ({n} available)',
   'ui.block.order_at': '{text} — order at {where}',
   'ui.block.fuel': 'Needs fuel',
+  'ui.block.out_of_reach': 'Skipped: {item} out of reach. Tried again later, or when a door opens.',
   'ui.block.inputs': 'Waiting for inputs',
   'ui.block.workshop_suspended': 'Suspended: [S-s] resume',
   'ui.block.no_magma': 'No magma power below',

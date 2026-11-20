@@ -612,6 +612,18 @@ export function waitingFor(env: Omit<MessageEnv, 'strings'>, reason: string | nu
 }
 
 /**
+ * The inputs an `out of reach <ids>` reason names (`12` § Operation 2: an order whose inputs exist
+ * but none within reach of the workshop's worker is skipped for a while): "charcoal", "charcoal or
+ * coal"; null for any other reason.
+ */
+export function outOfReach(env: Omit<MessageEnv, 'strings'>, reason: string | null): { match: string; item: string } | null {
+  const far = reason === null ? null : /^out of reach (.+)$/.exec(reason);
+  if (far === null) return null;
+  const match = far[1] as string;
+  return { match, item: matchName(env.registry, match) };
+}
+
+/**
  * A workshop order's waiting reason as words (`12` § Operation 3: "waiting for <input>"): the
  * reader's `isRunnable` reason, which names the input (`waiting for raw_stone`), or the fuel
  * shortage it reports as `missing_input`.
@@ -619,6 +631,8 @@ export function waitingFor(env: Omit<MessageEnv, 'strings'>, reason: string | nu
 export function workshopBlockText(env: MessageEnv, reason: string | null): string {
   const s = env.strings;
   if (reason === null) return '';
+  const far = outOfReach(env, reason);
+  if (far !== null) return s.get('ui.block.out_of_reach', { item: far.item });
   const waiting = waitingFor(env, reason);
   if (waiting !== null) {
     const text = s.get('ui.block.waiting_for', { item: waiting.item, n: waiting.n });

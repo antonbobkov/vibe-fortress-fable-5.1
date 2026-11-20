@@ -109,7 +109,8 @@ interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
                       targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }
 interface Workshop { orders: WorkOrder[]; currentJobId: number; suspended: boolean; assignedWorker: EntityId;
-                     magmaPowered: boolean; lastBlockedReason: string | null }
+                     magmaPowered: boolean; lastBlockedReason: string | null;
+                     outOfReach?: { recipe: string /* recipe id */; input: string /* item ids, '|'-joined */; until: Tick }[] /* 12 § Operation 2; absent: none */ }
 interface Zone { type: Idx<ZoneTypeDef>; tiles: TileIndex[] /* sorted */; settings: Record<string, unknown> }
 interface StockpileFilter { categories: string[]; materialClasses: string[] | 'any'; minQuality: Quality; maxQuality: Quality; allowRot: boolean }
 interface Stockpile { filter: StockpileFilter; containersWanted: { barrel: number; bag: number; bin: number };

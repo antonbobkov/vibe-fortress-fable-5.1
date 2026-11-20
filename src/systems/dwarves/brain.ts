@@ -26,7 +26,7 @@ import type { HealthReader } from '@systems/health/reader';
 import { awaitsBandage } from '@systems/health/wounds';
 import type { JobsReader } from '@systems/jobs';
 import type { CombatReader } from '@systems/combat/reader';
-import { PERCEPTION_RADIUS } from '@systems/combat/constants';
+import { HARMLESS_FIGHT_TICKS, PERCEPTION_RADIUS } from '@systems/combat/constants';
 import { fleeSource, stepFled } from '@systems/combat/fled';
 
 /** "Idle dwarves are shown as 'No job' in the units panel." */
@@ -328,8 +328,12 @@ function startFight(host: BrainHost, ctx: TickContext, id: EntityId, b: Brain, t
   b.activity = 'Fighting';
 }
 
-/** A new scan must not reset a cornered fighter's existing deadline. */
+/**
+ * A new scan must not reset a cornered fighter's existing deadline. A fight in which no blow by or on
+ * the dwarf has done damage for `HARMLESS_FIGHT_TICKS` (16 § Targeting) is over, in reach or not.
+ */
 function fightExpired(ctx: TickContext, id: EntityId, threatId: EntityId, b: Brain): boolean {
+  if ((ctx.world.services.combat?.harmlessFor(id) ?? 0) >= HARMLESS_FIGHT_TICKS) return true;
   const mine = ctx.world.entities.get(id, C.Position);
   const theirs = ctx.world.entities.get(threatId, C.Position);
   const inReach = mine && theirs && mine.z === theirs.z &&

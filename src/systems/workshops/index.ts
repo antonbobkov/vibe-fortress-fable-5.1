@@ -22,7 +22,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
   readonly id = WORKSHOPS_ID;
   readonly order = 12;
   override readonly ownsCommands: readonly CommandType[] = ['AddWorkOrder', 'EditWorkOrder', 'RemoveWorkOrder', 'ReorderWorkOrder', 'SetWorkshopWorker', 'SuspendWorkshop'];
-  override readonly subscribes: readonly EventType[] = ['BuildingCompleted', 'BuildingRemoved', 'JobCancelled', 'JobCompleted', 'SkillLevelUp', 'CreatureDied'];
+  override readonly subscribes: readonly EventType[] = ['BuildingCompleted', 'BuildingRemoved', 'JobCancelled', 'JobCompleted', 'SkillLevelUp', 'CreatureDied', 'BuildingStateChanged'];
   private op: WorkshopOperator | null = null;
   private readerRef: WorkshopsReader | null = null;
   private ticked = false;
@@ -63,6 +63,8 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
       }
     }
     else if (event.type === 'SkillLevelUp') op.professionCache.delete(event['id'] as number);
+    // 12 § Operation 2: a door, hatch or bridge that changes may bring inputs back within reach.
+    else if (event.type === 'BuildingStateChanged') op.clearOutOfReach();
   }
 
   override applyCommand(cmd: Command, _ctx: TickContext): CommandResult {
