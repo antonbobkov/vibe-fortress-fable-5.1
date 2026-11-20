@@ -63,6 +63,7 @@ const DOCUMENTED: readonly { event: string; severity: 'note' | 'alert' | 'danger
   // `12` § Registrations.
   { event: 'MasterworkCreated', severity: 'note', doc: '12' },
   { event: 'WorkshopBlocked', severity: 'alert', doc: '12' },
+  { event: 'WorkOrderSkipped', severity: 'note', doc: '12' },
   // `13` § Registrations.
   { event: 'StockpileFull', severity: 'note', doc: '13' },
   { event: 'MiasmaSpread', severity: 'alert', doc: '13' },

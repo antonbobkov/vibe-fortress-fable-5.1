@@ -294,6 +294,8 @@ describe('T-M1-14 announcements', () => {
       RoostFound: 'note',
       MasterworkCreated: 'note',
       WorkshopBlocked: 'alert',
+      // T-657: 12 § Registrations (an order skipped as out of reach).
+      WorkOrderSkipped: 'note',
       FishPoolDepleted: 'note',
       MoodTierChanged: 'note',
       SulkHappened: 'alert',

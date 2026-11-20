@@ -1,6 +1,8 @@
 # T-652 — The immigration roll on a stream of its own
 
-**Source:** [T-650's measurement](../../reports/data/2026-11-20-t650-peril-4-immigration.md) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-20, in 500ea537,8a1df6d9.
+
+**Source:** [T-650's measurement](../../../reports/data/2026-11-20-t650-peril-4-immigration.md) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -14,4 +16,6 @@ Spec: 21 § Evaluation, § State; save-format.md (21's state); testing-strategy.
 
 ## Done
 
-A unit test that a wave of another size leaves the next season's roll unchanged; the sweep's verdict, and the peril-4 year-3 rolls against their chance.
+- [x] A unit test that a wave of another size leaves the next season's roll unchanged (`test/unit/immigration/t652-season-roll.test.ts`).
+- [x] The sweep's verdict: `44716548319`, 79 of 80 seed jobs green, pooled 19.25 / 7 / 0 / 1050.25 living / 105.5 deaths, within every bound. It was not judged because `p4-4` at shift 150 failed with T-653's known station-order rejection, which master's own sweep (`44715696949`) shows too ([T-652's report](../../../reports/data/2026-11-20-t652-immigration-roll-stream.md)).
+- [x] The peril-4 year-3 rolls against their chance: 45 waves from 58 rolls at 70.3% (40.8 expected); 391 immigrants against 340 expected. The rolls are now the same in every shift of a seed: 169 of 169 seasons ([T-652's report](../../../reports/data/2026-11-20-t652-immigration-roll-stream.md)).

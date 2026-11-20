@@ -26,7 +26,7 @@ import { AMMO_FETCH } from '@systems/foraging/constants';
 import { ARRIVAL_INTERVAL_TICKS, IMMIGRATION_PERMILLE, IMMIGRATION_SPIRIT_MIN, POPULATION_CAP_MAX, POPULATION_CAP_MIN, REP_PERMILLE_PER_POINT, TOOL_STOCK_MIN, WEALTH_PER_WAVE } from './constants';
 import type { ImmigrationReader } from './reader';
 import type { ImmigrationStateV1, PendingWave, PlannedImmigrant } from './state';
-import { coverage, guaranteedSize, planWave, waveSize } from './waves';
+import { coverage, guaranteedSize, planWave, seasonRoll, waveSize } from './waves';
 
 export * from './constants';
 export * from './waves';
@@ -126,7 +126,7 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
       else this.guaranteedDone[1] = true;
     } else {
       const rep = ctx.world.fortress.reputation.mountainhome ?? 0;
-      if (!this.rng.chance(IMMIGRATION_PERMILLE + rep * REP_PERMILLE_PER_POINT)) { this.skip(ctx, 'luck'); return; }
+      if (seasonRoll(ctx.world.seed, year, season) >= IMMIGRATION_PERMILLE + rep * REP_PERMILLE_PER_POINT) { this.skip(ctx, 'luck'); return; }
       const morale = ctx.readers.of<MoraleReader>('15');
       size = waveSize(ctx.readers.of<ItemsReader>('13').wealth(), morale.hallSpiritTier(), rep, remaining, season === 3);
     }

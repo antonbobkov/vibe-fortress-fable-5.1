@@ -40,6 +40,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
     ctx.register.announcement('MasterworkCreated', { severity: 'note', stringKey: 'announce.masterwork' });
     ctx.register.announcement('WorkshopBlocked', { severity: 'alert', stringKey: 'announce.workshop_blocked', oneOf: { field: 'reason', values: ['no_magma'] } });
     ctx.register.announcement('WorkshopBlocked', { severity: 'alert', stringKey: 'announce.workshop_no_container', oneOf: { field: 'reason', values: ['no_empty_container'] } });
+    ctx.register.announcement('WorkOrderSkipped', { severity: 'note', stringKey: 'announce.order_skipped' });
   }
 
   override tick(_ctx: TickContext): void {

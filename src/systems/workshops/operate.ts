@@ -1,5 +1,5 @@
 /** `12` §§ Operation, Work orders; `economy.md` § Workshop operation. */
-import { C, ItemFlag, type Building, type WorkOrder, type Workshop } from '@core/components';
+import { C, ItemFlag, type Building, type OutOfReach, type WorkOrder, type Workshop } from '@core/components';
 import { FluidType } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import type { GameEvent } from '@core/events';
@@ -222,6 +222,14 @@ class RunePressure {
 /** `12` § Operation 2: the waiting reason of an order whose inputs lie out of reach, before the item ids. */
 export const OUT_OF_REACH = 'out of reach';
 
+/**
+ * `12` § Operation 2: whether a remembered order out of reach is of this order's kind: the same
+ * recipe, material filter and target type, so steel axes skipped leave iron axes to be tried.
+ */
+function sameKind(entry: OutOfReach, recipeId: string, order: WorkOrder): boolean {
+  return entry.recipe === recipeId && (entry.material ?? null) === (order.materialFilter ?? null) && entry.target === order.targetType;
+}
+
 /** `12` § Fuel: the tag of a half fuel, two of which a fuel job burns in place of a bar. */
 const HALF_FUEL_TAG = 'fuel_half';
 /** `12` § Fuel: the tag of a fuel whose burning fills the hall with smoke (05 § Smoke). */
@@ -364,7 +372,7 @@ export class WorkshopOperator {
     if (recipe.container && this.items.countAvailable({ emptyContainer: recipe.container }) < 1) return `waiting for ${recipe.container}`;
     // 12 § Operation 2: an order whose inputs lay out of reach at its last look is skipped until then.
     const tick = this.ctx.world.calendar.tick;
-    const far = ws.outOfReach?.find((entry) => entry.recipe === recipe.id && entry.until > tick);
+    const far = ws.outOfReach?.find((entry) => entry.until > tick && sameKind(entry, recipe.id, order));
     if (far !== undefined) return `${OUT_OF_REACH} ${far.input}`;
     return null;
   }
@@ -374,10 +382,12 @@ export class WorkshopOperator {
    * workshop's work tile (13 `findItems`, the walker's connectivity), as the job's claim will look
    * for them: each recipe input, the fuel it burns with the fuel its product takes, and the empty
    * container. Null when they do; otherwise the item ids of the first input that does not reach,
-   * '|'-joined, and the workshop remembers the recipe as out of reach for `OUT_OF_REACH_RETRY_TICKS`.
+   * '|'-joined, and the workshop remembers the order as out of reach for `OUT_OF_REACH_RETRY_TICKS`,
+   * emitting `WorkOrderSkipped` when it did not remember an order of its kind already.
    * Called only for an order that is otherwise runnable, when the workshop would start it.
    */
-  checkReach(id: EntityId, order: WorkOrder, tick: number): string | null {
+  checkReach(ctx: TickContext, id: EntityId, order: WorkOrder): string | null {
+    const tick = ctx.tick;
     const b = this.ctx.world.entities.get(id, C.Building);
     const recipe = this.recipe(order.recipe);
     if (b === undefined || recipe === undefined) return null;
@@ -399,8 +409,15 @@ export class WorkshopOperator {
       if (units >= need.count) continue;
       const input = this.unreached(need.filter, from) ?? need.name;
       const ws = this.workshop(id) as Workshop;
-      const kept = (ws.outOfReach ?? []).filter((entry) => entry.recipe !== recipe.id && entry.until > tick);
-      this.save(id, { ...ws, outOfReach: [...kept, { recipe: recipe.id, input, until: tick + OUT_OF_REACH_RETRY_TICKS }] });
+      const known = ws.outOfReach?.some((entry) => sameKind(entry, recipe.id, order)) === true;
+      const kept = (ws.outOfReach ?? []).filter((entry) => !sameKind(entry, recipe.id, order));
+      const entry: OutOfReach = { recipe: recipe.id,
+        ...(order.materialFilter === null || order.materialFilter === undefined ? {} : { material: order.materialFilter }),
+        ...(order.targetType === undefined ? {} : { target: order.targetType }),
+        input, until: tick + OUT_OF_REACH_RETRY_TICKS };
+      this.save(id, { ...ws, outOfReach: [...kept, entry] });
+      // The skip is told once, until an order of its kind starts (12 § Registrations).
+      if (!known) ctx.emit({ type: 'WorkOrderSkipped', workshopId: id, recipeId: recipe.id, input });
       return input;
     }
     return null;
@@ -433,23 +450,39 @@ export class WorkshopOperator {
     return named.length > 0 ? named.join('|') : null;
   }
 
-  /** Forgets every remembered out-of-reach recipe: a door, hatch or bridge changed (12 § Operation 2). */
+  /**
+   * A door, hatch or bridge changed (12 § Operation 2): every remembered order out of reach is looked
+   * at again at the next start, its time over; the entries stay, so a skip that goes on is not told again.
+   */
   clearOutOfReach(): void {
+    const tick = this.ctx.world.calendar.tick;
     for (const id of this.ctx.world.entities.with(C.Workshop)) {
       const ws = this.workshop(id);
-      if (ws?.outOfReach === undefined) continue;
-      const { outOfReach: _gone, ...rest } = ws;
-      this.save(id, rest);
+      if (ws?.outOfReach === undefined || ws.outOfReach.every((entry) => entry.until <= tick)) continue;
+      this.save(id, { ...ws, outOfReach: ws.outOfReach.map((entry) => entry.until > tick ? { ...entry, until: tick } : entry) });
     }
   }
 
-  /** Drops the remembered out-of-reach recipes whose time is over; the field goes when none is left. */
-  private pruneOutOfReach(id: EntityId, tick: number): void {
+  /**
+   * Drops the remembered orders out of reach whose time is over and of whose kind no order is left
+   * (the workshop's own, or a global one); the field goes when none is left.
+   */
+  private pruneOutOfReach(id: EntityId, tick: number, orders: readonly WorkOrder[]): void {
     const ws = this.workshop(id);
     if (ws?.outOfReach === undefined || ws.outOfReach.every((entry) => entry.until > tick)) return;
-    const kept = ws.outOfReach.filter((entry) => entry.until > tick);
+    const kept = ws.outOfReach.filter((entry) => entry.until > tick ||
+      orders.some((order) => sameKind(entry, this.recipe(order.recipe)?.id ?? '', order)));
+    if (kept.length === ws.outOfReach.length) return;
     const { outOfReach: _gone, ...rest } = ws;
     this.save(id, kept.length > 0 ? { ...rest, outOfReach: kept } : rest);
+  }
+
+  /** An order of this kind starts: the skip of its kind is over (12 § Operation 2). */
+  private withoutOutOfReach(ws: Workshop, recipeId: string, order: WorkOrder): Workshop {
+    if (ws.outOfReach === undefined || !ws.outOfReach.some((entry) => sameKind(entry, recipeId, order))) return ws;
+    const kept = ws.outOfReach.filter((entry) => !sameKind(entry, recipeId, order));
+    const { outOfReach: _gone, ...rest } = ws;
+    return kept.length > 0 ? { ...rest, outOfReach: kept } : rest;
   }
 
   /**
@@ -587,10 +620,12 @@ export class WorkshopOperator {
         if (!this.dropUnrunnableJob(ctx, id, ws) && !this.yieldToOrderAhead(ctx, id, ws)) continue;
         ws = this.workshop(id) as Workshop;
       }
-      this.pruneOutOfReach(id, ctx.tick);
-      ws = this.workshop(id) as Workshop;
       const choices = [...ws.orders.map((o, index) => ({ order: o, index, global: false })),
         ...this.globalOrders.map((o, index) => ({ order: o, index, global: true }))];
+      if (ws.outOfReach !== undefined) {
+        this.pruneOutOfReach(id, ctx.tick, choices.map((choice) => choice.order));
+        ws = this.workshop(id) as Workshop;
+      }
       let started = false;
       let reason: string | null = null;
       let missingContainer: string | null = null;
@@ -602,7 +637,7 @@ export class WorkshopOperator {
         let problem = this.problem(choice.order, id);
         // 12 § Operation 2: an order whose inputs are all out of reach is skipped for the next one.
         if (problem === null) {
-          const far = this.checkReach(id, choice.order, ctx.tick);
+          const far = this.checkReach(ctx, id, choice.order);
           if (far !== null) problem = `${OUT_OF_REACH} ${far}`;
         }
         if (problem !== null) {
@@ -633,7 +668,7 @@ export class WorkshopOperator {
             skill: recipe.skill, assignedWorker: ws.assignedWorker, workshopWorker: ws.assignedWorker,
             inputUnits: true,
             anchorTile: this.workTile(b) } });
-        this.save(id, { ...this.workshop(id) as Workshop, currentJobId: jobId, lastBlockedReason: null });
+        this.save(id, { ...this.withoutOutOfReach(this.workshop(id) as Workshop, recipe.id, choice.order), currentJobId: jobId, lastBlockedReason: null });
         started = true;
         break;
       }
@@ -692,7 +727,7 @@ export class WorkshopOperator {
       return true;
     }
     const waited = ctx.tick - job.createdTick;
-    if (waited <= 0 || waited % ORDER_AHEAD_TICKS !== 0 || this.checkReach(id, order, ctx.tick) === null) return false;
+    if (waited <= 0 || waited % ORDER_AHEAD_TICKS !== 0 || this.checkReach(ctx, id, order) === null) return false;
     board.cancel(job.id, 'out_of_reach');
     return true;
   }
@@ -721,7 +756,7 @@ export class WorkshopOperator {
     for (const order of ahead) {
       if (this.recipe(order.recipe)?.workshop !== type) continue;
       if (order.serial !== undefined && this.globalOrders.includes(order) && board.byKey(`craft:global:${order.serial}`) !== undefined) continue;
-      if (this.problem(order, id) !== null || this.checkReach(id, order, ctx.tick) !== null) continue;
+      if (this.problem(order, id) !== null || this.checkReach(ctx, id, order) !== null) continue;
       board.cancel(job.id, 'order_ahead');
       return true;
     }
