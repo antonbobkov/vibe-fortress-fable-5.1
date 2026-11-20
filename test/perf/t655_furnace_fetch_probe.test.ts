@@ -140,8 +140,23 @@ describe.skipIf(!RUN)('T-655 furnace fetch probe', () => {
       }
     };
     const shares = new Map<string, Record<string, number>>();
+    // What each furnace workshop is doing at each sample: its job's state (and block), or why it has none.
+    const shopStates = new Map<string, Record<string, number>>();
+    const charcoalType = itemTypes.index('charcoal_bar');
+    const coalType = itemTypes.index('coal_bar');
+    const fuelStock = { samples: 0, charcoal: 0, coal: 0 };
     const sample = (): void => {
       if (w.tick < FROM * TICKS_PER_DAY) return;
+      fuelStock.samples += 1; fuelStock.charcoal += items.countAvailable({ type: charcoalType }); fuelStock.coal += items.countAvailable({ type: coalType });
+      for (const sid of ent.with(C.Workshop)) {
+        const role = roleOf(sid);
+        if (role === null || buildings.get(sid)?.state !== 'built') continue;
+        const ws = ent.get(sid, C.Workshop)!;
+        const job = ws.currentJobId === 0 ? undefined : jobsReader.get(ws.currentJobId);
+        const k = job === undefined ? `none:${ws.lastBlockedReason ?? 'idle'}` : `${job.state}${job.state === 'blocked' ? `:${job.blockedReason}` : ''}`;
+        const r = (shopStates.get(role) ?? shopStates.set(role, {}).get(role)!);
+        r[k] = (r[k] ?? 0) + 1;
+      }
       for (const [dwarf, shop] of shopOf) {
         if (!ent.alive(dwarf)) continue;
         const s = (shares.get(shop.role) ?? shares.set(shop.role, {}).get(shop.role)!);
@@ -171,7 +186,8 @@ describe.skipIf(!RUN)('T-655 furnace fetch probe', () => {
           const list = inside.length > 0 ? inside : [id];
           for (const c of list) { const ci = items.get(c); if (ci !== undefined) { const k = items.categoryOf(ci.type).split('/')[0]!; by[k] = (by[k] ?? 0) + ci.count; } }
         }
-        out.push(`zone${zid}(${z.tiles.length}t z${w.map.zOf(z.tiles[0]!)}): ${JSON.stringify(by)}`);
+        const name = zid === state.economy.fuelStore ? ' fuel store' : '';
+        out.push(`zone${zid}${name}(${z.tiles.length}t z${w.map.zOf(z.tiles[0]!)} ${JSON.stringify(items.stockpile(zid)?.filter.categories ?? '')}): ${JSON.stringify(by)}`);
       }
       const logType = itemTypes.index('log');
       const furnace = buildings.get(state.placedIds['wood_furnace'] ?? 0);
@@ -201,6 +217,12 @@ describe.skipIf(!RUN)('T-655 furnace fetch probe', () => {
         console.log(`[t655share] ${SEED}@${SHIFT} ${label} ${role}: ${Math.round((n * EVERY) / TICKS_PER_DAY)} dwarf-days, working ${p('work')}%, walking empty ${p('walk')}%, carrying ${p('carry')}%`);
       }
       console.log(`[t655stores] ${SEED}@${SHIFT} ${label} ${stores()}`);
+      for (const [role, r] of [...shopStates].sort((x, y) => x[0].localeCompare(y[0]))) {
+        const n = Object.values(r).reduce((a, b) => a + b, 0);
+        console.log(`[t655shop] ${SEED}@${SHIFT} ${label} ${role}: ${Object.entries(r).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${Math.round((1000 * v) / n) / 10}%`).join(', ')}`);
+      }
+      const fs = Math.max(1, fuelStock.samples);
+      console.log(`[t655fuel] ${SEED}@${SHIFT} ${label} free charcoal ${Math.round(fuelStock.charcoal / fs)}, coal bars ${Math.round(fuelStock.coal / fs)} on average`);
     };
     rebuild();
     let lastReport = Math.floor(w.tick / TICKS_PER_DAY);
