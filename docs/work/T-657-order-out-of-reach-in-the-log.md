@@ -15,3 +15,7 @@ Spec: 12 § Operation, § Registrations; `ui-screens/panels.md` § Jobs.
 ## Done
 
 A test that a workshop skipping its first order for its second writes one note naming the input, and none while it stays skipped.
+
+- [x] **The note** (12 § Operation 2, § Registrations): the first time a workshop remembers an order as out of reach it emits `WorkOrderSkipped { workshopId, recipeId, input }`, a note: "Smelter #1 skips its make steel order: no charcoal within reach." The search that renews the memory after `OUT_OF_REACH_RETRY_TICKS` or a door's change does not emit it; the memory outlives its time until an order of its kind starts a job (a later skip is told again) or no order of its kind is left. `WorkshopBlocked { out_of_reach }` keeps no line of its own. The Jobs panel's "Orders waiting" already lists a skipped order with its reason ("x1 Make steel · charcoal out of reach"); panels.md says so.
+- [x] **The key**: `Workshop.outOfReach` entries carry the order's material filter and target type (`material?`, `target?`), and an order is skipped only by an entry of its own kind. The reader's `isRunnable` takes the order, so the Orders row and the workshop panel's idle line read each order's own memory. The reach search itself is unchanged.
+- [x] **Test** `test/unit/workshops/t657-order-skipped-note.test.ts`: the smelter skipping its steel for its lignite writes one note naming the charcoal, none after three retries and another door's change, and drops the memory once the steel is made; oak and pine chair orders are skipped apart.

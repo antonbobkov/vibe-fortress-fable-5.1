@@ -243,7 +243,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Smelter and forge need fuel unless built on a tile adjacent to magma of level ≥ 4 below a channel; steel needs iron, fuel and flux.
 - Profession title = the highest skill's profession name; ties go to the skill used most recently.
 
-**Reads.** 11 jobs; 13 items; 14 buildings; 05 materials; 04 magma adjacency. **Emits.** `ItemCrafted`, `WorkOrderCompleted`, `WorkshopBlocked`.
+**Reads.** 11 jobs; 13 items; 14 buildings; 05 materials; 04 magma adjacency. **Emits.** `ItemCrafted`, `WorkOrderCompleted`, `WorkshopBlocked`, `WorkOrderSkipped`.
 
 **Player touchpoints.** Workshop panel (recipes, work orders, assigned worker); the orders panel listing all work orders; profession shown in the units list.
 

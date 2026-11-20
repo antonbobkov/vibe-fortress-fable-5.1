@@ -936,7 +936,7 @@ export class OrdersPanel {
     }
     let reason: string | null = null;
     for (const id of workshops) {
-      const why = reader.isRunnable(recipe.id, id).reason;
+      const why = reader.isRunnable(recipe.id, id, order).reason;
       if (why === null) return plain('queued');
       reason ??= why;
     }
@@ -1296,7 +1296,7 @@ export function workshopWaiting(reader: WorkshopsReader, id: EntityId, workshop:
   if (last !== 'missing_input' && last !== 'no_empty_container' && last !== 'out_of_reach') return last;
   for (const order of workshop.orders) {
     const recipe = reader.recipe(order.recipe);
-    const why = recipe === undefined ? null : reader.isRunnable(recipe.id, id).reason;
+    const why = recipe === undefined ? null : reader.isRunnable(recipe.id, id, order).reason;
     if (why !== null && why !== 'complete' && why !== 'stocked') return why;
   }
   return 'inputs';

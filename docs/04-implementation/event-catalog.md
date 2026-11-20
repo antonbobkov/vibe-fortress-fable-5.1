@@ -92,6 +92,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `SmokyFuelBurned` | `workshopId, tile` | 12, 10 | 05 (smoke), 15 (`smoky_hall`) |
 | `DeepsilverWorked` | `amount, tile` | 12 (a `rune_work` building consumed a metal with `runePressure`) | 18 |
 | `WorkshopBlocked` / `WorkshopIdle` | `workshopId, reason[, container, input]` / `workshopId` | 12 | ui |
+| `WorkOrderSkipped` | `workshopId, recipeId, input` | 12 (an order skipped as out of reach, once until an order of its kind starts) | ui |
 | `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |
 | `ItemDestroyed` | `id, itemType, reason, crafterId` | 13 | 11, 12, 15 |
 | `ItemRotStage` / `ItemRotted` | `id, stage` / `id` | 13 | ui (none) |
@@ -178,7 +179,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 
-For `WorkshopBlocked`, `input` names the missing recipe input match when reason is `missing_input`, or `fuel` for a fuel shortage, and the item types out of reach ('|'-joined) when reason is `out_of_reach`. The container class remains in `container` for `no_empty_container`.
+For `WorkshopBlocked`, `input` names the missing recipe input match when reason is `missing_input`, or `fuel` for a fuel shortage, and the item types out of reach ('|'-joined) when reason is `out_of_reach`. The container class remains in `container` for `no_empty_container`. `WorkOrderSkipped` names the item types out of reach in `input` the same way.
 
 ## Notes for implementers
 
