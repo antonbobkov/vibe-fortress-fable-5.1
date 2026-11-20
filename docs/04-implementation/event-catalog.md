@@ -104,7 +104,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `BuildingPlaced` | `id, buildingType, tiles[]` | 14 | 03, 12, 13, 19, 20, 22, 24 (milestones), ui |
 | `BuildingCompleted` | `id, buildingType, value` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
 | `BuildingRemoved` | `id, buildingType, value` | 14 | 12, 13, 19, 20, 22, 24 (milestones), ui |
-| `BuildingStateChanged` | `id, state` | 14 | 04, 11, 22, 23 |
+| `BuildingStateChanged` | `id, state` | 14 | 04, 11, 12, 22, 23 |
 | `ZoneChanged` | `zoneId, zoneType, change, tiles[]` | 14 | 07, 08, 09, 13, 16, 17 |
 | `RoomQualityChanged` | `zoneId, tier` | 14 | 15, 10 (thane), ui |
 | `RoomAssigned` | `zoneId, dwarfId` | 14 | 10 |
@@ -178,7 +178,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 
-For `WorkshopBlocked`, `input` names the missing recipe input match when reason is `missing_input`, or `fuel` for a fuel shortage. The container class remains in `container` for `no_empty_container`.
+For `WorkshopBlocked`, `input` names the missing recipe input match when reason is `missing_input`, or `fuel` for a fuel shortage, and the item types out of reach ('|'-joined) when reason is `out_of_reach`. The container class remains in `container` for `no_empty_container`.
 
 ## Notes for implementers
 

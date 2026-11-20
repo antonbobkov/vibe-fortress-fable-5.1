@@ -289,6 +289,7 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         world.services.combat?.setTarget(id, targetId);
       },
       targetOf: (id) => world.services.combat?.targetOf(id) ?? this.targets.get(id) ?? 0,
+      harmlessFor: (id) => world.services.combat?.harmlessFor(id) ?? 0,
       provokedBy: (id) => this.provoked.get(id) ?? 0,
       grazed: (tile) => {
         this.claimGraze(tile);
