@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-656 | [The thirsty go out under the alert](work/T-656-thirst-under-the-alert.md) | [T-653](archive/tasks/T-653-ambush-at-the-all-clear.md) | — | open |
-| T-658 | [The weapon list counts training weapons as stock](work/T-658-gear-list-wooden-count.md) | [T-654](archive/tasks/T-654-armed-line-counts-wooden-weapons.md) | — | open |
 | T-659 | [The steel's two fuels come in two trips](work/T-659-steel-fuel-in-one-trip.md) | [T-655](archive/tasks/T-655-furnace-jobs-fetch.md) | — | open |
 | T-660 | [The smith's steel jobs are fetched again and again](work/T-660-smith-steel-refetched.md) | [T-655](archive/tasks/T-655-furnace-jobs-fetch.md) | — | open |
 | T-661 | [The only axe stays with a dwarf who cannot chop](work/T-661-axe-held-by-the-absent.md) | [T-653](archive/tasks/T-653-ambush-at-the-all-clear.md) | — | open |

@@ -95,7 +95,7 @@ describe('T-654 the armed line counts wooden weapons', () => {
 
   it('with no real weapon free, the wooden count is in the alert colour and the stock line says to order a sword', () => {
     // The only real weapons in stock are the embark's tools, which the workers lacking them take first, and a crossbow.
-    expect(openWeapons()).toEqual(expect.arrayContaining(['axe (1, a tool)', 'pick (2, all tools)', 'crossbow (1)', 'sword (1, current)']));
+    expect(openWeapons()).toEqual(expect.arrayContaining(['axe (1, a tool)', 'pick (2, all tools)', 'crossbow (1)', 'sword (1, wooden, current)']));
     const s = drawMilitary();
     const lines = rows(s);
     const armed = wrapped(lines, 'Armed');
