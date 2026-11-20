@@ -83,7 +83,7 @@ export class JobBoard implements JobsApi, JobSink {
   blockedRetryCursor = 0;
   /**
    * T-661 (11 § Assignment, a tool held from the fortress): the first tick each holder of a pick, axe or
-   * launcher was seen unable to use it (down, a patient, a soldier on duty), while it still is; saved.
+   * launcher was seen unable to use it (down or a patient), while it still is; saved.
    */
   readonly toolAway = new Map<EntityId, number>();
   /**

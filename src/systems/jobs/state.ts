@@ -93,7 +93,7 @@ export interface JobsStateV1 {
   assignQueue: EntityId[];
   blockedRetryCursor: number;
   /**
-   * T-661: per holder of a pick, axe or launcher that cannot use it (down, a patient, a soldier on duty),
+   * T-661: per holder of a pick, axe or launcher that cannot use it (down or a patient; a soldier keeps its own),
    * the first tick it was seen so, ascending holder id; omitted when none, absent in older saves means none.
    */
   toolAway?: [EntityId, Tick][];

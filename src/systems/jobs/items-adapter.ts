@@ -315,18 +315,18 @@ export function dropUnusedTools(board: JobBoard, ctx: TickContext): void {
 /**
  * 11 § Assignment, a tool held from the fortress (T-661): a pick, axe or launcher held by a worker that
  * cannot use it comes back to the fortress once that has lasted `JOB_HOLD_TICKS`. The worker cannot use
- * it while it is down, a patient (17: in a hospital bed, or waiting for one), or a soldier on duty (16)
- * with another weapon in its weapon slot; a soldier on duty whose weapon slot is empty fights with the tool and
- * keeps it while it is up and no patient. The tool is put down on the worker's tile as ordinary stock (`ToolDropped`), so a `no_tool`
- * job retries, a worker with the labor fetches it, and the holder takes up one again when it is back.
- * The count starts on the first jobs tick that sees the worker unable and ends when it is able again.
+ * it while it is down or a patient (17: in a hospital bed, or waiting for one). A soldier keeps its tool:
+ * duty is not counted (a squad goes on and off duty, and a tool put down at every shift came and went
+ * between the barracks and the trees), and a squad member whose weapon slot is empty fights with it. The
+ * tool is put down on the worker's tile as ordinary stock (`ToolDropped`), so a `no_tool` job retries, a
+ * worker with the labor fetches it, and the holder takes up one again when it is back. The count starts on
+ * the first jobs tick that sees the worker unable and ends when it is able again.
  */
 export function dropToolsOfTheUnable(board: JobBoard, ctx: TickContext): void {
   const away = board.toolAway;
   if (ctx.world.services.items === null || !ctx.readers.has('13')) return;
   const items = ctx.readers.of<ItemsReader>('13');
   const health = ctx.readers.has('17') ? ctx.readers.of<{ isPatient(id: EntityId): boolean }>('17') : null;
-  const combat = ctx.readers.has('16') ? ctx.readers.of<{ onDuty(id: EntityId): boolean }>('16') : null;
   const seen = new Set<EntityId>();
   for (const id of board.workers()) {
     const held = board.workerOf(id).toolId;
@@ -334,8 +334,8 @@ export function dropToolsOfTheUnable(board: JobBoard, ctx: TickContext): void {
     const launcher = isLauncher(items, held);
     if (!launcher && !isPickOrAxe(items, held)) continue;
     const weapon = ctx.world.entities.get(id, C.Equipment)?.weapon ?? 0;
-    const unable = board.isDown(id) || health?.isPatient(id) === true ||
-      (combat?.onDuty(id) === true && weapon !== 0 && weapon !== held);
+    const fightsWithIt = ctx.world.entities.has(id, C.Soldier) && (weapon === 0 || weapon === held);
+    const unable = !fightsWithIt && (board.isDown(id) || health?.isPatient(id) === true);
     if (!unable) continue;
     seen.add(id);
     const since = away.get(id);

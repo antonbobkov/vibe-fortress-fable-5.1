@@ -1,6 +1,6 @@
 /**
  * T-661: the only axe stays with a dwarf who cannot chop. 11 § Assignment: a pick, axe or launcher held
- * by a worker that is down, a patient or a soldier on duty with another weapon comes back to the fortress
+ * by a worker that is down or a patient (a soldier keeps its own) comes back to the fortress
  * once that has lasted `JOB_HOLD_TICKS`; until then the Jobs panel says who holds it and where.
  */
 import { describe, expect, it } from 'vitest';
@@ -122,7 +122,7 @@ describe('T-661 a tool held by a dwarf who cannot use it comes back to the fortr
     expect(w.events('ToolDropped').filter((e) => e['itemId'] === axe)).toHaveLength(0);
   }, 120_000);
 
-  it('a soldier on duty puts down the pick it holds beside its spear, and keeps the one it fights with', () => {
+  it('soldiers keep their picks on duty, beside a spear or as the weapon they fight with', () => {
     const w = new TestWorld({ seed: 't661-soldiers', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
     const world = w.game.world;
     const entities = world.entities;
@@ -149,9 +149,10 @@ describe('T-661 a tool held by a dwarf who cannot use it comes back to the fortr
     const bare = armed === a ? b : a;
     expect(entities.get(bare, C.Equipment)?.weapon ?? 0).toBe(0);
     expect(combat.onDuty(armed) && combat.onDuty(bare)).toBe(true);
+    // T-661's sweep: a pick put down at every shift went back and forth between the barracks and the mine.
     w.step(JOB_HOLD_TICKS + 5);
-    expect(entities.get(armed, C.Worker)?.toolId).toBe(0);
-    expect(w.events('ToolDropped').map((e) => e['itemId'])).toEqual([picks[armed === a ? 0 : 1]]);
+    expect(w.events('ToolDropped')).toHaveLength(0);
+    expect(entities.get(armed, C.Worker)?.toolId).toBe(picks[armed === a ? 0 : 1]);
     expect(entities.get(bare, C.Worker)?.toolId).toBe(picks[bare === a ? 0 : 1]);
   }, 120_000);
 });
