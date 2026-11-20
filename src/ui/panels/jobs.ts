@@ -62,6 +62,10 @@ export class JobsPanel {
     return jobWait(ctx, j)?.text ?? '';
   }
 
+  /**
+   * The live jobs, by priority. Each call copies the whole board (`JobsReader.list()` copies every
+   * job with its inputs), so a frame reads it once and passes it to {@link jobs} and {@link rows}.
+   */
   allJobs(ctx: PanelContext): JobLike[] {
     if (!ctx.readers.has('11')) return [];
     return ctx.readers
@@ -76,9 +80,10 @@ export class JobsPanel {
     return typeof override === 'string' ? override : ctx.registry.table<{ id: string; labor: string }>('jobTypes').byIndex(j.type)?.labor ?? '';
   }
 
-  jobs(ctx: PanelContext): JobLike[] {
+  /** The jobs the filters let through, of `all` when the caller has read them this frame. */
+  jobs(ctx: PanelContext, all: readonly JobLike[] = this.allJobs(ctx)): JobLike[] {
     const text = this.filter.value.toLowerCase();
-    return this.allJobs(ctx).filter(j => (this.labor === '' || this.laborOf(ctx, j) === this.labor)
+    return all.filter(j => (this.labor === '' || this.laborOf(ctx, j) === this.labor)
       && (this.state === 'all' || (this.state === 'claimed' ? !['open', 'blocked'].includes(j.state) : j.state === this.state))
       && (text === '' || jobText(ctx, this, j).toLowerCase().includes(text)
         || (ctx.readers.entities.get(j.workerId, C.Creature)?.name ?? '').toLowerCase().includes(text)));
@@ -133,10 +138,10 @@ export class JobsPanel {
     this.resetSelection();
   }
 
-  /** The list's rows: each batch one row until `Enter` opens it. */
-  rows(ctx: PanelContext): JobRow[] {
+  /** The list's rows: each batch one row until `Enter` opens it; of `jobs` when the caller has them. */
+  rows(ctx: PanelContext, jobs: readonly JobLike[] = this.jobs(ctx)): JobRow[] {
     const rows: JobLike[][] = [];
-    for (const j of this.jobs(ctx)) {
+    for (const j of jobs) {
       const run = rows.at(-1);
       const head = run?.[0];
       if (run !== undefined && head !== undefined && batchable(j) && batchable(head) && together(j, head)) run.push(j);
@@ -314,6 +319,7 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   };
   cycle(filterRow + 1, strings.get('ui.jobs.filter.labor', { key: acceleratorLabel('l', ctx.panelLetters), labor }), () => panel.cycleLabor(ctx));
   cycle(filterRow + 2, strings.get('ui.jobs.filter.state', { key: acceleratorLabel('s', ctx.panelLetters), state: strings.get(`ui.jobs.filter.${panel.state}`) }), () => panel.cycleState());
+  // The job list is read once a frame: every read copies the whole board.
   const jobs = panel.jobs(ctx);
   const summary = blockedSummary(ctx, jobs);
   const summaryLines = summary === '' ? [] : wrapText(summary, width, 2);
@@ -322,7 +328,7 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const changed = labors.ids().filter(id => reader.laborPriority(id) !== PRIORITY_DEFAULT)
     .map(id => `${labors.byId(id)?.name ?? id} ${reader.laborPriority(id)}`);
   const priorities = wrapText(changed.length ? changed.join(' \u00b7 ') : strings.get('ui.jobs.priorities_default', { priority: PRIORITY_DEFAULT }), width, rect.rows);
-  const rows = panel.rows(ctx);
+  const rows = panel.rows(ctx, jobs);
   const chosenRow = rows[panel.list.selected];
   const chosen = chosenRow?.jobs[0];
   const blockText = chosen !== undefined && chosen.state === 'blocked' && chosen.blockedReason !== null ? jobBlockText(ctx, chosen).long : '';

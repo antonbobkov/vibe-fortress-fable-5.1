@@ -51,6 +51,12 @@ export function unusableReason(rec: { flags: number; carriedBy: EntityId; occupa
   return null;
 }
 
+/** A type's row, whose stack rows are built the first time they are read and kept. */
+function lazyNode(id: string, name: string, open: boolean, build: () => TreeNode[]): TreeNode {
+  let built: TreeNode[] | null = null;
+  return { id, name, openable: open, get children(): TreeNode[] { return (built ??= build()); } };
+}
+
 export class StocksPanel {
   readonly tree: TreeState = { selected: 0, scroll: 0, expanded: new Set<string>() };
   readonly filter = new PanelFilter();
@@ -75,34 +81,43 @@ export class StocksPanel {
     const itemIds = new Map<number, EntityId[]>();
     const rot = new Map<string, NodeRot>();
     const within = ROT_ALERT_DAYS * TICKS_PER_DAY;
+    // Per type, the rows its stacks count toward: its category and every category above it, the
+    // path worked out once per type rather than once per stack.
+    const pathOf = new Map<number, { nodes: string[]; rotNodes: string[] }>();
     if (it !== null) {
       for (const id of ctx.readers.entities.with(C.Item)) {
         const rec = it.get(id as EntityId);
         if (rec === undefined || (rec.flags & ItemFlag.Merchant) !== 0) continue;
-        const ids = itemIds.get(rec.type) ?? [];
+        let ids = itemIds.get(rec.type);
+        if (ids === undefined) { ids = []; itemIds.set(rec.type, ids); }
         ids.push(id as EntityId);
-        itemIds.set(rec.type, ids);
-        const cat = it.categoryOf(rec.type);
-        const parts = cat.split('/');
+        let path = pathOf.get(rec.type);
+        if (path === undefined) {
+          const parts = it.categoryOf(rec.type).split('/');
+          const nodes = parts.map((_, k) => parts.slice(0, k + 1).join('/'));
+          path = { nodes, rotNodes: [`type:${rec.type}`, ...nodes] };
+          pathOf.set(rec.type, path);
+          for (const node of nodes) {
+            const list = types.get(node);
+            if (list === undefined) types.set(node, [rec.type]);
+            else list.push(rec.type);
+          }
+        }
         // A perishable stack not yet rotting counts toward every row above it.
         const outlook = rec.rotStage >= 2 ? null : it.rotOutlook(id as EntityId);
         if (outlook !== null) {
           const soon = outlook.toRot !== null && outlook.toRot <= within ? rec.count : 0;
-          for (const node of [`type:${rec.type}`, ...parts.map((_, k) => parts.slice(0, k + 1).join('/'))]) {
-            const r = rot.get(node) ?? { soon: 0 };
-            r.soon += soon;
-            rot.set(node, r);
+          for (const node of path.rotNodes) {
+            const r = rot.get(node);
+            if (r === undefined) rot.set(node, { soon });
+            else r.soon += soon;
           }
         }
-        for (let k = 1; k <= parts.length; k += 1) {
-          const node = parts.slice(0, k).join('/');
-          const t = totals.get(node) ?? { count: 0, value: 0 };
-          t.count += rec.count;
-          t.value += it.value(id as EntityId);
-          totals.set(node, t);
-          const list = types.get(node) ?? [];
-          if (!list.includes(rec.type)) list.push(rec.type);
-          types.set(node, list);
+        const value = it.value(id as EntityId);
+        for (const node of path.nodes) {
+          const t = totals.get(node);
+          if (t === undefined) totals.set(node, { count: rec.count, value });
+          else { t.count += rec.count; t.value += value; }
         }
       }
     }
@@ -117,8 +132,9 @@ export class StocksPanel {
 
   /**
    * The rows the tree shows: stocked categories, then types, then individual stacks. Built once a
-   * tick and filter: with 25,000 items every stack's name is a row, and one frame asks for the tree
-   * several times (the selection, the rot and usable lines, the drawing).
+   * tick and filter, as one frame asks for the tree several times (the selection, the rot and usable
+   * lines, the drawing); a type's stacks, with 25,000 items as many rows, are built only when the
+   * type is opened or a filter reads them.
    */
   visibleForest(ctx: PanelContext): TreeNode[] {
     const totals = this.totals(ctx);
@@ -136,7 +152,8 @@ export class StocksPanel {
         const children = keep(n.children);
         if (it !== null) for (const type of types.get(n.id) ?? []) {
           if (it.categoryOf(type) !== n.id) continue;
-          children.push({ id: `type:${type}`, name: it.def(type)?.name ?? String(type), children: (itemIds.get(type) ?? []).map((id) => {
+          const stacks = itemIds.get(type) ?? [];
+          children.push(lazyNode(`type:${type}`, it.def(type)?.name ?? String(type), stacks.length > 0, () => stacks.map((id) => {
             const rec = it.get(id);
             const plain = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
             // 13 § Aging in a cellar: an aged stack names its stage and its years ("aged bellwine ×20 (aged, 1 year in the cellar)").
@@ -147,7 +164,7 @@ export class StocksPanel {
             const outlook = rec === undefined ? null : it.rotOutlook(id);
             const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
             return { id: `item:${id}`, name: `${enchantedName(ctx.readers, id, material)} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, children: [], ...(alert ? { alert } : {}) };
-          }) });
+          })));
         }
         return { ...n, children };
       });
@@ -288,9 +305,11 @@ export class StocksPanel {
   /** The selected row's name as the tree shows it ("Weapons", "sword", "iron ×3"). */
   selectedName(ctx: PanelContext): string {
     const id = this.selectedNode(ctx);
+    // The selected row is a visible one: look under open rows only, as the stacks of a closed type are not built.
     const find = (nodes: readonly TreeNode[]): string | null => {
       for (const n of nodes) {
         if (n.id === id) return n.name;
+        if (this.filter.value === '' && !this.tree.expanded.has(n.id)) continue;
         const below = find(n.children);
         if (below !== null) return below;
       }

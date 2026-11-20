@@ -23,6 +23,16 @@ export interface TreeNode {
   readonly children: readonly TreeNode[];
   /** Draw the name in the alert colour (a stocks row whose food is stale or rots soon). */
   readonly alert?: boolean;
+  /**
+   * Whether the node can be opened, for a node whose children are built only when first read (a
+   * Stocks type's stacks): the arrow is drawn without building them. Absent, the children say.
+   */
+  readonly openable?: boolean;
+}
+
+/** Whether a node has rows under it to open. */
+export function openable(n: TreeNode): boolean {
+  return n.openable ?? n.children.length > 0;
 }
 
 /** A forest from category paths (`food`, `food/meat`, …), in the order the paths are given. */
@@ -156,7 +166,7 @@ export function tree(
     const item = rows[index];
     if (item === undefined) continue;
     const n = item.node;
-    const arrow = n.children.length === 0 ? ' ' : state.expanded.has(n.id) ? '▾' : '▸';
+    const arrow = !openable(n) ? ' ' : state.expanded.has(n.id) ? '▾' : '▸';
     const head = `${'  '.repeat(item.depth)}${arrow} ${n.name}`;
     const nameWidth = Math.max(4, Math.min(rect.cols - 6, 18));
     label(s, rect.col, row, head, { width: nameWidth, keys: false, ...(n.alert === true ? { fg: s.theme.alert } : {}) });
@@ -175,7 +185,7 @@ export function tree(
     const select = handlers.select;
     s.hit({ col: rect.col, row, cols: nameWidth, rows: 1 }, () => {
       state.selected = index;
-      if (n.children.length > 0) {
+      if (openable(n)) {
         if (state.expanded.has(n.id)) state.expanded.delete(n.id);
         else state.expanded.add(n.id);
       }
