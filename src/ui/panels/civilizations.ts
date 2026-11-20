@@ -10,6 +10,7 @@ import { DEPOT_WARNING_ROWS } from '../constants';
 import type { Surface } from '../surface';
 import { captionButtons, label } from '../widgets';
 import { accel, buildings, type PanelContext } from './context';
+import { drawPanelFilter, PanelFilter } from './filter';
 
 export const TRADE_CIVILIZATIONS: readonly Civ[] = ['mountainhome', 'hillfolk', 'wildwood'];
 
@@ -82,6 +83,24 @@ export function requestMaterials(registry: Registry, civ: Civ, reputation: numbe
   return out;
 }
 
+/**
+ * The goods the requests editor offers, from the registry (the UI never invents an id): the
+ * civilization's own goods first, each item or animal of its list once in the list's order, then
+ * every other item in registry order (`panels.md` § Civilizations).
+ */
+export function requestCandidates(registry: Registry, civ: Civ, reputation: number): string[] {
+  const items = registry.table('items');
+  const creatures = registry.hasTable('creatures') ? registry.table('creatures') : null;
+  const own: string[] = [];
+  for (const entry of eligibleGoodsEntries(registry, civ, reputation)) {
+    for (const id of Array.isArray(entry.item) ? entry.item : [entry.item]) {
+      if ((items.has(id) || creatures?.has(id) === true) && !own.includes(id) && !neverSold(id, undefined, reputation)) own.push(id);
+    }
+  }
+  const listed = new Set(own);
+  return [...own, ...items.ids().filter((id) => !listed.has(id))];
+}
+
 export class CivilizationsPanel {
   selected = 0;
   requestSelected = 0;
@@ -89,13 +108,42 @@ export class CivilizationsPanel {
   candidate = 0;
   /** The material of the candidate in the requests editor: an index into {@link requestMaterials}, 0 for any. */
   candidateMaterial = 0;
+  /** The requests editor's `/filter`: only the goods whose name contains its text are offered. */
+  readonly filter = new PanelFilter();
 
   civ(): Civ { return TRADE_CIVILIZATIONS[this.selected] as Civ; }
 
   private trade(ctx: PanelContext): TradeReader { return ctx.readers.of<TradeReader>('20'); }
 
-  /** The content registry supplies valid ids; the UI never invents an item id. */
-  candidates(ctx: PanelContext): readonly string[] { return ctx.registry.table('items').ids(); }
+  /** Every good the editor offers the selected civilization, its own first ({@link requestCandidates}). */
+  allCandidates(ctx: PanelContext): readonly string[] {
+    return requestCandidates(ctx.registry, this.civ(), this.trade(ctx).reputation(this.civ()));
+  }
+
+  /** The goods the editor lists: those whose name, as a request names it, contains the filter's text, ignoring case. */
+  candidates(ctx: PanelContext): readonly string[] {
+    const needle = this.filter.value.toLowerCase();
+    const all = this.allCandidates(ctx);
+    return needle === '' ? all : all.filter((id) => requestText(ctx.registry, { itemType: id }).toLowerCase().includes(needle));
+  }
+
+  /** Opens the requests editor on the first good, with an empty filter. */
+  openEditor(): void {
+    this.choosingRequest = true;
+    this.candidate = 0;
+    this.candidateMaterial = 0;
+    this.filter.value = '';
+    this.filter.focused = false;
+  }
+
+  /** The editor's filter field takes the keys while it has focus; each change to its text chooses the first match. */
+  filterKey(press: KeyPress): boolean {
+    if (!this.choosingRequest) return false;
+    const before = this.filter.value;
+    if (!this.filter.key(press)) return false;
+    if (this.filter.value !== before) { this.candidate = 0; this.candidateMaterial = 0; }
+    return true;
+  }
 
   /** The materials the selected civilization brings the candidate in, `undefined` (any) first. */
   candidateMaterials(ctx: PanelContext): (string | undefined)[] {
@@ -120,9 +168,11 @@ export class CivilizationsPanel {
     // `d`, `t`, `a` and `p` open panels: the panel's own use of them takes `Shift` (D-U2).
     const letter = accel(ctx, press);
     if (this.choosingRequest) {
+      if (this.filterKey(press)) return true;
+      if (k === '/') { this.filter.focused = true; return true; }
       const candidates = this.candidates(ctx);
       if (k === 'ArrowUp' || k === '↑') { this.candidate = Math.max(0, this.candidate - 1); this.candidateMaterial = 0; return true; }
-      if (k === 'ArrowDown' || k === '↓') { this.candidate = Math.min(candidates.length - 1, this.candidate + 1); this.candidateMaterial = 0; return true; }
+      if (k === 'ArrowDown' || k === '↓') { this.candidate = Math.max(0, Math.min(candidates.length - 1, this.candidate + 1)); this.candidateMaterial = 0; return true; }
       if (k === 'ArrowLeft' || k === '←' || k === 'ArrowRight' || k === '→') {
         const n = this.candidateMaterials(ctx).length;
         this.candidateMaterial = (this.candidateMaterial + (k === 'ArrowLeft' || k === '←' ? n - 1 : 1)) % n;
@@ -152,7 +202,7 @@ export class CivilizationsPanel {
     if (letter === 'd') { ctx.openPanel('depot'); return true; }
     if (letter === 't') { openTrade(); return true; }
     const entries = mergedRequests(this.trade(ctx).requests(this.civ()));
-    if (k === '+' || letter === 'a') { this.choosingRequest = true; this.candidate = 0; this.candidateMaterial = 0; return true; }
+    if (k === '+' || letter === 'a') { this.openEditor(); return true; }
     if (k === 'ArrowLeft' || k === '←') { this.requestSelected = Math.max(0, this.requestSelected - 1); return true; }
     if (k === 'ArrowRight' || k === '→') { this.requestSelected = Math.min(entries.length - 1, this.requestSelected + 1); return true; }
     const entry = entries[this.requestSelected];
@@ -195,7 +245,7 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   }
   label(s, col, row++, `Last brought: ${lastBroughtText(ctx.registry, trade.lastBrought(civ)) || 'none'}`, { width });
   const requestsWidth = label(s, col, row++, 'Requests [+]', { fg: s.theme.key, width });
-  s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => { panel.choosingRequest = true; panel.candidate = 0; panel.candidateMaterial = 0; });
+  s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => panel.openEditor());
   // One row per item and material, its priority as a word at the right ("seed: dimcap      high").
   const entries = mergedRequests(trade.requests(civ));
   for (const [index, entry] of entries.entries()) {
@@ -212,8 +262,9 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   if (panel.choosingRequest && row < rect.row + rect.rows - 5) {
     const request = panel.candidateRequest(ctx);
     const any = request !== null && request.material === undefined && panel.candidateMaterials(ctx).length > 1;
-    const what = request === null ? '' : any ? ctx.strings.get('ui.civ.request_any', { item: requestText(ctx.registry, request) }) : requestText(ctx.registry, request);
+    const what = request === null ? ctx.strings.get('ui.civ.request_none') : any ? ctx.strings.get('ui.civ.request_any', { item: requestText(ctx.registry, request) }) : requestText(ctx.registry, request);
     label(s, col, row++, ctx.strings.get('ui.civ.request_add', { what }), { fg: s.theme.key, width });
+    drawPanelFilter(s, col, row++, width, panel.filter, ctx);
     label(s, col, row++, ctx.strings.get('ui.civ.request_keys1'), { fg: s.theme.dim, width });
     label(s, col, row++, ctx.strings.get('ui.civ.request_keys2'), { fg: s.theme.dim, width });
   }

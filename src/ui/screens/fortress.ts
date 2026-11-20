@@ -1192,6 +1192,8 @@ export class FortressScreen implements Screen {
     if (this.logView.filter.value !== '') this.logView.reset();
     this.logView.filter.value = '';
     this.logView.filter.focused = false;
+    this.civilizations.filter.value = '';
+    this.civilizations.filter.focused = false;
   }
 
   /** The Units filter field: it types every printable key, `Space` included, before any command key. */
@@ -1232,6 +1234,10 @@ export class FortressScreen implements Screen {
       filter = this.logView.filter.value;
       counts = { shown: matchLines(surface, this.log.lines, this.logFilter, filter).length, total: filterLines(this.log.lines, this.logFilter).length };
     } else if (id === 'stocks' && this.stocks.filter.value !== '') filter = this.stocks.filter.value;
+    else if (id === 'civilizations' && this.civilizations.choosingRequest && this.civilizations.filter.value !== '') {
+      filter = this.civilizations.filter.value;
+      counts = { shown: this.civilizations.candidates(ctx).length, total: this.civilizations.allCandidates(ctx).length };
+    }
     if (filter === '') return title;
     return counts === null
       ? this.strings.get('ui.panel.filtered', { title, filter })
@@ -1732,6 +1738,7 @@ export class FortressScreen implements Screen {
     if (this.ui.sidebar && this.ui.panel === 'animals' && this.animals.name.focused && this.panelKey('animals', press)) return true;
     if (this.ui.sidebar && this.ui.panel === 'jobs' && this.jobs.filter.key(press)) { this.jobs.resetSelection(); return true; }
     if (this.ui.sidebar && this.ui.panel === 'stocks' && this.stocks.filter.key(press)) { this.stocks.tree.selected = 0; this.stocks.tree.scroll = 0; return true; }
+    if (this.ui.sidebar && this.ui.panel === 'civilizations' && this.civilizations.filter.focused && this.civilizations.filterKey(press)) return true;
     if (this.ui.sidebar && this.ui.panel === 'log') {
       // Each change to the text selects the newest matching entry, unmarked (panels.md § Log).
       const before = this.logView.filter.value;
@@ -1975,7 +1982,7 @@ export class FortressScreen implements Screen {
   /** A text field of the open panel has the keyboard: letters are text, not hotkeys. */
   private textFocused(): boolean {
     if (!this.ui.sidebar) return false;
-    return (this.ui.panel === 'jobs' && this.jobs.filter.focused) || (this.ui.panel === 'stocks' && this.stocks.filter.focused) || (this.ui.panel === 'log' && this.logView.filter.focused) || (this.ui.panel === 'units' && this.units.editing) || (this.ui.panel === 'animals' && this.animals.name.focused);
+    return (this.ui.panel === 'jobs' && this.jobs.filter.focused) || (this.ui.panel === 'stocks' && this.stocks.filter.focused) || (this.ui.panel === 'log' && this.logView.filter.focused) || (this.ui.panel === 'civilizations' && this.civilizations.choosingRequest && this.civilizations.filter.focused) || (this.ui.panel === 'units' && this.units.editing) || (this.ui.panel === 'animals' && this.animals.name.focused);
   }
 
   /**
