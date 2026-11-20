@@ -92,6 +92,11 @@ export interface JobsStateV1 {
   standingOrders: Record<string, boolean>;
   assignQueue: EntityId[];
   blockedRetryCursor: number;
+  /**
+   * T-661: per holder of a pick, axe or launcher that cannot use it (down, a patient, a soldier on duty),
+   * the first tick it was seen so, ascending holder id; omitted when none, absent in older saves means none.
+   */
+  toolAway?: [EntityId, Tick][];
   /** 11 has ticked once: its producers and 13's items are connected (D-082). */
   ticked?: boolean;
 }

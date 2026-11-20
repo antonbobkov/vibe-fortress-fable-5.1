@@ -82,6 +82,11 @@ export class JobBoard implements JobsApi, JobSink {
   readonly assignQueue: EntityId[] = [];
   blockedRetryCursor = 0;
   /**
+   * T-661 (11 § Assignment, a tool held from the fortress): the first tick each holder of a pick, axe or
+   * launcher was seen unable to use it (down, a patient, a soldier on duty), while it still is; saved.
+   */
+  readonly toolAway = new Map<EntityId, number>();
+  /**
    * During one `retryBlocked` pass, whether some worker holds or can fetch each tool. Nothing in the
    * pass moves an item or a worker, so every `no_tool` job of the pass gets the same answer, and the
    * kit search over every worker runs once a pass instead of once a job.
@@ -1456,6 +1461,7 @@ export class JobBoard implements JobsApi, JobSink {
       standingOrders: { ...this.standingOrders },
       assignQueue: this.assignQueue.slice(),
       blockedRetryCursor: this.blockedRetryCursor,
+      ...(this.toolAway.size > 0 ? { toolAway: Array.from(this.toolAway.entries()).sort((a, b) => a[0] - b[0]) } : {}),
     };
   }
 
@@ -1480,6 +1486,8 @@ export class JobBoard implements JobsApi, JobSink {
     this.assignQueue.length = 0;
     this.assignQueue.push(...state.assignQueue);
     this.blockedRetryCursor = state.blockedRetryCursor;
+    this.toolAway.clear();
+    for (const [id, since] of state.toolAway ?? []) this.toolAway.set(id, since);
   }
 }
 
