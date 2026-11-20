@@ -2342,9 +2342,14 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
       if (members.length > 0) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: [] });
       continue;
     }
-    if (!adults.includes(post.dwarfId) || busy.has(post.dwarfId)) {
+    // T-653: for the look before an alert comes down, a watchman gone to eat, drink or sleep (after
+    // days behind the gate a need is often critical, and a critical need outranks any order) is
+    // replaced by one who is not.
+    const away = (id: number): boolean => state.looking !== undefined && ent.get(id, C.Brain)?.behavior === 'need';
+    if (!adults.includes(post.dwarfId) || busy.has(post.dwarfId) || away(post.dwarfId)) {
       const others = new Set(watch.map((wt) => wt.dwarfId));
-      post.dwarfId = [...adults].reverse().find((id) => !busy.has(id) && !others.has(id)) ?? 0;
+      post.dwarfId = [...adults].reverse().find((id) => !busy.has(id) && !others.has(id) && !away(id)) ??
+        (adults.includes(post.dwarfId) && !busy.has(post.dwarfId) ? post.dwarfId : 0);
     }
     const want = post.dwarfId === 0 ? [] : [post.dwarfId];
     if (members.length !== want.length || members.some((id) => !want.includes(id))) command(w, { type: 'SetSquadMembers', squadId: post.squadId, members: want });

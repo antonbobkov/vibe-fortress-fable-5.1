@@ -165,7 +165,7 @@ describe('T-653 probe: an ambush at the all-clear', () => {
         .map((id) => { const q = ent.get(id, C.Position); return `${id}${ent.get(id, C.Tame)?.trained === 'war' ? 'w' : ''}@${q ? rel(q) : '-'}>${animals.assignedTo(id)}`; });
       const watch = (state.watch ?? []).map((wt) => {
         const m = combat.squads().find((sq) => sq.id === wt.squadId)?.members ?? [];
-        return `${wt.squadId}[${m.map((id) => { const q = ent.get(id, C.Position); return `${id}@${q ? rel(q) : '-'}`; }).join(',')}]`;
+        return `${wt.squadId}[${m.map((id) => { const q = ent.get(id, C.Position); return `${id}@${q ? rel(q) : '-'}:${doing(id)}`; }).join(',')}]{${(combat.squad(wt.squadId)?.orders ?? []).map((o) => o.kind).join(',')}}`;
       });
       const surface = fortress().filter((id) => (ent.get(id, C.Position)?.z ?? -1) >= state.z);
       out(`alert ${w.game.world.fortress.alert} gate ${door(state.gateDoorId)} ${door(state.gateDoorId2)} answered '${state.answered}' surface ${surface.length} ` +
