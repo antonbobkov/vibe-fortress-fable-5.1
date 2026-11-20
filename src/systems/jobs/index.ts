@@ -185,7 +185,12 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
       const id = event['id'] as EntityId;
       const jobId = board.workerOf(id).jobId;
       const job = jobId === 0 ? undefined : board.jobs.get(jobId);
-      if (job !== undefined && (board.typeRow(job).interruptible || type === 'ThreatNearby')) board.interrupt(id, true);
+      if (job !== undefined && (board.typeRow(job).interruptible || type === 'ThreatNearby')) {
+        // § Job steps, interruptions (T-660): a critical need lets a worker carrying an input to a
+        // building deliver it first; the job is interrupted when it has been put down.
+        if (type === 'NeedCritical' && board.carriesInput(job, id)) job.data['interruptOnDelivery'] = true;
+        else board.interrupt(id, true);
+      }
     } else if (type === 'AlertChanged') {
       if (event['to'] === 'hearth') {
         const onDuty = ctx.readers.has('16')

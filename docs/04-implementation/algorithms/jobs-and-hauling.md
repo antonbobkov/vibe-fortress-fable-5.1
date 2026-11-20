@@ -110,6 +110,8 @@ interrupt(w, keepProgress): job = current; if job.state == 'working' and keepPro
                             if Worker[w].carrying: items.dropAt(carrying, position(w)); Worker[w].jobId = 0; emit JobCancelled? (no: JobReleased is a JobBlocked with reason 'interrupted' not emitted; the job simply returns to open)
 ```
 
+On `NeedCritical` for a worker fetching for a job at a building with one of the job's undelivered inputs in hand (`carriesInput`), set `job.data.interruptOnDelivery` instead of calling `interrupt`; `stepWorker` calls `interrupt(w, true)` on the first step that finds the worker with nothing in hand, and freeing the worker clears the flag (T-660).
+
 On ItemDestroyed, prune the destroyed id from every job input’s reserved and delivered lists on the dispatch tick; leave other inputs untouched. Set job.data.inputsInvalidated when a listed input was lost; the next revalidateDelivered consumes that flag and reports invalidation even though the id was already pruned.
 
 When interrupted reservations expire, retain delivered build and workshop inputs and release only undelivered inputs and unequipped tools. Revalidate delivered ids before retention, resume and consumption: a missing, consumed, externally released or foreign-held input no longer counts as delivered. A free surviving item is reserved again and fetched; a missing or foreign-held item needs a replacement. A foreign reservation is never released or consumed by the old job. Cancelling or finishing releases all reservations still held by the job.
