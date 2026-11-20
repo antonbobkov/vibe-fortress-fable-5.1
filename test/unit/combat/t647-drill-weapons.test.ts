@@ -82,7 +82,7 @@ describe('T-647 a soldier holding a training weapon meets a raider', () => {
   it('with no real weapon in stock fights with the wooden one, and the Military panel says it does no harm', () => {
     const { w, soldier, wooden, squad, combat, weapon } = drill('t647-wooden', false);
     const landed = blows(w, soldier);
-    expect(armedLines(panel(w), combat.squads().find((s) => s.id === squad.id)!)?.text).toBe('Armed 1 of 1');
+    expect(armedLines(panel(w), combat.squads().find((s) => s.id === squad.id)!)?.text).toBe('Armed 1 of 1 (1 wooden)');
     const raider = w.spawnCreature('gloam_archer', w.index(30, 33, Z), 'hostile:gloam');
     w.step(2);
     expect(combat.targetOf(soldier)).toBe(raider);
@@ -91,7 +91,7 @@ describe('T-647 a soldier holding a training weapon meets a raider', () => {
     expect(landed.filter((b) => b.outcome === 'hit').length, 'it lands blows').toBeGreaterThan(0);
     expect(landed.every((b) => b.amount === 0), 'all for nothing').toBe(true);
     const line = armedLines(panel(w), combat.squads().find((s) => s.id === squad.id)!);
-    expect(line?.text).toBe('Armed 1 of 1 · wooden weapon, no harm done: Liv H.');
+    expect(line?.text).toBe('Armed 1 of 1 (1 wooden) · wooden weapon, no harm done: Liv H.');
     expect(line?.alert).toBe(true);
   });
 

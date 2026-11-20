@@ -10,6 +10,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId } from '@core/types';
 import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 import { enchantedName, materialItemName, whereMade } from '../messages';
 
 export interface WeaponRow {
@@ -66,30 +67,68 @@ function claimableRows(registry: Registry, weaponClass: string, ranged?: boolean
     && (weaponClass === 'any' ? ranged === undefined || (row.launcher !== undefined) === ranged : row.weaponClass === weaponClass));
 }
 
-/** Free weapons of a class: units in stock that no one owns, holds or has reserved, and how many of them are tools. */
+/** Free weapons of a class: units in stock that no one owns, holds or has reserved, and how many of them are tools and training weapons. */
 export interface WeaponStock {
   readonly free: number;
   readonly tools: number;
+  readonly training: number;
 }
 
 /**
  * The weapons of a class in stock and free (13's available count: not forbidden, reserved, owned,
  * carried or at the depot), with the tools among them (a pick or an axe, which a worker who lacks
- * one takes first, 16 § Equipment). `any` counts every class; with `ranged` given, only launchers
- * (true) or only weapons that are not (false).
+ * one takes first, 16 § Equipment) and the training weapons (wooden, for drill: 16 § Training).
+ * `any` counts every class; with `ranged` given, only launchers (true) or only weapons that are not
+ * (false).
  */
 export function weaponStock(readers: ReaderSet, registry: Registry, weaponClass: string, ranged?: boolean): WeaponStock {
-  if (!readers.has('13')) return { free: 0, tools: 0 };
+  if (!readers.has('13')) return { free: 0, tools: 0, training: 0 };
   const items = readers.of<ItemsReader>('13');
   const table = registry.table<ItemRow>('items');
   let free = 0;
   let tools = 0;
+  let training = 0;
   for (const row of claimableRows(registry, weaponClass, ranged)) {
     const n = items.available(row.id);
     free += n;
     if (table.byId(row.id)?.category?.startsWith('tool/') === true) tools += n;
+    if (row.training === true) training += n;
   }
-  return { free, tools };
+  return { free, tools, training };
+}
+
+/**
+ * Whether stock holds a free real weapon a squad member holding a training weapon would take up in
+ * a fight (16 § Training): a weapon type that is neither a training weapon nor a channel, a launcher
+ * for a ranged squad and not for a melee one, with a free unit (13's available count, under which
+ * no foreign item is free), and no pick or axe that an enabled worker lacking one has first claim on.
+ */
+export function realWeaponFree(readers: ReaderSet, registry: Registry, ranged: boolean): boolean {
+  if (!readers.has('13')) return false;
+  const table = registry.table<ItemRow>('items');
+  const types: number[] = [];
+  for (const row of registry.table<WeaponRow>('weapons').rows) {
+    if (row === undefined || row.training === true || isChannel(row) || (row.launcher !== undefined) !== ranged) continue;
+    const index = table.index(row.id);
+    if (index < 0 || workerLacksTool(readers, registry, table.byId(row.id)?.category)) continue;
+    types.push(index);
+  }
+  return types.length > 0 && readers.of<ItemsReader>('13').countAvailable({ types }) > 0;
+}
+
+/** Whether an enabled worker lacks a held tool of this item category (a pick for mining, an axe for woodcutting). */
+function workerLacksTool(readers: ReaderSet, registry: Registry, category: string | undefined): boolean {
+  if (!readers.has('11')) return false;
+  const labor = category === 'tool/pick' ? 'mining' : category === 'tool/axe' ? 'woodcutting' : null;
+  if (labor === null) return false;
+  const table = registry.table<ItemRow>('items');
+  return readers.of<JobsReader>('11').workersWithLabor(labor).some((workerId) => {
+    const held = [readers.entities.get(workerId, C.Worker)?.toolId ?? 0, readers.entities.get(workerId, C.Equipment)?.weapon ?? 0];
+    return !held.some((toolId) => {
+      const tool = toolId === 0 ? undefined : readers.entities.get(toolId, C.Item);
+      return tool?.carriedBy === workerId && table.byIndex(tool.type)?.category === category;
+    });
+  });
 }
 
 /**

@@ -1380,6 +1380,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.military.choice_keys_mark': '[Space] mark  [*] all',
   'ui.military.choice_keys': '[Enter] choose  [Esc] cancel',
   'ui.military.armed': 'Armed {n} of {m}',
+  'ui.military.armed_wooden': 'Armed {n} of {m} ({k} wooden)',
   'ui.military.unarmed': 'unarmed: {names}',
   'ui.military.without': 'no {weapon}: {names}',
   'ui.military.harmless': 'wooden weapon, no harm done: {names}',
