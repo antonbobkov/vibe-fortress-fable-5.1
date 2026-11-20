@@ -316,8 +316,8 @@ export function dropUnusedTools(board: JobBoard, ctx: TickContext): void {
  * 11 § Assignment, a tool held from the fortress (T-661): a pick, axe or launcher held by a worker that
  * cannot use it comes back to the fortress once that has lasted `JOB_HOLD_TICKS`. The worker cannot use
  * it while it is down, a patient (17: in a hospital bed, or waiting for one), or a soldier on duty (16)
- * with another weapon in its weapon slot; a soldier whose weapon slot is empty fights with the tool and
- * keeps it. The tool is put down on the worker's tile as ordinary stock (`ToolDropped`), so a `no_tool`
+ * with another weapon in its weapon slot; a soldier on duty whose weapon slot is empty fights with the tool and
+ * keeps it while it is up and no patient. The tool is put down on the worker's tile as ordinary stock (`ToolDropped`), so a `no_tool`
  * job retries, a worker with the labor fetches it, and the holder takes up one again when it is back.
  * The count starts on the first jobs tick that sees the worker unable and ends when it is able again.
  */

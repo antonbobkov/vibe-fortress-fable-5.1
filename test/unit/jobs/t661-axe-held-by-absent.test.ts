@@ -9,6 +9,7 @@ import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { EntityId } from '@core/types';
+import type { CombatReader } from '@systems/combat/reader';
 import { createWound } from '@systems/health';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader, JobsSystem } from '@systems/jobs';
@@ -93,7 +94,7 @@ describe('T-661 a tool held by a dwarf who cannot use it comes back to the fortr
   }, 120_000);
 
   it('the count of the hold is saved', () => {
-    const { w, world, urist, axe } = setup();
+    const { w, urist, axe } = setup();
     w.step(50);
     const board = (): JobsSystem['board'] => (w.game.world.scheduler.byId('11') as JobsSystem).board;
     const since = board().toolAway.get(urist);
@@ -102,7 +103,9 @@ describe('T-661 a tool held by a dwarf who cannot use it comes back to the fortr
     expect(board().toolAway.get(urist)).toBe(since);
     w.until(() => w.events('ToolDropped').some((e) => e['itemId'] === axe), JOB_HOLD_TICKS);
     expect(w.game.world.entities.get(urist, C.Worker)?.toolId).toBe(0);
-    expect(world).toBeDefined();
+    // Put down on the tick the hold ends, as the game that was not saved would have.
+    expect(w.tick - (since as number)).toBeGreaterThanOrEqual(JOB_HOLD_TICKS);
+    expect(w.tick - (since as number)).toBeLessThanOrEqual(JOB_HOLD_TICKS + 1);
   }, 120_000);
 
   it('a dwarf back at work holds the tool again: the count ends, and nothing is put down', () => {
@@ -117,5 +120,38 @@ describe('T-661 a tool held by a dwarf who cannot use it comes back to the fortr
     expect(board.toolAway.has(urist)).toBe(false);
     w.step(JOB_HOLD_TICKS);
     expect(w.events('ToolDropped').filter((e) => e['itemId'] === axe)).toHaveLength(0);
+  }, 120_000);
+
+  it('a soldier on duty puts down the pick it holds beside its spear, and keeps the one it fights with', () => {
+    const w = new TestWorld({ seed: 't661-soldiers', world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
+    const world = w.game.world;
+    const entities = world.entities;
+    const a = w.spawnDwarf({ at: w.index(30, 30, Z) });
+    const b = w.spawnDwarf({ at: w.index(32, 30, Z) });
+    const picks: EntityId[] = [];
+    for (const d of [a, b]) {
+      only(w, d, ['mining']);
+      const pick = w.spawnItem('pick', 'iron', w.index(30, 30, Z));
+      world.services.items!.attachToCarrier(pick, d);
+      entities.add(d, C.Worker, { ...entities.get(d, C.Worker)!, toolId: pick });
+      picks.push(pick);
+    }
+    w.spawnItem('spear', 'iron', w.index(20, 20, Z));
+    w.spawnItem('easy_meal', 'dimcap', w.index(20, 24, Z), 60);
+    w.spawnItem('drink', 'ale', w.index(21, 24, Z), 60);
+    world.applyCommand({ type: 'CreateSquad', name: 'Gate Guard' });
+    const combat = w.readers.of<CombatReader>('16');
+    const squadId = combat.squads()[0]!.id;
+    world.applyCommand({ type: 'SetSquadMembers', squadId, members: [a, b] });
+    expect(world.applyCommand({ type: 'SetSquadMode', squadId, mode: 'train' }).ok).toBe(true);
+    w.step(5);
+    const armed = [a, b].find((d) => (entities.get(d, C.Equipment)?.weapon ?? 0) !== 0) as EntityId;
+    const bare = armed === a ? b : a;
+    expect(entities.get(bare, C.Equipment)?.weapon ?? 0).toBe(0);
+    expect(combat.onDuty(armed) && combat.onDuty(bare)).toBe(true);
+    w.step(JOB_HOLD_TICKS + 5);
+    expect(entities.get(armed, C.Worker)?.toolId).toBe(0);
+    expect(w.events('ToolDropped').map((e) => e['itemId'])).toEqual([picks[armed === a ? 0 : 1]]);
+    expect(entities.get(bare, C.Worker)?.toolId).toBe(picks[bare === a ? 0 : 1]);
   }, 120_000);
 });
