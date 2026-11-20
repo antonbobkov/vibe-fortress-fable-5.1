@@ -1,5 +1,5 @@
 import type { Registry } from '@core/registry';
-import type { RngStream } from '@core/rng';
+import { RngStream } from '@core/rng';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import { makeDwarf, type DwarfRecord } from '@systems/dwarves/rules/make-dwarf';
 import { CHILDREN_MAX, CHILD_AGE_MIN, COVERAGE_SKILL, DOG_PERMILLE, FAMILY_PERMILLE, FINE_INDEX, GUARANTEED_SIZE_MAX, GUARANTEED_SIZE_MIN, IMMIGRANT_BASE, KEY_PROFESSIONS, PEASANT_PERMILLE, PET_PERMILLE, PRIMARY_MAX, PRIMARY_MIN, REP_PER_IMMIGRANT, SECONDARY_MAX, SECONDARY_MIN, SPIRIT_SIZE_STEP, UNCOVERED_WEIGHT, WAVE_MAX, WEALTH_PER_IMMIGRANT } from './constants';
@@ -13,6 +13,21 @@ export function waveSize(wealth: number, tier: number, reputation: number, capRe
   const raw = IMMIGRANT_BASE + Math.floor(wealth / WEALTH_PER_IMMIGRANT) + (tier - FINE_INDEX) * SPIRIT_SIZE_STEP + Math.floor(reputation / REP_PER_IMMIGRANT);
   const size = Math.max(0, Math.min(Math.min(WAVE_MAX, capRemaining), Math.max(IMMIGRANT_BASE, raw)));
   return winter ? Math.ceil(size / 2) : size;
+}
+
+/** The id of the stream a season's roll is drawn from: `21.roll.<year>.<season>` (21 § Evaluation). */
+export function seasonRollStream(year: number, season: number): string {
+  return `21.roll.${year}.${season}`;
+}
+
+/**
+ * The season's roll, 0 … 999 (21 § Evaluation, step 4): the first draw of a stream seeded from the
+ * world seed, the year and the season alone, never from 21's own stream. A wave arrives when the
+ * roll is under its chance. No earlier draw moves it, so a wave of another size, or a season skipped
+ * in one code and not in another, leaves every later season's roll as it was; nothing is saved.
+ */
+export function seasonRoll(worldSeed: string, year: number, season: number): number {
+  return RngStream.forStream(worldSeed, seasonRollStream(year, season)).int(0, 999);
 }
 
 export function guaranteedSize(rng: RngStream, capRemaining: number): number {

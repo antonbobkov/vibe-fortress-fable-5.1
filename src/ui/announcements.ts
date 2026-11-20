@@ -23,6 +23,7 @@ import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
+import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, pluralName, stackName, tradeWaitFor, whimProgressText } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
 import { raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
@@ -225,9 +226,15 @@ export class AnnouncementLog {
     if (event.type === 'FortressShutOut' && Array.isArray(e['doors'])) {
       out['doors'] = (e['doors'] as number[]).map((door) => buildingName({ readers, registry: this.registry }, door)).join(', ');
     }
-    if (event.type === 'WorkshopBlocked' && typeof e['workshopId'] === 'number') {
+    if ((event.type === 'WorkshopBlocked' || event.type === 'WorkOrderSkipped') && typeof e['workshopId'] === 'number') {
       out['workshop'] = buildingName({ readers, registry: this.registry }, e['workshopId']);
       out['input'] = typeof e['input'] === 'string' ? e['input'].split('|').map(id => itemName(this.registry, id)).join(' or ') : this.strings.get('ui.workshop.input_unspecified');
+    }
+    // 12 § Registrations: a skipped order is named by its recipe ("its make steel order").
+    const recipeId = e['recipeId'];
+    if (event.type === 'WorkOrderSkipped' && (typeof recipeId === 'string' || typeof recipeId === 'number')) {
+      const name = readers.has('12') ? readers.of<WorkshopsReader>('12').recipe(recipeId)?.name : undefined;
+      out['recipe'] = name === undefined ? String(recipeId).replace(/_/g, ' ') : name.charAt(0).toLowerCase() + name.slice(1);
     }
     if (event.type === 'IceMelted') out['place'] = this.icePlace(readers, (e['tiles'] as readonly TileIndex[] | undefined) ?? []);
     if (event.type === 'PlotNeedsSeeds') out['plot'] = zoneName({ readers, strings: this.strings }, Number(e['zoneId'])) || this.strings.get('ui.zone.type.farm_plot');

@@ -42,6 +42,8 @@ export const ID_FIELDS: readonly IdField[] = Object.freeze([
   { component: 'Workshop', path: 'orders[].recipe', table: 'recipes', orString: false },
   { component: 'Workshop', path: 'orders[].materialFilter', table: 'materials', orString: true },
   { component: 'Workshop', path: 'orders[].targetType', table: 'items', orString: false },
+  { component: 'Workshop', path: 'outOfReach[].material', table: 'materials', orString: true },
+  { component: 'Workshop', path: 'outOfReach[].target', table: 'items', orString: false },
   { component: 'Zone', path: 'type', table: 'zoneTypes', orString: false },
   { component: 'Projectile', path: 'spell', table: 'spells', orString: false },
   { component: 'Crop', path: 'plant', table: 'plants', orString: false },

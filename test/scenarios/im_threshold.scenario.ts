@@ -1,10 +1,10 @@
 /** T-M7-04: year-two spirit threshold and the authored arrival roll. */
 import { expect } from 'vitest';
 import { TICKS_PER_DAY } from '@core/constants';
-import { RngStream, seedFor } from '@core/rng';
 import type { MoraleSystem } from '@systems/morale';
 import type { ImmigrationReader } from '@systems/immigration/reader';
 import { IMMIGRATION_PERMILLE } from '@systems/immigration/constants';
+import { seasonRoll } from '@systems/immigration/waves';
 import type { Scenario } from './runner';
 import { TestWorld } from './test-world';
 
@@ -33,7 +33,7 @@ const scenario: Scenario = {
     expect(high.readers.of<ImmigrationReader>('21').eligibility()).toEqual({ eligible: true, reasons: [] });
     let arrivals = 0;
     for (let seed = 1; seed <= 100; seed += 1) {
-      if (new RngStream(seedFor(`im-threshold-${seed}`, '21')).chance(IMMIGRATION_PERMILLE)) arrivals += 1;
+      if (seasonRoll(`im-threshold-${seed}`, 2, 1) < IMMIGRATION_PERMILLE) arrivals += 1;
     }
     expect(arrivals).toBeGreaterThanOrEqual(58);
     expect(arrivals).toBeLessThanOrEqual(82);

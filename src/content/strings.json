@@ -15,6 +15,7 @@
   "announce.dangerous_arrived_many": "{count} {species} have come to the valley.",
   "announce.reputation_changed": "Our standing with the {civ} has fallen: {reason}.",
   "announce.workshop_missing_input": "{workshop} is idle: no {input}.",
+  "announce.order_skipped": "{workshop} skips its {recipe} order: no {input} within reach.",
   "announce.plot_needs_seeds": "{plot} has no {species} seeds.",
   "announce.crater_entered": "{dwarf} stood where the star fell.",
   "announce.ribs_entered": "{dwarf} stood inside the ribs of something enormous.",
