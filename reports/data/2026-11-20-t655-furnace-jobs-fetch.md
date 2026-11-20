@@ -1,6 +1,6 @@
 # T-655: the furnace jobs' fetch
 
-**Task:** T-655 · **Date:** 2026-11-20 · **Code:** branch `t655-furnace-fetch` on master `199a30ad` (T-648, T-653) · **Source:** [the T-655 work file](../../docs/work/T-655-furnace-jobs-fetch.md), [T-649's measurement](2026-11-20-t649-furnace-workers-needs.md)
+**Task:** T-655 · **Date:** 2026-11-20 · **Code:** branch `t655-furnace-fetch` on master `199a30ad` (T-648, T-653); the sweep ran on `a4a9ecaa` · **Source:** [the T-655 work file](../../docs/work/T-655-furnace-jobs-fetch.md), [T-649's measurement](2026-11-20-t649-furnace-workers-needs.md)
 
 T-649 found the furnace workers walking six ticks for each tick of work at their own workshop's job. This measures the trips each furnace recipe makes and why they are long, and fixes what was wrong.
 
@@ -75,7 +75,37 @@ The burner's walk fell by two thirds a job wherever the logs lay below, and in `
 
 ## The sweep
 
-SWEEP
+Before: master's sweep 44715696949 on `199a30ad` (T-648 and T-653), not judged: its `p4-4` seed at shift 150 threw on the watch post's tree (above) and `p4-2` at shift 150 failed its rooms witness, so shift 150 pools 19 timelines. After: 44730019657 on `a4a9ecaa`, all 80 seed jobs green. Figures read from the verdict jobs.
+
+| Run | Alive y1 | Peril-0 grown | Peril-0 need deaths | Living y3 | Deaths | Extinct | Need deaths |
+|---|---|---|---|---|---|---|---|
+| Master (44715696949), shifts 0 / 50 / 100 / 150 | 19 / 20 / 20 / 18 | 7 | 0 | 1070 / 960 / 1001 / 1044 | 100 / 111 / 141 / 114 | 1 | 10 / 8 / 2 / 10 |
+| Master pooled | 19.25 | 7 | 0 | 1018.75 | 116.5 | 1 | 7.5 |
+| T-655, shifts 0 / 50 / 100 / 150 | 19 / 20 / 20 / 20 | 7 | 0 | 1086 / 1096 / 1104 / 993 | 143 / 95 / 101 / 131 | 2 / 1 / 0 / 1 | 10 / 3 / 0 / 6 |
+| **T-655 pooled** | 19.75 | 7 | 0 | **1069.75** | **117.5** | 1 | 4.75 |
+| Reference | 19.5 | 7 | 0 | 1010.5 | 137 | 1.75 | 6.25 |
+
+Verdict: pass (bounds 887.75 living, 161.88 deaths). The reference is not moved. The deaths are master's (117.5 against 116.5); the shifts swing by 100 living and 48 deaths on either commit, and at peril 4 part of that is the immigration rolls' luck ([T-650](2026-11-20-t650-peril-4-immigration.md)), so the living's gain is not claimed for the fetch.
+
+**The steel ledger**, the peril-2 and peril-4 fortress-timelines (master 51, its `p4-4` at shift 150 missing; T-655 52), a timeline, read as T-642's was:
+
+| | Master | T-655 |
+|---|---|---|
+| Steel bars smelted | 22.7 | **25.3** |
+| Steel bars bought | 7.7 | 5.6 |
+| Steel kit pieces forged / bought | 13.3 / 0.6 | 14.5 / 0.5 |
+| Timelines with five kits | 9 | 10 |
+| 50 steel bars or more / 30 or more | 9 / 27 | 9 / 26 |
+| Iron ore mined / iron smelts | 119.7 / 64.7 | 125.7 / 65.8 |
+| Coal smelts / charcoal burned | 52.7 / 174.5 | 50.4 / 185.1 |
+| Under five iron bars on a weekly average | 24 | 31 |
+| of which ten iron ore or more in stock | 18 | 24 |
+| Under five charcoal | 10 | **7** |
+| Under fifteen logs | 20 | **13** |
+| Soldiers in steel at Proficient, at their best (sum) | 35 | **56** |
+| Timelines that cleared a bar (full squad) | 4 (1) | 7 (5) |
+
+The fuel binds less (7 timelines short of charcoal against 10, 13 short of logs against 20, 6% more charcoal burned) and the smelters make 11% more steel, but the iron binds more often: 31 timelines under five iron bars against 24, 24 of them with ten iron ore or more lying unsmelted. The smelter's coal ore still comes from the drifts, and the second smelter's steel waits on the smith (the follow-up below); what holds the smelters most is still the job standing open while their one worker is away, as T-649 found.
 
 ## Follow-ups
 
