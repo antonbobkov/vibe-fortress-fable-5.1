@@ -14,4 +14,5 @@ Spec: testing-strategy.md § The long scenarios (the drink and the cave farm).
 
 ## Done
 
-The thirst at the end of each alert, and the dwarves outside under it, before and after, by run; the sweep's verdict.
+- [x] The thirst at the end of each alert, and the dwarves outside under it, before and after, by run ([T-656's report](../../reports/data/2026-11-20-t656-thirst-under-the-alert.md)).
+- [x] The sweep's verdict: pass (`44796007697`).

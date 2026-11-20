@@ -1,6 +1,6 @@
 # T-656: the thirsty go out under the alert
 
-**Task:** T-656 · **Date:** 2026-11-20 · **Code:** branch `t656-thirst-under-alert` · **Source:** [the T-656 work file](../../docs/work/T-656-thirst-under-the-alert.md), [T-653's report](2026-11-20-t653-ambush-at-the-all-clear.md)
+**Task:** T-656 · **Date:** 2026-11-20 · **Code:** branch `t656-thirst-under-alert`, swept at `1c6fcc97` (master `59ca43b4` merged) · **Source:** [the T-656 work file](../../docs/work/T-656-thirst-under-the-alert.md), [T-653's report](2026-11-20-t653-ambush-at-the-all-clear.md)
 
 ## Why the drink ran short
 
@@ -51,4 +51,65 @@ Keeping the thirsty in until the watch has looked was not done: the look (T-653)
 
 The sweeps' logs carry the thirst journal: `[three_years_thirst]` as each alert goes up, as the watch looks and as it comes down (the dwarves, the drink, those at want and critical thirst, those outdoors, the most seen outdoors while it was up and the water drunk outdoors meanwhile), `[three_years_thirst_death]` for each dwarf that dies (its thirst, whether outdoors, the alert), and `[three_years_drink]` weekly (the drink, the plants, the barrels, the logs, the brews and the barrels stolen).
 
-The figures follow once both sweeps have run.
+**Before:** sweep `44780191075`, branch `t656-before` at `b0acc909`: the journal alone on master `59ca43b4` (T-652's immigration rolls), so the game is master's. **After:** sweep `44796007697` at `1c6fcc97`, the same master with the answer. The same seed and shift meet the same immigration luck in both (T-652), but the timelines part as soon as the script acts differently.
+
+Peril 4, all 24 timelines (each alert's end is a `clear`, `shutOut` or `wildQuiet` line; "outdoors under them" sums the most dwarves seen outdoors during each alert):
+
+| | Before | After |
+|---|---|---|
+| Alerts ended | 547 | 515 |
+| Alerts ending with 5 or more dwarves at critical thirst | 57 | 39 |
+| Dwarves at critical thirst as alerts ended, summed | 890 | 599 |
+| Dwarves outdoors under the alerts, summed | 3,091 | 2,062 |
+| Drinks of water taken outdoors under the alerts | 1,007 | 277 |
+| Weeks with less than four days of drink, of 1,176 | 240 | 98 |
+| Weeks with no drink | 119 | 35 |
+| Brews | 3,912 | 4,839 |
+| Barrels stolen | 281 | 367 |
+| Dwarves dead | 333 | 275 |
+| of them at critical thirst (outdoors) | 34 (18) | 25 (8) |
+| of them starved (hunger or thirst) | 29 | 55 |
+
+By run:
+
+| Run | Alerts ending with 5+ at critical thirst | Outdoors under the alerts | Water drunk outdoors under them | Weeks under 4 days of drink | Weeks with none | Dwarves dead | Dead at critical thirst | Starved |
+|---|---|---|---|---|---|---|---|---|
+| p4-1 @ 0 | 4 → 2 | 227 → 103 | 104 → 0 | 22 → 6 | 2 → 0 | 6 → 8 | 0 → 0 | 0 → 0 |
+| p4-1 @ 50 | 2 → 1 | 40 → 37 | 13 → 8 | 11 → 9 | 8 → 8 | 17 → 17 | 0 → 2 | 11 → 12 |
+| p4-1 @ 100 | 2 → 3 | 156 → 128 | 8 → 0 | 10 → 2 | 2 → 0 | 15 → 5 | 1 → 1 | 0 → 0 |
+| p4-1 @ 150 | 2 → 0 | 94 → 71 | 34 → 0 | 10 → 6 | 5 → 0 | 20 → 5 | 0 → 0 | 0 → 0 |
+| p4-2 @ 0 | 0 → 0 | 125 → 32 | 2 → 9 | 0 → 2 | 0 → 2 | 15 → 15 | 1 → 2 | 0 → 10 |
+| p4-2 @ 50 | 2 → 3 | 53 → 62 | 0 → 0 | 0 → 0 | 0 → 0 | 6 → 16 | 1 → 1 | 0 → 0 |
+| p4-2 @ 100 | 2 → 1 | 96 → 55 | 37 → 2 | 10 → 0 | 2 → 0 | 10 → 14 | 0 → 0 | 0 → 0 |
+| p4-2 @ 150 | 1 → 0 | 52 → 31 | 28 → 23 | 8 → 8 | 8 → 8 | 17 → 17 | 2 → 4 | 7 → 12 |
+| p4-3 @ 0 | 0 → 1 | 81 → 92 | 0 → 0 | 1 → 0 | 0 → 0 | 6 → 6 | 3 → 0 | 0 → 0 |
+| p4-3 @ 50 | 3 → 3 | 172 → 88 | 2 → 0 | 2 → 0 | 0 → 0 | 4 → 7 | 0 → 0 | 0 → 0 |
+| p4-3 @ 100 | 0 → 0 | 69 → 96 | 0 → 0 | 0 → 0 | 0 → 0 | 10 → 5 | 0 → 0 | 0 → 0 |
+| p4-3 @ 150 | 1 → 0 | 87 → 90 | 0 → 0 | 0 → 0 | 0 → 0 | 8 → 9 | 0 → 0 | 0 → 0 |
+| p4-4 @ 0 | 0 → 0 | 59 → 59 | 19 → 19 | 10 → 10 | 4 → 4 | 17 → 17 | 6 → 6 | 5 → 5 |
+| p4-4 @ 50 | 4 → 5 | 153 → 91 | 92 → 5 | 29 → 4 | 15 → 1 | 20 → 15 | 2 → 3 | 0 → 0 |
+| p4-4 @ 100 | 2 → 3 | 142 → 84 | 1 → 9 | 9 → 0 | 1 → 0 | 22 → 8 | 1 → 0 | 0 → 0 |
+| p4-4 @ 150 | 2 → 5 | 289 → 187 | 144 → 85 | 23 → 20 | 15 → 6 | 22 → 20 | 2 → 2 | 0 → 0 |
+| p4-5 @ 0 | 6 → 3 | 238 → 115 | 165 → 0 | 27 → 6 | 17 → 1 | 32 → 5 | 5 → 0 | 0 → 0 |
+| p4-5 @ 50 | 6 → 2 | 184 → 125 | 126 → 38 | 30 → 3 | 22 → 1 | 22 → 25 | 2 → 0 | 0 → 0 |
+| p4-5 @ 100 | 12 → 3 | 395 → 173 | 198 → 62 | 26 → 17 | 13 → 1 | 20 → 11 | 3 → 0 | 1 → 0 |
+| p4-5 @ 150 | 0 → 0 | 59 → 86 | 20 → 15 | 8 → 2 | 5 → 1 | 12 → 5 | 3 → 0 | 5 → 0 |
+| p4-6 @ 0 | 1 → 3 | 62 → 68 | 9 → 0 | 4 → 0 | 0 → 0 | 5 → 6 | 0 → 0 | 0 → 0 |
+| p4-6 @ 50 | 1 → 1 | 71 → 98 | 0 → 1 | 0 → 0 | 0 → 0 | 10 → 11 | 0 → 0 | 0 → 0 |
+| p4-6 @ 100 | 2 → 0 | 122 → 66 | 0 → 1 | 0 → 3 | 0 → 2 | 6 → 14 | 0 → 4 | 0 → 5 |
+| p4-6 @ 150 | 2 → 0 | 65 → 25 | 5 → 0 | 0 → 0 | 0 → 0 | 11 → 14 | 2 → 0 | 0 → 11 |
+
+The thirst at the alerts' ends falls where the drink ran short (`p4-4` at 50, `p4-5` at 0, 50 and 100: 50 to 165 drinks of water outdoors under the alerts down to 0 to 62). The dead at critical thirst are few in both (34 and 25 of the peril-4 dead): the crowd T-653 traced in `p4-1` at shift 100 is not in that timeline on this master, which kept its drink. `p4-4` at shift 0 is the same in both: nothing of the answer changed its course.
+
+The starved rose: `p4-6` at shift 150, 29 dwarves at the end before, starved to the last of 11 on days 198 to 201 with 110 drinks in stock and no plant or meal after day 168, and `p4-2` at shift 0 (eight dwarves, days 70 to 80), while `p4-5` at 100 and 150 no longer starved. These are hunger, not thirst, in fortresses raids had cut small; whether the second woodcutter cost such a farm a hand is [a follow-up](../../docs/work/T-NEW-small-fortress-starves.md).
+
+### Verdict
+
+From the after-sweep's `sweep-verdict` job:
+
+| | Alive | Grown | Hungry | Living | Deaths | Extinct | Need deaths |
+|---|---|---|---|---|---|---|---|
+| Pooled | 19.5 | 7 | 0 | 1099 | 110.75 | 1.5 | 13.75 |
+| Before `44780191075` | 19.75 | 7 | 0 | 1081.25 | 123.75 | 1.25 | 7.5 |
+
+Bounds 887.75 living and 161.88 deaths; **Verdict: pass**, every seed green.
