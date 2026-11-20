@@ -11,10 +11,12 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-639 | [The Mood and Units panels at thirty dwarves and more](work/T-639-mood-and-units-at-thirty-dwarves.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
-| T-641 | [The Making Do recipes say where their inputs come from](work/T-641-making-do-chains-say-where-from.md) | [T-635](archive/tasks/T-635-midgame-ux.md) | — | open |
-| T-642 | [Iron binds the three-year squad's steel once the fuel is there](work/T-642-iron-for-the-squads-steel.md) | [T-620](archive/tasks/T-620-fuel-for-the-squads-steel.md) | — | open |
 | T-644 | [The requests editor finds a good without stepping through every item](work/T-644-requests-editor-finds-goods.md) | [T-640](archive/tasks/T-640-long-lists-animals-jobs-requests.md) | — | open |
 | T-645 | [Jobs and Stocks redo their whole lists every frame](work/T-645-jobs-and-stocks-panels-per-frame-work.md) | [T-640](archive/tasks/T-640-long-lists-animals-jobs-requests.md) | — | open |
+| T-646 | [The Workshop panel's recipes say where a missing input comes from](work/T-646-workshop-recipes-say-where-from.md) | [T-641](archive/tasks/T-641-making-do-chains-say-where-from.md) | — | open |
+| T-647 | [Soldiers at drill strike a raider for nothing](work/T-647-soldiers-at-drill-do-no-harm.md) | [T-639](archive/tasks/T-639-mood-and-units-at-thirty-dwarves.md) | — | open |
+| T-648 | [A workshop order is runnable on goods out of reach](work/T-648-workshop-order-runnable-out-of-reach.md) | [T-642](archive/tasks/T-642-iron-for-the-squads-steel.md) | — | open |
+| T-649 | [The furnace workers spend two thirds of the day at their needs](work/T-649-furnace-workers-needs-time.md) | [T-642](archive/tasks/T-642-iron-for-the-squads-steel.md) | — | open |
+| T-650 | [Fewer immigrants at peril 4 once the second smelter makes steel](work/T-650-peril-4-immigration-with-the-second-smelter.md) | [T-642](archive/tasks/T-642-iron-for-the-squads-steel.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

@@ -1,4 +1,4 @@
-# T-NEW — Soldiers at drill strike a raider for nothing
+# T-647 — Soldiers at drill strike a raider for nothing
 
 **Source:** the T-639 branch's sweep, seed `three-years-p4-6` at shift 150 (measure.yml run 44595278154, job "sweep (p4-6, 150)"), traced on the branch · **Size:** S–M · **Needs:** — · **Status:** open
 

@@ -75,7 +75,7 @@ Verdict: pass (bounds 887.75 living, 161.88 deaths). The reference is not moved.
 
 **Bars:** the soldiers' bar and the full squad's both on day 279 in `three-years-p4-6` at shift 50 (five soldiers in steel and two marksdwarves at Proficient), none in the other 51 (none of 52 before).
 
-Fuel no longer binds the steel; iron does, in 38 of the 52: on `p2-1` at shift 0 and `p4-6` at shift 50 the furnaces held 38 to 40 charcoal and 28 to 30 coal at day 300 and no iron bar. That is a follow-up: [iron for the squad's steel](../../docs/work/T-642-iron-for-the-squads-steel.md).
+Fuel no longer binds the steel; iron does, in 38 of the 52: on `p2-1` at shift 0 and `p4-6` at shift 50 the furnaces held 38 to 40 charcoal and 28 to 30 coal at day 300 and no iron bar. That is a follow-up: [iron for the squad's steel](../../docs/archive/tasks/T-642-iron-for-the-squads-steel.md).
 
 ## The other gates
 
