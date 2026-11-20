@@ -2204,6 +2204,11 @@ export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean 
     const dogs = animals.tameList().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.species === dogSpecies && animals.assignedTo(id) === post.squadId);
     const lookers = [...(squad?.members ?? []), ...dogs];
     const key = String(post.squadId);
+    // The watchman is ordered to his post: under the alert a standing station alone does not keep a
+    // soldier from his meals and his bed (16 § Squads), and after days behind the gate he wants both.
+    if (station !== null && (squad?.members.length ?? 0) > 0 && !squad!.orders.some((o) => o.kind === 'station')) {
+      command(w, { type: 'SquadOrder', squadId: post.squadId, order: { kind: 'station', tile: station } });
+    }
     // A post nobody can hold (no dog, no adult free to stand there) is not waited for.
     if (station === null || lookers.length === 0) {
       if (w.tick - since < LOOK_TICKS) done = false;
@@ -2231,6 +2236,7 @@ export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean 
 function endLook(w: TestWorld, state: FortressState): void {
   state.looking = undefined;
   setGateDoors(w, state, 'lock_on_alert');
+  for (const post of state.watch ?? []) command(w, { type: 'SquadOrder', squadId: post.squadId, order: { kind: 'cancel' } });
 }
 
 function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly number[]): void {
