@@ -2200,7 +2200,8 @@ export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean 
   let done = true;
   for (const post of watch) {
     const squad = combat.squad(post.squadId);
-    const station = squad?.station ?? null;
+    // A post nobody can stand on (a tree has grown on it, `keepGateWatch` has it felled) is not held.
+    const station = (squad?.station ?? null) !== null && w.readers.pathing.passable(squad!.station!, 'walker') ? squad!.station : null;
     const dogs = animals.tameList().filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.species === dogSpecies && animals.assignedTo(id) === post.squadId);
     const lookers = [...(squad?.members ?? []), ...dogs];
     const key = String(post.squadId);
@@ -2209,7 +2210,7 @@ export function lookBeforeAllClear(w: TestWorld, state: FortressState): boolean 
     if (station !== null && (squad?.members.length ?? 0) > 0 && !squad!.orders.some((o) => o.kind === 'station')) {
       command(w, { type: 'SquadOrder', squadId: post.squadId, order: { kind: 'station', tile: station } });
     }
-    // A post nobody can hold (no dog, no adult free to stand there) is not waited for.
+    // A post nobody can hold (no dog, no adult free to stand there, no ground to stand on) is not waited for.
     if (station === null || lookers.length === 0) {
       if (w.tick - since < LOOK_TICKS) done = false;
       continue;
@@ -2332,6 +2333,13 @@ function keepGateWatch(w: TestWorld, state: FortressState, adults: readonly numb
       post = watch[i] = { squadId, dwarfId: 0 };
     }
     const members = combat.squads().find((sq) => sq.id === post!.squadId)?.members ?? [];
+    // T-653: a sapling that takes root on the post grows into a tree, and a tree stands where the
+    // watchman would: on day 286 of `three-years-p4-4` at shift 150 one stood on the north post, and
+    // the post could neither be stood on nor be ordered to. The player has it felled.
+    const station = combat.squad(post.squadId)?.station ?? null;
+    if (station !== null && [TileKind.Tree, TileKind.Sapling].includes(w.map.kindAt(station)) && !w.readers.of<TerrainReader>('03').designationAt(station)) {
+      command(w, { type: 'Designate', kind: 'chop', priority: ROUTINE, tiles: [station] });
+    }
     // A war dog holds the post once one is trained: it stays there, and a squad's dwarf would lead it away.
     if (dogs.some((id) => animals.assignedTo(id) === post!.squadId)) {
       post.dwarfId = 0;
