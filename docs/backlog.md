@@ -15,6 +15,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-648 | [A workshop order is runnable on goods out of reach](work/T-648-workshop-order-runnable-out-of-reach.md) | [T-642](archive/tasks/T-642-iron-for-the-squads-steel.md) | — | open |
 | T-649 | [The furnace workers spend two thirds of the day at their needs](work/T-649-furnace-workers-needs-time.md) | [T-642](archive/tasks/T-642-iron-for-the-squads-steel.md) | — | open |
 | T-650 | [Fewer immigrants at peril 4 once the second smelter makes steel](work/T-650-peril-4-immigration-with-the-second-smelter.md) | [T-642](archive/tasks/T-642-iron-for-the-squads-steel.md) | — | open |
-| T-651 | [A workshop whose recipes all lack the same input says so once](work/T-651-shared-missing-input-said-once.md) | [T-646](archive/tasks/T-646-workshop-recipes-say-where-from.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
