@@ -8,9 +8,11 @@
 
 So a player's cistern cannot flood the hall above it, open or shut, while a U-tube of source tiles fills to its source's level: two answers to one question, depending on how the water arrived.
 
+The same rule limits how far a level tunnel carries water at all: on `flat-test`, 40 tiles of 1-wide tunnel fed by a full column settled within 2,000 ticks at levels falling from 7 to 1 by the 35th tile, and nothing beyond, unchanged at 40,000 ticks. The three-year fortress's halls lie 25 to 50 tiles of tunnel from its brook, so its script digs its well room by the brook instead (T-663's report).
+
 ## What to do
 
-Decide whether the level tunnel should carry the shaft's pressure (the hint's promise: an open floodgate would then fill the cistern, lift the water up the well's column and flood the hall, the player's doing), or whether a body joined only through tiles at `L − 1` is meant to stop (then the hint says so). If the rule changes, it changes in 04 § The four movement rules with a fluid scenario of a shaft feeding a level tunnel to a second shaft, and `bd_cistern_well` keeps its floodgate shut as it does.
+Decide whether a level tunnel should carry water on to its end and the shaft's pressure with it (the hint's promise: an open floodgate would then fill the cistern, lift the water up the well's column and flood the hall, the player's doing), or whether a body joined only through tiles at `L − 1` is meant to stop (then the hint says so). If the rule changes, it changes in 04 § The four movement rules with a fluid scenario of a shaft feeding a level tunnel to a second shaft, and `bd_cistern_well` keeps its floodgate shut as it does.
 
 Spec: 04 § The four movement rules, § Player-facing behavior.
 
