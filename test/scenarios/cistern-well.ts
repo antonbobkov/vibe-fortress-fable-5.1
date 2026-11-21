@@ -298,12 +298,16 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   }
   once('floodgate', dug(plan.f, L), () => (work.floodgateId = place('floodgate_building', at(plan.f, L), urgent)) !== 0);
   once('lever', map.kindAt(work.leverTile) === TileKind.Floor, () => (work.leverId = place('lever', work.leverTile)) !== 0);
-  once('link', built(work.floodgateId) && built(work.leverId), () => send({ type: 'LinkMechanism', sourceId: work.leverId, targetId: work.floodgateId }));
-  // The link's job takes the cistern's priority: given its own, it stood open for months behind routine work.
-  if (steps.has('link')) {
-    for (const job of w.readers.of<JobsReader>('11').list()) {
-      if (job.key.startsWith(`link_mechanism:${work.leverId}:`) && job.priority > priority) send({ type: 'SetJobPriority', jobId: job.id, priority });
+  // The link, ordered again whenever its job is gone and the two are not linked (a job given up);
+  // its job takes the cistern's priority: given its own, it stood open for months behind routine work.
+  const isLinked = built(work.leverId) && (b.get(work.leverId)?.linkedIds ?? []).includes(work.floodgateId);
+  if (built(work.floodgateId) && built(work.leverId) && !isLinked) {
+    const linkJobs = w.readers.of<JobsReader>('11').list().filter((job) => job.key.startsWith(`link_mechanism:${work.leverId}:`));
+    if (linkJobs.length === 0 && send({ type: 'LinkMechanism', sourceId: work.leverId, targetId: work.floodgateId })) {
+      steps.add('link');
+      work.log.push(`link @${w.tick}`);
     }
+    for (const job of linkJobs) if (job.priority > priority) send({ type: 'SetJobPriority', jobId: job.id, priority });
   }
   // The ground a channel opens: a floor, or the sapling or shrub grown on it since it was planned
   // (03 § Tile transitions); a tree grown there is felled first.
