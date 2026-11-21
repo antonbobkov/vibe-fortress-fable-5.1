@@ -57,6 +57,8 @@ export interface EconomyState {
   moving?: Record<string, { twin: number; type: string; orders: WorkOrder[]; worker: number; old?: number }>;
   /** T-588: what the fortress has set aside (forbidden) for the Thane's whim of the season, until just before it is judged. */
   thaneShare?: { whim: string; items: number[] };
+  /** T-664: the dwarf a remnant keeps on the founding woodcutter's trade while he is gone (`keepWoodcutter`). */
+  remnantFeller?: number;
   /** T-664: a famine the player answers (`keepFoodFirst`): its first day and the dwarves given farming for it. */
   famine?: { day: number; hands: number[] };
 }
@@ -499,7 +501,38 @@ export function keepWoodcutter(w: TestWorld, state: FortressState): void {
       dedicate(w, state, pick, ['woodcutting', 'carpentry']);
     }
   }
-  const feller = specialists['woodcutter'];
+  // T-664: a remnant under SPECIALIST_MIN_POPULATION whose founder is gone gives his trade to one of
+  // its dwarves, as the founder's profession was given: woodcutting and carpentry, and farming for the
+  // food, nothing else. The immigrants hold woodcutting among all their labors, but a chop is routine
+  // work every other job of a small fortress comes before: in `three-years-p4-1` at shift 50 four
+  // dwarves lived from day 143 to 201 with sixteen chops open, two of them with the labor and two axes
+  // in stock, and no log after day 154; the carpenter made no bed, and the fortress that grew again to
+  // nineteen ended year 3 with six bedrooms. Once the founder is back or the fortress has its
+  // specialists again, the dwarf takes the general labors back.
+  const { economy } = state;
+  const gone = founder === undefined || !ent.alive(founder) || ent.get(founder, C.Brain)?.behavior === 'patient' || (state.strong?.trained ?? []).includes(founder);
+  const trained = new Set(state.strong?.trained ?? []);
+  const remnant = specialists['woodcutter'] === undefined && gone && fortressDwarves(w).length < SPECIALIST_MIN_POPULATION;
+  const held = economy.remnantFeller;
+  const fit = (id: number): boolean => ent.alive(id) && ent.get(id, C.Brain)?.behavior !== 'patient' && !trained.has(id);
+  if (held !== undefined && (!remnant || !fit(held))) {
+    delete economy.remnantFeller;
+    if (ent.alive(held) && specialists['woodcutter'] !== held) {
+      const general = w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
+        .filter((r) => r.defaultOn && r.id !== 'mining').map((r) => r.id);
+      dedicate(w, state, held, general);
+    }
+  }
+  if (remnant && economy.remnantFeller === undefined) {
+    const dwarves = w.readers.of<DwarvesReader>('10');
+    const pick = specialistCandidates(w, state).filter(fit).sort((a, b) => dwarves.skill(b, 'woodcutting') - dwarves.skill(a, 'woodcutting') || a - b)[0];
+    if (pick !== undefined) {
+      economy.remnantFeller = pick;
+      dedicate(w, state, pick, ['woodcutting', 'carpentry', 'farming'], false);
+    }
+  }
+  const remnantFeller = economy.remnantFeller;
+  const feller = specialists['woodcutter'] ?? remnantFeller;
   const forge = state.placedIds['forge'] ?? 0;
   if (feller === undefined || w.readers.of<BuildingsReader>('14').get(forge)?.state !== 'built') return;
   const items = w.readers.of<ItemsReader>('13');

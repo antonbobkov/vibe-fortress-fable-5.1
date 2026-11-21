@@ -156,9 +156,9 @@ describe('T-664 probe: the farm and the kitchen', () => {
         `day ${JSON.stringify(tally)} farmer ${farmer ?? '-'} [${labors}] did ${JSON.stringify(farmerDid)} ` +
         `strips ${state.economy.farmPlans.length}:${state.economy.farmPlans.filter((p) => p.zoneId > 0).length}:${state.economy.farmPlans.reduce((n, p) => n + p.tiles.length, 0)} ` +
         `caves ${state.economy.cavePlans.length}:${state.economy.cavePlans.filter((p) => p.zoneId > 0).length} famine ${state.economy.famine?.day ?? '-'} ` +
-        `farmers ${who('farming')} | cooks ${who('cooking')} | open ${openTop} | care ${jobLine('feed_patient')} ${jobLine('water_patient')} | dwarves ` +
+        `farmers ${who('farming')} | cooks ${who('cooking')} | open ${openTop} | chops ${jobLine('chop')} axes ${items.count('axe')}/${items.available('axe')} logs ${items.available('log')} | care ${jobLine('feed_patient')} ${jobLine('water_patient')} | dwarves ` +
         f.map((id) => `${id}:${ent.get(id, C.Brain)?.behavior ?? '?'}/h${Math.round(dwarves.need(id, 'hunger'))}/` +
-          `${['farming', 'hauling', 'medicine', 'mining'].filter((l) => jobs.laborEnabled(id, l)).map((l) => l[0]).join('')}${(ent.get(id, C.Soldier)?.squadId ?? 0) !== 0 ? '[sq]' : ''}`).join(' '));
+          `${['farming', 'hauling', 'medicine', 'mining', 'woodcutting', 'carpentry'].filter((l) => jobs.laborEnabled(id, l)).map((l) => l.slice(0, 2)).join('')}${(ent.get(id, C.Soldier)?.squadId ?? 0) !== 0 ? '[sq]' : ''}`).join(' '));
       tally = {};
       farmerDid = {};
     };

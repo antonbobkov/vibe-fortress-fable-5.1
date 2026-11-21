@@ -6,7 +6,8 @@
  * harvest standing in the field. With food for under FAMINE_DAYS and a ripe crop left a day, every
  * adult is given farming and farming goes a step ahead of the squad's kit; both are taken back once
  * the stores are full again. And nobody outside the hospital is left without the hauling labor,
- * which feeds the patients; and `keepAMiner` gives the pick to the founding farmer last.
+ * which feeds the patients; `keepAMiner` gives the pick to the founding farmer last; and a remnant
+ * whose founding woodcutter is gone keeps one immigrant on his trade.
  */
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
@@ -15,7 +16,7 @@ import type { JobsReader } from '@systems/jobs';
 import type { PlantsReader } from '@systems/plants';
 import { stageLength } from '@systems/plants/growth';
 import {
-  FAMINE_FARMING_PRIORITY, FOUNDING_FARMER, keepAHauler, keepAMiner, keepFoodFirst, type EconomyState,
+  FAMINE_FARMING_PRIORITY, FOUNDING_FARMER, keepAHauler, keepAMiner, keepFoodFirst, keepWoodcutter, type EconomyState,
 } from '../scenarios/three_years_economy';
 import { setupThreeYearsFortress, threeYearsWorld, type FortressState } from '../scenarios/three_years_fortress';
 import { TestWorld } from '../scenarios/test-world';
@@ -87,5 +88,25 @@ describe('T-664 the three-year script answers a famine', () => {
     const miners = founders.filter((id) => jobs.laborEnabled(id, 'mining'));
     expect(miners).toHaveLength(1);
     expect(miners[0]).not.toBe(founders[FOUNDING_FARMER]);
+  });
+
+  it('a remnant whose woodcutter is gone gives his trade, with farming, to an immigrant, and takes it back once the founder returns', () => {
+    const w = threeYearsWorld('three-years-p4-2', 4);
+    const state = setupThreeYearsFortress(w);
+    const jobs = w.readers.of<JobsReader>('11');
+    const founders = w.game.arrival!.dwarves;
+    const immigrant = w.spawnDwarf({ at: w.index(state.cx + 10, state.cy + 6, state.hallZ) });
+    w.step(1);
+    keepWoodcutter(w, state);
+    expect(state.economy.remnantFeller, 'the founder fells').toBeUndefined();
+    w.game.world.entities.add(founders[2]!, C.Brain, { ...w.game.world.entities.get(founders[2]!, C.Brain)!, behavior: 'patient' });
+    keepWoodcutter(w, state);
+    expect(state.economy.remnantFeller).toBe(immigrant);
+    const on = (labor: string): boolean => jobs.laborEnabled(immigrant, labor);
+    expect(['woodcutting', 'carpentry', 'farming', 'hauling', 'masonry'].map(on)).toEqual([true, true, true, false, false]);
+    w.game.world.entities.add(founders[2]!, C.Brain, { ...w.game.world.entities.get(founders[2]!, C.Brain)!, behavior: 'idle' });
+    keepWoodcutter(w, state);
+    expect(state.economy.remnantFeller).toBeUndefined();
+    expect(['hauling', 'masonry', 'mining'].map(on)).toEqual([true, true, false]);
   });
 });
