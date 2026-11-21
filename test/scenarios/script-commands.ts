@@ -27,6 +27,36 @@ export function scriptRecord(w: TestWorld): ScriptRecord {
   return record;
 }
 
+/** The designations that open a tile. */
+const OPENING = new Set(['dig', 'channel', 'stairs_up', 'stairs_down', 'stairs_updown', 'ramp']);
+
+const keptOff = new WeakMap<TestWorld, (tile: number) => boolean>();
+
+/**
+ * T-663: tiles `command` leaves out of every designation that opens a tile from now on (the rock
+ * around a cistern and its feed, which a dig beside would let the water into). A script's own work
+ * there goes through `exemptCommand`.
+ */
+export function keepOff(w: TestWorld, tiles: (tile: number) => boolean): void {
+  keptOff.set(w, tiles);
+}
+
+/** Whether `keepOff` keeps the tile off. */
+export function isKeptOff(w: TestWorld, tile: number): boolean {
+  return keptOff.get(w)?.(tile) ?? false;
+}
+
+/** `command`, past `keepOff`. */
+export function exemptCommand(w: TestWorld, cmd: Command, expected: readonly string[] = []): CommandResult {
+  const kept = keptOff.get(w);
+  keptOff.delete(w);
+  try {
+    return command(w, cmd, expected);
+  } finally {
+    if (kept !== undefined) keptOff.set(w, kept);
+  }
+}
+
 /** Thrown for a command rejected for a reason its script did not expect. */
 export class UnexpectedRejection extends Error {}
 
@@ -35,7 +65,15 @@ export class UnexpectedRejection extends Error {}
  * (an order already at its target, a site taken since the script looked); any other rejection
  * throws `UnexpectedRejection` with the command and the reason.
  */
-export function command(w: TestWorld, cmd: Command, expected: readonly string[] = []): CommandResult {
+export function command(w: TestWorld, given: Command, expected: readonly string[] = []): CommandResult {
+  let cmd = given;
+  const kept = keptOff.get(w);
+  if (kept !== undefined && cmd.type === 'Designate' && OPENING.has(String(cmd['kind'])) && Array.isArray(cmd['tiles'])) {
+    // T-663: no tile beside the cistern's water is dug but by the cistern's own work.
+    const tiles = (cmd['tiles'] as number[]).filter((t) => !kept(t));
+    if (tiles.length === 0) return { ok: true };
+    cmd = { ...cmd, tiles };
+  }
   const result = w.game.world.applyCommand(cmd);
   const record = scriptRecord(w);
   if (result.ok) {

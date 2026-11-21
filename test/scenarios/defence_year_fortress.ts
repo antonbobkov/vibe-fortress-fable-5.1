@@ -181,6 +181,8 @@ export function createDefenceYear(w: TestWorld, fortress: FortressState): Defenc
   fortress.northWatch = false;
   // T-603: the defence fortress trains its own squad (checkDefenceSquad), not the three-year script's strong squad.
   fortress.strongSquad = false;
+  // T-663: its year is a defence's; the three-year fortress's cistern is not built here.
+  fortress.waterInside = false;
   // The kill corridor before the north door (cx + 6, cy + 5): one tile wide on cy + 2 .. cy + 4,
   // walls to the west, fortifications to the east, a trap on each tile, and a drawbridge of two
   // tiles at its mouth (cy, cy + 1) hinged on the outer one. The sites are read from the ground, as

@@ -16,7 +16,7 @@ import type { WorkshopsReader } from '@systems/workshops';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { designateDig, onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
-import { command } from './script-commands';
+import { command, isKeptOff } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
 import { checkMakingDo, keepThanesShare, makingDoPurchases, makingDoWant } from './three_years_making_do';
 
@@ -587,6 +587,8 @@ function mine(w: TestWorld, state: FortressState, band: MineBand, wanted: (id: s
     const fresh = drift.filter((d) => map.kindAt(d) === TileKind.Wall && !(map.xOf(d) === band.x && map.yOf(d) === band.y));
     if (band.deep && !fresh.every((d) => dig.has(d) || sealed(w, state, d))) continue;
     if (band.walled && [...fresh, t].some((d) => opensToHillside(w, d))) continue;
+    // T-663: no drift comes beside the cistern's water.
+    if ([...fresh, t].some((d) => isKeptOff(w, d))) continue;
     for (const d of fresh) { dig.add(d); economy.workings.add(d); }
     economy.mined.add(t);
     taken += 1;
@@ -642,6 +644,10 @@ function openDeepShaft(w: TestWorld, state: FortressState, bottom: number, prior
     for (let yy = Math.min(upper.y, c.y); yy <= Math.max(upper.y, c.y); yy += 1) drift.push(w.index(c.x, yy, top));
     const fresh = drift.filter((t) => map.kindAt(t) === TileKind.Wall && !(map.xOf(t) === upper.x && map.yOf(t) === upper.y));
     if (!fresh.every((t) => map.fluidLevelAt(t) === 0)) continue;
+    // T-663: nor the deep shaft and its drift.
+    let kept = fresh.some((t) => isKeptOff(w, t));
+    for (let z = reach; z <= top && !kept; z += 1) kept = isKeptOff(w, w.index(c.x, c.y, z));
+    if (kept) continue;
     // Down stairs are worked on the tile itself: excavate their head before carving the shaft.
     if (fresh.length) command(w, { type: 'Designate', kind: 'dig', priority, tiles: fresh });
     for (const t of fresh) state.economy.workings.add(t);
@@ -660,7 +666,9 @@ export function keptClear(w: TestWorld, state: FortressState, tile: number): boo
   // The mine shaft's column and the tiles around it.
   if (near(state.cx + 6, Math.min(w.map.h - 3, state.cy + 15), SHAFT_CLEARANCE)) return true;
   const deep = state.economy.deepShaft;
-  return deep !== undefined && near(deep.x, deep.y, SHAFT_CLEARANCE);
+  if (deep !== undefined && near(deep.x, deep.y, SHAFT_CLEARANCE)) return true;
+  // T-663: the cistern's feed opens the ground by the brook.
+  return isKeptOff(w, tile);
 }
 
 /** Place a workshop near (dx, dy) of the fortress centre. `key` names a second or third workshop of one type. */
@@ -800,7 +808,7 @@ function planWorkHall(w: TestWorld, state: FortressState): { stair: number; tile
   // The sites nearest the stair first.
   const far = (t: number): number => Math.abs(w.map.xOf(t) + 1 - sx) + Math.abs(w.map.yOf(t) + 1 - sy);
   slots.sort((a, b) => far(a) - far(b) || a - b);
-  return { stair: w.index(sx, sy, hallZ), tiles: tiles.filter((t) => !opensToHillside(w, t)), slots };
+  return { stair: w.index(sx, sy, hallZ), tiles: tiles.filter((t) => !opensToHillside(w, t) && !isKeptOff(w, t)), slots };
 }
 
 /** T-580: whether the hall has a free, dug site for `type`. */
