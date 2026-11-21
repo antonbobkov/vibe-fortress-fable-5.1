@@ -1419,7 +1419,8 @@ export function foodInStock(w: TestWorld): number {
 /**
  * T-664: the player answers a famine. Food for fewer than FAMINE_DAYS with a ripe crop left in the
  * field for a day (a harvest job open, or with no worker, a day after it was made) is a famine: every
- * adult is given farming (a soldier at drill does no civilian work, but farms once the squad stands down), and farming's labor priority goes a step ahead of
+ * adult but the metal chain's workers is given farming (a soldier at drill does no civilian work, but
+ * farms once the squad stands down), and farming's labor priority goes a step ahead of
  * KIT_FIRST, so the harvest and the sowing come before everything but the care of patients. Until
  * then the script left the farm to the founding farmer and the immigrants, and a fortress that raids
  * had cut to a dozen lost them: in `three-years-p4-1` at shift 50 the farmer died in the hospital on
@@ -1458,8 +1459,12 @@ export function keepFoodFirst(w: TestWorld, state: FortressState): void {
     return;
   }
   const famine = economy.famine;
+  // The metal chain's workers stay at their furnaces and forge: in the sweep that gave them farming
+  // too, the steel smelted fell by a tenth. A fortress under SPECIALIST_RELEASE_POPULATION has
+  // released them (`releaseSpecialists`), and they farm with the rest.
+  const metal = new Set(['forge', 'fuel', 'charcoal'].map((role) => economy.specialists[role]).filter((id): id is number => id !== undefined));
   for (const id of adults) {
-    if (jobs.laborEnabled(id, 'farming')) continue;
+    if (metal.has(id) || jobs.laborEnabled(id, 'farming')) continue;
     command(w, { type: 'SetLabor', dwarfId: id, labor: 'farming', on: true });
     if (!famine.hands.includes(id)) famine.hands.push(id);
   }
