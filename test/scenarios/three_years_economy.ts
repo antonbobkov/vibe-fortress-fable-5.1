@@ -1395,10 +1395,16 @@ function checkBrewer(w: TestWorld, state: FortressState): void {
 
 /** T-664: the founder the fortress script makes its farmer (`three_years_fortress.ts`, the professions). */
 export const FOUNDING_FARMER = 4;
-/** T-664: food for fewer days than this (a unit a dwarf a day) with a ripe crop left a day in the field is a famine. */
-export const FAMINE_DAYS = 10;
-/** T-664: the famine is over once the stores hold food for this many days, or FAMINE_DAYS with no crop left waiting. */
-export const FAMINE_OVER_DAYS = 20;
+/**
+ * T-664: fewer units of food than this a dwarf, with a ripe crop left a day in the field, is a famine:
+ * about nine days of eating (a dwarf eats a unit in about three days: 0.33 to 0.35 a dwarf-day in the
+ * sweeps). At ten units a dwarf the famine held the farm a step ahead of all work for 25 days of every
+ * peril-2 and peril-4 fortress's year, with a month of food in the stores, and the steel smelted fell
+ * by a sixth.
+ */
+export const FAMINE_FOOD = 3;
+/** T-664: the famine is over once the stores hold this many units a dwarf, or FAMINE_FOOD with no crop left waiting. */
+export const FAMINE_OVER_FOOD = 6;
 /** T-664: farming's labor priority in a famine: a step ahead of KIT_FIRST, where T-570 raises the work that waits. */
 export const FAMINE_FARMING_PRIORITY = KIT_FIRST - 1;
 /** T-664: farming's labor priority otherwise, the food chain's step (`three_years_fortress.ts`, STEP_LABORS). */
@@ -1417,7 +1423,7 @@ export function foodInStock(w: TestWorld): number {
 }
 
 /**
- * T-664: the player answers a famine. Food for fewer than FAMINE_DAYS with a ripe crop left in the
+ * T-664: the player answers a famine. Under FAMINE_FOOD a dwarf, with a ripe crop left in the
  * field for a day (a harvest job open, or with no worker, a day after it was made) is a famine: every
  * adult but the metal chain's workers is given farming (a soldier at drill does no civilian work, but
  * farms once the squad stands down), and farming's labor priority goes a step ahead of
@@ -1430,7 +1436,7 @@ export function foodInStock(w: TestWorld): number {
  * 100 the two civilians with farming worked the craft and build jobs that T-570 raises to KIT_FIRST
  * when they wait, a step ahead of the farm's, while thirty ripe crops stood in the field for eighty
  * days and the fortress starved to the last. The famine is over once the stores hold
- * FAMINE_OVER_DAYS of food, or FAMINE_DAYS with no crop left waiting: farming goes back to the food
+ * FAMINE_OVER_FOOD a dwarf, or FAMINE_FOOD with no crop left waiting: farming goes back to the food
  * chain's step, and the dwarves given it for the famine lose it.
  */
 export function keepFoodFirst(w: TestWorld, state: FortressState): void {
@@ -1446,11 +1452,11 @@ export function keepFoodFirst(w: TestWorld, state: FortressState): void {
     (j.state === 'open' || (j.state === 'blocked' && j.blockedReason === 'no_worker')));
   const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
   if (economy.famine === undefined) {
-    if (adults.length === 0 || food >= FAMINE_DAYS * mouths || !waiting) return;
+    if (adults.length === 0 || food >= FAMINE_FOOD * mouths || !waiting) return;
     economy.famine = { day, hands: [] };
     command(w, { type: 'SetLaborPriority', labor: 'farming', priority: FAMINE_FARMING_PRIORITY });
     note('three_years_famine', { day, phase: 'start', dwarves: mouths, food });
-  } else if (adults.length === 0 || food >= FAMINE_OVER_DAYS * mouths || (!waiting && food >= FAMINE_DAYS * mouths)) {
+  } else if (adults.length === 0 || food >= FAMINE_OVER_FOOD * mouths || (!waiting && food >= FAMINE_FOOD * mouths)) {
     const { hands } = economy.famine;
     delete economy.famine;
     for (const id of hands) if (adults.includes(id) && jobs.laborEnabled(id, 'farming')) command(w, { type: 'SetLabor', dwarfId: id, labor: 'farming', on: false });

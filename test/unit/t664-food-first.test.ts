@@ -3,7 +3,7 @@
  * dozen the farm was left to the founding farmer and the immigrants: with the farmer dead or in the
  * hospital the ripe crops waited with no worker, or with soldiers at drill as the only farmers, or
  * behind the craft and build jobs T-570 raises when they wait, and the fortress starved with its
- * harvest standing in the field. With food for under FAMINE_DAYS and a ripe crop left a day, every
+ * harvest standing in the field. With food under FAMINE_FOOD a dwarf and a ripe crop left a day, every
  * adult is given farming and farming goes a step ahead of the squad's kit; both are taken back once
  * the stores are full again. And nobody outside the hospital is left without the hauling labor,
  * which feeds the patients; `keepAMiner` gives the pick to the founding farmer last; and a remnant
@@ -55,8 +55,8 @@ describe('T-664 the three-year script answers a famine', () => {
     w.until(() => w.readers.of<PlantsReader>('07').crops().length === 0, 2400);
     expect(w.readers.of<PlantsReader>('07').crops(), 'the crops are harvested').toEqual([]);
 
-    // Stores for twenty days end it: the labor and its priority go back.
-    w.spawnItem('plant_food', 'turnip', w.index(30, 62, Z), 40);
+    // Stores of FAMINE_OVER_FOOD a dwarf end it: the labor and its priority go back.
+    w.spawnItem('plant_food', 'turnip', w.index(30, 62, Z), 12);
     keepFoodFirst(w, state);
     expect(state.economy.famine).toBeUndefined();
     expect(jobs.laborEnabled(miner, 'farming')).toBe(false);
