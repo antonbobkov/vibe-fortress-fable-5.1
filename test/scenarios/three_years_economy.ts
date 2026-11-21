@@ -473,6 +473,10 @@ export function dedicate(w: TestWorld, state: FortressState, dwarfId: number, ke
  * shift 0 and `three-years-p4-4` at shift 150 the fortress had no log for weeks with 130 to 150 trees
  * standing, a few felled a month, so the carpenter made no barrel, the stills waited for one and the
  * fortress drank at the brook. The founder keeps his labors, so two dwarves fell.
+ * T-661: a founder down or in a hospital bed puts his axe down after `JOB_HOLD_TICKS` (11 § Assignment),
+ * and a dead one drops it, so the woodcutter takes that axe and the forge's is made only while no axe
+ * is free: while the founder keeps his in the squad, or when both woodcutters need one. Back on his
+ * feet, the founder fells with a free axe or leaves the chops to the one who has his.
  */
 export function keepWoodcutter(w: TestWorld, state: FortressState): void {
   const ent = w.game.world.entities;
