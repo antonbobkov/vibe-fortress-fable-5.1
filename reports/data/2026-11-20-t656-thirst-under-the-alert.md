@@ -101,7 +101,7 @@ By run:
 
 The thirst at the alerts' ends falls where the drink ran short (`p4-4` at 50, `p4-5` at 0, 50 and 100: 50 to 165 drinks of water outdoors under the alerts down to 0 to 62). The dead at critical thirst are few in both (34 and 25 of the peril-4 dead): the crowd T-653 traced in `p4-1` at shift 100 is not in that timeline on this master, which kept its drink. `p4-4` at shift 0 is the same in both: nothing of the answer changed its course.
 
-The starved rose: `p4-6` at shift 150, 29 dwarves at the end before, starved to the last of 11 on days 198 to 201 with 110 drinks in stock and no plant or meal after day 168, and `p4-2` at shift 0 (eight dwarves, days 70 to 80), while `p4-5` at 100 and 150 no longer starved. These are hunger, not thirst, in fortresses raids had cut small; whether the second woodcutter cost such a farm a hand is [a follow-up](../../docs/work/T-664-small-fortress-starves.md).
+The starved rose: `p4-6` at shift 150, 29 dwarves at the end before, starved to the last of 11 on days 198 to 201 with 110 drinks in stock and no plant or meal after day 168, and `p4-2` at shift 0 (eight dwarves, days 70 to 80), while `p4-5` at 100 and 150 no longer starved. These are hunger, not thirst, in fortresses raids had cut small; whether the second woodcutter cost such a farm a hand is [a follow-up](../../docs/archive/tasks/T-664-small-fortress-starves.md).
 
 ### Verdict
 

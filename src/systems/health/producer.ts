@@ -34,6 +34,13 @@ const REGULAR_SUPPLY: Readonly<Record<string, { readonly category: string }>> = 
   dress_burn: { category: 'textile/cloth' },
 });
 
+/**
+ * 17 § Patients and hospitals: `feed_patient` brings a meal, or any food a dwarf on its feet would
+ * eat (10 § Eating and drinking) when no meal is to be had.
+ */
+const MEAL_FILTER = { category: 'food/meal', edible: true } as const;
+const FOOD_FILTER = { edible: true } as const;
+
 /** 17 § Patients and hospitals: the soap `wash_patient` takes. */
 const SOAP_FILTER = { category: 'medical/soap' } as const;
 
@@ -137,6 +144,12 @@ export class HealthProducer implements JobProducer {
       soapLeft ??= items === null || !ctx.registry.table('items').has('soap') ? 0 : items.countAvailable(SOAP_FILTER);
       return soapLeft;
     };
+    // T-664: a patient is fed raw food when no meal is to be had; the meals are counted once a pass.
+    let mealsOut: boolean | undefined;
+    const noMeal = (): boolean => {
+      mealsOut ??= items !== null && items.countAvailable(MEAL_FILTER) === 0 && items.countAvailable(FOOD_FILTER) > 0;
+      return mealsOut;
+    };
     const byHoney = (need: string): boolean => {
       const regular = REGULAR_SUPPLY[need];
       if (honeyLeft <= 0 || regular === undefined || items === null) return false;
@@ -191,21 +204,21 @@ export class HealthProducer implements JobProducer {
         const waterKey = `water_patient:${patientId}`;
         if (needs) {
           if (needs.hunger >= 60) {
+            // T-664: a job waiting for a meal while none is to be had and other food is gives way
+            // to one that takes that food; it is made again on the next pass.
+            const fed = sink.byKey(feedKey);
+            if (fed !== undefined && fed.state === 'blocked' && fed.blockedReason === 'missing_input' && fed.data['raw'] !== true && noMeal()) {
+              sink.cancelKey(feedKey, 'no_meal');
+            }
             if (!sink.exists(feedKey)) {
+              const raw = noMeal();
               sink.create(feedKey, {
                 type: 'feed_patient',
                 target: { kind: 'entity', ref: patientId },
                 workTile: 'adjacent',
                 priority: 2,
-                inputs: [
-                  {
-                    filter: {
-                      category: 'food/meal',
-                    },
-                    count: 1,
-                  },
-                ],
-                data: { patient: patientId, excludeWorker: patientId },
+                inputs: [{ filter: { ...(raw ? FOOD_FILTER : MEAL_FILTER) }, count: 1 }],
+                data: { patient: patientId, excludeWorker: patientId, ...(raw ? { raw: true } : {}) },
               });
             }
           } else if (sink.exists(feedKey)) {

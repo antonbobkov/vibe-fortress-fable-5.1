@@ -13,7 +13,9 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-662 | [The sweep's noise under fixed immigration rolls](work/T-662-sweep-noise-fixed-rolls.md) | [T-652](archive/tasks/T-652-immigration-roll-own-stream.md) | — | open |
 | T-663 | [No water inside the gate](work/T-663-water-inside-the-gate.md) | [T-656](archive/tasks/T-656-thirst-under-the-alert.md) | — | open |
-| T-664 | [A small peril-4 fortress starves with drink in stock](work/T-664-small-fortress-starves.md) | [T-656](archive/tasks/T-656-thirst-under-the-alert.md) | — | open |
 | T-665 | [A stockpile that takes flux stone](work/T-665-flux-stockpile.md) | [T-659](archive/tasks/T-659-steel-fuel-in-one-trip.md) | — | open |
+| T-666 | [A patient is watered only with drink](work/T-666-patient-water.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
+| T-667 | [The three-year farm stops growing at its strips' cap](work/T-667-farm-strip-cap.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
+| T-668 | [Peril-2 steel fell a seventh with T-664](work/T-668-peril2-steel-after-farm.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
