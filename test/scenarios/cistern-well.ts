@@ -12,9 +12,10 @@
  * - `T`, a stairwell beside `S` from the surface to `L`: the miner channelling `S` steps onto it
  *   rather than falling, and walks back up, and the miners come down it to dig the tunnel. After
  *   the breach it fills with water to the brook's level, too deep to walk.
- * - The feed tunnel at `L`, from under `S` along `d`, then across to the cistern, dug from `T`'s
- *   foot; its last tile, beside the cistern, holds the floodgate `F`, dug and built from the
- *   cistern's side.
+ * - The feed tunnel at `L`, from under `S` along `d`, then across to the cistern. The floodgate `F`
+ *   stands midway on a straight stretch; the tunnel is dug toward it from `T`'s foot and from the
+ *   cistern, and its own tile last, once the stair stands whole, so that nobody is shut on the
+ *   brook's side with no way out.
  * - The cistern, a room at `L` under the hall; the well's column `W` is channelled from the hall's
  *   floor down to it, and an access stair `A` beside it joins the hall to the cistern while it is
  *   dug.
@@ -30,6 +31,7 @@ import { TileKind } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Command } from '@core/commands';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
 import type { TestWorld } from './test-world';
 
 /** Levels between the hall's floor and the cistern: the well's column is open on the two between. */
@@ -51,6 +53,8 @@ export interface CisternPlan {
   readonly tops: { readonly p: number; readonly s: number; readonly t: number };
   /** The feed tunnel at `cisternZ`, from `s` (first) to the tile before the cistern. */
   readonly tunnel: readonly Col[];
+  /** The floodgate's place in the tunnel: the tiles before it are the brook's, the tiles after it the cistern's. */
+  readonly gate: number;
   /** The cistern's tiles at `cisternZ`: the 3 × 3 around the well's column. */
   readonly cistern: readonly Col[];
 }
@@ -123,16 +127,23 @@ export function planCistern(w: TestWorld, well: Col, hallZ: number, across: Col,
           at = add(at, step);
           if (!inCistern(at)) tunnel.push(at);
         }
-        // The floodgate stands on the last tile, beside the cistern; no other tunnel tile comes
-        // within a step of the cistern, so the shut floodgate parts them for walkers too.
+        // The floodgate stands midway, on a straight stretch, so the tunnel is dug from both ends;
+        // no tile of the brook's side comes within a step of the cistern's, so the shut floodgate
+        // parts them for walkers too.
         if (tunnel.length < 3 || tunnel.length > maxTunnel) continue;
-        const f = tunnel[tunnel.length - 1] as Col;
         if (!tunnel.every((c) => inMap(c) && solid(c, cisternZ, cisternZ))) continue;
-        const nearCistern = (c: Col): boolean => Math.abs(c.x - well.x) <= 2 && Math.abs(c.y - well.y) <= 2;
-        if (tunnel.slice(0, -1).some(nearCistern) || nearCistern(t)) continue;
+        let gate = -1;
+        for (let i = 1; i < tunnel.length - 1; i += 1) {
+          const a = tunnel[i - 1] as Col, c = tunnel[i + 1] as Col;
+          if ((a.x === c.x || a.y === c.y) && (gate < 0 || Math.abs(i - tunnel.length / 2) < Math.abs(gate - tunnel.length / 2))) gate = i;
+        }
+        if (gate < 0) continue;
+        const brookSide = [...tunnel.slice(0, gate), t];
+        const wellSide = [...cistern, ...tunnel.slice(gate + 1)];
+        if (brookSide.some((u) => wellSide.some((v) => Math.max(Math.abs(u.x - v.x), Math.abs(u.y - v.y)) <= 1))) continue;
         if (best === null || tunnel.length < best.tunnel.length) {
           const tops = { p: map.columnSurfaceZ(p.x, p.y), s: map.columnSurfaceZ(s.x, s.y), t: map.columnSurfaceZ(t.x, t.y) };
-          best = { bz, hallZ, cisternZ, p, s, t, f, w: well, a: add(well, across), tops, tunnel, cistern };
+          best = { bz, hallZ, cisternZ, p, s, t, f: tunnel[gate] as Col, gate, w: well, a: add(well, across), tops, tunnel, cistern };
         }
       }
     }
@@ -216,7 +227,7 @@ export function cisternWork(plan: CisternPlan, leverTile: TileIndex, priority: n
 export function cisternWater(w: TestWorld, work: CisternWork): number {
   const { plan } = work;
   let sum = 0;
-  for (const c of plan.cistern) sum += w.map.fluidLevelAt(tileOf(w, c, plan.cisternZ));
+  for (const c of [...plan.cistern, ...plan.tunnel.slice(plan.gate + 1)]) sum += w.map.fluidLevelAt(tileOf(w, c, plan.cisternZ));
   return sum;
 }
 
@@ -241,8 +252,8 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
     if (steps.has(key) || !ready) return;
     if (act()) { steps.add(key); work.log.push(`${key} @${w.tick}`); }
   };
-  const place = (type: string, tile: TileIndex): EntityId => {
-    if (!send({ type: 'PlaceBuilding', buildingType: type, origin: tile, orientation: 0, materialChoice: 0 })) return 0;
+  const place = (type: string, tile: TileIndex, buildPriority = priority): EntityId => {
+    if (!send({ type: 'PlaceBuilding', buildingType: type, origin: tile, orientation: 0, materialChoice: 0, priority: buildPriority })) return 0;
     return (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;
   };
   const built = (id: EntityId): boolean => id !== 0 && b.get(id)?.state === 'built';
@@ -255,17 +266,22 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
     const tiles = cols.map((c) => at(c, L)).filter((t) => map.kindAt(t) === TileKind.Wall);
     return tiles.length === 0 || send({ type: 'Designate', kind: 'dig', priority, tiles });
   };
-  // From the hall: the access stair to the cistern, then the cistern.
+  // From the hall: the access stair to the cistern, then the cistern and the tunnel up to the floodgate.
   once('access', dug(plan.a, H), () => send({ type: 'DesignateStairwell', x: plan.a.x, y: plan.a.y, zTop: H, zBottom: L, priority }));
-  once('cistern', steps.has('access'), () => digAt(plan.cistern.filter((c) => !(c.x === plan.a.x && c.y === plan.a.y))));
-  // From the surface: the stair down to the tunnel's level, and the tunnel from its foot.
+  once('cistern', steps.has('access'), () => digAt([...plan.cistern.filter((c) => !(c.x === plan.a.x && c.y === plan.a.y)), ...plan.tunnel.slice(plan.gate + 1)]));
+  // From the surface: the stair down to the tunnel's level, and the tunnel from its foot to the floodgate.
   once('stair', true, () => send({ type: 'DesignateStairwell', x: plan.t.x, y: plan.t.y, zTop: plan.tops.t, zBottom: L, priority }));
-  once('tunnel', steps.has('stair'), () => digAt(plan.tunnel.slice(0, -1)));
+  once('tunnel', steps.has('stair'), () => digAt(plan.tunnel.slice(0, plan.gate)));
   // The floodgate's tile joins the two last, once the stair stands whole: whoever is on the
   // tunnel's side when the floodgate shuts walks out up the stair.
   let stairWhole = true;
   for (let z = L; z < plan.tops.t; z += 1) if (![TileKind.StairsUp, TileKind.StairsUpDown].includes(kind(plan.t, z))) stairWhole = false;
-  once('gate tile', stairWhole && steps.has('cistern') && plan.tunnel.slice(0, -1).every((c) => dug(c, L)), () => digAt([plan.f]));
+  // Until the floodgate stands on it the tile is a back door from the brook to the halls: it is dug
+  // with the floodgate in stock and no alert up, and it and the floodgate go ahead of all other work.
+  const urgent = Math.max(1, priority - 2);
+  once('gate tile', stairWhole && steps.has('cistern') && plan.tunnel.every((c, i) => i === plan.gate || dug(c, L)) &&
+    w.readers.of<ItemsReader>('13').available('floodgate') > 0 && w.game.world.fortress.alert === 'calm',
+  () => send({ type: 'Designate', kind: 'dig', priority: urgent, tiles: [at(plan.f, L)] }));
   // The well's column, a level at a time; its last level once the cistern is dug under it.
   once('well:0', kind(plan.w, H) === TileKind.Floor, () => channel(plan.w, H));
   for (let k = 1; k < CISTERN_DEPTH; k += 1) {
@@ -273,9 +289,7 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
     once(`well:${k}`, steps.has(`well:${k - 1}`) && kind(plan.w, z + 1) === TileKind.Open && kind(plan.w, z) === TileKind.Ramp &&
       (k < CISTERN_DEPTH - 1 || dug(plan.w, L)), () => channel(plan.w, z));
   }
-  // The floodgate on the tunnel's last tile as soon as it is dug: until it stands, the tunnel joins
-  // the halls to the surface by the stair.
-  once('floodgate', dug(plan.f, L), () => (work.floodgateId = place('floodgate_building', at(plan.f, L))) !== 0);
+  once('floodgate', dug(plan.f, L), () => (work.floodgateId = place('floodgate_building', at(plan.f, L), urgent)) !== 0);
   once('lever', map.kindAt(work.leverTile) === TileKind.Floor, () => (work.leverId = place('lever', work.leverTile)) !== 0);
   once('link', built(work.floodgateId) && built(work.leverId), () => send({ type: 'LinkMechanism', sourceId: work.leverId, targetId: work.floodgateId }));
   // A channel column, a level at a time from the column's surface: each level is a ramp the one above left.
@@ -296,7 +310,7 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   // Before the brook comes in, nobody is to walk in the tunnel or on its stair (a hauler after the
   // tunnel's stone would drown there): their traffic is forbidden, and the breach waits for them to
   // be empty.
-  const flooded = [...plan.tunnel.slice(0, -1).map((c) => at(c, L))];
+  const flooded = plan.tunnel.slice(0, plan.gate).map((c) => at(c, L));
   for (let z = L; z < plan.tops.t; z += 1) flooded.push(at(plan.t, z));
   const ready = linked && bankReady && kind(plan.s, L + 1) === TileKind.Open && plan.tunnel.every((c) => dug(c, L));
   once('seal', ready, () => send({ type: 'SetTraffic', tiles: flooded, mode: 'forbidden' }));
