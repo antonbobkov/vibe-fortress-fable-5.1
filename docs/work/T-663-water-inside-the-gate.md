@@ -12,4 +12,5 @@ Find out whether a player can bring water inside with the game as it is: a chann
 
 ## Done
 
-A scenario where a fortress with no drink drinks from a well inside its gate under a hearth alert (or the reason it cannot); the sweep's verdict if the script changes.
+- [x] A scenario where a fortress with no drink drinks from a well inside its gate under a hearth alert: [`bd_cistern_well`](../../test/scenarios/bd_cistern_well.scenario.ts) ([T-663's report](../../reports/data/2026-11-20-t663-water-inside-the-gate.md)).
+- [ ] The sweep's verdict with the script changed: sweep `44850405030` was not judged (shift 100: 19 of 20) and broke its death and peril-0 need-death bounds; the three-year cistern needs another pass (the report's § What is left).
