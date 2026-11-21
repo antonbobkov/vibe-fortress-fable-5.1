@@ -1129,7 +1129,7 @@ export function trade(w: TestWorld, state: FortressState): void {
   const exports = ent.with(C.Item).filter((id) => {
     const it = ent.get(id, C.Item);
     if (!it || it.carriedBy || jobs.byKey(`depot:${id}`) ||
-      (it.flags & (ItemFlag.Foreign | ItemFlag.Merchant | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Installed | ItemFlag.AtDepot))) return false;
+      (it.flags & (ItemFlag.Foreign | ItemFlag.Merchant | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Installed | ItemFlag.AtDepot | ItemFlag.Forbidden))) return false;
     const type = types.byIndex(it.type);
     if (type?.category.startsWith('craft/')) { committed += reader.valuation('mountainhome', id); return true; }
     if (type?.id === 'lavish_meal' && reader.activeCaravan() && mealSurplus >= it.count) { mealSurplus -= it.count; return true; }

@@ -26,18 +26,17 @@
  * it shuts the tunnel, open to the surface by `T`, out of the halls.
  */
 
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { TileKind } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Command } from '@core/commands';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 import type { TestWorld } from './test-world';
 
 /** Levels between the hall's floor and the cistern: the well's column is open on the two between. */
 export const CISTERN_DEPTH = 3;
-/** Ticks the shut cistern is left to settle before the floodgate is opened again for a dry well column. */
-export const SETTLE_TICKS = 1200;
 
 export interface Col { readonly x: number; readonly y: number }
 
@@ -156,7 +155,8 @@ function pieces(plan: CisternPlan): { c: Col; z0: number; z1: number }[] {
   const { cisternZ: L, hallZ: H, bz, tops } = plan;
   return [
     { c: plan.s, z0: L, z1: tops.s }, { c: plan.t, z0: L, z1: tops.t }, { c: plan.p, z0: bz, z1: tops.p },
-    { c: plan.w, z0: L, z1: H }, { c: plan.a, z0: L, z1: H },
+    // The well's column and the access stair below the hall's level: on it they hold no water.
+    { c: plan.w, z0: L, z1: H - 1 }, { c: plan.a, z0: L, z1: H - 1 },
     ...[...plan.tunnel, ...plan.cistern].map((c) => ({ c, z0: L, z1: L })),
   ];
 }
@@ -202,6 +202,8 @@ export interface CisternWork {
   readonly plan: CisternPlan;
   /** The hall tile the lever stands on. */
   readonly leverTile: TileIndex;
+  /** The well room's tiles and its passage on the hall's level, to dig first (none for a well in a hall). */
+  readonly room: readonly TileIndex[];
   readonly priority: number;
   readonly steps: Set<string>;
   floodgateId: EntityId;
@@ -219,8 +221,8 @@ export interface CisternWork {
   readonly log: string[];
 }
 
-export function cisternWork(plan: CisternPlan, leverTile: TileIndex, priority: number): CisternWork {
-  return { plan, leverTile, priority, steps: new Set(), floodgateId: 0, leverId: 0, wellId: 0, pulls: 0, openedAt: -1, openTicks: 0, shutAt: -1, hallWater: 0, log: [] };
+export function cisternWork(plan: CisternPlan, leverTile: TileIndex, priority: number, room: readonly TileIndex[] = []): CisternWork {
+  return { plan, leverTile, priority, room, steps: new Set(), floodgateId: 0, leverId: 0, wellId: 0, pulls: 0, openedAt: -1, openTicks: 0, shutAt: -1, hallWater: 0, log: [] };
 }
 
 /** The water in the cistern, behind the floodgate. */
@@ -267,6 +269,11 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
     return tiles.length === 0 || send({ type: 'Designate', kind: 'dig', priority, tiles });
   };
   // From the hall: the access stair to the cistern, then the cistern and the tunnel up to the floodgate.
+  // A well room and its passage on the hall's level, where the well does not stand in a hall already dug.
+  once('room', true, () => {
+    const tiles = work.room.filter((t) => map.kindAt(t) === TileKind.Wall);
+    return tiles.length === 0 || send({ type: 'Designate', kind: 'dig', priority, tiles });
+  });
   once('access', dug(plan.a, H), () => send({ type: 'DesignateStairwell', x: plan.a.x, y: plan.a.y, zTop: H, zBottom: L, priority }));
   once('cistern', steps.has('access'), () => digAt([...plan.cistern.filter((c) => !(c.x === plan.a.x && c.y === plan.a.y)), ...plan.tunnel.slice(plan.gate + 1)]));
   // From the surface: the stair down to the tunnel's level, and the tunnel from its foot to the floodgate.
@@ -292,10 +299,23 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   once('floodgate', dug(plan.f, L), () => (work.floodgateId = place('floodgate_building', at(plan.f, L), urgent)) !== 0);
   once('lever', map.kindAt(work.leverTile) === TileKind.Floor, () => (work.leverId = place('lever', work.leverTile)) !== 0);
   once('link', built(work.floodgateId) && built(work.leverId), () => send({ type: 'LinkMechanism', sourceId: work.leverId, targetId: work.floodgateId }));
+  // The link's job takes the cistern's priority: given its own, it stood open for months behind routine work.
+  if (steps.has('link')) {
+    for (const job of w.readers.of<JobsReader>('11').list()) {
+      if (job.key.startsWith(`link_mechanism:${work.leverId}:`) && job.priority > priority) send({ type: 'SetJobPriority', jobId: job.id, priority });
+    }
+  }
+  // The ground a channel opens: a floor, or the sapling or shrub grown on it since it was planned
+  // (03 § Tile transitions); a tree grown there is felled first.
+  const ground = (c: Col, z: number): boolean => {
+    const k = kind(c, z);
+    if (k === TileKind.Tree) send({ type: 'Designate', kind: 'chop', priority, tiles: [at(c, z)] });
+    return k === TileKind.Floor || k === TileKind.Sapling || k === TileKind.Shrub;
+  };
   // A channel column, a level at a time from the column's surface: each level is a ramp the one above left.
   const column = (name: string, c: Col, top: number, bottom: number, ready: boolean): void => {
     for (let z = top; z >= bottom; z -= 1) {
-      once(`${name}:${z}`, ready && (z === top ? kind(c, z) === TileKind.Floor
+      once(`${name}:${z}`, ready && (z === top ? !steps.has(`${name}:${z}`) && ground(c, z)
         : steps.has(`${name}:${z + 1}`) && kind(c, z + 1) === TileKind.Open && kind(c, z) === TileKind.Ramp), () => channel(c, z));
     }
   };
@@ -306,7 +326,19 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   // The bank down to one level above the water; its last level, which lets the brook in, is the breach.
   column('bank', plan.p, plan.tops.p, bz + 2, steps.has('stair'));
   const linked = built(work.leverId) && (b.get(work.leverId)?.linkedIds ?? []).includes(work.floodgateId);
-  const bankReady = plan.tops.p === bz + 1 ? kind(plan.p, bz + 1) === TileKind.Floor : steps.has(`bank:${bz + 2}`) && kind(plan.p, bz + 1) === TileKind.Ramp;
+  const bankReady = !steps.has('breach') && (plan.tops.p === bz + 1 ? ground(plan.p, bz + 1) : steps.has(`bank:${bz + 2}`) && kind(plan.p, bz + 1) === TileKind.Ramp);
+  // The stone dug on the brook's side is left where it lies, forbidden: hauling it would send the
+  // haulers out to the brook and down the stair, and the water will cover it.
+  const feedSide: TileIndex[] = plan.tunnel.slice(0, plan.gate).map((c) => at(c, L));
+  for (let z = L; z <= plan.tops.t; z += 1) feedSide.push(at(plan.t, z));
+  for (let z = L; z <= plan.tops.s; z += 1) feedSide.push(at(plan.s, z));
+  for (let z = bz; z <= plan.tops.p; z += 1) feedSide.push(at(plan.p, z));
+  for (const tile of feedSide) {
+    for (const id of w.readers.entities.at(tile)) {
+      const item = w.game.world.entities.get(id, C.Item);
+      if (item !== undefined && (item.flags & ItemFlag.Forbidden) === 0 && item.carriedBy === 0) send({ type: 'ForbidItem', itemId: id, on: true });
+    }
+  }
   // Before the brook comes in, nobody is to walk in the tunnel or on its stair (a hauler after the
   // tunnel's stone would drown there): their traffic is forbidden, and the breach waits for them to
   // be empty.
@@ -317,21 +349,20 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   const empty = (): boolean => {
     const ent = w.game.world.entities;
     const tiles = new Set(flooded);
-    return !ent.with(C.Creature, C.Position).some((id) => {
+    return !ent.with(C.Labors, C.Position).some((id) => {
       const p = ent.get(id, C.Position);
-      return p !== undefined && ent.get(id, C.Creature)?.faction === 'fortress' && tiles.has(w.index(p.x, p.y, p.z));
+      return p !== undefined && ent.alive(id) && tiles.has(w.index(p.x, p.y, p.z));
     });
   };
   once('breach', ready && steps.has('seal') && empty(), () => channel(plan.p, bz + 1));
-  // The brook stands at the floodgate: open it, and shut it as soon as it has opened; again if no
-  // water has reached the well's column a day after.
+  // The brook stands at the floodgate: open it, and shut it once the water stands under the well.
   const gate = work.floodgateId === 0 ? '' : b.mechanismState(work.floodgateId);
   if (gate === 'open' && work.openedAt < 0) work.openedAt = w.tick;
   if (gate === 'closed' && work.openedAt >= 0) { work.openTicks += w.tick - work.openedAt; work.openedAt = -1; work.shutAt = w.tick; }
-  if (linked && work.wellId === 0 && map.fluidLevelAt(at(plan.s, L)) > 0) {
+  if (linked && work.wellId === 0 && map.fluidLevelAt(at(plan.tunnel[plan.gate - 1] as Col, L)) > 0) {
     const asked = work.pulls % 2 === 1 ? 'open' : 'closed';
-    const dry = map.fluidLevelAt(at(plan.w, L)) === 0 && (work.pulls === 0 || w.tick - work.shutAt >= SETTLE_TICKS);
-    if (gate === asked && (asked === 'open' || dry) && send({ type: 'PullLever', leverId: work.leverId })) {
+    const dry = map.fluidLevelAt(at(plan.w, L)) === 0;
+    if (gate === asked && (asked === 'open') !== dry && send({ type: 'PullLever', leverId: work.leverId })) {
       work.pulls += 1;
       work.log.push(`pull ${asked === 'open' ? 'shut' : 'open'} @${w.tick}`);
     }

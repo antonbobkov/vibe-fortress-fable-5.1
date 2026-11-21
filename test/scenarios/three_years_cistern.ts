@@ -1,10 +1,11 @@
 /**
  * T-663: water inside the gate for the three-year fortress. A player who has seen the fortress's
- * thirsty walk out to the brook under an alert brings the brook inside: a cistern under a corner of
- * the hearth hall, fed through a floodgate on a lever, and a well over it in the hall
- * (`cistern-well.ts`, `bd_cistern_well`). Planned on the first look, where the brook is near
- * enough (`CISTERN_TUNNEL_MAX`), so that no later dig comes beside its water (`keepOff`); built
- * from `CISTERN_DAY`, at routine priority, with a mechanic's workshop for the mechanisms.
+ * thirsty walk out to the brook under an alert brings the brook inside: a cistern fed through a
+ * floodgate on a lever, and a well over it (`cistern-well.ts`, `bd_cistern_well`). Under a corner
+ * of the hearth hall where the brook's water can reach it, else under a well room dug near the
+ * brook on the hall level and joined to the halls' corridors underground. Planned on the first
+ * look, so that no later dig comes beside its water (`keepOff`); built from `CISTERN_DAY` a step
+ * ahead of routine work, with a mechanic's workshop for the mechanisms.
  */
 
 import { TICKS_PER_DAY } from '@core/constants';
@@ -12,19 +13,24 @@ import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
-import { cisternKeepOff, cisternWork, keepOffWhole, lookAtCistern, planCistern, wellWorks, type CisternWork } from './cistern-well';
+import { TileFlag, TileKind } from '@core/map3d';
+import { cisternKeepOff, cisternWork, keepOffWhole, lookAtCistern, planCistern, wellWorks, type CisternPlan, type CisternWork, type Col } from './cistern-well';
 import { command, exemptCommand, keepOff } from './script-commands';
 import { placeEconomyBuilding, ROUTINE } from './three_years_economy';
 import { note } from './three_years_measurements';
 import type { FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
 
-/** The longest feed tunnel the script digs: the brook is near enough within it. */
-export const CISTERN_TUNNEL_MAX = 50;
+/**
+ * The longest feed tunnel to a cistern under the hearth hall: a level tunnel carries the brook's water
+ * some thirty tiles from its shaft before the levels run out (04 § The four movement rules, rule 2),
+ * and the floodgate and the well want it there at more than a film.
+ */
+export const HALL_TUNNEL_MAX = 20;
+/** The farthest from the brook a well room is dug, and the longest feed tunnel to it. */
+export const ROOM_TUNNEL_MAX = 10;
 /** The day the cistern's work starts, once the first mine and the halls have had the miners. */
 export const CISTERN_DAY = 56;
-/** Mechanisms the cistern uses: the lever, its link, and the well. */
-const CISTERN_MECHANISMS = 3;
 /** The cistern's digging and building: a step ahead of routine work, as the food chain is, or the miners never reach it. */
 const CISTERN_PRIORITY = ROUTINE - 1;
 /** Rejections the cistern's commands meet when the map has moved on since the look. */
@@ -41,25 +47,76 @@ const CORNERS: readonly { well: [number, number]; across: [number, number]; leve
   { well: [13, 4], across: [0, 1], lever: [8, 4] },
 ];
 
-/** The shortest whole plan over the hall's corners, or null where the brook is too far. */
+const DIRS: readonly Col[] = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+
+/** Whether a plan suits the fortress: whole rock about it, no bedroom of the plan and no mine shaft beside its water. */
+function suits(w: TestWorld, state: FortressState, plan: CisternPlan, planned: ReadonlySet<number>): Set<number> | null {
+  if (!keepOffWhole(w, plan)) return null;
+  const kept = cisternKeepOff(w, plan);
+  if ([...planned].some((t) => kept.has(t))) return null;
+  // The mine's shaft, whose stair is dug later down to the cistern's level, must not open on its water.
+  const shaft = { x: state.cx + 6, y: Math.min(w.map.h - 3, state.cy + 15) };
+  if ([...plan.cistern, ...plan.tunnel].some((c) => Math.abs(c.x - shaft.x) + Math.abs(c.y - shaft.y) <= 1)) return null;
+  return kept;
+}
+
+/**
+ * Where the water can reach: under a corner of the hearth hall when the tunnel is short enough to
+ * carry it there (`HALL_TUNNEL_MAX`), else under a well room near the brook (`ROOM_TUNNEL_MAX`),
+ * dug on the hall level and joined to the halls' corridors by a passage of its own, nearest first.
+ * Null when neither serves.
+ */
 function planFortressCistern(w: TestWorld, state: FortressState): CisternWork | null {
   const { cx, cy, hallZ } = state;
+  const map = w.map;
   const planned = new Set(state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, hallZ)]));
   let best: CisternWork | null = null;
   for (const corner of CORNERS) {
-    const plan = planCistern(w, { x: cx + corner.well[0], y: cy + corner.well[1] }, hallZ, { x: corner.across[0], y: corner.across[1] }, CISTERN_TUNNEL_MAX);
-    if (plan === null || !keepOffWhole(w, plan)) continue;
-    const kept = cisternKeepOff(w, plan);
-    if ([...planned].some((t) => kept.has(t))) continue;
-    // Nor the gate's stair nor the mine's shaft, whose stairs come later.
-    const shafts = [[cx + 6, cy + 6], [cx + 6, Math.min(w.map.h - 3, cy + 15)]] as const;
-    let crossed = false;
-    for (const [sx, sy] of shafts) for (let z = plan.cisternZ; z <= hallZ; z += 1) for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
-      if (kept.has(w.index(sx + dx, sy + dy, z))) crossed = true;
-    }
-    if (crossed) continue;
+    const plan = planCistern(w, { x: cx + corner.well[0], y: cy + corner.well[1] }, hallZ, { x: corner.across[0], y: corner.across[1] }, HALL_TUNNEL_MAX);
+    if (plan === null || suits(w, state, plan, planned) === null) continue;
     if (best === null || plan.tunnel.length < best.plan.tunnel.length) {
       best = cisternWork(plan, w.index(cx + corner.lever[0], cy + corner.lever[1], hallZ), CISTERN_PRIORITY);
+    }
+  }
+  if (best !== null) return best;
+  // The halls' corridors on their level (`setupThreeYearsFortress`): the south one and the west one.
+  const corridor = new Set<number>();
+  for (let y = cy + 7; y <= Math.min(map.h - 3, cy + 45); y += 1) corridor.add(w.index(cx + 6, y, hallZ));
+  for (let x = Math.max(1, cx - 13); x <= cx + 4; x += 1) corridor.add(w.index(x, cy + 6, hallZ));
+  const brook: Col[] = [];
+  for (let y = 0; y < map.h; y += 1) for (let x = 0; x < map.w; x += 1) {
+    for (let z = hallZ + 1; z < map.d; z += 1) if (map.fluidLevelAt(w.index(x, y, z)) > 0 && map.hasFlag(w.index(x, y, z), TileFlag.Outdoor)) { brook.push({ x, y }); break; }
+  }
+  const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && map.designationAt(t) === 0 && map.fluidLevelAt(t) === 0 && !planned.has(t);
+  let bestCost = Number.MAX_SAFE_INTEGER;
+  for (let y = 3; y < map.h - 3; y += 1) for (let x = 3; x < map.w - 3; x += 1) {
+    const toBrook = Math.min(...brook.map((b) => Math.max(Math.abs(b.x - x), Math.abs(b.y - y))));
+    if (toBrook < 4 || toBrook > ROOM_TUNNEL_MAX) continue;
+    const room: number[] = [];
+    for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) room.push(w.index(x + dx, y + dy, hallZ));
+    if (!room.every(rock)) continue;
+    // The passage: to the nearest corridor tile, along one axis and then the other.
+    let target = -1;
+    for (const t of corridor) if (target < 0 || Math.abs(map.xOf(t) - x) + Math.abs(map.yOf(t) - y) < Math.abs(map.xOf(target) - x) + Math.abs(map.yOf(target) - y)) target = t;
+    if (target < 0) continue;
+    for (const across of DIRS) {
+      const plan = planCistern(w, { x, y }, hallZ, across, ROOM_TUNNEL_MAX);
+      if (plan === null) continue;
+      const kept = suits(w, state, plan, planned);
+      if (kept === null) continue;
+      for (const xFirst of [true, false]) {
+        const passage: number[] = [];
+        let px = x, py = y;
+        const tx = map.xOf(target), ty = map.yOf(target);
+        const stepTo = (nx: number, ny: number): void => { px = nx; py = ny; const t = w.index(px, py, hallZ); if (!room.includes(t)) passage.push(t); };
+        if (xFirst) { while (px !== tx) stepTo(px + Math.sign(tx - px), py); while (py !== ty) stepTo(px, py + Math.sign(ty - py)); }
+        else { while (py !== ty) stepTo(px, py + Math.sign(ty - py)); while (px !== tx) stepTo(px + Math.sign(tx - px), py); }
+        if (!passage.every((t) => (corridor.has(t) || rock(t)) && !kept.has(t))) continue;
+        const cost = plan.tunnel.length + passage.length;
+        if (cost >= bestCost) continue;
+        bestCost = cost;
+        best = cisternWork(plan, w.index(x - across.x, y - across.y, hallZ), CISTERN_PRIORITY, [...room, ...passage.filter((t) => !corridor.has(t))]);
+      }
     }
   }
   return best;
@@ -84,10 +141,13 @@ function orderGoods(w: TestWorld, state: FortressState, work: CisternWork): void
     if (orders().length > 1) command(w, { type: 'ReorderWorkOrder', workshopId: workshop, from: orders().length - 1, to: 0 });
   };
   placeEconomyBuilding(w, state, 'mechanic', 8, 16);
-  const mechanisms = CISTERN_MECHANISMS - (work.steps.has('lever') ? 1 : 0) - (work.steps.has('link') ? 1 : 0) - (work.steps.has('well') ? 1 : 0);
+  // A mechanism for each of the lever, its link and the well still to be done.
+  const done = (id: number): boolean => id !== 0 && buildings.get(id)?.state === 'built';
+  const linked = done(work.leverId) && (buildings.get(work.leverId)?.linkedIds ?? []).includes(work.floodgateId);
+  const mechanisms = (done(work.leverId) ? 0 : 1) + (linked ? 0 : 1) + (done(work.wellId) ? 0 : 1);
   order(built('mechanic'), 'make_mechanism', mechanisms - items.available('mechanism'));
-  if (!work.steps.has('floodgate')) order(built('mason'), 'make_floodgate', 1 - items.available('floodgate'));
-  if (!work.steps.has('well')) {
+  if (work.floodgateId === 0) order(built('mason'), 'make_floodgate', 1 - items.available('floodgate'));
+  if (!done(work.wellId)) {
     if (items.available('chain') + items.available('rope') === 0) order(built('forge'), 'forge_chain', 1, { materialFilter: 'iron' });
     if (items.available('bucket') === 0) order(built('carpenter'), 'make_bucket', 1);
   }
@@ -108,8 +168,9 @@ export function keepWaterInside(w: TestWorld, state: FortressState): void {
       return;
     }
     const kept = cisternKeepOff(w, work.plan);
+    for (const t of work.room) kept.add(t);
     keepOff(w, (t) => kept.has(t));
-    note('three_years_cistern', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1, plan: 'planned', tunnel: work.plan.tunnel.length, brookZ: work.plan.bz,
+    note('three_years_cistern', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1, plan: work.room.length > 0 ? 'room' : 'hall', tunnel: work.plan.tunnel.length, passage: work.room.length, brookZ: work.plan.bz,
       well: [work.plan.w.x, work.plan.w.y], feed: [work.plan.s.x, work.plan.s.y] });
     return;
   }
