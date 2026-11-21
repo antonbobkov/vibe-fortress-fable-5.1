@@ -64,7 +64,8 @@ interface DwarvesState { stateVersion: 1; titles: Record<'thane'|'warden'|'broke
 // A stay for a talk in passing is an ActivityPlan with need 'social', phase 'use', partner 0 and until = the talk's end tick.
 
 interface JobsState { stateVersion: 1; jobs: Job[]; nextJobId: number; laborPriorities: Uint8Array; standingOrders: Record<string, boolean>;
-  assignQueue: EntityId[]; blockedRetryCursor: number }
+  assignQueue: EntityId[]; blockedRetryCursor: number;
+  toolAway?: [EntityId, Tick][] /* per worker holding a pick, axe or launcher it cannot use (down or a patient; a soldier keeps its own), the first tick seen so, ascending id (11 § Assignment); omitted when none, absent in older saves means none */ }
 interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string; priority: Priority;
   target: { kind: 'tile'|'entity'|'building'|'zone'|'pair'; ref: number; ref2?: number }; workTile: TileIndex | 'adjacent' | 'at';
   inputs: { filter: ItemFilter; count: number; wholeItem?: true /* reserve the whole stack, retained on save */; reserved: EntityId[]; delivered: EntityId[] }[]; tool: 'pick'|'axe'|'ranged'|'bucket'|null;

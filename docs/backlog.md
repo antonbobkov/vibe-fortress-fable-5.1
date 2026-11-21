@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-661 | [The only axe stays with a dwarf who cannot chop](work/T-661-axe-held-by-the-absent.md) | [T-653](archive/tasks/T-653-ambush-at-the-all-clear.md) | — | open |
 | T-662 | [The sweep's noise under fixed immigration rolls](work/T-662-sweep-noise-fixed-rolls.md) | [T-652](archive/tasks/T-652-immigration-roll-own-stream.md) | — | open |
 | T-663 | [No water inside the gate](work/T-663-water-inside-the-gate.md) | [T-656](archive/tasks/T-656-thirst-under-the-alert.md) | — | open |
 | T-664 | [A small peril-4 fortress starves with drink in stock](work/T-664-small-fortress-starves.md) | [T-656](archive/tasks/T-656-thirst-under-the-alert.md) | — | open |
