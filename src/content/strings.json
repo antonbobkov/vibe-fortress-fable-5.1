@@ -305,5 +305,5 @@
   "tutorial.stairs": "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft.",
   "tutorial.stockpile": "Hauled goods need a place. Open Zones with [z], choose a stockpile with [s], and drag a rectangle over open floor (or Enter at two corners).",
   "tutorial.view": "Welcome to your hall. Move the view with ←→ ↑↓ (or drag with the middle button), and change the level with [<] and [>] (or the wheel). Do both: the z field below shows the level.",
-  "tutorial.workshop": "Open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
+  "tutorial.workshop": "Leave Zones with Esc, open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
 }

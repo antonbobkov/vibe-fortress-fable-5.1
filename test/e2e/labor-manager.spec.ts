@@ -79,7 +79,8 @@ test('labor-manager', async ({ page }) => {
   await step(1);
   await expect.poll(() => textOf(page)).toContain('Kili Deepdel');
 
-  // Military: a squad, then three members from one list.
+  // Military: a squad, then three members from one list. D-253: in Units `m` adds to a squad, so Esc first.
+  await page.keyboard.press('Escape');
   await page.keyboard.press('m');
   await page.keyboard.press('+');
   await step(1);

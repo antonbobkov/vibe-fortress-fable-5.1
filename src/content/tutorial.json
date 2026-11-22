@@ -33,7 +33,7 @@
     "id": "workshop",
     "check": "workshop_placed",
     "highlight": "build",
-    "text": "Open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
+    "text": "Leave Zones with Esc, open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
   },
   {
     "id": "order",
