@@ -62,6 +62,9 @@ function suits(w: TestWorld, state: FortressState, plan: CisternPlan, planned: R
   if (!keepOffWhole(w, plan)) return null;
   const kept = cisternKeepOff(w, plan);
   if ([...planned].some((t) => kept.has(t))) return null;
+  // Nor under a zone already laid out on the surface (the first field): its crops would stand by an open shaft.
+  const zones = w.readers.of<BuildingsReader>('14');
+  if ([...kept].some((t) => zones.zoneAt(t) !== 0)) return null;
   // The mine's shaft, whose stair is dug later down to the cistern's level, must not open on its water.
   const shaft = { x: state.cx + 6, y: Math.min(w.map.h - 3, state.cy + 15) };
   if ([...plan.cistern, ...plan.tunnel].some((c) => Math.abs(c.x - shaft.x) + Math.abs(c.y - shaft.y) <= 1)) return null;

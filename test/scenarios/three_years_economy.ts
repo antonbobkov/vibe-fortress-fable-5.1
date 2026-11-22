@@ -1745,7 +1745,7 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   for (let y = y0; y < y0 + FARM_STRIP.rows; y += 1) for (let x = x0; x < x0 + FARM_STRIP.width; x += 1) {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
-    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t)) tiles.push(t);
+    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t) && !isKeptOff(w, t)) tiles.push(t);
   }
   // T-455: a slope may leave too little of the strip: as a player would, sow the same strip nearby.
   // When that level is full, the next surface level the dwarves can walk to. T-507: only sunlit
@@ -1778,7 +1778,7 @@ function nearGateStrip(w: TestWorld, state: FortressState): number[] {
     let v = ok.get(t);
     if (v === undefined) {
       v = Math.max(Math.abs(x - gx), Math.abs(y - gy)) > ENTRANCE_CLEARANCE + 1 && buildings.zoneAt(t) === 0 &&
-        buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t) && onWagonSide(w, t) &&
+        buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t) && onWagonSide(w, t) && !isKeptOff(w, t) &&
         !(depot?.footprint.some((d) => Math.max(Math.abs(map.xOf(d) - x), Math.abs(map.yOf(d) - y)) <= DEPOT_CLEARANCE + 1) ?? false);
       ok.set(t, v);
     }
