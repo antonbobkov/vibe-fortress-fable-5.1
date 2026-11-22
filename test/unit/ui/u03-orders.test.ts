@@ -2,7 +2,7 @@
  * U-03: work orders have a quantity (`docs/archive/ui-fixes/README.md` D-U5; `reports/audits/ui-audit.md`
  * issue 3, M2, Q2, S3). Adding an order opens the picker (type-ahead filter, recipes grouped by
  * output category with the recent ones first, quantity, `once N` / `keep ≥ N`, material, and the
- * workshop of a global order); in the list `+`/`-` change the selected order's count, `[S-n]`
+ * workshop of a global order); in the list `+`/`-` change the selected order's count, `[n]`
  * adds, `[r]` repeats, and every order shows its status.
  */
 import { describe, expect, it } from 'vitest';
@@ -105,7 +105,7 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
   it('crafting 5 doors takes one order with remaining 5', () => {
     const f = setup('u03-five-doors');
     const shop = carpenter(f);
-    // [S-n] on the workshop opens the picker; "door" filters, 5 is the quantity, Enter adds.
+    // [n] on the workshop opens the picker; "door" filters, 5 is the quantity, Enter adds.
     expect(f.screen.key(press('N', { shift: true }))).toBe(true);
     expect(f.screen.ui.panel).toBe('orders');
     expect(f.screen.orders.picker.open).toBe(true);
@@ -312,7 +312,7 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(remaining()).toBe(2);
   });
 
-  it('+/- change the threshold of a keep ≥ N order, and [S-m] [S-p] edit mode and priority', () => {
+  it('+/- change the threshold of a keep ≥ N order, and [m] [p] edit mode and priority', () => {
     const f = setup('u03-keep');
     const shop = carpenter(f);
     f.w.submit({ type: 'AddWorkOrder', workshopId: shop, order: { recipeId: 'make_barrel', mode: 'once', remaining: 2, threshold: 0, priority: 5 } });
@@ -335,10 +335,10 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(f.speeds).toEqual([]);
   });
 
-  it('with no order selected, + and - are the speed keys again and [S-n] is the way to add', () => {
+  it('with no order selected, + and - are the speed keys again and [n] is the way to add', () => {
     const f = setup('u03-empty');
     f.screen.openPanel('orders');
-    expect(panelText(f)).toContain('No work orders. [S-n] adds one,');
+    expect(panelText(f)).toContain('No work orders. [n] adds one,');
     f.screen.key(press('+'));
     expect(f.speeds).toEqual([2]);
     expect(f.screen.orders.picker.open).toBe(false);
@@ -346,15 +346,13 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(f.speeds).toEqual([2, 1]);
     // The keys that need an order say there is none.
     f.screen.key(press('x'));
-    expect(f.screen.statusRow2()).toBe('No order is selected: [S-n] adds one.');
+    expect(f.screen.statusRow2()).toBe('No order is selected: [n] adds one.');
     f.screen.key(press('r'));
     expect(f.screen.statusRow2()).toBe('There is no order to repeat yet.');
     expect(f.sent).toEqual([]);
-    // Bare `n` is the Animals panel (D-U2); `[S-n]` opens the picker, here for a global order.
+    // D-253: `n` is the Orders panel's own key: it opens the picker, here for a global order.
     f.screen.key(press('n'));
-    expect(f.screen.ui.panel).toBe('animals');
-    f.screen.key(press('o'));
-    f.screen.key(press('N', { shift: true }));
+    expect(f.screen.ui.panel).toBe('orders');
     expect(f.screen.orders.picker.open).toBe(true);
     expect(f.screen.orders.picker.fixed).toBe(false);
     // In the picker `+`/`-` are the quantity, not the speed.
@@ -481,23 +479,23 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     const lines = s.lines();
     const text = lines.join('\n');
     expect(text).toContain("Carpenter's workshop #1");
-    expect(text).toContain('[S-n] new order  [S-o] its orders');
-    expect(text).toContain('[S-f] material  [w] worker');
+    expect(text).toContain('[n] new order  [o] its orders');
+    expect(text).toContain('[f] material  [w] worker');
     expect(text).toContain('[S-s] suspend  [x] take apart');
     const click = (caption: string): void => {
       const row = lines.findIndex((line) => line.includes(caption));
       s.hitAt((lines[row] as string).indexOf(caption) + 1, row)?.action();
     };
-    for (const caption of ['[S-n]', '[S-o]', '[S-f]', '[w]', '[S-s]', '[x]', 'Door']) click(caption);
+    for (const caption of ['[n]', '[o]', '[f]', '[w]', '[S-s]', '[x]', 'Door']) click(caption);
     expect(clicked).toEqual(['new', 'orders', 'material', 'worker', 'suspend', 'deconstruct', 'new:make_door_wood']);
     // A click on a recipe opens the picker on that recipe.
     f.screen.orders.workshopAction(f.screen.ctx, shop, 'new', () => {}, 'make_door_wood');
     expect(f.screen.orders.pickerRecipe(f.screen.ctx)?.id).toBe('make_door_wood');
     f.screen.key(press('Esc'));
-    // [S-f] with no orders says so; the bare `+` is the speed key now, not "new order".
+    // [f] with no orders says so; the bare `+` is the speed key now, not "new order".
     f.screen.openPanel('workshop');
     f.screen.key(press('F', { shift: true }));
-    expect(f.screen.statusRow2()).toBe('This workshop has no orders: [S-n] adds one.');
+    expect(f.screen.statusRow2()).toBe('This workshop has no orders: [n] adds one.');
     f.screen.key(press('+'));
     expect(f.screen.orders.picker.open).toBe(false);
     expect(f.speeds).toEqual([2]);
@@ -518,12 +516,12 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     // The Orders panel has one section: the keymap rows, then the one note they do not give.
     expect(rows).not.toContain('Work orders');
     expect(rows).toContain('Orders panel');
-    expect(rows).toContain('[S-n]  new order (opens "Add order")');
+    expect(rows).toContain('[n]  new order (opens "Add order")');
     expect(rows).toContain('+ =  the selected order\'s count +1 (Shift: +10)');
     expect(rows).toContain('[r]  repeat the selected order, or the last finished one');
-    expect(rows).not.toContain('[S-n]  new order (the picker)');
+    expect(rows).not.toContain('[n]  new order (the picker)');
     expect(rows).toContain('letters filter · digits quantity · Tab field · ←→ change');
-    expect(rows).toContain('Shift+letter  a panel action on a panel letter: [S-m]');
+    expect(rows).toContain('letter  in a panel its own letters come first; Esc, then a letter, opens another panel');
   });
 
   it('T-174: reopening a material picker selects the normalized material instead of Any', () => {

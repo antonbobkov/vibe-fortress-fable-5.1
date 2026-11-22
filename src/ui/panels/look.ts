@@ -913,7 +913,6 @@ export function drawItemView(
     return;
   }
   const it = readers.of<ItemsReader>('13');
-  const rec = it.get(id) as NonNullable<ReturnType<ItemsReader['get']>>;
   pinned(itemSummary(readers, strings, id));
   for (const r of wrapSpans(heldSpans(readers, registry, strings, id), width, 2)) {
     if (row >= bottom) break;

@@ -76,7 +76,7 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
     it('lists every keymap row under its context heading', () => {
       const rows = helpKeyRows(keymap);
       for (const binding of keymap.bindings) {
-        // T-280: Help writes a Shift letter the way the panels do, `[S-n]`.
+        // T-280: Help writes a Shift letter the way the panels do, `[n]`.
         const key = helpKeyLabel(binding.spec);
         // U-01 (Q14): one action's keys share a row ("←→↑↓  pan …", "1–9  …"); each key is still listed.
         expect(rows.some((row) => row.category === binding.context && (row.keys ?? []).includes(key))).toBe(true);
@@ -294,7 +294,7 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       drawDebugPanel(s, rect, new DebugPanel(), ctxOf(w), debugHostOf(w, calls));
       const lines = s.lines();
       const first = rect.rows - DEBUG_BUTTONS.length;
-      expect(lines[first]).toContain('[S-d] dump save');
+      expect(lines[first]).toContain('[d] dump save');
       expect(lines[first + 1]).toContain('[r] replay season log');
       expect(lines[first + 2]).toContain('[h] hash world');
       s.hitAt(2, first)?.action();

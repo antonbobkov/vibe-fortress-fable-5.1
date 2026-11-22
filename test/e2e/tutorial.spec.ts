@@ -161,7 +161,11 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('workshop');
 
-  // 6. A workshop from the Build list, placed at the cursor.
+  // 6. A workshop from the Build list, placed at the cursor. D-253: in Zones `b` is the bedroom,
+  // so Esc leaves Zones first (the tool, then the panel), as the step's text says.
+  const panelNow = (): Promise<string | null> => page.evaluate(() => (window as unknown as { __deepholm: TutorialHook }).__deepholm.readers.ui.panel);
+  for (let k = 0; k < 3 && (await panelNow()) !== null; k += 1) await page.keyboard.press('Escape');
+  expect(await panelNow()).toBeNull();
   await page.keyboard.press('b');
   await page.keyboard.press('w');
   await page.keyboard.press('Enter');

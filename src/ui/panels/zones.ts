@@ -43,6 +43,9 @@ import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building
 import { dwarvesOf, nameOf } from './units';
 import { drawStockpileEditor, StockpileEditor, PRESET_ORDER } from './stockpile-editor';
 
+/** The zone type kept on `Shift` by default, so that `k` stays Look (`ui-keymap-and-screens.md` § Zones panel). */
+const ZONE_TYPE_SHIFT: ReadonlySet<string> = new Set(['k']);
+
 /** The panel's zone types with their accelerators, in the wireframe's order. */
 export const ZONE_KINDS: readonly { readonly key: string; readonly id: string }[] = [
   { key: 's', id: 'stockpile' },
@@ -296,7 +299,7 @@ export class ZoneTool {
       menu.highlighted = Math.max(0, options.findIndex((o) => o.id === (plant?.id ?? '0')));
       return true;
     }
-    if (key.shift && accel(ctx, key) === 'a') { this.farmAllSeasons(ctx, season); return true; }
+    if (accel(ctx, key) === 'a') { this.farmAllSeasons(ctx, season); return true; }
     if (accel(ctx, key) === 'w') { this.farmFertilize(ctx); return true; }
     return false;
   }
@@ -429,7 +432,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
   const selectedZone = buildings(ctx)?.zone(tool.selected);
   const inspector = !tool.active && selectedZone !== undefined && (selectedZone.type === 'stockpile' || buildings(ctx)?.roomScore(selectedZone.id) !== undefined);
   if (inspector) {
-    const text = `${acceleratorLabel('y', ctx.panelLetters)} ${strings.get('ui.zone.types_action')}`;
+    const text = `${acceleratorLabel('y', ctx.shiftLetters)} ${strings.get('ui.zone.types_action')}`;
     label(s, rect.col + 1, row, text, { width: rect.cols - 2 });
     s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => { tool.selected = 0; tool.cancel(); });
     row += 1;
@@ -440,7 +443,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
       const kind = ZONE_KINDS[k + j];
       if (kind === undefined) continue;
       const col = rect.col + 1 + j * colW;
-      const n = label(s, col, row, `${acceleratorLabel(kind.key, ctx.panelLetters)} ${strings.get(`ui.zone.short.${kind.id}`)}`, { width: colW - 1 });
+      const n = label(s, col, row, `${acceleratorLabel(kind.key, ZONE_TYPE_SHIFT)} ${strings.get(`ui.zone.short.${kind.id}`)}`, { width: colW - 1 });
       if (tool.kind === kind.id) s.invert({ col, row, cols: n, rows: 1 });
       s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
     }
@@ -486,7 +489,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     label(s, rect.col + 1, bottom, text, { width: rect.cols - 2 });
     // Keyboard and mouse reach the same actions (24 § Input model): the accelerators are clickable.
     accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, zone.type === 'stockpile' ? 'Del' : 'x', () => onRemove?.());
-    accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, 'S-e', () => { tool.resizing = true; });
+    accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, 'e', () => { tool.resizing = true; });
   }
 }
 
@@ -535,7 +538,7 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     if (row >= rect.row + rect.rows) break;
     const text = ctx.strings.get(key);
     label(s, rect.col + 1, row, text, { fg: t.dim, width: rect.cols - 2 });
-    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
+    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
     accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'w', () => tool.farmFertilize(ctx));
     row += 1;
   }
@@ -641,7 +644,7 @@ function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     const ownerId = b?.ownerOf(zone.id) ?? 0;
     const owner = ownerId === 0 ? strings.get('ui.zone.nobody') : nameOf(ctx, ownerId);
     label(s, col, row++, strings.get('ui.zone.owner', { name: owner }), { width });
-    const caption = `${acceleratorLabel('o', ctx.panelLetters)} ${strings.get('ui.building.owner_caption')}`;
+    const caption = `${acceleratorLabel('o', ctx.shiftLetters)} ${strings.get('ui.building.owner_caption')}`;
     label(s, col, row, caption, { width });
     s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
   }
@@ -701,7 +704,7 @@ function drawSanctumSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelC
     label(s, col, row++, line.text, { width, fg: tones[line.tone] });
   }
   if (row < bottom) {
-    const caption = `${acceleratorLabel('o', ctx.panelLetters)} ${ctx.strings.get('ui.zone.apprentices_caption')}`;
+    const caption = `${acceleratorLabel('o', ctx.shiftLetters)} ${ctx.strings.get('ui.zone.apprentices_caption')}`;
     label(s, col, row, caption, { width });
     s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
   }

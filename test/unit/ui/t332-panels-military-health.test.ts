@@ -116,27 +116,27 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[6]).toBe('[+] new squad  [x] disband');
     expect(rows[7]).toMatch(/^─+ The Hearthguard ─+$/);
     expect(rows[8]).toBe('Leader  none');
-    expect(rows[9]?.trim()).toBe('[S-l] pick  [S-n] rename');
+    expect(rows[9]?.trim()).toBe('[l] pick  [n] rename');
     expect(rows[10]).toBe('Mode: train');
-    expect(rows[11]).toBe('[S-o] Off [S-t] Train [v] Active');
+    expect(rows[11]).toBe('[o] Off [t] Train [v] Active');
     expect(rows[12]).toMatch(/^Members \S+ \S+\.$/);
-    expect(rows[13]?.trim()).toBe('[S-a] add  [r] remove');
+    expect(rows[13]?.trim()).toBe('[a] add  [r] remove');
     // The member holds nothing, and the stock has no weapon but the tools the workers need.
     expect(rows[14]).toMatch(/^Armed 0 of 1 · unarmed: \S+ \S+\.$/);
     expect(rows[15]).toBe('No weapon in stock: order one [o]');
     expect(rows[16]).toBe('  or buy one.');
     expect(rows[17]).toBe('Gear [w] weapon [any ▼]');
     expect(rows[18]?.trim()).toBe('[g] armor [any ▼]');
-    expect(rows[19]?.trim()).toBe('[S-j] ranged');
+    expect(rows[19]?.trim()).toBe('[j] ranged');
     expect(rows[20]?.trim()).toBe('[S-d] draughts: none');
     expect(rows[21]).toBe('Station none');
-    expect(rows[22]?.trim()).toBe('[S-s] set  [S-c] clear');
-    expect(rows[23]).toBe('Patrol none [S-p] add [y] clear');
-    expect(rows[24]).toBe('Orders [S-k] kill [S-f] follow');
+    expect(rows[22]?.trim()).toBe('[s] set  [c] clear');
+    expect(rows[23]).toBe('Patrol none [p] add [y] clear');
+    expect(rows[24]).toBe('Orders [S-k] kill [f] follow');
     expect(rows[25]?.trim()).toBe('[q] cancel orders');
     // On Train with no barracks the row says the squad cannot train (T-624).
     expect(rows[26]).toBe('No barracks: the squad cannot');
-    expect(rows[27]?.trim()).toBe('train. [z] Barracks, then [S-b].');
+    expect(rows[27]?.trim()).toBe('train. [z] Barracks, then [b].');
   });
 
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {
@@ -171,7 +171,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     for (const row of rows.slice(9, 17)) expect(row).toMatch(/\[-\]\[\+\]$/);
     expect(rows[17]).toBe('Patients:');
     expect(rows[18]).toContain(`${patientName}: suture`);
-    expect(rows[31]).toBe('[x] remove zone  [S-e] resize');
+    expect(rows[31]).toBe('[x] remove zone  [e] resize');
   });
 
   it('Look names the creature, its activity, needs, skills, mood, blood and pain, the missing care, and every body part', () => {

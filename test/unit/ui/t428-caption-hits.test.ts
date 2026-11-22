@@ -100,26 +100,26 @@ describe('T-428 a caption\'s click regions follow the drawn text', () => {
     f.rebind('military_panel', 'mode_train', key('F7'));
     const s = surface(80, 4);
     s.keyNames = (text) => f.keys.relabel(text, ['military_panel']);
-    expect(keyCells(s, '[S-o] Off [S-t] Train [v] Active')).toEqual([
-      { key: 'S-o', from: 0, cols: 5 },
-      { key: 'S-t', from: 10, cols: 4 },
-      { key: 'v', from: 21, cols: 3 },
+    expect(keyCells(s, '[o] Off [t] Train [v] Active')).toEqual([
+      { key: 'o', from: 0, cols: 3 },
+      { key: 't', from: 8, cols: 4 },
+      { key: 'v', from: 19, cols: 3 },
     ]);
   });
 
   it('captionButtons makes each piece clickable over its drawn cells', () => {
     const s = surface(60, 2);
-    s.keyNames = (text) => text.replace('[S-t]', '[Ctrl+Shift+T]');
+    s.keyNames = (text) => text.replace('[t]', '[Ctrl+Shift+T]');
     const ran: string[] = [];
-    captionButtons(s, 2, 0, '[S-o] Off  [S-t] Train  [v] Active', [() => ran.push('off'), () => ran.push('train'), null]);
-    // "[S-o] Off  [Ctrl+Shift+T] Train  [v] Active": the train piece is 20 cells from column 13.
+    captionButtons(s, 2, 0, '[o] Off  [t] Train  [v] Active', [() => ran.push('off'), () => ran.push('train'), null]);
+    // "[o] Off  [Ctrl+Shift+T] Train  [v] Active": the train piece is 20 cells from column 11.
     expect(s.lines()[0]).toContain('[Ctrl+Shift+T] Train');
     s.hitAt(2, 0)?.action();
-    s.hitAt(13, 0)?.action();
-    s.hitAt(13 + 19, 0)?.action();
+    s.hitAt(11, 0)?.action();
+    s.hitAt(11 + 19, 0)?.action();
     expect(ran).toEqual(['off', 'train', 'train']);
-    expect(s.hitAt(13 + 20, 0)).toBeNull();
-    expect(s.hitAt(13 + 22, 0)).toBeNull();
+    expect(s.hitAt(11 + 20, 0)).toBeNull();
+    expect(s.hitAt(11 + 22, 0)).toBeNull();
   });
 
   it('Military: the squad, mode, member, station, order and leader captions, with a longer and a shorter key', () => {
@@ -133,23 +133,23 @@ describe('T-428 a caption\'s click regions follow the drawn text', () => {
     f.rebind('military_panel', 'alert_hearth', key('F6'), '3');
     const drawn = f.draw().lines.join('\n');
     expect(drawn).toContain('[Ctrl+F7] new squad');
-    expect(drawn).toContain('[F7] Off [S-t] Train');
+    expect(drawn).toContain('[F7] Off [t] Train');
     expectPieces(f, [
       '[1] Calm',
       '[2] Watch',
       '[F6] Hearth',
       '[Ctrl+F7] new squad',
       '[x] disband',
-      '[S-l] pick',
-      '[S-n] rename',
+      '[l] pick',
+      '[n] rename',
       '[F7] Off',
-      '[S-t] Train',
+      '[t] Train',
       '[v] Active',
       '[F8] add',
       '[r] remove',
-      '[S-s] set',
+      '[s] set',
       '[S-k] kill',
-      '[S-f] follow',
+      '[f] follow',
       '[q] cancel orders',
     ]);
   });
@@ -161,12 +161,12 @@ describe('T-428 a caption\'s click regions follow the drawn text', () => {
     f.screen.openPanel('military');
     f.rebind('military_panel', 'mode_off', key('F7'));
     const { lines } = f.draw();
-    const row = lines.findIndex((l) => l.includes('[F7] Off [S-t] Train'));
-    const at = (lines[row] as string).indexOf('[S-t] Train');
+    const row = lines.findIndex((l) => l.includes('[F7] Off [t] Train'));
+    const at = (lines[row] as string).indexOf('[t] Train');
     const press = (col: number): void => f.screen.pointerDown({ col, row, button: 0, shift: false, ctrl: false, alt: false, meta: false });
-    press(at + '[S-t] Train'.length);
+    press(at + '[t] Train'.length);
     expect(f.sent).toEqual([]);
-    press(at + '[S-t] Train'.length - 1);
+    press(at + '[t] Train'.length - 1);
     expect(f.sent.map((c) => c.type)).toEqual(['SetSquadMode']);
     f.sent.length = 0;
     press(at);

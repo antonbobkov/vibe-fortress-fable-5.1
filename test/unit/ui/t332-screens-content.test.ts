@@ -182,14 +182,14 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[4]).toMatch(/^► cancel tool → close panel → game menu +Esc {2}fixed$/);
     expect(r[5]).toMatch(/^pause \/ resume +Space$/);
     expect(r[9]).toMatch(/^quick save +F5$/);
-    expect(r[16]).toMatch(/^calendar panel +\[S-y\]$/);
-    expect(r[17]).toMatch(/^music on \/ off +Ctrl\+M$/);
+    // D-253: the calendar is a panel letter (`y`), no longer a global row.
+    expect(r[16]).toMatch(/^music on \/ off +Ctrl\+M$/);
     // T-439: the tutorial's two keys.
-    expect(r[18]).toMatch(/^skip the tutorial step +F1$/);
-    expect(r[19]).toMatch(/^end the tutorial +Shift\+F1$/);
-    expect(r[20]).toBe('Map');
-    expect(r[21]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
-    for (const row of [...r.slice(5, 20), ...r.slice(21, 22)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
+    expect(r[17]).toMatch(/^skip the tutorial step +F1$/);
+    expect(r[18]).toMatch(/^end the tutorial +Shift\+F1$/);
+    expect(r[19]).toBe('Map');
+    expect(r[20]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
+    for (const row of [...r.slice(5, 19), ...r.slice(20, 21)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
     expect(r[23]).toBe('[Enter] rebind  [Del] default  [d] all defaults  [Esc] Back');
   });
 

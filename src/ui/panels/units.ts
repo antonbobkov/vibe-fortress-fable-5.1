@@ -388,19 +388,19 @@ export class UnitsPanel {
       this.list.scroll = 0;
       return true;
     }
-    if (letter === 'w' && press.shift) {
+    if (letter === 'w') {
       this.toggleWounded();
       return true;
     }
-    if (letter === 't' && press.shift) {
+    if (letter === 't') {
       this.openTitles(ctx);
       return true;
     }
-    if (letter === 'n' && press.shift) {
+    if (letter === 'n') {
       this.rename(ctx);
       return true;
     }
-    if (letter === 'm' && press.shift) {
+    if (letter === 'm') {
       this.openSquads(ctx);
       return true;
     }
@@ -408,9 +408,10 @@ export class UnitsPanel {
       for (const c of this.shiftSleep(ctx, k === '[' ? -1 : 1)) ctx.submit(c);
       return true;
     }
-    // `[S-l]` with marked dwarves: the labor manager on them (bare `l` always opens Labors, D-U2).
-    if (letter === 'l' && press.shift && this.marks.size > 0 && ctx.laborManager !== undefined) {
-      ctx.laborManager({ marked: this.marks.list(dwarvesOf(ctx)), focus: this.selectedId(ctx) || undefined });
+    // `[l]`: the labor manager on the marked dwarves, or on the cursor's dwarf (D-253).
+    if (letter === 'l' && ctx.laborManager !== undefined) {
+      const focus = this.selectedId(ctx) || undefined;
+      ctx.laborManager({ marked: this.marks.size > 0 ? this.marks.list(dwarvesOf(ctx)) : focus === undefined ? [] : [focus], focus });
       return true;
     }
     return false;

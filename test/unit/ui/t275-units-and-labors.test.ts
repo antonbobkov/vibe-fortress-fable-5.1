@@ -92,15 +92,13 @@ describe('T-275 Units: columns, idle filter, wounded first', () => {
     expect(f.rows()).toEqual(before);
   });
 
-  it('l over a Units row opens the Labors panel on that dwarf, at its first column', () => {
+  it('l over a Units row is the labor manager there (D-253); from anywhere else l opens Labors', () => {
     const f = fortress('t275-l', 6);
     f.screen.openPanel('units');
     f.screen.units.list.selected = 4;
-    f.screen.labors.firstColumn = 3;
     f.screen.key(press('l'));
-    expect(f.screen.ui.panel).toBe('labors');
-    expect(f.screen.labors.selectedRow).toBe(4);
-    expect(f.screen.labors.firstColumn).toBe(0);
+    // The labor manager is a screen of its own: Units stays open behind it.
+    expect(f.screen.ui.panel).toBe('units');
     // From anywhere else it opens as before.
     f.screen.openPanel(null);
     f.screen.labors.selectedRow = 0;

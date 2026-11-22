@@ -165,7 +165,7 @@ export class CivilizationsPanel {
 
   key(ctx: PanelContext, press: KeyPress, openTrade: () => void): boolean {
     const k = press.key;
-    // `d`, `t`, `a` and `p` open panels: the panel's own use of them takes `Shift` (D-U2).
+    // `d`, `t`, `a` and `p` are this panel's before they are panel letters (D-253).
     const letter = accel(ctx, press);
     if (this.choosingRequest) {
       if (this.filterKey(press)) return true;
@@ -268,7 +268,7 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
     label(s, col, row++, ctx.strings.get('ui.civ.request_keys1'), { fg: s.theme.dim, width });
     label(s, col, row++, ctx.strings.get('ui.civ.request_keys2'), { fg: s.theme.dim, width });
   }
-  if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←→] pick [S-p] prio [x] remove', { fg: s.theme.dim, width });
+  if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←→] pick [p] prio [x] remove', { fg: s.theme.dim, width });
   if (row < rect.row + rect.rows - 3) label(s, col, row++, 'Reputation log', { fg: s.theme.key, width });
   // Newest first, as many as fit above the footer, each reason in words ("−50 caravan member killed (Au 3)").
   for (const entry of [...trade.reputationLog(civ)].reverse()) {
@@ -276,7 +276,7 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
     label(s, col, row++, reputationEntryText(ctx, entry), { width });
   }
   const footer = rect.row + rect.rows - 1;
-  captionButtons(s, col, footer, '[S-d] depot  [S-t] trade now', [() => ctx.openPanel('depot'), openTrade], { fg: s.theme.key, width });
+  captionButtons(s, col, footer, '[d] depot  [t] trade now', [() => ctx.openPanel('depot'), openTrade], { fg: s.theme.key, width });
 }
 
 /** The first depot's waiting trade request in words (`panels.md` § Civilizations), or null. */

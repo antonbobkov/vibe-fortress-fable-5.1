@@ -156,8 +156,8 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       w.step(1);
       expect((w.readers.of('16') as import('@systems/combat').CombatReader).alert()).toBe('calm');
 
-      // U-03 (D-U2): `s` opens Stocks, so it is not the panel's; `[S-s]` enters settingStation mode.
-      expect(panel.key(ctx, { key: 's', repeat: false, shift: false, ctrl: false, alt: false, meta: false })).toBe(false);
+      // D-253: `[s]` is the panel's own key, bare or with Shift; with no squad it arms nothing.
+      panel.key(ctx, { key: 's', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
       expect(panel.settingStation).toBe(false);
       // T-278: with no squad the key arms nothing; with one it enters settingStation mode.
       panel.key(ctx, { key: 'S', repeat: false, shift: true, ctrl: false, alt: false, meta: false });

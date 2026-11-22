@@ -380,6 +380,43 @@ const scenario: Scenario = {
     expect(menu).toBe(true);
     expect(homed).toBe(false);
     expect(speed).toBe(1);
+
+    // ---------- 4. § Panels: the open panel's letters first (D-253) ----------
+    // In every panel of § Fortress panels, each panel letter: one the panel binds is the panel's key
+    // and does not open the letter's panel; any other opens its panel (the open panel's own closes
+    // it); `k` is never a panel's own key; a key kept on Shift (`[S-d]`) is not reached bare; and
+    // `Esc`, then the letter, always reaches the letter's panel.
+    const letters = panelRows(text).filter((row) => /^[a-z]$/.test(row.key));
+    for (const open of letters) {
+      for (const target of letters) {
+        screen.openPanel(open.panel);
+        const contexts = screen.keyContexts().filter((context) => context !== 'panel');
+        const claimed = keymap.claims(contexts, press(target.key));
+        if (target.key === 'k') expect(claimed, `k in ${open.panel}`).toBe(false);
+        for (const context of contexts) {
+          for (const b of keymap.of(context)) {
+            if (b.spec.accel === true && b.spec.shift) expect(keymap.claims([context], press(b.spec.key)), `bare ${b.spec.key} in ${context}`).toBe(false);
+          }
+        }
+        expect(screen.key(press(target.key)), `${target.key} in ${open.panel}`).toBe(true);
+        if (claimed) expect(ui.panel, `${target.key} is ${open.panel}'s own key`).not.toBe(target.panel === open.panel ? null : target.panel);
+        else expect(ui.panel, `${target.key} in ${open.panel}`).toBe(target.panel === open.panel ? null : target.panel);
+        screen.openPanel(open.panel);
+        for (let k = 0; k < 3 && ui.panel !== null; k += 1) screen.key(press('Esc'));
+        expect(ui.panel, `Esc in ${open.panel}`).toBeNull();
+        screen.key(press(target.key));
+        expect(ui.panel, `Esc, then ${target.key}`).toBe(target.panel);
+        screen.openPanel(null);
+      }
+    }
+    // `d d` digs: Designate binds its own letter.
+    screen.key(press('d'));
+    screen.key(press('c'));
+    expect(screen.tool.kind).toBe('channel');
+    screen.key(press('d'));
+    expect(ui.panel).toBe('designate');
+    expect(screen.tool.kind).toBe('dig');
+    screen.openPanel(null);
   },
 };
 

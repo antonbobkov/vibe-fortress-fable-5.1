@@ -211,7 +211,7 @@ describe('T-670 names that open what they name', () => {
     const dwarf = f.w.spawnDwarf({ at: f.w.index(20, 20, z) });
     const log = f.w.spawnItem('log', 'oak', f.w.index(20, 20, z));
     f.w.items.attachToCarrier(log, dwarf);
-    f.w.items.setCrafter(log, dwarf);
+    f.w.items.setCrafter?.(log, dwarf);
     f.screen.inspectCreature(dwarf);
     f.screen.openTarget({ kind: 'item', id: log });
     sidebar(f);

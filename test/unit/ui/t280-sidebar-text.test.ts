@@ -1,6 +1,6 @@
 /**
  * T-280: sidebar text is never cut without a mark; Help wraps and starts with how to begin; a hint
- * that does not fit takes two lines of the log strip; a panel with `[S-x]` captions says what S- is.
+ * that does not fit takes two lines of the log strip; a panel with `[x]` captions says what S- is.
  */
 import { describe, expect, it } from 'vitest';
 import { Game } from '@app/game';
@@ -48,8 +48,7 @@ describe('T-280 no text in the last column without a mark', () => {
     expect(empty).toEqual([]);
     // Whole words that end exactly in the last column (each was read in the drawn panel; a cut word would end in »).
     expect(bad).toEqual([
-      'designate: ...trees', 'help: ...Start', 'help: ...then', 'animals: ...name', 'units: ...later', 'jobs: ...reason',
-      'labors: ...off', 'labors: ...labors', 'military: ...spears',
+      'help: ...Start', 'help: ...then', 'units: ...later', 'jobs: ...reason', 'labors: ...labors', 'military: ...spears',
     ]);
   });
 });
@@ -68,7 +67,7 @@ describe('T-280 the cut mark', () => {
 });
 
 describe('T-280 S- is Shift', () => {
-  it('Designate ends with the note; the Calendar, which has no [S-x] caption, does not', async () => {
+  it('Designate ends with the note; the Calendar, which has no [x] caption, does not', async () => {
     const g = await game();
     g.fortress.openPanel('designate');
     g.render();

@@ -542,6 +542,9 @@ export class DesignateTool {
 }
 
 /** The panel body (the title row is the sidebar's). */
+/** The designation letters kept on `Shift` by default (`ui-keymap-and-screens.md` § Designate panel). */
+const DESIGNATE_SHIFT: ReadonlySet<string> = new Set(['b']);
+
 export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, strings: Strings, reprioritize?: () => void, undo?: () => void, clear?: () => void): void {
   const t = s.theme;
   let row = rect.row;
@@ -553,9 +556,9 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
       if (kind === undefined) continue;
       const col = rect.col + 1 + j * leftW;
       const width = j === 0 ? leftW - 1 : Math.max(1, rect.cols - 2 - leftW);
-      // A letter that opens a panel takes `Shift` here (`[S-d] Dig`, D-U2).
+      // Dig is `[d]`, before the panel letter (D-253); setting a fire stays on `Shift` (`[S-b]`).
       const short = `ui.tool.designate.caption.${kind.id}`;
-      const caption = `${acceleratorLabel(kind.key)} ${strings.get(strings.has(short) ? short : `ui.tool.designate.${kind.id}`)}`;
+      const caption = `${acceleratorLabel(kind.key, DESIGNATE_SHIFT)} ${strings.get(strings.has(short) ? short : `ui.tool.designate.${kind.id}`)}`;
       const n = kindAvailable(kind) ? label(s, col, row, caption, { width }) : label(s, col, row, caption, { fg: t.dim, width, keys: false, relabel: true });
       // A caption that needs more than its name says what the tool does when hovered (the stairs tool).
       const tip = `ui.tool.designate.tip.${kind.id}`;
