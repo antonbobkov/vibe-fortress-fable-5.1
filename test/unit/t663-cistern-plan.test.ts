@@ -13,6 +13,7 @@ describe('T-663 the three-year script plans water inside the gate', () => {
   it('plans a well room by the brook and keeps the rock about the cistern undug', () => {
     const w = threeYearsWorld('three-years-p4-5', 4);
     const state = setupThreeYearsFortress(w);
+    state.waterInside = true;
     keepWaterInside(w, state);
     const work = state.cistern;
     expect(work, 'a plan').toBeTruthy();

@@ -347,23 +347,29 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   for (let z = L; z < plan.tops.t; z += 1) flooded.push(at(plan.t, z));
   const ready = linked && bankReady && kind(plan.s, L + 1) === TileKind.Open && plan.tunnel.every((c) => dug(c, L));
   once('seal', ready, () => send({ type: 'SetTraffic', tiles: flooded, mode: 'forbidden' }));
-  const empty = (): boolean => {
+  const empty = (tileList: readonly TileIndex[]): boolean => {
     const ent = w.game.world.entities;
-    const tiles = new Set(flooded);
+    const tiles = new Set(tileList);
     return !ent.with(C.Labors, C.Position).some((id) => {
       const p = ent.get(id, C.Position);
       return p !== undefined && ent.alive(id) && tiles.has(w.index(p.x, p.y, p.z));
     });
   };
-  once('breach', ready && steps.has('seal') && empty(), () => channel(plan.p, bz + 1));
-  // The brook stands at the floodgate: open it, and shut it once the water stands under the well.
+  once('breach', ready && steps.has('seal') && empty(flooded), () => channel(plan.p, bz + 1));
+  // The brook stands at the floodgate: the cistern's side is forbidden to traffic in its turn (in
+  // `three-years-p2-1` at shift 150 seven thirsty dwarves stood in it when the floodgate opened and
+  // drowned), and once nobody is in it the floodgate is opened, and shut once the water stands
+  // under the well.
   const gate = work.floodgateId === 0 ? '' : b.mechanismState(work.floodgateId);
   if (gate === 'open' && work.openedAt < 0) work.openedAt = w.tick;
   if (gate === 'closed' && work.openedAt >= 0) { work.openTicks += w.tick - work.openedAt; work.openedAt = -1; work.shutAt = w.tick; }
-  if (linked && work.wellId === 0 && map.fluidLevelAt(at(plan.tunnel[plan.gate - 1] as Col, L)) > 0) {
+  const filled = [...plan.cistern, ...plan.tunnel.slice(plan.gate + 1)].map((c) => at(c, L));
+  const brookAtGate = linked && work.wellId === 0 && map.fluidLevelAt(at(plan.tunnel[plan.gate - 1] as Col, L)) > 0;
+  once('cistern seal', brookAtGate, () => send({ type: 'SetTraffic', tiles: filled, mode: 'forbidden' }));
+  if (brookAtGate && steps.has('cistern seal')) {
     const asked = work.pulls % 2 === 1 ? 'open' : 'closed';
     const dry = map.fluidLevelAt(at(plan.w, L)) === 0;
-    if (gate === asked && (asked === 'open') !== dry && send({ type: 'PullLever', leverId: work.leverId })) {
+    if (gate === asked && (asked === 'open') !== dry && (asked === 'open' || empty(filled)) && send({ type: 'PullLever', leverId: work.leverId })) {
       work.pulls += 1;
       work.log.push(`pull ${asked === 'open' ? 'shut' : 'open'} @${w.tick}`);
     }
