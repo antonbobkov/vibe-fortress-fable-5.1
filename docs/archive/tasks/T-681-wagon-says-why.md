@@ -1,5 +1,7 @@
 # T-681 — The wagon says why its goods stay
 
+**Closed:** 2026-11-22, in b5051a1e,cb59d62c.
+
 **Source:** T-676 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -12,4 +14,4 @@ On the wagon's panel (and its hover line, 24), count the goods still in it by re
 
 ## Done
 
-A UI test: an embark with only a Food stockpile shows the wagon's tools and drink as having no stockpile, and the line goes once an Everything stockpile with room takes them.
+- [x] A UI test: an embark with only a Food stockpile shows the wagon's tools and drink as having no stockpile, and the line goes once an Everything stockpile with room takes them (`test/unit/ui/t681-wagon-says-why.test.ts`: the Balanced embark on the flat world, a Food stockpile placed; the wagon's panel reads `212 goods wait: 212 have no stockpile that takes them (drink, seed, wood, bar, furniture, container, weapon, ammo, tool, textile, medical)` and the hover line over its centre ends `· 212 goods wait: 212 no stockpile`; with an Everything stockpile they are being hauled, and the line goes from both once the wagon is empty). 13's Reader gains `items.haulState(id)` (job, container, wants, no_stockpile, full, none); `src/ui/goods-wait.ts` counts the goods by reason, adding 11's haul jobs (no path, nobody with Hauling on).

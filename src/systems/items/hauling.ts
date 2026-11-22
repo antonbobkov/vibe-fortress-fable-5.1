@@ -327,6 +327,47 @@ export class Hauling {
     this.noHome.length = 0;
   }
 
+  /**
+   * 13 § Stockpiles (T-682): a haul left a loose stack on a stockpile with room for more of its kind. The items without a
+   * home of its type, material and quality return to the set (not the whole of `noHome`, which costs a pass): one judged
+   * `full` while the stockpile's last empty tiles were reserved finds the stack to join.
+   */
+  stackJoinable(id: EntityId): void {
+    const it = this.core.get(id);
+    if (it === undefined || it.containerId !== 0 || it.carriedBy !== 0 || this.core.container(id) !== undefined) return;
+    if (it.count >= this.core.host.facts.row(it.type).stack) return;
+    const store = this.host.store;
+    if (store.stockpileAt(this.core.tileOf(id)) === 0 || !store.isStored(id)) return;
+    this.settle();
+    let kept = 0;
+    const back: EntityId[] = [];
+    for (const other of this.noHome) {
+      const x = this.core.get(other);
+      if (x !== undefined && x.type === it.type && x.material === it.material && x.quality === it.quality) back.push(other);
+      else this.noHome[kept++] = other;
+    }
+    if (back.length === 0) return;
+    this.noHome.length = kept;
+    sortedMerge(this.wants, back);
+  }
+
+  /**
+   * Why an item is where it is as hauling sees it (13's Reader `haulState`, T-681): `job` (a haul or dump job holds it),
+   * `container` (waiting in the set for a wanted container), `wants` (in the set, a job to come), `no_stockpile` (no
+   * home: no stockpile accepts it), `full` (no home: the stockpiles that accept it have no room), `none` (it wants no
+   * hauling: stored, forbidden, carried, in a container that goes with it). Presentation only: nothing is changed.
+   */
+  haulState(id: EntityId): 'job' | 'container' | 'wants' | 'no_stockpile' | 'full' | 'none' {
+    if (!this.core.isItem(id)) return 'none';
+    if (this.hasJob(id)) return 'job';
+    if (this.inNoHome(id)) {
+      const store = this.host.store;
+      return store.all().some((sp) => store.accepts(sp, id)) ? 'full' : 'no_stockpile';
+    }
+    if (sortedHas(this.wants, id)) return this.parked.has(id) ? 'container' : 'wants';
+    return 'none';
+  }
+
   /** A stockpile was created, changed or removed: `noHome` returns to the set; its own items are looked at again. */
   stockpileChanged(spId: EntityId, tiles: readonly TileIndex[]): void {
     this.noHomeReturns();
@@ -938,6 +979,9 @@ export class Hauling {
     this.endJob(job.data, id);
     if (core.isItem(id)) this.examine(id);
     if (containerIn) this.slotsGained();
+    // The loose stack it made or joined may take more of its kind (T-682).
+    const stack = core.isItem(id) ? id : typeof merge === 'number' ? merge : 0;
+    if (stack !== 0 && core.isItem(stack)) this.stackJoinable(stack);
   }
 
   /**
