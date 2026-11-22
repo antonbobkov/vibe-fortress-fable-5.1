@@ -1,6 +1,8 @@
 # T-667 — The three-year farm stops growing at its strips' cap
 
-**Source:** [T-664's report](../../reports/data/2026-11-20-t664-small-fortress-starves.md) · **Size:** S · **Needs:** — · **Status:** done
+**Closed:** 2026-11-22, in 5a1b6622.
+
+**Source:** [T-664's report](../../../reports/data/2026-11-20-t664-small-fortress-starves.md) · **Size:** S · **Needs:** — · **Status:** done
 
 ## Why
 
