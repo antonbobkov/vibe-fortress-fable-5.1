@@ -474,6 +474,7 @@ export class Game {
     this.fortress.settings.hintsEnabled = settings.hints;
     this.fortress.settings.edgeScrolling = settings.edgeScrolling;
     this.fortress.settings.combatLog = settings.combatLog;
+    this.fortress.settings.wheelUp = settings.wheelUp;
     this.palette.setColorblind(settings.colorblind);
     this.theme = themeOf(this.palette);
     if (zoomBefore !== settings.zoom) this.resize(this.surface.cssWidth, this.surface.cssHeight);

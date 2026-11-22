@@ -1041,6 +1041,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.help.start.8': '8. Space pauses. [?] opens this help.',
   'ui.help.accelerators': 'letter  in a panel its own letters come first; Esc, then a letter, opens another panel',
   'ui.help.orders.picker': 'letters filter · digits quantity · Tab field · ←→ change',
+  // T-673: the wheel over the map; Settings › Wheel up goes chooses its way.
+  'ui.help.map.wheel': 'wheel  a level (which way: Settings, Wheel up goes) · Ctrl zoom · Shift pan',
   'ui.help.build.drag': 'drag  one per valid tile (1×1 types)',
   'ui.help.build.corner': 'Shift+Enter corner, Enter places many',
   'ui.help.build.order': 'o  order what is out of stock',

@@ -306,7 +306,7 @@ const scenario: Scenario = {
       },
       Wheel: () => {
         const before = dz;
-        screen.wheel({ ...cell(20, 20), dy: 1, shift: false, ctrl: false, alt: false, meta: false });
+        screen.wheel({ ...cell(20, 20), dy: -1, shift: false, ctrl: false, alt: false, meta: false });
         expect(dz).toBe(before - 1);
       },
       'Ctrl + wheel': () => {

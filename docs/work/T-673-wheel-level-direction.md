@@ -1,6 +1,6 @@
 # T-673 — The mouse wheel's level direction is reversed, and a setting chooses it
 
-**Source:** the owner's feedback of 2026-11-21 · **Size:** S · **Needs:** — · **Status:** open
+**Source:** the owner's feedback of 2026-11-21 · **Size:** S · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -12,4 +12,6 @@ Reverse the default (wheel up goes up a level, or whatever the reverse of today 
 
 ## Done
 
-A test of the default and of the setting, saved and reloaded.
+- [x] A test of the default and of the setting, saved and reloaded (`test/unit/ui/t673-wheel-direction.test.ts`).
+- [x] The wheel over the map went up a level on the wheel up and down a level on the wheel down; now the wheel up goes down a level (deeper) and the wheel down up a level. Settings' `Wheel up goes` (`down a level`, the default, or `up a level`; `wheelUp` in the settings store) turns it round. The wheel over a panel, `Ctrl` + wheel (zoom) and `Shift` + wheel (pan) are unchanged.
+- [x] 24 § Input model and § Settings, `ui-keymap-and-screens.md` § Mouse and § Settings, `menus-and-world.md` § Settings and a Help note under Map (`ui.help.map.wheel`) say so.

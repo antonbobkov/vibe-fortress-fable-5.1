@@ -129,6 +129,8 @@ export interface FortressSettings {
   hintsEnabled: boolean;
   edgeScrolling: boolean;
   combatLog: 'all' | 'hits only' | 'off';
+  /** Where the wheel up over the map takes the view (Settings, T-673); absent, it goes down a level. */
+  wheelUp?: 'down a level' | 'up a level';
 }
 
 export interface FortressHost {
@@ -196,7 +198,7 @@ export class FortressScreen implements Screen {
   private clickShift = false;
   readonly log: AnnouncementLog;
   readonly hints: HintEngine;
-  readonly settings: FortressSettings = { autoPauseDanger: true, autoPauseAlert: false, hintsEnabled: true, edgeScrolling: false, combatLog: 'hits only' };
+  readonly settings: FortressSettings = { autoPauseDanger: true, autoPauseAlert: false, hintsEnabled: true, edgeScrolling: false, combatLog: 'hits only', wheelUp: 'down a level' };
   /** What Look shows: the tile list or a creature (24 § Inspection). */
   lookAt: LookSelection = { kind: 'tile', tile: null };
   /** The views Look's `Backspace` returns to, the newest last; a look opened from the map, a list or a log line starts it afresh. */
@@ -3016,9 +3018,11 @@ export class FortressScreen implements Screen {
       if (panel !== null) for (let k = 0; k < 3; k += 1) this.panelKey(panel, { key: w.dy > 0 ? 'ArrowDown' : 'ArrowUp', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
       return;
     }
-    // "Wheel: z-level (down = deeper)".
+    // The wheel over the map changes the level: up goes down a level by default, and the Wheel up goes
+    // setting turns it round (T-673).
     this.lookFollow = false;
-    this.host.changeZ(w.dy > 0 ? -1 : 1);
+    const upGoesUp = this.settings.wheelUp === 'up a level';
+    this.host.changeZ((w.dy < 0) === upGoesUp ? 1 : -1);
   }
 
   /** The tiles a rectangle between two points covers (for the tests and the status bar). */
