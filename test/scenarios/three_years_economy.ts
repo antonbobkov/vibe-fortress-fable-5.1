@@ -1707,10 +1707,15 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   const plans = state.economy.farmPlans;
   const tilled = state.caveTiles1.length + state.caveTiles2.length + FIRST_FIELD_TILES + plans.reduce((sum, p) => sum + p.tiles.length, 0);
-  // T-455: the cap is on the land, not the strips: on a slope a strip may hold few tiles or none. The
-  // strips' places repeat through the rows, so the tries stop at twice the cap as well.
+  // T-455: the cap is on the land, not the strips: on a slope a strip may hold few tiles or none.
+  // T-667: the tries stop at twice the strips' cap only when they fail in a row: a try counts from the
+  // last strip sown, so the tries the places off the map used up no longer stop a farm that still
+  // finds ground (in `three-years-p2-4` at shift 0 the lifetime count reached 32 by day 228 with
+  // fourteen strips sown, and a fortress of 68 ended year 3 with no plant or meal in stock).
   const stripTiles = plans.reduce((sum, p) => sum + p.tiles.length, 0);
-  if (stripTiles >= FARM_STRIP.max * FARM_STRIP.width * FARM_STRIP.rows || plans.length >= 2 * FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
+  let misses = 0;
+  for (let i = plans.length - 1; i >= 0 && plans[i]!.tiles.length === 0; i -= 1) misses += 1;
+  if (stripTiles >= FARM_STRIP.max * FARM_STRIP.width * FARM_STRIP.rows || misses >= 2 * FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
   // T-455: the fortress's level, since a cave on a slope may lie more than one level below it.
   const z = state.z;
   // T-580: where ambushes are possible, a strip goes on the open ground nearest the gate. T-664: where
@@ -1746,6 +1751,10 @@ function checkFarm(w: TestWorld, state: FortressState): void {
     if (tiles.length >= FARM_STRIP.width) break;
     tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width).filter((t) => buildings.cropLitAt(t)));
   }
+  // T-667: the places run in rows south of the first field and leave the map after a few rows: a
+  // place with too little ground takes the nearest free sunlit soil on the wagon's side, as by the
+  // gate (where the gate's strip was already sought, there is none).
+  if (tiles.length < FARM_STRIP.width && state.economy.workHall === undefined) tiles.splice(0, tiles.length, ...nearGateStrip(w, state));
   const plan = { tiles, zoneId: -1 };
   plans.push(plan);
   if (tiles.length < FARM_STRIP.width || !command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles }).ok) { plan.tiles = []; return; }

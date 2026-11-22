@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-663 | [No water inside the gate](work/T-663-water-inside-the-gate.md) | [T-656](archive/tasks/T-656-thirst-under-the-alert.md) | — | open |
 | T-665 | [A stockpile that takes flux stone](work/T-665-flux-stockpile.md) | [T-659](archive/tasks/T-659-steel-fuel-in-one-trip.md) | — | open |
-| T-666 | [A patient is watered only with drink](work/T-666-patient-water.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-667 | [The three-year farm stops growing at its strips' cap](work/T-667-farm-strip-cap.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-668 | [Peril-2 steel fell a seventh with T-664](work/T-668-peril2-steel-after-farm.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-686 | [An abandoned fortress leaves ruins a new embark can find](work/T-686-abandoned-site-ruins.md) | [T-672](archive/tasks/T-672-sticky-preset-and-re-embark.md) | — | open |
