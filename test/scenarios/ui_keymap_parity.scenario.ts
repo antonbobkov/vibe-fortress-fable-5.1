@@ -362,6 +362,27 @@ const scenario: Scenario = {
         expect(screen.lookAt.kind, 'its view').toBe('creature');
         screen.openPanel(null);
       },
+      'Click a log entry': () => {
+        // T-679: the first click centres on the entry's place and marks it; a click on the chosen entry opens its tile list.
+        screen.log.append('alert', 'Parity place.', w.readers.calendar.tick, w.index(22, 23, Z));
+        screen.openPanel('log');
+        const surface = draw();
+        const row = surface.lines().findIndex((line) => line.includes('Parity place.'));
+        expect(row, 'the log panel lists the entry').toBeGreaterThan(0);
+        const col = (surface.lines()[row] as string).indexOf('Parity place.');
+        const click = () => screen.pointerDown({ col, row, button: 0, clicks: 1, shift: false, ctrl: false, alt: false, meta: false });
+        centered = null;
+        click();
+        expect(centered, 'a click on the entry centres on its place').toEqual({ x: 22, y: 23, z: Z });
+        expect(ui.mark).toEqual({ x: 22, y: 23, z: Z });
+        expect(ui.panel).toBe('log');
+        draw();
+        click();
+        expect(ui.panel, 'a click on the chosen entry goes there').toBe('look');
+        expect(screen.lookAt.kind).toBe('tile');
+        expect(ui.cursor).toEqual({ x: 22, y: 23 });
+        screen.openPanel(null);
+      },
     };
     const gestures = mouseGestures(text);
     expect(gestures).toEqual(Object.keys(checks));

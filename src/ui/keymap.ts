@@ -364,6 +364,8 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'raise / lower the population cap': 'adjust',
   'sort by tier': 'sort',
   'log filter tabs': 'tab',
+  "go to the entry's place: centre, mark, its tile list": 'go_to',
+  'the view of the creature or item the entry names': 'view_subject',
   'tile list: open that row': 'open_row',
   'tile list: open the first row': 'open_first',
   'creature or item view: the tile list where it is': 'here',
