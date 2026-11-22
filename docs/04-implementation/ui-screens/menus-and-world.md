@@ -220,11 +220,12 @@ The site summary is `02-systems/02-embark-and-loadout.md` § Site summary, one r
 │   Intro at launch               [first time]     │
 │   Intro style                   [deep]           │
 │   Reduced motion                [off]            │
+│   Wheel up goes                 [down a level]   │
 │   [d] Reset to defaults         [Esc] Back       │
 └──────────────────────────────────────────────────┘
 ```
 
-Music volume runs from 0% to 100% in steps of 10% (`←` `→`, `Enter` or a click step it round); Music is on or off, as the music key turns it (`02-systems/24-ui-and-input.md` § Music). Intro at launch steps round `first time`, `always` and `off`, and Intro style between `deep` and `hall` (§ Intro). Reduced motion on stops the map's designations blinking (`02-systems/23-rendering.md` § Animation). Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
+Music volume runs from 0% to 100% in steps of 10% (`←` `→`, `Enter` or a click step it round); Music is on or off, as the music key turns it (`02-systems/24-ui-and-input.md` § Music). Intro at launch steps round `first time`, `always` and `off`, and Intro style between `deep` and `hall` (§ Intro). Reduced motion on stops the map's designations blinking (`02-systems/23-rendering.md` § Animation). Wheel up goes steps between `down a level` (the default) and `up a level`: where a notch of the wheel up over the map takes the view, the wheel down going the other way; the wheel over a panel and `Ctrl` or `Shift` with the wheel do not change with it (`02-systems/24-ui-and-input.md` § Input model). Zoom is `Auto` or a fixed level (0.75, 1, 1.5, 2). Under the list a dim line says that `Auto` picks a larger cell on a large window and that a fixed zoom keeps the old look. When the window is too small for the requested zoom, a line in the alert color says so: `Zoom 1 (shown at 0.75: the window is small)` (`Zoom Auto (shown at 0.75: …)` for `Auto`).
 
 Keybindings sub-screen:
 

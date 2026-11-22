@@ -121,9 +121,9 @@ describe('T-270 designate buttons, scrollbars and the wheel', () => {
     f.screen.wheel({ col: 70, row: 8, dy: -1, shift: false, ctrl: false, alt: false, meta: false });
     expect(f.screen.units.list.selected).toBe(0);
     expect(f.state.zChanges).toEqual([]);
-    // Over the map it changes the level as before.
+    // Over the map it changes the level: the wheel down goes up a level by default (T-673).
     f.screen.wheel({ col: 10, row: 8, dy: 1, shift: false, ctrl: false, alt: false, meta: false });
-    expect(f.state.zChanges).toEqual([-1]);
+    expect(f.state.zChanges).toEqual([1]);
   });
 
   it('a click on a scrollbar track jumps the list there', () => {

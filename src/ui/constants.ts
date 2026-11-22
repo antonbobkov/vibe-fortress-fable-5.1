@@ -84,6 +84,8 @@ export const SETTINGS_SNAPSHOT_OPTIONS = [2, 4, 8] as const;
 export const SETTINGS_COMBAT_LOG_OPTIONS = ['all', 'hits only', 'off'] as const;
 export const SETTINGS_INTRO_OPTIONS = ['first time', 'always', 'off'] as const;
 export const SETTINGS_INTRO_STYLE_OPTIONS = ['deep', 'hall'] as const;
+/** Where a notch of the wheel up over the map takes the view (T-673): the default goes deeper. */
+export const SETTINGS_WHEEL_UP_OPTIONS = ['down a level', 'up a level'] as const;
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   autoPauseDanger: true,
   autoPauseAlert: false,
@@ -102,6 +104,7 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   tutorialOffered: false,
   introStyle: 'deep',
   reducedMotion: false,
+  wheelUp: 'down a level',
   embarkPreset: '',
 });
 

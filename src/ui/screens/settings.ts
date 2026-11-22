@@ -14,7 +14,7 @@ import type { Surface } from '../surface';
 import type { Strings } from '../strings';
 import { bindingConflict, bindingReset, browserBinding, fixedBinding, invalidBindingModifiers } from '../messages';
 import { captionButtons, label, type ListState } from '../widgets';
-import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_INTRO_STYLE_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from '../constants';
+import { SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_INTRO_STYLE_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_WHEEL_UP_OPTIONS, SETTINGS_ZOOM_OPTIONS } from '../constants';
 
 export interface SettingsHost {
   readonly keymap: Keymap;
@@ -33,6 +33,7 @@ const SETTING_NAMES = [
   'Auto-pause on danger', 'Auto-pause on alert', 'Hints', 'Colorblind palette', 'Zoom',
   'Edge scrolling', 'Autosave each season', 'Snapshots kept', 'Combat log', 'Keybindings ▸',
   'Music volume', 'Music', 'Intro at launch', 'Intro style', 'Reduced motion',
+  'Wheel up goes',
 ] as const;
 
 /** The row of {@link SETTING_NAMES} that opens the keybinding editor, and has no value. */
@@ -82,6 +83,7 @@ export class SettingsScreen implements Screen {
       case 12: return settings.intro;
       case 13: return settings.introStyle;
       case 14: return settings.reducedMotion ? 'on' : 'off';
+      case 15: return settings.wheelUp;
       default: return '';
     }
   }
@@ -105,6 +107,7 @@ export class SettingsScreen implements Screen {
       case 12: this.host.change({ intro: cycle(SETTINGS_INTRO_OPTIONS, current.intro) }); break;
       case 13: this.host.change({ introStyle: cycle(SETTINGS_INTRO_STYLE_OPTIONS, current.introStyle) }); break;
       case 14: this.host.change({ reducedMotion: !current.reducedMotion }); break;
+      case 15: this.host.change({ wheelUp: cycle(SETTINGS_WHEEL_UP_OPTIONS, current.wheelUp) }); break;
       default: break;
     }
   }

@@ -577,7 +577,7 @@ The mouse is not rebindable; § Mouse lists its gestures.
 | Left click | open what the map shows there (24 § Inspection): a creature's view, else a loose item's view, else the tile list for a crowd, else a building's panel, else a zone's inspector, else the tile list; a second click on an open creature or item lists its tile; in a creature's or an item's view, a click on a name opens what it names | a designation tool: the first corner of its box, then the opposite corner, which designates (the box may span the levels between) / a zone: one tile / place building |
 | Left drag | select a rectangle (then `Delete`, `[f]` forbid, `[d]` dump, `[t]` move to depot) | designate a box on one level / draw zone rectangle |
 | Right click | the tile list: everything the map shows on the tile | cancel the tool |
-| Wheel | z-level on the map; over the sidebar, scrolls the list under the pointer three rows a notch and never changes the level | same |
+| Wheel | z-level on the map: up goes down a level and down goes up a level, or the other way round with Settings' `Wheel up goes` (§ Settings); over the sidebar, scrolls the list under the pointer three rows a notch and never changes the level | same |
 | `Ctrl` + wheel | zoom | zoom |
 | `Shift` + wheel | pan vertically | pan vertically |
 | Middle drag | pan | pan |
@@ -828,6 +828,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | Intro at launch | first time / always / off | first time |
 | Intro style | deep / hall | deep |
 | Reduced motion | on / off: the map's designations do not blink | off |
+| Wheel up goes | down a level / up a level: where a notch of the wheel up over the map takes the view; the wheel down goes the other way (T-673) | down a level |
 
 ## Strings
 
