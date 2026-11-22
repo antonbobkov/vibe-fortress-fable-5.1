@@ -111,9 +111,9 @@ test('T-477 runecraft screens', async ({ page }) => {
   expect(text).toMatch(/Runecraft \d+, run/);
   await closePanel(page);
 
-  // The staff's look line: a click on its tile, a loose item, opens the tile list (T-669).
+  // The staff's look line: a click on its tile, one loose item, opens the staff's own view (T-670).
   await clickTile(page, site.x + 5, site.y + 1);
-  await expect.poll(() => textOf(page)).toContain('Here');
+  await expect.poll(() => textOf(page)).toContain('Lying ');
   await expect.poll(() => textOf(page)).toContain('iron staff of embers');
   text = await textOf(page);
   // The line wraps under the item in the panel's width, and is read to its end.

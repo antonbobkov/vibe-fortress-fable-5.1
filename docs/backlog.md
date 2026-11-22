@@ -17,7 +17,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-666 | [A patient is watered only with drink](work/T-666-patient-water.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-667 | [The three-year farm stops growing at its strips' cap](work/T-667-farm-strip-cap.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-668 | [Peril-2 steel fell a seventh with T-664](work/T-668-peril2-steel-after-farm.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
-| T-670 | [An item's view, and names that open what they name](work/T-670-inspection-item-view-links.md) | [design](../reports/designs/2026-11-21-inspection-and-follow.html) | T-669 | open |
 | T-671 | [Centre and follow the thing in view, and say when it is gone](work/T-671-inspection-centre-follow-gone.md) | [design](../reports/designs/2026-11-21-inspection-and-follow.html) | T-670 | open |
 | T-672 | [The embark preset is remembered, and a fortress can be abandoned for a new embark on the same world](work/T-672-sticky-preset-and-re-embark.md) | Owner feedback 2026-11-21 | — | open |
 | T-673 | [The mouse wheel's level direction is reversed, and a setting chooses it](work/T-673-wheel-level-direction.md) | Owner feedback 2026-11-21 | — | open |

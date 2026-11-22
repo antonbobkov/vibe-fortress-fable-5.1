@@ -1037,7 +1037,7 @@
   {
     "context": "look_panel",
     "key": "[h]",
-    "action": "creature view: the tile list where it stands"
+    "action": "creature or item view: the tile list where it is"
   },
   {
     "context": "look_panel",

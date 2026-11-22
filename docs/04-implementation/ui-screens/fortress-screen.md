@@ -73,7 +73,7 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 
 ## Inspection panel (look)
 
-Look shows a tile list or one creature's view (24 § Inspection); the title row names what it shows. A click on a creature opens its view:
+Look shows a tile list, one creature's view or one item's view (24 § Inspection); the title row names what it shows. A click on a creature opens its view:
 
 ```
 │ Ketil Ironvein                       [x] │
@@ -106,10 +106,31 @@ Look shows a tile list or one creature's view (24 § Inspection); the title row 
 │ Relations friends: Brynja Coldhammer      │
 │ Title Thane                               │
 │ ───────────────────────────────────────── │
-│ [h] here  [Bksp] back                     │
+│ [h] here  [Bksp] back  [Tab] link         │
 ```
 
-The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. A crowd, a loose item, bare ground, a right click and `k` open the tile list:
+The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour. A click on one loose item opens the item's view:
+
+```
+│ pine bed                             [x] │
+│ Furniture · common · 10 ☼                 │
+│ Carried by Roald Deephelm                 │
+│ At (61, 88, z27)                          │
+│ ───────────────────────────────────────── │
+│ Type      bed                             │
+│ Material  pine                            │
+│ Quality   common                          │
+│ Count     1                               │
+│ Value     10 ☼                            │
+│ Made by   Orm Ironmantle                  │
+│ Owner     no one                          │
+│ Flags     reserved                        │
+│ For       Install furniture, Roald Deephe»│
+│ ───────────────────────────────────────── │
+│ [h] here  [Bksp] back  [Tab] link         │
+```
+
+It holds the item, not a tile: its place is 13's `items.tileOf`, and the second line says how it is held (`Lying in Stockpile #2`, `Lying on the ground`, `Carried by …`, `Worn by …`, `In oak barrel, Stockpile #1`, `In Wagon #1`). The stockpile, the carrier, the container, the maker, the owner, the reserving job's worker and what a container holds (`Holds 20 bellwine`) are links. `Tab` and `Shift+Tab` focus the links in view one by one, inverted, and `Enter` opens the focused one; a click opens any. A crowd, bare ground, a right click and `k` open the tile list:
 
 ```
 │ Tile (43, 92, z27)                   [x] │
@@ -135,7 +156,7 @@ The terrain line comes first. Under `Here` each creature the map shows, each loo
 
 Under each perishable item, and each item of food, a line of its own gives its rot (24 § Panels): `stale, rots in 4 days`, `fresh, not rotting here`, `keeps, never rots`; in the alert colour from the stale stage, dim before it. An item's flags (`forbidden, dump`) are a dim line under it too.
 
-The wireframes are drawn wider than the sidebar; in the 36-column sidebar a name that does not fit ends with `»`. Inspecting a creature (from Units, Mood or a log line) opens its view; a row of the list opened by its digit, `Enter` or a click, and `[h]`, keep the view before for `Backspace`.
+The wireframes are drawn wider than the sidebar; in the 36-column sidebar a name that does not fit ends with `»`. Inspecting a creature (from Units, Mood or a log line) opens its view; a row of the list opened by its digit, `Enter` or a click, a link, and `[h]`, keep the view before for `Backspace`.
 
 The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do (a thought whose weight rounds to 0 is not listed), and so do a body part's hit points (`torso ▓▓▓░░ 41/60 hp`), which wasting takes in fractions.
 
@@ -172,9 +193,9 @@ A dwarf's view (10's `creature › dwarf`) has, under the creature's rule:
 
 A long line wraps under its text. Another creature has the `Equipment` line when it holds something; the dwarf's other lines are a dwarf's alone. Look assigns no title and edits no labor: titles are given in the units panel (`[t] title`) and labors in the labor panel.
 
-Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another tile, or the other view.
+Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another item, another tile, or another view.
 
-Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
+Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 
 ## Designate tool
 

@@ -665,6 +665,9 @@ test('panels-act', async ({ page }) => {
   // ==========================================
   // 8d. T-277 Look, a creature's view: the mood is a whole number; a wounded dwarf shows its care
   // ==========================================
+  // A click of 8c on the lone ground item opened its view (T-670): `h` gives the tile list, which
+  // then follows the cursor set below.
+  if ((await panel()) === 'look' && (await textOf(page)).includes('[h] here')) await page.keyboard.press('h');
   const wounded = await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: PanelsActHook }).__deepholm;
     const dwarf = h.dwarves()[0];

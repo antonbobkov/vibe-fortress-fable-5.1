@@ -236,7 +236,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Registrations
 
-Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, owner, flags, container) and `zone › stockpile` (filter, containers, usage, priority, links, cellar); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day, naming the rotting thing and its place: "Miasma spreads from 20 rotten turnip in Stockpile #2 (Food).", 24 § Announcements and the log).
+Job producer `items` (`haul_to_stockpile`, `haul_to_dump`, `strip_corpse`); panel `stocks`; inspector sections `item` (type, material, quality, count, value, rot, maker, owner, flags, the reserving job, container, contents; Look's item view, 24 § Inspection) and `zone › stockpile` (filter, containers, usage, priority, links, cellar); overlay `stockpile usage` (tiles colored by fullness); announcements: `StockpileFull` note (once per stockpile per season), `MiasmaSpread` alert (once per area per day, naming the rotting thing and its place: "Miasma spreads from 20 rotten turnip in Stockpile #2 (Food).", 24 § Announcements and the log).
 
 ## Player-facing behavior
 

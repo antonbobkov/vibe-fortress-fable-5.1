@@ -99,7 +99,7 @@ describe('T-627 the dwarf inspector scrolls, and its attributes, personality and
     // More below: a dim ▼ at the right edge of the last row above the keys, nothing above.
     expect(s.lines()[ROWS - 3]?.charAt(35)).toBe('▼');
     expect(s.lines()[4]?.charAt(35)).not.toBe('▲');
-    expect(lines(s)[ROWS - 1]).toBe('[h] here  [Bksp] back');
+    expect(lines(s)[ROWS - 1]).toBe('[h] here  [Bksp] back  [Tab] link');
     expect(view.max).toBeGreaterThan(0);
     for (let k = 0; k < 10 && !shown.some((line) => line.startsWith('Title')); k += 1) {
       view.page(1);
