@@ -17,7 +17,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-666 | [A patient is watered only with drink](work/T-666-patient-water.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-667 | [The three-year farm stops growing at its strips' cap](work/T-667-farm-strip-cap.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-668 | [Peril-2 steel fell a seventh with T-664](work/T-668-peril2-steel-after-farm.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
-| T-680 | [`z` offers what zones to make, and a stockpile's settings open by clicking it](work/T-680-zones-menu-and-stockpile-click.md) | Owner feedback 2026-11-21 | T-669 | open |
 | T-681 | [The wagon says why its goods stay](work/T-681-wagon-says-why.md) | [T-676](archive/tasks/T-676-wagon-not-hauled.md) | — | open |
 | T-682 | [An item judged full is not looked at again when a stack it could join arrives](work/T-682-nohome-stack-join.md) | [T-676](archive/tasks/T-676-wagon-not-hauled.md) | — | open |
 | T-683 | [Unpastured animals after the hall: grazers go out to graze, cats prowl](work/T-683-animals-after-the-hall.md) | [T-675](archive/tasks/T-675-animals-on-arrival-wander.md) | — | open |
