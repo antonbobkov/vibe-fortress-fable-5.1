@@ -1,24 +1,23 @@
 /**
- * The look panel: 24 § Inspection ("The look panel shows the tile under the cursor or the clicked
- * tile with tabs for what is there: `Tile` …, `Items`, `Creatures` …. Every number the simulation
- * uses for that thing is shown, in the section registered by its owner") and the wireframe of
- * `ui-screens/fortress-screen.md` § Inspection panel.
- *
- * M1's sections are those whose owners exist: 03's `tile` (`readers.of('03').inspect`), and for a
- * creature 10's identity, activity and skills and 11's current job. M2 adds 13's `item` section
- * (type, material, quality, count, value, flags, container) and, on the tile tab, 14's building
- * (type, material, state, mode) and zone (type, tiles, room tier) lines (T-M2-09).
+ * The look panel (24 § Inspection, `ui-screens/fortress-screen.md` § Inspection panel): the click
+ * ladder that says what a click on the map opens, the tile list of everything the map shows on a
+ * tile, and the view of one creature, which holds the creature and not a tile. "Every number the
+ * simulation uses for that thing is shown, in the section registered by its owner": 03's tile,
+ * 13's item, 14's building and zone, and a creature's 10, 11, 15, 16, 17 and 25 sections.
  */
 
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { FLUID_MAX_LEVEL, TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
+import type { Rgb } from '@render/palette';
+import { patternCell } from '@render/things';
 import { agedMaterial, buildingName, enchantedName, filterText, itemRotText, materialItemName, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
+import { goodsWaiting, goodsWaitText } from '../goods-wait';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
 import type { FluidsReader } from '@systems/fluids';
@@ -29,11 +28,13 @@ import type { PlantsReader } from '@systems/plants';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES, thoughtText } from './mood';
 import type { Surface } from '../surface';
-import { label, separator } from '../widgets';
+import { captionButtons, label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { activityLabel } from './units';
-import { attributeRows, equipmentText, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsText, skillBar, titleText, wearingText } from './look-dwarf';
+import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
+import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
+import { creatureGone, drawGoneView, drawLookFoot, footRows, itemGone, type LookFoot } from './look-gone';
 
 interface TileInspection {
   readonly discovered: boolean;
@@ -61,8 +62,6 @@ interface DwarvesReaderLike {
 interface JobsReaderLike {
   forWorker(id: EntityId): { priority: number } | undefined;
 }
-
-export type LookTab = 0 | 1 | 2;
 
 function has(readers: ReaderSet, id: string): boolean {
   return readers.has(id);
@@ -99,13 +98,74 @@ function groundCover(readers: ReaderSet, i: TileIndex, kind: TileKind): 'flowers
   return has(readers, '07') && readers.of<PlantsReader>('07').flowerAt(i) ? 'flowers' : 'grass';
 }
 
-/** The creatures on a tile, dwarves first (23 § Compositor step 6 order), then by id. */
+/** Whether the map shows anything on a tile: an undiscovered tile shows nothing (23 § Compositor step 1). */
+function discovered(readers: ReaderSet, i: TileIndex): boolean {
+  return (readers.map.flagsAt(i) & TileFlag.Discovered) !== 0;
+}
+
+/** Whether the map draws a creature: a stealthed hostile no dwarf has spotted is not drawn (23 § Compositor step 6). */
+export function creatureShown(readers: ReaderSet, id: EntityId): boolean {
+  if (!readers.entities.alive(id) || !readers.entities.has(id, C.Creature)) return false;
+  const p = readers.entities.get(id, C.Position);
+  if (p === undefined || !discovered(readers, readers.map.index(p.x, p.y, p.z))) return false;
+  const hostile = readers.entities.get(id, C.Hostile);
+  return !(hostile?.stealthed === true && hostile.spotted !== true);
+}
+
+/** 24 § Inspection's order of creatures on a tile: dwarves, then animals (tame or wild), then the rest. */
+function creatureGroup(readers: ReaderSet, id: EntityId): number {
+  if (isDwarf(readers, id)) return 0;
+  return readers.entities.has(id, C.Tame) || readers.entities.has(id, C.Wild) ? 1 : 2;
+}
+
+/** The creatures the map shows on a tile, dwarves first, then animals, then the rest, each by id. */
 export function creaturesAt(readers: ReaderSet, i: TileIndex): EntityId[] {
+  if (!discovered(readers, i)) return [];
   return readers.entities
     .at(i)
-    .filter((id) => readers.entities.has(id, C.Creature))
-    .slice()
+    .filter((id) => readers.entities.has(id, C.Creature) && creatureShown(readers, id))
+    .sort((a, b) => creatureGroup(readers, a) - creatureGroup(readers, b) || a - b);
+}
+
+/**
+ * The loose items on a tile, ascending: those lying on it, a barrel counting as one. The goods a
+ * building holds there and what lies inside a container are not loose (24 § Inspection).
+ */
+export function looseItemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
+  if (!has(readers, '13') || !discovered(readers, i)) return [];
+  const it = readers.of<ItemsReaderLike>('13');
+  return readers.entities
+    .at(i)
+    .filter((id) => {
+      const rec = it.get(id);
+      return rec !== undefined && rec.containerId === 0;
+    })
     .sort((a, b) => a - b);
+}
+
+export type { LookTarget } from './look-links';
+
+/** Where a click on a tile stops (24 § Inspection, the click ladder): one thing, the tile list, or the bare tile. */
+export type LookRung = LookTarget | { readonly kind: 'list' } | { readonly kind: 'tile' };
+
+/**
+ * The click ladder of 24 § Inspection: the creature the map shows there (several: the tile list),
+ * else the loose item (several: the tile list), else the building, else the zone, else the bare
+ * tile. An undiscovered tile is bare: it gives nothing away.
+ */
+export function clickRung(readers: ReaderSet, i: TileIndex): LookRung {
+  const creatures = creaturesAt(readers, i);
+  if (creatures.length > 1) return { kind: 'list' };
+  if (creatures.length === 1) return { kind: 'creature', id: creatures[0] as EntityId };
+  const items = looseItemsAt(readers, i);
+  if (items.length > 1) return { kind: 'list' };
+  if (items.length === 1) return { kind: 'item', id: items[0] as EntityId };
+  if (!discovered(readers, i)) return { kind: 'tile' };
+  const building = readers.map.buildingAt(i);
+  if (building !== 0) return { kind: 'building', id: building };
+  const zone = has(readers, '14') ? readers.of<BuildingsReaderLike>('14').zoneAt(i) : 0;
+  if (zone !== 0) return { kind: 'zone', id: zone };
+  return { kind: 'tile' };
 }
 
 /** "Ketil Ironvein, Digging": a creature's summary for the status bar. */
@@ -140,10 +200,21 @@ export function tileContents(readers: ReaderSet, registry: Registry, strings: St
   const fluid = fluidText(readers, strings, i);
   const summary = fluid === '' ? first : `${first} · ${fluid}`;
   const others = creatures.length - (creatures.length > 0 ? 1 : 0) + items.length;
-  if (others === 0) return summary;
-  if (others > 1) return strings.get('ui.status.here_more', { summary, n: others });
+  const wait = buildingWait(readers, strings, i);
+  if (others === 0) return summary + wait;
+  if (others > 1) return strings.get('ui.status.here_more', { summary, n: others }) + wait;
   const thing = items.length === 1 ? itemName(readers, registry, items[0] as EntityId) : readers.entities.get(creatures[1] as EntityId, C.Creature)?.name ?? '';
-  return strings.get('ui.status.here_one', { summary, thing });
+  return strings.get('ui.status.here_one', { summary, thing }) + wait;
+}
+
+/** " · 12 goods wait: 8 no stockpile, 4 no room": why the goods of the building on a tile (the wagon) still wait in it (T-681), or ''. */
+function buildingWait(readers: ReaderSet, strings: Strings, i: TileIndex): string {
+  if (!has(readers, '14') || !discovered(readers, i)) return '';
+  const b = readers.of<BuildingsReader>('14');
+  const id = b.at(i);
+  if (id === 0) return '';
+  const text = goodsWaitText(strings, goodsWaiting(readers, id, b.get(id)?.itemId ?? 0), true);
+  return text === '' ? '' : ` · ${text}`;
 }
 
 /** A patient's Care line: what happens next, and whether the player must act (17 § Patients and hospitals). */
@@ -226,28 +297,44 @@ function hangingRows(text: string, width: number): string[] {
 }
 
 /**
- * The tabs line, in the first form that fits the panel: "Tabs: [1]Tile [2]Items(52) [3]Creatures(7)",
- * then without "Tabs:", then with the short labels "[1]Tile [2]Items 52 [3]Who 7" (24 § Inspection).
- */
-export function tabsLine(strings: Strings, width: number, items: number, creatures: number): string {
-  const forms = ['ui.look.tabs', 'ui.look.tabs_bare', 'ui.look.tabs_short'].map((key) => strings.get(key, { items, creatures }));
-  return forms.find((text) => Array.from(text).length <= width) ?? (forms[forms.length - 1] as string);
-}
-
-/**
- * How far the `Creatures` tab is scrolled (24 § Inspection): `PageUp` `PageDown` move it a page and
- * the wheel three rows a notch. It starts at the top again when the creatures shown, the tile or
- * the tab change.
+ * How far Look's view is scrolled (24 § Inspection): `PageUp` `PageDown` move it a page and the
+ * wheel three rows a notch. It starts at the top again when what the view shows changes.
  */
 export class LookScroll {
-  /** The rows of the tab scrolled past. */
+  /** The rows of the view scrolled past. */
   scroll = 0;
-  /** The rows the last draw showed under the tabs line; a page is this less one. */
+  /** The rows the last draw showed in the scrolled part; a page is this less one. */
   visible = 10;
-  /** The most the tab can scroll: its rows less those shown, at the last draw. */
+  /** The most the view can scroll: its rows less those shown, at the last draw. */
   max = 0;
-  /** What the last draw showed (tile, tab and creatures); a change starts the tab at the top. */
+  /** What the last draw showed (the view, its tile or creature); a change starts it at the top. */
   key = '';
+  /** The things the last draw of a tile list numbered, in digit order (`1` is the first). */
+  numbered: LookTarget[] = [];
+  /** The links the last draw of a creature's or an item's view showed, in reading order. */
+  links: LookTarget[] = [];
+  /** The link `Tab` has focused among {@link links}, or -1; it starts afresh with the view. */
+  focus = -1;
+
+  /** `Tab` (`step` 1) or `Shift+Tab` (-1): the next or the previous link in view; false with none. */
+  cycle(step: 1 | -1): boolean {
+    const n = this.links.length;
+    if (n === 0) return false;
+    this.focus = this.focus < 0 ? (step > 0 ? 0 : n - 1) : (this.focus + step + n) % n;
+    return true;
+  }
+
+  /** The focused link, if one is in view. */
+  focused(): LookTarget | undefined {
+    return this.focus < 0 ? undefined : this.links[this.focus];
+  }
+
+  /** A new set of links for a draw of the view shown under `key`: the focus is dropped when the view changed. */
+  sink(key: string, open?: (target: LookTarget) => void): LinkSink {
+    if (this.key !== key) this.focus = -1;
+    this.links = [];
+    return { links: this.links, focus: this.focus, open, seen: new Map() };
+  }
 
   move(delta: number): void {
     this.scroll = Math.max(0, Math.min(this.max, this.scroll + delta));
@@ -258,40 +345,37 @@ export class LookScroll {
   }
 }
 
-export function drawLookPanel(
-  s: Surface,
-  rect: Rect,
-  readers: ReaderSet,
-  registry: Registry,
-  strings: Strings,
-  tile: TileIndex | null,
-  tab: LookTab,
-  pullLever?: (id: EntityId) => void,
-  /** 14 § Player-facing behavior: the building panel offers deconstruct (T-M7-09). */
-  deconstruct?: (id: EntityId) => void,
-  /** U-05: the building's own panel (`Enter`). */
-  open?: (id: EntityId) => void,
-  /** The creature whose sub-tab comes first (24 § Inspection: inspecting a creature from a list or a log line). */
-  first: EntityId = 0,
-  /** The `Creatures` tab's scroll; without one the tab is drawn from its top. */
-  view?: LookScroll,
-): void {
+/** The writer of a scrolled part of a view: rows scrolled past are skipped, rows past its foot counted. */
+interface Pen {
+  readonly cols: number;
+  put(draw: (row: number) => void): void;
+  line(text: string, fg?: Rgb): void;
+  wrapped(prefix: string, text: string, fg?: Rgb): void;
+  /** A line of spans, its links drawn as links; continuation rows indented by `indent` (by default under the first word's end). */
+  spans(spans: readonly Span[], fg?: Rgb, indent?: number): void;
+}
+
+/**
+ * Draw `body` into `region` scrolled by `view` (24 § Inspection): a dim `▲` at the right edge of the
+ * first row while rows lie above, `▼` at the right edge of the last while rows lie below. A view
+ * whose `key` changed starts at its top.
+ */
+function scrolled(s: Surface, region: Rect, view: LookScroll | undefined, key: string, body: (pen: Pen) => void, sink: LinkSink | null = null): void {
   const t = s.theme;
-  if (tile === null) return;
-  const map = readers.map;
-  const w = map.w;
-  const h = map.h;
-  const x = tile % w;
-  const y = Math.floor(tile / w) % h;
-  const z = Math.floor(tile / (w * h));
-  const here = creaturesAt(readers, tile);
-  const creatures = here.includes(first) ? [first, ...here.filter((id) => id !== first)] : here;
-  const itemIds = itemsAt(readers, tile);
-  let row = rect.row;
-  const bottom = rect.row + rect.rows;
-  // The Creatures tab scrolls: `skip` rows are scrolled past above, `below` rows did not fit under it.
-  let skip = 0;
+  const top = region.row;
+  const bottom = region.row + Math.max(0, region.rows);
+  let row = top;
+  if (view !== undefined) {
+    if (view.key !== key) {
+      view.key = key;
+      view.scroll = 0;
+    }
+    view.visible = Math.max(1, bottom - top);
+    view.scroll = Math.max(0, Math.min(view.max, view.scroll));
+  }
+  let skip = view?.scroll ?? 0;
   let below = 0;
+  const cols = region.cols - 2;
   const put = (draw: (r: number) => void): void => {
     if (skip > 0) {
       skip -= 1;
@@ -304,235 +388,626 @@ export function drawLookPanel(
     draw(row);
     row += 1;
   };
-  const line = (text: string, fg = t.text): void => put((r) => label(s, rect.col + 1, r, text, { fg, width: rect.cols - 2 }));
+  const line = (text: string, fg: Rgb = t.text): void => put((r) => label(s, region.col + 1, r, text, { fg, width: cols }));
   // A long line (a channel's spell, an enchantment, the rune lines) wraps under its prefix, so its end is read.
-  const wrapped = (prefix: string, text: string, fg = t.text): void => {
-    for (const part of wrapHang(text, rect.cols - 2 - prefix.length, 2)) line(`${prefix}${part}`, fg);
+  const wrapped = (prefix: string, text: string, fg: Rgb = t.text): void => {
+    for (const part of wrapHang(text, cols - prefix.length, 2)) line(`${prefix}${part}`, fg);
   };
+  const spans = (parts: readonly Span[], fg: Rgb = t.text, indent?: number): void => {
+    for (const r of wrapSpans(parts, cols, indent)) put((at) => drawSpanRow(s, region.col + 1, at, cols, r, fg, sink));
+  };
+  body({ cols, put, line, wrapped, spans });
+  if (view !== undefined) view.max = Math.max(0, view.scroll - skip + (row - top) + below - view.visible);
+  const edge = region.col + region.cols - 1;
+  if (view !== undefined && view.scroll > 0 && bottom > top) label(s, edge, top, '▲', { fg: t.dim, keys: false });
+  if (below > 0) label(s, edge, bottom - 1, '▼', { fg: t.dim, keys: false });
+}
+
+/** One row of the tile list: a thing on the tile, with what it holds and its notes under it. */
+export interface TileListRow {
+  /** What the row opens; null for a thing inside another (a barrel's drink, a building's goods). */
+  readonly target: LookTarget | null;
+  /** The glyph the map draws for it, or '' for a thing inside another. */
+  readonly glyph: string;
+  readonly name: string;
+  /** One fact at the right: the activity, the count and value, the state, the size. */
+  readonly fact: string;
+  /** Rows of what it holds, indented under it. */
+  readonly inner: boolean;
+  /** Lines under it: rot, flags, a spell, an enchantment. */
+  readonly notes: readonly { readonly text: string; readonly tone: 'text' | 'dim' | 'alert' }[];
+}
+
+/** The first glyph of a table row's `glyph`, or '?'. */
+function firstGlyph(glyph: string | undefined): string {
+  return Array.from(glyph ?? '?')[0] ?? '?';
+}
+
+/** The glyph the map draws for a building on a tile: its pattern's cell there, or its own glyph (23 § Compositor step 4). */
+function buildingGlyph(readers: ReaderSet, registry: Registry, id: EntityId, i: TileIndex): string {
+  const b = readers.of<BuildingsReader>('14').get(id);
+  if (b === undefined) return '?';
+  const row = registry.table<{ id: string; glyph?: string; pattern?: string }>('buildings').byId(b.typeId);
+  const pattern = row?.pattern === undefined ? undefined : registry.table<{ id: string; rows: readonly string[] }>('patterns').byId(row.pattern)?.rows;
+  if (pattern === undefined) return firstGlyph(row?.glyph);
+  const map = readers.map;
+  const at = map.unpack(i);
+  const cells = b.footprint.map((t) => map.unpack(t));
+  return patternCell(pattern, b.orientation, at.x - Math.min(...cells.map((c) => c.x)), at.y - Math.min(...cells.map((c) => c.y)));
+}
+
+/** An item's row of the tile list (13's `item` section: name and quality, count, value, flags, rot, spell, enchantment). */
+function itemRow(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, inner: boolean): TileListRow {
+  const it = readers.of<ItemsReaderLike>('13');
+  const rec = it.get(id);
+  const def = rec === undefined ? undefined : it.def(rec.type);
+  const name = itemName(readers, registry, id).replace(/^\d+ /, '') + (def?.quality === true && rec !== undefined ? ` (${QUALITY_WORDS[rec.quality] ?? ''})` : '');
+  const notes: { text: string; tone: 'text' | 'dim' | 'alert' }[] = [];
+  const flags = FLAG_WORDS.filter(([flag]) => ((rec?.flags ?? 0) & flag) !== 0).map(([, word]) => word);
+  if (flags.length > 0) notes.push({ text: flags.join(', '), tone: 'dim' });
   // 13 § Rot: under a perishable item, its stage and the days it has left, in the alert colour once stale.
-  const rot = (prefix: string, id: EntityId): void => {
-    const text = itemRotText({ readers, strings }, id);
-    if (text === '') return;
-    const stage = has(readers, '13') ? readers.of<ItemsReader>('13').rotStage(id) : 0;
-    wrapped(prefix, text, stage >= 1 ? t.alert : t.dim);
+  const rot = itemRotText({ readers, strings }, id);
+  if (rot !== '') notes.push({ text: rot, tone: it.get(id) !== undefined && readers.of<ItemsReader>('13').rotStage(id) >= 1 ? 'alert' : 'dim' });
+  const spell = spellLine(readers, strings, id, true);
+  if (spell !== null) notes.push({ text: spell, tone: 'dim' });
+  const enchant = enchantLine(readers, strings, id);
+  if (enchant !== null) notes.push({ text: enchant, tone: 'dim' });
+  const items = registry.table<{ id: string; glyph?: string }>('items');
+  return {
+    target: inner ? null : { kind: 'item', id },
+    glyph: inner ? '' : firstGlyph(rec === undefined ? undefined : items.byIndex(rec.type)?.glyph),
+    name: inner ? `${rec?.count ?? 0} ${name}` : name,
+    fact: strings.get('ui.look.item_fact', { n: rec?.count ?? 0, value: rec === undefined ? 0 : it.value(id) }),
+    inner,
+    notes,
   };
-  line(strings.get('ui.look.header', { x, y, z }), t.value);
-  line(tabsLine(strings, rect.cols - 2, itemIds.length, creatures.length));
-  if (view !== undefined && tab !== 2) view.key = '';
-  if (tab === 0) {
-    line(tileSummary(readers, strings, tile));
-    const fluid = fluidText(readers, strings, tile);
-    if (fluid !== '') line(capitalize(fluid));
-    if (has(readers, '03')) {
-      const info = readers.of<TerrainReaderLike>('03').inspect(tile);
-      if (info.designation !== null) {
-        const kind = strings.get(`ui.tool.designate.${DESIGNATION_IDS[info.designation.kind] ?? ''}`);
-        line(strings.get('ui.look.designation', { kind, priority: info.designation.priority }));
-      }
-      if (info.forbidden) line(strings.get('ui.look.forbidden'));
-      else if (info.restricted) line(strings.get('ui.look.restricted'));
+}
+
+/**
+ * The rows of a tile's list (24 § Inspection), in the click ladder's order: the creatures the map
+ * shows (dwarves, animals, the rest) with their activity, the loose items with what each holds
+ * indented under it, the building with the goods it holds on this tile under it, the zone. An
+ * undiscovered tile has none.
+ */
+export function tileListRows(readers: ReaderSet, registry: Registry, strings: Strings, i: TileIndex): TileListRow[] {
+  if (!discovered(readers, i)) return [];
+  const rows: TileListRow[] = [];
+  const species = registry.table<{ id: string; glyph?: string }>('creatures');
+  for (const id of creaturesAt(readers, i)) {
+    const c = readers.entities.get(id, C.Creature);
+    rows.push({
+      target: { kind: 'creature', id },
+      glyph: firstGlyph(species.byIndex(c?.species ?? -1)?.glyph),
+      name: c?.name ?? '',
+      fact: activityLabel({ readers, registry, strings }, id),
+      inner: false,
+      notes: [],
+    });
+  }
+  const it = has(readers, '13') ? readers.of<ItemsReaderLike>('13') : null;
+  const withContents = (id: EntityId, inner: boolean): void => {
+    rows.push(itemRow(readers, registry, strings, id, inner));
+    for (const held of it?.inContainer(id) ?? []) if (it?.get(held) !== undefined) rows.push(itemRow(readers, registry, strings, held, true));
+  };
+  for (const id of looseItemsAt(readers, i)) withContents(id, false);
+  if (has(readers, '14')) {
+    const b = readers.of<BuildingsReaderLike>('14');
+    const id = b.at(i);
+    const bld = id === 0 ? undefined : b.get(id);
+    if (bld !== undefined) {
+      // The goods a building holds lie on one of its tiles (the wagon's at its centre, 02 § Arrival).
+      const goods = (it?.inContainer(id) ?? []).filter((g) => it?.tileOf(g) === i && it.get(g) !== undefined).sort((x, y) => x - y);
+      const mode = bld.mode === '' ? '' : ` · ${bld.mode.replace(/_/g, ' ')}`;
+      const inside = goods.length === 0 ? '' : strings.get('ui.look.inside', { n: goods.length });
+      rows.push({ target: { kind: 'building', id }, glyph: buildingGlyph(readers, registry, id, i), name: buildingName({ readers, registry }, id), fact: `${bld.state}${mode}${inside}`, inner: false, notes: [] });
+      for (const g of goods) withContents(g, true);
     }
-    for (const text of buildingLines(readers, registry, strings, tile)) line(text);
-    // Everything else on the tile, so nothing here is seen only on another tab (24 § Inspection).
-    if (itemIds.length + creatures.length > 0) {
-      line(strings.get('ui.look.here'), t.key);
-      for (const id of itemIds) {
-        line(`  ${itemLine(readers, registry, id)}`);
-        rot('    ', id);
-        const spell = spellLine(readers, strings, id, true);
-        if (spell !== null) wrapped('    ', spell, t.dim);
-        const enchant = enchantLine(readers, strings, id);
-        if (enchant !== null) wrapped('    ', enchant, t.dim);
-      }
-      for (const id of creatures) line(`  ${creatureSummary(readers, registry, strings, id)}`);
+    const zoneId = b.zoneAt(i);
+    const zone = zoneId === 0 ? undefined : b.zone(zoneId);
+    if (zone !== undefined) {
+      rows.push({ target: { kind: 'zone', id: zoneId }, glyph: '░', name: zoneName({ readers, strings }, zoneId), fact: strings.get('ui.look.zone_fact', { n: zone.tiles.length }), inner: false, notes: [] });
     }
-    if (has(readers, '14')) {
-      const b = readers.of<BuildingsReader>('14');
-      const id = b.at(tile);
-      if (id !== 0 && b.byTag('lever').includes(id) && b.get(id)?.state === 'built') {
-        line('Linked targets:', t.key);
-        for (const target of b.get(id)?.linkedIds ?? []) {
-          const targetView = b.get(target);
-          if (targetView !== undefined) line(`  ${buildingName({ readers, registry }, target)}: ${b.mechanismState(target)}`);
-        }
-        if (pullLever !== undefined && row < rect.row + rect.rows) {
-          const buttonRow = row;
-          line('[Pull lever]', t.value);
-          s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => pullLever(id));
-        }
-      }
-      if (id !== 0 && open !== undefined && row < rect.row + rect.rows) {
-        const buttonRow = row;
-        line(strings.get('ui.look.open_building'), t.value);
-        s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => open(id));
-      }
-      if (id !== 0 && deconstruct !== undefined && b.get(id)?.state === 'built' && row < rect.row + rect.rows) {
-        const buttonRow = row;
-        line(strings.get('ui.look.deconstruct'), t.value);
-        s.hit({ col: rect.col + 1, row: buttonRow, cols: rect.cols - 2, rows: 1 }, () => deconstruct(id));
-      }
+  }
+  return rows;
+}
+
+/** The tile's own lines under its list: the fluid, the designation and the traffic. */
+function tileLines(readers: ReaderSet, strings: Strings, i: TileIndex): string[] {
+  const out: string[] = [];
+  const fluid = fluidText(readers, strings, i);
+  if (fluid !== '') out.push(capitalize(fluid));
+  if (has(readers, '03')) {
+    const info = readers.of<TerrainReaderLike>('03').inspect(i);
+    if (info.designation !== null) {
+      const kind = strings.get(`ui.tool.designate.${DESIGNATION_IDS[info.designation.kind] ?? ''}`);
+      out.push(strings.get('ui.look.designation', { kind, priority: info.designation.priority }));
     }
+    if (info.forbidden) out.push(strings.get('ui.look.forbidden'));
+    else if (info.restricted) out.push(strings.get('ui.look.restricted'));
+  }
+  return out;
+}
+
+/** The tile list's title: "Tile (58, 93, z27)". */
+export function tileTitle(readers: ReaderSet, strings: Strings, i: TileIndex): string {
+  const p = readers.map.unpack(i);
+  return strings.get('ui.look.title_tile', { x: p.x, y: p.y, z: p.z });
+}
+
+/**
+ * The tile list (24 § Inspection, `ui-screens/fortress-screen.md` § Inspection panel): the terrain
+ * line, then under `Here` a row for each thing on the tile (its digit, glyph, name and one fact),
+ * then under `Tile` the fluid, designation and traffic lines; the keys at the foot. The rows that
+ * `opens` accepts take the digits `1`–`9` in view and a click; the list records them in
+ * `view.numbered`. Returns them.
+ */
+export function drawTileList(
+  s: Surface,
+  rect: Rect,
+  readers: ReaderSet,
+  registry: Registry,
+  strings: Strings,
+  tile: TileIndex | null,
+  view?: LookScroll,
+  opens: (target: LookTarget) => boolean = () => false,
+  open?: (target: LookTarget) => void,
+): LookTarget[] {
+  const t = s.theme;
+  const numbered: LookTarget[] = [];
+  if (view !== undefined) view.numbered = numbered;
+  if (tile === null || rect.rows <= 0) return numbered;
+  const width = rect.cols - 2;
+  label(s, rect.col + 1, rect.row, tileSummary(readers, strings, tile), { width });
+  const rows = tileListRows(readers, registry, strings, tile);
+  const lines = tileLines(readers, strings, tile);
+  const openable = rows.some((r) => r.target !== null && opens(r.target));
+  const foot = openable && rect.rows >= 6 ? 2 : 0;
+  if (foot > 0) {
+    const footRow = rect.row + rect.rows - 2;
+    separator(s, rect.col + 1, footRow, width);
+    // `[Enter]` is a button for the first row; the rows take their own clicks.
+    const first = rows.find((r) => r.target !== null && opens(r.target))?.target ?? null;
+    captionButtons(s, rect.col + 1, footRow + 1, strings.get('ui.look.list_keys'), [null, null, first === null || open === undefined ? null : () => open(first)], { width });
+  }
+  const region = { col: rect.col, row: rect.row + 1, cols: rect.cols, rows: rect.rows - 1 - foot };
+  scrolled(s, region, view, `tile:${tile}:${rows.map((r) => `${r.target?.kind ?? ''}${r.target?.id ?? ''}`).join(',')}`, (pen) => {
+    if (rows.length > 0) pen.put((r) => separator(s, rect.col + 1, r, width, strings.get('ui.look.here')));
+    for (const row of rows) {
+      pen.put((r) => {
+        const target = row.target;
+        const can = target !== null && opens(target);
+        const digit = can && numbered.length < 9 ? String(numbered.length + 1) : '';
+        if (digit !== '') numbered.push(target as LookTarget);
+        const lead = row.inner ? '      ' : `${digit.padEnd(1)} ${row.glyph} `;
+        const fact = row.inner ? '' : row.fact;
+        const factCols = Array.from(fact).length;
+        const nameCols = Math.max(1, width - Array.from(lead).length - (factCols > 0 ? factCols + 1 : 0));
+        label(s, rect.col + 1, r, digit, { fg: t.key, keys: false });
+        label(s, rect.col + 3, r, row.inner ? '' : row.glyph, { keys: false });
+        label(s, rect.col + 1 + Array.from(lead).length, r, row.name, { fg: row.inner ? t.dim : t.text, width: nameCols, keys: false });
+        if (factCols > 0) label(s, rect.col + 1 + width - factCols, r, fact, { fg: t.dim, keys: false });
+        if (can && open !== undefined) s.hit({ col: rect.col + 1, row: r, cols: width, rows: 1 }, () => open(target as LookTarget));
+      });
+      const indent = row.inner ? '      ' : '    ';
+      for (const note of row.notes) pen.wrapped(indent, note.text, note.tone === 'alert' ? t.alert : note.tone === 'dim' ? t.dim : t.text);
+    }
+    if (rows.length > 0 && lines.length > 0) pen.put((r) => separator(s, rect.col + 1, r, width, strings.get('ui.look.tile_section')));
+    for (const text of lines) pen.line(text, rows.length > 0 ? t.dim : t.text);
+  });
+  return numbered;
+}
+
+/** "At (59, 87, z27) · 2 more here · 1 level down": where a creature is now, read each frame. */
+export function atLine(readers: ReaderSet, strings: Strings, id: EntityId, viewZ: number): string {
+  const p = readers.entities.get(id, C.Position);
+  if (p === undefined) return '';
+  const tile = readers.map.index(p.x, p.y, p.z);
+  return placeLine(readers, strings, tile, creaturesAt(readers, tile).length - 1, viewZ);
+}
+
+/** "At (59, 87, z27) · 2 more here · 1 level down": a tile, the others there, and the level it is on against the one shown. */
+function placeLine(readers: ReaderSet, strings: Strings, tile: TileIndex, others: number, viewZ: number): string {
+  const p = readers.map.unpack(tile);
+  let text = strings.get('ui.look.at', { x: p.x, y: p.y, z: p.z });
+  if (others > 0) text += strings.get('ui.look.at_more', { n: others });
+  const dz = viewZ - p.z;
+  if (dz !== 0) text += strings.get(dz > 0 ? (dz === 1 ? 'ui.look.at_down_one' : 'ui.look.at_down') : dz === -1 ? 'ui.look.at_up_one' : 'ui.look.at_up', { n: Math.abs(dz) });
+  return text;
+}
+
+/**
+ * A creature's view (24 § Inspection): it holds the creature, never a tile. Pinned on top the
+ * identity line, the activity and the `At` line, read fresh each frame; under them the sections of
+ * `ui-screens/fortress-screen.md` § Inspection panel, which scroll; the keys at the foot. A
+ * creature the map no longer shows says so with the place it was last seen (`last`).
+ */
+export function drawCreatureView(
+  s: Surface,
+  rect: Rect,
+  readers: ReaderSet,
+  registry: Registry,
+  strings: Strings,
+  id: EntityId,
+  viewZ: number,
+  view?: LookScroll,
+  last: TileIndex | null = null,
+  open?: (target: LookTarget) => void,
+  foot?: LookFoot,
+): void {
+  const t = s.theme;
+  const sink = view?.sink(`creature:${id}`, open) ?? { links: [], focus: -1, open, seen: new Map() };
+  if (rect.rows <= 0) return;
+  const width = rect.cols - 2;
+  let row = rect.row;
+  const bottom = rect.row + rect.rows;
+  const pinned = (text: string, fg: Rgb = t.text): void => {
+    if (row >= bottom) return;
+    label(s, rect.col + 1, row, text, { fg, width });
+    row += 1;
+  };
+  const gone = creatureGone(readers, id, creatureShown(readers, id), undefined);
+  if (gone !== null) {
+    drawGoneView(s, rect, readers, strings, gone, { name: readers.entities.get(id, C.Creature)?.name ?? '', sub: '', holder: 0, last }, sink, foot);
+    if (view !== undefined) view.key = `gone:${id}`;
     return;
   }
-  if (tab === 1) {
-    if (itemIds.length === 0) {
-      line(strings.get('ui.look.no_items'), t.dim);
-      return;
-    }
-    for (const id of itemIds) {
-      line(itemLine(readers, registry, id));
-      rot('  ', id);
-      const spell = spellLine(readers, strings, id, true);
-      if (spell !== null) wrapped('  ', spell, t.dim);
-      const enchant = enchantLine(readers, strings, id);
-      if (enchant !== null) wrapped('  ', enchant, t.dim);
-    }
-    return;
+  const dwarf = isDwarf(readers, id);
+  // 10 § Registrations, `creature › dwarf`: the identity line, then the activity.
+  if (dwarf) pinned(identityLine(readers, registry, strings, id));
+  if (has(readers, '10')) {
+    const dwarves = readers.of<DwarvesReaderLike>('10');
+    // 10 § Tipsy: the inspector says "Tipsy" beside the activity.
+    const words = activityLabel({ readers, registry, strings }, id);
+    const activity = dwarves.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: words }) : words;
+    const job = has(readers, '11') ? readers.of<JobsReaderLike>('11').forWorker(id) : undefined;
+    pinned(job === undefined ? strings.get('ui.look.activity', { activity }) : strings.get('ui.look.activity_priority', { activity, priority: job.priority }));
   }
-  if (creatures.length === 0) {
-    line(strings.get('ui.look.no_creatures'), t.dim);
-    return;
+  pinned(atLine(readers, strings, id, viewZ), t.value);
+  if (row < bottom) {
+    separator(s, rect.col + 1, row, width);
+    row += 1;
   }
-  const top = row;
-  if (view !== undefined) {
-    const key = `${tile}:${creatures.join(',')}`;
-    if (view.key !== key) {
-      view.key = key;
-      view.scroll = 0;
-    }
-    view.visible = Math.max(1, bottom - top);
-    view.scroll = Math.max(0, Math.min(view.max, view.scroll));
-    skip = view.scroll;
-  }
+  const feet = footRows(bottom - row);
+  if (feet > 0) drawLookFoot(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, strings, foot, false);
+  const region = { col: rect.col, row, cols: rect.cols, rows: bottom - feet - row };
+  scrolled(s, region, view, `creature:${id}`, (pen) => creatureSections(s, rect, pen, readers, registry, strings, id, dwarf), sink);
+}
+
+/** The sections of a creature under its pinned lines, in the wireframe's order. */
+function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, dwarf: boolean): void {
+  const t = s.theme;
+  const { line, wrapped, put } = pen;
   const skills = registry.table<{ id: string; name: string }>('skills');
-  for (const id of creatures) {
-    const name = readers.entities.get(id, C.Creature)?.name ?? '';
-    put((r) => separator(s, rect.col + 1, r, rect.cols - 2, strings.get('ui.look.creature', { name }).replace(/^── /, '').trim()));
-    const dwarf = isDwarf(readers, id);
-    // 10 § Registrations, `creature › dwarf`: the identity line, then the activity, the needs and the skills.
-    if (dwarf) line(identityLine(readers, registry, strings, id));
-    if (has(readers, '10')) {
-      const dwarves = readers.of<DwarvesReaderLike>('10');
-      // 10 § Tipsy: the inspector says "Tipsy" beside the activity.
-      const words = activityLabel({ readers, registry, strings }, id);
-      const activity = dwarves.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: words }) : words;
-      const job = has(readers, '11') ? readers.of<JobsReaderLike>('11').forWorker(id) : undefined;
-      line(
-        job === undefined
-          ? strings.get('ui.look.activity', { activity })
-          : strings.get('ui.look.activity_priority', { activity, priority: job.priority }),
-      );
-      if (dwarf) {
-        // Two needs to a row where the panel is wide enough, each in the colour of how pressing it is.
-        line(strings.get('ui.look.dwarf.needs'), t.key);
-        const cellWidth = needCellWidth(strings);
-        const perRow = rect.cols - 2 >= 2 * cellWidth + 1 ? 2 : 1;
-        const cells = needCells(readers, strings, id);
-        for (let k = 0; k < cells.length; k += perRow) {
-          put((r) => cells.slice(k, k + perRow).forEach((cell, n) => {
-            label(s, rect.col + 1 + n * (cellWidth + 1), r, cell.text, { fg: cell.level === 2 ? t.bad : cell.level === 1 ? t.alert : t.text, width: cellWidth, keys: false });
-          }));
-        }
-      }
-      const known = skills
-        .ids()
-        .map((sid) => ({ sid, level: dwarves.skill(id, sid) }))
-        .filter((k) => k.level > 0);
-      if (known.length > 0) {
-        line(strings.get('ui.look.skills'), t.key);
-        for (const k of known) {
-          line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)}) ${skillBar(readers, registry, id, k.sid)}`);
-        }
-      }
-      if (dwarf) {
-        // After the skills: the attributes, the three traits and the productivity.
-        for (const text of attributeRows(readers, strings, id, rect.cols - 2)) line(text);
-        const traits = personalityText(readers, registry, strings, id);
-        if (traits !== null) for (const text of hangingRows(traits, rect.cols - 2)) line(text);
-        line(productivityText(readers, strings, id));
-      }
-      if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
-        const morale = readers.of<MoraleReader>('15');
-        line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${Math.round(morale.mood(id))})`, t.value);
-        // Only a thought that moves the mood by a whole point or more: one that rounds to 0 is not listed.
-        for (const thought of morale.thoughts(id)) if (Math.round(thought.value) !== 0) line(`  ${thoughtText(thought)}`);
+  if (has(readers, '10')) {
+    const dwarves = readers.of<DwarvesReaderLike>('10');
+    if (dwarf) {
+      // Two needs to a row where the panel is wide enough, each in the colour of how pressing it is.
+      line(strings.get('ui.look.dwarf.needs'), t.key);
+      const cellWidth = needCellWidth(strings);
+      const perRow = rect.cols - 2 >= 2 * cellWidth + 1 ? 2 : 1;
+      const cells = needCells(readers, strings, id);
+      for (let k = 0; k < cells.length; k += perRow) {
+        put((r) => cells.slice(k, k + perRow).forEach((cell, n) => {
+          label(s, rect.col + 1 + n * (cellWidth + 1), r, cell.text, { fg: cell.level === 2 ? t.bad : cell.level === 1 ? t.alert : t.text, width: cellWidth, keys: false });
+        }));
       }
     }
-    // 08 § Wild behavior, `sleep` (T-540): a wild animal that sleeps through noise.
-    if (readers.entities.get(id, C.Wild)?.heavySleeper === true) line(strings.get('ui.look.heavy_sleeper'), t.dim);
-    const rune = runeLine(readers, registry, strings, id);
-    if (rune !== null) wrapped('', rune, t.value);
-    const channel = channelLine(readers, registry, strings, id);
-    if (channel !== null) wrapped('', channel, t.value);
-    const vials = vialsLine(readers, strings, id);
-    if (vials !== null) wrapped('', vials, t.dim);
-    const effects = effectsLine(readers, strings, id);
-    if (effects !== null) wrapped('', effects, t.dim);
-    const rest = draughtRestLine(readers, strings, id);
-    if (rest !== null) wrapped('', rest, t.dim);
-    const summons = summonsLine(readers, registry, strings, id);
-    if (summons !== null) wrapped('', summons, t.dim);
-    if (has(readers, '17') && readers.entities.has(id, C.Body)) {
-      const body = readers.entities.get(id, C.Body);
-      if (body !== undefined) {
-        const isPatient = readers.entities.has(id, C.Patient);
-        const care = careLine(readers, registry, strings, id);
-        const careRows = (): void => {
-          if (care !== null) for (const text of hangingRows(care.text, rect.cols - 2)) line(text, care.urgent ? t.alert : t.text);
-        };
-        if (isPatient && !body.diagnosed) {
-          const bleeding = body.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
-          line(`Health: ${bleeding ? 'Wounded, bleeding' : 'Wounded'}`, t.bad);
-          careRows();
-        } else {
-          const bloodPct = body.maxBlood > 0 ? Math.floor((body.blood * 100) / body.maxBlood) : 100;
-          line(`Health: Blood ${bloodPct}%, Pain ${body.pain}`);
-          careRows();
-          line(`  ${body.conscious ? 'Conscious' : 'Unconscious'}`, body.conscious ? t.text : t.bad);
-          if (body.permanent.length > 0) line(`  Permanent: ${body.permanent.join(', ')}`, t.dim);
-          const partNames = ['head', 'torso', 'left arm', 'right arm', 'left leg', 'right leg'];
-          for (let pIdx = 0; pIdx < body.parts.length; pIdx += 1) {
-            const part = body.parts[pIdx];
-            if (!part) continue;
-            const pName = partNames[pIdx] ?? `part ${pIdx}`;
-            if (part.destroyed) {
-              line(`  ${pName}: destroyed`, t.bad);
-              continue;
-            }
-            const filled = barCells(part.hp, part.maxHp, HEALTH_PART_BAR_CELLS);
-            // Wasting takes fractions of a hit point; the panel writes whole ones, as it writes the mood.
-            line(`  ${pName} ${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)} ${Math.round(part.hp)}/${Math.round(part.maxHp)} hp`);
-            for (const w of part.wounds) {
-              const flags: string[] = [];
-              if (w.bandaged) flags.push('bandaged');
-              if (w.splinted) flags.push('splinted');
-              if (w.dressed) flags.push('dressed');
-              if (w.sutured) flags.push('sutured');
-              if (w.cleaned) flags.push('cleaned');
-              if (w.infected) flags.push('infected');
-              const flagStr = flags.length > 0 ? ` (${flags.join(', ')})` : '';
-              line(`    ${w.severity} ${w.type}${flagStr}`);
-            }
+    const known = skills
+      .ids()
+      .map((sid) => ({ sid, level: dwarves.skill(id, sid) }))
+      .filter((k) => k.level > 0);
+    if (known.length > 0) {
+      line(strings.get('ui.look.skills'), t.key);
+      for (const k of known) {
+        line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)}) ${skillBar(readers, registry, id, k.sid)}`);
+      }
+    }
+    if (dwarf) {
+      // After the skills: the attributes, the three traits and the productivity.
+      for (const text of attributeRows(readers, strings, id, rect.cols - 2)) line(text);
+      const traits = personalityText(readers, registry, strings, id);
+      if (traits !== null) for (const text of hangingRows(traits, rect.cols - 2)) line(text);
+      line(productivityText(readers, strings, id));
+    }
+    if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
+      const morale = readers.of<MoraleReader>('15');
+      line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${Math.round(morale.mood(id))})`, t.value);
+      // Only a thought that moves the mood by a whole point or more: one that rounds to 0 is not listed.
+      for (const thought of morale.thoughts(id)) if (Math.round(thought.value) !== 0) line(`  ${thoughtText(thought)}`);
+    }
+  }
+  // 08 § Wild behavior, `sleep` (T-540): a wild animal that sleeps through noise.
+  if (readers.entities.get(id, C.Wild)?.heavySleeper === true) line(strings.get('ui.look.heavy_sleeper'), t.dim);
+  const rune = runeLine(readers, registry, strings, id);
+  if (rune !== null) wrapped('', rune, t.value);
+  const channel = channelLine(readers, registry, strings, id);
+  if (channel !== null) wrapped('', channel, t.value);
+  const vials = vialsLine(readers, strings, id);
+  if (vials !== null) wrapped('', vials, t.dim);
+  const effects = effectsLine(readers, strings, id);
+  if (effects !== null) wrapped('', effects, t.dim);
+  const rest = draughtRestLine(readers, strings, id);
+  if (rest !== null) wrapped('', rest, t.dim);
+  const summons = summonsLine(readers, registry, strings, id);
+  if (summons !== null) wrapped('', summons, t.dim);
+  if (has(readers, '17') && readers.entities.has(id, C.Body)) {
+    const body = readers.entities.get(id, C.Body);
+    if (body !== undefined) {
+      const isPatient = readers.entities.has(id, C.Patient);
+      const care = careLine(readers, registry, strings, id);
+      const careRows = (): void => {
+        if (care !== null) for (const text of hangingRows(care.text, rect.cols - 2)) line(text, care.urgent ? t.alert : t.text);
+      };
+      if (isPatient && !body.diagnosed) {
+        const bleeding = body.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
+        line(`Health: ${bleeding ? 'Wounded, bleeding' : 'Wounded'}`, t.bad);
+        careRows();
+      } else {
+        const bloodPct = body.maxBlood > 0 ? Math.floor((body.blood * 100) / body.maxBlood) : 100;
+        line(`Health: Blood ${bloodPct}%, Pain ${body.pain}`);
+        careRows();
+        line(`  ${body.conscious ? 'Conscious' : 'Unconscious'}`, body.conscious ? t.text : t.bad);
+        if (body.permanent.length > 0) line(`  Permanent: ${body.permanent.join(', ')}`, t.dim);
+        const partNames = ['head', 'torso', 'left arm', 'right arm', 'left leg', 'right leg'];
+        for (let pIdx = 0; pIdx < body.parts.length; pIdx += 1) {
+          const part = body.parts[pIdx];
+          if (!part) continue;
+          const pName = partNames[pIdx] ?? `part ${pIdx}`;
+          if (part.destroyed) {
+            line(`  ${pName}: destroyed`, t.bad);
+            continue;
+          }
+          const filled = barCells(part.hp, part.maxHp, HEALTH_PART_BAR_CELLS);
+          // Wasting takes fractions of a hit point; the panel writes whole ones, as it writes the mood.
+          line(`  ${pName} ${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)} ${Math.round(part.hp)}/${Math.round(part.maxHp)} hp`);
+          for (const w of part.wounds) {
+            const flags: string[] = [];
+            if (w.bandaged) flags.push('bandaged');
+            if (w.splinted) flags.push('splinted');
+            if (w.dressed) flags.push('dressed');
+            if (w.sutured) flags.push('sutured');
+            if (w.cleaned) flags.push('cleaned');
+            if (w.infected) flags.push('infected');
+            const flagStr = flags.length > 0 ? ` (${flags.join(', ')})` : '';
+            line(`    ${w.severity} ${w.type}${flagStr}`);
           }
         }
       }
     }
-    // What the creature holds and wears, then a dwarf's relations and titles (fortress-screen.md § Inspection panel).
-    const equipment = equipmentText(readers, registry, strings, id, dwarf);
-    if (equipment !== null) for (const text of hangingRows(equipment, rect.cols - 2)) line(text);
-    const wearing = dwarf ? wearingText(readers, registry, strings, id) : null;
-    if (wearing !== null) for (const text of hangingRows(wearing, rect.cols - 2)) line(text);
-    if (dwarf) {
-      for (const text of hangingRows(relationsText(readers, strings, id), rect.cols - 2)) line(text);
-      const title = titleText(readers, strings, id);
-      if (title !== null) line(title);
-    }
   }
-  if (view !== undefined) view.max = Math.max(0, view.scroll - skip + (row - top) + below - view.visible);
-  // More above or below: a dim mark at the right edge of the first or the last row.
-  const edge = rect.col + rect.cols - 1;
-  if (view !== undefined && view.scroll > 0) label(s, edge, top, '▲', { fg: t.dim, keys: false });
-  if (below > 0) label(s, edge, bottom - 1, '▼', { fg: t.dim, keys: false });
+  // What the creature holds and wears, then a dwarf's relations and titles (fortress-screen.md § Inspection panel).
+  // Names are links (24 § Inspection): an item held or worn opens its view, a friend or a grudge that dwarf's.
+  const equipment = equipmentSpans(readers, registry, strings, id, dwarf);
+  if (equipment !== null) pen.spans(equipment);
+  const wearing = dwarf ? wearingSpans(readers, registry, strings, id) : null;
+  if (wearing !== null) pen.spans(wearing);
+  if (dwarf) {
+    pen.spans(relationsSpans(readers, strings, id));
+    const title = titleText(readers, strings, id);
+    if (title !== null) line(title);
+  }
+}
+
+/** An item's view is titled by its name without its count: "pine bed", "bellwine". */
+export function itemTitle(readers: ReaderSet, registry: Registry, id: EntityId): string {
+  return has(readers, '13') ? itemName(readers, registry, id).replace(/^\d+ /, '') : '';
+}
+
+/** The creature or item that holds an item at the last: its carrier's carrier, its container's; the item itself when it lies loose. */
+function outerHolder(readers: ReaderSet, id: EntityId): EntityId {
+  const it = readers.of<ItemsReader>('13');
+  let holder = id;
+  for (let depth = 0; depth < 8; depth += 1) {
+    const rec = it.get(holder);
+    if (rec === undefined) break;
+    const next = rec.containerId !== 0 ? rec.containerId : rec.carriedBy;
+    if (next === 0) break;
+    holder = next;
+  }
+  return holder;
+}
+
+/**
+ * Whether the map shows where an item is (24 § Inspection): it still exists, its tile is
+ * discovered, and a creature that holds it is one the map draws (a stealthed hostile's loot is not).
+ */
+export function itemShown(readers: ReaderSet, id: EntityId): boolean {
+  if (!has(readers, '13') || !readers.entities.alive(id)) return false;
+  const it = readers.of<ItemsReader>('13');
+  if (it.get(id) === undefined) return false;
+  const tile = it.tileOf(id);
+  if (tile >= 0 && !discovered(readers, tile)) return false;
+  const holder = outerHolder(readers, id);
+  return holder === id || !readers.entities.has(holder, C.Creature) || creatureShown(readers, holder);
+}
+
+/** A creature by its own name, or its species's; a link to its view when the map shows it. */
+function creatureLink(readers: ReaderSet, registry: Registry, id: EntityId): Span[] {
+  const c = readers.entities.get(id, C.Creature);
+  const name = c === undefined ? '' : c.name !== '' ? c.name : registry.table<{ id: string; name: string }>('creatures').byIndex(c.species)?.name ?? '';
+  return [{ text: name, target: creatureShown(readers, id) ? { kind: 'creature', id } : undefined }];
+}
+
+/** An item by its name (with its count when more than one), a link to its view. */
+function itemLink(readers: ReaderSet, registry: Registry, id: EntityId): Span[] {
+  const count = readers.of<ItemsReader>('13').get(id)?.count ?? 1;
+  return [{ text: count > 1 ? itemName(readers, registry, id) : itemTitle(readers, registry, id), target: { kind: 'item', id } }];
+}
+
+/**
+ * What a container holds, its stacks grouped by kind and material as named ("20 dimcap ale, 3 plump
+ * helmet"), in the order each first appears; each group a link to its first stack.
+ */
+function heldGroups(readers: ReaderSet, registry: Registry, held: readonly EntityId[]): Span[] {
+  const it = readers.of<ItemsReader>('13');
+  const groups = new Map<string, { first: EntityId; count: number }>();
+  for (const inner of held) {
+    const key = itemTitle(readers, registry, inner);
+    const group = groups.get(key);
+    const count = it.get(inner)?.count ?? 1;
+    if (group === undefined) groups.set(key, { first: inner, count });
+    else group.count += count;
+  }
+  const out: Span[] = [];
+  for (const [name, group] of groups) {
+    if (out.length > 0) out.push({ text: ', ' });
+    out.push({ text: group.count > 1 ? `${group.count} ${name}` : name, target: { kind: 'item', id: group.first } });
+  }
+  return out;
+}
+
+/** Whether a creature wears an item: in an armor or a clothing slot of its equipment. */
+function worn(readers: ReaderSet, creature: EntityId, item: EntityId): boolean {
+  const equip = readers.entities.get(creature, C.Equipment);
+  if (equip === undefined) return false;
+  return Object.values(equip.armor).includes(item) || Object.values(equip.clothing ?? {}).includes(item);
+}
+
+/**
+ * The item view's second line, how the item is held (24 § Inspection): "Lying in Stockpile #2",
+ * "Lying on the ground", "Carried by Roald Deephelm", "Worn by …", "In oak barrel, Stockpile #1",
+ * "In Wagon #1", "Installed", with the stockpile, the carrier and the container as links.
+ */
+export function heldSpans(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): Span[] {
+  const it = readers.of<ItemsReader>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return [];
+  const tile = it.tileOf(id);
+  const zoneId = tile >= 0 && has(readers, '14') ? readers.of<BuildingsReaderLike>('14').zoneAt(tile) : 0;
+  const zone: Span[] = zoneId === 0 ? [] : [{ text: zoneName({ readers, strings }, zoneId), target: { kind: 'zone', id: zoneId } }];
+  if (rec.carriedBy !== 0) {
+    const carrier = rec.carriedBy;
+    if (!readers.entities.has(carrier, C.Creature)) return stringSpans(strings, 'ui.look.item.carried', { who: itemLink(readers, registry, carrier) });
+    return stringSpans(strings, worn(readers, carrier, id) ? 'ui.look.item.worn' : 'ui.look.item.carried', { who: creatureLink(readers, registry, carrier) });
+  }
+  if (rec.containerId !== 0) {
+    const holder = rec.containerId;
+    if (it.get(holder) === undefined) {
+      const building: Span[] = [{ text: buildingName({ readers, registry }, holder), target: { kind: 'building', id: holder } }];
+      return stringSpans(strings, 'ui.look.item.in', { container: building });
+    }
+    const container = itemLink(readers, registry, holder);
+    return zone.length === 0 ? stringSpans(strings, 'ui.look.item.in', { container }) : stringSpans(strings, 'ui.look.item.in_zone', { container, zone });
+  }
+  if (readers.entities.has(id, C.Position)) return zone.length === 0 ? [{ text: strings.get('ui.look.item.lying') }] : stringSpans(strings, 'ui.look.item.lying_in', { zone });
+  return [{ text: strings.get((rec.flags & ItemFlag.Installed) !== 0 ? 'ui.look.item.installed' : 'ui.look.item.nowhere') }];
+}
+
+/** The item view's first line: "Furniture · common · 10 ☼", "Drink · ×20 · 40 ☼". */
+export function itemSummary(readers: ReaderSet, strings: Strings, id: EntityId): string {
+  const it = readers.of<ItemsReader>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return '';
+  const def = it.def(rec.type);
+  const top = it.categoryOf(rec.type).split('/')[0] ?? '';
+  const parts = [capitalize(top.replace(/_/g, ' '))];
+  if (def?.quality === true) parts.push(QUALITY_WORDS[rec.quality] ?? '');
+  if (rec.count > 1) parts.push(strings.get('ui.look.item.count', { n: rec.count }));
+  parts.push(strings.get('ui.look.item.value', { value: it.value(id) }));
+  return parts.filter((part) => part !== '').join(' · ');
+}
+
+/**
+ * An item's view (24 § Inspection): it holds the item, never a tile, and finds its place through
+ * `items.tileOf`, which sees through a carrier and a container. Pinned on top the summary line, the
+ * line of how it is held and the `At` line, read fresh each frame; under them 13's item fields with
+ * the maker, the owner and the job that has reserved it, which scroll; the keys at the foot. Names
+ * are links. An item gone or out of sight says so with the place it was last seen (`last`).
+ */
+export function drawItemView(
+  s: Surface,
+  rect: Rect,
+  readers: ReaderSet,
+  registry: Registry,
+  strings: Strings,
+  id: EntityId,
+  viewZ: number,
+  view?: LookScroll,
+  last: TileIndex | null = null,
+  open?: (target: LookTarget) => void,
+  foot?: LookFoot,
+): void {
+  const t = s.theme;
+  const sink = view?.sink(`item:${id}`, open) ?? { links: [], focus: -1, open, seen: new Map() };
+  if (rect.rows <= 0) return;
+  const width = rect.cols - 2;
+  let row = rect.row;
+  const bottom = rect.row + rect.rows;
+  const pinned = (text: string, fg: Rgb = t.text): void => {
+    if (row >= bottom) return;
+    label(s, rect.col + 1, row, text, { fg, width });
+    row += 1;
+  };
+  const gone = itemGone(readers, id, itemShown(readers, id), undefined);
+  if (gone !== null) {
+    drawGoneView(s, rect, readers, strings, gone, { name: '', sub: '', holder: 0, last }, sink, foot);
+    if (view !== undefined) view.key = `gone:item:${id}`;
+    return;
+  }
+  const it = readers.of<ItemsReader>('13');
+  pinned(itemSummary(readers, strings, id));
+  for (const r of wrapSpans(heldSpans(readers, registry, strings, id), width, 2)) {
+    if (row >= bottom) break;
+    drawSpanRow(s, rect.col + 1, row, width, r, t.text, sink);
+    row += 1;
+  }
+  const tile = it.tileOf(id);
+  if (tile >= 0) {
+    // Others on its tile: the creatures and loose items there, but not what carries it or holds it.
+    const holder = outerHolder(readers, id);
+    const others = readers.entities.has(holder, C.Creature) ? 0 : creaturesAt(readers, tile).length + looseItemsAt(readers, tile).filter((other) => other !== id && other !== holder).length;
+    pinned(placeLine(readers, strings, tile, others, viewZ), t.value);
+  }
+  if (row < bottom) {
+    separator(s, rect.col + 1, row, width);
+    row += 1;
+  }
+  const feet = footRows(bottom - row);
+  if (feet > 0) drawLookFoot(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, strings, foot, false);
+  const region = { col: rect.col, row, cols: rect.cols, rows: bottom - feet - row };
+  scrolled(s, region, view, `item:${id}`, (pen) => itemFields(s, pen, readers, registry, strings, id), sink);
+}
+
+/** 13's item fields under the pinned lines, a label column and a value: type, material, quality, count, value, rot, maker, owner, flags, the reserving job, what it holds. */
+function itemFields(s: Surface, pen: Pen, readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): void {
+  const t = s.theme;
+  const it = readers.of<ItemsReader>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return;
+  const def = it.def(rec.type);
+  const fields = ['type', 'material', 'quality', 'count', 'value', 'rot', 'made_by', 'owner', 'flags', 'for', 'holds'];
+  const pad = Math.max(...fields.map((f) => Array.from(strings.get(`ui.look.item.field.${f}`)).length)) + 2;
+  const rows: { name: string; value: Span[]; fg?: Rgb }[] = [];
+  const material = agedMaterial(null, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
+  rows.push({ name: 'type', value: [{ text: def?.name ?? '' }] });
+  if (material !== '') rows.push({ name: 'material', value: [{ text: material }] });
+  if (def?.quality === true) rows.push({ name: 'quality', value: [{ text: QUALITY_WORDS[rec.quality] ?? '' }] });
+  rows.push({ name: 'count', value: [{ text: String(rec.count) }] });
+  rows.push({ name: 'value', value: [{ text: strings.get('ui.look.item.value', { value: it.value(id) }) }] });
+  const rot = itemRotText({ readers, strings }, id);
+  if (rot !== '') rows.push({ name: 'rot', value: [{ text: rot }], fg: it.rotStage(id) >= 1 ? t.alert : t.dim });
+  if (rec.crafterId !== 0 && readers.entities.has(rec.crafterId, C.Creature)) rows.push({ name: 'made_by', value: creatureLink(readers, registry, rec.crafterId) });
+  rows.push({ name: 'owner', value: rec.ownerId !== 0 && readers.entities.has(rec.ownerId, C.Creature) ? creatureLink(readers, registry, rec.ownerId) : [{ text: strings.get('ui.look.item.no_one') }] });
+  const flags = FLAG_WORDS.filter(([flag]) => (rec.flags & flag) !== 0).map(([, word]) => word);
+  rows.push({ name: 'flags', value: [{ text: flags.length > 0 ? flags.join(', ') : strings.get('ui.look.item.none') }] });
+  if (rec.reservedBy !== 0 && has(readers, '11')) {
+    const jobs = readers.of<JobsReader>('11');
+    const type = jobs.typeOf(rec.reservedBy) ?? '';
+    const name = strings.has(`ui.jobs.type.${type}`) ? strings.get(`ui.jobs.type.${type}`) : capitalize(type.replace(/_/g, ' '));
+    const worker = jobs.get(rec.reservedBy)?.workerId ?? 0;
+    rows.push({ name: 'for', value: worker !== 0 && readers.entities.has(worker, C.Creature) ? stringSpans(strings, 'ui.look.item.for_worker', { job: name, who: creatureLink(readers, registry, worker) }) : [{ text: name }] });
+  }
+  const held = (it.containerRecord(id)?.contents ?? []).filter((inner) => it.get(inner) !== undefined);
+  if (held.length > 0) rows.push({ name: 'holds', value: heldGroups(readers, registry, held) });
+  for (const r of rows) {
+    // The labels dim, as the mock-ups draw them; a value that wraps hangs under the value column.
+    const head = strings.get(`ui.look.item.field.${r.name}`).padEnd(pad);
+    pen.spans([{ text: head, fg: t.dim }, ...r.value], r.fg ?? t.text, pad);
+  }
+  const spell = spellLine(readers, strings, id, true);
+  if (spell !== null) pen.wrapped('', spell, t.dim);
+  const enchant = enchantLine(readers, strings, id);
+  if (enchant !== null) pen.wrapped('', enchant, t.dim);
 }
 
 /** Milli-rune as the inspector shows it: "0.6", "1", "0.36". */
@@ -718,7 +1193,7 @@ interface ItemsReaderLike {
  * it holds there (the wagon's goods lie at its centre, 02 § Arrival), and what is inside those.
  */
 export function itemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
-  if (!has(readers, '13')) return [];
+  if (!has(readers, '13') || !discovered(readers, i)) return [];
   const it = readers.of<ItemsReaderLike>('13');
   const out: EntityId[] = [];
   for (const id of readers.entities.at(i)) {
@@ -760,49 +1235,9 @@ function itemName(readers: ReaderSet, registry: Registry, id: EntityId): string 
   return `${rec.count} ${suffix === undefined ? name : `${name} ${suffix}`}`.trim();
 }
 
-/** 13's `item` section on one line: "5 oak log (common) · 15 ☼ · forbidden". */
-function itemLine(readers: ReaderSet, registry: Registry, id: EntityId): string {
-  const it = readers.of<ItemsReaderLike>('13');
-  const rec = it.get(id);
-  if (rec === undefined) return '';
-  const def = it.def(rec.type);
-  const parts = [itemName(readers, registry, id)];
-  if (def?.quality === true) parts[0] += ` (${QUALITY_WORDS[rec.quality] ?? ''})`;
-  parts.push(`${it.value(id)} ☼`);
-  for (const [flag, word] of FLAG_WORDS) if ((rec.flags & flag) !== 0) parts.push(word);
-  if (rec.containerId !== 0) parts.push('in a container');
-  return parts.join(' · ');
-}
-
 interface BuildingsReaderLike {
   at(i: TileIndex): EntityId;
   get(id: EntityId): { typeId: string; material: number; state: string; mode: string } | undefined;
   zoneAt(i: TileIndex): EntityId;
   zone(id: EntityId): { type: string; tiles: readonly TileIndex[] } | undefined;
-  room(zoneId: EntityId): { tier: number; score: number } | undefined;
-  types(): readonly { id: string; name: string }[];
-}
-
-/** 14's `building` and `zone › room` lines for a tile. */
-function buildingLines(readers: ReaderSet, registry: Registry, strings: Strings, i: TileIndex): string[] {
-  if (!has(readers, '14')) return [];
-  const b = readers.of<BuildingsReaderLike>('14');
-  const out: string[] = [];
-  const id = b.at(i);
-  const bld = id === 0 ? undefined : b.get(id);
-  if (bld !== undefined) {
-    const name = b.types().find((r) => r.id === bld.typeId)?.name ?? bld.typeId;
-    const material = registry.table<{ id: string; name: string }>('materials').byIndex(bld.material)?.name ?? '';
-    const mode = bld.mode === '' ? '' : ` · ${bld.mode.replace(/_/g, ' ')}`;
-    out.push(strings.get('ui.look.building', { name: `${material} ${name}`.trim(), state: bld.state, mode }));
-  }
-  const zoneId = b.zoneAt(i);
-  const zone = zoneId === 0 ? undefined : b.zone(zoneId);
-  if (zone !== undefined) {
-    const room = b.room(zoneId);
-    const tiers = registry.table<{ id: string; tier: number }>('roomTiers');
-    const tier = room === undefined ? '' : ` · ${tiers.ids().find((t) => tiers.byId(t)?.tier === room.tier) ?? ''} (${Math.floor(room.score)})`;
-    out.push(strings.get('ui.look.zone', { name: zoneName({ readers, strings }, zoneId), n: zone.tiles.length, room: tier }));
-  }
-  return out;
 }

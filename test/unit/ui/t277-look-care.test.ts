@@ -3,7 +3,7 @@ import { C, type Wound } from '@core/components';
 import type { EntityId } from '@core/types';
 import type { JobsReader } from '@systems/jobs';
 import type { MoraleReader } from '@systems/morale';
-import { drawLookPanel } from '@ui/panels/look';
+import { drawCreatureView } from '@ui/panels/look';
 import { TestWorld } from '../../scenarios/test-world';
 import { strings, surface, theme } from './ui-fixture';
 
@@ -74,7 +74,7 @@ function lookLines(w: TestWorld, patient: EntityId, cols = 80): { text: string; 
     w.game.world.entities.get(patient, C.Position)!.z,
   );
   const s = surface(cols, 60);
-  drawLookPanel(s, { col: 0, row: 0, cols, rows: 60 }, w.readers, w.game.registry, strings, tile, 2);
+  drawCreatureView(s, { col: 0, row: 0, cols, rows: 60 }, w.readers, w.game.registry, strings, patient, w.game.world.map.unpack(tile).z);
   const lines = s.lines().map((l) => l.trimEnd());
   return { text: lines.join('\n'), lines, s };
 }

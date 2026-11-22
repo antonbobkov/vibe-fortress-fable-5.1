@@ -196,9 +196,10 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
   }, { farm: f, width: PLOT_W });
   expect(selectedCrops.crops).toEqual(Array(4).fill(selectedCrops.dimcap));
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  // The fourth early floor is diagonal to the first strip, so it needs its own plot.
+  // The fourth early floor is diagonal to the first strip, so it needs its own plot. T-680: Esc
+  // goes back from the plot's settings to the Zones menu, where `f` is the farm plot.
   await page.keyboard.press('Escape');
-  await page.keyboard.press('z'); await page.keyboard.press('Shift+F');
+  await page.keyboard.press('Shift+F');
   const fourth = await pixel(page, f.x + PLOT_W - 1, f.y + 1);
   await page.mouse.move(fourth.x, fourth.y); await page.mouse.down(); await page.mouse.up();
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
@@ -248,9 +249,11 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
       if (!result.ok) throw new Error(`${cmd.type}: ${result.reason}`);
     }
   }, still);
+  // T-680: Esc goes from the plot's settings back to the Zones menu, then closes Zones.
   await page.keyboard.press('Escape');
-  // U-03 (D-U5): `[S-n]` opens the order picker; typing filters it; Enter adds. The mode and the
-  // material of the order are `[S-m]` and `[S-f]` (`m` and `f` open panels, D-U2).
+  await page.keyboard.press('Escape');
+  // U-03 (D-U5): `[n]` opens the order picker; typing filters it; Enter adds. The mode and the
+  // material of the order are `[m]` and `[f]` (`m` and `f` open panels, D-U2).
   await page.keyboard.press('o');
   await page.keyboard.press('Shift+N');
   await expect.poll(() => textOf(page)).toContain('Add order');
@@ -268,7 +271,7 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
   const dimcap = await textCell(page, 'dimcap');
   await page.mouse.click(dimcap.x, dimcap.y);
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  await expect.poll(() => textOf(page)).toContain('[S-f] dimcap');
+  await expect.poll(() => textOf(page)).toContain('[f] dimcap');
 
   // The default maintain threshold is 20. Poll the harvest, drink stock and completed excavation.
   await page.keyboard.press('Space');

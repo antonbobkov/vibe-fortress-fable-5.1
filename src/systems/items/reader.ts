@@ -100,7 +100,16 @@ export interface ItemsReader {
   itemCategory(id: EntityId): string;
   /** `items.wantsHaulingCount()`: the size of the "wants hauling" set. */
   wantsHaulingCount(): number;
+  /** Where an item stands with hauling ({@link HaulState}, T-681). */
+  haulState(id: EntityId): HaulState;
 }
+
+/**
+ * Where an item stands with hauling (13 § The "wants hauling" set): `job` (a haul or dump job holds it), `container`
+ * (in the set, waiting for a wanted container), `wants` (in the set, its job to come), `no_stockpile` (no home: no
+ * stockpile accepts it), `full` (no home: those that accept it have no room), `none` (it wants no hauling).
+ */
+export type HaulState = 'job' | 'container' | 'wants' | 'no_stockpile' | 'full' | 'none';
 
 export function makeReader(
   core: ItemCore,
@@ -111,6 +120,7 @@ export function makeReader(
   isMiasma: (i: TileIndex) => boolean = () => false,
   unburiedDead: (tick: number) => boolean = () => false,
   rotOutlook: (id: EntityId) => RotOutlook | null = () => null,
+  haulState: (id: EntityId) => HaulState = () => 'none',
 ): ItemsReader {
   const facts = core.host.facts;
   const typeOf = (typeId: string | number): number => (typeof typeId === 'number' ? typeId : facts.typeIndex(typeId));
@@ -166,6 +176,7 @@ export function makeReader(
     freeSlots: (sp) => store.freeSlots(sp),
     findSlot: (sp, id) => store.findSlot(sp, id),
     wantsHaulingCount: () => wantsCount(),
+    haulState,
     itemCategory: (id) => {
       const it = core.get(id);
       return it === undefined ? '' : store.categoryOf(it);

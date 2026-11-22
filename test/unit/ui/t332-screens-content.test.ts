@@ -152,7 +152,7 @@ describe('T-332 screens: what each outside screen says', () => {
   it('Settings lists each option with its current value, explains the Zoom option, and offers reset and back', () => {
     const r = rows('settings');
     expect(r[1]).toBe('Settings');
-    expect(r.slice(3, 18)).toEqual([
+    expect(r.slice(3, 19)).toEqual([
       '► Auto-pause on danger        [on]',
       'Auto-pause on alert         [off]',
       'Hints                       [on]',
@@ -168,9 +168,10 @@ describe('T-332 screens: what each outside screen says', () => {
       'Intro at launch             [first time]',
       'Intro style                 [deep]',
       'Reduced motion              [off]',
+      'Wheel up goes               [down a level]',
     ]);
-    expect(r[18]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
-    expect(r[20]).toBe('[d] Reset to defaults    [Esc] Back');
+    expect(r[19]).toBe('Auto: a larger cell on a large window. A fixed zoom keeps the old look.');
+    expect(r[21]).toBe('[d] Reset to defaults    [Esc] Back');
   });
 
   it('the keybindings list gives the action and key of every binding under its context heading, in the order of the keymap, and how to rebind and reset', () => {
@@ -182,14 +183,14 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[4]).toMatch(/^► cancel tool → close panel → game menu +Esc {2}fixed$/);
     expect(r[5]).toMatch(/^pause \/ resume +Space$/);
     expect(r[9]).toMatch(/^quick save +F5$/);
-    expect(r[16]).toMatch(/^calendar panel +\[S-y\]$/);
-    expect(r[17]).toMatch(/^music on \/ off +Ctrl\+M$/);
+    // D-253: the calendar is a panel letter (`y`), no longer a global row.
+    expect(r[16]).toMatch(/^music on \/ off +Ctrl\+M$/);
     // T-439: the tutorial's two keys.
-    expect(r[18]).toMatch(/^skip the tutorial step +F1$/);
-    expect(r[19]).toMatch(/^end the tutorial +Shift\+F1$/);
-    expect(r[20]).toBe('Map');
-    expect(r[21]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
-    for (const row of [...r.slice(5, 20), ...r.slice(21, 22)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
+    expect(r[17]).toMatch(/^skip the tutorial step +F1$/);
+    expect(r[18]).toMatch(/^end the tutorial +Shift\+F1$/);
+    expect(r[19]).toBe('Map');
+    expect(r[20]).toMatch(/^pan or move the map cursor \(Shift: 10\) +←$/);
+    for (const row of [...r.slice(5, 19), ...r.slice(20, 21)]) expect(row).toMatch(/^\S.* {2,}\S+$/);
     expect(r[23]).toBe('[Enter] rebind  [Del] default  [d] all defaults  [Esc] Back');
   });
 
@@ -209,11 +210,11 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[24]).toBe('[Esc] Back');
   });
 
-  it('the game menu names the fortress and offers resume, save, load, settings, rename, retire and the main menu, each with its key', () => {
+  it('the game menu names the fortress and offers resume, save, load, settings, rename, retire, abandon and the main menu, each with its key', () => {
     const r = rows('game_menu');
     expect(r[7]).toBe('Deepholm · Emberhall');
-    expect(r.slice(9, 16)).toEqual([
-      '► [r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[n] Rename fortress', '[x] Retire fortress', '[m] Main menu',
+    expect(r.slice(9, 17)).toEqual([
+      '► [r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[n] Rename fortress', '[x] Retire fortress', '[a] Abandon fortress', '[m] Main menu',
     ]);
   });
 

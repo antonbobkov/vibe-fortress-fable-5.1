@@ -1,6 +1,8 @@
 # T-664 — A small peril-4 fortress starves with drink in stock
 
-**Source:** [T-656's report](../../reports/data/2026-11-20-t656-thirst-under-the-alert.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-20, in 331ca093,411b454e,44a37ea1,6120d694,6229d150,1ce7caf7,b6fad69c,7e439b08.
+
+**Source:** [T-656's report](../../../reports/data/2026-11-20-t656-thirst-under-the-alert.md) · **Size:** M · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -12,4 +14,4 @@ Trace `three-years-p4-6` at shift 150 and `three-years-p4-1` at shift 50 (`test/
 
 ## Done
 
-The cause in the two traced timelines and the answer, with the sweep's verdict and its peril-4 starvation deaths before and after.
+- [x] The cause in the two traced timelines and the answer, with the sweep's verdict and its peril-4 starvation deaths before and after: [the report](../../../reports/data/2026-11-20-t664-small-fortress-starves.md). Five starving timelines of master's sweep traced: no farmer left (dead, in the hospital, or only soldiers at drill), the farm behind T-570's raised work, patients fed only meals, and the farm strips' cap filled by failed searches by the gate. Sweep `44851035279` on `411b454e`: Pooled 20 | 7 | 0 | 1102.5 | 113.5 | 0 | 0, **Verdict: pass**, all 80 seeds green; starvation 53 (peril 4: 30) on T-659/T-660's master and 31 on T-661's, none after. Steel at peril 2 a seventh lower: a follow-up.

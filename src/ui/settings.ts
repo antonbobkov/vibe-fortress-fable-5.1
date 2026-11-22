@@ -1,5 +1,5 @@
 /** Presentation preferences stored outside fortress saves (24 § State, T-M7-07). */
-import { DEFAULT_USER_SETTINGS, SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_INTRO_STYLE_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_ZOOM_OPTIONS } from './constants';
+import { DEFAULT_USER_SETTINGS, SETTINGS_COMBAT_LOG_OPTIONS, SETTINGS_INTRO_OPTIONS, SETTINGS_INTRO_STYLE_OPTIONS, SETTINGS_SNAPSHOT_OPTIONS, SETTINGS_VOLUME_STEP, SETTINGS_WHEEL_UP_OPTIONS, SETTINGS_ZOOM_OPTIONS } from './constants';
 
 export { DEFAULT_USER_SETTINGS } from './constants';
 export interface UserSettings {
@@ -29,6 +29,13 @@ export interface UserSettings {
   introStyle: 'deep' | 'hall';
   /** The map's designations do not blink (23 § Animation). */
   reducedMotion: boolean;
+  /** Where a notch of the wheel up over the map takes the view; the wheel down goes the other way (T-673). */
+  wheelUp: 'down a level' | 'up a level';
+  /**
+   * The preset of the last embark, which the next embark screen opens with (`embark.md` § Presets
+   * menu); '' before the first embark. Saved, not shown, and kept by Reset to defaults.
+   */
+  embarkPreset: string;
 }
 
 /** A stored volume: a step of 0 to 100, or the default. */
@@ -57,6 +64,8 @@ export function readSettings(value: unknown): UserSettings {
     introSeen: bool('introSeen'),
     tutorialOffered: bool('tutorialOffered'),
     reducedMotion: bool('reducedMotion'),
+    wheelUp: SETTINGS_WHEEL_UP_OPTIONS.includes(row['wheelUp'] as typeof SETTINGS_WHEEL_UP_OPTIONS[number]) ? row['wheelUp'] as UserSettings['wheelUp'] : DEFAULT_USER_SETTINGS.wheelUp,
+    embarkPreset: typeof row['embarkPreset'] === 'string' ? row['embarkPreset'] : DEFAULT_USER_SETTINGS.embarkPreset,
     introStyle: SETTINGS_INTRO_STYLE_OPTIONS.includes(row['introStyle'] as typeof SETTINGS_INTRO_STYLE_OPTIONS[number]) ? row['introStyle'] as UserSettings['introStyle'] : DEFAULT_USER_SETTINGS.introStyle,
   };
 }

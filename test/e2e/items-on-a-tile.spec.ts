@@ -1,6 +1,6 @@
 /**
  * T-442: dig rock until a stone drops, then look at its tile with the mouse and with the look key:
- * the look panel's Tile tab and the status row's hover summary both name the stone
+ * the look panel's tile list and the status row's hover summary both name the stone
  * (24 § Inspection).
  */
 import { test, expect, type Page } from '@playwright/test';
@@ -113,15 +113,21 @@ test('T-442 items-on-a-tile: a dug-out stone is seen where it lies', async ({ pa
   await page.mouse.move(pt.x, pt.y);
   await expect.poll(() => textOf(page)).toMatch(/floor · 1 \S+ stone/);
 
-  // The look key looks at the mouse: the Tile tab lists the stone.
+  // The look key looks at the mouse: the tile list lists the stone.
   await page.keyboard.press('k');
-  await expect.poll(() => textOf(page)).toContain('Here:');
-  expect(await textOf(page)).toMatch(/1 \S+ stone · \d+ ☼/);
+  await expect.poll(() => textOf(page)).toContain('Here');
+  expect(await textOf(page)).toMatch(/\S+ stone +[x×]1 · \d+ ☼/);
   await page.keyboard.press('k');
 
-  // A click on the tile opens the same panel on the Tile tab.
+  // A click on the tile, one loose item on it, opens the stone's own view (T-670); `h` lists the
+  // tile, where the stone's row has its digit, and the digit opens the stone again.
   await page.mouse.click(pt.x, pt.y);
-  await expect.poll(() => textOf(page)).toContain('Here:');
-  expect(await textOf(page)).toMatch(/1 \S+ stone · \d+ ☼/);
+  await expect.poll(() => textOf(page)).toContain('Lying ');
+  expect(await textOf(page)).toMatch(/Stone · \d+ ☼/);
+  await page.keyboard.press('h');
+  await expect.poll(() => textOf(page)).toContain('Here');
+  expect(await textOf(page)).toMatch(/1 \S \S+ stone +[x×]1 · \d+ ☼/);
+  await page.keyboard.press('1');
+  await expect.poll(() => textOf(page)).toContain('Lying ');
   expect(errors).toEqual([]);
 });

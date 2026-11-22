@@ -96,28 +96,30 @@ export const FORTRESS_PANEL_KEYS: readonly { id: string; key: string }[] = [
   { id: 'orders', key: 'o' }, { id: 'stocks', key: 's' }, { id: 'military', key: 'm' },
   { id: 'animals', key: 'n' }, { id: 'threats', key: 't' }, { id: 'civilizations', key: 'c' },
   { id: 'population', key: 'p' }, { id: 'mood', key: 'e' }, { id: 'log', key: 'a' },
-  { id: 'look', key: 'k' }, { id: 'overlays', key: 'f' },
+  { id: 'look', key: 'k' }, { id: 'overlays', key: 'f' }, { id: 'calendar', key: 'y' },
 ];
 
-/** The default panel letters: the set a panel's own accelerators may not use unshifted (D-U2, S4). */
+/** The default panel letters (§ Fortress panels). */
 export const DEFAULT_PANEL_LETTERS: ReadonlySet<string> = new Set(FORTRESS_PANEL_KEYS.map((panel) => panel.key));
 
+const NO_LETTERS: ReadonlySet<string> = new Set();
+
 /**
- * The accelerator a press means inside a panel (`ui-keymap-and-screens.md` § Panels, D-U2): a
- * letter that is a panel hotkey counts only with `Shift` (shown `[S-m]`), since the bare letter
- * always opens or closes that panel; any other letter counts with or without it. Returns the
- * lower-case letter, or `''`.
+ * The accelerator a press means inside a panel (`ui-keymap-and-screens.md` § Panels, D-253): the
+ * open panel's own letters come before the panel letters, so an accelerator is the bare letter and
+ * also takes the letter with `Shift`; the few a panel keeps on `Shift` (`shiftOnly`: dump, melt,
+ * slaughter … shown `[S-d]`) count only with it. Returns the lower-case letter, or `''`.
  */
-export function acceleratorOf(press: KeyPress, reserved: ReadonlySet<string> = DEFAULT_PANEL_LETTERS): string {
+export function acceleratorOf(press: KeyPress, shiftOnly: ReadonlySet<string> = NO_LETTERS): string {
   if (press.ctrl || press.alt || press.meta || !/^[a-zA-Z]$/.test(press.key)) return '';
   const letter = press.key.toLowerCase();
-  if (!reserved.has(letter)) return letter;
+  if (!shiftOnly.has(letter)) return letter;
   return press.shift ? letter : '';
 }
 
-/** An accelerator as a panel shows it: `[S-m]` for a panel letter, `[w]` for a free one. */
-export function acceleratorLabel(letter: string, reserved: ReadonlySet<string> = DEFAULT_PANEL_LETTERS): string {
-  return reserved.has(letter) ? `[S-${letter}]` : `[${letter}]`;
+/** An accelerator as a panel shows it: `[S-d]` for one kept on `Shift`, `[w]` for any other. */
+export function acceleratorLabel(letter: string, shiftOnly: ReadonlySet<string> = NO_LETTERS): string {
+  return shiftOnly.has(letter) ? `[S-${letter}]` : `[${letter}]`;
 }
 
 /** Keys that only modify another: a key capture waits for the key they go with, and they skip no intro. */
@@ -228,7 +230,10 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'add the marked dwarves to a squad': 'to_squad',
   'sleep an hour earlier / later': 'sleep_hour',
   'the labor manager on the marked dwarves': 'labor_manager',
-  'center the map on the dwarf': 'center',
+  'center the map on the creature': 'center',
+  // T-678: the Units panel's tabs and the All tab's kind.
+  'dwarves / all creatures tab': 'tab',
+  'all creatures: show one kind / all': 'kind_filter',
   'add or remove every marked dwarf': 'commit',
   'choose the squad leader': 'leader',
   'assign a barracks zone': 'barracks',
@@ -294,7 +299,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'gather zone': 'gather_zone',
   sanctum: 'sanctum',
   'compost heap': 'compost_zone',
-  'back to the zone types': 'zone_types',
+  'back to the zones menu': 'zone_types',
   'unlink a source of a stockpile, or remove the zone (confirm)': 'unlink_or_remove',
   'remove the stockpile zone (confirm)': 'remove_stockpile',
   'resize the zone': 'resize',
@@ -338,7 +343,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'tame the caged creature': 'tame',
   "the owner of a bed's bedroom, or whom a coffin is kept for": 'owner',
   'take out what the building holds (its bedding and pillow): they drop on its tile': 'take_out',
-  'a container building (the wagon, a chest): Look on the tile where its goods lie, at the Items tab': 'see_items',
+  "a container building (the wagon, a chest): Look's tile list where its goods lie": 'see_items',
   'cancel the plan, or take the building apart (confirm)': 'cancel_or_take_apart',
   'forbid the selected items': 'forbid',
   'dump the selected items (confirm)': 'dump',
@@ -362,8 +367,14 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'raise / lower the population cap': 'adjust',
   'sort by tier': 'sort',
   'log filter tabs': 'tab',
-  'look tabs': 'tab',
-  'take apart the building here (confirm)': 'take_apart',
+  "go to the entry's place: centre, mark, its tile list": 'go_to',
+  'the view of the creature or item the entry names': 'view_subject',
+  'tile list: open that row': 'open_row',
+  'tile list: open the first row': 'open_first',
+  'creature or item view: the tile list where it is': 'here',
+  'creature or item view: center on it': 'centre',
+  'creature or item view: follow on or off': 'follow_view',
+  'back to the view before': 'back',
   'Keys / Legend / Start tabs': 'tab',
   'dump save': 'dump_save',
   'replay season log': 'replay',
@@ -375,6 +386,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   Settings: 'settings',
   'Rename fortress': 'rename',
   'Retire fortress (confirm)': 'retire',
+  'Abandon fortress (confirm)': 'abandon',
   'Main menu': 'main_menu',
   Yes: 'yes',
   No: 'no',
@@ -394,7 +406,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
 
 /**
  * A parsed key column. `key` is the keymap spelling; `any-letter` stands for `[letter]`. An
- * accelerator (`accel`) is a letter that takes `Shift` while it is a panel letter.
+ * accelerator (`accel`) is a letter of a panel's own, bare or with `Shift`; one with `shift` counts only with `Shift`.
  */
 export interface KeySpec {
   readonly key: string | 'any-letter';
@@ -485,8 +497,8 @@ const ARROWS = ['←', '→', '↑', '↓'];
 export function parseKeySpec(raw: string): KeySpec[] {
   if (raw === 'arrows') return ARROWS.map((key) => ({ key, ctrl: false, shift: false }));
   if (raw === '[letter]') return [{ key: 'any-letter', ctrl: false, shift: false }];
-  const accel = /^\[(?:S-)?([a-z])\]$/.exec(raw);
-  if (accel !== null) return [{ key: accel[1] as string, ctrl: false, shift: false, accel: true }];
+  const accel = /^\[(S-)?([a-z])\]$/.exec(raw);
+  if (accel !== null) return [{ key: accel[2] as string, ctrl: false, shift: accel[1] !== undefined, accel: true }];
   const parts = raw.length > 1 && raw.includes('+') ? raw.split('+') : [raw];
   let ctrl = false;
   let shift = false;
@@ -564,25 +576,24 @@ function collide(a: KeySpec, b: KeySpec): boolean {
  * Whether a new key for a binding of `target` must be refused because a binding of `other` can
  * act at the same time and already has it (24 § Settings). `spec` is the new key.
  */
-function coActive(target: KeyContext, other: KeyContext, spec: KeySpec, held: KeySpec): boolean {
+function coActive(target: KeyContext, other: KeyContext): boolean {
   if (target === other) return true;
   if (target === 'global' || other === 'global') return true;
   if ((target === 'map' && other === 'fortress_panel') || (target === 'fortress_panel' && other === 'map')) return true;
   // The map keys act beside the list keys and every panel's own keys.
   if ((target === 'map' && (other === 'panel' || FORTRESS_CONTEXTS.has(other))) || (other === 'map' && (target === 'panel' || FORTRESS_CONTEXTS.has(target)))) return true;
-  // A panel letter may take a letter that panels use only as accelerators: those then take Shift.
-  // A panel's own bare letter would be lost behind it.
-  if (target === 'fortress_panel') return FORTRESS_CONTEXTS.has(other) && held.accel !== true;
-  // A panel's own bare letter would never be reached past the panel letter that has it.
-  if (other === 'fortress_panel') return FORTRESS_CONTEXTS.has(target) && spec.accel !== true && !spec.ctrl && !spec.shift && isLetter(spec.key);
+  // D-253: the open panel's own letters come before the panel letters, so a panel letter and a
+  // panel's own key may share a letter: in that panel the panel's key acts, elsewhere the letter.
+  if (target === 'fortress_panel' || other === 'fortress_panel') return false;
   if (target === 'panel' || other === 'panel') return true;
-  if ((target === 'selection' && FORTRESS_CONTEXTS.has(other)) || (other === 'selection' && FORTRESS_CONTEXTS.has(target))) return true;
-  return (target === 'zones_panel' && other === 'zone_inspector') || (target === 'zone_inspector' && other === 'zones_panel');
+  // The zone kinds (the Zones menu) and the zone inspector never act together: the inspector shows in the menu's place (T-680).
+  return (target === 'selection' && FORTRESS_CONTEXTS.has(other)) || (other === 'selection' && FORTRESS_CONTEXTS.has(target));
 }
 
 /** A token of a caption, `[S-t]` or `[Del]`, as a key; `null` for one that names no key. */
 function tokenSpec(token: string): KeySpec | null {
   if (token === 'Del') return { key: 'Delete', ctrl: false, shift: false };
+  if (token === 'Bksp') return { key: 'Backspace', ctrl: false, shift: false };
   const shifted = /^S-(.)$/.exec(token);
   if (shifted !== null) return { key: shifted[1] as string, ctrl: false, shift: true };
   if (token.length > 1 && token.includes('+') && !token.endsWith('+')) {
@@ -592,10 +603,10 @@ function tokenSpec(token: string): KeySpec | null {
 }
 
 /** Whether a caption's key names this default key. */
-function names(token: KeySpec, spec: KeySpec, reserved: ReadonlySet<string>): boolean {
+function names(token: KeySpec, spec: KeySpec): boolean {
   if (pseudo(spec) || spec.key === 'Esc') return false;
-  // A bare panel letter in a caption names the panel; an accelerator on it is written `[S-m]`.
-  if (spec.accel === true) return !token.ctrl && sameKey(token.key, spec.key) && (token.shift || !reserved.has(token.key.toLowerCase()));
+  // An accelerator kept on `Shift` is written `[S-d]`, any other `[d]`.
+  if (spec.accel === true) return !token.ctrl && sameKey(token.key, spec.key) && token.shift === (spec.shift === true);
   return token.ctrl === spec.ctrl && token.shift === spec.shift && sameKey(token.key, spec.key);
 }
 
@@ -701,6 +712,28 @@ export class Keymap {
     return out;
   }
 
+  /**
+   * The letters the accelerators of `contexts` keep on `Shift` by default (`[S-d]` dump): the bare
+   * letter is not theirs. Default keys, since the panels read every press as its default key.
+   */
+  shiftLetters(contexts: readonly KeyContext[]): Set<string> {
+    const out = new Set<string>();
+    for (const b of this.defaults) if (b.spec.accel === true && b.spec.shift && contexts.includes(b.context as KeyContext)) out.add(b.spec.key);
+    return out;
+  }
+
+  /**
+   * Whether a letter press is a key of one of `contexts` now (D-253: the open panel's own letters
+   * come before the panel letters). `[letter]` rows, which stand for every letter, claim none.
+   */
+  claims(contexts: readonly KeyContext[], press: KeyPress): boolean {
+    if (press.ctrl || press.alt || press.meta || !isLetter(press.key)) return false;
+    return contexts.some((context) => {
+      const index = this.find(context, press, this.current);
+      return index >= 0 && !pseudo((this.current[index] as Binding).spec);
+    });
+  }
+
   /** Whether any binding has this key now (an accelerator or `[letter]` aside). */
   binds(press: KeyPress): boolean {
     const key = spelled(press.key);
@@ -715,7 +748,7 @@ export class Keymap {
 
   /** A key as a caption or Help writes it: an accelerator `[S-m]` or `[w]`, a Shift letter `[S-n]`, any other as the table does. */
   label(spec: KeySpec): string {
-    if (spec.accel === true) return acceleratorLabel(spec.key, this.panelLetters());
+    if (spec.accel === true) return spec.shift ? `[S-${spec.key}]` : `[${spec.key}]`;
     if (spec.shift && !spec.ctrl && isLetter(spec.key)) return `[S-${spec.key.toLowerCase()}]`;
     return keyLabel(spec);
   }
@@ -755,7 +788,7 @@ export class Keymap {
     const restoring = sameSpec(next, was.spec);
     // A binding of the same context is named first, then one that acts beside it.
     const conflict = this.current.find((binding, other) => other !== index && binding.context === target.context && collide(binding.spec, next))
-      ?? (restoring ? undefined : this.current.find((binding, other) => other !== index && coActive(target.context, binding.context, next, binding.spec) && collide(binding.spec, next)));
+      ?? (restoring ? undefined : this.current.find((binding, other) => other !== index && coActive(target.context, binding.context) && collide(binding.spec, next)));
     if (conflict) return conflict;
     this.current[index] = { ...target, spec: next };
     this.changedCache = null;
@@ -764,7 +797,8 @@ export class Keymap {
 
   /** The key a capture means for a binding whose default is `def`: an accelerator takes the letter. */
   private static capture(def: KeySpec, spec: KeySpec): KeySpec {
-    if (def.accel === true && !spec.ctrl && isLetter(spec.key)) return { key: spec.key.toLowerCase(), ctrl: false, shift: false, accel: true };
+    // An accelerator keeps its default's form: a bare letter stays bare, one kept on `Shift` (dump) stays on it.
+    if (def.accel === true && !spec.ctrl && isLetter(spec.key)) return { key: spec.key.toLowerCase(), ctrl: false, shift: def.shift === true, accel: true };
     if (isLetter(spec.key) && spec.key.length === 1) return { key: spec.shift || spec.ctrl ? spec.key.toUpperCase() : spec.key.toLowerCase(), ctrl: spec.ctrl, shift: spec.shift };
     return { key: spec.key, ctrl: spec.ctrl, shift: spec.shift };
   }
@@ -784,8 +818,7 @@ export class Keymap {
       if (typeof entry !== 'object' || entry === null) continue;
       const raw = entry as { binding?: unknown; index?: unknown; spec?: unknown };
       const name = typeof raw.binding === 'string' ? raw.binding : typeof raw.index === 'number' && Number.isInteger(raw.index) ? LEGACY_BINDINGS[raw.index] : undefined;
-      const byName = name === undefined ? -1 : this.names.indexOf(name);
-      const index = byName >= 0 || name === undefined ? byName : this.keyNames.indexOf(name);
+      const index = name === undefined ? -1 : this.indexOfSaved(name);
       if (index < 0 || this.fixed(index)) continue;
       const spec = raw.spec as Partial<KeySpec> | undefined;
       if (!spec || typeof spec.key !== 'string' || typeof spec.ctrl !== 'boolean' || typeof spec.shift !== 'boolean') continue;
@@ -802,7 +835,7 @@ export class Keymap {
       for (const index of Array.from(changed).sort((a, b) => b - a)) {
         const binding = proposed[index] as Binding;
         const clash = proposed.some((other, k) => k !== index && (k < index || !changed.has(k)) &&
-          (other.context === binding.context || coActive(binding.context, other.context, binding.spec, other.spec)) && collide(other.spec, binding.spec));
+          (other.context === binding.context || coActive(binding.context, other.context)) && collide(other.spec, binding.spec));
         if (clash) {
           proposed[index] = { ...binding, spec: { ...(this.defaults[index] as Binding).spec } };
           changed.delete(index);
@@ -813,6 +846,28 @@ export class Keymap {
     }
     this.current = proposed;
     this.changedCache = null;
+  }
+
+  /**
+   * The binding a saved name means: its action name, or the `<context>/<default key>` name one
+   * version saved. D-253 moved the calendar from the global `Shift+Y` to the panel letter `y` and
+   * took the `Shift` off most panel keys (`units_panel/Shift+W` is `units_panel/w` now, the dump
+   * `stocks_panel/d` is `stocks_panel/Shift+d`), so the older names are read as the new ones.
+   */
+  private indexOfSaved(name: string): number {
+    const moved = name === 'global/calendar' || name === 'global/Shift+Y' ? 'fortress_panel/calendar' : name;
+    const byName = this.names.indexOf(moved);
+    if (byName >= 0) return byName;
+    const shifted = /^([^/]+)\/Shift\+([A-Za-z])$/.exec(moved);
+    const bare = /^([^/]+)\/([a-z])$/.exec(moved);
+    const candidates = [moved];
+    if (shifted !== null) candidates.push(`${shifted[1] as string}/${(shifted[2] as string).toLowerCase()}`);
+    if (bare !== null) candidates.push(`${bare[1] as string}/Shift+${bare[2] as string}`);
+    for (const candidate of candidates) {
+      const index = this.keyNames.indexOf(candidate);
+      if (index >= 0) return index;
+    }
+    return -1;
   }
 
   /** Bindings of one context that share a key with another binding of it (none, after a refused rebinding). */
@@ -827,7 +882,6 @@ export class Keymap {
     let accel = -1;
     let loose = -1;
     let any = -1;
-    const reserved = this.panelLetters();
     for (let index = 0; index < specs.length; index += 1) {
       const b = specs[index] as Binding;
       if (b.context !== context) continue;
@@ -837,7 +891,7 @@ export class Keymap {
         continue;
       }
       if (s.accel === true) {
-        if (accel < 0 && !press.alt && !press.meta && acceleratorOf({ ...press, key }, reserved) === s.key) accel = index;
+        if (accel < 0 && !press.alt && !press.meta && (press.shift || s.shift !== true) && acceleratorOf({ ...press, key }) === s.key) accel = index;
         continue;
       }
       if (s.ctrl !== press.ctrl) continue;
@@ -908,11 +962,10 @@ export class Keymap {
   relabel(text: string, contexts: readonly KeyContext[], words = false): string {
     if (!this.anyRebound()) return text;
     let lead: KeyContext | null = null;
-    const reserved = this.panelLetters();
     const lookup = (token: KeySpec): string | null => {
       const order = lead === null ? contexts : [lead, ...contexts];
       for (const context of order) {
-        const index = this.defaults.findIndex((b) => b.context === context && names(token, b.spec, reserved));
+        const index = this.defaults.findIndex((b) => b.context === context && names(token, b.spec));
         if (index < 0) continue;
         const binding = this.current[index] as Binding;
         if (binding.context === 'fortress_panel') lead = PANEL_CONTEXTS[binding.id] ?? null;

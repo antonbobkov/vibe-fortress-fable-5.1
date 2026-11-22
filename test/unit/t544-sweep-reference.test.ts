@@ -6,6 +6,9 @@
  */
 import { describe, expect, it } from 'vitest';
 import { poolSweeps, sweepCheck, type SweepFigures } from '../perf/three_years_sweep';
+
+/** The tolerances these bounds were set with, before T-662 narrowed the living's. */
+const T513_TOLERANCE = { living: 100, deaths: 30 };
 import { WILDLIFE_MEASURED, WILDLIFE_REFERENCE } from '../perf/wildlife_year_constants';
 
 /** T-544's reference and best figures, since refreshed by T-555 (t555-sweep-reference.test.ts). */
@@ -24,12 +27,12 @@ describe('T-544 the sweep and instrument references', () => {
     expect(T544_REFERENCE).toEqual(MERGED_0_150);
     const eight = poolSweeps([MERGED_0_150, MERGED_200_350]);
     expect({ living: eight.living, deaths: eight.deaths }).toEqual(T544_MEASURED);
-    expect(sweepCheck(T544_REFERENCE, T544_MEASURED).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 898.25, deaths: 143.75 });
+    expect(sweepCheck(T544_REFERENCE, T544_MEASURED, T513_TOLERANCE).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 898.25, deaths: 143.75 });
   });
 
   it('both halves of the merged head and T-545 alone pass; T-544 alone, before T-545, would not', () => {
-    for (const row of [MERGED_0_150, MERGED_200_350, T545_ALONE]) expect(sweepCheck(row, T544_MEASURED).exceeded).toEqual([]);
-    expect(sweepCheck(T544_ALONE, T544_MEASURED).exceeded).toEqual(['living at year 3', 'dwarf deaths']);
+    for (const row of [MERGED_0_150, MERGED_200_350, T545_ALONE]) expect(sweepCheck(row, T544_MEASURED, T513_TOLERANCE).exceeded).toEqual([]);
+    expect(sweepCheck(T544_ALONE, T544_MEASURED, T513_TOLERANCE).exceeded).toEqual(['living at year 3', 'dwarf deaths']);
   });
 
   it('the instrument\'s reference and best figures are run 43573353421\'s pooled row', () => {

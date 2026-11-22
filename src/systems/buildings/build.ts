@@ -1501,7 +1501,10 @@ export class BuildingStore {
     return indoors.length === next.length ? [] : indoors;
   }
 
-  /** An inner airlock door's outside is the corridor side away from the hearth, even indoors. */
+  /**
+   * A fortress dwarf stands outside the door (19 § Hearth alert retreat); an inner airlock door's outside is the corridor
+   * side away from the hearth, even indoors. A tame animal does not hold the gate open (T-683): one shut out stays out.
+   */
   private civilianOutsideDoor(door: Building): boolean {
     const map = this.map;
     const tile = door.origin;
@@ -1519,7 +1522,7 @@ export class BuildingStore {
           return this.host.entities.with(C.Creature, C.Position).some((id) => {
             const creature = this.host.entities.get(id, C.Creature);
             const pos = this.host.entities.get(id, C.Position);
-            if (creature?.faction !== 'fortress' || pos === undefined || pos.z !== map.zOf(tile)) return false;
+            if (creature?.faction !== 'fortress' || this.host.entities.has(id, C.Tame) || pos === undefined || pos.z !== map.zOf(tile)) return false;
             const coord = axis === 'x' ? pos.x : pos.y;
             return (coord - at) * (home - at) <= 0;
           });
@@ -1527,7 +1530,7 @@ export class BuildingStore {
       }
     }
     return map.neighbors(tile).some((next) => map.hasFlag(next, TileFlag.Outdoor) &&
-      this.host.creaturesAt(next).some((id) => this.host.entities.get(id, C.Creature)?.faction === 'fortress'));
+      this.host.creaturesAt(next).some((id) => this.host.entities.get(id, C.Creature)?.faction === 'fortress' && !this.host.entities.has(id, C.Tame)));
   }
 
   /** Whether a well has water within `WELL_DEPTH` below (14: "`working` when water is present"). */

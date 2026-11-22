@@ -58,7 +58,7 @@ export interface SavedUiState {
   readonly deepFound?: boolean;
   readonly miasmaAdvised?: boolean;
   readonly breaches?: readonly [number, number][];
-  readonly logTail: readonly { tick: number; severity: string; text: string; focus?: number; category?: string }[];
+  readonly logTail: readonly { tick: number; severity: string; text: string; count?: number; focus?: number; category?: string; subject?: number }[];
 }
 
 export function defaultUiState(z: number): UiState {
@@ -86,8 +86,10 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
     ...(ui.miasmaAdvised ? { miasmaAdvised: true } : {}),
     ...(ui.breaches.length === 0 ? {} : { breaches: ui.breaches.map(([cavern, tile]): [number, number] => [cavern, tile]) }),
     logTail: tail.map((l) => ({ tick: l.tick, severity: l.severity, text: l.text,
+      ...(l.count > 1 ? { count: l.count } : {}),
       ...(l.focus === undefined ? {} : { focus: l.focus }),
-      ...(l.category === undefined ? {} : { category: l.category }) })),
+      ...(l.category === undefined ? {} : { category: l.category }),
+      ...(l.subject === undefined ? {} : { subject: l.subject }) })),
   };
 }
 
@@ -115,9 +117,10 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
     tick: l.tick,
     severity: l.severity === 'danger' || l.severity === 'alert' ? l.severity : 'note',
     text: l.text,
-    count: 1,
+    count: typeof l.count === 'number' && Number.isInteger(l.count) && l.count > 1 ? l.count : 1,
     ...(l.focus === undefined ? {} : { focus: l.focus }),
     ...(l.category === undefined ? {} : { category: l.category }),
+    ...(typeof l.subject === 'number' ? { subject: l.subject } : {}),
   }));
 }
 

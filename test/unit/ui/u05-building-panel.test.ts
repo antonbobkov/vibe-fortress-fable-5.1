@@ -559,13 +559,13 @@ describe('U-05 the building panel (M4)', () => {
       '[g]  tame the caged creature',
       '[w]  the owner of a bed\'s bedroom, or whom a coffin is kept for',
       '[h]  take out what the building holds (its bedding and pillow): they drop on its tile',
-      '[v]  a container building (the wagon, a chest): Look on the tile where its goods lie, at the Items tab',
+      '[v]  a container building (the wagon, a chest): Look\'s tile list where its goods lie',
       '[x]  cancel the plan, or take the building apart (confirm)',
       '↑↓ Enter  choose a mode, an owner, a link',
     ]);
     // The older second list is gone, with its duplicate of the designate row.
     expect(rows).not.toContain('Building panel (click a building)');
-    expect(rows).not.toContain('[S-p]  last designation takes the priority');
+    expect(rows).not.toContain('[p]  last designation takes the priority');
     expect(rows).not.toContain('i link (pick on the map)  r unlink  y pull');
   });
 });
@@ -604,7 +604,7 @@ describe('T-551 a bed\'s panel: its rest, what it is made up with, and [h] take 
 });
 
 describe('U-05 Designate: the last batch takes another priority (SetDesignationPriority)', () => {
-  it('U-05 [S-p] sends the still-designated tiles of the last batch; with none it says so', () => {
+  it('U-05 [p] sends the still-designated tiles of the last batch; with none it says so', () => {
     const f = setup('u05-designate');
     f.screen.key(press('d'));
     f.screen.key(press('P', { shift: true }));
@@ -629,7 +629,7 @@ describe('U-05 Designate: the last batch takes another priority (SetDesignationP
     const s = surface(40, 20);
     let clicked = 0;
     drawDesignatePanel(s, { col: 0, row: 0, cols: 40, rows: 20 }, f.screen.tool, strings, () => { clicked += 1; });
-    const row = s.lines().findIndex((line) => line.includes('[S-p] last batch to priority 2'));
+    const row = s.lines().findIndex((line) => line.includes('[p] last batch to priority 2'));
     expect(row).toBeGreaterThanOrEqual(0);
     s.hitAt(3, row)?.action();
     expect(clicked).toBe(1);

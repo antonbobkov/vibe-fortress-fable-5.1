@@ -224,7 +224,7 @@ describe('T-271 a pick that waits for the map ends with the military panel', () 
     f.w.spawnCreature('wolf', f.w.index(30, 30, z), 'wild');
     keys(f, 'm', 'Shift+K');
     expect(f.screen.military.settingKill).toBe(true);
-    keys(f, 'b');
+    keys(f, 'e');
     expect(f.screen.military.settingKill).toBe(false);
     const cam = f.screen.ui.camX;
     keys(f, 'ArrowRight');
@@ -232,7 +232,8 @@ describe('T-271 a pick that waits for the map ends with the military panel', () 
     keys(f, 'Enter');
     expect(f.sent.filter((cmd) => cmd.type === 'SquadOrder')).toHaveLength(0);
     // Closing the panel ends it too.
-    keys(f, 'm', 'Shift+K', 'm');
+    keys(f, 'm', 'Shift+K');
+    f.screen.openPanel(null); // D-253: `m` in Military is its next mode, so the panel closes otherwise.
     expect(f.screen.military.settingKill).toBe(false);
   });
 });

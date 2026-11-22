@@ -14,7 +14,7 @@ import type { TileIndex } from '@core/types';
 import { computeLayout } from '@render/cellbuffer';
 import type { ItemsReader } from '@systems/items';
 import { AnnouncementLog } from '@ui/announcements';
-import { drawLookPanel } from '@ui/panels/look';
+import { drawTileList } from '@ui/panels/look';
 import { drawStocksPanel } from '@ui/panels/stocks';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
 import { defaultUiState, fromSaved, toSaved } from '@ui/ui-state';
@@ -88,14 +88,14 @@ describe('T-621 Stocks and Look show rot', () => {
     w.spawnItem('plant_food', 'turnip', tile, 20);
     w.step(16 * TICKS_PER_DAY);
     const s = surface(44, 14);
-    drawLookPanel(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile, 0);
+    drawTileList(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile);
     const text = s.lines().join('\n');
-    expect(text).toContain('20 turnip');
+    expect(text).toMatch(/turnip +x20/);
     expect(text).toContain('stale, rots in 4 days');
     const cured = warm(w, 11, 10);
     w.spawnItem('cured_meat', 'boar_meat', cured, 10);
     const s2 = surface(44, 14);
-    drawLookPanel(s2, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, cured, 1);
+    drawTileList(s2, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, cured);
     expect(s2.lines().join('\n')).toContain('keeps, never rots');
   });
 

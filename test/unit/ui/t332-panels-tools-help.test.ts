@@ -44,19 +44,19 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     const rows = rowsOf(s.lines());
     // T-280: no caption is cut at 36 columns. T-589: one Stairs tool in place of the four stair tools.
     expect(rows.slice(0, 7)).toEqual([
-      '[S-d] Dig        [S-c] Channel',
+      '[d] Dig          [c] Channel',
       '[w] Stairs       [r] Ramp',
-      '[S-s] Smooth     [S-e] Engrave',
-      '[x] Remove       [S-t] Chop trees',
+      '[s] Smooth       [e] Engrave',
+      '[x] Remove       [t] Chop trees',
       '[g] Gather       [h] Harvest',
       // T-559: cutting ice and setting a fire.
-      '[S-f] Traffic    [q] Cut ice',
+      '[f] Traffic      [q] Cut ice',
       '[S-b] Set a fire',
     ]);
     for (const row of rows) expect(row).not.toContain('»');
     expect(rows[7]).toBe('Priority [-] 5 [+]   (1-9)');
     expect(rows[8]).toBe('[Ctrl+Z] undo  [Del] clear');
-    expect(rows[9]).toBe('[S-p] last batch to priority 5');
+    expect(rows[9]).toBe('[p] last batch to priority 5');
     expect(rows[10]).toBe('Click 2 corners; [<] [>] levels.');
   });
 
@@ -83,20 +83,19 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[2]).toBe('Fortress panels');
     const panels: Record<string, string> = {
       d: 'Designate', b: 'Build', z: 'Zones', u: 'Units', l: 'Labors', j: 'Jobs', o: 'Orders', s: 'Stocks', m: 'Military',
-      n: 'Animals', t: 'Threats', c: 'Civilizations', p: 'Population', e: 'Mood', a: 'Log', k: 'Look', f: 'Overlays',
+      n: 'Animals', t: 'Threats', c: 'Civilizations', p: 'Population', e: 'Mood', a: 'Log', k: 'Look', f: 'Overlays', y: 'Calendar',
     };
     for (const [key, name] of Object.entries(panels)) expect(rows, `${key} ${name}`).toContain(`${key}  ${name} panel`);
-    expect(rows[20]).toBe('Global');
+    expect(rows[21]).toBe('Global');
     // A row that does not fit wraps with a hanging indent under its description.
-    expect(rows[21]).toBe('Esc  cancel tool → close panel → game');
-    expect(rows[22]).toBe('     menu');
-    expect(rows[23]).toBe('Space  pause / resume');
-    expect(rows[24]).toBe('+ =  speed up (1x → 2x → 4x)');
-    expect(rows[25]).toBe('-  speed down');
-    expect(rows[26]).toBe('F5  quick save');
-    expect(rows[27]).toBe('F9  quick load (confirm)');
-    expect(rows[28]).toBe('Ctrl+S  save menu');
-    expect(rows[29]).toMatch(/^F12 {2}debug panel +page 1\/\d+$/);
+    expect(rows[22]).toBe('Esc  cancel tool → close panel → game');
+    expect(rows[23]).toBe('     menu');
+    expect(rows[24]).toBe('Space  pause / resume');
+    expect(rows[25]).toBe('+ =  speed up (1x → 2x → 4x)');
+    expect(rows[26]).toBe('-  speed down');
+    expect(rows[27]).toBe('F5  quick save');
+    expect(rows[28]).toBe('F9  quick load (confirm)');
+    expect(rows[29]).toMatch(/^Ctrl\+S {2}save menu +page 1\/\d+$/);
   });
 
   it('PageDown moves a page less one line and the page mark follows', () => {
@@ -180,7 +179,7 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[25]).toMatch(/^─+ Counts ─+$/);
     expect(rows[26]).toMatch(/^creature \d+$/);
     // With 25's row the timings take one row more, so the item count scrolls below the buttons.
-    expect(rows.slice(27)).toEqual(['[S-d] dump save', '[r] replay season log', '[h] hash world']);
+    expect(rows.slice(27)).toEqual(['[d] dump save', '[r] replay season log', '[h] hash world']);
   });
 
   it('Calendar gives the season and year, the day and hour, the hours of daylight, and the weather with the temperature', () => {

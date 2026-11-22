@@ -161,8 +161,11 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('workshop');
 
-  // 6. A workshop from the Build list, placed at the cursor.
+  // 6. A workshop from the Build list, placed at the cursor. T-680: the new stockpile's settings
+  // show in the Zones menu's place and do not take the zone kinds' letters, so `b` opens Build at once.
+  const panelNow = (): Promise<string | null> => page.evaluate(() => (window as unknown as { __deepholm: TutorialHook }).__deepholm.readers.ui.panel);
   await page.keyboard.press('b');
+  expect(await panelNow()).toBe('build');
   await page.keyboard.press('w');
   await page.keyboard.press('Enter');
   const origin = await page.evaluate(() => {

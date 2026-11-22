@@ -45,7 +45,7 @@ export { ItemCore, type ItemChange, type ItemListener } from './api';
 export { ItemFacts, categoryUnder, type ItemTypeRow } from './facts';
 export { itemValue, qualityPermille } from './value';
 export { isAvailable } from './counts';
-export type { ItemsReader, RotOutlook, StockCountView } from './reader';
+export type { HaulState, ItemsReader, RotOutlook, StockCountView } from './reader';
 export { ItemSearch, matches, type ItemFilter, type SearchOptions } from './search';
 export {
   StockpileStore,
@@ -199,7 +199,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         const corpse = world.entities.get(id, C.Corpse);
           return corpse?.dwarfName !== null && corpse?.dwarfName !== undefined && corpse.memorialized !== true && tick - corpse.diedTick > UNBURIED_DAYS * TICKS_PER_DAY;
       }),
-      (id) => this.rotRef?.outlook(id, world.calendar.tick) ?? null);
+      (id) => this.rotRef?.outlook(id, world.calendar.tick) ?? null,
+      (id) => this.hauling.haulState(id));
     type BuildingsView = {
       zoneAt(i: TileIndex): number;
       zone(id: number): { readonly type: string; readonly tiles: readonly TileIndex[] } | undefined;
@@ -225,6 +226,11 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         return v.zonesOfType(type).map((id) => ({ id, tiles: v.zone(id)?.tiles ?? [] }));
       },
       walkable: (i) => !readers.has('pathing') || readers.pathing.passable(i, 'walker', { faction: 'fortress' }),
+      sameArea: (a, b) => {
+        if (!readers.has('pathing')) return true;
+        const label = readers.pathing.labelOf(a, 'walker');
+        return label !== 0 && label === readers.pathing.labelOf(b, 'walker');
+      },
       emit: (event) => world.emit(event),
       holders: () => (readers.has('14') ? readers.of<HoldersView>('14').withWants() : []),
       holderWants: (id) => {
@@ -396,6 +402,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       if (this.cellarRef !== null) cellarDay(this.cellarRef);
     } else if (event.type === 'HourPassed') {
       compostHour(core, this.stockpiles, ctx);
+      this.hauling.restockHospitals();
+      this.hauling.sweepForeign();
     } else if (event.type === 'SeasonChanged' || event.type === 'IceMelted') {
       // 13 § Rot: a season's weather, or an ice larder's walls gone (05), changes rot speeds.
       this.rotRef?.resample();

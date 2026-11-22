@@ -21,21 +21,20 @@ export interface PanelContext {
   submit(command: Command): void;
   /** Centre the view on a tile ("Clicking a location reference … centers the map"). */
   focusOn(tile: TileIndex): void;
-  /**
-   * Open the look panel on a tile, at a tab (the `Tile` tab when absent; `1` is `Items`), with a
-   * creature's sub-tab first on the `Creatures` tab (`2`) when one is named.
-   */
-  look(tile: TileIndex, tab?: 0 | 1 | 2, creature?: EntityId): void;
+  /** Centre the view on a tile and open Look's tile list there (24 § Inspection). */
+  look(tile: TileIndex): void;
   /** Open another panel. */
   openPanel(id: string): void;
+  /** Inspect a creature: centre on it once and open its view in Look (24 § Inspection). Absent outside the fortress screen. */
+  inspect?(id: EntityId): void;
   /** Whether the pointer's `Shift` was down for the click being handled. */
   shiftClick(): boolean;
   /** A message on the status row: why an action did nothing (D-U4). Absent outside the fortress screen. */
   notice?(text: string): void;
   /** An interactive pick prompt replaces an earlier status notice. */
   clearNotice?(): void;
-  /** The letters that open panels: an accelerator on one of them needs `Shift` (D-U2). The defaults when absent. */
-  readonly panelLetters?: ReadonlySet<string>;
+  /** The letters the open panel's accelerators keep on `Shift` (`[S-d]` dump, D-253), by their default keys. None when absent. */
+  readonly shiftLetters?: ReadonlySet<string>;
   /**
    * Ask through the confirmation dialog (24 § Confirmations) and run on Yes. Absent on a bare host
    * (a test without dialogs), where {@link confirmThen} runs at once.
@@ -55,7 +54,7 @@ export function confirmThen(ctx: PanelContext, id: string, params: Readonly<Reco
 
 /** The accelerator a press means in a panel: see {@link acceleratorOf}. */
 export function accel(ctx: PanelContext, press: KeyPress): string {
-  return acceleratorOf(press, ctx.panelLetters);
+  return acceleratorOf(press, ctx.shiftLetters);
 }
 
 export function items(ctx: PanelContext): ItemsReader | null {

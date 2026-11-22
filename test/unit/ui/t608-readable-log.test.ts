@@ -44,7 +44,7 @@ describe('T-608 the log panel wraps each entry', () => {
     expect(s.lines().join('\n')).not.toContain('»');
     // The older line follows the hint, and the foot names Enter.
     expect(lines[3 + hintRows.length]).toMatch(/^ Sp 3 Ketil found hematite\./);
-    expect(lines[SIDEBAR.rows - 1]).toContain('[Enter] center on it');
+    expect(lines[SIDEBAR.rows - 1]).toContain('[Enter] go there');
   });
 
   it('selects, scrolls and pages by entries, and a click on any row of an entry is that entry', () => {

@@ -33,6 +33,9 @@ export const LOG_IMMIGRANT_NAMES = 4;
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
 export const CURSOR_SCROLL_MARGIN = 3;
 
+/** The views Look's Backspace returns through, the oldest dropped first (24 § Inspection). */
+export const LOOK_BACK_MAX = 8;
+
 /** Rejection reason display time in the status bar (D-U4: four seconds). */
 export const STATUS_HINT_SECONDS = 4;
 
@@ -81,6 +84,8 @@ export const SETTINGS_SNAPSHOT_OPTIONS = [2, 4, 8] as const;
 export const SETTINGS_COMBAT_LOG_OPTIONS = ['all', 'hits only', 'off'] as const;
 export const SETTINGS_INTRO_OPTIONS = ['first time', 'always', 'off'] as const;
 export const SETTINGS_INTRO_STYLE_OPTIONS = ['deep', 'hall'] as const;
+/** Where a notch of the wheel up over the map takes the view (T-673): the default goes deeper. */
+export const SETTINGS_WHEEL_UP_OPTIONS = ['down a level', 'up a level'] as const;
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   autoPauseDanger: true,
   autoPauseAlert: false,
@@ -99,6 +104,8 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   tutorialOffered: false,
   introStyle: 'deep',
   reducedMotion: false,
+  wheelUp: 'down a level',
+  embarkPreset: '',
 });
 
 /** 24 § Tuning constants: the seed of the tutorial's world, generated at the standard size (`menus-and-world.md` § Tutorial). */

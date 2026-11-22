@@ -77,7 +77,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
 
   it('Orders groups the orders by workshop, says why one waits, and shows the selected order and the standing orders', () => {
     const rows = render('orders');
-    expect(rows[0]).toBe('[S-n] new order  all workshops');
+    expect(rows[0]).toBe('[n] new order  all workshops');
     expect(rows[1]).toMatch(/^─+ Carpenter's workshop #\d+ ─+$/);
     expect(rows[2]).toBe('x5 Door · in progress');
     expect(rows[3]).toMatch(/^─+ Any workshop ─+$/);
@@ -89,8 +89,8 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(fgOfText(orders, 2, 'x5')).not.toBe(hexOf(theme.alert));
     expect(rows.slice(19, 21).join(' ')).toBe('In progress: a dwarf is at work on it.');
     expect(rows[21]).toBe('Count [-] 5 [+] [+/-] Shift ±10');
-    expect(rows[22]).toBe('[S-m] once  [S-p] priority 5');
-    expect(rows[23]).toBe('[S-f] any material ▼');
+    expect(rows[22]).toBe('[m] once  [p] priority 5');
+    expect(rows[23]).toBe('[f] any material ▼');
     expect(rows[24]).toBe('[x] remove [r] repeat [S-↑↓] move');
     expect(rows[25]).toMatch(/^─+ Standing orders ─+$/);
     expect(rows.slice(26, 32)).toEqual(['[■] Harvest', '[■] Collect Products', '[■] Butcher', '[■] Haul Refuse', '[■] Rearm Traps', '[■] Melt Marked']);
@@ -136,8 +136,8 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows.some((row) => /^─+ Furniture ─+/.test(row))).toBe(true);
     expect(rows[23]).toMatch(/^─+ Orders \(1\) ─+$/);
     expect(rows[24]).toBe('x5 Door · in progress');
-    expect(rows[27]).toBe('[S-n] new order  [S-o] its orders');
-    expect(rows[28]).toBe('[S-f] material  [w] worker');
+    expect(rows[27]).toBe('[n] new order  [o] its orders');
+    expect(rows[28]).toBe('[f] material  [w] worker');
     expect(rows[29]).toBe('[S-s] suspend  [x] take apart');
   });
 
@@ -151,9 +151,9 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     const listed = rows.slice(2, 24).filter((row) => row !== '');
     expect(listed.map((row) => row.split(/ {2,}/)[0])).toEqual(['cat', 'dog x2']);
     expect(rows[24]).toBe('1 cat · no pasture');
-    expect(rows[26]).toBe('[S-p] pasture  [S-s] slaughter');
-    expect(rows[27]).toBe('[S-c] cap [S-a] assign [S-n] name');
-    expect(rows[28]).toBe('[S-t] train');
+    expect(rows[26]).toBe('[p] pasture  [S-s] slaughter');
+    expect(rows[27]).toBe('[c] cap [a] assign [n] name');
+    expect(rows[28]).toBe('[t] train');
     expect(rows[29]).toBe('Breeding cap: 12');
   });
 
@@ -180,7 +180,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[4]).toBe('Ludin Grimfell   Fine');
     expect(rows[5]).toBe('  -1 The Thane sleeps in a hovel.');
     expect(rows[28]).toMatch(/^─+$/);
-    expect(rows[29]).toBe('[Enter] holders  [S-s] sort tier');
+    expect(rows[29]).toBe('[Enter] holders  [s] sort tier');
   });
 
   it('Population gives the count, the cap, the hall spirit, the next evaluation and the last wave', () => {
@@ -195,33 +195,23 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[6]).toBe('Waves so far: 0');
   });
 
-  it('a selected farm plot shows the zone keys, one crop choice for each season, and the crop count of its tiles', () => {
+  it('a selected farm plot shows its settings in the menu\'s place, one crop choice for each season, and the crop count of its tiles', () => {
     const rows = render('farm');
-    expect(rows.slice(0, 6)).toEqual([
-      '[S-s] Stockpile  [S-f] Farm plot',
-      '[S-p] Pasture    [S-b] Bedroom',
-      '[S-d] Dining     [h] Hearth',
-      '[S-o] Hospital   [r] Barracks',
-      '[S-a] Archery    [S-m] Meeting',
-      '[S-t] Tomb       [S-u] Dump',
-    ]);
-    expect(rows[6]).toBe('[i] Fishing      [g] Gather');
-    expect(rows[7]).toBe('[S-c] Sanctum    [S-k] Compost');
-    expect(rows[8]).toBe('─ Drag a rectangle.');
-    expect(rows[9]).toBe('Usable tiles show ▒, others x.');
-    expect(rows[10]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
+    // T-680: the settings replace the menu of kinds; [y] goes back to it.
+    expect(rows[0]).toBe('[y] zones menu');
+    expect(rows[1]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
     // The highlight (►) starts on the current season; each row ends with the seeds in stock when a crop is set.
-    expect(rows.slice(11, 15)).toEqual([
+    expect(rows.slice(2, 6)).toEqual([
       '►Spring  [ none         ▼ ]',
       'Summer  [ none         ▼ ]',
       'Autumn  [ none         ▼ ]',
       'Winter  [ none         ▼ ]',
     ]);
-    expect(rows[15]).toBe('Crops: 0 growing, 0 ready, 2 empty');
-    expect(rows[16]).toBe('Fertilize: off (0 in stock)');
-    expect(rows[17]).toBe('↑↓ season · Enter choose crop');
-    expect(rows[18]).toBe('[S-a] all seasons');
-    expect(rows[19]).toBe('[w] fertilize');
-    expect(rows[31]).toBe('[x] remove zone  [S-e] resize');
+    expect(rows[6]).toBe('Crops: 0 growing, 0 ready, 2 empty');
+    expect(rows[7]).toBe('Fertilize: off (0 in stock)');
+    expect(rows[8]).toBe('↑↓ season · Enter choose crop');
+    expect(rows[9]).toBe('[a] all seasons');
+    expect(rows[10]).toBe('[w] fertilize');
+    expect(rows[31]).toBe('[x] remove zone  [e] resize');
   });
 });

@@ -663,8 +663,11 @@ test('panels-act', async ({ page }) => {
   }).toBe(true);
 
   // ==========================================
-  // 8d. T-277 Look, creature tab: the mood is a whole number; a wounded dwarf shows its care
+  // 8d. T-277 Look, a creature's view: the mood is a whole number; a wounded dwarf shows its care
   // ==========================================
+  // A click of 8c on the lone ground item opened its view (T-670): `h` gives the tile list, which
+  // then follows the cursor set below.
+  if ((await panel()) === 'look' && (await textOf(page)).includes('[h] here')) await page.keyboard.press('h');
   const wounded = await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: PanelsActHook }).__deepholm;
     const dwarf = h.dwarves()[0];
@@ -680,7 +683,8 @@ test('panels-act', async ({ page }) => {
   // The rectangle selection of 8c leaves Look open.
   if ((await panel()) !== 'look') await page.keyboard.press('k');
   await expect.poll(panel).toBe('look');
-  await page.keyboard.press('3');
+  // The tile list of the dwarf's tile: its first row, the dwarves first, opens the view (T-669).
+  await page.keyboard.press('1');
   await expect.poll(() => textOf(page)).toMatch(/Mood: \w+ \(\d+\)/);
   await expect.poll(() => textOf(page)).toContain('Care: no hospital.');
   await page.keyboard.press('Escape');

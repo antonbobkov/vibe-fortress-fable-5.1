@@ -439,6 +439,27 @@ export class StockpileStore {
     return this.hospitalAccepts(spId, it);
   }
 
+  /**
+   * 13 § Stockpiles (T-677): the stockpile's filter takes the item (a container that holds goods for its goods, an empty
+   * container it wants), whatever its linked sources and a hospital's supply limits say. An item that does not belong on
+   * the stockpile it lies on is moved off it.
+   */
+  belongs(spId: EntityId, itemId: EntityId): boolean {
+    const sp = this.stockpile(spId);
+    const it = this.core.get(itemId);
+    if (sp === undefined || it === undefined) return false;
+    const c = this.core.container(itemId);
+    if (c !== undefined && c.contents.length > 0) {
+      if (this.isCompost(spId)) return false;
+      return c.contents.every((inner) => {
+        const x = this.core.get(inner);
+        return x !== undefined && this.spFilterAccepts(spId, sp.filter, x);
+      });
+    }
+    if (c !== undefined && (sp.containersWanted[c.classId as 'barrel' | 'bag' | 'bin'] ?? 0) > 0) return true;
+    return this.spFilterAccepts(spId, sp.filter, it);
+  }
+
   /** A hospital takes an item its supply wants and has not yet reached; any other stockpile has no such limit. */
   private hospitalAccepts(spId: EntityId, it: Item): boolean {
     const zone = this.zoneView(spId);
@@ -638,7 +659,19 @@ export class StockpileStore {
     return false;
   }
 
-  /** `findSlot(sp, it)` of the algorithm, with 13's refusal when a wanted container is missing. */
+  /**
+   * 13 § Stockpiles (T-676): goods whose type wants a container that find none with room on a stockpile, and no wanted
+   * one to wait for, lie loose there (an empty tile, or a loose stack of theirs to join), as they lay in the wagon. Drink,
+   * which is drunk only from a barrel, never lies loose, and goods inside an item container (a bag's seed) leave it only
+   * for another container. A hospital keeps its supplies in its chests (`findSlot`).
+   */
+  mayLieLoose(itemId: EntityId): boolean {
+    const it = this.core.get(itemId);
+    if (it === undefined || this.core.host.facts.row(it.type).category.startsWith('drink')) return false;
+    return it.containerId === 0 || !this.core.isItem(it.containerId);
+  }
+
+  /** `findSlot(sp, it)` of the algorithm, with 13's wait when a wanted container is missing. */
   findSlot(spId: EntityId, itemId: EntityId): Slot | ContainerNeeded | null {
     const sp = this.stockpile(spId);
     const it = this.core.get(itemId);
@@ -651,7 +684,10 @@ export class StockpileStore {
     // 13 § The compost heap: one item to a tile, whatever container its type wants, and no stack to join.
     const compost = this.isCompost(spId);
     const cls = compost || this.core.container(itemId) !== undefined ? 'none' : facts.row(it.type).container;
-    if (cls !== 'none') return this.slotInContainerScan(spId, itemId, cls, this.scanContainers(spId, cls));
+    if (cls !== 'none') {
+      const slot = this.slotInContainerScan(spId, itemId, cls, this.scanContainers(spId, cls));
+      if (slot !== null || this.isHospital(spId) || !this.mayLieLoose(itemId)) return slot;
+    }
     const t = this.emptyTile(spId);
     if (t >= 0) return { tile: t, container: 0, merge: 0, key: this.tileKey(t) };
     if (compost) return null;

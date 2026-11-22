@@ -1,0 +1,58 @@
+// T-662: the spread of the sweep's pooled figures over shifts of one code.
+// usage: node splits.mjs <dir> [<dir> ...]   each dir holds shift-<n>/three-years-*.json (a sweep artifact); dirs are merged
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+const dirs = process.argv.slice(2);
+const fig = (rows) => {
+  const p = (k) => rows.filter((r) => r.peril === k);
+  const sum = (rs, f) => rs.reduce((t, r) => t + f(r), 0);
+  return {
+    living: sum(rows, (r) => r.y3), deaths: sum(rows, (r) => r.deaths),
+    p0living: sum(p(0), (r) => r.y3), p2living: sum(p(2), (r) => r.y3), p4living: sum(p(4), (r) => r.y3),
+    p0deaths: sum(p(0), (r) => r.deaths), p2deaths: sum(p(2), (r) => r.deaths), p4deaths: sum(p(4), (r) => r.deaths),
+    alive: rows.filter((r) => r.y1 > 0).length, extinct: rows.filter((r) => r.ext !== null).length, need: sum(rows, (r) => r.need),
+  };
+};
+const data = {};
+for (const dir of dirs) {
+  for (const name of readdirSync(dir).filter((n) => /^shift-\d+$/.test(n))) {
+    const s = Number(name.slice(6));
+    const rows = readdirSync(join(dir, name)).filter((f) => /^three-years-p\d-\d+\.json$/.test(f)).map((f) => JSON.parse(readFileSync(join(dir, name, f), 'utf8')))
+      .map(({ result, needDeaths, runtimeCommit }) => ({ seed: result.seed, peril: result.peril, y1: result.y1Pop, y3: result.y3Pop, deaths: result.dwarfDeaths, need: needDeaths ?? 0, ext: result.extinctDay ?? null, commit: runtimeCommit }));
+    data[s] = { rows, f: fig(rows) };
+  }
+}
+const shifts = Object.keys(data).map(Number).sort((a, b) => a - b);
+const keys = Object.keys(data[shifts[0]].f);
+console.log('shift | ' + keys.join(' | ') + ' | seeds | commits');
+for (const s of shifts) console.log(`${s} | ${keys.map((k) => data[s].f[k]).join(' | ')} | ${data[s].rows.length} | ${[...new Set(data[s].rows.map((r) => r.commit?.slice(0, 8)))].join(',')}`);
+const mean = (a) => a.reduce((t, x) => t + x, 0) / a.length;
+const sd = (a) => { const m = mean(a); return Math.sqrt(a.reduce((t, x) => t + (x - m) ** 2, 0) / (a.length - 1)); };
+console.log(`\nOne sweep over ${shifts.length} shifts (sd of a four-shift mean = sd / 2; of the difference of two = sd / sqrt 2):`);
+for (const k of keys) { const v = shifts.map((s) => data[s].f[k]); console.log(`  ${k}: mean ${mean(v).toFixed(2)}, range ${Math.min(...v)} to ${Math.max(...v)}, sd ${sd(v).toFixed(2)}, sd of 4-mean ${(sd(v) / 2).toFixed(2)}`); }
+function* combos(arr, k, start = 0, acc = []) {
+  if (acc.length === k) { yield acc.slice(); return; }
+  for (let i = start; i < arr.length; i++) { acc.push(arr[i]); yield* combos(arr, k, i + 1, acc); acc.pop(); }
+}
+const N = 4;
+if (shifts.length >= 2 * N) {
+  const diffs = Object.fromEntries(keys.map((k) => [k, []]));
+  const means = Object.fromEntries(keys.map((k) => [k, []]));
+  let pairs = 0;
+  for (const a of combos(shifts, N)) {
+    for (const k of keys) means[k].push(mean(a.map((s) => data[s].f[k])));
+    const rest = shifts.filter((s) => !a.includes(s));
+    for (const b of combos(rest, N)) {
+      if (b[0] < a[0]) continue;
+      pairs++;
+      for (const k of keys) diffs[k].push(Math.abs(mean(a.map((s) => data[s].f[k])) - mean(b.map((s) => data[s].f[k]))));
+    }
+  }
+  console.log(`\nSets of four: ${means.living.length} sets, ${pairs} disjoint pairs`);
+  for (const k of keys) console.log(`  ${k}: four-shift means ${Math.min(...means[k]).toFixed(2)} to ${Math.max(...means[k]).toFixed(2)}; disjoint pairs differ by at most ${Math.max(...diffs[k]).toFixed(2)}, on average ${mean(diffs[k]).toFixed(2)}`);
+}
+console.log('\nPer seed (by shift): y3 | deaths | need | extinct day');
+for (const seed of data[shifts[0]].rows.map((r) => r.seed).sort()) {
+  const rs = shifts.map((s) => data[s].rows.find((r) => r.seed === seed));
+  console.log(`${seed}: ${rs.map((r) => r?.y3 ?? '?').join(',')} | ${rs.map((r) => r?.deaths ?? '?').join(',')} | ${rs.map((r) => r?.need ?? '?').join(',')} | ${rs.map((r) => r?.ext ?? '-').join(',')}`);
+}

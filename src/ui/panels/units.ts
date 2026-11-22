@@ -13,6 +13,11 @@
  * `[S-m]` adds the selection to a squad (`SetSquadMembers`), `[S-l]` with marks opens the labor
  * manager on them, and `[` `]` move the sleep hour (`SetSchedule`). The new keys avoid the panel
  * hotkeys (D-U2).
+ *
+ * T-678: a tab row, `[1] Dwarves` (all of the above) and `[2] All`, every creature the map draws
+ * (`units-all.ts`); `[g]` shows one kind or all, `[w]` puts the wounded first, `Enter`, a double
+ * click or a click on the cursor's row inspects, `[c]` centres. The dwarf actions stay on the
+ * Dwarves tab.
  */
 
 import { C } from '@core/components';
@@ -28,9 +33,10 @@ import type { JobsReader } from '@systems/jobs';
 import type { MoraleReader } from '@systems/morale';
 import { TITLE_IDS, UNITS_ACTIVITY_MIN_COLS } from '../constants';
 import type { Surface } from '../surface';
-import { clampList, label, Marks, separator, table, type ListState } from '../widgets';
+import { clampList, label, Marks, separator, table, tabs, type ListState } from '../widgets';
 import { whimProgressText, whimWhereMade, wrapText } from '../messages';
 import { accel, type PanelContext } from './context';
+import { allCreatures, creatureFact, creatureGlyph, isWounded, kindCounts, CREATURE_KINDS, type CreatureKind, type CreatureRow } from './units-all';
 
 type TitleId = (typeof TITLE_IDS)[number];
 
@@ -57,6 +63,9 @@ interface SkillRow {
  */
 const NAME_COLS = 14;
 const MOOD_COLS = 2;
+
+/** The cells the All tab's fact keeps when it narrows the names: "Hostile, attacking" (T-678). */
+const ALL_FACT_COLS = 18;
 
 /** Rows under the table: the six action rows. */
 const ACTION_ROWS = 6;
@@ -200,8 +209,47 @@ export class UnitsPanel {
   woundedFirst = false;
   /** The open chooser: the titles, or the squads to add the selection to. */
   choice: { kind: 'title' | 'squad'; selected: number } | null = null;
+  /** T-678: `[1]` the dwarves, `[2]` every creature the map draws. Kept while the fortress is open, not saved. */
+  tab: 0 | 1 = 0;
+  /** `[g]` on the All tab: the one kind shown, or null for all. */
+  kind: CreatureKind | null = null;
+
+  /** The All tab's rows: every creature the map draws, of the kind shown, matching the filter (unless `filtered` is false), the wounded first under `[w]`. */
+  creatureRows(ctx: PanelContext, filtered = true): CreatureRow[] {
+    const f = filtered ? this.filter.toLowerCase() : '';
+    const shown = allCreatures(ctx.readers, ctx.registry).filter((r) => (this.kind === null || r.kind === this.kind) && (f === '' || r.name.toLowerCase().includes(f)));
+    if (!this.woundedFirst) return shown;
+    const hurt = shown.filter((r) => isWounded(ctx.readers, r.id));
+    return hurt.length === 0 ? shown : [...hurt, ...shown.filter((r) => !isWounded(ctx.readers, r.id))];
+  }
+
+  /** `1` `2`: the Dwarves or the All tab, the cursor on its first row. */
+  setTab(tab: 0 | 1): void {
+    if (this.tab === tab) return;
+    this.tab = tab;
+    this.list.selected = 0;
+    this.list.scroll = 0;
+  }
+
+  /** `[g]`: the next kind there is on the map, then all again. */
+  cycleKind(ctx: PanelContext): void {
+    const counts = kindCounts(allCreatures(ctx.readers, ctx.registry));
+    const present = CREATURE_KINDS.filter((k) => (counts.get(k) ?? 0) > 0);
+    const at = this.kind === null ? -1 : present.indexOf(this.kind);
+    this.kind = present[at + 1] ?? null;
+    this.list.selected = 0;
+    this.list.scroll = 0;
+  }
+
+  /** A click on a kind in the All tab's summary: show only it, or all again when it is shown. */
+  chooseKind(kind: CreatureKind): void {
+    this.kind = this.kind === kind ? null : kind;
+    this.list.selected = 0;
+    this.list.scroll = 0;
+  }
 
   rows(ctx: PanelContext): EntityId[] {
+    if (this.tab === 1) return this.creatureRows(ctx).map((r) => r.id);
     const f = this.filter.toLowerCase();
     const shown = dwarvesOf(ctx).filter((id) => (f === '' || nameOf(ctx, id).toLowerCase().includes(f)) && (!this.idleOnly || isIdle(ctx, id)));
     if (!this.woundedFirst || !ctx.readers.has('17')) return shown;
@@ -220,12 +268,17 @@ export class UnitsPanel {
 
   /** What an action applies to: the marked dwarves when the cursor's row is marked, else the cursor's dwarf. */
   targets(ctx: PanelContext): EntityId[] {
+    if (this.tab === 1) return [];
     const id = this.selectedId(ctx);
     return this.marks.targets(dwarvesOf(ctx), id === 0 ? undefined : id);
   }
 
   /** `Space`: mark the cursor's row. */
   toggleMark(ctx: PanelContext): void {
+    if (this.tab === 1) {
+      ctx.notice?.(ctx.strings.get('ui.units.dwarves_only'));
+      return;
+    }
     const id = this.selectedId(ctx);
     if (id === 0) ctx.notice?.(ctx.strings.get('ui.units.no_dwarf'));
     else this.marks.toggle(id);
@@ -233,6 +286,14 @@ export class UnitsPanel {
 
   /** A click on a row: select it; with `Shift`, mark the range from the last marked row. */
   clickRow(ctx: PanelContext, index: number): void {
+    if (this.tab === 1) {
+      // The All tab has no marks: a click on the cursor's row inspects it, as `Enter` does.
+      const again = index === this.list.selected;
+      this.list.selected = index;
+      const id = this.rows(ctx)[index];
+      if (again && id !== undefined) ctx.inspect?.(id);
+      return;
+    }
     this.list.selected = index;
     const rows = this.rows(ctx);
     const id = rows[index];
@@ -280,7 +341,11 @@ export class UnitsPanel {
 
   /** `[S-n]`: the `text_input` dialog, then `RenameDwarf`. */
   rename(ctx: PanelContext): void {
-    const dwarf = this.selectedId(ctx);
+    const dwarf = this.tab === 1 ? 0 : this.selectedId(ctx);
+    if (this.tab === 1) {
+      ctx.notice?.(ctx.strings.get('ui.units.dwarves_only'));
+      return;
+    }
     if (dwarf === 0) {
       ctx.notice?.(ctx.strings.get('ui.units.no_dwarf'));
       return;
@@ -329,6 +394,10 @@ export class UnitsPanel {
   /** `[` and `]`: the selection sleeps an hour earlier or later (`SetSchedule`; the hours wrap at midnight). */
   shiftSleep(ctx: PanelContext, delta: number): Command[] {
     const out: Command[] = [];
+    if (this.tab === 1) {
+      ctx.notice?.(ctx.strings.get('ui.units.dwarves_only'));
+      return out;
+    }
     for (const id of this.targets(ctx)) {
       const hour = this.sleepHour(ctx, id);
       if (hour !== null) out.push({ type: 'SetSchedule', dwarfId: id, sleepStartHour: (hour + delta + 24) % 24 });
@@ -340,12 +409,14 @@ export class UnitsPanel {
   // ---------- keys ----------
 
   openTitles(ctx: PanelContext): void {
-    if (this.selectedId(ctx) === 0) ctx.notice?.(ctx.strings.get('ui.units.no_dwarf'));
+    if (this.tab === 1) ctx.notice?.(ctx.strings.get('ui.units.dwarves_only'));
+    else if (this.selectedId(ctx) === 0) ctx.notice?.(ctx.strings.get('ui.units.no_dwarf'));
     else this.choice = { kind: 'title', selected: 0 };
   }
 
   openSquads(ctx: PanelContext): void {
-    if (this.targets(ctx).length === 0) ctx.notice?.(ctx.strings.get('ui.units.no_dwarf'));
+    if (this.tab === 1) ctx.notice?.(ctx.strings.get('ui.units.dwarves_only'));
+    else if (this.targets(ctx).length === 0) ctx.notice?.(ctx.strings.get('ui.units.no_dwarf'));
     else if (this.squads(ctx).length === 0) ctx.notice?.(ctx.strings.get('ui.units.no_squads'));
     else this.choice = { kind: 'squad', selected: 0 };
   }
@@ -374,6 +445,26 @@ export class UnitsPanel {
       // The chooser is modal within the panel: the list keys under it wait.
       return true;
     }
+    if (k === '1' || k === '2') {
+      this.setTab(k === '1' ? 0 : 1);
+      return true;
+    }
+    if (letter === 'w') {
+      this.toggleWounded();
+      return true;
+    }
+    if (this.tab === 1) {
+      if (letter === 'g') {
+        this.cycleKind(ctx);
+        return true;
+      }
+      // The dwarf actions are the Dwarves tab's: the status row says so, and no other panel opens.
+      if (k === '*' || k === '[' || k === ']' || ['i', 't', 'n', 'm', 'l'].includes(letter)) {
+        ctx.notice?.(ctx.strings.get('ui.units.dwarves_only'));
+        return true;
+      }
+      return false;
+    }
     if (k === ' ' || k === 'Space') {
       this.toggleMark(ctx);
       return true;
@@ -388,19 +479,15 @@ export class UnitsPanel {
       this.list.scroll = 0;
       return true;
     }
-    if (letter === 'w' && press.shift) {
-      this.toggleWounded();
-      return true;
-    }
-    if (letter === 't' && press.shift) {
+    if (letter === 't') {
       this.openTitles(ctx);
       return true;
     }
-    if (letter === 'n' && press.shift) {
+    if (letter === 'n') {
       this.rename(ctx);
       return true;
     }
-    if (letter === 'm' && press.shift) {
+    if (letter === 'm') {
       this.openSquads(ctx);
       return true;
     }
@@ -408,9 +495,10 @@ export class UnitsPanel {
       for (const c of this.shiftSleep(ctx, k === '[' ? -1 : 1)) ctx.submit(c);
       return true;
     }
-    // `[S-l]` with marked dwarves: the labor manager on them (bare `l` always opens Labors, D-U2).
-    if (letter === 'l' && press.shift && this.marks.size > 0 && ctx.laborManager !== undefined) {
-      ctx.laborManager({ marked: this.marks.list(dwarvesOf(ctx)), focus: this.selectedId(ctx) || undefined });
+    // `[l]`: the labor manager on the marked dwarves, or on the cursor's dwarf (D-253).
+    if (letter === 'l' && ctx.laborManager !== undefined) {
+      const focus = this.selectedId(ctx) || undefined;
+      ctx.laborManager({ marked: this.marks.size > 0 ? this.marks.list(dwarvesOf(ctx)) : focus === undefined ? [] : [focus], focus });
       return true;
     }
     return false;
@@ -460,12 +548,109 @@ function drawChoice(s: Surface, rect: Rect, panel: UnitsPanel, ctx: PanelContext
   ]);
 }
 
-export function drawUnitsPanel(s: Surface, rect: Rect, panel: UnitsPanel, ctx: PanelContext): void {
+/**
+ * The All tab (T-678): the filter, a line of the kinds on the map with their counts (a click shows
+ * one kind), the creatures with their glyph and one fact, and its keys. The facts are worked out
+ * for the rows drawn only.
+ */
+function drawAllTab(s: Surface, rect: Rect, panel: UnitsPanel, ctx: PanelContext): void {
+  const t = s.theme;
+  const strings = ctx.strings;
+  const col = rect.col + 1;
+  const width = rect.cols - 2;
+  label(s, col, rect.row, strings.get('ui.units.filter', { filter: panel.filter + (panel.editing ? '_' : '') }), { fg: panel.editing ? t.value : t.text, width });
+  // The kinds on the map, with their counts, over at most two rows; the kind shown is inverted.
+  const counts = kindCounts(allCreatures(ctx.readers, ctx.registry));
+  let at = col;
+  let line = 0;
+  for (const kind of CREATURE_KINDS) {
+    const n = counts.get(kind) ?? 0;
+    if (n === 0) continue;
+    const text = strings.get(`ui.units.count.${kind}`, { n });
+    const cells = Array.from(text).length;
+    if (at > col && at + cells > col + width) {
+      if (line === 1) break;
+      line += 1;
+      at = col;
+    }
+    if (at > col) label(s, at - 2, rect.row + 1 + line, '·', { fg: t.dim, width: 1, keys: false });
+    const where = { col: at, row: rect.row + 1 + line, cols: Math.min(cells, width), rows: 1 };
+    label(s, at, where.row, text, { fg: kind === 'hostile' ? t.danger : t.text, width: where.cols, keys: false });
+    if (panel.kind === kind) s.invert(where);
+    s.hit(where, () => panel.chooseKind(kind));
+    at += cells + 3;
+  }
+  const top = 2 + line;
+  const rows = panel.creatureRows(ctx);
+  const height = Math.max(2, rect.rows - top - 3);
+  const area = { col, row: rect.row + top, cols: width, rows: height };
+  clampList(panel.list, rows.length, height - 1);
+  const listCols = width - (rows.length > height - 1 ? 1 : 0);
+  // `▶`, the glyph and a blank before the name; the name column as wide as the longest name shown,
+  // as far as the fact keeps `ALL_FACT_COLS`.
+  const names = rows.map((r) => r.name);
+  const longest = names.reduce((most, name) => Math.max(most, Array.from(name).length), 0);
+  const nameCols = Math.max(NAME_COLS, Math.min(longest + 4, listCols - ALL_FACT_COLS));
+  const first = panel.list.scroll;
+  const last = first + height - 1;
+  const facts = new Map<number, string>();
+  for (let k = first; k < last && k < rows.length; k += 1) facts.set(k, creatureFact(ctx, rows[k] as CreatureRow));
+  table(
+    s,
+    area,
+    [
+      { title: strings.get('ui.units.name'), width: nameCols },
+      { title: strings.get('ui.units.fact'), width: UNITS_ACTIVITY_MIN_COLS, mark: true },
+    ],
+    rows.map((r, k) => {
+      if (k < first || k >= last) return ['', ''];
+      return [`${k === panel.list.selected ? '▶' : ' '}${creatureGlyph(ctx.readers, ctx.registry, r.id)} ${fitName(r.name, nameCols - 4, names)}`, facts.get(k) ?? ''];
+    }),
+    panel.list,
+    (index) => panel.clickRow(ctx, index),
+  );
+  // A hostile's fact in the danger colour, a visitor's in the value colour, an idle dwarf's dim
+  // (the cursor's row stays inverted); the name's tooltip is the whole name.
+  for (let k = first; k < last && k < rows.length; k += 1) {
+    const r = rows[k] as CreatureRow;
+    const row = area.row + 1 + (k - first);
+    s.tooltip({ col, row, cols: nameCols - 1, rows: 1 }, r.name, { box: false });
+    if (k === panel.list.selected) continue;
+    const fg = r.kind === 'hostile' ? t.danger : r.kind === 'visitor' ? t.value : r.kind === 'dwarf' && isIdle(ctx, r.id) ? t.dim : null;
+    if (fg !== null) label(s, col + nameCols, row, facts.get(k) ?? '', { fg, width: listCols - nameCols, keys: false });
+  }
+  const foot = rect.row + top + height;
+  separator(s, col, foot, width);
+  const selected = panel.selectedId(ctx);
+  actionRow(s, col, foot + 1, width, [
+    [strings.get('ui.units.inspect'), () => ctx.inspect?.(selected)],
+    [strings.get('ui.units.center'), () => {
+      const p = selected === 0 ? undefined : ctx.readers.entities.get(selected, C.Position);
+      if (p !== undefined) ctx.focusOn(ctx.readers.map.index(p.x, p.y, p.z));
+    }],
+  ]);
+  actionRow(s, col, foot + 2, width, [
+    [strings.get('ui.units.kind', { kind: strings.get(`ui.units.kinds.${panel.kind ?? 'all'}`) }), () => panel.cycleKind(ctx)],
+    [strings.get(panel.woundedFirst ? 'ui.units.hurt_on' : 'ui.units.hurt'), () => panel.toggleWounded()],
+  ]);
+}
+
+export function drawUnitsPanel(s: Surface, whole: Rect, panel: UnitsPanel, ctx: PanelContext): void {
   const t = s.theme;
   const strings = ctx.strings;
   panel.marks.prune(dwarvesOf(ctx));
   if (panel.choice !== null) {
-    drawChoice(s, rect, panel, ctx);
+    drawChoice(s, whole, panel, ctx);
+    return;
+  }
+  // T-678: `[1] Dwarves (80)  [2] All (134)`, each a button.
+  tabs(s, whole.col + 1, whole.row, [
+    { key: '1', label: strings.get('ui.units.tab_dwarves', { n: dwarvesOf(ctx).length }) },
+    { key: '2', label: strings.get('ui.units.tab_all', { n: allCreatures(ctx.readers, ctx.registry).length }) },
+  ], panel.tab, (index) => panel.setTab(index === 0 ? 0 : 1), 2);
+  const rect = { col: whole.col, row: whole.row + 1, cols: whole.cols, rows: whole.rows - 1 };
+  if (panel.tab === 1) {
+    drawAllTab(s, rect, panel, ctx);
     return;
   }
   label(s, rect.col + 1, rect.row, strings.get('ui.units.filter', { filter: panel.filter + (panel.editing ? '_' : '') }), { fg: panel.editing ? t.value : t.text, width: rect.cols - 2 });

@@ -1,10 +1,12 @@
 /**
  * `it_containers` of `04-implementation/acceptance-tests.md` § 13 Items: "drink stockpile with 0
- * barrels wanted | barrels of ale still accepted (they are containers); seeds need bags".
+ * barrels wanted | barrels of ale still accepted (they are containers); seeds go into a bag the
+ * stockpile has or wants, else lie loose; loose drink needs a barrel".
  *
  * Checked through 13's reader (`stockpileAccepts`, `findSlot`): the barrel of ale gets a tile of the
- * drink stockpile although no barrels are wanted; loose seeds in a seed stockpile are refused until
- * the stockpile wants bags (then a bag must be hauled in first) and go into a bag once one is there.
+ * drink stockpile although no barrels are wanted; loose seeds in a seed stockpile that wants no bags
+ * lie loose on a tile (T-676), wait for a bag to be hauled in once it wants one, and go into a bag
+ * once one is there. Loose drink, drunk only from a barrel, is refused where no barrel is to be had.
  */
 
 import { expect } from 'vitest';
@@ -34,7 +36,10 @@ const scenario: Scenario = {
     w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: seedPile, filter: 'seeds' });
     const seeds = w.spawnItem('seed', 'barley', w.index(41, 40, Z), 12);
     expect(items.stockpileAccepts(seedPile, seeds)).toBe(true);
-    expect(items.findSlot(seedPile, seeds)).toBeNull();
+    const first = w.index(30, 20, Z);
+    expect(items.findSlot(seedPile, seeds)).toEqual({ tile: first, container: 0, merge: 0, key: `t${first}` });
+    const loose = w.spawnItem('drink', 'dimcap_ale', w.index(42, 40, Z), 5);
+    expect(items.findSlot(drinkPile, loose)).toBeNull();
     w.game.world.applyCommand({ type: 'SetStockpileContainers', zoneId: seedPile, wants: { bag: 1 } });
     expect(items.findSlot(seedPile, seeds)).toEqual({ needContainer: 'bag' });
     const bag = w.spawnItem('bag', 'flax_cloth', w.index(31, 21, Z));

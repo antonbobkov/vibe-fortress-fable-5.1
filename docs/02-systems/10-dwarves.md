@@ -203,6 +203,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 - `dwarves.isTipsy(id)` — the dwarf drank spirits within `TIPSY_TICKS` (§ Tipsy)
 - `dwarves.whim()` — the Thane's whim of the season: its row id, its text, its kind, its count, its progress now (`have`) and whether it is met now; null when there is none (§ The Thane's whim)
 - `dwarves.friends(id)`, `dwarves.isFriend(a, b)`
+- `dwarves.wagonTile()` — the wagon's tile from the arrival (02 § Arrival), the idle anchor before a hearth hall (D-057; 08 § Tame behavior, *Before the hall*); -1 with no arrival
 - `dwarves.bedHolder(bedId)` ? the living dwarf walking to or sleeping in the bed through its saved rest activity, or 0; patient holds are combined by 14
 - `dwarves.avoidedThreatTile(id)` — the last seen tile of a still-near living hostile for a civilian, or −1; job eligibility uses this memory
 - `dwarves.avoidsFire(id)` — whether the dwarf fled a fire within `FIRE_AVOID_TICKS`; job eligibility keeps it from jobs near a burning tile

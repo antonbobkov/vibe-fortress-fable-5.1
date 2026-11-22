@@ -1,8 +1,8 @@
 /**
- * U-03: panel hotkeys always win (`docs/archive/ui-fixes/README.md` D-U2; `reports/audits/ui-audit.md`
- * issue 4, M3, S4). A panel letter opens or closes its panel whatever panel is open; a panel's own
- * accelerator on one of those letters takes `Shift` and is shown `[S-m]`; and every destructive
- * single-key action asks through the confirmation dialog, default No.
+ * U-03, as D-253 (T-674) changed it: the open panel's own letters come first. A letter the open
+ * panel binds is the panel's key; any other panel letter opens or closes its panel; `k` is never
+ * a panel's own key; the few dangerous keys stay on `Shift` (`[S-d]`); and every destructive
+ * single-key action asks through the confirmation dialog, default No (D-U2).
  */
 import { describe, expect, it } from 'vitest';
 import { Game } from '@app/game';
@@ -166,7 +166,12 @@ const STATES: readonly { readonly name: string; readonly open: (f: Fixture, worl
   { name: 'no panel', open: (f) => f.screen.openPanel(null) },
 ];
 
-describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
+/** Whether the open panel's contexts (or the map selection) claim a bare letter (D-253). */
+function claimed(f: Fixture, key: string): boolean {
+  return f.screen.ui.sidebar && f.screen.keyContexts().some((context) => context !== 'panel' && keymap.claims([context], press(key)));
+}
+
+describe('U-03 the open panel\'s letters first, then the panel letters (D-253)', () => {
   const shared = world('u03-hotkeys');
 
   it('the panel letters are the keymap\'s fortress_panel rows', () => {
@@ -177,14 +182,25 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
 
   // The table: every state × every panel letter.
   for (const state of STATES) {
-    it(`no panel letter is shadowed by an accelerator: ${state.name}`, () => {
+    it(`a panel letter the state does not bind opens its panel: ${state.name}`, () => {
       for (const { id, key } of FORTRESS_PANEL_KEYS) {
         const f = screenOf(shared);
         state.open(f, shared);
         const was = f.screen.ui.panel;
+        // `k` is never a panel's own key: Look is one key from anywhere.
+        if (key === 'k') expect(claimed(f, key), `k in ${state.name}`).toBe(false);
+        if (claimed(f, key)) {
+          // The panel's own key acts there instead.
+          expect(f.screen.key(press(key)), `${key} in ${state.name}`).toBe(true);
+          continue;
+        }
+        const settings = was === 'zones' && f.screen.zones.selected !== 0 && !f.screen.zones.active;
         expect(f.screen.key(press(key)), `${key} in ${state.name}`).toBe(true);
-        // The letter opens its panel, or closes it when it was the open one.
-        expect(f.screen.ui.panel, `${key} in ${state.name}`).toBe(was === id ? null : id);
+        // The letter opens its panel, or closes it when it was the open one; `z` over a zone's settings goes back to the Zones menu (T-680).
+        if (settings && id === 'zones') {
+          expect(f.screen.ui.panel, `${key} in ${state.name}`).toBe('zones');
+          expect(f.screen.zones.selected, `${key} in ${state.name}`).toBe(0);
+        } else expect(f.screen.ui.panel, `${key} in ${state.name}`).toBe(was === id ? null : id);
         // It did nothing else: no command, no question, no tool left behind from the old panel.
         expect(f.sent, `${key} in ${state.name}`).toEqual([]);
         expect(f.asked, `${key} in ${state.name}`).toEqual([]);
@@ -196,46 +212,70 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     });
   }
 
-  it('the open panel\'s own key closes it; Designate opens with Dig chosen (D-241)', () => {
+  it('the open panel\'s own key closes it unless the panel binds it: `d d` digs (D-241, D-253)', () => {
     let time = 1000;
     const f = screenOf(shared, false, keymap, () => time);
     for (const { id, key } of FORTRESS_PANEL_KEYS) {
       f.screen.key(press(key));
       expect(f.screen.ui.panel).toBe(id);
-      f.screen.key(press(key));
-      expect(f.screen.ui.panel).toBeNull();
+      const own = claimed(f, key);
+      // Designate (dig), Military (next mode) and Animals (name) bind their own letter.
+      expect(own, key).toBe(['d', 'm', 'n'].includes(key));
+      if (own) f.screen.openPanel(null);
+      else f.screen.key(press(key));
+      expect(f.screen.ui.panel, key).toBeNull();
     }
+    // `d d`: Designate opens with Dig chosen, and `d` again chooses Dig whatever tool was chosen.
     f.screen.key(press('d'));
     expect(f.screen.tool.kind).toBe('dig');
-    expect(f.screen.statusRow2()).toBe('Designate closed \u00b7 [d] opens it again');
-    time += 10000; // The T-252 close notice expires; the armed tool hint returns.
-    expect(f.screen.statusRow2()).toMatch(/^Dig · priority 5/);
+    f.screen.key(press('c'));
+    expect(f.screen.tool.kind).toBe('channel');
     f.screen.key(press('d'));
+    expect(f.screen.tool.kind).toBe('dig');
+    expect(f.screen.ui.panel).toBe('designate');
+    expect(f.sent).toEqual([]);
+    time += 10000;
+    expect(f.screen.statusRow2()).toMatch(/^Dig · priority 5/);
+    // A panel letter Designate does not bind opens its panel and drops the tool.
+    f.screen.key(press('b'));
+    expect(f.screen.ui.panel).toBe('build');
     expect(f.screen.tool.active).toBe(false);
   });
 
-  it('an accelerator on a panel letter takes Shift; a free letter does not', () => {
-    expect(acceleratorOf(press('m'))).toBe('');
+  it('an accelerator is the bare letter; the few kept on Shift need it', () => {
+    expect(acceleratorOf(press('m'))).toBe('m');
     expect(acceleratorOf(press('M', { shift: true }))).toBe('m');
-    expect(acceleratorOf(press('m', { shift: true }))).toBe('m');
-    expect(acceleratorOf(press('w'))).toBe('w');
-    expect(acceleratorOf(press('W', { shift: true }))).toBe('w');
+    expect(acceleratorOf(press('d'), new Set(['d']))).toBe('');
+    expect(acceleratorOf(press('D', { shift: true }), new Set(['d']))).toBe('d');
     expect(acceleratorOf(press('m', { shift: true, ctrl: true }))).toBe('');
     expect(acceleratorOf(press('Enter'))).toBe('');
-    expect(acceleratorLabel('m')).toBe('[S-m]');
-    expect(acceleratorLabel('w')).toBe('[w]');
-    // A rebound panel key frees its old letter and reserves the new one.
+    expect(acceleratorLabel('m')).toBe('[m]');
+    expect(acceleratorLabel('d', new Set(['d']))).toBe('[S-d]');
+    // The dangerous keys keep Shift: the bare letter is not theirs and opens its panel.
+    expect(Array.from(keymap.shiftLetters(['stocks_panel'])).sort()).toEqual(['d', 'm']);
+    expect(Array.from(keymap.shiftLetters(['designate_panel', 'selection', 'workshop_panel', 'animals_panel', 'military_panel', 'zones_panel'])).sort()).toEqual(['b', 'd', 'k', 's']);
+    const stocks = screenOf(shared);
+    stocks.screen.openPanel('stocks');
+    stocks.screen.key(press('d'));
+    expect(stocks.screen.ui.panel).toBe('designate');
+    expect(stocks.asked).toEqual([]);
+    // A rebound panel key frees its old letter and takes the new one.
     const rebound = Keymap.fromRows(registry.derived<readonly KeymapRow[]>('keymap'));
     const at = rebound.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'military');
-    expect(rebound.rebind(at, { key: 'y', ctrl: false, shift: false })).toBeNull();
+    expect(rebound.rebind(at, { key: 'q', ctrl: false, shift: false })).toBeNull();
     const f = screenOf(shared, false, rebound);
     expect(f.screen.panelLetters().has('m')).toBe(false);
-    expect(f.screen.panelLetters().has('y')).toBe(true);
-    f.screen.key(press('y'));
+    expect(f.screen.panelLetters().has('q')).toBe(true);
+    f.screen.key(press('q'));
     expect(f.screen.ui.panel).toBe('military');
+    // Designate binds `q` (cut ice): there the panel's key comes first.
+    f.screen.openPanel('designate');
+    f.screen.key(press('q'));
+    expect(f.screen.ui.panel).toBe('designate');
+    expect(f.screen.tool.kind).toBe('harvest_ice');
   });
 
-  it('Shift+letter runs the panel\'s action and leaves the panel open', () => {
+  it('a panel\'s own letter, bare or with Shift, runs the panel\'s action and leaves the panel open', () => {
     const cases: readonly { open: (f: Fixture) => void; key: string; check: (f: Fixture) => void }[] = [
       { open: (f) => { f.screen.openPanel('stocks'); f.screen.stocks.tree.selected = 0; }, key: 'f', check: (f) => expect(f.sent[0]?.type).toBe('ForbidItem') },
       { open: (f) => f.screen.openPanel('military'), key: 's', check: (f) => expect(f.screen.military.settingStation).toBe(true) },
@@ -256,12 +296,14 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
       { open: (f) => { f.screen.openPanel('units'); f.screen.key(press(' ')); }, key: 'l', check: (f) => expect(f.managers).toHaveLength(1) },
     ];
     for (const c of cases) {
-      const f = screenOf(shared);
-      c.open(f);
-      const panel = f.screen.ui.panel;
-      expect(f.screen.key(press(c.key.toUpperCase(), { shift: true })), c.key).toBe(true);
-      c.check(f);
-      if (c.key !== 'o') expect(f.screen.ui.panel).toBe(panel);
+      for (const shift of [false, true]) {
+        const f = screenOf(shared);
+        c.open(f);
+        const panel = f.screen.ui.panel;
+        expect(f.screen.key(shift ? press(c.key.toUpperCase(), { shift: true }) : press(c.key)), c.key).toBe(true);
+        c.check(f);
+        if (c.key !== 'o') expect(f.screen.ui.panel).toBe(panel);
+      }
     }
     // The military panel's clear-patrol moved off Shift+p, which is now "add": `[y] clear`.
     const f = screenOf(shared);
@@ -312,22 +354,24 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     expect(f.screen.ui.panel).toBe('orders');
   });
 
-  it('T-121: zone inspector and Help captions follow rebound panel letters while fixed captions retain defaults', () => {
+  it('T-121, D-253: a panel letter moved onto a panel\'s own letter leaves that panel\'s key and captions as they were', () => {
     const keys = new Keymap(keymap.bindings);
     const population = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'population');
     expect(keys.rebind(population, { key: 'g', ctrl: false, shift: false })).toBeNull();
     const f = screenOf(shared, false, keys);
-    f.screen.zones.selected = shared.pile;
     f.screen.openPanel('zones');
+    f.screen.zones.selected = shared.pile;
     const s = surface(80, 42);
     f.screen.draw(s);
     expect(s.lines().join('\n')).toContain('[p] Preset');
-    expect(s.lines().join('\n')).toContain('[S-g]');
+    expect(s.lines().join('\n')).not.toContain('[S-g]');
     const help = helpKeyRows(keys, strings).filter((r) => r.category === 'zone_inspector').map((r) => r.text).join('\n');
     expect(help).toContain('[p]  open the stockpile preset dropdown');
-    expect(help).toContain('[S-g]  focus the category tree');
+    expect(help).toContain('[g]  focus the category tree');
+    f.screen.key(press('g'));
+    expect(f.screen.ui.panel).toBe('zones');
     const military = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'military');
-    expect(keys.rebind(military, { key: 'y', ctrl: false, shift: false })).toBeNull();
+    expect(keys.rebind(military, { key: 'q', ctrl: false, shift: false })).toBeNull();
     f.screen.openPanel('stocks');
     const stocks = surface(80, 42); f.screen.draw(stocks);
     expect(stocks.lines().join('\n')).toContain('[S-m] melt');
@@ -336,7 +380,7 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
     expect(f.sent).toEqual([]);
   });
 
-  it('the panels show the moved accelerators as [S-letter]', () => {
+  it('the panels show their own letters bare and the dangerous ones as [S-letter]', () => {
     const shown = (open: (f: Fixture) => void): string => {
       const f = screenOf(shared);
       open(f);
@@ -344,18 +388,20 @@ describe('U-03 panel hotkeys always win (D-U2, M3, S4)', () => {
       f.screen.draw(s);
       return s.lines().join('\n');
     };
-    expect(shown((f) => f.screen.openPanel('stocks'))).toContain('[S-f] forbid  [S-d] dump');
-    expect(shown((f) => f.screen.openPanel('stocks'))).toContain('[S-m] melt  [S-t] to depot');
-    expect(shown((f) => f.screen.openPanel('military'))).toContain('[S-s] set  [S-c] clear');
-    expect(shown((f) => f.screen.openPanel('military'))).toContain('[S-p] add [y] clear');
-    expect(shown((f) => f.screen.openPanel('animals'))).toContain('[S-p] pasture  [S-s] slaughter');
-    expect(shown((f) => f.screen.openPanel('designate'))).toContain('[S-d] Dig');
+    expect(shown((f) => f.screen.openPanel('stocks'))).toContain('[f] forbid  [S-d] dump');
+    expect(shown((f) => f.screen.openPanel('stocks'))).toContain('[S-m] melt  [t] to depot');
+    expect(shown((f) => f.screen.openPanel('military'))).toContain('[s] set  [c] clear');
+    expect(shown((f) => f.screen.openPanel('military'))).toContain('[p] add [y] clear');
+    expect(shown((f) => f.screen.openPanel('animals'))).toContain('[p] pasture  [S-s] slaughter');
+    expect(shown((f) => f.screen.openPanel('designate'))).toContain('[d] Dig');
+    expect(shown((f) => f.screen.openPanel('designate'))).toContain('[S-b] Set a fire');
     expect(shown((f) => f.screen.openPanel('designate'))).toContain('[w] Stairs');
-    expect(shown((f) => f.screen.openPanel('build'))).toContain('[S-m] Mechan');
-    expect(shown((f) => f.screen.openPanel('zones'))).toContain('[S-s] Stockpile');
+    expect(shown((f) => f.screen.openPanel('build'))).toContain('[m] Mechan');
+    expect(shown((f) => f.screen.openPanel('zones'))).toContain('[s] Stockpile');
+    expect(shown((f) => f.screen.openPanel('zones'))).toContain('[S-k]');
     expect(shown((f) => { f.screen.workshopId = shared.shop; f.screen.openPanel('workshop'); })).toContain('[S-s] suspend  [x] take apart');
     expect(shown((f) => { f.screen.look({ x: 36, y: 36, z }); f.screen.selection = { a: { x: 36, y: 36, z }, b: { x: 37, y: 37, z } }; }))
-      .toContain('[S-f] forbid  [S-d] dump  [S-t] to depot');
+      .toContain('[f] forbid  [S-d] dump  [t] to depot');
   });
 });
 
@@ -374,7 +420,7 @@ const DESTRUCTIVE: readonly {
   { name: 'workshop [S-s] suspend', open: (f, world) => { f.screen.workshopId = world.shop; f.screen.openPanel('workshop'); }, key: press('S', { shift: true }), confirm: 'c_suspend_workshop', command: 'SuspendWorkshop' },
   { name: 'workshop [x] take apart', open: (f, world) => { f.screen.workshopId = world.shop; f.screen.openPanel('workshop'); }, key: press('x'), confirm: 'c_deconstruct_building', command: 'DeconstructBuilding' },
   { name: 'workshop with orders [x] take apart', open: (f, world) => { f.screen.workshopId = world.busyShop; f.screen.openPanel('workshop'); }, key: press('x'), confirm: 'c_deconstruct_workshop', command: 'DeconstructBuilding' },
-  { name: 'look [x] take apart', open: (f) => f.screen.look({ x: 40, y: 20, z }), key: press('x'), confirm: 'c_deconstruct_building', command: 'DeconstructBuilding' },
+  { name: 'Look, Enter on a building\'s row, then [x] take apart', open: (f) => { f.screen.look({ x: 40, y: 20, z }); f.screen.key(press('Enter')); }, key: press('x'), confirm: 'c_deconstruct_building', command: 'DeconstructBuilding' },
   { name: 'military [x] disband', open: (f) => f.screen.openPanel('military'), key: press('x'), confirm: 'c_disband_squad', command: 'DisbandSquad' },
   { name: 'T-247 stockpile [Delete] remove', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; }, key: press('Delete'), confirm: 'c_remove_zone', command: 'RemoveZone' },
   { name: 'orders [x] remove', open: (f, world) => { f.screen.orders.workshopId = world.busyShop; f.screen.openPanel('orders'); }, key: press('x'), confirm: 'c_remove_order', command: 'RemoveWorkOrder' },
@@ -424,7 +470,7 @@ describe('U-03 every destructive single-key action asks first, default No (D-U2)
     };
     expect(text('c_suspend_workshop', (f) => { f.screen.workshopId = shared.shop; f.screen.openPanel('workshop'); }, press('S', { shift: true })))
       .toBe("Suspend Carpenter's workshop #1? Its current job stops and its orders wait until you resume it.");
-    expect(text('c_deconstruct_building', (f) => f.screen.look({ x: 40, y: 20, z }), press('x'))).toBe('Take apart Table #1? Its materials are left where it stood.');
+    expect(text('c_deconstruct_building', (f) => { f.screen.look({ x: 40, y: 20, z }); f.screen.key(press('Enter')); }, press('x'))).toBe('Take apart Table #1? Its materials are left where it stood.');
     expect(text('c_remove_zone', (f) => { f.screen.openPanel('zones'); f.screen.zones.selected = shared.pile; }, press('Delete'))).toBe('Remove Stockpile #1? Its settings are lost.');
     expect(text('c_remove_order', (f) => { f.screen.orders.workshopId = shared.busyShop; f.screen.openPanel('orders'); }, press('x'))).toBe('Remove the order for Bed? Work in progress on it stops.');
     expect(text('c_slaughter_animal', (f) => f.screen.openPanel('animals'), press('S', { shift: true }))).toBe('Slaughter the cow? It will be butchered for meat, hide and bone.');

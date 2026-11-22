@@ -12,7 +12,7 @@ import type { EntityId } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { materialItemName } from '@ui/messages';
-import { drawLookPanel, tileContents } from '@ui/panels/look';
+import { drawTileList, tileContents } from '@ui/panels/look';
 import { TestWorld } from '../../scenarios/test-world';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { registry, strings, surface } from './ui-fixture';
@@ -40,7 +40,7 @@ describe('T-595 raw food and drink are named by their material', () => {
     expect(materialItemName('', items.byId('drink') as ItemRow)).toBe('drink');
   });
 
-  it('Look\'s Items tab on the wagon lists the goods with no doubled word', async () => {
+  it('Look\'s tile list on the wagon lists the goods with no doubled word', async () => {
     const game = new Game({ canvas: new MockCanvas(), seed: 't595', registry, createCanvas: mockCanvasFactory(), devicePixelRatio: 1, width: 1280, height: 800 });
     await game.start({ embark: 'default' });
     const b = game.host.readers.of<BuildingsReader>('14');
@@ -48,7 +48,7 @@ describe('T-595 raw food and drink are named by their material', () => {
     const it = game.host.readers.of<ItemsReader>('13');
     const centre = it.tileOf(it.inContainer(wagon)[0] as EntityId);
     const s = surface(60, 120);
-    drawLookPanel(s, { col: 0, row: 0, cols: 60, rows: 120 }, game.host.readers, registry, strings, centre, 1);
+    drawTileList(s, { col: 0, row: 0, cols: 60, rows: 120 }, game.host.readers, registry, strings, centre);
     const text = s.lines().join('\n');
     expect(text).toMatch(/\b10 boar meat\b/);
     expect(text).toMatch(/\b20 turnip\b/);

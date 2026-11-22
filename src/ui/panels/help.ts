@@ -152,6 +152,7 @@ interface PanelNotes {
 }
 
 const PANEL_NOTES: Readonly<Partial<Record<KeyContext, PanelNotes>>> = Object.freeze({
+  map: { notes: ['ui.help.map.wheel'], contexts: ['map'] },
   designate_panel: { notes: ['ui.help.designate.undo'], contexts: ['global', 'designate_panel'] },
   build_panel: { notes: ['ui.help.build.drag', 'ui.help.build.corner', 'ui.help.build.order'], contexts: ['build_panel', 'map', 'fortress_panel', 'panel'] },
   zones_panel: { notes: ['ui.help.zones.select'], contexts: ['zone_inspector', 'zones_panel', 'panel'] },
@@ -172,11 +173,11 @@ const PANEL_NOTES: Readonly<Partial<Record<KeyContext, PanelNotes>>> = Object.fr
 export const HELP_CONTEXT_ORDER: readonly KeyContext[] = ['fortress_panel', ...KEY_CONTEXTS.filter((c) => c !== 'fortress_panel')];
 
 /**
- * A key as Help writes it: an accelerator or a Shift letter the way the panels do (`[S-n]`, `[w]`),
- * any other as the keymap does. `reserved` are the panel letters an accelerator takes Shift for.
+ * A key as Help writes it: an accelerator or a Shift letter the way the panels do (`[w]`, the few
+ * kept on `Shift` `[S-d]`), any other as the keymap does.
  */
-export function helpKeyLabel(spec: KeySpec, reserved?: ReadonlySet<string>): string {
-  if (spec.accel === true) return acceleratorLabel(spec.key, reserved);
+export function helpKeyLabel(spec: KeySpec): string {
+  if (spec.accel === true) return acceleratorLabel(spec.key, spec.shift ? new Set([spec.key]) : undefined);
   return spec.shift && !spec.ctrl && /^[A-Za-z]$/.test(spec.key) ? `[S-${spec.key.toLowerCase()}]` : keyLabel(spec);
 }
 
@@ -197,7 +198,6 @@ export function keysLabel(labels: readonly string[]): string {
  */
 export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
   const out: HelpRow[] = [];
-  const letters = keymap.panelLetters();
   if (strings !== undefined) out.push({ category: 'shift', text: strings.get('ui.panel.shift_note') });
   for (const context of HELP_CONTEXT_ORDER) {
     const bindings = keymap.of(context);
@@ -207,11 +207,11 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     for (const binding of bindings) {
       const text = actionText(binding);
       const last = groups[groups.length - 1];
-      if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(helpKeyLabel(binding.spec, letters));
-      else groups.push({ text, id: binding.id, keys: [helpKeyLabel(binding.spec, letters)] });
+      if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(helpKeyLabel(binding.spec));
+      else groups.push({ text, id: binding.id, keys: [helpKeyLabel(binding.spec)] });
     }
     for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys)}  ${g.text}`, keys: g.keys });
-    // D-U2: an accelerator on a panel letter takes `Shift`; the keymap table has no row to say so.
+    // D-253: a panel's own letters come before the panel letters; the keymap table has no row to say so.
     if (context === 'panel' && strings !== undefined) out.push({ category: context, text: strings.get('ui.help.accelerators') });
     // The panel's notes follow its rows, each key they still name as its binding has it now.
     const extra = PANEL_NOTES[context];

@@ -74,13 +74,15 @@ describe('T-424 conflicts', () => {
     const idle = at(keys, 'units_panel', 'idle_filter');
     expect(keys.rebind(idle, key('F5'))?.id).toBe('quick_save');
     expect(keys.rebind(idle, key('/'))?.id).toBe('filter_focus');
-    // A panel's own key that is not an accelerator cannot take a panel letter bare.
-    expect(keys.rebind(keys.bindings.findIndex((b) => b.context === 'units_panel' && b.spec.key === '['), key('d'))?.id).toBe('designate');
+    // A map selection's dump acts beside every panel's keys.
+    expect(keys.rebind(keys.bindings.findIndex((b) => b.context === 'units_panel' && b.spec.key === '['), key('d'))?.id).toBe('dump');
     expect(keys.rebind(at(keys, 'global', 'pause'), key('v'))?.context).not.toBe('global');
     expect(keys.overrides()).toEqual([]);
+    // D-253: a panel's own key may take a panel letter; in that panel it comes first.
+    expect(keys.rebind(keys.bindings.findIndex((b) => b.context === 'units_panel' && b.spec.key === '['), key('b'))).toBeNull();
   });
 
-  it('refuses a map key that a panel uses and a panel key that the map uses; lets an accelerator take a panel letter (it then takes Shift)', () => {
+  it('refuses a map key that a panel uses and a panel key that the map uses; lets an accelerator take a panel letter (D-253: bare, before the panel letter)', () => {
     const keys = fresh();
     expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('k'))?.id).toBe('look');
     expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('<'))?.id).toBe('z_down');
@@ -91,7 +93,7 @@ describe('T-424 conflicts', () => {
     expect(keys.rebind(at(keys, 'jobs_panel', 'cancel_job'), key('z'))).toBeNull();
     expect(keys.bindings[at(keys, 'jobs_panel', 'cancel_job')]?.spec).toEqual({ key: 'z', ctrl: false, shift: false, accel: true });
     expect(keys.resolve('jobs_panel', press('Z', { shift: true }))?.id).toBe('cancel_job');
-    expect(keys.resolve('jobs_panel', press('z'))).toBeNull();
+    expect(keys.resolve('jobs_panel', press('z'))?.id).toBe('cancel_job');
     // A map selection's keys act beside every panel's.
     expect(keys.rebind(at(keys, 'jobs_panel', 'job_priority'), key('d'))?.id).toBe('dump');
   });
@@ -149,10 +151,11 @@ describe('T-424 saved keymaps', () => {
     expect(keys.resolve('map', press('>'))?.id).toBe('z_up');
     expect(keys.panelLetters().has('h')).toBe(true);
     expect(keys.resolve('military_panel', press('U', { shift: true }))?.id).toBe('weapon');
-    expect(keys.resolve('global', press('F2'))?.id).toBe('calendar');
+    // D-253: the calendar's old global row is its panel letter now.
+    expect(keys.resolve('fortress_panel', press('F2'))?.id).toBe('calendar');
     // `Esc` is fixed: an old rebinding of it is not loaded.
     expect(keys.resolve('global', press('Esc'))?.id).toBe('cancel');
-    expect(keys.overrides().map((o) => o.binding).sort()).toEqual(['fortress_panel/population', 'global/calendar', 'global/pause', 'map/look', 'military_panel/weapon']);
+    expect(keys.overrides().map((o) => o.binding).sort()).toEqual(['fortress_panel/calendar', 'fortress_panel/population', 'global/pause', 'map/look', 'military_panel/weapon']);
   });
 
   it('loads the names one version saved under, context and default key', () => {
@@ -351,15 +354,15 @@ describe('T-424 the keybinding editor', () => {
     screen.key(press('Delete'));
     expect(keys.bindings[idle]?.spec.key).toBe('i');
     expect(screen.conflict).toBe('show only idle dwarves / all: back to [i].');
-    // A key that is not an accelerator keeps its Shift.
+    // An accelerator keeps its default's form: a bare letter stays bare (D-253).
     const wounded = at(keys, 'units_panel', 'wounded_first');
     screen.bindingList.selected = wounded;
     screen.key(press('Enter'));
-    screen.key(press('K', { shift: true }));
-    expect(keys.bindings[wounded]?.spec).toEqual({ key: 'K', ctrl: false, shift: true });
-    expect(text()).toContain('[S-k]  (default [S-w])');
+    screen.key(press('J', { shift: true }));
+    expect(keys.bindings[wounded]?.spec).toEqual({ key: 'j', ctrl: false, shift: false, accel: true });
+    expect(text()).toContain('[j]  (default [w])');
     screen.key(press('Backspace'));
-    expect(keys.bindings[wounded]?.spec.key).toBe('W');
+    expect(keys.bindings[wounded]?.spec.key).toBe('w');
     expect(saved()).toBe(4);
     expect(keys.rebind(at(keys, 'map', 'look'), key(';'))).toBeNull();
     expect(keys.rebind(at(keys, 'global', 'pause'), key('F8'))).toBeNull();
@@ -399,15 +402,15 @@ describe('T-424 a rebound key is named wherever a key is named', () => {
     const keys = fresh();
     const hint = '☼ Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert.';
     expect(keys.relabel(hint, HINT_KEY_CONTEXTS)).toBe(hint);
-    expect(keys.rebind(at(keys, 'fortress_panel', 'military'), key('y'))).toBeNull();
+    expect(keys.rebind(at(keys, 'fortress_panel', 'military'), key('q'))).toBeNull();
     expect(keys.rebind(keys.bindings.findIndex((b) => b.context === 'military_panel' && b.spec.key === '3'), key('F3'))).toBeNull();
-    expect(keys.relabel(hint, HINT_KEY_CONTEXTS)).toBe('☼ Click a door and choose Lock on alert. Then [y] and [F3] raise the Hearth alert.');
+    expect(keys.relabel(hint, HINT_KEY_CONTEXTS)).toBe('☼ Click a door and choose Lock on alert. Then [q] and [F3] raise the Hearth alert.');
     expect(keys.relabel('[b > Workshops]', ['fortress_panel'])).toBe('[b > Workshops]');
     expect(keys.relabel('[+] new squad  [x] disband', ['military_panel'])).toBe('[+] new squad  [x] disband');
     expect(keys.rebind(at(keys, 'military_panel', 'disband'), key('i'))).toBeNull();
     expect(keys.relabel('[+] new squad  [x] disband', ['military_panel'])).toBe('[+] new squad  [i] disband');
     expect(keys.rebind(at(keys, 'orders_panel', 'new_order'), key('F6'))).toBeNull();
-    expect(keys.relabel('No order is selected: [S-n] adds one.', ['orders_panel', 'panel'])).toBe('No order is selected: [F6] adds one.');
+    expect(keys.relabel('No order is selected: [n] adds one.', ['orders_panel', 'panel'])).toBe('No order is selected: [F6] adds one.');
   });
 
   it('Help lists the key a binding has now, in its notes too', () => {

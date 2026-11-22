@@ -57,6 +57,10 @@ export interface EconomyState {
   moving?: Record<string, { twin: number; type: string; orders: WorkOrder[]; worker: number; old?: number }>;
   /** T-588: what the fortress has set aside (forbidden) for the Thane's whim of the season, until just before it is judged. */
   thaneShare?: { whim: string; items: number[] };
+  /** T-664: the dwarf a remnant keeps on the founding woodcutter's trade while he is gone (`keepWoodcutter`). */
+  remnantFeller?: number;
+  /** T-664: a famine the player answers (`keepFoodFirst`): its first day and the dwarves given farming for it. */
+  famine?: { day: number; hands: number[] };
 }
 
 /**
@@ -94,8 +98,13 @@ export const KIT_FIRST = 3;
  * furniture, so raising them takes little from the food work.
  */
 export const RAISE_AFTER_DAYS = 5;
-/** T-570: the job types the player raises when they wait: a workshop's job and a building's. */
-const RAISED_JOB_TYPES: ReadonlySet<string> = new Set(['craft', 'build']);
+/**
+ * T-570: the job types the player raises when they wait: a workshop's job and a building's. T-664:
+ * and a trap's rearming and cleaning (19), which the three-year fortress, with no traps, never has:
+ * in `defence_year` the only civilian with mechanics was a bench specialist whose raised crafts came
+ * first, and a weapon trap and the cage trap stood spent from day 75 to the end.
+ */
+const RAISED_JOB_TYPES: ReadonlySet<string> = new Set(['craft', 'build', 'rearm_trap', 'clean_trap']);
 
 /** The founder who is Broker from the first day: the mason, who works beside the depot. */
 const BROKER_FOUNDER = 3;
@@ -453,7 +462,9 @@ export function dedicate(w: TestWorld, state: FortressState, dwarfId: number, ke
   if (!w.game.world.entities.alive(dwarfId)) return;
   const jobs = w.readers.of<JobsReader>('11');
   for (const row of w.game.registry.table<{ id: string }>('labors').rows.slice(1)) {
-    const on = keep.includes(row.id) || (haul && row.id === 'hauling') || (row.id === 'trading' && state.economy.broker?.id === dwarfId);
+    const on = keep.includes(row.id) || (haul && row.id === 'hauling') || (row.id === 'trading' && state.economy.broker?.id === dwarfId) ||
+      // T-664: a dwarf given farming for a famine keeps it until the famine is over.
+      (row.id === 'farming' && (state.economy.famine?.hands.includes(dwarfId) ?? false));
     if (jobs.laborEnabled(dwarfId, row.id) !== on) command(w, { type: 'SetLabor', dwarfId, labor: row.id, on });
   }
 }
@@ -494,7 +505,38 @@ export function keepWoodcutter(w: TestWorld, state: FortressState): void {
       dedicate(w, state, pick, ['woodcutting', 'carpentry']);
     }
   }
-  const feller = specialists['woodcutter'];
+  // T-664: a remnant under SPECIALIST_MIN_POPULATION whose founder is gone gives his trade to one of
+  // its dwarves, as the founder's profession was given: woodcutting and carpentry, and farming for the
+  // food, nothing else. The immigrants hold woodcutting among all their labors, but a chop is routine
+  // work every other job of a small fortress comes before: in `three-years-p4-1` at shift 50 four
+  // dwarves lived from day 143 to 201 with sixteen chops open, two of them with the labor and two axes
+  // in stock, and no log after day 154; the carpenter made no bed, and the fortress that grew again to
+  // nineteen ended year 3 with six bedrooms. Once the founder is back or the fortress has its
+  // specialists again, the dwarf takes the general labors back.
+  const { economy } = state;
+  const gone = founder === undefined || !ent.alive(founder) || ent.get(founder, C.Brain)?.behavior === 'patient' || (state.strong?.trained ?? []).includes(founder);
+  const trained = new Set(state.strong?.trained ?? []);
+  const remnant = specialists['woodcutter'] === undefined && gone && fortressDwarves(w).length < SPECIALIST_MIN_POPULATION;
+  const held = economy.remnantFeller;
+  const fit = (id: number): boolean => ent.alive(id) && ent.get(id, C.Brain)?.behavior !== 'patient' && !trained.has(id);
+  if (held !== undefined && (!remnant || !fit(held))) {
+    delete economy.remnantFeller;
+    if (ent.alive(held) && specialists['woodcutter'] !== held) {
+      const general = w.game.registry.table<{ id: string; defaultOn: boolean }>('labors').rows.slice(1)
+        .filter((r) => r.defaultOn && r.id !== 'mining').map((r) => r.id);
+      dedicate(w, state, held, general);
+    }
+  }
+  if (remnant && economy.remnantFeller === undefined) {
+    const dwarves = w.readers.of<DwarvesReader>('10');
+    const pick = specialistCandidates(w, state).filter(fit).sort((a, b) => dwarves.skill(b, 'woodcutting') - dwarves.skill(a, 'woodcutting') || a - b)[0];
+    if (pick !== undefined) {
+      economy.remnantFeller = pick;
+      dedicate(w, state, pick, ['woodcutting', 'carpentry', 'farming'], false);
+    }
+  }
+  const remnantFeller = economy.remnantFeller;
+  const feller = specialists['woodcutter'] ?? remnantFeller;
   const forge = state.placedIds['forge'] ?? 0;
   if (feller === undefined || w.readers.of<BuildingsReader>('14').get(forge)?.state !== 'built') return;
   const items = w.readers.of<ItemsReader>('13');
@@ -1359,13 +1401,96 @@ function checkBrewer(w: TestWorld, state: FortressState): void {
   dedicate(w, state, free[0], ['brewing']);
 }
 
+/** T-664: the founder the fortress script makes its farmer (`three_years_fortress.ts`, the professions). */
+export const FOUNDING_FARMER = 4;
+/**
+ * T-664: fewer units of food than this a dwarf, with a ripe crop left a day in the field, is a famine:
+ * about nine days of eating (a dwarf eats a unit in about three days: 0.33 to 0.35 a dwarf-day in the
+ * sweeps). At ten units a dwarf the famine held the farm a step ahead of all work for 25 days of every
+ * peril-2 and peril-4 fortress's year, with a month of food in the stores, and the steel smelted fell
+ * by a sixth.
+ */
+export const FAMINE_FOOD = 3;
+/** T-664: the famine is over once the stores hold this many units a dwarf, or FAMINE_FOOD with no crop left waiting. */
+export const FAMINE_OVER_FOOD = 6;
+/** T-664: farming's labor priority in a famine: a step ahead of KIT_FIRST, where T-570 raises the work that waits. */
+export const FAMINE_FARMING_PRIORITY = KIT_FIRST - 1;
+/** T-664: farming's labor priority otherwise, the food chain's step (`three_years_fortress.ts`, STEP_LABORS). */
+const FARMING_PRIORITY = ROUTINE - 1;
+
+/** T-664: units of food the fortress owns, a visiting merchant's goods left out. */
+export function foodInStock(w: TestWorld): number {
+  const ent = w.game.world.entities;
+  const types = w.game.registry.table<{ id: string; edible?: boolean }>('items');
+  let units = 0;
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    if (types.byIndex(it.type)?.edible === true && (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign)) === 0) units += it.count;
+  }
+  return units;
+}
+
+/**
+ * T-664: the player answers a famine. Under FAMINE_FOOD a dwarf, with a ripe crop left in the
+ * field for a day (a harvest job open, or with no worker, a day after it was made) is a famine: every
+ * adult but the metal chain's workers is given farming (a soldier at drill does no civilian work, but
+ * farms once the squad stands down), and farming's labor priority goes a step ahead of
+ * KIT_FIRST, so the harvest and the sowing come before everything but the care of patients. Until
+ * then the script left the farm to the founding farmer and the immigrants, and a fortress that raids
+ * had cut to a dozen lost them: in `three-years-p4-1` at shift 50 the farmer died in the hospital on
+ * day 20 and no survivor held farming, so 37 ripe crops waited with no worker while three dwarves
+ * starved; in `three-years-p4-3` at shift 100 the farmer was killed on day 100 and the only dwarves
+ * with farming were soldiers at drill, which does no civilian work; in `three-years-p4-2` at shift
+ * 100 the two civilians with farming worked the craft and build jobs that T-570 raises to KIT_FIRST
+ * when they wait, a step ahead of the farm's, while thirty ripe crops stood in the field for eighty
+ * days and the fortress starved to the last. The famine is over once the stores hold
+ * FAMINE_OVER_FOOD a dwarf, or FAMINE_FOOD with no crop left waiting: farming goes back to the food
+ * chain's step, and the dwarves given it for the famine lose it.
+ */
+export function keepFoodFirst(w: TestWorld, state: FortressState): void {
+  const ent = w.game.world.entities;
+  const jobs = w.readers.of<JobsReader>('11');
+  const harvest = w.game.registry.table<{ id: string }>('jobTypes').index('harvest');
+  const adults = fortressDwarves(w);
+  // The children eat too.
+  const mouths = ent.with(C.Labors).filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress').length;
+  const { economy } = state;
+  const food = foodInStock(w);
+  const waiting = jobs.list().some((j) => j.type === harvest && w.tick - j.createdTick >= TICKS_PER_DAY &&
+    (j.state === 'open' || (j.state === 'blocked' && j.blockedReason === 'no_worker')));
+  const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+  if (economy.famine === undefined) {
+    if (adults.length === 0 || food >= FAMINE_FOOD * mouths || !waiting) return;
+    economy.famine = { day, hands: [] };
+    command(w, { type: 'SetLaborPriority', labor: 'farming', priority: FAMINE_FARMING_PRIORITY });
+    note('three_years_famine', { day, phase: 'start', dwarves: mouths, food });
+  } else if (adults.length === 0 || food >= FAMINE_OVER_FOOD * mouths || (!waiting && food >= FAMINE_FOOD * mouths)) {
+    const { hands } = economy.famine;
+    delete economy.famine;
+    for (const id of hands) if (adults.includes(id) && jobs.laborEnabled(id, 'farming')) command(w, { type: 'SetLabor', dwarfId: id, labor: 'farming', on: false });
+    command(w, { type: 'SetLaborPriority', labor: 'farming', priority: FARMING_PRIORITY });
+    note('three_years_famine', { day, phase: 'end', dwarves: mouths, food, hands: hands.length });
+    return;
+  }
+  const famine = economy.famine;
+  // The metal chain's workers stay at their furnaces and forge: in the sweep that gave them farming
+  // too, the steel smelted fell by a tenth. A fortress under SPECIALIST_RELEASE_POPULATION has
+  // released them (`releaseSpecialists`), and they farm with the rest.
+  const metal = new Set(['forge', 'fuel', 'charcoal'].map((role) => economy.specialists[role]).filter((id): id is number => id !== undefined));
+  for (const id of adults) {
+    if (metal.has(id) || jobs.laborEnabled(id, 'farming')) continue;
+    command(w, { type: 'SetLabor', dwarfId: id, labor: 'farming', on: true });
+    if (!famine.hands.includes(id)) famine.hands.push(id);
+  }
+}
+
 /**
  * T-488: when the last dwarf with the mining labor dies, the player gives it to another, so the
  * halls, bedrooms and drifts still designated are dug. Only the founders' two miners and the
  * immigrants nobody dedicated mine; a raid that kills them all left a fortress of survivors with
  * hundreds of dig jobs nobody could take, and no hearth or dining hall (`three-years-p2-4`,
- * shift 50). A dwarf the specialists keep at a bench is the last choice, then the most skilled
- * miner, then the lowest id.
+ * shift 50). A dwarf the specialists keep at a bench is the last choice but for the founding farmer
+ * (T-664) and a soldier of the strong squad, then the most skilled miner, then the lowest id.
  */
 export function keepAMiner(w: TestWorld, state: FortressState): void {
   const adults = fortressDwarves(w);
@@ -1375,9 +1500,27 @@ export function keepAMiner(w: TestWorld, state: FortressState): void {
   // T-603: a soldier of the strong squad is the last choice of all: training keeps it from the mine.
   const trained = new Set(state.strong?.trained ?? []);
   const dwarves = w.readers.of<DwarvesReader>('10');
-  const miner = adults.slice().sort((a, b) => Number(trained.has(a)) - Number(trained.has(b)) || Number(benched.has(a)) - Number(benched.has(b)) ||
-    dwarves.skill(b, 'mining') - dwarves.skill(a, 'mining') || a - b)[0]!;
+  // T-664: and the founding farmer is passed over before a bench: with the pick he would dig the
+  // drifts, as urgent to him as his planting and nearer, as the defence script's farmer did (T-660).
+  const farmer = w.game.arrival?.dwarves[FOUNDING_FARMER];
+  const miner = adults.slice().sort((a, b) => Number(trained.has(a)) - Number(trained.has(b)) || Number(a === farmer) - Number(b === farmer) ||
+    Number(benched.has(a)) - Number(benched.has(b)) || dwarves.skill(b, 'mining') - dwarves.skill(a, 'mining') || a - b)[0]!;
   command(w, { type: 'SetLabor', dwarfId: miner, labor: 'mining', on: true });
+}
+
+/**
+ * T-664: when no dwarf outside the hospital holds the hauling labor, the player gives it to every
+ * one of them. The founders' two miners do not haul, nor do the furnace workers, and a patient is fed
+ * and watered by a hauling job (17: `feed_patient`, `water_patient`). In `three-years-p4-1` at
+ * shift 50 the raids of the first week left the two miners on their feet and three dwarves in the
+ * hospital, and the three starved in their beds on day 32 with seventy plants in the stores.
+ */
+export function keepAHauler(w: TestWorld): void {
+  const ent = w.game.world.entities;
+  const jobs = w.readers.of<JobsReader>('11');
+  const able = fortressDwarves(w).filter((id) => ent.get(id, C.Brain)?.behavior !== 'patient');
+  if (able.length === 0 || able.some((id) => jobs.laborEnabled(id, 'hauling'))) return;
+  for (const id of able) command(w, { type: 'SetLabor', dwarfId: id, labor: 'hauling', on: true });
 }
 
 /**
@@ -1578,12 +1721,16 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   if (stripTiles >= FARM_STRIP.max * FARM_STRIP.width * FARM_STRIP.rows || plans.length >= 2 * FARM_STRIP.max || tilled >= (fortressDwarves(w).length + NEXT_WAVE) * FARM_TILES_PER_DWARF) return;
   // T-455: the fortress's level, since a cave on a slope may lie more than one level below it.
   const z = state.z;
-  // T-580: where ambushes are possible, a strip goes on the open ground nearest the gate.
-  if (state.economy.workHall !== undefined) {
-    const near = nearGateStrip(w, state);
+  // T-580: where ambushes are possible, a strip goes on the open ground nearest the gate. T-664: where
+  // no such ground is left the strip goes to its place west of the first field, as before. Each day
+  // the search found none it counted a try, and in `three-years-p2-4` at shift 0 the tries reached
+  // the cap within a month with one strip sown: the farm stayed at four plots of 51 tiles while the
+  // fortress grew from 11 dwarves to 58, and 22 starved.
+  const near = state.economy.workHall !== undefined ? nearGateStrip(w, state) : [];
+  if (near.length >= FARM_STRIP.width) {
     const plan = { tiles: near, zoneId: -1 };
     plans.push(plan);
-    if (near.length < FARM_STRIP.width || !command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: near }).ok) { plan.tiles = []; return; }
+    if (!command(w, { type: 'CreateZone', zoneType: 'farm_plot', tiles: near }).ok) { plan.tiles = []; return; }
     plan.zoneId = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastCreatedZone;
     const crops = plans.length % 2 === 1 ? ['turnip', 'turnip', 'turnip'] : ['barley', 'barley', 'turnip'];
     for (const [season, speciesId] of crops.entries()) command(w, { type: 'SetPlotCrop', zoneId: plan.zoneId, season, speciesId });
@@ -1850,6 +1997,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   const buildings = w.readers.of<BuildingsReader>('14');
   checkArming(w, state, first, day);
   releaseSpecialists(w, state);
+  keepFoodFirst(w, state);
   // Give the growing settlement a builder rather than leaving every immigrant on food and
   // hauling: those higher-priority supply jobs otherwise consume all of the spare workforce.
   if (fortressDwarves(w).length >= SPECIALIST_MIN_POPULATION && state.economy.specialists['builder'] === undefined) {
@@ -2108,7 +2256,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   // The general metal economy takes the forge once the squad has its kit.
   const forge = state.placedIds['forge'];
-  if (forge && state.orderedWorkshops.has('forge') && !arming && !phases.has('iron goods')) {
+  // T-683: not while the forge is being moved below (keepWorkBelow): the old one is taken down before the
+  // new one is placed, and the new one takes the old one's orders once it stands.
+  if (forge && state.orderedWorkshops.has('forge') && !arming && !phases.has('iron goods') && w.readers.of<BuildingsReader>('14').get(forge)?.state === 'built') {
     phases.add('iron goods');
     // A first few iron crafts for the caravans come before the standing armour orders, which
     // never fill: a piece a soldier wears is no longer stock.
@@ -2205,6 +2355,7 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   checkBrewer(w, state);
   keepAMiner(w, state);
+  keepAHauler(w);
   checkFarm(w, state);
   checkCaveStrips(w, state);
   checkCrops(w);

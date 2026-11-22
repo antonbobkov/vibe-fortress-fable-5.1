@@ -24,6 +24,7 @@ function notes(rows: readonly HelpRow[], context: string): string[] {
  * says. A panel that is not listed has none.
  */
 const REMAINING: Readonly<Record<string, readonly { readonly id: string; readonly why: string }[]>> = {
+  map: [{ id: 'ui.help.map.wheel', why: 'the mouse: the wheel over the map changes the level, the way Settings chooses; Ctrl zooms, Shift pans' }],
   designate_panel: [{ id: 'ui.help.designate.undo', why: 'how many batches undo keeps and when they are cleared (limits); the row names the key' }],
   build_panel: [
     { id: 'ui.help.build.drag', why: 'the mouse: a drag places one per valid tile' },
@@ -72,7 +73,7 @@ describe('T-429 Help shows each panel once', () => {
     const contexts = new Set(rows.filter((r) => r.heading !== true).map((r) => r.category));
     for (const context of contexts) {
       const expected = (REMAINING[context] ?? []).map((n) => strings.get(n.id));
-      expect(notes(rows, context).filter((t) => !t.startsWith('S- ') && !t.startsWith('Shift+letter')), context).toEqual(expected);
+      expect(notes(rows, context).filter((t) => !t.startsWith('S- ') && !t.startsWith('letter  ')), context).toEqual(expected);
     }
     for (const [context, list] of Object.entries(REMAINING)) {
       for (const n of list) expect(n.why.length, `${context} ${n.id}`).toBeGreaterThan(10);

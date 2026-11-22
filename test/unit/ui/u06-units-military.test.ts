@@ -14,7 +14,7 @@ import { computeLayout } from '@render/cellbuffer';
 import type { BuildingsReader } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
 import type { DwarvesReader } from '@systems/dwarves';
-import { keyLabel, LEGACY_BINDINGS } from '@ui/keymap';
+import { Keymap, LEGACY_BINDINGS } from '@ui/keymap';
 import { helpKeyRows } from '@ui/panels/help';
 import { moodGlyph } from '@ui/panels/units';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
@@ -142,13 +142,17 @@ describe('U-06 units: marks and the mood glyph (M10)', () => {
     ]);
   });
 
-  // U-03 (D-U2): bare `l` always opens Labors, so the marked dwarves' labor manager is `[S-l]`.
-  it('[S-l] with marked dwarves opens the labor manager on them; Enter in the labors panel opens it on the row', () => {
+  // D-253: in Units `l` is the labor manager, on the marked dwarves or the cursor's; Esc, then `l`, opens Labors.
+  it('[l] opens the labor manager on the marked dwarves or the cursor\'s; Enter in the labors panel opens it on the row', () => {
     const f = setup('u06-units-labors', 5);
     f.screen.openPanel('units');
     f.draw();
     f.screen.key(press('l'));
-    expect(f.managers).toEqual([]);
+    expect(f.managers).toEqual([{ marked: [f.dwarves[0]], focus: f.dwarves[0] }]);
+    expect(f.screen.ui.panel).toBe('units');
+    f.managers.length = 0;
+    f.screen.key(press('Esc'));
+    f.screen.key(press('l'));
     expect(f.screen.ui.panel).toBe('labors');
     f.screen.key(press('↓'));
     f.screen.key(press('Enter'));
@@ -181,7 +185,7 @@ describe('U-06 units: marks and the mood glyph (M10)', () => {
 });
 
 describe('U-06 units: titles and renames round-trip (M10)', () => {
-  it('[S-t] gives a title to the cursor dwarf, shows the holder, and takes it away again', () => {
+  it('[t] gives a title to the cursor dwarf, shows the holder, and takes it away again', () => {
     const f = setup('u06-units-title', 4, 1);
     f.screen.openPanel('units');
     f.draw();
@@ -200,7 +204,7 @@ describe('U-06 units: titles and renames round-trip (M10)', () => {
     expect(dwarvesReader(f.w).holder('warden')).toBe(f.dwarves[1]);
     expect(f.w.events('TitleAssigned').length).toBeGreaterThan(0);
     // The list now names the holder; Enter on a held title takes it away.
-    f.click('[S-t] title');
+    f.click('[t] title');
     text = f.draw().join('\n');
     expect(text).toMatch(/Warden\s+Dwarf01 Stone/);
     f.click('Warden');
@@ -222,7 +226,7 @@ describe('U-06 units: titles and renames round-trip (M10)', () => {
     expect(f.screen.ui.panel).toBe('units');
   });
 
-  it('[S-n] renames through the text input; cancel and an unchanged name send nothing', () => {
+  it('[n] renames through the text input; cancel and an unchanged name send nothing', () => {
     const f = setup('u06-units-rename', 2);
     f.screen.openPanel('units');
     f.draw();
@@ -232,7 +236,7 @@ describe('U-06 units: titles and renames round-trip (M10)', () => {
     f.prompts[0]?.answer(null);
     f.prompts[0]?.answer('Dwarf00 Stone');
     expect(f.sent).toEqual([]);
-    f.click('[S-n] rename');
+    f.click('[n] rename');
     f.prompts[1]?.answer('Urist Goldhand');
     expect(f.sent).toEqual([{ type: 'RenameDwarf', dwarfId: f.dwarves[0], name: 'Urist Goldhand' }]);
     f.w.step(1);
@@ -267,7 +271,7 @@ describe('U-06 units: titles and renames round-trip (M10)', () => {
 });
 
 describe('U-06 squads: adding 6 dwarves takes one multi-select (M11)', () => {
-  it('from the military panel: [S-a] (U-03: `a` opens the Log), six marks, Enter sends one SetSquadMembers', () => {
+  it('from the military panel: [a] (U-03: `a` opens the Log), six marks, Enter sends one SetSquadMembers', () => {
     const f = setup('u06-mil-add', 9, 1);
     const id = squad(f);
     f.screen.openPanel('military');
@@ -322,7 +326,7 @@ describe('U-06 squads: adding 6 dwarves takes one multi-select (M11)', () => {
     expect(combat(f.w).squad(id)?.members).toHaveLength(6);
   });
 
-  it('from the units panel: mark six, [S-m], Enter sends one SetSquadMembers and says who was left out', () => {
+  it('from the units panel: mark six, [m], Enter sends one SetSquadMembers and says who was left out', () => {
     const f = setup('u06-units-squad', 8, 1);
     f.screen.openPanel('units');
     f.draw();
@@ -348,7 +352,7 @@ describe('U-06 squads: adding 6 dwarves takes one multi-select (M11)', () => {
 });
 
 describe('U-06 squads: leader, barracks and name (M11)', () => {
-  it('[S-l] picks the leader among the members', () => {
+  it('[l] picks the leader among the members', () => {
     const f = setup('u06-mil-leader', 4);
     const id = squad(f);
     f.screen.openPanel('military');
@@ -368,18 +372,18 @@ describe('U-06 squads: leader, barracks and name (M11)', () => {
     expect(combat(f.w).squad(id)?.leaderId).toBe(f.dwarves[2]);
     expect(f.draw().join('\n')).toMatch(/Leader\s+Dwarf02 Stone/);
     // By mouse.
-    f.click('[S-l] pick');
+    f.click('[l] pick');
     expect(f.draw().join('\n')).toContain('Dwarf02 Stone (leader)');
     f.click('Dwarf00 Stone');
     f.w.step(1);
     expect(combat(f.w).squad(id)?.leaderId).toBe(f.dwarves[0]);
   });
 
-  it('[S-b] assigns a barracks zone with SetZoneSetting, and moves it', () => {
+  it('[b] assigns a barracks zone with SetZoneSetting, and moves it', () => {
     const f = setup('u06-mil-barracks', 2);
     const id = squad(f);
     f.screen.openPanel('military');
-    expect(f.draw().join('\n')).toContain('No barracks  [S-b] assign');
+    expect(f.draw().join('\n')).toContain('No barracks  [b] assign');
     f.screen.key(press('B', { shift: true }));
     expect(f.screen.military.memberChoice).toBeNull();
     expect(f.screen.currentNotice).toBe('There is no barracks zone: make one in Zones [z].');
@@ -398,10 +402,10 @@ describe('U-06 squads: leader, barracks and name (M11)', () => {
     f.w.step(1);
     const buildings = f.w.readers.of<BuildingsReader>('14');
     expect(buildings.zone(b)?.settings['squad']).toBe(id);
-    expect(f.draw().join('\n')).toContain('Barracks #2  [S-b] change');
+    expect(f.draw().join('\n')).toContain('Barracks #2  [b] change');
     // Moving it frees the old zone; "None" clears it.
     f.sent.length = 0;
-    f.click('Barracks #2  [S-b] change');
+    f.click('Barracks #2  [b] change');
     expect(f.draw().join('\n')).toContain('Barracks #2 (assigned)');
     f.click('Barracks #1');
     expect(f.sent).toEqual([
@@ -418,7 +422,7 @@ describe('U-06 squads: leader, barracks and name (M11)', () => {
     expect(f.w.events('CommandRejected')).toHaveLength(0);
   });
 
-  it('[S-n] renames the squad through the text input', () => {
+  it('[n] renames the squad through the text input', () => {
     const f = setup('u06-mil-rename', 1);
     const id = squad(f);
     f.screen.openPanel('military');
@@ -429,7 +433,7 @@ describe('U-06 squads: leader, barracks and name (M11)', () => {
     expect(f.sent).toEqual([{ type: 'RenameSquad', squadId: id, name: 'The Night Watch' }]);
     f.w.step(1);
     expect(combat(f.w).squad(id)?.name).toBe('The Night Watch');
-    f.click('[S-n] rename');
+    f.click('[n] rename');
     expect(f.prompts[1]?.value).toBe('The Night Watch');
   });
 });
@@ -442,19 +446,24 @@ describe('U-06 help and the app', () => {
       '+ -  labor priority up / down',
       '1–9  set the labor priority',
       't  profession templates',
-      '[S-t]  give or take away a title',
-      '[S-n]  rename the dwarf',
-      '[S-m]  add the marked dwarves to a squad',
+      '[t]  give or take away a title',
+      '[n]  rename the dwarf',
+      '[m]  add the marked dwarves to a squad',
       '[ ]  sleep an hour earlier / later',
-      '[S-l]  choose the squad leader',
-      '[S-b]  assign a barracks zone',
-      '[S-n]  rename the squad',
+      '[l]  choose the squad leader',
+      '[b]  assign a barracks zone',
+      '[n]  rename the squad',
     ]) expect(rows).toContain(text);
     // T-424: a rebinding is saved by the binding's name; one saved by index before that is read
     // through the order of that version, where these contexts followed the panel hotkeys.
     const firstNew = LEGACY_BINDINGS.findIndex((name) => /^(labor_manager|units_panel|military_panel)\//.test(name));
     expect(firstNew).toBeGreaterThan(LEGACY_BINDINGS.map((name) => name.split('/')[0]).lastIndexOf('fortress_panel'));
-    for (const name of LEGACY_BINDINGS) expect(keymap.bindings.some((b) => `${b.context}/${b.spec.key === 'any-letter' ? 'any-letter' : keyLabel(b.spec)}` === name), name).toBe(true);
+    // D-253 took the Shift off these rows and moved the calendar to a panel letter: the old names still load.
+    for (const name of LEGACY_BINDINGS) {
+      const keys = new Keymap(keymap.bindings);
+      keys.loadOverrides([{ binding: name, spec: { key: 'F11', ctrl: false, shift: false } }]);
+      if (!/(Esc|any-letter|letters)$/.test(name)) expect(keys.overrides(), name).toHaveLength(1);
+    }
   });
 
   it('in the app: [l], Enter opens the labor manager and Esc returns; [u], Shift+N renames a dwarf', async () => {

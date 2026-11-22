@@ -1802,5 +1802,13 @@
   {
     "table": "hints",
     "id": "hint_predator_open"
+  },
+  {
+    "table": "hints",
+    "id": "hint_panel_letters"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_abandon"
   }
 ]

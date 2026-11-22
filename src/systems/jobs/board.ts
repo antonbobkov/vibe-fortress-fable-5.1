@@ -850,6 +850,10 @@ export class JobBoard implements JobsApi, JobSink {
         else this.releaseItem(it, job.id);
       }
       input.reserved = retained;
+      // T-687: a job that stays (an interruption's timeout, an unclaim) delivers only what it still holds.
+      // A planting job's seed whose reservation lapsed is an ordinary item again: a hauler may carry it off
+      // and merge it into a stack, which ends it with no `ItemDestroyed`. The job fetches anew when taken.
+      if (keepDelivered) input.delivered = input.delivered.filter((it) => retained.includes(it));
     }
     for (const key of ['toolToFetch', 'ammoToFetch']) {
       const tool = job.data[key];

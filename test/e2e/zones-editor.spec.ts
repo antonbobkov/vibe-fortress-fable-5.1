@@ -58,7 +58,7 @@ test('U-07 M7/M9 stockpile editor and room panel', async ({ page }) => {
   });
   await page.keyboard.press('z');
   await clickTile(page, site.x, site.y);
-  await expect.poll(() => textOf(page)).toContain('[S-p] Preset');
+  await expect.poll(() => textOf(page)).toContain('[p] Preset');
   await page.keyboard.press('Shift+P');
   await page.keyboard.press('w');
   await page.keyboard.press('Enter');
@@ -89,7 +89,7 @@ test('U-07 M7/M9 stockpile editor and room panel', async ({ page }) => {
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
   expect(await page.evaluate((id) => (window as unknown as { __deepholm: ZoneHook }).__deepholm.readers.buildings.ownerOf(id), site.room)).toBe(site.dwarf);
-  await clickText(page, '[S-o] owner');
+  await clickText(page, '[o] owner');
   await clickText(page, 'Nobody');
   expect(await page.evaluate((id) => (window as unknown as { __deepholm: ZoneHook }).__deepholm.readers.buildings.ownerOf(id), site.room)).toBe(0);
   await clickTile(page, site.x + 10, site.y);

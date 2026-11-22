@@ -32,6 +32,8 @@ function shownText(s: Surface, line: LogLine): string {
 export interface LogCreatures {
   readonly names: readonly { readonly id: EntityId; readonly name: string }[];
   readonly open: (id: EntityId) => void;
+  /** The name of the creature or item a line names whose view `[v]` opens, or null when it is gone (T-679). */
+  readonly subject?: (line: LogLine) => string | null;
 }
 
 /** `0` all but the combat notes, `1` alerts and danger, `2` combat. */
@@ -149,7 +151,8 @@ export function drawLogPanel(
   filter: LogFilter,
   strings: Strings,
   now: number,
-  onFocus: (line: LogLine) => void,
+  /** A click on an entry with a place: `again` when it was already the chosen entry, which goes there (T-679). */
+  onFocus: (line: LogLine, again: boolean) => void,
   view: LogView = new LogView(),
   /** The creatures a line may name, and what a click on a name does (24 § Inspection: inspect that creature). */
   creatures?: LogCreatures,
@@ -226,10 +229,11 @@ export function drawLogPanel(
     if (!whole(entry)) s.tooltip(cells, shownText(s, line));
     if (view.chosen && entry.index === view.selected) s.invert(cells);
     s.hit({ col: rect.col, row, cols: cols + 1, rows: entry.rows }, () => {
+      const again = view.chosen && view.selected === entry.index;
       view.selected = entry.index;
       view.line = line;
       view.chosen = true;
-      if (line.focus !== undefined) onFocus(line);
+      if (line.focus !== undefined) onFocus(line, again);
     });
     if (creatures !== undefined) {
       for (let k = 0; k < entry.rows; k += 1) {
@@ -240,7 +244,21 @@ export function drawLogPanel(
     row += entry.rows;
   }
   if (bar) drawLogScrollbar(s, { col: rect.col + rect.cols - 2, row: top, cols: 1, rows: height }, view, shown.length);
-  if (footer === 1) label(s, rect.col + 1, rect.row + rect.rows - 1, strings.get('ui.log.actions'), { width: rect.cols - 2 });
+  if (footer === 1) drawLogFooter(s, { col: rect.col + 1, row: rect.row + rect.rows - 1, cols: rect.cols - 2, rows: 1 }, view.line, strings, creatures);
+}
+
+/**
+ * The action row for the selected entry (T-679): `[Enter] go there` when it has a place, `[v]` and the
+ * name of the creature or item it names while that still exists, else that it has neither.
+ */
+function drawLogFooter(s: Surface, at: Rect, line: LogLine | null, strings: Strings, creatures?: LogCreatures): void {
+  const name = line === null || creatures?.subject === undefined ? null : creatures.subject(line);
+  const place = line?.focus !== undefined;
+  const text = place && name !== null ? strings.get('ui.log.actions_view', { name })
+    : place ? strings.get('ui.log.actions')
+    : name !== null ? strings.get('ui.log.view_only', { name })
+    : strings.get('ui.log.nowhere');
+  label(s, at.col, at.row, text, { width: at.cols, ...(place || name !== null ? {} : { fg: s.theme.dim }) });
 }
 
 /** A click on a creature's name in a log row inspects it; a longer name wins over a shorter one inside it. */

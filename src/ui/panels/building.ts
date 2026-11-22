@@ -23,6 +23,7 @@ import type { DefenseReader } from '@systems/defense';
 import { CATEGORY_TREE } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import { LINKABLE_TAGS, PLATE_LEVEL_MAX, PLATE_SIZE_MAX, PLATE_SIZE_STEP } from '../constants';
+import { goodsWaiting, goodsWaitText, type GoodsWaitReason } from '../goods-wait';
 import { acceleratorLabel } from '../keymap';
 import { buildingName, capitalize, jobBlockText, matchName, materialItemName, whereMade, wrapText, zoneName } from '../messages';
 import type { Surface } from '../surface';
@@ -524,7 +525,7 @@ export class BuildingPanel {
     const view = this.view(ctx);
     const s = ctx.strings;
     if (reader === null || view === undefined) return [{ id: 'gone', text: s.get('ui.building.gone'), tone: 'dim' }];
-    const letters = ctx.panelLetters;
+    const letters = ctx.shiftLetters;
     const key = (letter: string, caption: string): string => `${acceleratorLabel(letter, letters)} ${caption}`;
     const out: BuildingLine[] = [];
     const name = this.name(ctx);
@@ -690,9 +691,15 @@ export class BuildingPanel {
       const list = types.map(([type, count]) => s.get('ui.building.contents_type', { name: it.def(type)?.name ?? '', n: count })).join(', ');
       out.push({ id: `contents:${top}`, text: only ? s.get('ui.building.contents_one', { category: top, n }) : s.get('ui.building.contents_row', { category: top, n, types: list }) });
     }
+    // Why goods still wait in it (T-681).
+    const wait = goodsWaiting(ctx.readers, this.id, view.itemId);
+    if (wait !== null) {
+      const urgent = ['no_stockpile', 'full', 'no_hauler', 'unreachable'].some((r) => (wait.counts.get(r as GoodsWaitReason) ?? 0) > 0);
+      out.push({ id: 'wait', text: goodsWaitText(s, wait, false), tone: urgent ? 'alert' : 'dim', help: s.get('ui.building.wait_help') });
+    }
     const where = it.tileOf([...held][0] ?? 0);
     const tile = where >= 0 ? where : view.origin;
-    out.push({ id: 'see_items', text: key('v', s.get('ui.building.see_items')), key: 'v', run: () => ctx.look(tile, 1), help: s.get('ui.building.see_items_help') });
+    out.push({ id: 'see_items', text: key('v', s.get('ui.building.see_items')), key: 'v', run: () => ctx.look(tile), help: s.get('ui.building.see_items_help') });
     return out;
   }
 

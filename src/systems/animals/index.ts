@@ -378,6 +378,16 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
         return zone === undefined || zone.type !== PASTURE_ZONE ? [] : zone.tiles;
       },
       homeTile: () => this.homeTile(),
+      ambleAnchor: () => {
+        const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
+        return buildings !== null && buildings.hearthHallTiles().length > 0 ? -1 : this.homeTile();
+      },
+      grazeGround: () => {
+        const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
+        if (buildings === null || buildings.hearthHallTiles().length === 0 || !this.readers.has('10')) return -1;
+        return this.readers.of<{ wagonTile?(): TileIndex }>('10').wagonTile?.() ?? -1;
+      },
+      calledIn: () => !this.readers.calendar.isDaylight || (this.world?.fortress.alert ?? 'calm') !== 'calm',
       standTile: (animalId) => this.standTile(animalId),
       petSpot: (animalId) => {
         const buildings = this.readers.has('14') ? this.readers.of<BuildingsReader>('14') : null;
@@ -613,8 +623,8 @@ export class AnimalsSystem extends BaseSystem<AnimalsStateV1> {
       }
     }
     if (this.readers.has('10')) {
-      const wagon = this.readers.of<{ wagonTile?: TileIndex }>('10').wagonTile;
-      if (typeof wagon === 'number') return wagon;
+      const wagon = this.readers.of<{ wagonTile?(): TileIndex }>('10').wagonTile?.() ?? -1;
+      if (wagon >= 0) return wagon;
     }
     return -1;
   }

@@ -29,7 +29,7 @@ function fixture() {
   const sent: Command[] = [];
   const notices: string[] = [];
   const ctx: PanelContext = {
-    readers: w.readers, registry: w.game.registry, strings, panelLetters: keymap.panelLetters(),
+    readers: w.readers, registry: w.game.registry, strings, shiftLetters: new Set<string>(),
     submit: (cmd) => { sent.push(cmd); expect(w.game.world.applyCommand(cmd)).toMatchObject({ ok: true }); },
     notice: (text) => notices.push(text), focusOn: () => {}, look: () => {}, openPanel: () => {}, shiftClick: () => false,
   };
@@ -49,11 +49,10 @@ function click(s: ReturnType<typeof surface>, needle: string, offset = 1): void 
 }
 
 describe('U-07 stockpile editor (M7)', () => {
-  it('chooses a preset by Shift accelerator and first letter, never a bare panel letter', () => {
+  it('chooses a preset by its accelerator, bare before the panel letter (D-253), and first letter', () => {
     const f = fixture();
     const tick = f.w.readers.calendar.tick;
-    expect(f.tool.editorKey(f.ctx, press('p'))).toBe(false);
-    f.tool.editorKey(f.ctx, press('P', { shift: true }));
+    f.tool.editorKey(f.ctx, press('p'));
     expect(f.tool.stockpile.preset.open).toBe(true);
     f.tool.editorKey(f.ctx, press('w'));
     f.tool.editorKey(f.ctx, press('Enter'));
@@ -121,7 +120,7 @@ describe('U-07 stockpile editor (M7)', () => {
   it('mouse preset, numeric and material controls use the same commands; truncated values have tooltips', () => {
     const f = fixture();
     const draw = () => { const s = surface(36, 40); drawZonesPanel(s, { col: 0, row: 0, cols: 32, rows: 40 }, f.tool, f.ctx); return s; };
-    click(draw(), '[S-p] Preset');
+    click(draw(), '[p] Preset');
     click(draw(), 'Weapons and armor');
     expect(f.it.stockpile(f.pile)?.filter.categories).toEqual(['weapon', 'ammo', 'armor']);
     expect(draw().tooltips.some((t) => t.text.includes('Weapons and armor'))).toBe(true);
@@ -235,15 +234,15 @@ describe('U-07 room panel and stockpile announcements (M9, §4.4)', () => {
     expect(rows.filter((r) => r.keys === undefined)).toHaveLength(7);
     expect(rows.some((r) => r.text.startsWith('Farm plot: ↑↓ season'))).toBe(true);
     expect(rows.some((r) => r.text.startsWith('[i]  link a source stockpile'))).toBe(true);
-    expect(rows.some((r) => r.text.startsWith('[S-p]  open the stockpile preset'))).toBe(true);
-    expect(rows.some((r) => r.text.startsWith('[S-o]  open the bedroom'))).toBe(true);
+    expect(rows.some((r) => r.text.startsWith('[p]  open the stockpile preset'))).toBe(true);
+    expect(rows.some((r) => r.text.startsWith('[o]  open the bedroom'))).toBe(true);
     expect(rows.some((r) => r.text.includes('Space checkbox'))).toBe(true);
     const rebound = new Keymap(keymap.bindings);
     const population = rebound.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'population');
     expect(rebound.rebind(population, { key: 'g', ctrl: false, shift: false })).toBeNull();
     const newRows = helpKeyRows(rebound, strings).filter((r) => r.category === 'zone_inspector');
     expect(newRows.some((r) => r.text.startsWith('[p]  open the stockpile preset'))).toBe(true);
-    expect(newRows.some((r) => r.text.startsWith('[S-g]  focus the category tree'))).toBe(true);
+    expect(newRows.some((r) => r.text.startsWith('[g]  focus the category tree'))).toBe(true);
   });
 
   it('highlights every visible open border tile; Space and numeric controls do not change speed', () => {

@@ -152,12 +152,12 @@ describe('T-M1-14 mouse model', () => {
     expect(game.ui.cursor).toEqual({ x: game.ui.camX + 3, y: game.ui.camY + 3 });
   });
 
-  it('the wheel changes z (down is deeper); Shift pans vertically', async () => {
+  it('the wheel changes z (up is deeper by default, T-673); Shift pans vertically', async () => {
     const game = await fortressGame();
     const z = game.ui.z;
-    game.wheel({ x: 20, y: 20, dx: 0, dy: 100, shift: false, ctrl: false, alt: false, meta: false });
-    expect(game.ui.z).toBe(z - 1);
     game.wheel({ x: 20, y: 20, dx: 0, dy: -100, shift: false, ctrl: false, alt: false, meta: false });
+    expect(game.ui.z).toBe(z - 1);
+    game.wheel({ x: 20, y: 20, dx: 0, dy: 100, shift: false, ctrl: false, alt: false, meta: false });
     expect(game.ui.z).toBe(z);
     const camY = game.ui.camY;
     game.wheel({ x: 20, y: 20, dx: 0, dy: 100, shift: true, ctrl: false, alt: false, meta: false });
@@ -169,7 +169,8 @@ describe('T-M1-14 mouse model', () => {
     game.pointerDown(cell(game, 5, 6));
     expect(game.ui.panel).toBe('look');
     const text = game.textRows().join('\n');
-    expect(text).toContain('Look');
+    // Bare ground: the tile list, its title naming the tile (24 § Inspection).
+    expect(text).toMatch(/Tile \(\d+, \d+, z\d+\)/);
     expect(text).toContain('Loam floor');
     const camX = game.ui.camX;
     game.pointerDown(cell(game, 20, 10, 1));
@@ -432,5 +433,20 @@ describe('T-M1-14 UiState save section', () => {
     const ui = defaultUiState(0);
     const lines = fromSaved(ui, saved);
     expect(toSaved(ui, lines)).toEqual(saved);
+  });
+
+  it('T-685: a merged line keeps its count through a save; a line saved without one loads as x1', () => {
+    const log = [
+      { tick: 5, severity: 'note' as const, text: 'Stockpile #2 is full', count: 3, focus: 9 },
+      { tick: 6, severity: 'alert' as const, text: 'Once.', count: 1 },
+    ];
+    const saved = toSaved(defaultUiState(0), log);
+    expect(saved.logTail).toEqual([
+      { tick: 5, severity: 'note', text: 'Stockpile #2 is full', count: 3, focus: 9 },
+      { tick: 6, severity: 'alert', text: 'Once.' },
+    ]);
+    const lines = fromSaved(defaultUiState(0), JSON.parse(JSON.stringify(saved)) as SavedUiState);
+    expect(lines.map((l) => l.count)).toEqual([3, 1]);
+    expect(lines[0]).toMatchObject({ text: 'Stockpile #2 is full', count: 3, focus: 9 });
   });
 });

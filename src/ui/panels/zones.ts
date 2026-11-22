@@ -7,8 +7,10 @@
  * Refuse, Corpses, Everything").
  *
  * A dragged rectangle submits `CreateZone` with the tiles that qualify and lie in no other zone
- * (D-071: the command refuses a rectangle whole). With no type chosen, a click on a zoned tile
- * selects that zone. `e` makes the next rectangle resize the selected zone; `x` removes it.
+ * (D-071: the command refuses a rectangle whole). The panel shows one of two views (T-680): the
+ * menu, the kinds of zone to make with their letters and the list of the fortress's zones; or a
+ * zone's inspector, its settings, in place of the menu. With no type chosen, a click on a zoned
+ * tile selects that zone. `e` makes the next rectangle resize the selected zone; `x` removes it.
  */
 
 import type { Command } from '@core/commands';
@@ -16,7 +18,7 @@ import type { StockpileFilter } from '@core/components';
 import { TileFlag } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import type { ZoneView } from '@systems/buildings';
+import type { BuildingsReader, ZoneView } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
 import type { AnimalsReader } from '@systems/animals';
 import { GRASS_PER_GRAZER, SHRUB_GRAZE_WEIGHT } from '@systems/animals/constants';
@@ -38,10 +40,13 @@ import { drawnCols, keyCells, label, separator, toggleNode, type TreeNode, type 
 import { acceleratorLabel } from '../keymap';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
-import { stockpilePreset, wrapText, zoneEditorMessage } from '../messages';
+import { stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
 import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building';
 import { dwarvesOf, nameOf } from './units';
 import { drawStockpileEditor, StockpileEditor, PRESET_ORDER } from './stockpile-editor';
+
+/** The zone type kept on `Shift` by default, so that `k` stays Look (`ui-keymap-and-screens.md` § Zones panel). */
+const ZONE_TYPE_SHIFT: ReadonlySet<string> = new Set(['k']);
 
 /** The panel's zone types with their accelerators, in the wireframe's order. */
 export const ZONE_KINDS: readonly { readonly key: string; readonly id: string }[] = [
@@ -100,6 +105,14 @@ export class ZoneTool {
   kind: string | null = null;
   /** The zone the settings show. */
   selected: EntityId = 0;
+  /**
+   * Zones was opened by a click on a zone (24 § Inspection): the map's clicks stay the click
+   * ladder's, and `Esc` closes the panel instead of going back to the menu.
+   */
+  byClick = false;
+  /** The menu's zone list: the row `Tab` has focused (-1: none), and the first row in view. */
+  listFocus = -1;
+  listScroll = 0;
   /** `e`: the next rectangle resizes the selected zone. */
   resizing = false;
   /**
@@ -126,6 +139,36 @@ export class ZoneTool {
   /** A type is chosen or a resize armed, idle or not: `Esc` and a right click drop it. */
   get chosen(): boolean {
     return this.kind !== null || this.resizing;
+  }
+
+  /**
+   * The inspector shows, not the menu: a zone is selected and no new zone is being drawn (an idle
+   * tool after a zone was made, or a resize, keeps the zone's settings).
+   */
+  inspects(env: Pick<PanelContext, 'readers'>): boolean {
+    if (this.selected === 0 || (this.kind !== null && !this.idle) || !env.readers.has('14')) return false;
+    return env.readers.of<BuildingsReader>('14').zone(this.selected) !== undefined;
+  }
+
+  /** Back to the menu (`[y]`, `Esc` from a zone's settings): no tool, no zone, the map's clicks pick zones again. */
+  menu(): void {
+    this.cancel();
+    this.selected = 0;
+    this.byClick = false;
+    this.listFocus = -1;
+  }
+
+  /** `Tab` and `Shift+Tab` in the menu: the next or previous zone of the list; false when there is none, so `Tab` keeps its global meaning. */
+  cycleList(ctx: PanelContext, step: number): boolean {
+    const n = zoneList(ctx).length;
+    if (n === 0) { this.listFocus = -1; return false; }
+    this.listFocus = this.listFocus < 0 ? (step > 0 ? 0 : n - 1) : (this.listFocus + step + n) % n;
+    return true;
+  }
+
+  /** The zone the menu's focus is on, or 0. */
+  focused(ctx: PanelContext): EntityId {
+    return this.listFocus < 0 ? 0 : zoneList(ctx)[this.listFocus] ?? 0;
   }
 
   /** A zone was made: the tool idles, unless the next rectangle is already being drawn. */
@@ -228,7 +271,7 @@ export class ZoneTool {
     }
     if (zone.type === 'stockpile' && this.stockpile.key(ctx, zone.id, key)) return true;
     if ((zone.type === 'bedroom' || zone.type === 'sanctum') && accel(ctx, key) === 'o') { this.startOwner(ctx); return true; }
-    if (accel(ctx, key) === 'y') { this.selected = 0; this.cancel(); return true; }
+    if (accel(ctx, key) === 'y') { this.menu(); return true; }
     return false;
   }
 
@@ -296,7 +339,7 @@ export class ZoneTool {
       menu.highlighted = Math.max(0, options.findIndex((o) => o.id === (plant?.id ?? '0')));
       return true;
     }
-    if (key.shift && accel(ctx, key) === 'a') { this.farmAllSeasons(ctx, season); return true; }
+    if (accel(ctx, key) === 'a') { this.farmAllSeasons(ctx, season); return true; }
     if (accel(ctx, key) === 'w') { this.farmFertilize(ctx); return true; }
     return false;
   }
@@ -359,9 +402,15 @@ export class ZoneTool {
   select(ctx: PanelContext, i: TileIndex): boolean {
     const id = buildings(ctx)?.zoneAt(i) ?? 0;
     if (id === 0) return false;
+    this.selectZone(id);
+    return true;
+  }
+
+  /** Show a zone's settings: its inspector starts afresh for another zone. */
+  selectZone(id: EntityId): void {
     if (id !== this.selected) { this.ownerOpen = false; this.stockpile.reset(); }
     this.selected = id;
-    return true;
+    this.listFocus = -1;
   }
 
   /** The stockpile's current filter (13's `Stockpile` component). */
@@ -415,36 +464,86 @@ function zoneName(ctx: PanelContext, zone: ZoneView): string {
   return `${ctx.strings.get(`ui.zone.type.${zone.type}`)} #${n}`;
 }
 
-/** The panel body (the title row is the sidebar's). */
-export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, onRemove?: () => void): void {
+/** The fortress's zones as the menu lists them: by kind in the menu's order, each kind by its ordinal. */
+export function zoneList(ctx: PanelContext): EntityId[] {
+  const b = buildings(ctx);
+  return b === null ? [] : ZONE_KINDS.flatMap((kind) => b.zonesOfType(kind.id));
+}
+
+/**
+ * The menu (T-680): the kinds of zone to make, each with its letter, then the fortress's zones, a
+ * row each with its size; a click on a row, or `Tab` to it and `Enter`, opens its settings.
+ */
+function drawZoneMenu(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, onOpen: (id: EntityId) => void): void {
   const t = s.theme;
   const strings = ctx.strings;
+  const col = rect.col + 1;
+  const width = rect.cols - 2;
+  const bottom = rect.row + rect.rows;
   let row = rect.row;
-  if (tool.ownerOpen) { drawBuildingLines(s, rect, tool.ownerLines(ctx), tool.ownerPick); return; }
-  const selectedZone = buildings(ctx)?.zone(tool.selected);
-  const inspector = !tool.active && selectedZone !== undefined && (selectedZone.type === 'stockpile' || buildings(ctx)?.roomScore(selectedZone.id) !== undefined);
-  if (inspector) {
-    const text = `${acceleratorLabel('y', ctx.panelLetters)} ${strings.get('ui.zone.types_action')}`;
-    label(s, rect.col + 1, row, text, { width: rect.cols - 2 });
-    s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => { tool.selected = 0; tool.cancel(); });
-    row += 1;
-  } else {
-  const colW = Math.floor((rect.cols - 2) / 2);
+  const colW = Math.floor(width / 2);
   for (let k = 0; k < ZONE_KINDS.length; k += 2) {
     for (let j = 0; j < 2; j += 1) {
       const kind = ZONE_KINDS[k + j];
       if (kind === undefined) continue;
-      const col = rect.col + 1 + j * colW;
-      const n = label(s, col, row, `${acceleratorLabel(kind.key, ctx.panelLetters)} ${strings.get(`ui.zone.short.${kind.id}`)}`, { width: colW - 1 });
-      if (tool.kind === kind.id) s.invert({ col, row, cols: n, rows: 1 });
-      s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
+      const at = col + j * colW;
+      const n = label(s, at, row, `${acceleratorLabel(kind.key, ZONE_TYPE_SHIFT)} ${strings.get(`ui.zone.short.${kind.id}`)}`, { width: colW - 1 });
+      if (tool.kind === kind.id) s.invert({ col: at, row, cols: n, rows: 1 });
+      s.hit({ col: at, row, cols: n, rows: 1 }, () => void tool.choose(kind.key));
     }
     row += 1;
   }
-  label(s, rect.col + 1, row, strings.get('ui.zone.help1'), { fg: t.dim, width: rect.cols - 2 });
-  label(s, rect.col + 1, row + 1, strings.get('ui.zone.help2'), { fg: t.dim, width: rect.cols - 2 });
+  const drawing = tool.kind !== null;
+  label(s, col, row, strings.get(drawing ? 'ui.zone.help1' : 'ui.zone.menu_help1'), { fg: t.dim, width });
+  label(s, col, row + 1, strings.get(drawing ? 'ui.zone.help2' : 'ui.zone.menu_help2'), { fg: t.dim, width });
   row += 2;
+  if (row >= bottom) return;
+  const list = zoneList(ctx);
+  separator(s, col, row, width, strings.get('ui.zone.list', { n: list.length }));
+  row += 1;
+  if (list.length === 0) {
+    if (row < bottom) label(s, col, row, strings.get('ui.zone.list_none'), { fg: t.dim, width });
+    return;
   }
+  // The last row says how to reach a zone by keyboard; the rows above it scroll to keep the focus in view.
+  const rows = Math.max(1, bottom - row - 1);
+  if (tool.listFocus >= list.length) tool.listFocus = list.length - 1;
+  if (tool.listFocus >= 0) {
+    if (tool.listFocus < tool.listScroll) tool.listScroll = tool.listFocus;
+    if (tool.listFocus >= tool.listScroll + rows) tool.listScroll = tool.listFocus - rows + 1;
+  }
+  tool.listScroll = Math.max(0, Math.min(tool.listScroll, list.length - rows));
+  const env = { readers: ctx.readers, strings };
+  const b = buildings(ctx);
+  for (let k = tool.listScroll; k < list.length && k < tool.listScroll + rows; k += 1) {
+    const id = list[k] as EntityId;
+    const zone = b?.zone(id);
+    const size = strings.get('ui.zone.list_size', { n: zone?.tiles.length ?? 0 });
+    const sizeCols = drawnCols(s, size);
+    const name = zone?.type === 'stockpile' ? stockpileName(env, id) : zoneTitle(env, id);
+    label(s, col, row, name, { width: Math.max(1, width - sizeCols - 1) });
+    label(s, col + width - sizeCols, row, size, { fg: t.dim, width: sizeCols });
+    if (k === tool.listFocus) s.invert({ col, row, cols: width, rows: 1 });
+    s.hit({ col, row, cols: width, rows: 1 }, () => onOpen(id));
+    row += 1;
+  }
+  if (row < bottom) label(s, col, bottom - 1, strings.get('ui.zone.list_keys'), { fg: t.dim, width });
+}
+
+/**
+ * The panel body (the title row is the sidebar's): the menu, or a selected zone's inspector in its
+ * place (T-680). `onOpen` opens a zone of the menu's list; by default it selects the zone.
+ */
+export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, onRemove?: () => void, onOpen?: (id: EntityId) => void): void {
+  const t = s.theme;
+  const strings = ctx.strings;
+  let row = rect.row;
+  if (tool.ownerOpen) { drawBuildingLines(s, rect, tool.ownerLines(ctx), tool.ownerPick); return; }
+  if (!tool.inspects(ctx)) { drawZoneMenu(s, rect, tool, ctx, onOpen ?? ((id) => tool.selectZone(id))); return; }
+  const text = `${acceleratorLabel('y', ctx.shiftLetters)} ${strings.get('ui.zone.types_action')}`;
+  label(s, rect.col + 1, row, text, { width: rect.cols - 2 });
+  s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => tool.menu());
+  row += 1;
   const b = buildings(ctx);
   const zone = b?.zone(tool.selected);
   if (b === null || zone === undefined) return;
@@ -481,7 +580,7 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     label(s, rect.col + 1, bottom, text, { width: rect.cols - 2 });
     // Keyboard and mouse reach the same actions (24 § Input model): the accelerators are clickable.
     accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, zone.type === 'stockpile' ? 'Del' : 'x', () => onRemove?.());
-    accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, 'S-e', () => { tool.resizing = true; });
+    accelerator(s, rect.col + 1, bottom, rect.cols - 2, text, 'e', () => { tool.resizing = true; });
   }
 }
 
@@ -530,7 +629,7 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     if (row >= rect.row + rect.rows) break;
     const text = ctx.strings.get(key);
     label(s, rect.col + 1, row, text, { fg: t.dim, width: rect.cols - 2 });
-    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'S-a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
+    accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'a', () => tool.farmAllSeasons(ctx, tool.farmRow(ctx)));
     accelerator(s, rect.col + 1, row, rect.cols - 2, text, 'w', () => tool.farmFertilize(ctx));
     row += 1;
   }
@@ -636,7 +735,7 @@ function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     const ownerId = b?.ownerOf(zone.id) ?? 0;
     const owner = ownerId === 0 ? strings.get('ui.zone.nobody') : nameOf(ctx, ownerId);
     label(s, col, row++, strings.get('ui.zone.owner', { name: owner }), { width });
-    const caption = `${acceleratorLabel('o', ctx.panelLetters)} ${strings.get('ui.building.owner_caption')}`;
+    const caption = `${acceleratorLabel('o', ctx.shiftLetters)} ${strings.get('ui.building.owner_caption')}`;
     label(s, col, row, caption, { width });
     s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
   }
@@ -696,7 +795,7 @@ function drawSanctumSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelC
     label(s, col, row++, line.text, { width, fg: tones[line.tone] });
   }
   if (row < bottom) {
-    const caption = `${acceleratorLabel('o', ctx.panelLetters)} ${ctx.strings.get('ui.zone.apprentices_caption')}`;
+    const caption = `${acceleratorLabel('o', ctx.shiftLetters)} ${ctx.strings.get('ui.zone.apprentices_caption')}`;
     label(s, col, row, caption, { width });
     s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
   }

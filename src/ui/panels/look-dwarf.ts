@@ -17,6 +17,7 @@ import type { Strings } from '../strings';
 import { NEED_BAR_CELLS, SKILL_BAR_CELLS, TITLE_IDS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { gearName, heldWeapon, weaponRowOf } from './gear';
+import { joinSpans, spansText, stringSpans, type Span } from './look-links';
 import { professionOf } from './units';
 
 const FULL = '▓';
@@ -114,6 +115,12 @@ export function productivityText(readers: ReaderSet, strings: Strings, id: Entit
  * helm"; "Equipment none" for a dwarf with nothing; null for another creature with nothing.
  */
 export function equipmentText(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, dwarf: boolean): string | null {
+  const spans = equipmentSpans(readers, registry, strings, id, dwarf);
+  return spans === null ? null : spansText(spans);
+}
+
+/** {@link equipmentText} with each item a link to its view (24 § Inspection). */
+export function equipmentSpans(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, dwarf: boolean): Span[] | null {
   const equip = readers.entities.get(id, C.Equipment);
   const held: EntityId[] = [];
   const add = (item: EntityId): void => {
@@ -131,27 +138,44 @@ export function equipmentText(readers: ReaderSet, registry: Registry, strings: S
       for (const item of readers.of<ItemsReader>('13').carriedItems(id)) if (readers.entities.get(item, C.Item)?.type === type) add(item);
     }
   }
-  if (held.length === 0) return dwarf ? strings.get('ui.look.dwarf.equipment_none') : null;
-  return strings.get('ui.look.dwarf.equipment', { list: held.map((item) => gearName(readers, registry, item)).join(', ') });
+  if (held.length === 0) return dwarf ? [{ text: strings.get('ui.look.dwarf.equipment_none') }] : null;
+  return stringSpans(strings, 'ui.look.dwarf.equipment', { list: itemLinks(readers, registry, held) });
 }
 
 /** What a creature wears (10 § Clothing): "Wearing linen tunic, linen trousers, leather boots"; null for a creature with no clothing slots. */
 export function wearingText(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string | null {
+  const spans = wearingSpans(readers, registry, strings, id);
+  return spans === null ? null : spansText(spans);
+}
+
+/** {@link wearingText} with each piece a link to its view. */
+export function wearingSpans(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): Span[] | null {
   const clothing = readers.entities.get(id, C.Equipment)?.clothing;
   if (clothing === undefined) return null;
   const worn = (['body', 'legs', 'feet', 'over'] as const).map((slot) => clothing[slot]).filter((item) => item !== 0 && readers.entities.alive(item));
-  return worn.length === 0 ? strings.get('ui.look.dwarf.wearing_none') : strings.get('ui.look.dwarf.wearing', { list: worn.map((item) => gearName(readers, registry, item)).join(', ') });
+  return worn.length === 0 ? [{ text: strings.get('ui.look.dwarf.wearing_none') }] : stringSpans(strings, 'ui.look.dwarf.wearing', { list: itemLinks(readers, registry, worn) });
+}
+
+/** Items by name, each a link to its view, joined by commas. */
+function itemLinks(readers: ReaderSet, registry: Registry, items: readonly EntityId[]): Span[] {
+  return joinSpans(items.map((item) => [{ text: gearName(readers, registry, item), target: { kind: 'item', id: item } }]), ', ');
 }
 
 /** "Relations friends: Brynja Coldhammer; grudges: Orm Ashbrow" (10 § Relationships), or "Relations none yet". */
 export function relationsText(readers: ReaderSet, strings: Strings, id: EntityId): string {
+  return spansText(relationsSpans(readers, strings, id));
+}
+
+/** {@link relationsText} with each friend and grudge a link to that creature's view. */
+export function relationsSpans(readers: ReaderSet, strings: Strings, id: EntityId): Span[] {
   const name = (other: EntityId): string => readers.entities.get(other, C.Creature)?.name ?? '';
   const friends = readers.of<DwarvesReader>('10').friends(id).filter((other) => name(other) !== '');
   const grudges = (readers.entities.get(id, C.Relationships)?.grudges ?? []).map((g) => g.id).filter((other) => name(other) !== '');
-  const parts: string[] = [];
-  if (friends.length > 0) parts.push(strings.get('ui.look.dwarf.friends', { names: friends.map(name).join(', ') }));
-  if (grudges.length > 0) parts.push(strings.get('ui.look.dwarf.grudges', { names: grudges.map(name).join(', ') }));
-  return parts.length === 0 ? strings.get('ui.look.dwarf.relations_none') : strings.get('ui.look.dwarf.relations', { list: parts.join('; ') });
+  const links = (ids: readonly EntityId[]): Span[] => joinSpans(ids.map((other) => [{ text: name(other), target: { kind: 'creature', id: other } }]), ', ');
+  const parts: Span[][] = [];
+  if (friends.length > 0) parts.push(stringSpans(strings, 'ui.look.dwarf.friends', { names: links(friends) }));
+  if (grudges.length > 0) parts.push(stringSpans(strings, 'ui.look.dwarf.grudges', { names: links(grudges) }));
+  return parts.length === 0 ? [{ text: strings.get('ui.look.dwarf.relations_none') }] : stringSpans(strings, 'ui.look.dwarf.relations', { list: joinSpans(parts, '; ') });
 }
 
 /** "Title Thane, Warden" (10 § Titles), in the title table's order; null for a dwarf with none. */

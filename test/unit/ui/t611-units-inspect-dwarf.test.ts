@@ -9,11 +9,10 @@ import { Game } from '@app/game';
 import { C } from '@core/components';
 import type { Position } from '@core/components';
 import type { EntityId, TileIndex } from '@core/types';
-import { tabsLine } from '@ui/panels/look';
 import { drawUnitsPanel, nameOf } from '@ui/panels/units';
 import { drawTooltip } from '@ui/widgets';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
-import { press, strings, surface } from './ui-fixture';
+import { press, surface } from './ui-fixture';
 
 const registry = loadContent();
 
@@ -57,15 +56,17 @@ function cell(g: Game, col: number, row: number, clicks = 1): { x: number; y: nu
   return { x: c.x, y: c.y, button: 0, shift: false, ctrl: false, alt: false, meta: false, clicks };
 }
 
-/** The first creature section of the open Look panel: the name in its first `Creature` separator. */
+/** The creature whose view Look shows, by the name its title row carries. */
 function firstCreature(g: Game): string {
   g.render();
-  const row = g.textRows().find((r) => /─ ?Creature: /.test(r)) ?? '';
-  return row.replace(/^.*Creature: /, '').replace(/[─ │]+$/, '').trim();
+  const at = g.fortress.lookAt;
+  const name = at.kind === 'creature' ? nameOf(g.fortress.ctx, at.id) : '';
+  const title = g.textRows().find((r) => r.includes('[x]') && r.includes(name)) ?? '';
+  return name !== '' && title !== '' ? name : '';
 }
 
 describe('T-611 inspecting a dwarf from Units shows that dwarf', () => {
-  it('seven dwarves on one tile: Enter on the fourth in Units opens Look at the Creatures tab with its name first', async () => {
+  it('seven dwarves on one tile: Enter on the fourth in Units opens that dwarf\'s view', async () => {
     const g = await fortress('t611-units');
     const tile = gather(g);
     expect(g.host.readers.entities.at(tile).filter((id) => g.host.readers.entities.has(id, C.Creature)).length).toBeGreaterThanOrEqual(7);
@@ -75,16 +76,12 @@ describe('T-611 inspecting a dwarf from Units shows that dwarf', () => {
     expect(dwarves(g).indexOf(chosen)).toBeGreaterThan(0);
     g.handleKey(press('Enter'));
     expect(g.ui.panel).toBe('look');
-    expect(g.fortress.lookTab).toBe(2);
+    expect(g.fortress.lookAt).toMatchObject({ kind: 'creature', id: chosen });
     expect(firstCreature(g)).toBe(nameOf(g.fortress.ctx, chosen));
-    const tabs = g.textRows().find((r) => r.includes('[1]Tile')) ?? '';
-    expect(tabs).not.toContain('»');
-    expect(tabs).toContain('[3]Who');
-    // Look opened from the map is unchanged: the Tile tab, the tile's own order.
+    // Look opened by the look key: the tile list of the tile.
     g.handleKey(press('Esc'));
     g.fortress.look(pointOf(g, tile));
-    expect(g.fortress.lookTab).toBe(0);
-    expect(g.fortress.lookCreature).toBe(0);
+    expect(g.fortress.lookAt.kind).toBe('tile');
   });
 
   it('a double click on a unit row inspects that unit', async () => {
@@ -122,14 +119,8 @@ describe('T-611 inspecting a dwarf from Units shows that dwarf', () => {
     g.pointerDown(cell(g, col, row));
     g.pointerUp(cell(g, col, row));
     expect(g.ui.panel).toBe('look');
-    expect(g.fortress.lookTab).toBe(2);
+    expect(g.fortress.lookAt.kind).toBe('creature');
     expect(firstCreature(g)).toBe(name);
-  });
-
-  it('the tabs line shortens its labels before it cuts one', () => {
-    expect(tabsLine(strings, 60, 52, 7)).toBe('Tabs: [1]Tile [2]Items(52) [3]Creatures(7)');
-    expect(tabsLine(strings, 36, 52, 7)).toBe('[1]Tile [2]Items(52) [3]Creatures(7)');
-    expect(tabsLine(strings, 34, 52, 7)).toBe('[1]Tile [2]Items 52 [3]Who 7');
   });
 
   it('the Units list keeps each activity in its column, and the sleep keys say what they do', async () => {

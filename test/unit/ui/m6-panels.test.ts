@@ -8,7 +8,7 @@ import type { ThreatsReader } from '@systems/threats';
 import type { BuildingsReader } from '@systems/buildings';
 import type { Party } from '@core/components';
 import { drawZonesPanel, ZoneTool } from '@ui/panels/zones';
-import { drawLookPanel } from '@ui/panels/look';
+import { drawCreatureView } from '@ui/panels/look';
 import { drawLogPanel, filterLines } from '@ui/panels/log';
 import { AnnouncementLog, focusOf, type LogLine } from '@ui/announcements';
 import { TestWorld } from '../../scenarios/test-world';
@@ -156,8 +156,8 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       w.step(1);
       expect((w.readers.of('16') as import('@systems/combat').CombatReader).alert()).toBe('calm');
 
-      // U-03 (D-U2): `s` opens Stocks, so it is not the panel's; `[S-s]` enters settingStation mode.
-      expect(panel.key(ctx, { key: 's', repeat: false, shift: false, ctrl: false, alt: false, meta: false })).toBe(false);
+      // D-253: `[s]` is the panel's own key, bare or with Shift; with no squad it arms nothing.
+      panel.key(ctx, { key: 's', repeat: false, shift: false, ctrl: false, alt: false, meta: false });
       expect(panel.settingStation).toBe(false);
       // T-278: with no squad the key arms nothing; with one it enters settingStation mode.
       panel.key(ctx, { key: 'S', repeat: false, shift: true, ctrl: false, alt: false, meta: false });
@@ -308,7 +308,7 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       w.game.world.entities.add(id, C.Patient, { hospitalZoneId: 1, bedId: 0, needs: ['stop_bleeding'], admittedTick: 0 });
 
       const s = surface(36, 32);
-      drawLookPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, w.readers, w.game.registry, strings, tile, 2);
+      drawCreatureView(s, { col: 0, row: 0, cols: 36, rows: 32 }, w.readers, w.game.registry, strings, id, 32);
       const text = s.lines().join('\n');
 
       expect(text).toContain('Health: Wounded, bleeding');
@@ -318,7 +318,7 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       // Now diagnose patient
       body.diagnosed = true;
       const s2 = surface(36, 32);
-      drawLookPanel(s2, { col: 0, row: 0, cols: 36, rows: 32 }, w.readers, w.game.registry, strings, tile, 2);
+      drawCreatureView(s2, { col: 0, row: 0, cols: 36, rows: 32 }, w.readers, w.game.registry, strings, id, 32);
       const text2 = s2.lines().join('\n');
 
       expect(text2).toContain('Blood');

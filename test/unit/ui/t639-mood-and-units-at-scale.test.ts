@@ -161,24 +161,24 @@ describe('T-639 the Mood panel at thirty dwarves', () => {
 });
 
 describe('T-639 the Units panel at thirty dwarves', () => {
-  it('marks a title holder after the name, and [S-w] hurt while the wounded come first', () => {
+  it('marks a title holder after the name, and [w] hurt while the wounded come first', () => {
     const f = setup('t639-units');
     f.w.submit({ type: 'AssignTitle', dwarfId: f.dwarves[2] as EntityId, title: 'thane' });
     f.w.step(1);
     f.screen.openPanel('units');
     let side = f.side();
     expect(side.join('\n')).toMatch(/Ketil Ironvein ♦ +[☺☻‼] /);
-    expect(side.find((l) => l.includes('[S-w] hurt'))).not.toContain('■');
+    expect(side.find((l) => l.includes('[w] hurt'))).not.toContain('■');
     f.screen.key(press('W', { shift: true }));
     side = f.side();
-    expect(side.find((l) => l.includes('[S-w] hurt'))).toMatch(/\[S-m\] squad {2}\[S-w\] hurt ■/);
+    expect(side.find((l) => l.includes('[w] hurt'))).toMatch(/\[m\] squad {2}\[w\] hurt ■/);
     // The caption is a button as well.
     f.screen.key(press('W', { shift: true }));
-    const row = f.side().findIndex((l) => l.includes('[S-w] hurt'));
-    f.screen.pointerDown({ col: 80 - 36 + (f.side()[row] as string).indexOf('[S-w]') + 1, row, button: 0, shift: false, ctrl: false, alt: false, meta: false });
+    const row = f.side().findIndex((l) => l.includes('[w] hurt'));
+    f.screen.pointerDown({ col: 80 - 36 + (f.side()[row] as string).indexOf('[w]') + 1, row, button: 0, shift: false, ctrl: false, alt: false, meta: false });
     expect(f.screen.units.woundedFirst).toBe(true);
     f.screen.key(press('W', { shift: true }));
-    expect(f.side().find((l) => l.includes('[S-w] hurt'))).not.toContain('■');
+    expect(f.side().find((l) => l.includes('[w] hurt'))).not.toContain('■');
   });
 
   it('giving and taking away a title writes a note naming the title', () => {

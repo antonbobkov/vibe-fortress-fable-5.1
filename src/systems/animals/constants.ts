@@ -166,6 +166,21 @@ export const NEST_BOX_TAG = 'nest_box';
  * `WILD_THINK_TICKS`. docs/02-systems/08-animals-and-domestication.md § Perception and brains.
  */
 export const TAME_THINK_TICKS = WILD_THINK_TICKS;
+/** `08` § Tame behavior, *Before the hall* (T-675): the chance per think that an idle tame animal sets off on an amble (half for a grazer on grass). */
+export const TAME_AMBLE_PERMILLE = 60;
+/** `08` § Tame behavior, *Before the hall*: an amble's tiles lie within this many tiles of the wagon. */
+export const TAME_AMBLE_RADIUS = 6;
+/** `08` § Tame behavior, *Before the hall*: a cat roams farther. */
+export const CAT_ROAM_RADIUS = 12;
+/** `08` § Tame behavior, *Before the hall*: an amble never ends within this many tiles of a hostile the animal sees. */
+export const TAME_AMBLE_SHY_RADIUS = 8;
+/**
+ * `08` § Tame behavior, *After the hall* (T-683): an unpastured grazer does not go out to the wagon's ground,
+ * and one out there comes in, while a hostile, a deep creature or a wild carnivore stands within this many
+ * tiles of the wagon (its ground, `TAME_AMBLE_RADIUS`, and the shy distance beyond it, `TAME_AMBLE_SHY_RADIUS`,
+ * with two to spare). *Unmeasured*.
+ */
+export const TAME_GRAZE_WARY_RADIUS = 16;
 /** The species that adopt a dwarf each season (`08` § Pets: "each `cat` not already a pet"). */
 export const ADOPTING_SPECIES: readonly string[] = Object.freeze(['cat']);
 /** The zone type a grazer is kept in (`08` § Pastures and feeding). */

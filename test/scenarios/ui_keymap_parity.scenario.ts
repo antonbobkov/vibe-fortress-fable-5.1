@@ -24,7 +24,7 @@ import { GlyphMap, Surface, themeOf } from '@ui/surface';
 import { CellBuffer } from '@render/cellbuffer';
 import { ACTION_IDS, Keymap, parseKeySpec, type KeymapRow } from '@ui/keymap';
 import { Strings } from '@ui/strings';
-import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
+import { FortressScreen, lookViewLetter, type FortressHost } from '@ui/screens/fortress';
 import { defaultUiState } from '@ui/ui-state';
 import type { KeyPress } from '@platform/input';
 import type { Command } from '@core/commands';
@@ -239,8 +239,8 @@ const scenario: Scenario = {
       screen.openPanel(null);
       expect(screen.key(press(row.key, { shift: row.key === '?' })), `${row.key} is consumed`).toBe(true);
       expect(ui.panel, `${row.key} opens ${row.panel}`).toBe(row.panel);
-      // A mouse path to the same panel: the sidebar draws its title row (24 § Panels).
-      expect(draw().lines().join('\n')).toContain(panel?.title as string);
+      // A mouse path to the same panel: the sidebar draws its title row (24 § Panels); Look's names what it shows (24 § Inspection).
+      expect(draw().lines().join('\n')).toContain(row.panel === 'look' ? 'Tile (' : panel?.title as string);
     }
     screen.openPanel(null);
 
@@ -306,7 +306,7 @@ const scenario: Scenario = {
       },
       Wheel: () => {
         const before = dz;
-        screen.wheel({ ...cell(20, 20), dy: 1, shift: false, ctrl: false, alt: false, meta: false });
+        screen.wheel({ ...cell(20, 20), dy: -1, shift: false, ctrl: false, alt: false, meta: false });
         expect(dz).toBe(before - 1);
       },
       'Ctrl + wheel': () => {
@@ -359,7 +359,28 @@ const scenario: Scenario = {
         screen.pointerDown({ col: at.col, row: at.row, button: 0, clicks: 2, shift: false, ctrl: false, alt: false, meta: false });
         expect(centered, 'a double-clicked unit row centres the map').not.toBeNull();
         expect(ui.panel, 'and inspects the unit').toBe('look');
-        expect(screen.lookTab).toBe(2);
+        expect(screen.lookAt.kind, 'its view').toBe('creature');
+        screen.openPanel(null);
+      },
+      'Click a log entry': () => {
+        // T-679: the first click centres on the entry's place and marks it; a click on the chosen entry opens its tile list.
+        screen.log.append('alert', 'Parity place.', w.readers.calendar.tick, w.index(22, 23, Z));
+        screen.openPanel('log');
+        const surface = draw();
+        const row = surface.lines().findIndex((line) => line.includes('Parity place.'));
+        expect(row, 'the log panel lists the entry').toBeGreaterThan(0);
+        const col = (surface.lines()[row] as string).indexOf('Parity place.');
+        const click = () => screen.pointerDown({ col, row, button: 0, clicks: 1, shift: false, ctrl: false, alt: false, meta: false });
+        centered = null;
+        click();
+        expect(centered, 'a click on the entry centres on its place').toEqual({ x: 22, y: 23, z: Z });
+        expect(ui.mark).toEqual({ x: 22, y: 23, z: Z });
+        expect(ui.panel).toBe('log');
+        draw();
+        click();
+        expect(ui.panel, 'a click on the chosen entry goes there').toBe('look');
+        expect(screen.lookAt.kind).toBe('tile');
+        expect(ui.cursor).toEqual({ x: 22, y: 23 });
         screen.openPanel(null);
       },
     };
@@ -380,6 +401,103 @@ const scenario: Scenario = {
     expect(menu).toBe(true);
     expect(homed).toBe(false);
     expect(speed).toBe(1);
+
+    // ---------- 4. § Panels: the open panel's letters first (D-253) ----------
+    // In every panel of § Fortress panels, each panel letter: one the panel binds is the panel's key
+    // and does not open the letter's panel; any other opens its panel (the open panel's own closes
+    // it); `k` is never a panel's own key; a key kept on Shift (`[S-d]`) is not reached bare; and
+    // `Esc`, then the letter, always reaches the letter's panel.
+    const letters = panelRows(text).filter((row) => /^[a-z]$/.test(row.key));
+    for (const open of letters) {
+      for (const target of letters) {
+        screen.openPanel(open.panel);
+        const contexts = screen.keyContexts().filter((context) => context !== 'panel');
+        // Look's centre and follow are its keys only in a creature's or an item's view, not in the tile list it opens on (T-671).
+        const claimed = keymap.claims(contexts, press(target.key)) && !(open.panel === 'look' && lookViewLetter(keymap, press(target.key)));
+        if (target.key === 'k') expect(claimed, `k in ${open.panel}`).toBe(false);
+        for (const context of contexts) {
+          for (const b of keymap.of(context)) {
+            if (b.spec.accel === true && b.spec.shift) expect(keymap.claims([context], press(b.spec.key)), `bare ${b.spec.key} in ${context}`).toBe(false);
+          }
+        }
+        expect(screen.key(press(target.key)), `${target.key} in ${open.panel}`).toBe(true);
+        if (claimed) expect(ui.panel, `${target.key} is ${open.panel}'s own key`).not.toBe(target.panel === open.panel ? null : target.panel);
+        else expect(ui.panel, `${target.key} in ${open.panel}`).toBe(target.panel === open.panel ? null : target.panel);
+        screen.openPanel(open.panel);
+        for (let k = 0; k < 3 && ui.panel !== null; k += 1) screen.key(press('Esc'));
+        expect(ui.panel, `Esc in ${open.panel}`).toBeNull();
+        screen.key(press(target.key));
+        expect(ui.panel, `Esc, then ${target.key}`).toBe(target.panel);
+        screen.openPanel(null);
+      }
+    }
+    // Look's `c` and `f` (T-671): in a creature's view they centre and follow, never Civilizations or Overlays;
+    // an arrow pans and ends follow.
+    screen.openPanel('units');
+    screen.key(press('Enter'));
+    expect(screen.lookAt.kind, 'Enter in Units opens a creature view').toBe('creature');
+    centered = null;
+    expect(screen.key(press('c'))).toBe(true);
+    expect(ui.panel, 'c is Look\'s centre').toBe('look');
+    expect(centered, 'c centres the map').not.toBeNull();
+    expect(screen.key(press('f'))).toBe(true);
+    expect(ui.panel, 'f is Look\'s follow').toBe('look');
+    expect(screen.lookFollow).toBe(true);
+    screen.key(press('←'));
+    expect(screen.lookFollow, 'an arrow ends follow').toBe(false);
+    screen.openPanel(null);
+    // `d d` digs: Designate binds its own letter.
+    screen.key(press('d'));
+    screen.key(press('c'));
+    expect(screen.tool.kind).toBe('channel');
+    screen.key(press('d'));
+    expect(ui.panel).toBe('designate');
+    expect(screen.tool.kind).toBe('dig');
+    screen.openPanel(null);
+    // T-678: Units' `2` is the All tab, `[g]` shows one kind, `Enter` opens the creature's view, `1` the dwarves again.
+    screen.openPanel('units');
+    expect(screen.key(press('2'))).toBe(true);
+    expect(screen.units.tab, '2 is the All tab of Units').toBe(1);
+    expect(screen.key(press('g'))).toBe(true);
+    expect(screen.units.kind, 'g shows the first kind on the map').toBe('dwarf');
+    expect(ui.panel).toBe('units');
+    screen.key(press('Enter'));
+    expect(screen.lookAt.kind, 'Enter on the All tab opens a creature view').toBe('creature');
+    screen.openPanel('units');
+    expect(screen.key(press('1'))).toBe(true);
+    expect(screen.units.tab, '1 is the Dwarves tab').toBe(0);
+    screen.units.kind = null;
+    screen.openPanel(null);
+    // Zones (T-680): `z` opens the menu, whose letters choose a kind (`z s`); a zone's settings show in
+    // the menu's place and do not take the kinds' letters, so `b` there opens Build; `z` goes back to the menu.
+    const pileTile = Array.from({ length: 30 }, (_, k) => w.index(10 + k, 30, Z)).find((i) => screen.zones.tileOk(screen.ctx, 'stockpile', i));
+    expect(pileTile, 'a tile for a stockpile').toBeDefined();
+    w.submit({ type: 'CreateZone', zoneType: 'stockpile', tiles: [pileTile as number] });
+    w.step(1);
+    const pile = w.readers.of<{ zoneAt(i: number): number }>('14').zoneAt(pileTile as number);
+    expect(pile).toBeGreaterThan(0);
+    screen.key(press('z'));
+    expect(ui.panel).toBe('zones');
+    expect(screen.keyContexts()).toContain('zones_panel');
+    screen.key(press('s'));
+    expect(screen.zones.kind, 'z s chooses a stockpile').toBe('stockpile');
+    screen.key(press('Esc'));
+    expect(screen.zones.kind).toBeNull();
+    expect(ui.panel).toBe('zones');
+    screen.zones.selectZone(pile);
+    expect(screen.keyContexts()).toContain('zone_inspector');
+    expect(screen.keyContexts(), 'the kinds are not keys over a zone\'s settings').not.toContain('zones_panel');
+    screen.key(press('b'));
+    expect(ui.panel, 'b over a zone\'s settings opens Build').toBe('build');
+    screen.key(press('z'));
+    expect(screen.zones.selected, 'z opens the menu').toBe(0);
+    screen.zones.selectZone(pile);
+    screen.key(press('z'));
+    expect(ui.panel, 'z over a zone\'s settings goes back to the menu').toBe('zones');
+    expect(screen.zones.selected).toBe(0);
+    screen.key(press('b'));
+    expect(screen.zones.kind, 'b in the menu is Bedroom').toBe('bedroom');
+    screen.openPanel(null);
   },
 };
 

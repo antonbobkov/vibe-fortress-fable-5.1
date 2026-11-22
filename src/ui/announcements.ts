@@ -17,7 +17,7 @@ import type { GameEvent } from '@core/events';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { AnnouncementSpec } from '@core/system';
-import type { TileIndex } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
@@ -39,6 +39,11 @@ export interface LogLine {
   count: number;
   focus?: TileIndex;
   category?: string;
+  /**
+   * The creature or item the line names, when one existed as it was announced (T-679): the log panel's
+   * `[v]` opens its view while it still exists. Presentation state, saved with the line.
+   */
+  subject?: EntityId;
 }
 
 /** The strip's prefix per severity: "danger lines are prefixed `!!`, alerts `!`". */
@@ -100,6 +105,8 @@ export class AnnouncementLog {
   private readonly theftLines = new Map<number, { line: LogLine; stolen: Stolen[] }>();
   /** The day's starving line and the dwarves it names (`announceStarving`). */
   private starving: { line: LogLine; ids: number[]; names: string[] } | null = null;
+  /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
+  private readonly partyTiles = new Map<number, TileIndex>();
 
   constructor(
     private readonly strings: Strings,
@@ -393,6 +400,24 @@ export class AnnouncementLog {
    * (`AttackResolved`) is its own line, a note; the fortress's engagement line is {@link engage}'s.
    */
   announce(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
+    const done = this.announceLine(event, readers, tick);
+    if (done === null) return null;
+    // T-679: every line keeps a place to go to and what it names, as far as the event tells them.
+    const line = done.line;
+    const partyId = (event as unknown as Record<string, unknown>)['partyId'];
+    if (line.focus === undefined && typeof partyId === 'number') {
+      const last = this.partyTiles.get(partyId);
+      if (last !== undefined) line.focus = last;
+    }
+    if (typeof partyId === 'number' && line.focus !== undefined) this.partyTiles.set(partyId, line.focus);
+    if (line.subject === undefined) {
+      const subject = subjectOf(event, readers);
+      if (subject !== undefined) line.subject = subject;
+    }
+    return line.focus === done.focus ? done : { ...done, focus: line.focus };
+  }
+
+  private announceLine(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
     const fields = event as unknown as Record<string, unknown>;
     // 16 § Kills and loot: a fortress dwarf's death line that named its killer is the kill's only line.
     if (event.type === 'KillRecorded' && typeof fields['victimId'] === 'number' && this.killsTold.delete(fields['victimId'])) return null;
@@ -518,9 +543,11 @@ export class AnnouncementLog {
       open.line.text = text;
       open.line.tick = tick;
       if (focus !== undefined) open.line.focus = focus;
+      open.line.subject = foe;
       return null;
     }
     const line = this.append('alert', text, tick, focus, 'combat');
+    line.subject = foe;
     this.engagement = { line, ours: fight.ours, foes: fight.foes, last: tick };
     return this.done(line);
   }
@@ -604,7 +631,7 @@ export class AnnouncementLog {
       prev.line.tick = tick;
       return { line: prev.line, severity: prev.line.severity, focus: prev.line.focus };
     }
-    // The thief has left the map with it: the line has no place to centre on.
+    // The thief has left the map with it: the line's place is where its party was last told of (`announce`).
     const line = this.append(spec.severity, text, tick, undefined, spec.category);
     if (partyId !== 0 && stolen !== null) this.theftLines.set(partyId, { line, stolen: all });
     return { line, severity: line.severity, focus: undefined };
@@ -739,6 +766,7 @@ export class AnnouncementLog {
     const text = this.strings.get('announce.rot_soon', { n, days: ROT_ALERT_DAYS, stack: stackName(env, largest.id), place: itemPlace(env, tile) });
     const focus = tile >= 0 ? tile : undefined;
     const line = this.append('alert', text, tick, focus);
+    line.subject = largest.id;
     return { line, severity: 'alert', focus };
   }
 
@@ -854,13 +882,56 @@ export function focusOf(event: GameEvent, readers?: ReaderSet): TileIndex | unde
       const pos = member === undefined ? undefined : readers.entities.get(member, C.Position);
       if (pos !== undefined) return readers.map.index(pos.x, pos.y, pos.z);
     }
-    for (const key of ['defenderId', 'attackerId', 'victimId', 'id', 'creatureId'] as const) {
+    for (const key of PLACE_KEYS) {
       const id = e[key];
-      if (typeof id === 'number' && id !== 0) {
-        const pos = readers.entities.get(id, C.Position);
-        if (pos !== undefined) return readers.map.index(pos.x, pos.y, pos.z);
-      }
+      const tile = typeof id === 'number' && id !== 0 ? entityTile(readers, id) : undefined;
+      if (tile !== undefined) return tile;
     }
+    const ids = e['ids'];
+    if (Array.isArray(ids) && typeof ids[0] === 'number') {
+      const tile = entityTile(readers, ids[0]);
+      if (tile !== undefined) return tile;
+    }
+    // A line about a zone (a plot with no seed, a room's new tier) shows the zone (T-679).
+    const zoneId = e['zoneId'];
+    if (typeof zoneId === 'number') return zoneFocus(readers, zoneId);
+  }
+  return undefined;
+}
+
+/**
+ * The ids an event may name whose place is the line's, in the order the place is taken from them: the
+ * blow's, the victim's, the subject's (a creature, then an item), then whoever else it names, then the
+ * building (T-679).
+ */
+const PLACE_KEYS = ['defenderId', 'attackerId', 'victimId', 'id', 'creatureId', 'itemId', 'dwarfId', 'animalId', 'hunterId', 'targetId',
+  'killerId', 'thaneId', 'minerId', 'finderId', 'casterId', 'crafterId', 'smithId', 'coffinId', 'cageItemId', 'trapId', 'buildingId'] as const;
+
+/** The ids an event may name that a line's `[v]` can open, the one it is about first (T-679). */
+const SUBJECT_KEYS = ['id', 'creatureId', 'itemId', 'dwarfId', 'victimId', 'defenderId', 'attackerId', 'animalId', 'hunterId', 'targetId',
+  'killerId', 'thaneId', 'minerId', 'finderId', 'casterId', 'crafterId', 'smithId', 'coffinId', 'cageItemId'] as const;
+
+/** Where an entity is: a creature's tile, an item's (through its carrier or container), a building's first tile. */
+function entityTile(readers: ReaderSet, id: number): TileIndex | undefined {
+  const pos = readers.entities.get(id, C.Position);
+  if (pos !== undefined) return readers.map.index(pos.x, pos.y, pos.z);
+  if (readers.entities.has(id, C.Item) && readers.has('13')) {
+    const tile = readers.of<ItemsReader>('13').tileOf(id);
+    if (tile >= 0) return tile;
+  }
+  if (readers.has('14')) return readers.of<BuildingsReader>('14').get(id)?.footprint[0];
+  return undefined;
+}
+
+/** The creature on the map or the item an event names, the one it is about first; undefined when it names none that exists (T-679). */
+export function subjectOf(event: GameEvent, readers: ReaderSet): EntityId | undefined {
+  const e = event as unknown as Record<string, unknown>;
+  const ids: unknown[] = SUBJECT_KEYS.map((key) => e[key]);
+  if (Array.isArray(e['ids'])) ids.push(e['ids'][0]);
+  for (const id of ids) {
+    if (typeof id !== 'number' || id === 0) continue;
+    if (readers.entities.has(id, C.Creature) && readers.entities.has(id, C.Position)) return id;
+    if (readers.entities.has(id, C.Item)) return id;
   }
   return undefined;
 }

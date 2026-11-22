@@ -309,10 +309,10 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
       const n = button(s, col, row, 'Enter', ctx.strings.get('ui.animals.train'), () => { const cmd = panel.finishTrain(); if (cmd) ctx.submit(cmd); });
       button(s, col + n + 1, row, 'Esc', ctx.strings.get('ui.text_input.cancel'), () => { panel.trainChoice = null; });
     } else {
-      // Every letter here opens a panel, so each action takes `Shift` (D-U2).
+      // The panel's letters come before the panel letters; slaughter stays on `Shift` (D-253).
       label(s, col, row, ctx.strings.get('ui.animals.actions1'), { width }); row += 1;
       captionButtons(s, col, row, ctx.strings.get('ui.animals.actions2'), [() => panel.startCap(ctx)], { width }); row += 1;
-      button(s, col, row, acceleratorLabel('t', ctx.panelLetters).slice(1, -1), ctx.strings.get('ui.animals.train'), () => panel.startTrain(ctx)); row += 1;
+      button(s, col, row, acceleratorLabel('t', ctx.shiftLetters).slice(1, -1), ctx.strings.get('ui.animals.train'), () => panel.startTrain(ctx)); row += 1;
       const species = ctx.readers.entities.get(panel.selected(ctx), C.Creature)?.species;
       if (species !== undefined) label(s, col, row, panel.name.focused ? 'Name:' : `Breeding cap: ${r.breedingCap(species)}`, { width });
       if (panel.name.focused) textField(s, col + 6, row, Math.max(1, width - 10), panel.name);

@@ -71,15 +71,15 @@ describe('T-247 stockpile source links have keyboard and mouse controls', () => 
   it('stockpile removal remains clickable and asks through the existing confirmation', () => {
     const f = fixture(); clickText(f, '[Del] remove zone'); expect(f.asked).toEqual(['c_remove_zone']); expect(f.sent).toEqual([]);
   });
-  it('rebound panel letters still win and link captions and Help show the Shift accelerator', () => {
+  it('a panel letter rebound onto the inspector\'s link key: the inspector\'s key comes first (D-253)', () => {
     const keys = Keymap.fromRows(registry.derived<readonly KeymapRow[]>('keymap'));
     const at = keys.bindings.findIndex(b => b.context === 'fortress_panel' && b.id === 'military');
     expect(keys.rebind(at, { key: 'i', ctrl: false, shift: false })).toBeNull();
-    const f = fixture(false, keys); f.screen.key(press('i')); expect(f.screen.ui.panel).toBe('military');
-    f.screen.openPanel('zones'); f.screen.key(press('I', { shift: true }));
+    const f = fixture(false, keys); f.screen.key(press('i')); expect(f.screen.ui.panel).toBe('zones');
     expect(f.screen.statusRow2()).toContain('Link Stockpile #1:');
-    const s = surface(80,42); f.screen.draw(s); expect(s.lines().join('\n')).toContain('[S-i] link');
-    expect(helpKeyRows(keys, strings).some(r => r.text.startsWith('[S-i]  link a source stockpile'))).toBe(true);
+    const s = surface(80,42); f.screen.draw(s); expect(s.lines().join('\n')).toContain('[i] link');
+    expect(helpKeyRows(keys, strings).some(r => r.text.startsWith('[i]  link a source stockpile'))).toBe(true);
+    f.screen.openPanel(null); f.screen.key(press('i')); expect(f.screen.ui.panel).toBe('military');
   });
   it.each(['pick', 'unlink'] as const)('x never removes the stockpile from the %s mode', mode => {
     const f = fixture(true); f.screen.key(press(mode === 'pick' ? 'i' : 'x')); f.screen.key(press('x'));

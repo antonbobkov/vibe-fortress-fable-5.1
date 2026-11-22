@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { TileKind } from '@core/map3d';
 import type { TileIndex } from '@core/types';
 import type { ItemsReader } from '@systems/items';
-import { drawLookPanel, tileContents } from '@ui/panels/look';
+import { drawTileList, tileContents } from '@ui/panels/look';
 import { TestWorld } from '../../scenarios/test-world';
 import { strings, surface } from './ui-fixture';
 
@@ -36,19 +36,19 @@ function dugStones(): { w: TestWorld; stones: TileIndex[]; dwarf: number } {
 
 function look(w: TestWorld, tile: TileIndex): string {
   const s = surface(44, 14);
-  drawLookPanel(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile, 0);
+  drawTileList(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile);
   return s.lines().join('\n');
 }
 
 describe('T-442 every object on a tile can be seen', () => {
   const { w, stones } = dugStones();
 
-  it('a dug-out stone is listed on the Tile tab of its tile, under the floor', () => {
+  it('a dug-out stone is listed in the tile list of its tile, under the floor', () => {
     expect(stones.length).toBeGreaterThan(0);
     const text = look(w, stones[0] as TileIndex);
     expect(text).toContain('Granite floor');
-    expect(text).toContain('Here:');
-    expect(text).toMatch(/1 granite stone · \d+ ☼/);
+    expect(text).toContain('Here');
+    expect(text).toMatch(/granite stone +x1 · \d+ ☼/);
   });
 
   it('the hover summary names the stone after the floor', () => {
@@ -60,15 +60,15 @@ describe('T-442 every object on a tile can be seen', () => {
     w.spawnDwarf({ at: tile, name: 'Ketil Ironvein' });
     w.spawnItem('log', 'oak', tile);
     const text = look(w, tile);
-    expect(text).toMatch(/1 granite stone/);
-    expect(text).toMatch(/1 oak log/);
+    expect(text).toMatch(/granite stone +x1/);
+    expect(text).toMatch(/oak log +x1/);
     expect(text).toContain('Ketil Ironvein');
     expect(tileContents(w.readers, w.game.registry, strings, tile)).toMatch(/^Ketil Ironvein.* · 2 more here$/);
   });
 
-  it('a tile with nothing on it shows no Here list', () => {
+  it('a tile with nothing on it lists nothing', () => {
     const empty = w.index(40, 40, Z);
-    expect(look(w, empty)).not.toContain('Here:');
+    expect(look(w, empty)).not.toContain('Here');
     expect(tileContents(w.readers, w.game.registry, strings, empty)).not.toContain('·');
   });
 });
