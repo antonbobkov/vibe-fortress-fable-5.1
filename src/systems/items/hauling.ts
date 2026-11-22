@@ -713,6 +713,8 @@ export class Hauling {
     const store = this.host.store;
     const sp = store.stockpileAt(this.core.tileOf(id));
     if (sp === 0 || store.isHospital(sp) || store.belongs(sp, id)) return 0;
+    // A stockpile whose filter selects nothing (a new one, before the player picks what it takes) clears nothing.
+    if ((store.stockpile(sp)?.filter.categories.length ?? 0) === 0) return 0;
     // A corpse a coffin waits for is left to its burial.
     if (this.core.host.entities.has(id, C.Corpse) && this.host.jobsView()?.byKey(`bury:${id}`) !== undefined) return 0;
     return sp;
