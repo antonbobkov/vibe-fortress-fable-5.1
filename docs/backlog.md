@@ -23,10 +23,11 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-673 | [The mouse wheel's level direction is reversed, and a setting chooses it](work/T-673-wheel-level-direction.md) | Owner feedback 2026-11-21 | — | open |
 | T-674 | [Common actions on plain letters: a keymap proposal, then the change](work/T-674-keymap-plain-letters-first.md) | Owner feedback 2026-11-21 | — | open |
 | T-675 | [The wagon's animals graze and wander on arrival](work/T-675-animals-on-arrival-wander.md) | Owner feedback 2026-11-21 | — | open |
-| T-676 | [Dwarves haul the wagon's goods to stockpiles](work/T-676-wagon-not-hauled.md) | Owner feedback 2026-11-21 | — | open |
 | T-677 | [A stockpile clears items that do not belong on it](work/T-677-stockpile-clears-foreign-items.md) | Owner feedback 2026-11-21 | — | open |
 | T-678 | [A list of every creature on the map, not just dwarves](work/T-678-all-units-list.md) | Owner feedback 2026-11-21 | T-669 | open |
 | T-679 | [The event log can be browsed, and an event with a place goes there](work/T-679-log-inspectable-goto.md) | Owner feedback 2026-11-21 | T-669 | open |
 | T-680 | [`z` offers what zones to make, and a stockpile's settings open by clicking it](work/T-680-zones-menu-and-stockpile-click.md) | Owner feedback 2026-11-21 | T-669 | open |
+| T-681 | [The wagon says why its goods stay](work/T-681-wagon-says-why.md) | [T-676](archive/tasks/T-676-wagon-not-hauled.md) | — | open |
+| T-682 | [An item judged full is not looked at again when a stack it could join arrives](work/T-682-nohome-stack-join.md) | [T-676](archive/tasks/T-676-wagon-not-hauled.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

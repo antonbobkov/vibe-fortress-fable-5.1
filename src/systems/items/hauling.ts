@@ -223,7 +223,39 @@ export class Hauling {
     if ((it.flags & ItemFlag.Dump) !== 0) return this.host.zoneTypeAt(t) !== 'dump';
     // Dumped items stay on their dump (D-072).
     if (this.host.zoneTypeAt(t) === 'dump') return false;
-    return !this.stored(id);
+    return !this.stored(id) || this.forHospital(id);
+  }
+
+  /**
+   * 13 § Stockpiles (T-676): a hospital takes its supplies from the stockpiles. An item lying in an
+   * ordinary stockpile wants hauling while a hospital accepts it (its supply limit not reached) and
+   * a chest of the hospital has room for it.
+   */
+  private forHospital(id: EntityId): boolean {
+    const store = this.host.store;
+    const sp = store.stockpileAt(this.core.tileOf(id));
+    if (sp === 0 || store.isHospital(sp) || this.core.container(id) !== undefined) return false;
+    const hospitals = store.hospitals();
+    return hospitals.length > 0 && store.hospitalHasSlot(hospitals, id);
+  }
+
+  /**
+   * Every hour: the items lying in ordinary stockpiles that a hospital would now take (a chest built,
+   * supplies used or a limit raised) are looked at again. Nothing is read in a fortress whose
+   * hospitals have no built chest.
+   */
+  restockHospitals(): void {
+    const store = this.host.store;
+    const hospitals = store.hospitals();
+    if (!hospitals.some((h) => store.containersIn(h, 'chest').length > 0)) return;
+    for (const sp of store.all()) {
+      if (store.isHospital(sp) || store.isCompost(sp)) continue;
+      for (const t of store.tilesOf(sp)) {
+        for (const id of store.host.itemsOn(t)) {
+          if (!sortedHas(this.wants, id) && !this.hasJob(id) && this.forHospital(id)) this.examine(id);
+        }
+      }
+    }
   }
 
   /**
@@ -406,6 +438,11 @@ export class Hauling {
       // A slot in a container is keyed by the item that will fill it: only the refusals are shared.
       if (cls === 'none' || slot === null || 'needContainer' in slot) spc.slots.set(kind, slot);
     }
+    // No container to fill and none to wait for: the goods lie loose (T-676), from the tiles scanned once.
+    if (slot === null && cls !== 'none' && store.mayLieLoose(id)) {
+      spc.tiles ??= store.scanTiles(sp);
+      return store.slotInScan(spc.tiles, id);
+    }
     return slot;
   }
 
@@ -426,8 +463,11 @@ export class Hauling {
       ? -1 : ((it.type * 65536 + it.material) * 8 + it.quality) * 2 + (it.rotStage >= 2 ? 1 : 0);
     const cls = holds !== undefined ? 'none' : this.core.host.facts.row(it.type).container;
     const slotKind = cls === 'none' ? `${it.type}:${it.material}:${it.quality}:${it.count}` : `${cls}:${this.core.needs(id, cls)}`;
+    // An item stored in a stockpile moves only to a hospital that takes it (`forHospital`).
+    const stored = store.isStored(id);
     for (const sp of cache.stockpiles) {
       const spc = this.stockpileCache(cache, sp);
+      if (stored && !store.isHospital(sp)) continue;
       if (!this.accepts(spc, sp, id, it, kind)) continue;
       // An item already in this stockpile stays.
       if (store.stockpileAt(tile) === sp) continue;

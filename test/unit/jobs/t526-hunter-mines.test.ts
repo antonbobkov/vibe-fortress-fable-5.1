@@ -9,7 +9,7 @@ import { C } from '@core/components';
 import { TICKS_PER_DAY } from '@core/constants';
 import type { EntityId } from '@core/types';
 import type { ItemsReader } from '@systems/items';
-import { cmd, fortressDwarves, pathWorld, playUntil, stairToRock, surfaceZ, wagon, zoneRect } from '../../scenarios/player-path';
+import { cmd, comesByDeer, fortressDwarves, pathWorld, playUntil, stairToRock, surfaceZ, wagon, zoneRect } from '../../scenarios/player-path';
 
 describe('T-526 a hunter who takes a pick puts the crossbow down', () => {
   it('the crossbow and bolts leave the miner, and another dwarf takes them', () => {
@@ -46,6 +46,10 @@ describe('T-526 a hunter who takes a pick puts the crossbow down', () => {
     expect(w.events('ToolDropped').some((e) => Number(e['itemId']) === crossbow), 'ToolDropped for the crossbow').toBe(true);
 
     // Another dwarf claims a hunt and fetches the crossbow (it was `no_tool` while the miner carried it).
+    // Whether wild game is still about after the first hunt is the timeline's: a deer comes by once
+    // the crossbow lies free (a hauler may first take it to the stockpile, T-676).
+    expect(playUntil(w, () => items.get(crossbow)?.carriedBy === 0 && ((items.get(crossbow)?.flags ?? 0) & 8) === 0, TICKS_PER_DAY), 'the crossbow lies free').toBe(true);
+    comesByDeer(w, cx, cy);
     const equipped = (): boolean => w.events('ToolEquipped').some((e) => Number(e['itemId']) === crossbow && Number(e['dwarfId']) !== hunter);
     expect(playUntil(w, equipped, 10 * TICKS_PER_DAY), 'another dwarf takes the crossbow within ten days').toBe(true);
   });

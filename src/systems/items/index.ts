@@ -396,6 +396,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
       if (this.cellarRef !== null) cellarDay(this.cellarRef);
     } else if (event.type === 'HourPassed') {
       compostHour(core, this.stockpiles, ctx);
+      this.hauling.restockHospitals();
     } else if (event.type === 'SeasonChanged' || event.type === 'IceMelted') {
       // 13 § Rot: a season's weather, or an ice larder's walls gone (05), changes rot speeds.
       this.rotRef?.resample();
