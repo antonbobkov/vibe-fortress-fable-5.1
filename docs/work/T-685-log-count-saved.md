@@ -12,4 +12,5 @@ Save `count` when it is above 1 (omitted otherwise, so older saves load as today
 
 ## Done
 
-A unit test: a merged ×3 line survives `toSaved` / `fromSaved` with its count, and a line saved without one loads as ×1.
+- [x] A unit test: a merged ×3 line survives `toSaved` / `fromSaved` with its count, and a line saved without one loads as ×1. (`test/unit/ui/fortress.test.ts`, T-685)
+- [x] Docs: 24 § State and `schemas/system-state.md` (`logTail[].count`).

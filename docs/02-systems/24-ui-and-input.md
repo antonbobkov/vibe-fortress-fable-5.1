@@ -240,7 +240,7 @@ Music is a presentation listener on the event bus. It reads events and readers a
 
 ## State
 
-Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, the tutorial and its step, settings, keymap overrides. The tutorial is not saved; whether it has been offered is kept in the settings store. Camera, z, zoom, overlays, hints shown and pending, bare-bedroom observation ticks, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their categories, focuses and subjects are saved in the `ui` section; settings, keymap and the saved embark loadouts in the settings store.
+Presentation-only: screen stack, active panel, tool state, cursor, selection, log lines, hints shown, the tutorial and its step, settings, keymap overrides. The tutorial is not saved; whether it has been offered is kept in the settings store. Camera, z, zoom, overlays, hints shown and pending, bare-bedroom observation ticks, the open panel, whether a deepsilver vein has been found (it unlocks the Deep gauge, 18) and the last `LOG_SAVED_LINES` log lines with their merge counts (`×n`, saved only above 1; a line without one loads as ×1), categories, focuses and subjects are saved in the `ui` section; settings, keymap and the saved embark loadouts in the settings store.
 
 ## Interfaces
 
