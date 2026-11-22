@@ -209,8 +209,6 @@ export class FortressScreen implements Screen {
   lookFollow = false;
   /** How the things Look shows or can go back to ended: a death with its cause and body, an item's destruction (24 § Inspection). */
   private readonly lookEnds = new Map<EntityId, LookEnd>();
-  /** Zones was opened by a click on a zone's tile: map clicks stay the click ladder's, not the zone picker's (24 § Inspection). */
-  private zonesByClick = false;
   logFilter: LogFilter = 0;
   /** The log panel's selected entry and scroll, in entries. */
   readonly logView = new LogView();
@@ -325,8 +323,8 @@ export class FortressScreen implements Screen {
   keyContexts(): KeyContext[] {
     const out: KeyContext[] = [];
     const panel = this.ui.panel;
-    if (panel === 'zones' && this.zones.selected !== 0) out.push('zone_inspector');
-    const own = panel === null ? undefined : PANEL_CONTEXTS[panel];
+    // Zones shows its menu or a zone's settings in its place, never both: the kinds' letters are the menu's only (T-680).
+    const own = panel === 'zones' && this.zones.inspects(this.host) ? 'zone_inspector' : panel === null ? undefined : PANEL_CONTEXTS[panel];
     if (own !== undefined) out.push(own);
     if (this.selection !== null) out.push('selection');
     if (panel !== null) out.push('panel');
@@ -872,7 +870,7 @@ export class FortressScreen implements Screen {
     const ctx = this.ctx;
     if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize(), () => this.undoDesignation(), () => this.clearSelected());
     else if (panel.id === 'build') drawBuildPanel(surface, body, this.build, ctx, { key: this.ordersCaptionKey(), run: () => void this.orderMissing() });
-    else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected));
+    else if (panel.id === 'zones') drawZonesPanel(surface, body, this.zones, ctx, () => this.removeZone(this.zones.selected), (id) => this.openListedZone(id));
     else if (panel.id === 'stocks') drawStocksPanel(surface, body, this.stocks, ctx);
     else if (panel.id === 'units') drawUnitsPanel(surface, body, this.units, ctx);
     else if (panel.id === 'jobs') drawJobsPanel(surface, body, this.jobs, ctx, this.waitingOrders());
@@ -1214,7 +1212,7 @@ export class FortressScreen implements Screen {
   private picking(): boolean {
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) return true;
     if (!this.ui.sidebar) return false;
-    return (this.ui.panel === 'zones' && !this.zonesByClick) || (this.ui.panel === 'building' && this.building.linking);
+    return (this.ui.panel === 'zones' && !this.zones.byClick) || (this.ui.panel === 'building' && this.building.linking);
   }
 
   /**
@@ -1380,6 +1378,8 @@ export class FortressScreen implements Screen {
     if (id !== 'designate') this.tool.cancel();
     if (id !== 'build') this.build.cancel();
     if (id !== 'zones') this.zones.cancel();
+    // Zones opens on its menu (T-680): a zone's settings come from a click on it or from the menu's list.
+    if (id === 'zones' && (this.ui.panel !== 'zones' || !this.ui.sidebar)) this.zones.menu();
     if (id !== 'building') this.building.cancel();
     // Look opened from the log keeps the log as it was, to go back to (T-679).
     const backToLog = id === 'log' && this.lookFromLog && this.ui.panel === 'look';
@@ -1396,7 +1396,7 @@ export class FortressScreen implements Screen {
       this.lookEnds.clear();
       this.lookFollow = false;
     }
-    this.zonesByClick = false;
+    this.zones.byClick = false;
     // The log opens on its newest entry, unmarked: a choice holds while the panel stays open (24 § Announcements and the log).
     if (id === 'log' && !backToLog && (id !== this.ui.panel || !this.ui.sidebar)) this.logView.reset();
     // Help opens on the Start tab the first time in a fortress.
@@ -1596,7 +1596,16 @@ export class FortressScreen implements Screen {
   private openZone(zoneId: EntityId): void {
     this.openPanel('zones');
     this.zones.selectZone(zoneId);
-    this.zonesByClick = true;
+    this.zones.byClick = true;
+  }
+
+  /** A zone of the Zones menu's list: its settings, and the map goes to it (T-680). */
+  private openListedZone(zoneId: EntityId): void {
+    if (this.zones.kind !== null) this.zones.cancel();
+    this.zones.selectZone(zoneId);
+    const zone = buildings(this.ctx)?.zone(zoneId);
+    const middle = zone?.tiles[Math.floor(zone.tiles.length / 2)];
+    if (middle !== undefined) this.focusOn(middle);
   }
 
   /**
@@ -2142,7 +2151,9 @@ export class FortressScreen implements Screen {
       return;
     }
     if (this.zones.chosen) {
-      this.zones.cancel();
+      // A zone tool idle after a zone was made, or one being drawn, goes back to the menu; a resize keeps the zone's settings (T-680).
+      if (this.zones.kind !== null) this.zones.menu();
+      else this.zones.cancel();
       return;
     }
     if (this.build.anchor !== null) {
@@ -2166,6 +2177,11 @@ export class FortressScreen implements Screen {
     }
     if (this.selection !== null) {
       this.selection = null;
+      return;
+    }
+    // A zone's settings go back to the menu, unless a click on the zone opened them (T-680).
+    if (this.ui.panel === 'zones' && this.ui.sidebar && !this.zones.byClick && this.zones.inspects(this.host)) {
+      this.zones.menu();
       return;
     }
       if (this.ui.panel !== null) {
@@ -2260,6 +2276,8 @@ export class FortressScreen implements Screen {
     if (own !== null && !own.ctrl && !own.alt && !own.meta) {
       // U-07: settings widgets take Space, Tab and +/- before the global pause/speed/sidebar keys.
       if (this.ui.panel === 'zones' && this.ui.sidebar && ['Space', ' ', 'Tab', '+', '=', '-'].includes(own.key) && this.zones.editorKey(this.ctx, own)) return true;
+      // `Tab` in the Zones menu moves through its list of zones, when there are any (T-680).
+      if (this.ui.panel === 'zones' && this.ui.sidebar && own.key === 'Tab' && !this.zones.active && !this.zones.inspects(this.host) && this.zones.cycleList(this.ctx, own.shift ? -1 : 1)) return true;
       // `Tab` in Jobs moves the cursor between the job list and the waiting orders, when there are any.
       if (this.ui.panel === 'jobs' && this.ui.sidebar && own.key === 'Tab' && !own.shift && this.jobs.toggleWaiting(this.waitingOrders())) return true;
       // `Tab` in a creature's or an item's view moves through the links in view, when there are any (24 § Inspection).
@@ -2524,6 +2542,11 @@ export class FortressScreen implements Screen {
     const opened = (binding === undefined ? undefined : panels.find((p) => p.id === binding.id))
       ?? (!press.ctrl && !press.shift ? panels.find((p) => p.hotkey === press.key) : undefined);
     if (opened === undefined) return false;
+    // `z` over a zone's settings goes back to the menu of kinds to make (T-680); over the menu it closes Zones.
+    if (opened.id === 'zones' && this.ui.panel === 'zones' && this.ui.sidebar && this.zones.inspects(this.host)) {
+      this.zones.menu();
+      return true;
+    }
     if (this.ui.panel === opened.id && this.ui.sidebar) {
       if (opened.id === 'look') this.ui.cursor = null;
       const wasArmed = (opened.id === 'designate' && this.tool.active)
@@ -2627,20 +2650,26 @@ export class FortressScreen implements Screen {
           }
           if (this.zones.editorKey(ctx, press)) return true;
           if (this.zones.farmKey(ctx, press)) return true;
-          if (k === 'Enter' && !this.zones.active && this.zones.selected === 0) {
+          if (this.zones.inspects(ctx)) {
+            if (letter === 'x' && !this.zones.active && ctx.readers.of<BuildingsReader>('14').zone(this.zones.selected)?.type !== 'stockpile') {
+              this.removeZone(this.zones.selected);
+              return true;
+            }
+            if (letter === 'e' && !this.zones.active) {
+              this.zones.resizing = true;
+              return true;
+            }
+            return false;
+          }
+          // The menu (T-680): `Enter` opens the zone `Tab` chose, else the zone at the map cursor; a letter chooses a kind to make.
+          if (k === 'Enter' && !this.zones.active) {
+            const focused = this.zones.focused(ctx);
+            if (focused !== 0) { this.openListedZone(focused); return true; }
             const tile = this.tileOf(this.actionPoint());
             if (tile === null || !this.zones.select(ctx, tile)) this.notice(zoneEditorMessage(ctx, 'no_zone'));
             return true;
           }
-        if (letter === 'x' && !this.zones.active && this.zones.selected !== 0 && ctx.readers.of<BuildingsReader>('14').zone(this.zones.selected)?.type !== 'stockpile') {
-          this.removeZone(this.zones.selected);
-          return true;
-        }
-        if (letter === 'e' && !this.zones.active && this.zones.selected !== 0) {
-          this.zones.resizing = true;
-          return true;
-        }
-        return letter !== '' && this.zones.choose(letter);
+          return letter !== '' && this.zones.choose(letter);
       case 'stocks':
         if (k === '/') { this.stocks.filter.focused = true; return true; }
         if (this.stocks.depotSelection) {
@@ -2917,7 +2946,7 @@ export class FortressScreen implements Screen {
     }
     if (this.ui.panel === 'zones' && this.ui.sidebar) {
       const tile = this.tileOf(at);
-      if (tile !== null && !this.zonesByClick && this.zones.select(this.ctx, tile)) return;
+      if (tile !== null && !this.zones.byClick && this.zones.select(this.ctx, tile)) return;
     }
     // The second click sets the opposite corner and designates the box.
     if (this.tool.active && this.tool.anchor !== null) {

@@ -8,6 +8,8 @@ A panel's own letters come before the panel letters ([`ui-keymap-and-screens.md`
 
 ## Zones (z)
 
+Zones shows one of two views (T-680): the menu, the kinds of zone to make and the fortress's zones; or a zone's inspector, its settings, in the menu's place. `z` opens the menu, from anywhere and over a zone's settings; over the menu it closes Zones.
+
 ```
 │ Zones                          [x]  │
 │ [s] Stockpile [f] Farm plot     │
@@ -18,8 +20,23 @@ A panel's own letters come before the panel letters ([`ui-keymap-and-screens.md`
 │ [t] Tomb      [u] Dump          │
 │ [i] Fishing     [g] Gather          │
 │ [c] Sanctum   [S-k] Compost       │
-│ ─ Drag a rectangle.                │
-│ Usable tiles show ▒, others x.     │
+│ ─ Choose a kind, then drag.        │
+│ Click a zone for its settings.     │
+│ ── Zones (4) ───────────────────── │
+│ Stockpile #1 (Food)           30 t │
+│ Stockpile #2 (Nothing)        12 t │
+│ Farm plot #1                  24 t │
+│ Bedroom #1                     9 t │
+│                                    │
+│ Tab next zone · Enter its settings │
+```
+
+A letter or a click on a kind chooses it, and the two help lines become the tool's ("─ Drag a rectangle.", "Usable tiles show ▒, others x."). The list under the kinds names every zone, by kind in the menu's order and each kind by its ordinal (a stockpile with its preset, as in the log), with its size at the right; with none it reads "No zones yet.". A click on a row opens that zone's settings and centres the map on it; by keyboard `Tab` and `Shift+Tab` move a focus (inverted) through the rows, scrolling them, and `Enter` opens the focused one; with no zone `Tab` keeps its global meaning. With no row focused, `Enter` opens the zone at the map cursor or centre, and a click on a zone's tile on the map does the same. Opening a zone ends a kind chosen but not yet drawn.
+
+A zone's settings replace the menu; `[y] zones menu`, a click on it, `z`, or `Esc` returns to the menu. Zones opened by a click on a zone's tile with Zones closed (24 § Inspection, the click ladder) leaves the map's clicks to the ladder, so a click elsewhere opens what is there, and `Esc` closes Zones instead of going back to the menu; `[y]` or `z` goes to the menu, which picks zones on the map again. While a zone's settings show, the kinds' letters are not keys: a panel letter the inspector does not bind opens its panel, so right after drawing a stockpile `b` opens Build and `d` Designate.
+
+```
+│ [y] zones menu                    │
 │ ── Selected: Farm plot #3 (24 t)   │
 │►Spring  [dimcap      ▾]  14 seeds   │
 │ Summer  [dimcap      ▾]  14 seeds   │
@@ -37,16 +54,14 @@ A panel's own letters come before the panel letters ([`ui-keymap-and-screens.md`
 │ [x] remove zone  [e] resize       │
 ```
 
-The type list uses names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather, Sanctum, Compost); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The line and the selection come as soon as the zone exists: at once while paused, when the `CreateZone` takes effect (24 § Input model), and at the next tick while time runs. The new zone is selected, so its inspector shows, and the tool stays chosen but idle: `Enter`, the arrows and the digits go to the inspector (a farm plot's `Enter` opens the season's crop list) until the pointer is pressed on the map again or the type's key is pressed again. A press on the map starts the next rectangle at once, so several zones in a row are one drag each; `Esc` or a right click drops the idle tool and keeps the zone selected. A drag where no tile qualifies sends nothing and says why: the tiles another zone holds, counted per reason as above ("Stockpile: none of the 20 tiles qualify (20 belong to another zone)."), or, when no tile is another zone's, the rule ("Bedroom: none of the 4 tiles qualify (floor that no other zone holds)."). While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 t)".
+The kinds use names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather, Sanctum, Compost); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The line and the selection come as soon as the zone exists: at once while paused, when the `CreateZone` takes effect (24 § Input model), and at the next tick while time runs. The new zone is selected, so its settings show in the menu's place, and the tool stays chosen but idle: `Enter`, the arrows and the digits go to the inspector (a farm plot's `Enter` opens the season's crop list) until the pointer is pressed on the map again. A press on the map starts the next rectangle at once, so several zones in a row are one drag each, the menu showing while it is drawn; `Esc` drops the idle tool and goes back to the menu, and a right click drops it and keeps the zone's settings. A drag where no tile qualifies sends nothing and says why: the tiles another zone holds, counted per reason as above ("Stockpile: none of the 20 tiles qualify (20 belong to another zone)."), or, when no tile is another zone's, the rule ("Bedroom: none of the 4 tiles qualify (floor that no other zone holds)."). While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 t)".
 
-A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓` move the highlight (`►` before the season) over the rows; it starts on the current season each time a plot is selected. `Enter` opens the highlighted row's crop list, in which `↑` `↓` and `Enter` choose and `Esc` closes it without a change; the list is as wide as the panel allows. `Shift+A`, or a click on `[a] all seasons`, sets the highlighted row's crop for every season in which that crop can grow (when the row is `none` it clears all four). With a farm plot selected `Shift+A` is this key and not the Archery zone type; `[y]` returns to the type list. A crop with no seeds in stock is listed with `(no seeds)` after its name, and the figure after a row reads `14 seeds`, in red at 0. When tiles of the plot are below the minimum temperature of the crop standing on them (of the current season's crop on an empty tile), a red note under the crop count says how many ("Too cold to grow: 4 of 24 tiles are under 2°C for dimcap.", for the species with most such tiles), followed by a dim line, "Rock 3 levels below the surface stays warm all year." (`NEAR_SURFACE_DEPTH`); with no cold tile the note is absent. On a surface plot a red note under it says when a season's crop cannot ripen before its growing seasons end: the current season's crop sown today ("Sown now, strawberry cannot ripen before its seasons end: it needs 28 days, 9 are left.") and each other season's crop sown on its first day ("Sown in summer, strawberry … 25 are left at most."); 07 § Player-facing behavior gives the reckoning. The wireframe shows the cold note, which is not always there. Under the crop count the plot's `fertilize` setting and the units tagged `fertilizer` in stock ("Fertilize: off (0 in stock)"); `w`, a click on the line or on `[w] fertilize` turns it on or off (07 § Fertilizer). A selected compost heap shows the items on it waiting to turn ("Turning: 4 items", 13 § The compost heap).
+A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓` move the highlight (`►` before the season) over the rows; it starts on the current season each time a plot is selected. `Enter` opens the highlighted row's crop list, in which `↑` `↓` and `Enter` choose and `Esc` closes it without a change; the list is as wide as the panel allows. `a`, or a click on `[a] all seasons`, sets the highlighted row's crop for every season in which that crop can grow (when the row is `none` it clears all four). `[y]` returns to the menu. A crop with no seeds in stock is listed with `(no seeds)` after its name, and the figure after a row reads `14 seeds`, in red at 0. When tiles of the plot are below the minimum temperature of the crop standing on them (of the current season's crop on an empty tile), a red note under the crop count says how many ("Too cold to grow: 4 of 24 tiles are under 2°C for dimcap.", for the species with most such tiles), followed by a dim line, "Rock 3 levels below the surface stays warm all year." (`NEAR_SURFACE_DEPTH`); with no cold tile the note is absent. On a surface plot a red note under it says when a season's crop cannot ripen before its growing seasons end: the current season's crop sown today ("Sown now, strawberry cannot ripen before its seasons end: it needs 28 days, 9 are left.") and each other season's crop sown on its first day ("Sown in summer, strawberry … 25 are left at most."); 07 § Player-facing behavior gives the reckoning. The wireframe shows the cold note, which is not always there. Under the crop count the plot's `fertilize` setting and the units tagged `fertilizer` in stock ("Fertilize: off (0 in stock)"); `w`, a click on the line or on `[w] fertilize` turns it on or off (07 § Fertilizer). A selected compost heap shows the items on it waiting to turn ("Turning: 4 items", 13 § The compost heap).
 
 A stockpile made while paused can be configured immediately, before its `ZoneChanged` is dispatched. While its record is absent, the inspector reads the same empty filter, zero wanted containers, no links and `HAUL_PRIORITY` defaults as the item system, without creating state during drawing. Every editor action uses those defaults until a command creates the record; a deleted zone still reports that it is unavailable.
 
-Selecting a stockpile or room replaces the type list with its inspector; `[y] zone types` returns to the list. With no zone tool active, `Enter` selects the zone at the map cursor or centre; a click on its map tiles does the same. A click on a zone's tile with nothing on it, with Zones closed, opens Zones with that zone's inspector (24 § Inspection, the click ladder); Zones opened that way leaves the map's clicks to the ladder, so a click elsewhere opens what is there, and Zones opened with its key picks zones again.
-
 ```
-│ [y] zone types                    │
+│ [y] zones menu                    │
 │ ── Selected: Stockpile #1 (30 t)   │
 │ [p] Preset [Food ▾]              │
 │ [g] tree  [q] settings             │
@@ -80,7 +95,7 @@ The materials checklist replaces the settings until Esc: arrows select, Space or
 A room inspector shows current tier and score parts, named missing requirements, and its enclosure count:
 
 ```
-│ [y] zone types                    │
+│ [y] zones menu                    │
 │ ── Selected: Bedroom #2 (9 t)      │
 │ Modest room (score 24)             │
 │ Tiles 9 Walls 2 Furniture 4 Size 9 │
@@ -91,12 +106,12 @@ A room inspector shows current tier and score parts, named missing requirements,
 │ [x] remove zone  [e] resize      │
 ```
 
-Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin / a rune circle, as appropriate. A bedroom's owner button or Shift+O opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
+Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin / a rune circle, as appropriate. A bedroom's owner button or `o` opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
 
 A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in stock, the mishap chance of a new apprentice, each apprentice with its level and rune and, under it, the sessions left today and its own mishap chance, the last mishap, and the apprentice button:
 
 ```
-│ [y] zone types                    │
+│ [y] zones menu                    │
 │ ── Selected: Sanctum #1 (12 t)     │
 │ Room: Bare (score 15)              │
 │ tiles 12 walls 0 furn. 0 size 12   │

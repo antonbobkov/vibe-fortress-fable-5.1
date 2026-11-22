@@ -195,33 +195,23 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[6]).toBe('Waves so far: 0');
   });
 
-  it('a selected farm plot shows the zone keys, one crop choice for each season, and the crop count of its tiles', () => {
+  it('a selected farm plot shows its settings in the menu\'s place, one crop choice for each season, and the crop count of its tiles', () => {
     const rows = render('farm');
-    expect(rows.slice(0, 6)).toEqual([
-      '[s] Stockpile    [f] Farm plot',
-      '[p] Pasture      [b] Bedroom',
-      '[d] Dining       [h] Hearth',
-      '[o] Hospital     [r] Barracks',
-      '[a] Archery      [m] Meeting',
-      '[t] Tomb         [u] Dump',
-    ]);
-    expect(rows[6]).toBe('[i] Fishing      [g] Gather');
-    expect(rows[7]).toBe('[c] Sanctum      [S-k] Compost');
-    expect(rows[8]).toBe('─ Drag a rectangle.');
-    expect(rows[9]).toBe('Usable tiles show ▒, others x.');
-    expect(rows[10]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
+    // T-680: the settings replace the menu of kinds; [y] goes back to it.
+    expect(rows[0]).toBe('[y] zones menu');
+    expect(rows[1]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
     // The highlight (►) starts on the current season; each row ends with the seeds in stock when a crop is set.
-    expect(rows.slice(11, 15)).toEqual([
+    expect(rows.slice(2, 6)).toEqual([
       '►Spring  [ none         ▼ ]',
       'Summer  [ none         ▼ ]',
       'Autumn  [ none         ▼ ]',
       'Winter  [ none         ▼ ]',
     ]);
-    expect(rows[15]).toBe('Crops: 0 growing, 0 ready, 2 empty');
-    expect(rows[16]).toBe('Fertilize: off (0 in stock)');
-    expect(rows[17]).toBe('↑↓ season · Enter choose crop');
-    expect(rows[18]).toBe('[a] all seasons');
-    expect(rows[19]).toBe('[w] fertilize');
+    expect(rows[6]).toBe('Crops: 0 growing, 0 ready, 2 empty');
+    expect(rows[7]).toBe('Fertilize: off (0 in stock)');
+    expect(rows[8]).toBe('↑↓ season · Enter choose crop');
+    expect(rows[9]).toBe('[a] all seasons');
+    expect(rows[10]).toBe('[w] fertilize');
     expect(rows[31]).toBe('[x] remove zone  [e] resize');
   });
 });

@@ -90,7 +90,7 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
 
   it('Zones names the selected stockpile, its preset, one ticked category and the keys that change it', () => {
     const rows = render('zones');
-    expect(rows[0]).toBe('[y] zone types');
+    expect(rows[0]).toBe('[y] zones menu');
     expect(rows[1]).toMatch(/Selected: Stockpile #\d+ \(20 t\)/);
     expect(rows[2]).toBe('[p] Preset [Food ▼]');
     expect(rows[3]).toBe('[g] tree [q] settings');

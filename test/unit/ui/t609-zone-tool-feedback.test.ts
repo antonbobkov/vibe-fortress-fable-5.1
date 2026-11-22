@@ -101,8 +101,10 @@ describe('T-609 a zone answers at once, and its inspector has the keys it names'
     g.handleKey(press('↓'));
     expect(g.ui.cursor).toEqual(cursor);
     expect(g.fortress.zones.farmRow(g.fortress.ctx)).toBe(Math.min(3, season + 1));
-    // The type key arms the tool again: Enter sets a corner.
-    g.handleKey(press('F', { shift: true }));
+    // T-680: Esc goes back to the menu, where the type key arms the tool again: Enter sets a corner.
+    g.handleKey(press('Esc'));
+    expect(g.fortress.zones.selected).toBe(0);
+    g.handleKey(press('f'));
     g.handleKey(press('Enter'));
     expect(g.fortress.zones.anchor).not.toBeNull();
   });
@@ -120,11 +122,13 @@ describe('T-609 a zone answers at once, and its inspector has the keys it names'
     expect(stockpiles).toHaveLength(2);
     expect(g.fortress.zones.selected).toBe(stockpiles[1]);
     expect(g.fortress.statusRow2()).toBe('Stockpile #2 made: 4 tiles.');
-    // Esc drops the idle tool and keeps the zone selected; the next Esc closes the panel.
+    // Esc drops the idle tool and goes back to the menu (T-680); the next Esc closes the panel.
     g.handleKey(press('Esc'));
     expect(g.fortress.zones.kind).toBeNull();
-    expect(g.fortress.zones.selected).toBe(stockpiles[1]);
+    expect(g.fortress.zones.selected).toBe(0);
     expect(g.ui.panel).toBe('zones');
+    g.handleKey(press('Esc'));
+    expect(g.ui.panel).toBeNull();
   });
 
   it('the made line gives way when a building is picked next, as a new ghost state', async () => {
