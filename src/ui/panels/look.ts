@@ -6,7 +6,7 @@
  * 13's item, 14's building and zone, and a creature's 10, 11, 15, 16, 17 and 25 sections.
  */
 
-import { C } from '@core/components';
+import { C, ItemFlag } from '@core/components';
 import { FLUID_MAX_LEVEL, TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { ReaderSet } from '@core/readers';
@@ -31,7 +31,8 @@ import { label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { activityLabel } from './units';
-import { attributeRows, equipmentText, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsText, skillBar, titleText, wearingText } from './look-dwarf';
+import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
+import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
 
 interface TileInspection {
   readonly discovered: boolean;
@@ -140,12 +141,7 @@ export function looseItemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
     .sort((a, b) => a - b);
 }
 
-/** A thing Look can open: a creature's view, an item, a building's panel, a zone's inspector (24 § Inspection). */
-export type LookTarget =
-  | { readonly kind: 'creature'; readonly id: EntityId }
-  | { readonly kind: 'item'; readonly id: EntityId }
-  | { readonly kind: 'building'; readonly id: EntityId }
-  | { readonly kind: 'zone'; readonly id: EntityId };
+export type { LookTarget } from './look-links';
 
 /** Where a click on a tile stops (24 § Inspection, the click ladder): one thing, the tile list, or the bare tile. */
 export type LookRung = LookTarget | { readonly kind: 'list' } | { readonly kind: 'tile' };
@@ -302,6 +298,30 @@ export class LookScroll {
   key = '';
   /** The things the last draw of a tile list numbered, in digit order (`1` is the first). */
   numbered: LookTarget[] = [];
+  /** The links the last draw of a creature's or an item's view showed, in reading order. */
+  links: LookTarget[] = [];
+  /** The link `Tab` has focused among {@link links}, or -1; it starts afresh with the view. */
+  focus = -1;
+
+  /** `Tab` (`step` 1) or `Shift+Tab` (-1): the next or the previous link in view; false with none. */
+  cycle(step: 1 | -1): boolean {
+    const n = this.links.length;
+    if (n === 0) return false;
+    this.focus = this.focus < 0 ? (step > 0 ? 0 : n - 1) : (this.focus + step + n) % n;
+    return true;
+  }
+
+  /** The focused link, if one is in view. */
+  focused(): LookTarget | undefined {
+    return this.focus < 0 ? undefined : this.links[this.focus];
+  }
+
+  /** A new set of links for a draw of the view shown under `key`: the focus is dropped when the view changed. */
+  sink(key: string, open?: (target: LookTarget) => void): LinkSink {
+    if (this.key !== key) this.focus = -1;
+    this.links = [];
+    return { links: this.links, focus: this.focus, open, seen: new Map() };
+  }
 
   move(delta: number): void {
     this.scroll = Math.max(0, Math.min(this.max, this.scroll + delta));
@@ -318,6 +338,8 @@ interface Pen {
   put(draw: (row: number) => void): void;
   line(text: string, fg?: Rgb): void;
   wrapped(prefix: string, text: string, fg?: Rgb): void;
+  /** A line of spans, its links drawn as links; continuation rows indented by `indent` (by default under the first word's end). */
+  spans(spans: readonly Span[], fg?: Rgb, indent?: number): void;
 }
 
 /**
@@ -325,7 +347,7 @@ interface Pen {
  * first row while rows lie above, `▼` at the right edge of the last while rows lie below. A view
  * whose `key` changed starts at its top.
  */
-function scrolled(s: Surface, region: Rect, view: LookScroll | undefined, key: string, body: (pen: Pen) => void): void {
+function scrolled(s: Surface, region: Rect, view: LookScroll | undefined, key: string, body: (pen: Pen) => void, sink: LinkSink | null = null): void {
   const t = s.theme;
   const top = region.row;
   const bottom = region.row + Math.max(0, region.rows);
@@ -358,7 +380,10 @@ function scrolled(s: Surface, region: Rect, view: LookScroll | undefined, key: s
   const wrapped = (prefix: string, text: string, fg: Rgb = t.text): void => {
     for (const part of wrapHang(text, cols - prefix.length, 2)) line(`${prefix}${part}`, fg);
   };
-  body({ cols, put, line, wrapped });
+  const spans = (parts: readonly Span[], fg: Rgb = t.text, indent?: number): void => {
+    for (const r of wrapSpans(parts, cols, indent)) put((at) => drawSpanRow(s, region.col + 1, at, cols, r, fg, sink));
+  };
+  body({ cols, put, line, wrapped, spans });
   if (view !== undefined) view.max = Math.max(0, view.scroll - skip + (row - top) + below - view.visible);
   const edge = region.col + region.cols - 1;
   if (view !== undefined && view.scroll > 0 && bottom > top) label(s, edge, top, '▲', { fg: t.dim, keys: false });
@@ -561,8 +586,14 @@ export function drawTileList(
 export function atLine(readers: ReaderSet, strings: Strings, id: EntityId, viewZ: number): string {
   const p = readers.entities.get(id, C.Position);
   if (p === undefined) return '';
+  const tile = readers.map.index(p.x, p.y, p.z);
+  return placeLine(readers, strings, tile, creaturesAt(readers, tile).length - 1, viewZ);
+}
+
+/** "At (59, 87, z27) · 2 more here · 1 level down": a tile, the others there, and the level it is on against the one shown. */
+function placeLine(readers: ReaderSet, strings: Strings, tile: TileIndex, others: number, viewZ: number): string {
+  const p = readers.map.unpack(tile);
   let text = strings.get('ui.look.at', { x: p.x, y: p.y, z: p.z });
-  const others = creaturesAt(readers, readers.map.index(p.x, p.y, p.z)).length - 1;
   if (others > 0) text += strings.get('ui.look.at_more', { n: others });
   const dz = viewZ - p.z;
   if (dz !== 0) text += strings.get(dz > 0 ? (dz === 1 ? 'ui.look.at_down_one' : 'ui.look.at_down') : dz === -1 ? 'ui.look.at_up_one' : 'ui.look.at_up', { n: Math.abs(dz) });
@@ -585,8 +616,10 @@ export function drawCreatureView(
   viewZ: number,
   view?: LookScroll,
   last: TileIndex | null = null,
+  open?: (target: LookTarget) => void,
 ): void {
   const t = s.theme;
+  const sink = view?.sink(`creature:${id}`, open) ?? { links: [], focus: -1, open, seen: new Map() };
   if (rect.rows <= 0) return;
   const width = rect.cols - 2;
   let row = rect.row;
@@ -625,7 +658,7 @@ export function drawCreatureView(
     label(s, rect.col + 1, bottom - 1, strings.get('ui.look.creature_keys'), { width });
   }
   const region = { col: rect.col, row, cols: rect.cols, rows: bottom - foot - row };
-  scrolled(s, region, view, `creature:${id}`, (pen) => creatureSections(s, rect, pen, readers, registry, strings, id, dwarf));
+  scrolled(s, region, view, `creature:${id}`, (pen) => creatureSections(s, rect, pen, readers, registry, strings, id, dwarf), sink);
 }
 
 /** The sections of a creature under its pinned lines, in the wireframe's order. */
@@ -731,15 +764,229 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
     }
   }
   // What the creature holds and wears, then a dwarf's relations and titles (fortress-screen.md § Inspection panel).
-  const equipment = equipmentText(readers, registry, strings, id, dwarf);
-  if (equipment !== null) for (const text of hangingRows(equipment, rect.cols - 2)) line(text);
-  const wearing = dwarf ? wearingText(readers, registry, strings, id) : null;
-  if (wearing !== null) for (const text of hangingRows(wearing, rect.cols - 2)) line(text);
+  // Names are links (24 § Inspection): an item held or worn opens its view, a friend or a grudge that dwarf's.
+  const equipment = equipmentSpans(readers, registry, strings, id, dwarf);
+  if (equipment !== null) pen.spans(equipment);
+  const wearing = dwarf ? wearingSpans(readers, registry, strings, id) : null;
+  if (wearing !== null) pen.spans(wearing);
   if (dwarf) {
-    for (const text of hangingRows(relationsText(readers, strings, id), rect.cols - 2)) line(text);
+    pen.spans(relationsSpans(readers, strings, id));
     const title = titleText(readers, strings, id);
     if (title !== null) line(title);
   }
+}
+
+/** An item's view is titled by its name without its count: "pine bed", "bellwine". */
+export function itemTitle(readers: ReaderSet, registry: Registry, id: EntityId): string {
+  return has(readers, '13') ? itemName(readers, registry, id).replace(/^\d+ /, '') : '';
+}
+
+/** The creature or item that holds an item at the last: its carrier's carrier, its container's; the item itself when it lies loose. */
+function outerHolder(readers: ReaderSet, id: EntityId): EntityId {
+  const it = readers.of<ItemsReader>('13');
+  let holder = id;
+  for (let depth = 0; depth < 8; depth += 1) {
+    const rec = it.get(holder);
+    if (rec === undefined) break;
+    const next = rec.containerId !== 0 ? rec.containerId : rec.carriedBy;
+    if (next === 0) break;
+    holder = next;
+  }
+  return holder;
+}
+
+/**
+ * Whether the map shows where an item is (24 § Inspection): it still exists, its tile is
+ * discovered, and a creature that holds it is one the map draws (a stealthed hostile's loot is not).
+ */
+export function itemShown(readers: ReaderSet, id: EntityId): boolean {
+  if (!has(readers, '13') || !readers.entities.alive(id)) return false;
+  const it = readers.of<ItemsReader>('13');
+  if (it.get(id) === undefined) return false;
+  const tile = it.tileOf(id);
+  if (tile >= 0 && !discovered(readers, tile)) return false;
+  const holder = outerHolder(readers, id);
+  return holder === id || !readers.entities.has(holder, C.Creature) || creatureShown(readers, holder);
+}
+
+/** A creature by its own name, or its species's; a link to its view when the map shows it. */
+function creatureLink(readers: ReaderSet, registry: Registry, id: EntityId): Span[] {
+  const c = readers.entities.get(id, C.Creature);
+  const name = c === undefined ? '' : c.name !== '' ? c.name : registry.table<{ id: string; name: string }>('creatures').byIndex(c.species)?.name ?? '';
+  return [{ text: name, target: creatureShown(readers, id) ? { kind: 'creature', id } : undefined }];
+}
+
+/** An item by its name (with its count when more than one), a link to its view. */
+function itemLink(readers: ReaderSet, registry: Registry, id: EntityId): Span[] {
+  const count = readers.of<ItemsReader>('13').get(id)?.count ?? 1;
+  return [{ text: count > 1 ? itemName(readers, registry, id) : itemTitle(readers, registry, id), target: { kind: 'item', id } }];
+}
+
+/** Whether a creature wears an item: in an armor or a clothing slot of its equipment. */
+function worn(readers: ReaderSet, creature: EntityId, item: EntityId): boolean {
+  const equip = readers.entities.get(creature, C.Equipment);
+  if (equip === undefined) return false;
+  return Object.values(equip.armor).includes(item) || Object.values(equip.clothing ?? {}).includes(item);
+}
+
+/**
+ * The item view's second line, how the item is held (24 § Inspection): "Lying in Stockpile #2",
+ * "Lying on the ground", "Carried by Roald Deephelm", "Worn by …", "In oak barrel, Stockpile #1",
+ * "In Wagon #1", "Installed", with the stockpile, the carrier and the container as links.
+ */
+export function heldSpans(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): Span[] {
+  const it = readers.of<ItemsReader>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return [];
+  const tile = it.tileOf(id);
+  const zoneId = tile >= 0 && has(readers, '14') ? readers.of<BuildingsReaderLike>('14').zoneAt(tile) : 0;
+  const zone: Span[] = zoneId === 0 ? [] : [{ text: zoneName({ readers, strings }, zoneId), target: { kind: 'zone', id: zoneId } }];
+  if (rec.carriedBy !== 0) {
+    const carrier = rec.carriedBy;
+    if (!readers.entities.has(carrier, C.Creature)) return stringSpans(strings, 'ui.look.item.carried', { who: itemLink(readers, registry, carrier) });
+    return stringSpans(strings, worn(readers, carrier, id) ? 'ui.look.item.worn' : 'ui.look.item.carried', { who: creatureLink(readers, registry, carrier) });
+  }
+  if (rec.containerId !== 0) {
+    const holder = rec.containerId;
+    if (it.get(holder) === undefined) {
+      const building: Span[] = [{ text: buildingName({ readers, registry }, holder), target: { kind: 'building', id: holder } }];
+      return stringSpans(strings, 'ui.look.item.in', { container: building });
+    }
+    const container = itemLink(readers, registry, holder);
+    return zone.length === 0 ? stringSpans(strings, 'ui.look.item.in', { container }) : stringSpans(strings, 'ui.look.item.in_zone', { container, zone });
+  }
+  if (readers.entities.has(id, C.Position)) return zone.length === 0 ? [{ text: strings.get('ui.look.item.lying') }] : stringSpans(strings, 'ui.look.item.lying_in', { zone });
+  return [{ text: strings.get((rec.flags & ItemFlag.Installed) !== 0 ? 'ui.look.item.installed' : 'ui.look.item.nowhere') }];
+}
+
+/** The item view's first line: "Furniture · common · 10 ☼", "Drink · ×20 · 40 ☼". */
+function itemSummary(readers: ReaderSet, strings: Strings, id: EntityId): string {
+  const it = readers.of<ItemsReader>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return '';
+  const def = it.def(rec.type);
+  const top = it.categoryOf(rec.type).split('/')[0] ?? '';
+  const parts = [capitalize(top.replace(/_/g, ' '))];
+  if (def?.quality === true) parts.push(QUALITY_WORDS[rec.quality] ?? '');
+  if (rec.count > 1) parts.push(strings.get('ui.look.item.count', { n: rec.count }));
+  parts.push(strings.get('ui.look.item.value', { value: it.value(id) }));
+  return parts.filter((part) => part !== '').join(' · ');
+}
+
+/**
+ * An item's view (24 § Inspection): it holds the item, never a tile, and finds its place through
+ * `items.tileOf`, which sees through a carrier and a container. Pinned on top the summary line, the
+ * line of how it is held and the `At` line, read fresh each frame; under them 13's item fields with
+ * the maker, the owner and the job that has reserved it, which scroll; the keys at the foot. Names
+ * are links. An item gone or out of sight says so with the place it was last seen (`last`).
+ */
+export function drawItemView(
+  s: Surface,
+  rect: Rect,
+  readers: ReaderSet,
+  registry: Registry,
+  strings: Strings,
+  id: EntityId,
+  viewZ: number,
+  view?: LookScroll,
+  last: TileIndex | null = null,
+  open?: (target: LookTarget) => void,
+): void {
+  const t = s.theme;
+  const sink = view?.sink(`item:${id}`, open) ?? { links: [], focus: -1, open, seen: new Map() };
+  if (rect.rows <= 0) return;
+  const width = rect.cols - 2;
+  let row = rect.row;
+  const bottom = rect.row + rect.rows;
+  const pinned = (text: string, fg: Rgb = t.text): void => {
+    if (row >= bottom) return;
+    label(s, rect.col + 1, row, text, { fg, width });
+    row += 1;
+  };
+  if (!itemShown(readers, id)) {
+    const gone = readers.entities.alive(id) && has(readers, '13') && readers.of<ItemsReader>('13').get(id) !== undefined;
+    const p = last === null ? null : readers.map.unpack(last);
+    const key = gone ? 'ui.look.gone' : 'ui.look.item_gone';
+    const text = p === null ? strings.get(`${key}_nowhere`) : strings.get(key, { x: p.x, y: p.y, z: p.z });
+    for (const part of wrapHang(text, width, 0)) pinned(part, t.dim);
+    if (view !== undefined) view.key = `gone:item:${id}`;
+    return;
+  }
+  const it = readers.of<ItemsReader>('13');
+  const rec = it.get(id) as NonNullable<ReturnType<ItemsReader['get']>>;
+  pinned(itemSummary(readers, strings, id));
+  for (const r of wrapSpans(heldSpans(readers, registry, strings, id), width, 2)) {
+    if (row >= bottom) break;
+    drawSpanRow(s, rect.col + 1, row, width, r, t.text, sink);
+    row += 1;
+  }
+  const tile = it.tileOf(id);
+  if (tile >= 0) {
+    // Others on its tile: the creatures and loose items there, but not what carries it or holds it.
+    const holder = outerHolder(readers, id);
+    const others = readers.entities.has(holder, C.Creature) ? 0 : creaturesAt(readers, tile).length + looseItemsAt(readers, tile).filter((other) => other !== id && other !== holder).length;
+    pinned(placeLine(readers, strings, tile, others, viewZ), t.value);
+  }
+  if (row < bottom) {
+    separator(s, rect.col + 1, row, width);
+    row += 1;
+  }
+  const foot = bottom - row >= 6 ? 2 : 0;
+  if (foot > 0) {
+    separator(s, rect.col + 1, bottom - 2, width);
+    label(s, rect.col + 1, bottom - 1, strings.get('ui.look.item_keys'), { width });
+  }
+  const region = { col: rect.col, row, cols: rect.cols, rows: bottom - foot - row };
+  scrolled(s, region, view, `item:${id}`, (pen) => itemFields(s, pen, readers, registry, strings, id), sink);
+}
+
+/** 13's item fields under the pinned lines, a label column and a value: type, material, quality, count, value, rot, maker, owner, flags, the reserving job, what it holds. */
+function itemFields(s: Surface, pen: Pen, readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): void {
+  const t = s.theme;
+  const it = readers.of<ItemsReader>('13');
+  const rec = it.get(id);
+  if (rec === undefined) return;
+  const def = it.def(rec.type);
+  const fields = ['type', 'material', 'quality', 'count', 'value', 'rot', 'made_by', 'owner', 'flags', 'for', 'holds'];
+  const pad = Math.max(...fields.map((f) => Array.from(strings.get(`ui.look.item.field.${f}`)).length)) + 2;
+  const rows: { name: string; value: Span[]; fg?: Rgb }[] = [];
+  const material = agedMaterial(null, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
+  rows.push({ name: 'type', value: [{ text: def?.name ?? '' }] });
+  if (material !== '') rows.push({ name: 'material', value: [{ text: material }] });
+  if (def?.quality === true) rows.push({ name: 'quality', value: [{ text: QUALITY_WORDS[rec.quality] ?? '' }] });
+  rows.push({ name: 'count', value: [{ text: String(rec.count) }] });
+  rows.push({ name: 'value', value: [{ text: strings.get('ui.look.item.value', { value: it.value(id) }) }] });
+  const rot = itemRotText({ readers, strings }, id);
+  if (rot !== '') rows.push({ name: 'rot', value: [{ text: rot }], fg: it.rotStage(id) >= 1 ? t.alert : t.dim });
+  if (rec.crafterId !== 0 && readers.entities.has(rec.crafterId, C.Creature)) rows.push({ name: 'made_by', value: creatureLink(readers, registry, rec.crafterId) });
+  rows.push({ name: 'owner', value: rec.ownerId !== 0 && readers.entities.has(rec.ownerId, C.Creature) ? creatureLink(readers, registry, rec.ownerId) : [{ text: strings.get('ui.look.item.no_one') }] });
+  const flags = FLAG_WORDS.filter(([flag]) => (rec.flags & flag) !== 0).map(([, word]) => word);
+  rows.push({ name: 'flags', value: [{ text: flags.length > 0 ? flags.join(', ') : strings.get('ui.look.item.none') }] });
+  if (rec.reservedBy !== 0 && has(readers, '11')) {
+    const jobs = readers.of<JobsReader>('11');
+    const type = jobs.typeOf(rec.reservedBy) ?? '';
+    const name = strings.has(`ui.jobs.type.${type}`) ? strings.get(`ui.jobs.type.${type}`) : capitalize(type.replace(/_/g, ' '));
+    const worker = jobs.get(rec.reservedBy)?.workerId ?? 0;
+    rows.push({ name: 'for', value: worker !== 0 && readers.entities.has(worker, C.Creature) ? stringSpans(strings, 'ui.look.item.for_worker', { job: name, who: creatureLink(readers, registry, worker) }) : [{ text: name }] });
+  }
+  const held = (it.containerRecord(id)?.contents ?? []).filter((inner) => it.get(inner) !== undefined);
+  if (held.length > 0) {
+    const links: Span[] = [];
+    held.forEach((inner, n) => {
+      if (n > 0) links.push({ text: ', ' });
+      links.push(...itemLink(readers, registry, inner));
+    });
+    rows.push({ name: 'holds', value: links });
+  }
+  for (const r of rows) {
+    // The labels dim, as the mock-ups draw them; a value that wraps hangs under the value column.
+    const head = strings.get(`ui.look.item.field.${r.name}`).padEnd(pad);
+    pen.spans([{ text: head, fg: t.dim }, ...r.value], r.fg ?? t.text, pad);
+  }
+  const spell = spellLine(readers, strings, id, true);
+  if (spell !== null) pen.wrapped('', spell, t.dim);
+  const enchant = enchantLine(readers, strings, id);
+  if (enchant !== null) pen.wrapped('', enchant, t.dim);
 }
 
 /** Milli-rune as the inspector shows it: "0.6", "1", "0.36". */
