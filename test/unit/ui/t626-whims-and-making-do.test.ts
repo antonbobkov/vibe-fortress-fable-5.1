@@ -62,7 +62,8 @@ describe('T-626 the Thane\'s whim says how many, by when and how far', () => {
     // The units panel wraps the line under the filter, whole: the count, the progress and "not yet" are all on screen.
     const s = surface(36, 30);
     drawUnitsPanel(s, { col: 0, row: 0, cols: 36, rows: 30 }, new UnitsPanel(), ctx);
-    const shown = s.lines().slice(1, 5).map((l) => l.trim()).join(' ');
+    // T-678: under the tab row and the filter.
+    const shown = s.lines().slice(2, 6).map((l) => l.trim()).join(' ');
     expect(shown).toContain('3 of 20 fine meals in stock, not yet. Made at a kitchen.');
     expect(shown).not.toContain('»');
     // Met: the line says so and no longer says where to make them.

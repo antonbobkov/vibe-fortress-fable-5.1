@@ -25,6 +25,8 @@ export interface PanelContext {
   look(tile: TileIndex): void;
   /** Open another panel. */
   openPanel(id: string): void;
+  /** Inspect a creature: centre on it once and open its view in Look (24 § Inspection). Absent outside the fortress screen. */
+  inspect?(id: EntityId): void;
   /** Whether the pointer's `Shift` was down for the click being handled. */
   shiftClick(): boolean;
   /** A message on the status row: why an action did nothing (D-U4). Absent outside the fortress screen. */

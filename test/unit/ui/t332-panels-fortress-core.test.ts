@@ -136,9 +136,11 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
   it('Units lists every dwarf with what each does, marks the cursor, and names the roster keys', () => {
     const rows = render('units');
     const dwarves = game.host.readers.of<{ list(): number[] }>('10').list();
-    expect(rows[0]).toBe('/filter:');
-    expect(rows[1]).toMatch(/^Name +Act\.$/);
-    const listed = rows.slice(2, 33).filter((row) => row !== '');
+    // T-678: the tab row first.
+    expect(rows[0]).toMatch(/^\[1\] Dwarves \(\d+\) {2}\[2\] All \(\d+\)$/);
+    expect(rows[1]).toBe('/filter:');
+    expect(rows[2]).toMatch(/^Name +Act\.$/);
+    const listed = rows.slice(3, 33).filter((row) => row !== '');
     expect(listed).toHaveLength(dwarves.length);
     // The name column is as wide as the longest name needs: whole names, the Thane's with `♦`, the glyphs in one column.
     expect(listed[0]).toMatch(/^► ?\S+ \S+(?: ♦)? +☺ Dig$/);
@@ -184,7 +186,7 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
   it('shows the documented rows', () => {
     expect(render('build').join('\n')).toContain("[w] Workshops");
     expect(render('zones').join('\n')).toContain('Preset [Food');
-    expect(render('units')[1]).toMatch(/Name +Act./);
+    expect(render('units')[2]).toMatch(/Name +Act./);
     expect(render('jobs')[0]).toMatch(/open · \d+ claimed/);
   });
 });
