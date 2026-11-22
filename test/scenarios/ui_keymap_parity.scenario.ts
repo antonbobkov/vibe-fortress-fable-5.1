@@ -433,6 +433,20 @@ const scenario: Scenario = {
     expect(ui.panel).toBe('designate');
     expect(screen.tool.kind).toBe('dig');
     screen.openPanel(null);
+    // T-678: Units' `2` is the All tab, `[g]` shows one kind, `Enter` opens the creature's view, `1` the dwarves again.
+    screen.openPanel('units');
+    expect(screen.key(press('2'))).toBe(true);
+    expect(screen.units.tab, '2 is the All tab of Units').toBe(1);
+    expect(screen.key(press('g'))).toBe(true);
+    expect(screen.units.kind, 'g shows the first kind on the map').toBe('dwarf');
+    expect(ui.panel).toBe('units');
+    screen.key(press('Enter'));
+    expect(screen.lookAt.kind, 'Enter on the All tab opens a creature view').toBe('creature');
+    screen.openPanel('units');
+    expect(screen.key(press('1'))).toBe(true);
+    expect(screen.units.tab, '1 is the Dwarves tab').toBe(0);
+    screen.units.kind = null;
+    screen.openPanel(null);
   },
 };
 

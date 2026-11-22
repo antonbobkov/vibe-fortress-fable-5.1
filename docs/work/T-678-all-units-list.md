@@ -12,4 +12,6 @@ Extend Units (or add a sibling tab) with every creature the map would draw: dwar
 
 ## Done
 
-A UI test with each kind on the map; hidden hostiles absent.
+- [x] A UI test with each kind on the map; hidden hostiles absent: `test/unit/ui/t678-all-creatures.test.ts` (a dwarf, a tame dog, a wild deer grazing, a merchant and a caravan mule, a raider and a spotted stealthed hostile, all listed by kind with their facts; a stealthed hostile nobody has spotted is absent until spotted; `[g]` and a click on the kind line show one kind; `Enter`, `c` and a second click on the cursor's row; a dwarf key on the All tab; 121 creatures listed, scrolled to the last and opened).
+- [x] The design: Units gets a tab row, `[1] Dwarves` (unchanged) and `[2] All`, every creature the map draws, ordered by kind (dwarves, tame, wild, visitors, hostile, other) then name; a line counts each kind (a click shows that kind) and `[g]` steps through them; one fact per row (a dwarf's activity, Tame/Pet, "Wild, grazing", Merchant/Caravan, "Hostile, attacking", "· hurt"); `[w]` wounded first serves both tabs. Facts are worked out for the rows on screen only.
+- [x] Docs and keys: `panels.md` § Units (new, the All tab's wireframe), `fortress-screen.md` § Sidebar open (the tab row), 24 § Input model and § Inspection, `ui-keymap-and-screens.md` § Units panel (`1` `2`, `[g]`; `[c]` now "center the map on the creature"), keymap rows `units_panel/tab` and `units_panel/kind_filter`; the parity scenario checks `2`, `g`, `Enter` and `1`.

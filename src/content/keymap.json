@@ -557,7 +557,22 @@
   {
     "context": "units_panel",
     "key": "[c]",
-    "action": "center the map on the dwarf"
+    "action": "center the map on the creature"
+  },
+  {
+    "context": "units_panel",
+    "key": "1",
+    "action": "dwarves / all creatures tab"
+  },
+  {
+    "context": "units_panel",
+    "key": "2",
+    "action": "dwarves / all creatures tab"
+  },
+  {
+    "context": "units_panel",
+    "key": "[g]",
+    "action": "all creatures: show one kind / all"
   },
   {
     "context": "labors_panel",

@@ -113,6 +113,34 @@ A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in
 
 `[o]` or a click on the button opens the apprentice picker: a title with the count ("Apprentices of Sanctum #1 (1/4):") and every adult dwarf, `●` for an apprentice and `○` for the rest. `Enter` or a click adds or removes the dwarf through `SetSanctumApprentices`, and the picker stays open; a fifth is refused in the status row. `Esc` closes it.
 
+## Units (u)
+
+The Dwarves tab, the list of the fortress's dwarves with their marks, titles, squads and sleep hours, is drawn in [`fortress-screen.md`](fortress-screen.md) § Sidebar open. The All tab (T-678) lists every creature the map draws:
+
+```
+│ Units · all (134)              [x] │
+│ [1] Dwarves (80)  [2] All (134)    │
+│ /filter:                           │
+│ 80 dwarves · 23 tame · 5 wild      │
+│ 4 visitors · 22 hostile            │
+│ Name            Doing              │
+│ ▶☺ K. Ironvein  Digging            │
+│  c cow          Tame               │
+│  d dog Bramble  Pet · hurt         │
+│  d deer         Wild, grazing      │
+│  ☺ human        Merchant           │
+│  g goblin       Hostile, attacking │
+│ ────────────────────────────────── │
+│ [Enter] inspect  [c] center        │
+│ [g] show: all  [w] hurt            │
+```
+
+- **Who is listed.** Every creature the map would draw on its level: the fortress's dwarves, tame and wild animals, visitors (a caravan's merchants, guards and pack animals, the `trader:*` factions) and hostiles (`Hostile`: raiders, cavern monsters, turned shades); anything else (a summons) last, as "other". A stealthed hostile no dwarf has spotted is not listed, as the map and the click ladder hide it (24 § Inspection), nor a creature on an undiscovered tile; the dead are not creatures.
+- **Order.** By kind in that order (dwarves, tame, wild, visitors, hostile, other), then by name, then by id. `[w]` (or a click on `[w] hurt`) puts the wounded first, as on the Dwarves tab, and the caption reads `[w] hurt ■`; the one setting serves both tabs.
+- **Kinds.** The line under the filter counts each kind on the map, over at most two rows, hostiles in the danger colour; a click on a kind shows only that kind (inverted while shown), a second click all again. `[g]` steps through the kinds on the map, then all; its caption names what is shown. The title row reads "Units · all (134)" or "Units · hostile (22)", and with a name filter "Units · all · filter: xxx (3 of 134)".
+- **Rows.** `▶` marks the cursor, then the species glyph and the name: a creature's own name, its species' name for one without ("cow"), or both for a named animal ("dog Bramble"), the name column as wide as the longest name needs as far as the fact keeps 18 cells, a longer name shortened as the Dwarves tab shortens names ("K. Ironvein"), its tooltip the whole name. The `Doing` column is one fact: a dwarf's activity as the Dwarves tab gives it (an idle dwarf dim); "Tame", or "Pet" for a pet; "Wild" with what it is doing ("Wild, grazing", "Wild, attacking"); "Merchant", or "Caravan" for a caravan's guards and animals (in the value colour); "Hostile" with what it is doing ("Hostile, approaching", "Hostile, attacking", in the danger colour); "Summoned". A wounded creature's fact ends "· hurt". The facts are worked out for the rows on screen only, so the tab stays quick at a hundred creatures and more.
+- **Keys.** `Enter`, a double click, or a click on the cursor's row opens the creature's view in Look and centres on it once (24 § Inspection); `[c]` centres the map on it; `/` filters by name; `↑` `↓` move. The dwarf actions (`Space` marks, `*`, `[i]`, `[t]`, `[n]`, `[m]`, `[` `]`, `[l]`) are the Dwarves tab's: on the All tab the status row says "That key is for the Dwarves tab [1].", and `Space` pauses. The tab, the kind and `[w]` are kept while the fortress is open and are not saved; the filter ends with the panel.
+
 ## Jobs (j)
 
 ```
