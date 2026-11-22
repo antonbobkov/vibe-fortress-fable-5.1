@@ -24,7 +24,7 @@ import { GlyphMap, Surface, themeOf } from '@ui/surface';
 import { CellBuffer } from '@render/cellbuffer';
 import { ACTION_IDS, Keymap, parseKeySpec, type KeymapRow } from '@ui/keymap';
 import { Strings } from '@ui/strings';
-import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
+import { FortressScreen, lookViewLetter, type FortressHost } from '@ui/screens/fortress';
 import { defaultUiState } from '@ui/ui-state';
 import type { KeyPress } from '@platform/input';
 import type { Command } from '@core/commands';
@@ -391,7 +391,8 @@ const scenario: Scenario = {
       for (const target of letters) {
         screen.openPanel(open.panel);
         const contexts = screen.keyContexts().filter((context) => context !== 'panel');
-        const claimed = keymap.claims(contexts, press(target.key));
+        // Look's centre and follow are its keys only in a creature's or an item's view, not in the tile list it opens on (T-671).
+        const claimed = keymap.claims(contexts, press(target.key)) && !(open.panel === 'look' && lookViewLetter(keymap, press(target.key)));
         if (target.key === 'k') expect(claimed, `k in ${open.panel}`).toBe(false);
         for (const context of contexts) {
           for (const b of keymap.of(context)) {

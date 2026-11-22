@@ -157,6 +157,13 @@ describe('T-671 the follow box', () => {
     expect(f.screen.lookFollow).toBe(false);
   });
 
+  it('c and f are Look\'s only in a creature\'s or an item\'s view: in the tile list c opens Civilizations', () => {
+    const f = setup('t671-tile-list');
+    f.screen.look({ x: 20, y: 20, z });
+    expect(f.screen.key(press('c'))).toBe(true);
+    expect(f.screen.ui.panel).toBe('civilizations');
+  });
+
   it('an item is followed through its carrier', () => {
     const f = setup('t671-item');
     const log = f.w.spawnItem('log', 'oak', f.w.index(60, 60, z));

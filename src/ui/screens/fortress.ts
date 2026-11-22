@@ -116,6 +116,12 @@ export function followBox(pos: number, cam: number, size: number, extent: number
   return Math.max(0, Math.min(Math.max(0, extent - size), moved));
 }
 
+/** Look's centre and follow keys (24 § Inspection): Look's own only in a creature's or an item's view; in the tile list the letter keeps its other meaning. */
+export function lookViewLetter(keymap: Keymap, press: KeyPress): boolean {
+  const id = keymap.resolve('look_panel', press)?.id;
+  return id === 'centre' || id === 'follow_view';
+}
+
 export interface FortressSettings {
   /** 24: "`auto-pause on danger` setting is on (default on)". */
   autoPauseDanger: boolean;
@@ -2339,7 +2345,7 @@ export class FortressScreen implements Screen {
    */
   private ownLetter(press: KeyPress, own: KeyPress | null): boolean {
     if (own === null || this.textFocused()) return false;
-    const claimed = this.keyContexts().find((context) => context !== 'panel' && this.keymap.claims([context], press));
+    const claimed = this.keyContexts().find((context) => context !== 'panel' && this.keymap.claims([context], press) && !(context === 'look_panel' && this.lookAt.kind === 'tile' && lookViewLetter(this.keymap, press)));
     if (claimed === undefined) return false;
     if (claimed === 'selection') {
       if (this.selection !== null) this.selectionKey(own);
