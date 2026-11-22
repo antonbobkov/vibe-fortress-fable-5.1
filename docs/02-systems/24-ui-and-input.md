@@ -65,7 +65,7 @@ Mouse:
 - Left click: with no tool, opens what the map shows there by the click ladder of § Inspection (a creature, else a loose item, else the tile list of a crowd, else the building's panel, else the zone's settings, else the tile list); with a tool, applies it (a single tile) or starts a drag rectangle.
 - Left drag: rectangle for designations, zones, selections; the rectangle is drawn live with its size in the status bar.
 - Right click: cancels the current tool; with no tool, opens the tile list of the tile, everything the map shows on it.
-- Wheel: z-level (down = deeper). `Ctrl` + wheel: zoom. `Shift` + wheel: pan vertically.
+- Wheel: z-level; by default the wheel up goes down a level (deeper) and the wheel down up a level, and the Settings row `Wheel up goes` turns it round (T-673). `Ctrl` + wheel: zoom. `Shift` + wheel: pan vertically. Neither changes with the setting, nor does the wheel over a panel, which scrolls it.
 - Middle drag (or `Space` + left drag): pan.
 - Text that does not fit its cell is marked: it ends with `»` and registers a tooltip with the whole text. A panel never writes past its last column.
 - Hover: the hover line, the status bar's last row, shows the tile summary ("Granite wall" / "Ketil Ironvein, Digging · water 3/7" / "Granite floor · 3 more here"), with any tool armed or panel open. Clipped labels and table cells register their full text as a tooltip, shown in the status row (one line, cut with `…` when it does not fit) and in a box `[…]` by the hovered cell. The box is one row when the text fits the window's width; a longer text wraps over as many rows as it needs, at most the map view's height, never cutting a word that fits. The box is drawn above the hovered cell when the rows above hold it, otherwise below it; when neither side holds it, it takes the side with more rows and its last row ends with `»`. The sidebar retains `SIDEBAR_COLS`.
@@ -193,7 +193,7 @@ Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) 
 - **Embark** (02): three tabs (a fourth, Items, in testing mode), footer with budget and `Embark`, and the testing mode switch below it (off by default); Balanced is applied on opening. Missing pick or food/drink asks the default-No confirmation before embarking.
 - **Trade session** (20): modal two-column table; a merchant good priced at the scarcity price says "scarce here" (20 § The scarcity price).
 - **Legend**: the record of a fortress (see 24 › Legend record below); `Back`.
-- **Settings**: keybindings (rebind by selecting a row and pressing a key), auto-pause toggles per severity, hints on/off, zoom, colorblind palette, edge scrolling, autosave on/off, music volume, music on/off, intro at launch (first time, always, off), intro style (deep, hall), `Reset to defaults`.
+- **Settings**: keybindings (rebind by selecting a row and pressing a key), auto-pause toggles per severity, hints on/off, zoom, colorblind palette, edge scrolling, autosave on/off, music volume, music on/off, intro at launch (first time, always, off), intro style (deep, hall), reduced motion, which way the wheel up goes over the map (down a level, up a level), `Reset to defaults`.
 - **Load**: manual saves and autosaves with thumbnails; `Load`, `Delete` (confirm), `Export`, `Import`.
 
 ### The legend record
