@@ -5,7 +5,9 @@
  *
  * ```
  * brain:   a pet far from its dwarf follows it; a grazer over condition 40 walks to grass inside
- *          its pasture (or within 6 with none) and eats it; otherwise it wanders near the pasture
+ *          its pasture (or within 6 with none) and eats it; otherwise it wanders near the pasture;
+ *          with no pasture it ambles about the wagon before the hall (T-675), and after it a grazer
+ *          grazes about the wagon by day and a cat prowls the halls by day (T-683)
  * hourly:  condition += CONDITION_PER_HOUR (×2 in a cold snap); 100 → AnimalStarving once per
  *          season; ANIMAL_STARVE_DAYS at 100 → CreatureDied { starvation }
  * daily:   pregnancies come due (AnimalBorn, juveniles); breeding rolls under the breeding cap;
@@ -35,6 +37,7 @@ import {
   TAME_AMBLE_PERMILLE,
   TAME_AMBLE_RADIUS,
   TAME_AMBLE_SHY_RADIUS,
+  TAME_GRAZE_WARY_RADIUS,
   WAR_ANIMAL_RADIUS,
 } from './constants';
 import { hashInts } from '@core/noise';
@@ -127,6 +130,10 @@ export interface TameHost extends BrainHost {
   byHall(tile: TileIndex): boolean;
   /** T-675, *Before the hall*: the tile an idle tame animal with no pasture ambles about (the wagon) while there is no hearth hall; -1 once there is one. */
   ambleAnchor(): TileIndex;
+  /** T-683, *After the hall*: the wagon's tile, where an unpastured grazer grazes by day, while there is a hearth hall; -1 before it or with no wagon. */
+  grazeGround(): TileIndex;
+  /** T-683: night, or an alert above `calm`: the unpastured grazers come in to the hall and the cats to their corner. */
+  calledIn(): boolean;
   /** One grass tile feeds one grazer: `true` when this call took the tile, `false` when it is already held. */
   claimGraze(tile: TileIndex): boolean;
   /** A tile some grazer holds until 07 has cleared its grass. */
@@ -297,8 +304,14 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     }
   }
 
-  // A hungry grazer eats.
-  if (host.facts.dietOf(species) === 'grazer' && next.condition > CONDITION_EAT_ABOVE) {
+  // T-683, *After the hall*: an unpastured grazer grazes about the wagon by day and comes in to the hall at
+  // night, under an alert, or while a threat stands near the wagon; shut out of the hall, it stays out.
+  const grazer = host.facts.dietOf(species) === 'grazer';
+  const ground = grazer && next.pastureId === 0 ? host.grazeGround() : -1;
+  const comeIn = ground >= 0 && (host.calledIn() || threatNear(host, ground)) && !apart(host, id, at, host.standTile(id));
+
+  // A hungry grazer eats (not while it comes in).
+  if (grazer && !comeIn && next.condition > CONDITION_EAT_ABOVE) {
     const inPasture = next.pastureId === 0 || host.pastureTiles(next.pastureId).includes(at);
     if (inPasture && host.map.hasFlag(at, TileFlag.Grass) && !host.map.hasFlag(at, TileFlag.Snow) && host.claimGraze(at)) {
       next.condition = Math.max(0, next.condition - CONDITION_PER_GRASS);
@@ -342,6 +355,20 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     amble(host, ctx, id, at, anchor, hostiles);
     return next;
   }
+  // T-683, *After the hall*: out to the wagon's ground by day (or kept out, shut out of the hall).
+  if (ground >= 0 && !comeIn) {
+    amble(host, ctx, id, at, ground, hostiles);
+    return next;
+  }
+  // T-683: a cat prowls the fortress's halls by day and heaps in its corner at night and under an alert.
+  if (host.facts.adopts(species) && !host.calledIn()) {
+    const spot = host.petSpot(id);
+    const hall = spot >= 0 ? spot : host.homeTile();
+    if (hall >= 0) {
+      amble(host, ctx, id, at, hall, hostiles, true);
+      return next;
+    }
+  }
   const home = host.standTile(id);
   if (home >= 0 && movement !== null && movement.tileOf(id) !== home) movement.walkTo(id, home, 'wander', ctx);
   else if (isDoorTile(host, at)) stepOffDoor(host, id, at, home, ctx);
@@ -370,7 +397,7 @@ function chebyshev(host: BrainHost, a: TileIndex, b: TileIndex): number {
  * hostile it sees) to {@link ambleTile}. Its rolls and tiles are hashes of its id and the tick, so the rule draws
  * on no stream.
  */
-function amble(host: TameHost, ctx: TickContext, id: EntityId, at: TileIndex, anchor: TileIndex, hostiles: readonly EntityId[]): void {
+function amble(host: TameHost, ctx: TickContext, id: EntityId, at: TileIndex, anchor: TileIndex, hostiles: readonly EntityId[], indoors = false): void {
   const movement = host.movement;
   if (movement === null) return;
   const near = (tile: TileIndex): boolean => hostiles.some((other) => {
@@ -388,10 +415,33 @@ function amble(host: TameHost, ctx: TickContext, id: EntityId, at: TileIndex, an
   // A grazer on grass grazes there longer.
   const grazing = host.facts.dietOf(species) === 'grazer' && host.map.hasFlag(at, TileFlag.Grass) && !host.map.hasFlag(at, TileFlag.Snow);
   const go = shy || away || hashInts(AMBLE_SALT, id, ctx.tick) % 1000 < (grazing ? TAME_AMBLE_PERMILLE >> 1 : TAME_AMBLE_PERMILLE);
-  const to = go ? ambleTile(host, id, at, anchor, radius, hostiles, ctx.tick) : -1;
+  const to = go ? ambleTile(host, id, at, anchor, radius, hostiles, ctx.tick, indoors) : -1;
   if (to >= 0) movement.walkTo(id, to, 'wander', ctx);
   else if (isDoorTile(host, at)) stepOffDoor(host, id, at, anchor, ctx);
   else if (heading >= 0) movement.stopWalking(id);
+}
+
+/**
+ * `08` § Tame behavior, *After the hall* (T-683): a hostile or deep creature, or a wild carnivore not in a cage,
+ * stands outdoors within `TAME_GRAZE_WARY_RADIUS` of the wagon's tile.
+ */
+function threatNear(host: TameHost, ground: TileIndex): boolean {
+  return host.readers.spatial.inRadius(ground, TAME_GRAZE_WARY_RADIUS, 'creature').some((other) => {
+    const creature = host.entities.get(other, C.Creature);
+    const to = tileOf(host, other);
+    if (creature === undefined || creature.cagedIn || to < 0 || !host.map.hasFlag(to, TileFlag.Outdoor)) return false;
+    if (creature.faction.startsWith('hostile') || creature.faction === 'deep') return true;
+    return creature.faction === 'wild' && host.facts.dietOf(creature.species) === 'carnivore';
+  });
+}
+
+/** The hall tile lies in another region of the animal's movement class than it stands in: a locked gate shuts it out. */
+function apart(host: TameHost, id: EntityId, at: TileIndex, home: TileIndex): boolean {
+  if (home < 0) return true;
+  const cls = movementClassOf(host, id);
+  const a = host.readers.pathing.labelOf(at, cls);
+  const b = host.readers.pathing.labelOf(home, cls);
+  return a !== 0 && b !== 0 && a !== b;
 }
 
 /**
@@ -402,7 +452,7 @@ function amble(host: TameHost, ctx: TickContext, id: EntityId, at: TileIndex, an
  * such tile with grass it may eat (uneaten, unclaimed, unsnowed) if any of the tries has one: it grazes. -1
  * when no try serves.
  */
-export function ambleTile(host: TameHost, id: EntityId, at: TileIndex, anchor: TileIndex, radius: number, hostiles: readonly EntityId[], tick: Tick): TileIndex {
+export function ambleTile(host: TameHost, id: EntityId, at: TileIndex, anchor: TileIndex, radius: number, hostiles: readonly EntityId[], tick: Tick, indoors = false): TileIndex {
   const map = host.map;
   const pathing = host.readers.pathing;
   const cls = movementClassOf(host, id);
@@ -422,12 +472,14 @@ export function ambleTile(host: TameHost, id: EntityId, at: TileIndex, anchor: T
     if (x < 1 || y < 1 || x >= map.w - 1 || y >= map.h - 1) continue;
     let tile = map.index(x, y, az);
     if (!pathing.passable(tile, cls)) {
+      if (indoors) continue;
       const surface = map.columnSurfaceZ(x, y);
       if (surface < 0 || surface === az) continue;
       tile = map.index(x, y, surface);
     }
     if (tile === at || !pathing.passable(tile, cls) || (region !== 0 && pathing.labelOf(tile, cls) !== region)) continue;
     if (isDoorTile(host, tile) || map.fluidLevelAt(tile) > 0 || map.hasFlag(tile, TileFlag.Burning)) continue;
+    if (indoors && map.hasFlag(tile, TileFlag.Outdoor)) continue;
     if (threats.some((threat) => map.zOf(threat) === map.zOf(tile) && chebyshev(host, threat, tile) <= TAME_AMBLE_SHY_RADIUS)) continue;
     if (skip === null) return tile;
     if (map.hasFlag(tile, TileFlag.Grass) && !map.hasFlag(tile, TileFlag.Snow) && !skip(tile)) return tile;
