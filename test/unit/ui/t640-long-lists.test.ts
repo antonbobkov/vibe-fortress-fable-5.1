@@ -106,7 +106,7 @@ describe('T-640 Animals groups unnamed animals and names its columns', () => {
     expect(draw(f, 'animals').join('\n')).toContain('Bramble the dog · no pasture');
   });
 
-  it('[S-p] moves every animal of a group; [S-s] marks one, which leaves the group for its own row', () => {
+  it('[p] moves every animal of a group; [s] marks one, which leaves the group for its own row', () => {
     const { f, sent, cows, pasture, w } = herd();
     f.animals.list.selected = 2;
     expect(f.animals.selectedGroup(f.ctx)).toHaveLength(13);

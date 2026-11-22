@@ -438,7 +438,7 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
     s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => panel.confirmDepot(ctx));
     return;
   }
-  // `f`, `d`, `m` and `t` open panels, so the actions take `Shift` (D-U2); each is clickable.
+  // Forbid and to depot are bare letters, dump and melt stay on `Shift` (D-253); each is clickable.
   let col = rect.col + 1;
   const action = (key: string, kind: 'ForbidItem' | 'DumpItem' | 'MeltItem'): void => {
     const n = label(s, col, row, strings.get(key), { width: rect.col + rect.cols - 1 - col });

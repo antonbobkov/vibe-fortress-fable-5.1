@@ -72,7 +72,7 @@ describe('T-429 Help shows each panel once', () => {
     const contexts = new Set(rows.filter((r) => r.heading !== true).map((r) => r.category));
     for (const context of contexts) {
       const expected = (REMAINING[context] ?? []).map((n) => strings.get(n.id));
-      expect(notes(rows, context).filter((t) => !t.startsWith('S- ') && !t.startsWith('Shift+letter')), context).toEqual(expected);
+      expect(notes(rows, context).filter((t) => !t.startsWith('S- ') && !t.startsWith('letter  ')), context).toEqual(expected);
     }
     for (const [context, list] of Object.entries(REMAINING)) {
       for (const n of list) expect(n.why.length, `${context} ${n.id}`).toBeGreaterThan(10);

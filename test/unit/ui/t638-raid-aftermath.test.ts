@@ -139,12 +139,12 @@ describe('T-638 Military names the squad\'s orders', () => {
       drawMilitaryPanel(s, { col: 0, row: 0, cols: 40, rows: 60 }, new MilitaryPanel(), ctxOf(w.readers));
       return s.lines();
     };
-    expect(draw().join('\n')).toContain('Orders [S-k] kill [S-f] follow');
+    expect(draw().join('\n')).toContain('Orders [S-k] kill [f] follow');
     w.submit({ type: 'SquadOrder', squadId, order: { kind: 'kill', targetId: captain } });
     w.step(1);
     let lines = draw();
     expect(lines.join('\n')).toContain('Orders kill: a gloam captain');
-    expect(lines.join('\n')).toContain('[S-k] kill [S-f] follow');
+    expect(lines.join('\n')).toContain('[S-k] kill [f] follow');
     expect(lines.join('\n')).toContain('[q] cancel orders');
     const liv = w.spawnDwarf({ at: w.index(21, 20, z), name: 'Liv Hammerfall' });
     w.submit({ type: 'SquadOrder', squadId, order: { kind: 'follow', dwarfId: liv } });

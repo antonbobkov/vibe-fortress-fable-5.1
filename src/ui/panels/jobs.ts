@@ -317,8 +317,8 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
     label(s, rect.col + 1, row, text, { width });
     s.hit({ col: rect.col + 1, row, cols: width, rows: 1 }, run);
   };
-  cycle(filterRow + 1, strings.get('ui.jobs.filter.labor', { key: acceleratorLabel('l', ctx.panelLetters), labor }), () => panel.cycleLabor(ctx));
-  cycle(filterRow + 2, strings.get('ui.jobs.filter.state', { key: acceleratorLabel('s', ctx.panelLetters), state: strings.get(`ui.jobs.filter.${panel.state}`) }), () => panel.cycleState());
+  cycle(filterRow + 1, strings.get('ui.jobs.filter.labor', { key: acceleratorLabel('l', ctx.shiftLetters), labor }), () => panel.cycleLabor(ctx));
+  cycle(filterRow + 2, strings.get('ui.jobs.filter.state', { key: acceleratorLabel('s', ctx.shiftLetters), state: strings.get(`ui.jobs.filter.${panel.state}`) }), () => panel.cycleState());
   // The job list is read once a frame: every read copies the whole board.
   const jobs = panel.jobs(ctx);
   const summary = blockedSummary(ctx, jobs);

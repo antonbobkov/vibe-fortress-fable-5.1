@@ -120,7 +120,7 @@ describe('T-622 the armed line, the stock counts and the dwarf inspector', () =>
     expect(armed.text).toBe(`Armed 0 of 3 · unarmed: ${members.map(short).join(', ')}`);
     expect(fgOfText(s, armed.row, 'Armed')).toBe(hexOf(theme.alert));
     // The line sits under the members and their keys.
-    expect(lines[armed.row - 1]?.trim()).toBe('[S-a] add  [r] remove');
+    expect(lines[armed.row - 1]?.trim()).toBe('[a] add  [r] remove');
     const stock = wrapped(lines, 'No spear');
     expect(stock.text).toBe('No spear in stock: order one at a forge [o] or buy one.');
     expect(fgOfText(s, stock.row, 'No spear')).toBe(hexOf(theme.alert));

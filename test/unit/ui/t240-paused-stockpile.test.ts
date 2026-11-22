@@ -7,7 +7,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import { defaultStockpile, type ItemsReader } from '@systems/items';
 import { ZoneTool, drawZonesPanel } from '@ui/panels/zones';
 import type { PanelContext } from '@ui/panels/context';
-import { press, strings, keymap, surface } from './ui-fixture';
+import { press, strings, surface } from './ui-fixture';
 
 async function fixture() {
   const h = new InProcessHost(() => 0); await h.newGame({ seed: 't240-paused-stockpile', embark: 'none' });
@@ -16,7 +16,7 @@ async function fixture() {
   const zoneId = h.readers.of<BuildingsReader>('14').zoneAt(tile);
   const tool = new ZoneTool(); tool.selected = zoneId;
   const notices: string[] = [];
-  const ctx: PanelContext = { readers: h.readers, registry: h.headless.registry, strings, panelLetters: keymap.panelLetters(),
+  const ctx: PanelContext = { readers: h.readers, registry: h.headless.registry, strings, shiftLetters: new Set<string>(),
     submit: cmd => h.submit(cmd), focusOn: () => {}, look: () => {}, openPanel: () => {}, shiftClick: () => false, notice: text => notices.push(text) };
   return { h, tool, ctx, zoneId, notices, items: h.readers.of<ItemsReader>('13') };
 }
@@ -28,7 +28,7 @@ describe('T-240 a stockpile made while paused can be configured at once', () => 
   it('draws the preset row without mutating a zone whose event is still queued', async () => {
     const f = await fixture(); expect(f.items.stockpile(f.zoneId)).toBeUndefined();
     const hash = f.h.headless.hash(); const text = draw(f).lines().join('\n');
-    expect(text).toContain('[S-p]'); expect(text).not.toContain('That zone is no longer available');
+    expect(text).toContain('[p]'); expect(text).not.toContain('That zone is no longer available');
     expect(f.h.headless.hash()).toBe(hash); expect(f.h.tick).toBe(0);
   });
   it('opens and applies Wood by keyboard before any simulation tick', async () => {
@@ -39,7 +39,7 @@ describe('T-240 a stockpile made while paused can be configured at once', () => 
     const before = f.items.stockpile(f.zoneId); f.h.step(1); expect(f.items.stockpile(f.zoneId)).toEqual(before);
   });
   it('opens and applies Wood by mouse before any simulation tick', async () => {
-    const f = await fixture(); const s = draw(f); const row = s.lines().findIndex(l => l.includes('[S-p]'));
+    const f = await fixture(); const s = draw(f); const row = s.lines().findIndex(l => l.includes('[p]'));
     expect(row).toBeGreaterThanOrEqual(0); s.hitAt(2, row)?.action();
     expect(f.tool.stockpile.preset.open).toBe(true);
     const options = draw(f); const woodRow = options.lines().findIndex(l => l.includes('Wood'));

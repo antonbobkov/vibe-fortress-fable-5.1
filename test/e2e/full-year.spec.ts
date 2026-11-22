@@ -759,7 +759,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Escape');
   await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickZoneIn(page, site.wx + 3, site.wy + 2, site.wx + 6, site.wy + 5);
-  await expect.poll(() => textOf(page)).toContain('[S-p] Preset');
+  await expect.poll(() => textOf(page)).toContain('[p] Preset');
   await page.keyboard.press('Shift+P');
   await expect.poll(() => textOf(page)).toContain('Everything');
   await clickText(page, 'Everything');
@@ -900,7 +900,7 @@ test('full-year', async ({ page }) => {
   await dragTiles(page, { x: site.patches[7]!.x, y: site.patches[7]!.y }, { x: site.patches[7]!.x + 2, y: site.patches[7]!.y + 2 });
   await closePanels(page);
 
-  // 4. A squad of three, for the wildlife (T-221): military panel, `+` makes it, `[S-a]` opens the
+  // 4. A squad of three, for the wildlife (T-221): military panel, `+` makes it, `[a]` opens the
   //    member list, `Space` marks the first three rows, `Enter` adds them. It stays off duty until
   //    an alert, as a squad does (16 § Squads).
   await closePanels(page);

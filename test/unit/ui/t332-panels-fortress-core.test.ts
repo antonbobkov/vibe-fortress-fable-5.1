@@ -68,9 +68,9 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
   it('Build offers the category keys, lists the chosen category with its cost and stock, and names the keys that place', () => {
     const rows = render('build');
     // The first caption is cut at its column and says so with » (its tooltip has the whole).
-    expect(rows[0]).toMatch(/^\[S-c\] Construct» +\[S-f\] Furniture/);
-    expect(rows[1]).toMatch(/^\[w\] Workshops +\[S-m\] Mechanisms/);
-    expect(rows[2]).toMatch(/^\[S-t\] Traps +\[S-s\] Special/);
+    expect(rows[0]).toMatch(/^\[c\] Constructio» +\[f\] Furniture/);
+    expect(rows[1]).toMatch(/^\[w\] Workshops +\[m\] Mechanisms/);
+    expect(rows[2]).toMatch(/^\[t\] Traps +\[s\] Special/);
     expect(rows[3]).toMatch(/^─+ Workshops ─+$/);
     // The 21 workshops of version 1 and the magma kiln (T-553), by name; the later rows follow.
     const listed = rows.slice(4, 25);
@@ -92,7 +92,7 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     const rows = render('zones');
     expect(rows[0]).toBe('[y] zone types');
     expect(rows[1]).toMatch(/Selected: Stockpile #\d+ \(20 t\)/);
-    expect(rows[2]).toBe('[S-p] Preset [Food ▼]');
+    expect(rows[2]).toBe('[p] Preset [Food ▼]');
     expect(rows[3]).toBe('[g] tree [q] settings');
     expect(rows[4]).toBe('[v] materials');
     expect(rows[5]).toMatch(/^► Food +\[■\]$/);
@@ -111,10 +111,10 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[33]).toBe('Priority 5');
     expect(rows[34]).toBe('Links: none');
     expect(rows[35]).toBe('[i] link [x] unlink');
-    expect(rows[36]).toBe('[S-c] Cellar: off');
+    expect(rows[36]).toBe('[c] Cellar: off');
     expect(rows[37]).toBe('Usage 0/20 tiles');
     expect(rows[38]).toBe('↑↓ select  ←→ expand  Space toggle');
-    expect(rows[39]).toBe('[Del] remove zone  [S-e] resize');
+    expect(rows[39]).toBe('[Del] remove zone  [e] resize');
   });
 
   it('Stocks lists the categories with held and wanted counts, and shows the wealth and the item keys', () => {
@@ -128,8 +128,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows.find((row) => row.includes(' ammo '))).toMatch(/^ {2}ammo/);
     expect(rows.find((row) => row.includes(' food '))).toMatch(/^► food/);
     expect(rows[37]).toBe('Wealth 1,691 ☼   (buildings 2 ☼)');
-    expect(rows[38]).toBe('[S-f] forbid  [S-d] dump');
-    expect(rows[39]).toBe('[S-m] melt  [S-t] to depot');
+    expect(rows[38]).toBe('[f] forbid  [S-d] dump');
+    expect(rows[39]).toBe('[S-m] melt  [t] to depot');
   });
 
   it('Units lists every dwarf with what each does, marks the cursor, and names the roster keys', () => {
@@ -147,10 +147,10 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[33]).toMatch(/^─+$/);
     expect(rows[34]).toBe('[Enter] inspect  [l] labors');
     // T-424: `c` is the Civilizations letter; the centre accelerator takes Shift.
-    expect(rows[35]).toBe('[S-c] center  [i] idle');
+    expect(rows[35]).toBe('[c] center  [i] idle');
     expect(rows[36]).toMatch(/^\[Space\] mark {2}\[\*\] all {2}0 marked$/);
-    expect(rows[37]).toBe('[S-t] title  [S-n] rename');
-    expect(rows[38]).toBe('[S-m] squad  [S-w] hurt');
+    expect(rows[37]).toBe('[t] title  [n] rename');
+    expect(rows[38]).toBe('[m] squad  [w] hurt');
     expect(rows[39]).toMatch(/^sleep \d+h {2}\[\[\] earlier {2}\[\]\] later$/);
   });
 
@@ -158,11 +158,11 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     const rows = render('jobs');
     expect(rows[0]).toBe('0 open · 1 claimed · 0 blocked');
     expect(rows[1]).toMatch(/^\/filter: \[ _+ \]$/);
-    expect(rows[2]).toBe('[S-l] labor: all');
-    expect(rows[3]).toBe('[S-s] state: all');
+    expect(rows[2]).toBe('[l] labor: all');
+    expect(rows[3]).toBe('[s] state: all');
     expect(rows[4]).toMatch(/^Pri Job +Who \/ reason$/);
     expect(rows[5]).toMatch(/^ 3 {2}Dig \(60,30,z32\) {2}\S+ \S+$/);
-    expect(rows[34]).toBe('[Enter] center  [S-p] priority');
+    expect(rows[34]).toBe('[Enter] center  [p] priority');
     expect(rows[35]).toBe('[x] cancel  [o] standing orders');
     expect(rows.slice(36).join(' ')).toMatch(/Labor priorities \(1-9\).*All labors at priority 5: change\s+them in the labor manager \(\[l\],\s+Enter\)\./);
   });
@@ -175,7 +175,7 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(listed).toHaveLength(dwarves.length);
     for (const row of listed) expect(row).toMatch(/^\S+ \S\. +■ +■ +■ +■ +■/);
     expect(rows[37]).toMatch(/click to toggle · shift-click:/);
-    expect(rows[38]).toMatch(/whole column · \[S-a\] all on\/off/);
+    expect(rows[38]).toMatch(/whole column · \[a\] all on\/off/);
     expect(rows[39]).toBe('[Enter] labor manager: all labors');
   });
 

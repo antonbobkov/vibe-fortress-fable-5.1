@@ -27,6 +27,8 @@ describe('T-M4-17 panels: shortcuts and commands', () => {
   it('opens orders, animals, mood and population through their documented hotkeys', async () => {
     const g = await game();
     for (const [key, panel] of [['o', 'orders'], ['n', 'animals'], ['e', 'mood'], ['p', 'population']]) {
+      // D-253: the open panel's letters come first (Orders' `n` is "new order"): Esc, then the letter.
+      if (g.ui.panel !== null) g.handleKey(press('Esc'));
       g.handleKey(press(key as string));
       expect(g.ui.panel).toBe(panel);
       expect(g.textRows().join('\n')).toContain(panel === 'mood' ? 'Hall spirit' : panel === 'animals' ? 'Tame' : panel === 'orders' ? 'Standing orders' : 'dwarves');
@@ -37,7 +39,7 @@ describe('T-M4-17 panels: shortcuts and commands', () => {
     const g = await game();
     const spy = vi.spyOn(g.host, 'submit');
     g.handleKey(press('o'));
-    // U-03 (D-U5): `[S-n]` opens the order picker.
+    // U-03 (D-U5): `[n]` opens the order picker.
     g.handleKey(press('n', { shift: true }));
     expect(g.fortress.orders.adding).toBe(true);
     // Enter adds only after the player has chosen: a key moves the highlight there and back.
@@ -49,7 +51,7 @@ describe('T-M4-17 panels: shortcuts and commands', () => {
     expect(add['workshopId']).toBe(0);
     g.host.step(1);
     expect(g.host.readers.of<WorkshopsReader>('12').globalOrders()).toHaveLength(1);
-    // U-03 (D-U2): `m` opens Military; the mode toggle is `[S-m]`.
+    // U-03 (D-U2): `m` opens Military; the mode toggle is `[m]`.
     g.handleKey(press('m', { shift: true }));
     expect(spy.mock.lastCall?.[0]).toMatchObject({ type: 'EditWorkOrder', workshopId: 0, patch: { mode: 'maintain' } });
     g.render();

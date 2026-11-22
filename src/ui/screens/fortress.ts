@@ -260,7 +260,7 @@ export class FortressScreen implements Screen {
       shiftClick: () => this.clickShift,
       notice: (text) => this.notice(text),
       clearNotice: () => this.clearNotice(),
-      panelLetters: this.panelLetters(),
+      shiftLetters: this.keymap.shiftLetters(this.keyContexts()),
       ...(host.confirm === undefined ? {} : {
         confirm: (id: string, params: Readonly<Record<string, string | number>>, run: () => void): void => {
           host.confirm?.(id, params, (yes) => { if (yes) run(); });
@@ -272,9 +272,8 @@ export class FortressScreen implements Screen {
   }
 
   /**
-   * The letters that open panels now (D-U2: "panel hotkeys always win"): the keymap's
-   * `fortress_panel` rows and any registered panel's own letter. An accelerator on one of them
-   * needs `Shift`.
+   * The letters that open panels now: the keymap's `fortress_panel` rows and any registered panel's
+   * own letter. Inside a panel that has a key on one of them, the panel's key comes first (D-253).
    */
   panelLetters(): Set<string> {
     const out = this.keymap.panelLetters();
@@ -511,8 +510,8 @@ export class FortressScreen implements Screen {
   private selectionKey(press: KeyPress): boolean {
     const tiles = this.selectionTiles();
     if (tiles.length === 0) return false;
-    // `f`, `d` and `t` are panel letters: with a selection they take `Shift` (D-U2).
-    const key = press.key === 'Delete' ? 'Delete' : acceleratorOf(press, this.panelLetters());
+    // `f` and `t` come before the panel letters; dump stays on `Shift` (D-253).
+    const key = press.key === 'Delete' ? 'Delete' : acceleratorOf(press, this.keymap.shiftLetters(['selection']));
     if (key === 'Delete') {
       this.host.submit({ type: 'UndoDesignation', tiles });
       const buildings = this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14') : null;
@@ -2034,11 +2033,12 @@ export class FortressScreen implements Screen {
     }
     if (press.key === ' ') return this.keyPress({ ...press, key: 'Space' });
 
-    // D-U2: a panel hotkey always opens or closes its panel, whatever panel is open; only a
-    // focused text field (the units filter, an animal's name) takes the letter instead. The open
-    // panel's own keys come next, before the map's.
     // D-U6: with the build tool's out-of-stock line showing, the Orders key opens the picker preset.
     if (this.build.active && this.ui.sidebar && !press.ctrl && !press.alt && !press.meta && !press.shift && press.key === this.ordersKey() && this.orderMissing()) return true;
+    // D-253: a letter the open panel (or the map selection) has a key on is that key, before the
+    // panel letters; any other panel letter opens or closes its panel, and `Esc` then a letter
+    // reaches any panel. The open panel's other keys come next, before the map's.
+    if (this.ownLetter(press, own)) return true;
     if (!this.textFocused() && this.panelHotkey(press)) return true;
     const panel = this.ui.panel;
     if (own !== null && this.ownPanelKey(panel, own)) return true;
@@ -2121,11 +2121,31 @@ export class FortressScreen implements Screen {
     return false;
   }
 
+  /**
+   * A letter the open panel's contexts or the map selection bind (D-253): it goes to them and never
+   * opens a panel, even when the key does nothing now. The sidebar hidden, the panel's letters are
+   * the panel letters again.
+   */
+  private ownLetter(press: KeyPress, own: KeyPress | null): boolean {
+    if (own === null || this.textFocused()) return false;
+    const claimed = this.keyContexts().find((context) => context !== 'panel' && this.keymap.claims([context], press));
+    if (claimed === undefined) return false;
+    if (claimed === 'selection') {
+      if (this.selection !== null) this.selectionKey(own);
+      return true;
+    }
+    if (!this.ui.sidebar) return false;
+    this.ownPanelKey(this.ui.panel, own);
+    // The first time a panel's letter acts where it also opens a panel, a hint says how to switch.
+    if (!press.shift && this.panelLetters().has(press.key.toLowerCase())) this.hints.show('hint_panel_letters', this.host.readers.calendar.tick, this.settings.hintsEnabled);
+    return true;
+  }
+
   /** The open panel's own keys, read as their defaults (`own`), after the panel letters and before the map's. */
   private ownPanelKey(panel: string | null, own: KeyPress): boolean {
     if (this.ui.sidebar && panel !== null && this.panelKey(panel, own)) return true;
     if (panel === 'designate' && this.ui.sidebar) {
-      const letter = acceleratorOf(own, this.panelLetters());
+      const letter = acceleratorOf(own, this.keymap.shiftLetters(['designate_panel']));
       if (letter === 'p') {
         this.reprioritize();
         return true;
@@ -2151,7 +2171,7 @@ export class FortressScreen implements Screen {
    */
   private lookKey(own: KeyPress): boolean {
     if (own.key === 'Backspace') return this.lookBackStep();
-    if (this.lookAt.kind === 'creature') return acceleratorOf(own, this.panelLetters()) === 'h' && this.lookHere();
+    if (this.lookAt.kind === 'creature') return acceleratorOf(own) === 'h' && this.lookHere();
     const tile = this.cursorTile();
     if (tile === null) return false;
     if (own.key === 'Enter') {
@@ -2174,8 +2194,7 @@ export class FortressScreen implements Screen {
 
   /**
    * A panel hotkey (`ui-keymap-and-screens.md` § Fortress panels): open the panel, or close it
-   * when it is the open one. A letter with `Shift` is never a panel hotkey: it is the open
-   * panel's accelerator (`[S-m]`, D-U2).
+   * when it is the open one. A letter with `Shift` is never a panel hotkey.
    */
   private panelHotkey(press: KeyPress): boolean {
     if (press.alt || press.meta) return false;
@@ -2207,7 +2226,7 @@ export class FortressScreen implements Screen {
       }
       // `[o]` shows every order again after a workshop's own list.
       if (opened.id === 'orders') { this.orders.workshopId = 0; this.orders.list.selected = 0; this.orders.picker.open = false; this.orders.materialOpen = false; }
-      // `[d] dig` (the status strip, `hint_dig`): the panel opens with Dig chosen, since `d` again closes it (D-241).
+      // `[d] dig` (the status strip, `hint_dig`): the panel opens with Dig chosen (D-241); `d` again chooses Dig (D-253).
       if (opened.id === 'designate' && !this.tool.active) this.tool.choose('d');
     }
     return true;
@@ -2226,8 +2245,8 @@ export class FortressScreen implements Screen {
     const down = k === 'ArrowDown' || k === '↓';
     const left = k === 'ArrowLeft' || k === '←';
     const right = k === 'ArrowRight' || k === '→';
-    // An accelerator: a letter that opens a panel counts only with `Shift` (`[S-m]`, D-U2).
-    const letter = acceleratorOf(press, ctx.panelLetters);
+    // An accelerator: the bare letter, or with `Shift`; the few kept on `Shift` only with it (D-253).
+    const letter = acceleratorOf(press, ctx.shiftLetters);
     const submit = (cmds: readonly Command[] | Command | null): boolean => {
       if (cmds === null) return true;
       for (const c of Array.isArray(cmds) ? cmds : [cmds]) this.host.submit(c as Command);

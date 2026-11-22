@@ -35,7 +35,7 @@ describe('T-242 stockpile presets and announcement formatting', () => {
       registry,
       strings,
       submit: () => {},
-      panelLetters: new Set<string>(),
+      shiftLetters: new Set<string>(),
     };
     const options = editor.presetOptions(ctx as never);
     expect(options).toHaveLength(14);

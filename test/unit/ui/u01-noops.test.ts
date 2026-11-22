@@ -87,7 +87,7 @@ describe('U-01 silent no-ops get a status message (§4.2, Q6)', () => {
     expect(screen.statusRow2()).toBe(`There can be at most ${SQUAD_MAX_COUNT} squads.`);
   });
 
-  it('[S-t] trade without a depot says so (U-03: `t` opens Threats)', () => {
+  it('[t] trade without a depot says so (U-03: `t` opens Threats)', () => {
     const { screen, sent } = setup('u01-trade');
     screen.openPanel('depot');
     expect(screen.key(press('t', { shift: true }))).toBe(true);
@@ -119,9 +119,13 @@ describe('U-01 silent no-ops get a status message (§4.2, Q6)', () => {
     expect(sent).toEqual([]);
   });
 
-  it('[t] title and [n] rename are off the units action row and do not swallow their keys', () => {
+  it('[t] title and [n] rename are off the units action row; in Units the letters are its own (D-253)', () => {
     const { screen } = setup('u01-units');
     screen.openPanel('units');
+    expect(screen.key(press('t'))).toBe(true);
+    expect(screen.ui.panel).toBe('units');
+    screen.key(press('Esc'));
+    screen.key(press('Esc'));
     expect(screen.key(press('t'))).toBe(true);
     expect(screen.ui.panel).toBe('threats');
     expect(strings.get('ui.units.actions2')).not.toContain('rename');

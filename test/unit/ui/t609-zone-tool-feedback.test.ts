@@ -137,6 +137,8 @@ describe('T-609 a zone answers at once, and its inspector has the keys it names'
     g.ui.cursor = { x: at.x + 1, y: at.y + 1 };
     g.handleKey(press('Enter'));
     expect(g.fortress.statusRow2()).toBe('Stockpile #1 made: 4 tiles.');
+    // D-253: in Zones `b` is the bedroom; Esc, then `b`, opens Build.
+    for (let k = 0; k < 3 && g.ui.panel !== null; k += 1) g.handleKey(press('Esc'));
     g.handleKey(press('b'));
     g.handleKey(press('w'));
     g.handleKey(press('Enter'));

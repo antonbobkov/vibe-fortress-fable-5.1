@@ -249,8 +249,8 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
     }
   }, still);
   await page.keyboard.press('Escape');
-  // U-03 (D-U5): `[S-n]` opens the order picker; typing filters it; Enter adds. The mode and the
-  // material of the order are `[S-m]` and `[S-f]` (`m` and `f` open panels, D-U2).
+  // U-03 (D-U5): `[n]` opens the order picker; typing filters it; Enter adds. The mode and the
+  // material of the order are `[m]` and `[f]` (`m` and `f` open panels, D-U2).
   await page.keyboard.press('o');
   await page.keyboard.press('Shift+N');
   await expect.poll(() => textOf(page)).toContain('Add order');
@@ -268,7 +268,7 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
   const dimcap = await textCell(page, 'dimcap');
   await page.mouse.click(dimcap.x, dimcap.y);
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  await expect.poll(() => textOf(page)).toContain('[S-f] dimcap');
+  await expect.poll(() => textOf(page)).toContain('[f] dimcap');
 
   // The default maintain threshold is 20. Poll the harvest, drink stock and completed excavation.
   await page.keyboard.press('Space');

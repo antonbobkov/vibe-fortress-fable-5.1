@@ -1,6 +1,6 @@
 /**
  * T-636: a waiting trade request says who it waits for and why (`panels.md` § Depot, §
- * Civilizations): the depot's line, the Civilizations line and the `[S-t]` notice; a caravan that
+ * Civilizations): the depot's line, the Civilizations line and the `[t]` notice; a caravan that
  * leaves with the request unserved raises an alert that says why (`TradeMissed`); the Jobs panel
  * names the job by its depot.
  */
@@ -61,7 +61,7 @@ describe('T-636 a waiting trade says who it waits for and why', () => {
     expect(command({ type: 'SetLabor', dwarfId: other, labor: 'trading', on: false })).toEqual({ ok: true });
     expect(command({ type: 'SetSquadMode', squadId: squad.id, mode: 'active' })).toEqual({ ok: true });
     w.step(1);
-    // The `[S-t]` notice, before the request's job exists.
+    // The `[t]` notice, before the request's job exists.
     expect(brokerOnWay(ctx, depot, true)).toBe(`${ON_DUTY_NOBODY} · [Space] resumes`);
     expect(command({ type: 'TradeOpen', depotId: depot })).toEqual({ ok: true });
     w.step(1);

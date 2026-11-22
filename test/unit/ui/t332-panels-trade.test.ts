@@ -92,16 +92,16 @@ describe('T-332 panels: civilizations, trade depot and trade session', () => {
     expect(rows[4]).toMatch(/── Hillfolk ──/);
     expect(rows[5]).toMatch(/Last brought: none$/);
     expect(rows[6]).toMatch(/Requests \[\+\]$/);
-    expect(rows[7]).toMatch(/\[←→\] pick \[S-p\] prio \[x\] remove$/);
+    expect(rows[7]).toMatch(/\[←→\] pick \[p\] prio \[x\] remove$/);
     expect(rows[8]).toMatch(/Reputation log$/);
-    expect(rows[23]).toMatch(/\[S-d\] depot {2}\[S-t\] trade now$/);
+    expect(rows[23]).toMatch(/\[d\] depot {2}\[t\] trade now$/);
   });
 
   it('Depot names the depot and the state of its goods, lists what stands in it with its worth, and names the keys', () => {
     const rows = render('depot');
     expect(rows[0]).toMatch(/Trade depot #\d+ · goods at depot$/);
     expect(rows[1]).toMatch(/► 10 easy meals +100 ☼$/);
-    expect(rows[22]).toMatch(/\[S-m\] move \[r\] remove \[S-t\] trade$/);
+    expect(rows[22]).toMatch(/\[m\] move \[r\] remove \[t\] trade$/);
   });
 
   it('the trade session names the civilization, broker and reputation, lists both sides with prices and chosen quantities, and totals the offer', () => {

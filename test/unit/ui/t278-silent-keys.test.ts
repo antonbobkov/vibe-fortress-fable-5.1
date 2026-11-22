@@ -63,11 +63,11 @@ describe('T-278 military keys', () => {
     f.screen.clearNotice();
     f.key('v');
     expect(f.submitted[f.submitted.length - 1]).toMatchObject({ type: 'SetSquadMode', mode: 'active' });
-    expect(f.screen.statusRow2()).toBe('The Hearthguard has no members: [S-a] adds them.');
+    expect(f.screen.statusRow2()).toBe('The Hearthguard has no members: [a] adds them.');
     f.screen.clearNotice();
     f.key('T', true);
     expect(f.submitted[f.submitted.length - 1]).toMatchObject({ type: 'SetSquadMode', mode: 'train' });
-    expect(f.screen.statusRow2()).toBe('The Hearthguard has no members: [S-a] adds them.');
+    expect(f.screen.statusRow2()).toBe('The Hearthguard has no members: [a] adds them.');
     // Off needs no members.
     f.screen.clearNotice();
     f.key('O', true);
@@ -124,16 +124,16 @@ describe('T-278 orders, designate and harvest', () => {
     const f = setup('t278-orders');
     f.screen.openPanel('orders');
     f.key('Delete');
-    expect(f.screen.statusRow2()).toBe('No order is selected: [S-n] adds one.');
+    expect(f.screen.statusRow2()).toBe('No order is selected: [n] adds one.');
     f.screen.clearNotice();
     f.key('x');
-    expect(f.screen.statusRow2()).toBe('No order is selected: [S-n] adds one.');
+    expect(f.screen.statusRow2()).toBe('No order is selected: [n] adds one.');
     f.screen.clearNotice();
     f.key('r');
     expect(f.screen.statusRow2()).toBe('There is no order to repeat yet.');
     f.screen.clearNotice();
     f.key('p', true);
-    expect(f.screen.statusRow2()).toBe('No order is selected: [S-n] adds one.');
+    expect(f.screen.statusRow2()).toBe('No order is selected: [n] adds one.');
   });
 
   it('Ctrl+Z with nothing designated says there is nothing to undo', () => {
