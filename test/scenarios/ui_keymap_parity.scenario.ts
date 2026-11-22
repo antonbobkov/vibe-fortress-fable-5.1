@@ -239,8 +239,8 @@ const scenario: Scenario = {
       screen.openPanel(null);
       expect(screen.key(press(row.key, { shift: row.key === '?' })), `${row.key} is consumed`).toBe(true);
       expect(ui.panel, `${row.key} opens ${row.panel}`).toBe(row.panel);
-      // A mouse path to the same panel: the sidebar draws its title row (24 § Panels).
-      expect(draw().lines().join('\n')).toContain(panel?.title as string);
+      // A mouse path to the same panel: the sidebar draws its title row (24 § Panels); Look's names what it shows (24 § Inspection).
+      expect(draw().lines().join('\n')).toContain(row.panel === 'look' ? 'Tile (' : panel?.title as string);
     }
     screen.openPanel(null);
 
@@ -359,7 +359,7 @@ const scenario: Scenario = {
         screen.pointerDown({ col: at.col, row: at.row, button: 0, clicks: 2, shift: false, ctrl: false, alt: false, meta: false });
         expect(centered, 'a double-clicked unit row centres the map').not.toBeNull();
         expect(ui.panel, 'and inspects the unit').toBe('look');
-        expect(screen.lookTab).toBe(2);
+        expect(screen.lookAt.kind, 'its view').toBe('creature');
         screen.openPanel(null);
       },
     };

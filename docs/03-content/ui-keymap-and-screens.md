@@ -39,7 +39,7 @@
 | `p` | Population | 21 | cap, eligibility |
 | `e` | Mood | 15 | the thoughts held by most dwarves, then every dwarf's tier and top thoughts |
 | `a` | Log | 24 | announcements with filters; combat tab |
-| `k` | Look | 24 | inspection of the tile under the cursor |
+| `k` | Look | 24 | the tile list of the tile under the cursor |
 | `f` | Overlays | 23 | overlay toggles |
 | `?` | Help | 24 | keymap, legend of glyphs |
 | `F12` | Debug | 24 | timings and counters |
@@ -212,7 +212,7 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 
 ### Units panel
 
-A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[S-t]`). An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. `Shift+L` opens the labor manager on the marked dwarves when any are marked; the bare labors key always opens the labors panel, with its cursor on the dwarf under the units cursor. `Enter` inspects the cursor's dwarf: Look on its tile at the `Creatures` tab, its sub-tab first (24 § Inspection).
+A panel's own keys may not use a panel hotkey, so these are on `Shift` (shown `[S-t]`). An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. `Shift+L` opens the labor manager on the marked dwarves when any are marked; the bare labors key always opens the labors panel, with its cursor on the dwarf under the units cursor. `Enter` inspects the cursor's dwarf: Look opens its view (24 § Inspection).
 
 | Key | Action |
 |---|---|
@@ -280,7 +280,7 @@ A click on a workshop opens it; `↑` `↓` choose a recipe and `Enter` adds an 
 
 ### Building panel
 
-The building panel's keys (`ui-screens/panels.md` § Building). The panel opens with a left click on a building, or `Enter` in Look on its tile. `↑` `↓` and `Enter` move over the lines that act and activate one (a mode, a trigger, a linked target, an owner); `←` `→` change a pressure plate's smallest creature size or fluid depth. A link target is picked with a left click on the map, or `↑` `↓` `Enter` in the list.
+The building panel's keys (`ui-screens/panels.md` § Building). The panel opens with a left click on a building (where no creature or loose item stands), or from its row in Look's tile list. `↑` `↓` and `Enter` move over the lines that act and activate one (a mode, a trigger, a linked target, an owner); `←` `→` change a pressure plate's smallest creature size or fluid depth. A link target is picked with a left click on the map, or `↑` `↓` `Enter` in the list.
 
 | Key | Action |
 |---|---|
@@ -291,7 +291,7 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 | `[g]` | tame the caged creature |
 | `[w]` | the owner of a bed's bedroom, or whom a coffin is kept for |
 | `[h]` | take out what the building holds (its bedding and pillow): they drop on its tile |
-| `[v]` | a `container` building (the wagon, a chest): Look on the tile where its goods lie, at the `Items` tab |
+| `[v]` | a `container` building (the wagon, a chest): Look's tile list where its goods lie |
 | `[x]` | cancel the plan, or take the building apart (confirm) |
 
 ### Stocks panel
@@ -397,12 +397,14 @@ A click on a line centres the map on its focus; a click on a creature's name in 
 
 ### Look panel
 
-`Enter` on a building's tile opens its panel. On the `Creatures` tab `PageUp` `PageDown` scroll a page and the wheel three rows a notch; the arrows move the map cursor.
+Look shows a tile list or one creature (24 § Inspection). `PageUp` `PageDown` scroll either view a page and the wheel three rows a notch. In the tile list the arrows move the map cursor and the list follows it; in a creature's view they pan the map. A building's panel, with its take apart key, opens from its row.
 
 | Key | Action |
 |---|---|
-| `1` `2` `3` | look tabs |
-| `[x]` | take apart the building here (confirm) |
+| `1`–`9` | tile list: open that row |
+| `Enter` | tile list: open the first row |
+| `[h]` | creature view: the tile list where it stands |
+| `Backspace` | back to the view before |
 
 ### Help panel
 
@@ -561,9 +563,9 @@ The mouse is not rebindable; § Mouse lists its gestures.
 
 | Gesture | With no tool | With a tool |
 |---|---|---|
-| Left click | inspect the tile (look panel); on a building, open its panel | a designation tool: the first corner of its box, then the opposite corner, which designates (the box may span the levels between) / a zone: one tile / place building |
+| Left click | open what the map shows there (24 § Inspection): a creature's view, else the tile list for a crowd or a loose item, else a building's panel, else a zone's inspector, else the tile list; a second click on an open creature lists its tile | a designation tool: the first corner of its box, then the opposite corner, which designates (the box may span the levels between) / a zone: one tile / place building |
 | Left drag | select a rectangle (then `Delete`, `[S-f]` forbid, `[S-d]` dump, `[S-t]` move to depot) | designate a box on one level / draw zone rectangle |
-| Right click | inspect with the entity list | cancel the tool |
+| Right click | the tile list: everything the map shows on the tile | cancel the tool |
 | Wheel | z-level on the map; over the sidebar, scrolls the list under the pointer three rows a notch and never changes the level | same |
 | `Ctrl` + wheel | zoom | zoom |
 | `Shift` + wheel | pan vertically | pan vertically |
@@ -724,7 +726,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | id | Check | Highlight | Text |
 |---|---|---|---|
 | `view` | `view_moved` | `z` | "Welcome to your hall. Move the view with ←→ ↑↓ (or drag with the middle button), and change the level with [<] and [>] (or the wheel). Do both: the z field below shows the level." |
-| `look` | `looked` | `look` | "Look at things with [k], or a click on the map. The look panel's Tile tab lists all that lies on the tile, and the status row names what is under the pointer. Look at a tile, then at one of your dwarves." |
+| `look` | `looked` | `look` | "Look at things with [k], or a click on the map. The look panel lists all that is on the tile, and a click on a dwarf opens its view; the status row names what is under the pointer. Look at a tile, then at one of your dwarves." |
 | `dig` | `dig_designated` | `designate` | "Open Designate with [d]: Dig is chosen. Go down a level with [<] into the rock, click one corner of a box, then the opposite corner (or Enter twice). The marked tiles blink while the work waits for a miner." |
 | `stairs` | `stairs_designated` | `designate` | "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft." |
 | `stockpile` | `stockpile_made` | `zones` | "Hauled goods need a place. Open Zones with [z], choose a stockpile with [S-s], and drag a rectangle over open floor (or Enter at two corners)." |

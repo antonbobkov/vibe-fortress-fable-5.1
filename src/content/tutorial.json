@@ -9,7 +9,7 @@
     "id": "look",
     "check": "looked",
     "highlight": "look",
-    "text": "Look at things with [k], or a click on the map. The look panel's Tile tab lists all that lies on the tile, and the status row names what is under the pointer. Look at a tile, then at one of your dwarves."
+    "text": "Look at things with [k], or a click on the map. The look panel lists all that is on the tile, and a click on a dwarf opens its view; the status row names what is under the pointer. Look at a tile, then at one of your dwarves."
   },
   {
     "id": "dig",

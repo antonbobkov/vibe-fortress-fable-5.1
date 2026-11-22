@@ -16,7 +16,7 @@ import type { EntityId } from '@core/types';
 import type { CombatReader } from '@systems/combat';
 import { cumulativeXp, xpToNext } from '@systems/dwarves';
 import { drawMilitaryPanel } from '@ui/panels/military';
-import { drawLookPanel } from '@ui/panels/look';
+import { drawCreatureView } from '@ui/panels/look';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import type { Surface } from '@ui/surface';
 import { fgOfText, hexOf, surface, theme } from './ui-fixture';
@@ -36,9 +36,8 @@ function drawMilitary(): Surface {
 function drawLook(id: EntityId): Surface {
   const s = surface(36, ROWS);
   const pos = game.host.readers.entities.get(id, C.Position);
-  const tile = pos === undefined ? null : game.host.readers.map.index(pos.x, pos.y, pos.z);
   const ctx = game.fortress.ctx;
-  drawLookPanel(s, { col: 0, row: 0, cols: 36, rows: ROWS }, ctx.readers, ctx.registry, ctx.strings, tile, 2, undefined, undefined, undefined, id);
+  drawCreatureView(s, { col: 0, row: 0, cols: 36, rows: ROWS }, ctx.readers, ctx.registry, ctx.strings, id, pos?.z ?? 0);
   return s;
 }
 
@@ -196,17 +195,18 @@ describe('T-622 the armed line, the stock counts and the dwarf inspector', () =>
     const s = drawLook(a);
     const lines = rows(s);
     const at = (head: string): number => lines.findIndex((line) => line.startsWith(head));
-    expect(lines[3]).toBe('Miner · adult · The Hearthguard');
-    expect(lines[4]).toMatch(/^Activity: /);
-    expect(lines[5]).toBe('Needs');
-    expect(lines[6]).toBe('hunger  ▓▓▓░  90 thirst  ▓▓░░  55');
+    expect(lines[0]).toBe('Miner · adult · The Hearthguard');
+    expect(lines[1]).toMatch(/^Activity: /);
+    expect(lines[2]).toMatch(/^At \(\d+, \d+, z\d+\)/);
+    expect(lines[4]).toBe('Needs');
+    expect(lines[5]).toBe('hunger  ▓▓▓░  90 thirst  ▓▓░░  55');
     // Critical in the warning colour, wanted in the alert colour, the rest plain.
-    expect(fgOfText(s, 6, 'hunger')).toBe(hexOf(theme.bad));
-    expect(fgOfText(s, 6, 'thirst')).toBe(hexOf(theme.alert));
-    expect(lines[7]).toBe('rest    ░░░░  10 social  ░░░░   0');
-    expect(fgOfText(s, 7, 'rest')).toBe(hexOf(theme.text));
-    expect(lines[9]).toBe('joy     ░░░░   0');
-    expect(lines[10]).toBe('Skills');
+    expect(fgOfText(s, 5, 'hunger')).toBe(hexOf(theme.bad));
+    expect(fgOfText(s, 5, 'thirst')).toBe(hexOf(theme.alert));
+    expect(lines[6]).toBe('rest    ░░░░  10 social  ░░░░   0');
+    expect(fgOfText(s, 6, 'rest')).toBe(hexOf(theme.text));
+    expect(lines[8]).toBe('joy     ░░░░   0');
+    expect(lines[9]).toBe('Skills');
     expect(lines.find((line) => line.startsWith('  Mining'))).toMatch(/^ {2}Mining \d+ \(\w+\) ▓▓░░░$/);
     expect(wrapped(lines, 'Equipment').text).toBe('Equipment iron spear');
     expect(wrapped(lines, 'Wearing').text).toMatch(/^Wearing \S/);
@@ -226,6 +226,6 @@ describe('T-622 the armed line, the stock counts and the dwarf inspector', () =>
     const lines = rows(drawLook(recruit));
     expect(lines).toContain('Equipment none');
     expect(lines.some((line) => line.startsWith('Title'))).toBe(false);
-    expect(lines[3]).toMatch(/ · adult$/);
+    expect(lines[0]).toMatch(/ · adult$/);
   });
 });

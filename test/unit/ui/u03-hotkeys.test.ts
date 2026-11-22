@@ -374,7 +374,7 @@ const DESTRUCTIVE: readonly {
   { name: 'workshop [S-s] suspend', open: (f, world) => { f.screen.workshopId = world.shop; f.screen.openPanel('workshop'); }, key: press('S', { shift: true }), confirm: 'c_suspend_workshop', command: 'SuspendWorkshop' },
   { name: 'workshop [x] take apart', open: (f, world) => { f.screen.workshopId = world.shop; f.screen.openPanel('workshop'); }, key: press('x'), confirm: 'c_deconstruct_building', command: 'DeconstructBuilding' },
   { name: 'workshop with orders [x] take apart', open: (f, world) => { f.screen.workshopId = world.busyShop; f.screen.openPanel('workshop'); }, key: press('x'), confirm: 'c_deconstruct_workshop', command: 'DeconstructBuilding' },
-  { name: 'look [x] take apart', open: (f) => f.screen.look({ x: 40, y: 20, z }), key: press('x'), confirm: 'c_deconstruct_building', command: 'DeconstructBuilding' },
+  { name: 'Look, Enter on a building\'s row, then [x] take apart', open: (f) => { f.screen.look({ x: 40, y: 20, z }); f.screen.key(press('Enter')); }, key: press('x'), confirm: 'c_deconstruct_building', command: 'DeconstructBuilding' },
   { name: 'military [x] disband', open: (f) => f.screen.openPanel('military'), key: press('x'), confirm: 'c_disband_squad', command: 'DisbandSquad' },
   { name: 'T-247 stockpile [Delete] remove', open: (f, world) => { f.screen.openPanel('zones'); f.screen.zones.selected = world.pile; }, key: press('Delete'), confirm: 'c_remove_zone', command: 'RemoveZone' },
   { name: 'orders [x] remove', open: (f, world) => { f.screen.orders.workshopId = world.busyShop; f.screen.openPanel('orders'); }, key: press('x'), confirm: 'c_remove_order', command: 'RemoveWorkOrder' },
@@ -424,7 +424,7 @@ describe('U-03 every destructive single-key action asks first, default No (D-U2)
     };
     expect(text('c_suspend_workshop', (f) => { f.screen.workshopId = shared.shop; f.screen.openPanel('workshop'); }, press('S', { shift: true })))
       .toBe("Suspend Carpenter's workshop #1? Its current job stops and its orders wait until you resume it.");
-    expect(text('c_deconstruct_building', (f) => f.screen.look({ x: 40, y: 20, z }), press('x'))).toBe('Take apart Table #1? Its materials are left where it stood.');
+    expect(text('c_deconstruct_building', (f) => { f.screen.look({ x: 40, y: 20, z }); f.screen.key(press('Enter')); }, press('x'))).toBe('Take apart Table #1? Its materials are left where it stood.');
     expect(text('c_remove_zone', (f) => { f.screen.openPanel('zones'); f.screen.zones.selected = shared.pile; }, press('Delete'))).toBe('Remove Stockpile #1? Its settings are lost.');
     expect(text('c_remove_order', (f) => { f.screen.orders.workshopId = shared.busyShop; f.screen.openPanel('orders'); }, press('x'))).toBe('Remove the order for Bed? Work in progress on it stops.');
     expect(text('c_slaughter_animal', (f) => f.screen.openPanel('animals'), press('S', { shift: true }))).toBe('Slaughter the cow? It will be butchered for meat, hide and bone.');

@@ -13,7 +13,7 @@ import type { CombatReader } from '@systems/combat';
 import { drawMilitaryPanel } from '@ui/panels/military';
 import { drawThreatsPanel } from '@ui/panels/threats';
 import { drawZonesPanel } from '@ui/panels/zones';
-import { drawLookPanel } from '@ui/panels/look';
+import { drawCreatureView } from '@ui/panels/look';
 import { drawLogPanel } from '@ui/panels/log';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import type { Surface } from '@ui/surface';
@@ -22,6 +22,7 @@ import { fgOfText, hexOf, surface, theme } from './ui-fixture';
 type PanelName = 'military' | 'threats' | 'hospital' | 'look' | 'combat_log';
 let game: Game;
 let patientName = '';
+let lookId = 0;
 
 function draw(which: PanelName): Surface {
   const s = surface(36, 32);
@@ -30,7 +31,7 @@ function draw(which: PanelName): Surface {
   if (which === 'military') drawMilitaryPanel(s, rect, f.military, f.ctx);
   else if (which === 'threats') drawThreatsPanel(s, rect, f.threats, f.ctx);
   else if (which === 'hospital') drawZonesPanel(s, rect, f.zones, f.ctx);
-  else if (which === 'look') drawLookPanel(s, rect, f.ctx.readers, f.ctx.registry, f.ctx.strings, f.lookTile(), 2);
+  else if (which === 'look') drawCreatureView(s, rect, f.ctx.readers, f.ctx.registry, f.ctx.strings, lookId, 32);
   else drawLogPanel(s, rect, f.log.lines, 2, f.ctx.strings, f.ctx.readers.calendar.tick, () => {});
   return s;
 }
@@ -88,10 +89,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
         body.diagnosed = true;
       }
       game.host.world.entities.add(dwarfId, C.Patient, { hospitalZoneId: hospZoneId, bedId: 0, needs: ['rest'], admittedTick: 0 });
-      const dwarfPos = game.host.readers.entities.get(dwarfId, C.Position);
-      if (dwarfPos) {
-        game.fortress.lookTile = () => map.index(dwarfPos.x, dwarfPos.y, dwarfPos.z);
-      }
+      lookId = dwarfId;
     }
 
     // 4. Add a blow to the combat tab.
@@ -105,8 +103,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
       outcome: 'hit',
     });
     game.host.step(1);
-    const look = render('look');
-    patientName = /^─+ Creature: (.+?) ─+$/.exec(look[2] ?? '')?.[1] ?? '';
+    patientName = game.host.readers.entities.get(lookId, C.Creature)?.name ?? '';
   });
 
   it('Military shows the alert and what it means, the squad table, and the selected squad with its mode, members, gear and orders', () => {
@@ -179,36 +176,37 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
 
   it('Look names the creature, its activity, needs, skills, mood, blood and pain, the missing care, and every body part', () => {
     const rows = render('look');
-    expect(rows[0]).toMatch(/^Look · \(\d+, \d+, z32\)$/);
-    expect(rows[1]).toBe('[1]Tile [2]Items 0 [3]Who 1');
     expect(patientName).toMatch(/^\S+ \S+$/);
     // The identity line: the profession of the best skill, the age and the squad.
-    expect(rows[3]).toBe('Miner · adult · The Hearthguard');
-    expect(rows[4]).toBe('Activity: Resting in hospital');
-    expect(rows[5]).toBe('Needs');
-    expect(rows.slice(6, 10)).toEqual([
+    expect(rows[0]).toBe('Miner · adult · The Hearthguard');
+    expect(rows[1]).toBe('Activity: Resting in hospital');
+    // Where it is now, read each frame, then the sections under a rule.
+    expect(rows[2]).toMatch(/^At \(\d+, \d+, z32\)$/);
+    expect(rows[3]).toMatch(/^─+$/);
+    expect(rows[4]).toBe('Needs');
+    expect(rows.slice(5, 9)).toEqual([
       'hunger  ░░░░  20 thirst  ░░░░  20', 'rest    ░░░░  20 social  ░░░░  20', 'comfort ░░░░  20 purpose ░░░░  20', 'joy     ░░░░  20',
     ]);
-    expect(rows[10]).toBe('Skills');
+    expect(rows[9]).toBe('Skills');
     // Each skill has its progress to the next level as a bar.
-    expect(rows.slice(11, 14)).toEqual(['  Axe 2 (Novice) ░░░░░', '  Building 3 (Novice) ░░░░░', '  Mining 5 (Adequate) ░░░░░']);
+    expect(rows.slice(10, 13)).toEqual(['  Axe 2 (Novice) ░░░░░', '  Building 3 (Novice) ░░░░░', '  Mining 5 (Adequate) ░░░░░']);
     // The attributes, the traits and the productivity follow the skills.
-    expect(rows[14]).toMatch(/^Str \d+ Agi \d+ Tou \d+ End \d+ Wil \d+$/);
-    expect(rows[15]).toMatch(/^Wit \d+ Cha \d+$/);
+    expect(rows[13]).toMatch(/^Str \d+ Agi \d+ Tou \d+ End \d+ Wil \d+$/);
+    expect(rows[14]).toMatch(/^Wit \d+ Cha \d+$/);
     // Three traits wrap under the first word.
-    expect(`${rows[16]} ${rows[17]?.trim()}`).toMatch(/^Personality \w+, \w+, \w+$/);
-    expect(rows[17]).toMatch(/^ {12}\w/);
-    expect(rows[18]).toMatch(/^Productivity \d+%$/);
-    expect(rows[19]).toMatch(/^Mood: Fine \(\d+\)$/);
+    expect(`${rows[15]} ${rows[16]?.trim()}`).toMatch(/^Personality \w+, \w+, \w+$/);
+    expect(rows[16]).toMatch(/^ {12}\w/);
+    expect(rows[17]).toMatch(/^Productivity \d+%$/);
+    expect(rows[18]).toMatch(/^Mood: Fine \(\d+\)$/);
     // A thought that rounds to 0 ("0 The Thane sleeps in a hovel.") is not listed: the health follows the mood.
-    expect(rows[20]).toMatch(/^Health: Blood 100%, Pain \d+$/);
-    expect(rows[21]).toBe('Care: no free hospital bed.');
-    expect(rows[22]).toBe('  Conscious');
-    expect(rows[23]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
-    expect(rows[24]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
-    expect(rows[25]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
+    expect(rows[19]).toMatch(/^Health: Blood 100%, Pain \d+$/);
+    expect(rows[20]).toBe('Care: no free hospital bed.');
+    expect(rows[21]).toBe('  Conscious');
+    expect(rows[22]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
+    expect(rows[23]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
+    expect(rows[24]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
     // The wound is listed under the part it is on, with its dressing and its infection.
-    expect(rows[26]).toBe('    serious cut (bandaged, infect»');
+    expect(rows[25]).toBe('    serious cut (bandaged, infect»');
   });
 
   it('the combat log names the tabs and shows a blow with its sender, damage and kind', () => {

@@ -23,7 +23,7 @@ import type { KeyPress } from '@platform/input';
 import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
-import { CURSOR_SCROLL_MARGIN, STATUS_HINT_SECONDS } from '../constants';
+import { CURSOR_SCROLL_MARGIN, LOOK_BACK_MAX, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
 import { batchReach, boxLevels, DESIGNATION_IDS, drawDesignatePanel, DesignateTool, rampTopped, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
@@ -43,7 +43,7 @@ import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
 import { DepotPanel, depotGaps, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
-import { drawLookPanel, LookScroll, tileContents, type LookTab } from '../panels/look';
+import { clickRung, creatureShown, drawCreatureView, drawTileList, LookScroll, tileContents, tileListRows, tileTitle, type LookTarget } from '../panels/look';
 import { drawLogPanel, drawLogStrip, filterLines, LogView, matchLines, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import { statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
@@ -89,6 +89,15 @@ export const HELP_PAGE_ROWS = 10;
 
 /** Recorded in the saved `hintsShown` once Help has opened on its Start tab in this fortress. */
 export const HELP_START = 'help_start';
+
+/**
+ * What Look shows (24 § Inspection): the tile list, of the cursor's tile while it is the view and of
+ * `tile` in the back history, or one creature held by its id, with its name and the last tile the map
+ * showed it on. Presentation state, not saved.
+ */
+export type LookSelection =
+  | { readonly kind: 'tile'; readonly tile: TileIndex | null }
+  | { readonly kind: 'creature'; readonly id: EntityId; name: string; last: TileIndex | null };
 
 export interface FortressSettings {
   /** 24: "`auto-pause on danger` setting is on (default on)". */
@@ -165,11 +174,14 @@ export class FortressScreen implements Screen {
   readonly log: AnnouncementLog;
   readonly hints: HintEngine;
   readonly settings: FortressSettings = { autoPauseDanger: true, autoPauseAlert: false, hintsEnabled: true, edgeScrolling: false, combatLog: 'hits only' };
-  lookTab: LookTab = 0;
-  /** The creature whose sub-tab Look shows first (0: the tile's order); set by inspecting a creature. */
-  lookCreature: EntityId = 0;
-  /** How far Look's `Creatures` tab is scrolled (24 § Inspection). */
+  /** What Look shows: the tile list or a creature (24 § Inspection). */
+  lookAt: LookSelection = { kind: 'tile', tile: null };
+  /** The views Look's `Backspace` returns to, the newest last; a look opened from the map, a list or a log line starts it afresh. */
+  readonly lookBack: LookSelection[] = [];
+  /** How far Look's view is scrolled (24 § Inspection). */
   readonly lookView = new LookScroll();
+  /** Zones was opened by a click on a zone's tile: map clicks stay the click ladder's, not the zone picker's (24 § Inspection). */
+  private zonesByClick = false;
   logFilter: LogFilter = 0;
   /** The log panel's selected entry and scroll, in entries. */
   readonly logView = new LogView();
@@ -239,10 +251,10 @@ export class FortressScreen implements Screen {
       strings: this.strings,
       submit: (c) => host.submit(c),
       focusOn: (t) => this.focusOn(t),
-      look: (t, tab, creature) => {
+      look: (t) => {
         const map = host.readers.map;
         this.focusOn(t);
-        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) }, tab, creature);
+        this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) });
       },
       openPanel: (id) => this.openPanel(id),
       shiftClick: () => this.clickShift,
@@ -550,13 +562,12 @@ export class FortressScreen implements Screen {
     }
   }
 
-  /**
-   * Inspect a creature (24 § Inspection): centre on it and open Look on its tile at the
-   * `Creatures` tab, with its sub-tab first.
-   */
+  /** Inspect a creature (24 § Inspection): centre on it once and open its view. */
   inspectCreature(id: EntityId): void {
     const p = id === 0 ? undefined : this.host.readers.entities.get(id, C.Position);
-    if (p !== undefined) this.ctx.look(this.host.readers.map.index(p.x, p.y, p.z), 2, id);
+    if (p === undefined) return;
+    this.focusOn(this.host.readers.map.index(p.x, p.y, p.z));
+    this.showCreature(id, 'fresh');
   }
 
   /** The creatures a log line can name: those with a name of their own (an unnamed one is called by its species). */
@@ -781,8 +792,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'animals') drawAnimalsPanel(surface, body, this.animals, ctx);
     else if (panel.id === 'mood') drawMoodPanel(surface, body, this.mood, ctx);
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
-    else if (panel.id === 'look') drawLookPanel(surface, body, readers, this.host.registry, this.strings, this.lookTile(), this.lookTab,
-      (leverId) => ctx.submit({ type: 'PullLever', leverId }), (buildingId) => this.deconstruct(buildingId), (buildingId) => this.openBuilding(buildingId), this.lookCreature, this.lookView);
+    else if (panel.id === 'look') this.drawLook(surface, body);
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
     else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
@@ -1101,14 +1111,14 @@ export class FortressScreen implements Screen {
    * look panel is open. Otherwise the pointer is, and the arrows pan.
    */
   private cursorLive(): boolean {
-    return this.ui.cursor !== null && (this.toolActive || this.picking() || (this.ui.panel === 'look' && this.ui.sidebar));
+    return this.ui.cursor !== null && (this.toolActive || this.picking() || (this.ui.panel === 'look' && this.ui.sidebar && this.lookAt.kind === 'tile'));
   }
 
   /** A panel is waiting for a tile or a creature of the map (a station, a patrol point, a kill order, a link, a zone). */
   private picking(): boolean {
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow) return true;
     if (!this.ui.sidebar) return false;
-    return (this.ui.panel === 'zones') || (this.ui.panel === 'building' && this.building.linking);
+    return (this.ui.panel === 'zones' && !this.zonesByClick) || (this.ui.panel === 'building' && this.building.linking);
   }
 
   /**
@@ -1117,6 +1127,7 @@ export class FortressScreen implements Screen {
    * is not shown and is not reused.
    */
   private syncCursor(): void {
+    this.trackLook();
     const needed = this.toolActive || this.picking();
     const c = this.ui.cursor;
     const placed = c !== null && (this.cursorSeen === null || this.cursorSeen.x !== c.x || this.cursorSeen.y !== c.y);
@@ -1164,8 +1175,12 @@ export class FortressScreen implements Screen {
     return this.aimPoint() ?? this.centerPoint();
   }
 
+  /** The tile Look shows: the cursor's in the tile list, the creature's own (or where it was last seen) in its view. */
   lookTile(): TileIndex | null {
-    return this.cursorTile();
+    const at = this.lookAt;
+    if (at.kind === 'tile') return this.cursorTile();
+    const p = this.host.readers.entities.get(at.id, C.Position);
+    return p !== undefined && creatureShown(this.host.readers, at.id) ? this.host.readers.map.index(p.x, p.y, p.z) : at.last;
   }
 
   // ---------- actions ----------
@@ -1212,6 +1227,7 @@ export class FortressScreen implements Screen {
 
   /** A panel's title, with the filter in use: `Units · filter: xxx (3 of 80)`. */
   private panelTitle(id: string, panelName: string, surface: Surface): string {
+    if (id === 'look') return this.lookTitle(panelName);
     let title = panelName;
     const ctx = this.ctx;
     let filter = '';
@@ -1253,6 +1269,12 @@ export class FortressScreen implements Screen {
     if (id !== 'zones') this.zones.cancel();
     if (id !== 'building') this.building.cancel();
     if (id !== this.ui.panel) this.clearFilters();
+    // 24 § Inspection: another panel drops what Look shows, and its history.
+    if (id !== 'look') {
+      this.lookAt = { kind: 'tile', tile: null };
+      this.lookBack.length = 0;
+    }
+    this.zonesByClick = false;
     // The log opens on its newest entry, unmarked: a choice holds while the panel stays open (24 § Announcements and the log).
     if (id === 'log' && (id !== this.ui.panel || !this.ui.sidebar)) this.logView.reset();
     // Help opens on the Start tab the first time in a fortress.
@@ -1321,16 +1343,176 @@ export class FortressScreen implements Screen {
     this.depot.trade(this.ctx, this.host.speed() === 0);
   }
 
-  /**
-   * Look at a tile: the look panel with the cursor on it, at the `Tile` tab or the one asked for,
-   * with a creature's sub-tab first when one is being inspected.
-   */
-  look(p: TilePoint, tab: LookTab = 0, creature: EntityId = 0): void {
-    this.ui.cursor = { x: p.x, y: p.y };
-    this.lookTab = tab;
-    this.lookCreature = creature;
+  /** Look at a tile (`k`, a right click, a crowd): the tile list with the cursor on it, its history begun afresh. */
+  look(p: TilePoint): void {
+    this.openPanel('look');
+    this.lookBack.length = 0;
+    this.showTile(p.x, p.y);
+  }
+
+  /** The tile list at a tile of the current level; it follows the cursor from there. */
+  private showTile(x: number, y: number): void {
+    this.ui.cursor = { x, y };
+    this.lookAt = { kind: 'tile', tile: null };
     this.lookView.key = '';
     this.openPanel('look');
+  }
+
+  /**
+   * A creature's view (24 § Inspection). `from`: `fresh` begins the history afresh, `push` keeps the
+   * view it was opened from for `Backspace`, `back` is `Backspace` returning to it.
+   */
+  private showCreature(id: EntityId, from: 'fresh' | 'push' | 'back'): void {
+    if (from === 'push') this.pushLook();
+    const readers = this.host.readers;
+    const p = readers.entities.get(id, C.Position);
+    this.openPanel('look');
+    if (from === 'fresh') this.lookBack.length = 0;
+    this.lookAt = { kind: 'creature', id, name: readers.entities.get(id, C.Creature)?.name ?? '', last: p === undefined ? null : readers.map.index(p.x, p.y, p.z) };
+    this.lookView.key = '';
+    this.trackLook();
+  }
+
+  /** Keep the view now shown for `Backspace`, at most `LOOK_BACK_MAX` of them. */
+  private pushLook(): void {
+    const at = this.lookAt;
+    const entry: LookSelection = at.kind === 'tile' ? { kind: 'tile', tile: this.cursorTile() } : { ...at };
+    if (entry.kind === 'tile' && entry.tile === null) return;
+    this.lookBack.push(entry);
+    while (this.lookBack.length > LOOK_BACK_MAX) this.lookBack.shift();
+  }
+
+  /** `Backspace`: the view before, if there is one. */
+  private lookBackStep(): boolean {
+    const prev = this.lookBack.pop();
+    if (prev === undefined) return false;
+    if (prev.kind === 'creature') {
+      this.showCreature(prev.id, 'back');
+      if (this.lookAt.kind === 'creature') this.lookAt.last = this.lookAt.last ?? prev.last;
+      return true;
+    }
+    if (prev.tile === null) return true;
+    this.showTileAt(prev.tile);
+    return true;
+  }
+
+  /** The tile list at any tile: the view goes to its level first when it is on another. */
+  private showTileAt(tile: TileIndex): void {
+    const p = this.host.readers.map.unpack(tile);
+    if (p.z !== this.ui.z) this.focusOn(tile);
+    this.showTile(p.x, p.y);
+  }
+
+  /** `[h]` in a creature's view: the tile list of where it stands now, or was last seen. */
+  private lookHere(): boolean {
+    const tile = this.lookAt.kind === 'creature' ? this.lookTile() : null;
+    if (tile === null) return false;
+    this.pushLook();
+    this.showTileAt(tile);
+    return true;
+  }
+
+  /** Whether a row of the tile list opens: an item has no view of its own yet, so its row is read, not opened. */
+  private lookOpens(target: LookTarget): boolean {
+    return target.kind !== 'item';
+  }
+
+  /** Open what a row of the tile list names: a creature's view, a building's panel, a zone's inspector. */
+  openTarget(target: LookTarget): void {
+    switch (target.kind) {
+      case 'creature':
+        this.showCreature(target.id, 'push');
+        return;
+      case 'building':
+        this.openBuilding(target.id);
+        return;
+      case 'zone':
+        this.openZone(target.id);
+        return;
+      case 'item':
+        return;
+    }
+  }
+
+  /** The things the tile list numbers now, in digit order: those the last draw numbered, or the list's first nine. */
+  private lookTargets(): LookTarget[] {
+    const tile = this.cursorTile();
+    if (tile === null) return [];
+    if (this.lookView.key.startsWith(`tile:${tile}:`)) return this.lookView.numbered;
+    return this.firstTargets(tile);
+  }
+
+  /** The openable rows of a tile's list from its top, at most nine. */
+  private firstTargets(tile: TileIndex): LookTarget[] {
+    return tileListRows(this.host.readers, this.host.registry, this.strings, tile)
+      .flatMap((row) => (row.target !== null && this.lookOpens(row.target) ? [row.target] : []))
+      .slice(0, 9);
+  }
+
+  /** A zone's inspector in Zones, opened by a click: the map's clicks stay the ladder's (24 § Inspection). */
+  private openZone(zoneId: EntityId): void {
+    this.openPanel('zones');
+    this.zones.selectZone(zoneId);
+    this.zonesByClick = true;
+  }
+
+  /**
+   * A left click with no tool and no panel picking (24 § Inspection, the click ladder): the creature
+   * the map shows there, else the tile list for a crowd or a loose item, else the building's panel,
+   * else the zone's inspector, else the bare tile. A second click on the tile whose one creature is
+   * open lists the tile.
+   */
+  private clickLook(at: TilePoint): void {
+    const tile = this.tileOf(at);
+    if (tile === null) return;
+    const rung = clickRung(this.host.readers, tile);
+    const shown = this.ui.panel === 'look' && this.ui.sidebar ? this.lookAt : null;
+    if (rung.kind === 'creature' && !(shown?.kind === 'creature' && shown.id === rung.id)) {
+      this.showCreature(rung.id, 'fresh');
+      this.selecting = at;
+      return;
+    }
+    if (rung.kind === 'building') {
+      // 14 § Player-facing behavior: "Clicking a building opens its panel"; a drag from it still selects.
+      this.openBuilding(rung.id);
+      if (this.ui.panel === 'building') {
+        this.ui.cursor = { x: at.x, y: at.y };
+        this.selecting = at;
+        this.clearNotice();
+      }
+      return;
+    }
+    this.selecting = at;
+    this.clearNotice();
+    if (rung.kind === 'zone') this.openZone(rung.id);
+    else this.look(at);
+  }
+
+  /** The cursor sits on the creature Look shows, and moves with it; the place it was last seen is kept. */
+  private trackLook(): void {
+    const at = this.lookAt;
+    if (at.kind !== 'creature' || this.ui.panel !== 'look' || !this.ui.sidebar) return;
+    const readers = this.host.readers;
+    const p = readers.entities.get(at.id, C.Position);
+    if (p === undefined || !creatureShown(readers, at.id)) return;
+    at.last = readers.map.index(p.x, p.y, p.z);
+    this.ui.cursor = { x: p.x, y: p.y };
+  }
+
+  /** Look's title row: the tile list's "Tile (58, 93, z27)", or the creature's name. */
+  private lookTitle(fallback: string): string {
+    const at = this.lookAt;
+    if (at.kind === 'creature') return this.host.readers.entities.get(at.id, C.Creature)?.name ?? at.name;
+    const tile = this.cursorTile();
+    return tile === null ? fallback : tileTitle(this.host.readers, this.strings, tile);
+  }
+
+  /** Look's view: the creature's, or the tile list of the cursor's tile. */
+  private drawLook(surface: Surface, body: Rect): void {
+    const at = this.lookAt;
+    const readers = this.host.readers;
+    if (at.kind === 'creature') drawCreatureView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last);
+    else drawTileList(surface, body, readers, this.host.registry, this.strings, this.cursorTile(), this.lookView, (t) => this.lookOpens(t), (t) => this.openTarget(t));
   }
 
   /** Submit a finished zone rectangle. */
@@ -1950,33 +2132,38 @@ export class FortressScreen implements Screen {
       }
       if (letter !== '' && this.tool.choose(letter)) return true;
     }
-    if (panel === 'look' && this.ui.sidebar && acceleratorOf(own, this.panelLetters()) === 'x' && !this.toolActive) {
-      const tile = this.lookTile();
-      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
-      if (building !== 0) {
-        this.deconstruct(building);
-        return true;
-      }
-    }
-    if (panel === 'look' && this.ui.sidebar && own.key === 'Enter' && !this.toolActive && !own.ctrl && !own.alt && !own.meta) {
-      // U-05: the keyboard's way to a building's panel (the mouse's is a click on it).
-      const tile = this.lookTile();
-      const building = tile === null ? 0 : this.host.readers.map.buildingAt(tile);
-      if (building !== 0) {
-        this.openBuilding(building);
-        return true;
-      }
-    }
-    if ((panel === 'look' || panel === 'log') && /^[1-3]$/.test(own.key) && !own.ctrl && !this.tool.active) {
+    if (panel === 'look' && this.ui.sidebar && !this.toolActive && !own.ctrl && !own.alt && !own.meta && this.lookKey(own)) return true;
+    if (panel === 'log' && /^[1-3]$/.test(own.key) && !own.ctrl && !this.tool.active) {
       const n = Number(own.key) - 1;
-      if (panel === 'look') this.lookTab = n as LookTab;
-      else if (this.logFilter !== n) {
+      if (this.logFilter !== n) {
         this.logFilter = n as LogFilter;
         this.logView.reset();
       }
       return true;
     }
     return false;
+  }
+
+  /**
+   * Look's own keys (24 § Inspection): in the tile list `1`–`9` open the numbered rows and `Enter`
+   * the first row, what a click would open; in a creature's view `[h]` lists the tile it stands on;
+   * `Backspace` returns to the view before.
+   */
+  private lookKey(own: KeyPress): boolean {
+    if (own.key === 'Backspace') return this.lookBackStep();
+    if (this.lookAt.kind === 'creature') return acceleratorOf(own, this.panelLetters()) === 'h' && this.lookHere();
+    const tile = this.cursorTile();
+    if (tile === null) return false;
+    if (own.key === 'Enter') {
+      const first = this.firstTargets(tile)[0];
+      if (first === undefined) return false;
+      this.openTarget(first);
+      return true;
+    }
+    if (!/^[1-9]$/.test(own.key)) return false;
+    const target = this.lookTargets()[Number(own.key) - 1];
+    if (target !== undefined) this.openTarget(target);
+    return true;
   }
 
   /** A text field of the open panel has the keyboard: letters are text, not hotkeys. */
@@ -2054,8 +2241,8 @@ export class FortressScreen implements Screen {
           }
           return false;
       case 'look':
-        // 24 § Inspection: the Creatures tab scrolls a page; the arrows stay the map cursor's.
-        if (this.lookTab === 2 && (k === 'PageUp' || k === 'PageDown')) { this.lookView.page(k === 'PageUp' ? -1 : 1); return true; }
+        // 24 § Inspection: the view scrolls a page; the arrows stay the map's.
+        if (k === 'PageUp' || k === 'PageDown') { this.lookView.page(k === 'PageUp' ? -1 : 1); return true; }
         return false;
       case 'help':
         if (k === '1' || k === '2' || k === '3') { this.help.setTab((Number(k) - 1) as HelpTab); return true; }
@@ -2386,7 +2573,7 @@ export class FortressScreen implements Screen {
     }
     if (this.ui.panel === 'zones' && this.ui.sidebar) {
       const tile = this.tileOf(at);
-      if (tile !== null && this.zones.select(this.ctx, tile)) return;
+      if (tile !== null && !this.zonesByClick && this.zones.select(this.ctx, tile)) return;
     }
     // The second click sets the opposite corner and designates the box.
     if (this.tool.active && this.tool.anchor !== null) {
@@ -2400,22 +2587,8 @@ export class FortressScreen implements Screen {
       this.clearNotice();
       return;
     }
-    const tile = this.tileOf(at);
-    const buildingId = tile !== null && this.host.readers.has('14') ? this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').at(tile) : 0;
     this.selection = null;
-    if (buildingId !== 0) {
-      // 14 § Player-facing behavior: "Clicking a building opens its panel"; a drag from it still selects.
-      this.openBuilding(buildingId);
-      if (this.ui.panel === 'building') {
-        this.ui.cursor = { x: at.x, y: at.y };
-        this.selecting = at;
-        this.clearNotice();
-      }
-      return;
-    }
-    this.selecting = at;
-    this.clearNotice();
-    this.look(at);
+    this.clickLook(at);
   }
 
   pointerMove(p: CellPointer): void {
@@ -2497,9 +2670,9 @@ export class FortressScreen implements Screen {
     const side = this.host.layout().sidebar;
     if (side !== null && this.ui.sidebar && w.col >= side.col && w.col < side.col + side.cols && w.row >= side.row && w.row < side.row + side.rows) {
       const panel = this.ui.panel;
-      // Look's arrows move the map cursor: the wheel scrolls its Creatures tab itself.
+      // Look's arrows move the map cursor or pan: the wheel scrolls its view itself.
       if (panel === 'look') {
-        if (this.lookTab === 2) this.lookView.move(w.dy > 0 ? 3 : -3);
+        this.lookView.move(w.dy > 0 ? 3 : -3);
         return;
       }
       if (panel !== null) for (let k = 0; k < 3; k += 1) this.panelKey(panel, { key: w.dy > 0 ? 'ArrowDown' : 'ArrowUp', repeat: false, shift: false, ctrl: false, alt: false, meta: false });

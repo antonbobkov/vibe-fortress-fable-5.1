@@ -33,6 +33,9 @@ export const LOG_IMMIGRANT_NAMES = 4;
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
 export const CURSOR_SCROLL_MARGIN = 3;
 
+/** The views Look's Backspace returns through, the oldest dropped first (24 § Inspection). */
+export const LOOK_BACK_MAX = 8;
+
 /** Rejection reason display time in the status bar (D-U4: four seconds). */
 export const STATUS_HINT_SECONDS = 4;
 

@@ -59,7 +59,7 @@ The log strip shows the last three announcements, leaving out the combat notes (
 │                                                                                  │ sleep 22h  [[] earlier  []] later│
 ```
 
-Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name in its own column (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier on the status row); activity from `dwarves.activityText` in the words of 10 § Player-facing behavior, always in its column. A dwarf who holds a title has `♦` after its name. The list's tooltips (the mood tier, a row's "name, profession", and its titles after them when it holds any: "Ketil Ironvein, Miner, Thane") show on the status row only, with no box, since a box would cover the row above. The name column (the cursor mark, the name, its title mark and a blank) is as wide as the longest name listed needs, at least 14 cells, as far as the activity keeps `UNITS_ACTIVITY_MIN_COLS`; the mood glyph takes 2 (the glyph and a blank) and the activity the rest, an activity that does not fit ending with `»`. A name that does not fit its room is shortened so that two dwarves never read the same: the given name's initial and the rest (`R. Brightvein`), cut with `»` if even that does not fit, unless another dwarf listed shortens to the same (`Ragna Ironvein` and `Ragnhild Ironvein`), when the whole name is cut with `»`. The profession is not a column: hovering a row shows "name, profession" on the status row, and Look shows it too. `Enter`, or a double click on a row, inspects the dwarf: Look on its tile at the `Creatures` tab with its sub-tab first (24 § Inspection). A dwarf with no activity reads "Idle" (or "Idle (no shelter)", 10 § Player-facing behavior) in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
+Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name in its own column (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier on the status row); activity from `dwarves.activityText` in the words of 10 § Player-facing behavior, always in its column. A dwarf who holds a title has `♦` after its name. The list's tooltips (the mood tier, a row's "name, profession", and its titles after them when it holds any: "Ketil Ironvein, Miner, Thane") show on the status row only, with no box, since a box would cover the row above. The name column (the cursor mark, the name, its title mark and a blank) is as wide as the longest name listed needs, at least 14 cells, as far as the activity keeps `UNITS_ACTIVITY_MIN_COLS`; the mood glyph takes 2 (the glyph and a blank) and the activity the rest, an activity that does not fit ending with `»`. A name that does not fit its room is shortened so that two dwarves never read the same: the given name's initial and the rest (`R. Brightvein`), cut with `»` if even that does not fit, unless another dwarf listed shortens to the same (`Ragna Ironvein` and `Ragnhild Ironvein`), when the whole name is cut with `»`. The profession is not a column: hovering a row shows "name, profession" on the status row, and Look shows it too. `Enter`, or a double click on a row, inspects the dwarf: Look opens its view (24 § Inspection). A dwarf with no activity reads "Idle" (or "Idle (no shelter)", 10 § Player-facing behavior) in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
 
 - **Idle filter and order**: `i` shows only the idle dwarves, and the title row then reads "Units · idle (n)"; `Shift+W` (or a click on `[S-w] hurt`) puts the wounded dwarves first, in list order, and the caption reads `[S-w] hurt ■` while it does. Both are kept while the fortress is open and are not saved.
 - **To the labors**: the labors key `l` over the Units list opens the Labors panel with its cursor on the dwarf under the Units cursor, at its first labor column; the Units filters are dropped. The key row still reads `[l] labors`.
@@ -73,12 +73,14 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 
 ## Inspection panel (look)
 
+Look shows a tile list or one creature's view (24 § Inspection); the title row names what it shows. A click on a creature opens its view:
+
 ```
-│ Look · (52, 31, z31)                 [x] │
-│ Tabs: [1]Tile [2]Items(3) [3]Creatures(1) │
-│ ── Creature: Ketil Ironvein ────────────  │
+│ Ketil Ironvein                       [x] │
 │ Miner · adult · The Hearthguard           │
 │ Activity: Digging (priority 5)            │
+│ At (52, 31, z31) · 1 more here            │
+│ ───────────────────────────────────────── │
 │ Needs                                     │
 │ hunger  ▓░░░  42 thirst  ▓░░░  30         │
 │ rest    ░░░░  18 social  ▓▓░░  71         │
@@ -103,30 +105,43 @@ Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows
 │         leather boots                     │
 │ Relations friends: Brynja Coldhammer      │
 │ Title Thane                               │
+│ ───────────────────────────────────────── │
+│ [h] here  [Bksp] back                     │
 ```
 
-On the `Tile` tab (`[1]`, the tab the panel opens on) the terrain line comes first, then the fluid line (`Water 5/7`, `Magma 2/7`, `Ice 5/7`; none on a dry tile), the designation, traffic, building and zone lines, then `Here:` and one line for each item (`1 granite stone · 3 ☼`) and each creature (`Ketil Ironvein, Digging`) on the tile, the goods a `container` building holds there among the items:
+The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. A crowd, a loose item, bare ground, a right click and `k` open the tile list:
 
 ```
-│ Look · (21, 20, z32)                 [x] │
-│ Tabs: [1]Tile [2]Items(1) [3]Creatures(0) │
-│ Granite floor                             │
+│ Tile (43, 92, z27)                   [x] │
+│ Loam floor                                │
+│ ─── Here ──────────────────────────────── │
+│ 1 ☺ Brida Darkfell               Drinking │
+│ 2 ☺ Ulf Emberaxe                 Sleeping │
+│ 3 d dog                         Following │
+│   ≡ oak log                     ×5 · 15 ☼ │
+│   ⌂ oak barrel                   ×1 · 6 ☼ │
+│       20 bellwine                         │
+│       stale, rots in 4 days               │
+│ 4 ╫ Still               built · 7 inside  │
+│ 5 ░ Meeting hall #1              48 tiles │
+│ ─── Tile ──────────────────────────────── │
 │ Water 2/7                                 │
-│ Here:                                     │
-│   1 granite stone · 3 ☼                   │
-│   20 turnip · 20 ☼                        │
-│     stale, rots in 4 days                 │
+│ Designated: dig (priority 4)              │
+│ ───────────────────────────────────────── │
+│ [1]-[9] open  [Enter] the first           │
 ```
 
-Under each perishable item, and each item of food, a line of its own gives its rot (24 § Panels): `stale, rots in 4 days`, `fresh, not rotting here`, `keeps, never rots`; in the alert colour from the stale stage, dim before it. The `Items` tab writes it the same way.
+The terrain line comes first. Under `Here` each creature the map shows, each loose item and what it holds, the building with the goods it holds on this tile, and the zone, each a row with its digit (the rows that open something), the glyph the map draws, its name and one fact at the right; under `Tile` the fluid line (`Water 5/7`, `Magma 2/7`, `Ice 5/7`; none on a dry tile), the designation and the traffic lines. A tile with nothing on it has no `Here` and no `Tile` rule: its own lines follow the terrain line. The digits number the openable rows in view; `Enter` opens the first row. The arrows move the map cursor and the list follows it.
 
-The wireframes are drawn wider than the sidebar; in the 36-column sidebar the tabs line reads `[1]Tile [2]Items 3 [3]Who 1`, the short form 24 § Inspection gives for a line that does not fit. Inspecting a creature (from Units, Mood or a log line) opens the `Creatures` tab with its sub-tab first.
+Under each perishable item, and each item of food, a line of its own gives its rot (24 § Panels): `stale, rots in 4 days`, `fresh, not rotting here`, `keeps, never rots`; in the alert colour from the stale stage, dim before it. An item's flags (`forbidden, dump`) are a dim line under it too.
+
+The wireframes are drawn wider than the sidebar; in the 36-column sidebar a name that does not fit ends with `»`. Inspecting a creature (from Units, Mood or a log line) opens its view; a row of the list opened by its digit, `Enter` or a click, and `[h]`, keep the view before for `Backspace`.
 
 The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do (a thought whose weight rounds to 0 is not listed), and so do a body part's hit points (`torso ▓▓▓░░ 41/60 hp`), which wasting takes in fractions.
 
 A runecaster (a creature with a `Rune`) has its rune line after the mood, in the value colour: `Rune 31/50, +0.6 an hour (iron helm -20%, iron mail shirt -20%); full tomorrow`. The regen drops trailing zeros; each worn metal piece that lowers it is named with `-METAL_RUNE_PENALTY_PERCENT%` (an ASCII minus, which the glyph set has); the end reads `full`, `full in 5 hours` (later today), `full tomorrow`, `full in 3 days`, or `never full`. A creature holding a channel with a spell has the channel line under it, in the value colour: `Channel: iron staff of embers (fine). Emberbolt: 24 ember, range 12.` (a Frostbind adds `, slows by 50% for 360 ticks`; the other spells read by their kind: `Ward: 7 armour on every part for 720 ticks, range 3.`, `Mend: closes wounds, range 4.`, `Dread: sends up to 4 running for 480 ticks, range 4.`, `Firebloom: 17 ember on the 3x3, 20 ticks after the cast, range 8.`, `Daze: stuns a captain or a big creature for 180 ticks, range 6.`, `Call: brings a stone warden for a day, 2 at a time.`). Under them, in the dim colour, a caster that carries vials or drank today has `Vials: 2 carried, 1 of 3 drunk today.`, and any creature under timed effects `Under: ward 5 (340 ticks), slowed 50% (120 ticks).` (also `healing at 200%`, `pain halved`, `venom, pain +20`, `quickened 25%`, `proof against fire`, `spots within 10 tiles`, each with its ticks). A creature in a draught's rest has `Can take a draught again in 2 days.` after it, or `… tomorrow.` in its last day. Last, in the dim colour, a caster with summons alive has `Summons: stone warden (fades in 9 hours), wisp (fades in 3 hours).`, and a summon `Called by Urist Ironvein; fades in 9 hours.`, or `Fades in 9 hours.` when it has no caster (a loose wisp, a turned shade).
 
-A channel among the items of a tile is named with its spell's suffix (`1 iron staff of embers (fine)`, then its value and flags), and a dim line under it gives the spell: `Emberbolt: 24 ember, range 12. Needs a runecaster.` An enchanted item is named with its enchantment's suffix, after the name for one that begins with "of" (`1 steel axe of embers (fine)`) and before it otherwise (`1 keen iron short sword (masterwork)`), and a dim line under it gives what it does at its tier: `+9 ember on a hit.` The stocks panel names an enchanted stack the same way (`keen iron ×1`).
+A channel among the items of a tile is named with its spell's suffix (`iron staff of embers (fine)`, its count and value at the right), and a dim line under it gives the spell: `Emberbolt: 24 ember, range 12. Needs a runecaster.` An enchanted item is named with its enchantment's suffix, after the name for one that begins with "of" (`1 steel axe of embers (fine)`) and before it otherwise (`1 keen iron short sword (masterwork)`), and a dim line under it gives what it does at its tier: `+9 ember on a hit.` The stocks panel names an enchanted stack the same way (`keen iron ×1`).
 
 A dwarf who is a patient has a `Care:` line under the Health line, on top of the health details (an undiagnosed patient keeps `Health: Wounded, bleeding` and still has the line). It is the first of these that applies, and it is drawn in the alert color when the player must act (the first three, and a missing supply) and in the normal color otherwise:
 
@@ -144,7 +159,7 @@ The line reads 14's hospital zones and beds, 11's labor and job readers and 13's
 A dwarf's view (10's `creature › dwarf`) has, under the creature's rule:
 
 - the identity line: the profession of the dwarf's highest skill as the units panel names it, `adult` or `child`, and the name of the squad it serves in (`Miner · adult · The Hearthguard`);
-- the activity line, then `Needs` and the seven needs in 10's order, two to a row where the panel holds two (one otherwise): the name, a bar of `NEED_BAR_CELLS` cells filled as the need stands of `NEED_MAX`, and the whole number, 0 being satisfied. A need is drawn in the warning colour at or above its critical threshold, in the alert colour at or above its want threshold, and in the normal colour below (10 § Needs);
+- the activity line and the `At` line, then `Needs` and the seven needs in 10's order, two to a row where the panel holds two (one otherwise): the name, a bar of `NEED_BAR_CELLS` cells filled as the need stands of `NEED_MAX`, and the whole number, 0 being satisfied. A need is drawn in the warning colour at or above its critical threshold, in the alert colour at or above its want threshold, and in the normal colour below (10 § Needs);
 - `Skills`, each known skill with its level, its tier and a bar of `SKILL_BAR_CELLS` cells filled as the experience it has toward its next level stands of what that level needs (full at `SKILL_MAX_LEVEL`);
 - the seven attributes in 10's order, each a short name and its whole value (`Str 61`), as many to a row as the panel holds;
 - `Personality`, the dwarf's three traits by their names in the personality table (`Personality Stoic, Gregarious, Brave`);
@@ -157,7 +172,7 @@ A dwarf's view (10's `creature › dwarf`) has, under the creature's rule:
 
 A long line wraps under its text. Another creature has the `Equipment` line when it holds something; the dwarf's other lines are a dwarf's alone. Look assigns no title and edits no labor: titles are given in the units panel (`[S-t] title`) and labors in the labor panel.
 
-The `Creatures` tab scrolls under the header and the tabs line, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch; the arrows stay the map cursor's. While rows lie above, a dim `▲` is drawn at the right edge of its first row, and while rows lie below, a dim `▼` at the right edge of the panel's last row. It starts at its top again when Look inspects a creature, when the creatures it shows change (another tile, another creature first) and when another tab is chosen.
+Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another tile, or the other view.
 
 Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 

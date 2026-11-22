@@ -359,9 +359,14 @@ export class ZoneTool {
   select(ctx: PanelContext, i: TileIndex): boolean {
     const id = buildings(ctx)?.zoneAt(i) ?? 0;
     if (id === 0) return false;
+    this.selectZone(id);
+    return true;
+  }
+
+  /** Show a zone's settings: its inspector starts afresh for another zone. */
+  selectZone(id: EntityId): void {
     if (id !== this.selected) { this.ownerOpen = false; this.stockpile.reset(); }
     this.selected = id;
-    return true;
   }
 
   /** The stockpile's current filter (13's `Stockpile` component). */

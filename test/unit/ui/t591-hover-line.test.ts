@@ -14,7 +14,7 @@ import { FLUID_FROZEN_BIT } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
-import { drawLookPanel, itemsAt, tileContents } from '@ui/panels/look';
+import { drawTileList, itemsAt, tileContents } from '@ui/panels/look';
 import { TestWorld } from '../../scenarios/test-world';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { press, strings, surface } from './ui-fixture';
@@ -50,9 +50,9 @@ function wagonOf(game: Game): EntityId {
   return id;
 }
 
-function look(w: TestWorld, tile: TileIndex, tab: 0 | 1 = 0): string {
+function look(w: TestWorld, tile: TileIndex): string {
   const s = surface(44, 14);
-  drawLookPanel(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile, tab);
+  drawTileList(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile);
   return s.lines().join('\n');
 }
 
@@ -120,9 +120,9 @@ describe('T-591 the fluid on a tile', () => {
     expect(tileContents(w.readers, w.game.registry, strings, water)).toMatch(/^Ketil Ironvein.* · water 5\/7 · 1 copper pick$/);
   });
 
-  it('the look panel\'s Tile tab has the fluid line under the terrain', () => {
+  it('the look panel\'s tile list has the fluid line under the terrain', () => {
     const lines = look(w, magma).split('\n').map((l) => l.trim());
-    expect(lines[3]).toBe('Magma 2/7');
+    expect(lines[1]).toBe('Magma 2/7');
     expect(look(w, ice)).toContain('Ice 6/7');
   });
 });
@@ -156,7 +156,7 @@ describe('T-591 what a container building holds', () => {
     expect(game.textRows().join('\n')).toContain('[v] see the items');
   });
 
-  it('[v] opens Look on the tile where the goods lie, at the Items tab, and it lists them', async () => {
+  it('[v] opens Look\'s tile list where the goods lie, and it lists them', async () => {
     const game = await fortressGame();
     const wagon = wagonOf(game);
     game.fortress.openBuilding(wagon);
@@ -165,7 +165,7 @@ describe('T-591 what a container building holds', () => {
     const centre = it.tileOf(inside[0] as EntityId);
     expect(key(game, 'v')).toBe(true);
     expect(game.ui.panel).toBe('look');
-    expect(game.fortress.lookTab).toBe(1);
+    expect(game.fortress.lookAt.kind).toBe('tile');
     const map = game.host.readers.map;
     expect(game.ui.cursor).toEqual({ x: centre % map.w, y: Math.floor(centre / map.w) % map.h });
     // Every item in the wagon, and in its barrels and bags, is among the tile's items.
@@ -175,7 +175,8 @@ describe('T-591 what a container building holds', () => {
       for (const inner of it.inContainer(id)) expect(listed).toContain(inner);
     }
     game.render();
-    expect(game.textRows().join('\n')).toMatch(/\[2\]Items \d+/);
-    expect(game.textRows().join('\n')).toMatch(/1 pine barrel \(common\) · \d+ ☼/);
+    // The wagon's row says how much it holds, and its goods are indented under it.
+    expect(game.textRows().join('\n')).toMatch(/\d+ inside/);
+    expect(game.textRows().join('\n')).toMatch(/ {4}\d+ pine barrel \(common\)/);
   });
 });

@@ -559,7 +559,7 @@ describe('U-05 the building panel (M4)', () => {
       '[g]  tame the caged creature',
       '[w]  the owner of a bed\'s bedroom, or whom a coffin is kept for',
       '[h]  take out what the building holds (its bedding and pillow): they drop on its tile',
-      '[v]  a container building (the wagon, a chest): Look on the tile where its goods lie, at the Items tab',
+      '[v]  a container building (the wagon, a chest): Look\'s tile list where its goods lie',
       '[x]  cancel the plan, or take the building apart (confirm)',
       '↑↓ Enter  choose a mode, an owner, a link',
     ]);

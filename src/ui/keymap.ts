@@ -338,7 +338,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'tame the caged creature': 'tame',
   "the owner of a bed's bedroom, or whom a coffin is kept for": 'owner',
   'take out what the building holds (its bedding and pillow): they drop on its tile': 'take_out',
-  'a container building (the wagon, a chest): Look on the tile where its goods lie, at the Items tab': 'see_items',
+  "a container building (the wagon, a chest): Look's tile list where its goods lie": 'see_items',
   'cancel the plan, or take the building apart (confirm)': 'cancel_or_take_apart',
   'forbid the selected items': 'forbid',
   'dump the selected items (confirm)': 'dump',
@@ -362,8 +362,10 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'raise / lower the population cap': 'adjust',
   'sort by tier': 'sort',
   'log filter tabs': 'tab',
-  'look tabs': 'tab',
-  'take apart the building here (confirm)': 'take_apart',
+  'tile list: open that row': 'open_row',
+  'tile list: open the first row': 'open_first',
+  'creature view: the tile list where it stands': 'here',
+  'back to the view before': 'back',
   'Keys / Legend / Start tabs': 'tab',
   'dump save': 'dump_save',
   'replay season log': 'replay',
@@ -583,6 +585,7 @@ function coActive(target: KeyContext, other: KeyContext, spec: KeySpec, held: Ke
 /** A token of a caption, `[S-t]` or `[Del]`, as a key; `null` for one that names no key. */
 function tokenSpec(token: string): KeySpec | null {
   if (token === 'Del') return { key: 'Delete', ctrl: false, shift: false };
+  if (token === 'Bksp') return { key: 'Backspace', ctrl: false, shift: false };
   const shifted = /^S-(.)$/.exec(token);
   if (shifted !== null) return { key: shifted[1] as string, ctrl: false, shift: true };
   if (token.length > 1 && token.includes('+') && !token.endsWith('+')) {
