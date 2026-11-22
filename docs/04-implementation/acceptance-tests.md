@@ -193,7 +193,7 @@ Local and global work orders added or edited with a material id hold its index a
 | `it_value` | masterwork steel breastplate | value 4,000 |
 | `it_wealth` | craft 10 common granite tables | wealth rises by 80 (2 × 4 × 10) |
 | `it_forbid` | forbid a log | no job takes it; claim → hauled |
-| `it_containers` | drink stockpile with 0 barrels wanted | barrels of ale still accepted (they are containers); seeds need bags |
+| `it_containers` | drink stockpile with 0 barrels wanted | barrels of ale still accepted (they are containers); seeds go into a bag the stockpile has or wants, else lie loose; loose drink needs a barrel |
 
 ## 14 Buildings
 

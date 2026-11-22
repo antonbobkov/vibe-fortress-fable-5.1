@@ -406,6 +406,11 @@ export class Hauling {
       // A slot in a container is keyed by the item that will fill it: only the refusals are shared.
       if (cls === 'none' || slot === null || 'needContainer' in slot) spc.slots.set(kind, slot);
     }
+    // No container to fill and none to wait for: the goods lie loose (T-676), from the tiles scanned once.
+    if (slot === null && cls !== 'none' && store.mayLieLoose(id)) {
+      spc.tiles ??= store.scanTiles(sp);
+      return store.slotInScan(spc.tiles, id);
+    }
     return slot;
   }
 
