@@ -31,8 +31,8 @@ export interface PanelContext {
   notice?(text: string): void;
   /** An interactive pick prompt replaces an earlier status notice. */
   clearNotice?(): void;
-  /** The letters that open panels: an accelerator on one of them needs `Shift` (D-U2). The defaults when absent. */
-  readonly panelLetters?: ReadonlySet<string>;
+  /** The letters the open panel's accelerators keep on `Shift` (`[S-d]` dump, D-253), by their default keys. None when absent. */
+  readonly shiftLetters?: ReadonlySet<string>;
   /**
    * Ask through the confirmation dialog (24 § Confirmations) and run on Yes. Absent on a bare host
    * (a test without dialogs), where {@link confirmThen} runs at once.
@@ -52,7 +52,7 @@ export function confirmThen(ctx: PanelContext, id: string, params: Readonly<Reco
 
 /** The accelerator a press means in a panel: see {@link acceleratorOf}. */
 export function accel(ctx: PanelContext, press: KeyPress): string {
-  return acceleratorOf(press, ctx.panelLetters);
+  return acceleratorOf(press, ctx.shiftLetters);
 }
 
 export function items(ctx: PanelContext): ItemsReader | null {

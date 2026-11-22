@@ -158,7 +158,7 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
     s.hit({ col, row, cols: width, rows: 1 }, () => { panel.list.selected = index; });
   }
   const footer = rect.row + rect.rows - 2;
-  // `m` and `t` open panels, so moving goods and trading take `Shift` (D-U2).
+  // `m` and `t` are this panel's before they are panel letters (D-253).
   let at = col;
   const action = (text: string, fg: typeof s.theme.key, run: () => void): void => {
     const n = label(s, at, footer, text, { fg, width: Math.max(0, col + width - at) });

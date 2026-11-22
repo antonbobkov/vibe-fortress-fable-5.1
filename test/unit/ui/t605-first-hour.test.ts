@@ -13,7 +13,7 @@ import { TestWorld } from '../../scenarios/test-world';
 import { ZoneTool, drawZonesPanel } from '@ui/panels/zones';
 import type { PanelContext } from '@ui/panels/context';
 import { statusRight } from '@ui/status';
-import { fgOfText, hexOf, keymap, strings, surface } from './ui-fixture';
+import { fgOfText, hexOf, strings, surface } from './ui-fixture';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 
 async function game(seed: string): Promise<Game> {
@@ -81,7 +81,7 @@ describe('T-605 a new player\'s first hour', () => {
     const zoneId = h.readers.of<BuildingsReader>('14').zoneAt(tile);
     const tool = new ZoneTool();
     tool.selected = zoneId;
-    const ctx: PanelContext = { readers: h.readers, registry: h.headless.registry, strings, panelLetters: keymap.panelLetters(),
+    const ctx: PanelContext = { readers: h.readers, registry: h.headless.registry, strings, shiftLetters: new Set<string>(),
       submit: (cmd) => h.submit(cmd), focusOn: () => {}, look: () => {}, openPanel: () => {}, shiftClick: () => false, notice: () => {} };
     const draw = () => {
       const s = surface(36, 40);

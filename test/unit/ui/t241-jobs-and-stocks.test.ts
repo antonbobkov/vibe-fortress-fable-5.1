@@ -72,7 +72,8 @@ describe('T-241 job names, empty line and panel filters', () => {
     f.key(press('/')); for (let i = 0; i < 3; i++) f.key(press('Backspace'));
     for (const ch of 'VERA') f.key(press(ch)); f.key(press('Esc'));
     expect(f.ui.panel).toBe('jobs'); expect(f.jobs.jobs(f.ctx).map(j => j.id)).toEqual([build]);
-    f.key(press('l')); expect(f.ui.panel).toBe('labors');
+    // D-253: in Jobs `l` cycles the labor filter; Esc, then `l`, opens Labors.
+    f.key(press('Esc')); f.key(press('l')); expect(f.ui.panel).toBe('labors');
   });
   it('labor and state filters cycle by key and mouse, including fetching in claimed', () => {
     const { f, build, haul, dig } = jobs(); f.openPanel('jobs');
@@ -80,7 +81,7 @@ describe('T-241 job names, empty line and panel filters', () => {
     f.key(press('s', { shift: true })); expect(f.jobs.jobs(f.ctx).map(j => j.id)).toEqual([build]);
     f.key(press('s', { shift: true })); expect(f.jobs.jobs(f.ctx).map(j => j.id)).toEqual([dig]);
     f.key(press('s', { shift: true })); expect(f.jobs.jobs(f.ctx)).toHaveLength(3);
-    const s = draw(f, 'jobs'); const row = s.lines().findIndex(line => line.includes('[S-l] labor: all'));
+    const s = draw(f, 'jobs'); const row = s.lines().findIndex(line => line.includes('[l] labor: all'));
     expect(row).toBeGreaterThanOrEqual(0); s.hitAt(2, row)?.action();
     expect(f.jobs.jobs(f.ctx).map(j => j.id)).toEqual([build]); // registry labor order: carpentry, hauling, mining
     f.key(press('l', { shift: true })); expect(f.jobs.jobs(f.ctx).map(j => j.id)).toEqual([haul]);
@@ -89,7 +90,7 @@ describe('T-241 job names, empty line and panel filters', () => {
   });
   it('the filter and both cycles have mouse paths at sidebar width', () => {
     const { f } = jobs(); f.openPanel('jobs'); const s = draw(f, 'jobs', 36);
-    for (const caption of ['/filter', '[S-l] labor', '[S-s] state']) {
+    for (const caption of ['/filter', '[l] labor', '[s] state']) {
       const row = s.lines().findIndex(line => line.includes(caption)); expect(row).toBeGreaterThanOrEqual(0);
       expect(s.hitAt(12, row)).not.toBeNull();
     }
@@ -122,6 +123,6 @@ describe('T-241 job names, empty line and panel filters', () => {
   });
   it('Help describes every new filter action', () => {
     const text = helpKeyRows(keymap, strings).map(r => r.text).join('\n');
-    expect(text).toContain('[S-l]'); expect(text).toContain('filter jobs'); expect(text).toContain('filter stocks');
+    expect(text).toContain('[l]'); expect(text).toContain('filter jobs'); expect(text).toContain('filter stocks');
   });
 });

@@ -74,7 +74,7 @@ describe('T-646 a workshop\'s ○ recipe says where its missing input comes from
     const { ctx, kitchen, orders } = setup('t646-foot');
     const rows = panel(ctx, orders, kitchen, 'make_soap');
     expect(rows[ROWS - 9]).toMatch(/^─+ Orders \(0\) ─+$/);
-    expect(rows[ROWS - 5]).toContain('[S-n] new order');
+    expect(rows[ROWS - 5]).toContain('[n] new order');
     expect(rows[ROWS - 3]).toContain('[S-s] suspend');
   });
 });

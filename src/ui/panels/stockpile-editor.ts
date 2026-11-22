@@ -112,7 +112,7 @@ export class StockpileEditor {
     }
   }
 
-  /** `[S-c]`: 13 § Aging in a cellar, the stockpile's cellar setting on or off (`SetStockpileCellar`). */
+  /** `[c]`: 13 § Aging in a cellar, the stockpile's cellar setting on or off (`SetStockpileCellar`). */
   toggleCellar(ctx: PanelContext, zoneId: EntityId): void {
     const sp = stockpileForEditor(ctx, zoneId);
     if (sp === undefined || buildings(ctx)?.zone(zoneId)?.type !== 'stockpile') { this.fail(ctx, 'unavailable'); return; }
@@ -208,7 +208,7 @@ export class StockpileEditor {
     }
     if (letter === 'i') { this.startLink(ctx, zoneId); return true; }
     if (letter === 'x') { this.startUnlink(ctx, zoneId); return true; }
-    if (letter === 'c' && press.shift) { this.toggleCellar(ctx, zoneId); return true; }
+    if (letter === 'c') { this.toggleCellar(ctx, zoneId); return true; }
     if (letter === 'p') { this.openPreset(ctx, zoneId); return true; }
     if (letter === 'q') { this.focus = 'barrel'; return true; }
     if (letter === 'g') { this.focus = 'tree'; return true; }
@@ -299,7 +299,7 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
     (id) => editor.choosePreset(ctx, zoneId, id), () => editor.openPreset(ctx, zoneId));
   // Keep the existing compact header; label supplies its truncation tooltip.
   s.fill({ col, row, cols: width, rows: 1 }, s.theme.black);
-  label(s, col, row++, `${acceleratorLabel('p', ctx.panelLetters)} ${strings.get('ui.stockpile.preset', { preset: value })}`, { width });
+  label(s, col, row++, `${acceleratorLabel('p', ctx.shiftLetters)} ${strings.get('ui.stockpile.preset', { preset: value })}`, { width });
   // A new stockpile takes nothing until a preset or a category is chosen (13 § Stockpiles): say so.
   if (!editor.preset.open && sp.filter.categories.length === 0) label(s, col, row++, strings.get('ui.stockpile.empty'), { width, fg: s.theme.alert });
   if (editor.preset.open) {
@@ -313,7 +313,7 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
   ];
   let c = col;
   for (const [key, text, action] of controls) {
-    const caption = `${acceleratorLabel(key, ctx.panelLetters)} ${strings.get(text)}`;
+    const caption = `${acceleratorLabel(key, ctx.shiftLetters)} ${strings.get(text)}`;
     if (c !== col && c + Array.from(caption).length > col + width) { c = col; row += 1; }
     const n = label(s, c, row, caption, { width: col + width - c });
     s.hit({ col: c, row, cols: n, rows: 1 }, action);
@@ -342,9 +342,9 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
   label(s, col, row++, strings.get('ui.stockpile.materials', { classes, min: sp.filter.minQuality, max: sp.filter.maxQuality }), { width });
   label(s, col, row++, strings.get('ui.stockpile.priority', { n: sp.priority }), { width });
   label(s, col, row++, strings.get('ui.stockpile.links', { names: editor.sourceIds(ctx, zoneId).map(id => zoneName(ctx, id)).join(', ') || strings.get('ui.stockpile.no_links') }), { width });
-  const linkWidth = button(s, col, row, acceleratorLabel('i', ctx.panelLetters).slice(1, -1), strings.get('ui.stockpile.link'), () => editor.startLink(ctx, zoneId));
-  button(s, col + linkWidth + 1, row++, acceleratorLabel('x', ctx.panelLetters).slice(1, -1), strings.get('ui.stockpile.unlink'), () => editor.startUnlink(ctx, zoneId));
-  const cellar = `[S-c] ${cellarText(ctx, sp)}`;
+  const linkWidth = button(s, col, row, acceleratorLabel('i', ctx.shiftLetters).slice(1, -1), strings.get('ui.stockpile.link'), () => editor.startLink(ctx, zoneId));
+  button(s, col + linkWidth + 1, row++, acceleratorLabel('x', ctx.shiftLetters).slice(1, -1), strings.get('ui.stockpile.unlink'), () => editor.startUnlink(ctx, zoneId));
+  const cellar = `[c] ${cellarText(ctx, sp)}`;
   const cellarWidth = label(s, col, row, cellar, { width });
   s.hit({ col, row: row++, cols: cellarWidth, rows: 1 }, () => editor.toggleCellar(ctx, zoneId));
   label(s, col, row++, strings.get('ui.stockpile.usage', { used: tiles - (items(ctx)?.freeSlots(zoneId) ?? 0), n: tiles }), { width });

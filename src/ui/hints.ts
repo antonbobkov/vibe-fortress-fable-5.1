@@ -60,6 +60,8 @@ export interface HintFacts {
   foodStale?: boolean;
   /** 03 § Caverns: the first cavern was breached. */
   cavernBreached?: boolean;
+  /** D-253: a panel's own letter acted where that letter also opens a panel (the screen shows it at once). */
+  panelLetterShadowed?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -109,6 +111,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_spider_ranch': return f.spiderRanch === true;
     case 'hint_rot': return f.foodStale === true;
     case 'hint_breach': return f.cavernBreached === true;
+    case 'hint_panel_letters': return f.panelLetterShadowed === true;
     default: return false;
   }
 }
@@ -387,6 +390,7 @@ export class HintEngine {
       skylightBuilt: this.pending('hint_skylight'),
       foodStale: this.pending('hint_rot'),
       cavernBreached: this.pending('hint_breach'),
+      panelLetterShadowed: this.pending('hint_panel_letters'),
     };
   }
 }

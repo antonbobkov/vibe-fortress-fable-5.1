@@ -526,7 +526,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
       const c = BUILD_CATEGORIES[k + j];
       if (c === undefined) continue;
       const col = rect.col + 1 + j * colW;
-      const n = label(s, col, row, `${acceleratorLabel(c.key, ctx.panelLetters)} ${strings.get(`ui.build.category.${c.id}`)}`, { width: colW - 1 });
+      const n = label(s, col, row, `${acceleratorLabel(c.key, ctx.shiftLetters)} ${strings.get(`ui.build.category.${c.id}`)}`, { width: colW - 1 });
       if (tool.category === c.id) s.invert({ col, row, cols: n, rows: 1 });
       s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(c.key));
     }

@@ -66,7 +66,7 @@ describe('T-251 placement and trade feedback', () => {
   expect(g.fortress.statusRow2()).toContain('No dwarf free to trade has the trading labor: turn it on [l], or appoint a Broker [u].');
   expect(g.fortress.statusRow2()).toContain('[Space] resumes');
   const s = surface(80, 20); drawDepotPanel(s, { col: 0, row: 0, cols: 80, rows: 20 }, g.fortress.depot, g.fortress.ctx, () => {});
-  expect(s.lines().join('\n')).toContain('[S-t] trade');
+  expect(s.lines().join('\n')).toContain('[t] trade');
  });
  it('mouse quantity controls operate on the grouped merchant count and clamp scrubbing', async () => {
   const g = await game(), m = merchant(g), s = surface(120, 34); m.modal.draw(s);

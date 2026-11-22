@@ -967,7 +967,7 @@ export class OrdersPanel {
 
 export type WorkshopAction = 'new' | 'orders' | 'material' | 'worker' | 'suspend' | 'deconstruct';
 
-/** The workshop panel's accelerators (`s`, `o`, `f` and `n` are panel letters: `Shift`, D-U2). */
+/** The workshop panel's accelerators; suspend stays on `Shift` (`[S-s]`, D-253). */
 const WORKSHOP_KEYS: Readonly<Record<string, WorkshopAction>> = Object.freeze({
   n: 'new', o: 'orders', f: 'material', w: 'worker', s: 'suspend', x: 'deconstruct',
 });

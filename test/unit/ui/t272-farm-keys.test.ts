@@ -104,25 +104,27 @@ describe('T-272 farm plot crops by keyboard', () => {
     g.host.step(1);
     expect(rows(g).find((line) => line.includes('Spring'))).toMatch(/barley.*\d+ seeds$/);
     expect(rows(g).join('\n')).toContain('↑↓ season · Enter choose crop');
-    expect(rows(g).join('\n')).toContain('[S-a] all seasons');
+    expect(rows(g).join('\n')).toContain('[a] all seasons');
   });
 });
 
 describe('T-272 the Calendar key', () => {
-  it('Shift+Y opens the Calendar and a second press closes it, and the keymap and Help list it', async () => {
+  it('y opens the Calendar and a second press closes it, and the keymap and Help list it (D-253)', async () => {
     const { g } = await plot();
-    g.handleKey(press('Y', { shift: true }));
+    g.fortress.openPanel(null);
+    g.handleKey(press('y'));
     expect(g.ui.panel).toBe('calendar');
-    g.handleKey(press('Y', { shift: true }));
+    g.handleKey(press('y'));
     expect(g.ui.panel).toBeNull();
     const binding = keymap.bindings.find((b) => b.id === 'calendar');
-    expect(binding?.spec).toEqual({ key: 'Y', ctrl: false, shift: true });
+    expect(binding?.context).toBe('fortress_panel');
+    expect(binding?.spec).toEqual({ key: 'y', ctrl: false, shift: false });
     // A keymap saved by index before the bindings had names finds the row at its old place, the last.
     expect(LEGACY_BINDINGS[LEGACY_BINDINGS.length - 1]).toBe('global/Shift+Y');
     const help = helpKeyRows(keymap, strings).map((row) => row.text);
-    expect(help.some((text) => text.includes('[S-y]') && text.includes('calendar panel'))).toBe(true);
+    expect(help.some((text) => text.startsWith('y  Calendar'))).toBe(true);
     // The key is a row of the zone inspector; the farm note follows the rows and does not repeat it.
-    expect(help.some((text) => text.startsWith('[S-a]  a farm plot'))).toBe(true);
-    expect(help.some((text) => text.startsWith('Farm plot: ↑↓ season') && !text.includes('[S-a]'))).toBe(true);
+    expect(help.some((text) => text.startsWith('[a]  a farm plot'))).toBe(true);
+    expect(help.some((text) => text.startsWith('Farm plot: ↑↓ season') && !text.includes('[a]'))).toBe(true);
   });
 });

@@ -27,31 +27,31 @@
     "id": "stockpile",
     "check": "stockpile_made",
     "highlight": "zones",
-    "text": "Hauled goods need a place. Open Zones with [z], choose a stockpile with [S-s], and drag a rectangle over open floor (or Enter at two corners)."
+    "text": "Hauled goods need a place. Open Zones with [z], choose a stockpile with [s], and drag a rectangle over open floor (or Enter at two corners)."
   },
   {
     "id": "workshop",
     "check": "workshop_placed",
     "highlight": "build",
-    "text": "Open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
+    "text": "Leave Zones with Esc, open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
   },
   {
     "id": "order",
     "check": "order_queued",
     "highlight": "orders",
-    "text": "Workshops make what is ordered. Open Orders with [o]: [S-n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it."
+    "text": "Workshops make what is ordered. Open Orders with [o]: [n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it."
   },
   {
     "id": "farm",
     "check": "farm_plot_made",
     "highlight": "zones",
-    "text": "Food grows on soil. In Zones ([z]), [S-f] chooses a farm plot: drag it over soil or grass. Click the plot to choose its crop for each season."
+    "text": "Food grows on soil. In Zones ([z]), [f] chooses a farm plot: drag it over soil or grass. Click the plot to choose its crop for each season."
   },
   {
     "id": "labors",
     "check": "labors_changed",
     "highlight": "labors",
-    "text": "A dwarf works only at the labors that are on. Open Labors with [l]: ↑↓ choose a dwarf, a click on a cell turns that labor on or off, and [S-a] turns the whole row."
+    "text": "A dwarf works only at the labors that are on. Open Labors with [l]: ↑↓ choose a dwarf, a click on a cell turns that labor on or off, and [a] turns the whole row."
   },
   {
     "id": "speed",

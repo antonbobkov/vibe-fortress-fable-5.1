@@ -59,18 +59,18 @@ describe('T-332 panels: stocked items and global material filter', () => {
     expect(rows[stone - 1]).toMatch(/^► seed /);
     expect(rows[tool + 4]).toMatch(/^► textile /);
     expect(rows.find((row) => row.startsWith('Wealth'))).toBe('Wealth 2,014 ☼   (buildings 2 ☼)');
-    expect(rows[30]).toBe('[S-f] forbid  [S-d] dump');
-    expect(rows[31]).toBe('[S-m] melt  [S-t] to depot');
+    expect(rows[30]).toBe('[f] forbid  [S-d] dump');
+    expect(rows[31]).toBe('[S-m] melt  [t] to depot');
   });
 
   it('an order that cannot be made says which workshop is missing and how to build it', () => {
     const rows = render('orders');
-    expect(rows[0]).toBe('[S-n] new order  all workshops');
+    expect(rows[0]).toBe('[n] new order  all workshops');
     expect(rows[1]).toMatch(/^─+ Any workshop ─+$/);
     expect(rows[2]).toBe('x1 Battle axe · no forge');
     expect(rows.slice(19, 21).join(' ')).toBe('No forge is built: [b] build > Workshops.');
     expect(rows[21]).toBe('Count [-] 1 [+] [+/-] Shift ±10');
-    expect(rows[22]).toBe('[S-m] once  [S-p] priority 5');
+    expect(rows[22]).toBe('[m] once  [p] priority 5');
   });
 
   it('the material filter offers any material and any metal first, then every metal and fuel by name in order', () => {

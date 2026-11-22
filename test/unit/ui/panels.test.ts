@@ -142,7 +142,7 @@ describe('T-M2-09 zones tool and the stockpile editor', () => {
     const game = await fortressGame();
     const spy = vi.spyOn(game.host, 'submit');
     key(game, 'z');
-    // U-03 (D-U2): `s` opens Stocks, so the stockpile accelerator is `[S-s]`.
+    // U-03 (D-U2): `s` opens Stocks, so the stockpile accelerator is `[s]`.
     key(game, 's', { shift: true });
     expect(game.fortress.zones.kind).toBe('stockpile');
     const map = game.host.readers.map;
@@ -219,7 +219,7 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     // Select `tool` (the rows are in category order) and forbid it.
     const rows = game.fortress.stocks.visibleForest(game.fortress.ctx).map((n) => n.id);
     game.fortress.stocks.tree.selected = rows.indexOf('tool');
-    // U-03 (D-U2): `f` opens Overlays; forbid is `[S-f]`.
+    // U-03 (D-U2): `f` opens Overlays; forbid is `[f]`.
     key(game, 'f', { shift: true });
     const cmds = spy.mock.calls.map((c) => c[0] as Command);
     expect(cmds.length).toBeGreaterThan(0);
@@ -240,6 +240,8 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     game.render();
     // The name column is 14 cells: the cursor mark and twelve letters of the name.
     expect(game.textRows().join('\n')).toContain(first.slice(0, 12));
+    // D-253: in Units `l` is the labor manager; Esc, then `l`, opens the Labors panel.
+    key(game, 'Esc');
     key(game, 'l');
     expect(game.ui.panel).toBe('labors');
   });
@@ -266,7 +268,7 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     // U-02: the first paused click has already disabled one cell, so "not all enabled" now
     // makes the following column toggle turn every cell on.
     expect(column.every((c) => c['on'] === true && c['labor'] === column[0]?.['labor'])).toBe(true);
-    // U-03 (D-U2): `a` opens the Log; the row toggle is `[S-a]`.
+    // U-03 (D-U2): `a` opens the Log; the row toggle is `[a]`.
     key(game, 'a', { shift: true });
     expect(spy.mock.calls.length).toBe(1 + dwarves.length + registry.table('labors').ids().length);
   });
@@ -284,7 +286,7 @@ describe('T-M2-09 stocks, units, jobs and labors panels', () => {
     game.render();
     expect(game.textRows().join('\n')).toMatch(/\d+ open · \d+ claimed · \d+ blocked/);
     expect(game.textRows().join('\n')).toContain('Dig (');
-    // U-03 (D-U2): `p` opens Population; the job priority is `[S-p]`.
+    // U-03 (D-U2): `p` opens Population; the job priority is `[p]`.
     key(game, 'p', { shift: true });
     expect(spy.mock.calls.at(-1)?.[0]).toMatchObject({ type: 'SetJobPriority', priority: 4 });
     key(game, 'x');

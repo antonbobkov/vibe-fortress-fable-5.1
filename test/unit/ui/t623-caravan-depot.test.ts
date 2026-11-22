@@ -94,7 +94,7 @@ describe('T-623 a depot no caravan can reach', () => {
       return s.lines().map((line) => line.trim());
     };
     // The warning wraps under the title, whole; the goods list follows it.
-    const warning = (rows: string[]): string => rows.slice(1, 1 + DEPOT_WARNING_ROWS).filter((row) => row !== '' && !row.startsWith('[S-m]')).join(' ');
+    const warning = (rows: string[]): string => rows.slice(1, 1 + DEPOT_WARNING_ROWS).filter((row) => row !== '' && !row.startsWith('[m]')).join(' ');
     expect(warning(draw())).toBe(UNREACHABLE);
     const waiting = { ...screen.ctx, readers: withTrade(w.readers, { activeCaravan: () => ({ civ: 'hillfolk', state: 'waiting', daysRemaining: 0 }) }) };
     const said = 'The Hillfolk caravan cannot reach Trade depot #1 from the north edge: its pack animals need a way on foot, with no deep water or drop. Bridge the gap, or build a depot on their side.';

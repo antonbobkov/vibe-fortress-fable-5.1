@@ -106,7 +106,7 @@ test('T-M7-03 trade-session', async ({ page }) => {
   // T-251: a pending paused request explains why the broker is not trading yet; T-636: by name.
   expect(await textOf(page)).toContain(', the Broker, is on the way to the depot.');
   expect(await textOf(page)).toContain('[Space] resumes');
-  expect(await textOf(page)).toContain('[S-t] trade');
+  expect(await textOf(page)).toContain('[t] trade');
   await page.evaluate(() => {
     const h = (window as unknown as { __deepholm: TradeHook }).__deepholm;
     const trade = h.readers.of<{ sessionOpen(): boolean }>('20');
