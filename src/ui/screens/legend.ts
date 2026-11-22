@@ -12,6 +12,8 @@ export interface LegendRecord {
   readonly name: string;
   readonly seed: string;
   readonly region: string;
+  /** The world map region the fortress stood on; absent in a record written before T-672. */
+  readonly regionId?: number;
   readonly biome: string;
   readonly wealthRating: number;
   readonly perilRating: number;
@@ -52,7 +54,11 @@ export function legendLines(record: LegendRecord): string[] {
   ];
 }
 
-export interface LegendHost { back(): void }
+export interface LegendHost {
+  back(): void;
+  /** A fortress's end: `Enter` goes to the world map of its world for a new embark (T-672). */
+  embarkAgain?(): void;
+}
 
 export class LegendScreen implements Screen {
   readonly id = 'legend' as const;
@@ -104,7 +110,9 @@ export class LegendScreen implements Screen {
         });
       }
     }
-    button(surface, 2, surface.rows - 1, 'Esc', 'Back', () => this.back());
+    const back = button(surface, 2, surface.rows - 1, 'Esc', 'Back', () => this.back());
+    const again = this.host.embarkAgain;
+    if (again !== undefined && this.detail) button(surface, 2 + back + 2, surface.rows - 1, 'Enter', 'New embark on this world', () => again());
   }
 
   key(press: KeyPress): boolean {
@@ -120,6 +128,7 @@ export class LegendScreen implements Screen {
       return true;
     }
     if (press.key === 'Enter' && !this.detail && this.records.length > 0) { this.detail = true; return true; }
+    if (press.key === 'Enter' && this.detail && this.host.embarkAgain !== undefined) { this.host.embarkAgain(); return true; }
     return false;
   }
 

@@ -214,6 +214,8 @@ Container counts are non-negative integers, priorities are 1–9 and quality bou
 
 An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf. `[l]` opens the labor manager on the marked dwarves, or on the cursor's dwarf when none is marked; `Esc` then the labors key opens the labors panel. `Enter` inspects the cursor's dwarf: Look opens its view (24 § Inspection).
 
+`1` and `2` choose the Dwarves tab (everything above) and the All tab, every creature the map draws (`ui-screens/panels.md` § Units). On the All tab `Enter`, a double click or a click on the cursor's row inspects the creature, `[c]` centres on it, `[g]` shows one kind (dwarves, tame, wild, visitors, hostile) and then all again, `[w]` puts the wounded first and `/` filters by name; the dwarf actions (`Space`, `*`, `[i]`, `[t]`, `[n]`, `[m]`, `[` `]`, `[l]`) are the Dwarves tab's, and on the All tab the status row says so. `Space` pauses there.
+
 | Key | Action |
 |---|---|
 | `Space` | mark the row (does not pause while the list is open) |
@@ -225,7 +227,9 @@ An action applies to every marked dwarf when the cursor's row is marked, otherwi
 | `[m]` | add the marked dwarves to a squad |
 | `[` `]` | sleep an hour earlier / later |
 | `[l]` | the labor manager on the marked dwarves |
-| `[c]` | center the map on the dwarf |
+| `[c]` | center the map on the creature |
+| `1` `2` | dwarves / all creatures tab |
+| `[g]` | all creatures: show one kind / all |
 
 ### Labors panel
 
@@ -480,6 +484,7 @@ The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 | `o` | Settings |
 | `n` | Rename fortress |
 | `x` | Retire fortress (confirm) |
+| `a` | Abandon fortress (confirm) |
 | `m` | Main menu |
 
 ### Confirmation
@@ -774,6 +779,7 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 |---|---|---|
 | `c_deepsilver` | "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?" | No |
 | `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed." | No |
+| `c_abandon` | "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends and cannot be resumed." | No |
 | `c_quickload` | "Load the quick save? Unsaved progress will be lost." | No |
 | `c_remove_zone_crops` | "This plot has {n} growing crops. Remove it?" | No |
 | `c_remove_stockpile_items` | "This stockpile holds {n} items. They will stay where they are. Remove it?" | No |

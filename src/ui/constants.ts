@@ -105,6 +105,7 @@ export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = Object.freeze({
   introStyle: 'deep',
   reducedMotion: false,
   wheelUp: 'down a level',
+  embarkPreset: '',
 });
 
 /** 24 § Tuning constants: the seed of the tutorial's world, generated at the standard size (`menus-and-world.md` § Tutorial). */

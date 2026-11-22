@@ -210,11 +210,11 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[24]).toBe('[Esc] Back');
   });
 
-  it('the game menu names the fortress and offers resume, save, load, settings, rename, retire and the main menu, each with its key', () => {
+  it('the game menu names the fortress and offers resume, save, load, settings, rename, retire, abandon and the main menu, each with its key', () => {
     const r = rows('game_menu');
     expect(r[7]).toBe('Deepholm · Emberhall');
-    expect(r.slice(9, 16)).toEqual([
-      '► [r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[n] Rename fortress', '[x] Retire fortress', '[m] Main menu',
+    expect(r.slice(9, 17)).toEqual([
+      '► [r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[n] Rename fortress', '[x] Retire fortress', '[a] Abandon fortress', '[m] Main menu',
     ]);
   });
 

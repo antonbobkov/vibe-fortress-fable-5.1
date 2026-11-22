@@ -43,6 +43,8 @@ export interface WorldMapHost {
    * cursor; absent: a steady cursor.
    */
   animation?(): { readonly animFrame: number; readonly reducedMotion: boolean };
+  /** The fortresses that ended on a region of this world, from the Legends (T-672); absent: none. */
+  ruins?(regionId: number): readonly { readonly fortress: string; readonly cause: string }[];
 }
 
 interface BiomeRow {
@@ -152,6 +154,14 @@ export class WorldMapScreen implements Screen {
     this.civNames = new Map(civs.ids().map((id) => [id, (civs.byId(id) as NamedRow).name.replace(/^the /, '')]));
     const mid = Math.floor(world.size / 2);
     this.cursor = { x: mid, y: mid };
+  }
+
+  /** Put the cursor on a region: a new embark after an abandoned fortress starts on its site. */
+  focus(regionId: number): void {
+    if (this.world.regions[regionId] === undefined) return;
+    this.cursor = { x: regionId % this.world.size, y: Math.floor(regionId / this.world.size) };
+    this.regionScroll = 0;
+    this.follow();
   }
 
   get regionId(): number {
@@ -355,6 +365,8 @@ export class WorldMapScreen implements Screen {
       const key = id === 'gemsprings' && !site.water.springs ? 'ui.site.trait.gemsprings_dry' : `ui.site.trait.${id}`;
       if (s.has(key)) for (const t of wrapHang(capitalize(s.get(key)), width, 2)) text(t, 'dim');
     }
+    // A fortress that ended here, by its legend record: the site is remembered, not rebuilt (T-672).
+    for (const ruin of this.host.ruins?.(r.id) ?? []) for (const t of wrapHang(s.get('ui.worldmap.ruins', ruin), width, 2)) text(t, 'dim');
     out.push({ text: '', fg: 'text' });
     for (const civ of CIVS as readonly Civ[]) {
       const params = {

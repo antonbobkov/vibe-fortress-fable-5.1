@@ -291,6 +291,7 @@ export class FortressScreen implements Screen {
         this.look({ x: t % map.w, y: Math.floor(t / map.w) % map.h, z: Math.floor(t / (map.w * map.h)) });
       },
       openPanel: (id) => this.openPanel(id),
+      inspect: (id) => this.inspectCreature(id),
       shiftClick: () => this.clickShift,
       notice: (text) => this.notice(text),
       clearNotice: () => this.clearNotice(),
@@ -343,7 +344,7 @@ export class FortressScreen implements Screen {
    */
   private markKey(): boolean {
     if (!this.ui.sidebar) return false;
-    if (this.ui.panel === 'units' && !this.units.editing && this.units.choice === null) {
+    if (this.ui.panel === 'units' && this.units.tab === 0 && !this.units.editing && this.units.choice === null) {
       this.units.toggleMark(this.ctx);
       return true;
     }
@@ -954,7 +955,7 @@ export class FortressScreen implements Screen {
       else if (field.startsWith('♥')) surface.hit(cells, () => this.openPanel('mood'));
       else if (field.startsWith('+')) {
         surface.tooltip(cells, this.strings.get('ui.status.wounded_tip', { n: field.slice(1) }));
-        surface.hit(cells, () => { this.openPanel('units'); this.units.woundedFirst = true; });
+        surface.hit(cells, () => { this.openPanel('units'); this.units.setTab(0); this.units.woundedFirst = true; });
       } else if (field.startsWith('!')) {
         surface.tooltip(cells, this.strings.get('ui.status.hostiles_tip', { n: field.slice(1) }));
         surface.hit(cells, () => this.openPanel('threats'));
@@ -1336,7 +1337,15 @@ export class FortressScreen implements Screen {
     const ctx = this.ctx;
     let filter = '';
     let counts: { shown: number; total: number } | null = null;
-    if (id === 'units') {
+    if (id === 'units' && this.units.tab === 1) {
+      // T-678, the All tab: "Units · all (134)", "Units · hostile (12)"; with a filter, its counts.
+      const kind = this.strings.get(`ui.units.kinds.${this.units.kind ?? 'all'}`);
+      const shown = this.units.rows(ctx).length;
+      if (this.units.filter === '') return this.strings.get('ui.units.title_all', { title, kind, n: shown });
+      title = this.strings.get('ui.units.title_all_only', { title, kind });
+      filter = this.units.filter;
+      counts = { shown, total: this.units.creatureRows(ctx, false).length };
+    } else if (id === 'units') {
       const idle = idleCount(ctx);
       if (this.units.filter === '') {
         return this.units.idleOnly
@@ -2528,7 +2537,7 @@ export class FortressScreen implements Screen {
     } else if (opened.id === 'look') this.look(this.hoverPoint() ?? this.centerPoint());
     else {
       // `[l]` over the Units list opens Labors on the dwarf under the Units cursor, at its first column.
-      const fromUnits = opened.id === 'labors' && this.ui.panel === 'units' && this.ui.sidebar ? this.units.selectedId(this.ctx) : 0;
+      const fromUnits = opened.id === 'labors' && this.ui.panel === 'units' && this.units.tab === 0 && this.ui.sidebar ? this.units.selectedId(this.ctx) : 0;
       this.openPanel(opened.id);
       if (opened.id === 'labors') {
         this.labors.firstColumn = 0;

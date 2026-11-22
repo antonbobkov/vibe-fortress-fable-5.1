@@ -44,6 +44,7 @@ The log strip shows the last three announcements, leaving out the combat notes (
 ```
 ├──────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┤
 │ map viewport ({mapCols − SIDEBAR_COLS} wide)                                      │ Units (80, 9 idle)          [x]  │
+│                                                                                  │ [1] Dwarves (80)  [2] All (134)   │
 │                                                                                  │ /filter: ____________             │
 │                                                                                  │ Name                   Act.       │
 │                                                                                  │ •Ketil Ironvein ♦    ☺ Digging    │
@@ -58,6 +59,8 @@ The log strip shows the last three announcements, leaving out the combat notes (
 │                                                                                  │ [m] squad  [w] hurt ■        │
 │                                                                                  │ sleep 22h  [[] earlier  []] later│
 ```
+
+The tab row under the title (T-678): `[1] Dwarves` is the list below, `[2] All` every creature the map draws, with its own wireframe in [`panels.md`](panels.md) § Units. Each tab is a button; `1` and `2` choose them.
 
 Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name in its own column (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier on the status row); activity from `dwarves.activityText` in the words of 10 § Player-facing behavior, always in its column. A dwarf who holds a title has `♦` after its name. The list's tooltips (the mood tier, a row's "name, profession", and its titles after them when it holds any: "Ketil Ironvein, Miner, Thane") show on the status row only, with no box, since a box would cover the row above. The name column (the cursor mark, the name, its title mark and a blank) is as wide as the longest name listed needs, at least 14 cells, as far as the activity keeps `UNITS_ACTIVITY_MIN_COLS`; the mood glyph takes 2 (the glyph and a blank) and the activity the rest, an activity that does not fit ending with `»`. A name that does not fit its room is shortened so that two dwarves never read the same: the given name's initial and the rest (`R. Brightvein`), cut with `»` if even that does not fit, unless another dwarf listed shortens to the same (`Ragna Ironvein` and `Ragnhild Ironvein`), when the whole name is cut with `»`. The profession is not a column: hovering a row shows "name, profession" on the status row, and Look shows it too. `Enter`, or a double click on a row, inspects the dwarf: Look opens its view (24 § Inspection). A dwarf with no activity reads "Idle" (or "Idle (no shelter)", 10 § Player-facing behavior) in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
 
@@ -288,6 +291,7 @@ The count records units of the first input not covered at each placement; placem
         │  [o] Settings        │
         │  [n] Rename fortress │
         │  [x] Retire fortress │
+        │  [a] Abandon fortress│
         │  [m] Main menu       │
         └──────────────────────┘
 ```

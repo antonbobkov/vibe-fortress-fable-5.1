@@ -215,6 +215,8 @@ export class Game {
   private pending: Promise<void> = Promise.resolve();
   private readonly randomSeed: () => string;
   private newest: string | null = null;
+  /** The Legends' fortresses on the regions of one world, for the world map's ruins (T-672). */
+  private ruins: { seed: string | null; byRegion: Map<number, { fortress: string; cause: string }[]> } = { seed: null, byRegion: new Map() };
   /** A message drawn over a blank screen while the app works synchronously. */
   private busy: string | null = null;
   /** The running tutorial (`ui-screens/menus-and-world.md` § Tutorial); presentation only, never saved. */
@@ -488,8 +490,10 @@ export class Game {
 
   resetSettings(): void {
     this.keymap.reset();
-    // Whether the intro has played, or the tutorial been offered, is not a preference: a reset keeps it.
-    this.applySettings({ ...DEFAULT_USER_SETTINGS, introSeen: this.userSettings.introSeen, tutorialOffered: this.userSettings.tutorialOffered });
+    // Whether the intro has played, or the tutorial been offered, is not a preference, nor is the last
+    // embark's preset: a reset keeps them.
+    const { introSeen, tutorialOffered, embarkPreset } = this.userSettings;
+    this.applySettings({ ...DEFAULT_USER_SETTINGS, introSeen, tutorialOffered, embarkPreset });
     this.persistSettings();
     this.render();
   }
@@ -535,6 +539,8 @@ export class Game {
       settings: () => this.openSettings(),
       rename: () => this.renameFortress(),
       retire: () => this.retireFortress(),
+      abandon: () => this.abandonFortress(),
+      canAbandon: () => this.host.worldMap !== null,
       mainMenu: () => this.leaveToMainMenu(),
       viewOnly: () => this.host.viewOnly,
       now: () => Date.now(),
@@ -653,18 +659,66 @@ export class Game {
     });
   }
 
+  /**
+   * `Abandon fortress` (T-672): the c_abandon confirmation defaults to No. Yes ends the fortress as
+   * retiring does, and goes back to the world map of the same world, on the abandoned site.
+   */
+  abandonFortress(): void {
+    if (!this.host.started || this.finished || this.host.worldMap === null) return;
+    this.confirm('c_abandon', { fortress: this.host.world.fortress.name }, (yes) => {
+      if (yes) void this.finishFortress({ kind: 'abandoned' });
+    });
+  }
+
+  /**
+   * The end of a fortress: its legend record and final save, then the legend screen (`Enter` a new
+   * embark on the same world, `Esc` the main menu), or for an abandoned fortress the world map.
+   */
   private async finishFortress(reason: EndReason): Promise<void> {
     if (this.finished || !this.host.started) return;
     this.finished = true;
     this.host.setSpeed(0);
     const journal = this.host.readers.of<LegendReader>('24');
-    const record = composeLegend(this.host.headless, this.host.worldMap, this.registry, journal, this.fortress.log.lines, reason);
+    const world = this.host.worldMap;
+    const regionId = this.host.world.fortress.regionId;
+    const record = composeLegend(this.host.headless, world, this.registry, journal, this.fortress.log.lines, reason);
     void this.saveAs('final', finalSaveId(record.name));
     if (this.legends !== null) void this.track(this.legends.write(record));
     this.host.setViewOnly(true);
-    this.resetTo(new LegendScreen([record], { back: () => void this.showMainMenu() }, record.id));
+    if (reason.kind === 'abandoned' && world !== null) {
+      await this.settled();
+      await this.reembark(world, regionId);
+      return;
+    }
+    this.resetTo(new LegendScreen([record], {
+      back: () => void this.showMainMenu(),
+      ...(world === null ? {} : { embarkAgain: () => void this.reembark(world, regionId) }),
+    }, record.id));
     this.render();
     await this.settled();
+  }
+
+  /** Read the Legends' records of one world into {@link ruins}, by region. */
+  private async loadRuins(seed: string): Promise<void> {
+    const records = await this.legends?.list() ?? [];
+    const byRegion = new Map<number, { fortress: string; cause: string }[]>();
+    for (const record of records) {
+      if (record.seed !== seed || record.regionId === undefined) continue;
+      const list = byRegion.get(record.regionId) ?? [];
+      list.push({ fortress: record.name, cause: record.cause });
+      byRegion.set(record.regionId, list);
+    }
+    this.ruins = { seed, byRegion };
+  }
+
+  /** The world map of a finished fortress's world, on its site, with the main menu behind it (T-672). */
+  private async reembark(world: WorldMap, regionId: number): Promise<void> {
+    await this.loadRuins(world.seed);
+    this.resetTo(this.mainMenu());
+    this.openWorldMap(world);
+    const top = this.top();
+    if (top instanceof WorldMapScreen) top.focus(regionId);
+    this.render();
   }
 
   async openLegends(): Promise<void> {
@@ -1222,12 +1276,14 @@ export class Game {
   }
 
   openWorldMap(world: WorldMap): void {
+    if (this.ruins.seed !== world.seed) void this.loadRuins(world.seed).then(() => this.render());
     this.pushScreen(
       new WorldMapScreen(
         world,
         {
           embark: (w, regionId) => this.openEmbark(w, regionId),
           back: () => this.popScreen(),
+          ruins: (regionId) => (this.ruins.seed === world.seed ? this.ruins.byRegion.get(regionId) ?? [] : []),
           // 23 § Animation: the cursor blinks on the presentation clock, steady with Reduced motion.
           animation: () => ({ animFrame: Math.floor(Date.now() / FLUID_ANIM_MS), reducedMotion: this.userSettings.reducedMotion || this.forceReducedMotion }),
         },
@@ -1256,6 +1312,13 @@ export class Game {
           confirm: (id, params, answer) => this.confirm(id, params, answer),
           now: () => Date.now(),
           prompt: (spec, answer) => this.prompt(spec, answer),
+          // The last embark's preset opens the screen (T-672), the testing preset's included.
+          ...(this.userSettings.embarkPreset === '' ? {} : { preset: this.userSettings.embarkPreset }),
+          rememberPreset: (id) => {
+            if (id === this.userSettings.embarkPreset) return;
+            this.userSettings.embarkPreset = id;
+            this.persistSettings();
+          },
           loadouts: {
             list: () => this.loadouts.list(),
             put: (loadout) => void this.track(this.loadouts.put(loadout)),
