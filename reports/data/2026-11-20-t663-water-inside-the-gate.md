@@ -33,37 +33,46 @@ A level tunnel carries the brook's water only so far. Spread hands a neighbour a
 
 ## The three-year script
 
-[`three_years_cistern.ts`](../../test/scenarios/three_years_cistern.ts) plans on its first look and builds from day 56, a step ahead of routine work (testing-strategy.md § The long scenarios has the rules):
+[`three_years_cistern.ts`](../../test/scenarios/three_years_cistern.ts) plans on its first look and builds as routine work once the drink has run short (under four days for the adults, from day 56) (testing-strategy.md § The long scenarios has the rules). **It is off by default** (`FortressState.waterInside`): on the twenty-seed sweep it cost more than it saved (below).
 
 - **Where.** Under a corner of the hearth hall when the tunnel is at most 20 tiles (none of the twenty maps), else under a 3 × 3 well room on the hall level within 10 tiles of the brook, joined to the halls' south or west corridor by a passage of its own: on all twenty maps, a tunnel of 3 to 6 tiles and a passage of 13 to 26. Under an alert a sheltering dwarf does not walk there for a want-level thirst (the room is outside its shelter, 10 § Behavior selection step 2), but with no drink left a critical thirst takes it there underground, and no longer up the stair to the brook.
-- **Nothing else digs beside its water.** From the plan on, `keepOff` (`script-commands.ts`) leaves the tiles around the cistern, its feed and its columns out of every designation of the script that opens rock, and the mines, the deep shaft, the workshop hall, the hall level's blocks and the surface workshops choose around them. Planned on day 2, before any of them is dug.
-- **What the building taught.** Each of these stalled or hurt a probe before it was fixed: the floodgate's tile is dug last and only once the stair stands whole (a miner digging the tunnel from the hall's side was shut on the brook's side when the floodgate went up, with the stair not yet down to him); it is dug with the floodgate in stock and no alert up, and the floodgate goes up ahead of all other work (until it stands, the tunnel joins the halls to the surface by the stair); the stone dug on the brook's side is left forbidden where it lies (hauling it sent haulers out to the brook and down the stair; the depot's cargo now skips forbidden goods); the stair and the brook's half of the tunnel are forbidden to traffic and the bank is opened only when no dwarf is in them; a channel's ground may have grown a sapling or a shrub since it was planned; the lever's link is ordered again when its job is given up, at the cistern's priority (left at its own, it stood open for 50 days); and the floodgate stays open until the water stands under the well (opened and shut at once, the far half of a long tunnel never got enough to carry it on).
+- **Nothing else digs beside its water.** From the plan on, `keepOff` (`script-commands.ts`) leaves the tiles around the cistern, its feed and its columns out of every designation of the script that opens rock, and the mines, the deep shaft, the workshop hall, the hall level's blocks, the farm strips and the surface workshops choose around them. Planned on day 2, before any of them is dug, and never under a zone.
+- **What the building taught.** Each of these stalled, killed or broke an invariant in a probe or a sweep before it was fixed:
+  - The two sides of the tunnel never meet but through the shut floodgate. In the first sweep raids came in by the cistern's stair while the floodgate's tile stood dug and unbuilt, and wiped out whole fortresses at perils 2 and 4 (`p2-7` at shift 150: 46 dead in days 271 to 277, inside the halls). Now the hall's side digs the floodgate's tile and builds the floodgate; the brook's side stops a tile short and digs that tile only once the floodgate stands, from its stair.
+  - Each shaft level is channelled only once the stair beside it reaches that level, so its miner steps onto the stair (first sweep, `p2-4` at shift 50: a miner left standing over the open shaft; [a follow-up](../../docs/work/T-NEW-channeller-left-in-the-air.md) asks why it did not fall).
+  - The stone dug on the brook's side is left forbidden where it lies (haulers went out to the brook and down the stair for it; the depot's cargo now skips forbidden goods). The stair and the brook's half of the tunnel are forbidden to traffic before the bank is opened, and the bank waits for them to be empty; the cistern's side the same before the floodgate opens (second sweep, `p2-1` at shift 150: seven thirsty dwarves in it drowned when it opened).
+  - No farm strip goes on the feed's ground (second sweep, `p2-3` and `p2-4` at shift 0: a strip tile left unreachable beside the shaft).
+  - The lever's link is ordered again when its job is given up, at the cistern's priority (left at its own, it stood open for 50 days); a channel's ground may have grown a sapling, a shrub or a tree; the floodgate stays open until the water stands under the well.
 
-The sweep's journal: `[three_years_cistern]` when planned (`room` or `hall`, the tunnel, the passage), at the breach, at each lever pull and when the well first works; `[three_years_thirst]` adds `waterIn` (drinks of water taken indoors under the alert) beside `waterOut`, `[three_years_drink]` the week's `waterIn`, and `[three_years_thirst_death]` whether the dwarf fell within eight tiles of the feed (`nearFeed`).
+The sweep's journal: `[three_years_cistern]` when planned, when started, at the breach, at each lever pull and when the well first works; `[three_years_thirst]` adds `waterIn` (drinks of water taken indoors under the alert) beside `waterOut`, `[three_years_drink]` the week's `waterIn`, and `[three_years_thirst_death]` whether the dwarf fell within eight tiles of the feed (`nearFeed`). These lines are written whether the cistern is on or not.
 
-## The sweep: not accepted
+## The sweeps
 
-Sweep `44850405030` on `d9a83b31` (master `1eb078c7` merged), the script with the well room on every map. From its `sweep-verdict` job:
+**First** (`44850405030` on `d9a83b31`, built from day 56 a step ahead of routine work): Pooled 19.25 | 7 | 1.25 | 941.75 | 167.25 | 3.5 | 7, not judged (shift 100: 19 of 20), over the death and peril-0 need-death bounds. The extra deaths were whole fortresses lost to raids through the cistern's stair (deaths at peril 2: 228 before, 391 with it, most in days 112 to 223), and the work took the miners in year 1.
+
+**Second** (`45038892159` on `a1480973`, master `a513d903` merged, the fixes above to that point, routine work once the drink ran short). From its `sweep-verdict` job:
 
 | | Alive | Grown | Hungry | Living | Deaths | Extinct | Need deaths |
 |---|---|---|---|---|---|---|---|
-| Shift 0 | 19 | 7 | 1 | 982 | 133 | 3 | 13 |
-| Shift 50 | 20 | 7 | 1 | 1019 | 118 | 3 | 8 |
-| Shift 100 (19 seeds) | 19 | 7 | 1 | 869 | 199 | 4 | 3 |
-| Shift 150 | 19 | 7 | 2 | 897 | 219 | 4 | 4 |
-| Pooled | 19.25 | 7 | 1.25 | 941.75 | 167.25 | 3.5 | 7 |
-| Reference | 19.5 | 7 | 0 | 1010.5 | 137 | 1.75 | 6.25 |
+| Pooled | 20 | 7 | 0.75 | 1115.25 | 121.75 | 0 | 4 |
+| Reference | 20 | 7 | 0 | 1151.75 | 98.25 | 0 | 0 |
 
-Bounds 887.75 living and 161.88 deaths. **Verdict: not judged (shift 100: 19 of 20).** Bounds exceeded: peril-0 with need deaths, dwarf deaths. Master's latest (`44830514124`, T-661) pooled 1096 living and 124.75 deaths: the script as it stands costs about 150 living and 40 deaths, and a peril-0 fortress with need deaths in each sweep.
+Bounds 1046.63 living and 132.5 deaths; **Verdict: pass**, nothing worth tracing by seed; but `p2-3` and `p2-4` at shift 0 were red (the farm strip). Against master's latest (`45031734775`: 1140.25 living, 118 deaths, no need deaths), by peril, summed over the four shifts:
 
-Two seed jobs failed:
+| Peril | Deaths, master → cistern | Of them | Living at year 3 |
+|---|---|---|---|
+| 0 | 5 → 13 | 11 starved (none before) | 1931 → 1903 |
+| 2 | 195 → 199 | 8 drowned, 3 starved | 1587 → 1515 |
+| 4 | 272 → 275 | 2 starved | 1043 → 1043 |
 
-- `three-years-p2-4` at shift 50: the invariant checker found the founder miner standing on an open tile of the feed shaft, (5, 25, 30), from tick 82,800 to the end. The shaft is channelled before its stair reaches that level, so the channeller had no neighbour to step to, and it did not fall either ([a follow-up](../../docs/work/T-NEW-channeller-left-in-the-air.md)).
-- `three-years-p2-3` at shift 100: the script threw on `AddWorkOrder` rejected `not_found` for `forge_crafts` at tick 138,000 (`three_years_economy.ts`, the "iron goods" phase): the forge it had placed was gone. The cistern's code orders nothing there under that name; the timeline differs, and the script's own order does not look for a missing forge. Not traced further.
+- **What it saved:** nothing measurable. At peril 4, where T-656's thirsty died at the brook, the deaths and the living are unchanged. Master's stills, barrels and second woodcutter (T-656) keep the drink up: the cistern started only where the drink ran short, mostly late in year 2 (`p0-3` at shift 0 on day 124, `p2-1` at shift 150 on day 206), and its well worked a few weeks later.
+- **What it cost:** seven drowned in the cistern's side at the opening (`p2-1` at shift 150; fixed since, not measured), one more drowned (`p2-7` at shift 0, day 210, not traced), and 16 starved where master starved none: nine of them in `p0-3` at shift 0 on days 331 to 333, outdoors, with 947 meals and 1,000 drinks in stock, after the cistern was finished on day 171. Not traced: a group starving outdoors beside full stores looks stranded, and the feed's open shaft and channelled bank are the change to the surface, but the journal has no positions to show it.
 
-Not traced either, under the quota pause: where the deaths and the lost living come from. Candidates, from the probes: the cistern's work at a step ahead of routine work takes the two miners (and the mechanics) for weeks in the first half of year 1; `keepOff` turns some upper-mine drifts away; the brook-side work (stair, shaft, bank) puts miners at the brook, where ambushes wait at perils 2 and 4 (the probes' deaths were not near the feed, `nearFeed` in the journal, but they were few). The sweep's logs carry the journal to answer it (`[three_years_cistern]`, `nearFeed`, `waterIn`). In the seeds looked at, the well worked from day 111 (`p4-4`, a probe) and day 145 (`p4-5` at shift 0, the sweep), and under alerts after that the fortress drank indoors (20 to 42 drinks of water indoors in four alerts of `p4-5` at shift 0, none outdoors).
+So the script leaves the cistern off by default. The scenario stands, and the script's cistern can be turned on (`waterInside = true`) once the stranding is understood.
+
+**Third** (`45046783384` on `55c0032d`, the cistern off): SWEEP3
 
 ## What is left
 
 - The scenario stands: water can be brought inside with the game as it is.
-- The three-year script's cistern is not acceptable as it is: it needs the shaft to wait for its stair, the latent `forge_crafts` throw guarded, and the cost to the fortress traced (and probably the work kept at routine priority, or started later), then a sweep.
+- The three-year cistern is off. To turn it on: find why nine dwarves of `p0-3` at shift 0 starved outdoors beside full stores, measure the cistern side's seal, and sweep with `waterInside` on.
