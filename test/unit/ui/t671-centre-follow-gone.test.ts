@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
+import type { Command } from '@core/commands';
 import type { GameEvent } from '@core/events';
 import { TileFlag } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
@@ -27,18 +28,19 @@ interface Fixture {
   readonly screen: FortressScreen;
   speed: number;
   zoom: number;
+  readonly sent: Command[];
 }
 
 /** A screen over a world whose host moves the camera as the app does (`centerOn` centres, `pan` adds). */
 function setup(seed: string): Fixture {
   const w = new TestWorld({ seed, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
   const ui = defaultUiState(z);
-  const f = { w, speed: 1, zoom: 0 } as Fixture;
+  const f = { w, speed: 1, zoom: 0, sent: [] } as unknown as Fixture;
   const host: FortressHost = {
     readers: w.readers,
     registry: w.game.registry,
     ui,
-    submit: (cmd) => w.submit(cmd),
+    submit: (cmd) => { f.sent.push(cmd); w.submit(cmd); },
     speed: () => f.speed as 0 | 1 | 2 | 4,
     setSpeed: (s) => { f.speed = s; },
     pan: (dx, dy) => { ui.camX += dx; ui.camY += dy; },
@@ -162,6 +164,17 @@ describe('T-671 the follow box', () => {
     f.screen.look({ x: 20, y: 20, z });
     expect(f.screen.key(press('c'))).toBe(true);
     expect(f.screen.ui.panel).toBe('civilizations');
+  });
+
+  it('a map selection dragged over an item\'s view takes f for forbid, not follow', () => {
+    const f = setup('t671-selection');
+    const log = f.w.spawnItem('log', 'oak', f.w.index(20, 20, z));
+    f.screen.inspectCreature(f.w.spawnDwarf({ at: f.w.index(30, 30, z) }));
+    f.screen.openTarget({ kind: 'item', id: log });
+    f.screen.selection = { a: { x: 20, y: 20, z }, b: { x: 21, y: 20, z } };
+    f.screen.key(press('F', { shift: true }));
+    expect(f.screen.lookFollow).toBe(false);
+    expect(f.sent.some((cmd) => cmd.type === 'ForbidItem' || cmd.type.startsWith('Forbid'))).toBe(true);
   });
 
   it('a barrel\'s view groups what it holds by kind and material, each group a link to its first stack', () => {

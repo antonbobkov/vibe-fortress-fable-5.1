@@ -2345,7 +2345,10 @@ export class FortressScreen implements Screen {
    */
   private ownLetter(press: KeyPress, own: KeyPress | null): boolean {
     if (own === null || this.textFocused()) return false;
-    const claimed = this.keyContexts().find((context) => context !== 'panel' && this.keymap.claims([context], press) && !(context === 'look_panel' && this.lookAt.kind === 'tile' && lookViewLetter(this.keymap, press)));
+    // A map selection dragged over Look's view takes its own keys (`f` forbid) before Look's centre and follow.
+    const contexts = this.keyContexts();
+    const ordered = this.ui.panel === 'look' && this.selection !== null ? ['selection' as const, ...contexts.filter((c) => c !== 'selection')] : contexts;
+    const claimed = ordered.find((context) => context !== 'panel' && this.keymap.claims([context], press) && !(context === 'look_panel' && this.lookAt.kind === 'tile' && lookViewLetter(this.keymap, press)));
     if (claimed === undefined) return false;
     if (claimed === 'selection') {
       if (this.selection !== null) this.selectionKey(own);
