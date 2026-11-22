@@ -61,11 +61,6 @@
   },
   {
     "context": "global",
-    "key": "Shift+Y",
-    "action": "calendar panel"
-  },
-  {
-    "context": "global",
     "key": "Ctrl+M",
     "action": "music on / off"
   },
@@ -231,7 +226,7 @@
   },
   {
     "context": "selection",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "forbid everything on the selected tiles"
   },
   {
@@ -241,17 +236,17 @@
   },
   {
     "context": "selection",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "move the goods on the selected tiles to the depot"
   },
   {
     "context": "designate_panel",
-    "key": "[S-d]",
+    "key": "[d]",
     "action": "dig"
   },
   {
     "context": "designate_panel",
-    "key": "[S-c]",
+    "key": "[c]",
     "action": "channel"
   },
   {
@@ -266,12 +261,12 @@
   },
   {
     "context": "designate_panel",
-    "key": "[S-s]",
+    "key": "[s]",
     "action": "smooth"
   },
   {
     "context": "designate_panel",
-    "key": "[S-e]",
+    "key": "[e]",
     "action": "engrave"
   },
   {
@@ -281,7 +276,7 @@
   },
   {
     "context": "designate_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "chop trees"
   },
   {
@@ -306,22 +301,22 @@
   },
   {
     "context": "designate_panel",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "traffic (again: the next traffic mode)"
   },
   {
     "context": "designate_panel",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "give the tool's priority to the last batch"
   },
   {
     "context": "build_panel",
-    "key": "[S-c]",
+    "key": "[c]",
     "action": "constructions"
   },
   {
     "context": "build_panel",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "furniture"
   },
   {
@@ -331,42 +326,42 @@
   },
   {
     "context": "build_panel",
-    "key": "[S-m]",
+    "key": "[m]",
     "action": "mechanisms"
   },
   {
     "context": "build_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "traps"
   },
   {
     "context": "build_panel",
-    "key": "[S-s]",
+    "key": "[s]",
     "action": "special"
   },
   {
     "context": "zones_panel",
-    "key": "[S-s]",
+    "key": "[s]",
     "action": "stockpile"
   },
   {
     "context": "zones_panel",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "farm plot"
   },
   {
     "context": "zones_panel",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "pasture"
   },
   {
     "context": "zones_panel",
-    "key": "[S-b]",
+    "key": "[b]",
     "action": "bedroom"
   },
   {
     "context": "zones_panel",
-    "key": "[S-d]",
+    "key": "[d]",
     "action": "dining hall"
   },
   {
@@ -376,7 +371,7 @@
   },
   {
     "context": "zones_panel",
-    "key": "[S-o]",
+    "key": "[o]",
     "action": "hospital"
   },
   {
@@ -386,22 +381,22 @@
   },
   {
     "context": "zones_panel",
-    "key": "[S-a]",
+    "key": "[a]",
     "action": "archery range"
   },
   {
     "context": "zones_panel",
-    "key": "[S-m]",
+    "key": "[m]",
     "action": "meeting area"
   },
   {
     "context": "zones_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "tomb"
   },
   {
     "context": "zones_panel",
-    "key": "[S-u]",
+    "key": "[u]",
     "action": "dump"
   },
   {
@@ -416,7 +411,7 @@
   },
   {
     "context": "zones_panel",
-    "key": "[S-c]",
+    "key": "[c]",
     "action": "sanctum"
   },
   {
@@ -441,7 +436,7 @@
   },
   {
     "context": "zone_inspector",
-    "key": "[S-e]",
+    "key": "[e]",
     "action": "resize the zone"
   },
   {
@@ -451,7 +446,7 @@
   },
   {
     "context": "zone_inspector",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "open the stockpile preset dropdown"
   },
   {
@@ -471,17 +466,17 @@
   },
   {
     "context": "zone_inspector",
-    "key": "[S-o]",
+    "key": "[o]",
     "action": "open the bedroom's owner picker, or the sanctum's apprentice picker"
   },
   {
     "context": "zone_inspector",
-    "key": "[S-c]",
+    "key": "[c]",
     "action": "a stockpile: turn the cellar setting on or off"
   },
   {
     "context": "zone_inspector",
-    "key": "Shift+A",
+    "key": "[a]",
     "action": "a farm plot: the highlighted row's crop for every season in which that crop can grow"
   },
   {
@@ -526,22 +521,22 @@
   },
   {
     "context": "units_panel",
-    "key": "Shift+W",
+    "key": "[w]",
     "action": "wounded dwarves first / list order"
   },
   {
     "context": "units_panel",
-    "key": "Shift+T",
+    "key": "[t]",
     "action": "give or take away a title"
   },
   {
     "context": "units_panel",
-    "key": "Shift+N",
+    "key": "[n]",
     "action": "rename the dwarf"
   },
   {
     "context": "units_panel",
-    "key": "Shift+M",
+    "key": "[m]",
     "action": "add the marked dwarves to a squad"
   },
   {
@@ -556,17 +551,17 @@
   },
   {
     "context": "units_panel",
-    "key": "Shift+L",
+    "key": "[l]",
     "action": "the labor manager on the marked dwarves"
   },
   {
     "context": "units_panel",
-    "key": "[S-c]",
+    "key": "[c]",
     "action": "center the map on the dwarf"
   },
   {
     "context": "labors_panel",
-    "key": "[S-a]",
+    "key": "[a]",
     "action": "whole row on / off"
   },
   {
@@ -576,17 +571,17 @@
   },
   {
     "context": "jobs_panel",
-    "key": "[S-l]",
+    "key": "[l]",
     "action": "cycle the labors that have jobs"
   },
   {
     "context": "jobs_panel",
-    "key": "[S-s]",
+    "key": "[s]",
     "action": "cycle all / open / claimed / blocked"
   },
   {
     "context": "jobs_panel",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "raise the job's priority (1–9, wrapping)"
   },
   {
@@ -596,7 +591,7 @@
   },
   {
     "context": "orders_panel",
-    "key": "[S-n]",
+    "key": "[n]",
     "action": "new order (opens \"Add order\")"
   },
   {
@@ -636,17 +631,17 @@
   },
   {
     "context": "orders_panel",
-    "key": "[S-m]",
+    "key": "[m]",
     "action": "the order's mode"
   },
   {
     "context": "orders_panel",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "the order's priority"
   },
   {
     "context": "orders_panel",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "the order's material"
   },
   {
@@ -661,17 +656,17 @@
   },
   {
     "context": "workshop_panel",
-    "key": "[S-n]",
+    "key": "[n]",
     "action": "new order at this workshop"
   },
   {
     "context": "workshop_panel",
-    "key": "[S-o]",
+    "key": "[o]",
     "action": "this workshop's orders"
   },
   {
     "context": "workshop_panel",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "the material of the orders here"
   },
   {
@@ -741,7 +736,7 @@
   },
   {
     "context": "stocks_panel",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "forbid the selected items"
   },
   {
@@ -756,7 +751,7 @@
   },
   {
     "context": "stocks_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "move goods to the depot"
   },
   {
@@ -766,7 +761,7 @@
   },
   {
     "context": "depot_panel",
-    "key": "[S-m]",
+    "key": "[m]",
     "action": "move goods to the depot"
   },
   {
@@ -776,7 +771,7 @@
   },
   {
     "context": "depot_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "open the trade session"
   },
   {
@@ -796,17 +791,17 @@
   },
   {
     "context": "military_panel",
-    "key": "Shift+L",
+    "key": "[l]",
     "action": "choose the squad leader"
   },
   {
     "context": "military_panel",
-    "key": "Shift+B",
+    "key": "[b]",
     "action": "assign a barracks zone"
   },
   {
     "context": "military_panel",
-    "key": "Shift+N",
+    "key": "[n]",
     "action": "rename the squad"
   },
   {
@@ -851,17 +846,17 @@
   },
   {
     "context": "military_panel",
-    "key": "[S-s]",
+    "key": "[s]",
     "action": "set the squad's station"
   },
   {
     "context": "military_panel",
-    "key": "[S-c]",
+    "key": "[c]",
     "action": "clear the squad's station"
   },
   {
     "context": "military_panel",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "add patrol points"
   },
   {
@@ -876,7 +871,7 @@
   },
   {
     "context": "military_panel",
-    "key": "[S-f]",
+    "key": "[f]",
     "action": "order to follow a dwarf"
   },
   {
@@ -886,17 +881,17 @@
   },
   {
     "context": "military_panel",
-    "key": "[S-m]",
+    "key": "[m]",
     "action": "the next squad mode"
   },
   {
     "context": "military_panel",
-    "key": "[S-o]",
+    "key": "[o]",
     "action": "squad mode: off"
   },
   {
     "context": "military_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "squad mode: train"
   },
   {
@@ -906,7 +901,7 @@
   },
   {
     "context": "military_panel",
-    "key": "[S-a]",
+    "key": "[a]",
     "action": "add members"
   },
   {
@@ -931,7 +926,7 @@
   },
   {
     "context": "animals_panel",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "pasture the animal"
   },
   {
@@ -941,22 +936,22 @@
   },
   {
     "context": "animals_panel",
-    "key": "[S-c]",
+    "key": "[c]",
     "action": "edit the breeding cap"
   },
   {
     "context": "animals_panel",
-    "key": "[S-a]",
+    "key": "[a]",
     "action": "assign the animal"
   },
   {
     "context": "animals_panel",
-    "key": "[S-n]",
+    "key": "[n]",
     "action": "name the animal"
   },
   {
     "context": "animals_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "train the animal"
   },
   {
@@ -966,12 +961,12 @@
   },
   {
     "context": "civilizations_panel",
-    "key": "[S-d]",
+    "key": "[d]",
     "action": "depot panel"
   },
   {
     "context": "civilizations_panel",
-    "key": "[S-t]",
+    "key": "[t]",
     "action": "open the trade session"
   },
   {
@@ -981,7 +976,7 @@
   },
   {
     "context": "civilizations_panel",
-    "key": "[S-a]",
+    "key": "[a]",
     "action": "add a request"
   },
   {
@@ -991,7 +986,7 @@
   },
   {
     "context": "civilizations_panel",
-    "key": "[S-p]",
+    "key": "[p]",
     "action": "the request's priority"
   },
   {
@@ -1006,7 +1001,7 @@
   },
   {
     "context": "mood_panel",
-    "key": "[S-s]",
+    "key": "[s]",
     "action": "sort by tier"
   },
   {
@@ -1042,7 +1037,7 @@
   {
     "context": "look_panel",
     "key": "[h]",
-    "action": "creature view: the tile list where it stands"
+    "action": "creature or item view: the tile list where it is"
   },
   {
     "context": "look_panel",
@@ -1066,7 +1061,7 @@
   },
   {
     "context": "debug_panel",
-    "key": "[S-d]",
+    "key": "[d]",
     "action": "dump save"
   },
   {

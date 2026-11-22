@@ -524,7 +524,7 @@ export class BuildingPanel {
     const view = this.view(ctx);
     const s = ctx.strings;
     if (reader === null || view === undefined) return [{ id: 'gone', text: s.get('ui.building.gone'), tone: 'dim' }];
-    const letters = ctx.panelLetters;
+    const letters = ctx.shiftLetters;
     const key = (letter: string, caption: string): string => `${acceleratorLabel(letter, letters)} ${caption}`;
     const out: BuildingLine[] = [];
     const name = this.name(ctx);

@@ -176,7 +176,7 @@ test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
 
   // 3. A wall from logs: constructions, down to Wall, the material cycled to pine logs, a click.
   await page.keyboard.press('Escape');
-  // U-03 (D-U2): `c` opens Civilizations; the constructions category is `[S-c]`.
+  // U-03 (D-U2): `c` opens Civilizations; the constructions category is `[c]`.
   await page.keyboard.press('Shift+C');
   for (let k = 0; k < 7; k += 1) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');

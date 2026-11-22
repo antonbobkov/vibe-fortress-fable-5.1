@@ -529,7 +529,7 @@ export class MilitaryPanel {
     const down = k === 'ArrowDown' || k === '↓';
     // While the panel waits for a tile or a creature, the arrows move the map cursor.
     if ((up || down) && (this.settingStation || this.settingPatrol || this.settingKill || this.settingFollow)) return false;
-    // A letter that opens a panel is an accelerator here only with `Shift` (`[S-s] set`, D-U2).
+    // The panel's letters come before the panel letters; kill stays on `Shift` (`[S-k]`, D-253).
     const letter = accel(ctx, press);
     const submit = (cmd: Command | null): boolean => {
       if (cmd !== null) {
@@ -591,10 +591,10 @@ export class MilitaryPanel {
       return true;
     }
     if (letter === 'c') return submit(this.clearStation(ctx));
-    // U-06: the leader, the barracks and the squad's name, on Shift so no panel hotkey is taken.
-    if (letter === 'l' && press.shift) { this.openChoice(ctx, 'leader'); return true; }
-    if (letter === 'b' && press.shift) { this.openChoice(ctx, 'barracks'); return true; }
-    if (letter === 'n' && press.shift) { this.rename(ctx); return true; }
+    // U-06: the leader, the barracks and the squad's name (D-253: before the panel letters).
+    if (letter === 'l') { this.openChoice(ctx, 'leader'); return true; }
+    if (letter === 'b') { this.openChoice(ctx, 'barracks'); return true; }
+    if (letter === 'n') { this.rename(ctx); return true; }
     // U-03: `[S-p]` is "add" now, so clearing the patrol moved to `[y]`.
     if (letter === 'y') {
       const squad = this.selectedSquad(ctx);
@@ -729,7 +729,7 @@ export function drawMilitaryPanel(
 
   label(s, col, row, `Mode: ${squad.mode}`, { width });
   row += 1;
-  captionButtons(s, col, row, '[S-o] Off [S-t] Train [v] Active', [
+  captionButtons(s, col, row, '[o] Off [t] Train [v] Active', [
     () => panel.changeMode(ctx, 'off', host),
     () => panel.changeMode(ctx, 'train', host),
     () => panel.changeMode(ctx, 'active', host),
@@ -745,7 +745,7 @@ export function drawMilitaryPanel(
   const membersStr = memberNames.length > 0 ? memberNames.join(', ') : 'none';
   label(s, col, row, `Members ${membersStr}`, { width });
   row += 1;
-  captionButtons(s, col, row, '        [S-a] add  [r] remove', [() => panel.openChoice(ctx, 'add'), () => panel.openChoice(ctx, 'remove')], { width });
+  captionButtons(s, col, row, '        [a] add  [r] remove', [() => panel.openChoice(ctx, 'add'), () => panel.openChoice(ctx, 'remove')], { width });
   row += 1;
   // What the members hold, and what to do when the stock has no weapon for them.
   const armed = armedLines(ctx, squad);
@@ -798,7 +798,7 @@ export function drawMilitaryPanel(
   const stText = panel.settingStation ? 'Click tile...' : stationStr;
   label(s, col, row, `Station ${stText}`, { fg: panel.settingStation ? t.value : t.text, width });
   row += 1;
-  captionButtons(s, col, row, '        [S-s] set  [S-c] clear', [
+  captionButtons(s, col, row, '        [s] set  [c] clear', [
     () => panel.arm(ctx, 'station'),
     squad.station === null ? null : () => {
       const cmd = panel.clearStation(ctx);
@@ -809,7 +809,7 @@ export function drawMilitaryPanel(
 
   // Patrol line
   const patrolStr = squad.patrol && squad.patrol.length > 0 ? `${squad.patrol.length} pts` : 'none';
-  captionButtons(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [S-p] add [y] clear`}`, [
+  captionButtons(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [p] add [y] clear`}`, [
     () => panel.arm(ctx, 'patrol'),
     () => ctx.submit({ type: 'SetSquadPatrol', squadId: squad.id, tiles: [] }),
   ], { width });
@@ -823,7 +823,7 @@ export function drawMilitaryPanel(
       row += 1;
     }
   }
-  captionButtons(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : ordersNow !== '' ? '       [S-k] kill [S-f] follow' : 'Orders [S-k] kill [S-f] follow', [
+  captionButtons(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : ordersNow !== '' ? '       [S-k] kill [f] follow' : 'Orders [S-k] kill [f] follow', [
     () => panel.arm(ctx, 'kill'),
     () => panel.arm(ctx, 'follow'),
   ], { width });

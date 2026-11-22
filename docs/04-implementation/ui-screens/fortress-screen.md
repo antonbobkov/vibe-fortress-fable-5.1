@@ -29,7 +29,7 @@ While the tutorial runs, its box covers the top left corner of the map view and 
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Status row 1 fields left to right: date (a click on it, or `Shift+Y`, opens the calendar panel); weather glyph, word and temperature (`{glyph} {word} {temp}°C`; the moon `C` replaces the sun on a clear night; the glyph is red in a heatwave, cyan in a cold snap and dim in fog); `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` while a caravan is arriving, at the depot or leaving (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[Esc] menu  [?] help` at the right edge (`[Esc]` alone when the row is too narrow for the word, and `[?]` alone as well when it is narrower still, never a cut word).
+Status row 1 fields left to right: date (a click on it, or `y`, opens the calendar panel); weather glyph, word and temperature (`{glyph} {word} {temp}°C`; the moon `C` replaces the sun on a clear night; the glyph is red in a heatwave, cyan in a cold snap and dim in fog); `☺` population; `♥` hall spirit tier (colored); `+n` patients (red, hidden when 0); `!n` hostiles on discovered tiles or spotted, matching the threats panel's "Active" (red, hidden when 0); `$` while a caravan is arriving, at the depot or leaving (hidden otherwise); `z` current level; speed glyphs and multiplier (`║` when paused, yellow when the simulation lags); `[Esc] menu  [?] help` at the right edge (`[Esc]` alone when the row is too narrow for the word, and `[?]` alone as well when it is narrower still, never a cut word).
 
 Every field of row 1 is a button. A click on the date or the weather opens the Calendar; on `☺` Units; on `♥` Mood; on `+n` Units with the wounded first; on `!n` Threats; on `$` Civilizations; on `z` nothing. A click on the speed glyph pauses or resumes at the last speed, and a right click on it steps the speed 1× → 2× → 4× → 1× (a paused game stays paused and resumes at the new speed). Hovering `+n` shows "n wounded" and `!n` "n hostile creatures on the map". `[Esc] menu` opens the game menu and `[?] help` the Help panel.
 
@@ -52,28 +52,28 @@ The log strip shows the last three announcements, leaving out the combat notes (
 │                                                                                  │  …                                │
 │                                                                                  │ ─────────────────────────────────│
 │                                                                                  │ [Enter] inspect  [l] labors      │
-│                                                                                  │ [S-c] center  [i] idle            │
+│                                                                                  │ [c] center  [i] idle            │
 │                                                                                  │ [Space] mark  [*] all  1 marked  │
-│                                                                                  │ [S-t] title  [S-n] rename        │
-│                                                                                  │ [S-m] squad  [S-w] hurt ■        │
+│                                                                                  │ [t] title  [n] rename        │
+│                                                                                  │ [m] squad  [w] hurt ■        │
 │                                                                                  │ sleep 22h  [[] earlier  []] later│
 ```
 
 Rows: `▶` marks the cursor and `•` a marked row; the mood tier glyph follows the name in its own column (`☺` white from Fine up, `☻` yellow Unhappy, `‼` red Miserable; hovering it names the tier on the status row); activity from `dwarves.activityText` in the words of 10 § Player-facing behavior, always in its column. A dwarf who holds a title has `♦` after its name. The list's tooltips (the mood tier, a row's "name, profession", and its titles after them when it holds any: "Ketil Ironvein, Miner, Thane") show on the status row only, with no box, since a box would cover the row above. The name column (the cursor mark, the name, its title mark and a blank) is as wide as the longest name listed needs, at least 14 cells, as far as the activity keeps `UNITS_ACTIVITY_MIN_COLS`; the mood glyph takes 2 (the glyph and a blank) and the activity the rest, an activity that does not fit ending with `»`. A name that does not fit its room is shortened so that two dwarves never read the same: the given name's initial and the rest (`R. Brightvein`), cut with `»` if even that does not fit, unless another dwarf listed shortens to the same (`Ragna Ironvein` and `Ragnhild Ironvein`), when the whole name is cut with `»`. The profession is not a column: hovering a row shows "name, profession" on the status row, and Look shows it too. `Enter`, or a double click on a row, inspects the dwarf: Look opens its view (24 § Inspection). A dwarf with no activity reads "Idle" (or "Idle (no shelter)", 10 § Player-facing behavior) in the dim colour. The title row reads "Units (80, 9 idle)": the number of dwarves and of idle ones.
 
-- **Idle filter and order**: `i` shows only the idle dwarves, and the title row then reads "Units · idle (n)"; `Shift+W` (or a click on `[S-w] hurt`) puts the wounded dwarves first, in list order, and the caption reads `[S-w] hurt ■` while it does. Both are kept while the fortress is open and are not saved.
+- **Idle filter and order**: `i` shows only the idle dwarves, and the title row then reads "Units · idle (n)"; `[w]` (or a click on `[w] hurt`) puts the wounded dwarves first, in list order, and the caption reads `[w] hurt ■` while it does. Both are kept while the fortress is open and are not saved.
 - **To the labors**: the labors key `l` over the Units list opens the Labors panel with its cursor on the dwarf under the Units cursor, at its first labor column; the Units filters are dropped. The key row still reads `[l] labors`.
 - **Marks**: `Space` marks the cursor's row (it does not pause while this list is open), a shift-click marks the range from the last mark, `*` marks all or none. An action applies to every marked dwarf when the cursor's row is marked, otherwise to the cursor's dwarf.
-- `[S-t] title` lists the four titles with their holders (`Thane  Halvar Grimshield`, `Warden  (vacant)`). `Enter` or a click gives the title to the cursor's dwarf (`AssignTitle`), or takes it away when that dwarf holds it; the log has a note either way ("Ketil Ironvein is now the Thane.", "Ketil Ironvein is no longer the Thane.", 10 § Registrations). A child cannot hold one, and the status row says so.
-- `[S-n] rename` opens the text input with the dwarf's name (`RenameDwarf`, 1–24 characters).
-- `[S-m] squad` lists the squads with their sizes; `Enter` or a click adds the selection in one `SetSquadMembers`. Children, dwarves already in a squad and those the squad has no room for are left out, and the status row says how many. With no squad it says to make one in Military.
-- `Shift+L` with dwarves marked opens the labor manager ([`panels.md`](panels.md) § Labor manager) with them marked.
+- `[t] title` lists the four titles with their holders (`Thane  Halvar Grimshield`, `Warden  (vacant)`). `Enter` or a click gives the title to the cursor's dwarf (`AssignTitle`), or takes it away when that dwarf holds it; the log has a note either way ("Ketil Ironvein is now the Thane.", "Ketil Ironvein is no longer the Thane.", 10 § Registrations). A child cannot hold one, and the status row says so.
+- `[n] rename` opens the text input with the dwarf's name (`RenameDwarf`, 1–24 characters).
+- `[m] squad` lists the squads with their sizes; `Enter` or a click adds the selection in one `SetSquadMembers`. Children, dwarves already in a squad and those the squad has no room for are left out, and the status row says how many. With no squad it says to make one in Military.
+- `[l]` opens the labor manager ([`panels.md`](panels.md) § Labor manager) with the marked dwarves marked, or on the cursor's dwarf when none is marked (D-253; `Esc`, then the labors key, opens the Labors panel).
 - `[` and `]` move the selection's sleep hour an hour earlier or later (`SetSchedule`).
 - Every action row is clickable. The new keys are on `Shift`, or are not letters, because the letters are panel hotkeys.
 
 ## Inspection panel (look)
 
-Look shows a tile list or one creature's view (24 § Inspection); the title row names what it shows. A click on a creature opens its view:
+Look shows a tile list, one creature's view or one item's view (24 § Inspection); the title row names what it shows. A click on a creature opens its view:
 
 ```
 │ Ketil Ironvein                       [x] │
@@ -106,10 +106,31 @@ Look shows a tile list or one creature's view (24 § Inspection); the title row 
 │ Relations friends: Brynja Coldhammer      │
 │ Title Thane                               │
 │ ───────────────────────────────────────── │
-│ [h] here  [Bksp] back                     │
+│ [h] here  [Bksp] back  [Tab] link         │
 ```
 
-The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. A crowd, a loose item, bare ground, a right click and `k` open the tile list:
+The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour. A click on one loose item opens the item's view:
+
+```
+│ pine bed                             [x] │
+│ Furniture · common · 10 ☼                 │
+│ Carried by Roald Deephelm                 │
+│ At (61, 88, z27)                          │
+│ ───────────────────────────────────────── │
+│ Type      bed                             │
+│ Material  pine                            │
+│ Quality   common                          │
+│ Count     1                               │
+│ Value     10 ☼                            │
+│ Made by   Orm Ironmantle                  │
+│ Owner     no one                          │
+│ Flags     reserved                        │
+│ For       Install furniture, Roald Deephe»│
+│ ───────────────────────────────────────── │
+│ [h] here  [Bksp] back  [Tab] link         │
+```
+
+It holds the item, not a tile: its place is 13's `items.tileOf`, and the second line says how it is held (`Lying in Stockpile #2`, `Lying on the ground`, `Carried by …`, `Worn by …`, `In oak barrel, Stockpile #1`, `In Wagon #1`). The stockpile, the carrier, the container, the maker, the owner, the reserving job's worker and what a container holds (`Holds 20 bellwine`) are links. `Tab` and `Shift+Tab` focus the links in view one by one, inverted, and `Enter` opens the focused one; a click opens any. A crowd, bare ground, a right click and `k` open the tile list:
 
 ```
 │ Tile (43, 92, z27)                   [x] │
@@ -135,7 +156,7 @@ The terrain line comes first. Under `Here` each creature the map shows, each loo
 
 Under each perishable item, and each item of food, a line of its own gives its rot (24 § Panels): `stale, rots in 4 days`, `fresh, not rotting here`, `keeps, never rots`; in the alert colour from the stale stage, dim before it. An item's flags (`forbidden, dump`) are a dim line under it too.
 
-The wireframes are drawn wider than the sidebar; in the 36-column sidebar a name that does not fit ends with `»`. Inspecting a creature (from Units, Mood or a log line) opens its view; a row of the list opened by its digit, `Enter` or a click, and `[h]`, keep the view before for `Backspace`.
+The wireframes are drawn wider than the sidebar; in the 36-column sidebar a name that does not fit ends with `»`. Inspecting a creature (from Units, Mood or a log line) opens its view; a row of the list opened by its digit, `Enter` or a click, a link, and `[h]`, keep the view before for `Backspace`.
 
 The mood prints as a whole number (`Mood: Unhappy (37)`), as the thoughts under it do (a thought whose weight rounds to 0 is not listed), and so do a body part's hit points (`torso ▓▓▓░░ 41/60 hp`), which wasting takes in fractions.
 
@@ -170,26 +191,26 @@ A dwarf's view (10's `creature › dwarf`) has, under the creature's rule:
 - `Relations`: its friends, then its grudges (`Relations friends: Brynja Coldhammer; grudges: Orm Ashbrow`), or `Relations none yet`;
 - `Title`, the titles it holds in the title table's order (`Title Thane, Warden`); no line without one.
 
-A long line wraps under its text. Another creature has the `Equipment` line when it holds something; the dwarf's other lines are a dwarf's alone. Look assigns no title and edits no labor: titles are given in the units panel (`[S-t] title`) and labors in the labor panel.
+A long line wraps under its text. Another creature has the `Equipment` line when it holds something; the dwarf's other lines are a dwarf's alone. Look assigns no title and edits no labor: titles are given in the units panel (`[t] title`) and labors in the labor panel.
 
-Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another tile, or the other view.
+Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another item, another tile, or another view.
 
-Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, flags (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
+Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 
 ## Designate tool
 
 ```
 │ Designate                          [x]  │
-│ [S-d] Dig        [S-c] Channel          │
+│ [d] Dig        [c] Channel          │
 │ [w] Stairs       [r] Ramp               │
-│ [S-s] Smooth     [S-e] Engrave          │
-│ [x] Remove       [S-t] Chop trees       │
+│ [s] Smooth     [e] Engrave          │
+│ [x] Remove       [t] Chop trees       │
 │ [g] Gather       [h] Harvest            │
-│ [S-f] Traffic    [q] Cut ice            │
+│ [f] Traffic    [q] Cut ice            │
 │ [S-b] Set a fire                        │
 │ Priority [-] 5 [+]   (1–9)              │
 │ [Ctrl+Z] undo  [Del] clear              │
-│ [S-p] last batch to priority 5          │
+│ [p] last batch to priority 5          │
 │ Click 2 corners; [<] [>] levels.        │
 │ S- is Shift                             │
 ```
@@ -198,7 +219,7 @@ The captions are short so that none is cut at the 36-column sidebar; the tool's 
 
 `d` opens the panel with Dig chosen (`d` again closes it). The letters that open panels take `Shift` here (`panels.md`).
 
-`[S-p]` (or a click on its row) gives the tool's priority to the tiles of the last batch that are still designated (`SetDesignationPriority`); with no batch, or no remaining designation in it, it says so.
+`[p]` (or a click on its row) gives the tool's priority to the tiles of the last batch that are still designated (`SetDesignationPriority`); with no batch, or no remaining designation in it, it says so.
 
 After the first corner, or while dragging, the box's slice on the current level is inverted on the map and the status bar reads `Dig 12×4 (48 tiles), priority 5`, or `Dig 12×4×3 levels (144 tiles), priority 5` once the level differs from the first corner's (24 § Input model).
 
@@ -208,9 +229,9 @@ Stairs is the only stair tool: it chooses up, down or up/down stairs for each ti
 
 ```
 │ Build                              [x]  │
-│ [S-c] Constructions [S-f] Furniture     │
-│ [w] Workshops       [S-m] Mechanisms    │
-│ [S-t] Traps         [S-s] Special       │
+│ [c] Constructions [f] Furniture     │
+│ [w] Workshops       [m] Mechanisms    │
+│ [t] Traps         [s] Special       │
 │ ── Workshops ──────────────────────     │
 │ ▶Carpenter's workshop   2 logs  (14)    │
 │  Mason's workshop      2 stone  (31)    │

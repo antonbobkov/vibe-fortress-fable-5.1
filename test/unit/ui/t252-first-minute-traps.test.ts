@@ -75,13 +75,14 @@ describe('T-252 first-minute traps: no axe warning, and the second d', () => {
 
   it('the close notice names the current rebound key', () => {
     const keys = new Keymap(keymap.bindings);
-    const index = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'designate');
+    const index = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'zones');
     expect(keys.rebind(index, { key: 'q', ctrl: false, shift: false })).toBeNull();
     const f = fortress(keys);
     f.key(press('q'));
+    f.key(press('s'));
     expect(f.toolActive).toBe(true);
     f.key(press('q'));
-    expect(f.statusRow2()).toBe('Designate closed \u00b7 [q] opens it again');
+    expect(f.statusRow2()).toBe('Zones closed \u00b7 [q] opens it again');
   });
 
   it('asks the axe question after the pick question and before the food question', () => {
@@ -94,12 +95,18 @@ describe('T-252 first-minute traps: no axe warning, and the second d', () => {
     expect(embarked).toHaveLength(1);
   });
 
-  it('closing designate with d while tool is armed shows notice on status row 2', () => {
+  it('d d keeps Dig (D-253); closing Zones with z while its tool is armed shows the notice on status row 2', () => {
     const f = fortress();
     f.key(press('d')); // opens designate with Dig armed
     expect(f.toolActive).toBe(true);
-    f.key(press('d')); // closes designate
-    expect(f.statusRow2()).toBe('Designate closed · [d] opens it again');
+    f.key(press('d')); // Dig again: the panel stays
+    expect(f.ui.panel).toBe('designate');
+    expect(f.tool.kind).toBe('dig');
+    f.key(press('z'));
+    f.key(press('s'));
+    expect(f.toolActive).toBe(true);
+    f.key(press('z')); // closes zones
+    expect(f.statusRow2()).toBe('Zones closed · [z] opens it again');
   });
 
   it('closing build with b while tool is armed shows notice on status row 2', () => {

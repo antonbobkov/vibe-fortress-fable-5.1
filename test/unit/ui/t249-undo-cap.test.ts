@@ -76,12 +76,12 @@ describe('T-249 ten designation batches and an editable breeding cap', () => {
     expect(sent).toEqual([{ type: 'SetBreedingCap', species, cap: 4 }]);
   });
   it('offers cap, decrement, Set and Cancel mouse paths and retains the species while editing', () => {
-    const { screen, sent, species, w } = fixture(); click(screen, '[S-c] cap'); expect(sent).toEqual([]);
+    const { screen, sent, species, w } = fixture(); click(screen, '[c] cap'); expect(sent).toEqual([]);
     click(screen, '[-]');
     w.spawnTame('cow', w.index(21, 20, z)); screen.animals.list.selected = 1;
     click(screen, '[Enter] Set'); expect(sent).toEqual([{ type: 'SetBreedingCap', species, cap: 11 }]);
     expect(w.readers.of<AnimalsReader>('08').breedingCap(species)).toBe(12);
-    click(screen, '[S-c] cap'); click(screen, '[Esc] cancel'); expect(sent).toHaveLength(1);
+    click(screen, '[c] cap'); click(screen, '[Esc] cancel'); expect(sent).toHaveLength(1);
   });
   it('offers a mouse path for undoing successive batches', () => {
     const { screen, sent } = fixture(); screen.openPanel('designate');

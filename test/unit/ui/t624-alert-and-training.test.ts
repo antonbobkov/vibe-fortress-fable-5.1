@@ -122,17 +122,17 @@ describe('T-624 training needs a barracks', () => {
     f.w.step(1);
     f.screen.openPanel('military');
     f.screen.key(press('T', { shift: true }));
-    expect(f.screen.currentNotice).toBe('No barracks: the squad cannot train. [z] Barracks, then [S-b].');
+    expect(f.screen.currentNotice).toBe('No barracks: the squad cannot train. [z] Barracks, then [b].');
     f.w.step(1);
     let s = f.draw();
-    expect(panel(s)).toContain('No barracks: the squad cannot train. [z] Barracks, then [S-b].');
+    expect(panel(s)).toContain('No barracks: the squad cannot train. [z] Barracks, then [b].');
     expect(fgOfText(s, rowOf(s, 'No barracks:'), 'No barracks:')).toBe(hexOf(theme.alert));
     // A barracks made now (as while paused, before any tick) is the squad's default at once.
     const ticks = f.w.readers.calendar.tick;
     f.w.zone('barracks', [f.w.index(20, 20, z), f.w.index(21, 20, z)]);
     s = f.draw();
     expect(f.w.readers.calendar.tick).toBe(ticks);
-    expect(text(s)).toContain('Barracks #1 (default)  [S-b] set');
+    expect(text(s)).toContain('Barracks #1 (default)  [b] set');
     expect(panel(s)).not.toContain('No barracks');
     // With a barracks, unarmed members are told they drill dodging only.
     f.screen.key(press('O', { shift: true }));
@@ -146,7 +146,7 @@ describe('T-624 training needs a barracks', () => {
     f.w.submit({ type: 'CreateSquad', name: 'The Hearthguard' });
     f.w.step(1);
     f.screen.openPanel('military');
-    expect(text(f.draw())).toContain('No barracks  [S-b] assign');
+    expect(text(f.draw())).toContain('No barracks  [b] assign');
   });
 });
 

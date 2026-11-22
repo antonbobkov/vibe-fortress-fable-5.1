@@ -58,7 +58,7 @@ test('military-and-alert', async ({ page }) => {
     return squads[0]?.id ?? 0;
   });
   expect(squadId).toBeGreaterThan(0);
-  // U-03 (D-U2): `a` opens the Log and `s` Stocks; the squad's add and station are `[S-a]` and `[S-s]`.
+  // U-03 (D-U2): `a` opens the Log and `s` Stocks; the squad's add and station are `[a]` and `[s]`.
   await page.keyboard.press('Shift+A');
   await page.keyboard.press('Enter');
   await page.evaluate(() => (window as unknown as { __deepholm: MilitaryHook }).__deepholm.step(1));

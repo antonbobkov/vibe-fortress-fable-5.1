@@ -128,7 +128,7 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
         screen.pointerDown({ col, row, button: 0, shift: false, ctrl: false, alt: false, meta: false });
       };
       const first = surface(80, 42); screen.draw(first);
-      click(first, '[S-t] train');
+      click(first, '[t] train');
       expect(screen.animals.trainChoice).toEqual({ animalId: dog, selected: 0 });
       const choice = surface(80, 42); screen.draw(choice);
       click(choice, 'Hunting');
@@ -156,7 +156,7 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
 
     it('Help lists the training entry, choice/cancel keys and fortress rename', () => {
       const text = helpKeyRows(keymap, strings).map(row => row.text).join('\n');
-      expect(text).toContain('[S-t]  train the animal'); expect(text).toContain('War'); expect(text).toContain('Hunting');
+      expect(text).toContain('[t]  train the animal'); expect(text).toContain('War'); expect(text).toContain('Hunting');
       expect(text).toContain('Esc'); expect(text).toContain('n  Rename fortress'); expect(text).toContain('The name is typed in a field');
     });
 
