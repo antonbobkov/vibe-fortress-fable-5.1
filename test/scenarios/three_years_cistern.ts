@@ -4,8 +4,8 @@
  * floodgate on a lever, and a well over it (`cistern-well.ts`, `bd_cistern_well`). Under a corner
  * of the hearth hall where the brook's water can reach it, else under a well room dug near the
  * brook on the hall level and joined to the halls' corridors underground. Planned on the first
- * look, so that no later dig comes beside its water (`keepOff`); built from `CISTERN_DAY` a step
- * ahead of routine work, with a mechanic's workshop for the mechanisms.
+ * look, so that no later dig comes beside its water (`keepOff`); built once the drink has run short,
+ * as routine work, with a mechanic's workshop for the mechanisms.
  */
 
 import { TICKS_PER_DAY } from '@core/constants';
@@ -13,6 +13,7 @@ import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
+import type { DwarvesReader } from '@systems/dwarves';
 import { TileFlag, TileKind } from '@core/map3d';
 import { cisternKeepOff, cisternWork, keepOffWhole, lookAtCistern, planCistern, wellWorks, type CisternPlan, type CisternWork, type Col } from './cistern-well';
 import { command, exemptCommand, keepOff } from './script-commands';
@@ -29,10 +30,17 @@ import type { TestWorld } from './test-world';
 export const HALL_TUNNEL_MAX = 20;
 /** The farthest from the brook a well room is dug, and the longest feed tunnel to it. */
 export const ROOM_TUNNEL_MAX = 10;
-/** The day the cistern's work starts, once the first mine and the halls have had the miners. */
-export const CISTERN_DAY = 56;
-/** The cistern's digging and building: a step ahead of routine work, as the food chain is, or the miners never reach it. */
-const CISTERN_PRIORITY = ROUTINE - 1;
+/**
+ * The cistern is built once the drink has run short: under `SHORT_DRINK_DAYS` for the adults (0.77 a
+ * day each, as `DRINK_RESERVE_DAYS`), the four days a raid's alert holds the fortress (T-656). Begun
+ * on day 56 a step ahead of routine work, it took the miners and the mechanics for weeks of the
+ * first year of fortresses that never ran short (T-663's first sweep).
+ */
+export const SHORT_DRINK_DAYS = 4;
+/** A shortage counts from this day: in the first two months the wagon's drink runs down before the stills catch up. */
+export const SHORT_FROM_DAY = 56;
+/** The cistern's digging and building: routine work. */
+const CISTERN_PRIORITY = ROUTINE;
 /** Rejections the cistern's commands meet when the map has moved on since the look. */
 const CISTERN_EXPECTED = ['precondition_failed', 'bad_placement', 'footprint_blocked', 'not_discovered', 'not_found', 'no_tag', 'not_linkable'];
 
@@ -154,7 +162,7 @@ function orderGoods(w: TestWorld, state: FortressState, work: CisternWork): void
 }
 
 /**
- * The cistern's look: planned on the first one, its work ordered from `CISTERN_DAY` until the well
+ * The cistern's look: planned on the first one, its work ordered once the drink has run short, until the well
  * stands over water. Called with the rooms (`checkFortressRooms`) and, while the floodgate is to
  * be opened and shut, every watch (`playThreeYears`), as a player keeps an eye on the lever.
  */
@@ -175,7 +183,13 @@ export function keepWaterInside(w: TestWorld, state: FortressState): void {
     return;
   }
   const work = state.cistern;
-  if (work === null || w.tick < CISTERN_DAY * TICKS_PER_DAY) return;
+  if (work === null) return;
+  if (!work.steps.has('started')) {
+    const adults = w.readers.of<DwarvesReader>('10').adults().length;
+    if (w.tick < SHORT_FROM_DAY * TICKS_PER_DAY || w.readers.of<ItemsReader>('13').available('drink') >= adults * 0.77 * SHORT_DRINK_DAYS) return;
+    work.steps.add('started');
+    note('three_years_cistern', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1, step: 'started: the drink ran short' });
+  }
   if (wellWorks(w, work)) {
     if (!work.steps.has('working')) {
       work.steps.add('working');

@@ -13,9 +13,9 @@
  *   rather than falling, and walks back up, and the miners come down it to dig the tunnel. After
  *   the breach it fills with water to the brook's level, too deep to walk.
  * - The feed tunnel at `L`, from under `S` along `d`, then across to the cistern. The floodgate `F`
- *   stands midway on a straight stretch; the tunnel is dug toward it from `T`'s foot and from the
- *   cistern, and its own tile last, once the stair stands whole, so that nobody is shut on the
- *   brook's side with no way out.
+ *   stands midway on a straight stretch, dug and built from the cistern's side; the brook's side,
+ *   dug from `T`'s foot, stops a tile short of it until it stands, so the two sides never meet
+ *   but through the shut floodgate and the stair is never a way into the halls.
  * - The cistern, a room at `L` under the hall; the well's column `W` is channelled from the hall's
  *   floor down to it, and an access stair `A` beside it joins the hall to the cistern while it is
  *   dug.
@@ -31,7 +31,6 @@ import { TileKind } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Command } from '@core/commands';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
-import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { TestWorld } from './test-world';
 
@@ -275,20 +274,15 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
     return tiles.length === 0 || send({ type: 'Designate', kind: 'dig', priority, tiles });
   });
   once('access', dug(plan.a, H), () => send({ type: 'DesignateStairwell', x: plan.a.x, y: plan.a.y, zTop: H, zBottom: L, priority }));
-  once('cistern', steps.has('access'), () => digAt([...plan.cistern.filter((c) => !(c.x === plan.a.x && c.y === plan.a.y)), ...plan.tunnel.slice(plan.gate + 1)]));
-  // From the surface: the stair down to the tunnel's level, and the tunnel from its foot to the floodgate.
+  // The two sides never meet but through a shut floodgate, or the stair would be a back door from the
+  // brook into the halls: the hall's side digs the cistern, its half of the tunnel and the
+  // floodgate's tile; the brook's side stops a tile short, and digs that tile only once the
+  // floodgate stands, from the stair, so whoever digs it walks out that way.
+  once('cistern', steps.has('access'), () => digAt([...plan.cistern.filter((c) => !(c.x === plan.a.x && c.y === plan.a.y)), ...plan.tunnel.slice(plan.gate)]));
+  // From the surface: the stair down to the tunnel's level, and the tunnel from its foot.
   once('stair', true, () => send({ type: 'DesignateStairwell', x: plan.t.x, y: plan.t.y, zTop: plan.tops.t, zBottom: L, priority }));
-  once('tunnel', steps.has('stair'), () => digAt(plan.tunnel.slice(0, plan.gate)));
-  // The floodgate's tile joins the two last, once the stair stands whole: whoever is on the
-  // tunnel's side when the floodgate shuts walks out up the stair.
-  let stairWhole = true;
-  for (let z = L; z < plan.tops.t; z += 1) if (![TileKind.StairsUp, TileKind.StairsUpDown].includes(kind(plan.t, z))) stairWhole = false;
-  // Until the floodgate stands on it the tile is a back door from the brook to the halls: it is dug
-  // with the floodgate in stock and no alert up, and it and the floodgate go ahead of all other work.
-  const urgent = Math.max(1, priority - 2);
-  once('gate tile', stairWhole && steps.has('cistern') && plan.tunnel.every((c, i) => i === plan.gate || dug(c, L)) &&
-    w.readers.of<ItemsReader>('13').available('floodgate') > 0 && w.game.world.fortress.alert === 'calm',
-  () => send({ type: 'Designate', kind: 'dig', priority: urgent, tiles: [at(plan.f, L)] }));
+  once('tunnel', steps.has('stair'), () => digAt(plan.tunnel.slice(0, plan.gate - 1)));
+  once('near tile', built(work.floodgateId), () => digAt([plan.tunnel[plan.gate - 1] as Col]));
   // The well's column, a level at a time; its last level once the cistern is dug under it.
   once('well:0', kind(plan.w, H) === TileKind.Floor, () => channel(plan.w, H));
   for (let k = 1; k < CISTERN_DEPTH; k += 1) {
@@ -296,7 +290,7 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
     once(`well:${k}`, steps.has(`well:${k - 1}`) && kind(plan.w, z + 1) === TileKind.Open && kind(plan.w, z) === TileKind.Ramp &&
       (k < CISTERN_DEPTH - 1 || dug(plan.w, L)), () => channel(plan.w, z));
   }
-  once('floodgate', dug(plan.f, L), () => (work.floodgateId = place('floodgate_building', at(plan.f, L), urgent)) !== 0);
+  once('floodgate', dug(plan.f, L), () => (work.floodgateId = place('floodgate_building', at(plan.f, L))) !== 0);
   once('lever', map.kindAt(work.leverTile) === TileKind.Floor, () => (work.leverId = place('lever', work.leverTile)) !== 0);
   // The link, ordered again whenever its job is gone and the two are not linked (a job given up);
   // its job takes the cistern's priority: given its own, it stood open for months behind routine work.
@@ -316,16 +310,19 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
     if (k === TileKind.Tree) send({ type: 'Designate', kind: 'chop', priority, tiles: [at(c, z)] });
     return k === TileKind.Floor || k === TileKind.Sapling || k === TileKind.Shrub;
   };
-  // A channel column, a level at a time from the column's surface: each level is a ramp the one above left.
+  // A channel column, a level at a time from the column's surface: each level is a ramp the one above
+  // left, channelled once the stair beside it is dug to that level, so its miner steps onto the stair
+  // and is never left over the open shaft.
+  const stairAt = (z: number): boolean => [TileKind.StairsUp, TileKind.StairsDown, TileKind.StairsUpDown].includes(kind(plan.t, z));
   const column = (name: string, c: Col, top: number, bottom: number, ready: boolean): void => {
     for (let z = top; z >= bottom; z -= 1) {
       once(`${name}:${z}`, ready && (z === top ? !steps.has(`${name}:${z}`) && ground(c, z)
-        : steps.has(`${name}:${z + 1}`) && kind(c, z + 1) === TileKind.Open && kind(c, z) === TileKind.Ramp), () => channel(c, z));
+        : steps.has(`${name}:${z + 1}`) && kind(c, z + 1) === TileKind.Open && kind(c, z) === TileKind.Ramp && stairAt(z)), () => channel(c, z));
     }
   };
   // The shaft beside the stair, its last level once the tunnel's first tile is dug under it.
   column('shaft', plan.s, plan.tops.s, L + 2, steps.has('stair'));
-  once(`shaft:${L + 1}`, steps.has(`shaft:${L + 2}`) && kind(plan.s, L + 2) === TileKind.Open && kind(plan.s, L + 1) === TileKind.Ramp && dug(plan.s, L),
+  once(`shaft:${L + 1}`, steps.has(`shaft:${L + 2}`) && kind(plan.s, L + 2) === TileKind.Open && kind(plan.s, L + 1) === TileKind.Ramp && dug(plan.s, L) && stairAt(L + 1),
     () => channel(plan.s, L + 1));
   // The bank down to one level above the water; its last level, which lets the brook in, is the breach.
   column('bank', plan.p, plan.tops.p, bz + 2, steps.has('stair'));
