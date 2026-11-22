@@ -12,4 +12,8 @@ First write a short proposal (`reports/designs/2026-11-2x-keymap-plain-letters.m
 
 ## Done
 
-The proposal, the new keymap with docs and help updated, and the keymap parity scenario passing.
+- [x] The proposal: `reports/designs/2026-11-21-keymap-plain-letters.md` (approved, on master at 93cacf4d).
+- [x] The new keymap: D-253 replaces D-U2's letter rule (the open panel's own letters first; `Esc` then a letter reaches any panel; `k` never a panel's key). 86 Shift bindings became 12: Shift kept for set a fire, dump (map selection and Stocks), melt, slaughter, suspend, kill, the compost heap, `Shift+F1`, `Shift+Tab`, `Shift+↑↓` in Orders. The calendar is the panel letter `y`. Old saved rebindings load onto the moved rows.
+- [x] Docs and help: `ui-keymap-and-screens.md` (notation, § Panels, every table, the hint `hint_panel_letters`, the tutorial's workshop step), 24 § Input model and § Settings, `panels.md`, `fortress-screen.md`, 13 and 25; D-U2 marked superseded in `archive/ui-fixes/README.md`; Help's accelerator row; `c` and `f` reserved in the Look views for T-671.
+- [x] The parity scenario passes and checks the new rule in every panel (§ 4 of `ui_keymap_parity`); every test that pressed the old keys is updated. CI run `44973939266` on the branch: checks, unit (4 shards) and e2e green.
+- Deviations from the proposal: Military (`m` next mode) and Animals (`n` name) also bind their own letter, so their own letter no longer closes them (the proposal named only Designate). Military's unlisted `Shift+D` draughts key (no keymap row) is left as it was. From Zones after drawing a stockpile, Build takes `Esc` first (the proposal's choice 10); the tutorial's workshop step now says so.
