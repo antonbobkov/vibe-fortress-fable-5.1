@@ -104,7 +104,7 @@ On resume and before completion, a delivered input counts only while it exists, 
 
 Hauling is a family of job types produced by 13 (`haul_to_stockpile`), 12 (`haul_to_workshop` as job inputs, not separate jobs), 14 (`haul_to_site` as build job inputs), 20 (`haul_to_depot`), and 13 again for `dump` and `refuse`.
 
-- `haul_to_stockpile { itemId, stockpileId }`: 13 produces one per item that is not in a stockpile that accepts it and for which a stockpile with free capacity accepts it (13 keeps the "wants hauling" set incrementally). Priority is `HAUL_PRIORITY` by default, `HAUL_PRIORITY_FOOD` for food, and inherits the stockpile's priority setting if the player changes it.
+- `haul_to_stockpile { itemId, stockpileId }`: 13 produces one per item that is not in a stockpile that accepts it and for which a stockpile with free capacity accepts it (13 keeps the "wants hauling" set incrementally). Priority is `HAUL_PRIORITY` by default, `HAUL_PRIORITY_FOOD` for food, and inherits the stockpile's priority setting if the player changes it. An item on a stockpile that does not take it, with no stockpile to go to, is hauled to a tile out of the way by the same job type (13 § Stockpiles, T-677).
 - `haul_to_dump` and `strip_corpse` are hauling jobs with priority `HAUL_PRIORITY`.
 - A worker carries one item or one stack. Containers (bins, barrels, bags) in stockpiles are filled by the same job when the item's category needs one (13 decides the destination tile as "into container X at tile T").
 - A `wheelbarrow` is not in version 1; heavy items (stone, logs, corpses) simply slow the carrier (10).

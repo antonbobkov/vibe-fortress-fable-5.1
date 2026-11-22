@@ -23,10 +23,11 @@
 
 import { C, ItemFlag, type Corpse, type Item } from '@core/components';
 import type { GameEvent } from '@core/events';
+import { Designation, TileKind } from '@core/map3d';
 import type { JobsApi, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { ItemCore, ItemChange } from './api';
-import { HAUL_JOBS_PER_TICK } from './constants';
+import { ASIDE_RADIUS, HAUL_JOBS_PER_TICK } from './constants';
 import { HAUL_PRIORITY } from '@systems/jobs/constants';
 import { sortedHas, sortedInsert, sortedMerge, sortedRemove } from './state';
 import { WANTED_CLASSES, type ContainerNeeded, type Slot, type StockpileStore, type TileScan, type ContainerScan } from './stockpiles';
@@ -49,6 +50,8 @@ export interface HaulHost {
   zonesOfType(type: string): readonly { readonly id: EntityId; readonly tiles: readonly TileIndex[] }[];
   /** Whether a dwarf can stand on the tile. */
   walkable(i: TileIndex): boolean;
+  /** Whether a walker on one tile reaches the other (the connectivity labels); absent: always. */
+  sameArea?(a: TileIndex, b: TileIndex): boolean;
   emit(event: GameEvent): void;
   /** 14's built buildings whose type has wants, ascending (13 § Buildings that want items); absent: none. */
   holders?(): readonly EntityId[];
@@ -589,6 +592,11 @@ export class Hauling {
           continue;
         }
         if (best === null || best === 'full') {
+          // An item on a stockpile that does not take it is moved off it, out of the way (T-677).
+          if (this.clearAside(id, jobs)) {
+            created += 1;
+            continue;
+          }
           this.passLeaves(id, true);
           // A container with no tile to go to: its goods may still go by their stack.
           for (const inner of this.core.container(id)?.contents ?? []) this.examine(inner);
@@ -695,6 +703,87 @@ export class Hauling {
       data: { stockpile: sp, slotKey: slot.key, container: slot.container, merge: slot.merge, ...(beside ? { anchorTile: slot.tile } : {}) },
     });
     store.reserve(slot, jobId);
+  }
+
+  /** The ordinary stockpile an item lies on loose and does not belong on (13 § Stockpiles, T-677), or 0. */
+  private foreignOn(id: EntityId): EntityId {
+    const it = this.core.get(id);
+    // In the wagon or another building's container, the building decides; in an item container, the container does.
+    if (it === undefined || it.containerId !== 0 || it.carriedBy !== 0) return 0;
+    const store = this.host.store;
+    const sp = store.stockpileAt(this.core.tileOf(id));
+    if (sp === 0 || store.isHospital(sp) || store.belongs(sp, id)) return 0;
+    // A corpse a coffin waits for is left to its burial.
+    if (this.core.host.entities.has(id, C.Corpse) && this.host.jobsView()?.byKey(`bury:${id}`) !== undefined) return 0;
+    return sp;
+  }
+
+  /**
+   * 13 § Stockpiles (T-677): an item lying on a stockpile that does not take it, and with no stockpile that would take it
+   * with room, is hauled to the nearest free tile out of the way (`asideTile`), so the stockpile tile frees up. Returns
+   * whether a job was made.
+   */
+  private clearAside(id: EntityId, jobs: JobsApi): boolean {
+    const sp = this.foreignOn(id);
+    if (sp === 0) return false;
+    const dest = this.asideTile(this.core.tileOf(id));
+    if (dest < 0) return false;
+    const key = `t${dest}`;
+    const jobId = jobs.create(haulKey(id), {
+      type: 'haul_to_stockpile',
+      priority: HAUL_PRIORITY,
+      target: { kind: 'entity', ref: id },
+      workTile: dest,
+      inputs: [{ filter: { itemId: id }, count: 1 }],
+      data: { aside: sp, slotKey: key },
+    });
+    this.host.store.reservations.set(key, jobId);
+    return true;
+  }
+
+  /**
+   * The nearest tile, ring by ring on the item's level within `ASIDE_RADIUS`, that is out of the way: a floor a dwarf
+   * may walk, reached from where the item lies, in no zone, with no building, no item and no haul bound for it; or -1.
+   */
+  private asideTile(from: TileIndex): TileIndex {
+    const map = this.core.host.map;
+    const store = this.host.store;
+    const x0 = map.xOf(from);
+    const y0 = map.yOf(from);
+    const z = map.zOf(from);
+    for (let r = 1; r <= ASIDE_RADIUS; r += 1) {
+      for (let y = y0 - r; y <= y0 + r; y += 1) {
+        for (let x = x0 - r; x <= x0 + r; x += 1) {
+          if (Math.max(Math.abs(x - x0), Math.abs(y - y0)) !== r || !map.inBounds(x, y, z)) continue;
+          const t = map.index(x, y, z);
+          if (map.kindAt(t) !== TileKind.Floor || map.designationAt(t) !== Designation.None) continue;
+          if (store.stockpileAt(t) !== 0 || this.host.zoneTypeAt(t) !== '' || map.buildingAtTile(t) !== 0) continue;
+          if (store.reservations.has(`t${t}`) || store.host.itemsOn(t).length > 0) continue;
+          if (!this.host.walkable(t) || !(this.host.sameArea?.(from, t) ?? true)) continue;
+          return t;
+        }
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * The slow sweep (each `HourPassed`): an item without a home that lies on an ordinary stockpile it does not belong on
+   * (no tile out of the way was free when it was looked at) is looked at again.
+   */
+  sweepForeign(): void {
+    const store = this.host.store;
+    if (this.noHome.length === 0) return;
+    for (const sp of store.all()) {
+      if (store.isHospital(sp)) continue;
+      for (const t of store.tilesOf(sp)) {
+        for (const id of store.host.itemsOn(t)) {
+          if (!this.inNoHome(id) || this.foreignOn(id) === 0) continue;
+          this.leaveNoHome(id);
+          this.examine(id);
+        }
+      }
+    }
   }
 
   /** `containersWanted` "produces haul jobs for empty containers from wherever they are": one per class per tick. */
@@ -920,7 +1009,7 @@ export class Hauling {
     const view = this.host.jobsView();
     if (view === null) return;
     for (const job of view.list()) {
-      if (job.producer === 'items' && job.data['stockpile'] === spId) this.host.jobs().cancel(job.id, 'target_invalid');
+      if (job.producer === 'items' && (job.data['stockpile'] === spId || job.data['aside'] === spId)) this.host.jobs().cancel(job.id, 'target_invalid');
     }
   }
 }

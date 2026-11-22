@@ -12,4 +12,5 @@ Make a stockpile tile holding an item the stockpile does not accept give a haul 
 
 ## Done
 
-A unit test: a stone on a food stockpile is hauled away and food fills the tile; the sweep's verdict.
+- [x] A unit test: a stone on a food stockpile is hauled away and food fills the tile (`test/unit/items/t677-stockpile-clears-foreign.test.ts`: with no stone stockpile the stone goes to a free floor beside the stockpile and the meal fills the tile, failing with the clearing turned off; with a stone stockpile it goes there; a forbidden stone and goods the stockpile takes stay).
+- [ ] The sweep's verdict.

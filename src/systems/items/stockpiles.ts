@@ -439,6 +439,27 @@ export class StockpileStore {
     return this.hospitalAccepts(spId, it);
   }
 
+  /**
+   * 13 § Stockpiles (T-677): the stockpile's filter takes the item (a container that holds goods for its goods, an empty
+   * container it wants), whatever its linked sources and a hospital's supply limits say. An item that does not belong on
+   * the stockpile it lies on is moved off it.
+   */
+  belongs(spId: EntityId, itemId: EntityId): boolean {
+    const sp = this.stockpile(spId);
+    const it = this.core.get(itemId);
+    if (sp === undefined || it === undefined) return false;
+    const c = this.core.container(itemId);
+    if (c !== undefined && c.contents.length > 0) {
+      if (this.isCompost(spId)) return false;
+      return c.contents.every((inner) => {
+        const x = this.core.get(inner);
+        return x !== undefined && this.spFilterAccepts(spId, sp.filter, x);
+      });
+    }
+    if (c !== undefined && (sp.containersWanted[c.classId as 'barrel' | 'bag' | 'bin'] ?? 0) > 0) return true;
+    return this.spFilterAccepts(spId, sp.filter, it);
+  }
+
   /** A hospital takes an item its supply wants and has not yet reached; any other stockpile has no such limit. */
   private hospitalAccepts(spId: EntityId, it: Item): boolean {
     const zone = this.zoneView(spId);

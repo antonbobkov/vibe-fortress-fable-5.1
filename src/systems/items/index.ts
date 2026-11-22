@@ -225,6 +225,11 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         return v.zonesOfType(type).map((id) => ({ id, tiles: v.zone(id)?.tiles ?? [] }));
       },
       walkable: (i) => !readers.has('pathing') || readers.pathing.passable(i, 'walker', { faction: 'fortress' }),
+      sameArea: (a, b) => {
+        if (!readers.has('pathing')) return true;
+        const label = readers.pathing.labelOf(a, 'walker');
+        return label !== 0 && label === readers.pathing.labelOf(b, 'walker');
+      },
       emit: (event) => world.emit(event),
       holders: () => (readers.has('14') ? readers.of<HoldersView>('14').withWants() : []),
       holderWants: (id) => {
@@ -397,6 +402,7 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
     } else if (event.type === 'HourPassed') {
       compostHour(core, this.stockpiles, ctx);
       this.hauling.restockHospitals();
+      this.hauling.sweepForeign();
     } else if (event.type === 'SeasonChanged' || event.type === 'IceMelted') {
       // 13 § Rot: a season's weather, or an ice larder's walls gone (05), changes rot speeds.
       this.rotRef?.resample();
