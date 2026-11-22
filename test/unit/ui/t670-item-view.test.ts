@@ -16,7 +16,7 @@ import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
 import type { CellPointer } from '@ui/screen';
 import { defaultUiState } from '@ui/ui-state';
 import { TestWorld } from '../../scenarios/test-world';
-import { keymap, press, registry, strings, surface } from './ui-fixture';
+import { keymap, press, strings, surface } from './ui-fixture';
 
 const z = FLAT_TEST_SURFACE_Z;
 const LAYOUT = computeLayout(80, 42, true);
@@ -235,6 +235,5 @@ describe('T-670 names that open what they name', () => {
     const rows = wrapSpans(spans, 18);
     expect(rows.map((r) => ' '.repeat(r.indent) + r.runs.map((run) => run.text).join(''))).toEqual(['Equipment iron', '          battle', '          axe']);
     expect(rows.every((r, n) => n === 0 || r.runs.every((run) => run.span.target?.id === 7))).toBe(true);
-    expect(registry).toBeDefined();
   });
 });

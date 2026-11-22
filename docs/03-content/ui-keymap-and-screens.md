@@ -397,13 +397,13 @@ A click on a line centres the map on its focus; a click on a creature's name in 
 
 ### Look panel
 
-Look shows a tile list or one creature (24 § Inspection). `PageUp` `PageDown` scroll either view a page and the wheel three rows a notch. In the tile list the arrows move the map cursor and the list follows it; in a creature's view they pan the map. A building's panel, with its take apart key, opens from its row.
+Look shows a tile list, one creature or one item (24 § Inspection). `PageUp` `PageDown` scroll any view a page and the wheel three rows a notch. In the tile list the arrows move the map cursor and the list follows it; in a creature's or an item's view they pan the map. A building's panel, with its take apart key, opens from its row. In a creature's or an item's view the names are links: a click opens one, § Panels' `Tab` and `Shift+Tab` (next and previous field) move the focus through those in view, and `Enter` (activate) opens the focused one.
 
 | Key | Action |
 |---|---|
 | `1`–`9` | tile list: open that row |
 | `Enter` | tile list: open the first row |
-| `[h]` | creature view: the tile list where it stands |
+| `[h]` | creature or item view: the tile list where it is |
 | `Backspace` | back to the view before |
 
 The bare `c` and `f` of the creature and item views are kept for centre and follow (T-671), on bare letters like every other panel key (§ Panels); `k` or `Esc` closes Look.
@@ -565,7 +565,7 @@ The mouse is not rebindable; § Mouse lists its gestures.
 
 | Gesture | With no tool | With a tool |
 |---|---|---|
-| Left click | open what the map shows there (24 § Inspection): a creature's view, else the tile list for a crowd or a loose item, else a building's panel, else a zone's inspector, else the tile list; a second click on an open creature lists its tile | a designation tool: the first corner of its box, then the opposite corner, which designates (the box may span the levels between) / a zone: one tile / place building |
+| Left click | open what the map shows there (24 § Inspection): a creature's view, else a loose item's view, else the tile list for a crowd, else a building's panel, else a zone's inspector, else the tile list; a second click on an open creature or item lists its tile; in a creature's or an item's view, a click on a name opens what it names | a designation tool: the first corner of its box, then the opposite corner, which designates (the box may span the levels between) / a zone: one tile / place building |
 | Left drag | select a rectangle (then `Delete`, `[f]` forbid, `[d]` dump, `[t]` move to depot) | designate a box on one level / draw zone rectangle |
 | Right click | the tile list: everything the map shows on the tile | cancel the tool |
 | Wheel | z-level on the map; over the sidebar, scrolls the list under the pointer three rows a notch and never changes the level | same |

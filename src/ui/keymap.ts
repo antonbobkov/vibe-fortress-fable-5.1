@@ -366,7 +366,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'log filter tabs': 'tab',
   'tile list: open that row': 'open_row',
   'tile list: open the first row': 'open_first',
-  'creature view: the tile list where it stands': 'here',
+  'creature or item view: the tile list where it is': 'here',
   'back to the view before': 'back',
   'Keys / Legend / Start tabs': 'tab',
   'dump save': 'dump_save',
