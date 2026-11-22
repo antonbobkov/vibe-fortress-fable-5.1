@@ -16,7 +16,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-666 | [A patient is watered only with drink](work/T-666-patient-water.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-667 | [The three-year farm stops growing at its strips' cap](work/T-667-farm-strip-cap.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-668 | [Peril-2 steel fell a seventh with T-664](work/T-668-peril2-steel-after-farm.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
-| T-683 | [Unpastured animals after the hall: grazers go out to graze, cats prowl](work/T-683-animals-after-the-hall.md) | [T-675](archive/tasks/T-675-animals-on-arrival-wander.md) | — | open |
 | T-684 | [13 names the stack an item merged into](work/T-684-items-merge-event.md) | [T-671](archive/tasks/T-671-inspection-centre-follow-gone.md) | — | open |
 | T-685 | [A loaded log keeps its merged lines' counts](work/T-685-log-count-saved.md) | [T-679](archive/tasks/T-679-log-inspectable-goto.md) | — | open |
 | T-686 | [An abandoned fortress leaves ruins a new embark can find](work/T-686-abandoned-site-ruins.md) | [T-672](archive/tasks/T-672-sticky-preset-and-re-embark.md) | — | open |

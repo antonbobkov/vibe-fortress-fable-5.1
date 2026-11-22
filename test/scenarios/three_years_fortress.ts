@@ -1083,6 +1083,13 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
 
   // 2. Dining Hall setup
   const kitchenBuilt = buildings.get(state.placedIds['kitchen']!)?.state === 'built';
+  // T-683: once the kitchen stands, the dining hall's last digs go a step before the routine mining. At
+  // ROUTINE they waited behind nearer digs of the same priority, and then behind the miners' picks, for the
+  // whole run (three-years-p2-4 at shift 0: five tiles from day 1 to the end, and no dining hall).
+  if (!state.diningHallSetup && kitchenBuilt) {
+    const left = state.diningHallTiles.filter((t) => w.map.designationAt(t) !== 0 && w.map.designationPriorityAt(t) >= ROUTINE);
+    if (left.length > 0) command(w, { type: 'SetDesignationPriority', tiles: left, priority: ROUTINE - 1 });
+  }
   if (!state.diningHallSetup && kitchenBuilt && state.diningHallTiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) {
     const doorOrigin = w.index(cx + 5, cy + 6, state.hallZ);
     if (w.map.kindAt(doorOrigin) === TileKind.Floor) {
