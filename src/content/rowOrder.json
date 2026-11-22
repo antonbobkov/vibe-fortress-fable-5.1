@@ -1806,5 +1806,9 @@
   {
     "table": "hints",
     "id": "hint_panel_letters"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_abandon"
   }
 ]

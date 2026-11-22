@@ -13,7 +13,7 @@ import type { LegendRecord } from '@ui/screens/legend';
 import type { HeadlessGame } from './headless';
 import { finalSaveId } from './save-manager';
 
-export type EndReason = { readonly kind: 'retired' } | {
+export type EndReason = { readonly kind: 'retired' } | { readonly kind: 'abandoned' } | {
   /** The last death's cause, and its killer as the death's line names it ('' when none). */
   readonly kind: 'all_dead'; readonly lastName: string; readonly lastCause: string; readonly lastKiller?: string;
 };
@@ -25,6 +25,7 @@ export type EndReason = { readonly kind: 'retired' } | {
  */
 export function endText(tick: number, population: number, reason: EndReason, strings: Strings = new Strings()): string {
   if (reason.kind === 'retired') return `Retired in Year ${Math.floor(tick / TICKS_PER_YEAR) + 1} with ${population} dwarves.`;
+  if (reason.kind === 'abandoned') return `Abandoned in Year ${Math.floor(tick / TICKS_PER_YEAR) + 1} by ${population} dwarves.`;
   const who = `The last dwarf, ${reason.lastName},`;
   const killer = reason.lastKiller ?? '';
   const key = deathLineKey(strings, reason.lastCause, killer);
@@ -52,6 +53,7 @@ export function composeLegend(
     name: fortress.name,
     seed: game.world.seed,
     region: region?.name ?? `Region ${fortress.regionId}`,
+    regionId: fortress.regionId,
     // The biome by its name ("forest"), never its content id.
     biome: biomeName(registry, region?.biome ?? spec?.biome),
     wealthRating: region?.wealth ?? spec?.wealth ?? 0,

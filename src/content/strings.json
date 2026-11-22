@@ -64,6 +64,7 @@
   "ui.stocks.rot_soon": "{n} rot within {days|day|days}",
   "ui.place.open": "the open",
   "ui.place.halls": "the halls",
+  "confirm.c_abandon": "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends and cannot be resumed.",
   "confirm.c_deconstruct_building": "Take apart {building}? Its materials are left where it stood.",
   "confirm.c_deconstruct_workshop": "This workshop has {n} orders. Deconstruct it?",
   "confirm.c_deepsilver": "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?",
