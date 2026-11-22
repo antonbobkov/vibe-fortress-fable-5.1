@@ -13,7 +13,7 @@ import type { EntityId } from '@core/types';
 import type { CombatReader } from '@systems/combat';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
-import { cmd, fortressDwarves, pathWorld, playUntil, surfaceZ, wagon, zoneRect } from '../../scenarios/player-path';
+import { cmd, comesByDeer, fortressDwarves, pathWorld, playUntil, surfaceZ, wagon, zoneRect } from '../../scenarios/player-path';
 
 describe('T-521 a hunter who joins a squad and takes an axe puts the crossbow down', () => {
   it('the crossbow and bolts leave the soldier, and another dwarf hunts with them', () => {
@@ -44,13 +44,20 @@ describe('T-521 a hunter who joins a squad and takes an axe puts the crossbow do
     w.step(10);
     const weapon = ent.get(hunter, C.Equipment)?.weapon ?? 0;
     expect(typeId(weapon), 'the soldier holds a melee weapon').toBe('axe');
-    expect(items.get(crossbow)?.carriedBy, 'the soldier has put the crossbow down').toBe(0);
+    // Put down, it may already be on its way to the stockpile in a hauler's hands, the soldier's own among them (T-676).
+    const carrier = items.get(crossbow)?.carriedBy ?? 0;
+    const carrierJob = w.readers.of<JobsReader>('11').get(ent.get(carrier, C.Worker)?.jobId ?? 0)?.key ?? '';
+    expect(carrier === 0 || carrierJob === `haul:${crossbow}`, 'the soldier has put the crossbow down').toBe(true);
     expect(ent.get(hunter, C.Worker)?.toolId, 'its tool is cleared').toBe(0);
     const bolts = items.carriedItems(hunter).filter((id) => typeId(id) === 'bolt');
     expect(bolts, 'and the bolts with it').toEqual([]);
 
     // Another dwarf fetches the crossbow for a hunt (whether it then gets a shot depends on the
-    // deer: on this small map a herd that flees a dwarf leaves it, T-535).
+    // deer: on this small map a herd that flees a dwarf leaves it, T-535). Whether wild game is
+    // still about after the first hunt is the timeline's; a deer comes by so that a hunt is offered,
+    // once the crossbow lies free (a hauler may first take it to the stockpile, T-676).
+    expect(playUntil(w, () => items.get(crossbow)?.carriedBy === 0 && ((items.get(crossbow)?.flags ?? 0) & 8) === 0, TICKS_PER_DAY), 'the crossbow lies free').toBe(true);
+    comesByDeer(w, cx, cy);
     const jobs = w.readers.of<JobsReader>('11');
     const takenForHunt = (): boolean => {
       const carrier = items.get(crossbow)?.carriedBy ?? 0;

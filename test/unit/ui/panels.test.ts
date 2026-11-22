@@ -177,7 +177,7 @@ describe('T-M2-09 zones tool and the stockpile editor', () => {
     expect((toggled['filter'] as { categories: string[] }).categories).toContain('food/fish');
     game.render();
     expect(game.textRows().join('\n')).toContain('Preset [Food');
-    expect(game.textRows().join('\n')).toContain('Usage 0/11 tiles');
+    expect(game.textRows().join('\n')).toMatch(/Usage \d+\/11 tiles/);
     // T-247: x unlinks sources; Delete removes the stockpile with the same confirmation.
     key(game, 'Delete');
     expect(game.screen).toBe('confirm');

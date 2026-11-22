@@ -81,6 +81,25 @@ export function surfaceZ(w: TestWorld, x: number, y: number): number {
   return w.map.columnSurfaceZ(x, y);
 }
 
+/**
+ * A wild deer comes by: spawned on dry floor of the surface at least 8 tiles from the map's edges
+ * and from (x, y) (the wagon), nearest the map's centre, so that a hunt is offered whatever wild
+ * game the timeline has left about. Returns the deer.
+ */
+export function comesByDeer(w: TestWorld, x: number, y: number): EntityId {
+  const sites: TileIndex[] = [];
+  for (let yy = 8; yy < w.map.h - 8; yy += 1) for (let xx = 8; xx < w.map.w - 8; xx += 1) {
+    if (Math.max(Math.abs(xx - x), Math.abs(yy - y)) >= 8) sites.push(w.index(xx, yy, surfaceZ(w, xx, yy)));
+  }
+  const cx = Math.floor(w.map.w / 2), cy = Math.floor(w.map.h / 2);
+  const distance = (t: TileIndex): number => Math.abs(w.map.xOf(t) - cx) + Math.abs(w.map.yOf(t) - cy);
+  sites.sort((a, c) => distance(a) - distance(c) || a - c);
+  const occupied = creatureTiles(w);
+  const site = sites.find((t) => w.map.kindAt(t) === TileKind.Floor && w.map.fluidLevelAt(t) === 0 && !occupied.has(t) && buildings(w).zoneAt(t) === 0);
+  if (site === undefined) throw new Error('comesByDeer: no dry floor away from the wagon and the edges');
+  return w.spawnCreature('deer', site, 'wild');
+}
+
 function creatureTiles(w: TestWorld): Set<TileIndex> {
   const tiles = new Set<TileIndex>();
   for (const id of w.game.world.entities.with(C.Creature, C.Position)) {

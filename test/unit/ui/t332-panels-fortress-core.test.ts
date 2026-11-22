@@ -112,7 +112,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[34]).toBe('Links: none');
     expect(rows[35]).toBe('[i] link [x] unlink');
     expect(rows[36]).toBe('[S-c] Cellar: off');
-    expect(rows[37]).toBe('Usage 0/20 tiles');
+    // The Food stockpile takes the wagon's food loose (T-676): four slots reserved by the hauls on their way.
+    expect(rows[37]).toBe('Usage 4/20 tiles');
     expect(rows[38]).toBe('↑↓ select  ←→ expand  Space toggle');
     expect(rows[39]).toBe('[Del] remove zone  [S-e] resize');
   });
@@ -156,7 +157,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
 
   it('Jobs counts open, claimed and blocked jobs, and lists the dig order with its priority and who has it', () => {
     const rows = render('jobs');
-    expect(rows[0]).toBe('0 open · 1 claimed · 0 blocked');
+    // The four hauls of the wagon's food to the Food stockpile (T-676) and the dig order.
+    expect(rows[0]).toBe('4 open · 1 claimed · 0 blocked');
     expect(rows[1]).toMatch(/^\/filter: \[ _+ \]$/);
     expect(rows[2]).toBe('[S-l] labor: all');
     expect(rows[3]).toBe('[S-s] state: all');
