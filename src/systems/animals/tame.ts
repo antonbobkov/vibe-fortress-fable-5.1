@@ -30,9 +30,14 @@ import {
   CONDITION_PER_HOUR,
   GRAZE_SEARCH_RADIUS,
   GRAZE_SKIP_TICKS,
+  CAT_ROAM_RADIUS,
   PET_FOLLOW_RADIUS,
+  TAME_AMBLE_PERMILLE,
+  TAME_AMBLE_RADIUS,
+  TAME_AMBLE_SHY_RADIUS,
   WAR_ANIMAL_RADIUS,
 } from './constants';
+import { hashInts } from '@core/noise';
 import { fleeTile, grassNear, movementClassOf, tileOf, type BrainHost } from './brain';
 import type { BuildingsReader } from '../buildings/reader';
 
@@ -120,6 +125,8 @@ export interface TameHost extends BrainHost {
   petSpot(animalId: EntityId): TileIndex;
   /** True for a tile of the hearth hall or beside it. */
   byHall(tile: TileIndex): boolean;
+  /** T-675, *Before the hall*: the tile an idle tame animal with no pasture ambles about (the wagon) while there is no hearth hall; -1 once there is one. */
+  ambleAnchor(): TileIndex;
   /** One grass tile feeds one grazer: `true` when this call took the tile, `false` when it is already held. */
   claimGraze(tile: TileIndex): boolean;
   /** A tile some grazer holds until 07 has cleared its grass. */
@@ -329,6 +336,12 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     else movement?.stopWalking(id);
     return next;
   }
+  // T-675, *Before the hall*: with no hearth hall to stand in, it ambles about the wagon.
+  const anchor = host.ambleAnchor();
+  if (anchor >= 0) {
+    amble(host, ctx, id, at, anchor, hostiles);
+    return next;
+  }
   const home = host.standTile(id);
   if (home >= 0 && movement !== null && movement.tileOf(id) !== home) movement.walkTo(id, home, 'wander', ctx);
   else if (isDoorTile(host, at)) stepOffDoor(host, id, at, home, ctx);
@@ -337,6 +350,90 @@ export function thinkTame(host: TameHost, ctx: TickContext, id: EntityId, t: Tam
     if (home >= 0 && home === at && host.petSpot(id) === at) next.curled = true;
   }
   return next;
+}
+
+/** The salt of the amble's hashes: a decision of this rule draws on no stream (T-675). */
+const AMBLE_SALT = 0x7a6b1e;
+/** Tries an amble makes for a tile. */
+const AMBLE_TRIES = 8;
+
+function chebyshev(host: BrainHost, a: TileIndex, b: TileIndex): number {
+  const map = host.map;
+  return Math.max(Math.abs(map.xOf(a) - map.xOf(b)), Math.abs(map.yOf(a) - map.yOf(b)));
+}
+
+/**
+ * `08` § Tame behavior, *Before the hall* (T-675): an idle tame animal with no pasture, while the fortress has
+ * no hearth hall, ambles about the anchor (the wagon). Under way, it keeps going. Standing (or with its walk
+ * found unreachable), at each think it sets off with `TAME_AMBLE_PERMILLE` (half that for a grazer standing on
+ * grass; at once when it stands farther than its radius from the anchor, or within `TAME_AMBLE_SHY_RADIUS` of a
+ * hostile it sees) to {@link ambleTile}. Its rolls and tiles are hashes of its id and the tick, so the rule draws
+ * on no stream.
+ */
+function amble(host: TameHost, ctx: TickContext, id: EntityId, at: TileIndex, anchor: TileIndex, hostiles: readonly EntityId[]): void {
+  const movement = host.movement;
+  if (movement === null) return;
+  const near = (tile: TileIndex): boolean => hostiles.some((other) => {
+    const to = tileOf(host, other);
+    return to >= 0 && host.map.zOf(to) === host.map.zOf(tile) && chebyshev(host, to, tile) <= TAME_AMBLE_SHY_RADIUS;
+  });
+  const heading = movement.walkTarget(id);
+  // Under way it keeps going, unless a hostile it sees now stands near where it is going: each think asks
+  // for the walk again, which follows the path once it is found.
+  if (heading >= 0 && heading !== at && !near(heading) && movement.walkTo(id, heading, 'wander', ctx) !== 'unreachable') return;
+  const species = host.entities.get(id, C.Creature)?.species ?? 0;
+  const radius = host.facts.adopts(species) ? CAT_ROAM_RADIUS : TAME_AMBLE_RADIUS;
+  const shy = near(at);
+  const away = chebyshev(host, at, anchor) > radius;
+  // A grazer on grass grazes there longer.
+  const grazing = host.facts.dietOf(species) === 'grazer' && host.map.hasFlag(at, TileFlag.Grass) && !host.map.hasFlag(at, TileFlag.Snow);
+  const go = shy || away || hashInts(AMBLE_SALT, id, ctx.tick) % 1000 < (grazing ? TAME_AMBLE_PERMILLE >> 1 : TAME_AMBLE_PERMILLE);
+  const to = go ? ambleTile(host, id, at, anchor, radius, hostiles, ctx.tick) : -1;
+  if (to >= 0) movement.walkTo(id, to, 'wander', ctx);
+  else if (isDoorTile(host, at)) stepOffDoor(host, id, at, anchor, ctx);
+  else if (heading >= 0) movement.stopWalking(id);
+}
+
+/**
+ * The tile of an amble: of `AMBLE_TRIES` hashed tiles within `radius` (Chebyshev) of the anchor, on the
+ * anchor's level or, for a column where that is no floor, the column's surface, the first that the animal
+ * can stand on and reach (its region), is not a door, holds no fluid and nothing burning, lies inside the
+ * map's edge and is farther than `TAME_AMBLE_SHY_RADIUS` from every hostile it sees; a grazer takes the first
+ * such tile with grass it may eat (uneaten, unclaimed, unsnowed) if any of the tries has one: it grazes. -1
+ * when no try serves.
+ */
+export function ambleTile(host: TameHost, id: EntityId, at: TileIndex, anchor: TileIndex, radius: number, hostiles: readonly EntityId[], tick: Tick): TileIndex {
+  const map = host.map;
+  const pathing = host.readers.pathing;
+  const cls = movementClassOf(host, id);
+  const region = pathing.labelOf(at, cls);
+  const species = host.entities.get(id, C.Creature)?.species ?? 0;
+  const skip = host.facts.dietOf(species) === 'grazer' ? passedOver(host, id, tick) : null;
+  const threats = hostiles.map((other) => tileOf(host, other)).filter((tile) => tile >= 0);
+  const ax = map.xOf(anchor);
+  const ay = map.yOf(anchor);
+  const az = map.zOf(anchor);
+  const span = radius * 2 + 1;
+  let first: TileIndex = -1;
+  for (let k = 0; k < AMBLE_TRIES; k += 1) {
+    const h = hashInts(AMBLE_SALT, id, tick, k + 1);
+    const x = ax + ((h % span) - radius);
+    const y = ay + ((Math.floor(h / span) % span) - radius);
+    if (x < 1 || y < 1 || x >= map.w - 1 || y >= map.h - 1) continue;
+    let tile = map.index(x, y, az);
+    if (!pathing.passable(tile, cls)) {
+      const surface = map.columnSurfaceZ(x, y);
+      if (surface < 0 || surface === az) continue;
+      tile = map.index(x, y, surface);
+    }
+    if (tile === at || !pathing.passable(tile, cls) || (region !== 0 && pathing.labelOf(tile, cls) !== region)) continue;
+    if (isDoorTile(host, tile) || map.fluidLevelAt(tile) > 0 || map.hasFlag(tile, TileFlag.Burning)) continue;
+    if (threats.some((threat) => map.zOf(threat) === map.zOf(tile) && chebyshev(host, threat, tile) <= TAME_AMBLE_SHY_RADIUS)) continue;
+    if (skip === null) return tile;
+    if (map.hasFlag(tile, TileFlag.Grass) && !map.hasFlag(tile, TileFlag.Snow) && !skip(tile)) return tile;
+    if (first < 0) first = tile;
+  }
+  return first;
 }
 
 /** `08` § Pastures and feeding: the hourly condition rise, ×2 in a cold snap. */
