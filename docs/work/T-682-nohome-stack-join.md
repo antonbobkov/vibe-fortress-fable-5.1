@@ -12,4 +12,4 @@ When a haul delivers onto a loose tile of a stockpile and the stack there has ro
 
 ## Done
 
-A unit test: a stockpile whose empty tiles are all reserved, a second bolt judged full, the first bolt delivered: the second gets a haul job to join it within a few items ticks.
+- [x] A unit test: a stockpile whose empty tiles are all reserved, a second bolt judged full, the first bolt delivered: the second gets a haul job to join it within a few items ticks (`test/unit/items/t682-nohome-stack-join.test.ts`: a one-tile Weapons and armor stockpile, two stacks of five oak bolts; the second's haul comes within three items ticks of the first's delivery and the two make a stack of ten; it fails with the return turned off). On delivery 13 returns the `noHome` items of the delivered stack's type, material and quality to the wants set when the loose stack on a stockpile is below its type's `stack` (`Hauling.stackJoinable`, one pass over `noHome` per such delivery). The cost on the perf tier's 80-dwarf reference (`per-system.test.ts`): 13 averages 0.066 ms a tick against its 0.30 ms budget.

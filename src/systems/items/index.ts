@@ -45,7 +45,7 @@ export { ItemCore, type ItemChange, type ItemListener } from './api';
 export { ItemFacts, categoryUnder, type ItemTypeRow } from './facts';
 export { itemValue, qualityPermille } from './value';
 export { isAvailable } from './counts';
-export type { ItemsReader, RotOutlook, StockCountView } from './reader';
+export type { HaulState, ItemsReader, RotOutlook, StockCountView } from './reader';
 export { ItemSearch, matches, type ItemFilter, type SearchOptions } from './search';
 export {
   StockpileStore,
@@ -199,7 +199,8 @@ export class ItemsSystem extends BaseSystem<ItemsStateV1> {
         const corpse = world.entities.get(id, C.Corpse);
           return corpse?.dwarfName !== null && corpse?.dwarfName !== undefined && corpse.memorialized !== true && tick - corpse.diedTick > UNBURIED_DAYS * TICKS_PER_DAY;
       }),
-      (id) => this.rotRef?.outlook(id, world.calendar.tick) ?? null);
+      (id) => this.rotRef?.outlook(id, world.calendar.tick) ?? null,
+      (id) => this.hauling.haulState(id));
     type BuildingsView = {
       zoneAt(i: TileIndex): number;
       zone(id: number): { readonly type: string; readonly tiles: readonly TileIndex[] } | undefined;
