@@ -2248,7 +2248,9 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
   }
   // The general metal economy takes the forge once the squad has its kit.
   const forge = state.placedIds['forge'];
-  if (forge && state.orderedWorkshops.has('forge') && !arming && !phases.has('iron goods')) {
+  // T-683: not while the forge is being moved below (keepWorkBelow): the old one is taken down before the
+  // new one is placed, and the new one takes the old one's orders once it stands.
+  if (forge && state.orderedWorkshops.has('forge') && !arming && !phases.has('iron goods') && w.readers.of<BuildingsReader>('14').get(forge)?.state === 'built') {
     phases.add('iron goods');
     // A first few iron crafts for the caravans come before the standing armour orders, which
     // never fill: a piece a soldier wears is no longer stock.
