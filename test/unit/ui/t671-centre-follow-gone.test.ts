@@ -164,6 +164,19 @@ describe('T-671 the follow box', () => {
     expect(f.screen.ui.panel).toBe('civilizations');
   });
 
+  it('a barrel\'s view groups what it holds by kind and material, each group a link to its first stack', () => {
+    const f = setup('t671-holds');
+    const barrel = f.w.spawnItem('barrel', 'oak', f.w.index(20, 20, z));
+    const first = f.w.spawnItem('drink', 'ale', { containerId: barrel }, 6);
+    for (let k = 0; k < 3; k += 1) f.w.spawnItem('drink', 'ale', { containerId: barrel }, 2);
+    f.screen.inspectCreature(f.w.spawnDwarf({ at: f.w.index(30, 30, z) }));
+    f.screen.openTarget({ kind: 'item', id: barrel });
+    const holds = sidebar(f).filter((row) => row.includes('ale'));
+    expect(holds).toEqual([expect.stringMatching(/^ Holds +12 ale$/)]);
+    clickText(f, '12 ale');
+    expect(f.screen.lookAt).toMatchObject({ kind: 'item', id: first });
+  });
+
   it('an item is followed through its carrier', () => {
     const f = setup('t671-item');
     const log = f.w.spawnItem('log', 'oak', f.w.index(60, 60, z));

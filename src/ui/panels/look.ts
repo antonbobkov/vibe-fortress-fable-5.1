@@ -822,6 +822,28 @@ function itemLink(readers: ReaderSet, registry: Registry, id: EntityId): Span[] 
   return [{ text: count > 1 ? itemName(readers, registry, id) : itemTitle(readers, registry, id), target: { kind: 'item', id } }];
 }
 
+/**
+ * What a container holds, its stacks grouped by kind and material as named ("20 dimcap ale, 3 plump
+ * helmet"), in the order each first appears; each group a link to its first stack.
+ */
+function heldGroups(readers: ReaderSet, registry: Registry, held: readonly EntityId[]): Span[] {
+  const it = readers.of<ItemsReader>('13');
+  const groups = new Map<string, { first: EntityId; count: number }>();
+  for (const inner of held) {
+    const key = itemTitle(readers, registry, inner);
+    const group = groups.get(key);
+    const count = it.get(inner)?.count ?? 1;
+    if (group === undefined) groups.set(key, { first: inner, count });
+    else group.count += count;
+  }
+  const out: Span[] = [];
+  for (const [name, group] of groups) {
+    if (out.length > 0) out.push({ text: ', ' });
+    out.push({ text: group.count > 1 ? `${group.count} ${name}` : name, target: { kind: 'item', id: group.first } });
+  }
+  return out;
+}
+
 /** Whether a creature wears an item: in an armor or a clothing slot of its equipment. */
 function worn(readers: ReaderSet, creature: EntityId, item: EntityId): boolean {
   const equip = readers.entities.get(creature, C.Equipment);
@@ -964,14 +986,7 @@ function itemFields(s: Surface, pen: Pen, readers: ReaderSet, registry: Registry
     rows.push({ name: 'for', value: worker !== 0 && readers.entities.has(worker, C.Creature) ? stringSpans(strings, 'ui.look.item.for_worker', { job: name, who: creatureLink(readers, registry, worker) }) : [{ text: name }] });
   }
   const held = (it.containerRecord(id)?.contents ?? []).filter((inner) => it.get(inner) !== undefined);
-  if (held.length > 0) {
-    const links: Span[] = [];
-    held.forEach((inner, n) => {
-      if (n > 0) links.push({ text: ', ' });
-      links.push(...itemLink(readers, registry, inner));
-    });
-    rows.push({ name: 'holds', value: links });
-  }
+  if (held.length > 0) rows.push({ name: 'holds', value: heldGroups(readers, registry, held) });
   for (const r of rows) {
     // The labels dim, as the mock-ups draw them; a value that wraps hangs under the value column.
     const head = strings.get(`ui.look.item.field.${r.name}`).padEnd(pad);
