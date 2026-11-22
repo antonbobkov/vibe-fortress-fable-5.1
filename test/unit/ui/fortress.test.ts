@@ -434,4 +434,19 @@ describe('T-M1-14 UiState save section', () => {
     const lines = fromSaved(ui, saved);
     expect(toSaved(ui, lines)).toEqual(saved);
   });
+
+  it('T-685: a merged line keeps its count through a save; a line saved without one loads as x1', () => {
+    const log = [
+      { tick: 5, severity: 'note' as const, text: 'Stockpile #2 is full', count: 3, focus: 9 },
+      { tick: 6, severity: 'alert' as const, text: 'Once.', count: 1 },
+    ];
+    const saved = toSaved(defaultUiState(0), log);
+    expect(saved.logTail).toEqual([
+      { tick: 5, severity: 'note', text: 'Stockpile #2 is full', count: 3, focus: 9 },
+      { tick: 6, severity: 'alert', text: 'Once.' },
+    ]);
+    const lines = fromSaved(defaultUiState(0), JSON.parse(JSON.stringify(saved)) as SavedUiState);
+    expect(lines.map((l) => l.count)).toEqual([3, 1]);
+    expect(lines[0]).toMatchObject({ text: 'Stockpile #2 is full', count: 3, focus: 9 });
+  });
 });
