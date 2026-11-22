@@ -137,7 +137,7 @@ describe('T-669 the click ladder', () => {
     expect(tileContents(readers, registry, strings, tile)).not.toContain(readers.entities.get(thief, C.Creature)?.name ?? '?');
     const s = surface(36, 20);
     drawCreatureView(s, { col: 0, row: 0, cols: 36, rows: 20 }, readers, registry, strings, thief, z, undefined, tile);
-    expect(s.lines().slice(0, 2).map((line) => line.trim()).join(' ')).toBe(`Out of sight; last seen at (40, 20, z${z}).`);
+    expect(s.lines().slice(0, 2).map((line) => line.trim()).join(' ')).toBe(`Out of sight. Last seen at (40, 20, z${z})`);
     // Spotted, it is drawn, and opens as any creature does.
     w.game.world.entities.add(thief, C.Hostile, { ...(readers.entities.get(thief, C.Hostile) as NonNullable<ReturnType<typeof readers.entities.get>>), spotted: true } as never);
     expect(clickRung(readers, tile)).toEqual({ kind: 'creature', id: thief });
@@ -318,7 +318,7 @@ describe('T-669 the creature view', () => {
     expect(f.screen.lookBack).toEqual([]);
   });
 
-  it('a creature gone from the map keeps its title and says where it was last seen', () => {
+  it('a creature gone from the map keeps its title and says it left the map, and where it was last', () => {
     const f = setup('t669-gone');
     const dwarf = f.w.spawnDwarf({ at: f.w.index(20, 20, z) });
     const name = f.w.readers.entities.get(dwarf, C.Creature)?.name ?? '?';
@@ -327,6 +327,7 @@ describe('T-669 the creature view', () => {
     f.w.game.world.entities.destroy(dwarf);
     const rows = sidebar(f);
     expect(rows[0]).toContain(name);
-    expect(`${rows[1]?.trim()} ${rows[2]?.trim()}`).toBe(`Out of sight; last seen at (20, 20, z${z}).`);
+    expect(rows[2]).toBe(' Left the map.');
+    expect(rows[3]).toBe(` Last at (20, 20, z${z})`);
   });
 });

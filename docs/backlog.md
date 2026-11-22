@@ -17,7 +17,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-666 | [A patient is watered only with drink](work/T-666-patient-water.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-667 | [The three-year farm stops growing at its strips' cap](work/T-667-farm-strip-cap.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
 | T-668 | [Peril-2 steel fell a seventh with T-664](work/T-668-peril2-steel-after-farm.md) | [T-664](archive/tasks/T-664-small-fortress-starves.md) | — | open |
-| T-671 | [Centre and follow the thing in view, and say when it is gone](work/T-671-inspection-centre-follow-gone.md) | [design](../reports/designs/2026-11-21-inspection-and-follow.html) | T-670 | open |
 | T-672 | [The embark preset is remembered, and a fortress can be abandoned for a new embark on the same world](work/T-672-sticky-preset-and-re-embark.md) | Owner feedback 2026-11-21 | — | open |
 | T-673 | [The mouse wheel's level direction is reversed, and a setting chooses it](work/T-673-wheel-level-direction.md) | Owner feedback 2026-11-21 | — | open |
 | T-677 | [A stockpile clears items that do not belong on it](work/T-677-stockpile-clears-foreign-items.md) | Owner feedback 2026-11-21 | — | open |
@@ -27,5 +26,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-681 | [The wagon says why its goods stay](work/T-681-wagon-says-why.md) | [T-676](archive/tasks/T-676-wagon-not-hauled.md) | — | open |
 | T-682 | [An item judged full is not looked at again when a stack it could join arrives](work/T-682-nohome-stack-join.md) | [T-676](archive/tasks/T-676-wagon-not-hauled.md) | — | open |
 | T-683 | [Unpastured animals after the hall: grazers go out to graze, cats prowl](work/T-683-animals-after-the-hall.md) | [T-675](archive/tasks/T-675-animals-on-arrival-wander.md) | — | open |
+| T-684 | [13 names the stack an item merged into](work/T-684-items-merge-event.md) | [T-671](archive/tasks/T-671-inspection-centre-follow-gone.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

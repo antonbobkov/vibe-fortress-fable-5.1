@@ -96,8 +96,8 @@ describe('T-627 the dwarf inspector scrolls, and its attributes, personality and
     let s = drawLook(dwarf, view);
     let shown = lines(s);
     expect(shown.some((line) => line.startsWith('Title'))).toBe(false);
-    // More below: a dim ▼ at the right edge of the last row above the keys, nothing above.
-    expect(s.lines()[ROWS - 3]?.charAt(35)).toBe('▼');
+    // More below: a dim ▼ at the right edge of the last row above the keys (a rule and two rows), nothing above.
+    expect(s.lines()[ROWS - 4]?.charAt(35)).toBe('▼');
     expect(s.lines()[4]?.charAt(35)).not.toBe('▲');
     expect(lines(s)[ROWS - 1]).toBe('[h] here  [Bksp] back  [Tab] link');
     expect(view.max).toBeGreaterThan(0);
@@ -113,7 +113,7 @@ describe('T-627 the dwarf inspector scrolls, and its attributes, personality and
     expect(shown[2]).toMatch(/^At \(\d+, \d+, z\d+\)/);
     expect(s.lines()[4]?.charAt(35)).toBe('▲');
     expect(view.scroll).toBe(view.max);
-    expect(s.lines()[ROWS - 3]?.charAt(35)).not.toBe('▼');
+    expect(s.lines()[ROWS - 4]?.charAt(35)).not.toBe('▼');
     // Past the end it stays at the end.
     view.page(1);
     expect(view.scroll).toBe(view.max);

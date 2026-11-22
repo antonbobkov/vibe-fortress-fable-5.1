@@ -1041,6 +1041,16 @@
   },
   {
     "context": "look_panel",
+    "key": "[c]",
+    "action": "creature or item view: center on it"
+  },
+  {
+    "context": "look_panel",
+    "key": "[f]",
+    "action": "creature or item view: follow on or off"
+  },
+  {
+    "context": "look_panel",
     "key": "Backspace",
     "action": "back to the view before"
   },

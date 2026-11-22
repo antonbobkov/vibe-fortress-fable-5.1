@@ -404,9 +404,11 @@ Look shows a tile list, one creature or one item (24 § Inspection). `PageUp` `P
 | `1`–`9` | tile list: open that row |
 | `Enter` | tile list: open the first row |
 | `[h]` | creature or item view: the tile list where it is |
+| `[c]` | creature or item view: center on it |
+| `[f]` | creature or item view: follow on or off |
 | `Backspace` | back to the view before |
 
-The bare `c` and `f` of the creature and item views are kept for centre and follow (T-671), on bare letters like every other panel key (§ Panels); `k` or `Esc` closes Look.
+`[c]` centres the view on the creature or the item and goes to its level, once (on where it was last seen when it is gone). `[f]` is a switch: turning it on centres once, then the view moves only as far as it must to keep the thing inside the middle half of the map view, and goes to its level when the thing changes level; the foot reads `■ on` and status row 2 `Following Tova Forgemantle · move the view to stop`. Every way of moving the view ends it: the arrows, a middle drag (or `Space` and drag), `Shift` and the wheel, edge scrolling, a level key or the wheel, `Home`, a click on a place in the log, a job or another panel's list, and a danger line's jump; so do closing Look, opening another thing and the thing being gone. Zoom, pause, speed and scrolling the panel leave it on. `c` and `f` are Look's own keys only in a creature's or an item's view: in the tile list they keep their other meanings (Civilizations, Overlays, a map selection's forbid); `k` or `Esc` closes Look. Every key of the three views is also a button at their foot.
 
 ### Help panel
 

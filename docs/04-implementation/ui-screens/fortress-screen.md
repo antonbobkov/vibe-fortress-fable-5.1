@@ -106,6 +106,7 @@ Look shows a tile list, one creature's view or one item's view (24 § Inspection
 │ Relations friends: Brynja Coldhammer      │
 │ Title Thane                               │
 │ ───────────────────────────────────────── │
+│ [c] center  [f] follow off                │
 │ [h] here  [Bksp] back  [Tab] link         │
 ```
 
@@ -127,10 +128,28 @@ The identity, activity and `At` lines stay at the top and the keys at the foot; 
 │ Flags     reserved                        │
 │ For       Install furniture, Roald Deephe»│
 │ ───────────────────────────────────────── │
+│ [c] center  [f] follow off                │
 │ [h] here  [Bksp] back  [Tab] link         │
 ```
 
-It holds the item, not a tile: its place is 13's `items.tileOf`, and the second line says how it is held (`Lying in Stockpile #2`, `Lying on the ground`, `Carried by …`, `Worn by …`, `In oak barrel, Stockpile #1`, `In Wagon #1`). The stockpile, the carrier, the container, the maker, the owner, the reserving job's worker and what a container holds (`Holds 20 bellwine`) are links. `Tab` and `Shift+Tab` focus the links in view one by one, inverted, and `Enter` opens the focused one; a click opens any. A crowd, bare ground, a right click and `k` open the tile list:
+It holds the item, not a tile: its place is 13's `items.tileOf`, and the second line says how it is held (`Lying in Stockpile #2`, `Lying on the ground`, `Carried by …`, `Worn by …`, `In oak barrel, Stockpile #1`, `In Wagon #1`). The stockpile, the carrier, the container, the maker, the owner, the reserving job's worker and what a container holds (`Holds 20 bellwine`) are links. `Tab` and `Shift+Tab` focus the links in view one by one, inverted, and `Enter` opens the focused one; a click opens any. `[c]` centres the view on the thing and `[f]` follows it, keeping it inside the middle half of the map view (24 § Inspection); with follow on the foot reads `[f] follow ■ on`. A view whose thing is gone keeps its title and says how (24 § Inspection):
+
+```
+│ Roald Deephelm                       [x] │
+│ Miner · adult                             │
+│ Died on Day 3 of Spring, Year 3.          │
+│ Roald Deephelm has been killed by a       │
+│ hillfolk bandit.                          │
+│ Last at (59, 87, z27)                     │
+│                                           │
+│ The body lies there:                      │
+│ Roald Deephelm's corpse                   │
+│ ───────────────────────────────────────── │
+│ [c] center  [h] that tile                 │
+│ [Bksp] back  [Tab] link                   │
+```
+
+A crowd, bare ground, a right click and `k` open the tile list:
 
 ```
 │ Tile (43, 92, z27)                   [x] │

@@ -167,7 +167,9 @@ describe('T-670 the item view', () => {
     f.w.items.destroy(log, 'test');
     const rows = sidebar(f);
     expect(rows[0]).toMatch(/^ oak log/);
-    expect(rows[1]).toBe(` Gone; last seen at (20, 20, z${z}).`);
+    expect(rows[1]).toMatch(/^ Wood · \d+ ☼$/);
+    expect(rows[2]).toBe(' Gone.');
+    expect(rows[3]).toBe(` Last at (20, 20, z${z})`);
     // [h] lists where it was last seen.
     expect(f.screen.key(press('h'))).toBe(true);
     expect(f.screen.lookAt.kind).toBe('tile');
