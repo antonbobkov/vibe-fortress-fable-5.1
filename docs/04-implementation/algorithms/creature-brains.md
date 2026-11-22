@@ -127,6 +127,7 @@ tickAnimal(id): W = Wild[id] or T = Tame[id]
         if trained war and hostile within WAR_ANIMAL_RADIUS of station/owner: combat.setTarget(id, hostile); return
         if T.petOf and owner not in or beside the hearth hall (T-510): if dist(owner) > 5: walkTo(near owner); return   // with its dwarf by the hall, it stands as below (08 § Pets)
         if grazer: if T.condition > 40 and grass tile within pasture (or within 6 if no pasture) with the animal's region label (the tile it is already walking to while that tile still qualifies; a tile whose walk came back unreachable is skipped for `GRAZE_SKIP_TICKS`): walkTo(grass); on arrival: if the tile is unclaimed, claim it and eatGrass (GrassGrazed, condition -= 25); return. A claimed tile is skipped, when choosing grass and on arrival
+        if no pasture and no hearth hall (T-675): amble about the wagon (08 § Tame behavior, *Before the hall*: hashed roll TAME_AMBLE_PERMILLE, hashed tile within TAME_AMBLE_RADIUS, a cat CAT_ROAM_RADIUS, a grazer prefers grass, clear of seen hostiles); return
         wander within pasture or near hearth; return
   if W.pendingMeal: moveAlongPath(id); return  // await the corpse notification
   if W.mealId and W.state in {idle, wander, hunt}: W.state = eat; W.stateUntil = 0
