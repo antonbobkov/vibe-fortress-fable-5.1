@@ -17,6 +17,7 @@ import type { Rgb } from '@render/palette';
 import { patternCell } from '@render/things';
 import { agedMaterial, buildingName, enchantedName, filterText, itemRotText, materialItemName, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
+import { goodsWaiting, goodsWaitText } from '../goods-wait';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
 import type { FluidsReader } from '@systems/fluids';
@@ -199,10 +200,21 @@ export function tileContents(readers: ReaderSet, registry: Registry, strings: St
   const fluid = fluidText(readers, strings, i);
   const summary = fluid === '' ? first : `${first} · ${fluid}`;
   const others = creatures.length - (creatures.length > 0 ? 1 : 0) + items.length;
-  if (others === 0) return summary;
-  if (others > 1) return strings.get('ui.status.here_more', { summary, n: others });
+  const wait = buildingWait(readers, strings, i);
+  if (others === 0) return summary + wait;
+  if (others > 1) return strings.get('ui.status.here_more', { summary, n: others }) + wait;
   const thing = items.length === 1 ? itemName(readers, registry, items[0] as EntityId) : readers.entities.get(creatures[1] as EntityId, C.Creature)?.name ?? '';
-  return strings.get('ui.status.here_one', { summary, thing });
+  return strings.get('ui.status.here_one', { summary, thing }) + wait;
+}
+
+/** " · 12 goods wait: 8 no stockpile, 4 no room": why the goods of the building on a tile (the wagon) still wait in it (T-681), or ''. */
+function buildingWait(readers: ReaderSet, strings: Strings, i: TileIndex): string {
+  if (!has(readers, '14') || !discovered(readers, i)) return '';
+  const b = readers.of<BuildingsReader>('14');
+  const id = b.at(i);
+  if (id === 0) return '';
+  const text = goodsWaitText(strings, goodsWaiting(readers, id, b.get(id)?.itemId ?? 0), true);
+  return text === '' ? '' : ` · ${text}`;
 }
 
 /** A patient's Care line: what happens next, and whether the player must act (17 § Patients and hospitals). */
