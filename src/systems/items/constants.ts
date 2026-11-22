@@ -12,6 +12,8 @@ export const BAG_CAPACITY = 25;
 export const CHEST_CAPACITY = 20;
 /** New haul jobs created per items tick. */
 export const HAUL_JOBS_PER_TICK = 20;
+/** How far from an item on a stockpile that does not take it a tile out of the way is looked for (13 § Stockpiles, T-677). */
+export const ASIDE_RADIUS = 12;
 /** Rot speed inside a container in a stockpile. */
 export const ROT_CONTAINER_PERCENT = 25;
 export const ROT_HOT_C = 30;
