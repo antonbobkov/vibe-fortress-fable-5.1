@@ -159,7 +159,7 @@ test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
   expect(categories).toEqual(['wood']);
 
   // 2. The carpenter's workshop ghost on the rock face: refused, the reason in the status bar.
-  await page.keyboard.press('Escape');
+  // T-680: over the stockpile's settings the zone kinds are no keys, so `b` opens Build at once.
   await page.keyboard.press('b');
   await page.keyboard.press('w');
   await page.keyboard.press('ArrowDown');

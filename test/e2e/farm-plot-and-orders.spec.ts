@@ -196,9 +196,10 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
   }, { farm: f, width: PLOT_W });
   expect(selectedCrops.crops).toEqual(Array(4).fill(selectedCrops.dimcap));
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
-  // The fourth early floor is diagonal to the first strip, so it needs its own plot.
+  // The fourth early floor is diagonal to the first strip, so it needs its own plot. T-680: Esc
+  // goes back from the plot's settings to the Zones menu, where `f` is the farm plot.
   await page.keyboard.press('Escape');
-  await page.keyboard.press('z'); await page.keyboard.press('Shift+F');
+  await page.keyboard.press('Shift+F');
   const fourth = await pixel(page, f.x + PLOT_W - 1, f.y + 1);
   await page.mouse.move(fourth.x, fourth.y); await page.mouse.down(); await page.mouse.up();
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
