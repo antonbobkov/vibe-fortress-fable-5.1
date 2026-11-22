@@ -43,7 +43,7 @@ test('T-627 look-creature-scroll: the dwarf view scrolls to its relations and ba
     h.step(1);
   });
 
-  // Units, then Enter: Look on the first dwarf's Creatures tab, from its top.
+  // Units, then Enter: the first dwarf's view, from its top.
   await page.keyboard.press('u');
   await expect.poll(() => textOf(page)).toContain('Units');
   await page.keyboard.press('Enter');

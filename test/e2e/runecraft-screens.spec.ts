@@ -111,14 +111,14 @@ test('T-477 runecraft screens', async ({ page }) => {
   expect(text).toMatch(/Runecraft \d+, run/);
   await closePanel(page);
 
-  // The staff's look line: a click on its tile.
+  // The staff's look line: a click on its tile, a loose item, opens the tile list (T-669).
   await clickTile(page, site.x + 5, site.y + 1);
-  await expect.poll(() => textOf(page)).toContain('Here:');
+  await expect.poll(() => textOf(page)).toContain('Here');
   await expect.poll(() => textOf(page)).toContain('iron staff of embers');
   text = await textOf(page);
   // The line wraps under the item in the panel's width, and is read to its end.
   expect(text).toMatch(/Emberbolt: \d+ ember, range\s/);
-  expect(text).toContain('12. Needs a runecaster.');
+  expect(text).toContain('Needs a runecaster.');
   await closePanel(page);
 
   // The squad's draughts: a squad, a member, the checklist, and the first draught added with Enter.

@@ -1,5 +1,5 @@
 /**
- * T-627: Look's `Creatures` tab scrolls, so a wounded dwarf with several thoughts still shows its
+ * T-627: a creature's view in Look scrolls under its pinned lines, so a wounded dwarf with several thoughts still shows its
  * equipment, relations and title; and the dwarf view has its attributes, personality and
  * productivity after the skills (`ui-screens/fortress-screen.md` § Inspection panel, 24 § Inspection).
  *
@@ -12,7 +12,7 @@ import { Game } from '@app/game';
 import { C, type Wound } from '@core/components';
 import type { EntityId } from '@core/types';
 import type { MoraleReader } from '@systems/morale';
-import { drawLookPanel, LookScroll } from '@ui/panels/look';
+import { drawCreatureView, LookScroll } from '@ui/panels/look';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import type { Surface } from '@ui/surface';
 import { press, surface } from './ui-fixture';
@@ -24,15 +24,10 @@ let other: EntityId = 0;
 /** Fewer rows than the 1280×800 sidebar's body holds. */
 const ROWS = 40;
 
-function tileOf(id: EntityId): number | null {
-  const pos = game.host.readers.entities.get(id, C.Position);
-  return pos === undefined ? null : game.host.readers.map.index(pos.x, pos.y, pos.z);
-}
-
 function drawLook(id: EntityId, view?: LookScroll, rows = ROWS): Surface {
   const s = surface(36, rows);
   const ctx = game.fortress.ctx;
-  drawLookPanel(s, { col: 0, row: 0, cols: 36, rows }, ctx.readers, ctx.registry, ctx.strings, tileOf(id), 2, undefined, undefined, undefined, id, view);
+  drawCreatureView(s, { col: 0, row: 0, cols: 36, rows }, ctx.readers, ctx.registry, ctx.strings, id, ctx.readers.entities.get(id, C.Position)?.z ?? 0, view);
   return s;
 }
 
@@ -101,9 +96,10 @@ describe('T-627 the dwarf inspector scrolls, and its attributes, personality and
     let s = drawLook(dwarf, view);
     let shown = lines(s);
     expect(shown.some((line) => line.startsWith('Title'))).toBe(false);
-    // More below: a dim ▼ at the right edge of the last row, nothing above.
-    expect(s.lines()[ROWS - 1]?.charAt(35)).toBe('▼');
-    expect(s.lines()[2]?.charAt(35)).not.toBe('▲');
+    // More below: a dim ▼ at the right edge of the last row above the keys, nothing above.
+    expect(s.lines()[ROWS - 3]?.charAt(35)).toBe('▼');
+    expect(s.lines()[4]?.charAt(35)).not.toBe('▲');
+    expect(lines(s)[ROWS - 1]).toBe('[h] here  [Bksp] back');
     expect(view.max).toBeGreaterThan(0);
     for (let k = 0; k < 10 && !shown.some((line) => line.startsWith('Title')); k += 1) {
       view.page(1);
@@ -113,24 +109,24 @@ describe('T-627 the dwarf inspector scrolls, and its attributes, personality and
     expect(shown).toContain('Title Thane');
     expect(shown.some((line) => line.startsWith('Equipment'))).toBe(true);
     expect(shown.some((line) => line.startsWith('Relations'))).toBe(true);
-    // The header and the tabs line stay; the tab's first rows scrolled away under them, marked ▲.
-    expect(shown[0]).toMatch(/^Look · /);
-    expect(s.lines()[2]?.charAt(35)).toBe('▲');
+    // The identity, activity and At lines stay; the first sections scrolled away under them, marked ▲.
+    expect(shown[2]).toMatch(/^At \(\d+, \d+, z\d+\)/);
+    expect(s.lines()[4]?.charAt(35)).toBe('▲');
     expect(view.scroll).toBe(view.max);
-    expect(s.lines()[ROWS - 1]?.charAt(35)).not.toBe('▼');
+    expect(s.lines()[ROWS - 3]?.charAt(35)).not.toBe('▼');
     // Past the end it stays at the end.
     view.page(1);
     expect(view.scroll).toBe(view.max);
-    // Another creature first starts the tab at the top.
+    // Another creature starts the view at the top.
     drawLook(other, view);
     expect(view.scroll).toBe(0);
   });
 
-  it('in the fortress, PageDown and the wheel scroll the Creatures tab; inspecting again or another tab starts it at the top', () => {
+  it('in the fortress, PageDown and the wheel scroll the view; inspecting again, or [h] and Backspace, start it at the top', () => {
     const fortress = game.fortress;
     const pos = game.host.readers.entities.get(dwarf, C.Position);
     if (pos === undefined) throw new Error('no position');
-    fortress.look({ x: pos.x, y: pos.y, z: pos.z }, 2, dwarf);
+    fortress.inspectCreature(dwarf);
     game.render();
     expect(fortress.lookView.scroll).toBe(0);
     expect(fortress.lookView.max).toBeGreaterThan(3);
@@ -150,16 +146,18 @@ describe('T-627 the dwarf inspector scrolls, and its attributes, personality and
     const s = game.uiSurface;
     if (s === null) throw new Error('no surface');
     expect(s.lines().some((line) => line.trimEnd().endsWith('▲'))).toBe(true);
-    // Another tab and back: the top again.
-    game.handleKey(press('1'));
+    // The tile list and back: the top again.
+    game.handleKey(press('h'));
     game.render();
-    game.handleKey(press('3'));
+    expect(fortress.lookAt.kind).toBe('tile');
+    game.handleKey(press('Backspace'));
     game.render();
+    expect(fortress.lookAt).toMatchObject({ kind: 'creature', id: dwarf });
     expect(fortress.lookView.scroll).toBe(0);
     fortress.wheel({ col: 70, row: 10, dy: 1, shift: false, ctrl: false, alt: false, meta: false });
     game.render();
     expect(fortress.lookView.scroll).toBe(3);
-    fortress.look({ x: pos.x, y: pos.y, z: pos.z }, 2, dwarf);
+    fortress.inspectCreature(dwarf);
     game.render();
     expect(fortress.lookView.scroll).toBe(0);
   });

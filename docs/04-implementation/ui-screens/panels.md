@@ -43,7 +43,7 @@ A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓`
 
 A stockpile made while paused can be configured immediately, before its `ZoneChanged` is dispatched. While its record is absent, the inspector reads the same empty filter, zero wanted containers, no links and `HAUL_PRIORITY` defaults as the item system, without creating state during drawing. Every editor action uses those defaults until a command creates the record; a deleted zone still reports that it is unavailable.
 
-Selecting a stockpile or room replaces the type list with its inspector; `[y] zone types` returns to the list. With no zone tool active, `Enter` selects the zone at the map cursor or centre; a click on its map tiles does the same.
+Selecting a stockpile or room replaces the type list with its inspector; `[y] zone types` returns to the list. With no zone tool active, `Enter` selects the zone at the map cursor or centre; a click on its map tiles does the same. A click on a zone's tile with nothing on it, with Zones closed, opens Zones with that zone's inspector (24 § Inspection, the click ladder); Zones opened that way leaves the map's clicks to the ladder, so a click elsewhere opens what is there, and Zones opened with its key picks zones again.
 
 ```
 │ [y] zone types                    │
@@ -304,7 +304,7 @@ Opened by a click on a finished workshop.
 
 ## Building
 
-Opened by a click on any building that is not a finished workshop or the depot (those keep their panels), or by `Enter` in Look on its tile. Right click on a building still opens Look.
+Opened by a click on any building that is not a finished workshop or the depot (those keep their panels), where no creature or loose item stands (24 § Inspection), or from its row in Look's tile list. Right click on a building opens the tile list.
 
 ```
 │ Building                            │
@@ -335,7 +335,7 @@ The panel is a list: `↑` `↓` move the cursor over the lines that act, `Enter
 - **Links** (lever, plate): `── Linked to (2)`, a line per target with its state (`→ Drawbridge #1: lowered`; `Enter` centres the map on it), a dim line per link a mechanic has still to make (`… Door #2: waiting: 1 mechanism`), `[i] link to…` and `[r] unlink` (the target under the cursor, or the only one: `UnlinkMechanism`). A linked target's own panel lists what works it (`← Lever #1`).
 - **Cage**: `Holds a wolf` or `Empty`; `[r] release` (`ReleaseCage`, after `c_release_cage`) and `[g] tame` (`TameCaged`).
 - **Bed** (any building tagged `sleep`: a bed, a stone bed, a pallet): `Owner: Urist (Bedroom #2)`, and `[w] owner…`, which assigns the bedroom zone the bed stands in (`AssignRoom`). A bed in no bedroom says so and how to make one. Then, for a wooden bed, `Made up: linen bedding, feather pillow` or `Not made up` with `Wants: bedding, pillow` for what it lacks (a featherbed's pieces are named after their feathers, the rest after their cloth), and for every bed `Rests at 110%` (14 § Beds).
-- **A `container` building** (the wagon, a chest): `Holds:`, then one line per top category of the stocks tree, in its order, with the units it holds there by item type, counting what lies inside the barrels and bags it holds and those containers too: `food 60: easy meal ×10, plant ×40, raw meat ×10`, `container 16: barrel ×5, bag ×9, bucket ×2`; a category whose one type has the category's name reads `drink 60`. A line wraps over up to three rows. With nothing in it, `Holds nothing`. While it holds anything, `[v] see the items` opens Look on the tile where they lie (the wagon's centre) at the `Items` tab.
+- **A `container` building** (the wagon, a chest): `Holds:`, then one line per top category of the stocks tree, in its order, with the units it holds there by item type, counting what lies inside the barrels and bags it holds and those containers too: `food 60: easy meal ×10, plant ×40, raw meat ×10`, `container 16: barrel ×5, bag ×9, bucket ×2`; a category whose one type has the category's name reads `drink 60`. A line wraps over up to three rows. With nothing in it, `Holds nothing`. While it holds anything, `[v] see the items` opens Look's tile list on the tile where they lie (the wagon's centre), the goods under the building's row.
 - **A building with wants** (14 § Building wants): `Holds: …` or `Holds nothing yet`, and `Wants: …` for what it lacks. While it holds anything, `[h] take out what it holds` (`ReleaseHeld`): it drops on the tile, and haulers bring the nearest again unless it is forbidden.
 - **Coffin**: `Kept for anyone` / `Kept for Urist` / `Holds a body`, and `[w] keep for…` (`AssignCoffin`).
 - Every built building: `Look at the tile` and `[x] take apart` (after `c_deconstruct_building`).

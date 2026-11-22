@@ -732,7 +732,7 @@
   {
     "context": "building_panel",
     "key": "[v]",
-    "action": "a container building (the wagon, a chest): Look on the tile where its goods lie, at the Items tab"
+    "action": "a container building (the wagon, a chest): Look's tile list where its goods lie"
   },
   {
     "context": "building_panel",
@@ -1027,22 +1027,27 @@
   {
     "context": "look_panel",
     "key": "1",
-    "action": "look tabs"
+    "action": "tile list: open that row"
   },
   {
     "context": "look_panel",
-    "key": "2",
-    "action": "look tabs"
+    "key": "9",
+    "action": "tile list: open that row"
   },
   {
     "context": "look_panel",
-    "key": "3",
-    "action": "look tabs"
+    "key": "Enter",
+    "action": "tile list: open the first row"
   },
   {
     "context": "look_panel",
-    "key": "[x]",
-    "action": "take apart the building here (confirm)"
+    "key": "[h]",
+    "action": "creature view: the tile list where it stands"
+  },
+  {
+    "context": "look_panel",
+    "key": "Backspace",
+    "action": "back to the view before"
   },
   {
     "context": "help_panel",

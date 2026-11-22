@@ -692,7 +692,7 @@ export class BuildingPanel {
     }
     const where = it.tileOf([...held][0] ?? 0);
     const tile = where >= 0 ? where : view.origin;
-    out.push({ id: 'see_items', text: key('v', s.get('ui.building.see_items')), key: 'v', run: () => ctx.look(tile, 1), help: s.get('ui.building.see_items_help') });
+    out.push({ id: 'see_items', text: key('v', s.get('ui.building.see_items')), key: 'v', run: () => ctx.look(tile), help: s.get('ui.building.see_items_help') });
     return out;
   }
 

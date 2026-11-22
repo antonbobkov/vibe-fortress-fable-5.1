@@ -169,7 +169,8 @@ describe('T-M1-14 mouse model', () => {
     game.pointerDown(cell(game, 5, 6));
     expect(game.ui.panel).toBe('look');
     const text = game.textRows().join('\n');
-    expect(text).toContain('Look');
+    // Bare ground: the tile list, its title naming the tile (24 § Inspection).
+    expect(text).toMatch(/Tile \(\d+, \d+, z\d+\)/);
     expect(text).toContain('Loam floor');
     const camX = game.ui.camX;
     game.pointerDown(cell(game, 20, 10, 1));

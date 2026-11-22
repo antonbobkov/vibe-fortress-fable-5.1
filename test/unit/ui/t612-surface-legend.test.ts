@@ -12,7 +12,7 @@ import { TileFlag, TileKind } from '@core/map3d';
 import type { TileIndex } from '@core/types';
 import type { PlantsReader } from '@systems/plants';
 import { helpGlyphRows } from '@ui/panels/help';
-import { creaturesAt, drawLookPanel, itemsAt, tileSummary } from '@ui/panels/look';
+import { creaturesAt, drawTileList, itemsAt, tileSummary } from '@ui/panels/look';
 import { TestWorld } from '../../scenarios/test-world';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 import { glyphs, registry, strings, surface } from './ui-fixture';
@@ -25,7 +25,7 @@ function terrainRows(): { text: string; fg?: string }[] {
 
 function look(w: TestWorld, tile: TileIndex): string {
   const s = surface(44, 14);
-  drawLookPanel(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile, 0);
+  drawTileList(s, { col: 0, row: 0, cols: 44, rows: 14 }, w.readers, w.game.registry, strings, tile);
   return s.lines().join('\n');
 }
 

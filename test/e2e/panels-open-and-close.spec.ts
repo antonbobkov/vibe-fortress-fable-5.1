@@ -15,7 +15,8 @@ interface PanelHook extends Hook {
 
 const UI_PANELS = [
   { id: 'designate', title: 'Designate', hotkey: 'd' },
-  { id: 'look', title: 'Look', hotkey: 'k' },
+  // Look's title row names what it shows: the tile list of the tile under the mouse (24 § Inspection).
+  { id: 'look', title: 'Tile (', hotkey: 'k' },
   { id: 'log', title: 'Log', hotkey: 'a' },
 ];
 
