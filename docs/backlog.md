@@ -20,6 +20,5 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-684 | [13 names the stack an item merged into](work/T-684-items-merge-event.md) | [T-671](archive/tasks/T-671-inspection-centre-follow-gone.md) | — | open |
 | T-685 | [A loaded log keeps its merged lines' counts](work/T-685-log-count-saved.md) | [T-679](archive/tasks/T-679-log-inspectable-goto.md) | — | open |
 | T-686 | [An abandoned fortress leaves ruins a new embark can find](work/T-686-abandoned-site-ruins.md) | [T-672](archive/tasks/T-672-sticky-preset-and-re-embark.md) | — | open |
-| T-687 | [A planting job keeps a seed item that no longer exists](work/T-687-plant-job-vanished-seed.md) | [T-662](archive/tasks/T-662-sweep-noise-fixed-rolls.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
