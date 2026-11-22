@@ -1251,6 +1251,11 @@
   },
   {
     "context": "game_menu",
+    "key": "a",
+    "action": "Abandon fortress (confirm)"
+  },
+  {
+    "context": "game_menu",
     "key": "m",
     "action": "Main menu"
   },

@@ -381,6 +381,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   Settings: 'settings',
   'Rename fortress': 'rename',
   'Retire fortress (confirm)': 'retire',
+  'Abandon fortress (confirm)': 'abandon',
   'Main menu': 'main_menu',
   Yes: 'yes',
   No: 'no',

@@ -460,3 +460,4 @@ Every new row of every table goes at the end of this table, including generated 
 | hints | hint_breach |
 | hints | hint_predator_open |
 | hints | hint_panel_letters |
+| confirmations | c_abandon |
