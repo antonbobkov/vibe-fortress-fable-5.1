@@ -1,6 +1,6 @@
 # T-687 — A planting job keeps a seed item that no longer exists
 
-**Source:** [T-662's measurement](../../reports/data/2026-11-22-t662-sweep-noise.md) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** [T-662's measurement](../../reports/data/2026-11-22-t662-sweep-noise.md) · **Size:** S · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -13,6 +13,11 @@ Reproduce it: `THREE_YEARS_SHIFT=200` on `three-years-p4-4` (the seed job of `me
 ## Done
 
 The seed's job at shift 200 passes its invariants, and a unit test covers the path.
+
+- [x] **Cause.** Reproduced on `f83df33f` with the sweep's loop: job 5550 (`plant:75035`) was interrupted after its worker had dropped seed stack 50332672 at the plot; at t312,102 the reservation lapsed (`RESERVE_KEEP_TICKS`; only build and workshop inputs keep theirs), which released the seed but left it in the job's `delivered`. At t320,579 haul job 6482 carried the free seed to a stockpile and merged it into stack 16778268; a merge ends the item with no `ItemDestroyed`, so nothing pruned it, and the open job held a dead id from the next daily check (t321,600). Not T-676/T-677/T-659/T-660: the lapse has always kept `delivered`; only a merge made it visible.
+- [x] **Fix.** `JobBoard.releaseReservations` (`src/systems/jobs/board.ts`): a job that stays (a lapse, an unclaim) delivers only what it still holds; a released input leaves `delivered` and is fetched anew when the job is taken. Build and workshop inputs it retains are unchanged. 11 § Job steps says so.
+- [x] **Unit test.** `test/unit/jobs/t687-lapsed-delivered-seed.test.ts`: a planting job interrupted at the plot, the lapse releases the seed and empties `delivered`, the seed merged into a stack leaves no job finding, and the job plants from the stack (fails without the fix).
+- [x] **The seed.** `THREE_YEARS_SHIFT=200` `three-years-p4-4` (`three_years_seeds.test.ts`) passes locally on `36ec1e8f`, invariants watched over the three years. CI `45021041131` green; sweep `45021762632` (shifts 0 to 150) on `36ec1e8f`: Pooled 20 / 7 / 0 / 1140.25 living / 118 deaths / 0 extinct / 0 need deaths; **Verdict: pass.** Bounds exceeded: none; worth tracing: none.
 
 ## Note (orchestrator, 2026-11-22)
 
