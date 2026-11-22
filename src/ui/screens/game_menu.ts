@@ -2,7 +2,8 @@
  * The fortress's Esc menu: `02-systems/24-ui-and-input.md` § Game menu ("`Resume`, `Save`, `Load`,
  * `Settings`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last
  * save)") laid out as `ui-screens/fortress-screen.md` § Game menu draws it, with the fortress name
- * in the title row and `[x]` on Retire (T-M7-09).
+ * in the title row and `[x]` on Retire (T-M7-09). `Abandon fortress` (confirm) ends the fortress and
+ * goes back to the world map of the same world for a new embark (T-672).
  */
 import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type Screen } from '../screen';
@@ -21,6 +22,10 @@ export interface GameMenuHost {
   settings(): void;
   rename?(): void;
   retire(): void;
+  /** Abandon the fortress for a new embark on the same world; absent or `canAbandon` false: disabled. */
+  abandon?(): void;
+  /** Whether the running fortress has a world map to go back to. */
+  canAbandon?(): boolean;
   mainMenu(): void;
   viewOnly(): boolean;
   /** The clock of the three seconds a message stays up; absent in a bare test host. */
@@ -57,6 +62,7 @@ export class GameMenuScreen implements Screen {
       { id: 'settings', key: 'o', label: 'Settings' },
       { id: 'rename', key: 'n', label: this.strings?.get('ui.menu.rename') ?? UI_STRINGS['ui.menu.rename'] ?? '', enabled },
       { id: 'retire', key: 'x', label: 'Retire fortress', enabled },
+      { id: 'abandon', key: 'a', label: this.strings?.get('ui.menu.abandon') ?? UI_STRINGS['ui.menu.abandon'] ?? '', enabled: enabled && this.host.abandon !== undefined && this.host.canAbandon?.() !== false },
       { id: 'main_menu', key: 'm', label: 'Main menu' },
     ];
   }
@@ -82,6 +88,7 @@ export class GameMenuScreen implements Screen {
       case 'settings': this.host.settings(); break;
       case 'rename': this.host.rename?.(); break;
       case 'retire': this.host.retire(); break;
+      case 'abandon': this.host.abandon?.(); break;
       case 'main_menu': this.host.mainMenu(); break;
       default: break;
     }

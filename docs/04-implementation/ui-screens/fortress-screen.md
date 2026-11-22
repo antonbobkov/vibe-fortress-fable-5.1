@@ -291,6 +291,7 @@ The count records units of the first input not covered at each placement; placem
         │  [o] Settings        │
         │  [n] Rename fortress │
         │  [x] Retire fortress │
+        │  [a] Abandon fortress│
         │  [m] Main menu       │
         └──────────────────────┘
 ```

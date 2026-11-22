@@ -34,6 +34,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // The intro (`ui-screens/menus-and-world.md` § Intro); its captions are `intro.*` rows of strings.json.
   'ui.intro.skip': 'Any key or click to skip',
   'ui.menu.rename': 'Rename fortress',
+  'ui.menu.abandon': 'Abandon fortress',
   'ui.menu.rename_title': 'Rename {fortress}',
   // Load (`ui-screens/menus-and-world.md` § Load) and the confirmation dialog (24 § Confirmations).
   'ui.load.title': 'Load',
@@ -85,6 +86,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.worldmap.temper': 'Temper',
   'ui.worldmap.temper_note': "Temper is the climate's harshness: cold, storms and heat.",
   'ui.worldmap.trait': 'Trait: {traits}',
+  'ui.worldmap.ruins': 'Ruins of {fortress}: {cause}',
   'ui.worldmap.civ': '{civ} {n} regions ({edge})',
   'ui.worldmap.civ_no_route': '{civ}: no land route; arrives from the {edge} edge',
   'ui.worldmap.no_embark': 'No embark here: {biome}.',

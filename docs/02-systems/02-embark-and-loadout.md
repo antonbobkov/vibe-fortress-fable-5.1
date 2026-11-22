@@ -42,7 +42,7 @@ For each of `EMBARK_DWARF_COUNT` dwarves, from the `embark.party` rng stream:
 | `farmstead` | 2 farmers, 1 herbalist, 1 cook, 1 brewer, 1 carpenter, 1 miner | Seeds of every kind, 2 cows, 4 chickens, 2 sheep, fewer tools |
 | `warband` | 2 soldiers (axe, shield), 1 crossbow hunter, 1 armorsmith, 1 miner, 1 farmer, 1 medic | Iron weapons and mail for two, bolts, 3 war dogs, less food |
 
-A preset fills the party skills and the supply list to `EMBARK_BUDGET_BASE`; any extra peril budget stays unspent for the player. The embark screen opens with `balanced` applied.
+A preset fills the party skills and the supply list to `EMBARK_BUDGET_BASE`; any extra peril budget stays unspent for the player. The embark screen opens with `balanced` applied, or, after the first embark, with the preset the last embark used (the testing preset when it was in testing mode), which is saved with the settings (T-672; `ui-screens/embark.md` § Presets menu).
 
 ### Testing mode
 

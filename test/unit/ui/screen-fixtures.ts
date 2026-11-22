@@ -206,6 +206,7 @@ export function renderScreen(name: ScreenName): ScreenGolden {
         load: () => {},
         settings: () => {},
         retire: () => {},
+        abandon: () => {},
         mainMenu: () => {},
         viewOnly: () => false,
       };
