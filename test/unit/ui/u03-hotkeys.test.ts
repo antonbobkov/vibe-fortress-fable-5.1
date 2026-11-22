@@ -194,9 +194,13 @@ describe('U-03 the open panel\'s letters first, then the panel letters (D-253)',
           expect(f.screen.key(press(key)), `${key} in ${state.name}`).toBe(true);
           continue;
         }
+        const settings = was === 'zones' && f.screen.zones.selected !== 0 && !f.screen.zones.active;
         expect(f.screen.key(press(key)), `${key} in ${state.name}`).toBe(true);
-        // The letter opens its panel, or closes it when it was the open one.
-        expect(f.screen.ui.panel, `${key} in ${state.name}`).toBe(was === id ? null : id);
+        // The letter opens its panel, or closes it when it was the open one; `z` over a zone's settings goes back to the Zones menu (T-680).
+        if (settings && id === 'zones') {
+          expect(f.screen.ui.panel, `${key} in ${state.name}`).toBe('zones');
+          expect(f.screen.zones.selected, `${key} in ${state.name}`).toBe(0);
+        } else expect(f.screen.ui.panel, `${key} in ${state.name}`).toBe(was === id ? null : id);
         // It did nothing else: no command, no question, no tool left behind from the old panel.
         expect(f.sent, `${key} in ${state.name}`).toEqual([]);
         expect(f.asked, `${key} in ${state.name}`).toEqual([]);
@@ -355,8 +359,8 @@ describe('U-03 the open panel\'s letters first, then the panel letters (D-253)',
     const population = keys.bindings.findIndex((b) => b.context === 'fortress_panel' && b.id === 'population');
     expect(keys.rebind(population, { key: 'g', ctrl: false, shift: false })).toBeNull();
     const f = screenOf(shared, false, keys);
-    f.screen.zones.selected = shared.pile;
     f.screen.openPanel('zones');
+    f.screen.zones.selected = shared.pile;
     const s = surface(80, 42);
     f.screen.draw(s);
     expect(s.lines().join('\n')).toContain('[p] Preset');

@@ -26,7 +26,7 @@
 |---|---|---|---|
 | `d` | Designate | 03 | designation kinds, priority, undo |
 | `b` | Build | 14 | categories, types, material choice, orientation |
-| `z` | Zones | 14 | zone types, settings of the selected zone |
+| `z` | Zones | 14 | the menu: kinds of zone to make and the list of zones; a zone's settings in its place |
 | `u` | Units | 10 | dwarves table, labor grid toggle, titles |
 | `l` | Labors | 11 | labor grid and labor priorities |
 | `j` | Jobs | 11 | open, claimed, blocked jobs with reasons |
@@ -163,7 +163,7 @@ The keys of a rectangle dragged with no tool (§ Mouse); `Delete` is the Map con
 
 ### Zones panel
 
-The zone types; `Enter` with no tool selects the zone at the map cursor or centre.
+The menu's kinds of zone to make (T-680). They are keys only while the menu shows: over a zone's settings a panel letter the inspector does not bind opens its panel (right after drawing a stockpile, `b` opens Build). In the menu, `Tab` and `Shift+Tab` move through the list of zones and `Enter` opens the focused one's settings, or with none focused the zone at the map cursor or centre; `z` over a zone's settings returns to the menu, and over the menu closes Zones. `Esc` drops a kind chosen, or the tool left idle after a zone is made, and goes back to the menu; from a zone's settings it goes back to the menu, unless a click on the zone opened them, when it closes Zones.
 
 | Key | Action |
 |---|---|
@@ -186,11 +186,11 @@ The zone types; `Enter` with no tool selects the zone at the map cursor or centr
 
 ### Zone inspector
 
-The keys of a selected zone, before the zone types and before the panel letters (§ Panels). Every action has the mouse path listed here and a Help row.
+The keys of a selected zone, shown in the menu's place, before the panel letters (§ Panels); the kinds of the menu are not keys here. Every action has the mouse path listed here and a Help row.
 
 | Key | Action | Mouse |
 |---|---|---|
-| `[y]` | back to the zone types | zone types button |
+| `[y]` | back to the zones menu | the `[y] zones menu` row |
 | `[x]` | unlink a source of a stockpile, or remove the zone (confirm) | the `[x]` caption |
 | `Delete` | remove the stockpile zone (confirm) | `[Del] remove zone` |
 | `[e]` | resize the zone | the `[e] resize` caption |
@@ -742,9 +742,9 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `dig` | `dig_designated` | `designate` | "Open Designate with [d]: Dig is chosen. Go down a level with [<] into the rock, click one corner of a box, then the opposite corner (or Enter twice). The marked tiles blink while the work waits for a miner." |
 | `stairs` | `stairs_designated` | `designate` | "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft." |
 | `stockpile` | `stockpile_made` | `zones` | "Hauled goods need a place. Open Zones with [z], choose a stockpile with [s], and drag a rectangle over open floor (or Enter at two corners)." |
-| `workshop` | `workshop_placed` | `build` | "Leave Zones with Esc, open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs." |
+| `workshop` | `workshop_placed` | `build` | "Open Build with [b] (from the zones menu, Esc first), then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs." |
 | `order` | `order_queued` | `orders` | "Workshops make what is ordered. Open Orders with [o]: [n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it." |
-| `farm` | `farm_plot_made` | `zones` | "Food grows on soil. In Zones ([z]), [f] chooses a farm plot: drag it over soil or grass. Click the plot to choose its crop for each season." |
+| `farm` | `farm_plot_made` | `zones` | "Food grows on soil. In Zones ([z]), [f] chooses a farm plot: drag it over soil or grass. Its settings then show: choose its crop for each season." |
 | `labors` | `labors_changed` | `labors` | "A dwarf works only at the labors that are on. Open Labors with [l]: ↑↓ choose a dwarf, a click on a cell turns that labor on or off, and [a] turns the whole row." |
 | `speed` | `paused_and_sped` | `speed` | "Time stands still while the game is paused. [Space] pauses and resumes, and [+] and [-] change the speed. Run the fortress at 2× or 4×, then pause it again." |
 | `save` | `saved` | `menu` | "Save your fortress: [F5] makes a quick save, and Esc opens the game menu, which has Save. Saves are kept in this browser." |

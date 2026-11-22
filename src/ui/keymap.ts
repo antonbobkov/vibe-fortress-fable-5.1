@@ -299,7 +299,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   'gather zone': 'gather_zone',
   sanctum: 'sanctum',
   'compost heap': 'compost_zone',
-  'back to the zone types': 'zone_types',
+  'back to the zones menu': 'zone_types',
   'unlink a source of a stockpile, or remove the zone (confirm)': 'unlink_or_remove',
   'remove the stockpile zone (confirm)': 'remove_stockpile',
   'resize the zone': 'resize',
@@ -585,8 +585,8 @@ function coActive(target: KeyContext, other: KeyContext): boolean {
   // panel's own key may share a letter: in that panel the panel's key acts, elsewhere the letter.
   if (target === 'fortress_panel' || other === 'fortress_panel') return false;
   if (target === 'panel' || other === 'panel') return true;
-  if ((target === 'selection' && FORTRESS_CONTEXTS.has(other)) || (other === 'selection' && FORTRESS_CONTEXTS.has(target))) return true;
-  return (target === 'zones_panel' && other === 'zone_inspector') || (target === 'zone_inspector' && other === 'zones_panel');
+  // The zone kinds (the Zones menu) and the zone inspector never act together: the inspector shows in the menu's place (T-680).
+  return (target === 'selection' && FORTRESS_CONTEXTS.has(other)) || (other === 'selection' && FORTRESS_CONTEXTS.has(target));
 }
 
 /** A token of a caption, `[S-t]` or `[Del]`, as a key; `null` for one that names no key. */
