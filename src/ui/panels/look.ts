@@ -27,12 +27,13 @@ import type { PlantsReader } from '@systems/plants';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES, thoughtText } from './mood';
 import type { Surface } from '../surface';
-import { label, separator } from '../widgets';
+import { captionButtons, label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { activityLabel } from './units';
 import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
 import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
+import { creatureGone, drawGoneView, drawLookFoot, footRows, itemGone, type LookFoot } from './look-gone';
 
 interface TileInspection {
   readonly discovered: boolean;
@@ -552,7 +553,9 @@ export function drawTileList(
   if (foot > 0) {
     const footRow = rect.row + rect.rows - 2;
     separator(s, rect.col + 1, footRow, width);
-    label(s, rect.col + 1, footRow + 1, strings.get('ui.look.list_keys'), { width });
+    // `[Enter]` is a button for the first row; the rows take their own clicks.
+    const first = rows.find((r) => r.target !== null && opens(r.target))?.target ?? null;
+    captionButtons(s, rect.col + 1, footRow + 1, strings.get('ui.look.list_keys'), [null, null, first === null || open === undefined ? null : () => open(first)], { width });
   }
   const region = { col: rect.col, row: rect.row + 1, cols: rect.cols, rows: rect.rows - 1 - foot };
   scrolled(s, region, view, `tile:${tile}:${rows.map((r) => `${r.target?.kind ?? ''}${r.target?.id ?? ''}`).join(',')}`, (pen) => {
@@ -617,6 +620,7 @@ export function drawCreatureView(
   view?: LookScroll,
   last: TileIndex | null = null,
   open?: (target: LookTarget) => void,
+  foot?: LookFoot,
 ): void {
   const t = s.theme;
   const sink = view?.sink(`creature:${id}`, open) ?? { links: [], focus: -1, open, seen: new Map() };
@@ -629,10 +633,9 @@ export function drawCreatureView(
     label(s, rect.col + 1, row, text, { fg, width });
     row += 1;
   };
-  if (!creatureShown(readers, id)) {
-    const p = last === null ? null : readers.map.unpack(last);
-    const gone = p === null ? strings.get('ui.look.gone_nowhere') : strings.get('ui.look.gone', { x: p.x, y: p.y, z: p.z });
-    for (const part of wrapHang(gone, width, 0)) pinned(part, t.dim);
+  const gone = creatureGone(readers, id, creatureShown(readers, id), undefined);
+  if (gone !== null) {
+    drawGoneView(s, rect, readers, strings, gone, { name: readers.entities.get(id, C.Creature)?.name ?? '', sub: '', holder: 0, last }, sink, foot);
     if (view !== undefined) view.key = `gone:${id}`;
     return;
   }
@@ -652,12 +655,9 @@ export function drawCreatureView(
     separator(s, rect.col + 1, row, width);
     row += 1;
   }
-  const foot = bottom - row >= 6 ? 2 : 0;
-  if (foot > 0) {
-    separator(s, rect.col + 1, bottom - 2, width);
-    label(s, rect.col + 1, bottom - 1, strings.get('ui.look.creature_keys'), { width });
-  }
-  const region = { col: rect.col, row, cols: rect.cols, rows: bottom - foot - row };
+  const feet = footRows(bottom - row);
+  if (feet > 0) drawLookFoot(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, strings, foot, false);
+  const region = { col: rect.col, row, cols: rect.cols, rows: bottom - feet - row };
   scrolled(s, region, view, `creature:${id}`, (pen) => creatureSections(s, rect, pen, readers, registry, strings, id, dwarf), sink);
 }
 
@@ -860,7 +860,7 @@ export function heldSpans(readers: ReaderSet, registry: Registry, strings: Strin
 }
 
 /** The item view's first line: "Furniture · common · 10 ☼", "Drink · ×20 · 40 ☼". */
-function itemSummary(readers: ReaderSet, strings: Strings, id: EntityId): string {
+export function itemSummary(readers: ReaderSet, strings: Strings, id: EntityId): string {
   const it = readers.of<ItemsReader>('13');
   const rec = it.get(id);
   if (rec === undefined) return '';
@@ -891,6 +891,7 @@ export function drawItemView(
   view?: LookScroll,
   last: TileIndex | null = null,
   open?: (target: LookTarget) => void,
+  foot?: LookFoot,
 ): void {
   const t = s.theme;
   const sink = view?.sink(`item:${id}`, open) ?? { links: [], focus: -1, open, seen: new Map() };
@@ -903,12 +904,9 @@ export function drawItemView(
     label(s, rect.col + 1, row, text, { fg, width });
     row += 1;
   };
-  if (!itemShown(readers, id)) {
-    const gone = readers.entities.alive(id) && has(readers, '13') && readers.of<ItemsReader>('13').get(id) !== undefined;
-    const p = last === null ? null : readers.map.unpack(last);
-    const key = gone ? 'ui.look.gone' : 'ui.look.item_gone';
-    const text = p === null ? strings.get(`${key}_nowhere`) : strings.get(key, { x: p.x, y: p.y, z: p.z });
-    for (const part of wrapHang(text, width, 0)) pinned(part, t.dim);
+  const gone = itemGone(readers, id, itemShown(readers, id), undefined);
+  if (gone !== null) {
+    drawGoneView(s, rect, readers, strings, gone, { name: '', sub: '', holder: 0, last }, sink, foot);
     if (view !== undefined) view.key = `gone:item:${id}`;
     return;
   }
@@ -930,12 +928,9 @@ export function drawItemView(
     separator(s, rect.col + 1, row, width);
     row += 1;
   }
-  const foot = bottom - row >= 6 ? 2 : 0;
-  if (foot > 0) {
-    separator(s, rect.col + 1, bottom - 2, width);
-    label(s, rect.col + 1, bottom - 1, strings.get('ui.look.item_keys'), { width });
-  }
-  const region = { col: rect.col, row, cols: rect.cols, rows: bottom - foot - row };
+  const feet = footRows(bottom - row);
+  if (feet > 0) drawLookFoot(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, strings, foot, false);
+  const region = { col: rect.col, row, cols: rect.cols, rows: bottom - feet - row };
   scrolled(s, region, view, `item:${id}`, (pen) => itemFields(s, pen, readers, registry, strings, id), sink);
 }
 

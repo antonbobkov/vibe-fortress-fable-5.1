@@ -409,6 +409,21 @@ const scenario: Scenario = {
         screen.openPanel(null);
       }
     }
+    // Look's `c` and `f` (T-671): in a creature's view they centre and follow, never Civilizations or Overlays;
+    // an arrow pans and ends follow.
+    screen.openPanel('units');
+    screen.key(press('Enter'));
+    expect(screen.lookAt.kind, 'Enter in Units opens a creature view').toBe('creature');
+    centered = null;
+    expect(screen.key(press('c'))).toBe(true);
+    expect(ui.panel, 'c is Look\'s centre').toBe('look');
+    expect(centered, 'c centres the map').not.toBeNull();
+    expect(screen.key(press('f'))).toBe(true);
+    expect(ui.panel, 'f is Look\'s follow').toBe('look');
+    expect(screen.lookFollow).toBe(true);
+    screen.key(press('←'));
+    expect(screen.lookFollow, 'an arrow ends follow').toBe(false);
+    screen.openPanel(null);
     // `d d` digs: Designate binds its own letter.
     screen.key(press('d'));
     screen.key(press('c'));

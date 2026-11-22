@@ -43,7 +43,9 @@ import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
 import { DepotPanel, depotGaps, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
-import { clickRung, creatureShown, drawCreatureView, drawItemView, drawTileList, itemShown, itemTitle, LookScroll, tileContents, tileListRows, tileTitle, type LookTarget } from '../panels/look';
+import { clickRung, creatureShown, drawCreatureView, drawItemView, drawTileList, itemShown, itemSummary, itemTitle, LookScroll, tileContents, tileListRows, tileTitle, type LookTarget } from '../panels/look';
+import { identityLine, isDwarf } from '../panels/look-dwarf';
+import { creatureGone, deathKiller, drawGoneView, itemGone, type GoneState, type LookEnd, type LookFoot } from '../panels/look-gone';
 import type { ItemsReader } from '@systems/items';
 import { drawLogPanel, drawLogStrip, filterLines, LogView, matchLines, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
@@ -94,11 +96,25 @@ export const HELP_START = 'help_start';
 /**
  * What Look shows (24 § Inspection): the tile list, of the cursor's tile while it is the view and of
  * `tile` in the back history, or one creature or one item held by its id, with its name and the last
- * tile the map showed it on. Presentation state, not saved.
+ * tile the map showed it on; kept from when it was last seen, for when it is gone: the dim line under
+ * the title (`sub`), an item's carrier (`holder`) and its type and material (`kin`, to find the stack it
+ * merged into). Presentation state, not saved.
  */
 export type LookSelection =
   | { readonly kind: 'tile'; readonly tile: TileIndex | null }
-  | { readonly kind: 'creature' | 'item'; readonly id: EntityId; name: string; last: TileIndex | null };
+  | { readonly kind: 'creature' | 'item'; readonly id: EntityId; name: string; last: TileIndex | null; sub?: string; holder?: EntityId; kin?: { type: number; material: number } };
+
+/**
+ * The follow box (24 § Inspection) on one axis: the camera moves only as far as it must to keep `pos`
+ * inside the middle half of a view of `size` cells, clamped to a map `extent` wide.
+ */
+export function followBox(pos: number, cam: number, size: number, extent: number): number {
+  const margin = Math.floor(size / 4);
+  const lo = cam + margin;
+  const hi = cam + size - 1 - margin;
+  const moved = pos < lo ? cam - (lo - pos) : pos > hi ? cam + (pos - hi) : cam;
+  return Math.max(0, Math.min(Math.max(0, extent - size), moved));
+}
 
 export interface FortressSettings {
   /** 24: "`auto-pause on danger` setting is on (default on)". */
@@ -181,6 +197,10 @@ export class FortressScreen implements Screen {
   readonly lookBack: LookSelection[] = [];
   /** How far Look's view is scrolled (24 § Inspection). */
   readonly lookView = new LookScroll();
+  /** Follow (24 § Inspection, `[f]`): the view keeps the creature or the item Look shows inside the middle half of the map. */
+  lookFollow = false;
+  /** How the things Look shows or can go back to ended: a death with its cause and body, an item's destruction (24 § Inspection). */
+  private readonly lookEnds = new Map<EntityId, LookEnd>();
   /** Zones was opened by a click on a zone's tile: map clicks stay the click ladder's, not the zone picker's (24 § Inspection). */
   private zonesByClick = false;
   logFilter: LogFilter = 0;
@@ -364,6 +384,7 @@ export class FortressScreen implements Screen {
     const arrivals = new Map<string, { line: LogLine; count: number; name: string }>();
     for (const event of events) {
       this.orders.onEvent(event);
+      this.noteLookEnd(event);
       if (event.type === 'VeinFound') {
         const material = (event as unknown as { material?: string }).material;
         if (material !== undefined && this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(material)?.deepsilver === true) this.ui.deepFound = true;
@@ -583,8 +604,14 @@ export class FortressScreen implements Screen {
     return out;
   }
 
-  /** Centre the view on a tile (a danger's focus, a log line's). */
+  /** Centre the view on a tile (a danger's focus, a log line's, a job's): the view moves, so follow ends (24 § Inspection). */
   focusOn(tile: TileIndex): void {
+    this.lookFollow = false;
+    this.centreTile(tile);
+  }
+
+  /** Centre the view on a tile and go to its level. */
+  private centreTile(tile: TileIndex): void {
     const map = this.host.readers.map;
     const x = tile % map.w;
     const y = Math.floor(tile / map.w) % map.h;
@@ -1055,6 +1082,8 @@ export class FortressScreen implements Screen {
       if (this.tool.kind === 'traffic') return s.get('ui.status.tool_mode', { tool: name, mode: s.get(`ui.tool.traffic.${this.tool.traffic}`) });
       return s.get('ui.status.tool', { tool: name, priority: this.tool.priority });
     }
+    // 24 § Inspection: what is followed, and how to stop.
+    if (this.lookFollow && this.ui.panel === 'look' && this.ui.sidebar && this.lookAt.kind !== 'tile') return s.get('ui.status.following', { name: this.lookTitle('') });
     if (this.selection !== null) {
       const sel = this.selection;
       const w = Math.abs(sel.a.x - sel.b.x) + 1;
@@ -1277,6 +1306,8 @@ export class FortressScreen implements Screen {
     if (id !== 'look') {
       this.lookAt = { kind: 'tile', tile: null };
       this.lookBack.length = 0;
+      this.lookEnds.clear();
+      this.lookFollow = false;
     }
     this.zonesByClick = false;
     // The log opens on its newest entry, unmarked: a choice holds while the panel stays open (24 § Announcements and the log).
@@ -1356,6 +1387,7 @@ export class FortressScreen implements Screen {
 
   /** The tile list at a tile of the current level; it follows the cursor from there. */
   private showTile(x: number, y: number): void {
+    this.lookFollow = false;
     this.ui.cursor = { x, y };
     this.lookAt = { kind: 'tile', tile: null };
     this.lookView.key = '';
@@ -1367,6 +1399,7 @@ export class FortressScreen implements Screen {
    * view it was opened from for `Backspace`, `back` is `Backspace` returning to it.
    */
   private showCreature(id: EntityId, from: 'fresh' | 'push' | 'back'): void {
+    if (!this.isShown('creature', id)) this.lookFollow = false;
     if (from === 'push') this.pushLook();
     const readers = this.host.readers;
     const p = readers.entities.get(id, C.Position);
@@ -1382,6 +1415,7 @@ export class FortressScreen implements Screen {
    * carrier or a container. `from` as for {@link showCreature}.
    */
   private showItem(id: EntityId, from: 'fresh' | 'push' | 'back'): void {
+    if (!this.isShown('item', id)) this.lookFollow = false;
     if (from === 'push') this.pushLook();
     const readers = this.host.readers;
     const tile = readers.has('13') ? readers.of<ItemsReader>('13').tileOf(id) : -1;
@@ -1511,7 +1545,45 @@ export class FortressScreen implements Screen {
     else this.look(at);
   }
 
-  /** The cursor sits on the creature or the item Look shows, and moves with it; the place it was last seen is kept. */
+  /** Whether Look shows this creature or item now. */
+  private isShown(kind: 'creature' | 'item', id: EntityId): boolean {
+    return this.ui.panel === 'look' && this.ui.sidebar && this.lookAt.kind === kind && this.lookAt.id === id;
+  }
+
+  /** The ids Look shows or can go back to: whose deaths and destructions are kept. */
+  private watched(id: EntityId): boolean {
+    const at = this.lookAt;
+    if (at.kind !== 'tile' && at.id === id) return true;
+    return this.lookBack.some((b) => b.kind !== 'tile' && b.id === id);
+  }
+
+  /** A death (its cause, killer and day, then its body) or an item's destruction (its reason), for a thing Look watches. */
+  private noteLookEnd(event: GameEvent): void {
+    if (this.lookAt.kind === 'tile' && this.lookBack.length === 0) return;
+    const id = Number(event['id'] ?? 0);
+    if (event.type === 'CreatureDied' && this.watched(id)) {
+      this.lookEnds.set(id, { kind: 'died', cause: String(event['cause'] ?? ''), killer: deathKiller(this.host.registry, event), tick: this.host.readers.calendar.tick, corpse: 0 });
+    } else if (event.type === 'CorpseCreated') {
+      const end = this.lookEnds.get(Number(event['creatureId'] ?? 0));
+      if (end?.kind === 'died') end.corpse = id;
+    } else if (event.type === 'ItemDestroyed' && this.watched(id)) this.lookEnds.set(id, { kind: 'destroyed', reason: String(event['reason'] ?? '') });
+  }
+
+  /** How the creature or item Look shows is gone, or null while the map shows it (24 § Inspection). */
+  private lookGone(): GoneState | null {
+    const at = this.lookAt;
+    if (at.kind === 'tile') return null;
+    const readers = this.host.readers;
+    return at.kind === 'creature'
+      ? creatureGone(readers, at.id, creatureShown(readers, at.id), this.lookEnds.get(at.id))
+      : itemGone(readers, at.id, itemShown(readers, at.id), this.lookEnds.get(at.id));
+  }
+
+  /**
+   * The cursor sits on the creature or the item Look shows, and moves with it; the place it was last
+   * seen is kept, with the facts a gone view gives. An item that vanished with no destruction heard
+   * merged into a stack: the view moves to a stack of its type and material at its last place.
+   */
   private trackLook(): void {
     const at = this.lookAt;
     if (at.kind === 'tile' || this.ui.panel !== 'look' || !this.ui.sidebar) return;
@@ -1519,15 +1591,105 @@ export class FortressScreen implements Screen {
     let tile = -1;
     if (at.kind === 'item') {
       tile = itemShown(readers, at.id) ? readers.of<ItemsReader>('13').tileOf(at.id) : -1;
-      if (tile >= 0) at.name = itemTitle(readers, this.host.registry, at.id) || at.name;
+      if (tile >= 0) {
+        const rec = readers.of<ItemsReader>('13').get(at.id);
+        at.name = itemTitle(readers, this.host.registry, at.id) || at.name;
+        at.sub = itemSummary(readers, this.strings, at.id);
+        at.holder = rec !== undefined && rec.carriedBy !== 0 && readers.entities.has(rec.carriedBy, C.Creature) ? rec.carriedBy : 0;
+        if (rec !== undefined) at.kin = { type: rec.type, material: rec.material };
+      } else if (this.mergedInto()) return;
     } else {
       const p = readers.entities.get(at.id, C.Position);
-      if (p !== undefined && creatureShown(readers, at.id)) tile = readers.map.index(p.x, p.y, p.z);
+      if (p !== undefined && creatureShown(readers, at.id)) {
+        tile = readers.map.index(p.x, p.y, p.z);
+        at.sub = isDwarf(readers, at.id) ? identityLine(readers, this.host.registry, this.strings, at.id) : this.speciesName(at.id);
+      }
     }
     if (tile < 0) return;
     at.last = tile;
     const p = readers.map.unpack(tile);
     this.ui.cursor = { x: p.x, y: p.y };
+  }
+
+  /** A creature's species, capitalised: the dim line of a creature that is no dwarf. */
+  private speciesName(id: EntityId): string {
+    const c = this.host.readers.entities.get(id, C.Creature);
+    const name = c === undefined ? '' : this.host.registry.table<{ id: string; name: string }>('creatures').byIndex(c.species)?.name ?? '';
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+  /**
+   * An item gone with no destruction heard merged into another stack (13's `items.merge` emits
+   * nothing): a stack of its type and material on its last tile takes the view, follow kept.
+   */
+  private mergedInto(): boolean {
+    const at = this.lookAt;
+    const readers = this.host.readers;
+    if (at.kind !== 'item' || at.kin === undefined || at.last === null || this.lookEnds.has(at.id) || readers.entities.alive(at.id) || !readers.has('13')) return false;
+    const items = readers.of<ItemsReader>('13');
+    const kin = at.kin;
+    const into = readers.entities.at(at.last).find((other) => {
+      const rec = items.get(other);
+      return rec !== undefined && rec.type === kin.type && rec.material === kin.material;
+    });
+    if (into === undefined) return false;
+    this.lookAt = { kind: 'item', id: into, name: itemTitle(readers, this.host.registry, into), last: at.last };
+    this.lookView.key = '';
+    this.trackLook();
+    return true;
+  }
+
+  /** `[c]` in a creature's or an item's view: centre the view on it, or on where it was last seen, and go to its level. */
+  private lookCentre(): boolean {
+    const tile = this.lookAt.kind !== 'tile' ? this.lookTile() : null;
+    if (tile === null) return false;
+    this.centreTile(tile);
+    return true;
+  }
+
+  /** `[f]` in a creature's or an item's view: follow on (centred once) or off. A gone thing is not followed. */
+  private lookFollowToggle(): boolean {
+    if (this.lookAt.kind === 'tile') return false;
+    if (this.lookFollow) {
+      this.lookFollow = false;
+      return true;
+    }
+    if (this.lookGone() !== null) return true;
+    this.lookFollow = this.lookCentre();
+    return true;
+  }
+
+  /**
+   * Follow, before each frame is composed (24 § Inspection): the view moves only as far as it must to
+   * keep the thing inside the middle half of the map view, and goes to its level when it changes.
+   * Follow ends when Look no longer shows a creature or an item, or the thing is gone.
+   */
+  followView(): void {
+    if (!this.lookFollow) return;
+    this.trackLook();
+    const at = this.lookAt;
+    if (at.kind === 'tile' || this.ui.panel !== 'look' || !this.ui.sidebar || this.lookGone() !== null || at.last === null) {
+      this.lookFollow = false;
+      return;
+    }
+    const map = this.host.readers.map;
+    const p = map.unpack(at.last);
+    const view = this.host.layout().map;
+    this.ui.camX = followBox(p.x, this.ui.camX, view.cols, map.w);
+    this.ui.camY = followBox(p.y, this.ui.camY, view.rows, map.h);
+    this.ui.z = p.z;
+  }
+
+  /** The keys at the foot of a creature's or an item's view, each a button. */
+  private lookFoot(): LookFoot {
+    return {
+      following: this.lookFollow,
+      centre: () => void this.lookCentre(),
+      follow: () => void this.lookFollowToggle(),
+      here: () => void this.lookHere(),
+      back: () => void this.lookBackStep(),
+      link: () => void this.lookView.cycle(1),
+    };
   }
 
   /** Look's title row: the tile list's "Tile (58, 93, z27)", the creature's name, or the item's. */
@@ -1539,13 +1701,20 @@ export class FortressScreen implements Screen {
     return tile === null ? fallback : tileTitle(this.host.readers, this.strings, tile);
   }
 
-  /** Look's view: the creature's, the item's, or the tile list of the cursor's tile. */
+  /** Look's view: the creature's, the item's (or how it is gone), or the tile list of the cursor's tile. */
   private drawLook(surface: Surface, body: Rect): void {
     const at = this.lookAt;
     const readers = this.host.readers;
     const open = (t: LookTarget): void => this.openTarget(t);
-    if (at.kind === 'creature') drawCreatureView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last, open);
-    else if (at.kind === 'item') drawItemView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last, open);
+    const gone = this.lookGone();
+    if (at.kind !== 'tile' && gone !== null) {
+      const key = `gone:${at.kind}:${at.id}`;
+      const sink = this.lookView.sink(key, open);
+      this.lookView.key = key;
+      const facts = { name: this.lookTitle(''), sub: at.sub ?? '', holder: at.kind === 'item' ? at.holder ?? 0 : 0, last: at.last };
+      drawGoneView(surface, body, readers, this.strings, gone, facts, sink, this.lookFoot(), (id) => itemTitle(readers, this.host.registry, id));
+    } else if (at.kind === 'creature') drawCreatureView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last, open, this.lookFoot());
+    else if (at.kind === 'item') drawItemView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last, open, this.lookFoot());
     else drawTileList(surface, body, readers, this.host.registry, this.strings, this.cursorTile(), this.lookView, () => true, open);
   }
 
@@ -1915,6 +2084,7 @@ export class FortressScreen implements Screen {
       if (this.ui.panel !== null) {
         this.clearFilters();
         this.ui.panel = null;
+        this.lookFollow = false;
         if (this.ui.cursor !== null) this.ui.cursor = null;
         this.ui.mark = null;
         return;
@@ -2087,17 +2257,21 @@ export class FortressScreen implements Screen {
           const step = map.shift ? 10 : 1;
           const d = { '←': [-1, 0], '→': [1, 0], '↑': [0, -1], '↓': [0, 1] }[map.arg as '←'] ?? [0, 0];
           // With the cursor live the arrows move it, and the camera follows; otherwise they pan.
+          this.lookFollow = false;
           if (this.cursorLive()) this.moveCursor((d[0] as number) * step, (d[1] as number) * step);
           else this.host.pan((d[0] as number) * step, (d[1] as number) * step);
           return true;
         }
         case 'z_down':
+          this.lookFollow = false;
           this.host.changeZ(-1);
           return true;
         case 'z_up':
+          this.lookFollow = false;
           this.host.changeZ(1);
           return true;
         case 'home':
+          this.lookFollow = false;
           this.host.home();
           return true;
         case 'zoom':
@@ -2216,7 +2390,10 @@ export class FortressScreen implements Screen {
         this.openTarget(link);
         return true;
       }
-      return acceleratorOf(own) === 'h' && this.lookHere();
+      const letter = acceleratorOf(own);
+      if (letter === 'c') return this.lookCentre();
+      if (letter === 'f') return this.lookFollowToggle();
+      return letter === 'h' && this.lookHere();
     }
     const tile = this.cursorTile();
     if (tile === null) return false;
@@ -2667,7 +2844,8 @@ export class FortressScreen implements Screen {
     if (at === null) this.build.clearPlacement();
     else this.build.placementAt(this.ctx, at);
     if (this.middle !== null) {
-      // Middle drag pans: the map follows the pointer.
+      // Middle drag pans: the map follows the pointer, and follow ends.
+      this.lookFollow = false;
       this.host.pan(this.middle.col - p.col, this.middle.row - p.row);
       this.middle = { col: p.col, row: p.row };
       return;
@@ -2676,7 +2854,10 @@ export class FortressScreen implements Screen {
       const map = this.host.layout().map;
       const dx = p.col === map.col ? -1 : p.col === map.col + map.cols - 1 ? 1 : 0;
       const dy = p.row === map.row ? -1 : p.row === map.row + map.rows - 1 ? 1 : 0;
-      if (dx || dy) this.host.pan(dx, dy);
+      if (dx || dy) {
+        this.lookFollow = false;
+        this.host.pan(dx, dy);
+      }
     }
     if (this.dragging && at !== null && this.build.anchor !== null) this.build.end = { x: at.x, y: at.y, z: this.build.anchor.z };
     else if (this.dragging && at !== null && this.zones.anchor !== null) this.zones.end = { x: at.x, y: at.y, z: this.zones.anchor.z };
@@ -2728,6 +2909,7 @@ export class FortressScreen implements Screen {
       return;
     }
     if (w.shift) {
+      this.lookFollow = false;
       this.host.pan(0, w.dy > 0 ? 1 : -1);
       return;
     }
@@ -2744,6 +2926,7 @@ export class FortressScreen implements Screen {
       return;
     }
     // "Wheel: z-level (down = deeper)".
+    this.lookFollow = false;
     this.host.changeZ(w.dy > 0 ? -1 : 1);
   }
 

@@ -63,6 +63,15 @@ test('T-627 look-creature-scroll: the dwarf view scrolls to its relations and ba
   for (let k = 0; k < 30 && (await marks(page)).up; k += 1) await page.mouse.wheel(0, -100);
   await expect.poll(() => textOf(page)).toContain('Needs');
   expect(await marks(page)).toEqual({ up: false, down: true });
+
+  // T-671: `f` follows the dwarf and status row 2 says so; an arrow pans the map and ends it.
+  await page.mouse.move(box.x + 40, box.y + box.height / 2);
+  await page.keyboard.press('f');
+  await expect.poll(() => textOf(page)).toContain('Following ');
+  expect(await textOf(page)).toContain('follow ■ on');
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(() => textOf(page)).not.toContain('Following ');
+  expect(await textOf(page)).toContain('follow off');
   const path = await page.evaluate(() => (window as unknown as { __deepholm: Hook }).__deepholm.screenshotName('look-creature-scroll'));
   await page.screenshot({ path });
   expect(errors).toEqual([]);

@@ -1412,6 +1412,8 @@ export class Game {
       }
       this.widenedCamera = null;
     }
+    // 24 § Inspection: follow moves the view with the thing in Look before the frame is composed.
+    this.fortress.followView();
     const view: ViewState = {
       camX: this.ui.camX,
       camY: this.ui.camY,
