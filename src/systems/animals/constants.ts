@@ -166,6 +166,14 @@ export const NEST_BOX_TAG = 'nest_box';
  * `WILD_THINK_TICKS`. docs/02-systems/08-animals-and-domestication.md § Perception and brains.
  */
 export const TAME_THINK_TICKS = WILD_THINK_TICKS;
+/** `08` § Tame behavior, *Before the hall* (T-675): the chance per think that an idle tame animal sets off on an amble (half for a grazer on grass). */
+export const TAME_AMBLE_PERMILLE = 60;
+/** `08` § Tame behavior, *Before the hall*: an amble's tiles lie within this many tiles of the wagon. */
+export const TAME_AMBLE_RADIUS = 6;
+/** `08` § Tame behavior, *Before the hall*: a cat roams farther. */
+export const CAT_ROAM_RADIUS = 12;
+/** `08` § Tame behavior, *Before the hall*: an amble never ends within this many tiles of a hostile the animal sees. */
+export const TAME_AMBLE_SHY_RADIUS = 8;
 /** The species that adopt a dwarf each season (`08` § Pets: "each `cat` not already a pet"). */
 export const ADOPTING_SPECIES: readonly string[] = Object.freeze(['cat']);
 /** The zone type a grazer is kept in (`08` § Pastures and feeding). */

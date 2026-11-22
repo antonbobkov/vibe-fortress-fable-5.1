@@ -73,6 +73,9 @@ const scenario: Scenario = {
     const drift: TileIndex[] = [];
     for (let x = Math.min(sx, ox); x <= Math.max(sx, ox); x += 1) drift.push(w.index(x, sy, oz));
     for (let y = Math.min(sy, oy); y <= Math.max(sy, oy); y += 1) drift.push(w.index(ox, y, oz));
+    // T-675: the drift is two tiles wide, for stone enough for the three buildings and the forge's blocks. One
+    // tile wide it gave six stones, one short when the smelter was built of raw stone before the mason cut any.
+    for (let x = Math.min(sx, ox); x <= Math.max(sx, ox); x += 1) drift.push(w.index(x, sy + 1, oz));
     const oreTiles: TileIndex[] = [];
     for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
       const t = w.index(ox + dx, oy + dy, oz);
@@ -110,7 +113,7 @@ const scenario: Scenario = {
     const bars = w.events('ItemCreated').filter((e) => e['itemType'] === 'bar' && e['material'] === ore.metal).length;
     const summary = `${trace(w, 'pp_forge')}; ore ${ore.mineral} (${ore.metal}) at (${ox}, ${oy}, ${oz}), ${dig.length} tiles to dig, ` +
       `${dig.filter((t) => map.kindAt(t) === TileKind.Wall).length} left; shops ${JSON.stringify(Object.fromEntries(Object.entries(shops).map(([k, id]) => [k, built(w, id)])))}; ` +
-      `ore items ${mined}; bars ${bars}; crafts ${crafts().length}, stored ${stored().length}; stone ${items.count('raw_stone')}, blocks ${items.count('stone_block')}`;
+      `ore items ${mined}; bars ${bars}; crafts ${crafts().length}, stored ${stored().length}; stone ${items.count('raw_stone')}, blocks ${items.count('stone_block')}, stone dug ${w.events('ItemCreated').filter((e) => e['itemType'] === 'raw_stone').length}`;
     console.log(summary);
     expect(mined, `the ore was mined; ${summary}`).toBeGreaterThan(0);
     expect(bars, `the ore was smelted; ${summary}`).toBeGreaterThan(0);
