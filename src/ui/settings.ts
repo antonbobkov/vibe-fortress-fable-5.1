@@ -29,6 +29,11 @@ export interface UserSettings {
   introStyle: 'deep' | 'hall';
   /** The map's designations do not blink (23 § Animation). */
   reducedMotion: boolean;
+  /**
+   * The preset of the last embark, which the next embark screen opens with (`embark.md` § Presets
+   * menu); '' before the first embark. Saved, not shown, and kept by Reset to defaults.
+   */
+  embarkPreset: string;
 }
 
 /** A stored volume: a step of 0 to 100, or the default. */
@@ -57,6 +62,7 @@ export function readSettings(value: unknown): UserSettings {
     introSeen: bool('introSeen'),
     tutorialOffered: bool('tutorialOffered'),
     reducedMotion: bool('reducedMotion'),
+    embarkPreset: typeof row['embarkPreset'] === 'string' ? row['embarkPreset'] : DEFAULT_USER_SETTINGS.embarkPreset,
     introStyle: SETTINGS_INTRO_STYLE_OPTIONS.includes(row['introStyle'] as typeof SETTINGS_INTRO_STYLE_OPTIONS[number]) ? row['introStyle'] as UserSettings['introStyle'] : DEFAULT_USER_SETTINGS.introStyle,
   };
 }

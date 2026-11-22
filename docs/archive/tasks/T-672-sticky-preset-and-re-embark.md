@@ -1,5 +1,7 @@
 # T-672 — The embark preset is remembered, and a fortress can be abandoned for a new embark on the same world
 
+**Closed:** 2026-11-21, in 9de25819.
+
 **Source:** the owner's feedback of 2026-11-21 · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
@@ -12,4 +14,6 @@ Remember the last embark preset (and other embark choices worth remembering) in 
 
 ## Done
 
-Tests: the preset survives a reload; abandon then re-embark keeps the world seed and offers the site choice.
+- [x] Tests: the preset survives a reload; abandon then re-embark keeps the world seed and offers the site choice (`test/unit/ui/t672-sticky-preset.test.ts`).
+- [x] Abandon did not exist (only Retire, which ended at the main menu). Added `Abandon fortress` (`[a]`, `c_abandon`) to the game menu; a retired or fallen fortress's legend offers `[Enter] New embark on this world`; the world map names past fortresses as ruins from the Legends.
+- [x] Spec: `ui-screens/menus-and-world.md` § A new embark on the same world, 24 § Game menu, `embark.md` § Presets menu, 02 § Presets.

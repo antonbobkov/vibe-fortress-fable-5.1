@@ -125,6 +125,13 @@ export interface EmbarkHost {
   loadouts?: LoadoutLibrary;
   /** The `text_input` dialog, for a loadout's name. */
   prompt?(spec: TextInputSpec, answer: (text: string | null) => void): void;
+  /**
+   * The preset of the last embark (`embark.md` § Presets menu): the screen opens with it applied
+   * when it is a known preset, and with the default otherwise.
+   */
+  preset?: string;
+  /** On Embark, the preset to remember for the next embark: the testing preset in testing mode. */
+  rememberPreset?(id: string): void;
 }
 
 /** The presets menu's last option, which opens the saved loadouts panel. */
@@ -211,8 +218,11 @@ export class EmbarkScreen implements Screen {
     this.traitNames = new Map(traits.ids().map((id) => [id, (traits.byId(id) as TraitRow).name]));
     const presets = registry.table<EmbarkPresetRow>('embarkPresets');
     this.presetRows = presets.ids().map((id) => presets.byId(id) as EmbarkPresetRow);
-    // `02` § Presets: "The screen opens with `balanced` applied" (D-U3, audit Q1).
-    if (presets.has(EMBARK_DEFAULT_PRESET)) this.applyPreset(EMBARK_DEFAULT_PRESET);
+    // `02` § Presets: "The screen opens with `balanced` applied" (D-U3, audit Q1), or with the
+    // last embark's preset (T-672).
+    const last = host.preset;
+    if (last !== undefined && (last === TESTING_PRESET_ID || presets.has(last))) this.applyPreset(last);
+    else if (presets.has(EMBARK_DEFAULT_PRESET)) this.applyPreset(EMBARK_DEFAULT_PRESET);
     const library = host.loadouts;
     this.loadouts = library === undefined ? null : new LoadoutsPanel({
       library,
@@ -543,6 +553,8 @@ export class EmbarkScreen implements Screen {
   private embarkNow(): void {
     this.apply({ type: 'SetFortressName', name: normalizeName(this.fortressName.value) });
     if (!this.session.apply({ type: 'ConfirmEmbark' }).ok) return;
+    const preset = this.testing ? TESTING_PRESET_ID : this.session.preset;
+    if (preset !== null) this.host.rememberPreset?.(preset);
     this.host.embark(this.session);
   }
 
