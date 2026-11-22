@@ -3,7 +3,7 @@ import { PRIORITY_MIN, PRIORITY_MAX } from '@core/constants';
 import type { EntityId, Quality } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
-import { CATEGORY_TREE, STOCKPILE_PRESETS, defaultStockpile } from '@systems/items';
+import { CATEGORY_TREE, STOCKPILE_MATERIAL_TAGS, STOCKPILE_PRESETS, defaultStockpile } from '@systems/items';
 import { STOCKPILE_QUALITY_MIN, STOCKPILE_QUALITY_MAX } from '../constants';
 import { acceleratorLabel } from '../keymap';
 import { capitalize, stockpilePreset, stockpilePresetName, zoneEditorMessage, zoneName } from '../messages';
@@ -74,10 +74,23 @@ export class StockpileEditor {
     return [...new Set(ctx.registry.table<{ id: string; class: string }>('materials').rows.slice(1).map((r) => r.class))].sort();
   }
 
+  /** The checklist's rows after Any: the material classes, then the material tags (T-665: flux stone). */
+  materialRows(ctx: PanelContext): number {
+    return this.classes(ctx).length + STOCKPILE_MATERIAL_TAGS.length;
+  }
+
   toggleMaterial(ctx: PanelContext, zoneId: EntityId, index: number): void {
     const f = stockpileForEditor(ctx, zoneId)?.filter;
     if (f === undefined) { this.fail(ctx, 'unavailable'); return; }
     const classes = this.classes(ctx);
+    // 13 § Stockpiles (T-665): a tag row takes its materials whatever the classes allow, and leaves the classes as they are.
+    const tag = STOCKPILE_MATERIAL_TAGS[index - 1 - classes.length];
+    if (tag !== undefined) {
+      const tags = new Set(f.materialTags ?? []);
+      if (tags.has(tag)) tags.delete(tag); else tags.add(tag);
+      ctx.submit({ type: 'SetStockpileFilter', zoneId, filter: { ...f, materialTags: [...tags].sort() } });
+      return;
+    }
     let materialClasses: string[] | 'any';
     if (index === 0) materialClasses = f.materialClasses === 'any' ? [] : 'any';
     else {
@@ -200,7 +213,7 @@ export class StockpileEditor {
     }
     if (this.materialsOpen) {
       if (up || down) {
-        this.materials.selected = Math.max(0, Math.min(this.classes(ctx).length, this.materials.selected + (up ? -1 : 1)));
+        this.materials.selected = Math.max(0, Math.min(this.materialRows(ctx), this.materials.selected + (up ? -1 : 1)));
         return true;
       }
       if (space || k === 'Enter') { this.toggleMaterial(ctx, zoneId, this.materials.selected); return true; }
@@ -287,7 +300,8 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
     const classes = editor.classes(ctx);
     const checked = (id: string): boolean => sp.filter.materialClasses === 'any' || sp.filter.materialClasses.includes(id);
     const rows = [`[${sp.filter.materialClasses === 'any' ? '■' : '□'}] ${strings.get('ui.build.any')}`,
-      ...classes.map((id) => `[${checked(id) ? '■' : '□'}] ${strings.get(`ui.stockpile.class.${id}`)}`)];
+      ...classes.map((id) => `[${checked(id) ? '■' : '□'}] ${strings.get(`ui.stockpile.class.${id}`)}`),
+      ...STOCKPILE_MATERIAL_TAGS.map((tag) => `[${sp.filter.materialTags?.includes(tag) === true ? '■' : '□'}] ${strings.get(`ui.stockpile.tag.${tag}`)}`)];
     list(s, { col, row, cols: width, rows: Math.max(1, rect.rows - 3) }, rows, editor.materials,
       (index) => { editor.materials.selected = index; editor.toggleMaterial(ctx, zoneId, index); });
     label(s, col, rect.row + rect.rows - 1, strings.get('ui.stockpile.material_help'), { width, fg: s.theme.dim });
@@ -338,7 +352,8 @@ export function drawStockpileEditor(s: Surface, rect: Rect, editor: StockpileEdi
     if (editor.focus === field) s.invert({ col, row, cols: Math.min(width, 15), rows: 1 });
     row += 1;
   }
-  const classes = sp.filter.materialClasses === 'any' ? strings.get('ui.build.any') : sp.filter.materialClasses.map((id) => strings.get(`ui.stockpile.class.${id}`)).join(', ');
+  const classes = sp.filter.materialClasses === 'any' ? strings.get('ui.build.any')
+    : [...sp.filter.materialClasses.map((id) => strings.get(`ui.stockpile.class.${id}`)), ...(sp.filter.materialTags ?? []).map((tag) => strings.get(`ui.stockpile.tag.${tag}`))].join(', ');
   label(s, col, row++, strings.get('ui.stockpile.materials', { classes, min: sp.filter.minQuality, max: sp.filter.maxQuality }), { width });
   label(s, col, row++, strings.get('ui.stockpile.priority', { n: sp.priority }), { width });
   label(s, col, row++, strings.get('ui.stockpile.links', { names: editor.sourceIds(ctx, zoneId).map(id => zoneName(ctx, id)).join(', ') || strings.get('ui.stockpile.no_links') }), { width });

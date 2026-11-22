@@ -115,7 +115,7 @@ interface Workshop { orders: WorkOrder[]; currentJobId: number; suspended: boole
                      magmaPowered: boolean; lastBlockedReason: string | null;
                      outOfReach?: OutOfReach[] /* 12 § Operation 2; absent: none */ }
 interface Zone { type: Idx<ZoneTypeDef>; tiles: TileIndex[] /* sorted */; settings: Record<string, unknown> }
-interface StockpileFilter { categories: string[]; materialClasses: string[] | 'any'; minQuality: Quality; maxQuality: Quality; allowRot: boolean }
+interface StockpileFilter { categories: string[]; materialClasses: string[] | 'any'; materialTags?: string[]; minQuality: Quality; maxQuality: Quality; allowRot: boolean }
 interface Stockpile { filter: StockpileFilter; containersWanted: { barrel: number; bag: number; bin: number };
                       priority: Priority; linkedSources: EntityId[];
                       cellar?: true /* the cellar setting (13 § Aging in a cellar); absent: off */;

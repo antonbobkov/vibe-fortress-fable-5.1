@@ -50,6 +50,7 @@ export { ItemSearch, matches, type ItemFilter, type SearchOptions } from './sear
 export {
   StockpileStore,
   STOCKPILE_PRESETS,
+  STOCKPILE_MATERIAL_TAGS,
   CATEGORY_TREE,
   emptyFilter,
   defaultStockpile,

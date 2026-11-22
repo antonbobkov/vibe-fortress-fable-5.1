@@ -369,6 +369,8 @@ export interface Zone {
 export interface StockpileFilter {
   categories: string[];
   materialClasses: string[] | 'any';
+  /** 13 § Stockpiles (T-665): material tags whose materials are taken whatever the classes allow (`flux`); absent: none. Sorted. */
+  materialTags?: string[];
   minQuality: Quality;
   maxQuality: Quality;
   allowRot: boolean;

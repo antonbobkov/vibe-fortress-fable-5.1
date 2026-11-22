@@ -21,6 +21,9 @@ import type { ItemCore } from './api';
 import { categoryUnder } from './facts';
 
 /** The container classes a stockpile can want (`Stockpile.containersWanted`). */
+/** 13 § Stockpiles (T-665): the material tags a stockpile filter may name beside its classes. */
+export const STOCKPILE_MATERIAL_TAGS: readonly string[] = Object.freeze(['flux']);
+
 export const WANTED_CLASSES: readonly ('barrel' | 'bag' | 'bin')[] = ['barrel', 'bag', 'bin'];
 
 /**
@@ -387,7 +390,9 @@ export class StockpileStore {
     const facts = this.core.host.facts;
     const cat = this.categoryOf(it);
     if (!filter.categories.some((node) => categoryUnder(cat, node))) return false;
-    if (filter.materialClasses !== 'any' && !filter.materialClasses.includes(facts.materialClass(it.material))) return false;
+    // A material passes when its class is allowed or it carries a tag the filter names (T-665: flux stone alone).
+    if (filter.materialClasses !== 'any' && !filter.materialClasses.includes(facts.materialClass(it.material)) &&
+      !(filter.materialTags ?? []).some((tag) => facts.materialHasTag(it.material, tag))) return false;
     // A type that bears no quality has none to range over (D-071).
     if (facts.row(it.type).quality && (it.quality < filter.minQuality || it.quality > filter.maxQuality)) return false;
     if (it.rotStage >= 2 && !filter.allowRot) return false;
