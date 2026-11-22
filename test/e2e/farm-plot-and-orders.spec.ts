@@ -249,6 +249,8 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
       if (!result.ok) throw new Error(`${cmd.type}: ${result.reason}`);
     }
   }, still);
+  // T-680: Esc goes from the plot's settings back to the Zones menu, then closes Zones.
+  await page.keyboard.press('Escape');
   await page.keyboard.press('Escape');
   // U-03 (D-U5): `[n]` opens the order picker; typing filters it; Enter adds. The mode and the
   // material of the order are `[m]` and `[f]` (`m` and `f` open panels, D-U2).
