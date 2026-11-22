@@ -1,0 +1,53 @@
+// T-662: the immigration rolls the sweep's fortresses met, against their chance, by peril and year.
+// The z of the first table treats every shift's roll as its own; the shifts share them (T-652), so read luck from the distinct seed-seasons.
+// usage: node rolls.mjs <dir> [<dir> ...]   each dir holds shift-<n>/three-years-*.log (seed-* artifacts, merged)
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+const recs = [];
+const seasonRolls = new Map(); // seed|year|season -> roll
+for (const dir of process.argv.slice(2)) {
+  for (const name of readdirSync(dir).filter((n) => /^shift-\d+$/.test(n))) {
+    for (const f of readdirSync(join(dir, name)).filter((f) => /^three-years-p\d-\d+\.log$/.test(f))) {
+      const text = readFileSync(join(dir, name, f), 'utf8');
+      const line = text.split('\n').find((l) => l.includes('[three_years_economy] '));
+      if (!line) { console.error(`no economy line: ${name}/${f}`); continue; }
+      const e = JSON.parse(line.slice(line.indexOf('[three_years_economy] ') + 22));
+      for (const im of e.immigration) {
+        if (im.roll === null || im.outcome === 'deferred:raid' || im.outcome === 'no_population') continue;
+        const key = `${e.seed}|${im.year}|${im.season}`;
+        if (seasonRolls.has(key) && seasonRolls.get(key) !== im.roll) console.error(`roll differs: ${key} ${name}`);
+        seasonRolls.set(key, im.roll);
+        recs.push({ seed: e.seed, peril: e.peril, shift: Number(name.slice(6)), year: im.year, season: im.season, roll: im.roll, p: im.probability, wave: im.outcome === 'wave', size: im.waveSize ?? 0 });
+      }
+    }
+  }
+}
+const shifts = [...new Set(recs.map((r) => r.shift))].sort((a, b) => a - b);
+console.log(`${recs.length} rolled evaluations over shifts ${shifts.join(',')}; ${seasonRolls.size} distinct seed-seasons rolled`);
+console.log('\n| Peril | Year | Rolls | Under chance | Rate | Mean chance | Expected | z | Waves | Immigrants |');
+console.log('|---|---|---|---|---|---|---|---|---|---|');
+const row = (rs, label) => {
+  const under = rs.filter((r) => r.roll < r.p).length;
+  const exp = rs.reduce((t, r) => t + r.p / 1000, 0);
+  const v = rs.reduce((t, r) => t + (r.p / 1000) * (1 - r.p / 1000), 0);
+  const waves = rs.filter((r) => r.wave).length;
+  const imm = rs.reduce((t, r) => t + r.size, 0);
+  console.log(`| ${label} | ${rs.length} | ${under} | ${(100 * under / rs.length).toFixed(0)}% | ${(100 * exp / rs.length).toFixed(1)}% | ${exp.toFixed(1)} | ${((under - exp) / Math.sqrt(v)).toFixed(2)} | ${waves} | ${imm} |`);
+};
+for (const peril of [0, 2, 4]) for (const year of [1, 2, 3]) {
+  const rs = recs.filter((r) => r.peril === peril && r.year === year);
+  if (rs.length) row(rs, `${peril} | ${year}`);
+}
+for (const peril of [0, 2, 4]) row(recs.filter((r) => r.peril === peril), `${peril} | all`);
+row(recs, 'all | all');
+// Distinct seed-seasons: the seed set's own luck, each season counted once however many shifts rolled it.
+console.log('\nDistinct seed-seasons rolled (each counted once), under 700:');
+for (const peril of [0, 2, 4]) for (const year of [1, 2, 3]) {
+  const ks = [...seasonRolls.entries()].filter(([k]) => k.startsWith(`three-years-p${peril}-`) && k.split('|')[1] === String(year));
+  const under = ks.filter(([, r]) => r < 700).length;
+  const n = ks.length, e = 0.7 * n, z = n ? (under - e) / Math.sqrt(n * 0.21) : 0;
+  console.log(`  peril ${peril} year ${year}: ${under} of ${n} (${n ? (100 * under / n).toFixed(0) : '-'}%), ${e.toFixed(1)} expected at 70%, z ${z.toFixed(2)}`);
+}
+// Per shift: rolls and immigrants (how much of the spread the shared rolls leave).
+console.log('\nPer shift: rolls, under chance, immigrants');
+for (const s of shifts) { const rs = recs.filter((r) => r.shift === s); console.log(`  ${s}: ${rs.length}, ${rs.filter((r) => r.roll < r.p).length}, ${rs.reduce((t, r) => t + r.size, 0)}`); }

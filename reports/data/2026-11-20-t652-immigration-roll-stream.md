@@ -39,6 +39,6 @@ At peril 4 in year 3, 45 waves from 58 rolls at a 70.3% chance (40.8 waves expec
 
 ## What this changes for the sweep
 
-Two codes are now compared on the same rolls, so a change that resizes one wave no longer moves a living figure through the rolls. The four shifts also share the rolls, though. They still differ in the timeline, but no longer in the immigration luck, so the pooled figure carries the luck of these twenty seeds' fixed rolls. The tolerances (`SWEEP_TOLERANCE`) and the best figures were measured when each shift drew its own rolls. A follow-up re-measures the spread under the fixed rolls: [the sweep's noise under fixed immigration rolls](../../docs/work/T-662-sweep-noise-fixed-rolls.md).
+Two codes are now compared on the same rolls, so a change that resizes one wave no longer moves a living figure through the rolls. The four shifts also share the rolls, though. They still differ in the timeline, but no longer in the immigration luck, so the pooled figure carries the luck of these twenty seeds' fixed rolls. The tolerances (`SWEEP_TOLERANCE`) and the best figures were measured when each shift drew its own rolls. A follow-up re-measures the spread under the fixed rolls: [the sweep's noise under fixed immigration rolls](../../docs/archive/tasks/T-662-sweep-noise-fixed-rolls.md).
 
 The script used for these figures (it reads the downloaded seed logs only) rebuilds the wave size from 21 § Wave size. It can be rerun on the two runs' `seed-*` artifacts while GitHub keeps them (14 days).
