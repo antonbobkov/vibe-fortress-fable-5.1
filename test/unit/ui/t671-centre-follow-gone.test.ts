@@ -362,6 +362,9 @@ describe('T-671 when the thing is gone', () => {
     f.screen.key(press('f'));
     sidebar(f);
     expect(f.w.items.merge(a, b)).toBe(true);
+    // T-684: 13's `ItemMerged` names the stack.
+    f.w.step(1);
+    deliver(f, f.w.events('ItemMerged').slice());
     f.screen.followView();
     expect(f.screen.lookAt).toMatchObject({ kind: 'item', id: a });
     expect(f.screen.lookFollow).toBe(true);

@@ -97,12 +97,11 @@ export const HELP_START = 'help_start';
  * What Look shows (24 § Inspection): the tile list, of the cursor's tile while it is the view and of
  * `tile` in the back history, or one creature or one item held by its id, with its name and the last
  * tile the map showed it on; kept from when it was last seen, for when it is gone: the dim line under
- * the title (`sub`), an item's carrier (`holder`) and its type and material (`kin`, to find the stack it
- * merged into). Presentation state, not saved.
+ * the title (`sub`) and an item's carrier (`holder`). Presentation state, not saved.
  */
 export type LookSelection =
   | { readonly kind: 'tile'; readonly tile: TileIndex | null }
-  | { readonly kind: 'creature' | 'item'; readonly id: EntityId; name: string; last: TileIndex | null; sub?: string; holder?: EntityId; kin?: { type: number; material: number } };
+  | { readonly kind: 'creature' | 'item'; readonly id: EntityId; name: string; last: TileIndex | null; sub?: string; holder?: EntityId };
 
 /**
  * The follow box (24 § Inspection) on one axis: the camera moves only as far as it must to keep `pos`
@@ -394,9 +393,11 @@ export class FortressScreen implements Screen {
     this.ensureRegistered();
     const readers = this.host.readers;
     const arrivals = new Map<string, { line: LogLine; count: number; name: string }>();
+    const merges = new Map<EntityId, EntityId>();
     for (const event of events) {
       this.orders.onEvent(event);
       this.noteLookEnd(event);
+      if (event.type === 'ItemMerged') merges.set(Number(event['id'] ?? 0), Number(event['into'] ?? 0));
       if (event.type === 'VeinFound') {
         const material = (event as unknown as { material?: string }).material;
         if (material !== undefined && this.host.registry.table<{ id: string; deepsilver?: boolean }>('minerals').byId(material)?.deepsilver === true) this.ui.deepFound = true;
@@ -461,6 +462,8 @@ export class FortressScreen implements Screen {
         if (done.focus !== undefined) this.focusLine(done.focus);
       }
     }
+    // T-684: a line naming a stack that merged names the stack it joined.
+    if (merges.size > 0) this.log.followMerges(merges);
     this.hints.onEvents(events, readers, this.settings.hintsEnabled);
   }
 
@@ -1646,14 +1649,16 @@ export class FortressScreen implements Screen {
     return this.ui.panel === 'look' && this.ui.sidebar && this.lookAt.kind === kind && this.lookAt.id === id;
   }
 
-  /** The ids Look shows or can go back to: whose deaths and destructions are kept. */
+  /** The ids Look shows or can go back to, and the stacks they merged into: whose deaths, destructions and merges are kept. */
   private watched(id: EntityId): boolean {
     const at = this.lookAt;
     if (at.kind !== 'tile' && at.id === id) return true;
-    return this.lookBack.some((b) => b.kind !== 'tile' && b.id === id);
+    if (this.lookBack.some((b) => b.kind !== 'tile' && b.id === id)) return true;
+    for (const end of this.lookEnds.values()) if (end.kind === 'merged' && end.into === id) return true;
+    return false;
   }
 
-  /** A death (its cause, killer and day, then its body) or an item's destruction (its reason), for a thing Look watches. */
+  /** A death (its cause, killer and day, then its body), an item's destruction (its reason) or its merge (the stack it joined, T-684), for a thing Look watches. */
   private noteLookEnd(event: GameEvent): void {
     if (this.lookAt.kind === 'tile' && this.lookBack.length === 0) return;
     const id = Number(event['id'] ?? 0);
@@ -1663,6 +1668,7 @@ export class FortressScreen implements Screen {
       const end = this.lookEnds.get(Number(event['creatureId'] ?? 0));
       if (end?.kind === 'died') end.corpse = id;
     } else if (event.type === 'ItemDestroyed' && this.watched(id)) this.lookEnds.set(id, { kind: 'destroyed', reason: String(event['reason'] ?? '') });
+    else if (event.type === 'ItemMerged' && this.watched(id)) this.lookEnds.set(id, { kind: 'merged', into: Number(event['into'] ?? 0) });
   }
 
   /** How the creature or item Look shows is gone, or null while the map shows it (24 § Inspection). */
@@ -1677,8 +1683,8 @@ export class FortressScreen implements Screen {
 
   /**
    * The cursor sits on the creature or the item Look shows, and moves with it; the place it was last
-   * seen is kept, with the facts a gone view gives. An item that vanished with no destruction heard
-   * merged into a stack: the view moves to a stack of its type and material at its last place.
+   * seen is kept, with the facts a gone view gives. An item that merged into a stack (13's
+   * `ItemMerged`) moves the view to that stack.
    */
   private trackLook(): void {
     const at = this.lookAt;
@@ -1692,7 +1698,6 @@ export class FortressScreen implements Screen {
         at.name = itemTitle(readers, this.host.registry, at.id) || at.name;
         at.sub = itemSummary(readers, this.strings, at.id);
         at.holder = rec !== undefined && rec.carriedBy !== 0 && readers.entities.has(rec.carriedBy, C.Creature) ? rec.carriedBy : 0;
-        if (rec !== undefined) at.kin = { type: rec.type, material: rec.material };
       } else if (this.mergedInto()) return;
     } else {
       const p = readers.entities.get(at.id, C.Position);
@@ -1715,21 +1720,22 @@ export class FortressScreen implements Screen {
   }
 
   /**
-   * An item gone with no destruction heard merged into another stack (13's `items.merge` emits
-   * nothing): a stack of its type and material on its last tile takes the view, follow kept.
+   * An item that merged into another stack (13's `ItemMerged`, T-684): the stack it joined takes the
+   * view, follow kept, through every merge heard since.
    */
   private mergedInto(): boolean {
     const at = this.lookAt;
     const readers = this.host.readers;
-    if (at.kind !== 'item' || at.kin === undefined || at.last === null || this.lookEnds.has(at.id) || readers.entities.alive(at.id) || !readers.has('13')) return false;
-    const items = readers.of<ItemsReader>('13');
-    const kin = at.kin;
-    const into = readers.entities.at(at.last).find((other) => {
-      const rec = items.get(other);
-      return rec !== undefined && rec.type === kin.type && rec.material === kin.material;
-    });
-    if (into === undefined) return false;
-    this.lookAt = { kind: 'item', id: into, name: itemTitle(readers, this.host.registry, into), last: at.last };
+    if (at.kind !== 'item') return false;
+    const end = this.lookEnds.get(at.id);
+    if (end?.kind !== 'merged') return false;
+    let into = end.into;
+    for (let hops = 0; hops < 64; hops += 1) {
+      const next = this.lookEnds.get(into);
+      if (next?.kind !== 'merged') break;
+      into = next.into;
+    }
+    this.lookAt = { kind: 'item', id: into, name: itemTitle(readers, this.host.registry, into) || at.name, last: at.last };
     this.lookView.key = '';
     this.trackLook();
     return true;

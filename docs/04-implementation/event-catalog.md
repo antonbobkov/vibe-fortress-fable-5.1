@@ -95,6 +95,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `WorkOrderSkipped` | `workshopId, recipeId, input` | 12 (an order skipped as out of reach, once until an order of its kind starts) | ui |
 | `ItemCreated` | `id, itemType, material, count` | 13 | 11, 12, 16, 17 |
 | `ItemDestroyed` | `id, itemType, reason, crafterId` | 13 | 11, 12, 15 |
+| `ItemMerged` | `id, into, count` | 13 (`items.merge`: stack `id` joined stack `into` and is gone, with no `ItemDestroyed`) | 11, ui |
 | `ItemRotStage` / `ItemRotted` | `id, stage` / `id` | 13 | ui (none) |
 | `ItemAged` | `id, stage` | 13 (a stage gained in a working cellar) | ui (none) |
 | `MiasmaSpread` | `tiles[]` | 13 | 17 (infection modifier), ui |

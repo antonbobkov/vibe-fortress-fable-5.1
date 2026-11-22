@@ -220,7 +220,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Item API (mutation, called by 11, 12, 10, 14, 16, 20)
 
-`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)`, `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `setEnchant(itemId, { id, tier })` (12's setting of a stone; value and wealth are re-accounted), `setStuffing(itemId, material)` (12's record of a `stuffed` item's stuffing; value and wealth are re-accounted), `setOccupant(itemId, creatureId)` (the creature a cage holds, 0 when released), `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation).
+`attachToCarrier`, `dropAt`, `putIn`, `takeOut`, `split(itemId, count)`, `merge(a, b)` (`b` is gone: `ItemMerged { id: b, into: a, count }`), `consume(itemId, count)`, `destroy(itemId, reason)`, `setFlag(itemId, flag, on)`, `setOwner(itemId, dwarfId)`, `setEnchant(itemId, { id, tier })` (12's setting of a stone; value and wealth are re-accounted), `setStuffing(itemId, material)` (12's record of a `stuffed` item's stuffing; value and wealth are re-accounted), `setOccupant(itemId, creatureId)` (the creature a cage holds, 0 when released), `reserve(itemId, holderId)`, `release(itemId)` (the caller emits `ItemReleased` when releasing a held reservation).
 
 ### Commands
 
@@ -234,7 +234,7 @@ Filters: `{ type | types (any of several types) | category | tag, materialClass 
 
 ### Events emitted
 
-`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `ItemAged { id, stage }`, `ItemDestroyed { reason: 'composted' }` for an item turned on a compost heap, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`, and `ItemReleased { itemId, jobId }` when creature-removal cleanup releases a personal reservation.
+`ItemCreated { id, itemType, material, count }`, `ItemDestroyed { id, itemType, reason, crafterId }` (type and material are content ids), `ItemMerged { id, into, count }` when `items.merge` ends stack `id` in stack `into` (`count` units joined; no `ItemDestroyed`, T-684), `ItemRotStage { id, stage }`, `ItemRotted { id }`, `ItemAged { id, stage }`, `ItemDestroyed { reason: 'composted' }` for an item turned on a compost heap, `MiasmaSpread { tiles[] }`, `StocksChanged { types[] }`, `StockpileFull { id }`, `WealthChanged { wealth }`, `CorpseCreated { itemId, creatureId }`, and `ItemReleased { itemId, jobId }` when creature-removal cleanup releases a personal reservation.
 
 ### Registrations
 

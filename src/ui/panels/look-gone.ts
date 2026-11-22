@@ -23,7 +23,8 @@ import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, ty
 /** What the fortress heard of a thing's end, from the event that ended it (presentation state). */
 export type LookEnd =
   | { readonly kind: 'died'; readonly cause: string; readonly killer: string; readonly tick: number; corpse: EntityId }
-  | { readonly kind: 'destroyed'; readonly reason: string };
+  | { readonly kind: 'destroyed'; readonly reason: string }
+  | { readonly kind: 'merged'; readonly into: EntityId };
 
 /** How a thing in view is gone (24 § Inspection), or null while the map shows it. */
 export type GoneState =

@@ -59,6 +59,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
     'FluidsChanged',
     'ItemCreated',
     'ItemDestroyed',
+    'ItemMerged',
     'ItemReleased',
     'StocksChanged',
     'CreatureDied',
@@ -155,6 +156,30 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
         }
       }
       board.trigger('missing_input');
+    } else if (type === 'ItemMerged') {
+      // T-684: a stack a job lists merged into another. Stacks merge only under one reservation, so
+      // a stack still this job's follows into the stack it joined; one whose reservation lapsed is
+      // dropped as a destroyed one is, and the job fetches again.
+      const itemId = event['id'] as EntityId;
+      const into = event['into'] as EntityId;
+      let dropped = false;
+      for (const id of board.ids) {
+        const job = board.jobs.get(id);
+        if (job === undefined) continue;
+        const follows = ctx.world.entities.get(into, C.Item)?.reservedBy === job.id;
+        for (const input of job.inputs) {
+          for (const key of ['reserved', 'delivered'] as const) {
+            const list = input[key];
+            if (!list.includes(itemId)) continue;
+            input[key] = follows && !list.includes(into) ? list.map((it) => (it === itemId ? into : it)) : list.filter((it) => it !== itemId);
+            if (!follows) {
+              job.data['inputsInvalidated'] = true;
+              dropped = true;
+            }
+          }
+        }
+      }
+      if (dropped) board.trigger('missing_input');
     } else if (type === 'ItemReleased' || type === 'StocksChanged') {
       board.trigger('missing_input');
     } else if (type === 'ToolDropped') {

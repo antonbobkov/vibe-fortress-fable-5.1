@@ -661,7 +661,10 @@ export class ItemCore implements ItemsApi {
     );
   }
 
-  /** `items.merge(a, b)`: `b` joins stack `a` and is gone; the units and the value are unchanged. */
+  /**
+   * `items.merge(a, b)`: `b` joins stack `a` and is gone; the units and the value are unchanged.
+   * `ItemMerged { id: b, into: a, count }` (T-684) names the stack, so whoever holds `b` follows it or lets it go.
+   */
   merge(a: EntityId, b: EntityId): boolean {
     if (!this.canMerge(a, b)) return false;
     const y = this.item(b);
@@ -672,6 +675,7 @@ export class ItemCore implements ItemsApi {
     // 13 § Aging in a cellar: a merged stack keeps the fewer cellar days of the two.
     const days = Math.min(x.cellarDays ?? 0, y.cellarDays ?? 0);
     if ((x.cellarDays ?? 0) !== days) this.setAge(a, x.age ?? 0, days);
+    this.host.emit({ type: 'ItemMerged', id: b, into: a, count: y.count });
     this.notify(b, 'destroyed');
     this.notify(a, 'count');
     return true;
