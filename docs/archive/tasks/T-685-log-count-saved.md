@@ -1,5 +1,7 @@
 # T-685 — A loaded log keeps its merged lines' counts
 
+**Closed:** 2026-11-22, in 5b4ce177.
+
 **Source:** noticed in T-679 · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -12,4 +14,5 @@ Save `count` when it is above 1 (omitted otherwise, so older saves load as today
 
 ## Done
 
-A unit test: a merged ×3 line survives `toSaved` / `fromSaved` with its count, and a line saved without one loads as ×1.
+- [x] A unit test: a merged ×3 line survives `toSaved` / `fromSaved` with its count, and a line saved without one loads as ×1. (`test/unit/ui/fortress.test.ts`, T-685)
+- [x] Docs: 24 § State and `schemas/system-state.md` (`logTail[].count`).
