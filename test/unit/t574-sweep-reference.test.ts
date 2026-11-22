@@ -6,6 +6,9 @@
 import { describe, expect, it } from 'vitest';
 import { poolSweeps, sweepCheck, type SweepFigures } from '../perf/three_years_sweep';
 
+/** The tolerances these bounds were set with, before T-662 narrowed the living's. */
+const T513_TOLERANCE = { living: 100, deaths: 30 };
+
 /** T-574's reference and best figures, since moved by T-580 (t580-sweep-reference.test.ts). */
 const T574_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1070.25, deaths: 109.5, extinct: 0.5, needDeaths: 1 };
 const T574_MEASURED = { living: 1075.25, deaths: 100 };
@@ -22,11 +25,11 @@ describe('T-574 the sweep reference', () => {
     expect(T574_REFERENCE).toEqual(T574_0_150);
     const eight = poolSweeps([T574_0_150, T574_200_350]);
     expect({ living: eight.living, deaths: eight.deaths }).toEqual(T574_MEASURED);
-    expect(sweepCheck(T574_REFERENCE, T574_MEASURED).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 975.25, deaths: 130 });
+    expect(sweepCheck(T574_REFERENCE, T574_MEASURED, T513_TOLERANCE).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 975.25, deaths: 130 });
   });
 
   it('both halves of T-574 pass; T-555\'s eight shifts lived 97 fewer and died 43.38 more a sweep', () => {
-    for (const row of [T574_0_150, T574_200_350]) expect(sweepCheck(row, T574_MEASURED).exceeded).toEqual([]);
+    for (const row of [T574_0_150, T574_200_350]) expect(sweepCheck(row, T574_MEASURED, T513_TOLERANCE).exceeded).toEqual([]);
     const before = poolSweeps([T555_0_150, T555_200_350]);
     const after = poolSweeps([T574_0_150, T574_200_350]);
     expect(after.living - before.living).toBeCloseTo(97, 2);

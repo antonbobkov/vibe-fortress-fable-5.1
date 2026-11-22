@@ -9,7 +9,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   improvedSweep, poolSweeps, sweepCheck, sweepFigures, SWEEP_MEASURED as MEASURED, SWEEP_REFERENCE as REFERENCE,
-  SWEEP_SEEDS, SWEEP_SHIFTS, SWEEP_TOLERANCE, type SweepFigures, type SweepSeedRow,
+  SWEEP_SEEDS, SWEEP_SHIFTS, SWEEP_TOLERANCE, SWEEP_TRACE, sweepTrace, type SweepFigures, type SweepSeedRow,
 } from './three_years_sweep';
 
 interface SeedFile {
@@ -119,6 +119,8 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
       `Pooled figures are means over the sweeps. Alive, grown and need-death fortresses are bounded by the set rule; living and deaths by the best accepted pooled figures and tolerances ${JSON.stringify(SWEEP_TOLERANCE)}.`,
       '',
       `**Verdict: ${!judged ? `not judged (a verdict pools shifts ${SWEEP_SHIFTS.join(', ')} of one commit, all ${SWEEP_SEEDS} seeds each${incomplete.length ? `; missing: ${incomplete.join('; ')}` : ''})` : check.allowed ? 'pass' : 'blocked'}.** Bounds exceeded: ${check.exceeded.join(', ') || 'none'}.`,
+      '',
+      `Worth tracing by seed (further from the best figures than ${JSON.stringify(SWEEP_TRACE)}, about twice the noise): ${sweepTrace(pooled).join('; ') || 'none'}.`,
       '',
       `If accepted: \`SWEEP_REFERENCE\` = \`${JSON.stringify(pooled)}\`; \`SWEEP_MEASURED\` = \`${JSON.stringify(improvedSweep(MEASURED, pooled))}\`.`,
       '',

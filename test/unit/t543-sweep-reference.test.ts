@@ -5,6 +5,9 @@
 import { describe, expect, it } from 'vitest';
 import { poolSweeps, sweepCheck, type SweepFigures } from '../perf/three_years_sweep';
 
+/** The tolerances these bounds were set with, before T-662 narrowed the living's. */
+const T513_TOLERANCE = { living: 100, deaths: 30 };
+
 /** T-543's reference and best figures, since refreshed by T-544 (t544-sweep-reference.test.ts). */
 const T543_REFERENCE: SweepFigures = { alive: 19.75, grown: 7, hungry: 0.25, living: 886, deaths: 147, extinct: 1, needDeaths: 2.5 };
 const T543_MEASURED = { living: 882.25, deaths: 146.38 };
@@ -24,7 +27,7 @@ describe('T-543 the sweep reference', () => {
   });
 
   it('passes both halves of master and of the commit before, with the old tolerances', () => {
-    for (const row of [MASTER_0_150, MASTER_200_350, BEFORE_0_150, BEFORE_200_350]) expect(sweepCheck(row, T543_MEASURED).exceeded).toEqual([]);
-    expect(sweepCheck(T543_REFERENCE, T543_MEASURED).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 782.25, deaths: 176.38 });
+    for (const row of [MASTER_0_150, MASTER_200_350, BEFORE_0_150, BEFORE_200_350]) expect(sweepCheck(row, T543_MEASURED, T513_TOLERANCE).exceeded).toEqual([]);
+    expect(sweepCheck(T543_REFERENCE, T543_MEASURED, T513_TOLERANCE).bounds).toEqual({ alive: 18, grown: 6, hungry: 1, living: 782.25, deaths: 176.38 });
   });
 });
