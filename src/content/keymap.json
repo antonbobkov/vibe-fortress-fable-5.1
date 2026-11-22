@@ -1020,6 +1020,16 @@
     "action": "log filter tabs"
   },
   {
+    "context": "log_panel",
+    "key": "Enter",
+    "action": "go to the entry's place: centre, mark, its tile list"
+  },
+  {
+    "context": "log_panel",
+    "key": "[v]",
+    "action": "the view of the creature or item the entry names"
+  },
+  {
     "context": "look_panel",
     "key": "1",
     "action": "tile list: open that row"

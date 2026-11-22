@@ -387,13 +387,15 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 
 ### Log panel
 
-`↑` `↓` select an entry and `PageUp` `PageDown` move a page of entries, however many rows each entry wraps over; `Enter` centres the map on the selected entry, and `/` focuses the filter.
+`↑` `↓` select an entry and `PageUp` `PageDown` move a page of entries, however many rows each entry wraps over, and `/` focuses the filter. The action row names what the selected entry offers.
 
 | Key | Action |
 |---|---|
 | `1` `2` `3` | log filter tabs |
+| `Enter` | go to the entry's place: centre, mark, its tile list |
+| `[v]` | the view of the creature or item the entry names |
 
-A click on a line centres the map on its focus; a click on a creature's name in it inspects that creature (24 § Inspection).
+A click on an entry chooses it and centres the map on its place, marked; a click on the chosen entry goes there as `Enter` does; a click on a creature's name in it inspects that creature (24 § Inspection, § Announcements and the log).
 
 ### Look panel
 
@@ -577,6 +579,7 @@ The mouse is not rebindable; § Mouse lists its gestures.
 | Hover | tile summary on the hover line (the status bar's last row) | ghost footprint / rectangle size; the hover line still names the tile |
 | Click on a panel row | select | select |
 | Double-click a unit or job row | a unit: inspect it, as `Enter` does; a job: center the map on it | same |
+| Click a log entry | choose it and centre the map on its place, marked; on the chosen entry, go there as `Enter` does: its tile list (T-679) | same |
 
 Each entry of the hotkey strip on status row 2 and each field of status row 1 is a button (fortress-screen wireframe, Status rows), `[x]` on a panel's title row closes the panel, and a press on a list's scrollbar track or thumb jumps the list there: with the button held, the list follows the pointer's row (the scroll is proportional to the row within the track, and the selection stays inside the window), wherever the pointer goes, until the button is released. The map is not touched by the drag.
 

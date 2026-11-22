@@ -21,7 +21,7 @@ import type { AnnouncementSpec, PanelSpec } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Layout, Rect } from '@render/cellbuffer';
-import { AnnouncementLog, type LogLine } from '../announcements';
+import { AnnouncementLog, creatureWords, type LogLine } from '../announcements';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, LOOK_BACK_MAX, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
@@ -212,6 +212,11 @@ export class FortressScreen implements Screen {
   logFilter: LogFilter = 0;
   /** The log panel's selected entry and scroll, in entries. */
   readonly logView = new LogView();
+  /**
+   * Whether Look was opened from the log by a go-to or `[v]` (T-679): the log then keeps its choice and
+   * its filter for the way back (`a`, or `Backspace` with no view before), until another panel opens.
+   */
+  private lookFromLog = false;
   /** The overlays panel (T-M3-08). */
   readonly overlayMenu = new OverlayMenu();
   /** The help and debug panels (T-M7-08). */
@@ -637,6 +642,57 @@ export class FortressScreen implements Screen {
     this.markTile(tile);
   }
 
+  /**
+   * A log entry's go-to (T-679): the view centres on its place, on its level, marks it and opens the
+   * tile list there, whoever has moved on from it since. An entry with no place says so.
+   */
+  goToLine(line: LogLine): void {
+    if (line.focus === undefined) {
+      this.notice(this.strings.get('ui.log.no_place'));
+      return;
+    }
+    this.focusLine(line.focus);
+    const p = this.host.readers.map.unpack(line.focus);
+    this.leaveLog();
+    this.look(p);
+  }
+
+  /** Look is about to open from the log panel: the log keeps its choice and filter for the way back. */
+  private leaveLog(): void {
+    if (this.ui.panel === 'log' && this.ui.sidebar) this.lookFromLog = true;
+  }
+
+  /** The creature or item a log entry names, while it still exists and the map would show it, with its name (T-679). */
+  logSubject(line: LogLine): { id: EntityId; kind: 'creature' | 'item'; name: string } | null {
+    const id = line.subject;
+    if (id === undefined || id === 0) return null;
+    const readers = this.host.readers;
+    const creature = readers.entities.get(id, C.Creature);
+    if (creature !== undefined) {
+      if (!readers.entities.has(id, C.Position) || !creatureShown(readers, id)) return null;
+      return { id, kind: 'creature', name: creatureWords(this.host.registry, creature.name, creature.species) };
+    }
+    if (readers.entities.has(id, C.Item) && itemShown(readers, id)) return { id, kind: 'item', name: itemTitle(readers, this.host.registry, id) };
+    return null;
+  }
+
+  /** `[v]` in the log: the view of what the entry names, centred on it once; when it is gone, the status row says so. */
+  viewLogSubject(line: LogLine): void {
+    const subject = this.logSubject(line);
+    if (subject === null) {
+      this.notice(this.strings.get(line.subject === undefined ? 'ui.log.no_subject' : 'ui.log.gone'));
+      return;
+    }
+    this.leaveLog();
+    if (subject.kind === 'creature') {
+      this.inspectCreature(subject.id);
+      return;
+    }
+    const tile = this.host.readers.has('13') ? this.host.readers.of<ItemsReader>('13').tileOf(subject.id) : -1;
+    if (tile >= 0) this.focusOn(tile);
+    this.showItem(subject.id, 'fresh');
+  }
+
   // ---------- drawing ----------
 
   draw(surface: Surface): void {
@@ -834,9 +890,11 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'threats') drawThreatsPanel(surface, body, this.threats, ctx, this.ui.deepFound, this.ui.breaches);
     else if (panel.id === 'civilizations') drawCivilizationsPanel(surface, body, this.civilizations, ctx, () => this.openTrade());
     else if (panel.id === 'depot') drawDepotPanel(surface, body, this.depot, ctx, () => this.moveGoods(), this.host.speed() === 0);
-    else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line) => {
-      if (line.focus !== undefined) this.focusLine(line.focus);
-    }, this.logView, { names: this.namedCreatures(), open: (id) => this.inspectCreature(id) });
+    else if (panel.id === 'log') drawLogPanel(surface, body, this.log.lines, this.logFilter, this.strings, readers.calendar.tick, (line, again) => {
+      // A click centres on the entry's place; a click on the chosen entry goes there (T-679).
+      if (again) this.goToLine(line);
+      else if (line.focus !== undefined) this.focusLine(line.focus);
+    }, this.logView, { names: this.namedCreatures(), open: (id) => this.inspectCreature(id), subject: (line) => this.logSubject(line)?.name ?? null });
     if (panel.id !== 'help') this.drawShiftNote(surface, body);
   }
 
@@ -1235,6 +1293,12 @@ export class FortressScreen implements Screen {
     else this.openPanel(id);
   }
 
+  /** The log's filter text ends, and its list starts again at the newest entry. */
+  private clearLogFilter(): void {
+    if (this.logView.filter.value !== '') this.logView.reset();
+    this.logView.filter.value = '';
+  }
+
   /** A panel's filter ends with the panel (24 § Rules, text input). */
   private clearFilters(): void {
     this.units.filter = '';
@@ -1243,9 +1307,8 @@ export class FortressScreen implements Screen {
     this.jobs.filter.focused = false;
     this.stocks.filter.value = '';
     this.stocks.filter.focused = false;
-    if (this.logView.filter.value !== '') this.logView.reset();
-    this.logView.filter.value = '';
     this.logView.filter.focused = false;
+    if (!this.lookFromLog) this.clearLogFilter();
     this.civilizations.filter.value = '';
     this.civilizations.filter.focused = false;
   }
@@ -1307,7 +1370,14 @@ export class FortressScreen implements Screen {
     if (id !== 'build') this.build.cancel();
     if (id !== 'zones') this.zones.cancel();
     if (id !== 'building') this.building.cancel();
+    // Look opened from the log keeps the log as it was, to go back to (T-679).
+    const backToLog = id === 'log' && this.lookFromLog && this.ui.panel === 'look';
     if (id !== this.ui.panel) this.clearFilters();
+    if (this.lookFromLog && id !== 'look') {
+      this.lookFromLog = false;
+      // Not back to the log after all: its filter ends now, as it would have when Look opened.
+      if (!backToLog) this.clearLogFilter();
+    }
     // 24 § Inspection: another panel drops what Look shows, and its history.
     if (id !== 'look') {
       this.lookAt = { kind: 'tile', tile: null };
@@ -1317,7 +1387,7 @@ export class FortressScreen implements Screen {
     }
     this.zonesByClick = false;
     // The log opens on its newest entry, unmarked: a choice holds while the panel stays open (24 § Announcements and the log).
-    if (id === 'log' && (id !== this.ui.panel || !this.ui.sidebar)) this.logView.reset();
+    if (id === 'log' && !backToLog && (id !== this.ui.panel || !this.ui.sidebar)) this.logView.reset();
     // Help opens on the Start tab the first time in a fortress.
     if (id === 'help' && !this.ui.hintsShown.includes(HELP_START)) { this.help.setTab(2); this.ui.hintsShown.push(HELP_START); this.ui.hintsShown.sort(); }
     this.ui.panel = id;
@@ -2390,7 +2460,13 @@ export class FortressScreen implements Screen {
    * `Backspace` returns to the view before.
    */
   private lookKey(own: KeyPress): boolean {
-    if (own.key === 'Backspace') return this.lookBackStep();
+    if (own.key === 'Backspace') {
+      if (this.lookBackStep()) return true;
+      // The first view opened from the log goes back to the log, as it was (T-679).
+      if (!this.lookFromLog) return false;
+      this.openPanel('log');
+      return true;
+    }
     if (this.lookAt.kind !== 'tile') {
       // A view's names are links: `Tab` and `Shift+Tab` move through those in view (`keyOwn`), `Enter` opens the focused one.
       if (own.key === 'Enter') {
@@ -2677,9 +2753,15 @@ export class FortressScreen implements Screen {
         // Entries, not rows: an entry wraps over as many rows as it needs.
         if (!press.shift && (up || down)) { this.logView.move(up ? -1 : 1); return true; }
         if (k === 'PageUp' || k === 'PageDown') { this.logView.page(k === 'PageUp' ? -1 : 1); return true; }
+        // T-679: `Enter` goes to the entry's place, `[v]` opens what it names.
         if (k === 'Enter') {
-          const focus = this.logView.line?.focus;
-          if (focus !== undefined) this.focusLine(focus);
+          const line = this.logView.line;
+          if (line !== null) this.goToLine(line);
+          return true;
+        }
+        if (letter === 'v') {
+          const line = this.logView.line;
+          if (line !== null) this.viewLogSubject(line);
           return true;
         }
         return false;
