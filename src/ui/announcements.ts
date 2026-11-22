@@ -800,6 +800,15 @@ export class AnnouncementLog {
     return line;
   }
 
+  /** T-684: the lines whose subject is a stack that merged (13's `ItemMerged`, `id` → `into`) name the stack it joined, through every merge of the batch. */
+  followMerges(merges: ReadonlyMap<EntityId, EntityId>): void {
+    for (const line of this.lines) {
+      let id = line.subject;
+      for (let hops = 0; id !== undefined && hops < 64 && merges.has(id); hops += 1) id = merges.get(id);
+      if (id !== undefined && id !== line.subject) line.subject = id;
+    }
+  }
+
   /** The last `n` lines, oldest first (the strip shows the newest at the bottom). */
   tail(n: number): LogLine[] {
     return this.lines.slice(Math.max(0, this.lines.length - n));

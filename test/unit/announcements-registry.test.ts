@@ -159,6 +159,7 @@ const CONSUMED_ELSEWHERE: Readonly<Record<string, string>> = {
   TradeRefused: 'the civilizations panel’s reputation history',
   GiftGiven: 'the civilizations panel’s reputation history',
   SpellBloomed: 'the compositor’s firebloom flash (25 § Player-facing behavior)',
+  ItemMerged: 'the look panel’s item view and the log’s subjects follow the stack (T-684)',
 };
 
 describe('T-M7-10 announcement registry and the strings audit', () => {
