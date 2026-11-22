@@ -24,6 +24,7 @@ function notes(rows: readonly HelpRow[], context: string): string[] {
  * says. A panel that is not listed has none.
  */
 const REMAINING: Readonly<Record<string, readonly { readonly id: string; readonly why: string }[]>> = {
+  map: [{ id: 'ui.help.map.wheel', why: 'the mouse: the wheel over the map changes the level, the way Settings chooses; Ctrl zooms, Shift pans' }],
   designate_panel: [{ id: 'ui.help.designate.undo', why: 'how many batches undo keeps and when they are cleared (limits); the row names the key' }],
   build_panel: [
     { id: 'ui.help.build.drag', why: 'the mouse: a drag places one per valid tile' },

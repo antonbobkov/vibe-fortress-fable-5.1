@@ -33,7 +33,7 @@
     "id": "workshop",
     "check": "workshop_placed",
     "highlight": "build",
-    "text": "Leave Zones with Esc, open Build with [b], then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
+    "text": "Open Build with [b] (from the zones menu, Esc first), then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs."
   },
   {
     "id": "order",
@@ -45,7 +45,7 @@
     "id": "farm",
     "check": "farm_plot_made",
     "highlight": "zones",
-    "text": "Food grows on soil. In Zones ([z]), [f] chooses a farm plot: drag it over soil or grass. Click the plot to choose its crop for each season."
+    "text": "Food grows on soil. In Zones ([z]), [f] chooses a farm plot: drag it over soil or grass. Its settings then show: choose its crop for each season."
   },
   {
     "id": "labors",

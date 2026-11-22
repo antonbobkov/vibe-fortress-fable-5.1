@@ -306,7 +306,7 @@ const scenario: Scenario = {
       },
       Wheel: () => {
         const before = dz;
-        screen.wheel({ ...cell(20, 20), dy: 1, shift: false, ctrl: false, alt: false, meta: false });
+        screen.wheel({ ...cell(20, 20), dy: -1, shift: false, ctrl: false, alt: false, meta: false });
         expect(dz).toBe(before - 1);
       },
       'Ctrl + wheel': () => {
@@ -467,6 +467,36 @@ const scenario: Scenario = {
     expect(screen.key(press('1'))).toBe(true);
     expect(screen.units.tab, '1 is the Dwarves tab').toBe(0);
     screen.units.kind = null;
+    screen.openPanel(null);
+    // Zones (T-680): `z` opens the menu, whose letters choose a kind (`z s`); a zone's settings show in
+    // the menu's place and do not take the kinds' letters, so `b` there opens Build; `z` goes back to the menu.
+    const pileTile = Array.from({ length: 30 }, (_, k) => w.index(10 + k, 30, Z)).find((i) => screen.zones.tileOk(screen.ctx, 'stockpile', i));
+    expect(pileTile, 'a tile for a stockpile').toBeDefined();
+    w.submit({ type: 'CreateZone', zoneType: 'stockpile', tiles: [pileTile as number] });
+    w.step(1);
+    const pile = w.readers.of<{ zoneAt(i: number): number }>('14').zoneAt(pileTile as number);
+    expect(pile).toBeGreaterThan(0);
+    screen.key(press('z'));
+    expect(ui.panel).toBe('zones');
+    expect(screen.keyContexts()).toContain('zones_panel');
+    screen.key(press('s'));
+    expect(screen.zones.kind, 'z s chooses a stockpile').toBe('stockpile');
+    screen.key(press('Esc'));
+    expect(screen.zones.kind).toBeNull();
+    expect(ui.panel).toBe('zones');
+    screen.zones.selectZone(pile);
+    expect(screen.keyContexts()).toContain('zone_inspector');
+    expect(screen.keyContexts(), 'the kinds are not keys over a zone\'s settings').not.toContain('zones_panel');
+    screen.key(press('b'));
+    expect(ui.panel, 'b over a zone\'s settings opens Build').toBe('build');
+    screen.key(press('z'));
+    expect(screen.zones.selected, 'z opens the menu').toBe(0);
+    screen.zones.selectZone(pile);
+    screen.key(press('z'));
+    expect(ui.panel, 'z over a zone\'s settings goes back to the menu').toBe('zones');
+    expect(screen.zones.selected).toBe(0);
+    screen.key(press('b'));
+    expect(screen.zones.kind, 'b in the menu is Bedroom').toBe('bedroom');
     screen.openPanel(null);
   },
 };

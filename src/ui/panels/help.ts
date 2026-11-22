@@ -152,6 +152,7 @@ interface PanelNotes {
 }
 
 const PANEL_NOTES: Readonly<Partial<Record<KeyContext, PanelNotes>>> = Object.freeze({
+  map: { notes: ['ui.help.map.wheel'], contexts: ['map'] },
   designate_panel: { notes: ['ui.help.designate.undo'], contexts: ['global', 'designate_panel'] },
   build_panel: { notes: ['ui.help.build.drag', 'ui.help.build.corner', 'ui.help.build.order'], contexts: ['build_panel', 'map', 'fortress_panel', 'panel'] },
   zones_panel: { notes: ['ui.help.zones.select'], contexts: ['zone_inspector', 'zones_panel', 'panel'] },

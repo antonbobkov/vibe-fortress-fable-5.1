@@ -151,7 +151,7 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
 
   it('a selected hospital zone says what its room lacks and who is admitted', () => {
     const rows = render('hospital');
-    expect(rows[0]).toBe('[y] zone types');
+    expect(rows[0]).toBe('[y] zones menu');
     expect(rows[1]).toMatch(/^─+ Selected: Hospital #\d+ \(2 t\) ─+$/);
     expect(rows[2]).toMatch(/^Room: Bare \(score \d+\)$/);
     expect(rows[3]).toBe('tiles 0 walls 0 furn. 0 size 2');

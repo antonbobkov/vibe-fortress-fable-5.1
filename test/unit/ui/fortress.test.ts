@@ -152,12 +152,12 @@ describe('T-M1-14 mouse model', () => {
     expect(game.ui.cursor).toEqual({ x: game.ui.camX + 3, y: game.ui.camY + 3 });
   });
 
-  it('the wheel changes z (down is deeper); Shift pans vertically', async () => {
+  it('the wheel changes z (up is deeper by default, T-673); Shift pans vertically', async () => {
     const game = await fortressGame();
     const z = game.ui.z;
-    game.wheel({ x: 20, y: 20, dx: 0, dy: 100, shift: false, ctrl: false, alt: false, meta: false });
-    expect(game.ui.z).toBe(z - 1);
     game.wheel({ x: 20, y: 20, dx: 0, dy: -100, shift: false, ctrl: false, alt: false, meta: false });
+    expect(game.ui.z).toBe(z - 1);
+    game.wheel({ x: 20, y: 20, dx: 0, dy: 100, shift: false, ctrl: false, alt: false, meta: false });
     expect(game.ui.z).toBe(z);
     const camY = game.ui.camY;
     game.wheel({ x: 20, y: 20, dx: 0, dy: 100, shift: true, ctrl: false, alt: false, meta: false });
